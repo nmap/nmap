@@ -5,60 +5,59 @@
  * this class as they are determined.                                      *
  *                                                                         *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
- *                                                                         *
- * The Nmap Security Scanner is (C) 1996-2020 Insecure.Com LLC ("The Nmap  *
- * Project"). Nmap is also a registered trademark of the Nmap Project.     *
- *                                                                         *
- * This program is distributed under the terms of the Nmap Public Source   *
- * License (NPSL). The exact license text applying to a particular Nmap    *
- * release or source code control revision is contained in the LICENSE     *
- * file distributed with that version of Nmap or source code control       *
- * revision. More Nmap copyright/legal information is available from       *
- * https://nmap.org/book/man-legal.html, and further information on the    *
- * NPSL license itself can be found at https://nmap.org/npsl. This header  *
- * summarizes some key points from the Nmap license, but is no substitute  *
- * for the actual license text.                                            *
- *                                                                         *
- * Nmap is generally free for end users to download and use themselves,    *
- * including commercial use. It is available from https://nmap.org.        *
- *                                                                         *
- * The Nmap license generally prohibits companies from using and           *
- * redistributing Nmap in commercial products, but we sell a special Nmap  *
- * OEM Edition with a more permissive license and special features for     *
- * this purpose. See https://nmap.org/oem                                  *
- *                                                                         *
- * If you have received a written Nmap license agreement or contract       *
- * stating terms other than these (such as an Nmap OEM license), you may   *
- * choose to use and redistribute Nmap under those terms instead.          *
- *                                                                         *
- * The official Nmap Windows builds include the Npcap software             *
- * (https://npcap.org) for packet capture and transmission. It is under    *
- * separate license terms which forbid redistribution without special      *
- * permission. So the official Nmap Windows builds may not be              *
- * redistributed without special permission (such as an Nmap OEM           *
- * license).                                                               *
- *                                                                         *
- * Source is provided to this software because we believe users have a     *
- * right to know exactly what a program is going to do before they run it. *
- * This also allows you to audit the software for security holes.          *
- *                                                                         *
- * Source code also allows you to port Nmap to new platforms, fix bugs,    *
- * and add new features.  You are highly encouraged to submit your         *
- * changes as a Github PR or by email to the dev@nmap.org mailing list     *
- * for possible incorporation into the main distribution. Unless you       *
- * specify otherwise, it is understood that you are offering us very       *
- * broad rights to use your submissions as described in the Nmap Public    *
- * Source License Contributor Agreement. This is important because we      *
- * fund the project by selling licenses with various terms, and also       *
- * because the inability to relicense code has caused devastating          *
- * problems for other Free Software projects (such as KDE and NASM).       *
- *                                                                         *
- * The free version of Nmap is distributed in the hope that it will be     *
- * useful, but WITHOUT ANY WARRANTY; without even the implied warranty of  *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. Warranties,        *
- * indemnification and commercial support are all available through the    *
- * Npcap OEM program--see https://nmap.org/oem.                            *
- *                                                                         *
+ *
+ * The Nmap Security Scanner is (C) 1996-2024 Nmap Software LLC ("The Nmap
+ * Project"). Nmap is also a registered trademark of the Nmap Project.
+ *
+ * This program is distributed under the terms of the Nmap Public Source
+ * License (NPSL). The exact license text applying to a particular Nmap
+ * release or source code control revision is contained in the LICENSE
+ * file distributed with that version of Nmap or source code control
+ * revision. More Nmap copyright/legal information is available from
+ * https://nmap.org/book/man-legal.html, and further information on the
+ * NPSL license itself can be found at https://nmap.org/npsl/ . This
+ * header summarizes some key points from the Nmap license, but is no
+ * substitute for the actual license text.
+ *
+ * Nmap is generally free for end users to download and use themselves,
+ * including commercial use. It is available from https://nmap.org.
+ *
+ * The Nmap license generally prohibits companies from using and
+ * redistributing Nmap in commercial products, but we sell a special Nmap
+ * OEM Edition with a more permissive license and special features for
+ * this purpose. See https://nmap.org/oem/
+ *
+ * If you have received a written Nmap license agreement or contract
+ * stating terms other than these (such as an Nmap OEM license), you may
+ * choose to use and redistribute Nmap under those terms instead.
+ *
+ * The official Nmap Windows builds include the Npcap software
+ * (https://npcap.com) for packet capture and transmission. It is under
+ * separate license terms which forbid redistribution without special
+ * permission. So the official Nmap Windows builds may not be redistributed
+ * without special permission (such as an Nmap OEM license).
+ *
+ * Source is provided to this software because we believe users have a
+ * right to know exactly what a program is going to do before they run it.
+ * This also allows you to audit the software for security holes.
+ *
+ * Source code also allows you to port Nmap to new platforms, fix bugs, and
+ * add new features. You are highly encouraged to submit your changes as a
+ * Github PR or by email to the dev@nmap.org mailing list for possible
+ * incorporation into the main distribution. Unless you specify otherwise, it
+ * is understood that you are offering us very broad rights to use your
+ * submissions as described in the Nmap Public Source License Contributor
+ * Agreement. This is important because we fund the project by selling licenses
+ * with various terms, and also because the inability to relicense code has
+ * caused devastating problems for other Free Software projects (such as KDE
+ * and NASM).
+ *
+ * The free version of Nmap is distributed in the hope that it will be
+ * useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. Warranties,
+ * indemnification and commercial support are all available through the
+ * Npcap OEM program--see https://nmap.org/oem/
+ *
  ***************************************************************************/
 
 /* $Id$ */
@@ -83,6 +82,7 @@ class FingerPrintResults;
 
 #include <list>
 #include <string>
+#include <vector>
 #include <time.h> /* time_t */
 
 #ifndef INET6_ADDRSTRLEN
@@ -108,7 +108,7 @@ struct TracerouteHop {
   int ttl;
   float rtt; /* In milliseconds. */
 
-  int display_name(char *buf, size_t len) {
+  int display_name(char *buf, size_t len) const {
     if (name.empty())
       return Snprintf(buf, len, "%s", inet_ntop_ez(&addr, sizeof(addr)));
     else
@@ -116,13 +116,16 @@ struct TracerouteHop {
   }
 };
 
+struct EarlySvcResponse {
+  probespec pspec;
+  int len;
+  u8 data[1];
+};
+
 class Target {
  public: /* For now ... TODO: a lot of the data members should be made private */
   Target();
   ~Target();
-  /* Recycles the object by freeing internal objects and reinitializing
-     to default state */
-  void Recycle();
   /* Returns the address family of the destination address. */
   int af() const;
   /* Fills a sockaddr_storage with the AF_INET or AF_INET6 address
@@ -175,7 +178,7 @@ class Target {
   /* Give the name from the last setTargetName() call, which is the
    name of the target given on the command line if it's a named
    host. */
-  const char *TargetName() { return targetname; }
+  const char *TargetName() const { return targetname; }
   /* You can set to NULL to erase a name.  The targetname is blown
      away when you setTargetSockAddr(), so make sure you do these in proper
      order
@@ -192,21 +195,21 @@ class Target {
   /* If the host is NOT directly connected, you can set the next hop
      value here. It is OK to pass in a sockaddr_in or sockaddr_in6
      casted to sockaddr_storage*/
-  void setNextHop(struct sockaddr_storage *next_hop, size_t next_hop_len);
+  void setNextHop(const struct sockaddr_storage *next_hop, size_t next_hop_len);
   /* Returns the next hop for sending packets to this host.  Returns true if
      next_hop was filled in.  It might be false, for example, if
      next_hop has never been set */
-  bool nextHop(struct sockaddr_storage *next_hop, size_t *next_hop_len);
+  bool nextHop(struct sockaddr_storage *next_hop, size_t *next_hop_len) const;
 
   void setMTU(int devmtu);
-  int MTU(void);
+  int MTU(void) const;
 
   /* Sets the interface type to one of:
      devt_ethernet, devt_loopback, devt_p2p, devt_other
    */
   void setIfType(devtype iftype) { interface_type = iftype; }
   /* Returns -1 if it has not yet been set with setIfType() */
-  devtype ifType() { return interface_type; }
+  devtype ifType() const { return interface_type; }
   /* Starts the timeout clock for the host running (e.g. you are
      beginning a scan).  If you do not have the current time handy,
      you can pass in NULL.  When done, call stopTimeOutClock (it will
@@ -215,15 +218,15 @@ class Target {
   /* The complement to startTimeOutClock. */
   void stopTimeOutClock(const struct timeval *now);
   /* Is the timeout clock currently running? */
-  bool timeOutClockRunning() { return htn.toclock_running; }
+  bool timeOutClockRunning() const { return htn.toclock_running; }
   /* Returns whether the host is timedout.  If the timeoutclock is
      running, counts elapsed time for that.  Pass NULL if you don't have the
      current time handy.  You might as well also pass NULL if the
      clock is not running, as the func won't need the time. */
-  bool timedOut(const struct timeval *now);
+  bool timedOut(const struct timeval *now) const;
   /* Return time_t for the start and end time of this host */
-  time_t StartTime() { return htn.host_start; }
-  time_t EndTime() { return htn.host_end; }
+  time_t StartTime() const { return htn.host_start; }
+  time_t EndTime() const { return htn.host_end; }
 
   /* Takes a 6-byte MAC address */
   int setMACAddress(const u8 *addy);
@@ -243,7 +246,7 @@ class Target {
   const char *deviceName() const;
   const char *deviceFullName() const;
 
-  int osscanPerformed(void);
+  int osscanPerformed(void) const;
   void osscanSetFlag(int flag);
 
   struct seq_info seq;
@@ -251,6 +254,7 @@ class Target {
   enum dist_calc_method distance_calculation_method;
   FingerPrintResults *FPR; /* FP results get by the OS scan system. */
   PortList ports;
+  std::vector<EarlySvcResponse *> earlySvcResponses;
 
   int weird_responses; /* echo responses from other addresses, Ie a network broadcast address */
   int flags; /* HOST_UNKNOWN, HOST_UP, or HOST_DOWN. */
@@ -279,7 +283,6 @@ class Target {
   int pingprobe_state;
 
   private:
-  void Initialize();
   void FreeInternal(); // Free memory allocated inside this object
  // Creates a "presentation" formatted string out of the target's IPv4/IPv6 address
   void GenerateTargetIPString();

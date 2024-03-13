@@ -1,23 +1,86 @@
-!include "win32/config.mk"
-
-!if "$(WITH_WINCNG)" == "1"
-!include "Makefile.WinCNG.inc"
-!else
-!include "Makefile.OpenSSL.inc"
+!if "$(TARGET)" == ""
+TARGET=Release
 !endif
-!include "Makefile.inc"
+
+!if "$(TARGET)" == "Debug"
+SUFFIX=_debug
+CFLAGS=/Od /MDd
+DLLFLAGS=/LDd /DEBUG
+!else
+CFLAGS=/Oi /O2 /Oy /GF /Y- /MD /DNDEBUG
+DLLFLAGS=/LD
+!endif
+
+CFLAGS=/nologo /GL /Zi /EHsc $(CFLAGS) /Iinclude
+
+!if "$(OPENSSL_PATH)" != ""
+CFLAGS=$(CFLAGS) /DLIBSSH2_OPENSSL /I$(OPENSSL_PATH)\include
+LIBS=$(LIBS) $(OPENSSL_PATH)\lib\crypto.lib $(OPENSSL_PATH)\lib\ssl.lib
+!else
+CFLAGS=$(CFLAGS) /DLIBSSH2_WINCNG
+LIBS=crypt32.lib bcrypt.lib
+!endif
+
+!if "$(ZLIB_PATH)" != ""
+CFLAGS=$(CFLAGS) /DLIBSSH2_HAVE_ZLIB /I$(ZLIB_PATH)\include
+LIBS=$(LIBS) $(ZLIB_PATH)\lib\zlib.lib
+!endif
+
+LIBS=$(LIBS) ws2_32.lib user32.lib advapi32.lib gdi32.lib
+
+INTDIR=$(TARGET)
+
+SUBDIR=src
+
+!include "src/Makefile.inc"
 
 OBJECTS=$(CSOURCES:.c=.obj)
 
-# SUBDIRS=src example
-SUBDIRS=src
+!if "$(TARGET)" == "Debug"
+OBJECTS=Debug/$(OBJECTS: = Debug/)
+OBJECTS=$(OBJECTS: Debug/ = )
+!else
+TARGET=Release
+OBJECTS=Release/$(OBJECTS: = Release/)
+OBJECTS=$(OBJECTS: Release/ = )
+!endif
 
-all-sub: win32\objects.mk
-	-for %D in ($(SUBDIRS)) do $(MAKE) /nologo /f %D/NMakefile BUILD=$(BUILD) SUBDIR=%D all-sub
+!if "$(AR)" == ""
+AR=lib
+ARFLAGS=-nologo /LTCG
+!endif
 
-clean: 
-	-rmdir 2>NUL /s/q $(TARGET)
-	-del 2>NUL win32\objects.mk
+RESOURCE=$(INTDIR)\libssh2.res
+DLL=libssh2$(SUFFIX).dll
+STATICLIB=$(INTDIR)\libssh2.lib
+
+!if "$(BUILD_STATIC_LIB)" == ""
+all: $(INTDIR) $(DLL)
+!else
+all: $(INTDIR) $(STATICLIB)
+!endif
+
+$(INTDIR):
+	@if not exist $(INTDIR) mkdir $(INTDIR)
+
+$(DLL): $(OBJECTS) $(RESOURCE)
+	$(CC) -o $(DLL) $(CFLAGS) $(DLLFLAGS) $(OBJECTS) $(RESOURCE) $(LIBS)
+
+$(STATICLIB): $(OBJECTS)
+	$(AR) $(ARFLAGS) -out:$@ $(OBJECTS)
+
+$(RESOURCE): src\libssh2.rc
+	$(RC) /Iinclude /Fo"$@" $?
+
+all-sub: $(INTDIR) all
+
+clean-sub: clean
+
+{$(SUBDIR)}.c{$(INTDIR)}.obj::
+	$(CC) -c $(CFLAGS) /Fo"$(INTDIR)\\" $<
+
+clean:
+	-rd 2>NUL /q /s $(TARGET)
 
 real-clean vclean: clean
 	-del 2>NUL libssh2.dll
@@ -25,9 +88,3 @@ real-clean vclean: clean
 	-del 2>NUL libssh2.ilk
 	-del 2>NUL libssh2.lib
 	-del 2>NUL *.pdb
-
-win32\objects.mk: Makefile.inc
-	@echo OBJECTS = \>$@
-	@for %O in ($(OBJECTS)) do @echo $$(INTDIR)\%O \>>$@
-	@echo $$(EOL)>>$@
-

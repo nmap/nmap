@@ -1,65 +1,65 @@
 # vim: set fileencoding=utf-8 :
 
 # ***********************IMPORTANT NMAP LICENSE TERMS************************
-# *                                                                         *
-# * The Nmap Security Scanner is (C) 1996-2020 Insecure.Com LLC ("The Nmap  *
-# * Project"). Nmap is also a registered trademark of the Nmap Project.     *
-# *                                                                         *
-# * This program is distributed under the terms of the Nmap Public Source   *
-# * License (NPSL). The exact license text applying to a particular Nmap    *
-# * release or source code control revision is contained in the LICENSE     *
-# * file distributed with that version of Nmap or source code control       *
-# * revision. More Nmap copyright/legal information is available from       *
-# * https://nmap.org/book/man-legal.html, and further information on the    *
-# * NPSL license itself can be found at https://nmap.org/npsl. This header  *
-# * summarizes some key points from the Nmap license, but is no substitute  *
-# * for the actual license text.                                            *
-# *                                                                         *
-# * Nmap is generally free for end users to download and use themselves,    *
-# * including commercial use. It is available from https://nmap.org.        *
-# *                                                                         *
-# * The Nmap license generally prohibits companies from using and           *
-# * redistributing Nmap in commercial products, but we sell a special Nmap  *
-# * OEM Edition with a more permissive license and special features for     *
-# * this purpose. See https://nmap.org/oem                                  *
-# *                                                                         *
-# * If you have received a written Nmap license agreement or contract       *
-# * stating terms other than these (such as an Nmap OEM license), you may   *
-# * choose to use and redistribute Nmap under those terms instead.          *
-# *                                                                         *
-# * The official Nmap Windows builds include the Npcap software             *
-# * (https://npcap.org) for packet capture and transmission. It is under    *
-# * separate license terms which forbid redistribution without special      *
-# * permission. So the official Nmap Windows builds may not be              *
-# * redistributed without special permission (such as an Nmap OEM           *
-# * license).                                                               *
-# *                                                                         *
-# * Source is provided to this software because we believe users have a     *
-# * right to know exactly what a program is going to do before they run it. *
-# * This also allows you to audit the software for security holes.          *
-# *                                                                         *
-# * Source code also allows you to port Nmap to new platforms, fix bugs,    *
-# * and add new features.  You are highly encouraged to submit your         *
-# * changes as a Github PR or by email to the dev@nmap.org mailing list     *
-# * for possible incorporation into the main distribution. Unless you       *
-# * specify otherwise, it is understood that you are offering us very       *
-# * broad rights to use your submissions as described in the Nmap Public    *
-# * Source License Contributor Agreement. This is important because we      *
-# * fund the project by selling licenses with various terms, and also       *
-# * because the inability to relicense code has caused devastating          *
-# * problems for other Free Software projects (such as KDE and NASM).       *
-# *                                                                         *
-# * The free version of Nmap is distributed in the hope that it will be     *
-# * useful, but WITHOUT ANY WARRANTY; without even the implied warranty of  *
-# * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. Warranties,        *
-# * indemnification and commercial support are all available through the    *
-# * Npcap OEM program--see https://nmap.org/oem.                            *
-# *                                                                         *
+# *
+# * The Nmap Security Scanner is (C) 1996-2024 Nmap Software LLC ("The Nmap
+# * Project"). Nmap is also a registered trademark of the Nmap Project.
+# *
+# * This program is distributed under the terms of the Nmap Public Source
+# * License (NPSL). The exact license text applying to a particular Nmap
+# * release or source code control revision is contained in the LICENSE
+# * file distributed with that version of Nmap or source code control
+# * revision. More Nmap copyright/legal information is available from
+# * https://nmap.org/book/man-legal.html, and further information on the
+# * NPSL license itself can be found at https://nmap.org/npsl/ . This
+# * header summarizes some key points from the Nmap license, but is no
+# * substitute for the actual license text.
+# *
+# * Nmap is generally free for end users to download and use themselves,
+# * including commercial use. It is available from https://nmap.org.
+# *
+# * The Nmap license generally prohibits companies from using and
+# * redistributing Nmap in commercial products, but we sell a special Nmap
+# * OEM Edition with a more permissive license and special features for
+# * this purpose. See https://nmap.org/oem/
+# *
+# * If you have received a written Nmap license agreement or contract
+# * stating terms other than these (such as an Nmap OEM license), you may
+# * choose to use and redistribute Nmap under those terms instead.
+# *
+# * The official Nmap Windows builds include the Npcap software
+# * (https://npcap.com) for packet capture and transmission. It is under
+# * separate license terms which forbid redistribution without special
+# * permission. So the official Nmap Windows builds may not be redistributed
+# * without special permission (such as an Nmap OEM license).
+# *
+# * Source is provided to this software because we believe users have a
+# * right to know exactly what a program is going to do before they run it.
+# * This also allows you to audit the software for security holes.
+# *
+# * Source code also allows you to port Nmap to new platforms, fix bugs, and
+# * add new features. You are highly encouraged to submit your changes as a
+# * Github PR or by email to the dev@nmap.org mailing list for possible
+# * incorporation into the main distribution. Unless you specify otherwise, it
+# * is understood that you are offering us very broad rights to use your
+# * submissions as described in the Nmap Public Source License Contributor
+# * Agreement. This is important because we fund the project by selling licenses
+# * with various terms, and also because the inability to relicense code has
+# * caused devastating problems for other Free Software projects (such as KDE
+# * and NASM).
+# *
+# * The free version of Nmap is distributed in the hope that it will be
+# * useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
+# * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. Warranties,
+# * indemnification and commercial support are all available through the
+# * Npcap OEM program--see https://nmap.org/oem/
+# *
 # ***************************************************************************/
 
-import gtk
-import pango
-import gobject
+import gi
+
+gi.require_version("Gtk", "3.0")
+from gi.repository import Gtk, GObject, Pango
 
 from radialnet.bestwidgets.boxes import BWVBox, BWHBox, BWScrolledWindow, BWTable
 from radialnet.bestwidgets.expanders import BWExpander
@@ -80,7 +80,7 @@ SERVICE_COLORS = {'open':            '#ffd5d5',  # noqa
                   'closed|filtered': '#d5ffd5'}  # noqa
 UNKNOWN_SERVICE_COLOR = '#d5d5d5'
 
-TRACE_HEADER = [_('TTL'), _('RTT'), _('IP'), _('Hostname')]
+TRACE_HEADER = ['TTL', 'RTT', 'IP', _('Hostname')]
 
 TRACE_TEXT = _(
     "Traceroute on port <b>%s/%s</b> totalized <b>%d</b> known hops.")
@@ -109,14 +109,14 @@ def get_service_color(state):
     return color
 
 
-class NodeNotebook(gtk.Notebook):
+class NodeNotebook(Gtk.Notebook):
     """
     """
     def __init__(self, node):
         """
         """
-        gtk.Notebook.__init__(self)
-        self.set_tab_pos(gtk.POS_TOP)
+        Gtk.Notebook.__init__(self)
+        self.set_tab_pos(Gtk.PositionType.TOP)
 
         self.__node = node
 
@@ -136,25 +136,25 @@ class NodeNotebook(gtk.Notebook):
         self.append_page(self.__trace_page, BWLabel(_('Traceroute')))
 
 
-class ServicesPage(gtk.Notebook):
+class ServicesPage(Gtk.Notebook):
     """
     """
     def __init__(self, node):
         """
         """
-        gtk.Notebook.__init__(self)
+        Gtk.Notebook.__init__(self)
         self.set_border_width(6)
-        self.set_tab_pos(gtk.POS_TOP)
+        self.set_tab_pos(Gtk.PositionType.TOP)
 
         self.__node = node
-        self.__font = pango.FontDescription('Monospace')
+        self.__font = Pango.FontDescription('Monospace')
 
         self.__create_widgets()
 
     def __create_widgets(self):
         """
         """
-        self.__cell = gtk.CellRendererText()
+        self.__cell = Gtk.CellRendererText()
 
         # texteditor widgets
         self.__texteditor = BWTextEditor()
@@ -162,7 +162,7 @@ class ServicesPage(gtk.Notebook):
         self.__texteditor.bw_set_editable(False)
         self.__texteditor.set_border_width(0)
 
-        self.__select_combobox = gtk.combo_box_new_text()
+        self.__select_combobox = Gtk.ComboBoxText()
         self.__select_combobox.connect('changed', self.__change_text_value)
 
         self.__viewer = BWVBox(spacing=6)
@@ -179,15 +179,15 @@ class ServicesPage(gtk.Notebook):
 
         self.__ports_scroll = BWScrolledWindow()
 
-        self.__ports_store = gtk.TreeStore(gobject.TYPE_INT,
-                                           gobject.TYPE_STRING,
-                                           gobject.TYPE_STRING,
-                                           gobject.TYPE_STRING,
-                                           gobject.TYPE_STRING,
-                                           gobject.TYPE_STRING,
-                                           gobject.TYPE_BOOLEAN)
+        self.__ports_store = Gtk.TreeStore.new([GObject.TYPE_INT,
+                                                GObject.TYPE_STRING,
+                                                GObject.TYPE_STRING,
+                                                GObject.TYPE_STRING,
+                                                GObject.TYPE_STRING,
+                                                GObject.TYPE_STRING,
+                                                GObject.TYPE_BOOLEAN])
 
-        self.__ports_treeview = gtk.TreeView(self.__ports_store)
+        self.__ports_treeview = Gtk.TreeView.new_with_model(self.__ports_store)
 
         for port in self.__node.get_info('ports'):
 
@@ -257,8 +257,8 @@ class ServicesPage(gtk.Notebook):
 
         for i in range(len(PORTS_HEADER)):
 
-            column = gtk.TreeViewColumn(PORTS_HEADER[i],
-                                        self.__cell,
+            column = Gtk.TreeViewColumn(title=PORTS_HEADER[i],
+                                        cell_renderer=self.__cell,
                                         text=i)
 
             self.__ports_column.append(column)
@@ -280,13 +280,13 @@ class ServicesPage(gtk.Notebook):
 
         self.__xports_scroll = BWScrolledWindow()
 
-        self.__xports_store = gtk.TreeStore(gobject.TYPE_INT,
-                                            gobject.TYPE_STRING,
-                                            gobject.TYPE_STRING,
-                                            gobject.TYPE_STRING,
-                                            gobject.TYPE_BOOLEAN)
+        self.__xports_store = Gtk.TreeStore.new([GObject.TYPE_INT,
+                                                 GObject.TYPE_STRING,
+                                                 GObject.TYPE_STRING,
+                                                 GObject.TYPE_STRING,
+                                                 GObject.TYPE_BOOLEAN])
 
-        self.__xports_treeview = gtk.TreeView(self.__xports_store)
+        self.__xports_treeview = Gtk.TreeView.new_with_model(self.__xports_store)
 
         for xports in self.__node.get_info('extraports'):
 
@@ -309,8 +309,8 @@ class ServicesPage(gtk.Notebook):
 
         for i in range(len(EXTRAPORTS_HEADER)):
 
-            column = gtk.TreeViewColumn(EXTRAPORTS_HEADER[i],
-                                        self.__cell,
+            column = Gtk.TreeViewColumn(title=EXTRAPORTS_HEADER[i],
+                                        cell_renderer=self.__cell,
                                         text=i)
 
             self.__xports_column.append(column)
@@ -354,7 +354,7 @@ class SystemPage(BWScrolledWindow):
         BWScrolledWindow.__init__(self)
 
         self.__node = node
-        self.__font = pango.FontDescription('Monospace')
+        self.__font = Pango.FontDescription('Monospace')
 
         self.__create_widgets()
 
@@ -364,21 +364,21 @@ class SystemPage(BWScrolledWindow):
         self.__vbox = BWVBox()
         self.__vbox.set_border_width(6)
 
-        self.__cell = gtk.CellRendererText()
+        self.__cell = Gtk.CellRendererText()
 
         self.__general_frame = BWExpander(_('General information'))
         self.__sequences_frame = BWExpander(_('Sequences'))
         self.__os_frame = BWExpander(_('Operating System'))
 
-        self.__sequences_frame.bw_add(gtk.Label(_('No sequence information.')))
-        self.__os_frame.bw_add(gtk.Label(_('No OS information.')))
+        self.__sequences_frame.bw_add(Gtk.Label.new(_('No sequence information.')))
+        self.__os_frame.bw_add(Gtk.Label.new(_('No OS information.')))
 
         # general information widgets
         self.__general = BWTable(3, 2)
 
         self.__address_label = BWSectionLabel(_('Address:'))
-        self.__address_list = gtk.combo_box_entry_new_text()
-        self.__address_list.child.set_editable(False)
+        self.__address_list = Gtk.ComboBoxText.new_with_entry()
+        self.__address_list.get_child().set_editable(False)
 
         for address in self.__node.get_info('addresses'):
 
@@ -393,15 +393,15 @@ class SystemPage(BWScrolledWindow):
         self.__address_list.set_active(0)
 
         self.__general.bw_attach_next(self.__address_label,
-                                      yoptions=gtk.FILL,
-                                      xoptions=gtk.FILL)
-        self.__general.bw_attach_next(self.__address_list, yoptions=gtk.FILL)
+                                      yoptions=Gtk.AttachOptions.FILL,
+                                      xoptions=Gtk.AttachOptions.FILL)
+        self.__general.bw_attach_next(self.__address_list, yoptions=Gtk.AttachOptions.FILL)
 
         if self.__node.get_info('hostnames') is not None:
 
             self.__hostname_label = BWSectionLabel(_('Hostname:'))
-            self.__hostname_list = gtk.combo_box_entry_new_text()
-            self.__hostname_list.child.set_editable(False)
+            self.__hostname_list = Gtk.ComboBoxText.new_with_entry()
+            self.__hostname_list.get_child().set_editable(False)
 
             for hostname in self.__node.get_info('hostnames'):
 
@@ -411,10 +411,10 @@ class SystemPage(BWScrolledWindow):
             self.__hostname_list.set_active(0)
 
             self.__general.bw_attach_next(self.__hostname_label,
-                                          yoptions=gtk.FILL,
-                                          xoptions=gtk.FILL)
+                                          yoptions=Gtk.AttachOptions.FILL,
+                                          xoptions=Gtk.AttachOptions.FILL)
             self.__general.bw_attach_next(self.__hostname_list,
-                                          yoptions=gtk.FILL)
+                                          yoptions=Gtk.AttachOptions.FILL)
 
         if self.__node.get_info('uptime') is not None:
 
@@ -430,10 +430,10 @@ class SystemPage(BWScrolledWindow):
             self.__uptime_value.set_line_wrap(False)
 
             self.__general.bw_attach_next(self.__uptime_label,
-                                          yoptions=gtk.FILL,
-                                          xoptions=gtk.FILL)
+                                          yoptions=Gtk.AttachOptions.FILL,
+                                          xoptions=Gtk.AttachOptions.FILL)
             self.__general.bw_attach_next(self.__uptime_value,
-                                          yoptions=gtk.FILL)
+                                          yoptions=Gtk.AttachOptions.FILL)
 
         self.__general_frame.bw_add(self.__general)
         self.__general_frame.set_expanded(True)
@@ -444,7 +444,7 @@ class SystemPage(BWScrolledWindow):
                     self.__create_sequences_widget(sequences))
 
         # operating system information widgets
-        self.__os = gtk.Notebook()
+        self.__os = Gtk.Notebook()
 
         os = self.__node.get_info('os')
 
@@ -454,12 +454,8 @@ class SystemPage(BWScrolledWindow):
 
                 self.__match_scroll = BWScrolledWindow()
 
-                self.__match_store = gtk.ListStore(gobject.TYPE_STRING,
-                                                   gobject.TYPE_STRING,
-                                                   gobject.TYPE_INT,
-                                                   gobject.TYPE_BOOLEAN)
-
-                self.__match_treeview = gtk.TreeView(self.__match_store)
+                self.__match_store = Gtk.ListStore.new([str, str, int, bool])
+                self.__match_treeview = Gtk.TreeView.new_with_model(self.__match_store)
 
                 for os_match in os['matches']:
 
@@ -473,8 +469,8 @@ class SystemPage(BWScrolledWindow):
 
                 for i in range(len(OSMATCH_HEADER)):
 
-                    column = gtk.TreeViewColumn(OSMATCH_HEADER[i],
-                                                self.__cell,
+                    column = Gtk.TreeViewColumn(title=OSMATCH_HEADER[i],
+                                                cell_renderer=self.__cell,
                                                 text=i)
 
                     self.__match_column.append(column)
@@ -496,14 +492,8 @@ class SystemPage(BWScrolledWindow):
 
                 self.__class_scroll = BWScrolledWindow()
 
-                self.__class_store = gtk.ListStore(gobject.TYPE_STRING,
-                                                   gobject.TYPE_STRING,
-                                                   gobject.TYPE_STRING,
-                                                   gobject.TYPE_STRING,
-                                                   gobject.TYPE_STRING,
-                                                   gobject.TYPE_BOOLEAN)
-
-                self.__class_treeview = gtk.TreeView(self.__class_store)
+                self.__class_store = Gtk.ListStore.new([str, str, str, str, str, bool])
+                self.__class_treeview = Gtk.TreeView.new_with_model(self.__class_store)
 
                 for os_class in os['classes']:
 
@@ -520,8 +510,8 @@ class SystemPage(BWScrolledWindow):
 
                 for i in range(len(OSCLASS_HEADER)):
 
-                    column = gtk.TreeViewColumn(OSCLASS_HEADER[i],
-                                                self.__cell,
+                    column = Gtk.TreeViewColumn(title=OSCLASS_HEADER[i],
+                                                cell_renderer=self.__cell,
                                                 text=i)
 
                     self.__class_column.append(column)
@@ -547,8 +537,8 @@ class SystemPage(BWScrolledWindow):
             self.__fp_ports = BWHBox()
             self.__fp_label = BWSectionLabel(_('Used ports:'))
 
-            self.__fp_ports_list = gtk.combo_box_entry_new_text()
-            self.__fp_ports_list.child.set_editable(False)
+            self.__fp_ports_list = Gtk.ComboBoxText.new_with_entry()
+            self.__fp_ports_list.get_child().set_editable(False)
 
             self.__fp_vbox = BWVBox()
 
@@ -590,8 +580,8 @@ class SystemPage(BWScrolledWindow):
         table.attach(BWSectionLabel(_('Class')), 1, 2, 0, 1)
         table.attach(BWSectionLabel(_('Values')), 2, 3, 0, 1)
 
-        table.attach(BWSectionLabel(_('TCP *')), 0, 1, 1, 2)
-        table.attach(BWSectionLabel(_('IP ID')), 0, 1, 2, 3)
+        table.attach(BWSectionLabel('TCP *'), 0, 1, 1, 2)
+        table.attach(BWSectionLabel('IP ID'), 0, 1, 2, 3)
         table.attach(BWSectionLabel(_('TCP Timestamp')), 0, 1, 3, 4)
 
         tcp = sequences.get('tcp')
@@ -601,7 +591,7 @@ class SystemPage(BWScrolledWindow):
 
             table.attach(tcp_class, 1, 2, 1, 2)
 
-            tcp_values = gtk.combo_box_entry_new_text()
+            tcp_values = Gtk.ComboBoxText.new_with_entry()
 
             for value in tcp['values']:
                 tcp_values.append_text(value)
@@ -626,7 +616,7 @@ class SystemPage(BWScrolledWindow):
 
             table.attach(ip_id_class, 1, 2, 2, 3)
 
-            ip_id_values = gtk.combo_box_entry_new_text()
+            ip_id_values = Gtk.ComboBoxText.new_with_entry()
 
             for value in ip_id['values']:
                 ip_id_values.append_text(value)
@@ -644,7 +634,7 @@ class SystemPage(BWScrolledWindow):
 
             if tcp_ts['values'] is not None:
 
-                tcp_ts_values = gtk.combo_box_entry_new_text()
+                tcp_ts_values = Gtk.ComboBoxText.new_with_entry()
 
                 for value in tcp_ts['values']:
                     tcp_ts_values.append_text(value)
@@ -678,8 +668,8 @@ class TraceroutePage(BWVBox):
             hops = trace.get("hops")
         if hops is None or len(hops) == 0:
 
-            self.__trace_label = gtk.Label(NO_TRACE_TEXT)
-            self.pack_start(self.__trace_label, True, True)
+            self.__trace_label = Gtk.Label.new(NO_TRACE_TEXT)
+            self.pack_start(self.__trace_label, True, True, 0)
 
         else:
 
@@ -687,19 +677,13 @@ class TraceroutePage(BWVBox):
             hops = self.__node.get_info('trace')['hops']
             ttls = [int(i['ttl']) for i in hops]
 
-            self.__cell = gtk.CellRendererText()
+            self.__cell = Gtk.CellRendererText()
 
             self.__trace_scroll = BWScrolledWindow()
             self.__trace_scroll.set_border_width(0)
 
-            self.__trace_store = gtk.ListStore(gobject.TYPE_INT,
-                                               gobject.TYPE_STRING,
-                                               gobject.TYPE_STRING,
-                                               gobject.TYPE_STRING,
-                                               gobject.TYPE_STRING,
-                                               gobject.TYPE_BOOLEAN)
-
-            self.__trace_treeview = gtk.TreeView(self.__trace_store)
+            self.__trace_store = Gtk.ListStore.new([int, str, str, str, str, bool])
+            self.__trace_treeview = Gtk.TreeView.new_with_model(self.__trace_store)
 
             count = 0
 
@@ -729,8 +713,8 @@ class TraceroutePage(BWVBox):
 
             for i in range(len(TRACE_HEADER)):
 
-                column = gtk.TreeViewColumn(TRACE_HEADER[i],
-                                            self.__cell,
+                column = Gtk.TreeViewColumn(title=TRACE_HEADER[i],
+                                            cell_renderer=self.__cell,
                                             text=i)
 
                 self.__trace_column.append(column)

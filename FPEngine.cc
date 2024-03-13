@@ -5,60 +5,59 @@
  * https://nmap.org/osdetect/                                               *
  *                                                                         *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
- *                                                                         *
- * The Nmap Security Scanner is (C) 1996-2020 Insecure.Com LLC ("The Nmap  *
- * Project"). Nmap is also a registered trademark of the Nmap Project.     *
- *                                                                         *
- * This program is distributed under the terms of the Nmap Public Source   *
- * License (NPSL). The exact license text applying to a particular Nmap    *
- * release or source code control revision is contained in the LICENSE     *
- * file distributed with that version of Nmap or source code control       *
- * revision. More Nmap copyright/legal information is available from       *
- * https://nmap.org/book/man-legal.html, and further information on the    *
- * NPSL license itself can be found at https://nmap.org/npsl. This header  *
- * summarizes some key points from the Nmap license, but is no substitute  *
- * for the actual license text.                                            *
- *                                                                         *
- * Nmap is generally free for end users to download and use themselves,    *
- * including commercial use. It is available from https://nmap.org.        *
- *                                                                         *
- * The Nmap license generally prohibits companies from using and           *
- * redistributing Nmap in commercial products, but we sell a special Nmap  *
- * OEM Edition with a more permissive license and special features for     *
- * this purpose. See https://nmap.org/oem                                  *
- *                                                                         *
- * If you have received a written Nmap license agreement or contract       *
- * stating terms other than these (such as an Nmap OEM license), you may   *
- * choose to use and redistribute Nmap under those terms instead.          *
- *                                                                         *
- * The official Nmap Windows builds include the Npcap software             *
- * (https://npcap.org) for packet capture and transmission. It is under    *
- * separate license terms which forbid redistribution without special      *
- * permission. So the official Nmap Windows builds may not be              *
- * redistributed without special permission (such as an Nmap OEM           *
- * license).                                                               *
- *                                                                         *
- * Source is provided to this software because we believe users have a     *
- * right to know exactly what a program is going to do before they run it. *
- * This also allows you to audit the software for security holes.          *
- *                                                                         *
- * Source code also allows you to port Nmap to new platforms, fix bugs,    *
- * and add new features.  You are highly encouraged to submit your         *
- * changes as a Github PR or by email to the dev@nmap.org mailing list     *
- * for possible incorporation into the main distribution. Unless you       *
- * specify otherwise, it is understood that you are offering us very       *
- * broad rights to use your submissions as described in the Nmap Public    *
- * Source License Contributor Agreement. This is important because we      *
- * fund the project by selling licenses with various terms, and also       *
- * because the inability to relicense code has caused devastating          *
- * problems for other Free Software projects (such as KDE and NASM).       *
- *                                                                         *
- * The free version of Nmap is distributed in the hope that it will be     *
- * useful, but WITHOUT ANY WARRANTY; without even the implied warranty of  *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. Warranties,        *
- * indemnification and commercial support are all available through the    *
- * Npcap OEM program--see https://nmap.org/oem.                            *
- *                                                                         *
+ *
+ * The Nmap Security Scanner is (C) 1996-2024 Nmap Software LLC ("The Nmap
+ * Project"). Nmap is also a registered trademark of the Nmap Project.
+ *
+ * This program is distributed under the terms of the Nmap Public Source
+ * License (NPSL). The exact license text applying to a particular Nmap
+ * release or source code control revision is contained in the LICENSE
+ * file distributed with that version of Nmap or source code control
+ * revision. More Nmap copyright/legal information is available from
+ * https://nmap.org/book/man-legal.html, and further information on the
+ * NPSL license itself can be found at https://nmap.org/npsl/ . This
+ * header summarizes some key points from the Nmap license, but is no
+ * substitute for the actual license text.
+ *
+ * Nmap is generally free for end users to download and use themselves,
+ * including commercial use. It is available from https://nmap.org.
+ *
+ * The Nmap license generally prohibits companies from using and
+ * redistributing Nmap in commercial products, but we sell a special Nmap
+ * OEM Edition with a more permissive license and special features for
+ * this purpose. See https://nmap.org/oem/
+ *
+ * If you have received a written Nmap license agreement or contract
+ * stating terms other than these (such as an Nmap OEM license), you may
+ * choose to use and redistribute Nmap under those terms instead.
+ *
+ * The official Nmap Windows builds include the Npcap software
+ * (https://npcap.com) for packet capture and transmission. It is under
+ * separate license terms which forbid redistribution without special
+ * permission. So the official Nmap Windows builds may not be redistributed
+ * without special permission (such as an Nmap OEM license).
+ *
+ * Source is provided to this software because we believe users have a
+ * right to know exactly what a program is going to do before they run it.
+ * This also allows you to audit the software for security holes.
+ *
+ * Source code also allows you to port Nmap to new platforms, fix bugs, and
+ * add new features. You are highly encouraged to submit your changes as a
+ * Github PR or by email to the dev@nmap.org mailing list for possible
+ * incorporation into the main distribution. Unless you specify otherwise, it
+ * is understood that you are offering us very broad rights to use your
+ * submissions as described in the Nmap Public Source License Contributor
+ * Agreement. This is important because we fund the project by selling licenses
+ * with various terms, and also because the inability to relicense code has
+ * caused devastating problems for other Free Software projects (such as KDE
+ * and NASM).
+ *
+ * The free version of Nmap is distributed in the hope that it will be
+ * useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. Warranties,
+ * indemnification and commercial support are all available through the
+ * Npcap OEM program--see https://nmap.org/oem/
+ *
  ***************************************************************************/
 
 /* $Id$ */
@@ -800,7 +799,7 @@ static double vectorize_isr(std::map<std::string, FPPacket>& resps) {
     const char *probe_name;
     const FPPacket *fp;
     const TCPHeader *tcp;
-    std::map<std::string, FPPacket>::iterator it;
+    std::map<std::string, FPPacket>::const_iterator it;
 
     probe_name = SEQ_PROBE_NAMES[i];
     it = resps.find(probe_name);
@@ -1173,6 +1172,10 @@ int FPEngine6::os_scan(std::vector<Target *> &Targets) {
         (int) curr_hosts.size(), (int) left_hosts.size(), (int) done_hosts.size());
     }
 
+#ifdef WIN32
+    // Reset system idle timer to avoid going to sleep
+    SetThreadExecutionState(ES_SYSTEM_REQUIRED);
+#endif
     /* Go through the list of hosts and ask them to schedule their probes */
     for (unsigned int i = 0; i < curr_hosts.size(); i++) {
 
@@ -1690,9 +1693,7 @@ int FPHost6::build_probe_list() {
       "\x03\x03\x0f\x01\x02\x04\x01\x09\x08\x0A\xff\xff\xff\xff\x00\x00\x00\x00\x04\x02", 20 },
   };
 
-  sockaddr_storage ss;
-  size_t slen = 0;
-  sockaddr_in6 *ss6 = (sockaddr_in6 *)&ss;
+  const sockaddr_in6 *ss6 = NULL;
   IPv6Header *ip6;
   ICMPv6Header *icmp6;
   UDPHeader *udp;
@@ -1744,9 +1745,9 @@ int FPHost6::build_probe_list() {
   icmp6 = new ICMPv6Header();
   hopbyhop1 = new HopByHopHeader();
   payload = new RawData();
-  this->target_host->SourceSockAddr(&ss, &slen);
+  ss6 = (const sockaddr_in6 *) this->target_host->SourceSockAddr();
   ip6->setSourceAddress(ss6->sin6_addr);
-  this->target_host->TargetSockAddr(&ss, &slen);
+  ss6 = (const sockaddr_in6 *) this->target_host->TargetSockAddr();
   ip6->setDestinationAddress(ss6->sin6_addr);
   ip6->setFlowLabel(OSDETECT_FLOW_LABEL);
   ip6->setHopLimit(get_hoplimit());
@@ -1777,9 +1778,9 @@ int FPHost6::build_probe_list() {
   hopbyhop2 = new HopByHopHeader();
   icmp6 = new ICMPv6Header();
   payload = new RawData();
-  this->target_host->SourceSockAddr(&ss, &slen);
+  ss6 = (const sockaddr_in6 *) this->target_host->SourceSockAddr();
   ip6->setSourceAddress(ss6->sin6_addr);
-  this->target_host->TargetSockAddr(&ss, &slen);
+  ss6 = (const sockaddr_in6 *) this->target_host->TargetSockAddr();
   ip6->setDestinationAddress(ss6->sin6_addr);
   ip6->setFlowLabel(OSDETECT_FLOW_LABEL);
   ip6->setHopLimit(get_hoplimit());
@@ -1814,9 +1815,9 @@ int FPHost6::build_probe_list() {
     ) {
     ip6 = new IPv6Header();
     icmp6 = new ICMPv6Header();
-    this->target_host->SourceSockAddr(&ss, &slen);
+    ss6 = (const sockaddr_in6 *) this->target_host->SourceSockAddr();
     ip6->setSourceAddress(ss6->sin6_addr);
-    this->target_host->TargetSockAddr(&ss, &slen);
+    ss6 = (const sockaddr_in6 *) this->target_host->TargetSockAddr();
     ip6->setDestinationAddress(ss6->sin6_addr);
     ip6->setFlowLabel(OSDETECT_FLOW_LABEL);
     /* RFC 2461 section 7.1.1: "A node MUST silently discard any received
@@ -1844,9 +1845,9 @@ int FPHost6::build_probe_list() {
   ip6 = new IPv6Header();
   udp = new UDPHeader();
   payload = new RawData();
-  this->target_host->SourceSockAddr(&ss, &slen);
+  ss6 = (const sockaddr_in6 *) this->target_host->SourceSockAddr();
   ip6->setSourceAddress(ss6->sin6_addr);
-  this->target_host->TargetSockAddr(&ss, &slen);
+  ss6 = (const sockaddr_in6 *) this->target_host->TargetSockAddr();
   ip6->setDestinationAddress(ss6->sin6_addr);
   ip6->setFlowLabel(OSDETECT_FLOW_LABEL);
   ip6->setHopLimit(get_hoplimit());
@@ -2559,8 +2560,6 @@ FPProbe::FPProbe() {
 
 
 FPProbe::~FPProbe() {
-  if (this->probe_id != NULL)
-    free(this->probe_id);
 }
 
 
@@ -2570,8 +2569,6 @@ void FPProbe::reset() {
   this->times_replied = 0;
   this->failed = false;
   this->timed = false;
-  if (this->probe_id != NULL)
-    free(this->probe_id);
   this->probe_id = NULL;
 
   /* Also call FPPacket::__reset() to free any existing packet information */
@@ -2601,7 +2598,7 @@ bool FPProbe::isResponse(PacketElement *rcvd) {
  * of the supplied string, so you can safely change its contents without
  * affecting the object's state. */
 int FPProbe::setProbeID(const char *id) {
-  this->probe_id = strdup(id);
+  this->probe_id = string_pool_insert(id);
   return OP_SUCCESS;
 }
 

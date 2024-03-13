@@ -2,60 +2,59 @@
  * portreasons.cc -- Verbose packet-level information on port states       *
  *                                                                         *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
- *                                                                         *
- * The Nmap Security Scanner is (C) 1996-2020 Insecure.Com LLC ("The Nmap  *
- * Project"). Nmap is also a registered trademark of the Nmap Project.     *
- *                                                                         *
- * This program is distributed under the terms of the Nmap Public Source   *
- * License (NPSL). The exact license text applying to a particular Nmap    *
- * release or source code control revision is contained in the LICENSE     *
- * file distributed with that version of Nmap or source code control       *
- * revision. More Nmap copyright/legal information is available from       *
- * https://nmap.org/book/man-legal.html, and further information on the    *
- * NPSL license itself can be found at https://nmap.org/npsl. This header  *
- * summarizes some key points from the Nmap license, but is no substitute  *
- * for the actual license text.                                            *
- *                                                                         *
- * Nmap is generally free for end users to download and use themselves,    *
- * including commercial use. It is available from https://nmap.org.        *
- *                                                                         *
- * The Nmap license generally prohibits companies from using and           *
- * redistributing Nmap in commercial products, but we sell a special Nmap  *
- * OEM Edition with a more permissive license and special features for     *
- * this purpose. See https://nmap.org/oem                                  *
- *                                                                         *
- * If you have received a written Nmap license agreement or contract       *
- * stating terms other than these (such as an Nmap OEM license), you may   *
- * choose to use and redistribute Nmap under those terms instead.          *
- *                                                                         *
- * The official Nmap Windows builds include the Npcap software             *
- * (https://npcap.org) for packet capture and transmission. It is under    *
- * separate license terms which forbid redistribution without special      *
- * permission. So the official Nmap Windows builds may not be              *
- * redistributed without special permission (such as an Nmap OEM           *
- * license).                                                               *
- *                                                                         *
- * Source is provided to this software because we believe users have a     *
- * right to know exactly what a program is going to do before they run it. *
- * This also allows you to audit the software for security holes.          *
- *                                                                         *
- * Source code also allows you to port Nmap to new platforms, fix bugs,    *
- * and add new features.  You are highly encouraged to submit your         *
- * changes as a Github PR or by email to the dev@nmap.org mailing list     *
- * for possible incorporation into the main distribution. Unless you       *
- * specify otherwise, it is understood that you are offering us very       *
- * broad rights to use your submissions as described in the Nmap Public    *
- * Source License Contributor Agreement. This is important because we      *
- * fund the project by selling licenses with various terms, and also       *
- * because the inability to relicense code has caused devastating          *
- * problems for other Free Software projects (such as KDE and NASM).       *
- *                                                                         *
- * The free version of Nmap is distributed in the hope that it will be     *
- * useful, but WITHOUT ANY WARRANTY; without even the implied warranty of  *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. Warranties,        *
- * indemnification and commercial support are all available through the    *
- * Npcap OEM program--see https://nmap.org/oem.                            *
- *                                                                         *
+ *
+ * The Nmap Security Scanner is (C) 1996-2024 Nmap Software LLC ("The Nmap
+ * Project"). Nmap is also a registered trademark of the Nmap Project.
+ *
+ * This program is distributed under the terms of the Nmap Public Source
+ * License (NPSL). The exact license text applying to a particular Nmap
+ * release or source code control revision is contained in the LICENSE
+ * file distributed with that version of Nmap or source code control
+ * revision. More Nmap copyright/legal information is available from
+ * https://nmap.org/book/man-legal.html, and further information on the
+ * NPSL license itself can be found at https://nmap.org/npsl/ . This
+ * header summarizes some key points from the Nmap license, but is no
+ * substitute for the actual license text.
+ *
+ * Nmap is generally free for end users to download and use themselves,
+ * including commercial use. It is available from https://nmap.org.
+ *
+ * The Nmap license generally prohibits companies from using and
+ * redistributing Nmap in commercial products, but we sell a special Nmap
+ * OEM Edition with a more permissive license and special features for
+ * this purpose. See https://nmap.org/oem/
+ *
+ * If you have received a written Nmap license agreement or contract
+ * stating terms other than these (such as an Nmap OEM license), you may
+ * choose to use and redistribute Nmap under those terms instead.
+ *
+ * The official Nmap Windows builds include the Npcap software
+ * (https://npcap.com) for packet capture and transmission. It is under
+ * separate license terms which forbid redistribution without special
+ * permission. So the official Nmap Windows builds may not be redistributed
+ * without special permission (such as an Nmap OEM license).
+ *
+ * Source is provided to this software because we believe users have a
+ * right to know exactly what a program is going to do before they run it.
+ * This also allows you to audit the software for security holes.
+ *
+ * Source code also allows you to port Nmap to new platforms, fix bugs, and
+ * add new features. You are highly encouraged to submit your changes as a
+ * Github PR or by email to the dev@nmap.org mailing list for possible
+ * incorporation into the main distribution. Unless you specify otherwise, it
+ * is understood that you are offering us very broad rights to use your
+ * submissions as described in the Nmap Public Source License Contributor
+ * Agreement. This is important because we fund the project by selling licenses
+ * with various terms, and also because the inability to relicense code has
+ * caused devastating problems for other Free Software projects (such as KDE
+ * and NASM).
+ *
+ * The free version of Nmap is distributed in the hope that it will be
+ * useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. Warranties,
+ * indemnification and commercial support are all available through the
+ * Npcap OEM program--see https://nmap.org/oem/
+ *
  ***************************************************************************/
 
 /*
@@ -67,11 +66,9 @@
 #include "winfix.h"
 #endif
 #include "portlist.h"
-#include "output.h"
 #include "NmapOps.h"
 #include "portreasons.h"
 #include "Target.h"
-#include "xml.h"
 
 extern NmapOps o;
 
@@ -252,7 +249,7 @@ static void state_reason_summary_init(state_reason_summary_t *r) {
         r->next = NULL;
 }
 
-static void state_reason_summary_dinit(state_reason_summary_t *r) {
+void state_reason_summary_dinit(state_reason_summary_t *r) {
         state_reason_summary_t *tmp;
 
         while(r != NULL) {
@@ -260,19 +257,6 @@ static void state_reason_summary_dinit(state_reason_summary_t *r) {
                 free(r);
                 r = tmp;
         }
-}
-
-/* Counts how different valid state reasons exist */
-static int state_summary_size(state_reason_summary_t *head) {
-        state_reason_summary_t *current = head;
-        int size = 0;
-
-        while(current) {
-                if(current->count > 0)
-                        size++;
-                current = current->next;
-        }
-        return size;
 }
 
 /* Simon Tatham's linked list merge sort
@@ -333,34 +317,35 @@ static state_reason_summary_t *reason_sort(state_reason_summary_t *list) {
 }
 
 /* Builds and aggregates reason state summary messages */
-static int update_state_summary(state_reason_summary_t *head, reason_t reason_id) {
+static int update_state_summary(state_reason_summary_t *head, Port *port) {
         state_reason_summary_t *tmp = head;
 
         if(tmp == NULL)
                 return -1;
 
         while(1) {
-                if(tmp->reason_id == reason_id) {
-                        tmp->count++;
-                        return 0;
+                if(tmp->reason_id == port->reason.reason_id && tmp->proto == port->proto) {
+                        break;
                 }
 
                 if(tmp->next == NULL) {
                   tmp->next = (state_reason_summary_t *)safe_malloc(sizeof(state_reason_summary_t));
                   tmp = tmp->next;
+                  state_reason_summary_init(tmp);
+                  tmp->reason_id = port->reason.reason_id;
+                  tmp->proto = port->proto;
                   break;
                 }
                 tmp = tmp->next;
         }
-        state_reason_summary_init(tmp);
-        tmp->reason_id = reason_id;
-        tmp->count = 1;
+        tmp->ports[tmp->count] = port->portno;
+        tmp->count++;
         return 0;
 }
 
 /* Converts Port objects and their corresponding state_reason structures into
  * state_reason_summary structures using update_state_summary */
-static unsigned int get_state_summary(state_reason_summary_t *head, PortList *Ports, int state) {
+static unsigned int get_state_summary(state_reason_summary_t *head, const PortList *Ports, int state) {
         Port *current = NULL;
         Port port;
         state_reason_summary_t *reason;
@@ -372,16 +357,16 @@ static unsigned int get_state_summary(state_reason_summary_t *head, PortList *Po
         reason = head;
 
         while((current = Ports->nextPort(current, &port, proto, state)) != NULL) {
-                if(Ports->isIgnoredState(current->state)) {
+                if(Ports->isIgnoredState(current->state, NULL)) {
                         total++;
-                        update_state_summary(reason, current->reason.reason_id);
+                        update_state_summary(reason, current);
                 }
         }
         return total;
 }
 
 /* parse and sort reason summary for main print_* functions */
-static state_reason_summary_t *print_state_summary_internal(PortList *Ports, int state) {
+state_reason_summary_t *get_state_reason_summary(const PortList *Ports, int state) {
         state_reason_summary_t *reason_head;
 
         reason_head = (state_reason_summary_t *)safe_malloc(sizeof(state_reason_summary_t));
@@ -402,12 +387,12 @@ static state_reason_summary_t *print_state_summary_internal(PortList *Ports, int
  * string representation. If 'number' is equal to 1 then the
  * singular is used, otherwise the plural */
 const char *reason_str(reason_t reason_code, unsigned int number) {
-    std::map<reason_codes,reason_string>::iterator itr = reason_map.find((reason_codes)reason_code);
-    reason_string temp = (*itr).second;
+    std::map<reason_codes,reason_string>::const_iterator itr = reason_map.find((reason_codes)reason_code);
+    const reason_string *temp = &itr->second;
     if (number == SINGULAR){
-        return temp.singular;
+        return temp->singular;
     }
-    return temp.plural;
+    return temp->plural;
 }
 
 void state_reason_init(state_reason_t *reason) {
@@ -416,66 +401,9 @@ void state_reason_init(state_reason_t *reason) {
         reason->ttl = 0;
 }
 
-/* Main external interface to converting, building, sorting and
- * printing plain-text state reason summaries */
-void print_state_summary(PortList *Ports, unsigned short type) {
-        state_reason_summary_t *reason_head, *currentr;
-        bool first_time = true;
-        const char *separator = ", ";
-        int states;
-
-        if((reason_head = print_state_summary_internal(Ports, 0)) == NULL)
-                return;
-
-        if(type == STATE_REASON_EMPTY)
-                log_write(LOG_PLAIN, " because of");
-        else if(type == STATE_REASON_FULL)
-                log_write(LOG_PLAIN, "Reason:");
-        else
-                assert(0);
-
-        states = state_summary_size(reason_head);
-        currentr = reason_head;
-
-        while(currentr != NULL) {
-                if(states == 1 && (!first_time))
-                        separator = " and ";
-                if(currentr->count > 0) {
-                        log_write(LOG_PLAIN, "%s%d %s", (first_time) ? " " : separator,
-                                currentr->count, reason_str(currentr->reason_id, currentr->count));
-                        first_time = false;
-
-                }
-                states--;
-                currentr  = currentr->next;
-        }
-        if(type == STATE_REASON_FULL)
-                log_write(LOG_PLAIN, "\n");
-        state_reason_summary_dinit(reason_head);
-}
-
-void print_xml_state_summary(PortList *Ports, int state) {
-        state_reason_summary_t *reason_head, *currentr;
-
-        if((currentr = reason_head = print_state_summary_internal(Ports, state)) == NULL)
-                return;
-
-        while(currentr != NULL) {
-                if(currentr->count > 0) {
-                        xml_open_start_tag("extrareasons");
-                        xml_attribute("reason", "%s", reason_str(currentr->reason_id, currentr->count));
-                        xml_attribute("count", "%d", currentr->count);
-                        xml_close_empty_tag();
-                        xml_newline();
-                }
-                currentr = currentr->next;
-        }
-    state_reason_summary_dinit(reason_head);
-}
-
 /* converts target into reason message for ping scans. Uses a static
  * buffer so new values overwrite old values */
-char *target_reason_str(Target *t) {
+const char *target_reason_str(const Target *t) {
         static char reason[128];
         memset(reason,'\0', 128);
         Snprintf(reason, 128, "received %s", reason_str(t->reason.reason_id, SINGULAR));
@@ -485,7 +413,7 @@ char *target_reason_str(Target *t) {
 /* Build an output string based on reason and source ip address.
  * uses a static return value so previous values will be over
  * written by subsequent calls */
-char *port_reason_str(state_reason_t r) {
+const char *port_reason_str(state_reason_t r) {
         static char reason[128];
         memset(reason,'\0', 128);
         if (r.ip_addr.sockaddr.sa_family == AF_UNSPEC) {

@@ -1,77 +1,65 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
+#!/usr/bin/env python3
 
 # ***********************IMPORTANT NMAP LICENSE TERMS************************
-# *                                                                         *
-# * The Nmap Security Scanner is (C) 1996-2020 Insecure.Com LLC ("The Nmap  *
-# * Project"). Nmap is also a registered trademark of the Nmap Project.     *
-# *                                                                         *
-# * This program is distributed under the terms of the Nmap Public Source   *
-# * License (NPSL). The exact license text applying to a particular Nmap    *
-# * release or source code control revision is contained in the LICENSE     *
-# * file distributed with that version of Nmap or source code control       *
-# * revision. More Nmap copyright/legal information is available from       *
-# * https://nmap.org/book/man-legal.html, and further information on the    *
-# * NPSL license itself can be found at https://nmap.org/npsl. This header  *
-# * summarizes some key points from the Nmap license, but is no substitute  *
-# * for the actual license text.                                            *
-# *                                                                         *
-# * Nmap is generally free for end users to download and use themselves,    *
-# * including commercial use. It is available from https://nmap.org.        *
-# *                                                                         *
-# * The Nmap license generally prohibits companies from using and           *
-# * redistributing Nmap in commercial products, but we sell a special Nmap  *
-# * OEM Edition with a more permissive license and special features for     *
-# * this purpose. See https://nmap.org/oem                                  *
-# *                                                                         *
-# * If you have received a written Nmap license agreement or contract       *
-# * stating terms other than these (such as an Nmap OEM license), you may   *
-# * choose to use and redistribute Nmap under those terms instead.          *
-# *                                                                         *
-# * The official Nmap Windows builds include the Npcap software             *
-# * (https://npcap.org) for packet capture and transmission. It is under    *
-# * separate license terms which forbid redistribution without special      *
-# * permission. So the official Nmap Windows builds may not be              *
-# * redistributed without special permission (such as an Nmap OEM           *
-# * license).                                                               *
-# *                                                                         *
-# * Source is provided to this software because we believe users have a     *
-# * right to know exactly what a program is going to do before they run it. *
-# * This also allows you to audit the software for security holes.          *
-# *                                                                         *
-# * Source code also allows you to port Nmap to new platforms, fix bugs,    *
-# * and add new features.  You are highly encouraged to submit your         *
-# * changes as a Github PR or by email to the dev@nmap.org mailing list     *
-# * for possible incorporation into the main distribution. Unless you       *
-# * specify otherwise, it is understood that you are offering us very       *
-# * broad rights to use your submissions as described in the Nmap Public    *
-# * Source License Contributor Agreement. This is important because we      *
-# * fund the project by selling licenses with various terms, and also       *
-# * because the inability to relicense code has caused devastating          *
-# * problems for other Free Software projects (such as KDE and NASM).       *
-# *                                                                         *
-# * The free version of Nmap is distributed in the hope that it will be     *
-# * useful, but WITHOUT ANY WARRANTY; without even the implied warranty of  *
-# * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. Warranties,        *
-# * indemnification and commercial support are all available through the    *
-# * Npcap OEM program--see https://nmap.org/oem.                            *
-# *                                                                         *
+# *
+# * The Nmap Security Scanner is (C) 1996-2024 Nmap Software LLC ("The Nmap
+# * Project"). Nmap is also a registered trademark of the Nmap Project.
+# *
+# * This program is distributed under the terms of the Nmap Public Source
+# * License (NPSL). The exact license text applying to a particular Nmap
+# * release or source code control revision is contained in the LICENSE
+# * file distributed with that version of Nmap or source code control
+# * revision. More Nmap copyright/legal information is available from
+# * https://nmap.org/book/man-legal.html, and further information on the
+# * NPSL license itself can be found at https://nmap.org/npsl/ . This
+# * header summarizes some key points from the Nmap license, but is no
+# * substitute for the actual license text.
+# *
+# * Nmap is generally free for end users to download and use themselves,
+# * including commercial use. It is available from https://nmap.org.
+# *
+# * The Nmap license generally prohibits companies from using and
+# * redistributing Nmap in commercial products, but we sell a special Nmap
+# * OEM Edition with a more permissive license and special features for
+# * this purpose. See https://nmap.org/oem/
+# *
+# * If you have received a written Nmap license agreement or contract
+# * stating terms other than these (such as an Nmap OEM license), you may
+# * choose to use and redistribute Nmap under those terms instead.
+# *
+# * The official Nmap Windows builds include the Npcap software
+# * (https://npcap.com) for packet capture and transmission. It is under
+# * separate license terms which forbid redistribution without special
+# * permission. So the official Nmap Windows builds may not be redistributed
+# * without special permission (such as an Nmap OEM license).
+# *
+# * Source is provided to this software because we believe users have a
+# * right to know exactly what a program is going to do before they run it.
+# * This also allows you to audit the software for security holes.
+# *
+# * Source code also allows you to port Nmap to new platforms, fix bugs, and
+# * add new features. You are highly encouraged to submit your changes as a
+# * Github PR or by email to the dev@nmap.org mailing list for possible
+# * incorporation into the main distribution. Unless you specify otherwise, it
+# * is understood that you are offering us very broad rights to use your
+# * submissions as described in the Nmap Public Source License Contributor
+# * Agreement. This is important because we fund the project by selling licenses
+# * with various terms, and also because the inability to relicense code has
+# * caused devastating problems for other Free Software projects (such as KDE
+# * and NASM).
+# *
+# * The free version of Nmap is distributed in the hope that it will be
+# * useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
+# * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. Warranties,
+# * indemnification and commercial support are all available through the
+# * Npcap OEM program--see https://nmap.org/oem/
+# *
 # ***************************************************************************/
 
+import sqlite3
 import sys
 
 from hashlib import md5
-
-sqlite = None
-try:
-    from pysqlite2 import dbapi2 as sqlite
-except ImportError:
-    try:
-        # In case this script is been running under python2.5 with sqlite3
-        import sqlite3 as sqlite
-    except ImportError:
-        raise ImportError(_("No module named dbapi2.pysqlite2 or sqlite3"))
-
 from time import time
 
 from zenmapCore.Paths import Path
@@ -84,7 +72,7 @@ try:
     umitdb = Path.db
 except Exception:
     import os.path
-    from BasePaths import base_paths
+    from .BasePaths import base_paths
 
     umitdb = os.path.join(Path.user_config_dir, base_paths["db"])
     Path.db = umitdb
@@ -102,28 +90,7 @@ if not exists(umitdb) or \
     umitdb = ":memory:"
     using_memory = True
 
-if isinstance(umitdb, str):
-    fs_enc = sys.getfilesystemencoding()
-    if fs_enc is None:
-        fs_enc = "UTF-8"
-    umitdb = umitdb.decode(fs_enc)
-
-# pysqlite 2.4.0 doesn't handle a unicode database name, though earlier and
-# later versions do. Encode to UTF-8 as pysqlite would do internally anyway.
-umitdb = umitdb.encode("UTF-8")
-
-connection = sqlite.connect(umitdb)
-
-# By default pysqlite will raise an OperationalError when trying to return a
-# TEXT data type that is not UTF-8 (it always tries to decode text in order to
-# return a unicode object). We store XML in the database, which may have a
-# different encoding, so instruct pysqlite to return a plain str for TEXT data
-# types, and not to attempt any decoding.
-try:
-    connection.text_factory = str
-except AttributeError:
-    # However, text_factory is available only in pysqlite 2.1.0 and later.
-    pass
+connection = sqlite3.connect(umitdb)
 
 
 class Table(object):
@@ -170,7 +137,7 @@ class Table(object):
         sql = sql[:][:-2]
         sql += ") VALUES ("
 
-        for v in xrange(len(kargs.values())):
+        for v in range(len(kargs.values())):
             sql += "?, "
 
         sql = sql[:][:-2]
@@ -258,7 +225,7 @@ class Scans(Table, object):
                 raise Exception("Can't save result without xml output")
 
             if not self.verify_digest(
-                    md5(kargs["nmap_xml_output"]).hexdigest()):
+                    md5(kargs["nmap_xml_output"].encode("UTF-8")).hexdigest()):
                 raise Exception("XML output registered already!")
 
             self.scans_id = self.insert(**kargs)
@@ -302,7 +269,7 @@ class Scans(Table, object):
 
     def set_nmap_xml_output(self, nmap_xml_output):
         self.set_item("nmap_xml_output", nmap_xml_output)
-        self.set_item("digest", md5(nmap_xml_output).hexdigest())
+        self.set_item("digest", md5(nmap_xml_output.encode("UTF-8")).hexdigest())
 
     def get_date(self):
         return self.get_item("date")
@@ -328,7 +295,7 @@ def verify_db():
     cursor = connection.cursor()
     try:
         cursor.execute("SELECT scans_id FROM scans WHERE date = 0")
-    except sqlite.OperationalError:
+    except sqlite3.OperationalError:
         u = UmitDB()
         u.create_db()
 verify_db()
@@ -354,5 +321,5 @@ if __name__ == "__main__":
 
     sql = "SELECT * FROM scans;"
     u.cursor.execute(sql)
-    print "Scans:",
+    print("Scans:", end=' ')
     pprint(u.cursor.fetchall())

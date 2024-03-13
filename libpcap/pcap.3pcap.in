@@ -17,7 +17,7 @@
 .\" WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF
 .\" MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 .\"
-.TH PCAP 3PCAP "25 July 2018"
+.TH PCAP 3PCAP "9 September 2020"
 .SH NAME
 pcap \- Packet Capture library
 .SH SYNOPSIS
@@ -35,12 +35,69 @@ on the network, even those destined for other hosts, are accessible
 through this mechanism.
 It also supports saving captured packets to a ``savefile'', and reading
 packets from a ``savefile''.
+.SS Initializing
+.BR pcap_init ()
+initializes the library.  It takes an argument giving options;
+currently, the options are:
+.TP
+.B PCAP_CHAR_ENC_LOCAL
+Treat all strings supplied as arguments, and return all strings to the
+caller, as being in the local character encoding.
+.TP
+.B PCAP_CHAR_ENC_UTF_8
+Treat all strings supplied as arguments, and return all strings to the
+caller, as being in UTF-8.
+.PP
+On UNIX-like systems, the local character encoding is assumed to be
+UTF-8, so no character encoding transformations are done.
+.PP
+On Windows, the local character encoding is the local ANSI code page.
+.PP
+If
+.BR pcap_init ()
+is called, the deprecated
+.BR pcap_lookupdev ()
+routine always fails, so it should not be used, and, on Windows,
+.BR pcap_create ()
+does not attempt to handle UTF-16LE strings.
+.PP
+If
+.BR pcap_init ()
+is not called, strings are treated as being in the local ANSI code page
+on Windows,
+.BR pcap_lookupdev ()
+will succeed if there is a device on which to capture, and
+.BR pcap_create ()
+makes an attempt to check whether the string passed as an argument is a
+UTF-16LE string - note that this attempt is unsafe, as it may run past
+the end of the string - to handle
+.BR pcap_lookupdev ()
+returning a UTF-16LE string. Programs that don't call
+.BR pcap_init ()
+should, on Windows, call
+.BR pcap_wsockinit ()
+to initialize Winsock; this is not necessary if
+.BR pcap_init ()
+is called, as
+.BR pcap_init ()
+will initialize Winsock itself on Windows.
+.TP
+.B Routines
+.RS
+.TP
+.BR pcap_init (3PCAP)
+initialize the library
+.RE
 .SS Opening a capture handle for reading
 To open a handle for a live capture, given the name of the network or
 other interface on which the capture should be done, call
 .BR pcap_create (),
 set the appropriate options on the handle, and then activate it with
 .BR pcap_activate ().
+If
+.BR pcap_activate ()
+fails, the handle should be closed with
+.BR pcap_close ().
 .PP
 To obtain a list of devices that can be opened for a live capture, call
 .BR pcap_findalldevs ();
@@ -121,7 +178,9 @@ Note that even if an application does not set promiscuous mode, the
 adapter could well be in promiscuous mode for some other reason.
 .IP
 For now, this doesn't work on the "any" device; if an argument of "any"
-or NULL is supplied, the setting of promiscuous mode is ignored.
+or
+.B NULL
+is supplied, the setting of promiscuous mode is ignored.
 .IP
 Promiscuous mode is set with
 .BR pcap_set_promisc ().
@@ -213,7 +272,7 @@ On some platforms, the time stamp given to packets on live captures can
 come from different sources that can have different resolutions or that
 can have different relationships to the time values for the current time
 supplied by routines on the native operating system.  See
-.BR pcap-tstamp (@MAN_MISC_INFO@)
+.BR \%pcap-tstamp (@MAN_MISC_INFO@)
 for a list of time stamp types.
 .IP
 The time stamp type is set with
@@ -249,7 +308,7 @@ that device.  A user can be given that privilege by, for example, adding
 that privilege to the user's
 .B defaultpriv
 key with the
-.B usermod (@MAN_ADMIN_COMMANDS@)
+.BR usermod (@MAN_ADMIN_COMMANDS@)
 command.
 .TP
 .B Under HP-UX with DLPI:
@@ -262,14 +321,11 @@ setuid to root.
 .TP
 .B Under Linux:
 You must be root or the application capturing packets must be installed
-setuid to root (unless your distribution has a kernel
+setuid to root, unless your distribution has a kernel
 that supports capability bits such as CAP_NET_RAW and code to allow
 those capability bits to be given to particular accounts and to cause
 those bits to be set on a user's initial processes when they log in, in
-which case you  must have CAP_NET_RAW in order to capture and
-CAP_NET_ADMIN to enumerate network devices with, for example, the
-.B \-D
-flag).
+which case you must have CAP_NET_RAW in order to capture.
 .TP
 .B Under ULTRIX and Digital UNIX/Tru64 UNIX:
 Any user may capture network traffic.
@@ -320,6 +376,8 @@ any given link-layer header type, such as
 for Ethernet.  For example, the "any" device on Linux will have a
 link-layer header type of
 .B DLT_LINUX_SLL
+or
+.B DLT_LINUX_SLL2
 even if all devices on the system at the time the "any" device is opened
 have some other data link type, such as
 .B DLT_EN10MB
@@ -515,7 +573,11 @@ set link-layer header type for a device
 get name for a link-layer header type
 .TP
 .BR pcap_datalink_val_to_description (3PCAP)
+.PD 0
+.TP
+.BR pcap_datalink_val_to_description_or_dlt (3PCAP)
 get description for a link-layer header type
+.PD
 .TP
 .BR pcap_datalink_name_to_val (3PCAP)
 get link-layer header type corresponding to a name
@@ -585,7 +647,9 @@ packet.  It returns a
 .I const u_char
 to the first
 .B caplen
-bytes of the packet on success, and NULL on error.
+bytes of the packet on success, and
+.B NULL
+on error.
 .PP
 .BR pcap_next_ex ()
 is passed two pointer arguments, one of which points to a
@@ -648,7 +712,7 @@ from the device.
 Not all handles have such a descriptor available;
 .BR pcap_get_selectable_fd ()
 will return
-.B PCAP_ERROR
+.B \-1
 if no such descriptor is available.  If no such
 descriptor is available, this may be because the device must be polled
 periodically for packets; in that case,
@@ -656,10 +720,12 @@ periodically for packets; in that case,
 will return a pointer to a
 .B struct timeval
 whose value can be used as a timeout in those routines.  When the
-routine returns, an attmept should be made to read packets from the
+routine returns, an attempt should be made to read packets from the
 device.  If
 .BR pcap_get_required_select_timeout ()
-returns NULL, no such timeout is available, and those routines cannot be
+returns
+.BR NULL ,
+no such timeout is available, and those routines cannot be
 used with the device.
 .PP
 In addition, for various
@@ -718,18 +784,17 @@ get the state of non-blocking mode for a
 attempt to get a descriptor for a
 .B pcap_t
 that can be used in calls such as
-.BR select (2)
+.BR select ()
 and
-.BR poll (2)
+.BR poll ()
 .TP
 .BR pcap_get_required_select_timeout (3PCAP)
-if no descriptor usable with
-.BR select (2)
+attempt to get a timeout required for using a
+.B pcap_t
+in calls such as
+.BR select ()
 and
-.BR poll (2)
-is available for the
-.BR pcap_t ,
-attempt to get a timeout usable with those routines
+.BR poll ()
 .RE
 .SS Filters
 In order to cause only certain packets to be returned when reading
@@ -739,7 +804,7 @@ copying ``uninteresting'' packets from the kernel to user mode.
 .PP
 A filter can be specified as a text string; the syntax and semantics of
 the string are as described by
-.BR pcap-filter (@MAN_MISC_INFO@).
+.BR \%pcap-filter (@MAN_MISC_INFO@).
 A filter string is compiled into a program in a pseudo-machine-language
 by
 .BR pcap_compile ()
@@ -829,13 +894,19 @@ call
 .BR pcap_dump_open (3PCAP)
 open a
 .B pcap_dumper_t
-for a ``savefile``, given a pathname
+for a ``savefile``, given a pathname, replacing any existing data
+.TP
+.BR pcap_dump_open_append (3PCAP)
+open a
+.B pcap_dumper_t
+for a ``savefile``, given a pathname, appending to the existing data
 .TP
 .BR pcap_dump_fopen (3PCAP)
 open a
 .B pcap_dumper_t
 for a ``savefile``, given a
-.B "FILE\ *"
+.BR "FILE\ *" ,
+assuming an empty file
 .TP
 .BR pcap_dump_close (3PCAP)
 close a
@@ -893,8 +964,9 @@ for a live capture, using
 .BR pcap_inject ()
 or
 .BR pcap_sendpacket ().
-(The two routines exist for compatibility with both OpenBSD and WinPcap;
-they perform the same function, but have different return values.)
+(The two routines exist for compatibility with both OpenBSD and
+WinPcap/Npcap; they perform the same function, but have different return
+values.)
 .TP
 .B Routines
 .RS
@@ -958,8 +1030,12 @@ use an
 script or some other configuration script to check whether the libpcap
 1.0 APIs are available and use them only if they are.
 .SH SEE ALSO
-autoconf(1), tcpdump(1), tcpslice(1), pcap-filter(@MAN_MISC_INFO@), pfconfig(8),
-usermod(@MAN_ADMIN_COMMANDS@)
+.BR autoconf (1),
+.BR tcpdump (1),
+.BR tcpslice (1),
+.BR \%pcap-filter (@MAN_MISC_INFO@),
+.BR pfconfig (8),
+.BR usermod (@MAN_ADMIN_COMMANDS@)
 .SH AUTHORS
 The original authors of libpcap are:
 .LP
@@ -974,9 +1050,9 @@ The current version is available from "The Tcpdump Group"'s Web site at
 .I https://www.tcpdump.org/
 .RE
 .SH BUGS
-To report a security issue please send an e-mail to security@tcpdump.org.
+To report a security issue please send an e-mail to \%security@tcpdump.org.
 .LP
 To report bugs and other problems, contribute patches, request a
 feature, provide generic feedback etc please see the file
-.I CONTRIBUTING
+.I CONTRIBUTING.md
 in the libpcap source tree root.

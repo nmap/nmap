@@ -445,6 +445,9 @@ end
 -- Helpers
 
 
+local function _hex_str (x)
+  return string.char(tonumber(x, 16))
+end
 --- Convert a MAC address string (like <code>"00:23:ae:5d:3b:10"</code>) to
 -- a raw six-byte long.
 -- @param str MAC address string.
@@ -453,9 +456,7 @@ function mactobin(str)
   if not str then
     return nil, "MAC was not specified."
   end
-  return (str:gsub("(%x%x)[^%x]?", function (x)
-        return string.char(tonumber(x, 16))
-    end))
+  return (str:gsub("(%x%x)[^%x]?", _hex_str))
 end
 
 --- Generate the link-local IPv6 address from the MAC address.

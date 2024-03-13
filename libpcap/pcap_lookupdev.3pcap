@@ -39,22 +39,30 @@ char errbuf[PCAP_ERRBUF_SIZE];
 .B This interface is obsoleted by
 .BR pcap_findalldevs (3PCAP).
 To find a default device on which to capture, call
-.B pcap_findalldevs()
+.BR pcap_findalldevs ()
 and, if the list it returns is not empty, use the first device in the
 list.  (If the list is empty, there are no devices on which capture is
 possible.)
 .LP
-.B pcap_lookupdev()
+.B If
+.BR pcap_init (3PCAP)
+.B has been called, this interface always returns
+.BR NULL .
+.LP
+.BR pcap_lookupdev ()
 returns a pointer to a string giving the name of a network device
 suitable for use with
-.B pcap_create(3PCAP)
+.BR pcap_create (3PCAP)
 and
-.BR \%pcap_activate(3PCAP) ,
+.BR \%pcap_activate (3PCAP),
 or with
-.BR pcap_open_live(3PCAP) ,
+.BR pcap_open_live (3PCAP),
 and with
-.BR pcap_lookupnet(3PCAP) .
+.BR pcap_lookupnet (3PCAP).
 If there is an error,
+or if
+.BR pcap_init (3PCAP)
+has been called,
 .B NULL
 is returned and
 .I errbuf
@@ -64,16 +72,15 @@ is assumed to be able to hold at least
 .B PCAP_ERRBUF_SIZE
 chars.
 .SH SEE ALSO
-pcap(3PCAP)
+.BR pcap (3PCAP)
 .SH BUGS
 The pointer returned by
-.B pcap_lookupdev()
+.BR pcap_lookupdev ()
 points to a static buffer; subsequent calls to
-.B pcap_lookupdev()
+.BR pcap_lookupdev ()
 in the same thread, or calls to
-.B pcap_lookupdev()
+.BR pcap_lookupdev ()
 in another thread, may overwrite that buffer.
 .LP
-In WinPcap, this function may return a UTF-16 string rather than an
-ASCII or UTF-8 string.
-
+In WinPcap and Npcap, this function may return a UTF-16 string rather
+than an ASCII or UTF-8 string.

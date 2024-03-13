@@ -286,7 +286,11 @@ function action(host, port)
   local offered_ciphers = registry_get(host, port) or sslv2.test_sslv2(host, port)
   if not offered_ciphers then
     output.vulns = report:make_output()
-    return output
+    if (#output > 0) then
+      return output
+    else
+      return nil
+    end
   end
   if next(offered_ciphers) then
     output.ciphers = offered_ciphers
@@ -331,5 +335,7 @@ function action(host, port)
   report:add_vulns(cve_2016_0800)
 
   output.vulns = report:make_output()
-  return output
+  if (#output > 0) then
+    return output
+  end
 end

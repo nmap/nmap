@@ -1,66 +1,70 @@
 # vim: set encoding=utf-8 :
 
 # ***********************IMPORTANT NMAP LICENSE TERMS************************
-# *                                                                         *
-# * The Nmap Security Scanner is (C) 1996-2020 Insecure.Com LLC ("The Nmap  *
-# * Project"). Nmap is also a registered trademark of the Nmap Project.     *
-# *                                                                         *
-# * This program is distributed under the terms of the Nmap Public Source   *
-# * License (NPSL). The exact license text applying to a particular Nmap    *
-# * release or source code control revision is contained in the LICENSE     *
-# * file distributed with that version of Nmap or source code control       *
-# * revision. More Nmap copyright/legal information is available from       *
-# * https://nmap.org/book/man-legal.html, and further information on the    *
-# * NPSL license itself can be found at https://nmap.org/npsl. This header  *
-# * summarizes some key points from the Nmap license, but is no substitute  *
-# * for the actual license text.                                            *
-# *                                                                         *
-# * Nmap is generally free for end users to download and use themselves,    *
-# * including commercial use. It is available from https://nmap.org.        *
-# *                                                                         *
-# * The Nmap license generally prohibits companies from using and           *
-# * redistributing Nmap in commercial products, but we sell a special Nmap  *
-# * OEM Edition with a more permissive license and special features for     *
-# * this purpose. See https://nmap.org/oem                                  *
-# *                                                                         *
-# * If you have received a written Nmap license agreement or contract       *
-# * stating terms other than these (such as an Nmap OEM license), you may   *
-# * choose to use and redistribute Nmap under those terms instead.          *
-# *                                                                         *
-# * The official Nmap Windows builds include the Npcap software             *
-# * (https://npcap.org) for packet capture and transmission. It is under    *
-# * separate license terms which forbid redistribution without special      *
-# * permission. So the official Nmap Windows builds may not be              *
-# * redistributed without special permission (such as an Nmap OEM           *
-# * license).                                                               *
-# *                                                                         *
-# * Source is provided to this software because we believe users have a     *
-# * right to know exactly what a program is going to do before they run it. *
-# * This also allows you to audit the software for security holes.          *
-# *                                                                         *
-# * Source code also allows you to port Nmap to new platforms, fix bugs,    *
-# * and add new features.  You are highly encouraged to submit your         *
-# * changes as a Github PR or by email to the dev@nmap.org mailing list     *
-# * for possible incorporation into the main distribution. Unless you       *
-# * specify otherwise, it is understood that you are offering us very       *
-# * broad rights to use your submissions as described in the Nmap Public    *
-# * Source License Contributor Agreement. This is important because we      *
-# * fund the project by selling licenses with various terms, and also       *
-# * because the inability to relicense code has caused devastating          *
-# * problems for other Free Software projects (such as KDE and NASM).       *
-# *                                                                         *
-# * The free version of Nmap is distributed in the hope that it will be     *
-# * useful, but WITHOUT ANY WARRANTY; without even the implied warranty of  *
-# * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. Warranties,        *
-# * indemnification and commercial support are all available through the    *
-# * Npcap OEM program--see https://nmap.org/oem.                            *
-# *                                                                         *
+# *
+# * The Nmap Security Scanner is (C) 1996-2024 Nmap Software LLC ("The Nmap
+# * Project"). Nmap is also a registered trademark of the Nmap Project.
+# *
+# * This program is distributed under the terms of the Nmap Public Source
+# * License (NPSL). The exact license text applying to a particular Nmap
+# * release or source code control revision is contained in the LICENSE
+# * file distributed with that version of Nmap or source code control
+# * revision. More Nmap copyright/legal information is available from
+# * https://nmap.org/book/man-legal.html, and further information on the
+# * NPSL license itself can be found at https://nmap.org/npsl/ . This
+# * header summarizes some key points from the Nmap license, but is no
+# * substitute for the actual license text.
+# *
+# * Nmap is generally free for end users to download and use themselves,
+# * including commercial use. It is available from https://nmap.org.
+# *
+# * The Nmap license generally prohibits companies from using and
+# * redistributing Nmap in commercial products, but we sell a special Nmap
+# * OEM Edition with a more permissive license and special features for
+# * this purpose. See https://nmap.org/oem/
+# *
+# * If you have received a written Nmap license agreement or contract
+# * stating terms other than these (such as an Nmap OEM license), you may
+# * choose to use and redistribute Nmap under those terms instead.
+# *
+# * The official Nmap Windows builds include the Npcap software
+# * (https://npcap.com) for packet capture and transmission. It is under
+# * separate license terms which forbid redistribution without special
+# * permission. So the official Nmap Windows builds may not be redistributed
+# * without special permission (such as an Nmap OEM license).
+# *
+# * Source is provided to this software because we believe users have a
+# * right to know exactly what a program is going to do before they run it.
+# * This also allows you to audit the software for security holes.
+# *
+# * Source code also allows you to port Nmap to new platforms, fix bugs, and
+# * add new features. You are highly encouraged to submit your changes as a
+# * Github PR or by email to the dev@nmap.org mailing list for possible
+# * incorporation into the main distribution. Unless you specify otherwise, it
+# * is understood that you are offering us very broad rights to use your
+# * submissions as described in the Nmap Public Source License Contributor
+# * Agreement. This is important because we fund the project by selling licenses
+# * with various terms, and also because the inability to relicense code has
+# * caused devastating problems for other Free Software projects (such as KDE
+# * and NASM).
+# *
+# * The free version of Nmap is distributed in the hope that it will be
+# * useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
+# * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. Warranties,
+# * indemnification and commercial support are all available through the
+# * Npcap OEM program--see https://nmap.org/oem/
+# *
 # ***************************************************************************/
 
-import gtk
+import gi
+
+gi.require_version("Gtk", "3.0")
+from gi.repository import Gtk, GLib, Gdk
+
 import math
 import cairo
-import gobject
+
+from functools import reduce
 
 import radialnet.util.geometry as geometry
 import radialnet.util.misc as misc
@@ -70,8 +74,6 @@ from radialnet.core.Interpolation import Linear2DInterpolator
 from radialnet.core.Graph import Node
 from radialnet.gui.NodeWindow import NodeWindow
 from radialnet.gui.Image import Icons, get_pixels_for_cairo_image_surface
-
-from zenmapCore.BasePaths import fs_enc
 
 REGION_COLORS = [(1.0, 0.0, 0.0), (1.0, 1.0, 0.0), (0.0, 1.0, 0.0)]
 REGION_RED = 0
@@ -102,7 +104,7 @@ FILE_TYPE_PS = 3
 FILE_TYPE_SVG = 4
 
 
-class RadialNet(gtk.DrawingArea):
+class RadialNet(Gtk.DrawingArea):
     """
     Radial network visualization widget
     """
@@ -162,7 +164,7 @@ class RadialNet(gtk.DrawingArea):
 
         super(RadialNet, self).__init__()
 
-        self.connect('expose_event', self.expose)
+        self.connect('draw', self.draw)
         self.connect('button_press_event', self.button_press)
         self.connect('button_release_event', self.button_release)
         self.connect('motion_notify_event', self.motion_notify)
@@ -172,19 +174,17 @@ class RadialNet(gtk.DrawingArea):
         self.connect('key_release_event', self.key_release)
         self.connect('scroll_event', self.scroll_event)
 
-        self.add_events(gtk.gdk.BUTTON_PRESS_MASK |
-                        gtk.gdk.BUTTON_RELEASE_MASK |
-                        gtk.gdk.ENTER_NOTIFY |
-                        gtk.gdk.LEAVE_NOTIFY |
-                        gtk.gdk.MOTION_NOTIFY |
-                        gtk.gdk.NOTHING |
-                        gtk.gdk.KEY_PRESS_MASK |
-                        gtk.gdk.KEY_RELEASE_MASK |
-                        gtk.gdk.POINTER_MOTION_HINT_MASK |
-                        gtk.gdk.POINTER_MOTION_MASK |
-                        gtk.gdk.SCROLL_MASK)
+        self.add_events(Gdk.EventMask.BUTTON_PRESS_MASK |
+                        Gdk.EventMask.BUTTON_RELEASE_MASK |
+                        Gdk.EventMask.ENTER_NOTIFY_MASK |
+                        Gdk.EventMask.LEAVE_NOTIFY_MASK |
+                        Gdk.EventMask.KEY_PRESS_MASK |
+                        Gdk.EventMask.KEY_RELEASE_MASK |
+                        Gdk.EventMask.POINTER_MOTION_HINT_MASK |
+                        Gdk.EventMask.POINTER_MOTION_MASK |
+                        Gdk.EventMask.SCROLL_MASK)
 
-        self.set_flags(gtk.CAN_FOCUS)
+        self.set_can_focus(True)
         self.grab_focus()
 
     def graph_is_not_empty(function):
@@ -246,9 +246,7 @@ class RadialNet(gtk.DrawingArea):
         self.__draw(context)
 
         if type == FILE_TYPE_PNG:
-            # write_to_png requires a str, not unicode, in py2cairo 1.8.10 and
-            # earlier.
-            self.surface.write_to_png(fs_enc(file))
+            self.surface.write_to_png(file)
 
         self.surface.flush()
         self.surface.finish()
@@ -536,10 +534,10 @@ class RadialNet(gtk.DrawingArea):
     def scroll_event(self, widget, event):
         """
         """
-        if event.direction == gtk.gdk.SCROLL_UP:
+        if event.direction == Gdk.ScrollDirection.UP:
             self.set_scale(self.__scale + 0.01)
 
-        if event.direction == gtk.gdk.SCROLL_DOWN:
+        if event.direction == Gdk.ScrollDirection.DOWN:
             self.set_scale(self.__scale - 0.01)
 
         self.queue_draw()
@@ -549,7 +547,7 @@ class RadialNet(gtk.DrawingArea):
     def key_press(self, widget, event):
         """
         """
-        key = gtk.gdk.keyval_name(event.keyval)
+        key = Gdk.keyval_name(event.keyval)
 
         if key == 'KP_Add':
             self.set_ring_gap(self.__ring_gap + 1)
@@ -571,7 +569,7 @@ class RadialNet(gtk.DrawingArea):
     def key_release(self, widget, event):
         """
         """
-        key = gtk.gdk.keyval_name(event.keyval)
+        key = Gdk.keyval_name(event.keyval)
 
         if key == 'c':
             self.__translation = (0, 0)
@@ -710,7 +708,8 @@ class RadialNet(gtk.DrawingArea):
 
             if result is not None:
 
-                xw, yw = self.window.get_origin()
+                # first returned value is not meaningful and should be ignored
+                _, xw, yw = self.get_window().get_origin()
                 node, point = result
                 x, y = point
 
@@ -792,19 +791,16 @@ class RadialNet(gtk.DrawingArea):
 
         return False
 
-    def expose(self, widget, event):
+    def draw(self, widget, context):
         """
         Drawing callback
         @type  widget: GtkWidget
         @param widget: Gtk widget superclass
-        @type  event: GtkEvent
-        @param event: Gtk event of widget
+        @type  context: cairo.Context
+        @param context: cairo context class
         @rtype: boolean
         @return: Indicator of the event propagation
         """
-        context = widget.window.cairo_create()
-
-        context.rectangle(*event.area)
         context.set_source_rgb(1.0, 1.0, 1.0)
         context.fill()
 
@@ -820,8 +816,8 @@ class RadialNet(gtk.DrawingArea):
         # getting allocation reference
         allocation = self.get_allocation()
 
-        self.__center_of_widget = (allocation.width / 2,
-                                   allocation.height / 2)
+        self.__center_of_widget = (allocation.width // 2,
+                                   allocation.height // 2)
 
         xc, yc = self.__center_of_widget
 
@@ -1453,9 +1449,9 @@ class RadialNet(gtk.DrawingArea):
             self.__calc_node_positions()
 
         # steps for slow-in/slow-out animation
-        steps = range(self.__number_of_frames)
+        steps = list(range(self.__number_of_frames))
 
-        for i in range(len(steps) / 2):
+        for i in range(len(steps) // 2):
             steps[self.__number_of_frames - 1 - i] = steps[i]
 
         # normalize angles and calculate interpolated points
@@ -1572,7 +1568,7 @@ class RadialNet(gtk.DrawingArea):
 
         # animation continue condition
         if index < self.__number_of_frames - 1:
-            gobject.timeout_add(self.__animation_rate,  # time to recall
+            GLib.timeout_add(self.__animation_rate,  # time to recall
                                 self.__livens_up,       # recursive call
                                 index + 1)              # next iteration
         else:

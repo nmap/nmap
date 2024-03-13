@@ -1,61 +1,59 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
+#!/usr/bin/env python3
 
 # ***********************IMPORTANT NMAP LICENSE TERMS************************
-# *                                                                         *
-# * The Nmap Security Scanner is (C) 1996-2020 Insecure.Com LLC ("The Nmap  *
-# * Project"). Nmap is also a registered trademark of the Nmap Project.     *
-# *                                                                         *
-# * This program is distributed under the terms of the Nmap Public Source   *
-# * License (NPSL). The exact license text applying to a particular Nmap    *
-# * release or source code control revision is contained in the LICENSE     *
-# * file distributed with that version of Nmap or source code control       *
-# * revision. More Nmap copyright/legal information is available from       *
-# * https://nmap.org/book/man-legal.html, and further information on the    *
-# * NPSL license itself can be found at https://nmap.org/npsl. This header  *
-# * summarizes some key points from the Nmap license, but is no substitute  *
-# * for the actual license text.                                            *
-# *                                                                         *
-# * Nmap is generally free for end users to download and use themselves,    *
-# * including commercial use. It is available from https://nmap.org.        *
-# *                                                                         *
-# * The Nmap license generally prohibits companies from using and           *
-# * redistributing Nmap in commercial products, but we sell a special Nmap  *
-# * OEM Edition with a more permissive license and special features for     *
-# * this purpose. See https://nmap.org/oem                                  *
-# *                                                                         *
-# * If you have received a written Nmap license agreement or contract       *
-# * stating terms other than these (such as an Nmap OEM license), you may   *
-# * choose to use and redistribute Nmap under those terms instead.          *
-# *                                                                         *
-# * The official Nmap Windows builds include the Npcap software             *
-# * (https://npcap.org) for packet capture and transmission. It is under    *
-# * separate license terms which forbid redistribution without special      *
-# * permission. So the official Nmap Windows builds may not be              *
-# * redistributed without special permission (such as an Nmap OEM           *
-# * license).                                                               *
-# *                                                                         *
-# * Source is provided to this software because we believe users have a     *
-# * right to know exactly what a program is going to do before they run it. *
-# * This also allows you to audit the software for security holes.          *
-# *                                                                         *
-# * Source code also allows you to port Nmap to new platforms, fix bugs,    *
-# * and add new features.  You are highly encouraged to submit your         *
-# * changes as a Github PR or by email to the dev@nmap.org mailing list     *
-# * for possible incorporation into the main distribution. Unless you       *
-# * specify otherwise, it is understood that you are offering us very       *
-# * broad rights to use your submissions as described in the Nmap Public    *
-# * Source License Contributor Agreement. This is important because we      *
-# * fund the project by selling licenses with various terms, and also       *
-# * because the inability to relicense code has caused devastating          *
-# * problems for other Free Software projects (such as KDE and NASM).       *
-# *                                                                         *
-# * The free version of Nmap is distributed in the hope that it will be     *
-# * useful, but WITHOUT ANY WARRANTY; without even the implied warranty of  *
-# * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. Warranties,        *
-# * indemnification and commercial support are all available through the    *
-# * Npcap OEM program--see https://nmap.org/oem.                            *
-# *                                                                         *
+# *
+# * The Nmap Security Scanner is (C) 1996-2024 Nmap Software LLC ("The Nmap
+# * Project"). Nmap is also a registered trademark of the Nmap Project.
+# *
+# * This program is distributed under the terms of the Nmap Public Source
+# * License (NPSL). The exact license text applying to a particular Nmap
+# * release or source code control revision is contained in the LICENSE
+# * file distributed with that version of Nmap or source code control
+# * revision. More Nmap copyright/legal information is available from
+# * https://nmap.org/book/man-legal.html, and further information on the
+# * NPSL license itself can be found at https://nmap.org/npsl/ . This
+# * header summarizes some key points from the Nmap license, but is no
+# * substitute for the actual license text.
+# *
+# * Nmap is generally free for end users to download and use themselves,
+# * including commercial use. It is available from https://nmap.org.
+# *
+# * The Nmap license generally prohibits companies from using and
+# * redistributing Nmap in commercial products, but we sell a special Nmap
+# * OEM Edition with a more permissive license and special features for
+# * this purpose. See https://nmap.org/oem/
+# *
+# * If you have received a written Nmap license agreement or contract
+# * stating terms other than these (such as an Nmap OEM license), you may
+# * choose to use and redistribute Nmap under those terms instead.
+# *
+# * The official Nmap Windows builds include the Npcap software
+# * (https://npcap.com) for packet capture and transmission. It is under
+# * separate license terms which forbid redistribution without special
+# * permission. So the official Nmap Windows builds may not be redistributed
+# * without special permission (such as an Nmap OEM license).
+# *
+# * Source is provided to this software because we believe users have a
+# * right to know exactly what a program is going to do before they run it.
+# * This also allows you to audit the software for security holes.
+# *
+# * Source code also allows you to port Nmap to new platforms, fix bugs, and
+# * add new features. You are highly encouraged to submit your changes as a
+# * Github PR or by email to the dev@nmap.org mailing list for possible
+# * incorporation into the main distribution. Unless you specify otherwise, it
+# * is understood that you are offering us very broad rights to use your
+# * submissions as described in the Nmap Public Source License Contributor
+# * Agreement. This is important because we fund the project by selling licenses
+# * with various terms, and also because the inability to relicense code has
+# * caused devastating problems for other Free Software projects (such as KDE
+# * and NASM).
+# *
+# * The free version of Nmap is distributed in the hope that it will be
+# * useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
+# * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. Warranties,
+# * indemnification and commercial support are all available through the
+# * Npcap OEM program--see https://nmap.org/oem/
+# *
 # ***************************************************************************/
 
 """
@@ -66,10 +64,10 @@ higwidgets/higspinner.py
 
 __all__ = ['HIGSpinner']
 
-import gtk
-import gobject
+import gi
 
-from gtkutils import gobject_register
+gi.require_version("Gtk", "3.0")
+from gi.repository import Gtk, GLib, Gdk, GdkPixbuf
 
 
 class HIGSpinnerImages:
@@ -132,15 +130,15 @@ class HIGSpinnerImages:
         new_animated = []
         for p in self.animated_pixbufs:
             new_animated.append(p.scale_simple(width, height,
-                                               gtk.gdk.INTERP_BILINEAR))
+                                               GdkPixbuf.InterpType.BILINEAR))
         self.animated_pixbufs = new_animated
 
         for k in self.static_pixbufs:
             self.static_pixbufs[k] = self.static_pixbufs[k].scale_simple(
-                    width, height, gtk.gdk.INTERP_BILINEAR)
+                    width, height, GdkPixbuf.InterpType.BILINEAR)
 
         self.rest_pixbuf = self.rest_pixbuf.scale_simple(
-                width, height, gtk.gdk.INTERP_BILINEAR)
+                width, height, GdkPixbuf.InterpType.BILINEAR)
 
         self.images_width = width
         self.images_height = height
@@ -156,7 +154,7 @@ class HIGSpinnerCache:
         self.spinner_images = HIGSpinnerImages()
 
         # These are on Private member in the C implementation
-        self.icon_theme = gtk.IconTheme()
+        self.icon_theme = Gtk.IconTheme()
         self.originals = None
         self.images = None
 
@@ -203,7 +201,7 @@ class HIGSpinnerCache:
 
     def load_animated_from_filename(self, filename, size):
         # grid_pixbuf is a pixbuf that holds the entire
-        grid_pixbuf = gtk.gdk.pixbuf_new_from_file(filename)
+        grid_pixbuf = GdkPixbuf.Pixbuf.new_from_file(filename)
         grid_width = grid_pixbuf.get_width()
         grid_height = grid_pixbuf.get_height()
 
@@ -221,7 +219,7 @@ class HIGSpinnerCache:
         self.load_static_from_filename(filename)
 
     def load_static_from_filename(self, filename, key_name=None):
-        icon_pixbuf = gtk.gdk.pixbuf_new_from_file(filename)
+        icon_pixbuf = GdkPixbuf.Pixbuf.new_from_file(filename)
 
         if key_name is None:
             key_name = filename.split(".")[0]
@@ -257,7 +255,7 @@ class HIGSpinnerCache:
                                                           image_format)
 
 
-class HIGSpinner(gtk.EventBox):
+class HIGSpinner(Gtk.EventBox):
     """Simple spinner, such as the one found in webbrowsers and file managers.
 
     You can construct it with the optional parameters:
@@ -266,11 +264,11 @@ class HIGSpinner(gtk.EventBox):
     * height, the height that will be set for the images
     """
 
-    __gsignals__ = {'expose-event': 'override',
-                    'size-request': 'override'}
+    #__gsignals__ = {'expose-event': 'override',
+    #                'size-request': 'override'}
 
     def __init__(self):
-        gtk.EventBox.__init__(self)
+        Gtk.EventBox.__init__(self)
 
         #self.set_events(self.get_events())
 
@@ -325,13 +323,13 @@ class HIGSpinner(gtk.EventBox):
     def start(self):
         """Starts the animation"""
         if self.timer_task == 0:
-            self.timer_task = gobject.timeout_add(self.timeout,
+            self.timer_task = GLib.timeout_add(self.timeout,
                                                   self.__bump_frame)
 
     def pause(self):
         """Pauses the animation"""
         if self.timer_task != 0:
-            gobject.source_remove(self.timer_task)
+            GLib.source_remove(self.timer_task)
 
         self.timer_task = 0
         self.queue_draw()
@@ -359,26 +357,29 @@ class HIGSpinner(gtk.EventBox):
 
         width = self.current_pixbuf.get_width()
         height = self.current_pixbuf.get_height()
-        x_offset = (self.allocation.width - width) / 2
-        y_offset = (self.allocation.height - height) / 2
+        x_offset = (self.allocation.width - width) // 2
+        y_offset = (self.allocation.height - height) // 2
 
-        pix_area = gtk.gdk.Rectangle(x_offset + self.allocation.x,
-                                     y_offset + self.allocation.y,
-                                     width, height)
+        pix_area = Gdk.Rectangle(x_offset + self.allocation.x,
+                                 y_offset + self.allocation.y,
+                                 width, height)
 
         dest = event.area.intersect(pix_area)
 
-        # If a graphic context doesn't not exist yet, create one
-        if self.gc is None:
-            self.gc = gtk.gdk.GC(self.window)
-        #gc = self.gc
-
-        self.window.draw_pixbuf(self.gc,
-                                self.current_pixbuf,
-                                dest.x - x_offset - self.allocation.x,
-                                dest.y - y_offset - self.allocation.y,
-                                dest.x, dest.y,
-                                dest.width, dest.height)
+#        # If a graphic context doesn't not exist yet, create one
+#        if self.gc is None:
+#            self.gc = gtk.gdk.GC(self.window)
+#        #gc = self.gc
+#
+#        cairo = self.window.cairo_create()
+#
+#
+#        self.window.draw_pixbuf(self.gc,
+#                                self.current_pixbuf,
+#                                dest.x - x_offset - self.allocation.x,
+#                                dest.y - y_offset - self.allocation.y,
+#                                dest.x, dest.y,
+#                                dest.width, dest.height)
 
     def do_size_request(self, requisition):
         # http://www.pygtk.org/pygtk2reference/class-gtkrequisition.html
@@ -386,5 +387,3 @@ class HIGSpinner(gtk.EventBox):
         # FIXME, this should really come from the pixbuf size + margins
         requisition.width = self.cache.spinner_images.images_width
         requisition.height = self.cache.spinner_images.images_height
-
-gobject_register(HIGSpinner)

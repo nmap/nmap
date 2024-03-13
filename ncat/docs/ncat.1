@@ -2,12 +2,12 @@
 .\"     Title: Ncat
 .\"    Author: [see the "Authors" section]
 .\" Generator: DocBook XSL Stylesheets v1.79.1 <http://docbook.sf.net/>
-.\"      Date: 10/05/2020
+.\"      Date: 05/17/2023
 .\"    Manual: Ncat Reference Guide
 .\"    Source: Ncat
 .\"  Language: English
 .\"
-.TH "NCAT" "1" "10/05/2020" "Ncat" "Ncat Reference Guide"
+.TH "NCAT" "1" "05/17/2023" "Ncat" "Ncat Reference Guide"
 .\" -----------------------------------------------------------------
 .\" * Define some portability stuff
 .\" -----------------------------------------------------------------
@@ -43,7 +43,7 @@ Among Ncat\*(Aqs vast number of features there is the ability to chain Ncats tog
 .RS 4
 .\}
 .nf
-Ncat 7\&.90SVN ( https://nmap\&.org/ncat )
+Ncat 7\&.94 ( https://nmap\&.org/ncat )
 Usage: ncat [options] [hostname] [port]
 
 Options taking a time assume seconds\&. Append \*(Aqms\*(Aq for milliseconds,
@@ -241,7 +241,7 @@ In connect mode, this option transparently negotiates an SSL session with an SSL
 .sp
 In server mode, this option listens for incoming SSL connections, rather than plain untunneled traffic\&.
 .sp
-In UDP connect mode, this option enables Datagram TLS (DTLS)\&. This is not supported in server mode\&.
+In UDP mode, this option enables Datagram TLS (DTLS)\&.
 .RE
 .PP
 \fB\-\-ssl\-verify\fR (Verify server certificates)
@@ -336,7 +336,8 @@ or
 .sp
 These credentials can be alternatively passed onto Ncat by setting environment variable
 \fBNCAT_PROXY_AUTH\fR, which reduces the risk of the credentials being captured in process logs\&. (Option
-\fB\-\-proxy\-auth\fRtakes precedence\&.)
+\fB\-\-proxy\-auth\fR
+takes precedence\&.)
 .RE
 .PP
 \fB\-\-proxy\-dns \fR\fB\fItype\fR\fR (Specify where to resolve proxy destination)
@@ -648,7 +649,7 @@ Like its authors, Ncat isn\*(Aqt perfect\&. But you can help make it better by s
 \m[blue]\fB\%https://nmap.org\fR\m[]\&. If the problem persists, do some research to determine whether it has already been discovered and addressed\&. Try Googling the error message or browsing the
 nmap\-dev
 archives at
-\m[blue]\fB\%http://seclists.org/\fR\m[]\&.
+\m[blue]\fB\%https://seclists.org/\fR\m[]\&.
 
 Read this full manual page as well\&. If nothing comes of this, mail a bug report to
 <dev@nmap\&.org>\&. Please include everything you have learned about the problem, as well as what version of Ncat you are running and what operating system version it is running on\&. Problem reports and Ncat usage questions sent to dev@nmap\&.org are far more likely to be answered than those sent to Fyodor directly\&.
@@ -679,6 +680,18 @@ Chris Gibson
 .sp -1
 .IP \(bu 2.3
 .\}
+Gordon Lyon (Fyodor)<fyodor@nmap\&.org>
+(\m[blue]\fB\%http://insecure.org\fR\m[])
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
 Kris Katterjohn
 <katterjohn@gmail\&.com>
 .RE
@@ -694,19 +707,6 @@ Kris Katterjohn
 Mixter
 <mixter@gmail\&.com>
 .RE
-.sp
-.RS 4
-.ie n \{\
-\h'-04'\(bu\h'+03'\c
-.\}
-.el \{\
-.sp -1
-.IP \(bu 2.3
-.\}
-Fyodor
-<fyodor@nmap\&.org>
-(\m[blue]\fB\%http://insecure.org\fR\m[])
-.RE
 .PP
 The original Netcat was written by *Hobbit*
 <hobbit@avian\&.org>\&. While Ncat isn\*(Aqt built on any code from the
@@ -715,13 +715,13 @@ Netcat (or any other implementation), Ncat is most definitely based on Netcat in
 .SH "LEGAL NOTICES"
 .SS "Ncat Copyright and Licensing"
 .PP
-Ncat is (C) 2005\(en2020 Insecure\&.Com LLC\&. It is distributed as free and open source software under the same license terms as our Nmap software\&. Precise terms and further details are available
+Ncat is (C) 2005\(en2022 Nmap Software LLC\&. It is distributed as free and open source software under the same license terms as our Nmap software\&. Precise terms and further details are available
 from \m[blue]\fB\%https://nmap.org/man/man-legal.html\fR\m[]\&.
 .SS "Creative Commons License for this Ncat Guide"
 .PP
 This
 Ncat Reference Guide
-is (C) 2005\(en2018 Insecure\&.Com LLC\&. It is hereby placed under version 3\&.0 of the
+is (C) 2005\(en2022 Nmap Software LLC\&. It is hereby placed under version 3\&.0 of the
 \m[blue]\fBCreative Commons Attribution License\fR\m[]\&\s-2\u[1]\d\s+2\&. This allows you redistribute and modify the work as you desire, as long as you credit the original source\&. Alternatively, you may choose to treat this document as falling under the same license as Ncat itself (discussed previously)\&.
 .SS "Source Code Availability and Community Contributions"
 .PP
@@ -729,7 +729,7 @@ Source is provided to this software because we believe users have a right to kno
 .PP
 Source code also allows you to port Nmap (which includes Ncat) to new platforms, fix bugs, and add new features\&. You are highly encouraged to send your changes to
 <dev@nmap\&.org>
-for possible incorporation into the main distribution\&. By sending these changes to Fyodor or one of the Insecure\&.Org development mailing lists, it is assumed that you are offering the Nmap Project (Insecure\&.Com LLC) the unlimited, non\-exclusive right to reuse, modify, and relicense the code\&. Nmap will always be available open source,
+for possible incorporation into the main distribution\&. By sending these changes to Fyodor or one of the Insecure\&.Org development mailing lists, it is assumed that you are offering the Nmap Project (Nmap Software LLC) the unlimited, non\-exclusive right to reuse, modify, and relicense the code\&. Nmap will always be available open source,
 but this is important because the inability to relicense code has caused devastating problems for other Free Software projects (such as KDE and NASM)\&. We also occasionally relicense the code to third parties as discussed in the Nmap man page\&. If you wish to specify special license conditions of your contributions, just say so when you send them\&.
 .SS "No Warranty"
 .PP
@@ -773,7 +773,7 @@ Libpcap portable packet capture library
 .IP " 4." 4
 Npcap library
 .RS 4
-\%https://npcap.org
+\%https://npcap.com
 .RE
 .IP " 5." 4
 Libdnet

@@ -70,14 +70,16 @@ local function chi2(data, num_cats)
     return x2
 end
 
+local function c_to_bin (c)
+  local n = stdnse.tobinary(c:byte())
+  return ("0"):rep(8-#n)..n
+end
+
 -- Split a string into a sequence of bit strings of the given length.
 -- splitbits("abc", 5) --> {"01100", "00101", "10001", "00110"}
 -- Any short final group is omitted.
 local function splitbits(s, n)
-    local bits = s:gsub(".", function (c)
-        local n = stdnse.tobinary(c:byte())
-        return ("0"):rep(8-#n)..n
-      end)
+    local bits = s:gsub(".", c_to_bin)
 
     local seq = {}
     for i = 1, #bits - n, n do

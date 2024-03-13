@@ -2,60 +2,59 @@
  * ncat_main.c -- main function: option parsing and checking, dispatching  *
  * to mode-specific functions.                                             *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
- *                                                                         *
- * The Nmap Security Scanner is (C) 1996-2020 Insecure.Com LLC ("The Nmap  *
- * Project"). Nmap is also a registered trademark of the Nmap Project.     *
- *                                                                         *
- * This program is distributed under the terms of the Nmap Public Source   *
- * License (NPSL). The exact license text applying to a particular Nmap    *
- * release or source code control revision is contained in the LICENSE     *
- * file distributed with that version of Nmap or source code control       *
- * revision. More Nmap copyright/legal information is available from       *
- * https://nmap.org/book/man-legal.html, and further information on the    *
- * NPSL license itself can be found at https://nmap.org/npsl. This header  *
- * summarizes some key points from the Nmap license, but is no substitute  *
- * for the actual license text.                                            *
- *                                                                         *
- * Nmap is generally free for end users to download and use themselves,    *
- * including commercial use. It is available from https://nmap.org.        *
- *                                                                         *
- * The Nmap license generally prohibits companies from using and           *
- * redistributing Nmap in commercial products, but we sell a special Nmap  *
- * OEM Edition with a more permissive license and special features for     *
- * this purpose. See https://nmap.org/oem                                  *
- *                                                                         *
- * If you have received a written Nmap license agreement or contract       *
- * stating terms other than these (such as an Nmap OEM license), you may   *
- * choose to use and redistribute Nmap under those terms instead.          *
- *                                                                         *
- * The official Nmap Windows builds include the Npcap software             *
- * (https://npcap.org) for packet capture and transmission. It is under    *
- * separate license terms which forbid redistribution without special      *
- * permission. So the official Nmap Windows builds may not be              *
- * redistributed without special permission (such as an Nmap OEM           *
- * license).                                                               *
- *                                                                         *
- * Source is provided to this software because we believe users have a     *
- * right to know exactly what a program is going to do before they run it. *
- * This also allows you to audit the software for security holes.          *
- *                                                                         *
- * Source code also allows you to port Nmap to new platforms, fix bugs,    *
- * and add new features.  You are highly encouraged to submit your         *
- * changes as a Github PR or by email to the dev@nmap.org mailing list     *
- * for possible incorporation into the main distribution. Unless you       *
- * specify otherwise, it is understood that you are offering us very       *
- * broad rights to use your submissions as described in the Nmap Public    *
- * Source License Contributor Agreement. This is important because we      *
- * fund the project by selling licenses with various terms, and also       *
- * because the inability to relicense code has caused devastating          *
- * problems for other Free Software projects (such as KDE and NASM).       *
- *                                                                         *
- * The free version of Nmap is distributed in the hope that it will be     *
- * useful, but WITHOUT ANY WARRANTY; without even the implied warranty of  *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. Warranties,        *
- * indemnification and commercial support are all available through the    *
- * Npcap OEM program--see https://nmap.org/oem.                            *
- *                                                                         *
+ *
+ * The Nmap Security Scanner is (C) 1996-2024 Nmap Software LLC ("The Nmap
+ * Project"). Nmap is also a registered trademark of the Nmap Project.
+ *
+ * This program is distributed under the terms of the Nmap Public Source
+ * License (NPSL). The exact license text applying to a particular Nmap
+ * release or source code control revision is contained in the LICENSE
+ * file distributed with that version of Nmap or source code control
+ * revision. More Nmap copyright/legal information is available from
+ * https://nmap.org/book/man-legal.html, and further information on the
+ * NPSL license itself can be found at https://nmap.org/npsl/ . This
+ * header summarizes some key points from the Nmap license, but is no
+ * substitute for the actual license text.
+ *
+ * Nmap is generally free for end users to download and use themselves,
+ * including commercial use. It is available from https://nmap.org.
+ *
+ * The Nmap license generally prohibits companies from using and
+ * redistributing Nmap in commercial products, but we sell a special Nmap
+ * OEM Edition with a more permissive license and special features for
+ * this purpose. See https://nmap.org/oem/
+ *
+ * If you have received a written Nmap license agreement or contract
+ * stating terms other than these (such as an Nmap OEM license), you may
+ * choose to use and redistribute Nmap under those terms instead.
+ *
+ * The official Nmap Windows builds include the Npcap software
+ * (https://npcap.com) for packet capture and transmission. It is under
+ * separate license terms which forbid redistribution without special
+ * permission. So the official Nmap Windows builds may not be redistributed
+ * without special permission (such as an Nmap OEM license).
+ *
+ * Source is provided to this software because we believe users have a
+ * right to know exactly what a program is going to do before they run it.
+ * This also allows you to audit the software for security holes.
+ *
+ * Source code also allows you to port Nmap to new platforms, fix bugs, and
+ * add new features. You are highly encouraged to submit your changes as a
+ * Github PR or by email to the dev@nmap.org mailing list for possible
+ * incorporation into the main distribution. Unless you specify otherwise, it
+ * is understood that you are offering us very broad rights to use your
+ * submissions as described in the Nmap Public Source License Contributor
+ * Agreement. This is important because we fund the project by selling licenses
+ * with various terms, and also because the inability to relicense code has
+ * caused devastating problems for other Free Software projects (such as KDE
+ * and NASM).
+ *
+ * The free version of Nmap is distributed in the hope that it will be
+ * useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. Warranties,
+ * indemnification and commercial support are all available through the
+ * Npcap OEM program--see https://nmap.org/oem/
+ *
  ***************************************************************************/
 
 /* $Id$ */
@@ -509,13 +508,14 @@ int main(int argc, char *argv[])
             } else if (strcmp(long_options[option_index].name, "ssl-servername") == 0) {
                 o.ssl = 1;
                 o.sslservername = Strdup(optarg);
+            }
 #ifdef HAVE_ALPN_SUPPORT
-            } else if (strcmp(long_options[option_index].name, "ssl-alpn") == 0) {
+            else if (strcmp(long_options[option_index].name, "ssl-alpn") == 0) {
                 o.ssl = 1;
                 o.sslalpn = Strdup(optarg);
             }
 #else
-            } else if (strcmp(long_options[option_index].name, "ssl-alpn") == 0) {
+            else if (strcmp(long_options[option_index].name, "ssl-alpn") == 0) {
                 bye("OpenSSL does not have ALPN support compiled in. The --ssl-alpn option cannot be chosen.");
             }
 #endif
@@ -793,8 +793,7 @@ int main(int argc, char *argv[])
          * If it's not valid, it will fail later! */
         if (o.af == AF_UNIX) {
             if (o.proto == IPPROTO_UDP) {
-                srcaddr.un.sun_family = AF_UNIX;
-                strncpy(srcaddr.un.sun_path, source, sizeof(srcaddr.un.sun_path));
+                NCAT_INIT_SUN(&srcaddr, source);
                 srcaddrlen = SUN_LEN(&srcaddr.un);
             }
             else
@@ -827,87 +826,101 @@ int main(int argc, char *argv[])
     host_list_to_set(o.denyset, deny_host_list);
     host_list_free(deny_host_list);
 
-    if (optind == argc) {
+    int rc;
+    int num_ports = 0;
+    if (srcport != -1 && o.listen) {
+        /* Treat "ncat -l -p <port>" the same as "ncat -l <port>" for nc
+           compatibility. */
+        o.portno = (unsigned int) srcport;
+        num_ports++;
+    }
+    /* How many arguments are left? */
+    ncat_assert(optind <= argc);
+    switch (argc - optind) {
+      case 2:
+#if HAVE_SYS_UN_H
+        /* We do not use ports with Unix domain sockets. */
+        if (o.af == AF_UNIX) {
+            bye("Using Unix domain sockets and specifying port doesn't make sense.");
+        }
+#endif
+        if (num_ports == 0)
+          o.portno = parseport(argv[optind + 1], max_port, "port");
+        num_ports++;
+        /* fall through: */
+      case 1:
 #if HAVE_SYS_UN_H
         if (o.af == AF_UNIX) {
-            if (!o.listen)
-                bye("You have to specify path to a socket to connect to.");
-            else
-                bye("You have to specify path to a socket to listen on.");
+            NCAT_INIT_SUN(&targetaddrs->addr, argv[optind]);
+            targetaddrs->addrlen = SUN_LEN(&targetaddrs->addr.un);
+            o.sslservername = o.target = argv[optind];
+            break;
+        }
+#endif
+#if HAVE_LINUX_VM_SOCKETS_H
+        if (o.af == AF_VSOCK) {
+            long long_cid;
+
+            memset(&targetaddrs->addr.storage, 0, sizeof(struct sockaddr_vm));
+            targetaddrs->addr.vm.svm_family = AF_VSOCK;
+
+            errno = 0;
+            long_cid = strtol(argv[optind], NULL, 10);
+            if (errno != 0 || long_cid <= 0 || long_cid > UINT32_MAX)
+                bye("Invalid CID \"%s\".", argv[optind]);
+            targetaddrs->addr.vm.svm_cid = long_cid;
+
+            targetaddrs->addrlen = sizeof(targetaddrs->addr.vm);
+            o.sslservername = o.target = argv[optind];
+            break;
+        }
+#endif
+        /* Support ncat -l <port>, but otherwise assume ncat <target> */
+        if (num_ports == 0 && o.listen) {
+            rc = strspn(argv[optind], "1234567890");
+            /* If the last arg is 5 or fewer digits, assume it's a port number */
+            if (argv[optind][rc] == '\0' && rc <= 5) {
+                o.portno = parseport(argv[optind], max_port, "port");
+                num_ports++;
+                break;
+            }
+        }
+        o.target = argv[optind];
+        /* resolve hostname only if o.proxytype == NULL
+         * targetss contains data already and you don't want remove them
+         */
+        if( !o.proxytype
+                && (rc = resolve_multi(o.target, 0, targetaddrs, o.af)) != 0)
+
+            bye("Could not resolve hostname \"%s\": %s.", o.target, gai_strerror(rc));
+        if (!o.sslservername)
+            o.sslservername = o.target;
+        break;
+      case 0:
+#if HAVE_SYS_UN_H
+        if (o.af == AF_UNIX) {
+            bye("You must specify a path to a socket to %s.",
+                    o.listen ? "listen on" : "connect to");
         }
 #endif
         /* Listen defaults to any address and DEFAULT_NCAT_PORT */
         if (!o.listen)
             bye("You must specify a host to connect to.");
-    } else {
-#if HAVE_SYS_UN_H
-        if (o.af == AF_UNIX) {
-            memset(&targetaddrs->addr.storage, 0, sizeof(struct sockaddr_un));
-            targetaddrs->addr.un.sun_family = AF_UNIX;
-            strncpy(targetaddrs->addr.un.sun_path, argv[optind], sizeof(targetaddrs->addr.un.sun_path));
-            targetaddrs->addrlen = SUN_LEN(&targetaddrs->addr.un);
-            o.sslservername = o.target = argv[optind];
-            optind++;
-        } else
-#endif
-#if HAVE_LINUX_VM_SOCKETS_H
-        if (o.af == AF_VSOCK) {
-            if (!o.listen || optind + 1 < argc) {
-                long long_cid;
-
-                memset(&targetaddrs->addr.storage, 0, sizeof(struct sockaddr_vm));
-                targetaddrs->addr.vm.svm_family = AF_VSOCK;
-
-                errno = 0;
-                long_cid = strtol(argv[optind], NULL, 10);
-                if (errno != 0 || long_cid <= 0 || long_cid > UINT32_MAX)
-                    bye("Invalid CID \"%s\".", argv[optind]);
-                targetaddrs->addr.vm.svm_cid = long_cid;
-
-                targetaddrs->addrlen = sizeof(targetaddrs->addr.vm);
-                o.sslservername = o.target = argv[optind];
-                optind++;
-            }
-        } else
-#endif
-        /* Resolve hostname if we're given one */
-        if (strspn(argv[optind], "0123456789") != strlen(argv[optind])) {
-            int rc;
-
-            o.target = argv[optind];
-            /* resolve hostname only if o.proxytype == NULL
-             * targetss contains data already and you don't want remove them
-             */
-            if( !o.proxytype
-                && (rc = resolve_multi(o.target, 0, targetaddrs, o.af)) != 0)
-
-                bye("Could not resolve hostname \"%s\": %s.", o.target, gai_strerror(rc));
-            if (!o.sslservername)
-                o.sslservername = o.target;
-            optind++;
-        } else {
-            if (!o.listen)
-                bye("You must specify a host to connect to.");
-        }
+        break;
+      default:
+        if (num_ports == 0)
+            o.portno = parseport(argv[optind + 1], max_port, "port");
+        num_ports += argc - optind - 1;
+        break;
     }
 
-    /* Whatever's left is the port number; there should be at most one. */
-#if HAVE_SYS_UN_H
-    /* We do not use ports with Unix domain sockets. */
-    if (o.af == AF_UNIX && optind > argc)
-        bye("Using Unix domain sockets and specifying port doesn't make sense.");
-#endif
-
-    if (optind + 1 < argc || (o.listen && srcport != -1 && optind + 1 == argc)) {
-        loguser("Got more than one port specification:");
-        if (o.listen && srcport != -1)
-            loguser_noprefix(" %lld", srcport);
-        for (; optind < argc; optind++)
-            loguser_noprefix(" %s", argv[optind]);
+    if (num_ports > 1) {
+        loguser("Got more than one port specification: %u", o.portno);
+        for (rc = argc - num_ports + 1; rc < argc; rc++)
+            loguser_noprefix(" %s", argv[rc]);
         loguser_noprefix(". QUITTING.\n");
         exit(2);
-    } else if (optind + 1 == argc)
-        o.portno = parseport(argv[optind], max_port, "port");
+    }
 
     if (o.proxytype && !o.listen)
         ; /* Do nothing - port is already set to proxyport  */
@@ -938,12 +951,7 @@ int main(int argc, char *argv[])
         }
     }
 
-    if (srcport != -1) {
-        if (o.listen) {
-            /* Treat "ncat -l -p <port>" the same as "ncat -l <port>" for nc
-               compatibility. */
-            o.portno = (unsigned int) srcport;
-        } else {
+    if (srcport != -1 && !o.listen) {
             if (srcaddr.storage.ss_family == AF_UNSPEC) {
                 /* We have a source port but not an explicit source address;
                    fill in an unspecified address of the same family as the
@@ -964,7 +972,6 @@ int main(int argc, char *argv[])
             else if (srcaddr.storage.ss_family == AF_VSOCK)
                 srcaddr.vm.svm_port = (unsigned int) srcport;
 #endif
-        }
     }
 
     if (o.proto == IPPROTO_UDP) {
@@ -973,13 +980,6 @@ int main(int argc, char *argv[])
         if (o.ssl)
             bye("OpenSSL does not have DTLS support compiled in.");
 #endif
-        if (o.keepopen && o.cmdexec == NULL)
-            bye("UDP mode does not support the -k or --keep-open options, except with --exec or --sh-exec.");
-        if (o.broker)
-            bye("UDP mode does not support connection brokering.\n\
-If this feature is important to you, write dev@nmap.org with a\n\
-description of how you intend to use it, as an aid to deciding how UDP\n\
-connection brokering should work.");
     }
 
     /* Do whatever is necessary to receive \n for line endings on input from

@@ -1,60 +1,59 @@
 /***************************************************************************
  * ncat_connect.c -- Ncat connect mode.                                    *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
- *                                                                         *
- * The Nmap Security Scanner is (C) 1996-2020 Insecure.Com LLC ("The Nmap  *
- * Project"). Nmap is also a registered trademark of the Nmap Project.     *
- *                                                                         *
- * This program is distributed under the terms of the Nmap Public Source   *
- * License (NPSL). The exact license text applying to a particular Nmap    *
- * release or source code control revision is contained in the LICENSE     *
- * file distributed with that version of Nmap or source code control       *
- * revision. More Nmap copyright/legal information is available from       *
- * https://nmap.org/book/man-legal.html, and further information on the    *
- * NPSL license itself can be found at https://nmap.org/npsl. This header  *
- * summarizes some key points from the Nmap license, but is no substitute  *
- * for the actual license text.                                            *
- *                                                                         *
- * Nmap is generally free for end users to download and use themselves,    *
- * including commercial use. It is available from https://nmap.org.        *
- *                                                                         *
- * The Nmap license generally prohibits companies from using and           *
- * redistributing Nmap in commercial products, but we sell a special Nmap  *
- * OEM Edition with a more permissive license and special features for     *
- * this purpose. See https://nmap.org/oem                                  *
- *                                                                         *
- * If you have received a written Nmap license agreement or contract       *
- * stating terms other than these (such as an Nmap OEM license), you may   *
- * choose to use and redistribute Nmap under those terms instead.          *
- *                                                                         *
- * The official Nmap Windows builds include the Npcap software             *
- * (https://npcap.org) for packet capture and transmission. It is under    *
- * separate license terms which forbid redistribution without special      *
- * permission. So the official Nmap Windows builds may not be              *
- * redistributed without special permission (such as an Nmap OEM           *
- * license).                                                               *
- *                                                                         *
- * Source is provided to this software because we believe users have a     *
- * right to know exactly what a program is going to do before they run it. *
- * This also allows you to audit the software for security holes.          *
- *                                                                         *
- * Source code also allows you to port Nmap to new platforms, fix bugs,    *
- * and add new features.  You are highly encouraged to submit your         *
- * changes as a Github PR or by email to the dev@nmap.org mailing list     *
- * for possible incorporation into the main distribution. Unless you       *
- * specify otherwise, it is understood that you are offering us very       *
- * broad rights to use your submissions as described in the Nmap Public    *
- * Source License Contributor Agreement. This is important because we      *
- * fund the project by selling licenses with various terms, and also       *
- * because the inability to relicense code has caused devastating          *
- * problems for other Free Software projects (such as KDE and NASM).       *
- *                                                                         *
- * The free version of Nmap is distributed in the hope that it will be     *
- * useful, but WITHOUT ANY WARRANTY; without even the implied warranty of  *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. Warranties,        *
- * indemnification and commercial support are all available through the    *
- * Npcap OEM program--see https://nmap.org/oem.                            *
- *                                                                         *
+ *
+ * The Nmap Security Scanner is (C) 1996-2024 Nmap Software LLC ("The Nmap
+ * Project"). Nmap is also a registered trademark of the Nmap Project.
+ *
+ * This program is distributed under the terms of the Nmap Public Source
+ * License (NPSL). The exact license text applying to a particular Nmap
+ * release or source code control revision is contained in the LICENSE
+ * file distributed with that version of Nmap or source code control
+ * revision. More Nmap copyright/legal information is available from
+ * https://nmap.org/book/man-legal.html, and further information on the
+ * NPSL license itself can be found at https://nmap.org/npsl/ . This
+ * header summarizes some key points from the Nmap license, but is no
+ * substitute for the actual license text.
+ *
+ * Nmap is generally free for end users to download and use themselves,
+ * including commercial use. It is available from https://nmap.org.
+ *
+ * The Nmap license generally prohibits companies from using and
+ * redistributing Nmap in commercial products, but we sell a special Nmap
+ * OEM Edition with a more permissive license and special features for
+ * this purpose. See https://nmap.org/oem/
+ *
+ * If you have received a written Nmap license agreement or contract
+ * stating terms other than these (such as an Nmap OEM license), you may
+ * choose to use and redistribute Nmap under those terms instead.
+ *
+ * The official Nmap Windows builds include the Npcap software
+ * (https://npcap.com) for packet capture and transmission. It is under
+ * separate license terms which forbid redistribution without special
+ * permission. So the official Nmap Windows builds may not be redistributed
+ * without special permission (such as an Nmap OEM license).
+ *
+ * Source is provided to this software because we believe users have a
+ * right to know exactly what a program is going to do before they run it.
+ * This also allows you to audit the software for security holes.
+ *
+ * Source code also allows you to port Nmap to new platforms, fix bugs, and
+ * add new features. You are highly encouraged to submit your changes as a
+ * Github PR or by email to the dev@nmap.org mailing list for possible
+ * incorporation into the main distribution. Unless you specify otherwise, it
+ * is understood that you are offering us very broad rights to use your
+ * submissions as described in the Nmap Public Source License Contributor
+ * Agreement. This is important because we fund the project by selling licenses
+ * with various terms, and also because the inability to relicense code has
+ * caused devastating problems for other Free Software projects (such as KDE
+ * and NASM).
+ *
+ * The free version of Nmap is distributed in the hope that it will be
+ * useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. Warranties,
+ * indemnification and commercial support are all available through the
+ * Npcap OEM program--see https://nmap.org/oem/
+ *
  ***************************************************************************/
 
 /* $Id$ */
@@ -80,6 +79,11 @@
 #ifdef HAVE_OPENSSL
 #include <openssl/ssl.h>
 #include <openssl/err.h>
+
+/* Deprecated in OpenSSL 3.0 */
+#if OPENSSL_VERSION_NUMBER >= 0x30000000L
+# define SSL_get_peer_certificate SSL_get1_peer_certificate
+#endif
 #endif
 
 #ifdef WIN32
@@ -225,8 +229,13 @@ static void connect_report(nsock_iod nsi)
     nsock_iod_get_communication_info(nsi, NULL, NULL, NULL, &peer.sockaddr,
                                      sizeof(peer.storage));
     if (o.verbose) {
-#define connect_report_peer_str (o.proxytype ? o.target : inet_socktop(&peer))
-#define connect_report_peer_port (o.proxytype ? o.portno : nsock_iod_get_peerport(nsi))
+        char peer_str[INET6_ADDRSTRLEN + sizeof(union sockaddr_u)] = {0};
+        if (o.proxytype) {
+            Snprintf(peer_str, sizeof(peer_str), "%s:%u", o.target, o.portno);
+        }
+        else {
+            Strncpy(peer_str, socktop(&peer, 0), sizeof(peer_str));
+        }
 #ifdef HAVE_OPENSSL
         if (nsock_iod_check_ssl(nsi)) {
             X509 *cert;
@@ -234,8 +243,7 @@ static void connect_report(nsock_iod nsi)
             char digest_buf[SHA1_STRING_LENGTH + 1];
             char *fp;
 
-            loguser("SSL connection to %s:%d.", connect_report_peer_str,
-                    connect_report_peer_port);
+            loguser("SSL connection to %s.", peer_str);
 
             cert = SSL_get_peer_certificate((SSL *)nsock_iod_get_ssl(nsi));
             ncat_assert(cert != NULL);
@@ -255,34 +263,11 @@ static void connect_report(nsock_iod nsi)
             fp = ssl_cert_fp_str_sha1(cert, digest_buf, sizeof(digest_buf));
             ncat_assert(fp == digest_buf);
             loguser("SHA-1 fingerprint: %s\n", digest_buf);
-        } else {
-#if HAVE_SYS_UN_H
-            if (peer.sockaddr.sa_family == AF_UNIX)
-                loguser("Connected to %s.\n", peer.un.sun_path);
-            else
+        } else
 #endif
-#ifdef HAVE_LINUX_VM_SOCKETS_H
-            if (peer.sockaddr.sa_family == AF_VSOCK)
-                loguser("Connection to %u.\n", peer.vm.svm_cid);
-            else
-#endif
-                loguser("Connected to %s:%d.\n", connect_report_peer_str,
-                        connect_report_peer_port);
+        {
+            loguser("Connected to %s.\n", peer_str);
         }
-#else
-#if HAVE_SYS_UN_H
-        if (peer.sockaddr.sa_family == AF_UNIX)
-            loguser("Connected to %s.\n", peer.un.sun_path);
-        else
-#endif
-#ifdef HAVE_LINUX_VM_SOCKETS_H
-        if (peer.sockaddr.sa_family == AF_VSOCK)
-            loguser("Connection to %u.\n", peer.vm.svm_cid);
-        else
-#endif
-            loguser("Connected to %s:%d.\n", connect_report_peer_str,
-                    connect_report_peer_port);
-#endif
     }
 }
 
@@ -385,7 +370,6 @@ static int do_proxy_http(void)
     char *target;
     union sockaddr_u addr;
     size_t sslen;
-    void *addrbuf;
     char addrstr[INET6_ADDRSTRLEN];
 
     request = NULL;
@@ -409,17 +393,7 @@ static int do_proxy_http(void)
         target = o.target;
     } else {
         /* addr is now populated with either sockaddr_in or sockaddr_in6 */
-        switch (addr.sockaddr.sa_family) {
-            case AF_INET:
-                addrbuf = &addr.in.sin_addr;
-                break;
-            case AF_INET6:
-                addrbuf = &addr.in6.sin6_addr;
-                break;
-            default:
-                ncat_assert(0);
-        }
-        inet_ntop(addr.sockaddr.sa_family, addrbuf, addrstr, sizeof(addrstr));
+        Strncpy(addrstr, inet_socktop(&addr), sizeof(addrstr));
         target = addrstr;
         if (o.verbose && getaddrfamily(o.target) == -1)
             loguser("Host %s locally resolved to %s.\n", o.target, target);
@@ -544,7 +518,6 @@ bail:
  */
 static int do_proxy_socks4(void)
 {
-    struct socket_buffer stateful_buf;
     char socksbuf[8];
     struct socks4_data socks4msg;
     size_t datalen;
@@ -563,7 +536,6 @@ static int do_proxy_socks4(void)
         loguser("Proxy connection failed: %s.\n", socket_strerror(socket_errno()));
         return sd;
     }
-    socket_buffer_init(&stateful_buf, sd);
 
     if (o.verbose) {
         loguser("Connected to proxy %s:%hu\n", inet_socktop(&targetaddrs->addr),
@@ -606,7 +578,7 @@ static int do_proxy_socks4(void)
         socks4msg.address = addr.in.sin_addr.s_addr;
         if (o.verbose && getaddrfamily(o.target) == -1)
             loguser("Host %s locally resolved to %s.\n", o.target,
-                inet_ntoa(addr.in.sin_addr));
+                inet_socktop(&addr));
     }
 
     if (send(sd, (char *)&socks4msg, offsetof(struct socks4_data, data) + datalen, 0) < 0) {
@@ -617,7 +589,7 @@ static int do_proxy_socks4(void)
 
     /* The size of the socks4 response is 8 bytes. So read exactly
        8 bytes from the buffer */
-    if (socket_buffer_readcount(&stateful_buf, socksbuf, 8) < 0) {
+    if (recv(sd, socksbuf, 8, 0) < 0) {
         loguser("Error: short response from proxy.\n");
         close(sd);
         return -1;
@@ -638,10 +610,9 @@ static int do_proxy_socks4(void)
  */
 static int do_proxy_socks5(void)
 {
-    struct socket_buffer stateful_buf;
     struct socks5_connect socks5msg;
     uint16_t proxyport = htons(o.portno);
-    char socksbuf[8];
+    char socksbuf[4];
     int sd;
     size_t dstlen, targetlen;
     struct socks5_request socks5msg2;
@@ -652,15 +623,14 @@ static int do_proxy_socks5(void)
     size_t sslen;
     void *addrbuf;
     size_t addrlen;
-    char addrstr[INET6_ADDRSTRLEN];
+    size_t bndaddrlen;
+    char bndaddr[SOCKS5_DST_MAXLEN + 2]; /* IPv4/IPv6/hostname and port */
 
     sd = do_connect(SOCK_STREAM);
     if (sd == -1) {
         loguser("Proxy connection failed: %s.\n", socket_strerror(socket_errno()));
         return sd;
     }
-
-    socket_buffer_init(&stateful_buf, sd);
 
     if (o.verbose) {
         loguser("Connected to proxy %s:%hu\n", inet_socktop(&targetaddrs->addr),
@@ -681,15 +651,15 @@ static int do_proxy_socks5(void)
         return -1;
     }
 
-    /* first response just two bytes, version and auth method */
-    if (socket_buffer_readcount(&stateful_buf, socksbuf, 2) < 0) {
-        loguser("Error: malformed first response from proxy.\n");
+    /* connect response just two bytes, version and auth method */
+    if (recv(sd, socksbuf, 2, 0) < 0) {
+        loguser("Error: malformed connect response from proxy.\n");
         close(sd);
         return -1;
     }
 
     if (socksbuf[0] != SOCKS5_VERSION) {
-        loguser("Error: got wrong server version in response.\n");
+        loguser("Error: wrong SOCKS version in connect response.\n");
         close(sd);
         return -1;
     }
@@ -744,8 +714,8 @@ static int do_proxy_socks5(void)
              * Server response for username/password authentication:
              * field 1: version, 1 byte
              * field 2: status code, 1 byte.
-             * 0x00 = success
-             * any other value = failure, connection must be closed
+             *          0x00 = success
+             *          any other value = failure, connection must be closed
              */
 
             socks5auth.ver = 1;
@@ -764,7 +734,7 @@ static int do_proxy_socks5(void)
                 return -1;
             }
 
-            if (socket_buffer_readcount(&stateful_buf, socksbuf, 2) < 0) {
+            if (recv(sd, socksbuf, 2, 0) < 0) {
                 loguser("Error: malformed proxy authentication response.\n");
                 close(sd);
                 return -1;
@@ -805,7 +775,7 @@ static int do_proxy_socks5(void)
         if (o.verbose)
             loguser("Host %s will be resolved by the proxy.\n", o.target);
         socks5msg2.atyp = SOCKS5_ATYP_NAME;
-        targetlen=strlen(o.target);
+        targetlen = strlen(o.target);
         if (targetlen > SOCKS5_DST_MAXLEN){
             loguser("Error: hostname length exceeds %d.\n", SOCKS5_DST_MAXLEN);
             close(sd);
@@ -835,7 +805,7 @@ static int do_proxy_socks5(void)
         dstlen = addrlen;
         if (o.verbose && getaddrfamily(o.target) == -1)
             loguser("Host %s locally resolved to %s.\n", o.target,
-                inet_ntop(addr.sockaddr.sa_family, addrbuf, addrstr, sizeof(addrstr)));
+                inet_socktop(&addr));
     }
 
     memcpy(socks5msg2.dst + dstlen, &proxyport, 2);
@@ -847,9 +817,14 @@ static int do_proxy_socks5(void)
         return -1;
     }
 
-    /* TODO just two bytes for now, need to read more for bind */
-    if (socket_buffer_readcount(&stateful_buf, socksbuf, 2) < 0) {
-        loguser("Error: malformed second response from proxy.\n");
+    if (recv(sd, socksbuf, 4, 0) < 0) {
+        loguser("Error: malformed request response from proxy.\n");
+        close(sd);
+        return -1;
+    }
+
+    if (socksbuf[0] != SOCKS5_VERSION) {
+        loguser("Error: wrong SOCKS version in request response.\n");
         close(sd);
         return -1;
     }
@@ -895,6 +870,33 @@ static int do_proxy_socks5(void)
             loguser("Error: unassigned value in the reply.\n");
             close(sd);
             return -1;
+    }
+
+    switch (socksbuf[3]) {
+    case SOCKS5_ATYP_IPv4:
+        bndaddrlen = 4 + 2;
+        break;
+    case SOCKS5_ATYP_IPv6:
+        bndaddrlen = 16 + 2;
+        break;
+    case SOCKS5_ATYP_NAME:
+        if (recv(sd, socksbuf, 1, 0) < 0) {
+            loguser("Error: malformed request response from proxy.\n");
+            close(sd);
+            return -1;
+        }
+        bndaddrlen = (unsigned char)socksbuf[0] + 2;
+        break;
+    default:
+        loguser("Error: invalid proxy bind address type.\n");
+        close(sd);
+        return -1;
+    }
+
+    if (recv(sd, bndaddr, bndaddrlen, 0) < 0) {
+        loguser("Error: malformed request response from proxy.\n");
+        close(sd);
+        return -1;
     }
 
     return(sd);
@@ -1005,8 +1007,7 @@ int ncat_connect(void)
                     bye("Failed to create name for temporary DGRAM source Unix domain socket (tempnam).");
 #endif
 
-                srcaddr.un.sun_family = AF_UNIX;
-                strncpy(srcaddr.un.sun_path, tmp_name, sizeof(srcaddr.un.sun_path));
+                NCAT_INIT_SUN(&srcaddr, tmp_name);
                 free (tmp_name);
             }
 
@@ -1051,11 +1052,6 @@ int ncat_connect(void)
             nsock_pool_delete(mypool);
             return 1;
         }
-        /* Clear out whatever is left in the socket buffer which may be
-           already sent by proxy server along with http response headers. */
-        //line = socket_buffer_remainder(&stateful_buf, &n);
-        /* Write the leftover data to stdout. */
-        //Write(STDOUT_FILENO, line, n);
 
         /* Once the proxy negotiation is done, Nsock takes control of the
            socket. */
@@ -1064,12 +1060,17 @@ int ncat_connect(void)
             bye("Failed to set hostname on iod.");
         if (o.ssl)
         {
+            /* connect_handler creates stdin_nsi and calls post_connect */
             nsock_reconnect_ssl(mypool, cs.sock_nsi, connect_handler, o.conntimeout, NULL, NULL);
         }
+        else
+        {
+            /* Create IOD for nsp->stdin */
+            if ((cs.stdin_nsi = nsock_iod_new2(mypool, 0, NULL)) == NULL)
+                bye("Failed to create stdin nsiod.");
 
-        /* Create IOD for nsp->stdin */
-        if ((cs.stdin_nsi = nsock_iod_new2(mypool, 0, NULL)) == NULL)
-            bye("Failed to create stdin nsiod.");
+            post_connect(mypool, cs.sock_nsi);
+        }
     }
 
     /* connect */
@@ -1081,7 +1082,7 @@ int ncat_connect(void)
         struct timeval end_time;
         double time;
         gettimeofday(&end_time, NULL);
-        time = TIMEVAL_MSEC_SUBTRACT(end_time, start_time) / 1000.0;
+        time = TIMEVAL_FSEC_SUBTRACT(end_time, start_time);
         loguser("%lu bytes sent, %lu bytes received in %.2f seconds.\n",
             nsock_iod_get_write_count(cs.sock_nsi),
             nsock_iod_get_read_count(cs.sock_nsi), time);
@@ -1267,8 +1268,16 @@ static void read_stdin_handler(nsock_pool nsp, nsock_event evt, void *data)
 
 
     if (status == NSE_STATUS_EOF) {
-        if (!o.noshutdown)
-            shutdown(nsock_iod_get_sd(cs.sock_nsi), SHUT_WR);
+        if (!o.noshutdown) {
+#ifdef HAVE_OPENSSL
+            SSL *ssl = NULL;
+            if (o.ssl && NULL != (ssl = (SSL *)nsock_iod_get_ssl(cs.sock_nsi))) {
+                SSL_shutdown(ssl);
+            }
+            else
+#endif
+                shutdown(nsock_iod_get_sd(cs.sock_nsi), SHUT_WR);
+        }
         /* In --send-only mode or non-TCP mode, exit after EOF on stdin. */
         if (o.proto != IPPROTO_TCP || (o.proto == IPPROTO_TCP && o.sendonly))
             nsock_loop_quit(nsp);

@@ -18,6 +18,12 @@ use Fcntl qw(F_GETFL F_SETFL O_NONBLOCK);
 use IPC::Open3;
 use strict;
 
+{ # If the cert has expired, generate a new one.
+  my $verify = `openssl verify -trusted test-cert.pem test-cert.pem`;
+  if ($verify =~ /error 10 at/) {
+    system("openssl req -new -x509 -nodes -subj /O=ncat-test/CN=localhost/ -keyout test-cert.pem -out test-cert.pem");
+  }
+}
 $| = 1;
 
 my $HOST = "127.0.0.1";
@@ -72,7 +78,7 @@ sub ncat {
 	local *IN;
 	local *OUT;
 	local *ERR;
-	# print join(" ", ($NCAT, @_)) . "\n";
+  #print STDERR "RUN: " . join(" ", ($NCAT, @_)) . "\n";
 	$pid = open3(*IN, *OUT, *ERR, $NCAT, @_);
 	if (!defined $pid) {
 		die "open3 failed";
@@ -159,6 +165,7 @@ sub timeout_read {
 		return ($result or undef) if sysread($fh, $frag, $BUFSIZ) == 0;
 		$result .= $frag;
 	}
+  #print STDERR "READ: $result\n";
 	return $result;
 }
 
@@ -531,7 +538,7 @@ sub {
 kill_children;
 
 # Test server with no port.
-($s_pid, $s_out, $s_in) = ncat_server_noport("-l", $HOST);
+($s_pid, $s_out, $s_in) = ncat_server_noport($HOST);
 test "Server default port",
 sub {
 	my $resp;
@@ -590,8 +597,6 @@ sub {
 };
 kill_children;
 
-{
-local $xfail = 1;
 ($s_pid, $s_out, $s_in) = ncat_server_noport("--udp");
 test "Server default listen address --udp IPV4 + IPV6",
 sub {
@@ -617,10 +622,9 @@ sub {
 	$resp eq "abc\n" or die "Server got \"$resp\", not \"abc\\n\" from ::1";
 };
 kill_children;
-};
 
 ($s_pid, $s_out, $s_in) = ncat_server_noport("-6", "--udp");
-test "Server default listen address -6 --udp",
+test "Server default listen address -6 --udp not IPv4",
 sub {
 	my $resp;
 
@@ -658,7 +662,7 @@ sub {
 kill_children;
 
 ($s_pid, $s_out, $s_in) = ncat_server_noport("-4", "--udp");
-test "Server default listen address -4 --udp",
+test "Server default listen address -4 --udp not IPv6",
 sub {
 	my $resp;
 
@@ -1703,6 +1707,7 @@ unlink($UNIXSOCK_TMP);
 
 sub http_request {
 	my ($method, $uri) = @_;
+  #print STDERR "$method $uri HTTP/1.0\r\n\r\n";
 	return "$method $uri HTTP/1.0\r\n\r\n";
 };
 
@@ -1799,8 +1804,6 @@ proxy_test_raw "HTTP CONNECT IPv6-only proxy",
 	$code == 504 or die "Expected response code 504, got $code";
 };
 
-{
-local $xfail = 1;
 proxy_test_raw "HTTP CONNECT IPv4 client, IPv6 server",
 [], ["-6"], ["-4"], sub {
 	my $req = http_request("CONNECT", "[$IPV6_ADDR]:$PORT");
@@ -1809,7 +1812,15 @@ proxy_test_raw "HTTP CONNECT IPv4 client, IPv6 server",
 	my $code = HTTP::Response->parse($resp)->code;
 	$code == 200 or die "Expected response code 200, got $code";
 };
-}
+
+proxy_test_raw "HTTP CONNECT IPv6 client, IPv4 server",
+[], ["-4"], ["-6"], sub {
+	my $req = http_request("CONNECT", "$HOST:$PORT");
+	syswrite($c_in, $req);
+	my $resp = timeout_read($c_out) or die "Read timeout";
+	my $code = HTTP::Response->parse($resp)->code;
+	$code == 200 or die "Expected response code 200, got $code";
+};
 
 # HTTP Digest functions.
 sub H {

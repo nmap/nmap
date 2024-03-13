@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import errno
 import sys
@@ -8,13 +8,9 @@ import re
 
 from stat import ST_MODE
 
-import distutils.command
-import distutils.command.install
-import distutils.core
-import distutils.cmd
-import distutils.errors
-from distutils import log
-from distutils.command.install import install
+import setuptools.command.install
+from setuptools import setup, Command
+import logging
 
 APP_NAME = "ndiff"
 # The name of the file used to record the list of installed files, so that the
@@ -61,10 +57,10 @@ def path_strip_prefix(path, prefix):
 
 
 ###############################################################################
-# Distutils subclasses
+# setuptools subclasses
 
-class null_command(distutils.cmd.Command):
-    """This is a dummy distutils command that does nothing. We use it to
+class null_command(Command):
+    """This is a dummy setuptools command that does nothing. We use it to
     replace the install_egg_info and avoid installing a .egg-info file, because
     there's no option to disable that."""
     def initialize_options(self):
@@ -80,11 +76,7 @@ class null_command(distutils.cmd.Command):
         pass
 
 
-class checked_install(distutils.command.install.install):
-    """This is a wrapper around the install command that checks for an error
-    caused by not having the python-dev package installed. By default,
-    distutils gives a misleading error message: "invalid Python installation."
-    """
+class checked_install(setuptools.command.install.install):
 
     def finalize_options(self):
         # Ubuntu's python2.6-2.6.4-0ubuntu3 package changes sys.prefix in
@@ -92,15 +84,11 @@ class checked_install(distutils.command.install.install):
         # default). Because we need the unchanged value later, remember it
         # here.
         self.saved_prefix = sys.prefix
-        try:
-            distutils.command.install.install.finalize_options(self)
-        except distutils.errors.DistutilsPlatformError, e:
-            raise distutils.errors.DistutilsPlatformError(str(e) + """
-Installing your distribution's python-dev package may solve this problem.""")
+        super().finalize_options()
 
     def set_modules_path(self):
         app_file_name = os.path.join(self.install_scripts, APP_NAME)
-        # Find where the modules are installed. distutils will put them in
+        # Find where the modules are installed. setuptools will put them in
         # self.install_lib, but that path can contain the root (DESTDIR), so we
         # must strip it off if necessary.
         modules_dir = self.install_lib
@@ -124,7 +112,7 @@ Installing your distribution's python-dev package may solve this problem.""")
         app_file.close()
 
     def run(self):
-        install.run(self)
+        super().run()
 
 # These below are from Zenmap. We're only using set_modules_path right now, but
 # we might consider whether the others would be useful (or, if not, whether we
@@ -138,7 +126,7 @@ Installing your distribution's python-dev package may solve this problem.""")
     def get_installed_files(self):
         """Return a list of installed files and directories, each prefixed with
         the installation root if given. The list of installed directories
-        doesn't come from distutils so it may be incomplete."""
+        doesn't come from setuptools so it may be incomplete."""
         installed_files = self.get_outputs()
         for package in self.distribution.py_modules:
             dir = package.replace(".", "/")
@@ -155,13 +143,13 @@ Installing your distribution's python-dev package may solve this problem.""")
 #!/usr/bin/env python
 import errno, os, os.path, sys
 
-print 'Uninstall %(name)s'
+print('Uninstall %(name)s')
 
 answer = raw_input('Are you sure that you want to uninstall '
     '%(name)s (yes/no) ')
 
 if answer != 'yes' and answer != 'y':
-    print 'Not uninstalling.'
+    print('Not uninstalling.')
     sys.exit(0)
 
 """ % {'name': APP_NAME}
@@ -177,8 +165,8 @@ if answer != 'yes' and answer != 'y':
                     # This should never happen (everything gets installed
                     # inside the root), but if it does, be safe and don't
                     # delete anything.
-                    uninstaller += ("print '%s was not installed inside "
-                        "the root %s; skipping.'\n" % (output, self.root))
+                    uninstaller += ("print('%s was not installed inside "
+                        "the root %s; skipping.')\n" % (output, self.root))
                     continue
                 output = path_strip_prefix(output, self.root)
                 assert os.path.isabs(output)
@@ -202,24 +190,24 @@ for path in INSTALLED_FILES:
         dirs.append(path)
 # Delete the files.
 for file in files:
-    print "Removing '%s'." % file
+    print("Removing '%s'." % file)
     try:
         os.remove(file)
     except OSError, e:
-        print >> sys.stderr, '  Error: %s.' % str(e)
+        print('  Error: %s.' % str(e), file=sys.stderr)
 # Delete the directories. First reverse-sort the normalized paths by
 # length so that child directories are deleted before their parents.
 dirs = [os.path.normpath(dir) for dir in dirs]
 dirs.sort(key = len, reverse = True)
 for dir in dirs:
     try:
-        print "Removing the directory '%s'." % dir
+        print("Removing the directory '%s'." % dir)
         os.rmdir(dir)
     except OSError, e:
         if e.errno == errno.ENOTEMPTY:
-            print "Directory '%s' not empty; not removing." % dir
+            print("Directory '%s' not empty; not removing." % dir)
         else:
-            print >> sys.stderr, str(e)
+            print(str(e), file=sys.stderr)
 """
 
         uninstaller_file = open(uninstaller_filename, 'w')
@@ -227,7 +215,7 @@ for dir in dirs:
         uninstaller_file.close()
 
         # Set exec bit for uninstaller
-        mode = ((os.stat(uninstaller_filename)[ST_MODE]) | 0555) & 07777
+        mode = ((os.stat(uninstaller_filename)[ST_MODE]) | 0o555) & 0o7777
         os.chmod(uninstaller_filename, mode)
 
     def write_installed_files(self):
@@ -236,16 +224,16 @@ for dir in dirs:
         doesn't strip off the installation root, if any. File names containing
         newline characters are not handled."""
         if INSTALLED_FILES_NAME == self.record:
-            distutils.log.warn("warning: installation record is overwriting "
+            logging.warning("warning: installation record is overwriting "
                 "--record file '%s'." % self.record)
         with open(INSTALLED_FILES_NAME, "w") as f:
             for output in self.get_installed_files():
                 assert "\n" not in output
-                print >> f, output
+                print(output, file=f)
 
 
-class my_uninstall(distutils.cmd.Command):
-    """A distutils command that performs uninstallation. It reads the list of
+class my_uninstall(Command):
+    """A setuptools command that performs uninstallation. It reads the list of
     installed files written by the install command."""
 
     command_name = "uninstall"
@@ -263,10 +251,10 @@ class my_uninstall(distutils.cmd.Command):
         # Read the list of installed files.
         try:
             f = open(INSTALLED_FILES_NAME, "r")
-        except IOError, e:
+        except IOError as e:
             if e.errno == errno.ENOENT:
-                log.error("Couldn't open the installation record '%s'. "
-                        "Have you installed yet?" % INSTALLED_FILES_NAME)
+                logging.error("Couldn't open the installation record '%s'. "
+                        "Have you installed yet?", INSTALLED_FILES_NAME)
                 return
         installed_files = [file.rstrip("\n") for file in f.readlines()]
         f.close()
@@ -282,31 +270,32 @@ class my_uninstall(distutils.cmd.Command):
                 dirs.append(path)
         # Delete the files.
         for file in files:
-            log.info("Removing '%s'." % file)
+            logging.info("Removing '%s'.", file)
             try:
                 if not self.dry_run:
                     os.remove(file)
-            except OSError, e:
-                log.error(str(e))
+            except OSError as e:
+                logging.error(str(e))
         # Delete the directories. First reverse-sort the normalized paths by
         # length so that child directories are deleted before their parents.
         dirs = [os.path.normpath(dir) for dir in dirs]
         dirs.sort(key=len, reverse=True)
         for dir in dirs:
             try:
-                log.info("Removing the directory '%s'." % dir)
+                logging.info("Removing the directory '%s'.", dir)
                 if not self.dry_run:
                     os.rmdir(dir)
-            except OSError, e:
+            except OSError as e:
                 if e.errno == errno.ENOTEMPTY:
-                    log.info("Directory '%s' not empty; not removing." % dir)
+                    logging.info("Directory '%s' not empty; not removing.",
+                            dir)
                 else:
-                    log.error(str(e))
+                    logging.error(str(e))
 
 
-distutils.core.setup(name=u"ndiff", scripts=[u"scripts/ndiff"],
-    py_modules=[u"ndiff"],
-    data_files=[(u"share/man/man1", [u"docs/ndiff.1"])],
+setup(name="ndiff", scripts=["scripts/ndiff"],
+    py_modules=["ndiff"],
+    data_files=[("share/man/man1", ["docs/ndiff.1"])],
     cmdclass={
         "install_egg_info": null_command,
         "install": checked_install,

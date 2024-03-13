@@ -4,76 +4,88 @@
  * between IPproto Number <-> name.                                        *
  *                                                                         *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
- *                                                                         *
- * The Nmap Security Scanner is (C) 1996-2020 Insecure.Com LLC ("The Nmap  *
- * Project"). Nmap is also a registered trademark of the Nmap Project.     *
- *                                                                         *
- * This program is distributed under the terms of the Nmap Public Source   *
- * License (NPSL). The exact license text applying to a particular Nmap    *
- * release or source code control revision is contained in the LICENSE     *
- * file distributed with that version of Nmap or source code control       *
- * revision. More Nmap copyright/legal information is available from       *
- * https://nmap.org/book/man-legal.html, and further information on the    *
- * NPSL license itself can be found at https://nmap.org/npsl. This header  *
- * summarizes some key points from the Nmap license, but is no substitute  *
- * for the actual license text.                                            *
- *                                                                         *
- * Nmap is generally free for end users to download and use themselves,    *
- * including commercial use. It is available from https://nmap.org.        *
- *                                                                         *
- * The Nmap license generally prohibits companies from using and           *
- * redistributing Nmap in commercial products, but we sell a special Nmap  *
- * OEM Edition with a more permissive license and special features for     *
- * this purpose. See https://nmap.org/oem                                  *
- *                                                                         *
- * If you have received a written Nmap license agreement or contract       *
- * stating terms other than these (such as an Nmap OEM license), you may   *
- * choose to use and redistribute Nmap under those terms instead.          *
- *                                                                         *
- * The official Nmap Windows builds include the Npcap software             *
- * (https://npcap.org) for packet capture and transmission. It is under    *
- * separate license terms which forbid redistribution without special      *
- * permission. So the official Nmap Windows builds may not be              *
- * redistributed without special permission (such as an Nmap OEM           *
- * license).                                                               *
- *                                                                         *
- * Source is provided to this software because we believe users have a     *
- * right to know exactly what a program is going to do before they run it. *
- * This also allows you to audit the software for security holes.          *
- *                                                                         *
- * Source code also allows you to port Nmap to new platforms, fix bugs,    *
- * and add new features.  You are highly encouraged to submit your         *
- * changes as a Github PR or by email to the dev@nmap.org mailing list     *
- * for possible incorporation into the main distribution. Unless you       *
- * specify otherwise, it is understood that you are offering us very       *
- * broad rights to use your submissions as described in the Nmap Public    *
- * Source License Contributor Agreement. This is important because we      *
- * fund the project by selling licenses with various terms, and also       *
- * because the inability to relicense code has caused devastating          *
- * problems for other Free Software projects (such as KDE and NASM).       *
- *                                                                         *
- * The free version of Nmap is distributed in the hope that it will be     *
- * useful, but WITHOUT ANY WARRANTY; without even the implied warranty of  *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. Warranties,        *
- * indemnification and commercial support are all available through the    *
- * Npcap OEM program--see https://nmap.org/oem.                            *
- *                                                                         *
+ *
+ * The Nmap Security Scanner is (C) 1996-2024 Nmap Software LLC ("The Nmap
+ * Project"). Nmap is also a registered trademark of the Nmap Project.
+ *
+ * This program is distributed under the terms of the Nmap Public Source
+ * License (NPSL). The exact license text applying to a particular Nmap
+ * release or source code control revision is contained in the LICENSE
+ * file distributed with that version of Nmap or source code control
+ * revision. More Nmap copyright/legal information is available from
+ * https://nmap.org/book/man-legal.html, and further information on the
+ * NPSL license itself can be found at https://nmap.org/npsl/ . This
+ * header summarizes some key points from the Nmap license, but is no
+ * substitute for the actual license text.
+ *
+ * Nmap is generally free for end users to download and use themselves,
+ * including commercial use. It is available from https://nmap.org.
+ *
+ * The Nmap license generally prohibits companies from using and
+ * redistributing Nmap in commercial products, but we sell a special Nmap
+ * OEM Edition with a more permissive license and special features for
+ * this purpose. See https://nmap.org/oem/
+ *
+ * If you have received a written Nmap license agreement or contract
+ * stating terms other than these (such as an Nmap OEM license), you may
+ * choose to use and redistribute Nmap under those terms instead.
+ *
+ * The official Nmap Windows builds include the Npcap software
+ * (https://npcap.com) for packet capture and transmission. It is under
+ * separate license terms which forbid redistribution without special
+ * permission. So the official Nmap Windows builds may not be redistributed
+ * without special permission (such as an Nmap OEM license).
+ *
+ * Source is provided to this software because we believe users have a
+ * right to know exactly what a program is going to do before they run it.
+ * This also allows you to audit the software for security holes.
+ *
+ * Source code also allows you to port Nmap to new platforms, fix bugs, and
+ * add new features. You are highly encouraged to submit your changes as a
+ * Github PR or by email to the dev@nmap.org mailing list for possible
+ * incorporation into the main distribution. Unless you specify otherwise, it
+ * is understood that you are offering us very broad rights to use your
+ * submissions as described in the Nmap Public Source License Contributor
+ * Agreement. This is important because we fund the project by selling licenses
+ * with various terms, and also because the inability to relicense code has
+ * caused devastating problems for other Free Software projects (such as KDE
+ * and NASM).
+ *
+ * The free version of Nmap is distributed in the hope that it will be
+ * useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. Warranties,
+ * indemnification and commercial support are all available through the
+ * Npcap OEM program--see https://nmap.org/oem/
+ *
  ***************************************************************************/
 
 /* $Id$ */
 
 #include "protocols.h"
 #include "NmapOps.h"
-#include "charpool.h"
+#include "string_pool.h"
 #include "nmap_error.h"
 #include "utils.h"
 
+#include <map>
+
 extern NmapOps o;
-static int numipprots = 0;
-static struct protocol_list *protocol_table[PROTOCOL_TABLE_SIZE];
-static int protocols_initialized = 0;
+
+struct strcmp_comparator {
+  bool operator()(const char *a, const char *b) const {
+    return strcmp(a, b) < 0;
+  }
+};
+
+// IP Protocol number is 8 bits wide
+// protocol_table[IPPROTO_TCP] == {"tcp", 6}
+static struct nprotoent *protocol_table[UCHAR_MAX];
+// proto_map["tcp"] = {"tcp", 6}
+typedef std::map<const char *, struct nprotoent, strcmp_comparator> ProtoMap;
+static ProtoMap proto_map;
 
 static int nmap_protocols_init() {
+  static int protocols_initialized = 0;
   if (protocols_initialized) return 0;
 
   char filename[512];
@@ -83,7 +95,6 @@ static int nmap_protocols_init() {
   char *p;
   char line[1024];
   int lineno = 0;
-  struct protocol_list *current, *previous;
   int res;
 
   if (nmap_fetchfile(filename, sizeof(filename), "nmap-protocols") != 1) {
@@ -93,7 +104,7 @@ static int nmap_protocols_init() {
 
   fp = fopen(filename, "r");
   if (!fp) {
-    fatal("Unable to open %s for reading protocol information", filename);
+    pfatal("Unable to open %s for reading protocol information", filename);
   }
   /* Record where this data file was found. */
   o.loaded_data_files["nmap-protocols"] = filename;
@@ -105,39 +116,36 @@ static int nmap_protocols_init() {
     p = line;
     while(*p && isspace((int) (unsigned char) *p))
       p++;
-    if (*p == '#')
+    if (*p == '#' || *p == '\0')
       continue;
     res = sscanf(line, "%127s %hu", protocolname, &protno);
-    if (res !=2)
+    if (res !=2 || protno > UCHAR_MAX) {
+      error("Parse error in protocols file %s line %d", filename, lineno);
       continue;
+    }
+
+    struct nprotoent ent;
+    // Using string_pool means we don't have to copy this data; the pointer is unique!
+    ent.p_name = string_pool_insert(protocolname);
+    ent.p_proto = protno;
+    std::pair<ProtoMap::iterator, bool> status = proto_map.insert(std::pair<const char *, struct nprotoent>(ent.p_name, ent));
 
     /* Now we make sure our protocols don't have duplicates */
-    for(current = protocol_table[protno % PROTOCOL_TABLE_SIZE], previous = NULL;
-        current; current = current->next) {
-      if (protno == current->protoent->p_proto) {
-        if (o.debugging) {
-          error("Protocol %d is duplicated in protocols file %s", ntohs(protno), filename);
-        }
-        break;
+    if (!status.second) {
+      if (o.debugging > 1) {
+        error("Protocol %hu (%s) has duplicate number (%hu) in protocols file %s", status.first->second.p_proto, ent.p_name, protno, filename);
       }
-      previous = current;
-    }
-    if (current)
       continue;
-
-    numipprots++;
-
-    current = (struct protocol_list *) cp_alloc(sizeof(struct protocol_list));
-    current->protoent = (struct protoent *) cp_alloc(sizeof(struct protoent));
-    current->next = NULL;
-    if (previous == NULL) {
-      protocol_table[protno % PROTOCOL_TABLE_SIZE] = current;
-    } else {
-      previous->next = current;
     }
-    current->protoent->p_name = cp_strdup(protocolname);
-    current->protoent->p_proto = protno;
-    current->protoent->p_aliases = NULL;
+
+    if (protocol_table[protno]) {
+      if (o.debugging > 1) {
+        error("Protocol %hu (%s) has duplicate name (%s) in protocols file %s", protno, protocol_table[protno]->p_name, ent.p_name, filename);
+      }
+      continue;
+    }
+
+    protocol_table[protno] = &status.first->second;
   }
   fclose(fp);
   protocols_initialized = 1;
@@ -152,18 +160,24 @@ static int nmap_protocols_init() {
 
 
 int addprotocolsfromservmask(char *mask, u8 *porttbl) {
-  struct protocol_list *current;
-  int bucket, t=0;
+  ProtoMap::const_iterator it;
+  int t=0;
 
-  if (!protocols_initialized && nmap_protocols_init() == -1)
+  if (nmap_protocols_init() != 0)
     fatal("%s: Couldn't get protocol numbers", __func__);
 
-  for(bucket = 0; bucket < PROTOCOL_TABLE_SIZE; bucket++) {
-    for(current = protocol_table[bucket % PROTOCOL_TABLE_SIZE]; current; current = current->next) {
-      if (wildtest(mask, current->protoent->p_name)) {
-        porttbl[ntohs(current->protoent->p_proto)] |= SCAN_PROTOCOLS;
-        t++;
-      }
+  // Check for easy ones: plain string match.
+  it = proto_map.find(mask);
+  if (it != proto_map.end()) {
+    // Matched! No need to try wildtest on everything.
+    porttbl[it->second.p_proto] |= SCAN_PROTOCOLS;
+    return 1;
+  }
+  // No match? iterate and use wildtest.
+  for(it = proto_map.begin(); it != proto_map.end(); it++) {
+    if (wildtest(mask, it->second.p_name)) {
+      porttbl[it->second.p_proto] |= SCAN_PROTOCOLS;
+      t++;
     }
   }
 
@@ -172,18 +186,23 @@ int addprotocolsfromservmask(char *mask, u8 *porttbl) {
 }
 
 
-struct protoent *nmap_getprotbynum(int num) {
-  struct protocol_list *current;
+const struct nprotoent *nmap_getprotbynum(int num) {
 
   if (nmap_protocols_init() == -1)
     return NULL;
 
-  for(current = protocol_table[num % PROTOCOL_TABLE_SIZE];
-      current; current = current->next) {
-    if (num == current->protoent->p_proto)
-      return current->protoent;
-  }
+  assert(num >= 0 && num < UCHAR_MAX);
+  return protocol_table[num];
+}
 
-  /* Couldn't find it ... oh well. */
+const struct nprotoent *nmap_getprotbyname(const char *name) {
+
+  if (nmap_protocols_init() == -1)
+    return NULL;
+
+  ProtoMap::const_iterator it = proto_map.find(name);
+  if (it != proto_map.end()) {
+    return &it->second;
+  }
   return NULL;
 }

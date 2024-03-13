@@ -1,8 +1,8 @@
 ---
 -- Implements the Server Message Block (SMB) protocol version 2 and 3.
 --
--- The implementation extends smb.lua to support SMB dialects 2.02, 2.10, 3.0,
---  3.02 and 3.11. This is a work in progress and not all commands are
+-- The implementation extends smb.lua to support SMB dialects 2.0.2, 2.1, 3.0,
+--  3.0.2 and 3.1.1. This is a work in progress and not all commands are
 --  implemented yet. Features/functionality will be added as the scripts
 --  get updated. I tried to be consistent with the current implementation of
 --  smb.lua but some fields may have changed name or don't exist anymore.
@@ -21,7 +21,6 @@ local match = require "match"
 _ENV = stdnse.module("smb2", stdnse.seeall)
 
 local TIMEOUT = 10000
-local command_names = {}
 local command_codes =
 {
   SMB2_COM_NEGOTIATE              = 0x0000,
@@ -44,7 +43,7 @@ local command_codes =
   SMB2_COM_SET_INFO               = 0x0011,
   SMB2_COM_OPLOCK_BREAK           = 0x0012
 }
-local smb2_values_codes = {}
+local command_names = tableaux.invert(command_codes)
 local smb2_values = {
   -- Security Mode
   SMB2_NEGOTIATE_SIGNING_ENABLED      = 0x0001,
@@ -61,12 +60,34 @@ local smb2_values = {
   SMB2_ENCRYPTION_CAPABILITIES        = 0x0002,
   SMB2_PREAUTH_INTEGRITY_CAPABILITIES = 0x0001
 }
+local smb2_values_codes = tableaux.invert(smb2_values)
 
-for i, v in pairs(command_codes) do
-  command_names[v] = i
+local smb2_dialects = {0x0202, 0x0210, 0x0300, 0x0302, 0x0311}
+local smb2_dialect_names = {}
+for _, d in ipairs(smb2_dialects) do
+  -- convert 0x0abc to "a.b.c"
+  local name = stdnse.tohex(d, {separator = ".", group = 1})
+  -- trim trailing ".0" at sub-minor level
+  smb2_dialect_names[d] = name:find(".0", 4, true) and name:sub(1, 3) or name
 end
-for i, v in pairs(smb2_values) do
-  smb2_values_codes[v] = i
+
+---
+-- Returns the list of supported SMB 2 dialects
+-- https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-smb2/fac3655a-7eb5-4337-b0ab-244bbcd014e8
+-- @return list of 16-bit numerical revision codes (0x202, 0x210, ...)
+---
+function dialects ()
+  return tableaux.tcopy(smb2_dialects)
+end
+
+---
+-- Converts a supported SMB 2 dialect code to dialect name
+-- https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-smb2/fac3655a-7eb5-4337-b0ab-244bbcd014e8
+-- @param dialect SMB 2 dialect revision code
+-- @return string representing the dialect (or nil). Example: 0x202 -> "2.0.2"
+---
+function dialect_name (dialect)
+  return smb2_dialect_names[dialect]
 end
 
 ---
@@ -206,42 +227,41 @@ end
 
 ---
 -- Sends SMB2_COM_NEGOTIATE command for a SMB2/SMB3 connection.
--- This function works for dialects 2.02, 2.10, 3.0, 3.02 and 3.11.
+-- All supported dialects are offered. Use table overrides['Dialects']
+-- to exclude some dialects or to force a specific dialect.
+-- Use function smb2.dialects to obtain the list of supported dialects.
+-- Use function smb2.dialect_name to check whether a given dialect is supported.
 --
--- Packet structure: https://msdn.microsoft.com/en-us/library/cc246543.aspx
+-- Packet structure:
+-- https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-smb2/e14db7ff-763a-4263-8b10-0c3944f52fc5
 --
 -- @param smb The associated SMB connection object.
 -- @param overrides Overrides table.
 -- @return (status, dialect) If status is true, the negotiated dialect is returned as the second value.
 --                            Otherwise if status is false, the error message is returned.
+-- @see dialects
+-- @see dialect_name
 function negotiate_v2(smb, overrides)
+  overrides = overrides or {}
   local StructureSize = 36 -- Must be set to 36.
-  local DialectCount
-  if overrides['Dialects'] then
-    DialectCount = #overrides['Dialects']
-  else
-    DialectCount = 1
-  end
+  local Dialects = overrides['Dialects'] or smb2_dialects
+  local DialectCount = #Dialects
   -- The client MUST set SecurityMode bit to 0x01 if the SMB2_NEGOTIATE_SIGNING_REQUIRED bit is not set,
   -- and MUST NOT set this bit if the SMB2_NEGOTIATE_SIGNING_REQUIRED bit is set.
   -- The server MUST ignore this bit.
   local SecurityMode = overrides["SecurityMode"] or smb2_values['SMB2_NEGOTIATE_SIGNING_ENABLED']
   local Capabilities = overrides["Capabilities"] or 0 -- SMB 3.x dialect requires capabilities to be constructed
   local GUID = overrides["GUID"] or "1234567890123456"
-  local ClientStartTime = overrides["ClientStartTime"] or 0 -- ClientStartTime only used in dialects > 3.11
+  local ClientStartTime = overrides["ClientStartTime"] or 0 -- ClientStartTime only used in dialects < 3.1.1
   local total_data = 0  -- Data counter
   local padding_data = "" -- Padding string to align contexts
   local context_data -- Holds Context data
-  local is_0311 = false -- Flag for SMB 3.11
+  local is_0311 = tableaux.contains(Dialects, 0x0311) -- Flag for SMB 3.1.1
   local status, err
-
-  if not( overrides['Dialects'] ) then -- Set 2.02 as default dialect if user didn't select one
-    overrides['Dialects'] = {0x0202}
-  end
 
   local header = smb2_encode_header_sync(smb, command_codes['SMB2_COM_NEGOTIATE'], overrides)
 
-  -- We construct the first block that works for dialects 2.02 up to 3.11.
+  -- We construct the first block that works for dialects 2.0.2 up to 3.1.1.
   local data = string.pack("<I2 I2 I2 I2 I4 c16",
     StructureSize,  -- 2 bytes: StructureSize
     DialectCount,   -- 2 bytes: DialectCount
@@ -252,11 +272,7 @@ function negotiate_v2(smb, overrides)
   )
 
   -- The next block gets interpreted in different ways depending on the dialect
-  if tableaux.contains(overrides['Dialects'], 0x0311) then
-    is_0311 = true
-  end
-
-  -- If we are dealing with 3.11 we need to set the following fields:
+  -- If we are dealing with 3.1.1 we need to set the following fields:
   -- NegotiateContextOffset, NegotiateContextCount, and Reserved2
   if is_0311 then
     total_data = #header + #data + (DialectCount*2)
@@ -267,17 +283,13 @@ function negotiate_v2(smb, overrides)
                     0x2,            -- NegotiateContextCount (2 bytes)
                     0x0             -- Reserved2 (2 bytes)
                    )
-  else  -- If it's not 3.11, the bytes are the ClientStartTime (8 bytes)
-    data = data .. string.pack("<I8", ClientStartTime) -- If it is not 3.11, we set it to 0
+  else  -- If it's not 3.1.1, the bytes are the ClientStartTime (8 bytes)
+    data = data .. string.pack("<I8", ClientStartTime)
   end -- if is_0311
 
   -- Now we build the Dialect list, 16 bit integers
-  if(overrides['Dialects'] == nil) then  -- If no custom dialect is defined, used the default 2.10
-    data = data .. string.pack("<I2", 0x0210)
-  else  -- Dialects are set in overrides table
-    for _, v in ipairs(overrides['Dialects']) do
-      data = data .. string.pack("<I2", v)
-    end
+  for _, v in ipairs(Dialects) do
+    data = data .. string.pack("<I2", v)
   end
 
   -- If 3.11, we now need to add some padding between the dialects and the NegotiateContextList
@@ -371,7 +383,7 @@ function negotiate_v2(smb, overrides)
   local security_buffer_offset, security_buffer_length, neg_context_offset
   security_buffer_offset, security_buffer_length, neg_context_offset = string.unpack("<I2 I2 I4", data)
   if status == 0 then
-    return true, overrides['Dialects']
+    return true, smb['dialect']
   else
     return false, string.format("Status error code:%s",status)
   end

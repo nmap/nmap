@@ -17,7 +17,7 @@
 .\" WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF
 .\" MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 .\"
-.TH PCAP_DATALINK_VAL_TO_NAME 3PCAP "12 October 2016"
+.TH PCAP_DATALINK_VAL_TO_NAME 3PCAP "4 May 2022"
 .SH NAME
 pcap_datalink_val_to_name, pcap_datalink_val_to_description,
 pcap_datalink_val_to_description_or_dlt \- get a
@@ -35,7 +35,7 @@ const char *pcap_datalink_val_to_description_or_dlt(int dlt);
 .ft
 .fi
 .SH DESCRIPTION
-.B pcap_datalink_val_to_name()
+.BR pcap_datalink_val_to_name ()
 translates a link-layer header type value to the corresponding
 link-layer header type name, which is the
 .B DLT_
@@ -47,7 +47,7 @@ is returned if the type value does not correspond to a known
 .B DLT_
 value.
 .PP
-.B pcap_datalink_val_to_description()
+.BR pcap_datalink_val_to_description ()
 translates a link-layer header type value to a short description of that
 link-layer header type.
 .B NULL
@@ -55,12 +55,22 @@ is returned if the type value does not correspond to a known
 .B DLT_
 value.
 .PP
-.B pcap_datalink_val_to_description_or_dlt()
+.BR pcap_datalink_val_to_description_or_dlt ()
 translates a link-layer header type value to a short description of that
-link-layer header type just like pcap_datalink_val_to_description.
+link-layer header type just like
+.BR pcap_datalink_val_to_description ().
 If the type value does not correspond to a known
 .B DLT_
 value, the string "DLT n" is returned, where n is the value of
 the dlt argument.
+.SH BACKWARD COMPATIBILITY
+The
+.BR pcap_datalink_val_to_description_or_dlt ()
+function first became available in libpcap release 1.9.1.  In previous
+releases,
+.BR pcap_datalink_val_to_description ()
+would have to be called and, if it returned
+.BR NULL ,
+a default string would have to be constructed.
 .SH SEE ALSO
-pcap(3PCAP)
+.BR pcap (3PCAP)

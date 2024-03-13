@@ -1,64 +1,65 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
+#!/usr/bin/env python3
 
 # ***********************IMPORTANT NMAP LICENSE TERMS************************
-# *                                                                         *
-# * The Nmap Security Scanner is (C) 1996-2020 Insecure.Com LLC ("The Nmap  *
-# * Project"). Nmap is also a registered trademark of the Nmap Project.     *
-# *                                                                         *
-# * This program is distributed under the terms of the Nmap Public Source   *
-# * License (NPSL). The exact license text applying to a particular Nmap    *
-# * release or source code control revision is contained in the LICENSE     *
-# * file distributed with that version of Nmap or source code control       *
-# * revision. More Nmap copyright/legal information is available from       *
-# * https://nmap.org/book/man-legal.html, and further information on the    *
-# * NPSL license itself can be found at https://nmap.org/npsl. This header  *
-# * summarizes some key points from the Nmap license, but is no substitute  *
-# * for the actual license text.                                            *
-# *                                                                         *
-# * Nmap is generally free for end users to download and use themselves,    *
-# * including commercial use. It is available from https://nmap.org.        *
-# *                                                                         *
-# * The Nmap license generally prohibits companies from using and           *
-# * redistributing Nmap in commercial products, but we sell a special Nmap  *
-# * OEM Edition with a more permissive license and special features for     *
-# * this purpose. See https://nmap.org/oem                                  *
-# *                                                                         *
-# * If you have received a written Nmap license agreement or contract       *
-# * stating terms other than these (such as an Nmap OEM license), you may   *
-# * choose to use and redistribute Nmap under those terms instead.          *
-# *                                                                         *
-# * The official Nmap Windows builds include the Npcap software             *
-# * (https://npcap.org) for packet capture and transmission. It is under    *
-# * separate license terms which forbid redistribution without special      *
-# * permission. So the official Nmap Windows builds may not be              *
-# * redistributed without special permission (such as an Nmap OEM           *
-# * license).                                                               *
-# *                                                                         *
-# * Source is provided to this software because we believe users have a     *
-# * right to know exactly what a program is going to do before they run it. *
-# * This also allows you to audit the software for security holes.          *
-# *                                                                         *
-# * Source code also allows you to port Nmap to new platforms, fix bugs,    *
-# * and add new features.  You are highly encouraged to submit your         *
-# * changes as a Github PR or by email to the dev@nmap.org mailing list     *
-# * for possible incorporation into the main distribution. Unless you       *
-# * specify otherwise, it is understood that you are offering us very       *
-# * broad rights to use your submissions as described in the Nmap Public    *
-# * Source License Contributor Agreement. This is important because we      *
-# * fund the project by selling licenses with various terms, and also       *
-# * because the inability to relicense code has caused devastating          *
-# * problems for other Free Software projects (such as KDE and NASM).       *
-# *                                                                         *
-# * The free version of Nmap is distributed in the hope that it will be     *
-# * useful, but WITHOUT ANY WARRANTY; without even the implied warranty of  *
-# * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. Warranties,        *
-# * indemnification and commercial support are all available through the    *
-# * Npcap OEM program--see https://nmap.org/oem.                            *
-# *                                                                         *
+# *
+# * The Nmap Security Scanner is (C) 1996-2024 Nmap Software LLC ("The Nmap
+# * Project"). Nmap is also a registered trademark of the Nmap Project.
+# *
+# * This program is distributed under the terms of the Nmap Public Source
+# * License (NPSL). The exact license text applying to a particular Nmap
+# * release or source code control revision is contained in the LICENSE
+# * file distributed with that version of Nmap or source code control
+# * revision. More Nmap copyright/legal information is available from
+# * https://nmap.org/book/man-legal.html, and further information on the
+# * NPSL license itself can be found at https://nmap.org/npsl/ . This
+# * header summarizes some key points from the Nmap license, but is no
+# * substitute for the actual license text.
+# *
+# * Nmap is generally free for end users to download and use themselves,
+# * including commercial use. It is available from https://nmap.org.
+# *
+# * The Nmap license generally prohibits companies from using and
+# * redistributing Nmap in commercial products, but we sell a special Nmap
+# * OEM Edition with a more permissive license and special features for
+# * this purpose. See https://nmap.org/oem/
+# *
+# * If you have received a written Nmap license agreement or contract
+# * stating terms other than these (such as an Nmap OEM license), you may
+# * choose to use and redistribute Nmap under those terms instead.
+# *
+# * The official Nmap Windows builds include the Npcap software
+# * (https://npcap.com) for packet capture and transmission. It is under
+# * separate license terms which forbid redistribution without special
+# * permission. So the official Nmap Windows builds may not be redistributed
+# * without special permission (such as an Nmap OEM license).
+# *
+# * Source is provided to this software because we believe users have a
+# * right to know exactly what a program is going to do before they run it.
+# * This also allows you to audit the software for security holes.
+# *
+# * Source code also allows you to port Nmap to new platforms, fix bugs, and
+# * add new features. You are highly encouraged to submit your changes as a
+# * Github PR or by email to the dev@nmap.org mailing list for possible
+# * incorporation into the main distribution. Unless you specify otherwise, it
+# * is understood that you are offering us very broad rights to use your
+# * submissions as described in the Nmap Public Source License Contributor
+# * Agreement. This is important because we fund the project by selling licenses
+# * with various terms, and also because the inability to relicense code has
+# * caused devastating problems for other Free Software projects (such as KDE
+# * and NASM).
+# *
+# * The free version of Nmap is distributed in the hope that it will be
+# * useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
+# * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. Warranties,
+# * indemnification and commercial support are all available through the
+# * Npcap OEM program--see https://nmap.org/oem/
+# *
 # ***************************************************************************/
 
-import gtk
+import gi
+
+gi.require_version("Gtk", "3.0")
+from gi.repository import Gtk
 
 from zenmapGUI.higwidgets.higboxes import HIGHBox
 from zenmapGUI.higwidgets.higlabels import HIGEntryLabel
@@ -77,14 +78,14 @@ class ScanCommandToolbar(HIGHBox):
         HIGHBox.__init__(self)
 
         self.command_label = HIGEntryLabel(_("Command:"))
-        self.command_entry = gtk.Entry()
+        self.command_entry = Gtk.Entry()
 
         self._pack_noexpand_nofill(self.command_label)
         self._pack_expand_fill(self.command_entry)
 
     def get_command(self):
         """Retrieve command entry"""
-        return self.command_entry.get_text().decode("UTF-8")
+        return self.command_entry.get_text()
 
     def set_command(self, command):
         """Set a command entry"""
@@ -108,10 +109,8 @@ class ScanToolbar(HIGHBox):
         self._create_target()
         self._create_profile()
 
-        self.scan_button = gtk.Button(_("Scan"))
-        #self.scan_button = HIGButton(_("Scan "), gtk.STOCK_MEDIA_PLAY)
-        self.cancel_button = gtk.Button(_("Cancel"))
-        #self.cancel_button = HIGButton(_("Cancel "), gtk.STOCK_CANCEL)
+        self.scan_button = Gtk.Button.new_with_label(_("Scan"))
+        self.cancel_button = Gtk.Button.new_with_label(_("Cancel"))
 
         self._pack_noexpand_nofill(self.target_label)
         self._pack_expand_fill(self.target_entry)
@@ -123,11 +122,11 @@ class ScanToolbar(HIGHBox):
         self._pack_noexpand_nofill(self.cancel_button)
 
         # Skip over the dropdown arrow so you can tab to the profile entry.
-        self.target_entry.set_focus_chain((self.target_entry.child,))
+        self.target_entry.set_focus_chain((self.target_entry.get_child(),))
 
-        self.target_entry.child.connect('activate',
+        self.target_entry.get_child().connect('activate',
                         lambda x: self.profile_entry.grab_focus())
-        self.profile_entry.child.connect('activate',
+        self.profile_entry.get_child().connect('activate',
                         lambda x: self.scan_button.clicked())
 
     def _create_target(self):
@@ -152,7 +151,7 @@ class ScanToolbar(HIGHBox):
 
     def get_selected_target(self):
         """Return currently selected target"""
-        return self.target_entry.selected_target.decode("UTF-8")
+        return self.target_entry.selected_target
 
     def set_selected_target(self, target):
         """Modify currently selected target"""
@@ -177,16 +176,16 @@ class ScanToolbar(HIGHBox):
     selected_target = property(get_selected_target, set_selected_target)
 
 if __name__ == "__main__":
-    w = gtk.Window()
-    box = gtk.VBox()
+    w = Gtk.Window()
+    box = Gtk.Box.new(Gtk.Orientation.VERTICAL, 0)
     w.add(box)
 
     stool = ScanToolbar()
     sctool = ScanCommandToolbar()
 
-    box.pack_start(stool)
-    box.pack_start(sctool)
+    box.pack_start(stool, True, True, 0)
+    box.pack_start(sctool, True, True, 0)
 
-    w.connect("delete-event", lambda x, y: gtk.main_quit())
+    w.connect("delete-event", lambda x, y: Gtk.main_quit())
     w.show_all()
-    gtk.main()
+    Gtk.main()

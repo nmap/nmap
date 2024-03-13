@@ -46,7 +46,7 @@
 /* Forwards. */
 static int dlpromiscon(pcap_t *, bpf_u_int32);
 static int pcap_read_libdlpi(pcap_t *, int, pcap_handler, u_char *);
-static int pcap_inject_libdlpi(pcap_t *, const void *, size_t);
+static int pcap_inject_libdlpi(pcap_t *, const void *, int);
 static void pcap_libdlpi_err(const char *, const char *, int, char *);
 static void pcap_cleanup_libdlpi(pcap_t *);
 
@@ -108,15 +108,24 @@ pcap_activate_libdlpi(pcap_t *p)
 	 */
 	retv = dlpi_open(p->opt.device, &dh, DLPI_RAW|DLPI_PASSIVE);
 	if (retv != DLPI_SUCCESS) {
-		if (retv == DLPI_ELINKNAMEINVAL || retv == DLPI_ENOLINK)
+		if (retv == DLPI_ELINKNAMEINVAL || retv == DLPI_ENOLINK) {
+			/*
+			 * There's nothing more to say, so clear the
+			 * error message.
+			 */
 			status = PCAP_ERROR_NO_SUCH_DEVICE;
-		else if (retv == DL_SYSERR &&
-		    (errno == EPERM || errno == EACCES))
+			p->errbuf[0] = '\0';
+		} else if (retv == DL_SYSERR &&
+		    (errno == EPERM || errno == EACCES)) {
 			status = PCAP_ERROR_PERM_DENIED;
-		else
+			snprintf(p->errbuf, PCAP_ERRBUF_SIZE,
+			    "Attempt to open DLPI device failed with %s - root privilege may be required",
+			    (errno == EPERM) ? "EPERM" : "EACCES");
+		} else {
 			status = PCAP_ERROR;
-		pcap_libdlpi_err(p->opt.device, "dlpi_open", retv,
-		    p->errbuf);
+			pcap_libdlpi_err(p->opt.device, "dlpi_open", retv,
+			    p->errbuf);
+		}
 		return (status);
 	}
 	pd->dlpi_hd = dh;
@@ -265,12 +274,25 @@ dlpromiscon(pcap_t *p, bpf_u_int32 level)
 	retv = dlpi_promiscon(pd->dlpi_hd, level);
 	if (retv != DLPI_SUCCESS) {
 		if (retv == DL_SYSERR &&
-		    (errno == EPERM || errno == EACCES))
-			err = PCAP_ERROR_PERM_DENIED;
-		else
+		    (errno == EPERM || errno == EACCES)) {
+			if (level == DL_PROMISC_PHYS) {
+				err = PCAP_ERROR_PROMISC_PERM_DENIED;
+				snprintf(p->errbuf, PCAP_ERRBUF_SIZE,
+				    "Attempt to set promiscuous mode failed with %s - root privilege may be required",
+				    (errno == EPERM) ? "EPERM" : "EACCES");
+			} else {
+				err = PCAP_ERROR_PERM_DENIED;
+				snprintf(p->errbuf, PCAP_ERRBUF_SIZE,
+				    "Attempt to set %s mode failed with %s - root privilege may be required",
+				    (level == DL_PROMISC_MULTI) ? "multicast" : "SAP promiscuous",
+				    (errno == EPERM) ? "EPERM" : "EACCES");
+			}
+		} else {
 			err = PCAP_ERROR;
-		pcap_libdlpi_err(p->opt.device, "dlpi_promiscon" STRINGIFY(level),
-		    retv, p->errbuf);
+			pcap_libdlpi_err(p->opt.device,
+			    "dlpi_promiscon" STRINGIFY(level),
+			    retv, p->errbuf);
+		}
 		return (err);
 	}
 	return (0);
@@ -322,7 +344,7 @@ pcap_platform_finddevs(pcap_if_list_t *devlistp, char *errbuf)
 
 	linknamelist_t	*entry, *next;
 	linkwalk_t	lw = {NULL, 0};
-	int 		save_errno;
+	int		save_errno;
 
 	/*
 	 * Get the list of regular interfaces first.
@@ -427,7 +449,7 @@ process_pkts:
 }
 
 static int
-pcap_inject_libdlpi(pcap_t *p, const void *buf, size_t size)
+pcap_inject_libdlpi(pcap_t *p, const void *buf, int size)
 {
 	struct pcap_dlpi *pd = p->priv;
 	int retv;
@@ -468,7 +490,7 @@ pcap_cleanup_libdlpi(pcap_t *p)
 static void
 pcap_libdlpi_err(const char *linkname, const char *func, int err, char *errbuf)
 {
-	pcap_snprintf(errbuf, PCAP_ERRBUF_SIZE, "libpcap: %s failed on %s: %s",
+	snprintf(errbuf, PCAP_ERRBUF_SIZE, "libpcap: %s failed on %s: %s",
 	    func, linkname, dlpi_strerror(err));
 }
 
@@ -477,7 +499,7 @@ pcap_create_interface(const char *device _U_, char *ebuf)
 {
 	pcap_t *p;
 
-	p = pcap_create_common(ebuf, sizeof (struct pcap_dlpi));
+	p = PCAP_CREATE_COMMON(ebuf, struct pcap_dlpi);
 	if (p == NULL)
 		return (NULL);
 

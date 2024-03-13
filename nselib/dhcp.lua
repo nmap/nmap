@@ -396,7 +396,7 @@ end
 --@param overrides       [optional] A table of overrides. If a field in the table matches a field in the DHCP
 --                       packet (see rfc2131 section 2 for a list of possible fields), the value in the table
 --                       will be sent instead of the default value.
---@param lease_time      [optional] The lease time used when requestint an IP. Default: 1 second.
+--@param lease_time      [optional] The lease time used when requesting an IP. Default: none.
 --@param transaction_id  The identity of the transaction.
 --
 --@return status (true or false)
@@ -444,7 +444,9 @@ function dhcp_build(request_type, ip_address, mac_address, options, request_opti
   end
 
   packet = packet .. string.pack(">Bs1", 0x37, request_options) -- Request options
-  packet = packet .. string.pack(">BBI4", 0x33, 4, lease_time or 1) -- Lease time
+  if lease_time then
+    packet = packet .. string.pack(">BBI4", 0x33, 4, lease_time) -- Lease time
+  end
 
   packet = packet .. "\xFF" -- Termination
 
@@ -599,7 +601,7 @@ end
 --@param overrides       [optional] A table of overrides. If a field in the table matches a field in the DHCP
 --                       packet (see rfc2131 section 2 for a list of possible fields), the value in the table
 --                       will be sent instead of the default value.
---@param lease_time      [optional] The lease time used when requestint an IP. Default: 1 second.
+--@param lease_time      [optional] The lease time used when requesting an IP. Default: none.
 --@return status (true or false)
 --@return The parsed response, as a table.
 function make_request(target, request_type, ip_address, mac_address, options, request_options, overrides, lease_time)
@@ -609,7 +611,7 @@ function make_request(target, request_type, ip_address, mac_address, options, re
   -- Generate the packet
   local status, packet = dhcp_build(request_type, ipOps.ip_to_str(ip_address), mac_address, options, request_options, overrides, lease_time, transaction_id)
   if(not(status)) then
-    stdnse.debug1("dhcp: Couldn't build packet: " .. packet)
+    stdnse.debug1("dhcp: Couldn't build packet: %s", packet)
     return false, "Couldn't build packet: "  .. packet
   end
 
@@ -620,7 +622,7 @@ function make_request(target, request_type, ip_address, mac_address, options, re
   -- Send the packet and get the response
   local status, response = dhcp_send(socket, target, packet)
   if(not(status)) then
-    stdnse.debug1("dhcp: Couldn't send packet: " .. response)
+    stdnse.debug1("dhcp: Couldn't send packet: %s", response)
     return false, "Couldn't send packet: "  .. response
   end
 
@@ -628,14 +630,14 @@ function make_request(target, request_type, ip_address, mac_address, options, re
   socket:close()
 
   if ( not(status) ) then
-    stdnse.debug1("dhcp: Couldn't receive packet: " .. response)
+    stdnse.debug1("dhcp: Couldn't receive packet: %s", response)
     return false, "Couldn't receive packet: "  .. response
   end
 
   -- Parse the response
   local status, parsed = dhcp_parse(response, transaction_id)
   if(not(status)) then
-    stdnse.debug1("dhcp: Couldn't parse response: " .. parsed)
+    stdnse.debug1("dhcp: Couldn't parse response: %s", parsed)
     return false, "Couldn't parse response: "  .. parsed
   end
 

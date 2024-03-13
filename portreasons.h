@@ -2,60 +2,59 @@
  * portreasons.h -- Verbose packet-level information on port states        *
  *                                                                         *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
- *                                                                         *
- * The Nmap Security Scanner is (C) 1996-2020 Insecure.Com LLC ("The Nmap  *
- * Project"). Nmap is also a registered trademark of the Nmap Project.     *
- *                                                                         *
- * This program is distributed under the terms of the Nmap Public Source   *
- * License (NPSL). The exact license text applying to a particular Nmap    *
- * release or source code control revision is contained in the LICENSE     *
- * file distributed with that version of Nmap or source code control       *
- * revision. More Nmap copyright/legal information is available from       *
- * https://nmap.org/book/man-legal.html, and further information on the    *
- * NPSL license itself can be found at https://nmap.org/npsl. This header  *
- * summarizes some key points from the Nmap license, but is no substitute  *
- * for the actual license text.                                            *
- *                                                                         *
- * Nmap is generally free for end users to download and use themselves,    *
- * including commercial use. It is available from https://nmap.org.        *
- *                                                                         *
- * The Nmap license generally prohibits companies from using and           *
- * redistributing Nmap in commercial products, but we sell a special Nmap  *
- * OEM Edition with a more permissive license and special features for     *
- * this purpose. See https://nmap.org/oem                                  *
- *                                                                         *
- * If you have received a written Nmap license agreement or contract       *
- * stating terms other than these (such as an Nmap OEM license), you may   *
- * choose to use and redistribute Nmap under those terms instead.          *
- *                                                                         *
- * The official Nmap Windows builds include the Npcap software             *
- * (https://npcap.org) for packet capture and transmission. It is under    *
- * separate license terms which forbid redistribution without special      *
- * permission. So the official Nmap Windows builds may not be              *
- * redistributed without special permission (such as an Nmap OEM           *
- * license).                                                               *
- *                                                                         *
- * Source is provided to this software because we believe users have a     *
- * right to know exactly what a program is going to do before they run it. *
- * This also allows you to audit the software for security holes.          *
- *                                                                         *
- * Source code also allows you to port Nmap to new platforms, fix bugs,    *
- * and add new features.  You are highly encouraged to submit your         *
- * changes as a Github PR or by email to the dev@nmap.org mailing list     *
- * for possible incorporation into the main distribution. Unless you       *
- * specify otherwise, it is understood that you are offering us very       *
- * broad rights to use your submissions as described in the Nmap Public    *
- * Source License Contributor Agreement. This is important because we      *
- * fund the project by selling licenses with various terms, and also       *
- * because the inability to relicense code has caused devastating          *
- * problems for other Free Software projects (such as KDE and NASM).       *
- *                                                                         *
- * The free version of Nmap is distributed in the hope that it will be     *
- * useful, but WITHOUT ANY WARRANTY; without even the implied warranty of  *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. Warranties,        *
- * indemnification and commercial support are all available through the    *
- * Npcap OEM program--see https://nmap.org/oem.                            *
- *                                                                         *
+ *
+ * The Nmap Security Scanner is (C) 1996-2024 Nmap Software LLC ("The Nmap
+ * Project"). Nmap is also a registered trademark of the Nmap Project.
+ *
+ * This program is distributed under the terms of the Nmap Public Source
+ * License (NPSL). The exact license text applying to a particular Nmap
+ * release or source code control revision is contained in the LICENSE
+ * file distributed with that version of Nmap or source code control
+ * revision. More Nmap copyright/legal information is available from
+ * https://nmap.org/book/man-legal.html, and further information on the
+ * NPSL license itself can be found at https://nmap.org/npsl/ . This
+ * header summarizes some key points from the Nmap license, but is no
+ * substitute for the actual license text.
+ *
+ * Nmap is generally free for end users to download and use themselves,
+ * including commercial use. It is available from https://nmap.org.
+ *
+ * The Nmap license generally prohibits companies from using and
+ * redistributing Nmap in commercial products, but we sell a special Nmap
+ * OEM Edition with a more permissive license and special features for
+ * this purpose. See https://nmap.org/oem/
+ *
+ * If you have received a written Nmap license agreement or contract
+ * stating terms other than these (such as an Nmap OEM license), you may
+ * choose to use and redistribute Nmap under those terms instead.
+ *
+ * The official Nmap Windows builds include the Npcap software
+ * (https://npcap.com) for packet capture and transmission. It is under
+ * separate license terms which forbid redistribution without special
+ * permission. So the official Nmap Windows builds may not be redistributed
+ * without special permission (such as an Nmap OEM license).
+ *
+ * Source is provided to this software because we believe users have a
+ * right to know exactly what a program is going to do before they run it.
+ * This also allows you to audit the software for security holes.
+ *
+ * Source code also allows you to port Nmap to new platforms, fix bugs, and
+ * add new features. You are highly encouraged to submit your changes as a
+ * Github PR or by email to the dev@nmap.org mailing list for possible
+ * incorporation into the main distribution. Unless you specify otherwise, it
+ * is understood that you are offering us very broad rights to use your
+ * submissions as described in the Nmap Public Source License Contributor
+ * Agreement. This is important because we fund the project by selling licenses
+ * with various terms, and also because the inability to relicense code has
+ * caused devastating problems for other Free Software projects (such as KDE
+ * and NASM).
+ *
+ * The free version of Nmap is distributed in the hope that it will be
+ * useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. Warranties,
+ * indemnification and commercial support are all available through the
+ * Npcap OEM program--see https://nmap.org/oem/
+ *
  ***************************************************************************/
 
 /*
@@ -107,6 +106,8 @@ typedef struct port_reason_summary {
         reason_t reason_id;
         unsigned int count;
         struct port_reason_summary *next;
+        unsigned short proto;
+        unsigned short ports[0xffff+1];
 } state_reason_summary_t;
 
 
@@ -135,8 +136,8 @@ private:
     std::map<reason_codes,reason_string > reason_map;
 public:
     reason_map_type();
-    std::map<reason_codes,reason_string>::iterator find(const reason_codes& x){
-        std::map<reason_codes,reason_string>::iterator itr = reason_map.find(x);
+    std::map<reason_codes,reason_string>::const_iterator find(const reason_codes& x) const {
+        std::map<reason_codes,reason_string>::const_iterator itr = reason_map.find(x);
         if(itr == reason_map.end())
             return reason_map.find(ER_UNKNOWN);
         return itr;
@@ -145,12 +146,6 @@ public:
 
 /* Function to translate ICMP code and typ to reason code */
 reason_codes icmp_to_reason(u8 proto, int icmp_type, int icmp_code);
-
-/* passed to the print_state_summary.
- * STATE_REASON_EMPTY will append to the current line, prefixed with " because of"
- * STATE_REASON_FULL will start a new line, prefixed with "Reason:" */
-#define STATE_REASON_EMPTY 0
-#define STATE_REASON_FULL 1
 
 /* Passed to reason_str to determine if string should be in
  * plural of singular form */
@@ -164,15 +159,16 @@ void state_reason_init(state_reason_t *reason);
  * port the plural is used, otherwise the singular is used. */
 const char *reason_str(reason_t reason_id, unsigned int number);
 
-/* Displays reason summary messages */
-void print_state_summary(PortList *Ports, unsigned short type);
-void print_xml_state_summary(PortList *Ports, int state);
+/* Returns a linked list of reasons why ports are in a given state */
+state_reason_summary_t *get_state_reason_summary(const PortList *Ports, int state);
+/* Frees the linked list from get_state_reason_summary */
+void state_reason_summary_dinit(state_reason_summary_t *r);
 
 /* Build an output string based on reason and source ip address.
  * Uses static return value so previous values will be over
  * written by subsequent calls */
-char *port_reason_str(state_reason_t r);
-char *target_reason_str(Target *t);
+const char *port_reason_str(state_reason_t r);
+const char *target_reason_str(const Target *t);
 
 #endif
 

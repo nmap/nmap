@@ -33,6 +33,7 @@
 #endif
 
 #include "pcap-int.h"
+#include "diag-control.h"
 
 #ifdef NEED_STRERROR_H
 #include "strerror.h"
@@ -56,13 +57,13 @@
 #include <linux/netfilter/nfnetlink_log.h>
 #include <linux/netfilter/nfnetlink_queue.h>
 
-/* NOTE: if your program drops privilages after pcap_activate() it WON'T work with nfqueue.
+/* NOTE: if your program drops privileges after pcap_activate() it WON'T work with nfqueue.
  *       It took me quite some time to debug ;/
  *
- *       Sending any data to nfnetlink socket requires CAP_NET_ADMIN privilages,
+ *       Sending any data to nfnetlink socket requires CAP_NET_ADMIN privileges,
  *       and in nfqueue we need to send verdict reply after recving packet.
  *
- *       In tcpdump you can disable dropping privilages with -Z root
+ *       In tcpdump you can disable dropping privileges with -Z root
  */
 
 #include "pcap-netfilter-linux.h"
@@ -91,7 +92,7 @@ netfilter_read_linux(pcap_t *handle, int max_packets, pcap_handler callback, u_c
 	struct pcap_netfilter *handlep = handle->priv;
 	register u_char *bp, *ep;
 	int count = 0;
-	int len;
+	ssize_t len;
 
 	/*
 	 * Has "pcap_breakloop()" been called?
@@ -135,6 +136,13 @@ netfilter_read_linux(pcap_t *handle, int max_packets, pcap_handler callback, u_c
 		bp = (unsigned char *)handle->buffer;
 	} else
 		bp = handle->bp;
+
+	/*
+	 * Loop through each message.
+	 *
+	 * This assumes that a single buffer of message will have
+	 * <= INT_MAX packets, so the message count doesn't overflow.
+	 */
 	ep = bp + len;
 	while (bp < ep) {
 		const struct nlmsghdr *nlh = (const struct nlmsghdr *) bp;
@@ -152,14 +160,25 @@ netfilter_read_linux(pcap_t *handle, int max_packets, pcap_handler callback, u_c
 		 */
 		if (handle->break_loop) {
 			handle->bp = bp;
-			handle->cc = ep - bp;
+			handle->cc = (int)(ep - bp);
 			if (count == 0) {
 				handle->break_loop = 0;
 				return PCAP_ERROR_BREAK;
 			} else
 				return count;
 		}
-		if (ep - bp < NLMSG_SPACE(0)) {
+		/*
+		 * NLMSG_SPACE(0) might be signed or might be unsigned,
+		 * depending on whether the kernel defines NLMSG_ALIGNTO
+		 * as 4, which older kernels do, or as 4U, which newer
+		 * kernels do.
+		 *
+		 * ep - bp is of type ptrdiff_t, which is signed.
+		 *
+		 * To squelch warnings, we cast both to size_t, which
+		 * is unsigned; ep >= bp, so the cast is safe.
+		 */
+		if ((size_t)(ep - bp) < (size_t)NLMSG_SPACE(0)) {
 			/*
 			 * There's less than one netlink message left
 			 * in the buffer.  Give up.
@@ -168,7 +187,7 @@ netfilter_read_linux(pcap_t *handle, int max_packets, pcap_handler callback, u_c
 		}
 
 		if (nlh->nlmsg_len < sizeof(struct nlmsghdr) || (u_int)len < nlh->nlmsg_len) {
-			pcap_snprintf(handle->errbuf, PCAP_ERRBUF_SIZE, "Message truncated: (got: %d) (nlmsg_len: %u)", len, nlh->nlmsg_len);
+			snprintf(handle->errbuf, PCAP_ERRBUF_SIZE, "Message truncated: (got: %zd) (nlmsg_len: %u)", len, nlh->nlmsg_len);
 			return -1;
 		}
 
@@ -190,7 +209,7 @@ netfilter_read_linux(pcap_t *handle, int max_packets, pcap_handler callback, u_c
 				const struct nfattr *payload_attr = NULL;
 
 				if (nlh->nlmsg_len < HDR_LENGTH) {
-					pcap_snprintf(handle->errbuf, PCAP_ERRBUF_SIZE, "Malformed message: (nlmsg_len: %u)", nlh->nlmsg_len);
+					snprintf(handle->errbuf, PCAP_ERRBUF_SIZE, "Malformed message: (nlmsg_len: %u)", nlh->nlmsg_len);
 					return -1;
 				}
 
@@ -240,7 +259,7 @@ netfilter_read_linux(pcap_t *handle, int max_packets, pcap_handler callback, u_c
 
 				gettimeofday(&pkth.ts, NULL);
 				if (handle->fcode.bf_insns == NULL ||
-						bpf_filter(handle->fcode.bf_insns, payload, pkth.len, pkth.caplen))
+						pcap_filter(handle->fcode.bf_insns, payload, pkth.len, pkth.caplen))
 				{
 					handlep->packets_read++;
 					callback(user, &pkth, payload);
@@ -262,14 +281,21 @@ netfilter_read_linux(pcap_t *handle, int max_packets, pcap_handler callback, u_c
 		 * If the message length would run past the end of the
 		 * buffer, truncate it to the remaining space in the
 		 * buffer.
+		 *
+		 * To squelch warnings, we cast ep - bp to uint32_t, which
+		 * is unsigned and is the type of msg_len; ep >= bp, and
+		 * len should fit in 32 bits (either it's set from an int
+		 * or it's set from a recv() call with a buffer size that's
+		 * an int, and we're assuming either ILP32 or LP64), so
+		 * the cast is safe.
 		 */
-		if (msg_len > ep - bp)
-			msg_len = ep - bp;
+		if (msg_len > (uint32_t)(ep - bp))
+			msg_len = (uint32_t)(ep - bp);
 
 		bp += msg_len;
 		if (count >= max_packets && !PACKET_COUNT_IS_UNLIMITED(max_packets)) {
 			handle->bp = bp;
-			handle->cc = ep - bp;
+			handle->cc = (int)(ep - bp);
 			if (handle->cc < 0)
 				handle->cc = 0;
 			return count;
@@ -299,9 +325,9 @@ netfilter_stats_linux(pcap_t *handle, struct pcap_stat *stats)
 }
 
 static int
-netfilter_inject_linux(pcap_t *handle, const void *buf _U_, size_t size _U_)
+netfilter_inject_linux(pcap_t *handle, const void *buf _U_, int size _U_)
 {
-	pcap_snprintf(handle->errbuf, PCAP_ERRBUF_SIZE,
+	snprintf(handle->errbuf, PCAP_ERRBUF_SIZE,
 	    "Packet injection is not supported on netfilter devices");
 	return (-1);
 }
@@ -325,7 +351,9 @@ netfilter_send_config_msg(const pcap_t *handle, uint16_t msg_type, int ack, u_in
 	static unsigned int seq_id;
 
 	if (!seq_id)
+DIAG_OFF_NARROWING
 		seq_id = time(NULL);
+DIAG_ON_NARROWING
 	++seq_id;
 
 	nlh->nlmsg_len = NLMSG_LENGTH(sizeof(struct nfgenmsg));
@@ -363,7 +391,11 @@ netfilter_send_config_msg(const pcap_t *handle, uint16_t msg_type, int ack, u_in
 
 		/* ignore interrupt system call error */
 		do {
-			len = recvfrom(handle->fd, buf, sizeof(buf), 0, (struct sockaddr *) &snl, &addrlen);
+			/*
+			 * The buffer is not so big that its size won't
+			 * fit into an int.
+			 */
+			len = (int)recvfrom(handle->fd, buf, sizeof(buf), 0, (struct sockaddr *) &snl, &addrlen);
 		} while ((len == -1) && (errno == EINTR));
 
 		if (len <= 0)
@@ -494,8 +526,8 @@ netfilter_activate(pcap_t* handle)
 	nftype_t type = OTHER;
 	int i;
 
- 	if (strncmp(dev, NFLOG_IFACE, strlen(NFLOG_IFACE)) == 0) {
- 		dev += strlen(NFLOG_IFACE);
+	if (strncmp(dev, NFLOG_IFACE, strlen(NFLOG_IFACE)) == 0) {
+		dev += strlen(NFLOG_IFACE);
 		type = NFLOG;
 
 	} else if (strncmp(dev, NFQUEUE_IFACE, strlen(NFQUEUE_IFACE)) == 0) {
@@ -510,7 +542,7 @@ netfilter_activate(pcap_t* handle)
 			char *end_dev;
 
 			if (group_count == 32) {
-				pcap_snprintf(handle->errbuf, PCAP_ERRBUF_SIZE,
+				snprintf(handle->errbuf, PCAP_ERRBUF_SIZE,
 						"Maximum 32 netfilter groups! dev: %s",
 						handle->opt.device);
 				return PCAP_ERROR;
@@ -519,7 +551,7 @@ netfilter_activate(pcap_t* handle)
 			group_id = strtol(dev, &end_dev, 0);
 			if (end_dev != dev) {
 				if (group_id < 0 || group_id > 65535) {
-					pcap_snprintf(handle->errbuf, PCAP_ERRBUF_SIZE,
+					snprintf(handle->errbuf, PCAP_ERRBUF_SIZE,
 							"Netfilter group range from 0 to 65535 (got %ld)",
 							group_id);
 					return PCAP_ERROR;
@@ -535,7 +567,7 @@ netfilter_activate(pcap_t* handle)
 	}
 
 	if (type == OTHER || *dev) {
-		pcap_snprintf(handle->errbuf, PCAP_ERRBUF_SIZE,
+		snprintf(handle->errbuf, PCAP_ERRBUF_SIZE,
 				"Can't get netfilter group(s) index from %s",
 				handle->opt.device);
 		return PCAP_ERROR;
@@ -616,7 +648,7 @@ netfilter_activate(pcap_t* handle)
 			if (nflog_send_config_cmd(handle, groups[i], NFULNL_CFG_CMD_BIND, AF_UNSPEC) < 0) {
 				pcap_fmt_errmsg_for_errno(handle->errbuf,
 				    PCAP_ERRBUF_SIZE, errno,
-				    "Can't listen on group group index");
+				    "Can't listen on group index");
 				goto close_fail;
 			}
 
@@ -646,7 +678,7 @@ netfilter_activate(pcap_t* handle)
 			if (nfqueue_send_config_cmd(handle, groups[i], NFQNL_CFG_CMD_BIND, AF_UNSPEC) < 0) {
 				pcap_fmt_errmsg_for_errno(handle->errbuf,
 				    PCAP_ERRBUF_SIZE, errno,
-				    "Can't listen on group group index");
+				    "Can't listen on group index");
 				goto close_fail;
 			}
 
@@ -721,7 +753,7 @@ netfilter_create(const char *device, char *ebuf, int *is_ours)
 	/* OK, it's probably ours. */
 	*is_ours = 1;
 
-	p = pcap_create_common(ebuf, sizeof (struct pcap_netfilter));
+	p = PCAP_CREATE_COMMON(ebuf, struct pcap_netfilter);
 	if (p == NULL)
 		return (NULL);
 

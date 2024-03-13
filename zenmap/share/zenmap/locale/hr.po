@@ -1,5 +1,5 @@
 # translation of hr.po to Croatian
-# Copyright (C) 2009 Insecure.Com LLC
+# Copyright (C) 2008 - 2021 Nmap Software LLC
 # This file is distributed under the same license as Nmap.
 #
 # Inital translation: Vlatko Kosturjak <kost@linux.hr>, 2009.
@@ -82,10 +82,6 @@ msgid ""
 msgstr ""
 "Povećaj opširnost ispisa. Može se koristiti više od jednom kako bi dobili "
 "još veću opširnost"
-
-#: zenmapCore/NmapCommand.py:139
-msgid "Python 2.4 or later is required."
-msgstr "Python 2.4 ili kasniji je potreban."
 
 #: zenmapGUI/ScriptInterface.py:262
 msgid ""
@@ -640,18 +636,15 @@ msgid ""
 "doesn't behave the way you expect, first upgrade to the latest version "
 "available from <b>%(nmap_web)s</b>. If the problem persists, do some "
 "research to determine whether it has already been discovered and addressed. "
-"Try Googling the error message or browsing the nmap-dev archives at http://"
-"seclists.org/. Read the full manual page as well. If nothing comes of this, "
-"mail a bug report to <b>&lt;dev@nmap.org&gt;</b>. Please include everything "
-"you have learned about the problem, as well as what version of Nmap you are "
-"running and what operating system version it is running on. Problem reports "
-"and %(nmap)s usage questions sent to dev@nmap.org are far more likely to be "
-"answered than those sent to Fyodor directly.\n"
+"Try Googling the error message or browsing the nmap-dev archives at https://"
+"seclists.org. Read the full manual page as well. If nothing comes of this, "
+"open a bug report at <b>https://issues.nmap.org</b>. Please include "
+"everything you have learned about the problem, as well as what version of "
+"Nmap you are running and what operating system version it is running on.\n"
 "\n"
 "Code patches to fix bugs are even better than bug reports. Basic "
 "instructions for creating patch files with your changes are available at "
-"https://nmap.org/data/HACKING. Patches may be sent to nmap-dev (recommended) "
-"or to Fyodor directly.\n"
+"https://nmap.org/data/HACKING\n"
 msgstr ""
 "<big><b>Kako prijaviti grešku </b></big>\n"
 "\n"
@@ -662,17 +655,13 @@ msgstr ""
 "postoji, istražite kako bi odredili da li je to već otkriveno i popravljeno. "
 "Pokušajte upisati poruku o grešci u Google ili probajte pregledati nmap-dev "
 "arhivu na http://seclists.org/. Pročitajte cijeli man priručnik također, ako "
-"ni to ne daje rezultate, pošaljite izvješće o grešci na <b>&lt;nmap-"
-"dev@insecure.org&gt;</b>. Molimo uključite sve što ste saznali o problemu, "
-"kao i inačicu Nmapa koju pokrećete i na kojem se operativnom sustavu izvodi. "
-"Izvješće o problemu i %(nmap)s pitanja oko njegovog korištenja poslana na "
-"dev@nmap.org će vjerojatno biti prije odgovorena nego poslana Fyodoru "
-"direktno.\n"
+"ni to ne daje rezultate, nyisson meg egy hibajelentést a <b>https://issues.nmap.org"
+"</b>. Molimo uključite sve što ste saznali o problemu, "
+"kao i inačicu Nmapa koju pokrećete i na kojem se operativnom sustavu izvodi.\n"
 "\n"
 "Popravci za kod koji ispravljaju greške su mnogo bolji nego izvješće o "
 "greškama. Osnovne upute kako napraviti datoteku s popravkom sa vašim "
-"promjenama je raspoloživa na https://nmap.org/data/HACKING. Popravci mogu "
-"biti poslani na nmap-dev (preporučeno) ili Fyodoru direktno.\n"
+"promjenama je raspoloživa na https://nmap.org/data/HACKING\n"
 
 #: zenmapGUI/SearchGUI.py:325
 msgid "Search:"
@@ -816,14 +805,14 @@ msgstr "Izvješće o rušenju"
 #, python-format
 msgid ""
 "An unexpected error has crashed %(app_name)s. Please copy the stack trace "
-"below and send it to the <a href=\"mailto:dev@nmap.org\">dev@nmap.org</a> "
-"mailing list. (<a href=\"http://seclists.org/nmap-dev/\">More about the list."
-"</a>) The developers will see your report and try to fix the problem."
+"below and open a bug report at https://issues.nmap.org/ The developers will "
+"see your report and try to fix the problem."
 msgstr ""
 
 #: zenmapGUI/CrashReport.py:174
 msgid ""
-"<b>Copy and email to <a href=\"mailto:dev@nmap.org\">dev@nmap.org</a>:</b>"
+"<b>Copy and <b><a href=\"https://issues.nmap.org/new/choose\">open a bug "
+"report</a></b>:"
 msgstr ""
 
 #: zenmapGUI/ScanNmapOutputPage.py:218

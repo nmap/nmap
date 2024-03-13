@@ -400,7 +400,10 @@ local function try_params(host, port, t)
     for j = 1, #record.body do -- no ipairs because we append below
       local b = record.body[j]
       done = ((record.type == "alert" and b.level == "fatal") or
-        (record.type == "handshake" and b.type == "server_hello_done"))
+        (record.type == "handshake" and (b.type == "server_hello_done" or
+            -- TLSv1.3 does not have server_hello_done
+          (t.protocol == "TLSv1.3" and b.type == "server_hello")))
+        )
       table.insert(records[record.type].body, b)
     end
     if done then
@@ -516,7 +519,13 @@ local function base_extensions(host)
   local tlsname = tls.servername(host)
   return {
     -- Claim to support common elliptic curves
+    -- TODO: Determine desire to comply with RFC 4492, section 4:
+    --       "The client MUST NOT include these extensions in the ClientHello
+    --       message if it does not propose any ECC cipher suites."
+    --       OTOH, OpenSSL 1.1.1 sends them always so it is probably safe.
     ["elliptic_curves"] = tls.EXTENSION_HELPERS["elliptic_curves"](tls.DEFAULT_ELLIPTIC_CURVES),
+    -- Some servers require Supported Point Formats Extension
+    ["ec_point_formats"] = tls.EXTENSION_HELPERS["ec_point_formats"]({"uncompressed"}),
     -- Enable SNI if a server name is available
     ["server_name"] = tlsname and tls.EXTENSION_HELPERS["server_name"](tlsname),
   }
@@ -538,7 +547,7 @@ local function score_cipher (kex_strength, cipher_info)
   if not kex_strength or not cipher_info.size then
     return "unknown"
   end
-  if kex_strength == 0 then
+  if kex_strength <= 0 then
     return 0
   elseif kex_strength < 512 then
     kex_score = 0.2
@@ -552,7 +561,7 @@ local function score_cipher (kex_strength, cipher_info)
     kex_score = 1.0
   end
 
-  if cipher_info.size == 0 then
+  if cipher_info.size <= 0 then
     return 0
   elseif cipher_info.size < 128 then
     cipher_score = 0.2
@@ -583,14 +592,27 @@ local function letter_grade (score)
   end
 end
 
+local tls13proto = tls.PROTOCOLS["TLSv1.3"]
+local tls13supported = tls.EXTENSION_HELPERS.supported_versions({"TLSv1.3"})
+local function get_hello_table(host, protocol)
+  local t = {
+    protocol = protocol,
+    record_protocol = protocol, -- improve chances of immediate rejection
+    extensions = base_extensions(host),
+  }
+
+  -- supported_versions extension required for TLSv1.3
+  if (tls.PROTOCOLS[protocol] >= tls13proto) then
+    t.extensions.supported_versions = tls13supported
+  end
+
+  return t
+end
+
 -- Find which ciphers out of group are supported by the server.
 local function find_ciphers_group(host, port, protocol, group, scores)
   local results = {}
-  local t = {
-    ["protocol"] = protocol,
-    ["record_protocol"] = protocol, -- improve chances of immediate rejection
-    ["extensions"] = base_extensions(host),
-  }
+  local t = get_hello_table(host, protocol)
 
   -- This is a hacky sort of tristate variable. There are three conditions:
   -- 1. false = either ciphers or protocol is bad. Keep trying with new ciphers
@@ -610,14 +632,15 @@ local function find_ciphers_group(host, port, protocol, group, scores)
       local alert = records.alert
       if alert then
         ctx_log(2, protocol, "Got alert: %s", alert.body[1].description)
-        if alert["protocol"] ~= protocol then
+        if not tls.record_version_ok(alert["protocol"], protocol) then
           ctx_log(1, protocol, "Protocol mismatch (received %s)", alert.protocol)
           -- Sometimes this is not an actual rejection of the protocol. Check specifically:
           if get_body(alert, "description", "protocol_version") then
             protocol_worked = nil
           end
           break
-        elseif get_body(alert, "description", "handshake_failure") then
+        elseif get_body(alert, "description", "handshake_failure")
+          or get_body(alert, "description", "insufficient_security") then
           protocol_worked = true
           ctx_log(2, protocol, "%d ciphers rejected.", #group)
           break
@@ -674,98 +697,97 @@ local function find_ciphers_group(host, port, protocol, group, scores)
             elseif info.cipher == "RC4" then
               scores.warnings["Broken cipher RC4 is deprecated by RFC 7465"] = true
             end
+            if protocol == "TLSv1.3" and not info.tls13ok then
+              scores.warnings["Non-TLSv1.3 ciphersuite chosen for TLSv1.3"] = true
+            end
             local kex = tls.KEX_ALGORITHMS[info.kex]
             scores.any_pfs_ciphers = kex.pfs or scores.any_pfs_ciphers
             local extra, kex_strength
-            if kex.anon then
-              kex_strength = 0
-            elseif kex.export then
+            if kex.export then
+              scores.warnings["Export key exchange"] = true
               if info.kex:find("1024$") then
                 kex_strength = 1024
               else
                 kex_strength = 512
               end
-            else
-              if have_ssl and kex.pubkey then
-                local certs = get_body(handshake, "type", "certificate")
-                -- Assume RFC compliance:
-                -- "The sender's certificate MUST come first in the list."
-                -- This may not always be the case, so
-                -- TODO: reorder certificates and validate entire chain
-                -- TODO: certificate validation (date, self-signed, etc)
-                local c, err
-                if certs == nil then
-                  err = "no certificate message"
-                else
-                   c, err = sslcert.parse_ssl_certificate(certs.certificates[1])
+            end
+            if kex.anon then
+              scores.warnings["Anonymous key exchange, score capped at F"] = true
+              kex_strength = 0
+            elseif have_ssl and kex.pubkey then
+              local certs = get_body(handshake, "type", "certificate")
+              -- Assume RFC compliance:
+              -- "The sender's certificate MUST come first in the list."
+              -- This may not always be the case, so
+              -- TODO: reorder certificates and validate entire chain
+              -- TODO: certificate validation (date, self-signed, etc)
+              local c, err
+              if certs == nil then
+                err = "no certificate message"
+              else
+                c, err = sslcert.parse_ssl_certificate(certs.certificates[1])
+              end
+              if not c then
+                ctx_log(1, protocol, "Failed to parse certificate: %s", err)
+              elseif c.pubkey.type == kex.pubkey then
+                local sigalg = c.sig_algorithm:match("([mM][dD][245])") or c.sig_algorithm:match("([sS][hH][aA]1)")
+                if sigalg then
+                  kex_strength = 0
+                  scores.warnings[("Insecure certificate signature (%s), score capped at F"):format(string.upper(sigalg))] = true
                 end
-                if not c then
-                  stdnse.debug1("Failed to parse certificate: %s", err)
-                elseif c.pubkey.type == kex.pubkey then
-                  local sigalg = c.sig_algorithm:match("([mM][dD][245])")
-                  if sigalg then
-                    -- MD2 and MD5 are broken
+                local rsa_bits = tls.rsa_equiv(kex.pubkey, c.pubkey.bits)
+                kex_strength = math.min(kex_strength or rsa_bits, rsa_bits)
+                if c.pubkey.exponent then
+                  if openssl.bignum_bn2dec(c.pubkey.exponent) == "1" then
                     kex_strength = 0
-                    scores.warnings["Insecure certificate signature: " .. string.upper(sigalg)] = true
-                  else
-                    sigalg = c.sig_algorithm:match("([sS][hH][aA]1)")
-                    if sigalg then
-                      -- TODO: Update this when SHA-1 is fully deprecated in 2017
-                      if type(c.notBefore) == "table" and c.notBefore.year >= 2016 then
-                        kex_strength = 0
-                        scores.warnings["Deprecated SHA1 signature in certificate issued after January 1, 2016"] = true
-                      end
-                      scores.warnings["Weak certificate signature: SHA1"] = true
-                    end
-                    kex_strength = tls.rsa_equiv(kex.pubkey, c.pubkey.bits)
-                    if c.pubkey.exponent then
-                      if openssl.bignum_bn2dec(c.pubkey.exponent) == "1" then
-                        kex_strength = 0
-                        scores.warnings["Certificate RSA exponent is 1, score capped at F"] = true
-                      end
-                    end
-                    if c.pubkey.ecdhparams then
-                      if c.pubkey.ecdhparams.curve_params.ec_curve_type == "namedcurve" then
-                        extra = c.pubkey.ecdhparams.curve_params.curve
-                      else
-                        extra = string.format("%s %d", c.pubkey.ecdhparams.curve_params.ec_curve_type, c.pubkey.bits)
-                      end
-                    else
-                      extra = string.format("%s %d", kex.pubkey, c.pubkey.bits)
-                    end
+                    scores.warnings["Certificate RSA exponent is 1, score capped at F"] = true
                   end
+                end
+                if c.pubkey.ecdhparams then
+                  if c.pubkey.ecdhparams.curve_params.ec_curve_type == "namedcurve" then
+                    extra = c.pubkey.ecdhparams.curve_params.curve
+                  else
+                    extra = string.format("%s %d", c.pubkey.ecdhparams.curve_params.ec_curve_type, c.pubkey.bits)
+                  end
+                else
+                  extra = string.format("%s %d", kex.pubkey, c.pubkey.bits)
                 end
               end
-              local ske = get_body(handshake, "type", "server_key_exchange")
-              if kex.server_key_exchange and ske then
-                local kex_info = kex.server_key_exchange(ske.data, protocol)
-                if kex_info.strength then
-                  local rsa_bits = tls.rsa_equiv(kex.type, kex_info.strength)
-                  local low_strength_warning = false
-                  if kex_strength and kex_strength > rsa_bits then
-                    kex_strength = rsa_bits
-                    low_strength_warning = true
-                  end
-                  kex_strength = kex_strength or rsa_bits
-                  if kex_info.ecdhparams then
-                    if kex_info.ecdhparams.curve_params.ec_curve_type == "namedcurve" then
-                      extra = kex_info.ecdhparams.curve_params.curve
-                    else
-                      extra = string.format("%s %d", kex_info.ecdhparams.curve_params.ec_curve_type, kex_info.strength)
-                    end
+            end
+            local ske
+            if protocol == "TLSv1.3" then
+              ske = server_hello.extensions.key_share
+            elseif kex.server_key_exchange then
+              ske = get_body(handshake, "type", "server_key_exchange")
+              if ske then
+                ske = ske.data
+              end
+            end
+            if ske then
+              local kex_info = kex.server_key_exchange(ske, protocol)
+              if kex_info.strength then
+                local kex_type = kex_info.type or kex.type
+                if kex_info.ecdhparams then
+                  if kex_info.ecdhparams.curve_params.ec_curve_type == "namedcurve" then
+                    extra = kex_info.ecdhparams.curve_params.curve
                   else
-                    extra = string.format("%s %d", kex.type, kex_info.strength)
+                    extra = string.format("%s %d", kex_info.ecdhparams.curve_params.ec_curve_type, kex_info.strength)
                   end
-                  if low_strength_warning then
-                    scores.warnings[(
-                        "Key exchange (%s) of lower strength than certificate key"
-                      ):format(extra)] = true
-                  end
+                else
+                  extra = string.format("%s %d", kex_type, kex_info.strength)
                 end
-                if kex_info.rsa and kex_info.rsa.exponent == 1 then
-                  kex_strength = 0
-                  scores.warnings["Certificate RSA exponent is 1, score capped at F"] = true
+                local rsa_bits = tls.rsa_equiv(kex_type, kex_info.strength)
+                if kex_strength and kex_strength > rsa_bits then
+                  kex_strength = rsa_bits
+                  scores.warnings[(
+                      "Key exchange (%s) of lower strength than certificate key"
+                    ):format(extra)] = true
                 end
+                kex_strength = math.min(kex_strength or rsa_bits, rsa_bits)
+              end
+              if kex_info.rsa and kex_info.rsa.exponent == 1 then
+                kex_strength = 0
+                scores.warnings["Certificate RSA exponent is 1, score capped at F"] = true
               end
             end
             scores[name] = {
@@ -785,11 +807,8 @@ end
 local function get_chunk_size(host, protocol)
   -- Try to make sure we don't send too big of a handshake
   -- https://github.com/ssllabs/research/wiki/Long-Handshake-Intolerance
-  local len_t = {
-    protocol = protocol,
-    ciphers = {},
-    extensions = base_extensions(host),
-  }
+  local len_t = get_hello_table(host, protocol)
+  len_t.ciphers = {}
   local cipher_len_remaining = 255 - #tls.client_hello(len_t)
   -- if we're over 255 anyway, just go for it.
   -- Each cipher adds 2 bytes
@@ -803,7 +822,17 @@ end
 -- each chunk.
 local function find_ciphers(host, port, protocol)
 
-  local ciphers = in_chunks(sorted_keys(tls.CIPHERS), get_chunk_size(host, protocol))
+  local candidates = {}
+  -- TLSv1.3 ciphers are different, though some are shared (ECCPWD)
+  local tls13 = protocol == "TLSv1.3"
+  for _, c in ipairs(sorted_keys(tls.CIPHERS)) do
+    local info = tls.cipher_info(c)
+    if (not tls13 and not info.tls13only)
+      or (tls13 and info.tls13ok) then
+      candidates[#candidates+1] = c
+    end
+  end
+  local ciphers = in_chunks(candidates, get_chunk_size(host, protocol))
 
   local results = {}
   local scores = {warnings={}}
@@ -824,11 +853,8 @@ end
 
 local function find_compressors(host, port, protocol, good_ciphers)
   local compressors = sorted_keys(tls.COMPRESSORS)
-  local t = {
-    ["protocol"] = protocol,
-    ["ciphers"] = good_ciphers,
-    ["extensions"] = base_extensions(host),
-  }
+  local t = get_hello_table(host, protocol)
+  t.ciphers = good_ciphers
 
   local results = {}
 
@@ -846,7 +872,7 @@ local function find_compressors(host, port, protocol, good_ciphers)
       local alert = records.alert
       if alert then
         ctx_log(2, protocol, "Got alert: %s", alert.body[1].description)
-        if alert["protocol"] ~= protocol then
+        if not tls.record_version_ok(alert["protocol"], protocol) then
           ctx_log(1, protocol, "Protocol rejected.")
           protocol_worked = nil
           break
@@ -902,11 +928,8 @@ end
 -- Offer two ciphers and return the one chosen by the server. Returns nil and
 -- an error message in case of a server error.
 local function compare_ciphers(host, port, protocol, cipher_a, cipher_b)
-  local t = {
-    ["protocol"] = protocol,
-    ["ciphers"] = {cipher_a, cipher_b},
-    ["extensions"] = base_extensions(host),
-  }
+  local t = get_hello_table(host, protocol)
+  t.ciphers = {cipher_a, cipher_b}
   local records = try_params(host, port, t)
   local server_hello = records.handshake and get_body(records.handshake, "type", "server_hello")
   if server_hello then
@@ -1004,14 +1027,18 @@ local function try_protocol(host, port, protocol, upresults)
   end
   -- Find all valid compression methods.
   local compressors
-  -- Reduce chunk size by 1 to allow extra room for the extra compressors (2 bytes)
-  for _, c in ipairs(in_chunks(ciphers, get_chunk_size(host, protocol) - 1)) do
-    compressors = find_compressors(host, port, protocol, c)
-    -- I observed a weird interaction between ECDSA ciphers and DEFLATE compression.
-    -- Some servers would reject the handshake if no non-ECDSA ciphers were available.
-    -- Sending 64 ciphers at a time should be sufficient, but we'll try them all if necessary.
-    if compressors and #compressors ~= 0 then
-      break
+  -- RFC 8446: "For every TLS 1.3 ClientHello, this vector MUST contain exactly
+  -- one byte, set to zero"
+  if (tls.PROTOCOLS[protocol] < tls13proto) then
+    -- Reduce chunk size by 1 to allow extra room for the extra compressors (2 bytes)
+    for _, c in ipairs(in_chunks(ciphers, get_chunk_size(host, protocol) - 1)) do
+      compressors = find_compressors(host, port, protocol, c)
+      -- I observed a weird interaction between ECDSA ciphers and DEFLATE compression.
+      -- Some servers would reject the handshake if no non-ECDSA ciphers were available.
+      -- Sending 64 ciphers at a time should be sufficient, but we'll try them all if necessary.
+      if compressors and #compressors ~= 0 then
+        break
+      end
     end
   end
 

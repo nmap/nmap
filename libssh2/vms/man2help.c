@@ -14,12 +14,12 @@ typedef struct manl{
     struct manl *next;
     char *filename;
 }man, *manPtr;
- 
+
 typedef struct pf_fabnam{
     struct FAB dfab;
     struct RAB drab;
     struct namldef dnam;
-    char   expanded_filename[NAM$C_MAXRSS + 1]; 
+    char   expanded_filename[NAM$C_MAXRSS + 1];
 } pfn, *pfnPtr;
 
 /*----------------------------------------------------------*/
@@ -37,13 +37,13 @@ if ( len ){
 }else{
     output[0] = 0;
 }
-}           
+}
 
 
 /*----------------------------------------------------------*/
 /* give part of ilename in partname. See code for proper
    value of i ( 0 = node, 1 = dev, 2 = dir,3 = name etc.
-*/ 
+*/
 
 int fnamepart( char *inputfile, char *part, int whatpart )
 {
@@ -59,8 +59,8 @@ pf->dnam = cc$rms_naml;
 
 pf->dfab.fab$l_naml = &pf->dnam;
 
-pf->dfab.fab$l_fna = (char *) -1; 
-pf->dfab.fab$l_dna = (char *) -1; 
+pf->dfab.fab$l_fna = (char *) -1;
+pf->dfab.fab$l_dna = (char *) -1;
 pf->dfab.fab$b_fns = 0;
 pf->dfab.fab$w_ifi = 0;
 
@@ -68,14 +68,14 @@ pf->dnam.naml$l_long_defname = NULL; //inputfile;
 pf->dnam.naml$l_long_defname_size = 0;//strlen( inputfile );
 
 pf->dnam.naml$l_long_filename = inputfile;
-pf->dnam.naml$l_long_filename_size = strlen( inputfile);
+pf->dnam.naml$l_long_filename_size = strlen( inputfile );
 
 pf->dnam.naml$l_long_expand = pf->expanded_filename;
 pf->dnam.naml$l_long_expand_alloc = NAM$C_MAXRSS ;
 
 pf->dnam.naml$b_nop |= NAML$M_SYNCHK | NAML$M_PWD;
 
-status = sys$parse( &pf->dfab, 0,0);
+status = sys$parse( &pf->dfab, 0, 0 );
 if ( !(status&1) ){
     free( pf );
     return( status );
@@ -85,7 +85,7 @@ fpcopy ( ipart[0], pf->dnam.naml$l_long_node , pf->dnam.naml$l_long_node_size);
 fpcopy ( ipart[1], pf->dnam.naml$l_long_dev , pf->dnam.naml$l_long_dev_size);
 fpcopy ( ipart[2], pf->dnam.naml$l_long_dir , pf->dnam.naml$l_long_dir_size);
 fpcopy ( ipart[3], pf->dnam.naml$l_long_name , pf->dnam.naml$l_long_name_size);
-fpcopy ( ipart[4], pf->dnam.naml$l_long_type , pf->dnam.naml$l_long_type_size);                                               
+fpcopy ( ipart[4], pf->dnam.naml$l_long_type , pf->dnam.naml$l_long_type_size);
 fpcopy ( ipart[5], pf->dnam.naml$l_long_ver , pf->dnam.naml$l_long_ver_size);
 
 for( i = ipart[ whatpart ], p = part; *i; ++i, ++p){
@@ -93,7 +93,7 @@ for( i = ipart[ whatpart ], p = part; *i; ++i, ++p){
       *p = toupper( *i );
    }else{
       *p = tolower( *i );
-   }        
+   }
 }
 *p = 0;
 
@@ -111,16 +111,16 @@ char    gevonden_file[NAM$C_MAXRSS + 1];
 
 filespec.dsc$w_length = strlen(filename);
 filespec.dsc$b_dtype  = DSC$K_DTYPE_T;
-filespec.dsc$b_class  = DSC$K_CLASS_S; 
+filespec.dsc$b_class  = DSC$K_CLASS_S;
 filespec.dsc$a_pointer = filename;
 
 gevondend.dsc$w_length = NAM$C_MAXRSS;
 gevondend.dsc$b_dtype  = DSC$K_DTYPE_T;
-gevondend.dsc$b_class  = DSC$K_CLASS_S; 
+gevondend.dsc$b_class  = DSC$K_CLASS_S;
 gevondend.dsc$a_pointer = gevonden_file;
 
 status=lib$find_file(&filespec,&gevondend,findex,0,0,0,0);
-    
+
 if ( (status & 1) == 1 ){
        strcpy(gevonden,strtok(gevonden_file," "));
 }else{
@@ -137,13 +137,13 @@ manPtr addman( manPtr *manroot,char *filename )
 {
 manPtr m,f;
 
-m = calloc( 1, sizeof( man) );
+m = calloc( 1, sizeof( man ) );
 if ( !m ) return( NULL );
 
 m->filename = strdup( filename );
 
 if ( *manroot == NULL ){
-   *manroot = m;    
+   *manroot = m;
 }else{
    for( f = *manroot; f->next ; f = f->next );
    f->next = m;
@@ -159,7 +159,7 @@ manPtr m,n;
 for( m = *manroot; m ; m = n ){
      free( m->filename );
      n = m->next;
-     free ( m );
+     free( m );
 }
 *manroot = NULL;
 }
@@ -180,11 +180,11 @@ while(1){
         r = addman( manroot, gevonden );
         if ( r == NULL ) return(2);
     }else{
-        if ( !( status&1)) break;
+        if ( !( status&1 ) ) break;
     }
 }
 
-lib$find_file_end( &ffindex);
+lib$find_file_end( &ffindex );
 if ( status == RMS$_NMF) status = 1;
 
 
@@ -207,14 +207,14 @@ uit = calloc( 1, maxlen + 1 );
 
 if ( in == NULL || uit == NULL ) return(2);
 
-man = fopen( filespec, "r");
+man = fopen( filespec, "r" );
 if ( man == NULL ) return(vaxc$errno);
 
 for( len = 0; !feof( man ) && len < maxlen ; len += thislen ){
     thislen = fread( in + len, 1, maxlen - len, man );
 }
 
-fclose (man);
+fclose(man);
 
 m = in;
 h = uit;
@@ -259,10 +259,10 @@ for ( mode = 0, bol = 1 ; *m; ++m ){
                 mode = 0;
                 break;
             case 'B':
-                   ++m; 
+                   ++m;
                    *h = ' ';++h;
                    mode = 0;
-                   break;   
+                   break;
             case 'I':
                     /* remove preceding eol */
                     if ( *(m+1) != 'P' ){
@@ -272,7 +272,7 @@ for ( mode = 0, bol = 1 ; *m; ++m ){
                     }
 
                     /* skip .Ix */
-                    for(;*m != ' ' && *m != '\n' && *m != '\r'; ++m); 
+                    for(;*m != ' ' && *m != '\n' && *m != '\r'; ++m);
 
                     /* copy line up to EOL */
 
@@ -281,7 +281,7 @@ for ( mode = 0, bol = 1 ; *m; ++m ){
                     /* if line ends in ., this is an EOL */
 
                     if ( *(h-1) == '.'){
-                         --h; 
+                         --h;
                          --m;
                     }else{
                         /* if line does not end in ., skip EOL in source */
@@ -293,7 +293,7 @@ for ( mode = 0, bol = 1 ; *m; ++m ){
             case 'S':
                  if ( *(m+1) == 'H' ){
                     *h = '\n';++h;
-                    if ( strncmp( m+3 ,"NAME",4) == 0 || 
+                    if ( strncmp( m+3 ,"NAME",4) == 0 ||
                          strncmp( m+3 ,"SYNOPSIS",8) == 0 ||
                          strncmp( m+3 ,"DESCRIPTION",11) == 0 ){
                         while( *m != '\n' && *m != '\r')++m;
@@ -306,7 +306,7 @@ for ( mode = 0, bol = 1 ; *m; ++m ){
                         *h = '0' + base_level + 1;++h;
                         return_status |= 2;
 
-                        *h = ' ';++h; 
+                        *h = ' ';++h;
 
                         /* skip H (or whatever after S) and blank */
                         ++m;++m;
@@ -318,11 +318,11 @@ for ( mode = 0, bol = 1 ; *m; ++m ){
 
                            if ( *m != '\"' ){
                                 *h = tolower( *m );
-                                if (*h == ' ') *h = '_';    
+                                if (*h == ' ') *h = '_';
                            }else{
                                 --h;
-                           }    
-                        } 
+                           }
+                        }
 
                         /* Add a linefeed or two */
 
@@ -330,7 +330,7 @@ for ( mode = 0, bol = 1 ; *m; ++m ){
                         *h = *m;++h;
 
                         mode = 0;
-                    }   
+                    }
                  }
                  break;
             case 'T':
@@ -341,10 +341,10 @@ for ( mode = 0, bol = 1 ; *m; ++m ){
                     for ( m = m + 3; *m != ' ' && *m ; ++m, ++h ){
                           *h = *m;
                     }
-					if ( add_parentheses ){
-						 *h = '(';++h;
-						 *h = ')';++h;
-					}
+                    if ( add_parentheses ){
+                          *h = '(';++h;
+                          *h = ')';++h;
+                    }
                     while( *m != '\n' && *m != '\r' && *m )++m;
                     mode = 0;
                  }
@@ -355,7 +355,7 @@ for ( mode = 0, bol = 1 ; *m; ++m ){
                 break;
            }
            break;
-        case 2: /* after \ skip two characters or print the backslash */            
+        case 2: /* after \ skip two characters or print the backslash */
           switch(*m){
             case '\\':
                 *h = *m;
@@ -367,7 +367,7 @@ for ( mode = 0, bol = 1 ; *m; ++m ){
                 mode = 0;
                 break;
            }
-           break;   
+           break;
     } /*end switch mode */
 
     bol = 0;
@@ -401,10 +401,10 @@ if ( (return_status&2) ){
     len, filespec, strlen(uit), return_status );
 */
 
-free( m ); 
-free( h ); 
+free( m );
+free( h );
 
-return ( 1);
+return ( 1 );
 }
 
 /*--------------------------------------------*/
@@ -474,7 +474,7 @@ for ( i = 1; i < argc; ++i){
                 case 'a':
                     append = 1;
                     break;
-                case 'b':   
+                case 'b':
                     if ( (i+1) < argc ){
                         base_level = atoi( argv[ i + 1 ] );
                         basechange = 1;
@@ -512,5 +512,3 @@ free( helpfile );
 
 return( status );
 }
-
- 

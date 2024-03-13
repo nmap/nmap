@@ -1,60 +1,59 @@
 /***************************************************************************
  * nbase_addrset.c -- Address set (addrset) management.                          *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
- *                                                                         *
- * The Nmap Security Scanner is (C) 1996-2020 Insecure.Com LLC ("The Nmap  *
- * Project"). Nmap is also a registered trademark of the Nmap Project.     *
- *                                                                         *
- * This program is distributed under the terms of the Nmap Public Source   *
- * License (NPSL). The exact license text applying to a particular Nmap    *
- * release or source code control revision is contained in the LICENSE     *
- * file distributed with that version of Nmap or source code control       *
- * revision. More Nmap copyright/legal information is available from       *
- * https://nmap.org/book/man-legal.html, and further information on the    *
- * NPSL license itself can be found at https://nmap.org/npsl. This header  *
- * summarizes some key points from the Nmap license, but is no substitute  *
- * for the actual license text.                                            *
- *                                                                         *
- * Nmap is generally free for end users to download and use themselves,    *
- * including commercial use. It is available from https://nmap.org.        *
- *                                                                         *
- * The Nmap license generally prohibits companies from using and           *
- * redistributing Nmap in commercial products, but we sell a special Nmap  *
- * OEM Edition with a more permissive license and special features for     *
- * this purpose. See https://nmap.org/oem                                  *
- *                                                                         *
- * If you have received a written Nmap license agreement or contract       *
- * stating terms other than these (such as an Nmap OEM license), you may   *
- * choose to use and redistribute Nmap under those terms instead.          *
- *                                                                         *
- * The official Nmap Windows builds include the Npcap software             *
- * (https://npcap.org) for packet capture and transmission. It is under    *
- * separate license terms which forbid redistribution without special      *
- * permission. So the official Nmap Windows builds may not be              *
- * redistributed without special permission (such as an Nmap OEM           *
- * license).                                                               *
- *                                                                         *
- * Source is provided to this software because we believe users have a     *
- * right to know exactly what a program is going to do before they run it. *
- * This also allows you to audit the software for security holes.          *
- *                                                                         *
- * Source code also allows you to port Nmap to new platforms, fix bugs,    *
- * and add new features.  You are highly encouraged to submit your         *
- * changes as a Github PR or by email to the dev@nmap.org mailing list     *
- * for possible incorporation into the main distribution. Unless you       *
- * specify otherwise, it is understood that you are offering us very       *
- * broad rights to use your submissions as described in the Nmap Public    *
- * Source License Contributor Agreement. This is important because we      *
- * fund the project by selling licenses with various terms, and also       *
- * because the inability to relicense code has caused devastating          *
- * problems for other Free Software projects (such as KDE and NASM).       *
- *                                                                         *
- * The free version of Nmap is distributed in the hope that it will be     *
- * useful, but WITHOUT ANY WARRANTY; without even the implied warranty of  *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. Warranties,        *
- * indemnification and commercial support are all available through the    *
- * Npcap OEM program--see https://nmap.org/oem.                            *
- *                                                                         *
+ *
+ * The Nmap Security Scanner is (C) 1996-2024 Nmap Software LLC ("The Nmap
+ * Project"). Nmap is also a registered trademark of the Nmap Project.
+ *
+ * This program is distributed under the terms of the Nmap Public Source
+ * License (NPSL). The exact license text applying to a particular Nmap
+ * release or source code control revision is contained in the LICENSE
+ * file distributed with that version of Nmap or source code control
+ * revision. More Nmap copyright/legal information is available from
+ * https://nmap.org/book/man-legal.html, and further information on the
+ * NPSL license itself can be found at https://nmap.org/npsl/ . This
+ * header summarizes some key points from the Nmap license, but is no
+ * substitute for the actual license text.
+ *
+ * Nmap is generally free for end users to download and use themselves,
+ * including commercial use. It is available from https://nmap.org.
+ *
+ * The Nmap license generally prohibits companies from using and
+ * redistributing Nmap in commercial products, but we sell a special Nmap
+ * OEM Edition with a more permissive license and special features for
+ * this purpose. See https://nmap.org/oem/
+ *
+ * If you have received a written Nmap license agreement or contract
+ * stating terms other than these (such as an Nmap OEM license), you may
+ * choose to use and redistribute Nmap under those terms instead.
+ *
+ * The official Nmap Windows builds include the Npcap software
+ * (https://npcap.com) for packet capture and transmission. It is under
+ * separate license terms which forbid redistribution without special
+ * permission. So the official Nmap Windows builds may not be redistributed
+ * without special permission (such as an Nmap OEM license).
+ *
+ * Source is provided to this software because we believe users have a
+ * right to know exactly what a program is going to do before they run it.
+ * This also allows you to audit the software for security holes.
+ *
+ * Source code also allows you to port Nmap to new platforms, fix bugs, and
+ * add new features. You are highly encouraged to submit your changes as a
+ * Github PR or by email to the dev@nmap.org mailing list for possible
+ * incorporation into the main distribution. Unless you specify otherwise, it
+ * is understood that you are offering us very broad rights to use your
+ * submissions as described in the Nmap Public Source License Contributor
+ * Agreement. This is important because we fund the project by selling licenses
+ * with various terms, and also because the inability to relicense code has
+ * caused devastating problems for other Free Software projects (such as KDE
+ * and NASM).
+ *
+ * The free version of Nmap is distributed in the hope that it will be
+ * useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. Warranties,
+ * indemnification and commercial support are all available through the
+ * Npcap OEM program--see https://nmap.org/oem/
+ *
  ***************************************************************************/
 
 /* $Id$ */
@@ -65,6 +64,7 @@
 
 #include <limits.h> /* CHAR_BIT */
 #include <errno.h>
+#include <assert.h>
 
 #include "nbase.h"
 
@@ -131,17 +131,13 @@ struct addrset {
 
 /* Special node pointer to represent "all possible addresses"
  * This will be used to represent netmask specifications. */
-static struct trie_node *TRIE_NODE_TRUE = NULL;
+static struct trie_node g_TRIE_NODE_TRUE = {0};
+#define TRIE_NODE_TRUE &g_TRIE_NODE_TRUE
 
 struct addrset *addrset_new()
 {
     struct addrset *set = (struct addrset *) safe_zalloc(sizeof(struct addrset));
     set->head = NULL;
-    /* We could simply allocate one byte to get a unique address, but this
-     * feels safer and is not too large. */
-    if (TRIE_NODE_TRUE == NULL) {
-      TRIE_NODE_TRUE = (struct trie_node *) safe_zalloc(sizeof(struct trie_node));
-    }
 
     /* Allocate the first node of the IPv4 trie */
     set->trie = (struct trie_node *) safe_zalloc(sizeof(struct trie_node));
@@ -153,7 +149,7 @@ static void trie_free(struct trie_node *curr)
   /* Since we descend only down one side, we at most accumulate one tree's-depth, or 128.
    * Add 4 for safety to account for special root node and special empty stack position 0.
    */
-  struct trie_node *stack[128+4];
+  struct trie_node *stack[128+4] = {NULL};
   int i = 1;
 
   while (i > 0 && curr != NULL && curr != TRIE_NODE_TRUE) {
@@ -295,7 +291,7 @@ static struct trie_node *new_trie_node(const u32 *addr, const u32 *mask)
 
 /* Split a node into 2: one that matches the greatest common prefix with addr
  * and one that does not. */
-static void trie_split (struct trie_node *this, const u32 *addr)
+static void trie_split (struct trie_node *this, const u32 *addr, const u32 *mask)
 {
   struct trie_node *new_node;
   u32 new_mask[4] = {0,0,0,0};
@@ -303,9 +299,30 @@ static void trie_split (struct trie_node *this, const u32 *addr)
   /* Calculate the mask of the common prefix */
   for (i=0; i < 4; i++) {
     new_mask[i] = common_mask(this->addr[i], addr[i]);
+    if (new_mask[i] > this->mask[i]){
+      /* Addrs have more bits in common than we care about for this node. */
+      new_mask[i] = this->mask[i];
+    }
+    if (new_mask[i] > mask[i]) {
+      /* new addr's mask is broader, so this node is superseded. */
+      this->mask[i] = mask[i];
+      for (i++; i < 4; i++) {
+        this->mask[i] = 0;
+      }
+      /* The longer mask is superseded. Delete following nodes. */
+      trie_free(this->next_bit_one);
+      trie_free(this->next_bit_zero);
+      /* Anything below here will always match. */
+      this->next_bit_one = this->next_bit_zero = TRIE_NODE_TRUE;
+      return;
+    }
     if (new_mask[i] < 0xffffffff) {
       break;
     }
+  }
+  if (i >= 4 || new_mask[i] >= this->mask[i]) {
+    /* This node completely contains the new addr and mask. No need to split or add */
+    return;
   }
   /* Make a copy of this node to continue matching what it has been */
   new_node = new_trie_node(this->addr, this->mask);
@@ -329,35 +346,14 @@ static void trie_split (struct trie_node *this, const u32 *addr)
 /* Helper for address insertion */
 static void _trie_insert (struct trie_node *this, const u32 *addr, const u32 *mask)
 {
-  u8 i;
+  /* On entry, at least the 1st bit must match this node */
+  assert(this == TRIE_NODE_TRUE || (this->addr[0] ^ addr[0]) < (1 << 31));
+
   while (this != NULL && this != TRIE_NODE_TRUE) {
-    if (addr_matches(this->mask, this->addr, addr)) {
-      if (1 & this->mask[3]) {
-        /* 1. end of address: duplicate. return; */
-        return;
-      }
-    }
-    else {
-      /* Split the netmask to ensure a match */
-      trie_split(this, addr);
-    }
+    /* Split the node if necessary to ensure a match */
+    trie_split(this, addr, mask);
 
-    for (i=0; i < 4; i++) {
-      if (this->mask[i] > mask[i]) {
-        /* broader mask, truncate this one */
-        this->mask[i] = mask[i];
-        for (; i < 4; i++) {
-          this->mask[i] = 0;
-        }
-        /* The longer mask is superseded. Delete following nodes. */
-        trie_free(this->next_bit_one);
-        trie_free(this->next_bit_zero);
-        /* Anything below here will always match. */
-        this->next_bit_one = this->next_bit_zero = TRIE_NODE_TRUE;
-        return;
-      }
-    }
-
+    /* At this point, this node matches the addr up to this->mask. */
     if (addr_next_bit_is_one(this->mask, addr)) {
       /* next bit is one: insert on the one branch */
       if (this->next_bit_one == NULL) {
@@ -601,7 +597,7 @@ int addrset_add_spec(struct addrset *set, const char *spec, int af, int dns)
 {
     char *local_spec;
     char *netmask_s;
-    char *tail;
+    const char *tail;
     long netmask_bits;
     struct addrinfo *addrs, *addr;
     struct addrset_elem *elem;
@@ -788,7 +784,7 @@ static int parse_ipv4_ranges(struct addrset_elem *elem, const char *spec)
         } else {
             for (;;) {
                 long start, end;
-                char *tail;
+                const char *tail;
 
                 errno = 0;
                 start = parse_long(p, &tail);

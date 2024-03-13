@@ -75,7 +75,7 @@ local client_hello = function(host, port)
     status, err = sock:connect(host, port)
     if not status then
       sock:close()
-      stdnse.debug("Can't send: %s", err)
+      stdnse.debug("Can't connect: %s", err)
       return false
     end
   else
@@ -86,23 +86,24 @@ local client_hello = function(host, port)
   end
 
 
-  -- Send Client Hello to the target server
-  status, err = sock:send(cli_h)
-  if not status then
-    stdnse.debug("Couldn't send: %s", err)
-    sock:close()
-    return false
-  end
+  repeat -- only once
+    -- Send Client Hello to the target server
+    status, err = sock:send(cli_h)
+    if not status then
+      stdnse.debug("Couldn't send: %s", err)
+      break
+    end
 
-  -- Read response
-  status, response, err = tls.record_buffer(sock)
-  if not status then
-    stdnse.debug("Couldn't receive: %s", err)
-    sock:close()
-    return false
-  end
+    -- Read response
+    status, response, err = tls.record_buffer(sock)
+    if not status then
+      stdnse.debug("Couldn't receive: %s", err)
+      break
+    end
+  until true
 
-  return true, response
+  sock:close()
+  return status, response
 end
 
 -- extract time from ServerHello response

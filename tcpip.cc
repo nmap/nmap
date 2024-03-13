@@ -5,66 +5,66 @@
  * libpcap, etc.                                                           *
  *                                                                         *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
- *                                                                         *
- * The Nmap Security Scanner is (C) 1996-2020 Insecure.Com LLC ("The Nmap  *
- * Project"). Nmap is also a registered trademark of the Nmap Project.     *
- *                                                                         *
- * This program is distributed under the terms of the Nmap Public Source   *
- * License (NPSL). The exact license text applying to a particular Nmap    *
- * release or source code control revision is contained in the LICENSE     *
- * file distributed with that version of Nmap or source code control       *
- * revision. More Nmap copyright/legal information is available from       *
- * https://nmap.org/book/man-legal.html, and further information on the    *
- * NPSL license itself can be found at https://nmap.org/npsl. This header  *
- * summarizes some key points from the Nmap license, but is no substitute  *
- * for the actual license text.                                            *
- *                                                                         *
- * Nmap is generally free for end users to download and use themselves,    *
- * including commercial use. It is available from https://nmap.org.        *
- *                                                                         *
- * The Nmap license generally prohibits companies from using and           *
- * redistributing Nmap in commercial products, but we sell a special Nmap  *
- * OEM Edition with a more permissive license and special features for     *
- * this purpose. See https://nmap.org/oem                                  *
- *                                                                         *
- * If you have received a written Nmap license agreement or contract       *
- * stating terms other than these (such as an Nmap OEM license), you may   *
- * choose to use and redistribute Nmap under those terms instead.          *
- *                                                                         *
- * The official Nmap Windows builds include the Npcap software             *
- * (https://npcap.org) for packet capture and transmission. It is under    *
- * separate license terms which forbid redistribution without special      *
- * permission. So the official Nmap Windows builds may not be              *
- * redistributed without special permission (such as an Nmap OEM           *
- * license).                                                               *
- *                                                                         *
- * Source is provided to this software because we believe users have a     *
- * right to know exactly what a program is going to do before they run it. *
- * This also allows you to audit the software for security holes.          *
- *                                                                         *
- * Source code also allows you to port Nmap to new platforms, fix bugs,    *
- * and add new features.  You are highly encouraged to submit your         *
- * changes as a Github PR or by email to the dev@nmap.org mailing list     *
- * for possible incorporation into the main distribution. Unless you       *
- * specify otherwise, it is understood that you are offering us very       *
- * broad rights to use your submissions as described in the Nmap Public    *
- * Source License Contributor Agreement. This is important because we      *
- * fund the project by selling licenses with various terms, and also       *
- * because the inability to relicense code has caused devastating          *
- * problems for other Free Software projects (such as KDE and NASM).       *
- *                                                                         *
- * The free version of Nmap is distributed in the hope that it will be     *
- * useful, but WITHOUT ANY WARRANTY; without even the implied warranty of  *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. Warranties,        *
- * indemnification and commercial support are all available through the    *
- * Npcap OEM program--see https://nmap.org/oem.                            *
- *                                                                         *
+ *
+ * The Nmap Security Scanner is (C) 1996-2024 Nmap Software LLC ("The Nmap
+ * Project"). Nmap is also a registered trademark of the Nmap Project.
+ *
+ * This program is distributed under the terms of the Nmap Public Source
+ * License (NPSL). The exact license text applying to a particular Nmap
+ * release or source code control revision is contained in the LICENSE
+ * file distributed with that version of Nmap or source code control
+ * revision. More Nmap copyright/legal information is available from
+ * https://nmap.org/book/man-legal.html, and further information on the
+ * NPSL license itself can be found at https://nmap.org/npsl/ . This
+ * header summarizes some key points from the Nmap license, but is no
+ * substitute for the actual license text.
+ *
+ * Nmap is generally free for end users to download and use themselves,
+ * including commercial use. It is available from https://nmap.org.
+ *
+ * The Nmap license generally prohibits companies from using and
+ * redistributing Nmap in commercial products, but we sell a special Nmap
+ * OEM Edition with a more permissive license and special features for
+ * this purpose. See https://nmap.org/oem/
+ *
+ * If you have received a written Nmap license agreement or contract
+ * stating terms other than these (such as an Nmap OEM license), you may
+ * choose to use and redistribute Nmap under those terms instead.
+ *
+ * The official Nmap Windows builds include the Npcap software
+ * (https://npcap.com) for packet capture and transmission. It is under
+ * separate license terms which forbid redistribution without special
+ * permission. So the official Nmap Windows builds may not be redistributed
+ * without special permission (such as an Nmap OEM license).
+ *
+ * Source is provided to this software because we believe users have a
+ * right to know exactly what a program is going to do before they run it.
+ * This also allows you to audit the software for security holes.
+ *
+ * Source code also allows you to port Nmap to new platforms, fix bugs, and
+ * add new features. You are highly encouraged to submit your changes as a
+ * Github PR or by email to the dev@nmap.org mailing list for possible
+ * incorporation into the main distribution. Unless you specify otherwise, it
+ * is understood that you are offering us very broad rights to use your
+ * submissions as described in the Nmap Public Source License Contributor
+ * Agreement. This is important because we fund the project by selling licenses
+ * with various terms, and also because the inability to relicense code has
+ * caused devastating problems for other Free Software projects (such as KDE
+ * and NASM).
+ *
+ * The free version of Nmap is distributed in the hope that it will be
+ * useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. Warranties,
+ * indemnification and commercial support are all available through the
+ * Npcap OEM program--see https://nmap.org/oem/
+ *
  ***************************************************************************/
 
 /* $Id$ */
 
 #include "nmap.h"
 
+#include <locale.h>
 #include "nbase.h"
 #include <dnet.h>
 #include "tcpip.h"
@@ -191,9 +191,9 @@ void PacketTrace::traceArp(pdirection pdir, const u8 *frame, u32 len,
 void PacketTrace::traceND(pdirection pdir, const u8 *frame, u32 len,
                           struct timeval *now) {
   struct timeval tv;
-  struct ip6_hdr *ip6;
-  struct icmpv6_hdr *icmpv6;
-  union icmpv6_msg *msg;
+  const struct ip6_hdr *ip6;
+  const struct icmpv6_hdr *icmpv6;
+  const union icmpv6_msg *msg;
   size_t msg_len;
   const char *label;
   char src[INET6_ADDRSTRLEN], dst[INET6_ADDRSTRLEN];
@@ -232,7 +232,7 @@ void PacketTrace::traceND(pdirection pdir, const u8 *frame, u32 len,
     if (msg_len < 20) {
       Snprintf(desc, sizeof(desc), "packet too short");
     } else {
-      inet_ntop(AF_INET6, &msg->nd.icmpv6_target, who_has, sizeof(who_has));
+      inet_ntop(AF_INET6, (void *)&msg->nd.icmpv6_target, who_has, sizeof(who_has));
       Snprintf(desc, sizeof(desc), "who has %s", who_has);
     }
   } else if (icmpv6->icmpv6_type == ICMPV6_NEIGHBOR_ADVERTISEMENT) {
@@ -243,7 +243,7 @@ void PacketTrace::traceND(pdirection pdir, const u8 *frame, u32 len,
       /* We only handle target link-layer address in the first option. */
       Snprintf(desc, sizeof(desc), "no link-layer address");
     } else {
-      inet_ntop(AF_INET6, &msg->nd.icmpv6_target, tgt_is, sizeof(tgt_is));
+      inet_ntop(AF_INET6, (void *)&msg->nd.icmpv6_target, tgt_is, sizeof(tgt_is));
       Snprintf(desc, sizeof(desc), "%s is at %s",
                tgt_is, eth_ntoa(&msg->nd.icmpv6_mac));
     }
@@ -252,8 +252,8 @@ void PacketTrace::traceND(pdirection pdir, const u8 *frame, u32 len,
     return;
   }
 
-  inet_ntop(AF_INET6, &ip6->ip6_src, src, sizeof(src));
-  inet_ntop(AF_INET6, &ip6->ip6_dst, dst, sizeof(dst));
+  inet_ntop(AF_INET6, (void *)&ip6->ip6_src, src, sizeof(src));
+  inet_ntop(AF_INET6, (void *)&ip6->ip6_dst, dst, sizeof(dst));
   log_write(LOG_STDOUT | LOG_NORMAL, "%s (%.4fs) %s %s > %s %s\n",
             (pdir == SENT) ? "SENT" : "RCVD",
             o.TimeSinceStart(&tv), label, src, dst, desc);
@@ -326,9 +326,9 @@ void PacketTrace::traceConnect(u8 proto, const struct sockaddr *sock,
                                int socklen, int connectrc,
                                int connect_errno,
                                const struct timeval *now) {
-  struct sockaddr_in *sin = (struct sockaddr_in *) sock;
+  const struct sockaddr_in *sin = (struct sockaddr_in *) sock;
 #if HAVE_IPV6
-  struct sockaddr_in6 *sin6 = (struct sockaddr_in6 *) sock;
+  const struct sockaddr_in6 *sin6 = (struct sockaddr_in6 *) sock;
 #endif
   struct timeval tv;
   char errbuf[64] = "";
@@ -386,11 +386,11 @@ void PacketTrace::traceConnect(u8 proto, const struct sockaddr *sock,
 /* Converts an IP address given in a sockaddr_storage to an IPv4 or
    IPv6 IP address string.  Since a static buffer is returned, this is
    not thread-safe and can only be used once in calls like printf() */
-const char *inet_socktop(struct sockaddr_storage *ss) {
+const char *inet_socktop(const struct sockaddr_storage *ss) {
   static char buf[INET6_ADDRSTRLEN];
-  struct sockaddr_in *sin = (struct sockaddr_in *) ss;
+  const struct sockaddr_in *sin = (struct sockaddr_in *) ss;
 #if HAVE_IPV6
-  struct sockaddr_in6 *sin6 = (struct sockaddr_in6 *) ss;
+  const struct sockaddr_in6 *sin6 = (struct sockaddr_in6 *) ss;
 #endif
 
   if (inet_ntop(sin->sin_family, (sin->sin_family == AF_INET) ?
@@ -419,7 +419,15 @@ struct addrinfo *resolve_all(const char *hostname, int pf) {
   hints.ai_family = pf;
   /* Otherwise we get multiple identical addresses with different socktypes. */
   hints.ai_socktype = SOCK_DGRAM;
+#ifdef AI_IDN
+  /* Try resolving internationalized domain names */
+  hints.ai_flags = AI_IDN;
+  setlocale(LC_CTYPE, "");
+#endif
   rc = getaddrinfo(hostname, NULL, &hints, &result);
+#ifdef AI_IDN
+  setlocale(LC_CTYPE, o.locale);
+#endif
   if (rc != 0){
     if (o.debugging > 1)
       error("Error resolving %s: %s", hostname, gai_strerror(rc));
@@ -435,7 +443,7 @@ struct addrinfo *resolve_all(const char *hostname, int pf) {
 static int send_ipv4_packet(int sd, const struct eth_nfo *eth,
                             const struct sockaddr_in *dst,
                             const u8 *packet, unsigned int packetlen) {
-  struct ip *ip = (struct ip *) packet;
+  const struct ip *ip = (struct ip *) packet;
   int res;
 
   assert(packet);
@@ -469,7 +477,7 @@ static int send_ipv6_packet(int sd, const struct eth_nfo *eth,
 int send_ip_packet(int sd, const struct eth_nfo *eth,
                    const struct sockaddr_storage *dst,
                    const u8 *packet, unsigned int packetlen) {
-  struct ip *ip = (struct ip *) packet;
+  const struct ip *ip = (struct ip *) packet;
 
   /* Ensure there's enough to read ip->ip_v at least. */
   if (packetlen < 1)
@@ -1159,8 +1167,8 @@ u8 *build_igmp_raw(const struct in_addr *source,
    of a TCP packet*/
 int readtcppacket(const u8 *packet, int readdata) {
 
-  struct ip *ip = (struct ip *) packet;
-  struct tcp_hdr *tcp = (struct tcp_hdr *) (packet + sizeof(struct ip));
+  const struct ip *ip = (struct ip *) packet;
+  const struct tcp_hdr *tcp = (struct tcp_hdr *) (packet + sizeof(struct ip));
   const unsigned char *data = packet + sizeof(struct ip) + sizeof(struct tcp_hdr);
   int tot_len;
   struct in_addr bullshit, bullshit2;
@@ -1235,8 +1243,8 @@ int readtcppacket(const u8 *packet, int readdata) {
 /* A simple function I wrote to help in debugging, shows the important fields
    of a UDP packet*/
 int readudppacket(const u8 *packet, int readdata) {
-  struct ip *ip = (struct ip *) packet;
-  struct udp_hdr *udp = (struct udp_hdr *) (packet + sizeof(struct ip));
+  const struct ip *ip = (struct ip *) packet;
+  const struct udp_hdr *udp = (struct udp_hdr *) (packet + sizeof(struct ip));
   const unsigned char *data = packet + sizeof(struct ip) + sizeof(struct udp_hdr);
   int tot_len;
   struct in_addr bullshit, bullshit2;
@@ -1283,7 +1291,7 @@ int readudppacket(const u8 *packet, int readdata) {
 /* Used by validatepkt() to validate the TCP header (including option lengths).
    The options checked are MSS, WScale, SackOK, Sack, and Timestamp. */
 static bool validateTCPhdr(const u8 *tcpc, unsigned len) {
-  struct tcp_hdr *tcp = (struct tcp_hdr *) tcpc;
+  const struct tcp_hdr *tcp = (struct tcp_hdr *) tcpc;
   unsigned hdrlen, optlen;
 
   hdrlen = tcp->th_off * 4;
@@ -1371,7 +1379,7 @@ static bool validateTCPhdr(const u8 *tcpc, unsigned len) {
  * data to the caller.
  */
 static bool validatepkt(const u8 *ipc, unsigned *len) {
-  struct ip *ip = (struct ip *) ipc;
+  const struct ip *ip = (struct ip *) ipc;
   const void *data;
   unsigned int datalen, iplen;
   u8 hdr;
@@ -1492,7 +1500,7 @@ static bool accept_any (const unsigned char *p, const struct pcap_pkthdr *h, int
 }
 
 static bool accept_ip (const unsigned char *p, const struct pcap_pkthdr *h, int datalink, size_t offset) {
-  struct ip *ip = NULL;
+  const struct ip *ip = NULL;
 
   if (h->caplen < offset + sizeof(struct ip)) {
     return false;
@@ -1599,9 +1607,6 @@ void pcap_print_stats(int logt, pcap_t *pd) {
    This function returns 0 if it ends up setting the MAC, nonzero otherwise. */
 int setTargetMACIfAvailable(Target *target, struct link_header *linkhdr,
                             const struct sockaddr_storage *src, int overwrite) {
-  struct sockaddr_storage addr;
-  size_t addr_len;
-
   if (!linkhdr || !target || !src)
     return 1;
 
@@ -1611,9 +1616,7 @@ int setTargetMACIfAvailable(Target *target, struct link_header *linkhdr,
   if (!overwrite && target->MACAddress())
     return 3;
 
-  addr_len = sizeof(addr);
-  target->TargetSockAddr(&addr, &addr_len);
-  if (sockaddr_storage_cmp(src, &addr) != 0)
+  if (sockaddr_storage_cmp(src, target->TargetSockAddr()) != 0)
     return 4;
 
   /* Sometimes bogus MAC address still gets through, like during some localhost scans */
@@ -1758,7 +1761,7 @@ int recvtime(int sd, char *buf, int len, int seconds, int *timedout) {
   timeout.tv_sec = seconds;
   timeout.tv_usec = 0;
   FD_ZERO(&readfd);
-  FD_SET(sd, &readfd);
+  checked_fd_set(sd, &readfd);
   if (timedout)
     *timedout = 0;
   res = select(sd + 1, &readfd, NULL, NULL, &timeout);
@@ -1787,7 +1790,7 @@ int recvtime(int sd, char *buf, int len, int seconds, int *timedout) {
    parameters (if non-null) are filled with 0.  Remember that the
    correct way to check for errors is to look at the return value
    since a zero ts or echots could possibly be valid. */
-int gettcpopt_ts(struct tcp_hdr *tcp, u32 *timestamp, u32 *echots) {
+int gettcpopt_ts(const struct tcp_hdr *tcp, u32 *timestamp, u32 *echots) {
 
   unsigned char *p;
   int len = 0;

@@ -21,10 +21,10 @@ test_addrset() {
 	result=$(echo $result)
 	TESTS=$(expr $TESTS + 1);
 	if [ "$ret" != "0" ]; then
-		echo "FAIL $ADDRSET returned $ret."
+		echo "FAIL $specs: $ADDRSET returned $ret."
 		TEST_FAIL=$(expr $TEST_FAIL + 1)
 	elif [ "$result" != "$expected" ]; then
-		echo "FAIL \"$result\" !="
+		echo "FAIL $specs: \"$result\" !="
 		echo "     \"$expected\"."
 		TEST_FAIL=$(expr $TEST_FAIL + 1)
 	else

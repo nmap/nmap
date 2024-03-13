@@ -923,6 +923,7 @@ end
 -- @return Decoded domain, or <code>nil</code> on error.
 function decStr(data, pos)
   local function dec(data, pos, limit)
+    assert(pos > 0)
     local partlen
     local parts = {}
     local part
@@ -1159,9 +1160,8 @@ decoder[types.PTR] = decDomain
 decoder[types.TXT] =
 function (entry, data, pos)
 
-  local len = entry.data:len()
-  local np = pos - #entry.data
-  local txt_len
+  local len = #entry.data
+  local np = pos - len
   local txt
 
   if len > 0 then
@@ -1169,7 +1169,7 @@ function (entry, data, pos)
     entry.TXT.text = {}
   end
 
-  while np < len do
+  while np < pos do
     txt, np = string.unpack("s1", data, np)
     table.insert( entry.TXT.text, txt )
   end
@@ -1553,4 +1553,285 @@ end
 test_suite = unittest.TestSuite:new()
 
 test_suite:add_test(unittest.equal(encodeFQDN("test.me.com"), "\x04test\x02me\x03com\0"), "encodeFQDN")
+local tests = { {
+    pkt = string.char(0x92, 0xdc, -- Trsnsaction ID
+      0x81, 0x80, -- Flags
+      0x00, 0x01, -- Questions count
+      0x00, 0x01, -- Answers RRs count
+      0x00, 0x00, -- Authorities RRs count
+      0x00, 0x00, -- Additionals RRs count
+      0x06, -- Label length <-- [12]
+      0x73, 0x63, 0x61, 0x6e, 0x6d, 0x65, -- "scanme"
+      0x04, -- Label length
+      0x6e, 0x6d, 0x61, 0x70, -- "nmap"
+      0x03, -- Label length
+      0x6f, 0x72, 0x67, -- "org"
+      0x00, -- Name terminator
+      0x00, 0x01, -- A
+      0x00, 0x01, -- CLASS_IN
+      0xc0, 0x0c, -- Compressed name pointer to offset 12
+      0x00, 0x01, -- A
+      0x00, 0x01, -- CLASS_IN
+      0x00, 0x00, 0x0e, 0x0f, -- TTL 3599
+      0x00, 0x04, -- Record Length
+      0x2d, 0x21, 0x20, 0x9c ), -- 45.33.32.156
+    qname = "scanme.nmap.org",
+    qtype = "A",
+    ans = {"ip", "45.33.32.156"}
+  },
+  {
+    pkt = string.char(
+      0x08, 0xf2, -- ID
+      0x81, 0x80, -- Flags
+      0x00, 0x01, -- Questions count
+      0x00, 0x01, -- Answers RRs count
+      0x00, 0x00, -- Authorities RRs count
+      0x00, 0x00, -- Additionals RRs count
+      0x03, -- Label length
+      0x31, 0x35, 0x36, -- "156"
+      0x02, -- Label length
+      0x33, 0x32, -- "32"
+      0x02, -- Label length
+      0x33, 0x33, -- "33"
+      0x02, -- Label length
+      0x34, 0x35, -- "45"
+      0x07, -- Label length
+      0x69, 0x6e, 0x2d, 0x61, 0x64, 0x64, 0x72, -- "in-addr"
+      0x04, -- Label length
+      0x61, 0x72, 0x70, 0x61, -- "arpa"
+      0x00, -- Name terminator
+      0x00, 0x0c, -- PTR
+      0x00, 0x01, -- CLASS_IN
+      0xc0, 0x0c, -- Compressed name pointer to offset 12
+      0x00, 0x0c, -- PTR
+      0x00, 0x01, -- CLASS_IN
+      0x00, 0x01, 0x51, 0x78, -- TTL 86392
+      0x00, 0x11, -- Record Length
+      0x06, -- Label length
+      0x73, 0x63, 0x61, 0x6e, 0x6d, 0x65, -- "scanme"
+      0x04, -- Label length
+      0x6e, 0x6d, 0x61, 0x70, -- "nmap"
+      0x03, -- Label length
+      0x6f, 0x72, 0x67, -- "org"
+      0x00),  -- Name terminator
+    qname = "156.32.33.45.in-addr.arpa",
+    qtype = "PTR",
+    ans = {"domain", "scanme.nmap.org"}
+  },
+}
+for _, t in ipairs(tests) do
+  local decoded = decode(t.pkt)
+  local q = decoded.questions[1]
+  local a = decoded.answers[1]
+  test_suite:add_test(unittest.equal(q.dname, t.qname), "decode question name")
+  test_suite:add_test(unittest.equal(q.dtype, types[t.qtype]), "decode question type")
+  test_suite:add_test(unittest.equal(a[t.ans[1]], t.ans[2]), "decode answer")
+end
+local axfr = stdnse.fromhex(
+"dead840000010032000000000c7a\z
+6f6e657472616e73666572026d650000\z
+fc0001c00c0006000100001c20002f06\z
+6e737a746d310464696769056e696e6a\z
+610005726f62696ec034785908810002\z
+a300000003840012750000000e10c00c\z
+000d00010000012c00190d436173696f\z
+2066782d373030470a57696e646f7773\z
+205850c00c001000010000012d004544\z
+676f6f676c652d736974652d76657269\z
+6669636174696f6e3d74795032384a37\z
+4a41554841396677327348584d676343\z
+4330493658426d6d6f56693034566c4d\z
+65777841c00c000f000100001c200016\z
+0000054153504d58014c06474f4f474c\z
+4503434f4d00c00c000f000100001c20\z
+0009000a04414c5431c0e0c00c000f00\z
+0100001c200009000a04414c5432c0e0\z
+c00c000f000100001c20001600140641\z
+53504d58320a474f4f474c454d41494c\z
+c0efc00c000f000100001c20000b0014\z
+064153504d5833c133c00c000f000100\z
+001c20000b0014064153504d5834c133\z
+c00c000f000100001c20000b00140641\z
+53504d5835c133c00c0001000100001c\z
+20000405c4690ec00c0002000100001c\z
+200002c02dc00c0002000100001c2000\z
+09066e737a746d32c0340f5f61636d65\z
+2d6368616c6c656e6765c00c00100001\z
+0000012d002c2b364f6130356862554a\z
+39785373765979377041705176774355\z
+535347677876726264697a6a65504573\z
+5a49045f736970045f746370c00c0021\z
+0001000036b0001b0000000013c40377\z
+77770c7a6f6e657472616e7366657202\z
+6d650002313403313035033139360135\z
+07494e2d414444520441525041c22000\z
+0c000100001c200002c21c0c61736664\z
+6261757468646e73c220001200010000\z
+1edc001c0001086173666462626f780c\z
+7a6f6e657472616e73666572026d6500\z
+c2740001000100001c2000047f000001\z
+0b6173666462766f6c756d65c27d0012\z
+000100001e78001c0001086173666462\z
+626f780c7a6f6e657472616e73666572\z
+026d65000f63616e62657272612d6f66\z
+66696365c2c10001000100001c200004\z
+ca0e51e607636d6465786563c2c10010\z
+00010000012c0005043b206c7307636f\z
+6e74616374c2c10010000100278d0000\z
+646352656d656d62657220746f206361\z
+6c6c206f7220656d61696c2050697070\z
+61206f6e202b34342031323320343536\z
+37383930206f72207069707061407a6f\z
+6e657472616e736665722e6d65207768\z
+656e206d616b696e6720444e53206368\z
+616e6765730964632d6f6666696365c2\z
+c10001000100001c2000048fe4b58408\z
+6465616462656566c2c1001c00010000\z
+1c210010deadbeaf0000000000000000\z
+00000000026472c2c1001d0001000001\z
+2c0010001216138b728cee7fa5c44a00\z
+98968003445a43c2c10010000100001c\z
+200008074162436445664705656d6169\z
+6cc2c100230001000008ae0038000100\z
+010150094532552b656d61696c000565\z
+6d61696c0c7a6f6e657472616e736665\z
+72026d650c7a6f6e657472616e736665\z
+72026d6500c3f90001000100001c2000\z
+044a7dce1a0548656c6c6fc432001000\z
+0100001c20001d1c486920746f204a6f\z
+736820616e6420616c6c206869732063\z
+6c61737304686f6d65c4320001000100\z
+001c2000047f00000104496e666fc432\z
+0010000100001c20008b8a5a6f6e6554\z
+72616e736665722e6d65207365727669\z
+63652070726f76696465642062792052\z
+6f62696e20576f6f64202d20726f6269\z
+6e40646967692e6e696e6a612e205365\z
+6520687474703a2f2f646967692e6e69\z
+6e6a612f70726f6a656374732f7a6f6e\z
+657472616e736665726d652e70687020\z
+666f72206d6f726520696e666f726d61\z
+74696f6e2e08696e7465726e616cc432\z
+000200010000012c000906696e746e73\z
+31c432c533000200010000012c000906\z
+696e746e7332c432c548000100010000\z
+012c000451046c29c55d000100010000\z
+012c0004a7582a5e066f6666696365c4\z
+320001000100001c200004041727fe0a\z
+697076366163746e6f77036f7267c432\z
+001c000100001c2000102001067c02e8\z
+001100000000c1001332036f7761c432\z
+0001000100001c200004cf2ec5200972\z
+6f62696e776f6f64c432001000010000\z
+012e000b0a526f62696e20576f6f6402\z
+7270c432001100010000014100320572\z
+6f62696e0c7a6f6e657472616e736665\z
+72026d650009726f62696e776f6f640c\z
+7a6f6e657472616e73666572026d6500\z
+03736970c62d0023000100000d05003b\z
+000200030150074532552b7369702b21\z
+5e2e2a24217369703a637573746f6d65\z
+722d73657276696365407a6f6e657472\z
+616e736665722e6d6521000473716c69\z
+c62d001000010000012c000c0b27206f\z
+7220313d31202d2d067373686f636bc6\z
+2d0010000100001c20001c1b2829207b\z
+203a5d7d3b206563686f205368656c6c\z
+53686f636b65640773746167696e67c6\z
+2d0005000100001c20001a0377777710\z
+7379646e65796f70657261686f757365\z
+03636f6d000f616c6c746370706f7274\z
+736f70656e086669726577616c6c0474\z
+657374c62d000100010000012d00047f\z
+0000010774657374696e67c62d000500\z
+010000012d0002c21c0376706ec62d00\z
+01000100000fa00004ae243b9ac21c00\z
+01000100001c20000405c4690e037873\z
+73c62d001000010000012c00201f273e\z
+3c7363726970743e616c657274282742\z
+6f6f27293c2f7363726970743ec62d00\z
+06000100001c200018c02dc040785908\z
+810002a300000003840012750000000e\z
+10")
+local axfr_decoded = decode(axfr)
+local answers = {
+  {dname="zonetransfer.me", dtype=types["SOA"], mname="nsztm1.digi.ninja", rname="robin.digi.ninja"},
+  {dname="zonetransfer.me", dtype=types["HINFO"]}, --  "Casio fx-700G" "Windows XP"
+  {dname="zonetransfer.me", dtype=types["TXT"], text="google-site-verification=tyP28J7JAUHA9fw2sHXMgcCC0I6XBmmoVi04VlMewxA"},
+  {dname="zonetransfer.me", dtype=types["MX"], pref=0,  server="ASPMX.L.GOOGLE.COM"},
+  {dname="zonetransfer.me", dtype=types["MX"], pref=10, server="ALT1.ASPMX.L.GOOGLE.COM"},
+  {dname="zonetransfer.me", dtype=types["MX"], pref=10, server="ALT2.ASPMX.L.GOOGLE.COM"},
+  {dname="zonetransfer.me", dtype=types["MX"], pref=20, server="ASPMX2.GOOGLEMAIL.COM"},
+  {dname="zonetransfer.me", dtype=types["MX"], pref=20, server="ASPMX3.GOOGLEMAIL.COM"},
+  {dname="zonetransfer.me", dtype=types["MX"], pref=20, server="ASPMX4.GOOGLEMAIL.COM"},
+  {dname="zonetransfer.me", dtype=types["MX"], pref=20, server="ASPMX5.GOOGLEMAIL.COM"},
+  {dname="zonetransfer.me", dtype=types["A"],  ip="5.196.105.14"},
+  {dname="zonetransfer.me", dtype=types["NS"], domain="nsztm1.digi.ninja"},
+  {dname="zonetransfer.me", dtype=types["NS"], domain="nsztm2.digi.ninja"},
+  {dname="_acme-challenge.zonetransfer.me", dtype=types["TXT"], text="6Oa05hbUJ9xSsvYy7pApQvwCUSSGgxvrbdizjePEsZI"},
+  {dname="_sip._tcp.zonetransfer.me", dtype=types["SRV"], prio=0, weight=0, port=5060, target="www.zonetransfer.me"},
+  {dname="14.105.196.5.IN-ADDR.ARPA.zonetransfer.me", dtype=types["PTR"], domain="www.zonetransfer.me"},
+  {dname="asfdbauthdns.zonetransfer.me", dtype=types["AFSDB"]}, -- 1 asfdbbox.zonetransfer.me.
+  {dname="asfdbbox.zonetransfer.me", dtype=types["A"], ip="127.0.0.1"},
+  {dname="asfdbvolume.zonetransfer.me", dtype=types["AFSDB"]}, -- 1 asfdbbox.zonetransfer.me.
+  {dname="canberra-office.zonetransfer.me", dtype=types["A"], ip="202.14.81.230"},
+  {dname="cmdexec.zonetransfer.me", dtype=types["TXT"], text="; ls"},
+  {dname="contact.zonetransfer.me", dtype=types["TXT"], text="Remember to call or email Pippa on +44 123 4567890 or pippa@zonetransfer.me when making DNS changes"},
+  {dname="dc-office.zonetransfer.me", dtype=types["A"], ip="143.228.181.132"},
+  {dname="deadbeef.zonetransfer.me", dtype=types["AAAA"], ipv6="dead:beaf::"},
+  {dname="dr.zonetransfer.me", dtype=types["LOC"]}, -- 53.349044 N 1.642646 W 0m 1.0m 10000.0m 10.0m
+  {dname="DZC.zonetransfer.me", dtype=types["TXT"], text="AbCdEfG"},
+  {dname="email.zonetransfer.me", dtype=types["NAPTR"]}, -- 1 1 "P" "E2U+email" "" email.zonetransfer.me.zonetransfer.me.
+  {dname="email.zonetransfer.me", dtype=types["A"], ip="74.125.206.26"},
+  {dname="Hello.zonetransfer.me", dtype=types["TXT"], text="Hi to Josh and all his class"},
+  {dname="home.zonetransfer.me", dtype=types["A"], ip="127.0.0.1"},
+  {dname="Info.zonetransfer.me", dtype=types["TXT"], text="ZoneTransfer.me service provided by Robin Wood - robin@digi.ninja. See http://digi.ninja/projects/zonetransferme.php for more information."},
+  {dname="internal.zonetransfer.me", dtype=types["NS"], domain="intns1.zonetransfer.me"},
+  {dname="internal.zonetransfer.me", dtype=types["NS"], domain="intns2.zonetransfer.me"},
+  {dname="intns1.zonetransfer.me", dtype=types["A"], ip="81.4.108.41"},
+  {dname="intns2.zonetransfer.me", dtype=types["A"], ip="167.88.42.94"},
+  {dname="office.zonetransfer.me", dtype=types["A"], ip="4.23.39.254"},
+  {dname="ipv6actnow.org.zonetransfer.me", dtype=types["AAAA"], ipv6="2001:67c:2e8:11::c100:1332"},
+  {dname="owa.zonetransfer.me", dtype=types["A"], ip="207.46.197.32"},
+  {dname="robinwood.zonetransfer.me", dtype=types["TXT"], text="Robin Wood"},
+  {dname="rp.zonetransfer.me", dtype=types["RP"]}, -- robin.zonetransfer.me. robinwood.zonetransfer.me.
+  {dname="sip.zonetransfer.me", dtype=types["NAPTR"]}, -- 2 3 "P" "E2U+sip" "!^.*$!sip:customer-service@zonetransfer.me!" .
+  {dname="sqli.zonetransfer.me", dtype=types["TXT"], text="' or 1=1 --"},
+  {dname="sshock.zonetransfer.me", dtype=types["TXT"],text="() { :]}; echo ShellShocked"},
+  {dname="staging.zonetransfer.me", dtype=types["CNAME"], domain="www.sydneyoperahouse.com"},
+  {dname="alltcpportsopen.firewall.test.zonetransfer.me", dtype=types["A"], ip="127.0.0.1"},
+  {dname="testing.zonetransfer.me", dtype=types["CNAME"], domain="www.zonetransfer.me"},
+  {dname="vpn.zonetransfer.me", dtype=types["A"], ip="174.36.59.154"},
+  {dname="www.zonetransfer.me", dtype=types["A"], ip="5.196.105.14"},
+  {dname="xss.zonetransfer.me", dtype=types["TXT"], text="'><script>alert('Boo')</script>"},
+  {dname="zonetransfer.me", dtype=types["SOA"], mname="nsztm1.digi.ninja", rname="robin.digi.ninja"},
+}
+for i, a in ipairs(axfr_decoded.answers) do
+  ta = answers[i]
+  if ta.dtype == types.TXT then
+    test_suite:add_test(unittest.equal(a.dname, ta.dname), i .. ".dname")
+    test_suite:add_test(unittest.equal(a.dtype, ta.dtype), i .. ".dtype")
+    test_suite:add_test(unittest.equal(a.TXT.text[1], ta.text), i .. ".text")
+  elseif ta.dtype == types.SOA then
+    test_suite:add_test(unittest.equal(a.dname, ta.dname), i .. ".dname")
+    test_suite:add_test(unittest.equal(a.dtype, ta.dtype), i .. ".dtype")
+    test_suite:add_test(unittest.equal(a.SOA.mname, ta.mname), i .. ".mname")
+    test_suite:add_test(unittest.equal(a.SOA.rname, ta.rname), i .. ".rname")
+  elseif ta.dtype == types.MX then
+    test_suite:add_test(unittest.equal(a.dname, ta.dname), i .. ".dname")
+    test_suite:add_test(unittest.equal(a.dtype, ta.dtype), i .. ".dtype")
+    test_suite:add_test(unittest.equal(a.MX.pref, ta.pref), i .. ".pref")
+    test_suite:add_test(unittest.equal(a.MX.server, ta.server), i .. ".server")
+  elseif ta.dtype == types.SRV then
+    test_suite:add_test(unittest.equal(a.dname, ta.dname), i .. ".dname")
+    test_suite:add_test(unittest.equal(a.dtype, ta.dtype), i .. ".dtype")
+    test_suite:add_test(unittest.equal(a.SRV.prio, ta.prio), i .. ".prio")
+    test_suite:add_test(unittest.equal(a.SRV.weight, ta.weight), i .. ".weight")
+    test_suite:add_test(unittest.equal(a.SRV.port, ta.port), i .. ".port")
+  else
+    for k, v in pairs(ta) do
+      test_suite:add_test(unittest.equal(a[k], v), ("%d.%s"):format(i, k))
+    end
+  end
+end
 return _ENV;

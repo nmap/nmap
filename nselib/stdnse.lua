@@ -220,13 +220,13 @@ function make_buffer(socket, sep)
         return self();
       end
     else
-      local i, j = buffer:find(sep, point);
+      local i, j = find(buffer, sep, point);
       if i then
-        local ret = buffer:sub(point, i-1);
+        local ret = sub(buffer, point, i-1);
         point = j + 1;
         return ret;
       else
-        point, left, buffer = 1, buffer:sub(point), nil;
+        point, left, buffer = 1, sub(buffer, point), nil;
         return self();
       end
     end
@@ -260,12 +260,12 @@ do
   };
 
 --- Converts the given number, n, to a string in a binary number format (12
--- becomes "1100").
+-- becomes "1100"). Leading 0s not stripped.
 -- @param n Number to convert.
 -- @return String in binary format.
   function tobinary(n)
-    assert(tonumber(n), "number expected");
-    return (("%x"):format(n):gsub("%w", t):gsub("^0*", ""));
+    -- enforced by string.format: assert(tonumber(n), "number expected");
+    return gsub(format("%x", n), "%w", t)
   end
 end
 
@@ -274,11 +274,14 @@ end
 -- @param n Number to convert.
 -- @return String in octal format.
 function tooctal(n)
-  assert(tonumber(n), "number expected");
-  return ("%o"):format(n)
+  -- enforced by string.format: assert(tonumber(n), "number expected");
+  return format("%o", n)
 end
 
---- Encode a string or number in hexadecimal (12 becomes "c", "AB" becomes
+local tohex_helper =  function(b)
+  return format("%02x", byte(b))
+end
+--- Encode a string or integer in hexadecimal (12 becomes "c", "AB" becomes
 -- "4142").
 --
 -- An optional second argument is a table with formatting options. The possible
@@ -301,9 +304,9 @@ function tohex( s, options )
   local hex
 
   if type( s ) == "number" then
-    hex = ("%x"):format(s)
+    hex = format("%x", s)
   elseif type( s ) == 'string' then
-    hex = ("%02x"):rep(#s):format(s:byte(1,#s))
+    hex = gsub(s, ".", tohex_helper)
   else
     error( "Type not supported in tohex(): " .. type(s), 2 )
   end
@@ -311,14 +314,11 @@ function tohex( s, options )
   -- format hex if we got a separator
   if separator then
     local group = options.group or 2
-    local fmt_table = {}
-    -- split hex in group-size chunks
-    for i=#hex,1,-group do
-      -- table index must be consecutive otherwise table.concat won't work
-      fmt_table[ceil(i/group)] = hex:sub(max(i-group+1,1),i)
-    end
-
-    hex = concat( fmt_table, separator )
+    local subs = 0
+    local pat = "(%x)(" .. rep("[^:]", group) .. ")%f[\0:]"
+    repeat
+      hex, subs = gsub(hex, pat, "%1:%2")
+    until subs == 0
   end
 
   return hex
@@ -338,15 +338,15 @@ end
 -- @return A string of bytes or nil if string could not be decoded
 -- @return Error message if string could not be decoded
 function fromhex (hex)
-  local p = hex:find("[^%x%s]")
+  local p = find(hex, "[^%x%s]")
   if p then
     return nil, "Invalid hexadecimal digits at position " .. p
   end
-  hex = hex:gsub("%s+", "")
+  hex = gsub(hex, "%s+", "")
   if #hex % 2 ~= 0 then
     return nil, "Odd number of hexadecimal digits"
   end
-  return hex:gsub("..", fromhex_helper)
+  return gsub(hex, "..", fromhex_helper)
 end
 
 local colonsep = {separator=":"}
@@ -604,7 +604,7 @@ local function arg_value(argname)
   end
 
   -- if scriptname.arg is not there, check "arg"
-  local shortname = argname:match("%.([^.]*)$")
+  local shortname = match(argname, "%.([^.]*)$")
   if shortname then
     -- as a key/value pair
     if nmap.registry.args[shortname] then
@@ -625,7 +625,7 @@ end
 -- @usage
 -- --script-args 'script.arg1=value,script.arg3,script-x.arg=value'
 -- local arg1, arg2, arg3 = get_script_args('script.arg1','script.arg2','script.arg3')
---      => arg1 = value
+--      => arg1 = "value"
 --      => arg2 = nil
 --      => arg3 = 1
 --
@@ -637,8 +637,8 @@ end
 -- --script-args 'dns-cache-snoop.mode=timed,dns-cache-snoop.domains={host1,host2}'
 -- local mode, domains = get_script_args('dns-cache-snoop.mode',
 --                                       'dns-cache-snoop.domains')
---      => mode    = 'timed'
---      => domains = {host1,host2}
+--      => mode    = "timed"
+--      => domains = {"host1","host2"}
 --
 -- @param Arguments  Script arguments to check.
 -- @return Arguments values.
@@ -900,7 +900,7 @@ do end -- no function here, see nse_main.lua
 function module (name, ...)
   local env = {};
   env._NAME = name;
-  env._PACKAGE = name:match("(.+)%.[^.]+$");
+  env._PACKAGE = match(name, "(.+)%.[^.]+$");
   env._M = env;
   local mods = pack(...);
   for i = 1, mods.n do
@@ -959,9 +959,7 @@ function output_table ()
       end
       rawset(t, k, v)
     end,
-    __index = function (_, k)
-      return t[k]
-    end,
+    __index = t,
     __pairs = function (_)
       return coroutine.wrap(iterator)
     end,

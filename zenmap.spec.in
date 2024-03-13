@@ -7,10 +7,6 @@
 %define release 1
 %define _prefix /usr
 
-# Find where Python modules are installed. See
-# http://fedoraproject.org/wiki/Packaging/Python.
-%{!?python_sitelib: %define python_sitelib %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")}
-
 Summary: Multi-platform graphical Nmap frontend and results viewer
 Name: %{name}
 Version: %{version}
@@ -29,7 +25,8 @@ BuildArch: noarch
 # setup.py takes care of adjusting sys.path to point to wherever the
 # modules were installed so it's not dependent on any particular ABI.
 AutoReqProv: no
-Requires: python >= 2.4, nmap, pygtk2
+BuildRequires: python3-devel, epel-rpm-macros
+Requires: python3 >= 3.0, nmap, python3-gobject, gtk3
 
 Prefix: %{_prefix}
 BuildRoot: %{_tmppath}/%{name}-root
@@ -58,7 +55,7 @@ from Umit, an Nmap GUI created as part of the Google Summer of Code.
 	    --infodir=%{_prefix}/share/info \
 	    --sysconfdir=%{_sysconfdir} \
 	    --without-openssl \
-	    --with-zenmap PYTHON="%{__python}"
+	    --with-zenmap # PYTHON="%{__python}"
 make build-zenmap DESTDIR=$RPM_BUILD_ROOT
 
 %install
@@ -78,8 +75,11 @@ gzip $RPM_BUILD_ROOT%{_mandir}/man1/* || :
 %{_bindir}/nmapfe
 %{_bindir}/xnmap
 # This gets the modules and the .egg-info file if it was installed.
-%{python_sitelib}/*
-%{_datadir}/zenmap
+%{python3_sitelib}/zenmapGUI/
+%{python3_sitelib}/zenmapCore/
+%{python3_sitelib}/radialnet/
+%{python3_sitelib}/zenmap-*.egg-info
+%{_datadir}/zenmap/
 %{_datadir}/applications/*.desktop
 
 %changelog

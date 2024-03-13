@@ -1,60 +1,59 @@
 /***************************************************************************
  * http.c -- HTTP network interaction, parsing, and construction.          *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
- *                                                                         *
- * The Nmap Security Scanner is (C) 1996-2020 Insecure.Com LLC ("The Nmap  *
- * Project"). Nmap is also a registered trademark of the Nmap Project.     *
- *                                                                         *
- * This program is distributed under the terms of the Nmap Public Source   *
- * License (NPSL). The exact license text applying to a particular Nmap    *
- * release or source code control revision is contained in the LICENSE     *
- * file distributed with that version of Nmap or source code control       *
- * revision. More Nmap copyright/legal information is available from       *
- * https://nmap.org/book/man-legal.html, and further information on the    *
- * NPSL license itself can be found at https://nmap.org/npsl. This header  *
- * summarizes some key points from the Nmap license, but is no substitute  *
- * for the actual license text.                                            *
- *                                                                         *
- * Nmap is generally free for end users to download and use themselves,    *
- * including commercial use. It is available from https://nmap.org.        *
- *                                                                         *
- * The Nmap license generally prohibits companies from using and           *
- * redistributing Nmap in commercial products, but we sell a special Nmap  *
- * OEM Edition with a more permissive license and special features for     *
- * this purpose. See https://nmap.org/oem                                  *
- *                                                                         *
- * If you have received a written Nmap license agreement or contract       *
- * stating terms other than these (such as an Nmap OEM license), you may   *
- * choose to use and redistribute Nmap under those terms instead.          *
- *                                                                         *
- * The official Nmap Windows builds include the Npcap software             *
- * (https://npcap.org) for packet capture and transmission. It is under    *
- * separate license terms which forbid redistribution without special      *
- * permission. So the official Nmap Windows builds may not be              *
- * redistributed without special permission (such as an Nmap OEM           *
- * license).                                                               *
- *                                                                         *
- * Source is provided to this software because we believe users have a     *
- * right to know exactly what a program is going to do before they run it. *
- * This also allows you to audit the software for security holes.          *
- *                                                                         *
- * Source code also allows you to port Nmap to new platforms, fix bugs,    *
- * and add new features.  You are highly encouraged to submit your         *
- * changes as a Github PR or by email to the dev@nmap.org mailing list     *
- * for possible incorporation into the main distribution. Unless you       *
- * specify otherwise, it is understood that you are offering us very       *
- * broad rights to use your submissions as described in the Nmap Public    *
- * Source License Contributor Agreement. This is important because we      *
- * fund the project by selling licenses with various terms, and also       *
- * because the inability to relicense code has caused devastating          *
- * problems for other Free Software projects (such as KDE and NASM).       *
- *                                                                         *
- * The free version of Nmap is distributed in the hope that it will be     *
- * useful, but WITHOUT ANY WARRANTY; without even the implied warranty of  *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. Warranties,        *
- * indemnification and commercial support are all available through the    *
- * Npcap OEM program--see https://nmap.org/oem.                            *
- *                                                                         *
+ *
+ * The Nmap Security Scanner is (C) 1996-2024 Nmap Software LLC ("The Nmap
+ * Project"). Nmap is also a registered trademark of the Nmap Project.
+ *
+ * This program is distributed under the terms of the Nmap Public Source
+ * License (NPSL). The exact license text applying to a particular Nmap
+ * release or source code control revision is contained in the LICENSE
+ * file distributed with that version of Nmap or source code control
+ * revision. More Nmap copyright/legal information is available from
+ * https://nmap.org/book/man-legal.html, and further information on the
+ * NPSL license itself can be found at https://nmap.org/npsl/ . This
+ * header summarizes some key points from the Nmap license, but is no
+ * substitute for the actual license text.
+ *
+ * Nmap is generally free for end users to download and use themselves,
+ * including commercial use. It is available from https://nmap.org.
+ *
+ * The Nmap license generally prohibits companies from using and
+ * redistributing Nmap in commercial products, but we sell a special Nmap
+ * OEM Edition with a more permissive license and special features for
+ * this purpose. See https://nmap.org/oem/
+ *
+ * If you have received a written Nmap license agreement or contract
+ * stating terms other than these (such as an Nmap OEM license), you may
+ * choose to use and redistribute Nmap under those terms instead.
+ *
+ * The official Nmap Windows builds include the Npcap software
+ * (https://npcap.com) for packet capture and transmission. It is under
+ * separate license terms which forbid redistribution without special
+ * permission. So the official Nmap Windows builds may not be redistributed
+ * without special permission (such as an Nmap OEM license).
+ *
+ * Source is provided to this software because we believe users have a
+ * right to know exactly what a program is going to do before they run it.
+ * This also allows you to audit the software for security holes.
+ *
+ * Source code also allows you to port Nmap to new platforms, fix bugs, and
+ * add new features. You are highly encouraged to submit your changes as a
+ * Github PR or by email to the dev@nmap.org mailing list for possible
+ * incorporation into the main distribution. Unless you specify otherwise, it
+ * is understood that you are offering us very broad rights to use your
+ * submissions as described in the Nmap Public Source License Contributor
+ * Agreement. This is important because we fund the project by selling licenses
+ * with various terms, and also because the inability to relicense code has
+ * caused devastating problems for other Free Software projects (such as KDE
+ * and NASM).
+ *
+ * The free version of Nmap is distributed in the hope that it will be
+ * useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. Warranties,
+ * indemnification and commercial support are all available through the
+ * Npcap OEM program--see https://nmap.org/oem/
+ *
  ***************************************************************************/
 
 /* $Id$ */
@@ -396,7 +395,7 @@ struct uri *uri_parse_authority(struct uri *uri, const char *authority)
 {
     const char *portsep;
     const char *host_start, *host_end;
-    char *tail;
+    const char *tail;
 
     /* We do not support "user:pass@" userinfo. The proxy has no use for it. */
     if (strchr(authority, '@') != NULL)
@@ -892,7 +891,7 @@ int http_read_header(struct socket_buffer *buf, char **result)
         line = socket_buffer_readline(buf, &count, MAX_HEADER_LENGTH);
         if (line == NULL) {
             free(header);
-            if (n >= MAX_HEADER_LENGTH)
+            if (count >= MAX_HEADER_LENGTH)
                 /* Request Entity Too Large. */
                 return 413;
             else
@@ -996,7 +995,7 @@ int http_parse_header(struct http_header **result, const char *header)
 static int http_header_get_content_length(const struct http_header *header, int *content_length_set, unsigned long *content_length)
 {
     char *content_length_s;
-    char *tail;
+    const char *tail;
     int code;
 
     content_length_s = http_header_get_first(header, "Content-Length");
@@ -1010,7 +1009,7 @@ static int http_header_get_content_length(const struct http_header *header, int 
 
     errno = 0;
     *content_length_set = 1;
-    *content_length = parse_long(content_length_s, (char **) &tail);
+    *content_length = parse_long(content_length_s, &tail);
     if (errno != 0 || *tail != '\0' || tail == content_length_s)
         code = 400;
     free(content_length_s);
@@ -1088,7 +1087,7 @@ static const char *parse_http_version(const char *s, enum http_version *version)
 
     /* Major version. */
     errno = 0;
-    major = parse_long(p, (char **) &q);
+    major = parse_long(p, &q);
     if (errno != 0 || q == p)
         return s;
 
@@ -1099,7 +1098,7 @@ static const char *parse_http_version(const char *s, enum http_version *version)
 
     /* Minor version. */
     errno = 0;
-    minor = parse_long(p, (char **) &q);
+    minor = parse_long(p, &q);
     if (errno != 0 || q == p)
         return s;
 
@@ -1212,7 +1211,7 @@ int http_parse_status_line(const char *line, struct http_response *response)
 
     /* Status code. */
     errno = 0;
-    response->code = parse_long(p, (char **) &q);
+    response->code = parse_long(p, &q);
     if (errno != 0 || q == p)
         return -1;
     p = q;
@@ -1456,7 +1455,7 @@ static const char *http_read_credentials(const char *s,
                 if (str_equal_i(value, "MD5"))
                     credentials->u.digest.algorithm = ALGORITHM_MD5;
                 else
-                    credentials->u.digest.algorithm = ALGORITHM_MD5;
+                    credentials->u.digest.algorithm = ALGORITHM_UNKNOWN;
             } else if (str_equal_i(name, "qop")) {
                 if (str_equal_i(value, "auth"))
                     credentials->u.digest.qop = QOP_AUTH;

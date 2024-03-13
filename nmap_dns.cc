@@ -3,60 +3,59 @@
  * nmap_dns.cc -- Handles parallel reverse DNS resolution for target IPs   *
  *                                                                         *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
- *                                                                         *
- * The Nmap Security Scanner is (C) 1996-2020 Insecure.Com LLC ("The Nmap  *
- * Project"). Nmap is also a registered trademark of the Nmap Project.     *
- *                                                                         *
- * This program is distributed under the terms of the Nmap Public Source   *
- * License (NPSL). The exact license text applying to a particular Nmap    *
- * release or source code control revision is contained in the LICENSE     *
- * file distributed with that version of Nmap or source code control       *
- * revision. More Nmap copyright/legal information is available from       *
- * https://nmap.org/book/man-legal.html, and further information on the    *
- * NPSL license itself can be found at https://nmap.org/npsl. This header  *
- * summarizes some key points from the Nmap license, but is no substitute  *
- * for the actual license text.                                            *
- *                                                                         *
- * Nmap is generally free for end users to download and use themselves,    *
- * including commercial use. It is available from https://nmap.org.        *
- *                                                                         *
- * The Nmap license generally prohibits companies from using and           *
- * redistributing Nmap in commercial products, but we sell a special Nmap  *
- * OEM Edition with a more permissive license and special features for     *
- * this purpose. See https://nmap.org/oem                                  *
- *                                                                         *
- * If you have received a written Nmap license agreement or contract       *
- * stating terms other than these (such as an Nmap OEM license), you may   *
- * choose to use and redistribute Nmap under those terms instead.          *
- *                                                                         *
- * The official Nmap Windows builds include the Npcap software             *
- * (https://npcap.org) for packet capture and transmission. It is under    *
- * separate license terms which forbid redistribution without special      *
- * permission. So the official Nmap Windows builds may not be              *
- * redistributed without special permission (such as an Nmap OEM           *
- * license).                                                               *
- *                                                                         *
- * Source is provided to this software because we believe users have a     *
- * right to know exactly what a program is going to do before they run it. *
- * This also allows you to audit the software for security holes.          *
- *                                                                         *
- * Source code also allows you to port Nmap to new platforms, fix bugs,    *
- * and add new features.  You are highly encouraged to submit your         *
- * changes as a Github PR or by email to the dev@nmap.org mailing list     *
- * for possible incorporation into the main distribution. Unless you       *
- * specify otherwise, it is understood that you are offering us very       *
- * broad rights to use your submissions as described in the Nmap Public    *
- * Source License Contributor Agreement. This is important because we      *
- * fund the project by selling licenses with various terms, and also       *
- * because the inability to relicense code has caused devastating          *
- * problems for other Free Software projects (such as KDE and NASM).       *
- *                                                                         *
- * The free version of Nmap is distributed in the hope that it will be     *
- * useful, but WITHOUT ANY WARRANTY; without even the implied warranty of  *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. Warranties,        *
- * indemnification and commercial support are all available through the    *
- * Npcap OEM program--see https://nmap.org/oem.                            *
- *                                                                         *
+ *
+ * The Nmap Security Scanner is (C) 1996-2024 Nmap Software LLC ("The Nmap
+ * Project"). Nmap is also a registered trademark of the Nmap Project.
+ *
+ * This program is distributed under the terms of the Nmap Public Source
+ * License (NPSL). The exact license text applying to a particular Nmap
+ * release or source code control revision is contained in the LICENSE
+ * file distributed with that version of Nmap or source code control
+ * revision. More Nmap copyright/legal information is available from
+ * https://nmap.org/book/man-legal.html, and further information on the
+ * NPSL license itself can be found at https://nmap.org/npsl/ . This
+ * header summarizes some key points from the Nmap license, but is no
+ * substitute for the actual license text.
+ *
+ * Nmap is generally free for end users to download and use themselves,
+ * including commercial use. It is available from https://nmap.org.
+ *
+ * The Nmap license generally prohibits companies from using and
+ * redistributing Nmap in commercial products, but we sell a special Nmap
+ * OEM Edition with a more permissive license and special features for
+ * this purpose. See https://nmap.org/oem/
+ *
+ * If you have received a written Nmap license agreement or contract
+ * stating terms other than these (such as an Nmap OEM license), you may
+ * choose to use and redistribute Nmap under those terms instead.
+ *
+ * The official Nmap Windows builds include the Npcap software
+ * (https://npcap.com) for packet capture and transmission. It is under
+ * separate license terms which forbid redistribution without special
+ * permission. So the official Nmap Windows builds may not be redistributed
+ * without special permission (such as an Nmap OEM license).
+ *
+ * Source is provided to this software because we believe users have a
+ * right to know exactly what a program is going to do before they run it.
+ * This also allows you to audit the software for security holes.
+ *
+ * Source code also allows you to port Nmap to new platforms, fix bugs, and
+ * add new features. You are highly encouraged to submit your changes as a
+ * Github PR or by email to the dev@nmap.org mailing list for possible
+ * incorporation into the main distribution. Unless you specify otherwise, it
+ * is understood that you are offering us very broad rights to use your
+ * submissions as described in the Nmap Public Source License Contributor
+ * Agreement. This is important because we fund the project by selling licenses
+ * with various terms, and also because the inability to relicense code has
+ * caused devastating problems for other Free Software projects (such as KDE
+ * and NASM).
+ *
+ * The free version of Nmap is distributed in the hope that it will be
+ * useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. Warranties,
+ * indemnification and commercial support are all available through the
+ * Npcap OEM program--see https://nmap.org/oem/
+ *
  ***************************************************************************/
 
 // mass_rdns - Parallel Asynchronous Reverse DNS Resolution
@@ -274,7 +273,7 @@ public:
     delete[] hosts_storage;
   }
 
-  u32 hash(sockaddr_storage ip)
+  u32 hash(const sockaddr_storage &ip) const
   {
     u32 ret = 0;
 
@@ -402,7 +401,7 @@ static void output_summary() {
 
   if (o.debugging && (tp%SUMMARY_DELAY == 0))
     log_write(LOG_STDOUT, "mass_rdns: %.2fs %d/%d [#: %lu, OK: %d, NX: %d, DR: %d, SF: %d, TR: %d]\n",
-                    TIMEVAL_MSEC_SUBTRACT(now, starttv) / 1000.0,
+                    TIMEVAL_FSEC_SUBTRACT(now, starttv),
                     tp, stat_actual,
                     (unsigned long) servs.size(), stat_ok, stat_nx, stat_dropped, stat_sf, stat_trans);
 }
@@ -475,7 +474,7 @@ static void write_evt_handler(nsock_pool nsp, nsock_event evt, void *req_v) {
 // (calls nsock_write()). Does various other tasks like recording
 // the time for the timeout.
 static void put_dns_packet_on_wire(request *req) {
-  const size_t maxlen = 512;
+  static const size_t maxlen = 512;
   u8 packet[maxlen];
   size_t plen=0;
 
@@ -643,7 +642,7 @@ static int process_result(const sockaddr_storage &ip, const std::string &result,
 // Nsock read handler. One nsock read for each DNS server exists at each
 // time. This function uses various helper functions as defined above.
 static void read_evt_handler(nsock_pool nsp, nsock_event evt, void *) {
-  u8 *buf;
+  const u8 *buf;
   int buflen;
 
   if (total_reqs >= 1)
@@ -793,7 +792,7 @@ static void connect_evt_handler(nsock_pool, nsock_event, void *) {}
 // commas or spaces - NOTE this doesn't actually do any connecting!
 static void add_dns_server(char *ipaddrs) {
   std::list<dns_server>::iterator servI;
-  char *hostname;
+  const char *hostname;
   struct sockaddr_storage addr;
   size_t addr_len = sizeof(addr);
 
@@ -852,7 +851,7 @@ static void connect_dns_servers() {
 
 #ifdef WIN32
 static bool interface_is_known_by_guid(const char *guid) {
-  struct interface_info *iflist;
+  const struct interface_info *iflist;
   int i, n;
 
   iflist = getinterfaces(&n, NULL, 0);
@@ -861,7 +860,7 @@ static bool interface_is_known_by_guid(const char *guid) {
 
   for (i = 0; i < n; i++) {
     char pcap_name[1024];
-    char *pcap_guid;
+    const char *pcap_guid;
 
     if (!DnetName2PcapName(iflist[i].devname, pcap_name, sizeof(pcap_name)))
       continue;
@@ -950,7 +949,7 @@ static void parse_resolvdotconf() {
 
   fp = fopen("/etc/resolv.conf", "r");
   if (fp == NULL) {
-    if (firstrun) error("mass_dns: warning: Unable to open /etc/resolv.conf. Try using --system-dns or specify valid servers with --dns-servers");
+    if (firstrun) gh_perror("mass_dns: warning: Unable to open /etc/resolv.conf. Try using --system-dns or specify valid servers with --dns-servers");
     return;
   }
 
@@ -1021,10 +1020,6 @@ static void etchosts_init(void) {
 
   // If it has a backslash it's C:\, otherwise something like C:\WINNT
   has_backslash = (windows_dir[strlen(windows_dir)-1] == '\\');
-
-  // Windows 95/98/Me:
-  Snprintf(tpbuf, sizeof(tpbuf), "%s%shosts", windows_dir, has_backslash ? "" : "\\");
-  parse_etchosts(tpbuf);
 
   // Windows NT/2000/XP/2K3:
   Snprintf(tpbuf, sizeof(tpbuf), "%s%ssystem32\\drivers\\etc\\hosts", windows_dir, has_backslash ? "" : "\\");
@@ -1167,8 +1162,6 @@ static void nmap_mass_rdns_core(Target **targets, int num_targets) {
     SPM = new ScanProgressMeter(spmobuf);
 
     for(i=0, reqI = deferred_reqs.begin(); reqI != deferred_reqs.end(); reqI++, i++) {
-      struct sockaddr_storage ss;
-      size_t sslen;
       char hostname[FQDN_LEN + 1] = "";
 
       if (keyWasPressed())
@@ -1176,10 +1169,8 @@ static void nmap_mass_rdns_core(Target **targets, int num_targets) {
 
       tpreq = *reqI;
 
-      if (tpreq->targ->TargetSockAddr(&ss, &sslen) != 0)
-        fatal("Failed to get target socket address.");
-
-      if (getnameinfo((struct sockaddr *)&ss, sslen, hostname,
+      if (getnameinfo((const struct sockaddr *)tpreq->targ->TargetSockAddr(),
+                      sizeof(struct sockaddr_storage), hostname,
                       sizeof(hostname), NULL, 0, NI_NAMEREQD) == 0) {
         stat_ok++;
         stat_cname++;
@@ -1201,8 +1192,6 @@ static void nmap_mass_rdns_core(Target **targets, int num_targets) {
 static void nmap_system_rdns_core(Target **targets, int num_targets) {
   Target **hostI;
   Target *currenths;
-  struct sockaddr_storage ss;
-  size_t sslen;
   char hostname[FQDN_LEN + 1] = "";
   char spmobuf[1024];
   int i;
@@ -1223,9 +1212,8 @@ static void nmap_system_rdns_core(Target **targets, int num_targets) {
       SPM->printStats((double) i / stat_actual, NULL);
 
     if (((currenths->flags & HOST_UP) || o.always_resolve) && !o.noresolve) {
-      if (currenths->TargetSockAddr(&ss, &sslen) != 0)
-        fatal("Failed to get target socket address.");
-      if (getnameinfo((struct sockaddr *)&ss, sslen, hostname,
+      if (getnameinfo((struct sockaddr *)currenths->TargetSockAddr(),
+                      sizeof(sockaddr_storage), hostname,
                       sizeof(hostname), NULL, 0, NI_NAMEREQD) == 0) {
         stat_ok++;
         currenths->setHostName(hostname);
@@ -1265,11 +1253,11 @@ void nmap_mass_rdns(Target **targets, int num_targets) {
         // SF: Number of IPs that got 'Server Failure's
         // TR: Total number of transmissions necessary. The number of domains is ideal, higher is worse
         log_write(LOG_STDOUT, "DNS resolution of %d IPs took %.2fs. Mode: Async [#: %lu, OK: %d, NX: %d, DR: %d, SF: %d, TR: %d, CN: %d]\n",
-                  stat_actual, TIMEVAL_MSEC_SUBTRACT(now, starttv) / 1000.0,
+                  stat_actual, TIMEVAL_FSEC_SUBTRACT(now, starttv),
                   (unsigned long) servs.size(), stat_ok, stat_nx, stat_dropped, stat_sf, stat_trans, stat_cname);
       } else {
         log_write(LOG_STDOUT, "DNS resolution of %d IPs took %.2fs. Mode: System [OK: %d, ??: %d]\n",
-                  stat_actual, TIMEVAL_MSEC_SUBTRACT(now, starttv) / 1000.0,
+                  stat_actual, TIMEVAL_FSEC_SUBTRACT(now, starttv),
                   stat_ok, stat_actual - stat_ok);
       }
     }
@@ -1355,13 +1343,13 @@ bool DNS::Factory::ptrToIp(const std::string &ptr, sockaddr_storage &ip)
   if (NULL != (p = strcasestr(cptr + ptr.length() + 1 - sizeof(C_IPV4_PTR_DOMAIN), C_IPV4_PTR_DOMAIN)))
   {
     struct sockaddr_in *ip4 = (struct sockaddr_in *)&ip;
-    u8 place_value[] = {1, 10, 100};
+    static const u8 place_value[] = {1, 10, 100};
     u8 *v = (u8 *) &(ip4->sin_addr.s_addr);
     size_t place = 0;
     size_t i = 0;
 
     p--;
-    while (i < sizeof(ip4->sin_addr.s_addr))
+    while (p >= cptr && i < sizeof(ip4->sin_addr.s_addr))
     {
       if (*p == '.')
       {
@@ -1394,7 +1382,7 @@ bool DNS::Factory::ptrToIp(const std::string &ptr, sockaddr_storage &ip)
     size_t i=0;
 
     p--;
-    while (i < sizeof(ip6->sin6_addr.s6_addr))
+    while (p >= cptr && i < sizeof(ip6->sin6_addr.s6_addr))
     {
       if (*p == '.')
       {
@@ -1532,40 +1520,69 @@ size_t DNS::Factory::parseUnsignedInt(u32 &num, const u8 *buf, size_t offset, si
 
 size_t DNS::Factory::parseDomainName(std::string &name, const u8 *buf, size_t offset, size_t maxlen)
 {
-  size_t tmp, ret = 0;
+  size_t tmp = 0;
+  size_t max_offset = offset;
+  size_t curr_offset = offset;
 
   name.clear();
-  while(u8 label_length = buf[offset+ret++]) // Postincrement important here
+  while(u8 label_length = buf[curr_offset])
   {
     if((label_length & COMPRESSED_NAME) == COMPRESSED_NAME)
     {
-      --ret; // The byte it's part of the pointer, wasn't really consumed yet
       u16 real_offset;
-      DNS_CHECK_ACCUMLATE(ret, tmp, parseUnsignedShort(real_offset, buf, offset+ret, maxlen));
-      real_offset -= COMPRESSED_NAME<<8;
-      if( real_offset < offset)
-      {
-        std::string val;
-        DNS_CHECK_ACCUMLATE(tmp, tmp, parseDomainName(val, buf, real_offset, maxlen));
-        name+=val;
-        return ret;
+      tmp = parseUnsignedShort(real_offset, buf, curr_offset, maxlen);
+      if (tmp < 1) {
+        return 0;
       }
-      else return 0;
+      if (curr_offset >= max_offset) {
+        max_offset = curr_offset + tmp;
+      }
+      real_offset -= COMPRESSED_NAME<<8;
+      if(real_offset < curr_offset)
+      {
+        curr_offset = real_offset;
+        continue;
+      }
+      else {
+        if (o.debugging) {
+          log_write(LOG_STDOUT, "DNS compression pointer is not backwards\n");
+        }
+        return 0;
+      }
     }
 
-    for(u8 i=0; i<label_length; ++i)
-    {
-      size_t index = offset+ret++;  // Postincrement important here
-      DNS_CHECK_UPPER_BOUND(index, maxlen);
-      name += buf[index];
+    if (label_length > DNS_LABEL_MAX_LENGTH) {
+      if (o.debugging) {
+        log_write(LOG_STDOUT, "DNS label exceeds max length\n");
+      }
+      return 0;
+    }
+
+    curr_offset++;
+    DNS_CHECK_UPPER_BOUND(curr_offset + label_length, maxlen);
+    name.append(reinterpret_cast<const char *>(buf + curr_offset), label_length);
+    curr_offset += label_length;
+    if (curr_offset > max_offset) {
+      max_offset = curr_offset;
     }
     name += '.';
+
+    if (name.length() > DNS_NAME_MAX_LENGTH - 1) {
+      if (o.debugging) {
+        log_write(LOG_STDOUT, "DNS name exceeds max length\n");
+      }
+      return 0;
+    }
+  }
+
+  if (max_offset == curr_offset && buf[curr_offset] == '\0') {
+    max_offset++;
   }
 
   std::string::iterator it = name.end()-1;
   if( *it == '.') name.erase(it);
 
-  return ret;
+  return max_offset - offset;
 }
 
 size_t DNS::A_Record::parseFromBuffer(const u8 *buf, size_t offset, size_t maxlen)

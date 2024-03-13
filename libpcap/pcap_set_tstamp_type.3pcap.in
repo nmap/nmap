@@ -18,7 +18,7 @@
 .\" WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF
 .\" MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 .\"
-.TH PCAP_SET_TSTAMP_TYPE 3PCAP "22 August 2018"
+.TH PCAP_SET_TSTAMP_TYPE 3PCAP "8 September 2019"
 .SH NAME
 pcap_set_tstamp_type \- set the time stamp type to be used by a
 capture device
@@ -33,23 +33,25 @@ int pcap_set_tstamp_type(pcap_t *p, int tstamp_type);
 .ft
 .fi
 .SH DESCRIPTION
-.B pcap_set_tstamp_type()
+.BR pcap_set_tstamp_type ()
 sets the type of time stamp desired for packets captured on the pcap
 descriptor to the type specified by
 .IR tstamp_type .
 It must be called on a pcap descriptor created by
-.B pcap_create(3PCAP)
+.BR pcap_create (3PCAP)
 that has not yet been activated by
-.BR pcap_activate(3PCAP) .
-.B pcap_list_tstamp_types(3PCAP)
+.BR pcap_activate (3PCAP).
+.BR pcap_list_tstamp_types (3PCAP)
 will give a list of the time stamp types supported by a given capture
 device.
 See
-.BR pcap-tstamp (@MAN_MISC_INFO@)
+.BR \%pcap-tstamp (@MAN_MISC_INFO@)
 for a list of all the time stamp types.
 .SH RETURN VALUE
-.B pcap_set_tstamp_type()
-returns 0 on success if the specified time stamp type is expected to be
+.BR pcap_set_tstamp_type ()
+returns
+.B 0
+on success if the specified time stamp type is expected to be
 supported by the capture device,
 .B PCAP_WARNING_TSTAMP_TYPE_NOTSUP
 if the specified time stamp type is not supported by the
@@ -66,5 +68,5 @@ This function became available in libpcap release 1.2.1.  In previous
 releases, the time stamp type cannot be set; only the default time stamp
 type offered by a capture source is available.
 .SH SEE ALSO
-pcap(3PCAP),
-pcap_tstamp_type_name_to_val(3PCAP)
+.BR pcap (3PCAP),
+.BR pcap_tstamp_type_name_to_val (3PCAP)

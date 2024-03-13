@@ -11,10 +11,10 @@
 
 #include "nse_main.h"
 #include "nse_utility.h"
+#include "nse_db.h"
 #include "nse_fs.h"
 #include "nse_nsock.h"
 #include "nse_nmaplib.h"
-#include "nse_pcrelib.h"
 #include "nse_openssl.h"
 #include "nse_debug.h"
 #include "nse_lpeg.h"
@@ -118,28 +118,18 @@ static int ports (lua_State *L)
 
 static int script_set_output (lua_State *L)
 {
-  ScriptResult sr;
-  sr.set_id(luaL_checkstring(L, 1));
-  sr.set_output_tab(L, 2);
-  if (!lua_isnil(L, 3)) {
-    lua_len(L, 3);
-    sr.set_output_str(luaL_checkstring(L, 3), luaL_checkinteger(L,-1));
-  }
-  script_scan_results.push_back(sr);
+  ScriptResult *sr = new ScriptResult;
+  sr->set_output_tab(L, 1);
+  script_scan_results.insert(sr);
   return 0;
 }
 
 static int host_set_output (lua_State *L)
 {
-  ScriptResult sr;
+  ScriptResult *sr = new ScriptResult;
   Target *target = nseU_gettarget(L, 1);
-  sr.set_id(luaL_checkstring(L, 2));
-  sr.set_output_tab(L, 3);
-  if (!lua_isnil(L, 4)) {
-    lua_len(L, 4);
-    sr.set_output_str(luaL_checkstring(L, 4), luaL_checkinteger(L,-1));
-  }
-  target->scriptResults.push_back(sr);
+  sr->set_output_tab(L, 2);
+  target->scriptResults.insert(sr);
   return 0;
 }
 
@@ -147,15 +137,10 @@ static int port_set_output (lua_State *L)
 {
   Port *p;
   Port port;
-  ScriptResult sr;
+  ScriptResult *sr = new ScriptResult;
   Target *target = nseU_gettarget(L, 1);
   p = nseU_getport(L, target, &port, 2);
-  sr.set_id(luaL_checkstring(L, 3));
-  sr.set_output_tab(L, 4);
-  if (!lua_isnil(L, 5)) {
-    lua_len(L, 5);
-    sr.set_output_str(luaL_checkstring(L, 5), luaL_checkinteger(L,-1));
-  }
+  sr->set_output_tab(L, 3);
   target->ports.addScriptResult(p->portno, p->proto, sr);
   target->ports.numscriptresults++;
   return 0;
@@ -405,31 +390,51 @@ void ScriptResult::clear (void)
     log_write(LOG_STDOUT, "ScriptResult::clear %d id %s\n", output_ref, get_id());
   luaL_unref(L_NSE, LUA_REGISTRYINDEX, output_ref);
   output_ref = LUA_NOREF;
+  id = NULL;
 }
 
-void ScriptResult::set_output_tab (lua_State *L, int pos)
+void ScriptResult::set_output_tab (lua_State *L, int base)
 {
-  clear();
-  lua_pushvalue(L, pos);
+  assert(lua_gettop(L) - base == 2); // we must have 3 args
+  id = luaL_checkstring(L, base);
+  lua_newtable(L);
+  lua_insert(L, base);
+
+  // string output
+  if (lua_isnil(L, -1)) {
+    lua_pop(L, 1);
+  }
+  else {
+    if (!lua_isstring(L, -1)) {
+      luaL_error(L, "String output is not a string");
+      return;
+    }
+    lua_setfield(L, base, "str");
+  }
+
+  // structured output
+  if (lua_isnil(L, -1)) {
+    lua_pop(L, 1);
+  }
+  else {
+    lua_setfield(L, base, "tab");
+  }
+
+  // script id. We copy it here to ensure ScriptResult::id stays valid
+  // (i.e. not garbage-collected)
+  if (!lua_isstring(L, -1)) {
+    luaL_error(L, "Script ID is not a string");
+    return;
+  }
+  lua_setfield(L, base, "id");
+  assert(lua_gettop(L) == base);
   output_ref = luaL_ref(L_NSE, LUA_REGISTRYINDEX);
   if (o.debugging > 3)
     log_write(LOG_STDOUT, "ScriptResult::set_output_tab %d id %s\n", output_ref, get_id());
 }
 
-void ScriptResult::set_output_str (const char *out)
+static void format_obj(lua_State *L, int pos, std::string &output)
 {
-  output_str = std::string(out);
-}
-
-void ScriptResult::set_output_str (const char *out, size_t len)
-{
-  output_str = std::string(out, len);
-}
-
-static std::string format_obj(lua_State *L, int pos)
-{
-  std::string output;
-
   pos = lua_absindex(L, pos);
 
   /* Look up the FORMAT_TABLE function from nse_main.lua and call it. */
@@ -438,7 +443,7 @@ static std::string format_obj(lua_State *L, int pos)
     log_write(LOG_STDOUT, "%s: Cannot find function _R[\"%s\"] that should be in nse_main.lua\n",
       SCRIPT_ENGINE, NSE_FORMAT_TABLE);
     lua_pop(L, 1);
-    return output;
+    return;
   }
 
   lua_pushvalue(L, pos);
@@ -446,42 +451,39 @@ static std::string format_obj(lua_State *L, int pos)
     if (o.debugging)
       log_write(LOG_STDOUT, "%s: Error in FORMAT_TABLE: %s\n", SCRIPT_ENGINE, lua_tostring(L, -1));
     lua_pop(L, 1);
-    return output;
+    return;
   }
 
-  lua_len(L, -1);
-  output = std::string(lua_tostring(L, -2), luaL_checkinteger(L, -1));
+  size_t len = 0;
+  const char *str = lua_tolstring(L, -1, &len);
+  output.assign(str, len);
   lua_pop(L, 1);
-
-  return output;
 }
 
 std::string ScriptResult::get_output_str (void) const
 {
   std::string output;
 
+  assert(output_ref != LUA_NOREF);
+
+  int out_obj = lua_rawgeti(L_NSE, LUA_REGISTRYINDEX, output_ref);
+  assert(out_obj == LUA_TTABLE);
+
   /* Explicit string output? */
-  if (!output_str.empty())
-    return output_str;
+  if (LUA_TSTRING == lua_getfield(L_NSE, -1, "str")) {
+    size_t len = 0;
+    const char *str = lua_tolstring(L_NSE, -1, &len);
+    output.assign(str, len);
+  }
+  else {
+    lua_pop(L_NSE, 1); // get rid of whatever that was (nil)
+    /* Auto-formatted table output? */
+    if (LUA_TNIL != lua_getfield(L_NSE, -1, "tab"))
+      format_obj(L_NSE, -1, output);
+  }
 
-  /* Auto-formatted table output? */
-  lua_rawgeti(L_NSE, LUA_REGISTRYINDEX, output_ref);
-  if (!lua_isnil(L_NSE, -1))
-    output = format_obj(L_NSE, -1);
-
-  lua_pop(L_NSE, 1);
-
+  lua_pop(L_NSE, 2);
   return output;
-}
-
-void ScriptResult::set_id (const char *ident)
-{
-  id = std::string(ident);
-}
-
-const char *ScriptResult::get_id (void) const
-{
-  return id.c_str();
 }
 
 ScriptResults *get_script_scan_results_obj (void)
@@ -514,6 +516,13 @@ static void format_xml(lua_State *L, int pos)
 void ScriptResult::write_xml() const
 {
   std::string output_str;
+  assert(output_ref != LUA_NOREF);
+  assert(id != NULL);
+
+  int out_obj = lua_rawgeti(L_NSE, LUA_REGISTRYINDEX, output_ref);
+  assert(out_obj == LUA_TTABLE);
+
+  out_obj = lua_gettop(L_NSE);
 
   xml_open_start_tag("script");
   xml_attribute("id", "%s", get_id());
@@ -521,10 +530,13 @@ void ScriptResult::write_xml() const
   output_str = get_output_str();
   if (!output_str.empty())
     xml_attribute("output", "%s", protect_xml(output_str).c_str());
+  else {
+    error("Bug in %s: no string output.", get_id());
+    xml_attribute("output", "%s", "");
+  }
 
   /* Any table output? */
-  lua_rawgeti(L_NSE, LUA_REGISTRYINDEX, output_ref);
-  if (!lua_isnil(L_NSE, -1)) {
+  if (LUA_TNIL != lua_getfield(L_NSE, out_obj, "tab")) {
     xml_close_start_tag();
     format_xml(L_NSE, -1);
     xml_end_tag();
@@ -532,7 +544,7 @@ void ScriptResult::write_xml() const
     xml_close_empty_tag();
   }
 
-  lua_pop(L_NSE, 1);
+  lua_settop(L_NSE, out_obj - 1);
 }
 
 /* int panic (lua_State *L)
@@ -549,8 +561,8 @@ static int panic (lua_State *L)
 static void set_nmap_libraries (lua_State *L)
 {
   static const luaL_Reg libs[] = {
-    {NSE_PCRELIBNAME, luaopen_pcrelib},
     {NSE_NMAPLIBNAME, luaopen_nmap},
+    {NSE_DBLIBNAME, luaopen_db},
     {LFSLIBNAME, luaopen_lfs},
     {LPEGLIBNAME, luaopen_lpeg},
 #ifdef HAVE_LIBSSH2
@@ -798,13 +810,13 @@ void open_nse (void)
      */
     srand(get_random_uint());
 
-    const lua_Number *version = lua_version(NULL);
-    double major = (*version) / 100.0;
-    double minor = fmod(*version, 10.0);
+    const lua_Number version = lua_version(NULL);
+    double major = (version) / 100.0;
+    double minor = fmod(version, 10.0);
     if (o.debugging >= 1)
       log_write(LOG_STDOUT, "%s: Using Lua %.0f.%.0f.\n", SCRIPT_ENGINE, major, minor);
-    if (*version < 503)
-      fatal("%s: This version of NSE only works with Lua 5.3 or greater.", SCRIPT_ENGINE);
+    if (version < 504)
+      fatal("%s: This version of NSE only works with Lua 5.4 or greater.", SCRIPT_ENGINE);
     if ((L_NSE = luaL_newstate()) == NULL)
       fatal("%s: failed to open a Lua state!", SCRIPT_ENGINE);
     lua_atpanic(L_NSE, panic);

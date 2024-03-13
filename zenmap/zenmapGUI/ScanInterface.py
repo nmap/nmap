@@ -1,69 +1,69 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
+#!/usr/bin/env python3
 
 # ***********************IMPORTANT NMAP LICENSE TERMS************************
-# *                                                                         *
-# * The Nmap Security Scanner is (C) 1996-2020 Insecure.Com LLC ("The Nmap  *
-# * Project"). Nmap is also a registered trademark of the Nmap Project.     *
-# *                                                                         *
-# * This program is distributed under the terms of the Nmap Public Source   *
-# * License (NPSL). The exact license text applying to a particular Nmap    *
-# * release or source code control revision is contained in the LICENSE     *
-# * file distributed with that version of Nmap or source code control       *
-# * revision. More Nmap copyright/legal information is available from       *
-# * https://nmap.org/book/man-legal.html, and further information on the    *
-# * NPSL license itself can be found at https://nmap.org/npsl. This header  *
-# * summarizes some key points from the Nmap license, but is no substitute  *
-# * for the actual license text.                                            *
-# *                                                                         *
-# * Nmap is generally free for end users to download and use themselves,    *
-# * including commercial use. It is available from https://nmap.org.        *
-# *                                                                         *
-# * The Nmap license generally prohibits companies from using and           *
-# * redistributing Nmap in commercial products, but we sell a special Nmap  *
-# * OEM Edition with a more permissive license and special features for     *
-# * this purpose. See https://nmap.org/oem                                  *
-# *                                                                         *
-# * If you have received a written Nmap license agreement or contract       *
-# * stating terms other than these (such as an Nmap OEM license), you may   *
-# * choose to use and redistribute Nmap under those terms instead.          *
-# *                                                                         *
-# * The official Nmap Windows builds include the Npcap software             *
-# * (https://npcap.org) for packet capture and transmission. It is under    *
-# * separate license terms which forbid redistribution without special      *
-# * permission. So the official Nmap Windows builds may not be              *
-# * redistributed without special permission (such as an Nmap OEM           *
-# * license).                                                               *
-# *                                                                         *
-# * Source is provided to this software because we believe users have a     *
-# * right to know exactly what a program is going to do before they run it. *
-# * This also allows you to audit the software for security holes.          *
-# *                                                                         *
-# * Source code also allows you to port Nmap to new platforms, fix bugs,    *
-# * and add new features.  You are highly encouraged to submit your         *
-# * changes as a Github PR or by email to the dev@nmap.org mailing list     *
-# * for possible incorporation into the main distribution. Unless you       *
-# * specify otherwise, it is understood that you are offering us very       *
-# * broad rights to use your submissions as described in the Nmap Public    *
-# * Source License Contributor Agreement. This is important because we      *
-# * fund the project by selling licenses with various terms, and also       *
-# * because the inability to relicense code has caused devastating          *
-# * problems for other Free Software projects (such as KDE and NASM).       *
-# *                                                                         *
-# * The free version of Nmap is distributed in the hope that it will be     *
-# * useful, but WITHOUT ANY WARRANTY; without even the implied warranty of  *
-# * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. Warranties,        *
-# * indemnification and commercial support are all available through the    *
-# * Npcap OEM program--see https://nmap.org/oem.                            *
-# *                                                                         *
+# *
+# * The Nmap Security Scanner is (C) 1996-2024 Nmap Software LLC ("The Nmap
+# * Project"). Nmap is also a registered trademark of the Nmap Project.
+# *
+# * This program is distributed under the terms of the Nmap Public Source
+# * License (NPSL). The exact license text applying to a particular Nmap
+# * release or source code control revision is contained in the LICENSE
+# * file distributed with that version of Nmap or source code control
+# * revision. More Nmap copyright/legal information is available from
+# * https://nmap.org/book/man-legal.html, and further information on the
+# * NPSL license itself can be found at https://nmap.org/npsl/ . This
+# * header summarizes some key points from the Nmap license, but is no
+# * substitute for the actual license text.
+# *
+# * Nmap is generally free for end users to download and use themselves,
+# * including commercial use. It is available from https://nmap.org.
+# *
+# * The Nmap license generally prohibits companies from using and
+# * redistributing Nmap in commercial products, but we sell a special Nmap
+# * OEM Edition with a more permissive license and special features for
+# * this purpose. See https://nmap.org/oem/
+# *
+# * If you have received a written Nmap license agreement or contract
+# * stating terms other than these (such as an Nmap OEM license), you may
+# * choose to use and redistribute Nmap under those terms instead.
+# *
+# * The official Nmap Windows builds include the Npcap software
+# * (https://npcap.com) for packet capture and transmission. It is under
+# * separate license terms which forbid redistribution without special
+# * permission. So the official Nmap Windows builds may not be redistributed
+# * without special permission (such as an Nmap OEM license).
+# *
+# * Source is provided to this software because we believe users have a
+# * right to know exactly what a program is going to do before they run it.
+# * This also allows you to audit the software for security holes.
+# *
+# * Source code also allows you to port Nmap to new platforms, fix bugs, and
+# * add new features. You are highly encouraged to submit your changes as a
+# * Github PR or by email to the dev@nmap.org mailing list for possible
+# * incorporation into the main distribution. Unless you specify otherwise, it
+# * is understood that you are offering us very broad rights to use your
+# * submissions as described in the Nmap Public Source License Contributor
+# * Agreement. This is important because we fund the project by selling licenses
+# * with various terms, and also because the inability to relicense code has
+# * caused devastating problems for other Free Software projects (such as KDE
+# * and NASM).
+# *
+# * The free version of Nmap is distributed in the hope that it will be
+# * useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
+# * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. Warranties,
+# * indemnification and commercial support are all available through the
+# * Npcap OEM program--see https://nmap.org/oem/
+# *
 # ***************************************************************************/
 
+import gi
+
+gi.require_version("Gtk", "3.0")
+from gi.repository import Gtk, GLib
+
 import errno
-import gtk
-import gobject
 import os
 import time
-import sys
 
 # Prevent loading PyXML
 import xml
@@ -220,19 +220,19 @@ class ScanInterface(HIGVBox):
     def filter_changed(self, filter_bar):
         # Restart the timer to start the filter.
         if self.filter_timeout_id:
-            gobject.source_remove(self.filter_timeout_id)
-        self.filter_timeout_id = gobject.timeout_add(
+            GLib.source_remove(self.filter_timeout_id)
+        self.filter_timeout_id = GLib.timeout_add(
                 self.FILTER_DELAY, self.filter_hosts,
                 filter_bar.get_filter_string())
 
     def filter_hosts(self, filter_string):
-        start = time.clock()
+        start = time.perf_counter()
         self.inventory.apply_filter(filter_string)
-        filter_time = time.clock() - start
+        filter_time = time.perf_counter() - start
         # Update the gui
-        start = time.clock()
+        start = time.perf_counter()
         self.update_ui()
-        gui_time = time.clock() - start
+        gui_time = time.perf_counter() - start
 
         if filter_time + gui_time > 0.0:
             log.debug("apply_filter %g ms  update_ui %g ms (%.0f%% filter)" %
@@ -368,7 +368,7 @@ class ScanInterface(HIGVBox):
         if target != '':
             try:
                 self.toolbar.add_new_target(target)
-            except IOError, e:
+            except IOError as e:
                 # We failed to save target_list.txt; treat it as read-only.
                 # Probably it's owned by root and this is a normal user.
                 log.debug(">>> Error saving %s: %s" % (
@@ -381,7 +381,7 @@ class ScanInterface(HIGVBox):
                         "Maybe the selected/typed profile doesn't exist. "
                         "Please check the profile name or type the nmap "
                         "command you would like to execute."),
-                    type=gtk.MESSAGE_ERROR)
+                    type=Gtk.MessageType.ERROR)
             warn_dialog.run()
             warn_dialog.destroy()
             return
@@ -431,7 +431,7 @@ class ScanInterface(HIGVBox):
                 pass
             # Create TreeRowReferences because those persist while we change
             # the model.
-            selected_refs.append(gtk.TreeRowReference(model, path))
+            selected_refs.append(Gtk.TreeRowReference.new(model, path))
         # Delete the entries from the ScansListStore.
         for ref in selected_refs:
             model.remove(model.get_iter(ref.get_path()))
@@ -463,11 +463,11 @@ class ScanInterface(HIGVBox):
         completion."""
         try:
             command_execution = NmapCommand(command)
-        except IOError, e:
+        except IOError as e:
             warn_dialog = HIGAlertDialog(
                         message_format=_("Error building command"),
                         secondary_text=_("Error message: %s") % str(e),
-                        type=gtk.MESSAGE_ERROR)
+                        type=Gtk.MessageType.ERROR)
             warn_dialog.run()
             warn_dialog.destroy()
             return
@@ -475,8 +475,8 @@ class ScanInterface(HIGVBox):
 
         try:
             command_execution.run_scan()
-        except OSError, e:
-            text = unicode(e.strerror, errors='replace')
+        except OSError as e:
+            text = e.strerror
             # Handle ENOENT specially.
             if e.errno == errno.ENOENT:
                 # nmap_command_path comes from zenmapCore.NmapCommand.
@@ -484,11 +484,8 @@ class ScanInterface(HIGVBox):
                 if path_env is None:
                     default_paths = []
                 else:
-                    fsencoding = sys.getfilesystemencoding()
-                    if fsencoding:
-                        path_env = path_env.decode(fsencoding, 'replace')
                     default_paths = path_env.split(os.pathsep)
-                text += u"\n\n{}\n\n{}".format(
+                text += "\n\n{}\n\n{}".format(
                         _("This means that the nmap executable was "
                             "not found in your system PATH, which is"),
                         path_env or _("<undefined>")
@@ -498,23 +495,23 @@ class ScanInterface(HIGVBox):
                     p not in default_paths)]
                 if len(extra_paths) > 0:
                     if len(extra_paths) == 1:
-                        text += u"\n\n" + _("plus the extra directory")
+                        text += "\n\n" + _("plus the extra directory")
                     else:
-                        text += u"\n\n" + _("plus the extra directories")
-                    text += u"\n\n" + os.pathsep.join(extra_paths)
+                        text += "\n\n" + _("plus the extra directories")
+                    text += "\n\n" + os.pathsep.join(extra_paths)
             else:
-                text += u" (%d)" % e.errno
+                text += " (%d)" % e.errno
             warn_dialog = HIGAlertDialog(
                 message_format=_("Error executing command"),
-                secondary_text=text, type=gtk.MESSAGE_ERROR)
+                secondary_text=text, type=Gtk.MessageType.ERROR)
             warn_dialog.run()
             warn_dialog.destroy()
             return
-        except Exception, e:
+        except Exception as e:
             warn_dialog = HIGAlertDialog(
                 message_format=_("Error executing command"),
-                secondary_text=unicode(str(e), errors='replace'),
-                type=gtk.MESSAGE_ERROR)
+                secondary_text=str(e),
+                type=Gtk.MessageType.ERROR)
             warn_dialog.run()
             warn_dialog.destroy()
             return
@@ -530,7 +527,7 @@ class ScanInterface(HIGVBox):
         self.scan_result.refresh_nmap_output()
 
         # Add a timeout function
-        self.verify_thread_timeout_id = gobject.timeout_add(
+        self.verify_thread_timeout_id = GLib.timeout_add(
             NMAP_OUTPUT_REFRESH_INTERVAL, self.verify_execution)
 
     def verify_execution(self):
@@ -569,12 +566,12 @@ class ScanInterface(HIGVBox):
         parsed = NmapParser()
         try:
             parsed.parse_file(command.get_xml_output_filename())
-        except IOError, e:
+        except IOError as e:
             # It's possible to run Nmap without generating an XML output file,
             # like with "nmap -V".
             if e.errno != errno.ENOENT:
                 raise
-        except xml.sax.SAXParseException, e:
+        except xml.sax.SAXParseException as e:
             try:
                 # Some options like --iflist cause Nmap to emit an empty XML
                 # file. Ignore the exception in this case.
@@ -587,7 +584,7 @@ class ScanInterface(HIGVBox):
                         secondary_text=_(
                             "There was an error while parsing the XML file "
                             "generated from the scan:\n\n%s""") % str(e),
-                        type=gtk.MESSAGE_ERROR)
+                        type=Gtk.MessageType.ERROR)
                 warn_dialog.run()
                 warn_dialog.destroy()
         else:
@@ -596,13 +593,13 @@ class ScanInterface(HIGVBox):
             self.scan_result.refresh_nmap_output()
             try:
                 self.inventory.add_scan(parsed)
-            except Exception, e:
+            except Exception as e:
                 warn_dialog = HIGAlertDialog(
                         message_format=_("Cannot merge scan"),
                         secondary_text=_(
                             "There was an error while merging the new scan's "
                             "XML:\n\n%s") % str(e),
-                        type=gtk.MESSAGE_ERROR)
+                        type=Gtk.MessageType.ERROR)
                 warn_dialog.run()
                 warn_dialog.destroy()
         parsed.set_xml_is_temp(command.xml_is_temp)
@@ -784,7 +781,8 @@ class ScanInterface(HIGVBox):
         entry."""
         buff = widget.get_buffer()
         comment = buff.get_text(
-                buff.get_start_iter(), buff.get_end_iter())
+                buff.get_start_iter(), buff.get_end_iter(),
+                include_hidden_chars=True)
         if host.comment == comment:
             # no change, ignore
             return
@@ -864,20 +862,20 @@ class ScanInterface(HIGVBox):
         host_page.thaw()
 
 
-class ScanResult(gtk.HPaned):
+class ScanResult(Gtk.Paned):
     """This is the pane that has the "Host"/"Service" column (ScanHostsView) on
     the left and the "Nmap Output"/"Ports / Hosts"/etc. (ScanResultNotebook) on
     the right. It's the part of the interface below the toolbar."""
     def __init__(self, inventory, scans_store, scan_interface=None):
-        gtk.HPaned.__init__(self)
+        Gtk.Paned.__init__(self, orientation=Gtk.Orientation.HORIZONTAL)
 
         self.scan_host_view = ScanHostsView(scan_interface)
         self.scan_result_notebook = ScanResultNotebook(inventory, scans_store)
-        self.filter_toggle_button = gtk.ToggleButton(_("Filter Hosts"))
+        self.filter_toggle_button = Gtk.ToggleButton.new_with_label(_("Filter Hosts"))
 
-        vbox = gtk.VBox()
-        vbox.pack_start(self.scan_host_view, True, True)
-        vbox.pack_start(self.filter_toggle_button, False)
+        vbox = Gtk.Box.new(Gtk.Orientation.VERTICAL, 0)
+        vbox.pack_start(self.scan_host_view, True, True, 0)
+        vbox.pack_start(self.filter_toggle_button, False, True, 0)
         self.pack1(vbox)
         self.pack2(self.scan_result_notebook, True, False)
 
@@ -923,11 +921,11 @@ class ScanResultNotebook(HIGNotebook):
         self.scans_list.scans_list.connect(
                 "row-activated", self._scan_row_activated)
 
-        self.append_page(self.nmap_output_page, gtk.Label(_('Nmap Output')))
-        self.append_page(self.open_ports_page, gtk.Label(_('Ports / Hosts')))
-        self.append_page(self.topology_page, gtk.Label(_('Topology')))
-        self.append_page(self.host_details_page, gtk.Label(_('Host Details')))
-        self.append_page(self.scans_list_page, gtk.Label(_('Scans')))
+        self.append_page(self.nmap_output_page, Gtk.Label.new(_('Nmap Output')))
+        self.append_page(self.open_ports_page, Gtk.Label.new(_('Ports / Hosts')))
+        self.append_page(self.topology_page, Gtk.Label.new(_('Topology')))
+        self.append_page(self.host_details_page, Gtk.Label.new(_('Host Details')))
+        self.append_page(self.scans_list_page, Gtk.Label.new(_('Scans')))
 
     def host_mode(self):
         self.open_ports.host.host_mode()
@@ -948,7 +946,7 @@ class ScanResultNotebook(HIGNotebook):
         self.topology = TopologyPage(inventory)
         self.scans_list = ScanScanListPage(scans_store)
 
-        self.no_selected = gtk.Label(_('No host selected.'))
+        self.no_selected = Gtk.Label.new(_('No host selected.'))
         self.host_details = self.no_selected
 
         self.open_ports_page.add(self.open_ports)

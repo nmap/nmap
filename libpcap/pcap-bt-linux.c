@@ -58,7 +58,7 @@
 /* forward declaration */
 static int bt_activate(pcap_t *);
 static int bt_read_linux(pcap_t *, int , pcap_handler , u_char *);
-static int bt_inject_linux(pcap_t *, const void *, size_t);
+static int bt_inject_linux(pcap_t *, const void *, int);
 static int bt_setdirection_linux(pcap_t *, pcap_direction_t);
 static int bt_stats_linux(pcap_t *, struct pcap_stat *);
 
@@ -92,12 +92,20 @@ bt_findalldevs(pcap_if_list_t *devlistp, char *err_str)
 	dev_list = malloc(HCI_MAX_DEV * sizeof(*dev_req) + sizeof(*dev_list));
 	if (!dev_list)
 	{
-		pcap_snprintf(err_str, PCAP_ERRBUF_SIZE, "Can't allocate %zu bytes for Bluetooth device list",
+		snprintf(err_str, PCAP_ERRBUF_SIZE, "Can't allocate %zu bytes for Bluetooth device list",
 			HCI_MAX_DEV * sizeof(*dev_req) + sizeof(*dev_list));
 		ret = -1;
 		goto done;
 	}
 
+	/*
+	 * Zero the complete header, which is larger than dev_num because of tail
+	 * padding, to silence Valgrind, which overshoots validating that dev_num
+	 * has been set.
+	 * https://github.com/the-tcpdump-group/libpcap/issues/1083
+	 * https://bugs.kde.org/show_bug.cgi?id=448464
+	 */
+	memset(dev_list, 0, sizeof(*dev_list));
 	dev_list->dev_num = HCI_MAX_DEV;
 
 	if (ioctl(sock, HCIGETDEVLIST, (void *) dev_list) < 0)
@@ -112,8 +120,8 @@ bt_findalldevs(pcap_if_list_t *devlistp, char *err_str)
 	for (i = 0; i < dev_list->dev_num; i++, dev_req++) {
 		char dev_name[20], dev_descr[40];
 
-		pcap_snprintf(dev_name, sizeof(dev_name), BT_IFACE"%u", dev_req->dev_id);
-		pcap_snprintf(dev_descr, sizeof(dev_descr), "Bluetooth adapter number %u", i);
+		snprintf(dev_name, sizeof(dev_name), BT_IFACE"%u", dev_req->dev_id);
+		snprintf(dev_descr, sizeof(dev_descr), "Bluetooth adapter number %u", i);
 
 		/*
 		 * Bluetooth is a wireless technology.
@@ -173,7 +181,7 @@ bt_create(const char *device, char *ebuf, int *is_ours)
 	/* OK, it's probably ours. */
 	*is_ours = 1;
 
-	p = pcap_create_common(ebuf, sizeof (struct pcap_bt));
+	p = PCAP_CREATE_COMMON(ebuf, struct pcap_bt);
 	if (p == NULL)
 		return (NULL);
 
@@ -194,7 +202,7 @@ bt_activate(pcap_t* handle)
 	/* get bt interface id */
 	if (sscanf(handle->opt.device, BT_IFACE"%d", &dev_id) != 1)
 	{
-		pcap_snprintf(handle->errbuf, PCAP_ERRBUF_SIZE,
+		snprintf(handle->errbuf, PCAP_ERRBUF_SIZE,
 			"Can't get Bluetooth device index from %s",
 			 handle->opt.device);
 		return PCAP_ERROR;
@@ -341,12 +349,16 @@ bt_read_linux(pcap_t *handle, int max_packets _U_, pcap_handler callback, u_char
 	} while ((ret == -1) && (errno == EINTR));
 
 	if (ret < 0) {
+		if (errno == EAGAIN || errno == EWOULDBLOCK) {
+			/* Nonblocking mode, no data */
+			return 0;
+		}
 		pcap_fmt_errmsg_for_errno(handle->errbuf, PCAP_ERRBUF_SIZE,
 		    errno, "Can't receive packet");
 		return -1;
 	}
 
-	pkth.caplen = ret;
+	pkth.caplen = (bpf_u_int32)ret;
 
 	/* get direction and timestamp*/
 	cmsg = CMSG_FIRSTHDR(&msg);
@@ -355,22 +367,34 @@ bt_read_linux(pcap_t *handle, int max_packets _U_, pcap_handler callback, u_char
 			case HCI_CMSG_DIR:
 				memcpy(&in, CMSG_DATA(cmsg), sizeof in);
 				break;
-                      	case HCI_CMSG_TSTAMP:
-                      		memcpy(&pkth.ts, CMSG_DATA(cmsg),
-                      		    sizeof pkth.ts);
+			case HCI_CMSG_TSTAMP:
+				memcpy(&pkth.ts, CMSG_DATA(cmsg),
+					sizeof pkth.ts);
 				break;
 		}
 		cmsg = CMSG_NXTHDR(&msg, cmsg);
 	}
-	if ((in && (handle->direction == PCAP_D_OUT)) ||
-				((!in) && (handle->direction == PCAP_D_IN)))
-		return 0;
+	switch (handle->direction) {
+
+	case PCAP_D_IN:
+		if (!in)
+			return 0;
+		break;
+
+	case PCAP_D_OUT:
+		if (in)
+			return 0;
+		break;
+
+	default:
+		break;
+	}
 
 	bthdr->direction = htonl(in != 0);
 	pkth.caplen+=sizeof(pcap_bluetooth_h4_header);
 	pkth.len = pkth.caplen;
 	if (handle->fcode.bf_insns == NULL ||
-	    bpf_filter(handle->fcode.bf_insns, pktd, pkth.len, pkth.caplen)) {
+	    pcap_filter(handle->fcode.bf_insns, pktd, pkth.len, pkth.caplen)) {
 		callback(user, &pkth, pktd);
 		return 1;
 	}
@@ -378,9 +402,9 @@ bt_read_linux(pcap_t *handle, int max_packets _U_, pcap_handler callback, u_char
 }
 
 static int
-bt_inject_linux(pcap_t *handle, const void *buf _U_, size_t size _U_)
+bt_inject_linux(pcap_t *handle, const void *buf _U_, int size _U_)
 {
-	pcap_snprintf(handle->errbuf, PCAP_ERRBUF_SIZE,
+	snprintf(handle->errbuf, PCAP_ERRBUF_SIZE,
 	    "Packet injection is not supported on Bluetooth devices");
 	return (-1);
 }
@@ -418,6 +442,10 @@ bt_stats_linux(pcap_t *handle, struct pcap_stat *stats)
 static int
 bt_setdirection_linux(pcap_t *p, pcap_direction_t d)
 {
+	/*
+	 * It's guaranteed, at this point, that d is a valid
+	 * direction value.
+	 */
 	p->direction = d;
 	return 0;
 }

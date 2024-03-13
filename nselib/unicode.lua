@@ -10,6 +10,7 @@ local table = require "table"
 local stdnse = require "stdnse"
 local unittest = require "unittest"
 local tableaux = require "tableaux"
+local utf8 = require "utf8"
 _ENV = stdnse.module("unicode", stdnse.seeall)
 
 -- Localize a few functions for a tiny speed boost, since these will be looped
@@ -19,6 +20,7 @@ local char = string.char
 local pack = string.pack
 local unpack = string.unpack
 local concat = table.concat
+local pcall = pcall
 
 
 ---Decode a buffer containing Unicode data.
@@ -29,6 +31,9 @@ local concat = table.concat
 --                 false (little-endian)
 --@return A list-table containing the code points as numbers
 function decode(buf, decoder, bigendian)
+  if decoder == utf8_dec then
+    return {utf8.codepoint(buf, 1, -1)}
+  end
   local cp = {}
   local pos = 1
   while pos <= #buf do
@@ -45,6 +50,9 @@ end
 --                 false (little-endian)
 --@return An encoded string
 function encode(list, encoder, bigendian)
+  if encoder == utf8_enc then
+    return utf8.char(table.unpack(list))
+  end
   local buf = {}
   for i, cp in ipairs(list) do
     buf[i] = encoder(cp, bigendian)
@@ -67,9 +75,21 @@ function transcode(buf, decoder, encoder, bigendian_dec, bigendian_enc)
   local out = {}
   local cp
   local pos = 1
-  while pos <= #buf do
-    pos, cp = decoder(buf, pos, bigendian_dec)
-    out[#out+1] = encoder(cp, bigendian_enc)
+  -- Take advantage of Lua's built-in utf8 functions
+  if decoder == utf8_dec then
+    for _, cp in utf8.codes(buf) do
+      out[#out+1] = encoder(cp, bigendian_enc)
+    end
+  elseif encoder == utf8_enc then
+    while pos <= #buf do
+      pos, cp = decoder(buf, pos, bigendian_dec)
+      out[#out+1] = utf8.char(cp)
+    end
+  else
+    while pos <= #buf do
+      pos, cp = decoder(buf, pos, bigendian_dec)
+      out[#out+1] = encoder(cp, bigendian_enc)
+    end
   end
   return table.concat(out)
 end
@@ -113,7 +133,7 @@ function chardet(buf, len)
   -- Try bytes
   local pos = 1
   local high = false
-  local utf8 = true
+  local is_utf8 = true
   while pos < limit do
     local c = byte(buf, pos)
     if c == 0 then
@@ -122,21 +142,21 @@ function chardet(buf, len)
       else
         return 'utf-16be'
       end
-      utf8 = false
+      is_utf8 = false
       pos = pos + 1
     elseif c > 127 then
       if not high then
         high = true
       end
-      if utf8 then
+      if is_utf8 then
         local p, cp = utf8_dec(buf, pos)
         if not p then
-          utf8 = false
+          is_utf8 = false
         else
           pos = p
         end
       end
-      if not utf8 then
+      if not is_utf8 then
         pos = pos + 1
       end
     else
@@ -144,7 +164,7 @@ function chardet(buf, len)
     end
   end
   if high then
-    if utf8 then
+    if is_utf8 then
       return 'utf-8'
     else
       return 'other'
@@ -212,40 +232,10 @@ end
 --
 -- Does not check that cp is a real character; that is, doesn't exclude the
 -- surrogate range U+D800 - U+DFFF and a handful of others.
+-- @class function
 --@param cp The Unicode code point as a number
 --@return A string containing the code point in UTF-8 encoding.
-function utf8_enc(cp)
-  local bytes = {}
-  local n, mask
-
-  if cp % 1.0 ~= 0.0 or cp < 0 then
-    -- Only defined for nonnegative integers.
-    return nil
-  elseif cp <= 0x7F then
-    -- Special case of one-byte encoding.
-    return char(cp)
-  elseif cp <= 0x7FF then
-    n = 2
-    mask = 0xC0
-  elseif cp <= 0xFFFF then
-    n = 3
-    mask = 0xE0
-  elseif cp <= 0x10FFFF then
-    n = 4
-    mask = 0xF0
-  else
-    return nil
-  end
-
-  while n > 1 do
-    bytes[n] = char(0x80 + (cp & 0x3F))
-    cp = cp >> 6
-    n = n - 1
-  end
-  bytes[1] = char(mask + cp)
-
-  return table.concat(bytes)
-end
+utf8_enc = utf8.char
 
 ---Decodes a UTF-8 character.
 --
@@ -256,40 +246,12 @@ end
 --@return cp The code point of the character as a number, or an error string
 function utf8_dec(buf, pos)
   pos = pos or 1
-  local n, mask
-  local bv = byte(buf, pos)
-  if bv <= 0x7F then
-    return pos+1, bv
-  elseif bv <= 0xDF then
-    --110xxxxx 10xxxxxx
-    n = 1
-    mask = 0xC0
-  elseif bv <= 0xEF then
-    --1110xxxx 10xxxxxx 10xxxxxx
-    n = 2
-    mask = 0xE0
-  elseif bv <= 0xF7 then
-    --11110xxx 10xxxxxx 10xxxxxx 10xxxxxx
-    n = 3
-    mask = 0xF0
+  local status, cp = pcall(utf8.codepoint, buf, pos)
+  if status then
+    return utf8.offset(buf, 2, pos), cp
   else
-    return nil, string.format("Invalid UTF-8 byte at %d", pos)
+    return nil, cp
   end
-
-  local cp = bv - mask
-
-  if pos + n > #buf then
-    return nil, string.format("Incomplete UTF-8 sequence at %d", pos)
-  end
-  for i = 1, n do
-    bv = byte(buf, pos + i)
-    if bv < 0x80 or bv > 0xBF then
-      return nil, string.format("Invalid UTF-8 sequence at %d", pos + i)
-    end
-    cp = (cp << 6) + (bv & 0x3F)
-  end
-
-  return pos + 1 + n, cp
 end
 
 -- Code Page 437, native US-English Windows OEM code page

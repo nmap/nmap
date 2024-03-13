@@ -1,4 +1,4 @@
-Nmap Public Source License Version 0.92
+Nmap Public Source License Version 0.95
 For more information on this license, see https://nmap.org/npsl/
 
 0. Preamble
@@ -6,11 +6,12 @@ For more information on this license, see https://nmap.org/npsl/
 The intent of this license is to establish freedom to share and change
 the software regulated by this license under the open source model. It
 also includes a Contributor Agreement and disclaims any warranty on
-Covered Software. Proprietary software companies wishing to use or
-incorporate Covered Software within their programs must contact
-Licensor to purchase a separate license. Open source developers who
-wish to incorporate parts of Covered Software into free software with
-conflicting licenses may write Licensor to request a waiver of terms.
+Covered Software. Companies wishing to use or incorporate Covered
+Software within their own products may find that our Nmap OEM product
+(https://nmap.org/oem/) better suits their needs. Open source
+developers who wish to incorporate parts of Covered Software into free
+software with conflicting licenses may write Licensor to request a
+waiver of terms.
 
 If the Nmap Project (directly or through one of its commercial
 licensing customers) has granted you additional rights to Nmap or Nmap
@@ -80,7 +81,7 @@ and can not modify its governing terms in any way.
 
 * "License" means this document, including Exhibits.
 
-* "Licensor" means Insecure.Com LLC and its successors and assigns.
+* "Licensor" means Nmap Software LLC and its successors and assigns.
 
 * "Main License Body" means all of the terms of this document,
   excluding Exhibits.
@@ -138,14 +139,29 @@ if it does any of the following:
   above
 
 * Executes a helper program, module, or script to do any of the above.
-  This list is not exclusive, but is meant to clarify Licensor's
-  intentions with some common examples. Distribution of any works
-  which meet these criteria must be under the terms of this license
-  (including this Main License Body and GPL), with no additional
-  conditions or restrictions. They must abide by all restrictions that
-  the GPL places on derivative or collective works, including the
-  requirements for distributing their source code and allowing
-  royalty-free redistribution.
+
+
+This list is not exclusive, but is meant to clarify Licensor's
+intentions with some common examples. Distribution of any works which
+meet these criteria (and that also choose to accept this license to
+benefit from the rights granted herein) must be under the terms of
+this license (including this Main License Body and GPL), with no
+additional conditions or restrictions. They must abide by all
+restrictions that the GPL places on derivative or collective works,
+including the requirements for distributing their source code and
+allowing royalty-free redistribution.
+
+Licensor does not purport to control through this license any software
+which does not require the rights granted herein (such as rights to
+redistribute and/or incorporate Covered Software executables and
+source code). In particular, many software packages include the
+ability to parse Covered Software results provided by an end user or
+to execute Covered Software that end user may have already installed
+on their system. To the extent that copyright doctrines such as fair
+use allow their practices without the need to exercise any rights
+granted by this license, vendors and distributors of such software are
+not bound by our definition of derivative works or any other clauses
+in this license.
 
 4. Contributor Agreement (Grant of Copyright and Patent Licenses)
 
@@ -243,7 +259,7 @@ Goods is expressly excluded.
 10. Npcap and the Official Nmap Windows Builds
 
 The official Windows Nmap builds includes the Npcap driver and library
-(https://npcap.org) for packet capture and transmission on
+(https://npcap.com) for packet capture and transmission on
 Windows. That software is under its own separate license terms rather
 than this license. Therefore anyone wishing to use or redistribute
 both pieces of software must comply with both licenses. Since Npcap
@@ -407,7 +423,10 @@ your rights to work written entirely by you; rather, the intent is to
 exercise the right to control the distribution of derivative or
 collective works based on the Program.
 
-In addition, mere aggregation of another work not based on the Program with the Program (or with a work based on the Program) on a volume of a storage or distribution medium does not bring the other work under the scope of this License.
+In addition, mere aggregation of another work not based on the Program
+with the Program (or with a work based on the Program) on a volume of
+a storage or distribution medium does not bring the other work under
+the scope of this License.
 
 3. You may copy and distribute the Program (or a work based on it,
 under Section 2) in object code or executable form under the terms of
@@ -559,6 +578,6 @@ DAMAGES.
 END OF TERMS AND CONDITIONS
 
 [For brevity, we've cut out the GPL's final section on "How to Apply
-Tehse Terms to Your New Program", but you can find that at
+These Terms to Your New Program", but you can find that at
 https://www.gnu.org/licenses/gpl-2.0.html#SEC4 ]
 

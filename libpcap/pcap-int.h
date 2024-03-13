@@ -34,12 +34,41 @@
 #ifndef pcap_int_h
 #define	pcap_int_h
 
+#include <stddef.h>
+
 #include <signal.h>
 
 #include <pcap/pcap.h>
 
+#ifdef MSDOS
+  #include <fcntl.h>
+  #include <io.h>
+#endif
+
 #include "varattrs.h"
 #include "fmtutils.h"
+
+#include <stdarg.h>
+
+#include "portability.h"
+
+/*
+ * If we're compiling with Visual Studio, make sure we have at least
+ * VS 2015 or later, so we have sufficient C99 support.
+ *
+ * XXX - verify that we have at least C99 support on UN*Xes?
+ *
+ * What about MinGW or various DOS toolchains?  We're currently assuming
+ * sufficient C99 support there.
+ */
+#if defined(_MSC_VER)
+  /*
+   * Compiler is MSVC.  Make sure we have VS 2015 or later.
+   */
+  #if _MSC_VER < 1900
+    #error "Building libpcap requires VS 2015 or later"
+  #endif
+#endif
 
 /*
  * Version string.
@@ -51,10 +80,32 @@
 extern "C" {
 #endif
 
-#ifdef MSDOS
-  #include <fcntl.h>
-  #include <io.h>
-#endif
+/*
+ * If pcap_new_api is set, we disable pcap_lookupdev(), because:
+ *
+ *    it's not thread-safe, and is marked as deprecated, on all
+ *    platforms;
+ *
+ *    on Windows, it may return UTF-16LE strings, which the program
+ *    might then pass to pcap_create() (or to pcap_open_live(), which
+ *    then passes them to pcap_create()), requiring pcap_create() to
+ *    check for UTF-16LE strings using a hack, and that hack 1)
+ *    *cannot* be 100% reliable and 2) runs the risk of going past the
+ *    end of the string.
+ *
+ * We keep it around in legacy mode for compatibility.
+ *
+ * We also disable the aforementioned hack in pcap_create().
+ */
+extern int pcap_new_api;
+
+/*
+ * If pcap_utf_8_mode is set, on Windows we treat strings as UTF-8.
+ *
+ * On UN*Xes, we assume all strings are and should be in UTF-8, regardless
+ * of the setting of this flag.
+ */
+extern int pcap_utf_8_mode;
 
 /*
  * Swap byte ordering of unsigned long long timestamp on a big endian
@@ -77,7 +128,7 @@ extern "C" {
  *    1) big enough for maximum-size Linux loopback packets (65549)
  *       and some USB packets captured with USBPcap:
  *
- *           http://desowin.org/usbpcap/
+ *           https://desowin.org/usbpcap/
  *
  *       (> 131072, < 262144)
  *
@@ -96,6 +147,18 @@ extern "C" {
  * We don't enforce this in pcap_set_snaplen(), but we use it internally.
  */
 #define MAXIMUM_SNAPLEN		262144
+
+/*
+ * Locale-independent macros for testing character types.
+ * These can be passed any integral value, without worrying about, for
+ * example, sign-extending char values, unlike the C macros.
+ */
+#define PCAP_ISDIGIT(c) \
+	((c) >= '0' && (c) <= '9')
+#define PCAP_ISXDIGIT(c) \
+	(((c) >= '0' && (c) <= '9') || \
+	 ((c) >= 'A' && (c) <= 'F') || \
+	 ((c) >= 'a' && (c) <= 'f'))
 
 struct pcap_opt {
 	char	*device;
@@ -123,7 +186,7 @@ typedef int	(*activate_op_t)(pcap_t *);
 typedef int	(*can_set_rfmon_op_t)(pcap_t *);
 typedef int	(*read_op_t)(pcap_t *, int cnt, pcap_handler, u_char *);
 typedef int	(*next_packet_op_t)(pcap_t *, struct pcap_pkthdr *, u_char **);
-typedef int	(*inject_op_t)(pcap_t *, const void *, size_t);
+typedef int	(*inject_op_t)(pcap_t *, const void *, int);
 typedef void	(*save_current_filter_op_t)(pcap_t *, const char *);
 typedef int	(*setfilter_op_t)(pcap_t *, struct bpf_program *);
 typedef int	(*setdirection_op_t)(pcap_t *, pcap_direction_t);
@@ -131,6 +194,7 @@ typedef int	(*set_datalink_op_t)(pcap_t *, int);
 typedef int	(*getnonblock_op_t)(pcap_t *);
 typedef int	(*setnonblock_op_t)(pcap_t *, int);
 typedef int	(*stats_op_t)(pcap_t *, struct pcap_stat *);
+typedef void	(*breakloop_op_t)(pcap_t *);
 #ifdef _WIN32
 typedef struct pcap_stat *(*stats_ex_op_t)(pcap_t *, int *);
 typedef int	(*setbuff_op_t)(pcap_t *, int);
@@ -200,8 +264,7 @@ struct pcap {
 
 	int snapshot;
 	int linktype;		/* Network linktype */
-	int linktype_ext;       /* Extended information stored in the linktype field of a file */
-	int tzoff;		/* timezone offset */
+	int linktype_ext;	/* Extended information stored in the linktype field of a file */
 	int offset;		/* offset for proper alignment */
 	int activated;		/* true if the capture is really started */
 	int oldstyle;		/* if we're opening with pcap_open_live() */
@@ -239,7 +302,7 @@ struct pcap {
 	 * pcap_t's with a required timeout, and the code must be
 	 * prepared not to see any packets from the attempt.
 	 */
-	struct timeval *required_select_timeout;
+	const struct timeval *required_select_timeout;
 #endif
 
 	/*
@@ -248,6 +311,9 @@ struct pcap {
 	struct bpf_program fcode;
 
 	char errbuf[PCAP_ERRBUF_SIZE + 1];
+#ifdef _WIN32
+	char acp_errbuf[PCAP_ERRBUF_SIZE + 1];	/* buffer for local code page error strings */
+#endif
 	int dlt_count;
 	u_int *dlt_list;
 	int tstamp_type_count;
@@ -270,6 +336,7 @@ struct pcap {
 	getnonblock_op_t getnonblock_op;
 	setnonblock_op_t setnonblock_op;
 	stats_op_t stats_op;
+	breakloop_op_t breakloop_op;
 
 	/*
 	 * Routine to use as callback for pcap_next()/pcap_next_ex().
@@ -340,7 +407,7 @@ struct pcap_timeval {
  *
  * Then supply the changes by forking the branch at
  *
- *	https://github.com/the-tcpdump-group/libpcap/issues
+ *	https://github.com/the-tcpdump-group/libpcap/tree/master
  *
  * and issuing a pull request, so that future versions of libpcap and
  * programs that use it (such as tcpdump) will be able to read your new
@@ -350,7 +417,7 @@ struct pcap_timeval {
 struct pcap_sf_pkthdr {
     struct pcap_timeval ts;	/* time stamp */
     bpf_u_int32 caplen;		/* length of portion present */
-    bpf_u_int32 len;		/* length this packet (off wire) */
+    bpf_u_int32 len;		/* length of this packet (off wire) */
 };
 
 /*
@@ -366,7 +433,7 @@ struct pcap_sf_pkthdr {
 struct pcap_sf_patched_pkthdr {
     struct pcap_timeval ts;	/* time stamp */
     bpf_u_int32 caplen;		/* length of portion present */
-    bpf_u_int32 len;		/* length this packet (off wire) */
+    bpf_u_int32 len;		/* length of this packet (off wire) */
     int		index;
     unsigned short protocol;
     unsigned char pkt_type;
@@ -387,10 +454,6 @@ struct oneshot_userdata {
 #endif
 
 int	pcap_offline_read(pcap_t *, int, pcap_handler, u_char *);
-
-#include <stdarg.h>
-
-#include "portability.h"
 
 /*
  * Does the packet count argument to a module's read routine say
@@ -418,12 +481,25 @@ int	pcap_setnonblock_fd(pcap_t *p, int);
  * by pcap_create routines.
  */
 pcap_t	*pcap_create_interface(const char *, char *);
-pcap_t	*pcap_create_common(char *, size_t);
+
+/*
+ * This wrapper takes an error buffer pointer and a type to use for the
+ * private data, and calls pcap_create_common(), passing it the error
+ * buffer pointer, the size for the private data type, in bytes, and the
+ * offset of the private data from the beginning of the structure, in
+ * bytes.
+ */
+#define PCAP_CREATE_COMMON(ebuf, type) \
+	pcap_create_common(ebuf, \
+	    sizeof (struct { pcap_t __common; type __private; }), \
+	    offsetof (struct { pcap_t __common; type __private; }, __private))
+pcap_t	*pcap_create_common(char *, size_t, size_t);
 int	pcap_do_addexit(pcap_t *);
 void	pcap_add_to_pcaps_to_close(pcap_t *);
 void	pcap_remove_from_pcaps_to_close(pcap_t *);
 void	pcap_cleanup_live_common(pcap_t *);
 int	pcap_check_activated(pcap_t *);
+void	pcap_breakloop_common(pcap_t *);
 
 /*
  * Internal interfaces for "pcap_findalldevs()".
@@ -472,7 +548,8 @@ int	add_addr_to_if(pcap_if_list_t *, const char *, bpf_u_int32,
 #endif
 
 /*
- * Internal interfaces for "pcap_open_offline()".
+ * Internal interfaces for "pcap_open_offline()" and other savefile
+ * I/O routines.
  *
  * "pcap_open_offline_common()" allocates and fills in a pcap_t, for use
  * by pcap_open_offline routines.
@@ -483,10 +560,46 @@ int	add_addr_to_if(pcap_if_list_t *, const char *, bpf_u_int32,
  * "sf_cleanup()" closes the file handle associated with a pcap_t, if
  * appropriate, and frees all data common to all modules for handling
  * savefile types.
+ *
+ * "charset_fopen()", in UTF-8 mode on Windows, does an fopen() that
+ * treats the pathname as being in UTF-8, rather than the local
+ * code page, on Windows.
  */
-pcap_t	*pcap_open_offline_common(char *ebuf, size_t size);
+
+/*
+ * This wrapper takes an error buffer pointer and a type to use for the
+ * private data, and calls pcap_create_common(), passing it the error
+ * buffer pointer, the size for the private data type, in bytes, and the
+ * offset of the private data from the beginning of the structure, in
+ * bytes.
+ */
+#define PCAP_OPEN_OFFLINE_COMMON(ebuf, type) \
+	pcap_open_offline_common(ebuf, \
+	    sizeof (struct { pcap_t __common; type __private; }), \
+	    offsetof (struct { pcap_t __common; type __private; }, __private))
+pcap_t	*pcap_open_offline_common(char *ebuf, size_t total_size,
+    size_t private_data);
 bpf_u_int32 pcap_adjust_snapshot(bpf_u_int32 linktype, bpf_u_int32 snaplen);
 void	sf_cleanup(pcap_t *p);
+#ifdef _WIN32
+FILE	*charset_fopen(const char *path, const char *mode);
+#else
+/*
+ * On other OSes, just use Boring Old fopen().
+ */
+#define charset_fopen(path, mode)	fopen((path), (mode))
+#endif
+
+/*
+ * Internal interfaces for loading code at run time.
+ */
+#ifdef _WIN32
+#define pcap_code_handle_t	HMODULE
+#define pcap_funcptr_t		FARPROC
+
+pcap_code_handle_t	pcap_load_code(const char *);
+pcap_funcptr_t		pcap_find_function(pcap_code_handle_t, const char *);
+#endif
 
 /*
  * Internal interfaces for doing user-mode filtering of packets and
@@ -497,7 +610,7 @@ void	sf_cleanup(pcap_t *p);
  * Linux kernel when the kernel rejects the filter (requiring us to
  * run it in userland).  It contains VLAN tag information.
  */
-struct bpf_aux_data {
+struct pcap_bpf_aux_data {
 	u_short vlan_tag_present;
 	u_short vlan_tag;
 };
@@ -506,8 +619,18 @@ struct bpf_aux_data {
  * Filtering routine that takes the auxiliary data as an additional
  * argument.
  */
-u_int	bpf_filter_with_aux_data(const struct bpf_insn *,
-    const u_char *, u_int, u_int, const struct bpf_aux_data *);
+u_int	pcap_filter_with_aux_data(const struct bpf_insn *,
+    const u_char *, u_int, u_int, const struct pcap_bpf_aux_data *);
+
+/*
+ * Filtering routine that doesn't.
+ */
+u_int	pcap_filter(const struct bpf_insn *, const u_char *, u_int, u_int);
+
+/*
+ * Routine to validate a BPF program.
+ */
+int	pcap_validate_filter(const struct bpf_insn *, int);
 
 /*
  * Internal interfaces for both "pcap_create()" and routines that
@@ -521,6 +644,16 @@ void	pcap_oneshot(u_char *, const struct pcap_pkthdr *, const u_char *);
 int	install_bpf_program(pcap_t *, struct bpf_program *);
 
 int	pcap_strcasecmp(const char *, const char *);
+
+/*
+ * Internal interfaces for pcap_createsrcstr and pcap_parsesrcstr with
+ * the additional bit of information regarding SSL support (rpcap:// vs.
+ * rpcaps://).
+ */
+int	pcap_createsrcstr_ex(char *, int, const char *, const char *,
+    const char *, unsigned char, char *);
+int	pcap_parsesrcstr_ex(const char *, int *, char *, char *,
+    char *, unsigned char *, char *);
 
 #ifdef YYDEBUG
 extern int pcap_debug;

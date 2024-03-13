@@ -58,6 +58,9 @@ local client_hello = function(host, port)
   local sock, status, response, err, cli_h
 
   cli_h = tls.client_hello({
+      -- TLSv1.3 does not send this extension plaintext.
+      -- TODO: implement key exchange crypto to retrieve encrypted extensions
+      protocol = "TLSv1.2",
     ["extensions"] = {
       ["next_protocol_negotiation"] = "",
     },

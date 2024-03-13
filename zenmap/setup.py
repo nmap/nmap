@@ -1,76 +1,73 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
+#!/usr/bin/env python3
 
 # ***********************IMPORTANT NMAP LICENSE TERMS************************
-# *                                                                         *
-# * The Nmap Security Scanner is (C) 1996-2020 Insecure.Com LLC ("The Nmap  *
-# * Project"). Nmap is also a registered trademark of the Nmap Project.     *
-# *                                                                         *
-# * This program is distributed under the terms of the Nmap Public Source   *
-# * License (NPSL). The exact license text applying to a particular Nmap    *
-# * release or source code control revision is contained in the LICENSE     *
-# * file distributed with that version of Nmap or source code control       *
-# * revision. More Nmap copyright/legal information is available from       *
-# * https://nmap.org/book/man-legal.html, and further information on the    *
-# * NPSL license itself can be found at https://nmap.org/npsl. This header  *
-# * summarizes some key points from the Nmap license, but is no substitute  *
-# * for the actual license text.                                            *
-# *                                                                         *
-# * Nmap is generally free for end users to download and use themselves,    *
-# * including commercial use. It is available from https://nmap.org.        *
-# *                                                                         *
-# * The Nmap license generally prohibits companies from using and           *
-# * redistributing Nmap in commercial products, but we sell a special Nmap  *
-# * OEM Edition with a more permissive license and special features for     *
-# * this purpose. See https://nmap.org/oem                                  *
-# *                                                                         *
-# * If you have received a written Nmap license agreement or contract       *
-# * stating terms other than these (such as an Nmap OEM license), you may   *
-# * choose to use and redistribute Nmap under those terms instead.          *
-# *                                                                         *
-# * The official Nmap Windows builds include the Npcap software             *
-# * (https://npcap.org) for packet capture and transmission. It is under    *
-# * separate license terms which forbid redistribution without special      *
-# * permission. So the official Nmap Windows builds may not be              *
-# * redistributed without special permission (such as an Nmap OEM           *
-# * license).                                                               *
-# *                                                                         *
-# * Source is provided to this software because we believe users have a     *
-# * right to know exactly what a program is going to do before they run it. *
-# * This also allows you to audit the software for security holes.          *
-# *                                                                         *
-# * Source code also allows you to port Nmap to new platforms, fix bugs,    *
-# * and add new features.  You are highly encouraged to submit your         *
-# * changes as a Github PR or by email to the dev@nmap.org mailing list     *
-# * for possible incorporation into the main distribution. Unless you       *
-# * specify otherwise, it is understood that you are offering us very       *
-# * broad rights to use your submissions as described in the Nmap Public    *
-# * Source License Contributor Agreement. This is important because we      *
-# * fund the project by selling licenses with various terms, and also       *
-# * because the inability to relicense code has caused devastating          *
-# * problems for other Free Software projects (such as KDE and NASM).       *
-# *                                                                         *
-# * The free version of Nmap is distributed in the hope that it will be     *
-# * useful, but WITHOUT ANY WARRANTY; without even the implied warranty of  *
-# * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. Warranties,        *
-# * indemnification and commercial support are all available through the    *
-# * Npcap OEM program--see https://nmap.org/oem.                            *
-# *                                                                         *
+# *
+# * The Nmap Security Scanner is (C) 1996-2024 Nmap Software LLC ("The Nmap
+# * Project"). Nmap is also a registered trademark of the Nmap Project.
+# *
+# * This program is distributed under the terms of the Nmap Public Source
+# * License (NPSL). The exact license text applying to a particular Nmap
+# * release or source code control revision is contained in the LICENSE
+# * file distributed with that version of Nmap or source code control
+# * revision. More Nmap copyright/legal information is available from
+# * https://nmap.org/book/man-legal.html, and further information on the
+# * NPSL license itself can be found at https://nmap.org/npsl/ . This
+# * header summarizes some key points from the Nmap license, but is no
+# * substitute for the actual license text.
+# *
+# * Nmap is generally free for end users to download and use themselves,
+# * including commercial use. It is available from https://nmap.org.
+# *
+# * The Nmap license generally prohibits companies from using and
+# * redistributing Nmap in commercial products, but we sell a special Nmap
+# * OEM Edition with a more permissive license and special features for
+# * this purpose. See https://nmap.org/oem/
+# *
+# * If you have received a written Nmap license agreement or contract
+# * stating terms other than these (such as an Nmap OEM license), you may
+# * choose to use and redistribute Nmap under those terms instead.
+# *
+# * The official Nmap Windows builds include the Npcap software
+# * (https://npcap.com) for packet capture and transmission. It is under
+# * separate license terms which forbid redistribution without special
+# * permission. So the official Nmap Windows builds may not be redistributed
+# * without special permission (such as an Nmap OEM license).
+# *
+# * Source is provided to this software because we believe users have a
+# * right to know exactly what a program is going to do before they run it.
+# * This also allows you to audit the software for security holes.
+# *
+# * Source code also allows you to port Nmap to new platforms, fix bugs, and
+# * add new features. You are highly encouraged to submit your changes as a
+# * Github PR or by email to the dev@nmap.org mailing list for possible
+# * incorporation into the main distribution. Unless you specify otherwise, it
+# * is understood that you are offering us very broad rights to use your
+# * submissions as described in the Nmap Public Source License Contributor
+# * Agreement. This is important because we fund the project by selling licenses
+# * with various terms, and also because the inability to relicense code has
+# * caused devastating problems for other Free Software projects (such as KDE
+# * and NASM).
+# *
+# * The free version of Nmap is distributed in the hope that it will be
+# * useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
+# * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. Warranties,
+# * indemnification and commercial support are all available through the
+# * Npcap OEM program--see https://nmap.org/oem/
+# *
 # ***************************************************************************/
 import sys
 
-if sys.version_info[0] != 2:
-    sys.exit("Sorry, Zenmap requires Python 2")
+if sys.version_info[0] != 3:
+    sys.exit("Sorry, Zenmap requires Python 3")
 
 import errno
 import os
 import os.path
 import re
 
-import distutils.sysconfig
-from distutils import log
-from distutils.core import setup, Command
-from distutils.command.install import install
+import logging
+from setuptools import setup, Command
+from setuptools.command.install import install
 
 from glob import glob
 from stat import S_IRGRP, S_IROTH, S_IRUSR, S_IRWXU, S_IWUSR, S_IXGRP, S_IXOTH, ST_MODE
@@ -127,7 +124,7 @@ data_files = [
         ]
 
 # Add i18n files to data_files list
-os.path.walk(locale_dir, mo_find, data_files)
+os.walk(locale_dir, mo_find, data_files)
 
 
 # path_startswith and path_strip_prefix are used to deal with the installation
@@ -192,7 +189,7 @@ class my_install(install):
     def get_installed_files(self):
         """Return a list of installed files and directories, each prefixed with
         the installation root if given. The list of installed directories
-        doesn't come from distutils so it may be incomplete."""
+        doesn't come from setuptools so it may be incomplete."""
         installed_files = self.get_outputs()
         for package in self.distribution.packages:
             dir = package.replace(".", "/")
@@ -213,16 +210,16 @@ class my_install(install):
                 self.install_scripts, "uninstall_" + APP_NAME)
 
         uninstaller = """\
-#!/usr/bin/env python
+#!/usr/bin/env python3
 import errno, os, os.path, sys
 
-print 'Uninstall %(name)s %(version)s'
+print('Uninstall %(name)s %(version)s')
 
 answer = raw_input('Are you sure that you want to uninstall '
     '%(name)s %(version)s? (yes/no) ')
 
 if answer != 'yes' and answer != 'y':
-    print 'Not uninstalling.'
+    print('Not uninstalling.')
     sys.exit(0)
 
 """ % {'name': APP_DISPLAY_NAME, 'version': VERSION}
@@ -238,8 +235,8 @@ if answer != 'yes' and answer != 'y':
                     # This should never happen (everything gets installed
                     # inside the root), but if it does, be safe and don't
                     # delete anything.
-                    uninstaller += ("print '%s was not installed inside "
-                        "the root %s; skipping.'\n" % (output, self.root))
+                    uninstaller += ("print('%s was not installed inside "
+                        "the root %s; skipping.')\n" % (output, self.root))
                     continue
                 output = path_strip_prefix(output, self.root)
                 assert os.path.isabs(output)
@@ -263,24 +260,24 @@ for path in INSTALLED_FILES:
         dirs.append(path)
 # Delete the files.
 for file in files:
-    print "Removing '%s'." % file
+    print("Removing '%s'." % file)
     try:
         os.remove(file)
-    except OSError, e:
-        print >> sys.stderr, '  Error: %s.' % str(e)
+    except OSError as e:
+        print('  Error: %s.' % str(e), file=sys.stderr)
 # Delete the directories. First reverse-sort the normalized paths by
 # length so that child directories are deleted before their parents.
 dirs = [os.path.normpath(dir) for dir in dirs]
 dirs.sort(key = len, reverse = True)
 for dir in dirs:
     try:
-        print "Removing the directory '%s'." % dir
+        print("Removing the directory '%s'." % dir)
         os.rmdir(dir)
-    except OSError, e:
+    except OSError as e:
         if e.errno == errno.ENOTEMPTY:
-            print "Directory '%s' not empty; not removing." % dir
+            print("Directory '%s' not empty; not removing." % dir)
         else:
-            print >> sys.stderr, str(e)
+            print(str(e), file=sys.stderr)
 """
 
         uninstaller_file = open(uninstaller_filename, 'w')
@@ -288,12 +285,12 @@ for dir in dirs:
         uninstaller_file.close()
 
         # Set exec bit for uninstaller
-        mode = ((os.stat(uninstaller_filename)[ST_MODE]) | 0555) & 07777
+        mode = ((os.stat(uninstaller_filename)[ST_MODE]) | 0o555) & 0o7777
         os.chmod(uninstaller_filename, mode)
 
     def set_modules_path(self):
         app_file_name = os.path.join(self.install_scripts, APP_NAME)
-        # Find where the modules are installed. distutils will put them in
+        # Find where the modules are installed. setuptools will put them in
         # self.install_lib, but that path can contain the root (DESTDIR), so we
         # must strip it off if necessary.
         modules_dir = self.install_lib
@@ -415,16 +412,16 @@ for dir in dirs:
         doesn't strip off the installation root, if any. File names containing
         newline characters are not handled."""
         if INSTALLED_FILES_NAME == self.record:
-            distutils.log.warn("warning: installation record is overwriting "
+            logging.warning("warning: installation record is overwriting "
                 "--record file '%s'." % self.record)
         with open(INSTALLED_FILES_NAME, "w") as f:
             for output in self.get_installed_files():
                 assert "\n" not in output
-                print >> f, output
+                print(output, file=f)
 
 
 class my_uninstall(Command):
-    """A distutils command that performs uninstallation. It reads the list of
+    """A setuptools command that performs uninstallation. It reads the list of
     installed files written by the install command."""
 
     command_name = "uninstall"
@@ -442,10 +439,10 @@ class my_uninstall(Command):
         # Read the list of installed files.
         try:
             f = open(INSTALLED_FILES_NAME, "r")
-        except IOError, e:
+        except IOError as e:
             if e.errno == errno.ENOENT:
-                log.error("Couldn't open the installation record '%s'. "
-                        "Have you installed yet?" % INSTALLED_FILES_NAME)
+                logging.error("Couldn't open the installation record '%s'. "
+                        "Have you installed yet?", INSTALLED_FILES_NAME)
                 return
         installed_files = [file.rstrip("\n") for file in f.readlines()]
         f.close()
@@ -461,26 +458,27 @@ class my_uninstall(Command):
                 dirs.append(path)
         # Delete the files.
         for file in files:
-            log.info("Removing '%s'." % file)
+            logging.info("Removing '%s'.", file)
             try:
                 if not self.dry_run:
                     os.remove(file)
-            except OSError, e:
-                log.error(str(e))
+            except OSError as e:
+                logging.error(str(e))
         # Delete the directories. First reverse-sort the normalized paths by
         # length so that child directories are deleted before their parents.
         dirs = [os.path.normpath(dir) for dir in dirs]
         dirs.sort(key=len, reverse=True)
         for dir in dirs:
             try:
-                log.info("Removing the directory '%s'." % dir)
+                logging.info("Removing the directory '%s'.", dir)
                 if not self.dry_run:
                     os.rmdir(dir)
-            except OSError, e:
+            except OSError as e:
                 if e.errno == errno.ENOTEMPTY:
-                    log.info("Directory '%s' not empty; not removing." % dir)
+                    logging.info("Directory '%s' not empty; not removing.",
+                            dir)
                 else:
-                    log.error(str(e))
+                    logging.error(str(e))
 
 # setup can be called in different ways depending on what we're doing. (For
 # example py2exe needs special handling.) These arguments are common between

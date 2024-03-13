@@ -1,13 +1,13 @@
 *These are the porting notes to OpenVMS, as of 7 April 2010
-by Jose Baars. This file will be installed as 
+by Jose Baars. This file will be installed as
 libssh2*.release_notes by the product install kit.
 
 
-LIBSSH2 
+LIBSSH2
 -------
 
-LIBSSH2 is a client-side library written in C that aims to 
-implement the SSH2 protocol. It is an open source project, 
+LIBSSH2 is a client-side library written in C that aims to
+implement the SSH2 protocol. It is an open source project,
 to be found at https://libssh2.org.
 
 GNV
@@ -19,44 +19,44 @@ of the GNV project, John Malmberg.
 Installing the PCSI kit
 =======================
 
-Prerequisites 
+Prerequisites
 -------------
-- VMS version 8.3 minimal. 
+- VMS version 8.3 minimal.
   See the remarks at prerequisites for building the kit
-- TCP/IP stack, both TCP/IP services and Multinet should work. 
+- TCP/IP stack, both TCP/IP services and Multinet should work.
   See the remarks at prerequisites for building the kit
-- HP OPENSSL V1.3 minimal. 
+- HP OPENSSL V1.3 minimal.
   See the remarks at prerequisites for building the kit
-- JEM  ZLIB V1.2-3E1 minimal. 
+- JEM  ZLIB V1.2-3E1 minimal.
   See the remarks at prerequisites for building the kit
-  
-The first three dependencies are tested at installation time, and 
+
+The first three dependencies are tested at installation time, and
 installation will fail if any these products are not installed.
 The ZLIB dependency is not tested by the product installation
-procedure, as libssh2 will probably be installed as part of 
+procedure, as libssh2 will probably be installed as part of
 multiple libraries including zlib.
 
 Install
 -------
 
 
-The kit will install gnv$libssh2.exe in a directory tree that might 
-already be available on your system if you have installed other gnv* 
-libraries or utilities. 
+The kit will install gnv$libssh2.exe in a directory tree that might
+already be available on your system if you have installed other gnv*
+libraries or utilities.
 
 The directory tree for gnv$libssh2.exe will be like this:
 
 [gnv] -- [usr] -- [include] -- [libssh2] include files for libssh2
                   [lib] gnv$libssh2_x_y_z.exe
-                  [share]   -- [doc] -- [libssh2] libssh2.hlb, 
-                                        release notes (this file), 
-                                        libssh2 release notes   
+                  [share]   -- [doc] -- [libssh2] libssh2.hlb,
+                                        release notes (this file),
+                                        libssh2 release notes
 
 optional:
-                                        [example] libssh2_examples-x_y_z.bck 
+                                        [example] libssh2_examples-x_y_z.bck
                   [common_src] libssh2-x_y_z_src.bck
 
-By default, it will install the shared image and include files to 
+By default, it will install the shared image and include files to
 SYS$COMMON:[GNV...].
 
 You can override this destination by specifying the destination
@@ -71,9 +71,9 @@ Please ignore the following warnings, as the kit is not signed :
 
 Optionally, you can install a backup saveset with some programming examples,
 or a backupo saveset with the complete libssh2 source tree.
- 
-you will need to answer 'NO' to the question 
-'Do you want the default for all options'. 
+
+you will need to answer 'NO' to the question
+'Do you want the default for all options'.
 
 and 'YES' to either or both the following questions:
 
@@ -95,38 +95,38 @@ define this logical in your systartup like so:
 
 $ define/system/executive gnv$libssh2 dev:[dir..]gnv$libssh2_x_y_z.exe
 
-Optionally, you can install the executbale like so:
+Optionally, you can install the executable like so:
 
 $ mc sysgen install dev:[dir..]gnv$libssh2_x_y_z.exe/open/share/header
 
-Link your programs against gnv$libssh2, and when upgrading libssh2 
+Link your programs against gnv$libssh2, and when upgrading libssh2
 test thoroughly.
 
 If you want to be extra cautious define a system logical like this:
 
 $ define/system/executive gnv$libssh2_x_y_z dev:[dir..]gnv$libssh2_x_y_z.exe
 
-Link  programs against gnv$libssh2_x_y_z, and when upgrading libssh2 
-link against new versions. 
+Link  programs against gnv$libssh2_x_y_z, and when upgrading libssh2
+link against new versions.
 
-It is probably more convenient in the last case to link against the object 
+It is probably more convenient in the last case to link against the object
 library provided in the source backup saveset. Both an uppercase and a
-mixed case object library, called libssh2.olb and libssh2_asis.olb 
+mixed case object library, called libssh2.olb and libssh2_asis.olb
 are provided.
 
 
 Compiling and linking against libssh2
 -------------------------------------
 
-The  shared image library has a vector table with both uppercase and 
-mixed case entry points, allowing to link directly against the shared 
-image wether you need the /NAMES=AS_IS or not.
+The  shared image library has a vector table with both uppercase and
+mixed case entry points, allowing to link directly against the shared
+image whether you need the /NAMES=AS_IS or not.
 
 To link successfully, you MUST use /NAMES=shortened, as some function
 names in libssh2 are longer than the VMS maximum of 32 characters.
 
 If you chose to install the examples, you can unpack the backup
-saveset by 
+saveset by
 
 backup/sel=*.c device:[gnv.usr.share.doc.libssh2.examples]libssh2_examples-x_y_z.bck -
  []
@@ -147,7 +147,7 @@ Building gnv$libssh2
 You can build gnv$libssh2 yourself, which may have advantages, as the library is
 in full development, very regularly new features are added.
 
-For production use, it is probably advisable to use a stable version, and 
+For production use, it is probably advisable to use a stable version, and
 link against that. To check out new features, statically linking against
 the object library is probably more practical, to avoid compatibility
 issues.
@@ -161,21 +161,21 @@ You will need to have the following available:
 - An Alpha or Itanium VMS system. Due to dependencies on zlib, ssl and ODS-5,
   support on VAXen would be cumbersome at least.
 
-- VMS version 8.3 minimal. This is a requirement of gnv$zlibshr.exe against 
+- VMS version 8.3 minimal. This is a requirement of gnv$zlibshr.exe against
   which shared image library libssh2 is linked. If you use another zlib
   to link against, you can make it work under lower versions of VMS.
   I have made it work on VMS 7.3-2 with not a lot of difficulty.
   Also, if you are not interested in compression, you can choose not
-  to link against zlib at all; in that case comment out the 
+  to link against zlib at all; in that case comment out the
   #define  LIBSSH2_HAVE_ZLIB in libssh2_config.h.
 
 - TCP/IP services or Multinet for OpenVMS.
   TCPWare has not been tested.
 
-- The HP OpenSSL product. Of course, with tweaking, you can probably link 
+- The HP OpenSSL product. Of course, with tweaking, you can probably link
   it against the OpenSSL library, but that is not what I have used.
- 
-- A C compiler. I don't know any other working C compilers than 
+
+- A C compiler. I don't know any other working C compilers than
   the DEC/Compac/HP-C compiler on VMS.
 
 - An ODS-5 disk. With tweaking you'll get it to work on an ODS-2
@@ -199,7 +199,7 @@ Downloading libssh2
 -------------------
 
 At the website of libssh2, you can find stable and daily gzipped
-tarballs. if you have a computer connected to internet you can 
+tarballs. if you have a computer connected to internet you can
 download a daily build yourself by a procedure that looks a lot like
 this ( fill out your own proxy user/password, set up right symbols to
 gunzip, vmstar and curl and set up the libssh2 build version):
@@ -212,8 +212,8 @@ $ currentday = f$cvtime(,,"date") - "-" - "-"
 $!
 $ set def mydev:[mydir.libssh2]
 $!
-$ if f$search("libssh2-''libssh2_version'-''currentday'.tar.gz") .nes. "" 
-$ then 
+$ if f$search("libssh2-''libssh2_version'-''currentday'.tar.gz") .nes. ""
+$ then
 $   delete libssh2-'libssh2_version'-'currentday'.tar.gz;*
 $ endif
 $!
@@ -221,15 +221,15 @@ $ curl 'proxy_line' "https://libssh2.org/snapshots/libssh2-''libssh2_version'-''
                     -o libssh2-'libssh2_version'-'currentday'.tar.gz
 $!
 $!
-$ if f$search("libssh2-''libssh2_version'-''currentday'.tar.;") .nes. "" 
-$ then 
+$ if f$search("libssh2-''libssh2_version'-''currentday'.tar.;") .nes. ""
+$ then
 $   delete libssh2-'libssh2_version'-'currentday'.tar.;*
 $ endif
 $!
 $ gunzip libssh2-'libssh2_version'-'currentday'.tar.gz
 $!
 $ tarfile = f$search("libssh2-''libssh2_version'-''currentday'.tar.;")
-$ vmstar xf 'tarfile' 
+$ vmstar xf 'tarfile'
 
 Downloading a stable build will need you to get rid of the currentday.
 
@@ -241,8 +241,8 @@ Getting the libssh2 sources from the source backup in the binary kit
 --------------------------------------------------------------------
 
 During installation of the binary kit, you are given the option
-of installing the sources. If chosen, a backup saveset with 
-the complete libssh2 directory is made available in 
+of installing the sources. If chosen, a backup saveset with
+the complete libssh2 directory is made available in
 [gnv.common_src].
 
 By restoring this backup saveset, you end up with the same
@@ -262,7 +262,7 @@ command:
 @libssh2_make_lib.dcl
 
 This should produce libssh2_x_y_z.exe in this same vms directory.
- 
+
 
 
 Building the examples
@@ -274,16 +274,16 @@ produced when building the shared image, or against the shared image
 produced in the step before.
 
 You can compile only one of the examples by giving only the
-name part of the filename of the example as p1 to the 
+name part of the filename of the example as p1 to the
 build procedure:
 
-@libssh2_make_example.dcl 
+@libssh2_make_example.dcl
 
 or for instance
 
-@libssh2_make_example.dcl sftp 
+@libssh2_make_example.dcl sftp
 
-By default, libssh2_make_example.dcl links to the object libraries 
+By default, libssh2_make_example.dcl links to the object libraries
 produced by the libssh2_make_lib.dcl procedure. If you want to link
 against the shared image library made in the same procedure, invoke
 the procedure like so:
@@ -291,7 +291,7 @@ the procedure like so:
 @libssh2_make_example.dcl sftp "SHARED"
 
 The procdure defines a process logical gnv$libssh2 pointing to the shared
-image library in the directory, which obviously will not survive a logout. 
+image library in the directory, which obviously will not survive a logout.
 
 
 Building the help library
@@ -309,11 +309,6 @@ Building a PCSI kit
 -------------------
 
 When you have built the shared library and the help library,
-you can build a PCSI kit by issueing this command:
+you can build a PCSI kit by issuing this command:
 
 @libssh2_make_kit.dcl
-
-
-
-
-

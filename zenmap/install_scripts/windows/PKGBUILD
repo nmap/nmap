@@ -1,0 +1,32 @@
+# PKGBUILD for Zenmap targeting MinGW and MSYS2, for use in packaging Zenmap for Windows.
+# Expected invocation: makepkg-mingw -RdfL
+# -R: repackage, do not download source
+# -d: do not verify dependencies (Python 3 is the only build dependency)
+# -f: force, overwrite existing package.
+# -L: log progress to file
+_realname=zenmap
+pkgbase=mingw-w64-python-${_realname}
+pkgname=("${MINGW_PACKAGE_PREFIX}-python-${_realname}")
+provides=("${MINGW_PACKAGE_PREFIX}-python3-${_realname}")
+conflicts=("${MINGW_PACKAGE_PREFIX}-python3-${_realname}")
+replaces=("${MINGW_PACKAGE_PREFIX}-python3-${_realname}")
+NMAP_DIR=$(realpath "../../..")
+pkgver=$(echo NMAP_VERSION | ${CC} -E -imacros "${NMAP_DIR}/nmap.h" - | sed -n '$s/[" ]//g;$p')
+pkgrel=1
+pkgdesc="Graphical Nmap frontend and results viewer"
+url="https://nmap.org/zenmap/"
+arch=("any")
+license=("NPSL")
+source=("https://nmap.org/dist/nmap-${pkgver}.tar.bz2")
+sha256sums=("SKIP")
+mingw_arch=('mingw64')
+depends=("${MINGW_PACKAGE_PREFIX}-python" "${MINGW_PACKAGE_PREFIX}-python-gobject")
+makedepends=("${MINGW_PACKAGE_PREFIX}-python-setuptools")
+
+package() {
+	cd "${NMAP_DIR}/zenmap"
+	${MINGW_PREFIX}/bin/python setup.py build
+	MSYS2_ARG_CONV_EXCL="--prefix=" \
+		${MINGW_PREFIX}/bin/python setup.py install vanilla --prefix=${MINGW_PREFIX} --root="${pkgdir}" --optimize=1
+	install -Dm644 install_scripts/unix/zenmap.desktop "${pkgdir}${MINGW_PREFIX}/share/applications/zenmap.desktop"
+}

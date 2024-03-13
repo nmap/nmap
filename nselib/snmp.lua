@@ -155,7 +155,7 @@ local function getVersion (version, default)
     if num_to_version[version] then
       return version
     end
-    stdnse.debug1("Unrecognized SNMP version; proceeding with SNMP" .. num_to_version[default])
+    stdnse.debug1("Unrecognized SNMP version; proceeding with SNMP%s", num_to_version[default])
   end
   return default
 end

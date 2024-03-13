@@ -1,5 +1,5 @@
 # Translation of Zenmap to Português Brasil
-# Copyright (C) 2008 Insecure.Com LLC
+# Copyright (C) 2008 - 2021 Nmap Software LLC
 # This file is distributed under the same license as Nmap.
 # Adriano Monteiro Marques <py.adriano@gmail.com>, 2006.
 #
@@ -72,10 +72,6 @@ msgstr ""
 msgid ""
 "Increase verbosity of the output. May be used more than once to get even "
 "more verbosity"
-msgstr ""
-
-#: zenmapCore/NmapCommand.py:139
-msgid "Python 2.4 or later is required."
 msgstr ""
 
 #: zenmapGUI/ScriptInterface.py:262
@@ -612,18 +608,15 @@ msgid ""
 "doesn't behave the way you expect, first upgrade to the latest version "
 "available from <b>%(nmap_web)s</b>. If the problem persists, do some "
 "research to determine whether it has already been discovered and addressed. "
-"Try Googling the error message or browsing the nmap-dev archives at http://"
-"seclists.org/. Read the full manual page as well. If nothing comes of this, "
-"mail a bug report to <b>&lt;dev@nmap.org&gt;</b>. Please include everything "
-"you have learned about the problem, as well as what version of Nmap you are "
-"running and what operating system version it is running on. Problem reports "
-"and %(nmap)s usage questions sent to dev@nmap.org are far more likely to be "
-"answered than those sent to Fyodor directly.\n"
+"Try Googling the error message or browsing the nmap-dev archives at https://"
+"seclists.org. Read the full manual page as well. If nothing comes of this, "
+"open a bug report at <b>https://issues.nmap.org</b>. Please include "
+"everything you have learned about the problem, as well as what version of "
+"Nmap you are running and what operating system version it is running on.\n"
 "\n"
 "Code patches to fix bugs are even better than bug reports. Basic "
 "instructions for creating patch files with your changes are available at "
-"https://nmap.org/data/HACKING. Patches may be sent to nmap-dev (recommended) "
-"or to Fyodor directly.\n"
+"https://nmap.org/data/HACKING\n"
 msgstr ""
 
 #: zenmapGUI/SearchGUI.py:325
@@ -764,18 +757,18 @@ msgstr "Serviços:"
 msgid "Crash Report"
 msgstr ""
 
-#: zenmapGUI/CrashReport.py:166
+#: zenmapGUI/CrashReport.py:106
 #, python-format
 msgid ""
 "An unexpected error has crashed %(app_name)s. Please copy the stack trace "
-"below and send it to the <a href=\"mailto:dev@nmap.org\">dev@nmap.org</a> "
-"mailing list. (<a href=\"http://seclists.org/nmap-dev/\">More about the list."
-"</a>) The developers will see your report and try to fix the problem."
+"below and open a bug report at https://issues.nmap.org/ The developers will "
+"see your report and try to fix the problem."
 msgstr ""
 
-#: zenmapGUI/CrashReport.py:174
+#: zenmapGUI/CrashReport.py:113
 msgid ""
-"<b>Copy and email to <a href=\"mailto:dev@nmap.org\">dev@nmap.org</a>:</b>"
+"<b>Copy and <b><a href=\"https://issues.nmap.org/new/choose\">open a bug "
+"report</a></b>:"
 msgstr ""
 
 #: zenmapGUI/ScanNmapOutputPage.py:218

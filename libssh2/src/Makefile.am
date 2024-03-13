@@ -1,34 +1,21 @@
-# $Id: Makefile.am,v 1.21 2009/05/07 17:21:56 bagder Exp $
 AUTOMAKE_OPTIONS = foreign nostdinc
 
-# Get the CRYPTO_CSOURCES, CRYPTO_HHEADERS and CRYPTO_LTLIBS defines
-if OPENSSL
-include ../Makefile.OpenSSL.inc
-endif
-if LIBGCRYPT
-include ../Makefile.libgcrypt.inc
-endif
-if WINCNG
-include ../Makefile.WinCNG.inc
-endif
-if MBEDTLS
-include ../Makefile.mbedTLS.inc
-endif
-
-# Makefile.inc provides the CSOURCES and HHEADERS defines
-include ../Makefile.inc
+# Get the CSOURCES, HHEADERS and EXTRA_DIST defines
+include Makefile.inc
 
 libssh2_la_SOURCES = $(CSOURCES) $(HHEADERS)
+if HAVE_WINDRES
+libssh2_la_SOURCES += libssh2.rc
+endif
 
-EXTRA_DIST = libssh2_config.h.in libssh2_config_cmake.h.in libssh2.pc.in
-EXTRA_DIST += CMakeLists.txt NMakefile
+EXTRA_DIST += libssh2_config.h.in libssh2_config_cmake.h.in CMakeLists.txt
 
 lib_LTLIBRARIES = libssh2.la
 
 # srcdir/include for the shipped headers
 # builddir/src for the generated config header when building out of the source
 # tree
-AM_CPPFLAGS = -I$(top_srcdir)/include -I$(top_builddir)/src
+AM_CPPFLAGS = -I$(top_builddir)/src -I$(top_srcdir)/include
 
 VERSION=-version-info 1:1:0
 
@@ -61,5 +48,10 @@ VERSION=-version-info 1:1:0
 #
 
 libssh2_la_LDFLAGS = $(VERSION) -no-undefined \
-	-export-symbols-regex '^libssh2_.*' \
-	$(CRYPTO_LTLIBS) $(LTLIBZ)
+  -export-symbols-regex '^libssh2_.*' \
+  $(LTLIBZ)
+
+if HAVE_WINDRES
+.rc.lo:
+	$(LIBTOOL) --tag=RC --mode=compile $(RC) -I$(top_srcdir)/include $(RCFLAGS) -i $< -o $@
+endif

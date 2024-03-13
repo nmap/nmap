@@ -61,6 +61,8 @@
  *
  * \param sock: the socket we are currently using.
  *
+ * \param ssl: if compiled with openssl, the optional ssl handler to use with the above socket.
+ *
  * \param ver: the protocol version we want to put in the reply.
  *
  * \param errcode: a integer which tells the other party the type of error
@@ -78,7 +80,7 @@
  * error message is returned in the 'errbuf' variable.
  */
 int
-rpcap_senderror(SOCKET sock, uint8 ver, unsigned short errcode, const char *error, char *errbuf)
+rpcap_senderror(SOCKET sock, SSL *ssl, uint8 ver, unsigned short errcode, const char *error, char *errbuf)
 {
 	char sendbuf[RPCAP_NETBUF_SIZE];	/* temporary buffer in which data to be sent is buffered */
 	int sendbufidx = 0;			/* index which keeps the number of bytes currently buffered */
@@ -99,7 +101,7 @@ rpcap_senderror(SOCKET sock, uint8 ver, unsigned short errcode, const char *erro
 		RPCAP_NETBUF_SIZE, SOCKBUF_BUFFERIZE, errbuf, PCAP_ERRBUF_SIZE))
 		return -1;
 
-	if (sock_send(sock, sendbuf, sendbufidx, errbuf, PCAP_ERRBUF_SIZE) < 0)
+	if (sock_send(sock, ssl, sendbuf, sendbufidx, errbuf, PCAP_ERRBUF_SIZE) < 0)
 		return -1;
 
 	return 0;

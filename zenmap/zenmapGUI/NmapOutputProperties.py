@@ -1,66 +1,65 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
+#!/usr/bin/env python3
 
 # ***********************IMPORTANT NMAP LICENSE TERMS************************
-# *                                                                         *
-# * The Nmap Security Scanner is (C) 1996-2020 Insecure.Com LLC ("The Nmap  *
-# * Project"). Nmap is also a registered trademark of the Nmap Project.     *
-# *                                                                         *
-# * This program is distributed under the terms of the Nmap Public Source   *
-# * License (NPSL). The exact license text applying to a particular Nmap    *
-# * release or source code control revision is contained in the LICENSE     *
-# * file distributed with that version of Nmap or source code control       *
-# * revision. More Nmap copyright/legal information is available from       *
-# * https://nmap.org/book/man-legal.html, and further information on the    *
-# * NPSL license itself can be found at https://nmap.org/npsl. This header  *
-# * summarizes some key points from the Nmap license, but is no substitute  *
-# * for the actual license text.                                            *
-# *                                                                         *
-# * Nmap is generally free for end users to download and use themselves,    *
-# * including commercial use. It is available from https://nmap.org.        *
-# *                                                                         *
-# * The Nmap license generally prohibits companies from using and           *
-# * redistributing Nmap in commercial products, but we sell a special Nmap  *
-# * OEM Edition with a more permissive license and special features for     *
-# * this purpose. See https://nmap.org/oem                                  *
-# *                                                                         *
-# * If you have received a written Nmap license agreement or contract       *
-# * stating terms other than these (such as an Nmap OEM license), you may   *
-# * choose to use and redistribute Nmap under those terms instead.          *
-# *                                                                         *
-# * The official Nmap Windows builds include the Npcap software             *
-# * (https://npcap.org) for packet capture and transmission. It is under    *
-# * separate license terms which forbid redistribution without special      *
-# * permission. So the official Nmap Windows builds may not be              *
-# * redistributed without special permission (such as an Nmap OEM           *
-# * license).                                                               *
-# *                                                                         *
-# * Source is provided to this software because we believe users have a     *
-# * right to know exactly what a program is going to do before they run it. *
-# * This also allows you to audit the software for security holes.          *
-# *                                                                         *
-# * Source code also allows you to port Nmap to new platforms, fix bugs,    *
-# * and add new features.  You are highly encouraged to submit your         *
-# * changes as a Github PR or by email to the dev@nmap.org mailing list     *
-# * for possible incorporation into the main distribution. Unless you       *
-# * specify otherwise, it is understood that you are offering us very       *
-# * broad rights to use your submissions as described in the Nmap Public    *
-# * Source License Contributor Agreement. This is important because we      *
-# * fund the project by selling licenses with various terms, and also       *
-# * because the inability to relicense code has caused devastating          *
-# * problems for other Free Software projects (such as KDE and NASM).       *
-# *                                                                         *
-# * The free version of Nmap is distributed in the hope that it will be     *
-# * useful, but WITHOUT ANY WARRANTY; without even the implied warranty of  *
-# * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. Warranties,        *
-# * indemnification and commercial support are all available through the    *
-# * Npcap OEM program--see https://nmap.org/oem.                            *
-# *                                                                         *
+# *
+# * The Nmap Security Scanner is (C) 1996-2024 Nmap Software LLC ("The Nmap
+# * Project"). Nmap is also a registered trademark of the Nmap Project.
+# *
+# * This program is distributed under the terms of the Nmap Public Source
+# * License (NPSL). The exact license text applying to a particular Nmap
+# * release or source code control revision is contained in the LICENSE
+# * file distributed with that version of Nmap or source code control
+# * revision. More Nmap copyright/legal information is available from
+# * https://nmap.org/book/man-legal.html, and further information on the
+# * NPSL license itself can be found at https://nmap.org/npsl/ . This
+# * header summarizes some key points from the Nmap license, but is no
+# * substitute for the actual license text.
+# *
+# * Nmap is generally free for end users to download and use themselves,
+# * including commercial use. It is available from https://nmap.org.
+# *
+# * The Nmap license generally prohibits companies from using and
+# * redistributing Nmap in commercial products, but we sell a special Nmap
+# * OEM Edition with a more permissive license and special features for
+# * this purpose. See https://nmap.org/oem/
+# *
+# * If you have received a written Nmap license agreement or contract
+# * stating terms other than these (such as an Nmap OEM license), you may
+# * choose to use and redistribute Nmap under those terms instead.
+# *
+# * The official Nmap Windows builds include the Npcap software
+# * (https://npcap.com) for packet capture and transmission. It is under
+# * separate license terms which forbid redistribution without special
+# * permission. So the official Nmap Windows builds may not be redistributed
+# * without special permission (such as an Nmap OEM license).
+# *
+# * Source is provided to this software because we believe users have a
+# * right to know exactly what a program is going to do before they run it.
+# * This also allows you to audit the software for security holes.
+# *
+# * Source code also allows you to port Nmap to new platforms, fix bugs, and
+# * add new features. You are highly encouraged to submit your changes as a
+# * Github PR or by email to the dev@nmap.org mailing list for possible
+# * incorporation into the main distribution. Unless you specify otherwise, it
+# * is understood that you are offering us very broad rights to use your
+# * submissions as described in the Nmap Public Source License Contributor
+# * Agreement. This is important because we fund the project by selling licenses
+# * with various terms, and also because the inability to relicense code has
+# * caused devastating problems for other Free Software projects (such as KDE
+# * and NASM).
+# *
+# * The free version of Nmap is distributed in the hope that it will be
+# * useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
+# * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. Warranties,
+# * indemnification and commercial support are all available through the
+# * Npcap OEM program--see https://nmap.org/oem/
+# *
 # ***************************************************************************/
 
-import gtk
-import gtk.gdk
-import pango
+import gi
+
+gi.require_version("Gtk", "3.0")
+from gi.repository import Gtk, Gdk
 
 import zenmapCore.I18N  # lgtm[py/unused-import]
 from zenmapCore.UmitConf import NmapOutputHighlight
@@ -76,7 +75,7 @@ from zenmapGUI.higwidgets.higbuttons import HIGButton, HIGToggleButton
 class NmapOutputProperties(HIGDialog):
     def __init__(self, nmap_output_view):
         HIGDialog.__init__(self, _("Nmap Output Properties"),
-                           buttons=(gtk.STOCK_CLOSE, gtk.RESPONSE_CLOSE))
+                           buttons=(Gtk.STOCK_CLOSE, Gtk.ResponseType.CLOSE))
 
         self.nmap_highlight = NmapOutputHighlight()
 
@@ -90,7 +89,7 @@ class NmapOutputProperties(HIGDialog):
         self.properties_notebook = HIGNotebook()
 
     def __pack_widgets(self):
-        self.vbox.pack_start(self.properties_notebook)
+        self.vbox.pack_start(self.properties_notebook, True, True, 0)
 
     def highlight_tab(self):
         # Creating highlight tab main box
@@ -113,7 +112,7 @@ class NmapOutputProperties(HIGDialog):
                                    "80/tcp   filtered   http"],
                                "date": [_("date"), "2006-05-26 11:14 BRT"],
                                "hostname": [_("hostname"), "scanme.nmap.org"],
-                               "ip": [_("ip"), "127.0.0.1"]}
+                               "ip": ["ip", "127.0.0.1"]}
 
         for p in self.property_names:
             settings = self.nmap_highlight.__getattribute__(p)
@@ -121,8 +120,8 @@ class NmapOutputProperties(HIGDialog):
             self.property_names[p].append(settings[0])
             self.property_names[p].append(settings[1])
             self.property_names[p].append(settings[2])
-            self.property_names[p].append(gtk.gdk.Color(*settings[3]))
-            self.property_names[p].append(gtk.gdk.Color(*settings[4]))
+            self.property_names[p].append(Gdk.Color(*settings[3]))
+            self.property_names[p].append(Gdk.Color(*settings[4]))
             self.property_names[p].append(settings[5])
 
         # Creating properties and related widgets and attaching it to main
@@ -152,12 +151,12 @@ class NmapOutputProperties(HIGDialog):
             y2 += 1
 
         # Packing main table into main vbox
-        self.highlight_main_vbox.pack_start(self.highlight_main_table)
+        self.highlight_main_vbox.pack_start(self.highlight_main_table, True, True, 0)
 
         # Adding color tab
         self.properties_notebook.append_page(
                 self.highlight_main_vbox,
-                gtk.Label(_("Highlight definitions")))
+                Gtk.Label.new(_("Highlight definitions")))
 
 
 class HighlightProperty(object):
@@ -180,13 +179,13 @@ class HighlightProperty(object):
     def __create_widgets(self):
         self.property_name_label = HIGEntryLabel("")
         self.example_label = HIGEntryLabel("")
-        self.bold_tg_button = HIGToggleButton("", gtk.STOCK_BOLD)
-        self.italic_tg_button = HIGToggleButton("", gtk.STOCK_ITALIC)
-        self.underline_tg_button = HIGToggleButton("", gtk.STOCK_UNDERLINE)
+        self.bold_tg_button = HIGToggleButton("", Gtk.STOCK_BOLD)
+        self.italic_tg_button = HIGToggleButton("", Gtk.STOCK_ITALIC)
+        self.underline_tg_button = HIGToggleButton("", Gtk.STOCK_UNDERLINE)
         self.text_color_button = HIGButton(
-                _("Text"), stock=gtk.STOCK_SELECT_COLOR)
+                _("Text"), stock=Gtk.STOCK_SELECT_COLOR)
         self.highlight_color_button = HIGButton(
-                _("Highlight"), stock=gtk.STOCK_SELECT_COLOR)
+                _("Highlight"), stock=Gtk.STOCK_SELECT_COLOR)
 
     def __connect_buttons(self):
         self.bold_tg_button.connect("toggled", self.update_example)
@@ -201,13 +200,13 @@ class HighlightProperty(object):
     # Text color dialog
 
     def text_color_dialog(self, widget):
-        color_dialog = gtk.ColorSelectionDialog(
+        color_dialog = Gtk.ColorSelectionDialog.new(
                 "%s %s" % (self.label, _("text color")))
-        color_dialog.colorsel.set_current_color(self.text_color)
+        color_dialog.get_color_selection().set_current_color(self.text_color)
 
-        color_dialog.ok_button.connect(
+        color_dialog.props.ok_button.connect(
                 "clicked", self.text_color_dialog_ok, color_dialog)
-        color_dialog.cancel_button.connect(
+        color_dialog.props.cancel_button.connect(
                 "clicked", self.text_color_dialog_cancel, color_dialog)
         color_dialog.connect(
                 "delete-event", self.text_color_dialog_close, color_dialog)
@@ -215,7 +214,7 @@ class HighlightProperty(object):
         color_dialog.run()
 
     def text_color_dialog_ok(self, widget, color_dialog):
-        self.text_color = color_dialog.colorsel.get_current_color()
+        self.text_color = color_dialog.get_color_selection().get_current_color()
         color_dialog.destroy()
         self.update_example()
 
@@ -228,13 +227,13 @@ class HighlightProperty(object):
     #########################################
     # Highlight color dialog
     def highlight_color_dialog(self, widget):
-        color_dialog = gtk.ColorSelectionDialog(
+        color_dialog = Gtk.ColorSelectionDialog.new(
                 "%s %s" % (self.property_name, _("highlight color")))
-        color_dialog.colorsel.set_current_color(self.highlight_color)
+        color_dialog.get_color_selection().set_current_color(self.highlight_color)
 
-        color_dialog.ok_button.connect(
+        color_dialog.props.ok_button.connect(
                 "clicked", self.highlight_color_dialog_ok, color_dialog)
-        color_dialog.cancel_button.connect(
+        color_dialog.props.cancel_button.connect(
                 "clicked", self.highlight_color_dialog_cancel,
                 color_dialog)
         color_dialog.connect(
@@ -244,7 +243,7 @@ class HighlightProperty(object):
         color_dialog.run()
 
     def highlight_color_dialog_ok(self, widget, color_dialog):
-        self.highlight_color = color_dialog.colorsel.get_current_color()
+        self.highlight_color = color_dialog.get_color_selection().get_current_color()
         color_dialog.destroy()
         self.update_example()
 
@@ -255,41 +254,23 @@ class HighlightProperty(object):
         color_dialog.destroy()
 
     def update_example(self, widget=None):
-        start = 0
-        end = len(self.example)
-
-        attributes = pango.AttrList()
-
-        attributes.insert(
-                pango.AttrForeground(self.text_color.red,
-                    self.text_color.green, self.text_color.blue, start, end))
-        attributes.insert(pango.AttrBackground(self.highlight_color.red,
-                                               self.highlight_color.green,
-                                               self.highlight_color.blue,
-                                               start, end))
+        label = self.example_label.get_text()
 
         # Bold verification
         if self.bold_tg_button.get_active():
-            attributes.insert(pango.AttrWeight(pango.WEIGHT_HEAVY, start, end))
-        else:
-            attributes.insert(
-                    pango.AttrWeight(pango.WEIGHT_NORMAL, start, end))
+            label = "<b>" + label + "</b>"
 
         # Italic verification
         if self.italic_tg_button.get_active():
-            attributes.insert(pango.AttrStyle(pango.STYLE_ITALIC, start, end))
-        else:
-            attributes.insert(pango.AttrStyle(pango.STYLE_NORMAL, start, end))
+            label = "<i>" + label + "</i>"
 
         # Underline verification
         if self.underline_tg_button.get_active():
-            attributes.insert(
-                    pango.AttrUnderline(pango.UNDERLINE_SINGLE, start, end))
-        else:
-            attributes.insert(
-                    pango.AttrUnderline(pango.UNDERLINE_NONE, start, end))
+            label = "<u>" + label + "</u>"
 
-        self.example_label.set_attributes(attributes)
+        self.example_label.modify_fg(Gtk.StateType.NORMAL, self.text_color)
+        self.example_label.modify_bg(Gtk.StateType.NORMAL, self.highlight_color)
+        self.example_label.set_markup(label)
 
     def show_bold(self, widget):
         self.example_label.set_markup("<>")
@@ -339,4 +320,4 @@ class HighlightProperty(object):
 if __name__ == "__main__":
     n = NmapOutputProperties(None)
     n.run()
-    gtk.main()
+    Gtk.main()
