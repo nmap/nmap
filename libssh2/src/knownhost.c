@@ -631,7 +631,7 @@ static int oldstyle_hostline(LIBSSH2_KNOWNHOSTS *hosts,
         --name;
         ++namelen;
 
-        /* when we get the the start or see a comma coming up, add the host
+        /* when we get the start or see a comma coming up, add the host
            name to the collection */
         if((name == host) || (*(name-1) == ',')) {
 

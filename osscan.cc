@@ -1019,7 +1019,7 @@ static void parse_classline(FingerPrint *FP, const char *thisline, const char *l
     fatal("Parse error on line %d of fingerprint: %s\n", lineno, thisline);
   os_class.OS_Family = string_pool_substr_strip(begin, end);
 
-  /* And now the the OS generation. */
+  /* And now the OS generation. */
   begin = end + 1;
   end = strchr_p(begin, lineend, '|');
   if (end == NULL)

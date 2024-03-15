@@ -156,7 +156,7 @@ int win_stdin_start_thread(void) {
         return 0;
 
     /* Make a copy of the stdin handle to be used by win_stdin_thread_func.  It
-       will remain a reference to the the true stdin after we fake stdin to read
+       will remain a reference to the true stdin after we fake stdin to read
        from the pipe instead. */
     if (DuplicateHandle(GetCurrentProcess(), GetStdHandle(STD_INPUT_HANDLE),
                         GetCurrentProcess(), &thread_stdin_handle,

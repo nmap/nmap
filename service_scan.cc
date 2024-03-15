@@ -117,7 +117,7 @@ public:
   ~ServiceNFO();
 
   // If a service response to a given probeName, this function adds
-  // the response the the fingerprint for that service.  The
+  // the response the fingerprint for that service.  The
   // fingerprint can be printed when nothing matches the service.  You
   // can obtain the fingerprint (if any) via getServiceFingerprint();
   void addToServiceFingerprint(const char *probeName, const u8 *resp,

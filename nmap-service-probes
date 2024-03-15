@@ -15058,7 +15058,7 @@ match sip m|^SIP/2\.0 200 OK\r\n(?:[^\r\n]+\r\n)*?Allow: INVITE, ACK, CANCEL, OP
 # These probes have a high likelihood of triggering false positives because
 # any service that echos your command back can match.  The docs on the
 # the protocol make me think a ^ anchor can be added to the response so
-# this should cut down on the the false positives. (Brandon)
+# this should cut down on the false positives. (Brandon)
 #
 # See ntp_white_paper_11.txt for more information on the Nessus protocol
 #
