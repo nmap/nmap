@@ -163,7 +163,7 @@ action = function(host, port)
   local alpn_protos = {
     -- IANA-registered names
     -- https://www.iana.org/assignments/tls-extensiontype-values/alpn-protocol-ids.csv
-    -- Last-Modified: Thu, 31 Oct 2019 22:30:11 GMT
+    -- Last-Modified: Sat, 16 Mar 2024 02:22:45 GMT
     "http/0.9",
     "http/1.0",
     "http/1.1",
@@ -194,6 +194,9 @@ action = function(host, port)
     "nntp",
     "nnsp",
     "doq",
+    "sip/2",
+    "tds/8.0",
+    "dicom",
     -- Other sources
     "grpc-exp", -- gRPC, see grpc.io
   }
