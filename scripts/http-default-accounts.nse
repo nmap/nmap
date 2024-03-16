@@ -319,7 +319,7 @@ end
 -- @param host table as received by the scripts action method
 -- @param port table as received by the scripts action method
 -- @param fingerprint as defined in the fingerprint file
--- @param path againt which the the credentials will be tested
+-- @param path againt which the credentials will be tested
 -- @return out table suitable for inclusion in the script structured output
 --             (or nil if no credentials succeeded)
 -- @return txtout table suitable for inclusion in the script textual output

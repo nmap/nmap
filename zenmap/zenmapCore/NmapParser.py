@@ -254,7 +254,7 @@ class HostInfo(object):
         1) IPv4 comes before IPv6 comes before MAC, and
         2) addresses are sorted according to their binary values, not their
            string representation.
-        Use this function to the the comparison key when sorting a list of
+        Use this function to the comparison key when sorting a list of
         hosts by address."""
         l = []
         if self.ip:

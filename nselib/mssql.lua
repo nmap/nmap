@@ -20,7 +20,7 @@
 -- * QueryPacket: Class used to hold a query and convert it to a string suitable for transmission over a socket.
 -- * LoginPacket: Class used to hold login specific data which can easily be converted to a string suitable for transmission over a socket.
 -- * PreLoginPacket: Class used to (partially) implement the TDS PreLogin packet
--- * TDSStream: Class that handles communication over the Tabular Data Stream protocol used by SQL serve. It is used to transmit the the Query- and Login-packets to the server.
+-- * TDSStream: Class that handles communication over the Tabular Data Stream protocol used by SQL serve. It is used to transmit the Query- and Login-packets to the server.
 -- * Helper: Class which facilitates the use of the library by through action oriented functions with descriptive names.
 -- * Util: A "static" class containing mostly character and type conversion functions.
 --

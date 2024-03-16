@@ -117,7 +117,7 @@ static u8 nrand_getbyte(nrand_h *r) {
   si = r->s[r->i];
   r->j = (r->j + si);
   sj = r->s[r->j];
-  r->s[r->i] = sj; /* The start of the the swap */
+  r->s[r->i] = sj; /* The start of the swap */
   r->s[r->j] = si; /* The other half of the swap */
   return (r->s[(si + sj) & 0xff]);
 }
