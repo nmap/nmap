@@ -51,7 +51,15 @@ match acarsd m|^g\0\0\0\x1b\0\0\0\0\0\0\0acarsd\t([\w._-]+)\tAPI-([\w._-]+)\)\0\
 match acmp m|^ACMP Server Version ([\w._-]+)\r\n| p/Aagon ACMP Inventory/ v/$1/
 
 match apachemq m|^\0\0..\x01ActiveMQ\0\0\0.\x01\0\0.*\x0cProviderName\t\0\x08ActiveMQ.*\x0fPlatformDetails\t..JVM: (\d[^,]*), [^,]*, Oracle Corporation, OS: Linux, (\d\.[\d.]+)[^,]*, ([\w_-]+).*\x0fProviderVersion\t..(\d[\w._-]*)|s p/ActiveMQ OpenWire transport/ v/$4/ i/Java $1; arch: $3/ o/Linux $2/ cpe:/a:apache:activemq:$4/ cpe:/o:linux:linux_kernel:$2/a
-softmatch apachemq m|^\0\0..\x01ActiveMQ\0| p/ActiveMQ OpenWire transport/
+match apachemq m|^\0\0..\x01ActiveMQ\0\0\0.\x01\0\0.*\x0cProviderName\t\0\x08ActiveMQ.*\x0fPlatformDetails\t..Java\0.*\x0fProviderVersion\t..(\d[\w._-]*)|s p/ActiveMQ OpenWire transport/ v/$1/ cpe:/a:apache:activemq:$1/
+match apachemq m|^\0\0..\x01ActiveMQ\0\0\0.\x01\0\0.*\x0fPlatformDetails\t..Java\0.*\x0cProviderName\t\0\x08ActiveMQ.*\x0fProviderVersion\t..(\d[\w._-]*)|s p/ActiveMQ OpenWire transport/ v/$1/ cpe:/a:apache:activemq:$1/
+# softmatches to get submissions
+softmatch apachemq m|^\0\0..\x01ActiveMQ\0\0\0.\x01\0\0.*\x0fPlatform| p/ActiveMQ OpenWire transport/
+softmatch apachemq m|^\0\0..\x01ActiveMQ\0\0\0.\x01\0\0.*\x0fProvider| p/ActiveMQ OpenWire transport/
+# For those that don't provide explicit versions, some heuristics:
+# AMQ-8412
+match apachemq m|^\0\0..\x01ActiveMQ\0\0\0.\x01\0\0.*\x0cMaxFrameSize\x06| p/ActiveMQ OpenWire transport/ v/5.16.4 or later/
+match apachemq m|^\0\0..\x01ActiveMQ\0| p/ActiveMQ OpenWire transport/ v/5.16.3 or earlier/
 
 
 # Microsoft ActiveSync Version 3.7 Build 3083 (It's used for syncing
@@ -115,6 +123,7 @@ match audit m|^Visionsoft Audit on Demand Service\r\nVersion: ([\d.]+)\r\n\r\n| 
 match autosys m|^([\w._-]+)\nListener for [\w._-]+ AutoSysAdapter\nEOS\nExit Code = 1001\nIP <[\d.]+> is not authorized for this request\. Please contact your Web Administrator\.\nEOS\n| p/CA AutoSys RCS Listener/ v/$1/ i/not authorized/
 match avg m|^220-AVG7 Anti-Virus daemon mode scanner\r\n220-Program version ([\d.]+), engine (\d+)\r\n220-Virus Database: Version ([\d/.]+)  [-\d]+\r\n| p/AVG daemon mode/ v/$1 engine $2/ i/Virus DB $3/ cpe:/a:avg:anti-virus:$1/
 match avg m=^220-AVG daemon mode scanner \((?:AVG|SMTP)\)\r\n220-Program version ([\w._-]+)\r\n220-Virus Database: Version ([\w._/ -]+)\r\n220 Ready\r\n= p/AVG daemon mode/ v/$1/ i/Virus DB $2/ cpe:/a:avg:anti-virus:$1/
+match http-proxy m|^HTTP/1\.0 500 FAILED\r\nContent-Length: 0\r\n\r\n| p/Avast! anti-virus http proxy/ o/Windows/ cpe:/a:avast:antivirus/
 
 match afbackup m|^afbackup ([\d.]+)\n\nAF's backup server ready\.\n| p/afbackup/ v/$1/
 match afbackup m|^.*, Warning on encryption key file `/etc/afbackup/cryptkey': File not readable\.\n.*, Warning: Ignoring file `/etc/afbackup/cryptkey', using compiled-in key\.\nafbackup 3\.4\n\nAF's backup server ready\.\n\x9d\x84\x0bZ$| p/afbackup/ i/using compiled-in key/
@@ -661,11 +670,10 @@ match ftp m|^220 ([-.+\w]+) FTP server \(Version [\d.]+\+Heimdal (\d[-+.\w ]+)\)
 match ftp m|^500 OOPS: (could not bind listening IPv4 socket)\r\n$| p/vsftpd/ i/broken: $1/ o/Unix/ cpe:/a:vsftpd:vsftpd/
 match ftp m|^500 OOPS: vsftpd: (.*)\r\n| p/vsftpd/ i/broken: $1/ o/Unix/ cpe:/a:vsftpd:vsftpd/
 match ftp m|^220-QTCP at ([-.\w]+)\r\n220| p|IBM OS/400 FTPd| o|OS/400| h/$1/ cpe:/o:ibm:os_400/a
-match ftp m|^220[- ]FileZilla Server version (\d[-.\w ]+)\r\n| p/FileZilla ftpd/ v/$1/ o/Windows/ cpe:/a:filezilla-project:filezilla_server:$1/ cpe:/o:microsoft:windows/a
+match ftp m|^220(?:-(?!FileZilla).*\r\n220)*[- ]FileZilla Server (?:version )?(\d[-.\w ]+)\r\n| p/FileZilla ftpd/ v/$1/ o/Windows/ cpe:/a:filezilla-project:filezilla_server:$1/ cpe:/o:microsoft:windows/a
 match ftp m|^220 ([-\w_.]+) running FileZilla Server version (\d[-.\w ]+)\r\n| p/FileZilla ftpd/ v/$2/ o/Windows/ h/$1/ cpe:/a:filezilla-project:filezilla_server:$2/ cpe:/o:microsoft:windows/a
 match ftp m|^220 FTP Server - FileZilla\r\n| p/FileZilla ftpd/ o/Windows/ cpe:/a:filezilla-project:filezilla_server/ cpe:/o:microsoft:windows/a
 match ftp m|^220-Welcome to ([A-Z]+) FTP Service\.\r\n220 All unauthorized access is logged\.\r\n| p/FileZilla ftpd/ o/Windows/ h/$1/ cpe:/a:filezilla-project:filezilla_server/ cpe:/o:microsoft:windows/a
-match ftp m|^220.*\r\n220[- ]FileZilla Server version (\d[-.\w ]+)\r\n|s p/FileZilla ftpd/ v/$1/ o/Windows/ cpe:/a:filezilla-project:filezilla_server:$1/ cpe:/o:microsoft:windows/a
 match ftp m|^220-.*\r\n220-\r\n220 using FileZilla FileZilla Server version ([^\r\n]+)\r\n|s p/FileZilla ftpd/ v/$1/ o/Windows/ cpe:/a:filezilla-project:filezilla_server:$1/ cpe:/o:microsoft:windows/a
 match ftp m|^220-FileZilla Server\r\n| p/FileZilla ftpd/ o/Windows/ cpe:/a:filezilla-project:filezilla_server/ cpe:/o:microsoft:windows/a
 match ftp m|^220 FileZilla Server (\d[\w.]+)\r\n| p/FileZilla ftpd/ v/$1/ o/Windows/ cpe:/a:filezilla-project:filezilla_server:$1/ cpe:/o:microsoft:windows/a
@@ -1755,14 +1763,14 @@ match imap-proxy m|^\* BYE PGP Universal no imap4 service here\r\n| p/PGP Univer
 match imap-proxy m|^\* OK PGP Universal IMAP4rev1 service ready \(proxied server greeted us with: ([^)]+)\)\r\n| p/PGP Universal imap proxy/ i/Banner: $1/ cpe:/a:pgp:universal_server/
 match imap-proxy m|^\* OK imapfront ready\.\r\n| p/Mailfront imapfront imap proxy/
 match imap-proxy m|^\* OK imapfront ready\. \+ stunnel\r\n| p/Mailfront imapfront imap proxy/ i/with stunnel/
-match imap-proxy m|^\* OK avast! IMAP Proxy\r\n| p/Avast! anti-virus imap proxy/ o/Windows/ cpe:/o:microsoft:windows/a
+match imap-proxy m|^\* OK avast! IMAP Proxy\r\n| p/Avast! anti-virus imap proxy/ o/Windows/ cpe:/o:microsoft:windows/a cpe:/a:avast:antivirus/
 match imap-proxy m|^\* OK \[CAPABILITY IMAP4rev1\] SpamPal for Windows\r\n| p/SpamPal imap proxy/ o/Windows/ cpe:/o:microsoft:windows/a
 match imap-proxy m|^\* OK Zarafa IMAP gateway ready\r\n| p/Zarafa imap proxy/ o/Unix/ cpe:/a:zarafa:zarafa/
 match imap-proxy m|^\* OK \[CAPABILITY IMAP4rev1 LITERAL\+ AUTH=PLAIN\] Zarafa IMAP gateway ready\r\n| p/Zarafa imap proxy/ o/Unix/ cpe:/a:zarafa:zarafa/
 match imap-proxy m|\* OK \[CAPABILITY IMAP4rev1 UIDPLUS CHILDREN NAMESPACE THREAD=ORDEREDSUBJECT THREAD=REFERENCES SORT QUOTA IDLE ACL ACL2=UNION\] Courier-IMAP ready\. Copyright 1998-2008 Double Precision, Inc\. See COPYING for distribution information\.\r\n| p/imapproxy/
-match imap-proxy m|^\* BYE concurrent connection limit in avast! exceeded\(pass:\d+, processes:([\w._-]+)\[\d+\]\)\r\n| p/Avast! anti-virus IMAP proxy/ i/connection limit exceeded by $1/ o/Windows/ cpe:/o:microsoft:windows/
+match imap-proxy m|^\* BYE concurrent connection limit in avast! exceeded\(pass:\d+, processes:([\w._-]+)\[\d+\]\)\r\n| p/Avast! anti-virus IMAP proxy/ i/connection limit exceeded by $1/ o/Windows/ cpe:/o:microsoft:windows/ cpe:/a:avast:antivirus/
 match imap-proxy m|^ BYE concurrent connection limit in AVG exceeded\(pass:\d+, processes:([\w._-]+)\[\d+\]\)\r\n| p/AVG anti-virus IMAP proxy/ i/connection limit exceeded by $1/ o/Windows/ cpe:/o:microsoft:windows/
-match imap-proxy m|^\* BYE Cannot connect to IMAP server ([\w._-]+) \([^)]*\), connect error \d+\r\n| p/Avast! anti-virus IMAP proxy/ i/cannot connect to $1/ o/Windows/ cpe:/o:microsoft:windows/
+match imap-proxy m|^\* BYE Cannot connect to IMAP server ([\w._-]+) \([^)]*\), connect error \d+\r\n| p/Avast! anti-virus IMAP proxy/ i/cannot connect to $1/ o/Windows/ cpe:/o:microsoft:windows/ cpe:/a:avast:antivirus/
 
 softmatch imap m|^\* OK ([-.\w]+) [-.\w,:+ ]*imap[-.\w,:+ ]*\r\n$|i h/$1/
 softmatch imap m|^\* OK [\x20-\x7e]*imap[\x20-\x7e]*\r\n$|i
@@ -2203,6 +2211,11 @@ match musicvr m|^W\xff..\0\0A.[\x01-\x20][\w.]{1,32}[\x01-\x20][\w.]{1,32}|s p/M
 
 match myproxy m|^VERSION=MYPROXYv([\w._-]+)\nRESPONSE=1\nERROR=authentication failed\n\0$| p/MyProxy credential management/ v/$1/
 
+# MySQL X protocol: 4-byte length, 1-byte message type, protobuf
+# https://dev.mysql.com/doc/dev/mysql-server/latest/namespaceMysqlx.html
+# Notice: ServerHello
+match mysqlx m|^\x05\0\0\0\x0b\x08\x05\x1a\0| p/MySQL X protocol listener/ cpe:/a:mysql:mysql/
+
 # MySQL Handshake packet ( .\0\0\0\x0a ) reference - http://dev.mysql.com/doc/internals/en/connection-phase-packets.html#packet-Protocol::Handshake
 #       Error packet     ( .\0\0\0\xff ) reference - http://dev.mysql.com/doc/internals/en/packet-ERR_Packet.html#cs-packet-err-header
 match mysql m|^.?\0\0\0\xff..Host .* is not allowed to connect to this MySQL server$|s p/MySQL/ i/unauthorized/ cpe:/a:mysql:mysql/
@@ -2340,9 +2353,9 @@ match nntp m|^200 WendzelNNTPd-OSE \(Open Source Edition\) ([\w._-]+) '\w+'  - \
 match nntp m|^200 ([-\w.]+) Lyris ListManager NNTP Service ready \(posting ok\)\.\r\n| p/Lyris ListManager nntpd/ h/$1/
 
 match nntp-proxy m|^200 CCProxy NNTP Service\r\n| p/CCProxy NNTP proxy/ o/Windows/ cpe:/o:microsoft:windows/a
-match nntp-proxy m|^200 avast! NNTP proxy ready\.\r\n$| p/Avast! anti-virus NNTP proxy/ o/Windows/ cpe:/o:microsoft:windows/a
-match nntp-proxy m|^5?02 concurrent connection limit in avast! exceeded\(pass:\d+, processes:([\w._-]+)\[\d+\]\)\r\n| p/Avast! anti-virus NNTP proxy/ i/connection limit exceeded by $1/ o/Windows/ cpe:/o:microsoft:windows/
-match nntp-proxy m|^400 Cannot connect to NNTP server ([\w.-]+) \([^)]*\), connect error \d+\r\n| p/Avast! anti-virus NNTP proxy/ i/cannot connect to $1/ o/Windows/ cpe:/o:microsoft:windows/a
+match nntp-proxy m|^200 avast! NNTP proxy ready\.\r\n$| p/Avast! anti-virus NNTP proxy/ o/Windows/ cpe:/o:microsoft:windows/a cpe:/a:avast:antivirus/
+match nntp-proxy m|^5?02 concurrent connection limit in avast! exceeded\(pass:\d+, processes:([\w._-]+)\[\d+\]\)\r\n| p/Avast! anti-virus NNTP proxy/ i/connection limit exceeded by $1/ o/Windows/ cpe:/o:microsoft:windows/ cpe:/a:avast:antivirus/
+match nntp-proxy m|^400 Cannot connect to NNTP server ([\w.-]+) \([^)]*\), connect error \d+\r\n| p/Avast! anti-virus NNTP proxy/ i/cannot connect to $1/ o/Windows/ cpe:/o:microsoft:windows/a cpe:/a:avast:antivirus/
 
 softmatch nntp m|^200 [-\[\]\(\)!,/+:<>@.\w ]*nntp[-\[\]\(\)!,/+:<>@.\w ]*\r\n$|i
 softmatch nntp m=^200 .*posting(?: ok| allowed| permitted)?[ ).]*\r\n=i
@@ -2737,8 +2750,8 @@ match pop3-proxy m|^\+OK <[\d.]+@([-\w_.]+)> \[ISafe POP3 Proxy\] \r\n| p/ISafe 
 match pop3-proxy m|^\+OK UserGate: forward ready\r\n-ERR UserGate: Mistake of the protocol\r\n| p/UserGate pop3 proxy/ o/Windows/ cpe:/o:microsoft:windows/a
 match pop3-proxy m|^\+OK kingate pop3 proxy\r\n| p/kingate pop3-proxy/
 match pop3-proxy m|^\+OK POP3 Proxy Server Ready\r\n| p/IronMail pop3-proxy/ cpe:/a:ciphertrust:ironmail/
-match pop3-proxy m|^\+OK avast! POP3 proxy ready\.\r\n| p/Avast! anti-virus pop3 proxy/ o/Windows/ cpe:/o:microsoft:windows/a
-match pop3-proxy m|^-ERR Cannot connect to POP server ([\w._-]+) \([^)]*\), connect error \d+\r\n| p/Avast! anti-virus pop3 proxy/ i/cannot connect to $1/ o/Windows/ cpe:/o:microsoft:windows/
+match pop3-proxy m|^\+OK avast! POP3 proxy ready\.\r\n| p/Avast! anti-virus pop3 proxy/ o/Windows/ cpe:/o:microsoft:windows/a cpe:/a:avast:antivirus/
+match pop3-proxy m|^-ERR Cannot connect to POP server ([\w._-]+) \([^)]*\), connect error \d+\r\n| p/Avast! anti-virus pop3 proxy/ i/cannot connect to $1/ o/Windows/ cpe:/o:microsoft:windows/ cpe:/a:avast:antivirus/
 match pop3-proxy m|^\+OK O3SIS UMA Proxy POP3 Server ([\w._-]+)\r\n| p/O3SIS UMA pop3 proxy/ v/$1/
 match pop3-proxy m|^\+OK Zarafa POP3 gateway ready\r\n| p/Zarafa pop3 proxy/ o/Unix/ cpe:/a:zarafa:zarafa/
 match pop3-proxy m|^-ERR Not Enrolled\r\rPlease open your internet browser and accept the terms and conditions of use for this service\.\r\n| p/Reivernet captive portal pop3 proxy/
@@ -2848,6 +2861,9 @@ match r1soft-cdp m|^\0\0\x01.R.\x02\n.\x08\xa3\x80\x04\x10.\x18\0 [\0\x01]\*.(.*
 match radmind m|^200-?RAP 1 ([-\w_.]+) ([-\w_.]+) radmind access protocol\r\n| p/radmind/ v/$2/ h/$1/
 match rationalsoft m|^\0\0\0\x10ip_infilter=true$| p/Rational Soft Hidden Administrator Server/ i/ha_server.exe/ o/Windows/ cpe:/o:microsoft:windows/a
 match razor2 m|^sn=\w&srl=\d+&ep4=[-\w]+&a=\w&a=\w+\r\n$| p/Vipul's Razor2 anti-spam service/
+
+# CPE looks wrong, but this is what is used for CVE-2022-3365
+match remotemouse m|^SIN 15win nop nop 300$| p/Emote Remote Mouse/ cpe:/a:remotemouse:emote_interactive_studio/
 
 # NULL probe fallback
 match remoting m|^\.NET\x01\0\x02\0\0\0\0\0\0\0\x02\0\x03\x01\0\x03\0\x01\x01..\0\0Server encountered an internal error\. To get more info turn on customErrors in the server's config file\.\x05\0\0\0\0| p/MS .NET Remoting services/ cpe:/a:microsoft:.net_framework/
@@ -2970,6 +2986,9 @@ match sieve m|^\"IMPLEMENTATION\" \"(\d+\.\d+)\"\r\n\"SASL\" \"PLAIN\"\r\n\"SIEV
 softmatch sieve m|^\"IMPLEMENTATION\" \"([^"])\"\r\n\"SIEVE\" \"| p/sieved/ i/$1/
 
 match silkroad-online m|^%\0\0P\0\0\x0e.{9}\0\0\0.\0\0\0.{20}|s p/Silkroad Online game server/ cpe:/a:joymax:silkroad_online/
+
+# https://github.com/SafeBreach-Labs/SirepRAT
+match ms-sirep m|^\*LY\xa5\xfb`\x04G\xa9m\x1c\xc9\}\xc8O\x12| p/Windows IoT SIREP server/ o/Windows/
 
 match sftp m|^\+Shiva SFTP Service\0$| p/Shiva LanRover SFTP service/
 
@@ -3419,7 +3438,7 @@ match smtp-proxy m|^220 ([-\w_.]+) ESMTP bitdefender| p/BitDefender anti-virus m
 match smtp-proxy m|^220 ([-\w_.]+) ESMTP BitDefender Proxy version ([^\r\n]+)\r\n| p/BitDefender anti-virus mail gateway/ v/$2/ o/Windows/ h/$1/ cpe:/o:microsoft:windows/a
 match smtp-proxy m|^220 ([-\w_.]+) ESMTP BitDefender Proxy\r\n| p/BitDefender anti-virus mail gateway/ o/Windows/ h/$1/ cpe:/o:microsoft:windows/a
 match smtp-proxy m|^220 Proxy\+ SMTP server at ([-\w_.]+)\. Authentication required\.\r\n| p/Proxy+ smtp proxy/ o/Windows/ h/$1/ cpe:/o:microsoft:windows/a
-match smtp-proxy m|^220 [-\w_.]+ avast! SMTP proxy ready\.\r\n| p/Avast! anti-virus smtp proxy/ o/Windows/ cpe:/o:microsoft:windows/a
+match smtp-proxy m|^220 [-\w_.]+ avast! SMTP proxy ready\.\r\n| p/Avast! anti-virus smtp proxy/ o/Windows/ cpe:/o:microsoft:windows/a cpe:/a:avast:antivirus/
 match smtp-proxy m|^220 UserGate: SMTP service ready\r\n| p/UserGate smtp proxy/ o/Windows/ cpe:/o:microsoft:windows/a
 match smtp-proxy m|^220 ([\w._-]+) WebShielde1000/SMTP Ready\.\r\n| p/McAfee WebShield e1000 smtp proxy/ v/$1/ d/security-misc/
 match smtp-proxy m|^220 ([-\w_.]+) (SCM\d+)/SMTP Ready\.\r\n| p/McAfee $2 smtp proxy/ d/security-misc/ h/$1/
@@ -3454,8 +3473,8 @@ match smtp-proxy m|^554 5\.7\.1 Access denied\r\n$| p/Kerio Connect smtp proxy/ 
 match smtp-proxy m|^220 ([\w.-]+) ESMTP Trustwave SEG \(v([\d.]+)\) Ready\r\n| p/Trustwave Secure Email Gateway/ v/$2/ h/$1/ cpe:/a:trustwave:secure_email_gateway:$2/
 match smtp-proxy m|^220 smtp\.postman\.i2p ESMTP I2PNet Mailservice\r\n| p/I2P Tunnel SMTP proxy/ cpe:/a:i2p_project:i2p/
 match smtp-proxy m|^220 XMail ESMTP service ready; [SMTWF][uoehra][neduit], \d\d [JFMASOND][aepueco][nbrylgptvc] \d\d\d\d \d\d:\d\d:\d\d ([-+]\d\d\d\d)\r\n| p/XMail smtpd/ i/IBM Lotus Protector; time zone: $1/ cpe:/a:davide_librenzi:xmail/ cpe:/a:ibm:lotus_protector_for_mail_security/
-match smtp-proxy m|^421 concurrent connection limit in avast! exceeded\(pass:0, processes:([\w._-]+)\[\d+\]\)\r\n| p/Avast! anti-virus smtp proxy/ i/connection limit exceeded by $1/ o/Windows/ cpe:/o:microsoft:windows/
-match smtp-proxy m|^421 Cannot connect to SMTP server ([\w._-]+) \([^)]*\), connect error \d+\r\n| p/Avast! anti-virus smtp proxy/ i/cannot connect to $1/ o/Windows/ cpe:/o:microsoft:windows/
+match smtp-proxy m|^421 concurrent connection limit in avast! exceeded\(pass:0, processes:([\w._-]+)\[\d+\]\)\r\n| p/Avast! anti-virus smtp proxy/ i/connection limit exceeded by $1/ o/Windows/ cpe:/o:microsoft:windows/ cpe:/a:avast:antivirus/
+match smtp-proxy m|^421 Cannot connect to SMTP server ([\w._-]+) \([^)]*\), connect error \d+\r\n| p/Avast! anti-virus smtp proxy/ i/cannot connect to $1/ o/Windows/ cpe:/o:microsoft:windows/ cpe:/a:avast:antivirus/
 
 match fw1-topology m|^[QY]\0\0\0$| p/Check Point FireWall-1 Topology/ d/firewall/ cpe:/a:checkpoint:firewall-1/
 match fw1-pslogon m|^\0\0\0\x02\0\0\0\x02$| p/Check Point FireWall-1 Policy Server logon/ d/firewall/ cpe:/a:checkpoint:firewall-1/
@@ -3761,6 +3780,7 @@ match ssh m|^SSH-([\d.]+)-Axway\.Gateway\r\n| p/Axway API Gateway sshd/ i/protoc
 match ssh m|^SSH-([\d.]+)-CPS_SSH_ID_([\d.]+)\r\n| p/CyberPower sshd/ v/$2/ i/protocol $1/ d/power-device/
 match ssh m|^SSH-([\d.]+)-1\r\n| p/Clavister cOS sshd/ i/protocol $1/ d/firewall/
 match ssh m|^SSH-([\d.]+)-Go\r\n| p|Golang x/crypto/ssh server| cpe:/a:golang:go/
+match ssh m|^SSH-([\d.]+)-SSH Server - Banana Studio\r\n| p/Banana Studio SSH server app (net.xnano.android.sshserver.tv)/ i/protocol $1/ o/Android/
 
 # FortiSSH uses random server name - match an appropriate length, then check for 3 dissimilar character classes in a row.
 # Does not catch everything, but ought to be pretty good.
@@ -5249,6 +5269,9 @@ match quasar m|^ \0\0\0.{32}$|s p/QuasarRAT remote administration tool/ o/Window
 # This is 264 random bytes, probably some sort of shared-key encryption
 match landesk-rc m=^(?!HTTP|RTSP|SIP).{264}$=s p/LANDesk remote management/ cpe:/a:landesk:landesk_management_suite/
 
+# Fallback for GetRequest and GenericLines
+match james-admin m|^JAMES Remote Administration Tool ([\d.]+)\nPlease enter your login and password\nLogin id:\n| p/JAMES Remote Admin/ v/$1/
+
 # Specific vendor telnet options that should be matched more accurately by prompt, etc.
 # Source: https://github.com/nmap/nmap/pull/1083
 softmatch telnet m|^\xff\xfb\x01(?!\xff)| p|APC PDU/UPS devices or Windows CE telnetd|
@@ -5286,6 +5309,7 @@ softmatch ms-pe-exe m|^.{0,4}MZ.{76}This program cannot be run in DOS mode\.|s p
 # Same thing for ELF
 softmatch elf-exe m|^.{0,4}\x7fELF\x01[\x01\x02]\x01| p/ELF 32-bit executable file/
 softmatch elf-exe m|^.{0,4}\x7fELF\x02[\x01\x02]\x01| p/ELF 64-bit executable file/
+softmatch pkzip-file m|^PK\x03\x04| p/.ZIP file/
 
 # https://www.npmjs.com/package/tuyapi
 softmatch tuya m|^\0\0U\xaa\0\0.*\0\0\xaaU$|s p/Tuya IoT protocol/
@@ -6269,6 +6293,7 @@ match upnp m|^ 501 Not Implemented\r\n(?:[^\r\n]+\r\n)*?Server: Linux Mips ([\w.
 match upnp m|^ 501 Not Implemented\r\n(?:[^\r\n]+\r\n)*?Server: SmoothWall Express/([\w._-]+) UPnP/([\w.]+) miniupnpd/([\w.]+)\r\n|s p/MiniUPnP/ v/$3/ i/SmoothWall Express $1; UPnP $2/ o/Linux/ cpe:/a:miniupnp_project:miniupnpd:$3/a cpe:/o:linux:linux_kernel/a
 match upnp m|^ 501 Not Implemented\r.*\nServer: SDK ([\d.]+) UPnP/([\d.]+) MiniUPnPd/([\d.]+)\r\n|s p/MiniUPnP/ v/$3/ i/Netgear SDK $1; UPnP $2/ cpe:/a:miniupnp_project:miniupnpd:$3/a
 match upnp m|^ 501 Not Implemented\r.*\nServer: SDK ([\d.]+) UPnP/([\d.]+) MiniUPnPd/([\d.]+)_MTK_v([\d_]+)\r\n\r\n|s p/MiniUPnP/ v/$3/ i|Linksys/Belkin WiFi range extender; SDK $1; UPnP $2; MTK $SUBST(4,"_",".")| cpe:/a:miniupnp_project:miniupnpd:$3/a
+match upnp m|^ 501 Not Implemented\r.*\nServer: RedHatEnterpriseServer/([\d.]+) UPnP/([\d.]+) MiniUPnPd/([\d.]+)\r\n|s p/MiniUPnP/ v/$3/ i/RHEL $1; UPnP $2/ o/Linux/ cpe:/a:miniupnp_project:miniupnpd:$3/a cpe:/o:redhat:enterprise_linux:$1/ cpe:/o:linux:linux_kernel/
 match upnp m|^HTTP/1\.1 400 Bad Request\r\nDATE: .*\r\nConnection: Keep-Alive\r\nServer: UPnP/([\d.]+)\r\nContent-Length: 0\r\nContent-Type: text/xml; charset=\"utf-8\"\r\nEXT:\r\n\r\n$| p/UPnP/ v/$1/ d/broadband router/
 match upnp m|^HTTP/1\.1 \d\d\d (?:[^\r\n]*\r\n(?!\r\n))*?Server: *Linux/([-\w_.]+), UPnP/([-\w_.]+), TwonkyVision UPnP SDK/([-\w_.]+)\r\n|s p/TwonkyMedia UPnP/ i/Linux $1; UPnP $2; SDK $3/ o/Linux/ cpe:/a:packetvideo:twonky/ cpe:/o:linux:linux_kernel:$1/a
 match upnp m|^HTTP/1\.1 400 Bad request\r\nServer: Reciva UPnP/([\w._-]+) Radio/([\w._-]+) DLNADOC/([\w._-]+)\r\nContent-length: 0\r\nConnection: close\r\n\r\n$| p/dnt IPdio radio UPnP/ v/$2/ i/UPnP $1; DLNADOC $3/ d/media device/
@@ -6540,9 +6565,13 @@ match gpsd-ng m|^{\"class\":\"VERSION\",\"release\":\"([\w._-]+)\",\"rev\":\"([\
 
 match groupwise m|^\xbc\xef\x16\0\xb5\xfe\x14\0\0\0\0 \xb5x3\x06a\x05\0\0\x16\0\xbc\xef\x1a\0\xb5\xfe\x18\0\0\0\0 d\xcf2\n\0\0\0\0\0\0\0\0\x1a\0\xbc\xef\x14\0\xb5\xfe\x0e\0\x02\0\x02!\x03\x16\x7f\$r\xe7\x14\0$| p/Novell GroupWise/ cpe:/a:novell:groupwise/
 
+# Not sure what all of this means, but the first 10 bytes could be error #4, DEADLINE_EXCEEDED
+match grpc m|^\0\0\x18\x04\0\0\0\0\0\0\x04\0\x3f\xff\xff\0\x05\0\x3f\xff\xff\0\x06\0\0 \0\xfe\x03\0\0\0\x01\0\0\x04\x08\0\0\0\0\0\0\x3f\0\x00|
+match grpc m|^\0\0\x18\x04\0\0\0\0\0\0\x04\0\x40\x00\x00\0\x05\0\x40\x00\x00\0\x06\0\0 \0\xfe\x03\0\0\0\x01\0\0\x04\x08\0\0\0\0\0\0\x3f\0\x01|
+
 match hadoop-ipc m|^\0\0\0\0\x03\0\0\0\x7c\xff\xff\xff\xff\0\0\0\)org\.apache\.hadoop\.ipc\.RPC\$VersionMismatch\0\0\0>Server IPC version (\d+) cannot communicate with client version 47| p/Hadoop IPC/ i/IPC version $1/ cpe:/a:apache:hadoop/
 match hadoop-ipc m|^\0\0\0\x7c{\x08\xff\xff\xff\xff\x0f\x10\x02\x18\t\"\)org\.apache\.hadoop\.ipc\.RPC\$VersionMismatch\*>Server IPC version (\d+) cannot communicate with client version \d+\x0e:\0@\x01| p/Hadoop IPC/ i/IPC version $1/ cpe:/a:apache:hadoop/
-softmatch hadoop-ipc m|^HTTP/1\.1 404 Not Found\r\nContent-type: text/plain\r\n\r\nIt looks like you are making an HTTP request to a Hadoop IPC port\. This is not the correct port for the web interface on this daemon\.\r\n| p/Hadoop IPC/ cpe:/a:apache:hadoop/
+match hadoop-ipc m|^HTTP/1\.1 404 Not Found\r\nContent-type: text/plain\r\n\r\nIt looks like you are making an HTTP request to a Hadoop IPC port\. This is not the correct port for the web interface on this daemon\.\r\n| p/Hadoop IPC/ cpe:/a:apache:hadoop/
 
 # Responds with a binary protocol for other probes (GenericLines and RPCCheck).
 match hillstone-vpn m|^HTTP/1\.1 301 Moved Permanently\r\nLocation: /login\.html\r\nContent-Length: 157\r\nContent-Type: text/html\r\n\r\n<html><head><title>301 Moved Permanently</title></head><body>\n<h1>Moved Permanently</h1>\nMoved to: <a href=\"/login\.html\">/login\.html</a>\n<hr>\n</body></html>\n$| p/Hillstone SSL VPN/
@@ -9913,7 +9942,27 @@ match http m|^HTTP/1\.0 200 OK\r\nConnection: Close\r\n.*<meta name=\"DC\.Title\
 match http m|^HTTP/1\.0 \d\d\d (?:[^\r\n]*\r\n(?!\r\n))*?Server: DrWebServer/REL-1000-([\w._-]+) ([^/]+)/(\w+) Lua/([\w._-]+) OpenSSL/([\w._-]+) zlib/([\w._-]+) UNICODE/[\d.]+\r\n|s p/Dr.Web Enterprise Security Suite httpd/ v/$1/ i/arch: $3; Lua $4; OpenSSL $5; zlib $6/ o/$SUBST(2,"_"," ")/ cpe:/a:drweb:enterprise_security_suite:$1/ cpe:/a:gnu:zlib:$6/ cpe:/a:openssl:openssl:$5/ cpe:/a:puc-rio:lua:$4/
 # aviosys 9060 webcam
 match http m|^HTTP/1\.0 401 NG \r\nWWW-Authenticate: Basic realm=Camera Name : (.*)\r\n\r\nUnauthorized$| p/Aviosys webcam httpd/ i/camera name: $1/ d/webcam/
+
+# cockpit
 match http m|^HTTP/1\.1 400 Bad request\r\nContent-Length: 80\r\n\r\n<html><head><title>400 Bad request</title></head><body>Bad request</body></html>| p/Cockpit management console/ o/Linux/ cpe:/a:redhat:cockpit/ cpe:/o:linux:linux_kernel/a
+match http m|^HTTP/1\.1 400 Bad request\r\nContent-Type: text/html; charset=utf8\r\nTransfer-Encoding: chunked\r\n\r\n\d+\r\n<!DOCTYPE html>\n<html>\n<head>\n    <title>\r\nb\r\nBad request\r\ncf6\r\n</title>\n    | p/Cockpit web service/ v/161 or earlier/ o/Linux/ cpe:/a:redhat:cockpit/ cpe:/o:linux:linux_kernel/a
+# X-DNS-Prefetch-Control and Referrer-Policy added in 162
+match http m|^HTTP/1\.1 400 Bad request\r\nContent-Type: text/html; charset=utf8\r\nTransfer-Encoding: chunked\r\nX-DNS-Prefetch-Control: off\r\nReferrer-Policy: no-referrer\r\n\r\n29\r\n<!DOCTYPE html>\n<html>\n<head>\n    <title>\r\nb\r\nBad request\r\ncf6\r\n| p/Cockpit web service/ v/162 - 188/ o/Linux/ cpe:/a:redhat:cockpit/ cpe:/o:linux:linux_kernel/a
+# X-Content-Type-Options added in 189
+match http m|^HTTP/1\.1 400 Bad request\r\nContent-Type: text/html; charset=utf8\r\nTransfer-Encoding: chunked\r\nX-DNS-Prefetch-Control: off\r\nReferrer-Policy: no-referrer\r\nX-Content-Type-Options: nosniff\r\n\r\n29\r\n<!DOCTYPE html>\n<html>\n<head>\n    <title>\r\nb\r\nBad request\r\ncf6\r\n| p/Cockpit web service/ v/189 - 197/ o/Linux/ cpe:/a:redhat:cockpit/ cpe:/o:linux:linux_kernel/a
+# cockpit 198 added RedHatDisplay text
+match http m|^HTTP/1\.1 400 Bad request\r\nContent-Type: text/html; charset=utf8\r\nTransfer-Encoding: chunked\r\nX-DNS-Prefetch-Control: off\r\nReferrer-Policy: no-referrer\r\nX-Content-Type-Options: nosniff\r\n\r\n29\r\n<!DOCTYPE html>\n<html>\n<head>\n    <title>\r\nb\r\nBad request\r\nd08\r\n| p/Cockpit web service/ v/198 - 220/ o/Linux/ cpe:/a:redhat:cockpit/ cpe:/o:linux:linux_kernel/a
+# cockpit 221 added cross-origin-resource-policy
+match http m|^HTTP/1\.1 400 Bad request\r\nContent-Type: text/html; charset=utf8\r\nTransfer-Encoding: chunked\r\nX-DNS-Prefetch-Control: off\r\nReferrer-Policy: no-referrer\r\nX-Content-Type-Options: nosniff\r\nCross-Origin-Resource-Policy: same-origin\r\n\r\n29\r\n<!DOCTYPE html>\n<html>\n<head>\n    <title>\r\nb\r\nBad request\r\nd08\r\n| p/Cockpit web service/ v/221 - 253/ o/Linux/ cpe:/a:redhat:cockpit/ cpe:/o:linux:linux_kernel/a
+# cockpit 254 added x-frame-options
+match http m|^HTTP/1\.1 400 Bad request\r\nContent-Type: text/html; charset=utf8\r\nTransfer-Encoding: chunked\r\nX-DNS-Prefetch-Control: off\r\nReferrer-Policy: no-referrer\r\nX-Content-Type-Options: nosniff\r\nCross-Origin-Resource-Policy: same-origin\r\nX-Frame-Options: sameorigin\r\n\r\n29\r\n<!DOCTYPE html>\n<html>\n<head>\n    <title>\r\nb\r\nBad request\r\nd08\r\n| p/Cockpit web service/ v/254 - 272/ o/Linux/ cpe:/a:redhat:cockpit/ cpe:/o:linux:linux_kernel/a
+# cockpit 273 dropped OpenSans, removing a bunch of length
+match http m|^HTTP/1\.1 400 Bad request\r\nContent-Type: text/html; charset=utf8\r\nTransfer-Encoding: chunked\r\nX-DNS-Prefetch-Control: off\r\nReferrer-Policy: no-referrer\r\nX-Content-Type-Options: nosniff\r\nCross-Origin-Resource-Policy: same-origin\r\nX-Frame-Options: sameorigin\r\n\r\n29\r\n<!DOCTYPE html>\n<html>\n<head>\n    <title>\r\nb\r\nBad request\r\nc2b\r\n| p/Cockpit web service/ v/273 - 281/ o/Linux/ cpe:/a:redhat:cockpit/ cpe:/o:linux:linux_kernel/a
+# cockpit 282 added 1 char to length between title replacements
+match http m|^HTTP/1\.1 400 Bad request\r\nContent-Type: text/html; charset=utf8\r\nTransfer-Encoding: chunked\r\nX-DNS-Prefetch-Control: off\r\nReferrer-Policy: no-referrer\r\nX-Content-Type-Options: nosniff\r\nCross-Origin-Resource-Policy: same-origin\r\nX-Frame-Options: sameorigin\r\n\r\n29\r\n<!DOCTYPE html>\n<html>\n<head>\n    <title>\r\nb\r\nBad request\r\nc2c\r\n| p/Cockpit web service/ v/282 or later/ o/Linux/ cpe:/a:redhat:cockpit/ cpe:/o:linux:linux_kernel/a
+# softmatch for later version changes
+softmatch http m|^HTTP/1\.1 400 Bad request\r\nContent-Type: text/html; charset=utf8\r\nTransfer-Encoding: chunked\r\nX-DNS-Prefetch-Control: off\r\nReferrer-Policy: no-referrer\r\nX-Content-Type-Options: nosniff\r\nCross-Origin-Resource-Policy: same-origin\r\nX-Frame-Options: sameorigin\r\n\r\n29\r\n| p/Cockpit web service/ o/Linux/ cpe:/a:redhat:cockpit/ cpe:/o:linux:linux_kernel/a
+
 match http m|^HTTP/1\.1 404 Not Found\r\nServer: CPE-SERVER/([\w._-]+) Supports only GET\r\n\r\n| p/CPE Server TR-069 remote access/ v/$1/ d/broadband router/
 match http m|^HTTP/1\.1 200 OK\r\nServer: IPCamera HTTP/ONVIF/P2P/RTSP/VOD Multi-Server\r\n| p|DB Power IP Camera HTTP/ONVIF/P2P/RTSP/VOD multi-server| d/webcam/
 match http m|^HTTP/1\.1 200 OK\r\nServer: WebServer\(ipcamera\)\r\n| p|DB Power IP Camera HTTP/ONVIF/P2P/RTSP/VOD multi-server| d/webcam/
@@ -10099,11 +10148,6 @@ match http m|^HTTP/1\.1 200 OK\r\nServer: Printopia/([\w._-]+)\r\nConnection: cl
 #CIMC 1.5(4e)
 match http m|^UnknownMethod 403 Forbidden\r\nDate: .*\r\nConnection: keep-alive\r\nKeep-Alive: timeout=60, max=2000\r\nContent-Type: text/html\r\nContent-length: \d+\r\n\r\n<HTML><HEAD><TITLE>Document Error: Forbidden</TITLE></HEAD>\r\n<BODY><H2>Access Error: 403 -- Forbidden</H2>\r\n</BODY></HTML>\r\n\r\nHTTP/1\.0 400 Bad Request\r\nDate:| p/Cisco Integrated Management Controller/ cpe:/h:cisco:unified_computing_system_integrated_management_controller/
 match http m|^HTTP/1\.1 302 Found\r\nLocation: https?://([^/]+)/admin\r\nContent-Length: 0\r\nDate: .*\r\nConnection: close\r\nServer:  \r\n\r\n| p/Cisco Identity Services Engine/ h/$1/ cpe:/a:cisco:identity_services_engine_software/ cpe:/h:cisco:identity_services_engine:-/
-match http m|^HTTP/1\.1 400 Bad request\r\nContent-Type: text/html; charset=utf8\r\nTransfer-Encoding: chunked\r\n\r\n\d+\r\n<!DOCTYPE html>\n<html>\n<head>\n    <title>\r\nb\r\nBad request\r\ncf6\r\n</title>\n    | p/Cockpit web service/ v/161 or earlier/ o/Linux/ cpe:/a:redhat:cockpit/ cpe:/o:linux:linux_kernel/a
-# X-DNS-Prefetch-Control and Referrer-Policy added in 162
-match http m|^HTTP/1\.1 400 Bad request\r\nContent-Type: text/html; charset=utf8\r\nTransfer-Encoding: chunked\r\nX-DNS-Prefetch-Control: off\r\nReferrer-Policy: no-referrer\r\n\r\n\d+\r\n<!DOCTYPE html>\n<html>\n<head>\n    <title>\r\nb\r\nBad request\r\ncf6\r\n</title>\n    | p/Cockpit web service/ v/162 - 188/ o/Linux/ cpe:/a:redhat:cockpit/ cpe:/o:linux:linux_kernel/a
-# X-Content-Type-Options added in 189
-match http m|^HTTP/1\.1 400 Bad request\r\nContent-Type: text/html; charset=utf8\r\nTransfer-Encoding: chunked\r\nX-DNS-Prefetch-Control: off\r\nReferrer-Policy: no-referrer\r\nX-Content-Type-Options: nosniff\r\n\r\n\d+\r\n<!DOCTYPE html>\n<html>\n<head>\n    <title>\r\nb\r\nBad request\r\ncf6\r\n</title>\n    | p/Cockpit web service/ v/189 or later/ o/Linux/ cpe:/a:redhat:cockpit/ cpe:/o:linux:linux_kernel/a
 match http m|^HTTP/1\.1 401 Not Authorized\r\nServer: WSTL CPE 1\.0\r\nMIME-version: 1\.0\r\nDate: [A-Z]{3} [A-Z]{3} \d\d \d\d:\d\d:\d\d \d\d\d\d GMT\r\nConnection: close\r\nContent-Type: text/html\r\nContent-Length: \d+\r\nWWW-Authenticate: Digest realm="Westell Secure",| p/Westell broadband router TR-069/ d/broadband router/
 match http m|^HTTP/1\.1 401 Not Authorized\r\nServer: WSTL CPE 1\.0\r\nDate: .* GMT\r\nMIME-version: 1\.0\r\nContent-Type: text/html\r\nContent-Length: \d+\r\nConnection: close\r\nWWW-Authenticate: Digest realm="Westell Secure",| p/Westell broadband router TR-069/ d/broadband router/
 # Glassfish AS 4.0 (build 89)
@@ -10495,6 +10539,7 @@ match http m|^HTTP/1\.1 200 OK\r\nCONNECTION: close\r\nDate: .*\r\nLast-Modified
 match http m|^HTTP/1\.1 401 Unauthorized\r\nContent-Length: 0\r\nWWW-Authenticate: Digest qop="auth", realm="IP Webcam", nonce="\d+"\r\n\r\n| p/IP Webcam httpd/ o/Android/ cpe:/a:pavel_khlebovich:ip_webcam/ cpe:/o:google:android/a cpe:/o:linux:linux_kernel/a
 match http m|^HTTP/1\.0 404 Not Found\r\n(?:[^<]+<(?!/head>))*?style>\nbody { background-color: #fcfcfc; color: #333333; margin: 0; padding:0; }\nh1 { font-size: 1\.5em; font-weight: normal; background-color: #9999cc; min-height:2em; line-height:2em; border-bottom: 1px inset black; margin: 0; }\nh1, p { padding-left: 10px; }\ncode\.url { background-color: #eeeeee; font-family:monospace; padding:0 2px;}\n</style>|s p/PHP cli server/ v/5.5 or later/ cpe:/a:php:php/
 match http m|^HTTP/1\.0 404 Not Found\r\n(?:[^<]+<(?!/head>))*?style>\nbody \{ background-color: #ffffff; color: #000000; \}\nh1 \{ font-family: sans-serif; font-size: 150%; background-color: #9999cc; font-weight: bold; color: #000000; margin-top: 0;\}\n</style>|s p/PHP cli server/ v/5.4/ cpe:/a:php:php:5.4/
+match http m|^HTTP/1\.1 470 Connection Authorization Required\r\nContent-Length: 0\r\n\r\n| p/IKEA Tradfri zigbee controller httpd/
 
 #(insert http)
 
@@ -11237,8 +11282,6 @@ match jabber m|^<\?xml version='1\.0'\?><stream:stream xmlns='jabber:server' xml
 match jabber m|^<\?xml version='1\.0' encoding='UTF-8'\?>\n<stream:stream xmlns='jabber:client' xmlns:stream='http://etherx\.jabber\.org/streams' from=\"\" version=\"1\.0\">\n<stream:features/>$| p/Empathy Jabber client/
 match jabber m|^<\?xml version='1\.0'\?><stream:stream xmlns='jabber:client' xmlns:stream='http://etherx\.jabber\.org/streams' id='[0-9A-F]{16}' from='[^']*' version='1\.0'><stream:error><xml-not-well-formed xmlns='urn:ietf:params:xml:ns:xmpp-streams'/></stream:error></stream:stream>| p/MongooseIM/ cpe:/a:erlang-solutions:mongooseim/
 
-match james-admin m|^JAMES Remote Administration Tool ([\d.]+)\nPlease enter your login and password\nLogin id:\n| p/JAMES Remote Admin/ v/$1/
-
 match jicp m|^d\x08\x1c\0\0\0Uncorrect JICP data type: 71$| p/Jade Inter Container Protocol/
 
 match olsrd-jsoninfo m|^{\n\"links\": \[[^]]*\]\n,\n\t\"neighbors\": \[[^]]*\]\n,\n\t| p/olsrd jsoninfo plugin/
@@ -11573,6 +11616,7 @@ match upnp m|^HTTP/1\.0 404 Not Found\r\n(?:[^\r\n]+\r\n)*?Server: neufbox UPnP/
 match upnp m|^HTTP/1\.0 404 Not Found\r\n(?:[^\r\n]+\r\n)*?Server: DrayTek/Vigor(\w+) UPnP/([\w._-]+) MiniUPnPd/([\w._-]+)\r\n|s p/MiniUPnP/ v/$3/ i/DrayTek Vigor $1 router; UPnP $2/ d/router/ cpe:/a:miniupnp_project:miniupnpd:$3/a cpe:/h:draytek:vigor_$1/a
 match upnp m|^HTTP/1\.0 404 Not Found\r\n(?:[^\r\n]+\r\n)*?Server: OpenWRT/OpenWrt UPnP/([\w._-]+) MiniUPnPd/([\w._-]+)\r\n|s p/MiniUPnP/ v/$2/ i/OpenWrt; UPnP $1/ d/broadband router/ cpe:/a:miniupnp_project:miniupnpd:$2/a
 match upnp m|^HTTP/1\.1 200 OK\r\nServer: Roku UPnP/([\d.]+) MiniUPnPd/([\d.]+)\r\n| p/MiniUPnP/ v/$2/ i/Roku; UPnP $1/ d/media device/ cpe:/a:miniupnp_project:miniupnpd:$2/a
+match upnp m|^HTTP/1\.0 404 Not Found\r\n(?:[^\r\n]+\r\n)*?Server: TP-L[Ii][Nn][Kk]/TP-LINK UPnP/([\w._-]+) MiniUPnPd/([\w._-]+)\r\n| p/MiniUPnP/ v/$2/ i/TP-LINK router; UPnP $1/ d/broadband router/
 match upnp m|^HTTP/1\.0 200 OK\r\n(?:[^\r\n]+\r\n)*?Server: Linux,([\w._-]+),UPnP/([\w._-]+),Coherence UPnP framework,([\w._-]+)\r\n|s p/Coherence UPnP framework/ v/$3/ i/Linux $1; UPnP $2/ o/Linux/ cpe:/o:linux:linux_kernel:$1/a
 match upnp m|^HTTP/1\.[01] 404 Not Found\r\n(?:[^\r\n]+\r\n)*?Server: Netgem/([\d.]+) \(NeufboxTV UPnPServer\)\r\n|s p/Netgem UPnP/ v/$1/ i/Neuf Box TV/ d/media device/
 match upnp m|^HTTP/1\.1 200 OK\r\n(?:[^\r\n]+\r\n)*?Server: WINDOWS, UPnP/([\d.]+), Intel MicroStack/([\d.]+)\r\n.*<dlna:X_DLNADOC xmlns:dlna=\"urn:schemas-dlna-org:device-1-0\">(DMS-[\d.]+)</dlna:X_DLNADOC>.*<friendlyName>([\w._-]+): MediaServer</friendlyName>.*<manufacturer>Wistron</manufacturer>.*<modelDescription>WiDMS</modelDescription>|s p/Intel MicroStack UPnP/ v/$2/ i/Wistron Digital Media Server $3; UPnP $1/ o/Windows/ h/$4/ cpe:/o:microsoft:windows/a
@@ -12043,6 +12087,7 @@ match http m|^HTTP/1\.1 200 OK\r\nServer: AvigilonOnvifNvt/([\d.]+)\r\n| p/Avigi
 match http m|^HTTP/1\.1 200 OK\r\nHTTP/1\.1\r\nServer: Loxone Miniserver ([\w._-]+)/([\d.]+) UPnP/([\d.]+)\r\n| p/Loxone Miniserver home automation httpd/ v/$2/ i/name: $1; UPnP $3/ d/specialized/
 match http m|^HTTP/1\.0 204 \r\ncontent-type: text/html\r\ncontent-length: 0\r\n\r\n| p/Tablo Network TV tuner/ d/media device/
 match http m|^HTTP/1\.1 501 Method Not Implemented\r\nContent-Type: text/plain\r\nContent-Length: 12\r\n\r\nError: 501\r\n| p/Televes CoaxData coax-to-Ethernet bridge/ d/bridge/
+match http m|^HTTP/1\.1 404 Not Found\r\nContent-Type: text/plain; charset=utf-8\r\nContent-Length: 13\r\n\r\n404 Not Found| p/McAfee Agent Common Services httpd/ o/Windows/
 
 match http-proxy m|^HTTP/1\.1 503 Service Unavailable\r\ndate: .*\r\nconnection: close\r\n\r\n<html><body><pre><h1>Service unavailable</h1></pre></body></html>\n| p/HTTP Replicator proxy/
 match http-proxy m|^HTTP/1\.1 400 Bad Request\r\n.*This is a WebSEAL error message template file\.|s p/IBM WebSEAL reverse http proxy/ d/proxy server/
@@ -12450,6 +12495,8 @@ match xdmcp m|^\0\x01\0\x05..\0\0\0.(.+)\0.(.+)|s p/XDMCP/ i/willing; status: $2
 #DTLS 1.0/1.2 alert (there was no DTLS 1.1)
 match dtls m|^\x15\xfe[\xfd\xff]\0\0\0\0\0\0\0\0..\x02.\0\0\0\0\0|
 
+softmatch domain m|^r\xfe[\x98-\x9f][\x02\x12\x82\x92]\0\0\0\0\0\0\0\0|
+
 ##############################NEXT PROBE##############################
 Probe UDP DNSVersionBindReq q|\0\x06\x01\0\0\x01\0\0\0\0\0\0\x07version\x04bind\0\0\x10\0\x03|
 rarity 1
@@ -12466,15 +12513,15 @@ match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03.{7}(\d[-\w.
 # 9.9.3-rpz2+rl.13208.13-P2-RedHat-9.9.3-4.P2.el6
 match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03.{7}(\d[-\w.+]*?)-RedHat-[-\w._+]+.el(\d+)|s p/ISC BIND/ v/$1/ i/RedHat Enterprise Linux $2/ o/Linux/ cpe:/a:isc:bind:$1/ cpe:/o:redhat:enterprise_linux:$2/
 match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03.{7}(\d[-\w.+]*?)-RedHat-|s p/ISC BIND/ v/$1/ i/RedHat Linux/ o/Linux/ cpe:/a:isc:bind:$1/ cpe:/o:linux:linux_kernel/a
+match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03.{7}(9[-\w.+]*?)-RH|s p/ISC BIND/ v/$1/ i/RedHat Linux/ o/Linux/ cpe:/a:isc:bind:$1/ cpe:/o:linux:linux_kernel/a
 
 
 # ISC BIND - Ubuntu
 match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03.{7}(\d[-\w.+]*?)-[Uu]buntu|s p/ISC BIND/ v/$1/ i/Ubuntu Linux/ o/Linux/ cpe:/a:isc:bind:$1/ cpe:/o:linux:linux_kernel/a
 
 # ISC BIND - Debian
-match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03.{7}(\d[-\w.+~]*?)-9\+deb8u[-\w._+~]*?[Dd]ebian|s p/ISC BIND/ v/$1/ i/Debian Linux 8.0 (Jessie)/ o/Linux/ cpe:/a:isc:bind:$1/ cpe:/o:linux:linux_kernel/a
-match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03.{7}(\d[-\w.+~]*?)-9wheezy\w+-[Dd]ebian|s p/ISC BIND/ v/$1/ i/Debian Linux 7.0 (Wheezy)/ o/Linux/ cpe:/a:isc:bind:$1/ cpe:/o:linux:linux_kernel/a
 match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03.{7}(\d[-\w.+~]*?)-[Dd]ebian|s p/ISC BIND/ v/$1/ i/Debian Linux/ o/Linux/ cpe:/a:isc:bind:$1/ cpe:/o:linux:linux_kernel/a
+match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03.{7}((\d[\w.]*)[-\w.+~]*?[-+~]\d*deb(\d+)[-\w.+~]*)|s p/ISC BIND/ v/$2/ i/Debian $3; pkg version: $1/ o/Linux/ cpe:/a:isc:bind:$2/ cpe:/o:linux:linux_kernel/a
 
 match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03.{7}(?:BIND )?(\d[-\w.+~]*?)-9\+deb8u[-\w._+~]*?Raspbian|s p/ISC BIND/ v/$1/ i/Raspbian Linux 8.0 (Jessie based)/ o/Linux/ cpe:/a:isc:bind:$1/ cpe:/o:linux:linux_kernel/a
 match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03.{7}(?:BIND )?(\d[-\w.+~]*?)-Raspbian|s p/ISC BIND/ v/$1/ i/Raspbian Linux/ o/Linux/ cpe:/a:isc:bind:$1/ cpe:/o:linux:linux_kernel/a
@@ -12491,7 +12538,8 @@ match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03.{7}Served b
 match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x06\0\x03.{6}\xc0\x0c\nhostmaster\xc0\x0c|s p/ISC BIND/ cpe:/a:isc:bind/
 
 # dnsmasq
-match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03.{7}dnsmasq-([-\w. +]+)$|s p/dnsmasq/ v/$1/ cpe:/a:thekelleys:dnsmasq:$1/
+match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03.{7}dnsmasq-pi-hole-v([-\w. +]+)|s p/dnsmasq/ i/pi-hole/ v/$1/ cpe:/a:thekelleys:dnsmasq:$1/ cpe:/a:pi-hole:pi-hole/
+match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03.{7}dnsmasq-([-\w. +]+)|s p/dnsmasq/ v/$1/ cpe:/a:thekelleys:dnsmasq:$1/
 match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03.{7}dnsmasq-ubnt/([\w.-]+)|s p/dnsmasq/ v/$1/ i/Ubiquiti build/ d/WAP/ cpe:/a:thekelleys:dnsmasq:$1/
 match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03\0\0\0\0\0\x08\x07dnsmasq| p/dnsmasq/ cpe:/a:thekelleys:dnsmasq/
 
@@ -12547,6 +12595,9 @@ match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03.{7}UltraDNS
 
 # Misc
 match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03.{7}ZyWALL DNS|s p/Zyxel ZyWALL dnsd/
+match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03.{7}Domain Name Server$|s p/Actiontec router dnsd/ d/broadband router/
+match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03.{7}\[SECURED\]$|s p/TP-LINK router dnsd/ d/broadband router/
+match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03.{7}NOS DNS$| p/NOS Communications dnsd/ d/broadband router/
 match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03.{7}DNSServer\xc0\x0c|s p/Synology DNS Server/ cpe:/a:synology:dns/ cpe:/h:synology/
 match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03.{7}Array SmartDNS\xc0|s p/Array SmartDNS/
 match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03.{7}DraytekDNS-v([\d\.]+)|s p/Draytek DNS/ v/$1/
@@ -12559,6 +12610,9 @@ match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03.{7}djbdns|i
 match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03.{7}Atlas Anchor ([\d\.]+)|s p/RIPE Atlas Anchor/ v/$1/
 match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03.{7}Incognito DNS Commander ([\d.]+) \((built \w{3} \d+ \d{4})\)|s p/Incognito DNS Commander/ v/$1/ i/$2/
 match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03.{7}Incognito DNS Service ([\d.]+) \((built \w{3} \d+ \d{4})\)|s p/Incognito DNS Service/ v/$1/ i/$2/
+match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03.{7}not currently available\xc0| p/Eero device dnsd/ d/WAP/
+match domain m|^(?:..)?\0\x06\x81\x85\0\x01\0\0\0\0\0\x01\x07version\x04bind\0\0\x10\0\x03\x04info\nportmaster\0\0\x10\0\x01\0\0\0\0\0\x13\x12unsupported qclass| p/Safing Portmaster DNS/ cpe:/a:safing:portmaster/
+
 
 match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03.{7}Hi:[\w\.=: ]+\d{4}$| p/OzymanDNS DNS tunnel/
 
@@ -12579,21 +12633,30 @@ match domain m|^(?:..)?\0\x06\x81\x84\0\x01\0\0\0\0\0\x01\x07version\x04bind\0\0
 match domain m|^(?:..)?\0\x06\x85\x02\0\x01\0\0\0\0\0\0\x07version\x04bind\0\0\x10\0\x03| p/PowerDNS/ cpe:/a:powerdns:powerdns/
 match domain m|^(?:..)?\0\x06\x81\x05\0\x01\0\0\0\0\0\0\x07version\x04bind\0\0\x10\0\x03| p/NLnet Labs NSD/ cpe:/a:nlnetlabs:nsd/
 match domain m|^(?:..)?\0\x06\x81\x83\0\x01\0\0\0\0\0\0\x07version\x04bind\0\0\x10\0\x03| p/dnsmasq/ cpe:/a:thekelleys:dnsmasq/
+match domain m|^(?:\0=)?\0\x06\x85\0\0\x01\0\x01\0\x01\0\0\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03\0\0\0\0\0\x05\x04none\xc0\x0c\0\x02\0\x03\0\0\0\0\0\x02\xc0\x0c| p/Plesk Onyx BIND/ cpe:/a:parallels:plesk_onyx/ cpe:/a:isc:bind/
+
+# EDNS OPT records
+match domain m|^(?:\0\.)?\0\x06\x85\x80\0\x01\0\x01\0\0\0\0\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x01\0\x01\0\0\0\x02\0\x04\0\0\0\0$| p/pi-hole FTLDNS/ cpe:/a:pi-hole:ftldns/
+match domain m|^(?:\0\))?\0\x06\x80\x83\0\x01\0\0\0\0\0\x01\x07version\x04bind\0\0\x10\0\x03\0\0\)\x0f\xd0\0\0\0\0\0\0| p/dnscrypt-proxy/ cpe:/a:dnscrypt:dnscrypt-proxy/
+# Apple TV, HomePod
+match domain m|^(?:\0\))?\0\x06\x80\x80\0\x01\0\0\0\0\0\x01\x07version\x04bind\0\0\x10\0\x03\0\0\)\x10\0\0\0\0\0\0\0| p/Apple device dnsd/
+# DIR-605L
+match domain m|^(?:\0.)?\0\x06\x85\0\0\x01\0\x01\0\0\0\0\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03\0\0\0\0\0\x01\0| p/D-Link router dnsd/ d/broadband router/
 
 # Softmatch section
+# Note: the banner "none" is common, recommended by Debian's bind9 package
 softmatch domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03.{7}([^\0\xc0\x0c]+)|s i/unknown banner: $1/
 softmatch domain m|\x07version\x04bind\0\0\x10\0\x03\x07VERSION\x04BIND\0\0\x10\0\x03.{7}([^\0\xc0\x0c]+)|s i/unknown banner: $1/
 
 # the \x0_, \x8_, \x9_ below accounts for recursion / authenticated data flags
-softmatch domain m|^(?:..)?\0\x06[\x80-\x90][\x01\x81\x91]\0\0\0\0\0\0\0\0$| i/generic dns response: FORMERR/
-softmatch domain m|^(?:..)?\0\x06[\x80-\x90][\x02\x82\x92]\0\0\0\0\0\0\0\0$| i/generic dns response: SERVFAIL/
-softmatch domain m|^(?:..)?\0\x06[\x80-\x90][\x04\x84\x94]\0\0\0\0\0\0\0\0$| i/generic dns response: NOTIMP/
-softmatch domain m|^(?:..)?\0\x06[\x80-\x90][\x05\x85\x95]\0\0\0\0\0\0\0\0$| i/generic dns response: REFUSED/
-# These echo the question back:
-softmatch domain m|^(?:..)?\0\x06[\x80-\x90][\x01\x81\x91]\0\x01\0\0\0\0\0\0| i/generic dns response: FORMERR/
-softmatch domain m|^(?:..)?\0\x06[\x80-\x90][\x02\x82\x92]\0\x01\0\0\0\0\0\0| i/generic dns response: SERVFAIL/
-softmatch domain m|^(?:..)?\0\x06[\x80-\x90][\x04\x84\x94]\0\x01\0\0\0\0\0\0| i/generic dns response: NOTIMP/
-softmatch domain m|^(?:..)?\0\x06[\x80-\x90][\x05\x85\x95]\0\x01\0\0\0\0\0\0| i/generic dns response: REFUSED/
+# The second character class refers to those that echo the question back
+softmatch domain m|^(?:..)?\0\x06[\x80-\x90][\x01\x11\x81\x91]\0[\0\x01]\0\0\0.\0.| i/generic dns response: FORMERR/
+softmatch domain m|^(?:..)?\0\x06[\x80-\x90][\x02\x12\x82\x92]\0[\0\x01]\0\0\0.\0.| i/generic dns response: SERVFAIL/
+softmatch domain m|^(?:..)?\0\x06[\x80-\x90][\x04\x14\x84\x94]\0[\0\x01]\0\0\0.\0.| i/generic dns response: NOTIMP/
+softmatch domain m|^(?:..)?\0\x06[\x80-\x90][\x05\x15\x85\x95]\0[\0\x01]\0\0\0.\0.| i/generic dns response: REFUSED/
+softmatch domain m|^(?:..)?\0\x06[\x80-\x90][\x00\x10\x80\x90]\0[\0\x01]\0\0\0.\0.| i/generic dns response: no error/
+softmatch domain m|^(?:..)?\0\x06[\x80-\x90][\x03\x13\x83\x93]\0[\0\x01]\0\0\0.\0.| i/generic dns response: NXDOMAIN/
+softmatch domain m|^(?:..)?\0\x06[\x80-\x90][\x09\x19\x89\x99]\0[\0\x01]\0\0\0.\0.| i/generic dns response: NOTAUTH/
 # End of domain matchlines
 
 # http://packetstormsecurity.com/files/91243/D-Link-DAP-1160-Unauthenticated-Remote-Configuration.html
@@ -12788,14 +12851,18 @@ ports 53,69,135,1761,26198
 # of the response that the UDP doesn't, otherwise they are the same. Account for this
 # in the regex so that a matchline will work for both.
 
-# Matches weird txids in bytes 0,1 (UDP) or 2,3 (TCP), we sent txid 0
-# the \x0_, \x8_, \x9_ below accounts for recursion / authenticated data flags
-softmatch domain m|^(?:..)?..\x90[\x01\x81\x91]\0\0\0\0\0\0\0\0$| i/generic dns response: FORMERR/
-softmatch domain m|^(?:..)?..\x90[\x04\x84\x94]\0\0\0\0\0\0\0\0$| i/generic dns response: NOTIMP/
-softmatch domain m|^(?:..)?..\x90[\x05\x85\x95]\0\0\0\0\0\0\0\0$| i/generic dns response: REFUSED/
-
 # Responds with an A record for itself?
 match domain m|^.{4,6}\x84\0\0\x01\0\x01\0\0\0\0[^\0]+\0\0\x01\0\x01[^\0]+\0\0\x01\0\x01\0\0\0\x1e\0\x04....$|s p/Incapsula WAF DNS/
+
+match domain m|^(?:\0\x17)?\0\0\x90\x84\0\0\0\0\0\0\0\x01\0\0\)\x02\0\0\0\x80\0\0\0| p/pi-hole FTLDNS/ cpe:/a:pi-hole:ftldns/
+
+# Matches weird txids in bytes 0,1 (UDP) or 2,3 (TCP), we sent txid 0
+# the \x0_, \x8_, \x9_ below accounts for recursion / authenticated data flags
+softmatch domain m|^(?:\0\x0c)?..[\x80\x90][\x01\x81\x91]\0\0\0\0\0.\0.| i/generic dns response: FORMERR/
+softmatch domain m|^(?:\0\x0c)?..[\x80\x90][\x02\x82\x92]\0\0\0\0\0.\0.| i/generic dns response: SERVFAIL/
+softmatch domain m|^(?:\0\x0c)?..[\x80\x90][\x04\x84\x94]\0\0\0\0\0.\0.| i/generic dns response: NOTIMP/
+softmatch domain m|^(?:\0\x0c)?..[\x80\x90][\x05\x85\x95]\0\0\0\0\0.\0.| i/generic dns response: REFUSED/
+softmatch domain m|^(?:\0\x0c)?..[\x80\x90][\x00\x80\x90]\0\0\0\0\0.\0.|
 
 match iodine m|^\x80\xa7\x84\0\0\x01\0\x01\0\0\0\0.*\0\0\x0a\0\x01\xc0\x0c\0\n\0\x01\0\0\0\0\0\x05BADIP$| p/iodine IP-over-DNS tunnel/ cpe:/a:kryo:iodine/
 
@@ -12862,10 +12929,16 @@ ports 137
 
 # NBTStat queries use DNS query packet format and so will trigger responses from DNS services
 # the \x0_, \x8_, \x9_ below accounts for recursion / authenticated data flags
-softmatch domain m|^\x80\xf0[\x80\x81][\x02\x82\x92]\0\x01\0\0\0\0\0\0 CKAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\0\0!\0\x01$| i/generic dns response: SERVFAIL/
-softmatch domain m|^\x80\xf0[\x80\x81][\x03\x83\x93]\0\x01\0\0\0\0\0\0 CKAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\0\0!\0\x01$| i/generic dns response: NXDOMAIN/
+softmatch domain m|^\x80\xf0[\x80\x81][\x02\x12\x82\x92]\0\x01\0\0\0.\0. CKAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\0\0!\0\x01| i/generic dns response: SERVFAIL/
+softmatch domain m|^\x80\xf0[\x80\x81][\x03\x13\x83\x93]\0\x01\0\0\0.\0. CKAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\0\0!\0\x01| i/generic dns response: NXDOMAIN/
+softmatch domain m|^\x80\xf0[\x80\x81][\x05\x15\x85\x95]\0\x01\0\0\0.\0. CKAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\0\0!\0\x01| i/generic dns response: REFUSED/
+# At least 1 weird service says ok, but no answers. Instead lots of authority & additional
+softmatch domain m|^\x80\xf0[\x80\x81][\x00\x10\x80\x90]\0\x01\0\0\0.\0. CKAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\0\0!\0\x01|
 
-match domain m|^\x80\xf0\x81\x83\0\x01\0\0\0\0\0\0 ckaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\0\0!\0\x01| p/Mikrotik DNS/ d/router/
+# Response changed from NXDOMAIN to SERVFAIL at some point
+match domain m|^\x80\xf0\x81[\x82\x83]\0\x01\0\0\0\0\0\0 ckaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\0\0!\0\x01| p/Mikrotik DNS/ d/router/
+
+match domain m|^\x80\xf0\x80\x15\0\0\0\0\0\0\0\0| p/Unbound/ cpe:/a:nlnetlabs:unbound/
 
 # NBT Response starts with a header:
 # The following fields are each 2 bytes: transaction ID; Flags; question count; answer count; name service count; additional record count
@@ -13603,7 +13676,7 @@ match netbios-ssn m|^\0\0\0%G\xd7\xf7\xba,\xff\xea\xff\xff~\xf3\0\xfd\x82{\xb9\x
 
 match pbx-alarm m|^1\x0c5\x0c9\x0c\x0b\x03$| p/Aastra Open Interfaces Platform PBX alarm server/ d/PBX/ cpe:/a:aastra:oip/
 
-match pop3-proxy m|^ERR concurrent connection limit in avast! exceeded\(pass:\d+, processes:([\w._-]+)\[\d+\]\)\r\n| p/Avast! anti-virus pop3 proxy/ i/connection limit exceeded by $1/ o/Windows/ cpe:/o:microsoft:windows/
+match pop3-proxy m|^ERR concurrent connection limit in avast! exceeded\(pass:\d+, processes:([\w._-]+)\[\d+\]\)\r\n| p/Avast! anti-virus pop3 proxy/ i/connection limit exceeded by $1/ o/Windows/ cpe:/o:microsoft:windows/ cpe:/a:avast:antivirus/
 
 # This funny service runs on port 9001 and seems to echo other service probes,
 # however they don't seem to come in any obvious order. Examples:
@@ -13648,8 +13721,10 @@ rarity 7
 ports 3388,3389
 fallback TerminalServer
 
-# Windows 10
-match ms-wbt-server m|^\x03\0\0\x13\x0e\xd0\0\0\x124\0\x02\x1f\x08\0\x02\0\0\0| p/Microsoft Terminal Services/ o/Windows/ cpe:/o:microsoft:windows/a
+# varies on flags:
+# 0x10 - Remote Credential Guard (Windows 10 1607 or later)
+# 0x08 - Restricted Admin mode (Windows 8.1 or later)
+match ms-wbt-server m|^\x03\0\0\x13\x0e\xd0\0\0\x124\0\x02[\x07\x0f\x1f]\x08\0\x02\0\0\0| p/Microsoft Terminal Services/ o/Windows/ cpe:/o:microsoft:windows/a
 match ms-wbt-server m|^\x03\0\0\x0b\x06\xd0\0\0\x124\0$| p/Microsoft Terminal Services/ o/Windows XP/ cpe:/o:microsoft:windows_xp/a
 
 ##############################NEXT PROBE##############################
@@ -14857,6 +14932,7 @@ match ms-wbt-server m|^\x03\0\0\x0b\x06\xd0\0\0\x03.\0$|s p/Microsoft NetMeeting
 # Need more samples!
 match ms-wbt-server m|^\x03\0\0\x0b\x06\xd0\0\0\0\0\0| p/xrdp/ cpe:/a:jay_sorg:xrdp/
 match ms-wbt-server m|^\x03\0\0\x0e\t\xd0\0\0\0[\x02\xa1]\0\xc0\x01\n$| p/IBM Sametime Meeting Services/ o/Windows/ cpe:/a:ibm:sametime/ cpe:/o:microsoft:windows/a
+match ms-wbt-server m|^\x03\0\0\x13\x0e\xd0\0\0\0\0\0\x02\x03\x08\0\x02\0\0\0| p/GNOME remote desktop/
 
 match ms-wbt-server m|^\x03\0\0\x0b\x06\xd0\0\x004\x12\0| p/VirtualBox VM Remote Desktop Service/ o/Windows/ cpe:/a:oracle:vm_virtualbox/ cpe:/o:microsoft:windows/a
 
@@ -14874,6 +14950,8 @@ match sybase-monitor m|^\0\x01\0\x08\0\0\x01\0$| p/Sybase Monitor Server/ o/Wind
 match trillian m|^.\0\x01.....\0([^\0]+)\0|s p/Trillian MSN Module/ i/Name $1/ o/Windows/ cpe:/a:trillian:trillian/ cpe:/o:microsoft:windows/a
 
 match trustwave m|^control\n   ping\n   endping\nendcontrol\n| p/Trustwave SIEM OE/ cpe:/a:trustwave:siem_oe/
+
+softmatch ms-wbt-server m|^\x03\0\0..\xd0\0\0|
 
 ##############################NEXT PROBE##############################
 # Netware Create Connection Service request
@@ -15619,15 +15697,32 @@ match ajp13 m|^\x41\x42\x00\x01\x09$| p/Apache Jserv/ i/Protocol v1.3/
 # http://files.dns-sd.org/draft-cheshire-dnsext-dns-sd.txt, section 9.
 Probe UDP DNS-SD q|\0\0\0\0\0\x01\0\0\0\0\0\0\x09_services\x07_dns-sd\x04_udp\x05local\0\0\x0c\0\x01|
 rarity 4
-ports 5353
+ports 53,5353
 
 # mDNSResponder-176.3
 # Avahi under Ubuntu
-match mdns m|^\0\0\x84\0\0\x01..\0\0\0\0\x09_services\x07_dns-sd\x04_udp\x05local\0\0\x0c\0\x01|s p/DNS-based service discovery/
+match mdns m|^(?:..)?\0\0\x84\0\0\x01..\0\0\0\0\x09_services\x07_dns-sd\x04_udp\x05local\0\0\x0c\0\x01|s p/DNS-based service discovery/
 match hbn3 m|^\0\0\x84\0\0\0\0\x01\0\0\0\0.Lexmark (\w+)\x0c_host-config\x04_udp\x05local\0\0\x10\0\x01\0\0\0<\x01\x19.IPADDRESS [\d.]+.IPNETMASK [\d.]+.IPGATEWAY [\d.]+.IPNAME \"([\w._-]+)\"\x15MACLAA \"000000000000\"\x15MACUAA \"([0-9A-F]{12})\"|s p/Lexmark hbn3 (DNS-SD-like configuration)/ i/Lexmark $1 printer; MAC $3/ d/printer/ h/$2/ cpe:/h:lexmark:$1/a
 
 match isakmp m|^\0\0\0\0\0\x01\0\0\0\0\0\0\t_servic\x0b\x10\x05\0\0\0\0\0\0\0\0\(\0\0\0\x0c\0\0\0\x01\x01\0\0\x05| p/Openswan ISAKMP/ cpe:/a:openswan:openswan/
 match isakmp m|^\0\0\0\0\0\x01\0\0\0\0\0\0\t_servic\) % \0\0\0\0\0\0\0\$\0\0\0\x08\0\0\0\x05| p/StrongSwan ISAKMP/ cpe:/a:strongswan:strongswan/
+
+# the \x0_, \x8_, \x9_ below accounts for recursion / authenticated data flags
+# The second character class refers to those that echo the question back
+softmatch domain m|^(?:..)?\0\0[\x80-\x90][\x01\x11\x81\x91]\0[\0\x01]\0\0\0.\0.| i/generic dns response: FORMERR/
+softmatch domain m|^(?:..)?\0\0[\x80-\x90][\x02\x12\x82\x92]\0[\0\x01]\0\0\0.\0.| i/generic dns response: SERVFAIL/
+softmatch domain m|^(?:..)?\0\0[\x80-\x90][\x04\x14\x84\x94]\0[\0\x01]\0\0\0.\0.| i/generic dns response: NOTIMP/
+softmatch domain m|^(?:..)?\0\0[\x80-\x90][\x05\x15\x85\x95]\0[\0\x01]\0\0\0.\0.| i/generic dns response: REFUSED/
+softmatch domain m|^(?:..)?\0\0[\x80-\x90][\x03\x13\x83\x93]\0[\0\x01]\0\0\0.\0.| i/generic dns response: NXDOMAIN/
+# At least 1 weird service says ok, but no answers. Instead lots of authority & additional
+softmatch domain m|^(?:..)?\0\0[\x80-\x90][\x00\x10\x80\x90]\0[\0\x01]\0\0\0.\0.| i/generic dns response: no error/
+
+##############################NEXT PROBE##############################
+Probe TCP DNS-SD-TCP q|\0\x2e\0\0\0\0\0\x01\0\0\0\0\0\0\x09_services\x07_dns-sd\x04_udp\x05local\0\0\x0c\0\x01|
+rarity 8
+ports 53,5353
+sslports 853
+fallback DNS-SD
 
 ##############################NEXT PROBE##############################
 # HP Printer Job Language, supported on most PostScript printers.
@@ -16633,8 +16728,11 @@ match adb m|CNXN\0\0\0\x01\0\x10\0\0\t\0\0\0\xe4\x02\0\0\xbc\xb1\xa7\xb1device::
 # If it has identifying info, softmatch so we can make a better fingerprint
 softmatch adb m|^CNXN\0\0\0\x01\0\x10\0\0........\xbc\xb1\xa7\xb1(\w+):[^:]*:[^\0]+\0$|s p/Android Debug Bridge $1/ i/no auth/ o/Android/ cpe:/o:google:android/a cpe:/o:linux:linux_kernel/a
 
+# magic = CNXN ^ 0xffffffff
 match adb m|^AUTH\x01\0\0\0\0\0\0\0........\xbc\xb1\xa7\xb1|s p/Android Debug Bridge/ i/token auth required/ o/Android/ cpe:/o:google:android/a cpe:/o:linux:linux_kernel/a
-softmatch adb m|^AUTH(.)\0\0\0\0\0\0\0........\xbc\xb1\xa7\xb1|s p/Android Debug Bridge/ i/auth required: $I(1,"<")/ o/Android/ cpe:/o:google:android/a cpe:/o:linux:linux_kernel/a
+# magic = AUTH ^ 0xffffffff
+match adb m|^AUTH\x01\0\0\0\0\0\0\0........\xbe\xaa\xab\xb7|s p/Android Debug Bridge/ i/token auth required/ o/Android/ cpe:/o:google:android/a cpe:/o:linux:linux_kernel/a
+match adb m|^AUTH(.)\0\0\0\0\0\0\0........\xbc\xb1\xa7\xb1|s p/Android Debug Bridge/ i/auth required: $I(1,"<")/ o/Android/ cpe:/o:google:android/a cpe:/o:linux:linux_kernel/a
 
 ##############################NEXT PROBE##############################
 # pi-hole "telnet API"
