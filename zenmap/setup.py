@@ -94,15 +94,16 @@ misc_dir = os.path.join(data_dir, 'misc')
 desktop_dir = os.path.join('share', 'applications')
 
 
-def mo_find(result, dirname, fnames):
-    files = []
-    for f in fnames:
-        p = os.path.join(dirname, f)
-        if os.path.isfile(p) and f.endswith(".mo"):
-            files.append(p)
+def mo_find(dirname, result):
+    for (root, dirs, files) in os.walk(locale_dir):
+        mo_files = []
+        for f in files:
+            p = os.path.join(root, f)
+            if os.path.isfile(p) and f.endswith(".mo"):
+                mo_files.append(p)
 
-    if files:
-        result.append((dirname, files))
+        if mo_files:
+            result.append((root, mo_files))
 
 ###############################################################################
 # Installation variables
@@ -124,7 +125,7 @@ data_files = [
         ]
 
 # Add i18n files to data_files list
-os.walk(locale_dir, mo_find, data_files)
+mo_find(locale_dir, data_files)
 
 
 # path_startswith and path_strip_prefix are used to deal with the installation
