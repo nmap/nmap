@@ -1053,7 +1053,8 @@ local function run (threads_iter)
     for co, thread in pairs(waiting) do
       if thread:timed_out() then
         waiting[co], all[co], num_threads = nil, nil, num_threads-1;
-        thread:d("%THREAD_AGAINST timed out")
+        thread:d("%THREAD_AGAINST timed out");
+        thread:set_output("Script timed out");
         thread:close(timeouts, "timed out");
       elseif not thread.worker then
         orphans = false
