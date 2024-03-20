@@ -376,6 +376,9 @@ do
         tab, str = r1, tostring(r2);
       elseif type(r1) == "string" then
         tab, str = nil, r1;
+      elseif r1 == nil and debugging() > 0 then
+        -- Report a script get executed with no output.
+        tab, str = nil, "Script filtered";
       elseif r1 == nil then
         return
       else
@@ -1053,8 +1056,10 @@ local function run (threads_iter)
     for co, thread in pairs(waiting) do
       if thread:timed_out() then
         waiting[co], all[co], num_threads = nil, nil, num_threads-1;
+        if debugging() > 0  then
+          thread:set_output("Script timed out");
+        end
         thread:d("%THREAD_AGAINST timed out");
-        thread:set_output("Script timed out");
         thread:close(timeouts, "timed out");
       elseif not thread.worker then
         orphans = false
