@@ -25,7 +25,7 @@ $CC $CPPFLAGS $CFLAGS $LDFLAGS -L$PREFIX/lib `python3-config --cflags --ldflags 
 	    ~/gtk-mac-bundler/examples/python-launcher.c
 
 echo "Installing Zenmap to local system"
-python3 setup.py install vanilla --prefix "$PREFIX"
+python3 -m pip install --ignore-installed --target "$PREFIX/lib/python-3.11/site-packages" .
 
 echo "Generating dependencies"
 # Have to run this with ~/gtk/inst/python3 or deps have wrong paths
@@ -79,8 +79,7 @@ python -m compileall "$PYTHONLIB"/site-packages #|| true
 echo "Stripping unoptimized Python libraries"
 
 echo "Building using setuptools"
-python3 setup.py build --executable "/usr/bin/env python3"
-python3 setup.py install vanilla --prefix "$BASE/Resources"
+python3 -m pip install --ignore-installed --target "$BASE/Resources/lib/python-3.11/site-packages" .
 
 echo "Renaming main Zenmap executable."
 mv $BASE/MacOS/$APP_NAME $BASE/MacOS/zenmap.bin
