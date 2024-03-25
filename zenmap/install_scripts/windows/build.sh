@@ -8,7 +8,7 @@ BUILDDIR=dist
 
 : << '#MULTILINE_COMMENT'
 # Setup environment
-pacman -S --needed zip mingw-w64-x86_64-{python3,gcc,nsis,binutils,git}
+pacman -S --needed git zip mingw-w64-x86_64-{python3,gcc,nsis,binutils}
 pacman -S --needed mingw-w64-x86_64-python3-pip
 git clone https://github.com/achadwick/styrene.git
 git apply <<EOF
