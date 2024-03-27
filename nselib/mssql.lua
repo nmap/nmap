@@ -3120,7 +3120,7 @@ Helper =
 
     rows = {}
 
-    while(true) do
+    while(true and pos < data:len()) do
       local rowtag
       rowtag, pos = string.unpack("B", data, pos )
 
@@ -3225,8 +3225,8 @@ Helper =
     Helper.Discover( host )
 
     if ( port ) then
-      local status, instances = Helper.GetDiscoveredInstances(host, port)
-      if status then
+      local instances = Helper.GetDiscoveredInstances(host, port)
+      if instances then
         return true, instances
       else
         return false, "No SQL Server instance detected on this port"
@@ -3353,10 +3353,12 @@ Helper =
         return nil
       end
       local output = {}
+      local count = 0
       for _, instance in ipairs(instances) do
         output[instance:GetName()] = process_instance(instance)
+        count = count + 1
       end
-      if #output > 0 then
+      if count > 0 then
         return outlib.sorted_by_key(output)
       end
       return nil
