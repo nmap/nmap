@@ -76,5 +76,4 @@ base_paths = dict(user_config_file=APP_NAME + '.conf',
                   target_list='target_list.txt',
                   options='options.xml',
                   user_home=HOME,
-                  db=APP_NAME + ".db",
-                  version=APP_NAME + "_version")
+                  db=APP_NAME + ".db")

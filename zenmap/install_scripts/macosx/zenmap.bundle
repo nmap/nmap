@@ -79,13 +79,16 @@
     ${prefix}/lib/${gtkdir}/${pkg:${gtk}:gtk_binary_version}/printbackends/*.so
   </binary>
 
-  <!-- Python modules other than tnese are grabbed with get_deps.py -->
+  <!-- Python modules other than these are grabbed with get_deps.py -->
   <binary>
     ${prefix}/lib/python&PYVER;/site-packages/gi/*.so
   </binary>
   <binary>
     ${prefix}/lib/python&PYVER;/site-packages/cairo/*.so
   </binary>
+  <data>
+    ${prefix}/lib/python&PYVER;/site-packages/zenmapCore/data
+  </data>
 
 &pyreqs;
 

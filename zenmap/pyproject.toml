@@ -26,6 +26,12 @@ zenmap = "zenmapGUI.App:run"
 [tool.setuptools]
 packages = [
 "zenmapCore",
+"zenmapCore.data.config",
+"zenmapCore.data.docs",
+"zenmapCore.data.locale",
+"zenmapCore.data.misc",
+"zenmapCore.data.pixmaps",
+"zenmapCore.data.pixmaps.radialnet",
 "zenmapGUI",
 "zenmapGUI.higwidgets",
 "radialnet",
@@ -33,16 +39,15 @@ packages = [
 "radialnet.core",
 "radialnet.gui",
 "radialnet.util",
-"share",
 ]
 
 [tool.setuptools.dynamic]
 version = {attr = "zenmapCore.Version.VERSION"}
 
 [tool.setuptools.package-data]
-"share.zenmap.pixmaps" = ["*.gif", "*.png"]
-"share.zenmap.pixmaps.radialnet" = ["*.png"]
-"share.zenmap.locale" = ["*.mo"]
-"share.zenmap.config" = ["zenmap.conf", "scan_profile.usp", "zenmap_version"]
-"share.zenmap.docs" = ["*.html"]
-"share.zenmap.misc" = ["*.xml"]
+"zenmapCore.data.pixmaps" = ["*.gif", "*.png"]
+"zenmapCore.data.pixmaps.radialnet" = ["*.png"]
+"zenmapCore.data.locale" = ["*.mo"]
+"zenmapCore.data.config" = ["zenmap.conf", "scan_profile.usp", "zenmap_version"]
+"zenmapCore.data.docs" = ["*.html"]
+"zenmapCore.data.misc" = ["*.xml"]
