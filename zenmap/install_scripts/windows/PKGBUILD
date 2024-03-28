@@ -25,8 +25,7 @@ makedepends=("${MINGW_PACKAGE_PREFIX}-python-setuptools")
 
 package() {
 	cd "${NMAP_DIR}/zenmap"
-	${MINGW_PREFIX}/bin/python setup.py build
 	MSYS2_ARG_CONV_EXCL="--prefix=" \
-		${MINGW_PREFIX}/bin/python setup.py install vanilla --prefix=${MINGW_PREFIX} --root="${pkgdir}" --optimize=1
+		${MINGW_PREFIX}/bin/python -m pip install --no-deps --force-reinstall --prefix=${MINGW_PREFIX} --root="${pkgdir}" .
 	install -Dm644 install_scripts/unix/zenmap.desktop "${pkgdir}${MINGW_PREFIX}/share/applications/zenmap.desktop"
 }

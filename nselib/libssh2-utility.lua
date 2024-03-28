@@ -148,6 +148,23 @@ function SSHConnection:list (username)
 end
 
 ---
+-- Attempt to retrieve the server's pre-auth banner
+--
+-- Need to attempt auth first (for instance by calling list)
+--
+-- @return The server's banner or nil on failure.
+function SSHConnection:banner ()
+  if not self.session then
+    return nil
+  end
+  local status, banner = pcall(libssh2.userauth_banner, self.session)
+  if status then
+    return banner
+  end
+  return nil
+end
+
+---
 -- Attempts to read public key file
 --
 -- @param publickey An SSH public key file.

@@ -252,7 +252,6 @@ clean-liblinear:
 	-cd $(LIBLINEARDIR) && $(MAKE) clean
 
 clean-zenmap:
-	-cd $(ZENMAPDIR) && $(PYTHON) setup.py clean --all
 	rm -f $(ZENMAPDIR)/zenmapCore/__init__.pyc
 	rm -f $(ZENMAPDIR)/zenmapCore/Version.pyc
 	rm -f $(ZENMAPDIR)/zenmapCore/Name.pyc
@@ -362,15 +361,12 @@ tests/%: tests/%.cc $(OBJS)
 # local installation.
 DEFAULT_PYTHON_PATH = /usr/bin/env python3
 
-build-zenmap: $(ZENMAPDIR)/setup.py $(ZENMAPDIR)/zenmapCore/Version.py
-# When DESTDIR is defined, assume we're building an executable
-# distribution rather than a local installation and force a generic
-# Python interpreter location.
-	cd $(ZENMAPDIR) && $(PYTHON) setup.py build $(if $(DESTDIR),--executable "$(DEFAULT_PYTHON_PATH)")
+build-zenmap: $(ZENMAPDIR)/pyproject.toml $(ZENMAPDIR)/zenmapCore/Version.py
+	$(PYTHON) -m build $(ZENMAPDIR)
 
-install-zenmap: $(ZENMAPDIR)/setup.py
+install-zenmap: $(ZENMAPDIR)/pyproject.toml
 	$(INSTALL) -d $(DESTDIR)$(bindir) $(DESTDIR)$(mandir)/man1
-	cd $(ZENMAPDIR) && $(PYTHON) setup.py --quiet install --prefix "$(prefix)" --force $(if $(DESTDIR),--root "$(DESTDIR)")
+	$(PYTHON) -m pip install $(ZENMAPDIR) $(if $(DESTDIR),--root "$(DESTDIR)")
 	$(INSTALL) -c -m 644 docs/zenmap.1 $(DESTDIR)$(mandir)/man1/
 # Create a symlink from nmapfe to zenmap if nmapfe doesn't exist or is
 # already a link.
@@ -427,7 +423,7 @@ uninstall-nmap:
 	rm -rf $(DESTDIR)$(nmapdatadir)
 
 uninstall-zenmap:
-	cd $(ZENMAPDIR) && $(PYTHON) setup.py uninstall
+	$(PYTHON) -m pip uninstall $(ZENMAPDIR)
 	rm -f $(DESTDIR)$(mandir)/man1/zenmap.1
 # Uninstall nmapfe only if it's a symlink.
 	if [ -L $(DESTDIR)$(bindir)/nmapfe ]; then \
