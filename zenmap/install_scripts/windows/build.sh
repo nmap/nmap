@@ -36,14 +36,18 @@ pip3 install .
 # make the minimal msys2 environment
 #styrene -p . -o "$BUILDDIR" styrene.cfg --no-exe --no-zip
 
+PYTHON_VER=3.11
 PACKAGEDIR=$BUILDDIR/zenmap-w64/mingw64
-PYTHONLIB=$(ls -d $PACKAGEDIR/lib/python3.*)
+PYTHON_SUBDIR=lib/python$PYTHON_VER
+PYTHONLIB=$PACKAGEDIR/$PYTHON_SUBDIR
 
 # Remove compiled bytecode, recompile in legacy locations, allowing for removal of source.
 # See PEP-3147
 find "$PYTHONLIB"  -depth \( -name 'zenmap*' -o -name 'radialnet' \) -prune -o -name __pycache__ -exec rm -rf '{}' \;
 # Exit code not reliable
-python -m compileall -b -x 'zenmapGUI|zenmapCore|radialnet' "$PYTHONLIB" #|| true
+pushd "$PACKAGEDIR/bin"
+python -m compileall -b -x 'zenmapGUI|zenmapCore|radialnet' "../$PYTHON_SUBDIR" #|| true
+popd
 
 # Remove source if compiled is available, except for Zenmap itself:
 find "$PYTHONLIB" \( -name 'zenmap*' -o -name 'radialnet' \) -prune -o \( -name '*.pyc' -print \) | while read pyc; do
@@ -53,7 +57,9 @@ done
 # Now compile Zenmap using default (not legacy) location.
 # If we had used legacy location, python.exe tries to write out the PEP-3147
 # location anyway when source is available.
-python -m compileall "$PYTHONLIB"/site-packages #|| true
+pushd "$PACKAGEDIR/bin"
+python -m compileall "../$PYTHON_SUBDIR"/site-packages #|| true
+popd
 
 # Remove some of the larger unused items
 rm -f "$PACKAGEDIR"/bin/win7appid.exe
