@@ -374,14 +374,12 @@ void handle_connect_result(struct npool *ms, struct nevent *nse, enum nse_status
           fatal("SSL_new failed: %s", ERR_error_string(ERR_get_error(), NULL));
       }
 
-#if HAVE_SSL_SET_TLSEXT_HOST_NAME
       /* Avoid sending SNI extension with DTLS because many servers don't allow
        * fragmented ClientHello messages. */
       if (iod->hostname != NULL && iod->lastproto != IPPROTO_UDP) {
         if (SSL_set_tlsext_host_name(iod->ssl, iod->hostname) != 1)
           fatal("SSL_set_tlsext_host_name failed: %s", ERR_error_string(ERR_get_error(), NULL));
       }
-#endif
 
       /* Associate our new SSL with the connected socket.  It will inherit the
        * non-blocking nature of the sd */
