@@ -67,4 +67,7 @@
 #define HAVE_IOCP 1
 #endif
 
+#define HAVE_OPENSSL 1
+#define HAVE_DTLS_CLIENT_METHOD 1
+#define HAVE_SSL_SET_TLSEXT_HOST_NAME 1
 #endif /* NSOCK_WINCONFIG_H */
