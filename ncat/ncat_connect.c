@@ -977,7 +977,7 @@ int ncat_connect(void)
     nsock_pool_set_broadcast(mypool, 1);
 
 #ifdef HAVE_OPENSSL
-#ifdef HAVE_DTLS_CLIENT_METHOD
+#ifndef OPENSSL_NO_DTLS
     if(o.proto == IPPROTO_UDP)
         set_ssl_ctx_options((SSL_CTX *) nsock_pool_dtls_init(mypool, 0));
     else

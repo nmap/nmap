@@ -976,7 +976,7 @@ int main(int argc, char *argv[])
 
     if (o.proto == IPPROTO_UDP) {
 
-#ifndef HAVE_DTLS_CLIENT_METHOD
+#ifdef OPENSSL_NO_DTLS
         if (o.ssl)
             bye("OpenSSL does not have DTLS support compiled in.");
 #endif

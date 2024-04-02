@@ -68,5 +68,4 @@
 #endif
 
 #define HAVE_OPENSSL 1
-#define HAVE_DTLS_CLIENT_METHOD 1
 #endif /* NSOCK_WINCONFIG_H */

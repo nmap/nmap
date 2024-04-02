@@ -95,13 +95,13 @@ void nsp_ssl_cleanup(struct npool *nsp)
   {
     if (nsp->sslctx != NULL)
       SSL_CTX_free(nsp->sslctx);
-#ifdef HAVE_DTLS_CLIENT_METHOD
+#ifndef OPENSSL_NO_DTLS
     if (nsp->dtlsctx != NULL)
       SSL_CTX_free(nsp->dtlsctx);
 #endif
   }
   nsp->sslctx = NULL;
-#ifdef HAVE_DTLS_CLIENT_METHOD
+#ifndef OPENSSL_NO_DTLS
   nsp->dtlsctx = NULL;
 #endif
 }
@@ -198,7 +198,7 @@ nsock_ssl_ctx nsock_pool_ssl_init(nsock_pool ms_pool, int flags) {
   return nsock_pool_ssl_init_helper(ms->sslctx, flags);
 }
 
-#ifdef HAVE_DTLS_CLIENT_METHOD
+#ifndef OPENSSL_NO_DTLS
 
 /* Create an SSL_CTX and do initialisation, creating a DTLS client */
 static SSL_CTX *dtls_init_common() {
