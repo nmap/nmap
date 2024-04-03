@@ -55,6 +55,7 @@ categories = {"vuln", "safe", "external"}
 
 
 local http = require "http"
+local url = require "url"
 local json = require "json"
 local string = require "string"
 local table = require "table"
@@ -125,14 +126,21 @@ end
 function get_results(what, vers, type)
   local api_endpoint = "https://vulners.com/api/v3/burp/software/"
   local vulns
+  local query = {
+          software= what,
+          version= vers,
+          type=type
+  }
+  local api_url = ('%s?%s'):format(api_endpoint, url.build_query(query))
   local option={
     header={
-      ['User-Agent'] = string.format('Vulners NMAP Plugin %s', api_version)
+      ['User-Agent'] = string.format('Vulners NMAP Plugin %s', api_version),
+      ['Accept-Encoding'] = "gzip, deflate"
     },
     any_af = true,
   }
 
-  local response = http.get_url(('%s?software=%s&version=%s&type=%s'):format(api_endpoint, what, vers, type), option)
+  local response = http.get_url(api_url, option)
 
   local status = response.status
   if status == nil then
