@@ -8867,8 +8867,8 @@ match http m|^HTTP/1\.0 200 OK\r\n(?:[^\r\n]+\r\n)*?Set-Cookie: cookie_session_i
 match http m|^HTTP/1\.0 401 Unauthorized\r\nPragma: no-cache\r\n(?:[^\r\n]+\r\n)*?WWW-Authenticate: Basic realm=\"Demo9\"\r\nContent-Type: text/html\r\nContent-Length: 236\r\n\r\n|s p/Tandberg codec T150 http config/ d/VoIP phone/ cpe:/h:tandberg:codec_t150/a
 match http m|^HTTP/1\.1 401 Unauthorized\r\nServer: OTDAV/([\w._-]+)\r\n(?:[^\r\n]+\r\n)*?Www-Authenticate: Digest realm=\"Olive Toast WebDAVServer\"|s p/Olive Toast WebDAVServer/ v/$1/ i/OTDAV; iPhone/ d/phone/
 match http m|^HTTP/1\.0 302 Moved\r\nServer: HASP LM/([\w._-]+)\r\nDate: .*\r\nLocation: /_int_/index\.html\r\nContent-[Tt]ype: text/html\r\nContent-[Ll]ength: 106\r\n| p|Aladdin/SafeNet HASP license manager| v/$1/ o/Windows/ cpe:/a:safenet-inc:hasp_license_manager:$1/ cpe:/o:microsoft:windows/a
-match http m|^HTTP/1\.0 403 Forbidden\r\nServer: HASP LM/([\w._-]+)\r\nDate: .*\r\nContent-[Tt]ype: text/html\r\nContent-[Ll]ength: 137\r\n\r\n<title>403 Forbidden</title>\n<h1>403 Forbidden</h1>\nAccess to this resource has been denied to you\.\n<p>Please contact the administrator\.\n$| p|Aladdin/SafeNet HASP license manager| v/$1/ o/Windows/ cpe:/a:safenet-inc:hasp_license_manager:$1/ cpe:/o:microsoft:windows/a
-match http m|^HTT/1\.0 401 Not Authorized\r\nServer: HASP LM/([\w._-]+)\r\nDate: .*\r\nWWW-Authenticate: Basic realm=\"HASP License Manager\"\r\nContent-type: text/html\r\nContent-length: 151\r\n\r\n<title>401 Not Authorized</title>\n<h1>401 Not Authorized</h1>\nYou need proper authorization to use this resource\.\n<p>Please contact the administrator\.\n$| p/Sentinel HASP license manager/ v/$1/ o/Windows/ cpe:/o:microsoft:windows/a
+match http m|^HTTP/1\.0 403 Forbidden\r\nServer: HASP LM/([\w._-]+)\r\nDate: .*\r\n(?:.+\r\n)*Content-[Tt]ype: text/html\r\nContent-[Ll]ength: 137\r\n\r\n<title>403 Forbidden</title>\n<h1>403 Forbidden</h1>\nAccess to this resource has been denied to you\.\n<p>Please contact the administrator\.\n$| p|Aladdin/SafeNet HASP license manager| v/$1/ o/Windows/ cpe:/a:safenet-inc:hasp_license_manager:$1/ cpe:/o:microsoft:windows/a
+match http m|^HTTP?/1\.0 401 Not Authorized\r\nServer: HASP LM/([\w._-]+)\r\nDate: .*\r\nWWW-Authenticate: Basic realm=\"HASP License Manager\"\r\nContent-type: text/html\r\nContent-length: 151\r\n\r\n<title>401 Not Authorized</title>\n<h1>401 Not Authorized</h1>\nYou need proper authorization to use this resource\.\n<p>Please contact the administrator\.\n$| p/Sentinel HASP license manager/ v/$1/ o/Windows/ cpe:/o:microsoft:windows/a
 match http m|^HTTP/1\.1 400 Bad Request\nDate: .*\nServer: HASP Server/([\d.]+) \(MSWin32\)\nContent-Length: 95\nConnection: close\nContent-Type: text/html\n\n<HTML><HEAD><TITLE>400 Bad Request</TITLE></HEAD><BODY><H2>400 - Bad Request</H2></BODY></HTML>$| p/Aladdin HASP license manager/ v/$1/ o/Windows/ cpe:/o:microsoft:windows/a
 match http m|^HTTP/1\.0 400 Bad Request\r\nServer: Mbedthis-Appweb/([\d.]+)\r\nDate: .*\r\nConnection: close\r\nContent-Type: text/html\r\nContent-length: 130\r\n\r\n<HTML><HEAD><TITLE>Document Error: Bad Request</TITLE></HEAD>\r\n<BODY><H2>Access Error: 400 -- Bad Request</H2>\r\n</BODY></HTML>\r\n\r\n$| p/Mbedthis-Appweb/ v/$1/ i/Dell iDRAC6 http config/ d/remote management/ cpe:/a:mbedthis:appweb:$1/ cpe:/h:dell:idrac6/
 match http m|^HTTP/1\.0 400 Bad Request\r\nServer: httpd\r\nDate: .*\r\nConnection: close\r\nContent-Type: text/html\r\nContent-length: 130\r\n\r\n<HTML><HEAD><TITLE>Document Error: Bad Request</TITLE></HEAD>\r\n<BODY><H2>Access Error: 400 -- Bad Request</H2>\r\n</BODY></HTML>\r\n\r\n$| p/Mbedthis-Appweb/ i/Dell iDRAC6 http config/ d/remote management/ cpe:/a:mbedthis:appweb/ cpe:/h:dell:idrac6/
@@ -14750,6 +14750,9 @@ totalwaitms 7500
 
 match atalla m|^<00#020035#0101##>\r\n<00#020035#0101##>\r\n<00#020035#0101##>\r\n| p/Atalla Hardware Security Module payment system/ d/specialized/
 
+# 1040025 is "invalid platform"
+match essnet m|^\xff\0\x13\0/v\x0f\0\0\0\0\0\0\0\x01\0\xc8\0\t\0/v\x0f\0\x04\x001040025\0\0| p/Hyperion Essbase/
+
 match honeypot m|^HTTP/1\.0 200 OK\r\nAllow: OPTIONS, GET, HEAD, POST\r\nContent-Length: 0\r\nConnection: close\r\n\r\n| p/Dionaea Honeypot httpd/
 match honeypot m|^SIP/2\.0 200 OK\r\nContent-Length: 0\r\nVia: SIP/2\.0/TCP nm;branch=foo\r\nFrom: sip:nm@nm;tag=root\r\nAccept: application/sdp\r\nTo: sip:nm2@nm2\r\nContact: sip:nm2@nm2\r\nCSeq: 42 OPTIONS\r\nAllow: REGISTER, OPTIONS, INVITE, CANCEL, BYE, ACK\r\nCall-ID: 50000\r\nAccept-Language: en\r\n\r\n| p/Dionaea Honeypot sipd/
 
@@ -15010,6 +15013,7 @@ match landesk-rc m|^\0\x06\x05| p/Novell Zen Remote Desktop/ v/6.5.X/
 
 match landesk-rc m|^TNMP.\0\0\0TNME.\0\0\0USER.\x07\x04\0\x08\0.{9}\0P\0\x03\0U\0\xff\xff\0.*Desktop Manager ([\d.]+)\0|s p/LANDesk RC/ v/$1/ cpe:/a:landesk:landesk_management_suite:$1/
 
+match essnet m|^\xff\0\x13\0/v\x0f\0\0\0\0\0\0\0\x01\0\xc8\0\t\0/v\x0f\0\x04\x001040025\0\0| p/Hyperion Essbase/
 match spice m|^REDQ\x02\0\0\0\x02\0\0\0[^\0]| i/SPICE 2.2/
 
 ##############################NEXT PROBE##############################
