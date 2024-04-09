@@ -63,7 +63,7 @@ import configparser
 import shutil
 
 # https://docs.python.org/3/whatsnew/3.8.html#bpo-36085-whatsnew
-if os.add_dll_directory:
+if hasattr(os, "add_dll_directory"):
     os.add_dll_directory(os.path.dirname(sys.executable))
 
 # Cause an exception if PyGTK can't open a display. Normally this just
