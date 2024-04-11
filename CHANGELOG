@@ -1,5 +1,20 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Four new scripts from the DINA community (https://github.com/DINA-community)
+  for querying industrial control systems:
+
+  + hartip-info reads device information from devices using the Highway
+    Addressable Remote Transducer protocol
+
+  + iec61850-mms queries devices using Manufacturing Message Specification
+    requests. [Dennis Rösch, Max Helbig]
+
+  + multicast-profinet-discovery Sends a multicast PROFINET DCP Identify All
+    message and prints the responses. [Stefan Eiwanger, DINA-community]
+
+  + profinet-cm-lookup queries the DCERPC endpoint mapper exposed via the
+    PNIO-CM service.
+
 o Integrated over 2500 service/version detection fingerprints submitted since
   June 2020. The signature count went up 1.4% to 12089, including 9 new
   softmatches.  We now detect 1246 protocols, including new additions of grpc,
