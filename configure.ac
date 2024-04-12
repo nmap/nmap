@@ -694,7 +694,7 @@ if test $use_libssh2 = yes -a $use_openssl = yes; then
   # If they didn't specify it, we try to find it
   if test $have_libssh2 != yes -a $requested_included_libssh2 != yes; then
     AC_CHECK_HEADER(libssh2.h,[
-      AC_CHECK_LIB(ssh2, libssh2_version,
+      AC_CHECK_LIB(ssh2, libssh2_userauth_banner,
         [have_libssh2="yes"],,[-lm])
       ])
   fi

@@ -7660,9 +7660,9 @@ if test $use_libssh2 = yes -a $use_openssl = yes; then
 if test "x$ac_cv_header_libssh2_h" = xyes
 then :
 
-      { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for libssh2_version in -lssh2" >&5
-printf %s "checking for libssh2_version in -lssh2... " >&6; }
-if test ${ac_cv_lib_ssh2_libssh2_version+y}
+      { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for libssh2_userauth_banner in -lssh2" >&5
+printf %s "checking for libssh2_userauth_banner in -lssh2... " >&6; }
+if test ${ac_cv_lib_ssh2_libssh2_userauth_banner+y}
 then :
   printf %s "(cached) " >&6
 else $as_nop
@@ -7674,28 +7674,28 @@ cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* Override any GCC internal prototype to avoid an error.
    Use char because int might match the return type of a GCC
    builtin and then its argument prototype would still apply.  */
-char libssh2_version ();
+char libssh2_userauth_banner ();
 int
 main (void)
 {
-return libssh2_version ();
+return libssh2_userauth_banner ();
   ;
   return 0;
 }
 _ACEOF
 if ac_fn_c_try_link "$LINENO"
 then :
-  ac_cv_lib_ssh2_libssh2_version=yes
+  ac_cv_lib_ssh2_libssh2_userauth_banner=yes
 else $as_nop
-  ac_cv_lib_ssh2_libssh2_version=no
+  ac_cv_lib_ssh2_libssh2_userauth_banner=no
 fi
 rm -f core conftest.err conftest.$ac_objext conftest.beam \
     conftest$ac_exeext conftest.$ac_ext
 LIBS=$ac_check_lib_save_LIBS
 fi
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_ssh2_libssh2_version" >&5
-printf "%s\n" "$ac_cv_lib_ssh2_libssh2_version" >&6; }
-if test "x$ac_cv_lib_ssh2_libssh2_version" = xyes
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_ssh2_libssh2_userauth_banner" >&5
+printf "%s\n" "$ac_cv_lib_ssh2_libssh2_userauth_banner" >&6; }
+if test "x$ac_cv_lib_ssh2_libssh2_userauth_banner" = xyes
 then :
   have_libssh2="yes"
 fi
@@ -10284,3 +10284,4 @@ fi
 if test "x$use_libssh2" != "xyes"; then
   echo "WARNING: You are compiling without LibSSH2"
 fi
+
