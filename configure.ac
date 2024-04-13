@@ -106,8 +106,6 @@ fi
 
 AC_PATH_TOOL([STRIP], [strip], [/bin/true])
 
-needs_cpp_precomp=no
-
 LUA_CFLAGS="-DLUA_USE_POSIX -DLUA_USE_DLOPEN"
 
 AH_TEMPLATE(SOLARIS, [Sun/Oracle Solaris])
@@ -196,7 +194,6 @@ case "$host" in
     dnl on Mac OSX the math library seems to contain unwanted getopt cruft
     AC_CHECK_LIB(m, main)
     LUA_CFLAGS="-DLUA_USE_MACOSX"
-    needs_cpp_precomp=yes
     ;;
 esac
 

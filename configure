@@ -5666,8 +5666,6 @@ else
 fi
 
 
-needs_cpp_precomp=no
-
 LUA_CFLAGS="-DLUA_USE_POSIX -DLUA_USE_DLOPEN"
 
 
@@ -5999,7 +5997,6 @@ then :
 fi
 
     LUA_CFLAGS="-DLUA_USE_MACOSX"
-    needs_cpp_precomp=yes
     ;;
 esac
 
