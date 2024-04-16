@@ -1062,7 +1062,6 @@ static void init_servs(void) {
 // Actual main loop
 static void nmap_mass_rdns_core(Target **targets, int num_targets) {
 
-  Target **hostI;
   std::list<request *>::iterator reqI;
   request *tpreq;
   int timeout;
@@ -1087,20 +1086,21 @@ static void nmap_mass_rdns_core(Target **targets, int num_targets) {
   total_reqs = 0;
 
   // Set up the request structure
-  for(hostI = targets; hostI < targets+num_targets; hostI++)
+  for (int i=0; i < num_targets; i++)
   {
-    if (!((*hostI)->flags & HOST_UP) && !o.always_resolve) continue;
+    Target *target = targets[i];
+    if (!(target->flags & HOST_UP) && !o.always_resolve) continue;
 
     // See if it's cached
     std::string res;
-    if (host_cache.lookup(*(*hostI)->TargetSockAddr(), res)) {
+    if (host_cache.lookup(*target->TargetSockAddr(), res)) {
       tpname = res.c_str();
-      (*hostI)->setHostName(tpname);
+      target->setHostName(tpname);
       continue;
     }
 
     tpreq = new request;
-    tpreq->targ = *hostI;
+    tpreq->targ = target;
     tpreq->tries = 0;
     tpreq->servers_tried = 0;
 
@@ -1190,14 +1190,13 @@ static void nmap_mass_rdns_core(Target **targets, int num_targets) {
 }
 
 static void nmap_system_rdns_core(Target **targets, int num_targets) {
-  Target **hostI;
-  Target *currenths;
   char hostname[FQDN_LEN + 1] = "";
   char spmobuf[1024];
   int i;
 
-  for(hostI = targets; hostI < targets+num_targets; hostI++) {
-    currenths = *hostI;
+  for (int i=0; i < num_targets; i++)
+  {
+    Target *currenths = targets[i];
 
     if (((currenths->flags & HOST_UP) || o.always_resolve) && !o.noresolve) stat_actual++;
   }
@@ -1205,8 +1204,9 @@ static void nmap_system_rdns_core(Target **targets, int num_targets) {
   Snprintf(spmobuf, sizeof(spmobuf), "System DNS resolution of %d host%s.", stat_actual, stat_actual-1 ? "s" : "");
   SPM = new ScanProgressMeter(spmobuf);
 
-  for(i=0, hostI = targets; hostI < targets+num_targets; hostI++, i++) {
-    currenths = *hostI;
+  for (int i=0; i < num_targets; i++)
+  {
+    Target *currenths = targets[i];
 
     if (keyWasPressed())
       SPM->printStats((double) i / stat_actual, NULL);
