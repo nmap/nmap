@@ -1192,7 +1192,6 @@ static void nmap_mass_rdns_core(Target **targets, int num_targets) {
 static void nmap_system_rdns_core(Target **targets, int num_targets) {
   char hostname[FQDN_LEN + 1] = "";
   char spmobuf[1024];
-  int i;
 
   for (int i=0; i < num_targets; i++)
   {
