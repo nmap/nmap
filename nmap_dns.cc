@@ -219,7 +219,7 @@ struct dns_server {
 };
 
 struct request {
-  Target *targ;
+  DNS::Request *targ;
   struct timeval timeout;
   int tries;
   int servers_tried;
@@ -447,7 +447,7 @@ static void do_possible_writes() {
 
       if (tpreq) {
         if (o.debugging >= TRACE_DEBUG_LEVEL)
-           log_write(LOG_STDOUT, "mass_rdns: TRANSMITTING for <%s> (server <%s>)\n", tpreq->targ->targetipstr() , servI->hostname.c_str());
+           log_write(LOG_STDOUT, "mass_rdns: TRANSMITTING for <%s> (server <%s>)\n", tpreq->targ->repr(), servI->hostname.c_str());
         stat_trans++;
         put_dns_packet_on_wire(tpreq);
       }
@@ -483,8 +483,19 @@ static void put_dns_packet_on_wire(request *req) {
   req->id = DNS::Factory::progressiveId;
   req->curr_server->write_busy = 1;
   req->curr_server->reqs_on_wire++;
+  DNS::Request &reqt = *req->targ;
 
-  plen = DNS::Factory::buildReverseRequest(*req->targ->TargetSockAddr(), packet, maxlen);
+  switch(reqt.type) {
+    case DNS::A:
+    case DNS::AAAA:
+      plen = DNS::Factory::buildSimpleRequest(reqt.name, reqt.type, packet, maxlen);
+      break;
+    case DNS::PTR:
+      plen = DNS::Factory::buildReverseRequest(reqt.ss, packet, maxlen);
+      break;
+    default:
+      break;
+  }
 
   memcpy(&now, nsock_gettimeofday(), sizeof(struct timeval));
   TIMEVAL_MSEC_ADD(timeout, now, read_timeouts[read_timeout_index][req->tries]);
@@ -551,7 +562,7 @@ static int deal_with_timedout_reads() {
             // FIXME: Find a good compromise
 
             // **** We've already tried all servers... give up
-            if (o.debugging >= TRACE_DEBUG_LEVEL) log_write(LOG_STDOUT, "mass_rdns: *DR*OPPING <%s>\n", tpreq->targ->targetipstr());
+            if (o.debugging >= TRACE_DEBUG_LEVEL) log_write(LOG_STDOUT, "mass_rdns: *DR*OPPING <%s>\n", tpreq->targ->repr());
 
             output_summary();
             stat_dropped++;
@@ -579,60 +590,67 @@ static int deal_with_timedout_reads() {
 
 }
 
-// After processing a DNS response, we search through the IPs we're
-// looking for and update their results as necessary.
-// Returns non-zero if this matches a query we're looking for
-static int process_result(const sockaddr_storage &ip, const std::string &result, int action, u16 id)
-{
-  request *tpreq;
-  std::map<u16, info>::iterator infoI;
-  dns_server *server;
+static void process_request(int action, info &reqinfo) {
+  request *tpreq = reqinfo.tpreq;
+  dns_server *server = reqinfo.server;
 
-  infoI = records.find(id);
-
-  if( infoI != records.end() ){
-
-    tpreq = infoI->second.tpreq;
-    server = infoI->second.server;
-
-    if( !result.empty() && !sockaddr_storage_equal(&ip, tpreq->targ->TargetSockAddr()) )
-      return 0;
-
-    if (action == ACTION_SYSTEM_RESOLVE || action == ACTION_FINISHED)
-    {
+  switch (action) {
+    case ACTION_SYSTEM_RESOLVE:
+    case ACTION_FINISHED:
       server->capacity += CAPACITY_UP_STEP;
       check_capacities(&*server);
-
-      if(!result.empty())
-      {
-        tpreq->targ->setHostName(result.c_str());
-        host_cache.add(* tpreq->targ->TargetSockAddr(), result);
-      }
-
-      records.erase(infoI);
+      records.erase(tpreq->id);
       server->in_process.remove(tpreq);
       server->reqs_on_wire--;
-
       total_reqs--;
+      if (action == ACTION_SYSTEM_RESOLVE) {
+        deferred_reqs.push_back(tpreq);
+      }
+      else {
+        delete tpreq;
+      }
 
-      if (action == ACTION_SYSTEM_RESOLVE) deferred_reqs.push_back(tpreq);
-      if (action == ACTION_FINISHED) delete tpreq;
-    }
-    else
-    {
+      break;
+    case ACTION_TIMEOUT:
       memcpy(&tpreq->timeout, nsock_gettimeofday(), sizeof(struct timeval));
       deal_with_timedout_reads();
+      break;
+    default:
+      assert(false);
+      break;
+  }
+}
+
+// After processing a DNS response, we search through the IPs we're
+// looking for and update their results as necessary.
+static int process_result(const sockaddr_storage &ip, const std::string &result, int action, info &reqinfo)
+{
+  assert(action == ACTION_FINISHED);
+  request *tpreq = reqinfo.tpreq;
+
+  if (!result.empty())
+  {
+    if (!sockaddr_storage_equal(&ip, &tpreq->targ->ss))
+    {
+      if (o.debugging)
+        log_write(LOG_STDOUT, "mass_rdns: Mismatched record for ID %d\n", tpreq->id);
+      return 0;
     }
 
-    do_possible_writes();
 
-    // Close DNS servers if we're all done so that we kill
-    // all events and return from nsock_loop immediateley
-    if (total_reqs == 0)
-      close_dns_servers();
-    return 1;
+    tpreq->targ->name = result;
+    host_cache.add(tpreq->targ->ss, result);
   }
-  return 0;
+
+  process_request(action, reqinfo);
+
+  do_possible_writes();
+
+  // Close DNS servers if we're all done so that we kill
+  // all events and return from nsock_loop immediateley
+  if (total_reqs == 0)
+    close_dns_servers();
+  return 1;
 }
 
 // Nsock read handler. One nsock read for each DNS server exists at each
@@ -666,29 +684,30 @@ static void read_evt_handler(nsock_pool nsp, nsock_event evt, void *) {
      DNS_HAS_ERR(f, DNS::ERR_NOT_IMPLEMENTED) || DNS_HAS_ERR(f, DNS::ERR_REFUSED))
     return;
 
+  // Check for matching request
+  std::map<u16, info>::iterator infoI = records.find(p.id);
+  if (infoI == records.end()) {
+    return;
+  }
+  info &reqinfo = infoI->second;
+
   if (DNS_HAS_ERR(f, DNS::ERR_NAME))
   {
-    sockaddr_storage discard;
-    if(process_result(discard, "", ACTION_FINISHED, p.id))
-    {
-      if (o.debugging >= TRACE_DEBUG_LEVEL)
-        log_write(LOG_STDOUT, "mass_rdns: NXDOMAIN <id = %d>\n", p.id);
-      output_summary();
-      stat_nx++;
-    }
+    process_request(ACTION_FINISHED, reqinfo);
+    if (o.debugging >= TRACE_DEBUG_LEVEL)
+      log_write(LOG_STDOUT, "mass_rdns: NXDOMAIN <id = %d>\n", p.id);
+    output_summary();
+    stat_nx++;
 
     return;
   }
 
   if (DNS_HAS_ERR(f, DNS::ERR_SERVFAIL))
   {
-    sockaddr_storage discard;
-    if (process_result(discard, "", ACTION_TIMEOUT, p.id))
-    {
-      if (o.debugging >= TRACE_DEBUG_LEVEL)
-        log_write(LOG_STDOUT, "mass_rdns: SERVFAIL <id = %d>\n", p.id);
-      stat_sf++;
-    }
+    process_request(ACTION_TIMEOUT, reqinfo);
+    if (o.debugging >= TRACE_DEBUG_LEVEL)
+      log_write(LOG_STDOUT, "mass_rdns: SERVFAIL <id = %d>\n", p.id);
+    stat_sf++;
 
     return;
   }
@@ -717,7 +736,7 @@ static void read_evt_handler(nsock_pool nsp, nsock_event evt, void *) {
             // Or if we can get an IP from reversing the .arpa PTR address
             || DNS::Factory::ptrToIp(a.name, ip))
           {
-            if ((processing_successful = process_result(ip, ptr->value, ACTION_FINISHED, p.id)))
+            if ((processing_successful = process_result(ip, ptr->value, ACTION_FINISHED, reqinfo)))
             {
               if (o.debugging >= TRACE_DEBUG_LEVEL)
               {
@@ -757,19 +776,17 @@ static void read_evt_handler(nsock_pool nsp, nsock_event evt, void *) {
   if (!processing_successful) {
     if (DNS_HAS_FLAG(f, DNS::TRUNCATED)) {
       // TODO: TCP fallback, or only use system resolver if user didn't specify --dns-servers
-      process_result(ip, "", ACTION_SYSTEM_RESOLVE, p.id);
+      process_request(ACTION_SYSTEM_RESOLVE, reqinfo);
     }
     else if (!alias.empty()) {
       if (o.debugging >= TRACE_DEBUG_LEVEL)
       {
-        char ipstr[INET6_ADDRSTRLEN];
-        sockaddr_storage_iptop(&ip, ipstr);
-        log_write(LOG_STDOUT, "mass_rdns: CNAME for <%s> not processed.\n", ipstr);
+        log_write(LOG_STDOUT, "mass_rdns: CNAME for <%s> not processed.\n", reqinfo.tpreq->targ->repr());
       }
       // TODO: Send a PTR request for alias instead. Meanwhile, we'll just fall
       // back to using system resolver. Alternative: report the canonical name
       // (alias), but that's not very useful.
-      process_result(ip, "", ACTION_SYSTEM_RESOLVE, p.id);
+      process_request(ACTION_SYSTEM_RESOLVE, reqinfo);
     }
     else {
       if (o.debugging >= TRACE_DEBUG_LEVEL) {
@@ -1056,12 +1073,11 @@ static void init_servs(void) {
 
 
 // Actual main loop
-static void nmap_mass_rdns_core(Target **targets, int num_targets) {
+static void nmap_mass_dns_core(DNS::Request *requests, int num_requests) {
 
   std::list<request *>::iterator reqI;
   request *tpreq;
   int timeout;
-  const char *tpname;
   int i;
   char spmobuf[1024];
 
@@ -1082,21 +1098,17 @@ static void nmap_mass_rdns_core(Target **targets, int num_targets) {
   total_reqs = 0;
 
   // Set up the request structure
-  for (int i=0; i < num_targets; i++)
+  for (int i=0; i < num_requests; i++)
   {
-    Target *target = targets[i];
-    if (!(target->flags & HOST_UP) && !o.always_resolve) continue;
+    DNS::Request &reqt = requests[i];
 
     // See if it's cached
-    std::string res;
-    if (host_cache.lookup(*target->TargetSockAddr(), res)) {
-      tpname = res.c_str();
-      target->setHostName(tpname);
+    if (host_cache.lookup(reqt.ss, reqt.name)) {
       continue;
     }
 
     tpreq = new request;
-    tpreq->targ = target;
+    tpreq->targ = &reqt;
     tpreq->tries = 0;
     tpreq->servers_tried = 0;
 
@@ -1165,12 +1177,12 @@ static void nmap_mass_rdns_core(Target **targets, int num_targets) {
 
       tpreq = *reqI;
 
-      if (getnameinfo((const struct sockaddr *)tpreq->targ->TargetSockAddr(),
+      if (getnameinfo((const struct sockaddr *)&tpreq->targ->ss,
                       sizeof(struct sockaddr_storage), hostname,
                       sizeof(hostname), NULL, 0, NI_NAMEREQD) == 0) {
         stat_ok++;
         stat_cname++;
-        tpreq->targ->setHostName(hostname);
+        tpreq->targ->name = hostname;
       }
 
       delete tpreq;
@@ -1185,35 +1197,26 @@ static void nmap_mass_rdns_core(Target **targets, int num_targets) {
 
 }
 
-static void nmap_system_rdns_core(Target **targets, int num_targets) {
+static void nmap_system_dns_core(DNS::Request requests[], int num_requests) {
   char hostname[FQDN_LEN + 1] = "";
   char spmobuf[1024];
-  int i;
 
-  for (int i=0; i < num_targets; i++)
-  {
-    Target *currenths = targets[i];
-
-    if (((currenths->flags & HOST_UP) || o.always_resolve) && !o.noresolve) stat_actual++;
-  }
-
+  stat_actual = num_requests;
   Snprintf(spmobuf, sizeof(spmobuf), "System DNS resolution of %d host%s.", stat_actual, stat_actual-1 ? "s" : "");
   SPM = new ScanProgressMeter(spmobuf);
 
-  for (int i=0; i < num_targets; i++)
+  for (int i=0; i < num_requests; i++)
   {
-    Target *currenths = targets[i];
+    DNS::Request &reqt = requests[i];
 
     if (keyWasPressed())
       SPM->printStats((double) i / stat_actual, NULL);
 
-    if (((currenths->flags & HOST_UP) || o.always_resolve) && !o.noresolve) {
-      if (getnameinfo((struct sockaddr *)currenths->TargetSockAddr(),
-                      sizeof(sockaddr_storage), hostname,
-                      sizeof(hostname), NULL, 0, NI_NAMEREQD) == 0) {
-        stat_ok++;
-        currenths->setHostName(hostname);
-      }
+    if (getnameinfo((const struct sockaddr *)&reqt.ss,
+          sizeof(sockaddr_storage), hostname,
+          sizeof(hostname), NULL, 0, NI_NAMEREQD) == 0) {
+      stat_ok++;
+      reqt.name = hostname;
     }
   }
 
@@ -1224,7 +1227,7 @@ static void nmap_system_rdns_core(Target **targets, int num_targets) {
 
 // Publicly available function. Basically just a wrapper so we
 // can record time information, restart statistics, etc.
-void nmap_mass_rdns(Target **targets, int num_targets) {
+void nmap_mass_dns(DNS::Request requests[], int num_requests) {
 
   struct timeval now;
 
@@ -1233,9 +1236,9 @@ void nmap_mass_rdns(Target **targets, int num_targets) {
   stat_actual = stat_ok = stat_nx = stat_sf = stat_trans = stat_dropped = stat_cname = 0;
 
   if (o.mass_dns)
-    nmap_mass_rdns_core(targets, num_targets);
+    nmap_mass_dns_core(requests, num_requests);
   else
-    nmap_system_rdns_core(targets, num_targets);
+    nmap_system_dns_core(requests, num_requests);
 
   gettimeofday(&now, NULL);
 
@@ -1262,6 +1265,29 @@ void nmap_mass_rdns(Target **targets, int num_targets) {
   firstrun=0;
 }
 
+
+void nmap_mass_rdns(Target ** targets, int num_targets) {
+  /* Second, make an array of pointer to DNS::Request to suit the interface of
+     nmap_mass_rdns. */
+  DNS::Request *requests = new DNS::Request[num_targets];
+  for (int i = 0; i < num_targets; i++) {
+    Target *target = targets[i];
+    if (!(target->flags & HOST_UP) && !o.always_resolve) continue;
+
+    DNS::Request &reqt = requests[i];
+    size_t sslen = sizeof(struct sockaddr_storage);
+    target->TargetSockAddr(&reqt.ss, &sslen);
+    reqt.type = DNS::PTR;
+  }
+  nmap_mass_dns(requests, num_targets);
+  for (int i = 0; i < num_targets; i++) {
+    std::string &name = requests[i].name;
+    if (!name.empty()) {
+      targets[i]->setHostName(name.c_str());
+    }
+  }
+  delete[] requests;
+}
 
 // Returns a list of known DNS servers
 std::list<std::string> get_dns_servers() {
@@ -1694,4 +1720,23 @@ size_t DNS::Packet::parseFromBuffer(const u8 *buf, size_t maxlen)
   };
 
   return ret;
+}
+
+const char *DNS::Request::repr()
+{
+  switch(type) {
+    case DNS::NONE:
+      return "Uninitialized request";
+      break;
+    case DNS::A:
+    case DNS::AAAA:
+      return name.c_str();
+      break;
+    case DNS::PTR:
+      return inet_ntop_ez(&ss, sizeof(ss));
+      break;
+    default:
+      return "Invalid request";
+      break;
+  }
 }

@@ -122,6 +122,7 @@ typedef enum {
 } ERRORS;
 
 typedef enum {
+  NONE = 0,
   A = 1,
   CNAME = 5,
   PTR = 12,
@@ -244,8 +245,18 @@ public:
   std::list<Answer> answers;
 };
 
+struct Request
+{
+  RECORD_TYPE type;
+  struct sockaddr_storage ss;
+  std::string name;
+  Request() : type(NONE), name() {}
+  const char *repr(); // string representation
+};
 }
 
+
+void nmap_mass_dns(DNS::Request requests[], int num_requests);
 void nmap_mass_rdns(Target ** targets, int num_targets);
 
 std::list<std::string> get_dns_servers();
