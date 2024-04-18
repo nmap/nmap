@@ -527,9 +527,7 @@ static int deal_with_timedout_reads() {
         servI->capacity = (int) (servI->capacity * CAPACITY_MINOR_DOWN_SCALE);
         check_capacities(&*servI);
         servI->in_process.erase(reqI);
-        std::map<u16, info>::iterator it = records.find(tpreq->id);
-        if ( it != records.end() )
-          records.erase(it);
+        records.erase(tpreq->id);
         servI->reqs_on_wire--;
 
         // If we've tried this server enough times, move to the next one
@@ -558,9 +556,7 @@ static int deal_with_timedout_reads() {
             output_summary();
             stat_dropped++;
             total_reqs--;
-            infoI = records.find(tpreq->id);
-            if ( infoI != records.end() )
-              records.erase(infoI);
+            records.erase(tpreq->id);
             delete tpreq;
 
             // **** OR We start at the back of this server's queue
