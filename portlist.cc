@@ -486,11 +486,9 @@ void PortList::setPortState(u16 portno, u8 protocol, int state, int *oldstate) {
   current = createPort(portno, protocol, &created);
 
   if (!created) {
-    /* We must discount our statistics from the old values.  Also warn
-       if a complete duplicate */
-    if (o.debugging && current->state == state) {
-      error("Duplicate port (%hu/%s)", portno, proto2ascii_lowercase(protocol));
-    }
+    /* We must discount our statistics from the old values.
+     * Duplicates are not a problem and are expected due to optimistic state
+     * setting in ultrascan_port_pspec_update() */
     state_counts_proto[proto][current->state]--;
     if (oldstate) *oldstate = current->state;
   } else {
