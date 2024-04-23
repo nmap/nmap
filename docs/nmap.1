@@ -2,12 +2,12 @@
 .\"     Title: nmap
 .\"    Author: [see the "Authors" section]
 .\" Generator: DocBook XSL Stylesheets v1.79.1 <http://docbook.sf.net/>
-.\"      Date: 05/17/2023
+.\"      Date: 04/12/2024
 .\"    Manual: Nmap Reference Guide
 .\"    Source: Nmap
 .\"  Language: English
 .\"
-.TH "NMAP" "1" "05/17/2023" "Nmap" "Nmap Reference Guide"
+.TH "NMAP" "1" "04/12/2024" "Nmap" "Nmap Reference Guide"
 .\" -----------------------------------------------------------------
 .\" * Define some portability stuff
 .\" -----------------------------------------------------------------
@@ -119,7 +119,7 @@ This options summary is printed when Nmap is run with no arguments, and the late
 .RS 4
 .\}
 .nf
-Nmap 7\&.94 ( https://nmap\&.org )
+Nmap 7\&.95 ( https://nmap\&.org )
 Usage: nmap [Scan Type(s)] [Options] {target specification}
 TARGET SPECIFICATION:
   Can pass hostnames, IP addresses, networks, etc\&.
@@ -132,7 +132,7 @@ HOST DISCOVERY:
   \-sL: List Scan \- simply list targets to scan
   \-sn: Ping Scan \- disable port scan
   \-Pn: Treat all hosts as online \-\- skip host discovery
-  \-PS/PA/PU/PY[portlist]: TCP SYN/ACK, UDP or SCTP discovery to given ports
+  \-PS/PA/PU/PY[portlist]: TCP SYN, TCP ACK, UDP or SCTP discovery to given ports
   \-PE/PP/PM: ICMP echo, timestamp, and netmask request discovery probes
   \-PO[protocol list]: IP Protocol Ping
   \-n/\-R: Never do DNS resolution/Always resolve [default: sometimes]

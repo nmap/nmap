@@ -25,8 +25,9 @@ BuildArch: noarch
 # setup.py takes care of adjusting sys.path to point to wherever the
 # modules were installed so it's not dependent on any particular ABI.
 AutoReqProv: no
-BuildRequires: python3-devel, epel-rpm-macros
+BuildRequires: python3-devel
 Requires: python3 >= 3.0, nmap, python3-gobject, gtk3
+%global debug_package %{nil}
 
 Prefix: %{_prefix}
 BuildRoot: %{_tmppath}/%{name}-root
@@ -78,8 +79,7 @@ gzip $RPM_BUILD_ROOT%{_mandir}/man1/* || :
 %{python3_sitelib}/zenmapGUI/
 %{python3_sitelib}/zenmapCore/
 %{python3_sitelib}/radialnet/
-%{python3_sitelib}/zenmap-*.egg-info
-%{_datadir}/zenmap/
+%{python3_sitelib}/zenmap-*.dist-info/
 %{_datadir}/applications/*.desktop
 
 %changelog

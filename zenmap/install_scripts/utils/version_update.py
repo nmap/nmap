@@ -66,7 +66,6 @@ import sys
 import re
 from datetime import datetime
 
-VERSION = os.path.join("share", "zenmap", "config", "zenmap_version")
 VERSION_PY = os.path.join("zenmapCore", "Version.py")
 NAME_PY = os.path.join("zenmapCore", "Name.py")
 
@@ -88,10 +87,6 @@ def update_date(base_dir):
 
 def update_version(base_dir, version):
     version = re.sub(r'(?=[^0-9.])', '+', version, 1)
-    print(">>> Updating %s" % os.path.join(base_dir, VERSION))
-    vf = open(os.path.join(base_dir, VERSION), "w")
-    print(version, file=vf)
-    vf.close()
     print(">>> Updating %s" % os.path.join(base_dir, VERSION_PY))
     vf = open(os.path.join(base_dir, VERSION_PY), "w")
     print("VERSION = \"%s\"" % version, file=vf)

@@ -361,12 +361,13 @@ tests/%: tests/%.cc $(OBJS)
 DEFAULT_PYTHON_PATH = /usr/bin/env python3
 
 build-zenmap: $(ZENMAPDIR)/pyproject.toml $(ZENMAPDIR)/zenmapCore/Version.py
-	$(PYTHON) -m build $(ZENMAPDIR)
+	$(PYTHON) -m build $(ZENMAPDIR)/
 
 install-zenmap: $(ZENMAPDIR)/pyproject.toml
-	$(INSTALL) -d $(DESTDIR)$(bindir) $(DESTDIR)$(mandir)/man1
-	$(PYTHON) -m pip install $(ZENMAPDIR) $(if $(DESTDIR),--root "$(DESTDIR)")
+	$(INSTALL) -d $(DESTDIR)$(bindir) $(DESTDIR)$(mandir)/man1 $(DESTDIR)$(deskdir)
+	$(PYTHON) -m pip install $(ZENMAPDIR)/ $(if $(DESTDIR),--root "$(DESTDIR)")
 	$(INSTALL) -c -m 644 docs/zenmap.1 $(DESTDIR)$(mandir)/man1/
+	$(INSTALL) -c -m 644 $(ZENMAPDIR)/install_scripts/unix/*.desktop $(DESTDIR)$(deskdir)
 # Create a symlink from nmapfe to zenmap if nmapfe doesn't exist or is
 # already a link.
 	if [ ! -f $(DESTDIR)$(bindir)/nmapfe -o -L $(DESTDIR)$(bindir)/nmapfe ]; then \

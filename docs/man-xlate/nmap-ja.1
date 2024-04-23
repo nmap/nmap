@@ -2,12 +2,12 @@
 .\"     Title: nmap
 .\"    Author: [FIXME: author] [see http://docbook.sf.net/el/author]
 .\" Generator: DocBook XSL Stylesheets v1.79.1 <http://docbook.sf.net/>
-.\"      Date: 17/05/2023
+.\"      Date: 12/04/2024
 .\"    Manual: Nmap リファレンスガイド
 .\"    Source: Nmap
 .\"  Language: Japanese
 .\"
-.TH "NMAP" "1" "17/05/2023" "Nmap" "Nmap リファレンスガイド"
+.TH "NMAP" "1" "12/04/2024" "Nmap" "Nmap リファレンスガイド"
 .\" -----------------------------------------------------------------
 .\" * Define some portability stuff
 .\" -----------------------------------------------------------------
@@ -93,7 +93,7 @@ Nmapの最新バージョンは、\m[blue]\fB\%https://nmap.org\fR\m[]から入�
 .RS 4
 .\}
 .nf
-Nmap 7\&.94 ( https://nmap\&.org )
+Nmap 7\&.95 ( https://nmap\&.org )
 Usage: nmap [Scan Type(s)] [Options] {target specification}
 TARGET SPECIFICATION:
   Can pass hostnames, IP addresses, networks, etc\&.
@@ -106,7 +106,7 @@ HOST DISCOVERY:
   \-sL: List Scan \- simply list targets to scan
   \-sn: Ping Scan \- disable port scan
   \-Pn: Treat all hosts as online \-\- skip host discovery
-  \-PS/PA/PU/PY[portlist]: TCP SYN/ACK, UDP or SCTP discovery to given ports
+  \-PS/PA/PU/PY[portlist]: TCP SYN, TCP ACK, UDP or SCTP discovery to given ports
   \-PE/PP/PM: ICMP echo, timestamp, and netmask request discovery probes
   \-PO[protocol list]: IP Protocol Ping
   \-n/\-R: Never do DNS resolution/Always resolve [default: sometimes]
