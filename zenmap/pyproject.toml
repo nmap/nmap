@@ -23,12 +23,13 @@ Changelog = "https://nmap.org/changelog"
 [project.gui-scripts]
 zenmap = "zenmapGUI.App:run"
 
-[tool.setuptools]
-packages = [
+[tool.setuptools.packages.find]
+include = [
 "zenmapCore",
 "zenmapCore.data.config",
 "zenmapCore.data.docs",
 "zenmapCore.data.locale",
+"zenmapCore.data.locale.*.LC_MESSAGES",
 "zenmapCore.data.misc",
 "zenmapCore.data.pixmaps",
 "zenmapCore.data.pixmaps.radialnet",
@@ -47,7 +48,6 @@ version = {attr = "zenmapCore.Version.VERSION"}
 [tool.setuptools.package-data]
 "zenmapCore.data.pixmaps" = ["*.gif", "*.png"]
 "zenmapCore.data.pixmaps.radialnet" = ["*.png"]
-"zenmapCore.data.locale" = ["*.mo"]
 "zenmapCore.data.config" = ["zenmap.conf", "scan_profile.usp", "zenmap_version"]
 "zenmapCore.data.docs" = ["*.html"]
 "zenmapCore.data.misc" = ["*.xml"]
