@@ -114,6 +114,9 @@ action = function(host, port)
       socket = do_connect(host, port, domain)
     end
   end
+  if not socket then
+    return nil
+  end
 
   socket:send("AUTH NTLM\r\n")
   local status, response = socket:receive()
