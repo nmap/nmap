@@ -1005,9 +1005,8 @@ static void parse_etchosts(const char *fname) {
     // Skip any leading whitespace
     while (*tp == ' ' || *tp == '\t') tp++;
 
-    std::stringstream pattern;
-    pattern << "%" << INET6_ADDRSTRLEN << "s %255s";
-    if (sscanf(tp, pattern.str().c_str(), ipaddrstr, hname) == 2)
+    static const char *pattern = "%" STR(INET6_ADDRSTRLEN) "s %255s";
+    if (sscanf(tp, pattern, ipaddrstr, hname) == 2)
       if (sockaddr_storage_inet_pton(ipaddrstr, &ia))
       {
         const std::string hname_ = hname;
