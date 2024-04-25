@@ -1306,27 +1306,18 @@ std::list<std::string> get_dns_servers() {
 
 bool DNS::Factory::ipToPtr(const sockaddr_storage &ip, std::string &ptr)
 {
+  static const size_t maxlen = sizeof("0.0.1.1.2.2.3.3.4.4.5.5.6.6.7.7.8.8.9.9.a.a.b.b.c.c.d.d.e.e.f.f.ip6.arpa");
+  ptr.reserve(maxlen);
+  char tmp[INET_ADDRSTRLEN];
   switch (ip.ss_family) {
     case AF_INET:
     {
-      ptr.clear();
-      char ipv4_c[INET_ADDRSTRLEN];
-      if(!sockaddr_storage_iptop(&ip, ipv4_c)) return false;
-
-      std::string ipv4 = ipv4_c;
-      std::string octet;
-      std::string::const_reverse_iterator crend = ipv4.rend();
-      for (std::string::const_reverse_iterator c=ipv4.rbegin(); c != crend; ++c)
-        if((*c)=='.')
-        {
-          ptr += octet + ".";
-          octet.clear();
-        }
-        else
-          octet = (*c) + octet;
-
-      ptr += octet + IPV4_PTR_DOMAIN;
-
+      const in_addr_t ipv4_addr = ((const sockaddr_in *) &ip)->sin_addr.s_addr;
+      const u8 *ipv4_c = (const u8 *)&ipv4_addr;
+      sprintf(tmp, "%d.%d.%d.%d", ipv4_c[3], ipv4_c[2], ipv4_c[1], ipv4_c[0]);
+      ptr = tmp;
+      ptr += IPV4_PTR_DOMAIN;
+      error("ipToPtr: %s => %s", inet_ntop_ez(&ip, sizeof(ip)), ptr.c_str());
       break;
     }
     case AF_INET6:
@@ -1336,7 +1327,6 @@ bool DNS::Factory::ipToPtr(const sockaddr_storage &ip, std::string &ptr)
       const u8 * ipv6 = s6.sin6_addr.s6_addr;
       for (short i=15; i>=0; --i)
       {
-        char tmp[3];
         sprintf(tmp, "%02x", ipv6[i]);
         ptr += '.';
         ptr += tmp[1];
