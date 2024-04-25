@@ -1529,6 +1529,30 @@ size_t DNS::Factory::parseUnsignedInt(u32 &num, const u8 *buf, size_t offset, si
   return 0;
 }
 
+size_t DNS::Factory::parseIPv4(struct in_addr &addr, const u8 *buf, size_t offset, size_t maxlen)
+{
+  size_t max_access = offset+3;
+  if(buf && (maxlen > max_access))
+  {
+    memcpy(&addr, buf + offset, 4);
+    return 4;
+  }
+
+  return 0;
+}
+
+size_t DNS::Factory::parseIPv6(struct in6_addr &addr, const u8 *buf, size_t offset, size_t maxlen)
+{
+  size_t max_access = offset+15;
+  if(buf && (maxlen > max_access))
+  {
+    memcpy(&addr, buf + offset, 16);
+    return 16;
+  }
+
+  return 0;
+}
+
 size_t DNS::Factory::parseDomainName(std::string &name, const u8 *buf, size_t offset, size_t maxlen)
 {
   size_t tmp = 0;
@@ -1596,16 +1620,26 @@ size_t DNS::Factory::parseDomainName(std::string &name, const u8 *buf, size_t of
   return max_offset - offset;
 }
 
-size_t DNS::A_Record::parseFromBuffer(const u8 *buf, size_t offset, size_t maxlen)
+size_t DNS::A_Record::parseFromBuffer(const u8 *buf, size_t offset, size_t maxlen, RECORD_TYPE rt)
 {
   size_t tmp, ret = 0;
-  u32 num;
-  DNS_CHECK_ACCUMLATE(ret, tmp, Factory::parseUnsignedInt(num, buf, offset, maxlen));
+  struct sockaddr_in * ip4addr = (sockaddr_in *) &value;
+  struct sockaddr_in6 * ip6addr = (sockaddr_in6 *) &value;
 
   memset(&value, 0, sizeof(value));
-  struct sockaddr_in * ip4addr = (sockaddr_in *) &value;
-  ip4addr->sin_family = AF_INET;
-  ip4addr->sin_addr.s_addr = htonl(num);
+  switch (rt) {
+    case DNS::A:
+      DNS_CHECK_ACCUMLATE(ret, tmp, Factory::parseIPv4(ip4addr->sin_addr, buf, offset, maxlen));
+      ip4addr->sin_family = AF_INET;
+      break;
+    case DNS::AAAA:
+      DNS_CHECK_ACCUMLATE(ret, tmp, Factory::parseIPv6(ip6addr->sin6_addr, buf, offset, maxlen));
+      ip6addr->sin6_family = AF_INET6;
+      break;
+    default:
+      return 0;
+      break;
+  }
 
   return ret;
 }
@@ -1643,6 +1677,7 @@ size_t DNS::Answer::parseFromBuffer(const u8 *buf, size_t offset, size_t maxlen)
     switch(record_type)
     {
     case A:
+    case AAAA:
     {
       record = new A_Record();
       break;
@@ -1661,7 +1696,7 @@ size_t DNS::Answer::parseFromBuffer(const u8 *buf, size_t offset, size_t maxlen)
       return 0;
     }
 
-    DNS_CHECK_ACCUMLATE(ret, tmp, record->parseFromBuffer(buf, offset+ret, maxlen));
+    DNS_CHECK_ACCUMLATE(ret, tmp, record->parseFromBuffer(buf, offset+ret, maxlen, (RECORD_TYPE) record_type));
   }
 
   return ret;

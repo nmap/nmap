@@ -152,6 +152,8 @@ public:
   static size_t putDomainName(const std::string &name, u8 *buf, size_t offset, size_t maxlen);
   static size_t parseUnsignedShort(u16 &num, const u8 *buf, size_t offset, size_t maxlen);
   static size_t parseUnsignedInt(u32 &num, const u8 *buf, size_t offset, size_t maxlen);
+  static size_t parseIPv4(struct in_addr &addr, const u8 *buf, size_t offset, size_t maxlen);
+  static size_t parseIPv6(struct in6_addr &addr, const u8 *buf, size_t offset, size_t maxlen);
   static size_t parseDomainName(std::string &name, const u8 *buf, size_t offset, size_t maxlen);
 };
 
@@ -160,7 +162,7 @@ class Record
 public:
   virtual Record * clone() = 0;
   virtual ~Record() {}
-  virtual size_t parseFromBuffer(const u8 *buf, size_t offset, size_t maxlen) = 0;
+  virtual size_t parseFromBuffer(const u8 *buf, size_t offset, size_t maxlen, RECORD_TYPE rt) = 0;
 };
 
 class A_Record : public Record
@@ -169,7 +171,7 @@ public:
   sockaddr_storage value;
   Record * clone() { return new A_Record(*this); }
   ~A_Record() {}
-  size_t parseFromBuffer(const u8 *buf, size_t offset, size_t maxlen);
+  size_t parseFromBuffer(const u8 *buf, size_t offset, size_t maxlen, RECORD_TYPE rt);
 };
 
 class PTR_Record : public Record
@@ -178,7 +180,7 @@ public:
   std::string value;
   Record * clone() { return new PTR_Record(*this); }
   ~PTR_Record() {}
-  size_t parseFromBuffer(const u8 *buf, size_t offset, size_t maxlen)
+  size_t parseFromBuffer(const u8 *buf, size_t offset, size_t maxlen, RECORD_TYPE rt)
   {
     return Factory::parseDomainName(value, buf, offset, maxlen);
   }
@@ -190,7 +192,7 @@ public:
   std::string value;
   Record * clone() { return new CNAME_Record(*this); }
   ~CNAME_Record() {}
-  size_t parseFromBuffer(const u8 *buf, size_t offset, size_t maxlen)
+  size_t parseFromBuffer(const u8 *buf, size_t offset, size_t maxlen, RECORD_TYPE rt)
   {
     return Factory::parseDomainName(value, buf, offset, maxlen);
   }
