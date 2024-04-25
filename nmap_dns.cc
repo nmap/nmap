@@ -131,7 +131,6 @@
 #include <stdlib.h>
 #include <limits.h>
 #include <list>
-#include <vector>
 
 extern NmapOps o;
 
@@ -623,26 +622,51 @@ static void process_request(int action, info &reqinfo) {
 
 // After processing a DNS response, we search through the IPs we're
 // looking for and update their results as necessary.
-static int process_result(const sockaddr_storage &ip, const std::string &result, int action, info &reqinfo)
+static bool process_result(const std::string &name, const DNS::Record *rr, info &reqinfo, bool already_matched)
 {
-  assert(action == ACTION_FINISHED);
-  request *tpreq = reqinfo.tpreq;
-
-  if (!result.empty())
-  {
-    if (!sockaddr_storage_equal(&ip, &tpreq->targ->ss))
-    {
-      if (o.debugging)
-        log_write(LOG_STDOUT, "mass_rdns: Mismatched record for ID %d\n", tpreq->id);
-      return 0;
-    }
-
-
-    tpreq->targ->name = result;
-    host_cache.add(tpreq->targ->ss, result);
+  DNS::Request *reqt = reqinfo.tpreq->targ;
+  const struct sockaddr_storage *ss = NULL;
+  const DNS::A_Record *a_rec = NULL;
+  sockaddr_storage ip;
+  ip.ss_family = AF_UNSPEC;
+  switch (reqt->type) {
+    case DNS::A:
+    case DNS::AAAA:
+      if (!already_matched && name != reqt->name) {
+        return false;
+      }
+      a_rec = static_cast<const DNS::A_Record *>(rr);
+      memcpy(&reqt->ss, &a_rec->value, sizeof(struct sockaddr_storage));
+      if (o.debugging >= TRACE_DEBUG_LEVEL)
+      {
+        log_write(LOG_STDOUT, "mass_dns: OK MATCHED <%s> to <%s>\n",
+            reqt->name.c_str(),
+            inet_ntop_ez(&a_rec->value, sizeof(struct sockaddr_storage)));
+      }
+      break;
+    case DNS::PTR:
+      ss = &reqt->ss;
+      if (!already_matched) {
+        if (!DNS::Factory::ptrToIp(name, ip) ||
+            !sockaddr_storage_equal(&ip, ss)) {
+          return false;
+        }
+      }
+      reqt->name = static_cast<const DNS::PTR_Record *>(rr)->value;
+      host_cache.add(*ss, reqt->name);
+      if (o.debugging >= TRACE_DEBUG_LEVEL)
+      {
+        log_write(LOG_STDOUT, "mass_dns: OK MATCHED <%s> to <%s>\n",
+            inet_ntop_ez(ss, sizeof(struct sockaddr_storage)),
+            reqt->name.c_str());
+      }
+      break;
+    default:
+      assert(false);
+      break;
   }
 
-  process_request(action, reqinfo);
+  process_request(ACTION_FINISHED, reqinfo);
 
   do_possible_writes();
 
@@ -717,6 +741,7 @@ static void read_evt_handler(nsock_pool nsp, nsock_event evt, void *) {
   sockaddr_storage ip;
   ip.ss_family = AF_UNSPEC;
   std::string alias;
+  DNS::Request *reqt = reqinfo.tpreq->targ;
 
   for(std::list<DNS::Answer>::const_iterator it = p.answers.begin();
       it != p.answers.end() && !processing_successful; ++it )
@@ -724,51 +749,27 @@ static void read_evt_handler(nsock_pool nsp, nsock_event evt, void *) {
     const DNS::Answer &a = *it;
     if(a.record_class == DNS::CLASS_IN)
     {
-      switch(a.record_type)
-      {
-        case DNS::PTR:
-        {
-          DNS::PTR_Record * ptr = static_cast<DNS::PTR_Record *>(a.record);
-
-          if(
-            // If CNAME answer filled in ip with a matching alias
-            (ip.ss_family != AF_UNSPEC && a.name == alias )
-            // Or if we can get an IP from reversing the .arpa PTR address
-            || DNS::Factory::ptrToIp(a.name, ip))
-          {
-            if ((processing_successful = process_result(ip, ptr->value, ACTION_FINISHED, reqinfo)))
-            {
-              if (o.debugging >= TRACE_DEBUG_LEVEL)
-              {
-                char ipstr[INET6_ADDRSTRLEN];
-                sockaddr_storage_iptop(&ip, ipstr);
-                log_write(LOG_STDOUT, "mass_rdns: OK MATCHED <%s> to <%s>\n",
-                          ipstr,
-                          ptr->value.c_str());
-              }
-              output_summary();
-              stat_ok++;
-            }
-          }
-          break;
+      if (reqt->type == a.record_type) {
+        processing_successful = process_result(a.name, a.record, reqinfo, a.name == alias);
+        if (processing_successful) {
+          output_summary();
+          stat_ok++;
         }
-        case DNS::CNAME:
-        {
-          if(DNS::Factory::ptrToIp(a.name, ip))
-          {
-            DNS::CNAME_Record * cname = static_cast<DNS::CNAME_Record *>(a.record);
-            alias = cname->value;
-            if (o.debugging >= TRACE_DEBUG_LEVEL)
-            {
-              char ipstr[INET6_ADDRSTRLEN];
-              sockaddr_storage_iptop(&ip, ipstr);
-              log_write(LOG_STDOUT, "mass_rdns: CNAME found for <%s> to <%s>\n", ipstr, alias.c_str());
-            }
-          }
-          break;
+        else if (o.debugging) {
+          log_write(LOG_STDOUT, "mass_dns: Mismatched record for request %s\n", reqt->repr());
         }
-        default:
-          break;
+      }
+      else if (a.record_type == DNS::CNAME) {
+        const DNS::CNAME_Record *cname = static_cast<const DNS::CNAME_Record *>(a.record);
+        if((reqt->type == DNS::PTR && DNS::Factory::ptrToIp(a.name, ip))
+          || a.name == reqt->name)
+        {
+          alias = cname->value;
+          if (o.debugging >= TRACE_DEBUG_LEVEL)
+          {
+            log_write(LOG_STDOUT, "mass_dns: CNAME found for <%s> to <%s>\n", a.name.c_str(), alias.c_str());
+          }
+        }
       }
     }
   }
@@ -1068,6 +1069,39 @@ static void init_servs(void) {
   }
 }
 
+static bool system_resolve(DNS::Request &reqt)
+{
+  char hostname[FQDN_LEN + 1] = "";
+  int af = AF_INET;
+  struct addrinfo *ai_result = NULL, *ai = NULL;
+
+  switch (reqt.type) {
+    case DNS::PTR:
+      if (getnameinfo((const struct sockaddr *) &reqt.ss,
+            sizeof(sockaddr_storage), hostname,
+            sizeof(hostname), NULL, 0, NI_NAMEREQD) == 0) {
+        reqt.name = hostname;
+        return true;
+      }
+      break;
+    case DNS::AAAA:
+      af = AF_INET6;
+    case DNS::A:
+      ai_result = resolve_all(reqt.name.c_str(), af);
+      for (ai = ai_result; ai != NULL; ai = ai->ai_next) {
+        if (ai->ai_addr->sa_family == af && ai->ai_addrlen <= sizeof(reqt.ss)) {
+          memcpy(&reqt.ss, ai->ai_addr, ai->ai_addrlen);
+          return true;
+        }
+      }
+      break;
+    default:
+      error("System DNS resolution of %s could not be performed.\n", reqt.repr());
+      break;
+  }
+  return false;
+}
+
 //------------------- Main loops ---------------------
 
 
@@ -1102,8 +1136,10 @@ static void nmap_mass_dns_core(DNS::Request *requests, int num_requests) {
     DNS::Request &reqt = requests[i];
 
     // See if it's cached
-    if (host_cache.lookup(reqt.ss, reqt.name)) {
-      continue;
+    if (reqt.type == DNS::PTR) {
+      if (host_cache.lookup(reqt.ss, reqt.name)) {
+        continue;
+      }
     }
 
     tpreq = new request;
@@ -1169,19 +1205,14 @@ static void nmap_mass_dns_core(DNS::Request *requests, int num_requests) {
     SPM = new ScanProgressMeter(spmobuf);
 
     for(i=0, reqI = deferred_reqs.begin(); reqI != deferred_reqs.end(); reqI++, i++) {
-      char hostname[FQDN_LEN + 1] = "";
 
       if (keyWasPressed())
         SPM->printStats((double) i / deferred_reqs.size(), NULL);
 
       tpreq = *reqI;
-
-      if (getnameinfo((const struct sockaddr *)&tpreq->targ->ss,
-                      sizeof(struct sockaddr_storage), hostname,
-                      sizeof(hostname), NULL, 0, NI_NAMEREQD) == 0) {
+      if (system_resolve(*tpreq->targ)) {
         stat_ok++;
         stat_cname++;
-        tpreq->targ->name = hostname;
       }
 
       delete tpreq;
@@ -1197,7 +1228,6 @@ static void nmap_mass_dns_core(DNS::Request *requests, int num_requests) {
 }
 
 static void nmap_system_dns_core(DNS::Request requests[], int num_requests) {
-  char hostname[FQDN_LEN + 1] = "";
   char spmobuf[1024];
 
   stat_actual = num_requests;
@@ -1206,16 +1236,11 @@ static void nmap_system_dns_core(DNS::Request requests[], int num_requests) {
 
   for (int i=0; i < num_requests; i++)
   {
-    DNS::Request &reqt = requests[i];
-
     if (keyWasPressed())
       SPM->printStats((double) i / stat_actual, NULL);
 
-    if (getnameinfo((const struct sockaddr *)&reqt.ss,
-          sizeof(sockaddr_storage), hostname,
-          sizeof(hostname), NULL, 0, NI_NAMEREQD) == 0) {
+    if (system_resolve(requests[i])) {
       stat_ok++;
-      reqt.name = hostname;
     }
   }
 

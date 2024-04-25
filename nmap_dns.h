@@ -252,7 +252,7 @@ struct Request
   RECORD_TYPE type;
   struct sockaddr_storage ss;
   std::string name;
-  Request() : type(NONE), name() {}
+  Request() : type(NONE), name() {ss.ss_family = AF_UNSPEC;}
   const char *repr(); // string representation
 };
 }
