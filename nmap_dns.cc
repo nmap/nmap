@@ -58,7 +58,7 @@
  *
  ***************************************************************************/
 
-// mass_rdns - Parallel Asynchronous Reverse DNS Resolution
+// mass_dns - Parallel Asynchronous DNS Resolution
 //
 // One of Nmap's features is to perform reverse DNS queries
 // on large number of IP addresses. Nmap supports 2 different
@@ -141,10 +141,10 @@ extern NmapOps o;
 
 // Algorithm:
 //
-// A batch of num_targets hosts is passed to nmap_mass_rdns():
-//   void nmap_mass_rdns(Target **targets, int num_targets)
+// A batch of num_requests requests is passed to nmap_mass_dns():
+//   void nmap_mass_dns(DNS::Request requests[], int num_requests);
 //
-// mass_dns sends out CAPACITY_MIN of these hosts to the DNS
+// mass_dns sends out CAPACITY_MIN of these requests to the DNS
 // servers detected, alternating in sequence.
 
 // When a request is fulfilled (either a resolved domain, NXDomain,
@@ -400,7 +400,7 @@ static void output_summary() {
   memcpy(&now, nsock_gettimeofday(), sizeof(struct timeval));
 
   if (o.debugging && (tp%SUMMARY_DELAY == 0))
-    log_write(LOG_STDOUT, "mass_rdns: %.2fs %d/%d [#: %lu, OK: %d, NX: %d, DR: %d, SF: %d, TR: %d]\n",
+    log_write(LOG_STDOUT, "mass_dns: %.2fs %d/%d [#: %lu, OK: %d, NX: %d, DR: %d, SF: %d, TR: %d]\n",
                     TIMEVAL_FSEC_SUBTRACT(now, starttv),
                     tp, stat_actual,
                     (unsigned long) servs.size(), stat_ok, stat_nx, stat_dropped, stat_sf, stat_trans);
@@ -447,7 +447,7 @@ static void do_possible_writes() {
 
       if (tpreq) {
         if (o.debugging >= TRACE_DEBUG_LEVEL)
-           log_write(LOG_STDOUT, "mass_rdns: TRANSMITTING for <%s> (server <%s>)\n", tpreq->targ->repr(), servI->hostname.c_str());
+           log_write(LOG_STDOUT, "mass_dns: TRANSMITTING for <%s> (server <%s>)\n", tpreq->targ->repr(), servI->hostname.c_str());
         stat_trans++;
         put_dns_packet_on_wire(tpreq);
       }
@@ -562,7 +562,7 @@ static int deal_with_timedout_reads() {
             // FIXME: Find a good compromise
 
             // **** We've already tried all servers... give up
-            if (o.debugging >= TRACE_DEBUG_LEVEL) log_write(LOG_STDOUT, "mass_rdns: *DR*OPPING <%s>\n", tpreq->targ->repr());
+            if (o.debugging >= TRACE_DEBUG_LEVEL) log_write(LOG_STDOUT, "mass_dns: *DR*OPPING <%s>\n", tpreq->targ->repr());
 
             output_summary();
             stat_dropped++;
@@ -695,7 +695,7 @@ static void read_evt_handler(nsock_pool nsp, nsock_event evt, void *) {
   {
     process_request(ACTION_FINISHED, reqinfo);
     if (o.debugging >= TRACE_DEBUG_LEVEL)
-      log_write(LOG_STDOUT, "mass_rdns: NXDOMAIN <id = %d>\n", p.id);
+      log_write(LOG_STDOUT, "mass_dns: NXDOMAIN <id = %d>\n", p.id);
     output_summary();
     stat_nx++;
 
@@ -706,7 +706,7 @@ static void read_evt_handler(nsock_pool nsp, nsock_event evt, void *) {
   {
     process_request(ACTION_TIMEOUT, reqinfo);
     if (o.debugging >= TRACE_DEBUG_LEVEL)
-      log_write(LOG_STDOUT, "mass_rdns: SERVFAIL <id = %d>\n", p.id);
+      log_write(LOG_STDOUT, "mass_dns: SERVFAIL <id = %d>\n", p.id);
     stat_sf++;
 
     return;
@@ -781,7 +781,7 @@ static void read_evt_handler(nsock_pool nsp, nsock_event evt, void *) {
     else if (!alias.empty()) {
       if (o.debugging >= TRACE_DEBUG_LEVEL)
       {
-        log_write(LOG_STDOUT, "mass_rdns: CNAME for <%s> not processed.\n", reqinfo.tpreq->targ->repr());
+        log_write(LOG_STDOUT, "mass_dns: CNAME for <%s> not processed.\n", reqinfo.tpreq->targ->repr());
       }
       // TODO: Send a PTR request for alias instead. Meanwhile, we'll just fall
       // back to using system resolver. Alternative: report the canonical name
@@ -790,7 +790,7 @@ static void read_evt_handler(nsock_pool nsp, nsock_event evt, void *) {
     }
     else {
       if (o.debugging >= TRACE_DEBUG_LEVEL) {
-        log_write(LOG_STDOUT, "mass_rdns: Unable to process the response\n");
+        log_write(LOG_STDOUT, "mass_dns: Unable to process the response\n");
       }
     }
   }
@@ -830,7 +830,7 @@ static void add_dns_server(char *ipaddrs) {
 
       servs.push_front(tpserv);
 
-      if (o.debugging) log_write(LOG_STDOUT, "mass_rdns: Using DNS server %s\n", hostname);
+      if (o.debugging) log_write(LOG_STDOUT, "mass_dns: Using DNS server %s\n", hostname);
     }
 
   }
