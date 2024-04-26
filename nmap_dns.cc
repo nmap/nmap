@@ -762,7 +762,7 @@ static void read_evt_handler(nsock_pool nsp, nsock_event evt, void *) {
       else if (a.record_type == DNS::CNAME) {
         const DNS::CNAME_Record *cname = static_cast<const DNS::CNAME_Record *>(a.record);
         if((reqt->type == DNS::PTR && DNS::Factory::ptrToIp(a.name, ip))
-          || a.name == reqt->name)
+          || a.name == reqt->name || (!alias.empty() && a.name == alias))
         {
           alias = cname->value;
           if (o.debugging >= TRACE_DEBUG_LEVEL)
@@ -782,7 +782,7 @@ static void read_evt_handler(nsock_pool nsp, nsock_event evt, void *) {
     else if (!alias.empty()) {
       if (o.debugging >= TRACE_DEBUG_LEVEL)
       {
-        log_write(LOG_STDOUT, "mass_dns: CNAME for <%s> not processed.\n", reqinfo.tpreq->targ->repr());
+        log_write(LOG_STDOUT, "mass_dns: CNAME for <%s> not processed.\n", reqt->repr());
       }
       // TODO: Send a PTR request for alias instead. Meanwhile, we'll just fall
       // back to using system resolver. Alternative: report the canonical name
@@ -791,7 +791,7 @@ static void read_evt_handler(nsock_pool nsp, nsock_event evt, void *) {
     }
     else {
       if (o.debugging >= TRACE_DEBUG_LEVEL) {
-        log_write(LOG_STDOUT, "mass_dns: Unable to process the response\n");
+        log_write(LOG_STDOUT, "mass_dns: Unable to process the response for %s\n", reqt->repr());
       }
     }
   }
