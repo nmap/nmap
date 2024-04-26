@@ -715,7 +715,7 @@ static void read_evt_handler(nsock_pool nsp, nsock_event evt, void *) {
   }
   info &reqinfo = infoI->second;
 
-  if (DNS_HAS_ERR(f, DNS::ERR_NAME))
+  if (DNS_HAS_ERR(f, DNS::ERR_NAME) || p.answers.empty())
   {
     process_request(ACTION_FINISHED, reqinfo);
     if (o.debugging >= TRACE_DEBUG_LEVEL)
