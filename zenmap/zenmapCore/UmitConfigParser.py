@@ -87,7 +87,7 @@ class UmitConfigParser(ConfigParser):
         if self.filenames:
             log.debug("saving to %s" % self.filenames)
             try:
-                with open(self.filenames, 'w') as fp:
+                with open(self.filenames, 'w', encoding="utf-8") as fp:
                     self.write(fp)
             except Exception as e:
                 self.failed = e

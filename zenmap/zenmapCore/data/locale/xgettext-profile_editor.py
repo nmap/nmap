@@ -48,7 +48,7 @@ if directory is not None:
     os.chdir(directory)
 
 for fn in filenames:
-    with open(fn, "r") as f:
+    with open(fn, "rb") as f:
         parser = xml.sax.make_parser()
         parser.setContentHandler(Handler())
         parser.parse(f)

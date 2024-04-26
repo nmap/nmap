@@ -93,7 +93,7 @@ import sys
 from string import Template
 from zenmapCore.Version import *
 from zenmapCore.Name import *
-with open(sys.argv[1],"r") as f:
+with open(sys.argv[1],"r",encoding="utf-8") as f:
   sys.stdout.write(Template(f.read()).substitute(
     VERSION=VERSION,
     APP_WEB_SITE=APP_WEB_SITE,

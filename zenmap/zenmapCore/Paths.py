@@ -199,7 +199,7 @@ def return_if_exists(path, create=False):
     if os.path.exists(path):
         return path
     elif create:
-        f = open(path, "w")
+        f = open(path, "wb")
         f.close()
         return path
     raise Exception("File '%s' does not exist or could not be found!" % path)
