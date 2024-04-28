@@ -1337,7 +1337,7 @@ bool DNS::Factory::ipToPtr(const sockaddr_storage &ip, std::string &ptr)
   switch (ip.ss_family) {
     case AF_INET:
     {
-      const in_addr_t ipv4_addr = ((const sockaddr_in *) &ip)->sin_addr.s_addr;
+      const u32 ipv4_addr = ((const sockaddr_in *) &ip)->sin_addr.s_addr;
       const u8 *ipv4_c = (const u8 *)&ipv4_addr;
       sprintf(tmp, "%d.%d.%d.%d", ipv4_c[3], ipv4_c[2], ipv4_c[1], ipv4_c[0]);
       ptr = tmp;
