@@ -490,7 +490,8 @@ static void put_dns_packet_on_wire(request *req) {
       plen = DNS::Factory::buildSimpleRequest(reqt.name, reqt.type, packet, maxlen);
       break;
     case DNS::PTR:
-      plen = DNS::Factory::buildReverseRequest(reqt.ss, packet, maxlen);
+      assert(reqt.ssv.size() > 0);
+      plen = DNS::Factory::buildReverseRequest(reqt.ssv.front(), packet, maxlen);
       break;
     default:
       break;
@@ -568,6 +569,7 @@ static int deal_with_timedout_reads() {
             total_reqs--;
             records.erase(tpreq->id);
             delete tpreq;
+            tpreq = NULL;
 
             // **** OR We start at the back of this server's queue
             //servItemp->to_process.push_back(tpreq);
@@ -607,6 +609,7 @@ static void process_request(int action, info &reqinfo) {
       }
       else {
         delete tpreq;
+        tpreq = NULL;
       }
 
       break;
@@ -636,7 +639,7 @@ static bool process_result(const std::string &name, const DNS::Record *rr, info 
         return false;
       }
       a_rec = static_cast<const DNS::A_Record *>(rr);
-      memcpy(&reqt->ss, &a_rec->value, sizeof(struct sockaddr_storage));
+      reqt->ssv.push_back(a_rec->value);
       if (o.debugging >= TRACE_DEBUG_LEVEL)
       {
         log_write(LOG_STDOUT, "mass_dns: OK MATCHED <%s> to <%s>\n",
@@ -645,7 +648,7 @@ static bool process_result(const std::string &name, const DNS::Record *rr, info 
       }
       break;
     case DNS::PTR:
-      ss = &reqt->ss;
+      ss = &reqt->ssv.front();
       if (!already_matched) {
         if (!DNS::Factory::ptrToIp(name, ip) ||
             !sockaddr_storage_equal(&ip, ss)) {
@@ -666,15 +669,7 @@ static bool process_result(const std::string &name, const DNS::Record *rr, info 
       break;
   }
 
-  process_request(ACTION_FINISHED, reqinfo);
-
-  do_possible_writes();
-
-  // Close DNS servers if we're all done so that we kill
-  // all events and return from nsock_loop immediateley
-  if (total_reqs == 0)
-    close_dns_servers();
-  return 1;
+  return true;
 }
 
 // Nsock read handler. One nsock read for each DNS server exists at each
@@ -744,18 +739,14 @@ static void read_evt_handler(nsock_pool nsp, nsock_event evt, void *) {
   DNS::Request *reqt = reqinfo.tpreq->targ;
 
   for(std::list<DNS::Answer>::const_iterator it = p.answers.begin();
-      it != p.answers.end() && !processing_successful; ++it )
+      it != p.answers.end(); ++it )
   {
     const DNS::Answer &a = *it;
     if(a.record_class == DNS::CLASS_IN)
     {
       if (reqt->type == a.record_type) {
         processing_successful = process_result(a.name, a.record, reqinfo, a.name == alias);
-        if (processing_successful) {
-          output_summary();
-          stat_ok++;
-        }
-        else if (o.debugging) {
+        if (!processing_successful && o.debugging) {
           log_write(LOG_STDOUT, "mass_dns: Mismatched record for request %s\n", reqt->repr());
         }
       }
@@ -795,6 +786,17 @@ static void read_evt_handler(nsock_pool nsp, nsock_event evt, void *) {
       }
     }
   }
+  else {
+    output_summary();
+    stat_ok++;
+    process_request(ACTION_FINISHED, reqinfo);
+  }
+  do_possible_writes();
+
+  // Close DNS servers if we're all done so that we kill
+  // all events and return from nsock_loop immediateley
+  if (total_reqs == 0)
+    close_dns_servers();
 }
 
 
@@ -1077,7 +1079,8 @@ static bool system_resolve(DNS::Request &reqt)
 
   switch (reqt.type) {
     case DNS::PTR:
-      if (getnameinfo((const struct sockaddr *) &reqt.ss,
+      assert(reqt.ssv.size() > 0);
+      if (getnameinfo((const struct sockaddr *) &reqt.ssv.front(),
             sizeof(sockaddr_storage), hostname,
             sizeof(hostname), NULL, 0, NI_NAMEREQD) == 0) {
         reqt.name = hostname;
@@ -1089,11 +1092,11 @@ static bool system_resolve(DNS::Request &reqt)
     case DNS::A:
       ai_result = resolve_all(reqt.name.c_str(), af);
       for (ai = ai_result; ai != NULL; ai = ai->ai_next) {
-        if (ai->ai_addr->sa_family == af && ai->ai_addrlen <= sizeof(reqt.ss)) {
-          memcpy(&reqt.ss, ai->ai_addr, ai->ai_addrlen);
-          return true;
+        if (ai->ai_addr->sa_family == af && ai->ai_addrlen <= sizeof(struct sockaddr_storage)) {
+          reqt.ssv.push_back(*(struct sockaddr_storage *)ai->ai_addr);
         }
       }
+      return true;
       break;
     default:
       error("System DNS resolution of %s could not be performed.\n", reqt.repr());
@@ -1134,10 +1137,12 @@ static void nmap_mass_dns_core(DNS::Request *requests, int num_requests) {
   for (int i=0; i < num_requests; i++)
   {
     DNS::Request &reqt = requests[i];
+    assert(reqt.type == DNS::PTR || reqt.type == DNS::A || reqt.type == DNS::AAAA);
 
     // See if it's cached
     if (reqt.type == DNS::PTR) {
-      if (host_cache.lookup(reqt.ss, reqt.name)) {
+      assert(reqt.ssv.size() > 0);
+      if (host_cache.lookup(reqt.ssv.front(), reqt.name)) {
         continue;
       }
     }
@@ -1299,8 +1304,7 @@ void nmap_mass_rdns(Target ** targets, int num_targets) {
     if (!(target->flags & HOST_UP) && !o.always_resolve) continue;
 
     DNS::Request &reqt = requests[i];
-    size_t sslen = sizeof(struct sockaddr_storage);
-    target->TargetSockAddr(&reqt.ss, &sslen);
+    reqt.ssv.push_back(*target->TargetSockAddr());
     reqt.type = DNS::PTR;
   }
   nmap_mass_dns(requests, num_targets);
@@ -1782,7 +1786,12 @@ const char *DNS::Request::repr()
       return name.c_str();
       break;
     case DNS::PTR:
-      return inet_ntop_ez(&ss, sizeof(ss));
+      if (ssv.size() > 0) {
+        return inet_ntop_ez(&ssv.front(), sizeof(struct sockaddr_storage));
+      }
+      else {
+        return "Uninitialized PTR request";
+      }
       break;
     default:
       return "Invalid request";

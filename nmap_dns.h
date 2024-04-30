@@ -69,6 +69,7 @@ class Target;
 
 #include <algorithm>
 #include <sstream>
+#include <vector>
 
 #define DNS_LABEL_MAX_LENGTH 63
 #define DNS_NAME_MAX_LENGTH 255
@@ -250,9 +251,9 @@ public:
 struct Request
 {
   RECORD_TYPE type;
-  struct sockaddr_storage ss;
+  std::vector<struct sockaddr_storage> ssv;
   std::string name;
-  Request() : type(NONE), name() {ss.ss_family = AF_UNSPEC;}
+  Request() : type(NONE), ssv(), name() {}
   const char *repr(); // string representation
 };
 }

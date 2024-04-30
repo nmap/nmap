@@ -1350,7 +1350,7 @@ void TracerouteState::resolve_hops() {
      nmap_mass_dns. */
   DNS::Request *requests = new DNS::Request[n];
   for (i = 0, addr_iter = addrs.begin(); i < n; i++, addr_iter++) {
-    memcpy(&requests[i].ss, &*addr_iter, sizeof(*addr_iter));
+    requests[i].ssv.push_back(*addr_iter);
     requests[i].type = DNS::PTR;
   }
   nmap_mass_dns(requests, n);
@@ -1358,7 +1358,7 @@ void TracerouteState::resolve_hops() {
   for (i = 0; i < n; i++) {
     std::string &hostname = requests[i].name;
     if (!hostname.empty())
-      name_map[requests[i].ss] = hostname.c_str();
+      name_map[requests[i].ssv.front()] = hostname.c_str();
   }
   /* Finally, copy the names into the hops. */
   for (host_iter = hosts.begin(); host_iter != hosts.end(); host_iter++) {
