@@ -1096,6 +1096,8 @@ static bool system_resolve(DNS::Request &reqt)
           reqt.ssv.push_back(*(struct sockaddr_storage *)ai->ai_addr);
         }
       }
+      if (ai_result != NULL)
+        freeaddrinfo(ai_result);
       return true;
       break;
     default:
