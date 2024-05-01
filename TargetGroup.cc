@@ -65,13 +65,18 @@
 
 #include "tcpip.h"
 #include "TargetGroup.h"
+#include "targets.h"
 #include "NmapOps.h"
 #include "nmap_error.h"
+#include "nmap_dns.h"
 #include "nmap.h"
 #include "libnetutil/netutil.h"
 
 #include <string>
 #include <sstream>
+#include <vector>
+#include <algorithm>
+#include <typeinfo>
 #include <errno.h>
 #include <limits.h> // CHAR_BIT
 
@@ -102,7 +107,7 @@ public:
   /* Parses an expression such as 192.168.0.0/16, 10.1.0-5.1-254, or
      fe80::202:e3ff:fe14:1102/112 and returns a newly allocated NetBlock. The af
      parameter is AF_INET or AF_INET6. Returns NULL in case of error. */
-  static NetBlock *parse_expr(const char *target_expr, int af);
+  static NetBlock *parse_expr(const char *target_expr, int af, std::vector<DNS::Request> &requests);
 
   bool is_resolved_address(const struct sockaddr_storage *ss) const;
 
@@ -110,7 +115,7 @@ public:
    * NetBlock subclass, override this method. Otherwise, it's safe to reassign
    * the return value to the pointer that this method was called through.
    * On error, return NULL. */
-  virtual NetBlock *resolve() { return this; }
+  virtual NetBlock *resolve(const DNS::Request &reqA, const DNS::Request &reqAAAA) { return this; }
   virtual void reject_last_host() {}
   virtual bool next(struct sockaddr_storage *ss, size_t *sslen) = 0;
   virtual void apply_netmask(int bits) = 0;
@@ -169,7 +174,7 @@ public:
   int af;
   int bits;
 
-  NetBlock *resolve();
+  NetBlock *resolve(const DNS::Request &reqA, const DNS::Request &reqAAAA);
 
   bool next(struct sockaddr_storage *ss, size_t *sslen);
   void apply_netmask(int bits);
@@ -270,7 +275,7 @@ static int parse_ipv4_ranges(octet_bitvector octets[4], const char *spec) {
   return 0;
 }
 
-static NetBlock *parse_expr_without_netmask(const char *hostexp, int af) {
+static NetBlock *parse_expr_without_netmask(const char *hostexp, int af, std::vector<DNS::Request> &requests) {
   struct sockaddr_storage ss;
   size_t sslen;
 
@@ -297,13 +302,21 @@ static NetBlock *parse_expr_without_netmask(const char *hostexp, int af) {
     return netblock_ipv6;
   }
 
-  return new NetBlockHostname(hostexp, af);
+  NetBlockHostname *nb = new NetBlockHostname(hostexp, af);
+  DNS::Request req;
+  req.name = hostexp;
+  req.userdata = nb;
+  req.type = DNS::A;
+  requests.push_back(req);
+  req.type = DNS::AAAA;
+  requests.push_back(req);
+  return nb;
 }
 
 /* Parses an expression such as 192.168.0.0/16, 10.1.0-5.1-254, or
    fe80::202:e3ff:fe14:1102/112 and returns a newly allocated NetBlock. The af
    parameter is AF_INET or AF_INET6. Returns NULL in case of error. */
-NetBlock *NetBlock::parse_expr(const char *target_expr, int af) {
+NetBlock *NetBlock::parse_expr(const char *target_expr, int af, std::vector<DNS::Request> &requests) {
   NetBlock *netblock;
   char *hostexp;
   int bits;
@@ -319,7 +332,7 @@ NetBlock *NetBlock::parse_expr(const char *target_expr, int af) {
     bits = -1;
   }
 
-  netblock = parse_expr_without_netmask(hostexp, af);
+  netblock = parse_expr_without_netmask(hostexp, af, requests);
   if (netblock == NULL)
     goto bail;
   netblock->apply_netmask(bits);
@@ -693,48 +706,45 @@ std::string NetBlockIPv6Netmask::str() const {
   return result.str();
 }
 
-NetBlock *NetBlockHostname::resolve() {
-  struct addrinfo *addrs, *addr;
+NetBlock *NetBlockHostname::resolve(const DNS::Request &reqA, const DNS::Request &reqAAAA) {
   std::list<struct sockaddr_storage> resolvedaddrs;
   std::list<struct sockaddr_storage> unscanned_addrs;
   NetBlock *netblock;
-  struct sockaddr_storage ss;
-  size_t sslen;
 
-  addrs = resolve_all(this->hostname.c_str(), AF_UNSPEC);
-  for (addr = addrs; addr != NULL; addr = addr->ai_next) {
-    if (addr->ai_addrlen < sizeof(ss)) {
-      memcpy(&ss, addr->ai_addr, addr->ai_addrlen);
-      if ((o.resolve_all || resolvedaddrs.empty()) && addr->ai_family == this->af) {
-        resolvedaddrs.push_back(ss);
-      }
-      else {
-        unscanned_addrs.push_back(ss);
-      }
+  const DNS::Request &req_same_fam = (af == AF_INET ? reqA : reqAAAA);
+  const DNS::Request &req_other_fam = (af == AF_INET ? reqAAAA : reqA);
+  if (!req_same_fam.ssv.empty()) {
+    resolvedaddrs.push_back(req_same_fam.ssv[0]);
+    std::list<struct sockaddr_storage> &remainder = o.resolve_all ? resolvedaddrs : unscanned_addrs;
+    for (size_t i = 1; i < req_same_fam.ssv.size(); i++) {
+      remainder.push_back(req_same_fam.ssv[i]);
     }
   }
-  if (addrs != NULL)
-    freeaddrinfo(addrs);
+  for (size_t i = 0; i < req_other_fam.ssv.size(); i++) {
+    unscanned_addrs.push_back(req_other_fam.ssv[i]);
+  }
 
   if (resolvedaddrs.empty()) {
-    if (unscanned_addrs.empty())
-      return NULL;
-
-    switch (this->af) {
-      case AF_INET:
-        error("Warning: Hostname %s resolves, but not to any IPv4 address. Try scanning with -6", this->hostname.c_str());
-        break;
-      case AF_INET6:
-        error("Warning: Hostname %s resolves, but not to any IPv6 address. Try scanning without -6", this->hostname.c_str());
-        break;
-      default:
-        error("Warning: Unknown address family: %d", this->af);
-        break;
+    if (!unscanned_addrs.empty()) {
+      switch (this->af) {
+        case AF_INET:
+          error("Warning: Hostname %s resolves, but not to any IPv4 address. Try scanning with -6", this->hostname.c_str());
+          break;
+        case AF_INET6:
+          error("Warning: Hostname %s resolves, but not to any IPv6 address. Try scanning without -6", this->hostname.c_str());
+          break;
+        default:
+          error("Warning: Unknown address family: %d", this->af);
+          break;
+      }
     }
+    error("Failed to resolve \"%s\".", this->hostname.c_str());
+    if (this->hostname == "-")
+      error("Bare '-': did you put a space between '--'?");
     return NULL;
   }
-  ss = resolvedaddrs.front();
-  sslen = sizeof(ss);
+  struct sockaddr_storage &ss = resolvedaddrs.front();
+  size_t sslen = sizeof(ss);
 
   if (!unscanned_addrs.empty() && o.verbose > 1) {
     error("Warning: Hostname %s resolves to %lu IPs. Using %s.", this->hostname.c_str(),
@@ -760,8 +770,8 @@ NetBlock *NetBlockHostname::resolve() {
     return NULL;
 
   netblock->hostname = this->hostname;
-  netblock->resolvedaddrs = resolvedaddrs;
-  netblock->unscanned_addrs = unscanned_addrs;
+  netblock->resolvedaddrs.swap(resolvedaddrs);
+  netblock->unscanned_addrs.swap(unscanned_addrs);
   netblock->current_addr = netblock->resolvedaddrs.begin();
   netblock->apply_netmask(this->bits);
 
@@ -794,27 +804,75 @@ std::string NetBlockHostname::str() const {
 }
 
 TargetGroup::~TargetGroup() {
-  if (this->netblock != NULL)
-    delete this->netblock;
+  for (std::list<NetBlock *>::iterator it = netblocks.begin();
+      it != netblocks.end(); it++) {
+    delete *it;
+  }
+}
+
+void TargetGroup::reject_last_host() {
+  assert(!netblocks.empty());
+  NetBlock *nb = netblocks.front();
+  nb->reject_last_host();
 }
 
 /* Initializes (or reinitializes) the object with a new expression, such
    as 192.168.0.0/16 , 10.1.0-5.1-254 , or fe80::202:e3ff:fe14:1102 .
-   Returns 0 for success */
-int TargetGroup::parse_expr(const char *target_expr, int af) {
-  if (this->netblock != NULL)
-    delete this->netblock;
-  this->netblock = NetBlock::parse_expr(target_expr, af);
-  if (this->netblock != NULL)
-    return 0;
-  else
-    return 1;
+    */
+// This is a wild guess, but we need some sort of limit.
+#define EXPR_PARSE_BATCH_SZ 1000
+bool TargetGroup::load_expressions(HostGroupState *hs, int af) {
+  assert(netblocks.empty());
+  const char *target_expr = NULL;
+  std::vector<DNS::Request> requests;
+  requests.reserve(EXPR_PARSE_BATCH_SZ/2);
+  while (netblocks.size() < EXPR_PARSE_BATCH_SZ
+      && NULL != (target_expr = hs->next_expression())) {
+    NetBlock *nb = NetBlock::parse_expr(target_expr, af, requests);
+    if (nb == NULL) {
+      log_bogus_target(target_expr);
+    }
+    else {
+      netblocks.push_back(nb);
+    }
+  }
+  if (netblocks.empty()) {
+    return false;
+  }
+  if (requests.size() > 0) {
+    nmap_mass_dns(requests.data(), requests.size());
+  }
+  std::list<NetBlock *>::iterator nb_it = netblocks.begin();
+  for (std::vector<DNS::Request>::const_iterator rit = requests.begin();
+      rit != requests.end(); rit++) {
+    const DNS::Request &reqA = *rit++;
+    const DNS::Request &reqAAAA = *rit;
+    NetBlock *nb_old = (NetBlock *) reqA.userdata;
+    assert(reqA.userdata == reqAAAA.userdata);
+    assert(reqA.type == DNS::A && reqAAAA.type == DNS::AAAA);
+    NetBlock *nb_new = nb_old->resolve(reqA, reqAAAA);
+    nb_it = std::find(nb_it, netblocks.end(), nb_old);
+
+    if (nb_new == NULL) {
+      // Resolution failed; remove the NetBlock
+      nb_it = netblocks.erase(nb_it);
+      delete nb_old;
+    }
+    else {
+      assert (nb_new != nb_old);
+      // Resolution succeeded; replace the NetBlock
+      *nb_it = nb_new;
+      delete nb_old;
+    }
+  }
+  requests.clear();
+  return !netblocks.empty();
 }
 
 void TargetGroup::generate_random_ips(int num_random) {
-  assert(this->netblock == NULL);
-  this->netblock = new NetBlockRandomIPv4();
-  this->netblock->set_num_random(num_random);
+  NetBlockRandomIPv4 *nbrand = new NetBlockRandomIPv4();
+  nbrand->set_num_random(num_random);
+  netblocks.push_front(nbrand);
 }
 
 /* Grab the next host from this expression (if any) and updates its internal
@@ -822,55 +880,45 @@ void TargetGroup::generate_random_ips(int num_random) {
    fills in ss if successful.  ss must point to a pre-allocated
    sockaddr_storage structure */
 int TargetGroup::get_next_host(struct sockaddr_storage *ss, size_t *sslen) {
-  if (this->netblock == NULL)
-    return -1;
+  while (!netblocks.empty()) {
 
-  /* If all we have at this point is a hostname and netmask, resolve into
-     something where we know the address. If we ever have to use strictly the
-     hostname, without doing local DNS resolution (like with a proxy scan), this
-     has to be made conditional (and perhaps an error if the netmask doesn't
-     limit it to exactly one address). */
-  NetBlock *netblock_resolved = this->netblock->resolve();
-  if (netblock_resolved != NULL) {
-    /* resolve may return the original netblock if it's not a type that needs
-     * to be resolved. Don't delete it! */
-    if (netblock_resolved != this->netblock) {
-      delete this->netblock;
-      this->netblock = netblock_resolved;
+    NetBlock *nb = netblocks.front();
+    if (nb->next(ss, sslen)) {
+      return 0;
     }
+    // Ran out of hosts in that block. Remove it.
+    netblocks.pop_front();
+    delete nb;
   }
-  else {
-    error("Failed to resolve \"%s\".", this->netblock->hostname.c_str());
-    if (this->netblock->hostname == "-")
-      error("Bare '-': did you put a space between '--'?");
-    return -1;
-  }
-
-  if (this->netblock->next(ss, sslen))
-    return 0;
-  else
-    return -1;
+  // Ran out of netblocks
+  return -1;
 }
 
 /* Returns true iff the given address is the one that was resolved to create
    this target group; i.e., not one of the addresses derived from it with a
    netmask. */
 bool TargetGroup::is_resolved_address(const struct sockaddr_storage *ss) const {
-  return this->netblock->is_resolved_address(ss);
+  assert(!netblocks.empty());
+  NetBlock *nb = netblocks.front();
+  return nb->is_resolved_address(ss);
 }
 
 /* Return a string of the name or address that was resolved for this group. */
 const char *TargetGroup::get_resolved_name(void) const {
-  if (this->netblock->hostname.empty())
+  assert(!netblocks.empty());
+  NetBlock *nb = netblocks.front();
+  if (nb->hostname.empty())
     return NULL;
   else
-    return this->netblock->hostname.c_str();
+    return nb->hostname.c_str();
 }
 
 /* Return the list of addresses that the name for this group resolved to, but
    which were not scanned, if it came from a name resolution. */
 const std::list<struct sockaddr_storage> &TargetGroup::get_unscanned_addrs(void) const {
-  return this->netblock->unscanned_addrs;
+  assert(!netblocks.empty());
+  NetBlock *nb = netblocks.front();
+  return nb->unscanned_addrs;
 }
 
 /* is the current expression a named host */

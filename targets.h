@@ -78,16 +78,7 @@ public:
   ~HostGroupState();
   Target **hostbatch;
 
-  /* The defer_buffer is a place to store targets that have previously been
-     returned but that can't be used right now. They wait in defer_buffer until
-     HostGroupState::undefer is called, at which point they all move to the end
-     of the undeferred list. HostGroupState::next_target always pulls from the
-     undeferred list before returning anything new. */
-  std::list<Target *> defer_buffer;
   std::list<Target *> undeferred;
-
-  int argc;
-  const char **argv;
   int max_batch_sz; /* The size of the hostbatch[] array */
   int current_batch_sz; /* The number of VALID members of hostbatch[] */
   int next_batch_no; /* The index of the next hostbatch[] member to be given
@@ -103,7 +94,16 @@ public:
   const char *next_expression();
   bool get_next_host(struct sockaddr_storage *ss, size_t *sslen, struct addrset *exclude_group);
   private:
-  bool process_next_expression();
+  /* The defer_buffer is a place to store targets that have previously been
+     returned but that can't be used right now. They wait in defer_buffer until
+     HostGroupState::undefer is called, at which point they all move to the end
+     of the undeferred list. HostGroupState::next_target always pulls from the
+     undeferred list before returning anything new. */
+  std::list<Target *> defer_buffer;
+
+  int argc;
+  const char **argv;
+
 };
 
 /* ports is used to pass information about what ports to use for host discovery */

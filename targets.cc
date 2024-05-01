@@ -413,22 +413,6 @@ bail:
   return NULL;
 }
 
-bool HostGroupState::process_next_expression() {
-  const char *expr;
-  /* We are going to have to pop in another expression. */
-  for (;;) {
-    expr = next_expression();
-    if (expr == NULL)
-      /* That's the last of them. */
-      return false;
-    if (current_group.parse_expr(expr, o.af()) == 0)
-      break;
-    else
-      log_bogus_target(expr);
-  }
-  return true;
-}
-
 bool HostGroupState::get_next_host(struct sockaddr_storage *ss, size_t *sslen, struct addrset *exclude_group) {
   int num_queued = o.numhosts_scanned + current_batch_sz;
   if (o.max_ips_to_scan > 0 && num_queued >= (int)o.max_ips_to_scan) {
@@ -438,7 +422,7 @@ bool HostGroupState::get_next_host(struct sockaddr_storage *ss, size_t *sslen, s
   do {
     // If the expression can't generate any more targets
     while (current_group.get_next_host(ss, sslen) != 0) {
-      if (!process_next_expression()) {
+      if (!current_group.load_expressions(this, o.af())) {
         return false;
       }
     }

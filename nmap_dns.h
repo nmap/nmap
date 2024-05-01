@@ -253,7 +253,8 @@ struct Request
   RECORD_TYPE type;
   std::vector<struct sockaddr_storage> ssv;
   std::string name;
-  Request() : type(NONE), ssv(), name() {}
+  void *userdata;
+  Request() : type(NONE), ssv(), name(), userdata(NULL) {}
   const char *repr(); // string representation
 };
 }
