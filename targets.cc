@@ -74,7 +74,7 @@
 #include "nmap_dns.h"
 #include "utils.h"
 #include "nmap_error.h"
-#include "xml.h"
+#include "output.h"
 
 extern NmapOps o;
 #ifdef WIN32
@@ -347,18 +347,6 @@ const char *HostGroupState::next_expression() {
 #endif
 
   return NULL;
-}
-
-/* Add a <target> element to the XML stating that a target specification was
-   ignored. This can be because of, for example, a DNS resolution failure, or a
-   syntax error. */
-static void log_bogus_target(const char *expr) {
-  xml_open_start_tag("target");
-  xml_attribute("specification", "%s", expr);
-  xml_attribute("status", "skipped");
-  xml_attribute("reason", "invalid");
-  xml_close_empty_tag();
-  xml_newline();
 }
 
 /* Returns a newly allocated Target with the given address. Handles all the
