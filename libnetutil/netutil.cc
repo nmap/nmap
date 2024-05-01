@@ -4673,19 +4673,12 @@ size_t read_host_from_file(FILE *fp, char *buf, size_t n)
 
 
 /* Return next target host specification from the supplied stream.
- * if parameter "random" is set to true, then the function will
- * return a random, non-reserved, IP address in decimal-dot notation */
-const char *grab_next_host_spec(FILE *inputfd, bool random, int argc, const char **argv) {
+ */
+const char *grab_next_host_spec(FILE *inputfd, int argc, const char **argv) {
   static char host_spec[1024];
-  struct in_addr ip;
   size_t n;
 
-  if (random) {
-    do {
-      ip.s_addr = get_random_unique_u32();
-    } while (ip_is_reserved(&ip));
-    Strncpy(host_spec, inet_ntoa(ip), sizeof(host_spec));
-  } else if (!inputfd) {
+  if (!inputfd) {
     return( (optind < argc)?  argv[optind++] : NULL);
   } else {
     n = read_host_from_file(inputfd, host_spec, sizeof(host_spec));

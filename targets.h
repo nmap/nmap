@@ -74,7 +74,7 @@ public:
   /* The maximum number of entries we want to allow storing in defer_buffer. */
   static const unsigned int DEFER_LIMIT = 64;
 
-  HostGroupState(int lookahead, int randomize, int argc, const char *argv[]);
+  HostGroupState(int lookahead, int randomize, int num_random, int argc, const char *argv[]);
   ~HostGroupState();
   Target **hostbatch;
 
@@ -102,6 +102,8 @@ public:
   void undefer();
   const char *next_expression();
   Target *next_target();
+  private:
+  int num_random;
 };
 
 /* ports is used to pass information about what ports to use for host discovery */

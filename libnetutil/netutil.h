@@ -533,9 +533,8 @@ int read_reply_pcap(pcap_t *pd, long to_usec,
 size_t read_host_from_file(FILE *fp, char *buf, size_t n);
 
 /* Return next target host specification from the supplied stream.
- * if parameter "random" is set to true, then the function will
- * return a random, non-reserved, IP address in decimal-dot notation */
-const char *grab_next_host_spec(FILE *inputfd, bool random, int argc, const char **fakeargv);
+ */
+const char *grab_next_host_spec(FILE *inputfd, int argc, const char **fakeargv);
 
 #ifdef WIN32
 /* Convert a dnet interface name into the long pcap style.  This also caches the

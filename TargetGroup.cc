@@ -116,6 +116,18 @@ public:
   virtual std::string str() const = 0;
 };
 
+class NetBlockRandomIPv4 : public NetBlock {
+public:
+  NetBlockRandomIPv4();
+
+  bool next(struct sockaddr_storage *ss, size_t *sslen);
+  void apply_netmask(int bits) {}
+  std::string str() const {return "Random IPv4 addresses";}
+
+private:
+  struct sockaddr_in base;
+};
+
 class NetBlockIPv4Ranges : public NetBlock {
 public:
   octet_bitvector octets[4];
@@ -323,6 +335,20 @@ bool NetBlock::is_resolved_address(const struct sockaddr_storage *ss) const {
     }
   }
   return false;
+}
+
+NetBlockRandomIPv4::NetBlockRandomIPv4() {
+  memset(&base, 0, sizeof(base));
+  base.sin_family = AF_INET;
+}
+
+bool NetBlockRandomIPv4::next(struct sockaddr_storage *ss, size_t *sslen) {
+  do {
+    base.sin_addr.s_addr = get_random_unique_u32();
+  } while (ip_is_reserved(&base.sin_addr));
+  memcpy(ss, &base, sizeof(base));
+  *sslen = sizeof(base);
+  return true;
 }
 
 NetBlockIPv4Ranges::NetBlockIPv4Ranges() {
@@ -775,6 +801,11 @@ int TargetGroup::parse_expr(const char *target_expr, int af) {
     return 0;
   else
     return 1;
+}
+
+void TargetGroup::generate_random_ips() {
+  assert(this->netblock == NULL);
+  this->netblock = new NetBlockRandomIPv4();
 }
 
 /* Grab the next host from this expression (if any) and updates its internal

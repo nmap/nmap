@@ -101,6 +101,7 @@ public:
   const std::list<struct sockaddr_storage> &get_unscanned_addrs(void) const;
   /* is the current expression a named host */
   int get_namedhost() const;
+  void generate_random_ips();
 };
 
 #endif /* TARGETGROUP_H */

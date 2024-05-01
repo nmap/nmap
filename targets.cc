@@ -285,7 +285,7 @@ bool target_needs_new_hostgroup(Target **targets, int targets_sz, const Target *
    The target_expressions array MUST REMAIN VALID IN MEMORY as long as
    this class instance is used -- the array is NOT copied.
  */
-HostGroupState::HostGroupState(int lookahead, int rnd, int argc, const char **argv) {
+HostGroupState::HostGroupState(int lookahead, int rnd, int num_random, int argc, const char **argv) {
   assert(lookahead > 0);
   this->argc = argc;
   this->argv = argv;
@@ -296,6 +296,10 @@ HostGroupState::HostGroupState(int lookahead, int rnd, int argc, const char **ar
   current_batch_sz = 0;
   next_batch_no = 0;
   randomize = rnd;
+  this->num_random = num_random;
+  if (num_random > 0) {
+    current_group.generate_random_ips();
+  }
 }
 
 HostGroupState::~HostGroupState() {
@@ -315,7 +319,7 @@ void HostGroupState::undefer() {
 const char *HostGroupState::next_expression() {
   if (o.max_ips_to_scan == 0 || o.numhosts_scanned + this->current_batch_sz < o.max_ips_to_scan) {
     const char *expr;
-    expr = grab_next_host_spec(o.inputfd, o.generate_random_ips, this->argc, this->argv);
+    expr = grab_next_host_spec(o.inputfd, this->argc, this->argv);
     if (expr != NULL)
       return expr;
   }
@@ -427,6 +431,7 @@ static Target *next_target(HostGroupState *hs, struct addrset *exclude_group,
   struct sockaddr_storage ss;
   size_t sslen;
   Target *t;
+  int num_queued = o.numhosts_scanned + hs->current_batch_sz;
 
   /* First handle targets deferred in the last batch. */
   if (!hs->undeferred.empty()) {
@@ -435,6 +440,9 @@ static Target *next_target(HostGroupState *hs, struct addrset *exclude_group,
     return t;
   }
 
+  if (o.max_ips_to_scan > 0 && num_queued >= (int)o.max_ips_to_scan) {
+    return NULL;
+  }
 tryagain:
 
   if (hs->current_group.get_next_host(&ss, &sslen) != 0) {
