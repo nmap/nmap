@@ -111,6 +111,7 @@ public:
    * the return value to the pointer that this method was called through.
    * On error, return NULL. */
   virtual NetBlock *resolve() { return this; }
+  virtual void reject_last_host() {}
   virtual bool next(struct sockaddr_storage *ss, size_t *sslen) = 0;
   virtual void apply_netmask(int bits) = 0;
   virtual std::string str() const = 0;
@@ -120,12 +121,15 @@ class NetBlockRandomIPv4 : public NetBlock {
 public:
   NetBlockRandomIPv4();
 
+  void reject_last_host() { count++; }
+  void set_num_random(int num) { count = num; }
   bool next(struct sockaddr_storage *ss, size_t *sslen);
   void apply_netmask(int bits) {}
   std::string str() const {return "Random IPv4 addresses";}
 
 private:
   struct sockaddr_in base;
+  int count;
 };
 
 class NetBlockIPv4Ranges : public NetBlock {
@@ -337,17 +341,21 @@ bool NetBlock::is_resolved_address(const struct sockaddr_storage *ss) const {
   return false;
 }
 
-NetBlockRandomIPv4::NetBlockRandomIPv4() {
+NetBlockRandomIPv4::NetBlockRandomIPv4() : count(0) {
   memset(&base, 0, sizeof(base));
   base.sin_family = AF_INET;
 }
 
 bool NetBlockRandomIPv4::next(struct sockaddr_storage *ss, size_t *sslen) {
+  if (count <= 0) {
+    return false;
+  }
   do {
     base.sin_addr.s_addr = get_random_unique_u32();
   } while (ip_is_reserved(&base.sin_addr));
   memcpy(ss, &base, sizeof(base));
   *sslen = sizeof(base);
+  count--;
   return true;
 }
 
@@ -803,9 +811,10 @@ int TargetGroup::parse_expr(const char *target_expr, int af) {
     return 1;
 }
 
-void TargetGroup::generate_random_ips() {
+void TargetGroup::generate_random_ips(int num_random) {
   assert(this->netblock == NULL);
   this->netblock = new NetBlockRandomIPv4();
+  this->netblock->set_num_random(num_random);
 }
 
 /* Grab the next host from this expression (if any) and updates its internal

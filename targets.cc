@@ -296,9 +296,8 @@ HostGroupState::HostGroupState(int lookahead, int rnd, int num_random, int argc,
   current_batch_sz = 0;
   next_batch_no = 0;
   randomize = rnd;
-  this->num_random = num_random;
   if (num_random > 0) {
-    current_group.generate_random_ips();
+    current_group.generate_random_ips(num_random);
   }
 }
 
@@ -444,14 +443,11 @@ bool HostGroupState::get_next_host(struct sockaddr_storage *ss, size_t *sslen, s
       }
     }
     /* Check exclude list. */
-    if (!hostInExclude((struct sockaddr *) ss, *sslen, exclude_group))
+    if (!hostInExclude((struct sockaddr *) ss, *sslen, exclude_group)) {
+      current_group.reject_last_host();
       break;
+    }
   } while (true);
-
-  // If this is the last of the random IPs, pop in a new expression
-  if (num_random > 0 && --num_random == 0) {
-    process_next_expression();
-  }
 
   return true;
 }
