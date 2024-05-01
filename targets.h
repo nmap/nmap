@@ -100,10 +100,11 @@ public:
   /* Returns true iff the defer buffer is not yet full. */
   bool defer(Target *t);
   void undefer();
-  const char *next_expression();
-  Target *next_target();
+  bool get_next_host(struct sockaddr_storage *ss, size_t *sslen, struct addrset *exclude_group);
   private:
   int num_random;
+  bool process_next_expression();
+  const char *next_expression();
 };
 
 /* ports is used to pass information about what ports to use for host discovery */

@@ -426,12 +426,53 @@ bail:
   return NULL;
 }
 
+bool HostGroupState::process_next_expression() {
+  const char *expr;
+  /* We are going to have to pop in another expression. */
+  for (;;) {
+    expr = next_expression();
+    if (expr == NULL)
+      /* That's the last of them. */
+      return false;
+    if (current_group.parse_expr(expr, o.af()) == 0)
+      break;
+    else
+      log_bogus_target(expr);
+  }
+  return true;
+}
+
+bool HostGroupState::get_next_host(struct sockaddr_storage *ss, size_t *sslen, struct addrset *exclude_group) {
+  int num_queued = o.numhosts_scanned + current_batch_sz;
+  if (o.max_ips_to_scan > 0 && num_queued >= (int)o.max_ips_to_scan) {
+    return false;
+  }
+
+  do {
+    // If the expression can't generate any more targets
+    while (current_group.get_next_host(ss, sslen) != 0) {
+      if (!process_next_expression()) {
+        return false;
+      }
+    }
+    /* Check exclude list. */
+    if (!hostInExclude((struct sockaddr *) ss, *sslen, exclude_group))
+      break;
+  } while (true);
+
+  // If this is the last of the random IPs, pop in a new expression
+  if (num_random > 0 && --num_random == 0) {
+    process_next_expression();
+  }
+
+  return true;
+}
+
 static Target *next_target(HostGroupState *hs, struct addrset *exclude_group,
   const struct scan_lists *ports, int pingtype) {
   struct sockaddr_storage ss;
   size_t sslen;
   Target *t;
-  int num_queued = o.numhosts_scanned + hs->current_batch_sz;
 
   /* First handle targets deferred in the last batch. */
   if (!hs->undeferred.empty()) {
@@ -440,25 +481,11 @@ static Target *next_target(HostGroupState *hs, struct addrset *exclude_group,
     return t;
   }
 
-  if (o.max_ips_to_scan > 0 && num_queued >= (int)o.max_ips_to_scan) {
-    return NULL;
-  }
 tryagain:
 
-  if (hs->current_group.get_next_host(&ss, &sslen) != 0) {
-    const char *expr;
-    /* We are going to have to pop in another expression. */
-    for (;;) {
-      expr = hs->next_expression();
-      if (expr == NULL)
-        /* That's the last of them. */
-        return NULL;
-      if (hs->current_group.parse_expr(expr, o.af()) == 0)
-        break;
-      else
-        log_bogus_target(expr);
-    }
-    goto tryagain;
+  if (!hs->get_next_host(&ss, &sslen, exclude_group)) {
+    /* That's the last of them. */
+    return NULL;
   }
 
   assert(ss.ss_family == o.af());
@@ -471,10 +498,6 @@ tryagain:
       o.resume_ip.ss_family = AF_UNSPEC;
     goto tryagain;
   }
-
-  /* Check exclude list. */
-  if (hostInExclude((struct sockaddr *) &ss, sslen, exclude_group))
-    goto tryagain;
 
   t = setup_target(hs, &ss, sslen, pingtype);
   if (t == NULL)
