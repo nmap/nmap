@@ -2,22 +2,23 @@
 
 Nmap 7.95 [2024-04-23]
 
-o [Windows] Upgraded Npcap (our Windows raw packet capturing and
-  transmission driver) from version 1.75 to the latest version 1.79. It
-  includes many performance improvements, bug fixes and feature
-  enhancements described at https://npcap.com/changelog.
+o Integrated over 4000 of your IPv4 OS fingerprints. Added 336 signatures,
+  bringing the new total to 6036.  Additions include iOS 15 & 16, macOS
+  Ventura & Monterey, Linux 6.1, OpenBSD 7.1, and lwIP 2.2
 
-o Integrated over 4000 IPv4 OS fingerprints submitted since June 2020. Added
-  336 fingerprints, bringing the new total to 6036.  Additions include iOS 15 &
-  16, macOS Ventura & Monterey, Linux 6.1, OpenBSD 7.1, and lwIP 2.2
+o Integrated over 2500 service/version detection fingerprints. The signature
+  count went up 1.4% to 12089, including 9 new softmatches.  We now detect
+  1246 protocols, including new additions of grpc, mysqlx, essnet,
+  remotemouse, and tuya.
 
-o Integrated over 2500 service/version detection fingerprints submitted since
-  June 2020. The signature count went up 1.4% to 12089, including 9 new
-  softmatches.  We now detect 1246 protocols, including new additions of grpc,
-  mysqlx, essnet, remotemouse, and tuya.
+o [Windows] Upgraded Npcap (our Windows raw packet capturing and transmission
+  driver) from version 1.75 to the latest version 1.79. It includes many
+  performance improvements, bug fixes and feature enhancements described at
+  https://npcap.com/changelog.
 
-o [NSE] Four new scripts from the DINA community (https://github.com/DINA-community)
-  for querying industrial control systems:
+o [NSE] Added four new scripts from the DINA community
+  (https://github.com/DINA-community) for querying industrial control
+  systems:
 
   + hartip-info reads device information from devices using the Highway
     Addressable Remote Transducer protocol
@@ -31,34 +32,10 @@ o [NSE] Four new scripts from the DINA community (https://github.com/DINA-commun
   + profinet-cm-lookup queries the DCERPC endpoint mapper exposed via the
     PNIO-CM service.
 
-o Upgraded included libraries: Lua 5.4.6, libpcre2 10.43, zlib 1.3.1,
-  libssh2 1.11.0, liblinear 2.47
-
-o [GH#2639] Upgraded OpenSSL binaries (for the Windows builds and for
-  RPMs) to version 3.0.13. CVEs resolved in this update include only 2
-  moderate-severity issues which we do not believe affect Nmap:
-  CVE-2023-5363 and CVE-2023-2650
-
-o [Zenmap][Ndiff][GH#2649] Zenmap and Ndiff now use setuptools, not distutils for packaging.
-
-o [Ncat][GH#2685] Fixed Ncat UDP server mode to not quit after EOF on stdin. Reported
-  as Debian bug: https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=1039613
-
-o [GH#2672] Fixed an issue where TCP Connect scan (-sT) on Windows would fail to open any
-  sockets, leading to scans that never finish. [Daniel Miller]
-
-o [NSE] ssh-auth-methods will now print the pre-authentication banner text when
-  available. Requires libssh2 1.11.0 or later. [Daniel Miller]
-
-o [Zenmap][GH#2739] Fix a crash in Zenmap when changing a host comment.
-
-o [NSE][GH#2766] Fix TLS 1.2 signature algorithms for EdDSA. [Daniel Roethlisberger]
-
-o [Zenmap][GH#2706] RPM spec files now correctly require the python3 package, not python>=3
-
-o Improvements to OS detection fingerprint matching, including a syntax change
-  for nmap-os-db that allows ranges within the TCP Options string. This leads
-  to more concise and maintainable fingerprints. [Daniel Miller]
+o Improvements to OS detection fingerprint matching, including a syntax
+  change for nmap-os-db that allows ranges within the TCP Options
+  string. This leads to more concise and maintainable fingerprints. [Daniel
+  Miller]
 
 o Improved the OS detection engine by using a new source port for each retry.
   Scans from systems such as Windows that do not send RST for unsolicited
@@ -67,6 +44,32 @@ o Improved the OS detection engine by using a new source port for each retry.
 
 o Several profile-guided optimizations of the port scan engine. [Daniel Miller]
 
+o Upgraded included libraries: Lua 5.4.6, libpcre2 10.43, zlib 1.3.1, libssh2
+  1.11.0, liblinear 2.47
+
+o [GH#2639] Upgraded OpenSSL binaries (for the Windows builds and for RPMs)
+  to version 3.0.13. This addresses various OpenSSL vulnerabilities which
+  don't impact Nmap (full details are in the GH issue).
+
+o [GH#2672] Fixed an issue where TCP Connect scan (-sT) on Windows would fail
+  to open any sockets, leading to scans that never finish. [Daniel Miller]
+
+o [Zenmap][Ndiff][GH#2649] Zenmap and Ndiff now use setuptools, not distutils
+   for packaging.
+
+o [Ncat][GH#2685] Fixed Ncat UDP server mode to not quit after EOF on
+  stdin. Reported as Debian bug:
+  https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=1039613
+
+o [NSE] ssh-auth-methods will now print the pre-authentication banner text
+  when available. Requires libssh2 1.11.0 or later. [Daniel Miller]
+
+o [Zenmap][GH#2739] Fix a crash in Zenmap when changing a host comment.
+
+o [NSE][GH#2766] Fix TLS 1.2 signature algorithms for EdDSA. [Daniel Roethlisberger]
+
+o [Zenmap][GH#2706] RPM spec files now correctly require the python3 package, not python>=3
+
 o [GH#2731] Fix an out-of-bounds read which led to out-of-memory errors when
   duplicate addresses were used with --exclude
 
@@ -74,8 +77,8 @@ o [GH#2609] Fixed a memory leak in Nsock: compiled pcap filters were not freed.
 
 o [GH#2658] Fixed a crash when using service name wildcards with -p, as in -p "http*"
 
-o [NSE] Fixed DNS TXT record parsing which caused asn-query to fail in Nmap
-  7.80 and later. [David Fifield, Mike Pattrick]
+o [NSE] Fixed DNS TXT record parsing bug which caused asn-query to fail in
+  Nmap 7.80 and later. [David Fifield, Mike Pattrick]
 
 o [NSE][GH#2727][GH#2728] Fixed packet size testing in KNX scripts [f0rw4rd]
 
