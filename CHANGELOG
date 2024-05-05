@@ -2,13 +2,13 @@
 
 Nmap 7.95 [2024-04-23]
 
-o Integrated over 4000 of your IPv4 OS fingerprints. Added 336 signatures,
-  bringing the new total to 6036.  Additions include iOS 15 & 16, macOS
+o Integrated over 4,000 of your IPv4 OS fingerprints. Added 336 signatures,
+  bringing the new total to 6,036.  Additions include iOS 15 & 16, macOS
   Ventura & Monterey, Linux 6.1, OpenBSD 7.1, and lwIP 2.2
 
-o Integrated over 2500 service/version detection fingerprints. The signature
-  count went up 1.4% to 12089, including 9 new softmatches.  We now detect
-  1246 protocols, including new additions of grpc, mysqlx, essnet,
+o Integrated over 2,500 service/version detection fingerprints. The signature
+  count went up 1.4% to 12,089, including 9 new softmatches.  We now detect
+  1,246 protocols, including new additions of grpc, mysqlx, essnet,
   remotemouse, and tuya.
 
 o [Windows] Upgraded Npcap (our Windows raw packet capturing and transmission
