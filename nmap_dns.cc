@@ -1136,6 +1136,7 @@ static void nmap_mass_dns_core(DNS::Request *requests, int num_requests) {
   total_reqs = 0;
 
   // Set up the request structure
+  std::string *prev = NULL;
   for (int i=0; i < num_requests; i++)
   {
     DNS::Request &reqt = requests[i];
@@ -1156,8 +1157,11 @@ static void nmap_mass_dns_core(DNS::Request *requests, int num_requests) {
 
     new_reqs.push_back(tpreq);
 
-    stat_actual++;
+    if (!prev || *prev != reqt.name) {
+      stat_actual++;
+    }
     total_reqs++;
+    prev = &reqt.name;
   }
 
   if (total_reqs == 0 || servs.size() == 0) return;
@@ -1183,6 +1187,7 @@ static void nmap_mass_dns_core(DNS::Request *requests, int num_requests) {
 
   Snprintf(spmobuf, sizeof(spmobuf), "Parallel DNS resolution of %d host%s.", stat_actual, stat_actual-1 ? "s" : "");
   SPM = new ScanProgressMeter(spmobuf);
+  stat_actual = total_reqs;
 
   while (total_reqs > 0) {
     timeout = deal_with_timedout_reads();
