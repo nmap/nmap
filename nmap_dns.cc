@@ -226,6 +226,12 @@ struct request {
   dns_server *curr_server;
   u16 id;
   bool alt_req;
+  ~request() {
+    if (alt_req && targ) {
+      delete targ;
+      targ = NULL;
+    }
+  }
 };
 
 /*keeps record of a request going through a particular DNS server
