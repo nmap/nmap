@@ -256,7 +256,7 @@ struct Request
   std::string name;
   void *userdata;
   Request() : type(NONE), ssv(), name(), userdata(NULL) {}
-  const char *repr(); // string representation
+  const char *repr() const; // string representation
 };
 }
 

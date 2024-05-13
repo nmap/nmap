@@ -1823,8 +1823,10 @@ size_t DNS::Packet::parseFromBuffer(const u8 *buf, size_t maxlen)
   return ret;
 }
 
-const char *DNS::Request::repr()
+const char *DNS::Request::repr() const
 {
+#define REPR_BUFSIZE (FQDN_LEN + 16)
+  static char buf[REPR_BUFSIZE] = "\0";
   switch(type) {
     case DNS::NONE:
       return "Uninitialized request";
@@ -1832,7 +1834,7 @@ const char *DNS::Request::repr()
     case DNS::A:
     case DNS::AAAA:
     case DNS::ANY:
-      return name.c_str();
+      Snprintf(buf, REPR_BUFSIZE, "%s/%d", name.c_str(), type);
       break;
     case DNS::PTR:
       if (ssv.size() > 0) {
@@ -1843,7 +1845,8 @@ const char *DNS::Request::repr()
       }
       break;
     default:
-      return "Invalid request";
+      Snprintf(buf, REPR_BUFSIZE, "Invalid request: %d", type);
       break;
   }
+  return buf;
 }
