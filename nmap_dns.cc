@@ -168,17 +168,19 @@ extern NmapOps o;
 
 // In milliseconds
 // Each row MUST be terminated with -1
-static int read_timeouts[][4] = {
-  { 4000, 4000, 5000, -1 }, // 1 server
-  { 2500, 4000,   -1, -1 }, // 2 servers
-  { 2500, 3000,   -1, -1 }, // 3+ servers
+#define MAX_DNS_TRIES 3
+#define MIN_DNS_TIMEOUT (MIN_RTT_TIMEOUT * 3)
+static int read_timeouts[][MAX_DNS_TRIES + 1] = {
+  { 2 * MIN_DNS_TIMEOUT, 30 * MIN_DNS_TIMEOUT, 40 * MIN_DNS_TIMEOUT, -1 }, // 1 server
+  { 2 * MIN_DNS_TIMEOUT, 20 * MIN_DNS_TIMEOUT,                   -1, -1 }, // 2 servers
+  {     MIN_DNS_TIMEOUT, 10 * MIN_DNS_TIMEOUT,                   -1, -1 }, // 3+ servers
 };
 
 #define CAPACITY_MIN 10
-#define CAPACITY_MAX 200
+#define CAPACITY_MAX 100
 #define CAPACITY_UP_STEP 2
-#define CAPACITY_MINOR_DOWN_SCALE 0.9
-#define CAPACITY_MAJOR_DOWN_SCALE 0.7
+#define CAPACITY_MINOR_DOWN_SCALE 0.5
+#define CAPACITY_MAJOR_DOWN_SCALE 0.2
 
 // Each request will try to resolve on at most this many servers:
 #define SERVERS_TO_TRY 3
@@ -212,14 +214,22 @@ struct dns_server {
   int connected;
   int reqs_on_wire;
   int capacity;
+  int max_capacity;
   int write_busy;
   std::list<request *> to_process;
   std::list<request *> in_process;
+  struct timeval last_increase;
+  dns_server() : hostname(), addr_len(0), connected(0), reqs_on_wire(0),
+    capacity(CAPACITY_MIN), max_capacity(CAPACITY_MAX), write_busy(0), to_process(), in_process()
+  {
+    memset(&addr, 0, sizeof(addr));
+    memset(&last_increase, 0, sizeof(last_increase));
+  }
 };
 
 struct request {
   DNS::Request *targ;
-  struct timeval timeout;
+  struct timeval sent;
   int tries;
   int servers_tried;
   dns_server *first_server;
@@ -414,7 +424,8 @@ static void output_summary() {
 
 static void check_capacities(dns_server *tpserv) {
   if (tpserv->capacity < CAPACITY_MIN) tpserv->capacity = CAPACITY_MIN;
-  if (tpserv->capacity > CAPACITY_MAX) tpserv->capacity = CAPACITY_MAX;
+  if (tpserv->max_capacity > CAPACITY_MAX) tpserv->max_capacity = CAPACITY_MAX;
+  if (tpserv->capacity > tpserv->max_capacity) tpserv->capacity = tpserv->max_capacity;
   if (o.debugging >= TRACE_DEBUG_LEVEL) log_write(LOG_STDOUT, "CAPACITY <%s> = %d\n", tpserv->hostname.c_str(), tpserv->capacity);
 }
 
@@ -430,8 +441,8 @@ static void close_dns_servers() {
       serverI->in_process.clear();
     }
   }
+  nsock_loop_quit(dnspool);
 }
-
 
 // Puts as many packets on the line as capacity will allow
 static void do_possible_writes() {
@@ -491,8 +502,6 @@ static void put_dns_packet_on_wire(request *req) {
   u8 packet[maxlen];
   size_t plen=0;
 
-  struct timeval now, timeout;
-
   req->curr_server->write_busy = 1;
   req->curr_server->reqs_on_wire++;
   DNS::Request &reqt = *req->targ;
@@ -511,18 +520,14 @@ static void put_dns_packet_on_wire(request *req) {
       break;
   }
 
-  memcpy(&now, nsock_gettimeofday(), sizeof(struct timeval));
-  TIMEVAL_MSEC_ADD(timeout, now, read_timeouts[read_timeout_index][req->tries]);
-  memcpy(&req->timeout, &timeout, sizeof(struct timeval));
-
-  req->tries++;
+  memcpy(&req->sent, nsock_gettimeofday(), sizeof(struct timeval));
 
   nsock_write(dnspool, req->curr_server->nsd, write_evt_handler, WRITE_TIMEOUT, req, reinterpret_cast<const char *>(packet), plen);
 }
 
 // Processes DNS packets that have timed out
 // Returns time until next read timeout
-static int deal_with_timedout_reads() {
+static int deal_with_timedout_reads(bool adjust_timing) {
   std::list<dns_server>::iterator servI;
   std::list<dns_server>::iterator servItemp;
   std::list<request *>::iterator reqI;
@@ -541,24 +546,39 @@ static int deal_with_timedout_reads() {
     nextI = servI->in_process.begin();
     if (nextI == servI->in_process.end()) continue;
 
+    struct timeval earliest_sent = now;
+    bool adjusted = false;
+    bool may_increase = adjust_timing;
     do {
       reqI = nextI++;
       tpreq = *reqI;
 
-      tp = TIMEVAL_MSEC_SUBTRACT(tpreq->timeout, now);
-      if (tp > 0 && tp < min_timeout) min_timeout = tp;
+      int to = read_timeouts[read_timeout_index][tpreq->tries];
 
-      if (tp <= 0) {
-        servI->capacity = (int) (servI->capacity * CAPACITY_MINOR_DOWN_SCALE);
-        check_capacities(&*servI);
+      int elapsed = TIMEVAL_MSEC_SUBTRACT(now, tpreq->sent);
+      tp = to - elapsed;
+      if (tp > 0) {
+        // only bother checking this if we might increase the capacity
+        if (may_increase && TIMEVAL_BEFORE(tpreq->sent, earliest_sent)) {
+          earliest_sent = tpreq->sent;
+        }
+        if (tp < min_timeout) min_timeout = tp;
+      }
+      else {
+        may_increase = false;
+        tpreq->tries++;
         servI->in_process.erase(reqI);
         records.erase(tpreq->id);
         servI->reqs_on_wire--;
 
         // If we've tried this server enough times, move to the next one
         if (read_timeouts[read_timeout_index][tpreq->tries] == -1) {
-          servI->capacity = (int) (servI->capacity * CAPACITY_MAJOR_DOWN_SCALE);
-          check_capacities(&*servI);
+          if (!adjusted) {
+            servI->max_capacity = servI->capacity * 1.5;
+            servI->capacity = (int) (servI->capacity * CAPACITY_MAJOR_DOWN_SCALE);
+            check_capacities(&*servI);
+            adjusted = true;
+          }
 
           servItemp = servI;
           servItemp++;
@@ -591,13 +611,24 @@ static int deal_with_timedout_reads() {
             servItemp->to_process.push_back(tpreq);
           }
         } else {
+          if (!adjusted) {
+            servI->max_capacity = servI->capacity * 2;
+            servI->capacity = (int) (servI->capacity * CAPACITY_MINOR_DOWN_SCALE);
+            check_capacities(&*servI);
+            adjusted = true;
+          }
           servI->to_process.push_back(tpreq);
         }
 
-    }
+      }
 
     } while (nextI != servI->in_process.end());
 
+    if (may_increase && TIMEVAL_MSEC_SUBTRACT(earliest_sent, servI->last_increase) > (2 * MIN_DNS_TIMEOUT) && servI->reqs_on_wire > servI->capacity - CAPACITY_UP_STEP) {
+      servI->capacity += CAPACITY_UP_STEP;
+      check_capacities(&*servI);
+      servI->last_increase = now;
+    }
   }
 
   if (min_timeout > 500) return 500;
@@ -612,8 +643,10 @@ static void process_request(int action, info &reqinfo) {
   switch (action) {
     case ACTION_SYSTEM_RESOLVE:
     case ACTION_FINISHED:
-      server->capacity += CAPACITY_UP_STEP;
-      check_capacities(&*server);
+      if (server->reqs_on_wire == server->capacity && server->capacity * 2 < server->max_capacity) {
+        server->capacity++;
+        check_capacities(server);
+      }
       records.erase(tpreq->id);
       server->in_process.remove(tpreq);
       server->reqs_on_wire--;
@@ -628,8 +661,8 @@ static void process_request(int action, info &reqinfo) {
 
       break;
     case ACTION_TIMEOUT:
-      memcpy(&tpreq->timeout, nsock_gettimeofday(), sizeof(struct timeval));
-      deal_with_timedout_reads();
+      tpreq->tries = MAX_DNS_TRIES;
+      deal_with_timedout_reads(false);
       break;
     default:
       assert(false);
@@ -876,9 +909,6 @@ static void connect_dns_servers() {
     }
     if (o.ipoptionslen)
       nsock_iod_set_ipoptions(serverI->nsd, o.ipoptions, o.ipoptionslen);
-    serverI->reqs_on_wire = 0;
-    serverI->capacity = CAPACITY_MIN;
-    serverI->write_busy = 0;
 
     nsock_connect_udp(dnspool, serverI->nsd, connect_evt_handler, NULL, (struct sockaddr *) &serverI->addr, serverI->addr_len, 53);
     nsock_read(dnspool, serverI->nsd, read_evt_handler, -1, NULL);
@@ -1232,7 +1262,7 @@ static void nmap_mass_dns_core(DNS::Request *requests, int num_requests) {
   stat_actual = total_reqs;
 
   while (total_reqs > 0) {
-    timeout = deal_with_timedout_reads();
+    timeout = deal_with_timedout_reads(true);
 
     do_possible_writes();
 
