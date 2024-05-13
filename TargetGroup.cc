@@ -115,7 +115,7 @@ public:
    * NetBlock subclass, override this method. Otherwise, it's safe to reassign
    * the return value to the pointer that this method was called through.
    * On error, return NULL. */
-  virtual NetBlock *resolve(const DNS::Request &reqA, const DNS::Request &reqAAAA) { return this; }
+  virtual NetBlock *resolve(const DNS::Request &req) { return this; }
   virtual void reject_last_host() {}
   virtual bool next(struct sockaddr_storage *ss, size_t *sslen) = 0;
   virtual void apply_netmask(int bits) = 0;
@@ -174,7 +174,7 @@ public:
   int af;
   int bits;
 
-  NetBlock *resolve(const DNS::Request &reqA, const DNS::Request &reqAAAA);
+  NetBlock *resolve(const DNS::Request &req);
 
   bool next(struct sockaddr_storage *ss, size_t *sslen);
   void apply_netmask(int bits);
@@ -306,9 +306,7 @@ static NetBlock *parse_expr_without_netmask(const char *hostexp, int af, std::ve
   DNS::Request req;
   req.name = hostexp;
   req.userdata = nb;
-  req.type = DNS::A;
-  requests.push_back(req);
-  req.type = DNS::AAAA;
+  req.type = DNS::ANY;
   requests.push_back(req);
   return nb;
 }
@@ -706,22 +704,19 @@ std::string NetBlockIPv6Netmask::str() const {
   return result.str();
 }
 
-NetBlock *NetBlockHostname::resolve(const DNS::Request &reqA, const DNS::Request &reqAAAA) {
+NetBlock *NetBlockHostname::resolve(const DNS::Request &req) {
   std::list<struct sockaddr_storage> resolvedaddrs;
   std::list<struct sockaddr_storage> unscanned_addrs;
   NetBlock *netblock;
 
-  const DNS::Request &req_same_fam = (af == AF_INET ? reqA : reqAAAA);
-  const DNS::Request &req_other_fam = (af == AF_INET ? reqAAAA : reqA);
-  if (!req_same_fam.ssv.empty()) {
-    resolvedaddrs.push_back(req_same_fam.ssv[0]);
-    std::list<struct sockaddr_storage> &remainder = o.resolve_all ? resolvedaddrs : unscanned_addrs;
-    for (size_t i = 1; i < req_same_fam.ssv.size(); i++) {
-      remainder.push_back(req_same_fam.ssv[i]);
+  for (size_t i = 0; i < req.ssv.size(); i++) {
+    const struct sockaddr_storage &ss = req.ssv[i];
+    if (ss.ss_family == af && (o.resolve_all || resolvedaddrs.empty())) {
+      resolvedaddrs.push_back(ss);
     }
-  }
-  for (size_t i = 0; i < req_other_fam.ssv.size(); i++) {
-    unscanned_addrs.push_back(req_other_fam.ssv[i]);
+    else {
+      unscanned_addrs.push_back(ss);
+    }
   }
 
   if (resolvedaddrs.empty()) {
@@ -825,7 +820,7 @@ bool TargetGroup::load_expressions(HostGroupState *hs, int af) {
   assert(netblocks.empty());
   const char *target_expr = NULL;
   std::vector<DNS::Request> requests;
-  requests.reserve(EXPR_PARSE_BATCH_SZ/2);
+  requests.reserve(EXPR_PARSE_BATCH_SZ/4);
   while (netblocks.size() < EXPR_PARSE_BATCH_SZ
       && NULL != (target_expr = hs->next_expression())) {
     NetBlock *nb = NetBlock::parse_expr(target_expr, af, requests);
@@ -845,12 +840,9 @@ bool TargetGroup::load_expressions(HostGroupState *hs, int af) {
   std::list<NetBlock *>::iterator nb_it = netblocks.begin();
   for (std::vector<DNS::Request>::const_iterator rit = requests.begin();
       rit != requests.end(); rit++) {
-    const DNS::Request &reqA = *rit++;
-    const DNS::Request &reqAAAA = *rit;
-    NetBlock *nb_old = (NetBlock *) reqA.userdata;
-    assert(reqA.userdata == reqAAAA.userdata);
-    assert(reqA.type == DNS::A && reqAAAA.type == DNS::AAAA);
-    NetBlock *nb_new = nb_old->resolve(reqA, reqAAAA);
+    const DNS::Request &req = *rit;
+    NetBlock *nb_old = (NetBlock *) req.userdata;
+    NetBlock *nb_new = nb_old->resolve(req);
     nb_it = std::find(nb_it, netblocks.end(), nb_old);
 
     if (nb_new == NULL) {

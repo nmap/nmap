@@ -128,6 +128,7 @@ typedef enum {
   CNAME = 5,
   PTR = 12,
   AAAA = 28,
+  ANY = 255, // Internally defined as "A and AAAA"
 } RECORD_TYPE;
 
 typedef enum {

@@ -1,6 +1,6 @@
 
 /***************************************************************************
- * nmap_dns.cc -- Handles parallel reverse DNS resolution for target IPs   *
+ * nmap_dns.cc -- Handles parallel DNS resolution for target IPs           *
  *                                                                         *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
  *
@@ -225,6 +225,7 @@ struct request {
   dns_server *first_server;
   dns_server *curr_server;
   u16 id;
+  bool alt_req;
 };
 
 /*keeps record of a request going through a particular DNS server
@@ -469,6 +470,13 @@ static void write_evt_handler(nsock_pool nsp, nsock_event evt, void *req_v) {
   do_possible_writes();
 }
 
+static DNS::RECORD_TYPE wire_type(DNS::RECORD_TYPE t) {
+  if (t == DNS::ANY) {
+    return DNS::A;
+  }
+  return t;
+}
+
 // Takes a DNS request structure and actually puts it on the wire
 // (calls nsock_write()). Does various other tasks like recording
 // the time for the timeout.
@@ -485,9 +493,10 @@ static void put_dns_packet_on_wire(request *req) {
   DNS::Request &reqt = *req->targ;
 
   switch(reqt.type) {
+    case DNS::ANY:
     case DNS::A:
     case DNS::AAAA:
-      plen = DNS::Factory::buildSimpleRequest(reqt.name, reqt.type, packet, maxlen);
+      plen = DNS::Factory::buildSimpleRequest(reqt.name, wire_type(reqt.type), packet, maxlen);
       break;
     case DNS::PTR:
       assert(reqt.ssv.size() > 0);
@@ -604,7 +613,7 @@ static void process_request(int action, info &reqinfo) {
       server->in_process.remove(tpreq);
       server->reqs_on_wire--;
       total_reqs--;
-      if (action == ACTION_SYSTEM_RESOLVE) {
+      if (action == ACTION_SYSTEM_RESOLVE && !tpreq->alt_req) {
         deferred_reqs.push_back(tpreq);
       }
       else {
@@ -628,6 +637,14 @@ static void process_request(int action, info &reqinfo) {
 static bool process_result(const std::string &name, const DNS::Record *rr, info &reqinfo, bool already_matched)
 {
   DNS::Request *reqt = reqinfo.tpreq->targ;
+  std::vector<struct sockaddr_storage> *ssv;
+  if (reqinfo.tpreq->alt_req) {
+    DNS::Request *alt_req = (DNS::Request *) reqinfo.tpreq->targ->userdata;
+    ssv = &alt_req->ssv;
+  }
+  else {
+    ssv = &reqt->ssv;
+  }
   const struct sockaddr_storage *ss = NULL;
   const DNS::A_Record *a_rec = NULL;
   sockaddr_storage ip;
@@ -635,11 +652,12 @@ static bool process_result(const std::string &name, const DNS::Record *rr, info 
   switch (reqt->type) {
     case DNS::A:
     case DNS::AAAA:
+    case DNS::ANY:
       if (!already_matched && name != reqt->name) {
         return false;
       }
       a_rec = static_cast<const DNS::A_Record *>(rr);
-      reqt->ssv.push_back(a_rec->value);
+      ssv->push_back(a_rec->value);
       if (o.debugging >= TRACE_DEBUG_LEVEL)
       {
         log_write(LOG_STDOUT, "mass_dns: OK MATCHED <%s> to <%s>\n",
@@ -744,7 +762,7 @@ static void read_evt_handler(nsock_pool nsp, nsock_event evt, void *) {
     const DNS::Answer &a = *it;
     if(a.record_class == DNS::CLASS_IN)
     {
-      if (reqt->type == a.record_type) {
+      if (wire_type(reqt->type) == a.record_type) {
         processing_successful = process_result(a.name, a.record, reqinfo, a.name == alias);
         if (!processing_successful && o.debugging) {
           log_write(LOG_STDOUT, "mass_dns: Mismatched record for request %s\n", reqt->repr());
@@ -1077,34 +1095,42 @@ static bool system_resolve(DNS::Request &reqt)
   int af = AF_INET;
   struct addrinfo *ai_result = NULL, *ai = NULL;
 
-  switch (reqt.type) {
-    case DNS::PTR:
-      assert(reqt.ssv.size() > 0);
-      if (getnameinfo((const struct sockaddr *) &reqt.ssv.front(),
-            sizeof(sockaddr_storage), hostname,
-            sizeof(hostname), NULL, 0, NI_NAMEREQD) == 0) {
-        reqt.name = hostname;
-        return true;
-      }
-      break;
-    case DNS::AAAA:
-      af = AF_INET6;
-    case DNS::A:
-      ai_result = resolve_all(reqt.name.c_str(), af);
-      for (ai = ai_result; ai != NULL; ai = ai->ai_next) {
-        if (ai->ai_addr->sa_family == af && ai->ai_addrlen <= sizeof(struct sockaddr_storage)) {
-          reqt.ssv.push_back(*(struct sockaddr_storage *)ai->ai_addr);
-        }
-      }
-      if (ai_result != NULL)
-        freeaddrinfo(ai_result);
-      return true;
-      break;
-    default:
-      error("System DNS resolution of %s could not be performed.\n", reqt.repr());
-      break;
+  if (reqt.type == DNS::PTR) {
+    assert(reqt.ssv.size() > 0);
+    if (getnameinfo((const struct sockaddr *) &reqt.ssv.front(),
+          sizeof(sockaddr_storage), hostname,
+          sizeof(hostname), NULL, 0, NI_NAMEREQD) == 0) {
+      reqt.name = hostname;
+    }
   }
-  return false;
+  else {
+    switch (reqt.type) {
+      case DNS::A:
+        af = AF_INET;
+        break;
+      case DNS::AAAA:
+        af = AF_INET6;
+        break;
+      case DNS::ANY:
+        af = AF_UNSPEC;
+        break;
+      default:
+        error("System DNS resolution of %s could not be performed.\n", reqt.repr());
+        return false;
+        break;
+    }
+    ai_result = resolve_all(reqt.name.c_str(), af);
+    for (ai = ai_result; ai != NULL; ai = ai->ai_next) {
+      if (ai->ai_addrlen <= sizeof(struct sockaddr_storage)) {
+        reqt.ssv.push_back(*(struct sockaddr_storage *)ai->ai_addr);
+      }
+    }
+    if (ai_result != NULL)
+      freeaddrinfo(ai_result);
+    else
+      return false;
+  }
+  return true;
 }
 
 //------------------- Main loops ---------------------
@@ -1136,11 +1162,9 @@ static void nmap_mass_dns_core(DNS::Request *requests, int num_requests) {
   total_reqs = 0;
 
   // Set up the request structure
-  std::string *prev = NULL;
   for (int i=0; i < num_requests; i++)
   {
     DNS::Request &reqt = requests[i];
-    assert(reqt.type == DNS::PTR || reqt.type == DNS::A || reqt.type == DNS::AAAA);
 
     // See if it's cached
     if (reqt.type == DNS::PTR) {
@@ -1154,14 +1178,25 @@ static void nmap_mass_dns_core(DNS::Request *requests, int num_requests) {
     tpreq->targ = &reqt;
     tpreq->tries = 0;
     tpreq->servers_tried = 0;
+    tpreq->alt_req = false;
 
     new_reqs.push_back(tpreq);
-
-    if (!prev || *prev != reqt.name) {
-      stat_actual++;
-    }
     total_reqs++;
-    prev = &reqt.name;
+
+    if (reqt.type == DNS::ANY) {
+      DNS::Request *req_aaaa = new DNS::Request;
+      req_aaaa->type = DNS::AAAA;
+      req_aaaa->name = reqt.name;
+      req_aaaa->userdata = &reqt;
+      request *tpreq_alt = new request;
+      *tpreq_alt = *tpreq;
+      tpreq_alt->targ = req_aaaa;
+      tpreq_alt->alt_req = true;
+      new_reqs.push_back(tpreq_alt);
+      total_reqs++;
+    }
+
+    stat_actual++;
   }
 
   if (total_reqs == 0 || servs.size() == 0) return;
@@ -1789,6 +1824,7 @@ const char *DNS::Request::repr()
       break;
     case DNS::A:
     case DNS::AAAA:
+    case DNS::ANY:
       return name.c_str();
       break;
     case DNS::PTR:
