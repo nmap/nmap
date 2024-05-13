@@ -814,10 +814,10 @@ void TargetGroup::reject_last_host() {
 /* Initializes (or reinitializes) the object with a new expression, such
    as 192.168.0.0/16 , 10.1.0-5.1-254 , or fe80::202:e3ff:fe14:1102 .
     */
-// This is a wild guess, but we need some sort of limit.
-#define EXPR_PARSE_BATCH_SZ 1000
 bool TargetGroup::load_expressions(HostGroupState *hs, int af) {
   assert(netblocks.empty());
+  // This is a wild guess, but we need some sort of limit.
+  static const size_t EXPR_PARSE_BATCH_SZ = o.ping_group_sz;
   const char *target_expr = NULL;
   std::vector<DNS::Request> requests;
   requests.reserve(EXPR_PARSE_BATCH_SZ/4);
