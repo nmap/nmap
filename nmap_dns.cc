@@ -493,7 +493,6 @@ static void put_dns_packet_on_wire(request *req) {
 
   struct timeval now, timeout;
 
-  req->id = DNS::Factory::progressiveId;
   req->curr_server->write_busy = 1;
   req->curr_server->reqs_on_wire++;
   DNS::Request &reqt = *req->targ;
@@ -502,11 +501,11 @@ static void put_dns_packet_on_wire(request *req) {
     case DNS::ANY:
     case DNS::A:
     case DNS::AAAA:
-      plen = DNS::Factory::buildSimpleRequest(reqt.name, wire_type(reqt.type), packet, maxlen);
+      plen = DNS::Factory::buildSimpleRequest(req->id, reqt.name, wire_type(reqt.type), packet, maxlen);
       break;
     case DNS::PTR:
       assert(reqt.ssv.size() > 0);
-      plen = DNS::Factory::buildReverseRequest(reqt.ssv.front(), packet, maxlen);
+      plen = DNS::Factory::buildReverseRequest(req->id, reqt.ssv.front(), packet, maxlen);
       break;
     default:
       break;
@@ -1185,6 +1184,7 @@ static void nmap_mass_dns_core(DNS::Request *requests, int num_requests) {
     tpreq->tries = 0;
     tpreq->servers_tried = 0;
     tpreq->alt_req = false;
+    tpreq->id = DNS::Factory::progressiveId++;
 
     new_reqs.push_back(tpreq);
     total_reqs++;
@@ -1198,6 +1198,7 @@ static void nmap_mass_dns_core(DNS::Request *requests, int num_requests) {
       *tpreq_alt = *tpreq;
       tpreq_alt->targ = req_aaaa;
       tpreq_alt->alt_req = true;
+      tpreq_alt->id = DNS::Factory::progressiveId++;
       new_reqs.push_back(tpreq_alt);
       total_reqs++;
     }
@@ -1513,10 +1514,10 @@ bool DNS::Factory::ptrToIp(const std::string &ptr, sockaddr_storage &ip)
   return true;
 }
 
-size_t DNS::Factory::buildSimpleRequest(const std::string &name, RECORD_TYPE rt, u8 *buf, size_t maxlen)
+size_t DNS::Factory::buildSimpleRequest(u16 id, const std::string &name, RECORD_TYPE rt, u8 *buf, size_t maxlen)
 {
   size_t ret=0 , tmp=0;
-  DNS_CHECK_ACCUMLATE(ret, tmp, putUnsignedShort(progressiveId++, buf, ID, maxlen)); // Postincrement inmportant here
+  DNS_CHECK_ACCUMLATE(ret, tmp, putUnsignedShort(id, buf, ID, maxlen));
   DNS_CHECK_ACCUMLATE(ret, tmp, putUnsignedShort(OP_STANDARD_QUERY | RECURSION_DESIRED, buf, FLAGS_OFFSET, maxlen));
   DNS_CHECK_ACCUMLATE(ret, tmp, putUnsignedShort(1, buf, QDCOUNT, maxlen));
   DNS_CHECK_ACCUMLATE(ret, tmp, putUnsignedShort(0, buf, ANCOUNT, maxlen));
@@ -1529,11 +1530,11 @@ size_t DNS::Factory::buildSimpleRequest(const std::string &name, RECORD_TYPE rt,
   return ret;
 }
 
-size_t DNS::Factory::buildReverseRequest(const sockaddr_storage &ip, u8 *buf, size_t maxlen)
+size_t DNS::Factory::buildReverseRequest(u16 id, const sockaddr_storage &ip, u8 *buf, size_t maxlen)
 {
   std::string name;
   if(ipToPtr(ip,name))
-    return buildSimpleRequest(name, PTR, buf, maxlen);
+    return buildSimpleRequest(id, name, PTR, buf, maxlen);
   return 0;
 }
 

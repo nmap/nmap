@@ -148,8 +148,8 @@ public:
   static u16 progressiveId;
   static bool ipToPtr(const sockaddr_storage &ip, std::string &ptr);
   static bool ptrToIp(const std::string &ptr, sockaddr_storage &ip);
-  static size_t buildSimpleRequest(const std::string &name, RECORD_TYPE rt, u8 *buf, size_t maxlen);
-  static size_t buildReverseRequest(const sockaddr_storage &ip, u8 *buf, size_t maxlen);
+  static size_t buildSimpleRequest(u16 id, const std::string &name, RECORD_TYPE rt, u8 *buf, size_t maxlen);
+  static size_t buildReverseRequest(u16 id, const sockaddr_storage &ip, u8 *buf, size_t maxlen);
   static size_t putUnsignedShort(u16 num, u8 *buf, size_t offset, size_t maxlen);
   static size_t putDomainName(const std::string &name, u8 *buf, size_t offset, size_t maxlen);
   static size_t parseUnsignedShort(u16 &num, const u8 *buf, size_t offset, size_t maxlen);
