@@ -452,14 +452,14 @@ static void do_possible_writes() {
   for(servI = servs.begin(); servI != servs.end(); servI++) {
     if (servI->write_busy == 0 && servI->reqs_on_wire < servI->capacity) {
       tpreq = NULL;
-      if (!servI->to_process.empty()) {
-        tpreq = servI->to_process.front();
-        servI->to_process.pop_front();
-      } else if (!new_reqs.empty()) {
+      if (!new_reqs.empty()) {
         tpreq = new_reqs.front();
         assert(tpreq != NULL);
         tpreq->first_server = tpreq->curr_server = &*servI;
         new_reqs.pop_front();
+      } else if (!servI->to_process.empty()) {
+        tpreq = servI->to_process.front();
+        servI->to_process.pop_front();
       }
 
       if (tpreq) {
