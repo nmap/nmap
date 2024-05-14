@@ -179,8 +179,8 @@ static int read_timeouts[][MAX_DNS_TRIES + 1] = {
 #define CAPACITY_MIN 10
 #define CAPACITY_MAX 100
 #define CAPACITY_UP_STEP 2
-#define CAPACITY_MINOR_DOWN_SCALE 0.5
-#define CAPACITY_MAJOR_DOWN_SCALE 0.2
+#define CAPACITY_MINOR_DOWN_SCALE 0.7
+#define CAPACITY_MAJOR_DOWN_SCALE 0.4
 
 // Each request will try to resolve on at most this many servers:
 #define SERVERS_TO_TRY 3
@@ -574,7 +574,7 @@ static int deal_with_timedout_reads(bool adjust_timing) {
         // If we've tried this server enough times, move to the next one
         if (read_timeouts[read_timeout_index][tpreq->tries] == -1) {
           if (!adjusted) {
-            servI->max_capacity = servI->capacity * 1.5;
+            servI->max_capacity = servI->capacity * 2;
             servI->capacity = (int) (servI->capacity * CAPACITY_MAJOR_DOWN_SCALE);
             check_capacities(&*servI);
             adjusted = true;
@@ -612,7 +612,7 @@ static int deal_with_timedout_reads(bool adjust_timing) {
           }
         } else {
           if (!adjusted) {
-            servI->max_capacity = servI->capacity * 2;
+            servI->max_capacity = servI->capacity * 4;
             servI->capacity = (int) (servI->capacity * CAPACITY_MINOR_DOWN_SCALE);
             check_capacities(&*servI);
             adjusted = true;
@@ -624,7 +624,7 @@ static int deal_with_timedout_reads(bool adjust_timing) {
 
     } while (nextI != servI->in_process.end());
 
-    if (may_increase && TIMEVAL_MSEC_SUBTRACT(earliest_sent, servI->last_increase) > (2 * MIN_DNS_TIMEOUT) && servI->reqs_on_wire > servI->capacity - CAPACITY_UP_STEP) {
+    if (may_increase && TIMEVAL_MSEC_SUBTRACT(earliest_sent, servI->last_increase) > (MIN_DNS_TIMEOUT) && servI->reqs_on_wire > servI->capacity - 2*CAPACITY_UP_STEP) {
       servI->capacity += CAPACITY_UP_STEP;
       check_capacities(&*servI);
       servI->last_increase = now;
@@ -643,7 +643,7 @@ static void process_request(int action, info &reqinfo) {
   switch (action) {
     case ACTION_SYSTEM_RESOLVE:
     case ACTION_FINISHED:
-      if (server->reqs_on_wire == server->capacity && server->capacity * 2 < server->max_capacity) {
+      if (server->reqs_on_wire == server->capacity && server->capacity < 2 * CAPACITY_MIN) {
         server->capacity++;
         check_capacities(server);
       }
