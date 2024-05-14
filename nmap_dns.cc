@@ -171,9 +171,9 @@ extern NmapOps o;
 #define MAX_DNS_TRIES 3
 #define MIN_DNS_TIMEOUT (MIN_RTT_TIMEOUT * 3)
 static int read_timeouts[][MAX_DNS_TRIES + 1] = {
-  { 2 * MIN_DNS_TIMEOUT, 30 * MIN_DNS_TIMEOUT, 40 * MIN_DNS_TIMEOUT, -1 }, // 1 server
-  { 2 * MIN_DNS_TIMEOUT, 20 * MIN_DNS_TIMEOUT,                   -1, -1 }, // 2 servers
-  {     MIN_DNS_TIMEOUT, 10 * MIN_DNS_TIMEOUT,                   -1, -1 }, // 3+ servers
+  { 2 * MIN_DNS_TIMEOUT, 3 * MIN_DNS_TIMEOUT, 4 * MIN_DNS_TIMEOUT, -1 }, // 1 server
+  { 2 * MIN_DNS_TIMEOUT, 2 * MIN_DNS_TIMEOUT,                   -1, -1 }, // 2 servers
+  {     MIN_DNS_TIMEOUT, 2 * MIN_DNS_TIMEOUT,                   -1, -1 }, // 3+ servers
 };
 
 #define CAPACITY_MIN 10
