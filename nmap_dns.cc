@@ -582,7 +582,7 @@ static int deal_with_timedout_reads(bool adjust_timing) {
 
         // If we've tried this server enough times, move to the next one
         if (read_timeouts[read_timeout_index][tpreq->tries] == -1) {
-          if (!adjusted) {
+          if (!adjusted && tpreq->servers_tried == 0) {
             servI->max_capacity = servI->capacity * 2;
             servI->capacity = (int) (servI->capacity * CAPACITY_MAJOR_DOWN_SCALE);
             check_capacities(&*servI);
@@ -620,7 +620,7 @@ static int deal_with_timedout_reads(bool adjust_timing) {
             servItemp->to_process.push_back(tpreq);
           }
         } else {
-          if (!adjusted) {
+          if (!adjusted && tpreq->servers_tried == 0 && tpreq->tries <= 1) {
             servI->max_capacity = servI->capacity * 4;
             servI->capacity = (int) (servI->capacity * CAPACITY_MINOR_DOWN_SCALE);
             check_capacities(&*servI);
