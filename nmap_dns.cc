@@ -556,7 +556,7 @@ static int deal_with_timedout_reads(bool adjust_timing) {
     if (nextI == servI->in_process.end()) continue;
 
     struct timeval earliest_sent = now;
-    bool adjusted = false;
+    bool adjusted = !adjust_timing;
     bool may_increase = adjust_timing;
     do {
       reqI = nextI++;
@@ -1195,7 +1195,7 @@ static void nmap_mass_dns_core(DNS::Request *requests, int num_requests) {
 
   std::list<request *>::iterator reqI;
   request *tpreq;
-  int timeout;
+  int timeout = 0;
   int i;
   char spmobuf[1024];
 
@@ -1280,8 +1280,16 @@ static void nmap_mass_dns_core(DNS::Request *requests, int num_requests) {
   SPM = new ScanProgressMeter(spmobuf);
   stat_actual = total_reqs;
 
+  int since_last = 0;
   while (total_reqs > 0) {
-    timeout = deal_with_timedout_reads(true);
+    since_last += timeout;
+    if (since_last > MIN_DNS_TIMEOUT) {
+      since_last = 0;
+      timeout = deal_with_timedout_reads(true);
+    }
+    else {
+      timeout = deal_with_timedout_reads(false);
+    }
 
     do_possible_writes();
 
