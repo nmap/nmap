@@ -169,7 +169,7 @@ extern NmapOps o;
 // In milliseconds
 // Each row MUST be terminated with -1
 #define MAX_DNS_TRIES 3
-#define MIN_DNS_TIMEOUT (MIN_RTT_TIMEOUT * 3)
+#define MIN_DNS_TIMEOUT (MIN_RTT_TIMEOUT * 5)
 static int read_timeouts[][MAX_DNS_TRIES + 1] = {
   { 2 * MIN_DNS_TIMEOUT, 3 * MIN_DNS_TIMEOUT, 4 * MIN_DNS_TIMEOUT, -1 }, // 1 server
   { 2 * MIN_DNS_TIMEOUT, 2 * MIN_DNS_TIMEOUT,                   -1, -1 }, // 2 servers
