@@ -1,5 +1,13 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [GH#1451] Nmap now performs forward DNS lookups in parallel, using the same
+  engine that has been reliably performing reverse-DNS lookups for nearly a
+  decade. Scanning large lists of hostnames is now enormously faster and avoids
+  the unresponsive wait for blocking system calls, so progress stats can be
+  shown. In testing, resolving 1 million website names to both IPv4 and IPv6
+  took just over an hour. The previous system took 49 hours for the same data
+  set! [Daniel Miller]
+
 Nmap 7.95 [2024-04-23]
 
 o Integrated over 4,000 of your IPv4 OS fingerprints. Added 336 signatures,
