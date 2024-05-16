@@ -214,13 +214,13 @@ struct dns_server {
   int connected;
   int reqs_on_wire;
   int capacity;
-  int max_capacity;
+  int ssthresh;
   int write_busy;
   std::list<request *> to_process;
   std::list<request *> in_process;
   struct timeval last_increase;
   dns_server() : hostname(), addr_len(0), connected(0), reqs_on_wire(0),
-    capacity(CAPACITY_MIN), max_capacity(CAPACITY_MAX), write_busy(0), to_process(), in_process()
+    capacity(CAPACITY_MIN), ssthresh((CAPACITY_MAX + CAPACITY_MIN)/2), write_busy(0), to_process(), in_process()
   {
     memset(&addr, 0, sizeof(addr));
     memset(&last_increase, 0, sizeof(last_increase));
@@ -424,8 +424,7 @@ static void output_summary() {
 
 static void check_capacities(dns_server *tpserv) {
   if (tpserv->capacity < CAPACITY_MIN) tpserv->capacity = CAPACITY_MIN;
-  if (tpserv->max_capacity > CAPACITY_MAX) tpserv->max_capacity = CAPACITY_MAX;
-  if (tpserv->capacity > tpserv->max_capacity) tpserv->capacity = tpserv->max_capacity;
+  if (tpserv->capacity > CAPACITY_MAX) tpserv->capacity = CAPACITY_MAX;
   if (o.debugging >= TRACE_DEBUG_LEVEL) log_write(LOG_STDOUT, "CAPACITY <%s> = %d\n", tpserv->hostname.c_str(), tpserv->capacity);
 }
 
@@ -583,7 +582,7 @@ static int deal_with_timedout_reads(bool adjust_timing) {
         // If we've tried this server enough times, move to the next one
         if (read_timeouts[read_timeout_index][tpreq->tries] == -1) {
           if (!adjusted && tpreq->servers_tried == 0) {
-            servI->max_capacity = servI->capacity * 2;
+            servI->ssthresh = MIN(servI->ssthresh, servI->capacity);
             servI->capacity = (int) (servI->capacity * CAPACITY_MAJOR_DOWN_SCALE);
             check_capacities(&*servI);
             adjusted = true;
@@ -621,7 +620,7 @@ static int deal_with_timedout_reads(bool adjust_timing) {
           }
         } else {
           if (!adjusted && tpreq->servers_tried == 0 && tpreq->tries <= 1) {
-            servI->max_capacity = servI->capacity * 4;
+            servI->ssthresh = MIN(servI->ssthresh, servI->capacity);
             servI->capacity = (int) (servI->capacity * CAPACITY_MINOR_DOWN_SCALE);
             check_capacities(&*servI);
             adjusted = true;
@@ -662,8 +661,8 @@ static void process_request(int action, info &reqinfo) {
   switch (action) {
     case ACTION_SYSTEM_RESOLVE:
     case ACTION_FINISHED:
-      if (server->reqs_on_wire == server->capacity && server->capacity < 2 * CAPACITY_MIN) {
-        server->capacity++;
+      if (server->reqs_on_wire == server->capacity && server->capacity < server->ssthresh) {
+        server->capacity += CAPACITY_UP_STEP;
         check_capacities(server);
       }
       records.erase(tpreq->id);
