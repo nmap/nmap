@@ -645,6 +645,16 @@ static int deal_with_timedout_reads(bool adjust_timing) {
 
 }
 
+static bool is_primary_req(const request *req) {
+  if (req->alt_req) {
+    return (o.af() == AF_INET6);
+  }
+  else if (req->targ->type == DNS::ANY) {
+    return (o.af() == AF_INET);
+  }
+  return true;
+}
+
 static void process_request(int action, info &reqinfo) {
   request *tpreq = reqinfo.tpreq;
   dns_server *server = reqinfo.server;
@@ -660,7 +670,7 @@ static void process_request(int action, info &reqinfo) {
       server->in_process.remove(tpreq);
       server->reqs_on_wire--;
       total_reqs--;
-      if (action == ACTION_SYSTEM_RESOLVE && !tpreq->alt_req) {
+      if (action == ACTION_SYSTEM_RESOLVE && is_primary_req(tpreq)) {
         deferred_reqs.push_back(tpreq);
       }
       else {
