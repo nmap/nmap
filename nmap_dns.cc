@@ -474,17 +474,26 @@ static void do_possible_writes() {
 
 // nsock write handler
 static void write_evt_handler(nsock_pool nsp, nsock_event evt, void *req_v) {
+  assert(nse_type(evt) == NSE_TYPE_WRITE);
   info record;
   request *req = (request *) req_v;
 
   req->curr_server->write_busy = 0;
 
-  req->curr_server->in_process.push_front(req);
-  record.tpreq = req;
-  record.server = req->curr_server;
-  records[req->id] = record;
+  if (nse_status(evt) == NSE_STATUS_SUCCESS) {
+    req->curr_server->in_process.push_front(req);
+    record.tpreq = req;
+    record.server = req->curr_server;
+    records[req->id] = record;
+    do_possible_writes();
+  }
+  else {
+    if (o.debugging) {
+      log_write(LOG_STDOUT, "mass_dns: WRITE error: %s", nse_status2str(nse_status(evt)));
+    }
+    req->curr_server->to_process.push_front(req);
+  }
 
-  do_possible_writes();
 }
 
 static DNS::RECORD_TYPE wire_type(DNS::RECORD_TYPE t) {
