@@ -74,6 +74,7 @@ license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"discovery", "broadcast", "safe"}
 
 prerule = function()
+  -- TODO: EIGRP for IPv6 uses ff02::10
   if nmap.address_family() ~= 'inet' then
     stdnse.verbose1("is IPv4 only.")
     return false
