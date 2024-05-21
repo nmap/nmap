@@ -168,7 +168,7 @@ function read_db2_packet(socket)
   local buf
 
   local DATA_LENGTH_OFFSET = 38
-  local ENDIANESS_OFFSET = 23
+  local ENDIANNESS_OFFSET = 23
 
   local catch = function()
     stdnse.debug1("ERROR communicating with DB2 server")
@@ -186,7 +186,7 @@ function read_db2_packet(socket)
 
     stdnse.debug1("Got DB2DAS packet")
 
-    local endian = string.unpack( "c2", packet.header.raw, ENDIANESS_OFFSET )
+    local endian = string.unpack( "c2", packet.header.raw, ENDIANNESS_OFFSET )
 
     if endian == "9z" then
       packet.header.data_len = string.unpack("<I4", packet.header.raw, DATA_LENGTH_OFFSET )
