@@ -9,6 +9,7 @@ local target = require "target"
 local unicode = require "unicode"
 local ipOps = require "ipOps"
 local rand = require "rand"
+local outlib = require "outlib"
 
 description = [[
 Uses the Microsoft LLTD protocol to discover hosts on a local network.
@@ -52,11 +53,6 @@ prerule = function()
     end
     nmap.registry[SCRIPT_NAME].rootfail = true
     return nil
-  end
-
-  if nmap.address_family() ~= 'inet' then
-    stdnse.debug1("is IPv4 compatible only.")
-    return false
   end
 
   return true
@@ -219,14 +215,16 @@ local LLTDDiscover = function(if_table, lltd_responders, timeout)
         start_s = os.time()
 
         local ipv4, mac, ipv6, hostname = parseHello(packet)
-
+        local result = {
+          ipv4 = ipv4,
+          hostname = hostname,
+          mac = mac,
+          ipv6 = ipv6,
+        }
         if ipv4 then
-          if not lltd_responders[ipv4] then
-            lltd_responders[ipv4] = {}
-            lltd_responders[ipv4].hostname = hostname
-            lltd_responders[ipv4].mac = mac
-            lltd_responders[ipv4].ipv6 = ipv6
-          end
+          lltd_responders[ipv4] = outlib.sorted_by_key(result)
+        elseif mac then
+          lltd_responders[mac] = outlib.sorted_by_key(result)
         end
       else
         if os.time() - start_s > timeout_s then
@@ -246,6 +244,12 @@ local LLTDDiscover = function(if_table, lltd_responders, timeout)
   condvar("signal")
 end
 
+local function filter_interfaces (if_table)
+  if if_table and if_table.up == "up" and if_table.link=="ethernet" then
+    return if_table
+  end
+  return nil
+end
 
 action = function()
   local timeout = stdnse.parse_timespec(stdnse.get_script_args(SCRIPT_NAME..".timeout"))
@@ -260,25 +264,20 @@ action = function()
   if interface_opt or interface_arg then
     -- single interface defined
     local interface = interface_opt or interface_arg
-    local if_table = nmap.get_interface_info(interface)
-    if not (if_table and if_table.address and if_table.link=="ethernet") then
+    local if_table = filter_interfaces(nmap.get_interface_info(interface))
+    if not if_table then
       stdnse.debug1("Interface not supported or not properly configured.")
       return false
     end
-    table.insert(interfaces, if_table)
+    interfaces[if_table.device] = if_table
   else
     local tmp_ifaces = nmap.list_interfaces()
     for _, if_table in ipairs(tmp_ifaces) do
-      if if_table.address and
-        if_table.link=="ethernet" and
-        if_table.address:match("%d+%.%d+%.%d+%.%d+") then
-
-        table.insert(interfaces, if_table)
-      end
+      interfaces[if_table.device] = filter_interfaces(if_table)
     end
   end
 
-  if #interfaces == 0 then
+  if not next(interfaces) then
     stdnse.debug1("No interfaces found.")
     return
   end
@@ -288,7 +287,7 @@ action = function()
   local condvar = nmap.condvar(lltd_responders)
 
   -- party time
-  for _, if_table in ipairs(interfaces) do
+  for dev, if_table in pairs(interfaces) do
     -- create a thread for each interface
     local co = stdnse.new_thread(LLTDDiscover, if_table, lltd_responders, timeout)
     threads[co]=true
@@ -303,27 +302,14 @@ action = function()
     end
   until next(threads) == nil
 
-  -- generate output
-  local output = {}
-  for ip_addr, info in pairs(lltd_responders) do
-    if target.ALLOW_NEW_TARGETS then target.add(ip_addr) end
-
-    local s = {}
-    s.name = ip_addr
-    if info.hostname then
-      table.insert(s, "Hostname: " .. info.hostname)
+  if target.ALLOW_NEW_TARGETS then
+    local addrtype = nmap.address_family() == "inet" and "ipv4" or "ipv6"
+    for key, info in pairs(lltd_responders) do
+      if info[addrtype] then
+        target.add(info[addrtype])
+      end
     end
-    if info.mac then
-      table.insert(s, "Mac: " .. info.mac)
-    end
-    if info.ipv6 then
-      table.insert(s, "IPv6: " .. info.ipv6)
-    end
-    table.insert(output,s)
   end
 
-  if #output>0 and not target.ALLOW_NEW_TARGETS then
-    table.insert(output,"Use the newtargets script-arg to add the results as targets")
-  end
-  return stdnse.format_output( (#output>0), output )
+  return outlib.sorted_by_key(lltd_responders)
 end
