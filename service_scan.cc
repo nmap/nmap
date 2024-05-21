@@ -2584,6 +2584,7 @@ static void servicescan_read_handler(nsock_pool nsp, nsock_event nse, void *myda
   } else if (status == NSE_STATUS_ERROR) {
     // Errors might happen in some cases ... I'll worry about later
     int err = nse_errorcode(nse);
+    bool show_err = true;
     switch(err) {
     case ECONNRESET:
     case ECONNREFUSED: // weird to get this on a connected socket (shrug) but
@@ -2598,22 +2599,6 @@ static void servicescan_read_handler(nsock_pool nsp, nsock_event nse, void *myda
         // next one
         startNextProbe(nsp, nsi, SG, svc, true);
       }
-      break;
-#ifdef EHOSTDOWN
-    case EHOSTDOWN: // ICMP_HOST_UNKNOWN
-#endif
-#ifdef ENONET
-    case ENONET: // ICMP_HOST_ISOLATED
-#endif
-    /* EHOSTDOWN and ENONET can be the result of forged ICMP responses.
-     * We should probably give up on this port.
-     */
-    case ENETUNREACH:
-    case EHOSTUNREACH:
-      // That is funny.  The port scanner listed the port as open.  Maybe it got unplugged, or firewalled us, or did
-      // something else nasty during the scan.  Shrug.  I'll give up on this port
-      svc->tcpwrap_possible = false;
-      end_svcprobe(PROBESTATE_INCOMPLETE, SG, svc, nsi);
       break;
 #ifdef ENOPROTOOPT
     case ENOPROTOOPT: // ICMP_PROT_UNREACH
@@ -2645,9 +2630,29 @@ static void servicescan_read_handler(nsock_pool nsp, nsock_event nse, void *myda
       // hardcoded to EIO).  I'll just try the next probe.
       startNextProbe(nsp, nsi, SG, svc, true);
       break;
+#ifdef EHOSTDOWN
+    case EHOSTDOWN: // ICMP_HOST_UNKNOWN
+#endif
+#ifdef ENONET
+    case ENONET: // ICMP_HOST_ISOLATED
+#endif
+    /* EHOSTDOWN and ENONET can be the result of forged ICMP responses.
+     * We should probably give up on this port.
+     */
+    case ENETUNREACH:
+    case EHOSTUNREACH:
+    case ENETDOWN:
+      // That is funny.  The port scanner listed the port as open.  Maybe it got unplugged, or firewalled us, or did
+      // something else nasty during the scan.  Shrug.  I'll give up on this port
+      show_err = o.debugging || o.versionTrace();
     default:
-      fatal("Unexpected error in NSE_TYPE_READ callback.  Error code: %d (%s)", err,
-            socket_strerror(err));
+      if (show_err) {
+        error("Unexpected error %d (%s) in NSE_TYPE_READ callback - aborting this service",
+            err, socket_strerror(err));
+      }
+      svc->tcpwrap_possible = false;
+      end_svcprobe(PROBESTATE_INCOMPLETE, SG, svc, nsi);
+      break;
     }
   } else if (status == NSE_STATUS_KILL) {
     /* User probably specified host_timeout and so the service scan is
