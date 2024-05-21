@@ -24,7 +24,6 @@ argument or <code>-e</code> Nmap option to define which interface to use.
 -- nmap -sL --script=targets-sniffer --script-args=newtargets,targets-sniffer.timeout=5s,targets-sniffer.iface=eth0
 -- @args targets-sniffer.timeout  The amount of time to listen for packets. Default <code>10s</code>.
 -- @args targets-sniffer.iface  The interface to use for sniffing.
--- @args newtargets If true, add discovered targets to the scan queue.
 -- @output
 -- Pre-scan script results:
 -- | targets-sniffer:
