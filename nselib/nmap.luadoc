@@ -421,7 +421,7 @@ function new_try(handler)
 -- <code>connect</code>-style sending and receiving over TCP and UDP (and SSL),
 -- as well as raw socket receiving.
 -- @param protocol a protocol string (optional, defaults to <code>"tcp"</code>).
--- @param af an address family string (optional, defaults to <code>"inet"</code>).
+-- @param af an address family string (optional, defaults to <code>nmap.address_family()</code).
 -- @return A new NSE socket.
 -- @see pcap_open
 -- @usage local socket = nmap.new_socket()
