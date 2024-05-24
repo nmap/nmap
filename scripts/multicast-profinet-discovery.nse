@@ -298,38 +298,6 @@ parse_pndcp = function(eth_data, pn_data)
   return device
 end
 
--- get all possible interfaces
---@param link  type of interface e.g. "ethernet"
---@param up status of the interface
---@return result table with all interfaces which match the given requirements
-getInterfaces = function(link, up)
-  if( not(nmap.list_interfaces) ) then return end
-  local interfaces, err = nmap.list_interfaces()
-  local result = {}
-
-  if ( not(err) ) then
-    for _, iface in ipairs(interfaces) do
-      if ( iface.link == link and
-          iface.up == up and
-          iface.mac ) then
-        if #result == 0 then
-          table.insert(result, iface)
-        else
-          local exists = false
-          for _, intface in ipairs(result) do
-            if intface.mac == iface.mac then
-              exists = true
-            end
-          end
-          if not exists then
-            table.insert(result, iface)
-          end
-        end
-      end
-    end
-  end
-  return result
-end
 
 -- helpfunction for thread call
 --@param iface interface table
@@ -369,8 +337,6 @@ end
 --@return 0 if no devices were found
 --@return output_tab table for nmap to show the gathered information
 action = function()
-  local interface_e = nmap.get_interface()
-  local interfaces = {}
 
   local output_tab = stdnse.output_table()
   output_tab.devices = {}
@@ -381,17 +347,15 @@ action = function()
   local pcap_s = nmap.new_socket()
   pcap_s:set_timeout(4000)
 
-
-  if(interface_e) then -- interface supplied with -e
-    local iface = nmap.get_interface_info(interface_e)
-    if not (iface and iface.link == 'ethernet') then
-      stdnse.debug(1, "%s not supported with %s", iface, SCRIPT_NAME)
-      return false
+  local macs = {}
+  local filter_interfaces = function (iface)
+    if iface.link == "ethernet" and iface.up == "up" and
+      iface.mac and not macs[iface.mac] then
+      macs[iface.mac] = true
+      return iface
     end
-    table.insert(interfaces, iface)
-  else -- discover interfaces
-    interfaces = getInterfaces("ethernet", "up")
   end
+  local interfaces = stdnse.get_script_interfaces(filter_interfaces)
 
   -- check if at least one interface is available
   if #interfaces == 0 then

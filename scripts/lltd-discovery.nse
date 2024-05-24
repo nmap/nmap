@@ -244,38 +244,18 @@ local LLTDDiscover = function(if_table, lltd_responders, timeout)
   condvar("signal")
 end
 
-local function filter_interfaces (if_table)
-  if if_table and if_table.up == "up" and if_table.link=="ethernet" then
-    return if_table
-  end
-  return nil
-end
-
 action = function()
   local timeout = stdnse.parse_timespec(stdnse.get_script_args(SCRIPT_NAME..".timeout"))
   timeout = timeout or 30
 
-  --get interface script-args, if any
-  local interface_arg = stdnse.get_script_args(SCRIPT_NAME .. ".interface")
-  local interface_opt = nmap.get_interface()
-
   -- interfaces list (decide which interfaces to broadcast on)
-  local interfaces ={}
-  if interface_opt or interface_arg then
-    -- single interface defined
-    local interface = interface_opt or interface_arg
-    local if_table = filter_interfaces(nmap.get_interface_info(interface))
-    if not if_table then
-      stdnse.debug1("Interface not supported or not properly configured.")
-      return false
-    end
-    interfaces[if_table.device] = if_table
-  else
-    local tmp_ifaces = nmap.list_interfaces()
-    for _, if_table in ipairs(tmp_ifaces) do
-      interfaces[if_table.device] = filter_interfaces(if_table)
+  local interfaces = {}
+  local collect_interfaces = function (if_table)
+    if if_table.up == "up" and if_table.link=="ethernet" then
+      interfaces[if_table.device] = if_table
     end
   end
+  stdnse.get_script_interfaces(collect_interfaces)
 
   if not next(interfaces) then
     stdnse.debug1("No interfaces found.")

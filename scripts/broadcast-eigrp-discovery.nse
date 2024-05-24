@@ -199,7 +199,6 @@ action = function()
   local as = stdnse.get_script_args(SCRIPT_NAME .. ".as")
   local kparams = stdnse.get_script_args(SCRIPT_NAME .. ".kparams") or "101000"
   local timeout = stdnse.parse_timespec(stdnse.get_script_args(SCRIPT_NAME .. ".timeout"))
-  local interface = stdnse.get_script_args(SCRIPT_NAME .. ".interface")
   local output, responses, interfaces, lthreads = {}, {}, {}, {}
   local result, response, route, eigrp_hello, k
   local timeout = (timeout or 10) * 1000
@@ -218,27 +217,13 @@ action = function()
     k[6] = string.sub(kparams, 6)
   end
 
-  interface = interface or nmap.get_interface()
-  if interface then
-    -- If an interface was provided, get its information
-    interface = nmap.get_interface_info(interface)
-    if not interface then
-      return fail(("Failed to retrieve %s interface information."):format(interface))
-    end
-    interfaces = {interface}
-    stdnse.debug1("Will use %s interface.", interface.shortname)
-  else
-    local ifacelist = nmap.list_interfaces()
-    for _, iface in ipairs(ifacelist) do
-      -- Match all ethernet interfaces
-      if iface.address and iface.link=="ethernet" and
-        iface.address:match("%d+%.%d+%.%d+%.%d+") then
-
-        stdnse.debug1("Will use %s interface.", iface.shortname)
-        table.insert(interfaces, iface)
-      end
+  local collect_interfaces = function (if_table)
+    if if_table and if_table.up == "up" and if_table.link=="ethernet"
+      and if_table.address:match("%d+%.%d+%.%d+%.%d+") then
+      interfaces[#interfaces+1] = if_table
     end
   end
+  stdnse.get_script_interfaces(collect_interfaces)
 
   -- If user didn't provide an Autonomous System value, we listen fro multicast
   -- HELLO router announcements to get one.

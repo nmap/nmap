@@ -100,29 +100,9 @@ prerule = function()
   return true
 end
 
--- Gets a list of available interfaces based on link and up filters
---
--- @param link string containing the link type to filter
--- @param up string containing the interface status to filter
--- @return result table containing the matching interfaces
-local function getInterfaces(link, up)
-  if( not(nmap.list_interfaces) ) then return end
-  local interfaces, err = nmap.list_interfaces()
-  local result
-  if ( not(err) ) then
-    for _, iface in ipairs(interfaces) do
-      if ( iface.link == link and iface.up == up ) then
-        result = result or {}
-        result[iface.device] = true
-      end
-    end
-  end
-  return result
-end
-
 -- Listens for an incoming dhcp response
 --
--- @param iface string with the name of the interface to listen to
+-- @param iface description table of the interface to listen to
 -- @param macaddr client hardware address
 -- @param options DHCP options to include in the request
 -- @param timeout number of ms to wait for a response
@@ -144,7 +124,7 @@ local function dhcp_listener(sock, iface, macaddr, options, timeout, xid, result
     nil, -- lease time
     xid)
   if not status then
-    stdnse.debug1("Failed to build packet for %s: %s", iface, pkt)
+    stdnse.debug1("Failed to build packet for %s: %s", iface.device, pkt)
     condvar "signal"
     return
   end
@@ -167,15 +147,15 @@ local function dhcp_listener(sock, iface, macaddr, options, timeout, xid, result
   -- Add the Ethernet header
   frame:build_ether_frame(
     "\xff\xff\xff\xff\xff\xff",
-    nmap.get_interface_info(iface).mac, -- can't use macaddr or we won't see response
+    iface.mac, -- can't use macaddr or we won't see response
     packet.ETHER_TYPE_IPV4)
 
   local dnet = nmap.new_dnet()
-  dnet:ethernet_open(iface)
+  dnet:ethernet_open(iface.device)
   local status, err = dnet:ethernet_send(frame.frame_buf)
   dnet:ethernet_close()
   if not status then
-    stdnse.debug1("Failed to send frame for %s: %s", iface, err)
+    stdnse.debug1("Failed to send frame for %s: %s", iface.device, err)
     condvar "signal"
     return
   end
@@ -192,7 +172,7 @@ local function dhcp_listener(sock, iface, macaddr, options, timeout, xid, result
         local data = data:sub(p.udp_offset + 9)
         local status, response = dhcp.dhcp_parse(data, xid)
         if ( status ) then
-          response.iface = iface
+          response.iface = iface.device
           table.insert( result, response )
         end
       end
@@ -243,20 +223,15 @@ action = function()
     table.insert(options, {number = 61, type = "string", value = clientid })
   end
 
-  local interfaces
-
-  -- first check if the user supplied an interface
-  if ( nmap.get_interface() ) then
-    interfaces = { [nmap.get_interface()] = true }
-  else
-    -- As the response will be sent to the "offered" ip address we need
-    -- to use pcap to pick it up. However, we don't know what interface
-    -- our packet went out on, so lets get a list of all interfaces and
-    -- run pcap on all of them, if they're a) up and b) ethernet.
-    interfaces = getInterfaces("ethernet", "up")
+  local interfaces = {}
+  local collect_interfaces = function (if_table)
+    if if_table and if_table.up == "up" and if_table.link=="ethernet" then
+      interfaces[if_table.device] = if_table
+    end
   end
+  stdnse.get_script_interfaces(collect_interfaces)
 
-  if( not(interfaces) ) then return fail("Failed to retrieve interfaces (try setting one explicitly using -e)") end
+  if not next(interfaces) then return fail("Failed to retrieve interfaces (try setting one explicitly using -e)") end
 
   local transaction_id = math.random(0, 0x7F000000)
 
@@ -265,13 +240,13 @@ action = function()
   local condvar = nmap.condvar(result)
 
   -- start a listening thread for each interface
-  for iface, _ in pairs(interfaces) do
+  for if_name, iface in pairs(interfaces) do
     transaction_id = transaction_id + 1
     local xid = string.pack(">I4", transaction_id)
 
     local sock, co
     sock = nmap.new_socket()
-    sock:pcap_open(iface, 1500, true, "ip && udp dst port 68")
+    sock:pcap_open(if_name, 1500, true, "ip && udp dst port 68")
     co = stdnse.new_thread( dhcp_listener, sock, iface, macaddr, options, timeout, xid, result )
     threads[co] = true
   end

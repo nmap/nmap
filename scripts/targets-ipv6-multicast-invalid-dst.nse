@@ -49,29 +49,10 @@ local function build_invalid_extension_header(nxt_hdr)
   "\x80\x01\x00\x00\x00\x00"
 end
 
-local function get_interfaces()
-  local interface_name = stdnse.get_script_args(SCRIPT_NAME .. ".interface")
-    or nmap.get_interface()
-
-  -- interfaces list (decide which interfaces to broadcast on)
-  local interfaces = {}
-  if interface_name then
-    -- single interface defined
-    local if_table = nmap.get_interface_info(interface_name)
-    if if_table and ipOps.ip_to_str(if_table.address) and if_table.link == "ethernet" then
-      interfaces[#interfaces + 1] = if_table
-    else
-      stdnse.debug1("Interface not supported or not properly configured.")
-    end
-  else
-    for _, if_table in ipairs(nmap.list_interfaces()) do
-      if ipOps.ip_to_str(if_table.address) and if_table.link == "ethernet" then
-        table.insert(interfaces, if_table)
-      end
-    end
+local function filter_interfaces(if_table)
+  if ipOps.ip_to_str(if_table.address) and if_table.link == "ethernet" then
+    return if_table
   end
-
-  return interfaces
 end
 
 local function single_interface_broadcast(if_nfo, results)
@@ -179,7 +160,7 @@ action = function()
   local results = {}
   local condvar = nmap.condvar(results)
 
-  for _, if_nfo in ipairs(get_interfaces()) do
+  for _, if_nfo in ipairs(stdnse.get_script_interfaces(filter_interfaces)) do
     -- create a thread for each interface
     local co = stdnse.new_thread(single_interface_broadcast, if_nfo, results)
     threads[co] = true
