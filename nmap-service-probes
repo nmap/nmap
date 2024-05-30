@@ -13688,7 +13688,7 @@ softmatch ftp m|^220[\s-].*ftp[^\r]*\r\n214[\s-]|i
 # TLSv1-only servers, based on a failed handshake alert.
 Probe TCP SSLSessionReq q|\x16\x03\0\0S\x01\0\0O\x03\0?G\xd7\xf7\xba,\xee\xea\xb2`~\xf3\0\xfd\x82{\xb9\xd5\x96\xc8w\x9b\xe6\xc4\xdb<=\xdbo\xef\x10n\0\0(\0\x16\0\x13\0\x0a\0f\0\x05\0\x04\0e\0d\0c\0b\0a\0`\0\x15\0\x12\0\x09\0\x14\0\x11\0\x08\0\x06\0\x03\x01\0|
 rarity 1
-ports 261,271,322,324,443,444,448,465,548,563,585,636,684,853,989,990,992-995,1241,1311,1443,2000,2221,2252,2376,2443,3443,4433,4443,4444,4911,5061,5443,5550,5868,5986,6251,6443,6679,6697,7000,7210,7272,7443,8009,8181,8194,8443,8531,8883,9001,9443,10443,14443,15002,44443,60443
+ports 261,271,322,324,443,444,448,465,548,563,585,636,684,853,989,990,992-995,1241,1311,1443,2000,2221,2252,2376,2443,3443,4433,4443,4444,4911,5061,5443,5550,5868,5986,6251,6380,6443,6679,6697,7000,7210,7272,7443,8009,8181,8194,8443,8531,8883,9001,9443,10443,14443,15002,16379,44443,60443
 fallback GetRequest
 
 # Unknown service on Vingtor-Stentofon IP intercom echoes only up to the first \n, so softmatching until we know more.
@@ -16304,8 +16304,10 @@ match pc-duo-gw m|^.........(.*)\0|s p/Vector PC-Duo Gateway Server/ i/Servernam
 # Redis key-value store
 Probe TCP redis-server q|*1\r\n$4\r\ninfo\r\n|
 rarity 8
-ports 6379
-match redis m|-ERR operation not permitted\r\n|s p/Redis key-value store/ cpe:/a:redislabs:redis/
+ports 6379,6380,16379
+sslports 6380,16379
+match redis m|^-ERR operation not permitted\r\n| p/Redis key-value store/ cpe:/a:redislabs:redis/
+match redis m|^-NOAUTH Authentication required.\r\n| p/Redis key-value store/ cpe:/a:redislabs:redis/
 match redis m|^\$\d+\r\n(?:#[^\r\n]*\r\n)*redis_version:([.\d]+)\r\n|s p/Redis key-value store/ v/$1/ cpe:/a:redislabs:redis:$1/
 
 ##############################NEXT PROBE##############################
