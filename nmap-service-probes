@@ -10686,7 +10686,7 @@ match http m|^.*<address>Apache/([\d.]+) \([^)]+\) ?(.*) Server at ([-\w_.]+) Po
 match http m|^.*<address>Apache/([\d.]+) \([^)]+\) Server at ([-\w_.]+) Port \d+</address>\n</body></html>\n|si p/Apache httpd/ v/$1/ h/$2/ cpe:/a:apache:http_server:$1/
 match http m|^.*<address>Apache/([\d.]+) Server at ([-\w_.]+) Port \d+</address>\n</body></html>\n|si p/Apache httpd/ v/$1/ h/$2/ cpe:/a:apache:http_server:$1/
 # Finally, look at the Server header.
-match http m|^HTTP/1\.[01] \d\d\d (?:[^\r\n]*\r\n(?!\r\n))*?Server: Apache[/ ](\d[-.\w]+)\r.*\nX-Powered-By: PHP/([\w._-]+)\r\n|s p/Apache httpd/ v/$1/ i/PHP $2/ cpe:/a:apache:http_server:$1/ cpe:/a:php:php:$1/
+match http m|^HTTP/1\.[01] \d\d\d (?:[^\r\n]*\r\n(?!\r\n))*?Server: Apache[/ ](\d[-.\w]+)\r.*\nX-Powered-By: PHP/([\w._-]+)\r\n|s p/Apache httpd/ v/$1/ i/PHP $2/ cpe:/a:apache:http_server:$1/ cpe:/a:php:php:$2/
 match http m|^HTTP/1\.[01] \d\d\d (?:[^\r\n]*\r\n(?!\r\n))*?Server: Apache\r.*\nX-Powered-By: PHP/([\w._-]+)\r\n|s p/Apache httpd/ i/PHP $1/ cpe:/a:apache:http_server/ cpe:/a:php:php:$1/
 match http m|^HTTP/1\.[01] \d\d\d (?:[^\r\n]*\r\n(?!\r\n))*?Server: Apache[/ ](\d[-.\w]+)\r.*\nX-Powered-By: ([^\r\n]+)\r\n|s p/Apache httpd/ v/$1/ i/$2/ cpe:/a:apache:http_server:$1/
 match http m|^HTTP/1\.[01] \d\d\d (?:[^\r\n]*\r\n(?!\r\n))*?Server: Apache\r.*\nX-Powered-By: ([^\r\n]+)\r\n|s p/Apache httpd/ i/$1/ cpe:/a:apache:http_server/
