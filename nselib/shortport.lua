@@ -198,6 +198,7 @@ http = port_or_service(LIKELY_HTTP_PORTS, LIKELY_HTTP_SERVICES)
 local LIKELY_SSL_PORTS = {
   261, -- nsiiops
   271, -- pt-tls
+  322, -- rtsps
   324, -- rpki-rtr-tls
   443, -- https
   465, -- smtps
@@ -214,17 +215,24 @@ local LIKELY_SSL_PORTS = {
   2221, -- ethernet-ip-s
   2252, -- njenet-ssl
   2376, -- docker-s
+  2482, -- giop-ssl
   3269, -- globalcatLDAPssl
   3389, -- ms-wbt-server
   4433, -- openssl s_server
+  4740, -- ipfixs
   4911, -- ssl/niagara-fox
   5061, -- sip-tls
+  5349, -- stuns
   5986, -- wsmans
+  6380, -- redis-ssl
+  16379, -- redis-ssl
+  6514, -- syslog-tls
   6679,
-  6697,
+  6697, -- ircs-u
   8443, -- https-alt
   9001, -- tor-orport
   8883, -- secure-mqtt
+  11712, -- vSphere LDAP-ssl
 }
 local LIKELY_DTLS_PORTS = {
   443,
