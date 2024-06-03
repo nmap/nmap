@@ -393,7 +393,11 @@ void validate_scan_lists(scan_lists &vports, NmapOps &vo) {
 
   if (!vo.isr00t) {
     if (vo.pingtype & (PINGTYPE_ICMP_PING | PINGTYPE_ICMP_MASK | PINGTYPE_ICMP_TS)) {
+#ifdef WIN32
+      error("Warning:  Npcap not detected -- using TCP pingscan rather than ICMP");
+#else
       error("Warning:  You are not root -- using TCP pingscan rather than ICMP");
+#endif
       vo.pingtype &= ~(PINGTYPE_ICMP_PING | PINGTYPE_ICMP_MASK | PINGTYPE_ICMP_TS);
       vo.pingtype |= PINGTYPE_TCP;
       if (vports.syn_ping_count == 0) {
@@ -1567,8 +1571,13 @@ void  apply_delayed_options() {
   }
 #endif
 
-  if (o.traceroute && !o.isr00t)
+  if (o.traceroute && !o.isr00t) {
+#ifdef WIN32
+    fatal("Traceroute requires Npcap, which was not detected.");
+#else
     fatal("Traceroute has to be run as root");
+#endif
+  }
   if (o.traceroute && o.idlescan)
     fatal("Traceroute does not support idle scan");
 
@@ -1800,7 +1809,13 @@ void  apply_delayed_options() {
   if (delayed_options.raw_scan_options && (!o.isr00t || o.connectscan)) {
     error("You have specified some options that require raw socket access.\n"
           "These options will not be honored %s.",
-          o.isr00t ? "for TCP Connect scan" : "without the necessary privileges");
+          o.isr00t ? "for TCP Connect scan" :
+#ifdef WIN32
+          "since Npcap was not detected"
+#else
+          "without the necessary privileges"
+#endif
+          );
   }
 }
 
