@@ -201,7 +201,7 @@ end
 --
 -- Possible options:
 -- timeout, connect_timeout, request_timeout: See module documentation
--- recv_before: receive data before sending first payload
+-- recv_before: receive data before sending first payload (not valid for "udp")
 -- proto: the protocol to use ("tcp", "udp", or "ssl")
 --
 -- @param host The destination host IP
@@ -214,6 +214,11 @@ end
 -- of the first receive (before sending data)
 function opencon(host, port, data, opts)
   opts = opts or {}
+  local proto = opts.proto or (type(port) == 'table' and port.protocol)
+  if proto == "udp" then
+    assert(not opts.recv_before, "opts.recv_before not compatible with UDP.")
+    assert(data, "opencon with UDP requires a data payload.")
+  end
   local status, sd = setup_connect(host, port, opts)
   if not status then
     return oops.raise("Failed to connect", false, sd)
