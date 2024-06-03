@@ -4678,16 +4678,17 @@ const char *grab_next_host_spec(FILE *inputfd, int argc, const char **argv) {
   static char host_spec[1024];
   size_t n;
 
-  if (!inputfd) {
-    return( (optind < argc)?  argv[optind++] : NULL);
-  } else {
+  if (optind < argc) {
+    return argv[optind++];
+  } else if (inputfd) {
     n = read_host_from_file(inputfd, host_spec, sizeof(host_spec));
     if (n == 0)
       return NULL;
     else if (n >= sizeof(host_spec))
       netutil_fatal("One of the host specifications from your input file is too long (>= %u chars)", (unsigned int) sizeof(host_spec));
+    return host_spec;
   }
-  return host_spec;
+  return NULL;
 }
 
 

@@ -1,5 +1,10 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o Nmap will now allow targets to be specified both on the command line and in
+  an input file with -iL. Previously, if targets were provided in both places,
+  only the targets in the input file would be scanned, and no notice was given
+  that the command-line targets were ignored. [Daniel Miller]
+
 o [GH#1451] Nmap now performs forward DNS lookups in parallel, using the same
   engine that has been reliably performing reverse-DNS lookups for nearly a
   decade. Scanning large lists of hostnames is now enormously faster and avoids
