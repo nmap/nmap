@@ -1,4 +1,4 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <!-- $Id: manhtml.xml 2991 2005-12-12 10:21:33Z fyodor $ -->
 <article id="man" lang="sk">
 <artheader>
@@ -8,6 +8,8 @@
   <refmeta>
     <refentrytitle>nmap</refentrytitle>
     <manvolnum>1</manvolnum>
+    <refmiscinfo class="source">Nmap</refmiscinfo>
+    <refmiscinfo class="manual">Nmap - Referencna prirucka</refmiscinfo>
   </refmeta>
   <refnamediv id="man-name">
     <refname>nmap</refname>
@@ -2804,7 +2806,7 @@ Niektore riadku su samovysvetlujuce, no zvysovanim stupna debugovania sa straca 
 	<ulink url="https://nmap.org/"/>.  Ak problem pretrvava,
 	preskumajte, ci uz nebol objaveny a adresovany. Vyskusajte pouzit google
 	s vyrazom chybovej spravy alebo prehladajte archivy Nmap-dev na adrese
-    <ulink url="http://seclists.org/"/>.  Precitajte si aj tento plny manual.
+    <ulink url="https://seclists.org/"/>.  Precitajte si aj tento plny manual.
 	Ak nenajdete nic podobne, poslite mail o bugu na adresu 
     <email>dev@nmap.org</email>.  Zahrnte vsetko, co ste sa dozvedeli
 	o probleme spolu s verziou Nmapu a operacnym systemom. Spravy o problemoch

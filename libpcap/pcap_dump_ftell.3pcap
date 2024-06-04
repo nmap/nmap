@@ -33,18 +33,18 @@ int64_t pcap_dump_ftell64(pcap_dumper_t *p);
 .ft
 .fi
 .SH DESCRIPTION
-.B pcap_dump_ftell()
+.BR pcap_dump_ftell ()
 returns the current file position for the ``savefile'', representing the
 number of bytes written by
-.B pcap_dump_open(3PCAP)
+.BR pcap_dump_open (3PCAP)
 and
-.BR pcap_dump(3PCAP) .
+.BR pcap_dump (3PCAP).
 .B PCAP_ERROR
 is returned on error. If the current file position does not fit in a
 .BR long ,
 it will be truncated; this can happen on 32-bit UNIX-like systems with
 large file support and on Windows.
-.B pcap_dump_ftell64()
+.BR pcap_dump_ftell64 ()
 returns the current file position in a
 .BR int64_t ,
 so if file offsets that don't fit in a
@@ -54,5 +54,11 @@ but that fit in a
 are supported, this will return the file offset without truncation.
 .B PCAP_ERROR
 is returned on error.
+.SH BACKWARD COMPATIBILITY
+The function
+.BR pcap_dump_ftell64 ()
+became available in libpcap release 1.9.0.  In previous releases, there
+was no mechanism to obtain a file offset that is too large to fit in a
+.BR long .
 .SH SEE ALSO
-pcap(3PCAP)
+.BR pcap (3PCAP)

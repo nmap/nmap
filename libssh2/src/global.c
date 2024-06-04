@@ -62,7 +62,8 @@ libssh2_exit(void)
 
     _libssh2_initialized--;
 
-    if(!(_libssh2_init_flags & LIBSSH2_INIT_NO_CRYPTO)) {
+    if(_libssh2_initialized == 0 &&
+       !(_libssh2_init_flags & LIBSSH2_INIT_NO_CRYPTO)) {
         libssh2_crypto_exit();
     }
 
@@ -73,5 +74,5 @@ void
 _libssh2_init_if_needed(void)
 {
     if(_libssh2_initialized == 0)
-        (void)libssh2_init (0);
+        (void)libssh2_init(0);
 }

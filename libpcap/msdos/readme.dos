@@ -24,7 +24,7 @@ Note for djgpp users:
   If you got the libpcap from the official site www.tcpdump, then that
   distribution does NOT contain any sources for building 32-bit drivers.
   Instead get the full version at
-     http://www.watt-32.net/pcap/libpcap.zip
+     https://www.watt-32.net/pcap/libpcap.zip
 
   and set "USE_32BIT_DRIVERS = 1" in msdos\common.dj.
 
@@ -51,12 +51,12 @@ The following packages and tools must be present for all targets.
    receive network data. It's mostly used to access the 'hosts'
    file and other <netdb.h> features. Get 'watt32s*.zip' at:
 
-     http://www.watt-32.net
+     https://www.watt-32.net
 
 2. Exception handler and disassember library (libexc.a) is needed if
    "USE_EXCEPT = 1" in common.dj. Available at:
 
-     http://www.watt-32.net/misc/exc_dx07.zip
+     https://www.watt-32.net/misc/exc_dx07.zip
 
 3. Flex & Bison is used to generate parser for the filter handler
    pcap_compile:
@@ -65,7 +65,7 @@ The following packages and tools must be present for all targets.
 
 4. NASM assembler v 0.98 or later is required when building djgpp and
    Watcom targets:
-     http://www.nasm.us/
+     https://www.nasm.us/
 
 5. sed (Stream Editor) is required for doing `make depend'.
    It's available at:

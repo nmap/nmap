@@ -126,7 +126,7 @@ again:
 	}
 
 	if (p->fcode.bf_insns == NULL ||
-	    bpf_filter(p->fcode.bf_insns, cp, datalen, caplen)) {
+	    pcap_filter(p->fcode.bf_insns, cp, datalen, caplen)) {
 		struct pcap_pkthdr h;
 		++psn->stat.ps_recv;
 		h.ts.tv_sec = sh->snoop_timestamp.tv_sec;
@@ -140,7 +140,7 @@ again:
 }
 
 static int
-pcap_inject_snoop(pcap_t *p, const void *buf, size_t size)
+pcap_inject_snoop(pcap_t *p, const void *buf, int size)
 {
 	int ret;
 
@@ -310,7 +310,7 @@ pcap_activate_snoop(pcap_t *p)
 		p->linktype = DLT_NULL;
 		ll_hdrlen = 4;
 	} else {
-		pcap_snprintf(p->errbuf, PCAP_ERRBUF_SIZE,
+		snprintf(p->errbuf, PCAP_ERRBUF_SIZE,
 		    "snoop: unknown physical layer type");
 		goto bad;
 	}
@@ -421,7 +421,7 @@ pcap_create_interface(const char *device _U_, char *ebuf)
 {
 	pcap_t *p;
 
-	p = pcap_create_common(ebuf, sizeof (struct pcap_snoop));
+	p = PCAP_CREATE_COMMON(ebuf, struct pcap_snoop);
 	if (p == NULL)
 		return (NULL);
 

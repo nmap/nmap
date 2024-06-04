@@ -2,12 +2,12 @@
 .\"     Title: nmap
 .\"    Author: [see the "Autor" section]
 .\" Generator: DocBook XSL Stylesheets v1.79.1 <http://docbook.sf.net/>
-.\"      Date: 05.10.2020
+.\"      Date: 31.03.2023
 .\"    Manual: Nmap-Referenz-Handbuch
 .\"    Source: Nmap
 .\"  Language: German
 .\"
-.TH "NMAP" "1" "05.10.2020" "Nmap" "Nmap\-Referenz\-Handbuch"
+.TH "NMAP" "1" "31.03.2023" "Nmap" "Nmap\-Referenz\-Handbuch"
 .\" -----------------------------------------------------------------
 .\" * Define some portability stuff
 .\" -----------------------------------------------------------------
@@ -151,7 +151,7 @@ PORT SPECIFICATION AND SCAN ORDER:
   \-p <port ranges>: Only scan specified ports
     Ex: \-p22; \-p1\-65535; \-p U:53,111,137,T:21\-25,80,139,8080
   \-F: Fast mode \- Scan fewer ports than the default scan
-  \-r: Scan ports consecutively \- don\*(Aqt randomize
+  \-r: Scan ports sequentially \- don\*(Aqt randomize
   \-\-top\-ports <number>: Scan <number> most common ports
   \-\-port\-ratio <ratio>: Scan ports more common than <ratio>
 SERVICE/VERSION DETECTION:
@@ -1509,7 +1509,7 @@ S, gefolgt von einem Leerzeichen und einer mit Leerzeichen getrennten Liste von 
 Wenn Sie die Optionen in den gesendeten und empfangenen Paketen sehen möchten, geben Sie
 \fB\-\-packet\-trace\fR
 an\&. Mehr Informationen und Beispiele zum Einsatz von IP\-Optionen mit Nmap finden Sie unter
-\m[blue]\fB\%http://seclists.org/nmap-dev/2006/q3/0052.html\fR\m[]\&.
+\m[blue]\fB\%https://seclists.org/nmap-dev/2006/q3/0052.html\fR\m[]\&.
 .RE
 .PP
 \fB\-\-ttl \fR\fB\fIvalue\fR\fR (setzt IP\-Time\-to\-live\-Feld)
@@ -2099,10 +2099,10 @@ im
 Wie sein Autor ist auch Nmap selbst nicht perfekt\&. Aber Sie können helfen, es zu verbessern, indem Sie Fehlerberichte schicken oder sogar Patches schreiben\&. Falls Nmap sich nicht wie erwartet verhält, sollten Sie zuerst auf die neueste Version aktualisieren, die unter
 \m[blue]\fB\%https://nmap.org\fR\m[]
 verfügbar ist\&. Wenn das Problem anhält, versuchen Sie herauszufinden, ob es bereits erkannt und bearbeitet wurde\&. Suchen Sie nach der Fehlermeldung auf unserer Suchseite unter
-\m[blue]\fB\%http://insecure.org/search.html\fR\m[]
+\m[blue]\fB\%https://insecure.org/search.html\fR\m[]
 oder bei Google\&. Stöbern Sie in den
 nmap\-dev\-Archiven unter
-\m[blue]\fB\%http://seclists.org/\fR\m[]\&.
+\m[blue]\fB\%https://seclists.org/\fR\m[]\&.
 Lesen Sie auch diese Manpage vollständig\&. Wenn Sie keine Lösung finden, schicken Sie einen Fehlerbericht per E\-Mail an
 <dev@nmap\&.org>\&. Beschreiben Sie darin bitte alles, was Sie über das Problem wissen, inklusive der Nmap\-Version und der Betriebssystemversion, unter der Sie Nmap einsetzen\&. Berichte von Problemen und Fragen zur Anwendung von Nmap werden sehr viel wahrscheinlicher beantwortet, wenn sie an
 <dev@nmap\&.org>
@@ -2118,7 +2118,7 @@ nmap\-dev
 .PP
 Fyodor
 <fyodor@nmap\&.org>
-(\m[blue]\fB\%http://insecure.org\fR\m[])
+(\m[blue]\fB\%https://insecure.org\fR\m[])
 .PP
 Über die Jahre haben hunderte von Menschen wertvolle Beiträge zu Nmap geleistet\&. Sie sind detailliert in der Datei
 CHANGELOG

@@ -22,24 +22,24 @@ $!
 $ set default [-]
 $!
 $ defdir  = f$environment( "default" )
-$ thisdev = f$parse(defdir,,,"device","no_conceal") 
+$ thisdev = f$parse(defdir,,,"device","no_conceal")
 $ thisdir = f$parse(defdir,,,"directory","no_conceal") - "][" - "][" - "][" - "]["
 $!
-$ libssh2_kf = thisdev + thisdir 
+$ libssh2_kf = thisdev + thisdir
 $ libssh2_kf = libssh2_kf - "]" + ".]"
 $!
 $ set default 'mdir'
 $!
 $ define/translation_attributes=concealed libssh2_kf 'libssh2_kf'
 $!
-$ product package libssh2 - 
-    /base='arch' - 
+$ product package libssh2 -
+    /base='arch' -
     /producer=jcb -
-    /source=[] - ! where to find PDF and PTF 
-    /destination=[] - ! where to put .PCSI file 
-    /material=libssh2_kf:[000000...] -      ! where to find product material 
+    /source=[] - ! where to find PDF and PTF
+    /destination=[] - ! where to put .PCSI file
+    /material=libssh2_kf:[000000...] -      ! where to find product material
     /version="''vms_majorv'.''minorv'-''patchv'''datename'" -
-    /format=sequential 
+    /format=sequential
 $!
 $End:
 $!
@@ -52,7 +52,7 @@ $!
 $ if f$trnlnm("libssh2_kf") .nes. "" then deassign libssh2_kf
 $ set default 'olddir'
 $!
-$exit 
+$exit
 $!
 $!--------------------------------------------------------------------------------
 $!
@@ -61,20 +61,20 @@ $ set process/parse=extended
 $!
 $ say    = "write sys$output"
 $!
-$ mdir   = f$environment("procedure") 
+$ mdir   = f$environment("procedure")
 $ mdir   = mdir - f$parse(mdir,,,"name") - f$parse(mdir,,,"type") - f$parse(mdir,,,"version")
 $!
 $ set default 'mdir'
 $!
-$ pipe search [-.include]*.h libssh2_version_major/nohead | (read sys$input l ; l = f$element(2," ",f$edit(l,"trim,compress")) ; - 
+$ pipe search [-.include]*.h libssh2_version_major/nohead | (read sys$input l ; l = f$element(2," ",f$edit(l,"trim,compress")) ; -
        define/job majorv &l )
-$ pipe search [-.include]*.h libssh2_version_minor/nohead | (read sys$input l ; l = f$element(2," ",f$edit(l,"trim,compress")) ; - 
+$ pipe search [-.include]*.h libssh2_version_minor/nohead | (read sys$input l ; l = f$element(2," ",f$edit(l,"trim,compress")) ; -
        define/job minorv &l )
-$ pipe search [-.include]*.h libssh2_version_patch/nohead | (read sys$input l ; l = f$element(2," ",f$edit(l,"trim,compress")) ; - 
+$ pipe search [-.include]*.h libssh2_version_patch/nohead | (read sys$input l ; l = f$element(2," ",f$edit(l,"trim,compress")) ; -
        define/job patchv &l )
 $!
 $ majorv   = f$trnlnm("majorv")
-$ minorv   = f$integer(f$trnlnm("minorv")) 
+$ minorv   = f$integer(f$trnlnm("minorv"))
 $ patchv   = f$integer( f$trnlnm("patchv"))
 $!
 $ deassign/job majorv
@@ -106,10 +106,10 @@ $ then
 $   daily    = "FALSE"
 $   datename = "Final"
 $ else
-$   datename = "D" + f$extract(seconddash+1,8,restdir)   
+$   datename = "D" + f$extract(seconddash+1,8,restdir)
 $ endif
 $!
-$ if daily 
+$ if daily
 $ then
 $   productname = "JCB ''arch' LIBSSH2 V''vms_majorv'.''minorv'-''patchv'''datename'"
 $ else
@@ -176,7 +176,7 @@ $ write pd "    file ""[gnv.usr.share.doc.libssh2]libssh2-''versionname'.release
 $ write pd "    file ""[gnv.usr.lib]gnv$libssh2_''versionname'.exe"" source ""[vms]libssh2_''versionname'.exe"";"
 $ write pd "end product ;"
 $ close pd
-$exit 
+$exit
 $endsubroutine
 $!
 $!--------------------------------------------------------------------------------
@@ -219,4 +219,3 @@ $ write pt "[gnv.common_src]libssh2_''versionname'''datename'_src.bck"
 $close pt
 $exit
 $ endsubroutine
-

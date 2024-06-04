@@ -126,7 +126,7 @@ end
 -- Starts sniffing the selected interface for packets with a destination that
 -- is not explicitly ours (broadcast, multicast etc.)
 --
--- @param iface table containing <code>name</code> and <code>address</code>
+-- @param iface table containing <code>device</code> and <code>address</code>
 -- @param Decoders the decoders class loaded externally
 -- @param decodertab the "result" table to which all discovered items are
 --      reported
@@ -139,7 +139,7 @@ sniffInterface = function(iface, Decoders, decodertab)
   timeout = (timeout or 30) * 1000
 
   -- We want all packets that aren't explicitly for us
-  sock:pcap_open(iface.name, 1500, true, ("!host %s"):format(iface.address))
+  sock:pcap_open(iface.device, 1500, true, ("!host %s"):format(iface.address))
 
   -- Set a short timeout so that we can timeout in time if needed
   sock:set_timeout(100)
@@ -193,58 +193,20 @@ sniffInterface = function(iface, Decoders, decodertab)
   condvar "signal"
 end
 
----
--- Gets a list of available interfaces based on link and up filters
--- Interfaces are only added if they've got an ipv4 address
---
--- @param link string containing the link type to filter
--- @param up string containing the interface status to filter
--- @return result table containing tables of interfaces
---      each interface table has the following fields:
---      <code>name</code> containing the device name
---      <code>address</code> containing the device address
-getInterfaces = function(link, up)
-  if( not(nmap.list_interfaces) ) then return end
-  local interfaces, err = nmap.list_interfaces()
-  local result = {}
-  if ( not(err) ) then
-    for _, iface in ipairs(interfaces) do
-      if ( iface.link == link and
-        iface.up == up and
-        iface.address ) then
-
-        -- exclude ipv6 addresses for now
-        if ( not(iface.address:match(":")) ) then
-          table.insert(result, { name = iface.device,
-          address = iface.address } )
-        end
-      end
-    end
-  end
-  return result
-end
-
 local function fail (err) return stdnse.format_output(false, err) end
+
+local filter_interfaces = function (iface)
+  if (iface.up == "up" and iface.link=="ethernet" and iface.address
+      -- exclude ipv6 addresses for now
+      and not iface.address:match(":")) then
+    return iface
+  end
+end
 
 action = function()
 
   local DECODERFILE = "nselib/data/packetdecoders.lua"
-  local iface = nmap.get_interface()
-  local interfaces = {}
-
-  -- was an interface supplied using the -e argument?
-  if ( iface ) then
-    local iinfo, err = nmap.get_interface_info(iface)
-
-    if ( not(iinfo.address) ) then
-      return fail("The IP address of the interface could not be determined")
-    end
-
-    interfaces = { { name = iface, address = iinfo.address } }
-  else
-    -- no interface was supplied, attempt autodiscovery
-    interfaces = getInterfaces("ethernet", "up")
-  end
+  local interfaces = stdnse.get_script_interfaces(filter_interfaces)
 
   -- make sure we have at least one interface to start sniffing
   if ( #interfaces == 0 ) then

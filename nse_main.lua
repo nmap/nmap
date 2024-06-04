@@ -32,8 +32,8 @@
 
 local _VERSION = _VERSION;
 local MAJOR, MINOR = assert(_VERSION:match "^Lua (%d+).(%d+)$");
-if tonumber(MAJOR.."."..MINOR) < 5.3 then
-  error "NSE requires Lua 5.3 or newer. It looks like you're using an older version of nmap."
+if tonumber(MAJOR.."."..MINOR) < 5.4 then
+  error "NSE requires Lua 5.4 or newer. It looks like you're using an older version of nmap."
 end
 
 local NAME = "NSE";
@@ -176,6 +176,8 @@ strict(_ENV);
 local script_database_type, script_database_path =
     cnse.fetchfile_absolute(cnse.script_dbpath);
 local script_database_update = cnse.scriptupdatedb;
+local script_database = {Entry = nil,chunk = nil}
+
 local script_help = cnse.scripthelp;
 
 -- NSE_YIELD_VALUE
@@ -276,16 +278,21 @@ local function host_copy(t)
 end
 
 -- Return a pattern which matches a "keyword" literal, case insensitive.
+local memo_K = {}
 local function K (a)
-  local insensitize = Cf((P(1) / function (a) return S(lower(a)..upper(a)) end)^1, function (a, b) return a * b end);
-  return assert(insensitize:match(a)) * #(V "space" + S"()," + P(-1)); -- "keyword" token
+  local kw = memo_K[a]
+  if not kw then
+    kw = U.caseless(a) * #(V "space" + S"()," + P(-1))
+    memo_K[a] = kw
+  end
+  return kw
 end
 
 local REQUIRE_ERROR = {};
 rawset(stdnse, "silent_require", function (...)
   local status, mod = pcall(require, ...);
   if not status then
-    print_debug(1, "%s", traceback(mod));
+    print_debug(2, "%s", traceback(mod));
     error(REQUIRE_ERROR)
   else
     return mod;
@@ -523,7 +530,15 @@ do
       self.action_started = true
       return self:resume(timeouts);
     elseif not ok then
-      if debugging() > 0 then
+      -- Extend this to create new types of errors with custom handling.
+      -- nmap.new_try does equivalent of: error({errtype="nmap.new_try", message="TIMEOUT"})
+      if type(r1) == "table" and r1.errtype == "nmap.new_try" then
+        -- nmap.new_try "exception" is closing the script
+        if debugging() > 0 then
+          self:d("Finished %THREAD_AGAINST. Reason: %s\n", r1.message);
+        end
+        r1 = r1.message
+      elseif debugging() > 0 then
         self:d("%THREAD_AGAINST threw an error!\n%s\n", traceback(self.co, tostring(r1)));
       else
         self:set_output("ERROR: Script execution failed (use -d to debug)");
@@ -541,7 +556,10 @@ do
     elseif status == "dead" then
       if self.action_started then
         self:set_output(r1, r2);
-        self:d("Finished %THREAD_AGAINST.");
+        -- -d1 = report finished scripts. -d2 = report finished threads
+        if not self.worker or debugging() > 1 then
+          self:d("Finished %THREAD_AGAINST.");
+        end
       end
       self:close(timeouts);
     end
@@ -698,43 +716,49 @@ end
 --   chosen_scripts  The array of scripts loaded for the given rules.
 local function get_chosen_scripts (rules)
   check_rules(rules);
-
-  local db_env = {Entry = nil};
-  local db_closure = assert(loadfile(script_database_path, "t", db_env),
-    "database appears to be corrupt or out of date;\n"..
-    "\tplease update using: nmap --script-updatedb");
+  assert(script_database.chunk, "Script database not loaded")
 
   local chosen_scripts, files_loaded = {}, {};
   local used_rules, forced_rules = {}, {};
 
-  -- Was this category selection forced to run (e.g. "+script").
-  -- Return:
-  --    Boolean: True if it's forced otherwise false.
-  --    String: The new cleaned string.
-  local function is_forced_set (str)
-    local specification = match(str, "^%+(.*)$");
-    if specification then
-      return true, specification;
-    else
-      return false, str;
-    end
-  end
-
   for i, rule in ipairs(rules) do
-    rule = match(rule, "^%s*(.-)%s*$"); -- strip surrounding whitespace
-    local forced, rule = is_forced_set(rule);
+    -- A rule (usually filename) is forced if it starts with "+"
+    local forced, rule = match(rule, "^%s*(%+?)%s*(.-)%s*$"); -- strip surrounding whitespace
     if rule and rule ~= "" then
       used_rules[rule] = false; -- has not been used yet
-      forced_rules[rule] = forced;
-      -- Here we escape backslashes which might appear in Windows filenames.
-      rule = gsub(rule, "\\([^\\])", "\\\\%1");
+      forced_rules[rule] = (forced == "+");
       rules[i] = rule;
     end
   end
 
+  local pre_T = locale {
+    V "space"^0 * V "expression" * V "space"^0 * P(-1);
+
+    expression = V "disjunct" + V "conjunct" + V "value";
+    disjunct = (V "conjunct" + V "value") * V "space"^0 * K "or" * V "space"^0 * V "expression" / function (a, b) return a or b end;
+    conjunct = V "value" * V "space"^0 * K "and" * V "space"^0 * V "expression" / function (a, b) return a and b end;
+    value = K "not" * V "space"^0 * V "value" / function (a) return not a end +
+    P "(" * V "space"^0 * V "expression" * V "space"^0 * P ")" +
+    K "true" * Cc(true) +
+    K "false" * Cc(false) +
+    V "category" +
+    V "path";
+  }
+  -- cache/memoize result of "glob-izing" a word in a rule.
+  local globs = {}
+  setmetatable(globs, {
+      __index = function(t, path)
+        local glob = gsub(path, "%.nse$", ""); -- remove optional extension
+        glob = gsub(glob, "[%^%$%(%)%%%.%[%]%+%-%?]", "%%%1"); -- esc magic
+        glob = gsub(glob, "%*", ".*"); -- change to Lua wildcard
+        glob = "^"..glob.."$"; -- anchor to beginning and end
+        t[path] = glob
+        return glob
+      end,
+    })
   -- Checks if a given script, script_entry, should be loaded. A script_entry
   -- should be in the form: { filename = "name.nse", categories = { ... } }
-  function db_env.Entry (script_entry)
+  script_database.Entry = function (script_entry)
     local categories = rawget(script_entry, "categories");
     local filename = rawget(script_entry, "filename");
     assert(type(categories) == "table" and type(filename) == "string", "script database appears corrupt, try `nmap --script-updatedb`");
@@ -745,38 +769,21 @@ local function get_chosen_scripts (rules)
 
     -- Test if path is a glob pattern that matches script_entry.filename.
     local function match_script (path)
-      path = gsub(path, "%.nse$", ""); -- remove optional extension
-      path = gsub(path, "[%^%$%(%)%%%.%[%]%+%-%?]", "%%%1"); -- esc magic
-      path = gsub(path, "%*", ".*"); -- change to Lua wildcard
-      path = "^"..path.."$"; -- anchor to beginning and end
-      local found = not not find(escaped_basename, path);
+      local found = not not find(escaped_basename, globs[path]);
       selected_by_name = selected_by_name or found;
       return found;
     end
 
-    local T = locale {
-      V "space"^0 * V "expression" * V "space"^0 * P(-1);
-
-      expression = V "disjunct" + V "conjunct" + V "value";
-      disjunct = (V "conjunct" + V "value") * V "space"^0 * K "or" * V "space"^0 * V "expression" / function (a, b) return a or b end;
-      conjunct = V "value" * V "space"^0 * K "and" * V "space"^0 * V "expression" / function (a, b) return a and b end;
-      value = K "not" * V "space"^0 * V "value" / function (a) return not a end +
-              P "(" * V "space"^0 * V "expression" * V "space"^0 * P ")" +
-              K "true" * Cc(true) +
-              K "false" * Cc(false) +
-              V "category" +
-              V "path";
-
-      category = K "all" * Cc(true); -- pseudo-category "all" matches everything
-      path = R("\033\039", "\042\126")^1 / match_script; -- all graphical characters not '(', ')'
-    };
-
+    local my_cats = K "all" * Cc(true) -- pseudo-category "all" matches everything
     for i, category in ipairs(categories) do
       assert(type(category) == "string", "bad entry in script database");
-      T.category = T.category + K(category) * Cc(true);
+      my_cats = my_cats + K(category) * Cc(true);
     end
 
-    T = P(T);
+    pre_T.path = R("\033\039", "\042\126")^1 / match_script; -- all graphical characters not '(', ')'
+    pre_T.category = my_cats
+
+    local T = P(pre_T)
 
     for i, rule in ipairs(rules) do
       selected_by_name = false;
@@ -805,7 +812,7 @@ local function get_chosen_scripts (rules)
     end
   end
 
-  db_closure(); -- Load the scripts
+  script_database.chunk() -- Load the scripts
 
   -- Now load any scripts listed by name rather than by category.
   for rule, loaded in pairs(used_rules) do
@@ -882,7 +889,7 @@ end
 -- The main loop function for NSE. It handles running all the script threads.
 -- Arguments:
 --   threads  An array of threads (a runlevel) to run.
-local function run (threads_iter, hosts)
+local function run (threads_iter)
   -- running scripts may be resumed at any time. waiting scripts are
   -- yielded until Nsock wakes them. After being awakened with
   -- nse_restore, waiting threads become pending and later are moved all
@@ -1041,15 +1048,15 @@ local function run (threads_iter, hosts)
       end
     end
 
+    local orphans = true
     -- Checked for timed-out scripts and hosts.
     for co, thread in pairs(waiting) do
       if thread:timed_out() then
         waiting[co], all[co], num_threads = nil, nil, num_threads-1;
-        thread:d("%THREAD %stimed out", thread.host
-            and format("%s%s ", thread.host.ip,
-                    thread.port and ":"..thread.port.number or "")
-            or "");
+        thread:d("%THREAD_AGAINST timed out")
         thread:close(timeouts, "timed out");
+      elseif not thread.worker then
+        orphans = false
       end
     end
 
@@ -1059,6 +1066,9 @@ local function run (threads_iter, hosts)
 
       if thread:resume(timeouts) then
         waiting[co] = thread;
+        if not thread.worker then
+          orphans = false
+        end
       else
         all[co], num_threads = nil, num_threads-1;
       end
@@ -1069,9 +1079,17 @@ local function run (threads_iter, hosts)
     -- Move pending threads back to running.
     for co, thread in pairs(pending) do
       pending[co], running[co] = nil, thread;
+      if not thread.worker then
+        orphans = false
+      end
     end
 
     collectgarbage "step";
+    -- If we didn't see at least one non-worker thread, then any remaining are orphaned.
+    if num_threads > 0 and orphans then
+      print_debug(1, "%d orphans left!", total)
+      break
+    end
   end
 
   progress "endTask";
@@ -1287,14 +1305,23 @@ end
 if script_database_type ~= "file" then
   print_verbose(1, "Script Database missing, will create new one.");
   script_database_update = true; -- force update
+else
+  local err
+  script_database.chunk, err = loadfile(script_database_path, "t", script_database)
+  if not script_database.chunk then
+    log_write("stdout",
+      "NSE script database appears to be corrupt or out of date;\n"..
+      "\tplease update using: nmap --script-updatedb")
+    print_debug(1, "loadfile error: %s", err)
+    script_database_update = true
+  end
 end
 
 if script_database_update then
   log_write("stdout", "Updating rule database.");
   local t, path = cnse.fetchfile_absolute('scripts/'); -- fetch script directory
   assert(t == 'directory', 'could not locate scripts directory');
-  script_database_path = path.."script.db";
-  local db = assert(open(script_database_path, 'w'));
+  script_database_path = path .. "script.db"
   local scripts = {};
   for f in lfs.dir(path) do
     if match(f, '%.nse$') then
@@ -1302,20 +1329,35 @@ if script_database_update then
     end
   end
   sort(scripts);
+  local db_text = {}
+  local db_params = {selection = "script.db update"}
   for i, script in ipairs(scripts) do
-    script = Script.new(script);
+    script = Script.new(script, db_params);
     if ( script ) then
       sort(script.categories);
-      db:write('Entry { filename = "', script.basename, '", ');
-      db:write('categories = {');
+      db_text[#db_text+1] = format('Entry { filename = "%s", categories = {', script.basename)
       for j, category in ipairs(script.categories) do
-        db:write(' "', lower(category), '",');
+        db_text[#db_text+1] = format(' "%s",', lower(category))
       end
-      db:write(' } }\n');
+      db_text[#db_text+1] = ' } }\n'
     end
   end
-  db:close();
-  log_write("stdout", "Script Database updated successfully.");
+  db_text = concat(db_text)
+  local db, status, err
+  script_database.chunk, err = load(db_text, "script.db", "t", script_database)
+  if not script_database.chunk then
+    error("Script database corrupt: " .. err)
+  end
+  db, err = open(script_database_path, 'w')
+  if db then
+    status, err = db:write(db_text)
+    db:close();
+  end
+  if status then
+    log_write("stdout", "Script Database updated successfully.");
+  else
+    (cnse.scriptupdatedb and error or log_error)("Could not save script.db: " .. err)
+  end
 end
 
 -- Load all user chosen scripts
@@ -1329,6 +1371,55 @@ if script_help then
   script_help_normal(chosen_scripts);
   script_help_xml(chosen_scripts);
 end
+
+-- This iterator is passed to the run function. It returns one new script
+-- thread on demand until exhausted.
+local threads_iters = {
+  NSE_PRE_SCAN = function (hosts, scripts)
+    return function () -- threads_iter
+      for _, script in ipairs(scripts) do
+        local thread = script:new_thread("prerule");
+        if thread then
+          yield(thread)
+        end
+      end
+    end
+  end,
+  NSE_SCAN = function (hosts, scripts)
+    return function () -- threads_iter
+      -- Check hostrules for this host.
+      for j, host in ipairs(hosts) do
+        for _, script in ipairs(scripts) do
+          local thread = script:new_thread("hostrule", host_copy(host));
+          if thread then
+            thread.host = host;
+            yield(thread);
+          end
+        end
+        -- Check portrules for this host.
+        for port in cnse.ports(host) do
+          for _, script in ipairs(scripts) do
+            local thread = script:new_thread("portrule", host_copy(host), tcopy(port));
+            if thread then
+              thread.host, thread.port = host, port;
+              yield(thread);
+            end
+          end
+        end
+      end
+    end
+  end,
+  NSE_POST_SCAN = function (hosts, scripts)
+    return function () -- threads_iter
+      for _, script in ipairs(scripts) do
+        local thread = script:new_thread("postrule");
+        if thread then
+          yield(thread);
+        end
+      end
+    end
+  end,
+}
 
 -- main(hosts)
 -- This is the main function we return to NSE (on the C side), nse_main.cc
@@ -1392,51 +1483,9 @@ local function main (hosts, scantype)
   end
 
   for runlevel, scripts in ipairs(runlevels) do
-    -- This iterator is passed to the run function. It returns one new script
-    -- thread on demand until exhausted.
-    local function threads_iter ()
-      -- activate prerule scripts
-      if scantype == NSE_PRE_SCAN then
-        for _, script in ipairs(scripts) do
-           local thread = script:new_thread("prerule");
-           if thread then
-             yield(thread)
-           end
-        end
-      -- activate hostrule and portrule scripts
-      elseif scantype == NSE_SCAN then
-        -- Check hostrules for this host.
-        for j, host in ipairs(hosts) do
-          for _, script in ipairs(scripts) do
-            local thread = script:new_thread("hostrule", host_copy(host));
-            if thread then
-              thread.host = host;
-              yield(thread);
-            end
-          end
-          -- Check portrules for this host.
-          for port in cnse.ports(host) do
-            for _, script in ipairs(scripts) do
-              local thread = script:new_thread("portrule", host_copy(host), tcopy(port));
-              if thread then
-                thread.host, thread.port = host, port;
-                yield(thread);
-              end
-            end
-          end
-        end
-        -- activate postrule scripts
-      elseif scantype == NSE_POST_SCAN then
-        for _, script in ipairs(scripts) do
-          local thread = script:new_thread("postrule");
-          if thread then
-            yield(thread);
-          end
-        end
-      end
-    end
+    local threads_iter = assert(threads_iters[scantype](hosts, scripts))
     print_verbose(2, "Starting runlevel %u (of %u) scan.", runlevel, #runlevels);
-    run(wrap(threads_iter), hosts)
+    run(wrap(threads_iter))
   end
 
   collectgarbage "collect";

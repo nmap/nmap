@@ -2,12 +2,12 @@
 .\"     Title: nmap
 .\"    Author: [see the "Auteur" section]
 .\" Generator: DocBook XSL Stylesheets v1.79.1 <http://docbook.sf.net/>
-.\"      Date: 05/10/2020
-.\"    Manual: [FIXME: manual]
-.\"    Source: [FIXME: source]
+.\"      Date: 12/04/2024
+.\"    Manual: Guide de référence Nmap
+.\"    Source: Nmap
 .\"  Language: French
 .\"
-.TH "NMAP" "1" "05/10/2020" "[FIXME: source]" "[FIXME: manual]"
+.TH "NMAP" "1" "12/04/2024" "Nmap" "Guide de référence Nmap"
 .\" -----------------------------------------------------------------
 .\" * Define some portability stuff
 .\" -----------------------------------------------------------------
@@ -1369,7 +1369,7 @@ suivit d\*(Aqun espace et d\*(Aqune liste séparée d\*(Aqespaces d\*(Aqadresses
 .sp
 Si vous souhaitez voir les options dans les paquets envoyés et recus, spécifiez
 \fB\-\-packet\-trace\fR\&. Pour plus d\*(Aqinformation et d\*(Aqexemples de l\*(Aqutilisation des options IP avec Nmap, voir
-\m[blue]\fB\%http://seclists.org/nmap-dev/2006/q3/0052.html\fR\m[]\&.
+\m[blue]\fB\%https://seclists.org/nmap-dev/2006/q3/0052.html\fR\m[]\&.
 .RE
 .PP
 \fB\-\-badsum\fR (Envoyer des paquets avec des sommes de contrôle TCP/UDP erronnées)
@@ -1572,19 +1572,19 @@ Force Nmap à afficher un résumé de chaque paquet envoyé ou reçu\&. C\*(Aqes
 \fB\-\-open\fR (Montre seulement les ports ouverts (ou potentiellement ouverts))
 .RS 4
 Il arrive que vous ne soyez interressé que par les ports sur lesquels vous pouvez effectivment vous connecter (état
-<term>open</term>), et ne voulez pas de résultats pollués par ceux qui sont
-<term>closed</term>,
-<term>filtered</term>, et
-<term>closed|filtered</term>
+open), et ne voulez pas de résultats pollués par ceux qui sont
+closed,
+filtered, et
+closed|filtered
 \&. La personnalisation est en général faite après le scan en utilisant des outils comme grep, awk, ou Perl, mais cette fonctionnalité a été ajoutée à cause d\*(Aqun grand nombre de demandes à cet égard\&. Spécifiez
 \fB\-\-open\fR
 pour voir seulement les ports
-<term>open</term>,
-<term>open|filtered</term>, et
-<term>unfiltered</term>\&. Ces trois états sont traités pour ce qu\*(Aqils sont normalement, ce qui signifie que
-<term>open|filtered</term>
+open,
+open|filtered, et
+unfiltered\&. Ces trois états sont traités pour ce qu\*(Aqils sont normalement, ce qui signifie que
+open|filtered
 et
-<term>unfiltered</term>
+unfiltered
 peuvent être regroupés dans le comptage si il y en a un grand nombre\&.
 .RE
 .PP
@@ -1830,7 +1830,7 @@ Effectue un transfert de zone DNS afin de trouver les hôtes au sein de company\
 .PP
 Comme son auteur, Nmap n\*(Aqest pas parfait\&. Mais vous pouvez aider à l\*(Aqaméliorer en envoyant les rapports de bogues ou même en écrivant des programmes de correction\&. Si Nmap ne satisfait pas à vos attentes, mettez\-le d\*(Aqabord à jour en utilisant la dernière version disponible sur
 \m[blue]\fB\%https://nmap.org/\fR\m[]\&. Si le problème persiste, faites quelques recherches afin de déterminer s\*(Aqil a déjà été remarqué et signalé\&. Essayez pour cela de mettre l\*(Aqerreur en argument sur Google ou parcourez les archives de Nmap\-dev sur
-\m[blue]\fB\%http://seclists.org/\fR\m[]\&. Lisez ce manuel en entier quoiqu\*(Aqil en soit\&. Si rien ne semble fonctionner, envoyez un rapport de bogue à
+\m[blue]\fB\%https://seclists.org/\fR\m[]\&. Lisez ce manuel en entier quoiqu\*(Aqil en soit\&. Si rien ne semble fonctionner, envoyez un rapport de bogue à
 <dev@nmap\&.org>\&. Veillez à inclure tout ce que vous avez appris au sujet de ce bogue ainsi que la version de Nmap concernée et le système d\*(Aqexploitation que vous utilisez\&. Les rapports de problèmes et les questions sur l\*(Aqutilisation de Nmap envoyés à dev@nmap\&.org ont plus de chance de trouver une réponse que ceux envoyés à Fyodor directement\&.
 .PP
 Les codes de programmes de correction destinés à régler des bogues sont encore meilleurs que les rapports de bogues\&. Les instructions de base pour créer des fichiers de programmes de correction avec vos modifications sont disponibles sur

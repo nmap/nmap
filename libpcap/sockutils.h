@@ -37,6 +37,10 @@
 #pragma once
 #endif
 
+#include <stdarg.h>	/* we declare varargs functions */
+
+#include "pcap/funcattrs.h"
+
 #include "pcap/socket.h"
 
 #ifndef _WIN32
@@ -51,6 +55,8 @@
    */
   #define closesocket(a) close(a)
 #endif
+
+#include "sslutils.h"  // for SSL type, whatever that turns out to be
 
 /*
  * MingW headers include this definition, but only for Windows XP and above.
@@ -104,6 +110,8 @@ int WSAAPI getnameinfo(const struct sockaddr*,socklen_t,char*,DWORD,
 #define SOCK_EOF_ISNT_ERROR	0x00000000	/* Return 0 on EOF */
 #define SOCK_EOF_IS_ERROR	0x00000002	/* Return an error on EOF */
 
+#define SOCK_MSG_PEEK		0x00000004	/* Return data but leave it in the socket queue */
+
 /*
  * \}
  */
@@ -123,28 +131,33 @@ extern "C" {
 
 int sock_init(char *errbuf, int errbuflen);
 void sock_cleanup(void);
-void sock_fmterror(const char *caller, int errcode, char *errbuf, int errbuflen);
-void sock_geterror(const char *caller, char *errbuf, int errbufsize);
+int sock_geterrcode(void);
+void sock_vfmterrmsg(char *errbuf, size_t errbuflen, int errcode,
+    PCAP_FORMAT_STRING(const char *fmt), va_list ap) PCAP_PRINTFLIKE(4, 0);
+void sock_fmterrmsg(char *errbuf, size_t errbuflen, int errcode,
+    PCAP_FORMAT_STRING(const char *fmt), ...) PCAP_PRINTFLIKE(4, 5);
+void sock_geterrmsg(char *errbuf, size_t errbuflen,
+    PCAP_FORMAT_STRING(const char *fmt), ...)  PCAP_PRINTFLIKE(3, 4);
 int sock_initaddress(const char *address, const char *port,
     struct addrinfo *hints, struct addrinfo **addrinfo,
     char *errbuf, int errbuflen);
-int sock_recv(SOCKET sock, void *buffer, size_t size, int receiveall,
+int sock_recv(SOCKET sock, SSL *, void *buffer, size_t size, int receiveall,
     char *errbuf, int errbuflen);
-int sock_recv_dgram(SOCKET sock, void *buffer, size_t size,
+int sock_recv_dgram(SOCKET sock, SSL *, void *buffer, size_t size,
     char *errbuf, int errbuflen);
-SOCKET sock_open(struct addrinfo *addrinfo, int server, int nconn, char *errbuf, int errbuflen);
+SOCKET sock_open(const char *host, struct addrinfo *addrinfo, int server, int nconn, char *errbuf, int errbuflen);
 int sock_close(SOCKET sock, char *errbuf, int errbuflen);
 
-int sock_send(SOCKET sock, const char *buffer, size_t size,
+int sock_send(SOCKET sock, SSL *, const char *buffer, size_t size,
     char *errbuf, int errbuflen);
-int sock_bufferize(const char *buffer, int size, char *tempbuf, int *offset, int totsize, int checkonly, char *errbuf, int errbuflen);
-int sock_discard(SOCKET sock, int size, char *errbuf, int errbuflen);
+int sock_bufferize(const void *data, int size, char *outbuf, int *offset, int totsize, int checkonly, char *errbuf, int errbuflen);
+int sock_discard(SOCKET sock, SSL *, int size, char *errbuf, int errbuflen);
 int	sock_check_hostlist(char *hostlist, const char *sep, struct sockaddr_storage *from, char *errbuf, int errbuflen);
 int sock_cmpaddr(struct sockaddr_storage *first, struct sockaddr_storage *second);
 
 int sock_getmyinfo(SOCKET sock, char *address, int addrlen, char *port, int portlen, int flags, char *errbuf, int errbuflen);
 
-int sock_getascii_addrport(const struct sockaddr_storage *sockaddr, char *address, int addrlen, char *port, int portlen, int flags, char *errbuf, int errbuflen);
+int sock_getascii_addrport(const struct sockaddr_storage *sockaddr, char *address, int addrlen, char *port, int portlen, int flags, char *errbuf, size_t errbuflen);
 int sock_present2network(const char *address, struct sockaddr_storage *sockaddr, int addr_family, char *errbuf, int errbuflen);
 
 #ifdef __cplusplus

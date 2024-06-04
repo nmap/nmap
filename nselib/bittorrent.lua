@@ -689,7 +689,7 @@ Torrent =
           stdnse.debug1("Could not get peers from tracker %s, reason: %s",tracker, err)
         end
       else -- unknown tracker
-        stdnse.debug1("Unknown tracker protocol for: "..tracker)
+        stdnse.debug1("Unknown tracker protocol for: %s", tracker)
       end
       --if not status then return false, err end
     end

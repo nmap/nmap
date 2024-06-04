@@ -40,16 +40,15 @@ hostrule = function(host)
 end
 
 action = function(host,port)
-  local status, smbstate
   local output = stdnse.output_table()
 
-  status, smbstate = smb.start(host)
+  local status, smbstate = smb.start(host)
   if(status == false) then
     return false, smbstate
   end
   --  SMB signing configuration appears to be global so
   --  there is no point of trying different dialects.
-  status, dialect = smb2.negotiate_v2(smbstate)
+  local status, dialect = smb2.negotiate_v2(smbstate)
   if status then
     local message_signing = {}
     -- Signing configuration. SMBv2 servers support two flags:

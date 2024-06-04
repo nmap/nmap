@@ -5,60 +5,59 @@
  * those for collecting SYN/connect scan responses.                        *
  *                                                                         *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
- *                                                                         *
- * The Nmap Security Scanner is (C) 1996-2020 Insecure.Com LLC ("The Nmap  *
- * Project"). Nmap is also a registered trademark of the Nmap Project.     *
- *                                                                         *
- * This program is distributed under the terms of the Nmap Public Source   *
- * License (NPSL). The exact license text applying to a particular Nmap    *
- * release or source code control revision is contained in the LICENSE     *
- * file distributed with that version of Nmap or source code control       *
- * revision. More Nmap copyright/legal information is available from       *
- * https://nmap.org/book/man-legal.html, and further information on the    *
- * NPSL license itself can be found at https://nmap.org/npsl. This header  *
- * summarizes some key points from the Nmap license, but is no substitute  *
- * for the actual license text.                                            *
- *                                                                         *
- * Nmap is generally free for end users to download and use themselves,    *
- * including commercial use. It is available from https://nmap.org.        *
- *                                                                         *
- * The Nmap license generally prohibits companies from using and           *
- * redistributing Nmap in commercial products, but we sell a special Nmap  *
- * OEM Edition with a more permissive license and special features for     *
- * this purpose. See https://nmap.org/oem                                  *
- *                                                                         *
- * If you have received a written Nmap license agreement or contract       *
- * stating terms other than these (such as an Nmap OEM license), you may   *
- * choose to use and redistribute Nmap under those terms instead.          *
- *                                                                         *
- * The official Nmap Windows builds include the Npcap software             *
- * (https://npcap.org) for packet capture and transmission. It is under    *
- * separate license terms which forbid redistribution without special      *
- * permission. So the official Nmap Windows builds may not be              *
- * redistributed without special permission (such as an Nmap OEM           *
- * license).                                                               *
- *                                                                         *
- * Source is provided to this software because we believe users have a     *
- * right to know exactly what a program is going to do before they run it. *
- * This also allows you to audit the software for security holes.          *
- *                                                                         *
- * Source code also allows you to port Nmap to new platforms, fix bugs,    *
- * and add new features.  You are highly encouraged to submit your         *
- * changes as a Github PR or by email to the dev@nmap.org mailing list     *
- * for possible incorporation into the main distribution. Unless you       *
- * specify otherwise, it is understood that you are offering us very       *
- * broad rights to use your submissions as described in the Nmap Public    *
- * Source License Contributor Agreement. This is important because we      *
- * fund the project by selling licenses with various terms, and also       *
- * because the inability to relicense code has caused devastating          *
- * problems for other Free Software projects (such as KDE and NASM).       *
- *                                                                         *
- * The free version of Nmap is distributed in the hope that it will be     *
- * useful, but WITHOUT ANY WARRANTY; without even the implied warranty of  *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. Warranties,        *
- * indemnification and commercial support are all available through the    *
- * Npcap OEM program--see https://nmap.org/oem.                            *
- *                                                                         *
+ *
+ * The Nmap Security Scanner is (C) 1996-2024 Nmap Software LLC ("The Nmap
+ * Project"). Nmap is also a registered trademark of the Nmap Project.
+ *
+ * This program is distributed under the terms of the Nmap Public Source
+ * License (NPSL). The exact license text applying to a particular Nmap
+ * release or source code control revision is contained in the LICENSE
+ * file distributed with that version of Nmap or source code control
+ * revision. More Nmap copyright/legal information is available from
+ * https://nmap.org/book/man-legal.html, and further information on the
+ * NPSL license itself can be found at https://nmap.org/npsl/ . This
+ * header summarizes some key points from the Nmap license, but is no
+ * substitute for the actual license text.
+ *
+ * Nmap is generally free for end users to download and use themselves,
+ * including commercial use. It is available from https://nmap.org.
+ *
+ * The Nmap license generally prohibits companies from using and
+ * redistributing Nmap in commercial products, but we sell a special Nmap
+ * OEM Edition with a more permissive license and special features for
+ * this purpose. See https://nmap.org/oem/
+ *
+ * If you have received a written Nmap license agreement or contract
+ * stating terms other than these (such as an Nmap OEM license), you may
+ * choose to use and redistribute Nmap under those terms instead.
+ *
+ * The official Nmap Windows builds include the Npcap software
+ * (https://npcap.com) for packet capture and transmission. It is under
+ * separate license terms which forbid redistribution without special
+ * permission. So the official Nmap Windows builds may not be redistributed
+ * without special permission (such as an Nmap OEM license).
+ *
+ * Source is provided to this software because we believe users have a
+ * right to know exactly what a program is going to do before they run it.
+ * This also allows you to audit the software for security holes.
+ *
+ * Source code also allows you to port Nmap to new platforms, fix bugs, and
+ * add new features. You are highly encouraged to submit your changes as a
+ * Github PR or by email to the dev@nmap.org mailing list for possible
+ * incorporation into the main distribution. Unless you specify otherwise, it
+ * is understood that you are offering us very broad rights to use your
+ * submissions as described in the Nmap Public Source License Contributor
+ * Agreement. This is important because we fund the project by selling licenses
+ * with various terms, and also because the inability to relicense code has
+ * caused devastating problems for other Free Software projects (such as KDE
+ * and NASM).
+ *
+ * The free version of Nmap is distributed in the hope that it will be
+ * useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. Warranties,
+ * indemnification and commercial support are all available through the
+ * Npcap OEM program--see https://nmap.org/oem/
+ *
  ***************************************************************************/
 
 /* $Id$ */
@@ -140,6 +139,15 @@ struct IPExtraProbeData {
   } pd;
 };
 
+union _tryno_u {
+  struct {
+  u8 isPing : 1; // Is this a ping, not a scanprobe?
+  u8 seqnum : 7; // Sequence number, 0-127
+  } fields;
+  u8 opaque;
+};
+typedef union _tryno_u tryno_t;
+
 /* At least for now, I'll just use this like a struct and access
    all the data members directly */
 class UltraProbe {
@@ -187,14 +195,16 @@ public:
     return &mypspec;
   }
 
-  /* Returns true if the given tryno and pingseq match those within this
-     probe. */
-  bool check_tryno_pingseq(unsigned int tryno, unsigned int pingseq) const {
-    return (pingseq == 0 && tryno == this->tryno) || (pingseq > 0 && pingseq == this->pingseq);
+  /* Returns true if the given tryno matches this probe. */
+  bool check_tryno(u8 tryno) const {
+    return tryno == this->tryno.opaque;
   }
 
-  u8 tryno; /* Try (retransmission) number of this probe */
-  u8 pingseq; /* 0 if this is not a scanping. Otherwise a positive ping seq#. */
+  /* Helper for checking protocol/port match from a packet. */
+  bool check_proto_port(u8 proto, u16 sport_or_icmpid, u16 dport) const;
+
+  /* tryno/pingseq, depending on what type of probe this is (ping vs scanprobe) */
+  tryno_t tryno; /* Try (retransmission) number of this probe */
   /* If true, probe is considered no longer active due to timeout, but it
      may be kept around a while, just in case a reply comes late */
   bool timedout;
@@ -206,7 +216,10 @@ public:
   /* Time the previous probe was sent, if this is a retransmit (tryno > 0) */
   struct timeval prevSent;
   bool isPing() const {
-    return pingseq > 0;
+    return tryno.fields.isPing;
+  }
+  u8 get_tryno() const {
+    return tryno.fields.seqnum;
   }
 
 private:
@@ -233,11 +246,17 @@ public:
    was in the list, false if you tried to clear an sd that wasn't
    there in the first place. */
   bool clearSD(int sd);
+  /* Try to get a socket that's good for select(). Return true if it worked;
+   * false if it didn't. */
+  bool sendOK();
   int maxValidSD; /* The maximum socket descriptor in any of the fd_sets */
   fd_set fds_read;
   fd_set fds_write;
   fd_set fds_except;
   int numSDs; /* Number of socket descriptors being watched */
+  int getSocket();
+private:
+  int nextSD;
   int maxSocketsAllowed; /* No more than this many sockets may be created @once */
 };
 
@@ -364,7 +383,7 @@ public:
      considered a drop), but kept in the list juts in case they come
      really late.  But after probeExpireTime(), I don't waste time
      keeping them around. Give in MICROseconds */
-  unsigned long probeExpireTime(const UltraProbe *probe) const;
+  unsigned long probeExpireTime(const UltraProbe *probe, unsigned long to_us) const;
   /* Returns OK if sending a new probe to this host is OK (to avoid
      flooding). If when is non-NULL, fills it with the time that sending
      will be OK assuming no pending probes are resolved by responses
@@ -468,19 +487,12 @@ public:
      which have reached the given limit may be dealt with. */
   unsigned int allowedTryno(bool *capped, bool *mayincrease) const;
 
-
-  /* Provides the next ping sequence number.  This starts at one, goes
-   up to 255, then wraps around back to 1.  If inc is true, it is
-   incremented.  Otherwise you just get a peek at what the next one
-   will be. */
-  u8 nextPingSeq(bool inc = true) {
-    u8 ret = nxtpseq;
-    if (inc) {
-      nxtpseq++;
-      if (nxtpseq == 0)
-        nxtpseq++;
-    }
-    return ret;
+  /* Provides the next ping sequence number.  This starts at zero, goes
+   up to 127, then wraps around back to 0. */
+  u8 nextPingSeq() {
+    // Has to fit in 7 bits: tryno.fields.seqnum
+    nxtpseq = (nxtpseq + 1) % 0x80;
+    return nxtpseq;
   }
   /* This is the highest try number that has produced useful results
      (such as port status change). */
@@ -514,7 +526,7 @@ struct ultra_scan_performance_vars : public scan_performance_vars {
 struct HssPredicate {
 public:
   int operator() (const HostScanStats *lhs, const HostScanStats *rhs) const;
-  static struct sockaddr_storage *ss;
+  static const struct sockaddr_storage *ss;
 };
 
 class UltraScanInfo {
@@ -575,7 +587,7 @@ public:
   int removeCompletedHosts();
   /* Find a HostScanStats by its IP address in the incomplete and completed
      lists.  Returns NULL if none are found. */
-  HostScanStats *findHost(struct sockaddr_storage *ss) const;
+  HostScanStats *findHost(const struct sockaddr_storage *ss) const;
 
   double getCompletionFraction() const;
 
@@ -587,7 +599,6 @@ public:
   bool incompleteHostsEmpty() const {
     return incompleteHosts.empty();
   }
-  bool numIncompleteHostsLessThan(unsigned int n) const;
 
   unsigned int numInitialHosts() const {
     return numInitialTargets;
@@ -603,8 +614,6 @@ public:
      completed. We keep them around because sometimes responses come back very
      late, after we consider a host completed. */
   std::multiset<HostScanStats *, HssPredicate> completedHosts;
-  /* How long (in msecs) we keep a host in completedHosts */
-  unsigned int completedHostLifetime;
   /* The last time we went through completedHosts to remove hosts */
   struct timeval lastCompletedHostRemoval;
 
@@ -616,10 +625,45 @@ public:
   eth_t *ethsd;
   u32 seqmask; /* This mask value is used to encode values in sequence
                   numbers.  It is set randomly in UltraScanInfo::Init() */
+  u16 base_port;
+  const struct sockaddr_storage *SourceSockAddr() const { return &sourceSockAddr; }
+
 private:
 
   unsigned int numInitialTargets;
   std::multiset<HostScanStats *, HssPredicate>::iterator nextI;
+  // All targets in an invocation will have the same source address.
+  struct sockaddr_storage sourceSockAddr;
+  /* We encode per-probe information like the tryno in the source
+     port, for protocols that use ports. (Except when o.magic_port_set is
+     true--then we honor the requested source port.) The tryno is
+     encoded as offsets from base_port, a base source port number (see
+     sport_encode and sport_decode). To avoid interpreting a late response from a
+     previous invocation of ultra_scan as a response for the same port in the
+     current invocation, we increase base_port by a healthy amount designed to be
+     greater than any offset likely to be used by a probe, each time ultra_scan is
+     run.
+
+     If we don't increase the base port, then there is the risk of something like
+     the following happening:
+     1. Nmap sends an ICMP echo and a TCP ACK probe to port 80 for host discovery.
+     2. Nmap receives an ICMP echo reply and marks the host up.
+     3. Nmap sends a TCP SYN probe to port 80 for port scanning.
+     4. Nmap finally receives a delayed TCP RST in response to its earlier ACK
+     probe, and wrongly marks port 80 as closed. */
+
+  /* Base port must be chosen so that there is room to add an 8-bit value (tryno)
+   * without exceeding 16 bits. We increment modulo the largest prime number N
+   * such that 33000 + N + 256 < 65536, which ensures no overlapping cycles. */
+  // Nearest prime not exceeding 65536 - 256 - 33000:
+#define PRIME_32K 32261
+  /* Change base_port to a new number in a safe port range that is unlikely to
+     conflict with nearby past or future invocations of ultra_scan. */
+  static u16 increment_base_port() {
+    static u16 g_base_port = 33000 + get_random_uint() % PRIME_32K;
+    g_base_port = 33000 + (g_base_port - 33000 + 256) % PRIME_32K;
+    return g_base_port;
+  }
 
 };
 
@@ -631,17 +675,17 @@ const char *pspectype2ascii(int type);
 
 void ultrascan_port_probe_update(UltraScanInfo *USI, HostScanStats *hss,
                                  std::list<UltraProbe *>::iterator probeI,
-                                 int newstate, struct timeval *rcvdtime,
+                                 int newstate, const struct timeval *rcvdtime,
                                  bool adjust_timing_hint = true);
 
 void ultrascan_host_probe_update(UltraScanInfo *USI, HostScanStats *hss,
                                         std::list<UltraProbe *>::iterator probeI,
-                                        int newstate, struct timeval *rcvdtime,
+                                        int newstate, const struct timeval *rcvdtime,
                                         bool adjust_timing_hint = true);
 
 void ultrascan_ping_update(UltraScanInfo *USI, HostScanStats *hss,
                                   std::list<UltraProbe *>::iterator probeI,
-                                  struct timeval *rcvdtime,
+                                  const struct timeval *rcvdtime,
                                   bool adjust_timing = true);
 #endif /* SCAN_ENGINE_H */
 

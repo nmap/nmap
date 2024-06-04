@@ -2,60 +2,59 @@
  * nmap_dns.h -- Handles parallel reverse DNS resolution for target IPs    *
  *                                                                         *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
- *                                                                         *
- * The Nmap Security Scanner is (C) 1996-2020 Insecure.Com LLC ("The Nmap  *
- * Project"). Nmap is also a registered trademark of the Nmap Project.     *
- *                                                                         *
- * This program is distributed under the terms of the Nmap Public Source   *
- * License (NPSL). The exact license text applying to a particular Nmap    *
- * release or source code control revision is contained in the LICENSE     *
- * file distributed with that version of Nmap or source code control       *
- * revision. More Nmap copyright/legal information is available from       *
- * https://nmap.org/book/man-legal.html, and further information on the    *
- * NPSL license itself can be found at https://nmap.org/npsl. This header  *
- * summarizes some key points from the Nmap license, but is no substitute  *
- * for the actual license text.                                            *
- *                                                                         *
- * Nmap is generally free for end users to download and use themselves,    *
- * including commercial use. It is available from https://nmap.org.        *
- *                                                                         *
- * The Nmap license generally prohibits companies from using and           *
- * redistributing Nmap in commercial products, but we sell a special Nmap  *
- * OEM Edition with a more permissive license and special features for     *
- * this purpose. See https://nmap.org/oem                                  *
- *                                                                         *
- * If you have received a written Nmap license agreement or contract       *
- * stating terms other than these (such as an Nmap OEM license), you may   *
- * choose to use and redistribute Nmap under those terms instead.          *
- *                                                                         *
- * The official Nmap Windows builds include the Npcap software             *
- * (https://npcap.org) for packet capture and transmission. It is under    *
- * separate license terms which forbid redistribution without special      *
- * permission. So the official Nmap Windows builds may not be              *
- * redistributed without special permission (such as an Nmap OEM           *
- * license).                                                               *
- *                                                                         *
- * Source is provided to this software because we believe users have a     *
- * right to know exactly what a program is going to do before they run it. *
- * This also allows you to audit the software for security holes.          *
- *                                                                         *
- * Source code also allows you to port Nmap to new platforms, fix bugs,    *
- * and add new features.  You are highly encouraged to submit your         *
- * changes as a Github PR or by email to the dev@nmap.org mailing list     *
- * for possible incorporation into the main distribution. Unless you       *
- * specify otherwise, it is understood that you are offering us very       *
- * broad rights to use your submissions as described in the Nmap Public    *
- * Source License Contributor Agreement. This is important because we      *
- * fund the project by selling licenses with various terms, and also       *
- * because the inability to relicense code has caused devastating          *
- * problems for other Free Software projects (such as KDE and NASM).       *
- *                                                                         *
- * The free version of Nmap is distributed in the hope that it will be     *
- * useful, but WITHOUT ANY WARRANTY; without even the implied warranty of  *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. Warranties,        *
- * indemnification and commercial support are all available through the    *
- * Npcap OEM program--see https://nmap.org/oem.                            *
- *                                                                         *
+ *
+ * The Nmap Security Scanner is (C) 1996-2024 Nmap Software LLC ("The Nmap
+ * Project"). Nmap is also a registered trademark of the Nmap Project.
+ *
+ * This program is distributed under the terms of the Nmap Public Source
+ * License (NPSL). The exact license text applying to a particular Nmap
+ * release or source code control revision is contained in the LICENSE
+ * file distributed with that version of Nmap or source code control
+ * revision. More Nmap copyright/legal information is available from
+ * https://nmap.org/book/man-legal.html, and further information on the
+ * NPSL license itself can be found at https://nmap.org/npsl/ . This
+ * header summarizes some key points from the Nmap license, but is no
+ * substitute for the actual license text.
+ *
+ * Nmap is generally free for end users to download and use themselves,
+ * including commercial use. It is available from https://nmap.org.
+ *
+ * The Nmap license generally prohibits companies from using and
+ * redistributing Nmap in commercial products, but we sell a special Nmap
+ * OEM Edition with a more permissive license and special features for
+ * this purpose. See https://nmap.org/oem/
+ *
+ * If you have received a written Nmap license agreement or contract
+ * stating terms other than these (such as an Nmap OEM license), you may
+ * choose to use and redistribute Nmap under those terms instead.
+ *
+ * The official Nmap Windows builds include the Npcap software
+ * (https://npcap.com) for packet capture and transmission. It is under
+ * separate license terms which forbid redistribution without special
+ * permission. So the official Nmap Windows builds may not be redistributed
+ * without special permission (such as an Nmap OEM license).
+ *
+ * Source is provided to this software because we believe users have a
+ * right to know exactly what a program is going to do before they run it.
+ * This also allows you to audit the software for security holes.
+ *
+ * Source code also allows you to port Nmap to new platforms, fix bugs, and
+ * add new features. You are highly encouraged to submit your changes as a
+ * Github PR or by email to the dev@nmap.org mailing list for possible
+ * incorporation into the main distribution. Unless you specify otherwise, it
+ * is understood that you are offering us very broad rights to use your
+ * submissions as described in the Nmap Public Source License Contributor
+ * Agreement. This is important because we fund the project by selling licenses
+ * with various terms, and also because the inability to relicense code has
+ * caused devastating problems for other Free Software projects (such as KDE
+ * and NASM).
+ *
+ * The free version of Nmap is distributed in the hope that it will be
+ * useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. Warranties,
+ * indemnification and commercial support are all available through the
+ * Npcap OEM program--see https://nmap.org/oem/
+ *
  ***************************************************************************/
 
 #ifndef NMAP_DNS_H
@@ -70,7 +69,10 @@ class Target;
 
 #include <algorithm>
 #include <sstream>
+#include <vector>
 
+#define DNS_LABEL_MAX_LENGTH 63
+#define DNS_NAME_MAX_LENGTH 255
 
 namespace DNS
 {
@@ -121,10 +123,12 @@ typedef enum {
 } ERRORS;
 
 typedef enum {
+  NONE = 0,
   A = 1,
   CNAME = 5,
   PTR = 12,
   AAAA = 28,
+  ANY = 255, // Internally defined as "A and AAAA"
 } RECORD_TYPE;
 
 typedef enum {
@@ -144,12 +148,14 @@ public:
   static u16 progressiveId;
   static bool ipToPtr(const sockaddr_storage &ip, std::string &ptr);
   static bool ptrToIp(const std::string &ptr, sockaddr_storage &ip);
-  static size_t buildSimpleRequest(const std::string &name, RECORD_TYPE rt, u8 *buf, size_t maxlen);
-  static size_t buildReverseRequest(const sockaddr_storage &ip, u8 *buf, size_t maxlen);
+  static size_t buildSimpleRequest(u16 id, const std::string &name, RECORD_TYPE rt, u8 *buf, size_t maxlen);
+  static size_t buildReverseRequest(u16 id, const sockaddr_storage &ip, u8 *buf, size_t maxlen);
   static size_t putUnsignedShort(u16 num, u8 *buf, size_t offset, size_t maxlen);
   static size_t putDomainName(const std::string &name, u8 *buf, size_t offset, size_t maxlen);
   static size_t parseUnsignedShort(u16 &num, const u8 *buf, size_t offset, size_t maxlen);
   static size_t parseUnsignedInt(u32 &num, const u8 *buf, size_t offset, size_t maxlen);
+  static size_t parseIPv4(struct in_addr &addr, const u8 *buf, size_t offset, size_t maxlen);
+  static size_t parseIPv6(struct in6_addr &addr, const u8 *buf, size_t offset, size_t maxlen);
   static size_t parseDomainName(std::string &name, const u8 *buf, size_t offset, size_t maxlen);
 };
 
@@ -158,7 +164,7 @@ class Record
 public:
   virtual Record * clone() = 0;
   virtual ~Record() {}
-  virtual size_t parseFromBuffer(const u8 *buf, size_t offset, size_t maxlen) = 0;
+  virtual size_t parseFromBuffer(const u8 *buf, size_t offset, size_t maxlen, RECORD_TYPE rt) = 0;
 };
 
 class A_Record : public Record
@@ -167,7 +173,7 @@ public:
   sockaddr_storage value;
   Record * clone() { return new A_Record(*this); }
   ~A_Record() {}
-  size_t parseFromBuffer(const u8 *buf, size_t offset, size_t maxlen);
+  size_t parseFromBuffer(const u8 *buf, size_t offset, size_t maxlen, RECORD_TYPE rt);
 };
 
 class PTR_Record : public Record
@@ -176,7 +182,7 @@ public:
   std::string value;
   Record * clone() { return new PTR_Record(*this); }
   ~PTR_Record() {}
-  size_t parseFromBuffer(const u8 *buf, size_t offset, size_t maxlen)
+  size_t parseFromBuffer(const u8 *buf, size_t offset, size_t maxlen, RECORD_TYPE rt)
   {
     return Factory::parseDomainName(value, buf, offset, maxlen);
   }
@@ -188,7 +194,7 @@ public:
   std::string value;
   Record * clone() { return new CNAME_Record(*this); }
   ~CNAME_Record() {}
-  size_t parseFromBuffer(const u8 *buf, size_t offset, size_t maxlen)
+  size_t parseFromBuffer(const u8 *buf, size_t offset, size_t maxlen, RECORD_TYPE rt)
   {
     return Factory::parseDomainName(value, buf, offset, maxlen);
   }
@@ -243,8 +249,19 @@ public:
   std::list<Answer> answers;
 };
 
+struct Request
+{
+  RECORD_TYPE type;
+  std::vector<struct sockaddr_storage> ssv;
+  std::string name;
+  void *userdata;
+  Request() : type(NONE), ssv(), name(), userdata(NULL) {}
+  const char *repr() const; // string representation
+};
 }
 
+
+void nmap_mass_dns(DNS::Request requests[], int num_requests);
 void nmap_mass_rdns(Target ** targets, int num_targets);
 
 std::list<std::string> get_dns_servers();

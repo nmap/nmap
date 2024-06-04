@@ -230,23 +230,19 @@ AC_SEARCH_LIBS(gethostbyname, nsl)
 dnl Check IPv6 raw sending flavor.
 CHECK_IPV6_IPPROTO_RAW
 
-m4_define_default([_AM_PYTHON_INTERPRETER_LIST],[python2 python2.7 python2.6 python2.5 python2.4 python])
-AM_PATH_PYTHON([2.4], [HAVE_PYTHON=true], [HAVE_PYTHON=false])
-HAVE_PYTHON2=false
-if test $HAVE_PYTHON && test "x${PYTHON_VERSION%%.*}" = "x2"; then
-    HAVE_PYTHON2=true
-fi
+m4_define_default([_AM_PYTHON_INTERPRETER_LIST],[python3 python])
+AM_PATH_PYTHON([3], [HAVE_PYTHON=true], [HAVE_PYTHON=false])
 
 NDIFFDIR=ndiff
 
 # Do they want Ndiff?
 AC_ARG_WITH(ndiff, AC_HELP_STRING([--without-ndiff], [Skip installation of the Ndiff utility]), [], [with_ndiff=check])
-if $HAVE_PYTHON2 ; then : ;
+if $HAVE_PYTHON ; then : ;
 else
   if test "$with_ndiff" = "check" ; then
-    AC_MSG_WARN([Not building Ndiff because Python 2.x with x>=4 was not found])
+    AC_MSG_WARN([Not building Ndiff because Python was not found])
   elif test "$with_ndiff" = "yes"; then
-    AC_MSG_FAILURE([--with-ndiff requires Python 2.x with x>=4])
+    AC_MSG_FAILURE([--with-ndiff requires Python])
   fi
   with_ndiff=no
 fi
@@ -280,12 +276,12 @@ ZENMAPDIR=zenmap
 # Do they want Zenmap?
 AC_ARG_WITH(zenmap, AC_HELP_STRING([--without-zenmap], [Skip installation of the Zenmap graphical frontend]), [], [with_zenmap=check])
 
-if $HAVE_PYTHON2 ; then : ;
+if $HAVE_PYTHON ; then : ;
 else
   if test "$with_zenmap" = "check"; then
-    AC_MSG_WARN([Not building Zenmap because Python 2.x with x>=4 was not found])
+    AC_MSG_WARN([Not building Zenmap because Python was not found])
   elif test "$with_zenmap" = "yes"; then
-    AC_MSG_FAILURE([--with-zenmap requires Python 2.x with x>=4])
+    AC_MSG_FAILURE([--with-zenmap requires Python])
   fi
   with_zenmap=no
 fi
@@ -342,6 +338,9 @@ AC_SUBST(UNINSTALLNPING)
 AC_SUBST(NPING_CLEAN)
 AC_SUBST(NPING_DIST_CLEAN)
 
+# OpenSSL and NSE C modules can require dlopen
+AC_SEARCH_LIBS(dlopen, dl)
+
 # We test whether they specified openssl desires explicitly
 use_openssl="yes"
 specialssldir=""
@@ -363,43 +362,47 @@ AC_HELP_STRING([--with-openssl=DIR],[Use optional openssl libs and includes from
 )
 
 # If they didn't specify it, we try to find it
-if test "$use_openssl" = "yes" -a -z "$specialssldir"; then
+if test "$use_openssl" = "yes"; then
   AC_CHECK_HEADER(openssl/ssl.h,,
   [ use_openssl="no"
+    if test -n "$specialssldir"; then
+      AC_MSG_ERROR([Specific OpenSSL location was requested but openssl/ssl.h was not found. Try correcting the --with-openssl=DIR argument.])
+    fi
     if test "$with_openssl" = "yes"; then
       AC_MSG_ERROR([OpenSSL was explicitly requested but openssl/ssl.h was not found. Try the --with-openssl=DIR argument to give the location of OpenSSL or run configure with --without-openssl.])
     fi
     AC_MSG_WARN([Failed to find openssl/ssl.h so OpenSSL will not be used. If it is installed you can try the --with-openssl=DIR argument])
   ])
+fi
 
 # use_openssl="yes" given explicitly in next 2 rules to avoid adding lib to $LIBS
- if test "$use_openssl" = "yes"; then
-   AC_CHECK_LIB(crypto, BIO_int_ctrl,
+if test "$use_openssl" = "yes"; then
+  AC_CHECK_LIB(crypto, BIO_int_ctrl,
     [ use_openssl="yes"],
     [ use_openssl="no"
-    if test "$with_openssl" = "yes"; then
-      AC_MSG_ERROR([OpenSSL was explicitly requested but libcrypto was not found. Try the --with-openssl=DIR argument to give the location of OpenSSL or run configure with --without-openssl.])
-    fi
-    AC_MSG_WARN([Failed to find libcrypto so OpenSSL will not be used. If it is installed you can try the --with-openssl=DIR argument])
-   ])
- fi
+      if test -n "$specialssldir"; then
+        AC_MSG_ERROR([Specific OpenSSL location was requested but libcrypto was not found. Try correcting the --with-openssl=DIR argument.])
+      fi
+      if test "$with_openssl" = "yes"; then
+        AC_MSG_ERROR([OpenSSL was explicitly requested but libcrypto was not found. Try the --with-openssl=DIR argument to give the location of OpenSSL or run configure with --without-openssl.])
+      fi
+      AC_MSG_WARN([Failed to find libcrypto so OpenSSL will not be used. If it is installed you can try the --with-openssl=DIR argument])
+    ])
+fi
 
- if test "$use_openssl" = "yes"; then
-   AC_CHECK_LIB(ssl, SSL_new,
+if test "$use_openssl" = "yes"; then
+  AC_CHECK_LIB(ssl, SSL_new,
     [ use_openssl="yes" ],
     [ use_openssl="no"
-    if test "$with_openssl" = "yes"; then
-      AC_MSG_ERROR([OpenSSL was explicitly requested but libssl was not found. Try the --with-openssl=DIR argument to give the location of OpenSSL or run configure with --without-openssl.])
-    fi
-    AC_MSG_WARN([Failed to find libssl so OpenSSL will not be used. If it is installed you can try the --with-openssl=DIR argument]) ],
+      if test -n "$specialssldir"; then
+        AC_MSG_ERROR([Specific OpenSSL location was requested but libssl was not found. Try correcting the --with-openssl=DIR argument.])
+      fi
+      if test "$with_openssl" = "yes"; then
+        AC_MSG_ERROR([OpenSSL was explicitly requested but libssl was not found. Try the --with-openssl=DIR argument to give the location of OpenSSL or run configure with --without-openssl.])
+      fi
+      AC_MSG_WARN([Failed to find libssl so OpenSSL will not be used. If it is installed you can try the --with-openssl=DIR argument])
+    ],
     [ -lcrypto ])
- fi
-
- if test "$use_openssl" = "yes"; then
-   AC_CHECK_LIB(crypto, EVP_PKEY_get1_EC_KEY,
-    [AC_DEFINE(HAVE_OPENSSL_EC, 1, [Have EVP_PKEY_get1_EC_KEY])],
-    [AC_MSG_WARN([Disabling support for EC crypto])])
-  fi
 fi
 
 OPENSSL_LIBS=
@@ -507,7 +510,7 @@ LIBPCREDIR=libpcre
 
 # First we test whether they specified libpcre explicitly
 AC_ARG_WITH(libpcre,
-AC_HELP_STRING([--with-libpcre=DIR], [Use an existing (compiled) pcre lib from DIR/include and DIR/lib.])
+AC_HELP_STRING([--with-libpcre=DIR], [Use an existing (compiled) pcre2 lib from DIR/include and DIR/lib.])
 AC_HELP_STRING([--with-libpcre=included], [Always use the version included with Nmap]),
 [  case "$with_libpcre" in
   yes)
@@ -525,27 +528,28 @@ AC_HELP_STRING([--with-libpcre=included], [Always use the version included with 
 
 # If they didn't specify it, we try to find it
 if test $have_pcre != yes -a $requested_included_pcre != yes ; then
-  AC_CHECK_HEADER(pcre.h,
-    AC_CHECK_LIB(pcre, pcre_version, [have_pcre=yes ]),
-    [AC_CHECK_HEADER(pcre/pcre.h,
-      [AC_CHECK_LIB(pcre, pcre_version, [have_pcre=yes])]
-    )]
+  AC_CHECK_HEADER(pcre2.h,
+    AC_CHECK_LIB(pcre2-8, pcre2_compile_8, [have_pcre=yes ]),
+    [],
+    [
+#define PCRE2_CODE_UNIT_WIDTH 8
+     ]
   )
 fi
 
 # If we still don't have it, we use our own
 if test $have_pcre != yes ; then
   AC_CONFIG_SUBDIRS( libpcre )
-  CPPFLAGS="-I\$(top_srcdir)/$LIBPCREDIR $CPPFLAGS"
-  LIBPCRE_LIBS="$LIBPCREDIR/libpcre.a"
+  CPPFLAGS="-I\$(top_srcdir)/$LIBPCREDIR/src $CPPFLAGS"
+  LIBPCRE_LIBS="$LIBPCREDIR/.libs/libpcre2-8.a"
   PCRE_BUILD="build-pcre"
   PCRE_CLEAN="clean-pcre"
   PCRE_DIST_CLEAN="distclean-pcre"
-  AC_DEFINE(PCRE_INCLUDED, 1, [Using included libpcre])
+  AC_DEFINE(PCRE_INCLUDED, 1, [Using included libpcre2])
 else
 # We only need to check for and use this if we are NOT using included pcre
-  AC_CHECK_HEADERS(pcre/pcre.h)
-  LIBPCRE_LIBS="-lpcre"
+  AC_CHECK_HEADERS(pcre2.h)
+  LIBPCRE_LIBS="-lpcre2-8"
   PCRE_BUILD=""
   PCRE_CLEAN=""
   PCRE_DIST_CLEAN=""
@@ -671,7 +675,7 @@ AC_HELP_STRING([--without-libssh2], [Compile without libssh2]),
     LDFLAGS="-L$with_libssh2/lib $LDFLAGS"
 
     AC_CHECK_HEADER(libssh2.h,[
-      AC_CHECK_LIB(ssh2, libssh2_version,
+      AC_CHECK_LIB(ssh2, libssh2_userauth_banner,
         [have_libssh2=yes
         LIBSSH2_INC=$with_libssh2/include
         LIBSSH2_LIB=$with_libssh2/lib],
@@ -690,7 +694,7 @@ if test $use_libssh2 = yes -a $use_openssl = yes; then
   # If they didn't specify it, we try to find it
   if test $have_libssh2 != yes -a $requested_included_libssh2 != yes; then
     AC_CHECK_HEADER(libssh2.h,[
-      AC_CHECK_LIB(ssh2, libssh2_version,
+      AC_CHECK_LIB(ssh2, libssh2_userauth_banner,
         [have_libssh2="yes"],,[-lm])
       ])
   fi
@@ -808,9 +812,6 @@ AC_HELP_STRING([--without-liblua], [Compile without lua (this will exclude all o
   esac]
 )
 
-# OpenSSL and NSE C modules can require dlopen
-AC_SEARCH_LIBS(dlopen, dl)
-
 # They don't want lua
 if test "$no_lua" = "yes"; then
   trace_no_use="$trace_no_use lua"
@@ -826,27 +827,27 @@ else
 
   # If they didn't specify it, we try to find it
   if test $have_lua != yes; then
-    AC_CHECK_HEADERS([lua5.3/lua.h lua/5.3/lua.h lua.h lua/lua.h], [break])
-    AC_SEARCH_LIBS(lua_isyieldable, [lua5.3 lua53 lua], [have_lua=yes],, [-lm])
+    AC_CHECK_HEADERS([lua5.4/lua.h lua/5.4/lua.h lua.h lua/lua.h], [break])
+    AC_SEARCH_LIBS(lua_isyieldable, [lua5.4 lua54 lua], [have_lua=yes],, [-lm])
     AC_LANG_PUSH(C)
-    # We need Lua 5.3 exactly
-    AC_MSG_CHECKING([for lua version == 503])
+    # We need Lua 5.4 exactly
+    AC_MSG_CHECKING([for lua version == 504])
     AC_PREPROC_IFELSE([ AC_LANG_PROGRAM( [[
-      #ifdef HAVE_LUA5_3_LUA_H
-          #include <lua5.3/lua.h>
-      #elif defined HAVE_LUA_5_3_LUA_H
-          #include <lua/5.3/lua.h>
+      #ifdef HAVE_LUA5_4_LUA_H
+          #include <lua5.4/lua.h>
+      #elif defined HAVE_LUA_5_4_LUA_H
+          #include <lua/5.4/lua.h>
       #elif defined HAVE_LUA_H || defined LUA_INCLUDED
           #include <lua.h>
       #elif defined HAVE_LUA_LUA_H
           #include <lua/lua.h>
       #endif
 
-      #if (LUA_VERSION_NUM != 503)
+      #if (LUA_VERSION_NUM != 504)
           #error Incorrect Lua version
       #endif
         ]],
-        [[if(LUA_VERSION_NUM != 503) return 1;]])
+        [[if(LUA_VERSION_NUM != 504) return 1;]])
     ],
     [have_lua=yes], [have_lua=no])
     AC_LANG_POP(C)

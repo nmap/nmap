@@ -48,6 +48,7 @@ your TLS ciphersuites.
 -- |       https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2014-3566
 -- |_      https://www.openssl.org/~bodo/ssl-poodle.pdf
 --
+-- @see ssl-enum-ciphers.nse
 
 author = "Daniel Miller"
 
@@ -307,7 +308,7 @@ local function check_fallback_scsv(host, port, protocol, ciphers)
 end
 
 portrule = function (host, port)
-  return shortport.ssl(host, port) or sslcert.getPrepareTLSWithoutReconnect(port)
+  return port.protocol == "tcp" and (shortport.ssl(host, port) or sslcert.getPrepareTLSWithoutReconnect(port))
 end
 
 action = function(host, port)

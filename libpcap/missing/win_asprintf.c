@@ -23,7 +23,7 @@ pcap_vasprintf(char **strp, const char *format, va_list args)
 		*strp = NULL;
 		return (-1);
 	}
-	ret = pcap_vsnprintf(str, str_size, format, args);
+	ret = vsnprintf(str, str_size, format, args);
 	if (ret == -1) {
 		free(str);
 		*strp = NULL;
@@ -31,7 +31,7 @@ pcap_vasprintf(char **strp, const char *format, va_list args)
 	}
 	*strp = str;
 	/*
-	 * pcap_vsnprintf() shouldn't truncate the string, as we have
+	 * vsnprintf() shouldn't truncate the string, as we have
 	 * allocated a buffer large enough to hold the string, so its
 	 * return value should be the number of characters printed.
 	 */

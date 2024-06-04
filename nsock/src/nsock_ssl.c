@@ -5,54 +5,50 @@
  * the SSL and NonSSL paths.                                               *
  *                                                                         *
  ***********************IMPORTANT NSOCK LICENSE TERMS***********************
- *                                                                         *
- * The nsock parallel socket event library is (C) 1999-2020 Insecure.Com   *
- * LLC This library is free software; you may redistribute and/or          *
- * modify it under the terms of the GNU General Public License as          *
- * published by the Free Software Foundation; Version 2.  This guarantees  *
- * your right to use, modify, and redistribute this software under certain *
- * conditions.  If this license is unacceptable to you, Insecure.Com LLC   *
- * may be willing to sell alternative licenses (contact                    *
- * sales@insecure.com ).                                                   *
- *                                                                         *
- * As a special exception to the GPL terms, Insecure.Com LLC grants        *
- * permission to link the code of this program with any version of the     *
- * OpenSSL library which is distributed under a license identical to that  *
- * listed in the included docs/licenses/OpenSSL.txt file, and distribute   *
- * linked combinations including the two. You must obey the GNU GPL in all *
- * respects for all of the code used other than OpenSSL.  If you modify    *
- * this file, you may extend this exception to your version of the file,   *
- * but you are not obligated to do so.                                     *
- *                                                                         *
- * If you received these files with a written license agreement stating    *
- * terms other than the (GPL) terms above, then that alternative license   *
- * agreement takes precedence over this comment.                           *
- *                                                                         *
- * Source is provided to this software because we believe users have a     *
- * right to know exactly what a program is going to do before they run it. *
- * This also allows you to audit the software for security holes.          *
- *                                                                         *
- * Source code also allows you to port Nmap to new platforms, fix bugs,    *
- * and add new features.  You are highly encouraged to send your changes   *
- * to the dev@nmap.org mailing list for possible incorporation into the    *
- * main distribution.  By sending these changes to Fyodor or one of the    *
- * Insecure.Org development mailing lists, or checking them into the Nmap  *
- * source code repository, it is understood (unless you specify otherwise) *
- * that you are offering the Nmap Project (Insecure.Com LLC) the           *
- * unlimited, non-exclusive right to reuse, modify, and relicense the      *
- * code.  Nmap will always be available Open Source, but this is important *
- * because the inability to relicense code has caused devastating problems *
- * for other Free Software projects (such as KDE and NASM).  We also       *
- * occasionally relicense the code to third parties as discussed above.    *
- * If you wish to specify special license conditions of your               *
- * contributions, just say so when you send them.                          *
- *                                                                         *
- * This program is distributed in the hope that it will be useful, but     *
- * WITHOUT ANY WARRANTY; without even the implied warranty of              *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU       *
- * General Public License v2.0 for more details                            *
- * (http://www.gnu.org/licenses/gpl-2.0.html).                             *
- *                                                                         *
+ *
+ * The nsock parallel socket event library is (C) 1999-2024 Nmap Software LLC
+ * This library is free software; you may redistribute and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation; Version 2. This guarantees your right to use, modify, and
+ * redistribute this software under certain conditions. If this license is
+ * unacceptable to you, Nmap Software LLC may be willing to sell alternative
+ * licenses (contact sales@nmap.com ).
+ *
+ * As a special exception to the GPL terms, Nmap Software LLC grants permission
+ * to link the code of this program with any version of the OpenSSL library
+ * which is distributed under a license identical to that listed in the included
+ * docs/licenses/OpenSSL.txt file, and distribute linked combinations including
+ * the two. You must obey the GNU GPL in all respects for all of the code used
+ * other than OpenSSL. If you modify this file, you may extend this exception to
+ * your version of the file, but you are not obligated to do so.
+ *
+ * If you received these files with a written license agreement stating terms
+ * other than the (GPL) terms above, then that alternative license agreement
+ * takes precedence over this comment.
+ *
+ * Source is provided to this software because we believe users have a right to
+ * know exactly what a program is going to do before they run it. This also
+ * allows you to audit the software for security holes.
+ *
+ * Source code also allows you to port Nmap to new platforms, fix bugs, and add
+ * new features. You are highly encouraged to send your changes to the
+ * dev@nmap.org mailing list for possible incorporation into the main
+ * distribution. By sending these changes to Fyodor or one of the Insecure.Org
+ * development mailing lists, or checking them into the Nmap source code
+ * repository, it is understood (unless you specify otherwise) that you are
+ * offering the Nmap Project (Nmap Software LLC) the unlimited, non-exclusive
+ * right to reuse, modify, and relicense the code. Nmap will always be available
+ * Open Source, but this is important because the inability to relicense code
+ * has caused devastating problems for other Free Software projects (such as KDE
+ * and NASM). We also occasionally relicense the code to third parties as
+ * discussed above. If you wish to specify special license conditions of your
+ * contributions, just say so when you send them.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License v2.0 for more
+ * details (http://www.gnu.org/licenses/gpl-2.0.html).
+ *
  ***************************************************************************/
 
 /* $Id$ */
@@ -60,10 +56,14 @@
 
 #include "nsock.h"
 #include "nsock_internal.h"
+#include "nsock_log.h"
 #include "nsock_ssl.h"
 #include "netutils.h"
 
 #if HAVE_OPENSSL
+#if OPENSSL_VERSION_NUMBER >= 0x30000000L
+#include <openssl/provider.h>
+#endif
 
 /* Disallow anonymous ciphers (Diffie-Hellman key agreement), low bit-strength
  * ciphers, export-crippled ciphers, and MD5. Prefer ciphers in decreasing order
@@ -79,14 +79,58 @@
 #define CIPHERS_FAST "RC4-SHA:RC4-MD5:NULL-SHA:EXP-DES-CBC-SHA:EXP-EDH-RSA-DES-CBC-SHA:EXP-RC4-MD5:NULL-MD5:EDH-RSA-DES-CBC-SHA:EXP-RC2-CBC-MD5:EDH-RSA-DES-CBC3-SHA:EXP-ADH-RC4-MD5:DHE-RSA-AES128-SHA:DHE-RSA-AES256-SHA:EXP-ADH-DES-CBC-SHA:ADH-AES256-SHA:ADH-DES-CBC-SHA:ADH-RC4-MD5:AES256-SHA:DES-CBC-SHA:DES-CBC3-SHA:ADH-DES-CBC3-SHA:AES128-SHA:ADH-AES128-SHA:eNULL:ALL"
 
 extern struct timeval nsock_tod;
+#define NSOCK_SSL_STATE_UNINITIALIZED -1
+#define NSOCK_SSL_STATE_INITIALIZED 1
+#define NSOCK_SSL_STATE_ATEXIT 0
+static int nsock_ssl_state = NSOCK_SSL_STATE_UNINITIALIZED;
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L && !defined LIBRESSL_VERSION_NUMBER
+static void nsock_ssl_atexit(void)
+{
+  nsock_ssl_state = NSOCK_SSL_STATE_ATEXIT;
+}
+#endif
+void nsp_ssl_cleanup(struct npool *nsp)
+{
+  if (nsock_ssl_state != NSOCK_SSL_STATE_ATEXIT)
+  {
+    if (nsp->sslctx != NULL)
+      SSL_CTX_free(nsp->sslctx);
+#ifndef OPENSSL_NO_DTLS
+    if (nsp->dtlsctx != NULL)
+      SSL_CTX_free(nsp->dtlsctx);
+#endif
+  }
+  nsp->sslctx = NULL;
+#ifndef OPENSSL_NO_DTLS
+  nsp->dtlsctx = NULL;
+#endif
+}
 
 static SSL_CTX *ssl_init_helper(const SSL_METHOD *method) {
   SSL_CTX *ctx;
 
+  if (nsock_ssl_state == NSOCK_SSL_STATE_UNINITIALIZED)
+  {
+    nsock_ssl_state = NSOCK_SSL_STATE_INITIALIZED;
 #if OPENSSL_VERSION_NUMBER < 0x10100000L || defined LIBRESSL_VERSION_NUMBER
-  SSL_load_error_strings();
-  SSL_library_init();
+    SSL_load_error_strings();
+    SSL_library_init();
+#else
+    OPENSSL_atexit(nsock_ssl_atexit);
+#if OPENSSL_VERSION_NUMBER >= 0x30000000L
+    if (NULL == OSSL_PROVIDER_load(NULL, "legacy"))
+    {
+      nsock_log_info("OpenSSL legacy provider failed to load: %s",
+          ERR_error_string(ERR_get_error(), NULL));
+    }
+    if (NULL == OSSL_PROVIDER_load(NULL, "default"))
+    {
+      nsock_log_error("OpenSSL default provider failed to load: %s",
+          ERR_error_string(ERR_get_error(), NULL));
+    }
 #endif
+#endif
+  }
 
   ctx = SSL_CTX_new(method);
   if (!ctx) {
@@ -114,7 +158,7 @@ static SSL_CTX *ssl_init_common() {
  * are made from it. The connections made from this context will use only secure
  * ciphers but no server certificate verification is done. Returns the SSL_CTX
  * so you can set your own options. */
-static nsock_ssl_ctx nsock_pool_ssl_init_helper(struct npool *ms, int flags) {
+static nsock_ssl_ctx nsock_pool_ssl_init_helper(SSL_CTX *ctx, int flags) {
   char rndbuf[128];
 
   /* Get_random_bytes may or may not provide high-quality randomness. Add it to
@@ -133,17 +177,17 @@ static nsock_ssl_ctx nsock_pool_ssl_init_helper(struct npool *ms, int flags) {
   /* SSL_OP_ALL sets bug-compatibility for pretty much everything.
    * SSL_OP_NO_SSLv2 disables the less-secure SSLv2 while allowing us to use the
    * SSLv2-compatible SSLv23_client_method. */
-  SSL_CTX_set_verify(ms->sslctx, SSL_VERIFY_NONE, NULL);
-  SSL_CTX_clear_options(ms->sslctx, SSL_OP_NO_SSLv2);
-  SSL_CTX_set_options(ms->sslctx, flags & NSOCK_SSL_MAX_SPEED ?
+  SSL_CTX_set_verify(ctx, SSL_VERIFY_NONE, NULL);
+  SSL_CTX_clear_options(ctx, SSL_OP_NO_SSLv2);
+  SSL_CTX_set_options(ctx, flags & NSOCK_SSL_MAX_SPEED ?
                                   SSL_OP_ALL : SSL_OP_ALL|SSL_OP_NO_SSLv2);
 
-  if (!SSL_CTX_set_cipher_list(ms->sslctx, flags & NSOCK_SSL_MAX_SPEED ?
+  if (!SSL_CTX_set_cipher_list(ctx, flags & NSOCK_SSL_MAX_SPEED ?
                                            CIPHERS_FAST : CIPHERS_SECURE))
     fatal("Unable to set OpenSSL cipher list: %s",
           ERR_error_string(ERR_get_error(), NULL));
 
-  return ms->sslctx;
+  return ctx;
 }
 
 nsock_ssl_ctx nsock_pool_ssl_init(nsock_pool ms_pool, int flags) {
@@ -151,10 +195,10 @@ nsock_ssl_ctx nsock_pool_ssl_init(nsock_pool ms_pool, int flags) {
 
   if (ms->sslctx == NULL)
     ms->sslctx = ssl_init_common();
-  return nsock_pool_ssl_init_helper(ms, flags);
+  return nsock_pool_ssl_init_helper(ms->sslctx, flags);
 }
 
-#ifdef HAVE_DTLS_CLIENT_METHOD
+#ifndef OPENSSL_NO_DTLS
 
 /* Create an SSL_CTX and do initialisation, creating a DTLS client */
 static SSL_CTX *dtls_init_common() {
@@ -167,9 +211,9 @@ nsock_ssl_ctx nsock_pool_dtls_init(nsock_pool ms_pool, int flags) {
   SSL_CTX *dtls_ctx = NULL;
   struct npool *ms = (struct npool *)ms_pool;
 
-  if (ms->sslctx == NULL)
-    ms->sslctx = dtls_init_common();
-  dtls_ctx = (SSL_CTX *) nsock_pool_ssl_init_helper(ms, flags);
+  if (ms->dtlsctx == NULL)
+    ms->dtlsctx = dtls_init_common();
+  dtls_ctx = (SSL_CTX *) nsock_pool_ssl_init_helper(ms->dtlsctx, flags);
 
   /* Don't add padding or the ClientHello will fragment and not connect properly. */
   SSL_CTX_clear_options(dtls_ctx, SSL_OP_TLSEXT_PADDING);

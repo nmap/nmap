@@ -146,13 +146,13 @@ sub 2048g/D3C2241C 2005-04-24
 
 pub 1024D/6B9355D0 2005-04-24
     Key fingerprint = 436D 66AB 9A79 8425 FDA0 E3F8 01AF 9F03 6B93 55D0
-uid                Nmap Project Signing Key (http://insecure.org/)
+uid                Nmap Project Signing Key (https://insecure.org/)
 sub 2048g/A50A6A94 2005-04-24
 </screen></example>
 
 <para>For every Nmap package download file
 (e.g. <filename>nmap-4.76.tar.bz2</filename> and
-<filename>nmap-4.76-win32.zip</filename>), there is a corresponding
+<filename>nmap-4.76-setup.exe</filename>), there is a corresponding
 file in the <filename>sigs</filename> directory with <literal>.asc</literal> appended
 to the name (e.g. <filename>nmap-4.76.tar.bz2.asc</filename>).
 This is the detached signature file.</para>
@@ -481,7 +481,7 @@ If you make code changes to fix the problem, please send a patch
 <varlistentry><term>Ask Google and other Internet resources</term>
 <listitem><para>Try searching for the exact error message on Google or other search engines.  You might also want to browse recent activity on the Nmap development
 (<citetitle>nmap-dev</citetitle>)<indexterm><primary><citetitle>nmap-dev</citetitle> mailing list</primary></indexterm>
-list&mdash;archives and a search interface are available at <ulink url="http://seclists.org" />.</para></listitem></varlistentry>
+list&mdash;archives and a search interface are available at <ulink url="https://seclists.org" />.</para></listitem></varlistentry>
 
 <varlistentry><term>Ask <citetitle>nmap-dev</citetitle></term>
 <listitem><para>If none of your research leads to a solution, try
@@ -724,13 +724,13 @@ support was dropped when Microsoft removed raw TCP/IP socket support
 in Windows XP SP2.  Now Nmap must send lower-level ethernet frames
 instead.</para></listitem>
 
-<listitem><para>When using Nmap with WinPcap instead of Npcap, you cannot
+<listitem><para>When using Nmap without Npcap, you cannot
 generally scan your own machine from itself (using a
 loopback<indexterm><primary>loopback
 interface</primary></indexterm> IP such as 127.0.0.1 or any of its
 registered IP addresses).  This is a Windows limitation that we
 have worked around in Npcap, which is included in the Windows self-installer.
-Users stuck with WinPcap can use a TCP
+Users stuck without a Npcap installation can use a TCP
 connect scan without pinging (<option>-sT -Pn</option>) as that uses
 the high level socket API rather than sending raw
 packets.</para></listitem>
@@ -748,7 +748,7 @@ Connect scan performance can be
 improved substantially by applying the Registry changes in the
 <filename>nmap_performance.reg</filename> file included with Nmap.  By default these changes are applied for you by the Nmap executable installer.  This registry file
 is in the <filename>nmap-<replaceable>version</replaceable></filename>
-directory of the Windows binary zip file, and
+directory of the Windows binary zip file (for <ulink url="https://nmap.org/oem/">Nmap OEM</ulink> customers), and
 <filename>nmap-<replaceable>version</replaceable>/mswin32</filename>
 in the source tarball (where <replaceable>version</replaceable> is the
 version number of the specific release).  These changes increase
@@ -788,7 +788,7 @@ specific release).  Most Nmap users choose this option since it is so
 easy.  Another advantage of the self-installer is that it provides the option to install the Zenmap GUI and other tools.  Simply run the installer file and let it walk you through
 panels for choosing an install path and installing Npcap.  The
 installer was created with the open-source <ulink
-url="http://nsis.sourceforge.net/Main_Page">Nullsoft Scriptable
+url="http://nsis.sourceforge.io/Main_Page">Nullsoft Scriptable
 Install System</ulink>.  After it completes, read <xref
 linkend="inst-win-exec"/> for instructions on executing Nmap on the
 command-line or through Zenmap.</para>
@@ -798,49 +798,40 @@ command-line or through Zenmap.</para>
 <sect2 id="inst-win-zip"><title>Command-line Zip Binaries</title>
 <indexterm><primary>Windows</primary><secondary>zip binaries</secondary></indexterm>
 
-<note><para>Most users prefer installing Nmap with the self-installer discussed previously.</para></note>
+<note><para>The Zip archive is available to <ulink url="https://nmap.org/oem/">Nmap OEM</ulink> customers only. Most users prefer installing Nmap with the self-installer discussed previously.</para></note>
 
-<para>Every stable Nmap release comes with Windows
+<para>Every stable Nmap OEM release is also available as Windows
 command-line binaries and associated files in a Zip archive.  No
 graphical interface is included, so you need to run
-<literal>nmap.exe</literal> from a DOS/command window.  Or you can
-download and install a superior command shell such as those included
-with the free
-Cygwin<indexterm><primary>Cygwin</primary></indexterm>
-system available from <ulink url="http://www.cygwin.com" />.  Here are the step-by-step instructions for installing and executing the Nmap .zip binaries.</para>
+<literal>nmap.exe</literal> from a DOS/command window.
+Here are the step-by-step instructions for installing and executing the Nmap .zip binaries.</para>
 
 <sect3 id="inst-win-zip-install"><title>Installing the Nmap zip binaries</title>
 <orderedlist>
-<listitem><para>Download the .zip binaries from <ulink url="https://nmap.org/download.html" />.</para></listitem>
+<listitem><para>Download the .zip binaries from the link provided in your Nmap OEM order.</para></listitem>
 
-<listitem><para>Uncompress the zip file into the directory you want
+<listitem><para>Extract the zip file into the directory you want
 Nmap to reside in.  An example would be <filename>C:\Program
 Files</filename>.  A directory called
 <filename>nmap-<replaceable>version</replaceable></filename> should be created, which includes
-the Nmap executable and data files.  Microsoft Windows XP and later
-includes zip extraction&mdash;just right-click on the file in
-<application>Explorer</application>.  If you do not have a Zip
-decompression program, there is one (called unzip) in Cygwin described
-above, or you can download the open-source and free <ulink
-url="http://www.7-zip.org">7-Zip utility</ulink>.  Commercial
-alternatives are <ulink url="http://www.winzip.com">WinZip</ulink> and
-<ulink url="http://www.pkware.com">PKZIP</ulink>.</para></listitem>
+the Nmap executable and data files.
+</para></listitem>
 
 <listitem><para>For improved performance, apply the Nmap Registry
 changes discussed previously.</para></listitem>
 
 <listitem><para>Nmap requires the free Npcap packet capture library.
 We include a recent Npcap installer which is available in the zip file
-as <filename>npcap-<replaceable>version</replaceable>.exe</filename>,
+as <filename>npcap-<replaceable>version</replaceable>-oem.exe</filename>,
 where <replaceable>version</replaceable> is the Npcap version rather
 than the Nmap version.  Alternatively, you can obtain and install
-the latest version from <ulink url="https://npcap.org" />.
+the latest version from <ulink url="https://npcap.com" />.
 </para></listitem>
 
 <listitem><para>Due to the way Nmap is compiled, it requires the
-<ulink role="hidepdf" url="http://www.microsoft.com/download/details.aspx?id=40784">Microsoft Visual C++ 2013 Redistributable Package</ulink> of runtime
+<ulink role="hidepdf" url="https://aka.ms/vs/17/release/vc_redist.x86.exe">Microsoft Visual C++ Redistributable Package</ulink> of runtime
 components. Many systems already have this installed from other
-packages, but you should run <filename>vcredist_x86.exe</filename>
+packages, but you should run <filename>vc_redist.x86.exe</filename>
 from the zip file just in case you need it.
 Pass the <option>/q</option> option to run these installers in quiet (non interactive) mode.</para></listitem>
 
@@ -857,10 +848,9 @@ given in <xref linkend="inst-win-exec"/>.</para></listitem>
 
 <para>Most Windows users prefer to use the Nmap binary self-installer,
 but compilation from source code is an option, particularly if you plan to help with Nmap development.  Compilation requires
-Microsoft Visual C++ 2013, which is part of their commercial Visual Studio
-suite.  Any of the Visual Studio 2013 editions should work, including the free
-<ulink url="https://www.microsoft.com/en-us/download/details.aspx?id=48131">
-Visual C++ 2013 Express</ulink>.</para>
+Microsoft Visual C++ 2019, which is part of their commercial <ulink url="https://visualstudio.microsoft.com/vs/">Visual Studio</ulink>
+suite. Any of the Visual Studio 2019 editions should work, including the free
+Visual Studio 2019 Community.</para>
 
 <para>
 Some of Nmap's dependencies on Windows are inconvenient to build. For
@@ -893,7 +883,7 @@ point to the alternate directory.
 <listitem><para>Uncompress the source code file you just downloaded. The
 source code directory and the <filename>nmap-mswin32-aux</filename> must
 be in the same parent directory.
-Recent releases of the free <ulink url="http://www.cygwin.com/">Cygwin distribution</ulink><indexterm><primary>Cygwin</primary></indexterm> can handle both the <filename>.tar.bz2</filename> and <literal>.tgz</literal> formats.  Use the command <command>tar xvjf nmap-version.tar.bz2</command> or <command>tar xvzf nmap-version.tgz</command>, respectively.  Alternatively, the common <application>WinZip</application> application can decompress these files.</para></listitem>
+Recent releases of the free <ulink url="https://www.cygwin.com/">Cygwin distribution</ulink><indexterm><primary>Cygwin</primary></indexterm> can handle both the <filename>.tar.bz2</filename> and <literal>.tgz</literal> formats.  Use the command <command>tar xvjf nmap-version.tar.bz2</command> or <command>tar xvzf nmap-version.tgz</command>, respectively.  Alternatively, the common <application>WinZip</application> application can decompress these files.</para></listitem>
 
 <listitem><para>Open Visual Studio and the Nmap solution file (<filename>nmap-<replaceable>version</replaceable>/mswin32/nmap.sln</filename>).</para></listitem>
 
@@ -907,11 +897,14 @@ failures.</para></listitem>
 
 <listitem><para>The executable and data files can be found in <filename>nmap-<replaceable>version</replaceable>/mswin32/Release/</filename>.  You can copy them to a preferred directory as long as they are all kept together.</para></listitem>
 
-<listitem><para>Ensure that you have Npcap installed.  You can obtain it by
-installing our binary self-installer or executing
-<filename>npcap-<replaceable>version</replaceable>.exe</filename> from
-our zip package.  Alternatively, you can obtain the official installer at
-<ulink url="https://npcap.org"/>.</para></listitem>
+<listitem><para>Ensure that you have Npcap installed.
+    The official installer for the latest version is available at <ulink
+      url="https://npcap.com/#download"/>. Users who install via
+    our binary self-installer will have Npcap installed automatically.
+    <ulink url="https://nmap.org/oem/">Nmap OEM</ulink> customers can also run
+    <filename>npcap-<replaceable>version</replaceable>.exe</filename> from
+    our zip package.
+</para></listitem>
 
 <listitem><para>Instructions for executing your compiled Nmap are
 given in the next section.</para></listitem>
@@ -977,18 +970,12 @@ the program menu tree, the simplest approach is to choose <guimenu>Start</guimen
 </figure>
 
 <para>If you execute Nmap frequently, you can add the Nmap directory
-(<filename>c:\Program Files (x86)\Nmap</filename> by default on
-Windows 7) to your command execution path.  The exact place
-to set this varies by Windows platform.  On my Windows XP box, which
-installs Nmap in <filename>c:\Program Files\Nmap</filename>, I do the
-following:</para>
+(<filename>c:\Program Files (x86)\Nmap</filename> by default) to your command execution path:
+</para>
 
 <orderedlist>
-<listitem><para>From the desktop, right click on <literal>My
-Computer</literal> and then click <guimenuitem>properties</guimenuitem>.</para></listitem>
-
-<listitem><para>In the System Properties window, click the
-<guimenuitem>Advanced</guimenuitem> tab.</para></listitem>
+	<listitem><para>Open the System Properties window to the Advanced tab by running <literal>SystemPropertiesAdvanced.exe</literal>.
+</para></listitem>
 
 <listitem><para>Click the <guimenuitem>Environment
 Variables</guimenuitem> button.</para></listitem>
@@ -1000,9 +987,9 @@ Choose <literal>Path</literal> from the
 <literal>System variables</literal> section, then hit
 edit.</para></listitem>
 
-<listitem><para>Add a semi-colon and then your Nmap directory (e.g. <filename>c:\Program Files\Nmap</filename>) to the end of the value.</para></listitem>
+<listitem><para>Add a semi-colon and then your Nmap directory (e.g. <filename>c:\Program Files (x86)\Nmap</filename>) to the end of the value.</para></listitem>
 
-<listitem><para>Open a new DOS window and you should be able to execute a
+<listitem><para>Open a new command prompt and you should be able to execute a
 command such as <command>nmap scanme.nmap.org</command> from any directory.</para></listitem>
 </orderedlist>
 

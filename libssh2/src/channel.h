@@ -138,4 +138,3 @@ int _libssh2_channel_close(LIBSSH2_CHANNEL * channel);
 int _libssh2_channel_forward_cancel(LIBSSH2_LISTENER *listener);
 
 #endif /* __LIBSSH2_CHANNEL_H */
-

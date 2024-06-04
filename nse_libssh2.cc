@@ -484,6 +484,28 @@ static int l_userauth_list (lua_State *L) {
     return userauth_list(L, 0, 0);
 }
 
+static int userauth_banner (lua_State *L, int status, lua_KContext ctx) {
+    char *auth_banner = NULL;
+    struct ssh_userdata *state = NULL;
+
+    state = (struct ssh_userdata *) nseU_checkudata(L, 1, SSH2_UDATA, "ssh2");
+    assert(state->session != NULL);
+
+    if (LIBSSH2_ERROR_NONE == libssh2_userauth_banner(state->session, &auth_banner))
+    {
+      lua_pushstring(L, auth_banner);
+      return 1;
+    }
+    return 0;
+}
+
+/*
+* Returns pre-auth banner
+*/
+static int l_userauth_banner (lua_State *L) {
+    return userauth_banner(L, 0, 0);
+}
+
 static int userauth_publickey (lua_State *L, int status, lua_KContext ctx) {
     int rc;
     const char *username, *private_key_file, *passphrase, *public_key_file;
@@ -878,6 +900,7 @@ static const struct luaL_Reg libssh2[] = {
     { "session_open", l_session_open },
     { "hostkey_hash", l_hostkey_hash },
     { "set_timeout", l_set_timeout },
+    { "userauth_banner", l_userauth_banner },
     { "userauth_list", l_userauth_list },
     { "userauth_publickey", l_userauth_publickey },
     { "read_publickey", l_read_publickey },

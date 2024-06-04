@@ -4,60 +4,59 @@
  * on user-provided command-line settings.                                 *
  *                                                                         *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
- *                                                                         *
- * The Nmap Security Scanner is (C) 1996-2020 Insecure.Com LLC ("The Nmap  *
- * Project"). Nmap is also a registered trademark of the Nmap Project.     *
- *                                                                         *
- * This program is distributed under the terms of the Nmap Public Source   *
- * License (NPSL). The exact license text applying to a particular Nmap    *
- * release or source code control revision is contained in the LICENSE     *
- * file distributed with that version of Nmap or source code control       *
- * revision. More Nmap copyright/legal information is available from       *
- * https://nmap.org/book/man-legal.html, and further information on the    *
- * NPSL license itself can be found at https://nmap.org/npsl. This header  *
- * summarizes some key points from the Nmap license, but is no substitute  *
- * for the actual license text.                                            *
- *                                                                         *
- * Nmap is generally free for end users to download and use themselves,    *
- * including commercial use. It is available from https://nmap.org.        *
- *                                                                         *
- * The Nmap license generally prohibits companies from using and           *
- * redistributing Nmap in commercial products, but we sell a special Nmap  *
- * OEM Edition with a more permissive license and special features for     *
- * this purpose. See https://nmap.org/oem                                  *
- *                                                                         *
- * If you have received a written Nmap license agreement or contract       *
- * stating terms other than these (such as an Nmap OEM license), you may   *
- * choose to use and redistribute Nmap under those terms instead.          *
- *                                                                         *
- * The official Nmap Windows builds include the Npcap software             *
- * (https://npcap.org) for packet capture and transmission. It is under    *
- * separate license terms which forbid redistribution without special      *
- * permission. So the official Nmap Windows builds may not be              *
- * redistributed without special permission (such as an Nmap OEM           *
- * license).                                                               *
- *                                                                         *
- * Source is provided to this software because we believe users have a     *
- * right to know exactly what a program is going to do before they run it. *
- * This also allows you to audit the software for security holes.          *
- *                                                                         *
- * Source code also allows you to port Nmap to new platforms, fix bugs,    *
- * and add new features.  You are highly encouraged to submit your         *
- * changes as a Github PR or by email to the dev@nmap.org mailing list     *
- * for possible incorporation into the main distribution. Unless you       *
- * specify otherwise, it is understood that you are offering us very       *
- * broad rights to use your submissions as described in the Nmap Public    *
- * Source License Contributor Agreement. This is important because we      *
- * fund the project by selling licenses with various terms, and also       *
- * because the inability to relicense code has caused devastating          *
- * problems for other Free Software projects (such as KDE and NASM).       *
- *                                                                         *
- * The free version of Nmap is distributed in the hope that it will be     *
- * useful, but WITHOUT ANY WARRANTY; without even the implied warranty of  *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. Warranties,        *
- * indemnification and commercial support are all available through the    *
- * Npcap OEM program--see https://nmap.org/oem.                            *
- *                                                                         *
+ *
+ * The Nmap Security Scanner is (C) 1996-2024 Nmap Software LLC ("The Nmap
+ * Project"). Nmap is also a registered trademark of the Nmap Project.
+ *
+ * This program is distributed under the terms of the Nmap Public Source
+ * License (NPSL). The exact license text applying to a particular Nmap
+ * release or source code control revision is contained in the LICENSE
+ * file distributed with that version of Nmap or source code control
+ * revision. More Nmap copyright/legal information is available from
+ * https://nmap.org/book/man-legal.html, and further information on the
+ * NPSL license itself can be found at https://nmap.org/npsl/ . This
+ * header summarizes some key points from the Nmap license, but is no
+ * substitute for the actual license text.
+ *
+ * Nmap is generally free for end users to download and use themselves,
+ * including commercial use. It is available from https://nmap.org.
+ *
+ * The Nmap license generally prohibits companies from using and
+ * redistributing Nmap in commercial products, but we sell a special Nmap
+ * OEM Edition with a more permissive license and special features for
+ * this purpose. See https://nmap.org/oem/
+ *
+ * If you have received a written Nmap license agreement or contract
+ * stating terms other than these (such as an Nmap OEM license), you may
+ * choose to use and redistribute Nmap under those terms instead.
+ *
+ * The official Nmap Windows builds include the Npcap software
+ * (https://npcap.com) for packet capture and transmission. It is under
+ * separate license terms which forbid redistribution without special
+ * permission. So the official Nmap Windows builds may not be redistributed
+ * without special permission (such as an Nmap OEM license).
+ *
+ * Source is provided to this software because we believe users have a
+ * right to know exactly what a program is going to do before they run it.
+ * This also allows you to audit the software for security holes.
+ *
+ * Source code also allows you to port Nmap to new platforms, fix bugs, and
+ * add new features. You are highly encouraged to submit your changes as a
+ * Github PR or by email to the dev@nmap.org mailing list for possible
+ * incorporation into the main distribution. Unless you specify otherwise, it
+ * is understood that you are offering us very broad rights to use your
+ * submissions as described in the Nmap Public Source License Contributor
+ * Agreement. This is important because we fund the project by selling licenses
+ * with various terms, and also because the inability to relicense code has
+ * caused devastating problems for other Free Software projects (such as KDE
+ * and NASM).
+ *
+ * The free version of Nmap is distributed in the hope that it will be
+ * useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. Warranties,
+ * indemnification and commercial support are all available through the
+ * Npcap OEM program--see https://nmap.org/oem/
+ *
  ***************************************************************************/
 
 /* $Id$ */
@@ -124,6 +123,10 @@ NmapOps::~NmapOps() {
   if (datadir) {
     free(datadir);
     datadir = NULL;
+  }
+  if (locale) {
+    free(locale);
+    locale = NULL;
   }
 
 #ifndef NOLUA
@@ -305,6 +308,7 @@ void NmapOps::Initialize() {
   numhosts_up = 0;
   numhosts_scanning = 0;
   noninteractive = false;
+  locale = NULL;
   current_scantype = STYPE_UNKNOWN;
   ipoptions = NULL;
   ipoptionslen = 0;
@@ -366,10 +370,14 @@ void NmapOps::ValidateOptions() {
 #ifdef WIN32
         if (!have_pcap)
           privreq = "Npcap, but it seems to be missing.\n\
-Npcap is available from https://npcap.org. The Npcap driver service must\n\
+Npcap is available from https://npcap.com. The Npcap driver service must\n\
 be started by an administrator before Npcap can be used. Running nmap.exe\n\
 will open a UAC dialog where you can start the service if you have\n\
 administrator privileges.";
+
+#define YOU_ARE_ROOT "Npcap is installed"
+#else
+#define YOU_ARE_ROOT "you are root"
 #endif
 
 
@@ -399,15 +407,15 @@ administrator privileges.";
   }
 
  if ((pingtype & PINGTYPE_UDP) && (!isr00t)) {
-   fatal("Sorry, UDP Ping (-PU) only works if you are root (because we need to read raw responses off the wire)");
+   fatal("Sorry, UDP Ping (-PU) only works if " YOU_ARE_ROOT " (because we need to read raw responses off the wire)");
  }
 
  if ((pingtype & PINGTYPE_SCTP_INIT) && (!isr00t)) {
-   fatal("Sorry, SCTP INIT Ping (-PY) only works if you are root (because we need to read raw responses off the wire)");
+   fatal("Sorry, SCTP INIT Ping (-PY) only works if " YOU_ARE_ROOT " (because we need to read raw responses off the wire)");
   }
 
  if ((pingtype & PINGTYPE_PROTO) && (!isr00t)) {
-   fatal("Sorry, IPProto Ping (-PO) only works if you are root (because we need to read raw responses off the wire)");
+   fatal("Sorry, IPProto Ping (-PO) only works if " YOU_ARE_ROOT " (because we need to read raw responses off the wire)");
  }
 
  if (ipprotscan && (TCPScan() || UDPScan() || SCTPScan())) {

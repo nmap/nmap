@@ -33,17 +33,17 @@ const char *str, int optimize, bpf_u_int32 netmask);
 .ft
 .fi
 .SH DESCRIPTION
-.B pcap_compile()
+.BR pcap_compile ()
 is used to compile the string
 .I str
 into a filter program.  See
-.BR pcap-filter (@MAN_MISC_INFO@)
+.BR \%pcap-filter (@MAN_MISC_INFO@)
 for the syntax of that string.
-.I program
+.I fp
 is a pointer to a
 .I bpf_program
 struct and is filled in by
-.BR pcap_compile() .
+.BR pcap_compile ().
 .I optimize
 controls whether optimization on the resulting code is performed.
 .I netmask
@@ -59,24 +59,26 @@ for IPv4 broadcast addresses will fail to compile, but all other tests in
 the filter program will be OK.
 .LP
 NOTE: in libpcap 1.8.0 and later,
-.B pcap_compile()
+.BR pcap_compile ()
 can be used in multiple threads within a single process.  However, in
 earlier versions of libpcap, it is
 .I not
 safe to use
-.B pcap_compile()
+.BR pcap_compile ()
 in multiple threads in a single process without some form of mutual
 exclusion allowing only one thread to call it at any given time.
 .SH RETURN VALUE
-.B pcap_compile()
-returns 0 on success and
+.BR pcap_compile ()
+returns
+.B 0
+on success and
 .B PCAP_ERROR
 on failure. If
 .B PCAP_ERROR
 is returned,
-.B pcap_geterr(3PCAP)
+.BR pcap_geterr (3PCAP)
 or
-.B pcap_perror(3PCAP)
+.BR pcap_perror (3PCAP)
 may be called with
 .I p
 as an argument to fetch or display the error text.
@@ -86,4 +88,6 @@ The
 .B PCAP_NETMASK_UNKNOWN
 constant became available in libpcap release 1.1.0.
 .SH SEE ALSO
-pcap(3PCAP), pcap_setfilter(3PCAP), pcap_freecode(3PCAP),
+.BR pcap (3PCAP),
+.BR pcap_setfilter (3PCAP),
+.BR pcap_freecode (3PCAP)

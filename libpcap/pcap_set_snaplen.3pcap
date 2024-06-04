@@ -31,14 +31,18 @@ int pcap_set_snaplen(pcap_t *p, int snaplen);
 .ft
 .fi
 .SH DESCRIPTION
-.B pcap_set_snaplen()
+.BR pcap_set_snaplen ()
 sets the snapshot length to be used on a capture handle when the handle
 is activated to
 .IR snaplen .
 .SH RETURN VALUE
-.B pcap_set_snaplen()
-returns 0 on success or
+.BR pcap_set_snaplen ()
+returns
+.B 0
+on success or
 .B PCAP_ERROR_ACTIVATED
 if called on a capture handle that has been activated.
 .SH SEE ALSO
-pcap(3PCAP), pcap_create(3PCAP), pcap_activate(3PCAP)
+.BR pcap (3PCAP),
+.BR pcap_create (3PCAP),
+.BR pcap_activate (3PCAP)

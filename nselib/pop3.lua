@@ -55,7 +55,7 @@ end
 
 
 ---
--- Try to login using the the <code>AUTH</code> command using SASL/Plain method.
+-- Try to login using the <code>AUTH</code> command using SASL/Plain method.
 -- @param socket Socket connected to POP3 server.
 -- @param user User string.
 -- @param pw Password string.

@@ -9139,6 +9139,27 @@ table.insert(fingerprints, {
     }
   });
 
+-- Bitwarden Vault
+table.insert(fingerprints, {
+    category = 'general',
+    probes = {
+      {
+        path = '/manifest.json',
+        method = 'GET'
+      }
+    },
+    matches = {
+      {
+        match = '([\'"])name%1%s*:%s*[\'"][Bb]itwarden',
+        output = 'Bitwarden Vault Manifest File'
+      },
+      {
+        match = '',
+        output = 'Manifest JSON File'
+      },
+    }
+  });
+
 ------------------------------------------------
 ----           UNCATEGORIZED                ----
 ------------------------------------------------
@@ -9533,6 +9554,14 @@ table.insert(fingerprints, {
       },
       {
         path = '/apache/',
+        method = 'GET'
+      },
+      {
+        path = '/api/',
+        method = 'GET'
+      },
+      {
+        path = '/api-docs/',
         method = 'GET'
       },
       {
@@ -10409,6 +10438,10 @@ table.insert(fingerprints, {
       },
       {
         path = '/enviamail/',
+        method = 'GET'
+      },
+      {
+        path = '/error.html',
         method = 'GET'
       },
       {

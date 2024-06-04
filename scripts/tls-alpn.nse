@@ -40,7 +40,7 @@ categories = {"discovery", "safe", "default"}
 dependencies = {"https-redirect"}
 
 portrule = function(host, port)
-  return shortport.ssl(host, port) or sslcert.getPrepareTLSWithoutReconnect(port)
+  return port.protocol == "tcp" and (shortport.ssl(host, port) or sslcert.getPrepareTLSWithoutReconnect(port))
 end
 
 
@@ -56,10 +56,13 @@ local client_hello = function(host, port, protos)
   local sock, status, response, err, cli_h
 
   cli_h = tls.client_hello({
-    ["extensions"] = {
-      [ALPN_NAME] = tls.EXTENSION_HELPERS[ALPN_NAME](protos)
-    },
-  })
+      -- TLSv1.3 does not send this extension plaintext.
+      -- TODO: implement key exchange crypto to retrieve encrypted extensions
+      protocol = "TLSv1.2",
+      ["extensions"] = {
+        [ALPN_NAME] = tls.EXTENSION_HELPERS[ALPN_NAME](protos)
+      },
+    })
 
   -- Connect to the target server
   local status, err
@@ -160,7 +163,7 @@ action = function(host, port)
   local alpn_protos = {
     -- IANA-registered names
     -- https://www.iana.org/assignments/tls-extensiontype-values/alpn-protocol-ids.csv
-    -- Last-Modified: Thu, 31 Oct 2019 22:30:11 GMT
+    -- Last-Modified: Sat, 16 Mar 2024 02:22:45 GMT
     "http/0.9",
     "http/1.0",
     "http/1.1",
@@ -182,6 +185,18 @@ action = function(host, port)
     "xmpp-server",
     "acme-tls/1",
     "mqtt",
+    "dot",
+    "ntske/1",
+    "sunrpc",
+    "h3",
+    "smb",
+    "irc",
+    "nntp",
+    "nnsp",
+    "doq",
+    "sip/2",
+    "tds/8.0",
+    "dicom",
     -- Other sources
     "grpc-exp", -- gRPC, see grpc.io
   }

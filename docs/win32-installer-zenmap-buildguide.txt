@@ -12,7 +12,7 @@ Python-upgrade.txt there for more information.
 
 II. OTHER REQUIREMENTS
 
-You'll need Microsoft Visual C++ 2010 for compilation.
+You'll need Microsoft Visual Studio for compilation.
 Directions for obtaining that are at:
 https://nmap.org/install/inst-windows.html#inst-win-source.
 
@@ -21,9 +21,8 @@ You'll also need Cygwin installed in order to build the Nmap installer
 http://www.cygwin.com/.
 
 And last, you'll need the Nullsoft Scriptable Install System installed.
-You can download if from http://nsis.sourceforge.net/Download  (Version
-2.46 tested). Install in "C:\Program Files\NSIS" even if it offers
-"C:\Program Files (x86)\NSIS".
+You can download if from http://nsis.sourceforge.io/Download  (Version
+3.08 tested).
 
 
 III. BUILDING

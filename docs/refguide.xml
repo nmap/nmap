@@ -327,6 +327,120 @@ you would expect.</para>
           <literal>#</literal> and extend to the end of the line.</para>
         </listitem>
       </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>-n</option> (No reverse DNS resolution)
+          <indexterm><primary><option>-n</option></primary></indexterm>
+        </term>
+        <listitem>
+
+          <para><indexterm><primary>reverse DNS</primary><secondary>disabling with <option>-n</option></secondary></indexterm>
+          Tells Nmap to <emphasis>never</emphasis> do reverse DNS
+          resolution on the active IP addresses it finds. Since
+          DNS can be slow even with Nmap's built-in parallel stub
+          resolver, this option can slash scanning times.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>-R</option> (Reverse DNS resolution for all targets)
+          <indexterm><primary><option>-R</option></primary></indexterm>
+        </term>
+        <listitem>
+          <para>Tells Nmap to
+          <emphasis>always</emphasis> do reverse DNS
+          resolution on the target IP addresses. Normally reverse DNS is
+          only performed against responsive (online) hosts.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>--resolve-all</option> (Scan each resolved address)
+          <indexterm><primary><option>--resolve-all</option></primary></indexterm>
+        </term>
+        <listitem>
+          <para>If a hostname target resolves to more than one address, scan
+            all of them. The default behavior is to only scan the first
+            resolved address. Regardless, only addresses in the appropriate
+            address family will be scanned: IPv4 by default, IPv6 with
+            <option>-6</option>.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>--unique</option> (Scan each address only once)
+          <indexterm><primary><option>--unique</option></primary></indexterm>
+        </term>
+        <listitem>
+          <para>Scan each IP address only once. The default behavior is to scan
+            each address as many times as it is specified in the target list,
+            such as when network ranges overlap or different hostnames resolve
+            to the same address.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>--system-dns</option> (Use system DNS resolver)
+          <indexterm significance="preferred"><primary><option>--system-dns</option></primary></indexterm>
+        </term>
+        <listitem>
+
+          <para>By default, Nmap resolves names to IP addresses (and IP addresses to names) by sending
+          queries directly to the name servers configured on your host
+          and then listening for responses. Many requests (often
+          dozens) are performed in parallel to improve performance.
+          Specify this option to use your system resolver instead (one
+          IP at a time via the <function>getnameinfo</function> call).  This is slower
+          and rarely useful unless you find a bug in the Nmap parallel
+          resolver (please let us know if you do).
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>--dns-servers <replaceable>server1</replaceable><optional>,<replaceable>server2</replaceable><optional>,...</optional></optional>
+          </option> (Servers to use for DNS queries)
+          <indexterm significance="preferred"><primary><option>--dns-servers</option></primary></indexterm>
+        </term>
+        <listitem>
+
+          <para>By default, Nmap determines your DNS servers
+          from your resolv.conf file (Unix) or
+          the Registry (Win32).  Alternatively, you may use this
+          option to specify alternate servers.  This option is not
+          honored if you are using <option>--system-dns</option>.
+          Using multiple DNS servers is often faster,
+          especially if you choose authoritative servers for your
+          target IP space.  This option can also improve stealth, as
+          your requests can be bounced off just about any recursive
+          DNS server on the Internet.</para>
+
+          <para>This option also comes in handy when scanning private
+          networks.  Sometimes only a few name servers provide
+          proper DNS information, and you may not even know where
+          they are.  You can scan the network for port 53 (perhaps
+          with version detection), then try Nmap list scans
+          (<option>-sL</option>) specifying each name server one at a
+          time with <option>--dns-servers</option> until you find one
+          which works.</para>
+
+          <para>This option might not be honored if the DNS response
+          exceeds the size of a UDP packet. In such a situation our DNS
+          resolver will make the best effort to extract a response from the
+          truncated packet, and if not successful it will fall back to
+          using the system resolver.
+          </para>
+
+        </listitem>
+      </varlistentry>
     </variablelist>
   </refsect1>
 
@@ -661,12 +775,14 @@ you would expect.</para>
           packet will be empty, though some use a protocol-specific
           payload that is more likely to elicit a
           response.
-<man>The payload database is described at <ulink url="https://nmap.org/book/nmap-payloads.html" />.</man>
-<notman>See <xref linkend="nmap-payloads"/> for a description of the database of payloads.</notman>
-<indexterm><primary>protocol-specific
-payloads</primary><secondary>UDP</secondary></indexterm>Packet
-content can also be affected with the <option>--data</option>,
-<option>--data-string</option>, and <option>--data-length</option> options.</para>
+          <indexterm><primary>protocol-specific payloads</primary><secondary>UDP</secondary></indexterm>
+          The payloads are the same probes used in service and version
+          detection and are defined in the
+          <filename>nmap-service-probes</filename>
+          <indexterm><primary><filename>nmap-service-probes</filename></primary></indexterm>
+          file.  Packet content can also be affected with the
+          <option>--data</option>, <option>--data-string</option>, and
+          <option>--data-length</option> options.</para>
 
           <para>The port list
           takes the same format as with the previously discussed
@@ -908,107 +1024,6 @@ Traceroute works by sending packets with a low TTL (time-to-live) in an attempt 
 </para>
 </listitem>
 </varlistentry>
-
-      <varlistentry>
-        <term>
-          <option>-n</option> (No DNS resolution)
-          <indexterm><primary><option>-n</option></primary></indexterm>
-        </term>
-        <listitem>
-
-          <para><indexterm><primary>reverse DNS</primary><secondary>disabling with <option>-n</option></secondary></indexterm>
-          Tells Nmap to <emphasis>never</emphasis> do reverse DNS
-          resolution on the active IP addresses it finds. Since
-          DNS can be slow even with Nmap's built-in parallel stub
-          resolver, this option can slash scanning times.</para>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry>
-        <term>
-          <option>-R</option> (DNS resolution for all targets)
-          <indexterm><primary><option>-R</option></primary></indexterm>
-        </term>
-        <listitem>
-          <para>Tells Nmap to 
-          <emphasis>always</emphasis> do reverse DNS
-          resolution on the target IP addresses. Normally reverse DNS is
-          only performed against responsive (online) hosts.</para>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry>
-        <term>
-          <option>--resolve-all</option> (Scan each resolved address)
-          <indexterm><primary><option>--resolve-all</option></primary></indexterm>
-        </term>
-        <listitem>
-          <para>If a hostname target resolves to more than one address, scan
-            all of them. The default behavior is to only scan the first
-            resolved address. Regardless, only addresses in the appropriate
-            address family will be scanned: IPv4 by default, IPv6 with
-            <option>-6</option>.
-          </para>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry>
-        <term>
-          <option>--system-dns</option> (Use system DNS resolver)
-          <indexterm significance="preferred"><primary><option>--system-dns</option></primary></indexterm>
-        </term>
-        <listitem>
-
-          <para>By default, Nmap reverse-resolves IP addresses by sending
-          queries directly to the name servers configured on your host
-          and then listening for responses.  Many requests (often
-          dozens) are performed in parallel to improve performance.
-          Specify this option to use your system resolver instead (one
-          IP at a time via the <function>getnameinfo</function> call).  This is slower
-          and rarely useful unless you find a bug in the Nmap parallel
-          resolver (please let us know if you do).  The system
-          resolver is always used for forward lookups (getting an IP address from a hostname).
-          </para>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry>
-        <term>
-          <option>--dns-servers <replaceable>server1</replaceable><optional>,<replaceable>server2</replaceable><optional>,...</optional></optional>
-          </option> (Servers to use for reverse DNS queries)
-          <indexterm significance="preferred"><primary><option>--dns-servers</option></primary></indexterm>
-        </term>
-        <listitem>
-
-          <para>By default, Nmap determines your DNS servers
-          (for rDNS resolution) from your resolv.conf file (Unix) or
-          the Registry (Win32).  Alternatively, you may use this
-          option to specify alternate servers.  This option is not
-          honored if you are using <option>--system-dns</option>.
-          Using multiple DNS servers is often faster,
-          especially if you choose authoritative servers for your
-          target IP space.  This option can also improve stealth, as
-          your requests can be bounced off just about any recursive
-          DNS server on the Internet.</para>
-
-          <para>This option also comes in handy when scanning private
-          networks.  Sometimes only a few name servers provide
-          proper rDNS information, and you may not even know where
-          they are.  You can scan the network for port 53 (perhaps
-          with version detection), then try Nmap list scans
-          (<option>-sL</option>) specifying each name server one at a
-          time with <option>--dns-servers</option> until you find one
-          which works.</para>
-
-          <para>This option might not be honored if the DNS response
-          exceeds the size of a UDP packet. In such a situation our DNS
-          resolver will make the best effort to extract a response from the
-          truncated packet, and if not successful it will fall back to
-          using the system resolver. Also, responses that contain CNAME aliases
-          will fall back to the system resolver.</para>
-
-        </listitem>
-      </varlistentry>
     </variablelist>
     <indexterm class="endofrange" startref="man-host-discovery-indexterm"/>
   </refsect1>
@@ -2241,7 +2256,7 @@ way.</para>
 
     <para>The Nmap Scripting Engine (NSE) is one of Nmap's most
     powerful and flexible features.  It allows users to write (and
-    share) simple scripts (using the <ulink url="http://lua.org">Lua programming language</ulink>
+    share) simple scripts (using the <ulink url="https://lua.org">Lua programming language</ulink>
     <indexterm><primary>Lua programming language</primary></indexterm>
     ) to automate a wide variety of
     networking tasks.  Those scripts are executed in parallel with the
@@ -2394,7 +2409,7 @@ which lists the category or categories in which each script belongs.</para>
       <literal>and</literal>, <literal>or</literal>, and
       <literal>not</literal> operators to build Boolean expressions. The
       operators have the same
-      <ulink role="hidepdf" url="http://www.lua.org/manual/5.1/manual.html#2.5.3">precedence</ulink>
+      <ulink role="hidepdf" url="http://www.lua.org/manual/5.4/manual.html#3.4.8">precedence</ulink>
       as in Lua: <literal>not</literal> is the highest, followed by
       <literal>and</literal> and then <literal>or</literal>. You can
       alter precedence by using parentheses. Because expressions contain
@@ -2782,6 +2797,10 @@ scanning other hosts at the same time during that half an hour, so it isn't a co
 No port table, OS detection, or version detection results are printed
 for that host.</para>
 
+<para>The special value <literal>0</literal> can be used to mean <quote>no
+    timeout</quote>, which can be used to override the <option>T5</option>
+  timing template, which sets the host timeout to 15 minutes.</para>
+
         </listitem>
       </varlistentry>
 
@@ -2803,6 +2822,10 @@ for that host.</para>
 	  service scripts, a script instance only scans a single
 	  target host or port and the timeout period will be reset for
 	  the next instance.</para>
+
+<para>The special value <literal>0</literal> can be used to mean <quote>no
+    timeout</quote>, which can be used to override the <option>T5</option>
+  timing template, which sets the script timeout to 10 minutes.</para>
 
         </listitem>
       </varlistentry>
@@ -3070,13 +3093,25 @@ between sending each probe.  <option>T1</option> and
 seconds, respectively, between probes.  <option>T3</option><indexterm><primary><literal>normal</literal> (<option>-T3</option>) timing template</primary></indexterm> is Nmap's
 default behavior, which includes parallelization.
 <option>-T4</option>
-does the equivalent of <option>--max-rtt-timeout 1250ms --min-rtt-timeout 100ms
---initial-rtt-timeout 500ms --max-retries 6</option> and sets the maximum TCP scan delay
-to 10 milliseconds.  <option>T5</option>
+does the equivalent of <option>
+  --max-rtt-timeout 1250ms
+  --min-rtt-timeout 100ms
+  --initial-rtt-timeout 500ms
+  --max-retries 6
+</option> and sets the maximum TCP and SCTP scan delay
+to 10ms.  <option>T5</option>
 does the equivalent of
-<option>--max-rtt-timeout 300ms --min-rtt-timeout 50ms
---initial-rtt-timeout 250ms --max-retries 2 --host-timeout 15m --script-timeout 10m</option> as well as
-setting the maximum TCP scan delay to 5&nbsp;ms.</para>
+<option>
+  --max-rtt-timeout 300ms
+  --min-rtt-timeout 50ms
+  --initial-rtt-timeout 250ms
+  --max-retries 2
+  --host-timeout 15m
+  --script-timeout 10m
+</option> as well as
+setting the maximum TCP and SCTP scan delay to 5ms.
+Maximum UDP scan delay is not set by <option>T4</option> or <option>T5</option>, but it can be set with the <option>--max-scan-delay</option> option.
+</para>
 
         </listitem>
       </varlistentry>
@@ -3435,7 +3470,7 @@ work properly.</para>
 
       <varlistentry>
       <term>
-      <option>--ip-options <replaceable>S|R [route]|L [route]|T|U ... </replaceable>;</option>
+      <option>--ip-options <replaceable>R|S [route]|L [route]|T|U ... </replaceable>;</option>
       <option>--ip-options <replaceable>hex string</replaceable></option>  (Send packets with specified ip options)
       <indexterm><primary><option>--ip-options</option></primary></indexterm>
       <indexterm><primary>IP options</primary></indexterm>
@@ -3479,7 +3514,7 @@ work properly.</para>
       <para>If you wish to see the options in packets sent and
       received, specify <option>--packet-trace</option>.  For more
       information and examples of using IP options with Nmap, see
-      <ulink url="http://seclists.org/nmap-dev/2006/q3/52"/>.
+      <ulink url="https://seclists.org/nmap-dev/2006/q3/52"/>.
       </para>
 
       </listitem>

@@ -18,7 +18,7 @@
 .\" WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF
 .\" MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 .\"
-.TH PCAP_LIST_TSTAMP_TYPES 3PCAP "22 August 2018"
+.TH PCAP_LIST_TSTAMP_TYPES 3PCAP "8 September 2019"
 .SH NAME
 pcap_list_tstamp_types, pcap_free_tstamp_types \- get a list of time
 stamp types supported by a capture device, and free that list
@@ -34,23 +34,23 @@ void pcap_free_tstamp_types(int *tstamp_types);
 .ft
 .fi
 .SH DESCRIPTION
-.B pcap_list_tstamp_types()
+.BR pcap_list_tstamp_types ()
 is used to get a list of the supported time stamp types of the interface
 associated with the pcap descriptor.
-.B pcap_list_tstamp_types()
+.BR pcap_list_tstamp_types ()
 allocates an array to hold the list and sets
 .I *tstamp_typesp
 to point to the array.
 See
-.BR pcap-tstamp (@MAN_MISC_INFO@)
+.BR \%pcap-tstamp (@MAN_MISC_INFO@)
 for a list of all the time stamp types.
 .PP
 The caller is responsible for freeing the array with
-.BR pcap_free_tstamp_types() ,
+.BR pcap_free_tstamp_types (),
 which frees the list pointed to by
 .IR tstamp_types .
 .SH RETURN VALUE
-.B pcap_list_tstamp_types()
+.BR pcap_list_tstamp_types ()
 returns the number of time stamp types in the array on success and
 .B PCAP_ERROR
 on failure.
@@ -65,9 +65,9 @@ one or more types).
 If
 .B PCAP_ERROR
 is returned,
-.B pcap_geterr(3PCAP)
+.BR pcap_geterr (3PCAP)
 or
-.B pcap_perror(3PCAP)
+.BR pcap_perror (3PCAP)
 may be called with
 .I p
 as an argument to fetch or display the error text.
@@ -77,5 +77,6 @@ These functions became available in libpcap release 1.2.1.  In previous
 releases, the time stamp type cannot be set; only the default time stamp
 type offered by a capture source is available.
 .SH SEE ALSO
-pcap(3PCAP), pcap_tstamp_type_val_to_name(3PCAP),
-pcap-tstamp(@MAN_MISC_INFO@)
+.BR pcap (3PCAP),
+.BR pcap_tstamp_type_val_to_name (3PCAP),
+.BR \%pcap-tstamp (@MAN_MISC_INFO@)

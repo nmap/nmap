@@ -942,7 +942,9 @@ end
 
 local function handshake_cert (socket)
     -- logic mostly lifted from ssl-enum-ciphers
-    local hello = tls.client_hello()
+    -- TODO: implement TLSv1.3 handshake encryption so we can decrypt the
+    -- Certificate message. Until then, we don't attempt TLSv1.3
+    local hello = tls.client_hello({protocol="TLSv1.2"})
     local status, err = socket:send(hello)
     if not status then
       return false, "Failed to send to server"
@@ -1002,18 +1004,26 @@ function getCertificate(host, port)
   local mutex = nmap.mutex("sslcert-cache-mutex")
   mutex "lock"
 
-  if ( host.registry["ssl-cert"] and
-    host.registry["ssl-cert"][port.number] ) then
+  local cache = host.registry["ssl-cert"]
+  if not cache then
+    cache = {}
+    host.registry["ssl-cert"] = cache
+  end
+  local key = ("%d%s"):format(port.number, port.protocol)
+  local cert = cache[key]
+
+  if cert then
     stdnse.debug2("sslcert: Returning cached SSL certificate")
     mutex "done"
-    return true, host.registry["ssl-cert"][port.number]
+    return true, cert
   end
 
-  local cert
-
-  local wrapper = SPECIALIZED_WRAPPED_TLS_WITHOUT_RECONNECT[port.service] or SPECIALIZED_WRAPPED_TLS_WITHOUT_RECONNECT[port.number]
-  local special_table = have_openssl and SPECIALIZED_PREPARE_TLS or SPECIALIZED_PREPARE_TLS_WITHOUT_RECONNECT
-  local specialized = special_table[port.service] or special_table[port.number]
+  local wrapper, specialized
+  if (port.protocol == "tcp") then
+    wrapper = SPECIALIZED_WRAPPED_TLS_WITHOUT_RECONNECT[port.service] or SPECIALIZED_WRAPPED_TLS_WITHOUT_RECONNECT[port.number]
+    local special_table = have_openssl and SPECIALIZED_PREPARE_TLS or SPECIALIZED_PREPARE_TLS_WITHOUT_RECONNECT
+    specialized = special_table[port.service] or special_table[port.number]
+  end
 
   local status = false
 
@@ -1049,10 +1059,8 @@ function getCertificate(host, port)
 
   -- Now try to connect with Nsock's SSL connection
   if not status and have_openssl then
-    local socket = nmap.new_socket()
-    local errmsg
-    status, errmsg = socket:connect(host, port, "ssl")
-    if not status then
+    local socket, errmsg = comm.opencon(host, port, nil, {proto="ssl"})
+    if not socket then
       stdnse.debug1("SSL connect error: %s", errmsg)
     else
       cert = socket:get_ssl_certificate()
@@ -1063,7 +1071,8 @@ function getCertificate(host, port)
 
   -- Finally, try to connect and manually handshake (maybe more tolerant of TLS
   -- insecurity than OpenSSL)
-  if not status then
+  -- TODO: DTLS handshaking
+  if not status and port.protocol == "tcp" then
     local socket = nmap.new_socket()
     local errmsg
     status, errmsg = socket:connect(host, port)
@@ -1080,9 +1089,7 @@ function getCertificate(host, port)
     return false, "No certificate found"
   end
 
-  host.registry["ssl-cert"] = host.registry["ssl-cert"] or {}
-  host.registry["ssl-cert"][port.number] = host.registry["ssl-cert"][port.number] or {}
-  host.registry["ssl-cert"][port.number] = cert
+  cache[key] = cert
   mutex "done"
   return true, cert
 end

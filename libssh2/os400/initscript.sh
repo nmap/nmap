@@ -49,8 +49,9 @@ setenv TGTCCSID         '500'                   # Target CCSID of objects.
 setenv DEBUG            '*ALL'                  # Debug level.
 setenv OPTIMIZE         '10'                    # Optimisation level
 setenv OUTPUT           '*NONE'                 # Compilation output option.
-setenv TGTRLS           'V6R1M0'                # Target OS release.
+setenv TGTRLS           'V7R3M0'                # Target OS release.
 setenv IFSDIR           '/libssh2'              # Installation IFS directory.
+setenv QADRTDIR         '/QIBM/ProdData/qadrt'  # QADRT IFS directory.
 
 #       Define ZLIB availability and locations.
 
@@ -182,7 +183,7 @@ make_module()
         CMD="${CMD} SYSIFCOPT(*IFS64IO) OPTION(*INCDIRFIRST)"
         CMD="${CMD} LOCALETYPE(*LOCALE) FLAG(10)"
         CMD="${CMD} INCDIR('${TOPDIR}/os400/include'"
-        CMD="${CMD} '/QIBM/ProdData/qadrt/include' '${TOPDIR}/include'"
+        CMD="${CMD} '${QADRTDIR}/include' '${TOPDIR}/include'"
         CMD="${CMD} '${TOPDIR}/os400' '${SRCDIR}'"
 
         if [ "${WITH_ZLIB}" != "0" ]
@@ -198,7 +199,7 @@ make_module()
         DEFINES="${3}"
 
         if [ "${WITH_ZLIB}" != "0" ]
-        then    DEFINES="${DEFINES} HAVE_LIBZ LIBSSH2_HAVE_ZLIB"
+        then    DEFINES="${DEFINES} LIBSSH2_HAVE_ZLIB"
         fi
 
         if [ "${DEFINES}" ]

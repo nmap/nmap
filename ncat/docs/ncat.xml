@@ -327,8 +327,8 @@
           particularly handy for talking to SSL enabled HTTP servers, etc.</para>
           <para>In server mode, this option listens for incoming SSL connections,
           rather than plain untunneled traffic.</para>
-          <para>In UDP connect mode, this option enables Datagram TLS (DTLS).
-          This is not supported in server mode.</para>
+          <para>In UDP mode, this option enables Datagram TLS (DTLS).
+          </para>
         </listitem>
       </varlistentry>
 
@@ -500,7 +500,7 @@
           setting environment variable
           <envar>NCAT_PROXY_AUTH</envar><indexterm><primary><envar>NCAT_PROXY_AUTH</envar> environment variable</primary></indexterm>,
           which reduces the risk of the credentials being captured in process
-          logs.  (Option <option>--proxy-auth</option>takes precedence.)</para>
+          logs.  (Option <option>--proxy-auth</option> takes precedence.)</para>
         </listitem>
       </varlistentry>
 
@@ -1084,7 +1084,7 @@
     do some research to determine whether it has already been
     discovered and addressed.  Try Googling the error message or
     browsing the <citetitle>nmap-dev</citetitle> archives at <ulink
-    url="http://seclists.org/" />.
+    url="https://seclists.org/" />.
     <indexterm><primary><citetitle>nmap-dev</citetitle> mailing list</primary></indexterm>
     Read this full manual page as
     well.  If nothing comes of this, mail a bug report to
@@ -1110,17 +1110,16 @@
         <para>Chris Gibson <email>chris@linuxops.net</email></para>
       </listitem>
       <listitem>
+        <para>Gordon Lyon (Fyodor)<email>fyodor@nmap.org</email>
+        (<ulink url="http://insecure.org" />)</para>
+      </listitem>
+      <listitem>
         <para>Kris Katterjohn <email>katterjohn@gmail.com</email></para>
       </listitem>
       <listitem>
         <para>Mixter <email>mixter@gmail.com</email></para>
       </listitem>
-      <listitem>
-        <para>Fyodor <email>fyodor@nmap.org</email>
-        (<ulink url="http://insecure.org" />)</para>
-      </listitem>
     </itemizedlist>
-
 
     <para>The original Netcat was written by *Hobbit* <email>hobbit@avian.org</email>.
     While Ncat isn't built on any code from the <quote>traditional</quote> Netcat (or any
@@ -1135,7 +1134,7 @@
   <title>Ncat Copyright and Licensing</title>
   <indexterm><primary>copyright</primary></indexterm>
 
-  <para>Ncat is (C) 2005&ndash;2020 Insecure.Com LLC. It is distributed
+  <para>Ncat is (C) 2005&ndash;2022 Nmap Software LLC. It is distributed
   as free and open source software under the same license terms as our
   Nmap software.  Precise terms and further details are available
   <man>from <ulink url="https://nmap.org/man/man-legal.html"/>.</man>
@@ -1144,7 +1143,8 @@
 
 <refsect2 id="ncat-man-copyright">
   <title>Creative Commons License for this Ncat Guide</title>
-  <para>This <citetitle>Ncat Reference Guide</citetitle> is (C) 2005&ndash;2018 Insecure.Com LLC. It is
+  <para>This <citetitle>Ncat Reference Guide</citetitle> is (C)
+  2005&ndash;2022 Nmap Software LLC. It is
    hereby placed under version 3.0 of the <ulink
    url="http://creativecommons.org/licenses/by/3.0/">Creative Commons
    Attribution License</ulink>.  This allows you redistribute and modify
@@ -1167,7 +1167,7 @@ encouraged to send your changes to
 <email>dev@nmap.org</email> for possible incorporation into
 the main distribution.  By sending these changes to Fyodor or one of
 the Insecure.Org development mailing lists, it is assumed that you are
-offering the Nmap Project (Insecure.Com LLC) the unlimited,
+offering the Nmap Project (Nmap Software LLC) the unlimited,
 non-exclusive right to reuse, modify, and relicense the code.  Nmap
 will always be available open source,<indexterm><primary>open
 source</primary></indexterm> but this is important because the
@@ -1206,7 +1206,7 @@ url="http://www.tcpdump.org">Libpcap portable packet capture
 library</ulink><indexterm><primary>libpcap</primary></indexterm>
 is distributed along with Ncat.
 The Windows version of Ncat utilized the Libpcap-derived
-<ulink role="hidepdf" url="https://npcap.org">Npcap library</ulink><indexterm><primary>Npcap</primary></indexterm>
+<ulink role="hidepdf" url="https://npcap.com">Npcap library</ulink><indexterm><primary>Npcap</primary></indexterm>
 instead.
 Certain raw networking functions use the
 <ulink role="hidepdf" url="http://libdnet.sourceforge.net">Libdnet</ulink><indexterm><primary>libdnet</primary></indexterm>

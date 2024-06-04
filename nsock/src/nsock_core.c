@@ -3,54 +3,50 @@
  * parallel socket event library.                                          *
  *                                                                         *
  ***********************IMPORTANT NSOCK LICENSE TERMS***********************
- *                                                                         *
- * The nsock parallel socket event library is (C) 1999-2020 Insecure.Com   *
- * LLC This library is free software; you may redistribute and/or          *
- * modify it under the terms of the GNU General Public License as          *
- * published by the Free Software Foundation; Version 2.  This guarantees  *
- * your right to use, modify, and redistribute this software under certain *
- * conditions.  If this license is unacceptable to you, Insecure.Com LLC   *
- * may be willing to sell alternative licenses (contact                    *
- * sales@insecure.com ).                                                   *
- *                                                                         *
- * As a special exception to the GPL terms, Insecure.Com LLC grants        *
- * permission to link the code of this program with any version of the     *
- * OpenSSL library which is distributed under a license identical to that  *
- * listed in the included docs/licenses/OpenSSL.txt file, and distribute   *
- * linked combinations including the two. You must obey the GNU GPL in all *
- * respects for all of the code used other than OpenSSL.  If you modify    *
- * this file, you may extend this exception to your version of the file,   *
- * but you are not obligated to do so.                                     *
- *                                                                         *
- * If you received these files with a written license agreement stating    *
- * terms other than the (GPL) terms above, then that alternative license   *
- * agreement takes precedence over this comment.                           *
- *                                                                         *
- * Source is provided to this software because we believe users have a     *
- * right to know exactly what a program is going to do before they run it. *
- * This also allows you to audit the software for security holes.          *
- *                                                                         *
- * Source code also allows you to port Nmap to new platforms, fix bugs,    *
- * and add new features.  You are highly encouraged to send your changes   *
- * to the dev@nmap.org mailing list for possible incorporation into the    *
- * main distribution.  By sending these changes to Fyodor or one of the    *
- * Insecure.Org development mailing lists, or checking them into the Nmap  *
- * source code repository, it is understood (unless you specify otherwise) *
- * that you are offering the Nmap Project (Insecure.Com LLC) the           *
- * unlimited, non-exclusive right to reuse, modify, and relicense the      *
- * code.  Nmap will always be available Open Source, but this is important *
- * because the inability to relicense code has caused devastating problems *
- * for other Free Software projects (such as KDE and NASM).  We also       *
- * occasionally relicense the code to third parties as discussed above.    *
- * If you wish to specify special license conditions of your               *
- * contributions, just say so when you send them.                          *
- *                                                                         *
- * This program is distributed in the hope that it will be useful, but     *
- * WITHOUT ANY WARRANTY; without even the implied warranty of              *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU       *
- * General Public License v2.0 for more details                            *
- * (http://www.gnu.org/licenses/gpl-2.0.html).                             *
- *                                                                         *
+ *
+ * The nsock parallel socket event library is (C) 1999-2024 Nmap Software LLC
+ * This library is free software; you may redistribute and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation; Version 2. This guarantees your right to use, modify, and
+ * redistribute this software under certain conditions. If this license is
+ * unacceptable to you, Nmap Software LLC may be willing to sell alternative
+ * licenses (contact sales@nmap.com ).
+ *
+ * As a special exception to the GPL terms, Nmap Software LLC grants permission
+ * to link the code of this program with any version of the OpenSSL library
+ * which is distributed under a license identical to that listed in the included
+ * docs/licenses/OpenSSL.txt file, and distribute linked combinations including
+ * the two. You must obey the GNU GPL in all respects for all of the code used
+ * other than OpenSSL. If you modify this file, you may extend this exception to
+ * your version of the file, but you are not obligated to do so.
+ *
+ * If you received these files with a written license agreement stating terms
+ * other than the (GPL) terms above, then that alternative license agreement
+ * takes precedence over this comment.
+ *
+ * Source is provided to this software because we believe users have a right to
+ * know exactly what a program is going to do before they run it. This also
+ * allows you to audit the software for security holes.
+ *
+ * Source code also allows you to port Nmap to new platforms, fix bugs, and add
+ * new features. You are highly encouraged to send your changes to the
+ * dev@nmap.org mailing list for possible incorporation into the main
+ * distribution. By sending these changes to Fyodor or one of the Insecure.Org
+ * development mailing lists, or checking them into the Nmap source code
+ * repository, it is understood (unless you specify otherwise) that you are
+ * offering the Nmap Project (Nmap Software LLC) the unlimited, non-exclusive
+ * right to reuse, modify, and relicense the code. Nmap will always be available
+ * Open Source, but this is important because the inability to relicense code
+ * has caused devastating problems for other Free Software projects (such as KDE
+ * and NASM). We also occasionally relicense the code to third parties as
+ * discussed above. If you wish to specify special license conditions of your
+ * contributions, just say so when you send them.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License v2.0 for more
+ * details (http://www.gnu.org/licenses/gpl-2.0.html).
+ *
  ***************************************************************************/
 
 /* $Id$ */
@@ -341,6 +337,7 @@ void handle_connect_result(struct npool *ms, struct nevent *nse, enum nse_status
   int sslconnect_inprogress = nse->type == NSE_TYPE_CONNECT_SSL && nse->iod &&
     (nse->sslinfo.ssl_desire == SSL_ERROR_WANT_READ ||
      nse->sslinfo.ssl_desire == SSL_ERROR_WANT_WRITE);
+  SSL_CTX *sslctx = NULL;
 #else
   int sslconnect_inprogress = 0;
 #endif
@@ -367,23 +364,22 @@ void handle_connect_result(struct npool *ms, struct nevent *nse, enum nse_status
     if (nse->type == NSE_TYPE_CONNECT_SSL &&
         nse->status == NSE_STATUS_SUCCESS) {
 #if HAVE_OPENSSL
-      assert(ms->sslctx != NULL);
+      sslctx = iod->lastproto == IPPROTO_UDP ? ms->dtlsctx : ms->sslctx;
+      assert(sslctx != NULL);
       /* Reuse iod->ssl if present. If set, this is the second try at connection
          without the SSL_OP_NO_SSLv2 option set. */
       if (iod->ssl == NULL) {
-        iod->ssl = SSL_new(ms->sslctx);
+        iod->ssl = SSL_new(sslctx);
         if (!iod->ssl)
           fatal("SSL_new failed: %s", ERR_error_string(ERR_get_error(), NULL));
       }
 
-#if HAVE_SSL_SET_TLSEXT_HOST_NAME
       /* Avoid sending SNI extension with DTLS because many servers don't allow
        * fragmented ClientHello messages. */
       if (iod->hostname != NULL && iod->lastproto != IPPROTO_UDP) {
         if (SSL_set_tlsext_host_name(iod->ssl, iod->hostname) != 1)
           fatal("SSL_set_tlsext_host_name failed: %s", ERR_error_string(ERR_get_error(), NULL));
       }
-#endif
 
       /* Associate our new SSL with the connected socket.  It will inherit the
        * non-blocking nature of the sd */
@@ -453,11 +449,11 @@ void handle_connect_result(struct npool *ms, struct nevent *nse, enum nse_status
 #endif
 
       sslerr = SSL_get_error(iod->ssl, rc);
-      if (rc == -1 && sslerr == SSL_ERROR_WANT_READ) {
+      if (sslerr == SSL_ERROR_WANT_READ) {
         nse->sslinfo.ssl_desire = sslerr;
         socket_count_read_inc(iod);
         update_events(iod, ms, nse, EV_READ, EV_NONE);
-      } else if (rc == -1 && sslerr == SSL_ERROR_WANT_WRITE) {
+      } else if (sslerr == SSL_ERROR_WANT_WRITE) {
         nse->sslinfo.ssl_desire = sslerr;
         socket_count_write_inc(iod);
         update_events(iod, ms, nse, EV_WRITE, EV_NONE);

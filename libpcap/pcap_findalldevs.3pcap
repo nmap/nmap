@@ -17,7 +17,7 @@
 .\" WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF
 .\" MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 .\"
-.TH PCAP_FINDALLDEVS 3PCAP "22 August 2018"
+.TH PCAP_FINDALLDEVS 3PCAP "23 August 2018"
 .SH NAME
 pcap_findalldevs, pcap_freealldevs \- get a list of capture devices, and
 free that list
@@ -38,21 +38,21 @@ void pcap_freealldevs(pcap_if_t *alldevs);
 .ft
 .fi
 .SH DESCRIPTION
-.B pcap_findalldevs()
+.BR pcap_findalldevs ()
 constructs a list of network devices that can be opened with
-.B pcap_create(3PCAP)
+.BR pcap_create (3PCAP)
 and
-.B pcap_activate(3PCAP)
+.BR pcap_activate (3PCAP)
 or with
-.BR pcap_open_live(3PCAP) .
+.BR pcap_open_live (3PCAP).
 (Note that there may be network devices that cannot be opened by the
 process calling
-.BR pcap_findalldevs() ,
+.BR pcap_findalldevs (),
 because, for example, that process does not have sufficient privileges
 to open them for capturing; if so, those devices will not appear on the
 list.)
 If
-.B pcap_findalldevs()
+.BR pcap_findalldevs ()
 succeeds, the pointer pointed to by
 .I alldevsp
 is set to point to the first element of the list, or to
@@ -72,7 +72,7 @@ for the last element of the list
 .TP
 .B name
 a pointer to a string giving a name for the device to pass to
-.B pcap_open_live()
+.BR pcap_open_live ()
 .TP
 .B description
 if not
@@ -194,15 +194,19 @@ for IPv6 addresses, it can be interpreted as if it pointed to a
 .BR "struct sockaddr_in6".
 .PP
 The list of devices must be freed with
-.BR pcap_freealldevs(3PCAP) ,
+.BR pcap_freealldevs (3PCAP),
 which frees the list pointed to by
 .IR alldevs .
 .SH RETURN VALUE
-.B pcap_findalldevs()
-returns 0 on success and
+.BR pcap_findalldevs ()
+returns
+.B 0
+on success and
 .B PCAP_ERROR
 on failure; as indicated, finding no
-devices is considered success, rather than failure, so 0 will be
+devices is considered success, rather than failure, so
+.B 0
+will be
 returned in that case. If
 .B PCAP_ERROR
 is returned,
@@ -228,4 +232,4 @@ and
 .B PCAP_IF_CONNECTION_STATUS_NOT_APPLICABLE
 constants became available in libpcap release 1.9.0.
 .SH SEE ALSO
-pcap(3PCAP)
+.BR pcap (3PCAP)

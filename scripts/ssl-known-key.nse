@@ -103,7 +103,9 @@ local get_fingerprints = function(path)
   return true, fingerprints
 end
 
-portrule = shortport.ssl
+portrule = function(host, port)
+  return shortport.ssl(host, port) or sslcert.isPortSupported(port) or sslcert.getPrepareTLSWithoutReconnect(port)
+end
 
 action = function(host, port)
   -- Get script arguments.

@@ -18,7 +18,7 @@
 .\" WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF
 .\" MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 .\"
-.TH PCAP-LINKTYPE @MAN_MISC_INFO@ "7 April 2014"
+.TH PCAP-LINKTYPE @MAN_MISC_INFO@ "6 April 2020"
 .SH NAME
 pcap-linktype \- link-layer header types supported by libpcap
 .SH DESCRIPTION
@@ -38,11 +38,11 @@ so they are sometimes called "DLT_ values".
 The values stored in the link-layer header type field in the savefile
 header are, in most but not all cases, the same as the values returned
 by
-.BR pcap_datalink() .
+.BR pcap_datalink ().
 The names for those values begin with
 .BR LINKTYPE_ .
 .PP
 The link-layer header types supported by libpcap are described at
-https://www.tcpdump.org/linktypes.html.
+https://www.tcpdump.org/linktypes.html .
 .SH SEE ALSO
-pcap(3PCAP)
+.BR pcap (3PCAP)

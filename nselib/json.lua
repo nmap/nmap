@@ -410,7 +410,7 @@ local TESTS = {
   },  -- Should become Lua {"\240\157\132\158X"}
   {
     '1684119503',
-    generate = '1684119503',
+    generates = '1684119503',
     is = "number"
   }
 }

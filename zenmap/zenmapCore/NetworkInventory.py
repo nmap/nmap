@@ -1,61 +1,59 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
+#!/usr/bin/env python3
 
 # ***********************IMPORTANT NMAP LICENSE TERMS************************
-# *                                                                         *
-# * The Nmap Security Scanner is (C) 1996-2020 Insecure.Com LLC ("The Nmap  *
-# * Project"). Nmap is also a registered trademark of the Nmap Project.     *
-# *                                                                         *
-# * This program is distributed under the terms of the Nmap Public Source   *
-# * License (NPSL). The exact license text applying to a particular Nmap    *
-# * release or source code control revision is contained in the LICENSE     *
-# * file distributed with that version of Nmap or source code control       *
-# * revision. More Nmap copyright/legal information is available from       *
-# * https://nmap.org/book/man-legal.html, and further information on the    *
-# * NPSL license itself can be found at https://nmap.org/npsl. This header  *
-# * summarizes some key points from the Nmap license, but is no substitute  *
-# * for the actual license text.                                            *
-# *                                                                         *
-# * Nmap is generally free for end users to download and use themselves,    *
-# * including commercial use. It is available from https://nmap.org.        *
-# *                                                                         *
-# * The Nmap license generally prohibits companies from using and           *
-# * redistributing Nmap in commercial products, but we sell a special Nmap  *
-# * OEM Edition with a more permissive license and special features for     *
-# * this purpose. See https://nmap.org/oem                                  *
-# *                                                                         *
-# * If you have received a written Nmap license agreement or contract       *
-# * stating terms other than these (such as an Nmap OEM license), you may   *
-# * choose to use and redistribute Nmap under those terms instead.          *
-# *                                                                         *
-# * The official Nmap Windows builds include the Npcap software             *
-# * (https://npcap.org) for packet capture and transmission. It is under    *
-# * separate license terms which forbid redistribution without special      *
-# * permission. So the official Nmap Windows builds may not be              *
-# * redistributed without special permission (such as an Nmap OEM           *
-# * license).                                                               *
-# *                                                                         *
-# * Source is provided to this software because we believe users have a     *
-# * right to know exactly what a program is going to do before they run it. *
-# * This also allows you to audit the software for security holes.          *
-# *                                                                         *
-# * Source code also allows you to port Nmap to new platforms, fix bugs,    *
-# * and add new features.  You are highly encouraged to submit your         *
-# * changes as a Github PR or by email to the dev@nmap.org mailing list     *
-# * for possible incorporation into the main distribution. Unless you       *
-# * specify otherwise, it is understood that you are offering us very       *
-# * broad rights to use your submissions as described in the Nmap Public    *
-# * Source License Contributor Agreement. This is important because we      *
-# * fund the project by selling licenses with various terms, and also       *
-# * because the inability to relicense code has caused devastating          *
-# * problems for other Free Software projects (such as KDE and NASM).       *
-# *                                                                         *
-# * The free version of Nmap is distributed in the hope that it will be     *
-# * useful, but WITHOUT ANY WARRANTY; without even the implied warranty of  *
-# * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. Warranties,        *
-# * indemnification and commercial support are all available through the    *
-# * Npcap OEM program--see https://nmap.org/oem.                            *
-# *                                                                         *
+# *
+# * The Nmap Security Scanner is (C) 1996-2024 Nmap Software LLC ("The Nmap
+# * Project"). Nmap is also a registered trademark of the Nmap Project.
+# *
+# * This program is distributed under the terms of the Nmap Public Source
+# * License (NPSL). The exact license text applying to a particular Nmap
+# * release or source code control revision is contained in the LICENSE
+# * file distributed with that version of Nmap or source code control
+# * revision. More Nmap copyright/legal information is available from
+# * https://nmap.org/book/man-legal.html, and further information on the
+# * NPSL license itself can be found at https://nmap.org/npsl/ . This
+# * header summarizes some key points from the Nmap license, but is no
+# * substitute for the actual license text.
+# *
+# * Nmap is generally free for end users to download and use themselves,
+# * including commercial use. It is available from https://nmap.org.
+# *
+# * The Nmap license generally prohibits companies from using and
+# * redistributing Nmap in commercial products, but we sell a special Nmap
+# * OEM Edition with a more permissive license and special features for
+# * this purpose. See https://nmap.org/oem/
+# *
+# * If you have received a written Nmap license agreement or contract
+# * stating terms other than these (such as an Nmap OEM license), you may
+# * choose to use and redistribute Nmap under those terms instead.
+# *
+# * The official Nmap Windows builds include the Npcap software
+# * (https://npcap.com) for packet capture and transmission. It is under
+# * separate license terms which forbid redistribution without special
+# * permission. So the official Nmap Windows builds may not be redistributed
+# * without special permission (such as an Nmap OEM license).
+# *
+# * Source is provided to this software because we believe users have a
+# * right to know exactly what a program is going to do before they run it.
+# * This also allows you to audit the software for security holes.
+# *
+# * Source code also allows you to port Nmap to new platforms, fix bugs, and
+# * add new features. You are highly encouraged to submit your changes as a
+# * Github PR or by email to the dev@nmap.org mailing list for possible
+# * incorporation into the main distribution. Unless you specify otherwise, it
+# * is understood that you are offering us very broad rights to use your
+# * submissions as described in the Nmap Public Source License Contributor
+# * Agreement. This is important because we fund the project by selling licenses
+# * with various terms, and also because the inability to relicense code has
+# * caused devastating problems for other Free Software projects (such as KDE
+# * and NASM).
+# *
+# * The free version of Nmap is distributed in the hope that it will be
+# * useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
+# * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. Warranties,
+# * indemnification and commercial support are all available through the
+# * Npcap OEM program--see https://nmap.org/oem/
+# *
 # ***************************************************************************/
 
 import os
@@ -63,7 +61,7 @@ import unittest
 import zenmapCore
 import zenmapCore.NmapParser
 from zenmapGUI.SearchGUI import SearchParser
-from SearchResult import HostSearch
+from .SearchResult import HostSearch
 
 
 class NetworkInventory(object):
@@ -255,13 +253,13 @@ class NetworkInventory(object):
         return self.scans
 
     def get_hosts(self):
-        return self.hosts.values()
+        return list(self.hosts.values())
 
     def get_hosts_up(self):
-        return filter(lambda h: h.get_state() == 'up', self.hosts.values())
+        return [h for h in list(self.hosts.values()) if h.get_state() == 'up']
 
     def get_hosts_down(self):
-        return filter(lambda h: h.get_state() == 'down', self.hosts.values())
+        return [h for h in list(self.hosts.values()) if h.get_state() == 'down']
 
     def open_from_file(self, path):
         """Loads a scan from the given file."""
@@ -288,7 +286,7 @@ class NetworkInventory(object):
         """Saves the scan with the given list index into a file with a given
         path. With format = "xml", saves Nmap XML; otherwise saves plain text
         output."""
-        f = open(path, 'w')
+        f = open(path, 'wb')
         if format == "xml":
             self.get_scans()[index].write_xml(f)
             self.filenames[self.get_scans()[index]] = f
@@ -353,8 +351,8 @@ class NetworkInventory(object):
         a list of (full-path) filenames that were used to save the scans."""
         self._generate_filenames(path)
 
-        for scan, filename in self.filenames.iteritems():
-            f = open(os.path.join(path, filename), "w")
+        for scan, filename in self.filenames.items():
+            f = open(os.path.join(path, filename), "wb")
             scan.write_xml(f)
             f.close()
 
@@ -367,7 +365,7 @@ class NetworkInventory(object):
         # For now, this saves each scan making up the inventory separately in
         # the database.
         from time import time
-        from cStringIO import StringIO
+        from io import StringIO
         from zenmapCore.UmitDB import Scans
 
         for parsed in self.get_scans():
@@ -424,15 +422,13 @@ class FilteredNetworkInventory(NetworkInventory):
 
     def get_hosts_up(self):
         if len(self.search_dict) > 0:
-            return filter(lambda h: h.get_state() == 'up',
-                    self.filtered_hosts)
+            return [h for h in self.filtered_hosts if h.get_state() == 'up']
         else:
             return NetworkInventory.get_hosts_up(self)
 
     def get_hosts_down(self):
         if len(self.search_dict) > 0:
-            return filter(lambda h: h.get_state() == 'down',
-                    self.filtered_hosts)
+            return [h for h in self.filtered_hosts if h.get_state() == 'down']
         else:
             return NetworkInventory.get_hosts_down(self)
 
@@ -508,10 +504,10 @@ class FilteredNetworkInventory(NetworkInventory):
         self.filter_text = filter_text.lower()
         self.search_parser.update(self.filter_text)
         self.filtered_hosts = []
-        for hostname, host in self.hosts.iteritems():
+        for hostname, host in self.hosts.items():
             # For each host in this scan
             # Test each given operator against the current host
-            for operator, args in self.search_dict.iteritems():
+            for operator, args in self.search_dict.items():
                 if not self._match_all_args(host, operator, args):
                     # No match => we discard this scan_result
                     break
@@ -582,7 +578,7 @@ class NetworkInventoryTest(unittest.TestCase):
             inv.remove_scan(scan_3)
         except Exception:
             pass
-        self.assertEqual(added_ips, inv.hosts.keys())
+        self.assertEqual(added_ips, list(inv.hosts.keys()))
         self.assertEqual(host_a.hostnames, ["a"])
         self.assertEqual(host_b.hostnames, ["b"])
 
@@ -646,7 +642,7 @@ if __name__ == "__main__":
         inventory1.add_scan(scan2)
 
         for host in inventory1.get_hosts():
-            print "%s" % host.ip["addr"],
+            print("%s" % host.ip["addr"], end=' ')
             #if len(host.hostnames) > 0:
             #    print "[%s]:" % host.hostnames[0]["hostname"]
             #else:
@@ -662,12 +658,12 @@ if __name__ == "__main__":
         inventory1.remove_scan(scan2)
         print
         for host in inventory1.get_hosts():
-            print "%s" % host.ip["addr"],
+            print("%s" % host.ip["addr"], end=' ')
 
         inventory1.add_scan(scan2)
         print
         for host in inventory1.get_hosts():
-            print "%s" % host.ip["addr"],
+            print("%s" % host.ip["addr"], end=' ')
 
         dir = "/home/ndwi/scanz/top01"
         inventory1.save_to_dir(dir)
@@ -675,6 +671,6 @@ if __name__ == "__main__":
         inventory2 = NetworkInventory()
         inventory2.open_from_dir(dir)
 
-        print
+        print()
         for host in inventory2.get_hosts():
-            print "%s" % host.ip["addr"],
+            print("%s" % host.ip["addr"], end=' ')

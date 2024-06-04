@@ -9,8 +9,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
+#include <limits.h> /* for INT_MAX */
 
-#include <ctype.h>
 #ifndef _WIN32
 #include <netinet/in.h>
 #include <sys/mman.h>
@@ -140,9 +140,24 @@ snf_read(pcap_t *p, int cnt, pcap_handler callback, u_char *user)
 	if (!p)
 		return -1;
 
+	/*
+	 * This can conceivably process more than INT_MAX packets,
+	 * which would overflow the packet count, causing it either
+	 * to look like a negative number, and thus cause us to
+	 * return a value that looks like an error, or overflow
+	 * back into positive territory, and thus cause us to
+	 * return a too-low count.
+	 *
+	 * Therefore, if the packet count is unlimited, we clip
+	 * it at INT_MAX; this routine is not expected to
+	 * process packets indefinitely, so that's not an issue.
+	 */
+	if (PACKET_COUNT_IS_UNLIMITED(cnt))
+		cnt = INT_MAX;
+
 	n = 0;
 	timeout = ps->snf_timeout;
-	while (n < cnt || PACKET_COUNT_IS_UNLIMITED(cnt)) {
+	while (n < cnt) {
 		/*
 		 * Has "pcap_breakloop()" been called?
 		 */
@@ -177,7 +192,7 @@ snf_read(pcap_t *p, int cnt, pcap_handler callback, u_char *user)
 			caplen = p->snapshot;
 
 		if ((p->fcode.bf_insns == NULL) ||
-		     bpf_filter(p->fcode.bf_insns, req.pkt_addr, req.length, caplen)) {
+		     pcap_filter(p->fcode.bf_insns, req.pkt_addr, req.length, caplen)) {
 			hdr.ts = snf_timestamp_to_timeval(req.timestamp, p->opt.tstamp_precision);
 			hdr.caplen = caplen;
 			hdr.len = req.length;
@@ -194,26 +209,7 @@ snf_read(pcap_t *p, int cnt, pcap_handler callback, u_char *user)
 }
 
 static int
-snf_setfilter(pcap_t *p, struct bpf_program *fp)
-{
-	if (!p)
-		return -1;
-	if (!fp) {
-		strncpy(p->errbuf, "setfilter: No filter specified",
-			sizeof(p->errbuf));
-		return -1;
-	}
-
-	/* Make our private copy of the filter */
-
-	if (install_bpf_program(p, fp) < 0)
-		return -1;
-
-	return (0);
-}
-
-static int
-snf_inject(pcap_t *p, const void *buf _U_, size_t size _U_)
+snf_inject(pcap_t *p, const void *buf _U_, int size _U_)
 {
 #ifdef SNF_HAVE_INJECT_API
 	struct pcap_snf *ps = p->priv;
@@ -253,7 +249,7 @@ snf_activate(pcap_t* p)
 	int flags = -1, ring_id = -1;
 
 	if (device == NULL) {
-		pcap_snprintf(p->errbuf, PCAP_ERRBUF_SIZE, "device is NULL");
+		snprintf(p->errbuf, PCAP_ERRBUF_SIZE, "device is NULL");
 		return -1;
 	}
 
@@ -327,7 +323,7 @@ snf_activate(pcap_t* p)
 	p->linktype = DLT_EN10MB;
 	p->read_op = snf_read;
 	p->inject_op = snf_inject;
-	p->setfilter_op = snf_setfilter;
+	p->setfilter_op = install_bpf_program;
 	p->setdirection_op = NULL; /* Not implemented.*/
 	p->set_datalink_op = snf_set_datalink;
 	p->getnonblock_op = snf_getnonblock;
@@ -355,7 +351,7 @@ snf_findalldevs(pcap_if_list_t *devlistp, char *errbuf)
 	const char *nr = NULL;
 
 	if (snf_init(SNF_VERSION_API)) {
-		(void)pcap_snprintf(errbuf, PCAP_ERRBUF_SIZE,
+		(void)snprintf(errbuf, PCAP_ERRBUF_SIZE,
 		    "snf_getifaddrs: snf_init failed");
 		return (-1);
 	}
@@ -370,7 +366,7 @@ snf_findalldevs(pcap_if_list_t *devlistp, char *errbuf)
 		errno = 0;
 		merge = strtol(nr, NULL, 0);
 		if (errno) {
-			(void)pcap_snprintf(errbuf, PCAP_ERRBUF_SIZE,
+			(void)snprintf(errbuf, PCAP_ERRBUF_SIZE,
 				"snf_getifaddrs: SNF_FLAGS is not a valid number");
 			return (-1);
 		}
@@ -407,8 +403,8 @@ snf_findalldevs(pcap_if_list_t *devlistp, char *errbuf)
 		 * the port?  If so, should we add them to the
 		 * entry for the device, if they're not already in the
 		 * list of IP addresses for the device?
- 		 */
-		(void)pcap_snprintf(desc,MAX_DESC_LENGTH,"Myricom %ssnf%d",
+		 */
+		(void)snprintf(desc,MAX_DESC_LENGTH,"Myricom %ssnf%d",
 			merge ? "Merge Bitmask Port " : "",
 			merge ? 1 << ifa->snf_ifa_portnum : ifa->snf_ifa_portnum);
 		/*
@@ -456,14 +452,14 @@ snf_findalldevs(pcap_if_list_t *devlistp, char *errbuf)
 			 */
                         ret = inet_pton(AF_INET, dev->name, &addr.sin_addr);
                         if (ret == 1) {
-                        	/*
-                        	 * Successful conversion of device name
-                        	 * to IPv4 address.
-                        	 */
-	                        addr.sin_family = AF_INET;
-        	                if (add_addr_to_dev(dev, &addr, sizeof(addr),
-                	            NULL, 0, NULL, 0, NULL, 0, errbuf) == -1)
-                        		return -1;
+				/*
+				 * Successful conversion of device name
+				 * to IPv4 address.
+				 */
+				addr.sin_family = AF_INET;
+				if (add_addr_to_dev(dev, &addr, sizeof(addr),
+				    NULL, 0, NULL, 0, NULL, 0, errbuf) == -1)
+					return -1;
                         } else if (ret == -1) {
 				/*
 				 * Error.
@@ -479,13 +475,13 @@ snf_findalldevs(pcap_if_list_t *devlistp, char *errbuf)
 	snf_freeifaddrs(ifaddrs);
 	/*
 	 * Create a snfX entry if port aggregation is enabled
-       	 */
+	 */
 	if (merge) {
 		/*
 		 * Add a new entry with all ports bitmask
 		 */
-		(void)pcap_snprintf(name,MAX_DESC_LENGTH,"snf%d",allports);
-		(void)pcap_snprintf(desc,MAX_DESC_LENGTH,"Myricom Merge Bitmask All Ports snf%d",
+		(void)snprintf(name,MAX_DESC_LENGTH,"snf%d",allports);
+		(void)snprintf(desc,MAX_DESC_LENGTH,"Myricom Merge Bitmask All Ports snf%d",
 			allports);
 		/*
 		 * XXX - is there any notion of "up" and "running" that
@@ -560,7 +556,7 @@ snf_create(const char *device, char *ebuf, int *is_ours)
 	/* OK, it's probably ours. */
 	*is_ours = 1;
 
-	p = pcap_create_common(ebuf, sizeof (struct pcap_snf));
+	p = PCAP_CREATE_COMMON(ebuf, struct pcap_snf);
 	if (p == NULL)
 		return NULL;
 	ps = p->priv;
@@ -568,7 +564,6 @@ snf_create(const char *device, char *ebuf, int *is_ours)
 	/*
 	 * We support microsecond and nanosecond time stamps.
 	 */
-	p->tstamp_precision_count = 2;
 	p->tstamp_precision_list = malloc(2 * sizeof(u_int));
 	if (p->tstamp_precision_list == NULL) {
 		pcap_fmt_errmsg_for_errno(ebuf, PCAP_ERRBUF_SIZE, errno,
@@ -578,6 +573,7 @@ snf_create(const char *device, char *ebuf, int *is_ours)
 	}
 	p->tstamp_precision_list[0] = PCAP_TSTAMP_PRECISION_MICRO;
 	p->tstamp_precision_list[1] = PCAP_TSTAMP_PRECISION_NANO;
+	p->tstamp_precision_count = 2;
 
 	p->activate_op = snf_activate;
 	ps->snf_boardnum = boardnum;
@@ -605,7 +601,7 @@ pcap_platform_finddevs(pcap_if_list_t *devlistp, char *errbuf)
 pcap_t *
 pcap_create_interface(const char *device, char *errbuf)
 {
-	pcap_snprintf(errbuf, PCAP_ERRBUF_SIZE,
+	snprintf(errbuf, PCAP_ERRBUF_SIZE,
 	    "This version of libpcap only supports SNF cards");
 	return NULL;
 }

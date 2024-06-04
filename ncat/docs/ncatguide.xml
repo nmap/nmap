@@ -131,9 +131,7 @@ the tool? Many of these examples suppose a Unix environment. -->
   to the connection limit. With <option>--keep-open</option> (or
   <option>-k</option> for short), the server receives everything sent by
   any of its clients, and anything the server sends is sent to all of
-  them. A UDP server will communicate with only one client (the first
-  one to send it data), because in UDP there is no list of
-  <quote>connected</quote> clients.
+  them.
   </para>
 
   <para>
@@ -304,12 +302,9 @@ Content-Type: text/html; charset=UTF-8
   the User Datagram Protocol, is an unreliable protocol often used by
   applications that can't afford the overhead of TCP. Use the
   <option>--udp</option><indexterm><primary><option>--udp</option> (Ncat option)</primary></indexterm>
-  option to make Ncat use UDP. In listen mode, Ncat will communicate
-  with only one client, and the
-  <option>--keep-open</option><indexterm><primary><option>--keep-open</option> (Ncat option)</primary><secondary>not supported with UDP</secondary></indexterm>
-  option doesn't work, the reason for this being that UDP has no notion
-  of a connection. UDP may be secured by a form of SSL called Datagram TLS (DTLS)<indexterm><primary>DTLS</primary><secondary>Datagram TLS</secondary></indexterm>.
-  This is currently only supported in connect (client) mode.<indexterm><primary>SSL</primary><secondary>not supported with UDP in server mode</secondary></indexterm>
+  option to make Ncat use UDP.
+  UDP may be secured using the <option>--ssl</option> option, which enables
+  Datagram TLS (DTLS)<indexterm><primary>DTLS</primary><secondary>Datagram TLS</secondary></indexterm>.
   </para>
 
   <para>
@@ -646,8 +641,8 @@ print("Hello, world!")
   combined with
   <option>--keep-open</option>,<indexterm><primary><option>--keep-open (Ncat option)</option></primary><secondary>with <option>--exec</option></secondary></indexterm>
   Ncat will accept multiple connections, forking off a new handler for
-  each. This works even in UDP mode; the usual limit of only one client
-  doesn't apply. The server will keep running until you press
+  each.
+  The server will keep running until you press
   <keycombo><keycap>ctrl</keycap><keycap>C</keycap></keycombo> or
   otherwise terminate it externally. In this way Ncat can work much like
   inetd.<indexterm><primary>inetd</primary></indexterm>
@@ -1589,7 +1584,7 @@ host1$ <userinput>ncat --send-only host2 &lt; log.txt</userinput>
     <title>Unwrap SSL</title>
 
     <!-- This trick was suggested by Brandon Enright.
-         http://seclists.org/nmap-dev/2009/q1/379 -->
+         https://seclists.org/nmap-dev/2009/q1/379 -->
     <para>
     Suppose you need to connect to an
     IMAP<indexterm><primary>IMAP</primary></indexterm> server that
@@ -1620,7 +1615,7 @@ host1$ <userinput>ncat --send-only host2 &lt; log.txt</userinput>
     <title>Use SSH Through an Ncat Tunnel</title>
 
     <!-- This trick was suggested by Greg Darke.
-         http://seclists.org/nmap-dev/2009/q1/403 -->
+         https://seclists.org/nmap-dev/2009/q1/403 -->
     <para>
     With Ncat and OpenSSH<indexterm><primary>OpenSSH</primary></indexterm>
     you can SSH to a host behind a NAT<indexterm><primary>network address translation</primary></indexterm>
@@ -1779,20 +1774,17 @@ host1$ <userinput>ncat --send-only host2 &lt; log.txt</userinput>
       <term>UDP discard server</term>
       <listitem>
 <literallayout>
-<command>ncat -l 9 --keep-open --udp --sh-exec "cat > /dev/null"</command>
+<command>ncat --udp -l --keep-open 9 --recv-only > /dev/null</command>
 </literallayout>
       </listitem>
     </varlistentry>
   </variablelist>
 
   <para>
-  With the TCP server we used <option>--keep-open</option> so the server
-  could handle multiple simultaneous connections, not just one. For the
-  UDP server we had to use <option>--sh-exec</option> to allow multiple
-  concurrent connections. Recall from <xref linkend="ncat-usage"/> that
-  a UDP server can handle only one client but with
-  <option>--exec</option> and <option>--sh-exec</option> this limitation
-  does not apply.
+    Ncat in UDP mode uses all the same options as TCP. The caveat here is that
+    connections can't be closed, only timed out, so you will eventually run out
+    of sockets if you do not use a timeout. Currently, none of the timeout
+    options do the appropriate thing in this instance.
   </para>
 
   <para>

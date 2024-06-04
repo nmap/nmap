@@ -1,71 +1,68 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
+#!/usr/bin/env python3
 
 # ***********************IMPORTANT NMAP LICENSE TERMS************************
-# *                                                                         *
-# * The Nmap Security Scanner is (C) 1996-2020 Insecure.Com LLC ("The Nmap  *
-# * Project"). Nmap is also a registered trademark of the Nmap Project.     *
-# *                                                                         *
-# * This program is distributed under the terms of the Nmap Public Source   *
-# * License (NPSL). The exact license text applying to a particular Nmap    *
-# * release or source code control revision is contained in the LICENSE     *
-# * file distributed with that version of Nmap or source code control       *
-# * revision. More Nmap copyright/legal information is available from       *
-# * https://nmap.org/book/man-legal.html, and further information on the    *
-# * NPSL license itself can be found at https://nmap.org/npsl. This header  *
-# * summarizes some key points from the Nmap license, but is no substitute  *
-# * for the actual license text.                                            *
-# *                                                                         *
-# * Nmap is generally free for end users to download and use themselves,    *
-# * including commercial use. It is available from https://nmap.org.        *
-# *                                                                         *
-# * The Nmap license generally prohibits companies from using and           *
-# * redistributing Nmap in commercial products, but we sell a special Nmap  *
-# * OEM Edition with a more permissive license and special features for     *
-# * this purpose. See https://nmap.org/oem                                  *
-# *                                                                         *
-# * If you have received a written Nmap license agreement or contract       *
-# * stating terms other than these (such as an Nmap OEM license), you may   *
-# * choose to use and redistribute Nmap under those terms instead.          *
-# *                                                                         *
-# * The official Nmap Windows builds include the Npcap software             *
-# * (https://npcap.org) for packet capture and transmission. It is under    *
-# * separate license terms which forbid redistribution without special      *
-# * permission. So the official Nmap Windows builds may not be              *
-# * redistributed without special permission (such as an Nmap OEM           *
-# * license).                                                               *
-# *                                                                         *
-# * Source is provided to this software because we believe users have a     *
-# * right to know exactly what a program is going to do before they run it. *
-# * This also allows you to audit the software for security holes.          *
-# *                                                                         *
-# * Source code also allows you to port Nmap to new platforms, fix bugs,    *
-# * and add new features.  You are highly encouraged to submit your         *
-# * changes as a Github PR or by email to the dev@nmap.org mailing list     *
-# * for possible incorporation into the main distribution. Unless you       *
-# * specify otherwise, it is understood that you are offering us very       *
-# * broad rights to use your submissions as described in the Nmap Public    *
-# * Source License Contributor Agreement. This is important because we      *
-# * fund the project by selling licenses with various terms, and also       *
-# * because the inability to relicense code has caused devastating          *
-# * problems for other Free Software projects (such as KDE and NASM).       *
-# *                                                                         *
-# * The free version of Nmap is distributed in the hope that it will be     *
-# * useful, but WITHOUT ANY WARRANTY; without even the implied warranty of  *
-# * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. Warranties,        *
-# * indemnification and commercial support are all available through the    *
-# * Npcap OEM program--see https://nmap.org/oem.                            *
-# *                                                                         *
+# *
+# * The Nmap Security Scanner is (C) 1996-2024 Nmap Software LLC ("The Nmap
+# * Project"). Nmap is also a registered trademark of the Nmap Project.
+# *
+# * This program is distributed under the terms of the Nmap Public Source
+# * License (NPSL). The exact license text applying to a particular Nmap
+# * release or source code control revision is contained in the LICENSE
+# * file distributed with that version of Nmap or source code control
+# * revision. More Nmap copyright/legal information is available from
+# * https://nmap.org/book/man-legal.html, and further information on the
+# * NPSL license itself can be found at https://nmap.org/npsl/ . This
+# * header summarizes some key points from the Nmap license, but is no
+# * substitute for the actual license text.
+# *
+# * Nmap is generally free for end users to download and use themselves,
+# * including commercial use. It is available from https://nmap.org.
+# *
+# * The Nmap license generally prohibits companies from using and
+# * redistributing Nmap in commercial products, but we sell a special Nmap
+# * OEM Edition with a more permissive license and special features for
+# * this purpose. See https://nmap.org/oem/
+# *
+# * If you have received a written Nmap license agreement or contract
+# * stating terms other than these (such as an Nmap OEM license), you may
+# * choose to use and redistribute Nmap under those terms instead.
+# *
+# * The official Nmap Windows builds include the Npcap software
+# * (https://npcap.com) for packet capture and transmission. It is under
+# * separate license terms which forbid redistribution without special
+# * permission. So the official Nmap Windows builds may not be redistributed
+# * without special permission (such as an Nmap OEM license).
+# *
+# * Source is provided to this software because we believe users have a
+# * right to know exactly what a program is going to do before they run it.
+# * This also allows you to audit the software for security holes.
+# *
+# * Source code also allows you to port Nmap to new platforms, fix bugs, and
+# * add new features. You are highly encouraged to submit your changes as a
+# * Github PR or by email to the dev@nmap.org mailing list for possible
+# * incorporation into the main distribution. Unless you specify otherwise, it
+# * is understood that you are offering us very broad rights to use your
+# * submissions as described in the Nmap Public Source License Contributor
+# * Agreement. This is important because we fund the project by selling licenses
+# * with various terms, and also because the inability to relicense code has
+# * caused devastating problems for other Free Software projects (such as KDE
+# * and NASM).
+# *
+# * The free version of Nmap is distributed in the hope that it will be
+# * useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
+# * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. Warranties,
+# * indemnification and commercial support are all available through the
+# * Npcap OEM program--see https://nmap.org/oem/
+# *
 # ***************************************************************************/
 
 import os
 import os.path
 import re
-import StringIO
+import io
 import unittest
 
 from glob import glob
-from types import StringTypes
 
 from zenmapCore.Name import APP_NAME
 from zenmapCore.NmapOptions import NmapOptions
@@ -145,7 +142,7 @@ class HostSearch(object):
     @staticmethod
     def match_port(host_ports, port, port_state):
         # Check if the port is parsable, if not return False silently
-        if re.match("^\d+$", port) is None:
+        if re.match(r"^\d+$", port) is None:
             return False
 
         for hp in host_ports:
@@ -170,7 +167,7 @@ class SearchResult(object):
             self.parsed_scan = scan_result
 
             # Test each given operator against the current parsed result
-            for operator, args in kargs.iteritems():
+            for operator, args in kargs.items():
                 if not self._match_all_args(operator, args):
                     # No match => we discard this scan_result
                     break
@@ -260,10 +257,10 @@ class SearchResult(object):
             fuzz = date_arg.count("~")
             date_arg = date_arg.replace("~", "")
 
-        if re.match("\d\d\d\d-\d\d-\d\d$", date_arg) is not None:
+        if re.match(r"\d\d\d\d-\d\d-\d\d$", date_arg) is not None:
             year, month, day = date_arg.split("-")
             parsed_date = date(int(year), int(month), int(day))
-        elif re.match("[-|\+]\d+$", date_arg):
+        elif re.match(r"[-|\+]\d+$", date_arg):
             # We need to convert from the "-n" format (n days ago) to a date
             # object (I found this in some old code, don't ask :) )
             parsed_date = date.fromordinal(
@@ -319,11 +316,11 @@ class SearchResult(object):
             return True
 
         # Transform a comma-delimited string containing ports into a list
-        ports = filter(lambda not_empty: not_empty, ports.split(","))
+        ports = [not_empty for not_empty in ports.split(",") if not_empty]
 
         # Check if they're parsable, if not return False silently
         for port in ports:
-            if re.match("^\d+$", port) is None:
+            if re.match(r"^\d+$", port) is None:
                 return False
 
         # Make a list of all scanned ports
@@ -356,7 +353,7 @@ class SearchResult(object):
         log.debug("Match port:%s" % ports)
 
         # Transform a comma-delimited string containing ports into a list
-        ports = filter(lambda not_empty: not_empty, ports.split(","))
+        ports = [not_empty for not_empty in ports.split(",") if not_empty]
 
         for host in self.parsed_scan.get_hosts():
             for port in ports:
@@ -442,11 +439,11 @@ class SearchDB(SearchResult, object):
             log.debug(">>> Nmap xml output: %s" % scan.nmap_xml_output)
 
             try:
-                buffer = StringIO.StringIO(scan.nmap_xml_output)
+                buffer = io.StringIO(scan.nmap_xml_output)
                 parsed = NmapParser()
                 parsed.parse(buffer)
                 buffer.close()
-            except Exception, e:
+            except Exception as e:
                 log.warning(">>> Error loading scan with ID %u from database: "
                         "%s" % (scan.scans_id, str(e)))
             else:
@@ -462,7 +459,7 @@ class SearchDir(SearchResult, object):
         log.debug(">>> SearchDir initialized")
         self.search_directory = search_directory
 
-        if isinstance(file_extensions, StringTypes):
+        if isinstance(file_extensions, str):
             self.file_extensions = file_extensions.split(";")
         elif isinstance(file_extensions, list):
             self.file_extensions = file_extensions

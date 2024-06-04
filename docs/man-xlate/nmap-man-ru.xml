@@ -10,6 +10,8 @@
   <refmeta>
     <refentrytitle>nmap</refentrytitle>
     <manvolnum>1</manvolnum>
+    <refmiscinfo class="source">Nmap</refmiscinfo>
+    <refmiscinfo class="manual">Справочное руководство Nmap</refmiscinfo>
   </refmeta>
   <refnamediv id="man-name">
     <refname>nmap</refname>
@@ -2583,7 +2585,7 @@ Nmap по умолчанию, она включает распараллелив
 
       <para>Если вы хотите заданные опции в передаваемых и получаемых пакетах, задайте опцию 
       <option>--packet-trace</option>. Для большей информации и примеров использования IP опций с Nmap, смотрите
-      <ulink url="http://seclists.org/nmap-dev/2006/q3/0052.html"/>.
+      <ulink url="https://seclists.org/nmap-dev/2006/q3/0052.html"/>.
       </para>
 
       </listitem>
@@ -3463,8 +3465,8 @@ rttvar: 14987 to: 100000</computeroutput>. Если вы не понимаете
     <para>Как и ее автор, Nmap не идеальна. Но вы можете сделать ее лучше посылая нам отчеты об ошибках или даже 
     написав патч. Если Nmap ведет себя не так, как вы ожидаете, то для начала обновитесь до последней версии с 
     <ulink url="https://nmap.org"/>. Если проблема останется, то выясните, не была ли эта проблема уже обнаружена кем-то. 
-    Попробуйте поискать сообщения об ошибках на нашей странице поиска <ulink url="http://insecure.org/search.html"/> 
-    или в Google. Также попробуйте просмотреть <citetitle>nmap-dev</citetitle> архивы на <ulink url="http://seclists.org/"/>.<indexterm significance="normal"><primary><citetitle>nmap-dev</citetitle> mailing list</primary></indexterm>
+    Попробуйте поискать сообщения об ошибках на нашей странице поиска <ulink url="https://insecure.org/search.html"/> 
+    или в Google. Также попробуйте просмотреть <citetitle>nmap-dev</citetitle> архивы на <ulink url="https://seclists.org/"/>.<indexterm significance="normal"><primary><citetitle>nmap-dev</citetitle> mailing list</primary></indexterm>
     Также прочитайте полностью страницу руководства. Если ничего не помогло, отправьте сообщение об ошибке на 
     <email>dev@nmap.org</email>. Пожалуйста, включите всю известную вам информацию об ошибке, какую версию 
     Nmap вы используете, и на какой операционной системы вы запускаете Nmap. Сообщения о проблемах и вопросы по 
@@ -3481,7 +3483,7 @@ rttvar: 14987 to: 100000</computeroutput>. Если вы не понимаете
     <title>Автор</title>
     <para>Fyodor 
     <email>fyodor@nmap.org</email>
-    (<ulink url="http://insecure.org"/>)
+    (<ulink url="https://insecure.org"/>)
     </para>
 
     <para>На протяжении многих лет сотни людей внесли ценный вклад в разработку Nmap. Все изменения и улучшения 

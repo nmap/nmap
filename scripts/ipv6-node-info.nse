@@ -244,16 +244,14 @@ local STRINGIFY = {
 }
 
 local function handle_received_packet(buf)
-  local p, qtype, flags, data
   local text
 
-  p = packet.Packet:new(buf)
+  local p = packet.Packet:new(buf)
   if p.icmpv6_type ~= ICMPv6_NODEINFORESP then
     return
   end
-  qtype = packet.u16(p.buf, p.icmpv6_offset + 4)
-  flags = packet.u16(p.buf, p.icmpv6_offset + 6)
-  data = string.sub(p.buf, p.icmpv6_offset + 16 + 1)
+  local qtype, flags, pos = string.unpack(">I2I2", p.buf, p.icmpv6_offset + 4)
+  local data = string.sub(p.buf, pos + 8)
 
   if not STRINGIFY[qtype] then
     -- This is a not a qtype we sent or know about.

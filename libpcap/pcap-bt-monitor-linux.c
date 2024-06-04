@@ -50,6 +50,14 @@
 #define INTERFACE_NAME "bluetooth-monitor"
 
 /*
+ * Private data.
+ * Currently contains nothing.
+ */
+struct pcap_bt_monitor {
+	int	dummy;
+};
+
+/*
  * Fields and alignment must match the declaration in the Linux kernel 3.4+.
  * See struct hci_mon_hdr in include/net/bluetooth/hci_mon.h.
  */
@@ -119,12 +127,16 @@ bt_monitor_read(pcap_t *handle, int max_packets _U_, pcap_handler callback, u_ch
     } while ((ret == -1) && (errno == EINTR));
 
     if (ret < 0) {
+        if (errno == EAGAIN || errno == EWOULDBLOCK) {
+            /* Nonblocking mode, no data */
+            return 0;
+        }
         pcap_fmt_errmsg_for_errno(handle->errbuf, PCAP_ERRBUF_SIZE,
             errno, "Can't receive packet");
         return -1;
     }
 
-    pkth.caplen = ret - sizeof(hdr) + sizeof(pcap_bluetooth_linux_monitor_header);
+    pkth.caplen = (bpf_u_int32)(ret - sizeof(hdr) + sizeof(pcap_bluetooth_linux_monitor_header));
     pkth.len = pkth.caplen;
 
     for (cmsg = CMSG_FIRSTHDR(&msg); cmsg != NULL; cmsg = CMSG_NXTHDR(&msg, cmsg)) {
@@ -139,7 +151,7 @@ bt_monitor_read(pcap_t *handle, int max_packets _U_, pcap_handler callback, u_ch
     bthdr->opcode = htons(hdr.opcode);
 
     if (handle->fcode.bf_insns == NULL ||
-        bpf_filter(handle->fcode.bf_insns, pktd, pkth.len, pkth.caplen)) {
+        pcap_filter(handle->fcode.bf_insns, pktd, pkth.len, pkth.caplen)) {
         callback(user, &pkth, pktd);
         return 1;
     }
@@ -147,18 +159,11 @@ bt_monitor_read(pcap_t *handle, int max_packets _U_, pcap_handler callback, u_ch
 }
 
 static int
-bt_monitor_inject(pcap_t *handle, const void *buf _U_, size_t size _U_)
+bt_monitor_inject(pcap_t *handle, const void *buf _U_, int size _U_)
 {
-    pcap_snprintf(handle->errbuf, PCAP_ERRBUF_SIZE,
+    snprintf(handle->errbuf, PCAP_ERRBUF_SIZE,
         "Packet injection is not supported yet on Bluetooth monitor devices");
     return -1;
-}
-
-static int
-bt_monitor_setdirection(pcap_t *p, pcap_direction_t d)
-{
-    p->direction = d;
-    return 0;
 }
 
 static int
@@ -200,7 +205,7 @@ bt_monitor_activate(pcap_t* handle)
     handle->read_op = bt_monitor_read;
     handle->inject_op = bt_monitor_inject;
     handle->setfilter_op = install_bpf_program; /* no kernel filtering */
-    handle->setdirection_op = bt_monitor_setdirection;
+    handle->setdirection_op = NULL; /* Not implemented */
     handle->set_datalink_op = NULL; /* can't change data link type */
     handle->getnonblock_op = pcap_getnonblock_fd;
     handle->setnonblock_op = pcap_setnonblock_fd;
@@ -263,7 +268,7 @@ bt_monitor_create(const char *device, char *ebuf, int *is_ours)
     }
 
     *is_ours = 1;
-    p = pcap_create_common(ebuf, 0);
+    p = PCAP_CREATE_COMMON(ebuf, struct pcap_bt_monitor);
     if (p == NULL)
         return NULL;
 

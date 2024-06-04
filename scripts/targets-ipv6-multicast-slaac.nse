@@ -82,40 +82,23 @@ local function build_router_advert(mac_src,prefix,prefix_len,valid_time,preferre
   0x00,0x00, --router lifetime
   0x00,0x00,0x00,0x00, --reachable time
   0x00,0x00,0x00,0x00) --retrans timer
-  local prefix_option_msg = string.char(prefix_len, 0xc0) .. --flags: Onlink, Auto
-    packet.set_u32("....",0,valid_time) ..
-    packet.set_u32("....",0,preferred_time) ..
-    "\0\0\0\0" .. --unknown
-    prefix
+  local prefix_option_msg = string.pack(">BB I4 I4 I4",
+    prefix_len,
+    0xc0, --flags: Onlink, Auto
+    valid_time, -- valid lifetime
+    preferred_time, -- preferred lifetime
+    0 -- unknown
+    ) .. prefix
   local icmpv6_prefix_option = packet.Packet:set_icmpv6_option(packet.ND_OPT_PREFIX_INFORMATION,prefix_option_msg)
   local icmpv6_src_link_option = packet.Packet:set_icmpv6_option(packet.ND_OPT_SOURCE_LINKADDR,mac_src)
   local icmpv6_payload = ra_msg .. icmpv6_prefix_option .. icmpv6_src_link_option
   return icmpv6_payload
 end
 
-local function get_interfaces()
-  local interface_name = stdnse.get_script_args(SCRIPT_NAME .. ".interface")
-    or nmap.get_interface()
-
-  -- interfaces list (decide which interfaces to broadcast on)
-  local interfaces = {}
-  if interface_name then
-    -- single interface defined
-    local if_table = nmap.get_interface_info(interface_name)
-    if if_table and ipOps.ip_to_str(if_table.address) and if_table.link == "ethernet" then
-      interfaces[#interfaces + 1] = if_table
-    else
-      stdnse.debug1("Interface not supported or not properly configured.")
-    end
-  else
-    for _, if_table in ipairs(nmap.list_interfaces()) do
-      if ipOps.ip_to_str(if_table.address) and if_table.link == "ethernet" then
-        table.insert(interfaces, if_table)
-      end
-    end
+local function filter_interfaces(if_table)
+  if ipOps.ip_to_str(if_table.address) and if_table.link == "ethernet" then
+    return if_table
   end
-
-  return interfaces
 end
 
 local function single_interface_broadcast(if_nfo, results)
@@ -233,7 +216,7 @@ action = function()
   local results = {}
   local condvar = nmap.condvar(results)
 
-  for _, if_nfo in ipairs(get_interfaces()) do
+  for _, if_nfo in ipairs(stdnse.get_script_interfaces(filter_interfaces)) do
     -- create a thread for each interface
     if ipOps.ip_in_range(if_nfo.address, "fe80::/10") then
       local co = stdnse.new_thread(single_interface_broadcast, if_nfo, results)

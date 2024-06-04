@@ -1,65 +1,66 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
+#!/usr/bin/env python3
 
 # ***********************IMPORTANT NMAP LICENSE TERMS************************
-# *                                                                         *
-# * The Nmap Security Scanner is (C) 1996-2020 Insecure.Com LLC ("The Nmap  *
-# * Project"). Nmap is also a registered trademark of the Nmap Project.     *
-# *                                                                         *
-# * This program is distributed under the terms of the Nmap Public Source   *
-# * License (NPSL). The exact license text applying to a particular Nmap    *
-# * release or source code control revision is contained in the LICENSE     *
-# * file distributed with that version of Nmap or source code control       *
-# * revision. More Nmap copyright/legal information is available from       *
-# * https://nmap.org/book/man-legal.html, and further information on the    *
-# * NPSL license itself can be found at https://nmap.org/npsl. This header  *
-# * summarizes some key points from the Nmap license, but is no substitute  *
-# * for the actual license text.                                            *
-# *                                                                         *
-# * Nmap is generally free for end users to download and use themselves,    *
-# * including commercial use. It is available from https://nmap.org.        *
-# *                                                                         *
-# * The Nmap license generally prohibits companies from using and           *
-# * redistributing Nmap in commercial products, but we sell a special Nmap  *
-# * OEM Edition with a more permissive license and special features for     *
-# * this purpose. See https://nmap.org/oem                                  *
-# *                                                                         *
-# * If you have received a written Nmap license agreement or contract       *
-# * stating terms other than these (such as an Nmap OEM license), you may   *
-# * choose to use and redistribute Nmap under those terms instead.          *
-# *                                                                         *
-# * The official Nmap Windows builds include the Npcap software             *
-# * (https://npcap.org) for packet capture and transmission. It is under    *
-# * separate license terms which forbid redistribution without special      *
-# * permission. So the official Nmap Windows builds may not be              *
-# * redistributed without special permission (such as an Nmap OEM           *
-# * license).                                                               *
-# *                                                                         *
-# * Source is provided to this software because we believe users have a     *
-# * right to know exactly what a program is going to do before they run it. *
-# * This also allows you to audit the software for security holes.          *
-# *                                                                         *
-# * Source code also allows you to port Nmap to new platforms, fix bugs,    *
-# * and add new features.  You are highly encouraged to submit your         *
-# * changes as a Github PR or by email to the dev@nmap.org mailing list     *
-# * for possible incorporation into the main distribution. Unless you       *
-# * specify otherwise, it is understood that you are offering us very       *
-# * broad rights to use your submissions as described in the Nmap Public    *
-# * Source License Contributor Agreement. This is important because we      *
-# * fund the project by selling licenses with various terms, and also       *
-# * because the inability to relicense code has caused devastating          *
-# * problems for other Free Software projects (such as KDE and NASM).       *
-# *                                                                         *
-# * The free version of Nmap is distributed in the hope that it will be     *
-# * useful, but WITHOUT ANY WARRANTY; without even the implied warranty of  *
-# * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. Warranties,        *
-# * indemnification and commercial support are all available through the    *
-# * Npcap OEM program--see https://nmap.org/oem.                            *
-# *                                                                         *
+# *
+# * The Nmap Security Scanner is (C) 1996-2024 Nmap Software LLC ("The Nmap
+# * Project"). Nmap is also a registered trademark of the Nmap Project.
+# *
+# * This program is distributed under the terms of the Nmap Public Source
+# * License (NPSL). The exact license text applying to a particular Nmap
+# * release or source code control revision is contained in the LICENSE
+# * file distributed with that version of Nmap or source code control
+# * revision. More Nmap copyright/legal information is available from
+# * https://nmap.org/book/man-legal.html, and further information on the
+# * NPSL license itself can be found at https://nmap.org/npsl/ . This
+# * header summarizes some key points from the Nmap license, but is no
+# * substitute for the actual license text.
+# *
+# * Nmap is generally free for end users to download and use themselves,
+# * including commercial use. It is available from https://nmap.org.
+# *
+# * The Nmap license generally prohibits companies from using and
+# * redistributing Nmap in commercial products, but we sell a special Nmap
+# * OEM Edition with a more permissive license and special features for
+# * this purpose. See https://nmap.org/oem/
+# *
+# * If you have received a written Nmap license agreement or contract
+# * stating terms other than these (such as an Nmap OEM license), you may
+# * choose to use and redistribute Nmap under those terms instead.
+# *
+# * The official Nmap Windows builds include the Npcap software
+# * (https://npcap.com) for packet capture and transmission. It is under
+# * separate license terms which forbid redistribution without special
+# * permission. So the official Nmap Windows builds may not be redistributed
+# * without special permission (such as an Nmap OEM license).
+# *
+# * Source is provided to this software because we believe users have a
+# * right to know exactly what a program is going to do before they run it.
+# * This also allows you to audit the software for security holes.
+# *
+# * Source code also allows you to port Nmap to new platforms, fix bugs, and
+# * add new features. You are highly encouraged to submit your changes as a
+# * Github PR or by email to the dev@nmap.org mailing list for possible
+# * incorporation into the main distribution. Unless you specify otherwise, it
+# * is understood that you are offering us very broad rights to use your
+# * submissions as described in the Nmap Public Source License Contributor
+# * Agreement. This is important because we fund the project by selling licenses
+# * with various terms, and also because the inability to relicense code has
+# * caused devastating problems for other Free Software projects (such as KDE
+# * and NASM).
+# *
+# * The free version of Nmap is distributed in the hope that it will be
+# * useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
+# * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. Warranties,
+# * indemnification and commercial support are all available through the
+# * Npcap OEM program--see https://nmap.org/oem/
+# *
 # ***************************************************************************/
 
-import gobject
-import gtk
+import gi
+
+gi.require_version("Gtk", "3.0")
+from gi.repository import Gtk, GObject, GLib
+
 import os
 import os.path
 import sys
@@ -94,11 +95,12 @@ class ScanChooser(HIGVBox):
     has changed."""
 
     __gsignals__ = {
-        "changed": (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, ())
+        "changed": (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, ())
     }
 
     def __init__(self, scans, title):
-        self.__gobject_init__()
+        HIGVBox.__init__(self)
+
         self.title = title
         self.scan_dict = {}
 
@@ -126,13 +128,12 @@ class ScanChooser(HIGVBox):
         self.lbl_scan = HIGSectionLabel(self.title)
         self.hbox = HIGHBox()
         self.table = HIGTable()
-        self.list_scan = gtk.ListStore(str)
-        self.combo_scan = gtk.ComboBoxEntry(self.list_scan, 0)
-        self.btn_open_scan = gtk.Button(stock=gtk.STOCK_OPEN)
-        self.exp_scan = gtk.Expander(_("Scan Output"))
-        self.scrolled = gtk.ScrolledWindow()
-        self.txt_scan_result = gtk.TextView()
-        self.txg_tag = gtk.TextTag("scan_style")
+        self.combo_scan = Gtk.ComboBoxText.new_with_entry()
+        self.btn_open_scan = Gtk.Button.new_from_stock(Gtk.STOCK_OPEN)
+        self.exp_scan = Gtk.Expander.new(_("Scan Output"))
+        self.scrolled = Gtk.ScrolledWindow()
+        self.txt_scan_result = Gtk.TextView()
+        self.txg_tag = Gtk.TextTag.new("scan_style")
 
     def get_buffer(self):
         return self.txt_scan_result.get_buffer()
@@ -166,14 +167,14 @@ class ScanChooser(HIGVBox):
         self.scrolled.add_with_viewport(self.txt_scan_result)
 
         # Setting scrolled window
-        self.scrolled.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
+        self.scrolled.set_policy(Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC)
 
     def _set_text_view(self):
         self.txg_table = self.txt_scan_result.get_buffer().get_tag_table()
         self.txg_table.add(self.txg_tag)
         self.txg_tag.set_property("family", "Monospace")
 
-        self.txt_scan_result.set_wrap_mode(gtk.WRAP_WORD)
+        self.txt_scan_result.set_wrap_mode(Gtk.WrapMode.WORD)
         self.txt_scan_result.set_editable(False)
         self.txt_scan_result.get_buffer().connect(
             "changed", self._text_changed_cb)
@@ -187,7 +188,7 @@ class ScanChooser(HIGVBox):
         response = file_chooser.run()
         file_chosen = file_chooser.get_filename()
         file_chooser.destroy()
-        if response == gtk.RESPONSE_OK:
+        if response == Gtk.ResponseType.OK:
             try:
                 parser = NmapParser()
                 parser.parse_file(file_chosen)
@@ -214,7 +215,7 @@ class ScanChooser(HIGVBox):
             scan_name = os.path.split(file_chosen)[-1]
             self.add_scan(scan_name, parser)
 
-            self.combo_scan.set_active(len(self.list_scan) - 1)
+            self.combo_scan.set_active(len(self.combo_scan.get_model()) - 1)
 
     def add_scan(self, scan_name, parser):
         scan_id = 1
@@ -223,7 +224,7 @@ class ScanChooser(HIGVBox):
             new_scan_name = "%s (%s)" % (scan_name, scan_id)
             scan_id += 1
 
-        self.list_scan.append([new_scan_name])
+        self.combo_scan.append_text(new_scan_name)
         self.scan_dict[new_scan_name] = parser
 
     def _text_changed_cb(self, widget):
@@ -234,7 +235,7 @@ class ScanChooser(HIGVBox):
     def get_parsed_scan(self):
         """Return the currently selected scan's parsed output as an NmapParser
         object, or None if no valid scan is selected."""
-        selected_scan = self.combo_scan.child.get_text()
+        selected_scan = self.combo_scan.get_active_text()
         return self.scan_dict.get(selected_scan)
 
     def get_nmap_output(self):
@@ -249,9 +250,9 @@ class ScanChooser(HIGVBox):
     parsed_scan = property(get_parsed_scan)
 
 
-class DiffWindow(gtk.Window):
+class DiffWindow(Gtk.Window):
     def __init__(self, scans):
-        gtk.Window.__init__(self)
+        Gtk.Window.__init__(self)
         self.set_title(_("Compare Results"))
         self.ndiff_process = None
         # We allow the user to start a new diff before the old one has
@@ -265,11 +266,11 @@ class DiffWindow(gtk.Window):
         self.diff_view = DiffView()
         self.diff_view.set_size_request(-1, 100)
         self.hbox_buttons = HIGHBox()
-        self.progress = gtk.ProgressBar()
-        self.btn_close = HIGButton(stock=gtk.STOCK_CLOSE)
+        self.progress = Gtk.ProgressBar()
+        self.btn_close = HIGButton(stock=Gtk.STOCK_CLOSE)
         self.hbox_selection = HIGHBox()
-        self.scan_chooser_a = ScanChooser(scans, _(u"A Scan"))
-        self.scan_chooser_b = ScanChooser(scans, _(u"B Scan"))
+        self.scan_chooser_a = ScanChooser(scans, _("A Scan"))
+        self.scan_chooser_b = ScanChooser(scans, _("B Scan"))
 
         self._pack_widgets()
         self._connect_widgets()
@@ -282,20 +283,20 @@ class DiffWindow(gtk.Window):
     def _pack_widgets(self):
         self.main_vbox.set_border_width(6)
 
-        self.hbox_selection.pack_start(self.scan_chooser_a, True, True)
-        self.hbox_selection.pack_start(self.scan_chooser_b, True, True)
+        self.hbox_selection.pack_start(self.scan_chooser_a, True, True, 0)
+        self.hbox_selection.pack_start(self.scan_chooser_b, True, True, 0)
 
-        self.main_vbox.pack_start(self.hbox_selection, False)
+        self.main_vbox.pack_start(self.hbox_selection, False, True, 0)
 
-        scroll = gtk.ScrolledWindow()
-        scroll.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
+        scroll = Gtk.ScrolledWindow()
+        scroll.set_policy(Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC)
         scroll.add(self.diff_view)
-        self.main_vbox.pack_start(scroll, True, True)
+        self.main_vbox.pack_start(scroll, True, True, 0)
 
         self.progress.hide()
         self.progress.set_no_show_all(True)
-        self.hbox_buttons.pack_start(self.progress, False)
-        self.hbox_buttons.pack_end(self.btn_close, False)
+        self.hbox_buttons.pack_start(self.progress, False, True, 0)
+        self.hbox_buttons.pack_end(self.btn_close, False, True, 0)
 
         self.main_vbox._pack_noexpand_nofill(self.hbox_buttons)
 
@@ -331,13 +332,13 @@ class DiffWindow(gtk.Window):
                     message_format=_("Error running ndiff"),
                     secondary_text=_(
                         "There was an error running the ndiff program.\n\n"
-                        ) + str(e).decode(sys.getdefaultencoding(), "replace"))
+                        ) + str(e))
                 alert.run()
                 alert.destroy()
             else:
                 self.progress.show()
                 if self.timer_id is None:
-                    self.timer_id = gobject.timeout_add(
+                    self.timer_id = GLib.timeout_add(
                         NDIFF_CHECK_TIMEOUT, self.check_ndiff_process)
 
     def check_ndiff_process(self):
@@ -376,9 +377,10 @@ class DiffWindow(gtk.Window):
                 error_text = _(
                     "The ndiff process terminated with status code %d."
                     ) % status
-                stderr = self.ndiff_process.stderr.read()
-                if len(stderr) > 0:
-                    error_text += "\n\n" + stderr
+                if self.ndiff_process.stderr:
+                    stderr = self.ndiff_process.stderr.read()
+                    if len(stderr) > 0:
+                        error_text += "\n\n" + stderr
                 alert = HIGAlertDialog(
                     message_format=_("Error running ndiff"),
                     secondary_text=error_text)
@@ -401,13 +403,13 @@ class DiffWindow(gtk.Window):
         self.destroy()
 
 
-class DiffView(gtk.TextView):
+class DiffView(Gtk.TextView):
     REMOVE_COLOR = "#ffaaaa"
     ADD_COLOR = "#ccffcc"
 
     """A widget displaying a zenmapCore.Diff.ScanDiff."""
     def __init__(self):
-        gtk.TextView.__init__(self)
+        Gtk.TextView.__init__(self)
         self.set_editable(False)
 
         buff = self.get_buffer()
@@ -418,7 +420,7 @@ class DiffView(gtk.TextView):
         buff.create_tag("+", font="Monospace", background=self.ADD_COLOR)
 
     def clear(self):
-        self.get_buffer().set_text(u"")
+        self.get_buffer().set_text("")
 
     def show_diff(self, diff):
         self.clear()
@@ -451,6 +453,6 @@ if __name__ == "__main__":
                      "Parsed 4": parsed4})
 
     dw.show_all()
-    dw.connect("delete-event", lambda x, y: gtk.main_quit())
+    dw.connect("delete-event", lambda x, y: Gtk.main_quit())
 
-    gtk.main()
+    Gtk.main()

@@ -155,7 +155,7 @@ int	sigsetmask(int);
 struct	sigvec;
 #endif
 int	sigvec(int, struct sigvec *, struct sigvec*);
-int	pcap_snprintf(char *, size_t, const char *, ...);
+int	snprintf(char *, size_t, const char *, ...);
 int	socket(int, int, int);
 int	socketpair(int, int, int, int *);
 int	symlink(const char *, const char *);

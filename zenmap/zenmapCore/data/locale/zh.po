@@ -1,0 +1,2512 @@
+# Copyright (C) 2008 - 2021 Nmap Software LLC
+# Copyright (C) Jiang Jie <jerrynwin () gmail com>, 2014.
+# This file is distributed under the same license as Nmap.
+msgid ""
+msgstr ""
+"Project-Id-Version: Zenmap\n"
+"Report-Msgid-Bugs-To: dev@nmap org\n"
+"POT-Creation-Date: 2013-04-09 16:41-0700\n"
+"PO-Revision-Date: 2014-12-06 13:59+0800\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Last-Translator: Jiang Jie <jerrynwin () gmail com>\n"
+"Language-Team: Chinese\n"
+"Language: zh\n"
+
+#: zenmapCore/UmitOptionParser.py:109
+#, python-format
+msgid "Use DIR as the user configuration directory. Default: %default"
+msgstr "使用DIR目录作为用户配置文件存放目录，默认为: %defalut"
+
+#: zenmapCore/UmitOptionParser.py:123
+msgid ""
+"Specify a scan result file in Nmap XML output format. Can be used more than "
+"once to specify several scan result files."
+msgstr ""
+"指定扫描结果输出为Nmap XML格式, 可以多次使用来指定多个扫描结果文件。"
+""
+
+#: zenmapCore/UmitOptionParser.py:134
+#, python-format
+msgid "Run %s with the specified args."
+msgstr "使用指定参数 %s 运行。"
+
+#: zenmapCore/UmitOptionParser.py:141
+msgid ""
+"Begin with the specified profile selected. If combined with the -t (--"
+"target) option, automatically run the profile against the specified target."
+msgstr ""
+"用选定的配置运行，如果同时使用-t (--target)选项，自动把该配置"
+"用于指定目标。"
+
+#: zenmapCore/UmitOptionParser.py:152
+msgid ""
+"Specify a target to be used along with other options. If specified alone, "
+"open with the target field filled with the specified target"
+msgstr ""
+"指定单个目标使用特定选项，如果单独指定，"
+"目标字段为所指定的目标。"
+
+#: zenmapCore/UmitOptionParser.py:160
+msgid ""
+"Increase verbosity of the output. May be used more than once to get even "
+"more verbosity"
+msgstr ""
+"提高输出的详细级别，可以多次使用来获得更高的详细级别。"
+
+
+#: zenmapCore/UmitDB.py:108
+msgid "No module named dbapi2.pysqlite2 or sqlite3"
+msgstr "未找到dbapi2.pysqlite2或者sqlite3模块"
+
+#: zenmapCore/NmapParser.py:337
+msgid "Unknown Host"
+msgstr "未知主机"
+
+#: zenmapCore/NmapParser.py:376
+msgid "unknown"
+msgstr "未知"
+
+#: zenmapCore/NmapParser.py:379
+msgid "Unknown version"
+msgstr "未知版本"
+
+#: zenmapCore/NmapParser.py:382 zenmapGUI/ScanOpenPortsPage.py:390
+#: zenmapGUI/ScanOpenPortsPage.py:398 zenmapGUI/SearchGUI.py:474
+msgid "Unknown"
+msgstr "未知"
+
+#: zenmapCore/NmapParser.py:657
+#, python-format
+msgid "%s on %s"
+msgstr "%s on %s"
+
+#: zenmapGUI/ScanOpenPortsPage.py:187 zenmapGUI/ScanHostsView.py:147
+msgid "Host"
+msgstr "主机"
+
+#: zenmapGUI/ScanOpenPortsPage.py:189 zenmapGUI/ScanOpenPortsPage.py:217
+#: radialnet/gui/NodeNotebook.py:100
+msgid "Port"
+msgstr "端口"
+
+#: zenmapGUI/ScanOpenPortsPage.py:190 zenmapGUI/ScanOpenPortsPage.py:216
+#: radialnet/gui/NodeNotebook.py:100
+msgid "Protocol"
+msgstr "协议"
+
+#: zenmapGUI/ScanOpenPortsPage.py:191 zenmapGUI/ScanOpenPortsPage.py:218
+#: radialnet/gui/NodeNotebook.py:100 radialnet/gui/NodeNotebook.py:101
+msgid "State"
+msgstr "状态"
+
+#: zenmapGUI/ScanOpenPortsPage.py:192 zenmapGUI/ScanOpenPortsPage.py:213
+#: zenmapGUI/ScanHostsView.py:155 radialnet/gui/NodeNotebook.py:100
+msgid "Service"
+msgstr "服务"
+
+#: zenmapGUI/ScanOpenPortsPage.py:193 zenmapGUI/ScanOpenPortsPage.py:219
+#: radialnet/gui/NodeNotebook.py:125
+msgid "Version"
+msgstr "版本"
+
+#: zenmapGUI/ScanOpenPortsPage.py:215 radialnet/gui/NodeNotebook.py:111
+msgid "Hostname"
+msgstr "主机名"
+
+#: zenmapGUI/FilterBar.py:23
+msgid "Host Filter:"
+msgstr "主机过滤:"
+
+#: zenmapGUI/FilterBar.py:56
+msgid ""
+"Entering the text into the search performs a <b>keyword search</b> - the "
+"search string is matched against every aspect of the host.\n"
+"\n"
+"To refine the search, you can use <b>operators</b> to search only specific "
+"fields within a host. Most operators have a short form, listed. \n"
+"<b>target: (t:)</b> - User-supplied target, or a rDNS result.\n"
+"<b>os:</b> - All OS-related fields.\n"
+"<b>open: (op:)</b> - Open ports discovered in a scan.\n"
+"<b>closed: (cp:)</b> - Closed ports discovered in a scan.\n"
+"<b>filtered: (fp:)</b> - Filtered ports discovered in scan.\n"
+"<b>unfiltered: (ufp:)</b> - Unfiltered ports found in a scan (using, for "
+"example, an ACK scan).\n"
+"<b>open|filtered: (ofp:)</b> - Ports in the \"open|filtered\" state.\n"
+"<b>closed|filtered: (cfp:)</b> - Ports in the \"closed|filtered\" state.\n"
+"<b>service: (s:)</b> - All service-related fields.\n"
+"<b>inroute: (ir:)</b> - Matches a router in the scan's traceroute output.\n"
+msgstr ""
+"在文本框中输入信息来进行<b>关键词搜索</b>- "
+"关键词匹配主机信息的任一内容。\n"
+"\n"
+"你可以用<b>运算符</b>来筛选主机信息内指定的字段。"
+"大部分的运算符都有缩写形式，如下:\n"
+"<b>target: (t:)</b> - 用户提供的目标,或者是rDNS结果。\n"
+"<b>os:</b> - 所有和操作系统相关的字段。\n"
+"<b>open: (op:)</b> - 扫描中发现的开放端口。\n"
+"<b>closed: (cp:)</b> - 扫描中发现的未开放端口。\n"
+"<b>filtered: (fp:)</b> - 扫描中发现的被过滤端口。\n"
+"<b>unfiltered: (ufp:)</b> - 扫描中发现的未被过滤的端口(例如:使用ACK扫描"
+")。\n"
+"<b>open|filtered: (ofp:)</b> - 属于\"open|filtered\"状态的端口。\n"
+"<b>closed|filtered: (cfp:)</b> - 属于\"closed|filtered\"状态的端口。\n"
+"<b>service: (s:)</b> - 所有与服务相关的字段。\n"
+"<b>inroute: (ir:)</b> - 与扫描的路由追踪输出中匹配的路由器。\n"
+
+#: zenmapGUI/TopologyPage.py:148
+msgid "Show the topology anyway"
+msgstr "始终显示拓扑结构"
+
+#: zenmapGUI/TopologyPage.py:179
+#, python-format
+msgid ""
+"Topology is disabled because too many hosts can cause it\n"
+"to run slowly. The limit is %d hosts and there are %d."
+msgstr ""
+"拓扑结构未启用，由于过多的主机会使其运行很缓慢。\n"
+"最大主机数量限制为%d,而当前存在%d个主机。"
+
+#: zenmapGUI/ScanHostsView.py:134
+msgid "Hosts"
+msgstr "主机"
+
+#: zenmapGUI/ScanHostsView.py:135 radialnet/gui/NodeNotebook.py:164
+msgid "Services"
+msgstr "服务"
+
+#: zenmapGUI/ScanHostsView.py:146
+msgid "OS"
+msgstr "操作系统"
+
+#: zenmapGUI/ScanScanListPage.py:102
+msgid "Running"
+msgstr "运行中"
+
+#: zenmapGUI/ScanScanListPage.py:105
+msgid "Unsaved"
+msgstr "未保存"
+
+#: zenmapGUI/ScanScanListPage.py:109
+msgid "Failed"
+msgstr "失败"
+
+#: zenmapGUI/ScanScanListPage.py:111
+msgid "Canceled"
+msgstr "取消"
+
+#: zenmapGUI/ScanScanListPage.py:132
+msgid "Status"
+msgstr "状态"
+
+#: zenmapGUI/ScanScanListPage.py:138
+msgid "Command"
+msgstr "命令"
+
+#: zenmapGUI/ScanScanListPage.py:155
+msgid "Append Scan"
+msgstr "追加扫描"
+
+#: zenmapGUI/ScanScanListPage.py:158
+msgid "Remove Scan"
+msgstr "移除扫描"
+
+#: zenmapGUI/ScanScanListPage.py:161
+msgid "Cancel Scan"
+msgstr "取消扫描"
+
+#: zenmapGUI/ScriptInterface.py:218
+msgid ""
+"There was an error getting the list of scripts from Nmap. Try upgrading Nmap."
+msgstr ""
+"检测脚本列表失败，请尝试更新Nmap."
+
+#: zenmapGUI/ScriptInterface.py:413
+msgid ""
+"List of scripts\n"
+"\n"
+"A list of all installed scripts. Activate or deactivate a script by clicking "
+"the box next to the script name."
+msgstr ""
+"脚本列表\n"
+"\n"
+"所有已安装的脚本列表。"
+"勾选脚本名旁的复选框选择是否启动该脚本。 "
+
+#: zenmapGUI/ScriptInterface.py:414
+msgid ""
+"Description\n"
+"\n"
+"This box shows the categories a script belongs to. In addition, it gives a "
+"detailed description of the script which is present in script. A URL points "
+"to online NSEDoc documentation."
+msgstr ""
+"描述\n"
+"\n"
+"这个窗口显示脚本所属类别。此外，还显示脚本的详细描述"
+"和指向NSEDoc在线文档的链接。"
+""
+
+#: zenmapGUI/ScriptInterface.py:415
+msgid ""
+"Arguments\n"
+"\n"
+"A list of arguments that affect the selected script. Enter a value by "
+"clicking in the value field beside the argument name."
+msgstr ""
+"参数\n"
+"\n"
+"脚本接受的参数列表，点击参数名旁的文本框,输入参数值。"
+""
+
+#: zenmapGUI/ScriptInterface.py:419
+msgid "Please wait."
+msgstr "请等待。"
+
+#: zenmapGUI/ScriptInterface.py:442
+msgid "Names"
+msgstr "脚本名"
+
+#: zenmapGUI/ScriptInterface.py:561
+msgid "Arguments"
+msgstr "参数"
+
+#: zenmapGUI/ScriptInterface.py:650
+msgid "Select script files"
+msgstr "选择脚本文件"
+
+#: zenmapGUI/SearchWindow.py:116
+msgid "Search Scans"
+msgstr "搜索扫描"
+
+#: zenmapGUI/SearchWindow.py:142
+msgid "Append"
+msgstr "追加"
+
+#: zenmapGUI/NmapOutputProperties.py:107
+msgid "Nmap Output Properties"
+msgstr "Nmap输出属性"
+
+#: zenmapGUI/NmapOutputProperties.py:134
+msgid "details"
+msgstr "明细"
+
+#: zenmapGUI/NmapOutputProperties.py:135
+msgid "port listing title"
+msgstr "端口列表标题"
+
+#: zenmapGUI/NmapOutputProperties.py:136
+msgid "open port"
+msgstr "开放端口"
+
+#: zenmapGUI/NmapOutputProperties.py:137
+msgid "closed port"
+msgstr "未开放端口"
+
+#: zenmapGUI/NmapOutputProperties.py:138
+msgid "filtered port"
+msgstr "被过滤端口"
+
+#: zenmapGUI/NmapOutputProperties.py:139
+msgid "date"
+msgstr "日期"
+
+#: zenmapGUI/NmapOutputProperties.py:140
+msgid "hostname"
+msgstr "主机名"
+
+#: zenmapGUI/NmapOutputProperties.py:141
+msgid "ip"
+msgstr "ip"
+
+#: zenmapGUI/NmapOutputProperties.py:180
+msgid "Highlight definitions"
+msgstr "高亮定义"
+
+#: zenmapGUI/NmapOutputProperties.py:206
+msgid "Text"
+msgstr "文本"
+
+#: zenmapGUI/NmapOutputProperties.py:207
+msgid "Highlight"
+msgstr "高亮"
+
+#: zenmapGUI/NmapOutputProperties.py:222
+msgid "text color"
+msgstr "文本颜色"
+
+#: zenmapGUI/NmapOutputProperties.py:248
+msgid "highlight color"
+msgstr "高亮颜色"
+
+#: zenmapGUI/About.py:156
+#, python-format
+msgid "About %s and %s"
+msgstr "关于%s和%s"
+
+#: zenmapGUI/About.py:172
+#, python-format
+msgid ""
+"%s is a free and open source utility for network exploration and security "
+"auditing."
+msgstr ""
+"%s是一款免费开源的软件，用于网络探测和安全审计。"
+""
+
+#: zenmapGUI/About.py:177
+#, python-format
+msgid ""
+"%s is a multi-platform graphical %s frontend and results viewer. It was "
+"originally derived from %s."
+msgstr ""
+"%s是一款跨平台图形化%s前端，也是一款结果浏览器。"
+"最初由%s衍生而来。"
+
+#: zenmapGUI/About.py:183
+#, python-format
+msgid ""
+"%s is an %s GUI created as part of the Nmap/Google Summer of Code program."
+msgstr ""
+"%s是%s的图形界面，是Nmap/Google Summer of Code的一个子项目。"
+"\n"
+"\n"
+"对于中文翻译有任何建议或意见，请截图发送至:"
+" jerrynwin () gmail com, 谢谢！"
+
+#: zenmapGUI/About.py:186 zenmapGUI/About.py:226
+#, python-format
+msgid "%s credits"
+msgstr "%s开发团队"
+
+#: zenmapGUI/About.py:267
+msgid "Written by"
+msgstr "作者"
+
+#: zenmapGUI/About.py:268
+msgid "Design"
+msgstr "设计"
+
+#: zenmapGUI/About.py:269
+msgid "SoC 2007"
+msgstr "SoC 2007"
+
+#: zenmapGUI/About.py:270
+msgid "Contributors"
+msgstr "贡献者"
+
+#: zenmapGUI/About.py:271
+msgid "Translation"
+msgstr "翻译"
+
+#: zenmapGUI/About.py:272
+msgid "Maemo"
+msgstr "Maemo"
+
+#: zenmapGUI/OptionBuilder.py:257
+msgid "Choose file"
+msgstr "选择文件"
+
+#: zenmapGUI/DiffCompare.py:156
+msgid "Scan Output"
+msgstr "扫描结果"
+
+#: zenmapGUI/DiffCompare.py:207
+msgid "Select Scan Result"
+msgstr "选择扫描结果"
+
+#: zenmapGUI/DiffCompare.py:218
+msgid "Error parsing file"
+msgstr "解析文件错误"
+
+#: zenmapGUI/DiffCompare.py:219
+#, python-format
+msgid ""
+"The file is not an Nmap XML output file. The parsing error that occurred "
+"was\n"
+"%s"
+msgstr ""
+"这个文件不是Nmap XML输出文件。解析时发生错误: "
+"\n"
+"%s"
+
+#: zenmapGUI/DiffCompare.py:226
+msgid "Cannot open selected file"
+msgstr "打开文件失败"
+
+#: zenmapGUI/DiffCompare.py:227
+#, python-format
+msgid ""
+"This error occurred while trying to open the file:\n"
+"%s"
+msgstr ""
+"打开文件时发生如下错误:\n"
+"%s"
+
+#: zenmapGUI/DiffCompare.py:275 zenmapGUI/MainWindow.py:302
+msgid "Compare Results"
+msgstr "结果比对"
+
+#: zenmapGUI/DiffCompare.py:290
+msgid "A Scan"
+msgstr "扫描A"
+
+#: zenmapGUI/DiffCompare.py:291
+msgid "B Scan"
+msgstr "扫描B"
+
+#: zenmapGUI/DiffCompare.py:349 zenmapGUI/DiffCompare.py:396
+msgid "Error running ndiff"
+msgstr "运行ndiff失败"
+
+#: zenmapGUI/DiffCompare.py:350
+msgid ""
+"There was an error running the ndiff program.\n"
+"\n"
+msgstr ""
+"运行ndiff时出错。\n"
+"\n"
+
+#: zenmapGUI/DiffCompare.py:383
+msgid "Error parsing ndiff output"
+msgstr "解析ndiff输出时出错。"
+
+#: zenmapGUI/DiffCompare.py:391
+#, python-format
+msgid "The ndiff process terminated with status code %d."
+msgstr "ndiff程序终止,返回状态码: %d."
+
+#: zenmapGUI/ScanRunDetailsPage.py:102 zenmapGUI/ScanHostDetailsPage.py:101
+msgid "Not available"
+msgstr "未知"
+
+#: zenmapGUI/ScanRunDetailsPage.py:105 zenmapGUI/ScanToolbar.py:109
+msgid "Command:"
+msgstr "命令:"
+
+#: zenmapGUI/ScanRunDetailsPage.py:108
+msgid "Nmap Version:"
+msgstr "Nmap版本:"
+
+#: zenmapGUI/ScanRunDetailsPage.py:111
+msgid "Verbosity level:"
+msgstr "详细级别:"
+
+#: zenmapGUI/ScanRunDetailsPage.py:114
+msgid "Debug level:"
+msgstr "调试级别:"
+
+#: zenmapGUI/ScanRunDetailsPage.py:117
+msgid "Command Info"
+msgstr "命令信息"
+
+#: zenmapGUI/ScanRunDetailsPage.py:146
+msgid "Started on:"
+msgstr "开始于:"
+
+#: zenmapGUI/ScanRunDetailsPage.py:149
+msgid "Finished on:"
+msgstr "结束于:"
+
+#: zenmapGUI/ScanRunDetailsPage.py:152
+msgid "Hosts up:"
+msgstr "在线主机:"
+
+#: zenmapGUI/ScanRunDetailsPage.py:155
+msgid "Hosts down:"
+msgstr "离线主机:"
+
+#: zenmapGUI/ScanRunDetailsPage.py:158
+msgid "Hosts scanned:"
+msgstr "扫描主机:"
+
+#: zenmapGUI/ScanRunDetailsPage.py:161 zenmapGUI/ScanHostDetailsPage.py:167
+msgid "Open ports:"
+msgstr "开放端口:"
+
+#: zenmapGUI/ScanRunDetailsPage.py:164 zenmapGUI/ScanHostDetailsPage.py:170
+msgid "Filtered ports:"
+msgstr "过滤端口:"
+
+#: zenmapGUI/ScanRunDetailsPage.py:167 zenmapGUI/ScanHostDetailsPage.py:173
+msgid "Closed ports:"
+msgstr "未开放端口:"
+
+#: zenmapGUI/ScanRunDetailsPage.py:170
+msgid "General Info"
+msgstr "常规信息"
+
+#: zenmapGUI/ScanRunDetailsPage.py:231
+msgid "Scan Info"
+msgstr "扫描信息"
+
+#: zenmapGUI/ScanRunDetailsPage.py:248
+msgid "Scan type:"
+msgstr "扫描类型"
+
+#: zenmapGUI/ScanRunDetailsPage.py:251
+msgid "Protocol:"
+msgstr "协议"
+
+#: zenmapGUI/ScanRunDetailsPage.py:254
+msgid "# scanned ports:"
+msgstr "# 已扫描端口:"
+
+#: zenmapGUI/ScanRunDetailsPage.py:257
+msgid "Services:"
+msgstr "服务:"
+
+#: zenmapGUI/FileChoosers.py:105
+#, python-format
+msgid "All files (%s)"
+msgstr "所有文件 (%s)"
+
+#: zenmapGUI/FileChoosers.py:114
+#, python-format
+msgid "Nmap XML files (%s)"
+msgstr "Nmap XML文件 (%s)"
+
+#: zenmapGUI/FileChoosers.py:123
+#, python-format
+msgid "NSE scripts (%s)"
+msgstr "NSE脚本 (%s)"
+
+#: zenmapGUI/FileChoosers.py:197 radialnet/gui/SaveDialog.py:99
+msgid "By extension"
+msgstr "自定义扩展名"
+
+#: zenmapGUI/FileChoosers.py:198
+msgid "Nmap XML format (.xml)"
+msgstr "Nmap XML格式 (.xml)"
+
+#: zenmapGUI/FileChoosers.py:199
+msgid "Nmap text format (.nmap)"
+msgstr "Nmap文本格式 (.nmap)"
+
+#: zenmapGUI/FileChoosers.py:228 radialnet/gui/SaveDialog.py:136
+msgid "Select File Type:"
+msgstr "选择文本类型:"
+
+#: zenmapGUI/ScanToolbar.py:141 zenmapGUI/SearchGUI.py:295
+#: zenmapGUI/ProfileEditor.py:192 share/zenmap/misc/profile_editor.xml:8
+msgid "Scan"
+msgstr "扫描"
+
+#: zenmapGUI/ScanToolbar.py:143
+msgid "Cancel"
+msgstr "取消"
+
+#: zenmapGUI/ScanToolbar.py:165
+msgid "Target:"
+msgstr "目标:"
+
+#: zenmapGUI/ScanToolbar.py:172
+msgid "Profile:"
+msgstr "配置:"
+
+#: zenmapGUI/ScanNmapOutputPage.py:182
+msgid "Details"
+msgstr "明细"
+
+#: zenmapGUI/ScanInterface.py:386
+msgid "Empty Nmap Command"
+msgstr "空Nmap命令"
+
+#: zenmapGUI/ScanInterface.py:387
+msgid ""
+"There is no command to  execute. Maybe the selected/typed profile doesn't "
+"exist. Please, check the profile name or type the nmap command you would "
+"like to execute."
+msgstr ""
+"没有命令可执行，也许选择的配置不存在。"
+"请检查配置名称，或者直接执行nmap命令。"
+""
+
+#: zenmapGUI/ScanInterface.py:486
+msgid ""
+"This means that the nmap executable was not found in your system PATH, which "
+"is"
+msgstr ""
+"nmap不在环境变量PATH中,您系统的PATH变量为:"
+""
+
+#: zenmapGUI/ScanInterface.py:486
+msgid "<undefined>"
+msgstr "<未定义>"
+
+#: zenmapGUI/ScanInterface.py:496
+msgid "plus the extra directory"
+msgstr "加上额外的目录"
+
+#: zenmapGUI/ScanInterface.py:498
+msgid "plus the extra directories"
+msgstr "加上额外的目录"
+
+#: zenmapGUI/ScanInterface.py:500
+msgid "Error executing command"
+msgstr "执行命令错误"
+
+#: zenmapGUI/ScanInterface.py:568
+msgid "Parse error"
+msgstr "解析错误"
+
+#: zenmapGUI/ScanInterface.py:569
+#, python-format
+msgid ""
+"There was an error while parsing the XML file generated from the scan:\n"
+"\n"
+"%s"
+msgstr ""
+"解析扫描输出XML文件出错:\n"
+"\n"
+"%s"
+
+#: zenmapGUI/ScanInterface.py:583
+msgid "Cannot merge scan"
+msgstr "合并扫描失败"
+
+#: zenmapGUI/ScanInterface.py:584
+#, python-format
+msgid ""
+"There was an error while merging the new scan's XML:\n"
+"\n"
+"%s"
+msgstr ""
+"合并新的扫描XML文件时出错:\n"
+"\n"
+"%s"
+
+#: zenmapGUI/ScanInterface.py:671
+#, python-format
+msgid "%d/%d hosts shown"
+msgstr "显示 %d/%d主机"
+
+#: zenmapGUI/ScanInterface.py:839 zenmapGUI/MainWindow.py:285
+msgid "Filter Hosts"
+msgstr "过滤主机"
+
+#: zenmapGUI/ScanInterface.py:888
+msgid "Nmap Output"
+msgstr "Nmap输出"
+
+#: zenmapGUI/ScanInterface.py:889
+msgid "Ports / Hosts"
+msgstr "端口/主机"
+
+#: zenmapGUI/ScanInterface.py:890
+msgid "Topology"
+msgstr "拓扑"
+
+#: zenmapGUI/ScanInterface.py:891
+msgid "Host Details"
+msgstr "主机明细"
+
+#: zenmapGUI/ScanInterface.py:892
+msgid "Scans"
+msgstr "扫描"
+
+#: zenmapGUI/ScanInterface.py:913
+msgid "No host selected."
+msgstr "未选择主机。"
+
+#: zenmapGUI/MainWindow.py:208
+msgid "Sc_an"
+msgstr "扫描(_a)"
+
+#: zenmapGUI/MainWindow.py:212
+msgid "_Save Scan"
+msgstr "保存扫描(_S)"
+
+#: zenmapGUI/MainWindow.py:214
+msgid "Save current scan results"
+msgstr "保存当前扫描结果"
+
+#: zenmapGUI/MainWindow.py:219
+msgid "Save All Scans to _Directory"
+msgstr "保存所有扫描到目录(_D)"
+
+#: zenmapGUI/MainWindow.py:221
+msgid "Save all scans into a directory"
+msgstr "保存所有扫描到单个目录"
+
+#: zenmapGUI/MainWindow.py:226
+msgid "_Open Scan"
+msgstr "打开扫描(_O)"
+
+#: zenmapGUI/MainWindow.py:228
+msgid "Open the results of a previous scan"
+msgstr "打开之前扫描结果"
+
+#: zenmapGUI/MainWindow.py:233
+msgid "_Open Scan in This Window"
+msgstr "在当前窗口打开扫描(_O)"
+
+#: zenmapGUI/MainWindow.py:235
+msgid "Append a saved scan to the list of scans in this window."
+msgstr "在当前窗口新增一个保存的扫描。"
+
+#: zenmapGUI/MainWindow.py:239
+msgid "_Tools"
+msgstr "工具(_T)"
+
+#: zenmapGUI/MainWindow.py:243
+msgid "_New Window"
+msgstr "新建窗口(_N)"
+
+#: zenmapGUI/MainWindow.py:245
+msgid "Open a new scan window"
+msgstr "打开一个新的扫描窗口"
+
+#: zenmapGUI/MainWindow.py:250
+msgid "Close Window"
+msgstr "关闭窗口"
+
+#: zenmapGUI/MainWindow.py:252
+msgid "Close this scan window"
+msgstr "关闭扫描窗口"
+
+#: zenmapGUI/MainWindow.py:257
+msgid "Print..."
+msgstr "打印..."
+
+#: zenmapGUI/MainWindow.py:259
+msgid "Print the current scan"
+msgstr "打印当前扫描"
+
+#: zenmapGUI/MainWindow.py:264
+msgid "Quit"
+msgstr "退出"
+
+#: zenmapGUI/MainWindow.py:266
+msgid "Quit the application"
+msgstr "退出程序"
+
+#: zenmapGUI/MainWindow.py:271
+msgid "New _Profile or Command"
+msgstr "新的配置或命令(_P)"
+
+#: zenmapGUI/MainWindow.py:273
+msgid "Create a new scan profile using the current command"
+msgstr "使用当前命令创建一个新的扫描配置"
+
+#: zenmapGUI/MainWindow.py:278
+msgid "Search Scan Results"
+msgstr "搜索扫描结果"
+
+#: zenmapGUI/MainWindow.py:280
+msgid "Search for a scan result"
+msgstr "搜索扫描结果"
+
+#: zenmapGUI/MainWindow.py:287
+msgid "Search for host by criteria"
+msgstr "按条件搜索主机"
+
+#: zenmapGUI/MainWindow.py:292
+msgid "_Edit Selected Profile"
+msgstr "编辑选中配置(_E)"
+
+#: zenmapGUI/MainWindow.py:294
+msgid "Edit selected scan profile"
+msgstr "编辑所选扫描配置"
+
+#: zenmapGUI/MainWindow.py:298
+msgid "_Profile"
+msgstr "配置(_P)"
+
+#: zenmapGUI/MainWindow.py:304
+msgid "Compare Scan Results using Diffies"
+msgstr "用Diff比较扫描结果"
+
+#: zenmapGUI/MainWindow.py:309 zenmapGUI/MainWindow.py:329
+msgid "_Help"
+msgstr "帮助(_H)"
+
+#: zenmapGUI/MainWindow.py:313
+msgid "_Report a bug"
+msgstr "报告Bug(_R)"
+
+#: zenmapGUI/MainWindow.py:315
+msgid "Report a bug"
+msgstr "报告Bug"
+
+#: zenmapGUI/MainWindow.py:321
+msgid "_About"
+msgstr "关于(_A)"
+
+#: zenmapGUI/MainWindow.py:323
+#, python-format
+msgid "About %s"
+msgstr "关于%s"
+
+#: zenmapGUI/MainWindow.py:331
+msgid "Shows the application help"
+msgstr "打开程序帮助"
+
+#: zenmapGUI/MainWindow.py:430
+msgid "Can't save to database"
+msgstr "保存到数据库失败"
+
+#: zenmapGUI/MainWindow.py:431
+#, python-format
+msgid ""
+"Can't store unsaved scans to the recent scans database:\n"
+"%s"
+msgstr ""
+"未保存的扫描不能保存到当前扫描数据库:\n"
+"%s"
+
+#: zenmapGUI/MainWindow.py:546
+msgid "Error loading file"
+msgstr "加载文件出错"
+
+#: zenmapGUI/MainWindow.py:568 zenmapGUI/MainWindow.py:642
+msgid "Nothing to save"
+msgstr "并未做任何修改"
+
+#: zenmapGUI/MainWindow.py:569
+msgid ""
+"There are no scans with results to be saved. Run a scan with the \"Scan\" "
+"button first."
+msgstr ""
+"没有扫描结果需要保存。请先点击\"扫描\"按钮"
+"运行一次扫描。"
+
+#: zenmapGUI/MainWindow.py:578 zenmapGUI/MainWindow.py:651
+msgid "There is a scan still running. Wait until it finishes and then save."
+msgstr "有扫描正在运行，等待其运行完后再保存。"
+
+#: zenmapGUI/MainWindow.py:580 zenmapGUI/MainWindow.py:653
+#, python-format
+msgid "There are %u scans still running. Wait until they finish and then save."
+msgstr "有%u个扫描正在运行，等待其运行完后再保存。"
+
+#: zenmapGUI/MainWindow.py:582 zenmapGUI/MainWindow.py:655
+msgid "Scan is running"
+msgstr "扫描仍在运行"
+
+#: zenmapGUI/MainWindow.py:621
+msgid "Save Scan"
+msgstr "保存扫描"
+
+#: zenmapGUI/MainWindow.py:643
+msgid ""
+"This scan has not been run yet. Start the scan with the \"Scan\" button "
+"first."
+msgstr ""
+"这个扫描并未运行，点击\"扫描\"按钮来启动。"
+""
+
+#: zenmapGUI/MainWindow.py:663
+msgid "Choose a directory to save scans into"
+msgstr "选择保存扫描目录"
+
+#: zenmapGUI/MainWindow.py:688 zenmapGUI/MainWindow.py:708
+msgid "Can't save file"
+msgstr "不能保存文件"
+
+#: zenmapGUI/MainWindow.py:709
+#, python-format
+msgid ""
+"Can't open file to write.\n"
+"%s"
+msgstr ""
+"打开文件失败。\n"
+"%s"
+
+#: zenmapGUI/MainWindow.py:755 zenmapGUI/MainWindow.py:793
+msgid "Close anyway"
+msgstr "始终关闭"
+
+#: zenmapGUI/MainWindow.py:758
+msgid "Unsaved changes"
+msgstr "未保存更改"
+
+#: zenmapGUI/MainWindow.py:760
+msgid ""
+"The given scan has unsaved changes.\n"
+"What do you want to do?"
+msgstr ""
+"选定的扫描未保存更改，\n"
+"请选择:"
+
+#: zenmapGUI/MainWindow.py:796
+msgid "Trying to close"
+msgstr "尝试关闭"
+
+#: zenmapGUI/MainWindow.py:798
+msgid ""
+"The window you are trying to close has a scan running at the background.\n"
+"What do you want to do?"
+msgstr ""
+"您想要关闭的窗口后台有扫描正在运行，\n"
+"请选择:"
+
+#: zenmapGUI/MainWindow.py:865
+msgid "Can't find documentation files"
+msgstr "未找到说明文档"
+
+#: zenmapGUI/MainWindow.py:866
+#, python-format
+msgid ""
+"There was an error loading the documentation file %s (%s). See the online "
+"documentation at %s."
+msgstr ""
+"加载说明文档出错%s (%s). 请查阅在线文档"
+"%s."
+
+#: zenmapGUI/SearchGUI.py:281
+msgid "Search:"
+msgstr "搜索:"
+
+#: zenmapGUI/SearchGUI.py:283
+msgid "Expressions "
+msgstr "表达式"
+
+#: zenmapGUI/SearchGUI.py:296
+msgid "Date"
+msgstr "日期"
+
+#: zenmapGUI/SearchGUI.py:430
+msgid "No search method selected!"
+msgstr "未选择搜索方法！"
+
+#: zenmapGUI/SearchGUI.py:431
+#, python-format
+msgid ""
+"%s can search results on directories or inside it's own database. Please, "
+"select a method by choosing a directory or by checking the search data base "
+"option at the 'Search options' tab before start the search"
+msgstr ""
+"%s可以搜索目录中或自己数据库中的结果。"
+"在开始搜索之前，请通过选择一个目录或者"
+"'搜索选项'标签中的搜索数据库选项来指定一种方法。"
+
+#: zenmapGUI/SearchGUI.py:884
+msgid ""
+"Entering the text into the search performs a <b>keyword search</b> - the "
+"search string is matched against the entire output of each scan.\n"
+"\n"
+"To refine the search, you can use <b>operators</b> to search only within a "
+"specific part of a scan. Operators can be added to the search interactively "
+"if you click on the <b>Expressions</b> button, or you can enter them "
+"manually into the search field. Most operators have a short form, listed.\n"
+"\n"
+"<b>profile: (pr:)</b> - Profile used.\n"
+"<b>target: (t:)</b> - User-supplied target, or a rDNS result.\n"
+"<b>option: (o:)</b> - Scan options.\n"
+"<b>date: (d:)</b> - The date when scan was performed. Fuzzy matching is "
+"possible using the \"~\" suffix. Each \"~\" broadens the search by one day "
+"on \"each side\" of the date. In addition, it is possible to use the \"date:-"
+"n\" notation which means \"n days ago\".\n"
+"<b>after: (a:)</b> - Matches scans made after the supplied date (<i>YYYY-MM-"
+"DD</i> or <i>-n</i>).\n"
+"<b>before (b:)</b> - Matches scans made before the supplied date(<i>YYYY-MM-"
+"DD</i> or <i>-n</i>).\n"
+"<b>os:</b> - All OS-related fields.\n"
+"<b>scanned: (sp:)</b> - Matches a port if it was among those scanned.\n"
+"<b>open: (op:)</b> - Open ports discovered in a scan.\n"
+"<b>closed: (cp:)</b> - Closed ports discovered in a scan.\n"
+"<b>filtered: (fp:)</b> - Filtered ports discovered in scan.\n"
+"<b>unfiltered: (ufp:)</b> - Unfiltered ports found in a scan (using, for "
+"example, an ACK scan).\n"
+"<b>open|filtered: (ofp:)</b> - Ports in the \"open|filtered\" state.\n"
+"<b>closed|filtered: (cfp:)</b> - Ports in the \"closed|filtered\" state.\n"
+"<b>service: (s:)</b> - All service-related fields.\n"
+"<b>inroute: (ir:)</b> - Matches a router in the scan's traceroute output.\n"
+msgstr ""
+"在文本框中输入信息来进行<b>关键词搜索</b> - "
+"关键词匹配扫描输出中的所有内容。\n"
+"\n"
+"你可以用<b>运算符</b>来筛选扫描中指定部分。"
+"你可以通过点击"
+"<b>表达式</b>按钮，交互地加入运算符, 或者你可以手动"
+"在搜索框内写入运算符。大多数运算符有缩写形式，如下:\n"
+"\n"
+
+#: zenmapGUI/CrashReport.py:109
+msgid "Crash Report"
+msgstr "崩溃报告"
+
+#: zenmapGUI/CrashReport.py:129
+#, python-format
+msgid ""
+"An unexpected error has crashed %(app_name)s. Please copy the stack trace "
+"below and open a bug report at https://issues.nmap.org/ The developers will "
+"see your report and try to fix the problem."
+msgstr ""
+"未知的错误造成%(app_name)s崩溃。请复制下面的堆栈追踪记录发送到"
+"https://issues.nmap.org/ "
+"邮件列表。"
+"Nmap开发者们会看见你的报告并尽力修复错误。"
+
+#: zenmapGUI/CrashReport.py:137
+msgid ""
+"<b>Copy and <b><a href=\"https://issues.nmap.org/new/choose\">open a bug "
+"report</a></b>:"
+msgstr ""
+"<b>请发邮件至: <a href=\"https://issues.nmap.org/new/choose\">issues.nmap.org</a>:</b>"
+
+#: zenmapGUI/ScanHostDetailsPage.py:150
+msgid "Host Status"
+msgstr "主机状态"
+
+#: zenmapGUI/ScanHostDetailsPage.py:151
+msgid "Addresses"
+msgstr "地址列表"
+
+#: zenmapGUI/ScanHostDetailsPage.py:152
+msgid "Hostnames"
+msgstr "主机名"
+
+#: zenmapGUI/ScanHostDetailsPage.py:153 radialnet/gui/NodeNotebook.py:415
+msgid "Operating System"
+msgstr "操作系统"
+
+#: zenmapGUI/ScanHostDetailsPage.py:154
+msgid "Ports used"
+msgstr "使用端口"
+
+#: zenmapGUI/ScanHostDetailsPage.py:155
+msgid "OS Classes"
+msgstr "操作系统类别"
+
+#: zenmapGUI/ScanHostDetailsPage.py:156
+msgid "TCP Sequence"
+msgstr "TCP序列"
+
+#: zenmapGUI/ScanHostDetailsPage.py:157
+msgid "IP ID Sequence"
+msgstr "IP IP序列"
+
+#: zenmapGUI/ScanHostDetailsPage.py:158
+msgid "TCP TS Sequence"
+msgstr "TCP TS序列"
+
+#: zenmapGUI/ScanHostDetailsPage.py:159
+msgid "Comments"
+msgstr "备注"
+
+#: zenmapGUI/ScanHostDetailsPage.py:164
+msgid "State:"
+msgstr "状态:"
+
+#: zenmapGUI/ScanHostDetailsPage.py:176
+msgid "Scanned ports:"
+msgstr "已扫描端口:"
+
+#: zenmapGUI/ScanHostDetailsPage.py:179
+msgid "Up time:"
+msgstr "上线时间:"
+
+#: zenmapGUI/ScanHostDetailsPage.py:182 radialnet/gui/NodeNotebook.py:465
+msgid "Last boot:"
+msgstr "最后启动:"
+
+#: zenmapGUI/ScanHostDetailsPage.py:187
+msgid "IPv4:"
+msgstr "IPv4"
+
+#: zenmapGUI/ScanHostDetailsPage.py:190
+msgid "IPv6:"
+msgstr "IPv6"
+
+#: zenmapGUI/ScanHostDetailsPage.py:193
+msgid "MAC:"
+msgstr "MAC地址:"
+
+#: zenmapGUI/ScanHostDetailsPage.py:196
+msgid "Vendor:"
+msgstr "供应商:"
+
+#: zenmapGUI/ScanHostDetailsPage.py:334
+msgid "Name - Type:"
+msgstr "名称 - 类型:"
+
+#: zenmapGUI/ScanHostDetailsPage.py:352
+msgid "Not Available"
+msgstr "未知"
+
+#: zenmapGUI/ScanHostDetailsPage.py:354
+msgid "Name:"
+msgstr "名称:"
+
+#: zenmapGUI/ScanHostDetailsPage.py:357
+msgid "Accuracy:"
+msgstr "精确度:"
+
+#: zenmapGUI/ScanHostDetailsPage.py:384
+msgid "Port-Protocol-State:"
+msgstr "端口-协议-状态:"
+
+#: zenmapGUI/ScanHostDetailsPage.py:396 radialnet/gui/NodeNotebook.py:125
+msgid "Type"
+msgstr "类型"
+
+#: zenmapGUI/ScanHostDetailsPage.py:397 radialnet/gui/NodeNotebook.py:125
+msgid "Vendor"
+msgstr "供应商"
+
+#: zenmapGUI/ScanHostDetailsPage.py:398
+msgid "OS Family"
+msgstr "操作系统族"
+
+#: zenmapGUI/ScanHostDetailsPage.py:399
+msgid "OS Generation"
+msgstr "OS Generation"
+
+#: zenmapGUI/ScanHostDetailsPage.py:400
+msgid "Accuracy"
+msgstr "精确度"
+
+#: zenmapGUI/ScanHostDetailsPage.py:427
+msgid "Difficulty:"
+msgstr "难度:"
+
+#: zenmapGUI/ScanHostDetailsPage.py:430
+msgid "Index:"
+msgstr "索引:"
+
+#: zenmapGUI/ScanHostDetailsPage.py:433 zenmapGUI/ScanHostDetailsPage.py:452
+#: zenmapGUI/ScanHostDetailsPage.py:471
+msgid "Values:"
+msgstr "值:"
+
+#: zenmapGUI/ScanHostDetailsPage.py:449 zenmapGUI/ScanHostDetailsPage.py:468
+msgid "Class:"
+msgstr "类别:"
+
+#: zenmapGUI/App.py:199
+msgid "Import error"
+msgstr "导入错误"
+
+#: zenmapGUI/App.py:200
+msgid ""
+"A required module was not found.\n"
+"\n"
+msgstr ""
+"未找到需要的模块。\n"
+"\n"
+
+#: zenmapGUI/App.py:244
+msgid "Error creating the per-user configuration directory"
+msgstr "创建用户配置目录出错"
+
+#: zenmapGUI/App.py:245
+#, python-format
+msgid ""
+"There was an error creating the directory %s or one of the files in it. The "
+"directory is created by copying the contents of %s. The specific error was\n"
+"\n"
+"%s\n"
+"\n"
+"%s needs to create this directory to store information such as the list of "
+"scan profiles. Check for access to the directory and try again."
+msgstr ""
+"创建目录%s或其中某个文件失败。"
+"复制%s内容时创建该目录，具体错误为:\n"
+"\n"
+"%s\n"
+"\n"
+"%s需要创建该目录用于保存扫描配置等信息。"
+"请检查目录访问权限。"
+
+#: zenmapGUI/App.py:263
+msgid "Error parsing the configuration file"
+msgstr "解析配置文件出错"
+
+#: zenmapGUI/App.py:264
+#, python-format
+msgid ""
+"There was an error parsing the configuration file %s. The specific error "
+"was\n"
+"\n"
+"%s\n"
+"\n"
+"%s can continue without this file but any information in it will be ignored "
+"until it is repaired."
+msgstr ""
+"解析配置文件%s时出错。 具体错误为:"
+"\n"
+"\n"
+"%s\n"
+"\n"
+"%s可以不需要该文件继续执行，但在修复之前，该文件中的任何信息都会被忽略。"
+""
+
+#: zenmapGUI/App.py:328
+#, python-format
+msgid ""
+"You are trying to run %s with a non-root user!\n"
+"\n"
+"Some %s options need root privileges to work."
+msgstr ""
+"您正在试图以非root身份运行%s!\n"
+"\n"
+"一些%s选项需要root权限。"
+
+#: zenmapGUI/App.py:331
+msgid "Non-root user"
+msgstr "非root用户"
+
+#: zenmapGUI/BugReport.py:104
+msgid "How to Report a Bug"
+msgstr "如何报告Bug"
+
+#: zenmapGUI/BugReport.py:123
+#, python-format
+msgid ""
+"<big><b>How to report a bug</b></big>\n"
+"\n"
+"Like their author, %(nmap)s and %(app)s aren't perfect. But you can help "
+"make it better by sending bug reports or even writing patches. If %(nmap)s "
+"doesn't behave the way you expect, first upgrade to the latest version "
+"available from <b>%(nmap_web)s</b>. If the problem persists, do some "
+"research to determine whether it has already been discovered and addressed. "
+"Try Googling the error message or browsing the nmap-dev archives at https://"
+"seclists.org. Read the full manual page as well. If nothing comes of this, "
+"open a bug report at <b>https://issues.nmap.org</b>. Please include "
+"everything you have learned about the problem, as well as what version of "
+"Nmap you are running and what operating system version it is running on.\n"
+"\n"
+"Code patches to fix bugs are even better than bug reports. Basic "
+"instructions for creating patch files with your changes are available at "
+"https://nmap.org/data/HACKING\n"
+msgstr ""
+"<big><b>如何报告Bug</b></big>\n"
+"\n"
+"就像它的作者一样, %(nmap)s和%(app)s并不完美。但是你可以通过"
+"发送Bug报告甚至提供补丁来让它变得更好。如果%(nmap)s"
+"没有达到你预期的效果, 先升级到最新版本，"
+"你可以在<b>%(nmap_web)s</b>上下载到。如果问题仍然没有解决，"
+"自己做些研究，看看这个问题是否已经被发现并提出了。"
+"尝试用Google搜索错误信息，或者查看nmap开发者文档(http://"
+"seclists.org/)。仔细阅读整个手册，如果仍然没有结果，"
+"发送Bug报告邮件到<b>https://issues.nmap.org</b>. 请在邮件中囊括所有你搜集到的"
+"信息，包括: 你所使用的Nmap版本以及操作系统版本。"
+"\n"
+"\n"
+"提供补丁比报告Bug更受欢迎，"
+"https://nmap.org/data/HACKING上有编写补丁的基本介绍。\n"
+
+#: zenmapGUI/ProfileEditor.py:112
+msgid "Profile Editor"
+msgstr "配置编辑器"
+
+#: zenmapGUI/ProfileEditor.py:199
+msgid "Profile Information"
+msgstr "配置信息"
+
+#: zenmapGUI/ProfileEditor.py:200
+msgid "Profile name"
+msgstr "配置文件名"
+
+#: zenmapGUI/ProfileEditor.py:203
+msgid "Description"
+msgstr "描述"
+
+#: zenmapGUI/ProfileEditor.py:218
+msgid "Save Changes"
+msgstr "保存更改"
+
+#: zenmapGUI/ProfileEditor.py:223
+msgid "Help"
+msgstr "帮助"
+
+#: zenmapGUI/ProfileEditor.py:256
+msgid "Profile"
+msgstr "配置"
+
+#: zenmapGUI/ProfileEditor.py:316
+msgid "Unnamed profile"
+msgstr "未命名配置"
+
+#: zenmapGUI/ProfileEditor.py:317
+msgid "You must provide a name for this profile."
+msgstr "您必须为这个配置命名。"
+
+#: zenmapGUI/ProfileEditor.py:337
+msgid "Disallowed profile name"
+msgstr "不允许的配置名"
+
+#: zenmapGUI/ProfileEditor.py:338
+#, python-format
+msgid ""
+"Sorry, the name \"%s\" is not allowed due to technical limitations. (The "
+"underlying ConfigParser used to store profiles does not allow it.) Choose a "
+"different name."
+msgstr ""
+"抱歉，\"%s\"由于技术限制是不允许的。( "
+"用于存放配置的ConfigParser不允许) "
+"请选择另外一个名字。"
+
+#: zenmapGUI/ProfileEditor.py:363
+msgid "Deleting Profile"
+msgstr "删除配置"
+
+#: zenmapGUI/ProfileEditor.py:364
+msgid ""
+"Your profile is going to be deleted! Click Ok to continue, or Cancel to go "
+"back to Profile Editor."
+msgstr ""
+"您的配置将被删除！点击Ok继续,或者点击取消回到配置编辑器。"
+""
+
+#: radialnet/gui/Toolbar.py:124
+msgid "Hosts viewer"
+msgstr "查看主机信息"
+
+#: radialnet/gui/Toolbar.py:198
+msgid "Save Graphic"
+msgstr "保存图表"
+
+#: radialnet/gui/Toolbar.py:201 radialnet/gui/HostsViewer.py:117
+msgid "Hosts Viewer"
+msgstr "查看主机信息"
+
+#: radialnet/gui/Toolbar.py:204
+msgid "Controls"
+msgstr "操作面板"
+
+#: radialnet/gui/Toolbar.py:208
+msgid "Fisheye"
+msgstr "Fisheye"
+
+#: radialnet/gui/Toolbar.py:294
+msgid "Error saving snapshot"
+msgstr "保存截图时出错"
+
+#: radialnet/gui/NodeNotebook.py:100
+msgid "Method"
+msgstr "方法"
+
+#: radialnet/gui/NodeNotebook.py:101
+msgid "Count"
+msgstr "数量"
+
+#: radialnet/gui/NodeNotebook.py:101
+msgid "Reasons"
+msgstr "原由"
+
+#: radialnet/gui/NodeNotebook.py:111
+msgid "TTL"
+msgstr "TTL"
+
+#: radialnet/gui/NodeNotebook.py:111
+msgid "RTT"
+msgstr "RTT"
+
+#: radialnet/gui/NodeNotebook.py:111
+msgid "IP"
+msgstr "IP"
+
+#: radialnet/gui/NodeNotebook.py:113
+#, python-format
+msgid "Traceroute on port <b>%s/%s</b> totalized <b>%d</b> known hops."
+msgstr "<b>%s/%s<b>端口路由追踪信息总共<b>%d<b>次已知的跳。"
+
+#: radialnet/gui/NodeNotebook.py:117
+msgid "No traceroute information available."
+msgstr "没有可用的路由追踪信息。"
+
+#: radialnet/gui/NodeNotebook.py:124
+msgid "Name"
+msgstr "名称"
+
+#: radialnet/gui/NodeNotebook.py:124
+msgid "DB Line"
+msgstr "DB Line"
+
+#: radialnet/gui/NodeNotebook.py:125
+msgid "Family"
+msgstr "族"
+
+#: radialnet/gui/NodeNotebook.py:129
+#, python-format
+msgid ""
+"<b>*</b> TCP sequence <i>index</i> equal to %d and <i>difficulty</i> is \"%s"
+"\"."
+msgstr ""
+"<b>*</b> TCP序列<i>索引</i>%d, <i>难度</i>是\"%s"
+"\"."
+
+#: radialnet/gui/NodeNotebook.py:163
+msgid "General"
+msgstr "常规"
+
+#: radialnet/gui/NodeNotebook.py:165
+msgid "Traceroute"
+msgstr "路由追踪"
+
+#: radialnet/gui/NodeNotebook.py:209
+#, python-format
+msgid "Ports (%s)"
+msgstr "端口 (%s)"
+
+#: radialnet/gui/NodeNotebook.py:231 radialnet/gui/NodeNotebook.py:771
+msgid "<unknown>"
+msgstr "<未知>"
+
+#: radialnet/gui/NodeNotebook.py:237
+msgid "<none>"
+msgstr "<无>"
+
+#: radialnet/gui/NodeNotebook.py:262
+#, python-format
+msgid "[%d] service: %s"
+msgstr "[%d] 服务: %s"
+
+#: radialnet/gui/NodeNotebook.py:267
+msgid "<special field>"
+msgstr "<特殊字段>"
+
+#: radialnet/gui/NodeNotebook.py:370
+#, python-format
+msgid "Extraports (%s)"
+msgstr "额外端口(%s)"
+
+#: radialnet/gui/NodeNotebook.py:377
+msgid "Special fields"
+msgstr "特殊字段"
+
+#: radialnet/gui/NodeNotebook.py:413
+msgid "General information"
+msgstr "一般信息"
+
+#: radialnet/gui/NodeNotebook.py:414
+msgid "Sequences"
+msgstr "序列"
+
+#: radialnet/gui/NodeNotebook.py:417
+msgid "No sequence information."
+msgstr "无序列信息。"
+
+#: radialnet/gui/NodeNotebook.py:418
+msgid "No OS information."
+msgstr "无操作系统信息。"
+
+#: radialnet/gui/NodeNotebook.py:423
+msgid "Address:"
+msgstr "地址:"
+
+#: radialnet/gui/NodeNotebook.py:446
+msgid "Hostname:"
+msgstr "主机名:"
+
+#: radialnet/gui/NodeNotebook.py:470
+#, python-format
+msgid "%s (%s seconds)."
+msgstr "%s (%s秒)。"
+
+#: radialnet/gui/NodeNotebook.py:536
+msgid "Match"
+msgstr "匹配"
+
+#: radialnet/gui/NodeNotebook.py:586 radialnet/gui/NodeNotebook.py:636
+msgid "Class"
+msgstr "类别:"
+
+#: radialnet/gui/NodeNotebook.py:594
+msgid "Used ports:"
+msgstr "已使用端口:"
+
+#: radialnet/gui/NodeNotebook.py:617
+msgid "Fingerprint"
+msgstr "指纹"
+
+#: radialnet/gui/NodeNotebook.py:637
+msgid "Values"
+msgstr "值"
+
+#: radialnet/gui/NodeNotebook.py:639
+msgid "TCP *"
+msgstr "TCP *"
+
+#: radialnet/gui/NodeNotebook.py:640
+msgid "IP ID"
+msgstr "IP ID"
+
+#: radialnet/gui/NodeNotebook.py:641
+msgid "TCP Timestamp"
+msgstr "TCP时间戳"
+
+#: radialnet/gui/HostsViewer.py:121
+msgid "No node selected"
+msgstr "未选择节点"
+
+#: radialnet/gui/SaveDialog.py:100
+msgid "PDF"
+msgstr "PDF"
+
+#: radialnet/gui/SaveDialog.py:101
+msgid "PNG"
+msgstr "PNG"
+
+#: radialnet/gui/SaveDialog.py:102
+msgid "PostScript"
+msgstr "PostScript"
+
+#: radialnet/gui/SaveDialog.py:103
+msgid "SVG"
+msgstr "SVG"
+
+#: radialnet/gui/SaveDialog.py:116
+msgid "Save Topology"
+msgstr "保存拓扑"
+
+#: radialnet/gui/SaveDialog.py:168
+msgid "No filename extension"
+msgstr "无文件扩展名"
+
+#: radialnet/gui/SaveDialog.py:169
+#, python-format
+msgid ""
+"The filename \"%s\" does not have an extension, and no specific file type "
+"was chosen.\n"
+"Enter a known extension or select the file type from the list."
+msgstr ""
+"文件名\"%s\"没有扩展名，未选择指定的文件类型。"
+"\n"
+"输入一个已知的扩展名或者选择列表中的文件类型。"
+
+#: radialnet/gui/SaveDialog.py:175
+msgid "Unknown filename extension"
+msgstr "未知文件扩展名"
+
+#: radialnet/gui/SaveDialog.py:176
+#, python-format
+msgid ""
+"There is no file type known for the filename extension \"%s\".\n"
+"Enter a known extension or select the file type from the list."
+msgstr ""
+"没有与文件扩展名\"%s\"相符的文件类型。\n"
+"输入一个已知的扩展名或者选择列表中的文件类型。"
+
+#: radialnet/gui/ControlWidget.py:156
+msgid "Action"
+msgstr "启动"
+
+#: radialnet/gui/ControlWidget.py:182
+msgid "Info"
+msgstr "信息"
+
+#: radialnet/gui/ControlWidget.py:204
+msgid "Red"
+msgstr "红"
+
+#: radialnet/gui/ControlWidget.py:205
+msgid "Yellow"
+msgstr "黄"
+
+#: radialnet/gui/ControlWidget.py:206
+msgid "Green"
+msgstr "绿"
+
+#: radialnet/gui/ControlWidget.py:536
+msgid "<b>Fisheye</b> on ring"
+msgstr "<b>Fisheye</b> on ring"
+
+#: radialnet/gui/ControlWidget.py:551
+msgid "with interest factor"
+msgstr "with interest factor"
+
+#: radialnet/gui/ControlWidget.py:556
+msgid "and spread factor"
+msgstr "and spread factor"
+
+#: radialnet/gui/ControlWidget.py:668
+msgid "Interpolation"
+msgstr "插值"
+
+#: radialnet/gui/ControlWidget.py:680
+msgid "Cartesian"
+msgstr "笛卡尔坐标"
+
+#: radialnet/gui/ControlWidget.py:681
+msgid "Polar"
+msgstr "极坐标"
+
+#: radialnet/gui/ControlWidget.py:694
+msgid "Frames"
+msgstr "Frames"
+
+#: radialnet/gui/ControlWidget.py:755
+msgid "Layout"
+msgstr "布局"
+
+#: radialnet/gui/ControlWidget.py:768
+msgid "Symmetric"
+msgstr "对称"
+
+#: radialnet/gui/ControlWidget.py:769
+msgid "Weighted"
+msgstr "加权"
+
+#: radialnet/gui/ControlWidget.py:829
+msgid "Ring gap"
+msgstr "Ring gap"
+
+#: radialnet/gui/ControlWidget.py:833
+msgid "Lower ring gap"
+msgstr "Lower ring gap"
+
+#: radialnet/gui/ControlWidget.py:966
+msgid "View"
+msgstr "视图"
+
+#: radialnet/gui/ControlWidget.py:979
+msgid "Zoom"
+msgstr "缩放"
+
+#: radialnet/gui/ControlWidget.py:1213
+msgid "Navigation"
+msgstr "导航"
+
+#: radialnet/bestwidgets/windows.py:111
+msgid "Alert"
+msgstr "警告"
+
+#: share/zenmap/misc/profile_editor.xml:9
+msgid "Ping"
+msgstr "Ping"
+
+#: share/zenmap/misc/profile_editor.xml:10
+msgid "Scripting"
+msgstr "脚本"
+
+#: share/zenmap/misc/profile_editor.xml:11
+msgid "Target"
+msgstr "目标"
+
+#: share/zenmap/misc/profile_editor.xml:12
+msgid "Source"
+msgstr "源"
+
+#: share/zenmap/misc/profile_editor.xml:13
+msgid "Other"
+msgstr "其它"
+
+#: share/zenmap/misc/profile_editor.xml:14
+msgid "Timing"
+msgstr "定时"
+
+#: share/zenmap/misc/profile_editor.xml:16
+msgid "Scan options"
+msgstr "扫描选项"
+
+#: share/zenmap/misc/profile_editor.xml:17
+msgid "Targets (optional): "
+msgstr "目标(可选):"
+
+#: share/zenmap/misc/profile_editor.xml:18
+msgid "TCP scan: "
+msgstr "TCP扫描:"
+
+#: share/zenmap/misc/profile_editor.xml:19
+#: share/zenmap/misc/profile_editor.xml:30
+#: share/zenmap/misc/profile_editor.xml:40
+msgid "None"
+msgstr "无"
+
+#: share/zenmap/misc/profile_editor.xml:20
+msgid ""
+"Send probes with the ACK flag set. Ports will be marked \"filtered\" or "
+"\"unfiltered\". Use ACK scan to map out firewall rulesets."
+msgstr ""
+"发送带有ACK标识位的包进行探测。端口会被标记为\"filtered\"或者"
+"\"unfiltered\". 使用ACK扫描制定出防火墙的规则集。"
+
+#: share/zenmap/misc/profile_editor.xml:20
+msgid "ACK scan"
+msgstr "ACK扫描"
+
+#: share/zenmap/misc/profile_editor.xml:21
+msgid ""
+"Send probes with the FIN bit set. FIN scan can differentiate \"closed\" and "
+"\"open|filtered\" ports on some systems."
+msgstr ""
+"发送带有FIN标识位的包进行探测。FIN扫描在一些系统中可以区分\"closed\"和"
+"\"open|filtered\"的端口."
+
+#: share/zenmap/misc/profile_editor.xml:21
+msgid "FIN scan"
+msgstr "FIN扫描"
+
+#: share/zenmap/misc/profile_editor.xml:22
+msgid ""
+"Send probes with the FIN and ACK bits set. Against some BSD-derived systems "
+"this can differentiate between \"closed\" and \"open|filtered\" ports."
+msgstr ""
+"发送带有FIN和ACK标识位的包进行探测。对于一些类Unix系统，这样可以"
+"区分\"closed\"和\"open|filtered\"的端口。"
+
+#: share/zenmap/misc/profile_editor.xml:22
+msgid "Maimon scan"
+msgstr "Maimon扫描"
+
+#: share/zenmap/misc/profile_editor.xml:23
+msgid ""
+"Send probes with no flags set (TCP flag header is 0). Null scan can "
+"differentiate \"closed\" and \"open|filtered\" ports on some systems."
+msgstr ""
+"发送不带任何标识位的包(TCP标识头部为0)。Null扫描"
+"在一些系统上可以区分\"closed\"和\"open|filtered\"的端口。"
+
+#: share/zenmap/misc/profile_editor.xml:23
+msgid "Null scan"
+msgstr "Null扫描"
+
+#: share/zenmap/misc/profile_editor.xml:24
+msgid ""
+"Send probes with the SYN flag set. This is the most popular scan and the "
+"most generally useful. It is known as a \"stealth\" scan because it avoids "
+"making a full TCP connection."
+msgstr ""
+"发送带有SYN标识位的包进行探测。这是最流行的扫描方式，一般来说，"
+"也是最实用的一种。它也被称作\"stealth\"扫描，因为这种扫描并不建立"
+"一次完整的TCP连接。"
+
+#: share/zenmap/misc/profile_editor.xml:24
+msgid "TCP SYN scan"
+msgstr "TCP SYN扫描"
+
+#: share/zenmap/misc/profile_editor.xml:25
+msgid ""
+"Scan using the connect system call. This is like SYN scan but less stealthy "
+"because it makes a full TCP connection. It is the default when a user does "
+"not have raw packet privileges or is scanning IPv6 networks."
+msgstr ""
+"利用connect系统调用扫描。这类似于SYN扫描但是没有其隐秘，"
+"因为它建立一次完整的TCP连接。当用户没有原始套接字权限时或者"
+"扫描IPv6网络时，这是默认的扫描方式。"
+
+#: share/zenmap/misc/profile_editor.xml:25
+msgid "TCP connect scan"
+msgstr "TCP connect扫描"
+
+#: share/zenmap/misc/profile_editor.xml:26
+msgid ""
+"Same as ACK scan except that it exploits an implementation detail of certain "
+"systems to differentiate open ports from closed ones, rather than always "
+"printing \"unfiltered\" when a RST is returned. "
+msgstr ""
+"和ACK扫描一样，除了它利用确定系统的实现细节来区分开放端口和未开放端口，而不是"
+"每次收到返回的RST标识都显示为"
+"\"unfiltered\". "
+
+#: share/zenmap/misc/profile_editor.xml:26
+msgid "Window scan"
+msgstr "滑动窗口扫描"
+
+#: share/zenmap/misc/profile_editor.xml:27
+msgid ""
+"Send probes with the FIN, PSH, and URG flags set, lighting the packets up "
+"like a Christmas tree. Xmas tree scan can differentiate \"closed\" and "
+"\"open|filtered\" ports on some systems."
+msgstr ""
+"发送带有FIN, PSH, URG标识位的探测时, 像颗圣诞树一样"
+"指明所有的包。 Xmas Tree扫描可以区分一些系统上的\"closed\"和"
+"\"open|filtered\"的端口。"
+
+#: share/zenmap/misc/profile_editor.xml:27
+msgid "Xmas Tree scan"
+msgstr "Xmas Tree扫描"
+
+#: share/zenmap/misc/profile_editor.xml:29
+msgid "Non-TCP scans: "
+msgstr "Non-TCP扫描"
+
+#: share/zenmap/misc/profile_editor.xml:31
+msgid ""
+"Scan UDP ports. UDP is in general slower and more difficult to scan than "
+"TCP, and is often ignored by security auditors."
+msgstr ""
+"扫描UDP端口。UDP扫描一般比TCP扫描更慢并且难度更大，"
+"也经常被安全审计员们忽略。"
+
+#: share/zenmap/misc/profile_editor.xml:31
+msgid "UDP scan"
+msgstr "UDP扫描"
+
+#: share/zenmap/misc/profile_editor.xml:32
+msgid ""
+"Scan IP protocols (TCP, ICMP, IGMP, etc.) to find which are supported by "
+"target machines."
+msgstr ""
+"扫描目标机器支持的IP协议总类(TCP, ICMP, IGMP等等)。"
+""
+
+#: share/zenmap/misc/profile_editor.xml:32
+msgid "IP protocol scan"
+msgstr "IP协议扫描"
+
+#: share/zenmap/misc/profile_editor.xml:33
+msgid ""
+"Do not scan any targets, just list which ones would be scanned (with reverse "
+"DNS names if available)."
+msgstr ""
+"不扫描任何目标, 仅仅列出将要扫描的主机列表(如果有，"
+"则加上它们的反向DNS域名)."
+
+#: share/zenmap/misc/profile_editor.xml:33
+msgid "List scan"
+msgstr "列表扫描"
+
+#: share/zenmap/misc/profile_editor.xml:34
+msgid ""
+"Skip the port scanning phase. Other phases (host discovery, script scan, "
+"traceroute) may still run."
+msgstr ""
+"跳过端口扫描阶段。其它阶段(主机发现，脚本扫描，"
+"路由追踪)任然进行。"
+
+#: share/zenmap/misc/profile_editor.xml:34
+msgid "No port scan"
+msgstr "无端口扫描"
+
+#: share/zenmap/misc/profile_editor.xml:35
+msgid ""
+"SCTP is a layer 4 protocol used mostly for telephony related applications.  "
+"This is the SCTP equivalent of a TCP SYN stealth scan."
+msgstr ""
+"SCTP是运行在第四层上的协议，主要用于电话学相关应用。"
+"这个类似于TCP SYN stealth扫描。"
+
+#: share/zenmap/misc/profile_editor.xml:35
+msgid "SCTP INIT port scan"
+msgstr "SCTP INIT端口扫描"
+
+#: share/zenmap/misc/profile_editor.xml:36
+msgid ""
+"SCTP is a layer 4 protocol used mostly for telephony related applications."
+msgstr ""
+"SCTP是运行在第四层上的协议，主要用于电化学相关的应用。"
+
+#: share/zenmap/misc/profile_editor.xml:36
+msgid "SCTP cookie-echo port scan"
+msgstr "SCTP cookie-echo端口扫描"
+
+#: share/zenmap/misc/profile_editor.xml:39
+msgid "Timing template: "
+msgstr "时间模版:"
+
+#: share/zenmap/misc/profile_editor.xml:41
+#: share/zenmap/misc/profile_editor.xml:42
+msgid "Set the timing template for IDS evasion."
+msgstr "为IDS规避设置时间模版。"
+
+#: share/zenmap/misc/profile_editor.xml:41
+msgid "Paranoid"
+msgstr "偏执"
+
+#: share/zenmap/misc/profile_editor.xml:42
+msgid "Sneaky"
+msgstr "鬼祟"
+
+#: share/zenmap/misc/profile_editor.xml:43
+msgid ""
+"Set the timing template to slow down the scan to use less bandwidth and "
+"target machine resources."
+msgstr ""
+"设置定时模版来降低扫描的速度，以减少带宽和目标机器资源的利用。"
+""
+
+#: share/zenmap/misc/profile_editor.xml:43
+msgid "Polite"
+msgstr "礼貌"
+
+#: share/zenmap/misc/profile_editor.xml:44
+msgid "Set the timing template to not modify the default Nmap value."
+msgstr "设置定时模版以更改Nmap的默认值。"
+
+#: share/zenmap/misc/profile_editor.xml:44
+msgid "Normal"
+msgstr "正常"
+
+#: share/zenmap/misc/profile_editor.xml:45
+msgid ""
+"Set the timing template for faster scan. Used when on a reasonably fast and "
+"reliable network."
+msgstr ""
+"为快速扫描设置定时模版，在合理稳定的网络中使用。"
+""
+
+#: share/zenmap/misc/profile_editor.xml:45
+msgid "Aggressive"
+msgstr "侵略"
+
+#: share/zenmap/misc/profile_editor.xml:46
+msgid ""
+"Set the timing template for the fastest scan. Used when on a fast network or "
+"when willing to sacrifice accuracy for speed."
+msgstr ""
+"为全速扫描设置定时模版， 在处于快速网络或者"
+"用户愿意牺牲精确度来换取速度时使用。"
+
+#: share/zenmap/misc/profile_editor.xml:46
+msgid "Insane"
+msgstr "疯狂"
+
+#: share/zenmap/misc/profile_editor.xml:48
+msgid ""
+"Enable OS detection (-O), version detection (-sV), script scanning (-sC), "
+"and traceroute (--traceroute)."
+msgstr ""
+"开启操作系统检测(-O), 服务版本检测(-sV), 脚本扫描(-sC), "
+"和路由追踪(--traceroute)."
+
+#: share/zenmap/misc/profile_editor.xml:48
+msgid "Enable all advanced/aggressive options"
+msgstr "启用所有高级/攻击性选项"
+
+#: share/zenmap/misc/profile_editor.xml:49
+msgid "Attempt to discover the operating system running on remote systems."
+msgstr "尝试识别远程目标的操作系统。"
+
+#: share/zenmap/misc/profile_editor.xml:49
+msgid "Operating system detection"
+msgstr "操作系统检测"
+
+#: share/zenmap/misc/profile_editor.xml:50
+msgid ""
+"Attempt to discover the version number of services running on remote ports."
+msgstr ""
+"尝试识别远程目标的服务版本。"
+
+#: share/zenmap/misc/profile_editor.xml:50
+msgid "Version detection"
+msgstr "版本检测"
+
+#: share/zenmap/misc/profile_editor.xml:51
+msgid ""
+"Scan by spoofing packets from a zombie computer so that the targets receive "
+"no packets from your IP address. The zombie must meet certain conditions "
+"which Nmap will check before scanning."
+msgstr ""
+"从僵尸主机上发送伪装数据包来扫描，这样目标主机不会收到来自你的IP地址的数据包。"
+"Nmap在扫描前会检查僵尸主机是否满足要求。"
+""
+
+#: share/zenmap/misc/profile_editor.xml:51
+msgid "Idle Scan (Zombie)"
+msgstr "Idle扫描(Zombie)"
+
+#: share/zenmap/misc/profile_editor.xml:52
+msgid ""
+"Use an FTP server to port scan other hosts by sending a file to each "
+"interesting port of a target host."
+msgstr ""
+"利用FTP服务器发送文件到感兴趣的目标端口来进行端口扫描。"
+""
+
+#: share/zenmap/misc/profile_editor.xml:52
+msgid "FTP bounce attack"
+msgstr "FTP bounce攻击"
+
+#: share/zenmap/misc/profile_editor.xml:53
+msgid "Never do reverse DNS. This can slash scanning times."
+msgstr "始终不启用反向DNS解析，这样可以消减扫描时长。"
+
+#: share/zenmap/misc/profile_editor.xml:53
+msgid "Disable reverse DNS resolution"
+msgstr "禁用反向DNS解析"
+
+#: share/zenmap/misc/profile_editor.xml:54
+msgid "Enable IPv6 scanning."
+msgstr "启用IPv6扫描。"
+
+#: share/zenmap/misc/profile_editor.xml:54
+msgid "IPv6 support"
+msgstr "IPv6支持"
+
+#: share/zenmap/misc/profile_editor.xml:56
+msgid "Ping options"
+msgstr "Ping选项"
+
+#: share/zenmap/misc/profile_editor.xml:57
+msgid ""
+"Don't check if targets are up before scanning them. Scan every target listed."
+msgstr ""
+"在扫描主机之前不检查目标是否在线，扫描列出的所有目标。"
+
+#: share/zenmap/misc/profile_editor.xml:57
+msgid "Don't ping before scanning"
+msgstr "扫描之前不ping远程主机"
+
+#: share/zenmap/misc/profile_editor.xml:58
+msgid "Send an ICMP echo request (ping) probe to see if targets are up."
+msgstr "发送一个ICMP echo request(ping)包探测目标是否在线。"
+
+#: share/zenmap/misc/profile_editor.xml:58
+msgid "ICMP ping"
+msgstr "ICMP ping"
+
+#: share/zenmap/misc/profile_editor.xml:59
+msgid "Send an ICMP timestamp probe to see if targets are up."
+msgstr "发送ICMP时间戳探测主机是否在线。"
+
+#: share/zenmap/misc/profile_editor.xml:59
+msgid "ICMP timestamp request"
+msgstr "ICMP时间戳请求"
+
+#: share/zenmap/misc/profile_editor.xml:60
+msgid "Send an ICMP address mask request probe to see if targets are up."
+msgstr "发送ICMP地址掩码请求探测主机是否在线。"
+
+#: share/zenmap/misc/profile_editor.xml:60
+msgid "ICMP netmask request"
+msgstr "ICMP网络掩码请求"
+
+#: share/zenmap/misc/profile_editor.xml:61
+msgid ""
+"Send one or more ACK probes to see if targets are up. Give a list of ports "
+"or leave the argument blank to use a default port."
+msgstr ""
+"发送一个或多个ACK探测来检测目标主机是否在线。提供要扫描的端口列表，"
+"或者把端口列表参数留空来选择默认端口。"
+
+#: share/zenmap/misc/profile_editor.xml:61
+msgid "ACK ping"
+msgstr "ACK ping"
+
+#: share/zenmap/misc/profile_editor.xml:62
+msgid ""
+"Send one or more SYN probes to see if targets are up. Give a list of ports "
+"or leave the argument blank to use a default port."
+msgstr ""
+"发送一个或多个SYN探测来检测目标主机是否在线。提供要扫描的端口列表，"
+"或者把端口列表参数留空来选择默认端口。"
+
+#: share/zenmap/misc/profile_editor.xml:62
+msgid "SYN ping"
+msgstr "SYN ping"
+
+#: share/zenmap/misc/profile_editor.xml:63
+msgid ""
+"Send one or more UDP probes to see if targets are up. Give a list of ports "
+"or leave the argument blank to use a default port."
+msgstr ""
+"发送一个或多个UDP探测来检测目标主机是否在线。提供要扫描的端口列表，"
+"或者把端口列表参数留空来选择默认端口。"
+
+#: share/zenmap/misc/profile_editor.xml:63
+msgid "UDP probes"
+msgstr "UDP探测"
+
+#: share/zenmap/misc/profile_editor.xml:64
+msgid ""
+"Send one or more raw IP protocol probes to see if targets are up. Give a "
+"list of protocols or leave the argument blank to use a default list"
+msgstr ""
+"发送一个或多个原始IP协议探测来检测目标主机是否在线。提供协议列表，"
+"或者把协议列表参数留空来选择默认列表。"
+
+#: share/zenmap/misc/profile_editor.xml:64
+msgid "IPProto probes"
+msgstr "IPProto探测"
+
+#: share/zenmap/misc/profile_editor.xml:65
+msgid ""
+"Send SCTP INIT chunk packets to see if targets are up.  Give a list of ports "
+"or leave the argument blank to use a default port."
+msgstr ""
+"发送SCTP INIT数据包分块来检测目标主机是否在线。提供要扫描的端口列表，"
+"或者把端口列表参数留空来选择默认端口。"
+
+#: share/zenmap/misc/profile_editor.xml:65
+msgid "SCTP INIT ping probes"
+msgstr "SCTP INIT ping探测"
+
+#: share/zenmap/misc/profile_editor.xml:67
+msgid "Scripting options (NSE)"
+msgstr "脚本选项(NSE)"
+
+#: share/zenmap/misc/profile_editor.xml:68
+msgid ""
+"Use the Nmap Scripting Engine to gain more information about targets after "
+"scanning them."
+msgstr ""
+"扫描目标主机之后利用Nmap脚本引擎来获得更多信息。"
+""
+
+#: share/zenmap/misc/profile_editor.xml:68
+msgid "Script scan"
+msgstr "脚本扫描"
+
+#: share/zenmap/misc/profile_editor.xml:69
+msgid ""
+"Run the given scripts. Give script names, directory names, or category "
+"names. Categories are \"safe\", \"intrusive\", \"malware\", \"discovery\", "
+"\"vuln\", \"auth\", \"external\", \"default\", and \"all\". If blank, "
+"scripts in the \"default\" category are run."
+msgstr ""
+"执行指定的脚本。指定脚本名，目录名或者类别名。"
+"类别有:\"safe\", \"intrusive\", \"malware\", \"discovery\", "
+"\"vuln\", \"auth\", \"external\", \"default\", and \"all\". 如果为空，"
+"在\"default\"类别中的脚本会被执行。"
+
+#: share/zenmap/misc/profile_editor.xml:69
+msgid "Scripts to run"
+msgstr "执行脚本"
+
+#: share/zenmap/misc/profile_editor.xml:70
+msgid ""
+"Give arguments to certain scripts that use them. Arguments are "
+"<name>=<value> pairs, separated by commas. Values may be Lua tables."
+msgstr ""
+"提供参数给指定的脚本使用。参数是以逗号分割的"
+"<name>=<value>对，值可以为Lua中的关系表类型。"
+
+#: share/zenmap/misc/profile_editor.xml:70
+msgid "Script arguments"
+msgstr "脚本参数"
+
+#: share/zenmap/misc/profile_editor.xml:71
+msgid "Show all information sent and received by the scripting engine."
+msgstr "显示所有脚本引擎发送和接收到的信息。"
+
+#: share/zenmap/misc/profile_editor.xml:71
+msgid "Trace script execution"
+msgstr "追终脚本执行"
+
+#: share/zenmap/misc/profile_editor.xml:73
+msgid "Target options"
+msgstr "目标选项"
+
+#: share/zenmap/misc/profile_editor.xml:74
+msgid "Specifies a comma-separated list of targets to exclude from the scan."
+msgstr "指定一个逗号分割的例外扫描列表。"
+
+#: share/zenmap/misc/profile_editor.xml:74
+msgid "Excluded hosts/networks"
+msgstr "例外的主机/网络"
+
+#: share/zenmap/misc/profile_editor.xml:75
+msgid ""
+"Specifies a newline-, space-, or tab-delimited file of targets to exclude "
+"from the scan."
+msgstr ""
+"为扫描指定一个以换行符，空格或者制表符分割的例外目标文件。"
+""
+
+#: share/zenmap/misc/profile_editor.xml:75
+msgid "Exclusion file"
+msgstr "例外文件"
+
+#: share/zenmap/misc/profile_editor.xml:76
+msgid "Reads target list specification from an input file."
+msgstr "从输入文件读取指定目标列表。"
+
+#: share/zenmap/misc/profile_editor.xml:76
+msgid "Target list file"
+msgstr "目标列表文件"
+
+#: share/zenmap/misc/profile_editor.xml:77
+msgid ""
+"Option to choose targets at random. Tells Nmap how many IPs to generate. 0 "
+"is used for a never-ending scan."
+msgstr ""
+"扫描随机目标选项。 告诉Nmap生成多少随机IP. 0"
+"代表无穷个IP."
+
+#: share/zenmap/misc/profile_editor.xml:77
+msgid "Scan random hosts"
+msgstr "扫描随机主机"
+
+#: share/zenmap/misc/profile_editor.xml:78
+msgid ""
+"This option specifies which ports you want to scan and overrides the default."
+msgstr ""
+"这个选项指定要扫描的端口，覆盖默认值。"
+
+#: share/zenmap/misc/profile_editor.xml:78
+msgid "Ports to scan"
+msgstr "要扫描的端口"
+
+#: share/zenmap/misc/profile_editor.xml:79
+msgid ""
+"Only scan ports named in the nmap-services file which comes with Nmap (or "
+"nmap-protocols file for -sO)."
+msgstr ""
+"仅扫描nmap-services文件中包含的端口(使用-sO选项时，仅扫描"
+"nmap-protocols文件内包括的服务)。"
+
+#: share/zenmap/misc/profile_editor.xml:79
+msgid "Fast scan"
+msgstr "快速扫描"
+
+#: share/zenmap/misc/profile_editor.xml:81
+msgid "Source options"
+msgstr "源选项"
+
+#: share/zenmap/misc/profile_editor.xml:82
+msgid ""
+"Send fake decoy probes from spoofed addresses to hide your own address. Give "
+"a list of addresses separated by commas. Use RND for a random address and ME "
+"to set the position of your address."
+msgstr ""
+"使用伪装地址发送诱骗探测来隐藏自己的地址。"
+"指定一组以逗号分隔的地址，RND代表随机地址，"
+"ME代表自己的地址。"
+
+#: share/zenmap/misc/profile_editor.xml:82
+msgid "Use decoys to hide identity"
+msgstr "使用诱骗来隐藏身份"
+
+#: share/zenmap/misc/profile_editor.xml:83
+msgid ""
+"Specify the IP address of the interface you wish to send packets through."
+msgstr ""
+"指定你希望用于发送数据包的接口的IP地址。"
+
+#: share/zenmap/misc/profile_editor.xml:83
+msgid "Set source IP address"
+msgstr "设置源IP地址"
+
+#: share/zenmap/misc/profile_editor.xml:84
+msgid ""
+"Provide a port number and Nmap will send packets from that port where "
+"possible."
+msgstr ""
+"指定一个合法的端口号，Nmap会从这端口发送数据包。"
+""
+
+#: share/zenmap/misc/profile_editor.xml:84
+msgid "Set source port"
+msgstr "设置源端口"
+
+#: share/zenmap/misc/profile_editor.xml:85
+msgid "Tells Nmap what interface to send and receive packets on."
+msgstr "指定发送和接收数据包的网卡。"
+
+#: share/zenmap/misc/profile_editor.xml:85
+msgid "Set network interface"
+msgstr "设置网卡"
+
+#: share/zenmap/misc/profile_editor.xml:87
+msgid "Other options"
+msgstr "其它选项"
+
+#: share/zenmap/misc/profile_editor.xml:88
+msgid "Any extra options to add to the command line."
+msgstr "需要追加到命令行内的额外选项。"
+
+#: share/zenmap/misc/profile_editor.xml:88
+msgid "Extra options defined by user"
+msgstr "用户指定的额外选项"
+
+#: share/zenmap/misc/profile_editor.xml:89
+msgid "Set the IPv4 time-to-live field in sent packets to the given value."
+msgstr "设置已发送包的IPv4生存时间字段为指定的值。"
+
+#: share/zenmap/misc/profile_editor.xml:89
+msgid "Set IPv4 time to live (ttl)"
+msgstr "设置IPv4生存时间(ttl)"
+
+#: share/zenmap/misc/profile_editor.xml:90
+msgid ""
+"Causes the requested scan (including ping scans) to split up TCP headers "
+"over several packets."
+msgstr ""
+"导致请求的扫描(包括ping扫描)分割TCP头部到多个数据包中。"
+""
+
+#: share/zenmap/misc/profile_editor.xml:90
+msgid "Fragment IP packets"
+msgstr "分片IP包"
+
+#: share/zenmap/misc/profile_editor.xml:91
+msgid ""
+"Print more information about the scan in progress. Open ports are shown as "
+"they are found as well as completion time estimates."
+msgstr ""
+"打印更多扫描进程中的信息。"
+"开放端口的发现会和预计完成时间同时显示。"
+
+#: share/zenmap/misc/profile_editor.xml:91
+msgid "Verbosity level"
+msgstr "详细级别"
+
+#: share/zenmap/misc/profile_editor.xml:92
+msgid ""
+"When even verbose mode doesn't provide sufficient data for you, debugging "
+"level is available to show more detailed output."
+msgstr ""
+"如果详细输出模式仍然不能提供你足够的信息，"
+"增加调试级别能够输出更多的细节信息。"
+
+#: share/zenmap/misc/profile_editor.xml:92
+msgid "Debugging level"
+msgstr "调试级别"
+
+#: share/zenmap/misc/profile_editor.xml:93
+msgid "Print a summary of every packet sent or received."
+msgstr "打印每个数据包的摘要。"
+
+#: share/zenmap/misc/profile_editor.xml:93
+msgid "Packet trace"
+msgstr "数据包追踪"
+
+#: share/zenmap/misc/profile_editor.xml:94
+msgid "Scan ports in order instead of randomizing them."
+msgstr "按序扫描端口。"
+
+#: share/zenmap/misc/profile_editor.xml:94
+msgid "Disable randomizing scanned ports"
+msgstr "禁用随机打乱已扫描端口"
+
+#: share/zenmap/misc/profile_editor.xml:95
+msgid ""
+"Trace the network path to each target after scanning. This works with all "
+"scan types except connect scan (-sT) and idle scan (-sI)."
+msgstr ""
+"扫描完成后追踪每个目标的网络路径。除了"
+"connect扫描(-sT)和idle扫描(-sI)外的其它扫描类型都支持。"
+
+#: share/zenmap/misc/profile_editor.xml:95
+msgid "Trace routes to targets"
+msgstr "追踪到目标的路径"
+
+#: share/zenmap/misc/profile_editor.xml:96
+msgid ""
+"Try sending a probe to each port no more than this many times before giving "
+"up."
+msgstr ""
+"发送至少给定次数的探测到每个端口。"
+""
+
+#: share/zenmap/misc/profile_editor.xml:96
+msgid "Max Retries"
+msgstr "最大重试次数"
+
+#: share/zenmap/misc/profile_editor.xml:98
+msgid "Timing and performance"
+msgstr "时间和性能"
+
+#: share/zenmap/misc/profile_editor.xml:99
+msgid ""
+"Give up on a host if it has not finished being scanning in this long. Time "
+"is in seconds by default, or may be followed by a suffix of 'ms' for "
+"milliseconds, 's' for seconds, 'm' for minutes, or 'h' for hours."
+msgstr ""
+"如果在给定时间内扫描仍未完成，则放弃这个主机。"
+"时间单位默认为秒，可以以'ms',"
+"'s','m','h'结尾来指定单位为毫秒，秒，分钟或者小时。"
+
+#: share/zenmap/misc/profile_editor.xml:99
+msgid "Max time to scan a target"
+msgstr "扫描目标最大用时"
+
+#: share/zenmap/misc/profile_editor.xml:100
+msgid ""
+"Wait no longer than this for a probe response before giving up or "
+"retransmitting the probe. Time is in seconds by default, or may be followed "
+"by a suffix of 'ms' for milliseconds, 's' for seconds, 'm' for minutes, or "
+"'h' for hours."
+msgstr ""
+"最多花费给定时间来等待探测回复和重传探测。"
+"时间单位默认为秒，可以以'ms',"
+"'s','m','h'结尾来指定单位为毫秒，秒，分钟或者小时。"
+
+#: share/zenmap/misc/profile_editor.xml:100
+msgid "Max probe timeout"
+msgstr "最大探测超时"
+
+#: share/zenmap/misc/profile_editor.xml:101
+msgid ""
+"Wait at least this long for a probe response before giving up or "
+"retransmitting the probe. Time is in seconds by default, or may be followed "
+"by a suffix of 'ms' for milliseconds, 's' for seconds, 'm' for minutes, or "
+"'h' for hours."
+msgstr ""
+"最少花费给定时间来等待探测回复和重传探测。"
+"时间单位默认为秒，可以以'ms',"
+"'s','m','h'结尾来指定单位为毫秒，秒，分钟或者小时。"
+
+#: share/zenmap/misc/profile_editor.xml:101
+msgid "Min probe timeout"
+msgstr "最小探测超时"
+
+#: share/zenmap/misc/profile_editor.xml:102
+msgid ""
+"Use the time given as the initial estimate of round-trip time. This can "
+"speed up scans if you know a good time for the network you're scanning."
+msgstr ""
+"用给定时间作为往返初始预计时间。"
+"如果你了解你要扫描的网络，这可以加速扫描。"
+
+#: share/zenmap/misc/profile_editor.xml:102
+msgid "Initial probe timeout"
+msgstr "初始化探测超时"
+
+#: share/zenmap/misc/profile_editor.xml:103
+msgid "Scan no more than this many hosts in parallel."
+msgstr "最多并行探测以上数量的主机。"
+
+#: share/zenmap/misc/profile_editor.xml:103
+msgid "Max hosts in parallel"
+msgstr "最大并行探测主机数量"
+
+#: share/zenmap/misc/profile_editor.xml:104
+msgid "Scan at least this many hosts in parallel."
+msgstr "最少并行探测以上数量的主机。"
+
+#: share/zenmap/misc/profile_editor.xml:104
+msgid "Min hosts in parallel"
+msgstr "最小并行探测主机数量"
+
+#: share/zenmap/misc/profile_editor.xml:105
+msgid ""
+"Never allow more than the given number of probes to be outstanding at a "
+"time. May be set to 1 to prevent Nmap from sending more than one probe at a "
+"time to hosts."
+msgstr ""
+"不允许多于给定数量的扫描变为未解决扫描。"
+"可以设置为１来阻止Nmap一次发起多个主机探测。"
+""
+
+#: share/zenmap/misc/profile_editor.xml:105
+msgid "Max outstanding probes"
+msgstr "最大未解决扫描数"
+
+#: share/zenmap/misc/profile_editor.xml:106
+msgid ""
+"Try to maintain at least the given number of probes outstanding during a "
+"scan. Common usage is to set to a number higher than 1 to speed up scans of "
+"poorly performing hosts or networks."
+msgstr ""
+"尝试维持至少这么多数量的未解决扫描。"
+"一般用法是把这个设为大于１的数值，"
+"以加速目标为网络质量较差的主机或网络的扫描。"
+
+#: share/zenmap/misc/profile_editor.xml:106
+msgid "Min outstanding probes"
+msgstr "最小未解决扫描数"
+
+#: share/zenmap/misc/profile_editor.xml:107
+msgid ""
+"Do not allow the scan delay (time delay between successive probes) to grow "
+"larger than the given amount of time. Time is in seconds by default, or may "
+"be followed by a suffix of 'ms' for milliseconds, 's' for seconds, 'm' for "
+"minutes, or 'h' for hours."
+msgstr ""
+"不允许扫描延迟(成功探测之间的延迟)多于给定的时间。"
+"时间单位默认为秒，可以以'ms',"
+"'s','m','h'结尾来指定单位为毫秒，秒，分钟或者小时。"
+
+#: share/zenmap/misc/profile_editor.xml:107
+msgid "Max scan delay"
+msgstr "最大扫描延迟"
+
+#: share/zenmap/misc/profile_editor.xml:108
+msgid ""
+"Wait at least the given amount of time between each probe sent to a given "
+"host. Time is in seconds by default, or may be followed by a suffix of 'ms' "
+"for milliseconds, 's' for seconds, 'm' for minutes, or 'h' for hours."
+msgstr ""
+"发送到主机探测间的等待不少于给定的时间。"
+"时间单位默认为秒，可以以'ms',"
+"'s','m','h'结尾来指定单位为毫秒，秒，分钟或者小时。"
+
+#: share/zenmap/misc/profile_editor.xml:108
+msgid "Min delay between probes"
+msgstr "最小探测间隔延迟"
