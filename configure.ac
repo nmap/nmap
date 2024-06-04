@@ -530,10 +530,10 @@ AC_HELP_STRING([--with-libpcre=included], [Always use the version included with 
 if test $have_pcre != yes -a $requested_included_pcre != yes ; then
   AC_CHECK_HEADER(pcre2.h,
     AC_CHECK_LIB(pcre2-8, pcre2_compile_8, [have_pcre=yes ]),
-    [],
-    [
-#define PCRE2_CODE_UNIT_WIDTH 8
-     ]
+    [AC_CHECK_HEADER(pcre2/pcre2.h,
+     [AC_CHECK_LIB(pcre2-8, pcre2_compile_8, [have_pcre=yes
+      AC_DEFINE(HAVE_PCRE2_PCRE2_H, 1)])]
+    )]
   )
 fi
 
@@ -547,8 +547,6 @@ if test $have_pcre != yes ; then
   PCRE_DIST_CLEAN="distclean-pcre"
   AC_DEFINE(PCRE_INCLUDED, 1, [Using included libpcre2])
 else
-# We only need to check for and use this if we are NOT using included pcre
-  AC_CHECK_HEADERS(pcre2.h)
   LIBPCRE_LIBS="-lpcre2-8"
   PCRE_BUILD=""
   PCRE_CLEAN=""

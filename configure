@@ -7300,11 +7300,7 @@ fi
 
 # If they didn't specify it, we try to find it
 if test $have_pcre != yes -a $requested_included_pcre != yes ; then
-  ac_fn_c_check_header_compile "$LINENO" "pcre2.h" "ac_cv_header_pcre2_h" "
-#define PCRE2_CODE_UNIT_WIDTH 8
-
-
-"
+  ac_fn_c_check_header_compile "$LINENO" "pcre2.h" "ac_cv_header_pcre2_h" "$ac_includes_default"
 if test "x$ac_cv_header_pcre2_h" = xyes
 then :
   { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for pcre2_compile_8 in -lpcre2-8" >&5
@@ -7347,6 +7343,56 @@ then :
   have_pcre=yes
 fi
 
+else $as_nop
+  ac_fn_c_check_header_compile "$LINENO" "pcre2/pcre2.h" "ac_cv_header_pcre2_pcre2_h" "$ac_includes_default"
+if test "x$ac_cv_header_pcre2_pcre2_h" = xyes
+then :
+  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for pcre2_compile_8 in -lpcre2-8" >&5
+printf %s "checking for pcre2_compile_8 in -lpcre2-8... " >&6; }
+if test ${ac_cv_lib_pcre2_8_pcre2_compile_8+y}
+then :
+  printf %s "(cached) " >&6
+else $as_nop
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-lpcre2-8  $LIBS"
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+/* Override any GCC internal prototype to avoid an error.
+   Use char because int might match the return type of a GCC
+   builtin and then its argument prototype would still apply.  */
+char pcre2_compile_8 ();
+int
+main (void)
+{
+return pcre2_compile_8 ();
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"
+then :
+  ac_cv_lib_pcre2_8_pcre2_compile_8=yes
+else $as_nop
+  ac_cv_lib_pcre2_8_pcre2_compile_8=no
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.beam \
+    conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_pcre2_8_pcre2_compile_8" >&5
+printf "%s\n" "$ac_cv_lib_pcre2_8_pcre2_compile_8" >&6; }
+if test "x$ac_cv_lib_pcre2_8_pcre2_compile_8" = xyes
+then :
+  have_pcre=yes
+      printf "%s\n" "#define HAVE_PCRE2_PCRE2_H 1" >>confdefs.h
+
+fi
+
+
+fi
+
+
 fi
 
 fi
@@ -7364,14 +7410,6 @@ if test $have_pcre != yes ; then
 printf "%s\n" "#define PCRE_INCLUDED 1" >>confdefs.h
 
 else
-# We only need to check for and use this if we are NOT using included pcre
-  ac_fn_c_check_header_compile "$LINENO" "pcre2.h" "ac_cv_header_pcre2_h" "$ac_includes_default"
-if test "x$ac_cv_header_pcre2_h" = xyes
-then :
-  printf "%s\n" "#define HAVE_PCRE2_H 1" >>confdefs.h
-
-fi
-
   LIBPCRE_LIBS="-lpcre2-8"
   PCRE_BUILD=""
   PCRE_CLEAN=""
