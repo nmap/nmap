@@ -226,8 +226,8 @@ class NmapOps {
   /* Gets the spoofed MAC address, but returns NULL if it hasn't been set */
   const u8 *spoofMACAddress() { return spoof_mac_set? spoof_mac : NULL; }
 
-  unsigned int max_ips_to_scan; // Used for Random input (-iR) to specify how
-                       // many IPs to try before stopping. 0 means unlimited.
+  unsigned long max_ips_to_scan; // Used for Random input (-iR) to specify how
+                       // many IPs to try before stopping. 0 means unlimited if generate_random_ips is true
   int extra_payload_length; /* These two are for --data-length op */
   char *extra_payload;
   unsigned long host_timeout;

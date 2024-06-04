@@ -98,7 +98,7 @@ public:
   const std::list<struct sockaddr_storage> &get_unscanned_addrs(void) const;
   /* is the current expression a named host */
   int get_namedhost() const;
-  void generate_random_ips(int num_random);
+  void generate_random_ips(unsigned long num_random);
   void reject_last_host();
 
   private:

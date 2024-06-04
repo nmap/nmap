@@ -126,15 +126,21 @@ class NetBlockRandomIPv4 : public NetBlock {
 public:
   NetBlockRandomIPv4();
 
-  void reject_last_host() { count++; }
-  void set_num_random(int num) { count = num; }
+  void reject_last_host() { if (!infinite) count++; }
+  void set_num_random(unsigned long num) {
+    if (num == 0)
+      infinite = true;
+    else
+      count = num;
+  }
   bool next(struct sockaddr_storage *ss, size_t *sslen);
   void apply_netmask(int bits) {}
   std::string str() const {return "Random IPv4 addresses";}
 
 private:
   struct sockaddr_in base;
-  int count;
+  unsigned long count;
+  bool infinite;
 };
 
 class NetBlockIPv4Ranges : public NetBlock {
@@ -352,21 +358,25 @@ bool NetBlock::is_resolved_address(const struct sockaddr_storage *ss) const {
   return false;
 }
 
-NetBlockRandomIPv4::NetBlockRandomIPv4() : count(0) {
+NetBlockRandomIPv4::NetBlockRandomIPv4() : count(0), infinite(false) {
   memset(&base, 0, sizeof(base));
   base.sin_family = AF_INET;
 }
 
 bool NetBlockRandomIPv4::next(struct sockaddr_storage *ss, size_t *sslen) {
-  if (count <= 0) {
-    return false;
+  if (!infinite) {
+    if (count > 0) {
+      count--;
+    }
+    else {
+      return false;
+    }
   }
   do {
     base.sin_addr.s_addr = get_random_unique_u32();
   } while (ip_is_reserved(&base.sin_addr));
   memcpy(ss, &base, sizeof(base));
   *sslen = sizeof(base);
-  count--;
   return true;
 }
 
@@ -861,7 +871,7 @@ bool TargetGroup::load_expressions(HostGroupState *hs, int af) {
   return !netblocks.empty();
 }
 
-void TargetGroup::generate_random_ips(int num_random) {
+void TargetGroup::generate_random_ips(unsigned long num_random) {
   NetBlockRandomIPv4 *nbrand = new NetBlockRandomIPv4();
   nbrand->set_num_random(num_random);
   netblocks.push_front(nbrand);
