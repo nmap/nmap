@@ -32,8 +32,8 @@
  * SUCH DAMAGE.
  */
 
-#ifndef charonv_h
-#define charonv_h
+#ifndef charconv_h
+#define charconv_h
 
 #ifdef _WIN32
 extern wchar_t *cp_to_utf_16le(UINT codepage, const char *cp_string, DWORD flags);
@@ -41,4 +41,4 @@ extern char *utf_16le_to_cp(UINT codepage, const wchar_t *utf16le_string);
 extern void utf_8_to_acp_truncated(char *);
 #endif
 
-#endif
+#endif /* charconv_h */

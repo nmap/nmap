@@ -11,10 +11,8 @@ include(CheckCSourceCompiles)
 # method (if any):
 #   HAVE_O_NONBLOCK
 #   HAVE_FIONBIO
-#   HAVE_IOCTLSOCKET
 #   HAVE_IOCTLSOCKET_CASE
 #   HAVE_SO_NONBLOCK
-#   HAVE_DISABLED_NONBLOCKING
 #
 # The following variables may be set before calling this macro to
 # modify the way the check is run:
@@ -47,72 +45,48 @@ macro(check_nonblocking_socket_support)
 #error \"O_NONBLOCK does not work on this platform\"
 #endif
 
-int main()
+int main(void)
 {
-    int socket;
-    int flags = fcntl(socket, F_SETFL, flags | O_NONBLOCK);
+    int socket = 0;
+    (void)fcntl(socket, F_SETFL, O_NONBLOCK);
 }"
-  HAVE_O_NONBLOCK)
+    HAVE_O_NONBLOCK)
 
   if(NOT HAVE_O_NONBLOCK)
     check_c_source_compiles("/* FIONBIO test (old-style unix) */
 #include <unistd.h>
 #include <stropts.h>
 
-int main()
+int main(void)
 {
-    int socket;
-    int flags = ioctl(socket, FIONBIO, &flags);
+    int socket = 0;
+    int flags = 0;
+    (void)ioctl(socket, FIONBIO, &flags);
 }"
-    HAVE_FIONBIO)
+      HAVE_FIONBIO)
 
     if(NOT HAVE_FIONBIO)
-      check_c_source_compiles("/* ioctlsocket test (Windows) */
-#undef inline
-#ifndef WIN32_LEAN_AND_MEAN
-#define WIN32_LEAN_AND_MEAN
-#endif
-
-#include <windows.h>
-#include <winsock2.h>
-
-int main()
-{
-    SOCKET sd;
-    unsigned long flags = 0;
-    sd = socket(0, 0, 0);
-    ioctlsocket(sd, FIONBIO, &flags);
-}"
-      HAVE_IOCTLSOCKET)
-
-      if(NOT HAVE_IOCTLSOCKET)
-	check_c_source_compiles("/* IoctlSocket test (Amiga?) */
+      check_c_source_compiles("/* IoctlSocket test (Amiga?) */
 #include <sys/ioctl.h>
 
-int main()
+int main(void)
 {
-    int socket;
-    int flags = IoctlSocket(socket, FIONBIO, (long)1);
+    int socket = 0;
+    (void)IoctlSocket(socket, FIONBIO, (long)1);
 }"
         HAVE_IOCTLSOCKET_CASE)
 
-        if(NOT HAVE_IOCTLSOCKET_CASE)
-	  check_c_source_compiles("/* SO_NONBLOCK test (BeOS) */
+      if(NOT HAVE_IOCTLSOCKET_CASE)
+        check_c_source_compiles("/* SO_NONBLOCK test (BeOS) */
 #include <socket.h>
 
-int main()
+int main(void)
 {
     long b = 1;
-    int socket;
-    int flags = setsockopt(socket, SOL_SOCKET, SO_NONBLOCK, &b, sizeof(b));
+    int socket = 0;
+    (void)setsockopt(socket, SOL_SOCKET, SO_NONBLOCK, &b, sizeof(b));
 }"
           HAVE_SO_NONBLOCK)
-
-	  if(NOT HAVE_SO_NONBLOCK)
-	    # No non-blocking socket method found
-	    set(HAVE_DISABLED_NONBLOCKING 1)
-	  endif()
-	endif()
       endif()
     endif()
   endif()

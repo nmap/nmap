@@ -102,7 +102,7 @@ function test_get(host, port, proxyType, test_url, hostname, pattern)
     return false, socket
   end
   local req = "GET " .. test_url .. " HTTP/1.0\r\nHost: " .. hostname .. "\r\n\r\n"
-  stdnse.debug1("GET Request: " .. req)
+  stdnse.debug1("GET Request: %s", req)
   return test(socket, req, pattern)
 end
 
@@ -120,7 +120,7 @@ function test_head(host, port, proxyType, test_url, hostname, pattern)
     return false, socket
   end
   local req = "HEAD " .. test_url .. " HTTP/1.0\r\nHost: " .. hostname .. "\r\n\r\n"
-  stdnse.debug1("HEAD Request: " .. req)
+  stdnse.debug1("HEAD Request: %s", req)
   return test(socket, req, pattern)
 end
 
@@ -136,7 +136,7 @@ function test_connect(host, port, proxyType, hostname)
     return false, socket
   end
   local req = "CONNECT " .. hostname .. ":80 HTTP/1.0\r\n\r\n"
-  stdnse.debug1("CONNECT Request: " .. req)
+  stdnse.debug1("CONNECT Request: %s", req)
   return test(socket, req, false)
 end
 

@@ -74,5 +74,5 @@ void
 _libssh2_init_if_needed(void)
 {
     if(_libssh2_initialized == 0)
-        (void)libssh2_init (0);
+        (void)libssh2_init(0);
 }

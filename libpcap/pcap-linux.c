@@ -2,7 +2,7 @@
  *  pcap-linux.c: Packet capture interface to the Linux kernel
  *
  *  Copyright (c) 2000 Torsten Landschoff <torsten@debian.org>
- *  		       Sebastian Krahmer  <krahmer@cs.uni-potsdam.de>
+ *		       Sebastian Krahmer  <krahmer@cs.uni-potsdam.de>
  *
  *  License: BSD
  *
@@ -100,6 +100,7 @@
 #include "pcap-int.h"
 #include "pcap/sll.h"
 #include "pcap/vlan.h"
+#include "pcap/can_socketcan.h"
 
 #include "diag-control.h"
 
@@ -222,7 +223,7 @@ static int get_if_flags(const char *, bpf_u_int32 *, char *);
 static int is_wifi(const char *);
 static void map_arphrd_to_dlt(pcap_t *, int, const char *, int);
 static int pcap_activate_linux(pcap_t *);
-static int activate_pf_packet(pcap_t *, int);
+static int setup_socket(pcap_t *, int);
 static int setup_mmapped(pcap_t *, int *);
 static int pcap_can_set_rfmon_linux(pcap_t *);
 static int pcap_inject_linux(pcap_t *, const void *, int);
@@ -314,14 +315,12 @@ static const struct timeval netdown_timeout = {
  */
 static int	iface_get_id(int fd, const char *device, char *ebuf);
 static int	iface_get_mtu(int fd, const char *device, char *ebuf);
-static int 	iface_get_arptype(int fd, const char *device, char *ebuf);
-static int 	iface_bind(int fd, int ifindex, char *ebuf, int protocol);
+static int	iface_get_arptype(int fd, const char *device, char *ebuf);
+static int	iface_bind(int fd, int ifindex, char *ebuf, int protocol);
 static int	enter_rfmon_mode(pcap_t *handle, int sock_fd,
     const char *device);
-#if defined(HAVE_LINUX_NET_TSTAMP_H) && defined(PACKET_TIMESTAMP)
-static int	iface_ethtool_get_ts_info(const char *device, pcap_t *handle,
+static int	iface_get_ts_types(const char *device, pcap_t *handle,
     char *ebuf);
-#endif
 static int	iface_get_offload(pcap_t *handle);
 
 static int	fix_program(pcap_t *handle, struct sock_fprog *fcode);
@@ -348,15 +347,13 @@ pcap_create_interface(const char *device, char *ebuf)
 	handle->activate_op = pcap_activate_linux;
 	handle->can_set_rfmon_op = pcap_can_set_rfmon_linux;
 
-#if defined(HAVE_LINUX_NET_TSTAMP_H) && defined(PACKET_TIMESTAMP)
 	/*
 	 * See what time stamp types we support.
 	 */
-	if (iface_ethtool_get_ts_info(device, handle, ebuf) == -1) {
+	if (iface_get_ts_types(device, handle, ebuf) == -1) {
 		pcap_close(handle);
 		return NULL;
 	}
-#endif
 
 	/*
 	 * We claim that we support microsecond and nanosecond time
@@ -845,7 +842,10 @@ static void	pcap_cleanup_linux( pcap_t *handle )
 		handlep->device = NULL;
 	}
 
-	close(handlep->poll_breakloop_fd);
+	if (handlep->poll_breakloop_fd != -1) {
+		close(handlep->poll_breakloop_fd);
+		handlep->poll_breakloop_fd = -1;
+	}
 	pcap_cleanup_live_common(handle);
 }
 
@@ -944,7 +944,41 @@ static void pcap_breakloop_linux(pcap_t *handle)
 
 	uint64_t value = 1;
 	/* XXX - what if this fails? */
-	(void)write(handlep->poll_breakloop_fd, &value, sizeof(value));
+	if (handlep->poll_breakloop_fd != -1)
+		(void)write(handlep->poll_breakloop_fd, &value, sizeof(value));
+}
+
+/*
+ * Set the offset at which to insert VLAN tags.
+ * That should be the offset of the type field.
+ */
+static void
+set_vlan_offset(pcap_t *handle)
+{
+	struct pcap_linux *handlep = handle->priv;
+
+	switch (handle->linktype) {
+
+	case DLT_EN10MB:
+		/*
+		 * The type field is after the destination and source
+		 * MAC address.
+		 */
+		handlep->vlan_offset = 2 * ETH_ALEN;
+		break;
+
+	case DLT_LINUX_SLL:
+		/*
+		 * The type field is in the last 2 bytes of the
+		 * DLT_LINUX_SLL header.
+		 */
+		handlep->vlan_offset = SLL_HDR_LEN - 2;
+		break;
+
+	default:
+		handlep->vlan_offset = -1; /* unknown */
+		break;
+	}
 }
 
 /*
@@ -980,6 +1014,11 @@ pcap_activate_linux(pcap_t *handle)
 	 * we'll be copying it, that won't fit.
 	 */
 	if (strlen(device) >= sizeof(ifr.ifr_name)) {
+		/*
+		 * There's nothing more to say, so clear the error
+		 * message.
+		 */
+		handle->errbuf[0] = '\0';
 		status = PCAP_ERROR_NO_SUCH_DEVICE;
 		goto fail;
 	}
@@ -1035,7 +1074,7 @@ pcap_activate_linux(pcap_t *handle)
 	 * If the "any" device is specified, try to open a SOCK_DGRAM.
 	 * Otherwise, open a SOCK_RAW.
 	 */
-	ret = activate_pf_packet(handle, is_any_device);
+	ret = setup_socket(handle, is_any_device);
 	if (ret < 0) {
 		/*
 		 * Fatal error; the return value is the error code,
@@ -1111,6 +1150,13 @@ static int
 pcap_set_datalink_linux(pcap_t *handle, int dlt)
 {
 	handle->linktype = dlt;
+
+	/*
+	 * Update the offset at which to insert VLAN tags for the
+	 * new link-layer type.
+	 */
+	set_vlan_offset(handle);
+
 	return 0;
 }
 
@@ -1144,9 +1190,12 @@ linux_check_direction(const pcap_t *handle, const struct sockaddr_ll *sll)
 		 * easily distinguish packets looped back by the CAN
 		 * layer than those received by the CAN layer, so we
 		 * eliminate this packet instead.
+		 *
+		 * We check whether this is a CAN or CAN FD frame
+		 * by checking whether the device's hardware type
+		 * is ARPHRD_CAN.
 		 */
-		if ((sll->sll_protocol == LINUX_SLL_P_CAN ||
-		     sll->sll_protocol == LINUX_SLL_P_CANFD) &&
+		if (sll->sll_hatype == ARPHRD_CAN &&
 		     handle->direction != PCAP_D_OUT)
 			return 0;
 
@@ -1440,7 +1489,7 @@ get_if_ioctl_socket(void)
 	 * capture on them, "why do no interfaces show up?" - when the
 	 * real problem is a permissions problem.  Error reports of that
 	 * type require a lot more back-and-forth to debug, as evidenced
-	 * by many Wireshark bugs/mailing list questions/Q&A questoins.)
+	 * by many Wireshark bugs/mailing list questions/Q&A questions.)
 	 *
 	 * So:
 	 *
@@ -1612,8 +1661,8 @@ get_if_flags(const char *name, bpf_u_int32 *flags, char *errbuf)
 				}
 			}
 			fclose(fh);
-			free(pathstr);
 		}
+		free(pathstr);
 	}
 
 #ifdef ETHTOOL_GLINK
@@ -1815,7 +1864,7 @@ static void map_arphrd_to_dlt(pcap_t *handle, int arptype,
 		 * XXX - are there any other sorts of "fake Ethernet" that
 		 * have ARPHRD_ETHER but that shouldn't offer DLT_DOCSIS as
 		 * a Cisco CMTS won't put traffic onto it or get traffic
-		 * bridged onto it?  ISDN is handled in "activate_pf_packet()",
+		 * bridged onto it?  ISDN is handled in "setup_socket()",
 		 * as we fall back on cooked mode there, and we use
 		 * is_wifi() to check for 802.11 devices; are there any
 		 * others?
@@ -1882,14 +1931,7 @@ static void map_arphrd_to_dlt(pcap_t *handle, int arptype,
 #define ARPHRD_CAN 280
 #endif
 	case ARPHRD_CAN:
-		/*
-		 * Map this to DLT_LINUX_SLL; that way, CAN frames will
-		 * have ETH_P_CAN/LINUX_SLL_P_CAN as the protocol and
-		 * CAN FD frames will have ETH_P_CANFD/LINUX_SLL_P_CANFD
-		 * as the protocol, so they can be distinguished by the
-		 * protocol in the SLL header.
-		 */
-		handle->linktype = DLT_LINUX_SLL;
+		handle->linktype = DLT_CAN_SOCKETCAN;
 		break;
 
 #ifndef ARPHRD_IEEE802_TR
@@ -2171,7 +2213,7 @@ static void map_arphrd_to_dlt(pcap_t *handle, int arptype,
 		/* We need to save packet direction for IrDA decoding,
 		 * so let's use "Linux-cooked" mode. Jean II
 		 *
-		 * XXX - this is handled in activate_pf_packet(). */
+		 * XXX - this is handled in setup_socket(). */
 		/* handlep->cooked = 1; */
 		break;
 
@@ -2213,7 +2255,7 @@ static void map_arphrd_to_dlt(pcap_t *handle, int arptype,
 		 * pick up the netlink protocol type such as NETLINK_ROUTE,
 		 * NETLINK_GENERIC, NETLINK_FIB_LOOKUP, etc.
 		 *
-		 * XXX - this is handled in activate_pf_packet().
+		 * XXX - this is handled in setup_socket().
 		 */
 		/* handlep->cooked = 1; */
 		break;
@@ -2231,59 +2273,36 @@ static void map_arphrd_to_dlt(pcap_t *handle, int arptype,
 	}
 }
 
-#ifdef PACKET_RESERVE
 static void
-set_dlt_list_cooked(pcap_t *handle, int sock_fd)
+set_dlt_list_cooked(pcap_t *handle)
 {
-	socklen_t		len;
-	unsigned int		tp_reserve;
+	/*
+	 * Support both DLT_LINUX_SLL and DLT_LINUX_SLL2.
+	 */
+	handle->dlt_list = (u_int *) malloc(sizeof(u_int) * 2);
 
 	/*
-	 * If we can't do PACKET_RESERVE, we can't reserve extra space
-	 * for a DLL_LINUX_SLL2 header, so we can't support DLT_LINUX_SLL2.
+	 * If that failed, just leave the list empty.
 	 */
-	len = sizeof(tp_reserve);
-	if (getsockopt(sock_fd, SOL_PACKET, PACKET_RESERVE, &tp_reserve,
-	    &len) == 0) {
-		/*
-		 * Yes, we can do DLL_LINUX_SLL2.
-		 */
-		handle->dlt_list = (u_int *) malloc(sizeof(u_int) * 2);
-		/*
-		 * If that fails, just leave the list empty.
-		 */
-		if (handle->dlt_list != NULL) {
-			handle->dlt_list[0] = DLT_LINUX_SLL;
-			handle->dlt_list[1] = DLT_LINUX_SLL2;
-			handle->dlt_count = 2;
-		}
+	if (handle->dlt_list != NULL) {
+		handle->dlt_list[0] = DLT_LINUX_SLL;
+		handle->dlt_list[1] = DLT_LINUX_SLL2;
+		handle->dlt_count = 2;
 	}
 }
-#else/* PACKET_RESERVE */
-/*
- * The build environment doesn't define PACKET_RESERVE, so we can't reserve
- * extra space for a DLL_LINUX_SLL2 header, so we can't support DLT_LINUX_SLL2.
- */
-static void
-set_dlt_list_cooked(pcap_t *handle _U_, int sock_fd _U_)
-{
-}
-#endif /* PACKET_RESERVE */
 
 /*
  * Try to set up a PF_PACKET socket.
  * Returns 0 on success and a PCAP_ERROR_ value on failure.
  */
 static int
-activate_pf_packet(pcap_t *handle, int is_any_device)
+setup_socket(pcap_t *handle, int is_any_device)
 {
 	struct pcap_linux *handlep = handle->priv;
 	const char		*device = handle->opt.device;
 	int			status = 0;
 	int			sock_fd, arptype;
-#ifdef HAVE_PACKET_AUXDATA
 	int			val;
-#endif
 	int			err = 0;
 	struct packet_mreq	mr;
 #if defined(SO_BPF_EXTENSIONS) && defined(SKF_AD_VLAN_TAG_PRESENT)
@@ -2312,6 +2331,8 @@ activate_pf_packet(pcap_t *handle, int is_any_device)
 			 * socket.
 			 */
 			status = PCAP_ERROR_PERM_DENIED;
+			snprintf(handle->errbuf, PCAP_ERRBUF_SIZE,
+			    "Attempt to create packet socket failed - CAP_NET_RAW may be required");
 		} else {
 			/*
 			 * Other error.
@@ -2439,7 +2460,7 @@ activate_pf_packet(pcap_t *handle, int is_any_device)
 				free(handle->dlt_list);
 				handle->dlt_list = NULL;
 				handle->dlt_count = 0;
-				set_dlt_list_cooked(handle, sock_fd);
+				set_dlt_list_cooked(handle);
 			}
 
 			if (handle->linktype == -1) {
@@ -2505,7 +2526,7 @@ activate_pf_packet(pcap_t *handle, int is_any_device)
 		handle->linktype = DLT_LINUX_SLL;
 		handle->dlt_list = NULL;
 		handle->dlt_count = 0;
-		set_dlt_list_cooked(handle, sock_fd);
+		set_dlt_list_cooked(handle);
 
 		/*
 		 * We're not bound to a device.
@@ -2552,9 +2573,15 @@ activate_pf_packet(pcap_t *handle, int is_any_device)
 		}
 	}
 
-	/* Enable auxiliary data if supported and reserve room for
-	 * reconstructing VLAN headers. */
-#ifdef HAVE_PACKET_AUXDATA
+	/*
+	 * Enable auxiliary data and reserve room for reconstructing
+	 * VLAN headers.
+	 *
+	 * XXX - is enabling auxiliary data necessary, now that we
+	 * only support memory-mapped capture?  The kernel's memory-mapped
+	 * capture code doesn't seem to check whether auxiliary data
+	 * is enabled, it seems to provide it whether it is or not.
+	 */
 	val = 1;
 	if (setsockopt(sock_fd, SOL_PACKET, PACKET_AUXDATA, &val,
 		       sizeof(val)) == -1 && errno != ENOPROTOOPT) {
@@ -2564,7 +2591,6 @@ activate_pf_packet(pcap_t *handle, int is_any_device)
 		return PCAP_ERROR;
 	}
 	handle->offset += VLAN_TAG_LEN;
-#endif /* HAVE_PACKET_AUXDATA */
 
 	/*
 	 * If we're in cooked mode, make the snapshot length
@@ -2584,30 +2610,8 @@ activate_pf_packet(pcap_t *handle, int is_any_device)
 
 	/*
 	 * Set the offset at which to insert VLAN tags.
-	 * That should be the offset of the type field.
 	 */
-	switch (handle->linktype) {
-
-	case DLT_EN10MB:
-		/*
-		 * The type field is after the destination and source
-		 * MAC address.
-		 */
-		handlep->vlan_offset = 2 * ETH_ALEN;
-		break;
-
-	case DLT_LINUX_SLL:
-		/*
-		 * The type field is in the last 2 bytes of the
-		 * DLT_LINUX_SLL header.
-		 */
-		handlep->vlan_offset = SLL_HDR_LEN - 2;
-		break;
-
-	default:
-		handlep->vlan_offset = -1; /* unknown */
-		break;
-	}
+	set_vlan_offset(handle);
 
 	if (handle->opt.tstamp_precision == PCAP_TSTAMP_PRECISION_NANO) {
 		int nsec_tstamps = 1;
@@ -2678,6 +2682,7 @@ setup_mmapped(pcap_t *handle, int *status)
 	ret = prepare_tpacket_socket(handle);
 	if (ret == -1) {
 		free(handlep->oneshot_buffer);
+		handlep->oneshot_buffer = NULL;
 		*status = PCAP_ERROR;
 		return ret;
 	}
@@ -2688,6 +2693,7 @@ setup_mmapped(pcap_t *handle, int *status)
 		 * fail.  create_ring() has set *status.
 		 */
 		free(handlep->oneshot_buffer);
+		handlep->oneshot_buffer = NULL;
 		return -1;
 	}
 
@@ -2889,40 +2895,30 @@ create_ring(pcap_t *handle, int *status)
 	tp_reserve = VLAN_TAG_LEN;
 
 	/*
-	 * If we're using DLT_LINUX_SLL2, reserve space for a
-	 * DLT_LINUX_SLL2 header.
+	 * If we're capturing in cooked mode, reserve space for
+	 * a DLT_LINUX_SLL2 header; we don't know yet whether
+	 * we'll be using DLT_LINUX_SLL or DLT_LINUX_SLL2, as
+	 * that can be changed on an open device, so we reserve
+	 * space for the larger of the two.
 	 *
 	 * XXX - we assume that the kernel is still adding
-	 * 16 bytes of extra space; that happens to
-	 * correspond to SLL_HDR_LEN (whether intentionally
-	 * or not - the kernel code has a raw "16" in
-	 * the expression), so we subtract SLL_HDR_LEN
-	 * from SLL2_HDR_LEN to get the additional space
-	 * needed.  That also means we don't bother reserving
-	 * any additional space if we're using DLT_LINUX_SLL.
+	 * 16 bytes of extra space, so we subtract 16 from
+	 * SLL2_HDR_LEN to get the additional space needed.
+	 * (Are they doing that for DLT_LINUX_SLL, the link-
+	 * layer header for which is 16 bytes?)
 	 *
-	 * XXX - should we use TPACKET_ALIGN(SLL2_HDR_LEN - SLL_HDR_LEN)?
+	 * XXX - should we use TPACKET_ALIGN(SLL2_HDR_LEN - 16)?
 	 */
-	if (handle->linktype == DLT_LINUX_SLL2)
-		tp_reserve += SLL2_HDR_LEN - SLL_HDR_LEN;
+	if (handlep->cooked)
+		tp_reserve += SLL2_HDR_LEN - 16;
 
 	/*
 	 * Try to request that amount of reserve space.
 	 * This must be done before creating the ring buffer.
-	 * If PACKET_RESERVE is supported, creating the ring
-	 * buffer should be, although if creating the ring
-	 * buffer fails, the PACKET_RESERVE call has no effect,
-	 * so falling back on read-from-the-socket capturing
-	 * won't be affected.
 	 */
 	len = sizeof(tp_reserve);
 	if (setsockopt(handle->fd, SOL_PACKET, PACKET_RESERVE,
 	    &tp_reserve, len) < 0) {
-		/*
-		 * We treat ENOPROTOOPT as an error, as we
-		 * already determined that we support
-		 * TPACKET_V2 and later; see above.
-		 */
 		pcap_fmt_errmsg_for_errno(handle->errbuf,
 		    PCAP_ERRBUF_SIZE, errno,
 		    "setsockopt (PACKET_RESERVE)");
@@ -3118,6 +3114,9 @@ create_ring(pcap_t *handle, int *status)
 		pcap_strlcpy(ifr.ifr_name, handle->opt.device, sizeof(ifr.ifr_name));
 		ifr.ifr_data = (void *)&hwconfig;
 
+		/*
+		 * This may require CAP_NET_ADMIN.
+		 */
 		if (ioctl(handle->fd, SIOCSHWTSTAMP, &ifr) < 0) {
 			switch (errno) {
 
@@ -3130,6 +3129,8 @@ create_ring(pcap_t *handle, int *status)
 				 * try requesting hardware time stamps.
 				 */
 				*status = PCAP_ERROR_PERM_DENIED;
+				snprintf(handle->errbuf, PCAP_ERRBUF_SIZE,
+				    "Attempt to set hardware timestamp failed - CAP_NET_ADMIN may be required");
 				return -1;
 
 			case EOPNOTSUPP:
@@ -3378,7 +3379,23 @@ pcap_setnonblock_linux(pcap_t *handle, int nonblock)
 			 */
 			handlep->timeout = ~handlep->timeout;
 		}
+		if (handlep->poll_breakloop_fd != -1) {
+			/* Close the eventfd; we do not need it in nonblock mode. */
+			close(handlep->poll_breakloop_fd);
+			handlep->poll_breakloop_fd = -1;
+		}
 	} else {
+		if (handlep->poll_breakloop_fd == -1) {
+			/* If we did not have an eventfd, open one now that we are blocking. */
+			if ( ( handlep->poll_breakloop_fd = eventfd(0, EFD_NONBLOCK) ) == -1 ) {
+				int save_errno = errno;
+				snprintf(handle->errbuf, PCAP_ERRBUF_SIZE,
+						"Could not open eventfd: %s",
+						strerror(errno));
+				errno = save_errno;
+				return -1;
+			}
+		}
 		if (handlep->timeout < 0) {
 			handlep->timeout = ~handlep->timeout;
 		}
@@ -3422,10 +3439,24 @@ static int pcap_wait_for_frames_mmap(pcap_t *handle)
 	struct ifreq ifr;
 	int ret;
 	struct pollfd pollinfo[2];
+	int numpollinfo;
 	pollinfo[0].fd = handle->fd;
 	pollinfo[0].events = POLLIN;
-	pollinfo[1].fd = handlep->poll_breakloop_fd;
-	pollinfo[1].events = POLLIN;
+	if ( handlep->poll_breakloop_fd == -1 ) {
+		numpollinfo = 1;
+		pollinfo[1].revents = 0;
+		/*
+		 * We set pollinfo[1].revents to zero, even though
+		 * numpollinfo = 1 meaning that poll() doesn't see
+		 * pollinfo[1], so that we do not have to add a
+		 * conditional of numpollinfo > 1 below when we
+		 * test pollinfo[1].revents.
+		 */
+	} else {
+		pollinfo[1].fd = handlep->poll_breakloop_fd;
+		pollinfo[1].events = POLLIN;
+		numpollinfo = 2;
+	}
 
 	/*
 	 * Keep polling until we either get some packets to read, see
@@ -3467,7 +3498,7 @@ static int pcap_wait_for_frames_mmap(pcap_t *handle)
 	 * don't need to poll.
 	 */
 	for (;;) {
-	 	/*
+		/*
 		 * Yes, we do this even in non-blocking mode, as it's
 		 * the only way to get error indications from a
 		 * tpacket socket.
@@ -3490,7 +3521,7 @@ static int pcap_wait_for_frames_mmap(pcap_t *handle)
 			if (timeout != 0)
 				timeout = 1;
 		}
-		ret = poll(pollinfo, 2, timeout);
+		ret = poll(pollinfo, numpollinfo, timeout);
 		if (ret < 0) {
 			/*
 			 * Error.  If it's not EINTR, report it.
@@ -3772,6 +3803,7 @@ static int pcap_handle_packet_mmap(
 	unsigned char *bp;
 	struct sockaddr_ll *sll;
 	struct pcap_pkthdr pcaphdr;
+	pcap_can_socketcan_hdr *canhdr;
 	unsigned int snaplen = tp_snaplen;
 	struct utsname utsname;
 
@@ -3890,6 +3922,68 @@ static int pcap_handle_packet_mmap(
 
 			snaplen += sizeof(struct sll_header);
 		}
+	} else {
+		/*
+		 * If this is a packet from a CAN device, so that
+		 * sll->sll_hatype is ARPHRD_CAN, then, as we're
+		 * not capturing in cooked mode, its link-layer
+		 * type is DLT_CAN_SOCKETCAN.  Fix up the header
+		 * provided by the code below us to match what
+		 * DLT_CAN_SOCKETCAN is expected to provide.
+		 */
+		if (sll->sll_hatype == ARPHRD_CAN) {
+			/*
+			 * DLT_CAN_SOCKETCAN is specified as having the
+			 * CAN ID and flags in network byte order, but
+			 * capturing on a CAN device provides it in host
+			 * byte order.  Convert it to network byte order.
+			 */
+			canhdr = (pcap_can_socketcan_hdr *)bp;
+			canhdr->can_id = htonl(canhdr->can_id);
+
+			/*
+			 * In addition, set the CANFD_FDF flag if
+			 * the protocol is LINUX_SLL_P_CANFD, as
+			 * the protocol field itself isn't in
+			 * the packet to indicate that it's a
+			 * CAN FD packet.
+			 */
+			uint16_t protocol = ntohs(sll->sll_protocol);
+			if (protocol == LINUX_SLL_P_CANFD) {
+				canhdr->fd_flags |= CANFD_FDF;
+
+				/*
+				 * Zero out all the unknown bits in
+				 * fd_flags and clear the reserved
+				 * fields, so that a program reading
+				 * this can assume that CANFD_FDF
+				 * is set because we set it, not
+				 * because some uninitialized crap
+				 * was provided in the fd_flags
+				 * field.
+				 *
+				 * (At least some LINKTYPE_CAN_SOCKETCAN
+				 * files attached to Wireshark bugs
+				 * had uninitialized junk there, so it
+				 * does happen.)
+				 *
+				 * Update this if Linux adds more flag
+				 * bits to the fd_flags field or uses
+				 * either of the reserved fields for
+				 * FD frames.
+				 */
+				canhdr->fd_flags &= ~(CANFD_FDF|CANFD_ESI|CANFD_BRS);
+				canhdr->reserved1 = 0;
+				canhdr->reserved2 = 0;
+			} else {
+				/*
+				 * Clear CANFD_FDF if it's set (probably
+				 * again meaning that this field is
+				 * uninitialized junk).
+				 */
+				canhdr->fd_flags &= ~CANFD_FDF;
+			}
+		}
 	}
 
 	if (handlep->filter_in_userland && handle->fcode.bf_insns) {
@@ -4002,9 +4096,22 @@ pcap_read_linux_mmap_v2(pcap_t *handle, int max_packets, pcap_handler callback,
 		}
 	}
 
-	/* non-positive values of max_packets are used to require all
-	 * packets currently available in the ring */
-	while ((pkts < max_packets) || PACKET_COUNT_IS_UNLIMITED(max_packets)) {
+	/*
+	 * This can conceivably process more than INT_MAX packets,
+	 * which would overflow the packet count, causing it either
+	 * to look like a negative number, and thus cause us to
+	 * return a value that looks like an error, or overflow
+	 * back into positive territory, and thus cause us to
+	 * return a too-low count.
+	 *
+	 * Therefore, if the packet count is unlimited, we clip
+	 * it at INT_MAX; this routine is not expected to
+	 * process packets indefinitely, so that's not an issue.
+	 */
+	if (PACKET_COUNT_IS_UNLIMITED(max_packets))
+		max_packets = INT_MAX;
+
+	while (pkts < max_packets) {
 		/*
 		 * Get the current ring buffer frame, and break if
 		 * it's still owned by the kernel.
@@ -4097,9 +4204,22 @@ again:
 		return pkts;
 	}
 
-	/* non-positive values of max_packets are used to require all
-	 * packets currently available in the ring */
-	while ((pkts < max_packets) || PACKET_COUNT_IS_UNLIMITED(max_packets)) {
+	/*
+	 * This can conceivably process more than INT_MAX packets,
+	 * which would overflow the packet count, causing it either
+	 * to look like a negative number, and thus cause us to
+	 * return a value that looks like an error, or overflow
+	 * back into positive territory, and thus cause us to
+	 * return a too-low count.
+	 *
+	 * Therefore, if the packet count is unlimited, we clip
+	 * it at INT_MAX; this routine is not expected to
+	 * process packets indefinitely, so that's not an issue.
+	 */
+	if (PACKET_COUNT_IS_UNLIMITED(max_packets))
+		max_packets = INT_MAX;
+
+	while (pkts < max_packets) {
 		int packets_to_read;
 
 		if (handlep->current_packet == NULL) {
@@ -4112,12 +4232,12 @@ again:
 		}
 		packets_to_read = handlep->packets_left;
 
-		if (!PACKET_COUNT_IS_UNLIMITED(max_packets) &&
-		    packets_to_read > (max_packets - pkts)) {
+		if (packets_to_read > (max_packets - pkts)) {
 			/*
-			 * We've been given a maximum number of packets
-			 * to process, and there are more packets in
-			 * this buffer than that.  Only process enough
+			 * There are more packets in the buffer than
+			 * the number of packets we have left to
+			 * process to get up to the maximum number
+			 * of packets to process.  Only process enough
 			 * of them to get us up to that maximum.
 			 */
 			packets_to_read = max_packets - pkts;
@@ -4322,7 +4442,18 @@ pcap_setfilter_linux(pcap_t *handle, struct bpf_program *filter)
 			 * the filter for a reason other than "this kernel
 			 * isn't configured to support socket filters.
 			 */
-			if (errno != ENOPROTOOPT && errno != EOPNOTSUPP) {
+			if (errno == ENOMEM) {
+				/*
+				 * Either a kernel memory allocation
+				 * failure occurred, or there's too
+				 * much "other/option memory" allocated
+				 * for this socket.  Suggest that they
+				 * increase the "other/option memory"
+				 * limit.
+				 */
+				fprintf(stderr,
+				    "Warning: Couldn't allocate kernel memory for filter: try increasing net.core.optmem_max with sysctl\n");
+			} else if (errno != ENOPROTOOPT && errno != EOPNOTSUPP) {
 				fprintf(stderr,
 				    "Warning: Kernel filter failed: %s\n",
 					pcap_strerror(errno));
@@ -4465,12 +4596,18 @@ iface_bind(int fd, int ifindex, char *ebuf, int protocol)
 			 */
 			return PCAP_ERROR_IFACE_NOT_UP;
 		}
-		if (errno == ENODEV)
+		if (errno == ENODEV) {
+			/*
+			 * There's nothing more to say, so clear the
+			 * error message.
+			 */
+			ebuf[0] = '\0';
 			ret = PCAP_ERROR_NO_SUCH_DEVICE;
-		else
+		} else {
 			ret = PCAP_ERROR;
-		pcap_fmt_errmsg_for_errno(ebuf, PCAP_ERRBUF_SIZE,
-		    errno, "bind");
+			pcap_fmt_errmsg_for_errno(ebuf, PCAP_ERRBUF_SIZE,
+			    errno, "bind");
+		}
 		return ret;
 	}
 
@@ -4681,12 +4818,12 @@ iface_set_all_ts_types(pcap_t *handle, char *ebuf)
 	return 0;
 }
 
-#ifdef ETHTOOL_GET_TS_INFO
 /*
- * Get a list of time stamping capabilities.
+ * Get a list of time stamp types.
  */
+#ifdef ETHTOOL_GET_TS_INFO
 static int
-iface_ethtool_get_ts_info(const char *device, pcap_t *handle, char *ebuf)
+iface_get_ts_types(const char *device, pcap_t *handle, char *ebuf)
 {
 	int fd;
 	struct ifreq ifr;
@@ -4773,6 +4910,8 @@ iface_ethtool_get_ts_info(const char *device, pcap_t *handle, char *ebuf)
 		 * report HWTSTAMP_FILTER_ALL but map it to only
 		 * time stamping a few PTP packets.  See
 		 * http://marc.info/?l=linux-netdev&m=146318183529571&w=2
+		 *
+		 * Maybe that got fixed later.
 		 */
 		handle->tstamp_type_list = NULL;
 		return 0;
@@ -4804,7 +4943,7 @@ iface_ethtool_get_ts_info(const char *device, pcap_t *handle, char *ebuf)
 }
 #else /* ETHTOOL_GET_TS_INFO */
 static int
-iface_ethtool_get_ts_info(const char *device, pcap_t *handle, char *ebuf)
+iface_get_ts_types(const char *device, pcap_t *handle, char *ebuf)
 {
 	/*
 	 * This doesn't apply to the "any" device; you can't say "turn on
@@ -4827,7 +4966,15 @@ iface_ethtool_get_ts_info(const char *device, pcap_t *handle, char *ebuf)
 	return 0;
 }
 #endif /* ETHTOOL_GET_TS_INFO */
-
+#else  /* defined(HAVE_LINUX_NET_TSTAMP_H) && defined(PACKET_TIMESTAMP) */
+static int
+iface_get_ts_types(const char *device _U_, pcap_t *p _U_, char *ebuf _U_)
+{
+	/*
+	 * Nothing to fetch, so it always "succeeds".
+	 */
+	return 0;
+}
 #endif /* defined(HAVE_LINUX_NET_TSTAMP_H) && defined(PACKET_TIMESTAMP) */
 
 /*
@@ -5093,12 +5240,17 @@ iface_get_arptype(int fd, const char *device, char *ebuf)
 		if (errno == ENODEV) {
 			/*
 			 * No such device.
+			 *
+			 * There's nothing more to say, so clear
+			 * the error message.
 			 */
 			ret = PCAP_ERROR_NO_SUCH_DEVICE;
-		} else
+			ebuf[0] = '\0';
+		} else {
 			ret = PCAP_ERROR;
-		pcap_fmt_errmsg_for_errno(ebuf, PCAP_ERRBUF_SIZE,
-		    errno, "SIOCGIFHWADDR");
+			pcap_fmt_errmsg_for_errno(ebuf, PCAP_ERRBUF_SIZE,
+			    errno, "SIOCGIFHWADDR");
+		}
 		return ret;
 	}
 

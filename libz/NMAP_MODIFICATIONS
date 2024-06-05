@@ -2,7 +2,7 @@ diff --git a/libz/configure b/libz/configure
 index b77a8a8..9e8c8ff 100755
 --- a/libz/configure
 +++ b/libz/configure
-@@ -142,7 +142,8 @@ case "$1" in
+@@ -147,7 +147,8 @@ case "$1" in
      *)
        echo "unknown option: $1" | tee -a configure.log
        echo "$0 --help for help" | tee -a configure.log
@@ -11,3 +11,4 @@ index b77a8a8..9e8c8ff 100755
 +      shift;;
      esac
  done
+

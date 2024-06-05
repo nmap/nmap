@@ -72,8 +72,8 @@
 /* Define to 1 if you have the <inttypes.h> header file. */
 #undef HAVE_INTTYPES_H
 
-/* Define to 1 if you have the `dag' library (-ldag). */
-#undef HAVE_LIBDAG
+/* Define to 1 if you have the `bsd' library (-lbsd). */
+#undef HAVE_LIBBSD
 
 /* if libdlpi exists */
 #undef HAVE_LIBDLPI
@@ -132,9 +132,6 @@
 /* Define to 1 if you have the <net/pfilt.h> header file. */
 #undef HAVE_NET_PFILT_H
 
-/* Define to 1 if you have the <net/pfvar.h> header file. */
-#undef HAVE_NET_PFVAR_H
-
 /* Define to 1 if you have the <net/raw.h> header file. */
 #undef HAVE_NET_RAW_H
 
@@ -143,9 +140,6 @@
 
 /* if there's an os_proto.h for this platform, to use additional prototypes */
 #undef HAVE_OS_PROTO_H
-
-/* define if net/pfvar.h defines PF_NAT through PF_NORDR */
-#undef HAVE_PF_NAT_THROUGH_PF_NORDR
 
 /* Define to 1 if you have a POSIX-style `strerror_r' function. */
 #undef HAVE_POSIX_STRERROR_R
@@ -271,9 +265,6 @@
 /* IPv6 */
 #undef INET6
 
-/* path for device for USB sniffing */
-#undef LINUX_USB_MON_DEV
-
 /* Define to 1 if netinet/ether.h declares `ether_hostton' */
 #undef NETINET_ETHER_H_DECLARES_ETHER_HOSTTON
 
@@ -327,6 +318,12 @@
 
 /* target host supports RDMA sniffing */
 #undef PCAP_SUPPORT_RDMASNIFF
+
+/* The size of `const void *', as computed by sizeof. */
+#undef SIZEOF_CONST_VOID_P
+
+/* The size of `void *', as computed by sizeof. */
+#undef SIZEOF_VOID_P
 
 /* Define to 1 if you have the ANSI C header files. */
 #undef STDC_HEADERS

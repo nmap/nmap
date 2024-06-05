@@ -1,4 +1,4 @@
-This directory contains a version of LibPCRE 7.6 that has been stripped
+This directory contains a version of LibPCRE2 that has been stripped
 down to less than a third of its original uncompressed size.  So if you
 want docs, tests and such, you should go to the PCRE website at
 http://www.pcre.org .  Here are the changes for the Nmap version:
@@ -6,271 +6,46 @@ http://www.pcre.org .  Here are the changes for the Nmap version:
 o Started this NMAP_MODIFICATIONS file
 
 o Removed these directories:
-cmake
 doc
 testdata
+src/sljit/
 
 o Removed these files:
-pcretest.c
-pcregrep.c
-pcredemo.c
+src/pcre2test.c
+src/pcre2posix_test.c
+src/pcre2_jit_test.c
+src/pcre2grep.c
+src/pcre2demo.c
+src/pcre2_fuzzsupport.c
+src/pcre2_printint.c
+src/pcre2_jit_match.c
+src/pcre2_jit_misc.c
+src/pcre2_jit_neon_inc.h
+src/pcre2_jit_simd_inc.h
+src/pcre2_jit_test.c
+RunGrepTest.bat
 RunGrepTest
 RunTest
 RunTest.bat
-perltest.pl
+perltest.sh
+libpcre2-16.pc.in
+libpcre2-32.pc.in
+libpcre2-8.pc.in
+libpcre2-posix.pc.in
+cmake/FindEditline.cmake
+cmake/FindReadline.cmake
 Detrail
 PrepareRelease
-libpcre.pc.in
-libpcrecpp.pc.in
-pcre_printint.src
-CMakeLists.txt
-config-cmake.h.in
+CheckMan
 132html
-makevp.bat
-makevp_c.txt
-makevp_l.txt
-pcregexp.pas
-ltmain.sh
 CleanTxt
 ChangeLog
 NEWS
 HACKING
 COPYING [Look at LICENCE]
+README
+INSTALL
+NON-AUTOTOOLS-BUILDS
 
-o Got rid of the C++ wrapper, which included this step:
-  rm -f *.cc pcrecpparg.h.in pcrecpp.h pcrecpp_internal.h pcre_scanner.h pcre_stringpiece.h.in
-
-o Copied pcre.h.generic to pcre.h and pcre_chartables.c.dist to, you
-  guessed it, pcre_chartables.c (for Windows).  Running ./configure in
-  UNIX just overwrites them with other ones. Made the rule that makes
-  pcre_chartables.c copy pcre_chartables.c.dist instead of making a
-  symbolic link to it. Remove pcre_chartables.c from CLEANFILES.
-
-o Stripped down Makefile.am and configure.ac substantially to remove
-  libtool dependency (was having trouble on Mac OS X), remove Windows
-  stuff (Nmap uses a custom MS VC project for this), and insure it only
-  worries about building libpcre.a (which is now build in the libpcre
-  directory rather than in libpcre/.libs ).  Removed quite a bit of
-  unneeded things from these files, as well as adding -fno-thread-jumps
-  when compiling on Mac OS X on Intel (original patch: Kurt Grutzmacher
-  grutz(a)jingojango.net).  [The diff is FAR too large to included here]
-
-o Removed config.sub, config.guess, depcomp, install-sh, and missing.
-  These files are found in the parent (i.e., Nmap's) directory.
-
-o Comment out some build configuration lines from pcre_internal.h because Nmap
-  builds a static library:
-
---- pcre-7.6/pcre_internal.h	2008-01-20 13:59:21.000000000 -0600
-+++ libpcre/pcre_internal.h	2008-02-15 18:12:28.000000000 -0600
-@@ -108,15 +108,19 @@ PCRE_EXP_DATA_DEFN only if they are not 
- 
- #ifndef PCRE_EXP_DECL
- #  ifdef _WIN32
-+/* COMMENTED OUT AS IT'S COMPILED STATICALLY
- #    ifndef PCRE_STATIC
- #      define PCRE_EXP_DECL       extern __declspec(dllexport)
- #      define PCRE_EXP_DEFN       __declspec(dllexport)
- #      define PCRE_EXP_DATA_DEFN  __declspec(dllexport)
- #    else
-+*/
- #      define PCRE_EXP_DECL       extern
- #      define PCRE_EXP_DEFN
- #      define PCRE_EXP_DATA_DEFN
-+/*
- #    endif
-+*/
- #  else
- #    ifdef __cplusplus
- #      define PCRE_EXP_DECL       extern "C"
-
-
-...and pcre.h.in/pcre.h.generic/pcre.h:
-
-
---- pcre-7.6/pcre.h.in	2008-01-20 14:01:08.000000000 -0600
-+++ libpcre/pcre.h.in	2008-02-15 18:12:54.000000000 -0600
-@@ -51,6 +51,7 @@ imported have to be identified as such. 
- export setting is defined in pcre_internal.h, which includes this file. So we
- don't change existing definitions of PCRE_EXP_DECL and PCRECPP_EXP_DECL. */
- 
-+/*
- #if defined(_WIN32) && !defined(PCRE_STATIC)
- #  ifndef PCRE_EXP_DECL
- #    define PCRE_EXP_DECL  extern __declspec(dllimport)
-@@ -64,6 +65,7 @@ don't change existing definitions of PCR
- #    endif
- #  endif
- #endif
-+*/
- 
- /* By default, we use the standard "extern" declarations. */
- 
-
-..and pcreposix.h:
-
-
---- pcre-7.6/pcreposix.h	2008-01-20 13:56:29.000000000 -0600
-+++ libpcre/pcreposix.h	2008-02-15 18:13:29.000000000 -0600
-@@ -110,10 +110,12 @@ imported have to be identified as such. 
- export settings are needed, and are set in pcreposix.c before including this
- file. */
- 
-+/*
- #if defined(_WIN32) && !defined(PCRE_STATIC) && !defined(PCREPOSIX_EXP_DECL)
- #  define PCREPOSIX_EXP_DECL  extern __declspec(dllimport)
- #  define PCREPOSIX_EXP_DEFN  __declspec(dllimport)
- #endif
-+*/
- 
- /* By default, we use the standard "extern" declarations. */
- 
-
-o Added pcre_winconfig.h for Windows.  LibPCRE used to include config.h in
-  pcre_internal.h, and we'd include this winconfig there instead of config.h
-  if WIN32 is defined.  Now, however, they've moved config.h includes to a
-  bunch of different files, so we have to change them.  We could remove the
-  other includes and move it back to pcre_internal.h, but they must've moved
-  them for a reason, so we'll follow them.  Occurrences of
-
-#ifdef HAVE_CONFIG_H
-#include "config.h"
-#endif
-
-  get changed to
-
-#ifdef WIN32
-#include "pcre_winconfig.h"
-#else
-#include "config.h"
-#endif
-
-o Removed this pcre_chartables deletion code from configure.ac:
---- configure.ac	(revision 13598)
-+++ configure.ac	(working copy)
-@@ -491,10 +491,6 @@
- # Make the generated script files executable.
- AC_CONFIG_COMMANDS([script-chmod], [chmod a+x pcre-config])
- 
--# Make sure that pcre_chartables.c is removed in case the method for
--# creating it was changed by reconfiguration.
--AC_CONFIG_COMMANDS([delete-old-chartables], [rm -f pcre_chartables.c])
--
- AC_OUTPUT
- 
- dnl end configure.ac
-
-o Removed Makefile.am since it doesn't even seem to regenerate without a bunch of files which were previously deleted (e.g. NEWS, etc.)
-
-o Removed the code from Makefile.in which regenerates Makefile.am when it's out of date:
---- Makefile.in	(revision 13598)
-+++ Makefile.in	(working copy)
-@@ -265,21 +265,7 @@
- 
- .SUFFIXES:
- .SUFFIXES: .c .o .obj
--am--refresh:
--	@:
--$(srcdir)/Makefile.in:  $(srcdir)/Makefile.am  $(am__configure_deps)
--	@for dep in $?; do \
--	  case '$(am__configure_deps)' in \
--	    *$$dep*) \
--	      echo ' cd $(srcdir) && $(AUTOMAKE) --gnu '; \
--	      cd $(srcdir) && $(AUTOMAKE) --gnu  \
--		&& exit 0; \
--	      exit 1;; \
--	  esac; \
--	done; \
--	echo ' cd $(top_srcdir) && $(AUTOMAKE) --gnu  Makefile'; \
--	cd $(top_srcdir) && \
--	  $(AUTOMAKE) --gnu  Makefile
-+
- .PRECIOUS: Makefile
- Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status
- 	@case '$?' in \
-@@ -751,7 +737,7 @@
- 
- .MAKE: install-am install-strip
- 
--.PHONY: CTAGS GTAGS all all-am am--refresh check check-am clean \
-+.PHONY: CTAGS GTAGS all all-am check check-am clean \
- 	clean-binPROGRAMS clean-generic clean-libLIBRARIES \
- 	clean-noinstPROGRAMS ctags dist dist-all dist-bzip2 dist-gzip \
- 	dist-shar dist-tarZ dist-zip distcheck distclean \
-
-
-
-o Regenerated everything with 'aclocal; autoconf'
-
-o Prevent pcre.h from being regenerated everytime configure is invoked and
-  subsequently removed upon a distclean:
-Index: configure.ac
-===================================================================
---- configure.ac    (revision 25730)
-+++ configure.ac    (working copy)
-@@ -13,7 +13,7 @@
- 
- AC_PREREQ(2.57)
- AC_INIT(PCRE, pcre_major.pcre_minor[]pcre_prerelease, , pcre)
--AC_CONFIG_SRCDIR([pcre.h.in])
-+AC_CONFIG_SRCDIR()
- AM_INIT_AUTOMAKE([dist-bzip2 dist-zip])
- AC_CONFIG_HEADERS(config.h)
- 
-@@ -485,7 +485,6 @@
- AC_CONFIG_FILES(
-    Makefile
-    pcre-config
--   pcre.h
- )
- 
- # Make the generated script files executable.
-Index: Makefile.in
-===================================================================
---- Makefile.in (revision 25730)
-+++ Makefile.in (working copy)
-@@ -44,7 +44,6 @@
-    $(srcdir)/../depcomp $(srcdir)/../install-sh \
-    $(srcdir)/../missing $(srcdir)/Makefile.am \
-    $(srcdir)/Makefile.in $(srcdir)/config.h.in \
--   $(srcdir)/pcre-config.in $(srcdir)/pcre.h.in \
-    $(top_srcdir)/configure AUTHORS COPYING ChangeLog INSTALL NEWS
- ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
- am__aclocal_m4_deps = $(top_srcdir)/configure.ac
-@@ -54,7 +53,7 @@
-  configure.lineno config.status.lineno
- mkinstalldirs = $(install_sh) -d
- CONFIG_HEADER = config.h
--CONFIG_CLEAN_FILES = pcre-config pcre.h
-+CONFIG_CLEAN_FILES = pcre-config
- am__vpath_adj_setup = srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`;
- am__vpath_adj = case $$p in \
-     $(srcdir)/*) f=`echo "$$p" | sed "s|^$$srcdirstrip/||"`;; \
-@@ -228,9 +227,6 @@
- CLEANFILES = 
- MAINTAINERCLEANFILES = pcre.h.generic
- 
--# These are the header files we'll install. We do not distribute pcre.h because
--# it is generated from pcre.h.in.
--nodist_include_HEADERS = pcre.h
- include_HEADERS = pcreposix.h
- bin_SCRIPTS = pcre-config
- @WITH_REBUILD_CHARTABLES_TRUE@dftables_SOURCES = dftables.c
-@@ -303,8 +299,6 @@
-    -rm -f config.h stamp-h1
- pcre-config: $(top_builddir)/config.status $(srcdir)/pcre-config.in
-    cd $(top_builddir) && $(SHELL) ./config.status $@
--pcre.h: $(top_builddir)/config.status $(srcdir)/pcre.h.in
--   cd $(top_builddir) && $(SHELL) ./config.status $@
- install-libLIBRARIES: $(lib_LIBRARIES)
-    @$(NORMAL_INSTALL)
-    test -z "$(libdir)" || $(MKDIR_P) "$(DESTDIR)$(libdir)"
-@@ -760,7 +754,6 @@
- 
- pcre.h.generic: configure.ac
-    rm -f $@
--   cp -p pcre.h $@
- 
- @WITH_REBUILD_CHARTABLES_TRUE@pcre_chartables.c: dftables$(EXEEXT)
- @WITH_REBUILD_CHARTABLES_TRUE@ ./dftables$(EXEEXT) $@
-
+o Made relevant changes to Makefile.am, configure.ac, CMakeLists.txt, and
+  src/pcre2_jit_compile.c to accommodate our smaller, non-JIT build.

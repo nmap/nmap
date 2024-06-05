@@ -510,7 +510,7 @@ LIBPCREDIR=libpcre
 
 # First we test whether they specified libpcre explicitly
 AC_ARG_WITH(libpcre,
-AC_HELP_STRING([--with-libpcre=DIR], [Use an existing (compiled) pcre lib from DIR/include and DIR/lib.])
+AC_HELP_STRING([--with-libpcre=DIR], [Use an existing (compiled) pcre2 lib from DIR/include and DIR/lib.])
 AC_HELP_STRING([--with-libpcre=included], [Always use the version included with Nmap]),
 [  case "$with_libpcre" in
   yes)
@@ -528,10 +528,11 @@ AC_HELP_STRING([--with-libpcre=included], [Always use the version included with 
 
 # If they didn't specify it, we try to find it
 if test $have_pcre != yes -a $requested_included_pcre != yes ; then
-  AC_CHECK_HEADER(pcre.h,
-    AC_CHECK_LIB(pcre, pcre_version, [have_pcre=yes ]),
-    [AC_CHECK_HEADER(pcre/pcre.h,
-      [AC_CHECK_LIB(pcre, pcre_version, [have_pcre=yes])]
+  AC_CHECK_HEADER(pcre2.h,
+    AC_CHECK_LIB(pcre2-8, pcre2_compile_8, [have_pcre=yes ]),
+    [AC_CHECK_HEADER(pcre2/pcre2.h,
+     [AC_CHECK_LIB(pcre2-8, pcre2_compile_8, [have_pcre=yes
+      AC_DEFINE(HAVE_PCRE2_PCRE2_H, 1)])]
     )]
   )
 fi
@@ -539,16 +540,14 @@ fi
 # If we still don't have it, we use our own
 if test $have_pcre != yes ; then
   AC_CONFIG_SUBDIRS( libpcre )
-  CPPFLAGS="-I\$(top_srcdir)/$LIBPCREDIR $CPPFLAGS"
-  LIBPCRE_LIBS="$LIBPCREDIR/libpcre.a"
+  CPPFLAGS="-I\$(top_srcdir)/$LIBPCREDIR/src $CPPFLAGS"
+  LIBPCRE_LIBS="$LIBPCREDIR/.libs/libpcre2-8.a"
   PCRE_BUILD="build-pcre"
   PCRE_CLEAN="clean-pcre"
   PCRE_DIST_CLEAN="distclean-pcre"
-  AC_DEFINE(PCRE_INCLUDED, 1, [Using included libpcre])
+  AC_DEFINE(PCRE_INCLUDED, 1, [Using included libpcre2])
 else
-# We only need to check for and use this if we are NOT using included pcre
-  AC_CHECK_HEADERS(pcre/pcre.h)
-  LIBPCRE_LIBS="-lpcre"
+  LIBPCRE_LIBS="-lpcre2-8"
   PCRE_BUILD=""
   PCRE_CLEAN=""
   PCRE_DIST_CLEAN=""
@@ -674,7 +673,7 @@ AC_HELP_STRING([--without-libssh2], [Compile without libssh2]),
     LDFLAGS="-L$with_libssh2/lib $LDFLAGS"
 
     AC_CHECK_HEADER(libssh2.h,[
-      AC_CHECK_LIB(ssh2, libssh2_version,
+      AC_CHECK_LIB(ssh2, libssh2_userauth_banner,
         [have_libssh2=yes
         LIBSSH2_INC=$with_libssh2/include
         LIBSSH2_LIB=$with_libssh2/lib],
@@ -693,7 +692,7 @@ if test $use_libssh2 = yes -a $use_openssl = yes; then
   # If they didn't specify it, we try to find it
   if test $have_libssh2 != yes -a $requested_included_libssh2 != yes; then
     AC_CHECK_HEADER(libssh2.h,[
-      AC_CHECK_LIB(ssh2, libssh2_version,
+      AC_CHECK_LIB(ssh2, libssh2_userauth_banner,
         [have_libssh2="yes"],,[-lm])
       ])
   fi
@@ -826,27 +825,27 @@ else
 
   # If they didn't specify it, we try to find it
   if test $have_lua != yes; then
-    AC_CHECK_HEADERS([lua5.3/lua.h lua/5.3/lua.h lua.h lua/lua.h], [break])
-    AC_SEARCH_LIBS(lua_isyieldable, [lua5.3 lua53 lua], [have_lua=yes],, [-lm])
+    AC_CHECK_HEADERS([lua5.4/lua.h lua/5.4/lua.h lua.h lua/lua.h], [break])
+    AC_SEARCH_LIBS(lua_isyieldable, [lua5.4 lua54 lua], [have_lua=yes],, [-lm])
     AC_LANG_PUSH(C)
-    # We need Lua 5.3 exactly
-    AC_MSG_CHECKING([for lua version == 503])
+    # We need Lua 5.4 exactly
+    AC_MSG_CHECKING([for lua version == 504])
     AC_PREPROC_IFELSE([ AC_LANG_PROGRAM( [[
-      #ifdef HAVE_LUA5_3_LUA_H
-          #include <lua5.3/lua.h>
-      #elif defined HAVE_LUA_5_3_LUA_H
-          #include <lua/5.3/lua.h>
+      #ifdef HAVE_LUA5_4_LUA_H
+          #include <lua5.4/lua.h>
+      #elif defined HAVE_LUA_5_4_LUA_H
+          #include <lua/5.4/lua.h>
       #elif defined HAVE_LUA_H || defined LUA_INCLUDED
           #include <lua.h>
       #elif defined HAVE_LUA_LUA_H
           #include <lua/lua.h>
       #endif
 
-      #if (LUA_VERSION_NUM != 503)
+      #if (LUA_VERSION_NUM != 504)
           #error Incorrect Lua version
       #endif
         ]],
-        [[if(LUA_VERSION_NUM != 503) return 1;]])
+        [[if(LUA_VERSION_NUM != 504) return 1;]])
     ],
     [have_lua=yes], [have_lua=no])
     AC_LANG_POP(C)

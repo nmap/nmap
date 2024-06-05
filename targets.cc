@@ -5,60 +5,59 @@
  * formats.                                                                *
  *                                                                         *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
- *                                                                         *
- * The Nmap Security Scanner is (C) 1996-2022 Nmap Software LLC ("The Nmap *
- * Project"). Nmap is also a registered trademark of the Nmap Project.     *
- *                                                                         *
- * This program is distributed under the terms of the Nmap Public Source   *
- * License (NPSL). The exact license text applying to a particular Nmap    *
- * release or source code control revision is contained in the LICENSE     *
- * file distributed with that version of Nmap or source code control       *
- * revision. More Nmap copyright/legal information is available from       *
- * https://nmap.org/book/man-legal.html, and further information on the    *
- * NPSL license itself can be found at https://nmap.org/npsl/ . This       *
- * header summarizes some key points from the Nmap license, but is no      *
- * substitute for the actual license text.                                 *
- *                                                                         *
- * Nmap is generally free for end users to download and use themselves,    *
- * including commercial use. It is available from https://nmap.org.        *
- *                                                                         *
- * The Nmap license generally prohibits companies from using and           *
- * redistributing Nmap in commercial products, but we sell a special Nmap  *
- * OEM Edition with a more permissive license and special features for     *
- * this purpose. See https://nmap.org/oem/                                 *
- *                                                                         *
- * If you have received a written Nmap license agreement or contract       *
- * stating terms other than these (such as an Nmap OEM license), you may   *
- * choose to use and redistribute Nmap under those terms instead.          *
- *                                                                         *
- * The official Nmap Windows builds include the Npcap software             *
- * (https://npcap.com) for packet capture and transmission. It is under    *
- * separate license terms which forbid redistribution without special      *
- * permission. So the official Nmap Windows builds may not be              *
- * redistributed without special permission (such as an Nmap OEM           *
- * license).                                                               *
- *                                                                         *
- * Source is provided to this software because we believe users have a     *
- * right to know exactly what a program is going to do before they run it. *
- * This also allows you to audit the software for security holes.          *
- *                                                                         *
- * Source code also allows you to port Nmap to new platforms, fix bugs,    *
- * and add new features.  You are highly encouraged to submit your         *
- * changes as a Github PR or by email to the dev@nmap.org mailing list     *
- * for possible incorporation into the main distribution. Unless you       *
- * specify otherwise, it is understood that you are offering us very       *
- * broad rights to use your submissions as described in the Nmap Public    *
- * Source License Contributor Agreement. This is important because we      *
- * fund the project by selling licenses with various terms, and also       *
- * because the inability to relicense code has caused devastating          *
- * problems for other Free Software projects (such as KDE and NASM).       *
- *                                                                         *
- * The free version of Nmap is distributed in the hope that it will be     *
- * useful, but WITHOUT ANY WARRANTY; without even the implied warranty of  *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. Warranties,        *
- * indemnification and commercial support are all available through the    *
- * Npcap OEM program--see https://nmap.org/oem/                            *
- *                                                                         *
+ *
+ * The Nmap Security Scanner is (C) 1996-2024 Nmap Software LLC ("The Nmap
+ * Project"). Nmap is also a registered trademark of the Nmap Project.
+ *
+ * This program is distributed under the terms of the Nmap Public Source
+ * License (NPSL). The exact license text applying to a particular Nmap
+ * release or source code control revision is contained in the LICENSE
+ * file distributed with that version of Nmap or source code control
+ * revision. More Nmap copyright/legal information is available from
+ * https://nmap.org/book/man-legal.html, and further information on the
+ * NPSL license itself can be found at https://nmap.org/npsl/ . This
+ * header summarizes some key points from the Nmap license, but is no
+ * substitute for the actual license text.
+ *
+ * Nmap is generally free for end users to download and use themselves,
+ * including commercial use. It is available from https://nmap.org.
+ *
+ * The Nmap license generally prohibits companies from using and
+ * redistributing Nmap in commercial products, but we sell a special Nmap
+ * OEM Edition with a more permissive license and special features for
+ * this purpose. See https://nmap.org/oem/
+ *
+ * If you have received a written Nmap license agreement or contract
+ * stating terms other than these (such as an Nmap OEM license), you may
+ * choose to use and redistribute Nmap under those terms instead.
+ *
+ * The official Nmap Windows builds include the Npcap software
+ * (https://npcap.com) for packet capture and transmission. It is under
+ * separate license terms which forbid redistribution without special
+ * permission. So the official Nmap Windows builds may not be redistributed
+ * without special permission (such as an Nmap OEM license).
+ *
+ * Source is provided to this software because we believe users have a
+ * right to know exactly what a program is going to do before they run it.
+ * This also allows you to audit the software for security holes.
+ *
+ * Source code also allows you to port Nmap to new platforms, fix bugs, and
+ * add new features. You are highly encouraged to submit your changes as a
+ * Github PR or by email to the dev@nmap.org mailing list for possible
+ * incorporation into the main distribution. Unless you specify otherwise, it
+ * is understood that you are offering us very broad rights to use your
+ * submissions as described in the Nmap Public Source License Contributor
+ * Agreement. This is important because we fund the project by selling licenses
+ * with various terms, and also because the inability to relicense code has
+ * caused devastating problems for other Free Software projects (such as KDE
+ * and NASM).
+ *
+ * The free version of Nmap is distributed in the hope that it will be
+ * useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. Warranties,
+ * indemnification and commercial support are all available through the
+ * Npcap OEM program--see https://nmap.org/oem/
+ *
  ***************************************************************************/
 
 /* $Id$ */
@@ -75,7 +74,7 @@
 #include "nmap_dns.h"
 #include "utils.h"
 #include "nmap_error.h"
-#include "xml.h"
+#include "output.h"
 
 extern NmapOps o;
 #ifdef WIN32
@@ -286,7 +285,7 @@ bool target_needs_new_hostgroup(Target **targets, int targets_sz, const Target *
    The target_expressions array MUST REMAIN VALID IN MEMORY as long as
    this class instance is used -- the array is NOT copied.
  */
-HostGroupState::HostGroupState(int lookahead, int rnd, int argc, const char **argv) {
+HostGroupState::HostGroupState(int lookahead, int rnd, unsigned long num_random, int argc, const char **argv) {
   assert(lookahead > 0);
   this->argc = argc;
   this->argv = argv;
@@ -297,6 +296,9 @@ HostGroupState::HostGroupState(int lookahead, int rnd, int argc, const char **ar
   current_batch_sz = 0;
   next_batch_no = 0;
   randomize = rnd;
+  if (num_random >= 0) {
+    current_group.generate_random_ips(num_random);
+  }
 }
 
 HostGroupState::~HostGroupState() {
@@ -316,7 +318,7 @@ void HostGroupState::undefer() {
 const char *HostGroupState::next_expression() {
   if (o.max_ips_to_scan == 0 || o.numhosts_scanned + this->current_batch_sz < o.max_ips_to_scan) {
     const char *expr;
-    expr = grab_next_host_spec(o.inputfd, o.generate_random_ips, this->argc, this->argv);
+    expr = grab_next_host_spec(o.inputfd, this->argc, this->argv);
     if (expr != NULL)
       return expr;
   }
@@ -344,18 +346,6 @@ const char *HostGroupState::next_expression() {
 #endif
 
   return NULL;
-}
-
-/* Add a <target> element to the XML stating that a target specification was
-   ignored. This can be because of, for example, a DNS resolution failure, or a
-   syntax error. */
-static void log_bogus_target(const char *expr) {
-  xml_open_start_tag("target");
-  xml_attribute("specification", "%s", expr);
-  xml_attribute("status", "skipped");
-  xml_attribute("reason", "invalid");
-  xml_close_empty_tag();
-  xml_newline();
 }
 
 /* Returns a newly allocated Target with the given address. Handles all the
@@ -423,6 +413,29 @@ bail:
   return NULL;
 }
 
+bool HostGroupState::get_next_host(struct sockaddr_storage *ss, size_t *sslen, struct addrset *exclude_group) {
+  unsigned long num_queued = o.numhosts_scanned + current_batch_sz;
+  if (o.max_ips_to_scan > 0 && num_queued >= o.max_ips_to_scan) {
+    return false;
+  }
+
+  do {
+    // If the expression can't generate any more targets
+    while (current_group.get_next_host(ss, sslen) != 0) {
+      if (!current_group.load_expressions(this, o.af())) {
+        return false;
+      }
+    }
+    /* Check exclude list. */
+    if (!hostInExclude((struct sockaddr *) ss, *sslen, exclude_group)) {
+      current_group.reject_last_host();
+      break;
+    }
+  } while (true);
+
+  return true;
+}
+
 static Target *next_target(HostGroupState *hs, struct addrset *exclude_group,
   const struct scan_lists *ports, int pingtype) {
   struct sockaddr_storage ss;
@@ -438,20 +451,9 @@ static Target *next_target(HostGroupState *hs, struct addrset *exclude_group,
 
 tryagain:
 
-  if (hs->current_group.get_next_host(&ss, &sslen) != 0) {
-    const char *expr;
-    /* We are going to have to pop in another expression. */
-    for (;;) {
-      expr = hs->next_expression();
-      if (expr == NULL)
-        /* That's the last of them. */
-        return NULL;
-      if (hs->current_group.parse_expr(expr, o.af()) == 0)
-        break;
-      else
-        log_bogus_target(expr);
-    }
-    goto tryagain;
+  if (!hs->get_next_host(&ss, &sslen, exclude_group)) {
+    /* That's the last of them. */
+    return NULL;
   }
 
   assert(ss.ss_family == o.af());
@@ -464,10 +466,6 @@ tryagain:
       o.resume_ip.ss_family = AF_UNSPEC;
     goto tryagain;
   }
-
-  /* Check exclude list. */
-  if (hostInExclude((struct sockaddr *) &ss, sslen, exclude_group))
-    goto tryagain;
 
   t = setup_target(hs, &ss, sslen, pingtype);
   if (t == NULL)

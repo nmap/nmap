@@ -39,8 +39,6 @@
   !include "MUI.nsh"
   !include "AddToPath.nsh"
   !include "FileFunc.nsh"
-  !include "WordFunc.nsh"
-  !include "Sections.nsh"
 
 ;--------------------------------
 ;General
@@ -56,8 +54,13 @@
   OutFile "${STAGE_DIR_OEM}\tempinstaller.exe" ; Ensure we don't confuse these
   SetCompress off                           ; for speed
   RequestExecutionLevel user
+Section "dummy"
+SectionEnd
 !else
   !echo "Outer invocation"
+
+  !include "WordFunc.nsh"
+  !include "Sections.nsh"
 
   ; Good.  Now we can carry on writing the real installer.
 
@@ -95,16 +98,19 @@
   !insertmacro MUI_PAGE_COMPONENTS
   !insertmacro MUI_PAGE_DIRECTORY
   !insertmacro MUI_PAGE_INSTFILES
+!ifndef INNER
 !ifndef NMAP_OEM
   Page custom shortcutsPage makeShortcuts
 !endif
   Page custom finalPage doFinal
+!endif
 
 ;--------------------------------
 ;Languages
 
   !insertmacro MUI_LANGUAGE "English"
 
+!ifndef INNER
 !insertmacro GetParameters
 !insertmacro GetOptions
 
@@ -146,21 +152,22 @@ Function shortcutsPage
   skip:
 FunctionEnd
 
+!macro writeZenmapShortcut _lnk
+  CreateShortcut `${_lnk}` "$INSTDIR\zenmap\bin\pythonw.exe" '-c "from zenmapGUI.App import run;run()"' "$INSTDIR\nmap.exe" 0 "" "" "Launch Zenmap, the Nmap GUI"
+!macroend
 Function makeShortcuts
   StrCmp $zenmapset "" skip
 
-  SetOutPath "$INSTDIR"
-
   ReadINIStr $0 "$PLUGINSDIR\shortcuts.ini" "Field 1" "State"
   StrCmp $0 "0" skipdesktop
-  CreateShortCut "$DESKTOP\${NMAP_NAME} - Zenmap GUI.lnk" "$INSTDIR\zenmap.exe"
+  !insertmacro writeZenmapShortcut "$DESKTOP\${NMAP_NAME} - Zenmap GUI.lnk"
 
   skipdesktop:
 
   ReadINIStr $0 "$PLUGINSDIR\shortcuts.ini" "Field 2" "State"
   StrCmp $0 "0" skipstartmenu
   CreateDirectory "$SMPROGRAMS\${NMAP_NAME}"
-  CreateShortCut "$SMPROGRAMS\${NMAP_NAME}\${NMAP_NAME} - Zenmap GUI.lnk" "$INSTDIR\zenmap.exe"
+  !insertmacro writeZenmapShortcut "$SMPROGRAMS\${NMAP_NAME}\${NMAP_NAME} - Zenmap GUI.lnk"
 
   skipstartmenu:
 
@@ -221,7 +228,6 @@ Section "Nmap Core Files" SecCore
   File ${STAGE_DIR}\LICENSE
   File ${STAGE_DIR}\nmap-mac-prefixes
   File ${STAGE_DIR}\nmap-os-db
-  File ${STAGE_DIR}\nmap-payloads
   File ${STAGE_DIR}\nmap-protocols
   File ${STAGE_DIR}\nmap-rpc
   File ${STAGE_DIR}\nmap-service-probes
@@ -285,25 +291,26 @@ SectionEnd
 Section "Zenmap (GUI Frontend)" SecZenmap
   SetOutPath "$INSTDIR"
   SetOverwrite on
-  File ${STAGE_DIR}\zenmap.exe
   File ${STAGE_DIR}\ZENMAP_README
   File ${STAGE_DIR}\COPYING_HIGWIDGETS
-  File ${STAGE_DIR}\python27.dll
-  File /r ${STAGE_DIR}\share
-  File /r ${STAGE_DIR}\py2exe
+  File /r ${STAGE_DIR}\zenmap
+  WriteINIStr "$INSTDIR\zenmap\share\zenmap\config\zenmap.conf" paths nmap_command_path "$INSTDIR\nmap.exe"
+  WriteINIStr "$INSTDIR\zenmap\share\zenmap\config\zenmap.conf" paths ndiff_command_path "$INSTDIR\ndiff.bat"
+  !insertmacro writeZenmapShortcut "$INSTDIR\Zenmap.lnk"
   StrCpy $zenmapset "true"
-  Call vcredistinstaller
+  ${If} ${Silent}
+    File "/oname=$PLUGINSDIR\shortcuts.ini" "shortcuts.ini"
+    Call makeShortcuts
+  ${EndIf}
   Call create_uninstaller
 SectionEnd
 
 Section "Ndiff (Scan comparison tool)" SecNdiff
   SetOutPath "$INSTDIR"
   SetOverwrite on
-  File ${STAGE_DIR}\ndiff.exe
+  File ${STAGE_DIR}\ndiff.py
+  File ${STAGE_DIR}\ndiff.bat
   File ${STAGE_DIR}\NDIFF_README
-  File ${STAGE_DIR}\python27.dll
-  File /r ${STAGE_DIR}\py2exe
-  Call vcredistinstaller
   Call create_uninstaller
 SectionEnd
 !endif
@@ -334,33 +341,6 @@ SectionEnd
 # add dummy parameters for our test
 !define VCRedistInstalled `"" VCRedistInstalled ""`
 
-Function vcredistinstaller
-  ${If} $vcredistset != ""
-    Return
-  ${EndIf}
-  StrCpy $vcredistset "true"
-  ;Check if VC++ runtimes are already installed.
-  ;This version creates a registry key that makes it easy to check whether a version (not necessarily the
-  ;one we may be about to install) of the VC++ redistributables have been installed.
-  ;Only run our installer if a version isn't already present, to prevent installing older versions resulting in error messages.
-  ;If VC++ runtimes are not installed...
-  ${IfNot} ${VCRedistInstalled}
-    DetailPrint "Installing Microsoft Visual C++ ${VCREDISTYEAR} Redistributable"
-    SetOutPath $PLUGINSDIR
-    File ..\${VCREDISTEXE}
-    ExecWait '"$PLUGINSDIR\${VCREDISTEXE}" /quiet' $0
-    ;Check for successful installation of our package...
-    Delete "$PLUGINSDIR\${VCREDISTEXE}"
-
-    ${IfNot} ${VCRedistInstalled}
-      DetailPrint "Microsoft Visual C++ ${VCREDISTYEAR} Redistributable failed to install"
-      MessageBox MB_OK "Microsoft Visual C++ ${VCREDISTYEAR} Redistributable Package (${NMAP_ARCH}) failed to install. Please ensure your system meets the minimum requirements before running the installer again."
-    ${Else}
-      DetailPrint "Microsoft Visual C++ ${VCREDISTYEAR} Redistributable was successfully installed"
-    ${EndIf}
-  ${EndIf}
-FunctionEnd
-
 Function create_uninstaller
   StrCmp $addremoveset "" 0 skipaddremove
   ; Register Nmap with add/remove programs
@@ -374,13 +354,11 @@ Function create_uninstaller
   WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${NMAP_NAME}" "NoModify" 1
   WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${NMAP_NAME}" "NoRepair" 1
   ;Create uninstaller
-!ifndef INNER
   SetOutPath $INSTDIR
 
   ; this packages the signed uninstaller
 
   File "${STAGE_DIR_OEM}\Uninstall.exe"
-!endif
   StrCpy $addremoveset "true"
   skipaddremove:
 FunctionEnd
@@ -399,24 +377,13 @@ OptionDisableSection_keep_${ID}:
 !macroend
 
 Function .onInit
-!ifdef INNER
-  ; If INNER is defined, then we aren't supposed to do anything except write out
-  ; the installer.  This is better than processing a command line option as it means
-  ; this entire code path is not present in the final (real) installer.
-
-  ${GetParent} "$EXEPATH" $0
-  MessageBox MB_OK "Writing '$0\Uninstall.exe'"
-  WriteUninstaller "$0\Uninstall.exe"
-  Quit  ; just bail out quickly when running the "inner" installer
-!endif
-
-!ifndef NMAP_OEM
-  ${If} ${Silent}
-	  SetSilent normal
-	  MessageBox MB_OK|MB_ICONEXCLAMATION "Silent installation is only supported in Nmap OEM - https://nmap.org/oem/"
-	  Quit
+  ${GetParameters} $R0
+  ; Make /S (silent install) case-insensitive
+  ${GetOptions} $R0 "/s" $R1
+  ${IfNot} ${Errors}
+    SetSilent silent
   ${EndIf}
-
+!ifndef NMAP_OEM
   ; shortcuts apply only to Zenmap, not included in NMAP_OEM
   !insertmacro MUI_INSTALLOPTIONS_EXTRACT "shortcuts.ini"
 !endif
@@ -433,21 +400,27 @@ Function .onInit
       IntOp $2 $2 & ${SECTION_OFF}
       SectionSetFlags ${SecNpcap} $2
     ${EndIf}
+!ifndef NMAP_OEM
+  ; If Npcap is not installed, Nmap can't be installed silently.
+  ${ElseIf} ${Silent}
+	  SetSilent normal
+	  MessageBox MB_OK|MB_ICONEXCLAMATION "Silent installation of Nmap requires the Npcap packet capturing software. See https://nmap.org/nmap-silent-install"
+	  Quit
+!endif
   ${EndIf}
 
   ;Disable section checkboxes based on options. For example /ZENMAP=NO to avoid
   ;installing Zenmap.
-  ${GetParameters} $0
-  !insertmacro OptionDisableSection $0 "/NMAP=" ${SecCore}
-  !insertmacro OptionDisableSection $0 "/REGISTERPATH=" ${SecRegisterPath}
-  !insertmacro OptionDisableSection $0 "/NPCAP=" ${SecNpcap}
-  !insertmacro OptionDisableSection $0 "/REGISTRYMODS=" ${SecPerfRegistryMods}
+  !insertmacro OptionDisableSection $R0 "/NMAP=" ${SecCore}
+  !insertmacro OptionDisableSection $R0 "/REGISTERPATH=" ${SecRegisterPath}
+  !insertmacro OptionDisableSection $R0 "/NPCAP=" ${SecNpcap}
+  !insertmacro OptionDisableSection $R0 "/REGISTRYMODS=" ${SecPerfRegistryMods}
 !ifndef NMAP_OEM
-  !insertmacro OptionDisableSection $0 "/ZENMAP=" ${SecZenmap}
-  !insertmacro OptionDisableSection $0 "/NDIFF=" ${SecNdiff}
+  !insertmacro OptionDisableSection $R0 "/ZENMAP=" ${SecZenmap}
+  !insertmacro OptionDisableSection $R0 "/NDIFF=" ${SecNdiff}
 !endif
-  !insertmacro OptionDisableSection $0 "/NCAT=" ${SecNcat}
-  !insertmacro OptionDisableSection $0 "/NPING=" ${SecNping}
+  !insertmacro OptionDisableSection $R0 "/NCAT=" ${SecNcat}
+  !insertmacro OptionDisableSection $R0 "/NPING=" ${SecNping}
 FunctionEnd
 
 ;--------------------------------
@@ -480,10 +453,50 @@ FunctionEnd
     !insertmacro MUI_DESCRIPTION_TEXT ${SecNcat} $(DESC_SecNcat)
     !insertmacro MUI_DESCRIPTION_TEXT ${SecNping} $(DESC_SecNping)
   !insertmacro MUI_FUNCTION_DESCRIPTION_END
+
+; Keep this at the end: vcredist is big and not needed in many cases, so we can
+; speed install up by not extracting it.
+Function vcredistinstaller
+  ${If} $vcredistset != ""
+    Return
+  ${EndIf}
+  StrCpy $vcredistset "true"
+  ;Check if VC++ runtimes are already installed.
+  ;This version creates a registry key that makes it easy to check whether a version (not necessarily the
+  ;one we may be about to install) of the VC++ redistributables have been installed.
+  ;Only run our installer if a version isn't already present, to prevent installing older versions resulting in error messages.
+  ;If VC++ runtimes are not installed...
+  ${IfNot} ${VCRedistInstalled}
+    DetailPrint "Installing Microsoft Visual C++ ${VCREDISTYEAR} Redistributable"
+    SetOutPath $PLUGINSDIR
+    File ..\${VCREDISTEXE}
+    ExecWait '"$PLUGINSDIR\${VCREDISTEXE}" /quiet' $0
+    ;Check for successful installation of our package...
+    Delete "$PLUGINSDIR\${VCREDISTEXE}"
+
+    ${IfNot} ${VCRedistInstalled}
+      DetailPrint "Microsoft Visual C++ ${VCREDISTYEAR} Redistributable failed to install"
+      MessageBox MB_OK "Microsoft Visual C++ ${VCREDISTYEAR} Redistributable Package (${NMAP_ARCH}) failed to install. Please ensure your system meets the minimum requirements before running the installer again."
+    ${Else}
+      DetailPrint "Microsoft Visual C++ ${VCREDISTYEAR} Redistributable was successfully installed"
+    ${EndIf}
+  ${EndIf}
+FunctionEnd
+
 ;--------------------------------
 ;Uninstaller Section
 
-!ifdef INNER
+!else ;INNER
+Function .onInit
+  ; If INNER is defined, then we aren't supposed to do anything except write out
+  ; the installer.  This is better than processing a command line option as it means
+  ; this entire code path is not present in the final (real) installer.
+
+  ${GetParent} "$EXEPATH" $0
+  WriteUninstaller "$0\Uninstall.exe"
+  Quit  ; just bail out quickly when running the "inner" installer
+FunctionEnd
+
 Section "Uninstall"
 
   StrCpy $R0 $INSTDIR "" -2

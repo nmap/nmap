@@ -67,7 +67,7 @@ local function _element_to_bson(key, value)
     return false,  "key must not start with $: ".. key
   end
   if key:find("%.") then
-    return false, ("key %r must not contain '.'"):format(tostring(key))
+    return false, ("key %s must not contain '.'"):format(tostring(key))
   end
 
   if type(value) == 'string' then
@@ -141,12 +141,12 @@ end
 --@return the string
 --@return the remaining data (*without* null-char)
 local function get_c_string(data)
-  local value, pos = string.unpack("z", data)
-  if pos - #data > 1 then
+  local nullpos, nextpos = string.find(data, "\0")
+  if not nullpos then
     dbg_err("C-string did not contain NULL char")
     return nil, data
   end
-  return value, data:sub(pos)
+  return data:sub(1, nullpos - 1), data:sub(nextpos + 1)
 end
 
 local function get_bson_str (data)

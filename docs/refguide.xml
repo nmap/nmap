@@ -330,7 +330,7 @@ you would expect.</para>
 
       <varlistentry>
         <term>
-          <option>-n</option> (No DNS resolution)
+          <option>-n</option> (No reverse DNS resolution)
           <indexterm><primary><option>-n</option></primary></indexterm>
         </term>
         <listitem>
@@ -345,7 +345,7 @@ you would expect.</para>
 
       <varlistentry>
         <term>
-          <option>-R</option> (DNS resolution for all targets)
+          <option>-R</option> (Reverse DNS resolution for all targets)
           <indexterm><primary><option>-R</option></primary></indexterm>
         </term>
         <listitem>
@@ -392,15 +392,14 @@ you would expect.</para>
         </term>
         <listitem>
 
-          <para>By default, Nmap reverse-resolves IP addresses by sending
+          <para>By default, Nmap resolves names to IP addresses (and IP addresses to names) by sending
           queries directly to the name servers configured on your host
-          and then listening for responses.  Many requests (often
+          and then listening for responses. Many requests (often
           dozens) are performed in parallel to improve performance.
           Specify this option to use your system resolver instead (one
           IP at a time via the <function>getnameinfo</function> call).  This is slower
           and rarely useful unless you find a bug in the Nmap parallel
-          resolver (please let us know if you do).  The system
-          resolver is always used for forward lookups (getting an IP address from a hostname).
+          resolver (please let us know if you do).
           </para>
         </listitem>
       </varlistentry>
@@ -408,13 +407,13 @@ you would expect.</para>
       <varlistentry>
         <term>
           <option>--dns-servers <replaceable>server1</replaceable><optional>,<replaceable>server2</replaceable><optional>,...</optional></optional>
-          </option> (Servers to use for reverse DNS queries)
+          </option> (Servers to use for DNS queries)
           <indexterm significance="preferred"><primary><option>--dns-servers</option></primary></indexterm>
         </term>
         <listitem>
 
           <para>By default, Nmap determines your DNS servers
-          (for rDNS resolution) from your resolv.conf file (Unix) or
+          from your resolv.conf file (Unix) or
           the Registry (Win32).  Alternatively, you may use this
           option to specify alternate servers.  This option is not
           honored if you are using <option>--system-dns</option>.
@@ -426,7 +425,7 @@ you would expect.</para>
 
           <para>This option also comes in handy when scanning private
           networks.  Sometimes only a few name servers provide
-          proper rDNS information, and you may not even know where
+          proper DNS information, and you may not even know where
           they are.  You can scan the network for port 53 (perhaps
           with version detection), then try Nmap list scans
           (<option>-sL</option>) specifying each name server one at a
@@ -437,8 +436,8 @@ you would expect.</para>
           exceeds the size of a UDP packet. In such a situation our DNS
           resolver will make the best effort to extract a response from the
           truncated packet, and if not successful it will fall back to
-          using the system resolver. Also, responses that contain CNAME aliases
-          will fall back to the system resolver.</para>
+          using the system resolver.
+          </para>
 
         </listitem>
       </varlistentry>
@@ -776,12 +775,14 @@ you would expect.</para>
           packet will be empty, though some use a protocol-specific
           payload that is more likely to elicit a
           response.
-<man>The payload database is described at <ulink url="https://nmap.org/book/nmap-payloads.html" />.</man>
-<notman>See <xref linkend="nmap-payloads"/> for a description of the database of payloads.</notman>
-<indexterm><primary>protocol-specific
-payloads</primary><secondary>UDP</secondary></indexterm>Packet
-content can also be affected with the <option>--data</option>,
-<option>--data-string</option>, and <option>--data-length</option> options.</para>
+          <indexterm><primary>protocol-specific payloads</primary><secondary>UDP</secondary></indexterm>
+          The payloads are the same probes used in service and version
+          detection and are defined in the
+          <filename>nmap-service-probes</filename>
+          <indexterm><primary><filename>nmap-service-probes</filename></primary></indexterm>
+          file.  Packet content can also be affected with the
+          <option>--data</option>, <option>--data-string</option>, and
+          <option>--data-length</option> options.</para>
 
           <para>The port list
           takes the same format as with the previously discussed
@@ -2255,7 +2256,7 @@ way.</para>
 
     <para>The Nmap Scripting Engine (NSE) is one of Nmap's most
     powerful and flexible features.  It allows users to write (and
-    share) simple scripts (using the <ulink url="http://lua.org">Lua programming language</ulink>
+    share) simple scripts (using the <ulink url="https://lua.org">Lua programming language</ulink>
     <indexterm><primary>Lua programming language</primary></indexterm>
     ) to automate a wide variety of
     networking tasks.  Those scripts are executed in parallel with the
@@ -2408,7 +2409,7 @@ which lists the category or categories in which each script belongs.</para>
       <literal>and</literal>, <literal>or</literal>, and
       <literal>not</literal> operators to build Boolean expressions. The
       operators have the same
-      <ulink role="hidepdf" url="http://www.lua.org/manual/5.1/manual.html#2.5.3">precedence</ulink>
+      <ulink role="hidepdf" url="http://www.lua.org/manual/5.4/manual.html#3.4.8">precedence</ulink>
       as in Lua: <literal>not</literal> is the highest, followed by
       <literal>and</literal> and then <literal>or</literal>. You can
       alter precedence by using parentheses. Because expressions contain
@@ -3469,7 +3470,7 @@ work properly.</para>
 
       <varlistentry>
       <term>
-      <option>--ip-options <replaceable>S|R [route]|L [route]|T|U ... </replaceable>;</option>
+      <option>--ip-options <replaceable>R|S [route]|L [route]|T|U ... </replaceable>;</option>
       <option>--ip-options <replaceable>hex string</replaceable></option>  (Send packets with specified ip options)
       <indexterm><primary><option>--ip-options</option></primary></indexterm>
       <indexterm><primary>IP options</primary></indexterm>

@@ -35,9 +35,283 @@ if(POLICY CMP0074)
     cmake_policy(SET CMP0074 NEW)
 endif()
 
+#
+# We want check_include_file() to honor CMAKE_REQUIRED_LIBRARIES; see
+# the big comment before the check_include_file() test for
+# infiniband/verbs.h for the reason.
+#
+if(POLICY CMP0075)
+    cmake_policy(SET CMP0075 NEW)
+endif()
+
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules)
 
-project(pcap)
+#
+# We only need a C++ compiler for Haiku; all code except for its
+# pcap module is in C.
+#
+# We do that by specifying just C in the project() call and, after
+# that finishes, checking for Haiku and, if we're building for
+# Haiku, use enable_language() to check for C++.  This means that
+# we don't require a C++ compiler on platforms other than Haiku.
+#
+# CMAKE_SYSTEM_NAME is set by project(), so we can't do this by
+# testing CMAKE_SYSTEM_NAME and then passing different language
+# lists to project() based on the system.
+#
+project(pcap C)
+
+#
+# For getting raw lists of --libs and --libs --static information from a
+# pkg-config module.
+#
+# In CMake up to 2.8.12, pkg_check_modules() sets:
+#
+#    <XPREFIX>_LIBRARIES, which is a list of library names to which, on
+#      a UN*X, -l can be prefixed - i.e., names, without extensions,
+#      rather than full paths to the file.
+#    <XPREFIX>_LIBRARY_DIRS, which is a list of paths to directories
+#      containing the libraries, to which, on a UN*X, -L can be
+#      prefixed.
+#    <XPREFIX>_LDFLAGS, which is a list of *all* required linker flags
+#    <XPREFIX>_LDFLAGS_OTHER, which is a list of all linker flags other
+#      than -l and -L flags
+#
+# In 3.0 (at least as of 3.0.2), it also sets:
+#
+#    <XPREFIX>_LINK_LIBRARIES, which is a list of full paths to the
+#      library files.
+#
+# but if <XPREFIX> is <PREFIX>_STATIC, <XPREFIX>_LINK_LIBRARIES is
+# currently not set by CMake.
+#
+# Unfortunately, pkg_check_modules() sets the
+# PKG_CONFIG_ALLOW_SYSTEM_LIBS environment variable when running
+# pkg-config, so the output of --libs, etc. may include a -L for the
+# system library, which we do *NOT* want to put in our libpcap.pc and
+# pcap-config files.
+#
+# So we just run pkg-config ourselves, so that we get its output
+# directly without any processing by CMake.
+#
+macro(pkg_get_link_info _prefix _package)
+  if (PKG_CONFIG_EXECUTABLE)
+    #
+    # Get the --libs information.
+    #
+    # We force PKG_CONFIG_ALLOW_SYSTEM_LIBS to be undefined, as
+    # at least some versions of CMake appear to define it in
+    # pkg_check_modules() before running pkg-config and *not* undefine
+    # it after running it.
+    #
+    unset(ENV{PKG_CONFIG_ALLOW_SYSTEM_LIBS})
+    set(_pkg_config_result "")
+    execute_process(
+      COMMAND ${PKG_CONFIG_EXECUTABLE} "--libs" ${_package}
+      OUTPUT_VARIABLE _pkg_config_result
+      RESULT_VARIABLE _pkg_config_failed
+      OUTPUT_STRIP_TRAILING_WHITESPACE)
+
+    if (_pkg_config_failed)
+      #
+      # pkg-config failed; assume that means that there is no such
+      # package for it to find.  XXX - what do we do here?
+      #
+      set(${_prefix}_FOUND_WITH_PKG_CONFIG FALSE)
+    else()
+      #
+      # pkg-config succeeded; replace CR and LF with spaces.
+      #
+      string(REGEX REPLACE "[\r\n]" " " ${_prefix}_LIBS "${_pkg_config_result}")
+
+      #
+      # Now get the --libs --static information.
+      #
+      set(_pkg_config_result "")
+      execute_process(
+        COMMAND ${PKG_CONFIG_EXECUTABLE} "--libs" "--static" ${_package}
+        OUTPUT_VARIABLE _pkg_config_result
+        RESULT_VARIABLE _pkg_config_failed
+        OUTPUT_STRIP_TRAILING_WHITESPACE)
+
+      if (_pkg_config_failed)
+        #
+        # pkg-config failed; assume that means that there is no such
+        # package for it to find.  XXX - what do we do here?
+        #
+        set(${_prefix}_FOUND_WITH_PKG_CONFIG FALSE)
+      else()
+        #
+        # pkg-config succeeded; replace CR and LF with spaces.
+        #
+        string(REGEX REPLACE "[\r\n]" " " ${_prefix}_LIBS_STATIC "${_pkg_config_result}")
+
+        #
+        # List this package in its PACKAGE_NAME variable.
+        #
+        set(${_prefix}_PACKAGE_NAME "${_package}")
+
+        #
+        # It worked.
+        #
+        set(${_prefix}_FOUND_WITH_PKG_CONFIG TRUE)
+      endif()
+    endif()
+  endif()
+endmacro()
+
+macro(get_link_info_from_library_path  _library_prefix _library_name)
+  if(NOT ${_library_prefix}_LIBRARY STREQUAL "${_library_prefix}_LIBRARY-NOTFOUND")
+    get_filename_component(_lib_directory "${${_library_prefix}_LIBRARY}}" DIRECTORY)
+
+    #
+    # The closest thing to a list of "system library directories" in
+    # which the linker will, by default, search for libraries appears to
+    # be CMAKE_PLATFORM_IMPLICIT_LINK_DIRECTORIES, so that's what we use
+    # when we're trying to construct a -L argument, for insertion into
+    # pcap-config and libpcap.pc, for a library upon which we depend.
+    #
+    # In some versions of CMake it appears to have duplicate entries,
+    # but that shouldn't affect a search for a directory in that list.
+    #
+    list(FIND CMAKE_PLATFORM_IMPLICIT_LINK_DIRECTORIES "${_lib_directory}" _lib_index)
+    if(_lib_index EQUAL -1)
+      #
+      # No, so add a -L flag to get the linker to search in that
+      # directory.
+      #
+      set(${_library_prefix}_LIBS "-L${_lib_directory}")
+      set(${_library_prefix}_LIBS_STATIC "-L${_lib_directory}")
+      set(${_libraryprefix}_LIBS_PRIVATE "-L${_lib_directory}")
+    endif()
+    set(${_library_prefix}_LIBS "${${_library_prefix}_LIBS} -l${_library_name}")
+    set(${_library_prefix}_LIBS_STATIC "${${_library_prefix}_LIBS} -l${_library_name}")
+    set(${_library_prefix}_LIBS_PRIVATE "${${_library_prefix}_LIBS} -l${_library_name}")
+  endif()
+endmacro()
+
+if(CMAKE_SYSTEM_NAME STREQUAL "Haiku")
+    enable_language(CXX)
+
+    #
+    # OK, this is a royal pain.
+    #
+    # CMake will try to determine the sizes of some data types, including
+    # void *, early in the process of configuration; apparently, it's done
+    # as part of processing the project() command.
+    #
+    # At least as of CMake 2.8.6, it does so by checking the size of
+    # "void *" in C, setting CMAKE_C_SIZEOF_DATA_PTR based on that,
+    # setting CMAKE_SIZEOF_VOID_P to that, and then checking the size
+    # of "void *" in C++, setting CMAKE_CXX_SIZEOF_DATA_PTR based on
+    # that, and then setting CMAKE_SIZEOF_VOID_P to *that*.
+    #
+    # The compile tests include whatever C flags may have been provided
+    # to CMake in the CFLAGS and CXXFLAGS environment variables.
+    #
+    # If you set an architecture flag such as -m32 or -m64 in CFLAGS
+    # but *not* in CXXFLAGS, the size for C++ will win, and hilarity
+    # will ensue.
+    #
+    # Or if, at least on Solaris, you have a newer version of GCC
+    # installed, but *not* a newer version of G++, and you have Oracle
+    # Studio installed, it will find GCC, which will default to building
+    # 64-bit, and Oracle Studio's C++ compiler, which will default to
+    # building 32-bit, the size for C++ will win, and, again, hilarity
+    # will ensue.
+    #
+    # So we make sure both languages have the same pointer sizes with
+    # the flags they're given; if they don't, it means that the
+    # compilers for the languages will, with those flags, not produce
+    # code that can be linked together.
+    #
+    # This is unlikely to happen on Haiku, but it *has* happened on
+    # Solaris; we do this for future-proofing, in case we ever need
+    # C++ on a platform where that can happen.
+    #
+    if(NOT ${CMAKE_C_SIZEOF_DATA_PTR} EQUAL ${CMAKE_CXX_SIZEOF_DATA_PTR})
+         message(FATAL_ERROR
+"C compiler ${CMAKE_C_COMPILER} produces code with \
+${CMAKE_C_SIZEOF_DATA_PTR}-byte pointers while C++ compiler \
+${CMAKE_CXX_COMPILER} produces code with \
+${CMAKE_CXX_SIZEOF_DATA_PTR}-byte pointers. \
+This prevents code in these languages from being combined.")
+    endif()
+endif()
+
+#
+# Show the bit width for which we're compiling.
+# This can help debug problems if you're dealing with a compiler that
+# defaults to generating 32-bit code even when running on a 64-bit
+# platform, and where that platform may provide only 64-bit versions of
+# libraries that we might use (looking at *you*, Oracle Studio!).
+#
+if(CMAKE_SIZEOF_VOID_P EQUAL 4)
+  message(STATUS "Building 32-bit")
+elseif(CMAKE_SIZEOF_VOID_P EQUAL 8)
+  message(STATUS "Building 64-bit")
+endif()
+
+#
+# Solaris pkg-config is annoying.  For at least one package (D-Bus, I'm
+# looking at *you*!), there are separate include files for 32-bit and
+# 64-bit builds (I guess using "unsigned long long" as a 64-bit integer
+# type on a 64-bit build is like crossing the beams or soething), and
+# there are two separate .pc files, so if we're doing a 32-bit build we
+# should make sure we look in /usr/lib/pkgconfig for .pc files and if
+# we're doing a 64-bit build we should make sure we look in
+# /usr/lib/amd64/pkgconfig for .pc files.
+#
+if(CMAKE_SYSTEM_NAME STREQUAL "SunOS" AND CMAKE_SYSTEM_VERSION MATCHES "5[.][0-9.]*")
+    #
+    # Note: string(REPLACE) does not appear to support using ENV{...}
+    # as an argument, so we set a variable and then use set() to set
+    # the environment variable.
+    #
+    if(CMAKE_SIZEOF_VOID_P EQUAL 8)
+        #
+        # 64-bit build.  If /usr/lib/pkgconfig appears in the path,
+        # prepend /usr/lib/amd64/pkgconfig to it; otherwise,
+        # put /usr/lib/amd64 at the end.
+        #
+        if((NOT DEFINED ENV{PKG_CONFIG_PATH}) OR "$ENV{PKG_CONFIG_PATH}" EQUAL "")
+            #
+            # Not set, or empty.  Set it to /usr/lib/amd64/pkgconfig.
+            #
+            set(fixed_path "/usr/lib/amd64/pkgconfig")
+        elseif("$ENV{PKG_CONFIG_PATH}" MATCHES "/usr/lib/pkgconfig")
+            #
+            # It contains /usr/lib/pkgconfig.  Prepend
+            # /usr/lib/amd64/pkgconfig to /usr/lib/pkgconfig.
+            #
+            string(REPLACE "/usr/lib/pkgconfig"
+                "/usr/lib/amd64/pkgconfig:/usr/lib/pkgconfig"
+                fixed_path "$ENV{PKG_CONFIG_PATH}")
+        else()
+            #
+            # Not empty, but doesn't contain /usr/lib/pkgconfig.
+            # Append /usr/lib/amd64/pkgconfig to it.
+            #
+            set(fixed_path "$ENV{PKG_CONFIG_PATH}:/usr/lib/amd64/pkgconfig")
+        endif()
+        set(ENV{PKG_CONFIG_PATH} "${fixed_path}")
+    elseif(CMAKE_SIZEOF_VOID_P EQUAL 4)
+        #
+        # 32-bit build.  If /usr/amd64/lib/pkgconfig appears in the path,
+        # prepend /usr/lib/pkgconfig to it.
+        #
+        if("$ENV{PKG_CONFIG_PATH}" MATCHES "/usr/lib/amd64/pkgconfig")
+            #
+            # It contains /usr/lib/amd64/pkgconfig.  Prepend
+            # /usr/lib/pkgconfig to /usr/lib/amd64/pkgconfig.
+            #
+            string(REPLACE "/usr/lib/amd64/pkgconfig"
+                "/usr/lib/pkgconfig:/usr/lib/amd64/pkgconfig"
+                fixed_path "$ENV{PKG_CONFIG_PATH}")
+            set(ENV{PKG_CONFIG_PATH} "${fixed_path}")
+        endif()
+    endif()
+endif()
 
 include(CheckCCompilerFlag)
 
@@ -141,15 +415,17 @@ endif(MSVC)
 
 #
 # If we're building with MinGW, we need to specify _WIN32_WINNT as
-# 0x0600 ("NT 6.0", a/k/a Vista/Windows Server 2008) in order to
-# get the full IPv6 API, including inet_ntop().
+# 0x0600 ("NT 6.0", a/k/a Vista/Windows Server 2008) or higher
+# in order to get the full IPv6 API, including inet_ntop(), and we
+# need to specify it as 0x0601 ("NT 6.1", a/k/a Windows 7) or higher
+# in order to get NdisMediumIP.
 #
 # NOTE: pcap does *NOT* work with msvcrt.dll; it must link with
 # a newer version of the C library, i.e. Visual Studio 2015 or
 # later, as it depends on C99 features introduced in VS 2015.
 #
 if(MINGW)
-    add_definitions(-D_WIN32_WINNT=0x0600)
+    add_definitions(-D_WIN32_WINNT=0x0601)
 endif(MINGW)
 
 #
@@ -183,6 +459,7 @@ if(WIN32)
     option(USE_STATIC_RT "Use static Runtime" ON)
 endif(WIN32)
 option(BUILD_SHARED_LIBS "Build shared libraries" ON)
+set(dpdk_ROOT "" CACHE PATH "Path to directory with include and lib subdirectories for DPDK")
 if(WIN32)
     set(Packet_ROOT "" CACHE PATH "Path to directory with include and lib subdirectories for packet.dll")
     set(AirPcap_ROOT "" CACHE PATH "Path to directory with include and lib subdirectories for airpcap.dll")
@@ -304,19 +581,19 @@ if(WIN32)
     endif(IS_DIRECTORY ${CMAKE_HOME_DIRECTORY}/../../Common)
 
     find_package(Packet)
-    if(PACKET_FOUND)
+    if(Packet_FOUND)
         set(HAVE_PACKET32 TRUE)
-        include_directories(${PACKET_INCLUDE_DIRS})
+        include_directories(${Packet_INCLUDE_DIRS})
         #
         # Check whether we have the NPcap PacketIsLoopbackAdapter()
         # function.
         #
         cmake_push_check_state()
-        set(CMAKE_REQUIRED_LIBRARIES ${PACKET_LIBRARIES})
+        set(CMAKE_REQUIRED_LIBRARIES ${Packet_LIBRARIES})
         check_function_exists(PacketIsLoopbackAdapter HAVE_PACKET_IS_LOOPBACK_ADAPTER)
         check_function_exists(PacketGetTimestampModes HAVE_PACKET_GET_TIMESTAMP_MODES)
         cmake_pop_check_state()
-    endif(PACKET_FOUND)
+    endif(Packet_FOUND)
 
     message(STATUS "checking for Npcap's version.h")
     check_symbol_exists(WINPCAP_PRODUCT_NAME "${CMAKE_SOURCE_DIR}/../../version.h" HAVE_VERSION_H)
@@ -380,25 +657,6 @@ if(NOT WIN32)
     check_include_file(sys/select.h HAVE_SYS_SELECT_H)
 
     check_include_file(netpacket/packet.h HAVE_NETPACKET_PACKET_H)
-    check_include_files("sys/types.h;sys/socket.h;net/if.h;net/pfvar.h" HAVE_NET_PFVAR_H)
-    if(HAVE_NET_PFVAR_H)
-        #
-        # Check for various PF actions.
-        #
-        check_c_source_compiles(
-"#include <sys/types.h>
-#include <sys/socket.h>
-#include <net/if.h>
-#include <net/pfvar.h>
-
-int
-main(void)
-{
-    return PF_NAT+PF_NONAT+PF_BINAT+PF_NOBINAT+PF_RDR+PF_NORDR;
-}
-"
-            HAVE_PF_NAT_THROUGH_PF_NORDR)
-    endif(HAVE_NET_PFVAR_H)
     check_include_file(netinet/if_ether.h HAVE_NETINET_IF_ETHER_H)
 endif(NOT WIN32)
 
@@ -522,6 +780,10 @@ endif()
 # that's been set, it skips the test, so we need different variables.
 #
 set(PCAP_LINK_LIBRARIES "")
+set(LIBS "")
+set(LIBS_STATIC "")
+set(REQUIRES_PRIVATE "")
+set(LIBS_PRIVATE "")
 include(CheckLibraryExists)
 if(WIN32)
     #
@@ -557,6 +819,9 @@ else(WIN32)
             # OK, we found it in libsocket.
             #
             set(PCAP_LINK_LIBRARIES socket nsl ${PCAP_LINK_LIBRARIES})
+            set(LIBS "-lsocket -lnsl ${LIBS}")
+            set(LIBS_STATIC "-lsocket -lnsl ${LIBS_STATIC}")
+            set(LIBS_PRIVATE "-lsocket -lnsl ${LIBS_PRIVATE}")
         else(LIBSOCKET_HAS_GETADDRINFO)
             check_library_exists(network getaddrinfo "" LIBNETWORK_HAS_GETADDRINFO)
             if(LIBNETWORK_HAS_GETADDRINFO)
@@ -564,6 +829,9 @@ else(WIN32)
                 # OK, we found it in libnetwork (Haiku).
                 #
                 set(PCAP_LINK_LIBRARIES network ${PCAP_LINK_LIBRARIES})
+                set(LIBS "-lnetwork ${LIBS}")
+                set(LIBS_STATIC "-lnetwork ${LIBS_STATIC}")
+                set(LIBS_PRIVATE "-lnetwork ${LIBS_PRIVATE}")
             else(LIBNETWORK_HAS_GETADDRINFO)
                 #
                 # We didn't find it.
@@ -585,6 +853,9 @@ else(WIN32)
             # Yes - link with it as well.
             #
             set(PCAP_LINK_LIBRARIES xnet ${PCAP_LINK_LIBRARIES})
+            set(LIBSC "-lxnet ${LIBS_LIBS}")
+            set(LIBS_STATIC "-lxnet ${LIBS_STATIC}")
+            set(LIBS_PRIVATE "-lxnet ${LIBS_PRIVATE}")
         endif(LIBXNET_HAS_RECVMSG)
     endif(NOT STDLIBS_HAVE_GETADDRINFO)
 
@@ -594,8 +865,20 @@ else(WIN32)
         check_library_exists(str putmsg "" LIBSTR_HAS_PUTMSG)
         if(LIBSTR_HAS_PUTMSG)
             set(PCAP_LINK_LIBRARIES str ${PCAP_LINK_LIBRARIES})
+            set(LIBS "-lstr ${LIBS}")
+            set(LIBS_STATIC "-lstr ${LIBS_STATIC}")
+            set(LIBS_PRIVATE "-lstr ${LIBS_PRIVATE}")
         endif(LIBSTR_HAS_PUTMSG)
     endif(NOT STDLIBS_HAVE_PUTMSG)
+
+    # Haiku has getpass in libbsd
+    check_function_exists(getpass STDLIBS_HAVE_GETPASS)
+    if(NOT STDLIBS_HAVE_GETPASS)
+        check_library_exists(bsd getpass "" LIBBSD_HAS_GETPASS)
+        if(LIBBSD_HAS_GETPASS)
+            set(PCAP_LINK_LIBRARIES bsd ${PCAP_LINK_LIBRARIES})
+        endif(LIBBSD_HAS_GETPASS)
+    endif(NOT STDLIBS_HAVE_GETPASS)
 endif(WIN32)
 
 #
@@ -1049,6 +1332,76 @@ if(OPENSSL_FOUND)
   #
   include_directories(SYSTEM ${OPENSSL_INCLUDE_DIR})
   set(PCAP_LINK_LIBRARIES ${PCAP_LINK_LIBRARIES} ${OPENSSL_LIBRARIES})
+
+  #
+  # The find_package() module CMake provides for OpenSSL uses does not
+  # give us a defined indication of whether it found OpenSSL with
+  # pkg-config or not.  We need to know that as, if it was found with
+  # pkg-config, we should set the Requires.private value in libpcap.pc
+  # to include its package name, openssl, otherwise we should add the
+  # names for the static libraries to Libs.private.
+  #
+  # On UN*X, FindOpenSSL happens to use pkg-config to find OpenSSL, but
+  # it doesn't appear to be documented as doing so; therefore, we don't
+  # assume that, if we got here, we have pkg-config.
+  #
+  # So we use pkg_get_link_info() to run pkg-config ourselves, both
+  # because FindOpenSSL doesn't set the OPENSSL_LDFLAGS or
+  # OPENSSL_STATIC_LDFLAGS variables and because, for reasons explained
+  # in the comment before the pkg_get_link_info() macro, even if it did,
+  # it wouldn't be what we want anyway.
+  #
+  if (PKG_CONFIG_EXECUTABLE)
+    pkg_get_link_info(OPENSSL openssl)
+    if (OPENSSL_FOUND_WITH_PKG_CONFIG)
+      #
+      # pkg-config failed; assume that means that there is no openssl
+      # package for it to find.  Just add OPENSSL_LIBRARIES to
+      # LIBS_PRIVATE AND LIBS_STATIC, as that's the
+      # best we can do. XXX - need list of -l and -L flags to add....
+      #
+      set(LIBS "${LIBS} ${OPENSSL_LIBS}")
+      set(LIBS_STATIC "${LIBS_STATIC} ${OPENSSL_LIBS_STATIC}")
+      set(REQUIRES_PRIVATE "${REQUIRES_PRIVATE} ${OPENSSL_PACKAGE_NAME}")
+    endif()
+  else()
+    # Get it from OPENSSL_LIBRARIES
+    foreach(_lib IN LISTS OPENSSL_LIBRARIES)
+      #
+      # Get the directory in which the library resides.
+      #
+      get_filename_component(_lib_directory "${_lib}" DIRECTORY)
+
+      #
+      # Is the library directory in CMAKE_PLATFORM_IMPLICIT_LINK_DIRECTORIES?
+      # (See comment above on why we use that.)
+      #
+      list(FIND CMAKE_PLATFORM_IMPLICIT_LINK_DIRECTORIES "${_lib_directory}" _lib_index)
+      if(_lib_index EQUAL -1)
+        #
+        # No, so add a -L flag to get the linker to search in that
+        # directory.
+        #
+        set(LIBS "${LIBS} -L${_lib_directory}")
+        set(LIBS_STATIC "${LIBS_STATIC} -L${_lib_directory}")
+        set(LIBS_PRIVATE "${LIBS_PRIVATE} -L${_lib_directory}")
+      endif()
+
+      #
+      # Get the file name of the library, without the extension.
+      #
+      get_filename_component(_lib_filename "${_lib}" NAME_WE)
+
+      #
+      # Strip off the "lib" prefix to get the library name, and
+      # add a -l flag based on that.
+      #
+      string(REGEX REPLACE "^lib" "" _library_name "${_lib_filename}")
+      set(LIBS "${LIBS} -l${_library_name}")
+      set(LIBS_STATIC "${LIBS_STATIC} -l${_library_name}")
+      set(LIBS_PRIVATE "${LIBS_PRIVATE} -l${_library_name}")
+    endforeach()
+  endif()
   set(HAVE_OPENSSL YES)
 endif(OPENSSL_FOUND)
 
@@ -1078,6 +1431,8 @@ set(PROJECT_SOURCE_LIST_C
     nametoaddr.c
     optimize.c
     pcap-common.c
+    pcap-usb-linux-common.c
+    pcap-util.c
     pcap.c
     savefile.c
     sf-pcapng.c
@@ -1255,6 +1610,9 @@ else()
             # Nothing we support.
             #
             set(PCAP_TYPE null)
+            message(WARNING
+"cannot determine packet capture interface
+(see the INSTALL.md file for more info)")
         endif()
     endif()
 endif(WIN32)
@@ -1270,7 +1628,7 @@ if(WIN32)
         #
         # Link with packet.dll before Winsock2.
         #
-        set(PCAP_LINK_LIBRARIES ${PACKET_LIBRARIES} ${PCAP_LINK_LIBRARIES})
+        set(PCAP_LINK_LIBRARIES ${Packet_LIBRARIES} ${PCAP_LINK_LIBRARIES})
     elseif(PCAP_TYPE STREQUAL "null")
     else()
         message(FATAL_ERROR "${PCAP_TYPE} is not a valid pcap type")
@@ -1309,6 +1667,9 @@ else(WIN32)
             # XXX - add -L/lib
             #
             set(PCAP_LINK_LIBRARIES ${PCAP_LINK_LIBRARIES} dlpi)
+            set(LIBS "${LIBS} -ldlpi")
+            set(LIBS_STATIC "${LIBS_STATIC} -ldlpi")
+            set(LIBS_PRIVATE "${LIBS_PRIVATE} -ldlpi")
             set(PCAP_TYPE libdlpi)
         endif()
 
@@ -1341,9 +1702,17 @@ else(WIN32)
         # let's drop support for older versions of libnl, too.
         #
         if(BUILD_WITH_LIBNL)
-            pkg_check_modules(LIBNL libnl-3.0)
+            pkg_check_modules(LIBNL libnl-genl-3.0)
             if(LIBNL_FOUND)
                 set(PCAP_LINK_LIBRARIES ${LIBNL_LIBRARIES} ${PCAP_LINK_LIBRARIES})
+
+                #
+                # Get raw link flags from pkg-config.
+                #
+                pkg_get_link_info(LIBNL libnl-genl-3.0)
+                set(LIBS "${LIBNL_LIBS} ${LIBS}")
+                set(LIBS_STATIC "${LIBNL_LIBS_STATIC} ${LIBS_STATIC}")
+                set(REQUIRES_PRIVATE "${LIBNL_PACKAGE_NAME} ${REQUIRES_PRIVATE}")
             else()
                 cmake_push_check_state()
                 set(CMAKE_REQUIRED_LIBRARIES nl-3)
@@ -1355,6 +1724,9 @@ else(WIN32)
                     #
                     set(PCAP_LINK_LIBRARIES nl-genl-3 nl-3 ${PCAP_LINK_LIBRARIES})
                     include_directories("/usr/include/libnl3")
+                    set(LIBS "-lnl-genl-3 -lnl-3 ${LIBS}")
+                    set(LIBS_STATIC "-lnl-genl-3 -lnl-3 ${LIBS_STATIC}")
+                    set(LIBS_PRIVATE "-lnl-genl-3 -lnl-3 ${LIBS_PRIVATE}")
                 endif()
             endif()
         else()
@@ -1437,6 +1809,9 @@ if(NOT WIN32)
                 check_library_exists(socket getifaddrs "" SOCKET_HAS_GETIFADDRS)
                 if(SOCKET_HAS_GETIFADDRS)
                     set(PCAP_LINK_LIBRARIES socket ${PCAP_LINK_LIBRARIES})
+                    set(LIBS "-lsocket ${LIBS}")
+                    set(LIBS_STATIC "-lsocket ${LIBS_STATIC}")
+                    set(LIBS_PRIVATE "-lsocket ${LIBS_PRIVATE}")
                     set(HAVE_GETIFADDRS TRUE)
                 endif()
             endif()
@@ -1514,7 +1889,6 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
     if(NOT DISABLE_LINUX_USBMON)
         set(PCAP_SUPPORT_LINUX_USBMON TRUE)
         set(PROJECT_SOURCE_LIST_C ${PROJECT_SOURCE_LIST_C} pcap-usb-linux.c)
-        set(LINUX_USB_MON_DEV /dev/usbmon)
         #
         # Do we have a version of <linux/compiler.h> available?
         # If so, we might need it for <linux/usbdevice_fs.h>.
@@ -1605,25 +1979,23 @@ if(NOT DISABLE_DPDK)
     find_package(dpdk)
     if(dpdk_FOUND)
         #
-        # We include rte_bus.h, and older versions of DPDK didn't have
-        # it, so check for it.
-        #
-        # Also, we call rte_eth_dev_count_avail(), and older versions
-        # of DPDK didn't have it, so check for it.
+        # We call rte_eth_dev_count_avail(), and older versions of DPDK
+        # didn't have it, so check for it.
         #
         cmake_push_check_state()
         set(CMAKE_REQUIRED_INCLUDES ${dpdk_INCLUDE_DIRS})
-        check_include_file(rte_bus.h HAVE_RTE_BUS_H)
         set(CMAKE_REQUIRED_LIBRARIES ${dpdk_LIBRARIES})
         check_function_exists(rte_eth_dev_count_avail HAVE_RTE_ETH_DEV_COUNT_AVAIL)
         cmake_pop_check_state()
-        if(HAVE_RTE_BUS_H AND HAVE_RTE_ETH_DEV_COUNT_AVAIL)
+        if(HAVE_RTE_ETH_DEV_COUNT_AVAIL)
             set(DPDK_C_FLAGS "-march=native")
-            set(DPDK_LIB dpdk rt m numa dl)
             set(CMAKE_C_FLAGS ${CMAKE_C_FLAGS} ${DPDK_C_FLAGS})
             include_directories(AFTER ${dpdk_INCLUDE_DIRS})
             link_directories(AFTER ${dpdk_LIBRARIES})
             set(PCAP_LINK_LIBRARIES ${PCAP_LINK_LIBRARIES} ${dpdk_LIBRARIES})
+            set(LIBS "${LIBS} ${dpdk_LIBS}")
+            set(LIBS_STATIC "${LIBS_STATIC} ${dpdk_LIBS_STATIC}")
+            set(REQUIRES_PRIVATE "${REQUIRES_PRIVATE} ${dpdk_PACKAGE_NAME}")
             set(PROJECT_SOURCE_LIST_C ${PROJECT_SOURCE_LIST_C} pcap-dpdk.c)
             set(PCAP_SUPPORT_DPDK TRUE)
 
@@ -1639,6 +2011,11 @@ if(NOT DISABLE_DPDK)
             check_type_size("struct rte_ether_addr" STRUCT_RTE_ETHER_ADDR)
             cmake_pop_check_state()
         endif()
+    else()
+      message(WARNING,
+"We couldn't find DPDK with pkg-config.  If you want DPDK support,
+make sure that pkg-config is installed, that DPDK 18.02.2 or later is
+installed, and that DPDK provides a .pc file.")
     endif()
 endif()
 
@@ -1721,22 +2098,80 @@ if(NOT DISABLE_DBUS)
             list(APPEND DBUS_LIBRARY_FULLPATHS ${_libfullpath})
         endforeach()
         set(PCAP_LINK_LIBRARIES ${PCAP_LINK_LIBRARIES} ${DBUS_LIBRARY_FULLPATHS})
+
+        #
+        # Get library information for DPDK.
+        #
+        pkg_get_link_info(DBUS dbus-1)
+        set(LIBS "${LIBS} ${DBUS_LIBS}")
+        set(LIBS_STATIC "${LIBS_STATIC} ${DBUS_LIBS_STATIC}")
+        set(REQUIRES_PRIVATE "${REQUIRES_PRIVATE} ${DBUS_PACKAGE_NAME}")
     endif(DBUS_FOUND)
 endif(NOT DISABLE_DBUS)
 
 # Check for RDMA sniffing support
 if(NOT DISABLE_RDMA)
-    check_library_exists(ibverbs ibv_get_device_list "" LIBIBVERBS_HAS_IBV_GET_DEVICE_LIST)
-    if(LIBIBVERBS_HAS_IBV_GET_DEVICE_LIST)
+    pkg_check_modules(LIBIBVERBS libibverbs)
+    if(LIBIBVERBS_FOUND)
+        #
+        # pkg-config found it; remember its pkg-config name.
+        #
+        set(LIBIBVERBS_REQUIRES_PRIVATE ${LIBIBVERBS_PACKAGE_NAME})
+
+        #
+        # Get static linking information for it.
+        #
+        pkg_get_link_info(LIBIBVERBS libibverbs)
+    else()
+        #
+        # pkg-config didn't find it; try to look for it ourselves
+        #
+        check_library_exists(ibverbs ibv_get_device_list "" LIBIBVERBS_HAS_IBV_GET_DEVICE_LIST)
+        if(LIBIBVERBS_HAS_IBV_GET_DEVICE_LIST)
+            set(LIBIBVERBS_FOUND TRUE)
+            set(LIBIBVERBS_LIBRARIES ibverbs)
+            # XXX - at least on Ubuntu 20.04, there are many more
+            # libraries needed; is there any platform where
+            # libibverbs is available but where pkg-config
+            # isn't available or libibverbs doesn't use it?
+            # If not, we should only use pkg-config for it.
+            set(LIBIBVERBS_STATIC_LIBRARIES ibverbs)
+            set(LIBIBVERBS_LIBS -libverbs)
+            set(LIBIBVERBS_LIBS_STATIC -libverbs)
+            set(LIBIBVERBS_LIBS_PRIVATE -libverbs)
+        endif()
+    endif()
+    if(LIBIBVERBS_FOUND)
+        #
+        # For unknown reasons, check_include_file() doesn't just attempt
+        # to compile a test program that includes the header in
+        # question, it also attempts to link it.
+        #
+        # For unknown reasons, at least some of the static inline
+        # functions defined in infiniband/verbs.h are not inlined by the
+        # Sun^WOracle Studio C compiler, so the compiler generates code
+        # for them as part of the object code resulting from compiling
+        # the test program. At lest some of those functions call
+        # routines in -libverbs, so, in order to keep the compile and
+        # link from failing, even though the header file exists and is
+        # usable, we need to link with -libverbs.
+        #
+        cmake_push_check_state()
+        set(CMAKE_REQUIRED_LIBRARIES ${LIBIBVERBS_LIBRARIES})
         check_include_file(infiniband/verbs.h HAVE_INFINIBAND_VERBS_H)
         if(HAVE_INFINIBAND_VERBS_H)
             check_symbol_exists(ibv_create_flow infiniband/verbs.h PCAP_SUPPORT_RDMASNIFF)
             if(PCAP_SUPPORT_RDMASNIFF)
                 set(PROJECT_SOURCE_LIST_C ${PROJECT_SOURCE_LIST_C} pcap-rdmasniff.c)
-                set(PCAP_LINK_LIBRARIES ibverbs ${PCAP_LINK_LIBRARIES})
+                set(PCAP_LINK_LIBRARIES ${LIBIBVERBS_LIBRARIES} ${PCAP_LINK_LIBRARIES})
+                set(LIBS "${LIBIBVERBS_LIBS} ${LIBS}")
+                set(LIBS_STATIC "${LIBIBVERBS_LIBS_STATIC} ${LIBS_STATIC}")
+                set(LIBS_PRIVATE "${LIBIBVERBS_LIBS_PRIVATE} ${LIBS_PRIVATE}")
+                set(REQUIRES_PRIVATE "${REQUIRES_PRIVATE} ${LIBIBVERBS_PACKAGE_NAME}")
             endif(PCAP_SUPPORT_RDMASNIFF)
         endif(HAVE_INFINIBAND_VERBS_H)
-    endif(LIBIBVERBS_HAS_IBV_GET_DEVICE_LIST)
+        cmake_pop_check_state()
+    endif(LIBIBVERBS_FOUND)
 endif(NOT DISABLE_RDMA)
 
 #
@@ -1774,12 +2209,18 @@ if(NOT DISABLE_DAG)
         set(PROJECT_SOURCE_LIST_C ${PROJECT_SOURCE_LIST_C} pcap-dag.c)
         set(HAVE_DAG_API TRUE)
         set(PCAP_LINK_LIBRARIES ${PCAP_LINK_LIBRARIES} ${DAG_LIBRARIES})
+        set(LIBS "${LIBS} ${DAG_LIBS}")
+        set(LIBS_STATIC "${LIBS_STATIC} ${DAG_LIBS_STATIC}")
+        set(LIBS_PRIVATE "${LIBS_PRIVATE} ${DAG_LIBS_PRIVATE}")
 
         if(HAVE_DAG_LARGE_STREAMS_API)
             get_filename_component(DAG_LIBRARY_DIR ${DAG_LIBRARY} PATH)
             check_library_exists(vdag vdag_set_device_info ${DAG_LIBRARY_DIR} HAVE_DAG_VDAG)
             if(HAVE_DAG_VDAG)
                 set(PCAP_LINK_LIBRARIES ${PCAP_LINK_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
+                set(LIBS "${LIBS} ${CMAKE_THREAD_LIBS_INIT}")
+                set(LIBS_STATIC "${LIBS_STATIC} ${CMAKE_THREAD_LIBS_INIT}")
+                set(LIBS_PRIVATE "${LIBS_PRIVATE} ${CMAKE_THREAD_LIBS_INIT}")
             endif()
         endif()
     endif()
@@ -1825,6 +2266,9 @@ if(NOT DISABLE_SNF)
         set(PROJECT_SOURCE_LIST_C ${PROJECT_SOURCE_LIST_C} pcap-snf.c)
         set(HAVE_SNF_API TRUE)
         set(PCAP_LINK_LIBRARIES ${PCAP_LINK_LIBRARIES} ${SNF_LIBRARIES})
+        set(LIBS "${LIBS_STATIC} ${SNF_LIBS}")
+        set(LIBS_STATIC "${LIBS_STATIC} ${SNF_LIBS_STATIC}")
+        set(LIBS_PRIVATE "${LIBS_PRIVATE} ${SNF_LIBS_PRIVATE}")
     endif()
 endif()
 
@@ -1838,14 +2282,14 @@ if(NOT DISABLE_AIRPCAP)
     #
     # Did we succeed?
     #
-    if(AIRPCAP_FOUND)
+    if(AirPcap_FOUND)
         #
         # Yes.
         #
-        include_directories(AFTER ${AIRPCAP_INCLUDE_DIRS})
+        include_directories(AFTER ${AirPcap_INCLUDE_DIRS})
         set(PROJECT_SOURCE_LIST_C ${PROJECT_SOURCE_LIST_C} pcap-airpcap.c)
         set(HAVE_AIRPCAP_API TRUE)
-        set(PCAP_LINK_LIBRARIES ${PCAP_LINK_LIBRARIES} ${AIRPCAP_LIBRARIES})
+        set(PCAP_LINK_LIBRARIES ${PCAP_LINK_LIBRARIES} ${AirPcap_LIBRARIES})
     endif()
 endif()
 
@@ -2051,6 +2495,19 @@ if(NOT MSVC)
 endif(NOT MSVC)
 
 #
+# Extra compiler options for the build matrix scripts to request -Werror or
+# its equivalent if required.  The CMake variable name cannot be CFLAGS
+# because that is already used for a different purpose in CMake.  Example
+# usage: cmake -DEXTRA_CFLAGS='-Wall -Wextra -Werror' ...
+#
+if(NOT "${EXTRA_CFLAGS}" STREQUAL "")
+    foreach(_extra_cflag ${EXTRA_CFLAGS})
+        check_and_add_compiler_option("${_extra_cflag}")
+    endforeach(_extra_cflag)
+    message(STATUS "Added extra compile options (${EXTRA_CFLAGS})")
+endif()
+
+#
 # Flex/Lex and YACC/Berkeley YACC/Bison.
 # From a mail message to the CMake mailing list by Andy Cedilnik of
 # Kitware.
@@ -2064,6 +2521,28 @@ if(LEX_EXECUTABLE STREQUAL "LEX_EXECUTABLE-NOTFOUND")
     message(FATAL_ERROR "Neither flex nor win_flex nor lex was found.")
 endif()
 message(STATUS "Lexical analyzer generator: ${LEX_EXECUTABLE}")
+
+#
+# Make sure {f}lex supports the -P, --header-file, and --nounput flags
+# and supports processing our scanner.l.
+#
+if(WIN32)
+    set(NULL_DEVICE "NUL:")
+else()
+    set(NULL_DEVICE "/dev/null")
+endif()
+execute_process(COMMAND ${LEX_EXECUTABLE} -P pcap_ --header-file=${NULL_DEVICE} --nounput -t ${pcap_SOURCE_DIR}/scanner.l
+    OUTPUT_QUIET RESULT_VARIABLE EXIT_STATUS)
+if(NOT EXIT_STATUS EQUAL 0)
+    message(FATAL_ERROR "${LEX_EXECUTABLE} is insufficient to compile libpcap.
+libpcap requires Flex 2.5.31 or later, or a compatible version of lex.
+If a suitable version of Lex/Flex is available as a non-standard command
+and/or not in the PATH, you can specify it using the LEX environment
+variable. That said, on some systems the error can mean that Flex/Lex is
+actually acceptable, but m4 is not. Likewise, if a suitable version of
+m4 (such as GNU M4) is available but has not been detected, you can
+specify it using the M4 environment variable.")
+endif()
 
 add_custom_command(
     OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/scanner.c ${CMAKE_CURRENT_BINARY_DIR}/scanner.h
@@ -2097,6 +2576,25 @@ if(YACC_EXECUTABLE STREQUAL "YACC_EXECUTABLE-NOTFOUND")
 endif()
 
 if(YACC_EXECUTABLE MATCHES "byacc" OR YACC_EXECUTABLE MATCHES "yacc")
+    #
+    # Make sure this is Berkeley YACC, not AT&T YACC;
+    # the latter doesn't support reentrant parsers.
+    # Run it with "-V"; that succeeds and reports the
+    # version number with Berkeley YACC, but will
+    # (probably) fail with various vendor flavors
+    # of AT&T YACC.
+    #
+    # Hopefully this also eliminates any versions
+    # of Berkeley YACC that don't support reentrant
+    # parsers, if there are any.
+    #
+    execute_process(COMMAND ${YACC_EXECUTABLE} -V OUTPUT_QUIET
+        RESULT_VARIABLE EXIT_STATUS)
+    if(NOT EXIT_STATUS EQUAL 0)
+        message(FATAL_ERROR "${YACC_EXECUTABLE} is insufficient to compile libpcap.
+libpcap requires Bison, a newer version of Berkeley YACC with support
+for reentrant parsers, or another YACC compatible with them.")
+    endif()
     #
     # Berkeley YACC doesn't support "%define api.pure", so use
     # "%pure-parser".
@@ -2162,6 +2660,9 @@ if(CMAKE_SYSTEM_NAME STREQUAL "AIX")
         # we use them to load the BPF module.
         #
         set(PCAP_LINK_LIBRARIES ${PCAP_LINK_LIBRARIES} odm cfg)
+        set(LIBS "${LIBS} -lodm -lcfg")
+        set(LIBS_STATIC "${LIBS_STATIC} -lodm -lcfg")
+        set(LIBS_PRIVATE "${LIBS_PRIVATE} -lodm -lcfg")
     endif()
 elseif(CMAKE_SYSTEM_NAME STREQUAL "HP-UX")
     if(CMAKE_SYSTEM_VERSION MATCHES "[A-Z.]*9\.[0-9]*")
@@ -2200,7 +2701,7 @@ elseif(CMAKE_SYSTEM_NAME STREQUAL "IRIX" OR CMAKE_SYSTEM_NAME STREQUAL "IRIX64")
     set(MAN_MISC_INFO 5)
 elseif(CMAKE_SYSTEM_NAME STREQUAL "OSF1")
     #
-    # DEC OSF/1, a/k/a Digial UNIX, a/k/a Tru64 UNIX.
+    # DEC OSF/1, a/k/a Digital UNIX, a/k/a Tru64 UNIX.
     # Use Tru64 UNIX conventions for man pages; they're the same as the
     # System V conventions except that they use section 8 for
     # administrative commands and daemons.
@@ -2445,13 +2946,10 @@ if(APPLE AND "${CMAKE_OSX_ARCHITECTURES}" STREQUAL "")
         # captures.)
         #
         set(OSX_LIBRARY_ARCHITECTURES "x86_64;i386;ppc")
-    else()
+    elseif(SYSTEM_VERSION_MAJOR GREATER 10 AND SYSTEM_VERSION_MAJOR LESS 19)
         #
-        # Post-Snow Leopard.  Build for x86-64 and 32-bit x86,
-        # with x86-64 first.  (That's what Apple does)
-        # XXX - update if and when Apple drops support
-        # for 32-bit x86 code and if and when Apple adds
-        # ARM-based Macs.  (You're on your own for iOS etc.)
+        # Post-Snow Leopard, pre-Catalina.  Build for x86-64
+        # and 32-bit x86, with x86-64 first.  (That's what Apple does)
         #
         # First, check whether we're building with OpenSSL.
         # If so, don't bother trying to build fat.
@@ -2493,6 +2991,61 @@ main(void)
                   message(WARNING "Compiling for 32-bit x86 gives an error; try installing the command-line tools and, after that, installing the /usr/include headers from the /Library/Developer/CommandLineTools/Packages/macOS_SDK_headers_for_macOS_10.14.pkg package")
               endif()
           endif()
+        endif()
+    elseif(SYSTEM_VERSION_MAJOR EQUAL 19)
+        #
+        # Catalina.  Build libraries and executables
+        # only for x86-64.  (That's what Apple does;
+        # 32-bit x86 binaries are not supported on
+        # Catalina.)
+        #
+        set(OSX_LIBRARY_ARCHITECTURES "x86_64")
+    else()
+        #
+        # Post-Catalina.  Build libraries and
+        # executables for x86-64 and ARM64.
+        # (That's what Apple does, except they
+        # build for arm64e, which may include
+        # some of the pointer-checking extensions.)
+        #
+        # If we're building with libssl, make sure
+        # we can build fat with it (i.e., that it
+        # was built fat); if we can't, don't set
+        # the target architectures, and just
+        # build for the host we're on.
+        #
+        # Otherwise, just add both of them.
+        #
+        if(HAVE_OPENSSL)
+          cmake_push_check_state()
+          set(CMAKE_REQUIRED_FLAGS "-arch x86_64 -arch arm64")
+          set(CMAKE_REQUIRED_INCLUDES ${OPENSSL_INCLUDE_DIR})
+          set(CMAKE_REQUIRED_LIBRARIES ${OPENSSL_LIBRARIES})
+          #
+          # We must test whether this compiles and links, so
+          # check_symbol_exists() isn't sufficient.
+          #
+          # SSL_library_init() may be a macro that's #defined
+          # to be the real function to call, so we have to
+          # include <openssl/ssl.h>, and check_function_exists()
+          # isn't sufficient.
+          #
+          check_c_source_compiles(
+"#include <openssl/ssl.h>
+int
+main(void)
+{
+    SSL_library_init();
+    return 0;
+}
+"
+              FAT_SSL_BUILDS_SUPPORTED)
+          cmake_pop_check_state()
+          if(FAT_SSL_BUILDS_SUPPORTED)
+              set(OSX_LIBRARY_ARCHITECTURES "x86_64;arm64")
+          endif()
+        else()
+            set(OSX_LIBRARY_ARCHITECTURES "x86_64;arm64")
         endif()
     endif()
     if(BUILD_SHARED_LIBS)
@@ -2619,7 +3172,9 @@ set(MAN3PCAP_NOEXPAND
     pcap_tstamp_type_name_to_val.3pcap
     pcap_tstamp_type_val_to_name.3pcap
 )
-set(MANFILE_EXPAND pcap-savefile.manfile.in)
+set(MANFILE_EXPAND
+    pcap-savefile.manfile.in
+)
 set(MANMISC_EXPAND
     pcap-filter.manmisc.in
     pcap-linktype.manmisc.in
@@ -2633,6 +3188,11 @@ else(BUILD_SHARED_LIBS)
 endif(BUILD_SHARED_LIBS)
 
 if(WIN32 OR CYGWIN OR MSYS)
+    #
+    # XXX - according to the CMake documentation, WIN32 is set if
+    # the target is Windows; would there ever be a case where
+    # CYGWIN or MSYS are set but WIN32 *isn't* set?
+    #
     if(MSVC AND CMAKE_SIZEOF_VOID_P EQUAL 8)
         #
         # Install 64-bit code built with MSVC in the x64 subdirectories,
@@ -2685,36 +3245,69 @@ if(NOT MSVC)
     set(exec_prefix "\${prefix}")
     set(includedir "\${prefix}/include")
     set(libdir "\${exec_prefix}/${CMAKE_INSTALL_LIBDIR}")
-    if(CMAKE_SYSTEM_NAME STREQUAL "FreeBSD" OR
-       CMAKE_SYSTEM_NAME STREQUAL "NetBSD" OR
-       CMAKE_SYSTEM_NAME STREQUAL "OpenBSD" OR
-       CMAKE_SYSTEM_NAME STREQUAL "DragonFly BSD" OR
-       CMAKE_SYSTEM_NAME STREQUAL "Linux" OR
-       CMAKE_SYSTEM_NAME STREQUAL "OSF1")
-        #
-        # Platforms where the linker is the GNU linker
-        # or accepts command-line arguments like
-        # those the GNU linker accepts.
-        #
-        set(V_RPATH_OPT "-Wl,-rpath,")
-    elseif(CMAKE_SYSTEM_NAME STREQUAL "SunOS" AND CMAKE_SYSTEM_VERSION MATCHES "5[.][0-9.]*")
-        #
-        # SunOS 5.x.
-        #
-        # XXX - this assumes GCC is using the Sun linker,
-        # rather than the GNU linker.
-        #
-        set(V_RPATH_OPT "-Wl,-R,")
-    else()
-        #
-        # No option needed to set the RPATH.
-        #
-        set(V_RPATH_OPT "")
+
+    #
+    # If this is a platform where we need to have the .pc file and
+    # pcap-config script supply an rpath option to specify the directory
+    # in which the libpcap shared library is installed, and the install
+    # prefix /usr (meaning we're not installing a system library),
+    # provide the rpath option.
+    #
+    # (We must check CMAKE_INSTALL_PREFIX, as the library directory
+    # isn't  necessarily /usr/lib in this case - for example, Linux
+    # distributions for 64-bit platforms that also provide support for
+    # binaries for a 32-bit version of the platform may put the 64-bit
+    # libraries, the 32-bit libraries, or both in directories other than
+    # /usr/lib.)
+    #
+    # In AIX, do we have to do this?
+    #
+    # In Darwin-based OSes, the full paths of the shared libraries with
+    # which the program was linked are stored in the executable, so we
+    # don't need to provide an rpath option.
+    #
+    # With the HP-UX linker, directories specified with -L are, by
+    # default, added to the run-time search path, so we don't need to
+    # supply them.
+    #
+    # For Tru64 UNIX, "-rpath" works with DEC's^WCompaq's^WHP's C
+    # compiler for Alpha, but isn't documented as working with GCC, and
+    # no GCC-compatible option is documented as working with the DEC
+    # compiler.  If anybody needs this on Tru64/Alpha, they're welcome
+    # to figure out a way to make it work.
+    #
+    # This must *not* depend on the compiler, as, on platforms where
+    # there's a GCC-compatible compiler and a vendor compiler, we need
+    # to work with both.
+    #
+    if(NOT CMAKE_INSTALL_PREFIX STREQUAL "/usr")
+        if(CMAKE_SYSTEM_NAME STREQUAL "FreeBSD" OR
+           CMAKE_SYSTEM_NAME STREQUAL "NetBSD" OR
+           CMAKE_SYSTEM_NAME STREQUAL "OpenBSD" OR
+           CMAKE_SYSTEM_NAME STREQUAL "DragonFly BSD" OR
+           CMAKE_SYSTEM_NAME STREQUAL "Linux")
+            #
+            # Platforms where the "native" C compiler is GCC or accepts
+            # compatible command-line arguments, and the "native" linker
+            # is the GNU linker or accepts compatible command-line
+            # arguments.
+            #
+            set(RPATH "-Wl,-rpath,\${libdir}")
+        elseif(CMAKE_SYSTEM_NAME STREQUAL "SunOS" AND CMAKE_SYSTEM_VERSION MATCHES "5[.][0-9.]*")
+            #
+            # SunOS 5.x.
+            #
+            # Sun/Oracle's linker, the GNU linker, and GNU-compatible
+            # linkers all support -R.
+            #
+            set(RPATH "-Wl,-R,\${libdir}")
+        else()
+            #
+            # No option needed to set the RPATH.
+            #
+            set(RPATH "")
+        endif()
     endif()
-    set(LIBS "")
-    foreach(LIB ${PCAP_LINK_LIBRARIES})
-        set(LIBS "${LIBS} -l${LIB}")
-    endforeach(LIB)
     configure_file(${CMAKE_CURRENT_SOURCE_DIR}/pcap-config.in ${CMAKE_CURRENT_BINARY_DIR}/pcap-config @ONLY)
     configure_file(${CMAKE_CURRENT_SOURCE_DIR}/libpcap.pc.in ${CMAKE_CURRENT_BINARY_DIR}/libpcap.pc @ONLY)
     install(PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/pcap-config DESTINATION bin)

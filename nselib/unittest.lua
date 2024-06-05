@@ -107,7 +107,6 @@ local libs = {
 "ospf",
 "outlib",
 "packet",
-"pcre",
 "pgsql",
 "pop3",
 "pppoe",
@@ -191,7 +190,7 @@ run_tests = function(to_test)
     stdnse.debug1("Testing %s", lib)
     local status, thelib = pcall(require, lib)
     if not status then
-      stdnse.debug1("Failed to load %s: %s", lib, thelib)
+      fails[lib] = ("Failed to load: %s"):format(thelib)
     else
       local failed = 0
       if rawget(thelib,"test_suite") ~= nil then
@@ -289,7 +288,11 @@ make_test = function(test, fmt)
     local nargs = select("#", ...)
     return function(suite)
       if not test(table.unpack(args,1,nargs)) then
-        return false, string.format(fmt, table.unpack(listop.map(nsedebug.tostr, args),1,nargs))
+        local dbgargs = {}
+        for i = 1, nargs do
+          dbgargs[i] = nsedebug.tostr(args[i]):gsub("\n*$", '')
+        end
+        return false, string.format(fmt, table.unpack(dbgargs,1,nargs))
       end
       return true
     end

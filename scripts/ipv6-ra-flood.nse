@@ -58,23 +58,12 @@ prerule = function()
     return false
   end
 
-  if not stdnse.get_script_args(SCRIPT_NAME .. ".interface") and not nmap.get_interface() then
-    stdnse.debug1("No interface was selected, aborting...")
-    return false
-  end
-
   return true
 end
 
-local function get_interface()
-  local arg_interface = stdnse.get_script_args(SCRIPT_NAME .. ".interface") or nmap.get_interface()
-
-  local if_table = nmap.get_interface_info(arg_interface)
-
-  if if_table and ipOps.ip_to_str(if_table.address) and if_table.link == "ethernet" then
+local function filter_interfaces(if_table)
+  if if_table.up == "up" and ipOps.ip_to_str(if_table.address) and if_table.link == "ethernet" then
     return if_table.device
-  else
-    stdnse.debug1("Interface %s not supported or not properly configured, exiting...", arg_interface)
   end
 end
 
@@ -191,7 +180,14 @@ local function broadcast_on_interface(iface)
 end
 
 function action()
-  local interface = get_interface()
+  local interface
+  local interfaces = stdnse.get_script_interfaces(filter_interfaces)
+  if #interfaces == 1 then
+    interface = interfaces[1]
+  else
+    stdnse.debug1("No interface was selected, aborting...")
+    return nil
+  end
 
   broadcast_on_interface(interface)
 end

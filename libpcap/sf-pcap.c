@@ -46,6 +46,7 @@
 #include <limits.h> /* for INT_MAX */
 
 #include "pcap-int.h"
+#include "pcap-util.h"
 
 #include "pcap-common.h"
 
@@ -70,6 +71,10 @@
 
 /*
  * Standard libpcap format.
+ *
+ * The same value is used in the rpcap protocol as an indication of
+ * the server byte order, to let the client know whether it needs to
+ * byte-swap some host-byte-order metadata.
  */
 #define TCPDUMP_MAGIC		0xa1b2c3d4
 
@@ -434,7 +439,7 @@ grow_buffer(pcap_t *p, u_int bufsize)
 
 /*
  * Read and return the next packet from the savefile.  Return the header
- * in hdr and a pointer to the contents in data.  Return 0 on success, 1
+ * in hdr and a pointer to the contents in data.  Return 1 on success, 0
  * if there were no more packets, and -1 on an error.
  */
 static int
@@ -467,7 +472,7 @@ pcap_next_packet(pcap_t *p, struct pcap_pkthdr *hdr, u_char **data)
 				return (-1);
 			}
 			/* EOF */
-			return (1);
+			return (0);
 		}
 	}
 
@@ -579,7 +584,7 @@ pcap_next_packet(pcap_t *p, struct pcap_pkthdr *hdr, u_char **data)
 		 * userland.
 		 *
 		 * However, perhaps some versions of libpcap failed to
-		 * set the snapshot length currectly in the file header
+		 * set the snapshot length correctly in the file header
 		 * or the per-packet header, or perhaps this is a
 		 * corrupted safefile or a savefile built/modified by a
 		 * fuzz tester, so we check anyway.  We grow the buffer
@@ -622,7 +627,7 @@ pcap_next_packet(pcap_t *p, struct pcap_pkthdr *hdr, u_char **data)
 				 * the read finished.
 				 */
 				snprintf(p->errbuf, PCAP_ERRBUF_SIZE,
-				    "truncated dump file; tried to read %u captured bytes, only got %zu",
+				    "truncated dump file; tried to read %d captured bytes, only got %zu",
 				    p->snapshot, amt_read);
 			}
 			return (-1);
@@ -706,10 +711,9 @@ pcap_next_packet(pcap_t *p, struct pcap_pkthdr *hdr, u_char **data)
 	}
 	*data = p->buffer;
 
-	if (p->swapped)
-		swap_pseudo_headers(p->linktype, hdr, *data);
+	pcap_post_process(p->linktype, p->swapped, hdr, *data);
 
-	return (0);
+	return (1);
 }
 
 static int
@@ -749,6 +753,24 @@ pcap_dump(u_char *user, const struct pcap_pkthdr *h, const u_char *sp)
 
 	f = (FILE *)user;
 	/*
+	 * If the output file handle is in an error state, don't write
+	 * anything.
+	 *
+	 * While in principle a file handle can return from an error state
+	 * to a normal state (for example if a disk that is full has space
+	 * freed), we have possibly left a broken file already, and won't
+	 * be able to clean it up. The safest option is to do nothing.
+	 *
+	 * Note that if we could guarantee that fwrite() was atomic we
+	 * might be able to insure that we don't produce a corrupted file,
+	 * but the standard defines fwrite() as a series of fputc() calls,
+	 * so we really have no insurance that things are not fubared.
+	 *
+	 * http://pubs.opengroup.org/onlinepubs/009695399/functions/fwrite.html
+	 */
+	if (ferror(f))
+		return;
+	/*
 	 * Better not try writing pcap files after
 	 * 2038-01-19 03:14:07 UTC; switch to pcapng.
 	 */
@@ -756,9 +778,17 @@ pcap_dump(u_char *user, const struct pcap_pkthdr *h, const u_char *sp)
 	sf_hdr.ts.tv_usec = (bpf_int32)h->ts.tv_usec;
 	sf_hdr.caplen     = h->caplen;
 	sf_hdr.len        = h->len;
-	/* XXX we should check the return status */
-	(void)fwrite(&sf_hdr, sizeof(sf_hdr), 1, f);
-	(void)fwrite(sp, h->caplen, 1, f);
+	/*
+	 * We only write the packet if we can write the header properly.
+	 *
+	 * This doesn't prevent us from having corrupted output, and if we
+	 * for some reason don't get a complete write we don't have any
+	 * way to set ferror() to prevent future writes from being
+	 * attempted, but it is better than nothing.
+	 */
+	if (fwrite(&sf_hdr, sizeof(sf_hdr), 1, f) == 1) {
+		(void)fwrite(sp, h->caplen, 1, f);
+	}
 }
 
 static pcap_dumper_t *

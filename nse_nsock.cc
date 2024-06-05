@@ -562,9 +562,12 @@ static int connect (lua_State *L, int status, lua_KContext ctx)
           dest->ai_addrlen, port);
       break;
     case SSL:
-      nu->proto = IPPROTO_TCP;
+      if (nu->proto != IPPROTO_UDP) {
+        // Assume TCP unless we're explicitly connecting to a UDP port
+        nu->proto = IPPROTO_TCP;
+      }
       nsock_connect_ssl(nsp, nu->nsiod, callback, nu->timeout, nu,
-          dest->ai_addr, dest->ai_addrlen, IPPROTO_TCP, port, nu->ssl_session);
+          dest->ai_addr, dest->ai_addrlen, nu->proto, port, nu->ssl_session);
       break;
   }
 

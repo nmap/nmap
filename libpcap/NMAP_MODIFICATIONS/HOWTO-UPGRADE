@@ -8,7 +8,7 @@ tar xzvf libpcap-X.Y.tar.gz
 cd nmap
 rsync -rv --delete ~/libpcap-X.Y/ ~/nmap/libpcap/
 # Remove some things we don't want to ship
-rm -rf ~/nmap/libpcap/{rpcapd,testprogs,doc}
+rm -rf ~/nmap/libpcap/{rpcapd,testprogs,doc,tests}
 # Apply patch to avoid those dirs
 git apply ~/NMAP_MODIFICATIONS/0002-Disable-unnecessary-features.patch
 git add -A libpcap

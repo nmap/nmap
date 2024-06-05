@@ -2,12 +2,12 @@
 .\"     Title: nmap
 .\"    Author: [FIXME: author] [see http://docbook.sf.net/el/author]
 .\" Generator: DocBook XSL Stylesheets v1.79.1 <http://docbook.sf.net/>
-.\"      Date: 08/31/2022
-.\"    Manual: [FIXME: manual]
-.\"    Source: [FIXME: source]
+.\"      Date: 05/17/2023
+.\"    Manual: Ghid de referinta Nmap
+.\"    Source: Nmap
 .\"  Language: Romanian
 .\"
-.TH "NMAP" "1" "08/31/2022" "[FIXME: source]" "[FIXME: manual]"
+.TH "NMAP" "1" "05/17/2023" "Nmap" "Ghid de referinta Nmap"
 .\" -----------------------------------------------------------------
 .\" * Define some portability stuff
 .\" -----------------------------------------------------------------
@@ -98,9 +98,8 @@ Cea mai noua versiune de Nmap poate fi obtinuta de la
 .PP
 Aceasta editie inlimba romana a Ghidului de referinta Nmap a fost tradus din versiunea 2991 a textului original aflat la
 \m[blue]\fBoriginal English version\fR\m[]\&\s-2\u[1]\d\s+2de Dan Catalin Vasile
-<hardware_cta@yahoo\&.com>\&. Traducerea a fost facuta cu scopul de a asigura o intelegere mai buna a functionalitatilor Nmap intai pentru autor si mai apoi pentru toti vorbitorii nativi de limba romana\&. Autorul traducerii nu va poate garanta faptul ca traducerea este la fel de completa cu versiunea actualizata in limba engleza\&. Acest produs poate fi modificat si redistribuit in conditiile stipulate de
-\m[blue]\fBCreative Commons Attribution License\fR\m[]\&\s-2\u[2]\d\s+2\&. Autorul traducerii va invita de asemenea pe primul site dedicat profesionistilor in securitate informatica din Romania:
-\m[blue]\fBITSecure\fR\m[]\&\s-2\u[3]\d\s+2\&.
+<danvasile@danvasile\&.com>\&. Traducerea a fost facuta cu scopul de a asigura o intelegere mai buna a functionalitatilor Nmap intai pentru autor si mai apoi pentru toti vorbitorii nativi de limba romana\&. Autorul traducerii nu va poate garanta faptul ca traducerea este la fel de completa cu versiunea actualizata in limba engleza\&. Acest produs poate fi modificat si redistribuit in conditiile stipulate de
+\m[blue]\fBCreative Commons Attribution License\fR\m[]\&\s-2\u[2]\d\s+2\&.
 .SH "SUMARUL OPTIUNILOR"
 .PP
 Acest sumar al optiunilor este printat cand Nmap este rulat fara nici un argument si ultima versiune este disponibila la
@@ -324,11 +323,11 @@ Principalul avantaj al acestui tip de scanare este ca poate trece de firewalluri
 .RS 4
 Pe langa tipurile de descoperire TCP si UDP uzuale discutate anterior, Nmap poate trimite pachete standard prin intermediul omniprezentului
 ping\&. Nmap un pachet ICMP de tipul 8 (solicitare de raspuns) catre adresa IP tinta, asteptand un pachet de tip 0 (raspuns) in schimb de la hosturile disponibile\&. Din pacate pentru exploratorii de retele, in zilele noastre multe hosturi si firewalluri blocheaza aceste pachete, in loc sa raspunda in conformitate cu
-\m[blue]\fBRFC1122\fR\m[]\&\s-2\u[4]\d\s+2\&. Din acest motiv scanarile ICMP simple sau rareori de incredere impotriva unor tinte necunoscute din Internet\&. Dar pentru administratorii de sistem care monitorizeaza o retea interna, ea poate fi o abordare practica si eficienta\&. Folositi optiunea
+\m[blue]\fBRFC1122\fR\m[]\&\s-2\u[3]\d\s+2\&. Din acest motiv scanarile ICMP simple sau rareori de incredere impotriva unor tinte necunoscute din Internet\&. Dar pentru administratorii de sistem care monitorizeaza o retea interna, ea poate fi o abordare practica si eficienta\&. Folositi optiunea
 \fB\-PE\fRpentru a activa acest comportament de solicitare a raspunsului\&.
 .sp
 Cu toate ca cererile de raspuns ICMP sunt standard, Nmap nu se opreste aici\&. Standardul ICMP (
-\m[blue]\fBRFC792\fR\m[]\&\s-2\u[5]\d\s+2) specifica de asemenea solicitarea amprentei de timp, a informatiilor si a mastii de retea corespunzatoare codurilor 13,15 si 17\&. Aceste solicitari au ca scop aflarea de informatii precum amprenta de timp sau masca de retea dar pot fi usor folosite si la descoperirea hosturilor\&. Un sistem care raspunde este disponibil\&. Nmap nu implementeaza inca solicitarea de informatii (15) deoarece acestea nu beneficiaza de o implementare la nivel larg\&. RFC 1122 insista ca
+\m[blue]\fBRFC792\fR\m[]\&\s-2\u[4]\d\s+2) specifica de asemenea solicitarea amprentei de timp, a informatiilor si a mastii de retea corespunzatoare codurilor 13,15 si 17\&. Aceste solicitari au ca scop aflarea de informatii precum amprenta de timp sau masca de retea dar pot fi usor folosite si la descoperirea hosturilor\&. Un sistem care raspunde este disponibil\&. Nmap nu implementeaza inca solicitarea de informatii (15) deoarece acestea nu beneficiaza de o implementare la nivel larg\&. RFC 1122 insista ca
 „un host NU TREBUIE sa implmenteze aceste mesaje\(rq\&. Solicitarile de amprenta de timp si masca de retea pot fi trimise cu ajutorul optiunilor
 \fB\-PP\fR, respectiv
 \fB\-PM\fR\&. Un raspuns amprenta de timp (ICMP cod 14) sau un raspuns masca de retea (cod 18) dezvaluie un host disponibil\&. Aceste doua interogari pot fi de folos cand administratorul de retea blocheaza pingul ICMP standard uitand faptul ca si celelalte solicitari ICMP pot fi folosite in acelasi scop\&.
@@ -442,7 +441,7 @@ connect()cu pachete brute, facandu\-l mai putin eficient\&. Apelul de sistem com
 \fB\-sU\fR(Scanare UDP)
 .RS 4
 In tim ce multe servicii in Internet ruleaza prin protocolul TCP, serviciile
-\m[blue]\fBUDP\fR\m[]\&\s-2\u[6]\d\s+2sunt si ele raspandite\&. DNS, SNMP si DHCP (porturile inregistrate 53, 161/162 si 67/68) sunt trei dintre cele mai comune\&. Deoarece scanarea UDP este in general lenta si mai dificila decat TCP, unii auditori de securitate ignora aceste porturi\&. Aceasta este o greseala, deoarece serviciile UDP exploatabile sunt destul de cunoscute si atacatorii cu siguranta nu vor ignora un intreg protocol\&. Din fericire, Nmap poate ajuta la inventarierea porturilor UDP\&.
+\m[blue]\fBUDP\fR\m[]\&\s-2\u[5]\d\s+2sunt si ele raspandite\&. DNS, SNMP si DHCP (porturile inregistrate 53, 161/162 si 67/68) sunt trei dintre cele mai comune\&. Deoarece scanarea UDP este in general lenta si mai dificila decat TCP, unii auditori de securitate ignora aceste porturi\&. Aceasta este o greseala, deoarece serviciile UDP exploatabile sunt destul de cunoscute si atacatorii cu siguranta nu vor ignora un intreg protocol\&. Din fericire, Nmap poate ajuta la inventarierea porturilor UDP\&.
 .sp
 Scanarea UDP este acivata cu optiunea
 \fB\-sU\fR\&. Poate fi combinata cu o scanare TCP cum ar fi scanrea SYN (
@@ -466,7 +465,7 @@ Nmap detecteaza rata de limitare si incetineste scanarea in conformitate cu acea
 .RS 4
 Aceste trei tipuri de scanare (chiar si mai multe posibile folosind optiunea
 \fB\-\-scanflags\fRdescrisa in aceasta sectiune) exploateaza o portita din
-\m[blue]\fBTCP RFC\fR\m[]\&\s-2\u[7]\d\s+2pentru a diferentia intre porturile
+\m[blue]\fBTCP RFC\fR\m[]\&\s-2\u[6]\d\s+2pentru a diferentia intre porturile
 deschise (open)si cele
 inchise (closed)\&. Pagina 65 spune ca
 „daca starea portului [destinatie] este INCHIS \&.\&.\&. un segment de intrare care nu contine un RST face ca un raspuns RST sa fie trimis inapoi\(rqIn urmatoarea pagina se discuta pachetele trimise catre porturile deschise fara bitii SYN, RST sau ACK setati, specificand ca:
@@ -588,7 +587,7 @@ deschis|filtrat (open|filtered)
 \fB\-b <host ftp de intermediere>\fR(Scanare FTP sarita)
 .RS 4
 Un aspect interesant al protocolului FTP (
-\m[blue]\fBRFC 959\fR\m[]\&\s-2\u[8]\d\s+2) este suportul pentru asa numitele conexiuni proxy ftp\&. Acesta permite utilizatorului conectarea la un server FTP si apoi solicitarea ca anumite fisiere sa fie trimise pe un al alt server\&. O astfel de functionalitate poate fi folosita pentru abuzuri asa ca multe servere au incetat sa o mai suporte\&. Unul dintre aceste abuzuri face ca serverul FTP sa scaneze alte hosturi\&. Cereti serverului sa trimita un fisier la fiecare port al masinii tinta\&. Mesajul de eroare va descrie daca portul este inchis sau deschis\&. Este o buna modalitate de a sari un firewall deoarece FTPurile sunt adesea plasate in zone cu acces la reteaua interna\&. Nmap suporta scanarea ftp sarita prin optiunea
+\m[blue]\fBRFC 959\fR\m[]\&\s-2\u[7]\d\s+2) este suportul pentru asa numitele conexiuni proxy ftp\&. Acesta permite utilizatorului conectarea la un server FTP si apoi solicitarea ca anumite fisiere sa fie trimise pe un al alt server\&. O astfel de functionalitate poate fi folosita pentru abuzuri asa ca multe servere au incetat sa o mai suporte\&. Unul dintre aceste abuzuri face ca serverul FTP sa scaneze alte hosturi\&. Cereti serverului sa trimita un fisier la fiecare port al masinii tinta\&. Mesajul de eroare va descrie daca portul este inchis sau deschis\&. Este o buna modalitate de a sari un firewall deoarece FTPurile sunt adesea plasate in zone cu acces la reteaua interna\&. Nmap suporta scanarea ftp sarita prin optiunea
 \fB\-b\fR\&. Preia un argument de forma
 \fInumeutilizator\fR:
 \fIparola\fR@
@@ -995,11 +994,11 @@ formatul interactiv\&.
 .RS 4
 Cere ca
 formatul XMLsa fie directionat catre fisierul specificat\&. Nmap include o definitie a tipului de document (DTD) care permite analizatoarelor XML sa valideze fisierele cu rezultate in format XML\&. Desi este in principal folosit in programare, el poate ajuta si oamenii sa interpreteze rezultatele\&. DTD defineste elementele legale ale formatului si adesea enumera atributele si valorile pe care le pot lua\&. Ultima versiune este intotdeauna disponibila la
-\m[blue]\m[]\&\s-2\u[9]\d\s+2\&.
+\m[blue]\m[]\&\s-2\u[8]\d\s+2\&.
 .sp
 XML ofera un format stabil care este usor interpretat de software\&. Analizatoare XML sunt disponibile pentru majoritate limbajelor de programare, incluzand C/C++, Perl, Python si Java\&. Oamenii au scris programe pentru majoritatea acestor limbaje care interpreteaza direct rezultatele Nmap\&. Exemplele sunt
-\m[blue]\fBNmap::Scanner\fR\m[]\&\s-2\u[10]\d\s+2si
-\m[blue]\fBNmap::Parser\fR\m[]\&\s-2\u[11]\d\s+2in Perl CPAN\&. In majoritatea cazurilor in care o aplicatie interfereaza cu Nmap, XML este formatul preferat\&.
+\m[blue]\fBNmap::Scanner\fR\m[]\&\s-2\u[9]\d\s+2si
+\m[blue]\fBNmap::Parser\fR\m[]\&\s-2\u[10]\d\s+2in Perl CPAN\&. In majoritatea cazurilor in care o aplicatie interfereaza cu Nmap, XML este formatul preferat\&.
 .sp
 Formatul XML referentiaza un format de pagina XSL care poate fi folosit pentru convertirea rezultatelor in HTML\&. Cea mai usoara cale de a realiza acest lucru o reprezinta simpla incarcare a fisierului XML intr\-un browser cum ar fi Firefox sau IE\&. Implicit, acest lucru functioneaza doar pe masinile pe care rulati Nmap (sau pe cele configurate similar) din cauza caii fisierului
 nmap\&.xsl\&. Folositi optiunile
@@ -1040,7 +1039,7 @@ informatii SunRPC, si
 Informatii despre versiune\&.
 .sp
 Ca si pentru formaul XML, aceasta pagina man nu permite documentarea intregului format\&. O detaliere a formatului pentru comanda grep este disponibila la
-\m[blue]\m[]\&\s-2\u[12]\d\s+2\&.
+\m[blue]\m[]\&\s-2\u[11]\d\s+2\&.
 .RE
 .PP
 \fB\-oA <nume_de_baza>\fR(Scrie in toate formatele)
@@ -1284,15 +1283,15 @@ Fyodor
 .PP
 Sute de oameni au facut contributii importante la Nmap de\-a lungul timpului\&. Ei sunt mentionati in fisierul
 CHANGELOGdistribuit cu Nmap si disponibil la
-\m[blue]\m[]\&\s-2\u[13]\d\s+2\&.
+\m[blue]\m[]\&\s-2\u[12]\d\s+2\&.
 .SH "ASPECTE LEGALE"
 .SS "Unofficial Translation Disclaimer / Disculparea fata de traducerea neoficiala"
 .PP
 This is an unnofficial translation of the
-\m[blue]\fBNmap license details\fR\m[]\&\s-2\u[14]\d\s+2into Romanian\&. It was not written by Insecure\&.Com LLC, and does not legally state the distribution terms for Nmap \-\- only the original English text does that\&. However, we hope that this translation helps Romanian speakers understand the Nmap license better\&.
+\m[blue]\fBNmap license details\fR\m[]\&\s-2\u[13]\d\s+2into Romanian\&. It was not written by Insecure\&.Com LLC, and does not legally state the distribution terms for Nmap \-\- only the original English text does that\&. However, we hope that this translation helps Romanian speakers understand the Nmap license better\&.
 .PP
 Aceasta este traducerea neoficiala a
-\m[blue]\fBdetaliilor de licenta ale Nmap\fR\m[]\&\s-2\u[14]\d\s+2in limba romana\&. Nu a fost scrisa de Insecure\&.Com LLC si nu statueaza in mod legal termenii distributiei Nmap – numai textul original in limba engleza realizeaza acest lucru\&. Oricum speram ca aceasta traducere sa ajute vorbitorii de limba romana sa inteleaga termenii licentei Nmap mai bine\&.
+\m[blue]\fBdetaliilor de licenta ale Nmap\fR\m[]\&\s-2\u[13]\d\s+2in limba romana\&. Nu a fost scrisa de Insecure\&.Com LLC si nu statueaza in mod legal termenii distributiei Nmap – numai textul original in limba engleza realizeaza acest lucru\&. Oricum speram ca aceasta traducere sa ajute vorbitorii de limba romana sa inteleaga termenii licentei Nmap mai bine\&.
 .SS "Dreptul de autor si licentiere"
 .PP
 Scanerul de securitate Nmap este (C) 1996\-2005 a Insecure\&.Com LLC\&. Nmap este marca inregistrata a Insecure\&.Com LLC\&. Acest program este software liber; il puteti redistribui si/sau modifica sub termenii Licentei Publice Generale (GNU General Public License) asa cum este publicata de Free Software Foundation; Versiunea 2\&. Aceasta va garanteaza dreptul de folosire, modificare si redistribuire sub anumite conditii\&. Daca doriti sa incorporati tehnologie Nmap in software proprietar, suntem dispusi sa vindem licente alternative (contact
@@ -1394,12 +1393,12 @@ Din ratiuni de securitate Nmap nu ar trebui instalat niciodata cu privilegii spe
 .SS "Software de la terti"
 .PP
 Acest produs iclude software dezvoltat de
-\m[blue]\fBApache Software Foundation\fR\m[]\&\s-2\u[15]\d\s+2\&. O versiune modificata a
-\m[blue]\fBbibliotecii de captura a pachetelor Libpcapportable\fR\m[]\&\s-2\u[16]\d\s+2este distribuita impreuna cu Nmap\&. Versiunea de Windows a Nmap utilizeaza biblioteca derivata din libpcap,
-\m[blue]\fBWinPcap\fR\m[]\&\s-2\u[17]\d\s+2\&. Suportul pentru expresiile regulate este furnizat de
-\m[blue]\fBPCRE library\fR\m[]\&\s-2\u[18]\d\s+2, software open source, scris de Philip Hazel\&. Anumite functii brute de retea folosesc biblioteca
-\m[blue]\fBLibdnet\fR\m[]\&\s-2\u[19]\d\s+2, scrisa de Dug Song\&. O versiune modificata este distribuita cu Nmap\&. Optional Nmap se poate lega de
-\m[blue]\fBTrusa criptografica OpenSSL\fR\m[]\&\s-2\u[20]\d\s+2pentru suportul de detectare a versiunii SSL\&. Toate softurile de la terti descrise in acest paragraf sunt redistribuibile gratuit sub licente de tipul BSD\&.
+\m[blue]\fBApache Software Foundation\fR\m[]\&\s-2\u[14]\d\s+2\&. O versiune modificata a
+\m[blue]\fBbibliotecii de captura a pachetelor Libpcapportable\fR\m[]\&\s-2\u[15]\d\s+2este distribuita impreuna cu Nmap\&. Versiunea de Windows a Nmap utilizeaza biblioteca derivata din libpcap,
+\m[blue]\fBWinPcap\fR\m[]\&\s-2\u[16]\d\s+2\&. Suportul pentru expresiile regulate este furnizat de
+\m[blue]\fBPCRE library\fR\m[]\&\s-2\u[17]\d\s+2, software open source, scris de Philip Hazel\&. Anumite functii brute de retea folosesc biblioteca
+\m[blue]\fBLibdnet\fR\m[]\&\s-2\u[18]\d\s+2, scrisa de Dug Song\&. O versiune modificata este distribuita cu Nmap\&. Optional Nmap se poate lega de
+\m[blue]\fBTrusa criptografica OpenSSL\fR\m[]\&\s-2\u[19]\d\s+2pentru suportul de detectare a versiunii SSL\&. Toate softurile de la terti descrise in acest paragraf sunt redistribuibile gratuit sub licente de tipul BSD\&.
 .SS "Clasificarea de control al exportului din SUA"
 .PP
 Clasificarea de control al exportului din SUA: Insecure\&.Com LLC considera ca Nmap cade sub incidenta US ECCN (numarul de control al clasificarii de export) 5D992\&. Aceasta categorie este denumita
@@ -1416,88 +1415,83 @@ Creative Commons Attribution License
 \%http://creativecommons.org/licenses/by/2.5/
 .RE
 .IP " 3." 4
-ITSecure
-.RS 4
-\%http://www.itsecure.ro
-.RE
-.IP " 4." 4
 RFC1122
 .RS 4
 \%http://www.rfc-editor.org/rfc/rfc1122.txt
 .RE
-.IP " 5." 4
+.IP " 4." 4
 RFC792
 .RS 4
 \%http://www.rfc-editor.org/rfc/rfc792.txt
 .RE
-.IP " 6." 4
+.IP " 5." 4
 UDP
 .RS 4
 \%http://www.rfc-editor.org/rfc/rfc768.txt
 .RE
-.IP " 7." 4
+.IP " 6." 4
 TCP RFC
 .RS 4
 \%http://www.rfc-editor.org/rfc/rfc793.txt
 .RE
-.IP " 8." 4
+.IP " 7." 4
 RFC 959
 .RS 4
 \%http://www.rfc-editor.org/rfc/rfc959.txt
 .RE
-.IP " 9." 4
+.IP " 8." 4
 .RS 4
 \%https://nmap.org/data/nmap.dtd
 .RE
-.IP "10." 4
+.IP " 9." 4
 Nmap::Scanner
 .RS 4
 \%http://sourceforge.net/projects/nmap-scanner/
 .RE
-.IP "11." 4
+.IP "10." 4
 Nmap::Parser
 .RS 4
 \%http://www.nmapparser.com
 .RE
-.IP "12." 4
+.IP "11." 4
 .RS 4
 \%http://www.unspecific.com/nmap-oG-output
 .RE
-.IP "13." 4
+.IP "12." 4
 .RS 4
 \%https://nmap.org/nmap_changelog.html
 .RE
-.IP "14." 4
+.IP "13." 4
 Nmap license details
 .RS 4
 \%https://nmap.org/man/man-legal.html
 .RE
-.IP "15." 4
+.IP "14." 4
 Apache Software Foundation
 .RS 4
 \%http://www.apache.org
 .RE
-.IP "16." 4
+.IP "15." 4
 bibliotecii de captura a pachetelor Libpcapportable
 .RS 4
 \%http://www.tcpdump.org
 .RE
-.IP "17." 4
+.IP "16." 4
 WinPcap
 .RS 4
 \%http://www.winpcap.org
 .RE
-.IP "18." 4
+.IP "17." 4
 PCRE library
 .RS 4
 \%http://www.pcre.org
 .RE
-.IP "19." 4
+.IP "18." 4
 Libdnet
 .RS 4
 \%http://libdnet.sourceforge.net
 .RE
-.IP "20." 4
+.IP "19." 4
 Trusa criptografica OpenSSL
 .RS 4
 \%http://www.openssl.org

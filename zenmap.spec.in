@@ -26,7 +26,8 @@ BuildArch: noarch
 # modules were installed so it's not dependent on any particular ABI.
 AutoReqProv: no
 BuildRequires: python3-devel
-Requires: python >= 3.0, nmap, python-gobject, gtk3
+Requires: python3 >= 3.0, nmap, python3-gobject, gtk3
+%global debug_package %{nil}
 
 Prefix: %{_prefix}
 BuildRoot: %{_tmppath}/%{name}-root
@@ -55,7 +56,7 @@ from Umit, an Nmap GUI created as part of the Google Summer of Code.
 	    --infodir=%{_prefix}/share/info \
 	    --sysconfdir=%{_sysconfdir} \
 	    --without-openssl \
-	    --with-zenmap PYTHON="%{__python}"
+	    --with-zenmap # PYTHON="%{__python}"
 make build-zenmap DESTDIR=$RPM_BUILD_ROOT
 
 %install
@@ -75,8 +76,10 @@ gzip $RPM_BUILD_ROOT%{_mandir}/man1/* || :
 %{_bindir}/nmapfe
 %{_bindir}/xnmap
 # This gets the modules and the .egg-info file if it was installed.
-%pycached %{python3_sitelib}/*
-%{_datadir}/zenmap
+%{python3_sitelib}/zenmapGUI/
+%{python3_sitelib}/zenmapCore/
+%{python3_sitelib}/radialnet/
+%{python3_sitelib}/zenmap-*.dist-info/
 %{_datadir}/applications/*.desktop
 
 %changelog

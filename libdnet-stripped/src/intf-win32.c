@@ -49,24 +49,29 @@ struct intf_handle {
 static char *
 _ifcombo_name(int type)
 {
-	char *name = "eth";	/* XXX */
+	char *name = NULL;
 	
-	if (type == IF_TYPE_ISO88025_TOKENRING) {
-		name = "tr";
-	} else if (type == IF_TYPE_PPP) {
-		name = "ppp";
-	} else if (type == IF_TYPE_SOFTWARE_LOOPBACK) {
-		name = "lo";
-	} else if (type == IF_TYPE_TUNNEL) {
-		name = "tun";
+	switch (type) {
+		case IF_TYPE_ETHERNET_CSMACD:
+		case IF_TYPE_IEEE80211:
+			name = "eth";
+			break;
+		case IF_TYPE_ISO88025_TOKENRING:
+			name = "tr";
+			break;
+		case IF_TYPE_PPP:
+			name = "ppp";
+			break;
+		case IF_TYPE_SOFTWARE_LOOPBACK:
+			name = "lo";
+			break;
+		case IF_TYPE_TUNNEL:
+			name = "tun";
+			break;
+		default:
+			name = "unk";
+			break;
 	}
-	/*
-		IF_TYPE_OTHER
-		IF_TYPE_ETHERNET_CSMACD
-		IF_TYPE_ATM
-		IF_TYPE_IEEE80211
-		IF_TYPE_IEEE1394
-	*/
 	return (name);
 }
 

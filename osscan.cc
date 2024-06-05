@@ -5,60 +5,59 @@
  * https://nmap.org/osdetect/                                               *
  *                                                                         *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
- *                                                                         *
- * The Nmap Security Scanner is (C) 1996-2022 Nmap Software LLC ("The Nmap *
- * Project"). Nmap is also a registered trademark of the Nmap Project.     *
- *                                                                         *
- * This program is distributed under the terms of the Nmap Public Source   *
- * License (NPSL). The exact license text applying to a particular Nmap    *
- * release or source code control revision is contained in the LICENSE     *
- * file distributed with that version of Nmap or source code control       *
- * revision. More Nmap copyright/legal information is available from       *
- * https://nmap.org/book/man-legal.html, and further information on the    *
- * NPSL license itself can be found at https://nmap.org/npsl/ . This       *
- * header summarizes some key points from the Nmap license, but is no      *
- * substitute for the actual license text.                                 *
- *                                                                         *
- * Nmap is generally free for end users to download and use themselves,    *
- * including commercial use. It is available from https://nmap.org.        *
- *                                                                         *
- * The Nmap license generally prohibits companies from using and           *
- * redistributing Nmap in commercial products, but we sell a special Nmap  *
- * OEM Edition with a more permissive license and special features for     *
- * this purpose. See https://nmap.org/oem/                                 *
- *                                                                         *
- * If you have received a written Nmap license agreement or contract       *
- * stating terms other than these (such as an Nmap OEM license), you may   *
- * choose to use and redistribute Nmap under those terms instead.          *
- *                                                                         *
- * The official Nmap Windows builds include the Npcap software             *
- * (https://npcap.com) for packet capture and transmission. It is under    *
- * separate license terms which forbid redistribution without special      *
- * permission. So the official Nmap Windows builds may not be              *
- * redistributed without special permission (such as an Nmap OEM           *
- * license).                                                               *
- *                                                                         *
- * Source is provided to this software because we believe users have a     *
- * right to know exactly what a program is going to do before they run it. *
- * This also allows you to audit the software for security holes.          *
- *                                                                         *
- * Source code also allows you to port Nmap to new platforms, fix bugs,    *
- * and add new features.  You are highly encouraged to submit your         *
- * changes as a Github PR or by email to the dev@nmap.org mailing list     *
- * for possible incorporation into the main distribution. Unless you       *
- * specify otherwise, it is understood that you are offering us very       *
- * broad rights to use your submissions as described in the Nmap Public    *
- * Source License Contributor Agreement. This is important because we      *
- * fund the project by selling licenses with various terms, and also       *
- * because the inability to relicense code has caused devastating          *
- * problems for other Free Software projects (such as KDE and NASM).       *
- *                                                                         *
- * The free version of Nmap is distributed in the hope that it will be     *
- * useful, but WITHOUT ANY WARRANTY; without even the implied warranty of  *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. Warranties,        *
- * indemnification and commercial support are all available through the    *
- * Npcap OEM program--see https://nmap.org/oem/                            *
- *                                                                         *
+ *
+ * The Nmap Security Scanner is (C) 1996-2024 Nmap Software LLC ("The Nmap
+ * Project"). Nmap is also a registered trademark of the Nmap Project.
+ *
+ * This program is distributed under the terms of the Nmap Public Source
+ * License (NPSL). The exact license text applying to a particular Nmap
+ * release or source code control revision is contained in the LICENSE
+ * file distributed with that version of Nmap or source code control
+ * revision. More Nmap copyright/legal information is available from
+ * https://nmap.org/book/man-legal.html, and further information on the
+ * NPSL license itself can be found at https://nmap.org/npsl/ . This
+ * header summarizes some key points from the Nmap license, but is no
+ * substitute for the actual license text.
+ *
+ * Nmap is generally free for end users to download and use themselves,
+ * including commercial use. It is available from https://nmap.org.
+ *
+ * The Nmap license generally prohibits companies from using and
+ * redistributing Nmap in commercial products, but we sell a special Nmap
+ * OEM Edition with a more permissive license and special features for
+ * this purpose. See https://nmap.org/oem/
+ *
+ * If you have received a written Nmap license agreement or contract
+ * stating terms other than these (such as an Nmap OEM license), you may
+ * choose to use and redistribute Nmap under those terms instead.
+ *
+ * The official Nmap Windows builds include the Npcap software
+ * (https://npcap.com) for packet capture and transmission. It is under
+ * separate license terms which forbid redistribution without special
+ * permission. So the official Nmap Windows builds may not be redistributed
+ * without special permission (such as an Nmap OEM license).
+ *
+ * Source is provided to this software because we believe users have a
+ * right to know exactly what a program is going to do before they run it.
+ * This also allows you to audit the software for security holes.
+ *
+ * Source code also allows you to port Nmap to new platforms, fix bugs, and
+ * add new features. You are highly encouraged to submit your changes as a
+ * Github PR or by email to the dev@nmap.org mailing list for possible
+ * incorporation into the main distribution. Unless you specify otherwise, it
+ * is understood that you are offering us very broad rights to use your
+ * submissions as described in the Nmap Public Source License Contributor
+ * Agreement. This is important because we fund the project by selling licenses
+ * with various terms, and also because the inability to relicense code has
+ * caused devastating problems for other Free Software projects (such as KDE
+ * and NASM).
+ *
+ * The free version of Nmap is distributed in the hope that it will be
+ * useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. Warranties,
+ * indemnification and commercial support are all available through the
+ * Npcap OEM program--see https://nmap.org/oem/
+ *
  ***************************************************************************/
 
 /* $Id$ */
@@ -294,44 +293,150 @@ void FingerPrint::erase() {
      | (or)
      - (range)
    No parentheses are allowed. */
-static bool expr_match(const char *val, const char *expr) {
+bool expr_match(const char *val, size_t vlen, const char *expr, size_t explen, bool do_nested) {
   const char *p, *q, *q1;  /* OHHHH YEEEAAAAAHHHH!#!@#$!% */
-  char *endptr;
-  unsigned int val_num, expr_num, expr_num1;
-  bool is_numeric;
+  if (vlen == 0)
+    vlen = strlen(val);
+  if (explen == 0)
+    explen = strlen(expr);
+
+  // If both are empty, match; else if either is empty, no match.
+  if (explen == 0) {
+    return vlen == 0;
+  }
 
   p = expr;
+  const char * const p_end = p + explen;
 
-  val_num = strtol(val, &endptr, 16);
-  is_numeric = !*endptr;
-  // TODO: this could be a lot faster if we compiled fingerprints to a bytecode
-  // instead of re-parsing every time.
   do {
-    q = strchr(p, '|');
-    if (is_numeric && (*p == '<' || *p == '>')) {
-      expr_num = strtol(p + 1, &endptr, 16);
-      if (endptr == q || !*endptr) {
-        if ((*p == '<' && val_num < expr_num)
-            || (*p == '>' && val_num > expr_num)) {
-          return true;
-        }
-      }
-    } else if (is_numeric && ((q1 = strchr(p, '-')) != NULL)) {
-      expr_num = strtol(p, &endptr, 16);
-      if (endptr == q1) {
-        expr_num1 = strtol(q1 + 1, &endptr, 16);
-        if (endptr == q || !*endptr) {
-          assert(expr_num1 > expr_num);
-          if (val_num >= expr_num && val_num <= expr_num1) {
-            return true;
-          }
-        }
-      }
-    } else {
-      if ((q && !strncmp(p, val, q - p)) || (!q && !strcmp(p, val))) {
+    const char *nest = NULL; // where the [] nested expr starts
+    const char *subval = val; // portion of val after previous nest and before the next one
+    size_t sublen; // length of subval not subject to nested matching
+    q = strchr_p(p, p_end, '|');
+    nest = strchr_p(p, q ? q : p_end, '[');
+
+    if (vlen == 0) {
+      // value is empty, so can only match an empty expression
+      if (q == p || p == p_end ) {
+        // expression is also empty, match
         return true;
       }
+      else if (!nest) {
+        // simple expression before '|', no match.
+        goto next_expr;
+      }
+      // other short-circuit may be possible here, but drop to nesting logic
+      // below to avoid confusion/bugs
     }
+
+    // if we're already in a nested expr, we skip this and just match as usual.
+    if (do_nested && nest) {
+      // As long as we keep finding nested portions, e.g. M[>500]ST11W[1-5]
+      while (nest) {
+        q1 = strchr_p(nest, p_end, ']');
+        assert(q1);
+        if (q && q < q1) {
+          // "AB[C|D]E|XYZ"
+          q = strchr_p(q1, p_end, '|');
+        }
+        // "AB[C-D]E" or  or "AB[C-D]E|F"
+        sublen = nest - p;
+        //fprintf(stderr, "subcmp(%-.*s, %-.*s)\n", sublen, p, sublen, subval);
+        if (strncmp(p, subval, sublen) != 0) {
+          goto next_expr;
+        }
+        nest++;
+        subval += sublen;
+        size_t nlen = 0;
+        while (isxdigit(subval[nlen])) {
+          nlen++;
+        }
+        p = q1 + 1;
+        //fprintf(stderr, "nest: %-.*s cmp %-.*s\n", nlen, subval, q1 - nest, nest);
+        if (nlen > 0 && expr_match(subval, nlen, nest, q1 - nest, false)) {
+          subval += nlen;
+          nest = strchr_p(p, q ? q : p_end, '[');
+        }
+        else {
+          goto next_expr;
+        }
+      }
+      // No more nested portions. string match the rest:
+      sublen = vlen - (subval - val);
+      if ((explen - (p - expr)) == sublen && !strncmp(subval, p, sublen)) {
+        return true;
+      }
+      else {
+        goto next_expr;
+      }
+    }
+    // Now sublen is the length of the relevant portion of expr
+    sublen = q ? q - p : explen - (p - expr);
+    if (isxdigit(*subval)) {
+      while (*subval == '0' && vlen > 1) {
+        subval++;
+        vlen--;
+      }
+      if (*p == '>') {
+        do {
+          p++;
+          sublen--;
+        } while (*p == '0' && sublen > 1);
+        if ((vlen > sublen)
+            || (vlen == sublen && strncmp(subval, p, vlen) > 0)) {
+          return true;
+        }
+        goto next_expr;
+      }
+      else if (*p == '<') {
+        do {
+          p++;
+          sublen--;
+        } while (*p == '0' && sublen > 1);
+        if ((vlen < sublen)
+            || (vlen == sublen && strncmp(subval, p, vlen) < 0)) {
+          return true;
+        }
+        goto next_expr;
+      }
+      else if (isxdigit(*p)) {
+        while (sublen > 1 && *p == '0') {
+          p++;
+          sublen--;
+        }
+        q1 = strchr_p(p, q ? q : p_end, '-');
+        if (q1 != NULL) {
+          if (q1 == p) {
+            p--;
+            sublen++;
+          }
+          size_t sublen1 = q1 - p;
+          if ((vlen > sublen1)
+              || (vlen == sublen1 && strncmp(subval, p, vlen) >= 0)) {
+            p = q1 + 1;
+            sublen -= (sublen1 + 1);
+            while (sublen > 1 && *p == '0') {
+              p++;
+              sublen--;
+            }
+            if ((vlen < sublen)
+                || (vlen == sublen && strncmp(subval, p, vlen) <= 0)) {
+              return true;
+            }
+          }
+          goto next_expr;
+        }
+      }
+      else {
+        // subval isxdigit, but expr doesn't start with xdigit or < or >
+        goto next_expr;
+      }
+    }
+    //fprintf(stderr, "cmp(%-.*s, %-.*s)\n", sublen, p, vlen, subval);
+    if (vlen == sublen && !strncmp(p, subval, vlen)) {
+      return true;
+    }
+    next_expr:
     if (q)
       p = q + 1;
   } while (q);
@@ -339,28 +444,19 @@ static bool expr_match(const char *val, const char *expr) {
   return false;
 }
 
-/* Returns true if perfect match -- if num_subtests &
-   num_subtests_succeeded are non_null it ADDS THE NEW VALUES to what
-   is already there.  So initialize them to zero first if you only
-   want to see the results from this match.  if shortcircuit is zero,
-   it does all the tests, otherwise it returns when the first one
-   fails.  If you want details of the match process printed, pass n
-   onzero for 'verbose'.  If points is non-null, it is examined to
-   find the number of points for each test in the fprint AVal and use
-   that the increment num_subtests and num_subtests_succeeded
-   appropriately.  If it is NULL, each test is worth 1 point.  In that
-   case, you may also pass in the group name (SEQ, T1, etc) to have
-   that extra info printed.  If you pass 0 for verbose, you might as
-   well pass NULL for testGroupName as it won't be used. */
-static int AVal_match(const FingerTest &reference, const FingerTest &fprint, const FingerTestDef &points,
-                      unsigned long *num_subtests,
-                      unsigned long *num_subtests_succeeded, int shortcut,
+/* Updates num_subtests and num_subtests_succeeded for a given FingerTest.
+   If you want details of the match process printed, pass nonzero for 'verbose'.
+   */
+static void AVal_match(const FingerTest &reference, const FingerTest &fprint, const FingerTestDef &points,
+                      unsigned long &num_subtests,
+                      unsigned long &num_subtests_succeeded,
                       int verbose) {
   int subtests = 0, subtests_succeeded=0;
   if (!reference.results || !fprint.results)
-    return 0;
+    return;
 
   const std::vector<Attr> &pointsV = points.Attrs;
+  bool tcp_opt_match = points.name == "OPS";
 
   const std::vector<const char *> &refV = *reference.results;
   assert(refV.size() == points.numAttrs);
@@ -379,26 +475,17 @@ static int AVal_match(const FingerTest &reference, const FingerTest &fprint, con
       fatal("%s: Got bogus point amount (%d) for test %s.%s", __func__, pointsThisTest, points.name.str, aDef.name.str);
     subtests += pointsThisTest;
 
-    if (expr_match(current_fp, current_ref)) {
+    if (expr_match(current_fp, 0, current_ref, 0, tcp_opt_match || aDef.name == "O")) {
       subtests_succeeded += pointsThisTest;
     } else {
-      if (shortcut) {
-        if (num_subtests)
-          *num_subtests += subtests;
-        return 0;
-      }
       if (verbose)
         log_write(LOG_PLAIN, "%s.%s: \"%s\" NOMATCH \"%s\" (%d %s)\n", points.name.str,
             aDef.name.str, current_fp,
             current_ref, pointsThisTest, (pointsThisTest == 1) ? "point" : "points");
     }
   }
-  if (num_subtests)
-    *num_subtests += subtests;
-  if (num_subtests_succeeded)
-    *num_subtests_succeeded += subtests_succeeded;
-
-  return (subtests == subtests_succeeded) ? 1 : 0;
+  num_subtests += subtests;
+  num_subtests_succeeded += subtests_succeeded;
 }
 
 /* Compares 2 fingerprints -- a referenceFP (can have expression
@@ -420,13 +507,9 @@ double compare_fingerprints(const FingerPrint *referenceFP, const FingerPrint *o
     const FingerTest &current_fp = observedFP->tests[i];
     const FingerTestDef &points = MatchPoints->getTestDef(INT2ID(i));
 
-    unsigned long new_subtests = 0, new_subtests_succeeded = 0;
-
     AVal_match(current_ref, current_fp, points,
-        &new_subtests, &new_subtests_succeeded, 0, verbose);
-    num_subtests += new_subtests;
-    num_subtests_succeeded += new_subtests_succeeded;
-    if (num_subtests - num_subtests_succeeded > max_mismatch) {
+        num_subtests, num_subtests_succeeded, verbose);
+    if (!verbose && num_subtests - num_subtests_succeeded > max_mismatch) {
       break;
     }
   }
@@ -448,7 +531,6 @@ void match_fingerprint(const FingerPrint *FP, FingerPrintResultsIPv4 *FPR,
                                                            to be added to the
                                                            list */
   std::vector<FingerPrint *>::const_iterator current_os;
-  FingerPrint FP_copy;
   double acc;
   int state;
   int skipfp;
@@ -461,14 +543,12 @@ void match_fingerprint(const FingerPrint *FP, FingerPrintResultsIPv4 *FPR,
   assert(FPR);
   assert(accuracy_threshold >= 0 && accuracy_threshold <= 1);
 
-  FP_copy = *FP;
-
   FPR->overall_results = OSSCAN_SUCCESS;
 
   for (current_os = DB->prints.begin(); current_os != DB->prints.end(); current_os++) {
     skipfp = 0;
 
-    acc = compare_fingerprints(*current_os, &FP_copy, DB->MatchPoints, 0, FPR_entrance_requirement);
+    acc = compare_fingerprints(*current_os, FP, DB->MatchPoints, 0, FPR_entrance_requirement);
 
     if (acc >= FPR_entrance_requirement || acc == 1.0) {
 
@@ -671,6 +751,7 @@ bool FingerTest::str2AVal(const char *str, const char *end) {
   assert(results);
   assert(def);
   const char *q = str, *p=str;
+  u8 maxIdx = 0;
   if (!def->hasR && 0 == strncmp("R=N", str, end - str)) {
     return true;
   }
@@ -685,7 +766,8 @@ bool FingerTest::str2AVal(const char *str, const char *end) {
       return false;
     }
     std::map<FPstr, u8>::const_iterator idx = def->AttrIdx.find(FPstr(p, q));
-    if (idx == def->AttrIdx.end() || AVs[idx->second] != NULL) {
+    u8 j = idx->second;
+    if (idx == def->AttrIdx.end() || AVs[j] != NULL) {
       error("Parse error with AVal string (%s) in nmap-os-db file", str);
       return false;
     }
@@ -694,12 +776,28 @@ bool FingerTest::str2AVal(const char *str, const char *end) {
     if (!q) {
       q = end;
     }
-    AVs[idx->second] = string_pool_substr(p, q);
+    AVs[j] = string_pool_substr(p, q);
+    maxIdx = MAX(maxIdx, j);
     p = q + 1;
   }
   if (p < end) {
     error("Too many values in AVal string (%s)", str);
     return false;
+  }
+  if (def->hasR) {
+    if (maxIdx > 0) {
+      if (AVs[0] == NULL) {
+        AVs[0] = "Y";
+      }
+      else if (!strchr(AVs[0], 'Y')) {
+        error("Test with AVals missing R=Y (R=%s)", AVs[0]);
+        return false;
+      }
+    }
+    else {
+      assert(AVs[0] == NULL || 0 == strcmp("N", AVs[0]));
+      AVs[0] = "N";
+    }
   }
   return true;
 }
@@ -921,7 +1019,7 @@ static void parse_classline(FingerPrint *FP, const char *thisline, const char *l
     fatal("Parse error on line %d of fingerprint: %s\n", lineno, thisline);
   os_class.OS_Family = string_pool_substr_strip(begin, end);
 
-  /* And now the the OS generation. */
+  /* And now the OS generation. */
   begin = end + 1;
   end = strchr_p(begin, lineend, '|');
   if (end == NULL)
@@ -1083,6 +1181,15 @@ fparse:
       if (DB->MatchPoints)
         fatal("Found MatchPoints directive on line %d of %s even though it has previously been seen in the file", lineno, fname);
       parsingMatchPoints = true;
+    } else if (strncmp(line, "This nmap-os-db", 15) == 0) {
+      p = strstr(line, "Nmap ");
+      if (!p)
+        fatal("Parse error on line %d of nmap-os-db file: %s", lineno, line);
+      q = strchr(p + 5, ' ');
+      if (strncmp(p + 5, NMAP_NUM_VERSION, q - p) > 0) {
+        error("%sOS detection results may be inaccurate.", line);
+      }
+      continue;
     } else {
       error("Parse error on line %d of nmap-os-db file: %s", lineno, line);
       continue;

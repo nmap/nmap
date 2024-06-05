@@ -58,7 +58,7 @@
      d                 c                   @LIBSSH2_VERSION_PATCH@
 
       * This is the numeric version of the libssh2 version number, meant for
-      * easier parsing and comparions by programs. The LIBSSH2_VERSION_NUM
+      * easier parsing and comparisons by programs. The LIBSSH2_VERSION_NUM
       * define will always follow this syntax:
       *
       *  X'XXYYZZ'
@@ -511,7 +511,7 @@
       *
       * Fills algs with a list of supported cryptographic algorithms. Returns a
       * non-negative number (number of supported algorithms) on success or a
-      * negative number (an eror code) on failure.
+      * negative number (an error code) on failure.
       *
       * NOTE: on success, algs must be deallocated (by calling libssh2_free)
       * when not needed anymore
@@ -772,7 +772,7 @@
       * response_callback is provided with filled by library prompts array,
       * but client must allocate and fill individual responses. Responses
       * array is already allocated. Responses data will be freed by libssh2
-      * after callback return, but before subsequent callback invokation.
+      * after callback return, but before subsequent callback invocation.
 
      d libssh2_userauth_keyboard_interactive_ex...
      d                 pr                  extproc('libssh2_userauth_keyboard_i-
@@ -1519,7 +1519,7 @@
       * libssh2_knownhost_get()
       *
       * Traverse the internal list of known hosts. Pass NULL to 'prev' to get
-      * the first one. Or pass a poiner to the previously returned one to
+      * the first one. Or pass a pointer to the previously returned one to
       * get the next.
       *
       * Returns:
@@ -1580,7 +1580,7 @@
       * libssh2_agent_get_identity()
       *
       * Traverse the internal list of public keys. Pass NULL to 'prev' to get
-      * the first one. Or pass a poiner to the previously returned one to
+      * the first one. Or pass a pointer to the previously returned one to
       * get the next.
       *
       * Returns:

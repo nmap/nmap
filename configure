@@ -1473,8 +1473,8 @@ Optional Packages:
                           [DIR]/lib/ and [DIR]/include/openssl/)
   --with-libpcap=DIR      Look for pcap in DIR/include and DIR/libs.
   --with-libpcap=included Always use version included with Nmap
-  --with-libpcre=DIR      Use an existing (compiled) pcre lib from DIR/include
-                          and DIR/lib.
+  --with-libpcre=DIR      Use an existing (compiled) pcre2 lib from
+                          DIR/include and DIR/lib.
   --with-libpcre=included Always use the version included with Nmap
   --with-libz=DIR         Use specific copy of libz
   --with-libz=included    Always use version included with Nmap
@@ -7300,91 +7300,93 @@ fi
 
 # If they didn't specify it, we try to find it
 if test $have_pcre != yes -a $requested_included_pcre != yes ; then
-  ac_fn_c_check_header_compile "$LINENO" "pcre.h" "ac_cv_header_pcre_h" "$ac_includes_default"
-if test "x$ac_cv_header_pcre_h" = xyes
+  ac_fn_c_check_header_compile "$LINENO" "pcre2.h" "ac_cv_header_pcre2_h" "$ac_includes_default"
+if test "x$ac_cv_header_pcre2_h" = xyes
 then :
-  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for pcre_version in -lpcre" >&5
-printf %s "checking for pcre_version in -lpcre... " >&6; }
-if test ${ac_cv_lib_pcre_pcre_version+y}
+  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for pcre2_compile_8 in -lpcre2-8" >&5
+printf %s "checking for pcre2_compile_8 in -lpcre2-8... " >&6; }
+if test ${ac_cv_lib_pcre2_8_pcre2_compile_8+y}
 then :
   printf %s "(cached) " >&6
 else $as_nop
   ac_check_lib_save_LIBS=$LIBS
-LIBS="-lpcre  $LIBS"
+LIBS="-lpcre2-8  $LIBS"
 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 
 /* Override any GCC internal prototype to avoid an error.
    Use char because int might match the return type of a GCC
    builtin and then its argument prototype would still apply.  */
-char pcre_version ();
+char pcre2_compile_8 ();
 int
 main (void)
 {
-return pcre_version ();
+return pcre2_compile_8 ();
   ;
   return 0;
 }
 _ACEOF
 if ac_fn_c_try_link "$LINENO"
 then :
-  ac_cv_lib_pcre_pcre_version=yes
+  ac_cv_lib_pcre2_8_pcre2_compile_8=yes
 else $as_nop
-  ac_cv_lib_pcre_pcre_version=no
+  ac_cv_lib_pcre2_8_pcre2_compile_8=no
 fi
 rm -f core conftest.err conftest.$ac_objext conftest.beam \
     conftest$ac_exeext conftest.$ac_ext
 LIBS=$ac_check_lib_save_LIBS
 fi
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_pcre_pcre_version" >&5
-printf "%s\n" "$ac_cv_lib_pcre_pcre_version" >&6; }
-if test "x$ac_cv_lib_pcre_pcre_version" = xyes
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_pcre2_8_pcre2_compile_8" >&5
+printf "%s\n" "$ac_cv_lib_pcre2_8_pcre2_compile_8" >&6; }
+if test "x$ac_cv_lib_pcre2_8_pcre2_compile_8" = xyes
 then :
   have_pcre=yes
 fi
 
 else $as_nop
-  ac_fn_c_check_header_compile "$LINENO" "pcre/pcre.h" "ac_cv_header_pcre_pcre_h" "$ac_includes_default"
-if test "x$ac_cv_header_pcre_pcre_h" = xyes
+  ac_fn_c_check_header_compile "$LINENO" "pcre2/pcre2.h" "ac_cv_header_pcre2_pcre2_h" "$ac_includes_default"
+if test "x$ac_cv_header_pcre2_pcre2_h" = xyes
 then :
-  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for pcre_version in -lpcre" >&5
-printf %s "checking for pcre_version in -lpcre... " >&6; }
-if test ${ac_cv_lib_pcre_pcre_version+y}
+  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for pcre2_compile_8 in -lpcre2-8" >&5
+printf %s "checking for pcre2_compile_8 in -lpcre2-8... " >&6; }
+if test ${ac_cv_lib_pcre2_8_pcre2_compile_8+y}
 then :
   printf %s "(cached) " >&6
 else $as_nop
   ac_check_lib_save_LIBS=$LIBS
-LIBS="-lpcre  $LIBS"
+LIBS="-lpcre2-8  $LIBS"
 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 
 /* Override any GCC internal prototype to avoid an error.
    Use char because int might match the return type of a GCC
    builtin and then its argument prototype would still apply.  */
-char pcre_version ();
+char pcre2_compile_8 ();
 int
 main (void)
 {
-return pcre_version ();
+return pcre2_compile_8 ();
   ;
   return 0;
 }
 _ACEOF
 if ac_fn_c_try_link "$LINENO"
 then :
-  ac_cv_lib_pcre_pcre_version=yes
+  ac_cv_lib_pcre2_8_pcre2_compile_8=yes
 else $as_nop
-  ac_cv_lib_pcre_pcre_version=no
+  ac_cv_lib_pcre2_8_pcre2_compile_8=no
 fi
 rm -f core conftest.err conftest.$ac_objext conftest.beam \
     conftest$ac_exeext conftest.$ac_ext
 LIBS=$ac_check_lib_save_LIBS
 fi
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_pcre_pcre_version" >&5
-printf "%s\n" "$ac_cv_lib_pcre_pcre_version" >&6; }
-if test "x$ac_cv_lib_pcre_pcre_version" = xyes
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_pcre2_8_pcre2_compile_8" >&5
+printf "%s\n" "$ac_cv_lib_pcre2_8_pcre2_compile_8" >&6; }
+if test "x$ac_cv_lib_pcre2_8_pcre2_compile_8" = xyes
 then :
   have_pcre=yes
+      printf "%s\n" "#define HAVE_PCRE2_PCRE2_H 1" >>confdefs.h
+
 fi
 
 
@@ -7399,8 +7401,8 @@ fi
 if test $have_pcre != yes ; then
   subdirs="$subdirs libpcre"
 
-  CPPFLAGS="-I\$(top_srcdir)/$LIBPCREDIR $CPPFLAGS"
-  LIBPCRE_LIBS="$LIBPCREDIR/libpcre.a"
+  CPPFLAGS="-I\$(top_srcdir)/$LIBPCREDIR/src $CPPFLAGS"
+  LIBPCRE_LIBS="$LIBPCREDIR/.libs/libpcre2-8.a"
   PCRE_BUILD="build-pcre"
   PCRE_CLEAN="clean-pcre"
   PCRE_DIST_CLEAN="distclean-pcre"
@@ -7408,15 +7410,7 @@ if test $have_pcre != yes ; then
 printf "%s\n" "#define PCRE_INCLUDED 1" >>confdefs.h
 
 else
-# We only need to check for and use this if we are NOT using included pcre
-  ac_fn_c_check_header_compile "$LINENO" "pcre/pcre.h" "ac_cv_header_pcre_pcre_h" "$ac_includes_default"
-if test "x$ac_cv_header_pcre_pcre_h" = xyes
-then :
-  printf "%s\n" "#define HAVE_PCRE_PCRE_H 1" >>confdefs.h
-
-fi
-
-  LIBPCRE_LIBS="-lpcre"
+  LIBPCRE_LIBS="-lpcre2-8"
   PCRE_BUILD=""
   PCRE_CLEAN=""
   PCRE_DIST_CLEAN=""
@@ -7639,9 +7633,9 @@ then :
 if test "x$ac_cv_header_libssh2_h" = xyes
 then :
 
-      { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for libssh2_version in -lssh2" >&5
-printf %s "checking for libssh2_version in -lssh2... " >&6; }
-if test ${ac_cv_lib_ssh2_libssh2_version+y}
+      { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for libssh2_userauth_banner in -lssh2" >&5
+printf %s "checking for libssh2_userauth_banner in -lssh2... " >&6; }
+if test ${ac_cv_lib_ssh2_libssh2_userauth_banner+y}
 then :
   printf %s "(cached) " >&6
 else $as_nop
@@ -7653,28 +7647,28 @@ cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* Override any GCC internal prototype to avoid an error.
    Use char because int might match the return type of a GCC
    builtin and then its argument prototype would still apply.  */
-char libssh2_version ();
+char libssh2_userauth_banner ();
 int
 main (void)
 {
-return libssh2_version ();
+return libssh2_userauth_banner ();
   ;
   return 0;
 }
 _ACEOF
 if ac_fn_c_try_link "$LINENO"
 then :
-  ac_cv_lib_ssh2_libssh2_version=yes
+  ac_cv_lib_ssh2_libssh2_userauth_banner=yes
 else $as_nop
-  ac_cv_lib_ssh2_libssh2_version=no
+  ac_cv_lib_ssh2_libssh2_userauth_banner=no
 fi
 rm -f core conftest.err conftest.$ac_objext conftest.beam \
     conftest$ac_exeext conftest.$ac_ext
 LIBS=$ac_check_lib_save_LIBS
 fi
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_ssh2_libssh2_version" >&5
-printf "%s\n" "$ac_cv_lib_ssh2_libssh2_version" >&6; }
-if test "x$ac_cv_lib_ssh2_libssh2_version" = xyes
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_ssh2_libssh2_userauth_banner" >&5
+printf "%s\n" "$ac_cv_lib_ssh2_libssh2_userauth_banner" >&6; }
+if test "x$ac_cv_lib_ssh2_libssh2_userauth_banner" = xyes
 then :
   have_libssh2=yes
         LIBSSH2_INC=$with_libssh2/include
@@ -7704,9 +7698,9 @@ if test $use_libssh2 = yes -a $use_openssl = yes; then
 if test "x$ac_cv_header_libssh2_h" = xyes
 then :
 
-      { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for libssh2_version in -lssh2" >&5
-printf %s "checking for libssh2_version in -lssh2... " >&6; }
-if test ${ac_cv_lib_ssh2_libssh2_version+y}
+      { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for libssh2_userauth_banner in -lssh2" >&5
+printf %s "checking for libssh2_userauth_banner in -lssh2... " >&6; }
+if test ${ac_cv_lib_ssh2_libssh2_userauth_banner+y}
 then :
   printf %s "(cached) " >&6
 else $as_nop
@@ -7718,28 +7712,28 @@ cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* Override any GCC internal prototype to avoid an error.
    Use char because int might match the return type of a GCC
    builtin and then its argument prototype would still apply.  */
-char libssh2_version ();
+char libssh2_userauth_banner ();
 int
 main (void)
 {
-return libssh2_version ();
+return libssh2_userauth_banner ();
   ;
   return 0;
 }
 _ACEOF
 if ac_fn_c_try_link "$LINENO"
 then :
-  ac_cv_lib_ssh2_libssh2_version=yes
+  ac_cv_lib_ssh2_libssh2_userauth_banner=yes
 else $as_nop
-  ac_cv_lib_ssh2_libssh2_version=no
+  ac_cv_lib_ssh2_libssh2_userauth_banner=no
 fi
 rm -f core conftest.err conftest.$ac_objext conftest.beam \
     conftest$ac_exeext conftest.$ac_ext
 LIBS=$ac_check_lib_save_LIBS
 fi
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_ssh2_libssh2_version" >&5
-printf "%s\n" "$ac_cv_lib_ssh2_libssh2_version" >&6; }
-if test "x$ac_cv_lib_ssh2_libssh2_version" = xyes
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_ssh2_libssh2_userauth_banner" >&5
+printf "%s\n" "$ac_cv_lib_ssh2_libssh2_userauth_banner" >&6; }
+if test "x$ac_cv_lib_ssh2_libssh2_userauth_banner" = xyes
 then :
   have_libssh2="yes"
 fi
@@ -7892,7 +7886,7 @@ else
 
   # If they didn't specify it, we try to find it
   if test $have_lua != yes; then
-           for ac_header in lua5.3/lua.h lua/5.3/lua.h lua.h lua/lua.h
+           for ac_header in lua5.4/lua.h lua/5.4/lua.h lua.h lua/lua.h
 do :
   as_ac_Header=`printf "%s\n" "ac_cv_header_$ac_header" | $as_tr_sh`
 ac_fn_c_check_header_compile "$LINENO" "$ac_header" "$as_ac_Header" "$ac_includes_default"
@@ -7927,7 +7921,7 @@ return lua_isyieldable ();
   return 0;
 }
 _ACEOF
-for ac_lib in '' lua5.3 lua53 lua
+for ac_lib in '' lua5.4 lua54 lua
 do
   if test -z "$ac_lib"; then
     ac_res="none required"
@@ -7970,9 +7964,9 @@ ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
 ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
 ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
-    # We need Lua 5.3 exactly
-    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for lua version == 503" >&5
-printf %s "checking for lua version == 503... " >&6; }
+    # We need Lua 5.4 exactly
+    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for lua version == 504" >&5
+printf %s "checking for lua version == 504... " >&6; }
     ac_ext=c
 ac_cpp='$CPP $CPPFLAGS'
 ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
@@ -8109,24 +8103,24 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 
-      #ifdef HAVE_LUA5_3_LUA_H
-          #include <lua5.3/lua.h>
-      #elif defined HAVE_LUA_5_3_LUA_H
-          #include <lua/5.3/lua.h>
+      #ifdef HAVE_LUA5_4_LUA_H
+          #include <lua5.4/lua.h>
+      #elif defined HAVE_LUA_5_4_LUA_H
+          #include <lua/5.4/lua.h>
       #elif defined HAVE_LUA_H || defined LUA_INCLUDED
           #include <lua.h>
       #elif defined HAVE_LUA_LUA_H
           #include <lua/lua.h>
       #endif
 
-      #if (LUA_VERSION_NUM != 503)
+      #if (LUA_VERSION_NUM != 504)
           #error Incorrect Lua version
       #endif
 
 int
 main (void)
 {
-if(LUA_VERSION_NUM != 503) return 1;
+if(LUA_VERSION_NUM != 504) return 1;
   ;
   return 0;
 }

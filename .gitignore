@@ -1,3 +1,4 @@
+*~
 *.[oa]
 *.[sl][oa]
 *.gc[dn][oa]
@@ -15,6 +16,7 @@ libtool
 .deps/
 .libs/
 .svn/
+.dirstamp
 stamp-h1
 /libdnet-stripped/dnet-config
 /nbase/nbase_config.h
@@ -30,6 +32,7 @@ stamp-h1
 /nping/nping_config.h
 /nsock/include/nsock_config.h
 /nsock/tests/tests_main
+/tests/*_test
 /zenmap/build/
 /zenmap/INSTALLED_FILES
 TAGS
@@ -48,12 +51,16 @@ libpcap/pcap_version.h
 libpcap/grammar.y
 libssh2/src/libssh2_config.h
 libssh2/lib/
-libpcre/pcre-config
+libpcre/pcre2-config
+libpcre/src/pcre2.h
+libpcre/src/pcre2_chartables.c
 ndiff/INSTALLED_FILES
 libz/contrib/vstudio/vc11/Debug_lib/
 libz/contrib/vstudio/vc11/Release_lib/
 libz/zconf.h
 libz/configure.log
+/liblua/lua
+/liblua/luac
 !liblinear/Makefile
 !liblinear/blas/Makefile
 !liblua/Makefile

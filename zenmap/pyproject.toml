@@ -1,0 +1,53 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "zenmap"
+license = {text = "Nmap License (https://nmap.org/book/man-legal.html)"}
+dynamic = ["version"]
+authors = [{name = "The Nmap Project"}]
+description = "Nmap frontend and results viewer"
+readme = {file = "README", content-type = "text/plain"}
+dependencies = [
+  "PyGObject",
+]
+
+[project.urls]
+Homepage = "https://nmap.org/zenmap/"
+Documentation = "https://nmap.org/book/zenmap.html"
+Repository = "https://github.com/nmap/nmap.git"
+Issues = "https://github.com/nmap/nmap/issues"
+Changelog = "https://nmap.org/changelog"
+
+[project.gui-scripts]
+zenmap = "zenmapGUI.App:run"
+
+[tool.setuptools]
+packages = [
+"zenmapCore",
+"zenmapCore.data.config",
+"zenmapCore.data.docs",
+"zenmapCore.data.locale",
+"zenmapCore.data.misc",
+"zenmapCore.data.pixmaps",
+"zenmapCore.data.pixmaps.radialnet",
+"zenmapGUI",
+"zenmapGUI.higwidgets",
+"radialnet",
+"radialnet.bestwidgets",
+"radialnet.core",
+"radialnet.gui",
+"radialnet.util",
+]
+
+[tool.setuptools.dynamic]
+version = {attr = "zenmapCore.Version.VERSION"}
+
+[tool.setuptools.package-data]
+"zenmapCore.data.pixmaps" = ["*.gif", "*.png"]
+"zenmapCore.data.pixmaps.radialnet" = ["*.png"]
+"zenmapCore.data.locale" = ["*.mo"]
+"zenmapCore.data.config" = ["zenmap.conf", "scan_profile.usp", "zenmap_version"]
+"zenmapCore.data.docs" = ["*.html"]
+"zenmapCore.data.misc" = ["*.xml"]

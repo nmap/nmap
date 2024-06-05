@@ -45,7 +45,7 @@ that has not yet been activated by
 will give a list of the time stamp types supported by a given capture
 device.
 See
-.BR pcap-tstamp (@MAN_MISC_INFO@)
+.BR \%pcap-tstamp (@MAN_MISC_INFO@)
 for a list of all the time stamp types.
 .SH RETURN VALUE
 .BR pcap_set_tstamp_type ()

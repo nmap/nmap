@@ -1,5 +1,5 @@
 #  Copyright (c) 1993, 1994, 1995, 1996
-# 	The Regents of the University of California.  All rights reserved.
+#	The Regents of the University of California.  All rights reserved.
 #
 #  Redistribution and use in source and binary forms, with or without
 #  modification, are permitted provided that: (1) source code distributions
@@ -61,13 +61,12 @@ CROSSFLAGS=
 CFLAGS = @CFLAGS@   ${CROSSFLAGS}
 LDFLAGS = @LDFLAGS@ ${CROSSFLAGS}
 DYEXT = @DYEXT@
-V_RPATH_OPT = @V_RPATH_OPT@
+RPATH = @RPATH@
 DEPENDENCY_CFLAG = @DEPENDENCY_CFLAG@
 PROG=libpcap
 PTHREAD_LIBS=@PTHREAD_LIBS@
 BUILD_RPCAPD=@BUILD_RPCAPD@
 INSTALL_RPCAPD=@INSTALL_RPCAPD@
-EXTRA_NETWORK_LIBS=@EXTRA_NETWORK_LIBS@
 
 # Standard CFLAGS for building members of a shared library
 FULL_CFLAGS = $(CCOPT) @V_LIB_CCOPT_FAT@ $(SHLIB_CCOPT) $(INCLS) $(DEFS) $(CFLAGS)
@@ -90,9 +89,9 @@ PLATFORM_CXX_SRC =	@PLATFORM_CXX_SRC@
 MODULE_C_SRC =		@MODULE_C_SRC@
 REMOTE_C_SRC =		@REMOTE_C_SRC@
 COMMON_C_SRC =	pcap.c gencode.c optimize.c nametoaddr.c etherent.c \
-		fmtutils.c \
+		fmtutils.c pcap-util.c \
 		savefile.c sf-pcap.c sf-pcapng.c pcap-common.c \
-		bpf_image.c bpf_filter.c bpf_dump.c
+		pcap-usb-linux-common.c bpf_image.c bpf_filter.c bpf_dump.c
 GENERATED_C_SRC = scanner.c grammar.c
 LIBOBJS = @LIBOBJS@
 
@@ -112,21 +111,21 @@ PUBHDR = \
 	pcap.h \
 	pcap-bpf.h \
 	pcap-namedb.h \
-	pcap/bpf.h \
 	pcap/bluetooth.h \
+	pcap/bpf.h \
 	pcap/can_socketcan.h \
 	pcap/compiler-tests.h \
 	pcap/dlt.h \
 	pcap/funcattrs.h \
-	pcap/pcap-inttypes.h \
 	pcap/ipnet.h \
 	pcap/namedb.h \
 	pcap/nflog.h \
+	pcap/pcap-inttypes.h \
 	pcap/pcap.h \
 	pcap/sll.h \
 	pcap/socket.h \
-	pcap/vlan.h \
-	pcap/usb.h
+	pcap/usb.h \
+	pcap/vlan.h
 
 HDR = $(PUBHDR) \
 	arcnet.h \
@@ -146,6 +145,9 @@ HDR = $(PUBHDR) \
 	pcap-int.h \
 	pcap-rpcap.h \
 	pcap-types.h \
+	pcap-usb-linux-common.h \
+	pcap-util.h \
+	pflog.h \
 	portability.h \
 	ppp.h \
 	rpcap-protocol.h \
@@ -160,8 +162,8 @@ GENHDR = \
 TAGFILES = \
 	$(SRC) $(HDR)
 
-CLEANFILES = $(OBJ) libpcap.a libpcap.so.`cat $(srcdir)/VERSION` \
-	$(PROG)-`cat $(srcdir)/VERSION`.tar.gz \
+CLEANFILES = $(OBJ) libpcap.a libpcap.so.`cat $(srcdir)/VERSION.txt` \
+	$(PROG)-`cat $(srcdir)/VERSION.txt`.tar.gz \
 	lex.yy.c pcap-config libpcap.pc
 
 MAN1 = pcap-config.1
@@ -249,16 +251,25 @@ EXTRA_DIST = \
 	Makefile.in \
 	Makefile-devel-adds \
 	README.md \
-	doc \
+	doc/README.Win32.md \
+	doc/README.aix \
+	doc/README.dag \
+	doc/README.hpux \
+	doc/README.linux \
+	doc/README.macos \
+	doc/README.septel \
+	doc/README.sita \
+	doc/README.solaris.md \
 	CONTRIBUTING.md \
 	TODO \
-	VERSION \
+	VERSION.txt \
 	aclocal.m4 \
 	charconv.c \
 	charconv.h \
 	chmod_bpf \
 	cmake_uninstall.cmake.in \
 	cmakeconfig.h.in \
+	cmake/Modules/FindAirPcap.cmake \
 	cmake/Modules/FindDAG.cmake \
 	cmake/Modules/Finddpdk.cmake \
 	cmake/Modules/FindFseeko.cmake \
@@ -399,6 +410,7 @@ EXTRA_DIST = \
 	testprogs/fuzz/fuzz_pcap.c \
 	testprogs/fuzz/fuzz_pcap.options \
 	testprogs/fuzz/onefile.c \
+	testprogs/nonblocktest.c \
 	testprogs/opentest.c \
 	testprogs/reactivatetest.c \
 	testprogs/selpolltest.c \
@@ -406,11 +418,13 @@ EXTRA_DIST = \
 	testprogs/unix.h \
 	testprogs/valgrindtest.c \
 	testprogs/visopts.py \
-	testprogs/writecaptest.c \
-	tests/shb-option-too-long.pcapng \
-	Win32/Prj/wpcap.sln \
-	Win32/Prj/wpcap.vcxproj \
-	Win32/Prj/wpcap.vcxproj.filters
+	testprogs/writecaptest.c
+
+TEST_DIST = `git ls-files tests | grep -v 'tests/\..*'`
+
+RELEASE_FILES = $(COMMON_C_SRC) $(HDR) $(MAN1) $(MAN3PCAP_EXPAND) \
+	$(MAN3PCAP_NOEXPAND) $(MANFILE) $(MANMISC) $(EXTRA_DIST) \
+	$(TEST_DIST)
 
 all: libpcap.a shared $(BUILD_RPCAPD) libpcap.pc pcap-config
 
@@ -432,8 +446,8 @@ shared: libpcap.$(DYEXT)
 
 libpcap.so: $(OBJ)
 	@rm -f $@
-	VER=`cat $(srcdir)/VERSION`; \
-	MAJOR_VER=`sed 's/\([0-9][0-9]*\)\..*/\1/' $(srcdir)/VERSION`; \
+	VER=`cat $(srcdir)/VERSION.txt`; \
+	MAJOR_VER=`sed 's/\([0-9][0-9]*\)\..*/\1/' $(srcdir)/VERSION.txt`; \
 	@V_SHLIB_CMD@ $(LDFLAGS) @V_SHLIB_OPT@ @V_SONAME_OPT@$@.$$MAJOR_VER \
 	    -o $@.$$VER $(OBJ) $(ADDLOBJS) $(LIBS)
 
@@ -448,17 +462,17 @@ libpcap.so: $(OBJ)
 # but not in the older version.
 #
 # We also use "A" as the major version, and 1 as the compatibility version,
-# but set the current version to the value in VERSION, with any non-numeric
+# but set the current version to the value in VERSION.txt, with any non-numeric
 # stuff stripped off (the compatibility and current version must be of the
 # form X[.Y[.Z]], with Y and Z possibly absent, and with all components
 # numeric).
 #
 libpcap.dylib: $(OBJ)
 	rm -f libpcap*.dylib
-	VER=`cat $(srcdir)/VERSION`; \
+	VER=`cat $(srcdir)/VERSION.txt`; \
 	MAJOR_VER=A; \
 	COMPAT_VER=1; \
-	CURRENT_VER=`sed 's/[^0-9.].*$$//' $(srcdir)/VERSION`; \
+	CURRENT_VER=`sed 's/[^0-9.].*$$//' $(srcdir)/VERSION.txt`; \
 	$(CC) -dynamiclib -undefined error $(LDFLAGS) @V_LIB_LDFLAGS_FAT@ \
 	    -o libpcap.$$VER.dylib $(OBJ) $(ADDLOBJS) $(LIBS) \
 	    -install_name $(libdir)/libpcap.$$MAJOR_VER.dylib \
@@ -478,9 +492,9 @@ libpcap.dylib: $(OBJ)
 # linker, even with GCC.
 #
 libpcap.sl: $(OBJ)
-	@MAJOR_VER=`sed 's/\([0-9][0-9]*\)\..*/\1/' $(srcdir)/VERSION`; \
+	@MAJOR_VER=`sed 's/\([0-9][0-9]*\)\..*/\1/' $(srcdir)/VERSION.txt`; \
 	rm -f libpcap.$$MAJOR_VER
-	MAJOR_VER=`sed 's/\([0-9][0-9]*\)\..*/\1/' $(srcdir)/VERSION`; \
+	MAJOR_VER=`sed 's/\([0-9][0-9]*\)\..*/\1/' $(srcdir)/VERSION.txt`; \
 	ld -b $(LDFLAGS) -o libpcap.$$MAJOR_VER +h libpcap.$$MAJOR_VER \
 	    $(OBJ) $(ADDLOBJS) $(LIBS)
 
@@ -671,15 +685,15 @@ install-shared: install-shared-$(DYEXT)
 install-shared-so: libpcap.so
 	[ -d $(DESTDIR)$(libdir) ] || \
 	    (mkdir -p $(DESTDIR)$(libdir); chmod 755 $(DESTDIR)$(libdir))
-	VER=`cat $(srcdir)/VERSION`; \
-	MAJOR_VER=`sed 's/\([0-9][0-9]*\)\..*/\1/' $(srcdir)/VERSION`; \
+	VER=`cat $(srcdir)/VERSION.txt`; \
+	MAJOR_VER=`sed 's/\([0-9][0-9]*\)\..*/\1/' $(srcdir)/VERSION.txt`; \
 	$(INSTALL_PROGRAM) libpcap.so.$$VER $(DESTDIR)$(libdir)/libpcap.so.$$VER; \
 	ln -sf libpcap.so.$$VER $(DESTDIR)$(libdir)/libpcap.so.$$MAJOR_VER; \
 	ln -sf libpcap.so.$$MAJOR_VER $(DESTDIR)$(libdir)/libpcap.so
 install-shared-dylib: libpcap.dylib
 	[ -d $(DESTDIR)$(libdir) ] || \
 	    (mkdir -p $(DESTDIR)$(libdir); chmod 755 $(DESTDIR)$(libdir))
-	VER=`cat $(srcdir)/VERSION`; \
+	VER=`cat $(srcdir)/VERSION.txt`; \
 	MAJOR_VER=A; \
 	$(INSTALL_PROGRAM) libpcap.$$VER.dylib $(DESTDIR)$(libdir)/libpcap.$$VER.dylib; \
 	ln -sf libpcap.$$VER.dylib $(DESTDIR)$(libdir)/libpcap.$$MAJOR_VER.dylib; \
@@ -687,7 +701,7 @@ install-shared-dylib: libpcap.dylib
 install-shared-sl: libpcap.sl
 	[ -d $(DESTDIR)$(libdir) ] || \
 	    (mkdir -p $(DESTDIR)$(libdir); chmod 755 $(DESTDIR)$(libdir))
-	MAJOR_VER=`sed 's/\([0-9][0-9]*\)\..*/\1/' $(srcdir)/VERSION`; \
+	MAJOR_VER=`sed 's/\([0-9][0-9]*\)\..*/\1/' $(srcdir)/VERSION.txt`; \
 	$(INSTALL_PROGRAM) libpcap.$$MAJOR_VER $(DESTDIR)$(libdir)
 	ln -sf libpcap.$$MAJOR_VER $(DESTDIR)$(libdir)/libpcap.sl
 install-shared-shareda: libpcap.shareda
@@ -754,19 +768,19 @@ uninstall: uninstall-shared uninstall-rpcapd
 
 uninstall-shared: uninstall-shared-$(DYEXT)
 uninstall-shared-so:
-	VER=`cat $(srcdir)/VERSION`; \
-	MAJOR_VER=`sed 's/\([0-9][0-9]*\)\..*/\1/' $(srcdir)/VERSION`; \
+	VER=`cat $(srcdir)/VERSION.txt`; \
+	MAJOR_VER=`sed 's/\([0-9][0-9]*\)\..*/\1/' $(srcdir)/VERSION.txt`; \
 	rm -f $(DESTDIR)$(libdir)/libpcap.so.$$VER; \
 	rm -f $(DESTDIR)$(libdir)/libpcap.so.$$MAJOR_VER; \
 	rm -f $(DESTDIR)$(libdir)/libpcap.so
 uninstall-shared-dylib:
-	VER=`cat $(srcdir)/VERSION`; \
+	VER=`cat $(srcdir)/VERSION.txt`; \
 	MAJOR_VER=A; \
 	rm -f $(DESTDIR)$(libdir)/libpcap.$$VER.dylib; \
 	rm -f $(DESTDIR)$(libdir)/libpcap.$$MAJOR_VER.dylib; \
 	rm -f $(DESTDIR)$(libdir)/libpcap.dylib
 uninstall-shared-sl:
-	MAJOR_VER=`sed 's/\([0-9][0-9]*\)\..*/\1/' $(srcdir)/VERSION`; \
+	MAJOR_VER=`sed 's/\([0-9][0-9]*\)\..*/\1/' $(srcdir)/VERSION.txt`; \
 	rm -f $(DESTDIR)$(libdir)/libpcap.$$MAJOR_VER; \
 	rm -f $(DESTDIR)$(libdir)/libpcap.sl
 uninstall-shared-shareda:
@@ -781,8 +795,8 @@ clean:
 
 distclean: clean
 	rm -f Makefile grammar.y config.cache config.log config.status \
-	    config.h gnuc.h net os-proto.h libpcap.pc \
-	    pcap-config stamp-h stamp-h.in
+	    config.h config.h.in~ configure~ configure.ac~ \
+	    net os-proto.h libpcap.pc pcap-config stamp-h stamp-h.in
 	rm -f $(MAN3PCAP_EXPAND:.in=) $(MANFILE:.in=) $(MANMISC:.in=)
 	rm -rf autom4te.cache
 
@@ -793,24 +807,19 @@ tags: $(TAGFILES)
 	ctags -wtd $(TAGFILES)
 
 releasetar:
-	@autoreconf -f; \
-	name=$(PROG)-`cat VERSION` ; \
-	   mkdir $$name; \
-	   tar -c --exclude='*~' -f - $(COMMON_C_SRC) $(HDR) $(MAN1) \
-	      $(MAN3PCAP_EXPAND) $(MAN3PCAP_NOEXPAND) $(MANFILE) \
-	      $(MANMISC) $(EXTRA_DIST) | \
-	      (cd $$name; tar xf -); \
-	   tar -c -z -f $$name.tar.gz $$name; \
-	   rm -rf $$name
-
-rc1 rc2 rc3 rc4 rc5:
-	@VER=`cat $(srcdir)/VERSION`; \
-	sed -i "s/$$VER/$${VER}$@/" VERSION ; \
-	make releasetar; \
-	git checkout VERSION configure
+	@TAG=$(PROG)-`cat VERSION.txt` && \
+	if git show-ref --tags --quiet --verify -- "refs/tags/$$TAG"; then \
+	    git archive --prefix="$$TAG"/ -o "$$TAG".tar.gz "$$TAG" \
+	    $(RELEASE_FILES) && \
+	    echo "Archive build from tag $$TAG."; \
+	else \
+	    git archive --prefix="$$TAG"/ -o "$$TAG".tar.gz HEAD \
+	    $(RELEASE_FILES) && \
+	    echo "No $$TAG tag. Archive build from HEAD."; \
+	fi
 
 depend:	$(GENERATED_C_SRC) $(GENHDR)
 	$(MKDEP) -c "$(CC)" -m "$(DEPENDENCY_CFLAG)" -s "$(srcdir)" $(CFLAGS) $(DEFS) $(INCLS) $(SRC)
 
 shellcheck:
-	shellcheck -f gcc build.sh build_matrix.sh
+	shellcheck -f gcc -e SC2006 build.sh build_matrix.sh build_common.sh

@@ -28,5 +28,7 @@
     <string>${VERSION}</string>
     <key>LSMinimumSystemVersion</key>
     <string>10.9</string>
+<key>GtkOSXLaunchScriptFile</key>
+<string>zenmap_launcher.py</string>
 </dict>
 </plist>

@@ -4,60 +4,59 @@
  * function is in main.cc                                                  *
  *                                                                         *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
- *                                                                         *
- * The Nmap Security Scanner is (C) 1996-2022 Nmap Software LLC ("The Nmap *
- * Project"). Nmap is also a registered trademark of the Nmap Project.     *
- *                                                                         *
- * This program is distributed under the terms of the Nmap Public Source   *
- * License (NPSL). The exact license text applying to a particular Nmap    *
- * release or source code control revision is contained in the LICENSE     *
- * file distributed with that version of Nmap or source code control       *
- * revision. More Nmap copyright/legal information is available from       *
- * https://nmap.org/book/man-legal.html, and further information on the    *
- * NPSL license itself can be found at https://nmap.org/npsl/ . This       *
- * header summarizes some key points from the Nmap license, but is no      *
- * substitute for the actual license text.                                 *
- *                                                                         *
- * Nmap is generally free for end users to download and use themselves,    *
- * including commercial use. It is available from https://nmap.org.        *
- *                                                                         *
- * The Nmap license generally prohibits companies from using and           *
- * redistributing Nmap in commercial products, but we sell a special Nmap  *
- * OEM Edition with a more permissive license and special features for     *
- * this purpose. See https://nmap.org/oem/                                 *
- *                                                                         *
- * If you have received a written Nmap license agreement or contract       *
- * stating terms other than these (such as an Nmap OEM license), you may   *
- * choose to use and redistribute Nmap under those terms instead.          *
- *                                                                         *
- * The official Nmap Windows builds include the Npcap software             *
- * (https://npcap.com) for packet capture and transmission. It is under    *
- * separate license terms which forbid redistribution without special      *
- * permission. So the official Nmap Windows builds may not be              *
- * redistributed without special permission (such as an Nmap OEM           *
- * license).                                                               *
- *                                                                         *
- * Source is provided to this software because we believe users have a     *
- * right to know exactly what a program is going to do before they run it. *
- * This also allows you to audit the software for security holes.          *
- *                                                                         *
- * Source code also allows you to port Nmap to new platforms, fix bugs,    *
- * and add new features.  You are highly encouraged to submit your         *
- * changes as a Github PR or by email to the dev@nmap.org mailing list     *
- * for possible incorporation into the main distribution. Unless you       *
- * specify otherwise, it is understood that you are offering us very       *
- * broad rights to use your submissions as described in the Nmap Public    *
- * Source License Contributor Agreement. This is important because we      *
- * fund the project by selling licenses with various terms, and also       *
- * because the inability to relicense code has caused devastating          *
- * problems for other Free Software projects (such as KDE and NASM).       *
- *                                                                         *
- * The free version of Nmap is distributed in the hope that it will be     *
- * useful, but WITHOUT ANY WARRANTY; without even the implied warranty of  *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. Warranties,        *
- * indemnification and commercial support are all available through the    *
- * Npcap OEM program--see https://nmap.org/oem/                            *
- *                                                                         *
+ *
+ * The Nmap Security Scanner is (C) 1996-2024 Nmap Software LLC ("The Nmap
+ * Project"). Nmap is also a registered trademark of the Nmap Project.
+ *
+ * This program is distributed under the terms of the Nmap Public Source
+ * License (NPSL). The exact license text applying to a particular Nmap
+ * release or source code control revision is contained in the LICENSE
+ * file distributed with that version of Nmap or source code control
+ * revision. More Nmap copyright/legal information is available from
+ * https://nmap.org/book/man-legal.html, and further information on the
+ * NPSL license itself can be found at https://nmap.org/npsl/ . This
+ * header summarizes some key points from the Nmap license, but is no
+ * substitute for the actual license text.
+ *
+ * Nmap is generally free for end users to download and use themselves,
+ * including commercial use. It is available from https://nmap.org.
+ *
+ * The Nmap license generally prohibits companies from using and
+ * redistributing Nmap in commercial products, but we sell a special Nmap
+ * OEM Edition with a more permissive license and special features for
+ * this purpose. See https://nmap.org/oem/
+ *
+ * If you have received a written Nmap license agreement or contract
+ * stating terms other than these (such as an Nmap OEM license), you may
+ * choose to use and redistribute Nmap under those terms instead.
+ *
+ * The official Nmap Windows builds include the Npcap software
+ * (https://npcap.com) for packet capture and transmission. It is under
+ * separate license terms which forbid redistribution without special
+ * permission. So the official Nmap Windows builds may not be redistributed
+ * without special permission (such as an Nmap OEM license).
+ *
+ * Source is provided to this software because we believe users have a
+ * right to know exactly what a program is going to do before they run it.
+ * This also allows you to audit the software for security holes.
+ *
+ * Source code also allows you to port Nmap to new platforms, fix bugs, and
+ * add new features. You are highly encouraged to submit your changes as a
+ * Github PR or by email to the dev@nmap.org mailing list for possible
+ * incorporation into the main distribution. Unless you specify otherwise, it
+ * is understood that you are offering us very broad rights to use your
+ * submissions as described in the Nmap Public Source License Contributor
+ * Agreement. This is important because we fund the project by selling licenses
+ * with various terms, and also because the inability to relicense code has
+ * caused devastating problems for other Free Software projects (such as KDE
+ * and NASM).
+ *
+ * The free version of Nmap is distributed in the hope that it will be
+ * useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. Warranties,
+ * indemnification and commercial support are all available through the
+ * Npcap OEM program--see https://nmap.org/oem/
+ *
  ***************************************************************************/
 
 /* $Id$ */
@@ -207,7 +206,7 @@ static void printusage() {
          "  -sL: List Scan - simply list targets to scan\n"
          "  -sn: Ping Scan - disable port scan\n"
          "  -Pn: Treat all hosts as online -- skip host discovery\n"
-         "  -PS/PA/PU/PY[portlist]: TCP SYN/ACK, UDP or SCTP discovery to given ports\n"
+         "  -PS/PA/PU/PY[portlist]: TCP SYN, TCP ACK, UDP or SCTP discovery to given ports\n"
          "  -PE/PP/PM: ICMP echo, timestamp, and netmask request discovery probes\n"
          "  -PO[protocol list]: IP Protocol Ping\n"
          "  -n/-R: Never do DNS resolution/Always resolve [default: sometimes]\n"
@@ -392,6 +391,22 @@ void validate_scan_lists(scan_lists &vports, NmapOps &vo) {
     }
   }
 
+  if (!vo.isr00t) {
+    if (vo.pingtype & (PINGTYPE_ICMP_PING | PINGTYPE_ICMP_MASK | PINGTYPE_ICMP_TS)) {
+#ifdef WIN32
+      error("Warning:  Npcap not detected -- using TCP pingscan rather than ICMP");
+#else
+      error("Warning:  You are not root -- using TCP pingscan rather than ICMP");
+#endif
+      vo.pingtype &= ~(PINGTYPE_ICMP_PING | PINGTYPE_ICMP_MASK | PINGTYPE_ICMP_TS);
+      vo.pingtype |= PINGTYPE_TCP;
+      if (vports.syn_ping_count == 0) {
+        getpts_simple(DEFAULT_TCP_PROBE_PORT_SPEC, SCAN_TCP_PORT, &vports.syn_ping_ports, &vports.syn_ping_count);
+        assert(vports.syn_ping_count > 0);
+      }
+    }
+  }
+
   if ((vo.pingtype & PINGTYPE_TCP) && (!vo.isr00t)) {
     // We will have to do a connect() style ping
     // Pretend we wanted SYN probes all along.
@@ -419,16 +434,6 @@ void validate_scan_lists(scan_lists &vports, NmapOps &vo) {
     vo.pingtype |= PINGTYPE_TCP_USE_SYN;
   }
 
-  if (!vo.isr00t) {
-    if (vo.pingtype & (PINGTYPE_ICMP_PING | PINGTYPE_ICMP_MASK | PINGTYPE_ICMP_TS)) {
-      error("Warning:  You are not root -- using TCP pingscan rather than ICMP");
-      vo.pingtype = PINGTYPE_TCP;
-      if (vports.syn_ping_count == 0) {
-        getpts_simple(DEFAULT_TCP_PROBE_PORT_SPEC, SCAN_TCP_PORT, &vports.syn_ping_ports, &vports.syn_ping_count);
-        assert(vports.syn_ping_count > 0);
-      }
-    }
-  }
 }
 
 struct ftpinfo ftp = get_default_ftpinfo();
@@ -1126,112 +1131,131 @@ void parse_options(int argc, char **argv) {
       delayed_options.normalfilename = logfilename(optarg, &local_time);
       break;
     case 'P':
-      if (!optarg) {
+      if (!optarg || *optarg == '\0') {
           delayed_options.warn_deprecated("P", "PE");
           o.pingtype |= PINGTYPE_ICMP_PING;
       }
-      else if (*optarg == '\0' || *optarg == 'I' || *optarg == 'E') {
-        if (*optarg != 'E') {
-          char buf[4];
-          Snprintf(buf, 3, "P%c", *optarg);
-          delayed_options.warn_deprecated(buf, "PE");
+      else {
+        char buf[4] = "P\0";
+        buf[1] = *optarg;
+        if (*(optarg + 1) != '\0' && NULL == strchr("STAUYBO", *optarg)) {
+          fatal("Unknown -P option -P%s.", optarg);
         }
-        o.pingtype |= PINGTYPE_ICMP_PING;
-      }
-      else if (*optarg == 'M')
-        o.pingtype |= PINGTYPE_ICMP_MASK;
-      else if (*optarg == 'P')
-        o.pingtype |= PINGTYPE_ICMP_TS;
-      else if (*optarg == 'n' || *optarg == '0' || *optarg == 'N' || *optarg == 'D') {
-        if (*optarg != 'n') {
-          char buf[4];
-          Snprintf(buf, 3, "P%c", *optarg);
-          delayed_options.warn_deprecated(buf, "Pn");
+        switch (*optarg) {
+          case 'I':
+            delayed_options.warn_deprecated(buf, "PE");
+          case 'E':
+            o.pingtype |= PINGTYPE_ICMP_PING;
+            break;
+
+          case 'M':
+            o.pingtype |= PINGTYPE_ICMP_MASK;
+            break;
+          case 'P':
+            o.pingtype |= PINGTYPE_ICMP_TS;
+            break;
+
+          case '0':
+          case 'N':
+          case 'D':
+            delayed_options.warn_deprecated(buf, "Pn");
+          case 'n':
+            if (o.verbose > 0)
+              error("Host discovery disabled (-Pn). All addresses will be marked 'up' and scan times may be slower.");
+            o.pingtype |= PINGTYPE_NONE;
+            break;
+
+          case 'R':
+            if (o.verbose > 0)
+              error("The -PR option is deprecated. ARP scan is always done when possible.");
+            break;
+          case 'S':
+            if (ports.syn_ping_count > 0)
+              fatal("Only one -PS option is allowed. Combine port ranges with commas.");
+            o.pingtype |= (PINGTYPE_TCP | PINGTYPE_TCP_USE_SYN);
+            if (*(optarg + 1) != '\0') {
+              getpts_simple(optarg + 1, SCAN_TCP_PORT, &ports.syn_ping_ports, &ports.syn_ping_count);
+              if (ports.syn_ping_count <= 0)
+                fatal("Bogus argument to -PS: %s", optarg + 1);
+            } else {
+              getpts_simple(DEFAULT_TCP_PROBE_PORT_SPEC, SCAN_TCP_PORT, &ports.syn_ping_ports, &ports.syn_ping_count);
+              assert(ports.syn_ping_count > 0);
+            }
+            break;
+
+          case 'T':
+            delayed_options.warn_deprecated(buf, "PA");
+          case 'A':
+            if (ports.ack_ping_count > 0)
+              fatal("Only one -PA or -PB option is allowed. Combine port ranges with commas.");
+            /* validate_scan_lists takes case of changing this to
+               to SYN if not root or if IPv6. */
+            o.pingtype |= (PINGTYPE_TCP | PINGTYPE_TCP_USE_ACK);
+            if (*(optarg + 1) != '\0') {
+              getpts_simple(optarg + 1, SCAN_TCP_PORT, &ports.ack_ping_ports, &ports.ack_ping_count);
+              if (ports.ack_ping_count <= 0)
+                fatal("Bogus argument to -PA: %s", optarg + 1);
+            } else {
+              getpts_simple(DEFAULT_TCP_PROBE_PORT_SPEC, SCAN_TCP_PORT, &ports.ack_ping_ports, &ports.ack_ping_count);
+              assert(ports.ack_ping_count > 0);
+            }
+            break;
+          case 'U':
+            if (ports.udp_ping_count > 0)
+              fatal("Only one -PU option is allowed. Combine port ranges with commas.");
+            o.pingtype |= (PINGTYPE_UDP);
+            if (*(optarg + 1) != '\0') {
+              getpts_simple(optarg + 1, SCAN_UDP_PORT, &ports.udp_ping_ports, &ports.udp_ping_count);
+              if (ports.udp_ping_count <= 0)
+                fatal("Bogus argument to -PU: %s", optarg + 1);
+            } else {
+              getpts_simple(DEFAULT_UDP_PROBE_PORT_SPEC, SCAN_UDP_PORT, &ports.udp_ping_ports, &ports.udp_ping_count);
+              assert(ports.udp_ping_count > 0);
+            }
+            break;
+          case 'Y':
+            if (ports.sctp_ping_count > 0)
+              fatal("Only one -PY option is allowed. Combine port ranges with commas.");
+            o.pingtype |= (PINGTYPE_SCTP_INIT);
+            if (*(optarg + 1) != '\0') {
+              getpts_simple(optarg + 1, SCAN_SCTP_PORT, &ports.sctp_ping_ports, &ports.sctp_ping_count);
+              if (ports.sctp_ping_count <= 0)
+                fatal("Bogus argument to -PY: %s", optarg + 1);
+            } else {
+              getpts_simple(DEFAULT_SCTP_PROBE_PORT_SPEC, SCAN_SCTP_PORT, &ports.sctp_ping_ports, &ports.sctp_ping_count);
+              assert(ports.sctp_ping_count > 0);
+            }
+            break;
+          case 'B':
+            if (ports.ack_ping_count > 0)
+              fatal("Only one -PA or -PB option is allowed. Combine port ranges with commas.");
+            o.pingtype = DEFAULT_IPV4_PING_TYPES;
+            if (*(optarg + 1) != '\0') {
+              getpts_simple(optarg + 1, SCAN_TCP_PORT, &ports.ack_ping_ports, &ports.ack_ping_count);
+              if (ports.ack_ping_count <= 0)
+                fatal("Bogus argument to -PB: %s", optarg + 1);
+            } else {
+              getpts_simple(DEFAULT_TCP_PROBE_PORT_SPEC, SCAN_TCP_PORT, &ports.ack_ping_ports, &ports.ack_ping_count);
+              assert(ports.ack_ping_count > 0);
+            }
+            break;
+          case 'O':
+            if (ports.proto_ping_count > 0)
+              fatal("Only one -PO option is allowed. Combine protocol ranges with commas.");
+            o.pingtype |= PINGTYPE_PROTO;
+            if (*(optarg + 1) != '\0') {
+              getpts_simple(optarg + 1, SCAN_PROTOCOLS, &ports.proto_ping_ports, &ports.proto_ping_count);
+              if (ports.proto_ping_count <= 0)
+                fatal("Bogus argument to -PO: %s", optarg + 1);
+            } else {
+              getpts_simple(DEFAULT_PROTO_PROBE_PORT_SPEC, SCAN_PROTOCOLS, &ports.proto_ping_ports, &ports.proto_ping_count);
+              assert(ports.proto_ping_count > 0);
+            }
+            break;
+          default:
+            fatal("Illegal Argument to -P, use -Pn, -PE, -PS, -PA, -PP, -PM, -PU, -PY, or -PO");
+            break;
         }
-        if (o.verbose > 0)
-          error("Host discovery disabled (-Pn). All addresses will be marked 'up' and scan times may be slower.");
-        o.pingtype |= PINGTYPE_NONE;
-      }
-      else if (*optarg == 'R') {
-        if (o.verbose > 0)
-          error("The -PR option is deprecated. ARP scan is always done when possible.");
-      }
-      else if (*optarg == 'S') {
-        if (ports.syn_ping_count > 0)
-          fatal("Only one -PS option is allowed. Combine port ranges with commas.");
-        o.pingtype |= (PINGTYPE_TCP | PINGTYPE_TCP_USE_SYN);
-        if (*(optarg + 1) != '\0') {
-          getpts_simple(optarg + 1, SCAN_TCP_PORT, &ports.syn_ping_ports, &ports.syn_ping_count);
-          if (ports.syn_ping_count <= 0)
-            fatal("Bogus argument to -PS: %s", optarg + 1);
-        } else {
-          getpts_simple(DEFAULT_TCP_PROBE_PORT_SPEC, SCAN_TCP_PORT, &ports.syn_ping_ports, &ports.syn_ping_count);
-          assert(ports.syn_ping_count > 0);
-        }
-      } else if (*optarg == 'T' || *optarg == 'A') {
-        if (ports.ack_ping_count > 0)
-          fatal("Only one -PB, -PA, or -PT option is allowed. Combine port ranges with commas.");
-        /* validate_scan_lists takes case of changing this to
-           to SYN if not root or if IPv6. */
-        o.pingtype |= (PINGTYPE_TCP | PINGTYPE_TCP_USE_ACK);
-        if (*(optarg + 1) != '\0') {
-          getpts_simple(optarg + 1, SCAN_TCP_PORT, &ports.ack_ping_ports, &ports.ack_ping_count);
-          if (ports.ack_ping_count <= 0)
-            fatal("Bogus argument to -PA: %s", optarg + 1);
-        } else {
-          getpts_simple(DEFAULT_TCP_PROBE_PORT_SPEC, SCAN_TCP_PORT, &ports.ack_ping_ports, &ports.ack_ping_count);
-          assert(ports.ack_ping_count > 0);
-        }
-      } else if (*optarg == 'U') {
-        if (ports.udp_ping_count > 0)
-          fatal("Only one -PU option is allowed. Combine port ranges with commas.");
-        o.pingtype |= (PINGTYPE_UDP);
-        if (*(optarg + 1) != '\0') {
-          getpts_simple(optarg + 1, SCAN_UDP_PORT, &ports.udp_ping_ports, &ports.udp_ping_count);
-          if (ports.udp_ping_count <= 0)
-            fatal("Bogus argument to -PU: %s", optarg + 1);
-        } else {
-          getpts_simple(DEFAULT_UDP_PROBE_PORT_SPEC, SCAN_UDP_PORT, &ports.udp_ping_ports, &ports.udp_ping_count);
-          assert(ports.udp_ping_count > 0);
-        }
-      } else if (*optarg == 'Y') {
-        if (ports.sctp_ping_count > 0)
-          fatal("Only one -PY option is allowed. Combine port ranges with commas.");
-        o.pingtype |= (PINGTYPE_SCTP_INIT);
-        if (*(optarg + 1) != '\0') {
-          getpts_simple(optarg + 1, SCAN_SCTP_PORT, &ports.sctp_ping_ports, &ports.sctp_ping_count);
-          if (ports.sctp_ping_count <= 0)
-            fatal("Bogus argument to -PY: %s", optarg + 1);
-        } else {
-          getpts_simple(DEFAULT_SCTP_PROBE_PORT_SPEC, SCAN_SCTP_PORT, &ports.sctp_ping_ports, &ports.sctp_ping_count);
-          assert(ports.sctp_ping_count > 0);
-        }
-      } else if (*optarg == 'B') {
-        if (ports.ack_ping_count > 0)
-          fatal("Only one -PB, -PA, or -PT option is allowed. Combine port ranges with commas.");
-        o.pingtype = DEFAULT_IPV4_PING_TYPES;
-        if (*(optarg + 1) != '\0') {
-          getpts_simple(optarg + 1, SCAN_TCP_PORT, &ports.ack_ping_ports, &ports.ack_ping_count);
-          if (ports.ack_ping_count <= 0)
-            fatal("Bogus argument to -PB: %s", optarg + 1);
-        } else {
-          getpts_simple(DEFAULT_TCP_PROBE_PORT_SPEC, SCAN_TCP_PORT, &ports.ack_ping_ports, &ports.ack_ping_count);
-          assert(ports.ack_ping_count > 0);
-        }
-      } else if (*optarg == 'O') {
-        if (ports.proto_ping_count > 0)
-          fatal("Only one -PO option is allowed. Combine protocol ranges with commas.");
-        o.pingtype |= PINGTYPE_PROTO;
-        if (*(optarg + 1) != '\0') {
-          getpts_simple(optarg + 1, SCAN_PROTOCOLS, &ports.proto_ping_ports, &ports.proto_ping_count);
-          if (ports.proto_ping_count <= 0)
-            fatal("Bogus argument to -PO: %s", optarg + 1);
-        } else {
-          getpts_simple(DEFAULT_PROTO_PROBE_PORT_SPEC, SCAN_PROTOCOLS, &ports.proto_ping_ports, &ports.proto_ping_count);
-          assert(ports.proto_ping_count > 0);
-        }
-      } else {
-        fatal("Illegal Argument to -P, use -Pn, -PE, -PS, -PA, -PP, -PM, -PU, -PY, or -PO");
       }
       break;
     case 'p':
@@ -1547,8 +1571,13 @@ void  apply_delayed_options() {
   }
 #endif
 
-  if (o.traceroute && !o.isr00t)
+  if (o.traceroute && !o.isr00t) {
+#ifdef WIN32
+    fatal("Traceroute requires Npcap, which was not detected.");
+#else
     fatal("Traceroute has to be run as root");
+#endif
+  }
   if (o.traceroute && o.idlescan)
     fatal("Traceroute does not support idle scan");
 
@@ -1780,7 +1809,13 @@ void  apply_delayed_options() {
   if (delayed_options.raw_scan_options && (!o.isr00t || o.connectscan)) {
     error("You have specified some options that require raw socket access.\n"
           "These options will not be honored %s.",
-          o.isr00t ? "for TCP Connect scan" : "without the necessary privileges");
+          o.isr00t ? "for TCP Connect scan" :
+#ifdef WIN32
+          "since Npcap was not detected"
+#else
+          "without the necessary privileges"
+#endif
+          );
   }
 }
 
@@ -1977,8 +2012,8 @@ int nmap_main(int argc, char *argv[]) {
                                SIGPIPE */
 #endif
 
-  if (o.max_parallelism && (i = max_sd()) && i < o.max_parallelism) {
-    error("WARNING: Your specified max_parallel_sockets of %d, but your system says it might only give us %d.  Trying anyway", o.max_parallelism, i);
+  if (o.max_parallelism && (i = max_sd()) > 0 && i < o.max_parallelism) {
+    error("WARNING: max_parallelism is %d, but your system says it might only give us %d sockets.  Trying anyway", o.max_parallelism, i);
   }
 
   if (o.debugging > 1)
@@ -2058,7 +2093,8 @@ int nmap_main(int argc, char *argv[]) {
 
   if (o.ping_group_sz < o.minHostGroupSz())
     o.ping_group_sz = o.minHostGroupSz();
-  HostGroupState hstate(o.ping_group_sz, o.randomize_hosts, argc, (const char **) argv);
+  HostGroupState hstate(o.ping_group_sz, o.randomize_hosts,
+      o.generate_random_ips ? o.max_ips_to_scan : 0, argc, (const char **) argv);
 
   do {
     ideal_scan_group_sz = determineScanGroupSize(o.numhosts_scanned, &ports);
@@ -2786,10 +2822,12 @@ static void display_nmap_version() {
   without.push_back("libz");
 #endif
 
+  char pcre2_version[255];
+  pcre2_config(PCRE2_CONFIG_VERSION, pcre2_version);
 #ifdef PCRE_INCLUDED
-  with.push_back(std::string("nmap-libpcre-") + get_word_or_quote(pcre_version(), 0));
+  with.push_back(std::string("nmap-libpcre2-") + get_word_or_quote(pcre2_version, 0));
 #else
-  with.push_back(std::string("libpcre-") + get_word_or_quote(pcre_version(), 0));
+  with.push_back(std::string("libpcre2-") + get_word_or_quote(pcre2_version, 0));
 #endif
 
 #ifdef WIN32

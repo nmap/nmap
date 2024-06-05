@@ -17,7 +17,7 @@
 .\" WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF
 .\" MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 .\"
-.TH PCAP_LOOP 3PCAP "22 August 2020"
+.TH PCAP_LOOP 3PCAP "5 March 2022"
 .SH NAME
 pcap_loop, pcap_dispatch \- process packets from a live capture or savefile
 .SH SYNOPSIS
@@ -164,12 +164,15 @@ if
 .I cnt
 is exhausted or if, when reading from a ``savefile'', no more packets
 are available.  It returns
-.B PCAP_ERROR
-if an error occurs or
 .B PCAP_ERROR_BREAK
 if the loop terminated due to a call to
 .BR pcap_breakloop ()
-before any packets were processed.
+before any packets were processed,
+.B PCAP_ERROR_NOT_ACTIVATED
+if called on a capture handle that has been created but not activated,
+or
+.B PCAP_ERROR
+if another error occurs.
 It does
 .B not
 return when live packet buffer timeouts occur; instead, it attempts to
@@ -184,12 +187,15 @@ packets arrive, the timeout expires before any packets arrive, or if the
 file descriptor for the capture device is in non-blocking mode and no
 packets were available to be read) or if no more packets are available
 in a ``savefile.'' It returns
-.B PCAP_ERROR
-if an error occurs or
 .B PCAP_ERROR_BREAK
 if the loop terminated due to a call to
 .BR pcap_breakloop ()
-before any packets were processed.
+before any packets were processed,
+.B PCAP_ERROR_NOT_ACTIVATED
+if called on a capture handle that has been created but not activated,
+or
+.B PCAP_ERROR
+if another error occurs.
 .ft B
 If your application uses pcap_breakloop(),
 make sure that you explicitly check for PCAP_ERROR and PCAP_ERROR_BREAK,

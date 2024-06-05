@@ -478,7 +478,7 @@ bpf_open(char *errbuf)
 {
 	int fd = -1;
 	static const char cloning_device[] = "/dev/bpf";
-	int n = 0;
+	u_int n = 0;
 	char device[sizeof "/dev/bpf0000000000"];
 	static int no_cloning_bpf = 0;
 
@@ -503,12 +503,17 @@ bpf_open(char *errbuf)
 	    ((errno != EACCES && errno != ENOENT) ||
 	     (fd = open(cloning_device, O_RDONLY)) == -1)) {
 		if (errno != ENOENT) {
-			if (errno == EACCES)
+			if (errno == EACCES) {
 				fd = PCAP_ERROR_PERM_DENIED;
-			else
+				snprintf(errbuf, PCAP_ERRBUF_SIZE,
+				    "Attempt to open %s failed - root privileges may be required",
+				    cloning_device);
+			} else {
 				fd = PCAP_ERROR;
-			pcap_fmt_errmsg_for_errno(errbuf, PCAP_ERRBUF_SIZE,
-			    errno, "(cannot open device) %s", cloning_device);
+				pcap_fmt_errmsg_for_errno(errbuf,
+				    PCAP_ERRBUF_SIZE, errno,
+				    "(cannot open device) %s", cloning_device);
+			}
 			return (fd);
 		}
 		no_cloning_bpf = 1;
@@ -521,7 +526,7 @@ bpf_open(char *errbuf)
 		 * that isn't in use.
 		 */
 		do {
-			(void)snprintf(device, sizeof(device), "/dev/bpf%d", n++);
+			(void)snprintf(device, sizeof(device), "/dev/bpf%u", n++);
 			/*
 			 * Initially try a read/write open (to allow the inject
 			 * method to work).  If that fails due to permission
@@ -577,8 +582,9 @@ bpf_open(char *errbuf)
 			 * if any.
 			 */
 			fd = PCAP_ERROR_PERM_DENIED;
-			pcap_fmt_errmsg_for_errno(errbuf, PCAP_ERRBUF_SIZE,
-			    errno, "(cannot open BPF device) %s", device);
+			snprintf(errbuf, PCAP_ERRBUF_SIZE,
+			    "Attempt to open %s failed - root privileges may be required",
+			    device);
 			break;
 
 		default:
@@ -655,7 +661,11 @@ bpf_bind(int fd, const char *name, char *errbuf)
 		case ENXIO:
 			/*
 			 * There's no such device.
+			 *
+			 * There's nothing more to say, so clear out the
+			 * error message.
 			 */
+			errbuf[0] = '\0';
 			return (PCAP_ERROR_NO_SUCH_DEVICE);
 
 		case ENETDOWN:
@@ -1177,6 +1187,9 @@ pcap_read_bpf(pcap_t *p, int cnt, pcap_handler callback, u_char *user)
 
 	/*
 	 * Loop through each packet.
+	 *
+	 * This assumes that a single buffer of packets will have
+	 * <= INT_MAX packets, so the packet count doesn't overflow.
 	 */
 #ifdef BIOCSTSTAMP
 #define bhp ((struct bpf_xhdr *)bp)
@@ -2191,7 +2204,7 @@ pcap_activate_bpf(pcap_t *p)
 				 *
 				 * Otherwise, fail.
 				 */
-				if (errno != BPF_BIND_BUFFER_TOO_BIG) {
+				if (status != BPF_BIND_BUFFER_TOO_BIG) {
 					/*
 					 * Special checks on macOS to deal
 					 * with the way monitor mode was
@@ -2968,7 +2981,7 @@ get_if_flags(const char *name, bpf_u_int32 *flags, char *errbuf)
 }
 #else
 static int
-get_if_flags(const char *name _U_, bpf_u_int32 *flags _U_, char *errbuf _U_)
+get_if_flags(const char *name _U_, bpf_u_int32 *flags, char *errbuf _U_)
 {
 	/*
 	 * Nothing we can do other than mark loopback devices as "the
@@ -3043,7 +3056,11 @@ monitor_mode(pcap_t *p, int set)
 		case ENXIO:
 			/*
 			 * There's no such device.
+			 *
+			 * There's nothing more to say, so clear the
+			 * error message.
 			 */
+			p->errbuf[0] = '\0';
 			close(sock);
 			return (PCAP_ERROR_NO_SUCH_DEVICE);
 

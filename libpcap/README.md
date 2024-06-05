@@ -24,7 +24,7 @@ to ease in porting and to alleviate the need for several
 system-dependent packet capture modules in each application.
 
 ```text
-formerly from 	Lawrence Berkeley National Laboratory
+formerly from	Lawrence Berkeley National Laboratory
 		Network Research Group <libpcap@ee.lbl.gov>
 		ftp://ftp.ee.lbl.gov/old/libpcap-0.4a7.tar.Z
 ```
@@ -52,12 +52,10 @@ would translate BPF filters into a filter program that is compatible
 with the underlying kernel subsystem, but this is not yet implemented.
 
 BPF is standard in 4.4BSD, BSD/OS, NetBSD, FreeBSD, OpenBSD, DragonFly
-BSD, and macOS; an older, modified and undocumented version is standard
-in AIX.  {DEC OSF/1, Digital UNIX, Tru64 UNIX} uses the packetfilter
-interface but has been extended to accept BPF filters (which libpcap
-utilizes).  Also, you can add BPF filter support to Ultrix using the
-kernel source and/or object patches available
-[here](https://www.tcpdump.org/other/bpfext42.tar.Z).
+BSD, macOS, and Solaris 11; an older, modified and undocumented version
+is standard in AIX.  {DEC OSF/1, Digital UNIX, Tru64 UNIX} uses the
+packetfilter interface but has been extended to accept BPF filters
+(which libpcap utilizes).
 
 Linux has a number of BPF based systems, and libpcap does not support
 any of the eBPF mechanisms as yet, although it supports many of the

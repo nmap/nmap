@@ -17,7 +17,7 @@
 .\" WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF
 .\" MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 .\"
-.TH PCAP_SET_DATALINK 3PCAP "25 July 2018"
+.TH PCAP_SET_DATALINK 3PCAP "5 March 2022"
 .SH NAME
 pcap_set_datalink \- set the link-layer header type to be used by a
 capture device
@@ -40,9 +40,11 @@ to the type specified by
 .BR pcap_set_datalink ()
 returns
 .B 0
-on success and
+on success,
+.B PCAP_ERROR_NOT_ACTIVATED
+if called on a capture handle that has been created but not activated, or
 .B PCAP_ERROR
-on failure. If
+on other errors. If
 .B PCAP_ERROR
 is returned,
 .BR pcap_geterr (3PCAP)

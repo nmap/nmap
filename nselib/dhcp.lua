@@ -611,7 +611,7 @@ function make_request(target, request_type, ip_address, mac_address, options, re
   -- Generate the packet
   local status, packet = dhcp_build(request_type, ipOps.ip_to_str(ip_address), mac_address, options, request_options, overrides, lease_time, transaction_id)
   if(not(status)) then
-    stdnse.debug1("dhcp: Couldn't build packet: " .. packet)
+    stdnse.debug1("dhcp: Couldn't build packet: %s", packet)
     return false, "Couldn't build packet: "  .. packet
   end
 
@@ -622,7 +622,7 @@ function make_request(target, request_type, ip_address, mac_address, options, re
   -- Send the packet and get the response
   local status, response = dhcp_send(socket, target, packet)
   if(not(status)) then
-    stdnse.debug1("dhcp: Couldn't send packet: " .. response)
+    stdnse.debug1("dhcp: Couldn't send packet: %s", response)
     return false, "Couldn't send packet: "  .. response
   end
 
@@ -630,14 +630,14 @@ function make_request(target, request_type, ip_address, mac_address, options, re
   socket:close()
 
   if ( not(status) ) then
-    stdnse.debug1("dhcp: Couldn't receive packet: " .. response)
+    stdnse.debug1("dhcp: Couldn't receive packet: %s", response)
     return false, "Couldn't receive packet: "  .. response
   end
 
   -- Parse the response
   local status, parsed = dhcp_parse(response, transaction_id)
   if(not(status)) then
-    stdnse.debug1("dhcp: Couldn't parse response: " .. parsed)
+    stdnse.debug1("dhcp: Couldn't parse response: %s", parsed)
     return false, "Couldn't parse response: "  .. parsed
   end
 

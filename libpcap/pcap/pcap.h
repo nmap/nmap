@@ -71,7 +71,7 @@
 
 /*
  * Some software that uses libpcap/WinPcap/Npcap defines _MSC_VER before
- * includeing pcap.h if it's not defined - and it defines it to 1500.
+ * including pcap.h if it's not defined - and it defines it to 1500.
  * (I'm looking at *you*, lwIP!)
  *
  * Attempt to detect this, and undefine _MSC_VER so that we can *reliably*
@@ -391,8 +391,8 @@ PCAP_API int	pcap_init(unsigned int, char *);
  * should use pcap_findalldevs() and use the first device.
  */
 PCAP_AVAILABLE_0_4
-PCAP_API char	*pcap_lookupdev(char *)
-PCAP_DEPRECATED(pcap_lookupdev, "use 'pcap_findalldevs' and use the first device");
+PCAP_DEPRECATED("use 'pcap_findalldevs' and use the first device")
+PCAP_API char	*pcap_lookupdev(char *);
 
 PCAP_AVAILABLE_0_4
 PCAP_API int	pcap_lookupnet(const char *, bpf_u_int32 *, bpf_u_int32 *, char *);
@@ -571,7 +571,7 @@ PCAP_AVAILABLE_0_4
 PCAP_API const u_char *pcap_next(pcap_t *, struct pcap_pkthdr *);
 
 PCAP_AVAILABLE_0_8
-PCAP_API int 	pcap_next_ex(pcap_t *, struct pcap_pkthdr **, const u_char **);
+PCAP_API int	pcap_next_ex(pcap_t *, struct pcap_pkthdr **, const u_char **);
 
 PCAP_AVAILABLE_0_8
 PCAP_API void	pcap_breakloop(pcap_t *);
@@ -583,7 +583,7 @@ PCAP_AVAILABLE_0_4
 PCAP_API int	pcap_setfilter(pcap_t *, struct bpf_program *);
 
 PCAP_AVAILABLE_0_9
-PCAP_API int 	pcap_setdirection(pcap_t *, pcap_direction_t);
+PCAP_API int	pcap_setdirection(pcap_t *, pcap_direction_t);
 
 PCAP_AVAILABLE_0_7
 PCAP_API int	pcap_getnonblock(pcap_t *, char *);
@@ -614,6 +614,7 @@ PCAP_API int	pcap_compile(pcap_t *, struct bpf_program *, const char *, int,
 	    bpf_u_int32);
 
 PCAP_AVAILABLE_0_5
+PCAP_DEPRECATED("use pcap_open_dead(), pcap_compile() and pcap_close()")
 PCAP_API int	pcap_compile_nopcap(int, int, struct bpf_program *,
 	    const char *, int, bpf_u_int32);
 
@@ -680,8 +681,8 @@ PCAP_API FILE	*pcap_file(pcap_t *);
  * a Windows-only pcap_handle() API that returns the HANDLE.
  */
 PCAP_AVAILABLE_0_4
-PCAP_API int	pcap_fileno(pcap_t *)
-PCAP_DEPRECATED(pcap_fileno, "use 'pcap_handle'");
+PCAP_DEPRECATED("request a 'pcap_handle' that returns a HANDLE if you need it")
+PCAP_API int	pcap_fileno(pcap_t *);
 #else /* _WIN32 */
 PCAP_AVAILABLE_0_4
 PCAP_API int	pcap_fileno(pcap_t *);
@@ -878,7 +879,7 @@ PCAP_API const char *pcap_lib_version(void);
 /*
  * The formats allowed by pcap_open() are the following:
  * - file://path_and_filename [opens a local file]
- * - rpcap://devicename [opens the selected device devices available on the local host, without using the RPCAP protocol]
+ * - rpcap://devicename [opens the selected device available on the local host, without using the RPCAP protocol]
  * - rpcap://host/devicename [opens the selected device available on a remote host]
  * - rpcap://host:port/devicename [opens the selected device available on a remote host, using a non-standard port for RPCAP]
  * - adaptername [to open a local adapter; kept for compatibility, but it is strongly discouraged]
@@ -1013,10 +1014,11 @@ PCAP_API const char *pcap_lib_version(void);
  * authentication is successful (and the user has the right to open network
  * devices) the RPCAP connection will continue; otherwise it will be dropped.
  *
- * *******NOTE********: the username and password are sent over the network
- * to the capture server *IN CLEAR TEXT*.  Don't use this on a network
- * that you don't completely control!  (And be *really* careful in your
- * definition of "completely"!)
+ * *******NOTE********: unless TLS is being used, the username and password
+ * are sent over the network to the capture server *IN CLEAR TEXT*.  Don't
+ * use this, without TLS (i.e., with rpcap:// rather than rpcaps://) on
+ * a network that you don't completely control!  (And be *really* careful
+ * in your definition of "completely"!)
  */
 #define RPCAP_RMTAUTH_PWD 1
 

@@ -1,60 +1,59 @@
 /***************************************************************************
  * ncat_connect.c -- Ncat connect mode.                                    *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
- *                                                                         *
- * The Nmap Security Scanner is (C) 1996-2022 Nmap Software LLC ("The Nmap *
- * Project"). Nmap is also a registered trademark of the Nmap Project.     *
- *                                                                         *
- * This program is distributed under the terms of the Nmap Public Source   *
- * License (NPSL). The exact license text applying to a particular Nmap    *
- * release or source code control revision is contained in the LICENSE     *
- * file distributed with that version of Nmap or source code control       *
- * revision. More Nmap copyright/legal information is available from       *
- * https://nmap.org/book/man-legal.html, and further information on the    *
- * NPSL license itself can be found at https://nmap.org/npsl/ . This       *
- * header summarizes some key points from the Nmap license, but is no      *
- * substitute for the actual license text.                                 *
- *                                                                         *
- * Nmap is generally free for end users to download and use themselves,    *
- * including commercial use. It is available from https://nmap.org.        *
- *                                                                         *
- * The Nmap license generally prohibits companies from using and           *
- * redistributing Nmap in commercial products, but we sell a special Nmap  *
- * OEM Edition with a more permissive license and special features for     *
- * this purpose. See https://nmap.org/oem/                                 *
- *                                                                         *
- * If you have received a written Nmap license agreement or contract       *
- * stating terms other than these (such as an Nmap OEM license), you may   *
- * choose to use and redistribute Nmap under those terms instead.          *
- *                                                                         *
- * The official Nmap Windows builds include the Npcap software             *
- * (https://npcap.com) for packet capture and transmission. It is under    *
- * separate license terms which forbid redistribution without special      *
- * permission. So the official Nmap Windows builds may not be              *
- * redistributed without special permission (such as an Nmap OEM           *
- * license).                                                               *
- *                                                                         *
- * Source is provided to this software because we believe users have a     *
- * right to know exactly what a program is going to do before they run it. *
- * This also allows you to audit the software for security holes.          *
- *                                                                         *
- * Source code also allows you to port Nmap to new platforms, fix bugs,    *
- * and add new features.  You are highly encouraged to submit your         *
- * changes as a Github PR or by email to the dev@nmap.org mailing list     *
- * for possible incorporation into the main distribution. Unless you       *
- * specify otherwise, it is understood that you are offering us very       *
- * broad rights to use your submissions as described in the Nmap Public    *
- * Source License Contributor Agreement. This is important because we      *
- * fund the project by selling licenses with various terms, and also       *
- * because the inability to relicense code has caused devastating          *
- * problems for other Free Software projects (such as KDE and NASM).       *
- *                                                                         *
- * The free version of Nmap is distributed in the hope that it will be     *
- * useful, but WITHOUT ANY WARRANTY; without even the implied warranty of  *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. Warranties,        *
- * indemnification and commercial support are all available through the    *
- * Npcap OEM program--see https://nmap.org/oem/                            *
- *                                                                         *
+ *
+ * The Nmap Security Scanner is (C) 1996-2024 Nmap Software LLC ("The Nmap
+ * Project"). Nmap is also a registered trademark of the Nmap Project.
+ *
+ * This program is distributed under the terms of the Nmap Public Source
+ * License (NPSL). The exact license text applying to a particular Nmap
+ * release or source code control revision is contained in the LICENSE
+ * file distributed with that version of Nmap or source code control
+ * revision. More Nmap copyright/legal information is available from
+ * https://nmap.org/book/man-legal.html, and further information on the
+ * NPSL license itself can be found at https://nmap.org/npsl/ . This
+ * header summarizes some key points from the Nmap license, but is no
+ * substitute for the actual license text.
+ *
+ * Nmap is generally free for end users to download and use themselves,
+ * including commercial use. It is available from https://nmap.org.
+ *
+ * The Nmap license generally prohibits companies from using and
+ * redistributing Nmap in commercial products, but we sell a special Nmap
+ * OEM Edition with a more permissive license and special features for
+ * this purpose. See https://nmap.org/oem/
+ *
+ * If you have received a written Nmap license agreement or contract
+ * stating terms other than these (such as an Nmap OEM license), you may
+ * choose to use and redistribute Nmap under those terms instead.
+ *
+ * The official Nmap Windows builds include the Npcap software
+ * (https://npcap.com) for packet capture and transmission. It is under
+ * separate license terms which forbid redistribution without special
+ * permission. So the official Nmap Windows builds may not be redistributed
+ * without special permission (such as an Nmap OEM license).
+ *
+ * Source is provided to this software because we believe users have a
+ * right to know exactly what a program is going to do before they run it.
+ * This also allows you to audit the software for security holes.
+ *
+ * Source code also allows you to port Nmap to new platforms, fix bugs, and
+ * add new features. You are highly encouraged to submit your changes as a
+ * Github PR or by email to the dev@nmap.org mailing list for possible
+ * incorporation into the main distribution. Unless you specify otherwise, it
+ * is understood that you are offering us very broad rights to use your
+ * submissions as described in the Nmap Public Source License Contributor
+ * Agreement. This is important because we fund the project by selling licenses
+ * with various terms, and also because the inability to relicense code has
+ * caused devastating problems for other Free Software projects (such as KDE
+ * and NASM).
+ *
+ * The free version of Nmap is distributed in the hope that it will be
+ * useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. Warranties,
+ * indemnification and commercial support are all available through the
+ * Npcap OEM program--see https://nmap.org/oem/
+ *
  ***************************************************************************/
 
 /* $Id$ */
@@ -195,8 +194,6 @@ static void set_ssl_ctx_options(SSL_CTX *ctx)
         bye("Unable to set OpenSSL cipher list: %s", ERR_error_string(ERR_get_error(), NULL));
     }
 
-#ifdef HAVE_ALPN_SUPPORT
-
     if (o.sslalpn) {
         size_t alpn_len;
         unsigned char *alpn = next_protos_parse(&alpn_len, o.sslalpn);
@@ -215,8 +212,6 @@ static void set_ssl_ctx_options(SSL_CTX *ctx)
 
         free(alpn);
     }
-
-#endif
 
 }
 #endif
@@ -978,7 +973,7 @@ int ncat_connect(void)
     nsock_pool_set_broadcast(mypool, 1);
 
 #ifdef HAVE_OPENSSL
-#ifdef HAVE_DTLS_CLIENT_METHOD
+#ifndef OPENSSL_NO_DTLS
     if(o.proto == IPPROTO_UDP)
         set_ssl_ctx_options((SSL_CTX *) nsock_pool_dtls_init(mypool, 0));
     else
@@ -1083,7 +1078,7 @@ int ncat_connect(void)
         struct timeval end_time;
         double time;
         gettimeofday(&end_time, NULL);
-        time = TIMEVAL_MSEC_SUBTRACT(end_time, start_time) / 1000.0;
+        time = TIMEVAL_FSEC_SUBTRACT(end_time, start_time);
         loguser("%lu bytes sent, %lu bytes received in %.2f seconds.\n",
             nsock_iod_get_write_count(cs.sock_nsi),
             nsock_iod_get_read_count(cs.sock_nsi), time);
@@ -1269,8 +1264,16 @@ static void read_stdin_handler(nsock_pool nsp, nsock_event evt, void *data)
 
 
     if (status == NSE_STATUS_EOF) {
-        if (!o.noshutdown)
-            shutdown(nsock_iod_get_sd(cs.sock_nsi), SHUT_WR);
+        if (!o.noshutdown) {
+#ifdef HAVE_OPENSSL
+            SSL *ssl = NULL;
+            if (o.ssl && NULL != (ssl = (SSL *)nsock_iod_get_ssl(cs.sock_nsi))) {
+                SSL_shutdown(ssl);
+            }
+            else
+#endif
+                shutdown(nsock_iod_get_sd(cs.sock_nsi), SHUT_WR);
+        }
         /* In --send-only mode or non-TCP mode, exit after EOF on stdin. */
         if (o.proto != IPPROTO_TCP || (o.proto == IPPROTO_TCP && o.sendonly))
             nsock_loop_quit(nsp);

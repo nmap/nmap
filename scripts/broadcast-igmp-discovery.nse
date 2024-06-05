@@ -302,7 +302,6 @@ end
 action = function(host, port)
   local timeout = stdnse.parse_timespec(stdnse.get_script_args(SCRIPT_NAME .. ".timeout"))
   local version = stdnse.get_script_args(SCRIPT_NAME .. ".version") or 2
-  local interface = stdnse.get_script_args(SCRIPT_NAME .. ".interface")
   timeout = (timeout or 7) * 1000
   if version ~= 'all' then
     version = tonumber(version)
@@ -315,29 +314,13 @@ action = function(host, port)
   nmap.fetchfile("nselib/data/mgroupnames.db")
   local mg_names_db = group_names_fname and mgroup_names_fetch(group_names_fname)
 
-  -- Check the interface
-  interface = interface or nmap.get_interface()
-  if interface then
-    -- Get the interface information
-    interface = nmap.get_interface_info(interface)
-    if not interface then
-      return stdnse.format_output(false, ("Failed to retrieve %s interface information."):format(interface))
-    end
-    interfaces = {interface}
-    stdnse.debug1("Will use %s interface.", interface.shortname)
-  else
-    local ifacelist = nmap.list_interfaces()
-    for _, iface in ipairs(ifacelist) do
-      -- Match all ethernet interfaces
-      if iface.address and iface.link=="ethernet" and
-        iface.address:match("%d+%.%d+%.%d+%.%d+") then
-
-        stdnse.debug1("Will use %s interface.", iface.shortname)
-        table.insert(interfaces, iface)
-      end
+  local collect_interfaces = function (if_table)
+    if if_table and if_table.up == "up" and if_table.link=="ethernet"
+      and if_table.address:match("%d+%.%d+%.%d+%.%d+") then
+      interfaces[#interfaces+1] = if_table
     end
   end
-
+  stdnse.get_script_interfaces(collect_interfaces)
 
   -- We should iterate over interfaces
   for _, interface in pairs(interfaces) do

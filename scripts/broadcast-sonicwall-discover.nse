@@ -36,24 +36,33 @@ license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"broadcast", "safe"}
 
 
--- preliminary checks
-local interface = stdnse.get_script_args(SCRIPT_NAME .. ".interface") or nmap.get_interface()
-
 prerule = function()
   if not nmap.is_privileged() then
     stdnse.verbose1("Not running for lack of privileges.")
     return false
   end
-
-  local has_interface = ( interface ~= nil )
-  if ( not(has_interface) ) then
-    stdnse.verbose1("No network interface was supplied, aborting.")
+  if nmap.address_family() ~= "inet" then
+    stdnse.verbose1("Script is IPv4-only")
     return false
   end
   return true
 end
 
 action = function(host, port)
+  -- preliminary checks
+  local interface
+  local collect_interface = function (if_table)
+    if not interface and if_table.up == "up" and
+      if_table.address and if_table.address:match("^%d+%.%d+%.%d+%.%d+$") then
+      interface = if_table.device
+    end
+  end
+  stdnse.get_script_interfaces(collect_interface)
+
+  if not interface then
+    stdnse.verbose1("No network interface was supplied, aborting.")
+    return false
+  end
   local sock, co
   sock = nmap.new_socket()
 

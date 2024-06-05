@@ -32,13 +32,14 @@
 #include <memory.h>
 #include <setjmp.h>
 #include <string.h>
-
+#include <limits.h> /* for SIZE_MAX */
 #include <errno.h>
 
 #include "pcap-int.h"
 
 #include "gencode.h"
 #include "optimize.h"
+#include "diag-control.h"
 
 #ifdef HAVE_OS_PROTO_H
 #include "os-proto.h"
@@ -2098,7 +2099,7 @@ opt_blks(opt_state_t *opt_state, struct icode *ic, int do_stmts)
 		 * versions of the machine code, eventually returning
 		 * to the first version.  (We're really not doing a
 		 * full loop detection, we're just testing for two
-		 * passes in a row where where we do nothing but
+		 * passes in a row where we do nothing but
 		 * move branches.)
 		 */
 		return;
@@ -2421,6 +2422,9 @@ opt_error(opt_state_t *opt_state, const char *fmt, ...)
 	}
 	longjmp(opt_state->top_ctx, 1);
 	/* NOTREACHED */
+#ifdef _AIX
+	PCAP_UNREACHABLE
+#endif /* _AIX */
 }
 
 /*
@@ -2606,7 +2610,7 @@ opt_init(opt_state_t *opt_state, struct icode *ic)
 	}
 
 	/*
-	 * Make sure the total memory required for both of them dosn't
+	 * Make sure the total memory required for both of them doesn't
 	 * overflow.
 	 */
 	if (block_memsize > SIZE_MAX - edge_memsize) {
@@ -2895,7 +2899,6 @@ icode_to_fcode(struct icode *ic, struct block *root, u_int *lenp,
 	    if (fp == NULL) {
 		(void)snprintf(errbuf, PCAP_ERRBUF_SIZE,
 		    "malloc");
-		free(fp);
 		return NULL;
 	    }
 	    memset((char *)fp, 0, sizeof(*fp) * n);
@@ -2925,6 +2928,9 @@ conv_error(conv_state_t *conv_state, const char *fmt, ...)
 	va_end(ap);
 	longjmp(conv_state->top_ctx, 1);
 	/* NOTREACHED */
+#ifdef _AIX
+	PCAP_UNREACHABLE
+#endif /* _AIX */
 }
 
 /*
@@ -3023,14 +3029,14 @@ dot_dump_edge(struct icode *ic, struct block *block, FILE *out)
  *
  * example DOT for BPF `ip src host 1.1.1.1' is:
     digraph BPF {
-    	block0 [shape=ellipse, id="block-0" label="BLOCK0\n\n(000) ldh      [12]\n(001) jeq      #0x800           jt 2	jf 5" tooltip="val[A]=0 val[X]=0"];
-    	block1 [shape=ellipse, id="block-1" label="BLOCK1\n\n(002) ld       [26]\n(003) jeq      #0x1010101       jt 4	jf 5" tooltip="val[A]=0 val[X]=0"];
-    	block2 [shape=ellipse, id="block-2" label="BLOCK2\n\n(004) ret      #68" tooltip="val[A]=0 val[X]=0", peripheries=2];
-    	block3 [shape=ellipse, id="block-3" label="BLOCK3\n\n(005) ret      #0" tooltip="val[A]=0 val[X]=0", peripheries=2];
-    	"block0":se -> "block1":n [label="T"];
-    	"block0":sw -> "block3":n [label="F"];
-    	"block1":se -> "block2":n [label="T"];
-    	"block1":sw -> "block3":n [label="F"];
+	block0 [shape=ellipse, id="block-0" label="BLOCK0\n\n(000) ldh      [12]\n(001) jeq      #0x800           jt 2	jf 5" tooltip="val[A]=0 val[X]=0"];
+	block1 [shape=ellipse, id="block-1" label="BLOCK1\n\n(002) ld       [26]\n(003) jeq      #0x1010101       jt 4	jf 5" tooltip="val[A]=0 val[X]=0"];
+	block2 [shape=ellipse, id="block-2" label="BLOCK2\n\n(004) ret      #68" tooltip="val[A]=0 val[X]=0", peripheries=2];
+	block3 [shape=ellipse, id="block-3" label="BLOCK3\n\n(005) ret      #0" tooltip="val[A]=0 val[X]=0", peripheries=2];
+	"block0":se -> "block1":n [label="T"];
+	"block0":sw -> "block3":n [label="F"];
+	"block1":se -> "block2":n [label="T"];
+	"block1":sw -> "block3":n [label="F"];
     }
  *
  *  After install graphviz on https://www.graphviz.org/, save it as bpf.dot

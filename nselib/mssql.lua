@@ -20,7 +20,7 @@
 -- * QueryPacket: Class used to hold a query and convert it to a string suitable for transmission over a socket.
 -- * LoginPacket: Class used to hold login specific data which can easily be converted to a string suitable for transmission over a socket.
 -- * PreLoginPacket: Class used to (partially) implement the TDS PreLogin packet
--- * TDSStream: Class that handles communication over the Tabular Data Stream protocol used by SQL serve. It is used to transmit the the Query- and Login-packets to the server.
+-- * TDSStream: Class that handles communication over the Tabular Data Stream protocol used by SQL serve. It is used to transmit the Query- and Login-packets to the server.
 -- * Helper: Class which facilitates the use of the library by through action oriented functions with descriptive names.
 -- * Util: A "static" class containing mostly character and type conversion functions.
 --
@@ -658,6 +658,7 @@ SqlServerVersionInfo =
         {3430, "CU28"},
         {3436, "CU29"},
         {3451, "CU30"},
+        {3456, "CU31"},
       },
 
       ["2019"] = {
@@ -690,6 +691,14 @@ SqlServerVersionInfo =
         {4198, "CU15"},
         {4223, "CU16"},
         {4249, "CU17"},
+        {4261, "CU18"},
+        {4298, "CU19"},
+        {4312, "CU20"},
+        {4316, "CU21"},
+        {4322, "CU22"},
+        {4335, "CU23"},
+        {4345, "CU24"},
+        {4355, "CU25"},
       },
 
       ["2022"] = {
@@ -702,6 +711,19 @@ SqlServerVersionInfo =
         {600, "CTP2.0"},
         {700, "CTP2.1"},
         {900, "RC0"},
+        {950, "RC1"},
+        {1000, "RTM"},
+        {4003, "CU1"},
+        {4015, "CU2"},
+        {4025, "CU3"},
+        {4035, "CU4"},
+        {4045, "CU5"},
+        {4055, "CU6"},
+        {4065, "CU7"},
+        {4075, "CU8"},
+        {4085, "CU9"},
+        {4095, "CU10"},
+        {4105, "CU11"},
       },
     }
 

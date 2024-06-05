@@ -88,9 +88,9 @@ UNINSTALLNDIFF=@UNINSTALLNDIFF@
 UNINSTALLNPING=@UNINSTALLNPING@
 
 ifneq (@NOLUA@,yes)
-NSE_SRC=nse_main.cc nse_utility.cc nse_nsock.cc nse_db.cc nse_dnet.cc nse_fs.cc nse_nmaplib.cc nse_debug.cc nse_pcrelib.cc nse_lpeg.cc
-NSE_HDRS=nse_main.h nse_utility.h nse_nsock.h nse_db.h nse_dnet.h nse_fs.h nse_nmaplib.h nse_debug.h nse_pcrelib.h nse_lpeg.h
-NSE_OBJS=nse_main.o nse_utility.o nse_nsock.o nse_db.o nse_dnet.o nse_fs.o nse_nmaplib.o nse_debug.o nse_pcrelib.o nse_lpeg.o
+NSE_SRC=nse_main.cc nse_utility.cc nse_nsock.cc nse_db.cc nse_dnet.cc nse_fs.cc nse_nmaplib.cc nse_debug.cc nse_lpeg.cc
+NSE_HDRS=nse_main.h nse_utility.h nse_nsock.h nse_db.h nse_dnet.h nse_fs.h nse_nmaplib.h nse_debug.h nse_lpeg.h
+NSE_OBJS=nse_main.o nse_utility.o nse_nsock.o nse_db.o nse_dnet.o nse_fs.o nse_nmaplib.o nse_debug.o nse_lpeg.o
 ifneq (@OPENSSL_LIBS@,)
 NSE_SRC+=nse_openssl.cc nse_ssl_cert.cc
 NSE_HDRS+=nse_openssl.h nse_ssl_cert.h
@@ -251,7 +251,6 @@ clean-liblinear:
 	-cd $(LIBLINEARDIR) && $(MAKE) clean
 
 clean-zenmap:
-	-cd $(ZENMAPDIR) && $(PYTHON) setup.py clean --all
 	rm -f $(ZENMAPDIR)/zenmapCore/__init__.pyc
 	rm -f $(ZENMAPDIR)/zenmapCore/Version.pyc
 	rm -f $(ZENMAPDIR)/zenmapCore/Name.pyc
@@ -263,7 +262,7 @@ clean-nping:
 	-cd $(NPINGDIR) && $(MAKE) clean
 
 clean-tests:
-	@rm -f tests/check_dns
+	@rm -f tests/nmap_dns_test tests/expr_match_test
 
 distclean-pcap:
 	-cd $(LIBPCAPDIR) && $(MAKE) distclean
@@ -350,8 +349,8 @@ $(NPINGDIR)/nping.h: nmap.h
 $(ZENMAPDIR)/zenmapCore/Version.py $(ZENMAPDIR)/share/zenmap/config/zenmap_version: nmap.h
 	cd $(ZENMAPDIR) && $(PYTHON) install_scripts/utils/version_update.py "$(NMAP_VERSION)"
 
-tests/check_dns: $(OBJS)
-	 $(CXX) -o $@ $(CPPFLAGS) $(CXXFLAGS) $(LDFLAGS) $^ $(LIBS) tests/nmap_dns_test.cc
+tests/%: tests/%.cc $(OBJS)
+	$(CXX) -o $@ $(CPPFLAGS) $(CXXFLAGS) $(LDFLAGS) $(OBJS) $(LIBS) $<
 
 # By default distutils rewrites installed scripts to hardcode the
 # location of the Python interpreter they were built with (something
@@ -361,16 +360,14 @@ tests/check_dns: $(OBJS)
 # local installation.
 DEFAULT_PYTHON_PATH = /usr/bin/env python3
 
-build-zenmap: $(ZENMAPDIR)/setup.py $(ZENMAPDIR)/zenmapCore/Version.py
-# When DESTDIR is defined, assume we're building an executable
-# distribution rather than a local installation and force a generic
-# Python interpreter location.
-	cd $(ZENMAPDIR) && $(PYTHON) setup.py build $(if $(DESTDIR),--executable "$(DEFAULT_PYTHON_PATH)")
+build-zenmap: $(ZENMAPDIR)/pyproject.toml $(ZENMAPDIR)/zenmapCore/Version.py
+	$(PYTHON) -m build $(ZENMAPDIR)/
 
-install-zenmap: $(ZENMAPDIR)/setup.py
-	$(INSTALL) -d $(DESTDIR)$(bindir) $(DESTDIR)$(mandir)/man1
-	cd $(ZENMAPDIR) && $(PYTHON) setup.py --quiet install --prefix "$(prefix)" --force $(if $(DESTDIR),--root "$(DESTDIR)")
+install-zenmap: $(ZENMAPDIR)/pyproject.toml
+	$(INSTALL) -d $(DESTDIR)$(bindir) $(DESTDIR)$(mandir)/man1 $(DESTDIR)$(deskdir)
+	$(PYTHON) -m pip install $(ZENMAPDIR)/ $(if $(DESTDIR),--root "$(DESTDIR)")
 	$(INSTALL) -c -m 644 docs/zenmap.1 $(DESTDIR)$(mandir)/man1/
+	$(INSTALL) -c -m 644 $(ZENMAPDIR)/install_scripts/unix/*.desktop $(DESTDIR)$(deskdir)
 # Create a symlink from nmapfe to zenmap if nmapfe doesn't exist or is
 # already a link.
 	if [ ! -f $(DESTDIR)$(bindir)/nmapfe -o -L $(DESTDIR)$(bindir)/nmapfe ]; then \
@@ -426,7 +423,7 @@ uninstall-nmap:
 	rm -rf $(DESTDIR)$(nmapdatadir)
 
 uninstall-zenmap:
-	cd $(ZENMAPDIR) && $(PYTHON) setup.py uninstall
+	$(PYTHON) -m pip uninstall $(ZENMAPDIR)
 	rm -f $(DESTDIR)$(mandir)/man1/zenmap.1
 # Uninstall nmapfe only if it's a symlink.
 	if [ -L $(DESTDIR)$(bindir)/nmapfe ]; then \
@@ -458,10 +455,10 @@ check-nsock:
 check-zenmap:
 	@cd $(ZENMAPDIR)/test && $(PYTHON) run_tests.py
 
-check-dns: tests/check_dns
-	$<
+check-nmap: tests/nmap_dns_test tests/expr_match_test
+	for test in $^; do ./$$test; done
 
-check: @NCAT_CHECK@ @NSOCK_CHECK@ @ZENMAP_CHECK@ @NSE_CHECK@ @NDIFF_CHECK@ check-dns
+check: @NCAT_CHECK@ @NSOCK_CHECK@ @ZENMAP_CHECK@ @NSE_CHECK@ @NDIFF_CHECK@ check-nmap
 
 ${srcdir}/configure: configure.ac
 	cd ${srcdir} && autoconf

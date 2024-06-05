@@ -45,7 +45,12 @@
  * namespace to the maximum extent possible"?
  */
 #if defined(sun) || defined(__sun)
-  #define __EXTENSIONS__
+  /*
+   * On Solaris Clang defines __EXTENSIONS__ automatically.
+   */
+  #ifndef __EXTENSIONS__
+    #define __EXTENSIONS__
+  #endif
 
   /*
    * We also need to define _XPG4_2 in order to get

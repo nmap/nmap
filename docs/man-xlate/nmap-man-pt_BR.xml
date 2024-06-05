@@ -13,6 +13,8 @@
       <refentrytitle>nmap</refentrytitle>
 
       <manvolnum>1</manvolnum>
+    <refmiscinfo class="source">Nmap</refmiscinfo>
+    <refmiscinfo class="manual">Guia de Referência do Nmap</refmiscinfo>
     </refmeta>
 
     <refnamediv id="man-name">

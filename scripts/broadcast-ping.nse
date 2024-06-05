@@ -212,33 +212,17 @@ local broadcast_if = function(if_table,icmp_responders)
 end
 
 
+local filter_interfaces = function (if_table)
+  if if_table.up == "up" and if_table.link=="ethernet" and if_table.address and
+    if_table.address:match("%d+%.%d+%.%d+%.%d+") then
+    return if_table
+  end
+end
+
 action = function()
 
-  --get interface script-args, if any
-  local interface_arg = stdnse.get_script_args(SCRIPT_NAME .. ".interface")
-  local interface_opt = nmap.get_interface()
-
   -- interfaces list (decide which interfaces to broadcast on)
-  local interfaces ={}
-  if interface_opt or interface_arg then
-    -- single interface defined
-    local interface = interface_opt or interface_arg
-    local if_table = nmap.get_interface_info(interface)
-    if not (if_table and if_table.address and if_table.link=="ethernet") then
-      stdnse.debug1("Interface not supported or not properly configured.")
-      return false
-    end
-    table.insert(interfaces, if_table)
-  else
-    local tmp_ifaces = nmap.list_interfaces()
-    for _, if_table in ipairs(tmp_ifaces) do
-      if if_table.address and
-        if_table.link=="ethernet" and
-        if_table.address:match("%d+%.%d+%.%d+%.%d+") then
-        table.insert(interfaces, if_table)
-      end
-    end
-  end
+  local interfaces = stdnse.get_script_interfaces(filter_interfaces)
 
   if #interfaces == 0 then
     stdnse.debug1("No interfaces found.")

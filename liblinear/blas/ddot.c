@@ -1,14 +1,18 @@
 #include "blas.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 double ddot_(int *n, double *sx, int *incx, double *sy, int *incy)
 {
   long int i, m, nn, iincx, iincy;
   double stemp;
   long int ix, iy;
 
-  /* forms the dot product of two vectors.   
-     uses unrolled loops for increments equal to one.   
-     jack dongarra, linpack, 3/11/78.   
+  /* forms the dot product of two vectors.
+     uses unrolled loops for increments equal to one.
+     jack dongarra, linpack, 3/11/78.
      modified 12/3/93, array(1) declarations changed to array(*) */
 
   /* Dereference inputs */
@@ -48,3 +52,7 @@ double ddot_(int *n, double *sx, int *incx, double *sy, int *incy)
 
   return stemp;
 } /* ddot_ */
+
+#ifdef __cplusplus
+}
+#endif

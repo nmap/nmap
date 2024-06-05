@@ -14,6 +14,12 @@ find_path(DAG_INCLUDE_DIR dagapi.h)
 find_library(DAG_LIBRARY dag)
 find_library(DAGCONF_LIBRARY dagconf)
 
+#
+# Get link information from the _LIBRARY paths.
+#
+get_link_info_from_library_path(DAG dag)
+get_link_info_from_library_path(DAGCONF dagconf)
+
 include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(DAG
   DEFAULT_MSG
@@ -30,3 +36,4 @@ mark_as_advanced(
 
 set(DAG_INCLUDE_DIRS ${DAG_INCLUDE_DIR})
 set(DAG_LIBRARIES ${DAG_LIBRARY} ${DAGCONF_LIBRARY})
+set(DAG_STATIC_LIBRARIES ${DAG_LIBRARY} ${DAGCONF_LIBRARY})

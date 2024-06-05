@@ -1,62 +1,60 @@
-
 /***************************************************************************
  * netutil.cc                                                              *
  *                                                                         *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
- *                                                                         *
- * The Nmap Security Scanner is (C) 1996-2022 Nmap Software LLC ("The Nmap *
- * Project"). Nmap is also a registered trademark of the Nmap Project.     *
- *                                                                         *
- * This program is distributed under the terms of the Nmap Public Source   *
- * License (NPSL). The exact license text applying to a particular Nmap    *
- * release or source code control revision is contained in the LICENSE     *
- * file distributed with that version of Nmap or source code control       *
- * revision. More Nmap copyright/legal information is available from       *
- * https://nmap.org/book/man-legal.html, and further information on the    *
- * NPSL license itself can be found at https://nmap.org/npsl/ . This       *
- * header summarizes some key points from the Nmap license, but is no      *
- * substitute for the actual license text.                                 *
- *                                                                         *
- * Nmap is generally free for end users to download and use themselves,    *
- * including commercial use. It is available from https://nmap.org.        *
- *                                                                         *
- * The Nmap license generally prohibits companies from using and           *
- * redistributing Nmap in commercial products, but we sell a special Nmap  *
- * OEM Edition with a more permissive license and special features for     *
- * this purpose. See https://nmap.org/oem/                                 *
- *                                                                         *
- * If you have received a written Nmap license agreement or contract       *
- * stating terms other than these (such as an Nmap OEM license), you may   *
- * choose to use and redistribute Nmap under those terms instead.          *
- *                                                                         *
- * The official Nmap Windows builds include the Npcap software             *
- * (https://npcap.com) for packet capture and transmission. It is under    *
- * separate license terms which forbid redistribution without special      *
- * permission. So the official Nmap Windows builds may not be              *
- * redistributed without special permission (such as an Nmap OEM           *
- * license).                                                               *
- *                                                                         *
- * Source is provided to this software because we believe users have a     *
- * right to know exactly what a program is going to do before they run it. *
- * This also allows you to audit the software for security holes.          *
- *                                                                         *
- * Source code also allows you to port Nmap to new platforms, fix bugs,    *
- * and add new features.  You are highly encouraged to submit your         *
- * changes as a Github PR or by email to the dev@nmap.org mailing list     *
- * for possible incorporation into the main distribution. Unless you       *
- * specify otherwise, it is understood that you are offering us very       *
- * broad rights to use your submissions as described in the Nmap Public    *
- * Source License Contributor Agreement. This is important because we      *
- * fund the project by selling licenses with various terms, and also       *
- * because the inability to relicense code has caused devastating          *
- * problems for other Free Software projects (such as KDE and NASM).       *
- *                                                                         *
- * The free version of Nmap is distributed in the hope that it will be     *
- * useful, but WITHOUT ANY WARRANTY; without even the implied warranty of  *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. Warranties,        *
- * indemnification and commercial support are all available through the    *
- * Npcap OEM program--see https://nmap.org/oem/                            *
- *                                                                         *
+ *
+ * The Nmap Security Scanner is (C) 1996-2024 Nmap Software LLC ("The Nmap
+ * Project"). Nmap is also a registered trademark of the Nmap Project.
+ *
+ * This program is distributed under the terms of the Nmap Public Source
+ * License (NPSL). The exact license text applying to a particular Nmap
+ * release or source code control revision is contained in the LICENSE
+ * file distributed with that version of Nmap or source code control
+ * revision. More Nmap copyright/legal information is available from
+ * https://nmap.org/book/man-legal.html, and further information on the
+ * NPSL license itself can be found at https://nmap.org/npsl/ . This
+ * header summarizes some key points from the Nmap license, but is no
+ * substitute for the actual license text.
+ *
+ * Nmap is generally free for end users to download and use themselves,
+ * including commercial use. It is available from https://nmap.org.
+ *
+ * The Nmap license generally prohibits companies from using and
+ * redistributing Nmap in commercial products, but we sell a special Nmap
+ * OEM Edition with a more permissive license and special features for
+ * this purpose. See https://nmap.org/oem/
+ *
+ * If you have received a written Nmap license agreement or contract
+ * stating terms other than these (such as an Nmap OEM license), you may
+ * choose to use and redistribute Nmap under those terms instead.
+ *
+ * The official Nmap Windows builds include the Npcap software
+ * (https://npcap.com) for packet capture and transmission. It is under
+ * separate license terms which forbid redistribution without special
+ * permission. So the official Nmap Windows builds may not be redistributed
+ * without special permission (such as an Nmap OEM license).
+ *
+ * Source is provided to this software because we believe users have a
+ * right to know exactly what a program is going to do before they run it.
+ * This also allows you to audit the software for security holes.
+ *
+ * Source code also allows you to port Nmap to new platforms, fix bugs, and
+ * add new features. You are highly encouraged to submit your changes as a
+ * Github PR or by email to the dev@nmap.org mailing list for possible
+ * incorporation into the main distribution. Unless you specify otherwise, it
+ * is understood that you are offering us very broad rights to use your
+ * submissions as described in the Nmap Public Source License Contributor
+ * Agreement. This is important because we fund the project by selling licenses
+ * with various terms, and also because the inability to relicense code has
+ * caused devastating problems for other Free Software projects (such as KDE
+ * and NASM).
+ *
+ * The free version of Nmap is distributed in the hope that it will be
+ * useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. Warranties,
+ * indemnification and commercial support are all available through the
+ * Npcap OEM program--see https://nmap.org/oem/
+ *
  ***************************************************************************/
 
 /* Since OS X 10.7, we must declare whether we expect RFC 2292 or RFC 3542
@@ -4675,28 +4673,22 @@ size_t read_host_from_file(FILE *fp, char *buf, size_t n)
 
 
 /* Return next target host specification from the supplied stream.
- * if parameter "random" is set to true, then the function will
- * return a random, non-reserved, IP address in decimal-dot notation */
-const char *grab_next_host_spec(FILE *inputfd, bool random, int argc, const char **argv) {
+ */
+const char *grab_next_host_spec(FILE *inputfd, int argc, const char **argv) {
   static char host_spec[1024];
-  struct in_addr ip;
   size_t n;
 
-  if (random) {
-    do {
-      ip.s_addr = get_random_unique_u32();
-    } while (ip_is_reserved(&ip));
-    Strncpy(host_spec, inet_ntoa(ip), sizeof(host_spec));
-  } else if (!inputfd) {
-    return( (optind < argc)?  argv[optind++] : NULL);
-  } else {
+  if (optind < argc) {
+    return argv[optind++];
+  } else if (inputfd) {
     n = read_host_from_file(inputfd, host_spec, sizeof(host_spec));
     if (n == 0)
       return NULL;
     else if (n >= sizeof(host_spec))
       netutil_fatal("One of the host specifications from your input file is too long (>= %u chars)", (unsigned int) sizeof(host_spec));
+    return host_spec;
   }
-  return host_spec;
+  return NULL;
 }
 
 
@@ -4725,7 +4717,7 @@ int set_max_open_descriptors(int desired_max) {
 
     if (!getrlimit(flag, &r)) {
         /* If current limit is less than the desired, try to increase it */
-        if(r.rlim_cur < (rlim_t)desired_max){
+        if(r.rlim_cur != RLIM_INFINITY && r.rlim_cur < (rlim_t)desired_max){
             if(desired_max<0){
                 r.rlim_cur=r.rlim_max; /* Set maximum */
             }else{
@@ -4735,6 +4727,7 @@ int set_max_open_descriptors(int desired_max) {
                ; // netutil_debug("setrlimit(%d, %p) failed", flag, r);
             if (!getrlimit(flag, &r)) {
                 maxfds = r.rlim_cur;
+                // NOTE: This may be RLIM_INFINITY, which is -1 (~0UL) on Linux.
                 return maxfds;
             }else {
                 return 0;

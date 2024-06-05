@@ -81,7 +81,7 @@ order as the host opening the file, and has the same time stamp
 precision, link-layer header type, and snapshot length as
 .IR p ,
 it will write new packets at the end of the file.
-.SH RETURN VALUES
+.SH RETURN VALUE
 A pointer to a
 .B pcap_dumper_t
 structure to use in subsequent
