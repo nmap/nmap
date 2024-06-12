@@ -304,7 +304,7 @@ Comm = {
     local type_and_flags, pos = string.unpack("B", buf, pos)
 
     -- Parse the remaining length.
-    local pos, length = MQTT.length_parse(buf, pos)
+    local pos, length = MQTT.length_parse(buf, pos, pos)
     if not pos then
       return false, length
     end
