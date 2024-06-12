@@ -968,11 +968,6 @@ function negotiate_v1(smb, overrides)
     return false, "SMB: Server returned a SMBv2 packet, don't know how to handle"
   end
 
-  -- Since this is the first response seen, check any necessary flags here
-  if((flags2 & 0x0800) ~= 0x0800) then
-    smb['extended_security'] = false
-  end
-
   -- Parse the parameter section
   local dialect_format = "<I2"
   local parameters_format = "<BI2 I2 I4 I4 I4 I4"
@@ -1016,6 +1011,17 @@ function negotiate_v1(smb, overrides)
     smb['timezone_str'] = "UTC-" .. math.abs(smb['timezone'])
   else
     smb['timezone_str'] = "UTC+" .. smb['timezone']
+  end
+
+  -- Since this is the first response seen, check any necessary flags here
+  -- To enable Extended Security, servers are supposed to set SMB_FLAGS2_EXTENDED_SECURITY,
+  -- but there are edge cases where it is not the case, but then we have CAP_EXTENDED_SECURITY
+  -- and a large enough data to hold a security_blob so we assume that Extended Security is enabled
+  if ((flags2 & 0x0800) == 0x0800 or (smb.capabilities & 0x80000000) == 0x80000000 )
+      and #data >= 16 then
+    smb['extended_security'] = true
+  else
+    smb['extended_security'] = false
   end
 
   -- Data section
