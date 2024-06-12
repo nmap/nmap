@@ -880,10 +880,10 @@ int main(int argc, char *argv[])
             }
         }
         o.target = argv[optind];
-        /* resolve hostname only if o.proxytype == NULL
+        /* resolve hostname only if o.proxytype == NULL or o.listen == 1
          * targetss contains data already and you don't want remove them
          */
-        if( !o.proxytype
+        if( (!o.proxytype || o.listen)
                 && (rc = resolve_multi(o.target, 0, targetaddrs, o.af)) != 0)
 
             bye("Could not resolve hostname \"%s\": %s.", o.target, gai_strerror(rc));
