@@ -84,7 +84,8 @@ class ScriptDB (object):
 
         self.lineno = 1
         self.line = ""
-        with open(script_db_path, "r", encoding="utf-8") as self.f:
+        
+        with open(script_db_path, "r",encoding='utf-8') as self.f:
             self.entries_list = self.parse()
 
     def syntax_error(self, message):
@@ -296,20 +297,20 @@ class ScriptMetadata (object):
                     self.get_string_variable(filename, "author")]
 
             filepath = os.path.join(self.scripts_dir, filename)
-            with open(filepath, "r", encoding="utf-8") as f:
+            with open(filepath, "r",encoding='utf-8') as f:
                 for tag_name, tag_text in nsedoc_tags_iter(f):
                     if tag_name == "output" and not entry.output:
                         entry.output = tag_text
                     elif tag_name == "usage" and not entry.usage:
                         entry.usage = tag_text
-        except (IOError, UnicodeError) as e:
+        except IOError as e:
             entry.description = "Error getting metadata: {}".format(e)
 
         return entry
 
     @staticmethod
     def get_file_contents(filename):
-        with open(filename, "r", encoding="utf-8") as f:
+        with open(filename, "r",encoding='utf-8') as f:
             contents = f.read()
         return contents
 
@@ -343,7 +344,7 @@ class ScriptMetadata (object):
 
     @staticmethod
     def get_requires(filename):
-        with open(filename, "r", encoding="utf-8") as f:
+        with open(filename, "r",encoding='utf-8') as f:
             requires = ScriptMetadata.get_requires_from_file(f)
         return requires
 
@@ -359,7 +360,7 @@ class ScriptMetadata (object):
 
     @staticmethod
     def get_script_args(filename):
-        with open(filename, "r", encoding="utf-8") as f:
+        with open(filename, "r",encoding='utf-8') as f:
             args = ScriptMetadata.get_script_args_from_file(f)
         return args
 
@@ -414,11 +415,8 @@ class ScriptMetadata (object):
             else:
                 libname = filename
 
-            try:
-                self.library_arguments[libname] = self.get_script_args(filepath)
-                self.library_requires[libname] = self.get_requires(filepath)
-            except (IOError, UnicodeError) as e:
-                log.debug("Unable to process {}: {}".format(libname, e))
+            self.library_arguments[libname] = self.get_script_args(filepath)
+            self.library_requires[libname] = self.get_requires(filepath)
 
 
 def get_script_entries(scripts_dir, nselib_dir):
@@ -427,8 +425,7 @@ def get_script_entries(scripts_dir, nselib_dir):
     metadata = ScriptMetadata(scripts_dir, nselib_dir)
     try:
         scriptdb = ScriptDB(os.path.join(scripts_dir, "script.db"))
-    except (IOError, UnicodeError) as e:
-        log.debug("Unable to process script.db: {}".format(e))
+    except IOError:
         return []
     entries = []
     for dbentry in scriptdb.get_entries_list():
