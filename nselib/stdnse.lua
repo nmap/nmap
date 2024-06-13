@@ -696,7 +696,10 @@ function get_script_interfaces(filter_func)
   end
   local ret = {}
   for _, if_table in ipairs(nmap.list_interfaces()) do
-    insert(ret, filter_func(if_table))
+    local ift = filter_func(if_table)
+    if ift then
+      insert(ret, ift)
+    end
   end
   return ret
 end
