@@ -851,6 +851,16 @@ int main(int argc, char *argv[])
             break;
         }
 #endif
+        /* Support ncat -l <port>, but otherwise assume ncat <target> */
+        if (num_ports == 0 && o.listen) {
+            rc = strspn(argv[optind], "1234567890");
+            /* If the last arg is 5 or fewer digits, assume it's a port number */
+            if (argv[optind][rc] == '\0' && rc <= 5) {
+                o.portno = parseport(argv[optind], max_port, "port");
+                num_ports++;
+                break;
+            }
+        }
 #if HAVE_LINUX_VM_SOCKETS_H
         if (o.af == AF_VSOCK) {
             long long_cid;
@@ -869,16 +879,6 @@ int main(int argc, char *argv[])
             break;
         }
 #endif
-        /* Support ncat -l <port>, but otherwise assume ncat <target> */
-        if (num_ports == 0 && o.listen) {
-            rc = strspn(argv[optind], "1234567890");
-            /* If the last arg is 5 or fewer digits, assume it's a port number */
-            if (argv[optind][rc] == '\0' && rc <= 5) {
-                o.portno = parseport(argv[optind], max_port, "port");
-                num_ports++;
-                break;
-            }
-        }
         o.target = argv[optind];
         /* resolve hostname only if o.proxytype == NULL
          * targetss contains data already and you don't want remove them
