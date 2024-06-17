@@ -7141,8 +7141,8 @@ casanswmgmt	3669/tcp	0.000076	# CA SAN Switch Management
 casanswmgmt	3669/udp	0.000330	# CA SAN Switch Management
 smile	3670/tcp	0.000076	# SMILE TCP/UDP Interface
 smile	3670/udp	0.000330	# SMILE TCP/UDP Interface
-efcp	3671/tcp	0.000000	# e Field Control (EIBnet)
-efcp	3671/udp	0.000330	# e Field Control (EIBnet)
+knxip	3671/tcp	0.000000	# KNXnet/IP(EIBnet/IP)
+knxip	3671/udp	0.000330	# KNXnet/IP(EIBnet/IP)
 lispworks-orb	3672/tcp	0.000076	# LispWorks ORB
 lispworks-orb	3672/udp	0.000330	# LispWorks ORB
 mediavault-gui	3673/tcp	0.000000	# Openview Media Vault GUI
