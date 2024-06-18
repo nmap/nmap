@@ -19,7 +19,6 @@ if not exist "%PROG%" (
 set NMAPDIR=%~dp0
 
 rem Use Python installed with Nmap - Zenmap GUI.
-set PATH=%NMAPDIR%zenmap\bin;%PATH%
 set PYTHON=%NMAPDIR%zenmap\bin\python.exe
 
 if not exist "%PYTHON%" GOTO:NOPYTHON
