@@ -335,7 +335,7 @@ static int l_session_open (lua_State *L) {
     luaL_checkinteger(L, 2);
     lua_settop(L, 2);
 
-    state = (ssh_userdata *)lua_newuserdata(L, sizeof(ssh_userdata)); /* index 3 */
+    state = (ssh_userdata *)lua_newuserdatauv(L, sizeof(ssh_userdata), 1); /* index 3 */
 
     assert(lua_gettop(L) == 3);
     state->session = NULL;
@@ -864,7 +864,7 @@ static int finish_open_channel (lua_State *L, int status, lua_KContext ctx) {
 
 static int l_open_channel (lua_State *L) {
     ssh_userdata *state = (ssh_userdata *)lua_touserdata(L, 1);
-    LIBSSH2_CHANNEL **channel = (LIBSSH2_CHANNEL **)lua_newuserdata(L, sizeof(LIBSSH2_CHANNEL *));
+    LIBSSH2_CHANNEL **channel = (LIBSSH2_CHANNEL **)lua_newuserdatauv(L, sizeof(LIBSSH2_CHANNEL *), 0);
 
     while ((*channel = libssh2_channel_open_session(state->session)) == NULL
     && libssh2_session_last_errno(state->session) == LIBSSH2_ERROR_EAGAIN) {

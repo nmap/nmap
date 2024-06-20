@@ -93,7 +93,7 @@ static int lzstream_docompress(lua_State *L, lz_stream *s, int from, int to, int
 
 
 static lz_stream *lzstream_new(lua_State *L, int src) {
-    lz_stream *s = (lz_stream*)lua_newuserdata(L, sizeof(lz_stream));
+    lz_stream *s = (lz_stream*)lua_newuserdatauv(L, sizeof(lz_stream), 0);
 
     luaL_getmetatable(L, ZSTREAMMETA);
     lua_setmetatable(L, -2);        /* set metatable */

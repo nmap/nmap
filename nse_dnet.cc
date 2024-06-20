@@ -37,7 +37,7 @@ static int l_dnet_new (lua_State *L)
 {
   nse_dnet_udata *udata;
 
-  udata = (nse_dnet_udata *) lua_newuserdata(L, sizeof(nse_dnet_udata));
+  udata = (nse_dnet_udata *) lua_newuserdatauv(L, sizeof(nse_dnet_udata), 0);
   lua_pushvalue(L, DNET_METATABLE);
   lua_setmetatable(L, -2);
   udata->eth = NULL;
@@ -142,7 +142,7 @@ static eth_t *open_eth_cached (lua_State *L, int dnet_index, const char *device)
   if (!lua_isuserdata(L, -1))
   {
     lua_pop(L, 1);
-    eth = (eth_t **) lua_newuserdata(L, sizeof(eth_t *));
+    eth = (eth_t **) lua_newuserdatauv(L, sizeof(eth_t *), 0);
     *eth = eth_open(device);
     if (*eth == NULL)
       luaL_error(L, "unable to open dnet on ethernet interface %s", device);

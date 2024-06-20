@@ -91,7 +91,7 @@ static nsock_pool new_pool (lua_State *L)
 
   nsock_pool_set_broadcast(nsp, true);
 
-  nspp = (nsock_pool *) lua_newuserdata(L, sizeof(nsock_pool));
+  nspp = (nsock_pool *) lua_newuserdatauv(L, sizeof(nsock_pool), 0);
   *nspp = nsp;
   lua_newtable(L);
   lua_pushcfunction(L, gc_pool);
@@ -751,8 +751,8 @@ static int l_get_info (lua_State *L)
   int af;                                        // address family
   struct sockaddr_storage local;
   struct sockaddr_storage remote;
-  char *ipstring_local = (char *) lua_newuserdata(L, sizeof(char) * INET6_ADDRSTRLEN);
-  char *ipstring_remote = (char *) lua_newuserdata(L, sizeof(char) * INET6_ADDRSTRLEN);
+  char *ipstring_local = (char *) lua_newuserdatauv(L, sizeof(char) * INET6_ADDRSTRLEN, 0);
+  char *ipstring_remote = (char *) lua_newuserdatauv(L, sizeof(char) * INET6_ADDRSTRLEN, 0);
 
   nsock_iod_get_communication_info(nu->nsiod, &protocol, &af,
       (struct sockaddr*)&local, (struct sockaddr*)&remote,
@@ -812,7 +812,7 @@ static int l_sleep (lua_State *L)
   /* Convert to milliseconds for nsock_timer_create. */
   msecs = (int) (secs * 1000 + 0.5);
 
-  nsock_event_id *neidp = (nsock_event_id *) lua_newuserdata(L, sizeof(nsock_event_id *));
+  nsock_event_id *neidp = (nsock_event_id *) lua_newuserdatauv(L, sizeof(nsock_event_id *), 0);
   *neidp = nsock_timer_create(nsp, sleep_callback, msecs, L);
   lua_pushvalue(L, NSOCK_POOL);
   lua_pushcclosure(L, sleep_destructor, 1);
@@ -930,7 +930,7 @@ static int l_new (lua_State *L)
 
   lua_settop(L, 0);
 
-  nu = (nse_nsock_udata *) lua_newuserdata(L, sizeof(nse_nsock_udata));
+  nu = (nse_nsock_udata *) lua_newuserdatauv(L, sizeof(nse_nsock_udata), 1);
   lua_pushvalue(L, NSOCK_SOCKET);
   lua_setmetatable(L, -2);
   initialize(L, 1, nu, proto, af);
