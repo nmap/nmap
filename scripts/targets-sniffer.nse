@@ -90,9 +90,11 @@ action = function()
     stdnse.get_script_interfaces(collect_interface)
   end
 
-  if interface_info==nil then -- Check if we have the interface information
+  if not interface_info then -- Check if we have the interface information
     stdnse.debug1("Error: Unable to get interface info. Did you specify the correct interface using 'targets-sniffer.interface=<interface>' or '-e <interface>'?")
     return
+  elseif not interface then
+    interface = interface_info.shortname
   end
 
 
