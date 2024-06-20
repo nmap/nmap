@@ -228,9 +228,18 @@ static int ip_open (lua_State *L)
 {
   nse_dnet_udata *udata = (nse_dnet_udata *) nseU_checkudata(L, 1, DNET_METATABLE, "dnet");
   udata->sock = nmap_raw_socket();
-  if (udata->sock == -1)
-    return luaL_error(L, "failed to open raw socket: %s (errno %d)",
-        socket_strerror(socket_errno()), socket_errno());
+  if (udata->sock == -1) {
+    if (o.scriptTrace())
+    {
+      log_write(LOG_STDOUT, "%s: failed to open raw socket: %s (errno %d)", SCRIPT_ENGINE,
+          socket_strerror(socket_errno()), socket_errno());
+    }
+    // If possible, we'll try to use Ethernet headers to send packets, but not
+    // if the user specified --send-ip
+    if (o.sendpref == PACKET_SEND_IP_STRONG) {
+      return luaL_error(L, "Unable to open raw IP socket.");
+    }
+  }
   if (o.scriptTrace())
   {
       log_write(LOG_STDOUT, "%s: raw IP socket open\n", SCRIPT_ENGINE);
@@ -264,7 +273,9 @@ static int ip_send (lua_State *L)
   char dev[16];
   int ret;
 
-  if (udata->sock == -1)
+  // If possible, we'll try to use Ethernet headers to send packets, but not
+  // if the user specified --send-ip
+  if (udata->sock == -1 && o.sendpref == PACKET_SEND_IP_STRONG)
     return luaL_error(L, "raw socket not open to send");
 
   packet = luaL_checklstring(L, 2, &packetlen);
@@ -349,11 +360,12 @@ static int ip_send (lua_State *L)
     ret = send_ip_packet(udata->sock, &eth, &dst, (u8 *) packet, packetlen);
   } else {
 usesock:
-#ifdef WIN32
-    if (strlen(dev) > 0)
-      win32_fatal_raw_sockets(dev);
-#endif
-    ret = send_ip_packet(udata->sock, NULL, &dst, (u8 *) packet, packetlen);
+    if (udata->sock == -1) {
+      return luaL_error(L, "raw socket not open to send");
+    }
+    else {
+      ret = send_ip_packet(udata->sock, NULL, &dst, (u8 *) packet, packetlen);
+    }
   }
   if (ret == -1)
     return nseU_safeerror(L, "error while sending: %s (errno %d)",
