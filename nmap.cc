@@ -1729,7 +1729,7 @@ void  apply_delayed_options() {
   if (*o.device && !o.SourceSockAddr()) {
     struct sockaddr_storage tmpsock;
     memset(&tmpsock, 0, sizeof(tmpsock));
-    if (devname2ipaddr(o.device, &tmpsock) == -1) {
+    if (devname2ipaddr(o.device, o.af(), &tmpsock) == -1) {
       fatal("I cannot figure out what source address to use for device %s, does it even exist?", o.device);
     }
     o.setSourceSockAddr(&tmpsock, sizeof(tmpsock));

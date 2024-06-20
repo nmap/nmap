@@ -1436,7 +1436,7 @@ int ipaddr2devname(char *dev, const struct sockaddr_storage *addr) {
   return -1;
 }
 
-int devname2ipaddr(char *dev, struct sockaddr_storage *addr) {
+int devname2ipaddr(char *dev, int af, struct sockaddr_storage *addr) {
   struct interface_info *ifaces;
   int numifaces;
   int i;
@@ -1446,7 +1446,7 @@ int devname2ipaddr(char *dev, struct sockaddr_storage *addr) {
     return -1;
 
   for (i = 0; i < numifaces; i++) {
-    if (!strcmp(dev, ifaces[i].devfullname)) {
+    if (af == ifaces[i].addr.ss_family && !strcmp(dev, ifaces[i].devfullname)) {
       *addr = ifaces[i].addr;
       return 0;
     }

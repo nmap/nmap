@@ -318,7 +318,7 @@ int ipaddr2devname( char *dev, const struct sockaddr_storage *addr );
 
 /* Convert a network interface name (IE ppp0 eth0) to an IP address.
  * Returns 0 on success or -1 in case of error. */
-int devname2ipaddr(char *dev, struct sockaddr_storage *addr);
+int devname2ipaddr(char *dev, int af, struct sockaddr_storage *addr);
 
 int sockaddr_equal(const struct sockaddr_storage *a,
   const struct sockaddr_storage *b);
