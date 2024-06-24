@@ -315,9 +315,9 @@ function tohex( s, options )
   if separator then
     local group = options.group or 2
     local subs = 0
-    local pat = "(%x)(" .. rep("[^:]", group) .. ")%f[\0:]"
+    local pat = "(%x)(" .. rep("[^" .. separator .. "]", group) .. ")%f[\0" .. separator .. "]"
     repeat
-      hex, subs = gsub(hex, pat, "%1:%2")
+      hex, subs = gsub(hex, pat, "%1" .. separator .. "%2")
     until subs == 0
   end
 
