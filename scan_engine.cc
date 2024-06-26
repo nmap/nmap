@@ -633,15 +633,11 @@ bool HostScanStats::sendOK(struct timeval *when) const {
   return false;
 }
 
-/* If there are pending probe timeouts, fills in when with the time of
-   the earliest one and returns true.  Otherwise returns false and
-   puts now in when. */
-bool HostScanStats::nextTimeout(struct timeval *when) const {
-  struct timeval earliest_to = USI->now;
+/* If there are pending probe timeouts, compares the earliest one with `when`;
+   if it is earlier than `when`, replaces `when` with the time of
+   the earliest one and returns true.  Otherwise returns false. */
+bool HostScanStats::soonerTimeout(struct timeval *when) const {
   std::list<UltraProbe *>::const_iterator probeI, endI;
-  bool pending_probes = false;
-
-  assert(when);
 
   /* For any given invocation, the probe timeout is the same for all probes, so
    * we can get the earliest-sent probe and then add the timeout to that.
@@ -650,22 +646,21 @@ bool HostScanStats::nextTimeout(struct timeval *when) const {
       probeI != endI; probeI++) {
     UltraProbe *probe = *probeI;
     if (!probe->timedout) {
-      pending_probes = true;
-      if (TIMEVAL_BEFORE(probe->sent, earliest_to)) {
-        earliest_to = probe->sent;
-      }
+      unsigned long usec_to = probeTimeout();
+      struct timeval our_when;
+      TIMEVAL_ADD(our_when, probe->sent, usec_to);
       // probes_outstanding is in order by time sent, so
       // the first one we find is the earliest.
+      if (TIMEVAL_BEFORE(our_when, *when)) {
+        // If ours is earlier, replace when.
+        *when = our_when;
+        return true;
+      }
+      // regardless, there are no earlier probes, so stop looking.
       break;
     }
   }
-  if (pending_probes) {
-    TIMEVAL_ADD(*when, earliest_to, probeTimeout());
-  }
-  else {
-    *when = USI->now;
-  }
-  return pending_probes;
+  return false;
 }
 
 /* gives the maximum try number (try numbers start at zero and
@@ -1060,10 +1055,7 @@ bool UltraScanInfo::sendOK(struct timeval *when) const {
       // or probe timeout.
       for (host = incompleteHosts.begin(); host != incompleteHosts.end();
            host++) {
-        if ((*host)->nextTimeout(&tmptv)) {
-          if (TIMEVAL_BEFORE(tmptv, lowhtime))
-            lowhtime = tmptv;
-        }
+        (*host)->soonerTimeout(&lowhtime);
       }
       *when = lowhtime;
     }
