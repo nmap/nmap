@@ -1276,8 +1276,9 @@ bool HostOsScan::nextTimeout(HostOsScanStats *hss, struct timeval *when) const {
   memset(&probe_to, 0, sizeof(probe_to));
   memset(&earliest_to, 0, sizeof(earliest_to));
 
+  unsigned long usec_to = timeProbeTimeout(hss);
   for (probeI = hss->probesActive.begin(); probeI != hss->probesActive.end(); probeI++) {
-    TIMEVAL_ADD(probe_to, (*probeI)->sent, timeProbeTimeout(hss));
+    TIMEVAL_ADD(probe_to, (*probeI)->sent, usec_to);
     if (firstgood || TIMEVAL_BEFORE(probe_to, earliest_to)) {
       earliest_to = probe_to;
       firstgood = false;
@@ -1435,6 +1436,7 @@ void HostOsScan::updateActiveSeqProbes(HostOsScanStats *hss) {
   assert(hss);
   std::list<OFProbe *>::iterator probeI, nxt;
   OFProbe *probe = NULL;
+  long usec_to = timeProbeTimeout(hss);
 
   for (probeI = hss->probesActive.begin(); probeI != hss->probesActive.end(); probeI = nxt) {
     nxt = probeI;
@@ -1442,7 +1444,7 @@ void HostOsScan::updateActiveSeqProbes(HostOsScanStats *hss) {
     probe = *probeI;
 
     /* Is the probe timedout? */
-    if (TIMEVAL_SUBTRACT(now, probe->sent) > (long) timeProbeTimeout(hss)) {
+    if (TIMEVAL_SUBTRACT(now, probe->sent) > usec_to) {
       hss->removeActiveProbe(probeI);
       assert(stats->num_probes_active > 0);
       stats->num_probes_active--;
@@ -1517,13 +1519,14 @@ void HostOsScan::updateActiveTUIProbes(HostOsScanStats *hss) {
   assert(hss);
   std::list<OFProbe *>::iterator probeI, nxt;
   OFProbe *probe = NULL;
+  long usec_to = timeProbeTimeout(hss);
 
   for (probeI = hss->probesActive.begin(); probeI != hss->probesActive.end(); probeI = nxt) {
     nxt = probeI;
     nxt++;
     probe = *probeI;
 
-    if (TIMEVAL_SUBTRACT(now, probe->sent) > (long) timeProbeTimeout(hss)) {
+    if (TIMEVAL_SUBTRACT(now, probe->sent) > usec_to) {
       if (probe->tryno >= 3) {
         /* The probe is expired. */
         hss->removeActiveProbe(probeI);
@@ -1579,8 +1582,9 @@ bool HostOsScan::hostSendOK(HostOsScanStats *hss, struct timeval *when) const {
   TIMEVAL_MSEC_ADD(earliest_to, now, 10000);
 
   /* Any timeouts coming up? */
+  unsigned long msec_to = timeProbeTimeout(hss) / 1000;
   for (probeI = hss->probesActive.begin(); probeI != hss->probesActive.end(); probeI++) {
-    TIMEVAL_MSEC_ADD(probe_to, (*probeI)->sent, timeProbeTimeout(hss) / 1000);
+    TIMEVAL_MSEC_ADD(probe_to, (*probeI)->sent, msec_to);
     if (TIMEVAL_BEFORE(probe_to, earliest_to)) {
       earliest_to = probe_to;
     }
@@ -1652,8 +1656,9 @@ bool HostOsScan::hostSeqSendOK(HostOsScanStats *hss, struct timeval *when) const
   TIMEVAL_MSEC_ADD(earliest_to, now, 10000);
 
   /* Any timeouts coming up? */
+  unsigned long msec_to = timeProbeTimeout(hss) / 1000;
   for (probeI = hss->probesActive.begin(); probeI != hss->probesActive.end(); probeI++) {
-    TIMEVAL_MSEC_ADD(probe_to, (*probeI)->sent, timeProbeTimeout(hss) / 1000);
+    TIMEVAL_MSEC_ADD(probe_to, (*probeI)->sent, msec_to);
     if (TIMEVAL_BEFORE(probe_to, earliest_to)) {
       earliest_to = probe_to;
     }

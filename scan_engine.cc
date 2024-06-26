@@ -298,9 +298,13 @@ void GroupScanStats::probeSent(unsigned int nbytes) {
      Recall that these have effect only when --min-rate or --max-rate is
      given. */
 
+  static time_t max_rate_add = o.max_packet_send_rate != 0.0 ?
+    (1000000.0 / o.max_packet_send_rate) : 0;
+  static time_t min_rate_add = o.min_packet_send_rate != 0.0 ?
+    (1000000.0 / o.min_packet_send_rate) : 0;
+
   if (o.max_packet_send_rate != 0.0)
-      TIMEVAL_ADD(send_no_earlier_than, send_no_earlier_than,
-                  (time_t) (1000000.0 / o.max_packet_send_rate));
+      TIMEVAL_ADD(send_no_earlier_than, send_no_earlier_than, max_rate_add);
   /* Allow send_no_earlier_than to slip into the past. This allows the sending
      scheduler to catch up and make up for delays in other parts of the scan
      engine. If we were to update send_no_earlier_than to the present the
@@ -314,8 +318,7 @@ void GroupScanStats::probeSent(unsigned int nbytes) {
            present to prevent that. */
         send_no_later_than = USI->now;
       }
-      TIMEVAL_ADD(send_no_later_than, send_no_later_than,
-                  (time_t) (1000000.0 / o.min_packet_send_rate));
+      TIMEVAL_ADD(send_no_later_than, send_no_later_than, min_rate_add);
   }
 }
 
@@ -338,7 +341,7 @@ bool GroupScanStats::sendOK(struct timeval *when) const {
   recentsends = USI->gstats->probes_sent - USI->gstats->probes_sent_at_last_wait;
   if (recentsends > 0 &&
       (USI->scantype == CONNECT_SCAN || USI->ptech.connecttcpscan || !pcap_recv_timeval_valid())) {
-    int to_ms = (int) MAX(to.srtt * .75 / 1000, 50);
+    int to_ms = MAX(to.srtt * 3 / 4000, 50);
     if (TIMEVAL_MSEC_SUBTRACT(USI->now, last_wait) > to_ms)
       return false;
   }
@@ -592,10 +595,11 @@ bool HostScanStats::sendOK(struct timeval *when) const {
   TIMEVAL_MSEC_ADD(earliest_to, USI->now, 10000);
 
   // Any timeouts coming up?
+  unsigned long msec_to = probeTimeout() / 1000;
   for (probeI = probes_outstanding.begin(); probeI != probes_outstanding.end();
        probeI++) {
     if (!(*probeI)->timedout) {
-      TIMEVAL_MSEC_ADD(probe_to, (*probeI)->sent, probeTimeout() / 1000);
+      TIMEVAL_MSEC_ADD(probe_to, (*probeI)->sent, msec_to);
       if (TIMEVAL_BEFORE(probe_to, earliest_to)) {
         earliest_to = probe_to;
       }
