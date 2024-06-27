@@ -139,6 +139,7 @@ void options_init(void)
     o.proxytype = NULL;
     o.proxyaddr = NULL;
     o.proxydns = PROXYDNS_REMOTE;
+    o.rawmode = 0;
     o.zerobyte = 0;
 
 #ifdef HAVE_OPENSSL

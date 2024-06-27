@@ -244,6 +244,9 @@ int main(int argc, char *argv[])
         {"G",               required_argument,  NULL,         'G'},
         {"exec",            required_argument,  NULL,         'e'},
         {"sh-exec",         required_argument,  NULL,         'c'},
+#ifdef HAVE_PTY
+        {"tty-exec",        required_argument,  NULL,         0},
+#endif
 #ifdef HAVE_LUA
         {"lua-exec",        required_argument,  NULL,         0},
         {"lua-exec-internal",required_argument, NULL,         0},
@@ -280,6 +283,9 @@ int main(int argc, char *argv[])
         {"proxy-type",      required_argument,  NULL,         0},
         {"proxy-auth",      required_argument,  NULL,         0},
         {"proxy-dns",       required_argument,  NULL,         0},
+#ifdef HAVE_PTY
+        {"raw",             no_argument,        NULL,         0},
+#endif
         {"nsock-engine",    required_argument,  NULL,         0},
         {"test",            no_argument,        NULL,         0},
         {"ssl",             no_argument,        &o.ssl,       1},
@@ -341,13 +347,13 @@ int main(int argc, char *argv[])
             break;
         case 'c':
             if (o.cmdexec != NULL)
-                bye("Only one of --exec, --sh-exec, and --lua-exec is allowed.");
+                bye("Only one of --exec, --sh-exec, --tty-exec, and --lua-exec is allowed.");
             o.cmdexec = optarg;
             o.execmode = EXEC_SHELL;
             break;
         case 'e':
             if (o.cmdexec != NULL)
-                bye("Only one of --exec, --sh-exec, and --lua-exec is allowed.");
+                bye("Only one of --exec, --sh-exec, --tty-exec, and --lua-exec is allowed.");
             o.cmdexec = optarg;
             o.execmode = EXEC_PLAIN;
             break;
@@ -484,6 +490,16 @@ int main(int argc, char *argv[])
             } else if (strcmp(long_options[option_index].name, "sctp") == 0) {
                 o.proto = IPPROTO_SCTP;
             }
+#ifdef HAVE_PTY
+            else if (strcmp(long_options[option_index].name, "tty-exec") == 0) {
+                if (o.cmdexec != NULL)
+                    bye("Only one of --exec, --sh-exec, --tty-exec, and --lua-exec is allowed.");
+                o.cmdexec = optarg;
+                o.execmode = EXEC_TTY;
+            } else if (strcmp(long_options[option_index].name, "raw") == 0) {
+                o.rawmode = 1;
+            }
+#endif
 #ifdef HAVE_OPENSSL
             else if (strcmp(long_options[option_index].name, "ssl-cert") == 0) {
                 o.ssl = 1;
@@ -533,7 +549,7 @@ int main(int argc, char *argv[])
 #ifdef HAVE_LUA
             else if (strcmp(long_options[option_index].name, "lua-exec") == 0) {
                 if (o.cmdexec != NULL)
-                    bye("Only one of --exec, --sh-exec, and --lua-exec is allowed.");
+                    bye("Only one of --exec, --sh-exec, --tty-exec, and --lua-exec is allowed.");
                 o.cmdexec = optarg;
                 o.execmode = EXEC_LUA;
             } else if (strcmp(long_options[option_index].name, "lua-exec-internal") == 0) {
@@ -583,6 +599,9 @@ int main(int argc, char *argv[])
 "  -C, --crlf                 Use CRLF for EOL sequence\n"
 "  -c, --sh-exec <command>    Executes the given command via /bin/sh\n"
 "  -e, --exec <command>       Executes the given command\n"
+#ifdef HAVE_PTY
+"      --tty-exec <command>   Executes the given command in a spawned PTY\n"
+#endif
 #ifdef HAVE_LUA
 "      --lua-exec <filename>  Executes the given Lua script\n"
 #endif
@@ -619,6 +638,9 @@ int main(int argc, char *argv[])
 "      --proxy-type <type>    Specify proxy type (\"http\", \"socks4\", \"socks5\")\n"
 "      --proxy-auth <auth>    Authenticate with HTTP or SOCKS proxy server\n"
 "      --proxy-dns <type>     Specify where to resolve proxy destination\n"
+#ifdef HAVE_PTY
+"      --raw                  Turn current TTY into raw mode\n"
+#endif
 
 #ifdef HAVE_OPENSSL
 "      --ssl                  Connect or listen with SSL\n"
@@ -985,10 +1007,20 @@ int main(int argc, char *argv[])
         lua_setup();
 #endif
 
+#ifdef HAVE_PTY
+    if (o.rawmode)
+        tty_raw();
+#endif
+
     if (o.listen)
         return ncat_listen_mode();
     else
         return ncat_connect_mode();
+
+#ifdef HAVE_PTY
+    if (o.rawmode)
+        tty_reset();
+#endif
 }
 
 /* connect error handling and operations. */

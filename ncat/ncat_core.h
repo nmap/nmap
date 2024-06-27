@@ -88,6 +88,7 @@ extern struct sockaddr_list *targetaddrs;
 enum exec_mode {
     EXEC_PLAIN,
     EXEC_SHELL,
+    EXEC_TTY,
     EXEC_LUA,
 };
 
@@ -147,6 +148,8 @@ struct options {
     char *proxytype;
     char *proxyaddr;
     int proxydns;
+
+    int rawmode;
 
     int ssl;
     char *sslcert;
@@ -242,5 +245,10 @@ extern void set_lf_mode(void);
 extern int getaddrfamily(const char *addr);
 extern int setenv_portable(const char *name, const char *value);
 extern void setup_environment(struct fdinfo *fdinfo);
+
+#ifdef HAVE_PTY
+extern int tty_reset(void);
+extern void tty_raw(void);
+#endif
 
 #endif
