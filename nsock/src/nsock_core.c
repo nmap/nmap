@@ -927,7 +927,8 @@ enum nsock_loopstatus nsock_loop(nsock_pool nsp, int msec_timeout) {
     }
 
     if (msec_timeout >= 0) {
-      msecs_left = MAX(0, TIMEVAL_MSEC_SUBTRACT(loop_timeout, nsock_tod));
+      msecs_left = TIMEVAL_MSEC_SUBTRACT(loop_timeout, nsock_tod);
+      msecs_left = MAX(0, msecs_left);
       if (msecs_left == 0 && loopnum > 0) {
         quitstatus = NSOCK_LOOP_TIMEOUT;
         break;
