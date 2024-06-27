@@ -320,6 +320,7 @@ struct send_delay_nfo {
   unsigned int goodRespSinceDelayChanged;
   unsigned int droppedRespSinceDelayChanged;
   struct timeval last_boost; /* Most recent time of increase to delayms.  Init to creation time. */
+  int maxdelay;
 };
 
 /* To test for rate limiting, there is a delay in sending the first packet

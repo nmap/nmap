@@ -469,6 +469,9 @@ HostScanStats::HostScanStats(Target *t, UltraScanInfo *UltraSI) {
   memset(&sdn, 0, sizeof(sdn));
   sdn.last_boost = USI->now;
   sdn.delayms = o.scan_delay;
+  sdn.maxdelay = USI->tcp_scan ? o.maxTCPScanDelay() :
+                 USI->udp_scan ? o.maxUDPScanDelay() :
+                 o.maxSCTPScanDelay();
   rld.max_tryno_sent = 0;
   rld.rld_waiting = false;
   rld.rld_waittime = USI->now;
@@ -1917,13 +1920,13 @@ static bool ultrascan_port_pspec_update(const UltraScanInfo *USI,
 /* Boost the scan delay for this host, usually because too many packet
    drops were detected. */
 void HostScanStats::boostScanDelay() {
-  unsigned int maxAllowed = USI->tcp_scan ? o.maxTCPScanDelay() :
-                            USI->udp_scan ? o.maxUDPScanDelay() :
-                            o.maxSCTPScanDelay();
-  if (sdn.delayms == 0)
-    sdn.delayms = (USI->udp_scan) ? 50 : 5; // In many cases, a pcap wait takes a minimum of 80ms, so this matters little :(
-  else sdn.delayms = MIN(sdn.delayms * 2, MAX(sdn.delayms, 1000));
-  sdn.delayms = MIN(sdn.delayms, maxAllowed);
+  if (sdn.delayms < 1000) {
+    if (sdn.delayms == 0)
+      sdn.delayms = (USI->udp_scan) ? 50 : 5; // In many cases, a pcap wait takes a minimum of 80ms, so this matters little :(
+    else
+      sdn.delayms = MIN(sdn.delayms * 2, 1000);
+  }
+  sdn.delayms = MIN(sdn.delayms, sdn.maxdelay);
   sdn.last_boost = USI->now;
   sdn.droppedRespSinceDelayChanged = 0;
   sdn.goodRespSinceDelayChanged = 0;
