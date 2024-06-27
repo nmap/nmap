@@ -121,7 +121,7 @@ void adjust_timeouts2(const struct timeval *sent,
   if (to->srtt == -1 && to->rttvar == -1) {
     /* We need to initialize the sucker ... */
     to->srtt = delta;
-    to->rttvar = MAX(5000, MIN(to->srtt, 2000000));
+    to->rttvar = box(5000, 2000000, to->srtt);
     to->timeout = to->srtt + (to->rttvar << 2);
   } else {
     long rttdelta;

@@ -108,6 +108,7 @@ individually.
 #include "NmapOps.h"
 #include "Target.h"
 #include "tcpip.h"
+#include "utils.h"
 
 #include "struct_ip.h"
 
@@ -313,7 +314,7 @@ static unsigned int hop_cache_size();
 
 HostState::HostState(Target *target) : sent_ttls(MAX_TTL + 1, false) {
   this->target = target;
-  current_ttl = MIN(MAX(1, HostState::distance_guess(target)), MAX_TTL);
+  current_ttl = box(1, MAX_TTL, (int)HostState::distance_guess(target));
   state = HostState::COUNTING_DOWN;
   reached_target = 0;
   pspec = HostState::get_probe(target);
