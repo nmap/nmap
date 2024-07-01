@@ -81,7 +81,7 @@ o.debugging = 1;
   DNS::RECORD_TYPE rt = DNS::A;
   const size_t buflen = 1500;
   u8 buf[buflen];
-  size_t reqlen = DNS::Factory::buildSimpleRequest(target, rt, buf, buflen);
+  size_t reqlen = DNS::Factory::buildSimpleRequest(0xdead, target, rt, buf, buflen);
   
   DNS::Packet p;
   size_t plen = p.parseFromBuffer(buf, buflen);
