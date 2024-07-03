@@ -547,7 +547,7 @@ table.insert(fingerprints, {
 })
 
 table.insert(fingerprints, {
-  -- Version 0.4.4.6.1 on SamuraiWTF 2.6, 0.4.7.0 on Kali 2016.2
+  -- Version 0.4.4.6.1 on SamuraiWTF 2.6, 0.4.7.0 on Kali Linux 2016.2
   name = "BeEF",
   category = "web",
   paths = {
