@@ -245,7 +245,7 @@ local function process_instance( instance )
   instanceOutput["name"] = string.format( "[%s]", instance:GetName() )
   table.insert( instanceOutput, output )
 
-  return stdnse.format_ouptut(true, instanceOutput)
+  return stdnse.format_output(true, instanceOutput)
 
 end
 
