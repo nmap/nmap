@@ -3134,12 +3134,13 @@ Helper =
         for i=1, #colinfo do
           local val
 
-          if ( ColumnData.Parse[colinfo[i].type] ) then
-            if not ( colinfo[i].type == 106 or colinfo[i].type == 108) then
-              pos, val = ColumnData.Parse[colinfo[i].type](data, pos)
-            else
+          local coltype = colinfo[i].type
+          if ( ColumnData.Parse[coltype] ) then
+            if coltype == DataTypes.DECIMALNTYPE or coltype == DataTypes.NUMERICNTYPE then
               -- decimal / numeric types need precision and scale passed.
-              pos, val = ColumnData.Parse[colinfo[i].type]( colinfo[i].precision,  colinfo[i].scale, data, pos)
+              pos, val = ColumnData.Parse[coltype]( colinfo[i].precision,  colinfo[i].scale, data, pos)
+            else
+              pos, val = ColumnData.Parse[coltype](data, pos)
             end
 
             if ( -1 == pos ) then
@@ -3147,7 +3148,7 @@ Helper =
             end
             table.insert(columns, val)
           else
-            return false, ("unknown datatype=0x%X"):format(colinfo[i].type)
+            return false, ("unknown datatype=0x%X"):format(coltype)
           end
         end
         table.insert(rows, columns)
