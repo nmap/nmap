@@ -2561,8 +2561,8 @@ Helper =
 
   --- Establishes a connection to the SQL server
   --
-  -- @param host table containing host information
-  -- @param port table containing port information
+  -- @param instanceInfo A SqlServerInstanceInfo object for the instance
+  --                     to connect to
   -- @return status true on success, false on failure
   -- @return result containing error message on failure
   ConnectEx = function( self, instanceInfo )
