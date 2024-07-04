@@ -3102,7 +3102,7 @@ Helper =
     while( pos < data:len() ) do
       local rowtag = string.unpack("B", data, pos)
 
-      if ( rowtag == TokenType.Row ) then
+      if rowtag == TokenType.Row or rowtag == TokenType.Done then
         break
       end
 
