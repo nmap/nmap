@@ -3356,7 +3356,7 @@ Helper =
       for _, instance in ipairs(instances) do
         output[instance:GetName()] = process_instance(instance)
       end
-      if #output > 0 then
+      if next(output) then
         return outlib.sorted_by_key(output)
       end
       return nil
