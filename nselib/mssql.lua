@@ -39,8 +39,9 @@
 -- with pre-discovered instances (e.g. by <code>ms-sql-discover</code> or <code>broadcast-ms-sql-discover</code>):
 --
 -- <code>
--- local instance = mssql.Helper.GetDiscoveredInstances( host, port )
--- if ( instance ) then
+-- local instances = mssql.Helper.GetDiscoveredInstances( host, port )
+-- if ( instances ) then
+--   local instance = next(instances)
 --   local helper = mssql.Helper:new()
 --   status, result = helper:ConnectEx( instance )
 --   status, result = helper:LoginEx( instance )
