@@ -2740,9 +2740,9 @@ Helper =
   DiscoverByTcp = function( host, port )
     local version, instance, status
     -- Check to see if we've already discovered an instance on this port
-    local instance = Helper.GetDiscoveredInstances(host, port)
-    if instance then
-      return true, {instance}
+    local instances = Helper.GetDiscoveredInstances(host, port)
+    if instances then
+      return true, instances
     end
     instance =  SqlServerInstanceInfo:new()
     instance.host = host
@@ -3227,8 +3227,8 @@ Helper =
     Helper.Discover( host )
 
     if ( port ) then
-      local status, instances = Helper.GetDiscoveredInstances(host, port)
-      if status then
+      local instances = Helper.GetDiscoveredInstances(host, port)
+      if instances then
         return true, instances
       else
         return false, "No SQL Server instance detected on this port"
