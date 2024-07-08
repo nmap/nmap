@@ -13,7 +13,8 @@ o [GH#1451] Nmap now performs forward DNS lookups in parallel, using the same
   took just over an hour. The previous system took 49 hours for the same data
   set! [Daniel Miller]
 
-o [GH#2784] Various bug fixes in the mssql NSE library [johnjaylward, nnposter]
+o [GH#2571, GH#2572, GH#2622, GH#2784] Various bug fixes in the mssql NSE
+  library [johnjaylward, nnposter]
 
 Nmap 7.95 [2024-04-23]
 
