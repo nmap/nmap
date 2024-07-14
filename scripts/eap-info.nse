@@ -49,24 +49,17 @@ local UNKNOWN = "unknown"
 
 action = function()
 
-  local arg_interface = stdnse.get_script_args(SCRIPT_NAME .. ".interface")
   local arg_identity = stdnse.get_script_args(SCRIPT_NAME .. ".identity")
   local arg_scan = stdnse.get_script_args(SCRIPT_NAME .. ".scan")
   local arg_timeout = stdnse.parse_timespec(stdnse.get_script_args(SCRIPT_NAME .. ".timeout"))
   local iface
 
-  -- trying with provided interface name
-  if arg_interface then
-    iface = nmap.get_interface_info(arg_interface)
-  end
-
-  -- trying with default nmap interface
-  if not iface then
-    local iname = nmap.get_interface()
-    if iname then
-      iface = nmap.get_interface_info(iname)
+  local collect_interface = function (if_table)
+    if not iface and if_table.up == "up" and if_table.link == "ethernet" then
+      iface = if_table
     end
   end
+  stdnse.get_script_interfaces(collect_interface)
 
   -- failed
   if not iface then

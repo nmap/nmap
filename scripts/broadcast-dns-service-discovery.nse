@@ -1,5 +1,6 @@
 local dnssd = require "dnssd"
 local stdnse = require "stdnse"
+local oops = require "oops"
 
 description=[[
 Attempts to discover hosts' services using the DNS Service Discovery protocol.  It sends a multicast DNS-SD query and collects all the responses.
@@ -50,8 +51,5 @@ action = function()
   local helper = dnssd.Helper:new( )
   helper:setMulticast(true)
 
-  local status, result = helper:queryServices()
-  if ( status ) then
-    return stdnse.format_output(true, result)
-  end
+  oops.output(helper:queryServices())
 end

@@ -377,9 +377,10 @@ class DiffWindow(Gtk.Window):
                 error_text = _(
                     "The ndiff process terminated with status code %d."
                     ) % status
-                stderr = self.ndiff_process.stderr.read()
-                if len(stderr) > 0:
-                    error_text += "\n\n" + stderr
+                if self.ndiff_process.stderr:
+                    stderr = self.ndiff_process.stderr.read()
+                    if len(stderr) > 0:
+                        error_text += "\n\n" + stderr
                 alert = HIGAlertDialog(
                     message_format=_("Error running ndiff"),
                     secondary_text=error_text)

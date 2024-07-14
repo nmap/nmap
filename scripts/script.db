@@ -145,6 +145,7 @@ Entry { filename = "hadoop-jobtracker-info.nse", categories = { "default", "disc
 Entry { filename = "hadoop-namenode-info.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "hadoop-secondary-namenode-info.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "hadoop-tasktracker-info.nse", categories = { "default", "discovery", "safe", } }
+Entry { filename = "hartip-info.nse", categories = { "discovery", "intrusive", } }
 Entry { filename = "hbase-master-info.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "hbase-region-info.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "hddtemp-info.nse", categories = { "default", "discovery", "safe", } }
@@ -291,6 +292,7 @@ Entry { filename = "iax2-brute.nse", categories = { "brute", "intrusive", } }
 Entry { filename = "iax2-version.nse", categories = { "version", } }
 Entry { filename = "icap-info.nse", categories = { "discovery", "safe", } }
 Entry { filename = "iec-identify.nse", categories = { "discovery", "intrusive", } }
+Entry { filename = "iec61850-mms.nse", categories = { "discovery", "intrusive", "version", } }
 Entry { filename = "ike-version.nse", categories = { "default", "discovery", "safe", "version", } }
 Entry { filename = "imap-brute.nse", categories = { "brute", "intrusive", } }
 Entry { filename = "imap-capabilities.nse", categories = { "default", "safe", } }
@@ -367,6 +369,7 @@ Entry { filename = "ms-sql-tables.nse", categories = { "discovery", "safe", } }
 Entry { filename = "ms-sql-xp-cmdshell.nse", categories = { "intrusive", } }
 Entry { filename = "msrpc-enum.nse", categories = { "discovery", "safe", } }
 Entry { filename = "mtrace.nse", categories = { "broadcast", "discovery", "safe", } }
+Entry { filename = "multicast-profinet-discovery.nse", categories = { "discovery", "info", "safe", } }
 Entry { filename = "murmur-version.nse", categories = { "version", } }
 Entry { filename = "mysql-audit.nse", categories = { "discovery", "safe", } }
 Entry { filename = "mysql-brute.nse", categories = { "brute", "intrusive", } }
@@ -429,6 +432,7 @@ Entry { filename = "pop3-capabilities.nse", categories = { "default", "discovery
 Entry { filename = "pop3-ntlm-info.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "port-states.nse", categories = { "safe", } }
 Entry { filename = "pptp-version.nse", categories = { "version", } }
+Entry { filename = "profinet-cm-lookup.nse", categories = { "discovery", "intrusive", } }
 Entry { filename = "puppet-naivesigning.nse", categories = { "intrusive", "vuln", } }
 Entry { filename = "qconn-exec.nse", categories = { "exploit", "intrusive", "vuln", } }
 Entry { filename = "qscan.nse", categories = { "discovery", "safe", } }

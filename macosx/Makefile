@@ -72,7 +72,7 @@ $(IMAGE_NAME): tool-checks $(IMAGE_STAGING_DIR)/$(PKG_NAME)
 	# Check the created disk image for the sizes, backgrounds and icons presence and positions
 	./check_test.sh $(README_FILE) $(LICENSE_FILE) $(3RD_P_LIC_FILE) $(LICENSES_FILE)
 
-tool-checks: have-$(CC) have-jhbuild have-gtk-mac-bundler
+tool-checks: have-jhbuild have-gtk-mac-bundler
 
 have-%:
 	which $*

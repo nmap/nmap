@@ -374,6 +374,10 @@ Npcap is available from https://npcap.com. The Npcap driver service must\n\
 be started by an administrator before Npcap can be used. Running nmap.exe\n\
 will open a UAC dialog where you can start the service if you have\n\
 administrator privileges.";
+
+#define YOU_ARE_ROOT "Npcap is installed"
+#else
+#define YOU_ARE_ROOT "you are root"
 #endif
 
 
@@ -403,15 +407,15 @@ administrator privileges.";
   }
 
  if ((pingtype & PINGTYPE_UDP) && (!isr00t)) {
-   fatal("Sorry, UDP Ping (-PU) only works if you are root (because we need to read raw responses off the wire)");
+   fatal("Sorry, UDP Ping (-PU) only works if " YOU_ARE_ROOT " (because we need to read raw responses off the wire)");
  }
 
  if ((pingtype & PINGTYPE_SCTP_INIT) && (!isr00t)) {
-   fatal("Sorry, SCTP INIT Ping (-PY) only works if you are root (because we need to read raw responses off the wire)");
+   fatal("Sorry, SCTP INIT Ping (-PY) only works if " YOU_ARE_ROOT " (because we need to read raw responses off the wire)");
   }
 
  if ((pingtype & PINGTYPE_PROTO) && (!isr00t)) {
-   fatal("Sorry, IPProto Ping (-PO) only works if you are root (because we need to read raw responses off the wire)");
+   fatal("Sorry, IPProto Ping (-PO) only works if " YOU_ARE_ROOT " (because we need to read raw responses off the wire)");
  }
 
  if (ipprotscan && (TCPScan() || UDPScan() || SCTPScan())) {

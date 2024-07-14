@@ -661,6 +661,49 @@ function get_script_args (...)
   return unpack(args, 1, select("#", ...))
 end
 
+local function identity(...)
+  return ...
+end
+
+---Get the interfaces that are appropriate for a script to use.
+--
+-- This function returns interface information in the same format as
+-- <code>nmap.list_interfaces()</code>, but if any of the following are given,
+-- the list will have at most one interface corresponding to the first
+-- available from this list:
+-- * The <code>SCRIPT_NAME.interface</code> script-arg
+-- * The <code>interface</code> script-arg
+-- * The <code>-e</code> option
+--
+-- @param filter_func A function to filter the result
+-- @return A list of interfaces
+-- @see nmap.list_interfaces
+-- @see nmap.get_interface
+-- @see stdnse.get_script_args
+-- @usage
+-- local up_filter = function (if_table)
+--   if if_table.up == "up" then
+--     return if_table
+--   end
+-- end
+--
+-- local up_interfaces = stdnse.get_script_interfaces(up_filter)
+function get_script_interfaces(filter_func)
+  filter_func = filter_func or identity
+  local interface = arg_value(getid() .. ".interface") or nmap.get_interface()
+  if interface then
+    return {filter_func(nmap.get_interface_info(interface))}
+  end
+  local ret = {}
+  for _, if_table in ipairs(nmap.list_interfaces()) do
+    local ift = filter_func(if_table)
+    if ift then
+      insert(ret, ift)
+    end
+  end
+  return ret
+end
+
 ---Get the best possible hostname for the given host. This can be the target as given on
 -- the commandline, the reverse dns name, or simply the ip address.
 --@param host The host table (or a string that'll simply be returned).

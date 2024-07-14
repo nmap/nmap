@@ -199,7 +199,7 @@ struct npool {
 #if HAVE_OPENSSL
   /* The SSL Context (options and such) */
   SSL_CTX *sslctx;
-#ifdef HAVE_DTLS_CLIENT_METHOD
+#ifndef OPENSSL_NO_DTLS
   SSL_CTX *dtlsctx;
 #endif
 #endif

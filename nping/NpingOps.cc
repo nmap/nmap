@@ -1416,7 +1416,6 @@ struct sockaddr_storage *NpingOps::getSourceSockAddr(struct sockaddr_storage *ss
         s6->sin6_addr=this->getIPv6SourceAddress();
     else
         s6->sin6_addr=in6addr_any;
-    s6->sin6_addr=this->getIPv6SourceAddress();
     s6->sin6_family=AF_INET6;
     if(this->issetSourcePort())
         s6->sin6_port=htons(this->getSourcePort());
@@ -2392,7 +2391,7 @@ if( this->getMode()!=TCP_CONNECT && this->getMode()!=UDP_UNPRIV && this->getRole
                 else
                     this->setDevice( dev );
                 /* Libpcap gave us a device name, try to obtain it's IP */
-                if ( devname2ipaddr_alt(this->getDevice(), &ifaddr) != 0 ){
+                if ( devname2ipaddr(this->getDevice(), this->af(), &ifaddr) != 0 ){
                     if( this->isRoot() )
                         nping_fatal(QT_3,"Cannot figure out what source address to use for device %s, does it even exist?", this->getDevice());
                     else

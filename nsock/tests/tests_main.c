@@ -104,7 +104,7 @@ int main(int ac, char **av) {
 
   /* simple "do we have ssl" check for run_tests.sh */
   if (ac == 2 && !strncmp(av[1], "--ssl", 5)) {
-#ifdef HAVE_SSL
+#ifdef HAVE_OPENSSL
     return 0;
 #else
     return 1;

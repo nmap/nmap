@@ -121,7 +121,7 @@ void adjust_timeouts2(const struct timeval *sent,
   if (to->srtt == -1 && to->rttvar == -1) {
     /* We need to initialize the sucker ... */
     to->srtt = delta;
-    to->rttvar = MAX(5000, MIN(to->srtt, 2000000));
+    to->rttvar = box(5000, 2000000, to->srtt);
     to->timeout = to->srtt + (to->rttvar << 2);
   } else {
     long rttdelta;
@@ -302,6 +302,8 @@ RateMeter::RateMeter(double current_rate_history) {
   stop_tv.tv_usec = 0;
   last_update_tv.tv_sec = 0;
   last_update_tv.tv_usec = 0;
+  history_threshold.tv_sec = 0;
+  history_threshold.tv_usec = 0;
   total = 0.0;
   current_rate = 0.0;
   assert(!isSet(&start_tv));
@@ -315,6 +317,10 @@ void RateMeter::start(const struct timeval *now) {
     gettimeofday(&start_tv, NULL);
   else
     start_tv = *now;
+  /* Find the time current_rate_history seconds after the start. That's our
+     threshold for deciding how far back to look for moving average. */
+  TIMEVAL_ADD(history_threshold, start_tv,
+      (time_t) (current_rate_history * 1000000.0));
 }
 
 void RateMeter::stop(const struct timeval *now) {
@@ -369,11 +375,7 @@ void RateMeter::update(double amount, const struct timeval *now) {
   /* Find out how far back in time to look. We want to look back
      current_rate_history seconds, or to when the last update occurred,
      whichever is longer. However, we never look past the start. */
-  struct timeval tmp;
-  /* Find the time current_rate_history seconds after the start. That's our
-     threshold for deciding how far back to look. */
-  TIMEVAL_ADD(tmp, start_tv, (time_t) (current_rate_history * 1000000.0));
-  if (TIMEVAL_AFTER(*now, tmp))
+  if (TIMEVAL_AFTER(*now, history_threshold))
     interval = MAX(current_rate_history, diff);
   else
     interval = TIMEVAL_FSEC_SUBTRACT(*now, start_tv);

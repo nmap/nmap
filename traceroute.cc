@@ -108,6 +108,7 @@ individually.
 #include "NmapOps.h"
 #include "Target.h"
 #include "tcpip.h"
+#include "utils.h"
 
 #include "struct_ip.h"
 
@@ -313,7 +314,7 @@ static unsigned int hop_cache_size();
 
 HostState::HostState(Target *target) : sent_ttls(MAX_TTL + 1, false) {
   this->target = target;
-  current_ttl = MIN(MAX(1, HostState::distance_guess(target)), MAX_TTL);
+  current_ttl = box(1, MAX_TTL, (int)HostState::distance_guess(target));
   state = HostState::COUNTING_DOWN;
   reached_target = 0;
   pspec = HostState::get_probe(target);
@@ -1333,7 +1334,6 @@ void TracerouteState::resolve_hops() {
   std::set<sockaddr_storage, lt_sockaddr_storage>::iterator addr_iter;
   std::vector<HostState *>::iterator host_iter;
   std::map<sockaddr_storage, const char *, lt_sockaddr_storage> name_map;
-  Target **targets;
   Hop *hop;
   int i, n;
 
@@ -1347,43 +1347,32 @@ void TracerouteState::resolve_hops() {
     }
   }
   n = addrs.size();
-  /* Second, make an array of pointer to Target to suit the interface of
-     nmap_mass_rdns. */
-  targets = (Target **) safe_malloc(sizeof(*targets) * n);
-  i = 0;
-  addr_iter = addrs.begin();
-  while (i < n) {
-    targets[i] = new Target();
-    targets[i]->setTargetSockAddr(&*addr_iter, sizeof(*addr_iter));
-    targets[i]->flags = HOST_UP;
-    i++;
-    addr_iter++;
+  /* Second, make an array of pointer to DNS::Request to suit the interface of
+     nmap_mass_dns. */
+  DNS::Request *requests = new DNS::Request[n];
+  for (i = 0, addr_iter = addrs.begin(); i < n; i++, addr_iter++) {
+    requests[i].ssv.push_back(*addr_iter);
+    requests[i].type = DNS::PTR;
   }
-  nmap_mass_rdns(targets, n);
+  nmap_mass_dns(requests, n);
   /* Third, make a map from addresses to names for easy lookup. */
   for (i = 0; i < n; i++) {
-    struct sockaddr_storage ss;
-    size_t ss_len;
-    const char *hostname = targets[i]->HostName();
-    if (*hostname == '\0')
-      hostname = NULL;
-    ss_len = sizeof(ss);
-    targets[i]->TargetSockAddr(&ss, &ss_len);
-    name_map[ss] = hostname;
+    std::string &hostname = requests[i].name;
+    if (!hostname.empty())
+      name_map[requests[i].ssv.front()] = hostname.c_str();
   }
   /* Finally, copy the names into the hops. */
   for (host_iter = hosts.begin(); host_iter != hosts.end(); host_iter++) {
     for (hop = (*host_iter)->hops; hop != NULL; hop = hop->parent) {
       if (hop->addr.ss_family != AF_UNSPEC) {
-        const char *hostname = name_map[hop->addr];
-        if (hostname != NULL)
-          hop->hostname = hostname;
+        std::map<sockaddr_storage, const char *, lt_sockaddr_storage>::const_iterator it;
+        it = name_map.find(hop->addr);
+        if (it != name_map.end())
+          hop->hostname = it->second;
       }
     }
   }
-  for (i = 0; i < n; i++)
-    delete targets[i];
-  free(targets);
+  delete [] requests;
 }
 
 void TracerouteState::transfer_hops() {

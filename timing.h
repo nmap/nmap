@@ -183,6 +183,8 @@ class RateMeter {
     struct timeval stop_tv;
     /* The last time the current sample rates were updated. */
     struct timeval last_update_tv;
+    /* The time current_rate_history after start_tv. */
+    struct timeval history_threshold;
 
     double total;
     double current_rate;

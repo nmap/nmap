@@ -69,6 +69,7 @@ class Target;
 
 #include <algorithm>
 #include <sstream>
+#include <vector>
 
 #define DNS_LABEL_MAX_LENGTH 63
 #define DNS_NAME_MAX_LENGTH 255
@@ -122,10 +123,12 @@ typedef enum {
 } ERRORS;
 
 typedef enum {
+  NONE = 0,
   A = 1,
   CNAME = 5,
   PTR = 12,
   AAAA = 28,
+  ANY = 255, // Internally defined as "A and AAAA"
 } RECORD_TYPE;
 
 typedef enum {
@@ -145,12 +148,14 @@ public:
   static u16 progressiveId;
   static bool ipToPtr(const sockaddr_storage &ip, std::string &ptr);
   static bool ptrToIp(const std::string &ptr, sockaddr_storage &ip);
-  static size_t buildSimpleRequest(const std::string &name, RECORD_TYPE rt, u8 *buf, size_t maxlen);
-  static size_t buildReverseRequest(const sockaddr_storage &ip, u8 *buf, size_t maxlen);
+  static size_t buildSimpleRequest(u16 id, const std::string &name, RECORD_TYPE rt, u8 *buf, size_t maxlen);
+  static size_t buildReverseRequest(u16 id, const sockaddr_storage &ip, u8 *buf, size_t maxlen);
   static size_t putUnsignedShort(u16 num, u8 *buf, size_t offset, size_t maxlen);
   static size_t putDomainName(const std::string &name, u8 *buf, size_t offset, size_t maxlen);
   static size_t parseUnsignedShort(u16 &num, const u8 *buf, size_t offset, size_t maxlen);
   static size_t parseUnsignedInt(u32 &num, const u8 *buf, size_t offset, size_t maxlen);
+  static size_t parseIPv4(struct in_addr &addr, const u8 *buf, size_t offset, size_t maxlen);
+  static size_t parseIPv6(struct in6_addr &addr, const u8 *buf, size_t offset, size_t maxlen);
   static size_t parseDomainName(std::string &name, const u8 *buf, size_t offset, size_t maxlen);
 };
 
@@ -159,7 +164,7 @@ class Record
 public:
   virtual Record * clone() = 0;
   virtual ~Record() {}
-  virtual size_t parseFromBuffer(const u8 *buf, size_t offset, size_t maxlen) = 0;
+  virtual size_t parseFromBuffer(const u8 *buf, size_t offset, size_t maxlen, RECORD_TYPE rt) = 0;
 };
 
 class A_Record : public Record
@@ -168,7 +173,7 @@ public:
   sockaddr_storage value;
   Record * clone() { return new A_Record(*this); }
   ~A_Record() {}
-  size_t parseFromBuffer(const u8 *buf, size_t offset, size_t maxlen);
+  size_t parseFromBuffer(const u8 *buf, size_t offset, size_t maxlen, RECORD_TYPE rt);
 };
 
 class PTR_Record : public Record
@@ -177,7 +182,7 @@ public:
   std::string value;
   Record * clone() { return new PTR_Record(*this); }
   ~PTR_Record() {}
-  size_t parseFromBuffer(const u8 *buf, size_t offset, size_t maxlen)
+  size_t parseFromBuffer(const u8 *buf, size_t offset, size_t maxlen, RECORD_TYPE rt)
   {
     return Factory::parseDomainName(value, buf, offset, maxlen);
   }
@@ -189,7 +194,7 @@ public:
   std::string value;
   Record * clone() { return new CNAME_Record(*this); }
   ~CNAME_Record() {}
-  size_t parseFromBuffer(const u8 *buf, size_t offset, size_t maxlen)
+  size_t parseFromBuffer(const u8 *buf, size_t offset, size_t maxlen, RECORD_TYPE rt)
   {
     return Factory::parseDomainName(value, buf, offset, maxlen);
   }
@@ -244,8 +249,19 @@ public:
   std::list<Answer> answers;
 };
 
+struct Request
+{
+  RECORD_TYPE type;
+  std::vector<struct sockaddr_storage> ssv;
+  std::string name;
+  void *userdata;
+  Request() : type(NONE), ssv(), name(), userdata(NULL) {}
+  const char *repr() const; // string representation
+};
 }
 
+
+void nmap_mass_dns(DNS::Request requests[], int num_requests);
 void nmap_mass_rdns(Target ** targets, int num_targets);
 
 std::list<std::string> get_dns_servers();

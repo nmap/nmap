@@ -20,7 +20,7 @@
 -- * QueryPacket: Class used to hold a query and convert it to a string suitable for transmission over a socket.
 -- * LoginPacket: Class used to hold login specific data which can easily be converted to a string suitable for transmission over a socket.
 -- * PreLoginPacket: Class used to (partially) implement the TDS PreLogin packet
--- * TDSStream: Class that handles communication over the Tabular Data Stream protocol used by SQL serve. It is used to transmit the the Query- and Login-packets to the server.
+-- * TDSStream: Class that handles communication over the Tabular Data Stream protocol used by SQL serve. It is used to transmit the Query- and Login-packets to the server.
 -- * Helper: Class which facilitates the use of the library by through action oriented functions with descriptive names.
 -- * Util: A "static" class containing mostly character and type conversion functions.
 --
@@ -39,8 +39,9 @@
 -- with pre-discovered instances (e.g. by <code>ms-sql-discover</code> or <code>broadcast-ms-sql-discover</code>):
 --
 -- <code>
--- local instance = mssql.Helper.GetDiscoveredInstances( host, port )
--- if ( instance ) then
+-- local instances = mssql.Helper.GetDiscoveredInstances( host, port )
+-- if ( instances ) then
+--   local instance = next(instances)
 --   local helper = mssql.Helper:new()
 --   status, result = helper:ConnectEx( instance )
 --   status, result = helper:LoginEx( instance )
@@ -658,6 +659,7 @@ SqlServerVersionInfo =
         {3430, "CU28"},
         {3436, "CU29"},
         {3451, "CU30"},
+        {3456, "CU31"},
       },
 
       ["2019"] = {
@@ -690,6 +692,14 @@ SqlServerVersionInfo =
         {4198, "CU15"},
         {4223, "CU16"},
         {4249, "CU17"},
+        {4261, "CU18"},
+        {4298, "CU19"},
+        {4312, "CU20"},
+        {4316, "CU21"},
+        {4322, "CU22"},
+        {4335, "CU23"},
+        {4345, "CU24"},
+        {4355, "CU25"},
       },
 
       ["2022"] = {
@@ -702,6 +712,19 @@ SqlServerVersionInfo =
         {600, "CTP2.0"},
         {700, "CTP2.1"},
         {900, "RC0"},
+        {950, "RC1"},
+        {1000, "RTM"},
+        {4003, "CU1"},
+        {4015, "CU2"},
+        {4025, "CU3"},
+        {4035, "CU4"},
+        {4045, "CU5"},
+        {4055, "CU6"},
+        {4065, "CU7"},
+        {4075, "CU8"},
+        {4085, "CU9"},
+        {4095, "CU10"},
+        {4105, "CU11"},
       },
     }
 
@@ -2538,8 +2561,8 @@ Helper =
 
   --- Establishes a connection to the SQL server
   --
-  -- @param host table containing host information
-  -- @param port table containing port information
+  -- @param instanceInfo A SqlServerInstanceInfo object for the instance
+  --                     to connect to
   -- @return status true on success, false on failure
   -- @return result containing error message on failure
   ConnectEx = function( self, instanceInfo )
@@ -2717,9 +2740,9 @@ Helper =
   DiscoverByTcp = function( host, port )
     local version, instance, status
     -- Check to see if we've already discovered an instance on this port
-    local instance = Helper.GetDiscoveredInstances(host, port)
-    if instance then
-      return true, {instance}
+    local instances = Helper.GetDiscoveredInstances(host, port)
+    if instances then
+      return true, instances
     end
     instance =  SqlServerInstanceInfo:new()
     instance.host = host
@@ -3080,7 +3103,7 @@ Helper =
     while( pos < data:len() ) do
       local rowtag = string.unpack("B", data, pos)
 
-      if ( rowtag == TokenType.Row ) then
+      if rowtag == TokenType.Row or rowtag == TokenType.Done then
         break
       end
 
@@ -3112,12 +3135,13 @@ Helper =
         for i=1, #colinfo do
           local val
 
-          if ( ColumnData.Parse[colinfo[i].type] ) then
-            if not ( colinfo[i].type == 106 or colinfo[i].type == 108) then
-              pos, val = ColumnData.Parse[colinfo[i].type](data, pos)
-            else
+          local coltype = colinfo[i].type
+          if ( ColumnData.Parse[coltype] ) then
+            if coltype == DataTypes.DECIMALNTYPE or coltype == DataTypes.NUMERICNTYPE then
               -- decimal / numeric types need precision and scale passed.
-              pos, val = ColumnData.Parse[colinfo[i].type]( colinfo[i].precision,  colinfo[i].scale, data, pos)
+              pos, val = ColumnData.Parse[coltype]( colinfo[i].precision,  colinfo[i].scale, data, pos)
+            else
+              pos, val = ColumnData.Parse[coltype](data, pos)
             end
 
             if ( -1 == pos ) then
@@ -3125,7 +3149,7 @@ Helper =
             end
             table.insert(columns, val)
           else
-            return false, ("unknown datatype=0x%X"):format(colinfo[i].type)
+            return false, ("unknown datatype=0x%X"):format(coltype)
           end
         end
         table.insert(rows, columns)
@@ -3203,8 +3227,8 @@ Helper =
     Helper.Discover( host )
 
     if ( port ) then
-      local status, instances = Helper.GetDiscoveredInstances(host, port)
-      if status then
+      local instances = Helper.GetDiscoveredInstances(host, port)
+      if instances then
         return true, instances
       else
         return false, "No SQL Server instance detected on this port"
@@ -3334,7 +3358,7 @@ Helper =
       for _, instance in ipairs(instances) do
         output[instance:GetName()] = process_instance(instance)
       end
-      if #output > 0 then
+      if next(output) then
         return outlib.sorted_by_key(output)
       end
       return nil

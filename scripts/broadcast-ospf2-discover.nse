@@ -389,42 +389,31 @@ local ospfListen = function(interface, timeout)
   listener:pcap_close()
 end
 
+local filter_interfaces = function (if_table)
+  if if_table.up == "up" and if_table.link=="ethernet" and
+    if_table.address:match("%d+%.%d+%.%d+%.%d+") then
+    return if_table
+  end
+end
+
 action = function()
   -- Get script arguments
   md5_key   = stdnse.get_script_args(SCRIPT_NAME .. ".md5_key") or false
   router_id = stdnse.get_script_args(SCRIPT_NAME .. ".router_id") or "0.0.0.1"
   local timeout   = stdnse.parse_timespec(stdnse.get_script_args(SCRIPT_NAME .. ".timeout")) or 10
-  local interface = stdnse.get_script_args(SCRIPT_NAME .. ".interface")
   stdnse.print_debug("Value for router ID argument: %s.", router_id)
   stdnse.print_debug("Value for timeout argument: %s.", timeout)
 
   -- Determine interface to use
-  interface  = interface or nmap.get_interface()
-  if interface then
-    interface = nmap.get_interface_info(interface)
-    if not interface then
-      return fail(("Failed to retrieve %s interface information."):format(interface))
-    end
+  local interface
+  local interface_good = stdnse.get_script_interfaces(filter_interfaces)
+  if #interface_good == 1 then
+    interface = interface_good[1]
     stdnse.print_debug("Will use %s interface.", interface.shortname)
+  elseif #interface_good == 0 then
+    return fail("Source interface not found.")
   else
-    local interface_list = nmap.list_interfaces()
-    local interface_good = {}
-    for _, os_interface in ipairs(interface_list) do
-      if os_interface.address and os_interface.link == "ethernet" and
-        os_interface.address:match("%d+%.%d+%.%d+%.%d+") then
-
-        stdnse.print_debug(2, "Found usable interface: %s.", os_interface.shortname)
-        table.insert(interface_good, os_interface)
-      end
-    end
-    if #interface_good == 1 then
-      interface = interface_good[1]
-      stdnse.print_debug("Will use %s interface.", interface.shortname)
-    elseif #interface_good == 0 then
-      return fail("Source interface not found.")
-    else
-      return fail("Ambiguous source interface, please specify it with -e or interface parameter.")
-    end
+    return fail("Ambiguous source interface, please specify it with -e or interface parameter.")
   end
 
   return ospfListen(interface, timeout)

@@ -17,16 +17,26 @@ pkgdesc="Graphical Nmap frontend and results viewer"
 url="https://nmap.org/zenmap/"
 arch=("any")
 license=("NPSL")
-source=("https://nmap.org/dist/nmap-${pkgver}.tar.bz2")
-sha256sums=("SKIP")
+#source=("https://nmap.org/dist/nmap-${pkgver}.tar.bz2")
+#sha256sums=("SKIP")
 mingw_arch=('mingw64')
 depends=("${MINGW_PACKAGE_PREFIX}-python" "${MINGW_PACKAGE_PREFIX}-python-gobject")
-makedepends=("${MINGW_PACKAGE_PREFIX}-python-setuptools")
+makedepends=("${MINGW_PACKAGE_PREFIX}-python-build"
+             "${MINGW_PACKAGE_PREFIX}-python-installer"
+             "${MINGW_PACKAGE_PREFIX}-python-setuptools"
+             "${MINGW_PACKAGE_PREFIX}-python-wheel")
+
+build() {
+	cd "${NMAP_DIR}/zenmap"
+	${MINGW_PREFIX}/bin/python -m build --wheel --skip-dependency-check --no-isolation
+}
 
 package() {
 	cd "${NMAP_DIR}/zenmap"
-	${MINGW_PREFIX}/bin/python setup.py build
+
 	MSYS2_ARG_CONV_EXCL="--prefix=" \
-		${MINGW_PREFIX}/bin/python setup.py install vanilla --prefix=${MINGW_PREFIX} --root="${pkgdir}" --optimize=1
+		${MINGW_PREFIX}/bin/python -m installer --prefix=${MINGW_PREFIX} \
+		--destdir="${pkgdir}" dist/*.whl
+
 	install -Dm644 install_scripts/unix/zenmap.desktop "${pkgdir}${MINGW_PREFIX}/share/applications/zenmap.desktop"
 }

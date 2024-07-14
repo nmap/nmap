@@ -66,7 +66,6 @@ import sys
 import re
 from datetime import datetime
 
-VERSION = os.path.join("share", "zenmap", "config", "zenmap_version")
 VERSION_PY = os.path.join("zenmapCore", "Version.py")
 NAME_PY = os.path.join("zenmapCore", "Name.py")
 
@@ -74,26 +73,22 @@ NAME_PY = os.path.join("zenmapCore", "Name.py")
 def update_date(base_dir):
     name_file = os.path.join(base_dir, NAME_PY)
     print(">>> Updating %s" % name_file)
-    nf = open(name_file, "r")
+    nf = open(name_file, "r", encoding="utf-8")
     ncontent = nf.read()
     nf.close()
     ncontent = re.sub(r'APP_COPYRIGHT *= *"Copyright 2005-....',
             'APP_COPYRIGHT = "Copyright 2005-%d' % (datetime.today().year),
             ncontent)
     # Write the modified file.
-    nf = open(name_file, "w")
+    nf = open(name_file, "w", encoding="utf-8")
     nf.write(ncontent)
     nf.close()
 
 
 def update_version(base_dir, version):
     version = re.sub(r'(?=[^0-9.])', '+', version, 1)
-    print(">>> Updating %s" % os.path.join(base_dir, VERSION))
-    vf = open(os.path.join(base_dir, VERSION), "w")
-    print(version, file=vf)
-    vf.close()
     print(">>> Updating %s" % os.path.join(base_dir, VERSION_PY))
-    vf = open(os.path.join(base_dir, VERSION_PY), "w")
+    vf = open(os.path.join(base_dir, VERSION_PY), "w", encoding="utf-8")
     print("VERSION = \"%s\"" % version, file=vf)
     vf.close()
 

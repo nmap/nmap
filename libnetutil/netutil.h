@@ -318,7 +318,7 @@ int ipaddr2devname( char *dev, const struct sockaddr_storage *addr );
 
 /* Convert a network interface name (IE ppp0 eth0) to an IP address.
  * Returns 0 on success or -1 in case of error. */
-int devname2ipaddr(char *dev, struct sockaddr_storage *addr);
+int devname2ipaddr(char *dev, int af, struct sockaddr_storage *addr);
 
 int sockaddr_equal(const struct sockaddr_storage *a,
   const struct sockaddr_storage *b);
@@ -533,9 +533,8 @@ int read_reply_pcap(pcap_t *pd, long to_usec,
 size_t read_host_from_file(FILE *fp, char *buf, size_t n);
 
 /* Return next target host specification from the supplied stream.
- * if parameter "random" is set to true, then the function will
- * return a random, non-reserved, IP address in decimal-dot notation */
-const char *grab_next_host_spec(FILE *inputfd, bool random, int argc, const char **fakeargv);
+ */
+const char *grab_next_host_spec(FILE *inputfd, int argc, const char **fakeargv);
 
 #ifdef WIN32
 /* Convert a dnet interface name into the long pcap style.  This also caches the

@@ -267,7 +267,7 @@ GroupScanStats::GroupScanStats(UltraScanInfo *UltraSI) {
   initialize_timeout_info(&to);
   /* Default timout should be much lower for arp */
   if (USI->ping_scan_arp)
-    to.timeout = MAX(o.minRttTimeout(), MIN(o.initialRttTimeout(), INITIAL_ARP_RTT_TIMEOUT)) * 1000;
+    to.timeout = box(o.minRttTimeout(), o.initialRttTimeout(), INITIAL_ARP_RTT_TIMEOUT) * 1000;
   num_probes_active = 0;
   numtargets = USI->numIncompleteHosts(); // They are all incomplete at the beginning
   numprobes = USI->numProbesPerHost();
@@ -298,9 +298,13 @@ void GroupScanStats::probeSent(unsigned int nbytes) {
      Recall that these have effect only when --min-rate or --max-rate is
      given. */
 
+  static time_t max_rate_add = o.max_packet_send_rate != 0.0 ?
+    (1000000.0 / o.max_packet_send_rate) : 0;
+  static time_t min_rate_add = o.min_packet_send_rate != 0.0 ?
+    (1000000.0 / o.min_packet_send_rate) : 0;
+
   if (o.max_packet_send_rate != 0.0)
-      TIMEVAL_ADD(send_no_earlier_than, send_no_earlier_than,
-                  (time_t) (1000000.0 / o.max_packet_send_rate));
+      TIMEVAL_ADD(send_no_earlier_than, send_no_earlier_than, max_rate_add);
   /* Allow send_no_earlier_than to slip into the past. This allows the sending
      scheduler to catch up and make up for delays in other parts of the scan
      engine. If we were to update send_no_earlier_than to the present the
@@ -314,8 +318,7 @@ void GroupScanStats::probeSent(unsigned int nbytes) {
            present to prevent that. */
         send_no_later_than = USI->now;
       }
-      TIMEVAL_ADD(send_no_later_than, send_no_later_than,
-                  (time_t) (1000000.0 / o.min_packet_send_rate));
+      TIMEVAL_ADD(send_no_later_than, send_no_later_than, min_rate_add);
   }
 }
 
@@ -338,7 +341,7 @@ bool GroupScanStats::sendOK(struct timeval *when) const {
   recentsends = USI->gstats->probes_sent - USI->gstats->probes_sent_at_last_wait;
   if (recentsends > 0 &&
       (USI->scantype == CONNECT_SCAN || USI->ptech.connecttcpscan || !pcap_recv_timeval_valid())) {
-    int to_ms = (int) MAX(to.srtt * .75 / 1000, 50);
+    int to_ms = MAX(to.srtt * 3 / 4000, 50);
     if (TIMEVAL_MSEC_SUBTRACT(USI->now, last_wait) > to_ms)
       return false;
   }
@@ -466,6 +469,9 @@ HostScanStats::HostScanStats(Target *t, UltraScanInfo *UltraSI) {
   memset(&sdn, 0, sizeof(sdn));
   sdn.last_boost = USI->now;
   sdn.delayms = o.scan_delay;
+  sdn.maxdelay = USI->tcp_scan ? o.maxTCPScanDelay() :
+                 USI->udp_scan ? o.maxUDPScanDelay() :
+                 o.maxSCTPScanDelay();
   rld.max_tryno_sent = 0;
   rld.rld_waiting = false;
   rld.rld_waittime = USI->now;
@@ -592,10 +598,11 @@ bool HostScanStats::sendOK(struct timeval *when) const {
   TIMEVAL_MSEC_ADD(earliest_to, USI->now, 10000);
 
   // Any timeouts coming up?
+  unsigned long msec_to = probeTimeout() / 1000;
   for (probeI = probes_outstanding.begin(); probeI != probes_outstanding.end();
        probeI++) {
     if (!(*probeI)->timedout) {
-      TIMEVAL_MSEC_ADD(probe_to, (*probeI)->sent, probeTimeout() / 1000);
+      TIMEVAL_MSEC_ADD(probe_to, (*probeI)->sent, msec_to);
       if (TIMEVAL_BEFORE(probe_to, earliest_to)) {
         earliest_to = probe_to;
       }
@@ -629,15 +636,11 @@ bool HostScanStats::sendOK(struct timeval *when) const {
   return false;
 }
 
-/* If there are pending probe timeouts, fills in when with the time of
-   the earliest one and returns true.  Otherwise returns false and
-   puts now in when. */
-bool HostScanStats::nextTimeout(struct timeval *when) const {
-  struct timeval earliest_to = USI->now;
+/* If there are pending probe timeouts, compares the earliest one with `when`;
+   if it is earlier than `when`, replaces `when` with the time of
+   the earliest one and returns true.  Otherwise returns false. */
+bool HostScanStats::soonerTimeout(struct timeval *when) const {
   std::list<UltraProbe *>::const_iterator probeI, endI;
-  bool pending_probes = false;
-
-  assert(when);
 
   /* For any given invocation, the probe timeout is the same for all probes, so
    * we can get the earliest-sent probe and then add the timeout to that.
@@ -646,22 +649,21 @@ bool HostScanStats::nextTimeout(struct timeval *when) const {
       probeI != endI; probeI++) {
     UltraProbe *probe = *probeI;
     if (!probe->timedout) {
-      pending_probes = true;
-      if (TIMEVAL_BEFORE(probe->sent, earliest_to)) {
-        earliest_to = probe->sent;
-      }
+      unsigned long usec_to = probeTimeout();
+      struct timeval our_when;
+      TIMEVAL_ADD(our_when, probe->sent, usec_to);
       // probes_outstanding is in order by time sent, so
       // the first one we find is the earliest.
+      if (TIMEVAL_BEFORE(our_when, *when)) {
+        // If ours is earlier, replace when.
+        *when = our_when;
+        return true;
+      }
+      // regardless, there are no earlier probes, so stop looking.
       break;
     }
   }
-  if (pending_probes) {
-    TIMEVAL_ADD(*when, earliest_to, probeTimeout());
-  }
-  else {
-    *when = USI->now;
-  }
-  return pending_probes;
+  return false;
 }
 
 /* gives the maximum try number (try numbers start at zero and
@@ -1056,10 +1058,7 @@ bool UltraScanInfo::sendOK(struct timeval *when) const {
       // or probe timeout.
       for (host = incompleteHosts.begin(); host != incompleteHosts.end();
            host++) {
-        if ((*host)->nextTimeout(&tmptv)) {
-          if (TIMEVAL_BEFORE(tmptv, lowhtime))
-            lowhtime = tmptv;
-        }
+        (*host)->soonerTimeout(&lowhtime);
       }
       *when = lowhtime;
     }
@@ -1921,13 +1920,13 @@ static bool ultrascan_port_pspec_update(const UltraScanInfo *USI,
 /* Boost the scan delay for this host, usually because too many packet
    drops were detected. */
 void HostScanStats::boostScanDelay() {
-  unsigned int maxAllowed = USI->tcp_scan ? o.maxTCPScanDelay() :
-                            USI->udp_scan ? o.maxUDPScanDelay() :
-                            o.maxSCTPScanDelay();
-  if (sdn.delayms == 0)
-    sdn.delayms = (USI->udp_scan) ? 50 : 5; // In many cases, a pcap wait takes a minimum of 80ms, so this matters little :(
-  else sdn.delayms = MIN(sdn.delayms * 2, MAX(sdn.delayms, 1000));
-  sdn.delayms = MIN(sdn.delayms, maxAllowed);
+  if (sdn.delayms < 1000) {
+    if (sdn.delayms == 0)
+      sdn.delayms = (USI->udp_scan) ? 50 : 5; // In many cases, a pcap wait takes a minimum of 80ms, so this matters little :(
+    else
+      sdn.delayms = MIN(sdn.delayms * 2, 1000);
+  }
+  sdn.delayms = MIN(sdn.delayms, sdn.maxdelay);
   sdn.last_boost = USI->now;
   sdn.droppedRespSinceDelayChanged = 0;
   sdn.goodRespSinceDelayChanged = 0;

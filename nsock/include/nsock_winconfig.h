@@ -67,4 +67,5 @@
 #define HAVE_IOCP 1
 #endif
 
+#define HAVE_OPENSSL 1
 #endif /* NSOCK_WINCONFIG_H */

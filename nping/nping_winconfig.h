@@ -81,7 +81,6 @@
 #define NPING_PLATFORM "i686-pc-windows-windows"
 
 #define HAVE_OPENSSL 1
-#define HAVE_SSL_SET_TLSEXT_HOST_NAME 1
 /* Apparently __func__ isn't yet supported */
 #define __func__ __FUNCTION__
 typedef unsigned __int32 u_int32_t;

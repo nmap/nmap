@@ -1119,7 +1119,7 @@ int ArgParser::parseArguments(int argc, char *argv[]) {
   * through calls to getNextTarget();
   * */
   const char *next_spec=NULL;
-  while ( (next_spec= grab_next_host_spec(NULL, false, argc, (const char **) argv)) != NULL )
+  while ( (next_spec= grab_next_host_spec(NULL, argc, (const char **) argv)) != NULL )
        o.targets.addSpec( (char *) next_spec );
 
  return OP_SUCCESS;

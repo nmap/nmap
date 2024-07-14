@@ -76,17 +76,21 @@ class RecentScans(object):
             self.using_file = True
 
             # Recovering saved targets
-            recent_file = open(self.recent_scans_file, "r")
-            self.temp_list = [
-                    t for t in recent_file.read().split(";")
-                    if t != "" and t != "\n"]
-            recent_file.close()
+            for enc in ('utf-8', None):
+                try:
+                    with open(self.recent_scans_file, "r", encoding=enc) as recent_file:
+                        self.temp_list = [
+                                t for t in recent_file.read().split(";")
+                                if t != "" and t != "\n"]
+                except UnicodeDecodeError:
+                    continue
+                break
         else:
             self.using_file = False
 
     def save(self):
         if self.using_file:
-            recent_file = open(self.recent_scans_file, "w")
+            recent_file = open(self.recent_scans_file, "w", encoding="utf-8")
             recent_file.write(";".join(self.temp_list))
             recent_file.close()
 

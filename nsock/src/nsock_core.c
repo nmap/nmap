@@ -374,14 +374,12 @@ void handle_connect_result(struct npool *ms, struct nevent *nse, enum nse_status
           fatal("SSL_new failed: %s", ERR_error_string(ERR_get_error(), NULL));
       }
 
-#if HAVE_SSL_SET_TLSEXT_HOST_NAME
       /* Avoid sending SNI extension with DTLS because many servers don't allow
        * fragmented ClientHello messages. */
       if (iod->hostname != NULL && iod->lastproto != IPPROTO_UDP) {
         if (SSL_set_tlsext_host_name(iod->ssl, iod->hostname) != 1)
           fatal("SSL_set_tlsext_host_name failed: %s", ERR_error_string(ERR_get_error(), NULL));
       }
-#endif
 
       /* Associate our new SSL with the connected socket.  It will inherit the
        * non-blocking nature of the sd */
@@ -640,11 +638,15 @@ static int do_actual_read(struct npool *ms, struct nevent *nse) {
         err = socket_errno();
       }
       else {
+        if (peerlen > 0
+#ifdef WIN32
         /* Windows will ignore src_addr and addrlen arguments to recvfrom on TCP
          * sockets, so peerlen is still sizeof(peer) and peer is junk. Instead,
          * only set this if it's not already set.
          */
-        if (peerlen > 0 && iod->peerlen == 0) {
+            && (iod->lastproto == IPPROTO_UDP || iod->peerlen == 0)
+#endif
+        ) {
           assert(peerlen <= sizeof(iod->peer));
           memcpy(&iod->peer, &peer, peerlen);
           iod->peerlen = peerlen;
@@ -929,7 +931,8 @@ enum nsock_loopstatus nsock_loop(nsock_pool nsp, int msec_timeout) {
     }
 
     if (msec_timeout >= 0) {
-      msecs_left = MAX(0, TIMEVAL_MSEC_SUBTRACT(loop_timeout, nsock_tod));
+      msecs_left = TIMEVAL_MSEC_SUBTRACT(loop_timeout, nsock_tod);
+      msecs_left = MAX(0, msecs_left);
       if (msecs_left == 0 && loopnum > 0) {
         quitstatus = NSOCK_LOOP_TIMEOUT;
         break;

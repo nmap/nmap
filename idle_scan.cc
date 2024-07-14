@@ -1058,12 +1058,18 @@ static int idlescan_countopen2(struct idle_proxy_info *proxy,
 
   openports = -1;
   tries = 0;
-  TIMEVAL_MSEC_ADD(probe_times[0], start, MAX(50, (target->to.srtt * 3 / 4) / 1000));
-  TIMEVAL_MSEC_ADD(probe_times[1], start, target->to.srtt / 1000 );
-  TIMEVAL_MSEC_ADD(probe_times[2], end, MAX(75, (2 * target->to.srtt +
-                   target->to.rttvar) / 1000));
-  TIMEVAL_MSEC_ADD(probe_times[3], end, MIN(4000, (2 * target->to.srtt +
-                   (target->to.rttvar << 2 )) / 1000));
+
+  int tmp = (target->to.srtt * 3) / (4 * 1000);
+  tmp = MAX(50, tmp);
+  TIMEVAL_MSEC_ADD(probe_times[0], start, tmp);
+  tmp = target->to.srtt / 1000;
+  TIMEVAL_MSEC_ADD(probe_times[1], start, tmp);
+  tmp = (2 * target->to.srtt + target->to.rttvar) / 1000;
+  tmp = MAX(75, tmp);
+  TIMEVAL_MSEC_ADD(probe_times[2], end, tmp);
+  tmp = (2 * target->to.srtt + (target->to.rttvar << 2 )) / 1000;
+  tmp = MIN(4000, tmp);
+  TIMEVAL_MSEC_ADD(probe_times[3], end, tmp);
 
   do {
     if (tries == 2)

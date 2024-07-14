@@ -71,7 +71,11 @@
 #include <vector>
 
 #define PCRE2_CODE_UNIT_WIDTH 8
-#include <pcre2.h>
+#ifdef HAVE_PCRE2_PCRE2_H
+# include <pcre2/pcre2.h>
+#else
+# include <pcre2.h>
+#endif
 
 #undef NDEBUG
 #include <assert.h>

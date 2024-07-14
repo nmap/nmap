@@ -133,7 +133,7 @@ class NdiffCommand(subprocess.Popen):
                 command_list,
                 universal_newlines=True,
                 stdout=self.stdout_file,
-                stderr=self.stdout_file,
+                stderr=subprocess.PIPE,
                 env=env,
                 shell=(sys.platform == "win32")
                 )

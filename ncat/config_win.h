@@ -61,7 +61,6 @@
    isn't available to create config.h. */
 
 #define HAVE_OPENSSL 1
-#define HAVE_SSL_SET_TLSEXT_HOST_NAME 1
 #define HAVE_HTTP_DIGEST 1
 #define LUA_INCLUDED 1
 #define HAVE_LUA 1

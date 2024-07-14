@@ -320,6 +320,7 @@ struct send_delay_nfo {
   unsigned int goodRespSinceDelayChanged;
   unsigned int droppedRespSinceDelayChanged;
   struct timeval last_boost; /* Most recent time of increase to delayms.  Init to creation time. */
+  int maxdelay;
 };
 
 /* To test for rate limiting, there is a delay in sending the first packet
@@ -391,10 +392,10 @@ public:
      true. */
   bool sendOK(struct timeval *when) const;
 
-  /* If there are pending probe timeouts, fills in when with the time of
-     the earliest one and returns true.  Otherwise returns false and
-     puts now in when. */
-  bool nextTimeout(struct timeval *when) const;
+  /* If there are pending probe timeouts, compares the earliest one with `when`;
+     if it is earlier than `when`, replaces `when` with the time of
+     the earliest one and returns true.  Otherwise returns false. */
+  bool soonerTimeout(struct timeval *when) const;
   UltraScanInfo *USI; /* The USI which contains this HSS */
 
   /* Removes a probe from probes_outstanding, adjusts HSS and USS

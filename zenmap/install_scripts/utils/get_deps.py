@@ -5,6 +5,7 @@ import configparser
 import sys
 import os.path
 import site
+import _sitebuiltins
 import encodings
 
 site_package_deps = ("gi", "cairo")
@@ -26,7 +27,7 @@ def get_deps():
 
     # These items are missed by modulefinder
     files.add(encodings.__path__[0]) # All encodings just in case
-    for path in module_paths((site, site._sitebuiltins)):
+    for path in module_paths((site, _sitebuiltins)):
         files.add(path)
 
     # Now use modulefinder to get the rest

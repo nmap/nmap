@@ -321,5 +321,5 @@ if __name__ == "__main__":
 
     root = reader.get_root()
 
-    writer = XMLWriter(open("test.xml", 'w'), root)
+    writer = XMLWriter(open("test.xml", 'wb'), root)
     writer.write()

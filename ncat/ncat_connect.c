@@ -194,8 +194,6 @@ static void set_ssl_ctx_options(SSL_CTX *ctx)
         bye("Unable to set OpenSSL cipher list: %s", ERR_error_string(ERR_get_error(), NULL));
     }
 
-#ifdef HAVE_ALPN_SUPPORT
-
     if (o.sslalpn) {
         size_t alpn_len;
         unsigned char *alpn = next_protos_parse(&alpn_len, o.sslalpn);
@@ -214,8 +212,6 @@ static void set_ssl_ctx_options(SSL_CTX *ctx)
 
         free(alpn);
     }
-
-#endif
 
 }
 #endif
@@ -977,7 +973,7 @@ int ncat_connect(void)
     nsock_pool_set_broadcast(mypool, 1);
 
 #ifdef HAVE_OPENSSL
-#ifdef HAVE_DTLS_CLIENT_METHOD
+#ifndef OPENSSL_NO_DTLS
     if(o.proto == IPPROTO_UDP)
         set_ssl_ctx_options((SSL_CTX *) nsock_pool_dtls_init(mypool, 0));
     else

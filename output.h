@@ -199,6 +199,11 @@ void write_host_status(const Target *currenths);
 /* Writes host status info to the XML stream wrapped in a <hosthint> tag */
 void write_xml_hosthint(const Target *currenths);
 
+/* Add a <target> element to the XML stating that a target specification was
+   ignored. This can be because of, for example, a DNS resolution failure, or a
+   syntax error. */
+void log_bogus_target(const char *expr);
+
 /* Prints the formatted OS Scan output to stdout, logfiles, etc (but only
    if an OS Scan was performed */
 void printosscanoutput(const Target *currenths);

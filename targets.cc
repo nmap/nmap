@@ -74,7 +74,7 @@
 #include "nmap_dns.h"
 #include "utils.h"
 #include "nmap_error.h"
-#include "xml.h"
+#include "output.h"
 
 extern NmapOps o;
 #ifdef WIN32
@@ -91,10 +91,11 @@ static void arpping(Target *hostbatch[], int num_hosts) {
   int targetno;
   targets.reserve(num_hosts);
 
+  /* Default timout should be much lower for arp */
+  int default_to = box(o.minRttTimeout(), o.initialRttTimeout(), INITIAL_ARP_RTT_TIMEOUT) * 1000;
   for (targetno = 0; targetno < num_hosts; targetno++) {
     initialize_timeout_info(&hostbatch[targetno]->to);
-    /* Default timout should be much lower for arp */
-    hostbatch[targetno]->to.timeout = MAX(o.minRttTimeout(), MIN(o.initialRttTimeout(), INITIAL_ARP_RTT_TIMEOUT)) * 1000;
+    hostbatch[targetno]->to.timeout = default_to;
     if (!hostbatch[targetno]->SrcMACAddress()) {
       bool islocal = islocalhost(hostbatch[targetno]->TargetSockAddr());
       if (islocal) {
@@ -285,7 +286,7 @@ bool target_needs_new_hostgroup(Target **targets, int targets_sz, const Target *
    The target_expressions array MUST REMAIN VALID IN MEMORY as long as
    this class instance is used -- the array is NOT copied.
  */
-HostGroupState::HostGroupState(int lookahead, int rnd, int argc, const char **argv) {
+HostGroupState::HostGroupState(int lookahead, int rnd, bool gen_rand, unsigned long num_random, int argc, const char **argv) {
   assert(lookahead > 0);
   this->argc = argc;
   this->argv = argv;
@@ -296,6 +297,9 @@ HostGroupState::HostGroupState(int lookahead, int rnd, int argc, const char **ar
   current_batch_sz = 0;
   next_batch_no = 0;
   randomize = rnd;
+  if (gen_rand) {
+    current_group.generate_random_ips(num_random);
+  }
 }
 
 HostGroupState::~HostGroupState() {
@@ -315,7 +319,7 @@ void HostGroupState::undefer() {
 const char *HostGroupState::next_expression() {
   if (o.max_ips_to_scan == 0 || o.numhosts_scanned + this->current_batch_sz < o.max_ips_to_scan) {
     const char *expr;
-    expr = grab_next_host_spec(o.inputfd, o.generate_random_ips, this->argc, this->argv);
+    expr = grab_next_host_spec(o.inputfd, this->argc, this->argv);
     if (expr != NULL)
       return expr;
   }
@@ -343,18 +347,6 @@ const char *HostGroupState::next_expression() {
 #endif
 
   return NULL;
-}
-
-/* Add a <target> element to the XML stating that a target specification was
-   ignored. This can be because of, for example, a DNS resolution failure, or a
-   syntax error. */
-static void log_bogus_target(const char *expr) {
-  xml_open_start_tag("target");
-  xml_attribute("specification", "%s", expr);
-  xml_attribute("status", "skipped");
-  xml_attribute("reason", "invalid");
-  xml_close_empty_tag();
-  xml_newline();
 }
 
 /* Returns a newly allocated Target with the given address. Handles all the
@@ -422,6 +414,29 @@ bail:
   return NULL;
 }
 
+bool HostGroupState::get_next_host(struct sockaddr_storage *ss, size_t *sslen, struct addrset *exclude_group) {
+  unsigned long num_queued = o.numhosts_scanned + current_batch_sz;
+  if (o.max_ips_to_scan > 0 && num_queued >= o.max_ips_to_scan) {
+    return false;
+  }
+
+  do {
+    // If the expression can't generate any more targets
+    while (current_group.get_next_host(ss, sslen) != 0) {
+      if (!current_group.load_expressions(this, o.af())) {
+        return false;
+      }
+    }
+    /* Check exclude list. */
+    if (!hostInExclude((struct sockaddr *) ss, *sslen, exclude_group)) {
+      current_group.reject_last_host();
+      break;
+    }
+  } while (true);
+
+  return true;
+}
+
 static Target *next_target(HostGroupState *hs, struct addrset *exclude_group,
   const struct scan_lists *ports, int pingtype) {
   struct sockaddr_storage ss;
@@ -437,20 +452,9 @@ static Target *next_target(HostGroupState *hs, struct addrset *exclude_group,
 
 tryagain:
 
-  if (hs->current_group.get_next_host(&ss, &sslen) != 0) {
-    const char *expr;
-    /* We are going to have to pop in another expression. */
-    for (;;) {
-      expr = hs->next_expression();
-      if (expr == NULL)
-        /* That's the last of them. */
-        return NULL;
-      if (hs->current_group.parse_expr(expr, o.af()) == 0)
-        break;
-      else
-        log_bogus_target(expr);
-    }
-    goto tryagain;
+  if (!hs->get_next_host(&ss, &sslen, exclude_group)) {
+    /* That's the last of them. */
+    return NULL;
   }
 
   assert(ss.ss_family == o.af());
@@ -463,10 +467,6 @@ tryagain:
       o.resume_ip.ss_family = AF_UNSPEC;
     goto tryagain;
   }
-
-  /* Check exclude list. */
-  if (hostInExclude((struct sockaddr *) &ss, sslen, exclude_group))
-    goto tryagain;
 
   t = setup_target(hs, &ss, sslen, pingtype);
   if (t == NULL)

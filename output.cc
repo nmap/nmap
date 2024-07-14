@@ -1320,6 +1320,15 @@ void write_xml_hosthint(const Target *currenths) {
   log_flush_all();
 }
 
+void log_bogus_target(const char *expr) {
+  xml_open_start_tag("target");
+  xml_attribute("specification", "%s", expr);
+  xml_attribute("status", "skipped");
+  xml_attribute("reason", "invalid");
+  xml_close_empty_tag();
+  xml_newline();
+}
+
 static void write_xml_osclass(const OS_Classification *osclass, double accuracy) {
   xml_open_start_tag("osclass");
   xml_attribute("type", "%s", osclass->Device_Type);

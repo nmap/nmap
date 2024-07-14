@@ -254,7 +254,7 @@ class HostInfo(object):
         1) IPv4 comes before IPv6 comes before MAC, and
         2) addresses are sorted according to their binary values, not their
            string representation.
-        Use this function to the the comparison key when sorting a list of
+        Use this function to the comparison key when sorting a list of
         hosts by address."""
         l = []
         if self.ip:
@@ -739,7 +739,7 @@ class NmapParserSAX(ParserBasics, ContentHandler):
 
     def parse_file(self, filename):
         """Parse an Nmap XML file from the named file."""
-        with open(filename, "r") as f:
+        with open(filename, "rb") as f:
             self.parse(f)
             self.filename = filename
 
@@ -1002,12 +1002,12 @@ class NmapParserSAX(ParserBasics, ContentHandler):
         f."""
         if self.nmap_output == "":
             return
-        f.write(self.nmap_output)
+        f.write(self.nmap_output.encode('utf-8','xmlcharrefreplace'))
 
     def write_xml(self, f):
         """Write the XML representation of this object to the file-like object
         f."""
-        writer = XMLGenerator(f)
+        writer = XMLGenerator(f, encoding='utf-8')
         writer.startDocument()
         if self.xml_stylesheet_data is not None:
             writer.processingInstruction(
@@ -1033,7 +1033,7 @@ class NmapParserSAX(ParserBasics, ContentHandler):
     def write_xml_to_file(self, filename):
         """Write the XML representation of this scan to the file whose name is
         given."""
-        fd = open(filename, "w")
+        fd = open(filename, "wb")
         self.write_xml(fd)
         fd.close()
 

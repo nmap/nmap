@@ -43,7 +43,7 @@ typedef struct bignum_data {
 
 int nse_pushbn( lua_State *L, BIGNUM *num, bool should_free)
 {
-  bignum_data_t * data = (bignum_data_t *) lua_newuserdata( L, sizeof(bignum_data_t));
+  bignum_data_t * data = (bignum_data_t *) lua_newuserdatauv( L, sizeof(bignum_data_t), 0);
   luaL_getmetatable( L, "BIGNUM" );
   lua_setmetatable( L, -2 );
   data->bn = num;

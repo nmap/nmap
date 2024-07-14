@@ -283,7 +283,7 @@ end
 -- Returns the network interface used to send packets to a target host.
 --@param target host to which the interface is used.
 --@return interface Network interface used for target host.
-local getInterface = function(target)
+local getInterface = function(interfaces, target)
   -- First, create dummy UDP connection to get interface
   local sock = nmap.new_socket()
   local status, err = sock:connect(target, "12345", "udp")
@@ -296,10 +296,16 @@ local getInterface = function(target)
     stdnse.verbose1("%s", err)
     return
   end
-  for _, interface in pairs(nmap.list_interfaces()) do
+  for _, interface in pairs(interfaces) do
     if interface.address == address then
       return interface
     end
+  end
+end
+
+local filter_interfaces = function (if_table)
+  if if_table.up == "up" and if_table.address:match("%d+%.%d+%.%d+%.%d+") then
+    return if_table
   end
 end
 
@@ -320,11 +326,13 @@ action = function()
   end
 
   -- Get network interface to use
-  local interface = nmap.get_interface()
-  if interface then
-    interface = nmap.get_interface_info(interface)
-  else
-    interface = getInterface(firsthop)
+  local interface
+  local interfaces = stdnse.get_script_interfaces(filter_interfaces)
+  if #interfaces > 1 then
+    -- TODO: send on multiple interfaces
+    interface = getInterface(interfaces, firsthop)
+  elseif #interfaces == 1 then
+    interface = interfaces[1]
   end
   if not interface then
     return stdnse.format_output(false, ("Couldn't get interface for %s"):format(firsthop))
