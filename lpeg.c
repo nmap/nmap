@@ -1073,7 +1073,7 @@ int hascaptures (TTree *tree) {
 ** for other patterns, the two properties are equivalent.
 ** (With predicates, &'a' is nullable but not nofail. Of course,
 ** nofail => nullable.)
-** These functions are all convervative in the following way:
+** These functions are all conservative in the following way:
 **    p is nullable => nullable(p)
 **    nofail(p) => p cannot fail
 ** The function assumes that TOpenCall is not nullable;
@@ -1160,7 +1160,7 @@ int fixedlenx (TTree *tree, int count, int len) {
 
 /*
 ** Computes the 'first set' of a pattern.
-** The result is a conservative aproximation:
+** The result is a conservative approximation:
 **   match p ax -> x' for some x ==> a in first(p).
 ** The set 'follow' is the first set of what follows the
 ** pattern (full set if nothing follows it).
@@ -1538,7 +1538,7 @@ static void codebehind (CompileState *compst, TTree *tree) {
 ** in first(p1) cannot go to p2 (at it is not in first(p2)).
 ** (The optimization is not valid if p1 accepts the empty string,
 ** as then there is no character at all...)
-** - when p2 is empty and opt is true; a IPartialCommit can resuse
+** - when p2 is empty and opt is true; a IPartialCommit can reuse
 ** the Choice already active in the stack.
 */
 static void codechoice (CompileState *compst, TTree *p1, TTree *p2, int opt,
@@ -1631,13 +1631,13 @@ static void coderuntime (CompileState *compst, TTree *tree, int tt) {
 
 
 /*
-** Repetion; optimizations:
+** Repetition; optimizations:
 ** When pattern is a charset, can use special instruction ISpan.
 ** When pattern is head fail, or if it starts with characters that
-** are disjoint from what follows the repetions, a simple test
+** are disjoint from what follows the repetitions, a simple test
 ** is enough (a fail inside the repetition would backtrack to fail
 ** again in the following pattern, so there is no need for a choice).
-** When 'opt' is true, the repetion can reuse the Choice already
+** When 'opt' is true, the repetition can reuse the Choice already
 ** active in the stack.
 */
 static void coderep (CompileState *compst, TTree *tree, int opt,
@@ -1778,7 +1778,7 @@ static int codeseq1 (CompileState *compst, TTree *p1, TTree *p2,
 
 
 /*
-** Main code-generation function: dispatch to auxiliar functions
+** Main code-generation function: dispatch to auxiliary functions
 ** according to kind of tree
 */
 static void codegen (CompileState *compst, TTree *tree, int opt, int tt,
@@ -2445,7 +2445,7 @@ static int ktablelen (lua_State *L, int idx) {
 
 
 /*
-** Concatentate the contents of table 'idx1' into table 'idx2'.
+** Concatenate the contents of table 'idx1' into table 'idx2'.
 ** (Assume that both indices are negative.)
 ** Return the original length of table 'idx2'
 */
@@ -2550,7 +2550,7 @@ static void mergektable (lua_State *L, int idx, TTree *rule) {
 
 
 /*
-** create a new tree, whith a new root and one sibling.
+** create a new tree, with a new root and one sibling.
 ** Sibling must be on the Lua stack, at index 1.
 */
 static TTree *newroot1sib (lua_State *L, int tag) {
@@ -2565,7 +2565,7 @@ static TTree *newroot1sib (lua_State *L, int tag) {
 
 
 /*
-** create a new tree, whith a new root and 2 siblings.
+** create a new tree, with a new root and 2 siblings.
 ** Siblings must be on the Lua stack, first one at index 1.
 */
 static TTree *newroot2sib (lua_State *L, int tag) {
