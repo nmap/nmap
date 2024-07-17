@@ -296,7 +296,7 @@ int get_diffs(u32 *ipid_diffs, int numSamples, const u32 *ipids, int islocalhost
 
 }
 
-/* Indentify the ipid sequence for 32-bit IPID values (IPv6) */
+/* Identify the ipid sequence for 32-bit IPID values (IPv6) */
 int get_ipid_sequence_32(int numSamples, const u32 *ipids, int islocalhost) {
   int ipid_seq = IPID_SEQ_UNKNOWN;
   u32 ipid_diffs[32];
