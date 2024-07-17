@@ -839,7 +839,7 @@ dcdbd		300541
 dcpsd		300542
 supportlink_prog	300543
 broker		300544
-listner		300545
+listener		300545
 multiaccess	300546
 spai_interface	300547
 spai_adaption	300548
@@ -1132,7 +1132,7 @@ genericserver	351418
 dynarc_ds	351419
 dnscmdr		351420
 ipcmdr		351421
-faild		351422
+failed		351422
 failmon		351423
 faildebug	351424
 siemens_srs	351427
@@ -1653,7 +1653,7 @@ sas		28000230	# Spectrum Access Server    (10230/udp)
 # The range 200100000-200199999 is reserved for NeXT services ???
 #
 netinfobind	200100001	nibindd	# NeXT NetInfo
-renderd		200100002	# NeXT renderd
+rendered		200100002	# NeXT renderd
 #
 SLSd_daemon	536870913	# HP Distributed Single Logical Screen
 uidd		536870915
