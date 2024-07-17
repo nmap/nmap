@@ -269,7 +269,7 @@ eval `echo h.$opt_spec |\
 eval `echo h:help,$opt_alias |\
       sed -e 's/-/_/g' -e 's/\([a-zA-Z0-9]\):\([^,]*\),*/opt_ALIAS_\2=\1;/g'`
 
-#   interate over argument line
+#   integrate over argument line
 opt_PREV=''
 while [ $# -gt 0 ]; do
     #   special option stops processing
