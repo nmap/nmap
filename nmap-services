@@ -11,7 +11,7 @@
 # LLC.  It is distributed under the Nmap Public Source license as
 # provided in the LICENSE file of the source distribution or at
 # https://svn.nmap.org/nmap/LICENSE .  Note that this license
-# requires you to license your own work under a compatable open source
+# requires you to license your own work under a compatible open source
 # license.  If you wish to embed Nmap technology into proprietary
 # software, we sell alternative licenses (contact sales@insecure.com).
 # Dozens of software vendors already license Nmap technology such as
@@ -200,8 +200,8 @@ supdup	95/tcp	0.000025	# BSD supdupd(8)
 supdup	95/udp	0.000379
 dixie	96/tcp	0.000013	# DIXIE Protocol Specification
 dixie	96/udp	0.000939	# DIXIE Protocol Specification
-swift-rvf	97/tcp	0.000038	# Swift Remote Virtural File Protocol
-swift-rvf	97/udp	0.000362	# Swift Remote Virtural File Protocol
+swift-rvf	97/tcp	0.000038	# Swift Remote Virtual File Protocol
+swift-rvf	97/udp	0.000362	# Swift Remote Virtual File Protocol
 linuxconf	98/tcp	0.000088	# tacnews | TAC News
 tacnews	98/udp	0.000560	# TAC News
 metagram	99/tcp	0.000326	# Metagram Relay
@@ -255,8 +255,8 @@ ntp	123/tcp	0.000138	# Network Time Protocol
 ntp	123/udp	0.330879	# Network Time Protocol
 ansatrader	124/tcp	0.000013	# ANSA REX Trader
 ansatrader	124/udp	0.000610	# ANSA REX Trader
-locus-map	125/tcp	0.000176	# Locus PC-Interface Net Map Ser
-locus-map	125/udp	0.000478	# Locus PC-Interface Net Map Ser
+locus-map	125/tcp	0.000176	# Locus PC-Interface Net Map Set
+locus-map	125/udp	0.000478	# Locus PC-Interface Net Map Set
 unitary	126/tcp	0.000000	# nxedit | Unisys Unitary Login | NXEdit
 unitary	126/udp	0.000610	# Unisys Unitary Login
 locus-con	127/tcp	0.000113	# Locus PC-Interface Conn Server
@@ -938,7 +938,7 @@ passgo	511/tcp	0.000038
 passgo	511/udp	0.000610
 exec	512/tcp	0.000841	# biff | comsat | BSD rexecd(8) | remote process execution; authentication performed using passwords and UNIX login names | used by mail system to notify users of new mail received; currently receives messages only from processes on the same machine
 biff	512/udp	0.002142	# comsat
-login	513/tcp	0.005595	# who | BSD rlogind(8) | remote login a la telnet; automatic authentication performed based on priviledged port numbers and distributed data bases which identify "authentication domains" | maintains data bases showing who's logged in to machines on a local net and the load average of the machine
+login	513/tcp	0.005595	# who | BSD rlogind(8) | remote login a la telnet; automatic authentication performed based on privileged port numbers and distributed data bases which identify "authentication domains" | maintains data bases showing who's logged in to machines on a local net and the load average of the machine
 who	513/udp	0.002323	# BSD rwhod(8)
 shell	514/tcp	0.011078	# syslog | BSD rshd(8) | cmd like exec, but automatic authentication is performed as for login server
 syslog	514/udp	0.119804	# BSD syslogd(8)
@@ -1288,8 +1288,8 @@ hcp-wismar	686/tcp	0.000025	# Hardware Control Protocol Wismar
 hcp-wismar	686/udp	0.002973	# Hardware Control Protocol Wismar
 asipregistry	687/tcp	0.000188
 asipregistry	687/udp	0.001982
-realm-rusd	688/tcp	0.000025	# ApplianceWare managment protocol
-realm-rusd	688/udp	0.001982	# ApplianceWare managment protocol
+realm-rusd	688/tcp	0.000025	# ApplianceWare management protocol
+realm-rusd	688/udp	0.001982	# ApplianceWare management protocol
 nmap	689/tcp	0.000038
 nmap	689/udp	0.001321
 vatp	690/tcp	0.000088	# Velazquez Application Transfer Protocol | Velneo Application Transfer Protocol
@@ -2092,8 +2092,8 @@ saphostctrls	1129/tcp	0.000000	# SAPHostControl over SOAP/HTTPS
 saphostctrls	1129/udp	0.000330	# SAPHostControl over SOAP/HTTPS
 casp	1130/tcp	0.000152	# CAC App Service Protocol
 casp	1130/udp	0.000330	# CAC App Service Protocol
-caspssl	1131/tcp	0.000228	# CAC App Service Protocol Encripted
-caspssl	1131/udp	0.000330	# CAC App Service Protocol Encripted
+caspssl	1131/tcp	0.000228	# CAC App Service Protocol Encrypted
+caspssl	1131/udp	0.000330	# CAC App Service Protocol Encrypted
 kvm-via-ip	1132/tcp	0.000152	# KVM-via-IP Management Service
 kvm-via-ip	1132/udp	0.000000	# KVM-via-IP Management Service
 dfn	1133/tcp	0.000000	# Data Flow Network
@@ -5275,8 +5275,8 @@ tcim-control	2729/tcp	0.000000	# TCIM Control
 tcim-control	2729/udp	0.000000	# TCIM Control
 nec-raidplus	2730/tcp	0.000000	# NEC RaidPlus
 nec-raidplus	2730/udp	0.000000	# NEC RaidPlus
-fyre-messanger	2731/tcp	0.000000	# Fyre Messanger | Fyre Messagner
-fyre-messanger	2731/udp	0.000000	# Fyre Messagner
+fyre-messanger	2731/tcp	0.000000	# Fyre Messenger | Fyre Messenger
+fyre-messanger	2731/udp	0.000000	# Fyre Messenger
 g5m	2732/tcp	0.000000
 g5m	2732/udp	0.000000
 signet-ctf	2733/tcp	0.000000	# Signet CTF
@@ -5999,8 +5999,8 @@ rapidmq-center	3093/tcp	0.000000	# Jiiva RapidMQ Center
 rapidmq-center	3093/udp	0.000000	# Jiiva RapidMQ Center
 rapidmq-reg	3094/tcp	0.000000	# Jiiva RapidMQ Registry
 rapidmq-reg	3094/udp	0.000661	# Jiiva RapidMQ Registry
-panasas	3095/tcp	0.000000	# Panasas rendevous port | Panasas rendezvous port
-panasas	3095/udp	0.000000	# Panasas rendevous port
+panasas	3095/tcp	0.000000	# Panasas rendezvous port | Panasas rendezvous port
+panasas	3095/udp	0.000000	# Panasas rendezvous port
 ndl-aps	3096/tcp	0.000000	# Active Print Server Port
 ndl-aps	3096/udp	0.000000	# Active Print Server Port
 itu-bicc-stc	3097/sctp	0.000000	# ITU-T Q.1902.1/Q.2150.3
