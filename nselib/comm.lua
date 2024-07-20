@@ -281,7 +281,7 @@ function tryssl(host, port, data, opts)
   end
   local best = "none"
   local sd, response, early_resp
-  for _, proto in { bestoption(our_port) } do
+  for _, proto in ipairs({ bestoption(our_port) }) do
     opts.proto = proto
     sd, response, early_resp = oops.raise(("%s failed"):format(proto),
       opencon(host, our_port, data, opts))
