@@ -191,7 +191,7 @@ const struct nprotoent *nmap_getprotbynum(int num) {
   if (nmap_protocols_init() == -1)
     return NULL;
 
-  assert(num >= 0 && num < UCHAR_MAX);
+  assert(num >= 0 && num <= UCHAR_MAX);
   return protocol_table[num];
 }
 
