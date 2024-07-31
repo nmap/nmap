@@ -608,7 +608,7 @@ static int ipv6_is_upperlayer(u8 type)
    the end of the chain, or return the last readable header even if it is not an
    upper-layer protocol (may even be another extension header). */
 static const void *ipv6_get_data_primitive(const struct ip6_hdr *ip6,
-  unsigned int *len, u8 *nxt, bool upperlayer_only)
+  unsigned int *len, u8 *nxt, bool upperlayer_only, bool whole_payload)
 {
   const unsigned char *p, *end;
 
@@ -620,7 +620,7 @@ static const void *ipv6_get_data_primitive(const struct ip6_hdr *ip6,
 
   *nxt = ip6->ip6_nxt;
   p += sizeof(*ip6);
-  while (p < end && ipv6_is_extension_header(*nxt)) {
+  while (!whole_payload && p < end && ipv6_is_extension_header(*nxt)) {
     if (p + 2 > end)
       return NULL;
     *nxt = *p;
@@ -676,7 +676,7 @@ static const void *ip_get_data_primitive(const void *packet, unsigned int *len,
 
     hdr->ttl = ip6->ip6_hlim;
     hdr->ipid = ntohl(ip6->ip6_flow & IP6_FLOWLABEL_MASK);
-    return ipv6_get_data_primitive(ip6, len, &hdr->proto, upperlayer_only);
+    return ipv6_get_data_primitive(ip6, len, &hdr->proto, upperlayer_only, false);
   }
 
   return NULL;
@@ -721,7 +721,7 @@ const void *ipv4_get_data(const struct ip *ip, unsigned int *len)
    The protocol is stored in *nxt. Returns NULL in case of error. */
 const void *ipv6_get_data(const struct ip6_hdr *ip6, unsigned int *len, u8 *nxt)
 {
-  return ipv6_get_data_primitive(ip6, len, nxt, true);
+  return ipv6_get_data_primitive(ip6, len, nxt, true, false);
 }
 
 /* Get the protocol payload from an IPv6 packet. This skips over known extension
@@ -729,7 +729,12 @@ const void *ipv6_get_data(const struct ip6_hdr *ip6, unsigned int *len, u8 *nxt)
    if the final header is not a known upper-layer protocol. */
 const void *ipv6_get_data_any(const struct ip6_hdr *ip6, unsigned int *len, u8 *nxt)
 {
-  return ipv6_get_data_primitive(ip6, len, nxt, false);
+  return ipv6_get_data_primitive(ip6, len, nxt, false, false);
+}
+
+const void *ipv6_get_data_whole(const struct ip6_hdr *ip6, unsigned int *len, u8 *nxt)
+{
+  return ipv6_get_data_primitive(ip6, len, nxt, false, true);
 }
 
 const void *icmp_get_data(const struct icmp_hdr *icmp, unsigned int *len)

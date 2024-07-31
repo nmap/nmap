@@ -189,6 +189,7 @@ const void *ipv4_get_data(const struct ip *ip, unsigned int *len);
    The protocol is stored in *nxt. Returns NULL in case of error. */
 const void *ipv6_get_data(const struct ip6_hdr *ip6, unsigned int *len, u8 *nxt);
 const void *ipv6_get_data_any(const struct ip6_hdr *ip6, unsigned int *len, u8 *nxt);
+const void *ipv6_get_data_whole(const struct ip6_hdr *ip6, unsigned int *len, u8 *nxt);
 const void *icmp_get_data(const struct icmp_hdr *icmp, unsigned int *len);
 const void *icmpv6_get_data(const struct icmpv6_hdr *icmpv6, unsigned int *len);
 
