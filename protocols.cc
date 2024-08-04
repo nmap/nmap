@@ -79,7 +79,7 @@ struct strcmp_comparator {
 
 // IP Protocol number is 8 bits wide
 // protocol_table[IPPROTO_TCP] == {"tcp", 6}
-static struct nprotoent *protocol_table[UCHAR_MAX];
+static struct nprotoent *protocol_table[MAX_IPPROTONUM + 1];
 // proto_map["tcp"] = {"tcp", 6}
 typedef std::map<const char *, struct nprotoent, strcmp_comparator> ProtoMap;
 static ProtoMap proto_map;
@@ -119,7 +119,7 @@ static int nmap_protocols_init() {
     if (*p == '#' || *p == '\0')
       continue;
     res = sscanf(line, "%127s %hu", protocolname, &protno);
-    if (res !=2 || protno > UCHAR_MAX) {
+    if (res !=2 || protno > MAX_IPPROTONUM) {
       error("Parse error in protocols file %s line %d", filename, lineno);
       continue;
     }
@@ -191,7 +191,7 @@ const struct nprotoent *nmap_getprotbynum(int num) {
   if (nmap_protocols_init() == -1)
     return NULL;
 
-  assert(num >= 0 && num < UCHAR_MAX);
+  assert(num >= 0 && num <= MAX_IPPROTONUM);
   return protocol_table[num];
 }
 
