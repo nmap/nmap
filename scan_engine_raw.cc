@@ -170,7 +170,7 @@ void UltraProbe::setIP(const u8 *ippacket, u32 len, const probespec *pspec) {
     hdr = ip->ip_p;
   } else if (ip->ip_v == 6) {
     const struct ip6_hdr *ip6 = (const struct ip6_hdr *) ippacket;
-    data = ipv6_get_data_any(ip6, &len, &hdr);
+    data = ipv6_get_data_whole(ip6, &len, &hdr);
     assert(data != NULL);
     assert(len == (u32) ntohs(ip6->ip6_plen));
     probes.IP.ipid = ntohl(ip6->ip6_flow & IP6_FLOWLABEL_MASK);
