@@ -16,6 +16,9 @@ o [GH#1451] Nmap now performs forward DNS lookups in parallel, using the same
 o [GH#2571, GH#2572, GH#2622, GH#2784] Various bug fixes in the mssql NSE
   library [johnjaylward, nnposter]
 
+o [GH#2900, GH#2896, GH#2897] Nmap is now able to scan IP protocol 255.
+  [nnposter]
+
 Nmap 7.95 [2024-04-23]
 
 o Integrated over 4,000 of your IPv4 OS fingerprints. Added 336 signatures,
