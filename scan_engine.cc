@@ -265,7 +265,7 @@ GroupScanStats::GroupScanStats(UltraScanInfo *UltraSI) {
   USI = UltraSI;
   init_ultra_timing_vals(&timing, TIMING_GROUP, USI->numIncompleteHosts(), &(USI->perf), &USI->now);
   initialize_timeout_info(&to);
-  /* Default timout should be much lower for arp */
+  /* Default timeout should be much lower for arp */
   if (USI->ping_scan_arp)
     to.timeout = box(o.minRttTimeout(), o.initialRttTimeout(), INITIAL_ARP_RTT_TIMEOUT) * 1000;
   num_probes_active = 0;
