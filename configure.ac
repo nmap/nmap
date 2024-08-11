@@ -529,12 +529,17 @@ AC_HELP_STRING([--with-libpcre=included], [Always use the version included with 
 # If they didn't specify it, we try to find it
 if test $have_pcre != yes -a $requested_included_pcre != yes ; then
   AC_CHECK_HEADER(pcre2.h,
-    AC_CHECK_LIB(pcre2-8, pcre2_compile_8, [have_pcre=yes ]),
-    [AC_CHECK_HEADER(pcre2/pcre2.h,
-     [AC_CHECK_LIB(pcre2-8, pcre2_compile_8, [have_pcre=yes
-      AC_DEFINE(HAVE_PCRE2_PCRE2_H, 1)])]
-    )]
-  )
+    AC_CHECK_LIB(pcre2-8,
+      pcre2_compile_8,
+      [have_pcre=yes ]),
+    AC_CHECK_HEADER(pcre2/pcre2.h,
+      AC_CHECK_LIB(pcre2-8,
+        pcre2_compile_8,
+        [have_pcre=yes
+        AC_DEFINE(HAVE_PCRE2_PCRE2_H, 1, [Using system pcre2/pcre2.h])]),
+      [],
+      [#define PCRE2_CODE_UNIT_WIDTH 8]),
+    [#define PCRE2_CODE_UNIT_WIDTH 8])
 fi
 
 # If we still don't have it, we use our own
