@@ -820,7 +820,8 @@ CIPHERS = {
 -- symmetric ciphers, and cannot be used for TLS 1.2.  Similarly, TLS 1.2 and
 -- lower cipher suites cannot be used with TLS 1.3."
 -- We designate these as AKE (Authenticated Key Exchange) ciphersuites, in
--- order to simplify use of the cipher_info function.
+-- order to simplify use of the cipher_info function. But IANA does not have
+-- this "AKE_WITH" in their naming convention.
 TLS_AKE_WITH_AES_128_GCM_SHA256       = 0x1301,
 TLS_AKE_WITH_AES_256_GCM_SHA384       = 0x1302,
 TLS_AKE_WITH_CHACHA20_POLY1305_SHA256 = 0x1303,
