@@ -539,7 +539,7 @@ end
 ---
 -- Converts an IP address into an opaque string (big-endian)
 -- @param ip  String representing an IPv4 or IPv6 address.
--- @param family (optional) Address family to convert to. "ipv6" converts IPv4
+-- @param family (optional) Address family to convert to. "inet6" converts IPv4
 -- addresses to IPv4-mapped IPv6.
 -- @usage
 -- opaque = ipOps.ip_to_str( "192.168.3.4" )

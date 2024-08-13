@@ -2,7 +2,7 @@
 
 # ***********************IMPORTANT NMAP LICENSE TERMS************************
 # *
-# * The Nmap Security Scanner is (C) 1996-2023 Nmap Software LLC ("The Nmap
+# * The Nmap Security Scanner is (C) 1996-2024 Nmap Software LLC ("The Nmap
 # * Project"). Nmap is also a registered trademark of the Nmap Project.
 # *
 # * This program is distributed under the terms of the Nmap Public Source
@@ -37,15 +37,16 @@
 # * right to know exactly what a program is going to do before they run it.
 # * This also allows you to audit the software for security holes.
 # *
-# * Source code also allows you to port Nmap to new platforms, fix bugs, and add
-# * new features. You are highly encouraged to submit your changes as a Github PR
-# * or by email to the dev@nmap.org mailing list for possible incorporation into
-# * the main distribution. Unless you specify otherwise, it is understood that
-# * you are offering us very broad rights to use your submissions as described in
-# * the Nmap Public Source License Contributor Agreement. This is important
-# * because we fund the project by selling licenses with various terms, and also
-# * because the inability to relicense code has caused devastating problems for
-# * other Free Software projects (such as KDE and NASM).
+# * Source code also allows you to port Nmap to new platforms, fix bugs, and
+# * add new features. You are highly encouraged to submit your changes as a
+# * Github PR or by email to the dev@nmap.org mailing list for possible
+# * incorporation into the main distribution. Unless you specify otherwise, it
+# * is understood that you are offering us very broad rights to use your
+# * submissions as described in the Nmap Public Source License Contributor
+# * Agreement. This is important because we fund the project by selling licenses
+# * with various terms, and also because the inability to relicense code has
+# * caused devastating problems for other Free Software projects (such as KDE
+# * and NASM).
 # *
 # * The free version of Nmap is distributed in the hope that it will be
 # * useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -75,17 +76,21 @@ class RecentScans(object):
             self.using_file = True
 
             # Recovering saved targets
-            recent_file = open(self.recent_scans_file, "r")
-            self.temp_list = [
-                    t for t in recent_file.read().split(";")
-                    if t != "" and t != "\n"]
-            recent_file.close()
+            for enc in ('utf-8', None):
+                try:
+                    with open(self.recent_scans_file, "r", encoding=enc) as recent_file:
+                        self.temp_list = [
+                                t for t in recent_file.read().split(";")
+                                if t != "" and t != "\n"]
+                except UnicodeDecodeError:
+                    continue
+                break
         else:
             self.using_file = False
 
     def save(self):
         if self.using_file:
-            recent_file = open(self.recent_scans_file, "w")
+            recent_file = open(self.recent_scans_file, "w", encoding="utf-8")
             recent_file.write(";".join(self.temp_list))
             recent_file.close()
 

@@ -116,9 +116,9 @@ libssh2_scp_send(LIBSSH2_SESSION *session,
 
 LIBSSH2_API int
 libssh2_publickey_add(LIBSSH2_PUBLICKEY *pkey, const unsigned char *name,
-		      const unsigned char *blob, unsigned long blob_len,
+                      const unsigned char *blob, unsigned long blob_len,
                       char overwrite, unsigned long num_attrs,
-		      const libssh2_publickey_attribute attrs[]);
+                      const libssh2_publickey_attribute attrs[]);
 LIBSSH2_API int
 libssh2_publickey_remove(LIBSSH2_PUBLICKEY *pkey, const unsigned char *name,
                          const unsigned char *blob, unsigned long blob_len);

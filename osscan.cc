@@ -6,7 +6,7 @@
  *                                                                         *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
  *
- * The Nmap Security Scanner is (C) 1996-2023 Nmap Software LLC ("The Nmap
+ * The Nmap Security Scanner is (C) 1996-2024 Nmap Software LLC ("The Nmap
  * Project"). Nmap is also a registered trademark of the Nmap Project.
  *
  * This program is distributed under the terms of the Nmap Public Source
@@ -41,15 +41,16 @@
  * right to know exactly what a program is going to do before they run it.
  * This also allows you to audit the software for security holes.
  *
- * Source code also allows you to port Nmap to new platforms, fix bugs, and add
- * new features. You are highly encouraged to submit your changes as a Github PR
- * or by email to the dev@nmap.org mailing list for possible incorporation into
- * the main distribution. Unless you specify otherwise, it is understood that
- * you are offering us very broad rights to use your submissions as described in
- * the Nmap Public Source License Contributor Agreement. This is important
- * because we fund the project by selling licenses with various terms, and also
- * because the inability to relicense code has caused devastating problems for
- * other Free Software projects (such as KDE and NASM).
+ * Source code also allows you to port Nmap to new platforms, fix bugs, and
+ * add new features. You are highly encouraged to submit your changes as a
+ * Github PR or by email to the dev@nmap.org mailing list for possible
+ * incorporation into the main distribution. Unless you specify otherwise, it
+ * is understood that you are offering us very broad rights to use your
+ * submissions as described in the Nmap Public Source License Contributor
+ * Agreement. This is important because we fund the project by selling licenses
+ * with various terms, and also because the inability to relicense code has
+ * caused devastating problems for other Free Software projects (such as KDE
+ * and NASM).
  *
  * The free version of Nmap is distributed in the hope that it will be
  * useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -300,10 +301,7 @@ bool expr_match(const char *val, size_t vlen, const char *expr, size_t explen, b
     explen = strlen(expr);
 
   // If both are empty, match; else if either is empty, no match.
-  if (vlen == 0) {
-    return explen == 0;
-  }
-  else if (explen == 0) {
+  if (explen == 0) {
     return vlen == 0;
   }
 
@@ -316,6 +314,20 @@ bool expr_match(const char *val, size_t vlen, const char *expr, size_t explen, b
     size_t sublen; // length of subval not subject to nested matching
     q = strchr_p(p, p_end, '|');
     nest = strchr_p(p, q ? q : p_end, '[');
+
+    if (vlen == 0) {
+      // value is empty, so can only match an empty expression
+      if (q == p || p == p_end ) {
+        // expression is also empty, match
+        return true;
+      }
+      else if (!nest) {
+        // simple expression before '|', no match.
+        goto next_expr;
+      }
+      // other short-circuit may be possible here, but drop to nesting logic
+      // below to avoid confusion/bugs
+    }
 
     // if we're already in a nested expr, we skip this and just match as usual.
     if (do_nested && nest) {
@@ -1007,7 +1019,7 @@ static void parse_classline(FingerPrint *FP, const char *thisline, const char *l
     fatal("Parse error on line %d of fingerprint: %s\n", lineno, thisline);
   os_class.OS_Family = string_pool_substr_strip(begin, end);
 
-  /* And now the the OS generation. */
+  /* And now the OS generation. */
   begin = end + 1;
   end = strchr_p(begin, lineend, '|');
   if (end == NULL)

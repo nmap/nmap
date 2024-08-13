@@ -6,7 +6,7 @@
  *                                                                         *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
  *
- * The Nmap Security Scanner is (C) 1996-2023 Nmap Software LLC ("The Nmap
+ * The Nmap Security Scanner is (C) 1996-2024 Nmap Software LLC ("The Nmap
  * Project"). Nmap is also a registered trademark of the Nmap Project.
  *
  * This program is distributed under the terms of the Nmap Public Source
@@ -41,15 +41,16 @@
  * right to know exactly what a program is going to do before they run it.
  * This also allows you to audit the software for security holes.
  *
- * Source code also allows you to port Nmap to new platforms, fix bugs, and add
- * new features. You are highly encouraged to submit your changes as a Github PR
- * or by email to the dev@nmap.org mailing list for possible incorporation into
- * the main distribution. Unless you specify otherwise, it is understood that
- * you are offering us very broad rights to use your submissions as described in
- * the Nmap Public Source License Contributor Agreement. This is important
- * because we fund the project by selling licenses with various terms, and also
- * because the inability to relicense code has caused devastating problems for
- * other Free Software projects (such as KDE and NASM).
+ * Source code also allows you to port Nmap to new platforms, fix bugs, and
+ * add new features. You are highly encouraged to submit your changes as a
+ * Github PR or by email to the dev@nmap.org mailing list for possible
+ * incorporation into the main distribution. Unless you specify otherwise, it
+ * is understood that you are offering us very broad rights to use your
+ * submissions as described in the Nmap Public Source License Contributor
+ * Agreement. This is important because we fund the project by selling licenses
+ * with various terms, and also because the inability to relicense code has
+ * caused devastating problems for other Free Software projects (such as KDE
+ * and NASM).
  *
  * The free version of Nmap is distributed in the hope that it will be
  * useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -735,48 +736,3 @@ void getpts_aux(const char *origexpr, int nested, u8 *porttbl, int *portwarning)
 #ifndef IPPROTO_SCTP
 #define IPPROTO_SCTP 132
 #endif
-
-
-
-
-/* IPv6 compatible version of Nmap's devname2ipaddr()
- * @warning For this to work we need getinterfaces() not to skip IPv6 */
-int devname2ipaddr_alt(char *dev, struct sockaddr_storage *addr) {
-struct interface_info *mydevs;
-struct sockaddr_storage *s=NULL;
-struct sockaddr_in *s4=NULL;
-struct sockaddr_in6 *s6=NULL;
-int numdevs;
-int i;
-mydevs = getinterfaces(&numdevs, NULL, 0);
-
-if (!mydevs) return -1;
-
-if( !addr || !dev )
-    fatal("devname2ipaddr(): NULL values supplied.");
-
-  for(i=0; i < numdevs; i++) {
-    s=(struct sockaddr_storage *)&mydevs[i].addr;
-    s4=(struct sockaddr_in *)&mydevs[i].addr;
-    s6=(struct sockaddr_in6 *)&mydevs[i].addr;
-    if (s4->sin_family==AF_INET || s6->sin6_family==AF_INET6){
-        if (!strcmp(dev, mydevs[i].devfullname)) {
-            memcpy(addr, s, sizeof(struct sockaddr_storage));
-            return 0;
-        }    
-    } else{ /* Unknown family, skipping it... */
-      continue;
-    }
-  }
-  return -1;
-
-} /* End of devname2ipaddr() */
-
-
-
-
-
-
-
-
-

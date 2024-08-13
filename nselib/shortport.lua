@@ -198,6 +198,7 @@ http = port_or_service(LIKELY_HTTP_PORTS, LIKELY_HTTP_SERVICES)
 local LIKELY_SSL_PORTS = {
   261, -- nsiiops
   271, -- pt-tls
+  322, -- rtsps
   324, -- rpki-rtr-tls
   443, -- https
   465, -- smtps
@@ -214,23 +215,67 @@ local LIKELY_SSL_PORTS = {
   2221, -- ethernet-ip-s
   2252, -- njenet-ssl
   2376, -- docker-s
+  2482, -- giop-ssl
   3269, -- globalcatLDAPssl
   3389, -- ms-wbt-server
   4433, -- openssl s_server
+  4740, -- ipfixs
   4911, -- ssl/niagara-fox
   5061, -- sip-tls
+  5349, -- stuns
   5986, -- wsmans
+  6380, -- redis-ssl
+  16379, -- redis-ssl
+  6514, -- syslog-tls
   6679,
-  6697,
+  6697, -- ircs-u
   8443, -- https-alt
   9001, -- tor-orport
   8883, -- secure-mqtt
+  11712, -- vSphere LDAP-ssl
+}
+local LIKELY_DTLS_PORTS = {
+  443,
+  853, -- domain-s
+  2221, -- rockwell-csp1
+  4740, -- ipfixs
+  4755, -- gre-udp-dtls
+  5349, -- stuns
+  5684, -- coaps
+  6514, -- syslog-tls
+  6699, -- babel-dtls
+  8232, -- hncp-dtls
+  10161, -- snmpdtls
+  10162, -- snmpdtls-trap
+  41230, -- z-wave-s
 }
 local LIKELY_SSL_SERVICES = {
   "ftps", "ftps-data", "ftps-control", "https", "https-alt", "imaps", "ircs",
   "ldapssl", "ms-wbt-server", "pop3s", "sip-tls", "smtps", "telnets", "tor-orport",
 }
 
+local ssl_probes = {
+  tcp = {
+    --TLSSessionReq
+    "\x16\x03\0\0\x69\x01\0\0\x65\x03\x03U\x1c\xa7\xe4random1random2random3\z
+    random4\0\0\x0c\0/\0\x0a\0\x13\x009\0\x04\0\xff\x01\0\0\x30\0\x0d\0,\0*\0\z
+    \x01\0\x03\0\x02\x06\x01\x06\x03\x06\x02\x02\x01\x02\x03\x02\x02\x03\x01\z
+    \x03\x03\x03\x02\x04\x01\x04\x03\x04\x02\x01\x01\x01\x03\x01\x02\x05\x01\z
+    \x05\x03\x05\x02",
+    -- SSLSessionReq
+    "\x16\x03\0\0S\x01\0\0O\x03\0?G\xd7\xf7\xba,\xee\xea\xb2`~\xf3\0\xfd\z
+    \x82{\xb9\xd5\x96\xc8w\x9b\xe6\xc4\xdb<=\xdbo\xef\x10n\0\0(\0\x16\0\x13\z
+    \0\x0a\0f\0\x05\0\x04\0e\0d\0c\0b\0a\0`\0\x15\0\x12\0\x09\0\x14\0\x11\0\z
+    \x08\0\x06\0\x03\x01\0",
+  },
+  udp = {
+    --DTLSSessionReq
+    "\x16\xfe\xff\x00\x00\x00\x00\x00\x00\x00\x00\x00\x36\x01\x00\x00\x2a\x00\z
+    \x00\x00\x00\x00\x00\x00\x2a\xfe\xfd\x00\x00\x00\x00\x7c\x77\x40\x1e\x8a\z
+    \xc8\x22\xa0\xa0\x18\xff\x93\x08\xca\xac\x0a\x64\x2f\xc9\x22\x64\xbc\x08\z
+    \xa8\x16\x89\x19\x30\x00\x00\x00\x02\x00\x2f\x01\x00"
+  }
+}
 ---
 -- A portrule that matches likely SSL services.
 --
@@ -242,7 +287,8 @@ local LIKELY_SSL_SERVICES = {
 -- portrule = shortport.ssl
 function ssl(host, port)
   if (port.version and port.version.service_tunnel == "ssl") or
-    port_or_service(LIKELY_SSL_PORTS, LIKELY_SSL_SERVICES, {"tcp", "sctp"})(host, port) then
+    port_or_service(LIKELY_SSL_PORTS, LIKELY_SSL_SERVICES, {"tcp", "sctp"})(host, port) or
+    portnumber(LIKELY_DTLS_PORTS, {"udp"})(host, port) then
     return true
   end
   -- If we're just looking up port info, stop here.
@@ -258,30 +304,31 @@ function ssl(host, port)
     local v = host.registry.ssl[port.number .. port.protocol]
     if v == nil then
       -- probes from nmap-service-probes
-      for _, probe in ipairs({
-          --TLSSessionReq
-          "\x16\x03\0\0\x69\x01\0\0\x65\x03\x03U\x1c\xa7\xe4random1random2random3\z
-          random4\0\0\x0c\0/\0\x0a\0\x13\x009\0\x04\0\xff\x01\0\0\x30\0\x0d\0,\0*\0\z
-          \x01\0\x03\0\x02\x06\x01\x06\x03\x06\x02\x02\x01\x02\x03\x02\x02\x03\x01\z
-          \x03\x03\x03\x02\x04\x01\x04\x03\x04\x02\x01\x01\x01\x03\x01\x02\x05\x01\z
-          \x05\x03\x05\x02",
-          -- SSLSessionReq
-          "\x16\x03\0\0S\x01\0\0O\x03\0?G\xd7\xf7\xba,\xee\xea\xb2`~\xf3\0\xfd\z
-          \x82{\xb9\xd5\x96\xc8w\x9b\xe6\xc4\xdb<=\xdbo\xef\x10n\0\0(\0\x16\0\x13\z
-          \0\x0a\0f\0\x05\0\x04\0e\0d\0c\0b\0a\0`\0\x15\0\x12\0\x09\0\x14\0\x11\0\z
-          \x08\0\x06\0\x03\x01\0",
-        }) do
+      for _, probe in ipairs(ssl_probes[port.protocol]) do
         local status, resp = comm.exchange(host, port, probe)
         if status and resp then
-          if resp:match("^\x16\x03[\0-\x03]..\x02...\x03[\0-\x03]")
-            or resp:match("^\x15\x03[\0-\x03]\0\x02\x02[F\x28]") then
-            -- Definitely SSL
-            v = true
-            break
-          elseif not resp:match("^[\x16\x15]\x03") then
-            -- Something definitely not SSL
-            v = false
-            break
+          if port.protocol == "udp" then
+            if resp:match("^\x16\xfe[\xfd\xff]\0\0\0\0\0\0\0\0..[\x02\x03]...\0\0\0\0\0...\xfe[\xfd\xff].")
+              then
+              -- Definitely SSL
+              v = true
+              break
+            elseif not resp:match("^[\x16\x15]\xfe[\xfd\xff]") then
+              -- Something definitely not SSL
+              v = false
+              break
+            end
+          else
+            if resp:match("^\x16\x03[\0-\x03]..\x02...\x03[\0-\x03]")
+              or resp:match("^\x15\x03[\0-\x03]\0\x02\x02[F\x28]") then
+              -- Definitely SSL
+              v = true
+              break
+            elseif not resp:match("^[\x16\x15]\x03") then
+              -- Something definitely not SSL
+              v = false
+              break
+            end
           end
           -- Something else? better try the other probes
         end

@@ -5,7 +5,7 @@
  *                                                                         *
  ***********************IMPORTANT NSOCK LICENSE TERMS***********************
  *
- * The nsock parallel socket event library is (C) 1999-2023 Nmap Software LLC
+ * The nsock parallel socket event library is (C) 1999-2024 Nmap Software LLC
  * This library is free software; you may redistribute and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
  * Foundation; Version 2. This guarantees your right to use, modify, and
@@ -199,7 +199,7 @@ struct npool {
 #if HAVE_OPENSSL
   /* The SSL Context (options and such) */
   SSL_CTX *sslctx;
-#ifdef HAVE_DTLS_CLIENT_METHOD
+#ifndef OPENSSL_NO_DTLS
   SSL_CTX *dtlsctx;
 #endif
 #endif

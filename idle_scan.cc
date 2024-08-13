@@ -9,7 +9,7 @@
  *                                                                         *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
  *
- * The Nmap Security Scanner is (C) 1996-2023 Nmap Software LLC ("The Nmap
+ * The Nmap Security Scanner is (C) 1996-2024 Nmap Software LLC ("The Nmap
  * Project"). Nmap is also a registered trademark of the Nmap Project.
  *
  * This program is distributed under the terms of the Nmap Public Source
@@ -44,15 +44,16 @@
  * right to know exactly what a program is going to do before they run it.
  * This also allows you to audit the software for security holes.
  *
- * Source code also allows you to port Nmap to new platforms, fix bugs, and add
- * new features. You are highly encouraged to submit your changes as a Github PR
- * or by email to the dev@nmap.org mailing list for possible incorporation into
- * the main distribution. Unless you specify otherwise, it is understood that
- * you are offering us very broad rights to use your submissions as described in
- * the Nmap Public Source License Contributor Agreement. This is important
- * because we fund the project by selling licenses with various terms, and also
- * because the inability to relicense code has caused devastating problems for
- * other Free Software projects (such as KDE and NASM).
+ * Source code also allows you to port Nmap to new platforms, fix bugs, and
+ * add new features. You are highly encouraged to submit your changes as a
+ * Github PR or by email to the dev@nmap.org mailing list for possible
+ * incorporation into the main distribution. Unless you specify otherwise, it
+ * is understood that you are offering us very broad rights to use your
+ * submissions as described in the Nmap Public Source License Contributor
+ * Agreement. This is important because we fund the project by selling licenses
+ * with various terms, and also because the inability to relicense code has
+ * caused devastating problems for other Free Software projects (such as KDE
+ * and NASM).
  *
  * The free version of Nmap is distributed in the hope that it will be
  * useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -1057,12 +1058,18 @@ static int idlescan_countopen2(struct idle_proxy_info *proxy,
 
   openports = -1;
   tries = 0;
-  TIMEVAL_MSEC_ADD(probe_times[0], start, MAX(50, (target->to.srtt * 3 / 4) / 1000));
-  TIMEVAL_MSEC_ADD(probe_times[1], start, target->to.srtt / 1000 );
-  TIMEVAL_MSEC_ADD(probe_times[2], end, MAX(75, (2 * target->to.srtt +
-                   target->to.rttvar) / 1000));
-  TIMEVAL_MSEC_ADD(probe_times[3], end, MIN(4000, (2 * target->to.srtt +
-                   (target->to.rttvar << 2 )) / 1000));
+
+  int tmp = (target->to.srtt * 3) / (4 * 1000);
+  tmp = MAX(50, tmp);
+  TIMEVAL_MSEC_ADD(probe_times[0], start, tmp);
+  tmp = target->to.srtt / 1000;
+  TIMEVAL_MSEC_ADD(probe_times[1], start, tmp);
+  tmp = (2 * target->to.srtt + target->to.rttvar) / 1000;
+  tmp = MAX(75, tmp);
+  TIMEVAL_MSEC_ADD(probe_times[2], end, tmp);
+  tmp = (2 * target->to.srtt + (target->to.rttvar << 2 )) / 1000;
+  tmp = MIN(4000, tmp);
+  TIMEVAL_MSEC_ADD(probe_times[3], end, tmp);
 
   do {
     if (tries == 2)

@@ -974,6 +974,7 @@ end
 -- @return Whether the parsing succeeded.
 function Packet:udp_parse(force_continue)
   self.udp = true
+  self.ip_p = self.ip_p or IPPROTO_UDP
   self.udp_offset = self.ip_data_offset or self.ip6_data_offset
   if #self.buf < self.udp_offset + 4 then
     return false
@@ -1035,15 +1036,17 @@ end
 -- Count and save the UDP checksum field.
 function Packet:udp_count_checksum()
   self:udp_set_checksum(0)
-  local proto = self.ip_p
-  local length = self.buf:len() - self.udp_offset
-  local b = self.ip_bin_src ..
-    self.ip_bin_dst ..
-    "\0" ..
-    (">BI2"):pack(proto, length) ..
-    self.buf:sub(self.udp_offset+1)
+  local pseudo_header
+  local payload = self.buf:sub(self.udp_offset+1)
+  if self.ip_v == 4 then
+    pseudo_header = (">c4 c4 x B I2"):pack(self.ip_bin_src, self.ip_bin_dst,
+      IPPROTO_UDP, #payload)
+  elseif self.ip_v == 6 then
+    pseudo_header = (">c16 c16 I4 xxx B"):pack(self.ip_bin_src, self.ip_bin_dst,
+      #payload, IPPROTO_UDP)
+  end
 
-  self:udp_set_checksum(in_cksum(b))
+  self:udp_set_checksum(in_cksum(pseudo_header .. payload))
 end
 
 if not unittest.testing() then

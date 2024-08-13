@@ -6,7 +6,7 @@
  *                                                                         *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
  *
- * The Nmap Security Scanner is (C) 1996-2023 Nmap Software LLC ("The Nmap
+ * The Nmap Security Scanner is (C) 1996-2024 Nmap Software LLC ("The Nmap
  * Project"). Nmap is also a registered trademark of the Nmap Project.
  *
  * This program is distributed under the terms of the Nmap Public Source
@@ -41,15 +41,16 @@
  * right to know exactly what a program is going to do before they run it.
  * This also allows you to audit the software for security holes.
  *
- * Source code also allows you to port Nmap to new platforms, fix bugs, and add
- * new features. You are highly encouraged to submit your changes as a Github PR
- * or by email to the dev@nmap.org mailing list for possible incorporation into
- * the main distribution. Unless you specify otherwise, it is understood that
- * you are offering us very broad rights to use your submissions as described in
- * the Nmap Public Source License Contributor Agreement. This is important
- * because we fund the project by selling licenses with various terms, and also
- * because the inability to relicense code has caused devastating problems for
- * other Free Software projects (such as KDE and NASM).
+ * Source code also allows you to port Nmap to new platforms, fix bugs, and
+ * add new features. You are highly encouraged to submit your changes as a
+ * Github PR or by email to the dev@nmap.org mailing list for possible
+ * incorporation into the main distribution. Unless you specify otherwise, it
+ * is understood that you are offering us very broad rights to use your
+ * submissions as described in the Nmap Public Source License Contributor
+ * Agreement. This is important because we fund the project by selling licenses
+ * with various terms, and also because the inability to relicense code has
+ * caused devastating problems for other Free Software projects (such as KDE
+ * and NASM).
  *
  * The free version of Nmap is distributed in the hope that it will be
  * useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -107,7 +108,7 @@ int HssPredicate::operator() (const HostScanStats *lhs, const HostScanStats *rhs
   rss = (rhs) ? rhs->target->TargetSockAddr() : ss;
   return 0 > sockaddr_storage_cmp(lss, rss);
 }
-struct sockaddr_storage *HssPredicate::ss = NULL;
+const struct sockaddr_storage *HssPredicate::ss = NULL;
 
 void UltraScanInfo::log_overall_rates(int logt) const {
   log_write(logt, "Overall sending rates: %.2f packets / s", send_rate_meter.getOverallPacketRate(&now));
@@ -164,8 +165,8 @@ const char *pspectype2ascii(int type) {
 static void init_ultra_timing_vals(ultra_timing_vals *timing,
                                    enum ultra_timing_type utt,
                                    int num_hosts_in_group,
-                                   struct ultra_scan_performance_vars *perf,
-                                   struct timeval *now);
+                                   const struct ultra_scan_performance_vars *perf,
+                                   const struct timeval *now);
 
 /* Take a buffer, buf, of size bufsz (64 bytes is sufficient) and
    writes a short description of the probe (arg1) into buf.  It also returns
@@ -266,7 +267,7 @@ GroupScanStats::GroupScanStats(UltraScanInfo *UltraSI) {
   initialize_timeout_info(&to);
   /* Default timout should be much lower for arp */
   if (USI->ping_scan_arp)
-    to.timeout = MAX(o.minRttTimeout(), MIN(o.initialRttTimeout(), INITIAL_ARP_RTT_TIMEOUT)) * 1000;
+    to.timeout = box(o.minRttTimeout(), o.initialRttTimeout(), INITIAL_ARP_RTT_TIMEOUT) * 1000;
   num_probes_active = 0;
   numtargets = USI->numIncompleteHosts(); // They are all incomplete at the beginning
   numprobes = USI->numProbesPerHost();
@@ -297,9 +298,13 @@ void GroupScanStats::probeSent(unsigned int nbytes) {
      Recall that these have effect only when --min-rate or --max-rate is
      given. */
 
+  static time_t max_rate_add = o.max_packet_send_rate != 0.0 ?
+    (1000000.0 / o.max_packet_send_rate) : 0;
+  static time_t min_rate_add = o.min_packet_send_rate != 0.0 ?
+    (1000000.0 / o.min_packet_send_rate) : 0;
+
   if (o.max_packet_send_rate != 0.0)
-      TIMEVAL_ADD(send_no_earlier_than, send_no_earlier_than,
-                  (time_t) (1000000.0 / o.max_packet_send_rate));
+      TIMEVAL_ADD(send_no_earlier_than, send_no_earlier_than, max_rate_add);
   /* Allow send_no_earlier_than to slip into the past. This allows the sending
      scheduler to catch up and make up for delays in other parts of the scan
      engine. If we were to update send_no_earlier_than to the present the
@@ -307,14 +312,13 @@ void GroupScanStats::probeSent(unsigned int nbytes) {
      connection is capable of the maximum. */
 
   if (o.min_packet_send_rate != 0.0) {
-      if (TIMEVAL_SUBTRACT(send_no_later_than, USI->now) > 0) {
+      if (TIMEVAL_AFTER(send_no_later_than, USI->now)) {
         /* The next scheduled send is in the future. That means there's slack time
            during which the sending rate could drop. Pull the time back to the
            present to prevent that. */
         send_no_later_than = USI->now;
       }
-      TIMEVAL_ADD(send_no_later_than, send_no_later_than,
-                  (time_t) (1000000.0 / o.min_packet_send_rate));
+      TIMEVAL_ADD(send_no_later_than, send_no_later_than, min_rate_add);
   }
 }
 
@@ -337,7 +341,7 @@ bool GroupScanStats::sendOK(struct timeval *when) const {
   recentsends = USI->gstats->probes_sent - USI->gstats->probes_sent_at_last_wait;
   if (recentsends > 0 &&
       (USI->scantype == CONNECT_SCAN || USI->ptech.connecttcpscan || !pcap_recv_timeval_valid())) {
-    int to_ms = (int) MAX(to.srtt * .75 / 1000, 50);
+    int to_ms = MAX(to.srtt * 3 / 4000, 50);
     if (TIMEVAL_MSEC_SUBTRACT(USI->now, last_wait) > to_ms)
       return false;
   }
@@ -346,7 +350,7 @@ bool GroupScanStats::sendOK(struct timeval *when) const {
      return false. If not, mark now as a good time to send and allow the
      congestion control to override it. */
   if (o.max_packet_send_rate != 0.0) {
-    if (TIMEVAL_SUBTRACT(send_no_earlier_than, USI->now) > 0) {
+    if (TIMEVAL_AFTER(send_no_earlier_than, USI->now)) {
       if (when)
         *when = send_no_earlier_than;
       return false;
@@ -361,7 +365,7 @@ bool GroupScanStats::sendOK(struct timeval *when) const {
      control. If we're behind schedule, return true to indicate that we need to
      send right now. */
   if (o.min_packet_send_rate != 0.0) {
-    if (TIMEVAL_SUBTRACT(send_no_later_than, USI->now) > 0) {
+    if (TIMEVAL_AFTER(send_no_later_than, USI->now)) {
       if (when)
         *when = send_no_later_than;
     } else {
@@ -390,7 +394,7 @@ bool GroupScanStats::sendOK(struct timeval *when) const {
 
   /* When there is only one target left, let the host congestion
      stuff deal with it. */
-  if (USI->numIncompleteHostsLessThan(2)) {
+  if (USI->numIncompleteHosts() < 2) {
     if (when)
       *when = USI->now;
     return true;
@@ -465,6 +469,9 @@ HostScanStats::HostScanStats(Target *t, UltraScanInfo *UltraSI) {
   memset(&sdn, 0, sizeof(sdn));
   sdn.last_boost = USI->now;
   sdn.delayms = o.scan_delay;
+  sdn.maxdelay = USI->tcp_scan ? o.maxTCPScanDelay() :
+                 USI->udp_scan ? o.maxUDPScanDelay() :
+                 o.maxSCTPScanDelay();
   rld.max_tryno_sent = 0;
   rld.rld_waiting = false;
   rld.rld_waittime = USI->now;
@@ -518,14 +525,15 @@ unsigned long HostScanStats::probeTimeout() const {
    considered a drop), but kept in the list just in case they come
    really late.  But after probeExpireTime(), I don't waste time
    keeping them around. Give in MICROseconds. The expiry time can
-   depend on the type of probe. Pass NULL to get the default time. */
-unsigned long HostScanStats::probeExpireTime(const UltraProbe *probe) const {
-  if (probe == NULL || probe->type == UltraProbe::UP_CONNECT)
+   depend on the type of probe. */
+unsigned long HostScanStats::probeExpireTime(const UltraProbe *probe,
+                                             unsigned long to_us) const {
+  if (probe->type == UltraProbe::UP_CONNECT)
     /* timedout probes close socket -- late resp. impossible */
-    return probeTimeout();
+    return to_us;
   else
     /* Wait a bit longer after probeTimeout. */
-    return MIN(10000000, probeTimeout() * 10);
+    return 10 * MIN(1000000, to_us);
 }
 
 /* Returns OK if sending a new probe to this host is OK (to avoid
@@ -548,7 +556,7 @@ bool HostScanStats::sendOK(struct timeval *when) const {
   /* If the group stats say we need to send a probe to enforce a minimum
      scanning rate, then we need to step up and send a probe. */
   if (o.min_packet_send_rate != 0.0) {
-    if (TIMEVAL_SUBTRACT(USI->gstats->send_no_later_than, USI->now) <= 0) {
+    if (!TIMEVAL_AFTER(USI->gstats->send_no_later_than, USI->now)) {
       if (when)
         *when = USI->now;
       return true;
@@ -590,13 +598,17 @@ bool HostScanStats::sendOK(struct timeval *when) const {
   TIMEVAL_MSEC_ADD(earliest_to, USI->now, 10000);
 
   // Any timeouts coming up?
+  unsigned long msec_to = probeTimeout() / 1000;
   for (probeI = probes_outstanding.begin(); probeI != probes_outstanding.end();
        probeI++) {
     if (!(*probeI)->timedout) {
-      TIMEVAL_MSEC_ADD(probe_to, (*probeI)->sent, probeTimeout() / 1000);
-      if (TIMEVAL_SUBTRACT(probe_to, earliest_to) < 0) {
+      TIMEVAL_MSEC_ADD(probe_to, (*probeI)->sent, msec_to);
+      if (TIMEVAL_BEFORE(probe_to, earliest_to)) {
         earliest_to = probe_to;
       }
+      // probes_outstanding is in order by time sent, so
+      // the first one we find is the earliest.
+      break;
     }
   }
 
@@ -624,36 +636,34 @@ bool HostScanStats::sendOK(struct timeval *when) const {
   return false;
 }
 
-/* If there are pending probe timeouts, fills in when with the time of
-   the earliest one and returns true.  Otherwise returns false and
-   puts now in when. */
-bool HostScanStats::nextTimeout(struct timeval *when) const {
-  struct timeval earliest_to = USI->now;
-  std::list<UltraProbe *>::const_iterator probeI;
-  bool pending_probes = false;
-
-  assert(when);
+/* If there are pending probe timeouts, compares the earliest one with `when`;
+   if it is earlier than `when`, replaces `when` with the time of
+   the earliest one and returns true.  Otherwise returns false. */
+bool HostScanStats::soonerTimeout(struct timeval *when) const {
+  std::list<UltraProbe *>::const_iterator probeI, endI;
 
   /* For any given invocation, the probe timeout is the same for all probes, so
    * we can get the earliest-sent probe and then add the timeout to that.
    */
-  for (probeI = probes_outstanding.begin(); probeI != probes_outstanding.end();
-       probeI++) {
+  for (probeI = probes_outstanding.begin(), endI = probes_outstanding.end();
+      probeI != endI; probeI++) {
     UltraProbe *probe = *probeI;
     if (!probe->timedout) {
-      pending_probes = true;
-      if (TIMEVAL_BEFORE(probe->sent, earliest_to)) {
-        earliest_to = probe->sent;
+      unsigned long usec_to = probeTimeout();
+      struct timeval our_when;
+      TIMEVAL_ADD(our_when, probe->sent, usec_to);
+      // probes_outstanding is in order by time sent, so
+      // the first one we find is the earliest.
+      if (TIMEVAL_BEFORE(our_when, *when)) {
+        // If ours is earlier, replace when.
+        *when = our_when;
+        return true;
       }
+      // regardless, there are no earlier probes, so stop looking.
+      break;
     }
   }
-  if (pending_probes) {
-    TIMEVAL_ADD(*when, earliest_to, probeTimeout());
-  }
-  else {
-    *when = USI->now;
-  }
-  return pending_probes;
+  return false;
 }
 
 /* gives the maximum try number (try numbers start at zero and
@@ -682,26 +692,28 @@ unsigned int HostScanStats::allowedTryno(bool *capped, bool *mayincrease) const 
     tryno_mayincrease = false; /* It never exceeds the cap */
   } else if (capped) *capped = false;
 
-  /* Decide if the tryno can possibly increase.  */
-  if (tryno_mayincrease && num_probes_active == 0 && !freshPortsLeft()) {
-    /* If every outstanding probe is timedout and at maxval, then no further
-       retransmits are necessary. */
-    for (probeI = probes_outstanding.begin();
-         probeI != probes_outstanding.end(); probeI++) {
-      probe = *probeI;
-      assert(probe->timedout);
-      if (!probe->retransmitted && !probe->isPing() && probe->get_tryno() < maxval) {
-        /* Needs at least one more retransmit. */
-        allfinished = false;
-        break;
+  // Only do this work if the caller needs to know
+  if (mayincrease) {
+    /* Decide if the tryno can possibly increase.  */
+    if (tryno_mayincrease && num_probes_active == 0 && !freshPortsLeft()) {
+      /* If every outstanding probe is timedout and at maxval, then no further
+         retransmits are necessary. */
+      for (probeI = probes_outstanding.begin();
+          probeI != probes_outstanding.end(); probeI++) {
+        probe = *probeI;
+        assert(probe->timedout);
+        if (!probe->retransmitted && !probe->isPing() && probe->get_tryno() < maxval) {
+          /* Needs at least one more retransmit. */
+          allfinished = false;
+          break;
+        }
       }
+      if (allfinished)
+        tryno_mayincrease = false;
     }
-    if (allfinished)
-      tryno_mayincrease = false;
-  }
 
-  if (mayincrease)
     *mayincrease = tryno_mayincrease;
+  }
 
   return maxval;
 }
@@ -1046,10 +1058,7 @@ bool UltraScanInfo::sendOK(struct timeval *when) const {
       // or probe timeout.
       for (host = incompleteHosts.begin(); host != incompleteHosts.end();
            host++) {
-        if ((*host)->nextTimeout(&tmptv)) {
-          if (TIMEVAL_SUBTRACT(tmptv, lowhtime) < 0)
-            lowhtime = tmptv;
-        }
+        (*host)->soonerTimeout(&lowhtime);
       }
       *when = lowhtime;
     }
@@ -1062,7 +1071,7 @@ bool UltraScanInfo::sendOK(struct timeval *when) const {
         break;
       }
 
-      if (!foundgood || TIMEVAL_SUBTRACT(lowhtime, tmptv) > 0) {
+      if (!foundgood || TIMEVAL_AFTER(lowhtime, tmptv)) {
         lowhtime = tmptv;
         foundgood = true;
       }
@@ -1074,11 +1083,11 @@ bool UltraScanInfo::sendOK(struct timeval *when) const {
   /* Defer to the group stats if they need a shorter delay to enforce a minimum
      packet sending rate. */
   if (o.min_packet_send_rate != 0.0) {
-    if (TIMEVAL_MSEC_SUBTRACT(gstats->send_no_later_than, lowhtime) < 0)
+    if (TIMEVAL_BEFORE(gstats->send_no_later_than, lowhtime))
       lowhtime = gstats->send_no_later_than;
   }
 
-  if (TIMEVAL_MSEC_SUBTRACT(lowhtime, now) < 0)
+  if (TIMEVAL_BEFORE(lowhtime, now))
     lowhtime = now;
 
   if (when)
@@ -1089,7 +1098,7 @@ bool UltraScanInfo::sendOK(struct timeval *when) const {
 
 /* Find a HostScanStats by its IP address in the incomplete and completed lists.
    Returns NULL if none are found. */
-HostScanStats *UltraScanInfo::findHost(struct sockaddr_storage *ss) const {
+HostScanStats *UltraScanInfo::findHost(const struct sockaddr_storage *ss) const {
   std::multiset<HostScanStats *, HssPredicate>::const_iterator hss;
 
   HssPredicate::ss = ss;
@@ -1112,28 +1121,11 @@ HostScanStats *UltraScanInfo::findHost(struct sockaddr_storage *ss) const {
   return NULL;
 }
 
-/* Check if incompleteHosts list contains less than n elements. This function
-   is here to replace numIncompleteHosts() < n, which would have to walk
-   through the entire list. */
-bool UltraScanInfo::numIncompleteHostsLessThan(unsigned int n) const {
-  std::multiset<HostScanStats *, HssPredicate>::const_iterator hostI;
-  unsigned int count;
-
-  count = 0;
-  hostI = incompleteHosts.begin();
-  while (count < n && hostI != incompleteHosts.end()) {
-    hostI++;
-    count++;
-  }
-
-  return count < n;
-}
-
 static bool pingprobe_is_better(const probespec *new_probe, int new_state,
                                 const probespec *old_probe, int old_state);
 
 /* Removes any hosts that have completed their scans from the incompleteHosts
-   list, and remove any hosts from completedHosts which have exceeded their
+   set, and remove any hosts from completedHosts which have exceeded their
    lifetime.  Returns the number of hosts removed. */
 int UltraScanInfo::removeCompletedHosts() {
   std::multiset<HostScanStats *, HssPredicate>::iterator hostI, nxt;
@@ -1186,7 +1178,7 @@ int UltraScanInfo::removeCompletedHosts() {
         if (remain && !timedout)
           log_write(LOG_STDOUT, "Completed %s against %s in %.2fs (%d %s)\n",
                     scantype2str(scantype), hss->target->targetipstr(),
-                    TIMEVAL_MSEC_SUBTRACT(now, SPM->begin) / 1000.0, remain,
+                    TIMEVAL_FSEC_SUBTRACT(now, SPM->begin), remain,
                     (remain == 1) ? "host left" : "hosts left");
         else if (timedout)
           log_write(LOG_STDOUT, "%s timed out during %s (%d %s)\n",
@@ -1280,8 +1272,8 @@ int determineScanGroupSize(int hosts_scanned_so_far,
 static void init_ultra_timing_vals(ultra_timing_vals *timing,
                                    enum ultra_timing_type utt,
                                    int num_hosts_in_group,
-                                   struct ultra_scan_performance_vars *perf,
-                                   struct timeval *now) {
+                                   const struct ultra_scan_performance_vars *perf,
+                                   const struct timeval *now) {
   timing->cwnd = (utt == TIMING_HOST) ? perf->host_initial_cwnd : perf->group_initial_cwnd;
   timing->ssthresh = perf->initial_ssthresh; /* Will be reduced if any packets are dropped anyway */
   timing->num_replies_expected = 0;
@@ -1296,7 +1288,7 @@ static void init_ultra_timing_vals(ultra_timing_vals *timing,
    different types of probes (see probespec structure).  Returns 0 and
    fills in pspec if there is a new probe, -1 if there are none
    left. */
-static int get_next_target_probe(UltraScanInfo *USI, HostScanStats *hss,
+static int get_next_target_probe(const UltraScanInfo *USI, HostScanStats *hss,
                                  probespec *pspec) {
   assert(pspec);
 
@@ -1615,8 +1607,8 @@ void HostScanStats::destroyAllOutstandingProbes() {
    not called when a response is not useful for adjusting other timing
    variables. */
 static void ultrascan_adjust_timeouts(UltraScanInfo *USI, HostScanStats *hss,
-                                      UltraProbe *probe,
-                                      struct timeval *rcvdtime) {
+                                      const UltraProbe *probe,
+                                      const struct timeval *rcvdtime) {
   if (rcvdtime == NULL)
     return;
 
@@ -1631,8 +1623,8 @@ static void ultrascan_adjust_timeouts(UltraScanInfo *USI, HostScanStats *hss,
    rcvdtime == NULL to indicate that you have given up on a probe and want to
    count this as a DROPPED PACKET. */
 static void ultrascan_adjust_timing(UltraScanInfo *USI, HostScanStats *hss,
-                                    UltraProbe *probe,
-                                    struct timeval *rcvdtime) {
+                                    const UltraProbe *probe,
+                                    const struct timeval *rcvdtime) {
   int ping_magnifier = (probe->isPing()) ? USI->perf.ping_magnifier : 1;
 
   USI->gstats->timing.num_replies_expected++;
@@ -1844,13 +1836,13 @@ static bool pingprobe_is_better(const probespec *new_probe, int new_state,
   return pingprobe_score(new_probe, new_state) > pingprobe_score(old_probe, old_state);
 }
 
-static bool ultrascan_host_pspec_update(UltraScanInfo *USI, HostScanStats *hss,
+static bool ultrascan_host_pspec_update(const UltraScanInfo *USI, HostScanStats *hss,
                                         const probespec *pspec, int newstate);
 
 /* Like ultrascan_port_probe_update(), except it is called with just a
    probespec rather than a whole UltraProbe.  Returns true if the port
    was added or at least the state was changed.  */
-static bool ultrascan_port_pspec_update(UltraScanInfo *USI,
+static bool ultrascan_port_pspec_update(const UltraScanInfo *USI,
                                         HostScanStats *hss,
                                         const probespec *pspec,
                                         int newstate) {
@@ -1874,57 +1866,52 @@ static bool ultrascan_port_pspec_update(UltraScanInfo *USI,
     portno = pspec->pd.sctp.dport;
   } else assert(0);
 
-  if (hss->target->ports.portIsDefault(portno, proto)) {
-    oldstate = PORT_TESTING;
-    hss->ports_finished++;
-  } else {
-    oldstate = hss->target->ports.getPortState(portno, proto);
-  }
+  // Set new port state, pending checks for valid state transitions
+  hss->target->ports.setPortState(portno, proto, newstate, &oldstate);
 
   /*    printf("TCP port %hu has changed from state %s to %s!\n", portno, statenum2str(oldstate), statenum2str(newstate)); */
-  switch (oldstate) {
-    /* TODO: I need more code here to determine when a state should
-       be overridden, for example PORT_OPEN trumps PORT_FILTERED
-       in a SYN scan, but not necessarily for UDP scan */
-  case PORT_TESTING:
-    /* Brand new port -- add it to the list */
-    hss->target->ports.setPortState(portno, proto, newstate);
-    break;
-  case PORT_OPEN:
-    if (newstate != PORT_OPEN) {
-      if (noresp_open_scan) {
-        hss->target->ports.setPortState(portno, proto, newstate);
-      } /* Otherwise The old open takes precedence */
+  if (newstate != oldstate) {
+    // Check for conditions that mean we should ignore newstate (revert to oldstate)
+    switch (oldstate) {
+      /* TODO: I need more code here to determine when a state should
+         be overridden, for example PORT_OPEN trumps PORT_FILTERED
+         in a SYN scan, but not necessarily for UDP scan */
+      case PORT_TESTING:
+        /* Brand new port -- add it to the list */
+        hss->ports_finished++;
+        break;
+      case PORT_OPEN:
+        // Changing from open to anything else only valid for noresp_open_scan
+        if (!noresp_open_scan) {
+          hss->target->ports.setPortState(portno, proto, oldstate);
+        }
+        break;
+      case PORT_CLOSED:
+        // Changing from closed to filtered is never allowed.
+        // Changing from closed to anything else is never valid for noresp_open_scan
+        if (noresp_open_scan || newstate == PORT_FILTERED)
+          hss->target->ports.setPortState(portno, proto, oldstate);
+        break;
+      case PORT_FILTERED:
+        // Changing from filtered to open is not allowed for noresp_open_scan
+          if (noresp_open_scan && newstate == PORT_OPEN)
+            hss->target->ports.setPortState(portno, proto, oldstate);
+        break;
+      case PORT_UNFILTERED:
+        /* This could happen in an ACK scan if I receive a RST and then an
+           ICMP filtered message.  I'm gonna stick with unfiltered in that
+           case.  I'll change it if the new state is open or closed,
+           though I don't expect that to ever happen */
+        if (newstate != PORT_OPEN && newstate != PORT_CLOSED)
+          hss->target->ports.setPortState(portno, proto, oldstate);
+        break;
+      case PORT_OPENFILTERED:
+        // Always accepted.
+        break;
+      default:
+        fatal("Unexpected port state: %d\n", oldstate);
+        break;
     }
-    break;
-  case PORT_CLOSED:
-    if (newstate != PORT_CLOSED) {
-      if (!noresp_open_scan && newstate != PORT_FILTERED)
-        hss->target->ports.setPortState(portno, proto, newstate);
-    }
-    break;
-  case PORT_FILTERED:
-    if (newstate != PORT_FILTERED) {
-      if (!noresp_open_scan || newstate != PORT_OPEN)
-        hss->target->ports.setPortState(portno, proto, newstate);
-    }
-    break;
-  case PORT_UNFILTERED:
-    /* This could happen in an ACK scan if I receive a RST and then an
-       ICMP filtered message.  I'm gonna stick with unfiltered in that
-       case.  I'll change it if the new state is open or closed,
-       though I don't expect that to ever happen */
-    if (newstate == PORT_OPEN || newstate == PORT_CLOSED)
-      hss->target->ports.setPortState(portno, proto, newstate);
-    break;
-  case PORT_OPENFILTERED:
-    if (newstate != PORT_OPENFILTERED) {
-      hss->target->ports.setPortState(portno, proto, newstate);
-    }
-    break;
-  default:
-    fatal("Unexpected port state: %d\n", oldstate);
-    break;
   }
 
   return oldstate != newstate;
@@ -1933,13 +1920,13 @@ static bool ultrascan_port_pspec_update(UltraScanInfo *USI,
 /* Boost the scan delay for this host, usually because too many packet
    drops were detected. */
 void HostScanStats::boostScanDelay() {
-  unsigned int maxAllowed = USI->tcp_scan ? o.maxTCPScanDelay() :
-                            USI->udp_scan ? o.maxUDPScanDelay() :
-                            o.maxSCTPScanDelay();
-  if (sdn.delayms == 0)
-    sdn.delayms = (USI->udp_scan) ? 50 : 5; // In many cases, a pcap wait takes a minimum of 80ms, so this matters little :(
-  else sdn.delayms = MIN(sdn.delayms * 2, MAX(sdn.delayms, 1000));
-  sdn.delayms = MIN(sdn.delayms, maxAllowed);
+  if (sdn.delayms < 1000) {
+    if (sdn.delayms == 0)
+      sdn.delayms = (USI->udp_scan) ? 50 : 5; // In many cases, a pcap wait takes a minimum of 80ms, so this matters little :(
+    else
+      sdn.delayms = MIN(sdn.delayms * 2, 1000);
+  }
+  sdn.delayms = MIN(sdn.delayms, sdn.maxdelay);
   sdn.last_boost = USI->now;
   sdn.droppedRespSinceDelayChanged = 0;
   sdn.goodRespSinceDelayChanged = 0;
@@ -1996,7 +1983,7 @@ void HostScanStats::moveProbeToBench(std::list<UltraProbe *>::iterator probeI) {
    stats are not updated. */
 void ultrascan_ping_update(UltraScanInfo *USI, HostScanStats *hss,
                                   std::list<UltraProbe *>::iterator probeI,
-                                  struct timeval *rcvdtime,
+                                  const struct timeval *rcvdtime,
                                   bool adjust_timing) {
   ultrascan_adjust_timeouts(USI, hss, *probeI, rcvdtime);
   if (adjust_timing)
@@ -2021,7 +2008,7 @@ static const char *readhoststate(int state) {
 
 /* Update state of the host in hss based on its current state and newstate.
    Returns true if the state was changed. */
-static bool ultrascan_host_pspec_update(UltraScanInfo *USI, HostScanStats *hss,
+static bool ultrascan_host_pspec_update(const UltraScanInfo *USI, HostScanStats *hss,
                                         const probespec *pspec, int newstate) {
   int oldstate = hss->target->flags;
   /* If the host is already up, ignore any further updates. */
@@ -2039,7 +2026,7 @@ static bool ultrascan_host_pspec_update(UltraScanInfo *USI, HostScanStats *hss,
   return hss->target->flags != oldstate;
 }
 
-static void ultrascan_host_timeout_init(UltraScanInfo *USI, HostScanStats *hss) {
+static void ultrascan_host_timeout_init(const UltraScanInfo *USI, HostScanStats *hss) {
   // Don't count host discovery time against host timeout clock. For large
   // numbers of targets, we might be busy sending lots of new probes to new
   // targets, and that time shouldn't count against the individual target.
@@ -2058,9 +2045,9 @@ static void ultrascan_host_timeout_init(UltraScanInfo *USI, HostScanStats *hss) 
    adjust_timing_hint is false, packet stats are not updated. */
 void ultrascan_host_probe_update(UltraScanInfo *USI, HostScanStats *hss,
                                         std::list<UltraProbe *>::iterator probeI,
-                                        int newstate, struct timeval *rcvdtime,
+                                        int newstate, const struct timeval *rcvdtime,
                                         bool adjust_timing_hint) {
-  UltraProbe *probe = *probeI;
+  const UltraProbe *probe = *probeI;
 
   if (o.debugging > 1) {
     struct timeval tv;
@@ -2121,9 +2108,9 @@ void ultrascan_host_probe_update(UltraScanInfo *USI, HostScanStats *hss,
    updated. */
 void ultrascan_port_probe_update(UltraScanInfo *USI, HostScanStats *hss,
                                  std::list<UltraProbe *>::iterator probeI,
-                                 int newstate, struct timeval *rcvdtime,
+                                 int newstate, const struct timeval *rcvdtime,
                                  bool adjust_timing_hint) {
-  UltraProbe *probe = *probeI;
+  const UltraProbe *probe = *probeI;
   const probespec *pspec = probe->pspec();
 
   ultrascan_port_pspec_update(USI, hss, pspec, newstate);
@@ -2204,13 +2191,13 @@ void ultrascan_port_probe_update(UltraScanInfo *USI, HostScanStats *hss,
   /* If this probe received a positive response, consider making it the new
      timing ping probe. */
   if (rcvdtime != NULL && adjust_ping
-      && pingprobe_is_better(probe->pspec(), newstate, &hss->target->pingprobe, hss->target->pingprobe_state)) {
+      && pingprobe_is_better(pspec, newstate, &hss->target->pingprobe, hss->target->pingprobe_state)) {
     if (o.debugging > 1) {
       char buf[64];
-      probespec2ascii(probe->pspec(), buf, sizeof(buf));
+      probespec2ascii(pspec, buf, sizeof(buf));
       log_write(LOG_PLAIN, "Changing ping technique for %s to %s\n", hss->target->targetipstr(), buf);
     }
-    hss->target->pingprobe = *probe->pspec();
+    hss->target->pingprobe = *pspec;
     hss->target->pingprobe_state = newstate;
   }
 
@@ -2404,19 +2391,11 @@ static void retransmitProbe(UltraScanInfo *USI, HostScanStats *hss,
   tryno_t tryno = probe->tryno;
   tryno.fields.seqnum++;
   if (probe->type == UltraProbe::UP_IP) {
-    if (USI->prot_scan || USI->ptech.rawprotoscan)
-      newProbe = sendIPScanProbe(USI, hss, probe->pspec(), tryno);
-    else if (probe->protocol() == IPPROTO_TCP) {
-      newProbe = sendIPScanProbe(USI, hss, probe->pspec(), tryno);
-    } else if (probe->protocol() == IPPROTO_UDP) {
-      newProbe = sendIPScanProbe(USI, hss, probe->pspec(), tryno);
-    } else if (probe->protocol() == IPPROTO_SCTP) {
-      newProbe = sendIPScanProbe(USI, hss, probe->pspec(), tryno);
-    } else if (probe->protocol() == IPPROTO_ICMP || probe->protocol() == IPPROTO_ICMPV6) {
-      newProbe = sendIPScanProbe(USI, hss, probe->pspec(), tryno);
-    } else {
-      assert(0);
-    }
+    u8 proto = probe->protocol();
+    assert(USI->prot_scan || USI->ptech.rawprotoscan
+        || proto == IPPROTO_TCP || proto == IPPROTO_UDP || proto == IPPROTO_SCTP
+        || proto == IPPROTO_ICMP || proto == IPPROTO_ICMPV6);
+    newProbe = sendIPScanProbe(USI, hss, probe->pspec(), tryno);
   } else if (probe->type == UltraProbe::UP_CONNECT) {
     newProbe = sendConnectScanProbe(USI, hss, probe->pspec()->pd.tcp.dport, tryno);
   } else if (probe->type == UltraProbe::UP_ARP) {
@@ -2483,6 +2462,8 @@ static void doAnyOutstandingRetransmits(UltraScanInfo *USI) {
         pci++) {
       host = pci->hss;
       std::list<UltraProbe *>::iterator &probeI = pci->probeI;
+      // Nothing drops off list during this function
+      const std::list<UltraProbe *>::const_iterator &beginI = host->probes_outstanding.begin();
       /* Skip this host if it has nothing to send. */
       if ((host->num_probes_active == 0
            && host->num_probes_waiting_retransmit == 0))
@@ -2515,10 +2496,10 @@ static void doAnyOutstandingRetransmits(UltraScanInfo *USI) {
           }
           break; /* I only do one probe per host for now to spread load */
         }
-      } while (probeI != host->probes_outstanding.begin());
+      } while (probeI != beginI);
 
       /* Wrap the probe iterator around. */
-      if (probeI == host->probes_outstanding.begin())
+      if (probeI == beginI)
         probeI = host->probes_outstanding.end();
     }
   } while (USI->gstats->sendOK(NULL) && retrans != 0);
@@ -2655,11 +2636,12 @@ static void processData(UltraScanInfo *USI) {
       nextProbeI++;
       probe = *probeI;
 
+      unsigned long to_us = host->probeTimeout();
+      long probe_age_us = TIMEVAL_SUBTRACT(USI->now, probe->sent);
       // give up completely after this long
-      expire_us = host->probeExpireTime(probe);
+      expire_us = host->probeExpireTime(probe, to_us);
 
-      if (!probe->timedout && TIMEVAL_SUBTRACT(USI->now, probe->sent) >
-          (long) host->probeTimeout()) {
+      if (!probe->timedout && probe_age_us > (long) to_us) {
         host->markProbeTimedout(probeI);
         /* Once we've timed out a probe, skip it for this round of processData.
            We don't want it to move to the bench or anything until the other
@@ -2669,7 +2651,7 @@ static void processData(UltraScanInfo *USI) {
         continue;
       }
 
-      if (!probe->isPing() && probe->timedout && !probe->retransmitted) {
+      if (probe->timedout && !probe->retransmitted && !probe->isPing()) {
         if (!tryno_mayincrease && probe->get_tryno() >= maxtries) {
           if (tryno_capped && !host->retry_capped_warned) {
             log_write(LOG_PLAIN, "Warning: %s giving up on port because"
@@ -2689,7 +2671,7 @@ static void processData(UltraScanInfo *USI) {
           }
           continue;
         } else if (probe->get_tryno() >= maxtries &&
-                   TIMEVAL_SUBTRACT(USI->now, probe->sent) > expire_us) {
+                   probe_age_us > expire_us) {
           assert(probe->get_tryno() == maxtries);
           /* Move it to the bench until it is needed (maxtries
              increases or is capped */
@@ -2699,7 +2681,7 @@ static void processData(UltraScanInfo *USI) {
       }
 
       if ((probe->isPing() || (probe->timedout && probe->retransmitted)) &&
-          TIMEVAL_SUBTRACT(USI->now, probe->sent) > expire_us) {
+          probe_age_us > expire_us) {
         host->destroyOutstandingProbe(probeI);
         continue;
       }
@@ -2712,19 +2694,28 @@ static void processData(UltraScanInfo *USI) {
   /* Check for expired global pings. */
   HostScanStats *pinghost = USI->gstats->pinghost;
   if (pinghost != NULL) {
+    long to_us = pinghost->probeTimeout();
     for (probeI = pinghost->probes_outstanding.begin();
          probeI != pinghost->probes_outstanding.end();
          probeI = nextProbeI) {
       nextProbeI = probeI;
       nextProbeI++;
+      probe = *probeI;
       /* If a global ping probe times out, we want to get rid of it so a new
          host can take its place. */
-      if ((*probeI)->isPing()
-          && TIMEVAL_SUBTRACT(USI->now, (*probeI)->sent) > (long) pinghost->probeTimeout()) {
-        if (o.debugging)
-          log_write(LOG_STDOUT, "Destroying timed-out global ping from %s.\n", pinghost->target->targetipstr());
-        /* ultrascan_ping_update destroys the probe. */
-        ultrascan_ping_update(USI, pinghost, probeI, NULL);
+      if (probe->isPing()) {
+        if (TIMEVAL_SUBTRACT(USI->now, probe->sent) > to_us) {
+          if (o.debugging)
+            log_write(LOG_STDOUT, "Destroying timed-out global ping from %s.\n", pinghost->target->targetipstr());
+          /* ultrascan_ping_update destroys the probe. */
+          ultrascan_ping_update(USI, pinghost, probeI, NULL);
+          // ultrascan_*_update() can change timeout
+          to_us = pinghost->probeTimeout();
+        }
+        else {
+          // If this one isn't timed out, no later ones will be either.
+          break;
+        }
       }
     }
   }

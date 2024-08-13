@@ -6,7 +6,7 @@
  *                                                                         *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
  *
- * The Nmap Security Scanner is (C) 1996-2023 Nmap Software LLC ("The Nmap
+ * The Nmap Security Scanner is (C) 1996-2024 Nmap Software LLC ("The Nmap
  * Project"). Nmap is also a registered trademark of the Nmap Project.
  *
  * This program is distributed under the terms of the Nmap Public Source
@@ -41,15 +41,16 @@
  * right to know exactly what a program is going to do before they run it.
  * This also allows you to audit the software for security holes.
  *
- * Source code also allows you to port Nmap to new platforms, fix bugs, and add
- * new features. You are highly encouraged to submit your changes as a Github PR
- * or by email to the dev@nmap.org mailing list for possible incorporation into
- * the main distribution. Unless you specify otherwise, it is understood that
- * you are offering us very broad rights to use your submissions as described in
- * the Nmap Public Source License Contributor Agreement. This is important
- * because we fund the project by selling licenses with various terms, and also
- * because the inability to relicense code has caused devastating problems for
- * other Free Software projects (such as KDE and NASM).
+ * Source code also allows you to port Nmap to new platforms, fix bugs, and
+ * add new features. You are highly encouraged to submit your changes as a
+ * Github PR or by email to the dev@nmap.org mailing list for possible
+ * incorporation into the main distribution. Unless you specify otherwise, it
+ * is understood that you are offering us very broad rights to use your
+ * submissions as described in the Nmap Public Source License Contributor
+ * Agreement. This is important because we fund the project by selling licenses
+ * with various terms, and also because the inability to relicense code has
+ * caused devastating problems for other Free Software projects (such as KDE
+ * and NASM).
  *
  * The free version of Nmap is distributed in the hope that it will be
  * useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -116,7 +117,7 @@ public:
   ~ServiceNFO();
 
   // If a service response to a given probeName, this function adds
-  // the response the the fingerprint for that service.  The
+  // the response the fingerprint for that service.  The
   // fingerprint can be printed when nothing matches the service.  You
   // can obtain the fingerprint (if any) via getServiceFingerprint();
   void addToServiceFingerprint(const char *probeName, const u8 *resp,
@@ -2583,6 +2584,7 @@ static void servicescan_read_handler(nsock_pool nsp, nsock_event nse, void *myda
   } else if (status == NSE_STATUS_ERROR) {
     // Errors might happen in some cases ... I'll worry about later
     int err = nse_errorcode(nse);
+    bool show_err = true;
     switch(err) {
     case ECONNRESET:
     case ECONNREFUSED: // weird to get this on a connected socket (shrug) but
@@ -2597,22 +2599,6 @@ static void servicescan_read_handler(nsock_pool nsp, nsock_event nse, void *myda
         // next one
         startNextProbe(nsp, nsi, SG, svc, true);
       }
-      break;
-#ifdef EHOSTDOWN
-    case EHOSTDOWN: // ICMP_HOST_UNKNOWN
-#endif
-#ifdef ENONET
-    case ENONET: // ICMP_HOST_ISOLATED
-#endif
-    /* EHOSTDOWN and ENONET can be the result of forged ICMP responses.
-     * We should probably give up on this port.
-     */
-    case ENETUNREACH:
-    case EHOSTUNREACH:
-      // That is funny.  The port scanner listed the port as open.  Maybe it got unplugged, or firewalled us, or did
-      // something else nasty during the scan.  Shrug.  I'll give up on this port
-      svc->tcpwrap_possible = false;
-      end_svcprobe(PROBESTATE_INCOMPLETE, SG, svc, nsi);
       break;
 #ifdef ENOPROTOOPT
     case ENOPROTOOPT: // ICMP_PROT_UNREACH
@@ -2644,9 +2630,29 @@ static void servicescan_read_handler(nsock_pool nsp, nsock_event nse, void *myda
       // hardcoded to EIO).  I'll just try the next probe.
       startNextProbe(nsp, nsi, SG, svc, true);
       break;
+#ifdef EHOSTDOWN
+    case EHOSTDOWN: // ICMP_HOST_UNKNOWN
+#endif
+#ifdef ENONET
+    case ENONET: // ICMP_HOST_ISOLATED
+#endif
+    /* EHOSTDOWN and ENONET can be the result of forged ICMP responses.
+     * We should probably give up on this port.
+     */
+    case ENETUNREACH:
+    case EHOSTUNREACH:
+    case ENETDOWN:
+      // That is funny.  The port scanner listed the port as open.  Maybe it got unplugged, or firewalled us, or did
+      // something else nasty during the scan.  Shrug.  I'll give up on this port
+      show_err = o.debugging || o.versionTrace();
     default:
-      fatal("Unexpected error in NSE_TYPE_READ callback.  Error code: %d (%s)", err,
-            socket_strerror(err));
+      if (show_err) {
+        error("Unexpected error %d (%s) in NSE_TYPE_READ callback - aborting this service",
+            err, socket_strerror(err));
+      }
+      svc->tcpwrap_possible = false;
+      end_svcprobe(PROBESTATE_INCOMPLETE, SG, svc, nsi);
+      break;
     }
   } else if (status == NSE_STATUS_KILL) {
     /* User probably specified host_timeout and so the service scan is

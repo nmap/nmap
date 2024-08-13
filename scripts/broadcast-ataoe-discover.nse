@@ -30,7 +30,13 @@ license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"broadcast", "safe"}
 
 
-prerule = function() return true end
+prerule = function()
+  if ( not(nmap.is_privileged()) ) then
+    stdnse.verbose1("not running for lack of privileges")
+    return false
+  end
+  return true
+end
 
 -- The minimalistic ATAoE interface
 ATAoE = {
@@ -118,18 +124,15 @@ end
 
 action = function()
 
-  local iname = nmap.get_interface()
-  if ( not(iname) ) then
-    stdnse.verbose1("No interface supplied, use -e")
-    return
+  local iface
+  local collect_interface = function (if_table)
+    if not iface and if_table.up == "up" and if_table.link == "ethernet" then
+      iface = if_table
+    end
   end
 
-  if ( not(nmap.is_privileged()) ) then
-    stdnse.verbose1("not running for lack of privileges")
-    return
-  end
+  stdnse.get_script_interfaces(collect_interface)
 
-  local iface = nmap.get_interface_info(iname)
   if ( not(iface) ) then
     return stdnse.format_output(false, "Failed to retrieve interface information")
   end

@@ -4,7 +4,7 @@
  *                                                                         *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
  *
- * The Nmap Security Scanner is (C) 1996-2023 Nmap Software LLC ("The Nmap
+ * The Nmap Security Scanner is (C) 1996-2024 Nmap Software LLC ("The Nmap
  * Project"). Nmap is also a registered trademark of the Nmap Project.
  *
  * This program is distributed under the terms of the Nmap Public Source
@@ -39,15 +39,16 @@
  * right to know exactly what a program is going to do before they run it.
  * This also allows you to audit the software for security holes.
  *
- * Source code also allows you to port Nmap to new platforms, fix bugs, and add
- * new features. You are highly encouraged to submit your changes as a Github PR
- * or by email to the dev@nmap.org mailing list for possible incorporation into
- * the main distribution. Unless you specify otherwise, it is understood that
- * you are offering us very broad rights to use your submissions as described in
- * the Nmap Public Source License Contributor Agreement. This is important
- * because we fund the project by selling licenses with various terms, and also
- * because the inability to relicense code has caused devastating problems for
- * other Free Software projects (such as KDE and NASM).
+ * Source code also allows you to port Nmap to new platforms, fix bugs, and
+ * add new features. You are highly encouraged to submit your changes as a
+ * Github PR or by email to the dev@nmap.org mailing list for possible
+ * incorporation into the main distribution. Unless you specify otherwise, it
+ * is understood that you are offering us very broad rights to use your
+ * submissions as described in the Nmap Public Source License Contributor
+ * Agreement. This is important because we fund the project by selling licenses
+ * with various terms, and also because the inability to relicense code has
+ * caused devastating problems for other Free Software projects (such as KDE
+ * and NASM).
  *
  * The free version of Nmap is distributed in the hope that it will be
  * useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -459,8 +460,7 @@ void PortList::setDefaultPortState(u8 protocol, int state) {
   default_port_state[proto].state = state;
 }
 
-void PortList::setPortState(u16 portno, u8 protocol, int state) {
-  const Port *oldport;
+void PortList::setPortState(u16 portno, u8 protocol, int state, int *oldstate) {
   Port *current;
   int proto = INPROTO2PORTLISTPROTO(protocol);
 
@@ -480,26 +480,27 @@ void PortList::setPortState(u16 portno, u8 protocol, int state) {
       state != PORT_CLOSEDFILTERED)
     fatal("%s: attempt to add port number %d with illegal state %d\n", __func__, portno, state);
 
-  assert(protocol!=IPPROTO_IP || portno<256);
+  assert(protocol!=IPPROTO_IP || portno<=MAX_IPPROTONUM);
 
-  oldport = lookupPort(portno, protocol);
-  if (oldport != NULL) {
-    /* We must discount our statistics from the old values.  Also warn
-       if a complete duplicate */
-    if (o.debugging && oldport->state == state) {
-      error("Duplicate port (%hu/%s)", portno, proto2ascii_lowercase(protocol));
-    }
-    state_counts_proto[proto][oldport->state]--;
+  bool created = false;
+  current = createPort(portno, protocol, &created);
+
+  if (!created) {
+    /* We must discount our statistics from the old values.
+     * Duplicates are not a problem and are expected due to optimistic state
+     * setting in ultrascan_port_pspec_update() */
+    state_counts_proto[proto][current->state]--;
+    if (oldstate) *oldstate = current->state;
   } else {
     state_counts_proto[proto][default_port_state[proto].state]--;
+    if (oldstate) *oldstate = PORT_TESTING;
   }
-  current = createPort(portno, protocol);
 
   current->state = state;
   state_counts_proto[proto][state]++;
 
   if(state == PORT_FILTERED || state == PORT_OPENFILTERED)
-    setStateReason(portno, protocol, ER_NORESPONSE, 0, NULL);
+    setStateReason(current, ER_NORESPONSE, 0, NULL);
   return;
 }
 
@@ -565,7 +566,7 @@ Port *PortList::nextPort(const Port *cur, Port *next,
   if (cur) {
     proto = INPROTO2PORTLISTPROTO(cur->proto);
     assert(port_map[proto]!=NULL); // Hmm, it's not possible to handle port that doesn't have anything in map
-    assert(cur->proto!=IPPROTO_IP || cur->portno<256);
+    assert(cur->proto!=IPPROTO_IP || cur->portno<=MAX_IPPROTONUM);
     mapped_pno = port_map[proto][cur->portno];
     mapped_pno++; //  we're interested in next port after current
   } else { // running for the first time
@@ -614,7 +615,7 @@ void PortList::mapPort(u16 *portno, u8 *protocol) const {
   mapped_protocol = INPROTO2PORTLISTPROTO(*protocol);
 
   if (*protocol == IPPROTO_IP)
-    assert(*portno < 256);
+    assert(*portno <= MAX_IPPROTONUM);
   if(port_map[mapped_protocol]==NULL || port_list[mapped_protocol]==NULL) {
     fatal("%s(%i,%i): you're trying to access uninitialized protocol", __func__, *portno, *protocol);
   }
@@ -633,7 +634,7 @@ const Port *PortList::lookupPort(u16 portno, u8 protocol) const {
 }
 
 /* Create the port if it doesn't exist; otherwise this is like lookupPort. */
-Port *PortList::createPort(u16 portno, u8 protocol) {
+Port *PortList::createPort(u16 portno, u8 protocol, bool *created) {
   Port *p;
   u16 mapped_portno;
   u8 mapped_protocol;
@@ -650,9 +651,11 @@ Port *PortList::createPort(u16 portno, u8 protocol) {
     p->state = default_port_state[mapped_protocol].state;
     p->reason.reason_id = ER_NORESPONSE;
     port_list[mapped_protocol][mapped_portno] = p;
+    if (created) *created = true;
   }
+  else if (created) *created = false;
 
-  return port_list[mapped_protocol][mapped_portno];
+  return p;
 }
 
 int PortList::forgetPort(u16 portno, u8 protocol) {
@@ -710,7 +713,7 @@ int PortList::port_list_count[PORTLIST_PROTO_MAX];
  * should be sorted. */
 void PortList::initializePortMap(int protocol, u16 *ports, int portcount) {
   int i;
-  int ports_max = (protocol == IPPROTO_IP) ? 256 : 65536;
+  int ports_max = (protocol == IPPROTO_IP) ? MAX_IPPROTONUM + 1 : 65536;
   int proto = INPROTO2PORTLISTPROTO(protocol);
 
   if (port_map[proto] != NULL || port_map_rev[proto] != NULL)
@@ -890,7 +893,11 @@ int PortList::setStateReason(u16 portno, u8 proto, reason_t reason, u8 ttl,
     Port *answer = NULL;
 
     answer = createPort(portno, proto);
+    return setStateReason(answer, reason, ttl, ip_addr);
+}
 
+int PortList::setStateReason(Port *answer, reason_t reason, u8 ttl,
+  const struct sockaddr_storage *ip_addr) {
     /* set new reason and increment its count */
     answer->reason.reason_id = reason;
     if (ip_addr == NULL)

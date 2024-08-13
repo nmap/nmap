@@ -162,9 +162,9 @@ am__uninstall_files_from_dir = { \
 LTLIBRARIES = $(lib_LTLIBRARIES)
 libpcre2_16_la_DEPENDENCIES =
 am__libpcre2_16_la_SOURCES_DIST = src/pcre2_auto_possess.c \
-	src/pcre2_compile.c src/pcre2_config.c src/pcre2_context.c \
-	src/pcre2_convert.c src/pcre2_dfa_match.c src/pcre2_error.c \
-	src/pcre2_extuni.c src/pcre2_find_bracket.c \
+	src/pcre2_chkdint.c src/pcre2_compile.c src/pcre2_config.c \
+	src/pcre2_context.c src/pcre2_convert.c src/pcre2_dfa_match.c \
+	src/pcre2_error.c src/pcre2_extuni.c src/pcre2_find_bracket.c \
 	src/pcre2_internal.h src/pcre2_intmodedep.h \
 	src/pcre2_jit_compile.c src/pcre2_maketables.c \
 	src/pcre2_match.c src/pcre2_match_data.c src/pcre2_newline.c \
@@ -176,6 +176,7 @@ am__libpcre2_16_la_SOURCES_DIST = src/pcre2_auto_possess.c \
 	src/pcre2_valid_utf.c src/pcre2_xclass.c
 am__dirstamp = $(am__leading_dot)dirstamp
 am__objects_1 = src/libpcre2_16_la-pcre2_auto_possess.lo \
+	src/libpcre2_16_la-pcre2_chkdint.lo \
 	src/libpcre2_16_la-pcre2_compile.lo \
 	src/libpcre2_16_la-pcre2_config.lo \
 	src/libpcre2_16_la-pcre2_context.lo \
@@ -217,9 +218,9 @@ libpcre2_16_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
 @WITH_PCRE2_16_TRUE@am_libpcre2_16_la_rpath = -rpath $(libdir)
 libpcre2_32_la_DEPENDENCIES =
 am__libpcre2_32_la_SOURCES_DIST = src/pcre2_auto_possess.c \
-	src/pcre2_compile.c src/pcre2_config.c src/pcre2_context.c \
-	src/pcre2_convert.c src/pcre2_dfa_match.c src/pcre2_error.c \
-	src/pcre2_extuni.c src/pcre2_find_bracket.c \
+	src/pcre2_chkdint.c src/pcre2_compile.c src/pcre2_config.c \
+	src/pcre2_context.c src/pcre2_convert.c src/pcre2_dfa_match.c \
+	src/pcre2_error.c src/pcre2_extuni.c src/pcre2_find_bracket.c \
 	src/pcre2_internal.h src/pcre2_intmodedep.h \
 	src/pcre2_jit_compile.c src/pcre2_maketables.c \
 	src/pcre2_match.c src/pcre2_match_data.c src/pcre2_newline.c \
@@ -230,6 +231,7 @@ am__libpcre2_32_la_SOURCES_DIST = src/pcre2_auto_possess.c \
 	src/pcre2_tables.c src/pcre2_ucd.c src/pcre2_ucp.h \
 	src/pcre2_valid_utf.c src/pcre2_xclass.c
 am__objects_3 = src/libpcre2_32_la-pcre2_auto_possess.lo \
+	src/libpcre2_32_la-pcre2_chkdint.lo \
 	src/libpcre2_32_la-pcre2_compile.lo \
 	src/libpcre2_32_la-pcre2_config.lo \
 	src/libpcre2_32_la-pcre2_context.lo \
@@ -267,9 +269,9 @@ libpcre2_32_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
 @WITH_PCRE2_32_TRUE@am_libpcre2_32_la_rpath = -rpath $(libdir)
 libpcre2_8_la_DEPENDENCIES =
 am__libpcre2_8_la_SOURCES_DIST = src/pcre2_auto_possess.c \
-	src/pcre2_compile.c src/pcre2_config.c src/pcre2_context.c \
-	src/pcre2_convert.c src/pcre2_dfa_match.c src/pcre2_error.c \
-	src/pcre2_extuni.c src/pcre2_find_bracket.c \
+	src/pcre2_chkdint.c src/pcre2_compile.c src/pcre2_config.c \
+	src/pcre2_context.c src/pcre2_convert.c src/pcre2_dfa_match.c \
+	src/pcre2_error.c src/pcre2_extuni.c src/pcre2_find_bracket.c \
 	src/pcre2_internal.h src/pcre2_intmodedep.h \
 	src/pcre2_jit_compile.c src/pcre2_maketables.c \
 	src/pcre2_match.c src/pcre2_match_data.c src/pcre2_newline.c \
@@ -280,6 +282,7 @@ am__libpcre2_8_la_SOURCES_DIST = src/pcre2_auto_possess.c \
 	src/pcre2_tables.c src/pcre2_ucd.c src/pcre2_ucp.h \
 	src/pcre2_valid_utf.c src/pcre2_xclass.c
 am__objects_5 = src/libpcre2_8_la-pcre2_auto_possess.lo \
+	src/libpcre2_8_la-pcre2_chkdint.lo \
 	src/libpcre2_8_la-pcre2_compile.lo \
 	src/libpcre2_8_la-pcre2_config.lo \
 	src/libpcre2_8_la-pcre2_context.lo \
@@ -348,6 +351,7 @@ am__maybe_remake_depfiles = depfiles
 am__depfiles_remade =  \
 	src/$(DEPDIR)/libpcre2_16_la-pcre2_auto_possess.Plo \
 	src/$(DEPDIR)/libpcre2_16_la-pcre2_chartables.Plo \
+	src/$(DEPDIR)/libpcre2_16_la-pcre2_chkdint.Plo \
 	src/$(DEPDIR)/libpcre2_16_la-pcre2_compile.Plo \
 	src/$(DEPDIR)/libpcre2_16_la-pcre2_config.Plo \
 	src/$(DEPDIR)/libpcre2_16_la-pcre2_context.Plo \
@@ -375,6 +379,7 @@ am__depfiles_remade =  \
 	src/$(DEPDIR)/libpcre2_16_la-pcre2_xclass.Plo \
 	src/$(DEPDIR)/libpcre2_32_la-pcre2_auto_possess.Plo \
 	src/$(DEPDIR)/libpcre2_32_la-pcre2_chartables.Plo \
+	src/$(DEPDIR)/libpcre2_32_la-pcre2_chkdint.Plo \
 	src/$(DEPDIR)/libpcre2_32_la-pcre2_compile.Plo \
 	src/$(DEPDIR)/libpcre2_32_la-pcre2_config.Plo \
 	src/$(DEPDIR)/libpcre2_32_la-pcre2_context.Plo \
@@ -402,6 +407,7 @@ am__depfiles_remade =  \
 	src/$(DEPDIR)/libpcre2_32_la-pcre2_xclass.Plo \
 	src/$(DEPDIR)/libpcre2_8_la-pcre2_auto_possess.Plo \
 	src/$(DEPDIR)/libpcre2_8_la-pcre2_chartables.Plo \
+	src/$(DEPDIR)/libpcre2_8_la-pcre2_chkdint.Plo \
 	src/$(DEPDIR)/libpcre2_8_la-pcre2_compile.Plo \
 	src/$(DEPDIR)/libpcre2_8_la-pcre2_config.Plo \
 	src/$(DEPDIR)/libpcre2_8_la-pcre2_context.Plo \
@@ -715,7 +721,6 @@ EXTRA_LIBPCRE2_32_LDFLAGS = @EXTRA_LIBPCRE2_32_LDFLAGS@
 EXTRA_LIBPCRE2_8_LDFLAGS = @EXTRA_LIBPCRE2_8_LDFLAGS@
 EXTRA_LIBPCRE2_POSIX_LDFLAGS = @EXTRA_LIBPCRE2_POSIX_LDFLAGS@
 FGREP = @FGREP@
-FILECMD = @FILECMD@
 GCOV_CFLAGS = @GCOV_CFLAGS@
 GCOV_CXXFLAGS = @GCOV_CXXFLAGS@
 GCOV_LIBS = @GCOV_LIBS@
@@ -755,6 +760,7 @@ PACKAGE_TARNAME = @PACKAGE_TARNAME@
 PACKAGE_URL = @PACKAGE_URL@
 PACKAGE_VERSION = @PACKAGE_VERSION@
 PATH_SEPARATOR = @PATH_SEPARATOR@
+PCRE2POSIX_CFLAG = @PCRE2POSIX_CFLAG@
 PCRE2_DATE = @PCRE2_DATE@
 PCRE2_MAJOR = @PCRE2_MAJOR@
 PCRE2_MINOR = @PCRE2_MINOR@
@@ -879,6 +885,7 @@ BUILT_SOURCES = src/pcre2_chartables.c
 NODIST_SOURCES = src/pcre2_chartables.c
 COMMON_SOURCES = \
   src/pcre2_auto_possess.c \
+  src/pcre2_chkdint.c \
   src/pcre2_compile.c \
   src/pcre2_config.c \
   src/pcre2_context.c \
@@ -949,8 +956,8 @@ COMMON_SOURCES = \
 @WITH_PCRE2_8_TRUE@libpcre2_posix_la_SOURCES = src/pcre2posix.c
 @WITH_PCRE2_8_TRUE@libpcre2_posix_la_CFLAGS =  \
 @WITH_PCRE2_8_TRUE@	-DPCRE2_CODE_UNIT_WIDTH=8 \
-@WITH_PCRE2_8_TRUE@	$(VISIBILITY_CFLAGS) $(AM_CFLAGS) \
-@WITH_PCRE2_8_TRUE@	$(am__append_12)
+@WITH_PCRE2_8_TRUE@	@PCRE2POSIX_CFLAG@ $(VISIBILITY_CFLAGS) \
+@WITH_PCRE2_8_TRUE@	$(AM_CFLAGS) $(am__append_12)
 @WITH_PCRE2_8_TRUE@libpcre2_posix_la_LDFLAGS = $(EXTRA_LIBPCRE2_POSIX_LDFLAGS)
 @WITH_PCRE2_8_TRUE@libpcre2_posix_la_LIBADD = libpcre2-8.la
 
@@ -1135,6 +1142,8 @@ src/$(DEPDIR)/$(am__dirstamp):
 	@: > src/$(DEPDIR)/$(am__dirstamp)
 src/libpcre2_16_la-pcre2_auto_possess.lo: src/$(am__dirstamp) \
 	src/$(DEPDIR)/$(am__dirstamp)
+src/libpcre2_16_la-pcre2_chkdint.lo: src/$(am__dirstamp) \
+	src/$(DEPDIR)/$(am__dirstamp)
 src/libpcre2_16_la-pcre2_compile.lo: src/$(am__dirstamp) \
 	src/$(DEPDIR)/$(am__dirstamp)
 src/libpcre2_16_la-pcre2_config.lo: src/$(am__dirstamp) \
@@ -1192,6 +1201,8 @@ libpcre2-16.la: $(libpcre2_16_la_OBJECTS) $(libpcre2_16_la_DEPENDENCIES) $(EXTRA
 	$(AM_V_CCLD)$(libpcre2_16_la_LINK) $(am_libpcre2_16_la_rpath) $(libpcre2_16_la_OBJECTS) $(libpcre2_16_la_LIBADD) $(LIBS)
 src/libpcre2_32_la-pcre2_auto_possess.lo: src/$(am__dirstamp) \
 	src/$(DEPDIR)/$(am__dirstamp)
+src/libpcre2_32_la-pcre2_chkdint.lo: src/$(am__dirstamp) \
+	src/$(DEPDIR)/$(am__dirstamp)
 src/libpcre2_32_la-pcre2_compile.lo: src/$(am__dirstamp) \
 	src/$(DEPDIR)/$(am__dirstamp)
 src/libpcre2_32_la-pcre2_config.lo: src/$(am__dirstamp) \
@@ -1248,6 +1259,8 @@ src/libpcre2_32_la-pcre2_chartables.lo: src/$(am__dirstamp) \
 libpcre2-32.la: $(libpcre2_32_la_OBJECTS) $(libpcre2_32_la_DEPENDENCIES) $(EXTRA_libpcre2_32_la_DEPENDENCIES) 
 	$(AM_V_CCLD)$(libpcre2_32_la_LINK) $(am_libpcre2_32_la_rpath) $(libpcre2_32_la_OBJECTS) $(libpcre2_32_la_LIBADD) $(LIBS)
 src/libpcre2_8_la-pcre2_auto_possess.lo: src/$(am__dirstamp) \
+	src/$(DEPDIR)/$(am__dirstamp)
+src/libpcre2_8_la-pcre2_chkdint.lo: src/$(am__dirstamp) \
 	src/$(DEPDIR)/$(am__dirstamp)
 src/libpcre2_8_la-pcre2_compile.lo: src/$(am__dirstamp) \
 	src/$(DEPDIR)/$(am__dirstamp)
@@ -1361,6 +1374,7 @@ distclean-compile:
 
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/libpcre2_16_la-pcre2_auto_possess.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/libpcre2_16_la-pcre2_chartables.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/libpcre2_16_la-pcre2_chkdint.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/libpcre2_16_la-pcre2_compile.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/libpcre2_16_la-pcre2_config.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/libpcre2_16_la-pcre2_context.Plo@am__quote@ # am--include-marker
@@ -1388,6 +1402,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/libpcre2_16_la-pcre2_xclass.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/libpcre2_32_la-pcre2_auto_possess.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/libpcre2_32_la-pcre2_chartables.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/libpcre2_32_la-pcre2_chkdint.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/libpcre2_32_la-pcre2_compile.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/libpcre2_32_la-pcre2_config.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/libpcre2_32_la-pcre2_context.Plo@am__quote@ # am--include-marker
@@ -1415,6 +1430,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/libpcre2_32_la-pcre2_xclass.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/libpcre2_8_la-pcre2_auto_possess.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/libpcre2_8_la-pcre2_chartables.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/libpcre2_8_la-pcre2_chkdint.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/libpcre2_8_la-pcre2_compile.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/libpcre2_8_la-pcre2_config.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/libpcre2_8_la-pcre2_context.Plo@am__quote@ # am--include-marker
@@ -1479,6 +1495,13 @@ src/libpcre2_16_la-pcre2_auto_possess.lo: src/pcre2_auto_possess.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='src/pcre2_auto_possess.c' object='src/libpcre2_16_la-pcre2_auto_possess.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libpcre2_16_la_CFLAGS) $(CFLAGS) -c -o src/libpcre2_16_la-pcre2_auto_possess.lo `test -f 'src/pcre2_auto_possess.c' || echo '$(srcdir)/'`src/pcre2_auto_possess.c
+
+src/libpcre2_16_la-pcre2_chkdint.lo: src/pcre2_chkdint.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libpcre2_16_la_CFLAGS) $(CFLAGS) -MT src/libpcre2_16_la-pcre2_chkdint.lo -MD -MP -MF src/$(DEPDIR)/libpcre2_16_la-pcre2_chkdint.Tpo -c -o src/libpcre2_16_la-pcre2_chkdint.lo `test -f 'src/pcre2_chkdint.c' || echo '$(srcdir)/'`src/pcre2_chkdint.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) src/$(DEPDIR)/libpcre2_16_la-pcre2_chkdint.Tpo src/$(DEPDIR)/libpcre2_16_la-pcre2_chkdint.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='src/pcre2_chkdint.c' object='src/libpcre2_16_la-pcre2_chkdint.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libpcre2_16_la_CFLAGS) $(CFLAGS) -c -o src/libpcre2_16_la-pcre2_chkdint.lo `test -f 'src/pcre2_chkdint.c' || echo '$(srcdir)/'`src/pcre2_chkdint.c
 
 src/libpcre2_16_la-pcre2_compile.lo: src/pcre2_compile.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libpcre2_16_la_CFLAGS) $(CFLAGS) -MT src/libpcre2_16_la-pcre2_compile.lo -MD -MP -MF src/$(DEPDIR)/libpcre2_16_la-pcre2_compile.Tpo -c -o src/libpcre2_16_la-pcre2_compile.lo `test -f 'src/pcre2_compile.c' || echo '$(srcdir)/'`src/pcre2_compile.c
@@ -1669,6 +1692,13 @@ src/libpcre2_32_la-pcre2_auto_possess.lo: src/pcre2_auto_possess.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libpcre2_32_la_CFLAGS) $(CFLAGS) -c -o src/libpcre2_32_la-pcre2_auto_possess.lo `test -f 'src/pcre2_auto_possess.c' || echo '$(srcdir)/'`src/pcre2_auto_possess.c
 
+src/libpcre2_32_la-pcre2_chkdint.lo: src/pcre2_chkdint.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libpcre2_32_la_CFLAGS) $(CFLAGS) -MT src/libpcre2_32_la-pcre2_chkdint.lo -MD -MP -MF src/$(DEPDIR)/libpcre2_32_la-pcre2_chkdint.Tpo -c -o src/libpcre2_32_la-pcre2_chkdint.lo `test -f 'src/pcre2_chkdint.c' || echo '$(srcdir)/'`src/pcre2_chkdint.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) src/$(DEPDIR)/libpcre2_32_la-pcre2_chkdint.Tpo src/$(DEPDIR)/libpcre2_32_la-pcre2_chkdint.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='src/pcre2_chkdint.c' object='src/libpcre2_32_la-pcre2_chkdint.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libpcre2_32_la_CFLAGS) $(CFLAGS) -c -o src/libpcre2_32_la-pcre2_chkdint.lo `test -f 'src/pcre2_chkdint.c' || echo '$(srcdir)/'`src/pcre2_chkdint.c
+
 src/libpcre2_32_la-pcre2_compile.lo: src/pcre2_compile.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libpcre2_32_la_CFLAGS) $(CFLAGS) -MT src/libpcre2_32_la-pcre2_compile.lo -MD -MP -MF src/$(DEPDIR)/libpcre2_32_la-pcre2_compile.Tpo -c -o src/libpcre2_32_la-pcre2_compile.lo `test -f 'src/pcre2_compile.c' || echo '$(srcdir)/'`src/pcre2_compile.c
 @am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) src/$(DEPDIR)/libpcre2_32_la-pcre2_compile.Tpo src/$(DEPDIR)/libpcre2_32_la-pcre2_compile.Plo
@@ -1857,6 +1887,13 @@ src/libpcre2_8_la-pcre2_auto_possess.lo: src/pcre2_auto_possess.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='src/pcre2_auto_possess.c' object='src/libpcre2_8_la-pcre2_auto_possess.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libpcre2_8_la_CFLAGS) $(CFLAGS) -c -o src/libpcre2_8_la-pcre2_auto_possess.lo `test -f 'src/pcre2_auto_possess.c' || echo '$(srcdir)/'`src/pcre2_auto_possess.c
+
+src/libpcre2_8_la-pcre2_chkdint.lo: src/pcre2_chkdint.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libpcre2_8_la_CFLAGS) $(CFLAGS) -MT src/libpcre2_8_la-pcre2_chkdint.lo -MD -MP -MF src/$(DEPDIR)/libpcre2_8_la-pcre2_chkdint.Tpo -c -o src/libpcre2_8_la-pcre2_chkdint.lo `test -f 'src/pcre2_chkdint.c' || echo '$(srcdir)/'`src/pcre2_chkdint.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) src/$(DEPDIR)/libpcre2_8_la-pcre2_chkdint.Tpo src/$(DEPDIR)/libpcre2_8_la-pcre2_chkdint.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='src/pcre2_chkdint.c' object='src/libpcre2_8_la-pcre2_chkdint.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libpcre2_8_la_CFLAGS) $(CFLAGS) -c -o src/libpcre2_8_la-pcre2_chkdint.lo `test -f 'src/pcre2_chkdint.c' || echo '$(srcdir)/'`src/pcre2_chkdint.c
 
 src/libpcre2_8_la-pcre2_compile.lo: src/pcre2_compile.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libpcre2_8_la_CFLAGS) $(CFLAGS) -MT src/libpcre2_8_la-pcre2_compile.lo -MD -MP -MF src/$(DEPDIR)/libpcre2_8_la-pcre2_compile.Tpo -c -o src/libpcre2_8_la-pcre2_compile.lo `test -f 'src/pcre2_compile.c' || echo '$(srcdir)/'`src/pcre2_compile.c
@@ -2591,6 +2628,7 @@ distclean: distclean-am
 	-rm -f $(am__CONFIG_DISTCLEAN_FILES)
 		-rm -f src/$(DEPDIR)/libpcre2_16_la-pcre2_auto_possess.Plo
 	-rm -f src/$(DEPDIR)/libpcre2_16_la-pcre2_chartables.Plo
+	-rm -f src/$(DEPDIR)/libpcre2_16_la-pcre2_chkdint.Plo
 	-rm -f src/$(DEPDIR)/libpcre2_16_la-pcre2_compile.Plo
 	-rm -f src/$(DEPDIR)/libpcre2_16_la-pcre2_config.Plo
 	-rm -f src/$(DEPDIR)/libpcre2_16_la-pcre2_context.Plo
@@ -2618,6 +2656,7 @@ distclean: distclean-am
 	-rm -f src/$(DEPDIR)/libpcre2_16_la-pcre2_xclass.Plo
 	-rm -f src/$(DEPDIR)/libpcre2_32_la-pcre2_auto_possess.Plo
 	-rm -f src/$(DEPDIR)/libpcre2_32_la-pcre2_chartables.Plo
+	-rm -f src/$(DEPDIR)/libpcre2_32_la-pcre2_chkdint.Plo
 	-rm -f src/$(DEPDIR)/libpcre2_32_la-pcre2_compile.Plo
 	-rm -f src/$(DEPDIR)/libpcre2_32_la-pcre2_config.Plo
 	-rm -f src/$(DEPDIR)/libpcre2_32_la-pcre2_context.Plo
@@ -2645,6 +2684,7 @@ distclean: distclean-am
 	-rm -f src/$(DEPDIR)/libpcre2_32_la-pcre2_xclass.Plo
 	-rm -f src/$(DEPDIR)/libpcre2_8_la-pcre2_auto_possess.Plo
 	-rm -f src/$(DEPDIR)/libpcre2_8_la-pcre2_chartables.Plo
+	-rm -f src/$(DEPDIR)/libpcre2_8_la-pcre2_chkdint.Plo
 	-rm -f src/$(DEPDIR)/libpcre2_8_la-pcre2_compile.Plo
 	-rm -f src/$(DEPDIR)/libpcre2_8_la-pcre2_config.Plo
 	-rm -f src/$(DEPDIR)/libpcre2_8_la-pcre2_context.Plo
@@ -2723,6 +2763,7 @@ maintainer-clean: maintainer-clean-am
 	-rm -rf $(top_srcdir)/autom4te.cache
 		-rm -f src/$(DEPDIR)/libpcre2_16_la-pcre2_auto_possess.Plo
 	-rm -f src/$(DEPDIR)/libpcre2_16_la-pcre2_chartables.Plo
+	-rm -f src/$(DEPDIR)/libpcre2_16_la-pcre2_chkdint.Plo
 	-rm -f src/$(DEPDIR)/libpcre2_16_la-pcre2_compile.Plo
 	-rm -f src/$(DEPDIR)/libpcre2_16_la-pcre2_config.Plo
 	-rm -f src/$(DEPDIR)/libpcre2_16_la-pcre2_context.Plo
@@ -2750,6 +2791,7 @@ maintainer-clean: maintainer-clean-am
 	-rm -f src/$(DEPDIR)/libpcre2_16_la-pcre2_xclass.Plo
 	-rm -f src/$(DEPDIR)/libpcre2_32_la-pcre2_auto_possess.Plo
 	-rm -f src/$(DEPDIR)/libpcre2_32_la-pcre2_chartables.Plo
+	-rm -f src/$(DEPDIR)/libpcre2_32_la-pcre2_chkdint.Plo
 	-rm -f src/$(DEPDIR)/libpcre2_32_la-pcre2_compile.Plo
 	-rm -f src/$(DEPDIR)/libpcre2_32_la-pcre2_config.Plo
 	-rm -f src/$(DEPDIR)/libpcre2_32_la-pcre2_context.Plo
@@ -2777,6 +2819,7 @@ maintainer-clean: maintainer-clean-am
 	-rm -f src/$(DEPDIR)/libpcre2_32_la-pcre2_xclass.Plo
 	-rm -f src/$(DEPDIR)/libpcre2_8_la-pcre2_auto_possess.Plo
 	-rm -f src/$(DEPDIR)/libpcre2_8_la-pcre2_chartables.Plo
+	-rm -f src/$(DEPDIR)/libpcre2_8_la-pcre2_chkdint.Plo
 	-rm -f src/$(DEPDIR)/libpcre2_8_la-pcre2_compile.Plo
 	-rm -f src/$(DEPDIR)/libpcre2_8_la-pcre2_config.Plo
 	-rm -f src/$(DEPDIR)/libpcre2_8_la-pcre2_context.Plo
@@ -2873,8 +2916,7 @@ src/pcre2.h.generic: src/pcre2.h.in configure.ac
 # config.status out of the way while doing the default configuration. The
 # resulting config.h is munged by perl to put #ifdefs round any #defines for
 # macros with values, and to #undef all boolean macros such as HAVE_xxx and
-# SUPPORT_xxx. We also get rid of any gcc-specific visibility settings. Make
-# sure that PCRE2_EXP_DEFN is unset (in case it has visibility settings).
+# SUPPORT_xxx. We also get rid of any gcc-specific visibility settings.
 
 src/config.h.generic: configure.ac
 	rm -rf $@ _generic
@@ -2885,9 +2927,7 @@ src/config.h.generic: configure.ac
 	test -f _generic/src/config.h
 	perl -n \
 	  -e 'BEGIN{$$blank=0;}' \
-	  -e 'if(/PCRE2_EXP_DEFN/){print"/* #undef PCRE2_EXP_DEFN */\n";$$blank=0;next;}' \
-	  -e 'if(/to make a symbol visible/){next;}' \
-	  -e 'if(/__attribute__ \(\(visibility/){next;}' \
+	  -e 'if(/(.+?)\s*__attribute__ \(\(visibility/){print"$$1\n";$$blank=0;next;}' \
 	  -e 'if(/LT_OBJDIR/){print"/* This is ignored unless you are using libtool. */\n";}' \
 	  -e 'if(/^#define\s((?:HAVE|SUPPORT|STDC)_\w+)/){print"/* #undef $$1 */\n";$$blank=0;next;}' \
 	  -e 'if(/^#define\s(?!PACKAGE|VERSION)(\w+)/){print"#ifndef $$1\n$$_#endif\n";$$blank=0;next;}' \

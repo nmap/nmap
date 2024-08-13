@@ -39,39 +39,60 @@
 
 #include "libssh2_priv.h"
 #include "misc.h"
-#include "blf.h"
-
-#ifdef HAVE_STDLIB_H
-#include <stdlib.h>
-#endif
 
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
 
-#ifdef HAVE_SYS_TIME_H
-#include <sys/time.h>
-#endif
-
-#if defined(HAVE_DECL_SECUREZEROMEMORY) && HAVE_DECL_SECUREZEROMEMORY
-#ifdef HAVE_WINDOWS_H
-#include <windows.h>
-#endif
-#endif
-
-#include <stdio.h>
 #include <errno.h>
+#include <assert.h>
+
+#ifdef WIN32
+/* Force parameter type. */
+#define recv(s, b, l, f)  recv((s), (b), (int)(l), (f))
+#define send(s, b, l, f)  send((s), (b), (int)(l), (f))
+#endif
+
+/* snprintf not in Visual Studio CRT and _snprintf dangerously incompatible.
+   We provide a safe wrapper if snprintf not found */
+#ifdef LIBSSH2_SNPRINTF
+#include <stdarg.h>
+
+/* Want safe, 'n += snprintf(b + n ...)' like function. If cp_max_len is 1
+* then assume cp is pointing to a null char and do nothing. Returns number
+* number of chars placed in cp excluding the trailing null char. So for
+* cp_max_len > 0 the return value is always < cp_max_len; for cp_max_len
+* <= 0 the return value is 0 (and no chars are written to cp). */
+int _libssh2_snprintf(char *cp, size_t cp_max_len, const char *fmt, ...)
+{
+    va_list args;
+    int n;
+
+    if(cp_max_len < 2)
+        return 0;
+    va_start(args, fmt);
+    n = vsnprintf(cp, cp_max_len, fmt, args);
+    va_end(args);
+    return (n < (int)cp_max_len) ? n : (int)(cp_max_len - 1);
+}
+#endif
 
 int _libssh2_error_flags(LIBSSH2_SESSION* session, int errcode,
                          const char *errmsg, int errflags)
 {
+    if(!session) {
+        if(errmsg)
+            fprintf(stderr, "Session is NULL, error: %s\n", errmsg);
+        return errcode;
+    }
+
     if(session->err_flags & LIBSSH2_ERR_FLAG_DUP)
         LIBSSH2_FREE(session, (char *)session->err_msg);
 
     session->err_code = errcode;
     session->err_flags = 0;
 
-    if((errmsg != NULL) && ((errflags & LIBSSH2_ERR_FLAG_DUP) != 0)) {
+    if(errmsg && ((errflags & LIBSSH2_ERR_FLAG_DUP) != 0)) {
         size_t len = strlen(errmsg);
         char *copy = LIBSSH2_ALLOC(session, len + 1);
         if(copy) {
@@ -91,8 +112,8 @@ int _libssh2_error_flags(LIBSSH2_SESSION* session, int errcode,
         /* if this is EAGAIN and we're in non-blocking mode, don't generate
            a debug output for this */
         return errcode;
-    _libssh2_debug(session, LIBSSH2_TRACE_ERROR, "%d - %s", session->err_code,
-                   session->err_msg);
+    _libssh2_debug((session, LIBSSH2_TRACE_ERROR, "%d - %s", session->err_code,
+                   session->err_msg));
 #endif
 
     return errcode;
@@ -135,7 +156,7 @@ _libssh2_recv(libssh2_socket_t sock, void *buffer, size_t length,
 {
     ssize_t rc;
 
-    (void) abstract;
+    (void)abstract;
 
     rc = recv(sock, buffer, length, flags);
 #ifdef WIN32
@@ -168,7 +189,7 @@ _libssh2_send(libssh2_socket_t sock, const void *buffer, size_t length,
 {
     ssize_t rc;
 
-    (void) abstract;
+    (void)abstract;
 
     rc = send(sock, buffer, length, flags);
 #ifdef WIN32
@@ -177,10 +198,10 @@ _libssh2_send(libssh2_socket_t sock, const void *buffer, size_t length,
 #else
     if(rc < 0) {
 #ifdef EWOULDBLOCK /* For VMS and other special unixes */
-      if(errno == EWOULDBLOCK)
-        return -EAGAIN;
+        if(errno == EWOULDBLOCK)
+            return -EAGAIN;
 #endif
-      return -errno;
+        return -errno;
     }
 #endif
     return rc;
@@ -188,13 +209,13 @@ _libssh2_send(libssh2_socket_t sock, const void *buffer, size_t length,
 
 /* libssh2_ntohu32
  */
-unsigned int
+uint32_t
 _libssh2_ntohu32(const unsigned char *buf)
 {
-    return (((unsigned int)buf[0] << 24)
-           | ((unsigned int)buf[1] << 16)
-           | ((unsigned int)buf[2] << 8)
-           | ((unsigned int)buf[3]));
+    return ((uint32_t)buf[0] << 24)
+         | ((uint32_t)buf[1] << 16)
+         | ((uint32_t)buf[2] << 8)
+         | ((uint32_t)buf[3]);
 }
 
 
@@ -203,14 +224,14 @@ _libssh2_ntohu32(const unsigned char *buf)
 libssh2_uint64_t
 _libssh2_ntohu64(const unsigned char *buf)
 {
-    unsigned long msl, lsl;
-
-    msl = ((libssh2_uint64_t)buf[0] << 24) | ((libssh2_uint64_t)buf[1] << 16)
-        | ((libssh2_uint64_t)buf[2] << 8) | (libssh2_uint64_t)buf[3];
-    lsl = ((libssh2_uint64_t)buf[4] << 24) | ((libssh2_uint64_t)buf[5] << 16)
-        | ((libssh2_uint64_t)buf[6] << 8) | (libssh2_uint64_t)buf[7];
-
-    return ((libssh2_uint64_t)msl <<32) | lsl;
+    return ((libssh2_uint64_t)buf[0] << 56)
+         | ((libssh2_uint64_t)buf[1] << 48)
+         | ((libssh2_uint64_t)buf[2] << 40)
+         | ((libssh2_uint64_t)buf[3] << 32)
+         | ((libssh2_uint64_t)buf[4] << 24)
+         | ((libssh2_uint64_t)buf[5] << 16)
+         | ((libssh2_uint64_t)buf[6] <<  8)
+         | ((libssh2_uint64_t)buf[7]);
 }
 
 /* _libssh2_htonu32
@@ -218,7 +239,7 @@ _libssh2_ntohu64(const unsigned char *buf)
 void
 _libssh2_htonu32(unsigned char *buf, uint32_t value)
 {
-    buf[0] = (value >> 24) & 0xFF;
+    buf[0] = (unsigned char)((value >> 24) & 0xFF);
     buf[1] = (value >> 16) & 0xFF;
     buf[2] = (value >> 8) & 0xFF;
     buf[3] = value & 0xFF;
@@ -234,13 +255,50 @@ void _libssh2_store_u32(unsigned char **buf, uint32_t value)
 
 /* _libssh2_store_str
  */
-void _libssh2_store_str(unsigned char **buf, const char *str, size_t len)
+int _libssh2_store_str(unsigned char **buf, const char *str, size_t len)
 {
-    _libssh2_store_u32(buf, (uint32_t)len);
-    if(len) {
-        memcpy(*buf, str, len);
-        *buf += len;
+    uint32_t len_stored = (uint32_t)len;
+
+    _libssh2_store_u32(buf, len_stored);
+    if(len_stored) {
+        memcpy(*buf, str, len_stored);
+        *buf += len_stored;
     }
+
+    assert(len_stored == len);
+    return len_stored == len;
+}
+
+/* _libssh2_store_bignum2_bytes
+ */
+int _libssh2_store_bignum2_bytes(unsigned char **buf,
+                                 const unsigned char *bytes,
+                                 size_t len)
+{
+    uint32_t len_stored;
+    uint32_t extraByte;
+    const unsigned char *p;
+
+    for(p = bytes; len > 0 && *p == 0; --len, ++p) {}
+
+    extraByte = (len > 0 && (p[0] & 0x80) != 0);
+    len_stored = (uint32_t)len;
+    if(extraByte && len_stored == 0xffffffff)
+        len_stored--;
+    _libssh2_store_u32(buf, len_stored + extraByte);
+
+    if(extraByte) {
+        *buf[0] = 0;
+        *buf += 1;
+    }
+
+    if(len_stored) {
+        memcpy(*buf, p, len_stored);
+        *buf += len_stored;
+    }
+
+    assert(len_stored == len);
+    return len_stored == len;
 }
 
 /* Base64 Conversion */
@@ -266,26 +324,46 @@ static const short base64_reverse_table[256] = {
 
 /* libssh2_base64_decode
  *
- * Decode a base64 chunk and store it into a newly alloc'd buffer
+ * Legacy public function. DEPRECATED.
  */
 LIBSSH2_API int
 libssh2_base64_decode(LIBSSH2_SESSION *session, char **data,
                       unsigned int *datalen, const char *src,
                       unsigned int src_len)
 {
-    unsigned char *s, *d;
-    short v;
-    int i = 0, len = 0;
+    int rc;
+    size_t dlen;
 
-    *data = LIBSSH2_ALLOC(session, (3 * src_len / 4) + 1);
+    rc = _libssh2_base64_decode(session, data, &dlen, src, src_len);
+
+    if(datalen)
+        *datalen = (unsigned int)dlen;
+
+    return rc;
+}
+
+/* _libssh2_base64_decode
+ *
+ * Decode a base64 chunk and store it into a newly alloc'd buffer
+ */
+int _libssh2_base64_decode(LIBSSH2_SESSION *session,
+                           char **data, size_t *datalen,
+                           const char *src, size_t src_len)
+{
+    unsigned char *d;
+    const char *s;
+    short v;
+    ssize_t i = 0, len = 0;
+
+    *data = LIBSSH2_ALLOC(session, ((src_len / 4) * 3) + 1);
     d = (unsigned char *) *data;
     if(!d) {
         return _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
                               "Unable to allocate memory for base64 decoding");
     }
 
-    for(s = (unsigned char *) src; ((char *) s) < (src + src_len); s++) {
-        v = base64_reverse_table[*s];
+    for(s = src; s < (src + src_len); s++) {
+        v = base64_reverse_table[(unsigned char)*s];
         if(v < 0)
             continue;
         switch(i % 4) {
@@ -293,15 +371,15 @@ libssh2_base64_decode(LIBSSH2_SESSION *session, char **data,
             d[len] = (unsigned char)(v << 2);
             break;
         case 1:
-            d[len++] |= v >> 4;
+            d[len++] |= (unsigned char)(v >> 4);
             d[len] = (unsigned char)(v << 4);
             break;
         case 2:
-            d[len++] |= v >> 2;
+            d[len++] |= (unsigned char)(v >> 2);
             d[len] = (unsigned char)(v << 6);
             break;
         case 3:
-            d[len++] |= v;
+            d[len++] |= (unsigned char)v;
             break;
         }
         i++;
@@ -320,10 +398,10 @@ libssh2_base64_decode(LIBSSH2_SESSION *session, char **data,
 
 /* ---- Base64 Encoding/Decoding Table --- */
 static const char table64[]=
-  "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
 /*
- * _libssh2_base64_encode()
+ * _libssh2_base64_encode
  *
  * Returns the length of the newly created base64 string. The third argument
  * is a pointer to an allocated area holding the base64 data. If something
@@ -344,11 +422,11 @@ size_t _libssh2_base64_encode(LIBSSH2_SESSION *session,
     *outptr = NULL; /* set to NULL in case of failure before we reach the
                        end */
 
-    if(0 == insize)
+    if(insize == 0)
         insize = strlen(indata);
 
     base64data = output = LIBSSH2_ALLOC(session, insize * 4 / 3 + 4);
-    if(NULL == output)
+    if(!output)
         return 0;
 
     while(insize > 0) {
@@ -372,22 +450,22 @@ size_t _libssh2_base64_encode(LIBSSH2_SESSION *session,
 
         switch(inputparts) {
         case 1: /* only one byte read */
-            snprintf(output, 5, "%c%c==",
-                     table64[obuf[0]],
-                     table64[obuf[1]]);
+            output[0] = table64[obuf[0]];
+            output[1] = table64[obuf[1]];
+            output[2] = '=';
+            output[3] = '=';
             break;
         case 2: /* two bytes read */
-            snprintf(output, 5, "%c%c%c=",
-                     table64[obuf[0]],
-                     table64[obuf[1]],
-                     table64[obuf[2]]);
+            output[0] = table64[obuf[0]];
+            output[1] = table64[obuf[1]];
+            output[2] = table64[obuf[2]];
+            output[3] = '=';
             break;
         default:
-            snprintf(output, 5, "%c%c%c%c",
-                     table64[obuf[0]],
-                     table64[obuf[1]],
-                     table64[obuf[2]],
-                     table64[obuf[3]]);
+            output[0] = table64[obuf[0]];
+            output[1] = table64[obuf[1]];
+            output[2] = table64[obuf[2]];
+            output[3] = table64[obuf[3]];
             break;
         }
         output += 4;
@@ -425,13 +503,14 @@ libssh2_trace_sethandler(LIBSSH2_SESSION *session, void *handler_context,
 }
 
 void
-_libssh2_debug(LIBSSH2_SESSION * session, int context, const char *format, ...)
+_libssh2_debug_low(LIBSSH2_SESSION * session, int context, const char *format,
+                   ...)
 {
     char buffer[1536];
     int len, msglen, buflen = sizeof(buffer);
     va_list vargs;
     struct timeval now;
-    static int firstsec;
+    static long firstsec;
     static const char *const contexts[] = {
         "Unknown",
         "Transport",
@@ -461,7 +540,7 @@ _libssh2_debug(LIBSSH2_SESSION * session, int context, const char *format, ...)
         }
     }
 
-    _libssh2_gettimeofday(&now, NULL);
+    gettimeofday(&now, NULL);
     if(!firstsec) {
         firstsec = now.tv_sec;
     }
@@ -492,8 +571,8 @@ _libssh2_debug(LIBSSH2_SESSION * session, int context, const char *format, ...)
 LIBSSH2_API int
 libssh2_trace(LIBSSH2_SESSION * session, int bitmask)
 {
-    (void) session;
-    (void) bitmask;
+    (void)session;
+    (void)bitmask;
     return 0;
 }
 
@@ -501,9 +580,9 @@ LIBSSH2_API int
 libssh2_trace_sethandler(LIBSSH2_SESSION *session, void *handler_context,
                          libssh2_trace_handler_func callback)
 {
-    (void) session;
-    (void) handler_context;
-    (void) callback;
+    (void)session;
+    (void)handler_context;
+    (void)callback;
     return 0;
 }
 #endif
@@ -600,10 +679,10 @@ void _libssh2_list_insert(struct list_node *after, /* insert before this */
 
 #endif
 
-/* this define is defined in misc.h for the correct platforms */
-#ifdef LIBSSH2_GETTIMEOFDAY_WIN32
+/* Defined in libssh2_priv.h for the correct platforms */
+#ifdef LIBSSH2_GETTIMEOFDAY
 /*
- * gettimeofday
+ * _libssh2_gettimeofday
  * Implementation according to:
  * The Open Group Base Specifications Issue 6
  * IEEE Std 1003.1, 2004 Edition
@@ -624,27 +703,31 @@ void _libssh2_list_insert(struct list_node *after, /* insert before this */
  *  Danny Smith <dannysmith@users.sourceforge.net>
  */
 
-/* Offset between 1/1/1601 and 1/1/1970 in 100 nanosec units */
-#define _W32_FT_OFFSET (116444736000000000)
-
-int __cdecl _libssh2_gettimeofday(struct timeval *tp, void *tzp)
+int _libssh2_gettimeofday(struct timeval *tp, void *tzp)
 {
-    union {
-        unsigned __int64 ns100; /*time since 1 Jan 1601 in 100ns units */
-        FILETIME ft;
-    } _now;
     (void)tzp;
     if(tp) {
+#ifdef WIN32
+        /* Offset between 1601-01-01 and 1970-01-01 in 100 nanosec units */
+        #define _WIN32_FT_OFFSET (116444736000000000)
+
+        union {
+            libssh2_uint64_t ns100; /* time since 1 Jan 1601 in 100ns units */
+            FILETIME ft;
+        } _now;
         GetSystemTimeAsFileTime(&_now.ft);
         tp->tv_usec = (long)((_now.ns100 / 10) % 1000000);
-        tp->tv_sec = (long)((_now.ns100 - _W32_FT_OFFSET) / 10000000);
+        tp->tv_sec = (long)((_now.ns100 - _WIN32_FT_OFFSET) / 10000000);
+#else
+        /* Platforms without a native implementation or local replacement */
+        tp->tv_usec = 0;
+        tp->tv_sec = 0;
+#endif
     }
     /* Always return 0 as per Open Group Base Specifications Issue 6.
        Do not set errno on error.  */
     return 0;
 }
-
-
 #endif
 
 void *_libssh2_calloc(LIBSSH2_SESSION* session, size_t size)
@@ -687,34 +770,23 @@ void _libssh2_aes_ctr_increment(unsigned char *ctr,
     }
 }
 
-#ifdef WIN32
-static void * (__cdecl * const volatile memset_libssh)(void *, int, size_t) =
-    memset;
-#else
+#ifdef LIBSSH2_MEMZERO
 static void * (* const volatile memset_libssh)(void *, int, size_t) = memset;
-#endif
 
-void _libssh2_explicit_zero(void *buf, size_t size)
+void _libssh2_memzero(void *buf, size_t size)
 {
-#if defined(HAVE_DECL_SECUREZEROMEMORY) && HAVE_DECL_SECUREZEROMEMORY
-    SecureZeroMemory(buf, size);
-    (void)memset_libssh; /* Silence unused variable warning */
-#elif defined(HAVE_MEMSET_S)
-    (void)memset_s(buf, size, 0, size);
-    (void)memset_libssh; /* Silence unused variable warning */
-#else
     memset_libssh(buf, 0, size);
-#endif
 }
+#endif
 
 /* String buffer */
 
-struct string_buf* _libssh2_string_buf_new(LIBSSH2_SESSION *session)
+struct string_buf *_libssh2_string_buf_new(LIBSSH2_SESSION *session)
 {
     struct string_buf *ret;
 
     ret = _libssh2_calloc(session, sizeof(*ret));
-    if(ret == NULL)
+    if(!ret)
         return NULL;
 
     return ret;
@@ -722,14 +794,37 @@ struct string_buf* _libssh2_string_buf_new(LIBSSH2_SESSION *session)
 
 void _libssh2_string_buf_free(LIBSSH2_SESSION *session, struct string_buf *buf)
 {
-    if(buf == NULL)
+    if(!buf)
         return;
 
-    if(buf->data != NULL)
+    if(buf->data)
         LIBSSH2_FREE(session, buf->data);
 
     LIBSSH2_FREE(session, buf);
     buf = NULL;
+}
+
+int _libssh2_get_byte(struct string_buf *buf, unsigned char *out)
+{
+    if(!_libssh2_check_length(buf, 1)) {
+        return -1;
+    }
+
+    *out = buf->dataptr[0];
+    buf->dataptr += 1;
+    return 0;
+}
+
+int _libssh2_get_boolean(struct string_buf *buf, unsigned char *out)
+{
+    if(!_libssh2_check_length(buf, 1)) {
+        return -1;
+    }
+
+
+    *out = buf->dataptr[0] == 0 ? 0 : 1;
+    buf->dataptr += 1;
+    return 0;
 }
 
 int _libssh2_get_u32(struct string_buf *buf, uint32_t *out)
@@ -769,7 +864,7 @@ int _libssh2_get_string(struct string_buf *buf, unsigned char **outbuf,
                         size_t *outlen)
 {
     uint32_t data_len;
-    if(_libssh2_get_u32(buf, &data_len) != 0) {
+    if(!buf || _libssh2_get_u32(buf, &data_len) != 0) {
         return -1;
     }
     if(!_libssh2_check_length(buf, data_len)) {
@@ -794,12 +889,18 @@ int _libssh2_copy_string(LIBSSH2_SESSION *session, struct string_buf *buf,
         return -1;
     }
 
-    *outbuf = LIBSSH2_ALLOC(session, str_len);
-    if(*outbuf) {
-        memcpy(*outbuf, str, str_len);
+    if(str_len) {
+        *outbuf = LIBSSH2_ALLOC(session, str_len);
+        if(*outbuf) {
+            memcpy(*outbuf, str, str_len);
+        }
+        else {
+            return -1;
+        }
     }
     else {
-        return -1;
+        *outlen = 0;
+        *outbuf = NULL;
     }
 
     if(outlen)
@@ -848,25 +949,11 @@ int _libssh2_check_length(struct string_buf *buf, size_t len)
 {
     unsigned char *endp = &buf->data[buf->len];
     size_t left = endp - buf->dataptr;
-    return ((len <= left) && (left <= buf->len));
+    return (len <= left) && (left <= buf->len);
 }
 
-/* Wrappers */
-
-int _libssh2_bcrypt_pbkdf(const char *pass,
-                          size_t passlen,
-                          const uint8_t *salt,
-                          size_t saltlen,
-                          uint8_t *key,
-                          size_t keylen,
-                          unsigned int rounds)
+int _libssh2_eob(struct string_buf *buf)
 {
-    /* defined in bcrypt_pbkdf.c */
-    return bcrypt_pbkdf(pass,
-                        passlen,
-                        salt,
-                        saltlen,
-                        key,
-                        keylen,
-                        rounds);
+    unsigned char *endp = &buf->data[buf->len];
+    return buf->dataptr >= endp;
 }

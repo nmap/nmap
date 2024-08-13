@@ -52,26 +52,6 @@ prerule = function()
   return true
 end
 
--- Gets a list of available interfaces based on link and up filters
---
--- @param link string containing the link type to filter
--- @param up string containing the interface status to filter
--- @return result table containing the matching interfaces
-local function getInterfaces(link, up)
-  if( not(nmap.list_interfaces) ) then return end
-  local interfaces, err = nmap.list_interfaces()
-  local result
-  if ( not(err) ) then
-    for _, iface in ipairs(interfaces) do
-      if ( iface.link == link and iface.up == up ) then
-        result = result or {}
-        result[iface.device] = true
-      end
-    end
-  end
-  return result
-end
-
 local function solicit(iface, result)
   local condvar = nmap.condvar(result)
   local helper = dhcp6.Helper:new(iface)
@@ -90,15 +70,16 @@ end
 
 action = function(host, port)
 
-  local iface = nmap.get_interface()
   local ifs, result, threads = {}, {}, {}
   local condvar = nmap.condvar(result)
 
-  if ( iface ) then
-    ifs[iface] = true
-  else
-    ifs = getInterfaces("ethernet", "up")
+  local ifs = {}
+  local collect_interfaces = function (if_table)
+    if if_table and if_table.up == "up" and if_table.link=="ethernet" then
+      ifs[if_table.device] = if_table
+    end
   end
+  stdnse.get_script_interfaces(collect_interfaces)
 
   for iface in pairs(ifs) do
     local co = stdnse.new_thread( solicit, iface, result )

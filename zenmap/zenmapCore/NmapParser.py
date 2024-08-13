@@ -2,7 +2,7 @@
 
 # ***********************IMPORTANT NMAP LICENSE TERMS************************
 # *
-# * The Nmap Security Scanner is (C) 1996-2023 Nmap Software LLC ("The Nmap
+# * The Nmap Security Scanner is (C) 1996-2024 Nmap Software LLC ("The Nmap
 # * Project"). Nmap is also a registered trademark of the Nmap Project.
 # *
 # * This program is distributed under the terms of the Nmap Public Source
@@ -37,15 +37,16 @@
 # * right to know exactly what a program is going to do before they run it.
 # * This also allows you to audit the software for security holes.
 # *
-# * Source code also allows you to port Nmap to new platforms, fix bugs, and add
-# * new features. You are highly encouraged to submit your changes as a Github PR
-# * or by email to the dev@nmap.org mailing list for possible incorporation into
-# * the main distribution. Unless you specify otherwise, it is understood that
-# * you are offering us very broad rights to use your submissions as described in
-# * the Nmap Public Source License Contributor Agreement. This is important
-# * because we fund the project by selling licenses with various terms, and also
-# * because the inability to relicense code has caused devastating problems for
-# * other Free Software projects (such as KDE and NASM).
+# * Source code also allows you to port Nmap to new platforms, fix bugs, and
+# * add new features. You are highly encouraged to submit your changes as a
+# * Github PR or by email to the dev@nmap.org mailing list for possible
+# * incorporation into the main distribution. Unless you specify otherwise, it
+# * is understood that you are offering us very broad rights to use your
+# * submissions as described in the Nmap Public Source License Contributor
+# * Agreement. This is important because we fund the project by selling licenses
+# * with various terms, and also because the inability to relicense code has
+# * caused devastating problems for other Free Software projects (such as KDE
+# * and NASM).
 # *
 # * The free version of Nmap is distributed in the hope that it will be
 # * useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -253,7 +254,7 @@ class HostInfo(object):
         1) IPv4 comes before IPv6 comes before MAC, and
         2) addresses are sorted according to their binary values, not their
            string representation.
-        Use this function to the the comparison key when sorting a list of
+        Use this function to the comparison key when sorting a list of
         hosts by address."""
         l = []
         if self.ip:
@@ -738,7 +739,7 @@ class NmapParserSAX(ParserBasics, ContentHandler):
 
     def parse_file(self, filename):
         """Parse an Nmap XML file from the named file."""
-        with open(filename, "r") as f:
+        with open(filename, "rb") as f:
             self.parse(f)
             self.filename = filename
 
@@ -1001,12 +1002,12 @@ class NmapParserSAX(ParserBasics, ContentHandler):
         f."""
         if self.nmap_output == "":
             return
-        f.write(self.nmap_output)
+        f.write(self.nmap_output.encode('utf-8','xmlcharrefreplace'))
 
     def write_xml(self, f):
         """Write the XML representation of this object to the file-like object
         f."""
-        writer = XMLGenerator(f)
+        writer = XMLGenerator(f, encoding='utf-8')
         writer.startDocument()
         if self.xml_stylesheet_data is not None:
             writer.processingInstruction(
@@ -1032,7 +1033,7 @@ class NmapParserSAX(ParserBasics, ContentHandler):
     def write_xml_to_file(self, filename):
         """Write the XML representation of this scan to the file whose name is
         given."""
-        fd = open(filename, "w")
+        fd = open(filename, "wb")
         self.write_xml(fd)
         fd.close()
 

@@ -2,7 +2,8 @@
 set TARGET=%1
 set VCCONFIG=%2
 
-for /f "usebackq delims=#" %%a in (`"%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere" -version 16 -property installationPath`) do call "%%a\VC\Auxiliary\Build\vcvarsall.bat" x86
+for /f "usebackq delims=#" %%a in (`"%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere" -version 16 -property installationPath`) do call "%%a\VC\Auxiliary\Build\vcvarsall.bat" x86 && goto :next
+:next
 
 @echo on
 if "%TARGET%" == "Vars" ( goto :vars )

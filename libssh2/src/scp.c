@@ -37,12 +37,19 @@
  */
 
 #include "libssh2_priv.h"
-#include <errno.h>
-#include <stdlib.h>
 
 #include "channel.h"
 #include "session.h"
 
+#include <stdlib.h>  /* strtoll(), _strtoi64(), strtol() */
+
+#if defined(HAVE_STRTOLL)
+#define scpsize_strtol strtoll
+#elif defined(HAVE_STRTOI64)
+#define scpsize_strtol _strtoi64
+#else
+#define scpsize_strtol strtol
+#endif
 
 /* Max. length of a quoted string after libssh2_shell_quotearg() processing */
 #define _libssh2_shell_quotedsize(s)     (3 * strlen(s) + 2)
@@ -112,7 +119,7 @@
 
   References:
   o  csh-compatible quotation (special handling for '!' etc.), see
-  http://www.grymoire.com/Unix/Csh.html#toc-uh-10
+  https://www.grymoire.com/Unix/Csh.html#toc-uh-10
 
   Return value:
   Length of the resulting string (not counting the terminating '\0'),
@@ -122,9 +129,9 @@
   until then it is kept static and in this source file.
 */
 
-static unsigned
+static size_t
 shell_quotearg(const char *path, unsigned char *buf,
-               unsigned bufsize)
+               size_t bufsize)
 {
     const char *src;
     unsigned char *dst, *endp;
@@ -270,7 +277,7 @@ shell_quotearg(const char *path, unsigned char *buf,
 static LIBSSH2_CHANNEL *
 scp_recv(LIBSSH2_SESSION * session, const char *path, libssh2_struct_stat * sb)
 {
-    int cmd_len;
+    size_t cmd_len;
     int rc;
     int tmp_err_code;
     const char *tmp_err_msg;
@@ -282,7 +289,7 @@ scp_recv(LIBSSH2_SESSION * session, const char *path, libssh2_struct_stat * sb)
         session->scpRecv_atime = 0;
 
         session->scpRecv_command_len =
-            _libssh2_shell_quotedsize(path) + sizeof("scp -f ") + (sb?1:0);
+            _libssh2_shell_quotedsize(path) + sizeof("scp -f ") + (sb ? 1 : 0);
 
         session->scpRecv_command =
             LIBSSH2_ALLOC(session, session->scpRecv_command_len);
@@ -296,18 +303,30 @@ scp_recv(LIBSSH2_SESSION * session, const char *path, libssh2_struct_stat * sb)
 
         snprintf((char *)session->scpRecv_command,
                  session->scpRecv_command_len,
-                 "scp -%sf ", sb?"p":"");
+                 "scp -%sf ", sb ? "p" : "");
 
         cmd_len = strlen((char *)session->scpRecv_command);
-        cmd_len += shell_quotearg(path,
-                                  &session->scpRecv_command[cmd_len],
-                                  session->scpRecv_command_len - cmd_len);
+
+        if(!session->flag.quote_paths) {
+            size_t path_len;
+
+            path_len = strlen(path);
+
+            /* no NUL-termination needed, so memcpy will do */
+            memcpy(&session->scpRecv_command[cmd_len], path, path_len);
+            cmd_len += path_len;
+        }
+        else {
+            cmd_len += shell_quotearg(path,
+                                      &session->scpRecv_command[cmd_len],
+                                      session->scpRecv_command_len - cmd_len);
+        }
 
         /* the command to exec should _not_ be NUL-terminated */
         session->scpRecv_command_len = cmd_len;
 
-        _libssh2_debug(session, LIBSSH2_TRACE_SCP,
-                       "Opening channel for SCP receive");
+        _libssh2_debug((session, LIBSSH2_TRACE_SCP,
+                       "Opening channel for SCP receive"));
 
         session->scpRecv_state = libssh2_NB_state_created;
     }
@@ -356,7 +375,7 @@ scp_recv(LIBSSH2_SESSION * session, const char *path, libssh2_struct_stat * sb)
         LIBSSH2_FREE(session, session->scpRecv_command);
         session->scpRecv_command = NULL;
 
-        _libssh2_debug(session, LIBSSH2_TRACE_SCP, "Sending initial wakeup");
+        _libssh2_debug((session, LIBSSH2_TRACE_SCP, "Sending initial wakeup"));
         /* SCP ACK */
         session->scpRecv_response[0] = '\0';
 
@@ -364,8 +383,8 @@ scp_recv(LIBSSH2_SESSION * session, const char *path, libssh2_struct_stat * sb)
     }
 
     if(session->scpRecv_state == libssh2_NB_state_sent1) {
-        rc = _libssh2_channel_write(session->scpRecv_channel, 0,
-                                    session->scpRecv_response, 1);
+        rc = (int)_libssh2_channel_write(session->scpRecv_channel, 0,
+                                         session->scpRecv_response, 1);
         if(rc == LIBSSH2_ERROR_EAGAIN) {
             _libssh2_error(session, LIBSSH2_ERROR_EAGAIN,
                            "Would block sending initial wakeup");
@@ -384,14 +403,15 @@ scp_recv(LIBSSH2_SESSION * session, const char *path, libssh2_struct_stat * sb)
     if((session->scpRecv_state == libssh2_NB_state_sent2)
         || (session->scpRecv_state == libssh2_NB_state_sent3)) {
         while(sb && (session->scpRecv_response_len <
-                      LIBSSH2_SCP_RESPONSE_BUFLEN)) {
+                     LIBSSH2_SCP_RESPONSE_BUFLEN)) {
             unsigned char *s, *p;
 
             if(session->scpRecv_state == libssh2_NB_state_sent2) {
-                rc = _libssh2_channel_read(session->scpRecv_channel, 0,
-                                           (char *) session->
-                                           scpRecv_response +
-                                           session->scpRecv_response_len, 1);
+                rc = (int)_libssh2_channel_read(session->scpRecv_channel, 0,
+                                                (char *) session->
+                                                scpRecv_response +
+                                                session->scpRecv_response_len,
+                                                1);
                 if(rc == LIBSSH2_ERROR_EAGAIN) {
                     _libssh2_error(session, LIBSSH2_ERROR_EAGAIN,
                                    "Would block waiting for SCP response");
@@ -435,9 +455,9 @@ scp_recv(LIBSSH2_SESSION * session, const char *path, libssh2_struct_stat * sb)
                     /* zero terminate the error */
                     err_msg[err_len] = 0;
 
-                    _libssh2_debug(session, LIBSSH2_TRACE_SCP,
+                    _libssh2_debug((session, LIBSSH2_TRACE_SCP,
                                    "got %02x %s", session->scpRecv_response[0],
-                                   err_msg);
+                                   err_msg));
 
                     _libssh2_error(session, LIBSSH2_ERROR_SCP_PROTOCOL,
                                    "Failed to recv file");
@@ -550,8 +570,8 @@ scp_recv(LIBSSH2_SESSION * session, const char *path, libssh2_struct_stat * sb)
             }
 
             if(session->scpRecv_state == libssh2_NB_state_sent3) {
-                rc = _libssh2_channel_write(session->scpRecv_channel, 0,
-                                            session->scpRecv_response, 1);
+                rc = (int)_libssh2_channel_write(session->scpRecv_channel, 0,
+                                                 session->scpRecv_response, 1);
                 if(rc == LIBSSH2_ERROR_EAGAIN) {
                     _libssh2_error(session, LIBSSH2_ERROR_EAGAIN,
                                    "Would block waiting to send SCP ACK");
@@ -561,9 +581,10 @@ scp_recv(LIBSSH2_SESSION * session, const char *path, libssh2_struct_stat * sb)
                     goto scp_recv_error;
                 }
 
-                _libssh2_debug(session, LIBSSH2_TRACE_SCP,
+                _libssh2_debug((session, LIBSSH2_TRACE_SCP,
                                "mtime = %ld, atime = %ld",
-                               session->scpRecv_mtime, session->scpRecv_atime);
+                               session->scpRecv_mtime,
+                               session->scpRecv_atime));
 
                 /* We *should* check that atime.usec is valid, but why let
                    that stop use? */
@@ -586,17 +607,18 @@ scp_recv(LIBSSH2_SESSION * session, const char *path, libssh2_struct_stat * sb)
             char *s, *p, *e = NULL;
 
             if(session->scpRecv_state == libssh2_NB_state_sent5) {
-                rc = _libssh2_channel_read(session->scpRecv_channel, 0,
-                                           (char *) session->
-                                           scpRecv_response +
-                                           session->scpRecv_response_len, 1);
+                rc = (int)_libssh2_channel_read(session->scpRecv_channel, 0,
+                                                (char *) session->
+                                                scpRecv_response +
+                                                session->scpRecv_response_len,
+                                                1);
                 if(rc == LIBSSH2_ERROR_EAGAIN) {
                     _libssh2_error(session, LIBSSH2_ERROR_EAGAIN,
                                    "Would block waiting for SCP response");
                     return NULL;
                 }
                 else if(rc < 0) {
-                    /* error, bail out*/
+                    /* error, bail out */
                     _libssh2_error(session, rc, "Failed reading SCP response");
                     goto scp_recv_error;
                 }
@@ -678,7 +700,6 @@ scp_recv(LIBSSH2_SESSION * session, const char *path, libssh2_struct_stat * sb)
 
                 *(p++) = '\0';
                 /* Make sure we don't get fooled by leftover values */
-
                 session->scpRecv_mode = strtol(s, &e, 8);
                 if(e && *e) {
                     _libssh2_error(session, LIBSSH2_ERROR_SCP_PROTOCOL,
@@ -713,8 +734,8 @@ scp_recv(LIBSSH2_SESSION * session, const char *path, libssh2_struct_stat * sb)
             }
 
             if(session->scpRecv_state == libssh2_NB_state_sent6) {
-                rc = _libssh2_channel_write(session->scpRecv_channel, 0,
-                                            session->scpRecv_response, 1);
+                rc = (int)_libssh2_channel_write(session->scpRecv_channel, 0,
+                                                 session->scpRecv_response, 1);
                 if(rc == LIBSSH2_ERROR_EAGAIN) {
                     _libssh2_error(session, LIBSSH2_ERROR_EAGAIN,
                                    "Would block sending SCP ACK");
@@ -723,9 +744,9 @@ scp_recv(LIBSSH2_SESSION * session, const char *path, libssh2_struct_stat * sb)
                 else if(rc != 1) {
                     goto scp_recv_error;
                 }
-                _libssh2_debug(session, LIBSSH2_TRACE_SCP,
+                _libssh2_debug((session, LIBSSH2_TRACE_SCP,
                                "mode = 0%lo size = %ld", session->scpRecv_mode,
-                               session->scpRecv_size);
+                               session->scpRecv_size));
 
                 /* We *should* check that basename is valid, but why let that
                    stop us? */
@@ -748,7 +769,7 @@ scp_recv(LIBSSH2_SESSION * session, const char *path, libssh2_struct_stat * sb)
     session->scpRecv_state = libssh2_NB_state_idle;
     return session->scpRecv_channel;
 
-  scp_recv_empty_channel:
+scp_recv_empty_channel:
     /* the code only jumps here as a result of a zero read from channel_read()
        so we check EOF status to avoid getting stuck in a loop */
     if(libssh2_channel_eof(session->scpRecv_channel))
@@ -757,7 +778,7 @@ scp_recv(LIBSSH2_SESSION * session, const char *path, libssh2_struct_stat * sb)
     else
         return session->scpRecv_channel;
     /* fall-through */
-  scp_recv_error:
+scp_recv_error:
     tmp_err_code = session->err_code;
     tmp_err_msg = session->err_msg;
     while(libssh2_channel_free(session->scpRecv_channel) ==
@@ -780,7 +801,7 @@ scp_recv(LIBSSH2_SESSION * session, const char *path, libssh2_struct_stat * sb)
  *
  */
 LIBSSH2_API LIBSSH2_CHANNEL *
-libssh2_scp_recv(LIBSSH2_SESSION *session, const char *path, struct stat * sb)
+libssh2_scp_recv(LIBSSH2_SESSION *session, const char *path, struct stat *sb)
 {
     LIBSSH2_CHANNEL *ptr;
 
@@ -823,7 +844,7 @@ libssh2_scp_recv2(LIBSSH2_SESSION *session, const char *path,
 }
 
 /*
- * scp_send()
+ * scp_send
  *
  * Send a file using SCP
  *
@@ -832,7 +853,7 @@ static LIBSSH2_CHANNEL *
 scp_send(LIBSSH2_SESSION * session, const char *path, int mode,
          libssh2_int64_t size, time_t mtime, time_t atime)
 {
-    int cmd_len;
+    size_t cmd_len;
     int rc;
     int tmp_err_code;
     const char *tmp_err_msg;
@@ -840,7 +861,7 @@ scp_send(LIBSSH2_SESSION * session, const char *path, int mode,
     if(session->scpSend_state == libssh2_NB_state_idle) {
         session->scpSend_command_len =
             _libssh2_shell_quotedsize(path) + sizeof("scp -t ") +
-            ((mtime || atime)?1:0);
+            ((mtime || atime) ? 1 : 0);
 
         session->scpSend_command =
             LIBSSH2_ALLOC(session, session->scpSend_command_len);
@@ -854,18 +875,31 @@ scp_send(LIBSSH2_SESSION * session, const char *path, int mode,
 
         snprintf((char *)session->scpSend_command,
                  session->scpSend_command_len,
-                 "scp -%st ", (mtime || atime)?"p":"");
+                 "scp -%st ", (mtime || atime) ? "p" : "");
 
         cmd_len = strlen((char *)session->scpSend_command);
-        cmd_len += shell_quotearg(path,
-                                  &session->scpSend_command[cmd_len],
-                                  session->scpSend_command_len - cmd_len);
+
+        if(!session->flag.quote_paths) {
+            size_t path_len;
+
+            path_len = strlen(path);
+
+            /* no NUL-termination needed, so memcpy will do */
+            memcpy(&session->scpSend_command[cmd_len], path, path_len);
+            cmd_len += path_len;
+
+        }
+        else {
+            cmd_len += shell_quotearg(path,
+                                      &session->scpSend_command[cmd_len],
+                                      session->scpSend_command_len - cmd_len);
+        }
 
         /* the command to exec should _not_ be NUL-terminated */
         session->scpSend_command_len = cmd_len;
 
-        _libssh2_debug(session, LIBSSH2_TRACE_SCP,
-                       "Opening channel for SCP send");
+        _libssh2_debug((session, LIBSSH2_TRACE_SCP,
+                       "Opening channel for SCP send"));
         /* Allocate a channel */
 
         session->scpSend_state = libssh2_NB_state_created;
@@ -922,8 +956,8 @@ scp_send(LIBSSH2_SESSION * session, const char *path, int mode,
 
     if(session->scpSend_state == libssh2_NB_state_sent1) {
         /* Wait for ACK */
-        rc = _libssh2_channel_read(session->scpSend_channel, 0,
-                                   (char *) session->scpSend_response, 1);
+        rc = (int)_libssh2_channel_read(session->scpSend_channel, 0,
+                                        (char *) session->scpSend_response, 1);
         if(rc == LIBSSH2_ERROR_EAGAIN) {
             _libssh2_error(session, LIBSSH2_ERROR_EAGAIN,
                            "Would block waiting for response from remote");
@@ -936,7 +970,7 @@ scp_send(LIBSSH2_SESSION * session, const char *path, int mode,
         else if(!rc)
             /* remain in the same state */
             goto scp_send_empty_channel;
-        else if(session->scpSend_response[0] != 0) {
+        else if(session->scpSend_response[0]) {
             _libssh2_error(session, LIBSSH2_ERROR_SCP_PROTOCOL,
                            "Invalid ACK response from remote");
             goto scp_send_error;
@@ -947,8 +981,8 @@ scp_send(LIBSSH2_SESSION * session, const char *path, int mode,
                 snprintf((char *) session->scpSend_response,
                          LIBSSH2_SCP_RESPONSE_BUFLEN, "T%ld 0 %ld 0\n",
                          (long)mtime, (long)atime);
-            _libssh2_debug(session, LIBSSH2_TRACE_SCP, "Sent %s",
-                           session->scpSend_response);
+            _libssh2_debug((session, LIBSSH2_TRACE_SCP, "Sent %s",
+                           session->scpSend_response));
         }
 
         session->scpSend_state = libssh2_NB_state_sent2;
@@ -957,9 +991,9 @@ scp_send(LIBSSH2_SESSION * session, const char *path, int mode,
     /* Send mtime and atime to be used for file */
     if(mtime || atime) {
         if(session->scpSend_state == libssh2_NB_state_sent2) {
-            rc = _libssh2_channel_write(session->scpSend_channel, 0,
-                                        session->scpSend_response,
-                                        session->scpSend_response_len);
+            rc = (int)_libssh2_channel_write(session->scpSend_channel, 0,
+                                             session->scpSend_response,
+                                             session->scpSend_response_len);
             if(rc == LIBSSH2_ERROR_EAGAIN) {
                 _libssh2_error(session, LIBSSH2_ERROR_EAGAIN,
                                "Would block sending time data for SCP file");
@@ -976,8 +1010,9 @@ scp_send(LIBSSH2_SESSION * session, const char *path, int mode,
 
         if(session->scpSend_state == libssh2_NB_state_sent3) {
             /* Wait for ACK */
-            rc = _libssh2_channel_read(session->scpSend_channel, 0,
-                                       (char *) session->scpSend_response, 1);
+            rc = (int)_libssh2_channel_read(session->scpSend_channel, 0,
+                                            (char *) session->scpSend_response,
+                                            1);
             if(rc == LIBSSH2_ERROR_EAGAIN) {
                 _libssh2_error(session, LIBSSH2_ERROR_EAGAIN,
                                "Would block waiting for response");
@@ -990,7 +1025,7 @@ scp_send(LIBSSH2_SESSION * session, const char *path, int mode,
             else if(!rc)
                 /* remain in the same state */
                 goto scp_send_empty_channel;
-            else if(session->scpSend_response[0] != 0) {
+            else if(session->scpSend_response[0]) {
                 _libssh2_error(session, LIBSSH2_ERROR_SCP_PROTOCOL,
                                "Invalid SCP ACK response");
                 goto scp_send_error;
@@ -1018,16 +1053,16 @@ scp_send(LIBSSH2_SESSION * session, const char *path, int mode,
                      LIBSSH2_SCP_RESPONSE_BUFLEN, "C0%o %"
                      LIBSSH2_INT64_T_FORMAT " %s\n", mode,
                      size, base);
-        _libssh2_debug(session, LIBSSH2_TRACE_SCP, "Sent %s",
-                       session->scpSend_response);
+        _libssh2_debug((session, LIBSSH2_TRACE_SCP, "Sent %s",
+                       session->scpSend_response));
 
         session->scpSend_state = libssh2_NB_state_sent5;
     }
 
     if(session->scpSend_state == libssh2_NB_state_sent5) {
-        rc = _libssh2_channel_write(session->scpSend_channel, 0,
-                                    session->scpSend_response,
-                                    session->scpSend_response_len);
+        rc = (int)_libssh2_channel_write(session->scpSend_channel, 0,
+                                         session->scpSend_response,
+                                         session->scpSend_response_len);
         if(rc == LIBSSH2_ERROR_EAGAIN) {
             _libssh2_error(session, LIBSSH2_ERROR_EAGAIN,
                            "Would block send core file data for SCP file");
@@ -1044,8 +1079,9 @@ scp_send(LIBSSH2_SESSION * session, const char *path, int mode,
 
     if(session->scpSend_state == libssh2_NB_state_sent6) {
         /* Wait for ACK */
-        rc = _libssh2_channel_read(session->scpSend_channel, 0,
-                                   (char *) session->scpSend_response, 1);
+        rc = (int)_libssh2_channel_read(session->scpSend_channel, 0,
+                                        (char *) session->scpSend_response,
+                                        1);
         if(rc == LIBSSH2_ERROR_EAGAIN) {
             _libssh2_error(session, LIBSSH2_ERROR_EAGAIN,
                            "Would block waiting for response");
@@ -1059,7 +1095,7 @@ scp_send(LIBSSH2_SESSION * session, const char *path, int mode,
         else if(rc == 0)
             goto scp_send_empty_channel;
 
-        else if(session->scpSend_response[0] != 0) {
+        else if(session->scpSend_response[0]) {
             size_t err_len;
             char *err_msg;
 
@@ -1073,13 +1109,13 @@ scp_send(LIBSSH2_SESSION * session, const char *path, int mode,
             }
 
             /* Read the remote error message */
-            rc = _libssh2_channel_read(session->scpSend_channel, 0,
-                                       err_msg, err_len);
+            rc = (int)_libssh2_channel_read(session->scpSend_channel, 0,
+                                            err_msg, err_len);
             if(rc > 0) {
                 err_msg[err_len] = 0;
-                _libssh2_debug(session, LIBSSH2_TRACE_SCP,
+                _libssh2_debug((session, LIBSSH2_TRACE_SCP,
                                "got %02x %s", session->scpSend_response[0],
-                               err_msg);
+                               err_msg));
             }
             LIBSSH2_FREE(session, err_msg);
             _libssh2_error(session, LIBSSH2_ERROR_SCP_PROTOCOL,
@@ -1091,7 +1127,7 @@ scp_send(LIBSSH2_SESSION * session, const char *path, int mode,
     session->scpSend_state = libssh2_NB_state_idle;
     return session->scpSend_channel;
 
-  scp_send_empty_channel:
+scp_send_empty_channel:
     /* the code only jumps here as a result of a zero read from channel_read()
        so we check EOF status to avoid getting stuck in a loop */
     if(libssh2_channel_eof(session->scpSend_channel)) {
@@ -1101,7 +1137,7 @@ scp_send(LIBSSH2_SESSION * session, const char *path, int mode,
     else
         return session->scpSend_channel;
     /* fall-through */
-  scp_send_error:
+scp_send_error:
     tmp_err_code = session->err_code;
     tmp_err_msg = session->err_msg;
     while(libssh2_channel_free(session->scpSend_channel) ==

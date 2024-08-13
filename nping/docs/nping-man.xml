@@ -89,7 +89,6 @@ Nping done: 2 IP addresses pinged in 4.01 seconds
 <!-- This para is a bit jumbled together for man page rendering reasons -->
 <para>The newest version of Nping can be obtained with Nmap at <ulink url="https://nmap.org"/>.  The newest version of this man page
 is available at <ulink url="https://nmap.org/book/nping-man.html"/>.</para>
--->
   </refsect1>
 
   <refsect1 id="nping-man-briefoptions">

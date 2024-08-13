@@ -7,7 +7,7 @@
  *                                                                         *
  ***********************IMPORTANT NSOCK LICENSE TERMS***********************
  *
- * The nsock parallel socket event library is (C) 1999-2023 Nmap Software LLC
+ * The nsock parallel socket event library is (C) 1999-2024 Nmap Software LLC
  * This library is free software; you may redistribute and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
  * Foundation; Version 2. This guarantees your right to use, modify, and
@@ -67,4 +67,5 @@
 #define HAVE_IOCP 1
 #endif
 
+#define HAVE_OPENSSL 1
 #endif /* NSOCK_WINCONFIG_H */

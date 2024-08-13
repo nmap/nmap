@@ -37,21 +37,36 @@ static int l_dnet_new (lua_State *L)
 {
   nse_dnet_udata *udata;
 
-  udata = (nse_dnet_udata *) lua_newuserdata(L, sizeof(nse_dnet_udata));
+  udata = (nse_dnet_udata *) lua_newuserdatauv(L, sizeof(nse_dnet_udata), 0);
   lua_pushvalue(L, DNET_METATABLE);
   lua_setmetatable(L, -2);
   udata->eth = NULL;
   udata->sock = -1;
+  udata->devname[0] = '\0';
 
   return 1;
+}
+
+static struct interface_info *checkdevname (lua_State *L, int idx)
+{
+  size_t len = 0;
+  const char *interface_name = luaL_checklstring(L, idx, &len);
+  if (len >= 32) {
+    luaL_argerror(L, idx, "device name too long");
+    return NULL;
+  }
+  struct interface_info *ii = getInterfaceByName(interface_name, o.af());
+  if (ii == NULL)
+    luaL_argerror(L, idx, "device %s not found or no address configured");
+
+  return ii;
 }
 
 static int l_dnet_get_interface_info (lua_State *L)
 {
   char ipstr[INET6_ADDRSTRLEN];
   struct addr src, bcast;
-  struct interface_info *ii = getInterfaceByName(luaL_checkstring(L, 1),
-                                                 o.af());
+  struct interface_info *ii = checkdevname(L, 1);
 
   if (ii == NULL)
     return nseU_safeerror(L, "failed to find interface");
@@ -127,7 +142,7 @@ static eth_t *open_eth_cached (lua_State *L, int dnet_index, const char *device)
   if (!lua_isuserdata(L, -1))
   {
     lua_pop(L, 1);
-    eth = (eth_t **) lua_newuserdata(L, sizeof(eth_t *));
+    eth = (eth_t **) lua_newuserdatauv(L, sizeof(eth_t *), 0);
     *eth = eth_open(device);
     if (*eth == NULL)
       luaL_error(L, "unable to open dnet on ethernet interface %s", device);
@@ -150,11 +165,7 @@ static eth_t *open_eth_cached (lua_State *L, int dnet_index, const char *device)
 static int ethernet_open (lua_State *L)
 {
   nse_dnet_udata *udata = (nse_dnet_udata *) nseU_checkudata(L, 1, DNET_METATABLE, "dnet");
-  size_t len = 0;
-  const char *interface_name = luaL_checklstring(L, 2, &len);
-  if (len >= 32)
-    return luaL_argerror(L, 2, "device name too long");
-  struct interface_info *ii = getInterfaceByName(interface_name, o.af());
+  struct interface_info *ii = checkdevname(L, 2);
 
   if (ii == NULL || ii->device_type != devt_ethernet
 #ifdef WIN32
@@ -163,9 +174,9 @@ static int ethernet_open (lua_State *L)
     )
     return luaL_argerror(L, 2, "device is not valid ethernet interface");
 
-  udata->eth = open_eth_cached(L, 1, interface_name);
-  strncpy(udata->devname, interface_name, len);
-  udata->devname[len] = '\0';
+  udata->eth = open_eth_cached(L, 1, ii->devfullname);
+  strncpy(udata->devname, ii->devfullname, 16);
+  udata->devname[16] = '\0';
   if (o.scriptTrace())
   {
       log_write(LOG_STDOUT, "%s: Ethernet open %s\n",
@@ -217,9 +228,18 @@ static int ip_open (lua_State *L)
 {
   nse_dnet_udata *udata = (nse_dnet_udata *) nseU_checkudata(L, 1, DNET_METATABLE, "dnet");
   udata->sock = nmap_raw_socket();
-  if (udata->sock == -1)
-    return luaL_error(L, "failed to open raw socket: %s (errno %d)",
-        socket_strerror(socket_errno()), socket_errno());
+  if (udata->sock == -1) {
+    if (o.scriptTrace())
+    {
+      log_write(LOG_STDOUT, "%s: failed to open raw socket: %s (errno %d)", SCRIPT_ENGINE,
+          socket_strerror(socket_errno()), socket_errno());
+    }
+    // If possible, we'll try to use Ethernet headers to send packets, but not
+    // if the user specified --send-ip
+    if (o.sendpref == PACKET_SEND_IP_STRONG) {
+      return luaL_error(L, "Unable to open raw IP socket.");
+    }
+  }
   if (o.scriptTrace())
   {
       log_write(LOG_STDOUT, "%s: raw IP socket open\n", SCRIPT_ENGINE);
@@ -253,7 +273,9 @@ static int ip_send (lua_State *L)
   char dev[16];
   int ret;
 
-  if (udata->sock == -1)
+  // If possible, we'll try to use Ethernet headers to send packets, but not
+  // if the user specified --send-ip
+  if (udata->sock == -1 && o.sendpref == PACKET_SEND_IP_STRONG)
     return luaL_error(L, "raw socket not open to send");
 
   packet = luaL_checklstring(L, 2, &packetlen);
@@ -338,11 +360,12 @@ static int ip_send (lua_State *L)
     ret = send_ip_packet(udata->sock, &eth, &dst, (u8 *) packet, packetlen);
   } else {
 usesock:
-#ifdef WIN32
-    if (strlen(dev) > 0)
-      win32_fatal_raw_sockets(dev);
-#endif
-    ret = send_ip_packet(udata->sock, NULL, &dst, (u8 *) packet, packetlen);
+    if (udata->sock == -1) {
+      return luaL_error(L, "raw socket not open to send");
+    }
+    else {
+      ret = send_ip_packet(udata->sock, NULL, &dst, (u8 *) packet, packetlen);
+    }
   }
   if (ret == -1)
     return nseU_safeerror(L, "error while sending: %s (errno %d)",

@@ -3,7 +3,7 @@
  * and scan types                                                          *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
  *
- * The Nmap Security Scanner is (C) 1996-2023 Nmap Software LLC ("The Nmap
+ * The Nmap Security Scanner is (C) 1996-2024 Nmap Software LLC ("The Nmap
  * Project"). Nmap is also a registered trademark of the Nmap Project.
  *
  * This program is distributed under the terms of the Nmap Public Source
@@ -38,15 +38,16 @@
  * right to know exactly what a program is going to do before they run it.
  * This also allows you to audit the software for security holes.
  *
- * Source code also allows you to port Nmap to new platforms, fix bugs, and add
- * new features. You are highly encouraged to submit your changes as a Github PR
- * or by email to the dev@nmap.org mailing list for possible incorporation into
- * the main distribution. Unless you specify otherwise, it is understood that
- * you are offering us very broad rights to use your submissions as described in
- * the Nmap Public Source License Contributor Agreement. This is important
- * because we fund the project by selling licenses with various terms, and also
- * because the inability to relicense code has caused devastating problems for
- * other Free Software projects (such as KDE and NASM).
+ * Source code also allows you to port Nmap to new platforms, fix bugs, and
+ * add new features. You are highly encouraged to submit your changes as a
+ * Github PR or by email to the dev@nmap.org mailing list for possible
+ * incorporation into the main distribution. Unless you specify otherwise, it
+ * is understood that you are offering us very broad rights to use your
+ * submissions as described in the Nmap Public Source License Contributor
+ * Agreement. This is important because we fund the project by selling licenses
+ * with various terms, and also because the inability to relicense code has
+ * caused devastating problems for other Free Software projects (such as KDE
+ * and NASM).
  *
  * The free version of Nmap is distributed in the hope that it will be
  * useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -164,7 +165,7 @@ void getpts(const char *origexpr, struct scan_lists *ports) {
       ports->udp_count++;
     if (porttbl[i] & SCAN_SCTP_PORT)
       ports->sctp_count++;
-    if (porttbl[i] & SCAN_PROTOCOLS && i < 256)
+    if (porttbl[i] & SCAN_PROTOCOLS && i <= MAX_IPPROTONUM)
       ports->prot_count++;
   }
 
@@ -191,7 +192,7 @@ void getpts(const char *origexpr, struct scan_lists *ports) {
       ports->udp_ports[udpi++] = i;
     if (porttbl[i] & SCAN_SCTP_PORT)
       ports->sctp_ports[sctpi++] = i;
-    if (porttbl[i] & SCAN_PROTOCOLS && i < 256)
+    if (porttbl[i] & SCAN_PROTOCOLS && i <= MAX_IPPROTONUM)
       ports->prots[proti++] = i;
   }
 
@@ -387,7 +388,7 @@ static void getpts_aux(const char *origexpr, int nested, u8 *porttbl, int range_
     } else if (isdigit((int) (unsigned char) *current_range)) {
       rangestart = strtol(current_range, &endptr, 10);
       if (range_type & SCAN_PROTOCOLS) {
-        if (rangestart < 0 || rangestart > 255)
+        if (rangestart < 0 || rangestart > MAX_IPPROTONUM)
           fatal("Protocols specified must be between 0 and 255 inclusive");
       } else {
         if (rangestart < 0 || rangestart > 65535)
@@ -428,13 +429,13 @@ static void getpts_aux(const char *origexpr, int nested, u8 *porttbl, int range_
       if (!*current_range || *current_range == ',' || *current_range == ']') {
         /* Ended with a -, meaning up until the last possible port */
         if (range_type & SCAN_PROTOCOLS)
-          rangeend = 255;
+          rangeend = MAX_IPPROTONUM;
         else
           rangeend = 65535;
       } else if (isdigit((int) (unsigned char) *current_range)) {
         rangeend = strtol(current_range, &endptr, 10);
         if (range_type & SCAN_PROTOCOLS) {
-          if (rangeend < 0 || rangeend > 255)
+          if (rangeend < 0 || rangeend > MAX_IPPROTONUM)
             fatal("Protocols specified must be between 0 and 255 inclusive");
         } else {
           if (rangeend < 0 || rangeend > 65535)

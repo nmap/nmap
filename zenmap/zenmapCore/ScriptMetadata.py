@@ -2,7 +2,7 @@
 
 # ***********************IMPORTANT NMAP LICENSE TERMS************************
 # *
-# * The Nmap Security Scanner is (C) 1996-2023 Nmap Software LLC ("The Nmap
+# * The Nmap Security Scanner is (C) 1996-2024 Nmap Software LLC ("The Nmap
 # * Project"). Nmap is also a registered trademark of the Nmap Project.
 # *
 # * This program is distributed under the terms of the Nmap Public Source
@@ -37,15 +37,16 @@
 # * right to know exactly what a program is going to do before they run it.
 # * This also allows you to audit the software for security holes.
 # *
-# * Source code also allows you to port Nmap to new platforms, fix bugs, and add
-# * new features. You are highly encouraged to submit your changes as a Github PR
-# * or by email to the dev@nmap.org mailing list for possible incorporation into
-# * the main distribution. Unless you specify otherwise, it is understood that
-# * you are offering us very broad rights to use your submissions as described in
-# * the Nmap Public Source License Contributor Agreement. This is important
-# * because we fund the project by selling licenses with various terms, and also
-# * because the inability to relicense code has caused devastating problems for
-# * other Free Software projects (such as KDE and NASM).
+# * Source code also allows you to port Nmap to new platforms, fix bugs, and
+# * add new features. You are highly encouraged to submit your changes as a
+# * Github PR or by email to the dev@nmap.org mailing list for possible
+# * incorporation into the main distribution. Unless you specify otherwise, it
+# * is understood that you are offering us very broad rights to use your
+# * submissions as described in the Nmap Public Source License Contributor
+# * Agreement. This is important because we fund the project by selling licenses
+# * with various terms, and also because the inability to relicense code has
+# * caused devastating problems for other Free Software projects (such as KDE
+# * and NASM).
 # *
 # * The free version of Nmap is distributed in the hope that it will be
 # * useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -83,7 +84,7 @@ class ScriptDB (object):
 
         self.lineno = 1
         self.line = ""
-        with open(script_db_path, "r") as self.f:
+        with open(script_db_path, "r", encoding="utf-8") as self.f:
             self.entries_list = self.parse()
 
     def syntax_error(self, message):
@@ -295,20 +296,20 @@ class ScriptMetadata (object):
                     self.get_string_variable(filename, "author")]
 
             filepath = os.path.join(self.scripts_dir, filename)
-            with open(filepath, "r") as f:
+            with open(filepath, "r", encoding="utf-8") as f:
                 for tag_name, tag_text in nsedoc_tags_iter(f):
                     if tag_name == "output" and not entry.output:
                         entry.output = tag_text
                     elif tag_name == "usage" and not entry.usage:
                         entry.usage = tag_text
-        except IOError as e:
+        except (IOError, UnicodeError) as e:
             entry.description = "Error getting metadata: {}".format(e)
 
         return entry
 
     @staticmethod
     def get_file_contents(filename):
-        with open(filename, "r") as f:
+        with open(filename, "r", encoding="utf-8") as f:
             contents = f.read()
         return contents
 
@@ -342,7 +343,7 @@ class ScriptMetadata (object):
 
     @staticmethod
     def get_requires(filename):
-        with open(filename, "r") as f:
+        with open(filename, "r", encoding="utf-8") as f:
             requires = ScriptMetadata.get_requires_from_file(f)
         return requires
 
@@ -358,7 +359,7 @@ class ScriptMetadata (object):
 
     @staticmethod
     def get_script_args(filename):
-        with open(filename, "r") as f:
+        with open(filename, "r", encoding="utf-8") as f:
             args = ScriptMetadata.get_script_args_from_file(f)
         return args
 
@@ -413,8 +414,11 @@ class ScriptMetadata (object):
             else:
                 libname = filename
 
-            self.library_arguments[libname] = self.get_script_args(filepath)
-            self.library_requires[libname] = self.get_requires(filepath)
+            try:
+                self.library_arguments[libname] = self.get_script_args(filepath)
+                self.library_requires[libname] = self.get_requires(filepath)
+            except (IOError, UnicodeError) as e:
+                log.debug("Unable to process {}: {}".format(libname, e))
 
 
 def get_script_entries(scripts_dir, nselib_dir):
@@ -423,7 +427,8 @@ def get_script_entries(scripts_dir, nselib_dir):
     metadata = ScriptMetadata(scripts_dir, nselib_dir)
     try:
         scriptdb = ScriptDB(os.path.join(scripts_dir, "script.db"))
-    except IOError:
+    except (IOError, UnicodeError) as e:
+        log.debug("Unable to process script.db: {}".format(e))
         return []
     entries = []
     for dbentry in scriptdb.get_entries_list():

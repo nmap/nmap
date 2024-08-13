@@ -5,7 +5,7 @@
  *                                                                         *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
  *
- * The Nmap Security Scanner is (C) 1996-2023 Nmap Software LLC ("The Nmap
+ * The Nmap Security Scanner is (C) 1996-2024 Nmap Software LLC ("The Nmap
  * Project"). Nmap is also a registered trademark of the Nmap Project.
  *
  * This program is distributed under the terms of the Nmap Public Source
@@ -40,15 +40,16 @@
  * right to know exactly what a program is going to do before they run it.
  * This also allows you to audit the software for security holes.
  *
- * Source code also allows you to port Nmap to new platforms, fix bugs, and add
- * new features. You are highly encouraged to submit your changes as a Github PR
- * or by email to the dev@nmap.org mailing list for possible incorporation into
- * the main distribution. Unless you specify otherwise, it is understood that
- * you are offering us very broad rights to use your submissions as described in
- * the Nmap Public Source License Contributor Agreement. This is important
- * because we fund the project by selling licenses with various terms, and also
- * because the inability to relicense code has caused devastating problems for
- * other Free Software projects (such as KDE and NASM).
+ * Source code also allows you to port Nmap to new platforms, fix bugs, and
+ * add new features. You are highly encouraged to submit your changes as a
+ * Github PR or by email to the dev@nmap.org mailing list for possible
+ * incorporation into the main distribution. Unless you specify otherwise, it
+ * is understood that you are offering us very broad rights to use your
+ * submissions as described in the Nmap Public Source License Contributor
+ * Agreement. This is important because we fund the project by selling licenses
+ * with various terms, and also because the inability to relicense code has
+ * caused devastating problems for other Free Software projects (such as KDE
+ * and NASM).
  *
  * The free version of Nmap is distributed in the hope that it will be
  * useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -392,7 +393,11 @@ void validate_scan_lists(scan_lists &vports, NmapOps &vo) {
 
   if (!vo.isr00t) {
     if (vo.pingtype & (PINGTYPE_ICMP_PING | PINGTYPE_ICMP_MASK | PINGTYPE_ICMP_TS)) {
+#ifdef WIN32
+      error("Warning:  Npcap not detected -- using TCP pingscan rather than ICMP");
+#else
       error("Warning:  You are not root -- using TCP pingscan rather than ICMP");
+#endif
       vo.pingtype &= ~(PINGTYPE_ICMP_PING | PINGTYPE_ICMP_MASK | PINGTYPE_ICMP_TS);
       vo.pingtype |= PINGTYPE_TCP;
       if (vports.syn_ping_count == 0) {
@@ -1566,8 +1571,13 @@ void  apply_delayed_options() {
   }
 #endif
 
-  if (o.traceroute && !o.isr00t)
+  if (o.traceroute && !o.isr00t) {
+#ifdef WIN32
+    fatal("Traceroute requires Npcap, which was not detected.");
+#else
     fatal("Traceroute has to be run as root");
+#endif
+  }
   if (o.traceroute && o.idlescan)
     fatal("Traceroute does not support idle scan");
 
@@ -1719,7 +1729,7 @@ void  apply_delayed_options() {
   if (*o.device && !o.SourceSockAddr()) {
     struct sockaddr_storage tmpsock;
     memset(&tmpsock, 0, sizeof(tmpsock));
-    if (devname2ipaddr(o.device, &tmpsock) == -1) {
+    if (devname2ipaddr(o.device, o.af(), &tmpsock) == -1) {
       fatal("I cannot figure out what source address to use for device %s, does it even exist?", o.device);
     }
     o.setSourceSockAddr(&tmpsock, sizeof(tmpsock));
@@ -1799,7 +1809,13 @@ void  apply_delayed_options() {
   if (delayed_options.raw_scan_options && (!o.isr00t || o.connectscan)) {
     error("You have specified some options that require raw socket access.\n"
           "These options will not be honored %s.",
-          o.isr00t ? "for TCP Connect scan" : "without the necessary privileges");
+          o.isr00t ? "for TCP Connect scan" :
+#ifdef WIN32
+          "since Npcap was not detected"
+#else
+          "without the necessary privileges"
+#endif
+          );
   }
 }
 
@@ -2077,7 +2093,8 @@ int nmap_main(int argc, char *argv[]) {
 
   if (o.ping_group_sz < o.minHostGroupSz())
     o.ping_group_sz = o.minHostGroupSz();
-  HostGroupState hstate(o.ping_group_sz, o.randomize_hosts, argc, (const char **) argv);
+  HostGroupState hstate(o.ping_group_sz, o.randomize_hosts,
+      o.generate_random_ips, o.max_ips_to_scan, argc, (const char **) argv);
 
   do {
     ideal_scan_group_sz = determineScanGroupSize(o.numhosts_scanned, &ports);

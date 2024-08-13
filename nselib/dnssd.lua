@@ -46,6 +46,7 @@ local string = require "string"
 local stringaux = require "stringaux"
 local table = require "table"
 local target = require "target"
+local outlib = require "outlib"
 _ENV = stdnse.module("dnssd", stdnse.seeall)
 
 Util = {
@@ -67,8 +68,8 @@ Util = {
   serviceCompare = function(a, b)
     -- if no port is found use 999999 for comparing, this way all services
     -- without ports and device information gets printed at the end
-    local port_a = a.name:match("^(%d+)") or 999999
-    local port_b = b.name:match("^(%d+)") or 999999
+    local port_a = a:match("^(%d+)") or 999999
+    local port_b = b:match("^(%d+)") or 999999
 
     if ( tonumber(port_a) < tonumber(port_b) ) then
       return true
@@ -210,61 +211,60 @@ Comm = {
   -- @param response as returned by <code>queryService</code>
   -- @param result table into which the decoded output should be stored
   decodeRecords = function( response, result )
-    local service, deviceinfo = {}, {}
+    local service = stdnse.output_table()
     local txt = {}
-    local ipv6, srv, address, port, proto
-
     local record = ( #response.questions > 0 and response.questions[1].dname ) and response.questions[1].dname or ""
 
-    local status, ip = Comm.getRecordType( dns.types.A, response, false )
-    if status then address = ip end
+    local status, ipv4 = Comm.getRecordType( dns.types.A, response, false )
+    if status then service.ipv4 = ipv4 end
 
-    status, ipv6 = Comm.getRecordType( dns.types.AAAA, response, false )
-    if status then
-      address = address or ""
-      address = address .. " " .. ipv6
-    end
+    local status, ipv6 = Comm.getRecordType( dns.types.AAAA, response, false )
+    if status then service.ipv6 = ipv6 end
 
-    status, txt = Comm.getRecordType( dns.types.TXT, response, true )
+    local status, name = Comm.getRecordType( dns.types.PTR, response, false )
     if status then
-      for _, v in ipairs(txt) do
-        if v:len() > 0 then
-          table.insert(service, v)
-        end
+      local i = name:find("." .. record, 1, true)
+      if i then
+        name = name:sub(1, i - 1)
       end
+      service.name = name
     end
 
-    status, srv = Comm.getRecordType( dns.types.SRV, response, false )
+    local name, port
+    local status, srv = Comm.getRecordType( dns.types.SRV, response, false )
     if status then
       local srvparams = stringaux.strsplit( ":", srv )
 
       if #srvparams > 3 then
+        name = srvparams[4]:gsub("%.local$", "")
         port = srvparams[3]
+        if service.name ~= name then
+          service.hostname = name
+        end
       end
     end
 
-    if address then
-      table.insert( service, ("Address=%s"):format( address ) )
+    status, txt = Comm.getRecordType( dns.types.TXT, response, true )
+    if status then
+      for _, t in ipairs(txt) do
+        if #t > 0 then
+          service.TXT = txt
+          break
+        end
+      end
     end
 
     if record == "_device-info._tcp.local" then
-      service.name = "Device Information"
-      deviceinfo = service
-      table.insert(result, deviceinfo)
+      result["Device Information"] = service
     else
-      local serviceparams = stringaux.strsplit("[.]", record)
-
-      if #serviceparams > 2 then
-        local servicename = serviceparams[1]:sub(2)
-        local proto = serviceparams[2]:sub(2)
-
-        if port == nil or proto == nil or servicename == nil then
-          service.name = record
-        else
-          service.name = string.format( "%s/%s %s", port, proto, servicename)
-        end
+      local heading
+      local servicename, proto = record:match("^_([^.]+)%._([^.]+)%.")
+      if port and servicename then
+        heading = string.format( "%s/%s %s", port, proto, servicename)
+      else
+        heading = record
       end
-      table.insert( result, service )
+      result[heading] = service
     end
   end,
 
@@ -360,36 +360,41 @@ Helper = {
     -- Wait for all threads to finish running
     while Util.threadCount(threads)>0 do condvar("wait") end
 
-    local ipsvctbl = {}
     if ( mcast ) then
       -- Process all records that were returned
+      local addr1, addr2
+      if nmap.address_family() == "inet" then
+        addr1 = "ipv4"
+        addr2 = "ipv6"
+      else
+        addr1 = "ipv6"
+        addr2 = "ipv4"
+      end
+      local ipsvctbl = {}
       for svcname, response in pairs(svcresponse) do
         for _, r in ipairs( response ) do
-          ipsvctbl[r.peer] = ipsvctbl[r.peer] or {}
-          Comm.decodeRecords( r.output, ipsvctbl[r.peer] )
+          local key = r[addr1]
+          if key then
+            target.add(key)
+          else
+            key = r[addr2] or r.peer
+          end
+          ipsvctbl[key] = ipsvctbl[key] or {}
+          Comm.decodeRecords( r.output, ipsvctbl[key] )
         end
       end
+      for k, svc in pairs(ipsvctbl) do
+        ipsvctbl[k] = outlib.sorted_by_key(svc, Util.serviceCompare)
+      end
+      return true, outlib.sorted_by_key(ipsvctbl, Util.ipCompare)
     else
       -- Process all records that were returned
       for svcname, response in pairs(svcresponse) do
         Comm.decodeRecords( response, result )
       end
+      return true, outlib.sorted_by_key(result, Util.serviceCompare)
     end
-
-    if ( mcast ) then
-      -- Restructure and build our output table
-      for ip, svctbl in pairs( ipsvctbl ) do
-        table.sort(svctbl, Util.serviceCompare)
-        svctbl.name = ip
-        if target.ALLOW_NEW_TARGETS then target.add(ip) end
-        table.insert( result, svctbl )
-      end
-      table.sort( result, Util.ipCompare )
-    else
-      -- sort the tables per port
-      table.sort( result, Util.serviceCompare )
-    end
-    return true, result
+    return false
   end,
 
 }

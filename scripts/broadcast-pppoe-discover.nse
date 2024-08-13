@@ -66,36 +66,15 @@ local function discoverPPPoE(helper)
   return true, pado
 end
 
--- Gets a list of available interfaces based on link and up filters
---
--- @param link string containing the link type to filter
--- @param up string containing the interface status to filter
--- @return result table containing the matching interfaces
-local function getInterfaces(link, up)
-  if( not(nmap.list_interfaces) ) then return end
-  local interfaces, err = nmap.list_interfaces()
-  local result
-  if ( not(err) ) then
-    for _, iface in ipairs(interfaces) do
-      if ( iface.link == link and iface.up == up ) then
-        result = result or {}
-        result[iface.device] = true
-      end
-    end
-  end
-  return result
-end
-
 action = function()
 
-  local interfaces
-
-  -- first check if the user supplied an interface
-  if ( nmap.get_interface() ) then
-    interfaces = { [nmap.get_interface()] = true }
-  else
-    interfaces = getInterfaces("ethernet", "up")
+  local interfaces = {}
+  local collect_interfaces = function (if_table)
+    if if_table.up == "up" and if_table.link=="ethernet" then
+      interfaces[if_table.device] = true
+    end
   end
+  stdnse.get_script_interfaces(collect_interfaces)
 
   for iface in pairs(interfaces) do
     local helper, err = pppoe.Helper:new(iface)

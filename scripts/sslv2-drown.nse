@@ -95,7 +95,7 @@ for k, v in pairs(sslv2.SSL_CIPHERS) do
 end
 
 portrule = function(host, port)
-  return shortport.ssl(host, port) or sslcert.getPrepareTLSWithoutReconnect(port)
+  return port.protocol == "tcp" and (shortport.ssl(host, port) or sslcert.getPrepareTLSWithoutReconnect(port))
 end
 
 -- Return whether all values of "t1" are also values in "t2".

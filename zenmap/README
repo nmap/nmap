@@ -45,9 +45,9 @@ Default (source) Installation
      * Double click the zenmap file
      * Call the Python interpreter on the zenmap file
 
-   Zenmap is packaged using Python distutils. To install Zenmap
+   Zenmap is packaged using Python setuptools. To install Zenmap
    independently of Nmap, enter the zenmap subdirectory and run
-     python setup.py install
+     python3 -m pip install .
 
 Links:
 

@@ -3,7 +3,7 @@
  *                                                                         *
  ***********************IMPORTANT NSOCK LICENSE TERMS***********************
  *
- * The nsock parallel socket event library is (C) 1999-2023 Nmap Software LLC
+ * The nsock parallel socket event library is (C) 1999-2024 Nmap Software LLC
  * This library is free software; you may redistribute and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
  * Foundation; Version 2. This guarantees your right to use, modify, and
@@ -264,8 +264,10 @@ int epoll_loop(struct npool *nsp, int msec_timeout) {
     nse = next_expirable_event(nsp);
     if (!nse)
       event_msecs = -1; /* None of the events specified a timeout */
-    else
-      event_msecs = MAX(0, TIMEVAL_MSEC_SUBTRACT(nse->timeout, nsock_tod));
+    else {
+      event_msecs = TIMEVAL_MSEC_SUBTRACT(nse->timeout, nsock_tod);
+      event_msecs = MAX(0, event_msecs);
+    }
 
 #if HAVE_PCAP
 #ifndef PCAP_CAN_DO_SELECT

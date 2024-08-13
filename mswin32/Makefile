@@ -1,6 +1,6 @@
 export MSYS2_ARG_CONV_EXCL=*
 MAKENSIS=C:/Program Files (x86)/NSIS/makensis.exe
-SIGNTOOL := $(shell reg query "HKEY_LOCAL_MACHINE\\SOFTWARE\\Wow6432Node\\Microsoft\\Microsoft SDKs\\Windows\\v10.0" /v "InstallationFolder" | egrep InstallationFolder | cut -d ' ' -f13- | sed 's%\\%/%g' | tr -d '\r\n' | sed 's%$$%bin/x86/signtool.exe%')
+SIGNTOOL := $(shell reg query "HKEY_LOCAL_MACHINE\\SOFTWARE\\Wow6432Node\\Microsoft\\Microsoft SDKs\\Windows\\v10.0" /v "InstallationFolder" | egrep InstallationFolder | cut -d ' ' -f13- | sed 's%\\%/%g' | tr -d '\r\n' | sed 's%$$%bin/10.0.0.22000/x86/signtool.exe%')
 NMAPDIR=..
 NMAPDIR_WIN=$(shell echo '$(NMAPDIR)' | sed 's|/cygdrive/\(.\)|\1:|;s|/|\\|g')
 ZENMAP_WINDIR=$(NMAPDIR)/zenmap/install_scripts/windows
@@ -11,6 +11,13 @@ export NPCAP_VERSION := $(shell ls npcap-*.exe | sed -e 's/npcap-\([0-9.]*\)[-oe
 NSE_FILES = $(NMAPDIR)/scripts/script.db $(NMAPDIR)/scripts/*.nse
 NMAP_MSWIN32_AUX = $(NMAPDIR)/../nmap-mswin32-aux
 SIGNTOOL_ARGS = sign /a /n "Insecure.Com LLC" /tr http://timestamp.digicert.com /td sha256 /fd sha256
+NSIS_COMMON_ARGS = "/DVERSION=$(NMAP_VERSION)" "/DNUM_VERSION=$(NMAP_NUM_VERSION)" "/DNPCAP_VERSION=$(NPCAP_VERSION)"
+ifdef OEM_SUFFIX
+NSIS_COMMON_ARGS += "/DNMAP_NAME=$(NMAP_OEM_NAME)" "/DNMAP_OEM=1"
+else
+NSIS_COMMON_ARGS += "/DNMAP_NAME=$(NMAP_NAME)"
+endif
+
 
 PLATFORM=Win32
 VCCONFIG=Release
@@ -31,6 +38,9 @@ bundle-nmap: bundle-zip bundle-nsis
 build-nmap${OEM_SUFFIX}: nmap.sln
 	cmd /c Build.bat Build "$(VCCONFIG)${OEM_SUFFIX}"
 
+vc_redist.x86.exe:
+	wget https://aka.ms/vs/17/release/vc_redist.x86.exe
+
 stage-common: $(NMAPDIR)/CHANGELOG $(NMAPDIR)/LICENSE $(NMAPDIR)/nmap-mac-prefixes $(NMAPDIR)/nmap-os-db $(NMAPDIR)/nmap-protocols $(NMAPDIR)/nmap-rpc $(NMAPDIR)/nmap-service-probes $(NMAPDIR)/nmap-services $(NMAPDIR)/docs/nmap.xsl $(NMAPDIR)/nse_main.lua $(NMAPDIR)/mswin32/nmap_performance.reg $(NMAPDIR)/README-WIN32 $(NMAPDIR)/docs/3rd-party-licenses.txt icon1.ico LICENSE.formatted vc_redist.x86.exe
 	mkdir -p nmap-$(NMAP_VERSION)
 	cp $^ nmap-$(NMAP_VERSION)/
@@ -39,7 +49,7 @@ stage-common: $(NMAPDIR)/CHANGELOG $(NMAPDIR)/LICENSE $(NMAPDIR)/nmap-mac-prefix
 # error on startup: 0xc0000022.
 	cmd /c copy $(subst /,\\,$(NMAP_MSWIN32_AUX))\\OpenSSL\\bin\\*.dll nmap-$(NMAP_VERSION)
 	cmd /c copy $(NMAPDIR_WIN)\\libssh2\\win32\\$(VCCONFIG)_dll\\libssh2.dll nmap-$(NMAP_VERSION)
-	cmd /c copy $(NMAPDIR_WIN)\\libz\\contrib\\vstudio\\vc14\\x86\\ZlibDll$(VCCONFIG)WithoutAsm\\zlibwapi.dll nmap-$(NMAP_VERSION)
+	cmd /c copy $(NMAPDIR_WIN)\\libz\\contrib\\vstudio\\vc16\\x86\\ZlibDll$(VCCONFIG)WithoutAsm\\zlibwapi.dll nmap-$(NMAP_VERSION)
 	mkdir -p nmap-$(NMAP_VERSION)/scripts
 	cp -f $(NSE_FILES) nmap-$(NMAP_VERSION)/scripts/
 	for f in `cd $(NMAPDIR) && find nselib -name .svn -prune -o -type d -print`; do \
@@ -50,7 +60,6 @@ stage-common: $(NMAPDIR)/CHANGELOG $(NMAPDIR)/LICENSE $(NMAPDIR)/nmap-mac-prefix
 	done
 	cp -r $(NMAPDIR)/docs/licenses nmap-$(NMAP_VERSION)/
 	rm -rf nmap-$(NMAP_VERSION)/licenses/.svn
-	cp vc_redist.x86.exe nmap-$(NMAP_VERSION)
 	cp $(NMAPDIR)/ncat/$(VCCONFIG)/ncat.exe nmap-$(NMAP_VERSION)
 	cp $(NMAPDIR)/ncat/$(VCCONFIG)/ca-bundle.crt nmap-$(NMAP_VERSION)
 	cp $(NMAPDIR)/nping/$(VCCONFIG)/nping.exe nmap-$(NMAP_VERSION)
@@ -72,33 +81,26 @@ stage-nmap:
 stage-nmap-oem:
 	$(MAKE)	OEM_SUFFIX=-oem stage-nmap-main
 
-stage-nmap-main: build-nmap${OEM_SUFFIX}
+nmap-$(NMAP_VERSION)${OEM_SUFFIX}/Uninstall.exe: nsis/Nmap.nsi
 	mkdir -p nmap-$(NMAP_VERSION)${OEM_SUFFIX}
+	"$(MAKENSIS)" /DINNER $(NSIS_COMMON_ARGS) nsis/Nmap.nsi
+	nmap-$(NMAP_VERSION)${OEM_SUFFIX}/tempinstaller.exe || test $$? -eq 2
+	rm nmap-$(NMAP_VERSION)${OEM_SUFFIX}/tempinstaller.exe
+
+stage-nmap-main: build-nmap${OEM_SUFFIX} nmap-$(NMAP_VERSION)${OEM_SUFFIX}/Uninstall.exe
 	cp $(VCCONFIG)${OEM_SUFFIX}/nmap.exe nmap-$(NMAP_VERSION)${OEM_SUFFIX}/
 
-sign-files: nmap-$(NMAP_VERSION)-oem/nmap.exe nmap-$(NMAP_VERSION)/nmap.exe nmap-$(NMAP_VERSION)/ncat.exe nmap-$(NMAP_VERSION)/nping.exe nmap-$(NMAP_VERSION)/libssh2.dll nmap-$(NMAP_VERSION)/libcrypto-3.dll nmap-$(NMAP_VERSION)/libssl-3.dll nmap-$(NMAP_VERSION)/zlibwapi.dll
+sign-files: nmap-$(NMAP_VERSION)-oem/nmap.exe nmap-$(NMAP_VERSION)/nmap.exe nmap-$(NMAP_VERSION)-oem/Uninstall.exe nmap-$(NMAP_VERSION)/Uninstall.exe nmap-$(NMAP_VERSION)/ncat.exe nmap-$(NMAP_VERSION)/nping.exe nmap-$(NMAP_VERSION)/libssh2.dll nmap-$(NMAP_VERSION)/libcrypto-3.dll nmap-$(NMAP_VERSION)/libssl-3.dll nmap-$(NMAP_VERSION)/zlibwapi.dll
 	# TODO: evaluate whether we should also sign the Python stuff for Zenmap, Ndiff
-	"$(SIGNTOOL)" $(SIGNTOOL_ARGS) $^
+	"$(SIGNTOOL)" $(SIGNTOOL_ARGS) $^ nmap-$(NMAP_VERSION)/zenmap/bin/* nmap-$(NMAP_VERSION)/zenmap/lib/gdk-pixbuf-2.0/*/*.dll
 	touch sign-files
 
-NSIS_COMMON_ARGS = "/DVERSION=$(NMAP_VERSION)" "/DNUM_VERSION=$(NMAP_NUM_VERSION)" "/DNPCAP_VERSION=$(NPCAP_VERSION)"
 bundle-nsis: sign-files
-	rm -f nmap-$(NMAP_VERSION)*/tempinstaller.exe nmap-$(NMAP_VERSION)*/Uninstall.exe
-	# Make the uninstallers
-	"$(MAKENSIS)" /DINNER $(NSIS_COMMON_ARGS) "/DNMAP_NAME=$(NMAP_NAME)" nsis/Nmap.nsi
-	nmap-$(NMAP_VERSION)/tempinstaller.exe || test $$? -eq 2
-	test -f nmap-$(NMAP_VERSION)/Uninstall.exe
-	"$(MAKENSIS)" /DINNER $(NSIS_COMMON_ARGS) "/DNMAP_NAME=$(NMAP_OEM_NAME)" "/DNMAP_OEM=1" nsis/Nmap.nsi
-	nmap-$(NMAP_VERSION)-oem/tempinstaller.exe || test $$? -eq 2
-	test -f nmap-$(NMAP_VERSION)-oem/Uninstall.exe
-	# Sign uninstallers
-	"$(SIGNTOOL)" $(SIGNTOOL_ARGS) nmap-$(NMAP_VERSION)/Uninstall.exe nmap-$(NMAP_VERSION)-oem/Uninstall.exe
-	# Now build the installers
 	"$(MAKENSIS)" $(NSIS_COMMON_ARGS) "/DNMAP_NAME=$(NMAP_NAME)" nsis/Nmap.nsi
 	"$(MAKENSIS)" $(NSIS_COMMON_ARGS) "/DNMAP_NAME=$(NMAP_OEM_NAME)" "/DNMAP_OEM=1" nsis/Nmap.nsi
 	"$(SIGNTOOL)" $(SIGNTOOL_ARGS) nmap-$(NMAP_VERSION)-setup.exe nmap-$(NMAP_VERSION)-oem-setup.exe
 
-bundle-zip: bundle-zip-public bundle-zip-oem
+bundle-zip: bundle-zip-oem
 
 bundle-zip-public:
 	$(MAKE) OEM_SUFFIX= bundle-zip-main

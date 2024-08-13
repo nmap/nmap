@@ -79,7 +79,7 @@ while test $# -gt 0; do
         if test @includedir@ != /usr/include ; then
           includes=-I@includedir@
         fi
-        echo $includes @PCRE2_STATIC_CFLAG@
+        echo $includes @PCRE2POSIX_CFLAG@
       else
         echo "${usage}" 1>&2
       fi

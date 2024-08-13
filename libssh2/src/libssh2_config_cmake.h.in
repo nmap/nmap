@@ -38,68 +38,37 @@
 /* Headers */
 #cmakedefine HAVE_UNISTD_H
 #cmakedefine HAVE_INTTYPES_H
-#cmakedefine HAVE_STDLIB_H
 #cmakedefine HAVE_SYS_SELECT_H
 #cmakedefine HAVE_SYS_UIO_H
 #cmakedefine HAVE_SYS_SOCKET_H
 #cmakedefine HAVE_SYS_IOCTL_H
 #cmakedefine HAVE_SYS_TIME_H
 #cmakedefine HAVE_SYS_UN_H
-#cmakedefine HAVE_WINDOWS_H
-#cmakedefine HAVE_WS2TCPIP_H
-#cmakedefine HAVE_WINSOCK2_H
-#cmakedefine HAVE_NTDEF_H
-#cmakedefine HAVE_NTSTATUS_H
 
-/* Libraries */
-#cmakedefine HAVE_LIBCRYPT32
-
-/* Types */
-#cmakedefine HAVE_LONGLONG
+/* for example and tests */
+#cmakedefine HAVE_SYS_PARAM_H
+#cmakedefine HAVE_ARPA_INET_H
+#cmakedefine HAVE_NETINET_IN_H
 
 /* Functions */
 #cmakedefine HAVE_GETTIMEOFDAY
-#cmakedefine HAVE_INET_ADDR
-#cmakedefine HAVE_POLL
-#cmakedefine HAVE_SELECT
-#cmakedefine HAVE_SOCKET
 #cmakedefine HAVE_STRTOLL
 #cmakedefine HAVE_STRTOI64
 #cmakedefine HAVE_SNPRINTF
+#cmakedefine HAVE_EXPLICIT_BZERO
+#cmakedefine HAVE_EXPLICIT_MEMSET
+#cmakedefine HAVE_MEMSET_S
 
-/* OpenSSL functions */
-#cmakedefine HAVE_EVP_AES_128_CTR
+#cmakedefine HAVE_POLL
+#cmakedefine HAVE_SELECT
 
 /* Socket non-blocking support */
 #cmakedefine HAVE_O_NONBLOCK
 #cmakedefine HAVE_FIONBIO
-#cmakedefine HAVE_IOCTLSOCKET
 #cmakedefine HAVE_IOCTLSOCKET_CASE
 #cmakedefine HAVE_SO_NONBLOCK
-#cmakedefine HAVE_DISABLED_NONBLOCKING
 
-/* snprintf not in Visual Studio CRT and _snprintf dangerously incompatible.
-   We provide a safe wrapper if snprintf not found */
-#ifndef HAVE_SNPRINTF
-#include <stdio.h>
-#include <stdarg.h>
-/* Want safe, 'n += snprintf(b + n ...)' like function. If cp_max_len is 1
-* then assume cp is pointing to a null char and do nothing. Returns number
-* number of chars placed in cp excluding the trailing null char. So for
-* cp_max_len > 0 the return value is always < cp_max_len; for cp_max_len
-* <= 0 the return value is 0 (and no chars are written to cp). */
-static int snprintf(char * cp, int cp_max_len, const char * fmt, ...)
-{
-    va_list args;
-    int n;
-
-    if (cp_max_len < 2)
-        return 0;
-    va_start(args, fmt);
-    n = vsnprintf(cp, cp_max_len, fmt, args);
-    va_end(args);
-    return (n < cp_max_len) ? n : (cp_max_len - 1);
-}
-
-#define HAVE_SNPRINTF
+/* attribute to export symbol */
+#if defined(LIBSSH2_EXPORTS) && defined(LIBSSH2_LIBRARY)
+#cmakedefine LIBSSH2_API ${LIBSSH2_API}
 #endif

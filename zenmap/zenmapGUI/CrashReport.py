@@ -2,7 +2,7 @@
 
 # ***********************IMPORTANT NMAP LICENSE TERMS************************
 # *
-# * The Nmap Security Scanner is (C) 1996-2023 Nmap Software LLC ("The Nmap
+# * The Nmap Security Scanner is (C) 1996-2024 Nmap Software LLC ("The Nmap
 # * Project"). Nmap is also a registered trademark of the Nmap Project.
 # *
 # * This program is distributed under the terms of the Nmap Public Source
@@ -37,15 +37,16 @@
 # * right to know exactly what a program is going to do before they run it.
 # * This also allows you to audit the software for security holes.
 # *
-# * Source code also allows you to port Nmap to new platforms, fix bugs, and add
-# * new features. You are highly encouraged to submit your changes as a Github PR
-# * or by email to the dev@nmap.org mailing list for possible incorporation into
-# * the main distribution. Unless you specify otherwise, it is understood that
-# * you are offering us very broad rights to use your submissions as described in
-# * the Nmap Public Source License Contributor Agreement. This is important
-# * because we fund the project by selling licenses with various terms, and also
-# * because the inability to relicense code has caused devastating problems for
-# * other Free Software projects (such as KDE and NASM).
+# * Source code also allows you to port Nmap to new platforms, fix bugs, and
+# * add new features. You are highly encouraged to submit your changes as a
+# * Github PR or by email to the dev@nmap.org mailing list for possible
+# * incorporation into the main distribution. Unless you specify otherwise, it
+# * is understood that you are offering us very broad rights to use your
+# * submissions as described in the Nmap Public Source License Contributor
+# * Agreement. This is important because we fund the project by selling licenses
+# * with various terms, and also because the inability to relicense code has
+# * caused devastating problems for other Free Software projects (such as KDE
+# * and NASM).
 # *
 # * The free version of Nmap is distributed in the hope that it will be
 # * useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -104,15 +105,15 @@ class CrashReport(HIGDialog):
 
         self.bug_text = Gtk.Label()
         self.bug_text.set_markup(_('An unexpected error has crashed '
-            '%(app_name)s. Please copy the stack trace below and send it to '
-            'the <a href="mailto:dev@nmap.org">dev@nmap.org</a> mailing list. '
-            '(<a href="http://seclists.org/nmap-dev/">More about the list.</a>'
-            ') The developers will see your report and try to fix the problem.'
+            '%(app_name)s. Please copy the stack trace below and '
+            'open a bug report at https://issues.nmap.org/ '
+            'The developers will see your report and try to fix the problem.'
             ) % {"app_name": escape(APP_DISPLAY_NAME)})
         self.email_frame = Gtk.Frame()
         self.email_label = Gtk.Label()
-        self.email_label.set_markup(_('<b>Copy and email to '
-            '<a href="mailto:dev@nmap.org">dev@nmap.org</a>:</b>'))
+        self.email_label.set_markup(_('<b>Copy and <b>'
+            '<a href="https://issues.nmap.org/new/choose">'
+            'open a bug report</a></b>:'))
         self.btn_copy = Gtk.Button.new_from_stock(Gtk.STOCK_COPY)
         self.btn_ok = Gtk.Button.new_from_stock(Gtk.STOCK_OK)
 
@@ -156,7 +157,8 @@ class CrashReport(HIGDialog):
 
     def get_description(self):
         buff = self.description_text.get_buffer()
-        return buff.get_text(buff.get_start_iter(), buff.get_end_iter(), include_hidden_chars=True)
+        return buff.get_text(buff.get_start_iter(), buff.get_end_iter(),
+                include_hidden_chars=True)
 
     def copy(self, widget=None, event=None):
         clipboard = Gtk.Clipboard.get(Gdk.SELECTION_CLIPBOARD)

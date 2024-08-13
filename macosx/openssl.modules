@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!DOCTYPE moduleset SYSTEM "moduleset.dtd" [
-<!ENTITY nmap_version "7.93SVN">
-<!ENTITY openssl_version "3.0.8">
+<!ENTITY nmap_version "7.95">
+<!ENTITY openssl_version "3.0.13">
 ]>
 <?xml-stylesheet type="text/xsl" href="moduleset.xsl"?>
 <moduleset>

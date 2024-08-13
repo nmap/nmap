@@ -2285,7 +2285,7 @@ static TTree *gettree (lua_State *L, int idx, int *len) {
 */
 static TTree *newtree (lua_State *L, int len) {
   size_t size = (len - 1) * sizeof(TTree) + sizeof(Pattern);
-  Pattern *p = (Pattern *)lua_newuserdata(L, size);
+  Pattern *p = (Pattern *)lua_newuserdatauv(L, size, 1);
   luaL_getmetatable(L, PATTERN_T);
   lua_setmetatable(L, -2);
   p->code = NULL;  p->codesize = 0;
@@ -3390,7 +3390,7 @@ static Capture *doublecap (lua_State *L, Capture *cap, int captop, int ptop) {
   Capture *newc;
   if (captop >= INT_MAX/((int)sizeof(Capture) * 2))
     luaL_error(L, "too many captures");
-  newc = (Capture *)lua_newuserdata(L, captop * 2 * sizeof(Capture));
+  newc = (Capture *)lua_newuserdatauv(L, captop * 2 * sizeof(Capture), 0);
   memcpy(newc, cap, captop * sizeof(Capture));
   lua_replace(L, caplistidx(ptop));
   return newc;
@@ -3412,7 +3412,7 @@ static Stack *doublestack (lua_State *L, Stack **stacklimit, int ptop) {
     luaL_error(L, "too many pending calls/choices");
   newn = 2 * n;  /* new size */
   if (newn > max) newn = max;
-  newstack = (Stack *)lua_newuserdata(L, newn * sizeof(Stack));
+  newstack = (Stack *)lua_newuserdatauv(L, newn * sizeof(Stack), 0);
   memcpy(newstack, stack, n * sizeof(Stack));
   lua_replace(L, stackidx(ptop));
   *stacklimit = newstack + newn;

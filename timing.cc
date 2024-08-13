@@ -7,7 +7,7 @@
  *                                                                         *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
  *
- * The Nmap Security Scanner is (C) 1996-2023 Nmap Software LLC ("The Nmap
+ * The Nmap Security Scanner is (C) 1996-2024 Nmap Software LLC ("The Nmap
  * Project"). Nmap is also a registered trademark of the Nmap Project.
  *
  * This program is distributed under the terms of the Nmap Public Source
@@ -42,15 +42,16 @@
  * right to know exactly what a program is going to do before they run it.
  * This also allows you to audit the software for security holes.
  *
- * Source code also allows you to port Nmap to new platforms, fix bugs, and add
- * new features. You are highly encouraged to submit your changes as a Github PR
- * or by email to the dev@nmap.org mailing list for possible incorporation into
- * the main distribution. Unless you specify otherwise, it is understood that
- * you are offering us very broad rights to use your submissions as described in
- * the Nmap Public Source License Contributor Agreement. This is important
- * because we fund the project by selling licenses with various terms, and also
- * because the inability to relicense code has caused devastating problems for
- * other Free Software projects (such as KDE and NASM).
+ * Source code also allows you to port Nmap to new platforms, fix bugs, and
+ * add new features. You are highly encouraged to submit your changes as a
+ * Github PR or by email to the dev@nmap.org mailing list for possible
+ * incorporation into the main distribution. Unless you specify otherwise, it
+ * is understood that you are offering us very broad rights to use your
+ * submissions as described in the Nmap Public Source License Contributor
+ * Agreement. This is important because we fund the project by selling licenses
+ * with various terms, and also because the inability to relicense code has
+ * caused devastating problems for other Free Software projects (such as KDE
+ * and NASM).
  *
  * The free version of Nmap is distributed in the hope that it will be
  * useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -120,7 +121,7 @@ void adjust_timeouts2(const struct timeval *sent,
   if (to->srtt == -1 && to->rttvar == -1) {
     /* We need to initialize the sucker ... */
     to->srtt = delta;
-    to->rttvar = MAX(5000, MIN(to->srtt, 2000000));
+    to->rttvar = box(5000, 2000000, to->srtt);
     to->timeout = to->srtt + (to->rttvar << 2);
   } else {
     long rttdelta;
@@ -301,6 +302,8 @@ RateMeter::RateMeter(double current_rate_history) {
   stop_tv.tv_usec = 0;
   last_update_tv.tv_sec = 0;
   last_update_tv.tv_usec = 0;
+  history_threshold.tv_sec = 0;
+  history_threshold.tv_usec = 0;
   total = 0.0;
   current_rate = 0.0;
   assert(!isSet(&start_tv));
@@ -314,6 +317,10 @@ void RateMeter::start(const struct timeval *now) {
     gettimeofday(&start_tv, NULL);
   else
     start_tv = *now;
+  /* Find the time current_rate_history seconds after the start. That's our
+     threshold for deciding how far back to look for moving average. */
+  TIMEVAL_ADD(history_threshold, start_tv,
+      (time_t) (current_rate_history * 1000000.0));
 }
 
 void RateMeter::stop(const struct timeval *now) {
@@ -351,7 +358,7 @@ void RateMeter::update(double amount, const struct timeval *now) {
      "current" rate. */
 
   /* How long since the last update? */
-  diff = TIMEVAL_SUBTRACT(*now, last_update_tv) / 1000000.0;
+  diff = TIMEVAL_FSEC_SUBTRACT(*now, last_update_tv);
 
   if (diff < -current_rate_history)
     /* This happened farther in the past than we care about. */
@@ -368,14 +375,10 @@ void RateMeter::update(double amount, const struct timeval *now) {
   /* Find out how far back in time to look. We want to look back
      current_rate_history seconds, or to when the last update occurred,
      whichever is longer. However, we never look past the start. */
-  struct timeval tmp;
-  /* Find the time current_rate_history seconds after the start. That's our
-     threshold for deciding how far back to look. */
-  TIMEVAL_ADD(tmp, start_tv, (time_t) (current_rate_history * 1000000.0));
-  if (TIMEVAL_AFTER(*now, tmp))
+  if (TIMEVAL_AFTER(*now, history_threshold))
     interval = MAX(current_rate_history, diff);
   else
-    interval = TIMEVAL_SUBTRACT(*now, start_tv) / 1000000.0;
+    interval = TIMEVAL_FSEC_SUBTRACT(*now, start_tv);
   assert(diff <= interval + std::numeric_limits<double>::epsilon());
   /* If we record an amount in the very same instant that the timer is started,
      there's no way to calculate meaningful rates. Ignore it. */
@@ -437,7 +440,7 @@ double RateMeter::elapsedTime(const struct timeval *now) const {
     end_tv = now;
   }
 
-  return TIMEVAL_SUBTRACT(*end_tv, start_tv) / 1000000.0;
+  return TIMEVAL_FSEC_SUBTRACT(*end_tv, start_tv);
 }
 
 /* Returns true if tv has been initialized; i.e., its members are not all
@@ -722,9 +725,9 @@ bool ScanProgressMeter::beginOrEndTask(const struct timeval *now, const char *ad
     xml_newline();
   } else {
     if (!err)
-      log_write(LOG_STDOUT, "Completed %s at %02d:%02d, %.2fs elapsed", scantypestr, tm.tm_hour, tm.tm_min, TIMEVAL_MSEC_SUBTRACT(*now, begin) / 1000.0);
+      log_write(LOG_STDOUT, "Completed %s at %02d:%02d, %.2fs elapsed", scantypestr, tm.tm_hour, tm.tm_min, TIMEVAL_FSEC_SUBTRACT(*now, begin));
     else
-      log_write(LOG_STDOUT, "Completed %s, %.2fs elapsed", scantypestr, TIMEVAL_MSEC_SUBTRACT(*now, begin) / 1000.0);
+      log_write(LOG_STDOUT, "Completed %s, %.2fs elapsed", scantypestr, TIMEVAL_FSEC_SUBTRACT(*now, begin));
     xml_open_start_tag("taskend");
     xml_attribute("task", "%s", scantypestr);
     xml_attribute("time", "%lu", (unsigned long) now->tv_sec);

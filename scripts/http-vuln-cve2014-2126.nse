@@ -38,7 +38,7 @@ license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"vuln", "safe"}
 
 portrule = function(host, port)
-  return shortport.ssl(host, port) or sslcert.isPortSupported(port)
+  return port.protocol == "tcp" and (shortport.ssl(host, port) or sslcert.isPortSupported(port))
 end
 
 action = function(host, port)

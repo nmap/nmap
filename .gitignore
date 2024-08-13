@@ -1,3 +1,4 @@
+*~
 *.[oa]
 *.[sl][oa]
 *.gc[dn][oa]
@@ -15,6 +16,7 @@ libtool
 .deps/
 .libs/
 .svn/
+.dirstamp
 stamp-h1
 /libdnet-stripped/dnet-config
 /nbase/nbase_config.h
@@ -49,7 +51,9 @@ libpcap/pcap_version.h
 libpcap/grammar.y
 libssh2/src/libssh2_config.h
 libssh2/lib/
-libpcre/pcre-config
+libpcre/pcre2-config
+libpcre/src/pcre2.h
+libpcre/src/pcre2_chartables.c
 ndiff/INSTALLED_FILES
 libz/contrib/vstudio/vc11/Debug_lib/
 libz/contrib/vstudio/vc11/Release_lib/

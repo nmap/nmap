@@ -1691,13 +1691,11 @@ do
     {"sha256","rsa"},
     {"sha256","dsa"},
     {"sha256","ecdsa"},
-    {"sha256","ed25519"},
-    {"sha256","ed448"},
     {"sha512","rsa"},
     {"sha512","dsa"},
     {"sha512","ecdsa"},
-    {"sha512","ed25519"},
-    {"sha512","ed448"},
+    {"intrinsic","ed25519"},
+    {"intrinsic","ed448"},
   }
   DEFAULT_SIGALGS = EXTENSION_HELPERS["signature_algorithms"](sigalgs)
 end

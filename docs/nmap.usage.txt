@@ -1,4 +1,4 @@
-Nmap 7.94SVN ( https://nmap.org )
+Nmap 7.95SVN ( https://nmap.org )
 Usage: nmap [Scan Type(s)] [Options] {target specification}
 TARGET SPECIFICATION:
   Can pass hostnames, IP addresses, networks, etc.
@@ -11,7 +11,7 @@ HOST DISCOVERY:
   -sL: List Scan - simply list targets to scan
   -sn: Ping Scan - disable port scan
   -Pn: Treat all hosts as online -- skip host discovery
-  -PS/PA/PU/PY[portlist]: TCP SYN/ACK, UDP or SCTP discovery to given ports
+  -PS/PA/PU/PY[portlist]: TCP SYN, TCP ACK, UDP or SCTP discovery to given ports
   -PE/PP/PM: ICMP echo, timestamp, and netmask request discovery probes
   -PO[protocol list]: IP Protocol Ping
   -n/-R: Never do DNS resolution/Always resolve [default: sometimes]
