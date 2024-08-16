@@ -91,7 +91,7 @@ static void arpping(Target *hostbatch[], int num_hosts) {
   int targetno;
   targets.reserve(num_hosts);
 
-  /* Default timout should be much lower for arp */
+  /* Default timeout should be much lower for arp */
   int default_to = box(o.minRttTimeout(), o.initialRttTimeout(), INITIAL_ARP_RTT_TIMEOUT) * 1000;
   for (targetno = 0; targetno < num_hosts; targetno++) {
     initialize_timeout_info(&hostbatch[targetno]->to);
