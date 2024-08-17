@@ -6520,6 +6520,18 @@ printf "%s\n" "$am_cv_python_pyexecdir" >&6; }
 
 
 
+if $HAVE_PYTHON ; then
+  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for python setuptools" >&5
+printf %s "checking for python setuptools... " >&6; }
+  if $PYTHON -c 'import setuptools' 2>/dev/null ; then
+    have_setuptools=yes
+  else
+    have_setuptools=no
+  fi
+  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $have_setuptools" >&5
+printf "%s\n" "$have_setuptools" >&6; }
+fi
+
 NDIFFDIR=ndiff
 
 # Do they want Ndiff?
@@ -6532,15 +6544,15 @@ else $as_nop
   with_ndiff=check
 fi
 
-if $HAVE_PYTHON ; then : ;
+if $HAVE_PYTHON && test "$have_setuptools" = "yes" ; then : ;
 else
   if test "$with_ndiff" = "check" ; then
-    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: WARNING: Not building Ndiff because Python was not found" >&5
-printf "%s\n" "$as_me: WARNING: Not building Ndiff because Python was not found" >&2;}
+    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: WARNING: Not building Ndiff because Python with setuptools was not found" >&5
+printf "%s\n" "$as_me: WARNING: Not building Ndiff because Python with setuptools was not found" >&2;}
   elif test "$with_ndiff" = "yes"; then
     { { printf "%s\n" "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
 printf "%s\n" "$as_me: error: in \`$ac_pwd':" >&2;}
-as_fn_error $? "--with-ndiff requires Python
+as_fn_error $? "--with-ndiff requires Python with setuptools
 See \`config.log' for more details" "$LINENO" 5; }
   fi
   with_ndiff=no
