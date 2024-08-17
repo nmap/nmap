@@ -233,16 +233,26 @@ CHECK_IPV6_IPPROTO_RAW
 m4_define_default([_AM_PYTHON_INTERPRETER_LIST],[python3 python])
 AM_PATH_PYTHON([3], [HAVE_PYTHON=true], [HAVE_PYTHON=false])
 
+if $HAVE_PYTHON ; then
+  AC_MSG_CHECKING([for python setuptools])
+  if $PYTHON -c 'import setuptools' 2>/dev/null ; then
+    have_setuptools=yes
+  else
+    have_setuptools=no
+  fi
+  AC_MSG_RESULT([$have_setuptools])
+fi
+
 NDIFFDIR=ndiff
 
 # Do they want Ndiff?
 AC_ARG_WITH(ndiff, AC_HELP_STRING([--without-ndiff], [Skip installation of the Ndiff utility]), [], [with_ndiff=check])
-if $HAVE_PYTHON ; then : ;
+if $HAVE_PYTHON && test "$have_setuptools" = "yes" ; then : ;
 else
   if test "$with_ndiff" = "check" ; then
-    AC_MSG_WARN([Not building Ndiff because Python was not found])
+    AC_MSG_WARN([Not building Ndiff because Python with setuptools was not found])
   elif test "$with_ndiff" = "yes"; then
-    AC_MSG_FAILURE([--with-ndiff requires Python])
+    AC_MSG_FAILURE([--with-ndiff requires Python with setuptools])
   fi
   with_ndiff=no
 fi
