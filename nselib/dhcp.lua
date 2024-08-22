@@ -453,8 +453,7 @@ function dhcp_build(request_type, ip_address, mac_address, options, request_opti
   return true, strbuf.dump(packet)
 end
 
----Parse a DHCP packet (either a request or a response) and return the results
--- as a table.
+---Parse a DHCP response and return the results as a table.
 --
 -- The table at the top of this function (<code>actions</code>) defines the
 -- name of each field, as laid out in rfc2132, and the function that parses it.
