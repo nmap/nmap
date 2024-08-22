@@ -503,18 +503,19 @@ function dhcp_parse(data, transaction_id)
   -- Parse the options
   result['options'] = {}
   while true do
-    if #data - pos < 2 then
+    local option, length = data:byte(pos, pos + 1)
+
+    -- Check for termination condition
+    if option == 0xFF then
+      break
+    end
+
+    if not (option and length) then
       stdnse.debug1("Unexpected end of options")
       break
     end
 
-    local option, length
-    option, length, pos = string.unpack(">BB", data, pos)
-
-    -- Check for termination condition
-    if(option == 0xFF) then
-      break;
-    end
+    pos = pos + 2
 
     -- Get the action from the array, based on the code
     local action = actions[option]
