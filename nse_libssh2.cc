@@ -553,6 +553,11 @@ static int l_read_publickey (lua_State *L) {
     const char* publickeyfile = luaL_checkstring(L, 1);
     luaL_Buffer publickey_data;
 
+    lua_getglobal(L, "require");
+    lua_pushliteral(L, "base64");
+    lua_call(L, 1, 1);
+    lua_getfield(L, -1, "dec");
+
     fd = fopen(publickeyfile, "r");
     if (!fd)
         return luaL_error(L, "Error reading file");
@@ -565,11 +570,6 @@ static int l_read_publickey (lua_State *L) {
         luaL_addchar(&publickey_data, c);
     }
     fclose(fd);
-
-    lua_getglobal(L, "require");
-    lua_pushstring(L, "base64");
-    lua_call(L, 1, 1);
-    lua_getfield(L, -1, "dec");
 
     luaL_pushresult(&publickey_data);
     lua_call(L, 1, 1);
