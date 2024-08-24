@@ -36,8 +36,8 @@ test_addrset() {
 # Takes as an argument a host specification with invalid syntax. The
 # test passes if addrset returns with a non-zero exit code.
 expect_fail() {
-	specs=$1
-	$ADDRSET $specs < /dev/null 2> /dev/null
+	specs="$1"
+	$ADDRSET "$specs" < /dev/null 2> /dev/null
 	ret=$?
 	TESTS=$(expr $TESTS + 1)
 	if [ "$ret" = "0" ]; then
