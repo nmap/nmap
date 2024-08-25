@@ -13,14 +13,14 @@ o [GH#1451] Nmap now performs forward DNS lookups in parallel, using the same
   took just over an hour. The previous system took 49 hours for the same data
   set! [Daniel Miller]
 
-o [GH#2571, GH#2572, GH#2622, GH#2784] Various bug fixes in the mssql NSE
+o [NSE][GH#2571, GH#2572, GH#2622, GH#2784] Various bug fixes in the mssql NSE
   library [johnjaylward, nnposter]
 
-o [GH#2901, GH#2744, GH#2745] Arbitrary separator in stdnse.tohex() is now
+o [NSE][GH#2901, GH#2744, GH#2745] Arbitrary separator in stdnse.tohex() is now
   supported. Script smb-protocols now reports SMB dialects correctly.
   [nnposter]
 
-o [NSE] ether_type inconsistency in packet.Frame has been resolved. Bothi
+o [NSE] ether_type inconsistency in packet.Frame has been resolved. Both
   Frame:new() and Frame:build_ether_frame() now use an integer. [nnposter]
 
 o [GH#2900, GH#2896, GH#2897] Nmap is now able to scan IP protocol 255.
