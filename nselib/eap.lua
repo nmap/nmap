@@ -41,8 +41,6 @@ _ENV = stdnse.module("eap", stdnse.seeall)
 -- Created 02/23/2012 - v0.1
 
 local ETHER_BROADCAST = "01:80:c2:00:00:03"
-local ETHER_TYPE_EAPOL_N = 0x888E
-local ETHER_TYPE_EAPOL = string.pack(">I2",ETHER_TYPE_EAPOL_N)
 local ETHER_HEADER_SIZE = 14
 local EAPOL_HEADER_SIZE = 4
 local EAP_HEADER_SIZE = 5
@@ -162,7 +160,7 @@ local make_eapol = function (arg)
   local p = packet.Frame:new()
   p.mac_src = arg.src
   p.mac_dst = packet.mactobin(ETHER_BROADCAST)
-  p.ether_type = ETHER_TYPE_EAPOL
+  p.ether_type = packet.ETHER_TYPE_EAPOL
 
   p.buf = string.pack(">BBs2", arg.version, arg.type, arg.payload)
   p:build_ether_frame()
@@ -202,7 +200,7 @@ parse = function (pkt)
   stdnse.debug1("mac_src: %s, mac_dest: %s, ether_type: 0x%X",
   tb.mac_src_str, tb.mac_dst_str, tb.ether_type)
 
-  if tb.ether_type ~= ETHER_TYPE_EAPOL_N then return nil, "not an eapol packet" end
+  if tb.ether_type ~= packet.ETHER_TYPE_EAPOL then return nil, "not an eapol packet" end
 
   stdnse.debug2("version: %X, type: %s, length: 0x%X",
   tb.version, eapol_str[tb.type] or "unknown",

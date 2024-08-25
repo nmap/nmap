@@ -135,8 +135,12 @@ ND_OPT_MTU = 5
 ND_OPT_RTR_ADV_INTERVAL = 7
 ND_OPT_HOME_AGENT_INFO = 8
 
-ETHER_TYPE_IPV4 = "\x08\x00"
-ETHER_TYPE_IPV6 = "\x86\xdd"
+ETHER_TYPE_IPV4 = 0x0800
+ETHER_TYPE_IPV6 = 0x86dd
+ETHER_TYPE_PPPOE_DISCOVERY = 0x8863
+ETHER_TYPE_PPPOE_SESSION = 0x8864
+ETHER_TYPE_EAPOL = 0x888e
+ETHER_TYPE_ATAOE = 0x88a2
 
 ----------------------------------------------------------------------------------------------------------------
 -- Frame is a class
@@ -160,7 +164,7 @@ end
 --- Build an Ethernet frame.
 -- @param mac_dst six-byte string of the destination MAC address.
 -- @param mac_src six-byte string of the source MAC address.
--- @param ether_type two-byte string of the type.
+-- @param ether_type IEEE 802 ethertype as a 16-bit integer (0x0800 for IPv4)
 -- @param packet string of the payload.
 -- @return frame string of the Ether frame.
 function Frame:build_ether_frame(mac_dst, mac_src, ether_type, packet)
@@ -171,7 +175,7 @@ function Frame:build_ether_frame(mac_dst, mac_src, ether_type, packet)
   if not self.ether_type then
     return nil, "Unknown packet type."
   end
-  self.frame_buf = self.mac_dst..self.mac_src..self.ether_type..self.buf
+  self.frame_buf = self.mac_dst..self.mac_src..(">I2"):pack(self.ether_type)..self.buf
 end
 --- Parse an Ethernet frame.
 -- @param frame string of the Ether frame.

@@ -105,14 +105,14 @@ ATAoE = {
 -- Send a Config Info Request to the ethernet broadcast address
 -- @param iface table as returned by nmap.get_interface_info()
 local function sendConfigInfoRequest(iface)
-  local ETHER_BROADCAST, P_ATAOE = "ff:ff:ff:ff:ff:ff", 0x88a2
+  local ETHER_BROADCAST = "ff:ff:ff:ff:ff:ff"
   local req = ATAoE.ConfigInfoRequest:new()
   local tag = req.tag
 
   local p = packet.Frame:new()
   p.mac_src = iface.mac
   p.mac_dst = packet.mactobin(ETHER_BROADCAST)
-  p.ether_type = string.pack(">I2", P_ATAOE)
+  p.ether_type = packet.ETHER_TYPE_ATAOE
   p.buf = tostring(req)
   p:build_ether_frame()
 

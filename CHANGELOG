@@ -20,6 +20,9 @@ o [GH#2901, GH#2744, GH#2745] Arbitrary separator in stdnse.tohex() is now
   supported. Script smb-protocols now reports SMB dialects correctly.
   [nnposter]
 
+o [NSE] ether_type inconsistency in packet.Frame has been resolved. Bothi
+  Frame:new() and Frame:build_ether_frame() now use an integer. [nnposter]
+
 o [GH#2900, GH#2896, GH#2897] Nmap is now able to scan IP protocol 255.
   [nnposter]
 
