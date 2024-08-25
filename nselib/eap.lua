@@ -17,10 +17,10 @@
 -- pcap:pcap_open(iface.device, 512, true, "ether proto 0x888e")
 -- ...
 -- local _, _, l2_data, l3_data, _ = pcap:pcap_receive()
--- local packet = eap.parse(l2_data .. l3_data3)
--- if packet then
---   if packet.eap.type == eap.eap_t.IDENTITY and  packet.eap.code == eap.code_t.REQUEST then
---     eap.send_identity_response(iface, packet.eap.id, "anonymous")
+-- local pkt = eap.parse(l2_data .. l3_data3)
+-- if pkt then
+--   if pkt.eap.type == eap.eap_t.IDENTITY and pkt.eap.code == eap.code_t.REQUEST then
+--     eap.send_identity_response(iface, pkt.eap.id, "anonymous")
 --   end
 -- end
 -- </code>
@@ -186,18 +186,18 @@ local make_eap = function (arg)
   return v
 end
 
-parse = function (packet)
+parse = function (pkt)
   local tb = {}
 
-  stdnse.debug2("packet size: 0x%x", #packet )
+  stdnse.debug2("packet size: 0x%x", #pkt )
 
   -- parsing ethernet header
-  tb.mac_src, tb.mac_dst, tb.ether_type = string.unpack(">c6c6I2", packet)
+  tb.mac_src, tb.mac_dst, tb.ether_type = string.unpack(">c6c6I2", pkt)
   tb.mac_src_str = stdnse.tohex(tb.mac_src)
   tb.mac_dst_str = stdnse.tohex(tb.mac_dst)
 
   -- parsing eapol header
-  tb.version, tb.type, tb.length = string.unpack(">BBI2", packet, ETHER_HEADER_SIZE + 1)
+  tb.version, tb.type, tb.length = string.unpack(">BBI2", pkt, ETHER_HEADER_SIZE + 1)
 
   stdnse.debug1("mac_src: %s, mac_dest: %s, ether_type: 0x%X",
   tb.mac_src_str, tb.mac_dst_str, tb.ether_type)
@@ -213,7 +213,7 @@ parse = function (packet)
   if tb.length > 0 then
     -- parsing body
 
-    tb.eap.code, tb.eap.id, tb.eap.length, tb.eap.type = string.unpack(">BBI2B", packet,
+    tb.eap.code, tb.eap.id, tb.eap.length, tb.eap.type = string.unpack(">BBI2B", pkt,
     ETHER_HEADER_SIZE + EAPOL_HEADER_SIZE + 1)
     stdnse.debug2("code: %s, id: 0x%X, length: 0x%X, type: %s",
     code_str[tb.eap.code] or "unknown",
@@ -227,13 +227,13 @@ parse = function (packet)
 
   -- parsing payload
   if tb.length > 5 and tb.eap.type == eap_t.IDENTITY then
-    tb.eap.body.identity = string.unpack("z", packet,
+    tb.eap.body.identity = string.unpack("z", pkt,
     ETHER_HEADER_SIZE + EAPOL_HEADER_SIZE + EAP_HEADER_SIZE + 1)
     stdnse.debug1("identity: %s", tb.eap.body.identity )
   end
 
   if tb.length > 5 and tb.eap.type == eap_t.MD5  then
-    tb.eap.body.challenge = string.unpack("s1", packet, ETHER_HEADER_SIZE + EAPOL_HEADER_SIZE + EAP_HEADER_SIZE + 1)
+    tb.eap.body.challenge = string.unpack("s1", pkt, ETHER_HEADER_SIZE + EAPOL_HEADER_SIZE + EAP_HEADER_SIZE + 1)
   end
 
   return tb
