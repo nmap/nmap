@@ -147,18 +147,20 @@ ETHER_TYPE_ATAOE = 0x88a2
 Frame = {}
 
 function Frame:new(frame, force_continue)
-  local packet = nil
-  local packet_len = 0
-  if frame and #frame > 14 then
-    packet = string.sub(frame, 15, -1)
-    packet_len = #frame - 14
+  local mac_dst, mac_src, ether_type, packet
+  if frame and #frame >= 14 then
+    local pos
+    mac_dst, mac_src, ether_type, pos = ("c6c6>I2"):unpack(frame)
+    packet = frame:sub(pos, -1)
+    if #packet == 0 then packet = nil end
   end
-  local o = Packet:new(packet, packet_len, force_continue)
+  local o = Packet:new(packet, packet and #packet or 0, force_continue)
 
   o.build_ether_frame = self.build_ether_frame
-  o.ether_parse = self.ether_parse
   o.frame_buf = frame
-  o:ether_parse()
+  o.mac_dst = mac_dst
+  o.mac_src = mac_src
+  o.ether_type = ether_type
   return o
 end
 --- Build an Ethernet frame.
@@ -176,19 +178,6 @@ function Frame:build_ether_frame(mac_dst, mac_src, ether_type, packet)
     return nil, "Unknown packet type."
   end
   self.frame_buf = self.mac_dst..self.mac_src..(">I2"):pack(self.ether_type)..self.buf
-end
---- Parse an Ethernet frame.
--- @param frame string of the Ether frame.
--- @return mac_dst six-byte string of the destination MAC address.
--- @return mac_src six-byte string of the source MAC address.
--- @return packet string of the payload.
-function Frame:ether_parse()
-  if not self.frame_buf or #self.frame_buf < 14 then -- too short
-    return false
-  end
-  self.mac_dst = string.sub(self.frame_buf, 1, 6)
-  self.mac_src = string.sub(self.frame_buf, 7, 12)
-  self.ether_type = u16(self.frame_buf, 12)
 end
 
 ----------------------------------------------------------------------------------------------------------------
