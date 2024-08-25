@@ -150,7 +150,6 @@ action = function()
     if ( status ) then
       local header = ATAoE.Header.parse(l3_data)
       local f = packet.Frame:new(l2_data)
-      f:ether_parse()
 
       local str = ("Server: %s; Version: %d; Major: %d; Minor: %d"):format(
         stdnse.format_mac(f.mac_src),

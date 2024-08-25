@@ -113,7 +113,6 @@ ftp_helper = {
 
       -- Get ethernet values
       local f = packet.Frame:new(l2data)
-      f:ether_parse()
 
       local p = packet.Packet:new(l3data, #l3data)
       if isIp4 then
