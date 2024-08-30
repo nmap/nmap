@@ -579,6 +579,8 @@ static int l_read_publickey (lua_State *L) {
 
 static int publickey_canauth_cb (LIBSSH2_SESSION *session, unsigned char **sig,
     size_t *sig_len, const unsigned char *data, size_t data_len, void **abstract) {
+    if(!libssh2_session_get_blocking(session))
+        return 1;
     return 0;
 }
 
