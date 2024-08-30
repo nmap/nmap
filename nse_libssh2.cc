@@ -579,7 +579,7 @@ static int l_read_publickey (lua_State *L) {
 
 static int publickey_canauth_cb (LIBSSH2_SESSION *session, unsigned char **sig,
     size_t *sig_len, const unsigned char *data, size_t data_len, void **abstract) {
-    return 0;
+    return 1;
 }
 
 static int publickey_canauth (lua_State *L, int status, lua_KContext ctx) {
