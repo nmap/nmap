@@ -579,12 +579,12 @@ static int l_read_publickey (lua_State *L) {
 
 static int publickey_canauth_cb (LIBSSH2_SESSION *session, unsigned char **sig,
     size_t *sig_len, const unsigned char *data, size_t data_len, void **abstract) {
-    return 0;
+    // Must return an error, any error, other than LIBSSH2_ERROR_EAGAIN
+    return LIBSSH2_ERROR_PUBLICKEY_PROTOCOL;
 }
 
 static int publickey_canauth (lua_State *L, int status, lua_KContext ctx) {
     int rc;
-    int errlen;
     char *errmsg;
     const char *username;
     unsigned const char *publickey_data;
@@ -608,14 +608,18 @@ static int publickey_canauth (lua_State *L, int status, lua_KContext ctx) {
         lua_callk(L, 1, 0, 0, publickey_canauth);
     }
 
-    libssh2_session_last_error(state->session, &errmsg, &errlen, 0);
+    libssh2_session_last_error(state->session, &errmsg, NULL, 0);
 
-    if (rc == LIBSSH2_ERROR_ALLOC || rc == LIBSSH2_ERROR_PUBLICKEY_UNVERIFIED)
-        lua_pushboolean(L, 1); //Username/PublicKey combination invalid
+    if (rc == LIBSSH2_ERROR_PUBLICKEY_UNVERIFIED && !strncmp("Callback", errmsg, 8))
+        // The username/publickey combination has been accepted because
+        // the authentication flow progressed all the way to our dummy
+        // callback where the private key is needed
+        lua_pushboolean(L, 1);
     else if (rc == LIBSSH2_ERROR_AUTHENTICATION_FAILED)
+        // The server rejected the username/publickey combination
         lua_pushboolean(L, 0);
     else
-        return luaL_error(L, "Invalid Publickey");
+        return luaL_error(L, "Invalid public key: %s", errmsg);
 
     return 1;
 }
