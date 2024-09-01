@@ -58,6 +58,7 @@
 #ifdef HAVE_PCAP
 
 #include "pcap.h"
+#include "ethertype.h"
 
 #include <string.h>
 #include <stdarg.h>
