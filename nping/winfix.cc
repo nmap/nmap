@@ -91,6 +91,7 @@ void win_pre_init() {
 	werd = MAKEWORD( 2, 2 );
 	if( (WSAStartup(werd, &data)) !=0 )
 		fatal("failed to start winsock.\n");
+	atexit(win_cleanup);
 }
 
 /* Check if the NPCAP service is running on Windows, and try to start it if it's
@@ -255,7 +256,6 @@ void win_init()
 
 	if (!o.havePcap())
 		o.setIsRoot(0);
-	atexit(win_cleanup);
 }
 
 
