@@ -201,6 +201,8 @@ dnl results:    HAVE_IOCTL_ARP
 dnl
 AC_DEFUN(AC_DNET_IOCTL_ARP,
     [AC_MSG_CHECKING(for arp(7) ioctls)
+    AC_PROG_EGREP
+    AC_PROG_CPP
     AC_CACHE_VAL(ac_cv_dnet_ioctl_arp,
 	AC_EGREP_CPP(werd, [
 #	include <sys/types.h>
