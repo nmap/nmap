@@ -16,6 +16,12 @@ o [GH#1451] Nmap now performs forward DNS lookups in parallel, using the same
 o [NSE][GH#2571, GH#2572, GH#2622, GH#2784] Various bug fixes in the mssql NSE
   library [johnjaylward, nnposter]
 
+o [NSE][GH#2925, GH#2917, GH#2924] Testing for acceptance of SSH keys for
+  a given username caused heap corruption [Julijan Nedic, nnposter]
+
+o [NSE][GH#2919, GH2917] Scripts were not able to load SSH public keys
+  from a file [nnposter]
+
 o [NSE][GH#2901, GH#2744, GH#2745] Arbitrary separator in stdnse.tohex() is now
   supported. Script smb-protocols now reports SMB dialects correctly.
   [nnposter]
