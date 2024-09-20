@@ -548,6 +548,7 @@ static void refresh_hostbatch(HostGroupState *hs, struct addrset *exclude_group,
           error("%s: Failed to determine dst MAC address for target %s",
               __func__, hs->hostbatch[i]->NameIP());
           hs->hostbatch[i]->flags = HOST_DOWN;
+          hs->hostbatch[i]->reason.reason_id = ER_NOROUTE;
         }
       }
     }
