@@ -117,8 +117,10 @@ static void arpping(Target *hostbatch[], int num_hosts) {
   if (!targets.empty()) {
     if (targets[0]->af() == AF_INET)
       ultra_scan(targets, NULL, PING_SCAN_ARP);
-    else
+    else {
+      assert(targets[0]->af() == AF_INET6);
       ultra_scan(targets, NULL, PING_SCAN_ND);
+    }
   }
   return;
 }
@@ -518,19 +520,9 @@ static void refresh_hostbatch(HostGroupState *hs, struct addrset *exclude_group,
   /* First I'll do the ARP ping if all of the machines in the group are
      directly connected over ethernet.  I may need the MAC addresses
      later anyway. */
-  if (hs->hostbatch[0]->ifType() == devt_ethernet &&
-      hs->hostbatch[0]->af() == AF_INET &&
-      hs->hostbatch[0]->directlyConnected() &&
-      o.sendpref != PACKET_SEND_IP_STRONG &&
-      o.implicitARPPing) {
-    arpping(hs->hostbatch, hs->current_batch_sz);
-    arpping_done = true;
-  }
-
   /* No other interface types are supported by ND ping except devt_ethernet
      at the moment. */
   if (hs->hostbatch[0]->ifType() == devt_ethernet &&
-      hs->hostbatch[0]->af() == AF_INET6 &&
       hs->hostbatch[0]->directlyConnected() &&
       o.sendpref != PACKET_SEND_IP_STRONG &&
       o.implicitARPPing) {
