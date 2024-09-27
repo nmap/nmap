@@ -110,6 +110,9 @@
 
 extern NmapOps o;
 
+#define SERVICE_FIELD_LEN 80
+#define SERVICE_EXTRA_LEN 256
+#define SERVICE_TYPE_LEN 32
 // Details on a particular service (open port) we are trying to match
 class ServiceNFO {
 public:
@@ -137,15 +140,15 @@ public:
   const char *probe_matched;
   // If a match is found, any product/version/info/hostname/ostype/devicetype
   // is placed in these 6 strings.  Otherwise the string will be 0 length.
-  char product_matched[80];
-  char version_matched[80];
-  char extrainfo_matched[256];
-  char hostname_matched[80];
-  char ostype_matched[32];
-  char devicetype_matched[32];
-  char cpe_a_matched[80];
-  char cpe_h_matched[80];
-  char cpe_o_matched[80];
+  char product_matched[SERVICE_FIELD_LEN];
+  char version_matched[SERVICE_FIELD_LEN];
+  char extrainfo_matched[SERVICE_EXTRA_LEN];
+  char hostname_matched[SERVICE_FIELD_LEN];
+  char ostype_matched[SERVICE_TYPE_LEN];
+  char devicetype_matched[SERVICE_TYPE_LEN];
+  char cpe_a_matched[SERVICE_FIELD_LEN];
+  char cpe_h_matched[SERVICE_FIELD_LEN];
+  char cpe_o_matched[SERVICE_FIELD_LEN];
   enum service_tunnel_type tunnel; /* SERVICE_TUNNEL_NONE, SERVICE_TUNNEL_SSL */
   // This stores our SSL session id, which will help speed up subsequent
   // SSL connections.  It's overwritten each time.  void* is used so we don't
@@ -516,13 +519,13 @@ void ServiceProbeMatch::InitMatch(const char *matchtext, int lineno) {
   // NULL.
 const struct MatchDetails *ServiceProbeMatch::testMatch(const u8 *buf, int buflen) {
   int rc;
-  static char product[80];
-  static char version[80];
-  static char info[256];  /* We will truncate with ... later */
-  static char hostname[80];
-  static char ostype[32];
-  static char devicetype[32];
-  static char cpe_a[80], cpe_h[80], cpe_o[80];
+  static char product[SERVICE_FIELD_LEN];
+  static char version[SERVICE_FIELD_LEN];
+  static char info[SERVICE_EXTRA_LEN];  /* We will truncate with ... later */
+  static char hostname[SERVICE_FIELD_LEN];
+  static char ostype[SERVICE_TYPE_LEN];
+  static char devicetype[SERVICE_TYPE_LEN];
+  static char cpe_a[SERVICE_FIELD_LEN], cpe_h[SERVICE_FIELD_LEN], cpe_o[SERVICE_FIELD_LEN];
   char *bufc = (char *) buf;
   assert(isInitialized);
 
