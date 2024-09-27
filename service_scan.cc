@@ -535,17 +535,20 @@ const struct MatchDetails *ServiceProbeMatch::testMatch(const u8 *buf, int bufle
 
   rc = pcre2_match(regex_compiled, (PCRE2_SPTR8)bufc, buflen, 0, 0, match_data, match_context);
   if (rc < 0) {
-    if (rc == PCRE2_ERROR_MATCHLIMIT) {
-      if (o.debugging || o.verbose > 1)
-        error("Warning: Hit PCRE_ERROR_MATCHLIMIT when probing for service %s with the regex '%s'", servicename, matchstr);
-    } else
-    if (rc == PCRE2_ERROR_RECURSIONLIMIT) {
-      if (o.debugging || o.verbose > 1)
-        error("Warning: Hit PCRE_ERROR_RECURSIONLIMIT when probing for service %s with the regex '%s'", servicename, matchstr);
-    } else
-      if (rc != PCRE2_ERROR_NOMATCH) {
-        fatal("Unexpected PCRE error (%d) when probing for service %s with the regex '%s'", rc, servicename, matchstr);
+    // Probably just didn't match. However, PCRE2 errors may happen with bad
+    // patterns. We want to know, but don't abandon the whole scan.
+    if (rc != PCRE2_ERROR_NOMATCH) {
+      if (o.verbose || o.debugging) {
+        error("Warning: PCRE2 error %d when probing for service %s with the regex '%s'", rc, servicename, matchstr);
       }
+      if (o.debugging) {
+        pcre2_get_error_message(rc, (unsigned char *)info, SERVICE_EXTRA_LEN);
+        error("PCRE2 error message: %s", info);
+        if (o.debugging > 1) {
+          error("Service data: \n%s", hexdump(buf, buflen));
+        }
+      }
+    }
   } else {
     // Yeah!  Match apparently succeeded.
     // Now lets get the version number if available
