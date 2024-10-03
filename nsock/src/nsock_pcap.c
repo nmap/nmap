@@ -462,6 +462,7 @@ void nse_readpcap(nsock_event nsev, const unsigned char **l2_data, size_t *l2_le
   nsock_pcap *n;
   size_t l2l;
   size_t l3l;
+  unsigned ethertype;
 
   n = (nsock_pcap *)fs_str(&(nse->iobuf));
   if (fs_length(&(nse->iobuf)) < sizeof(nsock_pcap)) {
@@ -479,7 +480,17 @@ void nse_readpcap(nsock_event nsev, const unsigned char **l2_data, size_t *l2_le
   }
 
   l2l = MIN(mp->l3_offset, n->caplen);
-  l3l = MAX(0, n->caplen-mp->l3_offset);
+
+  if (mp->datalink == DLT_EN10MB) {
+    /* check for 802.1Q tags; 802.1ad allows more than one */
+    while (l2l < n->caplen) {
+      ethertype = n->packet[l2l - 2] << 8 | n->packet[l2l - 1];
+      if (ethertype != ETHERTYPE_8021Q && ethertype != ETHERTYPE_8021AD) break;
+      l2l = MIN(l2l + 4, n->caplen);
+    }
+  }
+
+  l3l = n->caplen - l2l;
 
   if (l2_data)
     *l2_data = n->packet;
