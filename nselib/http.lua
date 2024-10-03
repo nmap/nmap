@@ -1710,9 +1710,11 @@ function parse_redirect(host, port, path, response)
     u.path = "/"
   end
   u.path = url.absolute(path, u.path)
-  if ( u.query ) then
-    u.path = ("%s?%s"):format( u.path, u.query )
-  end
+  u.path = url.build({
+      path = u.path,
+      query = u.query,
+      params = u.params,
+    })
   return u
 end
 
@@ -3221,6 +3223,100 @@ do
     test_suite:add_test(unittest.equal(fragment, test.fragment), test.name .. " (fragment)")
   end
 
+  local parse_redirect_tests = {}
+  table.insert(parse_redirect_tests,
+    { name = "redirect plain URL",
+      host = "example.com",
+      port = 80,
+      path = "initial_path",
+      redirect_scheme = "http",
+      redirect_host = "example.com",
+      redirect_port = 80,
+      redirect_path = "/redirect_path",
+      response = {
+        status = 301,
+        header = {
+          location = "http://example.com:80/redirect_path"
+        }
+      }
+    }
+  )
+  table.insert(parse_redirect_tests,
+    { name = "redirect URL with query",
+      host = "example.com",
+      port = 80,
+      path = "initial_path",
+      redirect_scheme = "http",
+      redirect_host = "example.com",
+      redirect_port = 80,
+      redirect_path = "/redirect_path?query=1234",
+      response = {
+        status = 301,
+        header = {
+          location = "http://example.com:80/redirect_path?query=1234"
+        }
+      }
+    }
+    )
+  table.insert(parse_redirect_tests,
+    { name = "redirect URL with semicolon params",
+      host = "example.com",
+      port = 80,
+      path = "initial_path",
+      redirect_scheme = "http",
+      redirect_host = "example.com",
+      redirect_port = 80,
+      redirect_path = "/redirect_path;param=1234",
+      response = {
+        status = 301,
+        header = {
+          location = "http://example.com:80/redirect_path;param=1234"
+        }
+      }
+    }
+    )
+  table.insert(parse_redirect_tests,
+    { name = "redirect URL with multiple semicolon params",
+      host = "example.com",
+      port = 80,
+      path = "initial_path",
+      redirect_scheme = "http",
+      redirect_host = "example.com",
+      redirect_port = 80,
+      redirect_path = "/redirect_path;param1=1234;param2",
+      response = {
+        status = 301,
+        header = {
+          location = "http://example.com:80/redirect_path;param1=1234;param2"
+        }
+      }
+    }
+    )
+  table.insert(parse_redirect_tests,
+    { name = "redirect URL with semicolon params and query",
+      host = "example.com",
+      port = 80,
+      path = "initial_path",
+      redirect_scheme = "http",
+      redirect_host = "example.com",
+      redirect_port = 80,
+      redirect_path = "/redirect_path;param1=1234;param2&query=abc",
+      response = {
+        status = 301,
+        header = {
+          location = "http://example.com:80/redirect_path;param1=1234;param2&query=abc"
+        }
+      }
+    }
+    )
+
+  for _, test in ipairs(parse_redirect_tests) do
+    local redirect_url = parse_redirect(test.host, test.port, test.path, test.response)
+    test_suite:add_test(unittest.equal(redirect_url.scheme, test.redirect_scheme))
+    test_suite:add_test(unittest.equal(redirect_url.host, test.redirect_host))
+    test_suite:add_test(unittest.equal(redirect_url.port, test.redirect_port))
+    test_suite:add_test(unittest.equal(redirect_url.path, test.redirect_path))
+  end
 end
 
 return _ENV;
