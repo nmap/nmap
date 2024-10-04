@@ -524,7 +524,7 @@ static void validate_publickey_params(lua_State *L, struct publickey_ctx *ctx) {
   ctx->privkey = luaL_checklstring(L, 3, &ctx->privkey_len);
 
   ctx->passphrase = lua_isstring(L, 4) ? lua_tostring(L, 4) : NULL;
-  ctx->pubkey = lua_isstring(L, 4) ? lua_tolstring(L, 4, &ctx->pubkey_len) : NULL;
+  ctx->pubkey = lua_isstring(L, 5) ? lua_tolstring(L, 5, &ctx->pubkey_len) : NULL;
 }
 
 static int userauth_publickey (lua_State *L, int status, lua_KContext ctx) {
