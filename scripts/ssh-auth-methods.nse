@@ -41,8 +41,9 @@ portrule = shortport.ssh
 function action (host, port)
   local result = stdnse.output_table()
   local helper = libssh2_util.SSHConnection:new()
-  if not helper:connect(host, port) then
-    return "Failed to connect to ssh server"
+  local status, err = helper:connect_pcall(host, port)
+  if not status then
+    return "Failed to connect to ssh server: " .. err
   end
 
   local authmethods = helper:list(username)

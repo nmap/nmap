@@ -82,9 +82,7 @@ Driver = {
 
 local function password_auth_allowed (host, port)
   local helper = libssh2_util.SSHConnection:new()
-  if not helper:connect(host, port) then
-    return "Failed to connect to ssh server"
-  end
+  helper:connect(host, port) -- throws error on failure
   local methods = helper:list "root"
   if methods then
     for _, value in pairs(methods) do
@@ -99,7 +97,11 @@ end
 function action (host, port)
   local timems = stdnse.parse_timespec(arg_timeout) --todo: use this!
   local ssh_timeout = 1000 * timems
-  if password_auth_allowed(host, port) then
+  local connected, auth_status = pcall(password_auth_allowed, host, port)
+  if not connected then
+    return "Failed to connect to ssh server: " .. auth_status
+  end
+  if auth_status then
     local options = {
       ssh_timeout = ssh_timeout,
     }

@@ -1,5 +1,9 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE][GH#1014][GH#2616] SSH NSE scripts now catch connection errors thrown by
+  the libssh2 Lua binding, providing useful output instead of a backtrace.
+  [Joshua Rogers, Daniel Miller]
+
 o Nmap will now allow targets to be specified both on the command line and in
   an input file with -iL. Previously, if targets were provided in both places,
   only the targets in the input file would be scanned, and no notice was given
