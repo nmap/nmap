@@ -404,12 +404,20 @@ void handle_connect_result(struct npool *ms, struct nevent *nse, enum nse_status
    * on whether SSL_connect returns an error of SSL_ERROR_WANT_READ or
    * SSL_ERROR_WANT_WRITE. In that case we will re-enter this function, but we
    * don't want to execute this block again. */
-  if (iod->sd != -1 && !sslconnect_inprogress) {
+  if (iod->sd != -1) {
     int ev = EV_NONE;
-
-    ev |= socket_count_read_dec(iod);
-    ev |= socket_count_write_dec(iod);
-    update_events(iod, ms, nse, EV_NONE, ev);
+    if (!sslconnect_inprogress) {
+      ev |= socket_count_read_dec(iod);
+      ev |= socket_count_write_dec(iod);
+      update_events(iod, ms, nse, EV_NONE, ev);
+    }
+#if HAVE_OPENSSL
+    else if (nse->event_done) {
+      // event_done && sslconnect_inprogress, so timeout or canceled.
+      ev = socket_count_dec_ssl_desire(nse);
+      update_events(iod, ms, nse, EV_NONE, ev);
+    }
+#endif
   }
 
 #if HAVE_OPENSSL
