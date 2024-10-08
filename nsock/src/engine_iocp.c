@@ -574,8 +574,6 @@ static void free_eov(struct npool *nsp, struct extended_overlapped *eov) {
     eov->readbuf = NULL;
   }
 
-  
-
   eov->nse = NULL;
   eov->nse_id = 0;
   if (nse)
@@ -801,28 +799,48 @@ static void initiate_overlapped_event(struct npool *nsp, struct nevent *nse) {
 
 /* Terminate an overlapped I/O operation that expired */
 static void terminate_overlapped_event(struct npool *nsp, struct nevent *nse) {
+  struct extended_overlapped *eov = nse->eov;
+  DWORD dwCancelError = 0;
 
-  if (nse->eov) {
-    assert(nse->eov->nse_id != NSEID_FREED);
-    if (nse->eov->nse_id != NSEID_CANCELED && !HasOverlappedIoCompleted((LPOVERLAPPED)nse->eov)) {
-      assert(nse->eov->forced_operation == IOCP_NOT_FORCED);
-      nse->eov->nse_id = NSEID_CANCELED;
-      nse->eov->nse = NULL;
-      CancelIoEx((HANDLE)nse->iod->sd, (LPOVERLAPPED)nse->eov);
-    }
-    else {
-      if (nse->eov->forced_operation == IOCP_FORCED_POSTED) {
-        // forced operation already posted again.
-        // Mark it to be freed in iterate_through_event_lists.
-        nse->eov->nse_id = NSEID_CANCELED;
-        nse->eov->nse = NULL;
-      }
-      else {
-        free_eov(nsp, nse->eov);
-      }
-    }
-    nse->eov = NULL;
+  // If there's no I/O or it's already been canceled, just return.
+  if (!eov || eov->nse_id == NSEID_CANCELED) {
+    return;
   }
+
+  assert(eov->nse_id != NSEID_FREED);
+
+  // Mark this as canceled
+  eov->nse_id = NSEID_CANCELED;
+  eov->nse = NULL;
+  nse->eov = NULL;
+
+  // If this is a forced operation that's been posted to the queue, we can't
+  // delete it yet and there's nothing left to cancel. Let
+  // iterate_through_event_lists free it next time through the loop.
+  if (eov->forced_operation == IOCP_FORCED_POSTED) {
+    return;
+  }
+
+  // If there's a pending I/O, cancel it.
+  if (!HasOverlappedIoCompleted((LPOVERLAPPED)eov)) {
+    // forced operations are never pending
+    assert(eov->forced_operation == IOCP_NOT_FORCED);
+    // If CancelIoEx succeeds, there will be a completion packet
+    if (CancelIoEx((HANDLE)nse->iod->sd, (LPOVERLAPPED)eov) != 0) {
+      return;
+    }
+    // If it failed, it could be there wasn't anything to cancel.
+    dwCancelError = GetLastError();
+    if (dwCancelError != ERROR_NOT_FOUND) {
+      fatal("Unexpected error from CancelIoEx: %08x", dwCancelError);
+    }
+  }
+  else if (eov->forced_operation == IOCP_NOT_FORCED) {
+      // real (not forced) IO completed, so this eov is referenced in the queue.
+      return;
+  }
+  // Now there are no more references to this eov, so we can free it.
+  free_eov(nsp, eov);
 }
 
 /* Retrieve the amount of bytes transferred or set the appropriate error */
