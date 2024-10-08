@@ -275,19 +275,32 @@ int iocp_iod_modify(struct npool *nsp, struct niod *iod, struct nevent *nse, int
   new_events |= ev_set;
   new_events &= ~ev_clr;
 
+  if (new_events == iod->watched_events)
+      return 1; /* nothing to do */
+
+  iod->watched_events = new_events;
+  switch (nse->type) {
+  case NSE_TYPE_CONNECT:
+  case NSE_TYPE_CONNECT_SSL:
+      break;
+  case NSE_TYPE_READ:
+  case NSE_TYPE_PCAP_READ:
+      assert((ev_set | ev_clr) == EV_READ);
+      break;
+  case NSE_TYPE_WRITE:
+      assert((ev_set | ev_clr) == EV_WRITE);
+      break;
+  default:
+      fatal("Invalid NSE type %d for iocp_iod_modify", nse->type);
+      break;
+  }
+
   if (ev_set != EV_NONE) {
-      // XXX: Pretty sure this is only for the SSL connect case.
-      // We may be able to make this more efficient?
       if (!nse->eov)
           initiate_overlapped_event(nsp, nse);
   }
   else if (ev_clr != EV_NONE)
     terminate_overlapped_event(nsp, nse);
-
-  if (new_events == iod->watched_events)
-    return 1; /* nothing to do */
-
-  iod->watched_events = new_events;
 
   return 1;
 }
