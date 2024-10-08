@@ -144,6 +144,10 @@ struct extended_overlapped {
 
   /* This is the buffer we will read data in */
   char *readbuf;
+  /* WSARecvFrom gives us the peer sockaddr,
+     which we can't put into nse->iod->peer until it's retrieved via iod_read */
+  struct sockaddr_storage peer;
+  socklen_t peerlen;
 
   /* The struct npool keeps track of EOVs that have been allocated so that it
   * can destroy them if the msp is deleted.  This pointer makes it easy to
@@ -162,7 +166,7 @@ static void iterate_through_event_lists(struct npool *nsp);
 static void iterate_through_pcap_events(struct npool *nsp);
 static void terminate_overlapped_event(struct npool *nsp, struct nevent *nse);
 static void initiate_overlapped_event(struct npool *nsp, struct nevent *nse);
-static int get_overlapped_result(struct npool *nsp, int fd, const void *buffer, size_t count);
+static int get_overlapped_result(struct npool *nsp, int fd, const void *buffer, size_t count, struct sockaddr* src_addr, socklen_t* addrlen);
 static void force_operation(struct npool *nsp, struct nevent *nse);
 static void free_eov(struct npool *nsp, struct extended_overlapped *eov);
 static int map_faulty_errors(int err);
@@ -646,8 +650,9 @@ static void call_read_overlapped(struct nevent *nse) {
   eov->wsabuf.buf = eov->readbuf;
   eov->wsabuf.len = READ_BUFFER_SZ;
 
+  eov->peerlen = sizeof(eov->peer);
   err = WSARecvFrom(nse->iod->sd, &eov->wsabuf, 1, NULL, &flags,
-    (struct sockaddr *)&nse->iod->peer, (LPINT)&nse->iod->peerlen, (LPOVERLAPPED)eov, NULL);
+    (struct sockaddr *)&eov->peer, (LPINT)&eov->peerlen, (LPOVERLAPPED)eov, NULL);
   if (err) {
     err = socket_errno();
     if (err != WSA_IO_PENDING) {
@@ -808,7 +813,7 @@ static void terminate_overlapped_event(struct npool *nsp, struct nevent *nse) {
 }
 
 /* Retrieve the amount of bytes transferred or set the appropriate error */
-static int get_overlapped_result(struct npool *nsp, int fd, const void *buffer, size_t count) {
+static int get_overlapped_result(struct npool *nsp, int fd, const void *buffer, size_t count, struct sockaddr* src_addr, socklen_t* addrlen) {
   char *buf = (char *)buffer;
   DWORD dwRes = 0;
   int err;
@@ -833,8 +838,15 @@ static int get_overlapped_result(struct npool *nsp, int fd, const void *buffer, 
     }
   }
 
-  if (nse->type == NSE_TYPE_READ && buf)
-    memcpy(buf, eov->wsabuf.buf, dwRes);
+  if (nse->type == NSE_TYPE_READ) {
+      if (src_addr) {
+          *addrlen = MIN(eov->peerlen, *addrlen);
+          memcpy(&src_addr, &eov->peer, *addrlen);
+      }
+      assert(dwRes <= count);
+      if (buf)
+          memcpy(buf, eov->wsabuf.buf, dwRes);
+  }
 
   return dwRes;
 }
@@ -844,11 +856,11 @@ int iocp_iod_connect(struct npool *nsp, int sockfd, const struct sockaddr *addr,
 }
 
 int iocp_iod_read(struct npool *nsp, int sockfd, void *buf, size_t len, int flags, struct sockaddr *src_addr, socklen_t *addrlen) {
-  return get_overlapped_result(nsp, sockfd, buf, len);
+  return get_overlapped_result(nsp, sockfd, buf, len, src_addr, addrlen);
 }
 
 int iocp_iod_write(struct npool *nsp, int sockfd, const void *buf, size_t len, int flags, const struct sockaddr *dest_addr, socklen_t addrlen) {
-  return get_overlapped_result(nsp, sockfd, buf, len);
+  return get_overlapped_result(nsp, sockfd, buf, len, NULL, NULL);
 }
 
 #endif /* HAVE_IOCP */
