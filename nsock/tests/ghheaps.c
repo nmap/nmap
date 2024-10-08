@@ -43,6 +43,28 @@ static int node2int(gh_hnode_t *hnode) {
   return item->val;
 }
 
+void gh_heap_verify(gh_heap_t *heap) {
+  gh_hnode_t *a, *b, *c;
+  unsigned int bi, ci;
+  unsigned int count = gh_heap_count(heap);
+  for (unsigned int i=0; i < heap->count; i++) {
+    a = gh_heap_find(heap, i);
+    bi = (i << 1) + 1;
+    assert(a->index == i);
+    if (bi < count) {
+      b = gh_heap_find(heap, bi);
+      assert(b->index == bi);
+      assert(node2int(a) <= node2int(b));
+      ci = bi + 1;
+      if (ci < count) {
+        c = gh_heap_find(heap, ci);
+        assert(c->index == ci);
+        assert(node2int(a) <= node2int(c));
+      }
+    }
+  }
+}
+
 static int ghheap_ordering(void *tdata) {
   gh_heap_t heap;
   int i, n, k;
@@ -52,11 +74,25 @@ static int ghheap_ordering(void *tdata) {
   for (i = 25000; i < 50000; i++)
     gh_heap_push(&heap, mknode(i));
 
+  gh_heap_verify(&heap);
+
   for (i = 24999; i >= 0; i--)
     gh_heap_push(&heap, mknode(i));
 
+  gh_heap_verify(&heap);
+
+  for (i = 0; i < 5000; i++) {
+    gh_hnode_t *current = gh_heap_find(&heap, rand() % gh_heap_count(&heap));
+    gh_heap_remove(&heap, current);
+    free(container_of(current, struct testitem, node));
+  }
+
+  gh_heap_verify(&heap);
+
   for (i = 25000; i < 50000; i++)
     gh_heap_push(&heap, mknode(i));
+
+  gh_heap_verify(&heap);
 
   n = -1;
   do {
@@ -89,33 +125,61 @@ static int ghheap_stress(void *tdata) {
       gh_heap_push(&heaps[i], mknode(num));
     }
   }
+  for (i = 0; i < HEAP_COUNT; i++)
+    gh_heap_verify(&heaps[i]);
 
   for (num = 24999; num >= 0; num--) {
     for (i = 0; i < HEAP_COUNT; i++) {
       gh_heap_push(&heaps[i], mknode(num));
     }
   }
+  for (i = 0; i < HEAP_COUNT; i++)
+    gh_heap_verify(&heaps[i]);
 
   for (num = 0; num < 50000; num++) {
     for (i = 0; i < HEAP_COUNT; i++) {
-      int r_min, r_pop;
+      gh_heap_t *heap = &heaps[i];
       gh_hnode_t *hnode;
-
-      r_min = node2int(gh_heap_min(&heaps[i]));
-      hnode = gh_heap_pop(&heaps[i]);
-      r_pop = node2int(hnode);
-
-      if (r_min != r_pop) {
-        fprintf(stderr, "Bogus min/pop return values (%d != %d)\n", r_min, r_pop);
-        return -EINVAL;
+      if (num % 0x7f == 0) {
+        size_t count = gh_heap_count(heap);
+        hnode = gh_heap_find(heap, count-1);
+        if (hnode == NULL) {
+          fprintf(stderr, "Failed to find node at index %lu (count-1)\n", count-1);
+          return -EINVAL;
+        }
+        gh_heap_remove(heap, hnode);
+        free(container_of(hnode, struct testitem, node));
+        gh_heap_verify(heap);
       }
-
-      if (r_min != num) {
-	fprintf(stderr, "Bogus return value %d when expected %d\n", r_min, num);
-	return -EINVAL;
+      else if (num % 0x1fff == 0 && num < gh_heap_count(heap)) {
+        hnode = gh_heap_find(heap, num);
+        if (hnode == NULL) {
+          fprintf(stderr, "Failed to find node at index %d (count = %lu)\n", num, gh_heap_count(heap));
+          return -EINVAL;
+        }
+        gh_heap_remove(heap, hnode);
+        free(container_of(hnode, struct testitem, node));
+        gh_heap_verify(heap);
       }
+      else {
+        int r_min, r_pop;
 
-      free(container_of(hnode, struct testitem, node));
+        r_min = node2int(gh_heap_min(heap));
+        hnode = gh_heap_pop(heap);
+        r_pop = node2int(hnode);
+
+        if (r_min != r_pop) {
+          fprintf(stderr, "Bogus min/pop return values (%d != %d)\n", r_min, r_pop);
+          return -EINVAL;
+        }
+
+        if (r_min > num) {
+          fprintf(stderr, "Bogus return value %d when expected <=%d\n", r_min, num);
+          return -EINVAL;
+        }
+
+        free(container_of(hnode, struct testitem, node));
+      }
     }
   }
 
