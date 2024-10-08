@@ -39,7 +39,7 @@ interfaces.
 -- nmap --script broadcast-igmp-discovery
 -- nmap --script broadcast-igmp-discovery -e wlan0
 -- nmap --script broadcast-igmp-discovery
--- --script-args 'broadcast-igmp-discovery.version=all, broadcast-igmp-discovery.timeout=3'
+-- --script-args 'broadcast-igmp-discovery.version=all, broadcast-igmp-discovery.timeout=3s'
 --
 --@output
 --Pre-scan script results:

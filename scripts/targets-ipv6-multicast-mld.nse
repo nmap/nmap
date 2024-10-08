@@ -50,7 +50,7 @@ responses from their multicast group.
 
 author = {"niteesh", "alegen"}
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
-categories = {"discovery","broadcast"}
+categories = {"discovery", "broadcast", "safe"}
 
 
 local arg_timeout = stdnse.parse_timespec(stdnse.get_script_args(SCRIPT_NAME .. '.timeout'))

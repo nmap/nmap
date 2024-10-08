@@ -38,7 +38,7 @@ Reference:
 
 author = "Stefan Eiwanger, DINA-community"
 license = "BSD-2-Clause Plus Patent License. For further details, please refer https://spdx.org/licenses/BSD-2-Clause-Patent.html"
-categories = {"discovery","info", "safe"}
+categories = {"discovery","info", "safe", "broadcast"}
 
 prerule = function()
   if not nmap.is_privileged() then

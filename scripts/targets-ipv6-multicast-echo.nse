@@ -27,7 +27,7 @@ author = {"David Fifield", "Xu Weilin"}
 
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 
-categories = {"discovery","broadcast"}
+categories = {"discovery", "broadcast", "safe"}
 
 
 prerule = function()
