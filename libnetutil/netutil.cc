@@ -120,6 +120,8 @@ typedef unsigned __int8 u_int8_t;
 #endif
 
 #include "netutil.h"
+#include "../NmapOps.h"
+extern NmapOps o;
 
 #if HAVE_NET_IF_H
 #ifndef NET_IF_H /* This guarding is needed for at least some versions of OpenBSD */
@@ -3471,13 +3473,24 @@ int Sendto(const char *functionname, int sd,
       int err = socket_errno();
 
       numerrors++;
+      // Checking the debugging flag to not stop printing errors if -d2 or greater
+      if(o.debugging <= 1) {
         if(numerrors <= 10) {
-        netutil_error("sendto in %s: sendto(%d, packet, %d, 0, %s, %d) => %s",
+          netutil_error("sendto in %s: sendto(%d, packet, %d, 0, %s, %d) => %s",
               functionname, sd, len, inet_ntop_ez((struct sockaddr_storage *) to, sizeof(struct sockaddr_storage)), tolen,
               strerror(err));
-        netutil_error("Offending packet: %s", ippackethdrinfo(packet, len, LOW_DETAIL));
-        if (numerrors == 10) {
-          netutil_error("Omitting future %s error messages now that %d have been shown.  Use -d2 if you really want to see them.", __func__, numerrors);
+          netutil_error("Offending packet: %s", ippackethdrinfo(packet, len, LOW_DETAIL));
+          if (numerrors == 10) {
+            netutil_error("Omitting future %s error messages now that %d have been shown.  Use -d2 if you really want to see them.", __func__, numerrors);
+          }
+        }
+      }
+      else {
+        if(numerrors <= 100) {
+          netutil_error("sendto in %s: sendto(%d, packet, %d, 0, %s, %d) => %s",
+              functionname, sd, len, inet_ntop_ez((struct sockaddr_storage *) to, sizeof(struct sockaddr_storage)), tolen,
+              strerror(err));
+          netutil_error("Offending packet: %s", ippackethdrinfo(packet, len, LOW_DETAIL));
         }
       }
 #if WIN32
