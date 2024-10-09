@@ -339,14 +339,14 @@ int poll_loop(struct npool *nsp, int msec_timeout) {
      * If there is anything read, just leave this loop. */
     if (pcap_read_on_nonselect(nsp)) {
       /* okay, something was read. */
-    } else
-#endif
-#endif
-    {
-      results_left = Poll(pinfo->events, pinfo->max_fd + 1, combined_msecs);
-      if (results_left == -1)
-        sock_err = socket_errno();
+      // Make the Poll call non-blocking
+      combined_msecs = 0;
     }
+#endif
+#endif
+    results_left = Poll(pinfo->events, pinfo->max_fd + 1, combined_msecs);
+    if (results_left == -1)
+      sock_err = socket_errno();
 
     gettimeofday(&nsock_tod, NULL); /* Due to poll delay */
   } while (results_left == -1 && sock_err == EINTR); /* repeat only if signal occurred */

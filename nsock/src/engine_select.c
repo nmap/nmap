@@ -281,6 +281,17 @@ int select_loop(struct npool *nsp, int msec_timeout) {
      * timeout) */
     combined_msecs = MIN((unsigned)event_msecs, (unsigned)msec_timeout);
 
+#if HAVE_PCAP
+#ifndef PCAP_CAN_DO_SELECT
+    /* do non-blocking read on pcap devices that doesn't support select()
+     * If there is anything read, just leave this loop. */
+    if (pcap_read_on_nonselect(nsp)) {
+      /* okay, something was read. */
+      // Make the select call non-blocking
+      combined_msecs = 0;
+    }
+#endif
+#endif
     /* Set up the timeval pointer we will give to select() */
     memset(&select_tv, 0, sizeof(select_tv));
     if (combined_msecs > 0) {
@@ -295,27 +306,16 @@ int select_loop(struct npool *nsp, int msec_timeout) {
       select_tv_p = NULL;
     }
 
-#if HAVE_PCAP
-#ifndef PCAP_CAN_DO_SELECT
-    /* do non-blocking read on pcap devices that doesn't support select()
-     * If there is anything read, just leave this loop. */
-    if (pcap_read_on_nonselect(nsp)) {
-      /* okay, something was read. */
-    } else
-#endif
-#endif
-    {
-      /* Set up the descriptors for select */
-      sinfo->fds_results_r = sinfo->fds_master_r;
-      sinfo->fds_results_w = sinfo->fds_master_w;
-      sinfo->fds_results_x = sinfo->fds_master_x;
+    /* Set up the descriptors for select */
+    sinfo->fds_results_r = sinfo->fds_master_r;
+    sinfo->fds_results_w = sinfo->fds_master_w;
+    sinfo->fds_results_x = sinfo->fds_master_x;
 
-      results_left = fselect(sinfo->max_sd + 1, &sinfo->fds_results_r,
-                             &sinfo->fds_results_w, &sinfo->fds_results_x, select_tv_p);
+    results_left = fselect(sinfo->max_sd + 1, &sinfo->fds_results_r,
+        &sinfo->fds_results_w, &sinfo->fds_results_x, select_tv_p);
 
-      if (results_left == -1)
-        sock_err = socket_errno();
-    }
+    if (results_left == -1)
+      sock_err = socket_errno();
 
     gettimeofday(&nsock_tod, NULL); /* Due to select delay */
   } while (results_left == -1 && sock_err == EINTR); /* repeat only if signal occurred */

@@ -261,6 +261,17 @@ int kqueue_loop(struct npool *nsp, int msec_timeout) {
      * timeout) */
     combined_msecs = MIN((unsigned)event_msecs, (unsigned)msec_timeout);
 
+#if HAVE_PCAP
+#ifndef PCAP_CAN_DO_SELECT
+    /* do non-blocking read on pcap devices that doesn't support select()
+     * If there is anything read, just leave this loop. */
+    if (pcap_read_on_nonselect(nsp)) {
+      /* okay, something was read. */
+      // Make the kevent call non-blocking
+      combined_msecs = 0;
+    }
+#endif
+#endif
     /* Set up the timeval pointer we will give to kevent() */
     memset(&ts, 0, sizeof(struct timespec));
     if (combined_msecs >= 0) {
@@ -271,20 +282,9 @@ int kqueue_loop(struct npool *nsp, int msec_timeout) {
       ts_p = NULL;
     }
 
-#if HAVE_PCAP
-#ifndef PCAP_CAN_DO_SELECT
-    /* do non-blocking read on pcap devices that doesn't support select()
-     * If there is anything read, just leave this loop. */
-    if (pcap_read_on_nonselect(nsp)) {
-      /* okay, something was read. */
-    } else
-#endif
-#endif
-    {
-      results_left = kevent(kinfo->kqfd, NULL, 0, kinfo->events, kinfo->evlen, ts_p);
-      if (results_left == -1)
-        sock_err = socket_errno();
-    }
+    results_left = kevent(kinfo->kqfd, NULL, 0, kinfo->events, kinfo->evlen, ts_p);
+    if (results_left == -1)
+      sock_err = socket_errno();
 
     gettimeofday(&nsock_tod, NULL); /* Due to kevent delay */
   } while (results_left == -1 && sock_err == EINTR); /* repeat only if signal occurred */

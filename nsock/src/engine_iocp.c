@@ -360,28 +360,27 @@ int iocp_loop(struct npool *nsp, int msec_timeout) {
     /* okay, something was read. */
     gettimeofday(&nsock_tod, NULL);
     iterate_through_pcap_events(nsp);
+    // Only do a non-blocking check for completed IO on the non-pcap events
+    combined_msecs = 0;
   }
-  else
 #endif
 #endif
-  {
-    /* It is mandatory these values are reset before calling GetQueuedCompletionStatusEx */
-    iinfo->entries_removed = 0;
-    memset(iinfo->eov_list, 0, iinfo->capacity * sizeof(OVERLAPPED_ENTRY));
-    bRet = GetQueuedCompletionStatusEx(iinfo->iocp, iinfo->eov_list, iinfo->capacity, &iinfo->entries_removed, combined_msecs, FALSE);
+  /* It is mandatory these values are reset before calling GetQueuedCompletionStatusEx */
+  iinfo->entries_removed = 0;
+  memset(iinfo->eov_list, 0, iinfo->capacity * sizeof(OVERLAPPED_ENTRY));
+  bRet = GetQueuedCompletionStatusEx(iinfo->iocp, iinfo->eov_list, iinfo->capacity, &iinfo->entries_removed, combined_msecs, FALSE);
 
-    gettimeofday(&nsock_tod, NULL); /* Due to iocp delay */
-    if (!bRet) {
-      sock_err = socket_errno();
-      if (!iinfo->eov && sock_err != WAIT_TIMEOUT) {
-        nsock_log_error("nsock_loop error %d: %s", sock_err, socket_strerror(sock_err));
-        nsp->errnum = sock_err;
-        return -1;
-      }
+  gettimeofday(&nsock_tod, NULL); /* Due to iocp delay */
+  if (!bRet) {
+    sock_err = socket_errno();
+    if (!iinfo->eov && sock_err != WAIT_TIMEOUT) {
+      nsock_log_error("nsock_loop error %d: %s", sock_err, socket_strerror(sock_err));
+      nsp->errnum = sock_err;
+      return -1;
     }
-    else {
-        iterate_through_event_lists(nsp);
-    }
+  }
+  else {
+      iterate_through_event_lists(nsp);
   }
 
   /* iterate through timers and expired events */

@@ -289,14 +289,14 @@ int epoll_loop(struct npool *nsp, int msec_timeout) {
      * If there is anything read, just leave this loop. */
     if (pcap_read_on_nonselect(nsp)) {
       /* okay, something was read. */
-    } else
-#endif
-#endif
-    {
-      results_left = epoll_wait(einfo->epfd, einfo->events, einfo->evlen, combined_msecs);
-      if (results_left == -1)
-        sock_err = socket_errno();
+      // Make the epoll_wait call non-blocking
+      combined_msecs = 0;
     }
+#endif
+#endif
+    results_left = epoll_wait(einfo->epfd, einfo->events, einfo->evlen, combined_msecs);
+    if (results_left == -1)
+      sock_err = socket_errno();
 
     gettimeofday(&nsock_tod, NULL); /* Due to epoll delay */
   } while (results_left == -1 && sock_err == EINTR); /* repeat only if signal occurred */
