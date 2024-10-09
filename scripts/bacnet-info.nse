@@ -1292,7 +1292,7 @@ end
 function field_size(packet)
   -- read the Length field from the packet data byte 18
   if #packet < 20 then
-    stdnse.debug1("Packet too short : Received" ..tostring(#packet) .. "bytes")
+    stdnse.debug1("Packet too short : Received" .. tostring(#packet) .. "bytes")
     return nil
   end
   local offset
