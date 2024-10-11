@@ -97,9 +97,7 @@ void process_iod_events(struct npool *nsp, struct niod *nsi, int ev);
 void process_expired_events(struct npool *nsp);
 
 #if HAVE_PCAP
-#ifndef PCAP_CAN_DO_SELECT
 int pcap_read_on_nonselect(struct npool *nsp);
-#endif
 #endif
 
 /* defined in nsock_event.c */
@@ -128,6 +126,8 @@ struct select_engine_info {
   /* The highest sd we have set in any of our fd_set's (max_sd + 1 is used in
    * select() calls).  Note that it can be -1, when there are no valid sockets */
   int max_sd;
+  /* Number of IODs incompatible with select */
+  int num_pcap_nonselect;
 };
 
 
@@ -141,6 +141,7 @@ int select_init(struct npool *nsp) {
   FD_ZERO(&sinfo->fds_master_x);
 
   sinfo->max_sd = -1;
+  sinfo->num_pcap_nonselect = 0;
 
   nsp->engine_data = (void *)sinfo;
 
@@ -153,8 +154,12 @@ void select_destroy(struct npool *nsp) {
 }
 
 int select_iod_register(struct npool *nsp, struct niod *iod, struct nevent *nse, int ev) {
+  struct select_engine_info *sinfo = (struct select_engine_info *)nsp->engine_data;
   assert(!IOD_PROPGET(iod, IOD_REGISTERED));
 
+  if (nsock_iod_get_sd(iod) == -1) {
+    sinfo->num_pcap_nonselect++;
+  }
   iod->watched_events = ev;
   select_iod_modify(nsp, iod, nse, ev, EV_NONE);
   IOD_PROPSET(iod, IOD_REGISTERED);
@@ -169,26 +174,22 @@ int select_iod_unregister(struct npool *nsp, struct niod *iod) {
   /* some IODs can be unregistered here if they're associated to an event that was
    * immediately completed */
   if (IOD_PROPGET(iod, IOD_REGISTERED)) {
-#if HAVE_PCAP
-    if (iod->pcap) {
-      int sd = ((mspcap *)iod->pcap)->pcap_desc;
-      if (sd >= 0) {
-        checked_fd_clr(sd, &sinfo->fds_master_r);
-        checked_fd_clr(sd, &sinfo->fds_results_r);
-      }
-    } else
-#endif
-    {
-      checked_fd_clr(iod->sd, &sinfo->fds_master_r);
-      checked_fd_clr(iod->sd, &sinfo->fds_master_w);
-      checked_fd_clr(iod->sd, &sinfo->fds_master_x);
-      checked_fd_clr(iod->sd, &sinfo->fds_results_r);
-      checked_fd_clr(iod->sd, &sinfo->fds_results_w);
-      checked_fd_clr(iod->sd, &sinfo->fds_results_x);
+    int sd = nsock_iod_get_sd(iod);
+    if (sd == -1) {
+      assert(iod->pcap);
+      sinfo->num_pcap_nonselect--;
     }
+    else {
+      checked_fd_clr(sd, &sinfo->fds_master_r);
+      checked_fd_clr(sd, &sinfo->fds_master_w);
+      checked_fd_clr(sd, &sinfo->fds_master_x);
+      checked_fd_clr(sd, &sinfo->fds_results_r);
+      checked_fd_clr(sd, &sinfo->fds_results_w);
+      checked_fd_clr(sd, &sinfo->fds_results_x);
 
-    if (sinfo->max_sd == iod->sd)
-      sinfo->max_sd--;
+      if (sinfo->max_sd == sd)
+        sinfo->max_sd--;
+    }
 
     IOD_PROPCLR(iod, IOD_REGISTERED);
   }
@@ -246,6 +247,7 @@ int select_loop(struct npool *nsp, int msec_timeout) {
   int sock_err = 0;
   struct timeval select_tv;
   struct timeval *select_tv_p;
+  unsigned int iod_count;
   struct select_engine_info *sinfo = (struct select_engine_info *)nsp->engine_data;
 
   assert(msec_timeout >= -1);
@@ -253,10 +255,13 @@ int select_loop(struct npool *nsp, int msec_timeout) {
   if (nsp->events_pending == 0)
     return 0; /* No need to wait on 0 events ... */
 
+  iod_count = gh_list_count(&nsp->active_iods) - sinfo->num_pcap_nonselect;
+
   do {
     struct nevent *nse;
 
     nsock_log_debug_all("wait for events");
+    results_left = 0;
 
     nse = next_expirable_event(nsp);
     if (!nse)
@@ -266,56 +271,59 @@ int select_loop(struct npool *nsp, int msec_timeout) {
       event_msecs = MAX(0, event_msecs);
     }
 
-
 #if HAVE_PCAP
-#ifndef PCAP_CAN_DO_SELECT
-    /* Force a low timeout when capturing packets on systems where
-     * the pcap descriptor is not select()able. */
-    if (gh_list_count(&nsp->pcap_read_events))
-      if (event_msecs > PCAP_POLL_INTERVAL)
+    if (sinfo->num_pcap_nonselect > 0 && gh_list_count(&nsp->pcap_read_events) > 0) {
+
+      /* do non-blocking read on pcap devices that doesn't support select()
+       * If there is anything read, just leave this loop. */
+      if (pcap_read_on_nonselect(nsp)) {
+        /* okay, something was read. */
+        // select engine's iterate_through_event_lists() also handles pcap iods.
+        // Make the system call non-blocking
+        event_msecs = 0;
+      }
+      /* Force a low timeout when capturing packets on systems where
+       * the pcap descriptor is not select()able. */
+      else if (event_msecs > PCAP_POLL_INTERVAL) {
         event_msecs = PCAP_POLL_INTERVAL;
-#endif
+      }
+    }
 #endif
 
     /* We cast to unsigned because we want -1 to be very high (since it means no
      * timeout) */
     combined_msecs = MIN((unsigned)event_msecs, (unsigned)msec_timeout);
 
-#if HAVE_PCAP
-#ifndef PCAP_CAN_DO_SELECT
-    /* do non-blocking read on pcap devices that doesn't support select()
-     * If there is anything read, just leave this loop. */
-    if (pcap_read_on_nonselect(nsp)) {
-      /* okay, something was read. */
-      // Make the select call non-blocking
-      combined_msecs = 0;
+    if (iod_count > 0) {
+      /* Set up the timeval pointer we will give to select() */
+      memset(&select_tv, 0, sizeof(select_tv));
+      if (combined_msecs > 0) {
+        select_tv.tv_sec = combined_msecs / 1000;
+        select_tv.tv_usec = (combined_msecs % 1000) * 1000;
+        select_tv_p = &select_tv;
+      } else if (combined_msecs == 0) {
+        /* we want the tv_sec and tv_usec to be zero but they already are from bzero */
+        select_tv_p = &select_tv;
+      } else {
+        assert(combined_msecs == -1);
+        select_tv_p = NULL;
+      }
+
+      /* Set up the descriptors for select */
+      sinfo->fds_results_r = sinfo->fds_master_r;
+      sinfo->fds_results_w = sinfo->fds_master_w;
+      sinfo->fds_results_x = sinfo->fds_master_x;
+
+      results_left = fselect(sinfo->max_sd + 1, &sinfo->fds_results_r,
+          &sinfo->fds_results_w, &sinfo->fds_results_x, select_tv_p);
+
+      if (results_left == -1)
+        sock_err = socket_errno();
     }
-#endif
-#endif
-    /* Set up the timeval pointer we will give to select() */
-    memset(&select_tv, 0, sizeof(select_tv));
-    if (combined_msecs > 0) {
-      select_tv.tv_sec = combined_msecs / 1000;
-      select_tv.tv_usec = (combined_msecs % 1000) * 1000;
-      select_tv_p = &select_tv;
-    } else if (combined_msecs == 0) {
-      /* we want the tv_sec and tv_usec to be zero but they already are from bzero */
-      select_tv_p = &select_tv;
-    } else {
-      assert(combined_msecs == -1);
-      select_tv_p = NULL;
+    else if (combined_msecs > 0) {
+      // No compatible IODs; sleep the remainder of the wait time.
+      usleep(combined_msecs * 1000);
     }
-
-    /* Set up the descriptors for select */
-    sinfo->fds_results_r = sinfo->fds_master_r;
-    sinfo->fds_results_w = sinfo->fds_master_w;
-    sinfo->fds_results_x = sinfo->fds_master_x;
-
-    results_left = fselect(sinfo->max_sd + 1, &sinfo->fds_results_r,
-        &sinfo->fds_results_w, &sinfo->fds_results_x, select_tv_p);
-
-    if (results_left == -1)
-      sock_err = socket_errno();
 
     gettimeofday(&nsock_tod, NULL); /* Due to select delay */
   } while (results_left == -1 && sock_err == EINTR); /* repeat only if signal occurred */
@@ -334,29 +342,19 @@ int select_loop(struct npool *nsp, int msec_timeout) {
 
 /* ---- INTERNAL FUNCTIONS ---- */
 
-static inline int get_evmask(const struct npool *nsp, const struct niod *nsi) {
+static inline int get_evmask(const struct npool *nsp, struct niod *nsi) {
   struct select_engine_info *sinfo = (struct select_engine_info *)nsp->engine_data;
   int sd, evmask;
 
   evmask = EV_NONE;
 
+  sd = nsock_iod_get_sd(nsi);
 #if HAVE_PCAP
-#ifndef PCAP_CAN_DO_SELECT
-  if (nsi->pcap) {
-    /* Always assume readable for a non-blocking read. We can't check checked_fd_isset
-       because we don't have a pcap_desc. */
-    evmask |= EV_READ;
-    return evmask;
-  }
+  /* Always assume readable for a non-blocking read. We can't check checked_fd_isset
+     because we don't have a pcap_desc. */
+  if (sd == -1 && nsi->pcap)
+    return EV_READ;
 #endif
-#endif
-
-#if HAVE_PCAP
-  if (nsi->pcap)
-    sd = ((mspcap *)nsi->pcap)->pcap_desc;
-  else
-#endif
-    sd = nsi->sd;
 
   assert(sd >= 0);
 

@@ -134,9 +134,8 @@ void process_iod_events(struct npool *nsp, struct niod *nsi, int ev);
 void process_event(struct npool *nsp, gh_list_t *evlist, struct nevent *nse, int ev);
 void process_expired_events(struct npool *nsp);
 #if HAVE_PCAP
-#ifndef PCAP_CAN_DO_SELECT
 int pcap_read_on_nonselect(struct npool *nsp);
-#endif
+void iterate_through_pcap_events(struct npool *nsp);
 #endif
 
 /* defined in nsock_event.c */
@@ -154,6 +153,8 @@ struct poll_engine_info {
   int max_fd;
   /* index of the highest poll event */
   POLLFD *events;
+  /* Number of IODs incompatible with poll */
+  int num_pcap_nonselect;
 };
 
 
@@ -195,6 +196,7 @@ int poll_init(struct npool *nsp) {
   pinfo = (struct poll_engine_info *)safe_malloc(sizeof(struct poll_engine_info));
   pinfo->capacity = 0;
   pinfo->max_fd = -1;
+  pinfo->num_pcap_nonselect = 0;
   evlist_grow(pinfo);
 
   nsp->engine_data = (void *)pinfo;
@@ -219,23 +221,32 @@ int poll_iod_register(struct npool *nsp, struct niod *iod, struct nevent *nse, i
   iod->watched_events = ev;
 
   sd = nsock_iod_get_sd(iod);
-  while (pinfo->capacity < sd + 1)
-    evlist_grow(pinfo);
 
-  pinfo->events[sd].fd = sd;
-  pinfo->events[sd].events = 0;
-  pinfo->events[sd].revents = 0;
+  if (sd == -1) {
+    if (iod->pcap)
+      pinfo->num_pcap_nonselect++;
+    else
+      fatal("Unable to get descriptor for IOD #%lu", iod->id);
+  }
+  else {
+    while (pinfo->capacity < sd + 1)
+      evlist_grow(pinfo);
 
-  pinfo->max_fd = MAX(pinfo->max_fd, sd);
+    pinfo->events[sd].fd = sd;
+    pinfo->events[sd].events = 0;
+    pinfo->events[sd].revents = 0;
 
-  if (ev & EV_READ)
-    pinfo->events[sd].events |= POLL_R_FLAGS;
-  if (ev & EV_WRITE)
-    pinfo->events[sd].events |= POLL_W_FLAGS;
+    pinfo->max_fd = MAX(pinfo->max_fd, sd);
+
+    if (ev & EV_READ)
+      pinfo->events[sd].events |= POLL_R_FLAGS;
+    if (ev & EV_WRITE)
+      pinfo->events[sd].events |= POLL_W_FLAGS;
 #ifndef WIN32
-  if (ev & EV_EXCEPT)
-    pinfo->events[sd].events |= POLL_X_FLAGS;
+    if (ev & EV_EXCEPT)
+      pinfo->events[sd].events |= POLL_X_FLAGS;
 #endif
+  }
 
   IOD_PROPSET(iod, IOD_REGISTERED);
   return 1;
@@ -251,14 +262,20 @@ int poll_iod_unregister(struct npool *nsp, struct niod *iod) {
     int sd;
 
     sd = nsock_iod_get_sd(iod);
-    pinfo->events[sd].fd = -1;
-    pinfo->events[sd].events = 0;
-    pinfo->events[sd].revents = 0;
+    if (sd == -1) {
+      assert(iod->pcap);
+      pinfo->num_pcap_nonselect--;
+    }
+    else {
+      pinfo->events[sd].fd = -1;
+      pinfo->events[sd].events = 0;
+      pinfo->events[sd].revents = 0;
 
-    if (pinfo->max_fd == sd)
-      lower_max_fd(pinfo);
+      if (pinfo->max_fd == sd)
+        lower_max_fd(pinfo);
 
-    IOD_PROPCLR(iod, IOD_REGISTERED);
+      IOD_PROPCLR(iod, IOD_REGISTERED);
+    }
   }
   return 1;
 }
@@ -281,15 +298,17 @@ int poll_iod_modify(struct npool *nsp, struct niod *iod, struct nevent *nse, int
   iod->watched_events = new_events;
 
   sd = nsock_iod_get_sd(iod);
+  if (sd >= 0) {
 
-  pinfo->events[sd].fd = sd;
-  pinfo->events[sd].events = 0;
+    pinfo->events[sd].fd = sd;
+    pinfo->events[sd].events = 0;
 
-  /* regenerate the current set of events for this IOD */
-  if (iod->watched_events & EV_READ)
-    pinfo->events[sd].events |= POLL_R_FLAGS;
-  if (iod->watched_events & EV_WRITE)
-    pinfo->events[sd].events |= POLL_W_FLAGS;
+    /* regenerate the current set of events for this IOD */
+    if (iod->watched_events & EV_READ)
+      pinfo->events[sd].events |= POLL_R_FLAGS;
+    if (iod->watched_events & EV_WRITE)
+      pinfo->events[sd].events |= POLL_W_FLAGS;
+  }
 
   return 1;
 }
@@ -299,6 +318,7 @@ int poll_loop(struct npool *nsp, int msec_timeout) {
   int event_msecs; /* msecs before an event goes off */
   int combined_msecs;
   int sock_err = 0;
+  unsigned int iod_count;
   struct poll_engine_info *pinfo = (struct poll_engine_info *)nsp->engine_data;
 
   assert(msec_timeout >= -1);
@@ -306,10 +326,12 @@ int poll_loop(struct npool *nsp, int msec_timeout) {
   if (nsp->events_pending == 0)
     return 0; /* No need to wait on 0 events ... */
 
+  iod_count = gh_list_count(&nsp->active_iods) - pinfo->num_pcap_nonselect;
   do {
     struct nevent *nse;
 
     nsock_log_debug_all("wait for events");
+    results_left = 0;
 
     nse = next_expirable_event(nsp);
     if (!nse)
@@ -320,33 +342,37 @@ int poll_loop(struct npool *nsp, int msec_timeout) {
     }
 
 #if HAVE_PCAP
-#ifndef PCAP_CAN_DO_SELECT
-    /* Force a low timeout when capturing packets on systems where
-     * the pcap descriptor is not select()able. */
-    if (gh_list_count(&nsp->pcap_read_events) > 0)
-      if (event_msecs > PCAP_POLL_INTERVAL)
-        event_msecs = PCAP_POLL_INTERVAL;
-#endif
-#endif
+    if (pinfo->num_pcap_nonselect > 0 && gh_list_count(&nsp->pcap_read_events) > 0) {
 
+      /* do non-blocking read on pcap devices that doesn't support select()
+       * If there is anything read, just leave this loop. */
+      if (pcap_read_on_nonselect(nsp)) {
+        /* okay, something was read. */
+        // poll engine's iterate_through_event_lists() also handles pcap iods.
+        // Make the system call non-blocking
+        event_msecs = 0;
+      }
+      /* Force a low timeout when capturing packets on systems where
+       * the pcap descriptor is not select()able. */
+      else if (event_msecs > PCAP_POLL_INTERVAL) {
+        event_msecs = PCAP_POLL_INTERVAL;
+      }
+    }
+#endif
     /* We cast to unsigned because we want -1 to be very high (since it means no
      * timeout) */
     combined_msecs = MIN((unsigned)event_msecs, (unsigned)msec_timeout);
 
-#if HAVE_PCAP
-#ifndef PCAP_CAN_DO_SELECT
-    /* do non-blocking read on pcap devices that doesn't support select()
-     * If there is anything read, just leave this loop. */
-    if (pcap_read_on_nonselect(nsp)) {
-      /* okay, something was read. */
-      // Make the Poll call non-blocking
-      combined_msecs = 0;
+    if (iod_count > 0) {
+      results_left = Poll(pinfo->events, pinfo->max_fd + 1, combined_msecs);
+      if (results_left == -1)
+        sock_err = socket_errno();
     }
-#endif
-#endif
-    results_left = Poll(pinfo->events, pinfo->max_fd + 1, combined_msecs);
-    if (results_left == -1)
-      sock_err = socket_errno();
+    else if (combined_msecs > 0) {
+      // No compatible IODs; sleep the remainder of the wait time.
+      usleep(combined_msecs * 1000);
+    }
+
 
     gettimeofday(&nsock_tod, NULL); /* Due to poll delay */
   } while (results_left == -1 && sock_err == EINTR); /* repeat only if signal occurred */
@@ -382,12 +408,14 @@ static inline int get_evmask(struct npool *nsp, struct niod *nsi) {
       && nsi->events_pending
       && IOD_PROPGET(nsi, IOD_REGISTERED)) {
 
+      sd = nsock_iod_get_sd(nsi);
 #if HAVE_PCAP
-      if (nsi->pcap)
-        sd = ((mspcap *)nsi->pcap)->pcap_desc;
-      else
+      // For incompatible pcap handles, we have to just try a non-blocking read.
+      if (sd == -1 && nsi->pcap)
+        return EV_READ;
 #endif
-        sd = nsi->sd;
+
+      assert(sd >= 0);
 
       assert(sd < pinfo->capacity);
       pev = &pinfo->events[sd];

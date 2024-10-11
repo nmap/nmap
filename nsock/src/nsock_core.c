@@ -883,7 +883,9 @@ int pcap_read_on_nonselect(struct npool *nsp) {
        current != NULL;
        current = next) {
     nse = lnode_nevent2(current);
-    if (do_actual_pcap_read(nse) == 1) {
+    int sd = nsock_iod_get_sd(nse->iod);
+    // We only care about non-selectable handles
+    if (sd == -1 && do_actual_pcap_read(nse) == 1) {
       /* something received */
       ret++;
       break;
