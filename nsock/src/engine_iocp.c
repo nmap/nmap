@@ -131,7 +131,7 @@ struct extended_overlapped {
   nsock_event_id nse_id;
 /* We need a way to mark canceled I/O that doesn't interfere with real NSE IDs.
  * -1 is 0xffffffff, so the lower bits will always be greater than NSE_TYPE_MAX
- * and therefore invalid. 0 is already invalid, so works for the recycled case. 
+ * and therefore invalid. 0 is already invalid, so works for the recycled case.
  */
 #define NSEID_CANCELED ((nsock_event_id) -1)
 #define NSEID_FREED    ((nsock_event_id)  0)
@@ -163,7 +163,6 @@ struct extended_overlapped {
 
 /* --- INTERNAL PROTOTYPES --- */
 static void iterate_through_event_lists(struct npool *nsp);
-static void iterate_through_pcap_events(struct npool *nsp);
 static void terminate_overlapped_event(struct npool *nsp, struct nevent *nse);
 static void initiate_overlapped_event(struct npool *nsp, struct nevent *nse);
 static int get_overlapped_result(struct npool *nsp, int fd, const void *buffer, size_t count, struct sockaddr* src_addr, socklen_t* addrlen);
@@ -179,6 +178,7 @@ void process_expired_events(struct npool *nsp);
 #ifndef PCAP_CAN_DO_SELECT
 int pcap_read_on_nonselect(struct npool *nsp);
 #endif
+void iterate_through_pcap_events(struct npool *nsp);
 #endif
 
 /* defined in nsock_event.c */
@@ -391,32 +391,6 @@ int iocp_loop(struct npool *nsp, int msec_timeout) {
 
 
 /* ---- INTERNAL FUNCTIONS ---- */
-
-#if HAVE_PCAP
-/* Iterate through pcap events separately, since these are not tracked in iocp_engine_info */
-void iterate_through_pcap_events(struct npool *nsp) {
-  gh_lnode_t *current, *next, *last;
-
-  last = gh_list_last_elem(&nsp->active_iods);
-
-  for (current = gh_list_first_elem(&nsp->active_iods);
-       current != NULL && gh_lnode_prev(current) != last;
-       current = next) {
-    struct niod *nsi = container_of(current, struct niod, nodeq);
-
-    if (nsi->pcap && nsi->state != NSIOD_STATE_DELETED && nsi->events_pending)
-    {
-      process_iod_events(nsp, nsi, EV_READ);
-    }
-
-    next = gh_lnode_next(current);
-    if (nsi->state == NSIOD_STATE_DELETED) {
-      gh_list_remove(&nsp->active_iods, current);
-      gh_list_prepend(&nsp->free_iods, current);
-    }
-  }
-}
-#endif
 
 /* Iterate through all the event lists (such as connect_events, read_events,
 * timer_events, etc) and take action for those that have completed (due to

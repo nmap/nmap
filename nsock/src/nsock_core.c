@@ -830,6 +830,8 @@ void handle_read_result(struct npool *ms, struct nevent *nse, enum nse_status st
   }
 }
 
+void process_iod_events(struct npool *nsp, struct niod *nsi, int ev);
+
 #if HAVE_PCAP
 void handle_pcap_read_result(struct npool *ms, struct nevent *nse, enum nse_status status) {
   struct niod *iod = nse->iod;
@@ -889,6 +891,33 @@ int pcap_read_on_nonselect(struct npool *nsp) {
     next = gh_lnode_next(current);
   }
   return ret;
+}
+
+/* Iterate through pcap events that are not signaled by select() and friends. */
+void iterate_through_pcap_events(struct npool *nsp) {
+  gh_lnode_t *current, *next, *last;
+
+  last = gh_list_last_elem(&nsp->active_iods);
+
+  for (current = gh_list_first_elem(&nsp->active_iods);
+       current != NULL && gh_lnode_prev(current) != last;
+       current = next) {
+    struct niod *nsi = container_of(current, struct niod, nodeq);
+    int processed = 0;
+
+    if (nsi->pcap && nsock_iod_get_sd(nsi) == -1 && nsi->state != NSIOD_STATE_DELETED && nsi->events_pending)
+    {
+      process_iod_events(nsp, nsi, EV_READ);
+      processed = 1;
+    }
+
+    next = gh_lnode_next(current);
+    // Only remove deleted IODs that we've processed all events for.
+    if (processed && nsi->state == NSIOD_STATE_DELETED) {
+      gh_list_remove(&nsp->active_iods, current);
+      gh_list_prepend(&nsp->free_iods, current);
+    }
+  }
 }
 #endif /* HAVE_PCAP */
 
