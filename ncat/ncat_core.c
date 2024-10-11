@@ -500,13 +500,7 @@ void dotelnet(int s, unsigned char *buf, size_t bufsiz)
  */
 int ncat_delay_timer(int delayval)
 {
-    struct timeval s;
-
-    s.tv_sec = delayval / 1000;
-    s.tv_usec = (delayval % 1000) * (long) 1000;
-
-    select(0, NULL, NULL, NULL, &s);
-    return 1;
+    return 1 + usleep(delayval * 1000);
 }
 
 static int ncat_hexdump(int logfd, const char *data, int len);
