@@ -150,22 +150,14 @@ extern struct timeval nsock_tod;
  */
 struct poll_engine_info {
   int capacity;
-  int max_fd;
-  /* index of the highest poll event */
+  int used;
+  int idx_insert;
+  int max_idx;
   POLLFD *events;
   /* Number of IODs incompatible with poll */
   int num_pcap_nonselect;
 };
 
-
-
-static inline int lower_max_fd(struct poll_engine_info *pinfo) {
-  do {
-    pinfo->max_fd--;
-  } while (pinfo->max_fd >= 0 && pinfo->events[pinfo->max_fd].fd == -1);
-
-  return pinfo->max_fd;
-}
 
 static inline int evlist_grow(struct poll_engine_info *pinfo) {
   int i;
@@ -195,7 +187,9 @@ int poll_init(struct npool *nsp) {
 
   pinfo = (struct poll_engine_info *)safe_malloc(sizeof(struct poll_engine_info));
   pinfo->capacity = 0;
-  pinfo->max_fd = -1;
+  pinfo->used = 0;
+  pinfo->idx_insert = 0;
+  pinfo->max_idx = -1;
   pinfo->num_pcap_nonselect = 0;
   evlist_grow(pinfo);
 
@@ -215,6 +209,8 @@ void poll_destroy(struct npool *nsp) {
 int poll_iod_register(struct npool *nsp, struct niod *iod, struct nevent *nse, int ev) {
   struct poll_engine_info *pinfo = (struct poll_engine_info *)nsp->engine_data;
   int sd;
+  int idx;
+  POLLFD *pev;
 
   assert(!IOD_PROPGET(iod, IOD_REGISTERED));
 
@@ -227,24 +223,37 @@ int poll_iod_register(struct npool *nsp, struct niod *iod, struct nevent *nse, i
       pinfo->num_pcap_nonselect++;
     else
       fatal("Unable to get descriptor for IOD #%lu", iod->id);
+    iod->engine_info = -1;
   }
   else {
-    while (pinfo->capacity < sd + 1)
+    if (pinfo->used == pinfo->capacity)
       evlist_grow(pinfo);
 
-    pinfo->events[sd].fd = sd;
-    pinfo->events[sd].events = 0;
-    pinfo->events[sd].revents = 0;
+    idx = pinfo->idx_insert;
+    while (pinfo->events[idx].fd != -1) {
+      idx = (idx + 1) % pinfo->capacity;
+      // XXX: remove this assert after thorough testing.
+      assert(idx != pinfo->idx_insert);
+    }
+    if (idx > pinfo->max_idx)
+      pinfo->max_idx = idx;
 
-    pinfo->max_fd = MAX(pinfo->max_fd, sd);
+    iod->engine_info = idx;
+    pinfo->idx_insert = (idx + 1) % pinfo->capacity;
+    pinfo->used++;
+
+    pev = &pinfo->events[idx];
+    pev->fd = sd;
+    pev->events = 0;
+    pev->revents = 0;
 
     if (ev & EV_READ)
-      pinfo->events[sd].events |= POLL_R_FLAGS;
+      pev->events |= POLL_R_FLAGS;
     if (ev & EV_WRITE)
-      pinfo->events[sd].events |= POLL_W_FLAGS;
+      pev->events |= POLL_W_FLAGS;
 #ifndef WIN32
     if (ev & EV_EXCEPT)
-      pinfo->events[sd].events |= POLL_X_FLAGS;
+      pev->events |= POLL_X_FLAGS;
 #endif
   }
 
@@ -253,13 +262,15 @@ int poll_iod_register(struct npool *nsp, struct niod *iod, struct nevent *nse, i
 }
 
 int poll_iod_unregister(struct npool *nsp, struct niod *iod) {
+  struct poll_engine_info *pinfo = (struct poll_engine_info *)nsp->engine_data;
+  int sd, idx;
+  POLLFD *pev;
+
   iod->watched_events = EV_NONE;
 
   /* some IODs can be unregistered here if they're associated to an event that was
    * immediately completed */
   if (IOD_PROPGET(iod, IOD_REGISTERED)) {
-    struct poll_engine_info *pinfo = (struct poll_engine_info *)nsp->engine_data;
-    int sd;
 
     sd = nsock_iod_get_sd(iod);
     if (sd == -1) {
@@ -267,21 +278,38 @@ int poll_iod_unregister(struct npool *nsp, struct niod *iod) {
       pinfo->num_pcap_nonselect--;
     }
     else {
-      pinfo->events[sd].fd = -1;
-      pinfo->events[sd].events = 0;
-      pinfo->events[sd].revents = 0;
+      idx = iod->engine_info;
+      assert(idx >= 0 && idx <= pinfo->max_idx);
+      pev = &pinfo->events[idx];
+      assert(pev->fd == sd);
+      iod->engine_info = -1;
 
-      if (pinfo->max_fd == sd)
-        lower_max_fd(pinfo);
+      pev->fd = -1;
+      pev->events = 0;
+      pev->revents = 0;
 
-      IOD_PROPCLR(iod, IOD_REGISTERED);
+      pinfo->used--;
+      if (idx == pinfo->max_idx) {
+        do {
+          pinfo->max_idx--;
+        } while (pinfo->max_idx >= 0 && pinfo->events[pinfo->max_idx].fd == -1);
+      }
+      if (idx < pinfo->idx_insert) {
+        pinfo->idx_insert = idx;
+      }
+      if (pinfo->max_idx < pinfo->idx_insert) {
+        pinfo->idx_insert = pinfo->max_idx + 1;
+      }
+
     }
+    IOD_PROPCLR(iod, IOD_REGISTERED);
   }
   return 1;
 }
 
 int poll_iod_modify(struct npool *nsp, struct niod *iod, struct nevent *nse, int ev_set, int ev_clr) {
-  int sd;
+  int sd, idx;
+  POLLFD *pev;
   int new_events;
   struct poll_engine_info *pinfo = (struct poll_engine_info *)nsp->engine_data;
 
@@ -299,15 +327,18 @@ int poll_iod_modify(struct npool *nsp, struct niod *iod, struct nevent *nse, int
 
   sd = nsock_iod_get_sd(iod);
   if (sd >= 0) {
+    idx = iod->engine_info;
+    assert(idx >= 0 && idx <= pinfo->max_idx);
 
-    pinfo->events[sd].fd = sd;
-    pinfo->events[sd].events = 0;
+    pev = &pinfo->events[idx];
+    pev->fd = sd;
+    pev->events = 0;
 
     /* regenerate the current set of events for this IOD */
     if (iod->watched_events & EV_READ)
-      pinfo->events[sd].events |= POLL_R_FLAGS;
+      pev->events |= POLL_R_FLAGS;
     if (iod->watched_events & EV_WRITE)
-      pinfo->events[sd].events |= POLL_W_FLAGS;
+      pev->events |= POLL_W_FLAGS;
   }
 
   return 1;
@@ -364,7 +395,7 @@ int poll_loop(struct npool *nsp, int msec_timeout) {
     combined_msecs = MIN((unsigned)event_msecs, (unsigned)msec_timeout);
 
     if (iod_count > 0) {
-      results_left = Poll(pinfo->events, pinfo->max_fd + 1, combined_msecs);
+      results_left = Poll(pinfo->events, pinfo->max_idx + 1, combined_msecs);
       if (results_left == -1)
         sock_err = socket_errno();
     }
@@ -378,17 +409,9 @@ int poll_loop(struct npool *nsp, int msec_timeout) {
   } while (results_left == -1 && sock_err == EINTR); /* repeat only if signal occurred */
 
   if (results_left == -1 && sock_err != EINTR) {
-#ifdef WIN32
-    for (int i = 0; sock_err != EINVAL || i <= pinfo->max_fd; i++) {
-      if (sock_err != EINVAL || pinfo->events[i].fd != -1) {
-#endif
-        nsock_log_error("nsock_loop error %d: %s", sock_err, socket_strerror(sock_err));
-        nsp->errnum = sock_err;
-        return -1;
-#ifdef WIN32
-      }
-    }
-#endif
+    nsock_log_error("nsock_loop error %d: %s", sock_err, socket_strerror(sock_err));
+    nsp->errnum = sock_err;
+    return -1;
   }
 
   iterate_through_event_lists(nsp);
@@ -402,6 +425,7 @@ int poll_loop(struct npool *nsp, int msec_timeout) {
 static inline int get_evmask(struct npool *nsp, struct niod *nsi) {
   struct poll_engine_info *pinfo = (struct poll_engine_info *)nsp->engine_data;
   int sd, evmask = EV_NONE;
+  int idx;
   POLLFD *pev;
 
   if (nsi->state != NSIOD_STATE_DELETED
@@ -415,10 +439,11 @@ static inline int get_evmask(struct npool *nsp, struct niod *nsi) {
         return EV_READ;
 #endif
 
-      assert(sd >= 0);
+      idx = nsi->engine_info;
 
-      assert(sd < pinfo->capacity);
-      pev = &pinfo->events[sd];
+      assert(idx >= 0 && idx <= pinfo->max_idx);
+      pev = &pinfo->events[idx];
+      assert(pev->fd == sd);
 
       if (pev->revents & POLL_R_FLAGS)
         evmask |= EV_READ;

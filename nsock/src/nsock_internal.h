@@ -300,6 +300,8 @@ struct niod {
 
   struct proxy_chain_context *px_ctx;
 
+  /* IO Engine internal data */
+  int engine_info;
 };
 
 
