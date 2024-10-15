@@ -113,6 +113,8 @@ struct iocp_engine_info {
 
   /* How many Completion Packets we actually retreieved */
   unsigned long entries_removed;
+  /* Number of IODs incompatible with IO completion ports */
+  int num_pcap_nonselect;
 
   gh_list_t active_eovs;
   gh_list_t free_eovs;
@@ -159,8 +161,6 @@ struct extended_overlapped {
 #define IOCP_NOT_FORCED 0
 #define IOCP_FORCED 1
 #define IOCP_FORCED_POSTED 2
-  /* Number of IODs incompatible with IO completion ports */
-  int num_pcap_nonselect;
 };
 
 /* --- INTERNAL PROTOTYPES --- */
@@ -287,41 +287,20 @@ int iocp_iod_unregister(struct npool *nsp, struct niod *iod) {
 }
 
 int iocp_iod_modify(struct npool *nsp, struct niod *iod, struct nevent *nse, int ev_set, int ev_clr) {
-  int new_events;
   struct iocp_engine_info *iinfo = (struct iocp_engine_info *)nsp->engine_data;
 
   assert((ev_set & ev_clr) == 0);
   assert(IOD_PROPGET(iod, IOD_REGISTERED));
 
-  new_events = iod->watched_events;
-  new_events |= ev_set;
-  new_events &= ~ev_clr;
-
-  if (new_events == iod->watched_events)
-      return 1; /* nothing to do */
-
-  iod->watched_events = new_events;
-  switch (nse->type) {
-  case NSE_TYPE_CONNECT:
-  case NSE_TYPE_CONNECT_SSL:
-      break;
-  case NSE_TYPE_READ:
-  case NSE_TYPE_PCAP_READ:
-      assert((ev_set | ev_clr) == EV_READ);
-      break;
-  case NSE_TYPE_WRITE:
-      assert((ev_set | ev_clr) == EV_WRITE);
-      break;
-  default:
-      fatal("Invalid NSE type %d for iocp_iod_modify", nse->type);
-      break;
-  }
+  // Bookkeeping, but we don't care about watched_events:
+  iod->watched_events |= ev_set;
+  iod->watched_events &= ~ev_clr;
 
   if (ev_set != EV_NONE) {
       if (!nse->eov)
           initiate_overlapped_event(nsp, nse);
   }
-  else if (ev_clr != EV_NONE)
+  else /* even if ev_clr is EV_NONE, since other events may preclude that */
     terminate_overlapped_event(nsp, nse);
 
   return 1;
@@ -504,7 +483,8 @@ void iterate_through_event_lists(struct npool *nsp) {
 
       if (nse->timeout.tv_sec)
         gh_heap_remove(&nsp->expirables, &nse->expire);
-      assert(!nse->eov);
+      if (nse->eov)
+          terminate_overlapped_event(nsp, nse);
     }
     else {
         assert(nse->eov->forced_operation != IOCP_NOT_FORCED);
