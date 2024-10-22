@@ -511,8 +511,12 @@ administrator privileges.";
   if (resume_ip.ss_family != AF_UNSPEC && generate_random_ips)
     resume_ip.ss_family = AF_UNSPEC;
 
-  if (magic_port_set && connectscan) {
-    error("WARNING: -g is incompatible with the default connect() scan (-sT).  Use a raw scan such as -sS if you want to set the source port.");
+  // if (magic_port_set && connectscan) {
+  //   error("WARNING: -g is incompatible with the default connect() scan (-sT).  Use a raw scan such as -sS if you want to set the source port.");
+  // }
+
+  if (magic_port_set && magic_port < 1024 && !isr00t) {
+    error("WARNING: setting the source port to a number less than 1024 may fail without root privileges especially for source addresses other than INADDR_ANY.");
   }
 
   if (max_parallelism && min_parallelism && (min_parallelism > max_parallelism)) {
