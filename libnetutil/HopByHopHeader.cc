@@ -169,7 +169,7 @@ int HopByHopHeader::validate(){
         +-+-+-+-+-+-+-+-+  */
         case EXTOPT_PAD1:
           curr_pnt++; /* Skip one octet */
-          bytes_left++;
+          bytes_left--;
         break;
 
         /* PadN
