@@ -123,7 +123,8 @@ const char *PacketParser::header_type2string(int val){
 #define MAX_HEADERS_IN_PACKET 32
 pkt_type_t *PacketParser::parse_packet(const u8 *pkt, size_t pktlen, bool eth_included){
   if(PKTPARSERDEBUG)printf("%s(%p, %lu)\n", __func__, pkt, (long unsigned)pktlen);
-  static pkt_type_t this_packet[MAX_HEADERS_IN_PACKET+1]; /* Packet structure array   */
+  static pkt_type_t this_packet[MAX_HEADERS_IN_PACKET+2]; /* Packet structure array   */
+                                   /* +1 for RAW packet, +1 for 0 length guard */
   u8 current_header=0;             /* Current array position of "this_packet" */
   const u8 *curr_pkt=pkt;          /* Pointer to current part of the packet   */
   size_t curr_pktlen=pktlen;       /* Remaining packet length                 */
@@ -582,6 +583,7 @@ pkt_type_t *PacketParser::parse_packet(const u8 *pkt, size_t pktlen, bool eth_in
         //if(expected==HEADER_TYPE_DNS){
         //}else if(expected==HEADER_TYPE_HTTP){
         //}... ETC
+        /* current_header could be MAX_HEADERS_IN_PACKET already */
         this_packet[current_header].length=curr_pktlen;
         this_packet[current_header++].type=HEADER_TYPE_RAW_DATA;
         curr_pktlen=0;
@@ -594,6 +596,7 @@ pkt_type_t *PacketParser::parse_packet(const u8 *pkt, size_t pktlen, bool eth_in
   if (unknown_hdr==true){
     if(curr_pktlen>0){
         if(PKTPARSERDEBUG)puts("Unknown layer found. Treating it as raw data.");
+        /* current_header could be MAX_HEADERS_IN_PACKET already */
         this_packet[current_header].length=curr_pktlen;
         this_packet[current_header++].type=HEADER_TYPE_RAW_DATA;
     }
