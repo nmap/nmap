@@ -907,10 +907,10 @@ int pcap_selectable_fd_one_to_one() {
  * >0 for success. If select() fails we bail out because it couldn't work with
  * the file descriptor we got from my_pcap_get_selectable_fd()
  */
-int pcap_select(pcap_t *p, struct timeval *timeout) {
+int pcap_select(pcap_t *p, long usecs) {
   int ret;
 #ifdef WIN32
-  DWORD msec_timeout = timeout->tv_sec * 1000 + timeout->tv_usec / 1000;
+  DWORD msec_timeout = usecs / 1000;
   HANDLE event = pcap_getevent(p);
   DWORD result = WaitForSingleObject(event, msec_timeout);
 
@@ -932,6 +932,8 @@ int pcap_select(pcap_t *p, struct timeval *timeout) {
   }
 
 #else
+  long elapsed = 0;
+  struct timeval tv, start, now;
   int fd;
   fd_set rfds;
 
@@ -941,28 +943,26 @@ int pcap_select(pcap_t *p, struct timeval *timeout) {
   FD_ZERO(&rfds);
   checked_fd_set(fd, &rfds);
 
+  gettimeofday(&start, NULL);
   do {
     errno = 0;
-    ret = select(fd + 1, &rfds, NULL, NULL, timeout);
+    tv.tv_sec = (usecs - elapsed) / 1000000;
+    tv.tv_usec = (usecs - elapsed) % 1000000;
+
+    ret = select(fd + 1, &rfds, NULL, NULL, &tv);
     if (ret == -1) {
-      if (errno == EINTR)
+      if (errno == EINTR) {
+        gettimeofday(&now, NULL);
+        elapsed = TIMEVAL_SUBTRACT(now, start);
         netutil_error("%s: %s", __func__, strerror(errno));
+      }
       else
         netutil_fatal("Your system does not support select()ing on pcap devices (%s). PLEASE REPORT THIS ALONG WITH DETAILED SYSTEM INFORMATION TO THE nmap-dev MAILING LIST!", strerror(errno));
     }
-  } while (ret == -1);
-
+  } while (ret == -1 && elapsed < usecs);
 #endif
+
   return ret;
-}
-
-int pcap_select(pcap_t *p, long usecs) {
-  struct timeval tv;
-
-  tv.tv_sec = usecs / 1000000;
-  tv.tv_usec = usecs % 1000000;
-
-  return pcap_select(p, &tv);
 }
 
 
