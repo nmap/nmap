@@ -378,7 +378,7 @@ char *socket_strerror(int errnum);
 /* The usleep() function is important as well */
 #ifndef HAVE_USLEEP
 #if defined( HAVE_NANOSLEEP) || defined(WIN32)
-void usleep(unsigned long usec);
+int usleep(unsigned long usec);
 #endif
 #endif
 

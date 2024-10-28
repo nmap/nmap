@@ -72,14 +72,15 @@
 #endif
 
 #ifndef HAVE_USLEEP
-void usleep(unsigned long usec) {
+int usleep(unsigned long usec) {
 #ifdef HAVE_NANOSLEEP
 struct timespec ts;
 ts.tv_sec = usec / 1000000;
 ts.tv_nsec = (usec % 1000000) * 1000;
-nanosleep(&ts, NULL);
+return nanosleep(&ts, NULL);
 #else /* Windows style */
  Sleep( usec / 1000 );
+ return 0;
 #endif /* HAVE_NANOSLEEP */
 }
 #endif
