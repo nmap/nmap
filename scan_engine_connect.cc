@@ -507,9 +507,8 @@ bool do_one_select_round(UltraScanInfo *USI, struct timeval *stime) {
       usleep(timeleft * 1000);
       selectres = 0;
     }
+    gettimeofday(&USI->now, NULL);
   } while (selectres == -1 && err == EINTR);
-
-  gettimeofday(&USI->now, NULL);
 
   if (selectres == -1)
     pfatal("select failed in %s()", __func__);
