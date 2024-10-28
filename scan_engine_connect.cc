@@ -438,11 +438,11 @@ UltraProbe *sendConnectScanProbe(UltraScanInfo *USI, HostScanStats *hss,
 #if HAVE_IPV6
   else sin6->sin6_port = htons(probe->pspec()->pd.tcp.dport);
 #endif
-  probe->sent = USI->now;
   /* We don't record a byte count for connect probes. */
   hss->probeSent(0);
   rc = connect(CP->sd, (struct sockaddr *)&sock, socklen);
   gettimeofday(&USI->now, NULL);
+  probe->sent = USI->now;
   if (rc == -1)
     connect_errno = socket_errno();
   /* This counts as probe being sent, so update structures */
@@ -464,6 +464,7 @@ UltraProbe *sendConnectScanProbe(UltraScanInfo *USI, HostScanStats *hss,
     handleConnectResult(USI, hss, probeI, connect_errno, true);
     probe = NULL;
   }
+  // Not sure if we need to call this again:
   gettimeofday(&USI->now, NULL);
   return probe;
 }
