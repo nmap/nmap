@@ -2639,6 +2639,16 @@ static void processData(UltraScanInfo *USI) {
       probe = *probeI;
 
       unsigned long to_us = host->probeTimeout();
+#ifdef WIN32
+      if (USI->scantype == CONNECT_SCAN || USI->ptech.connecttcpscan) {
+        // Have to adjust to_us up because of TCP_MAXRT granularity
+        if (USI->has_tcp_maxrtms) {
+          to_us += (1000 - to_us % 1000); 
+        } else {
+          to_us += (1000000 - to_us % 1000000); 
+        }
+      }
+#endif
       long probe_age_us = TIMEVAL_SUBTRACT(USI->now, probe->sent);
       // give up completely after this long
       expire_us = host->probeExpireTime(probe, to_us);

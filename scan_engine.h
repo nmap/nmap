@@ -557,6 +557,9 @@ public:
   bool ping_scan_arp; /* ONLY includes arp ping scan */
   bool ping_scan_nd; /* ONLY includes ND ping scan */
   bool noresp_open_scan; /* Whether no response means a port is open */
+#ifdef WIN32
+  bool has_tcp_maxrtms; /* Whether TCP_MAXRTMS socket option is available */
+#endif
 
   /* massping state. */
   /* If ping_scan is true (unless ping_scan_arp is also true), this is the set
