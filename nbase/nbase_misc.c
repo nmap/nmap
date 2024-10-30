@@ -352,139 +352,83 @@ const char *tval_unit(const char *tspec) {
  * they were NULL or empty.  This only works for sockets and stdin; if
  * you have a descriptor referring to a normal open file in the set,
  * Windows will return WSAENOTSOCK. */
-int fselect(int s, fd_set *rmaster, fd_set *wmaster, fd_set *emaster, struct timeval *tv)
+int fselect(int s, fd_set *rset, fd_set *wset, fd_set *eset, struct timeval *tv)
 {
 #ifdef WIN32
-    static int stdin_thread_started = 0;
+    static int stdin_socket = INVALID_SOCKET;
     int fds_ready = 0;
     int iter = -1;
-    int do_select = 0;
-    struct timeval stv;
-    fd_set rset, wset, eset;
     int r_stdin = 0;
     int e_stdin = 0;
-    int stdin_ready = 0;
 
     /* Figure out whether there are any FDs in the sets, as @$@!$# Windows
        returns WSAINVAL (10022) if you call a select() with no FDs, even though
        the Linux man page says that doing so is a good, reasonably portable way
        to sleep with subsecond precision.  Sigh. */
-    if (rmaster != NULL) {
-      /* If stdin is requested, clear it and remember it. */
-      if (checked_fd_isset(STDIN_FILENO, rmaster)) {
-        r_stdin = 1;
-        checked_fd_clr(STDIN_FILENO, rmaster);
-      }
-      /* If any are left, we'll do a select. Otherwise, it's a sleep. */
-      do_select = do_select || rmaster->fd_count;
+    if (s == 0 || (
+      (rset == NULL || rset->fd_count == 0) &&
+      (wset == NULL || wset->fd_count == 0) &&
+      (eset == NULL || eset->fd_count == 0)
+      )) {
+      usleep(tv->tv_sec * 1000000 + tv->tv_usec);
+      return 0;
+    }
+
+    /* If stdin is requested, clear it and remember it. */
+    if (rset && checked_fd_isset(STDIN_FILENO, rset)) {
+      r_stdin = 1;
+      checked_fd_clr(STDIN_FILENO, rset);
     }
 
     /* Same thing with exceptions */
-    if (emaster != NULL) {
-      if (checked_fd_isset(STDIN_FILENO, emaster)) {
-        e_stdin = 1;
-        checked_fd_clr(STDIN_FILENO, emaster);
-      }
-      do_select = do_select || emaster->fd_count;
+    if (eset && checked_fd_isset(STDIN_FILENO, eset)) {
+      e_stdin = 1;
+      checked_fd_clr(STDIN_FILENO, eset);
     }
 
     /* stdin can't be written to, so ignore it. */
-    if (wmaster != NULL) {
-      assert(!checked_fd_isset(STDIN_FILENO, wmaster));
-      do_select = do_select || wmaster->fd_count;
+    if (wset) {
+      assert(!checked_fd_isset(STDIN_FILENO, wset));
     }
 
-    /* Handle the case where stdin is not in scope. */
-    if (!(r_stdin || e_stdin)) {
-        if (do_select) {
-            /* Do a normal select. */
-            return select(s, rmaster, wmaster, emaster, tv);
-        } else {
-            /* No file descriptors given. Just sleep. */
-            if (tv == NULL) {
-                /* Sleep forever. */
-                while (1)
-                    sleep(10000);
-            } else {
-                usleep(tv->tv_sec * 1000000UL + tv->tv_usec);
-                return 0;
-            }
-        }
+    if (r_stdin || e_stdin) {
+
+      /* This is a hack for Windows, which doesn't allow select()ing on
+       * non-sockets (like stdin). We launch a background thread that shuttles
+       * STDIN across a connected socket so that we can watch that with
+       * select().
+       */
+
+      /* nbase_winunix.c has all the nasty details behind checking if
+       * stdin has input. It involves a background thread, which we start
+       * now if necessary. */
+      if (stdin_socket == INVALID_SOCKET) {
+        stdin_socket = win_stdin_start_thread();
+        assert(stdin_socket != INVALID_SOCKET);
+      }
+      if (r_stdin) {
+        checked_fd_set(stdin_socket, rset);
+      }
+      if (e_stdin) {
+        checked_fd_set(stdin_socket, eset);
+      }
     }
 
-    /* This is a hack for Windows, which doesn't allow select()ing on
-     * non-sockets (like stdin).  We remove stdin from the fd_set and
-     * loop while select()ing on everything else, with a timeout of
-     * 125ms.  Then we check if stdin is ready and increment fds_ready
-     * and set stdin in rmaster if it looks good.  We just keep looping
-     * until we have something or it times out.
-     */
-
-    /* nbase_winunix.c has all the nasty details behind checking if
-     * stdin has input. It involves a background thread, which we start
-     * now if necessary. */
-    if (!stdin_thread_started) {
-        int ret = win_stdin_start_thread();
-        assert(ret != 0);
-        stdin_thread_started = 1;
+    fds_ready = select(s, rset, wset, eset, tv);
+    if (fds_ready > 0) {
+      if (r_stdin && checked_fd_isset(stdin_socket, rset)) {
+          checked_fd_clr(stdin_socket, rset);
+        checked_fd_set(STDIN_FILENO, rset);
+      }
+      if (e_stdin && checked_fd_isset(stdin_socket, eset)) {
+          checked_fd_clr(stdin_socket, eset);
+        checked_fd_set(STDIN_FILENO, eset);
+      }
     }
-
-    if (tv) {
-        int usecs = (tv->tv_sec * 1000000) + tv->tv_usec;
-
-        iter = usecs / 125000;
-
-        if (usecs % 125000)
-            iter++;
-    }
-
-    FD_ZERO(&rset);
-    FD_ZERO(&wset);
-    FD_ZERO(&eset);
-
-    while (!fds_ready && iter) {
-        stv.tv_sec = 0;
-        stv.tv_usec = 125000;
-
-        if (rmaster)
-            rset = *rmaster;
-        if (wmaster)
-            wset = *wmaster;
-        if (emaster)
-            eset = *emaster;
-
-        if(r_stdin) {
-            stdin_ready = win_stdin_ready();
-            if(stdin_ready)
-                stv.tv_usec = 0; /* get status but don't wait since stdin is ready */
-        }
-
-        fds_ready = 0;
-        /* selecting on anything other than stdin? */
-        if (do_select)
-            fds_ready = select(s, &rset, &wset, &eset, &stv);
-        else
-            usleep(stv.tv_sec * 1000000UL + stv.tv_usec);
-
-        if (fds_ready > -1 && stdin_ready) {
-            checked_fd_set(STDIN_FILENO, &rset);
-            fds_ready++;
-        }
-
-        if (tv)
-            iter--;
-    }
-
-    if (rmaster)
-        *rmaster = rset;
-    if (wmaster)
-        *wmaster = wset;
-    if (emaster)
-        *emaster = eset;
 
     return fds_ready;
 #else
-    return select(s, rmaster, wmaster, emaster, tv);
+    return select(s, rset, wset, eset, tv);
 #endif
 }
 

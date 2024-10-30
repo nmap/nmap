@@ -192,6 +192,5 @@ Nbase that legitimately use ENOENT for file operations.
 typedef unsigned short u_short_t;
 
 int win_stdin_start_thread(void);
-int win_stdin_ready(void);
 
 #endif /* NBASE_WINUNIX_H */
