@@ -316,7 +316,7 @@ int nevent_delete(struct npool *nsp, struct nevent *nse, gh_list_t *event_list,
 
 #if HAVE_PCAP
 #if PCAP_BSD_SELECT_HACK
-  if (nse->type == NSE_TYPE_PCAP_READ) {
+  if (nse->type == NSE_TYPE_PCAP_READ && ((mspcap *)nse->iod->pcap)->pcap_desc >= 0) {
     nsock_log_debug_all("PCAP NSE #%lu: CANCEL TEST pcap=%p read=%p curr=%p sd=%i",
                         nse->id, &nsp->pcap_read_events, &nsp->read_events,
                         event_list,((mspcap *)nse->iod->pcap)->pcap_desc);
@@ -325,20 +325,21 @@ int nevent_delete(struct npool *nsp, struct nevent *nse, gh_list_t *event_list,
      * two queues. read_event and pcap_read_event Of course we should
      * destroy it only once.  I assume we're now in read_event, so just unlink
      * this event from pcap_read_event */
-    if (((mspcap *)nse->iod->pcap)->pcap_desc >= 0 && event_list == &nsp->read_events) {
-      /* event is done, list is read_events and we're in BSD_HACK mode. So unlink
-       * event from pcap_read_events */
-      gh_list_remove(&nsp->pcap_read_events, &nse->nodeq_pcap);
-      nsock_log_debug_all("PCAP NSE #%lu: Removing event from PCAP_READ_EVENTS", nse->id);
+    gh_list_t *other_list = NULL;
+    const char *listname = NULL;
+    if (event_list == &nsp->read_events) {
+      other_list = &nsp->pcap_read_events;
+      listname = "PCAP_READ_EVENTS";
     }
-
-    if (((mspcap *)nse->iod->pcap)->pcap_desc >= 0 && event_list == &nsp->pcap_read_events) {
-      /* event is done, list is read_events and we're in BSD_HACK mode.
-       * So unlink event from read_events */
-      gh_list_remove(&nsp->read_events, &nse->nodeq_io);
-
-      nsock_log_debug_all("PCAP NSE #%lu: Removing event from READ_EVENTS", nse->id);
+    else if (event_list == &nsp->pcap_read_events) {
+      other_list = &nsp->read_events;
+      listname = "READ_EVENTS";
     }
+    else
+      fatal("Bogus event list for NSE_TYPE_PCAP_READ");
+
+    nsock_log_debug_all("PCAP NSE #%lu: Removing event from %s", nse->id, listname);
+    gh_list_remove(other_list, &nse->nodeq_io);
   }
 #endif
 #endif
