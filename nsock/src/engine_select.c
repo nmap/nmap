@@ -205,37 +205,27 @@ int select_iod_modify(struct npool *nsp, struct niod *iod, struct nevent *nse, i
   iod->watched_events |= ev_set;
   iod->watched_events &= ~ev_clr;
 
-  ev_set |= EV_EXCEPT;
-  ev_clr &= ~EV_EXCEPT;
-
   sd = nsock_iod_get_sd(iod);
+  if (sd != -1) {
+    if (ev_set & EV_READ)
+      checked_fd_set(sd, &sinfo->fds_master_r);
+    else if (ev_clr & EV_READ)
+      checked_fd_clr(sd, &sinfo->fds_master_r);
 
-  /* -- set events -- */
-  if (ev_set & EV_READ)
-    checked_fd_set(sd, &sinfo->fds_master_r);
+    if (ev_set & EV_WRITE)
+      checked_fd_set(sd, &sinfo->fds_master_w);
+    else if (ev_clr & EV_WRITE)
+      checked_fd_clr(sd, &sinfo->fds_master_w);
 
-  if (ev_set & EV_WRITE)
-    checked_fd_set(sd, &sinfo->fds_master_w);
-
-  if (ev_set & EV_EXCEPT)
+    // Always set EV_EXCEPT. https://seclists.org/nmap-dev/2017/q1/226
     checked_fd_set(sd, &sinfo->fds_master_x);
 
-  /* -- clear events -- */
-  if (ev_clr & EV_READ)
-    checked_fd_clr(sd, &sinfo->fds_master_r);
-
-  if (ev_clr & EV_WRITE)
-    checked_fd_clr(sd, &sinfo->fds_master_w);
-
-  if (ev_clr & EV_EXCEPT)
-    checked_fd_clr(sd, &sinfo->fds_master_x);
-
-
-  /* -- update max_sd -- */
-  if (ev_set != EV_NONE)
-    sinfo->max_sd = MAX(sinfo->max_sd, sd);
-  else if (ev_clr != EV_NONE && iod->events_pending == 1 && (sinfo->max_sd == sd))
-    sinfo->max_sd--;
+    /* -- update max_sd -- */
+    if (ev_set != EV_NONE)
+      sinfo->max_sd = MAX(sinfo->max_sd, sd);
+    else if (ev_clr != EV_NONE && iod->events_pending == 1 && (sinfo->max_sd == sd))
+      sinfo->max_sd--;
+  }
 
   return 1;
 }
