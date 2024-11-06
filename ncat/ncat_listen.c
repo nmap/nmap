@@ -94,6 +94,16 @@
 #define SHUT_WR SD_SEND
 #endif
 
+#ifdef WIN32
+/* Using fselect() converts STDIN_FILENO to a socket with WSA_FLAG_OVERLAPPED,
+ * so read() doesn't work. Instead, we can use recv(). */
+#define READ_STDIN(_buf, _len) (recv(_get_osfhandle(STDIN_FILENO), _buf, _len, 0))
+#define READ_STDIN_ERR() logdebug("Error reading from stdin: %08x\n", WSAGetLastError())
+#else
+#define READ_STDIN(_buf, _len) (read(STDIN_FILENO, _buf, _len))
+#define READ_STDIN_ERR() logdebug("Error reading from stdin: %s\n", strerror(errno))
+#endif
+
 /* read_fds is the clients we are accepting data from. broadcast_fds is the
    clients were are sending data to. broadcast_fds doesn't include the listening
    socket and stdin. Network clients are not added to read_fds when --send-only
@@ -620,10 +630,10 @@ int read_stdin(void)
     char buf[DEFAULT_TCP_BUF_LEN];
     char *tempbuf = NULL;
 
-    nbytes = read(STDIN_FILENO, buf, sizeof(buf));
+    nbytes = READ_STDIN(buf, sizeof(buf));
     if (nbytes <= 0) {
         if (nbytes < 0 && o.verbose)
-            logdebug("Error reading from stdin: %s\n", strerror(errno));
+            READ_STDIN_ERR();
         if (nbytes == 0 && o.debug)
             logdebug("EOF on stdin\n");
 
@@ -713,10 +723,10 @@ static void read_and_broadcast(int recv_fd)
 
         /* Behavior differs depending on whether this is stdin or a socket. */
         if (recv_fd == STDIN_FILENO) {
-            n = read(recv_fd, buf, sizeof(buf));
+            n = READ_STDIN(buf, sizeof(buf));
             if (n <= 0) {
                 if (n < 0 && o.verbose)
-                    logdebug("Error reading from stdin: %s\n", strerror(errno));
+                    READ_STDIN_ERR();
                 if (n == 0 && o.debug)
                     logdebug("EOF on stdin\n");
 
