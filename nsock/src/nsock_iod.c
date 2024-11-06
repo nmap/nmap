@@ -63,6 +63,10 @@
 #include "nsock_pcap.h"
 #endif
 
+#ifdef WIN32
+#include <nbase_winunix.h>
+#endif
+
 #include <string.h>
 
 
@@ -97,7 +101,13 @@ nsock_iod nsock_iod_new2(nsock_pool nsockp, int sd, void *userdata) {
     nsi->sd = -1;
     nsi->state = NSIOD_STATE_INITIAL;
   } else if (sd == STDIN_FILENO) {
+#ifdef WIN32
+    nsi->sd = win_stdin_start_thread();
+    assert(nsi->sd != INVALID_SOCKET);
+#else
     nsi->sd = STDIN_FILENO;
+#endif
+    IOD_PROPSET(nsi, IOD_STDIN);
     nsi->state = NSIOD_STATE_UNKNOWN;
   } else {
     nsi->sd = dup_socket(sd);
@@ -261,7 +271,7 @@ void nsock_iod_delete(nsock_iod nsockiod, enum nsock_del_mode pending_response) 
   }
 #endif
 
-  if (nsi->sd >= 0 && nsi->sd != STDIN_FILENO) {
+  if (nsi->sd >= 0 && !IOD_PROPGET(nsi, IOD_STDIN)) {
     close(nsi->sd);
     nsi->sd = -1;
   }
