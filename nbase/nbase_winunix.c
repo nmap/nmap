@@ -88,6 +88,7 @@ thread may be lost when the thread is started.
 
 /* The background thread that reads and buffers the true stdin. */
 static HANDLE stdin_thread = NULL;
+static SOCKET socket_r = INVALID_SOCKET;
 
 struct win_thread_data {
 /* This is a copy of the true stdin file handle before any redirection. It is
@@ -166,8 +167,11 @@ int win_stdin_start_thread(void) {
     int rc = 0, socksize = 0;
     struct win_thread_data *tdata = NULL;
     SOCKADDR_IN selfaddr;
-    SOCKET socket_r = INVALID_SOCKET;
 
+    if (socket_r != INVALID_SOCKET) {
+        assert(stdin_thread != NULL);
+        return socket_r;
+    }
     assert(stdin_thread == NULL);
 
     do {
@@ -221,7 +225,9 @@ int win_stdin_start_thread(void) {
         }
 
         // Connect to the thread and rearrange our own STDIN handles
-        socket_r = WSASocket(AF_INET, SOCK_STREAM, IPPROTO_TCP, NULL, 0, 0);
+        // Sockets are created with WSA_FLAG_OVERLAPPED, which is needed for socket functions,
+        // but it means we can't use read().
+        socket_r = (int)inheritable_socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
         if (socket_r == INVALID_SOCKET) {
             //fprintf(stderr, "socket error: %d", socket_errno());
             break;
@@ -249,7 +255,9 @@ int win_stdin_start_thread(void) {
         if (stdin_fd == -1) {
             break;
         }
-        dup2(stdin_fd, STDIN_FILENO);
+        if (dup2(stdin_fd, STDIN_FILENO) != 0) {
+            break;
+        }
 
         rc = 1;
     } while (0);
@@ -263,6 +271,7 @@ int win_stdin_start_thread(void) {
                 tdata->stdin_handle = NULL; // make sure we don't close it later!
             }
             closesocket(socket_r);
+            socket_r = INVALID_SOCKET;
         }
         if (stdin_thread) {
             TerminateThread(stdin_thread, 1);
