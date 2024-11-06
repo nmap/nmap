@@ -567,7 +567,7 @@ static void call_connect_overlapped(struct npool *nsp, struct nevent *nse) {
   int one = 1;
   SOCKET sock = nse->iod->sd;
   GUID guid = WSAID_CONNECTEX;
-  struct sockaddr_in addr;
+  struct sockaddr_storage addr;
   LPFN_CONNECTEX ConnectExPtr = NULL;
   struct iocp_engine_info *iinfo = (struct iocp_engine_info *)nse->iod->nsp->engine_data;
   struct extended_overlapped* eov = NULL;
@@ -603,11 +603,16 @@ static void call_connect_overlapped(struct npool *nsp, struct nevent *nse) {
   }
 
   /* ConnectEx doesn't automatically bind the socket */
-  memset(&addr, 0, sizeof(addr));
-  addr.sin_family = AF_INET;
-  addr.sin_addr.s_addr = INADDR_ANY;
-  addr.sin_port = 0;
   if (!nse->iod->locallen) {
+      memset(&addr, 0, sizeof(addr));
+      addr.ss_family = ss->ss_family;
+      if (addr.ss_family == AF_INET) {
+          ((struct sockaddr_in*)&addr)->sin_addr.s_addr = INADDR_ANY;
+          ((struct sockaddr_in*)&addr)->sin_port = 0;
+      } else if (addr.ss_family == AF_INET6) {
+          ((struct sockaddr_in6*)&addr)->sin6_addr = IN6ADDR_ANY_INIT;
+          ((struct sockaddr_in6*)&addr)->sin6_port = 0;
+      }
     ret = bind(sock, (SOCKADDR*)&addr, sizeof(addr));
     if (ret) {
       int err = socket_errno();
