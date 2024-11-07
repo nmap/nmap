@@ -450,8 +450,24 @@ static void handle_connection(int socket_accept, int type, fd_set *listen_fds)
       int nbytes = recvfrom(socket_accept, buf, sizeof(buf), MSG_PEEK,
           &s.remoteaddr.sockaddr, &s.ss_len);
       if (nbytes < 0) {
-        loguser("%s.\n", socket_strerror(socket_errno()));
-        return;
+          int err = socket_errno();
+          switch (err) {
+              // Recoverable try-again errors:
+              case EINTR:
+              case EAGAIN:
+                  loguser("%s.\n", socket_strerror(socket_errno()));
+                  return;
+              // Ignorable errors:
+              // Windows returns SOCKET_ERROR and WSAEMSGSIZE instead of truncating!
+              case EMSGSIZE:
+                  if (s.remoteaddr.sockaddr.sa_family != AF_UNSPEC)
+                      break;
+              // everything else:
+              default:
+                  die("recvfrom");
+                  return;
+                  break;
+          }
       }
       /*
        * We're using connected udp. This has the down side of only
