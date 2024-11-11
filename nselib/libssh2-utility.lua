@@ -57,12 +57,13 @@ end
 -- Runs a shell command on the remote host.
 --
 -- @param cmd A command to run.
+-- @param no_pty If true, skip requesting a PTY.
 -- @return The command output.
-function SSHConnection:run_remote (cmd)
+function SSHConnection:run_remote (cmd, no_pty)
   if not (self.session and self.authenticated) then
     return false
   end
-  local channel = libssh2.open_channel(self.session)
+  local channel = libssh2.open_channel(self.session, no_pty)
   libssh2.channel_exec(self.session, channel, cmd)
   libssh2.channel_send_eof(self.session, channel)
   local buff = {}
@@ -71,6 +72,9 @@ function SSHConnection:run_remote (cmd)
     data = libssh2.channel_read(self.session, channel)
     if data then
       table.insert(buff, data)
+    elseif no_pty then
+      -- PTY is responsible for sending EOF
+      break
     end
   end
   return table.concat(buff)

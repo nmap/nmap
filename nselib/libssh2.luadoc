@@ -67,11 +67,12 @@ function read_publickey(publickeyfile)
 -- @return true/false, depending on whether user can authenticate with given key
 function publickey_canauth(session, username, publickeydata)
 
---- Opens channel on authenticated ssh2 session and sets it to pseudo
+--- Opens channel on authenticated ssh2 session and optionally sets it to pseudo
 -- terminal mode.
 -- @param session Authenticated libssh2 session
+-- @param no_pty If true, skip requesting a PTY.
 -- @return libssh2 channel
-function open_channel(session)
+function open_channel(session, pty)
 
 --- Reads data from stdin on libssh2 channel.
 -- @param session Authenticated libssh2 session

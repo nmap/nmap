@@ -14,6 +14,7 @@ extern "C" {
 
 #include "nse_nsock.h"
 #include "nse_utility.h"
+#include "nbase.h"
 
 #include <fcntl.h>
 #include <assert.h>
@@ -702,10 +703,10 @@ static int channel_read (lua_State *L, int status, lua_KContext ctx) {
     int rc;
     char buf[2048];
     size_t buflen = 2048;
-    LIBSSH2_CHANNEL **channel = (LIBSSH2_CHANNEL **) lua_touserdata(L, 2);
+    LIBSSH2_CHANNEL *channel = (LIBSSH2_CHANNEL *) lua_touserdata(L, 2);
     int stream_id = luaL_checkinteger(L, 3);
 
-    DO_OR_YIELD((rc = libssh2_channel_read_ex(*channel, stream_id, buf, buflen)),
+    DO_OR_YIELD((rc = libssh2_channel_read_ex(channel, stream_id, buf, buflen)),
         1, channel_read, ctx);
 
     if (rc > 0) {
@@ -734,14 +735,14 @@ static int channel_write (lua_State *L, int status, lua_KContext ctx) {
     int rc;
     const char *buf;
     size_t buflen = 0;
-    LIBSSH2_CHANNEL **channel = (LIBSSH2_CHANNEL **) lua_touserdata(L, 2);
+    LIBSSH2_CHANNEL *channel = (LIBSSH2_CHANNEL *) lua_touserdata(L, 2);
 
     if (lua_isstring(L, 3))
         buf = lua_tolstring(L, 3, &buflen);
     else
         return luaL_error(L, "Invalid buffer");
 
-    DO_OR_YIELD((rc = libssh2_channel_write(*channel, buf, buflen)),
+    DO_OR_YIELD((rc = libssh2_channel_write(channel, buf, buflen)),
         1, channel_write, ctx);
 
     if (rc < 0)
@@ -758,10 +759,10 @@ static int l_channel_write (lua_State *L) {
 static int channel_exec (lua_State *L, int status, lua_KContext ctx) {
     int rc;
     // ssh_userdata *state = (ssh_userdata *)lua_touserdata(L, 1);
-    LIBSSH2_CHANNEL **channel = (LIBSSH2_CHANNEL **) lua_touserdata(L, 2);
+    LIBSSH2_CHANNEL *channel = (LIBSSH2_CHANNEL *) lua_touserdata(L, 2);
     const char *cmd = luaL_checkstring(L, 3);
 
-    DO_OR_YIELD((rc = libssh2_channel_exec(*channel, cmd)),
+    DO_OR_YIELD((rc = libssh2_channel_exec(channel, cmd)),
         1, channel_exec, ctx);
     if (rc != 0)
         return luaL_error(L, "Error executing command");
@@ -775,9 +776,9 @@ static int l_channel_exec (lua_State *L) {
 
 static int l_channel_eof(lua_State *L) {
     int result;
-    LIBSSH2_CHANNEL **channel = (LIBSSH2_CHANNEL **) lua_touserdata(L, 1);
+    LIBSSH2_CHANNEL *channel = (LIBSSH2_CHANNEL *) lua_touserdata(L, 1);
 
-    result = libssh2_channel_eof(*channel);
+    result = libssh2_channel_eof(channel);
     if (result >= 0)
         lua_pushboolean(L, result);
     else
@@ -789,9 +790,9 @@ static int l_channel_eof(lua_State *L) {
 static int channel_send_eof(lua_State *L, int status, lua_KContext ctx) {
     int rc;
     // ssh_userdata *state = (ssh_userdata *)lua_touserdata(L, 1);
-    LIBSSH2_CHANNEL **channel = (LIBSSH2_CHANNEL **) lua_touserdata(L, 2);
+    LIBSSH2_CHANNEL *channel = (LIBSSH2_CHANNEL *) lua_touserdata(L, 2);
 
-    DO_OR_YIELD((rc = libssh2_channel_send_eof(*channel)),
+    DO_OR_YIELD((rc = libssh2_channel_send_eof(channel)),
         1, channel_send_eof, ctx);
     if (rc != 0)
         return luaL_error(L, "Error sending EOF");
@@ -803,53 +804,62 @@ static int l_channel_send_eof(lua_State *L) {
     return channel_send_eof(L, 0, 0);
 }
 
+struct channel_context {
+  bool request_pty;
+  LIBSSH2_CHANNEL *channel;
+};
+
 static int setup_channel(lua_State *L, int status, lua_KContext ctx) {
     int rc;
-    // ssh_userdata *state = (ssh_userdata *)lua_touserdata(L, 1);
-    LIBSSH2_CHANNEL **channel = (LIBSSH2_CHANNEL **) lua_touserdata(L, 2);
+    channel_context *channel_ctx = (channel_context *) ctx;
+    ssh_userdata *state = (ssh_userdata *)lua_touserdata(L, 1);
 
-    DO_OR_YIELD((rc = libssh2_channel_request_pty(*channel, "vanilla")),
-        1, setup_channel, ctx);
-    if (rc != 0)
+    if (channel_ctx->channel == NULL) {
+      DO_OR_YIELD(((channel_ctx->channel = libssh2_channel_open_session(state->session)) == NULL ?
+            libssh2_session_last_errno(state->session) : LIBSSH2_ERROR_NONE),
+          1, setup_channel, ctx);
+      if (channel_ctx->channel == NULL) {
+        free(channel_ctx);
+        return luaL_error(L, "Opening channel");
+      }
+    }
+
+    if (channel_ctx->request_pty) {
+      DO_OR_YIELD((rc = libssh2_channel_request_pty(channel_ctx->channel, "vanilla")),
+          1, setup_channel, ctx);
+      if (rc != 0) {
+        free(channel_ctx);
         return luaL_error(L, "Requesting pty");
+      }
+      channel_ctx->request_pty = false; // make sure we don't enter this block again
+    }
+
+    lua_pushlightuserdata(L, channel_ctx->channel);
+    free(channel_ctx);
 
     return 1;
 }
 
-static int l_setup_channel (lua_State *L) {
-    return setup_channel(L, 0, 0);
-}
-
-static int finish_open_channel (lua_State *L, int status, lua_KContext ctx) {
-    ssh_userdata *state = (ssh_userdata *)lua_touserdata(L, 1);
-    LIBSSH2_CHANNEL **channel = (LIBSSH2_CHANNEL **) lua_touserdata(L, 2);
-
-    DO_OR_YIELD(((*channel = libssh2_channel_open_session(state->session)) == NULL ?
-          libssh2_session_last_errno(state->session) : LIBSSH2_ERROR_NONE),
-        1, finish_open_channel, ctx);
-    if (*channel == NULL)
-        return luaL_error(L, "Opening channel");
-
-    return setup_channel(L, 0, 0);
-}
-
 static int l_open_channel (lua_State *L) {
-    ssh_userdata *state = (ssh_userdata *)lua_touserdata(L, 1);
-    LIBSSH2_CHANNEL **channel = (LIBSSH2_CHANNEL **)lua_newuserdatauv(L, sizeof(LIBSSH2_CHANNEL *), 0);
+    //ssh_userdata *state = (ssh_userdata *)lua_touserdata(L, 1);
+    bool no_pty = false;
+    if (lua_gettop(L) > 1) {
+      no_pty = lua_toboolean(L, 2);
+    }
+    lua_settop(L, 1);
 
-    DO_OR_YIELD(((*channel = libssh2_channel_open_session(state->session)) == NULL ?
-          libssh2_session_last_errno(state->session) : LIBSSH2_ERROR_NONE),
-        1, finish_open_channel, 0);
+    channel_context *ctx =  (channel_context *)safe_zalloc(sizeof(channel_context));
+    ctx->request_pty = !no_pty;
 
-    return l_setup_channel(L);
+    return setup_channel(L, 0, (lua_KContext) ctx);
 }
 
 static int channel_close (lua_State *L, int status, lua_KContext ctx) {
     int rc;
     // ssh_userdata *state = (ssh_userdata *)lua_touserdata(L, 1);
-    LIBSSH2_CHANNEL **channel = (LIBSSH2_CHANNEL **) lua_touserdata(L, 2);
+    LIBSSH2_CHANNEL *channel = (LIBSSH2_CHANNEL *) lua_touserdata(L, 2);
 
-    DO_OR_YIELD((rc = libssh2_channel_close(*channel)),
+    DO_OR_YIELD((rc = libssh2_channel_close(channel)),
         1, channel_close, ctx);
     if (rc != 0)
         return luaL_error(L, "Error closing channel");;
