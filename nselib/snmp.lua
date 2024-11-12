@@ -386,29 +386,6 @@ function oid2str(oid)
   return table.concat(oid, '.')
 end
 
----
--- Transforms a table representing an IP to a string.
--- @param ip IP table.
--- @return IP string.
-function ip2str(ip)
-  if (type(ip) ~= "table") then return 'invalid ip' end
-  return table.concat(ip, '.')
-end
-
-
----
--- Transforms a string into an IP table.
--- @param ipStr IP as string.
--- @return Table representing IP.
-function str2ip(ipStr)
-  local ip = {}
-  for n in string.gmatch(ipStr, "%d+") do
-    table.insert(ip, tonumber(n))
-  end
-  ip._snmp = '\x40'
-  return ip
-end
-
 
 ---
 -- Fetches values from a SNMP response.
