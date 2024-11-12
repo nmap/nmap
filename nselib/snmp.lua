@@ -3,6 +3,7 @@
 --
 -- @args snmp.version The SNMP protocol version. Use <code>"v1"</code> or <code>0</code> for SNMPv1 (default) and <code>"v2c"</code> or <code>1</code> for SNMPv2c.
 -- @args snmp.timeout The timeout for SNMP queries. Default: varies by target responsiveness, up to 5s.
+-- @args snmp.retries The number of times a query should be reattempted. Default: 1
 --
 -- @author Patrik Karlsson <patrik@cqure.net>
 -- @author Gioacchino Mazzurco <gmazzurco89@gmail.com>
@@ -25,6 +26,7 @@ if arg_timeout then
   arg_timeout = arg_timeout * 1000
 end
 local default_max_timeout = 5000 --ms
+local retries = stdnse.get_script_args("snmp.retries") or 1
 
 -- SNMP ASN.1 Encoders
 local tagEncoder = {}
@@ -523,13 +525,19 @@ Helper = {
         self.community
       ) )
 
-    local status, err = self.socket:send(payload)
-    if not status then
-      stdnse.debug2("snmp.Helper.request: Send to %s failed: %s", self.host.ip, err)
-      return false, err
+    local received, data
+    for i=0, retries do
+      local status, err = self.socket:send(payload)
+      if not status then
+        stdnse.debug2("snmp.Helper.request: Send to %s failed: %s", self.host.ip, err)
+        return false, err
+      end
+
+      received, data = self.socket:receive_bytes(1)
+      if received then break end
     end
 
-    return self.socket:receive_bytes(1)
+    return received, data
   end,
 
   --- Sends an SNMP Get Next request
