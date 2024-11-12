@@ -2,6 +2,7 @@
 -- SNMP library.
 --
 -- @args snmp.version The SNMP protocol version. Use <code>"v1"</code> or <code>0</code> for SNMPv1 (default) and <code>"v2c"</code> or <code>1</code> for SNMPv2c.
+-- @args snmp.timeout The timeout for SNMP queries. Default: varies by target responsiveness, up to 5s.
 --
 -- @author Patrik Karlsson <patrik@cqure.net>
 -- @author Gioacchino Mazzurco <gmazzurco89@gmail.com>
@@ -18,6 +19,12 @@ local string = require "string"
 local table = require "table"
 _ENV = stdnse.module("snmp", stdnse.seeall)
 
+
+local arg_timeout = stdnse.parse_timespec(stdnse.get_script_args("snmp.timeout"))
+if arg_timeout then
+  arg_timeout = arg_timeout * 1000
+end
+local default_max_timeout = 5000 --ms
 
 -- SNMP ASN.1 Encoders
 local tagEncoder = {}
@@ -484,10 +491,9 @@ Helper = {
       end
     end
 
-    o.options = options or {
-      timeout = 5000,
-      version = default_version
-    }
+    o.options = options or {}
+    o.options.timeout = o.options.timeout or arg_timeout
+    o.options.version = o.options.version or default_version
 
     return o
   end,
@@ -498,7 +504,7 @@ Helper = {
   -- @return status true on success, false on failure
   connect = function( self )
     self.socket = nmap.new_socket()
-    self.socket:set_timeout(self.options.timeout)
+    self.socket:set_timeout(self.options.timeout or stdnse.get_timeout(self.host, default_max_timeout))
     local status, err = self.socket:connect(self.host, self.port)
     if ( not(status) ) then return false, err end
 
