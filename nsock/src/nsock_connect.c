@@ -288,8 +288,8 @@ nsock_event_id nsock_connect_unixsock_stream(nsock_pool nsp, nsock_iod nsiod, ns
   nse = event_new(ms, NSE_TYPE_CONNECT, nsi, timeout_msecs, handler, userdata);
   assert(nse);
 
-  nsock_log_info("UNIX domain socket (STREAM) connection requested to %s (IOD #%li) EID %li",
-                 get_unixsock_path(ss), nsi->id, nse->id);
+  nsock_log_info("UNIX domain socket (STREAM) connection requested to %s (IOD #%li) (timeout: %dms) EID %li",
+                 get_unixsock_path(ss), nsi->id, timeout_msecs, nse->id);
 
   nsock_connect_internal(ms, nse, SOCK_STREAM, 0, ss, sslen, 0);
   nsock_pool_add_event(ms, nse);
@@ -346,8 +346,8 @@ nsock_event_id nsock_connect_vsock_stream(nsock_pool nsp, nsock_iod ms_iod,
   nse = event_new(ms, NSE_TYPE_CONNECT, nsi, timeout_msecs, handler, userdata);
   assert(nse);
 
-  nsock_log_info("vsock stream connection requested to %u:%u (IOD #%li) EID %li",
-                 svm->svm_cid, port, nsi->id, nse->id);
+  nsock_log_info("vsock stream connection requested to %u:%u (IOD #%li) (timeout: %dms) EID %li",
+                 svm->svm_cid, port, nsi->id, timeout_msecs, nse->id);
 
   /* Do the actual connect() */
   nsock_connect_internal(ms, nse, SOCK_STREAM, 0, ss, sslen, port);
@@ -412,8 +412,8 @@ nsock_event_id nsock_connect_tcp(nsock_pool nsp, nsock_iod ms_iod, nsock_ev_hand
   nse = event_new(ms, NSE_TYPE_CONNECT, nsi, timeout_msecs, handler, userdata);
   assert(nse);
 
-  nsock_log_info("TCP connection requested to %s:%hu (IOD #%li) EID %li",
-                 inet_ntop_ez(ss, sslen), port, nsi->id, nse->id);
+  nsock_log_info("TCP connection requested to %s:%hu (IOD #%li) (timeout: %dms) EID %li",
+                 inet_ntop_ez(ss, sslen), port, nsi->id, timeout_msecs, nse->id);
 
   /* Do the actual connect() */
   nsock_connect_internal(ms, nse, SOCK_STREAM, IPPROTO_TCP, ss, sslen, port);
@@ -440,8 +440,8 @@ nsock_event_id nsock_connect_sctp(nsock_pool nsp, nsock_iod ms_iod, nsock_ev_han
   nse = event_new(ms, NSE_TYPE_CONNECT, nsi, timeout_msecs, handler, userdata);
   assert(nse);
 
-  nsock_log_info("SCTP association requested to %s:%hu (IOD #%li) EID %li",
-                 inet_ntop_ez(ss, sslen), port, nsi->id, nse->id);
+  nsock_log_info("SCTP association requested to %s:%hu (IOD #%li) (timeout: %dms) EID %li",
+                 inet_ntop_ez(ss, sslen), port, nsi->id, timeout_msecs, nse->id);
 
   /* Do the actual connect() */
   nsock_connect_internal(ms, nse, SOCK_STREAM, IPPROTO_SCTP, ss, sslen, port);
@@ -492,13 +492,13 @@ nsock_event_id nsock_connect_ssl(nsock_pool nsp, nsock_iod nsiod, nsock_ev_handl
     nsi_set_ssl_session(nsi, (SSL_SESSION *)ssl_session);
 
   if (proto == IPPROTO_UDP)
-    nsock_log_info("DTLS connection requested to %s:%hu/udp (IOD #%li) EID %li",
+    nsock_log_info("DTLS connection requested to %s:%hu/udp (IOD #%li) (timeout: %dms) EID %li",
 
-                 inet_ntop_ez(ss, sslen), port, nsi->id, nse->id);
+                 inet_ntop_ez(ss, sslen), port, nsi->id, timeout_msecs, nse->id);
   else
-    nsock_log_info("SSL connection requested to %s:%hu/%s (IOD #%li) EID %li",
+    nsock_log_info("SSL connection requested to %s:%hu/%s (IOD #%li) (timeout: %dms) EID %li",
                  inet_ntop_ez(ss, sslen), port, (proto == IPPROTO_TCP ? "tcp" : "sctp"),
-                 nsi->id, nse->id);
+                 nsi->id, timeout_msecs, nse->id);
 
   /* Do the actual connect() */
   nsock_connect_internal(ms, nse, (proto == IPPROTO_UDP ? SOCK_DGRAM : SOCK_STREAM), proto, ss, sslen, port);
@@ -535,8 +535,8 @@ nsock_event_id nsock_reconnect_ssl(nsock_pool nsp, nsock_iod nsiod, nsock_ev_han
   /* Set our SSL_SESSION so we can benefit from session-id reuse. */
   nsi_set_ssl_session(nsi, (SSL_SESSION *)ssl_session);
 
-  nsock_log_info("SSL reconnection requested (IOD #%li) EID %li",
-                 nsi->id, nse->id);
+  nsock_log_info("SSL reconnection requested (IOD #%li) (timeout: %dms) EID %li",
+                 nsi->id, timeout_msecs, nse->id);
 
   /* Do the actual connect() */
   nse->event_done = 0;
