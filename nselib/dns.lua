@@ -106,21 +106,13 @@ local function sendPacketsUDP(data, host, port, timeout, cnt, multiple)
 
     local response
 
-    if ( multiple ) then
-      while(true) do
-        status, response = socket:receive()
-        if( not(status) ) then break end
-
-        local status, _, _, ip, _ = socket:get_info()
-        table.insert(responses, { data = response, peer = ip } )
-      end
-    else
+    repeat
       status, response = socket:receive()
-      if ( status ) then
-        local status, _, _, ip, _ = socket:get_info()
-        table.insert(responses, { data = response, peer = ip } )
-      end
-    end
+      if( not(status) ) then break end
+
+      local status, _, _, ip, _ = socket:get_info()
+      table.insert(responses, { data = response, peer = ip } )
+    until not multiple
 
     if (#responses>0) then
       socket:close()
