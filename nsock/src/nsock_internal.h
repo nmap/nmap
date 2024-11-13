@@ -460,6 +460,10 @@ struct nevent *event_new(struct npool *nsp, enum nse_type type, struct niod *iod
  * been cancelled */
 int nevent_delete(struct npool *nsp, struct nevent *nse, gh_list_t *event_list, gh_lnode_t *elem, int notify);
 
+/* Unlink an event from any lists and add it to free_events.
+ * Calls update_first_events. Resets timeout and removes event from expirables */
+int nevent_unref(struct npool *nsp, struct nevent *nse);
+
 /* Adjust various statistics, dispatches the event handler (if notify is
  * nonzero) and then deletes the event.  This function does NOT delete the event
  * from any lists it might be on (eg nsp->read_list etc.) nse->event_done
@@ -531,9 +535,6 @@ void process_expired_events(struct npool *nsp);
 int pcap_read_on_nonselect(struct npool *nsp);
 void iterate_through_pcap_events(struct npool *nsp);
 #endif
-
-/* defined in nsock_event.c */
-void update_first_events(struct nevent *nse);
 
 /* defined in nsock_engines.c */
 struct io_engine *get_io_engine(void);

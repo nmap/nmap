@@ -461,16 +461,9 @@ void iterate_through_event_lists(struct npool *nsp) {
     process_event(nsp, evlist, nse, ev);
 
     if (nse->event_done) {
-      /* event is done, remove it from the event list and update IOD pointers
-      * to the first events of each kind */
-      update_first_events(nse);
-      gh_list_remove(evlist, &nse->nodeq_io);
-      gh_list_append(&nsp->free_events, &nse->nodeq_io);
-
-      if (nse->timeout.tv_sec)
-        gh_heap_remove(&nsp->expirables, &nse->expire);
       if (nse->eov)
           terminate_overlapped_event(nsp, nse);
+      nevent_unref(nsp, nse);
     }
     else {
         assert(nse->eov->forced_operation != IOCP_NOT_FORCED);

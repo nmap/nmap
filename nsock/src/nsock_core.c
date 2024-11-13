@@ -258,16 +258,20 @@ static int iod_add_event(struct niod *iod, struct nevent *nse) {
       char add_read = 0, add_pcap_read = 0;
 
 #if PCAP_BSD_SELECT_HACK
-      /* BSD hack mode: add event to both read and pcap_read lists */
+      /* when using BSD hack we must do pcap_next() after select().
+       * Let's insert this pcap to bot queues, to selectable and nonselectable.
+       * This will result in doing pcap_next_ex() just before select() */
       add_read = add_pcap_read = 1;
 #else
       if (((mspcap *)iod->pcap)->pcap_desc >= 0) {
         add_read = 1;
       } else {
+        /* pcap isn't selectable. Add it to pcap-specific queue. */
         add_pcap_read = 1;
       }
 #endif
       if (add_read) {
+        nsock_log_debug_all("PCAP NSE #%lu: Adding event to READ_EVENTS", nse->id);
         if (iod->first_read)
           gh_list_insert_before(&nsp->read_events, iod->first_read, &nse->nodeq_io);
         else
@@ -275,6 +279,7 @@ static int iod_add_event(struct niod *iod, struct nevent *nse) {
         iod->first_read = &nse->nodeq_io;
       }
       if (add_pcap_read) {
+        nsock_log_debug_all("PCAP NSE #%lu: Adding event to PCAP_READ_EVENTS", nse->id);
         if (iod->first_pcap_read)
           gh_list_insert_before(&nsp->pcap_read_events, iod->first_pcap_read,
                                 &nse->nodeq_pcap);
@@ -1062,32 +1067,6 @@ void process_event(struct npool *nsp, gh_list_t *evlist, struct nevent *nse, int
         if (event_timedout(nse))
           handle_pcap_read_result(nsp, nse, NSE_STATUS_TIMEOUT);
 
-        #if PCAP_BSD_SELECT_HACK
-        /* If event occurred, and we're in BSD_HACK mode, then this event was added
-         * to two queues. read_event and pcap_read_event
-         * Of course we should destroy it only once.
-         * I assume we're now in read_event, so just unlink this event from
-         * pcap_read_event */
-        if (((mspcap *)nse->iod->pcap)->pcap_desc >= 0
-            && nse->event_done
-            && evlist == &nsp->read_events) {
-          /* event is done, list is read_events and we're in BSD_HACK mode.
-           * So unlink event from pcap_read_events */
-          update_first_events(nse);
-          gh_list_remove(&nsp->pcap_read_events, &nse->nodeq_pcap);
-
-          nsock_log_debug_all("PCAP NSE #%lu: Removing event from PCAP_READ_EVENTS",
-                              nse->id);
-        }
-        if (((mspcap *)nse->iod->pcap)->pcap_desc >= 0
-            && nse->event_done
-            && evlist == &nsp->pcap_read_events) {
-          update_first_events(nse);
-          gh_list_remove(&nsp->read_events, &nse->nodeq_io);
-          nsock_log_debug_all("PCAP NSE #%lu: Removing event from READ_EVENTS",
-                              nse->id);
-        }
-        #endif
         break;
       }
 #endif
@@ -1174,66 +1153,10 @@ void process_iod_events(struct npool *nsp, struct niod *nsi, int ev) {
       next = gh_lnode_next(current);
 
       if (nse->event_done) {
-        /* event is done, remove it from the event list and update IOD pointers
-         * to the first events of each kind */
-        update_first_events(nse);
-        gh_list_remove(evlists[i], current);
-        gh_list_append(&nsp->free_events, &nse->nodeq_io);
-
-        if (nse->timeout.tv_sec)
-          gh_heap_remove(&nsp->expirables, &nse->expire);
+        nevent_unref(nsp, nse);
       }
     }
   }
-}
-
-static int nevent_unref(struct npool *nsp, struct nevent *nse) {
-  switch (nse->type) {
-    case NSE_TYPE_CONNECT:
-    case NSE_TYPE_CONNECT_SSL:
-      gh_list_remove(&nsp->connect_events, &nse->nodeq_io);
-      break;
-
-    case NSE_TYPE_READ:
-      gh_list_remove(&nsp->read_events, &nse->nodeq_io);
-      break;
-
-    case NSE_TYPE_WRITE:
-      gh_list_remove(&nsp->write_events, &nse->nodeq_io);
-      break;
-
-#if HAVE_PCAP
-    case NSE_TYPE_PCAP_READ: {
-      char read = 0;
-      char pcap = 0;
-
-#if PCAP_BSD_SELECT_HACK
-      read = pcap = 1;
-#else
-      if (((mspcap *)nse->iod->pcap)->pcap_desc >= 0)
-        read = 1;
-      else
-        pcap = 1;
-#endif /* PCAP_BSD_SELECT_HACK */
-
-      if (read)
-        gh_list_remove(&nsp->read_events, &nse->nodeq_io);
-      if (pcap)
-        gh_list_remove(&nsp->pcap_read_events, &nse->nodeq_pcap);
-
-      break;
-    }
-#endif /* HAVE_PCAP */
-
-    case NSE_TYPE_TIMER:
-      /* Nothing to do */
-      break;
-
-    default:
-      fatal("Unknown event type %d", nse->type);
-  }
-  gh_list_append(&nsp->free_events, &nse->nodeq_io);
-  return 0;
 }
 
 void process_expired_events(struct npool *nsp) {
@@ -1249,10 +1172,8 @@ void process_expired_events(struct npool *nsp) {
     if (!event_timedout(nse))
       break;
 
-    gh_heap_remove(&nsp->expirables, hnode);
     process_event(nsp, NULL, nse, EV_NONE);
     assert(nse->event_done);
-    update_first_events(nse);
     nevent_unref(nsp, nse);
   }
 }
@@ -1285,7 +1206,17 @@ void nsock_pool_add_event(struct npool *nsp, struct nevent *nse) {
 
   nsp->events_pending++;
 
-  if (!nse->event_done && nse->timeout.tv_sec) {
+  /* It can happen that the event already completed. In which case we can
+   * already deliver it, even though we're probably not inside nsock_loop(). */
+  if (nse->event_done) {
+    // Quick validation, since we won't get to the switch below:
+    assert(nse->type >= 0 && nse->type < NSE_TYPE_MAX);
+    event_dispatch_and_delete(nsp, nse, 1);
+    // No need to call nevent_unref since we never added it to any lists!
+    return;
+  }
+
+  if (nse->timeout.tv_sec) {
     /* This event is expirable, add it to the queue */
     gh_heap_push(&nsp->expirables, &nse->expire);
   }
@@ -1294,38 +1225,32 @@ void nsock_pool_add_event(struct npool *nsp, struct nevent *nse) {
   switch (nse->type) {
     case NSE_TYPE_CONNECT:
     case NSE_TYPE_CONNECT_SSL:
-      if (!nse->event_done) {
-        assert(nse->iod->sd >= 0);
-        socket_count_read_inc(nse->iod);
-        socket_count_write_inc(nse->iod);
-        update_events(nse->iod, nsp, nse, EV_READ|EV_WRITE, EV_NONE);
-      }
+      assert(nse->iod->sd >= 0);
+      socket_count_read_inc(nse->iod);
+      socket_count_write_inc(nse->iod);
+      update_events(nse->iod, nsp, nse, EV_READ|EV_WRITE, EV_NONE);
       iod_add_event(nse->iod, nse);
       break;
 
     case NSE_TYPE_READ:
-      if (!nse->event_done) {
-        assert(nse->iod->sd >= 0);
-        socket_count_read_inc(nse->iod);
-        update_events(nse->iod, nsp, nse, EV_READ, EV_NONE);
+      assert(nse->iod->sd >= 0);
+      socket_count_read_inc(nse->iod);
+      update_events(nse->iod, nsp, nse, EV_READ, EV_NONE);
 #if HAVE_OPENSSL
-        if (nse->iod->ssl)
-          nse->sslinfo.ssl_desire = SSL_ERROR_WANT_READ;
+      if (nse->iod->ssl)
+        nse->sslinfo.ssl_desire = SSL_ERROR_WANT_READ;
 #endif
-      }
       iod_add_event(nse->iod, nse);
       break;
 
     case NSE_TYPE_WRITE:
-      if (!nse->event_done) {
-        assert(nse->iod->sd >= 0);
-        socket_count_write_inc(nse->iod);
-        update_events(nse->iod, nsp, nse, EV_WRITE, EV_NONE);
+      assert(nse->iod->sd >= 0);
+      socket_count_write_inc(nse->iod);
+      update_events(nse->iod, nsp, nse, EV_WRITE, EV_NONE);
 #if HAVE_OPENSSL
-        if (nse->iod->ssl)
-          nse->sslinfo.ssl_desire = SSL_ERROR_WANT_WRITE;
+      if (nse->iod->ssl)
+        nse->sslinfo.ssl_desire = SSL_ERROR_WANT_WRITE;
 #endif
-      }
       iod_add_event(nse->iod, nse);
       break;
 
@@ -1335,26 +1260,9 @@ void nsock_pool_add_event(struct npool *nsp, struct nevent *nse) {
 
 #if HAVE_PCAP
     case NSE_TYPE_PCAP_READ: {
-      mspcap *mp = (mspcap *)nse->iod->pcap;
-
-      assert(mp);
-      if (mp->pcap_desc >= 0) { /* pcap descriptor present */
-        if (!nse->event_done) {
-          socket_count_readpcap_inc(nse->iod);
-          update_events(nse->iod, nsp, nse, EV_READ, EV_NONE);
-        }
-        nsock_log_debug_all("PCAP NSE #%lu: Adding event to READ_EVENTS", nse->id);
-
-        #if PCAP_BSD_SELECT_HACK
-        /* when using BSD hack we must do pcap_next() after select().
-         * Let's insert this pcap to bot queues, to selectable and nonselectable.
-         * This will result in doing pcap_next_ex() just before select() */
-        nsock_log_debug_all("PCAP NSE #%lu: Adding event to PCAP_READ_EVENTS", nse->id);
-        #endif
-      } else {
-        /* pcap isn't selectable. Add it to pcap-specific queue. */
-        nsock_log_debug_all("PCAP NSE #%lu: Adding event to PCAP_READ_EVENTS", nse->id);
-      }
+      assert(nse->iod->pcap);
+      socket_count_readpcap_inc(nse->iod);
+      update_events(nse->iod, nsp, nse, EV_READ, EV_NONE);
       iod_add_event(nse->iod, nse);
       break;
     }
@@ -1362,14 +1270,6 @@ void nsock_pool_add_event(struct npool *nsp, struct nevent *nse) {
 
     default:
       fatal("Unknown nsock event type (%d)", nse->type);
-  }
-
-  /* It can happen that the event already completed. In which case we can
-   * already deliver it, even though we're probably not inside nsock_loop(). */
-  if (nse->event_done) {
-    event_dispatch_and_delete(nsp, nse, 1);
-    update_first_events(nse);
-    nevent_unref(nsp, nse);
   }
 }
 
