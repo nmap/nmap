@@ -145,8 +145,7 @@ local function sendPacketsTCP(data, host, port, timeout)
   local responses = {}
   socket:set_timeout(timeout)
   socket:connect(host, port)
-  -- add payload size we are assuming a minimum size here of 256?
-  local send_data = '\000' .. string.char(#data) .. data
+  local send_data = string.pack(">s2", data)
   socket:send(send_data)
   local response = ''
   local got_response = false
