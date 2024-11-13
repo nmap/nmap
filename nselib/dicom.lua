@@ -161,15 +161,14 @@ function associate(host, port, calling_aet, called_aet)
   end
   
   local application_context_name = "1.2.840.10008.3.1.1.1"
-  application_context = string.pack(">B B I2 c" .. #application_context_name, 
+  application_context = string.pack(">B B s2",
                                     0x10,
                                     0x0,
-                                    #application_context_name,
                                     application_context_name)
   
   local abstract_syntax_name = "1.2.840.10008.1.1"
   local transfer_syntax_name = "1.2.840.10008.1.2"
-  presentation_context = string.pack(">B B I2 B B B B B B I2 c" .. #abstract_syntax_name .. "B B I2 c".. #transfer_syntax_name,
+  presentation_context = string.pack(">B B I2 B B B B B B s2 B B s2",
                                     0x20, -- Presentation context type ( 1 byte )
                                     0x0,  -- Reserved ( 1 byte )
                                     0x2e,   -- Item Length ( 2 bytes )
@@ -177,16 +176,14 @@ function associate(host, port, calling_aet, called_aet)
                                     0x0,0x0,0x0,  -- Reserved ( 3 bytes )
                                     0x30, -- Abstract Syntax Tree ( 1 byte )
                                     0x0,  -- Reserved ( 1 byte )
-                                    0x11,     -- Item Length ( 2 bytes )
                                     abstract_syntax_name,
                                     0x40, -- Transfer Syntax ( 1 byte )
                                     0x0,  -- Reserved ( 1 byte )
-                                    0x11,     -- Item Length ( 2 bytes )
                                     transfer_syntax_name)
                                     
   local implementation_id = "1.2.276.0.7230010.3.0.3.6.2"
   local implementation_version = "OFFIS_DCMTK_362"
-  userinfo_context = string.pack(">B B I2 B B I2 I4 B B I2 c" .. #implementation_id .. " B B I2 c".. #implementation_version,
+  userinfo_context = string.pack(">B B I2 B B I2 I4 B B s2 B B s2",
                                 0x50,    -- Type 0x50 (1 byte)
                                 0x0,     -- Reserved ( 1 byte )
                                 0x3a,    -- Length ( 2 bytes )
@@ -196,11 +193,9 @@ function associate(host, port, calling_aet, called_aet)
                                 0x4000,   -- DATA ( 4 bytes )
                                 0x52,    -- Type 0x52 (1 byte)
                                 0x0,
-                                0x1b, 
                                 implementation_id,
                                 0x55,
                                 0x0,
-                                0x0f,
                                 implementation_version)
   
   local called_ae_title = called_aet or stdnse.get_script_args("dicom.called_aet") or "ANY-SCP"
@@ -208,19 +203,19 @@ function associate(host, port, calling_aet, called_aet)
   if #called_ae_title > 16 or #calling_ae_title > 16 then
     return false, "Calling/Called Application Entity Title must be less than 16 bytes"
   end
-  called_ae_title = called_ae_title .. string.rep(" ", 16 - #called_ae_title)
-  calling_ae_title = calling_ae_title .. string.rep(" ", 16 - #calling_ae_title)
+  called_ae_title = ("%-16s"):format(called_ae_title)
+  calling_ae_title = ("%-16s"):format(calling_ae_title)
 
  -- ASSOCIATE request
-  local assoc_request = string.pack(">I2 I2 c16 c16 c32 c" .. application_context:len() .. " c" .. presentation_context:len() .. " c" .. userinfo_context:len(),
+  local assoc_request = string.pack(">I2 I2 c16 c16 c32",
                                   0x1, -- Protocol version ( 2 bytes )
                                   0x0, -- Reserved section ( 2 bytes that should be set to 0x0 )
                                   called_ae_title, -- Called AE title ( 16 bytes)
                                   calling_ae_title, -- Calling AE title ( 16 bytes)
-                                  0x0, -- Reserved section ( 32 bytes set to 0x0 )
-                                  application_context,
-                                  presentation_context,
-                                  userinfo_context)
+                                  "") -- Reserved section ( 32 bytes set to 0x0 )
+                                  .. application_context
+                                  .. presentation_context
+                                  .. userinfo_context
  
   local status, header = pdu_header_encode(PDU_CODES["ASSOCIATE_REQUEST"], #assoc_request)
 
