@@ -133,6 +133,8 @@ enum iod_state {
 
 /* ------------------- STRUCTURES ------------------- */
 
+extern struct timeval nsock_tod;
+
 struct readinfo {
   enum nsock_read_types read_type;
   /* num lines; num bytes; whatever (depends on read_type) */
@@ -520,6 +522,21 @@ static inline struct nevent *lnode_nevent(gh_lnode_t *lnode) {
 static inline struct nevent *lnode_nevent2(gh_lnode_t *lnode) {
   return container_of(lnode, struct nevent, nodeq_pcap);
 }
+
+/* defined in nsock_core.c */
+void process_iod_events(struct npool *nsp, struct niod *nsi, int ev);
+void process_event(struct npool *nsp, gh_list_t *evlist, struct nevent *nse, int ev);
+void process_expired_events(struct npool *nsp);
+#if HAVE_PCAP
+int pcap_read_on_nonselect(struct npool *nsp);
+void iterate_through_pcap_events(struct npool *nsp);
+#endif
+
+/* defined in nsock_event.c */
+void update_first_events(struct nevent *nse);
+
+/* defined in nsock_engines.c */
+struct io_engine *get_io_engine(void);
 
 #endif /* NSOCK_INTERNAL_H */
 

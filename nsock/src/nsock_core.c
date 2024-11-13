@@ -87,11 +87,6 @@
  * this */
 struct timeval nsock_tod;
 
-/* Internal function defined in nsock_event.c
- * Update the nse->iod first events, assuming nse is about to be deleted */
-void update_first_events(struct nevent *nse);
-
-
 
 /* Each iod has a count of pending socket reads, socket writes, and pcap reads.
  * When a descriptor's count is nonzero, its bit must be set in the appropriate

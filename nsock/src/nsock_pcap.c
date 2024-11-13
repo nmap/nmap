@@ -73,8 +73,6 @@
 
 #include "nsock_pcap.h"
 
-extern struct timeval nsock_tod;
-
 #if HAVE_PCAP
 
 #ifndef PCAP_NETMASK_UNKNOWN

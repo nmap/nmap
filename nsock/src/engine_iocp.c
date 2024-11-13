@@ -172,20 +172,6 @@ static void force_operation(struct npool *nsp, struct nevent *nse);
 static void free_eov(struct npool *nsp, struct extended_overlapped *eov);
 static int map_faulty_errors(int err);
 
-/* defined in nsock_core.c */
-void process_iod_events(struct npool *nsp, struct niod *nsi, int ev);
-void process_event(struct npool *nsp, gh_list_t *evlist, struct nevent *nse, int ev);
-void process_expired_events(struct npool *nsp);
-#if HAVE_PCAP
-int pcap_read_on_nonselect(struct npool *nsp);
-void iterate_through_pcap_events(struct npool *nsp);
-#endif
-
-/* defined in nsock_event.c */
-void update_first_events(struct nevent *nse);
-
-
-extern struct timeval nsock_tod;
 
 int iocp_init(struct npool *nsp) {
   struct iocp_engine_info *iinfo;

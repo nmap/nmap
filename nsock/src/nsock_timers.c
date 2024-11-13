@@ -54,8 +54,6 @@
 #include "nsock_internal.h"
 #include "nsock_log.h"
 
-extern struct timeval nsock_tod;
-
 /* Send back an NSE_TYPE_TIMER after the number of milliseconds specified.  Of
  * course it can also return due to error, cancellation, etc. */
 nsock_event_id nsock_timer_create(nsock_pool ms_pool, nsock_ev_handler handler,

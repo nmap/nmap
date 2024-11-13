@@ -64,8 +64,6 @@
 
 #include <string.h>
 
-extern struct timeval nsock_tod;
-
 /* Find the type of an event that spawned a callback */
 enum nse_type nse_type(nsock_event nse) {
   struct nevent *me = (struct nevent *)nse;

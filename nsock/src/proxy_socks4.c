@@ -61,8 +61,6 @@
 
 #define DEFAULT_PROXY_PORT_SOCKS4 1080
 
-
-extern struct timeval nsock_tod;
 extern const struct proxy_spec ProxySpecSocks4;
 
 

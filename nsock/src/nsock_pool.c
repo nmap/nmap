@@ -71,15 +71,10 @@
 #include <sys/resource.h>
 #endif
 
-extern struct timeval nsock_tod;
-
 /* To use this library, the first thing they must do is create a pool
  * so we do the initialization during the first pool creation */
 static int nsocklib_initialized = 0;
 
-
-/* defined in nsock_engines.h */
-struct io_engine *get_io_engine(void);
 
 /* ---- INTERNAL FUNCTIONS PROTOTYPES ---- */
 static void nsock_library_initialize(void);

@@ -60,8 +60,6 @@
 
 #define DEFAULT_PROXY_PORT_HTTP 8080
 
-
-extern struct timeval nsock_tod;
 extern const struct proxy_spec ProxySpecHttp;
 
 
