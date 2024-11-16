@@ -127,7 +127,7 @@ static int stdin_eof = 0;
 static int crlf_state = 0;
 
 static void handle_connection(int socket_accept, int type, fd_set *listen_fds);
-static int read_stdin(void);
+static int read_stdin(struct timeval *qtv);
 static int read_socket(int recv_fd);
 static void post_handle_connection(struct fdinfo *sinfo);
 static void close_fd(struct fdinfo *fdn, int eof);
@@ -203,7 +203,7 @@ int ncat_listen()
 {
     int rc, i, j, fds_ready;
     fd_set listen_fds;
-    struct timeval tv;
+    struct timeval tv, qtv;
     struct timeval *tvp = NULL;
     unsigned int num_sockets;
     int proto = o.proto;
@@ -296,10 +296,9 @@ int ncat_listen()
 
     init_fdlist(&broadcast_fdlist, o.conn_limit);
 
-    if (o.idletimeout > 0)
-        tvp = &tv;
-
     while (client_fdlist.nfds > 1 || get_conn_count() > 0) {
+        long usec_wait = -1;
+        tvp = NULL;
         /* We pass these temporary descriptor sets to fselect, since fselect
            modifies the sets it receives. */
         fd_set readfds = master_readfds, writefds = master_writefds;
@@ -311,20 +310,31 @@ int ncat_listen()
         if (o.debug > 1 && o.broker)
             logdebug("Broker connection count is %d\n", get_conn_count());
 
-        if (o.idletimeout > 0)
-            ms_to_timeval(tvp, o.idletimeout);
+        if (stdin_eof && o.quitafter > 0) {
+            struct timeval now;
+            gettimeofday(&now, 0);
+            usec_wait = TIMEVAL_SUBTRACT(qtv, now);
+            if (usec_wait < 0)
+                usec_wait = 0;
+        }
 
         /* The idle timer should only be running when there are active connections */
-        if (get_conn_count())
-            fds_ready = fselect(client_fdlist.fdmax + 1, &readfds, &writefds, NULL, tvp);
-        else
-            fds_ready = fselect(client_fdlist.fdmax + 1, &readfds, &writefds, NULL, NULL);
+        if (o.idletimeout > 0 && get_conn_count() && o.idletimeout * 1000 < usec_wait)
+            usec_wait = o.idletimeout * 1000;
+
+        if (usec_wait >= 0) {
+            tvp = &tv;
+	    tv.tv_sec = 0;
+	    tv.tv_usec = usec_wait;
+        }
+
+        fds_ready = fselect(client_fdlist.fdmax + 1, &readfds, &writefds, NULL, tvp);
 
         if (o.debug > 1)
             logdebug("select returned %d fds ready\n", fds_ready);
 
         if (fds_ready == 0)
-            bye("Idle timeout expired (%d ms).", o.idletimeout);
+            bye("Idle timeout expired (%d ms).", usec_wait / 1000);
 
         /* If client_fdlist.state increases, the list has changed and we
          * need to go over it again. */
@@ -386,9 +396,9 @@ restart_fd_loop:
                     read_and_broadcast(cfd);
                 } else {
                     /* Read from stdin and write to all clients. */
-                    rc = read_stdin();
+                    rc = read_stdin(&qtv);
                     if (rc == 0 && type == SOCK_STREAM) {
-                        if (o.proto != IPPROTO_TCP || (o.proto == IPPROTO_TCP && o.sendonly)) {
+                        if (o.quitafter == 0 && (o.proto != IPPROTO_TCP || (o.proto == IPPROTO_TCP && o.sendonly))) {
                             /* There will be nothing more to send. If we're not
                                receiving anything, we can quit here. */
                             return 0;
@@ -640,7 +650,7 @@ static void close_fd(struct fdinfo *fdn, int eof) {
 
 /* Read from stdin and broadcast to all client sockets. Return the number of
    bytes read, or -1 on error. */
-int read_stdin(void)
+int read_stdin(struct timeval *qtv)
 {
     int nbytes;
     char buf[DEFAULT_TCP_BUF_LEN];
@@ -653,6 +663,11 @@ int read_stdin(void)
         if (nbytes == 0 && o.debug)
             logdebug("EOF on stdin\n");
 
+        if (o.quitafter > 0) {
+            struct timeval when;
+            gettimeofday(&when, 0);
+            TIMEVAL_MSEC_ADD(*qtv, when, o.quitafter);
+        }
         /* Don't close the file because that allows a socket to be fd 0. */
         checked_fd_clr(STDIN_FILENO, &master_readfds);
         /* Buf mark that we've seen EOF so it doesn't get re-added to the

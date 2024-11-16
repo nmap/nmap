@@ -115,6 +115,7 @@ void options_init(void)
     o.normlogfd = -1;
     o.hexlogfd = -1;
     o.append = 0;
+    o.quitafter = 0;
     o.idletimeout = 0;
     o.crlf = 0;
     o.allow = 0;

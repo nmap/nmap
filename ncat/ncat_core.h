@@ -119,6 +119,7 @@ struct options {
     int normlogfd;
     int hexlogfd;
     int append;
+    int quitafter;
     int idletimeout;
     int crlf;
     /* Were any hosts specifically allowed? If so, deny all others. */
