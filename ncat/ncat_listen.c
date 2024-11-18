@@ -334,7 +334,7 @@ int ncat_listen()
             logdebug("select returned %d fds ready\n", fds_ready);
 
         if (fds_ready == 0)
-            bye("Idle timeout expired (%d ms).", usec_wait / 1000);
+            bye("Idle timeout expired (%ld ms).", usec_wait / 1000);
 
         /* If client_fdlist.state increases, the list has changed and we
          * need to go over it again. */
