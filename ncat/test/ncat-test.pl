@@ -14,6 +14,7 @@ use Socket6;
 use Digest::MD5 qw/md5_hex/;
 use POSIX ":sys_wait_h";
 use Fcntl qw(F_GETFL F_SETFL O_NONBLOCK);
+use Time::HiRes qw(usleep);
 
 use IPC::Open3;
 use strict;
@@ -33,11 +34,11 @@ my $PROXY_PORT = 40001;
 my $UNIXSOCK = "ncat.unixsock";
 my $UNIXSOCK_TMP = "ncat.unixsock_tmp";
 
-my $WIN32 = $^O eq "MSWin32" || $^O eq "cygwin";
+my $WIN32 = $^O eq "MSWin32" || $^O eq "cygwin" || $^O eq "msys";
 
 my $NCAT;
 if ($WIN32) {
-	$NCAT = "../Debug/ncat.exe";
+	$NCAT = "../Release/ncat.exe";
 } else {
 	$NCAT = "../ncat";
 }
@@ -136,7 +137,7 @@ sub ncat_client {
 	my $host;
 	my @ret = ncat(host_for_args(@_), $PORT, @_);
 	# Give it a moment to connect.
-	select(undef, undef, undef, 0.1);
+	usleep(100000);
 	return @ret;
 }
 
@@ -866,16 +867,20 @@ server_client_test_all "Messages are logged to output file",
 	syswrite($s_in, "def\n");
 	sleep 1;
 	close($c_in);
-	open(FH, "server.log");
-	binmode FH;
-	my $contents = join("", <FH>);
-	close(FH);
-	$contents eq "abc\ndef\n" or die "Server logged " . d($contents);
-	open(FH, "client.log");
-	binmode FH;
-	$contents = join("", <FH>);
-	close(FH);
-	$contents eq "abc\ndef\n" or die "Client logged " . d($contents);
+	{
+		open(my $fh, "<", "server.log") or die "bad open: $!";
+		binmode $fh or die "bad binmode: $!";
+		my $contents = join("", <$fh>);
+		close($fh);
+		$contents eq "abc\ndef\n" or die "Server logged " . d($contents);
+	}
+	{
+		open(my $fh, "<", "client.log") or die "bad open: $!";
+		binmode $fh or die "bad binmode: $!";
+		my $contents = join("", <$fh>);
+		close($fh);
+		$contents eq "abc\ndef\n" or die "Client logged " . d($contents);
+	}
 };
 unlink "server.log";
 unlink "client.log";
@@ -1288,7 +1293,7 @@ sub delaywrite {
 	my ($handle, $data) = @_;
 	my $delay = 0.1;
 	syswrite($handle, $data);
-	select(undef, undef, undef, $delay);
+	usleep($delay * 1000000);
 }
 
 server_client_test_all "-C translation on input",
