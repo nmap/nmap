@@ -728,6 +728,16 @@
 
       <varlistentry>
         <term>
+          <option>-q <replaceable>time</replaceable></option> (Delay quit after EOF on stdin)
+          <indexterm><primary><option>-q</option> (Ncat option)</primary></indexterm>
+        </term>
+        <listitem>
+          <para>After EOF on stdin, wait the specified amount of time, then quit. If <replaceable>time</replaceable> is negative, wait forever. Ncat may still quit based on idle timeout or EOF on the socket.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
           <option>-w <replaceable>time</replaceable></option>,
           <option>--wait <replaceable>time</replaceable></option> (Specify connect timeout)
           <indexterm><primary><option>--wait</option> (Ncat option)</primary></indexterm>

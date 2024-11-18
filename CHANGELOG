@@ -1,5 +1,8 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [Ncat][GH#2422] New Ncat option -q to delay quit after EOF on stdin, the
+  same as traditional netcat's -q option. [Daniel Miller]
+
 o [NSE][GH#1014][GH#2616] SSH NSE scripts now catch connection errors thrown by
   the libssh2 Lua binding, providing useful output instead of a backtrace.
   [Joshua Rogers, Daniel Miller]
