@@ -511,11 +511,14 @@ void handle_connect_result(struct npool *ms, struct nevent *nse, enum nse_status
 }
 
 static int errcode_is_failure(int err) {
+  return (err != EINTR && err != EAGAIN
 #ifndef WIN32
-  return err != EINTR && err != EAGAIN && err != EBUSY;
-#else
-  return err != EINTR && err != EAGAIN;
+      && err != EBUSY
 #endif
+#ifdef EWOULDBLOCK
+      && err != EWOULDBLOCK
+#endif
+      );
 }
 
 void handle_write_result(struct npool *ms, struct nevent *nse, enum nse_status status) {
@@ -685,7 +688,7 @@ static int do_actual_read(struct npool *ms, struct nevent *nse) {
     } while (buflen > 0 || (buflen == -1 && err == EINTR));
 
     if (buflen == -1) {
-      if (err != EINTR && err != EAGAIN) {
+      if (errcode_is_failure(err)) {
         nse->event_done = 1;
         nse->status = NSE_STATUS_ERROR;
         nse->errnum = err;
