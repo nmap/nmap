@@ -418,15 +418,16 @@ void iterate_through_event_lists(struct npool *nsp) {
         free_eov(nsp, iinfo->eov);
         gh_list_prepend(&nsp->free_iods, &nsi->nodeq);
         iinfo->eov = NULL;
-            continue;
+        continue;
     }
 
     /* Here are more things that should be true */
     assert(iinfo->eov->nse_id == nse->id);
     assert(iinfo->eov == nse->eov);
 
-    if (!HasOverlappedIoCompleted((OVERLAPPED*)iinfo->eov))
+    if (!iinfo->eov->err && !HasOverlappedIoCompleted((OVERLAPPED*)iinfo->eov)) {
         continue;
+    }
 
     gh_list_t *evlist = NULL;
     int ev = 0;
