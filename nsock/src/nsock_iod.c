@@ -92,10 +92,10 @@ nsock_iod nsock_iod_new2(nsock_pool nsockp, int sd, void *userdata) {
   lnode = gh_list_pop(&nsp->free_iods);
   if (!lnode) {
     nsi = (struct niod *)safe_malloc(sizeof(*nsi));
-    memset(nsi, 0, sizeof(*nsi));
   } else {
     nsi = container_of(lnode, struct niod, nodeq);
   }
+  memset(nsi, 0, sizeof(*nsi));
 
   if (sd == -1) {
     nsi->sd = -1;
