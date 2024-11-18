@@ -262,9 +262,10 @@ struct niod {
    * remove this struct niod from the allocated list when necessary */
   gh_lnode_t nodeq;
 
-#define IOD_REGISTERED  0x01
-#define IOD_PROCESSED   0x02    /* internally used by engine_kqueue.c */
-#define IOD_STDIN       0x04
+#define IOD_REGISTERED  (1)
+#define IOD_PROCESSED   (1 << 1)    /* internally used by engine_kqueue.c */
+#define IOD_STDIN       (1 << 2)
+#define IOD_EOF         (1 << 3)
 
 #define IOD_PROPSET(iod, flag)  ((iod)->_flags |= (flag))
 #define IOD_PROPCLR(iod, flag)  ((iod)->_flags &= ~(flag))

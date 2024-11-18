@@ -746,6 +746,7 @@ static int do_actual_read(struct npool *ms, struct nevent *nse) {
   if (buflen == 0) {
     nse->event_done = 1;
     nse->eof = 1;
+    IOD_PROPSET(iod, IOD_EOF);
     if (fs_length(&nse->iobuf) > 0) {
       nse->status = NSE_STATUS_SUCCESS;
       return fs_length(&nse->iobuf) - startlen;
@@ -1209,6 +1210,12 @@ void nsock_pool_add_event(struct npool *nsp, struct nevent *nse) {
 
   nsp->events_pending++;
 
+  /* If it's a read request and we've already seen EOF, we can be done. */
+  if (nse->type == NSE_TYPE_READ && IOD_PROPGET(nse->iod, IOD_EOF)) {
+    nse->eof = 1;
+    nse->event_done = 1;
+    nse->status =  NSE_STATUS_EOF;
+  }
   /* It can happen that the event already completed. In which case we can
    * already deliver it, even though we're probably not inside nsock_loop(). */
   if (nse->event_done) {
