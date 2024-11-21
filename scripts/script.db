@@ -419,6 +419,7 @@ Entry { filename = "oracle-brute-stealth.nse", categories = { "brute", "intrusiv
 Entry { filename = "oracle-brute.nse", categories = { "brute", "intrusive", } }
 Entry { filename = "oracle-enum-users.nse", categories = { "auth", "intrusive", } }
 Entry { filename = "oracle-sid-brute.nse", categories = { "brute", "intrusive", } }
+Entry { filename = "oracle-sns-crypto.nse", categories = { "discovery", "safe", } }
 Entry { filename = "oracle-tns-version.nse", categories = { "safe", "version", } }
 Entry { filename = "ovs-agent-version.nse", categories = { "version", } }
 Entry { filename = "p2p-conficker.nse", categories = { "default", "safe", } }
