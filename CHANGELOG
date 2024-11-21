@@ -1,5 +1,9 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [Nsock][GH#2788] Fix an issue affecting Ncat where unread bytes in the SSL
+  layer's buffer could not be read until more data arrived on the socket, which
+  could lead to deadlock. [Daniel Miller]
+
 o [Ncat][GH#2422] New Ncat option -q to delay quit after EOF on stdin, the
   same as traditional netcat's -q option. [Daniel Miller]
 
