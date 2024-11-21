@@ -1225,7 +1225,7 @@ void nsock_pool_add_event(struct npool *nsp, struct nevent *nse) {
   if (nse->type == NSE_TYPE_READ && IOD_PROPGET(nse->iod, IOD_EOF)) {
     nse->eof = 1;
     nse->event_done = 1;
-    nse->status =  NSE_STATUS_EOF;
+    nse->status = NSE_STATUS_EOF;
   }
   /* It can happen that the event already completed. In which case we can
    * already deliver it, even though we're probably not inside nsock_loop(). */
@@ -1257,11 +1257,15 @@ void nsock_pool_add_event(struct npool *nsp, struct nevent *nse) {
       assert(nse->iod->sd >= 0);
       socket_count_read_inc(nse->iod);
       update_events(nse->iod, nsp, nse, EV_READ, EV_NONE);
-#if HAVE_OPENSSL
-      if (nse->iod->ssl)
-        nse->sslinfo.ssl_desire = SSL_ERROR_WANT_READ;
-#endif
       iod_add_event(nse->iod, nse);
+#if HAVE_OPENSSL
+      /* Call SSL_read() once to get the correct ssl_desire. May even return
+       * some data if SSL_pending(). */
+      if (nse->iod->ssl) {
+        nse->sslinfo.ssl_desire = SSL_ERROR_WANT_READ;
+        handle_read_result(nsp, nse, NSE_STATUS_SUCCESS);
+      }
+#endif
       break;
 
     case NSE_TYPE_WRITE:
@@ -1269,6 +1273,8 @@ void nsock_pool_add_event(struct npool *nsp, struct nevent *nse) {
       socket_count_write_inc(nse->iod);
       update_events(nse->iod, nsp, nse, EV_WRITE, EV_NONE);
 #if HAVE_OPENSSL
+      /* Don't try SSL_write() right away. Since socket is nearly always ready for
+       * write, the event will be handled at the beginning of the next loop. */
       if (nse->iod->ssl)
         nse->sslinfo.ssl_desire = SSL_ERROR_WANT_WRITE;
 #endif
