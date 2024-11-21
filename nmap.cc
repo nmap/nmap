@@ -1956,6 +1956,9 @@ int nmap_main(int argc, char *argv[]) {
   }
   chomp(mytime);
 
+  char scanninghost[256];
+  gethostname(scanninghost, sizeof(scanninghost));
+
   if (!o.resuming) {
     /* Brief info in case they forget what was scanned */
     char *xslfname = o.XSLStyleSheet();
@@ -1970,6 +1973,10 @@ int nmap_main(int argc, char *argv[]) {
 
     xml_start_comment();
     xml_write_escaped(" %s %s scan initiated %s as: %s ", NMAP_NAME, NMAP_VERSION, mytime, join_quoted(argv, argc).c_str());
+    xml_end_comment();
+    xml_newline();
+    xml_start_comment();
+    xml_write_escaped(" Scanning host: %s ", scanninghost);
     xml_end_comment();
     xml_newline();
 
@@ -2000,6 +2007,7 @@ int nmap_main(int argc, char *argv[]) {
   log_write(LOG_NORMAL | LOG_MACHINE, "# ");
   log_write(LOG_NORMAL | LOG_MACHINE, "%s %s scan initiated %s as: %s", NMAP_NAME, NMAP_VERSION, mytime, join_quoted(argv, argc).c_str());
   log_write(LOG_NORMAL | LOG_MACHINE, "\n");
+  log_write(LOG_NORMAL | LOG_MACHINE, "# Scanning host: %s\n", scanninghost);
 
   /* Before we randomize the ports scanned, lets output them to machine
      parseable output */
