@@ -506,6 +506,7 @@ Entry { filename = "smb-webexec-exploit.nse", categories = { "exploit", "intrusi
 Entry { filename = "smb2-capabilities.nse", categories = { "discovery", "safe", } }
 Entry { filename = "smb2-security-mode.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "smb2-time.nse", categories = { "default", "discovery", "safe", } }
+Entry { filename = "smb2-version.nse", categories = { "default", "discovery", "safe", "version", } }
 Entry { filename = "smb2-vuln-uptime.nse", categories = { "safe", "vuln", } }
 Entry { filename = "smtp-brute.nse", categories = { "brute", "intrusive", } }
 Entry { filename = "smtp-commands.nse", categories = { "default", "discovery", "safe", } }
