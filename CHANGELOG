@@ -1,5 +1,10 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [Ncat] Ncat in connect mode no longer defaults to half-closed TCP
+  connections. This makes it more compatible with other netcats. The -k option
+  will enable the old behavior. See https://seclists.org/nmap-dev/2013/q1/188
+  [Daniel Miller]
+
 o [Nsock][GH#2788] Fix an issue affecting Ncat where unread bytes in the SSL
   layer's buffer could not be read until more data arrived on the socket, which
   could lead to deadlock. [Daniel Miller]

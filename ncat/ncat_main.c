@@ -1017,8 +1017,8 @@ static int ncat_connect_mode(void)
     if (o.chat)
         bye("Invalid option combination: `--chat' with connect.");
 
-    if (o.keepopen)
-        bye("Invalid option combination: `--keep-open' with connect.");
+    if (o.keepopen && o.proto != IPPROTO_TCP)
+        bye("Invalid option combination: `--keep-open' with non-TCP protocol.");
 
     return ncat_connect();
 }

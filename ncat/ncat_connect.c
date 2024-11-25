@@ -1331,9 +1331,10 @@ static void read_socket_handler(nsock_pool nsp, nsock_event evt, void *data)
 #else
         Close(STDOUT_FILENO);
 #endif
-        /* In --recv-only mode or non-TCP mode, exit after EOF on the socket. */
-        if (o.proto != IPPROTO_TCP || (o.proto == IPPROTO_TCP && o.recvonly))
-            nsock_loop_quit(nsp);
+        /* For TCP, --keep-open means don't quit unless --recv-only */
+        if (!o.keepopen || o.proto != IPPROTO_TCP || o.recvonly) {
+          nsock_loop_quit(nsp);
+        }
         return;
     } else if (status == NSE_STATUS_ERROR) {
         if (!o.zerobyte||o.verbose)
