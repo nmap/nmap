@@ -551,10 +551,10 @@ void handle_write_result(struct npool *ms, struct nevent *nse, enum nse_status s
         switch(err) {
           case SSL_ERROR_WANT_READ:
           case SSL_ERROR_WANT_WRITE:
-            evclr = socket_count_dec_ssl_desire(nse);
             evset = (err == SSL_ERROR_WANT_READ) ?
               socket_count_read_inc(iod) :
               socket_count_write_inc(iod);
+            evclr = socket_count_dec_ssl_desire(nse);
             update_events(iod, ms, nse, evset, evclr);
             nse->sslinfo.ssl_desire = err;
             break;
@@ -727,10 +727,10 @@ static int do_actual_read(struct npool *ms, struct nevent *nse) {
       switch (err) {
         case SSL_ERROR_WANT_READ:
         case SSL_ERROR_WANT_WRITE:
-          evclr = socket_count_dec_ssl_desire(nse);
           evset = (err == SSL_ERROR_WANT_READ) ?
             socket_count_read_inc(iod) :
             socket_count_write_inc(iod);
+          evclr = socket_count_dec_ssl_desire(nse);
           update_events(iod, ms, nse, evset, evclr);
           nse->sslinfo.ssl_desire = err;
           /* Not EOF! */
