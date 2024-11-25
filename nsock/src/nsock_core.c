@@ -1259,11 +1259,15 @@ void nsock_pool_add_event(struct npool *nsp, struct nevent *nse) {
       update_events(nse->iod, nsp, nse, EV_READ, EV_NONE);
       iod_add_event(nse->iod, nse);
 #if HAVE_OPENSSL
-      /* Call SSL_read() once to get the correct ssl_desire. May even return
-       * some data if SSL_pending(). */
       if (nse->iod->ssl) {
         nse->sslinfo.ssl_desire = SSL_ERROR_WANT_READ;
-        handle_read_result(nsp, nse, NSE_STATUS_SUCCESS);
+        /* If there's data pending, we have to process it now because it won't
+         * show up on the socket. */
+        if (SSL_pending(nse->iod->ssl)) {
+          process_event(nsp, NULL, nse, EV_READ);
+          if (nse->event_done)
+            nevent_unref(nsp, nse);
+        }
       }
 #endif
       break;
