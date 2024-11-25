@@ -260,11 +260,11 @@ sub server_client_test_multi {
 # Like server_client_test, but run the test once each for each mix of TCP, UDP,
 # SCTP, and SSL.
 sub server_client_test_all {
-	server_client_test_multi(["tcp", "udp", "sctp", "tcp ssl", "sctp ssl"], @_);
+	server_client_test_multi(["tcp", "udp", "udp ssl", "sctp", "tcp ssl", "sctp ssl"], @_);
 }
 
 sub server_client_test_tcp_sctp_ssl {
-	server_client_test_multi(["tcp", "sctp", "tcp ssl", "sctp ssl"], @_);
+	server_client_test_multi(["tcp", "sctp", "udp ssl", "tcp ssl", "sctp ssl"], @_);
 }
 
 sub server_client_test_tcp_ssl {
