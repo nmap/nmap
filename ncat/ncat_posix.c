@@ -110,6 +110,38 @@ static int write_loop(int fd, char *buf, size_t size)
     return p - buf;
 }
 
+static void shutdown_PIPE_IN(struct fdinfo *info, int child_stdout, int child_stdin, fd_set *fds, int *maxfd)
+{
+  if (!o.noshutdown
+#ifdef HAVE_OPENSSL
+      // SSL can only shut down in the write direction
+      && info->ssl == NULL
+#endif
+    ) {
+    shutdown(info->fd, SHUT_RD);
+  }
+  close(child_stdin);
+  checked_fd_clr(info->fd, fds);
+  *maxfd = checked_fd_isset(child_stdout, fds) ? child_stdout : -1;
+}
+
+static void shutdown_PIPE_OUT(struct fdinfo *info, int child_stdout, int child_stdin, fd_set *fds, int *maxfd)
+{
+  if (!o.noshutdown) {
+#ifdef HAVE_OPENSSL
+    if (info->ssl != NULL &&
+        // These errors mean we cannot send close_notify alert
+        info->lasterr != SSL_ERROR_SYSCALL && info->lasterr != SSL_ERROR_SSL) {
+      SSL_shutdown(info->ssl);
+    }
+#endif
+    shutdown(info->fd, SHUT_WR);
+  }
+  close(child_stdout);
+  checked_fd_clr(child_stdout, fds);
+  *maxfd = checked_fd_isset(info->fd, fds) ? info->fd : -1;
+}
+
 /* Run the given command line as if with exec. What we actually do is fork the
    command line as a subprocess, then loop, relaying data between the socket and
    the subprocess. This allows Ncat to handle SSL from the socket and give plain
@@ -124,6 +156,7 @@ void netexec(struct fdinfo *info, char *cmdexec)
 
     char buf[DEFAULT_TCP_BUF_LEN];
     int maxfd;
+    fd_set all_fds;
 
     if (o.debug) {
         switch (o.execmode) {
@@ -199,13 +232,19 @@ void netexec(struct fdinfo *info, char *cmdexec)
        writes to the socket. We exit the loop on any read error (or EOF). On a
        write error we just close the opposite side of the conversation. */
     crlf_state = 0;
-    for (;;) {
-        fd_set fds;
-        int r, n_r;
+    FD_ZERO(&all_fds);
+    /* There are 2 directions that are managed together:
+     * PIPE_IN: Data read from socket read written to child stdin. */
+#define PIPE_IN_IS_OPEN() FD_ISSET(info->fd, &all_fds)
+    checked_fd_set(info->fd, &all_fds);
+    /* PIPE_OUT: Data read from child stdout and written to socket. */
+#define PIPE_OUT_IS_OPEN() FD_ISSET(child_stdout[0], &all_fds)
+    checked_fd_set(child_stdout[0], &all_fds);
+#define PIPE_CLOSE(_PipeName) shutdown_##_PipeName(info, child_stdout[0], child_stdin[1], &all_fds, &maxfd)
 
-        FD_ZERO(&fds);
-        checked_fd_set(info->fd, &fds);
-        checked_fd_set(child_stdout[0], &fds);
+    while (maxfd >= 0) {
+        fd_set fds = all_fds;
+        int r, n_r;
 
         r = fselect(maxfd + 1, &fds, NULL, NULL, NULL);
         if (r == -1) {
@@ -226,18 +265,24 @@ void netexec(struct fdinfo *info, char *cmdexec)
                     if(n_r == 0 && info->lasterr == 0) {
                         continue; /* Check pending */
                     }
-                    goto loop_end;
+                    // socket EOF/err
+                    PIPE_CLOSE(PIPE_IN);
+                    break;
                 }
                 r = write_loop(child_stdin[1], buf, n_r);
-                if (r != n_r)
-                  goto loop_end;
+                if (r != n_r) {
+                  PIPE_CLOSE(PIPE_IN);
+                  break;
+                }
             } while (pending);
         }
         if (checked_fd_isset(child_stdout[0], &fds)) {
             char *crlf = NULL, *wbuf;
             n_r = read(child_stdout[0], buf, sizeof(buf));
-            if (n_r <= 0)
-                break;
+            if (n_r <= 0) {
+              PIPE_CLOSE(PIPE_OUT);
+              continue;
+            }
             wbuf = buf;
             if (o.crlf) {
                 if (fix_line_endings((char *) buf, &n_r, &crlf, &crlf_state))
@@ -246,16 +291,23 @@ void netexec(struct fdinfo *info, char *cmdexec)
             r = ncat_send(info, wbuf, n_r);
             if (crlf != NULL)
                 free(crlf);
-            if (r <= 0)
-                goto loop_end;
+            if (r <= 0) {
+              PIPE_CLOSE(PIPE_OUT);
+              continue;
+            }
         }
     }
-loop_end:
 
+    if (PIPE_OUT_IS_OPEN()) {
+      PIPE_CLOSE(PIPE_OUT);
+    }
+    if (PIPE_IN_IS_OPEN()) {
+      PIPE_CLOSE(PIPE_IN);
+    }
 #ifdef HAVE_OPENSSL
     if (info->ssl != NULL) {
-        SSL_shutdown(info->ssl);
         SSL_free(info->ssl);
+        info->ssl = NULL;
     }
 #endif
     close(info->fd);
