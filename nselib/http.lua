@@ -2029,7 +2029,7 @@ function pipeline_go(host, port, all_requests)
       if not socket then
         return nil
       end
-      socket:set_timeout(10000)
+      socket:set_timeout(pipeline_comm_opts.request_timeout)
       partial = ""
       connsent = 0
     end
