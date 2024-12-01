@@ -247,6 +247,7 @@ end
 -- @param data The first data payload of the connection. Optional if
 --             <code>opts.recv_before</code> is true.
 -- @param opts Options, such as timeout
+--             Note that opts.proto will get set to correctOpt (see below)
 -- @return sd The socket descriptor, or nil on error
 -- @return response The response received for the payload, or an error message
 -- @return correctOpt Correct option for connection guess

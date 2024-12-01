@@ -2002,7 +2002,7 @@ function pipeline_go(host, port, all_requests)
   local req = all_requests[1]
   req.options.header = force_header(req.options.header, "Connection", "keep-alive")
   local reqstr = build_request(host, port, req.method, req.path, req.options)
-  local socket, partial, bopt = comm.tryssl(host, port, reqstr, pipeline_comm_opts)
+  local socket, partial, bopt = comm.tryssl(host, port, reqstr, tableaux.tcopy(pipeline_comm_opts))
   if not socket then
     return nil
   end
