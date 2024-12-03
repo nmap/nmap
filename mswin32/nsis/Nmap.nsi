@@ -376,6 +376,33 @@ OptionDisableSection_keep_${ID}:
   !undef ID
 !macroend
 
+!ifdef NMAP_OEM
+Function GetFileVersionProductName
+  System::Store S ; Stash registers
+  Pop $R0 ; file path
+  Push "" ; return value (bad)
+  System::Call 'version::GetFileVersionInfoSize(t"$R0", i.r2) i.r0'
+  ${If} $0 <> 0
+    System::Alloc $0 ; Alloc buffer to top of stack
+    ; Arg 4 pops the buffer off stack and puts it in $1. Pushes return of GetLastError
+    System::Call 'version::GetFileVersionInfo(t"$R0", ir2, ir0, isr1) i.r0 ? e'
+    Pop $2 ; GetLastError
+    ${If} $2 == 0
+    ${AndIf} $0 <> 0
+      ; 0409 = English; 04b0 = Unicode
+      System::Call 'version::VersionQueryValue(ir1, t"\StringFileInfo\040904b0\ProductName", *i0r2, *i0r3) i.r0'
+      ${If} $0 <> 0
+        Pop $0 ; Take the "" off the stack
+        ; Push the Unicode string at r2 of length r3
+        System::Call '*$2(&w$3.s)'
+      ${EndIf}
+    ${EndIf}
+    System::Free $1
+  ${EndIf}
+  System::Store L ; Restore registers
+FunctionEnd
+!endif
+
 Function .onInit
   ${GetParameters} $R0
   ; Make /S (silent install) case-insensitive
@@ -421,6 +448,37 @@ Function .onInit
 !endif
   !insertmacro OptionDisableSection $R0 "/NCAT=" ${SecNcat}
   !insertmacro OptionDisableSection $R0 "/NPING=" ${SecNping}
+
+!ifdef NMAP_OEM
+  ; Work around weirdness with Nmap OEM 7.95 installer.
+  ; Check if there's an existing good install:
+  ReadRegStr $0 HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${NMAP_NAME}" "UninstallString"
+  ${If} ${Errors}
+    ; No such install. Check if there's a non-OEM install:
+    ReadRegStr $0 HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Nmap" "UninstallString"
+    ${IfNot} ${Errors}
+      ; Ok, so what is actually installed there?
+      Push $0
+      Call GetFileVersionProductName
+      Pop $1
+      ${If} $1 == "${NMAP_NAME}"
+        ; Ok, it's a screwed-up install. We need to fix it up first.
+        ; Finish getting the old install info
+        ReadRegStr $1 HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Nmap" "DisplayVersion"
+        ${GetParent} $0 $2 ; Get InstallLocation from the path to Uninstall.exe
+        ; Remove the old install reg keys
+        DeleteRegKey HKCU "Software\Nmap"
+        DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Nmap"
+        ; Write info to the new appropriate place, to be overwritten later.
+        WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${NMAP_NAME}" "DisplayVersion" $1
+        WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${NMAP_NAME}" "DisplayName" "${NMAP_NAME} $1"
+        WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${NMAP_NAME}" "UninstallString" $0
+        WriteRegStr HKCU "Software\${NMAP_NAME}" $2
+      ${EndIf}
+    ${EndIf}
+  ${EndIf}
+
+!endif
 FunctionEnd
 
 ;--------------------------------
