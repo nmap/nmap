@@ -244,9 +244,6 @@ Section "Nmap Core Files" SecCore
   File /r /x mswin32 /x .svn ${STAGE_DIR}\nselib
   File ${STAGE_DIR}\icon1.ico
 
-  ;Store installation folder
-  WriteRegStr HKCU "Software\${NMAP_NAME}" "" $INSTDIR
-
   Call vcredistinstaller
   Call create_uninstaller
 
@@ -341,15 +338,16 @@ SectionEnd
 Function create_uninstaller
   StrCmp $addremoveset "" 0 skipaddremove
   ; Register Nmap with add/remove programs
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${NMAP_NAME}" "DisplayName" "${NMAP_NAME} ${VERSION}"
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${NMAP_NAME}" "DisplayVersion" "${VERSION}"
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${NMAP_NAME}" "Publisher" "Nmap Project"
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${NMAP_NAME}" "URLInfoAbout" "https://nmap.org/"
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${NMAP_NAME}" "URLUpdateInfo" "https://nmap.org/download.html"
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${NMAP_NAME}" "UninstallString" '"$INSTDIR\uninstall.exe"'
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${NMAP_NAME}" "DisplayIcon" '"$INSTDIR\icon1.ico"'
-  WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${NMAP_NAME}" "NoModify" 1
-  WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${NMAP_NAME}" "NoRepair" 1
+  WriteRegStr HKLM "${NMAP_UNINSTALL_KEY}" "DisplayName" "${NMAP_NAME} ${VERSION}"
+  WriteRegStr HKLM "${NMAP_UNINSTALL_KEY}" "DisplayVersion" "${VERSION}"
+  WriteRegStr HKLM "${NMAP_UNINSTALL_KEY}" "Publisher" "Nmap Project"
+  WriteRegStr HKLM "${NMAP_UNINSTALL_KEY}" "URLInfoAbout" "https://nmap.org/"
+  WriteRegStr HKLM "${NMAP_UNINSTALL_KEY}" "URLUpdateInfo" "https://nmap.org/download.html"
+  WriteRegStr HKLM "${NMAP_UNINSTALL_KEY}" "UninstallString" '"$INSTDIR\uninstall.exe"'
+  WriteRegStr HKLM "${NMAP_UNINSTALL_KEY}" "InstallLocation" $INSTDIR
+  WriteRegStr HKLM "${NMAP_UNINSTALL_KEY}" "DisplayIcon" '"$INSTDIR\icon1.ico"'
+  WriteRegDWORD HKLM "${NMAP_UNINSTALL_KEY}" "NoModify" 1
+  WriteRegDWORD HKLM "${NMAP_UNINSTALL_KEY}" "NoRepair" 1
   ;Create uninstaller
   SetOutPath $INSTDIR
 
@@ -449,7 +447,7 @@ Function .onInit
   !insertmacro MUI_INSTALLOPTIONS_EXTRACT "final.ini"
 
   ; Check if Npcap is already installed.
-  ReadRegStr $0 HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\NpcapInst" "DisplayVersion"
+  ReadRegStr $0 HKLM "${REG_UNINSTALL_KEY}\NpcapInst" "DisplayVersion"
   ${If} $0 != ""
     ${VersionCompare} $0 ${NPCAP_VERSION} $1
     ; If our version is not newer than the installed version, don't offer to install Npcap.
@@ -510,7 +508,8 @@ Function .onInit
   ; Write info to the new appropriate place, to be overwritten later.
   WriteRegStr HKLM "${NMAP_UNINSTALL_KEY}" "DisplayVersion" $2
   WriteRegStr HKLM "${NMAP_UNINSTALL_KEY}" "DisplayName" "${NMAP_NAME} $2"
-  WriteRegStr HKLM "${NMAP_UNINSTALL_KEY}" "UninstallString" $0
+  WriteRegStr HKLM "${NMAP_UNINSTALL_KEY}" "UninstallString" '"$0"'
+  WriteRegStr HKLM "${NMAP_UNINSTALL_KEY}" "InstallLocation" $1
   ; For old uninstaller, we write this
   WriteRegStr HKCU "Software\${NMAP_NAME}" $1
   goto old_install
@@ -735,7 +734,7 @@ Section "Uninstall"
   DetailPrint "Deleting Registry Keys..."
   SetDetailsPrint listonly
   DeleteRegKey HKCU "Software\${NMAP_NAME}"
-  DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${NMAP_NAME}"
+  DeleteRegKey HKLM "${NMAP_UNINSTALL_KEY}"
   SetDetailsPrint textonly
   DetailPrint "Unregistering Nmap Path..."
   Push $INSTDIR
