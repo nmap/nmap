@@ -16997,6 +16997,21 @@ Probe UDP DHCP_INFORM q|\x01\x01\x06\0\x01\x23\x45\x67\0\0\0\0\xff\xff\xff\xff\0
 rarity 8
 ports 67
 
+
+##############################NEXT PROBE##############################
+# Mikrotik WinBox Service Probe for port 8291 (Github: @deauther890)
+Probe TCP Mikrotik_Winbox_Non_Legacy q|\x22\x06\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0|
+rarity 5
+ports 8291
+fallback Mikrotik_Winbox_Legacy
+match mikrotik-winbox m|^\x21\x06.{32}[\0\x01]$| p/MikroTik WinBox (Non-Legacy)/ o/MikroTik RouterOS 6.43+/ cpe:/o:mikrotik:routeros/ cpe:/a:mikrotik:winbox_non_legacy/
+
+# If no match is found, the probe falls back to the legacy probe.
+Probe TCP Mikrotik_Winbox_Legacy q|\xf8\x05\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0|
+rarity 8
+ports 8291
+match mikrotik-winbox m|^\xf8\x05.{248}$| p/MikroTik WinBox (Legacy)/ o/MikroTik RouterOS < 6.43/ cpe:/o:mikrotik:routeros/ cpe:/a:mikrotik:winbox_legacy/
+
 ##############################NEXT PROBE##############################
 Probe UDP TFTP_GET q|\0\x01r7tftp.txt\0octet\0|
 rarity 8
