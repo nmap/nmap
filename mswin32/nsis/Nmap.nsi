@@ -33,6 +33,9 @@
 !define STAGE_DIR_OEM ${STAGE_DIR}
 !endif
 
+!define REG_UNINSTALL_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall"
+!define NMAP_UNINSTALL_KEY "${REG_UNINSTALL_KEY}\${NMAP_NAME}"
+
 ;--------------------------------
 ;Include Modern UI
 
@@ -70,12 +73,6 @@ SectionEnd
   ;Required for removing shortcuts
   RequestExecutionLevel admin
 !endif
-
-  ;Default installation folder
-  InstallDir "$PROGRAMFILES\${NMAP_NAME}"
-
-  ;Get installation folder from registry if available
-  InstallDirRegKey HKCU "Software\${NMAP_NAME}" ""
 
   VIProductVersion ${NUM_VERSION}
   VIAddVersionKey /LANG=1033 "FileVersion" "${VERSION}"
@@ -403,6 +400,36 @@ Function GetFileVersionProductName
 FunctionEnd
 !endif
 
+!macro stripQuotes string
+  Push $R0
+  ; Strip double quotes
+  StrCpy $R0 ${string} 1
+  ${If} $R0 == "$\""
+    StrLen $R0 ${string}
+    IntOp $R0 $R0 - 1
+    StrCpy $R0 ${string} 1 $R0
+    ${If} $R0 == "$\""
+      StrCpy ${string} ${string} -1 1
+    ${EndIf}
+  ${EndIf}
+  Pop $R0
+!macroend
+
+Function RunUninstaller
+  System::Store S ; stash registers
+  Pop $2 ; old instdir
+  Pop $1 ; params
+  Pop $0 ; Uninstaller
+  !insertmacro stripQuotes $0
+  !insertmacro stripQuotes $2
+
+  ; Try to run and delete, but ignore errors.
+  ExecWait '"$0" $1 _?=$2'
+  Delete $0
+  RmDir $2
+  System::Store L ; restore registers
+FunctionEnd
+
 Function .onInit
   ${GetParameters} $R0
   ; Make /S (silent install) case-insensitive
@@ -449,36 +476,82 @@ Function .onInit
   !insertmacro OptionDisableSection $R0 "/NCAT=" ${SecNcat}
   !insertmacro OptionDisableSection $R0 "/NPING=" ${SecNping}
 
+  ; Check for existing install
+  ; $0 = old uninstall.exe path
+  ; $1 = old instdir
+  StrCpy $1 ""
+  ; $2 = old version
+  StrCpy $2 ""
+  ReadRegStr $0 HKLM "${NMAP_UNINSTALL_KEY}" "UninstallString"
+  StrCmp $0 "" 0 old_install
+
 !ifdef NMAP_OEM
   ; Work around weirdness with Nmap OEM 7.95 installer.
-  ; Check if there's an existing good install:
-  ReadRegStr $0 HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${NMAP_NAME}" "UninstallString"
-  ${If} ${Errors}
-    ; No such install. Check if there's a non-OEM install:
-    ReadRegStr $0 HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Nmap" "UninstallString"
-    ${IfNot} ${Errors}
-      ; Ok, so what is actually installed there?
-      Push $0
-      Call GetFileVersionProductName
-      Pop $1
-      ${If} $1 == "${NMAP_NAME}"
-        ; Ok, it's a screwed-up install. We need to fix it up first.
-        ; Finish getting the old install info
-        ReadRegStr $1 HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Nmap" "DisplayVersion"
-        ${GetParent} $0 $2 ; Get InstallLocation from the path to Uninstall.exe
-        ; Remove the old install reg keys
-        DeleteRegKey HKCU "Software\Nmap"
-        DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Nmap"
-        ; Write info to the new appropriate place, to be overwritten later.
-        WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${NMAP_NAME}" "DisplayVersion" $1
-        WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${NMAP_NAME}" "DisplayName" "${NMAP_NAME} $1"
-        WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${NMAP_NAME}" "UninstallString" $0
-        WriteRegStr HKCU "Software\${NMAP_NAME}" $2
-      ${EndIf}
-    ${EndIf}
-  ${EndIf}
-
+  ; Since we didn't find an existing install, look for a non-OEM install:
+  ReadRegStr $0 HKLM "${REG_UNINSTALL_KEY}\Nmap" "UninstallString"
+  StrCmp $0 "" set_instdir
+  ; Ok, so what is actually installed there?
+  !insertmacro stripQuotes $0
+  Push $0
+  Call GetFileVersionProductName
+  Pop $2
+  StrCmp $2 "${NMAP_NAME}" 0 set_instdir
+  ; Ok, it's a screwed-up install. We need to fix it up first.
+  ; Finish getting the old install info
+  ReadRegStr $2 HKLM "${REG_UNINSTALL_KEY}\Nmap" "DisplayVersion"
+  ${GetParent} $0 $1 ; Get InstallLocation from the path to Uninstall.exe
+  ; Remove the old install reg keys
+  DeleteRegKey HKCU "Software\Nmap"
+  DeleteRegKey HKLM "${REG_UNINSTALL_KEY}\Nmap"
+  ; Write info to the new appropriate place, to be overwritten later.
+  WriteRegStr HKLM "${NMAP_UNINSTALL_KEY}" "DisplayVersion" $2
+  WriteRegStr HKLM "${NMAP_UNINSTALL_KEY}" "DisplayName" "${NMAP_NAME} $2"
+  WriteRegStr HKLM "${NMAP_UNINSTALL_KEY}" "UninstallString" $0
+  ; For old uninstaller, we write this
+  WriteRegStr HKCU "Software\${NMAP_NAME}" $1
+  goto old_install
 !endif
+  goto set_instdir
+
+old_install:
+  StrCmp $1 "" 0 get_old_version
+  ; We want to use this location going forward:
+  ReadRegStr $1 HKLM "${NMAP_UNINSTALL_KEY}" "InstallLocation"
+  StrCmp $1 "" 0 get_old_version
+  ; But old installers used this location instead:
+  ReadRegStr $1 HKCU "Software\${NMAP_NAME}" ""
+  StrCmp $1 "" 0 get_old_version
+  ; Last chance, parent dir of uninstaller
+  !insertmacro stripQuotes $0
+  ${GetParent} $0 $1
+
+get_old_version:
+  StrCmp $2 "" 0 try_uninstall
+  ReadRegStr $2 HKLM "${NMAP_UNINSTALL_KEY}" "DisplayVersion"
+  StrCmp $2 "" 0 try_uninstall
+  StrCpy $2 "(unknown version)"
+
+try_uninstall:
+  MessageBox MB_YESNOCANCEL|MB_ICONQUESTION "${NMAP_NAME} $2 is already installed. $\n$\nWould you like to uninstall it first?" /SD IDYES IDYES run_uninstaller IDNO set_instdir
+  Abort
+
+run_uninstaller:
+  Push $0 ; Uninstaller
+  Push "/S" ; Params
+  Push $1 ; Old instdir
+  Call RunUninstaller
+
+set_instdir:
+  ; If it's already set, user specified with /D=
+  StrCmp $INSTDIR "" 0 done
+  ; If we got the old instdir from the registry, use that.
+  ${If} $1 <> ""
+    StrCpy $INSTDIR $1
+  ${Else}
+    StrCpy $INSTDIR "$PROGRAMFILES\${NMAP_NAME}"
+  ${EndIf}
+done:
+
 FunctionEnd
 
 ;--------------------------------
