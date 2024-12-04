@@ -373,8 +373,7 @@ OptionDisableSection_keep_${ID}:
   !undef ID
 !macroend
 
-!ifdef NMAP_OEM
-Function GetFileVersionProductName
+Function _GetFileVersionProductName
   System::Store S ; Stash registers
   Pop $R0 ; file path
   Push "" ; return value (bad)
@@ -398,7 +397,12 @@ Function GetFileVersionProductName
   ${EndIf}
   System::Store L ; Restore registers
 FunctionEnd
-!endif
+!macro GetFileVersionProductName _file _outvar
+  Push ${_file}
+  Call _GetFileVersionProductName
+  Pop ${_outvar}
+!macroend
+!define GetFileVersionProductName "!insertmacro GetFileVersionProductName"
 
 !macro stripQuotes string
   Push $R0
@@ -482,6 +486,8 @@ Function .onInit
   StrCpy $1 ""
   ; $2 = old version
   StrCpy $2 ""
+  ; $3 = old product name
+  StrCpy $3 ""
   ReadRegStr $0 HKLM "${NMAP_UNINSTALL_KEY}" "UninstallString"
   StrCmp $0 "" 0 old_install
 
@@ -492,10 +498,8 @@ Function .onInit
   StrCmp $0 "" set_instdir
   ; Ok, so what is actually installed there?
   !insertmacro stripQuotes $0
-  Push $0
-  Call GetFileVersionProductName
-  Pop $2
-  StrCmp $2 "${NMAP_NAME}" 0 set_instdir
+  ${GetFileVersionProductName} $0 $3
+  StrCmp $3 "${NMAP_NAME}" 0 set_instdir
   ; Ok, it's a screwed-up install. We need to fix it up first.
   ; Finish getting the old install info
   ReadRegStr $2 HKLM "${REG_UNINSTALL_KEY}\Nmap" "DisplayVersion"
@@ -526,13 +530,22 @@ old_install:
   ${GetParent} $0 $1
 
 get_old_version:
+  StrCpy $3 "${NMAP_NAME}"
   StrCmp $2 "" 0 try_uninstall
   ReadRegStr $2 HKLM "${NMAP_UNINSTALL_KEY}" "DisplayVersion"
   StrCmp $2 "" 0 try_uninstall
   StrCpy $2 "(unknown version)"
 
 try_uninstall:
-  MessageBox MB_YESNOCANCEL|MB_ICONQUESTION "${NMAP_NAME} $2 is already installed. $\n$\nWould you like to uninstall it first?" /SD IDYES IDYES run_uninstaller IDNO set_instdir
+  StrCpy $4 "try_uninstall"
+  ${If} ${Silent}
+    ; In silent mode, don't automatically run an uninstaller that's not Nmap.
+    StrCpy $5 $3 4
+    StrCmp $5 "Nmap" 0 set_instdir
+  ${EndIf}
+  MessageBox MB_YESNOCANCEL|MB_ICONQUESTION \
+    '$3 $2 is already installed in "$1". $\n$\nWould you like to uninstall it first?' \
+    /SD IDYES IDYES run_uninstaller IDNO set_instdir
   Abort
 
 run_uninstaller:
@@ -550,7 +563,18 @@ set_instdir:
   ${Else}
     StrCpy $INSTDIR "$PROGRAMFILES\${NMAP_NAME}"
   ${EndIf}
+
 done:
+  ; If we didn't already try to uninstall, check to see if there's something in
+  ; $INSTDIR that needs to be uninstalled.
+  ${If} $4 <> "try_uninstall"
+  ${AndIf} ${FileExists} "$INSTDIR\Uninstall.exe"
+    StrCpy $0 "$INSTDIR\Uninstall.exe"
+    StrCpy $1 $INSTDIR
+    ${GetFileVersion} $0 $2
+    ${GetFileVersionProductName} $0 $3
+    goto try_uninstall
+  ${EndIf}
 
 FunctionEnd
 
