@@ -42,6 +42,7 @@
   !include "MUI.nsh"
   !include "AddToPath.nsh"
   !include "FileFunc.nsh"
+  !include "nmap-common.nsh"
 
 ;--------------------------------
 ;General
@@ -185,29 +186,15 @@ FunctionEnd
 ;--------------------------------
 ;Installer Sections
 
+!insertmacro SanityCheckInstdir
+!insertmacro SecCoreFiles
+!insertmacro SecZenmapFiles
+!insertmacro SecNdiffFiles
+!insertmacro SecNcatFiles
+!insertmacro SecNpingFiles
+
 Section "Nmap Core Files" SecCore
-
-  StrCpy $R0 $INSTDIR "" -2
-  StrCmp $R0 ":\" bad_key_install
-  StrCpy $R0 $INSTDIR "" -14
-  StrCmp $R0 "\Program Files" bad_key_install
-  StrCpy $R0 $INSTDIR "" -8
-  StrCmp $R0 "\Windows" bad_key_install
-  StrCpy $R0 $INSTDIR "" -6
-  StrCmp $R0 "\WinNT" bad_key_install
-  StrCpy $R0 $INSTDIR "" -9
-  StrCmp $R0 "\system32" bad_key_install
-  StrCpy $R0 $INSTDIR "" -8
-  StrCmp $R0 "\Desktop" bad_key_install
-  StrCpy $R0 $INSTDIR "" -22
-  StrCmp $R0 "\Documents and Settings" bad_key_install
-  StrCpy $R0 $INSTDIR "" -13
-  StrCmp $R0 "\My Documents" bad_key_install probably_safe_key_install
-  bad_key_install:
-    MessageBox MB_YESNO "It may not be safe to uninstall the previous installation of ${NMAP_NAME} from the directory '$INSTDIR'.$\r$\nContinue anyway (not recommended)?" IDYES probably_safe_key_install
-    Abort "Install aborted by user"
-  probably_safe_key_install:
-
+  Call SanityCheckInstdir
   ;Delete specific subfolders (NB: custom scripts in scripts folder will be lost)
   RMDir /r "$INSTDIR\nselib"
   ; nselib-bin held NSE C modules up through version 4.68.
@@ -221,28 +208,7 @@ Section "Nmap Core Files" SecCore
   SetOutPath "$INSTDIR"
 
   SetOverwrite on
-  File ${STAGE_DIR}\CHANGELOG
-  File ${STAGE_DIR}\LICENSE
-  File ${STAGE_DIR}\nmap-mac-prefixes
-  File ${STAGE_DIR}\nmap-os-db
-  File ${STAGE_DIR}\nmap-protocols
-  File ${STAGE_DIR}\nmap-rpc
-  File ${STAGE_DIR}\nmap-service-probes
-  File ${STAGE_DIR}\nmap-services
-  File ${STAGE_DIR_OEM}\nmap.exe
-  File ${STAGE_DIR}\nse_main.lua
-  File ${STAGE_DIR}\nmap.xsl
-  File ${STAGE_DIR}\nmap_performance.reg
-  File ${STAGE_DIR}\README-WIN32
-  File ${STAGE_DIR}\3rd-party-licenses.txt
-  File /r /x .svn ${STAGE_DIR}\licenses
-  File ${STAGE_DIR}\libssh2.dll
-  File ${STAGE_DIR}\zlibwapi.dll
-  File ${STAGE_DIR}\libcrypto-3.dll
-  File ${STAGE_DIR}\libssl-3.dll
-  File /r /x mswin32 /x .svn /x ncat ${STAGE_DIR}\scripts
-  File /r /x mswin32 /x .svn ${STAGE_DIR}\nselib
-  File ${STAGE_DIR}\icon1.ico
+  Call SecCoreFiles
 
   Call vcredistinstaller
   Call create_uninstaller
@@ -285,9 +251,7 @@ SectionEnd
 Section "Zenmap (GUI Frontend)" SecZenmap
   SetOutPath "$INSTDIR"
   SetOverwrite on
-  File ${STAGE_DIR}\ZENMAP_README
-  File ${STAGE_DIR}\COPYING_HIGWIDGETS
-  File /r ${STAGE_DIR}\zenmap
+  Call SecZenmapFiles
   WriteINIStr "$INSTDIR\zenmap\share\zenmap\config\zenmap.conf" paths nmap_command_path "$INSTDIR\nmap.exe"
   WriteINIStr "$INSTDIR\zenmap\share\zenmap\config\zenmap.conf" paths ndiff_command_path "$INSTDIR\ndiff.bat"
   !insertmacro writeZenmapShortcut "$INSTDIR\Zenmap.lnk"
@@ -302,9 +266,7 @@ SectionEnd
 Section "Ndiff (Scan comparison tool)" SecNdiff
   SetOutPath "$INSTDIR"
   SetOverwrite on
-  File ${STAGE_DIR}\ndiff.py
-  File ${STAGE_DIR}\ndiff.bat
-  File ${STAGE_DIR}\NDIFF_README
+  Call SecNdiffFiles
   Call create_uninstaller
 SectionEnd
 !endif
@@ -312,8 +274,7 @@ SectionEnd
 Section "Ncat (Modern Netcat reincarnation)" SecNcat
   SetOutPath "$INSTDIR"
   SetOverwrite on
-  File ${STAGE_DIR}\ncat.exe
-  File ${STAGE_DIR}\ca-bundle.crt
+  Call SecNcatFiles
   Call vcredistinstaller
   Call create_uninstaller
 SectionEnd
@@ -321,7 +282,7 @@ SectionEnd
 Section "Nping (Packet generator)" SecNping
   SetOutPath "$INSTDIR"
   SetOverwrite on
-  File ${STAGE_DIR}\nping.exe
+  Call SecNpingFiles
   Call vcredistinstaller
   Call create_uninstaller
 SectionEnd
@@ -651,28 +612,16 @@ Function .onInit
   Quit  ; just bail out quickly when running the "inner" installer
 FunctionEnd
 
+!insertmacro SanityCheckInstdir "un."
+!insertmacro SecCoreFiles "un."
+!insertmacro SecZenmapFiles "un."
+!insertmacro SecNdiffFiles "un."
+!insertmacro SecNcatFiles "un."
+!insertmacro SecNpingFiles "un."
+
 Section "Uninstall"
 
-  StrCpy $R0 $INSTDIR "" -2
-  StrCmp $R0 ":\" bad_key_uninstall
-  StrCpy $R0 $INSTDIR "" -14
-  StrCmp $R0 "\Program Files" bad_key_uninstall
-  StrCpy $R0 $INSTDIR "" -8
-  StrCmp $R0 "\Windows" bad_key_uninstall
-  StrCpy $R0 $INSTDIR "" -6
-  StrCmp $R0 "\WinNT" bad_key_uninstall
-  StrCpy $R0 $INSTDIR "" -9
-  StrCmp $R0 "\system32" bad_key_uninstall
-  StrCpy $R0 $INSTDIR "" -8
-  StrCmp $R0 "\Desktop" bad_key_uninstall
-  StrCpy $R0 $INSTDIR "" -22
-  StrCmp $R0 "\Documents and Settings" bad_key_uninstall
-  StrCpy $R0 $INSTDIR "" -13
-  StrCmp $R0 "\My Documents" bad_key_uninstall probably_safe_key_uninstall
-  bad_key_uninstall:
-    MessageBox MB_YESNO "It may not be safe to uninstall ${NMAP_NAME} from the directory '$INSTDIR'.$\r$\nContinue anyway (not recommended)?" IDYES probably_safe_key_uninstall
-    Abort "Uninstall aborted by user"
-  probably_safe_key_uninstall:
+  Call un.SanityCheckInstdir
 
   IfFileExists $INSTDIR\nmap.exe nmap_installed
   IfFileExists $INSTDIR\zenmap.exe nmap_installed
@@ -687,43 +636,12 @@ Section "Uninstall"
   SetDetailsPrint listonly
 
   nmap_installed:
-  Delete "$INSTDIR\3rd-party-licenses.txt"
-  Delete "$INSTDIR\CHANGELOG"
-  Delete "$INSTDIR\LICENSE"
-  Delete "$INSTDIR\nmap-mac-prefixes"
-  Delete "$INSTDIR\nmap-os-db"
-  Delete "$INSTDIR\nmap-payloads"
-  Delete "$INSTDIR\nmap-protocols"
-  Delete "$INSTDIR\nmap-rpc"
-  Delete "$INSTDIR\nmap-service-probes"
-  Delete "$INSTDIR\nmap-services"
-  Delete "$INSTDIR\nmap.exe"
-  Delete "$INSTDIR\nmap.xsl"
+  Call un.SecCoreFiles
+  Call un.SecZenmapFiles
+  Call un.SecNdiffFiles
+  Call un.SecNcatFiles
+  Call un.SecNpingFiles
   Delete "$INSTDIR\nmap_performance.reg"
-  Delete "$INSTDIR\nse_main.lua"
-  Delete "$INSTDIR\README-WIN32"
-  Delete "$INSTDIR\icon1.ico"
-  Delete "$INSTDIR\libssh2.dll"
-  Delete "$INSTDIR\zlibwapi.dll"
-  Delete "$INSTDIR\libcrypto-*dll"
-  Delete "$INSTDIR\libssl-*dll"
-  Delete "$INSTDIR\npcap-*.exe"
-  Delete "$INSTDIR\Zenmap.lnk"
-  Delete "$INSTDIR\ndiff.py"
-  Delete "$INSTDIR\ndiff.bat"
-  Delete "$INSTDIR\python27.dll"
-  Delete "$INSTDIR\NDIFF_README"
-  Delete "$INSTDIR\ZENMAP_README"
-  Delete "$INSTDIR\COPYING_HIGWIDGETS"
-  Delete "$INSTDIR\ncat.exe"
-  Delete "$INSTDIR\nping.exe"
-  Delete "$INSTDIR\ca-bundle.crt"
-  ;Delete specific subfolders (NB: custom scripts in scripts folder will be lost)
-  RMDir /r "$INSTDIR\nselib"
-  RMDir /r "$INSTDIR\scripts"
-  RMDir /r "$INSTDIR\share"
-  RMDir /r "$INSTDIR\zenmap"
-  RMDir /r "$INSTDIR\licenses"
 
   Delete "$INSTDIR\Uninstall.exe"
 
