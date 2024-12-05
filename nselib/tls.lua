@@ -195,9 +195,9 @@ ELLIPTIC_CURVES = {
   ffdhe4096 = 0x0102, --RFC7919
   ffdhe6144 = 0x0103, --RFC7919
   ffdhe8192 = 0x0104, --RFC7919
-  MLKEM512 = 0x0512 -- draft-connolly-tls-mlkem-key-agreement-03
-  MLKEM768 = 0x0768 -- draft-connolly-tls-mlkem-key-agreement-03
-  MLKEM1024 = 0x1024 -- draft-connolly-tls-mlkem-key-agreement-03
+  MLKEM512 = 512 -- draft-connolly-tls-mlkem-key-agreement-03
+  MLKEM768 = 513 -- draft-connolly-tls-mlkem-key-agreement-03
+  MLKEM1024 = 514 -- draft-connolly-tls-mlkem-key-agreement-03
   arbitrary_explicit_prime_curves = 0xFF01,
   arbitrary_explicit_char2_curves = 0xFF02,
 }
