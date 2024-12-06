@@ -418,16 +418,18 @@ static DWORD WINAPI subprocess_thread_func(void *data)
         char *crlf = NULL, *wbuf;
         char buffer[BUFSIZ];
         int pending;
+        WSANETWORKEVENTS triggered;
 
         i = WaitForMultipleObjects(3, events, FALSE, INFINITE);
         switch(i) {
           case WAIT_OBJECT_0:
             /* Read from socket, write to process. */
 
-            /* Reset events on the socket. SSL_read in particular does not
-             * clear the event. */
-            ResetEvent(events[0]);
-            WSAEventSelect(info->fdn.fd, events[0], 0);
+            /* Reset events on the socket. */
+            n = WSAEnumNetworkEvents(info->fdn.fd, events[0], &triggered);
+            ncat_assert(n == 0);
+            /* Regardless of what event triggered, try to read. This simplifies
+             * error handling. */
             block_socket(info->fdn.fd);
             do {
                 n = ncat_recv(&info->fdn, buffer, sizeof(buffer), &pending);
@@ -451,9 +453,10 @@ static DWORD WINAPI subprocess_thread_func(void *data)
                     goto loop_end;
                 }
             } while (pending);
-            /* Restore the select event (and non-block the socket again.) */
-            WSAEventSelect(info->fdn.fd, events[0], FD_READ | FD_CLOSE);
-            /* Fall through to check other objects */
+            unblock_socket(info->fdn.fd);
+            // If ReadFile finished, go on
+            if (!HasOverlappedIoCompleted(&overlap))
+              break;
           case WAIT_OBJECT_0 + 1:
             /* Read from process, write to socket. */
             if (GetOverlappedResult(info->child_out_r, &overlap, &n_r, FALSE)) {
@@ -464,12 +467,6 @@ static DWORD WINAPI subprocess_thread_func(void *data)
                         wbuf = crlf;
                     n_r = n;
                 }
-                /* The above call to WSAEventSelect puts the socket in
-                   non-blocking mode, but we want this send to block, not
-                   potentially return WSAEWOULDBLOCK. We call block_socket, but
-                   first we must clear out the select event. */
-                WSAEventSelect(info->fdn.fd, events[0], 0);
-                block_socket(info->fdn.fd);
                 n = ncat_send(&info->fdn, wbuf, n_r);
                 if (crlf != NULL)
                     free(crlf);
@@ -477,8 +474,6 @@ static DWORD WINAPI subprocess_thread_func(void *data)
                 {
                     goto loop_end;
                 }
-                /* Restore the select event (and non-block the socket again.) */
-                WSAEventSelect(info->fdn.fd, events[0], FD_READ | FD_CLOSE);
                 /* Queue another asychronous read. */
                 ReadFile(info->child_out_r, pipe_buffer, sizeof(pipe_buffer), NULL, &overlap);
             } else {
