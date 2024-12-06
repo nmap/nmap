@@ -286,7 +286,8 @@ int fdinfo_close(struct fdinfo *fdn)
 {
 #ifdef HAVE_OPENSSL
     if (o.ssl && fdn->ssl != NULL) {
-        SSL_shutdown(fdn->ssl);
+        if (!o.noshutdown)
+            SSL_shutdown(fdn->ssl);
         SSL_free(fdn->ssl);
         fdn->ssl = NULL;
     }

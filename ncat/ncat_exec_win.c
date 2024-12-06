@@ -294,8 +294,10 @@ static void subprocess_info_close(struct subprocess_info *info)
 {
 #ifdef HAVE_OPENSSL
     if (info->fdn.ssl != NULL) {
-        SSL_shutdown(info->fdn.ssl);
+        if (!o.noshutdown)
+            SSL_shutdown(info->fdn.ssl);
         SSL_free(info->fdn.ssl);
+        info->fdn.ssl = NULL;
     }
 #endif
     closesocket(info->fdn.fd);
