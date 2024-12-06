@@ -377,6 +377,54 @@ static int start_subprocess(char *cmdexec, struct subprocess_info *info)
     return pid;
 }
 
+#define i_PIPE_IN  0
+#define i_PIPE_OUT  1
+#define i_PROC  2
+static void shutdown_PIPE_IN(struct subprocess_info *info, HANDLE *events, int *idx, int *nCount)
+{
+  int i = idx[i_PIPE_IN];
+  int n = *nCount;
+  if (!o.noshutdown
+#ifdef HAVE_OPENSSL
+      // SSL can only shut down in the write direction
+      && info->fdn.ssl == NULL
+#endif
+    ) {
+    shutdown(info->fdn.fd, SD_RECEIVE);
+  }
+  WSACloseEvent(events[i]);
+  for (i += 1; i < n; i++) {
+    events[i - 1] = events[i];
+    idx[i] -= 1;
+  }
+  *nCount = n - 1;
+  idx[i_PIPE_IN] = -1;
+  CloseHandle(info->child_in_w);
+}
+
+static void shutdown_PIPE_OUT(struct subprocess_info *info, HANDLE *events, int *idx, int *nCount)
+{
+  int i = idx[i_PIPE_OUT];
+  int n = *nCount;
+  if (!o.noshutdown) {
+#ifdef HAVE_OPENSSL
+    if (info->fdn.ssl != NULL &&
+        // These errors mean we cannot send close_notify alert
+        info->fdn.lasterr != SSL_ERROR_SYSCALL && info->fdn.lasterr != SSL_ERROR_SSL) {
+      SSL_shutdown(info->fdn.ssl);
+    } else
+#endif
+      shutdown(info->fdn.fd, SD_SEND);
+  }
+  for (i += 1; i < n; i++) {
+    events[i - 1] = events[i];
+    idx[i] -= 1;
+  }
+  *nCount = n - 1;
+  idx[i_PIPE_OUT] = -1;
+  CloseHandle(info->child_out_r);
+}
+
 /* Relay data between a socket and a process until the process dies or stops
    sending or receiving data. The socket descriptor and process pipe handles
    are in the data argument, which must be a pointer to struct subprocess_info.
@@ -399,14 +447,19 @@ static DWORD WINAPI subprocess_thread_func(void *data)
     HANDLE events[3];
     DWORD ret, rc;
     int crlf_state = 0;
+    DWORD nCount = 3;
+    int idx[3];
 
     info = (struct subprocess_info *) data;
 
     /* Three events we watch for: socket read, pipe read, and process end. */
-    events[0] = (HANDLE) WSACreateEvent();
-    WSAEventSelect(info->fdn.fd, events[0], FD_READ | FD_CLOSE);
-    events[1] = info->child_out_r;
-    events[2] = info->proc;
+    events[i_PIPE_IN] = (HANDLE) WSACreateEvent();
+    idx[i_PIPE_IN] = i_PIPE_IN;
+    WSAEventSelect(info->fdn.fd, events[i_PIPE_IN], FD_READ | FD_CLOSE);
+    events[i_PIPE_OUT] = info->child_out_r;
+    idx[i_PIPE_OUT] = i_PIPE_OUT;
+    events[i_PROC] = info->proc;
+    idx[i_PROC] = i_PROC;
 
     /* To avoid blocking or polling, we use asynchronous I/O, or what Microsoft
        calls "overlapped" I/O, on the process pipe. WaitForMultipleObjects
@@ -414,17 +467,25 @@ static DWORD WINAPI subprocess_thread_func(void *data)
     ReadFile(info->child_out_r, pipe_buffer, sizeof(pipe_buffer), NULL, &overlap);
 
     /* Loop until EOF or error. */
-    for (;;) {
+    /* There are 2 directions that are managed together:
+     * PIPE_IN: Data read from socket read written to child stdin. */
+#define PIPE_IN_IS_OPEN() (idx[i_PIPE_IN] >= 0)
+    /* PIPE_OUT: Data read from child stdout and written to socket. */
+#define PIPE_OUT_IS_OPEN() (idx[i_PIPE_OUT] >= 0)
+    /* PIPE_CLOSE sets idx[_PipeName] to -1, shifts events down, updates idx, decrements nCount */
+#define PIPE_CLOSE(_PipeName) shutdown_##_PipeName(info, events, idx, &nCount)
+
+    while (nCount > 0) {
         DWORD n_r, n_w;
         int i, n;
         char *crlf = NULL, *wbuf;
         char buffer[BUFSIZ];
         int pending;
         WSANETWORKEVENTS triggered;
+        int old_i_proc = idx[i_PROC];
 
-        i = WaitForMultipleObjects(3, events, FALSE, INFINITE);
-        switch(i) {
-          case WAIT_OBJECT_0:
+        i = WaitForMultipleObjects(nCount, events, FALSE, INFINITE);
+        if (PIPE_IN_IS_OPEN() && i == WAIT_OBJECT_0 + idx[i_PIPE_IN]) {
             /* Read from socket, write to process. */
 
             /* Reset events on the socket. */
@@ -443,23 +504,22 @@ static DWORD WINAPI subprocess_thread_func(void *data)
                     if(n == 0 && info->fdn.lasterr == 0) {
                         continue; /* Check pending */
                     }
-                    goto loop_end;
+                    // socket EOF/err
+                    PIPE_CLOSE(PIPE_IN);
+                    break;
                 }
                 n_r = n;
-                if (WriteFile(info->child_in_w, buffer, n_r, &n_w, NULL) == 0)
+                if (WriteFile(info->child_in_w, buffer, n_r, &n_w, NULL) == 0
+                  || n_w != n)
                 {
-                    goto loop_end;
-                }
-                if (n_w != n)
-                {
-                    goto loop_end;
+                    PIPE_CLOSE(PIPE_IN);
+                    break;
                 }
             } while (pending);
             unblock_socket(info->fdn.fd);
-            // If ReadFile finished, go on
-            if (!HasOverlappedIoCompleted(&overlap))
-              break;
-          case WAIT_OBJECT_0 + 1:
+        }
+
+        if (PIPE_OUT_IS_OPEN() && HasOverlappedIoCompleted(&overlap)) {
             /* Read from process, write to socket. */
             if (GetOverlappedResult(info->child_out_r, &overlap, &n_r, FALSE)) {
                 wbuf = pipe_buffer;
@@ -474,7 +534,8 @@ static DWORD WINAPI subprocess_thread_func(void *data)
                     free(crlf);
                 if (n != n_r)
                 {
-                    goto loop_end;
+                  PIPE_CLOSE(PIPE_OUT);
+                  break;
                 }
                 /* Queue another asychronous read. */
                 ReadFile(info->child_out_r, pipe_buffer, sizeof(pipe_buffer), NULL, &overlap);
@@ -487,35 +548,34 @@ static DWORD WINAPI subprocess_thread_func(void *data)
                         break;
                     default:
                         /* Error or end of file. */
-                        goto loop_end;
+                        PIPE_CLOSE(PIPE_OUT);
                         break;
                 }
             }
-            /* Break here, don't go on. Need to finish all socket writes before
-             * checking if child process died. */
-            break;
-          case WAIT_OBJECT_0 + 2:
+        }
+        /* 'else if' because we need to finish all socket writes before
+         * checking if child process died */
+        else if (i == WAIT_OBJECT_0 + old_i_proc) {
             /* The child died. There are no more writes left in the pipe
                because WaitForMultipleObjects guarantees events with lower
                indexes are handled first. */
-          default:
-            goto loop_end;
             break;
         }
     }
 
-loop_end:
-
+    if (PIPE_OUT_IS_OPEN()) {
+      PIPE_CLOSE(PIPE_OUT);
+    }
+    if (PIPE_IN_IS_OPEN()) {
+      PIPE_CLOSE(PIPE_IN);
+    }
 #ifdef HAVE_OPENSSL
     if (o.ssl && info->fdn.ssl) {
-        SSL_shutdown(info->fdn.ssl);
+        // SSL_shutdown done in shutdown_PIPE_OUT
         SSL_free(info->fdn.ssl);
-        /* avoid shutting down and freeing this again in subprocess_info_close */
         info->fdn.ssl = NULL;
     }
 #endif
-
-    WSACloseEvent(events[0]);
 
     rc = unregister_subprocess(info->proc);
     ncat_assert(rc != -1);
@@ -534,8 +594,15 @@ loop_end:
     if (o.debug > 1)
         logdebug("Subprocess ended with exit code %d.\n", ret);
 
-    shutdown(info->fdn.fd, 2);
-    subprocess_info_close(info);
+    /* subprocess_info_close, but only the parts that aren't done yet: */
+    // SSL_free done above
+    closesocket(info->fdn.fd);
+    CloseHandle(info->proc);
+    CloseHandle(info->child_in_r);
+    // child_in_w closed by shutdown_PIPE_IN
+    // child_out_r closed by shutdown_PIPE_OUT
+    CloseHandle(info->child_out_w);
+
     free(info);
 
     rc = WaitForSingleObject(pseudo_sigchld_mutex, INFINITE);
