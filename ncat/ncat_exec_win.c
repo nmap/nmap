@@ -447,7 +447,7 @@ static DWORD WINAPI subprocess_thread_func(void *data)
     HANDLE events[3];
     DWORD ret, rc;
     int crlf_state = 0;
-    DWORD nCount = 3;
+    int nCount = 3;
     int idx[3];
 
     info = (struct subprocess_info *) data;
