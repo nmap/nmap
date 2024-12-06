@@ -1016,7 +1016,9 @@ void process_event(struct npool *nsp, gh_list_t *evlist, struct nevent *nse, int
 
   nsock_log_debug_all("Processing event %lu (timeout in %ldms, done=%d)",
                       nse->id,
-                      (long)TIMEVAL_MSEC_SUBTRACT(nse->timeout, nsock_tod),
+                      nse->timeout.tv_sec
+                        ? (long)TIMEVAL_MSEC_SUBTRACT(nse->timeout, nsock_tod)
+                        : -1,
                       nse->event_done);
 
   if (!nse->event_done) {
@@ -1217,7 +1219,9 @@ const struct timeval *nsock_gettimeofday() {
 void nsock_pool_add_event(struct npool *nsp, struct nevent *nse) {
   nsock_log_debug("NSE #%lu: Adding event (timeout in %ldms)",
                   nse->id,
-                  (long)TIMEVAL_MSEC_SUBTRACT(nse->timeout, nsock_tod));
+                  nse->timeout.tv_sec
+                    ? (long)TIMEVAL_MSEC_SUBTRACT(nse->timeout, nsock_tod)
+                    : -1);
 
   nsp->events_pending++;
 
