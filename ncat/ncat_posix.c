@@ -133,9 +133,9 @@ static void shutdown_PIPE_OUT(struct fdinfo *info, int child_stdout, int child_s
         // These errors mean we cannot send close_notify alert
         info->lasterr != SSL_ERROR_SYSCALL && info->lasterr != SSL_ERROR_SSL) {
       SSL_shutdown(info->ssl);
-    }
+    } else
 #endif
-    shutdown(info->fd, SHUT_WR);
+      shutdown(info->fd, SHUT_WR);
   }
   close(child_stdout);
   checked_fd_clr(child_stdout, fds);
