@@ -258,6 +258,7 @@ local function output_tab(cert)
   end
   o.md5 = stdnse.tohex(cert:digest("md5"))
   o.sha1 = stdnse.tohex(cert:digest("sha1"))
+  o.sha256 = stdnse.tohex(cert:digest("sha256"))
   o.pem = cert.pem
   return o
 end
@@ -297,6 +298,7 @@ local function output_str(cert)
   if nmap.verbosity() > 0 then
     lines[#lines + 1] = "MD5:   " .. stdnse.tohex(cert:digest("md5"), { separator = " ", group = 4 })
     lines[#lines + 1] = "SHA-1: " .. stdnse.tohex(cert:digest("sha1"), { separator = " ", group = 4 })
+    lines[#lines + 1] = "SHA-256: " .. stdnse.tohex(cert:digest("sha256"), { separator = " ", group = 4 })
   end
 
   if nmap.verbosity() > 1 then
