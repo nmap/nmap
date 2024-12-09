@@ -310,9 +310,13 @@ int fdinfo_recv(struct fdinfo *fdn, char *buf, size_t size)
              * cases, SSL_get_error gives SSL_ERROR_WANT_{READ,WRITE}, and we
              * should try the SSL_read again. */
             err = (n <= 0) ? SSL_get_error(fdn->ssl, n) : SSL_ERROR_NONE;
-        } while (err == SSL_ERROR_WANT_READ || err == SSL_ERROR_WANT_WRITE);
+        } while (err == SSL_ERROR_WANT_WRITE);
         switch (err) {
+            case SSL_ERROR_WANT_READ:
+                if (n < 0)
+                    n = 0;
             case SSL_ERROR_NONE:
+                fdn->lasterr = 0;
                 break;
             case SSL_ERROR_ZERO_RETURN:
                 fdn->lasterr = EOF;
