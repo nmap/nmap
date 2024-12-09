@@ -11781,7 +11781,7 @@ unknown	8282/udp	0.000330
 unknown	8284/udp	0.000661
 unknown	8289/udp	0.000330
 unknown	8290/tcp	0.000228
-unknown	8291/tcp	0.000456
+mikrotik-winbox   8291/tcp	0.000456 #MikroTik WinBox  
 blp3	8292/tcp	0.000228	# Bloomberg professional
 blp3	8292/udp	0.000330	# Bloomberg professional
 hiperscan-id	8293/tcp	0.000152	# Hiperscan Identification Service
