@@ -445,10 +445,11 @@ static DWORD WINAPI subprocess_thread_func(void *data)
     char pipe_buffer[BUFSIZ];
     OVERLAPPED overlap = { 0 };
     HANDLE events[3];
-    DWORD ret, rc;
+    DWORD ret, rc, n_r;
     int crlf_state = 0;
     int nCount = 3;
     int idx[3];
+    BOOL bPipeOutReady;
 
     info = (struct subprocess_info *) data;
 
@@ -464,8 +465,12 @@ static DWORD WINAPI subprocess_thread_func(void *data)
     /* To avoid blocking or polling, we use asynchronous I/O, or what Microsoft
        calls "overlapped" I/O, on the process pipe. WaitForMultipleObjects
        reports when the read operation is complete. */
-    ReadFile(info->child_out_r, pipe_buffer, sizeof(pipe_buffer), NULL, &overlap);
-
+    bPipeOutReady = ReadFile(info->child_out_r, pipe_buffer, sizeof(pipe_buffer), &n_r, &overlap);
+    if (!bPipeOutReady && ERROR_IO_PENDING != GetLastError()) {
+        // Bad error; shut it down.
+        goto loop_end;
+    }
+    
     /* Loop until EOF or error. */
     /* There are 2 directions that are managed together:
      * PIPE_IN: Data read from socket read written to child stdin. */
@@ -476,7 +481,7 @@ static DWORD WINAPI subprocess_thread_func(void *data)
 #define PIPE_CLOSE(_PipeName) shutdown_##_PipeName(info, events, idx, &nCount)
 
     while (nCount > 0) {
-        DWORD n_r, n_w;
+        DWORD n_w;
         int i, n;
         char *crlf = NULL, *wbuf;
         char buffer[BUFSIZ];
@@ -484,7 +489,7 @@ static DWORD WINAPI subprocess_thread_func(void *data)
         WSANETWORKEVENTS triggered;
         int old_i_proc = idx[i_PROC];
 
-        i = WaitForMultipleObjects(nCount, events, FALSE, INFINITE);
+        i = WaitForMultipleObjects(nCount, events, FALSE, bPipeOutReady ? 0 : INFINITE);
         if (PIPE_IN_IS_OPEN() && i == WAIT_OBJECT_0 + idx[i_PIPE_IN]) {
             /* Read from socket, write to process. */
 
@@ -493,7 +498,6 @@ static DWORD WINAPI subprocess_thread_func(void *data)
             ncat_assert(n == 0);
             /* Regardless of what event triggered, try to read. This simplifies
              * error handling. */
-            block_socket(info->fdn.fd);
             do {
                 n = ncat_recv(&info->fdn, buffer, sizeof(buffer), &pending);
                 if (n <= 0)
@@ -508,20 +512,33 @@ static DWORD WINAPI subprocess_thread_func(void *data)
                     PIPE_CLOSE(PIPE_IN);
                     break;
                 }
-                n_r = n;
-                if (WriteFile(info->child_in_w, buffer, n_r, &n_w, NULL) == 0
+                if (WriteFile(info->child_in_w, buffer, n, &n_w, NULL) == 0
                   || n_w != n)
                 {
                     PIPE_CLOSE(PIPE_IN);
                     break;
                 }
             } while (pending);
-            unblock_socket(info->fdn.fd);
         }
 
-        if (PIPE_OUT_IS_OPEN() && HasOverlappedIoCompleted(&overlap)) {
+        if (PIPE_OUT_IS_OPEN() && (bPipeOutReady || HasOverlappedIoCompleted(&overlap))) {
             /* Read from process, write to socket. */
-            if (GetOverlappedResult(info->child_out_r, &overlap, &n_r, FALSE)) {
+            if (!bPipeOutReady) {
+                if (!GetOverlappedResult(info->child_out_r, &overlap, &n_r, FALSE)) {
+                    /* Probably read result wasn't ready, but we got here because
+                     * there was data on the socket. */
+                    switch (GetLastError()) {
+                    case ERROR_IO_PENDING:
+                    case ERROR_IO_INCOMPLETE:
+                        break;
+                    default:
+                        /* Error or end of file. */
+                        PIPE_CLOSE(PIPE_OUT);
+                        break;
+                    }
+                    continue;
+                }
+            }
                 wbuf = pipe_buffer;
                 if (o.crlf) {
                     n = n_r;
@@ -538,20 +555,12 @@ static DWORD WINAPI subprocess_thread_func(void *data)
                   break;
                 }
                 /* Queue another asychronous read. */
-                ReadFile(info->child_out_r, pipe_buffer, sizeof(pipe_buffer), NULL, &overlap);
-            } else {
-                /* Probably read result wasn't ready, but we got here because
-                 * there was data on the socket. */
-                switch (GetLastError()) {
-                    case ERROR_IO_PENDING:
-                    case ERROR_IO_INCOMPLETE:
-                        break;
-                    default:
-                        /* Error or end of file. */
-                        PIPE_CLOSE(PIPE_OUT);
-                        break;
+                bPipeOutReady = ReadFile(info->child_out_r, pipe_buffer, sizeof(pipe_buffer), &n_r, &overlap);
+                if (!bPipeOutReady && ERROR_IO_PENDING != GetLastError()) {
+                    // Bad error; shut it down.
+                    PIPE_CLOSE(PIPE_OUT);
+                    break;
                 }
-            }
         }
         /* 'else if' because we need to finish all socket writes before
          * checking if child process died */
@@ -562,6 +571,7 @@ static DWORD WINAPI subprocess_thread_func(void *data)
             break;
         }
     }
+loop_end:
 
     if (PIPE_OUT_IS_OPEN()) {
       PIPE_CLOSE(PIPE_OUT);
