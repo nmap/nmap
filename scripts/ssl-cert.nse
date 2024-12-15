@@ -11,34 +11,44 @@ local unicode = require "unicode"
 local have_openssl, openssl = pcall(require, "openssl")
 
 description = [[
-Retrieves a server's SSL certificate. The amount of information printed
-about the certificate depends on the verbosity level. With no extra
-verbosity, the script prints the validity period and the commonName,
-organizationName, stateOrProvinceName, and countryName of the subject.
+Retrieves a server's SSL certificate. The amount of information printed about
+the certificate depends on the verbosity level. With no extra verbosity, the
+script prints the validity period and the commonName, organizationName,
+stateOrProvinceName, and countryName of the subject. When present, it also
+outputs all the subject alternative names.
 
 <code>
 443/tcp open  https
-| ssl-cert: Subject: commonName=www.paypal.com/organizationName=PayPal, Inc.\
+| ssl-cert: Subject: commonName=www.paypal.com/organizationName=PayPal, Inc.
 /stateOrProvinceName=California/countryName=US
-| Not valid before: 2011-03-23 00:00:00
-|_Not valid after:  2013-04-01 23:59:59
+| Subject Alternative Name: DNS:www.paypal.com, DNS:fastlane.paypal.com,
+DNS:secure.paypal.com, DNS:www-st.paypal.com, DNS:connect.paypal.com,
+...
+DNS:es.paypal-qrc.com, DNS:www.fastlane.paypal.com
+| Not valid before: 2024-02-08T00:00:00
+|_Not valid after:  2025-02-08T23:59:59
 </code>
 
 With <code>-v</code> it adds the issuer name and fingerprints.
 
 <code>
 443/tcp open  https
-| ssl-cert: Subject: commonName=www.paypal.com/organizationName=PayPal, Inc.\
+| ssl-cert: Subject: commonName=www.paypal.com/organizationName=PayPal, Inc.
 /stateOrProvinceName=California/countryName=US
-| Issuer: commonName=VeriSign Class 3 Extended Validation SSL CA\
-/organizationName=VeriSign, Inc./countryName=US
+| Subject Alternative Name: DNS:www.paypal.com, DNS:fastlane.paypal.com,
+DNS:secure.paypal.com, DNS:www-st.paypal.com, DNS:connect.paypal.com,
+...
+DNS:es.paypal-qrc.com, DNS:www.fastlane.paypal.com
+| Issuer: commonName=DigiCert SHA2 Extended Validation Server CA
+/organizationName=DigiCert Inc/countryName=US/organizationalUnitName=www.digicert.com
 | Public Key type: rsa
 | Public Key bits: 2048
-| Signature Algorithm: sha1WithRSAEncryption
-| Not valid before: 2011-03-23 00:00:00
-| Not valid after:  2013-04-01 23:59:59
-| MD5:   bf47 ceca d861 efa7 7d14 88ad 4a73 cb5b
-|_SHA-1: d846 5221 467a 0d15 3df0 9f2e af6d 4390 0213 9a68
+| Signature Algorithm: sha256WithRSAEncryption
+| Not valid before: 2024-02-08T00:00:00
+| Not valid after:  2025-02-08T23:59:59
+| MD5:     7cc7 a345 a164 dfb1 4690 0277 a540 f636
+| SHA-1:   9269 a100 8f61 aa60 1706 fc85 fd47 d277 66c0 f591
+|_SHA-256: d76b 791c e89c 043a c25d 19f3 97b2 91d5 5d94 b1c2 72df 8d1f 4bab fdc1 91a7 413b
 </code>
 
 With <code>-vv</code> it adds the PEM-encoded contents of the entire
@@ -46,25 +56,26 @@ certificate.
 
 <code>
 443/tcp open  https
-| ssl-cert: Subject: commonName=www.paypal.com/organizationName=PayPal, Inc.\
-/stateOrProvinceName=California/countryName=US/1.3.6.1.4.1.311.60.2.1.2=Delaware\
-/postalCode=95131-2021/localityName=San Jose/serialNumber=3014267\
-/streetAddress=2211 N 1st St/1.3.6.1.4.1.311.60.2.1.3=US\
-/organizationalUnitName=PayPal Production/businessCategory=Private Organization
-| Issuer: commonName=VeriSign Class 3 Extended Validation SSL CA\
-/organizationName=VeriSign, Inc./countryName=US\
-/organizationalUnitName=Terms of use at https://www.verisign.com/rpa (c)06
+| ssl-cert: Subject: commonName=www.paypal.com/organizationName=PayPal, Inc.
+/stateOrProvinceName=California/countryName=US
+| Subject Alternative Name: DNS:www.paypal.com, DNS:fastlane.paypal.com,
+DNS:secure.paypal.com, DNS:www-st.paypal.com, DNS:connect.paypal.com,
+...
+DNS:es.paypal-qrc.com, DNS:www.fastlane.paypal.com
+| Issuer: commonName=DigiCert SHA2 Extended Validation Server CA
+/organizationName=DigiCert Inc/countryName=US/organizationalUnitName=www.digicert.com
 | Public Key type: rsa
 | Public Key bits: 2048
-| Signature Algorithm: sha1WithRSAEncryption
-| Not valid before: 2011-03-23 00:00:00
-| Not valid after:  2013-04-01 23:59:59
-| MD5:   bf47 ceca d861 efa7 7d14 88ad 4a73 cb5b
-| SHA-1: d846 5221 467a 0d15 3df0 9f2e af6d 4390 0213 9a68
+| Signature Algorithm: sha256WithRSAEncryption
+| Not valid before: 2024-02-08T00:00:00
+| Not valid after:  2025-02-08T23:59:59
+| MD5:     7cc7 a345 a164 dfb1 4690 0277 a540 f636
+| SHA-1:   9269 a100 8f61 aa60 1706 fc85 fd47 d277 66c0 f591
+|_SHA-256: d76b 791c e89c 043a c25d 19f3 97b2 91d5 5d94 b1c2 72df 8d1f 4bab fdc1 91a7 413b
 | -----BEGIN CERTIFICATE-----
-| MIIGSzCCBTOgAwIBAgIQLjOHT2/i1B7T//819qTJGDANBgkqhkiG9w0BAQUFADCB
+| MIINmjCCDIKgAwIBAgIQDSuPFewZcdj2USYg2ZUIJzANBgkqhkiG9w0BAQsFADB1
 ...
-| 9YDR12XLZeQjO1uiunCsJkDIf9/5Mqpu57pw8v1QNA==
+| 6BlCzB65H3ngMIyKoeBQJyV9skuM/mHY/hUsQVIE
 |_-----END CERTIFICATE-----
 </code>
 ]]
@@ -74,51 +85,94 @@ certificate.
 --
 -- @output
 -- 443/tcp open  https
--- | ssl-cert: Subject: commonName=www.paypal.com/organizationName=PayPal, Inc.\
+-- | ssl-cert: Subject: commonName=www.paypal.com/organizationName=PayPal, Inc.
 -- /stateOrProvinceName=California/countryName=US
--- | Not valid before: 2011-03-23 00:00:00
--- |_Not valid after:  2013-04-01 23:59:59
+-- | Subject Alternative Name: DNS:www.paypal.com, DNS:fastlane.paypal.com,
+-- DNS:secure.paypal.com, DNS:www-st.paypal.com, DNS:connect.paypal.com,
+-- ...
+-- DNS:es.paypal-qrc.com, DNS:www.fastlane.paypal.com
+-- | Not valid before: 2024-02-08T00:00:00
+-- |_Not valid after:  2025-02-08T23:59:59
 --
 -- @xmloutput
 -- <table key="subject">
---   <elem key="1.3.6.1.4.1.311.60.2.1.2">Delaware</elem>
---   <elem key="1.3.6.1.4.1.311.60.2.1.3">US</elem>
---   <elem key="postalCode">95131-2021</elem>
---   <elem key="localityName">San Jose</elem>
---   <elem key="serialNumber">3014267</elem>
---   <elem key="countryName">US</elem>
---   <elem key="stateOrProvinceName">California</elem>
---   <elem key="streetAddress">2211 N 1st St</elem>
---   <elem key="organizationalUnitName">PayPal Production</elem>
---   <elem key="commonName">www.paypal.com</elem>
---   <elem key="organizationName">PayPal, Inc.</elem>
 --   <elem key="businessCategory">Private Organization</elem>
+--   <elem key="commonName">www.paypal.com</elem>
+--   <elem key="countryName">US</elem>
+--   <elem key="jurisdictionCountryName">US</elem>
+--   <elem key="jurisdictionStateOrProvinceName">Delaware</elem>
+--   <elem key="localityName">San Jose</elem>
+--   <elem key="organizationName">PayPal, Inc.</elem>
+--   <elem key="serialNumber">3014267</elem>
+--   <elem key="stateOrProvinceName">California</elem>
 -- </table>
 -- <table key="issuer">
---   <elem key="organizationalUnitName">Terms of use at https://www.verisign.com/rpa (c)06</elem>
---   <elem key="organizationName">VeriSign, Inc.</elem>
---   <elem key="commonName">VeriSign Class 3 Extended Validation SSL CA</elem>
+--   <elem key="commonName">DigiCert SHA2 Extended Validation Server CA</elem>
 --   <elem key="countryName">US</elem>
+--   <elem key="organizationName">DigiCert Inc</elem>
+--   <elem key="organizationalUnitName">www.digicert.com</elem>
 -- </table>
 -- <table key="pubkey">
 --   <elem key="type">rsa</elem>
 --   <elem key="bits">2048</elem>
---   <elem key="modulus">DF40CCF2C50A0D65....35B5927DF25D4DE5</elem>
+--   <elem key="modulus">DC8F8DADDF5E33F8...5A873998377D7DAF</elem>
 --   <elem key="exponent">65537</elem>
 -- </table>
--- <elem key="sig_algo">sha1WithRSAEncryption</elem>
--- <table key="validity">
---   <elem key="notBefore">2011-03-23T00:00:00+00:00</elem>
---   <elem key="notAfter">2013-04-01T23:59:59+00:00</elem>
+-- <table key="extensions">
+--   <table>
+--     <elem key="name">X509v3 Authority Key Identifier</elem>
+--     <elem key="value">3D:D3:50:A5:D6:A0:AD:EE:F3:4A:60:0A:65:D3:21:D4:F8:F8:D6:0F</elem>
+--   </table>
+--   <table>
+--     <elem key="name">X509v3 Subject Key Identifier</elem>
+--     <elem key="value">35:04:FA:12:18:AA:18:01:EC:C7:87:49:7A:02:77:98:7C:DF:BC:5F</elem>
+--   </table>
+--   <table>
+--     <elem key="name">X509v3 Subject Alternative Name</elem>
+--     <elem key="value">DNS:www.paypal.com, ..., DNS:www.fastlane.paypal.com</elem>
+--   </table>
+--   <table>
+--     <elem key="name">X509v3 Certificate Policies</elem>
+--     <elem key="value">Policy: 2.16.840.1.114412.2.1&#xa;Policy: 2.23.140.1.1&#xa;  CPS: http://www.digicert.com/CPS</elem>
+--   </table>
+--   <table>
+--     <elem key="name">X509v3 Key Usage</elem>
+--     <elem key="value">Digital Signature, Key Encipherment</elem>
+--     <elem key="critical">true</elem>
+--   </table>
+--   <table>
+--     <elem key="name">X509v3 Extended Key Usage</elem>
+--     <elem key="value">TLS Web Server Authentication, TLS Web Client Authentication</elem>
+--   </table>
+--   <table>
+--     <elem key="name">X509v3 CRL Distribution Points</elem>
+--     <elem key="value">Full Name:&#xa;  URI:http://crl3.digicert.com/sha2-ev-server-g3.crl&#xa;Full Name:&#xa;  URI:http://crl4.digicert.com/sha2-ev-server-g3.crl</elem>
+--   </table>
+--   <table>
+--     <elem key="name">Authority Information Access</elem>
+--     <elem key="value">OCSP - URI:http://ocsp.digicert.com&#xa;CA Issuers - URI:http://cacerts.digicert.com/DigiCertSHA2ExtendedValidationServerCA.crt</elem>
+--   </table>
+--   <table>
+--     <elem key="name">X509v3 Basic Constraints</elem>
+--     <elem key="value">CA:FALSE</elem>
+--     <elem key="critical">true</elem>
+--   </table>
+--   <table>
+--     <elem key="name">CT Precertificate SCTs</elem>
+--     <elem key="value">Signed Certificate Timestamp:... D:1C:0C:93:8C:6A:33:93</elem>
+--   </table>
 -- </table>
--- <elem key="md5">bf47cecad861efa77d1488ad4a73cb5b</elem>
--- <elem key="sha1">d8465221467a0d153df09f2eaf6d439002139a68</elem>
--- <elem key="pem">-----BEGIN CERTIFICATE-----
--- MIIGSzCCBTOgAwIBAgIQLjOHT2/i1B7T//819qTJGDANBgkqhkiG9w0BAQUFADCB
+-- <elem key="sig_algo">sha256WithRSAEncryption</elem>
+-- <table key="validity">
+--   <elem key="notBefore">2024-02-08T00:00:00</elem>
+--   <elem key="notAfter">2025-02-08T23:59:59</elem>
+-- </table>
+-- <elem key="md5">7cc7a345a164dfb146900277a540f636</elem>
+-- <elem key="sha1">9269a1008f61aa601706fc85fd47d27766c0f591</elem>
+-- <elem key="sha256">d76b791ce89c043ac25d19f397b291d55d94b1c272df8d1f4babfdc191a7413b</elem>
+-- <elem key="pem">-&#45;&#45;&#45;&#45;BEGIN CERTIFICATE-&#45;&#45;&#45;&#45;&#xa;MIINmjCC
 -- ...
--- 9YDR12XLZeQjO1uiunCsJkDIf9/5Mqpu57pw8v1QNA==
--- -----END CERTIFICATE-----
--- </elem>
+-- /hUsQVIE&#xa;-&#45;&#45;&#45;&#45;END CERTIFICATE-&#45;&#45;&#45;&#45;&#xa;</elem>
 
 author = "David Fifield"
 
@@ -258,6 +312,7 @@ local function output_tab(cert)
   end
   o.md5 = stdnse.tohex(cert:digest("md5"))
   o.sha1 = stdnse.tohex(cert:digest("sha1"))
+  o.sha256 = stdnse.tohex(cert:digest("sha256"))
   o.pem = cert.pem
   return o
 end
@@ -295,8 +350,9 @@ local function output_str(cert)
   date_to_string(cert.validity.notAfter)
 
   if nmap.verbosity() > 0 then
-    lines[#lines + 1] = "MD5:   " .. stdnse.tohex(cert:digest("md5"), { separator = " ", group = 4 })
-    lines[#lines + 1] = "SHA-1: " .. stdnse.tohex(cert:digest("sha1"), { separator = " ", group = 4 })
+    lines[#lines + 1] = "MD5:     " .. stdnse.tohex(cert:digest("md5"), { separator = " ", group = 4 })
+    lines[#lines + 1] = "SHA-1:   " .. stdnse.tohex(cert:digest("sha1"), { separator = " ", group = 4 })
+    lines[#lines + 1] = "SHA-256: " .. stdnse.tohex(cert:digest("sha256"), { separator = " ", group = 4 })
   end
 
   if nmap.verbosity() > 1 then
