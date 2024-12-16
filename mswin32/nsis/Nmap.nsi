@@ -70,6 +70,12 @@ SectionEnd
 
   OutFile ${STAGE_DIR_OEM}-setup.exe
   SetCompressor /SOLID /FINAL lzma
+!ifdef NMAP_OEM
+  ; OEM installer is less than 32MB uncompressed, so extra dict is wasted
+  SetCompressorDictSize 32
+!else
+  SetCompressorDictSize 64
+!endif
 
   ;Required for removing shortcuts
   RequestExecutionLevel admin
@@ -133,6 +139,7 @@ ReserveFile "shortcuts.ini"
 !endif
 ReserveFile "final.ini"
 !insertmacro MUI_RESERVEFILE_INSTALLOPTIONS
+ReserveFile /plugin "System.dll"
 
 ;--------------------------------
 ;Functions
@@ -186,13 +193,21 @@ FunctionEnd
 ;--------------------------------
 ;Installer Sections
 
-!insertmacro SanityCheckInstdir
-!insertmacro SecCoreFiles
-!insertmacro SecZenmapFiles
-!insertmacro SecNdiffFiles
-!insertmacro SecNcatFiles
-!insertmacro SecNpingFiles
+; These functions contain the actual File instructions, so their order
+; determines the order of files in the datablock. Grouping similar file types
+; (e.g. EXE vs text) results in better compression ratios.
+!insertmacro SecCoreFiles ""
+!insertmacro SecNcatFiles ""
+!insertmacro SecNpingFiles ""
+ReserveFile "${STAGE_DIR_OEM}\Uninstall.exe"
+ReserveFile "..\npcap-${NPCAP_VERSION}.exe"
+ReserveFile ..\${VCREDISTEXE}
+!ifndef NMAP_OEM
+!insertmacro SecZenmapFiles ""
+!insertmacro SecNdiffFiles ""
+!endif
 
+!insertmacro SanityCheckInstdir ""
 Section "Nmap Core Files" SecCore
   Call SanityCheckInstdir
   ;Delete specific subfolders (NB: custom scripts in scripts folder will be lost)
@@ -247,6 +262,22 @@ Section "Network Performance Improvements" SecPerfRegistryMods
   CopyFiles /SILENT "$PLUGINSDIR\nmap_performance.reg" "$INSTDIR"
 SectionEnd
 
+Section "Ncat (Modern Netcat reincarnation)" SecNcat
+  SetOutPath "$INSTDIR"
+  SetOverwrite on
+  Call SecNcatFiles
+  Call vcredistinstaller
+  Call create_uninstaller
+SectionEnd
+
+Section "Nping (Packet generator)" SecNping
+  SetOutPath "$INSTDIR"
+  SetOverwrite on
+  Call SecNpingFiles
+  Call vcredistinstaller
+  Call create_uninstaller
+SectionEnd
+
 !ifndef NMAP_OEM
 Section "Zenmap (GUI Frontend)" SecZenmap
   SetOutPath "$INSTDIR"
@@ -270,22 +301,6 @@ Section "Ndiff (Scan comparison tool)" SecNdiff
   Call create_uninstaller
 SectionEnd
 !endif
-
-Section "Ncat (Modern Netcat reincarnation)" SecNcat
-  SetOutPath "$INSTDIR"
-  SetOverwrite on
-  Call SecNcatFiles
-  Call vcredistinstaller
-  Call create_uninstaller
-SectionEnd
-
-Section "Nping (Packet generator)" SecNping
-  SetOutPath "$INSTDIR"
-  SetOverwrite on
-  Call SecNpingFiles
-  Call vcredistinstaller
-  Call create_uninstaller
-SectionEnd
 
 # Custom LogicLib test macro
 !macro _VCRedistInstalled _a _b _t _f
