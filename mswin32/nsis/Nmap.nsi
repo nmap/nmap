@@ -472,7 +472,7 @@ Function .onInit
   WriteRegStr HKLM "${NMAP_UNINSTALL_KEY}" "UninstallString" '"$0"'
   WriteRegStr HKLM "${NMAP_UNINSTALL_KEY}" "InstallLocation" $1
   ; For old uninstaller, we write this
-  WriteRegStr HKCU "Software\${NMAP_NAME}" $1
+  WriteRegStr HKCU "Software\${NMAP_NAME}" "" $1
   goto old_install
 !endif
   goto set_instdir
