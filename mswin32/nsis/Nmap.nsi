@@ -614,10 +614,12 @@ FunctionEnd
 
 !insertmacro SanityCheckInstdir "un."
 !insertmacro SecCoreFiles "un."
-!insertmacro SecZenmapFiles "un."
-!insertmacro SecNdiffFiles "un."
 !insertmacro SecNcatFiles "un."
 !insertmacro SecNpingFiles "un."
+!ifndef NMAP_OEM
+!insertmacro SecZenmapFiles "un."
+!insertmacro SecNdiffFiles "un."
+!endif
 
 Section "Uninstall"
 
@@ -637,10 +639,12 @@ Section "Uninstall"
 
   nmap_installed:
   Call un.SecCoreFiles
-  Call un.SecZenmapFiles
-  Call un.SecNdiffFiles
   Call un.SecNcatFiles
   Call un.SecNpingFiles
+!ifndef NMAP_OEM
+  Call un.SecZenmapFiles
+  Call un.SecNdiffFiles
+!endif
   Delete "$INSTDIR\nmap_performance.reg"
 
   Delete "$INSTDIR\Uninstall.exe"
