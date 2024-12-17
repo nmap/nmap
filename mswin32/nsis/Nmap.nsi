@@ -408,6 +408,45 @@ Function RunUninstaller
   System::Store L ; restore registers
 FunctionEnd
 
+; GH#2982: Nmap 7.95 OEM installer uses "Nmap" for NMAP_NAME, not "Nmap OEM"
+; We have to look for this specific problem and correct it.
+Function RepairBug2982
+  System::Store S ; stash registers
+  ; See what's installed as "Nmap"
+  ReadRegStr $0 HKLM "${REG_UNINSTALL_KEY}\Nmap" "UninstallString"
+  ; Nothing? Done.
+  StrCmp $0 "" repair_2982_done
+  ; Check product name on the uninstaller
+  !insertmacro stripQuotes $0
+  ${GetFileVersionProductName} $0 $3
+  ; If it's not "Nmap OEM" it's not a buggy install
+  StrCmp $3 "Nmap OEM" 0 repair_2982_done
+  ; Ok, it's a screwed-up install. We need to fix it up first.
+  ; Finish getting the old install info
+  ReadRegStr $2 HKLM "${REG_UNINSTALL_KEY}\Nmap" "DisplayVersion"
+  ${GetParent} $0 $1 ; Get InstallLocation from the path to Uninstall.exe
+  ; Rename the old install reg keys
+  ; winreg.h: #define HKEY_LOCAL_MACHINE (( HKEY ) (ULONG_PTR)((LONG)0x80000002) )
+  System::Call 'advapi32::RegRenameKey(p0x80000002, t"${REG_UNINSTALL_KEY}\Nmap", t"Nmap OEM") i.r3'
+  ${If} $3 <> 0
+	  ; Failed to rename!
+	  goto repair_2982_done
+  ${EndIf}
+  ; Change appropriate entries
+  WriteRegStr HKLM "${REG_UNINSTALL_KEY}\Nmap OEM" "DisplayName" "Nmap OEM $2"
+  WriteRegStr HKLM "${REG_UNINSTALL_KEY}\Nmap OEM" "InstallLocation" $1
+
+  ; winreg.h: #define HKEY_CURRENT_USER (( HKEY ) (ULONG_PTR)((LONG)0x80000001) )
+  System::Call 'advapi32::RegRenameKey(p0x80000001, t"SOFTWARE\Nmap", t"Nmap OEM") i.r3'
+  ${If} $3 <> 0
+	  ; Failed to rename!
+	  goto repair_2982_done
+  ${EndIf}
+ 
+  repair_2982_done:
+  System::Store L ; restore registers
+FunctionEnd
+
 Function .onInit
   ${GetParameters} $R0
   ; Make /S (silent install) case-insensitive
@@ -454,46 +493,16 @@ Function .onInit
   !insertmacro OptionDisableSection $R0 "/NCAT=" ${SecNcat}
   !insertmacro OptionDisableSection $R0 "/NPING=" ${SecNping}
 
+  Call RepairBug2982
+
   ; Check for existing install
-  ; $0 = old uninstall.exe path
-  ; $1 = old instdir
-  StrCpy $1 ""
-  ; $2 = old version
-  StrCpy $2 ""
   ; $3 = old product name
-  StrCpy $3 ""
+  StrCpy $3 "${NMAP_NAME}"
+  ; $0 = old uninstall.exe path
   ReadRegStr $0 HKLM "${NMAP_UNINSTALL_KEY}" "UninstallString"
-  StrCmp $0 "" 0 old_install
+  StrCmp $0 "" 0 set_instdir
 
-!ifdef NMAP_OEM
-  ; Work around weirdness with Nmap OEM 7.95 installer.
-  ; Since we didn't find an existing install, look for a non-OEM install:
-  ReadRegStr $0 HKLM "${REG_UNINSTALL_KEY}\Nmap" "UninstallString"
-  StrCmp $0 "" set_instdir
-  ; Ok, so what is actually installed there?
-  !insertmacro stripQuotes $0
-  ${GetFileVersionProductName} $0 $3
-  StrCmp $3 "${NMAP_NAME}" 0 set_instdir
-  ; Ok, it's a screwed-up install. We need to fix it up first.
-  ; Finish getting the old install info
-  ReadRegStr $2 HKLM "${REG_UNINSTALL_KEY}\Nmap" "DisplayVersion"
-  ${GetParent} $0 $1 ; Get InstallLocation from the path to Uninstall.exe
-  ; Remove the old install reg keys
-  DeleteRegKey HKCU "Software\Nmap"
-  DeleteRegKey HKLM "${REG_UNINSTALL_KEY}\Nmap"
-  ; Write info to the new appropriate place, to be overwritten later.
-  WriteRegStr HKLM "${NMAP_UNINSTALL_KEY}" "DisplayVersion" $2
-  WriteRegStr HKLM "${NMAP_UNINSTALL_KEY}" "DisplayName" "${NMAP_NAME} $2"
-  WriteRegStr HKLM "${NMAP_UNINSTALL_KEY}" "UninstallString" '"$0"'
-  WriteRegStr HKLM "${NMAP_UNINSTALL_KEY}" "InstallLocation" $1
-  ; For old uninstaller, we write this
-  WriteRegStr HKCU "Software\${NMAP_NAME}" "" $1
-  goto old_install
-!endif
-  goto set_instdir
-
-old_install:
-  StrCmp $1 "" 0 get_old_version
+  ; $1 = old instdir
   ; We want to use this location going forward:
   ReadRegStr $1 HKLM "${NMAP_UNINSTALL_KEY}" "InstallLocation"
   StrCmp $1 "" 0 get_old_version
@@ -505,8 +514,7 @@ old_install:
   ${GetParent} $0 $1
 
 get_old_version:
-  StrCpy $3 "${NMAP_NAME}"
-  StrCmp $2 "" 0 try_uninstall
+  ; $2 = old version
   ReadRegStr $2 HKLM "${NMAP_UNINSTALL_KEY}" "DisplayVersion"
   StrCmp $2 "" 0 try_uninstall
   StrCpy $2 "(unknown version)"
