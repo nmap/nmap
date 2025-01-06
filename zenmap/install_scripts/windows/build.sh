@@ -6,37 +6,13 @@ set -e
 export MSYS2_ARG_CONV_EXCL=""
 BUILDDIR=dist
 
-: << '#MULTILINE_COMMENT'
-# Setup environment
-pacman -S --needed git zip mingw-w64-x86_64-{python3,gcc,nsis,binutils}
-pacman -S --needed mingw-w64-x86_64-python3-pip
-git clone https://github.com/achadwick/styrene.git
-git apply <<EOF
-diff --git a/styrene/bundle.py b/styrene/bundle.py
-index 7f5155e..e5c31d3 100644
---- a/styrene/bundle.py
-+++ b/styrene/bundle.py
-@@ -446,7 +446,7 @@ class NativeBundle:
-             - (?P<version> [^-]+ - \d+ )
-             - any
-             [.]pkg[.]tar
--            (?: [.](?:gz|xz) )?
-+            (?: [.](?:gz|xz|zst) )?
-             $
-         '''
-         keyobj = functools.cmp_to_key(self._vercmp)
-EOF
-cd styrene
-pip3 install .
-#MULTILINE_COMMENT
-
 # make the zenmap package
 #makepkg-mingw -RdfL
 
 # make the minimal msys2 environment
 #styrene -p . -o "$BUILDDIR" styrene.cfg --no-exe --no-zip
 
-PYTHON_VER=3.11
+PYTHON_VER=$(python -c 'from sys import version_info as v;print("%d.%d"%v[0:2])')
 PACKAGEDIR=$BUILDDIR/zenmap-w64/mingw64
 PYTHON_SUBDIR=lib/python$PYTHON_VER
 PYTHONLIB=$PACKAGEDIR/$PYTHON_SUBDIR
