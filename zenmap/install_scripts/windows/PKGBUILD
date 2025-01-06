@@ -33,10 +33,11 @@ build() {
 
 package() {
 	cd "${NMAP_DIR}/zenmap"
+	whlver=$(${MINGW_PREFIX}/bin/python -c 'import zenmapCore.Version as V; print(V.VERSION.lower())')
 
 	MSYS2_ARG_CONV_EXCL="--prefix=" \
 		${MINGW_PREFIX}/bin/python -m installer --prefix=${MINGW_PREFIX} \
-		--destdir="${pkgdir}" dist/*.whl
+		--destdir="${pkgdir}" dist/zenmap-${whlver}*.whl
 
 	install -Dm644 install_scripts/unix/zenmap.desktop "${pkgdir}${MINGW_PREFIX}/share/applications/zenmap.desktop"
 }
