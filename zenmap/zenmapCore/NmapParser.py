@@ -72,6 +72,7 @@ from xml.sax import SAXException
 from xml.sax.handler import ContentHandler, EntityResolver
 from xml.sax.saxutils import XMLGenerator
 from xml.sax.xmlreader import AttributesImpl as Attributes
+from xml.sax.saxutils import escape
 
 import zenmapCore.I18N  # lgtm[py/unused-import]
 from zenmapCore.NmapOptions import NmapOptions, join_quoted
@@ -1067,45 +1068,55 @@ class NmapParserSAX(ParserBasics, ContentHandler):
         # End of Runstats element
         #########################
 
-    def _write_hosts(self, writer):
-        for host in self.hosts:
-            # Start host element
-            writer.startElement("host",
-                                Attributes(dict(comment=host.comment)))
+def _write_hosts(self, writer):
+    for host in self.hosts:
+        # Start host element
+        writer.startElement("host", Attributes(dict(comment=host.comment)))
 
-            # Status element
-            writer.startElement("status",
-                                Attributes(dict(state=host.state)))
-            writer.endElement("status")
+        # Status element
+        writer.startElement("status", Attributes(dict(state=host.state)))
+        writer.endElement("status")
 
-            ##################
-            # Address elements
-            ## IPv4
-            if host.ip is not None:
-                writer.startElement("address",
-                            Attributes(dict(addr=host.ip.get("addr", ""),
-                                        vendor=host.ip.get("vendor", ""),
-                                        addrtype=host.ip.get("type", ""))))
-                writer.endElement("address")
+        ##################
+        # Address elements
+        ## IPv4
+        if host.ip is not None:
+            writer.startElement("address",
+                        Attributes(dict(addr=escape(host.ip.get("addr", "")),
+                                        vendor=escape(host.ip.get("vendor", "")),
+                                        addrtype=escape(host.ip.get("type", "")))))
+            writer.endElement("address")
 
-            ## IPv6
-            if host.ipv6 is not None:
-                writer.startElement("address",
-                            Attributes(dict(addr=host.ipv6.get("addr", ""),
-                                        vendor=host.ipv6.get("vendor", ""),
-                                        addrtype=host.ipv6.get("type", ""))))
-                writer.endElement("address")
+        ## IPv6
+        if host.ipv6 is not None:
+            writer.startElement("address",
+                        Attributes(dict(addr=escape(host.ipv6.get("addr", "")),
+                                        vendor=escape(host.ipv6.get("vendor", "")),
+                                        addrtype=escape(host.ipv6.get("type", "")))))
+            writer.endElement("address")
 
-            ## MAC
-            if host.mac is not None:
-                writer.startElement("address",
-                            Attributes(dict(addr=host.mac.get("addr", ""),
-                                        vendor=host.mac.get("vendor", ""),
-                                        addrtype=host.mac.get("type", ""))))
-                writer.endElement("address")
-            # End of Address elements
-            #########################
+        ## MAC
+        if host.mac is not None:
+            writer.startElement("address",
+                        Attributes(dict(addr=escape(host.mac.get("addr", "")),
+                                        vendor=escape(host.mac.get("vendor", "")),
+                                        addrtype=escape(host.mac.get("type", "")))))
+            writer.endElement("address")
+        # End of Address elements
+        #########################
 
+        ###################
+        # Hostnames element
+        writer.startElement("hostnames", Attributes({}))
+
+        for hname in host.hostnames:
+            writer.startElement("hostname",
+                    Attributes(dict(name=escape(hname.get("hostname", "")),
+                                type=escape(hname.get("hostname_type", "")))))
+
+            writer.endElement("hostname")
+
+        writer.endElement("hostnames")
             ###################
             # Hostnames element
             writer.startElement("hostnames", Attributes({}))
