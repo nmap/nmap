@@ -137,21 +137,6 @@ void returnhost(HostGroupState *hs) {
   hs->next_batch_no--;
 }
 
-/* Is the host passed as Target to be excluded? Much of this logic had
-   to be rewritten from wam's original code to allow for the objects */
-static int hostInExclude(struct sockaddr *checksock, size_t checksocklen,
-                  const struct addrset *exclude_group) {
-  if (exclude_group == NULL)
-    return 0;
-
-  if (checksock == NULL)
-    return 0;
-
-  if (addrset_contains(exclude_group,checksock))
-    return 1;
-  return 0;
-}
-
 /* Load an exclude list from a file for --excludefile. */
 int load_exclude_file(struct addrset *excludelist, FILE *fp) {
   char host_spec[1024];
@@ -430,7 +415,7 @@ bool HostGroupState::get_next_host(struct sockaddr_storage *ss, size_t *sslen, s
       }
     }
     /* Check exclude list. */
-    if (!hostInExclude((struct sockaddr *) ss, *sslen, exclude_group)) {
+    if (!addrset_contains(exclude_group, (const struct sockaddr *) ss)) {
       current_group.reject_last_host();
       break;
     }

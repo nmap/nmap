@@ -1771,7 +1771,7 @@ void  apply_delayed_options() {
         while (i--) {
           do {
             ((struct sockaddr_in *)&o.decoys[o.numdecoys])->sin_addr.s_addr = get_random_u32();
-          } while (ip_is_reserved(&((struct sockaddr_in *)&o.decoys[o.numdecoys])->sin_addr));
+          } while (ip_is_reserved(&o.decoys[o.numdecoys]));
           o.numdecoys++;
         }
       } else {
