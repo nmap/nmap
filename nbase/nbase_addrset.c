@@ -442,11 +442,11 @@ static void trie_insert (struct trie_node *this, const struct sockaddr *sa, int 
   u32 addr[4] = {0};
   u32 mask[4] = {0};
   if (!sockaddr_to_addr(sa, addr)) {
-    log_debug("Unknown address family %u, address not inserted.\n", sa->sa_family);
+    log_debug("Unknown address family %u, address not inserted.", sa->sa_family);
     return;
   }
   if (!sockaddr_to_mask(sa, bits, mask)) {
-    log_debug("Bad netmask length %d for address family %u, address not inserted.\n", bits, sa->sa_family);
+    log_debug("Bad netmask length %d for address family %u, address not inserted.", bits, sa->sa_family);
     return;
   }
   /* First node doesn't have a mask or address of its own; we have to check the
@@ -497,7 +497,7 @@ static int trie_match (const struct trie_node *this, const struct sockaddr *sa)
 {
   u32 addr[4] = {0};
   if (!sockaddr_to_addr(sa, addr)) {
-    log_debug("Unknown address family %u, cannot match.\n", sa->sa_family);
+    log_debug("Unknown address family %u, cannot match.", sa->sa_family);
     return 0;
   }
   /* Manually check first bit to decide which branch to match against */
@@ -620,7 +620,7 @@ int addrset_add_spec(struct addrset *set, const char *spec, int af, int dns)
         errno = 0;
         netmask_bits = parse_long(netmask_s, &tail);
         if (errno != 0 || *tail != '\0' || tail == netmask_s) {
-            log_user("Error parsing netmask in \"%s\".\n", spec);
+            log_user("Error parsing netmask in \"%s\".", spec);
             free(local_spec);
             return 0;
         }
@@ -637,14 +637,14 @@ int addrset_add_spec(struct addrset *set, const char *spec, int af, int dns)
           || (addr->ai_family == AF_INET6 && netmask_bits > 128)
 #endif
           ) {
-          log_user("Illegal netmask in \"%s\". Must be smaller than address bit length.\n", spec);
+          log_user("Illegal netmask in \"%s\". Must be smaller than address bit length.", spec);
           free(local_spec);
           freeaddrinfo(addrs);
           return 0;
         }
         address_to_string(addr->ai_addr, addr->ai_addrlen, addr_string, sizeof(addr_string));
         trie_insert(set->trie, addr->ai_addr, netmask_bits);
-        log_debug("Add IP %s/%d to addrset (trie).\n", addr_string, netmask_bits);
+        log_debug("Add IP %s/%d to addrset (trie).", addr_string, netmask_bits);
       }
       free(local_spec);
       freeaddrinfo(addrs);
@@ -657,13 +657,13 @@ int addrset_add_spec(struct addrset *set, const char *spec, int af, int dns)
     /* Check if this is an IPv4 address, with optional ranges and wildcards. */
     if (parse_ipv4_ranges(elem, local_spec)) {
         if (netmask_bits > 32) {
-            log_user("Illegal netmask in \"%s\". Must be between 0 and 32.\n", spec);
+            log_user("Illegal netmask in \"%s\". Must be between 0 and 32.", spec);
             free(local_spec);
             free(elem);
             return 0;
         }
         apply_ipv4_netmask_bits(elem, netmask_bits);
-        log_debug("Add IPv4 range %s/%ld to addrset.\n", local_spec, netmask_bits > 0 ? netmask_bits : 32);
+        log_debug("Add IPv4 range %s/%ld to addrset.", local_spec, netmask_bits > 0 ? netmask_bits : 32);
         elem->next = set->head;
         set->head = elem;
         free(local_spec);
@@ -675,12 +675,12 @@ int addrset_add_spec(struct addrset *set, const char *spec, int af, int dns)
     /* When all else fails, resolve the name. */
     rc = resolve_name(local_spec, &addrs, af, dns);
     if (rc != 0) {
-        log_user("Error resolving name \"%s\": %s\n", local_spec, gai_strerror(rc));
+        log_user("Error resolving name \"%s\": %s", local_spec, gai_strerror(rc));
         free(local_spec);
         return 0;
     }
     if (addrs == NULL)
-        log_user("Warning: no addresses found for %s.\n", local_spec);
+        log_user("Warning: no addresses found for %s.", local_spec);
     free(local_spec);
 
     /* Walk the list of addresses and add them all to the set with netmasks. */
@@ -698,23 +698,23 @@ int addrset_add_spec(struct addrset *set, const char *spec, int af, int dns)
         if (addr->ai_family == AF_INET) {
 
             if (netmask_bits > 32) {
-                log_user("Illegal netmask in \"%s\". Must be between 0 and 32.\n", spec);
+                log_user("Illegal netmask in \"%s\". Must be between 0 and 32.", spec);
                 freeaddrinfo(addrs);
                 return 0;
             }
-            log_debug("Add IPv4 %s/%ld to addrset (trie).\n", addr_string, netmask_bits > 0 ? netmask_bits : 32);
+            log_debug("Add IPv4 %s/%ld to addrset (trie).", addr_string, netmask_bits > 0 ? netmask_bits : 32);
 
 #ifdef HAVE_IPV6
         } else if (addr->ai_family == AF_INET6) {
             if (netmask_bits > 128) {
-                log_user("Illegal netmask in \"%s\". Must be between 0 and 128.\n", spec);
+                log_user("Illegal netmask in \"%s\". Must be between 0 and 128.", spec);
                 freeaddrinfo(addrs);
                 return 0;
             }
-            log_debug("Add IPv6 %s/%ld to addrset (trie).\n", addr_string, netmask_bits > 0 ? netmask_bits : 128);
+            log_debug("Add IPv6 %s/%ld to addrset (trie).", addr_string, netmask_bits > 0 ? netmask_bits : 128);
 #endif
         } else {
-            log_debug("ignoring address %s for %s. Family %d socktype %d protocol %d.\n", addr_string, spec, addr->ai_family, addr->ai_socktype, addr->ai_protocol);
+            log_debug("ignoring address %s for %s. Family %d socktype %d protocol %d.", addr_string, spec, addr->ai_family, addr->ai_socktype, addr->ai_protocol);
             continue;
         }
 
@@ -751,7 +751,7 @@ int addrset_add_file(struct addrset *set, FILE *fd, int af, int dns)
             if (i + 1 > sizeof(buf) - 1) {
                 /* Truncate the specification to give a little context. */
                 buf[11] = '\0';
-                log_user("Host specification starting with \"%s\" is too long.\n", buf);
+                log_user("Host specification starting with \"%s\" is too long.", buf);
                 return 0;
             }
             buf[i++] = c;
