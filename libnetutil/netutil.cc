@@ -431,10 +431,10 @@ int ip_is_reserved(const struct sockaddr_storage *addr)
     reserved = addrset_new();
 
     // https://www.iana.org/assignments/iana-ipv4-special-registry/iana-ipv4-special-registry.xhtml
-    addrset_add_spec(reserved, "0/8", AF_INET, 0);
-    addrset_add_spec(reserved, "10/8", AF_INET, 0);
+    addrset_add_spec(reserved, "0.0.0.0/8", AF_INET, 0);
+    addrset_add_spec(reserved, "10.0.0.0/8", AF_INET, 0);
     addrset_add_spec(reserved, "100.64.0.0/10", AF_INET, 0);
-    addrset_add_spec(reserved, "127/8", AF_INET, 0);
+    addrset_add_spec(reserved, "127.0.0.0/8", AF_INET, 0);
     addrset_add_spec(reserved, "169.254.0.0/16", AF_INET, 0);
     addrset_add_spec(reserved, "172.16.0.0/12", AF_INET, 0);
     addrset_add_spec(reserved, "192.0.0.0/24", AF_INET, 0);
@@ -445,7 +445,7 @@ int ip_is_reserved(const struct sockaddr_storage *addr)
     addrset_add_spec(reserved, "198.18.0.0/15", AF_INET, 0);
     addrset_add_spec(reserved, "198.51.100.0/24", AF_INET, 0);
     addrset_add_spec(reserved, "203.0.113.0/24", AF_INET, 0);
-    addrset_add_spec(reserved, "240/4", AF_INET, 0);
+    addrset_add_spec(reserved, "240.0.0.0/4", AF_INET, 0);
     addrset_add_spec(reserved, "255.255.255.255", AF_INET, 0);
 
     // https://www.iana.org/assignments/iana-ipv6-special-registry/iana-ipv6-special-registry.xhtml
