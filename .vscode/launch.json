@@ -3,7 +3,20 @@
         "command": "npm start",
         "name": "Run npm start",
         "request": "launch",
-        "type": "node-terminal"
-    }
-    
+        "type": "node-terminal",
+        "configurations": [
+            {
+                "command": "npm start",
+                "name": "Run npm start",
+                "request": "launch",
+                "type": "node-terminal"
+            },
+            {
+                "name": "Launch Edge",
+                "request": "launch",
+                "type": "msedge",
+                "url": "http://localhost:8080",
+                "webRoot": "${workspaceFolder}"
+            }
+
    
