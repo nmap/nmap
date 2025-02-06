@@ -82,7 +82,7 @@ static int mksock_bind_addr(struct npool *ms, struct niod *iod) {
                     get_localaddr_string(iod), iod->id,
                     socket_strerror(err), err);
   }
-  return 0;
+  return rc;
 }
 
 static int mksock_set_ipopts(struct npool *ms, struct niod *iod) {
@@ -97,7 +97,7 @@ static int mksock_set_ipopts(struct npool *ms, struct niod *iod) {
     nsock_log_error("Setting of IP options failed (IOD #%li): %s (%d)",
                     iod->id, socket_strerror(err), err);
   }
-  return 0;
+  return rc;
 }
 
 static int mksock_bind_device(struct npool *ms, struct niod *iod) {
@@ -114,7 +114,7 @@ static int mksock_bind_device(struct npool *ms, struct niod *iod) {
       nsock_log_debug_all("Setting of SO_BINDTODEVICE failed (IOD #%li): %s (%d)",
                           iod->id, socket_strerror(err), err);
   }
-  return 0;
+  return rc;
 }
 
 static int mksock_set_broadcast(struct npool *ms, struct niod *iod) {
@@ -129,7 +129,7 @@ static int mksock_set_broadcast(struct npool *ms, struct niod *iod) {
     nsock_log_error("Setting of SO_BROADCAST failed (IOD #%li): %s (%d)",
                     iod->id, socket_strerror(err), err);
   }
-  return 0;
+  return rc;
 }
 /* Create the actual socket (nse->iod->sd) underlying the iod. This unblocks the
  * socket, binds to the localaddr address, sets IP options, and sets the
@@ -149,20 +149,18 @@ static int nsock_make_socket(struct npool *ms, struct niod *iod, int family, int
 
   iod->lastproto = proto;
 
-  if (iod->locallen)
-    mksock_bind_addr(ms, iod);
+  if (iod->locallen && mksock_bind_addr(ms, iod) != 0)
+    return -1;
 
-  if (iod->ipoptslen && family == AF_INET)
-    mksock_set_ipopts(ms, iod);
+  if (iod->ipoptslen && family == AF_INET && mksock_set_ipopts(ms, iod) != 0)
+    return -1;
 
-  if (ms->device)
-    mksock_bind_device(ms, iod);
+  if (ms->device && !mksock_bind_device(ms, iod))
+    return -1;
 
-  if (ms->broadcast && type != SOCK_STREAM)
-    mksock_set_broadcast(ms, iod);
+  if (ms->broadcast && type != SOCK_STREAM && mksock_set_broadcast(ms, iod) != 0)
+    return -1;
 
-  /* mksock_* functions can raise warnings/errors
-   * but we don't let them stop us for now. */
   return iod->sd;
 }
 
