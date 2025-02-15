@@ -422,64 +422,56 @@ int resolve_numeric(const char *ip, unsigned short port,
  * <http://www.cymru.com/Documents/bogon-bn-nonagg.txt> for bogon
  * netblocks.
  */
-int ip_is_reserved(struct in_addr *ip)
+int ip_is_reserved(const struct sockaddr_storage *addr)
 {
-  char *ipc = (char *) &(ip->s_addr);
-  unsigned char i1 = ipc[0], i2 = ipc[1], i3 = ipc[2]; /* i4 not currently used - , i4 = ipc[3]; */
+  static struct addrset *reserved = NULL;
+  assert(addr);
 
-  /* do all the /7's and /8's with a big switch statement, hopefully the
-   * compiler will be able to optimize this a little better using a jump table
-   * or what have you
-   */
-  switch (i1)
-    {
-    case 0:         /* 000/8 is IANA reserved       */
-    case 10:        /* the infamous 10.0.0.0/8      */
-    case 127:       /* 127/8 is reserved for loopback */
-      return 1;
-    default:
-      break;
-    }
+  if (reserved == NULL) {
+    reserved = addrset_new();
 
-  /* 172.16.0.0/12 is reserved for private nets by RFC1918 */
-  if (i1 == 172 && i2 >= 16 && i2 <= 31)
-    return 1;
+    // https://www.iana.org/assignments/iana-ipv4-special-registry/iana-ipv4-special-registry.xhtml
+    addrset_add_spec(reserved, "0.0.0.0/8", AF_INET, 0);
+    addrset_add_spec(reserved, "10.0.0.0/8", AF_INET, 0);
+    addrset_add_spec(reserved, "100.64.0.0/10", AF_INET, 0);
+    addrset_add_spec(reserved, "127.0.0.0/8", AF_INET, 0);
+    addrset_add_spec(reserved, "169.254.0.0/16", AF_INET, 0);
+    addrset_add_spec(reserved, "172.16.0.0/12", AF_INET, 0);
+    addrset_add_spec(reserved, "192.0.0.0/24", AF_INET, 0);
+    //addrset_add_spec(exceptions, "192.0.0.9", AF_INET, 0);
+    //addrset_add_spec(exceptions, "192.0.0.10", AF_INET, 0);
+    addrset_add_spec(reserved, "192.0.2.0/24", AF_INET, 0);
+    addrset_add_spec(reserved, "192.168.0.0/16", AF_INET, 0);
+    addrset_add_spec(reserved, "198.18.0.0/15", AF_INET, 0);
+    addrset_add_spec(reserved, "198.51.100.0/24", AF_INET, 0);
+    addrset_add_spec(reserved, "203.0.113.0/24", AF_INET, 0);
+    addrset_add_spec(reserved, "240.0.0.0/4", AF_INET, 0);
+    addrset_add_spec(reserved, "255.255.255.255", AF_INET, 0);
 
-  /* 192.0.2.0/24 is reserved for documentation and examples (RFC5737) */
-  /* 192.88.99.0/24 is used as 6to4 Relay anycast prefix by RFC3068 */
-  /* 192.168.0.0/16 is reserved for private nets by RFC1918 */
-  if (i1 == 192) {
-    if (i2 == 0 && i3 == 2)
-      return 1;
-    if (i2 == 88 && i3 == 99)
-      return 1;
-    if (i2 == 168)
-      return 1;
+    // https://www.iana.org/assignments/iana-ipv6-special-registry/iana-ipv6-special-registry.xhtml
+    addrset_add_spec(reserved, "::1", AF_INET6, 0);
+    addrset_add_spec(reserved, "::", AF_INET6, 0);
+    addrset_add_spec(reserved, "::ffff:0:0/96", AF_INET6, 0);
+    addrset_add_spec(reserved, "64:ff9b:1::/48", AF_INET6, 0);
+    addrset_add_spec(reserved, "100::/64", AF_INET6, 0);
+    addrset_add_spec(reserved, "100::/64", AF_INET6, 0);
+    addrset_add_spec(reserved, "2001::/23", AF_INET6, 0);
+    //addrset_add_spec(exceptions, "2001:1::1", AF_INET6, 0);
+    //addrset_add_spec(exceptions, "2001:1::2", AF_INET6, 0);
+    //addrset_add_spec(exceptions, "2001:1::3", AF_INET6, 0);
+    //addrset_add_spec(exceptions, "2001:3::/32", AF_INET6, 0);
+    //addrset_add_spec(exceptions, "2001:4:112::/48", AF_INET6, 0);
+    //addrset_add_spec(exceptions, "2001:20::/28", AF_INET6, 0);
+    //addrset_add_spec(exceptions, "2001:30::/28", AF_INET6, 0);
+    addrset_add_spec(reserved, "2001:db8::/32", AF_INET6, 0);
+    addrset_add_spec(reserved, "2002::/16", AF_INET6, 0);
+    addrset_add_spec(reserved, "3fff::/20", AF_INET6, 0);
+    addrset_add_spec(reserved, "5f00::/16", AF_INET6, 0);
+    addrset_add_spec(reserved, "fc00::/7", AF_INET6, 0);
+    addrset_add_spec(reserved, "fe80::/10", AF_INET6, 0);
   }
 
-  /* 198.18.0.0/15 is used for benchmark tests by RFC2544 */
-  /* 198.51.100.0/24 is reserved for documentation (RFC5737) */
-  if (i1 == 198) {
-    if (i2 == 18 || i2 == 19)
-      return 1;
-    if (i2 == 51 && i3 == 100)
-      return 1;
-  }
-
-  /* 169.254.0.0/16 is reserved for DHCP clients seeking addresses - RFC3927 */
-  if (i1 == 169 && i2 == 254)
-    return 1;
-
-  /* 203.0.113.0/24 is reserved for documentation (RFC5737) */
-  if (i1 == 203 && i2 == 0 && i3 == 113)
-    return 1;
-
-  /* 224-239/8 is all multicast stuff */
-  /* 240-255/8 is IANA reserved */
-  if (i1 >= 224)
-    return 1;
-
-  return 0;
+  return addrset_contains(reserved, (struct sockaddr *)addr);
 }
 
 /* A trivial functon that maintains a cache of IP to MAC Address
@@ -1756,47 +1748,6 @@ int islocalhost(const struct sockaddr_storage *ss) {
 
   /* OK, so to a first approximation, this addy is probably not
      localhost */
-  return 0;
-}
-
-
-/* Determines whether the supplied address corresponds to a private,
- * non-Internet-routable address. See RFC1918 for details.
- *
- * Also checks for link-local addressing per RFC3927.
- *
- * Returns 1 if the address is private or 0 otherwise. */
-int isipprivate(const struct sockaddr_storage *addr) {
-  const struct sockaddr_in *sin;
-  char *ipc;
-  unsigned char i1, i2;
-
-  if (!addr)
-    return 0;
-  if (addr->ss_family != AF_INET)
-    return 0;
-  sin = (struct sockaddr_in *) addr;
-
-  ipc = (char *) &(sin->sin_addr.s_addr);
-  i1 = ipc[0];
-  i2 = ipc[1];
-
-  /* 10.0.0.0/8 */
-  if (i1 == 10)
-    return 1;
-
-  /* 172.16.0.0/12 */
-  if (i1 == 172 && i2 >= 16 && i2 <= 31)
-    return 1;
-
-  /* 169.254.0.0/16 - RFC 3927 */
-  if (i1 == 169 && i2 == 254)
-    return 1;
-
-  /* 192.168.0.0/16 */
-  if (i1 == 192 && i2 == 168)
-    return 1;
-
   return 0;
 }
 

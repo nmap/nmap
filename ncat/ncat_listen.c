@@ -629,7 +629,7 @@ static void close_fd(struct fdinfo *fdn, int eof) {
         logdebug("Closing connection.\n");
 #ifdef HAVE_OPENSSL
     if (o.ssl && fdn->ssl) {
-        if (eof)
+        if (eof && !o.noshutdown)
             SSL_shutdown(fdn->ssl);
         SSL_free(fdn->ssl);
     }

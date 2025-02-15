@@ -165,7 +165,8 @@ int resolve_numeric(const char *ip, unsigned short port,
  * <http://www.cymru.com/Documents/bogon-bn-nonagg.txt> for bogon
  * netblocks.
  */
-int ip_is_reserved(struct in_addr *ip);
+int ip_is_reserved(const struct sockaddr_storage *addr);
+
 
 
 /* A couple of trivial functions that maintain a cache of IP to MAC
@@ -370,12 +371,6 @@ struct sys_route *getsysroutes(int *howmany, char *errstr, size_t errstrlen);
  * matches one of the local network interfaces' address, etc).
  * Returns 1 if the address is thought to be localhost and 0 otherwise */
 int islocalhost(const struct sockaddr_storage *ss);
-
-/* Determines whether the supplied address corresponds to a private,
- * non-Internet-routable address. See RFC1918 for details.
- * Also checks for link-local addresses per RFC3927.
- * Returns 1 if the address is private or 0 otherwise. */
-int isipprivate(const struct sockaddr_storage *addr);
 
 /* Takes binary data found in the IP Options field of an IPv4 packet
  * and returns a string containing an ASCII description of the options

@@ -374,7 +374,7 @@ bool NetBlockRandomIPv4::next(struct sockaddr_storage *ss, size_t *sslen) {
   }
   do {
     base.sin_addr.s_addr = get_random_unique_u32();
-  } while (ip_is_reserved(&base.sin_addr));
+  } while (ip_is_reserved((const struct sockaddr_storage *)&base));
   memcpy(ss, &base, sizeof(base));
   *sslen = sizeof(base);
   return true;

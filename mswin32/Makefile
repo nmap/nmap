@@ -12,10 +12,12 @@ NSE_FILES = $(NMAPDIR)/scripts/script.db $(NMAPDIR)/scripts/*.nse
 NMAP_MSWIN32_AUX = $(NMAPDIR)/../nmap-mswin32-aux
 SIGNTOOL_ARGS = sign /a /n "Insecure.Com LLC" /tr http://timestamp.digicert.com /td sha256 /fd sha256
 NSIS_COMMON_ARGS = "/DVERSION=$(NMAP_VERSION)" "/DNUM_VERSION=$(NMAP_NUM_VERSION)" "/DNPCAP_VERSION=$(NPCAP_VERSION)"
+NSIS_OEM_ARGS = "/DNMAP_NAME=$(NMAP_OEM_NAME)" "/DNMAP_OEM=1"
+NSIS_STD_ARGS = "/DNMAP_NAME=$(NMAP_NAME)"
 ifdef OEM_SUFFIX
-NSIS_COMMON_ARGS += "/DNMAP_NAME=$(NMAP_OEM_NAME)" "/DNMAP_OEM=1"
+NSIS_ARGS = $(NSIS_COMMON_ARGS) $(NSIS_OEM_ARGS)
 else
-NSIS_COMMON_ARGS += "/DNMAP_NAME=$(NMAP_NAME)"
+NSIS_ARGS = $(NSIS_COMMON_ARGS) $(NSIS_STD_ARGS)
 endif
 
 
@@ -83,7 +85,7 @@ stage-nmap-oem:
 
 nmap-$(NMAP_VERSION)${OEM_SUFFIX}/Uninstall.exe: nsis/Nmap.nsi
 	mkdir -p nmap-$(NMAP_VERSION)${OEM_SUFFIX}
-	"$(MAKENSIS)" /DINNER $(NSIS_COMMON_ARGS) nsis/Nmap.nsi
+	"$(MAKENSIS)" /DINNER $(NSIS_ARGS) nsis/Nmap.nsi
 	nmap-$(NMAP_VERSION)${OEM_SUFFIX}/tempinstaller.exe || test $$? -eq 2
 	rm nmap-$(NMAP_VERSION)${OEM_SUFFIX}/tempinstaller.exe
 
@@ -96,8 +98,8 @@ sign-files: nmap-$(NMAP_VERSION)-oem/nmap.exe nmap-$(NMAP_VERSION)/nmap.exe nmap
 	touch sign-files
 
 bundle-nsis: sign-files
-	"$(MAKENSIS)" $(NSIS_COMMON_ARGS) "/DNMAP_NAME=$(NMAP_NAME)" nsis/Nmap.nsi
-	"$(MAKENSIS)" $(NSIS_COMMON_ARGS) "/DNMAP_NAME=$(NMAP_OEM_NAME)" "/DNMAP_OEM=1" nsis/Nmap.nsi
+	"$(MAKENSIS)" $(NSIS_COMMON_ARGS) $(NSIS_STD_ARGS) nsis/Nmap.nsi
+	"$(MAKENSIS)" $(NSIS_COMMON_ARGS) $(NSIS_OEM_ARGS) nsis/Nmap.nsi
 	"$(SIGNTOOL)" $(SIGNTOOL_ARGS) nmap-$(NMAP_VERSION)-setup.exe nmap-$(NMAP_VERSION)-oem-setup.exe
 
 bundle-zip: bundle-zip-oem

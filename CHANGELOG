@@ -1,5 +1,8 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [Nping] Bind raw socket to device when possible. This was already done for
+  IPv6, but was needed for IPv4 L3 tunnels. [ValdikSS]
+
 o [Ncat] Ncat in connect mode no longer defaults to half-closed TCP
   connections. This makes it more compatible with other netcats. The -k option
   will enable the old behavior. See https://seclists.org/nmap-dev/2013/q1/188

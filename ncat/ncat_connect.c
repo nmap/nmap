@@ -1220,7 +1220,7 @@ static void post_connect(nsock_pool nsp, nsock_iod iod)
 {
     /* Command to execute. */
     if (o.cmdexec) {
-        struct fdinfo info;
+        struct fdinfo info = { 0 };
 
         info.fd = nsock_iod_get_sd(iod);
 #ifdef HAVE_OPENSSL
