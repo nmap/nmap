@@ -589,6 +589,7 @@ Entry { filename = "url-snarf.nse", categories = { "safe", } }
 Entry { filename = "ventrilo-info.nse", categories = { "default", "discovery", "safe", "version", } }
 Entry { filename = "versant-info.nse", categories = { "discovery", "safe", } }
 Entry { filename = "vmauthd-brute.nse", categories = { "brute", "intrusive", } }
+Entry { filename = "vmware-svrloc-vulns.nse", categories = { "default", "safe", "version", "vuln", } }
 Entry { filename = "vmware-version.nse", categories = { "discovery", "safe", "version", } }
 Entry { filename = "vnc-brute.nse", categories = { "brute", "intrusive", } }
 Entry { filename = "vnc-info.nse", categories = { "default", "discovery", "safe", } }
