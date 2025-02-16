@@ -70,7 +70,7 @@ static const int MAX_REQUEST_LINE_LENGTH = 1024;
 static const int MAX_STATUS_LINE_LENGTH = 1024;
 static const int MAX_HEADER_LENGTH = 1024 * 10;
 
-void socket_buffer_init(struct socket_buffer *buf, int sd)
+int socket_buffer_init(struct socket_buffer *buf, int sd)
 {
     buf->fdn.fd = sd;
 #ifdef HAVE_OPENSSL
@@ -78,6 +78,15 @@ void socket_buffer_init(struct socket_buffer *buf, int sd)
 #endif
     buf->p = buf->buffer;
     buf->end = buf->p;
+    if (o.idletimeout > 0) {
+        struct timeval tv;
+        ms_to_timeval(&tv, o.idletimeout);
+        if (setsockopt(buf->fdn.fd, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(struct timeval)) == -1)
+            return -1;
+        if (setsockopt(buf->fdn.fd, SOL_SOCKET, SO_SNDTIMEO, &tv, sizeof(struct timeval)) == -1)
+            return -1;
+    }
+    return 0;
 }
 
 /* Read from a stateful socket buffer. If there is any data in the buffer it is
