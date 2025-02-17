@@ -99,8 +99,10 @@ o Improved the OS detection engine by using a new source port for each retry.
 
 o Several profile-guided optimizations of the port scan engine. [Daniel Miller]
 
-o Upgraded included libraries: Lua 5.4.6, libpcre2 10.43, zlib 1.3.1, libssh2
-  1.11.0, liblinear 2.47
+o Upgraded from libpcre 7.6 to libpcre2 10.43.
+
+o Upgraded included libraries: Lua 5.4.6,zlib 1.3.1, libssh2 1.11.0, and
+  liblinear 2.47
 
 o [GH#2639] Upgraded OpenSSL binaries (for the Windows builds and for RPMs)
   to version 3.0.13. This addresses various OpenSSL vulnerabilities which
