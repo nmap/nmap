@@ -17112,3 +17112,10 @@ ports 34555
 Probe UDP BECKHOFF_ADS q|\x03\x66\x14\x71\0\0\0\0\x01\0\0\0\0\0\0\0\x01\x01\x10\x27\0\0\0\0|
 rarity 8
 ports 48899
+
+##############################NEXT PROBE##############################
+# TCP 1C:Enterprise Remote Administration Server
+Probe TCP RACNegotiateConnect q|\x1cSWP\x01\x00\x01\x00\x01\x16\x01\x0fconnect.timeout\x04\x00\x00\x07\xd0|
+ports 1545
+rarity 9
+match 1c-ras m|^\x02\x01\x80$| p/1C:Enterprise Remote Administration Server/
