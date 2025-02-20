@@ -3463,7 +3463,7 @@ work properly.</para>
           most of the packets it sends, and not to use any
           protocol-specific payloads. (Use <option>--data-length 0</option>
           for no random or protocol-specific
-          payloads.<indexterm><primary>protocol-specific payloads</primary><secondary>disabling with <option>--data-length</option></secondary></indexterm>
+          payloads.)<indexterm><primary>protocol-specific payloads</primary><secondary>disabling with <option>--data-length</option></secondary></indexterm>
           OS detection (<option>-O</option>) packets
           are not affected<indexterm><primary><option>--data-length</option></primary><secondary>no effect in OS detection</secondary></indexterm>
           because accuracy there requires probe consistency, but most pinging and portscan packets
