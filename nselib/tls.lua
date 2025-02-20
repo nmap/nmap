@@ -178,6 +178,8 @@ ELLIPTIC_CURVES = {
   brainpoolP384r1 = 27,
   brainpoolP512r1 = 28,
   ecdh_x25519 = 29, -- rfc8422
+  x25519mlkem768 = 4588, -- draft-kwiatkowski-tls-ecdhe-mlkem
+  secp256r1mlkem768 = 4587, -- draft-kwiatkowski-tls-ecdhe-mlkem
   ecdh_x448 = 30, -- rfc8422
   brainpoolP256r1tls13 = 31, --RFC8734
   brainpoolP384r1tls13 = 32,
@@ -205,6 +207,7 @@ DEFAULT_ELLIPTIC_CURVES = {
   "secp384r1",
   "secp521r1",
   "ecdh_x25519",
+  "x25519mlkem768",
   "ffdhe2048", -- added for TLSv1.3
 }
 
