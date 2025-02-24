@@ -7027,6 +7027,8 @@ match http m|^HTTP/1\.[01] \d\d\d.*\r\nServer: nginx/([\d.]+)\r\n|s p/nginx/ v/$
 match http m|^HTTP/1\.[01] \d\d\d.*\r\nServer: nginx/([\d.]+) \(Ubuntu\)\r\n|s p/nginx/ v/$1/ i/Ubuntu/ o/Linux/ cpe:/a:igor_sysoev:nginx:$1/ cpe:/o:canonical:ubuntu_linux/ cpe:/o:linux:linux_kernel/a
 match http m|^HTTP/1\.[01] \d\d\d.*\r\nServer: nginx/([\d.]+) \+ ([^\r\n]*)\r\n|s p/nginx/ v/$1/ i/$2/ cpe:/a:igor_sysoev:nginx:$1/
 
+match http m|^HTTP/1\.[01] \d\d\d.*\r\n[Ss]erver: Angie/([\d.]+)\r\n|s p/Angie/ v/$1/ cpe:/a:angie:angie:$1/
+
 # Citrix NFuse 2.0 on MS IIS 5.0
 match http m|^HTTP/1\.[01].*\r\nServer: Microsoft-IIS/([-.\w]+)\r\n(?:[^\r\n]+\r\n)*?Content-Location: http://[^/]+/nfuse.htm\r\n.*\r\n---- NFuse ([-.\w]+) \(Build |s p/Citrix NFuse/ v/$2/ i/Microsoft IIS $1/ o/Windows/ cpe:/a:microsoft:internet_information_services:$1/ cpe:/o:microsoft:windows/a
 match http m|^HTTP/1\.[01].*\r\nServer: Microsoft-IIS/([-.\w]+)\r\n|s p/Microsoft IIS httpd/ v/$1/ o/Windows/ cpe:/a:microsoft:internet_information_services:$1/ cpe:/o:microsoft:windows/a
