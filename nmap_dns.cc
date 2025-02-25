@@ -478,19 +478,17 @@ static void write_evt_handler(nsock_pool nsp, nsock_event evt, void *req_v) {
   request *req = (request *) req_v;
 
   req->curr_server->write_busy = 0;
+  req->curr_server->in_process.push_front(req);
+  record.tpreq = req;
+  record.server = req->curr_server;
+  records[req->id] = record;
+  do_possible_writes();
 
-  if (nse_status(evt) == NSE_STATUS_SUCCESS) {
-    req->curr_server->in_process.push_front(req);
-    record.tpreq = req;
-    record.server = req->curr_server;
-    records[req->id] = record;
-    do_possible_writes();
-  }
-  else {
+  if (nse_status(evt) != NSE_STATUS_SUCCESS) {
     if (o.debugging) {
-      log_write(LOG_STDOUT, "mass_dns: WRITE error: %s", nse_status2str(nse_status(evt)));
+      log_write(LOG_STDOUT, "mass_dns: WRITE error: %s\n", nse_status2str(nse_status(evt)));
     }
-    req->curr_server->to_process.push_front(req);
+    // req->curr_server->to_process.push_front(req);
   }
 
 }
