@@ -1,5 +1,8 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [GH#2954] Fix 2 potential crashes in parsing IPv6 extension headers
+  discovered using AFL++ fuzzer. [Domen Puncer Kugler, Daniel Miller]
+
 o [Nping] Bind raw socket to device when possible. This was already done for
   IPv6, but was needed for IPv4 L3 tunnels. [ValdikSS]
 
