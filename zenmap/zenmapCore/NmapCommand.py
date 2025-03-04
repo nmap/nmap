@@ -198,7 +198,7 @@ class NmapCommand(object):
         # We don't need a file name for stdout output, just a handle. A
         # TemporaryFile is deleted as soon as it is closed, and in Unix is
         # unlinked immediately after creation so it's not even visible.
-        f = tempfile.TemporaryFile(mode="r", prefix=APP_NAME + "-stdout-")
+        f = tempfile.TemporaryFile(mode="r", prefix=APP_NAME + "-stdout-", encoding="utf-8")
         self.stdout_file = f
         if stderr is None:
             stderr = f
@@ -223,7 +223,7 @@ class NmapCommand(object):
                 startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
 
         self.command_process = subprocess.Popen(command_list, bufsize=1,
-                                     universal_newlines=True,
+                                     universal_newlines=True, encoding="utf-8",
                                      stdin=subprocess.PIPE,
                                      stdout=f,
                                      stderr=stderr,

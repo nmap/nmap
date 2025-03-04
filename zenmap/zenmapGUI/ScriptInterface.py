@@ -226,7 +226,8 @@ class ScriptInterface:
         # Separate stderr to avoid breaking XML parsing with "Warning: File
         # ./nse_main.lua exists, but Nmap is using...".
         stderr = tempfile.TemporaryFile(
-                mode="r", prefix=APP_NAME + "-script-help-stderr-")
+                mode="r", prefix=APP_NAME + "-script-help-stderr-",
+                encoding="utf-8")
         log.debug("Script interface: running %s" % repr(command_string))
         nmap_process = NmapCommand(command_string)
         try:

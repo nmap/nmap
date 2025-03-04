@@ -121,7 +121,7 @@ class NdiffCommand(subprocess.Popen):
                 filename_b
                 ]
         self.stdout_file = tempfile.TemporaryFile(
-                mode="r",
+                mode="r", encoding="utf-8",
                 prefix=APP_NAME + "-ndiff-",
                 suffix=".xml"
                 )
@@ -131,7 +131,7 @@ class NdiffCommand(subprocess.Popen):
         subprocess.Popen.__init__(
                 self,
                 command_list,
-                universal_newlines=True,
+                universal_newlines=True, encoding="utf-8",
                 stdout=self.stdout_file,
                 stderr=subprocess.PIPE,
                 env=env,
