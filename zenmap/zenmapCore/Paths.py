@@ -116,15 +116,6 @@ class Paths(object):
         self.misc_dir = MISC_DIR
         self.docs_dir = DOCS_DIR
         self._delayed_incomplete = True
-        PATH = os.environ.get('PATH', os.defpath)
-        extra = get_extra_executable_search_paths()
-        if extra:
-            PATH += ';' + ';'.join(extra)
-        NMAPPATH = dirname(shutil.which("nmap", path=PATH))
-        if sys.platform == 'win32':
-            self.nmap_dir = NMAPPATH
-        else:
-            self.nmap_dir = join(NMAPPATH, "..", "share", "nmap")
 
     # Delay initializing these paths so that
     # zenmapCore.I18N.install_gettext can install _() before modules that
