@@ -203,7 +203,7 @@ int ncat_listen()
 {
     int rc, i, j, fds_ready;
     fd_set listen_fds;
-    struct timeval tv, qtv;
+    struct timeval tv={0}, qtv={0};
     struct timeval *tvp = NULL;
     unsigned int num_sockets;
     int proto = o.proto;
@@ -324,8 +324,8 @@ int ncat_listen()
 
         if (usec_wait >= 0) {
             tvp = &tv;
-	    tv.tv_sec = 0;
-	    tv.tv_usec = usec_wait;
+            tv.tv_sec = 0;
+            tv.tv_usec = usec_wait;
         }
 
         fds_ready = fselect(client_fdlist.fdmax + 1, &readfds, &writefds, NULL, tvp);
