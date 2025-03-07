@@ -141,16 +141,28 @@ ETHER_TYPE_PPPOE_DISCOVERY = 0x8863
 ETHER_TYPE_PPPOE_SESSION = 0x8864
 ETHER_TYPE_EAPOL = 0x888e
 ETHER_TYPE_ATAOE = 0x88a2
+ETHER_TYPE_CTAG = 0x8100
+ETHER_TYPE_STAG = 0x88A8
 
 ----------------------------------------------------------------------------------------------------------------
 -- Frame is a class
 Frame = {}
 
 function Frame:new(frame, force_continue)
-  local mac_dst, mac_src, ether_type, packet
+  local mac_dst, mac_src, ether_type, vlans, packet
   if frame and #frame >= 14 then
     local pos
     mac_dst, mac_src, ether_type, pos = ("c6c6>I2"):unpack(frame)
+    vlans = {}
+    while pos < #frame + 2 and (ether_type==ETHER_TYPE_CTAG or ether_type == ETHER_TYPE_STAG) do
+      local vlan = {tpid=ether_type}
+      local tci
+      tci, ether_type, pos = (">I2I2"):unpack(frame, pos)
+      vlan.pcp = 0x0007 & (tci >> 13)
+      vlan.dei = 0x0001 & (tci >> 12)
+      vlan.vid = 0x0FFF & tci
+      table.insert(vlans, vlan)
+    end
     packet = frame:sub(pos, -1)
     if #packet == 0 then packet = nil end
   end
@@ -161,6 +173,7 @@ function Frame:new(frame, force_continue)
   o.mac_dst = mac_dst
   o.mac_src = mac_src
   o.ether_type = ether_type
+  o.vlans = vlans
   return o
 end
 --- Build an Ethernet frame.
@@ -168,16 +181,29 @@ end
 -- @param mac_src six-byte string of the source MAC address.
 -- @param ether_type IEEE 802 ethertype as a 16-bit integer (0x0800 for IPv4)
 -- @param packet string of the payload.
+-- @param vlans list of VLAN tags. Each tag is a table of TPID and
+--              TCI fields PCP, DEI, and VID
 -- @return frame string of the Ether frame.
-function Frame:build_ether_frame(mac_dst, mac_src, ether_type, packet)
+function Frame:build_ether_frame(mac_dst, mac_src, ether_type, packet, vlans)
   self.mac_dst = mac_dst or self.mac_dst
   self.mac_src = mac_src or self.mac_src
   self.ether_type = ether_type or self.ether_type
+  self.vlans = vlans or self.vlans
   self.buf = packet or self.buf
   if not self.ether_type then
     return nil, "Unknown packet type."
   end
-  self.frame_buf = self.mac_dst..self.mac_src..(">I2"):pack(self.ether_type)..self.buf
+  local chunks = {self.mac_dst, self.mac_src}
+  for idx, vlan in ipairs(self.vlans or {}) do
+    local tpid = 0xFFFF & (vlan.tpid or idx < #vlans and ETHER_TYPE_STAG or ETHER_TYPE_CTAG)
+    local tci = (0x0007 & (vlan.pcp or 0)) << 13 |
+                (0x0001 & (vlan.dei or 0)) << 12 |
+                (0x0FFF & (vlan.vid or 0))
+    table.insert(chunks, (">I2I2"):pack(tpid, tci))
+  end
+  table.insert(chunks, (">I2"):pack(self.ether_type))
+  table.insert(chunks, self.buf)
+  self.frame_buf = table.concat(chunks)
 end
 
 ----------------------------------------------------------------------------------------------------------------
