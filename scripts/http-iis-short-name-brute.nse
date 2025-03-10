@@ -70,25 +70,29 @@ local errors = 0
 
 local function isFolder(host, port, path, number)
   local data = http.get(host, port, "/" ..  path .. "~" .. number .. magic)
-  return data.status == 404
+  local data2 = http.generic_request(host, port, "OPTIONS", "/" .. path .. "~" .. number .. magic)
+  return data.status == 404 or data2.status == 404
 end
 
 
 local function isLonger(host, port, path, number)
   local data = http.get(host, port, "/" .. path .. "%3f*~" .. number .. "*" .. magic)
-  return data.status == 404
+  local data2 = http.generic_request(host, port, "OPTIONS", "/" .. path .. "%3f*~" .. number .. "*" .. magic)
+  return data.status == 404 or data2.status == 404
 end
 
 
 local function foundName(host, port, path, number)
   local data = http.get(host, port, "/" .. path .. "~" .. number .. "*" .. magic)
-  return data.status == 404
+  local data2 = http.generic_request(host, port, "OPTIONS", "/" .. path .. "~" .. number .. "*" .. magic)
+  return data.status == 404 or data2.status == 404
 end
 
 
 local function charInExtension(host, port, path, ext)
   local data = http.get(host, port, "/" .. path .. ext .. "*" .. magic )
-  return data.status == 404
+  local data2 = http.generic_request(host, port, "OPTIONS", "/" .. path .. ext .. "*" .. magic)
+  return data.status == 404 or data2.status == 404
 end
 
 local function findExtension(host, port, path, ext)
