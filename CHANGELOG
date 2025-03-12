@@ -1,5 +1,10 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE][GH#2973] New service probes and scripts for MikroTik's WinBox router
+  admin service. mikrotik-routeros-version queries the 'info' and 'list' files
+  to get the RouterOS version. mikrotik-routeros-username-brute brute-forces
+  usernames for the router using CVE-2024-54772. [deauther890, Daniel Miller]
+
 o [GH#2954] Fix 2 potential crashes in parsing IPv6 extension headers
   discovered using AFL++ fuzzer. [Domen Puncer Kugler, Daniel Miller]
 
