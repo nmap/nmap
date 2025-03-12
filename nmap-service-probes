@@ -11212,7 +11212,7 @@ match http-proxy m|^HTTP/1\.0 407 Proxy Authentication Required\r\nConnection: c
 match http-proxy m|^HTTP/1\.1 400 Received invalid request from Client\r\nDate: .*\r\nCache-Control: no-cache\r\nPragma: no-cache\r\nContent-Type: text/html; charset=\"UTF-8\"\r\nContent-Length: \d+\r\nAccept-Ranges: none\r\nProxy-Connection: close\r\n\r\n<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4\.01 Transitional//EN\" \"http://www\.w3\.org/TR/html4/loose\.dtd\">\n<html>\n  <head>\n    <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />\n    <title>The requested URL could not be retrieved</title>| p|Sophos/Astaro UTM gateway| d/security-misc/ cpe:/a:astaro:security_gateway_software/
 match http-proxy m|^HTTP/1\.0 400 Bad Request\r\nContent-Type: application/json; charset=UTF-8\r\nContent-Length: 84\r\n\r\n{\"fault\":{\"faultstring\":\"\\\"Missing Host header\\\"\",\"detail\":{\"code\":\"MISSING_HOST\"}}}| p/Apigee API proxy/
 match http-proxy m|^HTTP/1\.0 400 badrequest\r\nVia: 1\.0 ([\w.-]+) \(McAfee Web Gateway ([\w._-]+)\)\r\nConnection: Close\r\n| p/McAfee Web Gateway/ v/$2/ i/Via $1/ cpe:/a:mcafee:web_gateway:$2/
-match http-proxy m|^HTTP/1\.0 400 Bad Request\r\nContent-Length: 113\r\nDate: .*\r\nExpires: 0\r\n\r\n<html>\n<head><title>Error 400: Bad Request</title></head>\n<body>\n<h1>Error 400: Bad Request</h1>\n</body>\n</html>\n| p/Mikrotik HotSpot http proxy/
+match http-proxy m|^HTTP/1\.0 400 Bad Request\r\nContent-Length: 113\r\nDate: .*\r\nExpires: 0\r\n\r\n<html>\n<head><title>Error 400: Bad Request</title></head>\n<body>\n<h1>Error 400: Bad Request</h1>\n</body>\n</html>\n| p/MikroTik HotSpot http proxy/
 match http-proxy m|^HTTP/1\.0 400 Host Required In Request\r\nDate: .*\r\nConnection: close\r\nCache-Control: no-store\r\nContent-Type: text/html\r\nContent-Language: en\r\nContent-Length: \d+\r\n\r\n<HTML>\n<HEAD>\n<TITLE>Host Header Required</TITLE>\n</HEAD>\n\n<BODY BGCOLOR=\"white\" FGCOLOR=\"black\">\n<H1>Host Header Required</H1>\n<HR>\n\n<FONT FACE=\"Helvetica,Arial\">| p/Cyberoam UTM http proxy/
 match http-proxy m|^HTTP/1\.1 504 Gateway Timeout\r\nContent-Length: 15\r\nContent-Type: text/plain;\r\n\r\nZAP Error: null| p/OWASP Zed Attack Proxy/
 match http-proxy m|^HTTP/1\.1 502 Bad Gateway\r\nContent-Length: \d+\r\nContent-Type: text/plain; charset=UTF-8\r\n\r\nZAP Error \[java\.net\.UnknownHostException\]: null| p/OWASP Zed Attack Proxy/
@@ -13115,7 +13115,7 @@ softmatch domain m|^\x80\xf0[\x80\x81][\x05\x15\x85\x95]\0\x01\0\0\0.\0. CKAAAAA
 softmatch domain m|^\x80\xf0[\x80\x81][\x00\x10\x80\x90]\0\x01\0\0\0.\0. CKAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\0\0!\0\x01|s
 
 # Response changed from NXDOMAIN to SERVFAIL at some point
-match domain m|^\x80\xf0\x81[\x82\x83]\0\x01\0\0\0\0\0\0 ckaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\0\0!\0\x01| p/Mikrotik DNS/ d/router/
+match domain m|^\x80\xf0\x81[\x82\x83]\0\x01\0\0\0\0\0\0 ckaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\0\0!\0\x01| p/MikroTik DNS/ d/router/
 
 match domain m|^\x80\xf0\x80\x15\0\0\0\0\0\0\0\0| p/Unbound/ cpe:/a:nlnetlabs:unbound/
 
