@@ -7,7 +7,7 @@
 #
 # Derived from IANA data and our own research
 #
-# This collection of service data is (C) 1996-2020 by Insecure.Com
+# This collection of service data is (C) 1996-2025 by Insecure.Com
 # LLC.  It is distributed under the Nmap Public Source license as
 # provided in the LICENSE file of the source distribution or at
 # https://svn.nmap.org/nmap/LICENSE .  Note that this license
@@ -20,7 +20,7 @@
 #
 # Fields in this file are: Service name, portnum/protocol, open-frequency, optional comments
 #
-tcpmux	1/tcp	0.001995	# TCP Port Service Multiplexer [rfc-1078] | TCP Port Service Multiplexer
+tcpmux	1/tcp	0.001995	# TCP Port Service Multiplexer
 tcpmux	1/udp	0.001236	# TCP Port Service Multiplexer
 compressnet	2/tcp	0.000013	# Management Utility
 compressnet	2/udp	0.001845	# Management Utility
@@ -48,14 +48,14 @@ netstat	15/tcp	0.000038
 unknown	16/tcp	0.000050
 qotd	17/tcp	0.002346	# Quote of the Day
 qotd	17/udp	0.009209	# Quote of the Day
-msp	18/tcp	0.000000	# Message Send Protocol | Message Send Protocol (historic)
+msp	18/tcp	0.000000	# Message Send Protocol
 msp	18/udp	0.000610	# Message Send Protocol
-chargen	19/tcp	0.002559	# ttytst source Character Generator | Character Generator
+chargen	19/tcp	0.002559	# ttytst source Character Generator
 chargen	19/udp	0.015865	# ttytst source Character Generator
-ftp-data	20/sctp	0.000000	# File Transfer [Default Data] | FTP
+ftp-data	20/sctp	0.000000	# File Transfer [Default Data]
 ftp-data	20/tcp	0.001079	# File Transfer [Default Data]
 ftp-data	20/udp	0.001878	# File Transfer [Default Data]
-ftp	21/sctp	0.000000	# File Transfer [Control] | File Transfer Protocol [Control]
+ftp	21/sctp	0.000000	# File Transfer [Control]
 ftp	21/tcp	0.197667	# File Transfer [Control]
 ftp	21/udp	0.004844	# File Transfer [Control]
 ssh	22/sctp	0.000000	# Secure Shell Login | The Secure Shell (SSH) Protocol
@@ -1684,9 +1684,9 @@ apex-mesh	912/tcp	0.000527	# APEX relay-relay service
 apex-mesh	912/udp	0.000000	# APEX relay-relay service
 apex-edge	913/tcp	0.000151	# APEX endpoint-relay service
 apex-edge	913/udp	0.000000	# APEX endpoint-relay service
-rift-lies	914/tcp	0.000075	# Routing in Fat Trees Link Information Elements (TEMPORARY - registered 2023-02-17, extension registered 2024-01-12, expires 2025-02-17)
+rift-lies	914/tcp	0.000075	# Routing in Fat Trees Link Information Element
 unknown	914/udp	0.000330
-rift-ties	915/tcp	0.000025	# Routing in Fat Trees Topology Information Elements (TEMPORARY - registered 2023-02-17, extension registered 2024-01-12, expires 2025-02-17)
+rift-ties	915/tcp	0.000025	# Routing in Fat Trees Topology Information Element
 unknown	915/udp	0.000330
 unknown	916/tcp	0.000063
 unknown	917/udp	0.000991
@@ -3459,7 +3459,7 @@ radius-acct	1813/tcp	0.000000	# RADIUS Accounting
 radacct	1813/udp	0.010429	# RADIUS accounting protocol (RFC 2139)
 tdp-suite	1814/tcp	0.000000	# TDP Suite
 tdp-suite	1814/udp	0.000330	# TDP Suite
-mmpft	1815/tcp	0.000000
+mmpft	1815/tcp	0.000000	# Manufacturing messaging protocol for factory transmission
 mmpft	1815/udp	0.000330
 harp	1816/tcp	0.000000
 harp	1816/udp	0.000000
@@ -5401,6 +5401,7 @@ f5-globalsite	2792/tcp	0.000000
 f5-globalsite	2792/udp	0.000000
 initlsmsad	2793/tcp	0.000000
 initlsmsad	2793/udp	0.000000
+urp	2794/tcp	0.000000	# Uniform Resource Platform
 livestats	2795/tcp	0.000000
 livestats	2795/udp	0.000000
 ac-tech	2796/tcp	0.000000
@@ -6371,7 +6372,7 @@ sysopt	3281/tcp	0.000076
 sysopt	3281/udp	0.000000
 datusorb	3282/tcp	0.000000
 datusorb	3282/udp	0.000000
-netassistant	3283/tcp	0.000760	# #ERROR:Apple Remote Desktop (Net Assistant) | Apple Remote Desktop Net Assistant reporting feature | Net Assistant
+netassistant	3283/tcp	0.000760	# net-assistant | #ERROR:Apple Remote Desktop (Net Assistant) | Apple Remote Desktop Net Assistant reporting feature | Net Assistant
 netassistant	3283/udp	0.066072	# Apple Remote Desktop Net Assistant reporting feature
 4talk	3284/tcp	0.000000
 4talk	3284/udp	0.000000
@@ -10009,7 +10010,7 @@ fis	5912/tcp	0.000076	# ais-met | Flight Information Services | Aeronautical Inf
 fis	5912/udp	0.000000	# Flight Information Services
 ads-c	5913/tcp	0.000000	# aoc-acars | Automatic Dependent Surveillance | Airline operational communications applications using ACARS
 ads-c	5913/udp	0.000000	# Automatic Dependent Surveillance
-unknown	5914/tcp	0.000152
+ipsdtls	5914/tcp	0.000152	# Security for Internet Protocol Suite
 unknown	5915/tcp	0.000304
 unknown	5915/udp	0.000330
 unknown	5917/tcp	0.000076
@@ -10402,6 +10403,7 @@ scup-disc	6315/udp	0.000000	# Sensor Control Unit Protocol Discovery Protocol
 abb-escp	6316/tcp	0.000000	# Ethernet Sensor Communications Protocol
 abb-escp	6316/udp	0.000000	# Ethernet Sensor Communications Protocol
 nav-data-cmd	6317/tcp	0.000000	# nav-data | Navtech Radar Sensor Data Command | Navtech Radar Sensor Data
+iona-data	6318/tcp	0.000000	# IONA Measurement and control data
 unknown	6319/udp	0.000330
 repsvc	6320/tcp	0.000000	# Double-Take Replication Service
 repsvc	6320/udp	0.000330	# Double-Take Replication Service
@@ -10873,7 +10875,7 @@ microtalon-com	7014/udp	0.000000	# Microtalon Communications
 talon-webserver	7015/tcp	0.000000	# Talon Webserver
 talon-webserver	7015/udp	0.000000	# Talon Webserver
 spg	7016/tcp	0.000000	# SPG Controls Carrier
-grasp	7017/tcp	0.000000	# GeneRic Autonomic Signaling Protocol (TEMPORARY - registered 2017-04-28, expires 2018-04-28) | GeneRic Autonomic Signaling Protocol
+grasp	7017/tcp	0.000000	# GeneRic Autonomic Signaling Protocol
 fisa-svc	7018/tcp	0.000000	# FISA Service
 doceri-ctl	7019/tcp	0.000836	# doceri-view | doceri drawing service control | doceri drawing service screen view
 dpserve	7020/tcp	0.000000	# DP Serve
@@ -11299,6 +11301,7 @@ dell-eql-asm	7569/tcp	0.000000	# Dell EqualLogic Host Group Management
 aries-kfinder	7570/tcp	0.000000	# Aries Kfinder
 aries-kfinder	7570/udp	0.000000	# Aries Kfinder
 coherence	7574/tcp	0.000000	# coherence-disc | Oracle Coherence Cluster Service | Oracle Coherence Cluster discovery service
+wtmi-panel	7575/tcp	0.000000	# Main access port for WTMI Panel
 unknown	7578/udp	0.000330
 unknown	7584/udp	0.000330
 unknown	7587/udp	0.000330
@@ -11781,7 +11784,7 @@ unknown	8282/udp	0.000330
 unknown	8284/udp	0.000661
 unknown	8289/udp	0.000330
 unknown	8290/tcp	0.000228
-unknown	8291/tcp	0.000456
+mikrotik-winbox	8291/tcp	0.000456	# Mikrotik WinBox
 blp3	8292/tcp	0.000228	# Bloomberg professional
 blp3	8292/udp	0.000330	# Bloomberg professional
 hiperscan-id	8293/tcp	0.000152	# Hiperscan Identification Service
@@ -12982,7 +12985,7 @@ unknown	10804/udp	0.000330
 lpdg	10805/tcp	0.000000	# LUCIA Pareja Data Group
 lpdg	10805/udp	0.000000	# LUCIA Pareja Data Group
 unknown	10806/udp	0.000330
-nbd	10809/tcp	0.000000	# Linux Network Block Device
+nbd	10809/tcp	0.000000	# Linux Network Block Device | Network Block Device
 unknown	10809/udp	0.000330
 nmc-disc	10810/tcp	0.000000	# Nuance Mobile Care Discovery
 nmc-disc	10810/udp	0.000330	# Nuance Mobile Care Discovery
@@ -17685,7 +17688,7 @@ unknown	27010/udp	0.001307
 unknown	27014/udp	0.000654
 unknown	27015/tcp	0.000076
 halflife	27015/udp	0.002432	# Half-life game server
-unknown	27016/tcp	0.000076
+chlenix	27016/tcp	0.000076	# Cloud hosting environment network
 mongod	27017/tcp	0.000076	# mongodb | http://docs.mongodb.org/manual/reference/default-mongodb-port/ | Mongo database system
 unknown	27017/udp	0.001307
 mongod	27018/tcp	0.000076	# http://docs.mongodb.org/manual/reference/default-mongodb-port/
@@ -27471,4 +27474,3 @@ unknown	65526/udp	0.000502
 unknown	65530/udp	0.000502
 unknown	65531/udp	0.000502
 unknown	65532/udp	0.000502
-## service-names-port-numbers.xml
