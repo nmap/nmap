@@ -339,8 +339,7 @@ $(NCATDIR)/ncat.h: nmap.h
 	sed -e 's/^#[ \t]*define[ \t]\+NCAT_VERSION[ \t]\+\(".*"\)/#define NCAT_VERSION "$(NMAP_VERSION)"/' $@ > $@.tmp
 	mv -f $@.tmp $@
 
-# Update the Nping version number. This is "0.NMAP_VERSION".
-# If the 0. prefix is removed it must also be removed from nmap.spec.in.
+# Update the Nping version number.
 $(NPINGDIR)/nping.h: nmap.h
 	sed -e 's/^#[ \t]*define[ \t]\+NPING_VERSION[ \t]\+\(".*"\)/#define NPING_VERSION "0.$(NMAP_VERSION)"/' $@ > $@.tmp
 	mv -f $@.tmp $@
