@@ -235,6 +235,8 @@ end
 -- @class function
 --@param cp The Unicode code point as a number
 --@return A string containing the code point in UTF-8 encoding.
+--@class function
+--@name utf8_enc
 utf8_enc = utf8.char
 
 ---Decodes a UTF-8 character.

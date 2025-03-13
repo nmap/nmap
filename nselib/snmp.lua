@@ -151,7 +151,7 @@ end
 local version_to_num = {v1=0, v2c=1}
 local num_to_version = {[0]="v1", [1]="v2c"}
 
---- Returns the numerical value of a given SNMP protocol version
+-- Returns the numerical value of a given SNMP protocol version
 --
 -- Numerical input is simply passed through, assuming it is valid.
 -- String input is translated to its corresponding numerical value.
@@ -549,7 +549,7 @@ Helper = {
   -- @param options SNMP options table
   -- @see snmp.options
   -- @param oid Object identifiers of object to be set.
-  -- @param value To which value object should be set. If given a table,
+  -- @param setparam To which value object should be set. If given a table,
   --              use the table instead of OID/value pair.
   -- @return status False if error, true otherwise
   -- @return Table with all decoded responses and their OIDs.

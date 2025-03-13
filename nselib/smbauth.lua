@@ -322,7 +322,7 @@ function init_account(host)
   end
 end
 
----Generate the Lanman v1 hash (LMv1).
+--Generate the Lanman v1 hash (LMv1).
 --
 -- The generated hash is incredibly easy to reverse, because the input is
 -- padded or truncated to 14 characters, then split into two 7-character
@@ -628,7 +628,7 @@ end
 --                   be generated properly).
 --@return lm_response, to be send directly back to the server
 --@return ntlm_response, to be send directly back to the server
---@reutrn mac_key used for message signing.
+--@return mac_key used for message signing.
 function get_password_response(ip, username, domain, password, password_hash, hash_type, challenge, is_extended)
   local status
   local lm_hash   = nil

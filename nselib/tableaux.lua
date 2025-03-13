@@ -62,7 +62,7 @@ end
 --- Check for the presence of a value in a table
 --@param t the table to search into
 --@param item the searched value
---@array (optional) If true, then use ipairs to only search the array indices of the table.
+--@param array (optional) If true, then use ipairs to only search the array indices of the table.
 --@return Boolean true if the item was found, false if not
 --@return The index or key where the value was found, or nil
 function contains(t, item, array)

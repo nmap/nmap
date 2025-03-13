@@ -357,8 +357,8 @@ Options = {
     return (val == "true" or val == true or tonumber(val) == 1)
   end,
 
-  --- Sets the brute mode to either iterate over users or passwords
-  -- @see description for more information.
+  --- Sets the brute mode to either iterate over users or passwords.
+  --  See description for more information.
   --
   -- @param mode string containing either "user" or "password"
   -- @return status true on success else false

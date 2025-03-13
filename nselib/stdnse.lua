@@ -643,7 +643,7 @@ end
 --      => mode    = "timed"
 --      => domains = {"host1","host2"}
 --
--- @param Arguments  Script arguments to check.
+-- @param ...  Script arguments to check.
 -- @return Arguments values.
 function get_script_args (...)
   local args = {}

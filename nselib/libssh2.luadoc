@@ -72,7 +72,7 @@ function publickey_canauth(session, username, publickeydata)
 -- @param session Authenticated libssh2 session
 -- @param no_pty If true, skip requesting a PTY.
 -- @return libssh2 channel
-function open_channel(session, pty)
+function open_channel(session, no_pty)
 
 --- Reads data from stdin on libssh2 channel.
 -- @param session Authenticated libssh2 session
