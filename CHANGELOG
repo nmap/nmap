@@ -1,5 +1,8 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] New script targets-ipv6-eui64 generates target IPv6 addresses from a
+  user-provided file of MAC addresses, using the EUI-64 method. [Daniel Miller]
+
 o [NSE][GH#2973] New service probes and scripts for MikroTik's WinBox router
   admin service. mikrotik-routeros-version queries the 'info' and 'list' files
   to get the RouterOS version. mikrotik-routeros-username-brute brute-forces

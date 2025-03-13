@@ -559,6 +559,7 @@ Entry { filename = "stuxnet-detect.nse", categories = { "discovery", "intrusive"
 Entry { filename = "supermicro-ipmi-conf.nse", categories = { "exploit", "vuln", } }
 Entry { filename = "svn-brute.nse", categories = { "brute", "intrusive", } }
 Entry { filename = "targets-asn.nse", categories = { "discovery", "external", "safe", } }
+Entry { filename = "targets-ipv6-eui64.nse", categories = { "discovery", } }
 Entry { filename = "targets-ipv6-map4to6.nse", categories = { "discovery", } }
 Entry { filename = "targets-ipv6-multicast-echo.nse", categories = { "broadcast", "discovery", "safe", } }
 Entry { filename = "targets-ipv6-multicast-invalid-dst.nse", categories = { "broadcast", "discovery", "safe", } }
