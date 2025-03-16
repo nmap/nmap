@@ -10,11 +10,13 @@ char **cmdline_split(const char *cmdexec);
 int test_cmdline(const char *line, const char **target_args)
 {
     char **cmd_args;
+    char **base_ptr; // Save the base pointer for freeing
     int args_match = 1;
 
     test_count++;
 
     cmd_args = cmdline_split(line);
+    base_ptr = cmd_args;  // Save the base pointer
 
     /*
      * Make sure that all of the target arguments are have been extracted
@@ -39,9 +41,11 @@ int test_cmdline(const char *line, const char **target_args)
     if (args_match) {
         success_count++;
         printf("PASS '%s'\n", line);
+        free(base_ptr);  // Free the allocated memory
         return 1;
     } else {
         printf("FAIL '%s'\n", line);
+        free(base_ptr);  // Free the allocated memory
         return 0;
     }
 }
@@ -49,17 +53,21 @@ int test_cmdline(const char *line, const char **target_args)
 int test_cmdline_fail(const char *line)
 {
     char **cmd_args;
+    char **base_ptr;  // Save the base pointer
 
     test_count++;
 
     cmd_args = cmdline_split(line);
+    base_ptr = cmd_args;  // Save the base pointer
 
     if (*cmd_args == NULL) {
         success_count++;
         printf("PASS '%s'\n", line);
+        free(base_ptr);  // Free allocated memory
         return 1;
     } else {
-        printf("PASS '%s'\n", line);
+        printf("FAIL '%s'\n", line);  // Corrected message
+        free(base_ptr);  // Free allocated memory
         return 0;
     }
 }
