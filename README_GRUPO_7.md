@@ -11,10 +11,9 @@ NMAP
 -Se puede ejecutar en modo agente distribuido mediante nmap -iL para escanear múltiples objetivos simultáneamente
 4) JUSTIFICACIÓN
 Nmap, abreviatura de "Network Mapper", es una herramienta de código abierto utilizada para la exploración de redes y auditorías de seguridad. Permite a los administradores de red identificar dispositivos activos en una red, descubrir puertos y servicios abiertos, y detectar vulnerabilidades. Nmap puede adaptarse a las condiciones de la red, incluyendo latencia y congestión, durante un escaneo.("Nmap: the Network Mapper", s.f.)
+El repositorio de Nmap no solo ofrece una herramienta de escaneo de puertos, sino que proporciona un framework avanzado de auditoría de redes y seguridad ofensiva, esencial en cualquier kit de pentesting o administración de redes. Su versatilidad lo hace útil tanto para atacantes éticos como para defensores de ciberseguridad.
 
-
-
-5) Referencia:
+6) Referencia:
 
 Nmap: the Network Mapper - Free Security Scanner. (s.f.). Nmap. https://nmap.org/
 
