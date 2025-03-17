@@ -5,13 +5,14 @@ Nmap (Network Mapper) es una herramienta de código abierto utilizada para el es
 
 ## Justificación  
 Elegimos este repositorio porque Nmap es una de las herramientas más utilizadas en ciberseguridad. Su importancia está respaldada por múltiples estudios y comunidades de expertos en seguridad.  
-- Referencia 1: [Artículo sobre Nmap](https://nmap.org/book/)  
+* Referencia 1: [Artículo sobre Nmap](https://nmap.org/book/)  
 
 
 Nuestro grupo trabajará en analizar su código y explorar sus funcionalidades.  
 
-# VENTAJAS Y LIMITACIONES
+## VENTAJAS Y LIMITACIONES
 ## VENTAJAS
+
 * Gratuito y de Código Abierto: Cualquiera puede usarlo y modificarlo.
 * Extensible: Gracias al NSE, se pueden agregar funcionalidades personalizadas.
 * Multiplataforma: Funciona en la mayoría de los sistemas operativos.
@@ -23,7 +24,7 @@ Nuestro grupo trabajará en analizar su código y explorar sus funcionalidades.
 * Falsos Positivos: En algunos casos, puede generar resultados incorrectos.
 * Impacto en la Red: Escaneos intensivos pueden afectar el rendimiento de la red.
 
-# FUENTES
+## FUENTES
 
 [Hackertarget](https://hackertarget.com/nmap-cheatsheet-a-quick-reference-guide/) /
 [Book](https://nmap.org/book/) /
@@ -32,32 +33,33 @@ Nuestro grupo trabajará en analizar su código y explorar sus funcionalidades.
 [Security](https://securitytrails.com/blog/nmap-commands)
 
 ***
-# RETO SQL-INJECTION
+## RETO SQL-INJECTION
 ***
-# SQL-INJECTION
+## SQL-INJECTION
 ## All labs
-# Mystery lab challenge
+## Mystery lab challenge
+
 Try solving a random lab with the title and description hidden. As you'll have no prior knowledge of the type of vulnerability that you need to find and exploit, this is great for practicing recon and analysis.
 
 Take me to the mystery lab challenge.
 
 ## SQL injection
 # LAB 3
-PRACTITIONERSQL injection attack, querying the database type and version on Oracle
+PRACTITIONER SQL injection attack, querying the database type and version on Oracle
 Not solved
 
 Para realizar el Reto De SQL-INYECTION primero abrimos el Burp Suite Community Edition, luego desde el Burp lanzamos el navegador e ingresamos a https://portswigger.net/web-security/all-labs y escogemos el reto. 
 ***
 # SQL- INYECCIÓN
 ## Todos los laboratorios
-# Desafío de laboratorio misterioso
+## Desafío de laboratorio misterioso
 
 Intenta resolver un laboratorio aleatorio con el título y la descripción ocultos. Como no tendrás conocimientos previos sobre el tipo de vulnerabilidad que necesitas encontrar y explotar, esto es ideal para practicar el reconocimiento y el análisis.
 
 Llévame al desafío del laboratorio misterioso
 
-# Inyección SQL
-# LABORATORIO Nº 3
+## Inyección SQL
+## LABORATORIO Nº 3
 
 FACULTATIVO Ataque de inyección SQL, consultando el tipo y la versión de la base de datos en Oracle
 
@@ -69,7 +71,8 @@ Ingresamos al portal y damos click en IR AL LABORATORIO, donde se nos despliega 
 
 ![Image](https://github.com/user-attachments/assets/afea2fcf-4a73-4f0c-bfbc-ab6bfb271e2b)
  
-Una vez capturado el tráfico procedemos a ingresar la solución que el mismo reto nos da:  
+Una vez capturado el tráfico procedemos a ingresar la solución que el mismo reto nos da:
+
 * Utilice Burp Suite para interceptar y modificar la solicitud que establece el filtro de categoría de producto.
 *	Determine el número de columnas que devuelve la consulta y cuáles contienen datos de texto. Verifique que la consulta devuelva dos columnas, ambas con texto, utilizando una carga útil como la siguiente en el category parámetro: '+UNION+SELECT+'abc','def'+FROM+dual--
 *	Utilice la siguiente carga útil para mostrar la versión de la base de datos:
