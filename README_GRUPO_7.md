@@ -1,5 +1,7 @@
 NMAP
 1) NMAP funciona para raelizar escaneo en todas las redes, su proposito principal es encontrar puertos abiertos y vulnerabilidades ademas que posee este tipo de escaneos SYN, TCP, UDP, y SCTP para detectar servicios abiertos en un sistema objetivo.
+
+Ademas se puede optar por poner velocidad a nmap con la opcion -T5
 2) 🔍 ¿Para qué se usa?
 -Identificar dispositivos conectados a una red.
 -Detectar puertos abiertos y servicios que están corriendo.
