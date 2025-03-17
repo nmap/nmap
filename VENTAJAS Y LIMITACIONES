@@ -1,1 +1,19 @@
-\subsection{VENTAJAS Y LIMITACIONES}
+# VENTAJAS Y LIMITACIONES
+## VENTAJAS
+1.- Gratuito y de Código Abierto: Cualquiera puede usarlo y modificarlo.
+2.- Extensible: Gracias al NSE, se pueden agregar funcionalidades personalizadas.
+3.- Multiplataforma: Funciona en la mayoría de los sistemas operativos.
+4.- Documentación Completa: Cuenta con una amplia documentación y soporte comunitario.
+
+##  LIMITACIONES
+1.- Curva de Aprendiza Eje: Puede ser complejo para usuarios principiantes.
+2.- Falsos Positivos: En algunos casos, puede generar resultados incorrectos.
+3.- Impacto en la Red: Escaneos intensivos pueden afectar el rendimiento de la red.
+
+# FUENTES
+
+https://hackertarget.com/nmap-cheatsheet-a-quick-reference-guide/ https://nmap.org/book/
+https://nmap.org/book/man-examples.html https://www.udemy.com/courses/search/?src=ukwq=curso+de+Nmap
+https://securitytrails.com/blog/nmap-commands
+
+
