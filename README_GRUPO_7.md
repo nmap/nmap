@@ -5,4 +5,4 @@ NMAP
    Técnicas de evasión como fragmentación de paquetes (-f), modificación de TTL (--ttl) o camuflaje de origen (-S, -D) para analizar reglas de firewall.
    Se puede ejecutar en modo agente distribuido mediante nmap -iL para escanear múltiples objetivos simultáneamente
 3) JUSTIFICACIÓN
-   El repositorio de Nmap no solo ofrece una herramienta de escaneo de puertos, sino que proporciona un framework avanzado de auditoría de redes y seguridad ofensiva, esencial en cualquier kit de pentesting o administración de redes. Su versatilidad lo hace útil tanto para atacantes éticos como para defensores de ciberseguridad.
+   El repositorio de Nmap no solo ofrece una herramienta de escaneo de puertos, sino que proporciona un framework avanzado de auditoría de redes y seguridad ofensiva, esencial en cualquier kit de pentesting o administración de redes. Su versatilidad lo hace útil tanto para atacantes éticos como para defensores de ciberseguridad
