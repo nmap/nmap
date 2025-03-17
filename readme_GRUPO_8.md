@@ -9,3 +9,22 @@ Elegimos este repositorio porque Nmap es una de las herramientas más utilizadas
 
 
 Nuestro grupo trabajará en analizar su código y explorar sus funcionalidades.  
+
+# Funciones
+Nmap es una herramienta versátil que se utiliza en diversas situaciones, entre las
+que destacan:
+* Descubrimiento de Redes
+* Escaneo de puertos
+* Auditoría de seguridad
+* Inventario de Red
+* Pentesting
+* Monitoreo de Red
+
+# Características
+
++ Escaneo de Puertos: Soporta múltiples técnicas de escaneo (TCP, UDP, SYN,
+ACK, etc.).
++ Detección de Sistemas Operativos: Utiliza técnicas de "fingerprinting"para
+identificar el sistema operativo de un dispositivo.
++ Compatibilidad Multiplataforma: Funciona en Windows, Linux, macOS y otros
+sistemas operativos.
