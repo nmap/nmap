@@ -19,3 +19,55 @@ El repositorio de Nmap no solo ofrece una herramienta de escaneo de puertos, sin
 
 Nmap: the Network Mapper - Free Security Scanner. (s.f.). Nmap. https://nmap.org/
 
+
+
+
+# Nmap - Network Mapper
+
+Nmap es “Network Mapper”una herramienta de código abierto para la red exploración y auditoría de la seguridad. Fue diseñado para rápidamente escanean grandes redes, aunque funciona bien contra single anfitriones. Nmap utiliza paquetes IP crudos de maneras novedosas para determinar qué Los anfitriones están disponibles en la red, qué servicios (aplicación nombre y versión) que ofrecen esos hosts, qué sistemas operativos (y versiones del sistema operativo) están en ejecución, qué tipo de paquetes filtros/cortales están en uso, y docenas de otros características. Mientras que Nmap se utiliza comúnmente para auditorías de seguridad, muchos sistemas y administradores de redes lo encuentran útil para la rutina tareas como inventario de la red, gestión de la actualización del servicio horarios, y monitorear el tiempo de actividad o servicio
+```
+- 
+**`nmap -A -T4 scanme.nmap.org`**Reporte de escaneo de mapa de Nmap para scanme.nmap.org (74.207.244.221)
+El anfitrión se levanta (0.029s latencia).
+rDNS récord para 74.207.244.221: li86-221.members.linode.com
+No mostrado: 995 puertos cerrados
+PORT ESTADO SERVICIO VERSION
+22/tcp open ssh OpenSSH 5.3p1 Debian 3ubuntu7 (protocolo 2.0)
+* ssh-hostkey: 1024 8d:60:f1:7c:ca:b7:3d:0a:d6:67:54:9d:69:d9:b9:dd (DSA)
+No2048 79:f8:09:ac:d4:e2:32:42:10:49:d3:bd:20:82:85:ec (RSA)
+80/tcp abierto http Apache httpd 2.2.14 ((Ubuntu))
+- Título: Adelante y escanearme.
+646/tcp filtrado ldp
+1720/tcp filtrado H.323/Q.931
+9929/tcp open nping-echo eco de Nping
+Tipo de dispositivo: propósito general
+Corrida: Linux 2.6. X
+OS CPE: cpe:/o:linux:linux-kernel:2.6.39
+Detalles del sistema operativo: Linux 2.6.39
+Distancia de la red: 11 lúpulo
+Información del servicio: OS: Linux; CPE: cpe:/o:linux:kernel
+
+TRACEROUTE (utilización del puerto 53/tcp)
+HOP RTT ADDRESS
+[Cortar los primeros 10 lúpulo para la brevedad]
+11 17.65 ms li86-221.members.linode.com (74.207.244.221)
+
+Maestación hecha: 1 dirección IP (1 host up) escaneada en 14.40 segundos
+```
+
+# Por qué usar Nmap?
+
+Nmap es una herramienta que permite trazar rápidamente una red sin necesidad de comandos sofisticados ni configuraciones complejas. Puede utilizarse tanto con comandos simples, como para comprobar si un host está activo, como con scripting avanzado a través de su Motor de Scripting Nmap.
+
+### Características principales de Nmap:
+
+-   **Reconocimiento de dispositivos:** Detecta rápidamente todos los dispositivos conectados a la red, incluyendo servidores, routers, interruptores, dispositivos móviles, entre otros.
+-   **Identificación de servicios:** Permite conocer qué servicios se ejecutan en un sistema, como servidores web, servidores DNS y otras aplicaciones comunes. También puede detectar versiones de aplicaciones con una precisión razonable, facilitando la identificación de vulnerabilidades.
+-   **Detección del sistema operativo:** Obtiene información detallada sobre el sistema operativo de los dispositivos, incluyendo versiones específicas, lo que resulta útil en pruebas de penetración.
+-   **Escaneo de seguridad y vulnerabilidades:** Puede ejecutar scripts del Motor de Scripting Nmap para realizar auditorías de seguridad y ataques controlados a los sistemas analizados.
+-   **Interfaz gráfica (Zenmap):** Incluye una interfaz gráfica llamada Zenmap, que permite desarrollar mapas visuales de la red para mejorar la usabilidad y el análisis de reportes.
+
+# Referencias
+
+https://nmap.org/book/man.html#man-ex-repscan
+https://www.freecodecamp.org/news/what-is-nmap-and-how-to-use-it-a-tutorial-for-the-greatest-scanning-tool-of-all-time/
