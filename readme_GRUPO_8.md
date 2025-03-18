@@ -10,9 +10,9 @@ que destacan:
 * Pentesting
 * Monitoreo de Red
 ## CARACTERÍSTICAS
-* Escaneo de Puertos: Soporta múltiples técnicas de escaneo (TCP, UDP, SYN,
++ Escaneo de Puertos: Soporta múltiples técnicas de escaneo (TCP, UDP, SYN,
 ACK, etc.).
-* Detección de Sistemas Operativos: Utiliza técnicas de "fingerprinting"para
-* Identificar el sistema operativo de un dispositivo.
-* Compatibilidad Multiplataforma: Funciona en Windows, Linux, macOS y otros
++ Detección de Sistemas Operativos: Utiliza técnicas de "fingerprinting"para
++ Identificar el sistema operativo de un dispositivo.
++ Compatibilidad Multiplataforma: Funciona en Windows, Linux, macOS y otros
 sistemas operativos.
