@@ -55,7 +55,7 @@ HOP RTT ADDRESS
 Maestación hecha: 1 dirección IP (1 host up) escaneada en 14.40 segundos
 ```
 
-# Referencias
+# Referencias  20
 
 - https://nmap.org/book/man.html#man-ex-repscan
 - https://www.freecodecamp.org/news/what-is-nmap-and-how-to-use-it-a-tutorial-for-the-greatest-scanning-tool-of-all-time/
