@@ -6,3 +6,11 @@ NMAP
    Se puede ejecutar en modo agente distribuido mediante nmap -iL para escanear múltiples objetivos simultáneamente
 3) JUSTIFICACIÓN
    El repositorio de Nmap no solo ofrece una herramienta de escaneo de puertos, sino que proporciona un framework avanzado de auditoría de redes y seguridad ofensiva, esencial en cualquier kit de pentesting o administración de redes. Su versatilidad lo hace útil tanto para atacantes éticos como para defensores de ciberseguridad
+4) REFERENCIAS
+   Patel, R., & Singh, A. (2023). Use Nmap like a Pro: A Beginner's Guide for Aspiring Security Professionals. ResearchGate. https://www.researchgate.net/publication/387953667
+
+Kumar, S. (2022). A Case Study on Nmap - Network Mapper. Academia.edu. https://www.academia.edu/34856706
+
+Gómez, J., & López, M. (2021). Análisis de las vulnerabilidades del sistema de información utilizando herramientas de ciberseguridad. Universidad Politécnica Salesiana. https://dspace.ups.edu.ec/bitstream/123456789/25183/4/UPS-CT010619.pdf
+
+Chen, L., & Brown, T. (2023). A Comparative Analysis of Port Scanning Tool Efficacy. arXiv. https://arxiv.org/abs/2303.11282
