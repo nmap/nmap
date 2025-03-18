@@ -19,9 +19,3 @@
 [Nmap](https://nmap.org/book/man-examples.html) /
 [NMAP](https://www.udemy.com/courses/search/?src=ukwq=curso+de+Nmap) /
 [Security](https://securitytrails.com/blog/nmap-commands)
- 
-
-
-
-
-
