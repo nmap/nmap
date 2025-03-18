@@ -1,13 +1,9 @@
 
-
 # **HERRAMIENTA NMAP**
 ***
 ---
 ## JUSTIFICACIÓN 
 ***
----
-![NMAP](https://www.google.com/url?sa=i&url=https%3A%2F%2Fes.wikipedia.org%2Fwiki%2FNmap&psig=AOvVaw2gmoM2LFDTof53gYrcpBah&ust=1742270588744000&source=images&cd=vfe&opi=89978449&ved=0CBQQjRxqFwoTCPD8g-2dkIwDFQAAAAAdAAAAABAE)
-
 Como grupo, hemos seleccionado el repositorio de Nmap para nuestro trabajo debido
 a su amplia adopción, utilidad técnica y relevancia en el campo de la ciberseguridad.
 A continuación, detallamos varias características:
@@ -41,8 +37,10 @@ Muchas empresas líderes en tecnología, como Google, Microsoft y Amazon, utiliz
 Nmap para realizar auditorías internas y garantizar la seguridad de sus redes. Esto
 demuestra su confiabilidad y eficacia en entornos profesionales.
 
+
 ## Definición
 ![NMAP.ORG](https://github.com/blackground-1/nmap/blob/JOSE_ROMERO/IMAGENES_G8/NMAP.png?raw=true)
 
 Nmap (Network Mapper) es una herramienta de código abierto utilizada para el descubrimiento de redes y la auditoría de seguridad. Fue diseñado para escanear redes, identificar dispositivos conectados, detectar puertos abiertos, servicios en ejecución y vulnerabilidades potenciales. Es una herramienta esencial para profesionales de ciberseguridad, administradores de redes y pentesters.
+
 
