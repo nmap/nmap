@@ -1,4 +1,21 @@
 NMAP
+AMY_GARAY
+1) UTILIDAD DEL REPOSITORIO
+   Identifica sistemas operativos y versiones de software a través de fingerprinting con -O y -sV
+   Se usa en pruebas de penetración para obtener una visión detallada de la superficie de ataque de una red.
+   Técnicas de evasión como fragmentación de paquetes (-f), modificación de TTL (--ttl) o camuflaje de origen (-S, -D) para analizar reglas de firewall.
+   Se puede ejecutar en modo agente distribuido mediante nmap -iL para escanear múltiples objetivos simultáneamente
+3) JUSTIFICACIÓN
+   El repositorio de Nmap no solo ofrece una herramienta de escaneo de puertos, sino que proporciona un framework avanzado de auditoría de redes y seguridad ofensiva, esencial en cualquier kit de pentesting o administración de redes. Su versatilidad lo hace útil tanto para atacantes éticos como para defensores de ciberseguridad
+4) REFERENCIAS
+   Patel, R., & Singh, A. (2023). Use Nmap like a Pro: A Beginner's Guide for Aspiring Security Professionals. ResearchGate. https://www.researchgate.net/publication/387953667
+
+Kumar, S. (2022). A Case Study on Nmap - Network Mapper. Academia.edu. https://www.academia.edu/34856706
+
+Gómez, J., & López, M. (2021). Análisis de las vulnerabilidades del sistema de información utilizando herramientas de ciberseguridad. Universidad Politécnica Salesiana. https://dspace.ups.edu.ec/bitstream/123456789/25183/4/UPS-CT010619.pdf
+
+Chen, L., & Brown, T. (2023). A Comparative Analysis of Port Scanning Tool Efficacy. arXiv. https://arxiv.org/abs/2303.11282
+
 1) NMAP funciona para raelizar escaneo en todas las redes, su proposito principal es encontrar puertos abiertos y vulnerabilidades ademas que posee este tipo de escaneos SYN, TCP, UDP, y SCTP para detectar servicios abiertos en un sistema objetivo.
 
 Ademas se puede optar por poner velocidad a nmap con la opcion -T5
@@ -25,8 +42,8 @@ Nmap: the Network Mapper - Free Security Scanner. (s.f.). Nmap. https://nmap.org
 # Nmap - Network Mapper
 
 Nmap es “Network Mapper”una herramienta de código abierto para la red exploración y auditoría de la seguridad. Fue diseñado para rápidamente escanean grandes redes, aunque funciona bien contra single anfitriones. Nmap utiliza paquetes IP crudos de maneras novedosas para determinar qué Los anfitriones están disponibles en la red, qué servicios (aplicación nombre y versión) que ofrecen esos hosts, qué sistemas operativos (y versiones del sistema operativo) están en ejecución, qué tipo de paquetes filtros/cortales están en uso, y docenas de otros características. Mientras que Nmap se utiliza comúnmente para auditorías de seguridad, muchos sistemas y administradores de redes lo encuentran útil para la rutina tareas como inventario de la red, gestión de la actualización del servicio horarios, y monitorear el tiempo de actividad o servicio
-```
-- 
+
+
 **`nmap -A -T4 scanme.nmap.org`**Reporte de escaneo de mapa de Nmap para scanme.nmap.org (74.207.244.221)
 El anfitrión se levanta (0.029s latencia).
 rDNS récord para 74.207.244.221: li86-221.members.linode.com
@@ -53,7 +70,7 @@ HOP RTT ADDRESS
 11 17.65 ms li86-221.members.linode.com (74.207.244.221)
 
 Maestación hecha: 1 dirección IP (1 host up) escaneada en 14.40 segundos
-```
+
 
  Luis_Pacheco
 # Referencias  20
@@ -77,4 +94,5 @@ Nmap es una herramienta que permite trazar rápidamente una red sin necesidad de
 
 https://nmap.org/book/man.html#man-ex-repscan
 https://www.freecodecamp.org/news/what-is-nmap-and-how-to-use-it-a-tutorial-for-the-greatest-scanning-tool-of-all-time/
+ master
  master
