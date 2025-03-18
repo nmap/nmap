@@ -55,7 +55,26 @@ HOP RTT ADDRESS
 Maestación hecha: 1 dirección IP (1 host up) escaneada en 14.40 segundos
 ```
 
+ Luis_Pacheco
 # Referencias  20
 
 - https://nmap.org/book/man.html#man-ex-repscan
 - https://www.freecodecamp.org/news/what-is-nmap-and-how-to-use-it-a-tutorial-for-the-greatest-scanning-tool-of-all-time/
+
+# Por qué usar Nmap?
+
+Nmap es una herramienta que permite trazar rápidamente una red sin necesidad de comandos sofisticados ni configuraciones complejas. Puede utilizarse tanto con comandos simples, como para comprobar si un host está activo, como con scripting avanzado a través de su Motor de Scripting Nmap.
+
+### Características principales de Nmap:
+
+-   **Reconocimiento de dispositivos:** Detecta rápidamente todos los dispositivos conectados a la red, incluyendo servidores, routers, interruptores, dispositivos móviles, entre otros.
+-   **Identificación de servicios:** Permite conocer qué servicios se ejecutan en un sistema, como servidores web, servidores DNS y otras aplicaciones comunes. También puede detectar versiones de aplicaciones con una precisión razonable, facilitando la identificación de vulnerabilidades.
+-   **Detección del sistema operativo:** Obtiene información detallada sobre el sistema operativo de los dispositivos, incluyendo versiones específicas, lo que resulta útil en pruebas de penetración.
+-   **Escaneo de seguridad y vulnerabilidades:** Puede ejecutar scripts del Motor de Scripting Nmap para realizar auditorías de seguridad y ataques controlados a los sistemas analizados.
+-   **Interfaz gráfica (Zenmap):** Incluye una interfaz gráfica llamada Zenmap, que permite desarrollar mapas visuales de la red para mejorar la usabilidad y el análisis de reportes.
+
+# Referencias
+
+https://nmap.org/book/man.html#man-ex-repscan
+https://www.freecodecamp.org/news/what-is-nmap-and-how-to-use-it-a-tutorial-for-the-greatest-scanning-tool-of-all-time/
+ master
