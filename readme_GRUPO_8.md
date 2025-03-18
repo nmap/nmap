@@ -13,7 +13,6 @@
 * Impacto en la Red: Escaneos intensivos pueden afectar el rendimiento de la red.
 
 ## FUENTES
-
 [Hackertarget](https://hackertarget.com/nmap-cheatsheet-a-quick-reference-guide/) /
 [Book](https://nmap.org/book/) /
 [Nmap](https://nmap.org/book/man-examples.html) /
