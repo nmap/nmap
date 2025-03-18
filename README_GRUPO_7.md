@@ -55,6 +55,12 @@ HOP RTT ADDRESS
 Maestación hecha: 1 dirección IP (1 host up) escaneada en 14.40 segundos
 ```
 
+ Luis_Pacheco
+# Referencias  20
+
+- https://nmap.org/book/man.html#man-ex-repscan
+- https://www.freecodecamp.org/news/what-is-nmap-and-how-to-use-it-a-tutorial-for-the-greatest-scanning-tool-of-all-time/
+
 # Por qué usar Nmap?
 
 Nmap es una herramienta que permite trazar rápidamente una red sin necesidad de comandos sofisticados ni configuraciones complejas. Puede utilizarse tanto con comandos simples, como para comprobar si un host está activo, como con scripting avanzado a través de su Motor de Scripting Nmap.
@@ -71,3 +77,4 @@ Nmap es una herramienta que permite trazar rápidamente una red sin necesidad de
 
 https://nmap.org/book/man.html#man-ex-repscan
 https://www.freecodecamp.org/news/what-is-nmap-and-how-to-use-it-a-tutorial-for-the-greatest-scanning-tool-of-all-time/
+ master
