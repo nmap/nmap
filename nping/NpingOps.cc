@@ -253,7 +253,7 @@ NpingOps::NpingOps() {
     icmp_trans_time=0;
     icmp_trans_time_set=false;
 
-    memset( icmp_advert_entry_addr, 0, sizeof(u32)*MAX_ICMP_ADVERT_ENTRIES );
+    memset( icmp_advert_entry_addr, 0, sizeof(struct in_addr)*MAX_ICMP_ADVERT_ENTRIES );
     memset( icmp_advert_entry_pref, 0, sizeof(u32)*MAX_ICMP_ADVERT_ENTRIES );
     icmp_advert_entry_count=0;
     icmp_advert_entry_set=false;
