@@ -90,6 +90,7 @@
 #include "xml.h"
 #include "scan_lists.h"
 #include "payload.h"
+#include "reverse_dns.h"
 
 #ifndef NOLUA
 #include "nse_main.h"
@@ -211,6 +212,7 @@ static void printusage() {
          "  -PO[protocol list]: IP Protocol Ping\n"
          "  -n/-R: Never do DNS resolution/Always resolve [default: sometimes]\n"
          "  --dns-servers <serv1[,serv2],...>: Specify custom DNS servers\n"
+         "  --reverse-dns - Perform reverse DNS lookup on target IP address\n"
          "  --system-dns: Use OS's DNS resolver\n"
          "  --traceroute: Trace hop path to each host\n"
          "SCAN TECHNIQUES:\n"
@@ -606,6 +608,8 @@ void parse_options(int argc, char **argv) {
     {"deprecated-xml-osclass", no_argument, 0, 0},
     {(char*)k, no_argument, 0, 0},
     {"dns-servers", required_argument, 0, 0},
+    //added reverse-dns here as parse arguments.
+    {"reverse-dns", required_argument, 0, 0},
     {"port-ratio", required_argument, 0, 0},
     {"exclude-ports", required_argument, 0, 0},
     {"top-ports", required_argument, 0, 0},
@@ -872,6 +876,9 @@ void parse_options(int argc, char **argv) {
           o.mass_dns = false;
         } else if (strcmp(long_options[option_index].name, "dns-servers") == 0) {
           o.dns_servers = strdup(optarg);
+        } else if (strcmp(long_options[option_index].name, "reverse-dns") == 0) {
+          //Adding reverse_dns
+          o.reverse_dns = true; 
         } else if (strcmp(long_options[option_index].name, "resolve-all") == 0) {
           o.resolve_all = true;
         } else if (strcmp(long_options[option_index].name, "unique") == 0) {
@@ -2273,6 +2280,16 @@ int nmap_main(int argc, char *argv[]) {
       os_engine.os_scan(Targets);
     }
 
+    // Adding reverse-dns-lookup
+    if (o.reverse_dns) {
+      for (targetno = 0; targetno < Targets.size(); targetno++) {
+        currenths = Targets[targetno];
+        const char *ip = currenths->NameIP();
+        const char *ptr_record = reverse_dns_lookup(ip);
+        log_write(LOG_STDOUT, "%s -> %s\n", ip, ptr_record);
+      }
+      exit(0);
+    }
     if (o.traceroute)
       traceroute(Targets);
 
