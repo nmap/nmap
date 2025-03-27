@@ -3,7 +3,7 @@ import sys, os
 import platform
 
 
-bundlepath = sys.argv[0]
+bundlepath = abspath(__file__)
 
 bundle_contents = join(bundlepath, 'Contents')
 bundle_res = join(bundle_contents, 'Resources')
@@ -14,8 +14,14 @@ bundle_data = join(bundle_res, 'share')
 bundle_etc = join(bundle_res, 'etc')
 
 os.environ['XDG_DATA_DIRS'] = bundle_data
-os.environ['DYLD_LIBRARY_PATH'] = bundle_lib
-os.environ['LD_LIBRARY_PATH'] = bundle_lib
+
+# Use appropriate library path settings based on OS
+ios_name = platform.system()
+if ios_name == "Darwin":  # macOS
+    os.environ['DYLD_FALLBACK_LIBRARY_PATH'] = bundle_lib
+else:  # Other UNIX-based systems
+    os.environ['LD_LIBRARY_PATH'] = bundle_lib
+
 os.environ['GTK_DATA_PREFIX'] = bundle_res
 os.environ['GTK_EXE_PREFIX'] = bundle_res
 os.environ['GTK_PATH'] = bundle_res
@@ -31,13 +37,16 @@ if int(platform.release().split('.')[0]) > 10:
 
 os.environ['GI_TYPELIB_PATH'] = join(bundle_lib, 'girepository-1.0')
 
-#Set $PYTHON to point inside the bundle
+# Set $PYTHON to point inside the bundle
 PYVER = 'python3.10'
-sys.path.append(bundle_res)
+bundle_python = join(bundle_res, 'bin', PYVER)
+os.environ['PYTHONHOME'] = bundle_res
+os.environ['PYTHONPATH'] = join(bundle_res, 'lib', PYVER)
+sys.path.append(os.environ['PYTHONPATH'])
 
 os.environ['USERPROFILE'] = os.environ['HOME']
 os.environ['APPDATA'] = join(os.environ['HOME'], 'Library', 'Application Support')
+
 # Replace my_app with the file or module with your main() function.
 from zenmapGUI import App
 App.run()
-
