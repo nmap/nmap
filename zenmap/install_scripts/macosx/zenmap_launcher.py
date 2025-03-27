@@ -14,8 +14,14 @@ bundle_data = join(bundle_res, 'share')
 bundle_etc = join(bundle_res, 'etc')
 
 os.environ['XDG_DATA_DIRS'] = bundle_data
-os.environ['DYLD_LIBRARY_PATH'] = bundle_lib
-os.environ['LD_LIBRARY_PATH'] = bundle_lib
+
+# Use appropriate library path settings based on OS
+ios_name = platform.system()
+if ios_name == "Darwin":  # macOS
+    os.environ['DYLD_FALLBACK_LIBRARY_PATH'] = bundle_lib
+else:  # Other UNIX-based systems
+    os.environ['LD_LIBRARY_PATH'] = bundle_lib
+
 os.environ['GTK_DATA_PREFIX'] = bundle_res
 os.environ['GTK_EXE_PREFIX'] = bundle_res
 os.environ['GTK_PATH'] = bundle_res
