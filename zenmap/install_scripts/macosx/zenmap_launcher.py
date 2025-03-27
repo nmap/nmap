@@ -3,7 +3,7 @@ import sys, os
 import platform
 
 
-bundlepath = sys.argv[0]
+bundlepath = abspath(__file__)
 
 bundle_contents = join(bundlepath, 'Contents')
 bundle_res = join(bundle_contents, 'Resources')
