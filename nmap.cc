@@ -608,8 +608,7 @@ void parse_options(int argc, char **argv) {
     {"deprecated-xml-osclass", no_argument, 0, 0},
     {(char*)k, no_argument, 0, 0},
     {"dns-servers", required_argument, 0, 0},
-    //added reverse-dns here as parse arguments.
-    {"reverse-dns", required_argument, 0, 0},
+    {"reverse-dns", no_argument, 0, 0},
     {"port-ratio", required_argument, 0, 0},
     {"exclude-ports", required_argument, 0, 0},
     {"top-ports", required_argument, 0, 0},
@@ -877,8 +876,10 @@ void parse_options(int argc, char **argv) {
         } else if (strcmp(long_options[option_index].name, "dns-servers") == 0) {
           o.dns_servers = strdup(optarg);
         } else if (strcmp(long_options[option_index].name, "reverse-dns") == 0) {
-          //Adding reverse_dns
-          o.reverse_dns = true; 
+          o.reverse_dns = true;
+          o.listscan = true;
+          o.noportscan = true;
+          o.pingtype |= PINGTYPE_NONE;
         } else if (strcmp(long_options[option_index].name, "resolve-all") == 0) {
           o.resolve_all = true;
         } else if (strcmp(long_options[option_index].name, "unique") == 0) {

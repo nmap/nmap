@@ -9,7 +9,7 @@
 
 char *reverse_dns_resolve(const struct sockaddr_storage *ss, size_t ss_len) {
     char ip_str[INET6_ADDRSTRLEN];
-    unsigned char response[NS_PACKETSZ];  // response buffer
+    unsigned char response[NS_PACKETSZ];
     char domain[NS_MAXDNAME];
 
     if (!ss || ss_len == 0) {
@@ -25,14 +25,26 @@ char *reverse_dns_resolve(const struct sockaddr_storage *ss, size_t ss_len) {
         return strdup("ERROR: Failed to convert IP address");
     }
 
-    // Construct PTR domain
     if (ss->ss_family == AF_INET) {
         int octets[4];
         sscanf(ip_str, "%d.%d.%d.%d", &octets[0], &octets[1], &octets[2], &octets[3]);
         snprintf(domain, sizeof(domain), "%d.%d.%d.%d.in-addr.arpa", 
                  octets[3], octets[2], octets[1], octets[0]);
+    } else if (ss->ss_family == AF_INET6) {
+        struct in6_addr *addr = &((struct sockaddr_in6 *)ss)->sin6_addr;
+        char *ptr = domain;
+        int i;
+
+        for (i = 15; i >= 0; i--) {
+            unsigned char byte = addr->s6_addr[i];
+            *ptr++ = "0123456789abcdef"[byte & 0x0F];
+            *ptr++ = '.';
+            *ptr++ = "0123456789abcdef"[(byte >> 4) & 0x0F];
+            *ptr++ = '.';
+        }
+        strcpy(ptr, "ip6.arpa");
     } else {
-        return strdup("ERROR: IPv6 not fully implemented");
+        return strdup("ERROR: Unsupported address family");
     }
 
     // Perform DNS query
@@ -43,13 +55,11 @@ char *reverse_dns_resolve(const struct sockaddr_storage *ss, size_t ss_len) {
         return error_msg ? error_msg : NULL;
     }
 
-    // Parse the response
     ns_msg handle;
     if (ns_initparse(response, len, &handle) < 0) {
         return strdup("ERROR: Failed to parse DNS response");
     }
 
-    // Process PTR records into a single string
     int count = ns_msg_count(handle, ns_s_an);
     char *result = NULL;
     size_t result_len = 0;
@@ -71,7 +81,7 @@ char *reverse_dns_resolve(const struct sockaddr_storage *ss, size_t ss_len) {
 
                 result = new_result;
                 if (result_len) strcat(result, ", ");
-                else result[0] = '\0';  // Initialize for first hostname
+                else result[0] = '\0';
                 strcat(result, hostname);
                 result_len = new_len;
             }
