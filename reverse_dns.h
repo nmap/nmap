@@ -1,17 +1,8 @@
 #ifndef REVERSE_DNS_H
 #define REVERSE_DNS_H
 
-#include <netinet/in.h>
+#include <sys/socket.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+char *reverse_dns_resolve(const struct sockaddr_storage *ss, size_t ss_len);
 
-// Perform reverse DNS lookup for a single IP
-const char *reverse_dns_lookup(const char *ip);
-
-#ifdef __cplusplus
-}
-#endif
-
-#endif
+#endif /* REVERSE_DNS_H */

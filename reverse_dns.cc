@@ -4,211 +4,82 @@
 #include <string.h>
 #include <arpa/inet.h>
 #include <netinet/in.h>
-#include <unistd.h>
-#include <ctype.h>
+#include <resolv.h>
+#include <errno.h>
 
-#define DNS_SERVER "8.8.8.8"
-#define DNS_PORT 53
-#define BUFFER_SIZE 512
+char *reverse_dns_resolve(const struct sockaddr_storage *ss, size_t ss_len) {
+    char ip_str[INET6_ADDRSTRLEN];
+    unsigned char response[NS_PACKETSZ];  // response buffer
+    char domain[NS_MAXDNAME];
 
-struct dns_header {
-    unsigned short id;
-    unsigned short flags;
-    unsigned short qdcount;
-    unsigned short ancount;
-    unsigned short nscount;
-    unsigned short arcount;
-};
-
-// Convert IPv4 to reverse DNS format (e.g., 8.8.8.8 -> 8.8.8.8.in-addr.arpa)
-void ipv4_to_arpa(const char *ip, char *output) {
-    int octets[4];
-    sscanf(ip, "%d.%d.%d.%d", &octets[0], &octets[1], &octets[2], &octets[3]);
-    sprintf(output, "%d.%d.%d.%d.in-addr.arpa", octets[3], octets[2], octets[1], octets[0]);
-}
-
-// Convert IPv6 to reverse DNS format (e.g., 2001:db8::1 -> 1.0.0...ip6.arpa)
-void ipv6_to_arpa(const char *ip, char *output) {
-    unsigned char addr[16];
-    char full_hex[33] = {0};  // 32 hex digits + null terminator
-
-    if (inet_pton(AF_INET6, ip, addr) != 1) {
-        strcpy(output, "Invalid IPv6 address");
-        return;
+    if (!ss || ss_len == 0) {
+        return strdup("ERROR: Invalid sockaddr_storage input");
     }
-    for (int i = 0; i < 16; i++) {
-        sprintf(full_hex + i * 2, "%02x", addr[i]);
-    }
-    char reversed[128] = {0};
-    int pos = 0;
-    for (int i = 31; i >= 0; i--) {
-        reversed[pos++] = full_hex[i];
-        reversed[pos++] = '.';
-    }
-    sprintf(output, "%sip6.arpa", reversed);
-}
 
-// Determine whether an IP is IPv4 or IPv6 and convert accordingly.
-void ip_to_arpa(const char *ip, char *output) {
-    if (strchr(ip, ':') != NULL) {
-        ipv6_to_arpa(ip, output);
+    // Convert IP to string
+    if (!inet_ntop(ss->ss_family,
+                   (ss->ss_family == AF_INET) ?
+                   (void *)&((struct sockaddr_in *)ss)->sin_addr :
+                   (void *)&((struct sockaddr_in6 *)ss)->sin6_addr,
+                   ip_str, sizeof(ip_str))) {
+        return strdup("ERROR: Failed to convert IP address");
+    }
+
+    // Construct PTR domain
+    if (ss->ss_family == AF_INET) {
+        int octets[4];
+        sscanf(ip_str, "%d.%d.%d.%d", &octets[0], &octets[1], &octets[2], &octets[3]);
+        snprintf(domain, sizeof(domain), "%d.%d.%d.%d.in-addr.arpa", 
+                 octets[3], octets[2], octets[1], octets[0]);
     } else {
-        ipv4_to_arpa(ip, output);
+        return strdup("ERROR: IPv6 not fully implemented");
     }
-}
 
-// Build a DNS query for PTR lookup
-int build_query(unsigned char *buffer, char *domain) {
-    struct dns_header *dns = (struct dns_header *)buffer;
-    dns->id = htons(0x1234);
-    dns->flags = htons(0x0100);  // standard query with recursion desired
-    dns->qdcount = htons(1);
-    dns->ancount = 0;
-    dns->nscount = 0;
-    dns->arcount = 0;
-
-    // Convert domain name into DNS query format
-    unsigned char *qname = buffer + sizeof(struct dns_header);
-    char domain_copy[256];
-    strncpy(domain_copy, domain, sizeof(domain_copy));
-    domain_copy[sizeof(domain_copy) - 1] = '\0';
-
-    char *token = strtok(domain_copy, ".");
-    while (token) {
-        size_t len = strlen(token);
-        *qname++ = len;
-        memcpy(qname, token, len);
-        qname += len;
-        token = strtok(NULL, ".");
+    // Perform DNS query
+    int len = res_query(domain, ns_c_in, ns_t_ptr, response, sizeof(response));
+    if (len < 0) {
+        char *error_msg = (char *)malloc(strlen("ERROR: Failed to resolve ") + strlen(ip_str) + 1);
+        if (error_msg) sprintf(error_msg, "ERROR: Failed to resolve %s", ip_str);
+        return error_msg ? error_msg : NULL;
     }
-    *qname++ = 0;
 
-    // Set QTYPE to PTR (12) and QCLASS to IN (1)
-    unsigned short *qtype = (unsigned short *)qname;
-    *qtype++ = htons(12);
-    *qtype++ = htons(1);
-
-    return (qname - buffer) + 4;
-}
-
-// Send the DNS query and get a response
-int send_dns_query(unsigned char *query, int query_size, unsigned char *response) {
-    int sock = socket(AF_INET, SOCK_DGRAM, 0);
-    if (sock < 0) {
-        perror("socket");
-        return -1;
+    // Parse the response
+    ns_msg handle;
+    if (ns_initparse(response, len, &handle) < 0) {
+        return strdup("ERROR: Failed to parse DNS response");
     }
-    struct sockaddr_in server;
-    server.sin_family = AF_INET;
-    server.sin_port = htons(DNS_PORT);
-    inet_pton(AF_INET, DNS_SERVER, &server.sin_addr);
 
-    if (sendto(sock, query, query_size, 0, (struct sockaddr *)&server, sizeof(server)) < 0) {
-        perror("sendto");
-        close(sock);
-        return -1;
-    }
-    struct sockaddr_in from;
-    socklen_t fromlen = sizeof(from);
-    int response_size = recvfrom(sock, response, BUFFER_SIZE, 0, (struct sockaddr *)&from, &fromlen);
-    if (response_size < 0) {
-        perror("recvfrom");
-    }
-    close(sock);
+    // Process PTR records into a single string
+    int count = ns_msg_count(handle, ns_s_an);
+    char *result = NULL;
+    size_t result_len = 0;
 
-    return response_size;
-}
+    for (int i = 0; i < count; i++) {
+        ns_rr rr;
+        if (ns_parserr(&handle, ns_s_an, i, &rr) == 0 && ns_rr_type(rr) == ns_t_ptr) {
+            char hostname[NS_MAXDNAME] = {0};
 
-// Decode domain names from compressed format in the DNS response.
-void read_name(unsigned char *buffer, unsigned char *ptr, char *output) {
-    char name[256] = {0};
-    int name_len = 0;
-    int jumped = 0;
-    unsigned char *orig_ptr = ptr;
+            if (ns_name_uncompress(ns_msg_base(handle), ns_msg_end(handle),
+                                   ns_rr_rdata(rr), hostname, sizeof(hostname)) > 0) {
+                size_t new_len = result_len + strlen(hostname) + (result_len ? 2 : 0);
+                char *new_result = (char *)realloc(result, new_len + 1);
 
-    while (*ptr) {
-        if ((*ptr & 0xC0) == 0xC0) {
-            int offset = ((*ptr & 0x3F) << 8) + ptr[1];
-            ptr = buffer + offset;
-            jumped = 1;
-        } else {
-            int len = *ptr++;
-            if (len == 0) break;
-            if (name_len != 0) {
-                name[name_len++] = '.';
+                if (!new_result) {
+                    free(result);
+                    return strdup("ERROR: Memory allocation failed");
+                }
+
+                result = new_result;
+                if (result_len) strcat(result, ", ");
+                else result[0] = '\0';  // Initialize for first hostname
+                strcat(result, hostname);
+                result_len = new_len;
             }
-            strncpy(name + name_len, (char *)ptr, len);
-            name_len += len;
-            ptr += len;
         }
     }
-    name[name_len] = '\0';
-    strcpy(output, name);
-    if (jumped) {
-        ptr = orig_ptr + 2;
-    }
-}
 
-// Modified parse_response to return result instead of printing
-static void parse_response(unsigned char *response, const char *input_ip, char *result) {
-    struct dns_header *dns = (struct dns_header *)response;
-    unsigned char *ptr = response + sizeof(struct dns_header);
-    int qdcount = ntohs(dns->qdcount);
-    int ancount = ntohs(dns->ancount);
-
-    // Skip question section
-    for (int i = 0; i < qdcount; i++) {
-        while (*ptr) ptr++;
-        ptr += 5; // skip null + QTYPE/QCLASS
-    }
-    for (int i = 0; i < ancount; i++) {
-        char name[256];
-        read_name(response, ptr, name);
-        if ((*ptr & 0xC0) == 0xC0) {
-            ptr += 2;
-        } else {
-            while (*ptr) ptr++;
-            ptr++;
-        }
-        unsigned short type = ntohs(*(unsigned short *)ptr);
-        ptr += 2; // QTYPE
-        ptr += 2; // QCLASS
-        ptr += 4; // TTL
-        unsigned short rdlength = ntohs(*(unsigned short *)ptr);
-        ptr += 2;
-
-        if (type == 12) {  // PTR record
-            read_name(response, ptr, result);
-            return;
-        }
-        ptr += rdlength;
-    }
-    strcpy(result, "No PTR record found");
-}
-
-// Entry point for reverse DNS lookup
-const char *reverse_dns_lookup(const char *ip) {
-    static char result[256];
-    char domain[512];
-    unsigned char query[BUFFER_SIZE], response[BUFFER_SIZE];
-
-    // Validate IP
-    struct in_addr ipv4addr;
-    struct in6_addr ipv6addr;
-    if (strchr(ip, ':') ? 
-        inet_pton(AF_INET6, ip, &ipv6addr) != 1 :
-        inet_pton(AF_INET, ip, &ipv4addr) != 1) {
-        return "Invalid IP address";
-    }
-
-    ip_to_arpa(ip, domain);
-    int query_size = build_query(query, domain);
-    int response_size = send_dns_query(query, query_size, response);
-
-    if (response_size > 0) {
-        parse_response(response, ip, result);
-    } else {
-        strcpy(result, "No DNS response");
+    if (!result) {
+        return strdup("ERROR: No PTR records found");
     }
 
     return result;

@@ -2122,15 +2122,46 @@ int nmap_main(int argc, char *argv[]) {
           ) || o.listscan) {
         /* We're done with the hosts */
         if (currenths->flags & HOST_UP || (o.verbose && !o.openOnly())) {
-          xml_start_tag("host");
-          write_host_header(currenths);
-          printmacinfo(currenths);
-          //  if (currenths->flags & HOST_UP)
-          //  log_write(LOG_PLAIN,"\n");
-          printtimes(currenths);
-          xml_end_tag();
-          xml_newline();
-          log_flush_all();
+          if (o.reverse_dns) {
+            struct sockaddr_storage target_ss;
+            size_t target_sslen;
+            currenths->TargetSockAddr(&target_ss, &target_sslen);
+            char *result = reverse_dns_resolve(&target_ss, target_sslen);
+            if (result) {
+                if (strncmp(result, "ERROR:", 6) == 0) {
+                    if (o.debugging > 1) {
+                        log_write(LOG_STDOUT, "Reverse DNS failed for %s: %s\n",
+                                  currenths->targetipstr(), result);
+                    }
+                    free(result);
+                } else {
+                    currenths->setHostName(result);
+                    xml_start_tag("host");
+                    write_host_header(currenths);  // Prints one report with all hostnames
+                    printmacinfo(currenths);
+                    printtimes(currenths);
+                    xml_end_tag();
+                    xml_newline();
+                    log_flush_all();
+                    free(result);
+                }
+            } else {
+                if (o.debugging > 1) {
+                    log_write(LOG_STDOUT, "Reverse DNS failed for %s: Null result\n",
+                              currenths->targetipstr());
+                }
+            }
+          } else {
+            xml_start_tag("host");
+            write_host_header(currenths);
+            printmacinfo(currenths);
+            //  if (currenths->flags & HOST_UP)
+            //  log_write(LOG_PLAIN,"\n");
+            printtimes(currenths);
+            xml_end_tag();
+            xml_newline();
+            log_flush_all();
+          }
         }
         delete currenths;
         o.numhosts_scanned++;
@@ -2280,16 +2311,6 @@ int nmap_main(int argc, char *argv[]) {
       os_engine.os_scan(Targets);
     }
 
-    // Adding reverse-dns-lookup
-    if (o.reverse_dns) {
-      for (targetno = 0; targetno < Targets.size(); targetno++) {
-        currenths = Targets[targetno];
-        const char *ip = currenths->NameIP();
-        const char *ptr_record = reverse_dns_lookup(ip);
-        log_write(LOG_STDOUT, "%s -> %s\n", ip, ptr_record);
-      }
-      exit(0);
-    }
     if (o.traceroute)
       traceroute(Targets);
 
