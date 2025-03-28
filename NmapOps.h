@@ -160,6 +160,7 @@ class NmapOps {
   float max_packet_send_rate;
   /* The requested auto stats printing interval, or 0.0 if unset. */
   float stats_interval;
+  bool reverse_dns; //reverse-dns bool added.
   bool randomize_hosts;
   bool randomize_ports;
   bool spoofsource; /* -S used */

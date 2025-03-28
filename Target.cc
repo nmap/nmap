@@ -321,7 +321,8 @@ void Target::setHostName(const char *name) {
     while (*p) {
       // I think only a-z A-Z 0-9 . and - are allowed, but I'll be a little more
       // generous.
-      if (!isalnum((int) (unsigned char) *p) && !strchr(".-+=:_~*", *p)) {
+      // added , and space
+      if (!isalnum((int) (unsigned char) *p) && !strchr(".-+=:_~*, ", *p)) {
         log_write(LOG_STDOUT, "Illegal character(s) in hostname -- replacing with '*'\n");
         *p = '*';
       }
