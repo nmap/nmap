@@ -12,10 +12,22 @@ xml.__path__ = [x for x in xml.__path__ if "_xmlplus" not in x]
 
 import xml.dom.minidom
 
-import imp
+import types
+import importlib.machinery
+
+# Suggested conversion for imp.load_module from
+# https://github.com/python/cpython/issues/104212
+def load_module(module_name, filename):
+    loader = importlib.machinery.SourceFileLoader(module_name, filename)
+    module = types.ModuleType(loader.name)
+    module.__file__ = filename
+    sys.modules[module.__name__] = module
+    loader.exec_module(module)
+    return module
+
 dont_write_bytecode = sys.dont_write_bytecode
 sys.dont_write_bytecode = True
-ndiff = imp.load_source("ndiff", "ndiff.py")
+ndiff = load_module("ndiff", "ndiff.py")
 for x in dir(ndiff):
     if not x.startswith("_"):
         globals()[x] = getattr(ndiff, x)
