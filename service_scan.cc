@@ -1309,7 +1309,7 @@ void ServiceProbe::addMatch(const char *match, int lineno) {
    (servicematch) which use this */
 void parse_nmap_service_probe_file(AllProbes *AP, const char *filename) {
   ServiceProbe *newProbe = NULL;
-  char line[2048];
+  char line[16384];
   int lineno = 0;
   FILE *fp;
 
@@ -1336,6 +1336,10 @@ void parse_nmap_service_probe_file(AllProbes *AP, const char *filename) {
 
     if (strncmp(line, "Probe ", 6) != 0)
       fatal("Parse error on line %d of nmap-service-probes file: %s -- line was expected to begin with \"Probe \" or \"Exclude \"", lineno, filename);
+
+    if (strnlen(line, sizeof(line)) >= sizeof(line) - 1) {
+      fatal("Parse error on line %d of nmap-service-probes file: %s -- line is too long for buffer, max length is %lu", lineno, filename, sizeof(line));
+    }
 
     newProbe = new ServiceProbe();
     newProbe->setProbeDetails(line + 6, lineno);
