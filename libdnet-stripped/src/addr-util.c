@@ -3,14 +3,10 @@
  *
  * Copyright (c) 2002 Dug Song <dugsong@monkey.org>
  *
- * $Id: addr-util.c 539 2005-01-23 07:36:54Z dugsong $
+ * $Id$
  */
 
-#ifdef _WIN32
-#include "dnet_winconfig.h"
-#else
 #include "config.h"
-#endif
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -174,28 +170,23 @@ ip_pton(const char *p, ip_addr_t *ip)
 char *
 ip6_ntop(const ip6_addr_t *ip6, char *dst, size_t len)
 {
-	uint16_t data[IP6_ADDR_LEN / 2];
 	struct { int base, len; } best, cur;
 	char *p = dst;
 	int i;
+	uint16_t *ip6_data;
 
 	cur.len = best.len = 0;
 	
 	if (len < 46)
 		return (NULL);
 	
-	/* Copy into 16-bit array. */
-	for (i = 0; i < IP6_ADDR_LEN / 2; i++) {
-		data[i] = ip6->data[2 * i] << 8;
-		data[i] |= ip6->data[2 * i + 1];
-	}
-	
 	best.base = cur.base = -1;
 	/*
 	 * Algorithm borrowed from Vixie's inet_pton6()
 	 */
 	for (i = 0; i < IP6_ADDR_LEN; i += 2) {
-		if (data[i / 2] == 0) {
+		ip6_data = (uint16_t *)&ip6->data[i];
+		if (*ip6_data == 0) {
 			if (cur.base == -1) {
 				cur.base = i;
 				cur.len = 0;
@@ -222,12 +213,13 @@ ip6_ntop(const ip6_addr_t *ip6, char *dst, size_t len)
 			i += best.len;
 		} else if (i == 12 && best.base == 0 &&
 		    (best.len == 10 || (best.len == 8 &&
-			data[5] == 0xffff))) {
-			if (ip_ntop((ip_addr_t *)&data[6], p,
+			*(ip6_data = (uint16_t *)&ip6->data[10]) == 0xffff))) {
+			if (ip_ntop((ip_addr_t *)&ip6->data[12], p,
 			    len - (p - dst)) == NULL)
 				return (NULL);
 			return (dst);
-		} else p += sprintf(p, "%x:", data[i / 2]);
+		} else p += sprintf(p, "%x:",
+			ntohs(*(ip6_data = (uint16_t *)&ip6->data[i])));
 	}
 	if (best.base + 2 + best.len == IP6_ADDR_LEN) {
 		*p = '\0';

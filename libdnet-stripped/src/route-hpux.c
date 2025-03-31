@@ -3,7 +3,7 @@
  *
  * Copyright (c) 2000 Dug Song <dugsong@monkey.org>
  *
- * $Id: route-hpux.c 483 2004-01-14 04:52:11Z dugsong $
+ * $Id$
  */
 
 #include "config.h"

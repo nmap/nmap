@@ -3,7 +3,7 @@
  *
  * Copyright (c) 2001 Dug Song <dugsong@monkey.org>
  *
- * $Id: eth-bsd.c 630 2006-02-02 04:17:39Z dugsong $
+ * $Id$
  */
 
 #include "config.h"
@@ -40,13 +40,12 @@ eth_t *
 eth_open(const char *device)
 {
 	struct ifreq ifr;
-	char file[32];
 	eth_t *e;
 	int i;
 
 	if ((e = calloc(1, sizeof(*e))) != NULL) {
-		for (i = 0; i < 128; i++) {
-			snprintf(file, sizeof(file), "/dev/bpf%d", i);
+		char file[32] = "/dev/bpf";
+		for (i = 0; i <= 128; i++) {
 			/* This would be O_WRONLY, but Mac OS X 10.6 has a bug
 			   where that prevents other users of the interface
 			   from seeing incoming traffic, even in other
@@ -54,6 +53,7 @@ eth_open(const char *device)
 			e->fd = open(file, O_RDWR);
 			if (e->fd != -1 || errno != EBUSY)
 				break;
+			snprintf(file, sizeof(file), "/dev/bpf%d", i);
 		}
 		if (e->fd < 0)
 			return (eth_close(e));

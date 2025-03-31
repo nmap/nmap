@@ -5,7 +5,7 @@
  *
  * Copyright (c) 2000 Dug Song <dugsong@monkey.org>
  *
- * $Id: tcp.h 487 2004-02-23 10:02:11Z dugsong $
+ * $Id$
  */
 
 #ifndef DNET_TCP_H
@@ -17,9 +17,9 @@
 #define TCP_HDR_LEN_MAX	(TCP_HDR_LEN + TCP_OPT_LEN_MAX)
 
 #ifndef __GNUC__
-#ifndef __attribute__
-# define __attribute__(x)
-#endif
+# ifndef __attribute__
+#  define __attribute__(x)
+# endif
 # pragma pack(1)
 #endif
 

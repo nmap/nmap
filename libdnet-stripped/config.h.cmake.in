@@ -1,0 +1,302 @@
+/* include/config.h.in.  Generated from configure.ac by autoheader.  */
+
+/* Define if arpreq struct has arp_dev. */
+#cmakedefine HAVE_ARPREQ_ARP_DEV
+
+/* Define to 1 if you have the <dlfcn.h> header file. */
+#cmakedefine HAVE_DLFCN_H
+
+/* Define to 1 if you have the `err' function. */
+#cmakedefine HAVE_ERR
+
+/* Define to 1 if you have the <fcntl.h> header file. */
+#cmakedefine HAVE_FCNTL_H
+
+/* Define to 1 if you have the <hpsecurity.h> header file. */
+#cmakedefine HAVE_HPSECURITY_H
+
+/* Define to 1 if you have the <inttypes.h> header file. */
+#cmakedefine HAVE_INTTYPES_H
+
+/* Define if you have arp(7) ioctls. */
+#cmakedefine HAVE_IOCTL_ARP
+
+/* Define to 1 if you have the <Iphlpapi.h> header file. */
+#cmakedefine HAVE_IPHLPAPI_H
+
+/* Define to 1 if you have the <ip_compat.h> header file. */
+#cmakedefine HAVE_IP_COMPAT_H
+
+/* Define to 1 if you have the <ip_fil_compat.h> header file. */
+#cmakedefine HAVE_IP_FIL_COMPAT_H
+
+/* Define to 1 if you have the <ip_fil.h> header file. */
+#cmakedefine HAVE_IP_FIL_H
+
+/* Define to 1 if you have the `iphlpapi' library (-liphlpapi). */
+#cmakedefine HAVE_LIBIPHLPAPI
+
+/* Define to 1 if you have the `nm' library (-lnm). */
+#cmakedefine HAVE_LIBNM
+
+/* Define to 1 if you have the `nsl' library (-lnsl). */
+#cmakedefine HAVE_LIBNSL
+
+/* Define to 1 if you have the `resolv' library (-lresolv). */
+#cmakedefine HAVE_LIBRESOLV
+
+/* Define to 1 if you have the `socket' library (-lsocket). */
+#cmakedefine HAVE_LIBSOCKET
+
+/* Define to 1 if you have the `str' library (-lstr). */
+#cmakedefine HAVE_LIBSTR
+
+/* Define to 1 if you have the `ws2_32' library (-lws2_32). */
+#cmakedefine HAVE_LIBWS2_32
+
+/* Define to 1 if you have the <linux/if_tun.h> header file. */
+#cmakedefine HAVE_LINUX_IF_TUN_H
+
+/* Define to 1 if you have the <linux/ip_fwchains.h> header file. */
+#cmakedefine HAVE_LINUX_IP_FWCHAINS_H
+
+/* Define to 1 if you have the <linux/ip_fw.h> header file. */
+#cmakedefine HAVE_LINUX_IP_FW_H
+
+/* Define to 1 if you have the <linux/netfilter_ipv4/ipchains_core.h> header
+   file. */
+#cmakedefine HAVE_LINUX_NETFILTER_IPV4_IPCHAINS_CORE_H
+
+/* Define if you have Linux PF_PACKET sockets. */
+#cmakedefine HAVE_LINUX_PF_PACKET
+
+/* Define if you have the Linux /proc filesystem. */
+#cmakedefine HAVE_LINUX_PROCFS
+
+/* Define to 1 if you have the <netinet/in_var.h> header file. */
+#cmakedefine HAVE_NETINET_IN_VAR_H
+
+/* Define to 1 if you have the <netinet/ip_compat.h> header file. */
+#cmakedefine HAVE_NETINET_IP_COMPAT_H
+
+/* Define to 1 if you have the <netinet/ip_fil_compat.h> header file. */
+#cmakedefine HAVE_NETINET_IP_FIL_COMPAT_H
+
+/* Define to 1 if you have the <netinet/ip_fil.h> header file. */
+#cmakedefine HAVE_NETINET_IP_FIL_H
+
+/* Define to 1 if you have the <netinet/ip_fw.h> header file. */
+#cmakedefine HAVE_NETINET_IP_FW_H
+
+/* Define to 1 if you have the <net/bpf.h> header file. */
+#cmakedefine HAVE_NET_BPF_H
+
+/* Define to 1 if you have the <net/if_arp.h> header file. */
+#cmakedefine HAVE_NET_IF_ARP_H
+
+/* Define to 1 if you have the <net/if_dl.h> header file. */
+#cmakedefine HAVE_NET_IF_DL_H
+
+/* Define to 1 if you have the <net/if.h> header file. */
+#cmakedefine HAVE_NET_IF_H
+
+/* Define to 1 if you have the <net/if_tun.h> header file. */
+#cmakedefine HAVE_NET_IF_TUN_H
+
+/* Define to 1 if you have the <net/if_var.h> header file. */
+#cmakedefine HAVE_NET_IF_VAR_H
+
+/* Define to 1 if you have the <net/pfilt.h> header file. */
+#cmakedefine HAVE_NET_PFILT_H
+
+/* Define to 1 if you have the <net/pfvar.h> header file. */
+#cmakedefine HAVE_NET_PFVAR_H
+
+/* Define to 1 if you have the <net/radix.h> header file. */
+#cmakedefine HAVE_NET_RADIX_H
+
+/* Define to 1 if you have the <net/raw.h> header file. */
+#cmakedefine HAVE_NET_RAW_H
+
+/* Define to 1 if you have the <net/route.h> header file. */
+#cmakedefine HAVE_NET_ROUTE_H
+
+/* Define if you have cooked raw IP sockets. */
+#cmakedefine HAVE_RAWIP_COOKED
+
+/* Define if raw IP sockets require host byte ordering for ip_off, ip_len. */
+#cmakedefine HAVE_RAWIP_HOST_OFFLEN
+
+/* Define if <net/route.h> has rt_msghdr struct. */
+#cmakedefine HAVE_ROUTE_RT_MSGHDR
+
+/* Define if <netinet/in.h> has sockaddr_in6 struct. */
+#cmakedefine HAVE_SOCKADDR_IN6
+
+/* Define if sockaddr struct has sa_len. */
+#cmakedefine HAVE_SOCKADDR_SA_LEN
+
+/* Define to 1 if you have the <stdint.h> header file. */
+#cmakedefine HAVE_STDINT_H
+
+/* Define to 1 if you have the <stdio.h> header file. */
+#cmakedefine HAVE_STDIO_H
+
+/* Define to 1 if you have the <stdlib.h> header file. */
+#cmakedefine HAVE_STDLIB_H
+
+/* Define if you have SNMP MIB2 STREAMS. */
+#cmakedefine HAVE_STREAMS_MIB2
+
+/* Define if you have route(7) STREAMS. */
+#cmakedefine HAVE_STREAMS_ROUTE
+
+/* Define to 1 if you have the <strings.h> header file. */
+#cmakedefine HAVE_STRINGS_H
+
+/* Define to 1 if you have the <string.h> header file. */
+#cmakedefine HAVE_STRING_H
+
+/* Define to 1 if you have the `strlcat' function. */
+#cmakedefine HAVE_STRLCAT
+
+/* Define to 1 if you have the `strlcpy' function. */
+#cmakedefine HAVE_STRLCPY
+
+/* Define to 1 if you have the <stropts.h> header file. */
+#cmakedefine HAVE_STROPTS_H
+
+/* Define to 1 if you have the `strsep' function. */
+#cmakedefine HAVE_STRSEP
+
+/* Define to 1 if you have the <sys/bufmod.h> header file. */
+#cmakedefine HAVE_SYS_BUFMOD_H
+
+/* Define to 1 if you have the <sys/dlpihdr.h> header file. */
+#cmakedefine HAVE_SYS_DLPIHDR_H
+
+/* Define to 1 if you have the <sys/dlpi_ext.h> header file. */
+#cmakedefine HAVE_SYS_DLPI_EXT_H
+
+/* Define to 1 if you have the <sys/dlpi.h> header file. */
+#cmakedefine HAVE_SYS_DLPI_H
+
+/* Define to 1 if you have the <sys/ioctl.h> header file. */
+#cmakedefine HAVE_SYS_IOCTL_H
+
+/* Define to 1 if you have the <sys/mib.h> header file. */
+#cmakedefine HAVE_SYS_MIB_H
+
+/* Define to 1 if you have the <sys/ndd_var.h> header file. */
+#cmakedefine HAVE_SYS_NDD_VAR_H
+
+/* Define to 1 if you have the <sys/socket.h> header file. */
+#cmakedefine HAVE_SYS_SOCKET_H
+
+/* Define to 1 if you have the <sys/sockio.h> header file. */
+#cmakedefine HAVE_SYS_SOCKIO_H
+
+/* Define to 1 if you have the <sys/stat.h> header file. */
+#cmakedefine HAVE_SYS_STAT_H
+
+/* Define to 1 if you have the <sys/sysctl.h> header file. */
+#cmakedefine HAVE_SYS_SYSCTL_H
+
+/* Define to 1 if you have the <sys/time.h> header file. */
+#cmakedefine HAVE_SYS_TIME_H
+
+/* Define to 1 if you have the <sys/types.h> header file. */
+#cmakedefine HAVE_SYS_TYPES_H
+
+/* Define to 1 if you have the <unistd.h> header file. */
+#cmakedefine HAVE_UNISTD_H
+
+/* Define to 1 if you have the <winsock2.h> header file. */
+#cmakedefine HAVE_WINSOCK2_H
+
+/* Define to the sub-directory where libtool stores uninstalled libraries. */
+#cmakedefine LT_OBJDIR
+
+/* Name of package */
+#cmakedefine PACKAGE "@PACKAGE@"
+
+/* Define to the address where bug reports for this package should be sent. */
+#cmakedefine PACKAGE_BUGREPORT "@PACKAGE_BUGREPORT@"
+
+/* Define to the full name of this package. */
+#cmakedefine PACKAGE_NAME "@PACKAGE_NAME@"
+
+/* Define to the full name and version of this package. */
+#cmakedefine PACKAGE_STRING "@PACKAGE_STRING@"
+
+/* Define to the one symbol short name of this package. */
+#cmakedefine PACKAGE_TARNAME "@PACKAGE_TARNAME@"
+
+/* Define to the home page for this package. */
+#cmakedefine PACKAGE_URL "@PACKAGE_URL@"
+
+/* Define to the version of this package. */
+#cmakedefine PACKAGE_VERSION "@PACKAGE_VERSION@"
+
+/* Define to 1 if all of the C90 standard headers exist (not just the ones
+   required in a freestanding environment). This macro is provided for
+   backward compatibility; new code need not use it. */
+#cmakedefine STDC_HEADERS
+
+/* Version number of package */
+#cmakedefine VERSION "@VERSION@"
+
+/* Define for faster code generation. */
+#cmakedefine WIN32_LEAN_AND_MEAN
+
+/* Define to empty if `const' does not conform to ANSI C. */
+#cmakedefine const
+
+/* Define to `__inline__' or `__inline' if that's what the C compiler
+   calls it, or to nothing if 'inline' is not supported under any name.  */
+#ifndef __cplusplus
+#cmakedefine inline
+#endif
+
+/* Define as a signed integer type capable of holding a process identifier. */
+#cmakedefine pid_t
+
+/* Define to `unsigned int' if <sys/types.h> does not define. */
+#cmakedefine size_t
+
+/* Use MingW32's internal snprintf */
+#cmakedefine snprintf
+
+#include <sys/types.h>
+
+#ifdef HAVE_WINSOCK2_H
+# include <winsock2.h>
+# include <windows.h>
+#endif
+
+#ifdef __svr4__
+# define BSD_COMP   1
+#endif
+
+#if defined(__osf__) && !defined(_SOCKADDR_LEN)
+# define _SOCKADDR_LEN  1
+#endif
+
+/* Define to 1 if you have the `inet_pton' function. */
+#cmakedefine HAVE_INET_PTON
+
+#ifndef HAVE_INET_PTON
+int inet_pton(int, const char *, void *);
+#endif
+
+#ifndef HAVE_STRLCAT
+int strlcat(char *, const char *, int);
+#endif
+
+#ifndef HAVE_STRLCPY
+int strlcpy(char *, const char *, int);
+#endif
+
+#ifndef HAVE_STRSEP
+char    *strsep(char **, const char *);
+#endif
