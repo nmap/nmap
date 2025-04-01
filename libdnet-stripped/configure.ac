@@ -1,23 +1,26 @@
 dnl
 dnl configure.in
 dnl
-dnl Copyright (c) 2000 Dug Song <dugsong@monkey.org>
+dnl Copyright (c) 2023-2024 Oliver Falk <oliver@linux-kernel.at>
 dnl
-dnl $Id: configure.in 638 2007-01-20 11:39:21Z dugsong $
+dnl $Id$
 
-AC_INIT(include/dnet.h)
+AC_INIT([libdnet],[1.18.0])
+AC_CONFIG_MACRO_DIR([m4])
+AC_CONFIG_AUX_DIR(config)
+AC_SUBST(ac_aux_dir)
 
-AM_INIT_AUTOMAKE(libdnet, 1.12)
-AM_CONFIG_HEADER(include/config.h)
+AM_INIT_AUTOMAKE
+AC_CONFIG_HEADERS(include/config.h)
+
+LT_PREREQ([2.2])
+LT_INIT
 
 dnl XXX - stop the insanity!@#$
 AM_MAINTAINER_MODE
 
 dnl Check for system type.
-dnl XXX - we do this to qualify our later feature checks, since some
-dnl systems claim to support multiple features, but are quite b0rked.
 AC_CANONICAL_HOST
-dnl XXX - spoof AC_CYGWIN
 case "$host_os" in
   *cygwin*) CYGWIN=yes;;
          *) CYGWIN=no;;
@@ -31,44 +34,23 @@ fi
 dnl Checks for programs.
 AC_PROG_CC
 AC_PROG_INSTALL
-AC_LIBTOOL_DLOPEN
-AC_DISABLE_SHARED
-AM_PROG_LIBTOOL
+_LT_SET_OPTION([LT_INIT],[dlopen])
+m4_warn([obsolete],[_LT_SET_OPTION([LT_INIT],[dlopen])
+m4_warn([obsolete],[_LT_SET_OPTION([LT_INIT],[dlopen])
+m4_warn([obsolete],[_LT_SET_OPTION([LT_INIT],[dlopen])
+m4_warn([obsolete],[_LT_SET_OPTION([LT_INIT],[dlopen])
+m4_warn([obsolete],[AC_LIBTOOL_DLOPEN: Remove this warning and the call to _LT_SET_OPTION when you
+put the 'dlopen' option into LT_INIT's first parameter.])
+: Remove this warning and the call to _LT_SET_OPTION when you
+put the 'dlopen' option into LT_INIT's first parameter.])
+: Remove this warning and the call to _LT_SET_OPTION when you
+put the 'dlopen' option into LT_INIT's first parameter.])
+: Remove this warning and the call to _LT_SET_OPTION when you
+put the 'dlopen' option into LT_INIT's first parameter.])
+: Remove this warning and the call to _LT_SET_OPTION when you
+put the 'dlopen' option into LT_INIT's first parameter.])
 
-dnl Checks for Python.
-dnl XXX - use AM_PATH_PYTHON after automake upgrade
-AC_MSG_CHECKING(for Python)
-AC_ARG_WITH(python,
-[  --with-python=DIR       build Python module (using python in DIR)],
-[ case "$withval" in
-  yes)
-     AC_MSG_RESULT(yes)
-     PYTHON="python"
-     ;;
-  no)
-     AC_MSG_RESULT(no)
-     ;;
-  *)
-     AC_MSG_RESULT($withval)
-     for subdir in . bin; do
-        if test -x $withval/$subdir/python; then
-	   owd=`pwd`
-	   if cd $withval/$subdir; then withval=`pwd`; cd $owd; fi
-	   PYTHON="$withval/python"
-	   break
-	fi
-     done
-     if test "x$PYTHON" = "x"; then
-        AC_ERROR(python not found in $withval)
-     fi
-     ;;
-  esac 
-])
-AC_SUBST(PYTHON)
-AC_SUBST(TCLINC)
-AC_SUBST(TCLLIB)
-AM_CONDITIONAL(PYTHON, [test "x$PYTHON" != "x"])
-AM_CONDITIONAL(TCL, [test "x$TCLINC" != "x"])
+LT_INIT
 
 dnl XXX - stupid IRIX cpp
 if test -r /usr/include/sgidefs.h ; then
@@ -120,45 +102,7 @@ if test "$CYGWIN" != yes ; then
 	AC_CHECK_LIB(nm, open_mib)
 fi
 
-dnl Checks for Check.
-AC_MSG_CHECKING(for Check)
-AC_ARG_WITH(check,
-[  --with-check=DIR        use Check (http://check.sf.net) in DIR],
-[ case "$withval" in
-  yes|no)
-     AC_MSG_RESULT(no)
-     ;;
-  *)
-     AC_MSG_RESULT($withval)
-     if test -f $withval/include/check.h -a -f $withval/lib/libcheck.a; then
-        owd=`pwd`
-        if cd $withval; then withval=`pwd`; cd $owd; fi
-        CHECKINC="-I$withval/include"
-        CHECKLIB="-L$withval/lib -lcheck"
-     elif test -f $withval/src/check.h -a -f $withval/src/libcheck.a; then
-        owd=`pwd`
-        if cd $withval; then withval=`pwd`; cd $owd; fi
-        CHECKINC="-I$withval/src"
-        CHECKLIB="-L$withval/src -lcheck"
-     else
-        AC_ERROR(check.h or libcheck.a not found in $withval)
-     fi
-     ;;
-  esac ],
-[ if test -f ${prefix}/include/check.h -a -f ${prefix}/lib/libcheck.a; then
-     CHECKINC="-I${prefix}/include"
-     CHECKLIB="-L${prefix}/lib -lcheck"
-     AC_MSG_RESULT(yes)
-  else
-     AC_MSG_RESULT(no)
-  fi
-])
-AC_SUBST(CHECKINC)
-AC_SUBST(CHECKLIB)
-AM_CONDITIONAL(HAVE_CHECK, test "x$CHECKLIB" != "x")
 
-dnl Checks for header files.
-AC_HEADER_STDC
 if test "$CYGWIN" = yes ; then
 	AC_CHECK_HEADERS(Iphlpapi.h winsock2.h)
 else
@@ -183,6 +127,13 @@ AC_INCLUDES_DEFAULT
 #endif
     ])
 fi
+AC_CHECK_HEADERS(bsd/string.h)
+if test "$ac_cv_header_bsd_string_h" = yes; then
+    STRLCPY_HEADER="bsd/string.h"
+else
+    STRLCPY_HEADER="string.h"
+fi
+AC_SUBST(STRLCPY_HEADER)
 
 dnl Checks for typedefs, structures, and compiler characteristics.
 AC_C_CONST
@@ -203,8 +154,6 @@ AC_PROG_GCC_TRADITIONAL
 if test "$GCC" = yes ; then
    	CFLAGS="$CFLAGS -Wall"
 fi
-AC_CHECK_TYPES([socklen_t], [], [], [AC_INCLUDES_DEFAULT
-#include <sys/socket.h>])
 
 dnl Checks for library functions.
 AC_FUNC_MEMCMP
@@ -285,6 +234,13 @@ else
 	AC_LIBOBJ([route-none])
 fi
 
+dnl Check for ndisc interface.
+if test "$ac_cv_dnet_linux_procfs" = yes ; then
+    AC_LIBOBJ([ndisc-linux])
+else
+    AC_LIBOBJ([ndisc-none])
+fi
+
 dnl Check for tun interface.
 if test "$ac_cv_header_linux_if_tun_h" = yes ; then
 	AC_LIBOBJ([tun-linux])
@@ -305,6 +261,7 @@ else
 	AC_LIBOBJ([tun-none])
 fi
 
-AC_OUTPUT([Makefile dnet-config include/Makefile include/dnet/Makefile
-	src/Makefile],
-	[chmod 755 dnet-config])
+AC_CONFIG_FILES([Makefile dnet-config include/Makefile include/dnet/Makefile
+	src/Makefile])
+AC_CONFIG_COMMANDS([default],[chmod 755 dnet-config],[])
+AC_OUTPUT

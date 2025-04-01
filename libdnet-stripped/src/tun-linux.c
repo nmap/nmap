@@ -6,7 +6,7 @@
  *
  * Copyright (c) 2001 Dug Song <dugsong@monkey.org>
  *
- * $Id: tun-linux.c 612 2005-09-12 02:18:06Z dugsong $
+ * $Id$
  */
 
 #include "config.h"
@@ -79,10 +79,10 @@ ssize_t
 tun_send(tun_t *tun, const void *buf, size_t size)
 {
 	struct iovec iov[2];
-	uint32_t type = ETH_TYPE_IP;
+	uint32_t etype = htonl(ETH_TYPE_IP);
 	
-	iov[0].iov_base = &type;
-	iov[0].iov_len = sizeof(type);
+	iov[0].iov_base = &etype;
+	iov[0].iov_len = sizeof(etype);
 	iov[1].iov_base = (void *)buf;
 	iov[1].iov_len = size;
 	

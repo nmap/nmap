@@ -4,15 +4,14 @@ dnl
 dnl usage:	AC_DNET_SOCKADDR_SA_LEN
 dnl results:	HAVE_SOCKADDR_SA_LEN (defined)
 dnl
-AC_DEFUN(AC_DNET_SOCKADDR_SA_LEN,
+AC_DEFUN([AC_DNET_SOCKADDR_SA_LEN],
     [AC_MSG_CHECKING(for sa_len in sockaddr struct)
     AC_CACHE_VAL(ac_cv_dnet_sockaddr_has_sa_len,
-        AC_TRY_COMPILE([
-# ifndef _SOCKADDR_LEN
-#	define _SOCKADDR_LEN 1 
-# endif
-#       include <sys/types.h>
-#       include <sys/socket.h>],
+        AC_TRY_COMPILE([#ifndef _SOCKADDR_LEN
+                        #define _SOCKADDR_LEN 1 
+                        #endif
+                        #include <sys/types.h>
+                        #include <sys/socket.h>],
         [u_int i = sizeof(((struct sockaddr *)0)->sa_len)],
         ac_cv_dnet_sockaddr_has_sa_len=yes,
         ac_cv_dnet_sockaddr_has_sa_len=no))
@@ -28,20 +27,19 @@ dnl
 dnl usage:	AC_DNET_SOCKADDR_IN6
 dnl results:	HAVE_SOCKADDR_IN6
 dnl
-AC_DEFUN(AC_DNET_SOCKADDR_IN6,
+AC_DEFUN([AC_DNET_SOCKADDR_IN6],
     [AC_MSG_CHECKING(for sockaddr_in6 struct in <netinet/in.h>)
     AC_CACHE_VAL(ac_cv_dnet_netinet_in_h_has_sockaddr_in6,
-        AC_TRY_COMPILE([
-#       include <sys/types.h>
-#	include <sys/socket.h>
-#       include <netinet/in.h>],
+        AC_TRY_COMPILE([#include <sys/types.h>
+                        #include <sys/socket.h>
+                        #include <netinet/in.h>],
         [struct sockaddr_in6 sin6; sin6.sin6_family = AF_INET6;],
-	ac_cv_dnet_netinet_in_h_has_sockaddr_in6=yes,
-	ac_cv_dnet_netinet_in_h_has_sockaddr_in6=no))
+        ac_cv_dnet_netinet_in_h_has_sockaddr_in6=yes,
+        ac_cv_dnet_netinet_in_h_has_sockaddr_in6=no))
     AC_MSG_RESULT($ac_cv_dnet_netinet_in_h_has_sockaddr_in6)
     if test $ac_cv_dnet_netinet_in_h_has_sockaddr_in6 = yes ; then
-        AC_DEFINE(HAVE_SOCKADDR_IN6, 1,
-	          [Define if <netinet/in.h> has sockaddr_in6 struct.])
+             AC_DEFINE(HAVE_SOCKADDR_IN6, 1,
+                       [Define if <netinet/in.h> has sockaddr_in6 struct.])
     fi])
 
 dnl
@@ -50,20 +48,19 @@ dnl
 dnl usage:	AC_DNET_ARPREQ_ARP_DEV
 dnl results:	HAVE_ARPREQ_ARP_DEV (defined)
 dnl
-AC_DEFUN(AC_DNET_ARPREQ_ARP_DEV,
+AC_DEFUN([AC_DNET_ARPREQ_ARP_DEV],
     [AC_MSG_CHECKING(for arp_dev in arpreq struct)
     AC_CACHE_VAL(ac_cv_dnet_arpreq_has_arp_dev,
-	AC_TRY_COMPILE([
-#       include <sys/types.h>
-#	include <sys/socket.h>
-#	include <net/if_arp.h>],
-	[void *p = ((struct arpreq *)0)->arp_dev],
-	ac_cv_dnet_arpreq_has_arp_dev=yes,
-	ac_cv_dnet_arpreq_has_arp_dev=no))
+    AC_TRY_COMPILE([#include <sys/types.h>
+                    #include <sys/socket.h>
+                    #include <net/if_arp.h>],
+    [void *p = ((struct arpreq *)0)->arp_dev],
+    ac_cv_dnet_arpreq_has_arp_dev=yes,
+    ac_cv_dnet_arpreq_has_arp_dev=no))
     AC_MSG_RESULT($ac_cv_dnet_arpreq_has_arp_dev)
     if test $ac_cv_dnet_arpreq_has_arp_dev = yes ; then
-	AC_DEFINE(HAVE_ARPREQ_ARP_DEV, 1,
-		[Define if arpreq struct has arp_dev.])
+    AC_DEFINE(HAVE_ARPREQ_ARP_DEV, 1,
+              [Define if arpreq struct has arp_dev.])
     fi])
 
 dnl
@@ -72,21 +69,20 @@ dnl
 dnl usage:	AC_DNET_ROUTE_RT_MSGHDR
 dnl results:	HAVE_ROUTE_RT_MSGHDR
 dnl
-AC_DEFUN(AC_DNET_ROUTE_RT_MSGHDR,
+AC_DEFUN([AC_DNET_ROUTE_RT_MSGHDR],
     [AC_MSG_CHECKING(for rt_msghdr struct in <net/route.h>)
     AC_CACHE_VAL(ac_cv_dnet_route_h_has_rt_msghdr,
-        AC_TRY_COMPILE([
-#       include <sys/types.h>
-#       include <sys/socket.h>
-#       include <net/if.h>
-#       include <net/route.h>],
-        [struct rt_msghdr rtm; rtm.rtm_msglen = 0;],
-	ac_cv_dnet_route_h_has_rt_msghdr=yes,
-	ac_cv_dnet_route_h_has_rt_msghdr=no))
+    AC_TRY_COMPILE([#include <sys/types.h>
+                    #include <sys/socket.h>
+                    #include <net/if.h>
+                    #include <net/route.h>],
+    [struct rt_msghdr rtm; rtm.rtm_msglen = 0;],
+    ac_cv_dnet_route_h_has_rt_msghdr=yes,
+    ac_cv_dnet_route_h_has_rt_msghdr=no))
     AC_MSG_RESULT($ac_cv_dnet_route_h_has_rt_msghdr)
     if test $ac_cv_dnet_route_h_has_rt_msghdr = yes ; then
-        AC_DEFINE(HAVE_ROUTE_RT_MSGHDR, 1,
-	          [Define if <net/route.h> has rt_msghdr struct.])
+       AC_DEFINE(HAVE_ROUTE_RT_MSGHDR, 1,
+                 [Define if <net/route.h> has rt_msghdr struct.])
     fi])
 
 dnl
@@ -95,18 +91,18 @@ dnl
 dnl usage:	AC_DNET_BSD_BPF
 dnl results:	HAVE_BSD_BPF
 dnl
-AC_DEFUN(AC_DNET_BSD_BPF,
+AC_DEFUN([AC_DNET_BSD_BPF],
     [AC_MSG_CHECKING(for Berkeley Packet Filter)
     AC_CACHE_VAL(ac_cv_dnet_bsd_bpf,
-	if test -c /dev/bpf0 ; then
-	    ac_cv_dnet_bsd_bpf=yes
-	else
-	    ac_cv_dnet_bsd_bpf=no
-	fi)
+    if test -c /dev/bpf ; then
+        ac_cv_dnet_bsd_bpf=yes
+    else
+        ac_cv_dnet_bsd_bpf=no
+    fi)
     AC_MSG_RESULT($ac_cv_dnet_bsd_bpf)
     if test $ac_cv_dnet_bsd_bpf = yes ; then
-	AC_DEFINE(HAVE_BSD_BPF, 1,
-		  [Define if you have the Berkeley Packet Filter.])
+    AC_DEFINE(HAVE_BSD_BPF, 1,
+              [Define if you have the Berkeley Packet Filter.])
     fi])
 
 dnl
@@ -115,18 +111,18 @@ dnl
 dnl usage:	AC_DNET_LINUX_PROCFS
 dnl results:	HAVE_LINUX_PROCFS
 dnl
-AC_DEFUN(AC_DNET_LINUX_PROCFS,
+AC_DEFUN([AC_DNET_LINUX_PROCFS],
     [AC_MSG_CHECKING(for Linux proc filesystem)
     AC_CACHE_VAL(ac_cv_dnet_linux_procfs,
-	if test "x`cat /proc/sys/kernel/ostype 2>&-`" = "xLinux" ; then
-	    ac_cv_dnet_linux_procfs=yes
-        else
-	    ac_cv_dnet_linux_procfs=no
-	fi)
+    if test "x`cat /proc/sys/kernel/ostype 2>&-`" = "xLinux" ; then
+        ac_cv_dnet_linux_procfs=yes
+    else
+        ac_cv_dnet_linux_procfs=no
+    fi)
     AC_MSG_RESULT($ac_cv_dnet_linux_procfs)
     if test $ac_cv_dnet_linux_procfs = yes ; then
-	AC_DEFINE(HAVE_LINUX_PROCFS, 1,
-		  [Define if you have the Linux /proc filesystem.])
+    AC_DEFINE(HAVE_LINUX_PROCFS, 1,
+              [Define if you have the Linux /proc filesystem.])
     fi])
 
 dnl
@@ -138,19 +134,17 @@ dnl
 dnl This is a Linux-specific check, even though other operating systems
 dnl (OpenSolaris) may have the PF_PACKET interface. The eth-linux.c code
 dnl activated by this check is specific to Linux.
-AC_DEFUN(AC_DNET_LINUX_PF_PACKET,
-    [AC_CHECK_DECL([ETH_P_ALL],
-	ac_cv_dnet_linux_pf_packet=yes,
-	ac_cv_dnet_linux_pf_packet=no,
-        [
-#include <netpacket/packet.h>
-#include <linux/if_ether.h>
-])
-    AC_MSG_CHECKING(for Linux PF_PACKET sockets)
+AC_DEFUN([AC_DNET_LINUX_PF_PACKET],
+    [AC_MSG_CHECKING(for Linux PF_PACKET sockets)
+    AC_TRY_COMPILE([#include <netpacket/packet.h>
+                    #include <linux/if_ether.h>],
+                   [int foo() { return ETH_P_ALL; }],
+    ac_cv_dnet_linux_pf_packet=yes,
+    ac_cv_dnet_linux_pf_packet=no)
     AC_MSG_RESULT($ac_cv_dnet_linux_pf_packet)
     if test $ac_cv_dnet_linux_pf_packet = yes ; then
-	AC_DEFINE(HAVE_LINUX_PF_PACKET, 1,
-		  [Define if you have Linux PF_PACKET sockets.])
+       AC_DEFINE(HAVE_LINUX_PF_PACKET, 1,
+                 [Define if you have Linux PF_PACKET sockets.])
     fi])
 
 dnl
@@ -159,14 +153,14 @@ dnl
 dnl usage:      AC_DNET_STREAMS_MIB2
 dnl results:    HAVE_STREAMS_MIB2
 dnl
-AC_DEFUN(AC_DNET_STREAMS_MIB2,
+AC_DEFUN([AC_DNET_STREAMS_MIB2],
     [AC_MSG_CHECKING(for SNMP MIB2 STREAMS)
     AC_CACHE_VAL(ac_cv_dnet_streams_mib2,[
         if test -f /usr/include/inet/mib2.h -a '(' -c /dev/ip -o -c /dev/arp ')' ; then
-            ac_cv_dnet_streams_mib2=yes
-        else
-            ac_cv_dnet_streams_mib2=no
-        fi])
+        ac_cv_dnet_streams_mib2=yes
+    else
+        ac_cv_dnet_streams_mib2=no
+    fi])
     AC_MSG_RESULT($ac_cv_dnet_streams_mib2)
     if test $ac_cv_dnet_streams_mib2 = yes ; then
         AC_DEFINE(HAVE_STREAMS_MIB2, 1,
@@ -179,14 +173,14 @@ dnl
 dnl usage:      AC_DNET_STREAMS_ROUTE
 dnl results:    HAVE_STREAMS_ROUTE
 dnl
-AC_DEFUN(AC_DNET_STREAMS_ROUTE,
+AC_DEFUN([AC_DNET_STREAMS_ROUTE],
     [AC_MSG_CHECKING(for route(7) STREAMS)
     AC_CACHE_VAL(ac_cv_dnet_streams_route,
-        if grep RTSTR_SEND /usr/include/net/route.h >/dev/null 2>&1 ; then
-            ac_cv_dnet_streams_route=yes
-        else
-            ac_cv_dnet_streams_route=no
-        fi)
+    if grep RTSTR_SEND /usr/include/net/route.h >/dev/null 2>&1 ; then
+        ac_cv_dnet_streams_route=yes
+    else
+        ac_cv_dnet_streams_route=no
+    fi)
     AC_MSG_RESULT($ac_cv_dnet_streams_route)
     if test $ac_cv_dnet_streams_route = yes ; then
         AC_DEFINE(HAVE_STREAMS_ROUTE, 1,
@@ -199,21 +193,19 @@ dnl
 dnl usage:      AC_DNET_IOCTL_ARP
 dnl results:    HAVE_IOCTL_ARP
 dnl
-AC_DEFUN(AC_DNET_IOCTL_ARP,
+AC_DEFUN([AC_DNET_IOCTL_ARP],
     [AC_MSG_CHECKING(for arp(7) ioctls)
     AC_CACHE_VAL(ac_cv_dnet_ioctl_arp,
-	AC_EGREP_CPP(werd, [
-#	include <sys/types.h>
-#	define BSD_COMP
-#	include <sys/ioctl.h>
-#	ifdef SIOCGARP
-	werd
-#	endif],
-	ac_cv_dnet_ioctl_arp=yes,
-	ac_cv_dnet_ioctl_arp=no))
+    AC_COMPILE_IFELSE(
+        [AC_LANG_PROGRAM([[#include <sys/types.h>
+                           #define BSD_COMP
+                           #include <sys/ioctl.h>]],
+                          [[int foo = SIOCGARP;]])],
+    ac_cv_dnet_ioctl_arp=yes,
+    ac_cv_dnet_ioctl_arp=no))
     case "$host_os" in
-    irix*)
-        ac_cv_dnet_ioctl_arp=no ;;
+        irix*)
+            ac_cv_dnet_ioctl_arp=no ;;
     esac
     AC_MSG_RESULT($ac_cv_dnet_ioctl_arp)
     if test $ac_cv_dnet_ioctl_arp = yes ; then
@@ -227,17 +219,17 @@ dnl
 dnl usage:      AC_DNET_RAWIP_HOST_OFFLEN
 dnl results:    HAVE_RAWIP_HOST_OFFLEN
 dnl
-AC_DEFUN(AC_DNET_RAWIP_HOST_OFFLEN,
+AC_DEFUN([AC_DNET_RAWIP_HOST_OFFLEN],
     [AC_MSG_CHECKING([for raw IP sockets ip_{len,off} host byte ordering])
     AC_CACHE_VAL(ac_cv_dnet_rawip_host_offlen, [
-	case "$host_os" in
-	*openbsd*)
-	    ac_cv_dnet_rawip_host_offlen=no ;;
-	*bsd*|*darwin*|*osf*|*unixware*)
-	    ac_cv_dnet_rawip_host_offlen=yes ;;
-	*)
-	    ac_cv_dnet_rawip_host_offlen=no ;;
-	esac])
+    case "$host_os" in
+        *openbsd*)
+            ac_cv_dnet_rawip_host_offlen=no ;;
+        *bsd*|*darwin*|*osf*|*unixware*)
+            ac_cv_dnet_rawip_host_offlen=yes ;;
+        *)
+            ac_cv_dnet_rawip_host_offlen=no ;;
+    esac])
     AC_MSG_RESULT($ac_cv_dnet_rawip_host_offlen)
     if test $ac_cv_dnet_rawip_host_offlen = yes ; then
         AC_DEFINE(HAVE_RAWIP_HOST_OFFLEN, 1,
@@ -250,15 +242,15 @@ dnl
 dnl usage:      AC_DNET_RAWIP_COOKED
 dnl results:    HAVE_RAWIP_COOKED
 dnl
-AC_DEFUN(AC_DNET_RAWIP_COOKED,
+AC_DEFUN([AC_DNET_RAWIP_COOKED],
     [AC_MSG_CHECKING(for cooked raw IP sockets)
     AC_CACHE_VAL(ac_cv_dnet_rawip_cooked, [
-	case "$host_os" in
-	solaris*|irix*)
-	    ac_cv_dnet_rawip_cooked=yes ;;
-	*)
-	    ac_cv_dnet_rawip_cooked=no ;;
-	esac])
+    case "$host_os" in
+        solaris*|irix*)
+            ac_cv_dnet_rawip_cooked=yes ;;
+        *)
+            ac_cv_dnet_rawip_cooked=no ;;
+    esac])
     AC_MSG_RESULT($ac_cv_dnet_rawip_cooked)
     if test $ac_cv_dnet_rawip_cooked = yes ; then
         AC_DEFINE(HAVE_RAWIP_COOKED, 1,
@@ -271,7 +263,7 @@ dnl
 dnl usage:	AC_DNET_GETKERNINFO
 dnl results:	HAVE_GETKERNINFO
 dnl
-AC_DEFUN(AC_DNET_GETKERNINFO,
+AC_DEFUN([AC_DNET_GETKERNINFO],
     [AC_MSG_CHECKING(for getkerninfo)
     AC_CACHE_VAL(ac_cv_dnet_getkerninfo,
         AC_TRY_COMPILE([
@@ -320,7 +312,7 @@ dnl The check for libresolv is in case you are attempting to link
 dnl statically and happen to have a libresolv.a lying around (and no
 dnl libnsl.a).
 dnl
-AC_DEFUN(AC_LBL_LIBRARY_NET, [
+AC_DEFUN([AC_LBL_LIBRARY_NET], [
     # Most operating systems have gethostbyname() in the default searched
     # libraries (i.e. libc):
     AC_CHECK_FUNC(gethostbyname, ,
@@ -339,5 +331,4 @@ AC_DEFUN(AC_LBL_LIBRARY_NET, [
         AC_CHECK_LIB(socket, socket, LIBS="-lsocket -lnsl $LIBS", ,
             -lnsl)))
     # DLPI needs putmsg under HPUX so test for -lstr while we're at it
-    AC_CHECK_LIB(str, putmsg)
-    ])
+    AC_CHECK_LIB(str, putmsg)])

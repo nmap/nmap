@@ -1,0 +1,5 @@
+SET(prefix "@CMAKE_INSTALL_PREFIX@")
+SET(exec_prefix "@CMAKE_INSTALL_PREFIX@")
+SET(dnet_FOUND "TRUE")
+
+include("${CMAKE_CURRENT_LIST_DIR}/dnetTargets.cmake")
