@@ -478,8 +478,8 @@ void nse_readpcap(nsock_event nsev, const unsigned char **l2_data, size_t *l2_le
 
   l2l = mp->l3_offset;
   if (mp->datalink == DLT_EN10MB
-      && n->caplen >= sizeof(struct eth_hdr)
-      && 0 == memcmp(n->packet + offsetof(struct eth_hdr, eth_type), "\x81\x00", 2))
+      && n->caplen >= 14 /* size of ethernet header */
+      && 0 == memcmp(n->packet + 12 /* offset of eth_type */, "\x81\x00", 2)) {
     l2l += 4;
   }
   if (l2l > n->caplen)

@@ -137,6 +137,8 @@ typedef unsigned __int8 u_int8_t;
 #include <sys/resource.h>
 #endif
 
+#include <stddef.h>
+
 #define NBASE_MAX_ERR_STR_LEN 1024  /* Max length of an error message */
 
 #ifndef PCAP_NETMASK_UNKNOWN
