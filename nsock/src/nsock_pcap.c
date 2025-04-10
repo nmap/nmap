@@ -476,8 +476,15 @@ void nse_readpcap(nsock_event nsev, const unsigned char **l2_data, size_t *l2_le
     return;
   }
 
-  l2l = MIN(mp->l3_offset, n->caplen);
-  l3l = MAX(0, n->caplen-mp->l3_offset);
+  l2l = mp->l3_offset;
+  if (mp->datalink == DLT_EN10MB
+      && n->caplen >= sizeof(struct eth_hdr)
+      && 0 == memcmp(n->packet + offsetof(struct eth_hdr, eth_type), "\x81\x00", 2))
+    l2l += 4;
+  }
+  if (l2l > n->caplen)
+    l2l = n->caplen;
+  l3l = MAX(0, n->caplen - l2l);
 
   if (l2_data)
     *l2_data = n->packet;

@@ -1565,7 +1565,7 @@ void ProbeMode::probe_nping_event_handler(nsock_pool nsp, nsock_event nse, void 
  const unsigned char *link=NULL;
  size_t linklen=0;
  size_t packetlen=0;
- u16 *ethtype=NULL;
+ u16 ethtype=0;
  u8 buffer[512+1];
  size_t link_offset=0;
  static struct timeval pcaptime;
@@ -1632,9 +1632,9 @@ void ProbeMode::probe_nping_event_handler(nsock_pool nsp, nsock_event nse, void 
             /* If we are on a Ethernet network, extract the next packet protocol
              * from the Ethernet frame. */
             if( nsock_iod_linktype(nsi) == DLT_EN10MB ){
-                ethtype=(u16*)(link+12);
-                *ethtype=ntohs(*ethtype);
-                switch(*ethtype){
+                ethtype=*(u16*)(link + linklen - 2);
+                ethtype=ntohs(ethtype);
+                switch(ethtype){
                     case ETHTYPE_IPV4:
                     case ETHTYPE_IPV6:
                         ip=true;
@@ -1644,7 +1644,7 @@ void ProbeMode::probe_nping_event_handler(nsock_pool nsp, nsock_event nse, void 
                         ip=false;
                     break;
                     default:
-                        nping_warning(QT_1, "RCVD (%.4fs) Unsupported protocol (Ethernet type %02X)", o.stats.elapsedRuntime(t), *ethtype);
+                        nping_warning(QT_1, "RCVD (%.4fs) Unsupported protocol (Ethernet type %02X)", o.stats.elapsedRuntime(t), ethtype);
                         print_hexdump(VB_3, packet, packetlen);
                         return;
                     break;

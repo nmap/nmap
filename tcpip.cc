@@ -1610,7 +1610,7 @@ int setTargetMACIfAvailable(Target *target, struct link_header *linkhdr,
   if (!linkhdr || !target || !src)
     return 1;
 
-  if (linkhdr->datalinktype != DLT_EN10MB || linkhdr->headerlen != 14)
+  if (linkhdr->datalinktype != DLT_EN10MB || linkhdr->headerlen < 14)
     return 2;
 
   if (!overwrite && target->MACAddress())

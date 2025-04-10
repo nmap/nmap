@@ -4202,9 +4202,22 @@ int read_reply_pcap(pcap_t *pd, long to_usec,
       netutil_fatal("Error from pcap_next_ex: %s\n", pcap_geterr(pd));
     }
 
-    if (pcap_status == 1 && *p != NULL && accept_callback(*p, *head, *datalink, *offset)) {
-      break;
-    } else if (pcap_status == 0 || *p == NULL) {
+    if (pcap_status == 1 && *p != NULL) {
+      /* Offset may be different in the case of 802.1q */
+      if (*datalink == DLT_EN10MB
+          && (*head)->caplen >= sizeof(struct eth_hdr)
+          && 0 == memcmp((*p) + offsetof(struct eth_hdr, eth_type), "\x81\x00", 2)) {
+        *offset += 4;
+      }
+      if (accept_callback(*p, *head, *datalink, *offset)) {
+        break;
+      } else {
+        /* We'll be a bit patient if we're getting actual packets back, but
+           not indefinitely so */
+        if (badcounter++ > 50)
+          timedout = 1;
+      }
+    } else {
       /* Should we timeout? */
       if (to_usec == 0) {
         timedout = 1;
@@ -4214,11 +4227,6 @@ int read_reply_pcap(pcap_t *pd, long to_usec,
           timedout = 1;
         }
       }
-    } else {
-      /* We'll be a bit patient if we're getting actual packets back, but
-         not indefinitely so */
-      if (badcounter++ > 50)
-        timedout = 1;
     }
   } while (!timedout);
 
@@ -4258,7 +4266,7 @@ static bool accept_arp(const unsigned char *p, const struct pcap_pkthdr *head,
     return false;
 
   if (datalink == DLT_EN10MB) {
-    return ntohs(*((u16 *) (p + 12))) == ETH_TYPE_ARP;
+    return ntohs(*((u16 *) (p + offset - 2))) == ETH_TYPE_ARP;
   } else if (datalink == DLT_LINUX_SLL) {
     return ntohs(*((u16 *) (p + 2))) == ARPHRD_ETHER && /* sll_hatype */
       ntohs(*((u16 *) (p + 4))) == 6 && /* sll_halen */
