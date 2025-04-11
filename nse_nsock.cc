@@ -66,6 +66,8 @@ typedef struct nse_nsock_udata
 
 } nse_nsock_udata;
 
+static const char *NU_ACTION_IMMEDIATE = "returned immediately";
+
 static int gc_pool (lua_State *L)
 {
   nsock_pool *nsp = (nsock_pool *) lua_touserdata(L, 1);
@@ -361,7 +363,7 @@ static void callback (nsock_pool nsp, nsock_event nse, void *ud)
     // l_connect to return an error instead of yielding.
     // http://seclists.org/nmap-dev/2016/q1/201
     trace(nse_iod(nse), nu->action, nu->direction);
-    nu->action = "ERROR";
+    nu->action = NU_ACTION_IMMEDIATE;
     return;
   }
   switch (nse_type(nse)) {
@@ -574,9 +576,9 @@ static int connect (lua_State *L, int status, lua_KContext ctx)
   if (dest != NULL)
     freeaddrinfo(dest);
 
-  if (!strncmp(nu->action, "ERROR", 5)) {
+  if (nu->action == NU_ACTION_IMMEDIATE) {
     // Immediate error
-    return nseU_safeerror(L, "Nsock connect failed immediately");
+    return nseU_safeerror(L, nse_status2str(NSE_STATUS_ERROR));
   }
   return yield(L, nu, "CONNECT", TO, 0, NULL);
 }
