@@ -250,7 +250,7 @@
 #define VERSION "1.18.0"
 
 /* Define for faster code generation. */
-#define WIN32_LEAN_AND_MEAN
+/* #define WIN32_LEAN_AND_MEAN */
 
 /* Define to empty if `const' does not conform to ANSI C. */
 /* #undef const */

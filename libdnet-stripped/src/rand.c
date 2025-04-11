@@ -9,7 +9,11 @@
  *
  */
 
+#ifdef _WIN32
+#include "dnet_winconfig.h"
+#else
 #include "config.h"
+#endif
 
 #ifdef _WIN32
 # ifndef _WIN32_WINNT
@@ -75,7 +79,7 @@ rand_open(void)
 	u_char seed[256];
 #ifdef _WIN32
 # if _WIN32_WINNT >= _WIN32_WINNT_VISTA
-	if (STATUS_SUCCESS != BCryptGenRandom(NULL, seed, sizeof(seed), BCRYPT_USE_SYSTEM_PREFERRED_RNG))
+	if (0 != BCryptGenRandom(NULL, seed, sizeof(seed), BCRYPT_USE_SYSTEM_PREFERRED_RNG))
 	  return NULL;
 # else
 	HCRYPTPROV hcrypt = 0;

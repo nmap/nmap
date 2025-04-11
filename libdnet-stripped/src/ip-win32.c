@@ -6,7 +6,7 @@
  * $Id$
  */
 
-#include "config.h"
+#include "dnet_winconfig.h"
 
 #include <ws2tcpip.h>
 

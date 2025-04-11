@@ -5,10 +5,12 @@
  *
  */
 
-#include "config.h"
+#include "dnet_winconfig.h"
 
 #include <iphlpapi.h>
+#ifdef HAVE_PCAP_H
 #include <pcap.h>
+#endif
 
 #include <ctype.h>
 #include <errno.h>
@@ -152,7 +154,7 @@ _adapter_address_to_entry(intf_t *intf, IP_ADAPTER_ADDRESSES *a,
 
 	type = _if_type_canonicalize(a->IfType);
 	for (i = 0; i < intf->ifcombo[type].cnt; i++) {
-		if (intf->ifcombo[type].idx[i] == a->IfIndex &&
+		if (intf->ifcombo[type].idx[i].ipv4 == a->IfIndex &&
 				intf->ifcombo[type].idx[i].ipv6 == a->Ipv6IfIndex) {
 			break;
 		}
@@ -230,17 +232,16 @@ _adapter_address_to_entry(intf_t *intf, IP_ADAPTER_ADDRESSES *a,
 
 #define NPCAP_SERVICE_REGISTRY_KEY "SYSTEM\\CurrentControlSet\\Services\\npcap"
 
+static
 int _intf_has_npcap_loopback(void)
 {
 	HKEY hKey;
-	DWORD type, value;
+	DWORD type, value, size=sizeof(DWORD);
 	int res = 0;
-
-	memset(buffer, 0, buf_size);
 
 	if (RegOpenKeyExA(HKEY_LOCAL_MACHINE, NPCAP_SERVICE_REGISTRY_KEY "\\Parameters", 0, KEY_READ, &hKey) == ERROR_SUCCESS)
 	{
-		if (RegQueryValueExA(hKey, "LoopbackAdapter", 0, &type, (LPBYTE)&value, sizeof(value)) == ERROR_SUCCESS && type == REG_DWORD)
+		if (RegQueryValueExA(hKey, "LoopbackSupport", 0, &type, (LPBYTE)&value, &size) == ERROR_SUCCESS && type == REG_DWORD)
 		{
 			res = value ? 1 : 0;
 		}
@@ -257,7 +258,7 @@ _update_tables_for_npcap_loopback(IP_ADAPTER_ADDRESSES *p)
 	IP_ADAPTER_ADDRESSES *a;
 	static int has_npcap_loopback = -1;
 
-	if (has_npcap_loopback < 0) {
+	if (has_npcap_loopback < 0)
 		has_npcap_loopback = _intf_has_npcap_loopback();
 
 	if (!has_npcap_loopback)
@@ -530,6 +531,8 @@ intf_close(intf_t *intf)
 	return (NULL);
 }
 
+#ifdef HAVE_PCAP_H
+#define _DEVICE_PREFIX "\\Device\\"
 /* Converts a libdnet interface name to its pcap equivalent. The pcap name is
    stored in pcapdev up to a length of pcapdevlen, including the terminating
    '\0'. Returns -1 on error. */
@@ -593,8 +596,13 @@ intf_get_pcap_devname_cached(const char *intf_name, char *pcapdev, int pcapdevle
 	else
 		return 0;
 }
+#endif /* HAVE_PCAP_H */
 int
 intf_get_pcap_devname(const char *intf_name, char *pcapdev, int pcapdevlen)
 {
+#ifdef HAVE_PCAP_H
   return intf_get_pcap_devname_cached(intf_name, pcapdev, pcapdevlen, 0);
+#else
+  return -1;
+#endif
 }

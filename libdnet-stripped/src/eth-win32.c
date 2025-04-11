@@ -6,7 +6,7 @@
  * $Id$
  */
 
-#include "config.h"
+#include "dnet_winconfig.h"
 
 /* XXX - VC++ 6.0 bogosity */
 #define sockaddr_storage sockaddr
@@ -19,7 +19,6 @@
 
 #include "dnet.h"
 #include <winsock2.h>
-#include "pcap.h"
 
 /* From Npcap's Loopback.h */
 /*

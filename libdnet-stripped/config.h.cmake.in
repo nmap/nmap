@@ -36,6 +36,9 @@
 /* Define to 1 if you have the `iphlpapi' library (-liphlpapi). */
 #cmakedefine HAVE_LIBIPHLPAPI
 
+/* Define to 1 if you have the <pcap.h> header file. */
+#cmakedefine HAVE_PCAP_H
+
 /* Define to 1 if you have the `nm' library (-lnm). */
 #cmakedefine HAVE_LIBNM
 

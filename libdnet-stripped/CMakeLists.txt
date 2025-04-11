@@ -12,9 +12,13 @@ include(CheckSymbolExists)
 include(CheckTypeSize)
 include(CheckCSourceCompiles)
 include(GNUInstallDirs)
+include(CMakePushCheckState)
 
+set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules)
 set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS True)
 option(BUILD_SHARED_LIBS "Build in shared lib mode" OFF)
+
+set(DNET_LINK_LIBS "")
 
 foreach (header stdio.h stdlib.h string.h inttypes.h)
   string(TOUPPER HAVE_${header} var)
@@ -22,20 +26,37 @@ foreach (header stdio.h stdlib.h string.h inttypes.h)
   check_include_file(${header} ${var})
 endforeach ()
 
+if(WIN32)
+    find_package(Packet)
+    if(Packet_FOUND)
+        set(HAVE_PACKET32 TRUE)
+        set(HAVE_PCAP_H TRUE)
+        include_directories(${Packet_INCLUDE_DIRS})
+        set(DNET_LINK_LIBS ${Packet_LIBRARIES} ${DNET_LINK_LIBS})
+    endif(Packet_FOUND)
+endif(WIN32)
+
 if (MSVC)
     add_definitions(-DWIN32_LEAN_AND_MEAN)
     check_include_file(winsock2.h HAVE_WINSOCK2_H)
-    set(HAVE_LIBWS2_32 ${HAVE_WINSOCK2_H})
+    if(HAVE_WINSOCK2_H)
+        set(HAVE_LIBWS2_32 TRUE)
+        set(DNET_LINK_LIBS ws2_32 ${DNET_LINK_LIBS})
+    endif()
     check_c_source_compiles("
         #define WIN32_LEAN_AND_MEAN
         #include <windows.h>
         #include <Iphlpapi.h>
         int main() { return 0; }"
         HAVE_IPHLPAPI_H)
-    set(HAVE_LIBIPHLPAPI ${HAVE_IPHLPAPI_H})
+    if(HAVE_IPHLPAPI_H)
+        set(HAVE_LIBIPHLPAPI TRUE)
+        set(DNET_LINK_LIBS Iphlpapi ${DNET_LINK_LIBS})
+    endif()
+    cmake_push_check_state()
     set(CMAKE_REQUIRED_LIBRARIES "ws2_32")
     check_symbol_exists(inet_pton WS2tcpip.h HAVE_INET_PTON)
-    set(CMAKE_REQUIRED_LIBRARIES )
+    cmake_pop_check_state()
 endif()
 if(UNIX)
     foreach (header strings.h
@@ -190,9 +211,8 @@ else()
     list(APPEND PLATFORM_SOURCES src/arp-none.c)
 endif()
 
-if (HAVE_IPHLPAPI_H)
-#    no npcap support
-#    list(APPEND PLATFORM_SOURCES src/eth-win32.c)
+if (HAVE_PACKET32)
+    list(APPEND PLATFORM_SOURCES src/eth-win32.c)
 elseif(HAVE_NET_PFILT_H)
     list(APPEND PLATFORM_SOURCES src/eth-pfilt.c)
 elseif(HAVE_LINUX_PF_PACKET)
@@ -301,6 +321,7 @@ set(DNET_HEADERS
     include/dnet/eth.h
     include/dnet/fw.h
     include/dnet/icmp.h
+    include/dnet/icmpv6.h
     include/dnet/intf.h
     include/dnet/ip.h
     include/dnet/ip6.h
@@ -325,8 +346,8 @@ set_target_properties(
     PUBLIC_HEADER "${DNET_HEADERS}"
 )
 
-if (MSVC)
-    target_link_libraries(${PROJECT_NAME} PUBLIC Iphlpapi ws2_32)
+if(NOT(DNET_LINK_LIBS STREQUAL ""))
+    target_link_libraries(${PROJECT_NAME} PUBLIC ${DNET_LINK_LIBS})
 endif()
 
 install(TARGETS ${PROJECT_NAME}

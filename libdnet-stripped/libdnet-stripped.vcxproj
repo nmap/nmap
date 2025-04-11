@@ -235,7 +235,7 @@
     <ClCompile Include="src\strsep.c" />
     <ClCompile Include="src\arp-win32.c" />
     <ClCompile Include="src\eth-win32.c" />
-    <ClCompile Include="src\fw-pktfilter.c" />
+    <ClCompile Include="src\fw-none.c" />
     <ClCompile Include="src\intf-win32.c" />
     <ClCompile Include="src\ip-win32.c" />
     <ClCompile Include="src\route-win32.c" />

@@ -3908,7 +3908,7 @@ int DnetName2PcapName(const char *dnetdev, char *pcapdev, int pcapdevlen) {
   // OK, so it isn't in the cache.  Let's ask dnet for it.
   /* Converts a dnet interface name (ifname) to its pcap equivalent, which is stored in
   pcapdev (up to a length of pcapdevlen).  Returns 1 and fills in pcapdev if successful. */
-  if (eth_get_pcap_devname(dnetdev, tmpdev, sizeof(tmpdev)) != 0) {
+  if (intf_get_pcap_devname(dnetdev, tmpdev, sizeof(tmpdev)) != 0) {
       // We've got it.  Let's add it to the not found cache
       if (NNFCsz >= NNFCcapacity) {
         NNFCcapacity <<= 2;
