@@ -237,7 +237,7 @@ typedef enum { devt_ethernet, devt_loopback, devt_p2p, devt_other  } devtype;
 struct link_header {
   int datalinktype; /* pcap_datalink(), such as DLT_EN10MB */
   int headerlen; /* 0 if header was too big or unavailaable */
-  u8 header[MAX_LINK_HEADERSZ];
+  const u8 *header;
 };
 
 /* Relevant (to Nmap) information about an interface */
