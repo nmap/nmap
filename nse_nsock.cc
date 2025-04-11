@@ -642,6 +642,12 @@ static void receive_callback (nsock_pool nsp, nsock_event nse, void *udata)
     lua_pushlstring(L, str, len);
     nse_restore(L, 2);
   }
+  else if (lua_status(L) == LUA_OK && nse_status(nse) == NSE_STATUS_EOF) {
+    // since r39028, read event can fail immediately if the socket is EOF.
+    trace(nse_iod(nse), nu->action, "EOF");
+    nu->action = NU_ACTION_IMMEDIATE;
+    return;
+  }
   else
     status(L, nse_status(nse)); /* will also restore the thread */
 }
@@ -652,6 +658,10 @@ static int l_receive (lua_State *L)
   nse_nsock_udata *nu = check_nsock_udata(L, 1, true);
   NSOCK_UDATA_ENSURE_OPEN(L, nu);
   nsock_read(nsp, nu->nsiod, receive_callback, nu->timeout, nu);
+  if (nu->action == NU_ACTION_IMMEDIATE) {
+    // Immediate return
+    return nseU_safeerror(L, "EOF");
+  }
   return yield(L, nu, "RECEIVE", FROM, 0, NULL);
 }
 
@@ -662,6 +672,10 @@ static int l_receive_lines (lua_State *L)
   NSOCK_UDATA_ENSURE_OPEN(L, nu);
   nsock_readlines(nsp, nu->nsiod, receive_callback, nu->timeout, nu,
       luaL_checkinteger(L, 2));
+  if (nu->action == NU_ACTION_IMMEDIATE) {
+    // Immediate return
+    return nseU_safeerror(L, "EOF");
+  }
   return yield(L, nu, "RECEIVE LINES", FROM, 0, NULL);
 }
 
@@ -672,6 +686,10 @@ static int l_receive_bytes (lua_State *L)
   NSOCK_UDATA_ENSURE_OPEN(L, nu);
   nsock_readbytes(nsp, nu->nsiod, receive_callback, nu->timeout, nu,
       luaL_checkinteger(L, 2));
+  if (nu->action == NU_ACTION_IMMEDIATE) {
+    // Immediate return
+    return nseU_safeerror(L, "EOF");
+  }
   return yield(L, nu, "RECEIVE BYTES", FROM, 0, NULL);
 }
 
@@ -736,6 +754,10 @@ static int receive_buf (lua_State *L, int status, lua_KContext ctx)
   {
     lua_pop(L, 2); /* pop 2 results */
     nsock_read(nsp, nu->nsiod, receive_callback, nu->timeout, nu);
+    if (nu->action == NU_ACTION_IMMEDIATE) {
+      // Immediate return
+      return nseU_safeerror(L, "EOF");
+    }
     return yield(L, nu, "RECEIVE BUF", FROM, 0, receive_buf);
   }
 }
