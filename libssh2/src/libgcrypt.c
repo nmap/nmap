@@ -1,5 +1,5 @@
-/* Copyright (C) 2008, 2009, Simon Josefsson
- * Copyright (C) 2006, 2007, The Written Word, Inc.
+/* Copyright (C) Simon Josefsson
+ * Copyright (C) The Written Word, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms,
@@ -34,9 +34,110 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY
  * OF SUCH DAMAGE.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
  */
 
 #ifdef LIBSSH2_CRYPTO_C /* Compile this via crypto.c */
+
+int _libssh2_hmac_ctx_init(libssh2_hmac_ctx *ctx)
+{
+    *ctx = NULL;
+    return 1;
+}
+
+#if LIBSSH2_MD5
+int _libssh2_hmac_md5_init(libssh2_hmac_ctx *ctx,
+                           void *key, size_t keylen)
+{
+    gcry_error_t err;
+    err = gcry_md_open(ctx, GCRY_MD_MD5, GCRY_MD_FLAG_HMAC);
+    if(gcry_err_code(err) != GPG_ERR_NO_ERROR)
+        return 0;
+    err = gcry_md_setkey(*ctx, key, keylen);
+    if(gcry_err_code(err) != GPG_ERR_NO_ERROR)
+        return 0;
+    return 1;
+}
+#endif
+
+#if LIBSSH2_HMAC_RIPEMD
+int _libssh2_hmac_ripemd160_init(libssh2_hmac_ctx *ctx,
+                                 void *key, size_t keylen)
+{
+    gcry_error_t err;
+    err = gcry_md_open(ctx, GCRY_MD_RMD160, GCRY_MD_FLAG_HMAC);
+    if(gcry_err_code(err) != GPG_ERR_NO_ERROR)
+        return 0;
+    err = gcry_md_setkey(*ctx, key, keylen);
+    if(gcry_err_code(err) != GPG_ERR_NO_ERROR)
+        return 0;
+    return 1;
+}
+#endif
+
+int _libssh2_hmac_sha1_init(libssh2_hmac_ctx *ctx,
+                            void *key, size_t keylen)
+{
+    gcry_error_t err;
+    err = gcry_md_open(ctx, GCRY_MD_SHA1, GCRY_MD_FLAG_HMAC);
+    if(gcry_err_code(err) != GPG_ERR_NO_ERROR)
+        return 0;
+    err = gcry_md_setkey(*ctx, key, keylen);
+    if(gcry_err_code(err) != GPG_ERR_NO_ERROR)
+        return 0;
+    return 1;
+}
+
+int _libssh2_hmac_sha256_init(libssh2_hmac_ctx *ctx,
+                              void *key, size_t keylen)
+{
+    gcry_error_t err;
+    err = gcry_md_open(ctx, GCRY_MD_SHA256, GCRY_MD_FLAG_HMAC);
+    if(gcry_err_code(err) != GPG_ERR_NO_ERROR)
+        return 0;
+    err = gcry_md_setkey(*ctx, key, keylen);
+    if(gcry_err_code(err) != GPG_ERR_NO_ERROR)
+        return 0;
+    return 1;
+}
+
+int _libssh2_hmac_sha512_init(libssh2_hmac_ctx *ctx,
+                              void *key, size_t keylen)
+{
+    gcry_error_t err;
+    err = gcry_md_open(ctx, GCRY_MD_SHA512, GCRY_MD_FLAG_HMAC);
+    if(gcry_err_code(err) != GPG_ERR_NO_ERROR)
+        return 0;
+    err = gcry_md_setkey(*ctx, key, keylen);
+    if(gcry_err_code(err) != GPG_ERR_NO_ERROR)
+        return 0;
+    return 1;
+}
+
+int _libssh2_hmac_update(libssh2_hmac_ctx *ctx,
+                         const void *data, size_t datalen)
+{
+    gcry_md_write(*ctx, data, datalen);
+    return 1;
+}
+
+int _libssh2_hmac_final(libssh2_hmac_ctx *ctx, void *data)
+{
+    unsigned char *res = gcry_md_read(*ctx, 0);
+
+    if(!res)
+        return 0;
+
+    memcpy(data, res, gcry_md_get_algo_dlen(gcry_md_get_algo(*ctx)));
+
+    return 1;
+}
+
+void _libssh2_hmac_cleanup(libssh2_hmac_ctx *ctx)
+{
+    gcry_md_close(*ctx);
+}
 
 #if LIBSSH2_RSA
 int
@@ -93,7 +194,9 @@ _libssh2_rsa_sha1_verify(libssh2_rsa_ctx * rsa,
     gcry_sexp_t s_sig, s_hash;
     int rc = -1;
 
-    libssh2_sha1(m, m_len, hash);
+    if(libssh2_sha1(m, m_len, hash)) {
+        return -1;
+    }
 
     rc = gcry_sexp_build(&s_hash, NULL,
                          "(data (flags pkcs1) (hash sha1 %b))",
@@ -446,7 +549,7 @@ _libssh2_rsa_sha1_sign(LIBSSH2_SESSION * session,
 int
 _libssh2_dsa_sha1_sign(libssh2_dsa_ctx * dsactx,
                        const unsigned char *hash,
-                       unsigned long hash_len, unsigned char *sig)
+                       size_t hash_len, unsigned char *sig)
 {
     unsigned char zhash[SHA_DIGEST_LENGTH + 1];
     gcry_sexp_t sig_sexp;
@@ -463,7 +566,7 @@ _libssh2_dsa_sha1_sign(libssh2_dsa_ctx * dsactx,
     zhash[0] = 0;
 
     if(gcry_sexp_build(&data, NULL, "(data (value %b))",
-                       hash_len + 1, zhash)) {
+                       (int)(hash_len + 1), zhash)) {
         return -1;
     }
 
@@ -542,7 +645,9 @@ _libssh2_dsa_sha1_verify(libssh2_dsa_ctx * dsactx,
     gcry_sexp_t s_sig, s_hash;
     int rc = -1;
 
-    libssh2_sha1(m, m_len, hash + 1);
+    if(libssh2_sha1(m, m_len, hash + 1)) {
+        return -1;
+    }
     hash[0] = 0;
 
     if(gcry_sexp_build(&s_hash, NULL, "(data(flags raw)(value %b))",

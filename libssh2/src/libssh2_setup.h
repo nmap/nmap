@@ -1,14 +1,13 @@
-/* Copyright (c) 2023 Viktor Szakats */
+/* Copyright (C) Viktor Szakats
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ */
 
 #ifndef LIBSSH2_SETUP_H
 #define LIBSSH2_SETUP_H
 
 /* Header for platform/compiler-specific initialization.
    Used by 'src', 'example', 'tests' */
-
-#if defined(_WIN32) && !defined(WIN32)
-#define WIN32
-#endif
 
 /* Define mingw-w64 version macros, eg __MINGW{32,64}_{MINOR,MAJOR}_VERSION */
 #ifdef __MINGW32__
@@ -23,7 +22,7 @@
 
 /* Hand-crafted configuration for platforms which lack config tool.
    Keep this synced with root CMakeLists.txt */
-#elif defined(WIN32)
+#elif defined(_WIN32)
 
 #define HAVE_SELECT
 #define HAVE_SNPRINTF
@@ -32,7 +31,6 @@
 # define HAVE_UNISTD_H
 # define HAVE_INTTYPES_H
 # define HAVE_SYS_TIME_H
-# define HAVE_SYS_PARAM_H
 # define HAVE_GETTIMEOFDAY
 # define HAVE_STRTOLL
 #elif defined(_MSC_VER)
@@ -51,7 +49,7 @@
 
 /* Below applies to both auto-detected and hand-crafted configs */
 
-#ifdef WIN32
+#ifdef _WIN32
 
 #ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
@@ -100,6 +98,6 @@
 # endif
 #endif
 
-#endif /* WIN32 */
+#endif /* _WIN32 */
 
 #endif /* LIBSSH2_SETUP_H */

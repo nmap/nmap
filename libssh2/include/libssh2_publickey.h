@@ -1,4 +1,4 @@
-/* Copyright (c) 2004-2006, Sara Golemon <sarag@libssh2.org>
+/* Copyright (C) Sara Golemon <sarag@libssh2.org>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms,
@@ -41,6 +41,8 @@
  *
  * For more information on the publickey subsystem,
  * refer to IETF draft: secsh-publickey
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
  */
 
 #ifndef LIBSSH2_PUBLICKEY_H

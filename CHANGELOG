@@ -1,6 +1,6 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
-o Upgraded included libraries: Lua 5.4.7
+o Upgraded included libraries: Lua 5.4.7, libssh2 1.11.1
 
 o [NSE] New script targets-ipv6-eui64 generates target IPv6 addresses from a
   user-provided file of MAC addresses, using the EUI-64 method. [Daniel Miller]

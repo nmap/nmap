@@ -1,6 +1,6 @@
-/* Copyright (c) 2004-2007 Sara Golemon <sarag@libssh2.org>
- * Copyright (c) 2009-2019 by Daniel Stenberg
- * Copyright (c) 2010  Simon Josefsson
+/* Copyright (C) Sara Golemon <sarag@libssh2.org>
+ * Copyright (C) Daniel Stenberg
+ * Copyright (C) Simon Josefsson
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms,
@@ -35,10 +35,11 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY
  * OF SUCH DAMAGE.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
  */
 
 #include "libssh2_priv.h"
-#include "misc.h"
 
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
@@ -47,7 +48,7 @@
 #include <errno.h>
 #include <assert.h>
 
-#ifdef WIN32
+#ifdef _WIN32
 /* Force parameter type. */
 #define recv(s, b, l, f)  recv((s), (b), (int)(l), (f))
 #define send(s, b, l, f)  send((s), (b), (int)(l), (f))
@@ -124,8 +125,8 @@ int _libssh2_error(LIBSSH2_SESSION* session, int errcode, const char *errmsg)
     return _libssh2_error_flags(session, errcode, errmsg, 0);
 }
 
-#ifdef WIN32
-static int wsa2errno(void)
+#ifdef _WIN32
+int _libssh2_wsa2errno(void)
 {
     switch(WSAGetLastError()) {
     case WSAEWOULDBLOCK:
@@ -159,23 +160,29 @@ _libssh2_recv(libssh2_socket_t sock, void *buffer, size_t length,
     (void)abstract;
 
     rc = recv(sock, buffer, length, flags);
-#ifdef WIN32
-    if(rc < 0)
-        return -wsa2errno();
-#else
     if(rc < 0) {
+        int err;
+#ifdef _WIN32
+        err = _libssh2_wsa2errno();
+#else
+        err = errno;
+#endif
+        /* Profiling tools that use SIGPROF can cause EINTR responses.
+           recv() does not modify its arguments when it returns EINTR,
+           but there may be data waiting, so the caller should try again */
+        if(err == EINTR)
+            return -EAGAIN;
         /* Sometimes the first recv() function call sets errno to ENOENT on
            Solaris and HP-UX */
-        if(errno == ENOENT)
+        if(err == ENOENT)
             return -EAGAIN;
 #ifdef EWOULDBLOCK /* For VMS and other special unixes */
-        else if(errno == EWOULDBLOCK)
-          return -EAGAIN;
+        else if(err == EWOULDBLOCK)
+            return -EAGAIN;
 #endif
         else
-            return -errno;
+            return -err;
     }
-#endif
     return rc;
 }
 
@@ -192,18 +199,24 @@ _libssh2_send(libssh2_socket_t sock, const void *buffer, size_t length,
     (void)abstract;
 
     rc = send(sock, buffer, length, flags);
-#ifdef WIN32
-    if(rc < 0)
-        return -wsa2errno();
-#else
     if(rc < 0) {
+        int err;
+#ifdef _WIN32
+        err = _libssh2_wsa2errno();
+#else
+        err = errno;
+#endif
+        /* Profiling tools that use SIGPROF can cause EINTR responses.
+           send() is defined as not yet sending any data when it returns EINTR,
+           so the caller should try again */
+        if(err == EINTR)
+            return -EAGAIN;
 #ifdef EWOULDBLOCK /* For VMS and other special unixes */
-        if(errno == EWOULDBLOCK)
+        if(err == EWOULDBLOCK)
             return -EAGAIN;
 #endif
-        return -errno;
+        return -err;
     }
-#endif
     return rc;
 }
 
@@ -253,6 +266,24 @@ void _libssh2_store_u32(unsigned char **buf, uint32_t value)
     *buf += sizeof(uint32_t);
 }
 
+/* _libssh2_store_u64
+ */
+void _libssh2_store_u64(unsigned char **buf, libssh2_uint64_t value)
+{
+    unsigned char *ptr = *buf;
+
+    ptr[0] = (unsigned char)((value >> 56) & 0xFF);
+    ptr[1] = (unsigned char)((value >> 48) & 0xFF);
+    ptr[2] = (unsigned char)((value >> 40) & 0xFF);
+    ptr[3] = (unsigned char)((value >> 32) & 0xFF);
+    ptr[4] = (unsigned char)((value >> 24) & 0xFF);
+    ptr[5] = (unsigned char)((value >> 16) & 0xFF);
+    ptr[6] = (unsigned char)((value >> 8) & 0xFF);
+    ptr[7] = (unsigned char)(value & 0xFF);
+
+    *buf += sizeof(libssh2_uint64_t);
+}
+
 /* _libssh2_store_str
  */
 int _libssh2_store_str(unsigned char **buf, const char *str, size_t len)
@@ -283,7 +314,7 @@ int _libssh2_store_bignum2_bytes(unsigned char **buf,
 
     extraByte = (len > 0 && (p[0] & 0x80) != 0);
     len_stored = (uint32_t)len;
-    if(extraByte && len_stored == 0xffffffff)
+    if(extraByte && len_stored == UINT32_MAX)
         len_stored--;
     _libssh2_store_u32(buf, len_stored + extraByte);
 
@@ -707,7 +738,7 @@ int _libssh2_gettimeofday(struct timeval *tp, void *tzp)
 {
     (void)tzp;
     if(tp) {
-#ifdef WIN32
+#ifdef _WIN32
         /* Offset between 1601-01-01 and 1970-01-01 in 100 nanosec units */
         #define _WIN32_FT_OFFSET (116444736000000000)
 
@@ -899,7 +930,6 @@ int _libssh2_copy_string(LIBSSH2_SESSION *session, struct string_buf *buf,
         }
     }
     else {
-        *outlen = 0;
         *outbuf = NULL;
     }
 

@@ -1,8 +1,8 @@
-#ifndef __LIBSSH2_LIBGCRYPT_H
-#define __LIBSSH2_LIBGCRYPT_H
+#ifndef LIBSSH2_LIBGCRYPT_H
+#define LIBSSH2_LIBGCRYPT_H
 /*
- * Copyright (C) 2008, 2009, 2010 Simon Josefsson
- * Copyright (C) 2006, 2007, The Written Word, Inc.
+ * Copyright (C) Simon Josefsson
+ * Copyright (C) The Written Word, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms,
@@ -37,6 +37,8 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY
  * OF SUCH DAMAGE.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
  */
 
 #define LIBSSH2_CRYPTO_ENGINE libssh2_gcrypt
@@ -64,7 +66,11 @@
 #define LIBSSH2_ECDSA 0
 #define LIBSSH2_ED25519 0
 
+#include "crypto_config.h"
+
+#if LIBSSH2_MD5 || LIBSSH2_MD5_PEM
 #define MD5_DIGEST_LENGTH 16
+#endif
 #define SHA_DIGEST_LENGTH 20
 #define SHA256_DIGEST_LENGTH 32
 #define SHA384_DIGEST_LENGTH 48
@@ -78,86 +84,62 @@
 #define libssh2_prepare_iovec(vec, len)  /* Empty. */
 
 #define libssh2_sha1_ctx gcry_md_hd_t
-
 /* returns 0 in case of failure */
 #define libssh2_sha1_init(ctx) \
     (GPG_ERR_NO_ERROR == gcry_md_open(ctx, GCRY_MD_SHA1, 0))
 #define libssh2_sha1_update(ctx, data, len) \
-    gcry_md_write(ctx, (unsigned char *) data, len)
+    (gcry_md_write(ctx, (unsigned char *) data, len), 1)
 #define libssh2_sha1_final(ctx, out) \
-    memcpy(out, gcry_md_read(ctx, 0), SHA_DIGEST_LENGTH), gcry_md_close(ctx)
+    (memcpy(out, gcry_md_read(ctx, 0), SHA_DIGEST_LENGTH), \
+    gcry_md_close(ctx), 1)
 #define libssh2_sha1(message, len, out) \
-    gcry_md_hash_buffer(GCRY_MD_SHA1, out, message, len)
+    (gcry_md_hash_buffer(GCRY_MD_SHA1, out, message, len), 0)
 
 #define libssh2_sha256_ctx gcry_md_hd_t
-
 #define libssh2_sha256_init(ctx) \
     (GPG_ERR_NO_ERROR == gcry_md_open(ctx, GCRY_MD_SHA256, 0))
 #define libssh2_sha256_update(ctx, data, len) \
-    gcry_md_write(ctx, (unsigned char *) data, len)
+    (gcry_md_write(ctx, (unsigned char *) data, len), 1)
 #define libssh2_sha256_final(ctx, out) \
-    memcpy(out, gcry_md_read(ctx, 0), SHA256_DIGEST_LENGTH), gcry_md_close(ctx)
+    (memcpy(out, gcry_md_read(ctx, 0), SHA256_DIGEST_LENGTH), \
+    gcry_md_close(ctx), 1)
 #define libssh2_sha256(message, len, out) \
-    gcry_md_hash_buffer(GCRY_MD_SHA256, out, message, len)
+    (gcry_md_hash_buffer(GCRY_MD_SHA256, out, message, len), 0)
 
 #define libssh2_sha384_ctx gcry_md_hd_t
-
 #define libssh2_sha384_init(ctx) \
     (GPG_ERR_NO_ERROR == gcry_md_open(ctx, GCRY_MD_SHA384, 0))
 #define libssh2_sha384_update(ctx, data, len) \
-    gcry_md_write(ctx, (unsigned char *) data, len)
+    (gcry_md_write(ctx, (unsigned char *) data, len), 1)
 #define libssh2_sha384_final(ctx, out) \
-    memcpy(out, gcry_md_read(ctx, 0), SHA384_DIGEST_LENGTH), gcry_md_close(ctx)
+    (memcpy(out, gcry_md_read(ctx, 0), SHA384_DIGEST_LENGTH), \
+    gcry_md_close(ctx), 1)
 #define libssh2_sha384(message, len, out) \
-    gcry_md_hash_buffer(GCRY_MD_SHA384, out, message, len)
+    (gcry_md_hash_buffer(GCRY_MD_SHA384, out, message, len), 0)
 
 #define libssh2_sha512_ctx gcry_md_hd_t
-
 #define libssh2_sha512_init(ctx) \
     (GPG_ERR_NO_ERROR == gcry_md_open(ctx, GCRY_MD_SHA512, 0))
 #define libssh2_sha512_update(ctx, data, len) \
-    gcry_md_write(ctx, (unsigned char *) data, len)
+    (gcry_md_write(ctx, (unsigned char *) data, len), 1)
 #define libssh2_sha512_final(ctx, out) \
-    memcpy(out, gcry_md_read(ctx, 0), SHA512_DIGEST_LENGTH), gcry_md_close(ctx)
+    (memcpy(out, gcry_md_read(ctx, 0), SHA512_DIGEST_LENGTH), \
+    gcry_md_close(ctx), 1)
 #define libssh2_sha512(message, len, out) \
-    gcry_md_hash_buffer(GCRY_MD_SHA512, out, message, len)
+    (gcry_md_hash_buffer(GCRY_MD_SHA512, out, message, len), 0)
 
+#if LIBSSH2_MD5 || LIBSSH2_MD5_PEM
 #define libssh2_md5_ctx gcry_md_hd_t
-
-/* returns 0 in case of failure */
 #define libssh2_md5_init(ctx) \
     (GPG_ERR_NO_ERROR == gcry_md_open(ctx, GCRY_MD_MD5, 0))
-
 #define libssh2_md5_update(ctx, data, len) \
-    gcry_md_write(ctx, (unsigned char *) data, len)
+    (gcry_md_write(ctx, (unsigned char *) data, len), 1)
 #define libssh2_md5_final(ctx, out) \
-    memcpy(out, gcry_md_read(ctx, 0), MD5_DIGEST_LENGTH), gcry_md_close(ctx)
-#define libssh2_md5(message, len, out) \
-    gcry_md_hash_buffer(GCRY_MD_MD5, out, message, len)
+    (memcpy(out, gcry_md_read(ctx, 0), MD5_DIGEST_LENGTH), \
+    gcry_md_close(ctx), 1)
+#endif
 
 #define libssh2_hmac_ctx gcry_md_hd_t
-#define libssh2_hmac_ctx_init(ctx)
-#define libssh2_hmac_sha1_init(ctx, key, keylen) \
-    gcry_md_open(ctx, GCRY_MD_SHA1, GCRY_MD_FLAG_HMAC), \
-    gcry_md_setkey(*ctx, key, keylen)
-#define libssh2_hmac_md5_init(ctx, key, keylen) \
-    gcry_md_open(ctx, GCRY_MD_MD5, GCRY_MD_FLAG_HMAC), \
-    gcry_md_setkey(*ctx, key, keylen)
-#define libssh2_hmac_ripemd160_init(ctx, key, keylen) \
-    gcry_md_open(ctx, GCRY_MD_RMD160, GCRY_MD_FLAG_HMAC), \
-    gcry_md_setkey(*ctx, key, keylen)
-#define libssh2_hmac_sha256_init(ctx, key, keylen) \
-    gcry_md_open(ctx, GCRY_MD_SHA256, GCRY_MD_FLAG_HMAC), \
-    gcry_md_setkey(*ctx, key, keylen)
-#define libssh2_hmac_sha512_init(ctx, key, keylen) \
-    gcry_md_open(ctx, GCRY_MD_SHA512, GCRY_MD_FLAG_HMAC), \
-    gcry_md_setkey(*ctx, key, keylen)
-#define libssh2_hmac_update(ctx, data, datalen) \
-    gcry_md_write(ctx, (unsigned char *) data, datalen)
-#define libssh2_hmac_final(ctx, data) \
-    memcpy(data, gcry_md_read(ctx, 0), \
-           gcry_md_get_algo_dlen(gcry_md_get_algo(ctx)))
-#define libssh2_hmac_cleanup(ctx) gcry_md_close(*ctx)
 
 #define libssh2_crypto_init() gcry_control(GCRYCTL_DISABLE_SECMEM)
 #define libssh2_crypto_exit()
@@ -202,6 +184,8 @@
     _libssh2_gcry_ciphermode(GCRY_CIPHER_CAST5, GCRY_CIPHER_MODE_CBC)
 #define _libssh2_cipher_3des \
     _libssh2_gcry_ciphermode(GCRY_CIPHER_3DES, GCRY_CIPHER_MODE_CBC)
+#define _libssh2_cipher_chacha20 \
+    _libssh2_gcry_ciphermode(GCRY_CIPHER_CHACHA20, GCRY_CIPHER_MODE_STREAM)
 
 
 #define _libssh2_cipher_dtor(ctx) gcry_cipher_close(*(ctx))
@@ -248,4 +232,4 @@ extern int _libssh2_dh_secret(_libssh2_dh_ctx *dhctx, _libssh2_bn *secret,
                               _libssh2_bn *f, _libssh2_bn *p);
 extern void _libssh2_dh_dtor(_libssh2_dh_ctx *dhctx);
 
-#endif /* __LIBSSH2_LIBGCRYPT_H */
+#endif /* LIBSSH2_LIBGCRYPT_H */

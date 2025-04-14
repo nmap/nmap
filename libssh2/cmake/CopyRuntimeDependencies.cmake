@@ -1,4 +1,4 @@
-# Copyright (c) 2014 Alexander Lamaison <alexander.lamaison@gmail.com>
+# Copyright (C) Alexander Lamaison <alexander.lamaison@gmail.com>
 #
 # Redistribution and use in source and binary forms,
 # with or without modification, are permitted provided
@@ -32,15 +32,16 @@
 # NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 # USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY
 # OF SUCH DAMAGE.
+#
+# SPDX-License-Identifier: BSD-3-Clause
 
 include(CMakeParseArguments)
 
-function(ADD_TARGET_TO_COPY_DEPENDENCIES)
+function(add_target_to_copy_dependencies)
   set(options)
   set(oneValueArgs TARGET)
   set(multiValueArgs DEPENDENCIES BEFORE_TARGETS)
-  cmake_parse_arguments(COPY
-    "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
+  cmake_parse_arguments(COPY "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
   if(NOT COPY_DEPENDENCIES)
     return()
@@ -50,23 +51,18 @@ function(ADD_TARGET_TO_COPY_DEPENDENCIES)
   # parallel builds trying to kick off the commands at the same time
   add_custom_target(${COPY_TARGET})
 
-  foreach(target ${COPY_BEFORE_TARGETS})
-    add_dependencies(${target} ${COPY_TARGET})
+  foreach(_target IN LISTS COPY_BEFORE_TARGETS)
+    add_dependencies(${_target} ${COPY_TARGET})
   endforeach()
 
-  foreach(dependency ${COPY_DEPENDENCIES})
-
+  foreach(_dependency IN LISTS COPY_DEPENDENCIES)
     add_custom_command(
       TARGET ${COPY_TARGET}
-      DEPENDS ${dependency}
+      DEPENDS ${_dependency}
       # Make directory first otherwise file is copied in place of
       # directory instead of into it
-      COMMAND ${CMAKE_COMMAND}
-      ARGS -E make_directory ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
-      COMMAND ${CMAKE_COMMAND}
-      ARGS -E copy ${dependency} ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
+      COMMAND ${CMAKE_COMMAND} ARGS -E make_directory "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}"
+      COMMAND ${CMAKE_COMMAND} ARGS -E copy ${_dependency} "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}"
       VERBATIM)
-
   endforeach()
-
 endfunction()

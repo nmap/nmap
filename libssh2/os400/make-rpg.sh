@@ -1,11 +1,13 @@
 #!/bin/sh
+# Copyright (C) The libssh2 project and its contributors.
+# SPDX-License-Identifier: BSD-3-Clause
 #
 #       Installation of the ILE/RPG header files in the OS/400 library.
 #
 
-SCRIPTDIR=`dirname "${0}"`
+SCRIPTDIR=$(dirname "${0}")
 . "${SCRIPTDIR}/initscript.sh"
-cd "${TOPDIR}/os400/libssh2rpg"
+cd "${TOPDIR}/os400/libssh2rpg" || exit 1
 
 
 #       Create the OS/400 source program file for the ILE/RPG header files.
@@ -22,9 +24,9 @@ fi
 #       Map file names to DB2 name syntax.
 
 for HFILE in *.rpgle *.rpgle.in
-do      NAME="`basename \"${HFILE}\" .in`"
-        VAR="`basename \"${NAME}\" .rpgle`"
-        VAL="`db2_name \"${NAME}\"`"
+do      NAME="$(basename "${HFILE}" .in)"
+        VAR="$(basename "${NAME}" .rpgle)"
+        VAL="$(db2_name "${NAME}")"
 
         eval "VAR_${VAR}=\"${VAL}\""
         echo "${VAR} s/${VAR}/${VAL}/g"
@@ -62,7 +64,7 @@ fi
 for HFILE in *.rpgle *.rpgle.in
 do      IFSCMD="cat \"${HFILE}\""
         DB2CMD="change_include < \"${HFILE}\""
-        IFSFILE="`basename \"${HFILE}\" .in`"
+        IFSFILE="$(basename "${HFILE}" .in)"
 
         case "${HFILE}" in
 
@@ -77,7 +79,7 @@ do      IFSCMD="cat \"${HFILE}\""
         then    eval "${IFSCMD}" > "${IFSDEST}"
         fi
 
-        eval DB2MBR="\"\${VAR_`basename \"${IFSDEST}\" .rpgle`}\""
+        eval DB2MBR="\"\${VAR_$(basename "${IFSDEST}" .rpgle)}\""
         DB2DEST="${SRCPF}/${DB2MBR}.MBR"
 
         if action_needed "${DB2DEST}" "${HFILE}"
@@ -85,7 +87,7 @@ do      IFSCMD="cat \"${HFILE}\""
 
                 #       Need to translate to target CCSID.
 
-                CMD="CPY OBJ('`pwd`/tmphdrfile') TOOBJ('${DB2DEST}')"
+                CMD="CPY OBJ('$(pwd)/tmphdrfile') TOOBJ('${DB2DEST}')"
                 CMD="${CMD} TOCCSID(${TGTCCSID}) DTAFMT(*TEXT) REPLACE(*YES)"
                 system "${CMD}"
         fi

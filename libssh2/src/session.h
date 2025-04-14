@@ -1,8 +1,8 @@
-#ifndef __LIBSSH2_SESSION_H
-#define __LIBSSH2_SESSION_H
-/* Copyright (c) 2004-2007 Sara Golemon <sarag@libssh2.org>
- * Copyright (c) 2009-2010 by Daniel Stenberg
- * Copyright (c) 2010 Simon Josefsson <simon@josefsson.org>
+#ifndef LIBSSH2_SESSION_H
+#define LIBSSH2_SESSION_H
+/* Copyright (C) Sara Golemon <sarag@libssh2.org>
+ * Copyright (C) Daniel Stenberg
+ * Copyright (C) Simon Josefsson <simon@josefsson.org>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms,
@@ -37,6 +37,8 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY
  * OF SUCH DAMAGE.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
  */
 
 /* Conveniance-macros to allow code like this;
@@ -89,4 +91,4 @@ int _libssh2_wait_socket(LIBSSH2_SESSION *session, time_t entry_time);
 /* this is the lib-internal set blocking function */
 int _libssh2_session_set_blocking(LIBSSH2_SESSION * session, int blocking);
 
-#endif /* __LIBSSH2_SESSION_H */
+#endif /* LIBSSH2_SESSION_H */

@@ -3,6 +3,8 @@ dnl Copyright (C) 1996-2003 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
 dnl with or without modifications, as long as this notice is preserved.
+dnl
+dnl SPDX-License-Identifier: FSFULLR
 
 dnl Subroutines of libtool.m4,
 dnl with replacements s/AC_/AC_LIB/ and s/lt_cv/acl_cv/ to avoid collision

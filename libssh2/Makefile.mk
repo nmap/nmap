@@ -194,10 +194,6 @@ ifdef WIN32
   LIBSSH2_LDFLAGS_DYN += -Wl,--output-def,$(libssh2_def_LIBRARY),--out-implib,$(libssh2_dyn_a_LIBRARY)
 endif
 
-# Get noinst_PROGRAMS define
-include example/Makefile.am
-TARGETS_EXAMPLES := $(patsubst %.c,%$(BIN_EXT),$(strip $(wildcard example/*.c)))
-
 all: lib dyn
 
 # For compatibility
@@ -210,29 +206,6 @@ lib: prebuild $(TARGET).a
 prebuild: $(OBJ_DIR) $(OBJ_DIR)/version.inc
 
 example: $(TARGETS_EXAMPLES)
-
-# Get DOCKER_TESTS, STANDALONE_TESTS, SSHD_TESTS, TESTS_WITH_LIB_STATIC,
-# librunner_la_SOURCES defines
-include tests/Makefile.inc
-TARGETS_RUNNER := $(TARGET)-runner.a
-TARGETS_RUNNER_OBJS := $(addprefix $(OBJ_DIR)/,$(patsubst %.c,%.o,$(filter %.c,$(librunner_la_SOURCES))))
-TARGETS_TESTS := $(patsubst %.c,%$(BIN_EXT),$(addprefix tests/,$(addsuffix .c,$(DOCKER_TESTS) $(STANDALONE_TESTS) $(SSHD_TESTS))))
-ifdef DYN
-TARGETS_TESTS := $(filter-out $(patsubst %.c,%$(BIN_EXT),$(addprefix tests/,$(addsuffix .c,$(TESTS_WITH_LIB_STATIC)))),$(TARGETS_TESTS))
-endif
-
-test: $(TARGETS_RUNNER) $(TARGETS_TESTS)
-
-$(TARGETS_RUNNER_OBJS):
-	$(CC) -W -Wall $(CFLAGS) $(CPPFLAGS) -c $(patsubst $(OBJ_DIR)/%.o,tests/%.c,$@) -o $@
-
-$(TARGETS_RUNNER): $(TARGETS_RUNNER_OBJS)
-	@$(call DEL, $@)
-	$(AR) rcs $@ $^
-
-test_%$(BIN_EXT): $(libssh2_DEPENDENCIES) $(TARGETS_RUNNER)
-	$(CC) -W -Wall $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) $(LIBSSH2_LDFLAGS_BIN) \
-	  $(patsubst %$(BIN_EXT),%.c,$@) -o $@ $(TARGETS_RUNNER) $(LIBS) $(LIBS_BIN)
 
 %$(BIN_EXT): %.c $(libssh2_DEPENDENCIES)
 	$(CC) -W -Wall $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) $(LIBSSH2_LDFLAGS_BIN) $< -o $@ $(LIBS) $(LIBS_BIN)

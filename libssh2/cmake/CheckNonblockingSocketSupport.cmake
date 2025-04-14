@@ -1,3 +1,5 @@
+# Copyright (C) The libssh2 project and its contributors.
+# SPDX-License-Identifier: BSD-3-Clause
 include(CheckCSourceCompiles)
 
 # - check_nonblocking_socket_support()

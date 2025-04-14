@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 Patrick Monnerat <patrick@monnerat.net>
+ * Copyright (C) Patrick Monnerat <patrick@monnerat.net>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms,
@@ -34,6 +34,8 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY
  * OF SUCH DAMAGE.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
  */
 
 #ifndef LIBSSH2_ASSERT_H

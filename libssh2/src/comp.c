@@ -1,5 +1,5 @@
-/* Copyright (c) 2004-2007, 2019, Sara Golemon <sarag@libssh2.org>
- * Copyright (c) 2010-2014, Daniel Stenberg <daniel@haxx.se>
+/* Copyright (C) Sara Golemon <sarag@libssh2.org>
+ * Copyright (C) Daniel Stenberg <daniel@haxx.se>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms,
@@ -34,6 +34,8 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY
  * OF SUCH DAMAGE.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
  */
 
 #include "libssh2_priv.h"
@@ -206,7 +208,7 @@ comp_method_zlib_comp(LIBSSH2_SESSION *session,
     }
 
     _libssh2_debug((session, LIBSSH2_TRACE_TRANS,
-                   "unhandled zlib compression error %d, avail_out",
+                   "unhandled zlib compression error %d, avail_out %u",
                    status, strm->avail_out));
     return _libssh2_error(session, LIBSSH2_ERROR_ZLIB, "compression failure");
 }

@@ -21,10 +21,10 @@
 /* Define to 1 if you have the <errno.h> header file. */
 #undef HAVE_ERRNO_H
 
-/* Define to 1 if you have the `explicit_bzero' function. */
+/* Define to 1 if you have the 'explicit_bzero' function. */
 #undef HAVE_EXPLICIT_BZERO
 
-/* Define to 1 if you have the `explicit_memset' function. */
+/* Define to 1 if you have the 'explicit_memset' function. */
 #undef HAVE_EXPLICIT_MEMSET
 
 /* Define to 1 if you have the <fcntl.h> header file. */
@@ -33,7 +33,7 @@
 /* use FIONBIO for non-blocking sockets */
 #undef HAVE_FIONBIO
 
-/* Define to 1 if you have the `gettimeofday' function. */
+/* Define to 1 if you have the 'gettimeofday' function. */
 #undef HAVE_GETTIMEOFDAY
 
 /* Define to 1 if you have the <inttypes.h> header file. */
@@ -60,7 +60,7 @@
 /* Define if you have the z library. */
 #undef HAVE_LIBZ
 
-/* Define to 1 if you have the `memset_s' function. */
+/* Define to 1 if you have the 'memset_s' function. */
 #undef HAVE_MEMSET_S
 
 /* Define to 1 if you have the <netinet/in.h> header file. */
@@ -69,13 +69,13 @@
 /* use O_NONBLOCK for non-blocking sockets */
 #undef HAVE_O_NONBLOCK
 
-/* Define to 1 if you have the `poll' function. */
+/* Define to 1 if you have the 'poll' function. */
 #undef HAVE_POLL
 
 /* Define to 1 if you have the select function. */
 #undef HAVE_SELECT
 
-/* Define to 1 if you have the `snprintf' function. */
+/* Define to 1 if you have the 'snprintf' function. */
 #undef HAVE_SNPRINTF
 
 /* use SO_NONBLOCK for non-blocking sockets */
@@ -96,14 +96,11 @@
 /* Define to 1 if you have the <string.h> header file. */
 #undef HAVE_STRING_H
 
-/* Define to 1 if you have the `strtoll' function. */
+/* Define to 1 if you have the 'strtoll' function. */
 #undef HAVE_STRTOLL
 
 /* Define to 1 if you have the <sys/ioctl.h> header file. */
 #undef HAVE_SYS_IOCTL_H
-
-/* Define to 1 if you have the <sys/param.h> header file. */
-#undef HAVE_SYS_PARAM_H
 
 /* Define to 1 if you have the <sys/select.h> header file. */
 #undef HAVE_SYS_SELECT_H
@@ -134,6 +131,9 @@
 
 /* to make a symbol visible */
 #undef LIBSSH2_API
+
+/* Enable WinCNG ECDSA support */
+#undef LIBSSH2_ECDSA_WINCNG
 
 /* Compile in zlib support */
 #undef LIBSSH2_HAVE_ZLIB
@@ -191,7 +191,7 @@
 	STACK_DIRECTION = 0 => direction of growth unknown */
 #undef STACK_DIRECTION
 
-/* Define to 1 if all of the C90 standard headers exist (not just the ones
+/* Define to 1 if all of the C89 standard headers exist (not just the ones
    required in a freestanding environment). This macro is provided for
    backward compatibility; new code need not use it. */
 #undef STDC_HEADERS
@@ -214,17 +214,23 @@
 /* Number of bits in a file offset, on hosts where this is settable. */
 #undef _FILE_OFFSET_BITS
 
-/* Define for large files, on AIX-style hosts. */
+/* Define to 1 on platforms where this makes off_t a 64-bit type. */
 #undef _LARGE_FILES
 
-/* Define to empty if `const' does not conform to ANSI C. */
+/* Number of bits in time_t, on hosts where this is settable. */
+#undef _TIME_BITS
+
+/* Define to 1 on platforms where this makes time_t a 64-bit type. */
+#undef __MINGW_USE_VC2005_COMPAT
+
+/* Define to empty if 'const' does not conform to ANSI C. */
 #undef const
 
-/* Define to `__inline__' or `__inline' if that's what the C compiler
+/* Define to '__inline__' or '__inline' if that's what the C compiler
    calls it, or to nothing if 'inline' is not supported under any name.  */
 #ifndef __cplusplus
 #undef inline
 #endif
 
-/* Define to `unsigned int' if <sys/types.h> does not define. */
+/* Define as 'unsigned int' if <stddef.h> doesn't define. */
 #undef size_t

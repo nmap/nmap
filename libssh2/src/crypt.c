@@ -1,5 +1,5 @@
-/* Copyright (c) 2009, 2010 Simon Josefsson <simon@josefsson.org>
- * Copyright (c) 2004-2007, Sara Golemon <sarag@libssh2.org>
+/* Copyright (C) Simon Josefsson <simon@josefsson.org>
+ * Copyright (C) Sara Golemon <sarag@libssh2.org>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms,
@@ -34,9 +34,14 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY
  * OF SUCH DAMAGE.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
  */
 
 #include "libssh2_priv.h"
+#include "cipher-chachapoly.h"
+
+#include <assert.h>
 
 #if defined(LIBSSH2DEBUG) && defined(LIBSSH2_CRYPT_NONE_INSECURE)
 /* crypt_none_crypt
@@ -53,8 +58,12 @@
  *
  */
 static int
-crypt_none_crypt(LIBSSH2_SESSION * session, unsigned char *buf,
-                 void **abstract, int firstlast)
+crypt_none_crypt(LIBSSH2_SESSION * session,
+                 unsigned int seqno,
+                 unsigned char *buf,
+                 size_t buf_len,
+                 void **abstract,
+                 int firstlast)
 {
     /* Do nothing to the data! */
     return 0;
@@ -78,6 +87,7 @@ struct crypt_ctx
     int encrypt;
     _libssh2_cipher_type(algo);
     _libssh2_cipher_ctx h;
+    struct chachapoly_ctx chachapoly_ctx;
 };
 
 static int
@@ -105,13 +115,18 @@ crypt_init(LIBSSH2_SESSION * session,
 }
 
 static int
-crypt_encrypt(LIBSSH2_SESSION * session, unsigned char *block,
-              size_t blocksize, void **abstract, int firstlast)
+crypt_encrypt(LIBSSH2_SESSION * session,
+              unsigned int seqno,
+              unsigned char *buf,
+              size_t buf_len,
+              void **abstract,
+              int firstlast)
 {
     struct crypt_ctx *cctx = *(struct crypt_ctx **) abstract;
     (void) session;
-    return _libssh2_cipher_crypt(&cctx->h, cctx->algo, cctx->encrypt, block,
-                                 blocksize, firstlast);
+    (void) seqno;
+    return _libssh2_cipher_crypt(&cctx->h, cctx->algo, cctx->encrypt, buf,
+                                 buf_len, firstlast);
 }
 
 static int
@@ -133,8 +148,10 @@ static const LIBSSH2_CRYPT_METHOD libssh2_crypt_method_aes256_gcm = {
     16,                         /* blocksize */
     12,                         /* initial value length */
     32,                         /* secret length -- 32*8 == 256bit */
+    16,                         /* length of the authentication tag */
     LIBSSH2_CRYPT_FLAG_INTEGRATED_MAC | LIBSSH2_CRYPT_FLAG_PKTLEN_AAD,
     &crypt_init,
+    NULL,
     &crypt_encrypt,
     &crypt_dtor,
     _libssh2_cipher_aes256gcm
@@ -146,8 +163,10 @@ static const LIBSSH2_CRYPT_METHOD libssh2_crypt_method_aes128_gcm = {
     16,                         /* blocksize */
     12,                         /* initial value length */
     16,                         /* secret length -- 16*8 == 128bit */
+    16,                         /* length of the authentication tag */
     LIBSSH2_CRYPT_FLAG_INTEGRATED_MAC | LIBSSH2_CRYPT_FLAG_PKTLEN_AAD,
     &crypt_init,
+    NULL,
     &crypt_encrypt,
     &crypt_dtor,
     _libssh2_cipher_aes128gcm
@@ -161,8 +180,10 @@ static const LIBSSH2_CRYPT_METHOD libssh2_crypt_method_aes128_ctr = {
     16,                         /* blocksize */
     16,                         /* initial value length */
     16,                         /* secret length -- 16*8 == 128bit */
+    0,                          /* length of the authentication tag */
     0,                          /* flags */
     &crypt_init,
+    NULL,
     &crypt_encrypt,
     &crypt_dtor,
     _libssh2_cipher_aes128ctr
@@ -174,8 +195,10 @@ static const LIBSSH2_CRYPT_METHOD libssh2_crypt_method_aes192_ctr = {
     16,                         /* blocksize */
     16,                         /* initial value length */
     24,                         /* secret length -- 24*8 == 192bit */
+    0,                          /* length of the authentication tag */
     0,                          /* flags */
     &crypt_init,
+    NULL,
     &crypt_encrypt,
     &crypt_dtor,
     _libssh2_cipher_aes192ctr
@@ -187,8 +210,10 @@ static const LIBSSH2_CRYPT_METHOD libssh2_crypt_method_aes256_ctr = {
     16,                         /* blocksize */
     16,                         /* initial value length */
     32,                         /* secret length -- 32*8 == 256bit */
+    0,                          /* length of the authentication tag */
     0,                          /* flags */
     &crypt_init,
+    NULL,
     &crypt_encrypt,
     &crypt_dtor,
     _libssh2_cipher_aes256ctr
@@ -202,8 +227,10 @@ static const LIBSSH2_CRYPT_METHOD libssh2_crypt_method_aes128_cbc = {
     16,                         /* blocksize */
     16,                         /* initial value length */
     16,                         /* secret length -- 16*8 == 128bit */
+    0,                          /* length of the authentication tag */
     0,                          /* flags */
     &crypt_init,
+    NULL,
     &crypt_encrypt,
     &crypt_dtor,
     _libssh2_cipher_aes128
@@ -215,8 +242,10 @@ static const LIBSSH2_CRYPT_METHOD libssh2_crypt_method_aes192_cbc = {
     16,                         /* blocksize */
     16,                         /* initial value length */
     24,                         /* secret length -- 24*8 == 192bit */
+    0,                          /* length of the authentication tag */
     0,                          /* flags */
     &crypt_init,
+    NULL,
     &crypt_encrypt,
     &crypt_dtor,
     _libssh2_cipher_aes192
@@ -228,8 +257,10 @@ static const LIBSSH2_CRYPT_METHOD libssh2_crypt_method_aes256_cbc = {
     16,                         /* blocksize */
     16,                         /* initial value length */
     32,                         /* secret length -- 32*8 == 256bit */
+    0,                          /* length of the authentication tag */
     0,                          /* flags */
     &crypt_init,
+    NULL,
     &crypt_encrypt,
     &crypt_dtor,
     _libssh2_cipher_aes256
@@ -243,8 +274,10 @@ static const LIBSSH2_CRYPT_METHOD
     16,                         /* blocksize */
     16,                         /* initial value length */
     32,                         /* secret length -- 32*8 == 256bit */
+    0,                          /* length of the authentication tag */
     0,                          /* flags */
     &crypt_init,
+    NULL,
     &crypt_encrypt,
     &crypt_dtor,
     _libssh2_cipher_aes256
@@ -258,8 +291,10 @@ static const LIBSSH2_CRYPT_METHOD libssh2_crypt_method_blowfish_cbc = {
     8,                          /* blocksize */
     8,                          /* initial value length */
     16,                         /* secret length */
+    0,                          /* length of the authentication tag */
     0,                          /* flags */
     &crypt_init,
+    NULL,
     &crypt_encrypt,
     &crypt_dtor,
     _libssh2_cipher_blowfish
@@ -273,8 +308,10 @@ static const LIBSSH2_CRYPT_METHOD libssh2_crypt_method_arcfour = {
     8,                          /* blocksize */
     8,                          /* initial value length */
     16,                         /* secret length */
+    0,                          /* length of the authentication tag */
     0,                          /* flags */
     &crypt_init,
+    NULL,
     &crypt_encrypt,
     &crypt_dtor,
     _libssh2_cipher_arcfour
@@ -310,8 +347,10 @@ static const LIBSSH2_CRYPT_METHOD libssh2_crypt_method_arcfour128 = {
     8,                          /* blocksize */
     8,                          /* initial value length */
     16,                         /* secret length */
+    0,                          /* length of the authentication tag */
     0,                          /* flags */
     &crypt_init_arcfour128,
+    NULL,
     &crypt_encrypt,
     &crypt_dtor,
     _libssh2_cipher_arcfour
@@ -325,8 +364,10 @@ static const LIBSSH2_CRYPT_METHOD libssh2_crypt_method_cast128_cbc = {
     8,                          /* blocksize */
     8,                          /* initial value length */
     16,                         /* secret length */
+    0,                          /* length of the authentication tag */
     0,                          /* flags */
     &crypt_init,
+    NULL,
     &crypt_encrypt,
     &crypt_dtor,
     _libssh2_cipher_cast5
@@ -340,17 +381,132 @@ static const LIBSSH2_CRYPT_METHOD libssh2_crypt_method_3des_cbc = {
     8,                          /* blocksize */
     8,                          /* initial value length */
     24,                         /* secret length */
+    0,                          /* length of the authentication tag */
     0,                          /* flags */
     &crypt_init,
+    NULL,
     &crypt_encrypt,
     &crypt_dtor,
     _libssh2_cipher_3des
 };
 #endif
 
+static int
+crypt_init_chacha20_poly(LIBSSH2_SESSION * session,
+           const LIBSSH2_CRYPT_METHOD * method,
+           unsigned char *iv, int *free_iv,
+           unsigned char *secret, int *free_secret,
+           int encrypt, void **abstract)
+{
+    struct crypt_ctx *ctx = LIBSSH2_ALLOC(session,
+                                          sizeof(struct crypt_ctx));
+
+    (void)iv;
+
+    if(!ctx)
+        return LIBSSH2_ERROR_ALLOC;
+
+    ctx->encrypt = encrypt;
+    ctx->algo = method->algo;
+
+    if(chachapoly_init(&ctx->chachapoly_ctx, secret, method->secret_len)) {
+        LIBSSH2_FREE(session, ctx);
+        return -1;
+    }
+
+    *abstract = ctx;
+    *free_iv = 1;
+    *free_secret = 1;
+    return 0;
+}
+
+
+static int
+crypt_encrypt_chacha20_poly_buffer(LIBSSH2_SESSION * session,
+                                   unsigned int seqno,
+                                   unsigned char *buf,
+                                   size_t buf_len,
+                                   void **abstract,
+                                   int firstlast)
+{
+    int ret = 1;
+    struct crypt_ctx *ctx = *(struct crypt_ctx **) abstract;
+
+    (void)session;
+    (void)firstlast;
+
+    if(ctx) {
+        if(ctx->encrypt) {
+            /* requires out_buf to be large enough to hold encrypted output
+               plus auth tag (auth len)
+
+               buf is a full packet so we need to subtract packet length from
+               length
+             */
+            ret = chachapoly_crypt(&ctx->chachapoly_ctx, seqno, buf, buf,
+                                   ((u_int)buf_len) - 4, 4, ctx->encrypt);
+        }
+        else {
+            /* buf is full packet including size and auth tag but buf_len
+               doesn't include size */
+            ret = chachapoly_crypt(&ctx->chachapoly_ctx, seqno, buf, buf,
+                                   ((u_int)buf_len), 4, ctx->encrypt);
+
+            /* the api expects the size field to already be removed
+               from the decrypted packet so we'll help it out */
+            if(ret == 0) {
+                memmove(buf, buf + 4, buf_len - 4);
+            }
+        }
+    }
+
+    return (ret == 0 ? 0 : 1);
+}
+
+static int
+crypt_get_length_chacha20_poly(LIBSSH2_SESSION * session, unsigned int seqno,
+                               unsigned char *data, size_t data_size,
+                               unsigned int *len, void **abstract)
+{
+    struct crypt_ctx *ctx = *(struct crypt_ctx **) abstract;
+
+    (void)session;
+
+    return chachapoly_get_length(&ctx->chachapoly_ctx, len, seqno, data,
+                                 (u_int)data_size);
+}
+
+static int
+crypt_dtor_chacha20_poly(LIBSSH2_SESSION * session, void **abstract)
+{
+    struct crypt_ctx **cctx = (struct crypt_ctx **) abstract;
+    if(cctx && *cctx) {
+        LIBSSH2_FREE(session, *cctx);
+        *abstract = NULL;
+    }
+    return 0;
+}
+
+static const LIBSSH2_CRYPT_METHOD
+    libssh2_crypt_method_chacha20_poly1305_openssh = {
+    "chacha20-poly1305@openssh.com",
+    "",
+    8,                                          /* blocksize */
+    0,                                          /* initial value length */
+    64,                                         /* secret length */
+    16,                                         /* length of the auth_tag */
+    LIBSSH2_CRYPT_FLAG_REQUIRES_FULL_PACKET,    /* flags */
+    &crypt_init_chacha20_poly,
+    &crypt_get_length_chacha20_poly,
+    &crypt_encrypt_chacha20_poly_buffer,
+    &crypt_dtor_chacha20_poly,
+    _libssh2_cipher_chacha20                    /* not actually used */
+};
+
 /* These are the crypt methods that are available to be negotiated. Methods
    towards the start are chosen in preference to ones further down the list. */
 static const LIBSSH2_CRYPT_METHOD *_libssh2_crypt_methods[] = {
+    &libssh2_crypt_method_chacha20_poly1305_openssh,
 #if LIBSSH2_AES_GCM
     &libssh2_crypt_method_aes256_gcm,
     &libssh2_crypt_method_aes128_gcm,

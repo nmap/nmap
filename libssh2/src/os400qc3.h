@@ -1,8 +1,7 @@
-#ifndef __LIBSSH2_OS400QC3_H
-#define __LIBSSH2_OS400QC3_H
+#ifndef LIBSSH2_OS400QC3_H
+#define LIBSSH2_OS400QC3_H
 /*
- * Copyright (C) 2015-2016 Patrick Monnerat, D+H <patrick.monnerat@dh.com>
- * Copyright (C) 2020-2023 Patrick Monnerat <patrick@monnerat.net>.
+ * Copyright (C) Patrick Monnerat <patrick@monnerat.net>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms,
@@ -37,6 +36,8 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY
  * OF SUCH DAMAGE.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
  */
 
 #define LIBSSH2_CRYPTO_ENGINE libssh2_os400qc3
@@ -162,9 +163,13 @@
 #undef Qc3_MK_Pending
 #define Qc3_MK_Pending      '\xF3'      /* '3' */
 
-
 /* Define which features are supported. */
-#define LIBSSH2_MD5             1
+#ifdef OPENSSL_NO_MD5
+# define LIBSSH2_MD5            0
+#else
+# define LIBSSH2_MD5            1
+#endif
+
 #define LIBSSH2_HMAC_RIPEMD     0
 #define LIBSSH2_HMAC_SHA256     1
 #define LIBSSH2_HMAC_SHA512     1
@@ -184,7 +189,8 @@
 #define LIBSSH2_ECDSA           0
 #define LIBSSH2_ED25519         0
 
-#define MD5_DIGEST_LENGTH       16
+#include "crypto_config.h"
+
 #define SHA_DIGEST_LENGTH       20
 #define SHA256_DIGEST_LENGTH    32
 #define SHA384_DIGEST_LENGTH    48
@@ -241,71 +247,48 @@ typedef struct {        /* Diffie-Hellman context. */
 #define libssh2_sha256_ctx      Qc3_Format_ALGD0100_T
 #define libssh2_sha384_ctx      Qc3_Format_ALGD0100_T
 #define libssh2_sha512_ctx      Qc3_Format_ALGD0100_T
-#define libssh2_md5_ctx         Qc3_Format_ALGD0100_T
 #define libssh2_hmac_ctx        _libssh2_os400qc3_crypto_ctx
 #define _libssh2_cipher_ctx     _libssh2_os400qc3_crypto_ctx
 
-#define libssh2_sha1_init(x)    libssh2_os400qc3_hash_init(x, Qc3_SHA1)
+#define libssh2_sha1_init(x)    _libssh2_os400qc3_hash_init(x, Qc3_SHA1)
 #define libssh2_sha1_update(ctx, data, len)                                 \
-                                libssh2_os400qc3_hash_update(&(ctx), data, len)
+                               _libssh2_os400qc3_hash_update(&(ctx), data, len)
 #define libssh2_sha1_final(ctx, out)                                        \
-                                libssh2_os400qc3_hash_final(&(ctx), out)
-#define libssh2_sha256_init(x)  libssh2_os400qc3_hash_init(x, Qc3_SHA256)
+                                _libssh2_os400qc3_hash_final(&(ctx), out)
+#define libssh2_sha256_init(x)  _libssh2_os400qc3_hash_init(x, Qc3_SHA256)
 #define libssh2_sha256_update(ctx, data, len)                               \
-                                libssh2_os400qc3_hash_update(&(ctx), data, len)
+                               _libssh2_os400qc3_hash_update(&(ctx), data, len)
 #define libssh2_sha256_final(ctx, out)                                      \
-                                libssh2_os400qc3_hash_final(&(ctx), out)
+                                _libssh2_os400qc3_hash_final(&(ctx), out)
 #define libssh2_sha256(message, len, out)                                   \
-                                libssh2_os400qc3_hash(message, len, out,    \
-                                                      Qc3_SHA256)
-#define libssh2_sha384_init(x)  libssh2_os400qc3_hash_init(x, Qc3_SHA384)
+                                _libssh2_os400qc3_hash(message, len, out,   \
+                                                       Qc3_SHA256)
+#define libssh2_sha384_init(x)  _libssh2_os400qc3_hash_init(x, Qc3_SHA384)
 #define libssh2_sha384_update(ctx, data, len)                               \
-                              libssh2_os400qc3_hash_update(&(ctx), data, len)
+                               _libssh2_os400qc3_hash_update(&(ctx), data, len)
 #define libssh2_sha384_final(ctx, out)                                      \
-                                libssh2_os400qc3_hash_final(&(ctx), out)
+                                _libssh2_os400qc3_hash_final(&(ctx), out)
 #define libssh2_sha384(message, len, out)                                   \
-                                libssh2_os400qc3_hash(message, len, out,    \
-                                                      Qc3_SHA384)
-#define libssh2_sha512_init(x)  libssh2_os400qc3_hash_init(x, Qc3_SHA512)
+                                _libssh2_os400qc3_hash(message, len, out,   \
+                                                       Qc3_SHA384)
+#define libssh2_sha512_init(x)  _libssh2_os400qc3_hash_init(x, Qc3_SHA512)
 #define libssh2_sha512_update(ctx, data, len)                               \
-                                libssh2_os400qc3_hash_update(&(ctx), data, len)
+                               _libssh2_os400qc3_hash_update(&(ctx), data, len)
 #define libssh2_sha512_final(ctx, out)                                      \
-                                libssh2_os400qc3_hash_final(&(ctx), out)
+                                _libssh2_os400qc3_hash_final(&(ctx), out)
 #define libssh2_sha512(message, len, out)                                   \
-                                libssh2_os400qc3_hash(message, len, out,    \
-                                                      Qc3_SHA512)
-#define libssh2_md5_init(x)     libssh2_os400qc3_hash_init(x, Qc3_MD5)
-#define libssh2_md5_update(ctx, data, len)                                  \
-                                libssh2_os400qc3_hash_update(&(ctx), data, len)
-#define libssh2_md5_final(ctx, out)                                         \
-                                libssh2_os400qc3_hash_final(&(ctx), out)
-#define libssh2_hmac_ctx_init(ctx)                                          \
-                                memset((char *) &(ctx), 0,                  \
-                                       sizeof(libssh2_hmac_ctx))
-#define libssh2_hmac_md5_init(ctx, key, keylen)                         \
-    libssh2_os400qc3_hmac_init(ctx, Qc3_MD5,                            \
-                               MD5_DIGEST_LENGTH,                       \
-                               key, keylen)
-#define libssh2_hmac_sha1_init(ctx, key, keylen)                        \
-    libssh2_os400qc3_hmac_init(ctx, Qc3_SHA1,                           \
-                               SHA_DIGEST_LENGTH,                       \
-                               key, keylen)
-#define libssh2_hmac_sha256_init(ctx, key, keylen)                      \
-    libssh2_os400qc3_hmac_init(ctx, Qc3_SHA256,                         \
-                               SHA256_DIGEST_LENGTH,                    \
-                               key, keylen)
-#define libssh2_hmac_sha512_init(ctx, key, keylen)                      \
-    libssh2_os400qc3_hmac_init(ctx, Qc3_SHA512,                         \
-                               SHA512_DIGEST_LENGTH,                    \
-                               key, keylen)
-#define libssh2_hmac_update(ctx, data, datalen)                         \
-    libssh2_os400qc3_hmac_update(&(ctx),                                \
-                                 data, datalen)
-#define libssh2_hmac_final(ctx, data)           \
-    libssh2_os400qc3_hmac_final(&(ctx), data)
-#define libssh2_hmac_cleanup(ctx)               \
-    _libssh2_os400qc3_crypto_dtor(ctx)
+                                _libssh2_os400qc3_hash(message, len, out,   \
+                                                       Qc3_SHA512)
 
+#if LIBSSH2_MD5 || LIBSSH2_MD5_PEM
+#define MD5_DIGEST_LENGTH       16
+#define libssh2_md5_ctx         Qc3_Format_ALGD0100_T
+#define libssh2_md5_init(x)     _libssh2_os400qc3_hash_init(x, Qc3_MD5)
+#define libssh2_md5_update(ctx, data, len)                                  \
+                               _libssh2_os400qc3_hash_update(&(ctx), data, len)
+#define libssh2_md5_final(ctx, out)                                         \
+                                _libssh2_os400qc3_hash_final(&(ctx), out)
+#endif
 
 #define _libssh2_bn_ctx         int                 /* Not used. */
 
@@ -330,6 +313,8 @@ typedef struct {        /* Diffie-Hellman context. */
                                    Qc3_CTR, 32}
 #define _libssh2_cipher_3des {Qc3_Alg_Block_Cipher, Qc3_TDES, 8,            \
                               Qc3_CBC, 24}
+/* Nonsense values for chacha20-poly1305 */
+#define _libssh2_cipher_chacha20 {Qc3_Alg_Stream_Cipher, Qc3_RC4, 8, 0, 16}
 #define _libssh2_cipher_arcfour {Qc3_Alg_Stream_Cipher, Qc3_RC4, 8, 0, 16}
 
 #define _libssh2_cipher_dtor(ctx) _libssh2_os400qc3_crypto_dtor(ctx)
@@ -375,30 +360,22 @@ typedef struct {        /* Diffie-Hellman context. */
 extern _libssh2_bn *    _libssh2_bn_init(void);
 extern void     _libssh2_bn_free(_libssh2_bn *bn);
 extern unsigned long    _libssh2_bn_bits(_libssh2_bn *bn);
-extern int      _libssh2_bn_from_bin(_libssh2_bn *bn, int len,
+extern int      _libssh2_bn_from_bin(_libssh2_bn *bn, size_t len,
                                      const unsigned char *v);
 extern int      _libssh2_bn_set_word(_libssh2_bn *bn, unsigned long val);
 extern int      _libssh2_bn_to_bin(_libssh2_bn *bn, unsigned char *val);
 extern int      _libssh2_random(unsigned char *buf, size_t len);
 extern void     _libssh2_os400qc3_crypto_dtor(_libssh2_os400qc3_crypto_ctx *x);
-extern int      libssh2_os400qc3_hash_init(Qc3_Format_ALGD0100_T *x,
-                                           unsigned int algo);
-extern void     libssh2_os400qc3_hash_update(Qc3_Format_ALGD0100_T *ctx,
-                                             const unsigned char *data,
-                                             int len);
-extern void     libssh2_os400qc3_hash_final(Qc3_Format_ALGD0100_T *ctx,
-                                            unsigned char *out);
-extern int      libssh2_os400qc3_hash(const unsigned char *message,
-                                      unsigned long len, unsigned char *out,
-                                      unsigned int algo);
-extern void     libssh2_os400qc3_hmac_init(_libssh2_os400qc3_crypto_ctx *x,
-                                           int algo, size_t minkeylen,
-                                           void *key, int keylen);
-extern void     libssh2_os400qc3_hmac_update(_libssh2_os400qc3_crypto_ctx *ctx,
-                                             const unsigned char *data,
-                                             int len);
-extern void     libssh2_os400qc3_hmac_final(_libssh2_os400qc3_crypto_ctx *ctx,
-                                            unsigned char *out);
+extern int      _libssh2_os400qc3_hash_init(Qc3_Format_ALGD0100_T *x,
+                                            unsigned int algo);
+extern int      _libssh2_os400qc3_hash_update(Qc3_Format_ALGD0100_T *ctx,
+                                              const unsigned char *data,
+                                              int len);
+extern int      _libssh2_os400qc3_hash_final(Qc3_Format_ALGD0100_T *ctx,
+                                             unsigned char *out);
+extern int      _libssh2_os400qc3_hash(const unsigned char *message,
+                                       unsigned long len, unsigned char *out,
+                                       unsigned int algo);
 extern int      _libssh2_os400qc3_rsa_signv(LIBSSH2_SESSION *session, int algo,
                                             unsigned char **signature,
                                             size_t *signature_len,
@@ -415,6 +392,6 @@ extern int      _libssh2_os400qc3_dh_secret(_libssh2_dh_ctx *dhctx,
                                             _libssh2_bn *f, _libssh2_bn *p);
 extern void     _libssh2_os400qc3_dh_dtor(_libssh2_dh_ctx *dhctx);
 
-#endif /* __LIBSSH2_OS400QC3_H */
+#endif /* LIBSSH2_OS400QC3_H */
 
 /* vim: set expandtab ts=4 sw=4: */

@@ -1,3 +1,8 @@
+# Copyright (C) The libssh2 project and its contributors.
+#
+# SPDX-License-Identifier: BSD-3-Clause
+#
+
 # AC_PREREQ(2.59)
 AC_INIT([libssh2],[-],[libssh2-devel@lists.haxx.se])
 AC_CONFIG_MACRO_DIR([m4])
@@ -17,16 +22,12 @@ if test "x$SED" = "xsed-was-not-found-by-configure"; then
 fi
 
 dnl figure out the libssh2 version
-LIBSSH2VER=`$SED -ne 's/^#define LIBSSH2_VERSION *"\(.*\)"/\1/p' ${srcdir}/include/libssh2.h`
+LIBSSH2_VERSION=`$SED -ne 's/^#define LIBSSH2_VERSION *"\(.*\)"/\1/p' ${srcdir}/include/libssh2.h`
 AM_INIT_AUTOMAKE
 AC_MSG_CHECKING([libssh2 version])
-AC_MSG_RESULT($LIBSSH2VER)
+AC_MSG_RESULT($LIBSSH2_VERSION)
 
-AC_SUBST(LIBSSH2VER)
-
-AB_VERSION=$LIBSSH2VER
-
-AB_INIT
+AC_SUBST(LIBSSH2_VERSION)
 
 # Check for the OS.
 # Daniel's note: this should not be necessary and we need to work to
@@ -78,6 +79,16 @@ AC_C_BIGENDIAN
 
 LT_LANG([Windows Resource])
 
+dnl check for windows.h
+case $host in
+  *-*-msys | *-*-cygwin* | *-*-cegcc*)
+    # These are POSIX-like systems using BSD-like sockets API.
+    ;;
+  *)
+    AC_CHECK_HEADERS([windows.h], [have_windows_h=yes], [have_windows_h=no])
+    ;;
+esac
+
 dnl check for how to do large files
 AC_SYS_LARGEFILE
 
@@ -105,10 +116,10 @@ case "${use_crypto}" in
     m4_set_map([crypto_backends], [LIBSSH2_CHECK_CRYPTO])
     ;;
   yes|"")
-    crypto_errors="No crypto backend specified!"
+    crypto_errors="No crypto backend specified."
     ;;
   *)
-    crypto_errors="Unknown crypto backend '${use_crypto}' specified!"
+    crypto_errors="Unknown crypto backend '${use_crypto}' specified."
     ;;
 esac
 
@@ -120,6 +131,17 @@ Known crypto backends: auto, m4_set_contents([crypto_backends], [, ])"
   AS_MESSAGE([ERROR: ${crypto_errors}])
 else
   test "$found_crypto_str" = "" && found_crypto_str="$found_crypto"
+fi
+
+# ECDSA support with WinCNG
+AC_ARG_ENABLE(ecdsa-wincng,
+  AS_HELP_STRING([--enable-ecdsa-wincng],
+    WinCNG ECDSA support (requires Windows 10 or later)),
+  [wincng_ecdsa=$enableval])
+if test "$wincng_ecdsa" = yes; then
+  AC_DEFINE(LIBSSH2_ECDSA_WINCNG, 1, [Enable WinCNG ECDSA support])
+else
+  wincng_ecdsa=no
 fi
 
 # libz
@@ -139,18 +161,18 @@ if test "$use_libz" != no; then
       AC_MSG_NOTICE([Cannot find libz, disabling compression])
       found_libz="disabled; no libz found"
     else
-      libz_errors="No libz found!
+      libz_errors="No libz found.
 Try --with-libz-prefix=PATH if you know that you have it."
       AS_MESSAGE([ERROR: $libz_errors])
     fi
   else
     AC_DEFINE(LIBSSH2_HAVE_ZLIB, 1, [Compile in zlib support])
-    LIBSREQUIRED="$LIBSREQUIRED${LIBSREQUIRED:+ }zlib"
+    LIBSSH2_PC_REQUIRES_PRIVATE="$LIBSSH2_PC_REQUIRES_PRIVATE${LIBSSH2_PC_REQUIRES_PRIVATE:+,}zlib"
     found_libz="yes"
   fi
 fi
 
-AC_SUBST(LIBSREQUIRED)
+AC_SUBST(LIBSSH2_PC_REQUIRES_PRIVATE)
 
 #
 # Optional Settings
@@ -164,6 +186,10 @@ if test "$CLEAR_MEMORY" = "no"; then
 else
   enable_clear_memory=yes
 fi
+
+LIBSSH2_CFLAG_EXTRAS=""
+
+LIBSSH2_CHECK_OPTION_WERROR
 
 dnl ************************************************************
 dnl option to switch on compiler debug options
@@ -192,6 +218,8 @@ AS_HELP_STRING([--disable-debug],[Disable debug options]),
        AC_MSG_RESULT(no)
 )
 
+AC_SUBST(LIBSSH2_CFLAG_EXTRAS)
+
 dnl ************************************************************
 dnl Enable hiding of internal symbols in library to reduce its size and
 dnl speed dynamic linking of applications.  This currently is only supported
@@ -200,7 +228,7 @@ dnl
 AC_MSG_CHECKING([whether to enable hidden symbols in the library])
 AC_ARG_ENABLE(hidden-symbols,
 AS_HELP_STRING([--enable-hidden-symbols],[Hide internal symbols in library])
-AS_HELP_STRING([--disable-hidden-symbols],[Leave all symbols with default visibility in library]),
+AS_HELP_STRING([--disable-hidden-symbols],[Leave all symbols with default visibility in library (default)]),
 [ case "$enableval" in
   no)
        AC_MSG_RESULT(no)
@@ -231,16 +259,16 @@ AS_HELP_STRING([--disable-hidden-symbols],[Leave all symbols with default visibi
        AC_MSG_RESULT(no)
 )
 
-# Build tests?
-AC_ARG_ENABLE([tests],
-  [AS_HELP_STRING([--disable-tests], [Disable tests @<:@default=enabled@:>@])],
-  [
-    if ! test "x${enable_tests}" = "xyes"; then
-      enable_tests="no"
-    fi
-  ],
-  [enable_tests="yes"])
-AM_CONDITIONAL([ENABLE_TESTS], [test "x$enable_tests" = xyes])
+dnl Build without deprecated APIs?
+AC_ARG_ENABLE([deprecated],
+  [AS_HELP_STRING([--disable-deprecated], [Build without deprecated APIs @<:@default=no@:>@])],
+  [case "$enableval" in
+    *)
+      with_deprecated="no"
+      CPPFLAGS="$CPPFLAGS -DLIBSSH2_NO_DEPRECATED"
+      ;;
+  esac],
+  [with_deprecated="yes"])
 
 # Run Docker tests?
 AC_ARG_ENABLE([docker-tests],
@@ -288,19 +316,10 @@ AM_CONDITIONAL([USE_OSSFUZZ_STATIC], [test -f "$LIB_FUZZING_ENGINE"])
 
 
 # Checks for header files.
-AC_CHECK_HEADERS([errno.h fcntl.h stdio.h unistd.h sys/param.h sys/uio.h])
+AC_CHECK_HEADERS([errno.h fcntl.h stdio.h unistd.h sys/uio.h])
 AC_CHECK_HEADERS([sys/select.h sys/socket.h sys/ioctl.h sys/time.h])
 AC_CHECK_HEADERS([arpa/inet.h netinet/in.h])
 AC_CHECK_HEADERS([sys/un.h])
-
-case $host in
-  *-*-cygwin* | *-*-cegcc*)
-    # These are POSIX-like systems using BSD-like sockets API.
-    ;;
-  *)
-    AC_CHECK_HEADERS([windows.h], [have_windows_h=yes], [have_windows_h=no])
-    ;;
-esac
 
 case $host in
   *darwin*|*interix*)
@@ -365,14 +384,15 @@ if test "$found_crypto" = "none"; then
 fi
 
 if test $missing_required_deps = 1; then
-  AC_MSG_ERROR([Required dependencies are missing!])
+  AC_MSG_ERROR([Required dependencies are missing.])
 fi
 
 AM_CONDITIONAL([HAVE_WINDRES],
   [test "x$have_windows_h" = "xyes" && test "x${enable_shared}" = "xyes" && test -n "${RC}"])
 
+AM_CONDITIONAL([HAVE_LIB_STATIC], [test "x$enable_static" != "xno"])
+
 # Configure parameters
-LIBSSH2_CHECK_OPTION_WERROR
 
 # Append crypto lib
 if   test "$found_crypto" = "openssl"; then
@@ -387,6 +407,22 @@ elif test "$found_crypto" = "mbedtls"; then
   LIBS="${LIBS} ${LTLIBMBEDCRYPTO}"
 fi
 
+LIBS="${LIBS} ${LTLIBZ}"
+
+LIBSSH2_PC_LIBS_PRIVATE=$LIBS
+AC_SUBST(LIBSSH2_PC_LIBS_PRIVATE)
+
+dnl merge the pkg-config private fields into public ones when static-only
+if test "x$enable_shared" = "xyes"; then
+  LIBSSH2_PC_REQUIRES=
+  LIBSSH2_PC_LIBS=
+else
+  LIBSSH2_PC_REQUIRES=$LIBSSH2_PC_REQUIRES_PRIVATE
+  LIBSSH2_PC_LIBS=$LIBSSH2_PC_LIBS_PRIVATE
+fi
+AC_SUBST(LIBSSH2_PC_REQUIRES)
+AC_SUBST(LIBSSH2_PC_LIBS)
+
 AC_CONFIG_FILES([Makefile
                  src/Makefile
                  libssh2.pc])
@@ -394,15 +430,17 @@ AC_OUTPUT
 
 AC_MSG_NOTICE([summary of build options:
 
-  version:          ${LIBSSH2VER}
+  version:          ${LIBSSH2_VERSION}
   Host type:        ${host}
   Install prefix:   ${prefix}
   Compiler:         ${CC}
   Compiler flags:   ${CFLAGS}
   Library types:    Shared=${enable_shared}, Static=${enable_static}
   Crypto library:   ${found_crypto_str}
+  WinCNG ECDSA:     $wincng_ecdsa
   zlib compression: ${found_libz}
   Clear memory:     $enable_clear_memory
+  Deprecated APIs:  $with_deprecated
   Debug build:      $enable_debug
   Build examples:   $build_examples
   Run Docker tests: $run_docker_tests

@@ -290,7 +290,7 @@ the procedure like so:
 
 @libssh2_make_example.dcl sftp "SHARED"
 
-The procdure defines a process logical gnv$libssh2 pointing to the shared
+The procedure defines a process logical gnv$libssh2 pointing to the shared
 image library in the directory, which obviously will not survive a logout.
 
 
