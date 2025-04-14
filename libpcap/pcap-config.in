@@ -16,6 +16,13 @@ LIBS="@LIBS@"
 LIBS_STATIC="@LIBS_STATIC@"
 VERSION="@PACKAGE_VERSION@"
 
+usage()
+{
+	echo "Usage: pcap-config [ --help ] [ --version ] [ --cflags ]"
+	echo "                   [ --libs | --additional-libs ]"
+	echo "                   [ --static | --static-pcap-only ]"
+}
+
 static=0
 static_pcap_only=0
 show_cflags=0
@@ -46,7 +53,7 @@ do
 		;;
 
 	-h|--help)
-		echo "Usage: pcap-config [ --help ] [--version] [ --static | --static-pcap-only ] [ --libs | --additional-libs ]"
+		usage
 		exit 0
 		;;
 
@@ -57,7 +64,7 @@ do
 
 	*)
 		echo "pcap-config: Invalid command-line option $1 specified" 1>&2
-		echo "Usage: pcap-config [ --help ] [ --static | --static-pcap-only ] [ --libs | --additional-libs ]" 1>&2
+		usage 1>&2
 		exit 1
 		;;
 	esac

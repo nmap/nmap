@@ -18,7 +18,7 @@
 .\" WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF
 .\" MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 .\"
-.TH PCAP-FILTER @MAN_MISC_INFO@ "19 November 2022"
+.TH PCAP-FILTER @MAN_MISC_INFO@ "13 June 2023"
 .SH NAME
 pcap-filter \- packet filter syntax
 .br
@@ -107,7 +107,7 @@ E.g., `\fBether src\fP foo', `\fBarp net\fP 128.3', `\fBtcp port\fP 21',
 If there is no
 .I proto
 qualifier, all protocols consistent with the type are assumed.
-E.g., `\fBsrc\fP foo' means `\fB(ip or arp or rarp) src\fP foo',
+E.g., `\fBsrc\fP foo' means `\fB(ip6 or ip or arp or rarp) src\fP foo',
 `\fBnet\fP bar' means `\fB(ip or arp or rarp) net\fP bar' and
 `\fBport\fP 53' means `\fB(tcp or udp or sctp) port\fP 53'
 (note that these examples use invalid syntax to illustrate the principle).
@@ -212,7 +212,7 @@ number (e.g., 10); the netmask is 255.255.255.255 for a dotted quad
 (which means that it's really a host match), 255.255.255.0 for a dotted
 triple, 255.255.0.0 for a dotted pair, or 255.0.0.0 for a single number.
 An IPv6 network number must be written out fully; the netmask is
-ff:ff:ff:ff:ff:ff:ff:ff, so IPv6 "network" matches are really always
+ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff, so IPv6 "network" matches are really always
 host matches, and a network match requires a netmask length.
 .IP "\fBsrc net \fInetnameaddr\fR"
 True if the IPv4/v6 source address of the packet has a network
@@ -555,6 +555,9 @@ Packet was sent by the host performing the capture rather than being
 received by that host.  This is only supported for certain link-layer types,
 such as SLIP and the ``cooked'' Linux capture mode
 used for the ``any'' device and for some other device types.
+.IP "\fBifindex \fIinterface_index\fR"
+True if the packet was logged via the specified interface (applies only to
+packets logged by the Linux "any" cooked v2 interface).
 .IP "\fBifname \fIinterface\fR"
 True if the packet was logged as coming from the specified interface (applies
 only to packets logged by OpenBSD's or FreeBSD's
@@ -1042,8 +1045,6 @@ Alternation (`\fB||\fP' or `\fBor\fP').
 Negation has the highest precedence.
 Alternation and concatenation have equal precedence and associate
 left to right.
-Note that explicit \fBand\fR tokens, not juxtaposition,
-are now required for concatenation.
 .LP
 If an identifier is given without a keyword, the most recent keyword
 is assumed.
@@ -1174,6 +1175,10 @@ TCP flag names became available in libpcap 1.9.0.
 The
 .B geneve
 keyword became available in libpcap 1.8.0.
+.PP
+The
+.B ifindex
+keyword became available in libpcap 1.10.0.
 .SH SEE ALSO
 .BR pcap (3PCAP)
 .SH BUGS

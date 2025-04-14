@@ -28,8 +28,7 @@ pcap_next_ex, pcap_next \- read the next packet from a pcap_t
 .LP
 .ft B
 int pcap_next_ex(pcap_t *p, struct pcap_pkthdr **pkt_header,
-.ti +8
-const u_char **pkt_data);
+    const u_char **pkt_data);
 const u_char *pcap_next(pcap_t *p, struct pcap_pkthdr *h);
 .ft
 .fi
@@ -39,12 +38,12 @@ reads the next packet and returns a success/failure indication.
 If the packet was read without problems, the pointer pointed to by the
 .I pkt_header
 argument is set to point to the
-.I pcap_pkthdr
+.B pcap_pkthdr
 struct for the packet, and the
 pointer pointed to by the
 .I pkt_data
 argument is set to point to the data in the packet.  The
-.I struct pcap_pkthdr
+.B struct pcap_pkthdr
 and the packet data are not to be freed by the caller, and are not
 guaranteed to be valid after the next call to
 .BR pcap_next_ex (),
@@ -60,7 +59,7 @@ reads the next packet (by calling
 with a
 .I cnt
 of 1) and returns a
-.I u_char
+.B u_char
 pointer to the data in that packet.  The
 packet data is not to be freed by the caller, and is not
 guaranteed to be valid after the next call to
@@ -71,7 +70,7 @@ or
 .BR pcap_dispatch ();
 if the code needs it to remain valid, it must make a copy of it.
 The
-.I pcap_pkthdr
+.B pcap_pkthdr
 structure pointed to by
 .I h
 is filled in with the appropriate values for the packet.

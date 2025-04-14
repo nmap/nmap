@@ -37,9 +37,11 @@
 
 #include "pcap/compiler-tests.h"
 
-#if PCAP_IS_AT_LEAST_CLANG_VERSION(2,8) || PCAP_IS_AT_LEAST_GNUC_VERSION(4,6)
+#if PCAP_IS_AT_LEAST_CLANG_VERSION(2,8) || \
+    PCAP_IS_AT_LEAST_GNUC_VERSION(4,6) || \
+    PCAP_IS_AT_LEAST_SUNC_VERSION(5,5)
   /*
-   * Clang and GCC both support this way of putting pragmas into #defines.
+   * All these compilers support this way of putting pragmas into #defines.
    * We use it only if we have a compiler that supports it; see below
    * for the code that uses it and the #defines that control whether
    * that code is used.
@@ -62,9 +64,6 @@
     __pragma(warning(disable:4061))
   #define DIAG_ON_ENUM_SWITCH \
     __pragma(warning(pop))
-#else
-  #define DIAG_OFF_ENUM_SWITCH
-  #define DIAG_ON_ENUM_SWITCH
 #endif
 
 /*
@@ -78,9 +77,6 @@
     __pragma(warning(disable:4065))
   #define DIAG_ON_DEFAULT_ONLY_SWITCH \
     __pragma(warning(pop))
-#else
-  #define DIAG_OFF_DEFAULT_ONLY_SWITCH
-  #define DIAG_ON_DEFAULT_ONLY_SWITCH
 #endif
 
 /*
@@ -128,8 +124,31 @@
     PCAP_DO_PRAGMA(clang diagnostic ignored "-Wdeprecated-declarations")
   #define DIAG_ON_DEPRECATION \
     PCAP_DO_PRAGMA(clang diagnostic pop)
-  #define DIAG_OFF_FORMAT_TRUNCATION
-  #define DIAG_ON_FORMAT_TRUNCATION
+
+  /*
+   * When Clang correctly detects an old-style function prototype after
+   * preprocessing, the warning can be irrelevant to this source tree because
+   * the prototype comes from a system header macro.
+   */
+  #if PCAP_IS_AT_LEAST_CLANG_VERSION(5,0)
+    #define DIAG_OFF_STRICT_PROTOTYPES \
+      PCAP_DO_PRAGMA(clang diagnostic push) \
+      PCAP_DO_PRAGMA(clang diagnostic ignored "-Wstrict-prototypes")
+    #define DIAG_ON_STRICT_PROTOTYPES \
+      PCAP_DO_PRAGMA(clang diagnostic pop)
+  #endif
+
+  #define DIAG_OFF_DOCUMENTATION \
+    PCAP_DO_PRAGMA(clang diagnostic push) \
+    PCAP_DO_PRAGMA(clang diagnostic ignored "-Wdocumentation")
+  #define DIAG_ON_DOCUMENTATION \
+    PCAP_DO_PRAGMA(clang diagnostic pop)
+
+  #define DIAG_OFF_SIGN_COMPARE \
+    PCAP_DO_PRAGMA(clang diagnostic push) \
+    PCAP_DO_PRAGMA(clang diagnostic ignored "-Wsign-compare")
+  #define DIAG_ON_SIGN_COMPARE \
+    PCAP_DO_PRAGMA(clang diagnostic pop)
 #elif defined(_MSC_VER)
   /*
    * This is Microsoft Visual Studio; we can use __pragma(warning(disable:XXXX))
@@ -165,8 +184,6 @@
     __pragma(warning(disable:4996))
   #define DIAG_ON_DEPRECATION \
     __pragma(warning(pop))
-  #define DIAG_OFF_FORMAT_TRUNCATION
-  #define DIAG_ON_FORMAT_TRUNCATION
 #elif PCAP_IS_AT_LEAST_GNUC_VERSION(4,6)
   /*
    * This is GCC 4.6 or later, or a compiler claiming to be that.
@@ -184,8 +201,6 @@
   /*
    * GCC currently doesn't issue any narrowing warnings.
    */
-  #define DIAG_OFF_NARROWING
-  #define DIAG_ON_NARROWING
 
   /*
    * Suppress deprecation warnings.
@@ -207,24 +222,16 @@
       PCAP_DO_PRAGMA(GCC diagnostic ignored "-Wformat-truncation=")
     #define DIAG_ON_FORMAT_TRUNCATION \
       PCAP_DO_PRAGMA(GCC diagnostic pop)
-  #else
-   #define DIAG_OFF_FORMAT_TRUNCATION
-   #define DIAG_ON_FORMAT_TRUNCATION
   #endif
-#else
+#elif PCAP_IS_AT_LEAST_SUNC_VERSION(5,5)
   /*
-   * Neither Visual Studio, nor Clang 2.8 or later, nor GCC 4.6 or later
-   * or a compiler claiming to be that; there's nothing we know of that
-   * we can do.
+   * Sun C compiler version 5.5 (Studio version 8) and later supports "#pragma
+   * error_messages()".
    */
-  #define DIAG_OFF_FLEX
-  #define DIAG_ON_FLEX
-  #define DIAG_OFF_NARROWING
-  #define DIAG_ON_NARROWING
-  #define DIAG_OFF_DEPRECATION
-  #define DIAG_ON_DEPRECATION
-  #define DIAG_OFF_FORMAT_TRUNCATION
-  #define DIAG_ON_FORMAT_TRUNCATION
+  #define DIAG_OFF_FLEX \
+    PCAP_DO_PRAGMA(error_messages(off,E_STATEMENT_NOT_REACHED))
+  #define DIAG_ON_FLEX \
+    PCAP_DO_PRAGMA(error_messages(default,E_STATEMENT_NOT_REACHED))
 #endif
 
 #ifdef YYBYACC
@@ -268,12 +275,6 @@
     #define DIAG_OFF_BISON_BYACC \
       PCAP_DO_PRAGMA(GCC diagnostic ignored "-Wshadow") \
       PCAP_DO_PRAGMA(GCC diagnostic ignored "-Wunreachable-code")
-  #else
-    /*
-     * Neither Clang 2.8 or later nor GCC 4.6 or later or a compiler
-     * claiming to be that; there's nothing we know of that we can do.
-     */
-    #define DIAG_OFF_BISON_BYACC
   #endif
 #else
   /*
@@ -310,13 +311,36 @@
      */
     #define DIAG_OFF_BISON_BYACC \
       PCAP_DO_PRAGMA(GCC diagnostic ignored "-Wunreachable-code")
-  #else
+  #elif PCAP_IS_AT_LEAST_SUNC_VERSION(5,5)
     /*
-     * Neither Clang 2.8 or later nor GCC 4.6 or later or a compiler
-     * claiming to be that; there's nothing we know of that we can do.
+     * Same as for DIAG_OFF_FLEX above.
      */
-    #define DIAG_OFF_BISON_BYACC
+    #define DIAG_OFF_BISON_BYACC \
+      PCAP_DO_PRAGMA(error_messages(off,E_STATEMENT_NOT_REACHED))
   #endif
+#endif
+
+#if PCAP_IS_AT_LEAST_CLANG_VERSION(2,8)
+  /*
+   * Clang appears to let you ignore a result without a warning by
+   * casting the function result to void, so we don't appear to
+   * need this for Clang.
+   */
+#elif PCAP_IS_AT_LEAST_GNUC_VERSION(4,5)
+  /*
+   * GCC warns about unused return values if a function is marked as
+   * "warn about ignoring this function's return value".
+   */
+  #define DIAG_OFF_WARN_UNUSED_RESULT \
+    PCAP_DO_PRAGMA(GCC diagnostic push) \
+    PCAP_DO_PRAGMA(GCC diagnostic ignored "-Wunused-result")
+  #define DIAG_ON_WARN_UNUSED_RESULT \
+    PCAP_DO_PRAGMA(GCC diagnostic pop)
+
+  /*
+   * GCC does not currently generate any -Wstrict-prototypes warnings that
+   * would need silencing as is done for Clang above.
+   */
 #endif
 
 /*
@@ -331,8 +355,76 @@
    * So please remember to use this very carefully.
    */
   #define PCAP_UNREACHABLE __builtin_unreachable();
-#else
-  #define PCAP_UNREACHABLE
+#endif
+
+#ifndef DIAG_OFF_ENUM_SWITCH
+#define DIAG_OFF_ENUM_SWITCH
+#endif
+#ifndef DIAG_ON_ENUM_SWITCH
+#define DIAG_ON_ENUM_SWITCH
+#endif
+#ifndef DIAG_OFF_DEFAULT_ONLY_SWITCH
+#define DIAG_OFF_DEFAULT_ONLY_SWITCH
+#endif
+#ifndef DIAG_ON_DEFAULT_ONLY_SWITCH
+#define DIAG_ON_DEFAULT_ONLY_SWITCH
+#endif
+#ifndef DIAG_OFF_FLEX
+#define DIAG_OFF_FLEX
+#endif
+#ifndef DIAG_ON_FLEX
+#define DIAG_ON_FLEX
+#endif
+#ifndef DIAG_OFF_NARROWING
+#define DIAG_OFF_NARROWING
+#endif
+#ifndef DIAG_ON_NARROWING
+#define DIAG_ON_NARROWING
+#endif
+#ifndef DIAG_OFF_DEPRECATION
+#define DIAG_OFF_DEPRECATION
+#endif
+#ifndef DIAG_ON_DEPRECATION
+#define DIAG_ON_DEPRECATION
+#endif
+#ifndef DIAG_OFF_FORMAT_TRUNCATION
+#define DIAG_OFF_FORMAT_TRUNCATION
+#endif
+#ifndef DIAG_ON_FORMAT_TRUNCATION
+#define DIAG_ON_FORMAT_TRUNCATION
+#endif
+#ifndef DIAG_OFF_BISON_BYACC
+#define DIAG_OFF_BISON_BYACC
+#endif
+//
+// DIAG_ON_BISON_BYACC does not need to be defined.
+//
+#ifndef DIAG_OFF_WARN_UNUSED_RESULT
+#define DIAG_OFF_WARN_UNUSED_RESULT
+#endif
+#ifndef DIAG_ON_WARN_UNUSED_RESULT
+#define DIAG_ON_WARN_UNUSED_RESULT
+#endif
+#ifndef DIAG_OFF_STRICT_PROTOTYPES
+#define DIAG_OFF_STRICT_PROTOTYPES
+#endif
+#ifndef DIAG_ON_STRICT_PROTOTYPES
+#define DIAG_ON_STRICT_PROTOTYPES
+#endif
+#ifndef DIAG_OFF_DOCUMENTATION
+#define DIAG_OFF_DOCUMENTATION
+#endif
+#ifndef DIAG_ON_DOCUMENTATION
+#define DIAG_ON_DOCUMENTATION
+#endif
+#ifndef DIAG_OFF_SIGN_COMPARE
+#define DIAG_OFF_SIGN_COMPARE
+#endif
+#ifndef DIAG_ON_SIGN_COMPARE
+#define DIAG_ON_SIGN_COMPARE
+#endif
+#ifndef PCAP_UNREACHABLE
+#define PCAP_UNREACHABLE
 #endif
 
 #endif /* _diag_control_h */

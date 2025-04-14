@@ -17,7 +17,7 @@
 .\" WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF
 .\" MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 .\"
-.TH PCAP_LOOKUPDEV 3PCAP "8 September 2017"
+.TH PCAP_LOOKUPDEV 3PCAP "30 November 2023"
 .SH NAME
 pcap_lookupdev \- find the default device on which to capture
 .SH SYNOPSIS
@@ -43,6 +43,10 @@ To find a default device on which to capture, call
 and, if the list it returns is not empty, use the first device in the
 list.  (If the list is empty, there are no devices on which capture is
 possible.)
+.I errbuf
+is a buffer large enough to hold at least
+.B PCAP_ERRBUF_SIZE
+chars.
 .LP
 .B If
 .BR pcap_init (3PCAP)
@@ -67,10 +71,6 @@ has been called,
 is returned and
 .I errbuf
 is filled in with an appropriate error message.
-.I errbuf
-is assumed to be able to hold at least
-.B PCAP_ERRBUF_SIZE
-chars.
 .SH SEE ALSO
 .BR pcap (3PCAP)
 .SH BUGS

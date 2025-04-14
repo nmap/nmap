@@ -137,6 +137,8 @@ typedef unsigned char uint8;	/* 8-bit unsigned integer */
 typedef unsigned short uint16;	/* 16-bit unsigned integer */
 typedef unsigned int uint32;	/* 32-bit unsigned integer */
 typedef int int32;		/* 32-bit signed integer */
+#else
+#include <os/support/SupportDefs.h>
 #endif
 
 /* Common header for all the RPCAP messages */
@@ -241,7 +243,7 @@ struct rpcap_sockaddr
 /*
  * Format of an IPv4 address as sent over the wire.
  */
-#define RPCAP_AF_INET	2		/* Value on all OSes */
+#define RPCAP_AF_INET	2		/* Value on all OSes except for Haiku */
 struct rpcap_sockaddr_in
 {
 	uint16	family;			/* Address family */
@@ -444,6 +446,6 @@ struct rpcap_sampling
 
 extern void rpcap_createhdr(struct rpcap_header *header, uint8 ver, uint8 type, uint16 value, uint32 length);
 extern const char *rpcap_msg_type_string(uint8 type);
-extern int rpcap_senderror(SOCKET sock, SSL *ssl, uint8 ver, uint16 errcode, const char *error, char *errbuf);
+extern int rpcap_senderror(PCAP_SOCKET sock, SSL *ssl, uint8 ver, uint16 errcode, const char *error, char *errbuf);
 
 #endif

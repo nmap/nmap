@@ -67,9 +67,7 @@
  *
  */
 
-#ifdef HAVE_CONFIG_H
 #include <config.h>
-#endif
 
 /*
  * grammar.h requires gencode.h and sometimes breaks in a polluted namespace
@@ -110,21 +108,31 @@ struct rtentry;
 #include "os-proto.h"
 #endif
 
-#ifdef YYBYACC
+/*
+ * Work around some bugs in Berkeley YACC prior to the 2017-07-09
+ * release.
+ *
+ * The 2005-05-05 release was the first one to define YYPATCH, so
+ * we treat any release that either 1) doesn't define YYPATCH or
+ * 2) defines it to a value < 20170709 as being buggy.
+ */
+#if defined(YYBYACC) && (!defined(YYPATCH) || YYPATCH < 20170709)
 /*
  * Both Berkeley YACC and Bison define yydebug (under whatever name
  * it has) as a global, but Bison does so only if YYDEBUG is defined.
- * Berkeley YACC define it even if YYDEBUG isn't defined; declare it
- * here to suppress a warning.
+ * Berkeley YACC, prior to the 2017-07-09 release, defines it even if
+ * YYDEBUG isn't defined; declare it here to suppress a warning.  The
+ * 2017-07-09 release fixes that.
  */
 #if !defined(YYDEBUG)
 extern int yydebug;
 #endif
 
 /*
- * In Berkeley YACC, yynerrs (under whatever name it has) is global,
- * even if it's building a reentrant parser.  In Bison, it's local
- * in reentrant parsers.
+ * In Berkeley YACC, prior to the 2017-07-09 release, yynerrs (under
+ * whatever name it has) is global, even if it's building a reentrant
+ * parser.  In Bison, and in the Berkeley YACC 2017-07-09 release and
+ * later, it's local in reentrant parsers.
  *
  * Declare it to squelch a warning.
  */
@@ -232,7 +240,7 @@ str2tok(const char *str, const struct tok *toks)
 	int i;
 
 	for (i = 0; toks[i].s != NULL; i++) {
-		if (pcap_strcasecmp(toks[i].s, str) == 0) {
+		if (pcapint_strcasecmp(toks[i].s, str) == 0) {
 			/*
 			 * Just in case somebody is using this to
 			 * generate values of -1/0xFFFFFFFF.
@@ -422,6 +430,14 @@ DIAG_OFF_BISON_BYACC
 %%
 prog:	  null expr
 {
+	/*
+	 * I'm not sure we have a reason to use yynerrs, but it's
+	 * declared, and incremented, whether we need it or not,
+	 * which means that Clang 15 will give a "used but not
+	 * set" warning.  This should suppress the warning for
+	 * yynerrs without suppressing it for other variables.
+	 */
+	(void) yynerrs;
 	CHECK_INT_VAL(finish_parse(cstate, $2.b));
 }
 	| null
@@ -444,25 +460,59 @@ id:	  nid
 	| paren pid ')'		{ $$ = $2; }
 	;
 nid:	  ID			{ CHECK_PTR_VAL($1); CHECK_PTR_VAL(($$.b = gen_scode(cstate, $1, $$.q = $<blk>0.q))); }
-	| HID '/' NUM		{ CHECK_PTR_VAL($1); CHECK_PTR_VAL(($$.b = gen_mcode(cstate, $1, NULL, $3,
-				    $$.q = $<blk>0.q))); }
-	| HID NETMASK HID	{ CHECK_PTR_VAL($1); CHECK_PTR_VAL(($$.b = gen_mcode(cstate, $1, $3, 0,
-				    $$.q = $<blk>0.q))); }
-	| HID			{
+	| HID '/' NUM		{
 				  CHECK_PTR_VAL($1);
-				  /* Decide how to parse HID based on proto */
+				  /* Check whether HID/NUM is being used when appropriate */
 				  $$.q = $<blk>0.q;
 				  if ($$.q.addr == Q_PORT) {
-					bpf_set_error(cstate, "'port' modifier applied to ip host");
+					bpf_set_error(cstate, "'port' modifier applied to IP address and prefix length");
 					YYABORT;
 				  } else if ($$.q.addr == Q_PORTRANGE) {
-					bpf_set_error(cstate, "'portrange' modifier applied to ip host");
+					bpf_set_error(cstate, "'portrange' modifier applied to IP address and prefix length");
 					YYABORT;
 				  } else if ($$.q.addr == Q_PROTO) {
-					bpf_set_error(cstate, "'proto' modifier applied to ip host");
+					bpf_set_error(cstate, "'proto' modifier applied to IP address and prefix length");
 					YYABORT;
 				  } else if ($$.q.addr == Q_PROTOCHAIN) {
-					bpf_set_error(cstate, "'protochain' modifier applied to ip host");
+					bpf_set_error(cstate, "'protochain' modifier applied to IP address and prefix length");
+					YYABORT;
+				  }
+				  CHECK_PTR_VAL(($$.b = gen_mcode(cstate, $1, NULL, $3, $$.q)));
+				}
+	| HID NETMASK HID	{
+				  CHECK_PTR_VAL($1);
+				  /* Check whether HID mask HID is being used when appropriate */
+				  $$.q = $<blk>0.q;
+				  if ($$.q.addr == Q_PORT) {
+					bpf_set_error(cstate, "'port' modifier applied to IP address and netmask");
+					YYABORT;
+				  } else if ($$.q.addr == Q_PORTRANGE) {
+					bpf_set_error(cstate, "'portrange' modifier applied to IP address and netmask");
+					YYABORT;
+				  } else if ($$.q.addr == Q_PROTO) {
+					bpf_set_error(cstate, "'proto' modifier applied to IP address and netmask");
+					YYABORT;
+				  } else if ($$.q.addr == Q_PROTOCHAIN) {
+					bpf_set_error(cstate, "'protochain' modifier applied to IP address and netmask");
+					YYABORT;
+				  }
+				  CHECK_PTR_VAL(($$.b = gen_mcode(cstate, $1, $3, 0, $$.q)));
+				}
+	| HID			{
+				  CHECK_PTR_VAL($1);
+				  /* Check whether HID is being used when appropriate */
+				  $$.q = $<blk>0.q;
+				  if ($$.q.addr == Q_PORT) {
+					bpf_set_error(cstate, "'port' modifier applied to IP address");
+					YYABORT;
+				  } else if ($$.q.addr == Q_PORTRANGE) {
+					bpf_set_error(cstate, "'portrange' modifier applied to IP address");
+					YYABORT;
+				  } else if ($$.q.addr == Q_PROTO) {
+					bpf_set_error(cstate, "'proto' modifier applied to IP address");
+					YYABORT;
+				  } else if ($$.q.addr == Q_PROTOCHAIN) {
+					bpf_set_error(cstate, "'protochain' modifier applied to IP address");
 					YYABORT;
 				  }
 				  CHECK_PTR_VAL(($$.b = gen_ncode(cstate, $1, 0, $$.q)));
@@ -470,10 +520,24 @@ nid:	  ID			{ CHECK_PTR_VAL($1); CHECK_PTR_VAL(($$.b = gen_scode(cstate, $1, $$.
 	| HID6 '/' NUM		{
 				  CHECK_PTR_VAL($1);
 #ifdef INET6
-				  CHECK_PTR_VAL(($$.b = gen_mcode6(cstate, $1, NULL, $3,
-				    $$.q = $<blk>0.q)));
+				  /* Check whether HID6/NUM is being used when appropriate */
+				  $$.q = $<blk>0.q;
+				  if ($$.q.addr == Q_PORT) {
+					bpf_set_error(cstate, "'port' modifier applied to IP address and prefix length");
+					YYABORT;
+				  } else if ($$.q.addr == Q_PORTRANGE) {
+					bpf_set_error(cstate, "'portrange' modifier applied to IP address and prefix length");
+					YYABORT;
+				  } else if ($$.q.addr == Q_PROTO) {
+					bpf_set_error(cstate, "'proto' modifier applied to IP address and prefix length ");
+					YYABORT;
+				  } else if ($$.q.addr == Q_PROTOCHAIN) {
+					bpf_set_error(cstate, "'protochain' modifier applied to IP address and prefix length");
+					YYABORT;
+				  }
+				  CHECK_PTR_VAL(($$.b = gen_mcode6(cstate, $1, $3, $$.q)));
 #else
-				  bpf_set_error(cstate, "'ip6addr/prefixlen' not supported "
+				  bpf_set_error(cstate, "IPv6 addresses not supported "
 					"in this configuration");
 				  YYABORT;
 #endif /*INET6*/
@@ -481,10 +545,24 @@ nid:	  ID			{ CHECK_PTR_VAL($1); CHECK_PTR_VAL(($$.b = gen_scode(cstate, $1, $$.
 	| HID6			{
 				  CHECK_PTR_VAL($1);
 #ifdef INET6
-				  CHECK_PTR_VAL(($$.b = gen_mcode6(cstate, $1, 0, 128,
-				    $$.q = $<blk>0.q)));
+				  /* Check whether HID6 is being used when appropriate */
+				  $$.q = $<blk>0.q;
+				  if ($$.q.addr == Q_PORT) {
+					bpf_set_error(cstate, "'port' modifier applied to IP address");
+					YYABORT;
+				  } else if ($$.q.addr == Q_PORTRANGE) {
+					bpf_set_error(cstate, "'portrange' modifier applied to IP address");
+					YYABORT;
+				  } else if ($$.q.addr == Q_PROTO) {
+					bpf_set_error(cstate, "'proto' modifier applied to 'ip6addr/prefixlen");
+					YYABORT;
+				  } else if ($$.q.addr == Q_PROTOCHAIN) {
+					bpf_set_error(cstate, "'protochain' modifier applied to IP address");
+					YYABORT;
+				  }
+				  CHECK_PTR_VAL(($$.b = gen_mcode6(cstate, $1, 128, $$.q)));
 #else
-				  bpf_set_error(cstate, "'ip6addr' not supported "
+				  bpf_set_error(cstate, "IPv6 addresses not supported "
 					"in this configuration");
 				  YYABORT;
 #endif /*INET6*/
@@ -711,11 +789,11 @@ type_subtype:	ID		{ int i;
 
 pllc:	LLC			{ CHECK_PTR_VAL(($$ = gen_llc(cstate))); }
 	| LLC ID		{ CHECK_PTR_VAL($2);
-				  if (pcap_strcasecmp($2, "i") == 0) {
+				  if (pcapint_strcasecmp($2, "i") == 0) {
 					CHECK_PTR_VAL(($$ = gen_llc_i(cstate)));
-				  } else if (pcap_strcasecmp($2, "s") == 0) {
+				  } else if (pcapint_strcasecmp($2, "s") == 0) {
 					CHECK_PTR_VAL(($$ = gen_llc_s(cstate)));
-				  } else if (pcap_strcasecmp($2, "u") == 0) {
+				  } else if (pcapint_strcasecmp($2, "u") == 0) {
 					CHECK_PTR_VAL(($$ = gen_llc_u(cstate)));
 				  } else {
 					int subtype;
@@ -739,13 +817,13 @@ pllc:	LLC			{ CHECK_PTR_VAL(($$ = gen_llc(cstate))); }
 
 dir:	  NUM			{ $$ = (int)$1; }
 	| ID			{ CHECK_PTR_VAL($1);
-				  if (pcap_strcasecmp($1, "nods") == 0)
+				  if (pcapint_strcasecmp($1, "nods") == 0)
 					$$ = IEEE80211_FC1_DIR_NODS;
-				  else if (pcap_strcasecmp($1, "tods") == 0)
+				  else if (pcapint_strcasecmp($1, "tods") == 0)
 					$$ = IEEE80211_FC1_DIR_TODS;
-				  else if (pcap_strcasecmp($1, "fromds") == 0)
+				  else if (pcapint_strcasecmp($1, "fromds") == 0)
 					$$ = IEEE80211_FC1_DIR_FROMDS;
-				  else if (pcap_strcasecmp($1, "dstods") == 0)
+				  else if (pcapint_strcasecmp($1, "dstods") == 0)
 					$$ = IEEE80211_FC1_DIR_DSTODS;
 				  else {
 					bpf_set_error(cstate, "unknown 802.11 direction");

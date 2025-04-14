@@ -296,7 +296,7 @@ AC_DEFUN(AC_LBL_CHECK_COMPILER_OPT,
 	#    https://www.postgresql.org/message-id/2192993.1591682589%40sss.pgh.pa.us
 	#
 	# This may, as per those two messages, be fixed in autoconf 2.70,
-	# but we only require 2.64 or newer for now.
+	# but we only require 2.69 or newer for now.
 	#
 	AC_COMPILE_IFELSE(
 	    [AC_LANG_SOURCE([[int main(void) { return 0; }]])],
@@ -836,21 +836,22 @@ AC_DEFUN(AC_LBL_DEVEL,
 		    AC_LBL_CHECK_COMPILER_OPT($1, -W)
 		    AC_LBL_CHECK_COMPILER_OPT($1, -Wall)
 		    AC_LBL_CHECK_COMPILER_OPT($1, -Wcomma)
+		    # Warns about safeguards added in case the enums are
+		    # extended
+		    # AC_LBL_CHECK_COMPILER_OPT($1, -Wcovered-switch-default)
 		    AC_LBL_CHECK_COMPILER_OPT($1, -Wdocumentation)
 		    AC_LBL_CHECK_COMPILER_OPT($1, -Wformat-nonliteral)
 		    AC_LBL_CHECK_COMPILER_OPT($1, -Wmissing-noreturn)
 		    AC_LBL_CHECK_COMPILER_OPT($1, -Wmissing-prototypes)
 		    AC_LBL_CHECK_COMPILER_OPT($1, -Wmissing-variable-declarations)
+		    AC_LBL_CHECK_COMPILER_OPT($1, -Wnull-pointer-subtraction)
 		    AC_LBL_CHECK_COMPILER_OPT($1, -Wpointer-arith)
 		    AC_LBL_CHECK_COMPILER_OPT($1, -Wpointer-sign)
 		    AC_LBL_CHECK_COMPILER_OPT($1, -Wshadow)
+		    AC_LBL_CHECK_COMPILER_OPT($1, -Wshorten-64-to-32)
 		    AC_LBL_CHECK_COMPILER_OPT($1, -Wsign-compare)
 		    AC_LBL_CHECK_COMPILER_OPT($1, -Wstrict-prototypes)
-		    AC_LBL_CHECK_COMPILER_OPT($1, -Wunused-parameter)
-		    AC_LBL_CHECK_COMPILER_OPT($1, -Wused-but-marked-unused)
-		    # Warns about safeguards added in case the enums are
-		    # extended
-		    # AC_LBL_CHECK_COMPILER_OPT($1, -Wcovered-switch-default)
+		    AC_LBL_CHECK_COMPILER_OPT($1, -Wundef)
 		    #
 		    # This can cause problems with ntohs(), ntohl(),
 		    # htons(), and htonl() on some platforms, such
@@ -863,7 +864,7 @@ AC_DEFUN(AC_LBL_DEVEL,
 		    # on whether it is, does a compile-time swap or
 		    # a run-time swap; perhaps the compiler always
 		    # considers one of the two results of the
-		    # conditional expressin is never evaluated,
+		    # conditional expression is never evaluated,
 		    # because the conditional check is done at
 		    # compile time, and thus always says "that
 		    # expression is never executed".
@@ -886,7 +887,10 @@ testme(unsigned short a)
 }
 		      ],
 		      [generates warnings from ntohs()])
-		    AC_LBL_CHECK_COMPILER_OPT($1, -Wshorten-64-to-32)
+		    AC_LBL_CHECK_COMPILER_OPT($1, -Wunused-but-set-parameter)
+		    AC_LBL_CHECK_COMPILER_OPT($1, -Wunused-but-set-variable)
+		    AC_LBL_CHECK_COMPILER_OPT($1, -Wunused-parameter)
+		    AC_LBL_CHECK_COMPILER_OPT($1, -Wused-but-marked-unused)
 	    fi
 	    AC_LBL_CHECK_DEPENDENCY_GENERATION_OPT()
 	    #
@@ -975,35 +979,44 @@ fi
 dnl
 dnl AC_LBL_LIBRARY_NET
 dnl
-dnl This test is for network applications that need socket functions and
-dnl getaddrinfo()/getnameinfo()-ish functions.  We now require
-dnl getaddrinfo() and getnameinfo().  We also prefer versions of
-dnl recvmsg() that conform to the Single UNIX Specification, so that we
-dnl can check whether a datagram received with recvmsg() was truncated
-dnl when received due to the buffer being too small.
+dnl Look for various networking-related libraries that we may need.
 dnl
-dnl On most operating systems, they're available in the system library.
+dnl We need getaddrinfo() to translate host names in filters to IP
+dnl addresses. We use getaddrinfo() because we want a portable
+dnl thread-safe way of getting information for a host name or port;
+dnl there exist _r versions of gethostbyname() and getservbyname() on
+dnl some platforms, but not on all platforms.
 dnl
-dnl Under Solaris, we need to link with libsocket and libnsl to get
-dnl getaddrinfo() and getnameinfo() and, if we have libxnet, we need to
-dnl link with libxnet before libsocket to get a version of recvmsg()
-dnl that conforms to the Single UNIX Specification.
+dnl We may also need socket() and other socket functions to support:
 dnl
-dnl We use getaddrinfo() because we want a portable thread-safe way
-dnl of getting information for a host name or port; there exist _r
-dnl versions of gethostbyname() and getservbyname() on some platforms,
-dnl but not on all platforms.
+dnl   Local packet capture with capture mechanisms that use sockets.
+dnl
+dnl   Local capture device enumeration if a socket call is needed to
+dnl   enumerate devices or get device attributes.
+dnl
+dnl   Packet capture from services that put captured packets on the
+dnl   network, such as rpcap servers.
+dnl
+dnl We may also need getnameinfo() for packet capture from services
+dnl that put packets on the network.
 dnl
 AC_DEFUN(AC_LBL_LIBRARY_NET, [
     #
-    # Most operating systems have getaddrinfo() in the default searched
-    # libraries (i.e. libc).  Check there first.
+    # Most operating systems have getaddrinfo(), and the other routines
+    # we may need, in the default searched libraries (e.g., libc).
+    # Check there first.
     #
     AC_CHECK_FUNC(getaddrinfo,,
     [
 	#
 	# Not found in the standard system libraries.
-	# Try libsocket, which requires libnsl.
+	#
+	# In some versions of Solaris, we need to link with libsocket
+	# and libnsl, so check in libsocket and also link with liblnsl
+	# when doing this test.
+	#
+	# Linking with libsocket and libnsl will find all the routines
+	# we need.
 	#
 	AC_CHECK_LIB(socket, getaddrinfo,
 	[
@@ -1016,6 +1029,9 @@ AC_DEFUN(AC_LBL_LIBRARY_NET, [
 	    #
 	    # Not found in libsocket; test for it in libnetwork, which
 	    # is where it is in Haiku.
+	    #
+	    # Linking with libnetwork will find all the routines we
+	    # need.
 	    #
 	    AC_CHECK_LIB(network, getaddrinfo,
 	    [
@@ -1033,18 +1049,36 @@ AC_DEFUN(AC_LBL_LIBRARY_NET, [
 	], -lnsl)
 
 	#
-	# OK, do we have recvmsg() in libxnet?
-	# We also link with libsocket and libnsl.
+	# We require a version of recvmsg() that conforms to the Single
+	# UNIX Specification, so that we can check whether a datagram
+	# received with recvmsg() was truncated when received due to the
+	# buffer being too small.
+	#
+	# On most systems, the version of recvmsg() in the libraries
+	# found above conforms to the SUS.
+	#
+	# On at least some versions of Solaris, it does not conform to
+	# the SUS, and we need the version in libxnet, which does
+	# conform.
+	#
+	# Check whether libxnet exists and has a version of recvmsg();
+	# if it does, link with libxnet before we link with libsocket,
+	# to get that version.
+	#
+	# This test also links with libsocket and libnsl.
 	#
 	AC_CHECK_LIB(xnet, recvmsg,
 	[
 	    #
-	    # Yes - link with it as well.
+	    # libxnet has recvmsg(); link with it as well.
 	    #
 	    LIBS="-lxnet $LIBS"
 	], , -lsocket -lnsl)
     ])
-    # DLPI needs putmsg under HPUX so test for -lstr while we're at it
+
+    #
+    # DLPI needs putmsg under HP-UX, so test for -lstr while we're at it.
+    #
     AC_SEARCH_LIBS(putmsg, str)
 ])
 
@@ -1128,12 +1162,12 @@ if test -n "$PKG_CONFIG"; then
 fi[]dnl
 ])dnl PKG_PROG_PKG_CONFIG
 
-dnl PKG_CHECK_EXISTS(MODULES, [ACTION-IF-FOUND], [ACTION-IF-NOT-FOUND])
+dnl PKG_CHECK_EXISTS(MODULE, [ACTION-IF-FOUND], [ACTION-IF-NOT-FOUND])
 dnl -------------------------------------------------------------------
 dnl Since: 0.18
 dnl
-dnl Check to see whether a particular set of modules exists. Similar to
-dnl PKG_CHECK_MODULES(), but does not set variables or print errors.
+dnl Check to see whether a particular module exists. Similar to
+dnl PKG_CHECK_MODULE(), but does not set variables or print errors.
 AC_DEFUN([PKG_CHECK_EXISTS],
 [
 if test -n "$PKG_CONFIG" && \
@@ -1143,7 +1177,34 @@ m4_ifvaln([$3], [else
   $3])dnl
 fi])
 
-dnl _PKG_CONFIG([VARIABLE], [FLAGS], [MODULES])
+dnl _PKG_CONFIG_WITH_FLAGS([VARIABLE], [FLAGS], [MODULE])
+dnl ---------------------------------------------
+dnl Internal wrapper calling pkg-config via PKG_CONFIG and, if
+dnl pkg-config fails, reporting the error and quitting.
+m4_define([_PKG_CONFIG_WITH_FLAGS],
+[if test ! -n "$$1"; then
+    $1=`$PKG_CONFIG $2 "$3" 2>/dev/null`
+    if test "x$?" != "x0"; then
+        #
+        # That failed - report an error.
+        # Re-run the command, telling pkg-config to print an error
+        # message, capture the error message, and report it.
+        # This causes the configuration script to fail, as it means
+        # the script is almost certainly doing something wrong.
+        #
+        _PKG_SHORT_ERRORS_SUPPORTED
+	if test $_pkg_short_errors_supported = yes; then
+	    _pkg_error_string=`$PKG_CONFIG --short-errors --print-errors $2 "$3" 2>&1`
+	else
+	    _pkg_error_string=`$PKG_CONFIG --print-errors $2 "$3" 2>&1`
+	fi
+        AC_MSG_ERROR([$PKG_CONFIG $2 "$3" failed: $_pkg_error_string])
+    fi
+ fi[]dnl
+])dnl _PKG_CONFIG_WITH_FLAGS
+
+
+dnl _PKG_CONFIG([VARIABLE], [FLAGS], [MODULE])
 dnl ---------------------------------------------
 dnl Internal wrapper calling pkg-config via PKG_CONFIG and setting
 dnl pkg_failed based on the result.
@@ -1173,97 +1234,55 @@ fi[]dnl
 ])dnl _PKG_SHORT_ERRORS_SUPPORTED
 
 
-dnl PKG_CHECK_MODULES(VARIABLE-PREFIX, MODULES, [ACTION-IF-FOUND],
+dnl PKG_CHECK_MODULE(VARIABLE-PREFIX, MODULE, [ACTION-IF-FOUND],
 dnl   [ACTION-IF-NOT-FOUND])
 dnl --------------------------------------------------------------
 dnl Since: 0.4.0
-AC_DEFUN([PKG_CHECK_MODULES],
+AC_DEFUN([PKG_CHECK_MODULE],
 [
-AC_ARG_VAR([$1][_CFLAGS], [C compiler flags for $2, overriding pkg-config])dnl
-AC_ARG_VAR([$1][_LIBS], [linker flags for $2, overriding pkg-config])dnl
-AC_ARG_VAR([$1][_LIBS_STATIC], [static-link linker flags for $2, overriding pkg-config])dnl
-
-pkg_failed=no
 AC_MSG_CHECKING([for $2 with pkg-config])
-PKG_CHECK_EXISTS($2,
-    [
+if test -n "$PKG_CONFIG"; then
+    AC_ARG_VAR([$1][_CFLAGS], [C compiler flags for $2, overriding pkg-config])dnl
+    AC_ARG_VAR([$1][_LIBS], [linker flags for $2, overriding pkg-config])dnl
+    AC_ARG_VAR([$1][_LIBS_STATIC], [static-link linker flags for $2, overriding pkg-config])dnl
+
+    if AC_RUN_LOG([$PKG_CONFIG --exists --print-errors "$2"]); then
 	#
 	# The package was found, so try to get its C flags and
 	# libraries.
 	#
-	_PKG_CONFIG([$1][_CFLAGS], [--cflags], [$2])
-	_PKG_CONFIG([$1][_LIBS], [--libs], [$2])
-	_PKG_CONFIG([$1][_LIBS_STATIC], [--libs --static], [$2])
-
-	m4_define([_PKG_TEXT], [
-Alternatively, you may set the environment variables $1[]_CFLAGS
-and $1[]_LIBS to avoid the need to call pkg-config.
-See the pkg-config man page for more details.])
-
-	if test $pkg_failed = yes; then
-		#
-		# That failed - report an error.
-		#
-		AC_MSG_RESULT([error])
-		_PKG_SHORT_ERRORS_SUPPORTED
-	        if test $_pkg_short_errors_supported = yes; then
-		        $1[]_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "$2" 2>&1`
-	        else
-		        $1[]_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "$2" 2>&1`
-	        fi
-		# Put the nasty error message in config.log where it belongs
-		echo "$$1[]_PKG_ERRORS" >&AS_MESSAGE_LOG_FD
-
-		m4_default([$4], [AC_MSG_ERROR(
-[Package requirements ($2) were not met:
-
-$$1_PKG_ERRORS
-
-Consider adjusting the PKG_CONFIG_PATH environment variable if you
-installed software in a non-standard prefix.
-
-_PKG_TEXT])[]dnl
-        ])
-	elif test $pkg_failed = untried; then
-		#
-		# We don't have pkg-config, so it didn't work.
-		#
-		AC_MSG_RESULT([not found (pkg-config not found)])
-	else
-		#
-		# We found the package.
-		#
-		$1[]_CFLAGS=$pkg_cv_[]$1[]_CFLAGS
-		$1[]_LIBS=$pkg_cv_[]$1[]_LIBS
-		$1[]_LIBS_STATIC=$pkg_cv_[]$1[]_LIBS_STATIC
-	        AC_MSG_RESULT([found])
-		$3
-	fi[]dnl
-    ],
-    [
-	#
-	# The package isn't present.
-	#
-	AC_MSG_RESULT([not found])
-    ])
-])dnl PKG_CHECK_MODULES
+        AC_MSG_RESULT([found])
+	_PKG_CONFIG_WITH_FLAGS([$1][_CFLAGS], [--cflags], [$2])
+	_PKG_CONFIG_WITH_FLAGS([$1][_LIBS], [--libs], [$2])
+	_PKG_CONFIG_WITH_FLAGS([$1][_LIBS_STATIC], [--libs --static], [$2])
+        m4_default([$3], [:])
+    else
+        AC_MSG_RESULT([not found])
+        m4_default([$4], [:])
+    fi
+else
+    # No pkg-config, so obviously not found with pkg-config.
+    AC_MSG_RESULT([pkg-config not found])
+    m4_default([$4], [:])
+fi
+])dnl PKG_CHECK_MODULE
 
 
-dnl PKG_CHECK_MODULES_STATIC(VARIABLE-PREFIX, MODULES, [ACTION-IF-FOUND],
+dnl PKG_CHECK_MODULE_STATIC(VARIABLE-PREFIX, MODULE, [ACTION-IF-FOUND],
 dnl   [ACTION-IF-NOT-FOUND])
 dnl ---------------------------------------------------------------------
 dnl Since: 0.29
 dnl
-dnl Checks for existence of MODULES and gathers its build flags with
+dnl Checks for existence of MODULE and gathers its build flags with
 dnl static libraries enabled. Sets VARIABLE-PREFIX_CFLAGS from --cflags
 dnl and VARIABLE-PREFIX_LIBS from --libs.
-AC_DEFUN([PKG_CHECK_MODULES_STATIC],
+AC_DEFUN([PKG_CHECK_MODULE_STATIC],
 [
 _save_PKG_CONFIG=$PKG_CONFIG
 PKG_CONFIG="$PKG_CONFIG --static"
-PKG_CHECK_MODULES($@)
+PKG_CHECK_MODULE($@)
 PKG_CONFIG=$_save_PKG_CONFIG[]dnl
-])dnl PKG_CHECK_MODULES_STATIC
+])dnl PKG_CHECK_MODULE_STATIC
 
 
 dnl PKG_INSTALLDIR([DIRECTORY])

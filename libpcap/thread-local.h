@@ -31,33 +31,42 @@
  * SUCH DAMAGE.
  */
 
-#ifndef fmtutils_h
-#define	fmtutils_h
+#ifndef thread_local_h
+#define	thread_local_h
 
-#include <stdarg.h>	/* we declare varargs functions */
-
-#include "pcap/funcattrs.h"
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-void	pcapint_fmt_set_encoding(unsigned int);
-
-void	pcapint_fmt_errmsg_for_errno(char *, size_t, int,
-    PCAP_FORMAT_STRING(const char *), ...) PCAP_PRINTFLIKE(4, 5);
-void	pcapint_vfmt_errmsg_for_errno(char *, size_t, int,
-    PCAP_FORMAT_STRING(const char *), va_list) PCAP_PRINTFLIKE(4, 0);
-
-#ifdef _WIN32
-void	pcapint_fmt_errmsg_for_win32_err(char *, size_t, DWORD,
-    PCAP_FORMAT_STRING(const char *), ...) PCAP_PRINTFLIKE(4, 5);
-void	pcapint_vfmt_errmsg_for_win32_err(char *, size_t, DWORD,
-    PCAP_FORMAT_STRING(const char *), va_list) PCAP_PRINTFLIKE(4, 0);
-#endif
-
-#ifdef __cplusplus
-}
+/*
+ * This defines thread_local to specify thread-local storage, if it
+ * is not already defined.
+ *
+ * C11, if __STDC_NO_THREADS__ is not defined to be 1, defines
+ * _Thread_local to indicate thread-local storage.  (You can also
+ * include <threads.h> to so define it, but we don't use any of
+ * the other stuff there.)
+ *
+ * Otherwise, we define it ourselves, based on the compiler.
+ *
+ * This is taken from https://stackoverflow.com/a/18298965/16139739.
+ */
+#ifndef thread_local
+  #if __STDC_VERSION__ >= 201112 && !defined __STDC_NO_THREADS__
+    #define thread_local _Thread_local
+  #elif defined __TINYC__
+    #define thread_local
+    #warning "Some libpcap calls will not be thread-safe."
+  #elif defined _WIN32 && ( \
+         defined _MSC_VER || \
+         defined __ICL || \
+         defined __DMC__ || \
+         defined __BORLANDC__ )
+    #define thread_local __declspec(thread)
+  /* note that ICC (linux) and Clang are covered by __GNUC__ */
+  #elif defined __GNUC__ || \
+         defined __SUNPRO_C || \
+         defined __xlC__
+    #define thread_local __thread
+  #else
+    #error "Cannot define thread_local"
+  #endif
 #endif
 
 #endif

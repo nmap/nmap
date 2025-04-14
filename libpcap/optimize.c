@@ -21,9 +21,7 @@
  *  Optimization module for BPF code intermediate representation.
  */
 
-#ifdef HAVE_CONFIG_H
 #include <config.h>
-#endif
 
 #include <pcap-types.h>
 
@@ -207,7 +205,7 @@ lowest_set_bit(int mask)
 #define AX_ATOM N_ATOMS
 
 /*
- * These data structures are used in a Cocke and Shwarz style
+ * These data structures are used in a Cocke and Schwartz style
  * value numbering scheme.  Since the flowgraph is acyclic,
  * exit values can be propagated from a node's predecessors
  * provided it is uniquely defined.
@@ -1468,6 +1466,12 @@ opt_deadstores(opt_state_t *opt_state, register struct block *b)
 		if (last[atom] && !ATOMELEM(b->out_use, atom)) {
 			last[atom]->code = NOP;
 			/*
+			 * The store was removed as it's dead,
+			 * so the value stored into now has
+			 * an unknown value.
+			 */
+			vstore(0, &b->val[atom], VAL_UNKNOWN, 0);
+			/*
 			 * XXX - optimizer loop detection.
 			 */
 			opt_state->non_branch_movement_performed = 1;
@@ -1815,7 +1819,7 @@ opt_j(opt_state_t *opt_state, struct edge *ep)
  *
  */
 static void
-or_pullup(opt_state_t *opt_state, struct block *b)
+or_pullup(opt_state_t *opt_state, struct block *b, struct block *root)
 {
 	bpf_u_int32 val;
 	int at_top;
@@ -1976,10 +1980,15 @@ or_pullup(opt_state_t *opt_state, struct block *b)
 	 * optimizer gets into one of those infinite loops.
 	 */
 	opt_state->done = 0;
+
+	/*
+	 * Recompute dominator sets as control flow graph has changed.
+	 */
+	find_dom(opt_state, root);
 }
 
 static void
-and_pullup(opt_state_t *opt_state, struct block *b)
+and_pullup(opt_state_t *opt_state, struct block *b, struct block *root)
 {
 	bpf_u_int32 val;
 	int at_top;
@@ -2072,6 +2081,11 @@ and_pullup(opt_state_t *opt_state, struct block *b)
 	 * optimizer gets into one of those infinite loops.
 	 */
 	opt_state->done = 0;
+
+	/*
+	 * Recompute dominator sets as control flow graph has changed.
+	 */
+	find_dom(opt_state, root);
 }
 
 static void
@@ -2118,8 +2132,8 @@ opt_blks(opt_state_t *opt_state, struct icode *ic, int do_stmts)
 	find_inedges(opt_state, ic->root);
 	for (i = 1; i <= maxlevel; ++i) {
 		for (p = opt_state->levels[i]; p; p = p->link) {
-			or_pullup(opt_state, p);
-			and_pullup(opt_state, p);
+			or_pullup(opt_state, p, ic->root);
+			and_pullup(opt_state, p, ic->root);
 		}
 	}
 }
@@ -2942,14 +2956,14 @@ conv_error(conv_state_t *conv_state, const char *fmt, ...)
  * otherwise, return 0.
  */
 int
-install_bpf_program(pcap_t *p, struct bpf_program *fp)
+pcapint_install_bpf_program(pcap_t *p, struct bpf_program *fp)
 {
 	size_t prog_size;
 
 	/*
 	 * Validate the program.
 	 */
-	if (!pcap_validate_filter(fp->bf_insns, fp->bf_len)) {
+	if (!pcapint_validate_filter(fp->bf_insns, fp->bf_len)) {
 		snprintf(p->errbuf, sizeof(p->errbuf),
 			"BPF program is not valid");
 		return (-1);
@@ -2964,7 +2978,7 @@ install_bpf_program(pcap_t *p, struct bpf_program *fp)
 	p->fcode.bf_len = fp->bf_len;
 	p->fcode.bf_insns = (struct bpf_insn *)malloc(prog_size);
 	if (p->fcode.bf_insns == NULL) {
-		pcap_fmt_errmsg_for_errno(p->errbuf, sizeof(p->errbuf),
+		pcapint_fmt_errmsg_for_errno(p->errbuf, sizeof(p->errbuf),
 		    errno, "malloc");
 		return (-1);
 	}

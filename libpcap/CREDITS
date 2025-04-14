@@ -17,6 +17,7 @@ Additional people who have contributed patches (in alphabetical order):
     Alex Smith                    <44322503+MadAlexUK at users dot noreply dot github dot com>
     Alfredo Alvarez Fernandez     <alfredoalvarezernandez at gmail dot com>
     Ali Abdulkadir                <autostart dot ini at gmail dot com>
+    Alois Klink                   <alois at aloisklink dot com>
     Alon Bar-Lev                  <alonbl at sourceforge dot net>
     Anders Broman                 <anders dot broman at ericsson dot com>
     Andres Perera                 <andres dot p at zoho dot com>
@@ -24,7 +25,9 @@ Additional people who have contributed patches (in alphabetical order):
                                   <andy-1 at sourceforge dot net>
     Ani Sinha                     <ani at aristanetworks dot com>
     Anthony Kirby                 <Anthony dot Kirby at nominet dot uk>
+    Antonio Vázquez Blanco        <antonio dot vazquez at tarlogic dot com>
     Antti Kantee                  <pooka at netbsd dot org>
+    Archit Shah                   <archit at cave32 dot com>
     Arien Vijn                    <arienvijn at sourceforge dot net>
     Arkadiusz Miskiewicz          <misiek at pld dot org dot pl>
     Armando L. Caro Jr.           <acaro at mail dot eecis dot udel dot edu>
@@ -49,6 +52,7 @@ Additional people who have contributed patches (in alphabetical order):
     Christian Peron               <csjp at freebsd dot org>
     Christian Svensson            <blue at cmd dot nu>
     Christopher K Lee             <christopher dot lee at cspi dot com>
+    Clément Péron                 <peron dot clem at gmail dot com>
     Daniel Borkmann               <dborkman at redhat dot com>
     Daniele Orlandi               <daniele at orlandi dot com>
     Daniel Lublin                 <daniel at lublin dot se>
@@ -69,6 +73,7 @@ Additional people who have contributed patches (in alphabetical order):
     Dug Song                      <dugsong at monkey dot org>
     Dustin Spicuzza               <dustin at virtualroadside dot com>
     dzejarczech                   <dzejarczech at sourceforge dot net>
+    Ed Maste                      <emaste at FreeBSD dot org>
     Edward Sheldrake              <ejs1920 at sourceforge dot net>
     Eli Schwartz                  <eschwartz93 at gmail dot com>
     Eric Anderson                 <anderse at hpl dot hp dot com>
@@ -85,6 +90,7 @@ Additional people who have contributed patches (in alphabetical order):
     Fulko Hew                     <fulko dot hew at gmail dot com>
     Fumiyuki Shimizu              <fumifumi at abacustech dot jp>
     Gabor Tatarka                 <gabor dot tatarka at ericsson dot com>
+    Gabriel Ganne                 <gabriel dot ganne at gmail dot com>
     Garrett Cooper                <yaberauneya at sourceforge dot net>
     George Neville-Neil           <gnn at freebsd dot org>
     Gerald Combs                  <gerald at zing dot org>
@@ -99,8 +105,10 @@ Additional people who have contributed patches (in alphabetical order):
     Guillaume Pelat               <endymion_ at users dot sourceforge dot net>
     Gustavo Zacarias              <gustavo at zacarias dot com dot ar>
     Hagen Paul Pfeifer            <hagen at jauu dot net>
+    headshog                      <craaaaaachind at gmail dot com>
     Henri Doreau                  <hdoreau at sourceforge dot net>
     Hiroaki KAWAI                 <kawai at stratosphere dot co dot jp>
+    hopper-vul                    <hopper dot vul at gmail dot com>
     Hyung Sik Yoon                <hsyn at kr dot ibm dot com>
     Igor Khristophorov            <igor at atdot dot org>
     Jakub Sitnicki                <jsitnicki at gmail dot com>
@@ -120,16 +128,19 @@ Additional people who have contributed patches (in alphabetical order):
     jingyu yang                   <jingleyang at users dot noreply dot github dot com>
     Jiri Slaby                    <jirislaby at gmail dot com>
     João Valverde                 <joao dot valverde at tecnico dot ulisboa dot pt>
+    Joel                          <82591719+joelg989 at users dot noreply dot github dot com>
     Joerg Mayer                   <jmayer at loplof dot de>
     John Bankier                  <jbankier at rainfinity dot com>
     Jon Lindgren                  <jonl at yubyub dot net>
     Jon Smirl                     <jonsmirl at gmail dot com>
     Jorge Boncompte [DTI2]        <jorge at dti2 dot net>
+    Josh Soref                    <2119212+jsoref at users dot noreply dot github dot com>
     jromanr                       <jromanr at hotmail dot com>
     Juergen Schoenwaelder         <schoenw at ibr dot cs dot tu-bs dot de>
     Julien Moutinho               <julm at savines dot alpes dot fr dot eu dot org>
     Jung-uk Kim                   <jkim at FreeBSD dot org>
     Kazushi Sugyo                 <sugyo at pb dot jp dot nec dot com>
+    Kenny Luong                   <kluong at cloudflare dot com>
     Kevin Boulain                 <kevin dot boulain at securactive dot net>
     Klaus Klein                   <kleink at netbsd dot org>
     Koryn Grant                   <koryn at endace dot com>
@@ -141,6 +152,7 @@ Additional people who have contributed patches (in alphabetical order):
     Lorenzo Cavallaro             <sullivan at sikurezza dot org>
     Loris Degioanni               <loris at netgroup-serv dot polito dot it>
     Love Hörnquist-Åstrand        <lha at stacken dot kth dot se>
+    Lubomir Varga                 <lubomir dot varga at qpp dot sk>
     Luis MartinGarcia             <luis dot mgarc at gmail dot com>
     lxy                           <391861737 at qq dot com>
     Maciej W. Rozycki             <macro at ds2 dot pg dot gda dot pl>
@@ -154,6 +166,7 @@ Additional people who have contributed patches (in alphabetical order):
     Markus Mayer                  <markus_mayer at sourceforge dot net>
     Martin Husemann               <martin at netbsd dot org>
     Márton Németh                 <nm127 at freemail dot hu>
+    Matias Karhumaa               <matias dot karhumaa at gmail dot com>
     Matt Eaton                    <agnosticdev at gmail dot com>
     Matthew Luckie                <mjl at luckie dot org dot nz>
     Matthias Hannig               <matthias at hannig dot cc>
@@ -174,8 +187,10 @@ Additional people who have contributed patches (in alphabetical order):
     Nan Xiao                      <nan at chinadtrace dot org>
     nic-kaczinsky                 <68271784+nic-kaczinsky at users dot noreply dot github dot com>
     Nick Kelsey                   <nickk at silicondust dot com>
+    Nicolas Badoux                <n dot badoux at hotmail dot com>
     Nicolas Dade                  <ndade at nsd dot dyndns dot org>
     Niko Delarich                 <niko dot delarich at gmail dot com>
+    Nikolay Edigaryev             <edigaryev at gmail dot com>
     N. Leiten                     <nleiten at sourceforge dot net>
     nnposter                      <nnposter at users dot noreply dot github dot com>
                                   <nvercamm at sourceforge dot net>
@@ -209,6 +224,7 @@ Additional people who have contributed patches (in alphabetical order):
     Roland Dreier                 <roland at purestorage dot com>
     Romain Francoise              <rfrancoise at debian dot org>
     Rongxi Li                     <rongxi dot li at chaitin dot com>
+    Rose                          <83477269+AtariDreams at users dot noreply dot github dot com>
     Sagun Shakya                  <sagun dot shakya at sun dot com>
     Scott Barron                  <sb125499 at ohiou dot edu>
     Scott Gifford                 <sgifford at tir dot com>
@@ -218,6 +234,7 @@ Additional people who have contributed patches (in alphabetical order):
     Sepherosa Ziehau              <sepherosa at gmail dot com>
     Shane Kerr                    <shane at time-travellers dot org>
     Shaun Clowes                  <delius at progsoc dot uts dot edu dot au>
+    Shunyang Zhang                <shyzhang at grandstream dot cn>
     solofox                       <wensg100 at sina dot com>
     Solomon Peachy                <pizza at shaftnet dot org>
     Stefan Hudson                 <hudson at mbay dot net>

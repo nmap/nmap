@@ -6,6 +6,9 @@
 /* Enable optimizer debugging */
 #undef BDEBUG
 
+/* define if you want to build the instrument functions code */
+#undef ENABLE_INSTRUMENT_FUNCTIONS
+
 /* Define to 1 if remote packet capture is to be supported */
 #undef ENABLE_REMOTE
 
@@ -102,9 +105,6 @@
 /* Define to 1 if you have the <linux/wireless.h> header file. */
 #undef HAVE_LINUX_WIRELESS_H
 
-/* Define to 1 if you have the <memory.h> header file. */
-#undef HAVE_MEMORY_H
-
 /* Define to 1 if you have the <netpacket/packet.h> header file. */
 #undef HAVE_NETPACKET_PACKET_H
 
@@ -156,6 +156,9 @@
 /* On solaris */
 #undef HAVE_SOLARIS
 
+/* target host supports Solaris "any" device */
+#undef HAVE_SOLARIS_ANY_DEVICE
+
 /* define if we have the Solaris/IRIX getnetbyname_r() */
 #undef HAVE_SOLARIS_IRIX_GETNETBYNAME_R
 
@@ -165,11 +168,11 @@
 /* Define to 1 if you have the <stdint.h> header file. */
 #undef HAVE_STDINT_H
 
+/* Define to 1 if you have the <stdio.h> header file. */
+#undef HAVE_STDIO_H
+
 /* Define to 1 if you have the <stdlib.h> header file. */
 #undef HAVE_STDLIB_H
-
-/* Define to 1 if you have the `strerror' function. */
-#undef HAVE_STRERROR
 
 /* Define to 1 if you have the <strings.h> header file. */
 #undef HAVE_STRINGS_H
@@ -319,13 +322,15 @@
 /* target host supports RDMA sniffing */
 #undef PCAP_SUPPORT_RDMASNIFF
 
-/* The size of `const void *', as computed by sizeof. */
-#undef SIZEOF_CONST_VOID_P
+/* The size of `time_t', as computed by sizeof. */
+#undef SIZEOF_TIME_T
 
 /* The size of `void *', as computed by sizeof. */
 #undef SIZEOF_VOID_P
 
-/* Define to 1 if you have the ANSI C header files. */
+/* Define to 1 if all of the C90 standard headers exist (not just the ones
+   required in a freestanding environment). This macro is provided for
+   backward compatibility; new code need not use it. */
 #undef STDC_HEADERS
 
 /* Define to 1 if strings.h declares `ffs' */
@@ -340,11 +345,6 @@
 /* Define to 1 if `lex' declares `yytext' as a `char *' by default, not a
    `char[]'. */
 #undef YYTEXT_POINTER
-
-/* Enable large inode numbers on Mac OS X 10.5.  */
-#ifndef _DARWIN_USE_64_BIT_INODE
-# define _DARWIN_USE_64_BIT_INODE 1
-#endif
 
 /* Number of bits in a file offset, on hosts where this is settable. */
 #undef _FILE_OFFSET_BITS

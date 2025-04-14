@@ -21,9 +21,7 @@
  * pcap-common.c - common code for pcap and pcapng files
  */
 
-#ifdef HAVE_CONFIG_H
 #include <config.h>
-#endif
 
 #include <pcap-types.h>
 
@@ -99,6 +97,17 @@
  *	defining DLT_* values that collide with those
  *	LINKTYPE_* values, either).
  */
+
+/*
+ * These values the DLT_ values for which are the same on all platforms,
+ * and that have been defined by <net/bpf.h> for ages.
+ *
+ * For those, the LINKTYPE_ values are equal to the DLT_ values.
+ *
+ * LINKTYPE_LOW_MATCHING_MIN is the lowest such value;
+ * LINKTYPE_LOW_MATCHING_MAX is the highest such value.
+ */
+#define LINKTYPE_LOW_MATCHING_MIN	0		/* lowest value in this "matching" range */
 #define LINKTYPE_NULL		DLT_NULL
 #define LINKTYPE_ETHERNET	DLT_EN10MB	/* also for 100Mb and up */
 #define LINKTYPE_EXP_ETHERNET	DLT_EN3MB	/* 3Mb experimental Ethernet */
@@ -110,6 +119,8 @@
 #define LINKTYPE_SLIP		DLT_SLIP
 #define LINKTYPE_PPP		DLT_PPP
 #define LINKTYPE_FDDI		DLT_FDDI
+
+#define LINKTYPE_LOW_MATCHING_MAX	LINKTYPE_FDDI	/* highest value in this "matching" range */
 
 /*
  * LINKTYPE_PPP is for use when there might, or might not, be an RFC 1662
@@ -150,10 +161,10 @@
  * and the LINKTYPE_ value that appears in capture files, are the
  * same.
  *
- * LINKTYPE_MATCHING_MIN is the lowest such value; LINKTYPE_MATCHING_MAX
- * is the highest such value.
+ * LINKTYPE_HIGH_MATCHING_MIN is the lowest such value;
+ * LINKTYPE_HIGH_MATCHING_MAX is the highest such value.
  */
-#define LINKTYPE_MATCHING_MIN	104		/* lowest value in the "matching" range */
+#define LINKTYPE_HIGH_MATCHING_MIN	104		/* lowest value in the "matching" range */
 
 #define LINKTYPE_C_HDLC		104		/* Cisco HDLC */
 #define LINKTYPE_IEEE802_11	105		/* IEEE 802.11 (wireless) */
@@ -693,9 +704,9 @@
 #define LINKTYPE_AOS		222
 
 /*
- * Wireless HART (Highway Addressable Remote Transducer)
+ * WirelessHART (Highway Addressable Remote Transducer)
  * From the HART Communication Foundation
- * IES/PAS 62591
+ * IEC/PAS 62591
  *
  * Requested by Sam Roberts <vieuxtech@gmail.com>.
  */
@@ -917,7 +928,6 @@
  * shiny new link-layer header type value that doesn't collide with
  * anything, in the hopes that future pfsync savefiles, if any,
  * won't require special hacks to distinguish from other savefiles.
- *
  */
 #define LINKTYPE_PFSYNC		246
 
@@ -1197,168 +1207,335 @@
  */
 #define LINKTYPE_ATSC_ALP	289
 
-#define LINKTYPE_MATCHING_MAX	289		/* highest value in the "matching" range */
+#define LINKTYPE_HIGH_MATCHING_MAX	289		/* highest value in the "matching" range */
 
 /*
  * The DLT_ and LINKTYPE_ values in the "matching" range should be the
- * same, so DLT_MATCHING_MAX and LINKTYPE_MATCHING_MAX should be the
+ * same, so DLT_HIGH_MATCHING_MAX and LINKTYPE_HIGH_MATCHING_MAX should be the
  * same.
  */
-#if LINKTYPE_MATCHING_MAX != DLT_MATCHING_MAX
-#error The LINKTYPE_ matching range does not match the DLT_ matching range
+#if LINKTYPE_HIGH_MATCHING_MAX != DLT_HIGH_MATCHING_MAX
+#error The LINKTYPE_ high matching range does not match the DLT_ matching range
 #endif
 
-static struct linktype_map {
-	int	dlt;
-	int	linktype;
-} map[] = {
+/*
+ * Map a DLT_* code to the corresponding LINKTYPE_* code.
+ * Used to generate link-layer types written to savefiles.
+ */
+int
+dlt_to_linktype(int dlt)
+{
 	/*
-	 * These DLT_* codes have LINKTYPE_* codes with values identical
-	 * to the values of the corresponding DLT_* code.
+	 * All values in the low matching range were handed out before
+	 * assigning DLT_* codes became a free-for-all, so they're the
+	 * same on all platforms, and thus are given LINKTYPE_* codes
+	 * with the same numerical values as the corresponding DLT_*
+	 * code.
 	 */
-	{ DLT_NULL,		LINKTYPE_NULL },
-	{ DLT_EN10MB,		LINKTYPE_ETHERNET },
-	{ DLT_EN3MB,		LINKTYPE_EXP_ETHERNET },
-	{ DLT_AX25,		LINKTYPE_AX25 },
-	{ DLT_PRONET,		LINKTYPE_PRONET },
-	{ DLT_CHAOS,		LINKTYPE_CHAOS },
-	{ DLT_IEEE802,		LINKTYPE_IEEE802_5 },
-	{ DLT_ARCNET,		LINKTYPE_ARCNET_BSD },
-	{ DLT_SLIP,		LINKTYPE_SLIP },
-	{ DLT_PPP,		LINKTYPE_PPP },
-	{ DLT_FDDI,		LINKTYPE_FDDI },
-	{ DLT_SYMANTEC_FIREWALL, LINKTYPE_SYMANTEC_FIREWALL },
+	if (dlt >= DLT_LOW_MATCHING_MIN && dlt <= DLT_LOW_MATCHING_MAX)
+		return (dlt);
+
+#if DLT_PFSYNC != LINKTYPE_PFSYNC
+	/*
+	 * DLT_PFSYNC has a code on several platforms that's in the
+	 * non-matching range, a code on FreeBSD that's in the high
+	 * matching range and that's *not* equal to LINKTYPE_PFSYNC,
+	 * and has a code on the rmaining platforms that's equal
+	 * to LINKTYPE_PFSYNC, which is in the high matching range.
+	 *
+	 * Map it to LINKTYPE_PFSYNC if it's not equal to LINKTYPE_PFSYNC.
+	 */
+	if (dlt == DLT_PFSYNC)
+		return (LINKTYPE_PFSYNC);
+#endif
+
+	/*
+	 * DLT_PKTAP is defined as DLT_USER2 - which is in the high
+	 * matching range - on Darwin because Apple used DLT_USER2
+	 * on systems that users ran, not just as an internal thing.
+	 *
+	 * We map it to LINKTYPE_PKTAP if it's not equal to LINKTYPE_PKTAP
+	 * so that DLT_PKTAP captures from Apple machines can be read by
+	 * software that either doesn't handle DLT_USER2 or that handles it
+	 * as something other than Apple PKTAP.
+	 */
+#if DLT_PKTAP != LINKTYPE_PKTAP
+	if (dlt == DLT_PKTAP)
+		return (LINKTYPE_PKTAP);
+#endif
+
+	/*
+	 * For all other DLT_* codes in the high matching range, the DLT
+	 * code value is the same as the LINKTYPE_* code value.
+	 */
+	if (dlt >= DLT_HIGH_MATCHING_MIN && dlt <= DLT_HIGH_MATCHING_MAX)
+		return (dlt);
 
 	/*
 	 * These DLT_* codes have different values on different
-	 * platforms; we map them to LINKTYPE_* codes that
-	 * have values that should never be equal to any DLT_*
-	 * code.
+	 * platforms, so we assigned them LINKTYPE_* codes just
+	 * below the lower bound of the high matchig range;
+	 * those values should never be equal to any DLT_*
+	 * code, so that should avoid collisions.
+	 *
+	 * That way, for example, "raw IP" packets will have
+	 * LINKTYPE_RAW as the code in all savefiles for
+	 * which the code that writes them maps to that
+	 * value, regardless of the platform on which they
+	 * were written, so they should be readable on all
+	 * platforms without having to determine on which
+	 * platform they were written.
+	 *
+	 * We map the DLT_* codes on this platform, whatever
+	 * it might be, to the corresponding LINKTYPE_* codes.
+	 */
+	if (dlt == DLT_ATM_RFC1483)
+		return (LINKTYPE_ATM_RFC1483);
+	if (dlt == DLT_RAW)
+		return (LINKTYPE_RAW);
+	if (dlt == DLT_SLIP_BSDOS)
+		return (LINKTYPE_SLIP_BSDOS);
+	if (dlt == DLT_PPP_BSDOS)
+		return (LINKTYPE_PPP_BSDOS);
+
+	/*
+	 * These DLT_* codes were originally defined on some platform,
+	 * and weren't defined on other platforms.
+	 *
+	 * At least some of them have values, on at least one platform,
+	 * that collide with other DLT_* codes on other platforms, e.g.
+	 * DLT_LOOP, so we don't just define them, on all platforms,
+	 * as having the same value as on the original platform.
+	 *
+	 * Therefore, we assigned new LINKTYPE_* codes to them, and,
+	 * on the platforms where they weren't originally defined,
+	 * define the DLT_* codes to have the same value as the
+	 * corresponding LINKTYPE_* codes.
+	 *
+	 * This means that, for capture files with the original
+	 * platform's DLT_* code rather than the LINKTYPE_* code
+	 * as a link-layer type, we will recognize those types
+	 * on that platform, but not on other platforms.
 	 */
 #ifdef DLT_FR
 	/* BSD/OS Frame Relay */
-	{ DLT_FR,		LINKTYPE_FRELAY },
+	if (dlt == DLT_FR)
+		return (LINKTYPE_FRELAY);
+#endif
+#if DLT_HDLC != LINKTYPE_NETBSD_HDLC
+	/* NetBSD HDLC */
+	if (dlt == DLT_HDLC)
+		return (LINKTYPE_NETBSD_HDLC);
+#endif
+#if DLT_C_HDLC != LINKTYPE_C_HDLC
+	/* BSD/OS Cisco HDLC */
+	if (dlt == DLT_C_HDLC)
+		return (LINKTYPE_C_HDLC);
+#endif
+#if DLT_LOOP != LINKTYPE_LOOP
+	/* OpenBSD DLT_LOOP */
+	if (dlt == DLT_LOOP)
+		return (LINKTYPE_LOOP);
+#endif
+#if DLT_ENC != LINKTYPE_ENC
+	/* OpenBSD DLT_ENC */
+	if (dlt == DLT_ENC)
+		return (LINKTYPE_ENC);
 #endif
 
-	{ DLT_ATM_RFC1483,	LINKTYPE_ATM_RFC1483 },
-	{ DLT_RAW,		LINKTYPE_RAW },
-	{ DLT_SLIP_BSDOS,	LINKTYPE_SLIP_BSDOS },
-	{ DLT_PPP_BSDOS,	LINKTYPE_PPP_BSDOS },
-	{ DLT_HDLC,		LINKTYPE_NETBSD_HDLC },
+	/*
+	 * These DLT_* codes are not on all platforms, but, so far,
+	 * there don't appear to be any platforms that define
+	 * other codes with those values; we map them to
+	 * different LINKTYPE_* codes anyway, just in case.
+	 */
+	/* Linux ATM Classical IP */
+	if (dlt == DLT_ATM_CLIP)
+		return (LINKTYPE_ATM_CLIP);
 
+	/*
+	 * A few other values, defined on some platforms, not in
+	 * either matching range, but not colliding with anything
+	 * else, so they're given the same LINKTYPE_* code as
+	 * their DLT_* code.
+	 */
+	if (dlt == DLT_REDBACK_SMARTEDGE || dlt == DLT_PPP_SERIAL ||
+	    dlt == DLT_PPP_ETHER || dlt == DLT_SYMANTEC_FIREWALL)
+		return (dlt);
+
+	/*
+	 * If we don't have a mapping for this DLT_* code, return an
+	 * error; that means that this is a DLT_* value with no
+	 * corresponding LINKTYPE_ value, and we need to assign one.
+	 */
+	return (-1);
+}
+
+/*
+ * Map a LINKTYPE_* code to the corresponding DLT_* code.
+ * Used to translate link-layer types in savefiles to the
+ * DLT_* codes to provide to callers of libpcap.
+ */
+int
+linktype_to_dlt(int linktype)
+{
+	/*
+	 * All values in the low matching range were handed out before
+	 * assigning DLT_* codes became a free-for-all, so they're the
+	 * same on all platforms, and are thus used as the LINKTYPE_*
+	 * codes in capture files.
+	 */
+	if (linktype >= LINKTYPE_LOW_MATCHING_MIN &&
+	    linktype <= LINKTYPE_LOW_MATCHING_MAX)
+		return (linktype);
+
+#if LINKTYPE_PFSYNC != DLT_PFSYNC
+	/*
+	 * DLT_PFSYNC has a code on several platforms that's in the
+	 * non-matching range, a code on FreeBSD that's in the high
+	 * matching range and that's *not* equal to LINKTYPE_PFSYNC,
+	 * and has a code on the rmaining platforms that's equal
+	 * to LINKTYPE_PFSYNC, which is in the high matching range.
+	 *
+	 * Map LINKTYPE_PFSYNC to whatever DLT_PFSYNC is on this
+	 * platform, if the two aren't equal.
+	 */
+	if (linktype == LINKTYPE_PFSYNC)
+		return (DLT_PFSYNC);
+#endif
+
+	/*
+	 * DLT_PKTAP is defined as DLT_USER2 - which is in the high
+	 * matching range - on Darwin because Apple used DLT_USER2
+	 * on systems that users ran, not just as an internal thing.
+	 *
+	 * We map LINKTYPE_PKTAP to the platform's DLT_PKTAP for
+	 * the benefit of software that's expecting DLT_PKTAP
+	 * (even if that's DLT_USER2) for an Apple PKTAP capture.
+	 *
+	 * (Yes, this is an annoyance if you want to read a
+	 * LINKTYPE_USER2 packet as something other than DLT_PKTAP
+	 * on a Darwin-based OS, as, on that OS, DLT_PKTAP and DLT_USER2
+	 * are the same.  Feel free to complain to Apple about this.)
+	 */
+#if LINKTYPE_PKTAP != DLT_PKTAP
+	if (linktype == LINKTYPE_PKTAP)
+		return (DLT_PKTAP);
+#endif
+
+	/*
+	 * These DLT_* codes have different values on different
+	 * platforms, so we assigned them LINKTYPE_* codes just
+	 * below the lower bound of the high matchig range;
+	 * those values should never be equal to any DLT_*
+	 * code, so that should avoid collisions.
+	 *
+	 * That way, for example, "raw IP" packets will have
+	 * LINKTYPE_RAW as the code in all savefiles for
+	 * which the code that writes them maps to that
+	 * value, regardless of the platform on which they
+	 * were written, so they should be readable on all
+	 * platforms without having to determine on which
+	 * platform they were written.
+	 *
+	 * We map the LINKTYPE_* codes to the corresponding
+	 * DLT_* code on this platform.
+	 */
+	if (linktype == LINKTYPE_ATM_RFC1483)
+		return (DLT_ATM_RFC1483);
+	if (linktype == LINKTYPE_RAW)
+		return (DLT_RAW);
+	if (linktype == LINKTYPE_SLIP_BSDOS)
+		return (DLT_SLIP_BSDOS);
+	if (linktype == LINKTYPE_PPP_BSDOS)
+		return (DLT_PPP_BSDOS);
+
+	/*
+	 * These DLT_* codes were originally defined on some platform,
+	 * and weren't defined on other platforms.
+	 *
+	 * At least some of them have values, on at least one platform,
+	 * that collide with other DLT_* codes on other platforms, e.g.
+	 * DLT_LOOP, so we don't just define them, on all platforms,
+	 * as having the same value as on the original platform.
+	 *
+	 * Therefore, we assigned new LINKTYPE_* codes to them, and,
+	 * on the platforms where they weren't originally defined,
+	 * define the DLT_* codes to have the same value as the
+	 * corresponding LINKTYPE_* codes.
+	 *
+	 * This means that, for capture files with the original
+	 * platform's DLT_* code rather than the LINKTYPE_* code
+	 * as a link-layer type, we will recognize those types
+	 * on that platform, but not on other platforms.
+	 *
+	 * We map the LINKTYPE_* codes to the corresponding
+	 * DLT_* code on platforms where the two codes differ..
+	 */
+#ifdef DLT_FR
+	/* BSD/OS Frame Relay */
+	if (linktype == LINKTYPE_FRELAY)
+		return (DLT_FR);
+#endif
+#if LINKTYPE_NETBSD_HDLC != DLT_HDLC
+	/* NetBSD HDLC */
+	if (linktype == LINKTYPE_NETBSD_HDLC)
+		return (DLT_HDLC);
+#endif
+#if LINKTYPE_C_HDLC != DLT_C_HDLC
 	/* BSD/OS Cisco HDLC */
-	{ DLT_C_HDLC,		LINKTYPE_C_HDLC },
+	if (linktype == LINKTYPE_C_HDLC)
+		return (DLT_C_HDLC);
+#endif
+#if LINKTYPE_LOOP != DLT_LOOP
+	/* OpenBSD DLT_LOOP */
+	if (linktype == LINKTYPE_LOOP)
+		return (DLT_LOOP);
+#endif
+#if LINKTYPE_ENC != DLT_ENC
+	/* OpenBSD DLT_ENC */
+	if (linktype == LINKTYPE_ENC)
+		return (DLT_ENC);
+#endif
 
 	/*
 	 * These DLT_* codes are not on all platforms, but, so far,
 	 * there don't appear to be any platforms that define
 	 * other codes with those values; we map them to
 	 * different LINKTYPE_* values anyway, just in case.
-	 */
-
-	/* Linux ATM Classical IP */
-	{ DLT_ATM_CLIP,		LINKTYPE_ATM_CLIP },
-
-	/* NetBSD sync/async serial PPP (or Cisco HDLC) */
-	{ DLT_PPP_SERIAL,	LINKTYPE_PPP_HDLC },
-
-	/* NetBSD PPP over Ethernet */
-	{ DLT_PPP_ETHER,	LINKTYPE_PPP_ETHER },
-
-	/*
-	 * All LINKTYPE_ values between LINKTYPE_MATCHING_MIN
-	 * and LINKTYPE_MATCHING_MAX are mapped to identical
-	 * DLT_ values.
-	 */
-
-	{ -1,			-1 }
-};
-
-int
-dlt_to_linktype(int dlt)
-{
-	int i;
-
-	/*
-	 * DLTs that, on some platforms, have values in the matching range
-	 * but that *don't* have the same value as the corresponding
-	 * LINKTYPE because, for some reason, not all OSes have the
-	 * same value for that DLT (note that the DLT's value might be
-	 * outside the matching range on some of those OSes).
-	 */
-	if (dlt == DLT_PFSYNC)
-		return (LINKTYPE_PFSYNC);
-	if (dlt == DLT_PKTAP)
-		return (LINKTYPE_PKTAP);
-
-	/*
-	 * For all other values in the matching range, the DLT
-	 * value is the same as the LINKTYPE value.
-	 */
-	if (dlt >= DLT_MATCHING_MIN && dlt <= DLT_MATCHING_MAX)
-		return (dlt);
-
-	/*
-	 * Map the values outside that range.
-	 */
-	for (i = 0; map[i].dlt != -1; i++) {
-		if (map[i].dlt == dlt)
-			return (map[i].linktype);
-	}
-
-	/*
-	 * If we don't have a mapping for this DLT, return an
-	 * error; that means that this is a value with no corresponding
-	 * LINKTYPE, and we need to assign one.
-	 */
-	return (-1);
-}
-
-int
-linktype_to_dlt(int linktype)
-{
-	int i;
-
-	/*
-	 * LINKTYPEs in the matching range that *don't*
-	 * have the same value as the corresponding DLTs
-	 * because, for some reason, not all OSes have the
-	 * same value for that DLT.
-	 */
-	if (linktype == LINKTYPE_PFSYNC)
-		return (DLT_PFSYNC);
-	if (linktype == LINKTYPE_PKTAP)
-		return (DLT_PKTAP);
-
-	/*
-	 * For all other values in the matching range, except for
-	 * LINKTYPE_ATM_CLIP, the LINKTYPE value is the same as
-	 * the DLT value.
 	 *
 	 * LINKTYPE_ATM_CLIP is a special case.  DLT_ATM_CLIP is
 	 * not on all platforms, but, so far, there don't appear
 	 * to be any platforms that define it as anything other
 	 * than 19; we define LINKTYPE_ATM_CLIP as something
 	 * other than 19, just in case.  That value is in the
-	 * matching range, so we have to check for it.
+	 * high matching range, so we have to check for it.
 	 */
-	if (linktype >= LINKTYPE_MATCHING_MIN &&
-	    linktype <= LINKTYPE_MATCHING_MAX &&
-	    linktype != LINKTYPE_ATM_CLIP)
-		return (linktype);
+	/* Linux ATM Classical IP */
+	if (linktype == LINKTYPE_ATM_CLIP)
+		return (DLT_ATM_CLIP);
 
 	/*
-	 * Map the values outside that range.
-	 */
-	for (i = 0; map[i].linktype != -1; i++) {
-		if (map[i].linktype == linktype)
-			return (map[i].dlt);
-	}
-
-	/*
-	 * If we don't have an entry for this LINKTYPE, return
-	 * the link type value; it may be a DLT from an newer
-	 * version of libpcap.
+	 * For all other values, return the linktype code as the
+	 * DLT_* code.
+	 *
+	 * If the code is in the high matching range, the
+	 * DLT_* code is the same as the LINKTYPE_* code.
+	 *
+	 * If the code is greater than the maximum value in
+	 * the high matching range, it may be a value from
+	 * a newer version of libpcap; we provide it in case
+	 * the program' capable of handling it.
+	 *
+	 * If the code is less than the minimum value in the
+	 * high matching range, it might be from a capture
+	 * written by code that doesn't map non-matching range
+	 * DLT_* codes to the appropriate LINKTYPE_* code, so
+	 * we'll just pass it through, so that *if it was written
+	 * on this platform* it will be interpreted correctly.
+	 * (We don't know whether it was written on this platform,
+	 * but at least this way there's *some* chance that it
+	 * can be read.)
 	 */
 	return linktype;
 }

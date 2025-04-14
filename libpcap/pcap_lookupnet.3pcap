@@ -17,7 +17,7 @@
 .\" WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF
 .\" MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 .\"
-.TH PCAP_LOOKUPNET 3PCAP "25 July 2018"
+.TH PCAP_LOOKUPNET 3PCAP "13 March 2024"
 .SH NAME
 pcap_lookupnet \- find the IPv4 network number and netmask for a device
 .SH SYNOPSIS
@@ -33,8 +33,7 @@ char errbuf[PCAP_ERRBUF_SIZE];
 .LP
 .ft B
 int pcap_lookupnet(const char *device, bpf_u_int32 *netp,
-.ti +8
-bpf_u_int32 *maskp, char *errbuf);
+    bpf_u_int32 *maskp, char *errbuf);
 .ft
 .fi
 .SH DESCRIPTION
@@ -47,8 +46,18 @@ Both
 and
 .I maskp
 are
-.I bpf_u_int32
+.B bpf_u_int32
 pointers.
+.I errbuf
+is a buffer large enough to hold at least
+.B PCAP_ERRBUF_SIZE
+chars.
+.LP
+This function is not available on Windows.  It supports neither IPv6 nor
+multiple IPv4 addresses per interface, which obviously is not practical in
+modern networks.  See
+.BR pcap_findalldevs (3PCAP)
+for a more elaborate solution to the problem.
 .SH RETURN VALUE
 .BR pcap_lookupnet ()
 returns
@@ -60,9 +69,5 @@ on failure. If
 is returned,
 .I errbuf
 is filled in with an appropriate error message.
-.I errbuf
-is assumed to be able to hold at least
-.B PCAP_ERRBUF_SIZE
-chars.
 .SH SEE ALSO
 .BR pcap (3PCAP)

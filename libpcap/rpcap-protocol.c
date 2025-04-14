@@ -31,9 +31,7 @@
  *
  */
 
-#ifdef HAVE_CONFIG_H
 #include <config.h>
-#endif
 
 #include <string.h>		/* for strlen(), ... */
 #include <stdlib.h>		/* for malloc(), free(), ... */
@@ -80,7 +78,7 @@
  * error message is returned in the 'errbuf' variable.
  */
 int
-rpcap_senderror(SOCKET sock, SSL *ssl, uint8 ver, unsigned short errcode, const char *error, char *errbuf)
+rpcap_senderror(PCAP_SOCKET sock, SSL *ssl, uint8 ver, unsigned short errcode, const char *error, char *errbuf)
 {
 	char sendbuf[RPCAP_NETBUF_SIZE];	/* temporary buffer in which data to be sent is buffered */
 	int sendbufidx = 0;			/* index which keeps the number of bytes currently buffered */

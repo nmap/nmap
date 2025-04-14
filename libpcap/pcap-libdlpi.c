@@ -24,9 +24,7 @@
  * Packet capture routines for DLPI using libdlpi under SunOS 5.11.
  */
 
-#ifdef HAVE_CONFIG_H
 #include <config.h>
-#endif
 
 #include <sys/types.h>
 #include <sys/time.h>
@@ -80,7 +78,7 @@ list_interfaces(const char *linkname, void *arg)
 		lwp->lw_err = ENOMEM;
 		return (B_TRUE);
 	}
-	(void) pcap_strlcpy(entry->linkname, linkname, DLPI_LINKNAME_MAX);
+	(void) pcapint_strlcpy(entry->linkname, linkname, DLPI_LINKNAME_MAX);
 
 	if (lwp->lw_list == NULL) {
 		lwp->lw_list = entry;
@@ -229,7 +227,7 @@ pcap_activate_libdlpi(pcap_t *p)
 	 */
 	if (ioctl(p->fd, I_FLUSH, FLUSHR) != 0) {
 		status = PCAP_ERROR;
-		pcap_fmt_errmsg_for_errno(p->errbuf, PCAP_ERRBUF_SIZE,
+		pcapint_fmt_errmsg_for_errno(p->errbuf, PCAP_ERRBUF_SIZE,
 		    errno, "FLUSHR");
 		goto bad;
 	}
@@ -248,11 +246,11 @@ pcap_activate_libdlpi(pcap_t *p)
 
 	p->read_op = pcap_read_libdlpi;
 	p->inject_op = pcap_inject_libdlpi;
-	p->setfilter_op = install_bpf_program;	/* No kernel filtering */
+	p->setfilter_op = pcapint_install_bpf_program;	/* No kernel filtering */
 	p->setdirection_op = NULL;	/* Not implemented */
 	p->set_datalink_op = NULL;	/* Can't change data link type */
-	p->getnonblock_op = pcap_getnonblock_fd;
-	p->setnonblock_op = pcap_setnonblock_fd;
+	p->getnonblock_op = pcapint_getnonblock_fd;
+	p->setnonblock_op = pcapint_setnonblock_fd;
 	p->stats_op = pcap_stats_dlpi;
 	p->cleanup_op = pcap_cleanup_libdlpi;
 
@@ -338,7 +336,7 @@ get_if_flags(const char *name _U_, bpf_u_int32 *flags _U_, char *errbuf _U_)
  * additional network links present in the system.
  */
 int
-pcap_platform_finddevs(pcap_if_list_t *devlistp, char *errbuf)
+pcapint_platform_finddevs(pcap_if_list_t *devlistp, char *errbuf)
 {
 	int retv = 0;
 
@@ -349,7 +347,7 @@ pcap_platform_finddevs(pcap_if_list_t *devlistp, char *errbuf)
 	/*
 	 * Get the list of regular interfaces first.
 	 */
-	if (pcap_findalldevs_interfaces(devlistp, errbuf,
+	if (pcapint_findalldevs_interfaces(devlistp, errbuf,
 	    is_dlpi_interface, get_if_flags) == -1)
 		return (-1);	/* failure */
 
@@ -358,14 +356,14 @@ pcap_platform_finddevs(pcap_if_list_t *devlistp, char *errbuf)
 	/*
 	 * Find all DLPI devices in the current zone.
 	 *
-	 * XXX - will pcap_findalldevs_interfaces() find any devices
+	 * XXX - will pcapint_findalldevs_interfaces() find any devices
 	 * outside the current zone?  If not, the only reason to call
 	 * it would be to get the interface addresses.
 	 */
 	dlpi_walk(list_interfaces, &lw, 0);
 
 	if (lw.lw_err != 0) {
-		pcap_fmt_errmsg_for_errno(errbuf, PCAP_ERRBUF_SIZE,
+		pcapint_fmt_errmsg_for_errno(errbuf, PCAP_ERRBUF_SIZE,
 		    lw.lw_err, "dlpi_walk");
 		retv = -1;
 		goto done;
@@ -377,7 +375,7 @@ pcap_platform_finddevs(pcap_if_list_t *devlistp, char *errbuf)
 		 * If it isn't already in the list of devices, try to
 		 * add it.
 		 */
-		if (find_or_add_dev(devlistp, entry->linkname, 0, get_if_flags,
+		if (pcapint_find_or_add_dev(devlistp, entry->linkname, 0, get_if_flags,
 		    NULL, errbuf) == NULL)
 			retv = -1;
 	}
@@ -481,7 +479,7 @@ pcap_cleanup_libdlpi(pcap_t *p)
 		pd->dlpi_hd = NULL;
 		p->fd = -1;
 	}
-	pcap_cleanup_live_common(p);
+	pcapint_cleanup_live_common(p);
 }
 
 /*
@@ -495,7 +493,7 @@ pcap_libdlpi_err(const char *linkname, const char *func, int err, char *errbuf)
 }
 
 pcap_t *
-pcap_create_interface(const char *device _U_, char *ebuf)
+pcapint_create_interface(const char *device _U_, char *ebuf)
 {
 	pcap_t *p;
 

@@ -52,8 +52,8 @@ $(OBJDIR)\pktdrvr.obj: msdos\pkt_stub.inc msdos\pktdrvr.c &
   pcap-dos.h pcap-int.h pcap.h msdos\pktdrvr.h
           *$(CC) $(CFLAGS) msdos\pktdrvr.c -fo=$@
 
-$(OBJDIR)\bpf_filter.obj: bpf\net\bpf_filter.c
-          *$(CC) $(CFLAGS) bpf\net\bpf_filter.c -fo=$@
+$(OBJDIR)\bpf_filter.obj: bpf_filter.c
+          *$(CC) $(CFLAGS) bpf_filter.c -fo=$@
 
 $(OBJDIR)\ndis2.obj: msdos\ndis2.c
           *$(CC) $(CFLAGS) msdos\ndis2.c -fo=$@
@@ -94,7 +94,7 @@ clean realclean vclean: .SYMBOLIC
 #
 # dependencies
 #
-$(OBJDIR)\bpf_filter.obj: bpf\net\bpf_filter.c pcap-int.h pcap.h pcap-bpf.h
+$(OBJDIR)\bpf_filter.obj: bpf_filter.c pcap-int.h pcap.h pcap-bpf.h
 
 $(OBJDIR)\bpf_imag.obj: bpf_imag.c pcap-int.h pcap.h pcap-bpf.h
 

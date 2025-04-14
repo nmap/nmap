@@ -24,9 +24,7 @@
  * SUCH DAMAGE.
  */
 
-#ifdef HAVE_CONFIG_H
 #include <config.h>
-#endif
 
 #include <poll.h>
 #include <errno.h>
@@ -81,7 +79,7 @@ pcap_netmap_filter(u_char *arg, struct pcap_pkthdr *h, const u_char *buf)
 	const struct bpf_insn *pc = p->fcode.bf_insns;
 
 	++pn->rx_pkts;
-	if (pc == NULL || pcap_filter(pc, buf, h->len, h->caplen))
+	if (pc == NULL || pcapint_filter(pc, buf, h->len, h->caplen))
 		pn->cb(pn->cb_arg, h, buf);
 }
 
@@ -133,13 +131,13 @@ pcap_netmap_ioctl(pcap_t *p, u_long what, uint32_t *if_flags)
 	struct ifreq ifr;
 	int error, fd = d->fd;
 
-#ifdef linux
+#ifdef __linux__
 	fd = socket(AF_INET, SOCK_DGRAM, 0);
 	if (fd < 0) {
 		fprintf(stderr, "Error: cannot get device control socket.\n");
 		return -1;
 	}
-#endif /* linux */
+#endif /* __linux__ */
 	bzero(&ifr, sizeof(ifr));
 	strncpy(ifr.ifr_name, d->req.nr_name, sizeof(ifr.ifr_name));
 	switch (what) {
@@ -194,9 +192,9 @@ pcap_netmap_ioctl(pcap_t *p, u_long what, uint32_t *if_flags)
 #endif /* __FreeBSD__ */
 		}
 	}
-#ifdef linux
+#ifdef __linux__
 	close(fd);
-#endif /* linux */
+#endif /* __linux__ */
 	return error ? -1 : 0;
 }
 
@@ -216,7 +214,7 @@ pcap_netmap_close(pcap_t *p)
 		}
 	}
 	nm_close(d);
-	pcap_cleanup_live_common(p);
+	pcapint_cleanup_live_common(p);
 }
 
 
@@ -229,10 +227,10 @@ pcap_netmap_activate(pcap_t *p)
 
 	d = nm_open(p->opt.device, NULL, 0, NULL);
 	if (d == NULL) {
-		pcap_fmt_errmsg_for_errno(p->errbuf, PCAP_ERRBUF_SIZE,
+		pcapint_fmt_errmsg_for_errno(p->errbuf, PCAP_ERRBUF_SIZE,
 		    errno, "netmap open: cannot access %s",
 		    p->opt.device);
-		pcap_cleanup_live_common(p);
+		pcapint_cleanup_live_common(p);
 		return (PCAP_ERROR);
 	}
 #if 0
@@ -266,11 +264,11 @@ pcap_netmap_activate(pcap_t *p)
 	p->selectable_fd = p->fd;
 	p->read_op = pcap_netmap_dispatch;
 	p->inject_op = pcap_netmap_inject;
-	p->setfilter_op = install_bpf_program;
+	p->setfilter_op = pcapint_install_bpf_program;
 	p->setdirection_op = NULL;
 	p->set_datalink_op = NULL;
-	p->getnonblock_op = pcap_getnonblock_fd;
-	p->setnonblock_op = pcap_setnonblock_fd;
+	p->getnonblock_op = pcapint_getnonblock_fd;
+	p->setnonblock_op = pcapint_setnonblock_fd;
 	p->stats_op = pcap_netmap_stats;
 	p->cleanup_op = pcap_netmap_close;
 

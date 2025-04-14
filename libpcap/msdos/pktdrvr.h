@@ -47,7 +47,7 @@ typedef struct {
 
 
 typedef struct {
-        BYTE  class;        /* = 1 for DEC/Interl/Xerox Ethernet */
+        BYTE  class;        /* = 1 for DEC/Intel/Xerox Ethernet  */
         BYTE  number;       /* = 0 for single LAN adapter        */
         WORD  type;         /* = 13 for 3C523                    */
         BYTE  funcs;        /* Basic/Extended/HiPerf functions   */

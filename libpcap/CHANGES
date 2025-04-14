@@ -1,3 +1,168 @@
+Friday, August 30, 2024 / The Tcpdump Group
+  Summary for 1.10.5 libpcap release
+    Source code:
+      Spell WirelessHART details properly.
+      Mark pcap_vasprintf() as printf-like.
+      Finalize moving of bpf_filter.c. (GH #1166)
+      Remove an unneeded argument from gen_mcode6().
+      Don't do some Berkeley YACC workarounds with YACC releases not
+        requiring them.
+      Use correct data types rather than int in some cases.
+      Squelch compiler warning in grammar.c.
+      Fix findalldevtest compilation if IPv6 isn't enabled.
+      Rename helper routines for pcap modules to have names beginning with
+        pcapint_, to avoid namespace collisions for code linking statically
+        with libpcap.
+      Avoid casting hack for the Windows cleanup-on-exit routine.
+      Use %zu format for one case of printing a size_t.
+      Fix some Coverity errors.
+      Fix availabilities of some functions to match reality.
+      pcap: make the seconds and microseconds/nanoseconds fields unsigned.
+      Remove the unused pcap-rpcap-int.h header file.
+    Thread safety:
+      Make some static variables thread-local; fixes issue #1174.
+    Packet filtering:
+      Improve reporting of some invalid filter expressions.
+      Return an error from pcap_compile() if the scanner fails to initialize.
+      Optimizer fix from Archit Shah to recompute dominators after
+        moving code (#976); fixes #945 (although the resulting filter
+        isn't empty).
+      Optimizer fix from Archit Shah to mark value as unknown when store
+        of that value is deleted (#972); fixes #143, #434, #436, #437,
+        and #1076.
+    Linux:
+      Properly return warnings.
+      Don't use DLT_LINUX_SLL2 for anything other than the "any" device.
+      Avoid 32-bit unsigned integer overflow in USB captures.  Fixes
+        issues #1134 and #1205.
+      Fix a file descriptor leak.
+      Properly report warnings about unknown ARPHRD_ types.
+      Fix DLT_CAN_SOCKETCAN handling of CAN FD.
+      Add CAN XL support to DLT_CAN_SOCKETCAN.
+      Clean up the code that sets the "real" ("original") length for
+        isochronous USB transfers.
+      Avoid unnecessary blocking on recvmsg() in the Bluetooth monitor and
+        Bluetoth modules.
+    Solaris:
+      Handle BPF returning ESRCH for unknown devices.
+      List the "any" device if it's supported.
+      Report {non-existent zone}/{interface} errors appropriately.
+      Allow attaching to links owned by a non-global zone.  (Based on
+        pull request #1202.)
+      Fix AF_LINK handling on illumos.
+    macOS:
+      Redid the availability macros to be closer to what Apple's doing
+        in recent SDKs, including tagging pcap-namedb.h routines.
+      Fix the install name of the installed shared library to have a
+        full path when building with CMake.
+      Fix universal builds.
+    Haiku:
+      Convert the module to C.  Fixes issue #1114.
+      Address a few compiler warnings.  Fixes issue #1114.
+      Fix various build problems.  Fixes issue #1114.
+      Report non-existent devices correctly.
+      Fix handling of packet statistics.
+      Fix packet timestamping.
+      Fix packet filtering with low snaplen.
+      Improve connection status reporting.
+      Add support for promiscuous mode.
+      Detect DLTs and loopback capture support at run time.
+      Report IEEE 802.11 as PCAP_IF_WIRELESS.
+    Windows:
+      Fix internal handling of "not supported" error codes from NPF.
+      Work around a bug in Npcap 1.00 in case of driver version mismatch.
+      Don't call WSACleanup() when handling a failed WSAStartup().
+    BSD, macOS, AIX, Solaris 11, Linux:
+      Add a new error PCAP_ERROR_CAPTURE_NOTSUP, for use if a capture
+        mechanism is not present, in the hopes that, for example,
+        attempts to capture on Windows Services for Linux 1, in which
+        the NT kernel attempts to simulate Linux system calls but does
+        not support packet sockets, can get an error that better
+        indicates the underlying problem.
+    AirPcap:
+      Format an error message if we run out of memory.
+    nflog:
+      Fix count of dropped packets.
+      Make sure we don't overflow when rounding up the TLV length.
+    rpcap:
+      Handle routines removed in at least some OpenSSL libraries.
+      CVE-2023-7256: Clean up sock_initaddress() and its callers to avoid
+        double frees in some cases.
+      Don't define SOCKET ourselves; instead, define PCAP_SOCKET as int
+        on UN*Xes and as SOCKET on Windows.
+      CVE-2024-8006: Fix pcap_findalldevs_ex() not to crash if passed a
+        file:// URL with a path to a directory that cannot be opened.
+    Savefiles:
+      Handle DLT_/LINKTYPE_ mapping better, to handle some
+        OpenBSD-specific link types better.
+      Treat if_tsoffset as signed in pcapng files, as the spec says.
+      Don't try to fix the "real" length for isochronous USB
+        transfers if the number of USB descriptors is too large.
+      Reject pcap files where one of the reserved fields in the
+        "link-layer type plus other stuff" is non-zero.
+    Building and testing:
+      Add a configure option to help debugging (--enable-instrument-functions).
+      Improved tests and error reporting for uses of pkg-config, and
+        improve help message.
+      Fix Haiku build.
+      With CMake, install headers in CMAKE_INSTALL_INCLUDEDIR rather
+        than just include.
+      Build libpcap.a before building test programs.
+      Print address family numerically, as well as symbolically,
+        in findalldevstest.
+      Fail with suggestions, rather than failing over to no capture
+        support, if no capture mechanism was found.  Fixes issue #1016.
+      Don't indent comments in Make, as that may cause them not to be
+        recognized as comments.
+      Don't check for libssl if we aren't going to use it.
+      Better handle enabling and disabling of sanitizers.  Fixes issue
+        #1171.
+      CMakeLists.txt: Print "Symlinking: /some/path to ..." conditionally.
+      Evaluate CMAKE_INSTALL_PREFIX at install time.
+      cmake: Update the minimum required version to 2.8.12 (except Windows).
+      cmake: suppress CMP0042 OLD deprecated warning.
+      Makefile.in: Add the releasecheck target.
+      Cirrus CI: Add the "make releasecheck" command in the Linux task.
+      Makefile.in: Add the whitespacecheck target.
+      Cirrus CI: Run the "make whitespacecheck" command in the Linux task.
+      Autoconf: Update config.{guess,sub}, timestamps 2024-01-01.
+      Autoconf: Update the install-sh script to the 2020-11-14.01 version.
+      Compile with '-Wnull-pointer-subtraction',
+        '-Wunused-but-set-parameter', and '-Wunused-but-set-variable' in
+        devel mode if supported.
+      Don't ignore spaces between CMAKE_C_FLAGS and DPDK_C_FLAGS with
+        CMake.
+      Use noreturn and __format__ with XL C 7.0 and later.
+      Check for the same -W flags in autotools and CMake.
+      Autoconf: Add autogen.sh, remove configure and config.h.in and put
+        these generated files in the release tarball.
+      Autoconf: Get the size of a time_t.
+      Fix propagation of cc_werr_cflags() output.
+      Makefile.in(s): Fix the depend target.
+      mkdep: Exit with a non-zero status if a command fails.
+      Fix HCI_CHANNEL_MONITOR detection with musl libc.
+      Extend "make shellcheck" onto mkdep too.
+      Add initial support for building with TinyCC.
+      Address all known compiler warnings specific to illumos, Linux, NetBSD,
+        Solaris and Sun C; in CI expect warnings specific to TinyCC only.
+    Documentation:
+      Update and fix pcap-filter man page.
+      Add a README.haiku.md file.
+      Document pcap-config better.
+      Man page formatting and prose fixes.
+      Rename doc/README.Win32.md to doc/README.windows.md.
+      Update pcap-savefile man page to match the Internet-Draft for
+        pcap.
+      Fix CMake issues for target used by other projects.
+      Explain "any" device better in pcap_open_live(3PCAP).
+      Update INSTALL.md.
+      Note in man pages that errbuf arguments must point to an error
+        buffer.
+      Note that if pcap_findalldevs() fails it sets *alldevsp to NULL;
+        there's no devices list to free.
+      Explain "other addresses" in pcap_findalldevs(3PCAP).
+      Document pcap_lookupnet(3PCAP) a bit better.
+
 Friday, April 7, 2023 / The Tcpdump Group
   Summary for 1.10.4 libpcap release
     Source code:
@@ -58,7 +223,7 @@ Saturday, December 31, 2022 / The Tcpdump Group
         when reading a LINKTYPE_PFLOG file.
       Put CAN ID field in CAN pseudo-headers for LINUX_SLL2, as we do
         for LINUX_SLL.
-      Fix inorrectly-computed "real" length for isochronous USB
+      Fix incorrectly-computed "real" length for isochronous USB
         transfers when reading savefiles.
       Don't crash if pcap_can_set_rfmon() is called.
       Fix pcap_offline_read() loop.
@@ -139,7 +304,7 @@ Saturday, December 31, 2022 / The Tcpdump Group
       Return an error if the driver reports 0 timestamp modes supported.
       Close the ADAPTER handle for some errors in
         pcap_create_interface().
-      Get rid of old umaintained VS project files.
+      Get rid of old unmaintained VS project files.
       Fix deprecation warning for pcap_handle().
       Npcap is now at npcap.com, not npcap.org.
       Make sure "no such device" and "no permission to open device"
@@ -307,7 +472,7 @@ Tuesday, December 29, 2020
     Remove (unused) SITA support
     Capture file reading:
         Correctly handle pcapng captures with more than one IDB with a
-            snspshot length greater than the supported maximum
+            snapshot length greater than the supported maximum
     Capture file writing:
         Create the file in pcap_dump_open_append() if it doesn't exist
     Packet filtering:
@@ -421,7 +586,7 @@ Tuesday, December 29, 2020
             isn't called
         Fix compilation on Cygwin/MSYS
         Add pcap_handle(), and deprecate pcap_fileno()
-        Report PCAP_ERROR_NO_SUCH_DEVICE for a non-existent device
+        Report PCAP_ERROR_NO_SUCH_DEVICE for a nonexistent device
         Return an appropriate error message for device removed or
             device unusable due to a suspend/resume
         Report a warning for unknown NdisMedium types
@@ -503,7 +668,7 @@ Sunday, July 22, 2018
         Windows with WinPcap/Npcap (GitHub issue #824)
     Have pcap_dump_open_append() create the dump file if it doesn't
         exists (GitHub issue #247)
-    Fix the maxmum snapshot length for DLT_USBPCAP
+    Fix the maximum snapshot length for DLT_USBPCAP
     Use -fPIC when building for 64-bit SPARC on Linux (GitHub issue #837)
     Fix CMake 64-bit library installation directory on some Linux
         distributions
@@ -668,7 +833,7 @@ Wednesday Nov. 12, 2014 guy@alum.mit.edu/mcr@sandelman.ca
 
 Monday Aug. 12, 2014 guy@alum.mit.edu
   Summary for 1.6.2 libpcap release
-	Don't crash on filters testing a non-existent link-layer type
+	Don't crash on filters testing a nonexistent link-layer type
 	    field.
 	Fix sending in non-blocking mode on Linux with memory-mapped
 	    capture.
@@ -956,7 +1121,7 @@ Mon.    October 27, 2008.  ken@netfunctional.ca.  Summary for 1.0.0 libpcap rele
 	Autogenerate VERSION numbers better
 
 Mon.    September 10, 2007.  ken@xelerance.com.  Summary for 0.9.8 libpcap release
-        Change build process to put public libpcap headers into pcap subir
+        Change build process to put public libpcap headers into pcap subdir
         DLT: Add value for IPMI IPMB packets
         DLT: Add value for u10 Networks boards
         Require <net/pfvar.h> for pf definitions - allows reading of pflog formatted
@@ -1285,7 +1450,7 @@ v0.2.1 Sun Jul 14 03:02:26 PDT 1996
   (steve@research.oknet.com)
 
 - Fixed to handle raw ip addresses such as 0.0.0.1 without "left
-  justifing"
+  justifying"
 
 - Add "sca" keyword (for DEC cluster services) as suggested by Terry
   Kennedy (terry@spcvxa.spc.edu)
