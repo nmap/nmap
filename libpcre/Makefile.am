@@ -10,12 +10,9 @@ AM_CPPFLAGS="-I$(srcdir)/src"
 ## Specify the documentation files that are distributed.
 
 dist_doc_DATA = \
-  AUTHORS \
-  LICENCE
-
-dist_html_DATA =
-
-dist_man_MANS =
+  AUTHORS.md \
+  LICENCE.md \
+  SECURITY.md
 
 # The Libtool libraries to install.  We'll add to this later.
 
@@ -35,9 +32,19 @@ bin_PROGRAMS =
 noinst_PROGRAMS =
 
 # Additional files to delete on 'make clean', 'make distclean',
-# and 'make maintainer-clean'.
+# and 'make maintainer-clean'. It turns out that the default is to delete only
+# those binaries that *this* configuration has created. If the configuration
+# has been changed, some binaries may not get automatically deleted. Therefore
+# we list them here.
 
-CLEANFILES =
+CLEANFILES = \
+  pcre2_dftables \
+  pcre2_jit_test \
+  pcre2fuzzcheck-8 \
+  pcre2fuzzcheck-16 \
+  pcre2fuzzcheck-32 \
+  pcre2demo
+
 DISTCLEANFILES = src/config.h.in~
 MAINTAINERCLEANFILES =
 
@@ -50,6 +57,22 @@ EXTRA_DIST =
 
 EXTRA_DIST += \
   m4/ax_pthread.m4 m4/pcre2_visibility.m4
+
+# These are support files for building with Bazel or Zig
+
+EXTRA_DIST += \
+  BUILD.bazel \
+  MODULE.bazel \
+  WORKSPACE.bazel \
+  build.zig
+
+# These are support files for building under VMS
+
+EXTRA_DIST += \
+  vms/configure.com \
+  vms/openvms_readme.txt \
+  vms/pcre2.h_patch \
+  vms/stdint.h
 
 # These files are usable versions of pcre2.h and config.h that are distributed
 # for the benefit of people who are building PCRE2 manually, without the
@@ -135,6 +158,8 @@ COMMON_SOURCES = \
   src/pcre2_auto_possess.c \
   src/pcre2_chkdint.c \
   src/pcre2_compile.c \
+  src/pcre2_compile.h \
+  src/pcre2_compile_class.c \
   src/pcre2_config.c \
   src/pcre2_context.c \
   src/pcre2_convert.c \
@@ -144,6 +169,7 @@ COMMON_SOURCES = \
   src/pcre2_find_bracket.c \
   src/pcre2_internal.h \
   src/pcre2_intmodedep.h \
+  src/pcre2_jit_char_inc.h \
   src/pcre2_jit_compile.c \
   src/pcre2_maketables.c \
   src/pcre2_match.c \
@@ -160,6 +186,7 @@ COMMON_SOURCES = \
   src/pcre2_tables.c \
   src/pcre2_ucd.c \
   src/pcre2_ucp.h \
+  src/pcre2_util.h \
   src/pcre2_valid_utf.c \
   src/pcre2_xclass.c
 
@@ -215,6 +242,7 @@ endif # WITH_PCRE2_32
 EXTRA_DIST += src/pcre2_chartables.c.dist
 CLEANFILES += src/pcre2_chartables.c
 
+
 if WITH_PCRE2_8
 libpcre2_8_la_LDFLAGS = $(EXTRA_LIBPCRE2_8_LDFLAGS)
 endif # WITH_PCRE2_8
@@ -263,6 +291,10 @@ if WITH_GCOV
 libpcre2_posix_la_CFLAGS += $(GCOV_CFLAGS)
 endif # WITH_GCOV
 endif # WITH_PCRE2_8
+
+## If fuzzer support is enabled, build a non-distributed library containing the
+## fuzzing function. Also build the standalone checking binary from the same
+## source but using -DSTANDALONE.
 
 # gcov/lcov code coverage reporting
 #
@@ -367,7 +399,8 @@ endif # WITH_GCOV
 
 EXTRA_DIST += \
   cmake/COPYING-CMAKE-SCRIPTS \
-  cmake/FindPackageHandleStandardArgs.cmake \
+  cmake/FindEditline.cmake \
+  cmake/FindReadline.cmake \
   cmake/pcre2-config-version.cmake.in \
   cmake/pcre2-config.cmake.in \
   CMakeLists.txt \

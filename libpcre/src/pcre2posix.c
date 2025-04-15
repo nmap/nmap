@@ -7,7 +7,7 @@ and semantics are as close as possible to those of the Perl 5 language.
 
                        Written by Philip Hazel
      Original API code Copyright (c) 1997-2012 University of Cambridge
-          New API code Copyright (c) 2016-2022 University of Cambridge
+          New API code Copyright (c) 2016-2024 University of Cambridge
 
 -----------------------------------------------------------------------------
 Redistribution and use in source and binary forms, with or without
@@ -94,11 +94,13 @@ changed. This #define is a copy of the one in pcre2_internal.h. */
 
 #include "pcre2.h"
 #include "pcre2posix.h"
+#include "pcre2_util.h"
 
 /* Table to translate PCRE2 compile time error codes into POSIX error codes.
 Only a few PCRE2 errors with a value greater than 23 turn into special POSIX
 codes: most go to REG_BADPAT. The second table lists, in pairs, those that
-don't. */
+don't, even though some of them cannot currently be provoked from within the
+POSIX wrapper. */
 
 static const int eint1[] = {
   0,           /* No error */
@@ -137,7 +139,9 @@ static const int eint2[] = {
   37, REG_EESCAPE, /* PCRE2 does not support \L, \l, \N{name}, \U, or \u */
   56, REG_INVARG,  /* internal error: unknown newline setting */
   92, REG_INVARG,  /* invalid option bits with PCRE2_LITERAL */
-  99, REG_EESCAPE  /* \K in lookaround */
+  98, REG_EESCAPE, /* missing digit after \0 in NO_BS0 mode */
+  99, REG_EESCAPE, /* \K in lookaround */
+ 102, REG_EESCAPE  /* \ddd octal > \377 in PYTHON_OCTAL mode */
 };
 
 /* Table of texts corresponding to POSIX error codes */
@@ -191,7 +195,7 @@ if (preg != NULL && (int)preg->re_erroffset != -1)
   /* no need to deal with UB in snprintf */
   if (errbuf_size > INT_MAX) errbuf_size = INT_MAX;
 
-  /* there are 11 charactes between message and offset,
+  /* there are 11 characters between message and offset;
      update message_len() if changed */
   ret = snprintf(errbuf, errbuf_size, "%s at offset %d", message,
                  (int)preg->re_erroffset);
@@ -206,6 +210,8 @@ else
     }
   ret = (int)len;
   }
+
+PCRE2_ASSERT(len > 0 || preg != NULL);
 
 do {
   if (ret < 0)
