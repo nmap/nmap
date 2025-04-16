@@ -14,10 +14,6 @@
 #include <assert.h>
 
 extern NmapOps o;
-#ifdef WIN32
-/* from libdnet's intf-win32.c */
-extern "C" int g_has_npcap_loopback;
-#endif
 
 enum {
   DNET_METATABLE = lua_upvalueindex(1),
@@ -169,7 +165,7 @@ static int ethernet_open (lua_State *L)
 
   if (ii == NULL || ii->device_type != devt_ethernet
 #ifdef WIN32
-    && !(g_has_npcap_loopback && ii->device_type == devt_loopback)
+    && ii->device_type != devt_loopback
 #endif
     )
     return luaL_argerror(L, 2, "device is not valid ethernet interface");
@@ -314,7 +310,7 @@ static int ip_send (lua_State *L)
 
     if (! (route.ii.device_type == devt_ethernet
 #ifdef WIN32
-          || (g_has_npcap_loopback && route.ii.device_type == devt_loopback)
+          || (o.have_pcap && route.ii.device_type == devt_loopback)
 #endif
           ) ) {
       goto usesock;
@@ -339,7 +335,7 @@ static int ip_send (lua_State *L)
     // Only determine mac addr info if it's not the Npcap Loopback Adapter.
     // Npcap loopback doesn't have a MAC address and isn't an ethernet device,
     // so getNextHopMAC crashes.
-    if (!(g_has_npcap_loopback && route.ii.device_type == devt_loopback)) {
+    if (route.ii.device_type != devt_loopback) {
 #endif
       if (!getNextHopMAC(route.ii.devfullname, route.ii.mac, &hdr.src, nexthop, dstmac))
         return luaL_error(L, "failed to determine next hop MAC address");

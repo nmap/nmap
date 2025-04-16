@@ -92,10 +92,6 @@
 #include <map>
 
 extern NmapOps o;
-#ifdef WIN32
-/* from libdnet's intf-win32.c */
-extern "C" int g_has_npcap_loopback;
-#endif
 
 /* How long extra to wait before retransmitting for rate-limit detection */
 #define RLD_TIME_MS 1000
@@ -956,7 +952,7 @@ void UltraScanInfo::Init(std::vector<Target *> &Targets, const struct scan_lists
     if (ping_scan_arp || (ping_scan_nd && o.sendpref != PACKET_SEND_IP_STRONG) || ((o.sendpref & PACKET_SEND_ETH) &&
         (Targets[0]->ifType() == devt_ethernet
 #ifdef WIN32
-        || (g_has_npcap_loopback && Targets[0]->ifType() == devt_loopback)
+        || (Targets[0]->ifType() == devt_loopback)
 #endif
         ))) {
       /* We'll send ethernet packets with dnet */
@@ -2755,7 +2751,7 @@ void ultra_scan(std::vector<Target *> &Targets, const struct scan_lists *ports,
   }
 
 #ifdef WIN32
-  if (g_has_npcap_loopback == 0 && scantype != CONNECT_SCAN && Targets[0]->ifType() == devt_loopback) {
+  if (!o.have_pcap && scantype != CONNECT_SCAN && Targets[0]->ifType() == devt_loopback) {
     log_write(LOG_STDOUT, "Skipping %s against %s because Windows does not support scanning your own machine (localhost) this way.\n", scantype2str(scantype), Targets[0]->NameIP());
     return;
   }

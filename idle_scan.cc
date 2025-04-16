@@ -107,10 +107,6 @@
 #include <stdio.h>
 
 extern NmapOps o;
-#ifdef WIN32
-/* from libdnet's intf-win32.c */
-extern "C" int g_has_npcap_loopback;
-#endif
 
 struct idle_proxy_info {
   Target host; /* contains name, IP, source IP, timing info, etc. */
@@ -605,7 +601,7 @@ static void initialize_idleproxy(struct idle_proxy_info *proxy, char *proxyName,
   /* First we need a raw socket ... */
   if ((o.sendpref & PACKET_SEND_ETH) && (proxy->host.ifType() == devt_ethernet
 #ifdef WIN32
-    || (g_has_npcap_loopback && proxy->host.ifType() == devt_loopback)
+    || (o.have_pcap && proxy->host.ifType() == devt_loopback)
 #endif
     )) {
     if (!setTargetNextHopMAC(&proxy->host))

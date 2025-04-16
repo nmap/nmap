@@ -70,10 +70,6 @@
 #include "common_modified.h"
 
 extern NpingOps o;
-#ifdef WIN32
-/* from libdnet's intf-win32.c */
-extern "C" int g_has_npcap_loopback;
-#endif
 
 NpingTargets::NpingTargets(){
   memset(specs, 0, 1024*(sizeof(char *)) );
@@ -251,7 +247,7 @@ int NpingTargets::processSpecs(){
 			continue;
 		  }
 #ifdef WIN32
-		if (g_has_npcap_loopback == 0 && rnfo.ii.device_type == devt_loopback){
+		if (!o.havePcap() && rnfo.ii.device_type == devt_loopback){
 			nping_warning(QT_2, "Skipping %s because Windows does not allow localhost scans (try --unprivileged).", mytarget->getTargetIPstr() );
 			delete mytarget;
 			continue;
@@ -287,7 +283,7 @@ int NpingTargets::processSpecs(){
 		  /* Determine next hop MAC address and target MAC address */
 		  if( o.sendEth() ){
 #ifdef WIN32
-		    if (g_has_npcap_loopback == 1 && rnfo.ii.device_type == devt_loopback) {
+		    if (o.havePcap() && rnfo.ii.device_type == devt_loopback) {
 		      mytarget->setNextHopMACAddress(mytarget->getSrcMACAddress());
 		    }
 		    else {
