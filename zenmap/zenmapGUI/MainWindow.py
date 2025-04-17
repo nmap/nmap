@@ -132,6 +132,9 @@ class ScanWindow(UmitScanWindow):
         UmitScanWindow.__init__(self)
 
         window = WindowConfig()
+        settings = Gtk.Settings.get_default()
+        settings.set_property("gtk-application-prefer-dark-theme",
+                window.dark_mode)
 
         self.set_title(_(APP_DISPLAY_NAME))
         self.move(window.x, window.y)
@@ -303,6 +306,13 @@ class ScanWindow(UmitScanWindow):
                 None,
                 _('Shows the application help'),
                 self._help_cb),
+
+            ('Toggle Dark Mode',
+                None,
+                _('Toggle Dark Mode'),
+                None,
+                None,
+                self._toggle_dark),
             ]
 
         # See info on UIManager at:
@@ -351,6 +361,7 @@ class ScanWindow(UmitScanWindow):
             <menuitem action='Show Help'/>
             <menuitem action='Report a bug'/>
             <menuitem action='About'/>
+            <menuitem action='Toggle Dark Mode'/>
         </menu>
 
         </menubar>
@@ -766,6 +777,14 @@ This scan has not been run yet. Start the scan with the "Scan" button first.'))
 
     def _help_cb(self, action):
         self.show_help()
+
+    def _toggle_dark(self, action):
+        window = WindowConfig()
+        window.dark_mode = not window.dark_mode
+        settings = Gtk.Settings.get_default()
+        settings.set_property("gtk-application-prefer-dark-theme",
+                window.dark_mode)
+
 
     def _exit_cb(self, *args):
         """Closes the window, prompting for confirmation if necessary. If one

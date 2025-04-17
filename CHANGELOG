@@ -1,5 +1,8 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [Zenmap][GH#2358] Added dark mode, accessed via Help->Toggle Dark Mode or
+  window::dark_mode in zenmap.conf. [Daniel Miller]
+
 o Upgraded included libraries: Lua 5.4.7, libssh2 1.11.1, libpcap 1.10.5,
   libpcre 10.45
 

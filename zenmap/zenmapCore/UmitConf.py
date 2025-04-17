@@ -84,6 +84,14 @@ except ImportError:
 def is_maemo():
     return MAEMO
 
+def boolean_sanity(attr):
+    if attr is True or \
+       attr == "True" or \
+       attr == "true" or \
+       attr == "1":
+        return "True"
+    return "False"
+
 
 class SearchConfig(UmitConfigParser, object):
     section_name = "search"
@@ -108,14 +116,6 @@ class SearchConfig(UmitConfigParser, object):
 
     def _set_it(self, p_name, value):
         config_parser.set(self.section_name, p_name, value)
-
-    def boolean_sanity(self, attr):
-        if attr is True or \
-           attr == "True" or \
-           attr == "true" or \
-           attr == "1":
-            return "True"
-        return "False"
 
     def get_directory(self):
         return self._get_it("directory", "")
@@ -142,16 +142,16 @@ class SearchConfig(UmitConfigParser, object):
             self._set_it("save_time", save_time)
 
     def get_store_results(self):
-        return self.boolean_sanity(self._get_it("store_results", True))
+        return boolean_sanity(self._get_it("store_results", True))
 
     def set_store_results(self, store_results):
-        self._set_it("store_results", self.boolean_sanity(store_results))
+        self._set_it("store_results", boolean_sanity(store_results))
 
     def get_search_db(self):
-        return self.boolean_sanity(self._get_it("search_db", True))
+        return boolean_sanity(self._get_it("search_db", True))
 
     def set_search_db(self, search_db):
-        self._set_it("search_db", self.boolean_sanity(search_db))
+        self._set_it("search_db", boolean_sanity(search_db))
 
     def get_converted_save_time(self):
         try:
@@ -251,6 +251,7 @@ class WindowConfig(UmitConfigParser, object):
     default_y = 0
     default_width = -1
     default_height = 650
+    default_dark_mode = False
 
     def __init__(self):
         if not config_parser.has_section(self.section_name):
@@ -265,6 +266,7 @@ class WindowConfig(UmitConfigParser, object):
         self.y = self.default_y
         self.width = self.default_width
         self.height = self.default_height
+        self.dark_mode = self.default_dark_mode
 
     def _get_it(self, p_name, default):
         return config_parser.get(self.section_name, p_name, fallback=default)
@@ -340,10 +342,17 @@ class WindowConfig(UmitConfigParser, object):
     def set_height(self, height):
         self._set_it("height", "%d" % height)
 
+    def get_dark_mode(self):
+        return boolean_sanity(self._get_it("dark_mode", self.default_dark_mode))
+
+    def set_dark_mode(self, mode):
+        self._set_it("dark_mode", boolean_sanity(mode))
+
     x = property(get_x, set_x)
     y = property(get_y, set_y)
     width = property(get_width, set_width)
     height = property(get_height, set_height)
+    dark_mode = property(get_dark_mode, set_dark_mode)
 
 
 class CommandProfile (Profile, object):
