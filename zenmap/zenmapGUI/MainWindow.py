@@ -128,13 +128,20 @@ def can_print():
 
 
 class ScanWindow(UmitScanWindow):
+
+    dark_mode = None
+
     def __init__(self):
         UmitScanWindow.__init__(self)
 
         window = WindowConfig()
         settings = Gtk.Settings.get_default()
-        settings.set_property("gtk-application-prefer-dark-theme",
-                window.dark_mode)
+
+        if ScanWindow.dark_mode is None:
+            ScanWindow.dark_mode = (window.dark_mode == "True")
+            settings.set_property(
+                    "gtk-application-prefer-dark-theme",
+                    ScanWindow.dark_mode)
 
         self.set_title(_(APP_DISPLAY_NAME))
         self.move(window.x, window.y)
@@ -779,11 +786,10 @@ This scan has not been run yet. Start the scan with the "Scan" button first.'))
         self.show_help()
 
     def _toggle_dark(self, action):
-        window = WindowConfig()
-        window.dark_mode = not window.dark_mode
+        ScanWindow.dark_mode = not ScanWindow.dark_mode
         settings = Gtk.Settings.get_default()
         settings.set_property("gtk-application-prefer-dark-theme",
-                window.dark_mode)
+            ScanWindow.dark_mode)
 
 
     def _exit_cb(self, *args):
@@ -874,6 +880,7 @@ This scan has not been run yet. Start the scan with the "Scan" button first.'))
         window = WindowConfig()
         window.x, window.y = self.get_position()
         window.width, window.height = self.get_size()
+        window.dark_mode = ScanWindow.dark_mode
         window.save_changes()
         if config_parser.failed:
             alert = HIGAlertDialog(
