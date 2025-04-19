@@ -90,6 +90,7 @@
 #include "xml.h"
 #include "scan_lists.h"
 #include "payload.h"
+#include "reverse_dns.h"
 
 #ifndef NOLUA
 #include "nse_main.h"
@@ -211,6 +212,7 @@ static void printusage() {
          "  -PO[protocol list]: IP Protocol Ping\n"
          "  -n/-R: Never do DNS resolution/Always resolve [default: sometimes]\n"
          "  --dns-servers <serv1[,serv2],...>: Specify custom DNS servers\n"
+         "  --reverse-dns - Perform reverse DNS lookup on target IP address\n"
          "  --system-dns: Use OS's DNS resolver\n"
          "  --traceroute: Trace hop path to each host\n"
          "SCAN TECHNIQUES:\n"
@@ -606,6 +608,7 @@ void parse_options(int argc, char **argv) {
     {"deprecated-xml-osclass", no_argument, 0, 0},
     {(char*)k, no_argument, 0, 0},
     {"dns-servers", required_argument, 0, 0},
+    {"reverse-dns", no_argument, 0, 0},
     {"port-ratio", required_argument, 0, 0},
     {"exclude-ports", required_argument, 0, 0},
     {"top-ports", required_argument, 0, 0},
@@ -872,6 +875,11 @@ void parse_options(int argc, char **argv) {
           o.mass_dns = false;
         } else if (strcmp(long_options[option_index].name, "dns-servers") == 0) {
           o.dns_servers = strdup(optarg);
+        } else if (strcmp(long_options[option_index].name, "reverse-dns") == 0) {
+          o.reverse_dns = true;
+          o.listscan = true;
+          o.noportscan = true;
+          o.pingtype |= PINGTYPE_NONE;
         } else if (strcmp(long_options[option_index].name, "resolve-all") == 0) {
           o.resolve_all = true;
         } else if (strcmp(long_options[option_index].name, "unique") == 0) {
@@ -2115,15 +2123,46 @@ int nmap_main(int argc, char *argv[]) {
           ) || o.listscan) {
         /* We're done with the hosts */
         if (currenths->flags & HOST_UP || (o.verbose && !o.openOnly())) {
-          xml_start_tag("host");
-          write_host_header(currenths);
-          printmacinfo(currenths);
-          //  if (currenths->flags & HOST_UP)
-          //  log_write(LOG_PLAIN,"\n");
-          printtimes(currenths);
-          xml_end_tag();
-          xml_newline();
-          log_flush_all();
+          if (o.reverse_dns) {
+            struct sockaddr_storage target_ss;
+            size_t target_sslen;
+            currenths->TargetSockAddr(&target_ss, &target_sslen);
+            char *result = reverse_dns_resolve(&target_ss, target_sslen);
+            if (result) {
+                if (strncmp(result, "ERROR:", 6) == 0) {
+                    if (o.debugging > 1) {
+                        log_write(LOG_STDOUT, "Reverse DNS failed for %s: %s\n",
+                                  currenths->targetipstr(), result);
+                    }
+                    free(result);
+                } else {
+                    currenths->setHostName(result);
+                    xml_start_tag("host");
+                    write_host_header(currenths);  // Prints one report with all hostnames
+                    printmacinfo(currenths);
+                    printtimes(currenths);
+                    xml_end_tag();
+                    xml_newline();
+                    log_flush_all();
+                    free(result);
+                }
+            } else {
+                if (o.debugging > 1) {
+                    log_write(LOG_STDOUT, "Reverse DNS failed for %s: Null result\n",
+                              currenths->targetipstr());
+                }
+            }
+          } else {
+            xml_start_tag("host");
+            write_host_header(currenths);
+            printmacinfo(currenths);
+            //  if (currenths->flags & HOST_UP)
+            //  log_write(LOG_PLAIN,"\n");
+            printtimes(currenths);
+            xml_end_tag();
+            xml_newline();
+            log_flush_all();
+          }
         }
         delete currenths;
         o.numhosts_scanned++;
