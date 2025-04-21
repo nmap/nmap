@@ -134,7 +134,7 @@
 /* #undef HAVE_ROUTE_RT_MSGHDR */
 
 /* Define if <netinet/in.h> has sockaddr_in6 struct. */
-/* #undef HAVE_SOCKADDR_IN6 */
+#define HAVE_SOCKADDR_IN6
 
 /* Define if sockaddr struct has sa_len. */
 /* #undef HAVE_SOCKADDR_SA_LEN */
@@ -274,6 +274,7 @@
 
 #ifdef HAVE_WINSOCK2_H
 # include <winsock2.h>
+# include <ws2tcpip.h>
 # include <windows.h>
 #endif
 
