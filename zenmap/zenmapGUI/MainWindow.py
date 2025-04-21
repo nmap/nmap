@@ -362,13 +362,13 @@ class ScanWindow(UmitScanWindow):
         <menu action='Profile'>
             <menuitem action='New Profile'/>
             <menuitem action='Edit Profile'/>
+            <menuitem action='Toggle Dark Mode'/>
         </menu>
 
         <menu action='Help'>
             <menuitem action='Show Help'/>
             <menuitem action='Report a bug'/>
             <menuitem action='About'/>
-            <menuitem action='Toggle Dark Mode'/>
         </menu>
 
         </menubar>
