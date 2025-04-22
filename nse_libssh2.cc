@@ -540,9 +540,10 @@ static int userauth_publickey (lua_State *L, int status, lua_KContext ctx) {
 }
 
 static int l_userauth_publickey (lua_State *L) {
-  struct publickey_ctx params;
-  validate_publickey_params(L, &params);
-  return userauth_publickey(L, 0, (lua_KContext) &params);
+  publickey_ctx *params = NULL;
+  params = (publickey_ctx *)lua_newuserdatauv(L, sizeof(publickey_ctx), 0);
+  validate_publickey_params(L, params);
+  return userauth_publickey(L, 0, (lua_KContext) params);
 }
 
 static int userauth_publickey_frommemory (lua_State *L, int status, lua_KContext ctx) {
@@ -561,9 +562,10 @@ static int userauth_publickey_frommemory (lua_State *L, int status, lua_KContext
 }
 
 static int l_userauth_publickey_frommemory (lua_State *L) {
-  struct publickey_ctx params;
-  validate_publickey_params(L, &params);
-  return userauth_publickey_frommemory(L, 0, (lua_KContext) &params);
+  publickey_ctx *params = NULL;
+  params = (publickey_ctx *)lua_newuserdatauv(L, sizeof(publickey_ctx), 0);
+  validate_publickey_params(L, params);
+  return userauth_publickey_frommemory(L, 0, (lua_KContext) params);
 }
 
 static int l_read_publickey (lua_State *L) {
