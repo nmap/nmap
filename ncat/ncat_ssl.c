@@ -155,7 +155,7 @@ SSL_CTX *setup_ssl_listen(const SSL_METHOD *method)
     if (o.sslcert == NULL && o.sslkey == NULL) {
         X509 *cert;
         EVP_PKEY *key;
-        char digest_buf[SHA1_STRING_LENGTH + 1];
+        char digest_buf[SHA256_STRING_LENGTH + 1];
 
         if (o.verbose)
             loguser("Generating a temporary %d-bit RSA key. Use --ssl-key and --ssl-cert to use a permanent one.\n", DEFAULT_KEY_BITS);
@@ -163,9 +163,9 @@ SSL_CTX *setup_ssl_listen(const SSL_METHOD *method)
             bye("ssl_gen_cert(): %s.", ERR_error_string(ERR_get_error(), NULL));
         if (o.verbose) {
             char *fp;
-            fp = ssl_cert_fp_str_sha1(cert, digest_buf, sizeof(digest_buf));
+            fp = ssl_cert_fp_str_sha256(cert, digest_buf, sizeof(digest_buf));
             ncat_assert(fp == digest_buf);
-            loguser("SHA-1 fingerprint: %s\n", digest_buf);
+            loguser("SHA-256 fingerprint: %s\n", digest_buf);
         }
         if (SSL_CTX_use_certificate(sslctx, cert) != 1)
             bye("SSL_CTX_use_certificate(): %s.", ERR_error_string(ERR_get_error(), NULL));
@@ -581,7 +581,7 @@ static int ssl_gen_cert(X509 **cert, EVP_PKEY **key)
 #endif
 
     /* Sign it. */
-    if (X509_sign(*cert, *key, EVP_sha1()) == 0)
+    if (X509_sign(*cert, *key, EVP_sha256()) == 0)
         goto err;
 
     return 1;
@@ -595,19 +595,19 @@ err:
     return 0;
 }
 
-/* Calculate a SHA-1 fingerprint of a certificate and format it as a
+/* Calculate a SHA-256 fingerprint of a certificate and format it as a
    human-readable string. Returns strbuf or NULL on error. */
-char *ssl_cert_fp_str_sha1(const X509 *cert, char *strbuf, size_t len)
+char *ssl_cert_fp_str_sha256(const X509 *cert, char *strbuf, size_t len)
 {
-    unsigned char binbuf[SHA1_BYTES];
+    unsigned char binbuf[SHA256_BYTES];
     unsigned int n;
     char *p;
     unsigned int i;
 
-    if (len < SHA1_STRING_LENGTH + 1)
+    if (len < SHA256_STRING_LENGTH + 1)
         return NULL;
     n = sizeof(binbuf);
-    if (X509_digest(cert, EVP_sha1(), binbuf, &n) != 1)
+    if (X509_digest(cert, EVP_sha256(), binbuf, &n) != 1)
         return NULL;
 
     p = strbuf;
