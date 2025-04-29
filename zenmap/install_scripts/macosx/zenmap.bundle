@@ -1,6 +1,6 @@
 <?xml version="1.0" standalone="no"?> <!--*- mode: xml -*-->
 <!DOCTYPE app-bundle [
-<!ENTITY PYVER "3.11">
+<!ENTITY PYVER "3.13">
 <!ENTITY pyreqs SYSTEM "pyreqs.xml">
 ]>
 <app-bundle>
