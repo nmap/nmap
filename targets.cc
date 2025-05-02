@@ -470,23 +470,37 @@ static void refresh_hostbatch(HostGroupState *hs, struct addrset *exclude_group,
 
   hs->current_batch_sz = hs->next_batch_no = 0;
   hs->undefer();
-  while (hs->current_batch_sz < hs->max_batch_sz) {
-    Target *t;
-
-    t = next_target(hs, exclude_group, ports, pingtype);
-    if (t == NULL)
+  int count=0;
+  Target *t1;
+  Target *t[1000];
+  int indicator = 0;
+  while (true){
+    t1 = next_target(hs, exclude_group, ports, pingtype);
+    if (t1 == NULL)
       break;
-
+    for(int i=0;i<count;i++){
+      if(strcmp(t[i]->targetipstr(),t1->targetipstr())==0){
+        indicator = 1;
+      }
+    }
+    if(indicator==0){
+      t[count++]=t1;
+    }
+    indicator=0;
+  }
+  int k=0;
+  while (k<count) {
     /* Does this target need to go in a separate host group? */
-    if (target_needs_new_hostgroup(hs->hostbatch, hs->current_batch_sz, t)) {
-      if (hs->defer(t))
+    if (target_needs_new_hostgroup(hs->hostbatch, hs->current_batch_sz, t[k])) {
+      if (hs->defer(t[k]))
         continue;
       else
         break;
     }
 
-    o.decoys[o.decoyturn] = t->source();
-    hs->hostbatch[hs->current_batch_sz++] = t;
+    o.decoys[o.decoyturn] = t[k]->source();
+    hs->hostbatch[hs->current_batch_sz++] = t[k];
+    k++;
   }
 
   if (hs->current_batch_sz == 0)
