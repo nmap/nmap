@@ -1,6 +1,6 @@
 export MSYS2_ARG_CONV_EXCL=*
 MAKENSIS=C:/Program Files (x86)/NSIS/makensis.exe
-SIGNTOOL := $(shell reg query "HKEY_LOCAL_MACHINE\\SOFTWARE\\Wow6432Node\\Microsoft\\Microsoft SDKs\\Windows\\v10.0" /v "InstallationFolder" | egrep InstallationFolder | cut -d ' ' -f13- | sed 's%\\%/%g' | tr -d '\r\n' | sed 's%$$%bin/10.0.0.22000/x86/signtool.exe%')
+SIGNTOOL := $(shell powershell.exe -NoProfile -WindowStyle Hidden -NonInteractive -Command '$$vs=Get-VSSetupInstance -All | Select-VSSetupInstance -Latest; $$vsp=$$vs.InstallationPath; & "$$env:comspec" /c "`"$$vsp\\VC\\Auxiliary\\Build\\vcvarsall.bat`" x86 & where signtool"' | tail -n 1)
 NMAPDIR=..
 NMAPDIR_WIN=$(shell echo '$(NMAPDIR)' | sed 's|/cygdrive/\(.\)|\1:|;s|/|\\|g')
 ZENMAP_WINDIR=$(NMAPDIR)/zenmap/install_scripts/windows
@@ -10,7 +10,7 @@ export NPCAP_VERSION := $(shell ls npcap-*.exe | sed -e 's/npcap-\([0-9.]*\)[-oe
 
 NSE_FILES = $(NMAPDIR)/scripts/script.db $(NMAPDIR)/scripts/*.nse
 NMAP_MSWIN32_AUX = $(NMAPDIR)/../nmap-mswin32-aux
-SIGNTOOL_ARGS = sign /a /n "Insecure.Com LLC" /tr http://timestamp.digicert.com /td sha256 /fd sha256
+SIGNTOOL_ARGS = sign /a /n "Nmap Software LLC" /tr http://timestamp.digicert.com /td sha256 /fd sha256
 NSIS_COMMON_ARGS = "/DVERSION=$(NMAP_VERSION)" "/DNUM_VERSION=$(NMAP_NUM_VERSION)" "/DNPCAP_VERSION=$(NPCAP_VERSION)"
 NSIS_OEM_ARGS = "/DNMAP_NAME=$(NMAP_OEM_NAME)" "/DNMAP_OEM=1"
 NSIS_STD_ARGS = "/DNMAP_NAME=$(NMAP_NAME)"
@@ -83,7 +83,7 @@ stage-nmap:
 stage-nmap-oem:
 	$(MAKE)	OEM_SUFFIX=-oem stage-nmap-main
 
-nmap-$(NMAP_VERSION)${OEM_SUFFIX}/Uninstall.exe: nsis/Nmap.nsi
+nmap-$(NMAP_VERSION)${OEM_SUFFIX}/Uninstall.exe: nsis/Nmap.nsi LICENSE.formatted
 	mkdir -p nmap-$(NMAP_VERSION)${OEM_SUFFIX}
 	"$(MAKENSIS)" /DINNER $(NSIS_ARGS) nsis/Nmap.nsi
 	nmap-$(NMAP_VERSION)${OEM_SUFFIX}/tempinstaller.exe || test $$? -eq 2
@@ -94,7 +94,7 @@ stage-nmap-main: build-nmap${OEM_SUFFIX} nmap-$(NMAP_VERSION)${OEM_SUFFIX}/Unins
 
 sign-files: nmap-$(NMAP_VERSION)-oem/nmap.exe nmap-$(NMAP_VERSION)/nmap.exe nmap-$(NMAP_VERSION)-oem/Uninstall.exe nmap-$(NMAP_VERSION)/Uninstall.exe nmap-$(NMAP_VERSION)/ncat.exe nmap-$(NMAP_VERSION)/nping.exe nmap-$(NMAP_VERSION)/libssh2.dll nmap-$(NMAP_VERSION)/libcrypto-3.dll nmap-$(NMAP_VERSION)/libssl-3.dll nmap-$(NMAP_VERSION)/zlibwapi.dll
 	# TODO: evaluate whether we should also sign the Python stuff for Zenmap, Ndiff
-	"$(SIGNTOOL)" $(SIGNTOOL_ARGS) $^ nmap-$(NMAP_VERSION)/zenmap/bin/* nmap-$(NMAP_VERSION)/zenmap/lib/gdk-pixbuf-2.0/*/*.dll
+	"$(SIGNTOOL)" $(SIGNTOOL_ARGS) $^ nmap-$(NMAP_VERSION)/zenmap/bin/* nmap-$(NMAP_VERSION)/zenmap/lib/gdk-pixbuf-2.0/*/loaders/*.dll
 	touch sign-files
 
 bundle-nsis: sign-files

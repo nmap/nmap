@@ -1,10 +1,57 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+Nmap 7.96 [2025-05-01]
+
+o Upgraded included libraries: OpenSSL 3.0.16, Lua 5.4.7, libssh2 1.11.1,
+  libpcap 1.10.5, libpcre2 10.45
+
+o [Windows] Upgraded the included version of Npcap from version 1.79 to the
+  latest version 1.82, bringing faster packet injection, VLAN header capture,
+  and support for SR-IOV adapters, along with many other bug fixes and feature
+  enhancements described at https://npcap.com/changelog
+
+o [GH#1451] Nmap now performs forward DNS lookups in parallel, using the same
+  engine that has been reliably performing reverse-DNS lookups for nearly a
+  decade. Scanning large lists of hostnames is now enormously faster and avoids
+  the unresponsive wait for blocking system calls, so progress stats can be
+  shown. In testing, resolving 1 million website names to both IPv4 and IPv6
+  took just over an hour. The previous system took 49 hours for the same data
+  set! [Daniel Miller]
+
 o [Nping][GH#2862] Promoted Nping version number from a 0.7.95 alpha release to
   the same release version as Nmap.
 
+o [Zenmap][GH#2358] Added dark mode, accessed via Profile->Toggle Dark Mode or
+  window::dark_mode in zenmap.conf. [Daniel Miller]
+
+o [NSE] Added 3 new scripts, for a total of 612 NSE scripts:
+
+  + [GH#2973] mikrotik-routeros-version queries MikroTik's WinBox router admin
+    service to get the RouterOS version. New service probes were also added for
+    this service. [deauther890, Daniel Miller]
+
+  + mikrotik-routeros-username-brute brute-forces WinBox usernames for the
+    router using CVE-2024-54772. [deauther890]
+
+  + targets-ipv6-eui64 generates target IPv6 addresses from a user-provided
+    file of MAC addresses, using the EUI-64 method. [Daniel Miller]
+
 o [GH#2982] Fixed an issue preventing the Nmap OEM 7.95 uninstaller from
   correctly uninstalling Nmap OEM.
+
+o [GH#2139][Nsock][Windows] Fixed the IOCP Nsock engine, which had been demoted
+  since Nmap 7.91 due to unresolved issues around SSL sockets and IPv6. [Daniel Miller]
+
+o [GH#2113] Fixed the issue where TCP Connect scans (-sT) on Windows would show
+  'filtered' instead of 'closed', due to differences in understanding timeouts.
+
+o [GH#2900][GH#2896][GH#2897] Nmap is now able to scan IP protocol 255.
+  [nnposter]
+
+o Nmap will now allow targets to be specified both on the command line and in
+  an input file with -iL. Previously, if targets were provided in both places,
+  only the targets in the input file would be scanned, and no notice was given
+  that the command-line targets were ignored. [Daniel Miller]
 
 o [Zenmap][GH#2854] Fixed a Zenmap crash in DiffViewer when Ndiff exits with error.
 
@@ -18,20 +65,6 @@ o [GH#2838][GH#2836] Fixed a couple of issues with parsing the argument to the
   -iR option.
 
 o [NSE][GH#2852] Added TLS support to redis.lua and improved -sV detection of redis.
-
-o [Zenmap][GH#2358] Added dark mode, accessed via Profile->Toggle Dark Mode or
-  window::dark_mode in zenmap.conf. [Daniel Miller]
-
-o Upgraded included libraries: Lua 5.4.7, libssh2 1.11.1, libpcap 1.10.5,
-  libpcre 10.45
-
-o [NSE] New script targets-ipv6-eui64 generates target IPv6 addresses from a
-  user-provided file of MAC addresses, using the EUI-64 method. [Daniel Miller]
-
-o [NSE][GH#2973] New service probes and scripts for MikroTik's WinBox router
-  admin service. mikrotik-routeros-version queries the 'info' and 'list' files
-  to get the RouterOS version. mikrotik-routeros-username-brute brute-forces
-  usernames for the router using CVE-2024-54772. [deauther890, Daniel Miller]
 
 o [GH#2954] Fix 2 potential crashes in parsing IPv6 extension headers
   discovered using AFL++ fuzzer. [Domen Puncer Kugler, Daniel Miller]
@@ -66,9 +99,6 @@ o [NSE] Several fixes and extensions to the libssh2 NSE bindings: fixed
   libssh2.channel_read_stderr, which was reading stdout instead; add binding
   for libssh2_userauth_publickey_frommemory; allow open_channel to avoid allocating a pty;
 
-o [GH#2139][Nsock][Windows] Fixed the IOCP Nsock engine, which had been demoted
-  since Nmap 7.91 due to unresolved issues around SSL sockets and IPv6. [Daniel Miller]
-
 o [Nsock] Improvements for platforms without selectable pcap handles (e.g.
   Windows). Interleaved pcap and socket events were favoring pcap reads,
   possibly resulting in timeouts of the socket events. [Daniel Miller]
@@ -77,22 +107,6 @@ o [Nsock] Improved memory performance of poll engine on Windows. [Daniel Miller]
 
 o [Nsock][GH#187][GH#2912] Improvements to Nsock event list management, fixing
   errors like "could not find 1 of the purportedly pending events on that IOD." [Daniel Miller]
-
-o [GH#2113] Fixed the issue where TCP Connect scans (-sT) on Windows would show
-  'filtered' instead of 'closed', due to differences in understanding timeouts.
-
-o Nmap will now allow targets to be specified both on the command line and in
-  an input file with -iL. Previously, if targets were provided in both places,
-  only the targets in the input file would be scanned, and no notice was given
-  that the command-line targets were ignored. [Daniel Miller]
-
-o [GH#1451] Nmap now performs forward DNS lookups in parallel, using the same
-  engine that has been reliably performing reverse-DNS lookups for nearly a
-  decade. Scanning large lists of hostnames is now enormously faster and avoids
-  the unresponsive wait for blocking system calls, so progress stats can be
-  shown. In testing, resolving 1 million website names to both IPv4 and IPv6
-  took just over an hour. The previous system took 49 hours for the same data
-  set! [Daniel Miller]
 
 o When Nmap is used with --disable-arp-ping, a local IP that cannot be
   ARP-resolved will use the "no-route" reason instead of the "unknown-response"
@@ -117,9 +131,6 @@ o [NSE][GH#2901][GH#2744][GH#2745] Arbitrary separator in stdnse.tohex() is now
 
 o [NSE] ether_type inconsistency in packet.Frame has been resolved. Both
   Frame:new() and Frame:build_ether_frame() now use an integer. [nnposter]
-
-o [GH#2900][GH#2896][GH#2897] Nmap is now able to scan IP protocol 255.
-  [nnposter]
 
 Nmap 7.95 [2024-04-23]
 

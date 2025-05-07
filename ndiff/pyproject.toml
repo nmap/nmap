@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ndiff"
+license = {text = "Nmap License (https://nmap.org/book/man-legal.html)"}
+version = "7.96"
+authors = [{name = "The Nmap Project"}]
+description = "Nmap scan diff tool"
+readme = {file = "README", content-type = "text/plain"}
+
+[project.urls]
+Homepage = "https://nmap.org/ndiff/"
+Documentation = "https://nmap.org/book/ndiff-man.html"
+Repository = "https://github.com/nmap/nmap.git"
+Issues = "https://github.com/nmap/nmap/issues"
+Changelog = "https://nmap.org/changelog"
+
+[project.scripts]
+ndiff = "ndiff:run_main"
+
+[tool.setuptools]
+py-modules = ["ndiff"]
+
+#[tool.setuptools.packages.find]
+#include = ["ndiff"]

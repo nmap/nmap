@@ -1,4 +1,4 @@
-Ncat 7.95SVN ( https://nmap.org/ncat )
+Ncat 7.96 ( https://nmap.org/ncat )
 Usage: ncat [options] [hostname] [port]
 
 Options taking a time assume seconds. Append 'ms' for milliseconds,
@@ -34,6 +34,7 @@ Options taking a time assume seconds. Append 'ms' for milliseconds,
       --send-only            Only send data, ignoring received; quit on EOF
       --recv-only            Only receive data, never send anything
       --no-shutdown          Continue half-duplex when receiving EOF on stdin
+  -q <time>                  After EOF on stdin, wait <time> then quit.
       --allow                Allow only given hosts to connect to Ncat
       --allowfile            A file of hosts allowed to connect to Ncat
       --deny                 Deny given hosts from connecting to Ncat

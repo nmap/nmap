@@ -193,19 +193,9 @@ FunctionEnd
 ;--------------------------------
 ;Installer Sections
 
-; These functions contain the actual File instructions, so their order
-; determines the order of files in the datablock. Grouping similar file types
-; (e.g. EXE vs text) results in better compression ratios.
-!insertmacro SecCoreFiles ""
-!insertmacro SecNcatFiles ""
-!insertmacro SecNpingFiles ""
 ReserveFile "${STAGE_DIR_OEM}\Uninstall.exe"
 ReserveFile "..\npcap-${NPCAP_VERSION}.exe"
 ReserveFile ..\${VCREDISTEXE}
-!ifndef NMAP_OEM
-!insertmacro SecZenmapFiles ""
-!insertmacro SecNdiffFiles ""
-!endif
 
 !insertmacro SanityCheckInstdir ""
 Section "Nmap Core Files" SecCore
@@ -223,7 +213,7 @@ Section "Nmap Core Files" SecCore
   SetOutPath "$INSTDIR"
 
   SetOverwrite on
-  Call SecCoreFiles
+  !insertmacro SecCoreFiles
 
   Call vcredistinstaller
   Call create_uninstaller
@@ -265,7 +255,7 @@ SectionEnd
 Section "Ncat (Modern Netcat reincarnation)" SecNcat
   SetOutPath "$INSTDIR"
   SetOverwrite on
-  Call SecNcatFiles
+  !insertmacro SecNcatFiles
   Call vcredistinstaller
   Call create_uninstaller
 SectionEnd
@@ -273,7 +263,7 @@ SectionEnd
 Section "Nping (Packet generator)" SecNping
   SetOutPath "$INSTDIR"
   SetOverwrite on
-  Call SecNpingFiles
+  !insertmacro SecNpingFiles
   Call vcredistinstaller
   Call create_uninstaller
 SectionEnd
@@ -282,7 +272,7 @@ SectionEnd
 Section "Zenmap (GUI Frontend)" SecZenmap
   SetOutPath "$INSTDIR"
   SetOverwrite on
-  Call SecZenmapFiles
+  !insertmacro SecZenmapFiles
   WriteINIStr "$INSTDIR\zenmap\share\zenmap\config\zenmap.conf" paths nmap_command_path "$INSTDIR\nmap.exe"
   WriteINIStr "$INSTDIR\zenmap\share\zenmap\config\zenmap.conf" paths ndiff_command_path "$INSTDIR\ndiff.bat"
   !insertmacro writeZenmapShortcut "$INSTDIR\Zenmap.lnk"
@@ -297,7 +287,7 @@ SectionEnd
 Section "Ndiff (Scan comparison tool)" SecNdiff
   SetOutPath "$INSTDIR"
   SetOverwrite on
-  Call SecNdiffFiles
+  !insertmacro SecNdiffFiles
   Call create_uninstaller
 SectionEnd
 !endif
@@ -360,11 +350,12 @@ Function _GetFileVersionProductName
     ${If} $2 == 0
     ${AndIf} $0 <> 0
       ; 0409 = English; 04b0 = Unicode
-      System::Call 'version::VersionQueryValue(ir1, t"\StringFileInfo\040904b0\ProductName", *i0r2, *i0r3) i.r0'
+      System::Call 'version::VerQueryValue(ir1, t"\StringFileInfo\040904b0\ProductName", *i0r2, *i0r3) i.r0'
       ${If} $0 <> 0
         Pop $0 ; Take the "" off the stack
         ; Push the Unicode string at r2 of length r3
-        System::Call '*$2(&w$3.s)'
+        System::Call '*$2(&t$3.r0)'
+        Push $0
       ${EndIf}
     ${EndIf}
     System::Free $1
@@ -416,9 +407,11 @@ Function RepairBug2982
   ReadRegStr $0 HKLM "${REG_UNINSTALL_KEY}\Nmap" "UninstallString"
   ; Nothing? Done.
   StrCmp $0 "" repair_2982_done
+  Push $0 ; UninstallString
   ; Check product name on the uninstaller
   !insertmacro stripQuotes $0
   ${GetFileVersionProductName} $0 $3
+  Push $3 ; ProductName
   ; If it's not "Nmap OEM" it's not a buggy install
   StrCmp $3 "Nmap OEM" 0 repair_2982_done
   ; Ok, it's a screwed-up install. We need to fix it up first.
@@ -449,25 +442,27 @@ FunctionEnd
 
 Function _TryUninstall
   System::Store S ; stash registers
+  Pop $3 ; ProductName
   Pop $2 ; Old version
   Pop $1 ; Uninstall dir
   Pop $0 ; Uninstaller path
-  ${GetFileVersionProductName} $0 $3
   ${If} ${Silent}
     StrCpy $5 $3 4
-    ${If} $5 <> "Nmap"
+    ${If} $5 != "Nmap"
       ; In silent mode, abort the install
       ; if INSTDIR contains an uninstaller that's not Nmap.
       Abort
     ${EndIf}
   ${Else}
-    ${If} $2 == ""
+    ${If} $2 == "UNKNOWN"
       ${GetFileVersion} $0 $2
     ${EndIf}
     MessageBox MB_YESNOCANCEL|MB_ICONQUESTION \
         '$3 $2 is already installed in "$1". $\n$\nWould you like to uninstall it first?' \
-        /SD IDYES IDYES 0 IDNO tryuninstall_end
+        /SD IDYES IDYES tryuninstall_go IDNO tryuninstall_end
+    Abort
   ${EndIf}
+  tryuninstall_go:
   Push $0 ; Uninstaller
   Push "/S" ; Params
   Push $1 ; Old instdir
@@ -478,10 +473,11 @@ Function _TryUninstall
 FunctionEnd
 ; If _version is "", we use the uninstaller's file version, which is X.X.X.X
 ; so for Nmap itself, use the DisplayVersion if known.
-!macro TryUninstall _uninstaller _uninstdir _version
-  Push _uninstaller
-  Push _uninstdir
-  Push _version
+!macro TryUninstall _uninstaller _uninstdir _version _productname
+  Push ${_uninstaller}
+  Push ${_uninstdir}
+  Push ${_version}
+  Push ${_productname}
   Call _TryUninstall
 !macroend
 
@@ -532,15 +528,26 @@ Function .onInit
   !insertmacro OptionDisableSection $R0 "/NPING=" ${SecNping}
 
   Call RepairBug2982
+  ClearErrors
+  Pop $3 ; ProductName?
+  Pop $0 ; UninstallString?
+  ${If} ${Errors}
+  ${OrIf} $3 != "${NMAP_NAME}"
+    ; RepairBug2982 did not get info, so we get it here instead
+    ; $0 = old uninstall.exe path
+    ReadRegStr $1 HKLM "${NMAP_UNINSTALL_KEY}" "UninstallString"
+    ; If it's the same as what RepairBug2982 got, then $3 is valid, too.
+    ${If} $1 != $0
+      StrCpy $0 $1
+      ; $3 is obviously not valid
+      StrCpy $3 ""
+    ${EndIf}
+  ${EndIf}
 
-  ; Check for existing install
-  ; $3 = old product name
-  StrCpy $3 "${NMAP_NAME}"
-  ; $0 = old uninstall.exe path
-  ReadRegStr $0 HKLM "${NMAP_UNINSTALL_KEY}" "UninstallString"
   ; If no uninstall key was found, assume it's a new install
-  StrCmp $0 "" 0 set_instdir
+  StrCmp $0 "" set_instdir
 
+  !insertmacro stripQuotes $0
   ; $1 = old instdir
   ; We want to use this location going forward:
   ReadRegStr $1 HKLM "${NMAP_UNINSTALL_KEY}" "InstallLocation"
@@ -549,20 +556,22 @@ Function .onInit
   ReadRegStr $1 HKCU "Software\${NMAP_NAME}" ""
   StrCmp $1 "" 0 get_old_version
   ; Last chance, parent dir of uninstaller
-  !insertmacro stripQuotes $0
   ${GetParent} $0 $1
 
 get_old_version:
   ; $2 = old version
   ReadRegStr $2 HKLM "${NMAP_UNINSTALL_KEY}" "DisplayVersion"
 
-  !insertmacro TryUninstall $0 $1 $2
+  ${If} $3 == ""
+    ${GetFileVersionProductName} $0 $3
+  ${EndIf}
+  !insertmacro TryUninstall $0 $1 $2 $3
 
 set_instdir:
   ; If it's already set, user specified with /D=
   StrCmp $INSTDIR "" 0 done
   ; If we got the old instdir from the registry, use that.
-  ${If} $1 <> ""
+  ${If} $1 != ""
     StrCpy $INSTDIR $1
   ${Else}
     ; Default InstallDir set here
@@ -572,9 +581,12 @@ set_instdir:
 done:
   ; If we didn't already try to uninstall, check to see if there's something in
   ; $INSTDIR that needs to be uninstalled.
-  ${If} $INSTDIR <> $1
+  ${If} $INSTDIR != $1
   ${AndIf} ${FileExists} "$INSTDIR\Uninstall.exe"
-    !insertmacro TryUninstall "$INSTDIR\Uninstall.exe" $INSTDIR ""
+    ${If} $3 == ""
+      ${GetFileVersionProductName} $INSTDIR\Uninstall.exe $3
+    ${EndIf}
+    !insertmacro TryUninstall "$INSTDIR\Uninstall.exe" $INSTDIR "UNKNOWN" $3
   ${EndIf}
 
 FunctionEnd
@@ -654,13 +666,6 @@ Function .onInit
 FunctionEnd
 
 !insertmacro SanityCheckInstdir "un."
-!insertmacro SecCoreFiles "un."
-!insertmacro SecNcatFiles "un."
-!insertmacro SecNpingFiles "un."
-!ifndef NMAP_OEM
-!insertmacro SecZenmapFiles "un."
-!insertmacro SecNdiffFiles "un."
-!endif
 
 Section "Uninstall"
 
@@ -679,12 +684,12 @@ Section "Uninstall"
   SetDetailsPrint listonly
 
   nmap_installed:
-  Call un.SecCoreFiles
-  Call un.SecNcatFiles
-  Call un.SecNpingFiles
+!insertmacro SecCoreFiles
+!insertmacro SecNcatFiles
+!insertmacro SecNpingFiles
 !ifndef NMAP_OEM
-  Call un.SecZenmapFiles
-  Call un.SecNdiffFiles
+!insertmacro SecZenmapFiles
+!insertmacro SecNdiffFiles
 !endif
   Delete "$INSTDIR\nmap_performance.reg"
 

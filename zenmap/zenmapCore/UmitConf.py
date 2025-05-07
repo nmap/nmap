@@ -396,14 +396,20 @@ class CommandProfile (Profile, object):
 class NmapOutputHighlight(object):
     setts = ["bold", "italic", "underline", "text", "highlight", "regex"]
 
+    def __init__(self):
+        self.dark_mode = False
+
     def save_changes(self):
         config_parser.save_changes()
+
+    def set_dark_mode(self, mode=True):
+        self.dark_mode = mode
 
     def __get_it(self, p_name):
         property_name = "%s_highlight" % p_name
 
         try:
-            return self.sanity_settings([
+            settings = self.sanity_settings([
                 config_parser.get(
                     property_name, prop, raw=True) for prop in self.setts])
         except Exception:
@@ -418,7 +424,12 @@ class NmapOutputHighlight(object):
 
             self.__set_it(p_name, settings)
 
-            return settings
+        if self.dark_mode:
+            for i in (0, 1, 2):
+                settings[3][i] = (65535 - settings[3][i]) % 65536
+                settings[4][i] = (65535 - settings[4][i]) % 65536
+
+        return settings
 
     def __set_it(self, property_name, settings):
         property_name = "%s_highlight" % property_name

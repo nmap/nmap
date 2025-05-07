@@ -70,6 +70,11 @@ from zenmapCore.UmitConf import NmapOutputHighlight
 
 from zenmapGUI.NmapOutputProperties import NmapOutputProperties
 
+def _tag_set_colors(tag, text_color, highlight_color):
+    fg = "rgb({},{},{})".format(*(x >> 8 for x in text_color))
+    bg = "rgb({},{},{})".format(*(x >> 8 for x in highlight_color))
+    tag.set_property("foreground", fg)
+    tag.set_property("background", bg)
 
 class NmapOutputViewer(Gtk.Box):
     HIGHLIGHT_PROPERTIES = ["details", "date", "hostname", "ip", "port_list",
@@ -139,13 +144,7 @@ class NmapOutputViewer(Gtk.Box):
             else:
                 tag.set_property("underline", Pango.Underline.NONE)
 
-            text_color = settings[3]
-            highlight_color = settings[4]
-
-            tag.set_property(
-                    "foreground", Gdk.Color(*text_color).to_string())
-            tag.set_property(
-                    "background", Gdk.Color(*highlight_color).to_string())
+            _tag_set_colors(tag, settings[3], settings[4])
 
     def go_to_host(self, host):
         """Go to host line on nmap output result"""
@@ -218,15 +217,18 @@ class NmapOutputViewer(Gtk.Box):
             return
 
         text = buf.get_text(start_iter, end_iter, include_hidden_chars=True)
+        tag_table = buf.get_tag_table()
 
         for property in self.HIGHLIGHT_PROPERTIES:
             settings = self.nmap_highlight.__getattribute__(property)
+            tag = tag_table.lookup(property)
+            _tag_set_colors(tag, settings[3], settings[4])
             for m in re.finditer(settings[5], text, re.M):
                 m_start_iter = start_iter.copy()
                 m_start_iter.forward_chars(m.start())
                 m_end_iter = start_iter.copy()
                 m_end_iter.forward_chars(m.end())
-                buf.apply_tag_by_name(property, m_start_iter, m_end_iter)
+                buf.apply_tag(tag, m_start_iter, m_end_iter)
 
     def show_nmap_output(self, output):
         """Show the string (or unicode) output in the output display."""

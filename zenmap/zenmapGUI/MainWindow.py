@@ -148,6 +148,10 @@ class ScanWindow(UmitScanWindow):
         self.set_default_size(window.width, window.height)
 
         self.scan_interface = ScanInterface()
+        # Update highlighting
+        output_viewer = self.scan_interface.scan_result.scan_result_notebook.nmap_output.nmap_output
+        output_viewer.nmap_highlight.set_dark_mode(
+                ScanWindow.dark_mode)
 
         self.main_accel_group = Gtk.AccelGroup()
 
@@ -790,6 +794,11 @@ This scan has not been run yet. Start the scan with the "Scan" button first.'))
         settings = Gtk.Settings.get_default()
         settings.set_property("gtk-application-prefer-dark-theme",
             ScanWindow.dark_mode)
+        # Update highlighting
+        output_viewer = self.scan_interface.scan_result.scan_result_notebook.nmap_output.nmap_output
+        output_viewer.nmap_highlight.set_dark_mode(
+                ScanWindow.dark_mode)
+        output_viewer.apply_highlighting()
 
 
     def _exit_cb(self, *args):
