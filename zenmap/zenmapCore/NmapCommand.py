@@ -198,7 +198,8 @@ class NmapCommand(object):
         # We don't need a file name for stdout output, just a handle. A
         # TemporaryFile is deleted as soon as it is closed, and in Unix is
         # unlinked immediately after creation so it's not even visible.
-        f = tempfile.TemporaryFile(mode="r", prefix=APP_NAME + "-stdout-", encoding="utf-8")
+        f = tempfile.TemporaryFile(mode="r", prefix=APP_NAME + "-stdout-", encoding="utf-8",
+                                   errors='backslashreplace')
         self.stdout_file = f
         if stderr is None:
             stderr = f
