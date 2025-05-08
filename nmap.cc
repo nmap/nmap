@@ -1551,7 +1551,7 @@ void  apply_delayed_options() {
     o.reason = true;
 
   // ISO 8601 date/time -- http://www.cl.cam.ac.uk/~mgk25/iso-time.html
-  if (strftime(tbuf, sizeof(tbuf), "%Y-%m-%d %H:%M %Z", &local_time) <= 0)
+  if (strftime(tbuf, sizeof(tbuf), "%Y-%m-%d %H:%M %z", &local_time) <= 0)
     fatal("Unable to properly format time");
   log_write(LOG_STDOUT | LOG_SKID, "Starting %s %s ( %s ) at %s\n", NMAP_NAME, NMAP_VERSION, NMAP_URL, tbuf);
   if (o.verbose) {
