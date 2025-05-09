@@ -1201,11 +1201,13 @@ static void nmap_mass_dns_core(DNS::Request *requests, int num_requests) {
   // If necessary, set up the dns server list
   init_servs();
 
-  if (servs.size() == 0 && firstrun) error("mass_dns: warning: Unable to "
-                                           "determine any DNS servers. Reverse"
-                                           " DNS is disabled. Try using "
-                                           "--system-dns or specify valid "
-                                           "servers with --dns-servers");
+  if (servs.size() == 0) {
+    if (firstrun)
+      error("mass_dns: warning: Unable to determine any DNS servers. "
+          "Reverse DNS is disabled. Try using --system-dns or "
+          "specify valid servers with --dns-servers");
+    return;
+  }
 
 
   // If necessary, read /etc/hosts and put entries into the hashtable
@@ -1235,7 +1237,6 @@ static void nmap_mass_dns_core(DNS::Request *requests, int num_requests) {
     tpreq->id = DNS::Factory::progressiveId++;
 
     new_reqs.push_back(tpreq);
-    total_reqs++;
 
     if (reqt.type == DNS::ANY) {
       DNS::Request *req_aaaa = new DNS::Request;
@@ -1248,69 +1249,70 @@ static void nmap_mass_dns_core(DNS::Request *requests, int num_requests) {
       tpreq_alt->alt_req = true;
       tpreq_alt->id = DNS::Factory::progressiveId++;
       new_reqs.push_back(tpreq_alt);
-      total_reqs++;
     }
 
     stat_actual++;
   }
 
-  if (total_reqs == 0 || servs.size() == 0) return;
+  total_reqs = new_reqs.size();
+  if (total_reqs > 0) {
 
-  // And finally, do it!
+    // And finally, do it!
 
-  if ((dnspool = nsock_pool_new(NULL)) == NULL)
-    fatal("Unable to create nsock pool in %s()", __func__);
+    if ((dnspool = nsock_pool_new(NULL)) == NULL)
+      fatal("Unable to create nsock pool in %s()", __func__);
 
-  nmap_set_nsock_logger();
-  nmap_adjust_loglevel(o.packetTrace());
-
-  nsock_pool_set_device(dnspool, o.device);
-
-  if (o.proxy_chain)
-    nsock_pool_set_proxychain(dnspool, o.proxy_chain);
-
-  connect_dns_servers();
-
-  deferred_reqs.clear();
-
-  read_timeout_index = MIN(sizeof(read_timeouts)/sizeof(read_timeouts[0]), servs.size()) - 1;
-
-  Snprintf(spmobuf, sizeof(spmobuf), "Parallel DNS resolution of %d host%s.", stat_actual, stat_actual-1 ? "s" : "");
-  SPM = new ScanProgressMeter(spmobuf);
-  stat_actual = total_reqs;
-
-  int since_last = 0;
-  while (total_reqs > 0) {
-    since_last += timeout;
-    if (since_last > MIN_DNS_TIMEOUT) {
-      since_last = 0;
-      timeout = deal_with_timedout_reads(true);
-    }
-    else {
-      timeout = deal_with_timedout_reads(false);
-    }
-
-    do_possible_writes();
-
-    if (total_reqs <= 0) break;
-
-    /* Because this can change with runtime interaction */
+    nmap_set_nsock_logger();
     nmap_adjust_loglevel(o.packetTrace());
 
-    nsock_loop(dnspool, timeout);
+    nsock_pool_set_device(dnspool, o.device);
+
+    if (o.proxy_chain)
+      nsock_pool_set_proxychain(dnspool, o.proxy_chain);
+
+    connect_dns_servers();
+
+    deferred_reqs.clear();
+
+    read_timeout_index = MIN(sizeof(read_timeouts)/sizeof(read_timeouts[0]), servs.size()) - 1;
+
+    Snprintf(spmobuf, sizeof(spmobuf), "Parallel DNS resolution of %d host%s.", stat_actual, stat_actual-1 ? "s" : "");
+    SPM = new ScanProgressMeter(spmobuf);
+    stat_actual = total_reqs;
+
+    int since_last = 0;
+    while (total_reqs > 0) {
+      since_last += timeout;
+      if (since_last > MIN_DNS_TIMEOUT) {
+        since_last = 0;
+        timeout = deal_with_timedout_reads(true);
+      }
+      else {
+        timeout = deal_with_timedout_reads(false);
+      }
+
+      do_possible_writes();
+
+      if (total_reqs <= 0) break;
+
+      /* Because this can change with runtime interaction */
+      nmap_adjust_loglevel(o.packetTrace());
+
+      nsock_loop(dnspool, timeout);
+    }
+
+    SPM->endTask(NULL, NULL);
+    delete SPM;
+
+    close_dns_servers();
+
+    nsock_pool_delete(dnspool);
   }
 
-  SPM->endTask(NULL, NULL);
-  delete SPM;
-
-  close_dns_servers();
-
-  nsock_pool_delete(dnspool);
-
-  if (deferred_reqs.size() && o.debugging)
-    log_write(LOG_STDOUT, "Performing system-dns for %d domain names that were deferred\n", (int) deferred_reqs.size());
-
   if (deferred_reqs.size()) {
+    if (o.debugging)
+      log_write(LOG_STDOUT, "Performing system-dns for %d domain names that were deferred\n", (int) deferred_reqs.size());
+
     Snprintf(spmobuf, sizeof(spmobuf), "System DNS resolution of %u host%s.", (unsigned) deferred_reqs.size(), deferred_reqs.size()-1 ? "s" : "");
     SPM = new ScanProgressMeter(spmobuf);
 
