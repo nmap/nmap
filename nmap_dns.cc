@@ -802,6 +802,11 @@ static void read_evt_handler(nsock_pool nsp, nsock_event evt, void *) {
           break;
         }
       }
+      if (!processing_successful && reqt->name.find('.') == std::string::npos) {
+        // Names without a dot: system resolver may do better.
+          process_request(ACTION_SYSTEM_RESOLVE, reqinfo);
+          processing_successful = true;
+      }
     }
 
     if (!processing_successful) {
