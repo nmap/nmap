@@ -128,9 +128,10 @@
 #include "timing.h"
 #include "Target.h"
 
-#include <stdlib.h>
 #include <limits.h>
 #include <list>
+#include <fstream>
+#include <istream>
 
 extern NmapOps o;
 
@@ -1074,34 +1075,41 @@ static void parse_resolvdotconf() {
 
 
 static void parse_etchosts(const char *fname) {
-  FILE *fp;
-  char buf[2048], hname[256], ipaddrstr[INET6_ADDRSTRLEN+1], *tp;
+  std::ifstream ifs(fname);
+  std::string line;
   sockaddr_storage ia;
+  size_t ialen;
 
-  fp = fopen(fname, "r");
-  if (fp == NULL) return; // silently is OK
+  if (ifs.fail()) return; // silently is OK
 
-  while (fgets(buf, sizeof(buf), fp)) {
-    tp = buf;
+  while (std::getline(ifs, line)) {
+    std::istringstream iss(line);
 
-    // Clip off comments #, \r, \n
-    while (*tp != '\r' && *tp != '\n' && *tp != '#' && *tp) tp++;
-    *tp = '\0';
-
-    tp = buf;
-    // Skip any leading whitespace
-    while (*tp == ' ' || *tp == '\t') tp++;
-
-    static const char *pattern = "%" STR(INET6_ADDRSTRLEN) "s %255s";
-    if (sscanf(tp, pattern, ipaddrstr, hname) == 2)
-      if (sockaddr_storage_inet_pton(ipaddrstr, &ia))
-      {
-        const std::string hname_ = hname;
-        host_cache.add(ia, hname_);
+      std::string addr, hname;
+      if (!(iss >> addr >> hname)) {
+        // We need more than 1 token per line
+        continue;
       }
-  }
 
-  fclose(fp);
+      ialen = hname.find('#');
+
+      // If hostname is a comment or address begins a comment, no good.
+      if (ialen == 0 || addr.find('#') != std::string::npos) {
+        continue;
+      }
+
+      // If there's a comment in the hostname, strip it.
+      if (ialen != std::string::npos) {
+        hname.erase(ialen);
+      }
+
+      if (0 == resolve_numeric(addr.c_str(), 0, &ia, &ialen, AF_UNSPEC)) {
+        host_cache.add(ia, hname);
+      }
+      else if (o.debugging)
+        log_write(LOG_STDOUT, "Unable to parse /etc/hosts address: %s\n", addr.c_str());
+  }
+  ifs.close();
 }
 
 static void etchosts_init(void) {
