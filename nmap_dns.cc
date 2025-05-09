@@ -1094,26 +1094,33 @@ static void parse_etchosts(const char *fname) {
         continue;
       }
 
-      ialen = hname.find('#');
-
       // If hostname is a comment or address begins a comment, no good.
-      if (ialen == 0 || addr.find('#') != std::string::npos) {
+      if (hname[0] == '#' || addr.find('#') != std::string::npos) {
         continue;
       }
 
-      // If there's a comment in the hostname, strip it.
-      if (ialen != std::string::npos) {
-        hname.erase(ialen);
-      }
-
       if (0 == resolve_numeric(addr.c_str(), 0, &ia, &ialen, AF_UNSPEC)) {
-        host_cache.add(ia, hname);
-        if (ia.ss_family == AF_INET) {
-          etchosts[NameRecord(hname, DNS::A)] = ia;
-        }
-        else if (ia.ss_family == AF_INET6) {
-          etchosts[NameRecord(hname, DNS::AAAA)] = ia;
-        }
+        size_t commentpos = std::string::npos;
+        bool first = true;
+        do {
+          // If there's a comment in the hostname, strip it.
+          commentpos = hname.find('#');
+          if (commentpos != std::string::npos) {
+            hname.erase(commentpos);
+          }
+          if (!hname.empty()) {
+            if (first)
+              host_cache.add(ia, hname);
+            if (ia.ss_family == AF_INET) {
+              etchosts[NameRecord(hname, DNS::A)] = ia;
+            }
+            else if (ia.ss_family == AF_INET6) {
+              etchosts[NameRecord(hname, DNS::AAAA)] = ia;
+            }
+          }
+          first = false;
+          // Keep going until we find a comment or run out of tokens
+        } while (commentpos == std::string::npos && (iss >> hname));
       }
       else if (o.debugging)
         log_write(LOG_STDOUT, "Unable to parse /etc/hosts address: %s\n", addr.c_str());
