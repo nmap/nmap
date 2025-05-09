@@ -391,6 +391,9 @@ static nsock_pool dnspool=NULL;
 
 /* The DNS cache, not just for entries from /etc/hosts. */
 static HostCache host_cache;
+/* Forward lookup table from /etc/hosts */
+typedef std::pair<std::string, DNS::RECORD_TYPE> NameRecord;
+static std::map<NameRecord, sockaddr_storage> etchosts;
 
 static int stat_actual, stat_ok, stat_nx, stat_sf, stat_trans, stat_dropped, stat_cname;
 static struct timeval starttv;
@@ -1105,6 +1108,12 @@ static void parse_etchosts(const char *fname) {
 
       if (0 == resolve_numeric(addr.c_str(), 0, &ia, &ialen, AF_UNSPEC)) {
         host_cache.add(ia, hname);
+        if (ia.ss_family == AF_INET) {
+          etchosts[NameRecord(hname, DNS::A)] = ia;
+        }
+        else if (ia.ss_family == AF_INET6) {
+          etchosts[NameRecord(hname, DNS::AAAA)] = ia;
+        }
       }
       else if (o.debugging)
         log_write(LOG_STDOUT, "Unable to parse /etc/hosts address: %s\n", addr.c_str());
@@ -1243,11 +1252,37 @@ static void nmap_mass_dns_core(DNS::Request *requests, int num_requests) {
     DNS::Request &reqt = requests[i];
 
     // See if it's cached
-    if (reqt.type == DNS::PTR) {
-      assert(reqt.ssv.size() > 0);
-      if (host_cache.lookup(reqt.ssv.front(), reqt.name)) {
-        continue;
-      }
+    std::map<NameRecord, sockaddr_storage>::const_iterator it;
+    switch (reqt.type) {
+      case DNS::PTR:
+        assert(reqt.ssv.size() > 0);
+        if (host_cache.lookup(reqt.ssv.front(), reqt.name)) {
+          continue;
+        }
+        break;
+      case DNS::ANY:
+        it = etchosts.find(NameRecord(reqt.name, DNS::A));
+        if (it != etchosts.end()) {
+          reqt.ssv.push_back(it->second);
+        }
+        it = etchosts.find(NameRecord(reqt.name, DNS::AAAA));
+        if (it != etchosts.end()) {
+          reqt.ssv.push_back(it->second);
+        }
+        if (reqt.ssv.size() > 0) {
+          continue;
+        }
+        break;
+      case DNS::A:
+      case DNS::AAAA:
+        it = etchosts.find(NameRecord(reqt.name, reqt.type));
+        if (it != etchosts.end()) {
+          reqt.ssv.push_back(it->second);
+          continue;
+        }
+        break;
+      default:
+        break;
     }
 
     tpreq = new request;
