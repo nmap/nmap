@@ -783,15 +783,31 @@ static void read_evt_handler(nsock_pool nsp, nsock_event evt, void *) {
     return;
   }
   info &reqinfo = infoI->second;
+  DNS::Request *reqt = reqinfo.tpreq->targ;
+  bool processing_successful = false;
 
   if (DNS_HAS_ERR(f, DNS::ERR_NAME) || p.answers.empty())
   {
-    process_request(ACTION_FINISHED, reqinfo);
-    if (o.debugging >= TRACE_DEBUG_LEVEL)
-      log_write(LOG_STDOUT, "mass_dns: NXDOMAIN <id = %d>\n", p.id);
-    output_summary();
-    stat_nx++;
+    // Check if this was a nonstandard name;
+    if (reqt->type != DNS::PTR) {
+      for (std::string::const_iterator it=reqt->name.begin(); it < reqt->name.end(); it++) {
+        if (*it < '0') { // signed char comparison; non-ascii are < 0
+          // system resolver might be able to do better with things like AI_IDN
+          process_request(ACTION_SYSTEM_RESOLVE, reqinfo);
+          processing_successful = true;
+          break;
+        }
+      }
+    }
 
+    if (!processing_successful) {
+      process_request(ACTION_FINISHED, reqinfo);
+      if (o.debugging >= TRACE_DEBUG_LEVEL)
+        log_write(LOG_STDOUT, "mass_dns: NXDOMAIN <id = %d>\n", p.id);
+      stat_nx++;
+    }
+
+    output_summary();
     return;
   }
 
@@ -805,12 +821,9 @@ static void read_evt_handler(nsock_pool nsp, nsock_event evt, void *) {
     return;
   }
 
-  bool processing_successful = false;
-
   sockaddr_storage ip;
   ip.ss_family = AF_UNSPEC;
   std::string alias;
-  DNS::Request *reqt = reqinfo.tpreq->targ;
 
   for(std::list<DNS::Answer>::const_iterator it = p.answers.begin();
       it != p.answers.end(); ++it )
