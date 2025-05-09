@@ -1,5 +1,8 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o Fixed an issue with the parallel forward DNS resolver: it had not been
+  consulting /etc/hosts, nor did it correctly handle the 'localhost' name.
+
 Nmap 7.96 [2025-05-01]
 
 o Upgraded included libraries: OpenSSL 3.0.16, Lua 5.4.7, libssh2 1.11.1,

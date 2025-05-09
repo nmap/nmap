@@ -1088,6 +1088,17 @@ static void parse_etchosts(const char *fname) {
   sockaddr_storage ia;
   size_t ialen;
 
+  // First, load localhost names
+  line = "localhost";
+  if (0 == resolve_numeric("::1", 0, &ia, &ialen, AF_INET6)) {
+    host_cache.add(ia, line);
+    etchosts[NameRecord(line, DNS::AAAA)] = ia;
+  }
+  if (0 == resolve_numeric("127.0.0.1", 0, &ia, &ialen, AF_INET)) {
+    host_cache.add(ia, line);
+    etchosts[NameRecord(line, DNS::A)] = ia;
+  }
+
   if (ifs.fail()) return; // silently is OK
 
   while (std::getline(ifs, line)) {
