@@ -61,6 +61,7 @@ import gi
 gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk, Gdk, Pango, GLib
 
+import locale
 import gobject
 import re
 
@@ -287,11 +288,17 @@ class NmapOutputViewer(Gtk.Box):
         self.command_execution.stdout_file.seek(self.output_file_pointer)
 
         try:
-            new_output = self.command_execution.stdout_file.read()
+            # Read bytes and decode with proper encoding
+            new_output_bytes = self.command_execution.stdout_file.read()
+            new_output = new_output_bytes.decode(
+                locale.getpreferredencoding(False),
+                errors='replace'
+            )
         except MemoryError:
             self.show_large_output_message(self.command_execution)
             return
-
+        except Exception as e:
+            new_output = f"Output decoding error: {str(e)}"
         self.output_file_pointer = self.command_execution.stdout_file.tell()
 
         v_adj = self.scrolled.get_vadjustment()
