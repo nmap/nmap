@@ -112,6 +112,11 @@
 // * Figure out best way to estimate completion time
 //   and display it in a ScanProgressMeter
 
+#include <limits.h>
+#include <list>
+#include <fstream>
+#include <istream>
+
 #ifdef WIN32
 #include "nmap_winconfig.h"
 /* Need DnetName2PcapName */
@@ -127,11 +132,6 @@
 #include "tcpip.h"
 #include "timing.h"
 #include "Target.h"
-
-#include <limits.h>
-#include <list>
-#include <fstream>
-#include <istream>
 
 extern NmapOps o;
 
@@ -1141,7 +1141,6 @@ static void parse_etchosts(const char *fname) {
       else if (o.debugging)
         log_write(LOG_STDOUT, "Unable to parse /etc/hosts address: %s\n", addr.c_str());
   }
-  ifs.close();
 }
 
 static void etchosts_init(void) {

@@ -14,7 +14,7 @@ if [ "x$2" == "x" ]; then
 fi
 JHBUILD_PREFIX=$2
 
-bundle=$package.app
+bundle=$package-root/$package.app
 bundle_contents="$bundle"/Contents
 bundle_res="$bundle_contents"/Resources
 bundle_lib="$bundle_res"/lib
@@ -31,8 +31,9 @@ ESCAPED_PREFIX=$(echo "$JHBUILD_PREFIX" | sed 's/\([\/\\.]\)/\\\1/g')
 function run_install_name_tool() {
   bin=$1
   otool -L "$bin" | awk "/$ESCAPED_PREFIX/{print \$1}" | while read dep; do
-    install_name_tool -change $dep $(echo $dep | sed "s/$ESCAPED_PREFIX\/lib/@executable_path\/..\/lib/") "$bin"
+    install_name_tool -change $dep $(echo $dep | sed "s/$ESCAPED_PREFIX\/lib/@rpath/") "$bin"
   done
+  install_name_tool -add_rpath "@executable_path/../lib" "$bin" || true
 }
 
 function do_jhbuild_app() {

@@ -1,7 +1,17 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+Nmap 7.97 [2025-05-12]
+
+o [Zenmap][GH#3087] Fix a crash when starting a scan on Windows in locales that
+  use non-latin character sets. Also changed Nmap to print the time zone as an
+  offset from UTC instead of as a localized string. [Daniel Miller]
+
 o Fixed an issue with the parallel forward DNS resolver: it had not been
   consulting /etc/hosts, nor did it correctly handle the 'localhost' name.
+  [Daniel Miller]
+
+o [GH#3088] Mitigate a false-positive detection by replacing a malicious URL in
+  the example output of http-malware-host [nnposter]
 
 Nmap 7.96 [2025-05-01]
 

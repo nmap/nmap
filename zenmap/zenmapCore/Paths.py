@@ -63,6 +63,7 @@ import os
 import os.path
 import sys
 import shutil
+from glob import glob
 
 from zenmapCore.BasePaths import base_paths
 from zenmapCore.Name import APP_NAME
@@ -81,7 +82,11 @@ def get_extra_executable_search_paths():
     """Return a list of additional executable search paths as a convenience for
     platforms where the default PATH is inadequate."""
     if sys.platform == 'darwin':
-        return ["/usr/local/bin"]
+        extra = ["/usr/local/bin"]
+        for pf in glob("/etc/paths.d/org.insecure.nmap*"):
+            with open(pf, "r") as f:
+                extra.append(f.read().strip())
+        return extra
     elif sys.platform == 'win32':
         return [dirname(sys.executable)]
     return []

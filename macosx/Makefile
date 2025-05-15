@@ -12,21 +12,6 @@ PKG_NAME = $(NAME_VERSION).mpkg
 
 IMAGE_STAGING_DIR = $(NAME_VERSION)
 
-NMAP_BUILD_DIR = nmap-build
-NMAP_STAGING_DIR = nmap.app
-
-ZENMAP_BUILD_DIR = zenmap-build
-ZENMAP_STAGING_DIR = $(ZENMAP_BUILD_DIR)/zenmap/dist/Zenmap.app
-
-NCAT_BUILD_DIR = ncat-build
-NCAT_STAGING_DIR = ncat.app
-
-NDIFF_BUILD_DIR = ndiff-build
-NDIFF_STAGING_DIR = ndiff.app
-
-NPING_BUILD_DIR = nping-build
-NPING_STAGING_DIR = nping.app
-
 JHBUILD_PREFIX=$(HOME)/gtk/inst
 JHBUILD_SOURCE=$(HOME)/gtk/source
 
@@ -69,23 +54,25 @@ tool-checks: have-jhbuild have-gtk-mac-bundler
 have-%:
 	which $*
 
-#$(IMAGE_STAGING_DIR)/$(PKG_NAME): check-nmap check-ncat check-ndiff check-zenmap check-nping LICENSE.formatted
-$(IMAGE_STAGING_DIR)/$(PKG_NAME): check-nmap check-ncat check-ndiff check-zenmap check-nping LICENSE.formatted
+# Create packages (.pkg) for all the components to install in the installer (.mpkg)
+PKGBUILD=pkgbuild --version $(NMAP_VERSION) --scripts Scripts --install-location /Applications --min-os-version $(OSX_MIN_VERSION)
+%.pkg: check-%
+	$(PKGBUILD) --root $*-root --identifier org.insecure.nmap.$* $@
+nmap.pkg: check-nmap
+	$(PKGBUILD) --root nmap-root --identifier org.insecure.nmap $@
+zenmap.pkg: check-zenmap
+	$(PKGBUILD) --root zenmap-root --identifier org.insecure.nmap.zenmap $@
+
+#$(IMAGE_STAGING_DIR)/$(PKG_NAME): nmap.pkg ncat.pkg ndiff.pkg zenmap.pkg nping.pkg LICENSE.formatted
+$(IMAGE_STAGING_DIR)/$(PKG_NAME): nmap.pkg ncat.pkg zenmap.pkg nping.pkg LICENSE.formatted
 	rm -rf $(IMAGE_STAGING_DIR)
 	mkdir -p $(IMAGE_STAGING_DIR)
 	cp -rf $(EXTRA_DIST) $(IMAGE_STAGING_DIR)/
-	# Create packages (.pkg) for all the components to install in the installer (.mpkg)
-	pkgbuild --root $(NMAP_STAGING_DIR) --identifier org.insecure.nmap --version $(NMAP_VERSION) --install-location /Applications nmap.pkg
-	pkgbuild --root $(NCAT_STAGING_DIR) --identifier org.insecure.nmap.ncat --version $(NMAP_VERSION) --install-location /Applications ncat.pkg
-	pkgbuild --root $(NDIFF_STAGING_DIR) --identifier org.insecure.nmap.ndiff --version $(NMAP_VERSION) --install-location /Applications ndiff.pkg
-	pkgbuild --root $(NPING_STAGING_DIR) --identifier org.insecure.nmap.nping --version $(NMAP_VERSION) --install-location /Applications nping.pkg
-	pkgbuild --root $(ZENMAP_STAGING_DIR) --identifier org.insecure.nmap.zenmap --version $(NMAP_VERSION) --install-location /Applications zenmap.pkg
 
 	# Produce a .xml with packages information
 	productbuild --synthesize \
 		--package 'nmap.pkg' \
 		--package 'ncat.pkg' \
-		--package 'ndiff.pkg' \
 		--package 'nping.pkg' \
 		--package 'zenmap.pkg' \
 		distribution.xml
@@ -103,12 +90,12 @@ $(IMAGE_STAGING_DIR)/$(PKG_NAME): check-nmap check-ncat check-ndiff check-zenmap
 	mv $(NAME_VERSION).mpkg $(NAME_VERSION)/$(NAME_VERSION).mpkg
 
 check-%: stage-%
-	(find $*.app -perm -a+x -type f | xargs otool -L | awk '/:$$/{e=$$0}index($$0,"$(JHBUILD_PREFIX)"){x=1;print e; print}END{exit x}') && echo "Libs are clean"
-	(find $*.app -perm -a+x -type f -exec otool -l {} \; | awk '/:$$/{e=$$0}$$1=="minos"&&$$2!="$(OSX_MIN_VERSION)"{x=1;print e; print}END{exit x}' ) && echo "Bins are clean"
+	(find $*-root -perm -a+x -type f | xargs otool -L | awk '/:$$/{e=$$0}index($$0,"$(JHBUILD_PREFIX)"){x=1;print e; print}END{exit x}') && echo "Libs are clean"
+	(find $*-root -perm -a+x -type f -exec otool -l {} \; | awk '/:$$/{e=$$0}$$1=="minos"&&$$2!="$(OSX_MIN_VERSION)"{x=1;print e; print}END{exit x}' ) && echo "Bins are clean"
 
 check-zenmap: stage-zenmap
-	(find $(ZENMAP_BUILD_DIR) -perm -a+x -type f | xargs otool -L | awk '/:$$/{e=$$0}index($$0,"$(JHBUILD_PREFIX)"){x=1;print e; print}END{exit x}') && echo "Libs are clean"
-	(find $(ZENMAP_BUILD_DIR) -perm -a+x -type f -exec otool -l {} \; | awk '/:$$/{e=$$0}$$1=="minos"&&$$2!="$(OSX_MIN_VERSION)"{x=1;print e; print}END{exit x}' ) && echo "Bins are clean"
+	(find zenmap-build -perm -a+x -type f | xargs otool -L | awk '/:$$/{e=$$0}index($$0,"$(JHBUILD_PREFIX)"){x=1;print e; print}END{exit x}') && echo "Libs are clean"
+	(find zenmap-build -perm -a+x -type f -exec otool -l {} \; | awk '/:$$/{e=$$0}$$1=="minos"&&$$2!="$(OSX_MIN_VERSION)"{x=1;print e; print}END{exit x}' ) && echo "Bins are clean"
 
 export-%:
 	rm -rf $*
@@ -134,8 +121,8 @@ build-%: $(NMAP_TARBALL) openssl.modules
 stage-%: build-%
 	sh make-app.sh $* "$(JHBUILD_PREFIX)"
 
-stage-zenmap: export-$(ZENMAP_BUILD_DIR)
-	cd $(ZENMAP_BUILD_DIR)/zenmap && jhbuild run install_scripts/macosx/make-bundle.sh
+stage-zenmap: export-zenmap-build
+	jhbuild run zenmap-build/zenmap/install_scripts/macosx/make-bundle.sh
 
 build-ndiff:
 	echo Nothing to do
@@ -146,16 +133,8 @@ LICENSE.formatted:
 
 clean: clean-nmap clean-ncat clean-nping
 	rm -rf $(IMAGE_STAGING_DIR)
-	rm -rf $(NMAP_BUILD_DIR)
-	rm -rf $(NMAP_STAGING_DIR)
-	rm -rf $(ZENMAP_BUILD_DIR)
-	#rm -rf $(ZENMAP_STAGING_DIR)
-	rm -rf $(NCAT_BUILD_DIR)
-	rm -rf $(NCAT_STAGING_DIR)
-	rm -rf $(NDIFF_BUILD_DIR)
-	rm -rf $(NDIFF_STAGING_DIR)
-	rm -rf $(NPING_BUILD_DIR)
-	rm -rf $(NPING_STAGING_DIR)
+	rm -rf *-build/
+	rm -rf *-root/
 	rm -f LICENSE.formatted
 	rm -f $(IMAGE_NAME)
 	rm -rf distribution.xml finalDist.xml nmap.pkg ncat.pkg ndiff.pkg nping.pkg zenmap.pkg
