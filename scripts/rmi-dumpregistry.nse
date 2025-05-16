@@ -143,9 +143,6 @@ so-called "Custom data".
 -- |         file:/C:/CFusionMX7/runtime/../wwwroot/WEB-INF/cfform/jars/jsse.jar
 -- |         file:/C:/CFusionMX7/runtime/../wwwroot/WEB-INF/cfform/jars/oscache.jar
 -- |_        file:/C:/CFusionMX7/runtime/../wwwroot/WEB-INF/cfform/jars/
---
---
---@version 0.5
 
 author = "Martin Holst Swende"
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
