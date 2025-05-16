@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools"]
+requires = ["setuptools", "setuptools-gettext"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -28,7 +28,6 @@ packages = [
 "zenmapCore",
 "zenmapCore.data.config",
 "zenmapCore.data.docs",
-"zenmapCore.data.locale",
 "zenmapCore.data.misc",
 "zenmapCore.data.pixmaps",
 "zenmapCore.data.pixmaps.radialnet",
@@ -47,7 +46,10 @@ version = {attr = "zenmapCore.Version.VERSION"}
 [tool.setuptools.package-data]
 "zenmapCore.data.pixmaps" = ["*.gif", "*.png"]
 "zenmapCore.data.pixmaps.radialnet" = ["*.png"]
-"zenmapCore.data.locale" = ["*.mo"]
 "zenmapCore.data.config" = ["zenmap.conf", "scan_profile.usp", "zenmap_version"]
 "zenmapCore.data.docs" = ["*.html"]
 "zenmapCore.data.misc" = ["*.xml"]
+
+[tool.setuptools.gettext]
+source_dir = "zenmapCore/data/locale"
+build_dir = "zenmapCore/data/locale"
