@@ -610,3 +610,4 @@ Entry { filename = "xdmcp-discover.nse", categories = { "discovery", "safe", } }
 Entry { filename = "xmlrpc-methods.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "xmpp-brute.nse", categories = { "brute", "intrusive", } }
 Entry { filename = "xmpp-info.nse", categories = { "default", "discovery", "safe", "version", } }
+Entry { filename = "typical-port-usage.nse", categories = { "default", "discovery", "safe", } }
