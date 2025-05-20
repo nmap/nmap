@@ -4914,6 +4914,9 @@ if test "$use_openssl" = "yes"; then
 $as_echo "#define HAVE_OPENSSL 1" >>confdefs.h
 
   OPENSSL_LIBS="-lssl -lcrypto"
+  LIBS_TMP="$LIBS"
+  LIBS="$OPENSSL_LIBS $LIBS"
+  LIBS="$LIBS_TMP"
 
 fi
 

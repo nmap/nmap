@@ -233,6 +233,7 @@ void NmapOps::Initialize() {
   max_packet_send_rate = 0.0; /* Unset. */
   stats_interval = 0.0; /* Unset. */
   randomize_hosts = false;
+  reverse_dns = false;
   randomize_ports = true;
   sendpref = PACKET_SEND_NOPREF;
   spoofsource = false;
