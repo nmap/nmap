@@ -205,9 +205,9 @@ class ScanChooser(HIGVBox):
                 alert = HIGAlertDialog(
                     message_format='<b>%s</b>' % _(
                         'Cannot open selected file'),
-                    secondary_text=_("""\
-                        This error occurred while trying to open the file:
-                        %s""") % str(e))
+                    secondary_text=_(
+                        "This error occurred while trying to open the file:\n%s"
+                        ) % str(e))
                 alert.run()
                 alert.destroy()
                 return False

@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Zenmap\n"
 "Report-Msgid-Bugs-To: dev@nmap.org\n"
-"POT-Creation-Date: 2025-05-16 19:56+0000\n"
+"POT-Creation-Date: 2025-05-19 16:32+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -16,18 +16,13 @@ msgstr ""
 msgid "Unknown Host"
 msgstr ""
 
-#: zenmapCore/NmapParser.py:350 zenmapCore/NmapParser.py:356
-#: zenmapGUI/ScanOpenPortsPage.py:400
-msgid "unknown"
-msgstr ""
-
 #: zenmapCore/NmapParser.py:353
 msgid "Unknown version"
 msgstr ""
 
 #: zenmapCore/NmapParser.py:642
 #, python-format
-msgid "%s on %s"
+msgid "%(profile_name)s on %(targets)s"
 msgstr ""
 
 #: zenmapCore/UmitOptionParser.py:77
@@ -65,7 +60,7 @@ msgid ""
 msgstr ""
 
 #: zenmapCore/UmitConf.py:198
-msgid "Profiles not found"
+msgid "No profiles found"
 msgstr ""
 
 #: zenmapCore/UmitConf.py:200
@@ -187,11 +182,11 @@ msgstr ""
 msgid "Cannot open selected file"
 msgstr ""
 
-#: zenmapGUI/DiffCompare.py:208
+#: zenmapGUI/DiffCompare.py:209
 #, python-format
 msgid ""
-"                        This error occurred while trying to open the file:\n"
-"                        %s"
+"This error occurred while trying to open the file:\n"
+"%s"
 msgstr ""
 
 #: zenmapGUI/DiffCompare.py:256 zenmapGUI/MainWindow.py:289
@@ -334,7 +329,7 @@ msgstr ""
 msgid "Search for a scan result"
 msgstr ""
 
-#: zenmapGUI/MainWindow.py:272 zenmapGUI/ScanInterface.py:874
+#: zenmapGUI/MainWindow.py:272 zenmapGUI/ScanInterface.py:876
 msgid "Filter Hosts"
 msgstr ""
 
@@ -487,19 +482,19 @@ msgstr ""
 #, python-format
 msgid ""
 "An error occurred when saving to\n"
-"%s\n"
-"The error was: %s."
+"%(configfile)s\n"
+"The error was: %(error)s."
 msgstr ""
 
-#: zenmapGUI/MainWindow.py:944
+#: zenmapGUI/MainWindow.py:947
 msgid "Can't find documentation files"
 msgstr ""
 
-#: zenmapGUI/MainWindow.py:945
+#: zenmapGUI/MainWindow.py:948
 #, python-format
 msgid ""
-"There was an error loading the documentation file %s (%s). See the online "
-"documentation at %s."
+"There was an error loading the documentation file %(helpfile)s (%(error)s). "
+"See the online documentation at %(url)s."
 msgstr ""
 
 #: zenmapGUI/ScanInterface.py:379
@@ -568,32 +563,32 @@ msgid ""
 "%s"
 msgstr ""
 
-#: zenmapGUI/ScanInterface.py:687
+#: zenmapGUI/ScanInterface.py:688
 #, python-format
-msgid "%d/%d hosts shown"
-msgstr ""
-
-#: zenmapGUI/ScanInterface.py:924
-msgid "Nmap Output"
-msgstr ""
-
-#: zenmapGUI/ScanInterface.py:925
-msgid "Ports / Hosts"
+msgid "%(num_shown)d/%(total)d hosts shown"
 msgstr ""
 
 #: zenmapGUI/ScanInterface.py:926
-msgid "Topology"
+msgid "Nmap Output"
 msgstr ""
 
 #: zenmapGUI/ScanInterface.py:927
-msgid "Host Details"
+msgid "Ports / Hosts"
 msgstr ""
 
 #: zenmapGUI/ScanInterface.py:928
+msgid "Topology"
+msgstr ""
+
+#: zenmapGUI/ScanInterface.py:929
+msgid "Host Details"
+msgstr ""
+
+#: zenmapGUI/ScanInterface.py:930
 msgid "Scans"
 msgstr ""
 
-#: zenmapGUI/ScanInterface.py:949
+#: zenmapGUI/ScanInterface.py:951
 msgid "No host selected."
 msgstr ""
 
@@ -894,7 +889,7 @@ msgstr ""
 
 #: zenmapGUI/About.py:132
 #, python-format
-msgid "About %s and %s"
+msgid "About %(nmap)s and %(zenmap)s"
 msgstr ""
 
 #: zenmapGUI/About.py:151
@@ -907,34 +902,35 @@ msgstr ""
 #: zenmapGUI/About.py:156
 #, python-format
 msgid ""
-"%s is a multi-platform graphical %s frontend and results viewer. It was "
-"originally derived from %s."
+"%(zenmap)s is a multi-platform graphical %(nmap)s frontend and results "
+"viewer. It was originally derived from %(umit)s."
 msgstr ""
 
-#: zenmapGUI/About.py:162
+#: zenmapGUI/About.py:164
 #, python-format
 msgid ""
-"%s is an %s GUI created as part of the Nmap/Google Summer of Code program."
+"%(umit)s is a %(nmap)s GUI created as part of the Nmap/Google Summer of Code "
+"program."
 msgstr ""
 
-#: zenmapGUI/About.py:164 zenmapGUI/About.py:206
+#: zenmapGUI/About.py:166 zenmapGUI/About.py:208
 #, python-format
 msgid "%s credits"
 msgstr ""
 
-#: zenmapGUI/About.py:248
+#: zenmapGUI/About.py:250
 msgid "Written by"
 msgstr ""
 
-#: zenmapGUI/About.py:250
+#: zenmapGUI/About.py:252
 msgid "Design"
 msgstr ""
 
-#: zenmapGUI/About.py:254
+#: zenmapGUI/About.py:256
 msgid "Contributors"
 msgstr ""
 
-#: zenmapGUI/About.py:256
+#: zenmapGUI/About.py:258
 msgid "Translation"
 msgstr ""
 
@@ -982,7 +978,7 @@ msgstr ""
 #, python-format
 msgid ""
 "Topology is disabled because too many hosts can cause it\n"
-"to run slowly. The limit is %d hosts and there are %d."
+"to run slowly. The limit is %(limit)d hosts and there are %(num)d."
 msgstr ""
 
 #: zenmapGUI/FileChoosers.py:78
@@ -1103,53 +1099,54 @@ msgstr ""
 #: zenmapGUI/App.py:221
 #, python-format
 msgid ""
-"There was an error creating the directory %s or one of the files in it. The "
-"directory is created by copying the contents of %s. The specific error was\n"
+"There was an error creating the directory %(dirname)s or one of the files in "
+"it. The directory is created by copying the contents of %(configdir)s. The "
+"specific error was\n"
 "\n"
-"%s\n"
+"%(error)s\n"
 "\n"
-"%s needs to create this directory to store information such as the list of "
-"scan profiles. Check for access to the directory and try again."
-msgstr ""
-
-#: zenmapGUI/App.py:246
-msgid "Error parsing the configuration file"
+"%(zenmap)s needs to create this directory to store information such as the "
+"list of scan profiles. Check for access to the directory and try again."
 msgstr ""
 
 #: zenmapGUI/App.py:247
-#, python-format
-msgid ""
-"There was an error parsing the configuration file %s. The specific error "
-"was\n"
-"\n"
-"%s\n"
-"\n"
-"%s can continue without this file but any information in it will be ignored "
-"until it is repaired."
+msgid "Error parsing the configuration file"
 msgstr ""
 
-#: zenmapGUI/App.py:261
+#: zenmapGUI/App.py:248
+#, python-format
+msgid ""
+"There was an error parsing the configuration file %(filename)s. The specific "
+"error was\n"
+"\n"
+"%(error)s\n"
+"\n"
+"%(zenmap)s can continue without this file but any information in it will be "
+"ignored until it is repaired."
+msgstr ""
+
+#: zenmapGUI/App.py:263
 msgid "Restore default configuration?"
 msgstr ""
 
-#: zenmapGUI/App.py:262
+#: zenmapGUI/App.py:264
 #, python-format
 msgid ""
-"To avoid further errors parsing the configuration file %s, you can copy the "
-"default configuration from %s.\n"
+"To avoid further errors parsing the configuration file %(filename)s, you can "
+"copy the default configuration from %(dirname)s.\n"
 "\n"
 "Do this now? "
 msgstr ""
 
-#: zenmapGUI/App.py:321
+#: zenmapGUI/App.py:323
 #, python-format
 msgid ""
-"You are trying to run %s with a non-root user!\n"
+"You are trying to run %(zenmap)s with a non-root user!\n"
 "\n"
-"Some %s options need root privileges to work."
+"Some %(nmap)s options need root privileges to work."
 msgstr ""
 
-#: zenmapGUI/App.py:326
+#: zenmapGUI/App.py:328
 msgid "Non-root user"
 msgstr ""
 
@@ -1312,7 +1309,8 @@ msgstr ""
 
 #: radialnet/gui/NodeNotebook.py:86
 #, python-format
-msgid "Traceroute on port <b>%s/%s</b> totalized <b>%d</b> known hops."
+msgid ""
+"Traceroute on port <b>%(port)s/%(proto)s</b> took <b>%(hops)d</b> known hops."
 msgstr ""
 
 #: radialnet/gui/NodeNotebook.py:88
@@ -1334,8 +1332,8 @@ msgstr ""
 #: radialnet/gui/NodeNotebook.py:100
 #, python-format
 msgid ""
-"<b>*</b> TCP sequence <i>index</i> equal to %d and <i>difficulty</i> is \"%s"
-"\"."
+"<b>*</b> TCP sequence <i>index</i> equal to %(index)d and <i>difficulty</i> "
+"is \"%(difficulty)s\"."
 msgstr ""
 
 #: radialnet/gui/NodeNotebook.py:134
@@ -1351,7 +1349,7 @@ msgstr ""
 msgid "Ports (%s)"
 msgstr ""
 
-#: radialnet/gui/NodeNotebook.py:196 radialnet/gui/NodeNotebook.py:707
+#: radialnet/gui/NodeNotebook.py:196 radialnet/gui/NodeNotebook.py:704
 msgid "<unknown>"
 msgstr ""
 
@@ -1361,7 +1359,7 @@ msgstr ""
 
 #: radialnet/gui/NodeNotebook.py:223
 #, python-format
-msgid "[%d] service: %s"
+msgid "[%(port)d] service: %(servicefp)s"
 msgstr ""
 
 #: radialnet/gui/NodeNotebook.py:228
@@ -1401,32 +1399,32 @@ msgstr ""
 msgid "Hostname:"
 msgstr ""
 
-#: radialnet/gui/NodeNotebook.py:426
+#: radialnet/gui/NodeNotebook.py:423
 #, python-format
-msgid "%s (%s seconds)."
+msgid "%(lastboot)s (%(seconds)s seconds)."
 msgstr ""
 
-#: radialnet/gui/NodeNotebook.py:489
+#: radialnet/gui/NodeNotebook.py:486
 msgid "Match"
 msgstr ""
 
-#: radialnet/gui/NodeNotebook.py:530 radialnet/gui/NodeNotebook.py:580
+#: radialnet/gui/NodeNotebook.py:527 radialnet/gui/NodeNotebook.py:577
 msgid "Class"
 msgstr ""
 
-#: radialnet/gui/NodeNotebook.py:538
+#: radialnet/gui/NodeNotebook.py:535
 msgid "Used ports:"
 msgstr ""
 
-#: radialnet/gui/NodeNotebook.py:561
+#: radialnet/gui/NodeNotebook.py:558
 msgid "Fingerprint"
 msgstr ""
 
-#: radialnet/gui/NodeNotebook.py:581
+#: radialnet/gui/NodeNotebook.py:578
 msgid "Values"
 msgstr ""
 
-#: radialnet/gui/NodeNotebook.py:585
+#: radialnet/gui/NodeNotebook.py:582
 msgid "TCP Timestamp"
 msgstr ""
 

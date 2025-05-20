@@ -347,13 +347,13 @@ class HostInfo(object):
         services = []
         for p in self.ports:
             services.append({
-                "service_name": p.get("service_name", _("unknown")),
+                "service_name": p.get("service_name", "unknown"),
                 "portid": p.get("portid", ""),
                 "service_version": p.get("service_version",
                     _("Unknown version")),
                 "service_product": p.get("service_product", ""),
                 "service_extrainfo": p.get("service_extrainfo", ""),
-                "port_state": p.get("port_state", _("unknown")),
+                "port_state": p.get("port_state", "unknown"),
                 "protocol": p.get("protocol", "")
                 })
         return services
@@ -639,8 +639,10 @@ in epoch format!")
         if scan_name:
             return scan_name
         if self.profile_name and self.get_targets():
-            return _("%s on %s") % (self.profile_name,
-                    join_quoted(self.get_targets()))
+            return _("%(profile_name)s on %(targets)s") % {
+                    profile_name = self.profile_name,
+                    targets = join_quoted(self.get_targets())
+                    }
         return self.get_nmap_command()
 
     def set_scan_name(self, scan_name):

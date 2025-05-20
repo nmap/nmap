@@ -139,8 +139,8 @@ class TopologyPage(HIGVBox):
 
         self.slow_label.set_text(_("""\
 Topology is disabled because too many hosts can cause it
-to run slowly. The limit is %d hosts and there are %d.\
-""" % (SLOW_LIMIT, len(hosts_up))))
+to run slowly. The limit is %(limit)d hosts and there are %(num)d.\
+""" % {limit = SLOW_LIMIT, num = len(hosts_up)}))
 
         if len(hosts_up) <= SLOW_LIMIT:
             self.radialnet.show()

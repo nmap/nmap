@@ -195,7 +195,7 @@ class Profile(UmitConfigParser, object):
             self.read(user_profile)
         except ConfigParser_Error as e:
             # No scan profiles found is not a reason to crash.
-            self.add_profile(_("Profiles not found"),
+            self.add_profile(_("No profiles found"),
                     command="nmap",
                     description=_("The {} file is missing or corrupted"
                         ).format(user_profile))
