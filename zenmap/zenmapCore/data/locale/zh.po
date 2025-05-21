@@ -25,7 +25,7 @@ msgstr "未知版本"
 #: zenmapCore/NmapParser.py:642
 #, python-format
 msgid "%(profile_name)s on %(targets)s"
-msgstr ""
+msgstr "%(profile_name)s: %(targets)s"
 
 #: zenmapCore/UmitOptionParser.py:77
 #, python-format
@@ -64,11 +64,11 @@ msgstr "提高输出的详细级别，可以多次使用来获得更高的详细
 
 #: zenmapCore/UmitConf.py:198
 msgid "No profiles found"
-msgstr ""
+msgstr "未找到任何配置文件"
 
 #: zenmapCore/UmitConf.py:200
 msgid "The {} file is missing or corrupted"
-msgstr ""
+msgstr "{} 文件丢失或损坏"
 
 #: zenmapGUI/ScriptInterface.py:197
 msgid ""
@@ -217,6 +217,8 @@ msgid ""
 "This error occurred while trying to open the file:\n"
 "%s"
 msgstr ""
+"尝试打开文件时发生此错误:"
+"%s"
 
 #: zenmapGUI/DiffCompare.py:256 zenmapGUI/MainWindow.py:289
 msgid "Compare Results"
@@ -411,7 +413,7 @@ msgstr "打开程序帮助"
 
 #: zenmapGUI/MainWindow.py:323
 msgid "Toggle Dark Mode"
-msgstr ""
+msgstr "切换暗模式"
 
 #: zenmapGUI/MainWindow.py:430
 msgid "Can't save to database"
@@ -473,7 +475,7 @@ msgstr "不能保存文件"
 
 #: zenmapGUI/MainWindow.py:721 zenmapGUI/MainWindow.py:756
 msgid "Can't save recent scan information"
-msgstr ""
+msgstr "无法保存最近的扫描信息"
 
 #: zenmapGUI/MainWindow.py:723 zenmapGUI/MainWindow.py:739
 #: zenmapGUI/MainWindow.py:758
@@ -510,10 +512,12 @@ msgid ""
 "The window you are trying to close has a scan running in the background.\n"
 "What do you want to do?"
 msgstr ""
+"您尝试关闭的窗口正在后台运行扫描。\n"
+"您想做什么？"
 
 #: zenmapGUI/MainWindow.py:896
 msgid "Can't save Zenmap configuration"
-msgstr ""
+msgstr "无法保存 Zenmap 配置"
 
 #: zenmapGUI/MainWindow.py:899
 #, python-format
@@ -522,6 +526,7 @@ msgid ""
 "%(configfile)s\n"
 "The error was: %(error)s."
 msgstr ""
+"保存到\n%(configfile)s\n时发生错误。\n错误为：%(error)s。"
 
 #: zenmapGUI/MainWindow.py:947
 msgid "Can't find documentation files"
@@ -542,19 +547,18 @@ msgstr "空Nmap命令"
 
 #: zenmapGUI/ScanInterface.py:380
 msgid ""
-"There is no command to execute. Maybe the selected/typed profile doesn't "
-"exist. Please check the profile name or type the nmap command you would like "
-"to execute."
+"There is no command to execute. Maybe the selected/typed profile doesn't exist. Please check the profile name or type the nmap command you would like to execute."
 msgstr ""
+"“没有要执行的命令。可能所选/输入的配置文件不存在。请检查配置文件名称或输入要执行的 nmap 命令。"
 
 #: zenmapGUI/ScanInterface.py:468
 msgid "Error building command"
-msgstr ""
+msgstr "错误构建命令"
 
 #: zenmapGUI/ScanInterface.py:469
 #, python-format
 msgid "Error message: %s"
-msgstr ""
+msgstr "错误信息：%s"
 
 #: zenmapGUI/ScanInterface.py:489
 msgid ""
@@ -641,35 +645,38 @@ msgstr "未选择主机。"
 #, python-format
 msgid ""
 "Warning: %s \n"
-"Zenmap will continue to run the scan to completion. However, some features "
-"of Zenmap might not work as expected."
+"Zenmap will continue to run the scan to completion. However, some features of Zenmap might not work as expected."
 msgstr ""
+"警告：%s\n"
+"Zenmap 将继续运行扫描直至完成，但是，Zenmap 的某些功能可能无法按预期运行。"
 
 #: zenmapGUI/NmapOutputViewer.py:267
 #, python-format
 msgid ""
 "Warning: %s \n"
-"The scan has completed. However, some features of Zenmap might not work as "
-"expected."
+"The scan has completed. However, some features of Zenmap might not work as expected."
 msgstr ""
+"警告：%s\n"
+"扫描已完成，但是，Zenmap 的某些功能可能无法按预期运行。"
 
 #: zenmapGUI/NmapOutputViewer.py:271
 #, python-format
 msgid ""
 "Warning: %s \n"
-"The scan has been stopped. Some features of Zenmap might not work as "
-"expected."
+"The scan has been stopped. Some features of Zenmap might not work as expected."
 msgstr ""
+"警告：%s\n"
+"扫描已停止，Zenmap 的某些功能可能无法按预期运行。"
 
 #: zenmapGUI/NmapOutputViewer.py:277
 msgid ""
 "You have insufficient resources for Zenmap to be able to display the "
 "complete output from Nmap here. \n"
-msgstr ""
+msgstr "您的资源不足以让 Zenmap 在此处显示 Nmap 的完整输出。\n"
 
 #: zenmapGUI/NmapOutputViewer.py:294
 msgid "The Nmap output file has been closed unexpectedly."
-msgstr ""
+msgstr "Nmap 输出文件已意外关闭。"
 
 #: zenmapGUI/ScanOpenPortsPage.py:173 zenmapGUI/ScanOpenPortsPage.py:203
 #: radialnet/gui/NodeNotebook.py:72
@@ -759,6 +766,8 @@ msgid ""
 "select a method by choosing a directory or by checking the search data base "
 "option in the 'Search options' tab before starting a search"
 msgstr ""
+"%s 可以在目录或自身数据库中搜索结果。请在开始搜索之前，通过选择目录或勾选"
+"“搜索选项”选项卡中的“搜索数据库”选项来选择搜索方法。"
 
 #: zenmapGUI/SearchGUI.py:884
 msgid ""
@@ -896,6 +905,7 @@ msgid ""
 "<b>Copy and <a href=\"https://issues.nmap.org/new/choose\">open a bug "
 "report</a></b>:"
 msgstr ""
+"<b>复制并<a href=\"https://issues.nmap.org/new/choose\">提交错误报告</a></b>："
 
 #: zenmapGUI/ScanNmapOutputPage.py:156
 msgid "Details"
@@ -1049,6 +1059,7 @@ msgid ""
 "Topology is disabled because too many hosts can cause it\n"
 "to run slowly. The limit is %(limit)d hosts and there are %(num)d."
 msgstr ""
+"由于主机数量过多会导致拓扑运行缓慢，因此拓扑已被禁用。主机数量限制为 %(limit)d 个，而实际数量为 %(num)d 个。"
 
 #: zenmapGUI/FileChoosers.py:78
 #, python-format
@@ -1213,7 +1224,7 @@ msgstr ""
 
 #: zenmapGUI/App.py:263
 msgid "Restore default configuration?"
-msgstr ""
+msgstr "恢复默认配置？"
 
 #: zenmapGUI/App.py:264
 #, python-format
@@ -1223,6 +1234,9 @@ msgid ""
 "\n"
 "Do this now? "
 msgstr ""
+"为避免解析配置文件 %(filename)s 时出现更多错误，您可以从 %(dirname)s 复制默认配置。\n"
+"\n"
+"现在执行此操作吗？"
 
 #: zenmapGUI/App.py:323
 #, python-format
@@ -1378,7 +1392,7 @@ msgstr "Fisheye"
 
 #: radialnet/gui/Toolbar.py:177
 msgid "Legend"
-msgstr ""
+msgstr "图例"
 
 #: radialnet/gui/Toolbar.py:260
 msgid "Error saving snapshot"
@@ -1520,79 +1534,79 @@ msgstr "TCP时间戳"
 
 #: radialnet/gui/LegendWindow.py:140
 msgid "Topology Legend"
-msgstr ""
+msgstr "拓扑图例"
 
 #: radialnet/gui/LegendWindow.py:150
 msgid "View full legend online"
-msgstr ""
+msgstr "在线查看完整图例"
 
 #: radialnet/gui/LegendWindow.py:162
 msgid "host was not port scanned"
-msgstr ""
+msgstr "主机未进行端口扫描"
 
 #: radialnet/gui/LegendWindow.py:166
 msgid "host with fewer than 3 open ports"
-msgstr ""
+msgstr "主机开放端口少于 3 个"
 
 #: radialnet/gui/LegendWindow.py:170
 msgid "host with 3 to 6 open ports"
-msgstr ""
+msgstr "主机开放 3 到 6 个端口"
 
 #: radialnet/gui/LegendWindow.py:174
 msgid "host with more than 6 open ports"
-msgstr ""
+msgstr "主机开放超过 6 个端口"
 
 #: radialnet/gui/LegendWindow.py:189
 msgid "host is a router, switch, or WAP"
-msgstr ""
+msgstr "主机是路由器、交换机或无线接入点（WAP）"
 
 #: radialnet/gui/LegendWindow.py:193
 msgid "Traceroute connections"
-msgstr ""
+msgstr "路由跟踪连接"
 
 #: radialnet/gui/LegendWindow.py:197
 msgid "Thicker line means higher round-trip time"
-msgstr ""
+msgstr "线条越粗表示往返时间越长"
 
 #: radialnet/gui/LegendWindow.py:201
 msgid "primary traceroute connection"
-msgstr ""
+msgstr "主路由跟踪连接"
 
 #: radialnet/gui/LegendWindow.py:205
 msgid "alternate path"
-msgstr ""
+msgstr "备用路径"
 
 #: radialnet/gui/LegendWindow.py:209
 msgid "no traceroute information"
-msgstr ""
+msgstr "无路由跟踪信息"
 
 #: radialnet/gui/LegendWindow.py:217
 msgid "missing traceroute hop"
-msgstr ""
+msgstr "缺少路由跟踪跳点"
 
 #: radialnet/gui/LegendWindow.py:221
 msgid "Additional host icons"
-msgstr ""
+msgstr "其他主机图标"
 
 #: radialnet/gui/LegendWindow.py:225
 msgid "router"
-msgstr ""
+msgstr "路由器"
 
 #: radialnet/gui/LegendWindow.py:229
 msgid "switch"
-msgstr ""
+msgstr "交换机"
 
 #: radialnet/gui/LegendWindow.py:234
 msgid "wireless access point"
-msgstr ""
+msgstr "无线接入点"
 
 #: radialnet/gui/LegendWindow.py:238
 msgid "firewall"
-msgstr ""
+msgstr "防火墙"
 
 #: radialnet/gui/LegendWindow.py:243
 msgid "host with some filtered ports"
-msgstr ""
+msgstr "包含部分已过滤端口的主机"
 
 #: radialnet/gui/SaveDialog.py:89
 msgid "Save Topology"
