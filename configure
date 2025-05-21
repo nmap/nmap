@@ -6520,16 +6520,35 @@ printf "%s\n" "$am_cv_python_pyexecdir" >&6; }
 
 
 
+PY_BUILD_OK=false
 if $HAVE_PYTHON ; then
-  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for python setuptools" >&5
-printf %s "checking for python setuptools... " >&6; }
+
+  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for python module setuptools" >&5
+printf %s "checking for python module setuptools... " >&6; }
   if $PYTHON -c 'import setuptools' 2>/dev/null ; then
-    have_setuptools=yes
+    py_have_setuptools=yes
   else
-    have_setuptools=no
+    py_have_setuptools=no
   fi
-  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $have_setuptools" >&5
-printf "%s\n" "$have_setuptools" >&6; }
+  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $py_have_setuptools" >&5
+printf "%s\n" "$py_have_setuptools" >&6; }
+
+  if test "$py_have_setuptools" = "yes"; then
+
+  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for python module build" >&5
+printf %s "checking for python module build... " >&6; }
+  if $PYTHON -c 'import build' 2>/dev/null ; then
+    py_have_build=yes
+  else
+    py_have_build=no
+  fi
+  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $py_have_build" >&5
+printf "%s\n" "$py_have_build" >&6; }
+
+    if test "$py_have_build" = "yes"; then
+      PY_BUILD_OK=true
+    fi
+  fi
 fi
 
 NDIFFDIR=ndiff
@@ -6544,7 +6563,7 @@ else $as_nop
   with_ndiff=check
 fi
 
-if $HAVE_PYTHON && test "$have_setuptools" = "yes" ; then : ;
+if $PY_BUILD_OK ; then : ;
 else
   if test "$with_ndiff" = "check" ; then
     { printf "%s\n" "$as_me:${as_lineno-$LINENO}: WARNING: Not building Ndiff because Python with setuptools was not found" >&5
@@ -6595,7 +6614,7 @@ else $as_nop
 fi
 
 
-if $HAVE_PYTHON ; then : ;
+if $PY_BUILD_OK ; then : ;
 else
   if test "$with_zenmap" = "check"; then
     { printf "%s\n" "$as_me:${as_lineno-$LINENO}: WARNING: Not building Zenmap because Python was not found" >&5

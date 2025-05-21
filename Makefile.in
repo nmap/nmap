@@ -350,14 +350,6 @@ $(ZENMAPDIR)/zenmapCore/Version.py $(ZENMAPDIR)/share/zenmap/config/zenmap_versi
 tests/%: tests/%.cc $(OBJS)
 	$(CXX) -o $@ $(CPPFLAGS) $(CXXFLAGS) $(LDFLAGS) $(OBJS) $(LIBS) $<
 
-# By default distutils rewrites installed scripts to hardcode the
-# location of the Python interpreter they were built with (something
-# like #!/usr/bin/python2.4). This is the wrong thing to do when
-# installing on a machine other than the one used to do the build. Use
-# this as the location of the interpreter whenever we're not doing a
-# local installation.
-DEFAULT_PYTHON_PATH = /usr/bin/env python3
-
 build-zenmap: $(ZENMAPDIR)/pyproject.toml $(ZENMAPDIR)/zenmapCore/Version.py
 	$(PYTHON) -m build $(ZENMAPDIR)/
 

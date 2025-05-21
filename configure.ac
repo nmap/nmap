@@ -233,21 +233,22 @@ CHECK_IPV6_IPPROTO_RAW
 m4_define_default([_AM_PYTHON_INTERPRETER_LIST],[python3 python])
 AM_PATH_PYTHON([3], [HAVE_PYTHON=true], [HAVE_PYTHON=false])
 
+PY_BUILD_OK=false
 if $HAVE_PYTHON ; then
-  AC_MSG_CHECKING([for python setuptools])
-  if $PYTHON -c 'import setuptools' 2>/dev/null ; then
-    have_setuptools=yes
-  else
-    have_setuptools=no
+  CHECK_PYTHON_MODULE(setuptools)
+  if test "$py_have_setuptools" = "yes"; then
+    CHECK_PYTHON_MODULE(build)
+    if test "$py_have_build" = "yes"; then
+      PY_BUILD_OK=true
+    fi
   fi
-  AC_MSG_RESULT([$have_setuptools])
 fi
 
 NDIFFDIR=ndiff
 
 # Do they want Ndiff?
 AC_ARG_WITH(ndiff, AC_HELP_STRING([--without-ndiff], [Skip installation of the Ndiff utility]), [], [with_ndiff=check])
-if $HAVE_PYTHON && test "$have_setuptools" = "yes" ; then : ;
+if $PY_BUILD_OK ; then : ;
 else
   if test "$with_ndiff" = "check" ; then
     AC_MSG_WARN([Not building Ndiff because Python with setuptools was not found])
@@ -286,7 +287,7 @@ ZENMAPDIR=zenmap
 # Do they want Zenmap?
 AC_ARG_WITH(zenmap, AC_HELP_STRING([--without-zenmap], [Skip installation of the Zenmap graphical frontend]), [], [with_zenmap=check])
 
-if $HAVE_PYTHON ; then : ;
+if $PY_BUILD_OK ; then : ;
 else
   if test "$with_zenmap" = "check"; then
     AC_MSG_WARN([Not building Zenmap because Python was not found])

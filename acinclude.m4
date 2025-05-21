@@ -125,3 +125,14 @@ AC_DEFUN([LARGE_FILES_IF_NOT_BROKEN],
   AC_LANG_POP(C++)
 ]
 )
+
+AC_DEFUN([CHECK_PYTHON_MODULE],
+[
+  AC_MSG_CHECKING([for python module $1])
+  if $PYTHON -c 'import $1' 2>/dev/null ; then
+    py_have_$1=yes
+  else
+    py_have_$1=no
+  fi
+  AC_MSG_RESULT([$py_have_$1])
+])
