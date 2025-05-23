@@ -1039,9 +1039,20 @@ void win32_get_servers() {
     error("Unable to get DNS servers: %08x", ret);
     return;
   }
+
+  char pcap_name[1024];
+  const char *pcap_guid = NULL;
+  if (*o.device && DnetName2PcapName(o.device, pcap_name, sizeof(pcap_name))) {
+    // pcap_guid is the AdapterName for the requested adapter.
+    pcap_guid = strchr(pcap_name, '{');
+  }
   for (IP_ADAPTER_ADDRESSES *a = &advec[0]; a != NULL; a = a->Next) {
-      if (a->OperStatus != IfOperStatusUp)
-          continue;
+    if (a->OperStatus != IfOperStatusUp)
+      continue;
+    // If user requested an interface with -e,
+    // don't use DNS servers configured on other interfaces.
+    if (pcap_guid && 0 != strcasecmp(a->AdapterName, pcap_guid))
+      continue;
     for (IP_ADAPTER_DNS_SERVER_ADDRESS_XP *d = a->FirstDnsServerAddress;
         d != NULL; d = d->Next) {
         const sockaddr_storage* ss = (sockaddr_storage*)d->Address.lpSockaddr;
