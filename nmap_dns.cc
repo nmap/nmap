@@ -442,9 +442,9 @@ static void close_dns_servers() {
   std::list<dns_server>::iterator serverI;
 
   for(serverI = servs.begin(); serverI != servs.end(); serverI++) {
-    if (serverI->status != dns_server::status_t::DISCONNECTED) {
+    if (serverI->status != dns_server::DISCONNECTED) {
       nsock_iod_delete(serverI->nsd, NSOCK_PENDING_SILENT);
-      serverI->status = dns_server::status_t::DISCONNECTED;
+      serverI->status = dns_server::DISCONNECTED;
       serverI->to_process.clear();
       serverI->in_process.clear();
     }
@@ -460,12 +460,12 @@ static void do_possible_writes() {
 
   for(servI = servs.begin(); servI != servs.end(); servI++) {
     switch (servI->status) {
-      case dns_server::status_t::CONNECTED:
+      case dns_server::CONNECTED:
         all_servs_disconnected = false;
         break;
-      case dns_server::status_t::CONNECTING:
+      case dns_server::CONNECTING:
         all_servs_disconnected = false;
-      case dns_server::status_t::DISCONNECTED:
+      case dns_server::DISCONNECTED:
         continue;
         break;
     }
@@ -925,11 +925,11 @@ static void connect_evt_handler(nsock_pool nsp, nsock_event evt, void *srv_v) {
           srv->hostname.c_str(),
           nse_status2str(nse_status(evt)));
     }
-    srv->status = dns_server::status_t::DISCONNECTED;
+    srv->status = dns_server::DISCONNECTED;
     return;
   }
   nsock_read(nsp, srv->nsd, read_evt_handler, -1, NULL);
-  srv->status = dns_server::status_t::CONNECTED;
+  srv->status = dns_server::CONNECTED;
 }
 
 static void add_dns_server(const struct sockaddr_storage *addr, size_t addr_len, const char *hostname) {
@@ -985,7 +985,7 @@ static void connect_dns_servers() {
     if (o.ipoptionslen)
       nsock_iod_set_ipoptions(serverI->nsd, o.ipoptions, o.ipoptionslen);
 
-    serverI->status = dns_server::status_t::CONNECTING;
+    serverI->status = dns_server::CONNECTING;
     nsock_connect_udp(dnspool, serverI->nsd, connect_evt_handler, &*serverI, (struct sockaddr *) &serverI->addr, serverI->addr_len, 53);
   }
 
