@@ -119,8 +119,8 @@
 
 #ifdef WIN32
 #include "nmap_winconfig.h"
-/* Need DnetName2PcapName */
-#include "libnetutil/netutil.h"
+#include <winsock2.h>
+#include <iphlpapi.h>
 #endif
 
 #include "nmap.h"
@@ -932,11 +932,30 @@ static void connect_evt_handler(nsock_pool nsp, nsock_event evt, void *srv_v) {
   srv->status = dns_server::status_t::CONNECTED;
 }
 
+static void add_dns_server(const struct sockaddr_storage *addr, size_t addr_len, const char *hostname) {
+  std::list<dns_server>::iterator servI;
+  for(servI = servs.begin(); servI != servs.end(); servI++) {
+    // Already added!
+    if (memcmp(addr, &servI->addr, addr_len) == 0) break;
+  }
+
+  // If it hasn't already been added, add it!
+  if (servI == servs.end()) {
+    dns_server tpserv;
+
+    tpserv.hostname = hostname;
+    memcpy(&tpserv.addr, addr, addr_len);
+    tpserv.addr_len = addr_len;
+
+    servs.push_front(tpserv);
+
+    if (o.debugging) log_write(LOG_STDOUT, "mass_dns: Using DNS server %s\n", hostname);
+  }
+}
 
 // Adds DNS servers to the dns_server list. They can be separated by
 // commas or spaces - NOTE this doesn't actually do any connecting!
 static void add_dns_server(char *ipaddrs) {
-  std::list<dns_server>::iterator servI;
   const char *hostname;
   struct sockaddr_storage addr;
   size_t addr_len = sizeof(addr);
@@ -947,24 +966,7 @@ static void add_dns_server(char *ipaddrs) {
       o.spoofsource ? o.af() : PF_UNSPEC) != 0)
       continue;
 
-    for(servI = servs.begin(); servI != servs.end(); servI++) {
-      // Already added!
-      if (memcmp(&addr, &servI->addr, sizeof(addr)) == 0) break;
-    }
-
-    // If it hasn't already been added, add it!
-    if (servI == servs.end()) {
-      dns_server tpserv;
-
-      tpserv.hostname = hostname;
-      memcpy(&tpserv.addr, &addr, sizeof(addr));
-      tpserv.addr_len = addr_len;
-
-      servs.push_front(tpserv);
-
-      if (o.debugging) log_write(LOG_STDOUT, "mass_dns: Using DNS server %s\n", hostname);
-    }
-
+    add_dns_server(&addr, addr_len, hostname);
   }
 
 }
@@ -991,90 +993,56 @@ static void connect_dns_servers() {
 
 
 #ifdef WIN32
-static bool interface_is_known_by_guid(const char *guid) {
-  const struct interface_info *iflist;
-  int i, n;
-
-  iflist = getinterfaces(&n, NULL, 0);
-  if (iflist == NULL)
-    return false;
-
-  for (i = 0; i < n; i++) {
-    char pcap_name[1024];
-    const char *pcap_guid;
-
-    if (!DnetName2PcapName(iflist[i].devname, pcap_name, sizeof(pcap_name)))
-      continue;
-    pcap_guid = strchr(pcap_name, '{');
-    if (pcap_guid == NULL)
-      continue;
-    if (strcasecmp(guid, pcap_guid) == 0)
-      return true;
+void win32_get_servers() {
+  ULONG ret = ERROR_SUCCESS;
+  std::vector<IP_ADAPTER_ADDRESSES> advec;
+  ULONG len = 0;
+  for (int i=0; i < 3; i++) {
+    if (len == 0) {
+      advec.resize(8);
+    }
+    else {
+      size_t count = len / sizeof(IP_ADAPTER_ADDRESSES);
+      advec.resize(count);
+    }
+    len = advec.size() * sizeof(IP_ADAPTER_ADDRESSES);
+    ret = GetAdaptersAddresses(AF_UNSPEC, (
+          GAA_FLAG_SKIP_UNICAST |
+          GAA_FLAG_SKIP_ANYCAST |
+          GAA_FLAG_SKIP_MULTICAST |
+          GAA_FLAG_SKIP_FRIENDLY_NAME),
+        NULL, &advec[0], &len);
+    if (ret != ERROR_BUFFER_OVERFLOW) {
+      break;
+    }
   }
-
-  return false;
-}
-
-// Reads the Windows registry and adds all the nameservers found via the
-// add_dns_server() function.
-void win32_read_registry() {
-  HKEY hKey;
-  HKEY hKey2;
-  char keybasebuf[2048];
-  char buf[2048], keyname[2048], *p;
-  DWORD sz, i;
-
-  Snprintf(keybasebuf, sizeof(keybasebuf), "SYSTEM\\CurrentControlSet\\Services\\Tcpip\\Parameters");
-  if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, keybasebuf,
-                    0, KEY_READ, &hKey) != ERROR_SUCCESS) {
-    if (firstrun) error("mass_dns: warning: Error opening registry to read DNS servers. Try using --system-dns or specify valid servers with --dns-servers");
+  if (ret != ERROR_SUCCESS) {
+    error("Unable to get DNS servers: %08x", ret);
     return;
   }
-
-  sz = sizeof(buf);
-  if (RegQueryValueEx(hKey, "NameServer", NULL, NULL, (LPBYTE) buf, (LPDWORD) &sz) == ERROR_SUCCESS)
-    add_dns_server(buf);
-
-  sz = sizeof(buf);
-  if (RegQueryValueEx(hKey, "DhcpNameServer", NULL, NULL, (LPBYTE) buf, (LPDWORD) &sz) == ERROR_SUCCESS)
-    add_dns_server(buf);
-
-  RegCloseKey(hKey);
-
-  Snprintf(keybasebuf, sizeof(keybasebuf), "SYSTEM\\CurrentControlSet\\Services\\Tcpip\\Parameters\\Interfaces");
-  if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, keybasebuf,
-                    0, KEY_ENUMERATE_SUB_KEYS, &hKey) == ERROR_SUCCESS) {
-
-    for (i=0; sz = sizeof(buf), RegEnumKeyEx(hKey, i, buf, &sz, NULL, NULL, NULL, NULL) != ERROR_NO_MORE_ITEMS; i++) {
-
-      // If we don't have pcap, interface_is_known_by_guid will crash. Just use any servers we can find.
-      if (o.have_pcap && !interface_is_known_by_guid(buf)) {
-        if (o.debugging > 1)
-          log_write(LOG_PLAIN, "Interface %s is not known; ignoring its nameservers.\n", buf);
-        continue;
-      }
-
-      Snprintf(keyname, sizeof(keyname), "SYSTEM\\CurrentControlSet\\Services\\Tcpip\\Parameters\\Interfaces\\%s", buf);
-
-      if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, keyname,
-                        0, KEY_READ, &hKey2) == ERROR_SUCCESS) {
-
-        sz = sizeof(buf);
-        if (RegQueryValueEx(hKey2, "DhcpNameServer", NULL, NULL, (LPBYTE) buf, (LPDWORD) &sz) == ERROR_SUCCESS)
-          add_dns_server(buf);
-
-        sz = sizeof(buf);
-        if (RegQueryValueEx(hKey2, "NameServer", NULL, NULL, (LPBYTE) buf, (LPDWORD) &sz) == ERROR_SUCCESS)
-          add_dns_server(buf);
-
-        RegCloseKey(hKey2);
-      }
+  for (IP_ADAPTER_ADDRESSES *a = &advec[0]; a != NULL; a = a->Next) {
+      if (a->OperStatus != IfOperStatusUp)
+          continue;
+    for (IP_ADAPTER_DNS_SERVER_ADDRESS_XP *d = a->FirstDnsServerAddress;
+        d != NULL; d = d->Next) {
+        const sockaddr_storage* ss = (sockaddr_storage*)d->Address.lpSockaddr;
+        size_t sslen = d->Address.iSockaddrLength;
+        if (ss->ss_family == AF_INET) {
+          if (!a->Ipv4Enabled) continue;
+        }
+        else if (ss->ss_family == AF_INET6) {
+          if (!a->Ipv6Enabled) continue;
+          /* Windows default site-local IPv6 DNS servers */
+          if (0 == memcmp(&((sockaddr_in6*)ss)->sin6_addr,
+              "\xfe\xc0\x00\x00\x00\x00\xff\xff", 8))
+              continue;
+        }
+        else {
+          continue;
+        }
+        add_dns_server(ss, sslen, inet_ntop_ez(ss, sslen));
     }
-
-    RegCloseKey(hKey);
-
   }
-
 }
 #endif // WIN32
 
