@@ -1189,7 +1189,7 @@ static void init_servs(void) {
 #ifndef WIN32
     parse_resolvdotconf();
 #else
-    win32_read_registry();
+    win32_get_servers();
 #endif
   }
 }
