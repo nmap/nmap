@@ -208,11 +208,16 @@ struct request;
 typedef struct sockaddr_storage sockaddr_storage;
 
 struct dns_server {
+  enum status_t {
+    DISCONNECTED,
+    CONNECTING,
+    CONNECTED
+  };
   std::string hostname;
   sockaddr_storage addr;
   size_t addr_len;
   nsock_iod nsd;
-  int connected;
+  status_t status;
   int reqs_on_wire;
   int capacity;
   int ssthresh;
@@ -220,7 +225,7 @@ struct dns_server {
   std::list<request *> to_process;
   std::list<request *> in_process;
   struct timeval last_increase;
-  dns_server() : hostname(), addr_len(0), connected(0), reqs_on_wire(0),
+  dns_server() : hostname(), addr_len(0), status(DISCONNECTED), reqs_on_wire(0),
     capacity(CAPACITY_MIN), ssthresh((CAPACITY_MAX + CAPACITY_MIN)/2), write_busy(0), to_process(), in_process()
   {
     memset(&addr, 0, sizeof(addr));
@@ -437,9 +442,9 @@ static void close_dns_servers() {
   std::list<dns_server>::iterator serverI;
 
   for(serverI = servs.begin(); serverI != servs.end(); serverI++) {
-    if (serverI->connected) {
+    if (serverI->status != dns_server::status_t::DISCONNECTED) {
       nsock_iod_delete(serverI->nsd, NSOCK_PENDING_SILENT);
-      serverI->connected = 0;
+      serverI->status = dns_server::status_t::DISCONNECTED;
       serverI->to_process.clear();
       serverI->in_process.clear();
     }
@@ -451,8 +456,19 @@ static void close_dns_servers() {
 static void do_possible_writes() {
   std::list<dns_server>::iterator servI;
   request *tpreq;
+  bool all_servs_disconnected = true;
 
   for(servI = servs.begin(); servI != servs.end(); servI++) {
+    switch (servI->status) {
+      case dns_server::status_t::CONNECTED:
+        all_servs_disconnected = false;
+        break;
+      case dns_server::status_t::CONNECTING:
+        all_servs_disconnected = false;
+      case dns_server::status_t::DISCONNECTED:
+        continue;
+        break;
+    }
     if (servI->write_busy == 0 && servI->reqs_on_wire < servI->capacity) {
       tpreq = NULL;
       if (!new_reqs.empty()) {
@@ -472,6 +488,9 @@ static void do_possible_writes() {
         put_dns_packet_on_wire(tpreq);
       }
     }
+  }
+  if (all_servs_disconnected) {
+    nsock_loop_quit(dnspool);
   }
 }
 
@@ -897,7 +916,21 @@ static void read_evt_handler(nsock_pool nsp, nsock_event evt, void *) {
 
 
 // nsock connect handler - Empty because it doesn't really need to do anything...
-static void connect_evt_handler(nsock_pool, nsock_event, void *) {}
+static void connect_evt_handler(nsock_pool nsp, nsock_event evt, void *srv_v) {
+  dns_server *srv = (dns_server *)srv_v;
+  assert(nse_type(evt) == NSE_TYPE_CONNECT);
+  if (nse_status(evt) != NSE_STATUS_SUCCESS) {
+    if (o.debugging) {
+      log_write(LOG_STDOUT, "mass_dns: connection to %s failed: %s\n",
+          srv->hostname.c_str(),
+          nse_status2str(nse_status(evt)));
+    }
+    srv->status = dns_server::status_t::DISCONNECTED;
+    return;
+  }
+  nsock_read(nsp, srv->nsd, read_evt_handler, -1, NULL);
+  srv->status = dns_server::status_t::CONNECTED;
+}
 
 
 // Adds DNS servers to the dns_server list. They can be separated by
@@ -950,9 +983,8 @@ static void connect_dns_servers() {
     if (o.ipoptionslen)
       nsock_iod_set_ipoptions(serverI->nsd, o.ipoptions, o.ipoptionslen);
 
-    nsock_connect_udp(dnspool, serverI->nsd, connect_evt_handler, NULL, (struct sockaddr *) &serverI->addr, serverI->addr_len, 53);
-    nsock_read(dnspool, serverI->nsd, read_evt_handler, -1, NULL);
-    serverI->connected = 1;
+    serverI->status = dns_server::status_t::CONNECTING;
+    nsock_connect_udp(dnspool, serverI->nsd, connect_evt_handler, &*serverI, (struct sockaddr *) &serverI->addr, serverI->addr_len, 53);
   }
 
 }
@@ -1359,7 +1391,8 @@ static void nmap_mass_dns_core(DNS::Request *requests, int num_requests) {
     stat_actual = total_reqs;
 
     int since_last = 0;
-    while (total_reqs > 0) {
+    nsock_loopstatus status = nsock_loop(dnspool, 0);
+    while (status == NSOCK_LOOP_TIMEOUT && total_reqs > 0) {
       since_last += timeout;
       if (since_last > MIN_DNS_TIMEOUT) {
         since_last = 0;
