@@ -933,6 +933,12 @@ static void connect_evt_handler(nsock_pool nsp, nsock_event evt, void *srv_v) {
 }
 
 static void add_dns_server(const struct sockaddr_storage *addr, size_t addr_len, const char *hostname) {
+  const sockaddr_storage *ss = o.SourceSockAddr();
+  if (o.spoofsource && ss && ss->ss_family != addr->ss_family) {
+    // Can't connect to this address family using the specified source (-S)
+    return;
+  }
+
   std::list<dns_server>::iterator servI;
   for(servI = servs.begin(); servI != servs.end(); servI++) {
     // Already added!
@@ -974,13 +980,26 @@ static void add_dns_server(char *ipaddrs) {
 // Creates a new nsi for each DNS server
 static void connect_dns_servers() {
   std::list<dns_server>::iterator serverI;
+  struct sockaddr_storage ss, ss2;
+  size_t sslen = 0, ss2len = 0;
+  if (o.SourceSockAddr()) {
+    o.SourceSockAddr(&ss, &sslen);
+    // Source addr can be set by -e, so unless user specifically asked to
+    // spoof, also grab the source for the other address family.
+    if (!o.spoofsource && *o.device) {
+      int af = ss.ss_family == AF_INET ? AF_INET6 : AF_INET;
+      if (-1 != devname2ipaddr(o.device, af, &ss2)) {
+        ss2len = sizeof(ss2);
+      }
+    }
+  }
   for(serverI = servs.begin(); serverI != servs.end(); serverI++) {
     serverI->nsd = nsock_iod_new(dnspool, NULL);
-    if (o.spoofsource) {
-      struct sockaddr_storage ss;
-      size_t sslen;
-      o.SourceSockAddr(&ss, &sslen);
+    if (sslen > 0 && ss.ss_family == serverI->addr.ss_family) {
       nsock_iod_set_localaddr(serverI->nsd, &ss, sslen);
+    }
+    else if (ss2len > 0 && ss2.ss_family == serverI->addr.ss_family) {
+      nsock_iod_set_localaddr(serverI->nsd, &ss2, ss2len);
     }
     if (o.ipoptionslen)
       nsock_iod_set_ipoptions(serverI->nsd, o.ipoptions, o.ipoptionslen);
