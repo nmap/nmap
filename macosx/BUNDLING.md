@@ -61,7 +61,7 @@ svn: E155021: This client is too old to work with the working copy at...
 ~~~~
 
 You need to **update SVN**.<br/>
-Go to [http://www.wandisco.com/subversion/download#osx](http://www.wandisco.com/subversion/download#osx) and download and install the approriate version for your OS.
+Go to [http://www.wandisco.com/subversion/download#osx](http://www.wandisco.com/subversion/download#osx) and download and install the appropriate version for your OS.
 
 Now, add the path for the new SVN version to your _$PATH_:
 
