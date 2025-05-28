@@ -28,7 +28,7 @@ For a full description of Nmap's installation on Mac OS, visit the page:
 
 ## <a name="requ"></a>Requirements
 
-In order to compile, build and run Nmap on Mac OS, you will requiere the followings:
+In order to compile, build and run Nmap on Mac OS, you will require the following:
 
 1.	**Jhbuild** for bundling and dependencies (see the [BUNDLING file](../BUNDLING.md))
 2. **Xcode** for Mac OS 10.8 or later ([https://developer.apple.com/xcode](https://developer.apple.com/xcode/))
