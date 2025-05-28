@@ -1,5 +1,8 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE][GH#3123] WS-Discovery parsing would error out if the MessageID UUID
+  was not prefixed with "urn:". [nnposter]
+
 Nmap 7.97 [2025-05-12]
 
 o [Zenmap][GH#3087] Fix a crash when starting a scan on Windows in locales that
