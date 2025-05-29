@@ -899,8 +899,8 @@ This scan has not been run yet. Start the scan with the "Scan" button first.'))
                         'An error occurred when saving to\n%(configfile)s'
                         '\nThe error was: %(error)s.'
                         ) % {
-                            configfile = Path.user_config_file,
-                            error = config_parser.failed
+                            'configfile': Path.user_config_file,
+                            'error': config_parser.failed
                             })
             alert.run()
             alert.destroy()
@@ -949,7 +949,7 @@ This scan has not been run yet. Start the scan with the "Scan" button first.'))
 There was an error loading the documentation file %(helpfile)s (%(error)s). See the \
 online documentation at %(url)s.\
 """) % {
-    helpfile = doc_path, error = str(e), url = APP_DOCUMENTATION_SITE})
+    'helpfile': doc_path, 'error': str(e), 'url': APP_DOCUMENTATION_SITE})
             d.run()
             d.destroy()
 

@@ -686,8 +686,8 @@ class ScanInterface(HIGVBox):
 
         self.filter_bar.set_information_text(
                 _("%(num_shown)d/%(total)d hosts shown") % {
-                    num_shown = len(self.inventory.get_hosts_up()),
-                    total = len(NetworkInventory.get_hosts_up(self.inventory))
+                    'num_shown': len(self.inventory.get_hosts_up()),
+                    'total': len(NetworkInventory.get_hosts_up(self.inventory))
                     })
 
         mode = self.scan_result.scan_host_view.mode

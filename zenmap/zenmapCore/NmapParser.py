@@ -640,8 +640,8 @@ in epoch format!")
             return scan_name
         if self.profile_name and self.get_targets():
             return _("%(profile_name)s on %(targets)s") % {
-                    profile_name = self.profile_name,
-                    targets = join_quoted(self.get_targets())
+                    'profile_name': self.profile_name,
+                    'targets': join_quoted(self.get_targets())
                     }
         return self.get_nmap_command()
 

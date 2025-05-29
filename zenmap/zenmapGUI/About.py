@@ -130,7 +130,7 @@ class About(HIGDialog):
     def __init__(self):
         HIGDialog.__init__(self)
         self.set_title(_("About %(nmap)s and %(zenmap)s") % {
-            nmap = NMAP_DISPLAY_NAME, zenmap = APP_DISPLAY_NAME })
+            'nmap': NMAP_DISPLAY_NAME, 'zenmap': APP_DISPLAY_NAME })
 
         self.vbox.set_border_width(12)
         self.vbox.set_spacing(12)
@@ -155,14 +155,14 @@ class About(HIGDialog):
         entry = _program_entry(APP_DISPLAY_NAME, APP_WEB_SITE, _(
             "%(zenmap)s is a multi-platform graphical %(nmap)s frontend and results viewer. "
             "It was originally derived from %(umit)s.") % {
-                zenmap = APP_DISPLAY_NAME,
-                nmap = NMAP_DISPLAY_NAME,
-                umit = UMIT_DISPLAY_NAME})
+                'zenmap': APP_DISPLAY_NAME,
+                'nmap': NMAP_DISPLAY_NAME,
+                'umit': UMIT_DISPLAY_NAME})
         self.vbox.pack_start(entry, True, True, 0)
 
         entry = _program_entry(UMIT_DISPLAY_NAME, UMIT_WEB_SITE, _(
             "%(umit)s is a %(nmap)s GUI created as part of the Nmap/Google Summer "
-            "of Code program.") % {umit = UMIT_DISPLAY_NAME, nmap = NMAP_DISPLAY_NAME})
+            "of Code program.") % {'umit': UMIT_DISPLAY_NAME, 'nmap': NMAP_DISPLAY_NAME})
         button = Gtk.Button.new_with_label(_("%s credits") % UMIT_DISPLAY_NAME)
         button.connect("clicked", self._show_umit_credits)
         entry.hbox.pack_start(button, False, True, 0)

@@ -227,9 +227,9 @@ The specific error was
 
 %(zenmap)s needs to create this directory to store information such as the list of \
 scan profiles. Check for access to the directory and try again.""") % {
-                    dirname = repr(Path.user_config_dir),
-                    configdir = repr(Path.config_dir),
-                    error = repr(str(e)), zenmap = APP_DISPLAY_NAME
+                    'dirname': repr(Path.user_config_dir),
+                    'configdir': repr(Path.config_dir),
+                    'error': repr(str(e)), zenmap = APP_DISPLAY_NAME
                     }
                 )
         error_dialog.run()
@@ -253,7 +253,8 @@ The specific error was
 
 %(zenmap)s can continue without this file but any information in it will be ignored \
 until it is repaired.""") % {
-    filename = Path.user_config_file, error = str(e), zenmap = APP_DISPLAY_NAME}
+    'filename': Path.user_config_file,
+    'error': str(e), 'zenmap': APP_DISPLAY_NAME}
                 )
         error_dialog.run()
         error_dialog.destroy()
@@ -266,7 +267,8 @@ To avoid further errors parsing the configuration file %(filename)s, \
 you can copy the default configuration from %(dirname)s.
 
 Do this now? \
-""") % {filename = Path.user_config_file, dirname = global_config_path},
+""") % {
+    'filename': Path.user_config_file, 'dirname': global_config_path},
                 )
         repair_dialog.add_button(Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL)
         repair_dialog.set_default_response(Gtk.ResponseType.CANCEL)
@@ -323,7 +325,7 @@ class NonRootWarning (HIGAlertDialog):
         warning_text = _('''You are trying to run %(zenmap)s with a non-root user!
 
 Some %(nmap)s options need root privileges to work.''') % {
-            zenmap = APP_DISPLAY_NAME, nmap = NMAP_DISPLAY_NAME}
+        'zenmap': APP_DISPLAY_NAME, 'nmap': NMAP_DISPLAY_NAME}
 
         HIGAlertDialog.__init__(self, message_format=_('Non-root user'),
                                 secondary_text=warning_text)
