@@ -1497,7 +1497,7 @@ msgstr "Gründe"
 msgid ""
 "Traceroute on port <b>%(port)s/%(proto)s</b> took <b>%(hops)d</b> known hops."
 msgstr ""
-msgstr "Traceroute auf Port <b>%(port)s/%(proto)s</b> summiert <b>%(hops)d</b> bekannte Hops."
+"Traceroute auf Port <b>%(port)s/%(proto)s</b> summiert <b>%(hops)d</b> bekannte Hops."
 
 #: radialnet/gui/NodeNotebook.py:88
 msgid "No traceroute information available."

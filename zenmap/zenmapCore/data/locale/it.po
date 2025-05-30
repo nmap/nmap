@@ -563,8 +563,8 @@ msgid ""
 "There was an error loading the documentation file %(helpfile)s (%(error)s). "
 "See the online documentation at %(url)s."
 msgstr ""
--"Si è verificato un errore caricando i file di documentazione %(helpfile)s (%(error)s). Vedere "
--"la documentazione online su %(url)s."
+"Si è verificato un errore caricando i file di documentazione %(helpfile)s (%(error)s). Vedere "
+"la documentazione online su %(url)s."
 
 #: zenmapGUI/ScanInterface.py:379
 msgid "Empty Nmap Command"
@@ -1051,8 +1051,8 @@ msgid ""
 "%(zenmap)s is a multi-platform graphical %(nmap)s frontend and results "
 "viewer. It was originally derived from %(umit)s."
 msgstr ""
--"%(zenmap)s è un frontend e visualizzatore di risultati %(nmap)s grafico multi-piattaforma. "
--"Deriva originariamente da %(umit)s."
+"%(zenmap)s è un frontend e visualizzatore di risultati %(nmap)s grafico multi-piattaforma. "
+"Deriva originariamente da %(umit)s."
 
 #: zenmapGUI/About.py:164
 #, python-format
@@ -1514,7 +1514,7 @@ msgid ""
 "<b>*</b> TCP sequence <i>index</i> equal to %(index)d and <i>difficulty</i> "
 "is \"%(difficulty)s\"."
 msgstr ""
--"<b>*</b> sequenza TCP <i>index</i> uguale a %(index)d e <i>difficoltà</i> è \"%(difficulty)s\"."
+"<b>*</b> sequenza TCP <i>index</i> uguale a %(index)d e <i>difficoltà</i> è \"%(difficulty)s\"."
 
 #: radialnet/gui/NodeNotebook.py:134
 msgid "General"

@@ -722,7 +722,7 @@ msgid ""
 "complete output from Nmap here. \n"
 msgstr ""
 "No hay suficientes recursos para que Zenmap pueda mostrar la salida completa "
-"de Nmap aquí."
+"de Nmap aquí. \n"
 
 #: zenmapGUI/NmapOutputViewer.py:294
 msgid "The Nmap output file has been closed unexpectedly."
