@@ -4,7 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "zenmap"
-license = {text = "Nmap License (https://nmap.org/book/man-legal.html)"}
+license = "LicenseRef-Nmap-License"
+license-files = ["LICENSE", "COPYING_HIGWIDGETS"]
 dynamic = ["version"]
 authors = [{name = "The Nmap Project"}]
 description = "Nmap frontend and results viewer"
@@ -28,6 +29,7 @@ packages = [
 "zenmapCore",
 "zenmapCore.data.config",
 "zenmapCore.data.docs",
+"zenmapCore.data.locale",
 "zenmapCore.data.misc",
 "zenmapCore.data.pixmaps",
 "zenmapCore.data.pixmaps.radialnet",
@@ -48,8 +50,9 @@ version = {attr = "zenmapCore.Version.VERSION"}
 "zenmapCore.data.pixmaps.radialnet" = ["*.png"]
 "zenmapCore.data.config" = ["zenmap.conf", "scan_profile.usp", "zenmap_version"]
 "zenmapCore.data.docs" = ["*.html"]
+"zenmapCore.data.locale" = ["*/LC_MESSAGES/zenmap.mo"]
 "zenmapCore.data.misc" = ["*.xml"]
 
-[tool.setuptools.gettext]
+[tool.setuptools-gettext]
 source_dir = "zenmapCore/data/locale"
 build_dir = "zenmapCore/data/locale"
