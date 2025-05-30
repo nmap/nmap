@@ -229,7 +229,7 @@ The specific error was
 scan profiles. Check for access to the directory and try again.""") % {
                     'dirname': repr(Path.user_config_dir),
                     'configdir': repr(Path.config_dir),
-                    'error': repr(str(e)), zenmap = APP_DISPLAY_NAME
+                    'error': repr(str(e)), 'zenmap': APP_DISPLAY_NAME
                     }
                 )
         error_dialog.run()

@@ -729,9 +729,9 @@ class TraceroutePage(BWVBox):
 
             self.__trace_scroll.add_with_viewport(self.__trace_treeview)
 
-            self.__trace_info = {port = self.__node.get_info('trace')['port'],
-                                 proto = self.__node.get_info('trace')['protocol'],
-                                 hops = len(self.__node.get_info('trace')['hops'])}
+            self.__trace_info = {'port': self.__node.get_info('trace')['port'],
+                                 'proto': self.__node.get_info('trace')['protocol'],
+                                 'hops': len(self.__node.get_info('trace')['hops'])}
 
             self.__trace_label = BWLabel(TRACE_TEXT % self.__trace_info)
             self.__trace_label.set_use_markup(True)
