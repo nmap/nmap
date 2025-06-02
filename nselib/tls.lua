@@ -809,10 +809,10 @@ CIPHERS = {
 ["TLS_GOSTR341112_256_WITH_KUZNYECHIK_CTR_OMAC"] =  0xC100, -- RFC9189
 ["TLS_GOSTR341112_256_WITH_MAGMA_CTR_OMAC"]      =  0xC101, -- RFC9189
 ["TLS_GOSTR341112_256_WITH_28147_CNT_IMIT"]      =  0xC102, -- RFC9189
-["TLS_GOSTR341112_256_WITH_KUZNYECHIK_MGM_L"]    =  0xC103, -- draft-smyshlyaev-tls13-gost-suites
-["TLS_GOSTR341112_256_WITH_MAGMA_MGM_L"]         =  0xC104, -- draft-smyshlyaev-tls13-gost-suites
-["TLS_GOSTR341112_256_WITH_KUZNYECHIK_MGM_S"]    =  0xC105, -- draft-smyshlyaev-tls13-gost-suites
-["TLS_GOSTR341112_256_WITH_MAGMA_MGM_S"]         =  0xC106, -- draft-smyshlyaev-tls13-gost-suites
+["TLS_GOSTR341112_256_WITH_KUZNYECHIK_MGM_L"]    =  0xC103, -- RFC9367
+["TLS_GOSTR341112_256_WITH_MAGMA_MGM_L"]         =  0xC104, -- RFC9367
+["TLS_GOSTR341112_256_WITH_KUZNYECHIK_MGM_S"]    =  0xC105, -- RFC9367
+["TLS_GOSTR341112_256_WITH_MAGMA_MGM_S"]         =  0xC106, -- RFC9367
 ["TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256-draft"]    =  0xCC13, -- RFC7905 superseded
 ["TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256-draft"]  =  0xCC14, -- RFC7905 superseded
 ["TLS_DHE_RSA_WITH_CHACHA20_POLY1305_SHA256-draft"]      =  0xCC15, -- RFC7905 superseded
@@ -925,6 +925,63 @@ local cipher_info_cache = {
     cipher = "NULL",
     hash = "HMAC_GOSTR3411",
     draft = true
+  },
+  ["TLS_GOSTR341112_256_WITH_KUZNYECHIK_CTR_OMAC"] = {
+    kex = "GOST_DH",
+    cipher = "KUZNYECHIK",
+    mode = "stream",
+    hash = "GOSTR341112",
+    size = 256
+  },
+  ["TLS_GOSTR341112_256_WITH_MAGMA_CTR_OMAC"] = {
+    kex = "GOST_DH",
+    cipher = "MAGMA",
+    mode = "stream",
+    hash = "GOSTR341112",
+    size = 256
+  },
+  ["TLS_GOSTR341112_256_WITH_28147_CNT_IMIT"] = {
+    kex = "GOST_DH",
+    cipher = "KUZNYECHIK",
+    mode = "stream",
+    hash = "GOSTR341112",
+    size = 256
+  },
+  ["TLS_GOSTR341112_256_WITH_KUZNYECHIK_MGM_L"] = {
+    kex = "AKE",
+    cipher = "KUZNYECHIK",
+    mode = "MGM",
+    hash = "GOSTR341112",
+    tls13ok = true,
+    tls13only = true,
+    size = 256, block_size = 128,
+  },
+  ["TLS_GOSTR341112_256_WITH_MAGMA_MGM_L"] = {
+    kex = "AKE",
+    cipher = "MAGMA",
+    mode = "MGM",
+    hash = "GOSTR341112",
+    tls13ok = true,
+    tls13only = true,
+    size = 256, block_size = 64,
+  },
+  ["TLS_GOSTR341112_256_WITH_KUZNYECHIK_MGM_S"] = {
+    kex = "AKE",
+    cipher = "KUZNYECHIK",
+    mode = "MGM",
+    hash = "GOSTR341112",
+    tls13ok = true,
+    tls13only = true,
+    size = 256, block_size = 128,
+  },
+  ["TLS_GOSTR341112_256_WITH_MAGMA_MGM_S"] = {
+    kex = "AKE",
+    cipher = "MAGMA",
+    mode = "MGM",
+    hash = "GOSTR341112",
+    tls13ok = true,
+    tls13only = true,
+    size = 256, block_size = 64,
   },
 }
 
