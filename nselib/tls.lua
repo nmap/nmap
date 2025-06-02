@@ -212,6 +212,7 @@ DEFAULT_ELLIPTIC_CURVES = {
   "secp521r1",
   "ecdh_x25519",
   "ffdhe2048", -- added for TLSv1.3
+  "X25519MLKEM768", -- Chrome offers this one
 }
 
 ---
@@ -286,11 +287,17 @@ SignatureSchemes = {
   ecdsa_brainpoolP256r1tls13_sha256 = 0x081a,
   ecdsa_brainpoolP384r1tls13_sha384 = 0x081b,
   ecdsa_brainpoolP512r1tls13_sha512 = 0x081c,
+  -- draft-tls-westerbaan-mldsa
+  mldsa44 = 0x0904,
+  mldsa65 = 0x0905,
+  mldsa87 = 0x0906,
   -- Legacy algorithms
   rsa_pkcs1_sha1 = 0x0201,
   ecdsa_sha1     = 0x0203,
-  -- RFC 8998
-  sm2sig_sm3 = 0x0708,
+  -- draft-ietf-tls-tls13-pkcs1
+  rsa_pkcs1_sha256_legacy = 0x0420,
+  rsa_pkcs1_sha384_legacy = 0x0520,
+  rsa_pkcs1_sha512_legacy = 0x0620,
 }
 
 ---
@@ -1419,7 +1426,7 @@ end
 
 SCSVS = {
 ["TLS_EMPTY_RENEGOTIATION_INFO_SCSV"]              =  0x00FF, -- rfc5746
-["TLS_FALLBACK_SCSV"]                              =  0x5600, -- draft-ietf-tls-downgrade-scsv-00
+["TLS_FALLBACK_SCSV"]                              =  0x5600, -- rfc7507
 }
 
 handshake_parse = {
@@ -1702,12 +1709,13 @@ do
     {"md5","rsa"},
     {"sha1","rsa"},
     {"sha224","rsa"},
-    -- most likely are sha256 and sha512.
+    -- most likely is sha256
     {"sha256","rsa"},
     {"sha256","dsa"},
     {"sha256","ecdsa"},
+    {"sha384","rsa"},
+    {"sha384","ecdsa"},
     {"sha512","rsa"},
-    {"sha512","dsa"},
     {"sha512","ecdsa"},
     {"intrinsic","ed25519"},
     {"intrinsic","ed448"},
@@ -1731,6 +1739,7 @@ do
   "rsa_pss_pss_sha512",
   "rsa_pkcs1_sha1",
   "ecdsa_sha1",
+  "mldsa44",
   }
   DEFAULT_SIGSCHEMES = EXTENSION_HELPERS["signature_algorithms_13"](sigalgs)
 end
