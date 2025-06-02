@@ -854,6 +854,18 @@ DEFAULT_TLS12_CIPHERS = {
   "TLS_DHE_DSS_WITH_3DES_EDE_CBC_SHA", -- mandatory TLSv1.0
   "TLS_DHE_RSA_WITH_AES_256_CBC_SHA", -- DHE with strong AES
   "TLS_RSA_WITH_RC4_128_MD5", -- Weak and old, but likely supported on old stuff
+  -- The following are sent by Chrome 136:
+  "TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256",
+  "TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256",
+  "TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384",
+  "TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384",
+  "TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256",
+  "TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256",
+  "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA",
+  "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA",
+  "TLS_RSA_WITH_AES_128_GCM_SHA256",
+  "TLS_RSA_WITH_AES_256_GCM_SHA384",
+  "TLS_RSA_WITH_AES_256_CBC_SHA",
 }
 -- Same, but for TLSv1.3
 DEFAULT_TLS13_CIPHERS = {
@@ -879,49 +891,43 @@ local cipher_info_cache = {
   -- pre-populate the special cases that break the parser below
   ["TLS_ECDH_anon_NULL_WITH_SHA-draft"] = {
     kex = "ECDH", dh = true, ec = true,
-    server_auth = "anon",
+    anon = true,
     cipher = "NULL",
     hash = "SHA",
     draft = true
   },
   ["TLS_ECMQV_ECDSA_NULL_SHA-draft"] = {
     kex = "ECMQV", ec = true,
-    server_auth = "ECDSA",
     cipher = "NULL",
     hash = "SHA",
     draft = true
   },
   ["TLS_ECMQV_ECNRA_NULL_SHA-draft"] = {
     kex = "ECMQV", ec = true,
-    server_auth = "ECNRA",
     cipher = "NULL",
     hash = "SHA",
     draft = true
   },
   ["TLS_GOSTR341094_WITH_28147_CNT_IMIT-draft"] = {
     kex = "GOSTR341094",
-    server_auth = "GOSTR341094",
     cipher = "GOST28147",
     hash = "IMIT_GOST28147",
     draft = true
   },
   ["TLS_GOSTR341001_WITH_28147_CNT_IMIT-draft"] = {
     kex = "GOSTR341001",
-    server_auth = "GOSTR341001",
     cipher = "GOST28147",
     hash = "IMIT_GOST28147",
     draft = true
   },
   ["TLS_GOSTR341094_WITH_NULL_GOSTR3411-draft"] = {
     kex = "GOSTR341094",
-    server_auth = "GOSTR341094",
     cipher = "NULL",
     hash = "HMAC_GOSTR3411",
     draft = true
   },
   ["TLS_GOSTR341001_WITH_NULL_GOSTR3411-draft"] = {
     kex = "GOSTR341001",
-    server_auth = "GOSTR341001",
     cipher = "NULL",
     hash = "HMAC_GOSTR3411",
     draft = true
