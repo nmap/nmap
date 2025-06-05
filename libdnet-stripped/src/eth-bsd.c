@@ -42,6 +42,7 @@ eth_open(const char *device)
 	struct ifreq ifr;
 	eth_t *e;
 	int i;
+	int enoent_ok = 1;
 
 	if ((e = calloc(1, sizeof(*e))) != NULL) {
 		char file[32] = "/dev/bpf";
@@ -51,7 +52,13 @@ eth_open(const char *device)
 			   from seeing incoming traffic, even in other
 			   processes. */
 			e->fd = open(file, O_RDWR);
-			if (e->fd != -1 || errno != EBUSY)
+			if (e->fd != -1)
+				break;
+			/* /dev/bpf may not exist, but some contiguous range from /dev/bpf1 will.
+			 * After we've seen one valid device, ENOENT becomes meaningful. */
+			if (errno == EBUSY)
+				enoent_ok = 0;
+			else if (errno != ENOENT || !enoent_ok)
 				break;
 			snprintf(file, sizeof(file), "/dev/bpf%d", i);
 		}
