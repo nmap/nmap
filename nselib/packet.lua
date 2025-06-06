@@ -140,6 +140,7 @@ ETHER_TYPE_IPV6 = 0x86dd
 ETHER_TYPE_PPPOE_DISCOVERY = 0x8863
 ETHER_TYPE_PPPOE_SESSION = 0x8864
 ETHER_TYPE_EAPOL = 0x888e
+ETHER_TYPE_PROFINET = 0x8892
 ETHER_TYPE_ATAOE = 0x88a2
 
 ----------------------------------------------------------------------------------------------------------------

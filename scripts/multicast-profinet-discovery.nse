@@ -74,7 +74,7 @@ build_eth_frame= function(iface)
 
 
   eth_packet.mac_dst = packet.mactobin(pn_dcp_multicast)
-  eth_packet.ether_type = 0x8892
+  eth_packet.ether_type = packet.ETHER_TYPE_PROFINET
 
   -- pn-dcp request frame : [FrameID | ServiceID | ServiceType | Xid | ResponseDelay | DCPDataLength | Option | Suboption ]
   eth_packet.buf = string.pack(">I2BBI4I2I2BBI2",
@@ -240,7 +240,7 @@ discoverThread = function(iface, to_ms, pn_dcp, devices)
   local pcap_s = nmap.new_socket()
   pcap_s:set_timeout(100)
   dnet:ethernet_open(iface.device)
-  pcap_s:pcap_open(iface.device, 256, false, "ether proto 0x8892")
+  pcap_s:pcap_open(iface.device, 256, false, ("ether proto 0x%04x"):format(packet.ETHER_TYPE_PROFINET))
 
   dnet:ethernet_send(pn_dcp)	-- send the frame
   dnet:ethernet_close();	-- close the sender
