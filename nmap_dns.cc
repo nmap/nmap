@@ -548,6 +548,8 @@ static void put_dns_packet_on_wire(request *req) {
       plen = DNS::Factory::buildReverseRequest(req->id, reqt.ssv.front(), packet, maxlen);
       break;
     default:
+      // Unhandled type. Should have been dealt with earlier.
+      assert(false);
       break;
   }
 
@@ -1333,7 +1335,13 @@ static void nmap_mass_dns_core(DNS::Request *requests, int num_requests) {
           continue;
         }
         break;
+      case DNS::NONE:
+        // This is okay, just don't make a request.
+        continue;
+        break;
       default:
+        error("%s: Unknown DNS request type %s\n", __func__, reqt.repr());
+        continue;
         break;
     }
 
@@ -1451,16 +1459,23 @@ static void nmap_mass_dns_core(DNS::Request *requests, int num_requests) {
 static void nmap_system_dns_core(DNS::Request requests[], int num_requests) {
   char spmobuf[1024];
 
-  stat_actual = num_requests;
+  stat_actual = 0;
+  for (int i=0; i < num_requests; i++) {
+    if (requests[i].type != DNS::NONE) {
+      stat_actual++;
+    }
+  }
+
   Snprintf(spmobuf, sizeof(spmobuf), "System DNS resolution of %d host%s.", stat_actual, stat_actual-1 ? "s" : "");
   SPM = new ScanProgressMeter(spmobuf);
 
   for (int i=0; i < num_requests; i++)
   {
     if (keyWasPressed())
-      SPM->printStats((double) i / stat_actual, NULL);
+      SPM->printStats((double) i / num_requests, NULL);
 
-    if (system_resolve(requests[i])) {
+    DNS::Request &r = requests[i];
+    if (r.type != DNS::NONE && system_resolve(r)) {
       stat_ok++;
     }
   }
