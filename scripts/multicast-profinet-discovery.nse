@@ -219,7 +219,8 @@ parse_pndcp = function(pn_data)
   local result = {}
   while(pos < #pn_data) do
 
-    local option, block, p = string.unpack("!2 c2 >s2", pn_data, pos)
+    local option, block
+    option, block, pos = string.unpack("!2 c2 >s2", pn_data, pos)
     parser[option](block, result)
 
   end -- close while
