@@ -2817,7 +2817,8 @@ int service_scan(std::vector<Target *> &Targets) {
   nmap_set_nsock_logger();
   nmap_adjust_loglevel(o.versionTrace());
 
-  nsock_pool_set_device(nsp, o.device);
+  if (*o.device)
+    nsock_pool_set_device(nsp, o.device);
 
   if (o.proxy_chain) {
     nsock_pool_set_proxychain(nsp, o.proxy_chain);

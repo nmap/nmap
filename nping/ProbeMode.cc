@@ -97,7 +97,9 @@ int ProbeMode::init_nsock(){
       /* Create a new nsock pool */
       if ((nsp = nsock_pool_new(NULL)) == NULL)
         nping_fatal(QT_3, "Failed to create new pool.  QUITTING.\n");
-      nsock_pool_set_device(nsp, o.getDevice());
+      const char *device = o.getDevice();
+      if (*device)
+        nsock_pool_set_device(nsp, device);
 
       /* Allow broadcast addresses */
       nsock_pool_set_broadcast(nsp, 1);

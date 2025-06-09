@@ -1381,7 +1381,8 @@ static void nmap_mass_dns_core(DNS::Request *requests, int num_requests) {
     nmap_set_nsock_logger();
     nmap_adjust_loglevel(o.packetTrace());
 
-    nsock_pool_set_device(dnspool, o.device);
+    if (*o.device)
+      nsock_pool_set_device(dnspool, o.device);
 
     if (o.proxy_chain)
       nsock_pool_set_proxychain(dnspool, o.proxy_chain);

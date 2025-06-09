@@ -139,7 +139,8 @@ void FPNetworkControl::init(const char *ifname, devtype iftype) {
   nmap_set_nsock_logger();
   nmap_adjust_loglevel(o.packetTrace());
 
-  nsock_pool_set_device(nsp, o.device);
+  if (*o.device)
+    nsock_pool_set_device(nsp, o.device);
 
   if (o.proxy_chain)
     nsock_pool_set_proxychain(this->nsp, o.proxy_chain);
