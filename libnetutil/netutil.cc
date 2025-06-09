@@ -1459,6 +1459,9 @@ struct interface_info *getInterfaceByName(const char *iname, int af) {
 
   ifaces = getinterfaces(&numifaces, NULL, 0);
 
+  if (ifaces == NULL)
+    return NULL;
+
   for (ifnum = 0; ifnum < numifaces; ifnum++) {
     if ((strcmp(ifaces[ifnum].devfullname, iname) == 0 ||
         strcmp(ifaces[ifnum].devname, iname) == 0) &&
