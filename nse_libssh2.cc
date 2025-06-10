@@ -758,22 +758,46 @@ static int l_channel_write (lua_State *L) {
     return channel_write(L, 0, 0);
 }
 
-static int channel_exec (lua_State *L, int status, lua_KContext ctx) {
+struct request_context {
+    LIBSSH2_CHANNEL *channel;
+    const char *request;
+    size_t request_len;
+    const char *message;
+    size_t message_len;
+};
+
+static int channel_request (lua_State *L, int status, lua_KContext ctx) {
     int rc;
-    // ssh_userdata *state = (ssh_userdata *)lua_touserdata(L, 1);
-    LIBSSH2_CHANNEL *channel = (LIBSSH2_CHANNEL *) lua_touserdata(L, 2);
-    const char *cmd = luaL_checkstring(L, 3);
+    request_context *req_ctx = (request_context *)ctx;
 
-    DO_OR_YIELD((rc = libssh2_channel_exec(channel, cmd)),
-        1, channel_exec, ctx);
+    DO_OR_YIELD((rc = libssh2_channel_process_startup(req_ctx->channel,
+                    req_ctx->request, req_ctx->request_len,
+                    req_ctx->message, req_ctx->message_len)),
+            1, channel_request, ctx);
+
+    free(req_ctx);
+
     if (rc != 0)
-        return luaL_error(L, "Error executing command");
+        return luaL_error(L, "Error sending %s request", req_ctx->request);
 
-   return 0;
+    return 0;
+}
+
+static int l_channel_request (lua_State *L) {
+    request_context *ctx =  (request_context *)safe_zalloc(sizeof(request_context));
+    ctx->channel = (LIBSSH2_CHANNEL *) lua_touserdata(L, 2);
+    ctx->request = luaL_checklstring(L, 3, &ctx->request_len);
+    ctx->message = lua_tolstring(L, 3, &ctx->message_len);
+    return channel_request(L, 0, (lua_KContext)ctx);
 }
 
 static int l_channel_exec (lua_State *L) {
-    return channel_exec(L, 0, 0);
+    request_context *ctx =  (request_context *)safe_zalloc(sizeof(request_context));
+    ctx->channel = (LIBSSH2_CHANNEL *) lua_touserdata(L, 2);
+    ctx->request = "exec";
+    ctx->request_len = sizeof("exec") - 1;
+    ctx->message = luaL_checklstring(L, 3, &ctx->message_len);
+    return channel_request(L, 0, (lua_KContext)ctx);
 }
 
 static int l_channel_eof(lua_State *L) {
@@ -806,40 +830,51 @@ static int l_channel_send_eof(lua_State *L) {
     return channel_send_eof(L, 0, 0);
 }
 
-struct channel_context {
-  bool request_pty;
-  LIBSSH2_CHANNEL *channel;
+struct pty_context {
+    LIBSSH2_CHANNEL *channel;
+    const char *term;
+    size_t term_len;
+    const char *modes;
+    size_t modes_len;
+    int width;
+    int height;
+    int width_px;
+    int height_px;
 };
 
 static int setup_channel(lua_State *L, int status, lua_KContext ctx) {
-    int rc;
-    channel_context *channel_ctx = (channel_context *) ctx;
+    assert(ctx == 0);
     ssh_userdata *state = (ssh_userdata *)lua_touserdata(L, 1);
+    LIBSSH2_CHANNEL *channel = NULL;
 
-    if (channel_ctx->channel == NULL) {
-      DO_OR_YIELD(((channel_ctx->channel = libssh2_channel_open_session(state->session)) == NULL ?
-            libssh2_session_last_errno(state->session) : LIBSSH2_ERROR_NONE),
-          1, setup_channel, ctx);
-      if (channel_ctx->channel == NULL) {
-        free(channel_ctx);
+    DO_OR_YIELD(((channel = libssh2_channel_open_session(state->session)) == NULL ?
+                libssh2_session_last_errno(state->session) : LIBSSH2_ERROR_NONE),
+            1, setup_channel, ctx);
+    if (channel == NULL) {
         return luaL_error(L, "Opening channel");
-      }
     }
-
-    if (channel_ctx->request_pty) {
-      DO_OR_YIELD((rc = libssh2_channel_request_pty(channel_ctx->channel, "vanilla")),
-          1, setup_channel, ctx);
-      if (rc != 0) {
-        free(channel_ctx);
-        return luaL_error(L, "Requesting pty");
-      }
-      channel_ctx->request_pty = false; // make sure we don't enter this block again
-    }
-
-    lua_pushlightuserdata(L, channel_ctx->channel);
-    free(channel_ctx);
-
+    lua_pushlightuserdata(L, channel);
     return 1;
+}
+
+static int setup_pty(lua_State *L, int status, lua_KContext ctx) {
+    int rc;
+    pty_context *pty_ctx = (pty_context *)ctx;
+    DO_OR_YIELD((rc = libssh2_channel_request_pty_ex(pty_ctx->channel,
+                    pty_ctx->term, pty_ctx->term_len,
+                    pty_ctx->modes, pty_ctx->modes_len,
+                    pty_ctx->width, pty_ctx->height,
+                    pty_ctx->width_px, pty_ctx->height_px
+                    )),
+            1, setup_pty, ctx);
+
+    free(pty_ctx);
+
+    if (rc != 0) {
+        return luaL_error(L, "Requesting pty");
+    }
+
+    return 0;
 }
 
 static int l_open_channel (lua_State *L) {
@@ -850,10 +885,31 @@ static int l_open_channel (lua_State *L) {
     }
     lua_settop(L, 1);
 
-    channel_context *ctx =  (channel_context *)safe_zalloc(sizeof(channel_context));
-    ctx->request_pty = !no_pty;
+    setup_channel(L, 0, 0);
+    if (!no_pty) {
+        pty_context *ctx =  (pty_context *)safe_zalloc(sizeof(pty_context));
+        ctx->channel = (LIBSSH2_CHANNEL *)lua_touserdata(L, -1);
+        ctx->term = "vanilla";
+        ctx->term_len = sizeof("vanilla") - 1;
+        ctx->width = LIBSSH2_TERM_WIDTH;
+        ctx->height = LIBSSH2_TERM_HEIGHT;
+        ctx->width_px = LIBSSH2_TERM_WIDTH_PX;
+        ctx->height_px = LIBSSH2_TERM_HEIGHT_PX;
+        setup_pty(L, 0, (lua_KContext)ctx);
+    }
+    return 0;
+}
 
-    return setup_channel(L, 0, (lua_KContext) ctx);
+static int l_channel_request_pty_ex (lua_State *L) {
+    pty_context *ctx = (pty_context *)safe_zalloc(sizeof(pty_context));
+    ctx->channel = (LIBSSH2_CHANNEL *) lua_touserdata(L, 2);
+    ctx->term = luaL_checklstring(L, 3, &ctx->term_len);
+    ctx->modes = lua_tolstring(L, 4, &ctx->modes_len);
+    ctx->width = luaL_checkinteger(L, 5);
+    ctx->height = luaL_checkinteger(L, 6);
+    ctx->width_px = luaL_checkinteger(L, 7);
+    ctx->height_px = luaL_checkinteger(L, 8);
+    return setup_pty(L, 0, (lua_KContext)ctx);
 }
 
 static int channel_close (lua_State *L, int status, lua_KContext ctx) {
@@ -886,6 +942,8 @@ static const struct luaL_Reg libssh2[] = {
     { "userauth_password", l_userauth_password },
     { "session_close", l_session_close },
     { "open_channel", l_open_channel},
+    { "channel_request_pty_ex", l_channel_request_pty_ex},
+    { "channel_request", l_channel_request},
     { "channel_read", l_channel_read},
     { "channel_read_stderr", l_channel_read_stderr},
     { "channel_write", l_channel_write},

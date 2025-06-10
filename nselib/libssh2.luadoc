@@ -93,6 +93,31 @@ function channel_read_stderr(session, channel)
 -- @return Number of bytes written to channel
 function channel_write(session, channel, buffer)
 
+--- Sends a request on libssh2 channel.
+--
+-- For example, request a shell with
+-- <code>channel_request(s, c, "shell")</code>. The equivalent of
+-- <code>channel_request(s, c, "exec", cmd)</code>
+-- is <code>channel_exec(s, c, cmd)</code>.
+-- @param session Authenticated libssh2 session
+-- @param channel Open libssh2 channel
+-- @param request String identifier for the request, e.g. "shell", "exec", "subsystem"
+-- @param message Optional string payload for the request.
+function channel_request(session, channel, request, message)
+
+--- Request a PTY on a channel
+--
+-- @param session Authenticated libssh2 session
+-- @param channel Open libssh2 channel
+-- @param term string Terminal emulation
+-- @param modes optional string Terminal mode modifiers
+-- @param width integer Width of pty in characters
+-- @param height integer Height of pty in characters
+-- @param width_ex integer Width of pty in pixels
+-- @param height_px integer Height of pty in pixels
+function channel_request_pty_ex(session, channel, term, modes,
+    width, height, width_px, height_px)
+
 --- Executes command on libssh2 channel
 -- @param session Authenticated libssh2 session
 -- @param channel Open libssh2 channel
