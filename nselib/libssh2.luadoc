@@ -74,7 +74,7 @@ function publickey_canauth(session, username, publickeydata)
 -- @return libssh2 channel
 function open_channel(session, no_pty)
 
---- Reads data from stdin on libssh2 channel.
+--- Reads data from stdout on libssh2 channel.
 -- @param session Authenticated libssh2 session
 -- @param channel Open libssh2 channel
 -- @return string containing data read from channel
@@ -86,18 +86,17 @@ function channel_read(session, channel)
 -- @return string containing data read from channel
 function channel_read_stderr(session, channel)
 
---- Writes data to libssh2 channel. Not garenteed to write entire buffer.
+--- Writes data to libssh2 channel. Not guaranteed to write entire buffer.
 -- @param session Authenticated libssh2 session
 -- @param channel Open libssh2 channel
 -- @param buffer String containing data to be written
 -- @return Number of bytes written to channel
 function channel_write(session, channel, buffer)
 
---- Executes command on libssh2 channel and returns output
+--- Executes command on libssh2 channel
 -- @param session Authenticated libssh2 session
 -- @param channel Open libssh2 channel
 -- @param cmd String containing command to execute
--- @return String containing output from command
 function channel_exec(session, channel, cmd)
 
 --- Sends EOF on libssh2 channel. Note that the server may continue to send data
