@@ -787,7 +787,7 @@ static int l_channel_request (lua_State *L) {
     request_context *ctx =  (request_context *)safe_zalloc(sizeof(request_context));
     ctx->channel = (LIBSSH2_CHANNEL *) lua_touserdata(L, 2);
     ctx->request = luaL_checklstring(L, 3, &ctx->request_len);
-    ctx->message = lua_tolstring(L, 3, &ctx->message_len);
+    ctx->message = lua_tolstring(L, 4, &ctx->message_len);
     return channel_request(L, 0, (lua_KContext)ctx);
 }
 
