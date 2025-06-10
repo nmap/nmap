@@ -95,10 +95,10 @@ function channel_write(session, channel, buffer)
 
 --- Sends a request on libssh2 channel.
 --
--- For example, request a shell with
--- <code>channel_request(s, c, "shell")</code>. The equivalent of
--- <code>channel_request(s, c, "exec", cmd)</code>
--- is <code>channel_exec(s, c, cmd)</code>.
+-- Examples:
+-- * request a shell: <code>channel_request(s, c, "shell")</code> (equivalent to <code>channel_shell(s, c)</code).
+-- * execute a command: <code>channel_request(s, c, "exec", cmd)</code> (equivalent to <code>channel_exec(s, c, cmd)</code>).
+-- * open a subsystem: <code>channel_request(s, c, "subsystem", "sftp")</code>
 -- @param session Authenticated libssh2 session
 -- @param channel Open libssh2 channel
 -- @param request String identifier for the request, e.g. "shell", "exec", "subsystem"
@@ -123,6 +123,11 @@ function channel_request_pty_ex(session, channel, term, modes,
 -- @param channel Open libssh2 channel
 -- @param cmd String containing command to execute
 function channel_exec(session, channel, cmd)
+
+--- Requests a shell on libssh2 channel
+-- @param session Authenticated libssh2 session
+-- @param channel Open libssh2 channel
+function channel_shell(session, channel)
 
 --- Sends EOF on libssh2 channel. Note that the server may continue to send data
 -- until it sends its own EOF (which can be checked with channel_eof()
