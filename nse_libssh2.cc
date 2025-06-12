@@ -15,6 +15,7 @@ extern "C" {
 #include "nse_nsock.h"
 #include "nse_utility.h"
 #include "nbase.h"
+#include "nmap_error.h"
 
 #include <fcntl.h>
 #include <assert.h>
@@ -43,17 +44,27 @@ enum {
     SSH2_UDATA = lua_upvalueindex(1)
 };
 
+struct userauth_context {
+    const char *username;
+    size_t username_len;
+    const char *privkey; // or password
+    size_t privkey_len;
+    const char *pubkey;
+    size_t pubkey_len;
+    const char *passphrase;
+    int kbdint_callback_ref;
+};
+
+struct ssh_userdata {
 #ifdef WIN32
-struct ssh_userdata {
     SOCKET sp[2];
-    LIBSSH2_SESSION *session;
-};
 #else
-struct ssh_userdata {
     int sp[2];
-    LIBSSH2_SESSION *session;
-};
 #endif
+    LIBSSH2_SESSION *session;
+    lua_State *L;
+    userauth_context userauth;
+};
 
 
 #if defined(_MSC_VER) && _MSC_VER < 1900
@@ -341,9 +352,10 @@ static int l_session_open (lua_State *L) {
     state = (ssh_userdata *)lua_newuserdatauv(L, sizeof(ssh_userdata), 1); /* index 3 */
 
     assert(lua_gettop(L) == 3);
-    state->session = NULL;
+    memset(state, 0, sizeof(ssh_userdata));
     state->sp[0] = -1;
     state->sp[1] = -1;
+    state->L = L;
     lua_pushvalue(L, lua_upvalueindex(1)); /* metatable */
     lua_setmetatable(L, 3);
 
@@ -352,7 +364,7 @@ static int l_session_open (lua_State *L) {
     lua_getuservalue(L, 3); /* index 4 - a table associated with userdata*/
     assert(lua_gettop(L) == 4);
 
-    state->session = libssh2_session_init();
+    state->session = libssh2_session_init_ex(NULL, NULL, NULL, state);
 
     if (state->session == NULL) {
         // A session could not be created because of memory limit
@@ -504,32 +516,21 @@ static int l_userauth_banner (lua_State *L) {
     return userauth_banner(L, 0, 0);
 }
 
-struct publickey_ctx {
-  struct ssh_userdata *state;
-  const char *username;
-  size_t username_len;
-  const char *privkey;
-  size_t privkey_len;
-  const char *pubkey;
-  size_t pubkey_len;
-  const char *passphrase;
-};
-
-static void validate_publickey_params(lua_State *L, struct publickey_ctx *ctx) {
-  memset(ctx, 0, sizeof(struct publickey_ctx));
-  ctx->state = (struct ssh_userdata *) nseU_checkudata(L, 1, SSH2_UDATA, "ssh2");
-  ctx->username = luaL_checklstring(L, 2, &ctx->username_len);
-  ctx->privkey = luaL_checklstring(L, 3, &ctx->privkey_len);
-
-  ctx->passphrase = lua_isstring(L, 4) ? lua_tostring(L, 4) : NULL;
-  ctx->pubkey = lua_isstring(L, 5) ? lua_tolstring(L, 5, &ctx->pubkey_len) : NULL;
+static void validate_publickey_params(lua_State *L, ssh_userdata *state, int params_idx) {
+  userauth_context *ctx = &state->userauth;
+  memset(ctx, 0, sizeof(userauth_context));
+  ctx->username = luaL_checklstring(L, params_idx, &ctx->username_len);
+  ctx->privkey = luaL_checklstring(L, params_idx + 1, &ctx->privkey_len);
+  ctx->passphrase = lua_tostring(L, params_idx + 2);
+  ctx->pubkey = lua_tolstring(L, params_idx + 3, &ctx->pubkey_len);
 }
 
 static int userauth_publickey (lua_State *L, int status, lua_KContext ctx) {
-    struct publickey_ctx *context = (struct publickey_ctx *)ctx;
+    ssh_userdata *state = (ssh_userdata *)ctx;
+    userauth_context *context = &state->userauth;
     int rc;
     DO_OR_YIELD((rc = libssh2_userauth_publickey_fromfile_ex(
-        context->state->session, context->username, context->username_len,
+        state->session, context->username, context->username_len,
         context->pubkey, context->privkey, context->passphrase
         )),
         1, userauth_publickey, ctx);
@@ -540,17 +541,17 @@ static int userauth_publickey (lua_State *L, int status, lua_KContext ctx) {
 }
 
 static int l_userauth_publickey (lua_State *L) {
-  publickey_ctx *params = NULL;
-  params = (publickey_ctx *)lua_newuserdatauv(L, sizeof(publickey_ctx), 0);
-  validate_publickey_params(L, params);
-  return userauth_publickey(L, 0, (lua_KContext) params);
+  ssh_userdata *state = (ssh_userdata *) nseU_checkudata(L, 1, SSH2_UDATA, "ssh2");
+  validate_publickey_params(L, state, 2);
+  return userauth_publickey(L, 0, (lua_KContext) state);
 }
 
 static int userauth_publickey_frommemory (lua_State *L, int status, lua_KContext ctx) {
-    struct publickey_ctx *context = (struct publickey_ctx *)ctx;
+    ssh_userdata *state = (ssh_userdata *)ctx;
+    userauth_context *context = &state->userauth;
     int rc;
     DO_OR_YIELD((rc = libssh2_userauth_publickey_frommemory(
-        context->state->session, context->username, context->username_len,
+        state->session, context->username, context->username_len,
         context->pubkey, context->pubkey_len, context->privkey,
         context->privkey_len, context->passphrase
         )),
@@ -562,10 +563,9 @@ static int userauth_publickey_frommemory (lua_State *L, int status, lua_KContext
 }
 
 static int l_userauth_publickey_frommemory (lua_State *L) {
-  publickey_ctx *params = NULL;
-  params = (publickey_ctx *)lua_newuserdatauv(L, sizeof(publickey_ctx), 0);
-  validate_publickey_params(L, params);
-  return userauth_publickey_frommemory(L, 0, (lua_KContext) params);
+  ssh_userdata *state = (ssh_userdata *) nseU_checkudata(L, 1, SSH2_UDATA, "ssh2");
+  validate_publickey_params(L, state, 2);
+  return userauth_publickey_frommemory(L, 0, (lua_KContext) state);
 }
 
 static int l_read_publickey (lua_State *L) {
@@ -605,23 +605,13 @@ static int publickey_canauth_cb (LIBSSH2_SESSION *session, unsigned char **sig,
 }
 
 static int publickey_canauth (lua_State *L, int status, lua_KContext ctx) {
+    ssh_userdata *state = (ssh_userdata *)ctx;
+    userauth_context *context = &state->userauth;
     int rc;
     char *errmsg;
-    const char *username;
-    unsigned const char *publickey_data;
-    size_t len = 0;
-    struct ssh_userdata *state;
-
-    state = (struct ssh_userdata *) nseU_checkudata(L, 1, SSH2_UDATA, "ssh2");
-    username = luaL_checkstring(L, 2);
-
-    if (lua_isstring(L, 3))
-        publickey_data = (unsigned const char*)lua_tolstring(L, 3, &len);
-    else
-        return luaL_error(L, "Invalid public key");
 
     DO_OR_YIELD((rc = libssh2_userauth_publickey(state->session,
-        username, publickey_data, len, &publickey_canauth_cb, NULL)),
+        context->username, (const unsigned char *)context->pubkey, context->pubkey_len, &publickey_canauth_cb, NULL)),
         1, publickey_canauth, ctx);
 
     libssh2_session_last_error(state->session, &errmsg, NULL, 0);
@@ -641,7 +631,12 @@ static int publickey_canauth (lua_State *L, int status, lua_KContext ctx) {
 }
 
 static int l_publickey_canauth (lua_State *L) {
-    return publickey_canauth(L, 0, 0);
+    ssh_userdata *state = (struct ssh_userdata *) nseU_checkudata(L, 1, SSH2_UDATA, "ssh2");
+    userauth_context *context = &state->userauth;
+    context->username = luaL_checklstring(L, 2, &context->username_len);
+    context->pubkey = luaL_checklstring(L, 3, &context->pubkey_len);
+
+    return publickey_canauth(L, 0, (lua_KContext)state);
 }
 
 /*
@@ -651,17 +646,15 @@ static int l_publickey_canauth (lua_State *L) {
 * userauth_password(state, username, password)
 */
 static int userauth_password (lua_State *L, int status, lua_KContext ctx) {
+    ssh_userdata *state = (ssh_userdata *)ctx;
+    userauth_context *context = &state->userauth;
     int rc;
-    const char *username, *password;
-    struct ssh_userdata *state;
-
-    state = (struct ssh_userdata *) nseU_checkudata(L, 1, SSH2_UDATA, "ssh2");
-    username = luaL_checkstring(L, 2);
-    password = luaL_checkstring(L, 3);
 
     assert(state->session != NULL);
-    DO_OR_YIELD((rc = libssh2_userauth_password(state->session, username, password)),
-        1, userauth_password, ctx);
+    DO_OR_YIELD((rc = libssh2_userauth_password_ex(state->session,
+                    context->username, context->username_len,
+                    context->privkey, context->privkey_len, NULL)),
+            1, userauth_password, ctx);
 
     if (rc == 0)
         lua_pushboolean(L, 1);
@@ -672,7 +665,95 @@ static int userauth_password (lua_State *L, int status, lua_KContext ctx) {
 }
 
 static int l_userauth_password (lua_State *L) {
-    return userauth_password(L, 0, 0);
+    ssh_userdata *state = (struct ssh_userdata *) nseU_checkudata(L, 1, SSH2_UDATA, "ssh2");
+    userauth_context *context = &state->userauth;
+    context->username = luaL_checklstring(L, 2, &context->username_len);
+    context->privkey = luaL_checklstring(L, 3, &context->privkey_len);
+
+    return userauth_password(L, 0, (lua_KContext)state);
+}
+
+void kbdint_callback(const char *name, int name_len,
+        const char *instruction, int instruction_len,
+        int num_prompts, const LIBSSH2_USERAUTH_KBDINT_PROMPT *prompts,
+        LIBSSH2_USERAUTH_KBDINT_RESPONSE *responses, void **abstract) {
+    ssh_userdata *state = (ssh_userdata *)*abstract;
+    lua_State *L = state->L;
+    userauth_context *context = &state->userauth;
+    lua_rawgeti(L, LUA_REGISTRYINDEX, context->kbdint_callback_ref);
+    lua_pushlstring(L, context->username, context->username_len);
+    lua_pushlstring(L, name, name_len);
+    lua_pushlstring(L, instruction, instruction_len);
+    lua_createtable(L, num_prompts, 0); // prompts
+    for (int i=0; i < num_prompts; i++) {
+        lua_pushlstring(L, (const char *)prompts[i].text, prompts[i].length);
+        lua_rawseti(L, -2, i+1);
+    }
+    int rc = lua_pcall(L, 4, 1, 0);
+    if (rc == LUA_OK && lua_istable(L, -1)) {
+        for (int i=0; i < num_prompts; i++) {
+            LIBSSH2_USERAUTH_KBDINT_RESPONSE *r = &responses[i];
+            r->text = NULL;
+            r->length = 0;
+            lua_geti(L, -1, i+1);
+            size_t len = 0;
+            const char *txt = lua_tolstring(L, -1, &len);
+            if (txt) {
+                /* libssh2 frees this for us */
+                r->text = (char *)malloc(len);
+                if (r->text) {
+                    memcpy(r->text, txt, len);
+                    r->length = len;
+                }
+                else {
+                    r->length = 0;
+                }
+            }
+            lua_pop(L, 1);
+        }
+        // Remove the response table.
+        lua_pop(L, 1);
+    }
+    // else leave the error on the stack.
+}
+
+static int keyboard_interactive (lua_State *L, int status, lua_KContext ctx) {
+    ssh_userdata *state = (ssh_userdata *)ctx;
+    userauth_context *context = &state->userauth;
+    int rc;
+    int oldtop = lua_gettop(L);
+
+    DO_OR_YIELD((rc = libssh2_userauth_keyboard_interactive_ex(state->session,
+                    context->username, context->username_len, kbdint_callback)),
+        1, keyboard_interactive, ctx);
+
+    luaL_unref(L, LUA_REGISTRYINDEX, context->kbdint_callback_ref);
+    context->kbdint_callback_ref = LUA_NOREF;
+    if (rc == 0) {
+        // Ignore any returned error from the callback,
+        // since auth succeeded anyway
+        lua_settop(L, oldtop);
+        lua_pushboolean(L, 1);
+    }
+    else {
+        int numret = oldtop - lua_gettop(L);
+        lua_pushboolean(L, (rc == 0));
+        // Return any errors, too
+        lua_insert(L, oldtop + 1);
+        return numret + 1;
+    }
+
+    return 1;
+}
+
+static int l_userauth_keyboard_interactive (lua_State *L) {
+    ssh_userdata *state = (struct ssh_userdata *) nseU_checkudata(L, 1, SSH2_UDATA, "ssh2");
+    userauth_context *context = &state->userauth;
+    context->username = luaL_checklstring(L, 2, &context->username_len);
+    luaL_checkany(L, 3);
+    lua_pushvalue(L, 3); // put callback on top of stack
+    context->kbdint_callback_ref = luaL_ref(L, LUA_REGISTRYINDEX); // pop callback and get ref
+    return keyboard_interactive(L, 0, (lua_KContext)state);
 }
 
 static int session_close (lua_State *L, int status, lua_KContext ctx) {
@@ -945,6 +1026,7 @@ static const struct luaL_Reg libssh2[] = {
     { "read_publickey", l_read_publickey },
     { "publickey_canauth", l_publickey_canauth },
     { "userauth_password", l_userauth_password },
+    { "userauth_keyboard_interactive", l_userauth_keyboard_interactive },
     { "session_close", l_session_close },
     { "open_channel", l_open_channel},
     { "channel_request_pty_ex", l_channel_request_pty_ex},

@@ -38,15 +38,34 @@ function set_timeout(session, timeout)
 -- @return List of supported authentication methods/
 function userauth_list(session)
 
---- Attempts to authenicate libssh2 session using provided credentials
--- @param username Username to authenicate as.
--- @param password Password to authenicate with.
+--- Attempts to authenticate libssh2 session using provided credentials
+-- @param username Username to authenticate as.
+-- @param password Password to authenticate with.
 -- @return true/false, depending on success
 function userauth_password(session, username, password)
 
+--- Attempts to authenticate libssh2 session using keyboard-interactive auth
+-- @param username Username to authenticate as.
+-- @param callback See <code>userauth_keyboard_interactive_cb</code>
+-- @return true/false, depending on success
+-- @return if first return was false, any errors thrown by the callback
+function userauth_keyboard_interactive(session, username, callback)
+
+--- Callback function for keyboard interaction.
+--
+-- This function is not implemented; it is up to you to write the appropriate
+-- function. The function must not yield, and so must not use any socket
+-- functions.
+-- @param username string Username this authentication is for
+-- @param name string from the server
+-- @param instruction string from the server
+-- @param prompts A table of strings, each of which is a prompt from the server.
+-- @return a series of response strings, each corresponding to a prompt
+function userauth_keyboard_interactive_cb(username, name, instruction, prompts)
+
 --- Attempts to authenticate libssh2 session using provided publickey
 -- @param session Connected libssh2 session
--- @param username Username to authenicate as
+-- @param username Username to authenticate as
 -- @param privatekeyfile File containing privatekey
 -- @param passphrase Passphrase for privatekey
 -- @param publickeyfile File containing publickey. Not necessary if libssh2 is
@@ -62,7 +81,7 @@ function read_publickey(publickeyfile)
 --- Checks to see if ssh server accepts public key for authentication as given user.
 --  This doesn't require the private key as it doesn't finish authenticating.
 -- @param session Connected libssh2 session
--- @param username Username to authenicate as
+-- @param username Username to authenticate as
 -- @param publickeydata String containing raw publickey blob
 -- @return true/false, depending on whether user can authenticate with given key
 function publickey_canauth(session, username, publickeydata)
