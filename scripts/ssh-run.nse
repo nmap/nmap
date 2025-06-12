@@ -66,7 +66,7 @@ function action (host, port)
     return "Failed to connect to ssh server: " .. err
   end
   if username and password and cmd then
-    if not conn:password_auth(username, password) then
+    if not conn:login(username, password) then
       conn:disconnect()
       stdnse.verbose "Failed to authenticate"
       return "Authentication Failed"
