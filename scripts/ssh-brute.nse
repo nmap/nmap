@@ -2,6 +2,7 @@ local shortport = require "shortport"
 local stdnse = require "stdnse"
 local brute = require "brute"
 local creds = require "creds"
+local tableaux = require "tableaux"
 
 local libssh2_util = require "libssh2-utility"
 
@@ -68,11 +69,25 @@ Driver = {
 
   login = function (self, username, password)
     stdnse.verbose(1, "Trying username/password pair: %s:%s", username, password)
-    local status, resp = self.helper:password_auth(username, password)
+    local status, methods = self.helper:login(username, password)
     if status then
       return true, creds.Account:new(username, password, creds.State.VALID)
     end
-    return false, brute.Error:new "Incorrect password"
+    local err = brute.Error:new "Auth failed"
+    local valid = false
+    if methods then
+      for _, m in ipairs(methods) do
+        if m == "password" or m == "keyboard-interactive" then
+          valid = true
+          break
+        end
+      end
+    end
+    if not valid then
+      -- give up on user
+      err:setInvalidAccount(username)
+    end
+    return false, err
   end,
 
   disconnect = function (self)
@@ -80,28 +95,9 @@ Driver = {
   end,
 }
 
-local function password_auth_allowed (host, port)
-  local helper = libssh2_util.SSHConnection:new()
-  helper:connect(host, port) -- throws error on failure
-  local methods = helper:list "root"
-  if methods then
-    for _, value in pairs(methods) do
-      if value == "password" then
-        return true
-      end
-    end
-  end
-  return false
-end
-
 function action (host, port)
   local timems = stdnse.parse_timespec(arg_timeout) --todo: use this!
   local ssh_timeout = 1000 * timems
-  local connected, auth_status = pcall(password_auth_allowed, host, port)
-  if not connected then
-    return "Failed to connect to ssh server: " .. auth_status
-  end
-  if auth_status then
     local options = {
       ssh_timeout = ssh_timeout,
     }
@@ -109,7 +105,4 @@ function action (host, port)
     engine.options.script_name = SCRIPT_NAME
     local _, result = engine:start()
     return result
-  else
-    return "Password authentication not allowed"
-  end
 end
