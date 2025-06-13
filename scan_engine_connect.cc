@@ -130,8 +130,11 @@ ConnectScanInfo::ConnectScanInfo() {
   FD_ZERO(&fds_except);
 }
 
-/* Nothing really to do here. */
-ConnectScanInfo::~ConnectScanInfo() {}
+ConnectScanInfo::~ConnectScanInfo() {
+  if (nextSD >= 0) {
+    close(nextSD);
+  }
+}
 
 bool ConnectScanInfo::sendOK() {
   if (numSDs >= maxSocketsAllowed)
