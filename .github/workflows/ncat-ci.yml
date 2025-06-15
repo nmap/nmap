@@ -1,0 +1,53 @@
+name: Ncat cross-platform CI
+
+on:
+  push:
+    branches: [ '**' ]
+    paths: [ 'ncat/**', '.github/workflows/ncat-ci.yml' ]
+  pull_request:
+    paths: [ 'ncat/**', '.github/workflows/ncat-ci.yml' ]
+
+jobs:
+  build-test:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Install build deps (Linux)
+      if: runner.os == 'Linux'
+      run: |
+        sudo apt-get update -y
+        sudo apt-get install -y autoconf automake libtool pkg-config libpcap-dev libssl-dev
+
+    - name: Install build deps (macOS)
+      if: runner.os == 'macOS'
+      run: brew install autoconf automake libtool pkg-config openssl libpcap || true
+
+    - name: Build & test (Unix)
+      if: runner.os != 'Windows'
+      run: |
+        ./configure
+        make -j$(nproc)
+        cd ncat && make check
+
+    # Windows build via MSYS2/MinGW
+    - name: Setup MSYS2
+      if: runner.os == 'Windows'
+      uses: msys2/setup-msys2@v2
+      with:
+        install: >-
+          mingw-w64-x86_64-toolchain
+          autoconf
+          automake
+          libtool
+
+    - name: Build ncat.exe (Windows)
+      if: runner.os == 'Windows'
+      shell: msys2 {0}
+      run: |
+        ./configure --host=x86_64-w64-mingw32
+        make -j4 ncat.exe 
