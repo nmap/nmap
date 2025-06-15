@@ -31,7 +31,8 @@ jobs:
       if: runner.os != 'Windows'
       run: |
         ./configure
-        make -j$(nproc)
+        # get number of CPU cores in a portable way (POSIX getconf works on Linux & macOS)
+        make -j$(getconf _NPROCESSORS_ONLN)
         cd ncat && make check
 
     # Windows build via MSYS2/MinGW
