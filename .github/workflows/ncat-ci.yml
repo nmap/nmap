@@ -33,7 +33,11 @@ jobs:
         ./configure
         # Use fewer parallel jobs on macOS runners to avoid hitting RAM limits
         if [ "$(uname)" = "Darwin" ]; then
-          make -j3
+          # macOS runners have limited RAM; avoid universal (-arch x86_64 -arch arm64) builds and heavy parallelism
+          export CFLAGS="-g -O2 -Wall"
+          export CXXFLAGS="-g -O2 -Wall"
+          export CPPFLAGS="-g -O2 -Wall"
+          make -j2
         else
           make -j$(getconf _NPROCESSORS_ONLN)
         fi
