@@ -79,11 +79,12 @@ Options taking a time assume seconds\&. Append \*(Aqms\*(Aq for milliseconds,
       \-\-send\-only            Only send data, ignoring received; quit on EOF
       \-\-recv\-only            Only receive data, never send anything
       \-\-no\-shutdown          Continue half\-duplex when receiving EOF on stdin
-  \-q <time>                  After EOF on stdin, wait <time> then quit\&.
+      \-q <time>                  After EOF on stdin, wait <time> then quit\&.
       \-\-allow                Allow only given hosts to connect to Ncat
       \-\-allowfile            A file of hosts allowed to connect to Ncat
       \-\-deny                 Deny given hosts from connecting to Ncat
       \-\-denyfile             A file of hosts denied from connecting to Ncat
+      \-\-watch\-allow\-deny     Re\-read allow/deny files automatically on change
       \-\-broker               Enable Ncat\*(Aqs connection brokering mode
       \-\-chat                 Start a simple Ncat chat server
       \-\-proxy <addr[:port]>  Specify address of host to proxy through
@@ -441,6 +442,22 @@ takes precedence\&. Host specifications follow the same syntax used by Nmap\&.
 .RS 4
 This is the same functionality as
 \fB\-\-deny\fR, except that excluded hosts are provided in a new\-line delimited deny file, rather than directly on the command line\&.
+.RE
+.PP
+\fB\-\-watch\-allow\-deny\fR (Watch allow/deny files)
+.RS 4
+When this option is given in listen mode, Ncat keeps an eye on the files that
+were provided with
+\fB\-\-allowfile\fR
+and
+\fB\-\-denyfile\fR.
+If either file is modified, Ncat automatically reloads the in\-memory access
+control lists so that newly accepted connections are evaluated against the
+updated rules. Existing connections are unaffected. The implementation uses
+efficient, event–driven file notification facilities on each platform
+(\fBinotify\fR on Linux, \fBkqueue\fR on BSD/macOS, and
+\fBReadDirectoryChangesW\fR on Windows), so it has no impact on performance
+when the option is not selected.
 .RE
 .SH "TIMING OPTIONS"
 .PP

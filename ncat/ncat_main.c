@@ -63,6 +63,7 @@
 #include "ncat.h"
 #include "util.h"
 #include "sys_wrap.h"
+#include "allowdeny_watcher.h"
 
 #include <getopt.h>
 
@@ -202,7 +203,8 @@ static void host_list_to_set(struct addrset *set, struct host_list_node *list)
             char *spec, *commalist;
 
             commalist = node->spec;
-            while ((spec = strtok(commalist, ",")) != NULL) {
+            while ((spec = strtok(commalist, ",")) != NULL)
+            {
                 commalist = NULL;
                 if (!addrset_add_spec(set, spec, o.af, !o.nodns))
                     bye("error in host specification \"%s\".", node->spec);
@@ -223,6 +225,10 @@ int main(int argc, char *argv[])
        which may differ as a result of options like -n and -6. */
     struct host_list_node *allow_host_list = NULL;
     struct host_list_node *deny_host_list = NULL;
+
+    /* Remember first allow/deny filename (if any) for watcher */
+    char *allowfile_path = NULL;
+    char *denyfile_path  = NULL;
 
     unsigned short proxyport;
     /* vsock ports are 32 bits, so port variables must be at least that wide. */
@@ -299,6 +305,7 @@ int main(int argc, char *argv[])
         {"ssl-ciphers",     optional_argument,  NULL,         0},
         {"ssl-alpn",        optional_argument,  NULL,         0},
 #endif
+        {"watch-allow-deny",no_argument,        NULL,         0},
         {0, 0, 0, 0}
     };
 
@@ -483,10 +490,14 @@ int main(int argc, char *argv[])
             } else if (strcmp(long_options[option_index].name, "allowfile") == 0) {
                 o.allow = 1;
                 host_list_add_filename(&allow_host_list, optarg);
+                if (!allowfile_path) allowfile_path = optarg;
             } else if (strcmp(long_options[option_index].name, "deny") == 0) {
                 host_list_add_spec(&deny_host_list, optarg);
             } else if (strcmp(long_options[option_index].name, "denyfile") == 0) {
                 host_list_add_filename(&deny_host_list, optarg);
+                if (!denyfile_path) denyfile_path = optarg;
+            } else if (strcmp(long_options[option_index].name, "watch-allow-deny") == 0) {
+                o.watch_allow_deny = 1;
             } else if (strcmp(long_options[option_index].name, "append-output") == 0) {
                 o.append = 1;
             } else if (strcmp(long_options[option_index].name, "sctp") == 0) {
@@ -622,6 +633,7 @@ int main(int argc, char *argv[])
 "      --allowfile            A file of hosts allowed to connect to Ncat\n"
 "      --deny                 Deny given hosts from connecting to Ncat\n"
 "      --denyfile             A file of hosts denied from connecting to Ncat\n"
+"      --watch-allow-deny     Reload allow/deny files automatically on change\n"
 "      --broker               Enable Ncat's connection brokering mode\n"
 "      --chat                 Start a simple Ncat chat server\n"
 "      --proxy <addr[:port]>  Specify address of host to proxy through\n"
@@ -828,6 +840,11 @@ int main(int argc, char *argv[])
     host_list_free(allow_host_list);
     host_list_to_set(o.denyset, deny_host_list);
     host_list_free(deny_host_list);
+
+    /* Launch background watcher if requested and at least one filename is supplied */
+    if (o.watch_allow_deny) {
+        start_allowdeny_watcher(allowfile_path, denyfile_path);
+    }
 
     int rc;
     int num_ports = 0;
