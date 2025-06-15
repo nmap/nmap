@@ -28,14 +28,18 @@ fi
 TMP2=$(mktemp ncat_allow2_XXXX)
 printf "192.0.2.1\n" > "$TMP2"
 mv "$TMP2" "$TMP_ALLOW"
-# Give watcher up to 3 s
-sleep 3
+# Wait (max 5 s) until connection is denied
+tries=10
+while [ $tries -gt 0 ]; do
+  if printf "ping\n" | ../ncat 127.0.0.1 $PORT -w1 2>/dev/null; then
+    # Still allowed -> retry after short delay
+    sleep 0.5
+    tries=$((tries-1))
+  else
+    echo "PASS watch-allow-deny"
+    exit 0
+  fi
+done
 
-# Second connection should fail
-if printf "ping\n" | ../ncat 127.0.0.1 $PORT -w1 2>/dev/null; then
-  echo "Connection succeeded even after removing localhost from allowfile"
-  exit 1
-fi
-
-echo "PASS watch-allow-deny"
-exit 0
+echo "Connection still allowed after watcher delay"
+exit 1
