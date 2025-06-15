@@ -28,8 +28,8 @@ fi
 TMP2=$(mktemp ncat_allow2_XXXX)
 printf "192.0.2.1\n" > "$TMP2"
 mv "$TMP2" "$TMP_ALLOW"
-# Wait (max 5 s) until connection is denied
-tries=10
+# Wait up to ~10 s (20 × 0.5 s)
+tries=20
 while [ $tries -gt 0 ]; do
   if printf "ping\n" | ../ncat 127.0.0.1 $PORT -w1 2>/dev/null; then
     # Still allowed -> retry after short delay

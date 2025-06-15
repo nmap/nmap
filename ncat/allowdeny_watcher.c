@@ -217,22 +217,36 @@ static void *watcher_thread(void *arg)
         return NULL;
     }
 
+    /* Watch the *directory* containing the file instead of the file itself.
+       This reliably catches atomic-replace (mv) sequences which may not
+       generate NOTE_WRITE for the original vnode. */
     int fd_allow = -1, fd_deny = -1;
-    if (wp->allow_path)
-        fd_allow = open(wp->allow_path, O_EVTONLY);
-    if (wp->deny_path)
-        fd_deny = open(wp->deny_path, O_EVTONLY);
+
+    if (wp->allow_path) {
+        char *adir = Strdup(wp->allow_path);
+        char *slash = strrchr(adir, '/');
+        if (slash)
+            *slash = '\0';
+        fd_allow = open(adir[0] ? adir : ".", O_EVTONLY);
+        free(adir);
+    }
+
+    if (wp->deny_path) {
+        char *ddir = Strdup(wp->deny_path);
+        char *slash = strrchr(ddir, '/');
+        if (slash)
+            *slash = '\0';
+        fd_deny = open(ddir[0] ? ddir : ".", O_EVTONLY);
+        free(ddir);
+    }
 
     struct kevent evlist[2];
     int nev = 0;
-    if (fd_allow >= 0) {
-        EV_SET(&evlist[nev++], fd_allow, EVFILT_VNODE, EV_ADD | EV_ENABLE | EV_CLEAR,
-               NOTE_WRITE | NOTE_DELETE | NOTE_EXTEND | NOTE_RENAME, 0, NULL);
-    }
-    if (fd_deny >= 0) {
-        EV_SET(&evlist[nev++], fd_deny, EVFILT_VNODE, EV_ADD | EV_ENABLE | EV_CLEAR,
-               NOTE_WRITE | NOTE_DELETE | NOTE_EXTEND | NOTE_RENAME, 0, NULL);
-    }
+    const uint32_t flags = NOTE_WRITE | NOTE_DELETE | NOTE_EXTEND | NOTE_RENAME;
+    if (fd_allow >= 0)
+        EV_SET(&evlist[nev++], fd_allow, EVFILT_VNODE, EV_ADD | EV_ENABLE | EV_CLEAR, flags, 0, NULL);
+    if (fd_deny >= 0)
+        EV_SET(&evlist[nev++], fd_deny, EVFILT_VNODE, EV_ADD | EV_ENABLE | EV_CLEAR, flags, 0, NULL);
 
     if (nev == 0) {
         close(kq);
