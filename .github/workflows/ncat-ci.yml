@@ -31,8 +31,12 @@ jobs:
       if: runner.os != 'Windows'
       run: |
         ./configure
-        # get number of CPU cores in a portable way (POSIX getconf works on Linux & macOS)
-        make -j$(getconf _NPROCESSORS_ONLN)
+        # Use fewer parallel jobs on macOS runners to avoid hitting RAM limits
+        if [ "$(uname)" = "Darwin" ]; then
+          make -j3
+        else
+          make -j$(getconf _NPROCESSORS_ONLN)
+        fi
         cd ncat && make check
 
     # Windows build via MSYS2/MinGW
