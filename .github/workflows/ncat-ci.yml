@@ -37,8 +37,9 @@ jobs:
           export CFLAGS="-g -O2 -Wall"
           export CXXFLAGS="-g -O2 -Wall"
           export CPPFLAGS="-g -O2 -Wall"
-          # Build only Ncat to avoid heavy full-tree link of PCRE2 etc.
-          ( cd ncat && ./configure && make -j2 && make check )
+          # Build only Ncat (but with top-level configure to get variable substitution)
+          make -C ncat -j2
+          make -C ncat check
         else
           make -j$(getconf _NPROCESSORS_ONLN)
         fi
