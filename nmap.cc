@@ -1793,17 +1793,11 @@ void  apply_delayed_options() {
           fatal("You are only allowed %d decoys (if you need more redefine MAX_DECOYS in nmap.h)", MAX_DECOYS);
 
         /* Try to resolve it */
-        struct sockaddr_storage decoytemp;
-        size_t decoytemplen = sizeof(struct sockaddr_storage);
-        int rc;
-        if (delayed_options.af == AF_INET6){
-          rc = resolve(p, 0, (sockaddr_storage*)&decoytemp, &decoytemplen, AF_INET6);
-        }
-        else
-          rc = resolve(p, 0, (sockaddr_storage*)&decoytemp, &decoytemplen, AF_INET);
+        sockaddr_storage *ss = &o.decoys[o.numdecoys];
+        size_t sslen = sizeof(sockaddr_storage);
+        int rc = resolve(p, 0, ss, &sslen, o.af());
         if (rc != 0)
           fatal("Failed to resolve decoy host \"%s\": %s", p, gai_strerror(rc));
-        o.decoys[o.numdecoys] = decoytemp;
         o.numdecoys++;
       }
       if (q) {
