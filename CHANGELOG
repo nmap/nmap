@@ -1,5 +1,8 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [GH#2757] Fix a crash in traceroute when using randomly-generated decoys:
+  "Assertion `source->ss_family == AF_INET' failed" [Daniel Miller]
+
 o [GH#2899] When IP protocol scanning on IPv6 (-sO -6), skip protocol numbers
   that are registered as Extension Header values. When the --data option was
   used, these would fail the assertion "len == (u32) ntohs(ip6->ip6_plen)"

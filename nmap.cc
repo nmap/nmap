@@ -1780,9 +1780,12 @@ void  apply_delayed_options() {
           fatal("You are only allowed %d decoys (if you need more redefine MAX_DECOYS in nmap.h)", MAX_DECOYS);
 
         while (i--) {
+          sockaddr_storage *ss = &o.decoys[o.numdecoys];
+          memset(ss, 0, sizeof(sockaddr_storage));
+          ss->ss_family = AF_INET;
           do {
-            ((struct sockaddr_in *)&o.decoys[o.numdecoys])->sin_addr.s_addr = get_random_u32();
-          } while (ip_is_reserved(&o.decoys[o.numdecoys]));
+            ((struct sockaddr_in *)ss)->sin_addr.s_addr = get_random_u32();
+          } while (ip_is_reserved(ss));
           o.numdecoys++;
         }
       } else {
