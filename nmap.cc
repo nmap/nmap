@@ -1692,6 +1692,17 @@ void  apply_delayed_options() {
   /* Remove any ports that are in the exclusion list */
   removepts(o.exclude_portlist, &ports);
 
+  /* Remove IPv6 extension header values, which are not protocols and cannot be scanned */
+  if (o.ipprotscan && o.af() == AF_INET6) {
+    int nprots = ports.prot_count;
+    // https://www.iana.org/assignments/ipv6-parameters/ipv6-parameters.xhtml#extension-header
+    removepts("P:0,43,44,50,51,60,135,139,140,253,254", &ports);
+    nprots -= ports.prot_count;
+    if (nprots > 0) {
+      error("WARNING: removed %d IPv6 extension header values from protocols list.", nprots);
+    }
+  }
+
   /* By now, we've got our port lists.  Give the user a warning if no
    * ports are specified for the type of scan being requested.  Other things
    * (such as OS ident scan) might break cause no ports were specified,  but
