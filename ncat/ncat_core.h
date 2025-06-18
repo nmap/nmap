@@ -128,6 +128,8 @@ struct options {
     struct addrset *allowset;
     struct addrset *denyset;
     int httpserver;
+    /* When true, automatically reload allow/deny files on modification. */
+    int watch_allow_deny;
     int nsock_engine;
     /* Output messages useful for testing to stderr? */
     int test;
