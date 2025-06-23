@@ -3450,14 +3450,17 @@ int Sendto(const char *functionname, int sd,
 
 
 /* Send an IP packet over an ethernet handle. */
-int send_ip_packet_eth(const struct eth_nfo *eth, const u8 *packet, unsigned int packetlen) {
+static int send_ip_packet_eth(const struct eth_nfo *eth, const u8 *packet, unsigned int packetlen, int af) {
   eth_t *ethsd;
   u8 *eth_frame;
   int res;
+  size_t framelen;
+  uint16_t ethertype = (af == AF_INET6 ? ETH_TYPE_IPV6 : ETH_TYPE_IP);
 
-  eth_frame = (u8 *) safe_malloc(14 + packetlen);
+  framelen = 14 + packetlen;
+  eth_frame = (u8 *) safe_malloc(framelen);
   memcpy(eth_frame + 14, packet, packetlen);
-  eth_pack_hdr(eth_frame, eth->dstmac, eth->srcmac, ETH_TYPE_IP);
+  eth_pack_hdr(eth_frame, eth->dstmac, eth->srcmac, ethertype);
   if (!eth->ethsd) {
     ethsd = eth_open_cached(eth->devname);
     if (!ethsd)
@@ -3465,7 +3468,7 @@ int send_ip_packet_eth(const struct eth_nfo *eth, const u8 *packet, unsigned int
   } else {
     ethsd = eth->ethsd;
   }
-  res = eth_send(ethsd, eth_frame, 14 + packetlen);
+  res = eth_send(ethsd, eth_frame, framelen);
   /* No need to close ethsd due to caching */
   free(eth_frame);
 
@@ -3531,7 +3534,7 @@ int send_ip_packet_eth_or_sd(int sd, const struct eth_nfo *eth,
   const struct sockaddr_in *dst,
   const u8 *packet, unsigned int packetlen) {
   if(eth)
-    return send_ip_packet_eth(eth, packet, packetlen);
+    return send_ip_packet_eth(eth, packet, packetlen, AF_INET);
   else
     return send_ip_packet_sd(sd, dst, packet, packetlen);
 }
@@ -3588,7 +3591,7 @@ int send_frag_ip_packet(int sd, const struct eth_nfo *eth,
 
 /* There are three ways to send a raw IPv6 packet.
 
-   send_ipv6_eth works when the device is Ethernet. (Unfortunately IPv6-in-IPv4
+   send_ip_packet_eth works when the device is Ethernet. (Unfortunately IPv6-in-IPv4
    tunnels are not.) We can control all header fields and extension headers.
 
    send_ipv6_ipproto_raw must be used when IPPROTO_RAW sockets include the IP
@@ -3602,31 +3605,6 @@ int send_frag_ip_packet(int sd, const struct eth_nfo *eth,
    except for the flow label. This method needs one raw socket for every
    protocol. (More precisely, one socket per distinct Next Header value.)
 */
-
-/* Send an IPv6 packet over an Ethernet handle. */
-static int send_ipv6_eth(const struct eth_nfo *eth, const u8 *packet, unsigned int packetlen) {
-  eth_t *ethsd;
-  struct eth_hdr *eth_frame;
-  u8 *copy;
-  int res;
-
-  copy = (u8 *) safe_malloc(packetlen + sizeof(*eth_frame));
-  memcpy(copy + sizeof(*eth_frame), packet, packetlen);
-  eth_frame = (struct eth_hdr *) copy;
-  eth_pack_hdr(eth_frame, eth->dstmac, eth->srcmac, ETH_TYPE_IPV6);
-  if (!eth->ethsd) {
-    ethsd = eth_open_cached(eth->devname);
-    if (!ethsd)
-      netutil_fatal("%s: Failed to open ethernet device (%s)", __func__, eth->devname);
-  } else {
-    ethsd = eth->ethsd;
-  }
-  res = eth_send(ethsd, eth_frame, sizeof(*eth_frame) + packetlen);
-  /* No need to close ethsd due to caching */
-  free(eth_frame);
-
-  return res;
-}
 
 #if HAVE_IPV6_IPPROTO_RAW
 
@@ -3837,7 +3815,7 @@ bail:
 int send_ipv6_packet_eth_or_sd(int sd, const struct eth_nfo *eth,
   const struct sockaddr_in6 *dst, const u8 *packet, unsigned int packetlen) {
   if (eth != NULL) {
-    return send_ipv6_eth(eth, packet, packetlen);
+    return send_ip_packet_eth(eth, packet, packetlen, AF_INET6);
   } else {
 #if HAVE_IPV6_IPPROTO_RAW
     return send_ipv6_ipproto_raw(dst, packet, packetlen);

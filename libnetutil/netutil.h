@@ -424,9 +424,6 @@ int route_dst(const struct sockaddr_storage *dst, struct route_nfo *rnfo,
 /* Send an IP packet over a raw socket. */
 int send_ip_packet_sd(int sd, const struct sockaddr_in *dst, const u8 *packet, unsigned int packetlen);
 
-/* Send an IP packet over an ethernet handle. */
-int send_ip_packet_eth(const struct eth_nfo *eth, const u8 *packet, unsigned int packetlen);
-
 /* Sends the supplied pre-built IPv4 packet. The packet is sent through
  * the raw socket "sd" if "eth" is NULL. Otherwise, it gets sent at raw
  * ethernet level. */
