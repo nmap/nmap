@@ -940,7 +940,7 @@ UltraProbe *sendArpScanProbe(UltraScanInfo *USI, HostScanStats *hss,
   gettimeofday(&USI->now, NULL);
   probe->sent = USI->now;
   hss->probeSent(sizeof(frame));
-  if ((rc = eth_send(USI->ethsd, frame, sizeof(frame))) != sizeof(frame)) {
+  if ((rc = netutil_eth_send(USI->ethsd, frame, sizeof(frame))) != sizeof(frame)) {
     int err = socket_errno();
     error("WARNING: eth_send of ARP packet returned %i rather than expected %d (errno=%i: %s)", rc, (int) sizeof(frame), err, strerror(err));
   }

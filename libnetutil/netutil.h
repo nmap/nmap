@@ -74,8 +74,8 @@ extern "C" {
 }
 #endif
 
-#include "dnet.h"
 #include <nbase.h>
+#include <dnet.h>
 
 /* It is VERY important to never change the value of these two constants.
  * Specially, OP_FAILURE should never be positive, as some pieces of code take
@@ -278,10 +278,12 @@ struct sys_route {
   int metric;
 };
 
+struct netutil_eth_t;
+
 struct eth_nfo {
   char srcmac[6];
   char dstmac[6];
-  eth_t *ethsd; // Optional, but improves performance.  Set to NULL if unavail
+  netutil_eth_t *ethsd; // Optional, but improves performance.  Set to NULL if unavail
   char devname[16]; // Only needed if ethsd is NULL.
 };
 
@@ -293,7 +295,12 @@ struct eth_nfo {
    eth_close() A DEVICE OBTAINED FROM THIS FUNCTION.  Instead, you can
    call eth_close_cached() to close whichever device (if any) is
    cached.  Returns NULL if it fails to open the device. */
-eth_t *eth_open_cached(const char *device);
+netutil_eth_t *eth_open_cached(const char *device);
+netutil_eth_t *netutil_eth_open(const char *device);
+void netutil_eth_close(netutil_eth_t *e);
+ssize_t netutil_eth_send(netutil_eth_t *e, const void *buf, size_t len);
+int netutil_eth_datalink(const netutil_eth_t *e);
+int netutil_eth_can_send(const netutil_eth_t *e);
 
 /* See the description for eth_open_cached */
 void eth_close_cached();

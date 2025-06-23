@@ -1172,7 +1172,7 @@ void HostOsScanStats::initScanStats() {
 /* Fill in an eth_nfo struct with the appropriate source and destination MAC
    addresses and a given Ethernet handle. The return value is suitable to pass
    to send_ip_packet: if ethsd is NULL, returns NULL; otherwise returns eth. */
-struct eth_nfo *HostOsScanStats::fill_eth_nfo(struct eth_nfo *eth, eth_t *ethsd) const {
+struct eth_nfo *HostOsScanStats::fill_eth_nfo(struct eth_nfo *eth, netutil_eth_t *ethsd) const {
   if (ethsd == NULL)
     return NULL;
 

@@ -959,10 +959,91 @@ int pcap_select(pcap_t *p, long usecs) {
   return ret;
 }
 
+struct netutil_eth_t {
+  union {
+    pcap_t *pt;
+    eth_t *ethsd;
+  };
+  int datalink;
+};
+
+int netutil_eth_datalink(const netutil_eth_t *e) {
+  if (e) return e->datalink;
+  return -1;
+}
+
+#ifdef WIN32
+#define eth_handle(_eth) (_eth->pt)
+#define eth_handle_send pcap_inject
+#define eth_handle_close eth_close
+#else
+#define eth_handle(_eth) (_eth->ethsd)
+#define eth_handle_send eth_send
+#define eth_handle_close eth_close
+#endif
+
+netutil_eth_t *netutil_eth_open(const char *device) {
+  assert(device != NULL);
+  assert(device[0] != '\0');
+
+  netutil_eth_t *e = (netutil_eth_t *)safe_zalloc(sizeof(netutil_eth_t));
+  e->datalink = -1;
+
+#ifdef WIN32
+  char err0r[PCAP_ERRBUF_SIZE] = {0};
+  char pcapdev[128] = {0};
+  int failed = 0;
+  pcap_t *pt = NULL;
+  do {
+    if (!DnetName2PcapName(device, pcapdev, sizeof(pcapdev))) {
+      break;
+    }
+    pt = pcap_create(pcapdev, err0r);
+    if (!pt) {
+      netutil_error("pcap_create(%s) FAILED: %s.", pcapdev, err0r);
+      break;
+    }
+    failed = pcap_activate(pt);
+    if (failed < 0) {
+      // PCAP error
+      netutil_error("pcap_activate(%s) FAILED: %s.", pcapdev, pcap_geterr(pt));
+      pcap_close(pt);
+      return NULL;
+    }
+    else if (failed > 0) {
+      // PCAP warning, report but assume it'll still work
+      netutil_error("pcap_activate(%s) WARNING: %s.", pcapdev, pcap_geterr(pt));
+    }
+    eth_handle(e) = pt;
+    e->datalink = pcap_datalink(pt);
+  } while (0);
+#else
+  eth_handle(e) = eth_open(device);
+  e->datalink = DLT_EN10MB;
+#endif
+
+  if (eth_handle(e) == NULL) {
+    free(e);
+    return NULL;
+  }
+  return e;
+}
+
+void netutil_eth_close(netutil_eth_t *e) {
+  assert(e != NULL);
+  eth_handle_close(eth_handle(e));
+  free(e);
+}
+
+ssize_t	netutil_eth_send(netutil_eth_t *e, const void *buf, size_t len) {
+  assert(e != NULL);
+  assert(eth_handle(e) != NULL);
+  return eth_handle_send(eth_handle(e), buf, len);
+}
 
 /* These two are for eth_open_cached() and eth_close_cached() */
 static char etht_cache_device_name[64];
-static eth_t *etht_cache_device = NULL;
+static netutil_eth_t *etht_cache_device = NULL;
 
 /* A simple function that caches the eth_t from dnet for one device,
    to avoid opening, closing, and re-opening it thousands of tims.  If
@@ -972,7 +1053,7 @@ static eth_t *etht_cache_device = NULL;
    eth_close() A DEVICE OBTAINED FROM THIS FUNCTION.  Instead, you can
    call eth_close_cached() to close whichever device (if any) is
    cached.  Returns NULL if it fails to open the device. */
-eth_t *eth_open_cached(const char *device) {
+netutil_eth_t *eth_open_cached(const char *device) {
   if (!device)
     netutil_fatal("%s() called with NULL device name!", __func__);
   if (!*device)
@@ -984,12 +1065,12 @@ eth_t *eth_open_cached(const char *device) {
   }
 
   if (*etht_cache_device_name) {
-    eth_close(etht_cache_device);
+    netutil_eth_close(etht_cache_device);
     etht_cache_device_name[0] = '\0';
     etht_cache_device = NULL;
   }
 
-  etht_cache_device = eth_open(device);
+  etht_cache_device = netutil_eth_open(device);
   if (etht_cache_device)
     Strncpy(etht_cache_device_name, device,
             sizeof(etht_cache_device_name));
@@ -1000,7 +1081,7 @@ eth_t *eth_open_cached(const char *device) {
 /* See the description for eth_open_cached */
 void eth_close_cached() {
   if (etht_cache_device) {
-    eth_close(etht_cache_device);
+    netutil_eth_close(etht_cache_device);
     etht_cache_device = NULL;
     etht_cache_device_name[0] = '\0';
   }
@@ -3448,19 +3529,27 @@ int Sendto(const char *functionname, int sd,
 }
 
 
+int netutil_eth_can_send(const netutil_eth_t *e) {
+  switch (netutil_eth_datalink(e)) {
+    case DLT_NULL:
+    case DLT_EN10MB:
+    case DLT_RAW:
+      return 1;
+      break;
+    default:
+      return 0;
+      break;
+  }
+}
 
 /* Send an IP packet over an ethernet handle. */
 static int send_ip_packet_eth(const struct eth_nfo *eth, const u8 *packet, unsigned int packetlen, int af) {
-  eth_t *ethsd;
-  u8 *eth_frame;
+  netutil_eth_t *ethsd;
+  u8 *eth_frame = NULL;
   int res;
   size_t framelen;
   uint16_t ethertype = (af == AF_INET6 ? ETH_TYPE_IPV6 : ETH_TYPE_IP);
 
-  framelen = 14 + packetlen;
-  eth_frame = (u8 *) safe_malloc(framelen);
-  memcpy(eth_frame + 14, packet, packetlen);
-  eth_pack_hdr(eth_frame, eth->dstmac, eth->srcmac, ethertype);
   if (!eth->ethsd) {
     ethsd = eth_open_cached(eth->devname);
     if (!ethsd)
@@ -3468,9 +3557,42 @@ static int send_ip_packet_eth(const struct eth_nfo *eth, const u8 *packet, unsig
   } else {
     ethsd = eth->ethsd;
   }
-  res = eth_send(ethsd, eth_frame, framelen);
+  switch (ethsd->datalink) {
+    case DLT_EN10MB:
+      framelen = 14 + packetlen;
+      eth_frame = (u8 *) safe_malloc(framelen);
+      memcpy(eth_frame + 14, packet, packetlen);
+      eth_pack_hdr(eth_frame, eth->dstmac, eth->srcmac, ethertype);
+      break;
+    case DLT_NULL:
+      framelen = 4 + packetlen;
+      eth_frame = (u8 *) safe_malloc(framelen);
+      memcpy(eth_frame + 4, packet, packetlen);
+      if (af == AF_INET6) {
+        /* These values are per libpcap/gencode.c */
+#if defined(__APPLE__)
+        *(uint32_t *)eth_frame = 30; // macOS, iOS, other Darwin-based OSes
+#elif defined(__FreeBSD__)
+        *(uint32_t *)eth_frame = 28; // FreeBSD
+#else
+        *(uint32_t *)eth_frame = 24; // NetBSD, OpenBSD, BSD/OS, Npcap
+#endif
+      }
+      else {
+        *(uint32_t *)eth_frame = AF_INET;
+      }
+      break;
+    case DLT_RAW:
+      framelen = packetlen;
+      break;
+    default:
+      netutil_fatal("%s: unsupported DLT for %s: %d", __func__, eth->devname, ethsd->datalink);
+      break;
+  }
+  res = netutil_eth_send(ethsd, eth_frame ? eth_frame : packet, framelen);
   /* No need to close ethsd due to caching */
-  free(eth_frame);
+  if (eth_frame != packet)
+    free(eth_frame);
 
   return res;
 }
@@ -4364,7 +4486,7 @@ bool doND(const char *dev, const u8 *srcmac,
   int timeouts[] = { 100000, 400000, 800000 };
   int max_sends = 3;
   int num_sends = 0; // How many we have sent so far
-  eth_t *ethsd;
+  netutil_eth_t *ethsd;
   u8 frame[ETH_HDR_LEN + IP6_HDR_LEN + ICMPV6_HDR_LEN + 4 + 16 + 8];
   struct timeval start, now, rcvdtime;
   int timeleft;
@@ -4423,7 +4545,7 @@ bool doND(const char *dev, const u8 *srcmac,
 
   while (!foundit && num_sends < max_sends) {
     /* Send the sucker */
-    rc = eth_send(ethsd, frame, sizeof(frame));
+    rc = netutil_eth_send(ethsd, frame, sizeof(frame));
     if (rc != sizeof(frame)) {
      netutil_error("WARNING: %s: eth_send of Neighbor Solicitation packet returned %u rather than expected %d bytes", __func__, rc, (int) sizeof(frame));
     }
@@ -4484,7 +4606,7 @@ bool doArp(const char *dev, const u8 *srcmac,
   int timeouts[] = { 100000, 400000, 800000 };
   int max_sends = 3;
   int num_sends = 0; // How many we have sent so far
-  eth_t *ethsd;
+  netutil_eth_t *ethsd;
   u8 frame[ETH_HDR_LEN + ARP_HDR_LEN + ARP_ETHIP_LEN];
   const struct sockaddr_in *targetsin = (struct sockaddr_in *) targetip;
   const struct sockaddr_in *srcsin = (struct sockaddr_in *) srcip;
@@ -4520,7 +4642,7 @@ bool doArp(const char *dev, const u8 *srcmac,
 
   while (!foundit && num_sends < max_sends) {
     /* Send the sucker */
-    rc = eth_send(ethsd, frame, sizeof(frame));
+    rc = netutil_eth_send(ethsd, frame, sizeof(frame));
     if (rc != sizeof(frame)) {
      netutil_error("WARNING: %s: eth_send of ARP packet returned %u rather than expected %d bytes", __func__, rc, (int) sizeof(frame));
     }
