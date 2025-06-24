@@ -414,19 +414,35 @@ Credentials = {
 
         if ( not(creds_params) ) then return end
 
-        for _, cred in ipairs(stringaux.strsplit(",", creds_params)) do
-          -- if the credential contains a ':' we have a user + pass pair
-          -- if not, we only have a user with an empty password
-          local user, pass
-          if ( cred:match(":") ) then
-            user, pass = cred:match("^(.-):(.-)$")
-          else
-            user = cred:match("^(.*)$")
+        if type(creds_params) == "string" then
+          -- Passing parameters using original string syntax, i.e. 'creds.snmp=public'
+          -- nmap -sU -p 161 -n --script snmp-sysdescr.nse  --script-args 'snmp.version=v2c,creds.snmp=public' 127.0.0.1
+          for _, cred in ipairs(stringaux.strsplit(",", creds_params)) do
+            -- if the credential contains a ':' we have a user + pass pair
+            -- if not, we only have a user with an empty password
+            local user, pass
+            if ( cred:match(":") ) then
+              user, pass = cred:match("^(.-):(.-)$")
+            else
+              user = cred:match("^(.*)$")
+            end
+            coroutine.yield( { host = self.host,
+            port = self.port,
+            user = user,
+            pass = pass,
+            named_params = {},
+            state = State.PARAM,
+            service = self.service } )
           end
+        else
+          -- Passing parameters using table syntax, i.e. 'creds.snmp={community=public}'
+          -- nmap -sU -p 161 -n --script snmp-sysdescr.nse  --script-args 'snmp.version=v2c,creds.snmp={community=public}' 127.0.0.1
+          -- Copy table to 'named_params'
           coroutine.yield( { host = self.host,
           port = self.port,
-          user = user,
-          pass = pass,
+          user = "",
+          pass = "",
+          named_params = creds_params,
           state = State.PARAM,
           service = self.service } )
         end
