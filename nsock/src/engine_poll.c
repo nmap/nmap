@@ -236,10 +236,7 @@ int poll_iod_register(struct npool *nsp, struct niod *iod, struct nevent *nse, i
       pev->events |= POLL_R_FLAGS;
     if (ev & EV_WRITE)
       pev->events |= POLL_W_FLAGS;
-#ifndef WIN32
-    if (ev & EV_EXCEPT)
-      pev->events |= POLL_X_FLAGS;
-#endif
+    /* POLL_X_FLAGS are output-only. */
   }
 
   IOD_PROPSET(iod, IOD_REGISTERED);
@@ -379,7 +376,9 @@ int poll_loop(struct npool *nsp, int msec_timeout) {
      * timeout) */
     combined_msecs = MIN((unsigned)event_msecs, (unsigned)msec_timeout);
 
-    if (iod_count > 0) {
+    assert(iod_count <= pinfo->used);
+    assert(pinfo->used < pinfo->max_idx);
+    if (iod_count > 0 && pinfo->used > 0) {
       results_left = Poll(pinfo->events, pinfo->max_idx + 1, combined_msecs);
       if (results_left == -1)
         sock_err = socket_errno();
@@ -434,7 +433,7 @@ static inline int get_evmask(struct npool *nsp, struct niod *nsi) {
         evmask |= EV_READ;
       if (pev->revents & POLL_W_FLAGS)
         evmask |= EV_WRITE;
-      if (pev->events && (pev->revents & POLL_X_FLAGS))
+      if (pev->revents & POLL_X_FLAGS)
         evmask |= EV_EXCEPT;
   }
   return evmask;
