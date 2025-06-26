@@ -1725,7 +1725,9 @@ int FPHost6::build_probe_list() {
     this->fp_probes[this->total_probes].host = this;
     this->fp_probes[this->total_probes].setPacket(ip6);
     this->fp_probes[this->total_probes].setProbeID(TCP_DESCS[i].id);
-    this->fp_probes[this->total_probes].setEthernet(this->target_host->SrcMACAddress(), this->target_host->NextHopMACAddress(), this->target_host->deviceName());
+    if (this->netctl->l2_frames()) {
+      this->fp_probes[this->total_probes].setEthernet(this->target_host);
+    }
     /* Mark as a timed probe. */
     this->fp_probes[this->total_probes].setTimed();
     this->timed_probes++;
@@ -1766,7 +1768,9 @@ int FPHost6::build_probe_list() {
   this->fp_probes[this->total_probes].host = this;
   this->fp_probes[this->total_probes].setPacket(ip6);
   this->fp_probes[this->total_probes].setProbeID("IE1");
-  this->fp_probes[this->total_probes].setEthernet(this->target_host->SrcMACAddress(), this->target_host->NextHopMACAddress(), this->target_host->deviceName());
+  if (this->netctl->l2_frames()) {
+    this->fp_probes[this->total_probes].setEthernet(this->target_host);
+  }
   this->total_probes++;
 
   /* ICMP Probe #2: Echo Request with badly ordered extension headers */
@@ -1803,7 +1807,9 @@ int FPHost6::build_probe_list() {
   this->fp_probes[this->total_probes].host = this;
   this->fp_probes[this->total_probes].setPacket(ip6);
   this->fp_probes[this->total_probes].setProbeID("IE2");
-  this->fp_probes[this->total_probes].setEthernet(this->target_host->SrcMACAddress(), this->target_host->NextHopMACAddress(), this->target_host->deviceName());
+  if (this->netctl->l2_frames()) {
+    this->fp_probes[this->total_probes].setEthernet(this->target_host);
+  }
   this->total_probes++;
 
   /* ICMP Probe #3: Neighbor Solicitation. (only sent to on-link targets) */
@@ -1833,7 +1839,9 @@ int FPHost6::build_probe_list() {
     this->fp_probes[this->total_probes].host = this;
     this->fp_probes[this->total_probes].setPacket(ip6);
     this->fp_probes[this->total_probes].setProbeID("NS");
-    this->fp_probes[this->total_probes].setEthernet(this->target_host->SrcMACAddress(), this->target_host->NextHopMACAddress(), this->target_host->deviceName());
+    if (this->netctl->l2_frames()) {
+      this->fp_probes[this->total_probes].setEthernet(this->target_host);
+    }
     this->total_probes++;
   }
 
@@ -1862,7 +1870,9 @@ int FPHost6::build_probe_list() {
   this->fp_probes[this->total_probes].host = this;
   this->fp_probes[this->total_probes].setPacket(ip6);
   this->fp_probes[this->total_probes].setProbeID("U1");
-  this->fp_probes[this->total_probes].setEthernet(this->target_host->SrcMACAddress(), this->target_host->NextHopMACAddress(), this->target_host->deviceName());
+  if (this->netctl->l2_frames()) {
+    this->fp_probes[this->total_probes].setEthernet(this->target_host);
+  }
   this->total_probes++;
 
   /* Set TECN probe */
@@ -1879,7 +1889,9 @@ int FPHost6::build_probe_list() {
     this->fp_probes[this->total_probes].host = this;
     this->fp_probes[this->total_probes].setPacket(ip6);
     this->fp_probes[this->total_probes].setProbeID(TCP_DESCS[i].id);
-    this->fp_probes[this->total_probes].setEthernet(this->target_host->SrcMACAddress(), this->target_host->NextHopMACAddress(), this->target_host->deviceName());
+    if (this->netctl->l2_frames()) {
+      this->fp_probes[this->total_probes].setEthernet(this->target_host);
+    }
     this->total_probes++;
   }
   i++;
@@ -1904,7 +1916,9 @@ int FPHost6::build_probe_list() {
     this->fp_probes[this->total_probes].host = this;
     this->fp_probes[this->total_probes].setPacket(ip6);
     this->fp_probes[this->total_probes].setProbeID(TCP_DESCS[i].id);
-    this->fp_probes[this->total_probes].setEthernet(this->target_host->SrcMACAddress(), this->target_host->NextHopMACAddress(), this->target_host->deviceName());
+    if (this->netctl->l2_frames()) {
+      this->fp_probes[this->total_probes].setEthernet(this->target_host);
+    }
     this->total_probes++;
   }
 
@@ -2491,22 +2505,33 @@ size_t FPPacket::getLength() const {
  * values, like this: instance.setEthernet(NULL, NULL, NULL);
  * Otherwise, pass the source address, the next hop address and the name of
  * the network interface the packet should be injected through. */
-int FPPacket::setEthernet(const u8 *src_mac, const u8 *dst_mac, const char *devname) {
-  if (src_mac == NULL || dst_mac == NULL) {
-   memset(&(this->eth_hdr), 0, sizeof(struct eth_nfo));
-   this->link_eth = false;
-   return OP_FAILURE;
-  }
-  memcpy(this->eth_hdr.srcmac, src_mac, 6);
-  memcpy(this->eth_hdr.dstmac, dst_mac, 6);
-  this->link_eth = true;
+int FPPacket::setEthernet(const Target *target) {
+  const char *devname = target->deviceName();
+  this->link_eth = false;
   if (devname != NULL) {
-    strncpy(this->eth_hdr.devname, devname, sizeof(this->eth_hdr.devname)-1);
-    if ((this->eth_hdr.ethsd = eth_open_cached(devname)) == NULL)
-      fatal("%s: Failed to open ethernet device (%s)", __func__, devname);
-  } else {
-    this->eth_hdr.devname[0] = '\0';
-    this->eth_hdr.ethsd = NULL;
+    netutil_eth_t *ethsd = eth_open_cached(devname);
+    if (ethsd == NULL) {
+      error("%s: Failed to open ethernet device (%s)", __func__, devname);
+    }
+    else if (netutil_eth_can_send(ethsd)) {
+      this->link_eth = true;
+      if (netutil_eth_datalink(ethsd) == DLT_EN10MB){
+        const u8 *src_mac = target->SrcMACAddress();
+        const u8 *dst_mac = target->NextHopMACAddress();
+        if (src_mac == NULL || dst_mac == NULL) {
+          this->link_eth = false;
+        }
+        else {
+          memcpy(this->eth_hdr.srcmac, src_mac, 6);
+          memcpy(this->eth_hdr.dstmac, dst_mac, 6);
+        }
+      }
+    }
+  }
+
+  if (!this->link_eth) {
+   memset(&(this->eth_hdr), 0, sizeof(struct eth_nfo));
+   return OP_FAILURE;
   }
   return OP_SUCCESS;
 }

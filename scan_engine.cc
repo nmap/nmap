@@ -949,18 +949,23 @@ void UltraScanInfo::Init(std::vector<Target *> &Targets, const struct scan_lists
      aren't doing a TCP connect scan, or if we're doing a ping scan that
      requires it. */
   if (isRawScan()) {
-    if (ping_scan_arp || (ping_scan_nd && o.sendpref != PACKET_SEND_IP_STRONG) || ((o.sendpref & PACKET_SEND_ETH) &&
-        (Targets[0]->ifType() == devt_ethernet
-#ifdef WIN32
-        || (Targets[0]->ifType() == devt_loopback)
-#endif
-        ))) {
+    const char *device = Targets[0]->deviceName();
+    if (ping_scan_arp || (ping_scan_nd && o.sendpref != PACKET_SEND_IP_STRONG) || (o.sendpref & PACKET_SEND_ETH)) {
       /* We'll send ethernet packets with dnet */
-      ethsd = eth_open_cached(Targets[0]->deviceName());
-      if (ethsd == NULL)
-        fatal("dnet: Failed to open device %s", Targets[0]->deviceName());
-      rawsd = -1;
-    } else {
+      ethsd = eth_open_cached(device);
+      if (ethsd == NULL) {
+        error("dnet: Failed to open device %s", device);
+      }
+      else if (!netutil_eth_can_send(ethsd)) {
+        ethsd = NULL;
+      }
+      /* If eth failed, we can fall back to raw socket. The only exception is
+       * ARP ping, which needs Ethernet link. */
+      if (ping_scan_arp && (ethsd == NULL || netutil_eth_datalink(ethsd) != DLT_EN10MB)) {
+        fatal("ARP ping not supported on %s", device);
+      }
+    }
+    if (ethsd == NULL) {
 #ifdef WIN32
       win32_fatal_raw_sockets(Targets[0]->deviceName());
 #endif

@@ -969,13 +969,15 @@ UltraProbe *sendNDScanProbe(UltraScanInfo *USI, HostScanStats *hss,
   ns_dst_ip6 = *hss->target->v6hostip();
 
   if (USI->ethsd) {
-    unsigned char ns_dst_mac[6] = {0x33, 0x33, 0xff};
-    ns_dst_mac[3] = ns_dst_ip6.s6_addr[13];
-    ns_dst_mac[4] = ns_dst_ip6.s6_addr[14];
-    ns_dst_mac[5] = ns_dst_ip6.s6_addr[15];
+    if (netutil_eth_datalink(USI->ethsd) == DLT_EN10MB) {
+      unsigned char ns_dst_mac[6] = {0x33, 0x33, 0xff};
+      ns_dst_mac[3] = ns_dst_ip6.s6_addr[13];
+      ns_dst_mac[4] = ns_dst_ip6.s6_addr[14];
+      ns_dst_mac[5] = ns_dst_ip6.s6_addr[15];
 
-    memcpy(eth.srcmac, hss->target->SrcMACAddress(), 6);
-    memcpy(eth.dstmac, ns_dst_mac, 6);
+      memcpy(eth.srcmac, hss->target->SrcMACAddress(), 6);
+      memcpy(eth.dstmac, ns_dst_mac, 6);
+    }
     eth.ethsd = USI->ethsd;
     eth.devname[0] = '\0';
     ethptr = &eth;
@@ -1159,8 +1161,10 @@ UltraProbe *sendIPScanProbe(UltraScanInfo *USI, HostScanStats *hss,
   u16 icmp_ident = (get_random_u16() % 0xffff) + 1;
 
   if (USI->ethsd) {
-    memcpy(eth.srcmac, hss->target->SrcMACAddress(), 6);
-    memcpy(eth.dstmac, hss->target->NextHopMACAddress(), 6);
+    if (netutil_eth_datalink(USI->ethsd) == DLT_EN10MB) {
+      memcpy(eth.srcmac, hss->target->SrcMACAddress(), 6);
+      memcpy(eth.dstmac, hss->target->NextHopMACAddress(), 6);
+    }
     eth.ethsd = USI->ethsd;
     eth.devname[0] = '\0';
     ethptr = &eth;
