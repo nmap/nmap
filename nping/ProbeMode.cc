@@ -1911,6 +1911,7 @@ void ProbeMode::probe_tcpconnect_event_handler(nsock_pool nsp, nsock_event nse, 
             nping_print(VB_0,"RCVD (%.6fs) Handshake with %s:%d completed", o.stats.elapsedRuntime(t), ipstring, peerport );
         }
         o.stats.addRecvPacket(40); /* Estimation Dst>We 1 TCP SYN|ACK */
+        nsock_iod_delete(nsi, NSOCK_PENDING_NOTIFY);
     break;
 
 
