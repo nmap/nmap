@@ -500,8 +500,6 @@ static void write_evt_handler(nsock_pool nsp, nsock_event evt, void *req_v) {
   info record;
   request *req = (request *) req_v;
 
-  req->curr_server->write_busy = 0;
-
   if (nse_status(evt) == NSE_STATUS_SUCCESS) {
     req->curr_server->in_process.push_front(req);
     record.tpreq = req;
@@ -516,6 +514,9 @@ static void write_evt_handler(nsock_pool nsp, nsock_event evt, void *req_v) {
     req->curr_server->to_process.push_front(req);
   }
 
+  // Avoid runaway recursion: when we call do_possible_writes above,
+  // make sure we still are "busy"
+  req->curr_server->write_busy = 0;
 }
 
 static DNS::RECORD_TYPE wire_type(DNS::RECORD_TYPE t) {
