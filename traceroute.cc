@@ -837,19 +837,8 @@ TracerouteState::TracerouteState(std::vector<Target *> &targets) {
 
   assert(targets.size() > 0);
 
-  if ((o.sendpref & PACKET_SEND_ETH) && targets[0]->ifType() == devt_ethernet) {
-    ethsd = eth_open_cached(targets[0]->deviceName());
-    if (ethsd == NULL)
-      fatal("dnet: failed to open device %s", targets[0]->deviceName());
-    rawsd = -1;
-  } else {
-#ifdef WIN32
-    win32_fatal_raw_sockets(targets[0]->deviceName());
-#endif
-    rawsd = nmap_raw_socket();
-    if (rawsd < 0)
-      pfatal("traceroute: socket troubles");
-    ethsd = NULL;
+  if (!raw_socket_or_eth(o.sendpref, targets[0]->deviceName(), &rawsd, &ethsd)) {
+    fatal("traceroute: socket troubles");
   }
 
   /* Assume that all the targets share the same device. */

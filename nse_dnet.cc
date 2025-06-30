@@ -223,7 +223,7 @@ static int ethernet_send (lua_State *L)
 static int ip_open (lua_State *L)
 {
   nse_dnet_udata *udata = (nse_dnet_udata *) nseU_checkudata(L, 1, DNET_METATABLE, "dnet");
-  udata->sock = nmap_raw_socket();
+  udata->sock = netutil_raw_socket(NULL);
   if (udata->sock == -1) {
     if (o.scriptTrace())
     {

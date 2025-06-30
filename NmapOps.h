@@ -123,24 +123,6 @@ class NmapOps {
   u8 debugging;
   bool resuming;
 
-#define PACKET_SEND_NOPREF 1
-#define PACKET_SEND_ETH_WEAK 2
-#define PACKET_SEND_ETH_STRONG 4
-#define PACKET_SEND_ETH 6
-#define PACKET_SEND_IP_WEAK 8
-#define PACKET_SEND_IP_STRONG 16
-#define PACKET_SEND_IP 24
-
-  /* How should we send raw IP packets?  Nmap can generally use either
-     ethernet or raw ip sockets.  Which is better depends on platform
-     and goals.  A _STRONG preference means that Nmap should use the
-     preferred method whenever it is possible (obviously it isn't
-     always possible -- sending ethernet frames won't work over a PPP
-     connection).  This is useful when the other type doesn't work at
-     all.  A _WEAK preference means that Nmap may use the other type
-     where it is substantially more efficient to do so. For example,
-     Nmap will still do an ARP ping scan of a local network even when
-     the pref is SEND_IP_WEAK */
   int sendpref;
   bool packetTrace() { return (debugging >= 3)? true : pTrace;  }
   bool versionTrace() { return packetTrace()? true : vTrace;  }

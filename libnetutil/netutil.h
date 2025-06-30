@@ -305,6 +305,34 @@ int netutil_eth_can_send(const netutil_eth_t *e);
 /* See the description for eth_open_cached */
 void eth_close_cached();
 
+/* Create a raw socket and do things that always apply to raw sockets:
+    * Set SO_BROADCAST.
+    * Set IP_HDRINCL.
+    * Bind to an interface with SO_BINDTODEVICE (if device is not NULL).
+   The socket is created with address family AF_INET, but may be usable for
+   AF_INET6, depending on the operating system. */
+int netutil_raw_socket(const char *device);
+
+/* How should we send raw IP packets?  Nmap can generally use either
+   ethernet or raw ip sockets.  Which is better depends on platform
+   and goals.  A _STRONG preference means that Nmap should use the
+   preferred method whenever it is possible (obviously it isn't
+   always possible -- sending ethernet frames won't work over a PPP
+   connection).  This is useful when the other type doesn't work at
+   all.  A _WEAK preference means that Nmap may use the other type
+   where it is substantially more efficient to do so. For example,
+   Nmap will still do an ARP ping scan of a local network even when
+   the pref is SEND_IP_WEAK */
+#define PACKET_SEND_NOPREF      0x01
+#define PACKET_SEND_ETH_WEAK    0x02
+#define PACKET_SEND_ETH_STRONG  0x04
+#define PACKET_SEND_ETH (PACKET_SEND_ETH_WEAK | PACKET_SEND_ETH_STRONG)
+#define PACKET_SEND_IP_WEAK     0x08
+#define PACKET_SEND_IP_STRONG   0x10
+#define PACKET_SEND_IP (PACKET_SEND_IP_WEAK | PACKET_SEND_IP_STRONG)
+int raw_socket_or_eth(int sendpref, const char *ifname,
+    int *rawsd, netutil_eth_t **ethsd);
+
 /* Takes a protocol number like IPPROTO_TCP, IPPROTO_UDP, or
  * IPPROTO_IP and returns a ascii representation (or "unknown" if it
  * doesn't recognize the number).  Returned string is in lowercase. */
