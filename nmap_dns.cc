@@ -773,18 +773,30 @@ static bool process_result(const std::string &name, const DNS::Record *rr, info 
 
 // Nsock read handler. One nsock read for each DNS server exists at each
 // time. This function uses various helper functions as defined above.
-static void read_evt_handler(nsock_pool nsp, nsock_event evt, void *) {
+static void read_evt_handler(nsock_pool nsp, nsock_event evt, void *ctx) {
+  dns_server *srv = (dns_server *)ctx;
   const u8 *buf;
   int buflen;
+  assert(nse_type(evt) == NSE_TYPE_READ);
 
-  if (total_reqs >= 1)
-    nsock_read(nsp, nse_iod(evt), read_evt_handler, -1, NULL);
+  // Only initiate another read if this one succeeded or timed out.
+  if(nse_status(evt) == NSE_STATUS_SUCCESS ||
+      nse_status(evt) == NSE_STATUS_TIMEOUT ) {
+    if (total_reqs >= 1)
+      nsock_read(nsp, nse_iod(evt), read_evt_handler, -1, (void *)srv);
+  }
 
-  if (nse_type(evt) != NSE_TYPE_READ || nse_status(evt) != NSE_STATUS_SUCCESS) {
+  if (nse_status(evt) != NSE_STATUS_SUCCESS) {
     if (o.debugging)
       log_write(LOG_STDOUT, "mass_dns: warning: got a %s:%s in %s()\n",
-        nse_type2str(nse_type(evt)),
-        nse_status2str(nse_status(evt)), __func__);
+          nse_type2str(nse_type(evt)),
+          nse_status2str(nse_status(evt)), __func__);
+    // We're not trying another read here, so disconnect the server.
+    srv->status = dns_server::DISCONNECTED;
+    nsock_iod_delete(srv->nsd, NSOCK_PENDING_SILENT);
+    // Put all in-process and to-process requests back in the queue.
+    new_reqs.splice(new_reqs.end(), srv->in_process);
+    new_reqs.splice(new_reqs.end(), srv->to_process);
     return;
   }
 
@@ -930,7 +942,7 @@ static void connect_evt_handler(nsock_pool nsp, nsock_event evt, void *srv_v) {
     srv->status = dns_server::DISCONNECTED;
     return;
   }
-  nsock_read(nsp, srv->nsd, read_evt_handler, -1, NULL);
+  nsock_read(nsp, srv->nsd, read_evt_handler, -1, (void *)srv);
   srv->status = dns_server::CONNECTED;
 }
 
