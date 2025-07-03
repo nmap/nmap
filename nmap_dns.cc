@@ -234,6 +234,11 @@ struct dns_server {
 };
 
 struct request {
+  enum status_t {
+    READY,
+    WRITE_PENDING,
+    DONE
+  };
   DNS::Request *targ;
   struct timeval sent;
   int tries;
@@ -241,7 +246,13 @@ struct request {
   dns_server *first_server;
   dns_server *curr_server;
   u16 id;
+  status_t status;
   bool alt_req;
+  request() : targ(NULL), tries(0), servers_tried(0), first_server(NULL),
+    curr_server(NULL), id(0), status(READY), alt_req(false)
+  {
+    memset(&sent, 0, sizeof(sent));
+  }
   ~request() {
     if (alt_req && targ) {
       delete targ;
@@ -474,11 +485,15 @@ static void do_possible_writes() {
       if (!new_reqs.empty()) {
         tpreq = new_reqs.front();
         assert(tpreq != NULL);
+        assert(tpreq->targ != NULL);
         tpreq->first_server = tpreq->curr_server = &*servI;
         new_reqs.pop_front();
       } else if (!servI->to_process.empty()) {
         tpreq = servI->to_process.front();
         servI->to_process.pop_front();
+        assert(tpreq != NULL);
+        assert(tpreq->targ != NULL);
+        assert(tpreq->curr_server == &*servI);
       }
 
       if (tpreq) {
@@ -497,26 +512,31 @@ static void do_possible_writes() {
 // nsock write handler
 static void write_evt_handler(nsock_pool nsp, nsock_event evt, void *req_v) {
   assert(nse_type(evt) == NSE_TYPE_WRITE);
-  info record;
   request *req = (request *) req_v;
 
   if (nse_status(evt) == NSE_STATUS_SUCCESS) {
-    req->curr_server->in_process.push_front(req);
-    record.tpreq = req;
-    record.server = req->curr_server;
-    records[req->id] = record;
     do_possible_writes();
   }
   else {
     if (o.debugging) {
       log_write(LOG_STDOUT, "mass_dns: WRITE error: %s", nse_status2str(nse_status(evt)));
     }
+    // We don't delete from records in case a response to an earlier probe comes in.
+    req->curr_server->in_process.remove(req);
     req->curr_server->to_process.push_front(req);
   }
 
   // Avoid runaway recursion: when we call do_possible_writes above,
   // make sure we still are "busy"
   req->curr_server->write_busy = 0;
+
+  if (req->status == request::DONE) {
+    delete req;
+  }
+  else {
+    assert(req->status == request::WRITE_PENDING);
+    req->status = request::READY;
+  }
 }
 
 static DNS::RECORD_TYPE wire_type(DNS::RECORD_TYPE t) {
@@ -533,9 +553,11 @@ static void put_dns_packet_on_wire(request *req) {
   static const size_t maxlen = 512;
   u8 packet[maxlen];
   size_t plen=0;
+  dns_server *srv = req->curr_server;
+  info record;
 
-  req->curr_server->write_busy = 1;
-  req->curr_server->reqs_on_wire++;
+  srv->write_busy = 1;
+  srv->reqs_on_wire++;
   DNS::Request &reqt = *req->targ;
 
   switch(reqt.type) {
@@ -554,9 +576,15 @@ static void put_dns_packet_on_wire(request *req) {
       break;
   }
 
+  srv->in_process.push_front(req);
+  record.tpreq = req;
+  record.server = srv;
+  records[req->id] = record;
   memcpy(&req->sent, nsock_gettimeofday(), sizeof(struct timeval));
 
-  nsock_write(dnspool, req->curr_server->nsd, write_evt_handler, WRITE_TIMEOUT, req, reinterpret_cast<const char *>(packet), plen);
+  req->status = request::WRITE_PENDING;
+  nsock_write(dnspool, srv->nsd, write_evt_handler, WRITE_TIMEOUT, req,
+      reinterpret_cast<const char *>(packet), plen);
 }
 
 // Processes DNS packets that have timed out
@@ -604,7 +632,7 @@ static int deal_with_timedout_reads(bool adjust_timing) {
         if (tpreq->tries > MAX_DNS_TRIES)
           tpreq->tries = MAX_DNS_TRIES;
         servI->in_process.erase(reqI);
-        records.erase(tpreq->id);
+        // We don't erase timed-out probes from records in case a late response comes in.
         servI->reqs_on_wire--;
 
         // If we've tried this server enough times, move to the next one
@@ -638,12 +666,21 @@ static int deal_with_timedout_reads(bool adjust_timing) {
             stat_dropped++;
             total_reqs--;
             records.erase(tpreq->id);
-            delete tpreq;
+            if (tpreq->status != request::WRITE_PENDING) {
+              delete tpreq;
+            }
+            else {
+              tpreq->status = request::DONE;
+            }
             tpreq = NULL;
 
             // **** OR We start at the back of this server's queue
             //servItemp->to_process.push_back(tpreq);
           } else {
+            info record;
+            record.tpreq = tpreq;
+            record.server = &*servItemp;
+            records[tpreq->id] = record;
             servItemp->to_process.push_back(tpreq);
           }
         } else {
@@ -695,13 +732,19 @@ static void process_request(int action, info &reqinfo) {
       }
       records.erase(tpreq->id);
       server->in_process.remove(tpreq);
+      server->to_process.remove(tpreq);
       server->reqs_on_wire--;
       total_reqs--;
       if (action == ACTION_SYSTEM_RESOLVE && is_primary_req(tpreq)) {
         deferred_reqs.push_back(tpreq);
       }
       else {
-        delete tpreq;
+        if (tpreq->status != request::WRITE_PENDING) {
+          delete tpreq;
+        }
+        else {
+          tpreq->status = request::DONE;
+        }
         tpreq = NULL;
       }
 
@@ -823,7 +866,9 @@ static void read_evt_handler(nsock_pool nsp, nsock_event evt, void *ctx) {
     return;
   }
   info &reqinfo = infoI->second;
+  assert(p.id == reqinfo.tpreq->id);
   DNS::Request *reqt = reqinfo.tpreq->targ;
+  assert(reqt != NULL);
   bool processing_successful = false;
 
   if (DNS_HAS_ERR(f, DNS::ERR_NAME) || p.answers.empty())
