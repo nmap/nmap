@@ -601,6 +601,8 @@ static int deal_with_timedout_reads(bool adjust_timing) {
       else {
         may_increase = false;
         tpreq->tries++;
+        if (tpreq->tries > MAX_DNS_TRIES)
+          tpreq->tries = MAX_DNS_TRIES;
         servI->in_process.erase(reqI);
         records.erase(tpreq->id);
         servI->reqs_on_wire--;
