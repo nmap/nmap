@@ -1,5 +1,9 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [GH#3130] Fix a crash (stack overflow due to excessive recursion) in the
+  parallel DNS resolver. Additionally, improved performance by processing
+  responses that come after the request has timed out. [Daniel Miller]
+
 o [GH#2757] Fix a crash in traceroute when using randomly-generated decoys:
   "Assertion `source->ss_family == AF_INET' failed" [Daniel Miller]
 
