@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 Patrick Monnerat, D+H <patrick.monnerat@dh.com>
+ * Copyright (C) Patrick Monnerat <patrick@monnerat.net>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms,
@@ -34,6 +34,8 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY
  * OF SUCH DAMAGE.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
  */
 
 #ifndef LIBSSH2_CONFIG_H
@@ -88,9 +90,6 @@
 
 /* use SO_NONBLOCK for non-blocking sockets */
 #undef HAVE_SO_NONBLOCK
-
-/* Define to 1 if you have the <stdint.h> header file. */
-#define HAVE_STDINT_H 1
 
 /* Define to 1 if you have the <stdio.h> header file. */
 #define HAVE_STDIO_H 1

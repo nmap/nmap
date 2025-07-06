@@ -2,12 +2,12 @@
 .\"     Title: nmap
 .\"    Author: [see the "Authors" section]
 .\" Generator: DocBook XSL Stylesheets v1.79.1 <http://docbook.sf.net/>
-.\"      Date: 04/23/2024
+.\"      Date: 05/07/2025
 .\"    Manual: Nmap Reference Guide
 .\"    Source: Nmap
 .\"  Language: English
 .\"
-.TH "NMAP" "1" "04/23/2024" "Nmap" "Nmap Reference Guide"
+.TH "NMAP" "1" "05/07/2025" "Nmap" "Nmap Reference Guide"
 .\" -----------------------------------------------------------------
 .\" * Define some portability stuff
 .\" -----------------------------------------------------------------
@@ -119,7 +119,7 @@ This options summary is printed when Nmap is run with no arguments, and the late
 .RS 4
 .\}
 .nf
-Nmap 7\&.95SVN ( https://nmap\&.org )
+Nmap 7\&.97 ( https://nmap\&.org )
 Usage: nmap [Scan Type(s)] [Options] {target specification}
 TARGET SPECIFICATION:
   Can pass hostnames, IP addresses, networks, etc\&.
@@ -336,7 +336,7 @@ The exclude file may contain comments that start with
 and extend to the end of the line\&.
 .RE
 .PP
-\fB\-n\fR (No DNS resolution)
+\fB\-n\fR (No reverse DNS resolution)
 .RS 4
 
 Tells Nmap to
@@ -344,7 +344,7 @@ Tells Nmap to
 do reverse DNS resolution on the active IP addresses it finds\&. Since DNS can be slow even with Nmap\*(Aqs built\-in parallel stub resolver, this option can slash scanning times\&.
 .RE
 .PP
-\fB\-R\fR (DNS resolution for all targets)
+\fB\-R\fR (Reverse DNS resolution for all targets)
 .RS 4
 Tells Nmap to
 \fIalways\fR
@@ -364,21 +364,21 @@ Scan each IP address only once\&. The default behavior is to scan each address a
 .PP
 \fB\-\-system\-dns\fR (Use system DNS resolver)
 .RS 4
-By default, Nmap reverse\-resolves IP addresses by sending queries directly to the name servers configured on your host and then listening for responses\&. Many requests (often dozens) are performed in parallel to improve performance\&. Specify this option to use your system resolver instead (one IP at a time via the
+By default, Nmap resolves names to IP addresses (and IP addresses to names) by sending queries directly to the name servers configured on your host and then listening for responses\&. Many requests (often dozens) are performed in parallel to improve performance\&. Specify this option to use your system resolver instead (one IP at a time via the
 \fBgetnameinfo\fR
-call)\&. This is slower and rarely useful unless you find a bug in the Nmap parallel resolver (please let us know if you do)\&. The system resolver is always used for forward lookups (getting an IP address from a hostname)\&.
+call)\&. This is slower and rarely useful unless you find a bug in the Nmap parallel resolver (please let us know if you do)\&.
 .RE
 .PP
-\fB\-\-dns\-servers \fR\fB\fIserver1\fR\fR\fB[,\fIserver2\fR[,\&.\&.\&.]]\fR\fB \fR (Servers to use for reverse DNS queries)
+\fB\-\-dns\-servers \fR\fB\fIserver1\fR\fR\fB[,\fIserver2\fR[,\&.\&.\&.]]\fR\fB \fR (Servers to use for DNS queries)
 .RS 4
-By default, Nmap determines your DNS servers (for rDNS resolution) from your resolv\&.conf file (Unix) or the Registry (Win32)\&. Alternatively, you may use this option to specify alternate servers\&. This option is not honored if you are using
+By default, Nmap determines your DNS servers from your resolv\&.conf file (Unix) or the Registry (Win32)\&. Alternatively, you may use this option to specify alternate servers\&. This option is not honored if you are using
 \fB\-\-system\-dns\fR\&. Using multiple DNS servers is often faster, especially if you choose authoritative servers for your target IP space\&. This option can also improve stealth, as your requests can be bounced off just about any recursive DNS server on the Internet\&.
 .sp
-This option also comes in handy when scanning private networks\&. Sometimes only a few name servers provide proper rDNS information, and you may not even know where they are\&. You can scan the network for port 53 (perhaps with version detection), then try Nmap list scans (\fB\-sL\fR) specifying each name server one at a time with
+This option also comes in handy when scanning private networks\&. Sometimes only a few name servers provide proper DNS information, and you may not even know where they are\&. You can scan the network for port 53 (perhaps with version detection), then try Nmap list scans (\fB\-sL\fR) specifying each name server one at a time with
 \fB\-\-dns\-servers\fR
 until you find one which works\&.
 .sp
-This option might not be honored if the DNS response exceeds the size of a UDP packet\&. In such a situation our DNS resolver will make the best effort to extract a response from the truncated packet, and if not successful it will fall back to using the system resolver\&. Also, responses that contain CNAME aliases will fall back to the system resolver\&.
+This option might not be honored if the DNS response exceeds the size of a UDP packet\&. In such a situation our DNS resolver will make the best effort to extract a response from the truncated packet, and if not successful it will fall back to using the system resolver\&.
 .RE
 .SH "HOST DISCOVERY"
 .PP
@@ -1248,6 +1248,10 @@ and is controlled by the following options:
 .RS 4
 Performs a script scan using the default set of scripts\&. It is equivalent to
 \fB\-\-script=default\fR\&. Some of the scripts in this category are considered intrusive and should not be run against a target network without permission\&.
+.sp
+Note that this shorthand option is ignored whenever at least one
+\fB\-\-script\fR
+is also specified\&.
 .RE
 .PP
 \fB\-\-script \fR\fB\fIfilename\fR\fR\fB|\fR\fB\fIcategory\fR\fR\fB|\fR\fB\fIdirectory\fR\fR\fB/|\fR\fB\fIexpression\fR\fR\fB[,\&.\&.\&.]\fR
@@ -1840,7 +1844,7 @@ Normally Nmap sends minimalist packets containing only a header\&. So its TCP pa
 and IP protocols
 get a custom payload by default\&. This option tells Nmap to append the given number of random bytes to most of the packets it sends, and not to use any protocol\-specific payloads\&. (Use
 \fB\-\-data\-length 0\fR
-for no random or protocol\-specific payloads\&.
+for no random or protocol\-specific payloads\&.)
 OS detection (\fB\-O\fR) packets are not affected
 because accuracy there requires probe consistency, but most pinging and portscan packets support this\&. It slows things down a little, but can make a scan slightly less conspicuous\&.
 .RE

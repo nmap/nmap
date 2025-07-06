@@ -17,7 +17,7 @@
 .\" WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF
 .\" MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 .\"
-.TH PCAP_STRERROR 3PCAP "3 January 2014"
+.TH PCAP_STRERROR 3PCAP "26 August 2024"
 .SH NAME
 pcap_strerror \- convert an errno value to a string
 .SH SYNOPSIS
@@ -31,10 +31,14 @@ const char *pcap_strerror(int error);
 .ft
 .fi
 .SH DESCRIPTION
-.BR pcap_strerror ()
-is provided in case
-.BR strerror (3)
-isn't available.  It returns an error message string corresponding to
+This function returns an error message string corresponding to
 .IR error .
+It uses either
+.BR strerror (3)
+or its thread-safe variant if one is available, which currently is the case in
+every supported OS.
+.SH BACKWARD COMPATIBILITY
+This function was not thread-safe in libpcap before 1.8.1 on Windows and
+in libpcap before 1.10.5 on all other OSes.
 .SH SEE ALSO
 .BR pcap (3PCAP)

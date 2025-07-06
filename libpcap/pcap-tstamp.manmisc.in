@@ -107,11 +107,12 @@ routine can be used after a
 call and before a
 .BR pcap_activate ()
 call to specify the type of time stamp to be used on the device.
-The time stamp types are listed here; the first value is the #define to
-use in code, the second value is the value returned by
+The time stamp types are listed here; the first value is the
+.B #define
+to use in code, the second value is the value returned by
 .BR pcap_tstamp_type_val_to_name (3PCAP)
 and accepted by
-.BR pcap_tstamp_type_name_to_val (3PCAP) .
+.BR pcap_tstamp_type_name_to_val (3PCAP).
 .RS 5
 .TP 5
 .BR PCAP_TSTAMP_HOST " - " host

@@ -11,9 +11,7 @@
  * by pcap-[dlpi,libdlpi].c.
  */
 
-#ifdef HAVE_CONFIG_H
 #include <config.h>
-#endif
 
 #ifndef DL_IPATM
 #define DL_IPATM	0x12	/* ATM Classical IP interface */
@@ -195,7 +193,7 @@ pcap_process_pkts(pcap_t *p, pcap_handler callback, u_char *user,
 		bufp += caplen;
 #endif
 		++pd->stat.ps_recv;
-		if (pcap_filter(p->fcode.bf_insns, pk, origlen, caplen)) {
+		if (pcapint_filter(p->fcode.bf_insns, pk, origlen, caplen)) {
 #ifdef HAVE_SYS_BUFMOD_H
 			pkthdr.ts.tv_sec = sbp->sbh_timestamp.tv_sec;
 			pkthdr.ts.tv_usec = sbp->sbh_timestamp.tv_usec;
@@ -246,14 +244,14 @@ pcap_process_mactype(pcap_t *p, u_int mactype)
 		 * Ethernet framing).
 		 */
 		p->dlt_list = (u_int *)malloc(sizeof(u_int) * 2);
-		/*
-		 * If that fails, just leave the list empty.
-		 */
-		if (p->dlt_list != NULL) {
-			p->dlt_list[0] = DLT_EN10MB;
-			p->dlt_list[1] = DLT_DOCSIS;
-			p->dlt_count = 2;
+		if (p->dlt_list == NULL) {
+			pcapint_fmt_errmsg_for_errno(p->errbuf, PCAP_ERRBUF_SIZE,
+			    errno, "malloc");
+			return (-1);
 		}
+		p->dlt_list[0] = DLT_EN10MB;
+		p->dlt_list[1] = DLT_DOCSIS;
+		p->dlt_count = 2;
 		break;
 
 	case DL_FDDI:
@@ -377,7 +375,7 @@ pcap_alloc_databuf(pcap_t *p)
 	p->bufsize = PKTBUFSIZE;
 	p->buffer = malloc(p->bufsize + p->offset);
 	if (p->buffer == NULL) {
-		pcap_fmt_errmsg_for_errno(p->errbuf, PCAP_ERRBUF_SIZE,
+		pcapint_fmt_errmsg_for_errno(p->errbuf, PCAP_ERRBUF_SIZE,
 		    errno, "malloc");
 		return (-1);
 	}
@@ -412,6 +410,6 @@ strioctl(int fd, int cmd, int len, char *dp)
 static void
 pcap_stream_err(const char *func, int err, char *errbuf)
 {
-	pcap_fmt_errmsg_for_errno(errbuf, PCAP_ERRBUF_SIZE, err, "%s", func);
+	pcapint_fmt_errmsg_for_errno(errbuf, PCAP_ERRBUF_SIZE, err, "%s", func);
 }
 #endif

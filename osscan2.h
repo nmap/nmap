@@ -64,7 +64,7 @@
 #define OSSCAN2_H
 
 #include "nbase.h"
-#include <dnet.h>
+#include "libnetutil/netutil.h"
 #include <pcap.h>
 
 #include <vector>
@@ -232,7 +232,7 @@ class HostOsScanStats {
   HostOsScanStats(Target *t);
   ~HostOsScanStats();
   void initScanStats();
-  struct eth_nfo *fill_eth_nfo(struct eth_nfo *eth, eth_t *ethsd) const;
+  struct eth_nfo *fill_eth_nfo(struct eth_nfo *eth, netutil_eth_t *ethsd) const;
   void addNewProbe(OFProbeType type, int subid);
   void removeActiveProbe(std::list<OFProbe *>::iterator probeI);
   /* Get an active probe from active probe list identified by probe type
@@ -431,7 +431,7 @@ private:
   int get_tcpopt_string(const struct tcp_hdr *tcp, int mss, char *result, int maxlen) const;
 
   int rawsd;    /* Raw socket descriptor */
-  eth_t *ethsd; /* Ethernet handle       */
+  netutil_eth_t *ethsd; /* Ethernet handle       */
 
   unsigned int tcpSeqBase;    /* Seq value used in TCP probes                 */
   unsigned int  tcpAck;       /* Ack value used in TCP probes                 */

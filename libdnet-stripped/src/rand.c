@@ -5,18 +5,26 @@
  *
  * Copyright (c) 2000 Dug Song <dugsong@monkey.org>
  * Copyright (c) 1996 David Mazieres <dm@lcs.mit.edu>
+ * Copyright (c) 2023-2024 Oliver Falk <oliver@linux-kernel.at>
  *
- * $Id: rand.c 587 2005-02-15 06:37:07Z dugsong $
  */
 
+#ifdef _WIN32
+#include "dnet_winconfig.h"
+#else
 #include "config.h"
+#endif
 
 #ifdef _WIN32
-/* XXX */
-# undef _WIN32_WINNT
-# define _WIN32_WINNT _WIN32_WINNT_WIN7
-# include <bcrypt.h>
-# pragma comment(lib, "bcrypt.lib")
+# ifndef _WIN32_WINNT
+#  define _WIN32_WINNT _WIN32_WINNT_WIN7
+# endif
+# if _WIN32_WINNT >= _WIN32_WINNT_VISTA
+#  include <bcrypt.h>
+#  pragma comment(lib, "bcrypt.lib")
+# else
+#  include <wincrypt.h>
+# endif
 # define inline __inline
 #else
 # include <sys/types.h>
@@ -70,15 +78,29 @@ rand_open(void)
 	rand_t *r;
 	u_char seed[256];
 #ifdef _WIN32
-	if (STATUS_SUCCESS != BCryptGenRandom(NULL, seed, sizeof(seed), BCRYPT_USE_SYSTEM_PREFERRED_RNG))
+# if _WIN32_WINNT >= _WIN32_WINNT_VISTA
+	if (0 != BCryptGenRandom(NULL, seed, sizeof(seed), BCRYPT_USE_SYSTEM_PREFERRED_RNG))
 	  return NULL;
+# else
+	HCRYPTPROV hcrypt = 0;
+
+	CryptAcquireContext(&hcrypt, NULL, NULL, PROV_RSA_FULL,
+	    CRYPT_VERIFYCONTEXT);
+	CryptGenRandom(hcrypt, sizeof(seed), seed);
+	CryptReleaseContext(hcrypt, 0);
+#endif
 #else
 	struct timeval *tv = (struct timeval *)seed;
 	int fd;
 
 	if ((fd = open("/dev/arandom", O_RDONLY)) != -1 ||
 	    (fd = open("/dev/urandom", O_RDONLY)) != -1) {
-		read(fd, seed + sizeof(*tv), sizeof(seed) - sizeof(*tv));
+                /* This is ugly, as we may end up with nothing in buffer, but
+		 * that's very unlikely, anyway, wrappping the read in a conditional
+		 * avoids compiler warning about unused variable */
+		if(read(fd, seed + sizeof(*tv), sizeof(seed) - sizeof(*tv))) {
+			// NOOP
+		}
 		close(fd);
 	}
 	gettimeofday(tv, NULL);

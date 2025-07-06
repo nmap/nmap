@@ -1,4 +1,4 @@
-Ncat 7.95SVN ( https://nmap.org/ncat )
+Ncat 7.97SVN ( https://nmap.org/ncat )
 Usage: ncat [options] [hostname] [port]
 
 Options taking a time assume seconds. Append 'ms' for milliseconds,
@@ -34,6 +34,7 @@ Options taking a time assume seconds. Append 'ms' for milliseconds,
       --send-only            Only send data, ignoring received; quit on EOF
       --recv-only            Only receive data, never send anything
       --no-shutdown          Continue half-duplex when receiving EOF on stdin
+  -q <time>                  After EOF on stdin, wait <time> then quit.
       --allow                Allow only given hosts to connect to Ncat
       --allowfile            A file of hosts allowed to connect to Ncat
       --deny                 Deny given hosts from connecting to Ncat
@@ -44,14 +45,6 @@ Options taking a time assume seconds. Append 'ms' for milliseconds,
       --proxy-type <type>    Specify proxy type ("http", "socks4", "socks5")
       --proxy-auth <auth>    Authenticate with HTTP or SOCKS proxy server
       --proxy-dns <type>     Specify where to resolve proxy destination
-      --ssl                  Connect or listen with SSL
-      --ssl-cert             Specify SSL certificate file (PEM) for listening
-      --ssl-key              Specify SSL private key (PEM) for listening
-      --ssl-verify           Verify trust and domain name of certificates
-      --ssl-trustfile        PEM file containing trusted SSL certificates
-      --ssl-ciphers          Cipherlist containing SSL ciphers to use
-      --ssl-servername       Request distinct server name (SNI)
-      --ssl-alpn             ALPN protocol list to use
       --version              Display Ncat's version information and exit
 
 See the ncat(1) manpage for full options, descriptions and usage examples

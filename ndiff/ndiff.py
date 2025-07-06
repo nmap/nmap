@@ -1527,6 +1527,9 @@ def excepthook(type, value, tb):
     sys.__excepthook__(type, value, tb)
     sys.exit(EXIT_ERROR)
 
-if __name__ == "__main__":
+def run_main():
     sys.excepthook = excepthook
     sys.exit(main())
+
+if __name__ == "__main__":
+    run_main()

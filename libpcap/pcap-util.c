@@ -18,26 +18,24 @@
  * WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF
  * MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
  *
- * pcap-common.c - common code for pcap and pcapng files
+ * pcap-util.c - common code for various files
  */
 
-#ifdef HAVE_CONFIG_H
 #include <config.h>
-#endif
 
 #include <pcap-types.h>
+
+#include "pcap/can_socketcan.h"
+#include "pcap/sll.h"
+#include "pcap/usb.h"
+#include "pcap/nflog.h"
 
 #include "pcap-int.h"
 #include "extract.h"
 #include "pcap-usb-linux-common.h"
 
 #include "pcap-util.h"
-
 #include "pflog.h"
-#include "pcap/can_socketcan.h"
-#include "pcap/sll.h"
-#include "pcap/usb.h"
-#include "pcap/nflog.h"
 
 /*
  * Most versions of the DLT_PFLOG pseudo-header have UID and PID fields
@@ -104,6 +102,80 @@ swap_pflog_header(const struct pcap_pkthdr *hdr, u_char *buf)
 }
 
 /*
+ * Linux cooked capture packets with a protocol type of LINUX_SLL_P_CAN or
+ * LINUX_SLL_P_CANFD have SocketCAN CAN classic/CAN FD headers in front
+ * of the payload,with the CAN ID being in the byte order of the host
+ * that wrote the packet, and Linux cooked capture packets with a protocol
+ * type of LINUX_SLL_P_CANXL have SocketCAN CAN XL headers in front of the
+ * payload with the protocol/VCID field, the payload length, and the
+ * acceptance field in the byte order of the host that wrote the packet.
+ *
+ * When reading a Linux cooked capture packet, we need to check for those
+ * packets and, if the byte order host that wrote the packet, as
+ * indicated by the byte order of the pcap file or pcapng section
+ * containing the packet, is the opposite of our byte order, convert
+ * the header files to our byte order by byte-swapping them.
+ */
+static void
+swap_socketcan_header(uint16_t protocol, u_int caplen, u_int length,
+    u_char *buf)
+{
+	pcap_can_socketcan_hdr *hdrp;
+	pcap_can_socketcan_xl_hdr *xl_hdrp;
+
+	switch (protocol) {
+
+	case LINUX_SLL_P_CAN:
+	case LINUX_SLL_P_CANFD:
+		/*
+		 * CAN classic/CAN FD packet; fix up the packet's header
+		 * by byte-swapping the CAN ID field.
+		 */
+		hdrp = (pcap_can_socketcan_hdr *)buf;
+		if (caplen < (u_int) (offsetof(pcap_can_socketcan_hdr, can_id) + sizeof hdrp->can_id) ||
+		    length < (u_int) (offsetof(pcap_can_socketcan_hdr, can_id) + sizeof hdrp->can_id)) {
+			/* Not enough data to have the can_id field */
+			return;
+		}
+		hdrp->can_id = SWAPLONG(hdrp->can_id);
+		break;
+
+	case LINUX_SLL_P_CANXL:
+		/*
+		 * CAN XL packet; fix up the packet's header by
+		 * byte-swapping the priority/VCID field, the
+		 * payload length, and the acceptance field.
+		 */
+		xl_hdrp = (pcap_can_socketcan_xl_hdr *)buf;
+		if (caplen < (u_int) (offsetof(pcap_can_socketcan_xl_hdr, priority_vcid) + sizeof xl_hdrp->priority_vcid) ||
+		    length < (u_int) (offsetof(pcap_can_socketcan_xl_hdr, priority_vcid) + sizeof xl_hdrp->priority_vcid)) {
+			/* Not enough data to have the priority_vcid field */
+			return;
+		}
+		xl_hdrp->priority_vcid = SWAPLONG(xl_hdrp->priority_vcid);
+		if (caplen < (u_int) (offsetof(pcap_can_socketcan_xl_hdr, payload_length) + sizeof xl_hdrp->payload_length) ||
+		    length < (u_int) (offsetof(pcap_can_socketcan_xl_hdr, payload_length) + sizeof xl_hdrp->payload_length)) {
+			/* Not enough data to have the payload_length field */
+			return;
+		}
+		xl_hdrp->payload_length = SWAPSHORT(xl_hdrp->payload_length);
+		if (caplen < (u_int) (offsetof(pcap_can_socketcan_xl_hdr, acceptance_field) + sizeof xl_hdrp->acceptance_field) ||
+		    length < (u_int) (offsetof(pcap_can_socketcan_xl_hdr, acceptance_field) + sizeof xl_hdrp->acceptance_field)) {
+			/* Not enough data to have the acceptance_field field */
+			return;
+		}
+		xl_hdrp->acceptance_field = SWAPLONG(xl_hdrp->acceptance_field);
+		break;
+
+	default:
+		/*
+		 * Not a CAN packet; nothing to do.
+		 */
+		break;
+	}
+}
+
+/*
  * DLT_LINUX_SLL packets with a protocol type of LINUX_SLL_P_CAN or
  * LINUX_SLL_P_CANFD have SocketCAN headers in front of the payload,
  * with the CAN ID being in host byte order.
@@ -113,13 +185,11 @@ swap_pflog_header(const struct pcap_pkthdr *hdr, u_char *buf)
  * wrote the file to this host's byte order.
  */
 static void
-swap_linux_sll_header(const struct pcap_pkthdr *hdr, u_char *buf)
+swap_linux_sll_socketcan_header(const struct pcap_pkthdr *hdr, u_char *buf)
 {
 	u_int caplen = hdr->caplen;
 	u_int length = hdr->len;
 	struct sll_header *shdr = (struct sll_header *)buf;
-	uint16_t protocol;
-	pcap_can_socketcan_hdr *chdr;
 
 	if (caplen < (u_int) sizeof(struct sll_header) ||
 	    length < (u_int) sizeof(struct sll_header)) {
@@ -127,33 +197,24 @@ swap_linux_sll_header(const struct pcap_pkthdr *hdr, u_char *buf)
 		return;
 	}
 
-	protocol = EXTRACT_BE_U_2(&shdr->sll_protocol);
-	if (protocol != LINUX_SLL_P_CAN && protocol != LINUX_SLL_P_CANFD)
-		return;
-
 	/*
-	 * SocketCAN packet; fix up the packet's header.
+	 * Byte-swap what needs to be byte-swapped.
 	 */
-	chdr = (pcap_can_socketcan_hdr *)(buf + sizeof(struct sll_header));
-	if (caplen < (u_int) sizeof(struct sll_header) + sizeof(chdr->can_id) ||
-	    length < (u_int) sizeof(struct sll_header) + sizeof(chdr->can_id)) {
-		/* Not enough data to have the CAN ID */
-		return;
-	}
-	chdr->can_id = SWAPLONG(chdr->can_id);
+	swap_socketcan_header(EXTRACT_BE_U_2(&shdr->sll_protocol),
+	    caplen - (u_int) sizeof(struct sll_header),
+	    length - (u_int) sizeof(struct sll_header),
+	    buf + sizeof(struct sll_header));
 }
 
 /*
  * The same applies for DLT_LINUX_SLL2.
  */
 static void
-swap_linux_sll2_header(const struct pcap_pkthdr *hdr, u_char *buf)
+swap_linux_sll2_socketcan_header(const struct pcap_pkthdr *hdr, u_char *buf)
 {
 	u_int caplen = hdr->caplen;
 	u_int length = hdr->len;
 	struct sll2_header *shdr = (struct sll2_header *)buf;
-	uint16_t protocol;
-	pcap_can_socketcan_hdr *chdr;
 
 	if (caplen < (u_int) sizeof(struct sll2_header) ||
 	    length < (u_int) sizeof(struct sll2_header)) {
@@ -161,20 +222,13 @@ swap_linux_sll2_header(const struct pcap_pkthdr *hdr, u_char *buf)
 		return;
 	}
 
-	protocol = EXTRACT_BE_U_2(&shdr->sll2_protocol);
-	if (protocol != LINUX_SLL_P_CAN && protocol != LINUX_SLL_P_CANFD)
-		return;
-
 	/*
-	 * SocketCAN packet; fix up the packet's header.
+	 * Byte-swap what needs to be byte-swapped.
 	 */
-	chdr = (pcap_can_socketcan_hdr *)(buf + sizeof(struct sll2_header));
-	if (caplen < (u_int) sizeof(struct sll2_header) + sizeof(chdr->can_id) ||
-	    length < (u_int) sizeof(struct sll2_header) + sizeof(chdr->can_id)) {
-		/* Not enough data to have the CAN ID */
-		return;
-	}
-	chdr->can_id = SWAPLONG(chdr->can_id);
+	swap_socketcan_header(EXTRACT_BE_U_2(&shdr->sll2_protocol),
+	    caplen - (u_int) sizeof(struct sll2_header),
+	    length - (u_int) sizeof(struct sll2_header),
+	    buf + sizeof(struct sll2_header));
 }
 
 /*
@@ -344,7 +398,7 @@ swap_nflog_header(const struct pcap_pkthdr *hdr, u_char *buf)
 	nflog_tlv_t *tlv;
 	u_int caplen = hdr->caplen;
 	u_int length = hdr->len;
-	uint16_t size;
+	u_int size;
 
 	if (caplen < (u_int) sizeof(nflog_hdr_t) ||
 	    length < (u_int) sizeof(nflog_hdr_t)) {
@@ -407,11 +461,11 @@ swap_pseudo_headers(int linktype, struct pcap_pkthdr *hdr, u_char *data)
 		break;
 
 	case DLT_LINUX_SLL:
-		swap_linux_sll_header(hdr, data);
+		swap_linux_sll_socketcan_header(hdr, data);
 		break;
 
 	case DLT_LINUX_SLL2:
-		swap_linux_sll2_header(hdr, data);
+		swap_linux_sll2_socketcan_header(hdr, data);
 		break;
 
 	case DLT_USB_LINUX:
@@ -428,47 +482,146 @@ swap_pseudo_headers(int linktype, struct pcap_pkthdr *hdr, u_char *data)
 	}
 }
 
+static inline int
+packet_length_might_be_wrong(struct pcap_pkthdr *hdr,
+    const pcap_usb_header_mmapped *usb_hdr)
+{
+	uint32_t old_style_packet_length;
+
+	/*
+	 * Calculate the packet length the old way.
+	 * We know that the multiplication won't overflow, but
+	 * we don't know that the additions won't.  Calculate
+	 * it with no overflow checks, as that's how it
+	 * would have been calculated when it was captured.
+	 */
+	old_style_packet_length = iso_pseudo_header_len(usb_hdr) +
+	    usb_hdr->urb_len;
+	return (hdr->len == old_style_packet_length);
+}
+
 void
-pcap_post_process(int linktype, int swapped, struct pcap_pkthdr *hdr,
+pcapint_post_process(int linktype, int swapped, struct pcap_pkthdr *hdr,
     u_char *data)
 {
 	if (swapped)
 		swap_pseudo_headers(linktype, hdr, data);
 
-	fixup_pcap_pkthdr(linktype, hdr, data);
-}
-
-void
-fixup_pcap_pkthdr(int linktype, struct pcap_pkthdr *hdr, const u_char *data)
-{
-	const pcap_usb_header_mmapped *usb_hdr;
-
-	usb_hdr = (const pcap_usb_header_mmapped *) data;
-	if (linktype == DLT_USB_LINUX_MMAPPED &&
-	    hdr->caplen >= sizeof (pcap_usb_header_mmapped)) {
+	/*
+	 * Is this a memory-mapped Linux USB capture?
+	 */
+	if (linktype == DLT_USB_LINUX_MMAPPED) {
 		/*
-		 * In older versions of libpcap, in memory-mapped captures,
-		 * the "on-the-bus length" for completion events for
-		 * incoming isochronous transfers was miscalculated; it
-		 * needed to be calculated based on the* offsets and lengths
-		 * in the descriptors, not on the raw URB length, but it
-		 * wasn't.
+		 * Yes.
+		 *
+		 * In older versions of libpcap, in memory-mapped Linux
+		 * USB captures, the original length of completion events
+		 * for incoming isochronous transfers was miscalculated;
+		 * it needed to be calculated based on the offsets and
+		 * lengths in the descriptors, not on the raw URB length,
+		 * but it wasn't.
 		 *
 		 * If this packet contains transferred data (yes, data_flag
-		 * is 0 if we *do* have data), and the total on-the-network
-		 * length is equal to the value calculated from the raw URB
-		 * length, then it might be one of those transfers.
+		 * is 0 if we *do* have data), it's a completion event
+		 * for an incoming isochronous transfer, and the
+		 * transfer length appears to have been calculated
+		 * from the raw URB length, fix it.
 		 *
-		 * We only do this if we have the full USB pseudo-header.
+		 * We only do this if we have the full USB pseudo-header,
+		 * because we will have to look at that header and at
+		 * all of the isochronous descriptors.
 		 */
-		if (!usb_hdr->data_flag &&
-		    hdr->len == sizeof(pcap_usb_header_mmapped) +
-		      (usb_hdr->ndesc * sizeof (usb_isodesc)) + usb_hdr->urb_len) {
+		if (hdr->caplen < sizeof (pcap_usb_header_mmapped)) {
 			/*
-			 * It might need fixing; fix it if it's a completion
-			 * event for an incoming isochronous transfer.
+			 * We don't have the full pseudo-header.
 			 */
-			fix_linux_usb_mmapped_length(hdr, data);
+			return;
+		}
+
+		const pcap_usb_header_mmapped *usb_hdr =
+		    (const pcap_usb_header_mmapped *) data;
+
+		/*
+		 * Make sure the number of descriptors is sane.
+		 *
+		 * The Linux binary USB monitor code limits the number of
+		 * isochronous descriptors to 128; if the number in the file
+		 * is larger than that, either 1) the file's been damaged
+		 * or 2) the file was produced after the number was raised
+		 * in the kernel.
+		 *
+		 * In case 1), the number can't be trusted, so don't rely on
+		 * it to attempt to fix the original length field in the pcap
+		 * or pcapng header.
+		 *
+		 * In case 2), the system was probably running a version of
+		 * libpcap that didn't miscalculate the original length, so
+		 * it probably doesn't need to be fixed.
+		 *
+		 * This avoids the possibility of the product of the number of
+		 * descriptors and the size of descriptors won't overflow an
+		 * unsigned 32-bit integer.
+		 */
+		if (usb_hdr->ndesc > USB_MAXDESC)
+			return;
+
+		if (!usb_hdr->data_flag &&
+		    is_isochronous_transfer_completion(usb_hdr) &&
+		    packet_length_might_be_wrong(hdr, usb_hdr)) {
+			u_int len;
+
+			/*
+			 * Make sure we have all of the descriptors,
+			 * as we will have to look at all of them.
+			 *
+			 * If not, we don't bother trying to fix
+			 * anything.
+			 */
+			if (hdr->caplen < iso_pseudo_header_len(usb_hdr))
+				return;
+
+			/*
+			 * Calculate what the length should have been.
+			 */
+			len = incoming_isochronous_transfer_completed_len(hdr,
+			    data);
+
+			/*
+			 * len is the smaller of UINT_MAX and the total
+			 * header plus data length.  That's guaranteed
+			 * to fit in a UINT_MAX.
+			 *
+			 * Don't reduce the original length to a value
+			 * below the captured length, however, as that
+			 * is bogus.
+			 */
+			if (len >= hdr->caplen)
+				hdr->len = len;
+
+			/*
+			 * If the captured length is greater than the
+			 * length, use the captured length.
+			 *
+			 * For completion events for incoming isochronous
+			 * transfers, it's based on data_len, which is
+			 * calculated the same way we calculated
+			 * pre_truncation_data_len above, except that
+			 * it has access to all the isochronous descriptors,
+			 * not just the ones that the kernel were able to
+			 * provide us or, for a capture file, that weren't
+			 * sliced off by a snapshot length.
+			 *
+			 * However, it might have been reduced by the USB
+			 * capture mechanism arbitrarily limiting the amount
+			 * of data it provides to userland, or by the libpcap
+			 * capture code limiting it to being no more than the
+			 * snapshot, so we don't want to just use it all the
+			 * time; we only do so to try to get a better estimate
+			 * of the actual length - and to make sure the
+			 * original length is always >= the captured length.
+			 */
+			if (hdr->caplen > hdr->len)
+				hdr->len = hdr->caplen;
 		}
 	}
 }

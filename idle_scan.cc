@@ -107,10 +107,6 @@
 #include <stdio.h>
 
 extern NmapOps o;
-#ifdef WIN32
-/* from libdnet's intf-win32.c */
-extern "C" int g_has_npcap_loopback;
-#endif
 
 struct idle_proxy_info {
   Target host; /* contains name, IP, source IP, timing info, etc. */
@@ -603,30 +599,19 @@ static void initialize_idleproxy(struct idle_proxy_info *proxy, char *proxyName,
 
   /* Now lets send some probes to check IP ID algorithm ... */
   /* First we need a raw socket ... */
-  if ((o.sendpref & PACKET_SEND_ETH) && (proxy->host.ifType() == devt_ethernet
-#ifdef WIN32
-    || (g_has_npcap_loopback && proxy->host.ifType() == devt_loopback)
-#endif
-    )) {
+  if (!raw_socket_or_eth(o.sendpref, proxy->host.deviceName(),
+        &proxy->rawsd, &proxy->eth.ethsd)) {
+    fatal("%s: Failed to open raw socket or ethernet handle", __func__);
+  }
+  if (proxy->eth.ethsd != NULL) {
     if (!setTargetNextHopMAC(&proxy->host))
       fatal("%s: Failed to determine dst MAC address for Idle proxy", __func__);
     memcpy(proxy->eth.srcmac, proxy->host.SrcMACAddress(), 6);
     memcpy(proxy->eth.dstmac, proxy->host.NextHopMACAddress(), 6);
-    proxy->eth.ethsd = eth_open_cached(proxy->host.deviceName());
-    if (proxy->eth.ethsd == NULL)
-      fatal("%s: Failed to open ethernet device (%s)", __func__, proxy->host.deviceName());
-    proxy->rawsd = -1;
     proxy->ethptr = &proxy->eth;
-  } else {
-#ifdef WIN32
-    win32_fatal_raw_sockets(proxy->host.deviceName());
-#endif
-    proxy->rawsd = nmap_raw_socket();
-    if (proxy->rawsd < 0)
-      pfatal("socket troubles in %s", __func__);
+  }
+  else {
     unblock_socket(proxy->rawsd);
-    proxy->eth.ethsd = NULL;
-    proxy->ethptr = NULL;
   }
 
   if (proxy->host.af() == AF_INET6)

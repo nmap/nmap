@@ -256,7 +256,6 @@ clean-zenmap:
 	rm -f $(ZENMAPDIR)/zenmapCore/Name.pyc
 
 clean-ndiff:
-	-cd $(NDIFFDIR) && $(PYTHON) setup.py clean --all
 
 clean-nping:
 	-cd $(NPINGDIR) && $(MAKE) clean
@@ -351,14 +350,6 @@ $(ZENMAPDIR)/zenmapCore/Version.py $(ZENMAPDIR)/share/zenmap/config/zenmap_versi
 tests/%: tests/%.cc $(OBJS)
 	$(CXX) -o $@ $(CPPFLAGS) $(CXXFLAGS) $(LDFLAGS) $(OBJS) $(LIBS) $<
 
-# By default distutils rewrites installed scripts to hardcode the
-# location of the Python interpreter they were built with (something
-# like #!/usr/bin/python2.4). This is the wrong thing to do when
-# installing on a machine other than the one used to do the build. Use
-# this as the location of the interpreter whenever we're not doing a
-# local installation.
-DEFAULT_PYTHON_PATH = /usr/bin/env python3
-
 build-zenmap: $(ZENMAPDIR)/pyproject.toml $(ZENMAPDIR)/zenmapCore/Version.py
 	$(PYTHON) -m build $(ZENMAPDIR)/
 
@@ -376,13 +367,15 @@ install-zenmap: $(ZENMAPDIR)/pyproject.toml
 	ln -sf zenmap $(DESTDIR)$(bindir)/xnmap
 
 build-ndiff:
-	cd $(NDIFFDIR) && $(PYTHON) setup.py build $(if $(DESTDIR),--executable "$(DEFAULT_PYTHON_PATH)")
+	$(PYTHON) -m build $(NDIFFDIR)/
 
 build-nping: $(NPINGDIR)/Makefile build-nbase build-nsock build-netutil $(NPINGDIR)/nping.h @DNET_BUILD@ @PCAP_BUILD@
 	@cd $(NPINGDIR) && $(MAKE)
 
 install-ndiff:
-	cd $(NDIFFDIR) && $(PYTHON) setup.py install --prefix "$(prefix)" $(if $(DESTDIR),--root "$(DESTDIR)")
+	$(INSTALL) -d $(DESTDIR)$(bindir) $(DESTDIR)$(mandir)/man1
+	$(PYTHON) -m pip install $(NDIFFDIR)/ $(if $(DESTDIR),--root "$(DESTDIR)")
+	$(INSTALL) -c -m 644 $(NDIFFDIR)/docs/ndiff.1 $(DESTDIR)$(mandir)/man1/
 
 NSE_FILES = scripts/script.db scripts/*.nse
 NSE_LIB_LUA_FILES = nselib/*.lua nselib/*.luadoc
@@ -431,7 +424,8 @@ uninstall-zenmap:
 	rm -f $(DESTDIR)$(bindir)/xnmap
 
 uninstall-ndiff:
-	cd $(NDIFFDIR) && $(PYTHON) setup.py uninstall
+	$(PYTHON) -m pip uninstall $(NDIFFDIR)
+	rm -f $(DESTDIR)$(mandir)/man1/ndiff.1
 
 uninstall-ncat:
 	@cd $(NCATDIR) && $(MAKE) uninstall

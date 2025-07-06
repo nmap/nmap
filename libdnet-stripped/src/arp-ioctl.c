@@ -3,7 +3,7 @@
  *
  * Copyright (c) 2001 Dug Song <dugsong@monkey.org>
  *
- * $Id: arp-ioctl.c 554 2005-02-09 22:31:00Z dugsong $
+ * $Id$
  */
 
 #include "config.h"
@@ -210,7 +210,7 @@ arp_loop(arp_t *a, arp_handler callback, void *arg)
 {
 	FILE *fp;
 	struct arp_entry entry;
-	char buf[BUFSIZ], ipbuf[100], macbuf[100], maskbuf[100], devbuf[100];
+	char buf[BUFSIZ], ipbuf[101], macbuf[101], maskbuf[101], devbuf[101];
 	int i, type, flags, ret;
 
 	if ((fp = fopen(PROC_ARP_FILE, "r")) == NULL)
@@ -218,7 +218,7 @@ arp_loop(arp_t *a, arp_handler callback, void *arg)
 
 	ret = 0;
 	while (fgets(buf, sizeof(buf), fp) != NULL) {
-		i = sscanf(buf, "%s 0x%x 0x%x %99s %99s %99s\n",
+		i = sscanf(buf, "%s 0x%x 0x%x %100s %100s %100s\n",
 		    ipbuf, &type, &flags, macbuf, maskbuf, devbuf);
 		
 		if (i < 4 || (flags & ATF_COM) == 0)

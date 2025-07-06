@@ -3,7 +3,7 @@
  *
  * Copyright (c) 2001 Dug Song <dugsong@monkey.org>
  *
- * $Id: dnet.h 529 2004-09-10 03:10:01Z dugsong $
+ * $Id$
  */
 
 #ifndef DNET_H
@@ -16,6 +16,7 @@
 #include <dnet/ip6.h>
 #include <dnet/addr.h>
 #include <dnet/arp.h>
+#include <dnet/ndisc.h>
 #include <dnet/icmp.h>
 #include <dnet/icmpv6.h>
 #include <dnet/tcp.h>

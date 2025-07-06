@@ -133,7 +133,7 @@ end
 --- Return the mean and sample standard deviation of an array, using the
 -- algorithm from Knuth Vol. 2, Section 4.2.2.
 --
--- @params t An array-style table of values
+-- @param t An array-style table of values
 -- @return The mean of the values
 -- @return The standard deviation of the values
 function mean_stddev(t)

@@ -35,9 +35,7 @@
  * Utilities for message formatting used both by libpcap and rpcapd.
  */
 
-#ifdef HAVE_CONFIG_H
 #include <config.h>
-#endif
 
 #include "ftmacros.h"
 
@@ -62,19 +60,19 @@
  */
 #ifdef _WIN32
 /*
- * True if we shouold use UTF-8.
+ * True if we should use UTF-8.
  */
 static int use_utf_8;
 
 void
-pcap_fmt_set_encoding(unsigned int opts)
+pcapint_fmt_set_encoding(unsigned int opts)
 {
 	if (opts == PCAP_CHAR_ENC_UTF_8)
 		use_utf_8 = 1;
 }
 #else
 void
-pcap_fmt_set_encoding(unsigned int opts _U_)
+pcapint_fmt_set_encoding(unsigned int opts _U_)
 {
 	/*
 	 * Nothing to do here.
@@ -154,7 +152,7 @@ utf_16le_to_utf_8_truncated(const wchar_t *utf_16, char *utf_8,
 					uc = SURROGATE_VALUE(c, c2);
 				} else {
 					/*
-					 * Not a trailing surroage;
+					 * Not a trailing surrogate;
 					 * try to drop in a
 					 * REPLACEMENT CHARACTER.
 					 */
@@ -266,18 +264,18 @@ utf_16le_to_utf_8_truncated(const wchar_t *utf_16, char *utf_8,
  * errno, with a message for the errno after the formatted output.
  */
 void
-pcap_fmt_errmsg_for_errno(char *errbuf, size_t errbuflen, int errnum,
+pcapint_fmt_errmsg_for_errno(char *errbuf, size_t errbuflen, int errnum,
     const char *fmt, ...)
 {
 	va_list ap;
 
 	va_start(ap, fmt);
-	pcap_vfmt_errmsg_for_errno(errbuf, errbuflen, errnum, fmt, ap);
+	pcapint_vfmt_errmsg_for_errno(errbuf, errbuflen, errnum, fmt, ap);
 	va_end(ap);
 }
 
 void
-pcap_vfmt_errmsg_for_errno(char *errbuf, size_t errbuflen, int errnum,
+pcapint_vfmt_errmsg_for_errno(char *errbuf, size_t errbuflen, int errnum,
     const char *fmt, va_list ap)
 {
 	size_t msglen;
@@ -334,43 +332,10 @@ pcap_vfmt_errmsg_for_errno(char *errbuf, size_t errbuflen, int errnum,
 	 */
 	if (!use_utf_8)
 		utf_8_to_acp_truncated(errbuf);
-#elif defined(HAVE_GNU_STRERROR_R)
-	/*
-	 * We have a GNU-style strerror_r(), which is *not* guaranteed to
-	 * do anything to the buffer handed to it, and which returns a
-	 * pointer to the error string, which may or may not be in
-	 * the buffer.
-	 *
-	 * It is, however, guaranteed to succeed.
-	 */
-	char strerror_buf[PCAP_ERRBUF_SIZE];
-	char *errstring = strerror_r(errnum, strerror_buf, PCAP_ERRBUF_SIZE);
-	snprintf(p, errbuflen_remaining, "%s", errstring);
-#elif defined(HAVE_POSIX_STRERROR_R)
-	/*
-	 * We have a POSIX-style strerror_r(), which is guaranteed to fill
-	 * in the buffer, but is not guaranteed to succeed.
-	 */
-	int err = strerror_r(errnum, p, errbuflen_remaining);
-	if (err == EINVAL) {
-		/*
-		 * UNIX 03 says this isn't guaranteed to produce a
-		 * fallback error message.
-		 */
-		snprintf(p, errbuflen_remaining, "Unknown error: %d",
-		    errnum);
-	} else if (err == ERANGE) {
-		/*
-		 * UNIX 03 says this isn't guaranteed to produce a
-		 * fallback error message.
-		 */
-		snprintf(p, errbuflen_remaining,
-		    "Message for error %d is too long", errnum);
-	}
 #else
 	/*
-	 * We have neither _wcserror_s() nor strerror_r(), so we're
-	 * stuck with using pcap_strerror().
+	 * Either Windows without _wcserror_s() or not Windows.  Let pcap_strerror()
+	 * solve the non-UTF-16 part of this problem space.
 	 */
 	snprintf(p, errbuflen_remaining, "%s", pcap_strerror(errnum));
 #endif
@@ -382,18 +347,18 @@ pcap_vfmt_errmsg_for_errno(char *errbuf, size_t errbuflen, int errnum,
  * Win32 error, with a message for the Win32 error after the formatted output.
  */
 void
-pcap_fmt_errmsg_for_win32_err(char *errbuf, size_t errbuflen, DWORD errnum,
+pcapint_fmt_errmsg_for_win32_err(char *errbuf, size_t errbuflen, DWORD errnum,
     const char *fmt, ...)
 {
 	va_list ap;
 
 	va_start(ap, fmt);
-	pcap_vfmt_errmsg_for_win32_err(errbuf, errbuflen, errnum, fmt, ap);
+	pcapint_vfmt_errmsg_for_win32_err(errbuf, errbuflen, errnum, fmt, ap);
 	va_end(ap);
 }
 
 void
-pcap_vfmt_errmsg_for_win32_err(char *errbuf, size_t errbuflen, DWORD errnum,
+pcapint_vfmt_errmsg_for_win32_err(char *errbuf, size_t errbuflen, DWORD errnum,
     const char *fmt, va_list ap)
 {
 	size_t msglen;

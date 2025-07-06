@@ -17,7 +17,7 @@
 .\" WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF
 .\" MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 .\"
-.TH PCAP-SAVEFILE @MAN_FILE_FORMATS@ "24 April 2020"
+.TH PCAP-SAVEFILE @MAN_FILE_FORMATS@ "16 Aug 2023"
 .SH NAME
 pcap-savefile \- libpcap savefile format
 .SH DESCRIPTION
@@ -41,13 +41,13 @@ Magic number
 _
 Major version	Minor version
 _
-Time zone offset
+Reserved1
 _
-Time stamp accuracy
+Reserved2
 _
 Snapshot length
 _
-Link-layer header type
+Link-layer header type and additional information
 .TE
 .RE
 .PP
@@ -80,10 +80,15 @@ A 2-byte file format major version number; the current version number is
 A 2-byte file format minor version number; the current version number is
 4.
 .IP
-A 4-byte time zone offset; this is always 0.
+A 4-byte not used - SHOULD be filled with 0 by pcap file writers, and MUST
+be ignored by pcap file readers.  This value was documented by some older
+implementations as "gmt to local correction" or "time zone offset".
+Some older pcap file writers stored non-zero values in this field.
 .IP
-A 4-byte number giving the accuracy of time stamps in the file; this is
-always 0.
+A 4-byte not used - SHOULD be filled with 0 by pcap file writers, and MUST
+be ignored by pcap file readers.  This value was documented by some older
+implementations as "accuracy of timestamps".  Some older pcap file
+writers stored non-zero values in this field.
 .IP
 A 4-byte number giving the "snapshot length" of the capture; packets
 longer than the snapshot length are truncated to the snapshot length, so
@@ -95,12 +100,53 @@ bytes of a packet longer than
 .I N
 bytes will be saved in the capture.
 .IP
-a 4-byte number giving the link-layer header type for packets in the
-capture; see
+A 4-byte number giving the link-layer header type for packets in the
+capture and optional additional information.
+.IP
+This format of this field is:
+.PP
+.nf
+                     1                   2                   3
+ 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|FCS len|R|P|     Reserved3     |        Link-layer type        |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+.fi
+.IP
+The field is shown as if it were in the byte order of the host reading
+or writing the file, with bit 0 being the most-significant bit of the
+field and bit 31 being the least-significant bit of the field.
+.IP
+Link-layer type (16 bits):
+A 16-bit value giving the link-layer header type for packets in the file;
+see
 .BR pcap-linktype (@MAN_MISC_INFO@)
 for the
 .B LINKTYPE_
 values that can appear in this field.
+.IP
+Reserved3 (10 bits):
+not used - MUST be set to zero by pcap writers, and MUST NOT be
+interpreted by pcap readers; a reader SHOULD treat a non-zero value as
+an error.
+.IP
+P (1 bit):
+A bit that, if set, indicates that the Frame Check Sequence (FCS)
+length value is present and, if not set, indicates that the FCS value is
+not present.
+.IP
+R (1 bit):
+not used - MUST be set to zero by pcap writers, and MUST NOT be
+interpreted by pcap readers; a reader SHOULD treat a non-zero value as
+an error.
+.IP
+FCS len (4 bits):
+A 4-bit unsigned value giving the number of 16-bit (2-octet) words
+of FCS that are appended to each packet, if the P bit is set; if the P
+bit is not set, and the FCS length is not indicated by the link-layer
+type value, the FCS length is unknown.  The valid values of the FCS len
+field are between 0 and 15; Ethernet, for example, would have an FCS
+length value of 2, corresponding to a 4-octet FCS.
 .PP
 Following the per-file header are zero or more packets; each packet
 begins with a per-packet header, which is immediately followed by the

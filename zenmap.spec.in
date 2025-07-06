@@ -11,7 +11,7 @@ Summary: Multi-platform graphical Nmap frontend and results viewer
 Name: %{name}
 Version: %{version}
 Release: %{release}
-Epoch: 2
+Epoch: 1
 License: https://nmap.org/man/man-legal.html
 Group: Applications/System
 Source0: https://nmap.org/dist/nmap-%{version}.tgz
@@ -56,14 +56,19 @@ from Umit, an Nmap GUI created as part of the Google Summer of Code.
 	    --infodir=%{_prefix}/share/info \
 	    --sysconfdir=%{_sysconfdir} \
 	    --without-openssl \
+	    --without-ncat \
+	    --without-nping \
+	    --with-ndiff \
 	    --with-zenmap # PYTHON="%{__python}"
 make build-zenmap DESTDIR=$RPM_BUILD_ROOT
 
 %install
 [ "$RPM_BUILD_ROOT" != "/" ] && rm -rf $RPM_BUILD_ROOT
 make install-zenmap DESTDIR=$RPM_BUILD_ROOT
+make install-ndiff DESTDIR=$RPM_BUILD_ROOT
 # Don't package the uninstaller with the RPM.
 rm -f $RPM_BUILD_ROOT%{_bindir}/uninstall_zenmap
+rm -f $RPM_BUILD_ROOT%{_bindir}/uninstall_ndiff
 gzip $RPM_BUILD_ROOT%{_mandir}/man1/* || :
 
 %clean
@@ -72,14 +77,18 @@ gzip $RPM_BUILD_ROOT%{_mandir}/man1/* || :
 %files
 %defattr(-,root,root)
 %doc %{_mandir}/man1/zenmap.1.gz
+%doc %{_mandir}/man1/ndiff.1.gz
 %{_bindir}/zenmap
 %{_bindir}/nmapfe
 %{_bindir}/xnmap
+%{_bindir}/ndiff
 # This gets the modules and the .egg-info file if it was installed.
 %{python3_sitelib}/zenmapGUI/
 %{python3_sitelib}/zenmapCore/
 %{python3_sitelib}/radialnet/
 %{python3_sitelib}/zenmap-*.dist-info/
+%pycached %{python3_sitelib}/ndiff.py
+%{python3_sitelib}/ndiff-*.dist-info/
 %{_datadir}/applications/*.desktop
 
 %changelog

@@ -127,7 +127,7 @@
   #include <sys/time.h>
 #endif /* _WIN32/MSDOS/UN*X */
 
-#include <pcap/socket.h>	/* for SOCKET, as the active-mode rpcap APIs use it */
+#include <pcap/socket.h>	/* for PCAP_SOCKET, as the active-mode rpcap APIs use it */
 
 #ifndef PCAP_DONT_INCLUDE_PCAP_BPF_H
 #include <pcap/bpf.h>
@@ -208,18 +208,66 @@ struct pcap_file_header {
 	bpf_u_int32 magic;
 	u_short version_major;
 	u_short version_minor;
-	bpf_int32 thiszone;	/* gmt to local correction; this is always 0 */
-	bpf_u_int32 sigfigs;	/* accuracy of timestamps; this is always 0 */
+	bpf_int32 thiszone;	/* not used - SHOULD be filled with 0 */
+	bpf_u_int32 sigfigs;	/* not used - SHOULD be filled with 0 */
 	bpf_u_int32 snaplen;	/* max length saved portion of each pkt */
 	bpf_u_int32 linktype;	/* data link type (LINKTYPE_*) */
 };
 
 /*
- * Macros for the value returned by pcap_datalink_ext().
+ * Subfields of the field containing the link-layer header type.
  *
- * If LT_FCS_LENGTH_PRESENT(x) is true, the LT_FCS_LENGTH(x) macro
- * gives the FCS length of packets in the capture.
+ * Link-layer header types are assigned for both pcap and
+ * pcapng, and the same value must work with both.  In pcapng,
+ * the link-layer header type field in an Interface Description
+ * Block is 16 bits, so only the bottommost 16 bits of the
+ * link-layer header type in a pcap file can be used for the
+ * header type value.
+ *
+ * In libpcap, the upper 16 bits, from the top down, are divided into:
+ *
+ *    A 4-bit "FCS length" field, to allow the FCS length to
+ *    be specified, just as it can be specified in the if_fcslen
+ *    field of the pcapng IDB.  The field is in units of 16 bits,
+ *    i.e. 1 means 16 bits of FCS, 2 means 32 bits of FCS, etc..
+ *
+ *    A reserved bit, which must be zero.
+ *
+ *    An "FCS length present" flag; if 0, the "FCS length" field
+ *    should be ignored, and if 1, the "FCS length" field should
+ *    be used.
+ *
+ *    10 reserved bits, which must be zero.  They were originally
+ *    intended to be used as a "class" field, allowing additional
+ *    classes of link-layer types to be defined, with a class value
+ *    of 0 indicating that the link-layer type is a LINKTYPE_ value.
+ *    A value of 0x224 was, at one point, used by NetBSD to define
+ *    "raw" packet types, with the lower 16 bits containing a
+ *    NetBSD AF_ value; see
+ *
+ *        https://marc.info/?l=tcpdump-workers&m=98296750229149&w=2
+ *
+ *    It's unknown whether those were ever used in capture files,
+ *    or if the intent was just to use it as a link-layer type
+ *    for BPF programs; NetBSD's libpcap used to support them in
+ *    the BPF code generator, but it no longer does so.  If it
+ *    was ever used in capture files, or if classes other than
+ *    "LINKTYPE_ value" are ever useful in capture files, we could
+ *    re-enable this, and use the reserved 16 bits following the
+ *    link-layer type in pcapng files to hold the class information
+ *    there.  (Note, BTW, that LINKTYPE_RAW/DLT_RAW is now being
+ *    interpreted by libpcap, tcpdump, and Wireshark as "raw IP",
+ *    including both IPv4 and IPv6, with the version number in the
+ *    header being checked to see which it is, not just "raw IPv4";
+ *    there are LINKTYPE_IPV4/DLT_IPV4 and LINKTYPE_IPV6/DLT_IPV6
+ *    values if "these are IPv{4,6} and only IPv{4,6} packets"
+ *    types are needed.)
+ *
+ *    Or we might be able to use it for other purposes.
  */
+#define LT_LINKTYPE(x)			((x) & 0x0000FFFF)
+#define LT_LINKTYPE_EXT(x)		((x) & 0xFFFF0000)
+#define LT_RESERVED1(x)			((x) & 0x03FF0000)
 #define LT_FCS_LENGTH_PRESENT(x)	((x) & 0x04000000)
 #define LT_FCS_LENGTH(x)		(((x) & 0xF0000000) >> 28)
 #define LT_FCS_DATALINK_EXT(x)		((((x) & 0xF) << 28) | 0x04000000)
@@ -348,6 +396,7 @@ typedef void (*pcap_handler)(u_char *, const struct pcap_pkthdr *,
 #define PCAP_ERROR_CANTSET_TSTAMP_TYPE	-10	/* this device doesn't support setting the time stamp type */
 #define PCAP_ERROR_PROMISC_PERM_DENIED	-11	/* you don't have permission to capture in promiscuous mode */
 #define PCAP_ERROR_TSTAMP_PRECISION_NOTSUP -12  /* the requested time stamp precision is not supported */
+#define PCAP_ERROR_CAPTURE_NOTSUP	-13	/* capture mechanism not available */
 
 /*
  * Warning codes for the pcap API.
@@ -650,7 +699,7 @@ PCAP_API const char *pcap_datalink_val_to_name(int);
 PCAP_AVAILABLE_0_8
 PCAP_API const char *pcap_datalink_val_to_description(int);
 
-PCAP_AVAILABLE_1_10
+PCAP_AVAILABLE_1_9
 PCAP_API const char *pcap_datalink_val_to_description_or_dlt(int);
 
 PCAP_AVAILABLE_0_4
@@ -1082,15 +1131,15 @@ struct pcap_rmtauth
  * For opening a remote capture, pcap_open() is currently the only
  * API available.
  */
-PCAP_AVAILABLE_1_9
+PCAP_AVAILABLE_1_9_REMOTE
 PCAP_API pcap_t	*pcap_open(const char *source, int snaplen, int flags,
 	    int read_timeout, struct pcap_rmtauth *auth, char *errbuf);
 
-PCAP_AVAILABLE_1_9
+PCAP_AVAILABLE_1_9_REMOTE
 PCAP_API int	pcap_createsrcstr(char *source, int type, const char *host,
 	    const char *port, const char *name, char *errbuf);
 
-PCAP_AVAILABLE_1_9
+PCAP_AVAILABLE_1_9_REMOTE
 PCAP_API int	pcap_parsesrcstr(const char *source, int *type, char *host,
 	    char *port, char *name, char *errbuf);
 
@@ -1113,7 +1162,7 @@ PCAP_API int	pcap_parsesrcstr(const char *source, int *type, char *host,
  * For listing remote capture devices, pcap_findalldevs_ex() is currently
  * the only API available.
  */
-PCAP_AVAILABLE_1_9
+PCAP_AVAILABLE_1_9_REMOTE
 PCAP_API int	pcap_findalldevs_ex(const char *source,
 	    struct pcap_rmtauth *auth, pcap_if_t **alldevs, char *errbuf);
 
@@ -1184,7 +1233,7 @@ struct pcap_samp
 /*
  * New functions.
  */
-PCAP_AVAILABLE_1_9
+PCAP_AVAILABLE_1_9_REMOTE
 PCAP_API struct pcap_samp *pcap_setsampling(pcap_t *p);
 
 /*
@@ -1194,24 +1243,24 @@ PCAP_API struct pcap_samp *pcap_setsampling(pcap_t *p);
 /* Maximum length of an host name (needed for the RPCAP active mode) */
 #define RPCAP_HOSTLIST_SIZE 1024
 
-PCAP_AVAILABLE_1_9
-PCAP_API SOCKET	pcap_remoteact_accept(const char *address, const char *port,
+PCAP_AVAILABLE_1_9_REMOTE
+PCAP_API PCAP_SOCKET	pcap_remoteact_accept(const char *address, const char *port,
 	    const char *hostlist, char *connectinghost,
 	    struct pcap_rmtauth *auth, char *errbuf);
 
-PCAP_AVAILABLE_1_10
-PCAP_API SOCKET	pcap_remoteact_accept_ex(const char *address, const char *port,
+PCAP_AVAILABLE_1_10_REMOTE
+PCAP_API PCAP_SOCKET	pcap_remoteact_accept_ex(const char *address, const char *port,
 	    const char *hostlist, char *connectinghost,
 	    struct pcap_rmtauth *auth, int uses_ssl, char *errbuf);
 
-PCAP_AVAILABLE_1_9
+PCAP_AVAILABLE_1_9_REMOTE
 PCAP_API int	pcap_remoteact_list(char *hostlist, char sep, int size,
 	    char *errbuf);
 
-PCAP_AVAILABLE_1_9
+PCAP_AVAILABLE_1_9_REMOTE
 PCAP_API int	pcap_remoteact_close(const char *host, char *errbuf);
 
-PCAP_AVAILABLE_1_9
+PCAP_AVAILABLE_1_9_REMOTE
 PCAP_API void	pcap_remoteact_cleanup(void);
 
 #ifdef __cplusplus

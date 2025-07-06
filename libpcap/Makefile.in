@@ -70,7 +70,6 @@ INSTALL_RPCAPD=@INSTALL_RPCAPD@
 
 # Standard CFLAGS for building members of a shared library
 FULL_CFLAGS = $(CCOPT) @V_LIB_CCOPT_FAT@ $(SHLIB_CCOPT) $(INCLS) $(DEFS) $(CFLAGS)
-CXXFLAGS = $(CCOPT) @V_LIB_CCOPT_FAT@ $(SHLIB_CCOPT) $(INCLS) $(DEFS) $(CFLAGS)
 
 INSTALL = @INSTALL@
 INSTALL_PROGRAM = @INSTALL_PROGRAM@
@@ -85,24 +84,22 @@ RANLIB = @RANLIB@
 	$(CC) $(FULL_CFLAGS) -c $(srcdir)/$*.c
 
 PLATFORM_C_SRC =	@PLATFORM_C_SRC@
-PLATFORM_CXX_SRC =	@PLATFORM_CXX_SRC@
 MODULE_C_SRC =		@MODULE_C_SRC@
 REMOTE_C_SRC =		@REMOTE_C_SRC@
 COMMON_C_SRC =	pcap.c gencode.c optimize.c nametoaddr.c etherent.c \
 		fmtutils.c pcap-util.c \
 		savefile.c sf-pcap.c sf-pcapng.c pcap-common.c \
-		pcap-usb-linux-common.c bpf_image.c bpf_filter.c bpf_dump.c
+		bpf_image.c bpf_filter.c bpf_dump.c
 GENERATED_C_SRC = scanner.c grammar.c
 LIBOBJS = @LIBOBJS@
 
-SRC =	$(PLATFORM_C_SRC) $(PLATFORM_CXX_SRC) \
+SRC =	$(PLATFORM_C_SRC) \
 	$(MODULE_C_SRC) $(REMOTE_C_SRC) $(COMMON_C_SRC) \
 	$(GENERATED_C_SRC)
 
 # We would like to say "OBJ = $(SRC:.c=.o)" but Ultrix's make cannot
-# hack the extra indirection, and we have to handle PLATFORM_CXX_SRC
-# differently from the defines for C source
-OBJ =	$(PLATFORM_C_SRC:.c=.o) $(PLATFORM_CXX_SRC:.cpp=.o) \
+# hack the extra indirection
+OBJ =	$(PLATFORM_C_SRC:.c=.o) \
 	$(MODULE_C_SRC:.c=.o) $(REMOTE_C_SRC:.c=.o) $(COMMON_C_SRC:.c=.o) \
 	$(GENERATED_C_SRC:.c=.o) \
 	$(LIBOBJS)
@@ -154,6 +151,7 @@ HDR = $(PUBHDR) \
 	sf-pcap.h \
 	sf-pcapng.h \
 	sunatmpos.h \
+	thread-local.h \
 	varattrs.h
 
 GENHDR = \
@@ -162,9 +160,9 @@ GENHDR = \
 TAGFILES = \
 	$(SRC) $(HDR)
 
-CLEANFILES = $(OBJ) libpcap.a libpcap.so.`cat $(srcdir)/VERSION.txt` \
-	$(PROG)-`cat $(srcdir)/VERSION.txt`.tar.gz \
-	lex.yy.c pcap-config libpcap.pc
+CLEANFILES = $(OBJ) libpcap.a libpcap.so.`cat $(srcdir)/VERSION` \
+	$(PROG)-`cat $(srcdir)/VERSION`.tar.gz \
+	lex.yy.c pcap-config libpcap.pc libpcap.$(DYEXT)
 
 MAN1 = pcap-config.1
 
@@ -251,19 +249,21 @@ EXTRA_DIST = \
 	Makefile.in \
 	Makefile-devel-adds \
 	README.md \
-	doc/README.Win32.md \
 	doc/README.aix \
 	doc/README.dag \
+	doc/README.haiku.md \
 	doc/README.hpux \
 	doc/README.linux \
 	doc/README.macos \
 	doc/README.septel \
 	doc/README.sita \
 	doc/README.solaris.md \
+	doc/README.windows.md \
 	CONTRIBUTING.md \
 	TODO \
-	VERSION.txt \
+	VERSION \
 	aclocal.m4 \
+	autogen.sh \
 	charconv.c \
 	charconv.h \
 	chmod_bpf \
@@ -279,9 +279,7 @@ EXTRA_DIST = \
 	cmake/Modules/FindTC.cmake \
 	cmake/have_siocglifconf.c \
 	config.guess \
-	config.h.in \
 	config.sub \
-	configure \
 	configure.ac \
 	dlpisubs.c \
 	dlpisubs.h \
@@ -337,7 +335,7 @@ EXTRA_DIST = \
 	pcap-dpdk.c \
 	pcap-dpdk.h \
 	pcap-enet.c \
-	pcap-haiku.cpp \
+	pcap-haiku.c \
 	pcap-int.h \
 	pcap-libdlpi.c \
 	pcap-linux.c \
@@ -354,7 +352,6 @@ EXTRA_DIST = \
 	pcap-rdmasniff.c \
 	pcap-rdmasniff.h \
 	pcap-rpcap.c \
-	pcap-rpcap-int.h \
 	pcap-septel.c \
 	pcap-septel.h \
 	pcap-sita.h \
@@ -420,7 +417,7 @@ EXTRA_DIST = \
 	testprogs/visopts.py \
 	testprogs/writecaptest.c
 
-TEST_DIST = `git ls-files tests | grep -v 'tests/\..*'`
+TEST_DIST = `git -C "$$DIR" ls-files tests | grep -v 'tests/\..*'`
 
 RELEASE_FILES = $(COMMON_C_SRC) $(HDR) $(MAN1) $(MAN3PCAP_EXPAND) \
 	$(MAN3PCAP_NOEXPAND) $(MANFILE) $(MANMISC) $(EXTRA_DIST) \
@@ -446,8 +443,8 @@ shared: libpcap.$(DYEXT)
 
 libpcap.so: $(OBJ)
 	@rm -f $@
-	VER=`cat $(srcdir)/VERSION.txt`; \
-	MAJOR_VER=`sed 's/\([0-9][0-9]*\)\..*/\1/' $(srcdir)/VERSION.txt`; \
+	VER=`cat $(srcdir)/VERSION`; \
+	MAJOR_VER=`sed 's/\([0-9][0-9]*\)\..*/\1/' $(srcdir)/VERSION`; \
 	@V_SHLIB_CMD@ $(LDFLAGS) @V_SHLIB_OPT@ @V_SONAME_OPT@$@.$$MAJOR_VER \
 	    -o $@.$$VER $(OBJ) $(ADDLOBJS) $(LIBS)
 
@@ -462,17 +459,17 @@ libpcap.so: $(OBJ)
 # but not in the older version.
 #
 # We also use "A" as the major version, and 1 as the compatibility version,
-# but set the current version to the value in VERSION.txt, with any non-numeric
+# but set the current version to the value in VERSION, with any non-numeric
 # stuff stripped off (the compatibility and current version must be of the
 # form X[.Y[.Z]], with Y and Z possibly absent, and with all components
 # numeric).
 #
 libpcap.dylib: $(OBJ)
 	rm -f libpcap*.dylib
-	VER=`cat $(srcdir)/VERSION.txt`; \
+	VER=`cat $(srcdir)/VERSION`; \
 	MAJOR_VER=A; \
 	COMPAT_VER=1; \
-	CURRENT_VER=`sed 's/[^0-9.].*$$//' $(srcdir)/VERSION.txt`; \
+	CURRENT_VER=`sed 's/[^0-9.].*$$//' $(srcdir)/VERSION`; \
 	$(CC) -dynamiclib -undefined error $(LDFLAGS) @V_LIB_LDFLAGS_FAT@ \
 	    -o libpcap.$$VER.dylib $(OBJ) $(ADDLOBJS) $(LIBS) \
 	    -install_name $(libdir)/libpcap.$$MAJOR_VER.dylib \
@@ -492,9 +489,9 @@ libpcap.dylib: $(OBJ)
 # linker, even with GCC.
 #
 libpcap.sl: $(OBJ)
-	@MAJOR_VER=`sed 's/\([0-9][0-9]*\)\..*/\1/' $(srcdir)/VERSION.txt`; \
+	@MAJOR_VER=`sed 's/\([0-9][0-9]*\)\..*/\1/' $(srcdir)/VERSION`; \
 	rm -f libpcap.$$MAJOR_VER
-	MAJOR_VER=`sed 's/\([0-9][0-9]*\)\..*/\1/' $(srcdir)/VERSION.txt`; \
+	MAJOR_VER=`sed 's/\([0-9][0-9]*\)\..*/\1/' $(srcdir)/VERSION`; \
 	ld -b $(LDFLAGS) -o libpcap.$$MAJOR_VER +h libpcap.$$MAJOR_VER \
 	    $(OBJ) $(ADDLOBJS) $(LIBS)
 
@@ -533,7 +530,7 @@ scanner.o: scanner.c grammar.h
 #
 # and this is an explicit target entry.
 #
-# Therefore, instead of using $<, we explicitly put in $(srcdir)/libpcap.pc.in.
+# Therefore, instead of using $<, we explicitly put in $(srcdir)/grammar.y.in.
 #
 grammar.y: $(srcdir)/grammar.y.in ./config.status
 	@rm -f $@ $@.tmp
@@ -598,8 +595,8 @@ build-rpcapd: libpcap.a
 #
 # Test programs - not built by default, and not installed.
 #
-testprogs: FORCE
-	(cd testprogs; $(MAKE))
+testprogs: FORCE libpcap.a
+	(cd testprogs; $(MAKE) CFLAGS="$(CFLAGS)")
 
 FORCE:
 
@@ -685,15 +682,15 @@ install-shared: install-shared-$(DYEXT)
 install-shared-so: libpcap.so
 	[ -d $(DESTDIR)$(libdir) ] || \
 	    (mkdir -p $(DESTDIR)$(libdir); chmod 755 $(DESTDIR)$(libdir))
-	VER=`cat $(srcdir)/VERSION.txt`; \
-	MAJOR_VER=`sed 's/\([0-9][0-9]*\)\..*/\1/' $(srcdir)/VERSION.txt`; \
+	VER=`cat $(srcdir)/VERSION`; \
+	MAJOR_VER=`sed 's/\([0-9][0-9]*\)\..*/\1/' $(srcdir)/VERSION`; \
 	$(INSTALL_PROGRAM) libpcap.so.$$VER $(DESTDIR)$(libdir)/libpcap.so.$$VER; \
 	ln -sf libpcap.so.$$VER $(DESTDIR)$(libdir)/libpcap.so.$$MAJOR_VER; \
 	ln -sf libpcap.so.$$MAJOR_VER $(DESTDIR)$(libdir)/libpcap.so
 install-shared-dylib: libpcap.dylib
 	[ -d $(DESTDIR)$(libdir) ] || \
 	    (mkdir -p $(DESTDIR)$(libdir); chmod 755 $(DESTDIR)$(libdir))
-	VER=`cat $(srcdir)/VERSION.txt`; \
+	VER=`cat $(srcdir)/VERSION`; \
 	MAJOR_VER=A; \
 	$(INSTALL_PROGRAM) libpcap.$$VER.dylib $(DESTDIR)$(libdir)/libpcap.$$VER.dylib; \
 	ln -sf libpcap.$$VER.dylib $(DESTDIR)$(libdir)/libpcap.$$MAJOR_VER.dylib; \
@@ -701,34 +698,34 @@ install-shared-dylib: libpcap.dylib
 install-shared-sl: libpcap.sl
 	[ -d $(DESTDIR)$(libdir) ] || \
 	    (mkdir -p $(DESTDIR)$(libdir); chmod 755 $(DESTDIR)$(libdir))
-	MAJOR_VER=`sed 's/\([0-9][0-9]*\)\..*/\1/' $(srcdir)/VERSION.txt`; \
+	MAJOR_VER=`sed 's/\([0-9][0-9]*\)\..*/\1/' $(srcdir)/VERSION`; \
 	$(INSTALL_PROGRAM) libpcap.$$MAJOR_VER $(DESTDIR)$(libdir)
 	ln -sf libpcap.$$MAJOR_VER $(DESTDIR)$(libdir)/libpcap.sl
+#
+# AIX shared libraries are weird.  They're archive libraries
+# with one or more shared object components.
+#
 install-shared-shareda: libpcap.shareda
-	#
-	# AIX shared libraries are weird.  They're archive libraries
-	# with one or more shared object components.
-	#
 	[ -d $(DESTDIR)$(libdir) ] || \
 	    (mkdir -p $(DESTDIR)$(libdir); chmod 755 $(DESTDIR)$(libdir))
 	$(INSTALL_PROGRAM) libpcap.shareda $(DESTDIR)$(libdir)/libpcap.a
 install-shared-none:
 
 install-archive: install-archive-$(DYEXT)
+#
+# Most platforms have separate suffixes for shared and
+# archive libraries, so we install both.
+#
 install-archive-so install-archive-dylib install-archive-sl install-archive-none: libpcap.a
-	#
-	# Most platforms have separate suffixes for shared and
-	# archive libraries, so we install both.
-	#
 	[ -d $(DESTDIR)$(libdir) ] || \
 	    (mkdir -p $(DESTDIR)$(libdir); chmod 755 $(DESTDIR)$(libdir))
 	$(INSTALL_DATA) libpcap.a $(DESTDIR)$(libdir)/libpcap.a
 	$(RANLIB) $(DESTDIR)$(libdir)/libpcap.a
+#
+# AIX, however, doesn't, so we don't install the archive
+# library on AIX.
+#
 install-archive-shareda:
-	#
-	# AIX, however, doesn't, so we don't install the archive
-	# library on AIX.
-	#
 
 install-rpcapd:
 	(cd rpcapd; $(MAKE) DESTDIR=$(DESTDIR) install)
@@ -768,19 +765,19 @@ uninstall: uninstall-shared uninstall-rpcapd
 
 uninstall-shared: uninstall-shared-$(DYEXT)
 uninstall-shared-so:
-	VER=`cat $(srcdir)/VERSION.txt`; \
-	MAJOR_VER=`sed 's/\([0-9][0-9]*\)\..*/\1/' $(srcdir)/VERSION.txt`; \
+	VER=`cat $(srcdir)/VERSION`; \
+	MAJOR_VER=`sed 's/\([0-9][0-9]*\)\..*/\1/' $(srcdir)/VERSION`; \
 	rm -f $(DESTDIR)$(libdir)/libpcap.so.$$VER; \
 	rm -f $(DESTDIR)$(libdir)/libpcap.so.$$MAJOR_VER; \
 	rm -f $(DESTDIR)$(libdir)/libpcap.so
 uninstall-shared-dylib:
-	VER=`cat $(srcdir)/VERSION.txt`; \
+	VER=`cat $(srcdir)/VERSION`; \
 	MAJOR_VER=A; \
 	rm -f $(DESTDIR)$(libdir)/libpcap.$$VER.dylib; \
 	rm -f $(DESTDIR)$(libdir)/libpcap.$$MAJOR_VER.dylib; \
 	rm -f $(DESTDIR)$(libdir)/libpcap.dylib
 uninstall-shared-sl:
-	MAJOR_VER=`sed 's/\([0-9][0-9]*\)\..*/\1/' $(srcdir)/VERSION.txt`; \
+	MAJOR_VER=`sed 's/\([0-9][0-9]*\)\..*/\1/' $(srcdir)/VERSION`; \
 	rm -f $(DESTDIR)$(libdir)/libpcap.$$MAJOR_VER; \
 	rm -f $(DESTDIR)$(libdir)/libpcap.sl
 uninstall-shared-shareda:
@@ -791,12 +788,11 @@ uninstall-rpcapd:
 	(cd rpcapd; $(MAKE) DESTDIR=$(DESTDIR) uninstall)
 
 clean:
-	rm -f $(CLEANFILES)
+	rm -f $(CLEANFILES) config.h.in~ configure~ configure.ac~
 
 distclean: clean
 	rm -f Makefile grammar.y config.cache config.log config.status \
-	    config.h config.h.in~ configure~ configure.ac~ \
-	    net os-proto.h libpcap.pc pcap-config stamp-h stamp-h.in
+	    config.h os-proto.h libpcap.pc pcap-config stamp-h stamp-h.in
 	rm -f $(MAN3PCAP_EXPAND:.in=) $(MANFILE:.in=) $(MANMISC:.in=)
 	rm -rf autom4te.cache
 
@@ -806,20 +802,114 @@ extags: $(TAGFILES)
 tags: $(TAGFILES)
 	ctags -wtd $(TAGFILES)
 
+#
+# Use git archive piped to tar to construct a subdirectory whose name
+# is libpcap-{release}, containing all the checked-in source files,
+# and then run autoreconf in that directory to generate the configure
+# script and other files from that source. Then remove autom4te.cache,
+# construct the release tarball from that subdirectory, and remove
+# the subdirectory.
+#
+# The --format=tar is to force git archive to write a non-compressed
+# archive, in case the platform's tar command doesn't have built-in
+# decompression.
+#
+# The ^{tree} is there to force git archive not to write out the
+# "helpful" global extended pax header with a commit ID, as not all
+# versions of tar can handle that (Solaris tar can't, for example).
+# (It turns HEAD, or a tag, both of which are apparently "tree-ish"es,
+# into a tree; apparently, unlike HEAD, or a tag, which have a commit
+# ID associated with them, the tree associated with them doesn't have
+# a commit ID, so no commit ID is available to write, and thus
+# git archive doesn't write one.)
+#
 releasetar:
-	@TAG=$(PROG)-`cat VERSION.txt` && \
-	if git show-ref --tags --quiet --verify -- "refs/tags/$$TAG"; then \
-	    git archive --prefix="$$TAG"/ -o "$$TAG".tar.gz "$$TAG" \
-	    $(RELEASE_FILES) && \
+	@TAG=$(PROG)-`cat VERSION` && \
+	if [ ! -d .git ]; then echo 'Not in a git clone, stop.'; exit 1; fi && \
+	TMPTESTFILE=`mktemp -t tmptestfile_XXXXXXXX` && \
+	rm -f "$$TMPTESTFILE" && \
+	AUTORECONF_DIR=`dirname "$$TMPTESTFILE"`/"$(PROG)"_build_autoreconf_$$$$ && \
+	DIR=`pwd` && \
+	rm -rf "$$AUTORECONF_DIR" && \
+	mkdir "$$AUTORECONF_DIR" && \
+	cd "$$AUTORECONF_DIR" && \
+	if git -C "$$DIR" show-ref --tags --quiet --verify -- "refs/tags/$$TAG"; then \
+	    (git -C "$$DIR" archive --format=tar --prefix="$$TAG"/ "$$TAG^{tree}" $(RELEASE_FILES) | \
+	     tar xf -) && \
 	    echo "Archive build from tag $$TAG."; \
 	else \
-	    git archive --prefix="$$TAG"/ -o "$$TAG".tar.gz HEAD \
-	    $(RELEASE_FILES) && \
+	    (git -C "$$DIR" archive --format=tar --prefix="$$TAG"/ "HEAD^{tree}" $(RELEASE_FILES) | \
+	     tar xf -) && \
 	    echo "No $$TAG tag. Archive build from HEAD."; \
+	fi && \
+	(cd "$$TAG" && "$${AUTORECONF:-autoreconf}" && rm -rf autom4te.cache) && \
+	tar cf "$$DIR/$$TAG".tar "$$TAG" && \
+	rm -f "$$DIR/$$TAG".tar.gz && \
+	gzip --best "$$DIR/$$TAG".tar && \
+	cd "$$DIR" && \
+	rm -rf "$$AUTORECONF_DIR"
+
+releasecheck: releasetar
+	@TAG=$(PROG)-`cat VERSION` && \
+	INSTALL_DIR=/tmp/install_"$$TAG"_$$$$ && \
+	DIR=`pwd` && \
+	cd /tmp && \
+	rm -rf "$$TAG" && \
+	rm -rf "$$INSTALL_DIR" && \
+	tar xf "$$DIR"/"$$TAG".tar.gz && \
+	cd "$$TAG" && \
+	echo "[$@] $$ touch .devel" && \
+	touch .devel && \
+	echo "[$@] $$ ./configure --enable-remote --quiet --prefix=$$INSTALL_DIR" && \
+	./configure --enable-remote --quiet --prefix="$$INSTALL_DIR" && \
+	echo '[$@] $$ $(MAKE) -s all testprogs' && \
+	$(MAKE) -s all testprogs && \
+	echo '[$@] $$ $(MAKE) -s install' && \
+	$(MAKE) -s install && \
+	cd .. && \
+	rm -rf "$$TAG" && \
+	rm -rf "$$INSTALL_DIR" && \
+	tar xf "$$DIR"/"$$TAG".tar.gz && \
+	cd "$$TAG" && \
+	echo "[$@] $$ touch .devel" && \
+	touch .devel && \
+	mkdir build && \
+	cd build && \
+	echo '[$@] $$ cmake -DENABLE_REMOTE=yes [...] ..' && \
+	cmake -DENABLE_REMOTE=yes \
+	    -DCMAKE_INSTALL_PREFIX="$$INSTALL_DIR" \
+	    -DCMAKE_MESSAGE_LOG_LEVEL=NOTICE \
+	    -DCMAKE_RULE_MESSAGES=OFF \
+	    -DCMAKE_INSTALL_MESSAGE=NEVER \
+	    .. && \
+	echo '[$@] $$ $(MAKE) -s all testprogs' && \
+	$(MAKE) -s all testprogs && \
+	echo '[$@] $$ $(MAKE) -s install' && \
+	$(MAKE) -s install && \
+	cd ../.. && \
+	rm -rf "$$TAG" && \
+	rm -rf "$$INSTALL_DIR" && \
+	echo '[$@] Done.'
+
+whitespacecheck:
+	@# trailing space(s)?
+	@if git grep -I -n ' $$' $$(git ls-files|grep -v '^tests/'); then \
+	    echo 'Error: Trailing space(s).'; \
+	    exit 1; \
+	fi
+	@# trailing tab(s)?
+	@if git grep -I -n '	$$' $$(git ls-files|grep -v '^tests/'); then \
+	    echo 'Error: Trailing tabs(s).'; \
+	    exit 1; \
+	fi
+	@# space(s) before tab(s)?
+	@if git grep -I -n '[ ][	]' $$(git ls-files|grep -v '^tests/'); then \
+	    echo 'Error: space(s) before tab(s).'; \
+	    exit 1; \
 	fi
 
 depend:	$(GENERATED_C_SRC) $(GENHDR)
-	$(MKDEP) -c "$(CC)" -m "$(DEPENDENCY_CFLAG)" -s "$(srcdir)" $(CFLAGS) $(DEFS) $(INCLS) $(SRC)
+	$(MKDEP) -c $(CC) -m "$(DEPENDENCY_CFLAG)" -s "$(srcdir)" $(CFLAGS) $(DEFS) $(INCLS) $(SRC)
 
 shellcheck:
-	shellcheck -f gcc -e SC2006 build.sh build_matrix.sh build_common.sh
+	shellcheck -f gcc -e SC2006 autogen.sh build.sh build_matrix.sh build_common.sh mkdep .ci-coverity-scan-build.sh

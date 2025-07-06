@@ -5,7 +5,7 @@
  *
  * Copyright (c) 2000 Dug Song <dugsong@monkey.org>
  *
- * $Id: intf.h 478 2004-01-13 07:41:09Z dugsong $
+ * $Id$
  */
 
 #ifndef DNET_INTF_H
@@ -62,11 +62,12 @@ int	 intf_get(intf_t *i, struct intf_entry *entry);
 int	 intf_get_index(intf_t *intf, struct intf_entry *entry, int af, unsigned int index);
 int	 intf_get_src(intf_t *i, struct intf_entry *entry, struct addr *src);
 int	 intf_get_dst(intf_t *i, struct intf_entry *entry, struct addr *dst);
-int	 intf_get_pcap_devname(const char *intf_name, char *pcapdev, int pcapdevlen);
-int	 intf_get_pcap_devname_cached(const char *intf_name, char *pcapdev, int pcapdevlen, int refresh);
 int	 intf_set(intf_t *i, const struct intf_entry *entry);
 int	 intf_loop(intf_t *i, intf_handler callback, void *arg);
 intf_t	*intf_close(intf_t *i);
+#ifdef _WIN32
+int	 intf_get_pcap_devname(const char *intf_name, char *pcapdev, int pcapdevlen);
+#endif
 __END_DECLS
 
 #endif /* DNET_INTF_H */

@@ -86,7 +86,7 @@ if(dpdk_FOUND)
   # Please keep this in mind when changing any CMake files,
   # and keep in mind what versions of CMake come with, for
   # example, commonly-used versions of commonly-used
-  # Linux distributiions.)
+  # Linux distributions.)
   #
   if(NOT CMAKE_VERSION VERSION_LESS 3.19)
     if(NOT TARGET dpdk::cflags)

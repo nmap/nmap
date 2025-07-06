@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 Patrick Monnerat, D+H <patrick.monnerat@dh.com>
+ * Copyright (C) Patrick Monnerat <patrick@monnerat.net>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms,
@@ -34,6 +34,8 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY
  * OF SUCH DAMAGE.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
  */
 
 #ifndef LIBSSH2_SYS_SOCKET_H
@@ -64,7 +66,7 @@
 #endif
 
 extern int  _libssh2_os400_connect(int sd,
-                                   struct sockaddr * destaddr, int addrlen);
+                                   struct sockaddr *destaddr, int addrlen);
 
 #ifndef LIBSSH2_DISABLE_QADRT_EXT
 #define connect(sd, addr, len)  _libssh2_os400_connect((sd), (addr), (len))

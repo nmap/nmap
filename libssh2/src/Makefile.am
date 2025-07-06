@@ -1,3 +1,5 @@
+# Copyright (C) The libssh2 project and its contributors.
+# SPDX-License-Identifier: BSD-3-Clause
 AUTOMAKE_OPTIONS = foreign nostdinc
 
 # Get the CSOURCES, HHEADERS and EXTRA_DIST defines
@@ -16,6 +18,9 @@ lib_LTLIBRARIES = libssh2.la
 # builddir/src for the generated config header when building out of the source
 # tree
 AM_CPPFLAGS = -I$(top_builddir)/src -I$(top_srcdir)/include
+
+# This might hold -Werror
+AM_CFLAGS = @LIBSSH2_CFLAG_EXTRAS@
 
 VERSION=-version-info 1:1:0
 
@@ -48,8 +53,7 @@ VERSION=-version-info 1:1:0
 #
 
 libssh2_la_LDFLAGS = $(VERSION) -no-undefined \
-  -export-symbols-regex '^libssh2_.*' \
-  $(LTLIBZ)
+  -export-symbols-regex '^libssh2_.*'
 
 if HAVE_WINDRES
 .rc.lo:

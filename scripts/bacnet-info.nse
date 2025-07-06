@@ -61,12 +61,12 @@ categories = {"discovery", "version"}
 
 portrule = shortport.version_port_or_service(47808, "bacnet", {"udp","tcp"})
 
----
+--
 --  Table to look up the Vendor Name based on Vendor ID
 --  Table data from http://www.bacnet.org/VendorID/BACnet%20Vendor%20IDs.htm
 --  Fetched on 9/26/2015
 --
--- @key vennum Vendor number parsed out of the BACNet packet
+-- key is vendor number parsed out of the BACNet packet
 local vendor_id = {
   [0] = "ASHRAE",
   [1] = "NIST",

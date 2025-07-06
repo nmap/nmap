@@ -16,7 +16,7 @@
  CLEANFILES = $(OBJ) libpcap.a libpcap.so.`cat $(srcdir)/VERSION` \
 -	$(PROG)-`cat $(srcdir)/VERSION`.tar.gz $(GENERATED_C_SRC) $(GENHDR) \
 +	$(PROG)-`cat $(srcdir)/VERSION`.tar.gz \
- 	lex.yy.c pcap-config libpcap.pc
+ 	lex.yy.c pcap-config libpcap.pc libpcap.$(DYEXT)
  
  MAN1 = pcap-config.1
 @@ -417,6 +414,15 @@

@@ -28,8 +28,7 @@ pcap_dump \- write a packet to a capture file
 .LP
 .ft B
 void pcap_dump(u_char *user, struct pcap_pkthdr *h,
-.ti +8
-u_char *sp);
+    u_char *sp);
 .ft
 .fi
 .SH DESCRIPTION

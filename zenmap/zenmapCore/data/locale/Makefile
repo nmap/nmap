@@ -3,7 +3,7 @@ LINGUAS = $(patsubst %.po,%,$(wildcard *.po))
 TOPDIR = ../../..
 SOURCEFILES = zenmap
 SOURCEDIRS = zenmapCore zenmapGUI radialnet
-PROFILE_EDITOR_XML = share/zenmap/misc/profile_editor.xml
+PROFILE_EDITOR_XML = zenmapCore/data/misc/profile_editor.xml
 
 XGETTEXT = xgettext
 MSGID_BUGS_ADDRESS = dev@nmap.org

@@ -31,9 +31,7 @@
  *
  */
 
-#ifdef HAVE_CONFIG_H
 #include <config.h>
-#endif
 
 #include "ftmacros.h"
 #include "diag-control.h"
@@ -144,7 +142,7 @@ int pcap_findalldevs_ex(const char *source, struct pcap_rmtauth *auth, pcap_if_t
 			dev->name = strdup(tmpstring);
 			if (dev->name == NULL)
 			{
-				pcap_fmt_errmsg_for_errno(errbuf,
+				pcapint_fmt_errmsg_for_errno(errbuf,
 				    PCAP_ERRBUF_SIZE, errno,
 				    "malloc() failed");
 				pcap_freealldevs(*alldevs);
@@ -158,11 +156,11 @@ int pcap_findalldevs_ex(const char *source, struct pcap_rmtauth *auth, pcap_if_t
 				localdesc = dev->name;
 			else
 				localdesc = dev->description;
-			if (pcap_asprintf(&desc, "%s '%s' %s",
+			if (pcapint_asprintf(&desc, "%s '%s' %s",
 			    PCAP_TEXT_SOURCE_ADAPTER, localdesc,
 			    PCAP_TEXT_SOURCE_ON_LOCAL_HOST) == -1)
 			{
-				pcap_fmt_errmsg_for_errno(errbuf,
+				pcapint_fmt_errmsg_for_errno(errbuf,
 				    PCAP_ERRBUF_SIZE, errno,
 				    "malloc() failed");
 				pcap_freealldevs(*alldevs);
@@ -232,14 +230,23 @@ int pcap_findalldevs_ex(const char *source, struct pcap_rmtauth *auth, pcap_if_t
 #else
 		/* opening the folder */
 		unixdir= opendir(path);
+		if (unixdir == NULL) {
+			DIAG_OFF_FORMAT_TRUNCATION
+			snprintf(errbuf, PCAP_ERRBUF_SIZE,
+			    "Error when listing files in '%s': %s", path, pcap_strerror(errno));
+			DIAG_ON_FORMAT_TRUNCATION
+			return -1;
+		}
 
 		/* get the first file into it */
+		errno = 0;
 		filedata= readdir(unixdir);
 
 		if (filedata == NULL)
 		{
 			DIAG_OFF_FORMAT_TRUNCATION
-			snprintf(errbuf, PCAP_ERRBUF_SIZE, "Error when listing files: does folder '%s' exist?", path);
+			snprintf(errbuf, PCAP_ERRBUF_SIZE,
+			    "Error when listing files in '%s': %s", path, pcap_strerror(errno));
 			DIAG_ON_FORMAT_TRUNCATION
 			closedir(unixdir);
 			return -1;
@@ -270,7 +277,7 @@ int pcap_findalldevs_ex(const char *source, struct pcap_rmtauth *auth, pcap_if_t
 				dev = (pcap_if_t *)malloc(sizeof(pcap_if_t));
 				if (dev == NULL)
 				{
-					pcap_fmt_errmsg_for_errno(errbuf,
+					pcapint_fmt_errmsg_for_errno(errbuf,
 					    PCAP_ERRBUF_SIZE, errno,
 					    "malloc() failed");
 					pcap_freealldevs(*alldevs);
@@ -319,7 +326,7 @@ int pcap_findalldevs_ex(const char *source, struct pcap_rmtauth *auth, pcap_if_t
 				dev->name = strdup(tmpstring);
 				if (dev->name == NULL)
 				{
-					pcap_fmt_errmsg_for_errno(errbuf,
+					pcapint_fmt_errmsg_for_errno(errbuf,
 					    PCAP_ERRBUF_SIZE, errno,
 					    "malloc() failed");
 					pcap_freealldevs(*alldevs);
@@ -334,11 +341,11 @@ int pcap_findalldevs_ex(const char *source, struct pcap_rmtauth *auth, pcap_if_t
 				/*
 				 * Create the description.
 				 */
-				if (pcap_asprintf(&dev->description,
+				if (pcapint_asprintf(&dev->description,
 				    "%s '%s' %s", PCAP_TEXT_SOURCE_FILE,
 				    filename, PCAP_TEXT_SOURCE_ON_LOCAL_HOST) == -1)
 				{
-					pcap_fmt_errmsg_for_errno(errbuf,
+					pcapint_fmt_errmsg_for_errno(errbuf,
 					    PCAP_ERRBUF_SIZE, errno,
 					    "malloc() failed");
 					pcap_freealldevs(*alldevs);
@@ -374,7 +381,7 @@ int pcap_findalldevs_ex(const char *source, struct pcap_rmtauth *auth, pcap_if_t
 		return pcap_findalldevs_ex_remote(source, auth, alldevs, errbuf);
 
 	default:
-		pcap_strlcpy(errbuf, "Source type not supported", PCAP_ERRBUF_SIZE);
+		pcapint_strlcpy(errbuf, "Source type not supported", PCAP_ERRBUF_SIZE);
 		return -1;
 	}
 }
@@ -428,7 +435,7 @@ pcap_t *pcap_open(const char *source, int snaplen, int flags, int read_timeout, 
 		return pcap_open_rpcap(source, snaplen, flags, read_timeout, auth, errbuf);
 
 	default:
-		pcap_strlcpy(errbuf, "Source type not supported", PCAP_ERRBUF_SIZE);
+		pcapint_strlcpy(errbuf, "Source type not supported", PCAP_ERRBUF_SIZE);
 		return NULL;
 	}
 

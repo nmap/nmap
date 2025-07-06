@@ -13,7 +13,7 @@ supported:
 Note: the files in the libpcap.zip contains short truncated filenames.
   So for djgpp to work with these, disable the use of long file names by
   setting "LFN=n" in the environment. On the other hand, if you get libpcap
-  from Github or the official libpcap.tar.gz, some filenames are beyond 8+3.
+  from GitHub or the official libpcap.tar.gz, some filenames are beyond 8+3.
   In this case set "LFN=y".
 
 Files specific to DOS are pcap-dos.[ch] and the assembly and C files in
@@ -53,7 +53,7 @@ The following packages and tools must be present for all targets.
 
      https://www.watt-32.net
 
-2. Exception handler and disassember library (libexc.a) is needed if
+2. Exception handler and disassembler library (libexc.a) is needed if
    "USE_EXCEPT = 1" in common.dj. Available at:
 
      https://www.watt-32.net/misc/exc_dx07.zip

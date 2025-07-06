@@ -123,12 +123,6 @@ class Target;
 # endif
 #endif
 
-#ifdef WIN32
-/* Show a fatal error explaining that an interface is not Ethernet and won't
-   work on Windows. Do nothing if --send-ip (PACKET_SEND_IP_STRONG) was used. */
-void win32_fatal_raw_sockets(const char *devname);
-#endif
-
 /* Prints the familiar Nmap tabular output showing the "interesting"
    ports found on the machine.  It also handles the Machine/Grepable
    output and the XML output.  It is pretty ugly -- in particular I

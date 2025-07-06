@@ -3,10 +3,14 @@
  *
  * Copyright (c) 2001 Dug Song <dugsong@monkey.org>
  *
- * $Id: tun-none.c 548 2005-01-30 06:01:57Z dugsong $
+ * $Id$
  */
 
+#ifdef _WIN32
+#include "dnet_winconfig.h"
+#else
 #include "config.h"
+#endif
 
 #include <sys/types.h>
 

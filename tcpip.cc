@@ -87,31 +87,6 @@ extern NmapOps o;
 
 static PacketCounter PktCt;
 
-/* Create a raw socket and do things that always apply to raw sockets:
-    * Set SO_BROADCAST.
-    * Set IP_HDRINCL.
-    * Bind to an interface with SO_BINDTODEVICE (if o.device is set).
-   The socket is created with address family AF_INET, but may be usable for
-   AF_INET6, depending on the operating system. */
-int nmap_raw_socket() {
-  int rawsd;
-  int one = 1;
-
-  rawsd = socket(AF_INET, SOCK_RAW, IPPROTO_RAW);
-  if (rawsd < 0)
-    return rawsd;
-  if (setsockopt (rawsd, SOL_SOCKET, SO_BROADCAST, (const char *) &one, sizeof(int)) != 0) {
-    error("Failed to secure socket broadcasting permission");
-    perror("setsockopt");
-  }
-#ifndef WIN32
-  sethdrinclude(rawsd);
-#endif
-  socket_bindtodevice(rawsd, o.device);
-
-  return rawsd;
-}
-
 /* Fill buf (up to buflen -- truncate if necessary but always
    terminate) with a short representation of the packet stats.
    Returns buf.  Aborts if there is a problem. */
@@ -1554,8 +1529,7 @@ const u8 *readip_pcap(pcap_t *pd, unsigned int *len, long to_usec,
   if (offset && linknfo) {
     linknfo->datalinktype = datalink;
     linknfo->headerlen = offset;
-    assert(offset <= MAX_LINK_HEADERSZ);
-    memcpy(linknfo->header, p - offset, MIN(sizeof(linknfo->header), offset));
+    linknfo->header = p;
   }
   if (rcvdtime)
     PacketTrace::trace(PacketTrace::RCVD, (u8 *) p, *len,
@@ -1610,7 +1584,7 @@ int setTargetMACIfAvailable(Target *target, struct link_header *linkhdr,
   if (!linkhdr || !target || !src)
     return 1;
 
-  if (linkhdr->datalinktype != DLT_EN10MB || linkhdr->headerlen != 14)
+  if (linkhdr->datalinktype != DLT_EN10MB || linkhdr->headerlen < 14)
     return 2;
 
   if (!overwrite && target->MACAddress())

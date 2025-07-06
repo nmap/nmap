@@ -1,6 +1,6 @@
-/* Copyright (c) 2004-2007, Sara Golemon <sarag@libssh2.org>
- * Copyright (c) 2005 Mikhail Gusarov <dottedmag@dottedmag.net>
- * Copyright (c) 2009-2014 by Daniel Stenberg
+/* Copyright (C) Sara Golemon <sarag@libssh2.org>
+ * Copyright (C) Mikhail Gusarov <dottedmag@dottedmag.net>
+ * Copyright (C) Daniel Stenberg
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms,
@@ -35,6 +35,8 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY
  * OF SUCH DAMAGE.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
  */
 
 #include "libssh2_priv.h"
@@ -50,6 +52,8 @@
 #include "session.h"
 #include "userauth.h"
 #include "userauth_kbd_packet.h"
+
+#include <stdlib.h>  /* strtol() */
 
 /* userauth_list
  *
@@ -816,11 +820,17 @@ struct privkey_file {
     const char *passphrase;
 };
 
+struct privkey_mem {
+    const char *passphrase;
+    const char *data;
+    size_t data_len;
+};
+
 static int
 sign_frommemory(LIBSSH2_SESSION *session, unsigned char **sig, size_t *sig_len,
                 const unsigned char *data, size_t data_len, void **abstract)
 {
-    struct privkey_file *pk_file = (struct privkey_file *) (*abstract);
+    struct privkey_mem *pk_mem = (struct privkey_mem *) (*abstract);
     const LIBSSH2_HOSTKEY_METHOD *privkeyobj;
     void *hostkey_abstract;
     struct iovec datavec;
@@ -829,9 +839,9 @@ sign_frommemory(LIBSSH2_SESSION *session, unsigned char **sig, size_t *sig_len,
     rc = memory_read_privatekey(session, &privkeyobj, &hostkey_abstract,
                                 session->userauth_pblc_method,
                                 session->userauth_pblc_method_len,
-                                pk_file->filename,
-                                strlen(pk_file->filename),
-                                pk_file->passphrase);
+                                pk_mem->data,
+                                pk_mem->data_len,
+                                pk_mem->passphrase);
     if(rc)
         return rc;
 
@@ -1254,6 +1264,15 @@ size_t plain_method(char *method, size_t method_len)
         return 7;
     }
 
+    if(!strncmp("rsa-sha2-256-cert-v01@openssh.com",
+                method,
+                method_len) ||
+       !strncmp("rsa-sha2-512-cert-v01@openssh.com",
+                method,
+                method_len)) {
+       return 12;
+    }
+
     if(!strncmp("ecdsa-sha2-nistp256-cert-v01@openssh.com",
                 method,
                 method_len) ||
@@ -1291,6 +1310,31 @@ size_t plain_method(char *method, size_t method_len)
     return method_len;
 }
 
+/* Function to check if the given version is less than pattern (OpenSSH 7.8)
+ * This function expects the input version in x.y* format
+ * (x being openssh major and y being openssh minor version)
+ * Returns 1 if the version is less than OpenSSH_7.8, 0 otherwise
+ */
+static int is_version_less_than_78(const char *version)
+{
+    char *endptr = NULL;
+    long major = 0;
+    int minor = 0;
+
+    if(!version)
+        return 0;
+
+    major = strtol(version, &endptr, 10);
+    if(!endptr || *endptr != '.')
+        return 0; /* Not a valid number */
+    minor = (endptr + 1)[0] - '0';
+    if((major >= 1 && major <= 6) ||
+       (major == 7 && minor >= 0 && minor <= 7)) {
+        return 1; /* Version is in the specified range */
+    }
+    return 0;
+}
+
 /**
  * @function _libssh2_key_sign_algorithm
  * @abstract Upgrades the algorithm used for public key signing RFC 8332
@@ -1318,7 +1362,14 @@ _libssh2_key_sign_algorithm(LIBSSH2_SESSION *session,
     size_t f_len = 0;
     int rc = 0;
     size_t match_len = 0;
+    const size_t suffix_len = 21;
     char *filtered_algs = NULL;
+    const char * const certSuffix = "-cert-v01@openssh.com";
+    const char *remote_banner = NULL;
+    const char * const remote_ver_pre = "OpenSSH_";
+    const char *remote_ver_start = NULL;
+    const char *remote_ver = NULL;
+    int SSH_BUG_SIGTYPE = 0;
 
     const char *supported_algs =
     _libssh2_supported_key_sign_algorithms(session,
@@ -1335,6 +1386,25 @@ _libssh2_key_sign_algorithm(LIBSSH2_SESSION *session,
         rc = _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
                             "Unable to allocate filtered algs");
         return rc;
+    }
+
+    /* Set "SSH_BUG_SIGTYPE" flag when the remote server version is OpenSSH 7.7
+       or lower and when the RSA key in question is a certificate to ignore
+       "server-sig-algs" and only offer ssh-rsa signature algorithm for
+       RSA certs */
+    remote_banner = libssh2_session_banner_get(session);
+    /* Extract version information from the banner */
+    if(remote_banner) {
+        remote_ver_start = strstr(remote_banner, remote_ver_pre);
+        if(remote_ver_start) {
+            remote_ver = remote_ver_start + strlen(remote_ver_pre);
+            SSH_BUG_SIGTYPE = is_version_less_than_78(remote_ver);
+            if(SSH_BUG_SIGTYPE && *key_method_len == 28 &&
+               memcmp(key_method, "ssh-rsa-cert-v01@openssh.com",
+                      *key_method_len)) {
+                return LIBSSH2_ERROR_NONE;
+            }
+        }
     }
 
     s = session->server_sign_algorithms;
@@ -1404,15 +1474,27 @@ _libssh2_key_sign_algorithm(LIBSSH2_SESSION *session,
     }
 
     if(match) {
-        if(*key_method)
-            LIBSSH2_FREE(session, *key_method);
-
-        *key_method = LIBSSH2_ALLOC(session, match_len);
-        if(key_method) {
-            memcpy(*key_method, match, match_len);
-            *key_method_len = match_len;
+        if(*key_method_len == 28 &&
+        memcmp(key_method, "ssh-rsa-cert-v01@openssh.com", *key_method_len)) {
+            if(*key_method)
+                LIBSSH2_FREE(session, *key_method);
+            *key_method = LIBSSH2_ALLOC(session, match_len + suffix_len);
+            if(*key_method) {
+                memcpy(*key_method, match, match_len);
+                memcpy(*key_method + match_len, certSuffix, suffix_len);
+                *key_method_len = match_len + suffix_len;
+            }
         }
         else {
+            if(*key_method)
+                LIBSSH2_FREE(session, *key_method);
+            *key_method = LIBSSH2_ALLOC(session, match_len);
+            if(*key_method) {
+                memcpy(*key_method, match, match_len);
+                *key_method_len = match_len;
+            }
+        }
+        if(!key_method) {
             *key_method_len = 0;
             rc = _libssh2_error(session, LIBSSH2_ERROR_ALLOC,
                                 "Unable to allocate key method upgrade");
@@ -1509,7 +1591,7 @@ retry_auth:
             _libssh2_debug((session,
                            LIBSSH2_TRACE_KEX,
                            "Signing using %.*s",
-                           session->userauth_pblc_method_len,
+                           (int)session->userauth_pblc_method_len,
                            session->userauth_pblc_method));
         }
 
@@ -1833,12 +1915,13 @@ userauth_publickey_frommemory(LIBSSH2_SESSION *session,
 {
     unsigned char *pubkeydata = NULL;
     size_t pubkeydata_len = 0;
-    struct privkey_file privkey_file;
-    void *abstract = &privkey_file;
+    struct privkey_mem privkey_mem;
+    void *abstract = &privkey_mem;
     int rc;
 
-    privkey_file.filename = privatekeydata;
-    privkey_file.passphrase = passphrase;
+    privkey_mem.data = privatekeydata;
+    privkey_mem.data_len = privatekeydata_len;
+    privkey_mem.passphrase = passphrase;
 
     if(session->userauth_pblc_state == libssh2_NB_state_idle) {
         if(publickeydata_len && publickeydata) {
@@ -2179,7 +2262,7 @@ userauth_keyboard_interactive(LIBSSH2_SESSION * session,
                 if(session->userauth_kybd_responses[i].length <=
                    (SIZE_MAX - 4 - session->userauth_kybd_packet_len)) {
                     session->userauth_kybd_packet_len +=
-                        4 + session->userauth_kybd_responses[i].length;
+                        4 + (size_t)session->userauth_kybd_responses[i].length;
                 }
                 else {
                     _libssh2_error(session, LIBSSH2_ERROR_ALLOC,

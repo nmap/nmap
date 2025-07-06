@@ -28,9 +28,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifdef HAVE_CONFIG_H
 #include <config.h>
-#endif
 
 #include <string.h>
 
@@ -91,7 +89,7 @@ dbus_read(pcap_t *handle, int max_packets _U_, pcap_handler callback, u_char *us
 
 		gettimeofday(&pkth.ts, NULL);
 		if (handle->fcode.bf_insns == NULL ||
-		    pcap_filter(handle->fcode.bf_insns, (u_char *)raw_msg, pkth.len, pkth.caplen)) {
+		    pcapint_filter(handle->fcode.bf_insns, (u_char *)raw_msg, pkth.len, pkth.caplen)) {
 			handlep->packets_read++;
 			callback(user, &pkth, (u_char *)raw_msg);
 			count++;
@@ -142,7 +140,7 @@ dbus_cleanup(pcap_t *handle)
 
 	dbus_connection_unref(handlep->conn);
 
-	pcap_cleanup_live_common(handle);
+	pcapint_cleanup_live_common(handle);
 }
 
 /*
@@ -227,7 +225,7 @@ dbus_activate(pcap_t *handle)
 	handle->linktype = DLT_DBUS;
 	handle->read_op = dbus_read;
 	handle->inject_op = dbus_write;
-	handle->setfilter_op = install_bpf_program; /* XXX, later add support for dbus_bus_add_match() */
+	handle->setfilter_op = pcapint_install_bpf_program; /* XXX, later add support for dbus_bus_add_match() */
 	handle->setdirection_op = NULL;
 	handle->set_datalink_op = NULL;      /* can't change data link type */
 	handle->getnonblock_op = dbus_getnonblock;
@@ -338,11 +336,11 @@ dbus_findalldevs(pcap_if_list_t *devlistp, char *err_str)
 	 * The notion of "connected" vs. "disconnected" doesn't apply.
 	 * XXX - what about the notions of "up" and "running"?
 	 */
-	if (add_dev(devlistp, "dbus-system",
+	if (pcapint_add_dev(devlistp, "dbus-system",
 	    PCAP_IF_CONNECTION_STATUS_NOT_APPLICABLE, "D-Bus system bus",
 	    err_str) == NULL)
 		return -1;
-	if (add_dev(devlistp, "dbus-session",
+	if (pcapint_add_dev(devlistp, "dbus-session",
 	    PCAP_IF_CONNECTION_STATUS_NOT_APPLICABLE, "D-Bus session bus",
 	    err_str) == NULL)
 		return -1;

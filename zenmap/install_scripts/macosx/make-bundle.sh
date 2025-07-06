@@ -5,19 +5,19 @@ test "x$UNDER_JHBUILD" = "x" && exit 1
 
 # make-bundle.sh
 APP_NAME=Zenmap
-ZENMAP_DIST_DIR=$PWD/dist
-ZENMAP_BUILD_DIR=$PWD/build
+ZENMAP_DIST_DIR=${1:-zenmap-root}
 
 export ZENMAP_DIST_DIR
-export ZENMAP_BUILD_DIR
 
 BASE=$ZENMAP_DIST_DIR/$APP_NAME.app/Contents
 SCRIPT_DIR=`dirname "$0"`
+ZENMAP_DIR="$SCRIPT_DIR/../.."
+NDIFF_DIR="$ZENMAP_DIR/../ndiff"
 
 echo "Running $0."
 
 echo "Removing old build."
-rm -rf "$ZENMAP_DIST_DIR" "$ZENMAP_BUILD_DIR"
+rm -rf "$ZENMAP_DIST_DIR"
 
 echo "Building python-launcher"
 $CC $CPPFLAGS $CFLAGS $LDFLAGS -L$PREFIX/lib `python3-config --cflags --ldflags --embed` \
@@ -25,7 +25,8 @@ $CC $CPPFLAGS $CFLAGS $LDFLAGS -L$PREFIX/lib `python3-config --cflags --ldflags 
 	    ~/gtk-mac-bundler/examples/python-launcher.c
 
 echo "Installing Zenmap to local system"
-python3 -m pip install --no-deps --force-reinstall .
+python3 -m pip install --no-deps --force-reinstall "$ZENMAP_DIR"
+python3 -m pip install --no-deps --force-reinstall "$NDIFF_DIR"
 
 echo "Generating dependencies"
 # Have to run this with ~/gtk/inst/python3 or deps have wrong paths
@@ -62,13 +63,15 @@ popd
 
 # echo "Compiling Python to bytecode"
 PYTHONLIB=$(ls -d $BASE/Resources/lib/python3.*)
+cp "$PREFIX"/${PYTHONLIB#$BASE/Resources/}/site-packages/ndiff.py "$PYTHONLIB/site-packages/"
+
 # Remove compiled bytecode, recompile in legacy locations, allowing for removal of source.
 # See PEP-3147
 find "$PYTHONLIB"  -depth \( -name 'zenmap*' -o -name 'radialnet' \) -prune -o -name __pycache__ -exec rm -rf '{}' \;
-python -m compileall -b -x 'zenmapGUI|zenmapCore|radialnet' "$PYTHONLIB"
+python -m compileall -b -x 'ndiff|zenmapGUI|zenmapCore|radialnet' "$PYTHONLIB"
 
 # Remove source if compiled is available, except for Zenmap itself:
-find "$PYTHONLIB" \( -name 'zenmap*' -o -name 'radialnet' \) -prune -o \( -name '*.pyc' -print \) | while read pyc; do
+find "$PYTHONLIB" \( -name 'ndiff.py' -o -name 'zenmap*' -o -name 'radialnet' \) -prune -o \( -name '*.pyc' -print \) | while read pyc; do
 rm -f "${pyc%.pyc}.py"
 done
 
@@ -100,3 +103,14 @@ with open(sys.argv[1],"r",encoding="utf-8") as f:
     APP_COPYRIGHT=APP_COPYRIGHT
     ))
 EOF
+
+mkdir -p "$BASE/Resources/bin"
+zenmap_cmd="$BASE/Resources/bin/zenmap"
+
+cat >"$zenmap_cmd" <<'EOF'
+#!/bin/sh
+open -a Zenmap "$@"
+EOF
+chmod 755 "$zenmap_cmd"
+
+cp "$PREFIX/bin/ndiff" "$BASE/Resources/bin/ndiff"

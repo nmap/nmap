@@ -3,10 +3,14 @@
  *
  * Copyright (c) 2000 Dug Song <dugsong@monkey.org>
  *
- * $Id: ip.c 547 2005-01-25 21:30:40Z dugsong $
+ * $Id$
  */
 
+#ifdef _WIN32
+#include "dnet_winconfig.h"
+#else
 #include "config.h"
+#endif
 
 #include <netinet/in.h>
 

@@ -709,8 +709,8 @@ distributed for each major Nmap release.  We support Nmap on Windows 7
 and newer, as well as Windows Server 2008 and newer.  We also maintain
 a  <ulink
 url="https://secwiki.org/w/Nmap/Old_Windows_Releases">guide for users
-who must run Nmap on earlier Windows releases</ulink>.  While it has improved dramatically, the Windows port is not
-quite as efficient as on Unix.  Here are the known limitations:
+who must run Nmap on earlier Windows releases</ulink>.
+Nmap runs equally well on Windows as on Unix in nearly every way, though there are a couple of known limitations:
 </para>
 
 <indexterm><primary>Windows</primary><secondary>limitations of</secondary></indexterm>
@@ -740,14 +740,14 @@ packets.</para></listitem>
 <indexterm><primary>Windows</primary><secondary>performance of</secondary></indexterm>
 <para>Scan speeds on Windows are generally comparable to those on
 Unix, though the latter often has a slight performance edge.  One
-exception to this is connect scan (<option>-sT</option>), which is
-often much slower on Windows because of deficiencies in the Windows
-networking API.  This is a shame, since that is the one TCP scan that
-works over all networking types (not just ethernet, like the raw packet scans).
-Connect scan performance can be
-improved substantially by applying the Registry changes in the
-<filename>nmap_performance.reg</filename> file included with Nmap.  By default these changes are applied for you by the Nmap executable installer.  This registry file
-is in the <filename>nmap-<replaceable>version</replaceable></filename>
+example of this is connect scan (<option>-sT</option>), which may be
+slower on Windows because of different limits in the Windows
+networking API. Since this is the one TCP scan that
+works over all networking types (not just ethernet, like the raw packet scans),
+Nmap includes a collection of Registry changes that substantially improve connect scan performance.
+By default these changes are applied for you by the Nmap executable installer, and are also available in the
+<filename>nmap_performance.reg</filename> file
+in the <filename>nmap-<replaceable>version</replaceable></filename>
 directory of the Windows binary zip file (for <ulink url="https://nmap.org/oem/">Nmap OEM</ulink> customers), and
 <filename>nmap-<replaceable>version</replaceable>/mswin32</filename>
 in the source tarball (where <replaceable>version</replaceable> is the
@@ -937,19 +937,13 @@ detailed instructions for users who are unfamiliar with command-line
 interfaces:</para>
 
 <orderedlist>
-<listitem><para>Make sure the user you are logged in as has
-administrative privileges<indexterm><primary>privileged users</primary></indexterm>
-on the computer (user should be a member of the <literal>administrators</literal> group).</para></listitem>
-<listitem><para>Open a command/DOS Window.  Though it can be found in
-the program menu tree, the simplest approach is to choose <guimenu>Start</guimenu> 
--> <guimenuitem>Run</guimenuitem> and type <command>cmd&lt;enter&gt;</command>.  Opening a Cygwin window (if you installed it) by clicking on the Cygwin icon on the desktop works too, although the necessary commands differ slightly from those shown here.</para></listitem>
-<listitem><para>Change to the directory you installed Nmap into.  You can skip this step if Nmap is already in your command path (the Zenmap isntaller adds it there by default).  Otherwise, type the following commands.</para>
+<listitem><para>Open Terminal, PowerShell, or Command Prompt. If you are using MSYS2, Cygwin, or WSL,
+the necessary commands differ slightly from those shown here.</para></listitem>
+<listitem><para>Change to the directory you installed Nmap into.  You can skip this step if Nmap is already in your command path (the installer adds it there by default).  Otherwise, type the following commands.</para>
 <screen>
 <userinput>c:</userinput>
 <userinput>cd "\Program Files (x86)\Nmap"</userinput>
 </screen>
-
-<para>On Windows releases prior to Windows 7, specify <filename>\Program Files\Nmap</filename> instead. The directory will also be different if you chose to install Nmap in a non-default location.</para>
 
 </listitem>
 <listitem><para>Execute <command>nmap.exe</command>.  <xref linkend="fig-windows-cmdshell-exec" xrefstyle="select: label nopage" /> is a screen shot showing a simple example.</para>
@@ -960,10 +954,10 @@ the program menu tree, the simplest approach is to choose <guimenu>Start</guimen
 <mediaobject>
   <imageobject>
 <web>
-    <imagedata fileref="images/nmap-windows-demo-669x326.png" format="PNG" contentwidth="669" contentdepth="326" />
+    <imagedata fileref="images/nmap-windows-demo-710x473.png" format="PNG" contentwidth="710" contentdepth="473" />
 </web>
 <print>
-    <imagedata fileref="images/nmap-windows-demo-669x326.png" format="PNG" scale="50" />
+    <imagedata fileref="images/nmap-windows-demo-710x473.png" format="PNG" scale="50" />
 </print>
   </imageobject>
 </mediaobject>

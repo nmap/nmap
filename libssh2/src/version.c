@@ -1,4 +1,5 @@
-/* Copyright (C) 2009 Daniel Stenberg.  All rights reserved.
+/* Copyright (C) Daniel Stenberg
+ * All rights reserved.
  *
  * Redistribution and use in source and binary forms,
  * with or without modification, are permitted provided
@@ -33,6 +34,7 @@
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY
  * OF SUCH DAMAGE.
  *
+ * SPDX-License-Identifier: BSD-3-Clause
  */
 
 #include "libssh2_priv.h"

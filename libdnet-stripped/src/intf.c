@@ -3,14 +3,10 @@
  *
  * Copyright (c) 2001 Dug Song <dugsong@monkey.org>
  *
- * $Id: intf.c 616 2006-01-09 07:09:49Z dugsong $
+ * $Id$
  */
 
-#ifdef _WIN32
-#include "dnet_winconfig.h"
-#else
 #include "config.h"
-#endif
 
 #include <sys/param.h>
 #include <sys/types.h>
@@ -28,6 +24,9 @@
 # define IP_MULTICAST
 #endif
 #include <net/if.h>
+#ifdef HAVE_NET_IF_DL_H
+# include <net/if_dl.h>
+#endif
 #ifdef HAVE_NET_IF_VAR_H
 # include <net/if_var.h>
 #endif
@@ -81,12 +80,13 @@
 /* XXX - superset of ifreq, for portable SIOC{A,D}IFADDR */
 struct dnet_ifaliasreq {
 	char		ifra_name[IFNAMSIZ];
+#if defined(__OpenBSD__)
 	union {
 		struct sockaddr ifrau_addr;
-		int             ifrau_align;
-	} ifra_ifrau;
-#ifndef ifra_addr
-#define ifra_addr      ifra_ifrau.ifrau_addr
+		int		ifrau_align;
+		} ifra_ifrau;
+#else
+	struct sockaddr ifra_addr;
 #endif
 	struct sockaddr ifra_brdaddr;
 	struct sockaddr ifra_mask;
@@ -101,6 +101,21 @@ struct intf_handle {
 	struct lifconf	lifc;
 #endif
 	u_char		ifcbuf[4192];
+};
+
+/* TODO: move to .h */
+union sockunion {
+#ifdef HAVE_NET_IF_DL_H
+       struct sockaddr_dl      sdl;
+#endif
+       struct sockaddr_in      sin;
+#ifdef HAVE_SOCKADDR_IN6
+       struct sockaddr_in6     sin6;
+#endif
+       struct sockaddr         sa;
+#ifdef AF_RAW
+       struct sockaddr_raw     sr;
+#endif
 };
 
 static int
@@ -158,13 +173,13 @@ intf_open(void)
 			return (intf_close(intf));
 
 		setsockopt(intf->fd, SOL_SOCKET, SO_BROADCAST,
-			(const char *) &one, sizeof(one));
+						(const char *) &one, sizeof(one));
 
 #if defined(SIOCGLIFCONF) || defined(SIOCGIFNETMASK_IN6) || defined(SIOCGIFNETMASK6)
 		if ((intf->fd6 = socket(AF_INET6, SOCK_DGRAM, 0)) < 0) {
 #  ifdef EPROTONOSUPPORT
 			if (errno != EPROTONOSUPPORT)
-#  endif
+#endif
 				return (intf_close(intf));
 		}
 #endif
@@ -202,23 +217,25 @@ _intf_delete_addrs(intf_t *intf, struct intf_entry *entry)
 static int
 _intf_delete_aliases(intf_t *intf, struct intf_entry *entry)
 {
-	int i;
+	size_t i;
 #if defined(SIOCDIFADDR) && !defined(__linux__)	/* XXX - see Linux below */
 	struct dnet_ifaliasreq ifra;
 	
 	memset(&ifra, 0, sizeof(ifra));
 	strlcpy(ifra.ifra_name, entry->intf_name, sizeof(ifra.ifra_name));
 	
-	for (i = 0; i < (int)entry->intf_alias_num; i++) {
+	for (i = 0; i < entry->intf_alias_num; i++) {
 		addr_ntos(&entry->intf_alias_addrs[i], &ifra.ifra_addr);
 		ioctl(intf->fd, SIOCDIFADDR, &ifra);
 	}
 #else
+	unsigned char n;
 	struct ifreq ifr;
 	
 	for (i = 0; i < entry->intf_alias_num; i++) {
-		snprintf(ifr.ifr_name, sizeof(ifr.ifr_name), "%s:%d",
-		    entry->intf_name, i + 1);
+		n = i + 1;
+		snprintf(ifr.ifr_name, sizeof(ifr.ifr_name), "%.11s:%u",
+		    entry->intf_name, n);
 # ifdef SIOCLIFREMOVEIF
 		/* XXX - overloading Solaris lifreq with ifreq */
 		ioctl(intf->fd, SIOCLIFREMOVEIF, &ifr);
@@ -235,7 +252,7 @@ _intf_delete_aliases(intf_t *intf, struct intf_entry *entry)
 static int
 _intf_add_aliases(intf_t *intf, const struct intf_entry *entry)
 {
-	int i;
+	size_t i;
 #ifdef SIOCAIFADDR
 	struct dnet_ifaliasreq ifra;
 	struct addr bcast;
@@ -260,13 +277,13 @@ _intf_add_aliases(intf_t *intf, const struct intf_entry *entry)
 	}
 #else
 	struct ifreq ifr;
-	int n = 1;
+	unsigned char n = 1;
 	
 	for (i = 0; i < entry->intf_alias_num; i++) {
 		if (entry->intf_alias_addrs[i].addr_type != ADDR_TYPE_IP)
 			continue;
 		
-		snprintf(ifr.ifr_name, sizeof(ifr.ifr_name), "%s:%d",
+		snprintf(ifr.ifr_name, sizeof(ifr.ifr_name), "%.11s:%u",
 		    entry->intf_name, n++);
 # ifdef SIOCLIFADDIF
 		if (ioctl(intf->fd, SIOCLIFADDIF, &ifr) < 0)
@@ -318,7 +335,7 @@ intf_set(intf_t *intf, const struct intf_entry *entry)
 	}
 	/* Set interface address. */
 	if (entry->intf_addr.addr_type == ADDR_TYPE_IP) {
-#if defined(BSD) && !defined(__OPENBSD__)
+#if defined(BSD) && !defined(__OpenBSD__)
 		/* XXX - why must this happen before SIOCSIFADDR? */
 		if (addr_btos(entry->intf_addr.addr_bits,
 		    &ifr.ifr_addr) == 0) {
@@ -493,7 +510,7 @@ _intf_get_noalias(intf_t *intf, struct intf_entry *entry)
 		return (-1);
 
 	strlcpy(ifr.ifr_name, entry->intf_name, sizeof(ifr.ifr_name));
-
+	
 	/* Get interface flags. */
 	if (ioctl(intf->fd, SIOCGIFFLAGS, &ifr) < 0)
 		return (-1);
@@ -562,9 +579,9 @@ _intf_get_noalias(intf_t *intf, struct intf_entry *entry)
 		if (ioctl(intf->fd, SIOCGIFHWADDR, &ifr) < 0)
 			return (-1);
 		if (addr_ston(&ifr.ifr_addr, &entry->intf_link_addr) < 0) {
-		  /* Likely we got an unsupported address type. Just use NONE for now. */
-		  entry->intf_link_addr.addr_type = ADDR_TYPE_NONE;
-		  entry->intf_link_addr.addr_bits = 0;
+			/* Likely we got an unsupported address type. Just use NONE for now. */
+			entry->intf_link_addr.addr_type = ADDR_TYPE_NONE;
+			entry->intf_link_addr.addr_bits = 0;
     }
 #elif defined(SIOCRPHYSADDR)
 		/* Tru64 */
@@ -712,12 +729,10 @@ _intf_get_aliases(intf_t *intf, struct intf_entry *entry)
 		
 		if (strcmp(ifr->ifr_name, entry->intf_name) != 0) {
 			if (p) *p = ':';
-			continue;
+				continue;
 		}
-		
-		/* Fix the name back up */
-		if (p) *p = ':';
-
+	
+		if (p) *p = ':'; /* Fix the name back up */	
 		if (addr_ston(&ifr->ifr_addr, ap) < 0)
 			continue;
 		
@@ -729,7 +744,8 @@ _intf_get_aliases(intf_t *intf, struct intf_entry *entry)
 			if (ap->addr_ip == entry->intf_addr.addr_ip ||
 			    ap->addr_ip == entry->intf_dst_addr.addr_ip)
 				continue;
-			strlcpy(tmpifr.ifr_name, ifr->ifr_name, sizeof(tmpifr.ifr_name));
+			strlcpy(tmpifr.ifr_name, ifr->ifr_name,
+				sizeof(tmpifr.ifr_name));
 			if (ioctl(intf->fd, SIOCGIFNETMASK, &tmpifr) == 0)
 				addr_stob(&tmpifr.ifr_addr, &ap->addr_bits);
 		}
@@ -774,7 +790,7 @@ _intf_get_aliases(intf_t *intf, struct intf_entry *entry)
 		u_int idx, bits, scope, flags;
 		
 		if ((f = fopen(PROC_INET6_FILE, "r")) != NULL) {
-			while (ap < lap &&
+			while ((ap +1) < lap &&
 			       fgets(buf, sizeof(buf), f) != NULL) {
 				/* scan up to INTF_NAME_LEN-1 bytes to reserve space for null terminator */
 				sscanf(buf, "%04s%04s%04s%04s%04s%04s%04s%04s %x %02x %02x %02x %15s\n",
@@ -812,6 +828,18 @@ intf_get(intf_t *intf, struct intf_entry *entry)
 	return (_intf_get_aliases(intf, entry));
 }
 
+static int
+get_max_bits(const struct addr *a)
+{
+	if (a->addr_type == ADDR_TYPE_IP) {
+		return IP_ADDR_BITS;
+	} else if (a->addr_type == ADDR_TYPE_IP6) {
+		return IP6_ADDR_BITS;
+	} else {
+		return 0;
+	}
+}
+
 /* Look up an interface from an index, such as a sockaddr_in6.sin6_scope_id. */
 int
 intf_get_index(intf_t *intf, struct intf_entry *entry, int af, unsigned int index)
@@ -831,28 +859,34 @@ static int
 _match_intf_src(const struct intf_entry *entry, void *arg)
 {
 	struct intf_entry *save = (struct intf_entry *)arg;
-	int matched = 0, cnt;
-	
-	if (entry->intf_addr.addr_type == ADDR_TYPE_IP &&
-	    entry->intf_addr.addr_ip == save->intf_addr.addr_ip)
-		matched = 1;
+	int len = save->intf_len < entry->intf_len ? save->intf_len : entry->intf_len;
+	int i;
 
-	for (cnt = 0; !matched && cnt < (int) entry->intf_alias_num; cnt++) {
-		if (entry->intf_alias_addrs[cnt].addr_type != ADDR_TYPE_IP)
-			continue;
-		if (entry->intf_alias_addrs[cnt].addr_ip == save->intf_addr.addr_ip)
-			matched = 1;
+	struct addr a, saved_addr;
+
+	saved_addr = save->intf_addr;
+	saved_addr.addr_bits = get_max_bits(&saved_addr);
+
+	a = entry->intf_addr;
+	a.addr_bits = get_max_bits(&a);
+
+	if (addr_cmp(&a, &saved_addr) == 0) {
+		memcpy(save, entry, len);
+		return 1;
 	}
 
-	if (matched) {
-		/* XXX - truncated result if entry is too small. */
-		if (save->intf_len < entry->intf_len)
-			memcpy(save, entry, save->intf_len);
-		else
-			memcpy(save, entry, entry->intf_len);
-		return (1);
+	for (i = 0; i < (int)entry->intf_alias_num; i++) {
+		a = entry->intf_alias_addrs[i];
+		a.addr_bits = get_max_bits(&a);
+
+		if (addr_cmp(&a, &saved_addr) == 0) {
+			memcpy(save, entry, len);
+			save->intf_addr = entry->intf_alias_addrs[i];
+			return 1;
+		}
 	}
-	return (0);
+
+	return 0;
 }
 
 int
@@ -870,24 +904,27 @@ intf_get_src(intf_t *intf, struct intf_entry *entry, struct addr *src)
 int
 intf_get_dst(intf_t *intf, struct intf_entry *entry, struct addr *dst)
 {
-	struct sockaddr_in sin;
+	union sockunion sun;
 	socklen_t n;
-	
-	if (dst->addr_type != ADDR_TYPE_IP) {
+
+	int fd;
+
+	if (dst->addr_type != ADDR_TYPE_IP && dst->addr_type != ADDR_TYPE_IP6) {
 		errno = EINVAL;
 		return (-1);
 	}
-	addr_ntos(dst, (struct sockaddr *)&sin);
-	sin.sin_port = htons(666);
-	
-	if (connect(intf->fd, (struct sockaddr *)&sin, sizeof(sin)) < 0)
+	addr_ntos(dst, (struct sockaddr *)&sun);
+	sun.sin.sin_port = htons(666);
+
+	fd = dst->addr_type == ADDR_TYPE_IP6 ? intf->fd6 : intf->fd;
+	if (connect(fd, (struct sockaddr *)&sun, sizeof(sun)) < 0)
 		return (-1);
 	
-	n = sizeof(sin);
-	if (getsockname(intf->fd, (struct sockaddr *)&sin, &n) < 0)
+	n = sizeof(sun);
+	if (getsockname(fd, (struct sockaddr *)&sun, &n) < 0)
 		return (-1);
 	
-	addr_ston((struct sockaddr *)&sin, &entry->intf_addr);
+	addr_ston((struct sockaddr *)&sun, &entry->intf_addr);
 	
 	if (intf_loop(intf, _match_intf_src, entry) != 1)
 		return (-1);
@@ -957,8 +994,10 @@ intf_loop(intf_t *intf, intf_handler callback, void *arg)
 	struct lifreq *lifr, *llifr, *plifr;
 	char *p, ebuf[BUFSIZ];
 	int ret;
+#ifdef IFF_IPMP
 	struct lifreq lifrflags;
 	memset(&lifrflags, 0, sizeof(struct lifreq));
+#endif
 
 	entry = (struct intf_entry *)ebuf;
 
@@ -970,17 +1009,17 @@ intf_loop(intf_t *intf, intf_handler callback, void *arg)
 #endif
 	intf->lifc.lifc_buf = (caddr_t)intf->ifcbuf;
 	intf->lifc.lifc_len = sizeof(intf->ifcbuf);
-	
+
 	if (ioctl(intf->fd, SIOCGLIFCONF, &intf->lifc) < 0)
 		return (-1);
 
 	llifr = (struct lifreq *)&intf->lifc.lifc_buf[intf->lifc.lifc_len];
-	
+
 	for (lifr = intf->lifc.lifc_req; lifr < llifr; lifr = NEXTLIFR(lifr)) {
 		/* XXX - Linux, Solaris ifaliases */
 		if ((p = strchr(lifr->lifr_name, ':')) != NULL)
 			*p = '\0';
-		
+
 		for (plifr = intf->lifc.lifc_req; plifr < lifr; plifr = NEXTLIFR(lifr)) {
 			if (strcmp(lifr->lifr_name, plifr->lifr_name) == 0)
 				break;
@@ -996,6 +1035,7 @@ intf_loop(intf_t *intf, intf_handler callback, void *arg)
 		/* Repair the alias name back up */
 		if (p) *p = ':';
 
+#ifdef IFF_IPMP
 		/* Ignore IPMP interfaces. These are virtual interfaces made up
 		 * of physical interfaces. IPMP interfaces do not support things
 		 * like packet sniffing; it is necessary to use one of the
@@ -1009,17 +1049,16 @@ intf_loop(intf_t *intf, intf_handler callback, void *arg)
 			;
 		else
 			return (-1);
-#ifdef IFF_IPMP
 		if (lifrflags.lifr_flags & IFF_IPMP) {
 			continue;
 		}
 #endif
-		
+
 		if (_intf_get_noalias(intf, entry) < 0)
 			return (-1);
 		if (_intf_get_aliases(intf, entry) < 0)
 			return (-1);
-		
+
 		if ((ret = (*callback)(entry, arg)) != 0)
 			return (ret);
 	}
@@ -1043,7 +1082,8 @@ intf_loop(intf_t *intf, intf_handler callback, void *arg)
 		return (-1);
 
 	pifr = NULL;
-	lifr = (struct ifreq *)&intf->ifc.ifc_buf[intf->ifc.ifc_len];
+	lifr = (struct ifreq *)intf->ifc.ifc_buf +
+	    (intf->ifc.ifc_len / sizeof(*lifr));
 	
 	for (ifr = intf->ifc.ifc_req; ifr < lifr; ifr = NEXTIFR(ifr)) {
 		/* XXX - Linux, Solaris ifaliases */
@@ -1052,7 +1092,7 @@ intf_loop(intf_t *intf, intf_handler callback, void *arg)
 		
 		if (pifr != NULL && strcmp(ifr->ifr_name, pifr->ifr_name) == 0) {
 			if (p) *p = ':';
-			continue;
+				continue;
 		}
 
 		memset(ebuf, 0, sizeof(ebuf));
@@ -1060,9 +1100,8 @@ intf_loop(intf_t *intf, intf_handler callback, void *arg)
 		    sizeof(entry->intf_name));
 		entry->intf_len = sizeof(ebuf);
 
-		/* Repair the alias name back up */
+		/* Repair the alias name back up. */
 		if (p) *p = ':';
-		
 		if (_intf_get_noalias(intf, entry) < 0)
 			return (-1);
 		if (_intf_get_aliases(intf, entry) < 0)

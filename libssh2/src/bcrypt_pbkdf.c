@@ -1,6 +1,6 @@
 /* $OpenBSD: bcrypt_pbkdf.c,v 1.4 2013/07/29 00:55:53 tedu Exp $ */
 /*
- * Copyright (c) 2013 Ted Unangst <tedu@openbsd.org>
+ * Copyright (C) Ted Unangst <tedu@openbsd.org>
  *
  * Permission to use, copy, modify, and distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -13,6 +13,8 @@
  * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
  * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+ *
+ * SPDX-License-Identifier: MIT
  */
 
 #include "libssh2_priv.h"
@@ -114,7 +116,7 @@ bcrypt_pbkdf(const char *pass, size_t passlen, const uint8_t *salt,
     if(rounds < 1)
         return -1;
     if(passlen == 0 || saltlen == 0 || keylen == 0 ||
-       keylen > sizeof(out) * sizeof(out) || saltlen > 1<<20)
+       keylen > sizeof(out) * sizeof(out) || saltlen > 1 << 20)
         return -1;
     countsalt = calloc(1, saltlen + 4);
     if(!countsalt)
@@ -125,9 +127,12 @@ bcrypt_pbkdf(const char *pass, size_t passlen, const uint8_t *salt,
     memcpy(countsalt, salt, saltlen);
 
     /* collapse password */
-    (void)libssh2_sha512_init(&ctx);
-    libssh2_sha512_update(ctx, pass, passlen);
-    libssh2_sha512_final(ctx, sha2pass);
+    if(!libssh2_sha512_init(&ctx) ||
+       !libssh2_sha512_update(ctx, pass, passlen) ||
+       !libssh2_sha512_final(ctx, sha2pass)) {
+        free(countsalt);
+        return -1;
+    }
 
     /* generate key, sizeof(out) at a time */
     for(count = 1; keylen > 0; count++) {
@@ -137,18 +142,26 @@ bcrypt_pbkdf(const char *pass, size_t passlen, const uint8_t *salt,
         countsalt[saltlen + 3] = count & 0xff;
 
         /* first round, salt is salt */
-        (void)libssh2_sha512_init(&ctx);
-        libssh2_sha512_update(ctx, countsalt, saltlen + 4);
-        libssh2_sha512_final(ctx, sha2salt);
+        if(!libssh2_sha512_init(&ctx) ||
+           !libssh2_sha512_update(ctx, countsalt, saltlen + 4) ||
+           !libssh2_sha512_final(ctx, sha2salt)) {
+            _libssh2_explicit_zero(out, sizeof(out));
+            free(countsalt);
+            return -1;
+        }
 
         bcrypt_hash(sha2pass, sha2salt, tmpout);
         memcpy(out, tmpout, sizeof(out));
 
         for(i = 1; i < rounds; i++) {
             /* subsequent rounds, salt is previous output */
-            (void)libssh2_sha512_init(&ctx);
-            libssh2_sha512_update(ctx, tmpout, sizeof(tmpout));
-            libssh2_sha512_final(ctx, sha2salt);
+            if(!libssh2_sha512_init(&ctx) ||
+               !libssh2_sha512_update(ctx, tmpout, sizeof(tmpout)) ||
+               !libssh2_sha512_final(ctx, sha2salt)) {
+                _libssh2_explicit_zero(out, sizeof(out));
+                free(countsalt);
+                return -1;
+            }
 
             bcrypt_hash(sha2pass, sha2salt, tmpout);
             for(j = 0; j < sizeof(out); j++)

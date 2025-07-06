@@ -48,8 +48,7 @@ FunctionEnd
 !define _Dir  "!insertmacro DoDir"
 !endif ; INNER
 
-!macro SecCoreFiles un
-Function ${un}SecCoreFiles
+!macro SecCoreFiles
   ${_File} ${STAGE_DIR} CHANGELOG
   ${_File} ${STAGE_DIR} LICENSE
   ${_File} ${STAGE_DIR} nmap-mac-prefixes
@@ -72,37 +71,28 @@ Function ${un}SecCoreFiles
   ${_Dir} ${STAGE_DIR} scripts
   ${_Dir} ${STAGE_DIR} nselib
   ${_File} ${STAGE_DIR} icon1.ico
-FunctionEnd
 !macroend
 
-!macro SecZenmapFiles un
-Function ${un}SecZenmapFiles
+!macro SecZenmapFiles
   ${_File} ${STAGE_DIR} ZENMAP_README
   ${_File} ${STAGE_DIR} COPYING_HIGWIDGETS
   ${_Dir} ${STAGE_DIR} zenmap
   ; always remove Zenmap.lnk
   ; It'll be created by the installer after this.
   Delete "$INSTDIR\Zenmap.lnk"
-FunctionEnd
 !macroend
 
-!macro SecNdiffFiles un
-Function ${un}SecNdiffFiles
+!macro SecNdiffFiles
   ${_File} ${STAGE_DIR} ndiff.py
   ${_File} ${STAGE_DIR} ndiff.bat
   ${_File} ${STAGE_DIR} NDIFF_README
-FunctionEnd
 !macroend
 
-!macro SecNcatFiles un
-Function ${un}SecNcatFiles
+!macro SecNcatFiles
   ${_File} ${STAGE_DIR} ncat.exe
   ${_File} ${STAGE_DIR} ca-bundle.crt
-FunctionEnd
 !macroend
 
-!macro SecNpingFiles un
-Function ${un}SecNpingFiles
+!macro SecNpingFiles
   ${_File} ${STAGE_DIR} nping.exe
-FunctionEnd
 !macroend

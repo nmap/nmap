@@ -47,38 +47,38 @@ extern "C" {
 #endif
 
 #ifdef HAVE_STRLCAT
-  #define pcap_strlcat	strlcat
+  #define pcapint_strlcat	strlcat
 #else
   #if defined(_MSC_VER) || defined(__MINGW32__)
     /*
      * strncat_s() is supported at least back to Visual
      * Studio 2005; we require Visual Studio 2015 or later.
      */
-    #define pcap_strlcat(x, y, z) \
+    #define pcapint_strlcat(x, y, z) \
 	strncat_s((x), (z), (y), _TRUNCATE)
   #else
     /*
      * Define it ourselves.
      */
-    extern size_t pcap_strlcat(char * restrict dst, const char * restrict src, size_t dstsize);
+    extern size_t pcapint_strlcat(char * restrict dst, const char * restrict src, size_t dstsize);
   #endif
 #endif
 
 #ifdef HAVE_STRLCPY
-  #define pcap_strlcpy	strlcpy
+  #define pcapint_strlcpy	strlcpy
 #else
   #if defined(_MSC_VER) || defined(__MINGW32__)
     /*
      * strncpy_s() is supported at least back to Visual
      * Studio 2005; we require Visual Studio 2015 or later.
      */
-    #define pcap_strlcpy(x, y, z) \
+    #define pcapint_strlcpy(x, y, z) \
 	strncpy_s((x), (z), (y), _TRUNCATE)
   #else
     /*
      * Define it ourselves.
      */
-    extern size_t pcap_strlcpy(char * restrict dst, const char * restrict src, size_t dstsize);
+    extern size_t pcapint_strlcpy(char * restrict dst, const char * restrict src, size_t dstsize);
   #endif
 #endif
 
@@ -100,16 +100,17 @@ extern "C" {
  * some, but not all, platforms.
  */
 #ifdef HAVE_ASPRINTF
-#define pcap_asprintf asprintf
+#define pcapint_asprintf asprintf
 #else
-extern int pcap_asprintf(char **, PCAP_FORMAT_STRING(const char *), ...)
+extern int pcapint_asprintf(char **, PCAP_FORMAT_STRING(const char *), ...)
     PCAP_PRINTFLIKE(2, 3);
 #endif
 
 #ifdef HAVE_VASPRINTF
-#define pcap_vasprintf vasprintf
+#define pcapint_vasprintf vasprintf
 #else
-extern int pcap_vasprintf(char **, const char *, va_list ap);
+extern int pcapint_vasprintf(char **, PCAP_FORMAT_STRING(const char *), va_list ap)
+    PCAP_PRINTFLIKE(2, 0);
 #endif
 
 /* For Solaris before 11. */
@@ -137,18 +138,18 @@ extern int pcap_vasprintf(char **, const char *, va_list ap);
 #endif /* timersub */
 
 #ifdef HAVE_STRTOK_R
-  #define pcap_strtok_r	strtok_r
+  #define pcapint_strtok_r	strtok_r
 #else
   #ifdef _WIN32
     /*
      * Microsoft gives it a different name.
      */
-    #define pcap_strtok_r	strtok_s
+    #define pcapint_strtok_r	strtok_s
   #else
     /*
      * Define it ourselves.
      */
-    extern char *pcap_strtok_r(char *, const char *, char **);
+    extern char *pcapint_strtok_r(char *, const char *, char **);
   #endif
 #endif /* HAVE_STRTOK_R */
 

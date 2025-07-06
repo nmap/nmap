@@ -1,4 +1,4 @@
-/* Copyright (c) 2022, Xaver Loppenstedt <xaver@loppenstedt.de>
+/* Copyright (C) Xaver Loppenstedt <xaver@loppenstedt.de>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms,
@@ -33,6 +33,8 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY
  * OF SUCH DAMAGE.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
  */
 
 #include "libssh2_priv.h"

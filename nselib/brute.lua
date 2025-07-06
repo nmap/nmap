@@ -470,13 +470,13 @@ Error = {
     self.done = b
   end,
 
-  -- Marks the username as invalid, aborting further guessing.
+  --- Marks the username as invalid, aborting further guessing.
   -- @param username
   setInvalidAccount = function (self, username)
     self.invalid_account = username
   end,
 
-  -- Checks if the error reported the account as invalid.
+  --- Checks if the error reported the account as invalid.
   -- @return username string containing the invalid account
   isInvalidAccount = function (self)
     return self.invalid_account

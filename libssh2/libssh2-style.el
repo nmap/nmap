@@ -1,4 +1,6 @@
 ;;;; Emacs Lisp help for writing libssh2 code. ;;;;
+;;; Copyright (C) The libssh2 project and its contributors.
+;;; SPDX-License-Identifier: BSD-3-Clause
 
 ;;; The libssh2 hacker's C conventions.
 ;;; See the sample.emacs file on how this file can be made to take

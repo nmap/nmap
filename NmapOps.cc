@@ -68,6 +68,7 @@
 #include "NmapOps.h"
 #include "osscan.h"
 #include "nmap_error.h"
+#include "libnetutil/netutil.h"
 
 NmapOps o;
 

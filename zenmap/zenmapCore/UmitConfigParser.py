@@ -78,8 +78,13 @@ class UmitConfigParser(ConfigParser):
     def read(self, filename):
         log.debug(">>> Trying to parse: %s" % filename)
 
-        if ConfigParser.read(self, filename):
-            self.filenames = filename
+        for enc in ('utf-8', None):
+            try:
+                if ConfigParser.read(self, filename, encoding=enc):
+                    self.filenames = filename
+            except UnicodeDecodeError:
+                continue
+            break
 
         return self.filenames
 

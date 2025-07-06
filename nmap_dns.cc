@@ -112,10 +112,15 @@
 // * Figure out best way to estimate completion time
 //   and display it in a ScanProgressMeter
 
+#include <limits.h>
+#include <list>
+#include <fstream>
+#include <istream>
+
 #ifdef WIN32
 #include "nmap_winconfig.h"
-/* Need DnetName2PcapName */
-#include "libnetutil/netutil.h"
+#include <winsock2.h>
+#include <iphlpapi.h>
 #endif
 
 #include "nmap.h"
@@ -127,10 +132,6 @@
 #include "tcpip.h"
 #include "timing.h"
 #include "Target.h"
-
-#include <stdlib.h>
-#include <limits.h>
-#include <list>
 
 extern NmapOps o;
 
@@ -207,11 +208,16 @@ struct request;
 typedef struct sockaddr_storage sockaddr_storage;
 
 struct dns_server {
+  enum status_t {
+    DISCONNECTED,
+    CONNECTING,
+    CONNECTED
+  };
   std::string hostname;
   sockaddr_storage addr;
   size_t addr_len;
   nsock_iod nsd;
-  int connected;
+  status_t status;
   int reqs_on_wire;
   int capacity;
   int ssthresh;
@@ -219,7 +225,7 @@ struct dns_server {
   std::list<request *> to_process;
   std::list<request *> in_process;
   struct timeval last_increase;
-  dns_server() : hostname(), addr_len(0), connected(0), reqs_on_wire(0),
+  dns_server() : hostname(), addr_len(0), status(DISCONNECTED), reqs_on_wire(0),
     capacity(CAPACITY_MIN), ssthresh((CAPACITY_MAX + CAPACITY_MIN)/2), write_busy(0), to_process(), in_process()
   {
     memset(&addr, 0, sizeof(addr));
@@ -228,6 +234,11 @@ struct dns_server {
 };
 
 struct request {
+  enum status_t {
+    READY,
+    WRITE_PENDING,
+    DONE
+  };
   DNS::Request *targ;
   struct timeval sent;
   int tries;
@@ -235,7 +246,13 @@ struct request {
   dns_server *first_server;
   dns_server *curr_server;
   u16 id;
+  status_t status;
   bool alt_req;
+  request() : targ(NULL), tries(0), servers_tried(0), first_server(NULL),
+    curr_server(NULL), id(0), status(READY), alt_req(false)
+  {
+    memset(&sent, 0, sizeof(sent));
+  }
   ~request() {
     if (alt_req && targ) {
       delete targ;
@@ -390,6 +407,9 @@ static nsock_pool dnspool=NULL;
 
 /* The DNS cache, not just for entries from /etc/hosts. */
 static HostCache host_cache;
+/* Forward lookup table from /etc/hosts */
+typedef std::pair<std::string, DNS::RECORD_TYPE> NameRecord;
+static std::map<NameRecord, sockaddr_storage> etchosts;
 
 static int stat_actual, stat_ok, stat_nx, stat_sf, stat_trans, stat_dropped, stat_cname;
 static struct timeval starttv;
@@ -433,9 +453,9 @@ static void close_dns_servers() {
   std::list<dns_server>::iterator serverI;
 
   for(serverI = servs.begin(); serverI != servs.end(); serverI++) {
-    if (serverI->connected) {
+    if (serverI->status != dns_server::DISCONNECTED) {
       nsock_iod_delete(serverI->nsd, NSOCK_PENDING_SILENT);
-      serverI->connected = 0;
+      serverI->status = dns_server::DISCONNECTED;
       serverI->to_process.clear();
       serverI->in_process.clear();
     }
@@ -447,18 +467,33 @@ static void close_dns_servers() {
 static void do_possible_writes() {
   std::list<dns_server>::iterator servI;
   request *tpreq;
+  bool all_servs_disconnected = true;
 
   for(servI = servs.begin(); servI != servs.end(); servI++) {
+    switch (servI->status) {
+      case dns_server::CONNECTED:
+        all_servs_disconnected = false;
+        break;
+      case dns_server::CONNECTING:
+        all_servs_disconnected = false;
+      case dns_server::DISCONNECTED:
+        continue;
+        break;
+    }
     if (servI->write_busy == 0 && servI->reqs_on_wire < servI->capacity) {
       tpreq = NULL;
       if (!new_reqs.empty()) {
         tpreq = new_reqs.front();
         assert(tpreq != NULL);
+        assert(tpreq->targ != NULL);
         tpreq->first_server = tpreq->curr_server = &*servI;
         new_reqs.pop_front();
       } else if (!servI->to_process.empty()) {
         tpreq = servI->to_process.front();
         servI->to_process.pop_front();
+        assert(tpreq != NULL);
+        assert(tpreq->targ != NULL);
+        assert(tpreq->curr_server == &*servI);
       }
 
       if (tpreq) {
@@ -469,30 +504,39 @@ static void do_possible_writes() {
       }
     }
   }
+  if (all_servs_disconnected) {
+    nsock_loop_quit(dnspool);
+  }
 }
 
 // nsock write handler
 static void write_evt_handler(nsock_pool nsp, nsock_event evt, void *req_v) {
   assert(nse_type(evt) == NSE_TYPE_WRITE);
-  info record;
   request *req = (request *) req_v;
 
-  req->curr_server->write_busy = 0;
-
   if (nse_status(evt) == NSE_STATUS_SUCCESS) {
-    req->curr_server->in_process.push_front(req);
-    record.tpreq = req;
-    record.server = req->curr_server;
-    records[req->id] = record;
     do_possible_writes();
   }
   else {
     if (o.debugging) {
       log_write(LOG_STDOUT, "mass_dns: WRITE error: %s", nse_status2str(nse_status(evt)));
     }
+    // We don't delete from records in case a response to an earlier probe comes in.
+    req->curr_server->in_process.remove(req);
     req->curr_server->to_process.push_front(req);
   }
 
+  // Avoid runaway recursion: when we call do_possible_writes above,
+  // make sure we still are "busy"
+  req->curr_server->write_busy = 0;
+
+  if (req->status == request::DONE) {
+    delete req;
+  }
+  else {
+    assert(req->status == request::WRITE_PENDING);
+    req->status = request::READY;
+  }
 }
 
 static DNS::RECORD_TYPE wire_type(DNS::RECORD_TYPE t) {
@@ -509,9 +553,11 @@ static void put_dns_packet_on_wire(request *req) {
   static const size_t maxlen = 512;
   u8 packet[maxlen];
   size_t plen=0;
+  dns_server *srv = req->curr_server;
+  info record;
 
-  req->curr_server->write_busy = 1;
-  req->curr_server->reqs_on_wire++;
+  srv->write_busy = 1;
+  srv->reqs_on_wire++;
   DNS::Request &reqt = *req->targ;
 
   switch(reqt.type) {
@@ -525,12 +571,20 @@ static void put_dns_packet_on_wire(request *req) {
       plen = DNS::Factory::buildReverseRequest(req->id, reqt.ssv.front(), packet, maxlen);
       break;
     default:
+      // Unhandled type. Should have been dealt with earlier.
+      assert(false);
       break;
   }
 
+  srv->in_process.push_front(req);
+  record.tpreq = req;
+  record.server = srv;
+  records[req->id] = record;
   memcpy(&req->sent, nsock_gettimeofday(), sizeof(struct timeval));
 
-  nsock_write(dnspool, req->curr_server->nsd, write_evt_handler, WRITE_TIMEOUT, req, reinterpret_cast<const char *>(packet), plen);
+  req->status = request::WRITE_PENDING;
+  nsock_write(dnspool, srv->nsd, write_evt_handler, WRITE_TIMEOUT, req,
+      reinterpret_cast<const char *>(packet), plen);
 }
 
 // Processes DNS packets that have timed out
@@ -575,8 +629,10 @@ static int deal_with_timedout_reads(bool adjust_timing) {
       else {
         may_increase = false;
         tpreq->tries++;
+        if (tpreq->tries > MAX_DNS_TRIES)
+          tpreq->tries = MAX_DNS_TRIES;
         servI->in_process.erase(reqI);
-        records.erase(tpreq->id);
+        // We don't erase timed-out probes from records in case a late response comes in.
         servI->reqs_on_wire--;
 
         // If we've tried this server enough times, move to the next one
@@ -610,12 +666,21 @@ static int deal_with_timedout_reads(bool adjust_timing) {
             stat_dropped++;
             total_reqs--;
             records.erase(tpreq->id);
-            delete tpreq;
+            if (tpreq->status != request::WRITE_PENDING) {
+              delete tpreq;
+            }
+            else {
+              tpreq->status = request::DONE;
+            }
             tpreq = NULL;
 
             // **** OR We start at the back of this server's queue
             //servItemp->to_process.push_back(tpreq);
           } else {
+            info record;
+            record.tpreq = tpreq;
+            record.server = &*servItemp;
+            records[tpreq->id] = record;
             servItemp->to_process.push_back(tpreq);
           }
         } else {
@@ -667,13 +732,19 @@ static void process_request(int action, info &reqinfo) {
       }
       records.erase(tpreq->id);
       server->in_process.remove(tpreq);
+      server->to_process.remove(tpreq);
       server->reqs_on_wire--;
       total_reqs--;
       if (action == ACTION_SYSTEM_RESOLVE && is_primary_req(tpreq)) {
         deferred_reqs.push_back(tpreq);
       }
       else {
-        delete tpreq;
+        if (tpreq->status != request::WRITE_PENDING) {
+          delete tpreq;
+        }
+        else {
+          tpreq->status = request::DONE;
+        }
         tpreq = NULL;
       }
 
@@ -748,18 +819,30 @@ static bool process_result(const std::string &name, const DNS::Record *rr, info 
 
 // Nsock read handler. One nsock read for each DNS server exists at each
 // time. This function uses various helper functions as defined above.
-static void read_evt_handler(nsock_pool nsp, nsock_event evt, void *) {
+static void read_evt_handler(nsock_pool nsp, nsock_event evt, void *ctx) {
+  dns_server *srv = (dns_server *)ctx;
   const u8 *buf;
   int buflen;
+  assert(nse_type(evt) == NSE_TYPE_READ);
 
-  if (total_reqs >= 1)
-    nsock_read(nsp, nse_iod(evt), read_evt_handler, -1, NULL);
+  // Only initiate another read if this one succeeded or timed out.
+  if(nse_status(evt) == NSE_STATUS_SUCCESS ||
+      nse_status(evt) == NSE_STATUS_TIMEOUT ) {
+    if (total_reqs >= 1)
+      nsock_read(nsp, nse_iod(evt), read_evt_handler, -1, (void *)srv);
+  }
 
-  if (nse_type(evt) != NSE_TYPE_READ || nse_status(evt) != NSE_STATUS_SUCCESS) {
+  if (nse_status(evt) != NSE_STATUS_SUCCESS) {
     if (o.debugging)
       log_write(LOG_STDOUT, "mass_dns: warning: got a %s:%s in %s()\n",
-        nse_type2str(nse_type(evt)),
-        nse_status2str(nse_status(evt)), __func__);
+          nse_type2str(nse_type(evt)),
+          nse_status2str(nse_status(evt)), __func__);
+    // We're not trying another read here, so disconnect the server.
+    srv->status = dns_server::DISCONNECTED;
+    nsock_iod_delete(srv->nsd, NSOCK_PENDING_SILENT);
+    // Put all in-process and to-process requests back in the queue.
+    new_reqs.splice(new_reqs.end(), srv->in_process);
+    new_reqs.splice(new_reqs.end(), srv->to_process);
     return;
   }
 
@@ -783,15 +866,38 @@ static void read_evt_handler(nsock_pool nsp, nsock_event evt, void *) {
     return;
   }
   info &reqinfo = infoI->second;
+  assert(p.id == reqinfo.tpreq->id);
+  DNS::Request *reqt = reqinfo.tpreq->targ;
+  assert(reqt != NULL);
+  bool processing_successful = false;
 
   if (DNS_HAS_ERR(f, DNS::ERR_NAME) || p.answers.empty())
   {
-    process_request(ACTION_FINISHED, reqinfo);
-    if (o.debugging >= TRACE_DEBUG_LEVEL)
-      log_write(LOG_STDOUT, "mass_dns: NXDOMAIN <id = %d>\n", p.id);
-    output_summary();
-    stat_nx++;
+    // Check if this was a nonstandard name;
+    if (reqt->type != DNS::PTR) {
+      for (std::string::const_iterator it=reqt->name.begin(); it < reqt->name.end(); it++) {
+        if (*it < '0') { // signed char comparison; non-ascii are < 0
+          // system resolver might be able to do better with things like AI_IDN
+          process_request(ACTION_SYSTEM_RESOLVE, reqinfo);
+          processing_successful = true;
+          break;
+        }
+      }
+      if (!processing_successful && reqt->name.find('.') == std::string::npos) {
+        // Names without a dot: system resolver may do better.
+          process_request(ACTION_SYSTEM_RESOLVE, reqinfo);
+          processing_successful = true;
+      }
+    }
 
+    if (!processing_successful) {
+      process_request(ACTION_FINISHED, reqinfo);
+      if (o.debugging >= TRACE_DEBUG_LEVEL)
+        log_write(LOG_STDOUT, "mass_dns: NXDOMAIN <id = %d>\n", p.id);
+      stat_nx++;
+    }
+
+    output_summary();
     return;
   }
 
@@ -805,12 +911,9 @@ static void read_evt_handler(nsock_pool nsp, nsock_event evt, void *) {
     return;
   }
 
-  bool processing_successful = false;
-
   sockaddr_storage ip;
   ip.ss_family = AF_UNSPEC;
   std::string alias;
-  DNS::Request *reqt = reqinfo.tpreq->targ;
 
   for(std::list<DNS::Answer>::const_iterator it = p.answers.begin();
       it != p.answers.end(); ++it )
@@ -875,13 +978,52 @@ static void read_evt_handler(nsock_pool nsp, nsock_event evt, void *) {
 
 
 // nsock connect handler - Empty because it doesn't really need to do anything...
-static void connect_evt_handler(nsock_pool, nsock_event, void *) {}
+static void connect_evt_handler(nsock_pool nsp, nsock_event evt, void *srv_v) {
+  dns_server *srv = (dns_server *)srv_v;
+  assert(nse_type(evt) == NSE_TYPE_CONNECT);
+  if (nse_status(evt) != NSE_STATUS_SUCCESS) {
+    if (o.debugging) {
+      log_write(LOG_STDOUT, "mass_dns: connection to %s failed: %s\n",
+          srv->hostname.c_str(),
+          nse_status2str(nse_status(evt)));
+    }
+    srv->status = dns_server::DISCONNECTED;
+    return;
+  }
+  nsock_read(nsp, srv->nsd, read_evt_handler, -1, (void *)srv);
+  srv->status = dns_server::CONNECTED;
+}
 
+static void add_dns_server(const struct sockaddr_storage *addr, size_t addr_len, const char *hostname) {
+  const sockaddr_storage *ss = o.SourceSockAddr();
+  if (o.spoofsource && ss && ss->ss_family != addr->ss_family) {
+    // Can't connect to this address family using the specified source (-S)
+    return;
+  }
+
+  std::list<dns_server>::iterator servI;
+  for(servI = servs.begin(); servI != servs.end(); servI++) {
+    // Already added!
+    if (memcmp(addr, &servI->addr, addr_len) == 0) break;
+  }
+
+  // If it hasn't already been added, add it!
+  if (servI == servs.end()) {
+    dns_server tpserv;
+
+    tpserv.hostname = hostname;
+    memcpy(&tpserv.addr, addr, addr_len);
+    tpserv.addr_len = addr_len;
+
+    servs.push_front(tpserv);
+
+    if (o.debugging) log_write(LOG_STDOUT, "mass_dns: Using DNS server %s\n", hostname);
+  }
+}
 
 // Adds DNS servers to the dns_server list. They can be separated by
 // commas or spaces - NOTE this doesn't actually do any connecting!
 static void add_dns_server(char *ipaddrs) {
-  std::list<dns_server>::iterator servI;
   const char *hostname;
   struct sockaddr_storage addr;
   size_t addr_len = sizeof(addr);
@@ -892,24 +1034,7 @@ static void add_dns_server(char *ipaddrs) {
       o.spoofsource ? o.af() : PF_UNSPEC) != 0)
       continue;
 
-    for(servI = servs.begin(); servI != servs.end(); servI++) {
-      // Already added!
-      if (memcmp(&addr, &servI->addr, sizeof(addr)) == 0) break;
-    }
-
-    // If it hasn't already been added, add it!
-    if (servI == servs.end()) {
-      dns_server tpserv;
-
-      tpserv.hostname = hostname;
-      memcpy(&tpserv.addr, &addr, sizeof(addr));
-      tpserv.addr_len = addr_len;
-
-      servs.push_front(tpserv);
-
-      if (o.debugging) log_write(LOG_STDOUT, "mass_dns: Using DNS server %s\n", hostname);
-    }
-
+    add_dns_server(&addr, addr_len, hostname);
   }
 
 }
@@ -917,110 +1042,99 @@ static void add_dns_server(char *ipaddrs) {
 // Creates a new nsi for each DNS server
 static void connect_dns_servers() {
   std::list<dns_server>::iterator serverI;
+  struct sockaddr_storage ss, ss2;
+  size_t sslen = 0, ss2len = 0;
+  if (o.SourceSockAddr()) {
+    o.SourceSockAddr(&ss, &sslen);
+    // Source addr can be set by -e, so unless user specifically asked to
+    // spoof, also grab the source for the other address family.
+    if (!o.spoofsource && *o.device) {
+      int af = ss.ss_family == AF_INET ? AF_INET6 : AF_INET;
+      if (-1 != devname2ipaddr(o.device, af, &ss2)) {
+        ss2len = sizeof(ss2);
+      }
+    }
+  }
   for(serverI = servs.begin(); serverI != servs.end(); serverI++) {
     serverI->nsd = nsock_iod_new(dnspool, NULL);
-    if (o.spoofsource) {
-      struct sockaddr_storage ss;
-      size_t sslen;
-      o.SourceSockAddr(&ss, &sslen);
+    if (sslen > 0 && ss.ss_family == serverI->addr.ss_family) {
       nsock_iod_set_localaddr(serverI->nsd, &ss, sslen);
+    }
+    else if (ss2len > 0 && ss2.ss_family == serverI->addr.ss_family) {
+      nsock_iod_set_localaddr(serverI->nsd, &ss2, ss2len);
     }
     if (o.ipoptionslen)
       nsock_iod_set_ipoptions(serverI->nsd, o.ipoptions, o.ipoptionslen);
 
-    nsock_connect_udp(dnspool, serverI->nsd, connect_evt_handler, NULL, (struct sockaddr *) &serverI->addr, serverI->addr_len, 53);
-    nsock_read(dnspool, serverI->nsd, read_evt_handler, -1, NULL);
-    serverI->connected = 1;
+    serverI->status = dns_server::CONNECTING;
+    nsock_connect_udp(dnspool, serverI->nsd, connect_evt_handler, &*serverI, (struct sockaddr *) &serverI->addr, serverI->addr_len, 53);
   }
 
 }
 
 
 #ifdef WIN32
-static bool interface_is_known_by_guid(const char *guid) {
-  const struct interface_info *iflist;
-  int i, n;
-
-  iflist = getinterfaces(&n, NULL, 0);
-  if (iflist == NULL)
-    return false;
-
-  for (i = 0; i < n; i++) {
-    char pcap_name[1024];
-    const char *pcap_guid;
-
-    if (!DnetName2PcapName(iflist[i].devname, pcap_name, sizeof(pcap_name)))
-      continue;
-    pcap_guid = strchr(pcap_name, '{');
-    if (pcap_guid == NULL)
-      continue;
-    if (strcasecmp(guid, pcap_guid) == 0)
-      return true;
+void win32_get_servers() {
+  ULONG ret = ERROR_SUCCESS;
+  std::vector<IP_ADAPTER_ADDRESSES> advec;
+  ULONG len = 0;
+  for (int i=0; i < 3; i++) {
+    if (len == 0) {
+      advec.resize(8);
+    }
+    else {
+      size_t count = len / sizeof(IP_ADAPTER_ADDRESSES);
+      advec.resize(count);
+    }
+    len = advec.size() * sizeof(IP_ADAPTER_ADDRESSES);
+    ret = GetAdaptersAddresses(AF_UNSPEC, (
+          GAA_FLAG_SKIP_UNICAST |
+          GAA_FLAG_SKIP_ANYCAST |
+          GAA_FLAG_SKIP_MULTICAST |
+          GAA_FLAG_SKIP_FRIENDLY_NAME),
+        NULL, &advec[0], &len);
+    if (ret != ERROR_BUFFER_OVERFLOW) {
+      break;
+    }
   }
-
-  return false;
-}
-
-// Reads the Windows registry and adds all the nameservers found via the
-// add_dns_server() function.
-void win32_read_registry() {
-  HKEY hKey;
-  HKEY hKey2;
-  char keybasebuf[2048];
-  char buf[2048], keyname[2048], *p;
-  DWORD sz, i;
-
-  Snprintf(keybasebuf, sizeof(keybasebuf), "SYSTEM\\CurrentControlSet\\Services\\Tcpip\\Parameters");
-  if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, keybasebuf,
-                    0, KEY_READ, &hKey) != ERROR_SUCCESS) {
-    if (firstrun) error("mass_dns: warning: Error opening registry to read DNS servers. Try using --system-dns or specify valid servers with --dns-servers");
+  if (ret != ERROR_SUCCESS) {
+    error("Unable to get DNS servers: %08x", ret);
     return;
   }
 
-  sz = sizeof(buf);
-  if (RegQueryValueEx(hKey, "NameServer", NULL, NULL, (LPBYTE) buf, (LPDWORD) &sz) == ERROR_SUCCESS)
-    add_dns_server(buf);
-
-  sz = sizeof(buf);
-  if (RegQueryValueEx(hKey, "DhcpNameServer", NULL, NULL, (LPBYTE) buf, (LPDWORD) &sz) == ERROR_SUCCESS)
-    add_dns_server(buf);
-
-  RegCloseKey(hKey);
-
-  Snprintf(keybasebuf, sizeof(keybasebuf), "SYSTEM\\CurrentControlSet\\Services\\Tcpip\\Parameters\\Interfaces");
-  if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, keybasebuf,
-                    0, KEY_ENUMERATE_SUB_KEYS, &hKey) == ERROR_SUCCESS) {
-
-    for (i=0; sz = sizeof(buf), RegEnumKeyEx(hKey, i, buf, &sz, NULL, NULL, NULL, NULL) != ERROR_NO_MORE_ITEMS; i++) {
-
-      // If we don't have pcap, interface_is_known_by_guid will crash. Just use any servers we can find.
-      if (o.have_pcap && !interface_is_known_by_guid(buf)) {
-        if (o.debugging > 1)
-          log_write(LOG_PLAIN, "Interface %s is not known; ignoring its nameservers.\n", buf);
-        continue;
-      }
-
-      Snprintf(keyname, sizeof(keyname), "SYSTEM\\CurrentControlSet\\Services\\Tcpip\\Parameters\\Interfaces\\%s", buf);
-
-      if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, keyname,
-                        0, KEY_READ, &hKey2) == ERROR_SUCCESS) {
-
-        sz = sizeof(buf);
-        if (RegQueryValueEx(hKey2, "DhcpNameServer", NULL, NULL, (LPBYTE) buf, (LPDWORD) &sz) == ERROR_SUCCESS)
-          add_dns_server(buf);
-
-        sz = sizeof(buf);
-        if (RegQueryValueEx(hKey2, "NameServer", NULL, NULL, (LPBYTE) buf, (LPDWORD) &sz) == ERROR_SUCCESS)
-          add_dns_server(buf);
-
-        RegCloseKey(hKey2);
-      }
-    }
-
-    RegCloseKey(hKey);
-
+  char pcap_name[1024];
+  const char *pcap_guid = NULL;
+  if (*o.device && DnetName2PcapName(o.device, pcap_name, sizeof(pcap_name))) {
+    // pcap_guid is the AdapterName for the requested adapter.
+    pcap_guid = strchr(pcap_name, '{');
   }
-
+  for (IP_ADAPTER_ADDRESSES *a = &advec[0]; a != NULL; a = a->Next) {
+    if (a->OperStatus != IfOperStatusUp)
+      continue;
+    // If user requested an interface with -e,
+    // don't use DNS servers configured on other interfaces.
+    if (pcap_guid && 0 != strcasecmp(a->AdapterName, pcap_guid))
+      continue;
+    for (IP_ADAPTER_DNS_SERVER_ADDRESS_XP *d = a->FirstDnsServerAddress;
+        d != NULL; d = d->Next) {
+        const sockaddr_storage* ss = (sockaddr_storage*)d->Address.lpSockaddr;
+        size_t sslen = d->Address.iSockaddrLength;
+        if (ss->ss_family == AF_INET) {
+          if (!a->Ipv4Enabled) continue;
+        }
+        else if (ss->ss_family == AF_INET6) {
+          if (!a->Ipv6Enabled) continue;
+          /* Windows default site-local IPv6 DNS servers */
+          if (0 == memcmp(&((sockaddr_in6*)ss)->sin6_addr,
+              "\xfe\xc0\x00\x00\x00\x00\xff\xff", 8))
+              continue;
+        }
+        else {
+          continue;
+        }
+        add_dns_server(ss, sslen, inet_ntop_ez(ss, sslen));
+    }
+  }
 }
 #endif // WIN32
 
@@ -1061,34 +1175,64 @@ static void parse_resolvdotconf() {
 
 
 static void parse_etchosts(const char *fname) {
-  FILE *fp;
-  char buf[2048], hname[256], ipaddrstr[INET6_ADDRSTRLEN+1], *tp;
+  std::ifstream ifs(fname);
+  std::string line;
   sockaddr_storage ia;
+  size_t ialen;
 
-  fp = fopen(fname, "r");
-  if (fp == NULL) return; // silently is OK
-
-  while (fgets(buf, sizeof(buf), fp)) {
-    tp = buf;
-
-    // Clip off comments #, \r, \n
-    while (*tp != '\r' && *tp != '\n' && *tp != '#' && *tp) tp++;
-    *tp = '\0';
-
-    tp = buf;
-    // Skip any leading whitespace
-    while (*tp == ' ' || *tp == '\t') tp++;
-
-    static const char *pattern = "%" STR(INET6_ADDRSTRLEN) "s %255s";
-    if (sscanf(tp, pattern, ipaddrstr, hname) == 2)
-      if (sockaddr_storage_inet_pton(ipaddrstr, &ia))
-      {
-        const std::string hname_ = hname;
-        host_cache.add(ia, hname_);
-      }
+  // First, load localhost names
+  line = "localhost";
+  if (0 == resolve_numeric("::1", 0, &ia, &ialen, AF_INET6)) {
+    host_cache.add(ia, line);
+    etchosts[NameRecord(line, DNS::AAAA)] = ia;
+  }
+  if (0 == resolve_numeric("127.0.0.1", 0, &ia, &ialen, AF_INET)) {
+    host_cache.add(ia, line);
+    etchosts[NameRecord(line, DNS::A)] = ia;
   }
 
-  fclose(fp);
+  if (ifs.fail()) return; // silently is OK
+
+  while (std::getline(ifs, line)) {
+    std::istringstream iss(line);
+
+      std::string addr, hname;
+      if (!(iss >> addr >> hname)) {
+        // We need more than 1 token per line
+        continue;
+      }
+
+      // If hostname is a comment or address begins a comment, no good.
+      if (hname[0] == '#' || addr.find('#') != std::string::npos) {
+        continue;
+      }
+
+      if (0 == resolve_numeric(addr.c_str(), 0, &ia, &ialen, AF_UNSPEC)) {
+        size_t commentpos = std::string::npos;
+        bool first = true;
+        do {
+          // If there's a comment in the hostname, strip it.
+          commentpos = hname.find('#');
+          if (commentpos != std::string::npos) {
+            hname.erase(commentpos);
+          }
+          if (!hname.empty()) {
+            if (first)
+              host_cache.add(ia, hname);
+            if (ia.ss_family == AF_INET) {
+              etchosts[NameRecord(hname, DNS::A)] = ia;
+            }
+            else if (ia.ss_family == AF_INET6) {
+              etchosts[NameRecord(hname, DNS::AAAA)] = ia;
+            }
+          }
+          first = false;
+          // Keep going until we find a comment or run out of tokens
+        } while (commentpos == std::string::npos && (iss >> hname));
+      }
+      else if (o.debugging)
+        log_write(LOG_STDOUT, "Unable to parse /etc/hosts address: %s\n", addr.c_str());
+  }
 }
 
 static void etchosts_init(void) {
@@ -1137,7 +1281,7 @@ static void init_servs(void) {
 #ifndef WIN32
     parse_resolvdotconf();
 #else
-    win32_read_registry();
+    win32_get_servers();
 #endif
   }
 }
@@ -1201,11 +1345,13 @@ static void nmap_mass_dns_core(DNS::Request *requests, int num_requests) {
   // If necessary, set up the dns server list
   init_servs();
 
-  if (servs.size() == 0 && firstrun) error("mass_dns: warning: Unable to "
-                                           "determine any DNS servers. Reverse"
-                                           " DNS is disabled. Try using "
-                                           "--system-dns or specify valid "
-                                           "servers with --dns-servers");
+  if (servs.size() == 0) {
+    if (firstrun)
+      error("mass_dns: warning: Unable to determine any DNS servers. "
+          "Reverse DNS is disabled. Try using --system-dns or "
+          "specify valid servers with --dns-servers");
+    return;
+  }
 
 
   // If necessary, read /etc/hosts and put entries into the hashtable
@@ -1220,11 +1366,43 @@ static void nmap_mass_dns_core(DNS::Request *requests, int num_requests) {
     DNS::Request &reqt = requests[i];
 
     // See if it's cached
-    if (reqt.type == DNS::PTR) {
-      assert(reqt.ssv.size() > 0);
-      if (host_cache.lookup(reqt.ssv.front(), reqt.name)) {
+    std::map<NameRecord, sockaddr_storage>::const_iterator it;
+    switch (reqt.type) {
+      case DNS::PTR:
+        assert(reqt.ssv.size() > 0);
+        if (host_cache.lookup(reqt.ssv.front(), reqt.name)) {
+          continue;
+        }
+        break;
+      case DNS::ANY:
+        it = etchosts.find(NameRecord(reqt.name, DNS::A));
+        if (it != etchosts.end()) {
+          reqt.ssv.push_back(it->second);
+        }
+        it = etchosts.find(NameRecord(reqt.name, DNS::AAAA));
+        if (it != etchosts.end()) {
+          reqt.ssv.push_back(it->second);
+        }
+        if (reqt.ssv.size() > 0) {
+          continue;
+        }
+        break;
+      case DNS::A:
+      case DNS::AAAA:
+        it = etchosts.find(NameRecord(reqt.name, reqt.type));
+        if (it != etchosts.end()) {
+          reqt.ssv.push_back(it->second);
+          continue;
+        }
+        break;
+      case DNS::NONE:
+        // This is okay, just don't make a request.
         continue;
-      }
+        break;
+      default:
+        error("%s: Unknown DNS request type %s\n", __func__, reqt.repr());
+        continue;
+        break;
     }
 
     tpreq = new request;
@@ -1235,7 +1413,6 @@ static void nmap_mass_dns_core(DNS::Request *requests, int num_requests) {
     tpreq->id = DNS::Factory::progressiveId++;
 
     new_reqs.push_back(tpreq);
-    total_reqs++;
 
     if (reqt.type == DNS::ANY) {
       DNS::Request *req_aaaa = new DNS::Request;
@@ -1248,69 +1425,72 @@ static void nmap_mass_dns_core(DNS::Request *requests, int num_requests) {
       tpreq_alt->alt_req = true;
       tpreq_alt->id = DNS::Factory::progressiveId++;
       new_reqs.push_back(tpreq_alt);
-      total_reqs++;
     }
 
     stat_actual++;
   }
 
-  if (total_reqs == 0 || servs.size() == 0) return;
+  total_reqs = new_reqs.size();
+  if (total_reqs > 0) {
 
-  // And finally, do it!
+    // And finally, do it!
 
-  if ((dnspool = nsock_pool_new(NULL)) == NULL)
-    fatal("Unable to create nsock pool in %s()", __func__);
+    if ((dnspool = nsock_pool_new(NULL)) == NULL)
+      fatal("Unable to create nsock pool in %s()", __func__);
 
-  nmap_set_nsock_logger();
-  nmap_adjust_loglevel(o.packetTrace());
-
-  nsock_pool_set_device(dnspool, o.device);
-
-  if (o.proxy_chain)
-    nsock_pool_set_proxychain(dnspool, o.proxy_chain);
-
-  connect_dns_servers();
-
-  deferred_reqs.clear();
-
-  read_timeout_index = MIN(sizeof(read_timeouts)/sizeof(read_timeouts[0]), servs.size()) - 1;
-
-  Snprintf(spmobuf, sizeof(spmobuf), "Parallel DNS resolution of %d host%s.", stat_actual, stat_actual-1 ? "s" : "");
-  SPM = new ScanProgressMeter(spmobuf);
-  stat_actual = total_reqs;
-
-  int since_last = 0;
-  while (total_reqs > 0) {
-    since_last += timeout;
-    if (since_last > MIN_DNS_TIMEOUT) {
-      since_last = 0;
-      timeout = deal_with_timedout_reads(true);
-    }
-    else {
-      timeout = deal_with_timedout_reads(false);
-    }
-
-    do_possible_writes();
-
-    if (total_reqs <= 0) break;
-
-    /* Because this can change with runtime interaction */
+    nmap_set_nsock_logger();
     nmap_adjust_loglevel(o.packetTrace());
 
-    nsock_loop(dnspool, timeout);
+    if (*o.device)
+      nsock_pool_set_device(dnspool, o.device);
+
+    if (o.proxy_chain)
+      nsock_pool_set_proxychain(dnspool, o.proxy_chain);
+
+    connect_dns_servers();
+
+    deferred_reqs.clear();
+
+    read_timeout_index = MIN(sizeof(read_timeouts)/sizeof(read_timeouts[0]), servs.size()) - 1;
+
+    Snprintf(spmobuf, sizeof(spmobuf), "Parallel DNS resolution of %d host%s.", stat_actual, stat_actual-1 ? "s" : "");
+    SPM = new ScanProgressMeter(spmobuf);
+    stat_actual = total_reqs;
+
+    int since_last = 0;
+    nsock_loopstatus status = nsock_loop(dnspool, 0);
+    while (status == NSOCK_LOOP_TIMEOUT && total_reqs > 0) {
+      since_last += timeout;
+      if (since_last > MIN_DNS_TIMEOUT) {
+        since_last = 0;
+        timeout = deal_with_timedout_reads(true);
+      }
+      else {
+        timeout = deal_with_timedout_reads(false);
+      }
+
+      do_possible_writes();
+
+      if (total_reqs <= 0) break;
+
+      /* Because this can change with runtime interaction */
+      nmap_adjust_loglevel(o.packetTrace());
+
+      nsock_loop(dnspool, timeout);
+    }
+
+    SPM->endTask(NULL, NULL);
+    delete SPM;
+
+    close_dns_servers();
+
+    nsock_pool_delete(dnspool);
   }
 
-  SPM->endTask(NULL, NULL);
-  delete SPM;
-
-  close_dns_servers();
-
-  nsock_pool_delete(dnspool);
-
-  if (deferred_reqs.size() && o.debugging)
-    log_write(LOG_STDOUT, "Performing system-dns for %d domain names that were deferred\n", (int) deferred_reqs.size());
-
   if (deferred_reqs.size()) {
+    if (o.debugging)
+      log_write(LOG_STDOUT, "Performing system-dns for %d domain names that were deferred\n", (int) deferred_reqs.size());
+
     Snprintf(spmobuf, sizeof(spmobuf), "System DNS resolution of %u host%s.", (unsigned) deferred_reqs.size(), deferred_reqs.size()-1 ? "s" : "");
     SPM = new ScanProgressMeter(spmobuf);
 
@@ -1340,16 +1520,23 @@ static void nmap_mass_dns_core(DNS::Request *requests, int num_requests) {
 static void nmap_system_dns_core(DNS::Request requests[], int num_requests) {
   char spmobuf[1024];
 
-  stat_actual = num_requests;
+  stat_actual = 0;
+  for (int i=0; i < num_requests; i++) {
+    if (requests[i].type != DNS::NONE) {
+      stat_actual++;
+    }
+  }
+
   Snprintf(spmobuf, sizeof(spmobuf), "System DNS resolution of %d host%s.", stat_actual, stat_actual-1 ? "s" : "");
   SPM = new ScanProgressMeter(spmobuf);
 
   for (int i=0; i < num_requests; i++)
   {
     if (keyWasPressed())
-      SPM->printStats((double) i / stat_actual, NULL);
+      SPM->printStats((double) i / num_requests, NULL);
 
-    if (system_resolve(requests[i])) {
+    DNS::Request &r = requests[i];
+    if (r.type != DNS::NONE && system_resolve(r)) {
       stat_ok++;
     }
   }

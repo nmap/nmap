@@ -8,7 +8,7 @@ o Started this NMAP_MODIFICATIONS file
 o Removed these directories:
 doc
 testdata
-src/sljit/
+deps
 
 o Removed these files:
 src/pcre2test.c
@@ -18,11 +18,11 @@ src/pcre2grep.c
 src/pcre2demo.c
 src/pcre2_fuzzsupport.c
 src/pcre2_printint.c
+src/pcre2_jit_char_inc.h
 src/pcre2_jit_match.c
 src/pcre2_jit_misc.c
 src/pcre2_jit_neon_inc.h
 src/pcre2_jit_simd_inc.h
-src/pcre2_jit_test.c
 RunGrepTest.bat
 RunGrepTest
 RunTest
@@ -34,18 +34,14 @@ libpcre2-8.pc.in
 libpcre2-posix.pc.in
 cmake/FindEditline.cmake
 cmake/FindReadline.cmake
-Detrail
-PrepareRelease
-CheckMan
-132html
-CleanTxt
 ChangeLog
 NEWS
 HACKING
-COPYING [Look at LICENCE]
+COPYING [Look at LICENCE.md]
 README
 INSTALL
 NON-AUTOTOOLS-BUILDS
 
 o Made relevant changes to Makefile.am, configure.ac, CMakeLists.txt, and
-  src/pcre2_jit_compile.c to accommodate our smaller, non-JIT build.
+  src/pcre2_jit_compile.c to accommodate our smaller, non-JIT build
+  and to disable Unicode support by default.

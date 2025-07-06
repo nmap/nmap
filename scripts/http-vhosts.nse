@@ -40,22 +40,16 @@ various names of the form <name>.example.com are tried.
 -- | www.example.com: 200
 -- | docs.example.com: 302 -> https://www.example.com/docs/
 -- |_images.example.com: 200
---
--- @internal: see http://seclists.org/nmap-dev/2010/q4/401 and http://seclists.org/nmap-dev/2010/q4/445
---
---
--- @todo feature: add option report and implement it
--- @internal after stripping sensitive info like ip, domain names, hostnames
+
+-- see http://seclists.org/nmap-dev/2010/q4/401 and http://seclists.org/nmap-dev/2010/q4/445
+-- todo feature: add option report and implement it
+--           after stripping sensitive info like ip, domain names, hostnames
 --           and redirection targets from the result, append it to a file
 --           that can then be uploaded. If enough info is gathered, the names
 --           will be weighted. It can be shared with metasploit
---
--- @todo feature: fill nsedoc
---
--- @todo feature: register results for other scripts (external help needed)
---
--- @todo feature: grow names list (external help needed)
---
+-- todo feature: fill nsedoc
+-- todo feature: register results for other scripts (external help needed)
+-- todo feature: grow names list (external help needed)
 
 author = "Carlos Pantelides"
 

@@ -1,18 +1,23 @@
 #!/bin/sh
 #
-# $Id: dnet-config.in 91 2001-10-19 01:29:00Z dugsong $
+# $Id$
 
 prefix=@prefix@
 exec_prefix=@prefix@
+includedir=@includedir@
+libdir=@libdir@
 
 usage()
 {
 	cat <<EOF
 Usage: dnet-config [OPTIONS]
 Options:
-	[--version]
-	[--libs]
-	[--cflags]
+	[--prefix[=DIR]]        change libxml prefix [default $prefix]
+	[--exec-prefix[=DIR]]   change libxml exec prefix [default $exec_prefix]
+	[--libs]                print library linking information
+	[--cflags]              print pre-processor and compiler flags
+	[--help]                display this help and exit
+	[--version]             output version information
 EOF
 	exit $1
 }
@@ -21,6 +26,9 @@ if test $# -eq 0; then
 	usage 1 1>&2
 fi
 
+cflags=false
+libs=false
+
 while test $# -gt 0; do
   case "$1" in
   -*=*) optarg=`echo "$1" | sed 's/[-_a-zA-Z0-9]*=//'` ;;
@@ -28,8 +36,27 @@ while test $# -gt 0; do
   esac
 
   case $1 in
+    --prefix=*)
+      prefix=$optarg
+      includedir=$prefix/include
+      libdir=$prefix/lib
+      ;;
+    --prefix)
+      echo_prefix=yes
+      ;;
+    --exec-prefix=*)
+      exec_prefix=$optarg
+      libdir=$exec_prefix/lib
+      ;;
+    --exec-prefix)
+      echo_exec_prefix=yes
+      ;;
     --version)
       echo @VERSION@
+      exit 0
+      ;;
+    --help)
+      usage 0
       ;;
     --cflags)
       echo_cflags=yes
@@ -44,11 +71,22 @@ while test $# -gt 0; do
   shift
 done
 
+if test "$echo_prefix" = "yes"; then
+      echo $prefix
+fi
+
+if test "$echo_exec_prefix" = "yes"; then
+      echo $exec_prefix
+fi
+
 if test "$echo_cflags" = "yes"; then
-      echo -I@includedir@
+      if test "$includedir" != /usr/include ; then
+        echo -I$includedir
+      fi
 fi
 
 if test "$echo_libs" = "yes"; then
-      echo -L@libdir@ -ldnet @LIBS@
+      echo -L$libdir -ldnet @LIBS@
 fi      
 
+exit 0

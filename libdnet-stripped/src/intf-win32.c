@@ -1,18 +1,16 @@
 /*
  * intf-win32.c
  *
- * Copyright (c) 2002 Dug Song <dugsong@monkey.org>
+ * Copyright (c) 2023-2024 Oliver Falk <oliver@linux-kernel.at>
  *
- * $Id: intf-win32.c 632 2006-08-10 04:36:52Z dugsong $
  */
 
-#ifdef _WIN32
 #include "dnet_winconfig.h"
-#else
-#include "config.h"
-#endif
 
 #include <iphlpapi.h>
+#ifdef HAVE_PCAP_H
+#include <pcap.h>
+#endif
 
 #include <ctype.h>
 #include <errno.h>
@@ -21,12 +19,6 @@
 #include <string.h>
 
 #include "dnet.h"
-#include "pcap.h"
-#include <Packet32.h>
-#include <Ntddndis.h>
-
-int g_has_npcap_loopback = 0;
-#define _DEVICE_PREFIX "\\Device\\"
 
 struct ifcombo {
 	struct {
@@ -39,7 +31,7 @@ struct ifcombo {
 
 /* XXX - ipifcons.h incomplete, use IANA ifTypes MIB */
 #define MIB_IF_TYPE_TUNNEL	131
-#define MIB_IF_TYPE_MAX		MAX_IF_TYPE
+#define MIB_IF_TYPE_MAX		MAX_IF_TYPE /* According to ipifcons.h */
 
 struct intf_handle {
 	struct ifcombo	 ifcombo[MIB_IF_TYPE_MAX];
@@ -52,20 +44,26 @@ _ifcombo_name(int type)
 	char *name = NULL;
 	
 	switch (type) {
-		case IF_TYPE_ETHERNET_CSMACD:
+		case MIB_IF_TYPE_ETHERNET:
 		case IF_TYPE_IEEE80211:
 			name = "eth";
 			break;
-		case IF_TYPE_ISO88025_TOKENRING:
+		case MIB_IF_TYPE_TOKENRING:
 			name = "tr";
 			break;
-		case IF_TYPE_PPP:
+		case MIB_IF_TYPE_FDDI:
+			name = "fddi";
+			break;
+		case MIB_IF_TYPE_PPP:
 			name = "ppp";
 			break;
-		case IF_TYPE_SOFTWARE_LOOPBACK:
+		case MIB_IF_TYPE_LOOPBACK:
 			name = "lo";
 			break;
-		case IF_TYPE_TUNNEL:
+		case MIB_IF_TYPE_SLIP:
+			name = "sl";
+			break;
+		case MIB_IF_TYPE_TUNNEL:
 			name = "tun";
 			break;
 		default:
@@ -84,14 +82,32 @@ _ifcombo_type(const char *device)
 		type = INTF_TYPE_ETH;
 	} else if (strncmp(device, "tr", 2) == 0) {
 		type = INTF_TYPE_TOKENRING;
+	} else if (strncmp(device, "fddi", 4) == 0) {
+		type = INTF_TYPE_FDDI;
 	} else if (strncmp(device, "ppp", 3) == 0) {
 		type = INTF_TYPE_PPP;
 	} else if (strncmp(device, "lo", 2) == 0) {
 		type = INTF_TYPE_LOOPBACK;
+	} else if (strncmp(device, "sl", 2) == 0) {
+		type = INTF_TYPE_SLIP;
 	} else if (strncmp(device, "tun", 3) == 0) {
 		type = INTF_TYPE_TUN;
 	}
 	return (type);
+}
+
+/* Map an MIB_IFROW.dwType interface type into an internal interface
+   type. The internal types are never exposed to users of this library;
+   they exist only for the sake of ordering interface types within an
+   intf_handle, which has an array of ifcombo structures ordered by
+   type. Entries in an intf_handle must not be stored or accessed by a
+   raw MIB_IFROW.dwType number because they will not be able to be found
+   by a device name such as "unk0" if the device name does not map
+   exactly to the dwType. */
+static int
+_if_type_canonicalize(int type)
+{
+	return _ifcombo_type(_ifcombo_name(type));
 }
 
 static void
@@ -120,19 +136,6 @@ _ifcombo_add(struct ifcombo *ifc, DWORD ipv4_idx, DWORD ipv6_idx)
 	ifc->cnt++;
 }
 
-/* Map an MIB interface type into an internal interface type. The
-   internal types are never exposed to users of this library; they exist
-   only for the sake of ordering interface types within an intf_handle,
-   which has an array of ifcombo structures ordered by type. Entries in
-   an intf_handle must not be stored or accessed by a raw MIB type
-   number because they will not be able to be found by a device name
-   such as "net0" if the device name does not map exactly to the type. */
-static int
-_if_type_canonicalize(int type)
-{
-       return _ifcombo_type(_ifcombo_name(type));
-}
-
 static void
 _adapter_address_to_entry(intf_t *intf, IP_ADAPTER_ADDRESSES *a,
 	struct intf_entry *entry)
@@ -142,16 +145,17 @@ _adapter_address_to_entry(intf_t *intf, IP_ADAPTER_ADDRESSES *a,
 	int type;
 	IP_ADAPTER_UNICAST_ADDRESS *addr;
 	
-	/* The total length of the entry may be passed inside entry.
-           Remember it and clear the entry. */
+	/* The total length of the entry may be passed in inside entry.
+	   Remember it and clear the entry. */
 	u_int intf_len = entry->intf_len;
 	memset(entry, 0, sizeof(*entry));
+	/* Restore the length. */
 	entry->intf_len = intf_len;
 
 	type = _if_type_canonicalize(a->IfType);
 	for (i = 0; i < intf->ifcombo[type].cnt; i++) {
 		if (intf->ifcombo[type].idx[i].ipv4 == a->IfIndex &&
-		    intf->ifcombo[type].idx[i].ipv6 == a->Ipv6IfIndex) {
+				intf->ifcombo[type].idx[i].ipv6 == a->Ipv6IfIndex) {
 			break;
 		}
 	}
@@ -164,7 +168,7 @@ _adapter_address_to_entry(intf_t *intf, IP_ADAPTER_ADDRESSES *a,
 	entry->intf_flags = 0;
 	if (a->OperStatus == IfOperStatusUp)
 		entry->intf_flags |= INTF_FLAG_UP;
-	if (a->IfType == IF_TYPE_SOFTWARE_LOOPBACK)
+	if (a->IfType == MIB_IF_TYPE_LOOPBACK)
 		entry->intf_flags |= INTF_FLAG_LOOPBACK;
 	else
 		entry->intf_flags |= INTF_FLAG_MULTICAST;
@@ -223,40 +227,26 @@ _adapter_address_to_entry(intf_t *intf, IP_ADAPTER_ADDRESSES *a,
 			entry->intf_alias_num++;
 		}
 	}
-	entry->intf_len = (u_int) ((u_char *)ap - (u_char *)entry);
+	entry->intf_len = (u_char *)ap - (u_char *)entry;
 }
 
 #define NPCAP_SERVICE_REGISTRY_KEY "SYSTEM\\CurrentControlSet\\Services\\npcap"
 
-/* The name of the Npcap loopback adapter is stored in the npcap service's
- * Registry key in the LoopbackAdapter value. For legacy loopback support, this
- * is a name like "NPF_{GUID}", but for newer Npcap the name is "NPF_Loopback"
- */
-int intf_get_loopback_name(char *buffer, int buf_size)
+static
+int _intf_has_npcap_loopback(void)
 {
 	HKEY hKey;
-	DWORD type;
-	int size = buf_size;
+	DWORD type, value, size=sizeof(DWORD);
 	int res = 0;
-
-	memset(buffer, 0, buf_size);
 
 	if (RegOpenKeyExA(HKEY_LOCAL_MACHINE, NPCAP_SERVICE_REGISTRY_KEY "\\Parameters", 0, KEY_READ, &hKey) == ERROR_SUCCESS)
 	{
-		if (RegQueryValueExA(hKey, "LoopbackAdapter", 0, &type, (LPBYTE)buffer, &size) == ERROR_SUCCESS && type == REG_SZ)
+		if (RegQueryValueExA(hKey, "LoopbackSupport", 0, &type, (LPBYTE)&value, &size) == ERROR_SUCCESS && type == REG_DWORD)
 		{
-			res = 1;
-		}
-		else
-		{
-			res = 0;
+			res = value ? 1 : 0;
 		}
 
 		RegCloseKey(hKey);
-	}
-	else
-	{
-		res = 0;
 	}
 
 	return res;
@@ -265,72 +255,27 @@ int intf_get_loopback_name(char *buffer, int buf_size)
 static IP_ADAPTER_ADDRESSES*
 _update_tables_for_npcap_loopback(IP_ADAPTER_ADDRESSES *p)
 {
-	IP_ADAPTER_ADDRESSES *a_prev = NULL;
 	IP_ADAPTER_ADDRESSES *a;
-	IP_ADAPTER_ADDRESSES *a_original_loopback_prev = NULL;
-	IP_ADAPTER_ADDRESSES *a_original_loopback = NULL;
-	IP_ADAPTER_ADDRESSES *a_npcap_loopback = NULL;
-	static char npcap_loopback_name[1024] = {0};
+	static int has_npcap_loopback = -1;
 
-	/* Don't bother hitting the registry every time. Not ideal for long-running
-	 * processes, but works for Nmap.  */
-	if (npcap_loopback_name[0] == '\0')
-		g_has_npcap_loopback = intf_get_loopback_name(npcap_loopback_name, 1024);
-	else if (g_has_npcap_loopback == 0)
-		return p;
+	if (has_npcap_loopback < 0)
+		has_npcap_loopback = _intf_has_npcap_loopback();
 
-	if (!p)
+	if (!has_npcap_loopback)
 		return p;
 
 	/* Loop through the addresses looking for the dummy loopback interface from Windows. */
 	for (a = p; a != NULL; a = a->Next) {
 		if (a->IfType == IF_TYPE_SOFTWARE_LOOPBACK) {
-			/* Dummy loopback. Keep track of it. */
-			a_original_loopback = a;
-			a_original_loopback_prev = a_prev;
+			/* Overwrite the AdapterName from the system's own loopback adapter with
+			 * the NPF_Loopback name. This is what we use to open the adapter with
+			 * Packet.dll later. */
+			a->AdapterName = "NPF_Loopback";
+			break;
 		}
-		else if (strcmp(a->AdapterName, npcap_loopback_name + strlen(_DEVICE_PREFIX) - 1) == 0) {
-			/* Legacy loopback adapter. The modern one doesn't show up in GetAdaptersAddresses. */
-			a_npcap_loopback = a;
-		}
-		a_prev = a;
 	}
 
-	/* If there's no loopback on this system, something's wrong. Windows is
-	 * supposed to create this. */
-	if (!a_original_loopback)
-		return p;
-	g_has_npcap_loopback = 1;
-	/* If we didn't find the legacy adapter, use the modern adapter name. */
-	if (!a_npcap_loopback) {
-		/* Overwrite the name we got from the Registry, in case it's a broken legacy
-		 * install, in which case we'll never find the legacy adapter anyway. */
-		strlcpy(npcap_loopback_name, _DEVICE_PREFIX "NPF_Loopback", 1024);
-		/* Overwrite the AdapterName from the system's own loopback adapter with
-		 * the NPF_Loopback name. This is what we use to open the adapter with
-		 * Packet.dll later. */
-		a_original_loopback->AdapterName = npcap_loopback_name + sizeof(_DEVICE_PREFIX) - 1;
-		return p;
-	}
-	else {
-		/* Legacy loopback adapter was found. Copy some key info from the system's
-		 * loopback adapter. */
-		a_npcap_loopback->IfType = a_original_loopback->IfType;
-		a_npcap_loopback->FirstUnicastAddress = a_original_loopback->FirstUnicastAddress;
-		a_npcap_loopback->FirstPrefix = a_original_loopback->FirstPrefix;
-		memset(a_npcap_loopback->PhysicalAddress, 0, ETH_ADDR_LEN);
-		/* Unlink the original loopback adapter from the list. We'll use Npcap's instead. */
-		if (a_original_loopback_prev) {
-			a_original_loopback_prev->Next = a_original_loopback_prev->Next->Next;
-			return p;
-		}
-		else if (a_original_loopback == p) {
-			return a_original_loopback->Next;
-		}
-		else {
-			return p;
-		}
-	}
+	return p;
 }
 
 static int
@@ -368,8 +313,7 @@ _refresh_tables(intf_t *intf)
 		free(p);
 		return (-1);
 	}
-	p = _update_tables_for_npcap_loopback(p);
-	intf->iftable = p;
+	intf->iftable = _update_tables_for_npcap_loopback(p);
 
 	/*
 	 * Map "unfriendly" win32 interface indices to ours.
@@ -388,7 +332,7 @@ _refresh_tables(intf_t *intf)
 
 static IP_ADAPTER_ADDRESSES *
 _find_adapter_address(intf_t *intf, const char *device)
-{
+ {
 	IP_ADAPTER_ADDRESSES *a;
 	char *p = (char *)device;
 	int n, type = _ifcombo_type(device);
@@ -494,9 +438,28 @@ intf_get_src(intf_t *intf, struct intf_entry *entry, struct addr *src)
 int
 intf_get_dst(intf_t *intf, struct intf_entry *entry, struct addr *dst)
 {
-	errno = ENOSYS;
-	SetLastError(ERROR_NOT_SUPPORTED);
-	return (-1);
+	DWORD dwIndex;
+	struct sockaddr sa = {0};
+	IP_ADAPTER_ADDRESSES *a;
+
+	
+	if (0 != addr_ntos(dst, &sa)) {
+		errno = EINVAL;
+		return (-1);
+	}
+	if (GetBestInterfaceEx(&sa, &dwIndex) != NO_ERROR)
+		return (-1);
+
+	if (_refresh_tables(intf) < 0)
+		return (-1);
+	
+	a = _find_adapter_address_by_index(intf, sa.sa_family, dwIndex);
+	if (a == NULL)
+		return (-1);
+
+	_adapter_address_to_entry(intf, a, entry);
+
+	return (0);
 }
 
 int
@@ -507,6 +470,23 @@ intf_set(intf_t *intf, const struct intf_entry *entry)
 	 * but what about the rest of the configuration? :-(
 	 * {Add,Delete}IPAddress for 2000/XP only
 	 */
+#if 0
+	/* Set interface address. XXX - 2000/XP only? */
+	if (entry->intf_addr.addr_type == ADDR_TYPE_IP) {
+		ULONG ctx = 0, inst = 0;
+		UINT ip, mask;
+
+		memcpy(&ip, &entry->intf_addr.addr_ip, IP_ADDR_LEN);
+		addr_btom(entry->intf_addr.addr_bits, &mask, IP_ADDR_LEN);
+		
+		if (AddIPAddress(ip, mask,
+			_find_ifindex(intf, entry->intf_name),
+			&ctx, &inst) != NO_ERROR) {
+			return (-1);
+		}
+		return (0);
+	}
+#endif
 	errno = ENOSYS;
 	SetLastError(ERROR_NOT_SUPPORTED);
 	return (-1);
@@ -551,6 +531,8 @@ intf_close(intf_t *intf)
 	return (NULL);
 }
 
+#ifdef HAVE_PCAP_H
+#define _DEVICE_PREFIX "\\Device\\"
 /* Converts a libdnet interface name to its pcap equivalent. The pcap name is
    stored in pcapdev up to a length of pcapdevlen, including the terminating
    '\0'. Returns -1 on error. */
@@ -614,8 +596,13 @@ intf_get_pcap_devname_cached(const char *intf_name, char *pcapdev, int pcapdevle
 	else
 		return 0;
 }
+#endif /* HAVE_PCAP_H */
 int
 intf_get_pcap_devname(const char *intf_name, char *pcapdev, int pcapdevlen)
 {
+#ifdef HAVE_PCAP_H
   return intf_get_pcap_devname_cached(intf_name, pcapdev, pcapdevlen, 0);
+#else
+  return -1;
+#endif
 }

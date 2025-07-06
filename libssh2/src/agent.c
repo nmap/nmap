@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2009 by Daiki Ueno
- * Copyright (C) 2010-2021 by Daniel Stenberg
+ * Copyright (C) Daiki Ueno
+ * Copyright (C) Daniel Stenberg
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms,
@@ -35,6 +35,8 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY
  * OF SUCH DAMAGE.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
  */
 
 #include "libssh2_priv.h"
@@ -51,13 +53,14 @@
 #undef PF_UNIX
 #endif
 
-#if defined(WIN32) && !defined(LIBSSH2_WINDOWS_UWP)
+#if defined(_WIN32) && !defined(LIBSSH2_WINDOWS_UWP)
 #define HAVE_WIN32_AGENTS
 #endif
 
 #include "userauth.h"
 #include "session.h"
 
+#if 0
 /* Requests from client to agent for protocol 1 key operations */
 #define SSH_AGENTC_REQUEST_RSA_IDENTITIES 1
 #define SSH_AGENTC_RSA_CHALLENGE 3
@@ -65,10 +68,12 @@
 #define SSH_AGENTC_REMOVE_RSA_IDENTITY 8
 #define SSH_AGENTC_REMOVE_ALL_RSA_IDENTITIES 9
 #define SSH_AGENTC_ADD_RSA_ID_CONSTRAINED 24
+#endif
 
 /* Requests from client to agent for protocol 2 key operations */
 #define SSH2_AGENTC_REQUEST_IDENTITIES 11
 #define SSH2_AGENTC_SIGN_REQUEST 13
+#if 0
 #define SSH2_AGENTC_ADD_IDENTITY 17
 #define SSH2_AGENTC_REMOVE_IDENTITY 18
 #define SSH2_AGENTC_REMOVE_ALL_IDENTITIES 19
@@ -89,13 +94,14 @@
 #define SSH_AGENT_RSA_IDENTITIES_ANSWER 2
 #define SSH_AGENT_RSA_RESPONSE 4
 
-/* Replies from agent to client for protocol 2 key operations */
-#define SSH2_AGENT_IDENTITIES_ANSWER 12
-#define SSH2_AGENT_SIGN_RESPONSE 14
-
 /* Key constraint identifiers */
 #define SSH_AGENT_CONSTRAIN_LIFETIME 1
 #define SSH_AGENT_CONSTRAIN_CONFIRM 2
+#endif
+
+/* Replies from agent to client for protocol 2 key operations */
+#define SSH2_AGENT_IDENTITIES_ANSWER 12
+#define SSH2_AGENT_SIGN_RESPONSE 14
 
 /* Signature request methods */
 #define SSH_AGENT_RSA_SHA2_256 2
@@ -557,7 +563,7 @@ agent_sign(LIBSSH2_SESSION *session, unsigned char **sig, size_t *sig_len,
         _libssh2_debug((session,
                        LIBSSH2_TRACE_KEX,
                        "Agent sign method %.*s",
-                       method_len, method_name));
+                       (int)method_len, method_name));
 
         rc = LIBSSH2_ERROR_ALGO_UNSUPPORTED;
         goto error;

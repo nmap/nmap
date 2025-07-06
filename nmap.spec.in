@@ -10,7 +10,7 @@
 
 %define name nmap
 %define version @VERSION@
-%define release 2
+%define release 1
 %define _prefix /usr
 %define makeargs OPENSSL_LIBS="%{openssl}/lib64/libssl.a %{openssl}/lib64/libcrypto.a" LIBSSL="%{openssl}/lib64/libssl.a %{openssl}/lib64/libcrypto.a" ZLIB_LIBS="$(pwd)/libz/libz.a" LIBZ="$(pwd)/lib64/libz.a"
 
@@ -18,7 +18,7 @@ Summary: Network exploration tool and security scanner
 Name: %{name}
 Version: %{version}
 Release: %{release}
-Epoch: 2
+Epoch: 1
 License: https://nmap.org/man/man-legal.html
 Group: Applications/System
 Source0: https://nmap.org/dist/%{name}-%{version}.tgz
@@ -28,12 +28,7 @@ URL: https://nmap.org
 # packages for more than one version of Python. Without this, RPM will
 # grep through the installed files and automatically add things like
 #   Requires: python(abi) = 2.4
-# setup.py takes care of adjusting sys.path to point to wherever the
-# modules were installed so it's not dependent on any particular ABI.
 AutoReqProv: no
-# For Ndiff.
-BuildRequires: python3-devel
-Requires: python3 >= 3.0
 %global debug_package %{nil}
 
 # RPM can't be relocatable until I stop storing path info in the binary.
@@ -60,7 +55,7 @@ both console and graphical versions are available.
 
 %build
 
-%configure --with-openssl=%{openssl} --without-zenmap --with-ndiff --with-libdnet=included --with-libpcap=included --with-libpcre=included --with-liblua=included --with-libz=included
+%configure --with-openssl=%{openssl} --without-zenmap --without-ndiff --with-libdnet=included --with-libpcap=included --with-libpcre=included --with-liblua=included --with-libz=included
 %if "%{buildncat}" == "0"
 %configure --without-ncat
 %endif
@@ -76,8 +71,6 @@ make %{makeargs}
 %install
 [ "$RPM_BUILD_ROOT" != "/" ] && rm -rf $RPM_BUILD_ROOT
 make install DESTDIR=$RPM_BUILD_ROOT %{makeargs}
-# Don't package the Ndiff uninstaller with the RPM.
-rm -f $RPM_BUILD_ROOT%{_bindir}/uninstall_ndiff
 strip $RPM_BUILD_ROOT%{_bindir}/* || :
 gzip $RPM_BUILD_ROOT%{_mandir}/man1/* || :
 
@@ -93,11 +86,6 @@ gzip $RPM_BUILD_ROOT%{_mandir}/man1/* || :
 %doc %{_prefix}/share/man/*/man1/nmap.1.gz
 %{_bindir}/nmap
 %{_datadir}/nmap
-
-%{_bindir}/ndiff
-# Ndiff is now a module and has e.g. /usr/lib/python3.10/site-packages/ndiff.py, /usr/lib/python3.10/site-packages/ndiff.pyc
-%pycached %{python3_sitelib}/ndiff.py
-%doc %{_prefix}/share/man/man1/ndiff.1.gz
 
 # Ncat subpackage
 %if "%{buildncat}" != "0"

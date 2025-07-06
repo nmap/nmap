@@ -68,8 +68,9 @@ end
 
 --- Compares two screens and returns the difference as a percentage
 --
--- @param1 the original screen
--- @param2 the screen to compare to
+-- @param the original screen
+-- @param the screen to compare to
+-- @return percent difference
 local function screen_diff( orig_screen, current_screen )
   if orig_screen == current_screen then return 100 end
   if #orig_screen == 0 or #current_screen == 0 then return 0 end

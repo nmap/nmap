@@ -219,17 +219,18 @@ def run():
                 message_format=_(
                     "Error creating the per-user configuration directory"),
                 secondary_text=_("""\
-There was an error creating the directory %s or one of the files in it. \
-The directory is created by copying the contents of %s. \
+There was an error creating the directory %(dirname)s or one of the files in it. \
+The directory is created by copying the contents of %(configdir)s. \
 The specific error was
 
-%s
+%(error)s
 
-%s needs to create this directory to store information such as the list of \
-scan profiles. Check for access to the directory and try again.""") % (
-                    repr(Path.user_config_dir), repr(Path.config_dir),
-                    repr(str(e)), APP_DISPLAY_NAME
-                    )
+%(zenmap)s needs to create this directory to store information such as the list of \
+scan profiles. Check for access to the directory and try again.""") % {
+                    'dirname': repr(Path.user_config_dir),
+                    'configdir': repr(Path.config_dir),
+                    'error': repr(str(e)), 'zenmap': APP_DISPLAY_NAME
+                    }
                 )
         error_dialog.run()
         error_dialog.destroy()
@@ -245,13 +246,15 @@ scan profiles. Check for access to the directory and try again.""") % (
         error_dialog = HIGAlertDialog(
                 message_format=_("Error parsing the configuration file"),
                 secondary_text=_("""\
-There was an error parsing the configuration file %s. \
+There was an error parsing the configuration file %(filename)s. \
 The specific error was
 
-%s
+%(error)s
 
-%s can continue without this file but any information in it will be ignored \
-until it is repaired.""") % (Path.user_config_file, str(e), APP_DISPLAY_NAME)
+%(zenmap)s can continue without this file but any information in it will be ignored \
+until it is repaired.""") % {
+    'filename': Path.user_config_file,
+    'error': str(e), 'zenmap': APP_DISPLAY_NAME}
                 )
         error_dialog.run()
         error_dialog.destroy()
@@ -260,11 +263,12 @@ until it is repaired.""") % (Path.user_config_file, str(e), APP_DISPLAY_NAME)
                 type=Gtk.MessageType.QUESTION,
                 message_format=_("Restore default configuration?"),
                 secondary_text=_("""\
-To avoid further errors parsing the configuration file %s, \
-you can copy the default configuration from %s.
+To avoid further errors parsing the configuration file %(filename)s, \
+you can copy the default configuration from %(dirname)s.
 
 Do this now? \
-""") % (Path.user_config_file, global_config_path),
+""") % {
+    'filename': Path.user_config_file, 'dirname': global_config_path},
                 )
         repair_dialog.add_button(Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL)
         repair_dialog.set_default_response(Gtk.ResponseType.CANCEL)
@@ -318,10 +322,10 @@ Do this now? \
 
 class NonRootWarning (HIGAlertDialog):
     def __init__(self):
-        warning_text = _('''You are trying to run %s with a non-root user!
+        warning_text = _('''You are trying to run %(zenmap)s with a non-root user!
 
-Some %s options need root privileges to work.''') % (
-            APP_DISPLAY_NAME, NMAP_DISPLAY_NAME)
+Some %(nmap)s options need root privileges to work.''') % {
+        'zenmap': APP_DISPLAY_NAME, 'nmap': NMAP_DISPLAY_NAME}
 
         HIGAlertDialog.__init__(self, message_format=_('Non-root user'),
                                 secondary_text=warning_text)

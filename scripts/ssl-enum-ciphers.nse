@@ -613,6 +613,7 @@ end
 local function find_ciphers_group(host, port, protocol, group, scores)
   local results = {}
   local t = get_hello_table(host, protocol)
+  local tls13 = protocol == "TLSv1.3"
 
   -- This is a hacky sort of tristate variable. There are three conditions:
   -- 1. false = either ciphers or protocol is bad. Keep trying with new ciphers
@@ -657,7 +658,7 @@ local function find_ciphers_group(host, port, protocol, group, scores)
         ctx_log(2, protocol, "Unexpected record received.")
         break
       end
-      if server_hello.protocol ~= protocol then
+      if server_hello.protocol ~= protocol and not server_hello.helloretry then
         ctx_log(1, protocol, "Protocol rejected. cipher: %s", server_hello.cipher)
         -- Some implementations will do this if a cipher is supported in some
         -- other protocol version but not this one. Gotta keep trying.
@@ -697,11 +698,11 @@ local function find_ciphers_group(host, port, protocol, group, scores)
             elseif info.cipher == "RC4" then
               scores.warnings["Broken cipher RC4 is deprecated by RFC 7465"] = true
             end
-            if protocol == "TLSv1.3" and not info.tls13ok then
+            if tls13 and not info.tls13ok then
               scores.warnings["Non-TLSv1.3 ciphersuite chosen for TLSv1.3"] = true
             end
             local kex = tls.KEX_ALGORITHMS[info.kex]
-            scores.any_pfs_ciphers = kex.pfs or scores.any_pfs_ciphers
+            scores.any_pfs_ciphers = tls13 or kex.pfs or scores.any_pfs_ciphers
             local extra, kex_strength
             if kex.export then
               scores.warnings["Export key exchange"] = true
@@ -755,7 +756,7 @@ local function find_ciphers_group(host, port, protocol, group, scores)
               end
             end
             local ske
-            if protocol == "TLSv1.3" then
+            if tls13 then
               ske = server_hello.extensions.key_share
             elseif kex.server_key_exchange then
               ske = get_body(handshake, "type", "server_key_exchange")

@@ -3,10 +3,14 @@
  * 
  * Copyright (c) 2000 Dug Song <dugsong@monkey.org>
  *
- * $Id: fw-none.c 208 2002-01-20 21:23:28Z dugsong $
+ * $Id$
  */
 
+#ifdef _WIN32
+#include "dnet_winconfig.h"
+#else
 #include "config.h"
+#endif
 
 #include <errno.h>
 #include <stdio.h>

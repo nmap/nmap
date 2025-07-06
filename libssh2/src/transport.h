@@ -1,8 +1,8 @@
-#ifndef __LIBSSH2_TRANSPORT_H
-#define __LIBSSH2_TRANSPORT_H
-/* Copyright (C) 2007 The Written Word, Inc.  All rights reserved.
- * Copyright (C) 2009-2010 by Daniel Stenberg
- * Author: Daniel Stenberg <daniel@haxx.se>
+#ifndef LIBSSH2_TRANSPORT_H
+#define LIBSSH2_TRANSPORT_H
+/* Copyright (C) The Written Word, Inc.
+ * Copyright (C) Daniel Stenberg
+ * All rights reserved.
  *
  * Redistribution and use in source and binary forms,
  * with or without modification, are permitted provided
@@ -38,6 +38,8 @@
  * OF SUCH DAMAGE.
  *
  * This file handles reading and writing to the SECSH transport layer. RFC4253.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
  */
 
 #include "libssh2_priv.h"
@@ -82,4 +84,4 @@ int _libssh2_transport_send(LIBSSH2_SESSION *session,
  */
 int _libssh2_transport_read(LIBSSH2_SESSION * session);
 
-#endif /* __LIBSSH2_TRANSPORT_H */
+#endif /* LIBSSH2_TRANSPORT_H */

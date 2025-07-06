@@ -84,6 +84,14 @@ except ImportError:
 def is_maemo():
     return MAEMO
 
+def boolean_sanity(attr):
+    if attr is True or \
+       attr == "True" or \
+       attr == "true" or \
+       attr == "1":
+        return "True"
+    return "False"
+
 
 class SearchConfig(UmitConfigParser, object):
     section_name = "search"
@@ -108,14 +116,6 @@ class SearchConfig(UmitConfigParser, object):
 
     def _set_it(self, p_name, value):
         config_parser.set(self.section_name, p_name, value)
-
-    def boolean_sanity(self, attr):
-        if attr is True or \
-           attr == "True" or \
-           attr == "true" or \
-           attr == "1":
-            return "True"
-        return "False"
 
     def get_directory(self):
         return self._get_it("directory", "")
@@ -142,16 +142,16 @@ class SearchConfig(UmitConfigParser, object):
             self._set_it("save_time", save_time)
 
     def get_store_results(self):
-        return self.boolean_sanity(self._get_it("store_results", True))
+        return boolean_sanity(self._get_it("store_results", True))
 
     def set_store_results(self, store_results):
-        self._set_it("store_results", self.boolean_sanity(store_results))
+        self._set_it("store_results", boolean_sanity(store_results))
 
     def get_search_db(self):
-        return self.boolean_sanity(self._get_it("search_db", True))
+        return boolean_sanity(self._get_it("search_db", True))
 
     def set_search_db(self, search_db):
-        self._set_it("search_db", self.boolean_sanity(search_db))
+        self._set_it("search_db", boolean_sanity(search_db))
 
     def get_converted_save_time(self):
         try:
@@ -195,7 +195,7 @@ class Profile(UmitConfigParser, object):
             self.read(user_profile)
         except ConfigParser_Error as e:
             # No scan profiles found is not a reason to crash.
-            self.add_profile(_("Profiles not found"),
+            self.add_profile(_("No profiles found"),
                     command="nmap",
                     description=_("The {} file is missing or corrupted"
                         ).format(user_profile))
@@ -251,6 +251,7 @@ class WindowConfig(UmitConfigParser, object):
     default_y = 0
     default_width = -1
     default_height = 650
+    default_dark_mode = False
 
     def __init__(self):
         if not config_parser.has_section(self.section_name):
@@ -265,6 +266,7 @@ class WindowConfig(UmitConfigParser, object):
         self.y = self.default_y
         self.width = self.default_width
         self.height = self.default_height
+        self.dark_mode = self.default_dark_mode
 
     def _get_it(self, p_name, default):
         return config_parser.get(self.section_name, p_name, fallback=default)
@@ -340,10 +342,17 @@ class WindowConfig(UmitConfigParser, object):
     def set_height(self, height):
         self._set_it("height", "%d" % height)
 
+    def get_dark_mode(self):
+        return boolean_sanity(self._get_it("dark_mode", self.default_dark_mode))
+
+    def set_dark_mode(self, mode):
+        self._set_it("dark_mode", boolean_sanity(mode))
+
     x = property(get_x, set_x)
     y = property(get_y, set_y)
     width = property(get_width, set_width)
     height = property(get_height, set_height)
+    dark_mode = property(get_dark_mode, set_dark_mode)
 
 
 class CommandProfile (Profile, object):
@@ -387,14 +396,20 @@ class CommandProfile (Profile, object):
 class NmapOutputHighlight(object):
     setts = ["bold", "italic", "underline", "text", "highlight", "regex"]
 
+    def __init__(self):
+        self.dark_mode = False
+
     def save_changes(self):
         config_parser.save_changes()
+
+    def set_dark_mode(self, mode=True):
+        self.dark_mode = mode
 
     def __get_it(self, p_name):
         property_name = "%s_highlight" % p_name
 
         try:
-            return self.sanity_settings([
+            settings = self.sanity_settings([
                 config_parser.get(
                     property_name, prop, raw=True) for prop in self.setts])
         except Exception:
@@ -409,7 +424,12 @@ class NmapOutputHighlight(object):
 
             self.__set_it(p_name, settings)
 
-            return settings
+        if self.dark_mode:
+            for i in (0, 1, 2):
+                settings[3][i] = (65535 - settings[3][i]) % 65536
+                settings[4][i] = (65535 - settings[4][i]) % 65536
+
+        return settings
 
     def __set_it(self, property_name, settings):
         property_name = "%s_highlight" % property_name

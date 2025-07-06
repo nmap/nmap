@@ -157,7 +157,7 @@ class FPNetworkControl {
  public:
   FPNetworkControl();
   ~FPNetworkControl();
-  void init(const char *ifname, devtype iftype);
+  void init(const char *ifname);
   int register_caller(FPHost *newcaller);
   int unregister_caller(FPHost *oldcaller);
   int setup_sniffer(const char *iface, const char *bfp_filter);
@@ -167,7 +167,8 @@ class FPNetworkControl {
   void response_reception_handler(nsock_pool nsp, nsock_event nse, void *arg);
   bool request_slots(size_t num_packets);
   int cc_report_final_timeout();
-
+  // Do we need to send l2 (ethernet) frames?
+  bool l2_frames() { return (rawsd < 0); }
 };
 
 /*        +-----------+
@@ -249,7 +250,7 @@ class FPPacket {
   int setTime(const struct timeval *tv = NULL);
   struct timeval getTime() const;
   int setPacket(PacketElement *pkt);
-  int setEthernet(const u8 *src_mac, const u8 *dst_mac, const char *devname);
+  int setEthernet(const Target *target);
   const struct eth_nfo *getEthernet() const;
   const PacketElement *getPacket() const;
   size_t getLength() const;

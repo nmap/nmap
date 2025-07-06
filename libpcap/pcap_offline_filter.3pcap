@@ -28,8 +28,7 @@ pcap_offline_filter \- check whether a filter matches a packet
 .LP
 .ft B
 int pcap_offline_filter(const struct bpf_program *fp,
-.ti +8
-const struct pcap_pkthdr *h, const u_char *pkt)
+    const struct pcap_pkthdr *h, const u_char *pkt);
 .ft
 .fi
 .SH DESCRIPTION

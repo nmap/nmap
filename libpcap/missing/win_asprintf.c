@@ -5,7 +5,7 @@
 #include "portability.h"
 
 int
-pcap_vasprintf(char **strp, const char *format, va_list args)
+pcapint_vasprintf(char **strp, const char *format, va_list args)
 {
 	int len;
 	size_t str_size;
@@ -39,13 +39,13 @@ pcap_vasprintf(char **strp, const char *format, va_list args)
 }
 
 int
-pcap_asprintf(char **strp, const char *format, ...)
+pcapint_asprintf(char **strp, const char *format, ...)
 {
 	va_list args;
 	int ret;
 
 	va_start(args, format);
-	ret = pcap_vasprintf(strp, format, args);
+	ret = pcapint_vasprintf(strp, format, args);
 	va_end(args);
 	return (ret);
 }

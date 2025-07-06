@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2009 by Daiki Ueno
- * Copyright (C) 2010-2014 by Daniel Stenberg
+ * Copyright (C) Daiki Ueno
+ * Copyright (C) Daniel Stenberg
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms,
@@ -35,6 +35,8 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY
  * OF SUCH DAMAGE.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause AND BSD-2-Clause
  */
 
 #ifdef HAVE_WIN32_AGENTS /* Compile this via agent.c */
@@ -59,7 +61,7 @@
  *     - fileio_close replacing close
  *
  * Author: Tatu Ylonen <ylo@cs.hut.fi>
- * Copyright (c) 1995 Tatu Ylonen <ylo@cs.hut.fi>, Espoo, Finland
+ * Copyright (C) 1995 Tatu Ylonen <ylo@cs.hut.fi>, Espoo, Finland
  *                    All rights reserved
  * Functions for connecting the local authentication agent.
  *
@@ -70,7 +72,7 @@
  * called by a name other than "ssh" or "Secure Shell".
  *
  * SSH2 implementation,
- * Copyright (c) 2000 Markus Friedl.  All rights reserved.
+ * Copyright (C) 2000 Markus Friedl.  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -92,7 +94,7 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
- * Copyright (c) 2015 Microsoft Corp.
+ * Copyright (C) 2015 Microsoft Corp.
  * All rights reserved
  *
  * Microsoft openssh win32 port

@@ -3,27 +3,22 @@
  *
  * Copyright (c) 2000 Dug Song <dugsong@monkey.org>
  *
- * $Id: eth-win32.c 613 2005-09-26 02:46:57Z dugsong $
+ * $Id$
  */
 
-#ifdef _WIN32
 #include "dnet_winconfig.h"
-#else
-#include "config.h"
-#endif
 
 /* XXX - VC++ 6.0 bogosity */
 #define sockaddr_storage sockaddr
+#include <Packet32.h>
 #undef sockaddr_storage
+#include <Ntddndis.h>
 
 #include <errno.h>
 #include <stdlib.h>
 
 #include "dnet.h"
 #include <winsock2.h>
-#include "pcap.h"
-#include <Packet32.h>
-#include <Ntddndis.h>
 
 /* From Npcap's Loopback.h */
 /*
@@ -44,8 +39,8 @@ typedef struct _DLT_NULL_HEADER
  * */
 #define DLTNULLTYPE_IP    0x00000002  /* IP protocol */
 #define DLTNULLTYPE_IPV6  0x00000018 /* IPv6 */
-/* END Loopback.h */
 
+/* END Loopback.h */
 struct eth_handle {
 	LPADAPTER	 lpa;
 	LPPACKET	 pkt;
@@ -56,13 +51,14 @@ eth_t *
 eth_open(const char *device)
 {
 	eth_t *eth;
-	char pcapdev[128];
+	char pcapdev[ADAPTER_NAME_LENGTH];
 
-	if (eth_get_pcap_devname(device, pcapdev, sizeof(pcapdev)) != 0)
+	if (intf_get_pcap_devname(device, pcapdev, sizeof(pcapdev)) != 0)
 		return (NULL);
 
 	if ((eth = calloc(1, sizeof(*eth))) == NULL)
 		return (NULL);
+	
 	eth->lpa = PacketOpenAdapter(pcapdev);
 	if (eth->lpa == NULL) {
 		eth_close(eth);
@@ -75,37 +71,36 @@ eth_open(const char *device)
 		return NULL;
 	}
 	if (!PacketGetNetType(eth->lpa, &eth->type)) {
-	  eth_close(eth);
-	  return NULL;
-  }
-
+		eth_close(eth);
+		return NULL;
+	}
+	
 	return (eth);
 }
 
 ssize_t
 eth_send(eth_t *eth, const void *buf, size_t len)
 {
-  /* 14-byte Ethernet header, but DLT_NULL is a 4-byte header. Skip over the difference */
-  DLT_NULL_HEADER *hdr = (DLT_NULL_HEADER *)((uint8_t *)buf + ETH_HDR_LEN - DLT_NULL_HDR_LEN);
-  if (eth->type.LinkType == NdisMediumNull) {
-    switch (ntohs(((struct eth_hdr *)buf)->eth_type)) {
-      case ETH_TYPE_IP:
-        hdr->null_type = DLTNULLTYPE_IP;
-        break;
-      case ETH_TYPE_IPV6:
-        hdr->null_type = DLTNULLTYPE_IPV6;
-        break;
-      default:
-        hdr->null_type = 0;
-        break;
-    }
-    PacketInitPacket(eth->pkt, (void *)((uint8_t *)buf + ETH_HDR_LEN - DLT_NULL_HDR_LEN), (UINT) (len - ETH_HDR_LEN + DLT_NULL_HDR_LEN));
-    PacketSendPacket(eth->lpa, eth->pkt, TRUE);
-  }
-  else {
-    PacketInitPacket(eth->pkt, (void *)buf, (UINT) len);
-    PacketSendPacket(eth->lpa, eth->pkt, TRUE);
-  }
+	/* 14-byte Ethernet header, but DLT_NULL is a 4-byte header. Skip over the difference */
+	DLT_NULL_HEADER *hdr = (DLT_NULL_HEADER *)((uint8_t *)buf + ETH_HDR_LEN - DLT_NULL_HDR_LEN);
+	if (eth->type.LinkType == NdisMediumNull) {
+		switch (ntohs(((struct eth_hdr *)buf)->eth_type)) {
+			case ETH_TYPE_IP:
+				hdr->null_type = DLTNULLTYPE_IP;
+				break;
+			case ETH_TYPE_IPV6:
+				hdr->null_type = DLTNULLTYPE_IPV6;
+				break;
+			default:
+				hdr->null_type = 0;
+				break;
+		}
+		PacketInitPacket(eth->pkt, (void *)((uint8_t *)buf + ETH_HDR_LEN - DLT_NULL_HDR_LEN), (UINT) (len - ETH_HDR_LEN + DLT_NULL_HDR_LEN));
+	}
+	else {
+		PacketInitPacket(eth->pkt, (void *)buf, (UINT) len);
+	}
+	PacketSendPacket(eth->lpa, eth->pkt, TRUE);
 	return (ssize_t)(len);
 }
 
@@ -154,10 +149,4 @@ eth_set(eth_t *eth, const eth_addr_t *ea)
 		return (0);
 	
 	return (-1);
-}
-
-int
-eth_get_pcap_devname(const char *intf_name, char *pcapdev, int pcapdevlen)
-{
-	return intf_get_pcap_devname(intf_name, pcapdev, pcapdevlen);
 }

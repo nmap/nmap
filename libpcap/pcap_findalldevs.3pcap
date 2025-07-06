@@ -17,7 +17,7 @@
 .\" WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF
 .\" MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 .\"
-.TH PCAP_FINDALLDEVS 3PCAP "23 August 2018"
+.TH PCAP_FINDALLDEVS 3PCAP "9 August 2024"
 .SH NAME
 pcap_findalldevs, pcap_freealldevs \- get a list of capture devices, and
 free that list
@@ -51,6 +51,14 @@ process calling
 because, for example, that process does not have sufficient privileges
 to open them for capturing; if so, those devices will not appear on the
 list.)
+.I alldevsp
+is a pointer to a
+.BR "pcap_if_t *" ;
+.I errbuf
+is a buffer large enough to hold at least
+.B PCAP_ERRBUF_SIZE
+chars.
+.PP
 If
 .BR pcap_findalldevs ()
 succeeds, the pointer pointed to by
@@ -158,7 +166,9 @@ a pointer to a
 that contains the broadcast address corresponding to the address pointed
 to by
 .BR addr ;
-may be null if the device doesn't support broadcasts
+may be
+.B NULL
+if the device doesn't support broadcasts
 .TP
 .B dstaddr
 if not
@@ -168,7 +178,9 @@ a pointer to a
 that contains the destination address corresponding to the address pointed
 to by
 .BR addr ;
-may be null if the device isn't a point-to-point interface
+may be
+.B NULL
+if the device isn't a point-to-point interface
 .RE
 .PP
 Note that the addresses in the list of addresses might be IPv4
@@ -186,12 +198,27 @@ IPv6 addresses have the value
 (which older operating systems that don't support IPv6 might not
 define), and other addresses have other values.  Whether other addresses
 are returned, and what types they might have is platform-dependent.
+Namely, link-layer addresses, such as Ethernet MAC addresses, have the value
+.B AF_PACKET
+(on Linux) or
+.B AF_LINK
+(on AIX, FreeBSD, Haiku, illumos, macOS, NetBSD and OpenBSD) or are not
+returned at all (on GNU/Hurd and Solaris).
+.PP
 For IPv4 addresses, the
 .B "struct sockaddr"
 pointer can be interpreted as if it pointed to a
 .BR "struct sockaddr_in" ;
 for IPv6 addresses, it can be interpreted as if it pointed to a
 .BR "struct sockaddr_in6".
+For link-layer addresses, it can be interpreted as if it pointed to a
+.B "struct sockaddr_ll"
+(for
+.BR AF_PACKET )
+or a
+.B "struct sockaddr_dl"
+(for
+.BR AF_LINK ).
 .PP
 The list of devices must be freed with
 .BR pcap_freealldevs (3PCAP),
@@ -211,11 +238,11 @@ returned in that case. If
 .B PCAP_ERROR
 is returned,
 .I errbuf
-is filled in with an appropriate error message.
-.I errbuf
-is assumed to be able to hold at least
-.B PCAP_ERRBUF_SIZE
-chars.
+is filled in with an appropriate error message,
+and the pointer pointed to by
+.I alldevsp
+is set to
+.BR NULL .
 .SH BACKWARD COMPATIBILITY
 .PP
 The

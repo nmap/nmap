@@ -123,7 +123,7 @@
 /* Edit this definition only within the quotes, because it is read from this
    file by the makefiles. */
 #define NMAP_MAJOR 7
-#define NMAP_MINOR 95
+#define NMAP_MINOR 97
 #define NMAP_BUILD 1
 /* SVN, BETA, etc. */
 #define NMAP_SPECIAL "SVN"

@@ -1,5 +1,5 @@
-/* Copyright (c) 2004-2007, Sara Golemon <sarag@libssh2.org>
- * Copyright (c) 2010-2014 by Daniel Stenberg
+/* Copyright (C) Sara Golemon <sarag@libssh2.org>
+ * Copyright (C) Daniel Stenberg
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms,
@@ -34,6 +34,8 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY
  * OF SUCH DAMAGE.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
  */
 
 #include "libssh2_priv.h"
@@ -514,13 +516,13 @@ static LIBSSH2_PUBLICKEY *publickey_init(LIBSSH2_SESSION *session)
                     LIBSSH2_PUBLICKEY_VERSION) {
                     _libssh2_debug((session, LIBSSH2_TRACE_PUBLICKEY,
                                    "Truncate remote publickey version "
-                                   "from %lu",
+                                   "from %u",
                                    session->pkeyInit_pkey->version));
                     session->pkeyInit_pkey->version =
                         LIBSSH2_PUBLICKEY_VERSION;
                 }
                 _libssh2_debug((session, LIBSSH2_TRACE_PUBLICKEY,
-                               "Enabling publickey subsystem version %lu",
+                               "Enabling publickey subsystem version %u",
                                session->pkeyInit_pkey->version));
                 LIBSSH2_FREE(session, session->pkeyInit_data);
                 session->pkeyInit_data = NULL;

@@ -137,6 +137,8 @@ typedef unsigned __int8 u_int8_t;
 #include <sys/resource.h>
 #endif
 
+#include <stddef.h>
+
 #define NBASE_MAX_ERR_STR_LEN 1024  /* Max length of an error message */
 
 #ifndef PCAP_NETMASK_UNKNOWN
@@ -957,10 +959,91 @@ int pcap_select(pcap_t *p, long usecs) {
   return ret;
 }
 
+struct netutil_eth_t {
+  union {
+    pcap_t *pt;
+    eth_t *ethsd;
+  };
+  int datalink;
+};
+
+int netutil_eth_datalink(const netutil_eth_t *e) {
+  if (e) return e->datalink;
+  return -1;
+}
+
+#ifdef WIN32
+#define eth_handle(_eth) (_eth->pt)
+#define eth_handle_send pcap_inject
+#define eth_handle_close eth_close
+#else
+#define eth_handle(_eth) (_eth->ethsd)
+#define eth_handle_send eth_send
+#define eth_handle_close eth_close
+#endif
+
+netutil_eth_t *netutil_eth_open(const char *device) {
+  assert(device != NULL);
+  assert(device[0] != '\0');
+
+  netutil_eth_t *e = (netutil_eth_t *)safe_zalloc(sizeof(netutil_eth_t));
+  e->datalink = -1;
+
+#ifdef WIN32
+  char err0r[PCAP_ERRBUF_SIZE] = {0};
+  char pcapdev[128] = {0};
+  int failed = 0;
+  pcap_t *pt = NULL;
+  do {
+    if (!DnetName2PcapName(device, pcapdev, sizeof(pcapdev))) {
+      break;
+    }
+    pt = pcap_create(pcapdev, err0r);
+    if (!pt) {
+      netutil_error("pcap_create(%s) FAILED: %s.", pcapdev, err0r);
+      break;
+    }
+    failed = pcap_activate(pt);
+    if (failed < 0) {
+      // PCAP error
+      netutil_error("pcap_activate(%s) FAILED: %s.", pcapdev, pcap_geterr(pt));
+      pcap_close(pt);
+      return NULL;
+    }
+    else if (failed > 0) {
+      // PCAP warning, report but assume it'll still work
+      netutil_error("pcap_activate(%s) WARNING: %s.", pcapdev, pcap_geterr(pt));
+    }
+    eth_handle(e) = pt;
+    e->datalink = pcap_datalink(pt);
+  } while (0);
+#else
+  eth_handle(e) = eth_open(device);
+  e->datalink = DLT_EN10MB;
+#endif
+
+  if (eth_handle(e) == NULL) {
+    free(e);
+    return NULL;
+  }
+  return e;
+}
+
+void netutil_eth_close(netutil_eth_t *e) {
+  assert(e != NULL);
+  eth_handle_close(eth_handle(e));
+  free(e);
+}
+
+ssize_t	netutil_eth_send(netutil_eth_t *e, const void *buf, size_t len) {
+  assert(e != NULL);
+  assert(eth_handle(e) != NULL);
+  return eth_handle_send(eth_handle(e), buf, len);
+}
 
 /* These two are for eth_open_cached() and eth_close_cached() */
 static char etht_cache_device_name[64];
-static eth_t *etht_cache_device = NULL;
+static netutil_eth_t *etht_cache_device = NULL;
 
 /* A simple function that caches the eth_t from dnet for one device,
    to avoid opening, closing, and re-opening it thousands of tims.  If
@@ -970,7 +1053,7 @@ static eth_t *etht_cache_device = NULL;
    eth_close() A DEVICE OBTAINED FROM THIS FUNCTION.  Instead, you can
    call eth_close_cached() to close whichever device (if any) is
    cached.  Returns NULL if it fails to open the device. */
-eth_t *eth_open_cached(const char *device) {
+netutil_eth_t *eth_open_cached(const char *device) {
   if (!device)
     netutil_fatal("%s() called with NULL device name!", __func__);
   if (!*device)
@@ -982,12 +1065,12 @@ eth_t *eth_open_cached(const char *device) {
   }
 
   if (*etht_cache_device_name) {
-    eth_close(etht_cache_device);
+    netutil_eth_close(etht_cache_device);
     etht_cache_device_name[0] = '\0';
     etht_cache_device = NULL;
   }
 
-  etht_cache_device = eth_open(device);
+  etht_cache_device = netutil_eth_open(device);
   if (etht_cache_device)
     Strncpy(etht_cache_device_name, device,
             sizeof(etht_cache_device_name));
@@ -998,11 +1081,103 @@ eth_t *eth_open_cached(const char *device) {
 /* See the description for eth_open_cached */
 void eth_close_cached() {
   if (etht_cache_device) {
-    eth_close(etht_cache_device);
+    netutil_eth_close(etht_cache_device);
     etht_cache_device = NULL;
     etht_cache_device_name[0] = '\0';
   }
   return;
+}
+
+static void netutil_perror(const char *msg) {
+  int err = socket_errno();
+  netutil_error("%s: (%d) %s", msg, err, socket_strerror(err));
+}
+
+/* Create a raw socket and do things that always apply to raw sockets:
+    * Set SO_BROADCAST.
+    * Set IP_HDRINCL.
+    * Bind to an interface with SO_BINDTODEVICE (if device is not NULL).
+   The socket is created with address family AF_INET, but may be usable for
+   AF_INET6, depending on the operating system. */
+int netutil_raw_socket(const char *device) {
+#ifdef WIN32
+  netutil_error("Windows does not have adequate raw socket support.");
+  return -1;
+#else
+  int rawsd;
+  int one = 1;
+
+  rawsd = socket(AF_INET, SOCK_RAW, IPPROTO_RAW);
+  if (rawsd < 0) {
+    netutil_perror("Couldn't open a raw socket. "
+#if defined(sun) && defined(__SVR4)
+        "In Solaris shared-IP non-global zones, this requires the PRIV_NET_RAWACCESS privilege. "
+#endif
+        "Error");
+    return -1;
+  }
+  if (setsockopt (rawsd, SOL_SOCKET, SO_BROADCAST, (const char *) &one, sizeof(int)) != 0) {
+    netutil_perror("setsockopt(SO_BROADCAST) failed");
+  }
+  sethdrinclude(rawsd);
+  socket_bindtodevice(rawsd, device);
+
+  return rawsd;
+#endif
+}
+
+int raw_socket_or_eth(int sendpref, const char *ifname,
+    int *rawsd, netutil_eth_t **ethsd) {
+  assert(rawsd != NULL);
+  *rawsd = -1;
+  assert(ethsd != NULL);
+  *ethsd = NULL;
+  bool may_try_eth = ifname && !(sendpref & PACKET_SEND_IP_STRONG);
+  bool may_try_ip = !(sendpref & PACKET_SEND_ETH_STRONG);
+  bool try_eth = may_try_eth && (sendpref & PACKET_SEND_ETH);
+  bool try_ip = may_try_ip && (sendpref & PACKET_SEND_IP);
+
+  for (int i = 0; i < 2; i++) {
+    if (try_eth) {
+      try_eth = false;
+      may_try_eth = false;
+      try_ip = may_try_ip;
+
+      netutil_eth_t *e = eth_open_cached(ifname);
+      *ethsd = e;
+      if (e == NULL) {
+        netutil_error("dnet: failed to open device %s", ifname);
+      }
+      else if (!netutil_eth_can_send(e)) {
+        netutil_error("%s is not a supported device for sending.", ifname);
+        e = NULL;
+      }
+      else {
+        break;
+      }
+    }
+
+    if (try_ip) {
+      try_ip = false;
+      may_try_ip = false;
+      try_eth = may_try_eth;
+
+#ifdef WIN32
+      /* For Windows, don't even bother trying unless the caller insists, to
+       * avoid excessive error messages. */
+      if (!(sendpref & PACKET_SEND_IP_STRONG)) {
+        continue;
+      }
+#endif
+      int sd = netutil_raw_socket(ifname);
+      *rawsd = sd;
+      if (sd >= 0) {
+        break;
+      }
+    }
+  }
+
+  return (*ethsd != NULL || *rawsd >= 0) ? 1 : 0;
 }
 
 /* Takes a protocol number like IPPROTO_TCP, IPPROTO_UDP, IPPROTO_IP,
@@ -1457,6 +1632,9 @@ struct interface_info *getInterfaceByName(const char *iname, int af) {
 
   ifaces = getinterfaces(&numifaces, NULL, 0);
 
+  if (ifaces == NULL)
+    return NULL;
+
   for (ifnum = 0; ifnum < numifaces; ifnum++) {
     if ((strcmp(ifaces[ifnum].devfullname, iname) == 0 ||
         strcmp(ifaces[ifnum].devname, iname) == 0) &&
@@ -1602,15 +1780,6 @@ static struct dnet_collector_route_nfo *sysroutes_dnet_find_interfaces(struct dn
   i = 0;
   while (i < dcrn->numroutes) {
     if (dcrn->routes[i].device == NULL) {
-      char destbuf[INET6_ADDRSTRLEN];
-      char gwbuf[INET6_ADDRSTRLEN];
-
-      Strncpy(destbuf, inet_ntop_ez(&dcrn->routes[i].dest, sizeof(dcrn->routes[i].dest)), sizeof(destbuf));
-      Strncpy(gwbuf, inet_ntop_ez(&dcrn->routes[i].gw, sizeof(dcrn->routes[i].gw)), sizeof(gwbuf));
-      /*
-      netutil_error("WARNING: Unable to find appropriate interface for system route to %s/%u gw %s",
-        destbuf, dcrn->routes[i].netmask_bits, gwbuf);
-      */
       /* Remove this entry from the table. */
       memmove(dcrn->routes + i, dcrn->routes + i + 1, sizeof(dcrn->routes[0]) * (dcrn->numroutes - i - 1));
       dcrn->numroutes--;
@@ -3452,16 +3621,27 @@ int Sendto(const char *functionname, int sd,
 }
 
 
+int netutil_eth_can_send(const netutil_eth_t *e) {
+  switch (netutil_eth_datalink(e)) {
+    case DLT_NULL:
+    case DLT_EN10MB:
+    case DLT_RAW:
+      return 1;
+      break;
+    default:
+      return 0;
+      break;
+  }
+}
 
 /* Send an IP packet over an ethernet handle. */
-int send_ip_packet_eth(const struct eth_nfo *eth, const u8 *packet, unsigned int packetlen) {
-  eth_t *ethsd;
-  u8 *eth_frame;
+static int send_ip_packet_eth(const struct eth_nfo *eth, const u8 *packet, unsigned int packetlen, int af) {
+  netutil_eth_t *ethsd;
+  u8 *eth_frame = NULL;
   int res;
+  size_t framelen;
+  uint16_t ethertype = (af == AF_INET6 ? ETH_TYPE_IPV6 : ETH_TYPE_IP);
 
-  eth_frame = (u8 *) safe_malloc(14 + packetlen);
-  memcpy(eth_frame + 14, packet, packetlen);
-  eth_pack_hdr(eth_frame, eth->dstmac, eth->srcmac, ETH_TYPE_IP);
   if (!eth->ethsd) {
     ethsd = eth_open_cached(eth->devname);
     if (!ethsd)
@@ -3469,9 +3649,42 @@ int send_ip_packet_eth(const struct eth_nfo *eth, const u8 *packet, unsigned int
   } else {
     ethsd = eth->ethsd;
   }
-  res = eth_send(ethsd, eth_frame, 14 + packetlen);
+  switch (ethsd->datalink) {
+    case DLT_EN10MB:
+      framelen = 14 + packetlen;
+      eth_frame = (u8 *) safe_malloc(framelen);
+      memcpy(eth_frame + 14, packet, packetlen);
+      eth_pack_hdr(eth_frame, eth->dstmac, eth->srcmac, ethertype);
+      break;
+    case DLT_NULL:
+      framelen = 4 + packetlen;
+      eth_frame = (u8 *) safe_malloc(framelen);
+      memcpy(eth_frame + 4, packet, packetlen);
+      if (af == AF_INET6) {
+        /* These values are per libpcap/gencode.c */
+#if defined(__APPLE__)
+        *(uint32_t *)eth_frame = 30; // macOS, iOS, other Darwin-based OSes
+#elif defined(__FreeBSD__)
+        *(uint32_t *)eth_frame = 28; // FreeBSD
+#else
+        *(uint32_t *)eth_frame = 24; // NetBSD, OpenBSD, BSD/OS, Npcap
+#endif
+      }
+      else {
+        *(uint32_t *)eth_frame = AF_INET;
+      }
+      break;
+    case DLT_RAW:
+      framelen = packetlen;
+      break;
+    default:
+      netutil_fatal("%s: unsupported DLT for %s: %d", __func__, eth->devname, ethsd->datalink);
+      break;
+  }
+  res = netutil_eth_send(ethsd, eth_frame ? eth_frame : packet, framelen);
   /* No need to close ethsd due to caching */
-  free(eth_frame);
+  if (eth_frame != packet)
+    free(eth_frame);
 
   return res;
 }
@@ -3535,7 +3748,7 @@ int send_ip_packet_eth_or_sd(int sd, const struct eth_nfo *eth,
   const struct sockaddr_in *dst,
   const u8 *packet, unsigned int packetlen) {
   if(eth)
-    return send_ip_packet_eth(eth, packet, packetlen);
+    return send_ip_packet_eth(eth, packet, packetlen, AF_INET);
   else
     return send_ip_packet_sd(sd, dst, packet, packetlen);
 }
@@ -3592,7 +3805,7 @@ int send_frag_ip_packet(int sd, const struct eth_nfo *eth,
 
 /* There are three ways to send a raw IPv6 packet.
 
-   send_ipv6_eth works when the device is Ethernet. (Unfortunately IPv6-in-IPv4
+   send_ip_packet_eth works when the device is Ethernet. (Unfortunately IPv6-in-IPv4
    tunnels are not.) We can control all header fields and extension headers.
 
    send_ipv6_ipproto_raw must be used when IPPROTO_RAW sockets include the IP
@@ -3606,31 +3819,6 @@ int send_frag_ip_packet(int sd, const struct eth_nfo *eth,
    except for the flow label. This method needs one raw socket for every
    protocol. (More precisely, one socket per distinct Next Header value.)
 */
-
-/* Send an IPv6 packet over an Ethernet handle. */
-static int send_ipv6_eth(const struct eth_nfo *eth, const u8 *packet, unsigned int packetlen) {
-  eth_t *ethsd;
-  struct eth_hdr *eth_frame;
-  u8 *copy;
-  int res;
-
-  copy = (u8 *) safe_malloc(packetlen + sizeof(*eth_frame));
-  memcpy(copy + sizeof(*eth_frame), packet, packetlen);
-  eth_frame = (struct eth_hdr *) copy;
-  eth_pack_hdr(eth_frame, eth->dstmac, eth->srcmac, ETH_TYPE_IPV6);
-  if (!eth->ethsd) {
-    ethsd = eth_open_cached(eth->devname);
-    if (!ethsd)
-      netutil_fatal("%s: Failed to open ethernet device (%s)", __func__, eth->devname);
-  } else {
-    ethsd = eth->ethsd;
-  }
-  res = eth_send(ethsd, eth_frame, sizeof(*eth_frame) + packetlen);
-  /* No need to close ethsd due to caching */
-  free(eth_frame);
-
-  return res;
-}
 
 #if HAVE_IPV6_IPPROTO_RAW
 
@@ -3841,7 +4029,7 @@ bail:
 int send_ipv6_packet_eth_or_sd(int sd, const struct eth_nfo *eth,
   const struct sockaddr_in6 *dst, const u8 *packet, unsigned int packetlen) {
   if (eth != NULL) {
-    return send_ipv6_eth(eth, packet, packetlen);
+    return send_ip_packet_eth(eth, packet, packetlen, AF_INET6);
   } else {
 #if HAVE_IPV6_IPPROTO_RAW
     return send_ipv6_ipproto_raw(dst, packet, packetlen);
@@ -3906,7 +4094,7 @@ int DnetName2PcapName(const char *dnetdev, char *pcapdev, int pcapdevlen) {
   // OK, so it isn't in the cache.  Let's ask dnet for it.
   /* Converts a dnet interface name (ifname) to its pcap equivalent, which is stored in
   pcapdev (up to a length of pcapdevlen).  Returns 1 and fills in pcapdev if successful. */
-  if (eth_get_pcap_devname(dnetdev, tmpdev, sizeof(tmpdev)) != 0) {
+  if (intf_get_pcap_devname(dnetdev, tmpdev, sizeof(tmpdev)) != 0) {
       // We've got it.  Let's add it to the not found cache
       if (NNFCsz >= NNFCcapacity) {
         NNFCcapacity <<= 2;
@@ -4202,9 +4390,22 @@ int read_reply_pcap(pcap_t *pd, long to_usec,
       netutil_fatal("Error from pcap_next_ex: %s\n", pcap_geterr(pd));
     }
 
-    if (pcap_status == 1 && *p != NULL && accept_callback(*p, *head, *datalink, *offset)) {
-      break;
-    } else if (pcap_status == 0 || *p == NULL) {
+    if (pcap_status == 1 && *p != NULL) {
+      /* Offset may be different in the case of 802.1q */
+      if (*datalink == DLT_EN10MB
+          && (*head)->caplen >= sizeof(struct eth_hdr)
+          && 0 == memcmp((*p) + offsetof(struct eth_hdr, eth_type), "\x81\x00", 2)) {
+        *offset += 4;
+      }
+      if (accept_callback(*p, *head, *datalink, *offset)) {
+        break;
+      } else {
+        /* We'll be a bit patient if we're getting actual packets back, but
+           not indefinitely so */
+        if (badcounter++ > 50)
+          timedout = 1;
+      }
+    } else {
       /* Should we timeout? */
       if (to_usec == 0) {
         timedout = 1;
@@ -4214,11 +4415,6 @@ int read_reply_pcap(pcap_t *pd, long to_usec,
           timedout = 1;
         }
       }
-    } else {
-      /* We'll be a bit patient if we're getting actual packets back, but
-         not indefinitely so */
-      if (badcounter++ > 50)
-        timedout = 1;
     }
   } while (!timedout);
 
@@ -4258,7 +4454,7 @@ static bool accept_arp(const unsigned char *p, const struct pcap_pkthdr *head,
     return false;
 
   if (datalink == DLT_EN10MB) {
-    return ntohs(*((u16 *) (p + 12))) == ETH_TYPE_ARP;
+    return ntohs(*((u16 *) (p + offset - 2))) == ETH_TYPE_ARP;
   } else if (datalink == DLT_LINUX_SLL) {
     return ntohs(*((u16 *) (p + 2))) == ARPHRD_ETHER && /* sll_hatype */
       ntohs(*((u16 *) (p + 4))) == 6 && /* sll_halen */
@@ -4382,7 +4578,7 @@ bool doND(const char *dev, const u8 *srcmac,
   int timeouts[] = { 100000, 400000, 800000 };
   int max_sends = 3;
   int num_sends = 0; // How many we have sent so far
-  eth_t *ethsd;
+  netutil_eth_t *ethsd;
   u8 frame[ETH_HDR_LEN + IP6_HDR_LEN + ICMPV6_HDR_LEN + 4 + 16 + 8];
   struct timeval start, now, rcvdtime;
   int timeleft;
@@ -4441,7 +4637,7 @@ bool doND(const char *dev, const u8 *srcmac,
 
   while (!foundit && num_sends < max_sends) {
     /* Send the sucker */
-    rc = eth_send(ethsd, frame, sizeof(frame));
+    rc = netutil_eth_send(ethsd, frame, sizeof(frame));
     if (rc != sizeof(frame)) {
      netutil_error("WARNING: %s: eth_send of Neighbor Solicitation packet returned %u rather than expected %d bytes", __func__, rc, (int) sizeof(frame));
     }
@@ -4502,7 +4698,7 @@ bool doArp(const char *dev, const u8 *srcmac,
   int timeouts[] = { 100000, 400000, 800000 };
   int max_sends = 3;
   int num_sends = 0; // How many we have sent so far
-  eth_t *ethsd;
+  netutil_eth_t *ethsd;
   u8 frame[ETH_HDR_LEN + ARP_HDR_LEN + ARP_ETHIP_LEN];
   const struct sockaddr_in *targetsin = (struct sockaddr_in *) targetip;
   const struct sockaddr_in *srcsin = (struct sockaddr_in *) srcip;
@@ -4538,7 +4734,7 @@ bool doArp(const char *dev, const u8 *srcmac,
 
   while (!foundit && num_sends < max_sends) {
     /* Send the sucker */
-    rc = eth_send(ethsd, frame, sizeof(frame));
+    rc = netutil_eth_send(ethsd, frame, sizeof(frame));
     if (rc != sizeof(frame)) {
      netutil_error("WARNING: %s: eth_send of ARP packet returned %u rather than expected %d bytes", __func__, rc, (int) sizeof(frame));
     }

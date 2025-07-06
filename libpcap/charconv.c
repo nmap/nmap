@@ -185,14 +185,14 @@ utf_8_to_acp_truncated(char *errbuf)
 
 	/*
 	 * Now, convert that to the local code page.
-	 * Use the current thread's code page.  For unconvertable
+	 * Use the current thread's code page.  For unconvertible
 	 * characters, let it pick the "best fit" character.
 	 *
 	 * XXX - we'd like some way to do what utf_16le_to_utf_8_truncated()
 	 * does if the buffer isn't big enough, but we don't want to have
 	 * to handle all local code pages ourselves; doing so requires
 	 * knowledge of all those code pages, including knowledge of how
-	 * characters are formed in thoe code pages so that we can avoid
+	 * characters are formed in those code pages so that we can avoid
 	 * cutting a multi-byte character into pieces.
 	 *
 	 * Converting to an un-truncated string using Windows APIs, and

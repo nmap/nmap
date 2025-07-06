@@ -70,6 +70,11 @@ from zenmapCore.UmitConf import NmapOutputHighlight
 
 from zenmapGUI.NmapOutputProperties import NmapOutputProperties
 
+def _tag_set_colors(tag, text_color, highlight_color):
+    fg = "rgb({},{},{})".format(*(x >> 8 for x in text_color))
+    bg = "rgb({},{},{})".format(*(x >> 8 for x in highlight_color))
+    tag.set_property("foreground", fg)
+    tag.set_property("background", bg)
 
 class NmapOutputViewer(Gtk.Box):
     HIGHLIGHT_PROPERTIES = ["details", "date", "hostname", "ip", "port_list",
@@ -139,13 +144,7 @@ class NmapOutputViewer(Gtk.Box):
             else:
                 tag.set_property("underline", Pango.Underline.NONE)
 
-            text_color = settings[3]
-            highlight_color = settings[4]
-
-            tag.set_property(
-                    "foreground", Gdk.Color(*text_color).to_string())
-            tag.set_property(
-                    "background", Gdk.Color(*highlight_color).to_string())
+            _tag_set_colors(tag, settings[3], settings[4])
 
     def go_to_host(self, host):
         """Go to host line on nmap output result"""
@@ -218,15 +217,18 @@ class NmapOutputViewer(Gtk.Box):
             return
 
         text = buf.get_text(start_iter, end_iter, include_hidden_chars=True)
+        tag_table = buf.get_tag_table()
 
         for property in self.HIGHLIGHT_PROPERTIES:
             settings = self.nmap_highlight.__getattribute__(property)
+            tag = tag_table.lookup(property)
+            _tag_set_colors(tag, settings[3], settings[4])
             for m in re.finditer(settings[5], text, re.M):
                 m_start_iter = start_iter.copy()
                 m_start_iter.forward_chars(m.start())
                 m_end_iter = start_iter.copy()
                 m_end_iter.forward_chars(m.end())
-                buf.apply_tag_by_name(property, m_start_iter, m_end_iter)
+                buf.apply_tag(tag, m_start_iter, m_end_iter)
 
     def show_nmap_output(self, output):
         """Show the string (or unicode) output in the output display."""
@@ -234,7 +236,7 @@ class NmapOutputViewer(Gtk.Box):
             self.text_view.get_buffer().set_text(output)
             self.apply_highlighting()
         except MemoryError:
-            self.show_large_output_message(self.command_execution)
+            self.show_large_output_message()
 
     def set_command_execution(self, command):
         """Set the live running command whose output is shown by this display.
@@ -247,8 +249,9 @@ class NmapOutputViewer(Gtk.Box):
             self.output_file_pointer = None
         self.refresh_output()
 
-    def show_large_output_message(self, command=None):
+    def replace_buffer_warning_message(self, message):
         buf = self.text_view.get_buffer()
+        command = self.command_execution
         try:
             running = (command is not None and command.scan_state() is True)
         except Exception:
@@ -257,20 +260,22 @@ class NmapOutputViewer(Gtk.Box):
         else:
             complete = not running
         if running:
-            buf.set_text("Warning: You have insufficient resources for Zenmap "
-                "to be able to display the complete output from Nmap here. \n"
+            buf.set_text(_("Warning: %s \n"
                 "Zenmap will continue to run the scan to completion. However,"
-                " some features of Zenmap might not work as expected.")
+                " some features of Zenmap might not work as expected."))
         elif complete:
-            buf.set_text("Warning: You have insufficient resources for Zenmap "
-                "to be able to display the complete output from Nmap here. \n"
+            buf.set_text(_("Warning: %s \n"
                 "The scan has completed. However, some features of Zenmap "
-                "might not work as expected.")
+                "might not work as expected."))
         else:
-            buf.set_text("Warning: You have insufficient resources for Zenmap "
-                "to be able to display the complete output from Nmap here. \n"
+            buf.set_text(_("Warning: %s \n"
                 "The scan has been stopped. Some features of Zenmap might not "
-                "work as expected.")
+                "work as expected."))
+
+    def show_large_output_message(self):
+        self.replace_buffer_warning_message(
+                _("You have insufficient resources for Zenmap to be able to "
+                  "display the complete output from Nmap here. \n"))
 
     def refresh_output(self, widget=None):
         """Update the output from the latest output of the command associated
@@ -282,12 +287,17 @@ class NmapOutputViewer(Gtk.Box):
             return
 
         # Seek to the end of the most recent read.
-        self.command_execution.stdout_file.seek(self.output_file_pointer)
+        try:
+            self.command_execution.stdout_file.seek(self.output_file_pointer)
+        except ValueError:
+            self.replace_buffer_warning_message(
+                    _("The Nmap output file has been closed unexpectedly."))
+            return
 
         try:
             new_output = self.command_execution.stdout_file.read()
         except MemoryError:
-            self.show_large_output_message(self.command_execution)
+            self.show_large_output_message()
             return
 
         self.output_file_pointer = self.command_execution.stdout_file.tell()
@@ -307,7 +317,7 @@ class NmapOutputViewer(Gtk.Box):
                         buf.get_iter_at_mark(prev_end_mark),
                         buf.get_end_iter())
             except MemoryError:
-                self.show_large_output_message(self.command_execution)
+                self.show_large_output_message()
                 return
 
             if at_end:

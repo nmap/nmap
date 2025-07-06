@@ -1551,7 +1551,7 @@ void  apply_delayed_options() {
     o.reason = true;
 
   // ISO 8601 date/time -- http://www.cl.cam.ac.uk/~mgk25/iso-time.html
-  if (strftime(tbuf, sizeof(tbuf), "%Y-%m-%d %H:%M %Z", &local_time) <= 0)
+  if (strftime(tbuf, sizeof(tbuf), "%Y-%m-%d %H:%M %z", &local_time) <= 0)
     fatal("Unable to properly format time");
   log_write(LOG_STDOUT | LOG_SKID, "Starting %s %s ( %s ) at %s\n", NMAP_NAME, NMAP_VERSION, NMAP_URL, tbuf);
   if (o.verbose) {
@@ -1692,6 +1692,17 @@ void  apply_delayed_options() {
   /* Remove any ports that are in the exclusion list */
   removepts(o.exclude_portlist, &ports);
 
+  /* Remove IPv6 extension header values, which are not protocols and cannot be scanned */
+  if (o.ipprotscan && o.af() == AF_INET6) {
+    int nprots = ports.prot_count;
+    // https://www.iana.org/assignments/ipv6-parameters/ipv6-parameters.xhtml#extension-header
+    removepts("P:0,43,44,50,51,60,135,139,140,253,254", &ports);
+    nprots -= ports.prot_count;
+    if (nprots > 0) {
+      error("WARNING: removed %d IPv6 extension header values from protocols list.", nprots);
+    }
+  }
+
   /* By now, we've got our port lists.  Give the user a warning if no
    * ports are specified for the type of scan being requested.  Other things
    * (such as OS ident scan) might break cause no ports were specified,  but
@@ -1769,9 +1780,12 @@ void  apply_delayed_options() {
           fatal("You are only allowed %d decoys (if you need more redefine MAX_DECOYS in nmap.h)", MAX_DECOYS);
 
         while (i--) {
+          sockaddr_storage *ss = &o.decoys[o.numdecoys];
+          memset(ss, 0, sizeof(sockaddr_storage));
+          ss->ss_family = AF_INET;
           do {
-            ((struct sockaddr_in *)&o.decoys[o.numdecoys])->sin_addr.s_addr = get_random_u32();
-          } while (ip_is_reserved(&o.decoys[o.numdecoys]));
+            ((struct sockaddr_in *)ss)->sin_addr.s_addr = get_random_u32();
+          } while (ip_is_reserved(ss));
           o.numdecoys++;
         }
       } else {
@@ -1779,17 +1793,11 @@ void  apply_delayed_options() {
           fatal("You are only allowed %d decoys (if you need more redefine MAX_DECOYS in nmap.h)", MAX_DECOYS);
 
         /* Try to resolve it */
-        struct sockaddr_storage decoytemp;
-        size_t decoytemplen = sizeof(struct sockaddr_storage);
-        int rc;
-        if (delayed_options.af == AF_INET6){
-          rc = resolve(p, 0, (sockaddr_storage*)&decoytemp, &decoytemplen, AF_INET6);
-        }
-        else
-          rc = resolve(p, 0, (sockaddr_storage*)&decoytemp, &decoytemplen, AF_INET);
+        sockaddr_storage *ss = &o.decoys[o.numdecoys];
+        size_t sslen = sizeof(sockaddr_storage);
+        int rc = resolve(p, 0, ss, &sslen, o.af());
         if (rc != 0)
           fatal("Failed to resolve decoy host \"%s\": %s", p, gai_strerror(rc));
-        o.decoys[o.numdecoys] = decoytemp;
         o.numdecoys++;
       }
       if (q) {

@@ -1,24 +1,40 @@
 <?xml version="1.0"?>
 <!DOCTYPE moduleset SYSTEM "moduleset.dtd" [
-<!ENTITY nmap_version "7.95">
-<!ENTITY openssl_version "3.0.13">
+<!ENTITY nmap_version "7.95SVN">
+<!ENTITY openssl_version "3.0.16">
+<!ENTITY libpcap_version "1.10.5">
+<!ENTITY libssh2_version "1.11.1">
 ]>
 <?xml-stylesheet type="text/xsl" href="moduleset.xsl"?>
 <moduleset>
 
     <!-- INCLUDE -->
 
-    <!-- <include href="https://git.gnome.org/browse/gtk-osx/plain/modulesets-stable/gtk-osx.modules"/> -->
+    <include href="http://gitlab.gnome.org/GNOME/gtk-osx/raw/master/modulesets-stable/gtk-osx.modules"/>
 
     <!-- REPOSITORIES -->
 
-    <repository type="tarball" name="openssl" href="http://www.openssl.org/source/"/>
+    <repository type="tarball" name="openssl" href="https://github.com/openssl/openssl/releases/download/openssl-&openssl_version;/"/>
     <repository type="tarball" name="nmap-local" href="http://localhost:8000/"/>
+    <repository type="tarball" name="tcpdump-org" href="https://www.tcpdump.org/release/"/>
+    <repository type="tarball" name="libssh2-org" href="https://www.libssh2.org/download/"/>
 
     <!-- MODULES -->
+    <cmake id="libpcap">
+        <branch repo="tcpdump-org" version="&libpcap_version;" module="libpcap-&libpcap_version;.tar.xz"/>
+        <dependencies>
+            <dep package="openssl" />
+        </dependencies>
+    </cmake>
+    <cmake id="libssh2">
+        <branch repo="libssh2-org" version="&libpcap_version;" module="libssh2-&libssh2_version;.tar.xz"/>
+        <dependencies>
+            <dep package="openssl" />
+            <dep package="zlib" />
+        </dependencies>
+    </cmake>
 
-<!-- no-asm added to support building OpenSSL 3.0 on HighSierra. When upgrading to newer build system, remove it. -->
-    <autotools id="openssl" autogen-sh="Configure" autogenargs="shared enable-ssl3 enable-ssl3-method enable-weak-ssl-ciphers"
+    <autotools id="openssl" autogen-sh="Configure" autogenargs="shared enable-legacy enable-ssl3 enable-ssl3-method enable-weak-ssl-ciphers"
         autogen-template="%(srcdir)s/%(autogen-sh)s --prefix=%(prefix)s
             --openssldir=%(prefix)s/etc/ssl %(autogenargs)s"
             makeargs="depend all"
@@ -29,24 +45,24 @@
     </autotools>
 
     <autotools id="nmap" supports-non-srcdir-builds="no"
-       autogen-sh="configure" autogenargs="--with-libdnet=included --with-libpcap=included --with-libpcre=included --with-liblua=included
+       autogen-sh="configure" autogenargs="--with-libdnet=included --with-liblua=included
 --without-zenmap --without-ncat --without-ndiff --without-nping"
-        makeargs='OPENSSL_LIBS="${JHBUILD_LIBDIR}/libssl.a ${JHBUILD_LIBDIR}/libcrypto.a" LIBSSL="${JHBUILD_LIBDIR}/libssl.a ${JHBUILD_LIBDIR}/libcrypto.a" ZLIB_LIBS="${JHBUILD_LIBDIR}/libz.a" LIBZ="${JHBUILD_LIBDIR}/libz.a"'
-	makeinstallargs='install OPENSSL_LIBS="${JHBUILD_LIBDIR}/libssl.a ${JHBUILD_LIBDIR}/libcrypto.a" ZLIB_LIBS="${JHBUILD_LIBDIR}/libz.a"'
-	makeclean="false"
     >
         <branch repo="nmap-local" module="nmap-&nmap_version;.tar.gz" version="&nmap_version;"/>
         <dependencies>
+            <dep package="libpcap" />
+            <dep package="libpcre2" />
+            <dep package="libssh2" />
             <dep package="openssl" />
+            <dep package="zlib" />
         </dependencies>
     </autotools>
  
     <autotools id="ncat" supports-non-srcdir-builds="no"
-       autogen-sh="configure" autogenargs="--with-libdnet=included --with-libpcap=included --with-libpcre=included --with-liblua=included
+       autogen-sh="configure" autogenargs="--with-libdnet=included --with-liblua=included
 --without-zenmap --without-ndiff --without-nping"
-        makeargs='build-ncat OPENSSL_LIBS="${JHBUILD_LIBDIR}/libssl.a ${JHBUILD_LIBDIR}/libcrypto.a"'
-        makeinstallargs='install-ncat OPENSSL_LIBS="${JHBUILD_LIBDIR}/libssl.a ${JHBUILD_LIBDIR}/libcrypto.a"'
-	makeclean="false"
+        makeargs='build-ncat'
+        makeinstallargs='install-ncat'
     >
         <branch repo="nmap-local" module="nmap-&nmap_version;.tar.gz" version="&nmap_version;"/>
         <dependencies>
@@ -55,23 +71,31 @@
     </autotools>
 
     <autotools id="nping" supports-non-srcdir-builds="no"
-       autogen-sh="configure" autogenargs="--with-libdnet=included --with-libpcap=included --with-libpcre=included --with-liblua=included
+       autogen-sh="configure" autogenargs="--with-libdnet=included
 --without-zenmap --without-ncat --without-ndiff"
-        makeargs='build-nping OPENSSL_LIBS="${JHBUILD_LIBDIR}/libssl.a ${JHBUILD_LIBDIR}/libcrypto.a"'
-        makeinstallargs='install-nping OPENSSL_LIBS="${JHBUILD_LIBDIR}/libssl.a ${JHBUILD_LIBDIR}/libcrypto.a"'
-	makeclean="false"
+        makeargs='build-nping'
+        makeinstallargs='install-nping'
     >
         <branch repo="nmap-local" module="nmap-&nmap_version;.tar.gz" version="&nmap_version;"/>
         <dependencies>
+            <dep package="libpcap" />
             <dep package="openssl" />
         </dependencies>
     </autotools>
 
     <!-- METAMODULE -->
 
+    <metamodule id="nmap-deps">
+        <dependencies>
+            <dep package="libpcap" />
+            <dep package="libpcre2" />
+            <dep package="libssh2" />
+            <dep package="openssl" />
+            <dep package="zlib" />
+        </dependencies>
+    </metamodule>
     <metamodule id="nmap-packages">
         <dependencies>
-            <dep package="openssl" />
             <dep package="nmap" />
             <dep package="ncat" />
             <dep package="nping" />

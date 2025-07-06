@@ -1,4 +1,4 @@
-/* Copyright (c) 2022, Xaver Loppenstedt <xaver@loppenstedt.de>
+/* Copyright (C) Xaver Loppenstedt <xaver@loppenstedt.de>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms,
@@ -33,11 +33,13 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY
  * OF SUCH DAMAGE.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __LIBSSH2_USERAUTH_KBD_PARSE_H
-#define __LIBSSH2_USERAUTH_KBD_PARSE_H
+#ifndef LIBSSH2_USERAUTH_KBD_PACKET_H
+#define LIBSSH2_USERAUTH_KBD_PACKET_H
 
 int userauth_keyboard_interactive_decode_info_request(LIBSSH2_SESSION *);
 
-#endif /* __LIBSSH2_USERAUTH_KBD_PARSE_H */
+#endif /* LIBSSH2_USERAUTH_KBD_PACKET_H */

@@ -34,9 +34,15 @@
 #define __SSLUTILS_H__
 
 #ifdef HAVE_OPENSSL
-#include "pcap/socket.h"  // for SOCKET
+#include "pcap/socket.h"  // for PCAP_SOCKET
+// If this is OpenSSL 1.0, at least one header may trigger a -Wdocumentation
+// in Clang, which should not be a problem of this header or a file that
+// includes it.
+#include "diag-control.h"
+DIAG_OFF_DOCUMENTATION
 #include <openssl/ssl.h>
 #include <openssl/err.h>
+DIAG_ON_DOCUMENTATION
 
 /*
  * Utility functions
@@ -45,7 +51,7 @@
 void ssl_set_certfile(const char *certfile);
 void ssl_set_keyfile(const char *keyfile);
 int ssl_init_once(int is_server, int enable_compression, char *errbuf, size_t errbuflen);
-SSL *ssl_promotion(int is_server, SOCKET s, char *errbuf, size_t errbuflen);
+SSL *ssl_promotion(int is_server, PCAP_SOCKET s, char *errbuf, size_t errbuflen);
 void ssl_finish(SSL *ssl);
 int ssl_send(SSL *, char const *buffer, int size, char *errbuf, size_t errbuflen);
 int ssl_recv(SSL *, char *buffer, int size, char *errbuf, size_t errbuflen);

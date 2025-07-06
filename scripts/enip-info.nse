@@ -63,8 +63,7 @@ portrule = shortport.version_port_or_service(44818, {"EtherNet-IP-2", "EtherNet/
 --  Table data from Wireshark dissector ( link to unofficial mirror )
 --  https://github.com/avsej/wireshark/blob/master/epan/dissectors/packet-enip.c
 --  Fetched on 4/19/2014
-
--- @key vennum Vendor number parsed out of the EtherNet/IP packet
+-- key is vendor number parsed out of the EtherNet/IP packet
 local vendor_id = {
 	[0] = "Reserved",
 	[1] = "Rockwell Automation/Allen-Bradley",
@@ -1573,7 +1572,7 @@ end
 --  https://github.com/avsej/wireshark/blob/master/epan/dissectors/packet-enip.c
 --  Fetched on 4/19/2014
 --
--- @key devtype Device ID  number parsed out of the EtherNet/IP packet
+-- key is Device ID  number parsed out of the EtherNet/IP packet
 local device_type = {
 	[0] = "Generic Device (deprecated)",
 	[1] = "Control Station (deprecated)",

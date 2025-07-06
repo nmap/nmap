@@ -83,7 +83,7 @@ UNKNOWN_SERVICE_COLOR = '#d5d5d5'
 TRACE_HEADER = ['TTL', 'RTT', 'IP', _('Hostname')]
 
 TRACE_TEXT = _(
-    "Traceroute on port <b>%s/%s</b> totalized <b>%d</b> known hops.")
+    "Traceroute on port <b>%(port)s/%(proto)s</b> took <b>%(hops)d</b> known hops.")
 
 NO_TRACE_TEXT = _("No traceroute information available.")
 
@@ -98,7 +98,7 @@ OSCLASS_HEADER = ['%', _('Vendor'), _('Type'), _('Family'), _('Version')]
 USED_PORTS_TEXT = "%d/%s %s"
 
 TCP_SEQ_NOTE = _("""\
-<b>*</b> TCP sequence <i>index</i> equal to %d and <i>difficulty</i> is "%s".\
+<b>*</b> TCP sequence <i>index</i> equal to %(index)d and <i>difficulty</i> is "%(difficulty)s".\
 """)
 
 
@@ -220,7 +220,7 @@ class ServicesPage(Gtk.Notebook):
 
                 if key in ['servicefp']:
 
-                    text = _('[%d] service: %s') % (port['id'], key)
+                    text = _('[%(port)d] service: %(servicefp)s') % (port['id'], key)
 
                     self.__select_combobox.append_text(text)
                     self.__text.append(port['service'][key])
@@ -420,10 +420,7 @@ class SystemPage(BWScrolledWindow):
 
             self.__uptime_label = BWSectionLabel(_('Last boot:'))
 
-            seconds = self.__node.get_info('uptime')['seconds']
-            lastboot = self.__node.get_info('uptime')['lastboot']
-
-            text = _('%s (%s seconds).') % (lastboot, seconds)
+            text = _('%(lastboot)s (%(seconds)s seconds).') % self.__node.get_info('uptime')
 
             self.__uptime_value = BWLabel(text)
             self.__uptime_value.set_selectable(True)
@@ -732,9 +729,9 @@ class TraceroutePage(BWVBox):
 
             self.__trace_scroll.add_with_viewport(self.__trace_treeview)
 
-            self.__trace_info = (self.__node.get_info('trace')['port'],
-                                 self.__node.get_info('trace')['protocol'],
-                                 len(self.__node.get_info('trace')['hops']))
+            self.__trace_info = {'port': self.__node.get_info('trace')['port'],
+                                 'proto': self.__node.get_info('trace')['protocol'],
+                                 'hops': len(self.__node.get_info('trace')['hops'])}
 
             self.__trace_label = BWLabel(TRACE_TEXT % self.__trace_info)
             self.__trace_label.set_use_markup(True)

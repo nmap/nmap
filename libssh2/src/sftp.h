@@ -1,8 +1,8 @@
-#ifndef __LIBSSH2_SFTP_H
-#define __LIBSSH2_SFTP_H
+#ifndef LIBSSH2_SFTP_PRIV_H
+#define LIBSSH2_SFTP_PRIV_H
 /*
- * Copyright (C) 2010 - 2012 by Daniel Stenberg
- * Author: Daniel Stenberg <daniel@haxx.se>
+ * Copyright (C) Daniel Stenberg
+ * All rights reserved.
  *
  * Redistribution and use in source and binary forms,
  * with or without modification, are permitted provided
@@ -37,6 +37,7 @@
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY
  * OF SUCH DAMAGE.
  *
+ * SPDX-License-Identifier: BSD-3-Clause
  */
 
 /*
@@ -77,7 +78,8 @@ struct _LIBSSH2_SFTP_PACKET
 
 typedef struct _LIBSSH2_SFTP_PACKET LIBSSH2_SFTP_PACKET;
 
-#define SFTP_HANDLE_MAXLEN 256 /* according to spec! */
+/* Increasing from 256 to 4092 since OpenSSH doesn't honor it. */
+#define SFTP_HANDLE_MAXLEN 4092 /* according to spec, this should be 256! */
 
 struct _LIBSSH2_SFTP_HANDLE
 {
@@ -136,7 +138,7 @@ struct _LIBSSH2_SFTP
 {
     LIBSSH2_CHANNEL *channel;
 
-    uint32_t request_id, version;
+    uint32_t request_id, version, posix_rename_version;
 
     struct list_head packets;
 
@@ -201,6 +203,11 @@ struct _LIBSSH2_SFTP
     unsigned char *rename_s;
     uint32_t rename_request_id;
 
+    /* State variables used in libssh2_sftp_posix_rename_ex() */
+    libssh2_nonblocking_states posix_rename_state;
+    unsigned char *posix_rename_packet;
+    uint32_t posix_rename_request_id;
+
     /* State variables used in libssh2_sftp_fstatvfs() */
     libssh2_nonblocking_states fstatvfs_state;
     unsigned char *fstatvfs_packet;
@@ -232,4 +239,4 @@ struct _LIBSSH2_SFTP
     uint32_t symlink_request_id;
 };
 
-#endif /* __LIBSSH2_SFTP_H */
+#endif /* LIBSSH2_SFTP_PRIV_H */

@@ -2,12 +2,12 @@
 .\"     Title: nmap
 .\"    Author: [see the "Auteur" section]
 .\" Generator: DocBook XSL Stylesheets v1.79.1 <http://docbook.sf.net/>
-.\"      Date: 12/04/2024
+.\"      Date: 20/05/2025
 .\"    Manual: Guide de référence Nmap
 .\"    Source: Nmap
 .\"  Language: French
 .\"
-.TH "NMAP" "1" "12/04/2024" "Nmap" "Guide de référence Nmap"
+.TH "NMAP" "1" "20/05/2025" "Nmap" "Guide de référence Nmap"
 .\" -----------------------------------------------------------------
 .\" * Define some portability stuff
 .\" -----------------------------------------------------------------
@@ -272,7 +272,7 @@ Tout ce qui n\*(Aqest pas une option (ou l\*(Aqargument d\*(Aqune option) dans l
 bits de poids fort sont les mêmes que la cible de référence\&. Par exemple, 192\&.168\&.10\&.0/24 scannerait les 256 hôtes entre 192\&.168\&.10\&.0 (en binaire:
 11000000 10101000 00001010 00000000) et 192\&.168\&.10\&.255 (en binaire:11000000 10101000 00001010 11111111) inclusivement\&. 192\&.168\&.10\&.40/24 ferait donc aussi la même chose\&. Étant donné que l\*(Aqhôte scanme\&.nmap\&.org est à l\*(Aqadresse IP 205\&.217\&.153\&.62, scanme\&.nmap\&.org/16 scannerait les 65 536 adresses IP entre 205\&.217\&.0\&.0 et 205\&.217\&.255\&.255\&. La plus petite valeur autorisée est /1 qui scanne la moitié d\*(AqInternet\&. La plus grande valeur autorisée est 32, ainsi Nmap ne scanne que la cible de référence car tous les bits de l\*(Aqadresse sont fixés\&.
 .PP
-La notation CIDR est concise mais pas toujours des plus pratiques\&. Par exemple, vous voudriez scanner 192\&.168\&.0\&.0/16 mais éviter toutes les adresses se terminant par \&.0 ou \&.255 car se sont souvent des adresses de diffusion (broadcast)\&. Nmap permet de le faire grâce à l\*(Aqadressage par intervalles\&. Plutôt que de spécifier une adresse IP normale, vous pouvez spécifier pour chaque octet de l\*(AqIP une liste d\*(Aqintervalles séparés par des virgules\&. Par exemple, 192\&.168\&.0\-255\&.1\-254 évitera toutes les adresses se terminant par \&.0 ou \&.255\&. Les intervalles ne sont pas limités aux octets finals: 0\-255\&.0\-255\&.13\&.37 exécutera un scan de toutes les adresses IP se terminant par 137\&.37\&. Ce genre de spécifications peut s\*(Aqavérer utile pour des statistiques sur Internet ou pour les chercheurs\&.
+La notation CIDR est concise mais pas toujours des plus pratiques\&. Par exemple, vous voudriez scanner 192\&.168\&.0\&.0/16 mais éviter toutes les adresses se terminant par \&.0 ou \&.255 car se sont souvent des adresses de diffusion (broadcast)\&. Nmap permet de le faire grâce à l\*(Aqadressage par intervalles\&. Plutôt que de spécifier une adresse IP normale, vous pouvez spécifier pour chaque octet de l\*(AqIP une liste d\*(Aqintervalles séparés par des virgules\&. Par exemple, 192\&.168\&.0\-255\&.1\-254 évitera toutes les adresses se terminant par \&.0 ou \&.255\&. Les intervalles ne sont pas limités aux octets finals: 0\-255\&.0\-255\&.13\&.37 exécutera un scan de toutes les adresses IP se terminant par 13\&.37\&. Ce genre de spécifications peut s\*(Aqavérer utile pour des statistiques sur Internet ou pour les chercheurs\&.
 .PP
 Les adresses IPv6 ne peuvent être spécifiées que par une adresse IPv6 pleinement qualifiée ou un nom d\*(Aqhôte\&. L\*(Aqadressage CIDR ou par intervalles n\*(Aqest pas géré avec IPv6 car les adresses ne sont que rarement utiles\&.
 .PP

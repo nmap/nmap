@@ -75,14 +75,14 @@ index eba2723..6255f07 100644
 @@ -790,8 +778,6 @@
  
  clean:
- 	rm -f $(CLEANFILES)
+ 	rm -f $(CLEANFILES) config.h.in~ configure~ configure.ac~
 -	(cd rpcapd; $(MAKE) clean)
 -	(cd testprogs; $(MAKE) clean)
  
  distclean: clean
  	rm -f Makefile grammar.y config.cache config.log config.status \
 @@ -799,8 +785,6 @@
- 	    net os-proto.h libpcap.pc pcap-config stamp-h stamp-h.in
+ 	    config.h os-proto.h libpcap.pc pcap-config stamp-h stamp-h.in
  	rm -f $(MAN3PCAP_EXPAND:.in=) $(MANFILE:.in=) $(MANMISC:.in=)
  	rm -rf autom4te.cache
 -	(cd rpcapd; $(MAKE) distclean)
@@ -93,9 +93,9 @@ index eba2723..6255f07 100644
 @@ -827,8 +811,6 @@
  
  depend:	$(GENERATED_C_SRC) $(GENHDR)
- 	$(MKDEP) -c "$(CC)" -m "$(DEPENDENCY_CFLAG)" -s "$(srcdir)" $(CFLAGS) $(DEFS) $(INCLS) $(SRC)
+ 	$(MKDEP) -c $(CC) -m "$(DEPENDENCY_CFLAG)" -s "$(srcdir)" $(CFLAGS) $(DEFS) $(INCLS) $(SRC)
 -	(cd rpcapd; $(MAKE) depend)
 -	(cd testprogs; $(MAKE) depend)
  
  shellcheck:
- 	shellcheck -f gcc -e SC2006 build.sh build_matrix.sh build_common.sh
+ 	shellcheck -f gcc -e SC2006 autogen.sh build.sh build_matrix.sh build_common.sh mkdep .ci-coverity-scan-build.sh

@@ -28,9 +28,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifdef HAVE_CONFIG_H
-#include "config.h"
-#endif
+#include <config.h>
 
 #include "pcap-int.h"
 #include "pcap-rdmasniff.h"
@@ -89,7 +87,7 @@ rdmasniff_cleanup(pcap_t *handle)
 	ibv_close_device(priv->context);
 	free(priv->oneshot_buffer);
 
-	pcap_cleanup_live_common(handle);
+	pcapint_cleanup_live_common(handle);
 }
 
 static void
@@ -172,7 +170,7 @@ rdmasniff_read(pcap_t *handle, int max_packets, pcap_handler callback, u_char *u
 		pktd = (u_char *) handle->buffer + wc.wr_id * RDMASNIFF_RECEIVE_SIZE;
 
 		if (handle->fcode.bf_insns == NULL ||
-		    pcap_filter(handle->fcode.bf_insns, pktd, pkth.len, pkth.caplen)) {
+		    pcapint_filter(handle->fcode.bf_insns, pktd, pkth.len, pkth.caplen)) {
 			callback(user, &pkth, pktd);
 			++priv->packets_recv;
 			++count;
@@ -323,11 +321,11 @@ rdmasniff_activate(pcap_t *handle)
 	handle->read_op = rdmasniff_read;
 	handle->stats_op = rdmasniff_stats;
 	handle->cleanup_op = rdmasniff_cleanup;
-	handle->setfilter_op = install_bpf_program;
+	handle->setfilter_op = pcapint_install_bpf_program;
 	handle->setdirection_op = NULL;
 	handle->set_datalink_op = NULL;
-	handle->getnonblock_op = pcap_getnonblock_fd;
-	handle->setnonblock_op = pcap_setnonblock_fd;
+	handle->getnonblock_op = pcapint_getnonblock_fd;
+	handle->setnonblock_op = pcapint_setnonblock_fd;
 	handle->oneshot_callback = rdmasniff_oneshot;
 	handle->selectable_fd = priv->channel->fd;
 
@@ -444,7 +442,7 @@ rdmasniff_findalldevs(pcap_if_list_t *devlistp, char *err_str)
 		 * XXX - do the notions of "up", "running", or
 		 * "connected" apply here?
 		 */
-		if (!add_dev(devlistp, dev_list[i]->name, 0, "RDMA sniffer", err_str)) {
+		if (!pcapint_add_dev(devlistp, dev_list[i]->name, 0, "RDMA sniffer", err_str)) {
 			ret = -1;
 			break;
 		}

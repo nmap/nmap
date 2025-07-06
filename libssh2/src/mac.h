@@ -1,6 +1,7 @@
-#ifndef __LIBSSH2_MAC_H
-#define __LIBSSH2_MAC_H
-/* Copyright (C) 2009-2010 by Daniel Stenberg
+#ifndef LIBSSH2_MAC_H
+#define LIBSSH2_MAC_H
+/* Copyright (C) Daniel Stenberg
+ * All rights reserved.
  *
  * Redistribution and use in source and binary forms,
  * with or without modification, are permitted provided
@@ -35,6 +36,7 @@
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY
  * OF SUCH DAMAGE.
  *
+ * SPDX-License-Identifier: BSD-3-Clause
  */
 
 #include "libssh2_priv.h"
@@ -67,4 +69,4 @@ const LIBSSH2_MAC_METHOD **_libssh2_mac_methods(void);
 const LIBSSH2_MAC_METHOD *_libssh2_mac_override(
         const LIBSSH2_CRYPT_METHOD *crypt);
 
-#endif /* __LIBSSH2_MAC_H */
+#endif /* LIBSSH2_MAC_H */

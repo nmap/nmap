@@ -47,9 +47,5 @@
      ((u_short)(((((u_int)(y))&0xff)<<8) | \
                 ((((u_int)(y))&0xff00)>>8)))
 
-extern void pcap_post_process(int linktype, int swapped,
+extern void pcapint_post_process(int linktype, int swapped,
     struct pcap_pkthdr *hdr, u_char *data);
-
-extern void fixup_pcap_pkthdr(int linktype, struct pcap_pkthdr *hdr,
-    const u_char *data);
-

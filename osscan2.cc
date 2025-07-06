@@ -80,10 +80,6 @@
 #include <math.h>
 
 extern NmapOps o;
-#ifdef WIN32
-/* from libdnet's intf-win32.c */
-extern "C" int g_has_npcap_loopback;
-#endif
 
 /* 8 options:
  *  0~5: six options for SEQ/OPS/WIN/T1 probes.
@@ -1176,7 +1172,7 @@ void HostOsScanStats::initScanStats() {
 /* Fill in an eth_nfo struct with the appropriate source and destination MAC
    addresses and a given Ethernet handle. The return value is suitable to pass
    to send_ip_packet: if ethsd is NULL, returns NULL; otherwise returns eth. */
-struct eth_nfo *HostOsScanStats::fill_eth_nfo(struct eth_nfo *eth, eth_t *ethsd) const {
+struct eth_nfo *HostOsScanStats::fill_eth_nfo(struct eth_nfo *eth, netutil_eth_t *ethsd) const {
   if (ethsd == NULL)
     return NULL;
 
@@ -1340,24 +1336,11 @@ HostOsScan::HostOsScan(Target *t) {
   rawsd = -1;
   ethsd = NULL;
 
-  if ((o.sendpref & PACKET_SEND_ETH) && (t->ifType() == devt_ethernet
-#ifdef WIN32
-    || (g_has_npcap_loopback && t->ifType() == devt_loopback)
-#endif
-    )) {
-    if ((ethsd = eth_open_cached(t->deviceName())) == NULL)
-      fatal("%s: Failed to open ethernet device (%s)", __func__, t->deviceName());
-    rawsd = -1;
-  } else {
-#ifdef WIN32
-    win32_fatal_raw_sockets(t->deviceName());
-#endif
-    rawsd = nmap_raw_socket();
-    if (rawsd < 0)
-      pfatal("socket troubles in %s", __func__);
-    unblock_socket(rawsd);
-    ethsd = NULL;
+  if (!raw_socket_or_eth(o.sendpref, t->deviceName(), &rawsd, &ethsd)) {
+    fatal("%s: Failed to open raw socket or ethernet device", __func__);
   }
+  if (rawsd >= 0)
+    unblock_socket(rawsd);
 
   if (o.magic_port_set) {
     tcpPortBase = o.magic_port;
@@ -3282,13 +3265,6 @@ OsScanInfo::OsScanInfo(std::vector<Target *> &Targets) {
       num_timedout++;
       continue;
     }
-
-#ifdef WIN32
-    if (g_has_npcap_loopback == 0 && Targets[targetno]->ifType() == devt_loopback) {
-      log_write(LOG_STDOUT, "Skipping OS Scan against %s because it doesn't work against your own machine (localhost)\n", Targets[targetno]->NameIP());
-      continue;
-    }
-#endif
 
     if (Targets[targetno]->ports.getStateCounts(IPPROTO_TCP, PORT_OPEN) == 0 ||
         (Targets[targetno]->ports.getStateCounts(IPPROTO_TCP, PORT_CLOSED) == 0 &&

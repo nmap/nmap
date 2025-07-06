@@ -15,7 +15,7 @@ The target must be specified by DNS name, not IP address.
 -- @usage
 -- nmap --script http-robtex-shared-ns
 --
--- @outt
+-- @output
 -- Host script results:
 -- | http-robtex-shared-ns:
 -- |   example.edu
@@ -23,7 +23,7 @@ The target must be specified by DNS name, not IP address.
 -- |   example.edu
 -- |_  example.net
 -- (some results omitted for brevity)
---
+
 -- TODO:
 -- * Add list of nameservers, or group output accordingly
 --

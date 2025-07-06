@@ -4,9 +4,7 @@
 
 #line 6 "scanner.h"
 /* Must come first for _LARGE_FILE_API on AIX. */
-#ifdef HAVE_CONFIG_H
 #include <config.h>
-#endif
 
 /*
  * Must come first to avoid warnings on Windows.
@@ -37,7 +35,27 @@
 
 #include "diag-control.h"
 
-#line 41 "scanner.h"
+/*
+ * Convert string to 32-bit unsigned integer; the string starts at
+ * string and is string_len bytes long.
+ *
+ * On success, sets *val to the value and returns 1.
+ * On failure, sets the BPF error string and returns 0.
+ *
+ * Also used in gencode.c
+ */
+typedef enum {
+	STOULEN_OK,
+	STOULEN_NOT_HEX_NUMBER,
+	STOULEN_NOT_OCTAL_NUMBER,
+	STOULEN_NOT_DECIMAL_NUMBER,
+	STOULEN_ERROR
+} stoulen_ret;
+
+stoulen_ret stoulen(const char *string, size_t stringlen, bpf_u_int32 *val,
+    compiler_state_t *cstate);
+
+#line 59 "scanner.h"
 
 #define  YY_INT_ALIGNED short int
 
@@ -382,9 +400,9 @@ extern int pcap_lex \
 #undef YY_DECL
 #endif
 
-#line 486 "scanner.l"
+#line 504 "scanner.l"
 
 
-#line 389 "scanner.h"
+#line 407 "scanner.h"
 #undef pcap_IN_HEADER
 #endif /* pcap_HEADER_H */

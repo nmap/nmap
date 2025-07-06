@@ -152,26 +152,16 @@
  * APIs to be designated as "first available in this release" to do so
  * by appropriately defining them.
  *
- * Yes, that's you, Apple. :-)  Please define PCAP_AVAILABLE_MACOS()
- * as necessary to make various APIs "weak exports" to make it easier
- * for software that's distributed in binary form and that uses libpcap
- * to run on multiple macOS versions and use new APIs when available.
- * (Yes, such third-party software exists - Wireshark provides binary
- * packages for macOS, for example.  tcpdump doesn't count, as that's
- * provided by Apple, so each release can come with a version compiled
- * to use the APIs present in that release.)
+ * On macOS, Apple can tweak this to make various APIs "weakly exported
+ * symbols" to make it easier for software that's distributed in binary
+ * form and that uses libpcap to run on multiple macOS versions and use
+ * new APIs when available.  (Yes, such third-party software exists -
+ * Wireshark provides binary packages for macOS, for example.  tcpdump
+ * doesn't count, as that's provided by Apple, so each release can
+ * come with a version compiled to use the APIs present in that release.)
  *
- * The non-macOS versioning is based on
- *
- *    https://en.wikipedia.org/wiki/Darwin_(operating_system)#Release_history
- *
- * If there are any corrections, please submit it upstream to the
- * libpcap maintainers, preferably as a pull request on
- *
- *    https://github.com/the-tcpdump-group/libpcap
- *
- * We don't define it ourselves because, if you're building and
- * installing libpcap on macOS yourself, the APIs will be available
+ * We don't tweak it that way ourselves because, if you're building
+ * and installing libpcap on macOS yourself, the APIs will be available
  * no matter what OS version you're installing it on.
  *
  * For other platforms, we don't define them, leaving it up to
@@ -181,31 +171,58 @@
  * I've never seen earlier releases.
  */
 #ifdef __APPLE__
-#include <Availability.h>
 /*
- * When building as part of macOS, define this as __API_AVAILABLE(__VA_ARGS__).
+ * Apple - insert #include <os/availability.h> here, and replace the two
+ * #defines below with:
  *
- * XXX - if there's some #define to indicate that this is being built
- * as part of the macOS build process, we could make that Just Work.
+ *   #define PCAP_API_AVAILABLE	API_AVAILABLE
+ *
+ * and adjust availabilities as necessary, including adding information
+ * about operating systems other than macOS.
  */
-#define PCAP_AVAILABLE(...)
-#define PCAP_AVAILABLE_0_4	PCAP_AVAILABLE(macos(10.0)) /* Did any version of Mac OS X ship with this? */
-#define PCAP_AVAILABLE_0_5	PCAP_AVAILABLE(macos(10.0)) /* Did any version of Mac OS X ship with this? */
-#define PCAP_AVAILABLE_0_6	PCAP_AVAILABLE(macos(10.1))
-#define PCAP_AVAILABLE_0_7	PCAP_AVAILABLE(macos(10.4))
-#define PCAP_AVAILABLE_0_8	PCAP_AVAILABLE(macos(10.4))
-#define PCAP_AVAILABLE_0_9	PCAP_AVAILABLE(macos(10.5), ios(1.0))
-#define PCAP_AVAILABLE_1_0	PCAP_AVAILABLE(macos(10.6), ios(4.0))
+#define PCAP_API_AVAILABLE(...)
+#define PCAP_AVAILABLE_0_4	PCAP_API_AVAILABLE(macos(10.0))
+#define PCAP_AVAILABLE_0_5	PCAP_API_AVAILABLE(macos(10.0))
+#define PCAP_AVAILABLE_0_6	PCAP_API_AVAILABLE(macos(10.1))
+#define PCAP_AVAILABLE_0_7	PCAP_API_AVAILABLE(macos(10.4))
+#define PCAP_AVAILABLE_0_8	PCAP_API_AVAILABLE(macos(10.4))
+#define PCAP_AVAILABLE_0_9	PCAP_API_AVAILABLE(macos(10.5))
+#define PCAP_AVAILABLE_1_0	PCAP_API_AVAILABLE(macos(10.6))
 /* #define PCAP_AVAILABLE_1_1	no routines added to the API */
-#define PCAP_AVAILABLE_1_2	PCAP_AVAILABLE(macos(10.9), ios(6.0))
+#define PCAP_AVAILABLE_1_2	PCAP_API_AVAILABLE(macos(10.9))
 /* #define PCAP_AVAILABLE_1_3	no routines added to the API */
 /* #define PCAP_AVAILABLE_1_4	no routines added to the API */
-#define PCAP_AVAILABLE_1_5	PCAP_AVAILABLE(macos(10.10), ios(7.0), watchos(1.0))
+#define PCAP_AVAILABLE_1_5	PCAP_API_AVAILABLE(macos(10.10))
 /* #define PCAP_AVAILABLE_1_6	no routines added to the API */
-#define PCAP_AVAILABLE_1_7	PCAP_AVAILABLE(macos(10.12), ios(10.0), tvos(10.0), watchos(3.0))
-#define PCAP_AVAILABLE_1_8	PCAP_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0), watchos(4.0)) /* only Windows adds routines to the API; XXX - what version first had it? */
-#define PCAP_AVAILABLE_1_9	PCAP_AVAILABLE(macos(10.13), ios(11.0), tvos(11.0), watchos(4.0))
-#define PCAP_AVAILABLE_1_10	/* not in macOS yet */
+#define PCAP_AVAILABLE_1_7	PCAP_API_AVAILABLE(macos(10.12))
+#define PCAP_AVAILABLE_1_8	PCAP_API_AVAILABLE(macos(10.13))
+#define PCAP_AVAILABLE_1_9	PCAP_API_AVAILABLE(macos(10.13))
+/*
+ * The remote capture APIs are, in 1.9 and 1.10, usually only
+ * available in the library if the library was built with
+ * remote capture enabled.
+ *
+ * However, macOS Sonoma provides stub versions of those routine,
+ * which return an error.  This means that we need a separate
+ * availability indicator macro for those routines, so that
+ * progras built on macOS Sonoma that attempt to use weak
+ * importing and availability tests to use those routines
+ * if they're available will get those routines weakly imported,
+ * so that if they're run on releases prior to Sonoma, they
+ * won't get an error from dyld about those routines being
+ * missing in libpcap.  (If they don't use run-time availability
+ * tests, they will, instead, get crashes if they call one of
+ * those routines, as the addresses of those routines will be
+ * set to 0 by dyld, meaning the program will dereference a
+ * null pointer and crash when trying to call them.)
+ *
+ * (Not that it's useful to use those routines *anyway*, as they're
+ * stubs that always fail.  The stubs were necessary in order to
+ * support weak exporting at all.)
+ */
+#define PCAP_AVAILABLE_1_9_REMOTE	PCAP_API_AVAILABLE(macos(14.0))
+#define PCAP_AVAILABLE_1_10	PCAP_API_AVAILABLE(macos(12.1))
+#define PCAP_AVAILABLE_1_10_REMOTE	PCAP_API_AVAILABLE(macos(14.0))
 #define PCAP_AVAILABLE_1_11	/* not released yet, so not in macOS yet */
 #else /* __APPLE__ */
 #define PCAP_AVAILABLE_0_4
@@ -224,7 +241,9 @@
 #define PCAP_AVAILABLE_1_7
 #define PCAP_AVAILABLE_1_8
 #define PCAP_AVAILABLE_1_9
+#define PCAP_AVAILABLE_1_9_REMOTE
 #define PCAP_AVAILABLE_1_10
+#define PCAP_AVAILABLE_1_10_REMOTE
 #define PCAP_AVAILABLE_1_11
 #endif /* __APPLE__ */
 
@@ -243,14 +262,15 @@
 #if __has_attribute(noreturn) \
     || PCAP_IS_AT_LEAST_GNUC_VERSION(2,5) \
     || PCAP_IS_AT_LEAST_SUNC_VERSION(5,9) \
-    || PCAP_IS_AT_LEAST_XL_C_VERSION(10,1) \
-    || PCAP_IS_AT_LEAST_HP_C_VERSION(6,10)
+    || PCAP_IS_AT_LEAST_XL_C_VERSION(7,0) \
+    || PCAP_IS_AT_LEAST_HP_C_VERSION(6,10) \
+    || __TINYC__
   /*
    * Compiler with support for __attribute((noreturn)), or GCC 2.5 and
    * later, or some compiler asserting compatibility with GCC 2.5 and
-   * later, or Solaris Studio 12 (Sun C 5.9) and later, or IBM XL C 10.1
+   * later, or Solaris Studio 12 (Sun C 5.9) and later, or IBM XL C 7.0
    * and later (do any earlier versions of XL C support this?), or HP aCC
-   * A.06.10 and later.
+   * A.06.10 and later, or current TinyCC.
    */
   #define PCAP_NORETURN __attribute((noreturn))
   #define PCAP_NORETURN_DEF __attribute((noreturn))
@@ -273,11 +293,11 @@
  */
 #if __has_attribute(__format__) \
     || PCAP_IS_AT_LEAST_GNUC_VERSION(2,3) \
-    || PCAP_IS_AT_LEAST_XL_C_VERSION(10,1) \
+    || PCAP_IS_AT_LEAST_XL_C_VERSION(7,0) \
     || PCAP_IS_AT_LEAST_HP_C_VERSION(6,10)
   /*
    * Compiler with support for it, or GCC 2.3 and later, or some compiler
-   * asserting compatibility with GCC 2.3 and later, or IBM XL C 10.1
+   * asserting compatibility with GCC 2.3 and later, or IBM XL C 7.0
    * and later (do any earlier versions of XL C support this?),
    * or HP aCC A.06.10 and later.
    */
