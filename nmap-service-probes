@@ -14742,8 +14742,8 @@ rarity 6
 ports 256,257,389,390,1702,3268,3892,11711
 sslports 636,637,3269,11712
 
-match ldap m|^0\x84\0\0..\x02\x01.*dsServiceName1\x84\0\0\0.\x04.CN=NTDS\x20Settings,CN=([^,]+),CN=Servers,CN=([^,]+),CN=Sites,CN=Configuration,DC=([^,]+),DC=([^,]+)0\x84\0|s p/Microsoft Windows Active Directory LDAP/ i/Domain: $3.$4, Site: $2/ o/Windows/ h/$1/ cpe:/o:microsoft:windows/a
-match ldap m|^0\x84\0\0..\x02\x01.*dsServiceName1\x84\0\0\0.\x04.CN=NTDS\x20Settings,CN=([^,]+),CN=Servers,CN=([^,]+),CN=Sites,CN=Configuration,DC=([^,]+),DC=([^,]+),DC=([^,]+)0\x84\0|s p/Microsoft Windows Active Directory LDAP/ i/Domain: $3.$4.$5, Site: $2/ o/Windows/ h/$1/ cpe:/o:microsoft:windows/a
+match ldap m|^0\x84\0\0..\x02\x01.*dsServiceName1\x84\0\0\0.\x04.CN=NTDS\x20Settings,CN=([^,]+),CN=Servers,CN=([^,]+),CN=Sites,CN=Configuration,DC=([^,]+),DC=([^,]+?)0\x84\0|s p/Microsoft Windows Active Directory LDAP/ i/Domain: $3.$4, Site: $2/ o/Windows/ h/$1/ cpe:/o:microsoft:windows/a
+match ldap m|^0\x84\0\0..\x02\x01.*dsServiceName1\x84\0\0\0.\x04.CN=NTDS\x20Settings,CN=([^,]+),CN=Servers,CN=([^,]+),CN=Sites,CN=Configuration,DC=([^,]+),DC=([^,]+),DC=([^,]+?)0\x84\0|s p/Microsoft Windows Active Directory LDAP/ i/Domain: $3.$4.$5, Site: $2/ o/Windows/ h/$1/ cpe:/o:microsoft:windows/a
 match ldap m|^0\x82..\x02\x01.*vmwPlatformServicesControllerVersion1\x07\x04\x05([\d.]+)0.\x04.*\nserverName1.\x04.cn=([\w._-]+)|s p/VMware vCenter or PSC LDAP/ v/$1/ h/$2/ cpe:/a:vmware:server/
 match ldap m|^0\x82..\x02\x01.*\nserverName1.\x04.cn=([\w._-]+).*vmwPlatformServicesControllerVersion1\x07\x04\x05([\d.]+)0.\x04|s p/VMware vCenter or PSC LDAP/ v/$1/ h/$2/ cpe:/a:vmware:server/
 match ldap m%^0\x82..\x02\x01.*\nserverName1c\x04acn=([\w._-]+).*vmw(?:AdministratorDN|DCAccountDN|DCAccountUPN)1%s p/VMware vCenter or PSC LDAP/ h/$1/ cpe:/a:vmware:server/
@@ -14759,8 +14759,8 @@ Probe UDP LDAPSearchReqUDP q|\x30\x84\x00\x00\x00\x2d\x02\x01\x07\x63\x84\x00\x0
 rarity 8
 ports 389
 
-match ldap m|^0\x84\0\0..\x02\x01.*dsServiceName1\x84\0\0\0.\x04.CN=NTDS\x20Settings,CN=([^,]+),CN=Servers,CN=([^,]+),CN=Sites,CN=Configuration,DC=([^,]+),DC=([^,]+)0\x84\0|s p/Microsoft Windows Active Directory LDAP/ i/Domain: $3.$4, Site: $2/ o/Windows/ h/$1/ cpe:/o:microsoft:windows/a
-match ldap m|^0\x84\0\0..\x02\x01.*dsServiceName1\x84\0\0\0.\x04.CN=NTDS\x20Settings,CN=([^,]+),CN=Servers,CN=([^,]+),CN=Sites,CN=Configuration,DC=([^,]+),DC=([^,]+),DC=([^,]+)0\x84\0|s p/Microsoft Windows Active Directory LDAP/ i/Domain: $3.$4.$5, Site: $2/ o/Windows/ h/$1/ cpe:/o:microsoft:windows/a
+match ldap m|^0\x84\0\0..\x02\x01.*dsServiceName1\x84\0\0\0.\x04.CN=NTDS\x20Settings,CN=([^,]+),CN=Servers,CN=([^,]+),CN=Sites,CN=Configuration,DC=([^,]+),DC=([^,]+?)0\x84\0|s p/Microsoft Windows Active Directory LDAP/ i/Domain: $3.$4, Site: $2/ o/Windows/ h/$1/ cpe:/o:microsoft:windows/a
+match ldap m|^0\x84\0\0..\x02\x01.*dsServiceName1\x84\0\0\0.\x04.CN=NTDS\x20Settings,CN=([^,]+),CN=Servers,CN=([^,]+),CN=Sites,CN=Configuration,DC=([^,]+),DC=([^,]+),DC=([^,]+?)0\x84\0|s p/Microsoft Windows Active Directory LDAP/ i/Domain: $3.$4.$5, Site: $2/ o/Windows/ h/$1/ cpe:/o:microsoft:windows/a
 
 # Ldap bind request, version 2, null DN, AUTH_TYPE simple, null password
 ##############################NEXT PROBE##############################
