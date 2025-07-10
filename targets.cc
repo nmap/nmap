@@ -498,30 +498,33 @@ static void refresh_hostbatch(HostGroupState *hs, struct addrset *exclude_group,
     hoststructfry(hs->hostbatch, hs->current_batch_sz);
   }
 
-  /* First I'll do the ARP ping if all of the machines in the group are
-     directly connected over ethernet.  I may need the MAC addresses
-     later anyway. */
-  /* No other interface types are supported by ND ping except devt_ethernet
-     at the moment. */
-  if (hs->hostbatch[0]->ifType() == devt_ethernet &&
-      hs->hostbatch[0]->directlyConnected() &&
-      o.sendpref != PACKET_SEND_IP_STRONG &&
-      o.implicitARPPing) {
-    arpping(hs->hostbatch, hs->current_batch_sz);
-    arpping_done = true;
-  }
-
   gettimeofday(&now, NULL);
-  if ((o.sendpref & PACKET_SEND_ETH) &&
-      hs->hostbatch[0]->ifType() == devt_ethernet) {
-    for (i=0; i < hs->current_batch_sz; i++) {
-      if (!(hs->hostbatch[i]->flags & HOST_DOWN) &&
-          !hs->hostbatch[i]->timedOut(&now)) {
-        if (!setTargetNextHopMAC(hs->hostbatch[i])) {
-          error("%s: Failed to determine dst MAC address for target %s",
-              __func__, hs->hostbatch[i]->NameIP());
-          hs->hostbatch[i]->flags = HOST_DOWN;
-          hs->hostbatch[i]->reason.reason_id = ER_NOROUTE;
+
+  /* If there's a chance we can do ARP ping or may need the MAC address,
+   * we'll do the extra check. Some things like VPN claim devt_ethernet
+   * but are not DLT_EN10MB. */
+  if (hs->hostbatch[0]->ifType() == devt_ethernet &&
+        o.sendpref != PACKET_SEND_IP_STRONG) {
+    netutil_eth_t *eth = eth_open_cached(hs->hostbatch[0]->deviceName());
+    if (DLT_EN10MB == netutil_eth_datalink(eth)) {
+      // Do ARP/ND if possible
+      if (hs->hostbatch[0]->directlyConnected() &&
+          o.implicitARPPing) {
+        arpping(hs->hostbatch, hs->current_batch_sz);
+        arpping_done = true;
+      }
+      // If we want to do layer-2 sending, we'll need a MAC address.
+      if ((o.sendpref & PACKET_SEND_ETH)) {
+        for (i=0; i < hs->current_batch_sz; i++) {
+          if (!(hs->hostbatch[i]->flags & HOST_DOWN) &&
+              !hs->hostbatch[i]->timedOut(&now)) {
+            if (!setTargetNextHopMAC(hs->hostbatch[i])) {
+              error("%s: Failed to determine dst MAC address for target %s",
+                  __func__, hs->hostbatch[i]->NameIP());
+              hs->hostbatch[i]->flags = HOST_DOWN;
+              hs->hostbatch[i]->reason.reason_id = ER_NOROUTE;
+            }
+          }
         }
       }
     }
