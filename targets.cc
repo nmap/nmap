@@ -499,16 +499,17 @@ static void refresh_hostbatch(HostGroupState *hs, struct addrset *exclude_group,
   }
 
   gettimeofday(&now, NULL);
+  Target *current_target = hs->hostbatch[0];
 
   /* If there's a chance we can do ARP ping or may need the MAC address,
    * we'll do the extra check. Some things like VPN claim devt_ethernet
    * but are not DLT_EN10MB. */
-  if (hs->hostbatch[0]->ifType() == devt_ethernet &&
+  if (current_target->ifType() == devt_ethernet &&
         o.sendpref != PACKET_SEND_IP_STRONG) {
-    netutil_eth_t *eth = eth_open_cached(hs->hostbatch[0]->deviceName());
+    netutil_eth_t *eth = eth_open_cached(current_target->deviceName());
     if (DLT_EN10MB == netutil_eth_datalink(eth)) {
       // Do ARP/ND if possible
-      if (hs->hostbatch[0]->directlyConnected() &&
+      if (current_target->directlyConnected() &&
           o.implicitARPPing) {
         arpping(hs->hostbatch, hs->current_batch_sz);
         arpping_done = true;
@@ -516,13 +517,14 @@ static void refresh_hostbatch(HostGroupState *hs, struct addrset *exclude_group,
       // If we want to do layer-2 sending, we'll need a MAC address.
       if ((o.sendpref & PACKET_SEND_ETH)) {
         for (i=0; i < hs->current_batch_sz; i++) {
-          if (!(hs->hostbatch[i]->flags & HOST_DOWN) &&
-              !hs->hostbatch[i]->timedOut(&now)) {
-            if (!setTargetNextHopMAC(hs->hostbatch[i])) {
+          current_target = hs->hostbatch[i];
+          if (!(current_target->flags & HOST_DOWN) &&
+              !current_target->timedOut(&now)) {
+            if (!setTargetNextHopMAC(current_target)) {
               error("%s: Failed to determine dst MAC address for target %s",
-                  __func__, hs->hostbatch[i]->NameIP());
-              hs->hostbatch[i]->flags = HOST_DOWN;
-              hs->hostbatch[i]->reason.reason_id = ER_NOROUTE;
+                  __func__, current_target->NameIP());
+              current_target->flags = HOST_DOWN;
+              current_target->reason.reason_id = ER_NOROUTE;
             }
           }
         }
@@ -531,15 +533,16 @@ static void refresh_hostbatch(HostGroupState *hs, struct addrset *exclude_group,
   }
 
   /* Then we do the mass ping (if required - IP-level pings) */
-  if ((pingtype == PINGTYPE_NONE && !arpping_done) || hs->hostbatch[0]->ifType() == devt_loopback) {
+  if ((pingtype == PINGTYPE_NONE && !arpping_done) || current_target->ifType() == devt_loopback) {
     for (i=0; i < hs->current_batch_sz; i++) {
-      if (!(hs->hostbatch[i]->flags & HOST_DOWN || hs->hostbatch[i]->timedOut(&now))) {
-        initialize_timeout_info(&hs->hostbatch[i]->to);
-        hs->hostbatch[i]->flags |= HOST_UP; /*hostbatch[i].up = 1;*/
+      current_target = hs->hostbatch[i];
+      if (!(current_target->flags & HOST_DOWN || current_target->timedOut(&now))) {
+        initialize_timeout_info(&current_target->to);
+        current_target->flags |= HOST_UP; /*hostbatch[i].up = 1;*/
         if (pingtype == PINGTYPE_NONE && !arpping_done)
-          hs->hostbatch[i]->reason.reason_id = ER_USER;
+          current_target->reason.reason_id = ER_USER;
         else
-          hs->hostbatch[i]->reason.reason_id = ER_LOCALHOST;
+          current_target->reason.reason_id = ER_LOCALHOST;
       }
     }
   } else if (!arpping_done) {
