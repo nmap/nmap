@@ -219,6 +219,7 @@ public:
   unsigned int ideal_parallelism; // Max (and desired) number of probes out at once.
   ScanProgressMeter *SPM;
   int num_hosts_timedout; // # of hosts timed out during (or before) scan
+  bool busy; // Recursion guard; if true, don't start any new events
 };
 
 #define SUBSTARGS_MAX_ARGS 5
@@ -2057,6 +2058,7 @@ static void adjustPortStateIfNecessary(ServiceNFO *svc) {
                              ServiceProbe *probe) {
     const u8 *probestring;
     int probestringlen;
+    ServiceGroup *SG = (ServiceGroup *) nsock_pool_get_udata(nsp);
 
     // Report data as probes are sent if --version-trace has been requested
     if (o.debugging > 1 || o.versionTrace()) {
@@ -2069,8 +2071,10 @@ static void adjustPortStateIfNecessary(ServiceNFO *svc) {
     probestring = probe->getProbeString(&probestringlen);
     assert(probestringlen > 0);
     // Now we write the string to the IOD
+    SG->busy = 1;
     nsock_write(nsp, nsi, servicescan_write_handler, svc->probe_timemsleft(probe), svc,
                 (const char *) probestring, probestringlen);
+    SG->busy = 0;
     return 0;
   }
 
@@ -2094,8 +2098,10 @@ static void startNextProbe(nsock_pool nsp, nsock_iod nsi, ServiceGroup *SG,
     if (probe) {
       svc->currentprobe_exec_time = *nsock_gettimeofday();
       send_probe_text(nsp, nsi, svc, probe);
-      nsock_read(nsp, nsi, servicescan_read_handler,
-                 svc->probe_timemsleft(probe, nsock_gettimeofday()), svc);
+      if (svc->probe_state < PROBESTATE_FINISHED_HARDMATCHED) {
+        nsock_read(nsp, nsi, servicescan_read_handler,
+            svc->probe_timemsleft(probe, nsock_gettimeofday()), svc);
+      }
     } else {
       // Should only happen if someone has a highly perverse nmap-service-probes
       // file.  Null scan should generally never be the only probe.
@@ -2292,6 +2298,11 @@ static void end_svcprobe(enum serviceprobestate probe_state, ServiceGroup *SG, S
 static int launchSomeServiceProbes(nsock_pool nsp, ServiceGroup *SG) {
   ServiceNFO *svc;
   static int warn_no_scanning=1;
+  if (SG->busy) {
+    // "busy" means a Nsock callback is being called synchronously;
+    // Don't launch any probes or we risk runaway recursion.
+    return 0;
+  }
 
   while (SG->services_in_progress.size() < SG->ideal_parallelism &&
          !SG->services_remaining.empty()) {
@@ -2369,7 +2380,9 @@ static void servicescan_connect_handler(nsock_pool nsp, nsock_event nse, void *m
     svc->currentprobe_exec_time = *nsock_gettimeofday();
     send_probe_text(nsp, nsi, svc, probe);
     // Now let us read any results
-    nsock_read(nsp, nsi, servicescan_read_handler, svc->probe_timemsleft(probe, nsock_gettimeofday()), svc);
+    if (svc->probe_state < PROBESTATE_FINISHED_HARDMATCHED) {
+      nsock_read(nsp, nsi, servicescan_read_handler, svc->probe_timemsleft(probe, nsock_gettimeofday()), svc);
+    }
   } else {
     switch(status) {
       case NSE_STATUS_TIMEOUT:
