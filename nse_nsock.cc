@@ -351,6 +351,7 @@ static void status (lua_State *L, enum nse_status status)
   }
 }
 
+/* callback for connect and write events */
 static void callback (nsock_pool nsp, nsock_event nse, void *ud)
 {
   nse_nsock_udata *nu = (nse_nsock_udata *) ud;
@@ -598,6 +599,10 @@ static int l_send (lua_State *L)
   const char *string = luaL_checklstring(L, 2, &size);
   trace(nu->nsiod, hexify((unsigned char *) string, size).c_str(), TO);
   nsock_write(nsp, nu->nsiod, callback, nu->timeout, nu, string, size);
+  if (nu->action == NU_ACTION_IMMEDIATE) {
+    // Immediate error
+    return nseU_safeerror(L, nse_status2str(NSE_STATUS_ERROR));
+  }
   return yield(L, nu, "SEND", TO, 0, NULL);
 }
 
