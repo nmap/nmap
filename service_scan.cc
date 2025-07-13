@@ -2009,6 +2009,7 @@ ServiceGroup::ServiceGroup(std::vector<Target *> &Targets, AllProbes *AP) {
   min_par = o.min_parallelism;
   max_par = MAX(min_par, o.max_parallelism ? o.max_parallelism : 100);
   ideal_parallelism = box(min_par, max_par, desired_par);
+  busy = false;
 }
 
 ServiceGroup::~ServiceGroup() {
@@ -2071,10 +2072,10 @@ static void adjustPortStateIfNecessary(ServiceNFO *svc) {
     probestring = probe->getProbeString(&probestringlen);
     assert(probestringlen > 0);
     // Now we write the string to the IOD
-    SG->busy = 1;
+    SG->busy = true;
     nsock_write(nsp, nsi, servicescan_write_handler, svc->probe_timemsleft(probe), svc,
                 (const char *) probestring, probestringlen);
-    SG->busy = 0;
+    SG->busy = false;
     return 0;
   }
 
