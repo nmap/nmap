@@ -1433,6 +1433,71 @@ void parse_options(int argc, char **argv) {
 
 }
 
+/**
+ * Handles scan timing adjustments after processing
+ * of user provided arguments.
+ */
+void configure_scan_timing() {
+  if (delayed_options.pre_max_parallelism != -1)
+    o.max_parallelism = delayed_options.pre_max_parallelism;
+  if (delayed_options.pre_scan_delay != -1) {
+    o.scan_delay = delayed_options.pre_scan_delay;
+    if (o.scan_delay > o.maxTCPScanDelay())
+      o.setMaxTCPScanDelay(o.scan_delay);
+    if (o.scan_delay > o.maxUDPScanDelay())
+      o.setMaxUDPScanDelay(o.scan_delay);
+    if (o.scan_delay > o.maxSCTPScanDelay())
+      o.setMaxSCTPScanDelay(o.scan_delay);
+    if (delayed_options.pre_max_parallelism != -1 || o.min_parallelism != 0)
+      error("Warning: --min-parallelism and --max-parallelism are ignored with --scan-delay.");
+  }
+
+  if (delayed_options.pre_max_scan_delay != -1) {
+    o.setMaxTCPScanDelay(delayed_options.pre_max_scan_delay);
+    o.setMaxUDPScanDelay(delayed_options.pre_max_scan_delay);
+    o.setMaxSCTPScanDelay(delayed_options.pre_max_scan_delay);
+  }
+
+  if (delayed_options.pre_init_rtt_timeout != -1)
+    o.setInitialRttTimeout(delayed_options.pre_init_rtt_timeout);
+  if (delayed_options.pre_min_rtt_timeout != -1)
+    o.setMinRttTimeout(delayed_options.pre_min_rtt_timeout);
+  if (delayed_options.pre_max_rtt_timeout != -1)
+    o.setMaxRttTimeout(delayed_options.pre_max_rtt_timeout);
+  if (delayed_options.pre_max_retries != -1)
+    o.setMaxRetransmissions(delayed_options.pre_max_retries);
+  if (delayed_options.pre_host_timeout != -1)
+    o.host_timeout = delayed_options.pre_host_timeout;
+
+#ifndef NOLUA
+  if (delayed_options.pre_scripttimeout != -1)
+    o.scripttimeout = delayed_options.pre_scripttimeout;
+#endif
+}
+
+/**
+ * Opens log files based on user preference of
+ * whether to append to or overwrite a file.
+ */
+void initialize_output_files() {
+  if (delayed_options.normalfilename) {
+    log_open(LOG_NORMAL, o.append_output, delayed_options.normalfilename);
+    free(delayed_options.normalfilename);
+  }
+  if (delayed_options.machinefilename) {
+    log_open(LOG_MACHINE, o.append_output, delayed_options.machinefilename);
+    free(delayed_options.machinefilename);
+  }
+  if (delayed_options.kiddiefilename) {
+    log_open(LOG_SKID, o.append_output, delayed_options.kiddiefilename);
+    free(delayed_options.kiddiefilename);
+  }
+  if (delayed_options.xmlfilename) {
+    log_open(LOG_XML, o.append_output, delayed_options.xmlfilename);
+    free(delayed_options.xmlfilename);
+  }
+}
+
 void  apply_delayed_options() {
   int i;
   char tbuf[128];
@@ -1468,41 +1533,9 @@ void  apply_delayed_options() {
     }
     o.setSourceSockAddr(&ss, sslen);
   }
-  // After the arguments are fully processed we now make any of the timing
-  // tweaks the user might've specified:
-  if (delayed_options.pre_max_parallelism != -1)
-    o.max_parallelism = delayed_options.pre_max_parallelism;
-  if (delayed_options.pre_scan_delay != -1) {
-    o.scan_delay = delayed_options.pre_scan_delay;
-    if (o.scan_delay > o.maxTCPScanDelay())
-      o.setMaxTCPScanDelay(o.scan_delay);
-    if (o.scan_delay > o.maxUDPScanDelay())
-      o.setMaxUDPScanDelay(o.scan_delay);
-    if (o.scan_delay > o.maxSCTPScanDelay())
-      o.setMaxSCTPScanDelay(o.scan_delay);
-    if (delayed_options.pre_max_parallelism != -1 || o.min_parallelism != 0)
-      error("Warning: --min-parallelism and --max-parallelism are ignored with --scan-delay.");
-  }
-  if (delayed_options.pre_max_scan_delay != -1) {
-    o.setMaxTCPScanDelay(delayed_options.pre_max_scan_delay);
-    o.setMaxUDPScanDelay(delayed_options.pre_max_scan_delay);
-    o.setMaxSCTPScanDelay(delayed_options.pre_max_scan_delay);
-  }
-  if (delayed_options.pre_init_rtt_timeout != -1)
-    o.setInitialRttTimeout(delayed_options.pre_init_rtt_timeout);
-  if (delayed_options.pre_min_rtt_timeout != -1)
-    o.setMinRttTimeout(delayed_options.pre_min_rtt_timeout);
-  if (delayed_options.pre_max_rtt_timeout != -1)
-    o.setMaxRttTimeout(delayed_options.pre_max_rtt_timeout);
-  if (delayed_options.pre_max_retries != -1)
-    o.setMaxRetransmissions(delayed_options.pre_max_retries);
-  if (delayed_options.pre_host_timeout != -1)
-    o.host_timeout = delayed_options.pre_host_timeout;
-#ifndef NOLUA
-  if (delayed_options.pre_scripttimeout != -1)
-    o.scripttimeout = delayed_options.pre_scripttimeout;
-#endif
 
+  // Handle scan timing modifications
+  configure_scan_timing();
 
   if (o.osscan) {
     if (o.af() == AF_INET)
@@ -1528,24 +1561,9 @@ void  apply_delayed_options() {
               format_ip_options(o.ipoptions, o.ipoptionslen));
   }
 
-  /* Open the log files, now that we know whether the user wants them appended
-     or overwritten */
-  if (delayed_options.normalfilename) {
-    log_open(LOG_NORMAL, o.append_output, delayed_options.normalfilename);
-    free(delayed_options.normalfilename);
-  }
-  if (delayed_options.machinefilename) {
-    log_open(LOG_MACHINE, o.append_output, delayed_options.machinefilename);
-    free(delayed_options.machinefilename);
-  }
-  if (delayed_options.kiddiefilename) {
-    log_open(LOG_SKID, o.append_output, delayed_options.kiddiefilename);
-    free(delayed_options.kiddiefilename);
-  }
-  if (delayed_options.xmlfilename) {
-    log_open(LOG_XML, o.append_output, delayed_options.xmlfilename);
-    free(delayed_options.xmlfilename);
-  }
+  // Open the log files, now that we know whether
+  // the user wants them appended or overwritten.
+  initialize_output_files();
 
   if (o.verbose > 1)
     o.reason = true;
