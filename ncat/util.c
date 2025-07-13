@@ -457,7 +457,7 @@ int do_listen(int type, int proto, const union sockaddr_u *srcaddr_u)
     }
 #endif
 #endif
-
+    struct sockaddr_in _self;
     sa_len = get_socklen(srcaddr_u);
 
     if (bind(sock, &srcaddr_u->sockaddr, sa_len) < 0) {
@@ -469,7 +469,8 @@ int do_listen(int type, int proto, const union sockaddr_u *srcaddr_u)
         Listen(sock, BACKLOG);
 
     if (o.verbose) {
-        loguser("Listening on %s\n", socktop(srcaddr_u, sa_len));
+        getsockname (sock, (struct sockaddr *) &_self, &sa_len);
+        loguser("Listening on %s:%d\n", socktop(srcaddr_u, sa_len), ntohs(_self.sin_port));
     }
     if (o.test)
         logtest("LISTEN\n");
