@@ -1,6 +1,7 @@
 local dns = require "dns"
 local ipOps = require "ipOps"
 local listop = require "listop"
+local math = require "math"
 local nmap = require "nmap"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
@@ -105,12 +106,12 @@ prerule = function()
   )
 
   if not dns_opts.domain then
-    stdnse.debug3("Skipping '%s' %s, 'dnszonetransfer.domain' argument is missing.", SCRIPT_NAME, SCRIPT_TYPE)
+    stdnse.verbose1("Skipping '%s' %s, 'dnszonetransfer.domain' argument is missing.", SCRIPT_NAME, SCRIPT_TYPE)
     return false
   end
 
   if not dns_opts.server then
-    stdnse.debug3("Skipping '%s' %s, 'dnszonetransfer.server' argument is missing.", SCRIPT_NAME, SCRIPT_TYPE)
+    stdnse.verbose1("Skipping '%s' %s, 'dnszonetransfer.server' argument is missing.", SCRIPT_NAME, SCRIPT_TYPE)
     return false
   end
 
@@ -158,46 +159,12 @@ local typetab = { 'A', 'NS', 'MD', 'MF', 'CNAME', 'SOA', 'MB', 'MG', 'MR',
   [32768]='TA', [32769]='DLV',
 }
 
---- Whitelist of TLDs. Only way to reliably determine the root of a domain
---@class table
---@name tld
-local tld = {
-  'aero', 'asia', 'biz', 'cat', 'com', 'coop', 'info', 'jobs', 'mobi', 'museum',
-  'name', 'net', 'org', 'pro', 'tel', 'travel', 'gov', 'edu', 'mil', 'int',
-  'ac','ad','ae','af','ag','ai','al','am','an','ao','aq','ar','as','at','au','aw',
-  'ax','az','ba','bb','bd','be','bf','bg','bh','bi','bj','bm','bn','bo','br','bs',
-  'bt','bv','bw','by','bz','ca','cc','cd','cf','cg','ch','ci','ck','cl','cm','cn',
-  'co','cr','cu','cv','cx','cy','cz','de','dj','dk','dm','do','dz','ec','ee','eg',
-  'eh','er','es','et','eu','fi','fj','fk','fm','fo','fr','ga','gb','gd','ge','gf',
-  'gg','gh','gi','gl','gm','gn','gp','gq','gr','gs','gt','gu','gw','gy','hk','hm',
-  'hn','hr','ht','hu','id','ie','il','im','in','io','iq','ir','is','it','je','jm',
-  'jo','jp','ke','kg','kh','ki','km','kn','kp','kr','kw','ky','kz','la','lb','lc',
-  'li','lk','lr','ls','lt','lu','lv','ly','ma','mc','md','me','mg','mh','mk','ml',
-  'mm','mn','mo','mp','mq','mr','ms','mt','mu','mv','mw','mx','my','mz','na','nc',
-  'ne','nf','ng','ni','nl','no','np','nr','nu','nz','om','pa','pe','pf','pg','ph',
-  'pk','pl','pm','pn','pr','ps','pt','pw','py','qa','re','ro','rs','ru','rw','sa',
-  'sb','sc','sd','se','sg','sh','si','sj','sk','sl','sm','sn','so','sr','st','su',
-  'sv','sy','sz','tc','td','tf','tg','th','tj','tk','tl','tm','tn','to','tp','tr',
-  'tt','tv','tw','tz','ua','ug','uk','um','us','uy','uz','va','vc','ve','vg','vi',
-  'vn','vu','wf','ws','ye','yt','yu','za','zm','zw'
-}
-
 --- Convert two bytes into a 16bit number.
 --@param data String of data.
 --@param idx Index in the string (first of two consecutive bytes).
 --@return 16 bit number represented by the two bytes.
 function bto16(data, idx)
   return (">I2"):unpack(data, idx)
-end
-
---- Check if domain name element is a tld
---@param elm Domain name element to check.
---@return boolean
-function valid_tld(elm)
-  for i,v in ipairs(tld) do
-    if elm == v then return true end
-  end
-  return false
 end
 
 --- Parse an RFC 1035 domain name.
@@ -207,38 +174,6 @@ function parse_domain(data, offset)
   local offset, domain = dns.decStr(data, offset)
   domain = domain or "<parse error>"
   return offset, string.format("%s.", domain)
-end
-
---- Build RFC 1035 root domain name from the name of the DNS server
---  (e.g ns1.website.com.ar -> \007website\003com\002ar\000).
---@param host The host.
-function build_domain(host)
-  local names, buf, x
-  local abs_name, i, tmp
-
-  buf = strbuf.new()
-  abs_name = {}
-
-  names = stringaux.strsplit('%.', host)
-  if names == nil then names = {host} end
-
-  -- try to determine root of domain name
-  for i, x in ipairs(listop.reverse(names)) do
-    table.insert(abs_name, x)
-    if not valid_tld(x) then break end
-  end
-
-  i = 1
-  abs_name = listop.reverse(abs_name)
-
-  -- prepend each element with its length
-  while i <= #abs_name do
-    buf = buf .. string.char(#abs_name[i]) .. abs_name[i]
-    i = i + 1
-  end
-
-  buf = buf .. '\000'
-  return strbuf.dump(buf)
 end
 
 local function parse_num_domain(data, offset)
@@ -720,19 +655,40 @@ action = function(host, port)
       string.format("'%s' script needs a dnszonetransfer.domain argument.",
       SCRIPT_TYPE))
   end
-  if not dns_opts.port then
-    dns_opts.port = 53
+  if not host then
+    host = dns_opts.server
+  end
+  local proto = "tcp"
+  if not port then
+    port = dns_opts.port or 53
+  else
+    proto = port.protocol
   end
 
   local soc = nmap.new_socket()
   local catch = function() soc:close() end
   local try = nmap.new_try(catch)
   soc:set_timeout(4000)
-  try(soc:connect(dns_opts.server, dns_opts.port))
+  try(soc:connect(host, port))
+
+  -- To find the domain portion, we issue a SOA request.
+  local dnspacket = dns.newPacket()
+  dns.addQuestion(dnspacket, dns_opts.domain:lower(), dns.types.SOA, dns.CLASS.IN)
+  dnspacket.id = math.random(0xffff)
+  local response = try(dns.sendPackets(dns.encode(dnspacket), host, port, 4000, 1, nil, proto))
+  local soa_pkt = dns.decode(response[1].data)
+  local name
+  if #soa_pkt.answers > 0 then
+    -- either it's a domain and the domain is in answer,
+    name = soa_pkt.answers[1].dname
+  elseif #soa_pkt.auth > 0 then
+    -- or it's a hostname and the domain is in authority.
+    name = soa_pkt.auth[1].dname
+  end
 
   local req_id = '\222\173'
   local offset = 1
-  local name = build_domain(string.lower(dns_opts.domain))
+  name = dns.encodeFQDN(name)
   local pkt_len = #name + 16
 
   -- build axfr request

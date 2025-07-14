@@ -164,9 +164,10 @@ end
 -- @param port Port to connect to.
 -- @param timeout Number of ms to wait for a response.
 -- @param cnt Number of tries.
--- @param multiple If true, keep reading multiple responses until timeout.
+-- @param multiple If true, keep reading multiple responses until timeout (ignored for TCP)
 -- @return Status (true or false).
-local function sendPackets(data, host, port, timeout, cnt, multiple, proto)
+-- @return Response (if status is true).
+function sendPackets(data, host, port, timeout, cnt, multiple, proto)
   if proto == nil or proto == 'udp' then
     return sendPacketsUDP(data, host, port, timeout, cnt, multiple)
   else
@@ -590,10 +591,10 @@ function findNiceAdditional(dtype, dec, retAll)
 end
 
 --
--- Encodes a FQDN
+-- Encodes a FQDN as a string of length-prefixed labels
 -- @param fqdn containing the fully qualified domain name
 -- @return encQ containing the encoded value
-local function encodeFQDN(fqdn)
+function encodeFQDN(fqdn)
   if ( not(fqdn) or #fqdn == 0 ) then return "\0" end
 
   local encQ = {}
