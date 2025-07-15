@@ -850,6 +850,7 @@ struct request_context {
 static int channel_request (lua_State *L, int status, lua_KContext ctx) {
     int rc;
     request_context *req_ctx = (request_context *)ctx;
+    const char* request_str = req_ctx->request;
 
     DO_OR_YIELD((rc = libssh2_channel_process_startup(req_ctx->channel,
                     req_ctx->request, req_ctx->request_len,
@@ -859,7 +860,7 @@ static int channel_request (lua_State *L, int status, lua_KContext ctx) {
     free(req_ctx);
 
     if (rc != 0)
-        return luaL_error(L, "Error sending %s request", req_ctx->request);
+        return luaL_error(L, "Error sending %s request", request_str);
 
     return 0;
 }
