@@ -975,7 +975,7 @@ int netutil_eth_datalink(const netutil_eth_t *e) {
 #ifdef WIN32
 #define eth_handle(_eth) (_eth->pt)
 #define eth_handle_send pcap_inject
-#define eth_handle_close eth_close
+#define eth_handle_close pcap_close
 #else
 #define eth_handle(_eth) (_eth->ethsd)
 #define eth_handle_send eth_send
