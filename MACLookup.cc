@@ -188,7 +188,7 @@ const char *MACPrefix2Corp(const u8 *prefix) {
   mac_prefix_init();
 
   /* MA-S: 36 bits (9 nibbles)*/
-  key = ((u64)prefix[0] << 28) + (prefix[1] << 20) + (prefix[2] << 12) + (prefix[3] << 4) + (prefix[4] >> 4);
+  key = ((u64)prefix[0] << 28) + ((u64)prefix[1] << 20) + ((u64)prefix[2] << 12) + ((u64)prefix[3] << 4) + (prefix[4] >> 4);
   corp = findMACEntry(((u64)9 << 36) + key);
   if (corp)
     return corp;
