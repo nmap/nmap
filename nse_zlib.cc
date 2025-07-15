@@ -564,7 +564,10 @@ static int lzstream_decompress(lua_State *L) {
                 success = (l == 0) ? lz_test_eof(L, s) : lz_read_chars(L, s, l);
             }
             else {
-                const char *p = lua_tostring(L, n);
+                size_t l;
+                const char *p = lua_tolstring(L, n, &l);
+                if (l < 2)
+                    return luaL_argerror(L, n, "invalid format");
                 luaL_argcheck(L, p && p[0] == '*', n, "invalid option");
                 switch (p[1]) {
                     case 'l':  /* line */
