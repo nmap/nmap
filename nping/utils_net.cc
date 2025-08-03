@@ -470,13 +470,12 @@ int nping_getpts_simple(const char *origexpr, u16 **list, int *count) {
  *  @warning "*dev" must be able to hold at least 16 bytes */
 int getNetworkInterfaceName(u32 destination, char *dev){
   struct route_nfo rnfo;
-  struct sockaddr_in dst, src;
+  struct sockaddr_in dst;
   bool result=false;
   if(dev==NULL)
     nping_fatal(QT_3, "getNetworkInterfaceName(): NULL value supplied.");
   memset(&rnfo, 0, sizeof(struct route_nfo) );
   memset(&dst, 0, sizeof(struct sockaddr_in) );
-  memset(&src, 0, sizeof(struct sockaddr_in) );
   dst.sin_addr.s_addr = destination;
   dst.sin_family = AF_INET;
   result=route_dst((struct sockaddr_storage *)&dst, &rnfo, NULL, NULL); 
@@ -484,7 +483,7 @@ int getNetworkInterfaceName(u32 destination, char *dev){
     return OP_FAILURE;
   strncpy( dev,  rnfo.ii.devname, 16 );
   return OP_SUCCESS;
-} /* End of getSourceAddress() */
+} /* End of getNetworkInterfaceName() */
 
 
 
@@ -494,18 +493,16 @@ int getNetworkInterfaceName(u32 destination, char *dev){
  *  @warning "*dev" must be able to hold at least 16 bytes */
 int getNetworkInterfaceName(struct sockaddr_storage *dst, char *dev){
   struct route_nfo rnfo;
-  struct sockaddr_storage src;
   bool result=false;
   if(dev==NULL)
     nping_fatal(QT_3, "getNetworkInterfaceName(): NULL value supplied.");
   memset(&rnfo, 0, sizeof(struct route_nfo) );
-  memset(&src, 0, sizeof(struct sockaddr_in) );
   result=route_dst(dst, &rnfo, NULL, NULL); 
   if( result == false )
     return OP_FAILURE;
   strncpy( dev,  rnfo.ii.devname, 16 );
   return OP_SUCCESS;
-} /* End of getSourceAddress() */
+} /* End of getNetworkInterfaceName() */
 
 
 typedef struct cached_host{
