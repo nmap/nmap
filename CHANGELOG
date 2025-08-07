@@ -1,5 +1,7 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o Updated liblua to 5.4.8
+
 o Fixed an issue in FTP bounce scan where a single null byte is written past
   the end of the receive buffer. The issue is triggered by a malicious server
   but does not cause a crash with default builds. [Tyler Zars]
