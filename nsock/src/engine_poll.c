@@ -376,8 +376,7 @@ int poll_loop(struct npool *nsp, int msec_timeout) {
      * timeout) */
     combined_msecs = MIN((unsigned)event_msecs, (unsigned)msec_timeout);
 
-    assert(iod_count <= pinfo->used);
-    assert(pinfo->used < pinfo->max_idx);
+    assert(pinfo->used <= (pinfo->max_idx + 1));
     if (iod_count > 0 && pinfo->used > 0) {
       results_left = Poll(pinfo->events, pinfo->max_idx + 1, combined_msecs);
       if (results_left == -1)
