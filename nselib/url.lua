@@ -323,9 +323,19 @@ end
 -----------------------------------------------------------------------------
 function parse_path(path)
   local parsed = {}
-  path = path or ""
-  --path = string.gsub(path, "%s", "")
-  string.gsub(path, "([^/]+)", function (s) table.insert(parsed, s) end)
+  if path == nil or path == "" then
+    return parsed
+  end
+  for slashes, segment in string.gmatch(path, "(/*)([^/]*)") do
+    -- Append empty segments to ensure presence of consecutive `/` isn't lost.
+    for _ = 1, string.len(slashes) - 1 do
+          table.insert(parsed, "")
+    end
+    -- Append path segment
+    if segment ~= "" then
+        table.insert(parsed, segment)
+    end
+  end
   for i, v in ipairs(parsed) do
     parsed[i] = unescape(v)
   end
@@ -516,6 +526,36 @@ for _, t in ipairs(test_urls) do
   test_suite:add_test(unittest.equal(build(result), t._url), "parse/build round trip")
 end
 
+
+local parse_path_tests = {
+  -- path, expected_tbl, expected_tbl_size
+  {"/", {}, 0},
+  {"//", {""}, 1},
+  {"///", {"", ""}, 2},
+  {"/test", {"test"}, 1},
+  {"/test/", {"test"}, 1},
+  {"/test//", {"test", ""}, 2},
+  {"/test//test", {"test", "", "test"}, 3},
+  {"/test//test/", {"test", "", "test"}, 3},
+}
+
+for test_k, test_v in ipairs(parse_path_tests) do
+  local path, expected_tbl, expected_tbl_size = table.unpack(test_v)
+  local parsed_path = parse_path(path)
+
+  local parsed_path_size = 0
+  for expected_k, expected_v in pairs(expected_tbl) do
+    test_suite:add_test(
+      unittest.equal(parsed_path[expected_k], expected_v),
+      ("parse_path #%d `%q` - tbl key `%q`"):format(test_k, path, expected_k)
+    )
+    parsed_path_size = parsed_path_size + 1
+  end
+  test_suite:add_test(
+    unittest.equal(parsed_path_size, expected_tbl_size),
+    ("parse_path #%d `%q` - tbl size"):format(test_k, path)
+  )
+end
 
 -- path merging tests for compliance with RFC 3986, section 5.2
 -- https://tools.ietf.org/html/rfc3986#section-5.2
