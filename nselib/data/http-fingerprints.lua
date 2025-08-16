@@ -91,7 +91,7 @@ local table = require "table"
 -- CHANGELOG:
 -- Added 120 new signatures taken from exploit-db.com archives from July 2009 to July 2011 [Paulino Calderon]
 -- Added the option to read nikto's database and make use of its fingerprints. [George Chatzisofroniou]
---
+-- Added the option to extract info from <ip>/xmldata?item=all.  [Mohit Bhasi]
 
 fingerprints = {};
 
@@ -4350,6 +4350,22 @@ table.insert(fingerprints, {
       {
         match = 'JBoss Seam Debug Page',
         output = 'JBoss Seam Debug Page'
+      }
+    }
+  });
+
+table.insert(fingerprints, {
+    category = 'general',
+    probes = {
+      {
+        path = '/xmldata?item=all',
+        method = 'GET'
+      }
+    },
+    matches = {
+      {
+        match = '',
+        output = 'XML Data'
       }
     }
   });
