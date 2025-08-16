@@ -16,6 +16,8 @@ Performs password guessing against databases supporting the IBM DB2 protocol suc
 -- force in parallel (default 10).
 -- @args drda-brute.dbname the database name against which to guess
 -- passwords (default <code>"SAMPLE"</code>).
+-- @args drda-brute.useraspass whether or not to try using the username
+-- as the password (default <code>false</code>).
 --
 -- @usage
 -- nmap -p 50000 --script drda-brute <target>
@@ -36,6 +38,7 @@ categories={"intrusive", "brute"}
 -- Revised 05/10/2010 - v0.3 - revised parallelised design <patrik@cqure.net>
 -- Revised 08/14/2010 - v0.4 - renamed script and library from db2* to drda* <patrik@cqure.net>
 -- Revised 09/09/2011 - v0.5 - changed account status text to be more consistent with other *-brute scripts
+-- Revised 06/16/2023 - v0.6 - added support for useraspass argument
 
 portrule = shortport.port_or_service({50000,60000}, {"drda","ibm-db2"}, "tcp", {"open", "open|filtered"})
 
@@ -47,9 +50,18 @@ portrule = shortport.port_or_service({50000,60000}, {"drda","ibm-db2"}, "tcp", {
 -- @return password string
 local function new_usrpwd_iterator (usernames, passwords)
   local function next_username_password ()
+    local useraspass = stdnse.get_script_args('drda-brute.useraspass') or false
+
     for username in usernames do
+      local namenotused = true
       for password in passwords do
+        if ( username == password ) then
+          namenotused = false
+        end
         coroutine.yield(username, password)
+      end
+      if (useraspass and namenotused) then
+        coroutine.yield(username, username)
       end
       passwords("reset")
     end
