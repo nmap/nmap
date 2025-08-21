@@ -138,5 +138,6 @@ clean: clean-nmap clean-ncat clean-nping
 	rm -f LICENSE.formatted
 	rm -f $(IMAGE_NAME)
 	rm -rf distribution.xml finalDist.xml nmap.pkg ncat.pkg ndiff.pkg nping.pkg zenmap.pkg
+	rm -f $(NMAP_TARBALL)
 
 .PHONY: clean export-% stage-%

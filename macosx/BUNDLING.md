@@ -27,13 +27,13 @@ And we'll start over together:
 	And add it to your _$PATH_, so you can run jhbuild without the absolute path:
 	
 	~~~~
-	$ export PATH=$HOME/.local/bin:$PATH
+	$ export PATH=$HOME/.new_local/bin:$PATH
 	~~~~
 	
 2.	In `~/.config/jhbuildrc-custom`, make sure that this line is setup properly:
 
 	~~~~
-	setup_sdk(target="10.14")
+	setup_sdk(target="10.15",architectures=["x86_64"])
 	~~~~
 	
 3.	Now do:

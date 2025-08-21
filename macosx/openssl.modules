@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!DOCTYPE moduleset SYSTEM "moduleset.dtd" [
-<!ENTITY nmap_version "7.95SVN">
-<!ENTITY openssl_version "3.0.16">
+<!ENTITY nmap_version "7.98">
+<!ENTITY openssl_version "3.0.17">
 <!ENTITY libpcap_version "1.10.5">
 <!ENTITY libssh2_version "1.11.1">
 ]>

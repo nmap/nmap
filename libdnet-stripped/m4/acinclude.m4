@@ -94,7 +94,7 @@ dnl
 AC_DEFUN([AC_DNET_BSD_BPF],
     [AC_MSG_CHECKING(for Berkeley Packet Filter)
     AC_CACHE_VAL(ac_cv_dnet_bsd_bpf,
-    if test -c /dev/bpf ; then
+    if test -c /dev/bpf -o -c /dev/bpf0 ; then
         ac_cv_dnet_bsd_bpf=yes
     else
         ac_cv_dnet_bsd_bpf=no

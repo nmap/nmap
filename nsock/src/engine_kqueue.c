@@ -158,9 +158,6 @@ int kqueue_iod_register(struct npool *nsp, struct niod *iod, struct nevent *nse,
 }
 
 int kqueue_iod_unregister(struct npool *nsp, struct niod *iod) {
-  int sd;
-  struct kqueue_engine_info *kinfo = (struct kqueue_engine_info *)nsp->engine_data;
-
   /* some IODs can be unregistered here if they're associated to an event that was
    * immediately completed */
   if (IOD_PROPGET(iod, IOD_REGISTERED)) {
