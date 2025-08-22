@@ -245,7 +245,7 @@ struct ObservationPrint {
   FingerPrintScan scan_info;
   std::vector<FingerTest> extra_tests;
   const char *getInfo(FingerPrintScan::Attribute attr) const {
-    if (attr >= FingerPrintScan::MAX_ATTR)
+    if (attr >= FingerPrintScan::MAX_ATTR || attr < 0)
       return NULL;
     return scan_info.values[static_cast<int>(attr)];
   }

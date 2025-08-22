@@ -1,12 +1,30 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+Nmap 7.98 [2025-08-21]
+
+o [SECURITY] Rebuilt the Windows self-installer with NSIS 3.11, addressing
+  CVE-2025-43715--a race condition in earlier NSIS versions that could allow
+  local attackers to escalate to SYSTEM privileges when a vulnerable installer is
+  run as SYSTEM. The Nmap installer does not run as SYSTEM by default.
+
+o Upgraded included libraries: OpenSSL 3.0.17, Lua 5.4.8
+
+o [Windows] Upgraded the included version of Npcap from 1.82 to 1.83, improving
+  compatibility with PPPoE connections. See https://npcap.com/changelog
+
+o [macOS][GH#3127] Fix "dnet: Failed to open device en0" errors on macOS since
+  Nmap 7.96. [Daniel Miller]
+
 o Fixed an issue in FTP bounce scan where a single null byte is written past
   the end of the receive buffer. The issue is triggered by a malicious server
   but does not cause a crash with default builds. [Tyler Zars]
 
-o [GH#3130] Fix a crash (stack overflow due to excessive recursion) in the
+o [GH#3130] Fix a crash (stack exhaustion due to excessive recursion) in the
   parallel DNS resolver. Additionally, improved performance by processing
   responses that come after the request has timed out. [Daniel Miller]
+
+o [GH#2148] Fix the error, "Assertion failed: (datalink == DLT_EN10MB), function begin_sniffer, file scan_engine_raw.cc"
+  when using Nmap with certain VPN interfaces. [Daniel Miller]
 
 o [GH#2757] Fix a crash in traceroute when using randomly-generated decoys:
   "Assertion `source->ss_family == AF_INET' failed" [Daniel Miller]
@@ -16,23 +34,22 @@ o [GH#2899] When IP protocol scanning on IPv6 (-sO -6), skip protocol numbers
   used, these would fail the assertion "len == (u32) ntohs(ip6->ip6_plen)"
   [Daniel Miller]
 
-o [NSE][GH#3133] Fix the error "nse_nsock.cc:637: void receive_callback(nsock_pool, nsock_event, void*): Assertion `lua_status(L) == 1' failed."
-  when reading from an SSL connection. [Daniel Miller]
-
 o [GH#3086] Prevent TCP Connect scan (-sT) from leaking one socket per
   hostgroup, which led to progressively slower scans and assertion failures in
   other scan phases. [Daniel Miller]
+
+o [NSE][GH#3133] Fix the error "nse_nsock.cc:637: void receive_callback(nsock_pool, nsock_event, void*): Assertion `lua_status(L) == 1' failed."
+  when reading from an SSL connection. [Daniel Miller]
 
 o [NSE] Added NSE bindings for more libssh2 functions: channel_request,
   channel_request_pty_ex, channel_shell, and userauth_keyboard_interactive.
   ssh-brute will now use keyboard-interactive auth if password auth is not
   offered. [Daniel Miller, CrowdStrike]
 
+o [NSE][GH#3014] Fix dns-zone-transfer to handle nontraditional TLDs [Daniel Miller]
+
 o Fix a bug that was causing Nmap to send empty DNS packets for each target
   that was not found up instead of just skipping them for reverse DNS.
-
-o [macOS][GH#3127] Fix "dnet: Failed to open device en0" errors on macOS since
-  Nmap 7.96. [Daniel Miller]
 
 o [NSE] Fix/update/enhance tls.lua for newer TLSv1.3 ciphers, including
   post-quantum ciphersuites.
@@ -373,7 +390,7 @@ o [Ncat] Addressed an issue from the Debian bug tracker
   correctly used in the ProxyCommand option of OpenSSH.
 
 o Improved DNS domain name parsing to avoid recursion and enforce name length
-  limits, avoiding a theoretical stack overflow issue with certain crafted DNS
+  limits, avoiding a theoretical stack exhaustion issue with certain crafted DNS
   server responses, reported by Philippe Antoine.
 
 o [GH#2338][NSE] Fix mpint packing in ssh2 library, which was causing OpenSSH
