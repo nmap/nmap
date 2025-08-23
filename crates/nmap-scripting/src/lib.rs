@@ -1,8 +1,5 @@
-// NSE (Nmap Scripting Engine) functionality - placeholder
-pub struct ScriptEngine;
+pub mod engine;
+pub mod builtin_scripts;
 
-impl ScriptEngine {
-    pub fn new() -> Self {
-        Self
-    }
-}
+pub use engine::*;
+pub use builtin_scripts::*;

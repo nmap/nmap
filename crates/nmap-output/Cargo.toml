@@ -5,6 +5,7 @@ edition = "2021"
 
 [dependencies]
 nmap-net = { path = "../nmap-net" }
+nmap-core = { path = "../nmap-core" }
 tokio = { version = "1.0", features = ["full"] }
 anyhow = "1.0"
 tracing = "0.1"

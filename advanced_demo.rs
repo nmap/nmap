@@ -1,4 +1,4 @@
-// Advanced Nmap Rust demonstration with real TCP scanning
+// Advanced R-Map demonstration with real TCP scanning
 
 use std::net::{IpAddr, SocketAddr, TcpStream};
 use std::time::{Duration, Instant};
@@ -339,7 +339,7 @@ async fn main() {
     let args: Vec<String> = std::env::args().collect();
     
     if args.len() < 2 {
-        println!("Nmap-rs - Advanced Rust Network Scanner Demo");
+        println!("R-Map - Advanced Rust Network Scanner Demo");
         println!();
         println!("Usage: {} [options] <target>", args[0]);
         println!();

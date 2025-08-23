@@ -6,7 +6,7 @@ use tokio::net::TcpStream;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    println!("🔍 Simple Nmap Rust - Service Detection Demo");
+    println!("🔍 R-Map - Service Detection Demo");
     println!("===========================================\n");
 
     // Demo targets

@@ -7,7 +7,6 @@ edition = "2021"
 nmap-net = { path = "../nmap-net" }
 nmap-targets = { path = "../nmap-targets" }
 nmap-timing = { path = "../nmap-timing" }
-nmap-output = { path = "../nmap-output" }
 tokio = { version = "1.0", features = ["full"] }
 anyhow = "1.0"
 tracing = "0.1"

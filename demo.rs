@@ -1,4 +1,4 @@
-// Simple demonstration of Nmap Rust conversion concepts
+// Simple demonstration of R-Map concepts
 
 use std::net::{IpAddr, Ipv4Addr};
 use std::collections::HashMap;

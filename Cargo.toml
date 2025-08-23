@@ -1,45 +1,21 @@
-[workspace]
-members = [
-    "crates/nmap-core",
-    "crates/nmap-cli", 
-    "crates/nmap-engine",
-    "crates/nmap-net",
-    "crates/nmap-scripting",
-    "crates/nmap-output",
-    "crates/nmap-targets",
-    "crates/nmap-timing",
-    "crates/nmap-os-detect",
-    "crates/nmap-service-detect",
-    "crates/nmap-bin"
-]
-resolver = "2"
-
 [package]
-name = "nmap-rust"
+name = "rmap"
 version = "0.1.0"
 edition = "2021"
+description = "R-Map: A modern, memory-safe network mapper written in Rust"
+authors = ["R-Map Contributors"]
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/Ununp3ntium115/nmap"
+keywords = ["network", "scanner", "security", "nmap", "rust"]
+categories = ["network-programming", "command-line-utilities"]
 
 [dependencies]
 tokio = { version = "1.0", features = ["full"] }
-env_logger = "0.11"
-chrono = { version = "0.4", features = ["serde"] }
-
-[[bin]]
-name = "demo"
-path = "demo.rs"
-
-[[bin]]
-name = "advanced_demo"
-path = "advanced_demo.rs"
-
-[[bin]]
-name = "test_architecture"
-path = "test_architecture.rs"
-
-[[bin]]
-name = "os_service_demo"
-path = "os_service_demo.rs"
-
-[[bin]]
-name = "simple_service_demo"
-path = "simple_service_demo.rs"
+anyhow = "1.0"
+clap = { version = "4.0", features = ["derive"] }
+tracing = "0.1"
+tracing-subscriber = "0.3"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+ipnet = "2.9"
+dns-lookup = "2.0"

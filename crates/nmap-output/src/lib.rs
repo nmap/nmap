@@ -28,9 +28,9 @@ impl OutputManager {
             match format {
                 OutputFormat::Normal => {
                     println!("Starting {} {} ( {} ) at {} UTC",
-                             nmap_core::NMAP_NAME,
-                             nmap_core::NMAP_VERSION,
-                             nmap_core::NMAP_URL,
+                             nmap_core::RMAP_NAME,
+                             nmap_core::RMAP_VERSION,
+                             nmap_core::RMAP_URL,
                              chrono::Utc::now().format("%Y-%m-%d %H:%M"));
                 }
                 _ => {

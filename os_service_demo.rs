@@ -12,7 +12,7 @@ use tokio::time::Duration;
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     env_logger::init();
     
-    println!("🔍 Nmap Rust - OS Detection and Service Detection Demo");
+    println!("🔍 R-Map - OS Detection and Service Detection Demo");
     println!("====================================================\n");
 
     // Demo targets - using localhost and common test addresses
@@ -285,7 +285,7 @@ fn create_scan_summary(
 ) -> String {
     let mut summary = String::new();
     
-    summary.push_str(&format!("Nmap Rust Scan Report for {}\n", target.ip()));
+    summary.push_str(&format!("R-Map Scan Report for {}\n", target.ip()));
     summary.push_str(&format!("Scan completed at {}\n\n", chrono::Utc::now().format("%Y-%m-%d %H:%M:%S UTC")));
     
     summary.push_str("PORT STATE SERVICE VERSION\n");

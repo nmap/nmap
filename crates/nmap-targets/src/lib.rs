@@ -15,9 +15,9 @@ pub struct TargetManager {
 }
 
 impl TargetManager {
-    pub fn new(options: &nmap_core::NmapOptions) -> Result<Self> {
+    pub fn new(target_specs: Vec<String>) -> Result<Self> {
         Ok(Self {
-            target_specs: options.targets.clone(),
+            target_specs,
         })
     }
     

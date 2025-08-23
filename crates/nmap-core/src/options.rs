@@ -1,101 +1,96 @@
+use anyhow::Result;
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
-use std::net::{IpAddr, SocketAddr};
-use std::path::PathBuf;
+use std::net::IpAddr;
 use std::time::Duration;
-use chrono::{DateTime, Utc};
 
-use nmap_net::{ScanType, PortSpec, PingType};
-use nmap_timing::TimingTemplate;
-use nmap_output::OutputFormat;
-
-/// Global Nmap options structure - Rust equivalent of NmapOps class
+/// Nmap scanning options and configuration
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct NmapOptions {
-    // Basic scan configuration
-    pub scan_types: Vec<ScanType>,
-    pub ping_types: Vec<PingType>,
-    pub port_specs: Vec<PortSpec>,
-    
     // Target specification
     pub targets: Vec<String>,
-    pub target_file: Option<PathBuf>,
-    pub random_targets: Option<u32>,
-    pub exclude_targets: Vec<String>,
-    pub exclude_file: Option<PathBuf>,
+    
+    // Port specification
+    pub ports: String,
+    
+    // Scan types
+    pub tcp_scan: bool,
+    pub syn_scan: bool,
+    pub udp_scan: bool,
+    pub connect_scan: bool,
+    
+    // Host discovery
+    pub skip_ping: bool,
+    pub ping_types: Vec<PingType>,
+    
+    // Service/Version detection
+    pub service_detection: bool,
+    pub version_detection: bool,
+    pub os_detection: bool,
+    
+    // Output options
+    pub verbose: u8,
+    pub debug_level: u8,
+    pub output_format: String,
+    pub output_file: Option<String>,
     
     // Timing and performance
-    pub timing_template: TimingTemplate,
-    pub max_parallelism: Option<u32>,
-    pub min_parallelism: Option<u32>,
-    pub max_rtt_timeout: Duration,
-    pub min_rtt_timeout: Duration,
-    pub initial_rtt_timeout: Duration,
+    pub timing_template: u8,
+    pub max_rate: Option<u32>,
+    pub min_rate: Option<u32>,
     pub max_retries: u32,
-    pub host_timeout: Option<Duration>,
-    pub scan_delay: Option<Duration>,
-    pub max_scan_delay: Option<Duration>,
-    pub min_rate: Option<f64>,
-    pub max_rate: Option<f64>,
+    pub host_timeout: Duration,
+    pub scan_delay: Duration,
     
-    // Network configuration
-    pub address_family: AddressFamily,
-    pub source_addr: Option<IpAddr>,
+    // Advanced options
+    pub source_ip: Option<IpAddr>,
     pub source_port: Option<u16>,
     pub interface: Option<String>,
     pub spoof_mac: Option<String>,
     pub decoys: Vec<IpAddr>,
-    pub ttl: Option<u8>,
-    pub ip_options: Option<Vec<u8>>,
     
-    // Detection options
-    pub os_detection: bool,
-    pub version_detection: bool,
-    pub version_intensity: u8,
-    pub script_scan: bool,
-    pub script_args: HashMap<String, String>,
-    pub script_files: Vec<String>,
-    
-    // Output options
-    pub output_formats: Vec<OutputFormat>,
-    pub output_files: HashMap<OutputFormat, PathBuf>,
-    pub verbosity: u8,
-    pub debug_level: u8,
-    pub packet_trace: bool,
-    pub reason: bool,
-    pub open_only: bool,
-    pub append_output: bool,
-    
-    // Advanced options
-    pub privileged: Option<bool>,
-    pub send_eth: bool,
-    pub send_ip: bool,
+    // Firewall/IDS evasion
     pub fragment_packets: bool,
-    pub mtu: Option<u16>,
-    pub data_payload: Option<Vec<u8>>,
-    pub data_string: Option<String>,
-    pub data_length: Option<usize>,
-    pub bad_checksum: bool,
-    
-    // DNS options
-    pub dns_servers: Vec<IpAddr>,
-    pub system_dns: bool,
-    pub resolve_all: bool,
-    pub never_resolve: bool,
-    
-    // Misc options
-    pub traceroute: bool,
+    pub mtu_discovery: bool,
     pub randomize_hosts: bool,
-    pub noninteractive: bool,
-    pub datadir: Option<PathBuf>,
-    pub stylesheet: Option<String>,
-    pub webxml: bool,
-    pub no_stylesheet: bool,
     
-    // Internal state
-    pub start_time: DateTime<Utc>,
-    pub resuming: bool,
-    pub locale: Option<String>,
+    // NSE options
+    pub script_scan: bool,
+    pub scripts: Vec<String>,
+    pub script_args: Vec<String>,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+pub enum PingType {
+    Icmp,
+    TcpSyn,
+    TcpAck,
+    Udp,
+    Sctp,
+    ArpPing,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+pub enum ScanTechnique {
+    TcpConnect,
+    TcpSyn,
+    TcpAck,
+    TcpWindow,
+    TcpMaimon,
+    UdpScan,
+    SctpInit,
+    SctpCookieEcho,
+    IpProtocol,
+    FtpBounce,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+pub enum TimingTemplate {
+    Paranoid = 0,
+    Sneaky = 1,
+    Polite = 2,
+    Normal = 3,
+    Aggressive = 4,
+    Insane = 5,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
@@ -108,80 +103,46 @@ pub enum AddressFamily {
 impl Default for NmapOptions {
     fn default() -> Self {
         Self {
-            scan_types: vec![ScanType::Syn],
-            ping_types: vec![PingType::IcmpPing, PingType::TcpSyn],
-            port_specs: Vec::new(),
-            
             targets: Vec::new(),
-            target_file: None,
-            random_targets: None,
-            exclude_targets: Vec::new(),
-            exclude_file: None,
+            ports: "1-1000".to_string(),
             
-            timing_template: TimingTemplate::Normal,
-            max_parallelism: None,
-            min_parallelism: None,
-            max_rtt_timeout: Duration::from_millis(10000),
-            min_rtt_timeout: Duration::from_millis(100),
-            initial_rtt_timeout: Duration::from_millis(1000),
-            max_retries: 10,
-            host_timeout: None,
-            scan_delay: None,
-            max_scan_delay: None,
-            min_rate: None,
+            tcp_scan: true,
+            syn_scan: false,
+            udp_scan: false,
+            connect_scan: false,
+            
+            skip_ping: false,
+            ping_types: vec![PingType::Icmp, PingType::TcpSyn],
+            
+            service_detection: false,
+            version_detection: false,
+            os_detection: false,
+            
+            verbose: 0,
+            debug_level: 0,
+            output_format: "normal".to_string(),
+            output_file: None,
+            
+            timing_template: 3, // Normal
             max_rate: None,
+            min_rate: None,
+            max_retries: 3,
+            host_timeout: Duration::from_secs(300),
+            scan_delay: Duration::from_millis(0),
             
-            address_family: AddressFamily::Unspecified,
-            source_addr: None,
+            source_ip: None,
             source_port: None,
             interface: None,
             spoof_mac: None,
             decoys: Vec::new(),
-            ttl: None,
-            ip_options: None,
             
-            os_detection: false,
-            version_detection: false,
-            version_intensity: 7,
-            script_scan: false,
-            script_args: HashMap::new(),
-            script_files: Vec::new(),
-            
-            output_formats: vec![OutputFormat::Normal],
-            output_files: HashMap::new(),
-            verbosity: 1,
-            debug_level: 0,
-            packet_trace: false,
-            reason: false,
-            open_only: false,
-            append_output: false,
-            
-            privileged: None,
-            send_eth: false,
-            send_ip: false,
             fragment_packets: false,
-            mtu: None,
-            data_payload: None,
-            data_string: None,
-            data_length: None,
-            bad_checksum: false,
-            
-            dns_servers: Vec::new(),
-            system_dns: false,
-            resolve_all: false,
-            never_resolve: false,
-            
-            traceroute: false,
+            mtu_discovery: false,
             randomize_hosts: false,
-            noninteractive: false,
-            datadir: None,
-            stylesheet: None,
-            webxml: false,
-            no_stylesheet: false,
             
-            start_time: Utc::now(),
-            resuming: false,
-            locale: None,
+            script_scan: false,
+            scripts: Vec::new(),
+            script_args: Vec::new(),
         }
     }
 }
@@ -190,50 +151,143 @@ impl NmapOptions {
     pub fn new() -> Self {
         Self::default()
     }
-    
-    /// Check if running with root privileges
-    pub fn is_privileged(&self) -> bool {
-        self.privileged.unwrap_or_else(|| {
-            #[cfg(unix)]
-            {
-                unsafe { libc::geteuid() == 0 }
-            }
-            #[cfg(windows)]
-            {
-                // TODO: Implement Windows privilege check
-                false
-            }
-        })
+
+    pub fn with_targets(mut self, targets: Vec<String>) -> Self {
+        self.targets = targets;
+        self
     }
-    
-    /// Get the protocol family based on address family
-    pub fn protocol_family(&self) -> i32 {
-        match self.address_family {
-            AddressFamily::IPv4 => libc::AF_INET,
-            AddressFamily::IPv6 => libc::AF_INET6,
-            AddressFamily::Unspecified => libc::AF_UNSPEC,
-        }
+
+    pub fn with_ports(mut self, ports: String) -> Self {
+        self.ports = ports;
+        self
     }
-    
-    /// Validate and adjust options based on privileges and compatibility
-    pub fn validate(&mut self) -> crate::Result<()> {
-        // Adjust ping types based on privileges
-        if !self.is_privileged() {
-            self.ping_types.retain(|pt| match pt {
-                PingType::IcmpPing | PingType::IcmpTimestamp | PingType::IcmpMask => false,
-                _ => true,
-            });
-            
-            if self.ping_types.is_empty() {
-                self.ping_types.push(PingType::TcpConnect);
-            }
+
+    pub fn with_service_detection(mut self, enable: bool) -> Self {
+        self.service_detection = enable;
+        self
+    }
+
+    pub fn with_os_detection(mut self, enable: bool) -> Self {
+        self.os_detection = enable;
+        self
+    }
+
+    pub fn with_verbose(mut self, level: u8) -> Self {
+        self.verbose = level;
+        self
+    }
+
+    pub fn with_timing_template(mut self, template: u8) -> Self {
+        self.timing_template = template.min(5);
+        self
+    }
+
+    pub fn validate(&self) -> Result<()> {
+        if self.targets.is_empty() {
+            return Err(anyhow::anyhow!("No targets specified"));
         }
-        
-        // Set default ports if none specified
-        if self.port_specs.is_empty() {
-            self.port_specs.push(PortSpec::default_tcp());
+
+        if self.timing_template > 5 {
+            return Err(anyhow::anyhow!("Invalid timing template: {}", self.timing_template));
         }
-        
+
         Ok(())
+    }
+
+    pub fn get_timing_values(&self) -> TimingValues {
+        match self.timing_template {
+            0 => TimingValues::paranoid(),
+            1 => TimingValues::sneaky(),
+            2 => TimingValues::polite(),
+            3 => TimingValues::normal(),
+            4 => TimingValues::aggressive(),
+            5 => TimingValues::insane(),
+            _ => TimingValues::normal(),
+        }
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct TimingValues {
+    pub max_rtt_timeout: Duration,
+    pub min_rtt_timeout: Duration,
+    pub initial_rtt_timeout: Duration,
+    pub max_retries: u32,
+    pub host_group_size: usize,
+    pub scan_delay: Duration,
+    pub max_scan_delay: Duration,
+}
+
+impl TimingValues {
+    pub fn paranoid() -> Self {
+        Self {
+            max_rtt_timeout: Duration::from_secs(300),
+            min_rtt_timeout: Duration::from_secs(5),
+            initial_rtt_timeout: Duration::from_secs(5),
+            max_retries: 10,
+            host_group_size: 1,
+            scan_delay: Duration::from_secs(5),
+            max_scan_delay: Duration::from_secs(300),
+        }
+    }
+
+    pub fn sneaky() -> Self {
+        Self {
+            max_rtt_timeout: Duration::from_secs(150),
+            min_rtt_timeout: Duration::from_secs(2),
+            initial_rtt_timeout: Duration::from_secs(2),
+            max_retries: 7,
+            host_group_size: 1,
+            scan_delay: Duration::from_secs(1),
+            max_scan_delay: Duration::from_secs(150),
+        }
+    }
+
+    pub fn polite() -> Self {
+        Self {
+            max_rtt_timeout: Duration::from_secs(100),
+            min_rtt_timeout: Duration::from_millis(500),
+            initial_rtt_timeout: Duration::from_secs(1),
+            max_retries: 6,
+            host_group_size: 1,
+            scan_delay: Duration::from_millis(400),
+            max_scan_delay: Duration::from_secs(100),
+        }
+    }
+
+    pub fn normal() -> Self {
+        Self {
+            max_rtt_timeout: Duration::from_secs(10),
+            min_rtt_timeout: Duration::from_millis(100),
+            initial_rtt_timeout: Duration::from_secs(1),
+            max_retries: 3,
+            host_group_size: 64,
+            scan_delay: Duration::from_millis(0),
+            max_scan_delay: Duration::from_secs(10),
+        }
+    }
+
+    pub fn aggressive() -> Self {
+        Self {
+            max_rtt_timeout: Duration::from_secs(5),
+            min_rtt_timeout: Duration::from_millis(50),
+            initial_rtt_timeout: Duration::from_millis(500),
+            max_retries: 2,
+            host_group_size: 128,
+            scan_delay: Duration::from_millis(0),
+            max_scan_delay: Duration::from_secs(5),
+        }
+    }
+
+    pub fn insane() -> Self {
+        Self {
+            max_rtt_timeout: Duration::from_secs(2),
+            min_rtt_timeout: Duration::from_millis(25),
+            initial_rtt_timeout: Duration::from_millis(250),
+            max_retries: 1,
+            host_group_size: 256,
+            scan_delay: Duration::from_millis(0),
+            max_scan_delay: Duration::from_secs(2),
+        }
     }
 }

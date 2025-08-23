@@ -1,5 +1,5 @@
 use anyhow::Result;
-use nmap_core::{NmapOptions, NMAP_NAME, NMAP_VERSION, NMAP_URL};
+use nmap_core::{NmapOptions, RMAP_NAME, RMAP_VERSION, RMAP_URL};
 use std::collections::HashMap;
 
 pub struct Cli {
@@ -133,12 +133,12 @@ fn parse_timing_template(timing: &str) -> Result<nmap_timing::TimingTemplate> {
 }
 
 fn print_version() {
-    println!("{} {} ( {} )", NMAP_NAME, NMAP_VERSION, NMAP_URL);
+    println!("{} {} ( {} )", RMAP_NAME, RMAP_VERSION, RMAP_URL);
 }
 
 fn print_usage() {
-    println!("{} {} ( {} )", NMAP_NAME, NMAP_VERSION, NMAP_URL);
-    println!("Usage: nmap [Scan Type(s)] [Options] {{target specification}}");
+    println!("{} {} ( {} )", RMAP_NAME, RMAP_VERSION, RMAP_URL);
+    println!("Usage: rmap [Scan Type(s)] [Options] {{target specification}}");
     println!();
     println!("TARGET SPECIFICATION:");
     println!("  Can pass hostnames, IP addresses, networks, etc.");

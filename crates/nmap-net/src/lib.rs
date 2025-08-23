@@ -3,12 +3,14 @@ pub mod port_spec;
 pub mod ping_types;
 pub mod socket_utils;
 pub mod raw_socket;
+pub mod packet;
 
 pub use scan_types::ScanType;
 pub use port_spec::PortSpec;
 pub use ping_types::PingType;
 pub use socket_utils::*;
 pub use raw_socket::{RawSocket, TcpResponse, parse_tcp_response};
+pub use packet::*;
 
 use serde::{Deserialize, Serialize};
 use std::net::{IpAddr, SocketAddr};

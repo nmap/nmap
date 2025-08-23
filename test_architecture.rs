@@ -427,7 +427,7 @@ mod tests {
 }
 
 fn main() {
-    println!("Running Nmap Rust architecture tests...");
+    println!("Running R-Map architecture tests...");
     
     // This would normally be handled by `cargo test`
     // but we can run individual test functions here for demonstration
