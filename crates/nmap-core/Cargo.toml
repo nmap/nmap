@@ -1,0 +1,17 @@
+[package]
+name = "nmap-core"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+nmap-net = { path = "../nmap-net" }
+nmap-targets = { path = "../nmap-targets" }
+nmap-timing = { path = "../nmap-timing" }
+nmap-output = { path = "../nmap-output" }
+tokio = { version = "1.0", features = ["full"] }
+anyhow = "1.0"
+tracing = "0.1"
+serde = { version = "1.0", features = ["derive"] }
+chrono = { version = "0.4", features = ["serde"] }
+uuid = { version = "1.0", features = ["v4"] }
+libc = "0.2"

@@ -1,0 +1,13 @@
+[package]
+name = "nmap-engine"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+nmap-net = { path = "../nmap-net" }
+nmap-timing = { path = "../nmap-timing" }
+tokio = { version = "1.0", features = ["full"] }
+anyhow = "1.0"
+tracing = "0.1"
+futures = "0.3"
+rand = "0.8"

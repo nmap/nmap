@@ -1,0 +1,9 @@
+[package]
+name = "nmap-scripting"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+nmap-net = { path = "../nmap-net" }
+anyhow = "1.0"
+mlua = "0.9"
