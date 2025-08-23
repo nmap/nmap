@@ -1,12 +1,12 @@
 use anyhow::Result;
 use clap::{Arg, ArgAction, Command};
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
+
 use std::net::IpAddr;
 use std::time::{Duration, Instant};
 use tokio::net::TcpStream;
 use tokio::time::timeout;
-use tracing::{error, info, warn};
+use tracing::{error, info};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 struct ScanResult {
