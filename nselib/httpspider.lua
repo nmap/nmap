@@ -125,6 +125,7 @@ Options = {
     o.timeout  = options.timeout or 10000
     o.whitelist = o.whitelist or {}
     o.blacklist = o.blacklist or {}
+    o.cookies = o.cookies or {}
     local removewww = function(url) return string.gsub(url, "^www%.", "") end
 
     -- set up the appropriate matching functions
@@ -656,7 +657,7 @@ Crawler = {
     o:loadLibraryArguments()
     o:loadDefaultArguments()
 
-    local response = http.get(o.host, o.port, '/', { timeout = o.options.timeout, redirect_ok = o.options.redirect_ok, no_cache = o.options.no_cache } )
+    local response = http.get(o.host, o.port, '/', { timeout = o.options.timeout, redirect_ok = o.options.redirect_ok, no_cache = o.options.no_cache, cookies=o.options.cookies } )
 
     if ( not(response) or 'table' ~= type(response) ) then
       return
@@ -856,14 +857,36 @@ Crawler = {
         end
         if is_web_file then
           stdnse.debug2("%s: Using GET: %s", LIBRARY_NAME, file)
-          response = http.get(url:getHost(), url:getPort(), url:getFile(), { timeout = self.options.timeout, redirect_ok = self.options.redirect_ok, no_cache = self.options.no_cache } )
+          response = http.get(url:getHost(), url:getPort(), url:getFile(), { timeout = self.options.timeout, redirect_ok = self.options.redirect_ok, no_cache = self.options.no_cache, cookies = self.options.cookies } )
         else
           stdnse.debug2("%s: Using HEAD: %s", LIBRARY_NAME, file)
           response = http.head(url:getHost(), url:getPort(), url:getFile())
         end
       else
         -- fetch the url, and then push it to the processed table
-        response = http.get(url:getHost(), url:getPort(), url:getFile(), { timeout = self.options.timeout, redirect_ok = self.options.redirect_ok, no_cache = self.options.no_cache } )
+        response = http.get(url:getHost(), url:getPort(), url:getFile(), { timeout = self.options.timeout, redirect_ok = self.options.redirect_ok, no_cache = self.options.no_cache, cookies = self.options.cookies } )
+        if (self.options and self.options.cookies and #self.options.cookies>0) then
+          --We replace the value of the cookie if same name cookie exists
+          --Else, we append it in the end.
+          local flag = 0
+          for k,v in pairs(response.cookies) do
+            for k1,v1 in pairs(self.options.cookies) do
+              flag = 0   
+              if(v.name == v1.name) then
+                self.options.cookies[k1].value = response.cookies[k].value
+                flag = 1
+                break
+              end 
+            end
+            if (flag == 0) then
+              self.options.cookies[#options.cookies+1] = response.cookies[k]
+            end
+          end
+        else
+          if self.options and self.options.cookies then
+            self.options.cookies = response.cookies
+          end
+        end         
       end
 
       self.processed[tostring(url)] = true
@@ -930,7 +953,9 @@ Crawler = {
     if ( nil == self.options.doscraping ) then
       self.options.doscraping = stdnse.get_script_args(sn .. ".doscraping")
     end
-
+    if ( nil == self.options.cookies ) then
+      self.options.cookies = stdnse.get_script_args(sn .. ".cookies")
+    end    
   end,
 
   -- Loads the argument on a library level
@@ -960,6 +985,9 @@ Crawler = {
     end
     if ( nil == self.options.doscraping ) then
       self.options.doscraping = stdnse.get_script_args(ln .. ".doscraping")
+    end
+    if ( nil == self.options.cookies ) then
+      self.options.cookies = stdnse.get_script_args(ln .. ".cookies")
     end
   end,
 
