@@ -956,6 +956,13 @@ void UltraScanInfo::Init(std::vector<Target *> &Targets, const struct scan_lists
       assert(!(sendpref & PACKET_SEND_IP_STRONG));
       sendpref = PACKET_SEND_ETH;
     }
+#ifndef WIN32
+    /* Windows does loopback via Npcap (eth),
+     * but we want to avoid that for everyone else. */
+    if (Targets[0]->ifType() == devt_loopback) {
+      sendpref = PACKET_SEND_IP;
+    }
+#endif
     if (!raw_socket_or_eth(sendpref, Targets[0]->deviceName(), &rawsd, &ethsd)) {
       fatal("Couldn't open a raw socket or eth handle.");
     }
