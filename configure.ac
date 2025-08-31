@@ -482,6 +482,7 @@ if test $have_libpcap = yes; then
 fi
 
 if test $have_libpcap != yes; then
+  ac_configure_args="$ac_configure_args '--disable-dbus'"
   AC_CONFIG_SUBDIRS(libpcap)
   if test "${LIBPCAP_INC+set}" = "set"; then
     CPPFLAGS="$CPPFLAGS -I$LIBPCAP_INC"
