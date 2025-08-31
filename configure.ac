@@ -846,7 +846,6 @@ else
     AC_SEARCH_LIBS(lua_isyieldable, [lua5.4 lua54 lua], [have_lua=yes],, [-lm])
     AC_LANG_PUSH(C)
     # We need Lua 5.4 exactly
-    AC_MSG_CHECKING([for lua version == 504])
     AC_PREPROC_IFELSE([ AC_LANG_PROGRAM( [[
       #ifdef HAVE_LUA5_4_LUA_H
           #include <lua5.4/lua.h>
@@ -865,6 +864,8 @@ else
         [[if(LUA_VERSION_NUM != 504) return 1;]])
     ],
     [have_lua=yes], [have_lua=no])
+    AC_MSG_CHECKING([for lua version == 504])
+    AC_MSG_RESULT([$have_lua])
     AC_LANG_POP(C)
 
     LUA_BUILD=""
@@ -873,8 +874,9 @@ else
   fi
 
   # if we didn't find we use our own
+  AC_MSG_CHECKING([whether lua was found])
   if test $have_lua != yes; then
-    AC_MSG_RESULT(no)
+    AC_MSG_RESULT([no, will use our own])
     CPPFLAGS="-I\$(top_srcdir)/$LIBLUADIR $CPPFLAGS"
     LIBLUA_LIBS="\$(top_srcdir)/$LIBLUADIR/liblua.a"
     LUA_BUILD="build-lua"
@@ -939,8 +941,9 @@ if test $have_liblinear != yes; then
 fi
 
 # if we didn't find we use our own
+AC_MSG_CHECKING([whether liblinear was found])
 if test $have_liblinear != yes; then
-  AC_MSG_RESULT(no)
+  AC_MSG_RESULT([no, will use our own])
   CPPFLAGS="-I\$(top_srcdir)/$LIBLINEARDIR $CPPFLAGS"
   LIBLINEAR_LIBS="\$(top_srcdir)/$LIBLINEARDIR/liblinear.a"
   LIBLINEAR_BUILD="build-liblinear"
