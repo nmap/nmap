@@ -599,7 +599,7 @@ static void initialize_idleproxy(struct idle_proxy_info *proxy, char *proxyName,
 
   /* Now lets send some probes to check IP ID algorithm ... */
   /* First we need a raw socket ... */
-  if (!raw_socket_or_eth(o.sendpref, proxy->host.deviceName(),
+  if (!raw_socket_or_eth(o.sendpref, proxy->host.deviceName(), proxy->host.ifType(),
         &proxy->rawsd, &proxy->eth.ethsd)) {
     fatal("%s: Failed to open raw socket or ethernet handle", __func__);
   }

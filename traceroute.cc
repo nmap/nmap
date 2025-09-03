@@ -837,7 +837,8 @@ TracerouteState::TracerouteState(std::vector<Target *> &targets) {
 
   assert(targets.size() > 0);
 
-  if (!raw_socket_or_eth(o.sendpref, targets[0]->deviceName(), &rawsd, &ethsd)) {
+  if (!raw_socket_or_eth(o.sendpref, targets[0]->deviceName(), targets[0]->ifType(),
+        &rawsd, &ethsd)) {
     fatal("traceroute: socket troubles");
   }
 

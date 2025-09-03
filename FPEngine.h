@@ -157,7 +157,7 @@ class FPNetworkControl {
  public:
   FPNetworkControl();
   ~FPNetworkControl();
-  void init(const char *ifname);
+  void init(const char *ifname, devtype iftype);
   int register_caller(FPHost *newcaller);
   int unregister_caller(FPHost *oldcaller);
   int setup_sniffer(const char *iface, const char *bfp_filter);

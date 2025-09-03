@@ -118,7 +118,7 @@ FPNetworkControl::~FPNetworkControl() {
 
 /* (Re)-Initialize object's state (default parameter setup and nsock
  * initialization). */
-void FPNetworkControl::init(const char *ifname) {
+void FPNetworkControl::init(const char *ifname, devtype iftype) {
 
   /* Init congestion control parameters */
   this->cc_init();
@@ -161,7 +161,7 @@ void FPNetworkControl::init(const char *ifname) {
   netutil_eth_t *ethsd = NULL;
 
   /* Obtain raw socket or check that we can obtain an eth descriptor. */
-  if (!raw_socket_or_eth(o.sendpref, ifname, &this->rawsd, &ethsd)) {
+  if (!raw_socket_or_eth(o.sendpref, ifname, iftype, &this->rawsd, &ethsd)) {
     fatal("Couldn't obtain raw socket or eth handle in %s", __func__);
   }
 
@@ -1122,7 +1122,7 @@ int FPEngine6::os_scan(std::vector<Target *> &Targets) {
 
   /* Initialize variables, timers, etc. */
   gettimeofday(&begin_time, NULL);
-  global_netctl.init(Targets[0]->deviceName());
+  global_netctl.init(Targets[0]->deviceName(), Targets[0]->ifType());
   for (size_t i = 0; i < Targets.size(); i++) {
     if (o.debugging > 3) {
       log_write(LOG_PLAIN, "[FPEngine] Allocating FPHost6 for %s %s\n",
@@ -2511,6 +2511,7 @@ int FPPacket::setEthernet(const Target *target) {
         else {
           memcpy(this->eth_hdr.srcmac, src_mac, 6);
           memcpy(this->eth_hdr.dstmac, dst_mac, 6);
+          Strncpy(this->eth_hdr.devname, devname, sizeof(this->eth_hdr.devname));
         }
       }
     }

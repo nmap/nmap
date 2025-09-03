@@ -1176,8 +1176,10 @@ struct eth_nfo *HostOsScanStats::fill_eth_nfo(struct eth_nfo *eth, netutil_eth_t
   if (ethsd == NULL)
     return NULL;
 
-  memcpy(eth->srcmac, target->SrcMACAddress(), sizeof(eth->srcmac));
-  memcpy(eth->dstmac, target->NextHopMACAddress(), sizeof(eth->srcmac));
+  if (netutil_eth_datalink(ethsd) == DLT_EN10MB) {
+    memcpy(eth->srcmac, target->SrcMACAddress(), sizeof(eth->srcmac));
+    memcpy(eth->dstmac, target->NextHopMACAddress(), sizeof(eth->dstmac));
+  }
   eth->ethsd = ethsd;
   eth->devname[0] = '\0';
 
@@ -1335,8 +1337,9 @@ HostOsScan::HostOsScan(Target *t) {
   pd = NULL;
   rawsd = -1;
   ethsd = NULL;
+  int sendpref = o.sendpref;
 
-  if (!raw_socket_or_eth(o.sendpref, t->deviceName(), &rawsd, &ethsd)) {
+  if (!raw_socket_or_eth(sendpref, t->deviceName(), t->ifType(), &rawsd, &ethsd)) {
     fatal("%s: Failed to open raw socket or ethernet device", __func__);
   }
   if (rawsd >= 0)

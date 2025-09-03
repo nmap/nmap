@@ -1128,12 +1128,21 @@ int netutil_raw_socket(const char *device) {
 #endif
 }
 
-int raw_socket_or_eth(int sendpref, const char *ifname,
+int raw_socket_or_eth(int sendpref, const char *ifname, devtype iftype,
     int *rawsd, netutil_eth_t **ethsd) {
   assert(rawsd != NULL);
   *rawsd = -1;
   assert(ethsd != NULL);
   *ethsd = NULL;
+
+#ifndef WIN32
+  /* In general, on Windows we need to use Ether headers.
+   * On other platforms, avoid it. */
+  if (iftype != devt_ethernet) {
+    sendpref = PACKET_SEND_IP;
+  }
+#endif
+
   bool may_try_eth = ifname && !(sendpref & PACKET_SEND_IP_STRONG);
   bool may_try_ip = !(sendpref & PACKET_SEND_ETH_STRONG);
   bool try_eth = may_try_eth && (sendpref & PACKET_SEND_ETH);
