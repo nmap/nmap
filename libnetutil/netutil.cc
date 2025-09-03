@@ -1019,7 +1019,20 @@ netutil_eth_t *netutil_eth_open(const char *device) {
   } while (0);
 #else
   eth_handle(e) = eth_open(device);
-  e->datalink = DLT_EN10MB;
+  if (eth_handle(e)) {
+    eth_addr_t ea;
+    /* No guarantees this is Ethernet. Dnet doesn't offer a way to check the L2
+     * protocol, so we'll try to get the Ethernet address to confirm.
+     */
+    if (0 == eth_get(eth_handle(e), &ea) && 0 != memcmp(&ea, "\0\0\0\0\0\0", 6)) {
+      e->datalink = DLT_EN10MB;
+    }
+    else {
+      // Not a data link we know about.
+      eth_handle_close(eth_handle(e));
+      eth_handle(e) = NULL;
+    }
+  }
 #endif
 
   if (eth_handle(e) == NULL) {
