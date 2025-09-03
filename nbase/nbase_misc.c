@@ -266,20 +266,22 @@ int block_socket(int sd) {
 int socket_bindtodevice(int sd, const char *device) {
 #ifdef SO_BINDTODEVICE
   char padded[sizeof(int)];
-  size_t len;
+  size_t len = 0;
 
-  len = strlen(device) + 1;
-  /* In Linux 2.6.20 and earlier, there is a bug in SO_BINDTODEVICE that causes
-     EINVAL to be returned if the optlen < sizeof(int); this happens for example
-     with the interface names "" and "lo". Pad the string with null characters
-     so it is above this limit if necessary.
-     http://article.gmane.org/gmane.linux.network/71887
-     http://article.gmane.org/gmane.linux.network/72216 */
-  if (len < sizeof(padded)) {
-    /* We rely on strncpy padding with nulls here. */
-    strncpy(padded, device, sizeof(padded));
-    device = padded;
-    len = sizeof(padded);
+  if (device) {
+    len = strlen(device) + 1;
+    /* In Linux 2.6.20 and earlier, there is a bug in SO_BINDTODEVICE that causes
+       EINVAL to be returned if the optlen < sizeof(int); this happens for example
+       with the interface names "" and "lo". Pad the string with null characters
+       so it is above this limit if necessary.
+        http://article.gmane.org/gmane.linux.network/71887
+        http://article.gmane.org/gmane.linux.network/72216 */
+    if (len < sizeof(padded)) {
+      /* We rely on strncpy padding with nulls here. */
+      strncpy(padded, device, sizeof(padded));
+      device = padded;
+      len = sizeof(padded);
+    }
   }
 
   /* Linux-specific sockopt asking to use a specific interface. See socket(7). */

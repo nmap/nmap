@@ -1120,7 +1120,9 @@ int netutil_raw_socket(const char *device) {
     netutil_perror("setsockopt(SO_BROADCAST) failed");
   }
   sethdrinclude(rawsd);
-  socket_bindtodevice(rawsd, device);
+  if (device) {
+    socket_bindtodevice(rawsd, device);
+  }
 
   return rawsd;
 #endif
