@@ -1168,8 +1168,12 @@ int ProbeMode::fillPacketARP(NpingTarget *target, u8 *buff, int bufflen, int *fi
     /* Ethertype value */
     if( o.issetEtherType() )
         e.setEtherType( o.getEtherType() );
-    else
+    else{
+      if( o.getARPOpCode()==OP_RARP_REQUEST || o.getARPOpCode()==OP_RARP_REPLY )
+        e.setEtherType(ETHTYPE_RARP);
+      else
         e.setEtherType(ETHTYPE_ARP);
+    }
 
     /* Link Ethernet header to ARP packet. */
     e.setNextElement(&a);
