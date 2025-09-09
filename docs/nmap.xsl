@@ -244,6 +244,7 @@
 
   a:hover {
     text-decoration: underline;
+    cursor: pointer;
   }
 
   a.up {
@@ -356,10 +357,23 @@
       function toggle(divID) {
         var item = document.getElementById(divID);
         if (item) {
-          item.className=(item.className=='hidden')?'unhidden':'hidden';
+          item.className = (item.className=='hidden')?'unhidden':'hidden';
         }
       }
-           
+
+      function toggleMetrics(elem) {
+        if (elem) {
+          if(elem.nextElementSibling.className=='hidden'){
+            elem.nextElementSibling.className = 'unhidden';
+            elem.children[0].innerHTML = "<small>(click to close)</small>";
+          }
+          else {
+            elem.nextElementSibling.className = 'hidden';
+            elem.children[0].innerHTML = "<small>(click to expand)</small>";
+          }
+        }
+      }
+
       function togglePorts(tableID,portState) {
         var table = document.getElementById(tableID);    
         var tbody = table.getElementsByTagName("tbody")[0];
@@ -584,8 +598,8 @@
   <br />
   
   <xsl:element name="a">
-    <xsl:attribute name="href">javascript:toggle('metrics_<xsl:value-of select="$var_address"/>');</xsl:attribute>
-    Misc Metrics <span class="noprint"><small> (click to expand)</small></span>
+    <xsl:attribute name="onclick">javascript:toggleMetrics(this);</xsl:attribute>
+    Misc Metrics <span class="noprint"><small> (click to expand) </small></span>
   </xsl:element>
   
   
