@@ -2502,6 +2502,7 @@ int FPPacket::setEthernet(const Target *target) {
     }
     else if (netutil_eth_can_send(ethsd)) {
       this->link_eth = true;
+      Strncpy(this->eth_hdr.devname, devname, sizeof(this->eth_hdr.devname));
       if (netutil_eth_datalink(ethsd) == DLT_EN10MB){
         const u8 *src_mac = target->SrcMACAddress();
         const u8 *dst_mac = target->NextHopMACAddress();
@@ -2511,7 +2512,6 @@ int FPPacket::setEthernet(const Target *target) {
         else {
           memcpy(this->eth_hdr.srcmac, src_mac, 6);
           memcpy(this->eth_hdr.dstmac, dst_mac, 6);
-          Strncpy(this->eth_hdr.devname, devname, sizeof(this->eth_hdr.devname));
         }
       }
     }
