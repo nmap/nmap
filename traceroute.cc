@@ -1526,6 +1526,8 @@ int traceroute(std::vector<Target *> &Targets) {
        target_iter++) {
     if ((*target_iter)->ifType() == devt_loopback)
       ; /* Ignore */
+    else if ((*target_iter)->ifType() == devt_p2p)
+      remote.push_back(*target_iter);
     else if ((*target_iter)->directlyConnected())
       direct.push_back(*target_iter);
     else
