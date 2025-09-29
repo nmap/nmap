@@ -2025,11 +2025,11 @@ function pipeline_go(host, port, all_requests)
     if connsent >= connlimit or resp.truncated or not socket:get_info() then
       socket:close()
       stdnse.debug3("HTTP pipeline: reconnecting")
+      socket:set_timeout(pipeline_comm_opts.request_timeout)
       socket:connect(host, port, bopt)
       if not socket then
         return nil
       end
-      socket:set_timeout(pipeline_comm_opts.request_timeout)
       partial = ""
       connsent = 0
     end
