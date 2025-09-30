@@ -137,7 +137,7 @@ XMPP = {
     options = options or {},
     auth = { mechs = {} } }
     o.options.timeout = o.options.timeout and o.options.timeout or 10
-    o.servername = stdnse.get_hostname(host) or o.options.servername
+    o.servername = o.options.servername or stdnse.get_hostname(host)
     setmetatable(o, self)
     self.__index = self
     return o
