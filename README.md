@@ -7,7 +7,7 @@ a commercial license for companies that wish to redistribute Nmap technology
 with their products. See [Nmap Copyright and Licensing](https://nmap.org/book/man-legal.html)
 for full details.
 
-The latest version of this software as well as binary installers for Windows,
+The latest version of this software, as well as binary installers for Windows,
 macOS, and Linux (RPM) are available from
 [Nmap.org](https://nmap.org/download.html)
 
