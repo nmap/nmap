@@ -1,0 +1,105 @@
+name: Build
+on:
+  push:
+  pull_request:
+
+jobs:
+  build-windows:
+    name: Build Windows
+    runs-on: windows-latest
+
+    steps:
+      - name: Add msbuild to PATH
+        uses: microsoft/setup-msbuild@v2
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          path: nmap
+
+      - name: Checkout mswin32-aux
+        run: svn checkout https://svn.nmap.org/nmap-mswin32-aux
+
+      - name: Prepare pcre2
+        working-directory: nmap\mswin32
+        run: |
+          mkdir build-pcre2
+          cd build-pcre2
+          cmake.exe -A Win32 ..\..\libpcre\
+
+      - name: Build
+        working-directory: nmap\mswin32
+        run: |
+          msbuild nmap.sln /p:Configuration="Release"
+
+  build-macos:
+    name: Build Macos
+    runs-on: macos-latest
+    
+    steps:
+      - name: Install Deps
+        run: |
+          # Use MacOS python instead of brew variant
+          brew unlink python
+
+          pip install build setuptools
+
+          # Deps for make check
+          brew install gobject-introspection gtk+3
+          pip install pygobject pycairo
+
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure
+        run: ./configure --with-openssl="/opt/homebrew/opt/openssl@3"
+
+      - name: Build
+        run: make
+
+      - name: Install
+        run: sudo make install
+
+      - name: Check
+        run: make check
+
+  build-ubuntu:
+    name: Build Ubuntu
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: False
+      matrix:
+        config:
+          - "--without-openssl"
+          - "--without-libssh2"
+          - "--without-liblua"
+          - "--without-zenmap"
+          - "--without-ndiff"
+          - "--with-nping"
+          - "--with-ncat"
+
+    steps:
+      - name: Install Deps
+        run: |
+          pip install build
+
+          # Deps for make check
+          sudo apt install gobject-introspection gir1.2-gtk-3.0
+          pip install pycairo
+
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure
+        run: ./configure ${{ matrix.config }}
+
+      - name: Build
+        run: make
+
+      - name: Install
+        run: sudo make install
+
+      - name: Check
+        run: make check
+
