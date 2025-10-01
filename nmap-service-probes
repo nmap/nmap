@@ -15242,6 +15242,26 @@ match distccd m|^DONE00000001.*CRITICAL! distcc seems to have invoked itself rec
 match distccd m|^[\w._-]+DONE[\w._-]+ .*ERROR: attempt to use unknown compiler aborted: ([\w._-]+)\n|s p/distccd/ i/broken: compiler $1 doesn't exist/
 
 ##############################NEXT PROBE##############################
+Probe TCP OPCUA q|HELF\x2e\x00\x00\x00\x00\x00\x00\x00\x00\x00\x02\x00\x00\x00\x02\x00\x00\x00\x00\x40\x00\x80\x00\x00\x0e\x00\x00\x00opc.tcp://nmap|
+rarity 6
+ports 49320,62541,4897,53530,48050,4885,4840,4855,26543
+sslports 4843
+match opcua m|^ACKF\x1c\x00\x00\x00\x00\x00\x00\x00|s p/OPC UA Binary Connection Protocol/
+match opcua m|^ERRF..\x00\x00(....)..\x00\x00([ -~]*)|s p/OPC UA Binary Connection Protocol/ i/Error $I(1, "<") $2/
+
+##############################NEXT PROBE##############################
+Probe UDP KNX q|\x06\x10\x02\x03\x00\x0e\x08\x01\x00\x00\x00\x00\x00\x00|
+rarity 7
+ports 3671
+match knxip m|^\x06\x10\x02\x04..\x36\x01\x02.....................([ -~]*)|s d/KNXnet-IP GW/ p/$1/
+
+##############################NEXT PROBE##############################
+Probe TCP KNX q|\x06\x10\x02\x03\x00\x0e\x08\x02\x00\x00\x00\x00\x00\x00|
+rarity 7
+ports 3671
+match knxip m|^\x06\x10\x02\x04..\x36\x01\x02.....................([ -~]*)|s d/KNXnet-IP GW/ p/$1/
+
+##############################NEXT PROBE##############################
 # Java Remote Method Invocation, version 2, stream protocol
 # https://docs.oracle.com/javase/9/docs/specs/rmi/protocol.html
 Probe TCP JavaRMI q|\x4a\x52\x4d\x49\0\x02\x4b|
