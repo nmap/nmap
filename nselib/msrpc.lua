@@ -551,7 +551,13 @@ function rap_netserverenum2(smbstate, domain, server_type, detail_level)
 
     -- pos needs to be rounded to the next even multiple of 16
     pos = pos + ( 16 - (#server.name % 16) ) - 1
-
+    
+    local fmt = "<BBI4I2I2"
+    if #data - pos + 1 < string.packsize(fmt) then
+       stdnse.debug1("MSRPC: ERROR: Ran off the end of SMB packet")
+       return true, entries       
+    end
+    
     if ( detail_level > 0 ) then
       local comment_offset, _
       server.version = {}
