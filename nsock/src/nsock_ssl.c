@@ -111,7 +111,7 @@ static SSL_CTX *ssl_init_helper(const SSL_METHOD *method) {
   if (nsock_ssl_state == NSOCK_SSL_STATE_UNINITIALIZED)
   {
     nsock_ssl_state = NSOCK_SSL_STATE_INITIALIZED;
-#if OPENSSL_VERSION_NUMBER < 0x10100000L || defined LIBRESSL_VERSION_NUMBER
+#if OPENSSL_VERSION_NUMBER < 0x10100000L || defined LIBRESSL_VERSION_NUMBER || defined OPENSSL_IS_AWSLC
     SSL_load_error_strings();
     SSL_library_init();
 #else
