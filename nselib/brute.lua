@@ -246,7 +246,7 @@
 -- @args brute.mode can be user, pass or creds and determines what mode to run
 --       the engine in.
 --       * user - the unpwdb library is used to guess passwords, every password
---                password is tried for each user. (The user iterator is in the
+--                is tried for each user. (The user iterator is in the
 --                outer loop)
 --       * pass - the unpwdb library is used to guess passwords, each password
 --                is tried for every user. (The password iterator is in the
