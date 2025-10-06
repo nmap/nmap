@@ -813,7 +813,7 @@ void parse_options(int argc, char **argv) {
         } else if (strcmp(long_options[option_index].name, "discovery-ignore-rst") == 0) {
             o.discovery_ignore_rst = true;
         } else if (strcmp(long_options[option_index].name, "sqlping-payload") == 0) {
-            o.sqlping-payload = true;
+            o.sqlping_payload = true;
         } else if (strcmp(long_options[option_index].name, "osscan-limit")  == 0) {
           o.osscan_limit = true;
         } else if (strcmp(long_options[option_index].name, "osscan-guess")  == 0

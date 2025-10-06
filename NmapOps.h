@@ -311,7 +311,7 @@ class NmapOps {
 
   nsock_proxychain proxy_chain;
   bool discovery_ignore_rst; /* host discovery should not consider TCP RST packet responses as a live asset */
-  bool sqlping-payload;
+  bool sqlping_payload;
 
 #ifndef NOLUA
   bool script;
