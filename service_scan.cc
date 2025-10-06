@@ -1167,7 +1167,7 @@ void ServiceProbe::setProbeDetails(char *pd, int lineno) {
   }
 
   if (probename && strcmp(probename, "Sqlping") == 0) {
-    if (o.force_sqlping) {
+    if (o.sqlping-payload) {
       log_write(LOG_STDOUT, "User-forced Sqlping: overriding no-payload directive.\n");
       notForPayload = false;
     }
