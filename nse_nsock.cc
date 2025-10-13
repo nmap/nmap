@@ -328,7 +328,15 @@ static void status (lua_State *L, enum nse_status status)
   switch (status)
   {
     case NSE_STATUS_SUCCESS:
-      assert(lua_status(L) == LUA_YIELD);
+      if (lua_status(L) != LUA_YIELD)
+      {
+        if (o.debugging)
+        {
+          error("Unexpected error lua in status %d", lua_status(L));
+        }
+
+        return;
+      }
       lua_pushboolean(L, true);
       nse_restore(L, 1);
       break;
@@ -339,7 +347,15 @@ static void status (lua_State *L, enum nse_status status)
     case NSE_STATUS_ERROR:
     case NSE_STATUS_TIMEOUT:
     case NSE_STATUS_PROXYERROR:
-      assert(lua_status(L) == LUA_YIELD);
+      if (lua_status(L) != LUA_YIELD)
+      {
+        if (o.debugging)
+        {
+          error("Unexpected error lua in status %d", lua_status(L));
+        }
+
+        return;
+      }
       lua_pushnil(L);
       lua_pushstring(L, nse_status2str(status));
       nse_restore(L, 2);
