@@ -3313,7 +3313,7 @@ static int route_dst_netlink(const struct sockaddr_storage *dst,
   len -= NLMSG_LENGTH(sizeof(*nlmsg));
 
   /* See rtnetlink(7). Anything matching this route is actually unroutable. */
-  if (rtmsg->rtm_type == RTN_UNREACHABLE || rtmsg->rtm_type == RTN_UNSPEC
+  if (rtmsg->rtm_type == RTN_UNREACHABLE
     || rtmsg->rtm_type == RTN_BLACKHOLE || rtmsg->rtm_type == RTN_PROHIBIT)
     return 0;
 
@@ -3353,6 +3353,11 @@ static int route_dst_netlink(const struct sockaddr_storage *dst,
 
   if (ii != NULL) {
     rnfo->ii = *ii;
+    if (rnfo->srcaddr.ss_family == AF_UNSPEC) {
+      assert(!spoofss);
+      assert(rnfo->ii.addr.ss_family == dst->ss_family);
+      rnfo->srcaddr = rnfo->ii.addr;
+    }
     return 1;
   } else {
     return 0;
