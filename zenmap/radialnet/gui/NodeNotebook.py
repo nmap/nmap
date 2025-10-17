@@ -602,7 +602,7 @@ class SystemPage(BWScrolledWindow):
             tcp_note.set_line_wrap(False)
             tcp_note.set_alignment(1.0, 0.5)
             tcp_note.set_markup(
-                    TCP_SEQ_NOTE % (tcp['index'], tcp['difficulty']))
+                    TCP_SEQ_NOTE % tcp)
 
             table.attach(tcp_note, 0, 3, 4, 5)
 
