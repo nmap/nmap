@@ -12,7 +12,7 @@ rem (excluding extension).
 set PROG=%~dpn0.py
 
 if not exist "%PROG%" (
-	echo Cannot run %PROG%
+	echo Cannot run !PROG!
 	echo because that file does not exist.
 	exit /B 1
 )
