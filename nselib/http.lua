@@ -858,7 +858,10 @@ local decode_body = function (body, encodings, maxlen)
   local undecoded = tableaux.tcopy(encodings)
   while #undecoded > 0 do
     local enc = undecoded[1]:lower()
-    if enc == "identity" then
+    if enc == "" then
+      -- do nothing (empty encoding placeholder)
+      table.remove(undecoded, 1)
+    elseif enc == "identity" then
       -- do nothing
       table.insert(decoded, table.remove(undecoded, 1))
     elseif enc == "gzip" and have_zlib then
