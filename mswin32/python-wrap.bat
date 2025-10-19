@@ -23,7 +23,7 @@ set PATH=%NMAPDIR%\zenmap\bin;%PATH%
 for /D %%P in ("%ProgramFiles%\Python 3.*",
 	       "%ProgramFiles(x86)%\Python 3.*",
 	       "%LocalAppData%\Programs\Python\Python3*"
-       ) do set PATH=%PATH%;%%~P
+       ) do set PATH=!PATH!;%%~P
 
 for %%P in ( py.exe, python.exe) do (
 	set PYTHON=%%~f$PATH:P
