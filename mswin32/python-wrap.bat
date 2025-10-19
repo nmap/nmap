@@ -18,17 +18,8 @@ if not exist "%PROG%" (
 )
 set NMAPDIR=%~dp0
 
-set PATH=%NMAPDIR%\zenmap\bin;%PATH%
-
-for /D %%P in ("%ProgramFiles%\Python 3.*",
-	       "%ProgramFiles(x86)%\Python 3.*",
-	       "%LocalAppData%\Programs\Python\Python3*"
-       ) do set PATH=%PATH%;%%~P
-
-for %%P in ( py.exe, python.exe) do (
-	set PYTHON=%%~f$PATH:P
-	if exist "!PYTHON!" GOTO:EXEC
-)
+rem Use Python installed with Nmap - Zenmap GUI.
+set PYTHON=%NMAPDIR%zenmap\bin\python.exe
 
 if not exist "%PYTHON%" GOTO:NOPYTHON
 
@@ -36,11 +27,8 @@ GOTO:EXEC
 
 :NOPYTHON
 	echo Cannot run %PROG%
-	echo because python.exe was not found anywhere in
-	echo %PATH%.
-	echo.
-	echo To run this program, download and install Python from
-	echo http://www.python.org/download.
+	echo because python.exe was not found in %NMAPDIR%\zenmap\bin.
+	echo This should not have happened unless Python was removed from Nmap - Zenmap GUI!!!
 	exit /B 1
 
 :EXEC
