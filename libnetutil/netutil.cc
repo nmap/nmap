@@ -4358,6 +4358,8 @@ int read_reply_pcap(pcap_t *pd, long to_usec,
   int badcounter = 0;
   struct timeval tv_start, tv_end;
   int ioffset;
+  size_t l2len;
+  unsigned ethertype;
 
   if (!pd)
     netutil_fatal("NULL packet device passed to %s", __func__);
@@ -4421,10 +4423,13 @@ int read_reply_pcap(pcap_t *pd, long to_usec,
 
     if (pcap_status == 1 && *p != NULL) {
       /* Offset may be different in the case of 802.1q */
-      if (*datalink == DLT_EN10MB
-          && (*head)->caplen >= sizeof(struct eth_hdr)
-          && 0 == memcmp((*p) + offsetof(struct eth_hdr, eth_type), "\x81\x00", 2)) {
-        *offset += 4;
+      if (*datalink == DLT_EN10MB) {
+        /* Skip over 802.1Q tags; 802.1ad allows more than one */
+        for (l2len = *offset; l2len <= (*head)->caplen; l2len += 4) {
+          ethertype = ntohs(*(uint16_t *)(*p + l2len - 2));
+          if (ethertype != ETH_TYPE_8021Q && ethertype != ETH_TYPE_8021AD) break;
+        }
+        *offset = l2len;
       }
       if (accept_callback(*p, *head, *datalink, *offset)) {
         break;
