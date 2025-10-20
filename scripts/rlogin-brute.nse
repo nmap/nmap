@@ -51,34 +51,36 @@ Driver = {
   end,
 
   -- connects to the rlogin service
-  -- it sets the source port to a random value between 513 and 1024
+  -- it sets the source port to a random value between 512 and 1023
   connect = function(self)
-
-    local status
-
+    local status, err
     self.socket = brute.new_socket()
-    -- apparently wee need a source port below 1024
-    -- this approach is not very elegant as it causes address already in
-    -- use errors when the same src port is hit in a short time frame.
-    -- hopefully the retry count should take care of this as a retry
-    -- should choose a new random port as source.
-    local srcport = math.random(513, 1024)
-    self.socket:bind(nil, srcport)
-    self.socket:set_timeout(self.timeout)
-    local err
-    status, err = self.socket:connect(self.host, self.port)
-
-    if ( status ) then
-      local lport, _
-      status, _, lport = self.socket:get_info()
-      if (not(status) ) then
-        return false, "failed to retrieve socket status"
+    -- Let's make several attempts to bind to an unused well-known port
+    for _ = 1, 10 do
+      local srcport = math.random(512, 1023)
+      status, err = self.socket:bind(nil, srcport)
+      if status then
+        self.socket:set_timeout(self.timeout)
+        status, err = self.socket:connect(self.host, self.port)
+        if status then
+          -- socket:connect() succeeds even if mksock_bind_addr() fails.
+          -- It just assigns an ephemeral port instead of our choice,
+          -- so we need to check the actual source port afterwards.
+          local lport
+          status, err, lport = self.socket:get_info()
+          if status then
+            if lport == srcport then
+              return status
+            end
+            status = false
+            err = "Address already in use"
+          end
+        end
       end
-    else
       self.socket:close()
     end
-    if ( not(status) ) then
-      stdnse.debug3("ERROR: failed to connect to server")
+    if not status then
+      stdnse.debug2("Unable to bind to a well-known port (%s)", err)
     end
     return status
   end,
