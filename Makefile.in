@@ -312,7 +312,7 @@ distclean-%: clean-%
 	-cd $* && $(MAKE) distclean
 
 install-nmap: $(TARGET)
-	$(INSTALL) -d $(DESTDIR)$(bindir) $(DESTDIR)$(mandir)/man1 $(DESTDIR)$(nmapdatadir)
+	mkdir -p $(DESTDIR)$(bindir) $(DESTDIR)$(mandir)/man1 $(DESTDIR)$(nmapdatadir)
 	$(INSTALL) -c -m 755 nmap $(DESTDIR)$(bindir)/nmap
 # Use strip -x to avoid stripping dynamically loaded NSE functions. See
 # http://seclists.org/nmap-dev/2007/q4/0272.html.
@@ -320,7 +320,7 @@ install-nmap: $(TARGET)
 	$(INSTALL) -c -m 644 docs/$(TARGET).1 $(DESTDIR)$(mandir)/man1/
 	if [ "$(USE_NLS)" = "yes" ]; then \
 	  for ll in $(filter $(ALL_LINGUAS),$(LINGUAS)); do \
-	    $(INSTALL) -d $(DESTDIR)$(mandir)/$$ll/man1; \
+	    mkdir -p $(DESTDIR)$(mandir)/$$ll/man1; \
 	    $(INSTALL) -c -m 644 docs/man-xlate/$(TARGET)-$$ll.1 $(DESTDIR)$(mandir)/$$ll/man1/$(TARGET).1; \
 	  done; \
 	fi
@@ -354,7 +354,7 @@ build-zenmap: $(ZENMAPDIR)/pyproject.toml $(ZENMAPDIR)/zenmapCore/Version.py
 	$(PYTHON) -m build $(ZENMAPDIR)/
 
 install-zenmap: $(ZENMAPDIR)/pyproject.toml
-	$(INSTALL) -d $(DESTDIR)$(bindir) $(DESTDIR)$(mandir)/man1 $(DESTDIR)$(deskdir)
+	mkdir -p $(DESTDIR)$(bindir) $(DESTDIR)$(mandir)/man1 $(DESTDIR)$(deskdir)
 	$(PYTHON) -m pip install $(ZENMAPDIR)/ $(if $(DESTDIR),--root "$(DESTDIR)")
 	$(INSTALL) -c -m 644 docs/zenmap.1 $(DESTDIR)$(mandir)/man1/
 	$(INSTALL) -c -m 644 $(ZENMAPDIR)/install_scripts/unix/*.desktop $(DESTDIR)$(deskdir)
@@ -373,7 +373,7 @@ build-nping: $(NPINGDIR)/Makefile build-nbase build-nsock build-netutil $(NPINGD
 	@cd $(NPINGDIR) && $(MAKE)
 
 install-ndiff:
-	$(INSTALL) -d $(DESTDIR)$(bindir) $(DESTDIR)$(mandir)/man1
+	mkdir -p $(DESTDIR)$(bindir) $(DESTDIR)$(mandir)/man1
 	$(PYTHON) -m pip install $(NDIFFDIR)/ $(if $(DESTDIR),--root "$(DESTDIR)")
 	$(INSTALL) -c -m 644 $(NDIFFDIR)/docs/ndiff.1 $(DESTDIR)$(mandir)/man1/
 
@@ -381,8 +381,8 @@ NSE_FILES = scripts/script.db scripts/*.nse
 NSE_LIB_LUA_FILES = nselib/*.lua nselib/*.luadoc
 
 install-nse: $(TARGET)
-	$(INSTALL) -d $(DESTDIR)$(nmapdatadir)/scripts
-	$(INSTALL) -d $(DESTDIR)$(nmapdatadir)/nselib
+	mkdir -p $(DESTDIR)$(nmapdatadir)/scripts
+	mkdir -p $(DESTDIR)$(nmapdatadir)/nselib
 
 # Remove obsolete scripts from a previous installation.
 	(cd $(DESTDIR)$(nmapdatadir)/scripts && rm -f $(OLD_SCRIPT_NAMES))
@@ -390,9 +390,9 @@ install-nse: $(TARGET)
 	$(INSTALL) -c -m 644 nse_main.lua $(DESTDIR)$(nmapdatadir)/
 	$(INSTALL) -c -m 644 $(NSE_FILES) $(DESTDIR)$(nmapdatadir)/scripts
 	$(INSTALL) -c -m 644 $(NSE_LIB_LUA_FILES) $(DESTDIR)$(nmapdatadir)/nselib
-	$(INSTALL) -d $(DESTDIR)$(nmapdatadir)/nselib/data
+	mkdir -p $(DESTDIR)$(nmapdatadir)/nselib/data
 	for f in `find nselib/data -name .svn -prune -o -type d -print`; do \
-		$(INSTALL) -d $(DESTDIR)$(nmapdatadir)/$$f; \
+		mkdir -p $(DESTDIR)$(nmapdatadir)/$$f; \
 	done
 	for f in `find nselib/data -name .svn -prune -o -type f -print`; do \
 		$(INSTALL) -c -m 644 $$f $(DESTDIR)$(nmapdatadir)/$$f; \
