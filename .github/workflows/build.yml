@@ -126,11 +126,11 @@ jobs:
           usesh: true
           prepare: |
             # OS has libpcap already installed (and adding puts a second in /usr/local)
-            pkg install -y gcc llvm doxygen tree pkgconf libnet pcre2
+            pkg install -y gcc llvm autotools doxygen tree pkgconf libnet pcre2 gmake
           run: |
             ./configure
-            make
-            make install DESTDIR=/tmp
+            gmake
+            gmake install DESTDIR=/tmp
             tree /tmp/usr
 
       - name: Build OpenBSD
@@ -140,11 +140,11 @@ jobs:
           usesh: true
           prepare: |
             export PKG_PATH=https://cdn.openbsd.org/pub/OpenBSD/$(uname -r)/packages/$(uname -m)/
-            pkg_add -I gcc%11 llvm%19 doxygen tree pkgconf libnet%1.1 pcre2
+            pkg_add -I autoconf%2.72 automake%1.17 gcc%11 llvm%19 doxygen tree pkgconf libnet%1.1 pcre2 gmake
           run: |
             ./configure
-            make
-            make install DESTDIR=/tmp
+            gmake
+            gmake install DESTDIR=/tmp
             tree /tmp/usr
 
       - name: Build NetBSD
@@ -155,11 +155,11 @@ jobs:
           prepare: |
             export PATH=/usr/sbin:/usr/pkg/sbin:/usr/pkg/bin:$PATH
             export PKG_PATH="http://cdn.netbsd.org/pub/pkgsrc/packages/NetBSD/$(uname -p)/$(uname -r | cut -d_ -f1)/All"
-            pkg_add gcc13 clang pkgconf libpcap libnet
+            pkg_add gcc13 clang autoconf automake pkgconf libpcap libnet gmake
           run: |
             ./configure
-            make
-            make install DESTDIR=/tmp
+            gmake
+            gmake install DESTDIR=/tmp
             tree /tmp/usr
 
       - name: Build Solaris
@@ -168,11 +168,11 @@ jobs:
         with:
           usesh: true
           prepare: |
-            pkg install gcc-c clang pcre2 libpcap libnet
+            pkg install gcc-c clang autoconf automake pcre2 libpcap libnet gmake
           run: |
             ./configure
-            make
-            make install DESTDIR=/tmp
+            gmake
+            gmake install DESTDIR=/tmp
             tree /tmp/usr
 
       - name: Build Windows
