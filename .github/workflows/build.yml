@@ -2,11 +2,11 @@ name: nmap multiplatform autobuilds
 
 on:
   push:
-    paths:
-      - ".github/workflows/build.yml"
-      - "*.c"
-      - "*.cc"
-      - "*.h"
+#    paths:
+#      - ".github/workflows/build.yml"
+#      - "*.c"
+#      - "*.cc"
+#      - "*.h"
     branches:
       - master
   pull_request:
