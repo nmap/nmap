@@ -168,7 +168,7 @@ jobs:
         with:
           usesh: true
           prepare: |
-            pkg install gcc-c clang autoconf automake pcre2 libpcap libnet gmake
+            pkg install gcc-c clang autoconf automake pcre2 libpcap libnet developer/build/gnu-make
           run: |
             ./configure
             gmake
