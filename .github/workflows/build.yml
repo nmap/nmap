@@ -100,7 +100,7 @@ jobs:
         run: |
           docker run --rm --platform linux/arm64 -v $PWD:/work -w /work ubuntu:latest bash -c "
             apt-get update -q -y &&
-            apt-get install -q -y build-essential tree libpcap-dev libnet-dev libpcre2-dev &&
+            apt-get install -q -y build-essential tree libpcap-dev libnet-dev libpcre2-dev autoconf automake &&
             ./configure
             make &&
             make install DESTDIR=/tmp &&
