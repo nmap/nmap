@@ -177,6 +177,22 @@ jobs:
             gmake install DESTDIR=/tmp
             tree /tmp/usr
 
+      - name: Install Subversion
+        if: startsWith(matrix.name,'windows')
+        shell: powershell
+        run: |
+          choco install svn -y --no-progress
+          $env:PATH = "C:\Program Files (x86)\Subversion\bin;C:\Program Files\Subversion\bin;$env:PATH"
+          echo "C:\Program Files (x86)\Subversion\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+          echo "C:\Program Files\Subversion\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+
+      - name: Verify SVN Installation
+        if: startsWith(matrix.name,'windows')
+        shell: cmd
+        run: |
+          where svn
+          svn --version
+
       - name: Build Windows
         if: startsWith(matrix.name,'windows')
         shell: cmd
