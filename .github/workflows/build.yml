@@ -140,7 +140,7 @@ jobs:
           usesh: true
           prepare: |
             export PKG_PATH=https://cdn.openbsd.org/pub/OpenBSD/$(uname -r)/packages/$(uname -m)/
-            pkg_add -I autoconf%2.72 automake%1.17 gcc%11 llvm%19 doxygen tree pkgconf libnet%1.1 pcre2 gmake
+            pkg_add -I autoconf%2.72 automake%1.17 gcc%11 llvm%19 doxygen tree pkgconf libnet%1.1 pcre2 gmake dbus
           run: |
             ./configure
             gmake
