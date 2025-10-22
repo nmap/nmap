@@ -179,7 +179,7 @@ jobs:
 
       - name: Build Windows
         if: startsWith(matrix.name,'windows')
-        shell: powershell
+        shell: cmd
         run: |
           cd mswin32
-          .\Build.bat
+          Build.bat
