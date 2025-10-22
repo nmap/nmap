@@ -2,11 +2,24 @@ name: nmap multiplatform autobuilds
 
 on:
   push:
-#    paths:
-#      - ".github/workflows/build.yml"
-#      - "*.c"
-#      - "*.cc"
-#      - "*.h"
+    paths:
+      - ".github/workflows/build.yml"
+      - "**/*.c"
+      - "**/*.cc"
+      - "**/*.cpp"
+      - "**/*.h"
+      - "**/*.H"
+      - "**/*.in"
+      - "**/*.am"
+      - "**/*.ac"
+      - "**/*.lua"
+      - "**/*.cmakein"
+      - "**/configure"
+      - "**/*.pl"
+      - "**/*.py"
+      - "**/*.awk"
+      - "**/*.sh"
+      - "**/*.toml"
     branches:
       - master
   pull_request:
@@ -29,7 +42,6 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        name: [ ubuntu-latest-gcc, ubuntu-latest-gcc-arm64, ubuntu-latest-clang, macos-15-clang, macos-26-clang, freebsd-15-gcc, freebsd-15-clang, openbsd-7-gcc, openbsd-7-clang, netbsd-10-gcc, netbsd-10-clang, solaris-11-gcc, solaris-11-clang, windows-latest-msvc ]
         include:
           - name: ubuntu-latest-gcc
             os: ubuntu-latest
