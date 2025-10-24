@@ -298,6 +298,9 @@ o [GH#2609] Fixed a memory leak in Nsock: compiled pcap filters were not freed.
 
 o [GH#2658] Fixed a crash when using service name wildcards with -p, as in -p "http*"
 
+o [GH#2657] Fixed an issue where NSE-assigned service names could be overwritten
+  prior to output, leading to XML validation errors and unprintable screen output.
+
 o [NSE] Fixed DNS TXT record parsing bug which caused asn-query to fail in
   Nmap 7.80 and later. [David Fifield, Mike Pattrick]
 
