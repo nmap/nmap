@@ -216,9 +216,9 @@ end
 -- @param left String representing an IPv4 or IPv6 address.  Shortened
 --             notation is permitted.
 -- @param op A comparison operator which may be one of the following strings:
---           <code>"eq"</code>, <code>"ge"</code>, <code>"le"</code>,
---           <code>"gt"</code> or <code>"lt"</code> (respectively ==, >=, <=,
---           >, <).
+--           <code>"eq"</code>, <code>"ne"</code>, <code>"ge"</code>,
+--           <code>"le"</code>, <code>"gt"</code> or <code>"lt"</code>
+--           (respectively ==, ~=, >=, <=, >, <).
 -- @param right String representing an IPv4 or IPv6 address.  Shortened
 --              notation is permitted.
 -- @usage
