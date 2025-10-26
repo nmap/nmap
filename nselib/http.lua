@@ -2081,18 +2081,8 @@ function pipeline_go(host, port, all_requests)
   return responses
 end
 
--- Parsing of specific headers. skip_space and the read_* functions return the
+-- Parsing of specific headers. The read_* functions return the
 -- byte index following whatever they have just read, or nil on error.
-
--- Skip whitespace (that has already been folded from LWS). See RFC 2616,
--- section 2.2, definition of LWS.
-local function skip_space(s, pos)
-  local _
-
-  _, pos = string.find(s, "^[ \t]*", pos)
-
-  return pos + 1
-end
 
 -- See RFC 2616, section 2.2.
 local function read_token(s, pos)
