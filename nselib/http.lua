@@ -2022,14 +2022,16 @@ function pipeline_go(host, port, all_requests)
   stdnse.debug3("HTTP pipeline: connlimit=%d, batchlimit=%d", connlimit, batchlimit)
 
   while #responses < #all_requests do
+    local status, err
     -- reconnect if necessary
     if connsent >= connlimit or resp.truncated or not socket:get_info() then
       socket:close()
       stdnse.debug3("HTTP pipeline: reconnecting")
       socket:set_timeout(pipeline_comm_opts.request_timeout)
-      socket:connect(host, port, bopt)
-      if not socket then
-        return nil
+      status, err = socket:connect(host, port, bopt)
+      if not status then
+        stdnse.debug3("HTTP pipeline: cannot reconnect: %s", err)
+        return responses
       end
       partial = ""
       connsent = 0
@@ -2048,7 +2050,11 @@ function pipeline_go(host, port, all_requests)
       req.options.header = force_header(req.options.header, "Connection", connmode)
       table.insert(requests, build_request(host, port, req.method, req.path, req.options))
     end
-    socket:send(table.concat(requests))
+    status, err = socket:send(table.concat(requests))
+    if not status then
+      stdnse.debug3("HTTP pipeline: cannot send: %s", err)
+      return responses
+    end
 
     -- receive batch responses
     for i = 1, batchsize do
