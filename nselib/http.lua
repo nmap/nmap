@@ -2034,15 +2034,10 @@ function pipeline_go(host, port, all_requests)
       partial = ""
       connsent = 0
     end
-    if connlimit > connsent + #all_requests - #responses then
-      connlimit = connsent + #all_requests - #responses
-    end
-
+    -- decrease the connection limit to match what we still need to send
+    connlimit = math.min(connlimit, connsent + #all_requests - #responses)
     -- determine the current batch size
-    local batchsize = connlimit - connsent
-    if batchsize > batchlimit then
-      batchsize = batchlimit
-    end
+    local batchsize = math.min(connlimit - connsent, batchlimit)
     stdnse.debug3("HTTP pipeline: batch=%d, conn=%d/%d, resp=%d/%d", batchsize, connsent, connlimit, #responses, #all_requests)
 
     -- build and send a batch of requests
