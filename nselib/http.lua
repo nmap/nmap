@@ -276,7 +276,6 @@ local function get_quoted_string(s, offset, crlf)
       -- continuation." So there are really two definitions of quoted-string,
       -- depending on whether it's in a header field or not. This function does
       -- not allow CRLF.
-      c = s:sub(i, i)
       if c ~= "\t" and c:match("^[\0\001-\031\127]$") then
         error(string.format("Unexpected control character in quoted-string: 0x%02X.", c:byte(1)))
       end
