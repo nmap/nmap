@@ -292,10 +292,9 @@ local function skip_lws(s, pos)
   local _, e
 
   while true do
-    while string.match(s, "^[ \t]", pos) do
-      pos = pos + 1
-    end
-    _, e = string.find(s, "^\r?\n[ \t]", pos)
+    _, pos = string.find(s, "^[ \t]*", pos)
+    pos = pos + 1
+    _, e = string.find(s, "^\r?\n[ \t]+", pos)
     if not e then
       return pos
     end
