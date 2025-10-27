@@ -381,6 +381,9 @@ expand_ip = function( ip, family )
   for hdt in string.gmatch( ip, "[%.z%x]+" ) do
     hexadectets[#hexadectets+1] = hdt
   end
+  if #hexadectets == 0 then
+    return nil, ( err4:gsub( "IPv4", "IPv6" ) )
+  end
 
   -- deal with IPv4in6 (last hexadectet only)
   local t = {}
