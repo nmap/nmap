@@ -154,67 +154,54 @@ Comm = {
   -- @return status boolean true on success, false on failure
   -- @return string containing error message (if status is false)
   Connect = function(self, host, port, timeout)
-    local status, err, socket
-    status, err = self:ChkProgram()
-    if (not(status)) then
+    timeout = timeout or stdnse.get_timeout(host, 10000)
+    local status, err = self:ChkProgram()
+    if not status then
       return status, err
     end
     status, err = self:ChkVersion()
-    if (not(status)) then
+    if not status then
       return status, err
     end
-    timeout = timeout or stdnse.get_timeout(host, 10000)
-    local new_socket = function(...)
-      local socket = nmap.new_socket(...)
-      socket:set_timeout(timeout)
-      return socket
-    end
-    if ( port.protocol == "tcp" ) then
-      if nmap.is_privileged() then
-        -- Try to bind to a reserved port
-        for i = 1, 10, 1 do
-          local resvport = math.random(512, 1023)
-          socket = new_socket()
-          status, err = socket:bind(nil, resvport)
+    local socket = nmap.new_socket(port.protocol)
+    if nmap.is_privileged() then
+      -- Let's make several attempts to bind to an unused well-known port
+      for _ = 1, 10 do
+        local srcport = math.random(512, 1023)
+        status, err = socket:bind(nil, srcport)
+        if status then
+          socket:set_timeout(timeout)
+          status, err = socket:connect(host, port)
           if status then
-            status, err = socket:connect(host, port)
-            if status or err == "TIMEOUT" then break end
-            socket:close()
+            -- socket:connect() succeeds even if mksock_bind_addr() fails.
+            -- It just assigns an ephemeral port instead of our choice,
+            -- so we need to check the actual source port afterwards.
+            local lport
+            status, err, lport = socket:get_info()
+            if status then
+              if lport == srcport then
+                break
+              end
+              status = false
+              err = "Address already in use"
+            end
           end
         end
-      else
-        socket = new_socket()
-        status, err = socket:connect(host, port)
+        socket:close()
       end
     else
-      if nmap.is_privileged() then
-        -- Try to bind to a reserved port
-        for i = 1, 10, 1 do
-          local resvport = math.random(512, 1023)
-          socket = new_socket("udp")
-          status, err = socket:bind(nil, resvport)
-          if status then
-            status, err = socket:connect(host, port)
-            if status or err == "TIMEOUT" then break end
-            socket:close()
-          end
-        end
-      else
-        socket = new_socket("udp")
-        status, err = socket:connect(host, port)
-      end
+      -- No privileges to force a specific source port
+      status, err = socket:connect(host, port)
     end
-    if (not(status)) then
-      return status, string.format("%s connect error: %s",
-        self.program, err)
-    else
-      self.socket = socket
-      self.host = host
-      self.ip = host.ip
-      self.port = port.number
-      self.proto = port.protocol
-      return status, nil
+    if not status then
+      return status, ("%s connect error: %s"):format(self.program, err)
     end
+    self.socket = socket
+    self.host = host
+    self.ip = host.ip
+    self.port = port.number
+    self.proto = port.protocol
+    return status, nil
   end,
 
   --- Disconnects from the remote program
