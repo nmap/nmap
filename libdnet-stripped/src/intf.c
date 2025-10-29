@@ -904,7 +904,7 @@ intf_get_src(intf_t *intf, struct intf_entry *entry, struct addr *src)
 int
 intf_get_dst(intf_t *intf, struct intf_entry *entry, struct addr *dst)
 {
-	union sockunion sun;
+	union sockunion su;
 	socklen_t n;
 
 	int fd;
@@ -913,19 +913,19 @@ intf_get_dst(intf_t *intf, struct intf_entry *entry, struct addr *dst)
 		errno = EINVAL;
 		return (-1);
 	}
-	addr_ntos(dst, (struct sockaddr *)&sun);
-	sun.sin.sin_port = htons(666);
+	addr_ntos(dst, (struct sockaddr *)&su);
+	su.sin.sin_port = htons(666);
 
 	fd = dst->addr_type == ADDR_TYPE_IP6 ? intf->fd6 : intf->fd;
-	if (connect(fd, (struct sockaddr *)&sun, sizeof(sun)) < 0)
+	if (connect(fd, (struct sockaddr *)&su, sizeof(su)) < 0)
 		return (-1);
-	
-	n = sizeof(sun);
-	if (getsockname(fd, (struct sockaddr *)&sun, &n) < 0)
+
+	n = sizeof(su);
+	if (getsockname(fd, (struct sockaddr *)&su, &n) < 0)
 		return (-1);
-	
-	addr_ston((struct sockaddr *)&sun, &entry->intf_addr);
-	
+
+	addr_ston((struct sockaddr *)&su, &entry->intf_addr);
+
 	if (intf_loop(intf, _match_intf_src, entry) != 1)
 		return (-1);
 	
