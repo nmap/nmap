@@ -1,7 +1,12 @@
+local comm = require "comm"
+local ipOps = require "ipOps"
 local nmap = require "nmap"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
-local ipOps = require "ipOps"
+local string = require "string"
+local table = require "table"
+local tableaux = require "tableaux"
+local url = require "url"
 
 description =  [[
 Determines if the web server leaks its internal IP address when sending an HTTP/1.0 request without a Host header.
@@ -15,7 +20,8 @@ versions of Microsoft IIS, but affects other web servers as well.
 -- @usage nmap --script http-internal-ip-disclosure <target>
 -- @usage nmap --script http-internal-ip-disclosure --script-args http-internal-ip-disclosure.path=/path <target>
 --
--- @args http-internal-ip-disclosure.path Path to URI. Default: /
+-- @args http-internal-ip-disclosure.path Path (or a table of paths) to probe
+--                                        Default: /
 --
 -- @output
 -- 80/tcp open  http    syn-ack
@@ -33,55 +39,59 @@ categories = { "vuln", "discovery", "safe" }
 
 portrule = shortport.http
 
-local function generateHttpV1_0Req(host, port, path)
-  local redirectIP, privateIP
-  local socket = nmap.new_socket()
-  socket:connect(host, port)
-
-  local cmd = "GET " .. path .. " HTTP/1.0\r\n\r\n"
-  socket:send(cmd)
-
-  while true do
-    local status, lines = socket:receive_lines(1)
-    if not status then
-      break
-    end
-
-    -- Check if the response contains a location header
-    if lines:match("Location") then
-      local locTarget = lines:match("Location: [%a%p%d]+")
-      -- Check if the redirect location contains an IP address
-      redirectIP = locTarget:match("[%d%.]+")
-      if redirectIP then
-        privateIP = ipOps.isPrivate(redirectIP)
-      end
-
-      stdnse.debug1("Location: %s", locTarget )
-      stdnse.debug1("Internal IP: %s", redirectIP )
-    end
-  end
-
-  socket:close()
-
-  -- Only report if the internal IP leaked is different then the target IP
-  if privateIP and redirectIP ~= host.ip then
-    return redirectIP
+local function add_unique (tbl, val)
+  if not tableaux.contains(tbl, val) then
+    table.insert(tbl, val)
   end
 end
 
 action = function(host, port)
-  local output = stdnse.output_table()
-  local path = stdnse.get_script_args(SCRIPT_NAME .. ".path") or "/"
-  local IP = generateHttpV1_0Req(host, port, path)
-
-  -- Check /images which is often vulnerable on some unpatched IIS servers
-  if not IP and path ~= "/images" then
-    path = "/images"
-    IP = generateHttpV1_0Req(host, port, path)
+  local patharg = stdnse.get_script_args(SCRIPT_NAME .. ".path") or "/"
+  if type(patharg) ~= "table" then
+    patharg = {patharg}
   end
+  local paths = {}
+  for _, path in ipairs(patharg) do
+    add_unique(paths, path)
+  end
+  add_unique(paths, "/images")
 
-  if IP then
-    output["Internal IP Leaked"] = IP
-    return output
+  local socket
+  local bopt = nil
+  for _, path in ipairs(paths) do
+    local req = "GET " .. path .. " HTTP/1.0\r\n\r\n"
+    local resp
+    if not bopt then
+      socket, resp, bopt = comm.tryssl(host, port, req)
+      if not socket then return end
+    else
+      if not (socket:connect(host, port, bopt)
+          and socket:send(req)) then
+        socket:close()
+        return
+      end
+      resp = ""
+    end
+    local findhead = function (s)
+                       return s:find("\r?\n\r?\n")
+                     end
+    if not findhead(resp) then
+      local status, head = socket:receive_buf(findhead, true)
+      if not status then return end
+      resp = resp .. head
+    end
+    socket:close()
+
+    local loc = resp:lower():match("\nlocation:[ \t]+(%S+)")
+    local lochost = url.parse(loc or "").host
+    if not lochost or lochost == "" then return end
+    -- remove any IPv6 enclosure
+    lochost = lochost:gsub("^%[(.*)%]$", "%1")
+
+    if ipOps.isPrivate(lochost) and ipOps.compare_ip(lochost, "ne", host.ip) then
+      local output = stdnse.output_table()
+      output["Internal IP Leaked"] = lochost
+      return output
+    end
   end
 end
