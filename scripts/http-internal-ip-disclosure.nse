@@ -1,3 +1,4 @@
+local comm = require "comm"
 local nmap = require "nmap"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
@@ -27,7 +28,7 @@ versions of Microsoft IIS, but affects other web servers as well.
 --
 -- @see ssl-cert-intaddr.nse
 
-author = "Josh Amishav-Zlatin"
+author = {"Josh Amishav-Zlatin", "Jason Juntunen"}
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = { "vuln", "discovery", "safe" }
 
@@ -35,30 +36,23 @@ portrule = shortport.http
 
 local function generateHttpV1_0Req(host, port, path)
   local redirectIP, privateIP
-  local socket = nmap.new_socket()
-  socket:connect(host, port)
+  local socket, result = comm.tryssl(host, port, "GET " .. path .. " HTTP/1.0\r\n\r\n")
+  
+  if (not socket) then
+    return nil
+  end
 
-  local cmd = "GET " .. path .. " HTTP/1.0\r\n\r\n"
-  socket:send(cmd)
-
-  while true do
-    local status, lines = socket:receive_lines(1)
-    if not status then
-      break
+  -- Check if the response contains a location header
+  if result:match("Location") then
+    local locTarget = result:match("Location: [%a%p%d]+")
+    -- Check if the redirect location contains an IP address
+    redirectIP = locTarget:match("[%d%.]+")
+    if redirectIP then
+      privateIP = ipOps.isPrivate(redirectIP)
     end
 
-    -- Check if the response contains a location header
-    if lines:match("Location") then
-      local locTarget = lines:match("Location: [%a%p%d]+")
-      -- Check if the redirect location contains an IP address
-      redirectIP = locTarget:match("[%d%.]+")
-      if redirectIP then
-        privateIP = ipOps.isPrivate(redirectIP)
-      end
-
-      stdnse.debug1("Location: %s", locTarget )
-      stdnse.debug1("Internal IP: %s", redirectIP )
-    end
+    stdnse.debug1("Location: %s", locTarget )
+    stdnse.debug1("Internal IP: %s", redirectIP )
   end
 
   socket:close()
