@@ -1380,9 +1380,8 @@ http\-\&.
 Lets you provide arguments to NSE scripts\&. Arguments are a comma\-separated list of
 name=value
 pairs\&. Names and values may be strings not containing whitespace or the characters \(oq{\(cq, \(oq}\(cq, \(oq=\(cq, or \(oq,\(cq\&. To include one of these characters in a string, enclose the string in single or double quotes\&. Within a quoted string, \(oq\e\(cq escapes a quote\&. A backslash is only used to escape quotation marks in this special case; in all other cases a backslash is interpreted literally\&. Values may also be tables enclosed in
-{}, just as in Lua\&. A table may contain simple string values or more name\-value pairs, including nested tables\&. Many scripts qualify their arguments with the script name, as in
-xmpp\-info\&.server_name\&. You may use that full qualified version to affect just the specified script, or you may pass the unqualified version (server_name
-in this case) to affect all scripts using that argument name\&. A script will first check for its fully qualified argument name (the name specified in its documentation) before it accepts an unqualified argument name\&. A complex example of script arguments is
+{}, just as in Lua\&. A table may contain simple string values or more name\-value pairs, including nested tables\&. All arguments are global\&. Scripts are advised to first look in their namespace (e\&.g\&.
+xmpp\-info\&.server_name) and then, if not available, use the global argument (e\&.g\&. server_name)\&. Some arguments can only be set globally (e\&.g\&. newtargets)\&. A complex example of script arguments is
 \fB\-\-script\-args \*(Aquser=foo,pass=",{}=bar",whois={whodb=nofollow+ripe},xmpp\-info\&.server_name=localhost\*(Aq\fR\&. The online NSE Documentation Portal at
 \m[blue]\fB\%https://nmap.org/nsedoc/\fR\m[]
 lists the arguments that each script accepts\&.
