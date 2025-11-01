@@ -3,6 +3,10 @@
 o [GH#3194] RPC-based scripts were sporadically failing due to privileged
   port conflicts. [nnposter]
 
+o [GH#3196] Script rlogin-brute was sporadically failing due to using
+  an off-by-one range for privileged ports and not handling potential
+  port conflicts. [nnposter]
+
 Nmap 7.98 [2025-08-21]
 
 o [SECURITY] Rebuilt the Windows self-installer with NSIS 3.11, addressing
