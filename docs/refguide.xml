@@ -2480,9 +2480,20 @@ escapes a quote. A backslash is only used to escape quotation marks in this
 special case; in all other cases a backslash is interpreted literally. Values
 may also be tables enclosed in <literal>{}</literal>, just as in Lua. A table
 may contain simple string values or more name-value pairs, including nested
-tables.  Many scripts qualify their arguments with the script name, as in <literal>xmpp-info.server_name</literal>.  You may use that full qualified version to affect just the specified script, or you may pass the unqualified version (<literal>server_name</literal> in this case) to affect all scripts using that argument name.  A script will first check for its fully qualified argument name (the name specified in its documentation) before it accepts an unqualified argument name.  A complex example of script arguments is
-<option>--script-args 'user=foo,pass=",{}=bar",whois={whodb=nofollow+ripe},xmpp-info.server_name=localhost'</option>.  The online NSE Documentation Portal at <ulink url="https://nmap.org/nsedoc/"/>
-lists the arguments that each script accepts.
+tables.  A complex example of script arguments is
+<option>--script-args 'user=foo,pass=",{}=bar",whois={whodb=nofollow+ripe},xmpp-info.server_name=localhost'</option>.
+Many scripts qualify their arguments with the script name, as in
+<literal>xmpp-info.server_name</literal>.  A script will first check for its
+fully qualified argument name (the name specified in its documentation) before
+it accepts an unqualified argument name (<literal>server_name</literal> in this
+case).  Some arguments are not specific to one script. They typically effect
+behavior of a library and therefore potentially all the scripts that use the
+library.  (One such example is <literal>http.useragent</literal>, which sets
+the default HTTP User-Agent header for every web request, regardless which
+script sends it.)  It is not possible for the exact same argument to be given
+different values for diferent scripts.  The online NSE Documentation Portal at
+<ulink url="https://nmap.org/nsedoc/"/> lists the arguments that each script
+accepts.
 </para>
 </listitem>
 </varlistentry>
