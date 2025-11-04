@@ -276,7 +276,6 @@ local function get_quoted_string(s, offset, crlf)
       -- continuation." So there are really two definitions of quoted-string,
       -- depending on whether it's in a header field or not. This function does
       -- not allow CRLF.
-      c = s:sub(i, i)
       if c ~= "\t" and c:match("^[\0\001-\031\127]$") then
         error(string.format("Unexpected control character in quoted-string: 0x%02X.", c:byte(1)))
       end
@@ -292,10 +291,9 @@ local function skip_lws(s, pos)
   local _, e
 
   while true do
-    while string.match(s, "^[ \t]", pos) do
-      pos = pos + 1
-    end
-    _, e = string.find(s, "^\r?\n[ \t]", pos)
+    _, pos = string.find(s, "^[ \t]*", pos)
+    pos = pos + 1
+    _, e = string.find(s, "^\r?\n[ \t]+", pos)
     if not e then
       return pos
     end
@@ -360,7 +358,19 @@ local function validate_options(options)
                 stdnse.debug1("http: options.cookies[i].max-age should be a string")
                 bad = true
               end
-            elseif not (cookie_key == 'httponly' or cookie_key == 'secure') then
+            elseif(cookie_key == 'domain') then
+              if(type(cookie_value) ~= 'string') then
+                stdnse.debug1("http: options.cookies[i].domain should be a string")
+                bad = true
+              end
+            elseif(cookie_key == 'samesite') then
+              if(type(cookie_value) ~= 'string') then
+                stdnse.debug1("http: options.cookies[i].samesite should be a string")
+                bad = true
+              end
+            elseif not (cookie_key == 'httponly'
+                     or cookie_key == 'secure'
+                     or cookie_key == 'partitioned') then
               stdnse.debug1("http: Unknown field in cookie table: %s", cookie_key)
               -- Ignore unrecognized attributes (per RFC 6265, Section 5.2)
             end
@@ -2024,27 +2034,24 @@ function pipeline_go(host, port, all_requests)
   stdnse.debug3("HTTP pipeline: connlimit=%d, batchlimit=%d", connlimit, batchlimit)
 
   while #responses < #all_requests do
+    local status, err
     -- reconnect if necessary
     if connsent >= connlimit or resp.truncated or not socket:get_info() then
       socket:close()
       stdnse.debug3("HTTP pipeline: reconnecting")
       socket:set_timeout(pipeline_comm_opts.request_timeout)
-      socket:connect(host, port, bopt)
-      if not socket then
-        return nil
+      status, err = socket:connect(host, port, bopt)
+      if not status then
+        stdnse.debug3("HTTP pipeline: cannot reconnect: %s", err)
+        return responses
       end
       partial = ""
       connsent = 0
     end
-    if connlimit > connsent + #all_requests - #responses then
-      connlimit = connsent + #all_requests - #responses
-    end
-
+    -- decrease the connection limit to match what we still need to send
+    connlimit = math.min(connlimit, connsent + #all_requests - #responses)
     -- determine the current batch size
-    local batchsize = connlimit - connsent
-    if batchsize > batchlimit then
-      batchsize = batchlimit
-    end
+    local batchsize = math.min(connlimit - connsent, batchlimit)
     stdnse.debug3("HTTP pipeline: batch=%d, conn=%d/%d, resp=%d/%d", batchsize, connsent, connlimit, #responses, #all_requests)
 
     -- build and send a batch of requests
@@ -2055,7 +2062,11 @@ function pipeline_go(host, port, all_requests)
       req.options.header = force_header(req.options.header, "Connection", connmode)
       table.insert(requests, build_request(host, port, req.method, req.path, req.options))
     end
-    socket:send(table.concat(requests))
+    status, err = socket:send(table.concat(requests))
+    if not status then
+      stdnse.debug3("HTTP pipeline: cannot send: %s", err)
+      return responses
+    end
 
     -- receive batch responses
     for i = 1, batchsize do
@@ -2082,18 +2093,8 @@ function pipeline_go(host, port, all_requests)
   return responses
 end
 
--- Parsing of specific headers. skip_space and the read_* functions return the
+-- Parsing of specific headers. The read_* functions return the
 -- byte index following whatever they have just read, or nil on error.
-
--- Skip whitespace (that has already been folded from LWS). See RFC 2616,
--- section 2.2, definition of LWS.
-local function skip_space(s, pos)
-  local _
-
-  _, pos = string.find(s, "^[ \t]*", pos)
-
-  return pos + 1
-end
 
 -- See RFC 2616, section 2.2.
 local function read_token(s, pos)

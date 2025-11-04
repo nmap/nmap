@@ -1,5 +1,12 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [GH#3194] RPC-based scripts were sporadically failing due to privileged
+  port conflicts. [nnposter]
+
+o [GH#3196] Script rlogin-brute was sporadically failing due to using
+  an off-by-one range for privileged ports and not handling potential
+  port conflicts. [nnposter]
+
 Nmap 7.98 [2025-08-21]
 
 o [SECURITY] Rebuilt the Windows self-installer with NSIS 3.11, addressing
@@ -297,6 +304,9 @@ o [GH#2731] Fix an out-of-bounds read which led to out-of-memory errors when
 o [GH#2609] Fixed a memory leak in Nsock: compiled pcap filters were not freed.
 
 o [GH#2658] Fixed a crash when using service name wildcards with -p, as in -p "http*"
+
+o [GH#2657] Fixed an issue where NSE-assigned service names could be overwritten
+  prior to output, leading to XML validation errors and unprintable screen output.
 
 o [NSE] Fixed DNS TXT record parsing bug which caused asn-query to fail in
   Nmap 7.80 and later. [David Fifield, Mike Pattrick]
