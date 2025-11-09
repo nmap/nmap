@@ -3,7 +3,6 @@ local ipOps = require "ipOps"
 local nmap = require "nmap"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
-local string = require "string"
 local table = require "table"
 local tableaux = require "tableaux"
 local url = require "url"
@@ -58,6 +57,7 @@ action = function(host, port)
 
   local socket
   local bopt = nil
+  local try = nmap.new_try(function () socket:close() end)
   for _, path in ipairs(paths) do
     local req = "GET " .. path .. " HTTP/1.0\r\n\r\n"
     local resp
@@ -65,20 +65,15 @@ action = function(host, port)
       socket, resp, bopt = comm.tryssl(host, port, req)
       if not socket then return end
     else
-      if not (socket:connect(host, port, bopt)
-          and socket:send(req)) then
-        socket:close()
-        return
-      end
+      try(socket:connect(host, port, bopt))
+      try(socket:send(req))
       resp = ""
     end
     local findhead = function (s)
                        return s:find("\r?\n\r?\n")
                      end
     if not findhead(resp) then
-      local status, head = socket:receive_buf(findhead, true)
-      if not status then return end
-      resp = resp .. head
+      resp = resp .. try(socket:receive_buf(findhead, true))
     end
     socket:close()
 
