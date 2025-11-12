@@ -325,40 +325,43 @@ end
 -- @return txtout table suitable for inclusion in the script textual output
 ---
 local function  test_credentials (host, port, fingerprint, path)
-  local credlst = {}
+  local credhits = stdnse.output_table()
   for _, login_combo in ipairs(fingerprint.login_combos) do
     local user = login_combo.username
     local pass = login_combo.password
-    stdnse.debug(1, "[%s] Trying login combo %s:%s", fingerprint.name,
-                 stdnse.string_or_blank(user), stdnse.string_or_blank(pass))
-    if fingerprint.login_check(host, port, path, user, pass) then
-      stdnse.debug(1, "[%s] Valid default credentials found", fingerprint.name)
-      local cred = stdnse.output_table()
-      cred.username = user
-      cred.password = pass
-      table.insert(credlst, cred)
+    if not credhits[user] then
+      stdnse.debug(1, "[%s] Trying login combo %s:%s", fingerprint.name,
+                   stdnse.string_or_blank(user), stdnse.string_or_blank(pass))
+      if fingerprint.login_check(host, port, path, user, pass) then
+        stdnse.debug(1, "[%s] Valid default credentials found", fingerprint.name)
+        credhits[user] = pass
+      end
     end
   end
-  if #credlst == 0 and nmap.verbosity() < 2 then return nil end
+  if #credhits == 0 and nmap.verbosity() < 2 then return nil end
   -- Some credentials found or increased verbosity. Generate the output report
   local out = stdnse.output_table()
   out.cpe = fingerprint.cpe
   out.path = path
-  out.credentials = credlst
+  out.credentials = {}
   local txtout = {}
   txtout.name = ("[%s] at %s"):format(fingerprint.name, path)
-  if #credlst == 0 then
+  if #credhits == 0 then
     table.insert(txtout, "(no valid default credentials found)")
     return out, txtout
   end
-  for _, cred in ipairs(credlst) do
-    table.insert(txtout,("%s:%s"):format(stdnse.string_or_blank(cred.username),
-                                         stdnse.string_or_blank(cred.password)))
+  for user, pass in pairs(credhits) do
+    local cred = stdnse.output_table()
+    cred.username = user
+    cred.password = pass
+    table.insert(out.credentials, cred)
+    table.insert(txtout,("%s:%s"):format(stdnse.string_or_blank(user),
+                                         stdnse.string_or_blank(pass)))
   end
   -- Register the credentials
   local credreg = creds.Credentials:new(SCRIPT_NAME, host, port)
-  for _, cred in ipairs(credlst) do
-    credreg:add(cred.username, cred.password, creds.State.VALID )
+  for user, pass in pairs(credhits) do
+    credreg:add(user, pass, creds.State.VALID )
   end
   return out, txtout
 end
