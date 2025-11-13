@@ -11420,6 +11420,7 @@ unknown	7772/tcp	0.000076
 unknown	7773/udp	0.000330
 inetfs	7775/tcp	0.000000	# A File System using TLS over a wide area network
 unknown	7775/udp	0.000330
+jmx-rmi 7776/tcp    0.000000    # Java Management Extensions (JMX) over RMI
 cbt	7777/tcp	0.000380
 cbt	7777/udp	0.000000
 interwise	7778/tcp	0.000380
