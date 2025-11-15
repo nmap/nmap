@@ -92,7 +92,7 @@ pub enum VulnerabilitySeverity {
 }
 
 pub struct ScriptEngine {
-    scripts: Arc<RwLock<HashMap<String, Box<dyn Script>>>>,
+    scripts: Arc<RwLock<HashMap<String, Arc<Box<dyn Script>>>>>,
     categories: Arc<RwLock<HashMap<ScriptCategory, Vec<String>>>>,
 }
 
@@ -107,6 +107,9 @@ impl ScriptEngine {
     pub async fn register_script(&self, script: Box<dyn Script>) -> Result<()> {
         let name = script.name().to_string();
         let categories = script.categories();
+
+        // Wrap in Arc for safe concurrent access
+        let script = Arc::new(script);
 
         // Register script
         {
@@ -127,22 +130,21 @@ impl ScriptEngine {
     }
 
     pub async fn execute_script(&self, script_name: &str, context: &ScriptContext) -> Result<ScriptResult> {
+        // Clone the Arc to the script - this is cheap (just incrementing a reference count)
+        // and keeps the script alive for the duration of execution
         let script = {
             let scripts = self.scripts.read().await;
             scripts.get(script_name)
                 .ok_or_else(|| anyhow::anyhow!("Script not found: {}", script_name))?
-                .as_ref() as *const dyn Script
+                .clone() // Clone the Arc, not the script itself
         };
 
-        // Safety: We hold the read lock during the entire operation
-        let script = unsafe { &*script };
-        
         debug!("Executing script: {} on target: {}", script_name, context.target_ip);
         let start_time = std::time::Instant::now();
-        
+
         let mut result = script.execute(context).await?;
         result.execution_time = start_time.elapsed();
-        
+
         debug!("Script {} completed in {:?}", script_name, result.execution_time);
         Ok(result)
     }

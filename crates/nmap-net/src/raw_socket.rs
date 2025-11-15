@@ -55,10 +55,23 @@ impl RawSocket {
     /// Receive a packet from the socket
     pub fn receive_packet(&self, buffer: &mut [u8]) -> Result<usize> {
         use std::mem::MaybeUninit;
+
+        // Ensure buffer is large enough and size is valid
+        if buffer.is_empty() {
+            return Ok(0);
+        }
+
         let mut uninit_buffer: Vec<MaybeUninit<u8>> = vec![MaybeUninit::uninit(); buffer.len()];
         match self.socket.recv(&mut uninit_buffer) {
             Ok(size) => {
+                // Safety check: size should not exceed buffer length
+                if size > buffer.len() {
+                    return Err(anyhow!("Received size {} exceeds buffer length {}", size, buffer.len()));
+                }
+
                 // Copy from MaybeUninit to regular buffer
+                // Safety: socket.recv() guarantees that bytes 0..size are initialized
+                // We explicitly check that size <= buffer.len() above
                 for i in 0..size {
                     buffer[i] = unsafe { uninit_buffer[i].assume_init() };
                 }
@@ -202,16 +215,5 @@ fn get_local_ip() -> Result<IpAddr> {
     Ok(IpAddr::V4(Ipv4Addr::new(0, 0, 0, 0))) // Let the OS choose
 }
 
-/// Check if we have the necessary privileges for raw sockets
-pub fn check_raw_socket_privileges() -> bool {
-    #[cfg(unix)]
-    {
-        unsafe { libc::geteuid() == 0 }
-    }
-    #[cfg(windows)]
-    {
-        // On Windows, raw sockets require admin privileges
-        // This is a simplified check - in practice, we'd check for specific capabilities
-        false
-    }
-}
+// Note: check_raw_socket_privileges() has been moved to socket_utils.rs
+// to avoid code duplication and is re-exported from lib.rs
