@@ -22,3 +22,12 @@ dns-lookup = "2.0"
 
 [target.'cfg(unix)'.dependencies]
 libc = "0.2"
+
+[dev-dependencies]
+criterion = { version = "0.5", features = ["html_reports"] }
+ipnet = "2.9"
+tokio = { version = "1.0", features = ["full", "test-util"] }
+
+[[bench]]
+name = "performance_benchmarks"
+harness = false
