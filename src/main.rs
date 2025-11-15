@@ -335,17 +335,32 @@ async fn main() -> Result<()> {
             }
 
             let scan_start = Instant::now();
-            let mut port_results = Vec::new();
+
+            // Optimization: Scan ports in parallel using join_all
+            // Each task acquires a semaphore permit to limit concurrency
+            let mut scan_tasks = Vec::with_capacity(ports.len());
 
             for &port in &ports {
-                // Acquire permit from semaphore before creating connection
-                let _permit = semaphore.clone().acquire_owned().await
-                    .map_err(|e| anyhow!("Failed to acquire connection slot: {}", e))?;
+                let sem = semaphore.clone();
+                let scan_timeout = Duration::from_secs(timeout_secs);
 
-                let port_result = scan_port(target, port, Duration::from_secs(timeout_secs), service_detection).await;
-                port_results.push(port_result);
-                // Permit automatically released when _permit is dropped
+                let task = tokio::spawn(async move {
+                    // Acquire permit before creating connection
+                    let _permit = sem.acquire_owned().await
+                        .expect("semaphore should not be closed");
+
+                    // Scan port (permit auto-released when _permit drops)
+                    scan_port(target, port, scan_timeout, service_detection).await
+                });
+
+                scan_tasks.push(task);
             }
+
+            // Wait for all port scans to complete
+            let port_results = futures::future::join_all(scan_tasks).await
+                .into_iter()
+                .map(|r| r.expect("port scan task should not panic"))
+                .collect::<Vec<_>>();
 
             let scan_time = scan_start.elapsed().as_secs_f64();
 
