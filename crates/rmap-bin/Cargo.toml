@@ -13,16 +13,17 @@ name = "rmap"
 path = "src/main.rs"
 
 [dependencies]
-nmap-core = { path = "../nmap-core" }
-nmap-cli = { path = "../nmap-cli" }
 nmap-net = { path = "../nmap-net" }
-nmap-output = { path = "../nmap-output" }
+nmap-engine = { path = "../nmap-engine" }
+nmap-timing = { path = "../nmap-timing" }
 tokio = { version = "1.0", features = ["full"] }
 anyhow = "1.0"
 clap = { version = "4.0", features = ["derive"] }
 tracing = "0.1"
 tracing-subscriber = "0.3"
 ipnet = "2.9"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
 
 [profile.release]
 opt-level = 3

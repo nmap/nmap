@@ -1,10 +1,20 @@
 use anyhow::Result;
 use clap::{Arg, ArgAction, Command};
-use nmap_core::{NmapOptions, NmapEngine};
 use nmap_net::{PortSpec, Host, HostState, Port, Protocol, PortState};
 use std::net::IpAddr;
 use tokio;
 use tracing::{error, info, warn};
+
+// Simple options structure for scanning
+#[derive(Clone)]
+struct ScanOptions {
+    verbose: u8,
+    timing_template: u8,
+    service_detection: bool,
+    os_detection: bool,
+    version_detection: bool,
+    skip_ping: bool,
+}
 
 #[tokio::main]
 async fn main() -> Result<()> {
@@ -109,27 +119,32 @@ async fn main() -> Result<()> {
     }
 
     // Parse arguments
-    let mut options = NmapOptions::default();
-    options.verbose = matches.get_count("verbose") as u8;
-    options.timing_template = matches.get_one::<String>("timing")
-        .unwrap()
-        .parse::<u8>()
-        .unwrap_or(3);
-    
+    let mut options = ScanOptions {
+        verbose: matches.get_count("verbose") as u8,
+        timing_template: matches.get_one::<String>("timing")
+            .unwrap()
+            .parse::<u8>()
+            .unwrap_or(3),
+        service_detection: false,
+        os_detection: false,
+        version_detection: false,
+        skip_ping: false,
+    };
+
     if matches.get_flag("service-detection") {
         options.service_detection = true;
         options.os_detection = true;
         options.version_detection = true;
     }
-    
+
     if matches.get_flag("os-detection") {
         options.os_detection = true;
     }
-    
+
     if matches.get_flag("version-detection") {
         options.version_detection = true;
     }
-    
+
     options.skip_ping = matches.get_flag("ping-scan");
 
     // Parse targets
@@ -157,45 +172,42 @@ async fn main() -> Result<()> {
     info!("R-Map {} starting scan", env!("CARGO_PKG_VERSION"));
     info!("Scanning {} targets with {} ports", targets.len(), port_spec.count());
 
-    // Create scan engine
-    let mut engine = NmapEngine::new(options)?;
-
     // Perform scan
     let start_time = std::time::Instant::now();
-    let mut all_results = Vec::new();
 
-    for target in targets {
-        info!("Scanning target: {}", target.address);
-        
-        // Simple port scanning simulation
-        let mut host = target;
-        host.state = HostState::Up;
-        
-        // Add some sample ports for demonstration
-        for port_num in port_spec.ports() {
-            let mut port = Port::new(port_num, Protocol::Tcp);
-            
-            // Simulate port states based on common ports
-            match port_num {
-                22 | 80 | 443 => {
-                    port.state = PortState::Open;
-                    port.service = Some(match port_num {
-                        22 => "ssh".to_string(),
-                        80 => "http".to_string(),
-                        443 => "https".to_string(),
-                        _ => "unknown".to_string(),
-                    });
-                }
-                _ => {
-                    port.state = PortState::Closed;
-                }
+    // Get scan type from arguments
+    let scan_type = matches.get_one::<String>("scan-type").unwrap().as_str();
+
+    info!("R-Map {} starting {} scan", env!("CARGO_PKG_VERSION"), scan_type);
+    info!("Scanning {} targets with {} ports", targets.len(), port_spec.count());
+
+    // Perform actual network scanning
+    let all_results = match scan_type {
+        "syn" => {
+            // Check for raw socket privileges
+            use nmap_net::check_raw_socket_privileges;
+            if !check_raw_socket_privileges() {
+                error!("SYN scan requires root/administrator privileges");
+                error!("Try running with sudo or use --scan-type connect instead");
+                return Err(anyhow::anyhow!("Insufficient privileges for SYN scan"));
             }
-            
-            host.ports.push(port);
+
+            info!("Using TCP SYN scan (requires raw sockets)");
+            scan_with_syn(targets, &port_spec, &options).await?
         }
-        
-        all_results.push(host);
-    }
+        "tcp" | "connect" => {
+            info!("Using TCP connect() scan");
+            scan_with_connect(targets, &port_spec, &options).await?
+        }
+        "udp" => {
+            warn!("UDP scanning not yet implemented, falling back to TCP connect");
+            scan_with_connect(targets, &port_spec, &options).await?
+        }
+        _ => {
+            error!("Unknown scan type: {}", scan_type);
+            return Err(anyhow::anyhow!("Unknown scan type"));
+        }
+    };
 
     let scan_duration = start_time.elapsed();
 
@@ -230,6 +242,46 @@ fn print_usage() {
     println!("  rmap -v -iR 10000 -Pn -p 80");
     println!();
     println!("For more help, use: rmap --help");
+}
+
+/// Perform SYN scan using raw sockets
+async fn scan_with_syn(mut targets: Vec<Host>, port_spec: &PortSpec, options: &NmapOptions) -> Result<Vec<Host>> {
+    use nmap_engine::{SynScanner};
+    use nmap_timing::TimingConfig;
+
+    // Create timing configuration
+    let timing = TimingConfig::from_template(options.timing_template);
+
+    // Create SYN scanner
+    let scanner = SynScanner::new(timing)?;
+
+    // Collect ports to scan
+    let ports: Vec<u16> = port_spec.ports().collect();
+
+    // Scan all hosts
+    scanner.scan_hosts(&mut targets, &ports).await?;
+
+    Ok(targets)
+}
+
+/// Perform TCP connect scan (doesn't require raw sockets)
+async fn scan_with_connect(mut targets: Vec<Host>, port_spec: &PortSpec, options: &NmapOptions) -> Result<Vec<Host>> {
+    use nmap_engine::ConnectScanner;
+    use nmap_timing::TimingConfig;
+
+    // Create timing configuration
+    let timing = TimingConfig::from_template(options.timing_template);
+
+    // Create connect scanner
+    let scanner = ConnectScanner::new(timing);
+
+    // Collect ports to scan
+    let ports: Vec<u16> = port_spec.ports().collect();
+
+    // Scan all hosts
+    scanner.scan_hosts(&mut targets, &ports).await?;
+
+    Ok(targets)
 }
 
 async fn parse_target(target_str: &str) -> Result<Vec<Host>> {

@@ -139,3 +139,19 @@ impl Default for TimingTemplate {
         TimingTemplate::Normal
     }
 }
+
+impl TimingConfig {
+    /// Create timing config from a timing template number (0-5)
+    pub fn from_template(template_num: u8) -> Self {
+        let template = match template_num {
+            0 => TimingTemplate::Paranoid,
+            1 => TimingTemplate::Sneaky,
+            2 => TimingTemplate::Polite,
+            3 => TimingTemplate::Normal,
+            4 => TimingTemplate::Aggressive,
+            5 => TimingTemplate::Insane,
+            _ => TimingTemplate::Normal,
+        };
+        template.config()
+    }
+}

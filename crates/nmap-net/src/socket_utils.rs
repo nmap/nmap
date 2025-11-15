@@ -56,8 +56,24 @@ pub fn bind_to_interface(socket: &Socket, interface: &str) -> Result<()> {
     #[cfg(target_os = "linux")]
     {
         use std::ffi::CString;
+        use std::os::fd::AsRawFd;
+
         let interface_cstr = CString::new(interface)?;
-        socket.bind_device(Some(interface_cstr.as_bytes_with_nul()))?;
+        let fd = socket.as_raw_fd();
+
+        unsafe {
+            let ret = libc::setsockopt(
+                fd,
+                libc::SOL_SOCKET,
+                libc::SO_BINDTODEVICE,
+                interface_cstr.as_ptr() as *const libc::c_void,
+                interface_cstr.as_bytes_with_nul().len() as libc::socklen_t,
+            );
+
+            if ret != 0 {
+                return Err(anyhow::anyhow!("Failed to bind to device: {}", std::io::Error::last_os_error()));
+            }
+        }
     }
     #[cfg(not(target_os = "linux"))]
     {
@@ -65,7 +81,7 @@ pub fn bind_to_interface(socket: &Socket, interface: &str) -> Result<()> {
         // For now, just return success on other platforms
         let _ = interface;
     }
-    
+
     Ok(())
 }
 
