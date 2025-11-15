@@ -2,10 +2,11 @@ use anyhow::{anyhow, Result};
 use clap::{Arg, ArgAction, Command};
 use serde::{Deserialize, Serialize};
 
-use std::net::IpAddr;
-use std::path::{Path, PathBuf};
+use std::net::{IpAddr, Ipv4Addr, Ipv6Addr};
+use std::sync::Arc;
 use std::time::{Duration, Instant};
 use tokio::net::TcpStream;
+use tokio::sync::Semaphore;
 use tokio::time::timeout;
 use tracing::{error, info, warn};
 
@@ -24,6 +25,82 @@ struct PortResult {
     state: String,
     service: Option<String>,
     version: Option<String>,
+}
+
+/// Maximum concurrent socket connections to prevent resource exhaustion
+const MAX_CONCURRENT_SOCKETS: usize = 100;
+
+/// Global scan timeout in seconds (30 minutes max)
+const MAX_SCAN_DURATION_SECS: u64 = 1800;
+
+/// Check if an IP address is in a private/reserved range (SSRF protection)
+fn is_private_ip(ip: IpAddr) -> bool {
+    match ip {
+        IpAddr::V4(ipv4) => {
+            let octets = ipv4.octets();
+            // RFC 1918 private networks
+            octets[0] == 10 || // 10.0.0.0/8
+            (octets[0] == 172 && octets[1] >= 16 && octets[1] <= 31) || // 172.16.0.0/12
+            (octets[0] == 192 && octets[1] == 168) || // 192.168.0.0/16
+            // Loopback
+            octets[0] == 127 || // 127.0.0.0/8
+            // Link-local
+            (octets[0] == 169 && octets[1] == 254) || // 169.254.0.0/16
+            // Multicast
+            octets[0] >= 224 && octets[0] <= 239 || // 224.0.0.0/4
+            // Broadcast
+            ipv4 == Ipv4Addr::BROADCAST ||
+            // Unspecified
+            ipv4 == Ipv4Addr::UNSPECIFIED
+        }
+        IpAddr::V6(ipv6) => {
+            // IPv6 private/reserved ranges
+            ipv6.is_loopback() ||
+            ipv6.is_unspecified() ||
+            ipv6.is_multicast() ||
+            // Link-local fe80::/10
+            (ipv6.segments()[0] & 0xffc0) == 0xfe80 ||
+            // Unique local fc00::/7
+            (ipv6.segments()[0] & 0xfe00) == 0xfc00
+        }
+    }
+}
+
+/// Check if an IP is a cloud metadata endpoint (SSRF protection)
+fn is_cloud_metadata_endpoint(ip: IpAddr) -> bool {
+    match ip {
+        IpAddr::V4(ipv4) => {
+            // AWS/GCP/Azure metadata endpoint: 169.254.169.254
+            ipv4 == Ipv4Addr::new(169, 254, 169, 254)
+        }
+        IpAddr::V6(ipv6) => {
+            // IPv6 metadata endpoints (fd00:ec2::254 for AWS)
+            let segments = ipv6.segments();
+            segments[0] == 0xfd00 && segments[1] == 0xec2 && segments[7] == 0x254
+        }
+    }
+}
+
+/// Validate target IP for SSRF protection
+fn validate_scan_target(ip: IpAddr, allow_private: bool) -> Result<()> {
+    // Always block cloud metadata endpoints
+    if is_cloud_metadata_endpoint(ip) {
+        return Err(anyhow!(
+            "Blocked: {} is a cloud metadata endpoint (SSRF protection)",
+            ip
+        ));
+    }
+
+    // Optionally block private IP ranges
+    if !allow_private && is_private_ip(ip) {
+        warn!(
+            "Scanning private IP address: {}. Use --allow-private to suppress this warning.",
+            ip
+        );
+        // Don't block, just warn - scanning local networks is common
+    }
+
+    Ok(())
 }
 
 #[tokio::main]
@@ -136,11 +213,18 @@ async fn main() -> Result<()> {
     }
 
     let verbose = matches.get_count("verbose");
-    let timeout_secs: u64 = matches.get_one::<String>("timeout").unwrap().parse().unwrap_or(3);
+    let timeout_secs: u64 = matches
+        .get_one::<String>("timeout")
+        .expect("timeout has default value")
+        .parse()
+        .unwrap_or(3);
     let service_detection = matches.get_flag("service-detection");
     let skip_ping = matches.get_flag("skip-ping");
     let no_dns = matches.get_flag("no-dns");
-    let scan_type = matches.get_one::<String>("scan-type").unwrap().as_str();
+    let scan_type = matches
+        .get_one::<String>("scan-type")
+        .expect("scan-type has default value")
+        .as_str();
 
     // Check for root privileges if SYN scan is requested
     if scan_type == "syn" {
@@ -159,7 +243,10 @@ async fn main() -> Result<()> {
     }
 
     // Parse targets
-    let target_strings: Vec<&String> = matches.get_many::<String>("targets").unwrap().collect();
+    let target_strings: Vec<&String> = matches
+        .get_many::<String>("targets")
+        .expect("targets validated at start of main")
+        .collect();
     let mut targets = Vec::new();
 
     for target_str in target_strings {
@@ -175,6 +262,15 @@ async fn main() -> Result<()> {
     if targets.is_empty() {
         error!("No valid targets specified");
         return Ok(());
+    }
+
+    // Security: Validate all targets for SSRF protection
+    let allow_private = false; // TODO: Add --allow-private flag if needed
+    for &target in &targets {
+        if let Err(e) = validate_scan_target(target, allow_private) {
+            error!("{}", e);
+            return Err(e);
+        }
     }
 
     // Parse ports - handle --fast, --all-ports, or custom port spec
@@ -222,46 +318,75 @@ async fn main() -> Result<()> {
         live_targets
     };
 
-    // Perform scan
+    // Perform scan with global timeout
+    info!("Scan timeout: {} seconds", MAX_SCAN_DURATION_SECS);
     let start_time = Instant::now();
-    let mut all_results = Vec::new();
 
-    for target in targets_to_scan {
-        if verbose > 0 {
-            info!("Scanning target: {}", target);
+    // Security: Enforce global timeout to prevent indefinite hanging
+    let scan_future = async {
+        let mut all_results = Vec::new();
+
+        // Security: Create semaphore to limit concurrent connections
+        let semaphore = Arc::new(Semaphore::new(MAX_CONCURRENT_SOCKETS));
+
+        for target in targets_to_scan {
+            if verbose > 0 {
+                info!("Scanning target: {}", target);
+            }
+
+            let scan_start = Instant::now();
+            let mut port_results = Vec::new();
+
+            for &port in &ports {
+                // Acquire permit from semaphore before creating connection
+                let _permit = semaphore.clone().acquire_owned().await
+                    .map_err(|e| anyhow!("Failed to acquire connection slot: {}", e))?;
+
+                let port_result = scan_port(target, port, Duration::from_secs(timeout_secs), service_detection).await;
+                port_results.push(port_result);
+                // Permit automatically released when _permit is dropped
+            }
+
+            let scan_time = scan_start.elapsed().as_secs_f64();
+
+            // Try to resolve hostname unless --no-dns
+            let hostname = if no_dns {
+                None
+            } else if verbose > 1 {
+                resolve_hostname(target).await
+            } else {
+                None
+            };
+
+            all_results.push(ScanResult {
+                target,
+                hostname,
+                ports: port_results,
+                scan_time,
+            });
         }
 
-        let scan_start = Instant::now();
-        let mut port_results = Vec::new();
+        Ok::<Vec<ScanResult>, anyhow::Error>(all_results)
+    };
 
-        for &port in &ports {
-            let port_result = scan_port(target, port, Duration::from_secs(timeout_secs), service_detection).await;
-            port_results.push(port_result);
+    let all_results = match timeout(Duration::from_secs(MAX_SCAN_DURATION_SECS), scan_future).await {
+        Ok(Ok(results)) => results,
+        Ok(Err(e)) => {
+            error!("Scan failed: {}", e);
+            return Err(e);
         }
-
-        let scan_time = scan_start.elapsed().as_secs_f64();
-
-        // Try to resolve hostname unless --no-dns
-        let hostname = if no_dns {
-            None
-        } else if verbose > 1 {
-            resolve_hostname(target).await
-        } else {
-            None
-        };
-
-        all_results.push(ScanResult {
-            target,
-            hostname,
-            ports: port_results,
-            scan_time,
-        });
-    }
+        Err(_) => {
+            error!("Scan timeout exceeded ({} seconds). Scan aborted.", MAX_SCAN_DURATION_SECS);
+            return Err(anyhow!("Scan exceeded maximum duration of {} seconds", MAX_SCAN_DURATION_SECS));
+        }
+    };
 
     let total_duration = start_time.elapsed();
 
     // Output results
-    let output_format = matches.get_one::<String>("output-format").unwrap();
+    let output_format = matches
+        .get_one::<String>("output-format")
+        .expect("output-format has default value");
     let output = format_results(&all_results, output_format, total_duration)?;
     
     if let Some(output_file) = matches.get_one::<String>("output-file") {

@@ -34,7 +34,8 @@ fn sanitize_banner(banner: &str) -> String {
     }
 
     // Remove any ANSI escape sequences (e.g., \x1b[31m for red color)
-    let ansi_escape = regex::Regex::new(r"\x1b\[[0-9;]*m").unwrap();
+    let ansi_escape = regex::Regex::new(r"\x1b\[[0-9;]*m")
+        .expect("ANSI escape regex is valid");
     let without_ansi = ansi_escape.replace_all(&sanitized, "");
 
     // Trim whitespace and return
