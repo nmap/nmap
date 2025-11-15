@@ -4,36 +4,61 @@ use std::net::{IpAddr, SocketAddr};
 use std::time::Duration;
 
 /// Create a raw socket for packet crafting
-pub fn create_raw_socket(protocol: Protocol) -> Result<Socket> {
-    let domain = Domain::IPV4; // TODO: Support IPv6
+///
+/// # Arguments
+/// * `protocol` - The protocol for the socket
+/// * `target` - Optional target IP address to determine IPv4 vs IPv6
+pub fn create_raw_socket(protocol: Protocol, target: Option<IpAddr>) -> Result<Socket> {
+    // Determine domain based on target IP version, default to IPv4
+    let domain = match target {
+        Some(IpAddr::V6(_)) => Domain::IPV6,
+        _ => Domain::IPV4,
+    };
+
     let socket = Socket::new(domain, Type::STREAM, Some(protocol))?;
-    
+
     // Set socket options
     socket.set_nonblocking(true)?;
     socket.set_reuse_address(true)?;
-    
+
     Ok(socket)
 }
 
 /// Create a TCP socket
-pub fn create_tcp_socket() -> Result<Socket> {
-    let domain = Domain::IPV4; // TODO: Support IPv6
+///
+/// # Arguments
+/// * `target` - Optional target IP address to determine IPv4 vs IPv6
+pub fn create_tcp_socket(target: Option<IpAddr>) -> Result<Socket> {
+    // Determine domain based on target IP version, default to IPv4
+    let domain = match target {
+        Some(IpAddr::V6(_)) => Domain::IPV6,
+        _ => Domain::IPV4,
+    };
+
     let socket = Socket::new(domain, Type::STREAM, Some(Protocol::TCP))?;
-    
+
     socket.set_nonblocking(true)?;
     socket.set_reuse_address(true)?;
-    
+
     Ok(socket)
 }
 
 /// Create a UDP socket
-pub fn create_udp_socket() -> Result<Socket> {
-    let domain = Domain::IPV4; // TODO: Support IPv6
+///
+/// # Arguments
+/// * `target` - Optional target IP address to determine IPv4 vs IPv6
+pub fn create_udp_socket(target: Option<IpAddr>) -> Result<Socket> {
+    // Determine domain based on target IP version, default to IPv4
+    let domain = match target {
+        Some(IpAddr::V6(_)) => Domain::IPV6,
+        _ => Domain::IPV4,
+    };
+
     let socket = Socket::new(domain, Type::DGRAM, Some(Protocol::UDP))?;
-    
+
     socket.set_nonblocking(true)?;
     socket.set_reuse_address(true)?;
-    
+
     Ok(socket)
 }
 
