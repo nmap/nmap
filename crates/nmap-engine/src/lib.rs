@@ -8,6 +8,39 @@ use nmap_net::{Host, HostState, ScanType, check_raw_socket_privileges};
 use tokio::time::{sleep, Duration};
 use tracing::{info, debug, warn};
 
+/// Maximum length for banner strings to prevent resource exhaustion
+const MAX_BANNER_LENGTH: usize = 512;
+
+/// Sanitize banner data to prevent injection attacks and resource exhaustion
+fn sanitize_banner(banner: &str) -> String {
+    // Limit length to prevent resource exhaustion
+    let truncated = if banner.len() > MAX_BANNER_LENGTH {
+        warn!("Banner truncated from {} to {} bytes", banner.len(), MAX_BANNER_LENGTH);
+        &banner[..MAX_BANNER_LENGTH]
+    } else {
+        banner
+    };
+
+    // Remove control characters (except tab, newline, carriage return)
+    // This prevents terminal escape sequence injections
+    let mut sanitized = String::with_capacity(truncated.len());
+    for ch in truncated.chars() {
+        if ch.is_control() && ch != '\t' && ch != '\n' && ch != '\r' {
+            // Replace control characters with '.'
+            sanitized.push('.');
+        } else {
+            sanitized.push(ch);
+        }
+    }
+
+    // Remove any ANSI escape sequences (e.g., \x1b[31m for red color)
+    let ansi_escape = regex::Regex::new(r"\x1b\[[0-9;]*m").unwrap();
+    let without_ansi = ansi_escape.replace_all(&sanitized, "");
+
+    // Trim whitespace and return
+    without_ansi.trim().to_string()
+}
+
 pub struct ScanEngine {
     options: nmap_core::NmapOptions,
     syn_scanner: Option<SynScanner>,
@@ -163,7 +196,8 @@ impl ScanEngine {
                                         let banner = String::from_utf8_lossy(&buffer[..n]);
                                         if banner.starts_with("SSH-") {
                                             port.service = Some("ssh".to_string());
-                                            port.version = Some(banner.trim().to_string());
+                                            // Security: Sanitize banner to prevent injection attacks
+                                            port.version = Some(sanitize_banner(&banner));
                                         }
                                     }
                                 }
@@ -176,7 +210,8 @@ impl ScanEngine {
                                         let banner = String::from_utf8_lossy(&buffer[..n]);
                                         if banner.starts_with("220") {
                                             port.service = Some("ftp".to_string());
-                                            port.version = Some(banner.trim().to_string());
+                                            // Security: Sanitize banner to prevent injection attacks
+                                            port.version = Some(sanitize_banner(&banner));
                                         }
                                     }
                                 }
@@ -189,7 +224,8 @@ impl ScanEngine {
                                         let banner = String::from_utf8_lossy(&buffer[..n]);
                                         if banner.starts_with("220") {
                                             port.service = Some("smtp".to_string());
-                                            port.version = Some(banner.trim().to_string());
+                                            // Security: Sanitize banner to prevent injection attacks
+                                            port.version = Some(sanitize_banner(&banner));
                                         }
                                     }
                                 }
@@ -205,7 +241,8 @@ impl ScanEngine {
                                             port.service = Some("http".to_string());
                                             if let Some(server_line) = response.lines().find(|line| line.to_lowercase().starts_with("server:")) {
                                                 let server = server_line.split(':').nth(1).unwrap_or("").trim();
-                                                port.version = Some(server.to_string());
+                                                // Security: Sanitize server banner to prevent injection attacks
+                                                port.version = Some(sanitize_banner(server));
                                             }
                                         }
                                     }

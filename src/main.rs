@@ -1,12 +1,13 @@
-use anyhow::Result;
+use anyhow::{anyhow, Result};
 use clap::{Arg, ArgAction, Command};
 use serde::{Deserialize, Serialize};
 
 use std::net::IpAddr;
+use std::path::{Path, PathBuf};
 use std::time::{Duration, Instant};
 use tokio::net::TcpStream;
 use tokio::time::timeout;
-use tracing::{error, info};
+use tracing::{error, info, warn};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 struct ScanResult {
@@ -264,6 +265,29 @@ async fn main() -> Result<()> {
     let output = format_results(&all_results, output_format, total_duration)?;
     
     if let Some(output_file) = matches.get_one::<String>("output-file") {
+        // Security: Validate output path to prevent path traversal attacks
+        if output_file.contains('\0') || output_file.contains('\n') {
+            return Err(anyhow!("Invalid characters in output path"));
+        }
+
+        // Warn about path traversal attempts
+        if output_file.contains("..") {
+            warn!("Path contains '..' - potential path traversal: {}", output_file);
+        }
+
+        // Check path length to prevent resource exhaustion
+        if output_file.len() > 4096 {
+            return Err(anyhow!("Output path too long (max 4096 characters)"));
+        }
+
+        // Prevent writing to sensitive system directories
+        let path_lower = output_file.to_lowercase();
+        if path_lower.starts_with("/etc/") || path_lower.starts_with("/sys/") ||
+           path_lower.starts_with("/proc/") || path_lower.starts_with("/dev/") ||
+           path_lower.contains("/root/.ssh/") || path_lower.contains("c:\\windows\\") {
+            return Err(anyhow!("Cannot write to sensitive system directory"));
+        }
+
         std::fs::write(output_file, &output)?;
         info!("Results written to {}", output_file);
     } else {
