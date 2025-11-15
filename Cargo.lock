@@ -360,12 +360,13 @@ dependencies = [
 
 [[package]]
 name = "rmap"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "anyhow",
  "clap",
  "dns-lookup",
  "ipnet",
+ "libc",
  "serde",
  "serde_json",
  "tokio",
