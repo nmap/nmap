@@ -48,6 +48,9 @@ cargo install --path .
 # Fast scan (top 100 ports)
 ./target/release/rmap 192.168.1.1 --fast
 
+# UDP scan (NEW!)
+./target/release/rmap 192.168.1.1 --scan udp --top-udp-ports
+
 # Scan all ports on multiple targets
 ./target/release/rmap 192.168.1.0/24 --all-ports
 
@@ -56,6 +59,21 @@ cargo install --path .
 
 # Export results to JSON
 ./target/release/rmap 8.8.8.8 -p 22,80,443 --output results.json --format json
+```
+
+### Plain English Commands (NEW!)
+
+R-Map supports intuitive, self-documenting commands:
+
+```bash
+# Instead of cryptic nmap flags, use plain English
+rmap --stealth-scan example.com                    # Instead of -sS
+rmap --grab-banners example.com                    # Instead of -sV
+rmap --only-ping 192.168.1.0/24                   # Instead of -sn
+rmap --quick-scan example.com                      # Fast scan preset
+rmap --security-audit example.com                  # Full security check
+
+# See full CLI guide in steering/CLI_GUIDE.md
 ```
 
 ---
@@ -67,9 +85,11 @@ cargo install --path .
 - **Port Scanning**
   - TCP Connect scanning (`--scan connect`, default)
   - SYN stealth scanning (`--scan syn`, requires root)
+  - **UDP scanning** (`--scan udp` or `--udp-scan`) **[NEW!]**
   - Fast mode: Top 100 ports (`--fast`)
   - All ports: 1-65535 (`--all-ports`)
   - Custom port ranges: `-p 22,80,443,8000-9000`
+  - Top UDP ports: `--top-udp-ports` **[NEW!]**
 
 - **Host Discovery**
   - TCP-based alive detection (default)
@@ -488,6 +508,43 @@ All dependencies are permissively licensed (MIT/Apache-2.0/BSD). See `Cargo.toml
 - **nmap** - Original inspiration and reference implementation
 - **Rust Community** - Amazing tools and libraries
 - **Security Researchers** - For responsible disclosure and testing
+
+---
+
+## Documentation
+
+R-Map includes comprehensive documentation in the `/steering` directory:
+
+### Complete Guides
+
+- **[CLI Guide](steering/CLI_GUIDE.md)** - Complete plain English command reference with examples
+- **[Implementation Plan](steering/IMPLEMENTATION_PLAN.md)** - Roadmap from 40% to 100% feature parity
+- **[nmap Comparison](NMAP_COMPARISON.md)** - Detailed feature-by-feature comparison audit
+- **[Security Audit](SECURITY_AUDIT.md)** - Comprehensive security analysis
+- **[Security Framework](SECURITY_AUDIT_FRAMEWORK.md)** - Testing and validation framework
+
+### Quick References
+
+```bash
+# View CLI guide
+cat steering/CLI_GUIDE.md | less
+
+# See implementation roadmap
+cat steering/IMPLEMENTATION_PLAN.md | less
+
+# Check feature comparison
+cat NMAP_COMPARISON.md | less
+```
+
+### Key Documentation Highlights
+
+- **530+ lines** of CLI documentation with plain English examples
+- **445+ lines** implementation roadmap with timeline
+- **615+ lines** comprehensive nmap comparison
+- **1,600+ lines** security audit documentation
+- **700+ lines** security testing framework
+
+**Total Documentation:** 4,000+ lines covering all aspects of R-Map
 
 ---
 

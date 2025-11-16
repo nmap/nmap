@@ -1,7 +1,9 @@
 pub mod syn_scanner;
+pub mod udp_scanner;
 
 // Re-export scanners for external use
 pub use syn_scanner::{SynScanner, ConnectScanner};
+pub use udp_scanner::UdpScanner;
 
 use anyhow::Result;
 use nmap_net::{Host, HostState, ScanType, check_raw_socket_privileges};
@@ -46,6 +48,7 @@ pub struct ScanEngine {
     options: nmap_core::NmapOptions,
     syn_scanner: Option<SynScanner>,
     connect_scanner: ConnectScanner,
+    udp_scanner: UdpScanner,
 }
 
 impl ScanEngine {
@@ -69,12 +72,14 @@ impl ScanEngine {
             None
         };
         
-        let connect_scanner = ConnectScanner::new(timing_config);
-        
+        let connect_scanner = ConnectScanner::new(timing_config.clone());
+        let udp_scanner = UdpScanner::new(timing_config);
+
         Ok(Self {
             options: options.clone(),
             syn_scanner,
             connect_scanner,
+            udp_scanner,
         })
     }
     
@@ -157,6 +162,10 @@ impl ScanEngine {
             }
             ScanType::Connect => {
                 self.connect_scanner.scan_hosts(&mut results, &ports).await?;
+            }
+            ScanType::Udp => {
+                info!("Starting UDP scan");
+                self.udp_scanner.scan_hosts(&mut results, &ports).await?;
             }
             _ => {
                 warn!("Scan type {:?} not yet implemented, using connect scan", scan_type);
