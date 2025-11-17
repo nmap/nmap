@@ -2,13 +2,13 @@
 /// Provides UDP port scanning with ICMP port unreachable detection
 
 use anyhow::{anyhow, Result};
-use nmap_net::{Host, Port, PortState};
+use nmap_net::{Host, Port, PortState, Protocol};
 use nmap_timing::TimingConfig;
 use std::net::{IpAddr, SocketAddr};
 use std::time::Duration;
 use tokio::net::UdpSocket;
 use tokio::time::timeout;
-use tracing::{debug, info, warn};
+use tracing::{debug, info};
 
 /// UDP Scanner for port discovery
 pub struct UdpScanner {
@@ -32,9 +32,15 @@ impl UdpScanner {
 
                 host.ports.push(Port {
                     number: port,
-                    state: port_state,
+                    protocol: Protocol::Udp,
+                    state: port_state.clone(),
                     service: Some(get_common_udp_service(port)),
                     version: None,
+                    reason: Some(match port_state {
+                        PortState::Open => "udp-response".to_string(),
+                        PortState::Closed => "port-unreach".to_string(),
+                        _ => "no-response".to_string(),
+                    }),
                 });
             }
         }
@@ -55,12 +61,12 @@ impl UdpScanner {
         // Send UDP probe (protocol-specific payload if known service)
         let probe = get_udp_probe(port);
 
-        match timeout(self.timing.timeout, socket.send(&probe)).await {
+        match timeout(self.timing.max_rtt_timeout, socket.send(&probe)).await {
             Ok(Ok(_)) => {
                 // Probe sent, now wait for response
                 let mut response = vec![0u8; 1024];
 
-                match timeout(self.timing.timeout, socket.recv(&mut response)).await {
+                match timeout(self.timing.max_rtt_timeout, socket.recv(&mut response)).await {
                     Ok(Ok(n)) if n > 0 => {
                         // Got a response! Port is definitely open
                         debug!("UDP port {} on {} is open (received response)", port, target);

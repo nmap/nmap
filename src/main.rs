@@ -111,7 +111,11 @@ async fn main() -> Result<()> {
     let matches = Command::new("rmap")
         .version("0.2.0")
         .about("R-Map - Rust Network Mapper")
-        .long_about("R-Map is a modern, memory-safe network mapper written in Rust")
+        .long_about("R-Map is a modern, memory-safe network mapper written in Rust\n\n\
+                     Use plain English commands like:\n  \
+                     rmap --quick-scan example.com\n  \
+                     rmap --stealth-scan --all-ports 192.168.1.1\n  \
+                     rmap --grab-banners --fingerprint-os scanme.nmap.org")
         .arg(
             Arg::new("targets")
                 .help("Target hosts or networks to scan")
@@ -119,43 +123,174 @@ async fn main() -> Result<()> {
                 .num_args(1..)
                 .required(false),
         )
+        // SCAN TYPE FLAGS - Plain English + nmap compatibility
         .arg(
             Arg::new("scan-type")
                 .short('s')
                 .long("scan")
-                .help("Scan type")
+                .help("Scan type (connect, syn, udp, ping, ack, fin)")
                 .value_name("TYPE")
-                .value_parser(["connect", "syn", "udp", "ping"])
-                .default_value("connect"),
+                .value_parser(["connect", "syn", "udp", "ping", "ack", "fin", "null", "xmas"])
+                .conflicts_with_all(["stealth-scan", "tcp-scan", "connect-scan", "udp-scan",
+                                     "firewall-test", "only-ping", "quick-scan", "thorough-scan", "security-audit"]),
         )
+        .arg(
+            Arg::new("stealth-scan")
+                .long("stealth-scan")
+                .help("SYN stealth scan (requires root, same as -sS)")
+                .action(ArgAction::SetTrue)
+                .conflicts_with_all(["scan-type", "tcp-scan", "connect-scan", "udp-scan",
+                                     "firewall-test", "only-ping", "quick-scan", "thorough-scan", "security-audit"]),
+        )
+        .arg(
+            Arg::new("tcp-scan")
+                .long("tcp-scan")
+                .alias("connect-scan")
+                .help("TCP connect scan (same as -sT, no root required)")
+                .action(ArgAction::SetTrue)
+                .conflicts_with_all(["scan-type", "stealth-scan", "udp-scan", "firewall-test",
+                                     "only-ping", "quick-scan", "thorough-scan", "security-audit"]),
+        )
+        .arg(
+            Arg::new("udp-scan")
+                .long("udp-scan")
+                .help("UDP port scan (same as -sU)")
+                .action(ArgAction::SetTrue)
+                .conflicts_with_all(["scan-type", "stealth-scan", "tcp-scan", "connect-scan",
+                                     "firewall-test", "only-ping", "quick-scan", "thorough-scan", "security-audit"]),
+        )
+        .arg(
+            Arg::new("firewall-test")
+                .long("firewall-test")
+                .help("ACK scan for firewall testing (same as -sA)")
+                .action(ArgAction::SetTrue)
+                .conflicts_with_all(["scan-type", "stealth-scan", "tcp-scan", "connect-scan",
+                                     "udp-scan", "only-ping", "quick-scan", "thorough-scan", "security-audit"]),
+        )
+        .arg(
+            Arg::new("only-ping")
+                .long("only-ping")
+                .alias("discover-hosts")
+                .help("Only check if hosts are up (no port scan)")
+                .action(ArgAction::SetTrue)
+                .conflicts_with_all(["scan-type", "stealth-scan", "tcp-scan", "connect-scan",
+                                     "udp-scan", "firewall-test", "quick-scan", "thorough-scan", "security-audit"]),
+        )
+        // SCAN PROFILES - Convenience presets
+        .arg(
+            Arg::new("quick-scan")
+                .long("quick-scan")
+                .help("Quick scan: Top 100 TCP ports, T4 timing, no service detection")
+                .action(ArgAction::SetTrue)
+                .conflicts_with_all(["scan-type", "stealth-scan", "tcp-scan", "connect-scan",
+                                     "udp-scan", "firewall-test", "only-ping", "thorough-scan", "security-audit"]),
+        )
+        .arg(
+            Arg::new("thorough-scan")
+                .long("thorough-scan")
+                .help("Thorough scan: All ports, service detection, OS detection, slower but comprehensive")
+                .action(ArgAction::SetTrue)
+                .conflicts_with_all(["scan-type", "stealth-scan", "tcp-scan", "connect-scan",
+                                     "udp-scan", "firewall-test", "only-ping", "quick-scan", "security-audit"]),
+        )
+        .arg(
+            Arg::new("security-audit")
+                .long("security-audit")
+                .alias("full-audit")
+                .help("Full security audit: All scan types, service detection, OS detection, vulnerability checks")
+                .action(ArgAction::SetTrue)
+                .conflicts_with_all(["scan-type", "stealth-scan", "tcp-scan", "connect-scan",
+                                     "udp-scan", "firewall-test", "only-ping", "quick-scan", "thorough-scan"]),
+        )
+        // PORT SPECIFICATION
         .arg(
             Arg::new("ports")
                 .short('p')
                 .long("ports")
                 .help("Port specification (e.g., 22,80,443 or 1-1000)")
                 .value_name("PORT_SPEC")
-                .conflicts_with_all(["fast", "all-ports"]),
+                .conflicts_with_all(["fast", "all-ports", "scan-all-ports", "top-ports",
+                                     "quick-scan", "thorough-scan", "security-audit"]),
         )
         .arg(
             Arg::new("fast")
                 .short('F')
                 .long("fast")
+                .alias("top-ports")
                 .help("Fast mode - scan top 100 ports")
                 .action(ArgAction::SetTrue)
-                .conflicts_with_all(["ports", "all-ports"]),
+                .conflicts_with_all(["ports", "all-ports", "scan-all-ports",
+                                     "quick-scan", "thorough-scan", "security-audit"]),
         )
         .arg(
             Arg::new("all-ports")
                 .long("all-ports")
-                .help("Scan all 65535 ports")
+                .alias("scan-all-ports")
+                .help("Scan all 65535 ports (same as -p-)")
                 .action(ArgAction::SetTrue)
-                .conflicts_with_all(["ports", "fast"]),
+                .conflicts_with_all(["ports", "fast", "top-ports",
+                                     "quick-scan"]),
         )
+        // DETECTION FLAGS - Plain English
+        .arg(
+            Arg::new("service-detection")
+                .short('A')
+                .long("aggressive")
+                .alias("service-detect")
+                .alias("grab-banners")
+                .help("Enable service version detection (same as -sV)")
+                .action(ArgAction::SetTrue),
+        )
+        .arg(
+            Arg::new("os-detection")
+                .short('O')
+                .long("os-detect")
+                .alias("fingerprint-os")
+                .help("Enable OS detection and fingerprinting")
+                .action(ArgAction::SetTrue),
+        )
+        // DISCOVERY FLAGS - Plain English
+        .arg(
+            Arg::new("skip-ping")
+                .short('P')
+                .long("skip-ping")
+                .alias("no-ping")
+                .help("Skip host discovery (treat all hosts as online, same as -Pn)")
+                .action(ArgAction::SetTrue),
+        )
+        .arg(
+            Arg::new("no-dns")
+                .short('n')
+                .long("no-dns")
+                .alias("skip-dns")
+                .help("Never do reverse DNS resolution")
+                .action(ArgAction::SetTrue),
+        )
+        // TIMING FLAGS
+        .arg(
+            Arg::new("timing")
+                .short('T')
+                .long("timing")
+                .alias("scan-speed")
+                .help("Timing template: paranoid, sneaky, polite, normal, aggressive, insane (or 0-5)")
+                .value_name("TIMING")
+                .value_parser(["0", "1", "2", "3", "4", "5",
+                              "paranoid", "sneaky", "polite", "normal", "aggressive", "insane"]),
+        )
+        .arg(
+            Arg::new("scan-fast")
+                .long("scan-fast")
+                .help("Use aggressive timing (T4)")
+                .action(ArgAction::SetTrue)
+                .conflicts_with("timing"),
+        )
+        // OUTPUT FLAGS
         .arg(
             Arg::new("output-format")
                 .short('o')
                 .long("output")
-                .help("Output format")
+                .alias("format")
+                .help("Output format (normal, xml, json, grepable)")
                 .value_name("FORMAT")
                 .value_parser(["normal", "xml", "json", "grepable"])
                 .default_value("normal"),
@@ -164,16 +299,18 @@ async fn main() -> Result<()> {
             Arg::new("output-file")
                 .short('f')
                 .long("file")
-                .help("Output file")
+                .help("Save output to file")
                 .value_name("FILE"),
         )
         .arg(
             Arg::new("verbose")
                 .short('v')
                 .long("verbose")
-                .help("Increase verbosity level")
+                .alias("scan-verbose")
+                .help("Increase verbosity level (-v, -vv, -vvv)")
                 .action(ArgAction::Count),
         )
+        // NETWORK OPTIONS
         .arg(
             Arg::new("timeout")
                 .short('t')
@@ -183,30 +320,39 @@ async fn main() -> Result<()> {
                 .default_value("3"),
         )
         .arg(
-            Arg::new("service-detection")
-                .short('A')
-                .long("aggressive")
-                .help("Enable service detection")
+            Arg::new("max-connections")
+                .long("max-connections")
+                .help("Maximum concurrent connections (default: 100)")
+                .value_name("NUM")
+                .value_parser(clap::value_parser!(usize)),
+        )
+        // SCRIPTING & VULNERABILITY DETECTION
+        .arg(
+            Arg::new("check-vulns")
+                .long("check-vulns")
+                .help("Check for known vulnerabilities (requires service detection)")
                 .action(ArgAction::SetTrue),
         )
         .arg(
-            Arg::new("skip-ping")
-                .short('P')
-                .long("skip-ping")
-                .help("Skip host discovery (treat all hosts as online)")
+            Arg::new("enumerate")
+                .long("enumerate")
+                .help("Run enumeration scripts on discovered services")
                 .action(ArgAction::SetTrue),
         )
+        // TARGET INPUT
         .arg(
-            Arg::new("no-dns")
-                .short('n')
-                .long("no-dns")
-                .help("Never do reverse DNS resolution")
-                .action(ArgAction::SetTrue),
+            Arg::new("target-file")
+                .short('i')
+                .long("target-file")
+                .alias("iL")
+                .help("Read targets from file (one per line)")
+                .value_name("FILE")
+                .conflicts_with("targets"),
         )
         .get_matches();
 
     // Handle help and usage
-    if matches.get_many::<String>("targets").is_none() {
+    if matches.get_many::<String>("targets").is_none() && matches.get_one::<String>("target-file").is_none() {
         print_banner();
         print_usage();
         return Ok(());
@@ -218,13 +364,88 @@ async fn main() -> Result<()> {
         .expect("timeout has default value")
         .parse()
         .unwrap_or(3);
-    let service_detection = matches.get_flag("service-detection");
+
+    // Determine scan profile or scan type
+    let (scan_type, mut service_detection, mut os_detection, mut check_vulns, mut enumerate_services) =
+        if matches.get_flag("quick-scan") {
+            // Quick scan: TCP connect, top 100 ports, T4 timing, no detection
+            info!("Quick scan profile activated: Fast TCP scan of top 100 ports");
+            ("connect", false, false, false, false)
+        } else if matches.get_flag("thorough-scan") {
+            // Thorough scan: TCP connect, all ports, service + OS detection
+            info!("Thorough scan profile activated: Comprehensive scan with all detection");
+            ("connect", true, true, false, false)
+        } else if matches.get_flag("security-audit") {
+            // Security audit: All detections + vulnerability checks
+            info!("Security audit profile activated: Full scan with vulnerability detection");
+            ("connect", true, true, true, true)
+        } else if matches.get_flag("stealth-scan") {
+            // Stealth scan: SYN scan
+            ("syn", false, false, false, false)
+        } else if matches.get_flag("tcp-scan") {
+            // TCP connect scan
+            ("connect", false, false, false, false)
+        } else if matches.get_flag("udp-scan") {
+            // UDP scan
+            ("udp", false, false, false, false)
+        } else if matches.get_flag("firewall-test") {
+            // ACK scan for firewall testing
+            ("ack", false, false, false, false)
+        } else if matches.get_flag("only-ping") {
+            // Only host discovery
+            ("ping", false, false, false, false)
+        } else if let Some(scan_type_str) = matches.get_one::<String>("scan-type") {
+            // Explicit scan type specified
+            (scan_type_str.as_str(), false, false, false, false)
+        } else {
+            // Default to connect scan
+            ("connect", false, false, false, false)
+        };
+
+    // Override with explicit flags
+    if matches.get_flag("service-detection") {
+        service_detection = true;
+    }
+    if matches.get_flag("os-detection") {
+        os_detection = true;
+    }
+    if matches.get_flag("check-vulns") {
+        check_vulns = true;
+        // Vulnerability checking requires service detection
+        if !service_detection {
+            warn!("Vulnerability checking requires service detection. Enabling --service-detect");
+            service_detection = true;
+        }
+    }
+    if matches.get_flag("enumerate") {
+        enumerate_services = true;
+    }
+
     let skip_ping = matches.get_flag("skip-ping");
     let no_dns = matches.get_flag("no-dns");
-    let scan_type = matches
-        .get_one::<String>("scan-type")
-        .expect("scan-type has default value")
-        .as_str();
+
+    // Determine timing (for future use)
+    let timing = if matches.get_flag("scan-fast") {
+        "aggressive"
+    } else if let Some(t) = matches.get_one::<String>("timing") {
+        match t.as_str() {
+            "0" => "paranoid",
+            "1" => "sneaky",
+            "2" => "polite",
+            "3" => "normal",
+            "4" => "aggressive",
+            "5" => "insane",
+            other => other,
+        }
+    } else if matches.get_flag("quick-scan") {
+        "aggressive"
+    } else {
+        "normal"
+    };
+
+    if verbose > 0 && timing != "normal" {
+        info!("Using {} timing template", timing);
+    }
 
     // Check for root privileges if SYN scan is requested
     if scan_type == "syn" {
@@ -242,14 +463,34 @@ async fn main() -> Result<()> {
         }
     }
 
-    // Parse targets
-    let target_strings: Vec<&String> = matches
-        .get_many::<String>("targets")
-        .expect("targets validated at start of main")
-        .collect();
-    let mut targets = Vec::new();
+    // Parse targets from command line or file
+    let mut target_strings: Vec<String> = Vec::new();
 
-    for target_str in target_strings {
+    if let Some(target_file) = matches.get_one::<String>("target-file") {
+        // Read targets from file
+        match std::fs::read_to_string(target_file) {
+            Ok(content) => {
+                for line in content.lines() {
+                    let line = line.trim();
+                    if !line.is_empty() && !line.starts_with('#') {
+                        target_strings.push(line.to_string());
+                    }
+                }
+                if verbose > 0 {
+                    info!("Loaded {} targets from {}", target_strings.len(), target_file);
+                }
+            }
+            Err(e) => {
+                error!("Failed to read target file '{}': {}", target_file, e);
+                return Err(anyhow!("Failed to read target file: {}", e));
+            }
+        }
+    } else if let Some(targets_iter) = matches.get_many::<String>("targets") {
+        target_strings = targets_iter.cloned().collect();
+    }
+
+    let mut targets = Vec::new();
+    for target_str in &target_strings {
         match parse_target(target_str).await {
             Ok(target_hosts) => targets.extend(target_hosts),
             Err(e) => {
@@ -273,22 +514,61 @@ async fn main() -> Result<()> {
         }
     }
 
-    // Parse ports - handle --fast, --all-ports, or custom port spec
-    let ports = if matches.get_flag("fast") {
-        info!("Fast mode: scanning top 100 ports");
+    // Parse ports - handle scan profiles, --fast, --all-ports, or custom port spec
+    let ports = if matches.get_flag("quick-scan") {
+        // Quick scan uses top 100 ports
+        if verbose > 0 {
+            info!("Quick scan: using top 100 ports");
+        }
+        get_top_100_ports()
+    } else if matches.get_flag("thorough-scan") || matches.get_flag("security-audit") {
+        // Thorough scan and security audit use all ports
+        if verbose > 0 {
+            info!("Comprehensive scan: scanning all 65535 ports (this will take a while!)");
+        }
+        (1..=65535).collect()
+    } else if matches.get_flag("fast") {
+        if verbose > 0 {
+            info!("Fast mode: scanning top 100 ports");
+        }
         get_top_100_ports()
     } else if matches.get_flag("all-ports") {
         info!("Scanning all 65535 ports (this will take a while!)");
         (1..=65535).collect()
     } else if let Some(port_spec) = matches.get_one::<String>("ports") {
         parse_ports(port_spec)?
+    } else if matches.get_flag("only-ping") {
+        // Host discovery only, no port scan needed
+        Vec::new()
     } else {
         // Default to top 1000 ports
         get_top_1000_ports()
     };
 
+    // Build scan description
+    let mut scan_features = Vec::new();
+    if service_detection {
+        scan_features.push("service detection");
+    }
+    if os_detection {
+        scan_features.push("OS fingerprinting");
+    }
+    if check_vulns {
+        scan_features.push("vulnerability checking");
+    }
+    if enumerate_services {
+        scan_features.push("service enumeration");
+    }
+
     info!("🦀 R-Map 0.2.0 starting {} scan", scan_type);
-    info!("Scanning {} targets with {} ports", targets.len(), ports.len());
+    if matches.get_flag("only-ping") {
+        info!("Host discovery mode: checking if {} targets are up", targets.len());
+    } else {
+        info!("Scanning {} targets with {} ports", targets.len(), ports.len());
+        if !scan_features.is_empty() {
+            info!("Enabled features: {}", scan_features.join(", "));
+        }
+    }
 
     // Host discovery phase (unless --skip-ping)
     let targets_to_scan = if skip_ping {
@@ -317,6 +597,17 @@ async fn main() -> Result<()> {
         }
         live_targets
     };
+
+    // If only-ping mode, just display results and exit
+    if matches.get_flag("only-ping") {
+        println!("\nHost Discovery Results:");
+        println!("=======================");
+        for target in &targets_to_scan {
+            println!("Host {} is up", target);
+        }
+        println!("\nTotal: {} host(s) up", targets_to_scan.len());
+        return Ok(());
+    }
 
     // Perform scan with global timeout
     info!("Scan timeout: {} seconds", MAX_SCAN_DURATION_SECS);
