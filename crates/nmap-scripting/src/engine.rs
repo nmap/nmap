@@ -5,10 +5,11 @@ use tokio::sync::RwLock;
 use tracing::{debug, info, warn};
 
 /// R-Map Scripting Engine (RSE) - Pure Rust replacement for NSE
-/// 
+///
 /// This provides extensible scripting capabilities without requiring Lua
 /// Scripts are implemented as Rust plugins for maximum performance and safety
 
+#[async_trait::async_trait]
 pub trait Script: Send + Sync {
     /// Script metadata
     fn name(&self) -> &str;
@@ -26,7 +27,7 @@ pub trait Script: Send + Sync {
     fn requires_os(&self) -> bool { false }
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum ScriptCategory {
     Auth,
     Broadcast,
@@ -156,14 +157,90 @@ impl ScriptEngine {
         };
 
         let mut results = Vec::new();
-        for script_name in script_names {
-            match self.execute_script(&script_name, context).await {
+        for script_name in &script_names {
+            match self.execute_script(script_name, context).await {
                 Ok(result) => results.push(result),
                 Err(e) => warn!("Script {} failed: {}", script_name, e),
             }
         }
 
         Ok(results)
+    }
+
+    /// Execute multiple scripts in parallel
+    pub async fn execute_scripts_parallel(
+        &self,
+        script_names: Vec<String>,
+        context: &ScriptContext,
+    ) -> Vec<(String, Result<ScriptResult>)> {
+        use futures::stream::{self, StreamExt};
+
+        let results = stream::iter(script_names)
+            .map(|name| {
+                let ctx = context.clone();
+                async move {
+                    let result = self.execute_script(&name, &ctx).await;
+                    (name, result)
+                }
+            })
+            .buffer_unordered(10) // Run up to 10 scripts concurrently
+            .collect::<Vec<_>>()
+            .await;
+
+        results
+    }
+
+    /// Execute all scripts for a specific service in parallel
+    pub async fn execute_for_service(
+        &self,
+        service: &str,
+        context: &ScriptContext,
+    ) -> Result<Vec<ScriptResult>> {
+        use crate::registry::get_scripts_for_service;
+
+        let script_names: Vec<String> = get_scripts_for_service(service)
+            .iter()
+            .map(|s| s.to_string())
+            .collect();
+
+        let results = self.execute_scripts_parallel(script_names, context).await;
+
+        Ok(results
+            .into_iter()
+            .filter_map(|(name, result)| match result {
+                Ok(r) => Some(r),
+                Err(e) => {
+                    warn!("Script {} failed: {}", name, e);
+                    None
+                }
+            })
+            .collect())
+    }
+
+    /// Execute all vulnerability scripts in parallel
+    pub async fn execute_all_vulnerability_scripts(
+        &self,
+        context: &ScriptContext,
+    ) -> Result<Vec<ScriptResult>> {
+        use crate::registry::get_vulnerability_scripts;
+
+        let script_names: Vec<String> = get_vulnerability_scripts()
+            .iter()
+            .map(|s| s.to_string())
+            .collect();
+
+        let results = self.execute_scripts_parallel(script_names, context).await;
+
+        Ok(results
+            .into_iter()
+            .filter_map(|(name, result)| match result {
+                Ok(r) => Some(r),
+                Err(e) => {
+                    warn!("Script {} failed: {}", name, e);
+                    None
+                }
+            })
+            .collect())
     }
 
     pub async fn list_scripts(&self) -> Vec<String> {

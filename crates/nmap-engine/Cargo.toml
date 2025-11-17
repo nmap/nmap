@@ -6,8 +6,11 @@ edition = "2021"
 [dependencies]
 nmap-net = { path = "../nmap-net" }
 nmap-timing = { path = "../nmap-timing" }
+nmap-core = { path = "../nmap-core" }
+nmap-scripting = { path = "../nmap-scripting" }
 tokio = { version = "1.0", features = ["full"] }
 anyhow = "1.0"
 tracing = "0.1"
 futures = "0.3"
 rand = "0.8"
+regex = "1.10"

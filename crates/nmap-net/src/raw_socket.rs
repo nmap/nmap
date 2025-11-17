@@ -45,10 +45,94 @@ impl RawSocket {
             source_port,
             target_port,
         )?;
-        
+
         let target_addr = SocketAddr::new(target, target_port);
         self.socket.send_to(&packet, &target_addr.into())?;
-        
+
+        Ok(())
+    }
+
+    /// Send a TCP ACK packet to the target
+    pub fn send_ack_packet(
+        &self,
+        target: IpAddr,
+        target_port: u16,
+        source_port: u16,
+    ) -> Result<()> {
+        let packet = craft_tcp_packet(
+            self.local_addr,
+            target,
+            source_port,
+            target_port,
+            TcpFlags::ACK,
+        )?;
+
+        let target_addr = SocketAddr::new(target, target_port);
+        self.socket.send_to(&packet, &target_addr.into())?;
+
+        Ok(())
+    }
+
+    /// Send a TCP FIN packet to the target
+    pub fn send_fin_packet(
+        &self,
+        target: IpAddr,
+        target_port: u16,
+        source_port: u16,
+    ) -> Result<()> {
+        let packet = craft_tcp_packet(
+            self.local_addr,
+            target,
+            source_port,
+            target_port,
+            TcpFlags::FIN,
+        )?;
+
+        let target_addr = SocketAddr::new(target, target_port);
+        self.socket.send_to(&packet, &target_addr.into())?;
+
+        Ok(())
+    }
+
+    /// Send a TCP NULL packet to the target (no flags set)
+    pub fn send_null_packet(
+        &self,
+        target: IpAddr,
+        target_port: u16,
+        source_port: u16,
+    ) -> Result<()> {
+        let packet = craft_tcp_packet(
+            self.local_addr,
+            target,
+            source_port,
+            target_port,
+            0, // No flags
+        )?;
+
+        let target_addr = SocketAddr::new(target, target_port);
+        self.socket.send_to(&packet, &target_addr.into())?;
+
+        Ok(())
+    }
+
+    /// Send a TCP Xmas packet to the target (FIN, PSH, URG flags set)
+    pub fn send_xmas_packet(
+        &self,
+        target: IpAddr,
+        target_port: u16,
+        source_port: u16,
+    ) -> Result<()> {
+        let packet = craft_tcp_packet(
+            self.local_addr,
+            target,
+            source_port,
+            target_port,
+            TcpFlags::FIN | TcpFlags::PSH | TcpFlags::URG,
+        )?;
+
+        let target_addr = SocketAddr::new(target, target_port);
+        self.socket.send_to(&packet, &target_addr.into())?;
+
         Ok(())
     }
     
@@ -98,16 +182,27 @@ fn craft_syn_packet(
     source_port: u16,
     dest_port: u16,
 ) -> Result<Vec<u8>> {
+    craft_tcp_packet(source_ip, dest_ip, source_port, dest_port, TcpFlags::SYN)
+}
+
+/// Craft a generic TCP packet with specified flags
+fn craft_tcp_packet(
+    source_ip: IpAddr,
+    dest_ip: IpAddr,
+    source_port: u16,
+    dest_port: u16,
+    flags: u8,
+) -> Result<Vec<u8>> {
     let mut rng = rand::thread_rng();
-    
+
     // Create IP header (20 bytes) + TCP header (20 bytes)
     let mut packet = vec![0u8; 40];
-    
+
     // Create IPv4 header
     {
         let mut ip_header = MutableIpv4Packet::new(&mut packet[..20])
             .ok_or_else(|| anyhow!("Failed to create IP header"))?;
-        
+
         ip_header.set_version(4);
         ip_header.set_header_length(5); // 5 * 4 = 20 bytes
         ip_header.set_dscp(0);
@@ -118,34 +213,34 @@ fn craft_syn_packet(
         ip_header.set_fragment_offset(0);
         ip_header.set_ttl(64);
         ip_header.set_next_level_protocol(IpNextHeaderProtocols::Tcp);
-        
+
         if let (IpAddr::V4(src), IpAddr::V4(dst)) = (source_ip, dest_ip) {
             ip_header.set_source(src);
             ip_header.set_destination(dst);
         } else {
             return Err(anyhow!("IPv6 not supported yet"));
         }
-        
+
         // Calculate IP checksum
         let checksum = pnet::packet::ipv4::checksum(&ip_header.to_immutable());
         ip_header.set_checksum(checksum);
     }
-    
+
     // Create TCP header
     {
         let mut tcp_header = MutableTcpPacket::new(&mut packet[20..])
             .ok_or_else(|| anyhow!("Failed to create TCP header"))?;
-        
+
         tcp_header.set_source(source_port);
         tcp_header.set_destination(dest_port);
         tcp_header.set_sequence(rng.gen()); // Random sequence number
         tcp_header.set_acknowledgement(0);
         tcp_header.set_data_offset(5); // 5 * 4 = 20 bytes
         tcp_header.set_reserved(0);
-        tcp_header.set_flags(TcpFlags::SYN);
+        tcp_header.set_flags(flags);
         tcp_header.set_window(65535);
         tcp_header.set_urgent_ptr(0);
-        
+
         // Calculate TCP checksum
         if let (IpAddr::V4(src), IpAddr::V4(dst)) = (source_ip, dest_ip) {
             let checksum = pnet::packet::tcp::ipv4_checksum(
@@ -156,7 +251,7 @@ fn craft_syn_packet(
             tcp_header.set_checksum(checksum);
         }
     }
-    
+
     Ok(packet)
 }
 

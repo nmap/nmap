@@ -1,6 +1,6 @@
 use crate::{ServiceInfo, ServiceDetector, ServiceDetectionOptions};
-use nmap_core::{NmapError, Result};
-use nmap_net::TargetHost;
+use nmap_core::Result;
+use nmap_net::Host;
 use std::collections::HashMap;
 use std::net::IpAddr;
 use tokio::time::Duration;
@@ -33,9 +33,9 @@ impl VersionDetector {
         self
     }
 
-    pub async fn scan_version(&self, target: &TargetHost, open_ports: &[(u16, String)]) -> Result<VersionScanResult> {
+    pub async fn scan_version(&self, target: &Host, open_ports: &[(u16, String)]) -> Result<VersionScanResult> {
         let start_time = std::time::Instant::now();
-        let ip = target.ip();
+        let ip = target.address;
         
         let mut services = HashMap::new();
         let mut detected_count = 0;
@@ -62,7 +62,7 @@ impl VersionDetector {
         })
     }
 
-    pub async fn scan_version_aggressive(&self, target: &TargetHost, open_ports: &[(u16, String)]) -> Result<VersionScanResult> {
+    pub async fn scan_version_aggressive(&self, target: &Host, open_ports: &[(u16, String)]) -> Result<VersionScanResult> {
         // Aggressive version detection with all probes
         let mut aggressive_options = self.options.clone();
         aggressive_options.version_intensity = 9;
@@ -71,7 +71,7 @@ impl VersionDetector {
 
         let aggressive_detector = self.service_detector.clone().with_options(aggressive_options);
         let start_time = std::time::Instant::now();
-        let ip = target.ip();
+        let ip = target.address;
         
         let mut services = HashMap::new();
         let mut detected_count = 0;
@@ -95,7 +95,7 @@ impl VersionDetector {
         })
     }
 
-    pub async fn scan_version_light(&self, target: &TargetHost, open_ports: &[(u16, String)]) -> Result<VersionScanResult> {
+    pub async fn scan_version_light(&self, target: &Host, open_ports: &[(u16, String)]) -> Result<VersionScanResult> {
         // Light version detection with minimal probes
         let mut light_options = self.options.clone();
         light_options.version_intensity = 2;
@@ -104,7 +104,7 @@ impl VersionDetector {
 
         let light_detector = self.service_detector.clone().with_options(light_options);
         let start_time = std::time::Instant::now();
-        let ip = target.ip();
+        let ip = target.address;
         
         let mut services = HashMap::new();
         let mut detected_count = 0;
@@ -277,21 +277,22 @@ mod tests {
 
     #[test]
     fn test_filter_ports_by_intensity() {
-        let detector = VersionDetector::new().unwrap();
         let all_ports = vec![
             (22, "tcp".to_string()),
             (80, "tcp".to_string()),
             (12345, "tcp".to_string()),
         ];
-        
+
         // Low intensity should filter to common ports only
+        let detector = VersionDetector::new().unwrap();
         let mut options = ServiceDetectionOptions::default();
         options.version_intensity = 2;
         let light_detector = detector.with_options(options);
         let filtered = light_detector.filter_ports_by_intensity(&all_ports);
         assert!(filtered.len() <= all_ports.len());
-        
+
         // High intensity should include all ports
+        let detector = VersionDetector::new().unwrap();
         let mut options = ServiceDetectionOptions::default();
         options.version_intensity = 7;
         let aggressive_detector = detector.with_options(options);

@@ -1,9 +1,11 @@
 pub mod syn_scanner;
 pub mod udp_scanner;
+pub mod advanced_tcp_scanner;
 
 // Re-export scanners for external use
 pub use syn_scanner::{SynScanner, ConnectScanner};
 pub use udp_scanner::UdpScanner;
+pub use advanced_tcp_scanner::{AckScanner, FinScanner, NullScanner, XmasScanner};
 
 use anyhow::Result;
 use nmap_net::{Host, HostState, ScanType, check_raw_socket_privileges};
@@ -49,12 +51,16 @@ pub struct ScanEngine {
     syn_scanner: Option<SynScanner>,
     connect_scanner: ConnectScanner,
     udp_scanner: UdpScanner,
+    ack_scanner: Option<AckScanner>,
+    fin_scanner: Option<FinScanner>,
+    null_scanner: Option<NullScanner>,
+    xmas_scanner: Option<XmasScanner>,
 }
 
 impl ScanEngine {
     pub fn new(options: &nmap_core::NmapOptions) -> Result<Self> {
         let timing_config = options.timing_template.config();
-        
+
         // Try to create SYN scanner if we have privileges
         let syn_scanner = if check_raw_socket_privileges() {
             match SynScanner::new(timing_config.clone()) {
@@ -71,15 +77,31 @@ impl ScanEngine {
             info!("No raw socket privileges, using TCP connect scanning");
             None
         };
-        
+
         let connect_scanner = ConnectScanner::new(timing_config.clone());
-        let udp_scanner = UdpScanner::new(timing_config);
+        let udp_scanner = UdpScanner::new(timing_config.clone());
+
+        // Try to create advanced TCP scanners if we have privileges
+        let (ack_scanner, fin_scanner, null_scanner, xmas_scanner) = if check_raw_socket_privileges() {
+            (
+                AckScanner::new(timing_config.clone()).ok(),
+                FinScanner::new(timing_config.clone()).ok(),
+                NullScanner::new(timing_config.clone()).ok(),
+                XmasScanner::new(timing_config).ok(),
+            )
+        } else {
+            (None, None, None, None)
+        };
 
         Ok(Self {
             options: options.clone(),
             syn_scanner,
             connect_scanner,
             udp_scanner,
+            ack_scanner,
+            fin_scanner,
+            null_scanner,
+            xmas_scanner,
         })
     }
     
@@ -150,7 +172,7 @@ impl ScanEngine {
         
         // Determine scan type and execute
         let scan_type = self.options.scan_types.first().unwrap_or(&ScanType::Syn);
-        
+
         match scan_type {
             ScanType::Syn => {
                 if let Some(ref syn_scanner) = self.syn_scanner {
@@ -166,6 +188,42 @@ impl ScanEngine {
             ScanType::Udp => {
                 info!("Starting UDP scan");
                 self.udp_scanner.scan_hosts(&mut results, &ports).await?;
+            }
+            ScanType::Ack => {
+                if let Some(ref ack_scanner) = self.ack_scanner {
+                    info!("Starting ACK scan for firewall rule detection");
+                    ack_scanner.scan_hosts(&mut results, &ports).await?;
+                } else {
+                    warn!("ACK scan requested but no raw socket available, using connect scan");
+                    self.connect_scanner.scan_hosts(&mut results, &ports).await?;
+                }
+            }
+            ScanType::Fin => {
+                if let Some(ref fin_scanner) = self.fin_scanner {
+                    info!("Starting FIN scan (stealth)");
+                    fin_scanner.scan_hosts(&mut results, &ports).await?;
+                } else {
+                    warn!("FIN scan requested but no raw socket available, using connect scan");
+                    self.connect_scanner.scan_hosts(&mut results, &ports).await?;
+                }
+            }
+            ScanType::Null => {
+                if let Some(ref null_scanner) = self.null_scanner {
+                    info!("Starting NULL scan (all flags off)");
+                    null_scanner.scan_hosts(&mut results, &ports).await?;
+                } else {
+                    warn!("NULL scan requested but no raw socket available, using connect scan");
+                    self.connect_scanner.scan_hosts(&mut results, &ports).await?;
+                }
+            }
+            ScanType::Xmas => {
+                if let Some(ref xmas_scanner) = self.xmas_scanner {
+                    info!("Starting Xmas scan (FIN+PSH+URG)");
+                    xmas_scanner.scan_hosts(&mut results, &ports).await?;
+                } else {
+                    warn!("Xmas scan requested but no raw socket available, using connect scan");
+                    self.connect_scanner.scan_hosts(&mut results, &ports).await?;
+                }
             }
             _ => {
                 warn!("Scan type {:?} not yet implemented, using connect scan", scan_type);
@@ -288,10 +346,68 @@ impl ScanEngine {
     }
 
     pub async fn script_scan(&self, targets: &[Host]) -> Result<Vec<Host>> {
+        use nmap_scripting::{ScriptEngine, ScriptContext, ScriptTiming, register_all_scripts};
+        use std::collections::HashMap;
+
         info!("Starting script scan for {} targets", targets.len());
-        warn!("Script scanning (RSE) not yet implemented");
-        // Script scanning would execute vulnerability checks and additional probes
-        Ok(targets.to_vec())
+
+        // Initialize script engine
+        let engine = ScriptEngine::new();
+
+        // Register all vulnerability scripts
+        if let Err(e) = register_all_scripts(&engine).await {
+            warn!("Failed to register scripts: {}", e);
+            return Ok(targets.to_vec());
+        }
+
+        let mut results = targets.to_vec();
+
+        // Run scripts for each target/port combination
+        for host in &mut results {
+            for port in &mut host.ports {
+                if port.state != nmap_net::PortState::Open {
+                    continue;
+                }
+
+                // Build script context
+                let context = ScriptContext {
+                    target_ip: host.address,
+                    target_port: Some(port.number),
+                    protocol: Some(format!("{:?}", port.protocol)),
+                    service: port.service.clone(),
+                    version: port.version.clone(),
+                    os_info: host.os_info.as_ref().map(|os| os.name.clone()),
+                    timing: ScriptTiming::default(),
+                    user_args: HashMap::new(),
+                };
+
+                // Execute scripts based on service type
+                if let Some(ref service) = port.service {
+                    info!("Running scripts for {}:{} ({})", host.address, port.number, service);
+
+                    match engine.execute_for_service(service, &context).await {
+                        Ok(script_results) => {
+                            for result in script_results {
+                                if !result.vulnerabilities.is_empty() {
+                                    for vuln in &result.vulnerabilities {
+                                        info!("VULNERABILITY FOUND on {}:{} - {} ({})",
+                                              host.address, port.number,
+                                              vuln.title, vuln.severity);
+                                    }
+                                }
+                                debug!("Script result: {}", result.output);
+                            }
+                        }
+                        Err(e) => {
+                            warn!("Script execution failed for {}: {}", service, e);
+                        }
+                    }
+                }
+            }
+        }
+
+        info!("Script scan completed");
+        Ok(results)
     }
 
     pub async fn traceroute(&self, targets: &[Host]) -> Result<()> {
