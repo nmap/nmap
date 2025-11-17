@@ -1,0 +1,176 @@
+<!-- R-Map Scanner Node HTML Configuration -->
+
+<script type="text/javascript">
+    RED.nodes.registerType('rmap-scanner', {
+        category: 'network',
+        color: '#4a90e2',
+        defaults: {
+            name: { value: "" },
+            target: { value: "", required: true },
+            scanType: { value: "stealth" },
+            ports: { value: "1-1000" },
+            timing: { value: 3 },
+            scripts: { value: [] },
+            serviceDetection: { value: false },
+            osDetection: { value: false },
+            skipPing: { value: false },
+            useWebSocket: { value: true },
+            emitRealtime: { value: false }
+        },
+        inputs: 1,
+        outputs: 2,
+        outputLabels: ["results", "errors"],
+        icon: "font-awesome/fa-search",
+        label: function() {
+            return this.name || `rmap: ${this.target}`;
+        },
+        labelStyle: function() {
+            return this.name ? "node_label_italic" : "";
+        },
+        oneditprepare: function() {
+            // Initialize UI components
+            $("#node-input-scripts").typedInput({
+                type: "json",
+                types: ["json"]
+            });
+        }
+    });
+</script>
+
+<script type="text/html" data-template-name="rmap-scanner">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Scanner Name">
+    </div>
+
+    <div class="form-row">
+        <label for="node-input-target"><i class="fa fa-crosshairs"></i> Target</label>
+        <input type="text" id="node-input-target" placeholder="192.168.1.0/24 or example.com">
+    </div>
+
+    <div class="form-row">
+        <label for="node-input-scanType"><i class="fa fa-bolt"></i> Scan Type</label>
+        <select id="node-input-scanType">
+            <option value="stealth">Stealth (SYN Scan)</option>
+            <option value="connect">Connect (Full TCP)</option>
+            <option value="udp">UDP Scan</option>
+            <option value="ack">ACK Scan</option>
+            <option value="fin">FIN Scan</option>
+            <option value="null">NULL Scan</option>
+            <option value="xmas">Xmas Scan</option>
+            <option value="comprehensive">Comprehensive</option>
+        </select>
+    </div>
+
+    <div class="form-row">
+        <label for="node-input-ports"><i class="fa fa-list"></i> Ports</label>
+        <input type="text" id="node-input-ports" placeholder="1-1000 or 80,443,8080">
+    </div>
+
+    <div class="form-row">
+        <label for="node-input-timing"><i class="fa fa-clock-o"></i> Timing</label>
+        <select id="node-input-timing">
+            <option value="0">T0 - Paranoid</option>
+            <option value="1">T1 - Sneaky</option>
+            <option value="2">T2 - Polite</option>
+            <option value="3">T3 - Normal</option>
+            <option value="4">T4 - Aggressive</option>
+            <option value="5">T5 - Insane</option>
+        </select>
+    </div>
+
+    <div class="form-row">
+        <label for="node-input-scripts"><i class="fa fa-file-code-o"></i> Scripts</label>
+        <input type="text" id="node-input-scripts" placeholder='["http-vuln-*"]'>
+    </div>
+
+    <div class="form-row">
+        <label>&nbsp;</label>
+        <input type="checkbox" id="node-input-serviceDetection" style="display:inline-block; width:auto; vertical-align:baseline;">
+        <label for="node-input-serviceDetection" style="width:auto">Service Detection (-sV)</label>
+    </div>
+
+    <div class="form-row">
+        <label>&nbsp;</label>
+        <input type="checkbox" id="node-input-osDetection" style="display:inline-block; width:auto; vertical-align:baseline;">
+        <label for="node-input-osDetection" style="width:auto">OS Detection (-O)</label>
+    </div>
+
+    <div class="form-row">
+        <label>&nbsp;</label>
+        <input type="checkbox" id="node-input-skipPing" style="display:inline-block; width:auto; vertical-align:baseline;">
+        <label for="node-input-skipPing" style="width:auto">Skip Ping (-Pn)</label>
+    </div>
+
+    <div class="form-row">
+        <label>&nbsp;</label>
+        <input type="checkbox" id="node-input-useWebSocket" style="display:inline-block; width:auto; vertical-align:baseline;">
+        <label for="node-input-useWebSocket" style="width:auto">Use WebSocket (Real-time)</label>
+    </div>
+
+    <div class="form-row">
+        <label>&nbsp;</label>
+        <input type="checkbox" id="node-input-emitRealtime" style="display:inline-block; width:auto; vertical-align:baseline;">
+        <label for="node-input-emitRealtime" style="width:auto">Emit Real-time Events</label>
+    </div>
+</script>
+
+<script type="text/html" data-help-name="rmap-scanner">
+    <p>Executes network scans using the R-Map scanning engine.</p>
+
+    <h3>Inputs</h3>
+    <dl class="message-properties">
+        <dt class="optional">targets <span class="property-type">array</span></dt>
+        <dd>Array of target IPs, CIDRs, or hostnames. Overrides configured target.</dd>
+
+        <dt class="optional">scanType <span class="property-type">string</span></dt>
+        <dd>Type of scan: stealth, connect, udp, comprehensive. Overrides configured scan type.</dd>
+
+        <dt class="optional">ports <span class="property-type">string</span></dt>
+        <dd>Port specification: "1-1000", "80,443", etc. Overrides configured ports.</dd>
+    </dl>
+
+    <h3>Outputs</h3>
+    <ol class="node-ports">
+        <li>Scan Results
+            <dl class="message-properties">
+                <dt>payload.scan <span class="property-type">object</span></dt>
+                <dd>Scan metadata and statistics</dd>
+
+                <dt>payload.hosts <span class="property-type">array</span></dt>
+                <dd>Discovered hosts with ports and services</dd>
+
+                <dt>payload.vulnerabilities <span class="property-type">array</span></dt>
+                <dd>Vulnerabilities found during scan</dd>
+            </dl>
+        </li>
+        <li>Errors
+            <dl class="message-properties">
+                <dt>payload <span class="property-type">string</span></dt>
+                <dd>Error message</dd>
+            </dl>
+        </li>
+    </ol>
+
+    <h3>Details</h3>
+    <p>This node performs network scanning using R-Map. It supports multiple scan types
+    including stealth SYN scans, full TCP connect scans, UDP scans, and advanced TCP scans.</p>
+
+    <p><b>Scan Types:</b></p>
+    <ul>
+        <li><b>Stealth (SYN):</b> Half-open scan, doesn't complete TCP handshake</li>
+        <li><b>Connect:</b> Full TCP connection scan</li>
+        <li><b>UDP:</b> UDP port scanning with protocol-specific probes</li>
+        <li><b>ACK:</b> Firewall rule mapping</li>
+        <li><b>FIN/NULL/Xmas:</b> Stealth scans exploiting TCP RFC behavior</li>
+        <li><b>Comprehensive:</b> All scan types combined</li>
+    </ul>
+
+    <p><b>Real-time Updates:</b></p>
+    <p>Enable "Use WebSocket" to receive scan progress and results in real-time via WebSocket connection.</p>
+
+    <h3>References</h3>
+    <ul>
+        <li><a href="https://github.com/Ununp3ntium115/R-map">R-Map GitHub</a></li>
+    </ul>
+</script>
