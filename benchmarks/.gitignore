@@ -1,0 +1,19 @@
+# Benchmark results (temporary, not committed)
+results/*.json
+results/*.txt
+results/*.log
+results/tmp_*
+
+# Keep baseline and summaries
+!baseline/
+!results/SUMMARY_*.md
+!results/TRENDS.md
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+
+# OS files
+.DS_Store
+Thumbs.db

@@ -1,0 +1,287 @@
+name: Performance Benchmarks
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  schedule:
+    - cron: '0 2 * * 0'  # Weekly on Sunday at 2am UTC
+  workflow_dispatch:  # Manual trigger
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+jobs:
+  benchmark:
+    name: R-Map vs nmap Benchmarks
+    runs-on: ubuntu-22.04
+    timeout-minutes: 60
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Full history for versioning
+      
+      - name: Install Rust toolchain
+        uses: actions-rust-lang/setup-rust-toolchain@v1
+        with:
+          toolchain: stable
+          components: rustfmt, clippy
+      
+      - name: Cache Rust dependencies
+        uses: Swatinem/rust-cache@v2
+        with:
+          cache-on-failure: true
+      
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            nmap \
+            sysstat \
+            time \
+            jq \
+            python3 \
+            python3-pip
+          
+          # Install Python packages
+          pip3 install psutil matplotlib pandas numpy scipy
+      
+      - name: Build R-Map (release mode)
+        run: |
+          cargo build --release --all-features
+          ./target/release/rmap --version
+      
+      - name: Start Docker test services
+        run: |
+          cd tests/integration
+          docker-compose up -d
+          
+          # Wait for services to be healthy
+          echo "Waiting for services to be ready..."
+          sleep 30
+          
+          # Verify services
+          docker-compose ps
+      
+      - name: System information
+        run: |
+          echo "=== System Info ==="
+          uname -a
+          nproc
+          free -h
+          df -h
+          
+          echo "=== nmap Version ==="
+          nmap --version
+          
+          echo "=== R-Map Version ==="
+          ./target/release/rmap --version || echo "unknown"
+      
+      - name: Run performance benchmarks
+        id: benchmark
+        run: |
+          cd benchmarks/scripts
+          chmod +x run_benchmarks.sh
+          
+          # Run benchmarks (exit code indicates pass/fail)
+          ./run_benchmarks.sh || echo "BENCHMARK_FAILED=true" >> $GITHUB_OUTPUT
+      
+      - name: Upload raw benchmark results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: benchmark-results-${{ github.sha }}
+          path: |
+            benchmarks/results/benchmark_*.json
+            benchmarks/results/analysis_*.json
+            benchmarks/results/SUMMARY_*.md
+          retention-days: 90
+      
+      - name: Check for baseline results
+        id: baseline
+        run: |
+          if [ -f benchmarks/baseline/baseline.json ]; then
+            echo "BASELINE_EXISTS=true" >> $GITHUB_OUTPUT
+          else
+            echo "BASELINE_EXISTS=false" >> $GITHUB_OUTPUT
+            echo "No baseline found - this will become the new baseline"
+          fi
+      
+      - name: Compare with baseline
+        if: steps.baseline.outputs.BASELINE_EXISTS == 'true'
+        run: |
+          python3 benchmarks/scripts/compare_baseline.py \
+            benchmarks/results/benchmark_*.json \
+            benchmarks/baseline/baseline.json
+      
+      - name: Generate PR comment
+        if: github.event_name == 'pull_request'
+        run: |
+          python3 benchmarks/scripts/generate_pr_comment.py \
+            benchmarks/results/SUMMARY_*.md \
+            > benchmarks/results/pr_comment.md
+      
+      - name: Comment benchmark results on PR
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const commentPath = 'benchmarks/results/pr_comment.md';
+            
+            if (!fs.existsSync(commentPath)) {
+              console.log('No PR comment file found');
+              return;
+            }
+            
+            const comment = fs.readFileSync(commentPath, 'utf8');
+            
+            // Find existing benchmark comment
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number
+            });
+            
+            const botComment = comments.find(c => 
+              c.user.type === 'Bot' && c.body.includes('Performance Benchmark Results')
+            );
+            
+            if (botComment) {
+              // Update existing comment
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: botComment.id,
+                body: comment
+              });
+            } else {
+              // Create new comment
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: comment
+              });
+            }
+      
+      - name: Check for performance regression
+        id: regression
+        run: |
+          if [ -f benchmarks/results/regression_detected.flag ]; then
+            echo "REGRESSION=true" >> $GITHUB_OUTPUT
+            echo "::error::Performance regression detected!"
+          else
+            echo "REGRESSION=false" >> $GITHUB_OUTPUT
+          fi
+      
+      - name: Update baseline on main branch
+        if: |
+          github.event_name == 'push' && 
+          github.ref == 'refs/heads/main' &&
+          steps.regression.outputs.REGRESSION == 'false'
+        run: |
+          mkdir -p benchmarks/baseline
+          
+          # Copy latest results as new baseline
+          LATEST_RESULT=$(ls -t benchmarks/results/benchmark_*.json | head -1)
+          cp "$LATEST_RESULT" benchmarks/baseline/baseline.json
+          
+          # Commit baseline update
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add benchmarks/baseline/baseline.json
+          git commit -m "chore: Update performance baseline [skip ci]" || true
+          git push || true
+      
+      - name: Create performance regression issue
+        if: |
+          steps.regression.outputs.REGRESSION == 'true' &&
+          github.event_name == 'push' &&
+          github.ref == 'refs/heads/main'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const summary = fs.readFileSync('benchmarks/results/SUMMARY_*.md', 'utf8');
+            
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: '⚠️ Performance Regression Detected',
+              body: `## Performance Regression Detected\n\n` +
+                    `Commit: ${context.sha}\n` +
+                    `Branch: ${context.ref}\n\n` +
+                    `### Benchmark Summary\n\n${summary}\n\n` +
+                    `### Action Required\n` +
+                    `Please investigate the performance regression and optimize accordingly.\n\n` +
+                    `/cc @${context.actor}`,
+              labels: ['performance', 'regression', 'P1']
+            });
+      
+      - name: Fail if regression detected (on PR)
+        if: |
+          github.event_name == 'pull_request' &&
+          steps.regression.outputs.REGRESSION == 'true'
+        run: |
+          echo "::error::Performance regression detected - blocking merge"
+          exit 1
+      
+      - name: Cleanup Docker services
+        if: always()
+        run: |
+          cd tests/integration
+          docker-compose down -v
+      
+      - name: Final status
+        run: |
+          echo "=== Benchmark Complete ==="
+          if [ "${{ steps.regression.outputs.REGRESSION }}" == "true" ]; then
+            echo "Status: ❌ REGRESSION DETECTED"
+            exit 1
+          else
+            echo "Status: ✅ PASSED"
+          fi
+
+  # Weekly performance trend analysis
+  trend-analysis:
+    name: Performance Trend Analysis
+    runs-on: ubuntu-22.04
+    if: github.event_name == 'schedule'
+    needs: benchmark
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Download historical results
+        run: |
+          # Download last 10 benchmark artifacts
+          gh run list \
+            --workflow=benchmark.yml \
+            --limit=10 \
+            --json databaseId,conclusion \
+            --jq '.[] | select(.conclusion == "success") | .databaseId' \
+          | xargs -I {} gh run download {} -n benchmark-results || true
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Generate trend report
+        run: |
+          python3 benchmarks/scripts/generate_trends.py \
+            benchmarks/results/benchmark_*.json \
+            > benchmarks/results/TRENDS.md
+      
+      - name: Upload trend report
+        uses: actions/upload-artifact@v4
+        with:
+          name: performance-trends
+          path: benchmarks/results/TRENDS.md
+          retention-days: 365

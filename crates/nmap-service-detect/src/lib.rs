@@ -4,12 +4,14 @@ use serde::{Deserialize, Serialize};
 use std::net::{IpAddr, SocketAddr};
 use tokio::time::{timeout, Duration};
 
+// Module structure
 pub mod probes;
 pub mod signatures;
 pub mod version_detect;
 
-pub use probes::*;
-pub use signatures::*;
+// Re-export key types for convenience
+pub use probes::{Probe, ProbeDatabase};
+pub use signatures::{ServiceSignature, SignatureDatabase, VersionInfo};
 pub use version_detect::*;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
