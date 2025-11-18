@@ -135,32 +135,39 @@ ND_OPT_MTU = 5
 ND_OPT_RTR_ADV_INTERVAL = 7
 ND_OPT_HOME_AGENT_INFO = 8
 
-ETHER_TYPE_IPV4 = "\x08\x00"
-ETHER_TYPE_IPV6 = "\x86\xdd"
+ETHER_TYPE_IPV4 = 0x0800
+ETHER_TYPE_IPV6 = 0x86dd
+ETHER_TYPE_PPPOE_DISCOVERY = 0x8863
+ETHER_TYPE_PPPOE_SESSION = 0x8864
+ETHER_TYPE_EAPOL = 0x888e
+ETHER_TYPE_PROFINET = 0x8892
+ETHER_TYPE_ATAOE = 0x88a2
 
 ----------------------------------------------------------------------------------------------------------------
 -- Frame is a class
 Frame = {}
 
 function Frame:new(frame, force_continue)
-  local packet = nil
-  local packet_len = 0
-  if frame and #frame > 14 then
-    packet = string.sub(frame, 15, -1)
-    packet_len = #frame - 14
+  local mac_dst, mac_src, ether_type, packet
+  if frame and #frame >= 14 then
+    local pos
+    mac_dst, mac_src, ether_type, pos = ("c6c6>I2"):unpack(frame)
+    packet = frame:sub(pos, -1)
+    if #packet == 0 then packet = nil end
   end
-  local o = Packet:new(packet, packet_len, force_continue)
+  local o = Packet:new(packet, packet and #packet or 0, force_continue)
 
   o.build_ether_frame = self.build_ether_frame
-  o.ether_parse = self.ether_parse
   o.frame_buf = frame
-  o:ether_parse()
+  o.mac_dst = mac_dst
+  o.mac_src = mac_src
+  o.ether_type = ether_type
   return o
 end
 --- Build an Ethernet frame.
 -- @param mac_dst six-byte string of the destination MAC address.
 -- @param mac_src six-byte string of the source MAC address.
--- @param ether_type two-byte string of the type.
+-- @param ether_type IEEE 802 ethertype as a 16-bit integer (0x0800 for IPv4)
 -- @param packet string of the payload.
 -- @return frame string of the Ether frame.
 function Frame:build_ether_frame(mac_dst, mac_src, ether_type, packet)
@@ -171,20 +178,7 @@ function Frame:build_ether_frame(mac_dst, mac_src, ether_type, packet)
   if not self.ether_type then
     return nil, "Unknown packet type."
   end
-  self.frame_buf = self.mac_dst..self.mac_src..self.ether_type..self.buf
-end
---- Parse an Ethernet frame.
--- @param frame string of the Ether frame.
--- @return mac_dst six-byte string of the destination MAC address.
--- @return mac_src six-byte string of the source MAC address.
--- @return packet string of the payload.
-function Frame:ether_parse()
-  if not self.frame_buf or #self.frame_buf < 14 then -- too short
-    return false
-  end
-  self.mac_dst = string.sub(self.frame_buf, 1, 6)
-  self.mac_src = string.sub(self.frame_buf, 7, 12)
-  self.ether_type = u16(self.frame_buf, 12)
+  self.frame_buf = self.mac_dst..self.mac_src..(">I2"):pack(self.ether_type)..self.buf
 end
 
 ----------------------------------------------------------------------------------------------------------------
@@ -974,6 +968,7 @@ end
 -- @return Whether the parsing succeeded.
 function Packet:udp_parse(force_continue)
   self.udp = true
+  self.ip_p = self.ip_p or IPPROTO_UDP
   self.udp_offset = self.ip_data_offset or self.ip6_data_offset
   if #self.buf < self.udp_offset + 4 then
     return false
@@ -1035,15 +1030,17 @@ end
 -- Count and save the UDP checksum field.
 function Packet:udp_count_checksum()
   self:udp_set_checksum(0)
-  local proto = self.ip_p
-  local length = self.buf:len() - self.udp_offset
-  local b = self.ip_bin_src ..
-    self.ip_bin_dst ..
-    "\0" ..
-    (">BI2"):pack(proto, length) ..
-    self.buf:sub(self.udp_offset+1)
+  local pseudo_header
+  local payload = self.buf:sub(self.udp_offset+1)
+  if self.ip_v == 4 then
+    pseudo_header = (">c4 c4 x B I2"):pack(self.ip_bin_src, self.ip_bin_dst,
+      IPPROTO_UDP, #payload)
+  elseif self.ip_v == 6 then
+    pseudo_header = (">c16 c16 I4 xxx B"):pack(self.ip_bin_src, self.ip_bin_dst,
+      #payload, IPPROTO_UDP)
+  end
 
-  self:udp_set_checksum(in_cksum(b))
+  self:udp_set_checksum(in_cksum(pseudo_header .. payload))
 end
 
 if not unittest.testing() then

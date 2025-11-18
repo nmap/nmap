@@ -324,8 +324,8 @@ Telnet = {
   -- Buffer addresses can come in 14 or 12 (this terminal doesn't support 16 bit)
   -- this function takes two bytes (buffer addresses are two bytes long) and returns
   -- the decoded buffer address.
-  -- @param1 unsigned char, first byte of buffer address.
-  -- @param2 unsigned char, second byte of buffer address.
+  -- @param unsigned char, first byte of buffer address.
+  -- @param unsigned char, second byte of buffer address.
   -- @return integer of buffer address
   DECODE_BADDR = function ( byte1, byte2 )
     if (byte1 & 0xC0) == 0 then
@@ -339,7 +339,7 @@ Telnet = {
 
   --- Encode Buffer Address
   --
-  -- @param integer buffer address
+  -- @param address integer buffer address
   -- @return TN3270 encoded buffer address (12 bit) as string
   ENCODE_BADDR = function ( self, address )
     stdnse.debug(3, "Encoding Address: %s", address)
@@ -842,7 +842,7 @@ Telnet = {
 
   --- WCC / tn3270 data stream processor
   --
-  -- @param tn3270 data stream
+  -- @param data tn3270 data stream
   -- @return status true on success, false on failure
   -- @return changes self.buffer to match requested changes
   process_write = function ( self, data )
@@ -1065,7 +1065,7 @@ Telnet = {
   --- Sends TN3270 Packet
   --
   -- Expands IAC to IAC IAC and finally appends IAC EOR
-  -- @param data: table containing buffer array
+  -- @param data table containing buffer array
   send_tn3270 = function ( self, data )
     local packet = ''
     if self.state == self.TN3270E_DATA then
@@ -1164,8 +1164,8 @@ Telnet = {
   --- Sends the data to the location specified
   --
   -- Using a location on the screen sends the data
-  -- @param location: a location on the screen (between 0 and 1920)
-  -- @param data: ascii data to send to that location
+  -- @param location a location on the screen (between 0 and 1920)
+  -- @param data ascii data to send to that location
   send_location = function( self, location, data )
     local cursor_location = location + #data
     local ebcdic_letter = ''
@@ -1191,7 +1191,7 @@ Telnet = {
   --
   -- Using a supplied tuple of location and data generates tn3270 data to
   -- fill out the screen
-  -- @param location_tuple: and array of tuples with location and data. For
+  -- @param location_tuple and array of tuples with location and data. For
   --                        example: send_locations([{579:"dade"},{630:"secret"}])
   send_locations = function( self, location_tuple )
     local cursor_location = location_tuple[#location_tuple][1] + #location_tuple[#location_tuple][2]
@@ -1303,7 +1303,7 @@ Telnet = {
 
   --- Any Hidden Fields
   --
-  -- @returns true if there are any hidden fields in the buffer
+  -- @return true if there are any hidden fields in the buffer
   any_hidden = function ( self )
     local hidden_attrib = 0x0c -- 00001100 is hidden
     for i = 0,#self.fa_buffer do
@@ -1315,7 +1315,7 @@ Telnet = {
 
   --- Hidden Fields
   --
-  -- @returns the locations of hidden fields in a table with each pair being the start and stop of the hidden field
+  -- @return the locations of hidden fields in a table with each pair being the start and stop of the hidden field
   hidden_fields_location = function ( self )
     local hidden_attrib = 0x0c -- 00001100 is hidden
     local hidden_location = {}

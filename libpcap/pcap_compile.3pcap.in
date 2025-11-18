@@ -28,8 +28,7 @@ pcap_compile \- compile a filter expression
 .LP
 .ft B
 int pcap_compile(pcap_t *p, struct bpf_program *fp,
-.ti +8
-const char *str, int optimize, bpf_u_int32 netmask);
+    const char *str, int optimize, bpf_u_int32 netmask);
 .ft
 .fi
 .SH DESCRIPTION

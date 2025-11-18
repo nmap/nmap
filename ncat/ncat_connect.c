@@ -2,7 +2,7 @@
  * ncat_connect.c -- Ncat connect mode.                                    *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
  *
- * The Nmap Security Scanner is (C) 1996-2024 Nmap Software LLC ("The Nmap
+ * The Nmap Security Scanner is (C) 1996-2025 Nmap Software LLC ("The Nmap
  * Project"). Nmap is also a registered trademark of the Nmap Project.
  *
  * This program is distributed under the terms of the Nmap Public Source
@@ -1220,7 +1220,7 @@ static void post_connect(nsock_pool nsp, nsock_iod iod)
 {
     /* Command to execute. */
     if (o.cmdexec) {
-        struct fdinfo info;
+        struct fdinfo info = { 0 };
 
         info.fd = nsock_iod_get_sd(iod);
 #ifdef HAVE_OPENSSL
@@ -1249,7 +1249,7 @@ static void post_connect(nsock_pool nsp, nsock_iod iod)
        refresh_idle_timer. */
     if (o.idletimeout > 0) {
         cs.idle_timer_event_id =
-            nsock_timer_create(nsp, idle_timer_handler, o.idletimeout, NULL);
+            nsock_timer_create(nsp, idle_timer_handler, o.idletimeout, &o.idletimeout);
     }
 }
 
@@ -1274,9 +1274,15 @@ static void read_stdin_handler(nsock_pool nsp, nsock_event evt, void *data)
 #endif
                 shutdown(nsock_iod_get_sd(cs.sock_nsi), SHUT_WR);
         }
-        /* In --send-only mode or non-TCP mode, exit after EOF on stdin. */
-        if (o.proto != IPPROTO_TCP || (o.proto == IPPROTO_TCP && o.sendonly))
+        if (o.quitafter > 0) {
+            nsock_timer_create(nsp, idle_timer_handler, o.quitafter, &o.quitafter);
+        }
+        // if o.quitafter is negative, do not quit even on EOF
+        else if (o.quitafter == 0 &&
+                /* In --send-only mode or non-TCP mode, exit after EOF on stdin. */
+                (o.proto != IPPROTO_TCP || (o.proto == IPPROTO_TCP && o.sendonly))) {
             nsock_loop_quit(nsp);
+        }
         return;
     } else if (status == NSE_STATUS_ERROR) {
         loguser("%s.\n", socket_strerror(nse_errorcode(evt)));
@@ -1325,9 +1331,10 @@ static void read_socket_handler(nsock_pool nsp, nsock_event evt, void *data)
 #else
         Close(STDOUT_FILENO);
 #endif
-        /* In --recv-only mode or non-TCP mode, exit after EOF on the socket. */
-        if (o.proto != IPPROTO_TCP || (o.proto == IPPROTO_TCP && o.recvonly))
-            nsock_loop_quit(nsp);
+        /* For TCP, --keep-open means don't quit unless --recv-only */
+        if (!o.keepopen || o.proto != IPPROTO_TCP || o.recvonly) {
+          nsock_loop_quit(nsp);
+        }
         return;
     } else if (status == NSE_STATUS_ERROR) {
         if (!o.zerobyte||o.verbose)
@@ -1392,6 +1399,7 @@ static void idle_timer_handler(nsock_pool nsp, nsock_event evt, void *data)
 {
     enum nse_status status = nse_status(evt);
     enum nse_type type = nse_type(evt);
+    int timeout = *(int *)data;
 
     ncat_assert(type == NSE_TYPE_TIMER);
 
@@ -1407,7 +1415,7 @@ static void idle_timer_handler(nsock_pool nsp, nsock_event evt, void *data)
       return;
     }
 
-    loguser("Idle timeout expired (%d ms).\n", o.idletimeout);
+    loguser("Idle timeout expired (%d ms).\n", timeout);
 
     exit(1);
 }
@@ -1418,5 +1426,5 @@ static void refresh_idle_timer(nsock_pool nsp)
         return;
     nsock_event_cancel(nsp, cs.idle_timer_event_id, 0);
     cs.idle_timer_event_id =
-        nsock_timer_create(nsp, idle_timer_handler, o.idletimeout, NULL);
+        nsock_timer_create(nsp, idle_timer_handler, o.idletimeout, &o.idletimeout);
 }

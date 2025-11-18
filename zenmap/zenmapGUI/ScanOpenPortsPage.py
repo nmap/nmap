@@ -2,7 +2,7 @@
 
 # ***********************IMPORTANT NMAP LICENSE TERMS************************
 # *
-# * The Nmap Security Scanner is (C) 1996-2024 Nmap Software LLC ("The Nmap
+# * The Nmap Security Scanner is (C) 1996-2025 Nmap Software LLC ("The Nmap
 # * Project"). Nmap is also a registered trademark of the Nmap Project.
 # *
 # * This program is distributed under the terms of the Nmap Public Source
@@ -397,7 +397,7 @@ class HostOpenPorts(HIGVBox):
                         p["host"].get_hostname(),
                         int(p.get('portid', "0")),
                         p.get('protocol', ""),
-                        p.get('port_state', _("unknown")),
+                        p.get('port_state', "unknown"),
                         get_version_string(p)
                     ]
                 )

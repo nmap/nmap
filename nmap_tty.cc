@@ -4,7 +4,7 @@
  *                                                                         *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
  *
- * The Nmap Security Scanner is (C) 1996-2024 Nmap Software LLC ("The Nmap
+ * The Nmap Security Scanner is (C) 1996-2025 Nmap Software LLC ("The Nmap
  * Project"). Nmap is also a registered trademark of the Nmap Project.
  *
  * This program is distributed under the terms of the Nmap Public Source
@@ -301,17 +301,18 @@ bool keyWasPressed()
      option. */
   if (o.stats_interval != 0.0) {
     struct timeval now;
+    time_t usec_interval = o.stats_interval * 1000000;
 
     gettimeofday(&now, NULL);
     if (stats_time.tv_sec == 0) {
       /* Initialize the scheduled stats time. */
       stats_time = *o.getStartTime();
-      TIMEVAL_ADD(stats_time, stats_time, (time_t) (o.stats_interval * 1000000));
+      TIMEVAL_ADD(stats_time, stats_time, usec_interval);
     }
 
     if (TIMEVAL_AFTER(now, stats_time)) {
       /* Advance to the next print time. */
-      TIMEVAL_ADD(stats_time, stats_time, (time_t) (o.stats_interval * 1000000));
+      TIMEVAL_ADD(stats_time, stats_time, usec_interval);
       /* If it's still in the past, catch it up to the present,
        * plus half a second to avoid double-printing without any progress. */
       if (TIMEVAL_AFTER(now, stats_time))

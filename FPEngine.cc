@@ -6,7 +6,7 @@
  *                                                                         *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
  *
- * The Nmap Security Scanner is (C) 1996-2024 Nmap Software LLC ("The Nmap
+ * The Nmap Security Scanner is (C) 1996-2025 Nmap Software LLC ("The Nmap
  * Project"). Nmap is also a registered trademark of the Nmap Project.
  *
  * This program is distributed under the terms of the Nmap Public Source
@@ -76,8 +76,6 @@ extern NmapOps o;
 #ifdef WIN32
 /* Need DnetName2PcapName */
 #include "libnetutil/netutil.h"
-/* from libdnet's intf-win32.c */
-extern "C" int g_has_npcap_loopback;
 #endif
 
 #include <math.h>
@@ -141,7 +139,8 @@ void FPNetworkControl::init(const char *ifname, devtype iftype) {
   nmap_set_nsock_logger();
   nmap_adjust_loglevel(o.packetTrace());
 
-  nsock_pool_set_device(nsp, o.device);
+  if (*o.device)
+    nsock_pool_set_device(nsp, o.device);
 
   if (o.proxy_chain)
     nsock_pool_set_proxychain(this->nsp, o.proxy_chain);
@@ -156,27 +155,14 @@ void FPNetworkControl::init(const char *ifname, devtype iftype) {
   /* Flag it as already initialized so we free this nsp next time */
   this->nsock_init = true;
 
+  /* We don't need to store the eth handle because FPProbes come with a
+   * suitable one (FPProbes::getEthernet()), we just attempt to obtain one
+   * to see if it fails. */
+  netutil_eth_t *ethsd = NULL;
+
   /* Obtain raw socket or check that we can obtain an eth descriptor. */
-  if ((o.sendpref & PACKET_SEND_ETH) && (iftype == devt_ethernet
-#ifdef WIN32
-        || (g_has_npcap_loopback && iftype == devt_loopback)
-#endif
-        ) && ifname != NULL) {
-    /* We don't need to store the eth handler because FPProbes come with a
-     * suitable one (FPProbes::getEthernet()), we just attempt to obtain one
-     * to see if it fails. */
-    if (eth_open_cached(ifname) == NULL)
-      fatal("dnet: failed to open device %s", ifname);
-    this->rawsd = -1;
-  } else {
-#ifdef WIN32
-    win32_fatal_raw_sockets(ifname);
-#endif
-    if (this->rawsd >= 0)
-      close(this->rawsd);
-    rawsd = nmap_raw_socket();
-    if (rawsd < 0)
-      pfatal("Couldn't obtain raw socket in %s", __func__);
+  if (!raw_socket_or_eth(o.sendpref, ifname, iftype, &this->rawsd, &ethsd)) {
+    fatal("Couldn't obtain raw socket or eth handle in %s", __func__);
   }
 
   /* De-register existing callers */
@@ -1726,7 +1712,9 @@ int FPHost6::build_probe_list() {
     this->fp_probes[this->total_probes].host = this;
     this->fp_probes[this->total_probes].setPacket(ip6);
     this->fp_probes[this->total_probes].setProbeID(TCP_DESCS[i].id);
-    this->fp_probes[this->total_probes].setEthernet(this->target_host->SrcMACAddress(), this->target_host->NextHopMACAddress(), this->target_host->deviceName());
+    if (this->netctl->l2_frames()) {
+      this->fp_probes[this->total_probes].setEthernet(this->target_host);
+    }
     /* Mark as a timed probe. */
     this->fp_probes[this->total_probes].setTimed();
     this->timed_probes++;
@@ -1767,7 +1755,9 @@ int FPHost6::build_probe_list() {
   this->fp_probes[this->total_probes].host = this;
   this->fp_probes[this->total_probes].setPacket(ip6);
   this->fp_probes[this->total_probes].setProbeID("IE1");
-  this->fp_probes[this->total_probes].setEthernet(this->target_host->SrcMACAddress(), this->target_host->NextHopMACAddress(), this->target_host->deviceName());
+  if (this->netctl->l2_frames()) {
+    this->fp_probes[this->total_probes].setEthernet(this->target_host);
+  }
   this->total_probes++;
 
   /* ICMP Probe #2: Echo Request with badly ordered extension headers */
@@ -1804,13 +1794,15 @@ int FPHost6::build_probe_list() {
   this->fp_probes[this->total_probes].host = this;
   this->fp_probes[this->total_probes].setPacket(ip6);
   this->fp_probes[this->total_probes].setProbeID("IE2");
-  this->fp_probes[this->total_probes].setEthernet(this->target_host->SrcMACAddress(), this->target_host->NextHopMACAddress(), this->target_host->deviceName());
+  if (this->netctl->l2_frames()) {
+    this->fp_probes[this->total_probes].setEthernet(this->target_host);
+  }
   this->total_probes++;
 
   /* ICMP Probe #3: Neighbor Solicitation. (only sent to on-link targets) */
   if (this->target_host->directlyConnected()
 #ifdef WIN32
-    && !(g_has_npcap_loopback && this->target_host->ifType() == devt_loopback)
+    && this->target_host->ifType() != devt_loopback
 #endif
     ) {
     ip6 = new IPv6Header();
@@ -1834,7 +1826,9 @@ int FPHost6::build_probe_list() {
     this->fp_probes[this->total_probes].host = this;
     this->fp_probes[this->total_probes].setPacket(ip6);
     this->fp_probes[this->total_probes].setProbeID("NS");
-    this->fp_probes[this->total_probes].setEthernet(this->target_host->SrcMACAddress(), this->target_host->NextHopMACAddress(), this->target_host->deviceName());
+    if (this->netctl->l2_frames()) {
+      this->fp_probes[this->total_probes].setEthernet(this->target_host);
+    }
     this->total_probes++;
   }
 
@@ -1863,7 +1857,9 @@ int FPHost6::build_probe_list() {
   this->fp_probes[this->total_probes].host = this;
   this->fp_probes[this->total_probes].setPacket(ip6);
   this->fp_probes[this->total_probes].setProbeID("U1");
-  this->fp_probes[this->total_probes].setEthernet(this->target_host->SrcMACAddress(), this->target_host->NextHopMACAddress(), this->target_host->deviceName());
+  if (this->netctl->l2_frames()) {
+    this->fp_probes[this->total_probes].setEthernet(this->target_host);
+  }
   this->total_probes++;
 
   /* Set TECN probe */
@@ -1880,7 +1876,9 @@ int FPHost6::build_probe_list() {
     this->fp_probes[this->total_probes].host = this;
     this->fp_probes[this->total_probes].setPacket(ip6);
     this->fp_probes[this->total_probes].setProbeID(TCP_DESCS[i].id);
-    this->fp_probes[this->total_probes].setEthernet(this->target_host->SrcMACAddress(), this->target_host->NextHopMACAddress(), this->target_host->deviceName());
+    if (this->netctl->l2_frames()) {
+      this->fp_probes[this->total_probes].setEthernet(this->target_host);
+    }
     this->total_probes++;
   }
   i++;
@@ -1905,7 +1903,9 @@ int FPHost6::build_probe_list() {
     this->fp_probes[this->total_probes].host = this;
     this->fp_probes[this->total_probes].setPacket(ip6);
     this->fp_probes[this->total_probes].setProbeID(TCP_DESCS[i].id);
-    this->fp_probes[this->total_probes].setEthernet(this->target_host->SrcMACAddress(), this->target_host->NextHopMACAddress(), this->target_host->deviceName());
+    if (this->netctl->l2_frames()) {
+      this->fp_probes[this->total_probes].setEthernet(this->target_host);
+    }
     this->total_probes++;
   }
 
@@ -2041,7 +2041,8 @@ int FPHost6::schedule() {
       }
 
       /* Check if the probe timedout */
-      if (TIMEVAL_SUBTRACT(now, this->fp_probes[i].getTimeSent()) >= this->rto) {
+      struct timeval sent = this->fp_probes[i].getTimeSent();
+      if (TIMEVAL_SUBTRACT(now, sent) >= this->rto) {
 
         /* If we have reached the maximum number of retransmissions, mark the
          * probe as failed. Otherwise, schedule its transmission. */
@@ -2099,10 +2100,11 @@ int FPHost6::schedule() {
         continue;
       }
 
+      struct timeval sent = this->fp_probes[i].getTimeSent();
       /* If there is some timed probe for which we have already scheduled its
        * retransmission but it hasn't been sent yet, break the loop. We don't
        * have to worry about retransmitting these probes yet.*/
-      if (this->fp_probes[i].getTimeSent().tv_sec == 0)
+      if (sent.tv_sec == 0)
         return OP_SUCCESS;
 
       /* If we got a total timeout for any of the timed probes, we shouldn't
@@ -2118,7 +2120,7 @@ int FPHost6::schedule() {
        * time out (max retransmissions done and still no answer) then mark
        * it as such. Otherwise, count it so we can retransmit the whole
        * group of timed probes later if appropriate. */
-      if (TIMEVAL_SUBTRACT(now, this->fp_probes[i].getTimeSent()) >= this->rto) {
+      if (TIMEVAL_SUBTRACT(now, sent) >= this->rto) {
         if (o.debugging > 3) {
           log_write(LOG_PLAIN, "[%s] timed probe %d (%s) timedout\n",
             this->target_host->targetipstr(), i, this->fp_probes[i].getProbeID());
@@ -2318,11 +2320,13 @@ int FPHost6::callback(const u8 *pkt, size_t pkt_len, const struct timeval *tv) {
 
       /* See if the received packet is a response to a probe */
       if (this->fp_probes[i].isResponse(rcvd)) {
-          struct timeval now, time_sent;
+          struct timeval time_sent = this->fp_probes[i].getTimeSent();
+          assert(time_sent.tv_sec > 0);
+          struct timeval now;
 
           gettimeofday(&now, NULL);
           this->fp_responses[i] = new FPResponse(this->fp_probes[i].getProbeID(),
-            pkt, pkt_len, fp_probes[i].getTimeSent(), *tv);
+            pkt, pkt_len, time_sent, *tv);
           this->fp_probes[i].incrementReplies();
           match_found = true;
 
@@ -2341,8 +2345,6 @@ int FPHost6::callback(const u8 *pkt, size_t pkt_len, const struct timeval *tv) {
           }
           this->probes_answered++;
           /* Recompute the Retransmission Timeout based on this new RTT observation. */
-          time_sent = this->fp_probes[i].getTimeSent();
-          assert(time_sent.tv_sec > 0);
           this->update_RTO(TIMEVAL_SUBTRACT(now, time_sent), this->fp_probes[i].getRetransmissions() != 0);
           break;
       }
@@ -2490,22 +2492,34 @@ size_t FPPacket::getLength() const {
  * values, like this: instance.setEthernet(NULL, NULL, NULL);
  * Otherwise, pass the source address, the next hop address and the name of
  * the network interface the packet should be injected through. */
-int FPPacket::setEthernet(const u8 *src_mac, const u8 *dst_mac, const char *devname) {
-  if (src_mac == NULL || dst_mac == NULL) {
-   memset(&(this->eth_hdr), 0, sizeof(struct eth_nfo));
-   this->link_eth = false;
-   return OP_FAILURE;
-  }
-  memcpy(this->eth_hdr.srcmac, src_mac, 6);
-  memcpy(this->eth_hdr.dstmac, dst_mac, 6);
-  this->link_eth = true;
+int FPPacket::setEthernet(const Target *target) {
+  const char *devname = target->deviceName();
+  this->link_eth = false;
   if (devname != NULL) {
-    strncpy(this->eth_hdr.devname, devname, sizeof(this->eth_hdr.devname)-1);
-    if ((this->eth_hdr.ethsd = eth_open_cached(devname)) == NULL)
-      fatal("%s: Failed to open ethernet device (%s)", __func__, devname);
-  } else {
-    this->eth_hdr.devname[0] = '\0';
-    this->eth_hdr.ethsd = NULL;
+    netutil_eth_t *ethsd = eth_open_cached(devname);
+    if (ethsd == NULL) {
+      error("%s: Failed to open ethernet device (%s)", __func__, devname);
+    }
+    else if (netutil_eth_can_send(ethsd)) {
+      this->link_eth = true;
+      Strncpy(this->eth_hdr.devname, devname, sizeof(this->eth_hdr.devname));
+      if (netutil_eth_datalink(ethsd) == DLT_EN10MB){
+        const u8 *src_mac = target->SrcMACAddress();
+        const u8 *dst_mac = target->NextHopMACAddress();
+        if (src_mac == NULL || dst_mac == NULL) {
+          this->link_eth = false;
+        }
+        else {
+          memcpy(this->eth_hdr.srcmac, src_mac, 6);
+          memcpy(this->eth_hdr.dstmac, dst_mac, 6);
+        }
+      }
+    }
+  }
+
+  if (!this->link_eth) {
+   memset(&(this->eth_hdr), 0, sizeof(struct eth_nfo));
+   return OP_FAILURE;
   }
   return OP_SUCCESS;
 }

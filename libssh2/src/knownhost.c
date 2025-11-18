@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 by Daniel Stenberg
+ * Copyright (C) Daniel Stenberg
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms,
@@ -34,6 +34,8 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY
  * OF SUCH DAMAGE.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
  */
 
 #include "libssh2_priv.h"
@@ -419,19 +421,23 @@ knownhost_check(LIBSSH2_KNOWNHOSTS *hosts,
                     */
                     unsigned char hash[SHA_DIGEST_LENGTH];
                     libssh2_hmac_ctx ctx;
-                    libssh2_hmac_ctx_init(ctx);
+                    if(!_libssh2_hmac_ctx_init(&ctx))
+                        break;
 
                     if(SHA_DIGEST_LENGTH != node->name_len) {
                         /* the name hash length must be the sha1 size or
                            we can't match it */
                         break;
                     }
-                    libssh2_hmac_sha1_init(&ctx, (unsigned char *)node->salt,
-                                           node->salt_len);
-                    libssh2_hmac_update(ctx, (unsigned char *)host,
-                                        strlen(host));
-                    libssh2_hmac_final(ctx, hash);
-                    libssh2_hmac_cleanup(&ctx);
+                    if(!_libssh2_hmac_sha1_init(&ctx,
+                                                node->salt, node->salt_len))
+                        break;
+                    if(!_libssh2_hmac_update(&ctx, host, strlen(host)) ||
+                       !_libssh2_hmac_final(&ctx, hash)) {
+                        _libssh2_hmac_cleanup(&ctx);
+                        break;
+                    }
+                    _libssh2_hmac_cleanup(&ctx);
 
                     if(!memcmp(hash, node->name, SHA_DIGEST_LENGTH))
                         /* this is a node we're interested in */
@@ -773,18 +779,20 @@ static int hostline(LIBSSH2_KNOWNHOSTS *hosts,
         }
         key_type_len = key - key_type_name;
 
-        if(!strncmp(key_type_name, "ssh-dss", key_type_len))
-            key_type = LIBSSH2_KNOWNHOST_KEY_SSHDSS;
-        else if(!strncmp(key_type_name, "ssh-rsa", key_type_len))
-            key_type = LIBSSH2_KNOWNHOST_KEY_SSHRSA;
+        if(!strncmp(key_type_name, "ssh-ed25519", key_type_len))
+            key_type = LIBSSH2_KNOWNHOST_KEY_ED25519;
         else if(!strncmp(key_type_name, "ecdsa-sha2-nistp256", key_type_len))
             key_type = LIBSSH2_KNOWNHOST_KEY_ECDSA_256;
         else if(!strncmp(key_type_name, "ecdsa-sha2-nistp384", key_type_len))
             key_type = LIBSSH2_KNOWNHOST_KEY_ECDSA_384;
         else if(!strncmp(key_type_name, "ecdsa-sha2-nistp521", key_type_len))
             key_type = LIBSSH2_KNOWNHOST_KEY_ECDSA_521;
-        else if(!strncmp(key_type_name, "ssh-ed25519", key_type_len))
-            key_type = LIBSSH2_KNOWNHOST_KEY_ED25519;
+        else if(!strncmp(key_type_name, "ssh-rsa", key_type_len))
+            key_type = LIBSSH2_KNOWNHOST_KEY_SSHRSA;
+#if LIBSSH2_DSA
+        else if(!strncmp(key_type_name, "ssh-dss", key_type_len))
+            key_type = LIBSSH2_KNOWNHOST_KEY_SSHDSS;
+#endif
         else
             key_type = LIBSSH2_KNOWNHOST_KEY_UNKNOWN;
 
@@ -1020,10 +1028,12 @@ knownhost_writeline(LIBSSH2_KNOWNHOSTS *hosts,
         key_type_name = "ssh-rsa";
         key_type_len = 7;
         break;
+#if LIBSSH2_DSA
     case LIBSSH2_KNOWNHOST_KEY_SSHDSS:
         key_type_name = "ssh-dss";
         key_type_len = 7;
         break;
+#endif
     case LIBSSH2_KNOWNHOST_KEY_ECDSA_256:
         key_type_name = "ecdsa-sha2-nistp256";
         key_type_len = 19;
@@ -1047,7 +1057,7 @@ knownhost_writeline(LIBSSH2_KNOWNHOSTS *hosts,
             break;
         }
         /* otherwise fallback to default and error */
-        /* FALL-THROUGH */
+        LIBSSH2_FALLTHROUGH();
     default:
         return _libssh2_error(hosts->session,
                               LIBSSH2_ERROR_METHOD_NOT_SUPPORTED,

@@ -74,7 +74,7 @@
 #else /* defined(_MSC_VER) */
   /*
    * Not Visual Studio.
-   * Include <inttypes.h> to get the integer types and PRi[doux]64 values
+   * Include <inttypes.h> to get the integer types and PRI[doux]64 values
    * defined.
    *
    * If the compiler is MinGW, we assume we have <inttypes.h> - and

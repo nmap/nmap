@@ -147,8 +147,7 @@ local function dhcp_listener(sock, iface, macaddr, options, timeout, xid, result
   -- Add the Ethernet header
   frame:build_ether_frame(
     "\xff\xff\xff\xff\xff\xff",
-    iface.mac, -- can't use macaddr or we won't see response
-    packet.ETHER_TYPE_IPV4)
+    iface.mac) -- can't use macaddr or we won't see response
 
   local dnet = nmap.new_dnet()
   dnet:ethernet_open(iface.device)

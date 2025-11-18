@@ -4,7 +4,7 @@
  *                                                                         *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
  *
- * The Nmap Security Scanner is (C) 1996-2024 Nmap Software LLC ("The Nmap
+ * The Nmap Security Scanner is (C) 1996-2025 Nmap Software LLC ("The Nmap
  * Project"). Nmap is also a registered trademark of the Nmap Project.
  *
  * This program is distributed under the terms of the Nmap Public Source
@@ -75,51 +75,71 @@ program is actively reading from stdin (which would normally mean blocking).
 
 The strategy is to create a background thread that constantly reads from stdin.
 The thread blocks while reading, which lets characters be echoed. The thread
-writes each block of data into an anonymous pipe. We juggle file descriptors and
+writes each block of data to a TCP socket. We juggle file descriptors and
 Windows file handles to make the rest of the program think that the other end of
-the pipe is stdin. Only the thread keeps a reference to the real stdin. Windows
-has a PeekNamedPipe function that we use to check for input in the pipe without
-blocking.
+the TCP connection is stdin. Only the thread keeps a reference to the real stdin.
+Since "stdin" is now a socket, it can be used with select and poll.
 
-Call win_stdin_start_thread to start the thread and win_stdin_ready for the
-non-blocking input check. Any other operations on stdin (read, scanf, etc.)
-should be transparent, except I noticed that eof(0) returns 1 when there is
-nothing in the pipe, but will return 0 again if more is written to the pipe. Any
+Call win_stdin_start_thread to start the thread and get the stdin socket.
+Any other operations on stdin (read, scanf, etc.) should be transparent. Any
 data buffered but not delivered to the program before starting the background
 thread may be lost when the thread is started.
 */
 
 /* The background thread that reads and buffers the true stdin. */
 static HANDLE stdin_thread = NULL;
+static SOCKET socket_r = INVALID_SOCKET;
 
+struct win_thread_data {
 /* This is a copy of the true stdin file handle before any redirection. It is
    read by the thread. */
-static HANDLE thread_stdin_handle = NULL;
-/* The thread writes to this pipe and standard input is reassigned to be the
-   read end of it. */
-static HANDLE stdin_pipe_r = NULL, stdin_pipe_w = NULL;
+  HANDLE stdin_handle;
+/* This is the listen socket for the thread. It is closed after the first
+   connection. */
+  int socket_l;
+};
 
-/* This is the thread that reads from the true stdin (thread_stdin_handle) and
-   writes to stdin_pipe_w, which is reassigned to be the stdin that the rest of
+/* This is the thread that reads from the true stdin (tdata->stdin_handle) and
+   writes to socket_w, which is connected to the replacement stdin that the rest of
    the program sees. Once started, it never finishes except in case of error.
-   win_stdin_start_thread is responsible for setting up thread_stdin_handle. */
+   win_stdin_start_thread is responsible for setting up tdata->stdin_handle. */
 static DWORD WINAPI win_stdin_thread_func(void *data) {
+    struct win_thread_data *tdata = (struct win_thread_data *)data;
     DWORD n, nwritten;
     char buffer[BUFSIZ];
+    SOCKET socket_w = accept(tdata->socket_l, NULL, NULL);
+    if (socket_w == INVALID_SOCKET) {
+        //fprintf(stderr, "accept error: %d\n", socket_errno());
+        goto ThreadCleanup;
+    }
+
+    closesocket(tdata->socket_l);
+    tdata->socket_l = INVALID_SOCKET;
+    if (SOCKET_ERROR == shutdown(socket_w, SD_RECEIVE))
+        goto ThreadCleanup;
 
     for (;;) {
-        if (ReadFile(thread_stdin_handle, buffer, sizeof(buffer), &n, NULL) == 0)
+        if (ReadFile(tdata->stdin_handle, buffer, sizeof(buffer), &n, NULL) == 0)
             break;
         if (n == -1 || n == 0)
             break;
 
-        if (WriteFile(stdin_pipe_w, buffer, n, &nwritten, NULL) == 0)
+        // In the future, we can use WSASend to take advantage of the OVERLAPPED socket for IOCP
+        nwritten = send(socket_w, buffer, n, 0);
+        if (nwritten == SOCKET_ERROR)
             break;
         if (nwritten != n)
             break;
     }
-    CloseHandle(thread_stdin_handle);
-    CloseHandle(stdin_pipe_w);
+ThreadCleanup:
+    CloseHandle(tdata->stdin_handle);
+    tdata->stdin_handle = NULL;
+    if (tdata->socket_l != INVALID_SOCKET) {
+        closesocket(tdata->socket_l);
+        tdata->socket_l = INVALID_SOCKET;
+    }
+    if (socket_w != INVALID_SOCKET)
+        closesocket(socket_w);
 
     return 0;
 }
@@ -140,76 +160,134 @@ static int _getmode(int fd)
 }
 
 /* Start the reader thread and do all the file handle/descriptor redirection.
-   Returns nonzero on success, zero on error. */
+   Returns the STDIN socket on success, INVALID_SOCKET on error. */
 int win_stdin_start_thread(void) {
     int stdin_fd;
     int stdin_fmode;
+    int rc = 0, socksize = 0;
+    struct win_thread_data *tdata = NULL;
+    SOCKADDR_IN selfaddr;
 
+    if (socket_r != INVALID_SOCKET) {
+        assert(stdin_thread != NULL);
+        return socket_r;
+    }
     assert(stdin_thread == NULL);
-    assert(stdin_pipe_r == NULL);
-    assert(stdin_pipe_w == NULL);
-    assert(thread_stdin_handle == NULL);
 
-    /* Create the pipe that win_stdin_thread_func writes to. We reassign the
-       read end to be the new stdin that the rest of the program sees. */
-    if (CreatePipe(&stdin_pipe_r, &stdin_pipe_w, NULL, 0) == 0)
-        return 0;
+    do {
+        // Prepare handles for thread
+        tdata = (struct win_thread_data *)safe_zalloc(sizeof(struct win_thread_data));
 
-    /* Make a copy of the stdin handle to be used by win_stdin_thread_func.  It
-       will remain a reference to the true stdin after we fake stdin to read
-       from the pipe instead. */
-    if (DuplicateHandle(GetCurrentProcess(), GetStdHandle(STD_INPUT_HANDLE),
-                        GetCurrentProcess(), &thread_stdin_handle,
-                        0, FALSE, DUPLICATE_SAME_ACCESS) == 0) {
-        CloseHandle(stdin_pipe_r);
-        CloseHandle(stdin_pipe_w);
-        return 0;
+        /* Create the listening socket for the thread. When it starts, it will
+         * accept our connection and begin writing STDIN data to the connection. */
+        tdata->socket_l = (int) inheritable_socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+        if (tdata->socket_l == -1) {
+            //fprintf(stderr, "socket error: %d", socket_errno());
+            break;
+        }
+        socksize = sizeof(selfaddr);
+        memset(&selfaddr, 0, socksize);
+        selfaddr.sin_family = AF_INET;
+        selfaddr.sin_addr.S_un.S_addr = htonl(INADDR_LOOPBACK);
+        // Bind to any available loopback port
+        if (SOCKET_ERROR == bind(tdata->socket_l, (SOCKADDR*)&selfaddr, socksize)) {
+            //fprintf(stderr, "bind error: %d", socket_errno());
+            break;
+        }
+        // Get the address that was assigned by bind()
+        if (SOCKET_ERROR == getsockname(tdata->socket_l, (SOCKADDR*)&selfaddr, &socksize)) {
+            //fprintf(stderr, "getsockname error: %d", socket_errno());
+            break;
+        }
+        if (SOCKET_ERROR == listen(tdata->socket_l, 1)) {
+            //fprintf(stderr, "listen error: %d\n", socket_errno());
+            break;
+        }
+
+        /* Make a copy of the stdin handle to be used by win_stdin_thread_func.  It
+           will remain a reference to the true stdin after we fake stdin to read
+           from the socket instead. */
+        if (DuplicateHandle(GetCurrentProcess(), GetStdHandle(STD_INPUT_HANDLE),
+                    GetCurrentProcess(), &tdata->stdin_handle,
+                    0, FALSE, DUPLICATE_SAME_ACCESS) == 0) {
+            //fprintf(stderr, "DuplicateHandle error: %08x", GetLastError());
+            break;
+        }
+
+        /* Start up the thread. We don't bother keeping a reference to it
+           because it runs until program termination. From here on out all reads
+           from the stdin handle or file descriptor 0 will be reading from the
+           socket that is fed by the thread. */
+        stdin_thread = CreateThread(NULL, 0, win_stdin_thread_func, tdata, 0, NULL);
+        if (stdin_thread == NULL) {
+            //fprintf(stderr, "CreateThread error: %08x", GetLastError());
+            break;
+        }
+
+        // Connect to the thread and rearrange our own STDIN handles
+        // Sockets are created with WSA_FLAG_OVERLAPPED, which is needed for socket functions,
+        // but it means we can't use read().
+        socket_r = (int)inheritable_socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+        if (socket_r == INVALID_SOCKET) {
+            //fprintf(stderr, "socket error: %d", socket_errno());
+            break;
+        }
+        if (SOCKET_ERROR == connect(socket_r, (SOCKADDR*)&selfaddr, socksize)) {
+            //fprintf(stderr, "connect error: %d", socket_errno());
+            break;
+        }
+        if (SOCKET_ERROR == shutdown(socket_r, SD_SEND)) {
+            //fprintf(stderr, "shutdown error: %d", socket_errno());
+            break;
+        }
+
+        /* Set the stdin handle to read from the socket. */
+        if (SetStdHandle(STD_INPUT_HANDLE, (HANDLE) socket_r) == 0) {
+            //fprintf(stderr, "SetStdHandle error: %08x", GetLastError());
+            break;
+        }
+        /* Need to redirect file descriptor 0 also. _open_osfhandle makes a new file
+           descriptor from an existing handle. */
+        /* Remember the newline translation mode (_O_TEXT or _O_BINARY), and
+           restore it in the new file descriptor. */
+        stdin_fmode = _getmode(STDIN_FILENO);
+        stdin_fd = _open_osfhandle((intptr_t) GetStdHandle(STD_INPUT_HANDLE), _O_RDONLY | stdin_fmode);
+        if (stdin_fd == -1) {
+            break;
+        }
+        if (dup2(stdin_fd, STDIN_FILENO) != 0) {
+            break;
+        }
+
+        rc = 1;
+    } while (0);
+
+    if (rc != 1) {
+        if (socket_r != INVALID_SOCKET) {
+            if (GetStdHandle(STD_INPUT_HANDLE) == (HANDLE) socket_r &&
+                    tdata->stdin_handle) {
+                // restore STDIN
+                SetStdHandle(STD_INPUT_HANDLE, tdata->stdin_handle);
+                tdata->stdin_handle = NULL; // make sure we don't close it later!
+            }
+            closesocket(socket_r);
+            socket_r = INVALID_SOCKET;
+        }
+        if (stdin_thread) {
+            TerminateThread(stdin_thread, 1);
+            stdin_thread = NULL;
+        }
+        if (tdata) {
+            if (tdata->stdin_handle)
+                CloseHandle(tdata->stdin_handle);
+            if (tdata->socket_l != INVALID_SOCKET)
+                closesocket(tdata->socket_l);
+            free(tdata);
+        }
+
+        return INVALID_SOCKET;
     }
+    assert(socket_r != INVALID_SOCKET);
 
-    /* Set the stdin handle to read from the pipe. */
-    if (SetStdHandle(STD_INPUT_HANDLE, stdin_pipe_r) == 0) {
-        CloseHandle(stdin_pipe_r);
-        CloseHandle(stdin_pipe_w);
-        CloseHandle(thread_stdin_handle);
-        return 0;
-    }
-    /* Need to redirect file descriptor 0 also. _open_osfhandle makes a new file
-       descriptor from an existing handle. */
-    /* Remember the newline translation mode (_O_TEXT or _O_BINARY), and
-       restore it in the new file descriptor. */
-    stdin_fmode = _getmode(STDIN_FILENO);
-    stdin_fd = _open_osfhandle((intptr_t) GetStdHandle(STD_INPUT_HANDLE), _O_RDONLY | stdin_fmode);
-    if (stdin_fd == -1) {
-        CloseHandle(stdin_pipe_r);
-        CloseHandle(stdin_pipe_w);
-        CloseHandle(thread_stdin_handle);
-        return 0;
-    }
-    dup2(stdin_fd, STDIN_FILENO);
-
-    /* Finally, start up the thread. We don't bother keeping a reference to it
-       because it runs until program termination. From here on out all reads
-       from the stdin handle or file descriptor 0 will be reading from the
-       anonymous pipe that is fed by the thread. */
-    stdin_thread = CreateThread(NULL, 0, win_stdin_thread_func, NULL, 0, NULL);
-    if (stdin_thread == NULL) {
-        CloseHandle(stdin_pipe_r);
-        CloseHandle(stdin_pipe_w);
-        CloseHandle(thread_stdin_handle);
-        return 0;
-    }
-
-    return 1;
-}
-
-/* Check if input is available on stdin, once all the above has taken place. */
-int win_stdin_ready(void) {
-    DWORD n;
-
-    assert(stdin_pipe_r != NULL);
-
-    if (!PeekNamedPipe(stdin_pipe_r, NULL, 0, NULL, &n, NULL))
-        return 1;
-
-    return n > 0;
+    return socket_r;
 }

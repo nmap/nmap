@@ -3,14 +3,10 @@
  *
  * Copyright (c) 2002 Dug Song <dugsong@monkey.org>
  *
- * $Id: route-win32.c 589 2005-02-15 07:11:32Z dugsong $
+ * $Id$
  */
 
-#ifdef _WIN32
 #include "dnet_winconfig.h"
-#else
-#include "config.h"
-#endif
 
 #include <ws2tcpip.h>
 #include <iphlpapi.h>
@@ -138,11 +134,11 @@ route_get(route_t *route, struct route_entry *entry)
 static int
 route_loop_getipforwardtable(route_t *r, route_handler callback, void *arg)
 {
- 	struct route_entry entry;
+	struct route_entry entry;
 	intf_t *intf;
 	ULONG len;
 	int i, ret;
- 	
+	
 	for (len = sizeof(r->ipftable[0]); ; ) {
 		if (r->ipftable)
 			free(r->ipftable);
@@ -182,7 +178,7 @@ route_loop_getipforwardtable(route_t *r, route_handler callback, void *arg)
 		    AF_INET, r->ipftable->table[i].dwForwardIfIndex) == 0) {
 			strlcpy(entry.intf_name, intf_entry.intf_name, sizeof(entry.intf_name));
 		}
-		
+
 		if ((ret = (*callback)(&entry, arg)) != 0)
 			break;
 	}
@@ -239,7 +235,7 @@ route_loop_getipforwardtable2(GETIPFORWARDTABLE2 GetIpForwardTable2,
 			entry.metric = metric;
 		else
 			entry.metric = INT_MAX;
-		
+
 		if ((ret = (*callback)(&entry, arg)) != 0)
 			break;
 	}

@@ -2,7 +2,7 @@
 
 # ***********************IMPORTANT NMAP LICENSE TERMS************************
 # *
-# * The Nmap Security Scanner is (C) 1996-2024 Nmap Software LLC ("The Nmap
+# * The Nmap Security Scanner is (C) 1996-2025 Nmap Software LLC ("The Nmap
 # * Project"). Nmap is also a registered trademark of the Nmap Project.
 # *
 # * This program is distributed under the terms of the Nmap Public Source
@@ -684,9 +684,11 @@ class ScanInterface(HIGVBox):
             self.host_view_selection.select_iter(
                 self.scan_result.scan_host_view.host_list.get_iter_first())
 
-        self.filter_bar.set_information_text(_("%d/%d hosts shown") %
-            (len(self.inventory.get_hosts_up()),
-             len(NetworkInventory.get_hosts_up(self.inventory))))
+        self.filter_bar.set_information_text(
+                _("%(num_shown)d/%(total)d hosts shown") % {
+                    'num_shown': len(self.inventory.get_hosts_up()),
+                    'total': len(NetworkInventory.get_hosts_up(self.inventory))
+                    })
 
         mode = self.scan_result.scan_host_view.mode
         if mode == ScanHostsView.HOST_MODE:

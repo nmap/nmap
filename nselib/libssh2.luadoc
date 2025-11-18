@@ -38,15 +38,34 @@ function set_timeout(session, timeout)
 -- @return List of supported authentication methods/
 function userauth_list(session)
 
---- Attempts to authenicate libssh2 session using provided credentials
--- @param username Username to authenicate as.
--- @param password Password to authenicate with.
+--- Attempts to authenticate libssh2 session using provided credentials
+-- @param username Username to authenticate as.
+-- @param password Password to authenticate with.
 -- @return true/false, depending on success
 function userauth_password(session, username, password)
 
+--- Attempts to authenticate libssh2 session using keyboard-interactive auth
+-- @param username Username to authenticate as.
+-- @param callback See <code>userauth_keyboard_interactive_cb</code>
+-- @return true/false, depending on success
+-- @return if first return was false, any errors thrown by the callback
+function userauth_keyboard_interactive(session, username, callback)
+
+--- Callback function for keyboard interaction.
+--
+-- This function is not implemented; it is up to you to write the appropriate
+-- function. The function must not yield, and so must not use any socket
+-- functions.
+-- @param username string Username this authentication is for
+-- @param name string from the server
+-- @param instruction string from the server
+-- @param prompts A table of strings, each of which is a prompt from the server.
+-- @return a series of response strings, each corresponding to a prompt
+function userauth_keyboard_interactive_cb(username, name, instruction, prompts)
+
 --- Attempts to authenticate libssh2 session using provided publickey
 -- @param session Connected libssh2 session
--- @param username Username to authenicate as
+-- @param username Username to authenticate as
 -- @param privatekeyfile File containing privatekey
 -- @param passphrase Passphrase for privatekey
 -- @param publickeyfile File containing publickey. Not necessary if libssh2 is
@@ -62,18 +81,19 @@ function read_publickey(publickeyfile)
 --- Checks to see if ssh server accepts public key for authentication as given user.
 --  This doesn't require the private key as it doesn't finish authenticating.
 -- @param session Connected libssh2 session
--- @param username Username to authenicate as
+-- @param username Username to authenticate as
 -- @param publickeydata String containing raw publickey blob
 -- @return true/false, depending on whether user can authenticate with given key
 function publickey_canauth(session, username, publickeydata)
 
---- Opens channel on authenticated ssh2 session and sets it to pseudo
+--- Opens channel on authenticated ssh2 session and optionally sets it to pseudo
 -- terminal mode.
 -- @param session Authenticated libssh2 session
+-- @param no_pty If true, skip requesting a PTY.
 -- @return libssh2 channel
-function open_channel(session)
+function open_channel(session, no_pty)
 
---- Reads data from stdin on libssh2 channel.
+--- Reads data from stdout on libssh2 channel.
 -- @param session Authenticated libssh2 session
 -- @param channel Open libssh2 channel
 -- @return string containing data read from channel
@@ -85,19 +105,48 @@ function channel_read(session, channel)
 -- @return string containing data read from channel
 function channel_read_stderr(session, channel)
 
---- Writes data to libssh2 channel. Not garenteed to write entire buffer.
+--- Writes data to libssh2 channel. Not guaranteed to write entire buffer.
 -- @param session Authenticated libssh2 session
 -- @param channel Open libssh2 channel
 -- @param buffer String containing data to be written
 -- @return Number of bytes written to channel
 function channel_write(session, channel, buffer)
 
---- Executes command on libssh2 channel and returns output
+--- Sends a request on libssh2 channel.
+--
+-- Examples:
+-- * request a shell: <code>channel_request(s, c, "shell")</code> (equivalent to <code>channel_shell(s, c)</code).
+-- * execute a command: <code>channel_request(s, c, "exec", cmd)</code> (equivalent to <code>channel_exec(s, c, cmd)</code>).
+-- * open a subsystem: <code>channel_request(s, c, "subsystem", "sftp")</code>
+-- @param session Authenticated libssh2 session
+-- @param channel Open libssh2 channel
+-- @param request String identifier for the request, e.g. "shell", "exec", "subsystem"
+-- @param message Optional string payload for the request.
+function channel_request(session, channel, request, message)
+
+--- Request a PTY on a channel
+--
+-- @param session Authenticated libssh2 session
+-- @param channel Open libssh2 channel
+-- @param term string Terminal emulation
+-- @param modes optional string Terminal mode modifiers
+-- @param width integer Width of pty in characters
+-- @param height integer Height of pty in characters
+-- @param width_ex integer Width of pty in pixels
+-- @param height_px integer Height of pty in pixels
+function channel_request_pty_ex(session, channel, term, modes,
+    width, height, width_px, height_px)
+
+--- Executes command on libssh2 channel
 -- @param session Authenticated libssh2 session
 -- @param channel Open libssh2 channel
 -- @param cmd String containing command to execute
--- @return String containing output from command
 function channel_exec(session, channel, cmd)
+
+--- Requests a shell on libssh2 channel
+-- @param session Authenticated libssh2 session
+-- @param channel Open libssh2 channel
+function channel_shell(session, channel)
 
 --- Sends EOF on libssh2 channel. Note that the server may continue to send data
 -- until it sends its own EOF (which can be checked with channel_eof()

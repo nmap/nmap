@@ -28,17 +28,11 @@ pcap_loop, pcap_dispatch \- process packets from a live capture or savefile
 .LP
 .ft B
 typedef void (*pcap_handler)(u_char *user, const struct pcap_pkthdr *h,
-.ti +8
-			     const u_char *bytes);
-.ft
-.LP
-.ft B
+    const u_char *bytes);
 int pcap_loop(pcap_t *p, int cnt,
-.ti +8
-pcap_handler callback, u_char *user);
+    pcap_handler callback, u_char *user);
 int pcap_dispatch(pcap_t *p, int cnt,
-.ti +8
-pcap_handler callback, u_char *user);
+    pcap_handler callback, u_char *user);
 .ft
 .fi
 .SH DESCRIPTION
@@ -94,10 +88,10 @@ but must not rely on it happening.
 .PP
 .I callback
 specifies a
-.I pcap_handler
+.B pcap_handler
 routine to be called with three arguments:
 a
-.I u_char
+.B u_char
 pointer which is passed in the
 .I user
 argument to
@@ -105,16 +99,16 @@ argument to
 or
 .BR pcap_dispatch (),
 a
-.I const struct pcap_pkthdr
+.B const struct pcap_pkthdr
 pointer pointing to the packet time stamp and lengths, and a
-.I const u_char
+.B const u_char
 pointer to the first
 .B caplen
 (as given in the
-.I struct pcap_pkthdr
+.BR "struct pcap_pkthdr" ,
 a pointer to which is passed to the callback routine)
 bytes of data from the packet.  The
-.I struct pcap_pkthdr
+.B struct pcap_pkthdr
 and the packet data are not to be freed by the callback routine, and are
 not guaranteed to be valid after the callback routine returns; if the
 code needs them to be valid after the callback, it must make a copy of

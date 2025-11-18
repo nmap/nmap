@@ -32,7 +32,7 @@ local arg_timeout = stdnse.parse_timespec(stdnse.get_script_args(SCRIPT_NAME .. 
 action = function()
 
   local host, port = { ip = "255.255.255.255" }, { number = 177, protocol = "udp" }
-  local options = { timeout = 1 }
+  local options = { timeout = 500 } -- milliseconds
   local helper = xdmcp.Helper:new(host, port, options)
   local status = helper:connect()
 
@@ -42,7 +42,7 @@ action = function()
     return false, err
   end
 
-  local timeout = arg_timeout or 5
+  local timeout = arg_timeout or 5 -- seconds
   local start = os.time()
   local result = {}
   repeat

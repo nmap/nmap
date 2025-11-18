@@ -5,7 +5,7 @@
  *                                                                         *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
  *
- * The Nmap Security Scanner is (C) 1996-2024 Nmap Software LLC ("The Nmap
+ * The Nmap Security Scanner is (C) 1996-2025 Nmap Software LLC ("The Nmap
  * Project"). Nmap is also a registered trademark of the Nmap Project.
  *
  * This program is distributed under the terms of the Nmap Public Source
@@ -940,7 +940,7 @@ UltraProbe *sendArpScanProbe(UltraScanInfo *USI, HostScanStats *hss,
   gettimeofday(&USI->now, NULL);
   probe->sent = USI->now;
   hss->probeSent(sizeof(frame));
-  if ((rc = eth_send(USI->ethsd, frame, sizeof(frame))) != sizeof(frame)) {
+  if ((rc = netutil_eth_send(USI->ethsd, frame, sizeof(frame))) != sizeof(frame)) {
     int err = socket_errno();
     error("WARNING: eth_send of ARP packet returned %i rather than expected %d (errno=%i: %s)", rc, (int) sizeof(frame), err, strerror(err));
   }
@@ -969,13 +969,15 @@ UltraProbe *sendNDScanProbe(UltraScanInfo *USI, HostScanStats *hss,
   ns_dst_ip6 = *hss->target->v6hostip();
 
   if (USI->ethsd) {
-    unsigned char ns_dst_mac[6] = {0x33, 0x33, 0xff};
-    ns_dst_mac[3] = ns_dst_ip6.s6_addr[13];
-    ns_dst_mac[4] = ns_dst_ip6.s6_addr[14];
-    ns_dst_mac[5] = ns_dst_ip6.s6_addr[15];
+    if (netutil_eth_datalink(USI->ethsd) == DLT_EN10MB) {
+      unsigned char ns_dst_mac[6] = {0x33, 0x33, 0xff};
+      ns_dst_mac[3] = ns_dst_ip6.s6_addr[13];
+      ns_dst_mac[4] = ns_dst_ip6.s6_addr[14];
+      ns_dst_mac[5] = ns_dst_ip6.s6_addr[15];
 
-    memcpy(eth.srcmac, hss->target->SrcMACAddress(), 6);
-    memcpy(eth.dstmac, ns_dst_mac, 6);
+      memcpy(eth.srcmac, hss->target->SrcMACAddress(), 6);
+      memcpy(eth.dstmac, ns_dst_mac, 6);
+    }
     eth.ethsd = USI->ethsd;
     eth.devname[0] = '\0';
     ethptr = &eth;
@@ -1159,8 +1161,10 @@ UltraProbe *sendIPScanProbe(UltraScanInfo *USI, HostScanStats *hss,
   u16 icmp_ident = (get_random_u16() % 0xffff) + 1;
 
   if (USI->ethsd) {
-    memcpy(eth.srcmac, hss->target->SrcMACAddress(), 6);
-    memcpy(eth.dstmac, hss->target->NextHopMACAddress(), 6);
+    if (netutil_eth_datalink(USI->ethsd) == DLT_EN10MB) {
+      memcpy(eth.srcmac, hss->target->SrcMACAddress(), 6);
+      memcpy(eth.dstmac, hss->target->NextHopMACAddress(), 6);
+    }
     eth.ethsd = USI->ethsd;
     eth.devname[0] = '\0';
     ethptr = &eth;

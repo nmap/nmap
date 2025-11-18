@@ -7,7 +7,7 @@
  *                                                                         *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
  *
- * The Nmap Security Scanner is (C) 1996-2024 Nmap Software LLC ("The Nmap
+ * The Nmap Security Scanner is (C) 1996-2025 Nmap Software LLC ("The Nmap
  * Project"). Nmap is also a registered trademark of the Nmap Project.
  *
  * This program is distributed under the terms of the Nmap Public Source
@@ -374,7 +374,7 @@ bool NetBlockRandomIPv4::next(struct sockaddr_storage *ss, size_t *sslen) {
   }
   do {
     base.sin_addr.s_addr = get_random_unique_u32();
-  } while (ip_is_reserved(&base.sin_addr));
+  } while (ip_is_reserved((const struct sockaddr_storage *)&base));
   memcpy(ss, &base, sizeof(base));
   *sslen = sizeof(base);
   return true;

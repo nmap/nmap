@@ -2,7 +2,7 @@
 
 # ***********************IMPORTANT NMAP LICENSE TERMS************************
 # *
-# * The Nmap Security Scanner is (C) 1996-2024 Nmap Software LLC ("The Nmap
+# * The Nmap Security Scanner is (C) 1996-2025 Nmap Software LLC ("The Nmap
 # * Project"). Nmap is also a registered trademark of the Nmap Project.
 # *
 # * This program is distributed under the terms of the Nmap Public Source
@@ -78,8 +78,13 @@ class UmitConfigParser(ConfigParser):
     def read(self, filename):
         log.debug(">>> Trying to parse: %s" % filename)
 
-        if ConfigParser.read(self, filename):
-            self.filenames = filename
+        for enc in ('utf-8', None):
+            try:
+                if ConfigParser.read(self, filename, encoding=enc):
+                    self.filenames = filename
+            except UnicodeDecodeError:
+                continue
+            break
 
         return self.filenames
 

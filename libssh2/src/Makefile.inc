@@ -1,8 +1,12 @@
+# Copyright (C) The libssh2 project and its contributors.
+# SPDX-License-Identifier: BSD-3-Clause
 CSOURCES =              \
   agent.c               \
   bcrypt_pbkdf.c        \
   channel.c             \
   comp.c                \
+  chacha.c              \
+  cipher-chachapoly.c   \
   crypt.c               \
   crypto.c              \
   global.c              \
@@ -14,6 +18,7 @@ CSOURCES =              \
   misc.c                \
   packet.c              \
   pem.c                 \
+  poly1305.c            \
   publickey.c           \
   scp.c                 \
   session.c             \
@@ -24,9 +29,12 @@ CSOURCES =              \
   version.c
 
 HHEADERS =              \
+  chacha.h              \
   channel.h             \
+  cipher-chachapoly.h   \
   comp.h                \
   crypto.h              \
+  crypto_config.h       \
   libgcrypt.h           \
   libssh2_priv.h        \
   libssh2_setup.h       \
@@ -36,6 +44,7 @@ HHEADERS =              \
   openssl.h             \
   os400qc3.h            \
   packet.h              \
+  poly1305.h            \
   session.h             \
   sftp.h                \
   transport.h           \

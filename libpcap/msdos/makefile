@@ -84,7 +84,7 @@ hc386.arg:  msdos\Makefile
               -Hnocopyr
               -Hpragma=Offwarn(491,553,572)
               -Hon=Recognize_library  # make memcpy/strlen etc. inline
-              -Hoff=Behaved           # turn off some optimiser warnings
+              -Hoff=Behaved           # turn off some optimizer warnings
 | $<
 
 clean:

@@ -3,7 +3,7 @@
  *                                                                         *
  ***********************IMPORTANT NSOCK LICENSE TERMS***********************
  *
- * The nsock parallel socket event library is (C) 1999-2024 Nmap Software LLC
+ * The nsock parallel socket event library is (C) 1999-2025 Nmap Software LLC
  * This library is free software; you may redistribute and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
  * Foundation; Version 2. This guarantees your right to use, modify, and
@@ -97,31 +97,16 @@ struct io_engine engine_kqueue = {
 /* --- INTERNAL PROTOTYPES --- */
 static void iterate_through_event_lists(struct npool *nsp, int evcount);
 
-/* defined in nsock_core.c */
-void process_iod_events(struct npool *nsp, struct niod *nsi, int ev);
-void process_event(struct npool *nsp, gh_list_t *evlist, struct nevent *nse, int ev);
-void process_expired_events(struct npool *nsp);
-#if HAVE_PCAP
-#ifndef PCAP_CAN_DO_SELECT
-int pcap_read_on_nonselect(struct npool *nsp);
-#endif
-#endif
-
-/* defined in nsock_event.c */
-void update_first_events(struct nevent *nse);
-
-
-extern struct timeval nsock_tod;
-
 
 /*
  * Engine specific data structure
  */
 struct kqueue_engine_info {
   int kqfd;
-  int maxfd;
   size_t evlen;
   struct kevent *events;
+  /* Number of IODs incompatible with kqueue */
+  int num_pcap_nonselect;
 };
 
 
@@ -131,9 +116,9 @@ int kqueue_init(struct npool *nsp) {
   kinfo = (struct kqueue_engine_info *)safe_malloc(sizeof(struct kqueue_engine_info));
 
   kinfo->kqfd = kqueue();
-  kinfo->maxfd = -1;
   kinfo->evlen = INITIAL_EV_COUNT;
   kinfo->events = (struct kevent *)safe_malloc(INITIAL_EV_COUNT * sizeof(struct kevent));
+  kinfo->num_pcap_nonselect = 0;
 
   nsp->engine_data = (void *)kinfo;
 
@@ -150,6 +135,7 @@ void kqueue_destroy(struct npool *nsp) {
 }
 
 int kqueue_iod_register(struct npool *nsp, struct niod *iod, struct nevent *nse, int ev) {
+  int sd;
   struct kqueue_engine_info *kinfo = (struct kqueue_engine_info *)nsp->engine_data;
 
   assert(!IOD_PROPGET(iod, IOD_REGISTERED));
@@ -157,25 +143,37 @@ int kqueue_iod_register(struct npool *nsp, struct niod *iod, struct nevent *nse,
   IOD_PROPSET(iod, IOD_REGISTERED);
   iod->watched_events = EV_NONE;
 
-  kqueue_iod_modify(nsp, iod, nse, ev, EV_NONE);
-
-  if (nsock_iod_get_sd(iod) > kinfo->maxfd)
-    kinfo->maxfd = nsock_iod_get_sd(iod);
+  sd = nsock_iod_get_sd(iod);
+  if (sd == -1) {
+    if (iod->pcap)
+      kinfo->num_pcap_nonselect++;
+    else
+      fatal("Unable to get descriptor for IOD #%lu", iod->id);
+  }
+  else {
+    kqueue_iod_modify(nsp, iod, nse, ev, EV_NONE);
+  }
 
   return 1;
 }
 
 int kqueue_iod_unregister(struct npool *nsp, struct niod *iod) {
-  struct kqueue_engine_info *kinfo = (struct kqueue_engine_info *)nsp->engine_data;
-
   /* some IODs can be unregistered here if they're associated to an event that was
    * immediately completed */
   if (IOD_PROPGET(iod, IOD_REGISTERED)) {
-    kqueue_iod_modify(nsp, iod, NULL, EV_NONE, EV_READ|EV_WRITE);
-    IOD_PROPCLR(iod, IOD_REGISTERED);
+    struct kqueue_engine_info *kinfo = (struct kqueue_engine_info *)nsp->engine_data;
+    int sd;
 
-    if (nsock_iod_get_sd(iod) == kinfo->maxfd)
-      kinfo->maxfd--;
+    sd = nsock_iod_get_sd(iod);
+    if (sd == -1) {
+      assert(iod->pcap);
+      kinfo->num_pcap_nonselect--;
+    }
+    else {
+      kqueue_iod_modify(nsp, iod, NULL, EV_NONE, EV_READ|EV_WRITE);
+    }
+
+    IOD_PROPCLR(iod, IOD_REGISTERED);
   }
   iod->watched_events = EV_NONE;
   return 1;
@@ -185,7 +183,7 @@ int kqueue_iod_unregister(struct npool *nsp, struct niod *iod) {
 
 int kqueue_iod_modify(struct npool *nsp, struct niod *iod, struct nevent *nse, int ev_set, int ev_clr) {
   struct kevent kev[2];
-  int new_events, i;
+  int new_events, i, sd;
   struct kqueue_engine_info *kinfo = (struct kqueue_engine_info *)nsp->engine_data;
 
   assert((ev_set & ev_clr) == 0);
@@ -198,18 +196,22 @@ int kqueue_iod_modify(struct npool *nsp, struct niod *iod, struct nevent *nse, i
   if (new_events == iod->watched_events)
     return 1; /* nothing to do */
 
-  i = 0;
-  if ((ev_set ^ ev_clr) & EV_READ) {
-    EV_SET(&kev[i], nsock_iod_get_sd(iod), EVFILT_READ, EV_SETFLAG(ev_set, EV_READ), 0, 0, (void *)iod);
-    i++;
-  }
-  if ((ev_set ^ ev_clr) & EV_WRITE) {
-    EV_SET(&kev[i], nsock_iod_get_sd(iod), EVFILT_WRITE, EV_SETFLAG(ev_set, EV_WRITE), 0, 0, (void *)iod);
-    i++;
-  }
+  sd = nsock_iod_get_sd(iod);
+  if (sd != -1) {
 
-  if (i > 0 && kevent(kinfo->kqfd, kev, i, NULL, 0, NULL) < 0)
-    fatal("Unable to update events for IOD #%lu: %s", iod->id, strerror(errno));
+    i = 0;
+    if ((ev_set ^ ev_clr) & EV_READ) {
+      EV_SET(&kev[i], sd, EVFILT_READ, EV_SETFLAG(ev_set, EV_READ), 0, 0, (void *)iod);
+      i++;
+    }
+    if ((ev_set ^ ev_clr) & EV_WRITE) {
+      EV_SET(&kev[i], sd, EVFILT_WRITE, EV_SETFLAG(ev_set, EV_WRITE), 0, 0, (void *)iod);
+      i++;
+    }
+
+    if (i > 0 && kevent(kinfo->kqfd, kev, i, NULL, 0, NULL) < 0)
+      fatal("Unable to update events for IOD #%lu: %s", iod->id, strerror(errno));
+  }
 
   iod->watched_events = new_events;
   return 1;
@@ -221,6 +223,7 @@ int kqueue_loop(struct npool *nsp, int msec_timeout) {
   int combined_msecs;
   struct timespec ts, *ts_p;
   int sock_err = 0;
+  unsigned int iod_count;
   struct kqueue_engine_info *kinfo = (struct kqueue_engine_info *)nsp->engine_data;
 
   assert(msec_timeout >= -1);
@@ -229,8 +232,9 @@ int kqueue_loop(struct npool *nsp, int msec_timeout) {
     return 0; /* No need to wait on 0 events ... */
 
 
-  if (gh_list_count(&nsp->active_iods) > kinfo->evlen) {
-    kinfo->evlen = gh_list_count(&nsp->active_iods) * 2;
+  iod_count = gh_list_count(&nsp->active_iods) - kinfo->num_pcap_nonselect;
+  if (iod_count > kinfo->evlen) {
+    kinfo->evlen = iod_count * 2;
     kinfo->events = (struct kevent *)safe_realloc(kinfo->events, kinfo->evlen * sizeof(struct kevent));
   }
 
@@ -238,50 +242,58 @@ int kqueue_loop(struct npool *nsp, int msec_timeout) {
     struct nevent *nse;
 
     nsock_log_debug_all("wait for events");
+    results_left = 0;
 
     nse = next_expirable_event(nsp);
     if (!nse)
       event_msecs = -1; /* None of the events specified a timeout */
-    else
-      event_msecs = MAX(0, TIMEVAL_MSEC_SUBTRACT(nse->timeout, nsock_tod));
+    else {
+      event_msecs = TIMEVAL_MSEC_SUBTRACT(nse->timeout, nsock_tod);
+      event_msecs = MAX(0, event_msecs);
+    }
 
 #if HAVE_PCAP
-#ifndef PCAP_CAN_DO_SELECT
-    /* Force a low timeout when capturing packets on systems where
-     * the pcap descriptor is not select()able. */
-    if (gh_list_count(&nsp->pcap_read_events) > 0)
-      if (event_msecs > PCAP_POLL_INTERVAL)
-        event_msecs = PCAP_POLL_INTERVAL;
-#endif
-#endif
+    if (kinfo->num_pcap_nonselect > 0 && gh_list_count(&nsp->pcap_read_events) > 0) {
 
+      /* do non-blocking read on pcap devices that doesn't support select()
+       * If there is anything read, just leave this loop. */
+      if (pcap_read_on_nonselect(nsp)) {
+        /* okay, something was read. */
+        // Check all pcap events that won't be signaled
+        gettimeofday(&nsock_tod, NULL);
+        iterate_through_pcap_events(nsp);
+        // Make the system call non-blocking
+        event_msecs = 0;
+      }
+      /* Force a low timeout when capturing packets on systems where
+       * the pcap descriptor is not select()able. */
+      else if (event_msecs > PCAP_POLL_INTERVAL) {
+        event_msecs = PCAP_POLL_INTERVAL;
+      }
+    }
+#endif
     /* We cast to unsigned because we want -1 to be very high (since it means no
      * timeout) */
     combined_msecs = MIN((unsigned)event_msecs, (unsigned)msec_timeout);
 
-    /* Set up the timeval pointer we will give to kevent() */
-    memset(&ts, 0, sizeof(struct timespec));
-    if (combined_msecs >= 0) {
-      ts.tv_sec = combined_msecs / 1000;
-      ts.tv_nsec = (combined_msecs % 1000) * 1000000L;
-      ts_p = &ts;
-    } else {
-      ts_p = NULL;
-    }
+    if (iod_count > 0) {
+      /* Set up the timeval pointer we will give to kevent() */
+      memset(&ts, 0, sizeof(struct timespec));
+      if (combined_msecs >= 0) {
+        ts.tv_sec = combined_msecs / 1000;
+        ts.tv_nsec = (combined_msecs % 1000) * 1000000L;
+        ts_p = &ts;
+      } else {
+        ts_p = NULL;
+      }
 
-#if HAVE_PCAP
-#ifndef PCAP_CAN_DO_SELECT
-    /* do non-blocking read on pcap devices that doesn't support select()
-     * If there is anything read, just leave this loop. */
-    if (pcap_read_on_nonselect(nsp)) {
-      /* okay, something was read. */
-    } else
-#endif
-#endif
-    {
       results_left = kevent(kinfo->kqfd, NULL, 0, kinfo->events, kinfo->evlen, ts_p);
       if (results_left == -1)
         sock_err = socket_errno();
+    }
+    else if (combined_msecs > 0) {
+      // No compatible IODs; sleep the remainder of the wait time.
+      usleep(combined_msecs * 1000);
     }
 
     gettimeofday(&nsock_tod, NULL); /* Due to kevent delay */
@@ -359,7 +371,6 @@ void iterate_through_event_lists(struct npool *nsp, int evcount) {
       }
     }
   }
-
   /* iterate through timers and expired events */
   process_expired_events(nsp);
 }

@@ -89,16 +89,14 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-@ENABLE_TESTS_TRUE@am__append_1 = tests
-@BUILD_EXAMPLES_TRUE@am__append_2 = example
 subdir = .
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
-am__aclocal_m4_deps = $(top_srcdir)/m4/autobuild.m4 \
-	$(top_srcdir)/m4/lib-ld.m4 $(top_srcdir)/m4/lib-link.m4 \
-	$(top_srcdir)/m4/lib-prefix.m4 $(top_srcdir)/m4/libtool.m4 \
-	$(top_srcdir)/m4/ltoptions.m4 $(top_srcdir)/m4/ltsugar.m4 \
-	$(top_srcdir)/m4/ltversion.m4 $(top_srcdir)/m4/lt~obsolete.m4 \
-	$(top_srcdir)/acinclude.m4 $(top_srcdir)/configure.ac
+am__aclocal_m4_deps = $(top_srcdir)/m4/lib-ld.m4 \
+	$(top_srcdir)/m4/lib-link.m4 $(top_srcdir)/m4/lib-prefix.m4 \
+	$(top_srcdir)/m4/libtool.m4 $(top_srcdir)/m4/ltoptions.m4 \
+	$(top_srcdir)/m4/ltsugar.m4 $(top_srcdir)/m4/ltversion.m4 \
+	$(top_srcdir)/m4/lt~obsolete.m4 $(top_srcdir)/acinclude.m4 \
+	$(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
 DIST_COMMON = $(srcdir)/Makefile.am $(top_srcdir)/configure \
@@ -192,9 +190,9 @@ am__define_uniq_tagged_files = \
   unique=`for i in $$list; do \
     if test -f "$$i"; then echo $$i; else echo $(srcdir)/$$i; fi; \
   done | $(am__uniquify_input)`
-DIST_SUBDIRS = src docs tests example
+DIST_SUBDIRS = src
 am__DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/libssh2.pc.in \
-	COPYING README compile config.guess \
+	COPYING ChangeLog NEWS README compile config.guess \
 	config.rpath config.sub depcomp install-sh ltmain.sh missing \
 	tap-driver.sh
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
@@ -298,8 +296,12 @@ LIBMBEDCRYPTO = @LIBMBEDCRYPTO@
 LIBMBEDCRYPTO_PREFIX = @LIBMBEDCRYPTO_PREFIX@
 LIBOBJS = @LIBOBJS@
 LIBS = @LIBS@
-LIBSREQUIRED = @LIBSREQUIRED@
-LIBSSH2VER = @LIBSSH2VER@
+LIBSSH2_CFLAG_EXTRAS = @LIBSSH2_CFLAG_EXTRAS@
+LIBSSH2_PC_LIBS = @LIBSSH2_PC_LIBS@
+LIBSSH2_PC_LIBS_PRIVATE = @LIBSSH2_PC_LIBS_PRIVATE@
+LIBSSH2_PC_REQUIRES = @LIBSSH2_PC_REQUIRES@
+LIBSSH2_PC_REQUIRES_PRIVATE = @LIBSSH2_PC_REQUIRES_PRIVATE@
+LIBSSH2_VERSION = @LIBSSH2_VERSION@
 LIBSSL = @LIBSSL@
 LIBSSL_PREFIX = @LIBSSL_PREFIX@
 LIBTOOL = @LIBTOOL@
@@ -398,8 +400,11 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
+
+# Copyright (C) The libssh2 project and its contributors.
+# SPDX-License-Identifier: BSD-3-Clause
 AUTOMAKE_OPTIONS = foreign nostdinc
-SUBDIRS = src docs $(am__append_1) $(am__append_2)
+SUBDIRS = src
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = libssh2.pc
 include_HEADERS = \
@@ -412,12 +417,13 @@ VMSFILES = vms/libssh2_make_example.dcl vms/libssh2_make_help.dcl \
   vms/libssh2_make_kit.dcl vms/libssh2_make_lib.dcl vms/man2help.c \
   vms/readme.vms vms/libssh2_config.h
 
-WIN32FILES = src/libssh2.rc NMakefile
+WIN32FILES = src/libssh2.rc
 OS400FILES = os400/README400 os400/initscript.sh os400/make.sh \
   os400/make-src.sh os400/make-rpg.sh os400/make-include.sh \
+  os400/config400.default \
   os400/os400sys.c os400/ccsid.c \
   os400/libssh2_config.h os400/macros.h os400/libssh2_ccsid.h \
-  os400/include/alloca.h os400/include/sys/socket.h os400/include/stdio.h \
+  os400/include/alloca.h os400/include/sys/socket.h \
   os400/include/assert.h \
   os400/libssh2rpg/libssh2.rpgle.in \
   os400/libssh2rpg/libssh2_ccsid.rpgle.in \
@@ -426,10 +432,11 @@ OS400FILES = os400/README400 os400/initscript.sh os400/make.sh \
 
 EXTRA_DIST = $(WIN32FILES) get_ver.awk \
   maketgz RELEASE-NOTES libssh2.pc.in $(VMSFILES) config.rpath \
-  CMakeLists.txt cmake git2news.pl libssh2-style.el README.md $(OS400FILES) \
-  buildconf Makefile.mk
+  CMakeLists.txt cmake git2news.pl libssh2-style.el README.md $(OS400FILES)
 
 ACLOCAL_AMFLAGS = -I m4
+COVERAGE_CCOPTS := "-g --coverage"
+COVERAGE_OUT := docs/coverage
 all: all-recursive
 
 .SUFFIXES:
@@ -967,7 +974,7 @@ dist-hook:
 	(distit=`find $(srcdir) -name "*.dist"`; \
 	for file in $$distit; do \
 	  strip=`echo $$file | sed -e s/^$(srcdir)// -e s/\.dist//`; \
-	  cp $$file $(distdir)$$strip; \
+	  cp -p $$file $(distdir)$$strip; \
 	done)
 
 # Code Coverage
@@ -975,9 +982,6 @@ dist-hook:
 init-coverage:
 	make clean
 	lcov --directory . --zerocounters
-
-COVERAGE_CCOPTS ?= "-g --coverage"
-COVERAGE_OUT ?= docs/coverage
 
 build-coverage:
 	make CFLAGS=$(COVERAGE_CCOPTS) check
@@ -994,13 +998,7 @@ gen-coverage:
 coverage: init-coverage build-coverage gen-coverage
 
 checksrc:
-	perl ci/checksrc.pl -i4 -m79 \
-	  -ASNPRINTF \
-	  -ACOPYRIGHT \
-	  -AFOPENMODE \
-	  -ATYPEDEFSTRUCT \
-	  -Wsrc/libssh2_config.h src/*.[ch] include/*.h example/*.c \
-	  tests/*.[ch]
+	ci/checksrc.sh
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.

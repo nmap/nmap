@@ -7,7 +7,7 @@
  *                                                                         *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
  *
- * The Nmap Security Scanner is (C) 1996-2024 Nmap Software LLC ("The Nmap
+ * The Nmap Security Scanner is (C) 1996-2025 Nmap Software LLC ("The Nmap
  * Project"). Nmap is also a registered trademark of the Nmap Project.
  *
  * This program is distributed under the terms of the Nmap Public Source
@@ -74,8 +74,8 @@ extern "C" {
 }
 #endif
 
-#include "dnet.h"
 #include <nbase.h>
+#include <dnet.h>
 
 /* It is VERY important to never change the value of these two constants.
  * Specially, OP_FAILURE should never be positive, as some pieces of code take
@@ -165,7 +165,8 @@ int resolve_numeric(const char *ip, unsigned short port,
  * <http://www.cymru.com/Documents/bogon-bn-nonagg.txt> for bogon
  * netblocks.
  */
-int ip_is_reserved(struct in_addr *ip);
+int ip_is_reserved(const struct sockaddr_storage *addr);
+
 
 
 /* A couple of trivial functions that maintain a cache of IP to MAC
@@ -236,7 +237,7 @@ typedef enum { devt_ethernet, devt_loopback, devt_p2p, devt_other  } devtype;
 struct link_header {
   int datalinktype; /* pcap_datalink(), such as DLT_EN10MB */
   int headerlen; /* 0 if header was too big or unavailaable */
-  u8 header[MAX_LINK_HEADERSZ];
+  const u8 *header;
 };
 
 /* Relevant (to Nmap) information about an interface */
@@ -277,10 +278,12 @@ struct sys_route {
   int metric;
 };
 
+struct netutil_eth_t;
+
 struct eth_nfo {
   char srcmac[6];
   char dstmac[6];
-  eth_t *ethsd; // Optional, but improves performance.  Set to NULL if unavail
+  netutil_eth_t *ethsd; // Optional, but improves performance.  Set to NULL if unavail
   char devname[16]; // Only needed if ethsd is NULL.
 };
 
@@ -292,10 +295,43 @@ struct eth_nfo {
    eth_close() A DEVICE OBTAINED FROM THIS FUNCTION.  Instead, you can
    call eth_close_cached() to close whichever device (if any) is
    cached.  Returns NULL if it fails to open the device. */
-eth_t *eth_open_cached(const char *device);
+netutil_eth_t *eth_open_cached(const char *device);
+netutil_eth_t *netutil_eth_open(const char *device);
+void netutil_eth_close(netutil_eth_t *e);
+ssize_t netutil_eth_send(netutil_eth_t *e, const void *buf, size_t len);
+int netutil_eth_datalink(const netutil_eth_t *e);
+int netutil_eth_can_send(const netutil_eth_t *e);
 
 /* See the description for eth_open_cached */
 void eth_close_cached();
+
+/* Create a raw socket and do things that always apply to raw sockets:
+    * Set SO_BROADCAST.
+    * Set IP_HDRINCL.
+    * Bind to an interface with SO_BINDTODEVICE (if device is not NULL).
+   The socket is created with address family AF_INET, but may be usable for
+   AF_INET6, depending on the operating system. */
+int netutil_raw_socket(const char *device);
+
+/* How should we send raw IP packets?  Nmap can generally use either
+   ethernet or raw ip sockets.  Which is better depends on platform
+   and goals.  A _STRONG preference means that Nmap should use the
+   preferred method whenever it is possible (obviously it isn't
+   always possible -- sending ethernet frames won't work over a PPP
+   connection).  This is useful when the other type doesn't work at
+   all.  A _WEAK preference means that Nmap may use the other type
+   where it is substantially more efficient to do so. For example,
+   Nmap will still do an ARP ping scan of a local network even when
+   the pref is SEND_IP_WEAK */
+#define PACKET_SEND_NOPREF      0x01
+#define PACKET_SEND_ETH_WEAK    0x02
+#define PACKET_SEND_ETH_STRONG  0x04
+#define PACKET_SEND_ETH (PACKET_SEND_ETH_WEAK | PACKET_SEND_ETH_STRONG)
+#define PACKET_SEND_IP_WEAK     0x08
+#define PACKET_SEND_IP_STRONG   0x10
+#define PACKET_SEND_IP (PACKET_SEND_IP_WEAK | PACKET_SEND_IP_STRONG)
+int raw_socket_or_eth(int sendpref, const char *ifname, devtype iftype,
+    int *rawsd, netutil_eth_t **ethsd);
 
 /* Takes a protocol number like IPPROTO_TCP, IPPROTO_UDP, or
  * IPPROTO_IP and returns a ascii representation (or "unknown" if it
@@ -318,7 +354,7 @@ int ipaddr2devname( char *dev, const struct sockaddr_storage *addr );
 
 /* Convert a network interface name (IE ppp0 eth0) to an IP address.
  * Returns 0 on success or -1 in case of error. */
-int devname2ipaddr(char *dev, struct sockaddr_storage *addr);
+int devname2ipaddr(char *dev, int af, struct sockaddr_storage *addr);
 
 int sockaddr_equal(const struct sockaddr_storage *a,
   const struct sockaddr_storage *b);
@@ -371,12 +407,6 @@ struct sys_route *getsysroutes(int *howmany, char *errstr, size_t errstrlen);
  * Returns 1 if the address is thought to be localhost and 0 otherwise */
 int islocalhost(const struct sockaddr_storage *ss);
 
-/* Determines whether the supplied address corresponds to a private,
- * non-Internet-routable address. See RFC1918 for details.
- * Also checks for link-local addresses per RFC3927.
- * Returns 1 if the address is private or 0 otherwise. */
-int isipprivate(const struct sockaddr_storage *addr);
-
 /* Takes binary data found in the IP Options field of an IPv4 packet
  * and returns a string containing an ASCII description of the options
  * found. The function returns a pointer to a static buffer that
@@ -428,9 +458,6 @@ int route_dst(const struct sockaddr_storage *dst, struct route_nfo *rnfo,
 
 /* Send an IP packet over a raw socket. */
 int send_ip_packet_sd(int sd, const struct sockaddr_in *dst, const u8 *packet, unsigned int packetlen);
-
-/* Send an IP packet over an ethernet handle. */
-int send_ip_packet_eth(const struct eth_nfo *eth, const u8 *packet, unsigned int packetlen);
 
 /* Sends the supplied pre-built IPv4 packet. The packet is sent through
  * the raw socket "sd" if "eth" is NULL. Otherwise, it gets sent at raw

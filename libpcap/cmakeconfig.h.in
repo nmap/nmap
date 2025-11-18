@@ -150,6 +150,9 @@
 /* On solaris */
 #cmakedefine HAVE_SOLARIS 1
 
+/* target host supports Solaris "any" device */
+#cmakedefine HAVE_SOLARIS_ANY_DEVICE 1
+
 /* define if we have the Solaris/IRIX getnetbyname_r() */
 #cmakedefine HAVE_SOLARIS_IRIX_GETNETBYNAME_R 1
 
@@ -161,9 +164,6 @@
 
 /* Define to 1 if you have the <stdlib.h> header file. */
 #cmakedefine HAVE_STDLIB_H 1
-
-/* Define to 1 if you have the `strerror' function. */
-#cmakedefine HAVE_STRERROR 1
 
 /* Define to 1 if you have the <strings.h> header file. */
 #cmakedefine HAVE_STRINGS_H 1

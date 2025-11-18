@@ -31,9 +31,7 @@
  *
  */
 
-#ifdef HAVE_CONFIG_H
 #include <config.h>
-#endif
 
 #include "pcap-int.h"
 
@@ -169,27 +167,27 @@ load_airpcap_functions(void)
 	 */
 	current_status = AIRPCAP_API_CANNOT_LOAD;
 
-	airpcap_lib = pcap_load_code("airpcap.dll");
+	airpcap_lib = pcapint_load_code("airpcap.dll");
 	if (airpcap_lib != NULL) {
 		/*
 		 * OK, we've loaded the library; now try to find the
 		 * functions we need in it.
 		 */
-		p_AirpcapGetLastError = (AirpcapGetLastErrorHandler) pcap_find_function(airpcap_lib, "AirpcapGetLastError");
-		p_AirpcapGetDeviceList = (AirpcapGetDeviceListHandler) pcap_find_function(airpcap_lib, "AirpcapGetDeviceList");
-		p_AirpcapFreeDeviceList = (AirpcapFreeDeviceListHandler) pcap_find_function(airpcap_lib, "AirpcapFreeDeviceList");
-		p_AirpcapOpen = (AirpcapOpenHandler) pcap_find_function(airpcap_lib, "AirpcapOpen");
-		p_AirpcapClose = (AirpcapCloseHandler) pcap_find_function(airpcap_lib, "AirpcapClose");
-		p_AirpcapSetDeviceMacFlags = (AirpcapSetDeviceMacFlagsHandler) pcap_find_function(airpcap_lib, "AirpcapSetDeviceMacFlags");
-		p_AirpcapSetLinkType = (AirpcapSetLinkTypeHandler) pcap_find_function(airpcap_lib, "AirpcapSetLinkType");
-		p_AirpcapGetLinkType = (AirpcapGetLinkTypeHandler) pcap_find_function(airpcap_lib, "AirpcapGetLinkType");
-		p_AirpcapSetKernelBuffer = (AirpcapSetKernelBufferHandler) pcap_find_function(airpcap_lib, "AirpcapSetKernelBuffer");
-		p_AirpcapSetFilter = (AirpcapSetFilterHandler) pcap_find_function(airpcap_lib, "AirpcapSetFilter");
-		p_AirpcapSetMinToCopy = (AirpcapSetMinToCopyHandler) pcap_find_function(airpcap_lib, "AirpcapSetMinToCopy");
-		p_AirpcapGetReadEvent = (AirpcapGetReadEventHandler) pcap_find_function(airpcap_lib, "AirpcapGetReadEvent");
-		p_AirpcapRead = (AirpcapReadHandler) pcap_find_function(airpcap_lib, "AirpcapRead");
-		p_AirpcapWrite = (AirpcapWriteHandler) pcap_find_function(airpcap_lib, "AirpcapWrite");
-		p_AirpcapGetStats = (AirpcapGetStatsHandler) pcap_find_function(airpcap_lib, "AirpcapGetStats");
+		p_AirpcapGetLastError = (AirpcapGetLastErrorHandler) pcapint_find_function(airpcap_lib, "AirpcapGetLastError");
+		p_AirpcapGetDeviceList = (AirpcapGetDeviceListHandler) pcapint_find_function(airpcap_lib, "AirpcapGetDeviceList");
+		p_AirpcapFreeDeviceList = (AirpcapFreeDeviceListHandler) pcapint_find_function(airpcap_lib, "AirpcapFreeDeviceList");
+		p_AirpcapOpen = (AirpcapOpenHandler) pcapint_find_function(airpcap_lib, "AirpcapOpen");
+		p_AirpcapClose = (AirpcapCloseHandler) pcapint_find_function(airpcap_lib, "AirpcapClose");
+		p_AirpcapSetDeviceMacFlags = (AirpcapSetDeviceMacFlagsHandler) pcapint_find_function(airpcap_lib, "AirpcapSetDeviceMacFlags");
+		p_AirpcapSetLinkType = (AirpcapSetLinkTypeHandler) pcapint_find_function(airpcap_lib, "AirpcapSetLinkType");
+		p_AirpcapGetLinkType = (AirpcapGetLinkTypeHandler) pcapint_find_function(airpcap_lib, "AirpcapGetLinkType");
+		p_AirpcapSetKernelBuffer = (AirpcapSetKernelBufferHandler) pcapint_find_function(airpcap_lib, "AirpcapSetKernelBuffer");
+		p_AirpcapSetFilter = (AirpcapSetFilterHandler) pcapint_find_function(airpcap_lib, "AirpcapSetFilter");
+		p_AirpcapSetMinToCopy = (AirpcapSetMinToCopyHandler) pcapint_find_function(airpcap_lib, "AirpcapSetMinToCopy");
+		p_AirpcapGetReadEvent = (AirpcapGetReadEventHandler) pcapint_find_function(airpcap_lib, "AirpcapGetReadEvent");
+		p_AirpcapRead = (AirpcapReadHandler) pcapint_find_function(airpcap_lib, "AirpcapRead");
+		p_AirpcapWrite = (AirpcapWriteHandler) pcapint_find_function(airpcap_lib, "AirpcapWrite");
+		p_AirpcapGetStats = (AirpcapGetStatsHandler) pcapint_find_function(airpcap_lib, "AirpcapGetStats");
 
 		//
 		// Make sure that we found everything
@@ -275,11 +273,11 @@ airpcap_setfilter(pcap_t *p, struct bpf_program *fp)
 		 */
 
 		/*
-		 * install_bpf_program() validates the program.
+		 * pcapint_install_bpf_program() validates the program.
 		 *
 		 * XXX - what if we already have a filter in the kernel?
 		 */
-		if (install_bpf_program(p, fp) < 0)
+		if (pcapint_install_bpf_program(p, fp) < 0)
 			return (-1);
 		pa->filtering_in_kernel = 0;	/* filtering in userland */
 		return (0);
@@ -670,7 +668,7 @@ airpcap_read(pcap_t *p, int cnt, pcap_handler callback, u_char *user)
 		 */
 		if (pa->filtering_in_kernel ||
 		    p->fcode.bf_insns == NULL ||
-		    pcap_filter(p->fcode.bf_insns, datap, bhp->Originallen, caplen)) {
+		    pcapint_filter(p->fcode.bf_insns, datap, bhp->Originallen, caplen)) {
 			struct pcap_pkthdr pkthdr;
 
 			pkthdr.ts.tv_sec = bhp->TsSec;
@@ -732,7 +730,7 @@ airpcap_cleanup(pcap_t *p)
 		p_AirpcapClose(pa->adapter);
 		pa->adapter = NULL;
 	}
-	pcap_cleanup_live_common(p);
+	pcapint_cleanup_live_common(p);
 }
 
 static void
@@ -740,7 +738,7 @@ airpcap_breakloop(pcap_t *p)
 {
 	HANDLE read_event;
 
-	pcap_breakloop_common(p);
+	pcapint_breakloop_common(p);
 	struct pcap_airpcap *pa = p->priv;
 
 	/* XXX - what if either of these fail? */
@@ -822,7 +820,7 @@ airpcap_activate(pcap_t *p)
 	p->bufsize = AIRPCAP_DEFAULT_USER_BUFFER_SIZE;
 	p->buffer = malloc(p->bufsize);
 	if (p->buffer == NULL) {
-		pcap_fmt_errmsg_for_errno(p->errbuf, PCAP_ERRBUF_SIZE,
+		pcapint_fmt_errmsg_for_errno(p->errbuf, PCAP_ERRBUF_SIZE,
 		    errno, "malloc");
 		goto bad;
 	}
@@ -896,8 +894,11 @@ airpcap_activate(pcap_t *p)
 	 * followed by PPI, followed by "no radio metadata".
 	 */
 	p->dlt_list = (u_int *) malloc(sizeof(u_int) * 3);
-	if (p->dlt_list == NULL)
+	if (p->dlt_list == NULL) {
+		pcapint_fmt_errmsg_for_errno(p->errbuf, PCAP_ERRBUF_SIZE,
+		    errno, "malloc");
 		goto bad;
+	}
 	p->dlt_list[0] = DLT_IEEE802_11_RADIO;
 	p->dlt_list[1] = DLT_PPI;
 	p->dlt_list[2] = DLT_IEEE802_11;
@@ -1040,7 +1041,7 @@ airpcap_findalldevs(pcap_if_list_t *devlistp, char *errbuf)
 
 	for (airpcap_device = airpcap_devices; airpcap_device != NULL;
 	    airpcap_device = airpcap_device->next) {
-		if (add_dev(devlistp, airpcap_device->Name, 0,
+		if (pcapint_add_dev(devlistp, airpcap_device->Name, 0,
 		    airpcap_device->Description, errbuf) == NULL) {
 			/*
 			 * Failure.

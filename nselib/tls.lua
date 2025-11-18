@@ -182,7 +182,7 @@ ELLIPTIC_CURVES = {
   brainpoolP256r1tls13 = 31, --RFC8734
   brainpoolP384r1tls13 = 32,
   brainpoolP512r1tls13 = 33,
-  GC256A = 34, -- draft-smyshlyaev-tls12-gost-suites
+  GC256A = 34, -- RFC9189
   GC256B = 35,
   GC256C = 36,
   GC256D = 37,
@@ -195,6 +195,12 @@ ELLIPTIC_CURVES = {
   ffdhe4096 = 0x0102, --RFC7919
   ffdhe6144 = 0x0103, --RFC7919
   ffdhe8192 = 0x0104, --RFC7919
+  MLKEM512 = 512, --draft-connolly-tls-mlkem-key-agreement-03
+  MLKEM768 = 513, --draft-connolly-tls-mlkem-key-agreement-03
+  MLKEM1024 = 514, --draft-connolly-tls-mlkem-key-agreement-03
+  SecP256r1MLKEM768 = 4587, --draft-kwiatkowski-tls-ecdhe-mlkem-03 secp256r1 ECDH with ML-KEM-768
+  X25519MLKEM768 = 4588, --draft-kwiatkowski-tls-ecdhe-mlkem-03 X25519 ECDH with ML-KEM-768
+  SecP384r1MLKEM1024 = 4589, --draft-kwiatkowski-tls-ecdhe-mlkem-03 secp384r1 ECDH with ML-KEM-1024
   arbitrary_explicit_prime_curves = 0xFF01,
   arbitrary_explicit_char2_curves = 0xFF02,
 }
@@ -206,6 +212,7 @@ DEFAULT_ELLIPTIC_CURVES = {
   "secp521r1",
   "ecdh_x25519",
   "ffdhe2048", -- added for TLSv1.3
+  "X25519MLKEM768", -- Chrome offers this one
 }
 
 ---
@@ -235,6 +242,8 @@ SignatureAlgorithms = {
   ecdsa = 3,
   ed25519 = 7,
   ed448 = 8,
+  gostr34102012_256 = 64,
+  gostr34102012_512 = 65,
 }
 
 ---
@@ -278,11 +287,17 @@ SignatureSchemes = {
   ecdsa_brainpoolP256r1tls13_sha256 = 0x081a,
   ecdsa_brainpoolP384r1tls13_sha384 = 0x081b,
   ecdsa_brainpoolP512r1tls13_sha512 = 0x081c,
+  -- draft-tls-westerbaan-mldsa
+  mldsa44 = 0x0904,
+  mldsa65 = 0x0905,
+  mldsa87 = 0x0906,
   -- Legacy algorithms
   rsa_pkcs1_sha1 = 0x0201,
   ecdsa_sha1     = 0x0203,
-  -- RFC 8998
-  sm2sig_sm3 = 0x0708,
+  -- draft-ietf-tls-tls13-pkcs1
+  rsa_pkcs1_sha256_legacy = 0x0420,
+  rsa_pkcs1_sha384_legacy = 0x0520,
+  rsa_pkcs1_sha512_legacy = 0x0620,
 }
 
 ---
@@ -301,7 +316,7 @@ EXTENSIONS = {
   ["client_authz"] = 7,
   ["server_authz"] = 8,
   ["cert_type"] = 9,
-  ["elliptic_curves"] = 10,
+  ["elliptic_curves"] = 10, -- TLS 1.3 calls this supported_groups
   ["ec_point_formats"] = 11,
   ["srp"] = 12,
   ["signature_algorithms"] = 13,
@@ -794,10 +809,10 @@ CIPHERS = {
 ["TLS_GOSTR341112_256_WITH_KUZNYECHIK_CTR_OMAC"] =  0xC100, -- RFC9189
 ["TLS_GOSTR341112_256_WITH_MAGMA_CTR_OMAC"]      =  0xC101, -- RFC9189
 ["TLS_GOSTR341112_256_WITH_28147_CNT_IMIT"]      =  0xC102, -- RFC9189
-["TLS_GOSTR341112_256_WITH_KUZNYECHIK_MGM_L"]    =  0xC103, -- draft-smyshlyaev-tls13-gost-suites
-["TLS_GOSTR341112_256_WITH_MAGMA_MGM_L"]         =  0xC104, -- draft-smyshlyaev-tls13-gost-suites
-["TLS_GOSTR341112_256_WITH_KUZNYECHIK_MGM_S"]    =  0xC105, -- draft-smyshlyaev-tls13-gost-suites
-["TLS_GOSTR341112_256_WITH_MAGMA_MGM_S"]         =  0xC106, -- draft-smyshlyaev-tls13-gost-suites
+["TLS_GOSTR341112_256_WITH_KUZNYECHIK_MGM_L"]    =  0xC103, -- RFC9367
+["TLS_GOSTR341112_256_WITH_MAGMA_MGM_L"]         =  0xC104, -- RFC9367
+["TLS_GOSTR341112_256_WITH_KUZNYECHIK_MGM_S"]    =  0xC105, -- RFC9367
+["TLS_GOSTR341112_256_WITH_MAGMA_MGM_S"]         =  0xC106, -- RFC9367
 ["TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256-draft"]    =  0xCC13, -- RFC7905 superseded
 ["TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256-draft"]  =  0xCC14, -- RFC7905 superseded
 ["TLS_DHE_RSA_WITH_CHACHA20_POLY1305_SHA256-draft"]      =  0xCC15, -- RFC7905 superseded
@@ -826,6 +841,8 @@ TLS_AKE_WITH_AES_256_GCM_SHA384       = 0x1302,
 TLS_AKE_WITH_CHACHA20_POLY1305_SHA256 = 0x1303,
 TLS_AKE_WITH_AES_128_CCM_SHA256       = 0x1304,
 TLS_AKE_WITH_AES_128_CCM_8_SHA256     = 0x1305,
+TLS_AKE_WITH_AEGIS_256_SHA512 = 0x1306, -- draft-irtf-cfrg-aegis-aead-08
+TLS_AKE_WITH_AEGIS_128L_SHA256 = 0x1307, -- draft-irtf-cfrg-aegis-aead-08
 TLS_AKE_WITH_SM4_GCM_SM3 = 0x00C6, -- RFC 8998
 TLS_AKE_WITH_SM4_CCM_SM3 = 0x00C7, -- RFC 8998
 }
@@ -837,6 +854,18 @@ DEFAULT_TLS12_CIPHERS = {
   "TLS_DHE_DSS_WITH_3DES_EDE_CBC_SHA", -- mandatory TLSv1.0
   "TLS_DHE_RSA_WITH_AES_256_CBC_SHA", -- DHE with strong AES
   "TLS_RSA_WITH_RC4_128_MD5", -- Weak and old, but likely supported on old stuff
+  -- The following are sent by Chrome 136:
+  "TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256",
+  "TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256",
+  "TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384",
+  "TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384",
+  "TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256",
+  "TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256",
+  "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA",
+  "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA",
+  "TLS_RSA_WITH_AES_128_GCM_SHA256",
+  "TLS_RSA_WITH_AES_256_GCM_SHA384",
+  "TLS_RSA_WITH_AES_256_CBC_SHA",
 }
 -- Same, but for TLSv1.3
 DEFAULT_TLS13_CIPHERS = {
@@ -862,52 +891,103 @@ local cipher_info_cache = {
   -- pre-populate the special cases that break the parser below
   ["TLS_ECDH_anon_NULL_WITH_SHA-draft"] = {
     kex = "ECDH", dh = true, ec = true,
-    server_auth = "anon",
+    anon = true,
     cipher = "NULL",
     hash = "SHA",
     draft = true
   },
   ["TLS_ECMQV_ECDSA_NULL_SHA-draft"] = {
     kex = "ECMQV", ec = true,
-    server_auth = "ECDSA",
     cipher = "NULL",
     hash = "SHA",
     draft = true
   },
   ["TLS_ECMQV_ECNRA_NULL_SHA-draft"] = {
     kex = "ECMQV", ec = true,
-    server_auth = "ECNRA",
     cipher = "NULL",
     hash = "SHA",
     draft = true
   },
   ["TLS_GOSTR341094_WITH_28147_CNT_IMIT-draft"] = {
     kex = "GOSTR341094",
-    server_auth = "GOSTR341094",
     cipher = "GOST28147",
     hash = "IMIT_GOST28147",
     draft = true
   },
   ["TLS_GOSTR341001_WITH_28147_CNT_IMIT-draft"] = {
     kex = "GOSTR341001",
-    server_auth = "GOSTR341001",
     cipher = "GOST28147",
     hash = "IMIT_GOST28147",
     draft = true
   },
   ["TLS_GOSTR341094_WITH_NULL_GOSTR3411-draft"] = {
     kex = "GOSTR341094",
-    server_auth = "GOSTR341094",
     cipher = "NULL",
     hash = "HMAC_GOSTR3411",
     draft = true
   },
   ["TLS_GOSTR341001_WITH_NULL_GOSTR3411-draft"] = {
     kex = "GOSTR341001",
-    server_auth = "GOSTR341001",
     cipher = "NULL",
     hash = "HMAC_GOSTR3411",
     draft = true
+  },
+  ["TLS_GOSTR341112_256_WITH_KUZNYECHIK_CTR_OMAC"] = {
+    kex = "GOST_DH",
+    cipher = "KUZNYECHIK",
+    mode = "stream",
+    hash = "GOSTR341112",
+    size = 256
+  },
+  ["TLS_GOSTR341112_256_WITH_MAGMA_CTR_OMAC"] = {
+    kex = "GOST_DH",
+    cipher = "MAGMA",
+    mode = "stream",
+    hash = "GOSTR341112",
+    size = 256
+  },
+  ["TLS_GOSTR341112_256_WITH_28147_CNT_IMIT"] = {
+    kex = "GOST_DH",
+    cipher = "KUZNYECHIK",
+    mode = "stream",
+    hash = "GOSTR341112",
+    size = 256
+  },
+  ["TLS_GOSTR341112_256_WITH_KUZNYECHIK_MGM_L"] = {
+    kex = "AKE",
+    cipher = "KUZNYECHIK",
+    mode = "MGM",
+    hash = "GOSTR341112",
+    tls13ok = true,
+    tls13only = true,
+    size = 256, block_size = 128,
+  },
+  ["TLS_GOSTR341112_256_WITH_MAGMA_MGM_L"] = {
+    kex = "AKE",
+    cipher = "MAGMA",
+    mode = "MGM",
+    hash = "GOSTR341112",
+    tls13ok = true,
+    tls13only = true,
+    size = 256, block_size = 64,
+  },
+  ["TLS_GOSTR341112_256_WITH_KUZNYECHIK_MGM_S"] = {
+    kex = "AKE",
+    cipher = "KUZNYECHIK",
+    mode = "MGM",
+    hash = "GOSTR341112",
+    tls13ok = true,
+    tls13only = true,
+    size = 256, block_size = 128,
+  },
+  ["TLS_GOSTR341112_256_WITH_MAGMA_MGM_S"] = {
+    kex = "AKE",
+    cipher = "MAGMA",
+    mode = "MGM",
+    hash = "GOSTR341112",
+    tls13ok = true,
+    tls13only = true,
+    size = 256, block_size = 64,
   },
 }
 
@@ -1292,6 +1372,8 @@ local algorithms = {
   ARIA = {b=128},
   AES = {b=128},
   SM4 = {s=128, b=128},
+  AEGIS_256 = {s=256, b=128},
+  AEGIS_128L = {s=128, b=256},
 }
 --- Get info about a cipher suite
 --
@@ -1335,6 +1417,9 @@ function cipher_info (c)
   info.cipher = t
   if t == "3DES" then
     i = i + 1 -- 3DES_EDE
+  elseif t == "AEGIS" then
+    i = i + 1
+    t = ("%s_%s"):format(t, tokens[i])
   end
 
   -- key size
@@ -1404,7 +1489,7 @@ end
 
 SCSVS = {
 ["TLS_EMPTY_RENEGOTIATION_INFO_SCSV"]              =  0x00FF, -- rfc5746
-["TLS_FALLBACK_SCSV"]                              =  0x5600, -- draft-ietf-tls-downgrade-scsv-00
+["TLS_FALLBACK_SCSV"]                              =  0x5600, -- rfc7507
 }
 
 handshake_parse = {
@@ -1687,12 +1772,13 @@ do
     {"md5","rsa"},
     {"sha1","rsa"},
     {"sha224","rsa"},
-    -- most likely are sha256 and sha512.
+    -- most likely is sha256
     {"sha256","rsa"},
     {"sha256","dsa"},
     {"sha256","ecdsa"},
+    {"sha384","rsa"},
+    {"sha384","ecdsa"},
     {"sha512","rsa"},
-    {"sha512","dsa"},
     {"sha512","ecdsa"},
     {"intrinsic","ed25519"},
     {"intrinsic","ed448"},
@@ -1716,6 +1802,7 @@ do
   "rsa_pss_pss_sha512",
   "rsa_pkcs1_sha1",
   "ecdsa_sha1",
+  "mldsa44",
   }
   DEFAULT_SIGSCHEMES = EXTENSION_HELPERS["signature_algorithms_13"](sigalgs)
 end

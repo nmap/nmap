@@ -3,14 +3,10 @@
  *
  * Copyright (c) 2002 Dug Song <dugsong@monkey.org>
  *
- * $Id: arp-win32.c 539 2005-01-23 07:36:54Z dugsong $
+ * $Id$
  */
 
-#ifdef _WIN32
 #include "dnet_winconfig.h"
-#else
-#include "config.h"
-#endif
 
 #include <ws2tcpip.h>
 #include <iphlpapi.h>
@@ -150,7 +146,6 @@ arp_loop(arp_t *arp, arp_handler callback, void *arg)
 	}
 	return (0);
 }
-
 arp_t *
 arp_close(arp_t *arp)
 {

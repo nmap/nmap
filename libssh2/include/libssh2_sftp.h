@@ -1,4 +1,4 @@
-/* Copyright (c) 2004-2008, Sara Golemon <sarag@libssh2.org>
+/* Copyright (C) Sara Golemon <sarag@libssh2.org>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms,
@@ -33,6 +33,8 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY
  * OF SUCH DAMAGE.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
  */
 
 #ifndef LIBSSH2_SFTP_H
@@ -40,7 +42,7 @@
 
 #include "libssh2.h"
 
-#ifndef LIBSSH2_WIN32
+#ifndef _WIN32
 #include <unistd.h>
 #endif
 
@@ -301,11 +303,20 @@ LIBSSH2_API int libssh2_sftp_rename_ex(LIBSSH2_SFTP *sftp,
                            LIBSSH2_SFTP_RENAME_ATOMIC | \
                            LIBSSH2_SFTP_RENAME_NATIVE)
 
+LIBSSH2_API int libssh2_sftp_posix_rename_ex(LIBSSH2_SFTP *sftp,
+                                             const char *source_filename,
+                                             size_t srouce_filename_len,
+                                             const char *dest_filename,
+                                             size_t dest_filename_len);
+#define libssh2_sftp_posix_rename(sftp, sourcefile, destfile) \
+    libssh2_sftp_posix_rename_ex((sftp), (sourcefile), strlen(sourcefile), \
+                                 (destfile), strlen(destfile))
+
 LIBSSH2_API int libssh2_sftp_unlink_ex(LIBSSH2_SFTP *sftp,
                                        const char *filename,
                                        unsigned int filename_len);
 #define libssh2_sftp_unlink(sftp, filename) \
-    libssh2_sftp_unlink_ex((sftp), (filename), strlen(filename))
+    libssh2_sftp_unlink_ex((sftp), (filename), (unsigned int)strlen(filename))
 
 LIBSSH2_API int libssh2_sftp_fstatvfs(LIBSSH2_SFTP_HANDLE *handle,
                                       LIBSSH2_SFTP_STATVFS *st);

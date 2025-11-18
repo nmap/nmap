@@ -2,7 +2,7 @@
 
 # ***********************IMPORTANT NMAP LICENSE TERMS************************
 # *
-# * The Nmap Security Scanner is (C) 1996-2024 Nmap Software LLC ("The Nmap
+# * The Nmap Security Scanner is (C) 1996-2025 Nmap Software LLC ("The Nmap
 # * Project"). Nmap is also a registered trademark of the Nmap Project.
 # *
 # * This program is distributed under the terms of the Nmap Public Source
@@ -111,7 +111,7 @@ class CrashReport(HIGDialog):
             ) % {"app_name": escape(APP_DISPLAY_NAME)})
         self.email_frame = Gtk.Frame()
         self.email_label = Gtk.Label()
-        self.email_label.set_markup(_('<b>Copy and <b>'
+        self.email_label.set_markup(_('<b>Copy and '
             '<a href="https://issues.nmap.org/new/choose">'
             'open a bug report</a></b>:'))
         self.btn_copy = Gtk.Button.new_from_stock(Gtk.STOCK_COPY)

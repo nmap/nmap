@@ -9,23 +9,32 @@ dnl The PCRE2_PRERELEASE feature is for identifying release candidates. It might
 dnl be defined as -RC2, for example. For real releases, it should be empty.
 
 m4_define(pcre2_major, [10])
-m4_define(pcre2_minor, [43])
+m4_define(pcre2_minor, [45])
 m4_define(pcre2_prerelease, [])
-m4_define(pcre2_date, [2024-02-16])
+m4_define(pcre2_date, [2025-02-05])
 
 # Libtool shared library interface versions (current:revision:age)
-m4_define(libpcre2_8_version,     [12:0:12])
-m4_define(libpcre2_16_version,    [12:0:12])
-m4_define(libpcre2_32_version,    [12:0:12])
-m4_define(libpcre2_posix_version, [3:5:0])
+m4_define(libpcre2_8_version,     [14:0:14])
+m4_define(libpcre2_16_version,    [14:0:14])
+m4_define(libpcre2_32_version,    [14:0:14])
+m4_define(libpcre2_posix_version, [3:6:0])
 
 # NOTE: The CMakeLists.txt file searches for the above variables in the first
 # 50 lines of this file. Please update that if the variables above are moved.
 
-AC_PREREQ([2.62])
+AC_PREREQ([2.60])
 AC_INIT([PCRE2],pcre2_major.pcre2_minor[]pcre2_prerelease,[],[pcre2])
 AC_CONFIG_SRCDIR([src/pcre2.h.in])
-AM_INIT_AUTOMAKE([foreign])
+AM_INIT_AUTOMAKE([dist-bzip2 dist-zip foreign])
+ifelse(pcre2_prerelease, [-DEV],
+  [dnl For development builds, ./configure is not checked in to Git, so we are
+   dnl happy to have it regenerated as needed.
+   AM_MAINTAINER_MODE([enable])],
+  [dnl For a release build (or RC), the ./configure script we ship in the
+   dnl tarball (and check in to the Git tag) should not be regenerated
+   dnl implicitly. This is important if users want to check out a release tag
+   dnl using Git.
+   AM_MAINTAINER_MODE])
 m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
 AC_CONFIG_HEADERS(src/config.h)
 
@@ -73,6 +82,40 @@ AC_SYS_LARGEFILE
 
 PCRE2_VISIBILITY
 
+# Check for Clang __attribute__((uninitialized)) feature
+
+AC_MSG_CHECKING([for __attribute__((uninitialized))])
+AC_LANG_PUSH([C])
+tmp_CFLAGS=$CFLAGS
+if test $WORKING_WERROR -eq 1; then
+  CFLAGS="$CFLAGS -Werror"
+fi
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM(,
+                   [[char buf[128] __attribute__((uninitialized));(void)buf]])],
+                   [pcre2_cc_cv_attribute_uninitialized=yes],
+                   [pcre2_cc_cv_attribute_uninitialized=no])
+AC_MSG_RESULT([$pcre2_cc_cv_attribute_uninitialized])
+if test "$pcre2_cc_cv_attribute_uninitialized" = yes; then
+  AC_DEFINE([HAVE_ATTRIBUTE_UNINITIALIZED], 1, [Define this if your compiler
+             supports __attribute__((uninitialized))])
+fi
+CFLAGS=$tmp_CFLAGS
+AC_LANG_POP([C])
+
+# Check for the assume() builtin
+
+AC_MSG_CHECKING([for __assume()])
+AC_LANG_PUSH([C])
+AC_LINK_IFELSE([AC_LANG_PROGRAM([[]], [[__assume(1)]])],
+  [pcre2_cc_cv_builtin_assume=yes],
+  [pcre2_cc_cv_builtin_assume=no])
+AC_MSG_RESULT([$pcre2_cc_cv_builtin_assume])
+if test "$pcre2_cc_cv_builtin_assume" = yes; then
+  AC_DEFINE([HAVE_BUILTIN_ASSUME], 1,
+    [Define this if your compiler provides __assume()])
+fi
+AC_LANG_POP([C])
+
 # Check for the mul_overflow() builtin
 
 AC_MSG_CHECKING([for __builtin_mul_overflow()])
@@ -95,22 +138,18 @@ if test "$pcre2_cc_cv_builtin_mul_overflow" = yes; then
 fi
 AC_LANG_POP([C])
 
-# Check for Clang __attribute__((uninitialized)) feature
+# Check for the unreachable() builtin
 
-AC_MSG_CHECKING([for __attribute__((uninitialized))])
+AC_MSG_CHECKING([for __builtin_unreachable()])
 AC_LANG_PUSH([C])
-tmp_CFLAGS=$CFLAGS
-CFLAGS="$CFLAGS -Werror"
-AC_COMPILE_IFELSE([AC_LANG_PROGRAM(,
-                   [[char buf[128] __attribute__((uninitialized));(void)buf]])],
-                   [pcre2_cc_cv_attribute_uninitialized=yes],
-                   [pcre2_cc_cv_attribute_uninitialized=no])
-AC_MSG_RESULT([$pcre2_cc_cv_attribute_uninitialized])
-if test "$pcre2_cc_cv_attribute_uninitialized" = yes; then
-  AC_DEFINE([HAVE_ATTRIBUTE_UNINITIALIZED], 1, [Define this if your compiler
-             supports __attribute__((uninitialized))])
+AC_LINK_IFELSE([AC_LANG_PROGRAM([[int r;]], [[if (r) __builtin_unreachable()]])],
+  [pcre2_cc_cv_builtin_unreachable=yes],
+  [pcre2_cc_cv_builtin_unreachable=no])
+AC_MSG_RESULT([$pcre2_cc_cv_builtin_unreachable])
+if test "$pcre2_cc_cv_builtin_unreachable" = yes; then
+  AC_DEFINE([HAVE_BUILTIN_UNREACHABLE], 1,
+    [Define this if your compiler provides __builtin_unreachable()])
 fi
-CFLAGS=$tmp_CFLAGS
 AC_LANG_POP([C])
 
 # Versioning
@@ -178,6 +217,58 @@ AC_ARG_ENABLE(debug,
                              [enable debugging code]),
               , enable_debug=no)
 
+# Handle --enable-jit (disabled by default)
+AC_ARG_ENABLE(jit,
+              AS_HELP_STRING([--enable-jit],
+                             [enable Just-In-Time compiling support]),
+              , enable_jit=no)
+
+# This code enables JIT if the hardware supports it.
+if test "$enable_jit" = "auto"; then
+  AC_LANG(C)
+  SAVE_CPPFLAGS=$CPPFLAGS
+  CPPFLAGS=-I$srcdir
+  AC_COMPILE_IFELSE([AC_LANG_SOURCE([[
+  #define SLJIT_CONFIG_AUTO 1
+  #include "deps/sljit/sljit_src/sljitConfigCPU.h"
+  #if (defined SLJIT_CONFIG_UNSUPPORTED && SLJIT_CONFIG_UNSUPPORTED)
+  #error unsupported
+  #endif]])], enable_jit=yes, enable_jit=no)
+  CPPFLAGS=$SAVE_CPPFLAGS
+  echo checking for JIT support on this hardware... $enable_jit
+fi
+
+# Handle --enable-jit-sealloc (disabled by default and only experimental)
+case $host_os in
+  linux* | netbsd*)
+    AC_ARG_ENABLE(jit-sealloc,
+      AS_HELP_STRING([--enable-jit-sealloc],
+        [enable SELinux compatible execmem allocator in JIT (experimental)]),
+        ,enable_jit_sealloc=no)
+    ;;
+  *)
+    enable_jit_sealloc=unsupported
+    ;;
+esac
+
+# Handle --disable-pcre2grep-jit (enabled by default)
+AC_ARG_ENABLE(pcre2grep-jit,
+              AS_HELP_STRING([--disable-pcre2grep-jit],
+                             [disable JIT support in pcre2grep]),
+              , enable_pcre2grep_jit=yes)
+
+# Handle --disable-pcre2grep-callout (enabled by default)
+AC_ARG_ENABLE(pcre2grep-callout,
+              AS_HELP_STRING([--disable-pcre2grep-callout],
+                             [disable callout script support in pcre2grep]),
+              , enable_pcre2grep_callout=yes)
+
+# Handle --disable-pcre2grep-callout-fork (enabled by default)
+AC_ARG_ENABLE(pcre2grep-callout-fork,
+              AS_HELP_STRING([--disable-pcre2grep-callout-fork],
+                             [disable callout script fork support in pcre2grep]),
+              , enable_pcre2grep_callout_fork=yes)
+
 # Handle --enable-rebuild-chartables
 AC_ARG_ENABLE(rebuild-chartables,
               AS_HELP_STRING([--enable-rebuild-chartables],
@@ -188,7 +279,7 @@ AC_ARG_ENABLE(rebuild-chartables,
 AC_ARG_ENABLE(unicode,
               AS_HELP_STRING([--disable-unicode],
                              [disable Unicode support]),
-              , enable_unicode=unset)
+              , enable_unicode=no)
 
 # Handle newline options
 ac_pcre2_newline=lf
@@ -233,7 +324,7 @@ AC_ARG_ENABLE(never-backslash-C,
 # Handle --enable-ebcdic
 AC_ARG_ENABLE(ebcdic,
               AS_HELP_STRING([--enable-ebcdic],
-                             [assume EBCDIC coding rather than ASCII; incompatible with --enable-utf; use only in (uncommon) EBCDIC environments; it implies --enable-rebuild-chartables]),
+                             [assume EBCDIC coding rather than ASCII; incompatible with --enable-unicode; use only in (uncommon) EBCDIC environments; it implies --enable-rebuild-chartables]),
               , enable_ebcdic=no)
 
 # Handle --enable-ebcdic-nl25
@@ -241,6 +332,42 @@ AC_ARG_ENABLE(ebcdic-nl25,
               AS_HELP_STRING([--enable-ebcdic-nl25],
                              [set EBCDIC code for NL to 0x25 instead of 0x15; it implies --enable-ebcdic]),
               , enable_ebcdic_nl25=no)
+
+# Handle --enable-pcre2grep-libz
+AC_ARG_ENABLE(pcre2grep-libz,
+              AS_HELP_STRING([--enable-pcre2grep-libz],
+                             [link pcre2grep with libz to handle .gz files]),
+              , enable_pcre2grep_libz=no)
+
+# Handle --enable-pcre2grep-libbz2
+AC_ARG_ENABLE(pcre2grep-libbz2,
+              AS_HELP_STRING([--enable-pcre2grep-libbz2],
+                             [link pcre2grep with libbz2 to handle .bz2 files]),
+              , enable_pcre2grep_libbz2=no)
+
+# Handle --with-pcre2grep-bufsize=N
+AC_ARG_WITH(pcre2grep-bufsize,
+              AS_HELP_STRING([--with-pcre2grep-bufsize=N],
+                             [pcre2grep initial buffer size (default=20480, minimum=8192)]),
+              , with_pcre2grep_bufsize=20480)
+
+# Handle --with-pcre2grep-max-bufsize=N
+AC_ARG_WITH(pcre2grep-max-bufsize,
+              AS_HELP_STRING([--with-pcre2grep-max-bufsize=N],
+                             [pcre2grep maximum buffer size (default=1048576, minimum=8192)]),
+              , with_pcre2grep_max_bufsize=1048576)
+
+# Handle --enable-pcre2test-libedit
+AC_ARG_ENABLE(pcre2test-libedit,
+              AS_HELP_STRING([--enable-pcre2test-libedit],
+                             [link pcre2test with libedit]),
+              , enable_pcre2test_libedit=no)
+
+# Handle --enable-pcre2test-libreadline
+AC_ARG_ENABLE(pcre2test-libreadline,
+              AS_HELP_STRING([--enable-pcre2test-libreadline],
+                             [link pcre2test with libreadline]),
+              , enable_pcre2test_libreadline=no)
 
 # Handle --with-link-size=N
 AC_ARG_WITH(link-size,
@@ -300,6 +427,18 @@ AC_ARG_ENABLE(coverage,
               AS_HELP_STRING([--enable-coverage],
                              [enable code coverage reports using gcov]),
               , enable_coverage=no)
+
+# Handle --enable-fuzz-support
+AC_ARG_ENABLE(fuzz_support,
+              AS_HELP_STRING([--enable-fuzz-support],
+                             [enable fuzzer support]),
+              , enable_fuzz_support=no)
+
+# Handle --enable-diff-fuzz-support
+AC_ARG_ENABLE(diff_fuzz_support,
+              AS_HELP_STRING([--enable-diff-fuzz-support],
+                             [enable differential fuzzer support]),
+              , enable_diff_fuzz_support=no)
 
 # Handle --disable-stack-for-recursion
 # This option became obsolete at release 10.30.
@@ -421,7 +560,7 @@ HAVE_BCOPY is defined. If your system has neither bcopy() nor memmove(), make
 sure both macros are undefined; an emulation function will then be used. */])
 
 # Checks for header files.
-AC_CHECK_HEADERS(limits.h sys/types.h sys/stat.h dirent.h)
+AC_CHECK_HEADERS(assert.h limits.h sys/types.h sys/stat.h dirent.h)
 AC_CHECK_HEADERS([windows.h], [HAVE_WINDOWS_H=1])
 AC_CHECK_HEADERS([sys/wait.h], [HAVE_SYS_WAIT_H=1])
 
@@ -429,10 +568,30 @@ AC_CHECK_HEADERS([sys/wait.h], [HAVE_SYS_WAIT_H=1])
 AM_CONDITIONAL(WITH_PCRE2_8, test "x$enable_pcre2_8" = "xyes")
 AM_CONDITIONAL(WITH_PCRE2_16, test "x$enable_pcre2_16" = "xyes")
 AM_CONDITIONAL(WITH_PCRE2_32, test "x$enable_pcre2_32" = "xyes")
-AM_CONDITIONAL(WITH_DEBUG, test "x$enable_debug" = "xyes")
 AM_CONDITIONAL(WITH_REBUILD_CHARTABLES, test "x$enable_rebuild_chartables" = "xyes")
+AM_CONDITIONAL(WITH_JIT, test "x$enable_jit" = "xyes")
 AM_CONDITIONAL(WITH_UNICODE, test "x$enable_unicode" = "xyes")
 AM_CONDITIONAL(WITH_VALGRIND, test "x$enable_valgrind" = "xyes")
+AM_CONDITIONAL(WITH_FUZZ_SUPPORT, test "x$enable_fuzz_support" = "xyes")
+AM_CONDITIONAL(WITH_DIFF_FUZZ_SUPPORT, test "x$enable_diff_fuzz_support" = "xyes")
+
+if test "$enable_fuzz_support" = "yes" -a "$enable_pcre2_8" = "no"; then
+  echo "** ERROR: Fuzzer support requires the 8-bit library"
+  exit 1
+fi
+
+if test "$enable_diff_fuzz_support" = "yes"; then
+  if test "$enable_fuzz_support" = "no"; then
+    echo "** ERROR: Differential fuzzing support requires fuzzing support"
+    exit 1
+  fi
+  if test "$enable_jit" = "no"; then
+    echo "** ERROR: Differential fuzzing support requires Just-in-Time compilation support"
+    exit 1
+  fi
+  AC_DEFINE([SUPPORT_DIFF_FUZZ], [], [
+    Define to any value to enable differential fuzzing support.])
+fi
 
 # Checks for typedefs, structures, and compiler characteristics.
 
@@ -455,6 +614,87 @@ realpath(".", buffer);
   [Define to 1 if you have the `realpath' function.])
 ],
 AC_MSG_RESULT([no]))
+
+# Check for the availability of libz (aka zlib)
+
+AC_CHECK_HEADERS([zlib.h], [HAVE_ZLIB_H=1])
+AC_CHECK_LIB([z], [gzopen], [HAVE_LIBZ=1])
+
+# Check for the availability of libbz2. Originally we just used AC_CHECK_LIB,
+# as for libz. However, this had the following problem, diagnosed and fixed by
+# a user:
+#
+#   - libbz2 uses the Pascal calling convention (WINAPI) for the functions
+#     under Win32.
+#   - The standard autoconf AC_CHECK_LIB fails to include "bzlib.h",
+#     therefore missing the function definition.
+#   - The compiler thus generates a "C" signature for the test function.
+#   - The linker fails to find the "C" function.
+#   - PCRE2 fails to configure if asked to do so against libbz2.
+#
+# Solution:
+#
+#   - Replace the AC_CHECK_LIB test with a custom test.
+
+AC_CHECK_HEADERS([bzlib.h], [HAVE_BZLIB_H=1])
+# Original test
+# AC_CHECK_LIB([bz2], [BZ2_bzopen], [HAVE_LIBBZ2=1])
+#
+# Custom test follows
+
+AC_MSG_CHECKING([for libbz2])
+OLD_LIBS="$LIBS"
+LIBS="$LIBS -lbz2"
+AC_LINK_IFELSE([AC_LANG_PROGRAM([[
+#ifdef HAVE_BZLIB_H
+#include <bzlib.h>
+#endif]],
+[[return (int)BZ2_bzopen("conftest", "rb");]])],
+[AC_MSG_RESULT([yes]);HAVE_LIBBZ2=1; break;],
+AC_MSG_RESULT([no]))
+LIBS="$OLD_LIBS"
+
+# Check for the availabiity of libreadline
+
+if test "$enable_pcre2test_libreadline" = "yes"; then
+ AC_CHECK_HEADERS([readline/readline.h], [HAVE_READLINE_H=1])
+ AC_CHECK_HEADERS([readline/history.h], [HAVE_HISTORY_H=1])
+ AC_CHECK_LIB([readline], [readline], [LIBREADLINE="-lreadline"],
+   [unset ac_cv_lib_readline_readline;
+    AC_CHECK_LIB([readline], [readline], [LIBREADLINE="-ltinfo"],
+     [unset ac_cv_lib_readline_readline;
+      AC_CHECK_LIB([readline], [readline], [LIBREADLINE="-lcurses"],
+       [unset ac_cv_lib_readline_readline;
+        AC_CHECK_LIB([readline], [readline], [LIBREADLINE="-lncurses"],
+         [unset ac_cv_lib_readline_readline;
+	  AC_CHECK_LIB([readline], [readline], [LIBREADLINE="-lncursesw"],
+           [unset ac_cv_lib_readline_readline;
+	    AC_CHECK_LIB([readline], [readline], [LIBREADLINE="-ltermcap"],
+             [LIBREADLINE=""],
+             [-ltermcap])],
+           [-lncursesw])],
+         [-lncurses])],
+       [-lcurses])],
+     [-ltinfo])])
+ AC_SUBST(LIBREADLINE)
+ if test -n "$LIBREADLINE"; then
+   if test "$LIBREADLINE" != "-lreadline"; then
+     echo "-lreadline needs $LIBREADLINE"
+     LIBREADLINE="-lreadline $LIBREADLINE"
+   fi
+ fi
+fi
+
+# Check for the availability of libedit. Different distributions put its
+# headers in different places. Try to cover the most common ones.
+
+if test "$enable_pcre2test_libedit" = "yes"; then
+  AC_CHECK_HEADERS([editline/readline.h edit/readline/readline.h readline.h], [
+    HAVE_LIBEDIT_HEADER=1
+    break
+  ])
+  AC_CHECK_LIB([edit], [readline], [LIBEDIT="-ledit"])
+fi
 
 PCRE2_STATIC_CFLAG=""
 if test "x$enable_shared" = "xno" ; then
@@ -500,12 +740,109 @@ else
   enable_percent_zt=auto
 fi
 
+# Unless running under Windows, JIT support requires pthreads.
+
+if test "$enable_jit" = "yes"; then
+  if test "$HAVE_WINDOWS_H" != "1"; then
+    AX_PTHREAD([], [AC_MSG_ERROR([JIT support requires pthreads])])
+    CC="$PTHREAD_CC"
+    CFLAGS="$PTHREAD_CFLAGS $CFLAGS"
+    LIBS="$PTHREAD_LIBS $LIBS"
+  fi
+  AC_DEFINE([SUPPORT_JIT], [], [
+    Define to any value to enable support for Just-In-Time compiling.])
+else
+  enable_pcre2grep_jit="no"
+fi
+
+if test "$enable_jit_sealloc" = "yes"; then
+  AC_DEFINE([SLJIT_PROT_EXECUTABLE_ALLOCATOR], [1], [
+    Define to any non-zero number to enable support for SELinux
+    compatible executable memory allocator in JIT. Note that this
+    will have no effect unless SUPPORT_JIT is also defined.])
+fi
+
+if test "$enable_pcre2grep_jit" = "yes"; then
+  AC_DEFINE([SUPPORT_PCRE2GREP_JIT], [], [
+    Define to any value to enable JIT support in pcre2grep. Note that this will
+    have no effect unless SUPPORT_JIT is also defined.])
+fi
+
+if test "$enable_pcre2grep_callout" = "yes"; then
+  if test "$enable_pcre2grep_callout_fork" = "yes"; then
+    if test "$HAVE_WINDOWS_H" != "1"; then
+      if test "$HAVE_SYS_WAIT_H" != "1"; then
+        AC_MSG_ERROR([Callout script support needs sys/wait.h.])
+      fi
+    fi
+    AC_DEFINE([SUPPORT_PCRE2GREP_CALLOUT_FORK], [], [
+      Define to any value to enable fork support in pcre2grep callout scripts.
+      This will have no effect unless SUPPORT_PCRE2GREP_CALLOUT is also
+      defined.])
+  fi
+  AC_DEFINE([SUPPORT_PCRE2GREP_CALLOUT], [], [
+    Define to any value to enable callout script support in pcre2grep.])
+else
+  enable_pcre2grep_callout_fork="no"
+fi
+
 if test "$enable_unicode" = "yes"; then
   AC_DEFINE([SUPPORT_UNICODE], [], [
     Define to any value to enable support for Unicode and UTF encoding.
     This will work even in an EBCDIC environment, but it is incompatible
     with the EBCDIC macro. That is, PCRE2 can support *either* EBCDIC
     code *or* ASCII/Unicode, but not both at once.])
+fi
+
+if test "$enable_pcre2grep_libz" = "yes"; then
+  AC_DEFINE([SUPPORT_LIBZ], [], [
+    Define to any value to allow pcre2grep to be linked with libz, so that it is
+    able to handle .gz files.])
+fi
+
+if test "$enable_pcre2grep_libbz2" = "yes"; then
+  AC_DEFINE([SUPPORT_LIBBZ2], [], [
+    Define to any value to allow pcre2grep to be linked with libbz2, so that it
+    is able to handle .bz2 files.])
+fi
+
+if test $with_pcre2grep_bufsize -lt 8192 ; then
+  AC_MSG_WARN([$with_pcre2grep_bufsize is too small for --with-pcre2grep-bufsize; using 8192])
+  with_pcre2grep_bufsize="8192"
+else
+  if test $? -gt 1 ; then
+  AC_MSG_ERROR([Bad value for --with-pcre2grep-bufsize])
+  fi
+fi
+
+if test $with_pcre2grep_max_bufsize -lt $with_pcre2grep_bufsize ; then
+  with_pcre2grep_max_bufsize="$with_pcre2grep_bufsize"
+else
+  if test $? -gt 1 ; then
+  AC_MSG_ERROR([Bad value for --with-pcre2grep-max-bufsize])
+  fi
+fi
+
+AC_DEFINE_UNQUOTED([PCRE2GREP_BUFSIZE], [$with_pcre2grep_bufsize], [
+  The value of PCRE2GREP_BUFSIZE is the starting size of the buffer used by
+  pcre2grep to hold parts of the file it is searching. The buffer will be
+  expanded up to PCRE2GREP_MAX_BUFSIZE if necessary, for files containing very
+  long lines. The actual amount of memory used by pcre2grep is three times this
+  number, because it allows for the buffering of "before" and "after" lines.])
+
+AC_DEFINE_UNQUOTED([PCRE2GREP_MAX_BUFSIZE], [$with_pcre2grep_max_bufsize], [
+  The value of PCRE2GREP_MAX_BUFSIZE specifies the maximum size of the buffer
+  used by pcre2grep to hold parts of the file it is searching. The actual
+  amount of memory used by pcre2grep is three times this number, because it
+  allows for the buffering of "before" and "after" lines.])
+
+if test "$enable_pcre2test_libedit" = "yes"; then
+  AC_DEFINE([SUPPORT_LIBEDIT], [], [
+    Define to any value to allow pcre2test to be linked with libedit.])
+  LIBREADLINE="$LIBEDIT"
+elif test "$enable_pcre2test_libreadline" = "yes"; then
+  AC_DEFINE([SUPPORT_LIBREADLINE], [], [
+    Define to any value to allow pcre2test to be linked with libreadline.])
 fi
 
 AC_DEFINE_UNQUOTED([NEWLINE_DEFAULT], [$ac_pcre2_newline_value], [
@@ -584,7 +921,7 @@ AC_DEFINE_UNQUOTED([HEAP_LIMIT], [$with_heap_limit], [
   a pattern. It applies to both pcre2_match() and pcre2_dfa_match(). It does
   not apply to JIT matching. The value is in kibibytes (units of 1024 bytes).])
 
-AC_DEFINE([MAX_NAME_SIZE], [32], [
+AC_DEFINE([MAX_NAME_SIZE], [128], [
   This limit is parameterized just in case anybody ever wants to
   change it. Care must be taken if it is increased, because it guards
   against integer overflow caused by enormously large patterns.])
@@ -665,6 +1002,68 @@ AC_SUBST(EXTRA_LIBPCRE2_POSIX_LDFLAGS)
 # optimization makes it run faster.
 DISTCHECK_CONFIGURE_FLAGS="CFLAGS='' CXXFLAGS='' --enable-pcre2-16 --enable-pcre2-32 --enable-jit"
 AC_SUBST(DISTCHECK_CONFIGURE_FLAGS)
+
+# Check that, if --enable-pcre2grep-libz or --enable-pcre2grep-libbz2 is
+# specified, the relevant library is available.
+
+if test "$enable_pcre2grep_libz" = "yes"; then
+  if test "$HAVE_ZLIB_H" != "1"; then
+    echo "** Cannot --enable-pcre2grep-libz because zlib.h was not found"
+    exit 1
+  fi
+  if test "$HAVE_LIBZ" != "1"; then
+    echo "** Cannot --enable-pcre2grep-libz because libz was not found"
+    exit 1
+  fi
+  LIBZ="-lz"
+fi
+AC_SUBST(LIBZ)
+
+if test "$enable_pcre2grep_libbz2" = "yes"; then
+  if test "$HAVE_BZLIB_H" != "1"; then
+    echo "** Cannot --enable-pcre2grep-libbz2 because bzlib.h was not found"
+    exit 1
+  fi
+  if test "$HAVE_LIBBZ2" != "1"; then
+    echo "** Cannot --enable-pcre2grep-libbz2 because libbz2 was not found"
+    exit 1
+  fi
+  LIBBZ2="-lbz2"
+fi
+AC_SUBST(LIBBZ2)
+
+# Similarly for --enable-pcre2test-readline
+
+if test "$enable_pcre2test_libedit" = "yes"; then
+  if test "$enable_pcre2test_libreadline" = "yes"; then
+    echo "** Cannot use both --enable-pcre2test-libedit and --enable-pcre2test-readline"
+    exit 1
+  fi
+  if test -z "$HAVE_LIBEDIT_HEADER"; then
+    echo "** Cannot --enable-pcre2test-libedit because neither editline/readline.h,"
+    echo "** edit/readline/readline.h nor a compatible header was found."
+    exit 1
+  fi
+  if test -z "$LIBEDIT"; then
+    echo "** Cannot --enable-pcre2test-libedit because libedit library was not found."
+    exit 1
+  fi
+fi
+
+if test "$enable_pcre2test_libreadline" = "yes"; then
+  if test "$HAVE_READLINE_H" != "1"; then
+    echo "** Cannot --enable-pcre2test-readline because readline/readline.h was not found."
+    exit 1
+  fi
+  if test "$HAVE_HISTORY_H" != "1"; then
+    echo "** Cannot --enable-pcre2test-readline because readline/history.h was not found."
+    exit 1
+  fi
+  if test -z "$LIBREADLINE"; then
+    echo "** Cannot --enable-pcre2test-readline because readline library was not found."
+    exit 1
+  fi
+fi
 
 # Handle valgrind support
 
@@ -788,6 +1187,8 @@ $PACKAGE-$VERSION configuration summary:
     Build 16-bit pcre2 library ......... : ${enable_pcre2_16}
     Build 32-bit pcre2 library ......... : ${enable_pcre2_32}
     Include debugging code ............. : ${enable_debug}
+    Enable JIT compiling support ....... : ${enable_jit}
+    Use SELinux allocator in JIT ....... : ${enable_jit_sealloc}
     Enable Unicode support ............. : ${enable_unicode}
     Newline char/sequence .............. : ${enable_newline}
     \R matches only ANYCRLF ............ : ${enable_bsr_anycrlf}
@@ -803,8 +1204,19 @@ $PACKAGE-$VERSION configuration summary:
     Match depth limit .................. : ${with_match_limit_depth}
     Build shared libs .................. : ${enable_shared}
     Build static libs .................. : ${enable_static}
+    Use JIT in pcre2grep ............... : ${enable_pcre2grep_jit}
+    Enable callouts in pcre2grep ....... : ${enable_pcre2grep_callout}
+    Enable fork in pcre2grep callouts .. : ${enable_pcre2grep_callout_fork}
+    Initial buffer size for pcre2grep .. : ${with_pcre2grep_bufsize}
+    Maximum buffer size for pcre2grep .. : ${with_pcre2grep_max_bufsize}
+    Link pcre2grep with libz ........... : ${enable_pcre2grep_libz}
+    Link pcre2grep with libbz2 ......... : ${enable_pcre2grep_libbz2}
+    Link pcre2test with libedit ........ : ${enable_pcre2test_libedit}
+    Link pcre2test with libreadline .... : ${enable_pcre2test_libreadline}
     Valgrind support ................... : ${enable_valgrind}
     Code coverage ...................... : ${enable_coverage}
+    Fuzzer support ..................... : ${enable_fuzz_support}
+    Differential fuzzer support ........ : ${enable_diff_fuzz_support}
     Use %zu and %td .................... : ${enable_percent_zt}
 
 EOF

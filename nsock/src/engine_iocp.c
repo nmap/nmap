@@ -3,7 +3,7 @@
  *                                                                         *
  ***********************IMPORTANT NSOCK LICENSE TERMS***********************
  *
- * The nsock parallel socket event library is (C) 1999-2024 Nmap Software LLC
+ * The nsock parallel socket event library is (C) 1999-2025 Nmap Software LLC
  * This library is free software; you may redistribute and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
  * Foundation; Version 2. This guarantees your right to use, modify, and
@@ -113,6 +113,8 @@ struct iocp_engine_info {
 
   /* How many Completion Packets we actually retreieved */
   unsigned long entries_removed;
+  /* Number of IODs incompatible with IO completion ports */
+  int num_pcap_nonselect;
 
   gh_list_t active_eovs;
   gh_list_t free_eovs;
@@ -129,6 +131,12 @@ struct extended_overlapped {
   /* The event may have expired and was recycled, we can't trust
   a pointer to the nevent structure to tell us the real nevent */
   nsock_event_id nse_id;
+/* We need a way to mark canceled I/O that doesn't interfere with real NSE IDs.
+ * -1 is 0xffffffff, so the lower bits will always be greater than NSE_TYPE_MAX
+ * and therefore invalid. 0 is already invalid, so works for the recycled case.
+ */
+#define NSEID_CANCELED ((nsock_event_id) -1)
+#define NSEID_FREED    ((nsock_event_id)  0)
 
   /* A pointer to the event */
   struct nevent *nse;
@@ -138,38 +146,32 @@ struct extended_overlapped {
 
   /* This is the buffer we will read data in */
   char *readbuf;
+  /* WSARecvFrom gives us the peer sockaddr,
+     which we can't put into nse->iod->peer until it's retrieved via iod_read */
+  struct sockaddr_storage peer;
+  socklen_t peerlen;
 
   /* The struct npool keeps track of EOVs that have been allocated so that it
   * can destroy them if the msp is deleted.  This pointer makes it easy to
   * remove this struct extended_overlapped from the allocated list when necessary */
   gh_lnode_t nodeq;
+
+  /* SSL events are "forced" or posted every time through the event loop. */
+  u8 forced_operation;
+#define IOCP_NOT_FORCED 0
+#define IOCP_FORCED 1
+#define IOCP_FORCED_POSTED 2
 };
 
 /* --- INTERNAL PROTOTYPES --- */
 static void iterate_through_event_lists(struct npool *nsp);
-static void iterate_through_pcap_events(struct npool *nsp);
 static void terminate_overlapped_event(struct npool *nsp, struct nevent *nse);
 static void initiate_overlapped_event(struct npool *nsp, struct nevent *nse);
-static int get_overlapped_result(struct npool *nsp, int fd, const void *buffer, size_t count);
+static int get_overlapped_result(struct npool *nsp, int fd, const void *buffer, size_t count, struct sockaddr* src_addr, socklen_t* addrlen);
 static void force_operation(struct npool *nsp, struct nevent *nse);
 static void free_eov(struct npool *nsp, struct extended_overlapped *eov);
 static int map_faulty_errors(int err);
 
-/* defined in nsock_core.c */
-void process_iod_events(struct npool *nsp, struct niod *nsi, int ev);
-void process_event(struct npool *nsp, gh_list_t *evlist, struct nevent *nse, int ev);
-void process_expired_events(struct npool *nsp);
-#if HAVE_PCAP
-#ifndef PCAP_CAN_DO_SELECT
-int pcap_read_on_nonselect(struct npool *nsp);
-#endif
-#endif
-
-/* defined in nsock_event.c */
-void update_first_events(struct nevent *nse);
-
-
-extern struct timeval nsock_tod;
 
 int iocp_init(struct npool *nsp) {
   struct iocp_engine_info *iinfo;
@@ -184,6 +186,7 @@ int iocp_init(struct npool *nsp) {
   iinfo->eov = NULL;
   iinfo->entries_removed = 0;
   iinfo->eov_list = (OVERLAPPED_ENTRY *)safe_malloc(iinfo->capacity * sizeof(OVERLAPPED_ENTRY));
+  iinfo->num_pcap_nonselect = 0;
   nsp->engine_data = (void *)iinfo;
 
   return 1;
@@ -221,13 +224,24 @@ void iocp_destroy(struct npool *nsp) {
 }
 
 int iocp_iod_register(struct npool *nsp, struct niod *iod, struct nevent *nse, int ev) {
+  int sd;
   struct iocp_engine_info *iinfo = (struct iocp_engine_info *)nsp->engine_data;
   HANDLE result;
 
   assert(!IOD_PROPGET(iod, IOD_REGISTERED));
   iod->watched_events = ev;
-  result = CreateIoCompletionPort((HANDLE)iod->sd, iinfo->iocp, NULL, 0);
-  assert(result);
+
+  sd = nsock_iod_get_sd(iod);
+  if (sd == -1) {
+    if (iod->pcap)
+      iinfo->num_pcap_nonselect++;
+    else
+      fatal("Unable to get descriptor for IOD #%lu", iod->id);
+  }
+  else {
+    result = CreateIoCompletionPort((HANDLE)sd, iinfo->iocp, NULL, 0);
+    assert(result && result == iinfo->iocp);
+  }
 
   IOD_PROPSET(iod, IOD_REGISTERED);
 
@@ -238,10 +252,20 @@ int iocp_iod_register(struct npool *nsp, struct niod *iod, struct nevent *nse, i
 
 /* Sadly a socket can't be unassociated with a completion port */
 int iocp_iod_unregister(struct npool *nsp, struct niod *iod) {
+  int sd;
+  struct iocp_engine_info *iinfo = (struct iocp_engine_info *)nsp->engine_data;
 
   if (IOD_PROPGET(iod, IOD_REGISTERED)) {
-    /* Nuke all uncompleted operations on that iod */
-    CancelIo((HANDLE)iod->sd);
+    sd = nsock_iod_get_sd(iod);
+    if (sd == -1) {
+      assert(iod->pcap);
+      iinfo->num_pcap_nonselect--;
+    }
+    else {
+      /* Nuke all uncompleted operations on that iod */
+      CancelIo((HANDLE)iod->sd);
+    }
+
     IOD_PROPCLR(iod, IOD_REGISTERED);
   }
 
@@ -249,25 +273,21 @@ int iocp_iod_unregister(struct npool *nsp, struct niod *iod) {
 }
 
 int iocp_iod_modify(struct npool *nsp, struct niod *iod, struct nevent *nse, int ev_set, int ev_clr) {
-  int new_events;
   struct iocp_engine_info *iinfo = (struct iocp_engine_info *)nsp->engine_data;
 
   assert((ev_set & ev_clr) == 0);
   assert(IOD_PROPGET(iod, IOD_REGISTERED));
 
-  new_events = iod->watched_events;
-  new_events |= ev_set;
-  new_events &= ~ev_clr;
+  // Bookkeeping, but we don't care about watched_events:
+  iod->watched_events |= ev_set;
+  iod->watched_events &= ~ev_clr;
 
-  if (ev_set != EV_NONE)
-    initiate_overlapped_event(nsp, nse);
-  else if (ev_clr != EV_NONE)
+  if (ev_set != EV_NONE) {
+      if (!nse->eov)
+          initiate_overlapped_event(nsp, nse);
+  }
+  else /* even if ev_clr is EV_NONE, since other events may preclude that */
     terminate_overlapped_event(nsp, nse);
-
-  if (new_events == iod->watched_events)
-    return 1; /* nothing to do */
-
-  iod->watched_events = new_events;
 
   return 1;
 }
@@ -300,36 +320,37 @@ int iocp_loop(struct npool *nsp, int msec_timeout) {
   nse = next_expirable_event(nsp);
   if (!nse)
     event_msecs = -1; /* None of the events specified a timeout */
-  else
-    event_msecs = MAX(0, TIMEVAL_MSEC_SUBTRACT(nse->timeout, nsock_tod));
+  else {
+    event_msecs = TIMEVAL_MSEC_SUBTRACT(nse->timeout, nsock_tod);
+    event_msecs = MAX(0, event_msecs);
+  }
 
 #if HAVE_PCAP
-#ifndef PCAP_CAN_DO_SELECT
-  /* Force a low timeout when capturing packets on systems where
-  * the pcap descriptor is not select()able. */
-  if (gh_list_count(&nsp->pcap_read_events) > 0)
-  if (event_msecs > PCAP_POLL_INTERVAL)
-    event_msecs = PCAP_POLL_INTERVAL;
-#endif
+    if (iinfo->num_pcap_nonselect > 0 && gh_list_count(&nsp->pcap_read_events) > 0) {
+
+      /* do non-blocking read on pcap devices that doesn't support select()
+       * If there is anything read, just leave this loop. */
+      if (pcap_read_on_nonselect(nsp)) {
+        /* okay, something was read. */
+        // Check all pcap events that won't be signaled
+        gettimeofday(&nsock_tod, NULL);
+        iterate_through_pcap_events(nsp);
+        // Make the system call non-blocking
+        event_msecs = 0;
+      }
+      /* Force a low timeout when capturing packets on systems where
+       * the pcap descriptor is not select()able. */
+      else if (event_msecs > PCAP_POLL_INTERVAL) {
+        event_msecs = PCAP_POLL_INTERVAL;
+      }
+    }
 #endif
 
   /* We cast to unsigned because we want -1 to be very high (since it means no
   * timeout) */
   combined_msecs = MIN((unsigned)event_msecs, (unsigned)msec_timeout);
 
-#if HAVE_PCAP
-#ifndef PCAP_CAN_DO_SELECT
-  /* do non-blocking read on pcap devices that doesn't support select()
-  * If there is anything read, just leave this loop. */
-  if (pcap_read_on_nonselect(nsp)) {
-    /* okay, something was read. */
-    gettimeofday(&nsock_tod, NULL);
-    iterate_through_pcap_events(nsp);
-  }
-  else
-#endif
-#endif
-  {
+  if (total_events > 0) {
     /* It is mandatory these values are reset before calling GetQueuedCompletionStatusEx */
     iinfo->entries_removed = 0;
     memset(iinfo->eov_list, 0, iinfo->capacity * sizeof(OVERLAPPED_ENTRY));
@@ -344,41 +365,23 @@ int iocp_loop(struct npool *nsp, int msec_timeout) {
         return -1;
       }
     }
+    else {
+      iterate_through_event_lists(nsp);
+    }
+  }
+  else if (combined_msecs > 0) {
+    // No compatible IODs; sleep the remainder of the wait time.
+    usleep(combined_msecs * 1000);
   }
 
-  iterate_through_event_lists(nsp);
+  /* iterate through timers and expired events */
+  process_expired_events(nsp);
 
   return 1;
 }
 
 
 /* ---- INTERNAL FUNCTIONS ---- */
-
-#if HAVE_PCAP
-/* Iterate through pcap events separately, since these are not tracked in iocp_engine_info */
-void iterate_through_pcap_events(struct npool *nsp) {
-  gh_lnode_t *current, *next, *last;
-
-  last = gh_list_last_elem(&nsp->active_iods);
-
-  for (current = gh_list_first_elem(&nsp->active_iods);
-       current != NULL && gh_lnode_prev(current) != last;
-       current = next) {
-    struct niod *nsi = container_of(current, struct niod, nodeq);
-
-    if (nsi->pcap && nsi->state != NSIOD_STATE_DELETED && nsi->events_pending)
-    {
-      process_iod_events(nsp, nsi, EV_READ);
-    }
-
-    next = gh_lnode_next(current);
-    if (nsi->state == NSIOD_STATE_DELETED) {
-      gh_list_remove(&nsp->active_iods, current);
-      gh_list_prepend(&nsp->free_iods, current);
-    }
-  }
-}
-#endif
 
 /* Iterate through all the event lists (such as connect_events, read_events,
 * timer_events, etc) and take action for those that have completed (due to
@@ -389,24 +392,43 @@ void iterate_through_event_lists(struct npool *nsp) {
   for (unsigned long i = 0; i < iinfo->entries_removed; i++) {
 
     iinfo->eov = (struct extended_overlapped *)iinfo->eov_list[i].lpOverlapped;
-    /* We can't rely on iinfo->entries_removed to tell us the real number of
-     * events to process */
-    if (!iinfo->eov || !iinfo->eov->nse)
-      continue;
 
-    /* We check if this is from a cancelled operation */
-    if (iinfo->eov->nse->id != iinfo->eov->nse_id ||
-        iinfo->eov->nse->event_done) {
-      free_eov(nsp, iinfo->eov);
-      iinfo->eov = NULL;
-      continue;
+    assert(iinfo->eov);
+    assert(iinfo->eov->nse_id != NSEID_FREED);
+    if (!iinfo->eov->nse) {
+        // No associated NSE means this was a cancelled operation
+        assert(iinfo->eov->nse_id == NSEID_CANCELED);
+        free_eov(nsp, iinfo->eov);
+        iinfo->eov = NULL;
+        continue;
+    }
+    // If it's a force-pushed completion status, reset to allow it to be pushed again
+    if (iinfo->eov->forced_operation) {
+        assert(iinfo->eov->forced_operation == IOCP_FORCED_POSTED);
+        iinfo->eov->forced_operation = IOCP_FORCED;
     }
 
-    if (!HasOverlappedIoCompleted((OVERLAPPED *)iinfo->eov))
-      continue;
+    struct niod* nsi = iinfo->eov->nse->iod;
+    struct nevent* nse = iinfo->eov->nse;
 
-    struct niod *nsi = iinfo->eov->nse->iod;
-    struct nevent *nse = iinfo->eov->nse;
+    if (nsi->state == NSIOD_STATE_DELETED) {
+        // All events should have been canceled already
+        gh_list_remove(&nsp->active_iods, &nsi->nodeq);
+        assert(iinfo->eov->nse_id == NSEID_CANCELED);
+        free_eov(nsp, iinfo->eov);
+        gh_list_prepend(&nsp->free_iods, &nsi->nodeq);
+        iinfo->eov = NULL;
+        continue;
+    }
+
+    /* Here are more things that should be true */
+    assert(iinfo->eov->nse_id == nse->id);
+    assert(iinfo->eov == nse->eov);
+
+    if (!iinfo->eov->err && !HasOverlappedIoCompleted((OVERLAPPED*)iinfo->eov)) {
+        continue;
+    }
+
     gh_list_t *evlist = NULL;
     int ev = 0;
 
@@ -440,35 +462,25 @@ void iterate_through_event_lists(struct npool *nsp) {
     process_event(nsp, evlist, nse, ev);
 
     if (nse->event_done) {
-      /* event is done, remove it from the event list and update IOD pointers
-      * to the first events of each kind */
-      update_first_events(nse);
-      gh_list_remove(evlist, &nse->nodeq_io);
-      gh_list_append(&nsp->free_events, &nse->nodeq_io);
-
-      if (nse->timeout.tv_sec)
-        gh_heap_remove(&nsp->expirables, &nse->expire);
-    } else
-      initiate_overlapped_event(nsp, nse);
-
-    if (nsi->state == NSIOD_STATE_DELETED) {
-      gh_list_remove(&nsp->active_iods, &nsi->nodeq);
-      gh_list_prepend(&nsp->free_iods, &nsi->nodeq);
+      if (nse->eov)
+          terminate_overlapped_event(nsp, nse);
+      nevent_unref(nsp, nse);
+    }
+    else {
+        assert(nse->eov->forced_operation != IOCP_NOT_FORCED);
+        if (!event_timedout(nse))
+            force_operation(nsp, nse);
     }
 
     iinfo->eov = NULL;
   }
 
-  /* iterate through timers and expired events */
-  process_expired_events(nsp);
 }
 
 static int errcode_is_failure(int err) {
-#ifndef WIN32
-  return err != EINTR && err != EAGAIN && err != EBUSY;
-#else
+
   return err != EINTR && err != EAGAIN && err != WSA_IO_PENDING && err != ERROR_NETNAME_DELETED;
-#endif
+
 }
 
 static int map_faulty_errors(int err) {
@@ -487,6 +499,8 @@ static struct extended_overlapped *new_eov(struct npool *nsp, struct nevent *nse
   gh_lnode_t *lnode;
   struct iocp_engine_info *iinfo = (struct iocp_engine_info *)nsp->engine_data;
 
+  assert(nse);
+  assert(!nse->eov);
   lnode = gh_list_pop(&iinfo->free_eovs);
   if (!lnode)
     eov = (struct extended_overlapped *)safe_malloc(sizeof(struct extended_overlapped));
@@ -519,11 +533,11 @@ static void free_eov(struct npool *nsp, struct extended_overlapped *eov) {
     eov->readbuf = NULL;
   }
 
-  gh_list_prepend(&iinfo->free_eovs, &eov->nodeq);
-
   eov->nse = NULL;
+  eov->nse_id = 0;
   if (nse)
     nse->eov = NULL;
+  gh_list_prepend(&iinfo->free_eovs, &eov->nodeq);
 }
 
 
@@ -533,10 +547,10 @@ static void call_connect_overlapped(struct npool *nsp, struct nevent *nse) {
   int one = 1;
   SOCKET sock = nse->iod->sd;
   GUID guid = WSAID_CONNECTEX;
-  struct sockaddr_in addr;
+  struct sockaddr_storage addr;
   LPFN_CONNECTEX ConnectExPtr = NULL;
   struct iocp_engine_info *iinfo = (struct iocp_engine_info *)nse->iod->nsp->engine_data;
-  struct extended_overlapped *eov = new_eov(nsp, nse);
+  struct extended_overlapped* eov = NULL;
   int ret;
   struct sockaddr_storage *ss = &nse->iod->peer;
   size_t sslen = nse->iod->peerlen;
@@ -569,11 +583,16 @@ static void call_connect_overlapped(struct npool *nsp, struct nevent *nse) {
   }
 
   /* ConnectEx doesn't automatically bind the socket */
-  memset(&addr, 0, sizeof(addr));
-  addr.sin_family = AF_INET;
-  addr.sin_addr.s_addr = INADDR_ANY;
-  addr.sin_port = 0;
   if (!nse->iod->locallen) {
+      memset(&addr, 0, sizeof(addr));
+      addr.ss_family = ss->ss_family;
+      if (addr.ss_family == AF_INET) {
+          ((struct sockaddr_in*)&addr)->sin_addr.s_addr = INADDR_ANY;
+          ((struct sockaddr_in*)&addr)->sin_port = 0;
+      } else if (addr.ss_family == AF_INET6) {
+          ((struct sockaddr_in6*)&addr)->sin6_addr = IN6ADDR_ANY_INIT;
+          ((struct sockaddr_in6*)&addr)->sin6_port = 0;
+      }
     ret = bind(sock, (SOCKADDR*)&addr, sizeof(addr));
     if (ret) {
       int err = socket_errno();
@@ -584,6 +603,7 @@ static void call_connect_overlapped(struct npool *nsp, struct nevent *nse) {
     }
   }
 
+  eov = new_eov(nsp, nse);
   ok = ConnectExPtr(sock, (SOCKADDR*)ss, sslen, NULL, 0, NULL, (LPOVERLAPPED)eov);
   if (!ok) {
     int err = socket_errno();
@@ -605,11 +625,12 @@ static void call_read_overlapped(struct nevent *nse) {
   eov->wsabuf.buf = eov->readbuf;
   eov->wsabuf.len = READ_BUFFER_SZ;
 
+  eov->peerlen = sizeof(eov->peer);
   err = WSARecvFrom(nse->iod->sd, &eov->wsabuf, 1, NULL, &flags,
-    (struct sockaddr *)&nse->iod->peer, (LPINT)&nse->iod->peerlen, (LPOVERLAPPED)eov, NULL);
+    (struct sockaddr *)&eov->peer, (LPINT)&eov->peerlen, (LPOVERLAPPED)eov, NULL);
   if (err) {
     err = socket_errno();
-    if (errcode_is_failure(err)) {
+    if (err != WSA_IO_PENDING) {
       // WSARecvFrom with overlapped I/O may generate ERROR_PORT_UNREACHABLE on ICMP error.
       // We'll translate that so Nsock-using software doesn't have to know about it.
       eov->err = (err == ERROR_PORT_UNREACHABLE ? ECONNREFUSED : err);
@@ -643,7 +664,7 @@ static void call_write_overlapped(struct nevent *nse) {
     (LPWSAOVERLAPPED)eov, NULL);
   if (err) {
     err = socket_errno();
-    if (errcode_is_failure(err)) {
+    if (err != WSA_IO_PENDING) {
       eov->err = err;
       /* Send the error to the main loop to be picked up by the appropriate handler */
       BOOL bRet = PostQueuedCompletionStatus(iinfo->iocp, -1, (ULONG_PTR)nse->iod, (LPOVERLAPPED)eov);
@@ -659,11 +680,23 @@ static void force_operation(struct npool *nsp, struct nevent *nse) {
   struct extended_overlapped *eov;
 
   struct iocp_engine_info *iinfo = (struct iocp_engine_info *)nsp->engine_data;
-  eov = new_eov(nse->iod->nsp, nse);
 
-  bRet = PostQueuedCompletionStatus(iinfo->iocp, 0, (ULONG_PTR)nse->iod, (LPOVERLAPPED)eov);
-  if (!bRet)
-    fatal("Error initiating event type(%d)", nse->type);
+  if (nse->eov) {
+      eov = nse->eov;
+      assert(eov->forced_operation != IOCP_NOT_FORCED);
+  }
+  else {
+      eov = new_eov(nse->iod->nsp, nse);
+      eov->forced_operation = IOCP_FORCED;
+  }
+  
+  if (eov->forced_operation == IOCP_FORCED) {
+      eov->forced_operation = IOCP_FORCED_POSTED;
+      bRet = PostQueuedCompletionStatus(iinfo->iocp, 0, (ULONG_PTR)nse->iod, (LPOVERLAPPED)eov);
+      if (!bRet)
+          fatal("Error initiating event type(%d)", nse->type);
+  }
+  // else we already posted it this round.
 }
 
 /* Either initiate a I/O read or force a SSL_read */
@@ -730,28 +763,61 @@ static void initiate_overlapped_event(struct npool *nsp, struct nevent *nse) {
 
 /* Terminate an overlapped I/O operation that expired */
 static void terminate_overlapped_event(struct npool *nsp, struct nevent *nse) {
-  bool eov_done = true;
+  struct extended_overlapped *eov = nse->eov;
+  DWORD dwCancelError = 0;
 
-  if (nse->eov) {
-    if (!HasOverlappedIoCompleted((LPOVERLAPPED)nse->eov)) {
-      CancelIoEx((HANDLE)nse->iod->sd, (LPOVERLAPPED)nse->eov);
-      eov_done = false;
-    }
-
-    if (eov_done)
-      free_eov(nsp, nse->eov);
+  // If there's no I/O or it's already been canceled, just return.
+  if (!eov || eov->nse_id == NSEID_CANCELED) {
+    return;
   }
+
+  assert(eov->nse_id != NSEID_FREED);
+
+  // Mark this as canceled
+  eov->nse_id = NSEID_CANCELED;
+  eov->nse = NULL;
+  nse->eov = NULL;
+
+  // If this is a forced operation that's been posted to the queue, we can't
+  // delete it yet and there's nothing left to cancel. Let
+  // iterate_through_event_lists free it next time through the loop.
+  if (eov->forced_operation == IOCP_FORCED_POSTED) {
+    return;
+  }
+
+  // If there's a pending I/O, cancel it.
+  if (!HasOverlappedIoCompleted((LPOVERLAPPED)eov)) {
+    // forced operations are never pending
+    assert(eov->forced_operation == IOCP_NOT_FORCED);
+    // If CancelIoEx succeeds, there will be a completion packet
+    if (CancelIoEx((HANDLE)nse->iod->sd, (LPOVERLAPPED)eov) != 0) {
+      return;
+    }
+    // If it failed, it could be there wasn't anything to cancel.
+    dwCancelError = GetLastError();
+    if (dwCancelError != ERROR_NOT_FOUND) {
+      fatal("Unexpected error from CancelIoEx: %08x", dwCancelError);
+    }
+  }
+  else if (eov->forced_operation == IOCP_NOT_FORCED) {
+      // real (not forced) IO completed, so this eov is referenced in the queue.
+      return;
+  }
+  // Now there are no more references to this eov, so we can free it.
+  free_eov(nsp, eov);
 }
 
 /* Retrieve the amount of bytes transferred or set the appropriate error */
-static int get_overlapped_result(struct npool *nsp, int fd, const void *buffer, size_t count) {
+static int get_overlapped_result(struct npool *nsp, int fd, const void *buffer, size_t count, struct sockaddr* src_addr, socklen_t* addrlen) {
   char *buf = (char *)buffer;
   DWORD dwRes = 0;
   int err;
   struct iocp_engine_info *iinfo = (struct iocp_engine_info *)nsp->engine_data;
 
   struct extended_overlapped *eov = iinfo->eov;
+  assert(eov->nse);
   struct nevent *nse = eov->nse;
+  assert(eov->nse_id == nse->id);
 
   /* If the operation failed at initialization, set the error for nsock_core.c to see */
   if (eov->err) {
@@ -767,8 +833,15 @@ static int get_overlapped_result(struct npool *nsp, int fd, const void *buffer, 
     }
   }
 
-  if (nse->type == NSE_TYPE_READ && buf)
-    memcpy(buf, eov->wsabuf.buf, dwRes);
+  if (nse->type == NSE_TYPE_READ) {
+      if (src_addr) {
+          *addrlen = MIN(eov->peerlen, *addrlen);
+          memcpy(&src_addr, &eov->peer, *addrlen);
+      }
+      assert(dwRes <= count);
+      if (buf)
+          memcpy(buf, eov->wsabuf.buf, dwRes);
+  }
 
   return dwRes;
 }
@@ -778,11 +851,11 @@ int iocp_iod_connect(struct npool *nsp, int sockfd, const struct sockaddr *addr,
 }
 
 int iocp_iod_read(struct npool *nsp, int sockfd, void *buf, size_t len, int flags, struct sockaddr *src_addr, socklen_t *addrlen) {
-  return get_overlapped_result(nsp, sockfd, buf, len);
+  return get_overlapped_result(nsp, sockfd, buf, len, src_addr, addrlen);
 }
 
 int iocp_iod_write(struct npool *nsp, int sockfd, const void *buf, size_t len, int flags, const struct sockaddr *dest_addr, socklen_t addrlen) {
-  return get_overlapped_result(nsp, sockfd, buf, len);
+  return get_overlapped_result(nsp, sockfd, buf, len, NULL, NULL);
 }
 
 #endif /* HAVE_IOCP */

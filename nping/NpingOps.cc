@@ -5,7 +5,7 @@
  *                                                                         *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
  *
- * The Nmap Security Scanner is (C) 1996-2024 Nmap Software LLC ("The Nmap
+ * The Nmap Security Scanner is (C) 1996-2025 Nmap Software LLC ("The Nmap
  * Project"). Nmap is also a registered trademark of the Nmap Project.
  *
  * This program is distributed under the terms of the Nmap Public Source
@@ -105,7 +105,6 @@ NpingOps::NpingOps() {
     sendpref_set=false;
 
     send_eth=false;
-    send_eth_set=false;
 
     delay=0;
     delay_set=false;
@@ -253,7 +252,7 @@ NpingOps::NpingOps() {
     icmp_trans_time=0;
     icmp_trans_time_set=false;
 
-    memset( icmp_advert_entry_addr, 0, sizeof(u32)*MAX_ICMP_ADVERT_ENTRIES );
+    memset( icmp_advert_entry_addr, 0, sizeof(struct in_addr)*MAX_ICMP_ADVERT_ENTRIES );
     memset( icmp_advert_entry_pref, 0, sizeof(u32)*MAX_ICMP_ADVERT_ENTRIES );
     icmp_advert_entry_count=0;
     icmp_advert_entry_set=false;
@@ -620,10 +619,10 @@ bool NpingOps::issetPacketCount(){
  *  PACKET_SEND_ETH, PACKET_SEND_IP_WEAK, PACKET_SEND_IP_STRONG, PACKET_SEND_IP
  *  @return OP_SUCCESS on success and OP_FAILURE in case of error.           */
 int NpingOps::setSendPreference(int v){
-   if( v!=PACKET_SEND_NOPREF && v!=PACKET_SEND_ETH_WEAK &&
-       v!=PACKET_SEND_ETH_STRONG && v!=PACKET_SEND_ETH &&
-       v!=PACKET_SEND_IP_WEAK && v!=PACKET_SEND_IP_STRONG &&
-       v!=PACKET_SEND_IP ){
+  // Validate: no extra bits set
+  if( (v & ~(PACKET_SEND_ETH | PACKET_SEND_IP))
+      // Validate: both ETH and IP cannot be STRONG
+      || ((v & PACKET_SEND_ETH_STRONG) && (v & PACKET_SEND_IP_STRONG))) {
         nping_fatal(QT_3,"setSendPreference(): Invalid value supplied\n");
         return OP_FAILURE;
     }else{
@@ -648,49 +647,29 @@ bool NpingOps::issetSendPreference(){
 
 /* Returns true if send preference is Ethernet */
 bool NpingOps::sendPreferenceEthernet(){
-  if ( this->getSendPreference()==PACKET_SEND_ETH_WEAK )
-    return true;
-  else if (this->getSendPreference()==PACKET_SEND_ETH_STRONG)
-    return true;
-  else if (this->getSendPreference()==PACKET_SEND_ETH )
-    return true;
-  else
-    return false;
+  return (this->sendpref & PACKET_SEND_ETH);
 } /* End of sendPreferenceEthernet() */
 
 
 /* Returns true if send preference is Ethernet */
 bool NpingOps::sendPreferenceIP(){
-  if ( this->getSendPreference()==PACKET_SEND_IP_WEAK )
-    return true;
-  else if (this->getSendPreference()==PACKET_SEND_IP_STRONG)
-    return true;
-  else if (this->getSendPreference()==PACKET_SEND_IP )
-    return true;
-  else
-    return false;
+  return (this->sendpref & PACKET_SEND_IP);
 } /* End of sendPreferenceIP() */
 
 
 /** Sets SendEth.
  *  @return OP_SUCCESS on success and OP_FAILURE in case of error.           */
 int NpingOps::setSendEth(bool val){
-  this->send_eth=val;
-  this->send_eth_set=true;
+  this->sendpref = PACKET_SEND_ETH;
+  this->sendpref_set = true;
   return OP_SUCCESS;
 } /* End of setSendEth() */
 
 
 /** Returns value of attribute send_eth */
 bool NpingOps::sendEth(){
-  return this->send_eth;
+  return (this->sendpref & PACKET_SEND_ETH_STRONG);
 } /* End of getSendEth() */
-
-
-/* Returns true if option has been set */
-bool NpingOps::issetSendEth(){
-  return this->send_eth_set;
-} /* End of issetSendEth() */
 
 
 /** Sets inter-probe delay. Supplied parameter is assumed to be in milliseconds
@@ -1416,7 +1395,6 @@ struct sockaddr_storage *NpingOps::getSourceSockAddr(struct sockaddr_storage *ss
         s6->sin6_addr=this->getIPv6SourceAddress();
     else
         s6->sin6_addr=in6addr_any;
-    s6->sin6_addr=this->getIPv6SourceAddress();
     s6->sin6_family=AF_INET6;
     if(this->issetSourcePort())
         s6->sin6_port=htons(this->getSourcePort());
@@ -1896,7 +1874,7 @@ bool NpingOps::issetICMPTransmitTimestamp(){
 
 
 int NpingOps::addICMPAdvertEntry(struct in_addr addr, u32 pref ){
-  if( this->icmp_advert_entry_count > MAX_ICMP_ADVERT_ENTRIES )
+  if( this->icmp_advert_entry_count >= MAX_ICMP_ADVERT_ENTRIES )
     return OP_FAILURE;
   this->icmp_advert_entry_addr[this->icmp_advert_entry_count] = addr;
   this->icmp_advert_entry_pref[this->icmp_advert_entry_count] = pref;
@@ -2392,7 +2370,7 @@ if( this->getMode()!=TCP_CONNECT && this->getMode()!=UDP_UNPRIV && this->getRole
                 else
                     this->setDevice( dev );
                 /* Libpcap gave us a device name, try to obtain it's IP */
-                if ( devname2ipaddr_alt(this->getDevice(), &ifaddr) != 0 ){
+                if ( devname2ipaddr(this->getDevice(), this->af(), &ifaddr) != 0 ){
                     if( this->isRoot() )
                         nping_fatal(QT_3,"Cannot figure out what source address to use for device %s, does it even exist?", this->getDevice());
                     else

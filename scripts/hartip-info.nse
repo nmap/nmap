@@ -64,8 +64,7 @@ portrule = shortport.port_or_service(5094, "hart-ip", "tcp")
 --    Returns "Unknown Device Type" if Expanded Device Type not recognized
 --  Table data from Common Tables Specification, HCF_SPEC-183, FCG TS20183, Revision 26.0
 --  5.1 Table 1. Expanded Device Type Codes
-
--- @key expdevtypnum number-represented Device Type Code parsed out of the HART-IP packet
+-- key is number-represented Device Type Code parsed out of the HART-IP packet
 local productName = {
   [4560] = "iTEMP TMT72",
   [45075] = "GW PL ETH/UNI-BUS",
@@ -80,8 +79,7 @@ end
 --    Returns "Unknown Manufacturer" if Manufacturer ID not recognized
 --  Table data from Common Tables Specification, HCF_SPEC-183, FCG TS20183, Revision 26.0
 --  5.8 Table 8. Manufacturer Identification Codes
-
--- @key manidnum number-represented Manufacturer ID parsed out of the HART-IP packet
+-- key is number-represented Manufacturer ID parsed out of the HART-IP packet
 local manufacturerName = {
   [176] = "Phoenix Contact",
 }

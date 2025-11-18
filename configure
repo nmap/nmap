@@ -6520,6 +6520,37 @@ printf "%s\n" "$am_cv_python_pyexecdir" >&6; }
 
 
 
+PY_BUILD_OK=false
+if $HAVE_PYTHON ; then
+
+  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for python module setuptools" >&5
+printf %s "checking for python module setuptools... " >&6; }
+  if $PYTHON -c 'import setuptools' 2>/dev/null ; then
+    py_have_setuptools=yes
+  else
+    py_have_setuptools=no
+  fi
+  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $py_have_setuptools" >&5
+printf "%s\n" "$py_have_setuptools" >&6; }
+
+  if test "$py_have_setuptools" = "yes"; then
+
+  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for python module build" >&5
+printf %s "checking for python module build... " >&6; }
+  if $PYTHON -c 'import build' 2>/dev/null ; then
+    py_have_build=yes
+  else
+    py_have_build=no
+  fi
+  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $py_have_build" >&5
+printf "%s\n" "$py_have_build" >&6; }
+
+    if test "$py_have_build" = "yes"; then
+      PY_BUILD_OK=true
+    fi
+  fi
+fi
+
 NDIFFDIR=ndiff
 
 # Do they want Ndiff?
@@ -6532,15 +6563,15 @@ else $as_nop
   with_ndiff=check
 fi
 
-if $HAVE_PYTHON ; then : ;
+if $PY_BUILD_OK ; then : ;
 else
   if test "$with_ndiff" = "check" ; then
-    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: WARNING: Not building Ndiff because Python was not found" >&5
-printf "%s\n" "$as_me: WARNING: Not building Ndiff because Python was not found" >&2;}
+    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: WARNING: Not building Ndiff because Python with setuptools was not found" >&5
+printf "%s\n" "$as_me: WARNING: Not building Ndiff because Python with setuptools was not found" >&2;}
   elif test "$with_ndiff" = "yes"; then
     { { printf "%s\n" "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
 printf "%s\n" "$as_me: error: in \`$ac_pwd':" >&2;}
-as_fn_error $? "--with-ndiff requires Python
+as_fn_error $? "--with-ndiff requires Python with setuptools
 See \`config.log' for more details" "$LINENO" 5; }
   fi
   with_ndiff=no
@@ -6583,7 +6614,7 @@ else $as_nop
 fi
 
 
-if $HAVE_PYTHON ; then : ;
+if $PY_BUILD_OK ; then : ;
 else
   if test "$with_zenmap" = "check"; then
     { printf "%s\n" "$as_me:${as_lineno-$LINENO}: WARNING: Not building Zenmap because Python was not found" >&5
@@ -7300,7 +7331,8 @@ fi
 
 # If they didn't specify it, we try to find it
 if test $have_pcre != yes -a $requested_included_pcre != yes ; then
-  ac_fn_c_check_header_compile "$LINENO" "pcre2.h" "ac_cv_header_pcre2_h" "$ac_includes_default"
+  ac_fn_c_check_header_compile "$LINENO" "pcre2.h" "ac_cv_header_pcre2_h" "#define PCRE2_CODE_UNIT_WIDTH 8
+"
 if test "x$ac_cv_header_pcre2_h" = xyes
 then :
   { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for pcre2_compile_8 in -lpcre2-8" >&5
@@ -7344,7 +7376,8 @@ then :
 fi
 
 else $as_nop
-  ac_fn_c_check_header_compile "$LINENO" "pcre2/pcre2.h" "ac_cv_header_pcre2_pcre2_h" "$ac_includes_default"
+  ac_fn_c_check_header_compile "$LINENO" "pcre2/pcre2.h" "ac_cv_header_pcre2_pcre2_h" "#define PCRE2_CODE_UNIT_WIDTH 8
+"
 if test "x$ac_cv_header_pcre2_pcre2_h" = xyes
 then :
   { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for pcre2_compile_8 in -lpcre2-8" >&5
@@ -7385,13 +7418,12 @@ printf "%s\n" "$ac_cv_lib_pcre2_8_pcre2_compile_8" >&6; }
 if test "x$ac_cv_lib_pcre2_8_pcre2_compile_8" = xyes
 then :
   have_pcre=yes
-      printf "%s\n" "#define HAVE_PCRE2_PCRE2_H 1" >>confdefs.h
+
+printf "%s\n" "#define HAVE_PCRE2_PCRE2_H 1" >>confdefs.h
 
 fi
 
-
 fi
-
 
 fi
 

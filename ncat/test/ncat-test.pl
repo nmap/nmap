@@ -14,6 +14,7 @@ use Socket6;
 use Digest::MD5 qw/md5_hex/;
 use POSIX ":sys_wait_h";
 use Fcntl qw(F_GETFL F_SETFL O_NONBLOCK);
+use Time::HiRes qw(usleep);
 
 use IPC::Open3;
 use strict;
@@ -33,11 +34,11 @@ my $PROXY_PORT = 40001;
 my $UNIXSOCK = "ncat.unixsock";
 my $UNIXSOCK_TMP = "ncat.unixsock_tmp";
 
-my $WIN32 = $^O eq "MSWin32" || $^O eq "cygwin";
+my $WIN32 = $^O eq "MSWin32" || $^O eq "cygwin" || $^O eq "msys";
 
 my $NCAT;
 if ($WIN32) {
-	$NCAT = "../Debug/ncat.exe";
+	$NCAT = "../Release/ncat.exe";
 } else {
 	$NCAT = "../ncat";
 }
@@ -136,7 +137,7 @@ sub ncat_client {
 	my $host;
 	my @ret = ncat(host_for_args(@_), $PORT, @_);
 	# Give it a moment to connect.
-	select(undef, undef, undef, 0.1);
+	usleep(100000);
 	return @ret;
 }
 
@@ -259,11 +260,11 @@ sub server_client_test_multi {
 # Like server_client_test, but run the test once each for each mix of TCP, UDP,
 # SCTP, and SSL.
 sub server_client_test_all {
-	server_client_test_multi(["tcp", "udp", "sctp", "tcp ssl", "sctp ssl"], @_);
+	server_client_test_multi(["tcp", "udp", "udp ssl", "sctp", "tcp ssl", "sctp ssl"], @_);
 }
 
 sub server_client_test_tcp_sctp_ssl {
-	server_client_test_multi(["tcp", "sctp", "tcp ssl", "sctp ssl"], @_);
+	server_client_test_multi(["tcp", "sctp", "udp ssl", "tcp ssl", "sctp ssl"], @_);
 }
 
 sub server_client_test_tcp_ssl {
@@ -866,16 +867,20 @@ server_client_test_all "Messages are logged to output file",
 	syswrite($s_in, "def\n");
 	sleep 1;
 	close($c_in);
-	open(FH, "server.log");
-	binmode FH;
-	my $contents = join("", <FH>);
-	close(FH);
-	$contents eq "abc\ndef\n" or die "Server logged " . d($contents);
-	open(FH, "client.log");
-	binmode FH;
-	$contents = join("", <FH>);
-	close(FH);
-	$contents eq "abc\ndef\n" or die "Client logged " . d($contents);
+	{
+		open(my $fh, "<", "server.log") or die "bad open: $!";
+		binmode $fh or die "bad binmode: $!";
+		my $contents = join("", <$fh>);
+		close($fh);
+		$contents eq "abc\ndef\n" or die "Server logged " . d($contents);
+	}
+	{
+		open(my $fh, "<", "client.log") or die "bad open: $!";
+		binmode $fh or die "bad binmode: $!";
+		my $contents = join("", <$fh>);
+		close($fh);
+		$contents eq "abc\ndef\n" or die "Client logged " . d($contents);
+	}
 };
 unlink "server.log";
 unlink "client.log";
@@ -894,128 +899,94 @@ server_client_test_tcp_sctp_ssl "Debug messages go to stderr",
 };
 kill_children;
 
+sub eof_test {
+  my $test = shift;
+  my $stop = shift;
+  my $pipe = shift;
+  my ($pid, $other);
+  my ($in, $out) = (\$c_in, \$s_out);
+  if ($test eq "Client") {
+    if ($pipe eq "socket") {
+      ($in, $out) = (\$s_in, \$c_out);
+    }
+    elsif ($pipe ne "stdin") {
+      die "Bad test";
+    }
+    $pid = \$c_pid;
+    $other = "Server";
+  }
+  elsif ($test eq "Server") {
+    if ($pipe eq "stdin") {
+      ($in, $out) = (\$s_in, \$c_out);
+    }
+    elsif ($pipe ne "socket") {
+      die "Bad test";
+    }
+    $pid = \$s_pid;
+    $other = "Client";
+  }
+  else {
+    die "Bad test";
+  }
+  return sub {
+    my $resp;
+
+    syswrite($$in, "abc\n");
+    $resp = timeout_read($$out) or die "Read timeout";
+    $resp eq "abc\n" or die "$other got \"$resp\", not \"abc\\n\"";
+
+    close($$in);
+
+    $resp = timeout_read($$out);
+    !defined($resp) or die "$other didn't get EOF (got \"$resp\")";
+    sleep 1;
+    if ($stop) {
+      waitpid($$pid, WNOHANG) == -1 or die "$test still running";
+    }
+    else {
+      waitpid($$pid, WNOHANG) != -1 or die "$test stopped running";
+    }
+  }
+}
 {
 local $xfail = 1;
-server_client_test_tcp_ssl "Client closes socket write and keeps running after stdin EOF",
-[], [], sub {
-	my $resp;
-
-	syswrite($c_in, "abc\n");
-	$resp = timeout_read($s_out) or die "Read timeout";
-	$resp eq "abc\n" or die "Server got \"$resp\", not \"abc\\n\"";
-
-	close($c_in);
-
-	$resp = timeout_read($s_out);
-	!defined($resp) or die "Server didn't get EOF (got \"$resp\")";
-	sleep 1;
-	waitpid($c_pid, WNOHANG) != -1 or die "Client stopped running";
-};
+server_client_test_tcp_ssl "Client -k closes socket write and keeps running after stdin EOF",
+["--no-shutdown"], ["-k"], eof_test("Client", 0, "stdin");
 kill_children;
 }
 
+server_client_test_tcp_sctp_ssl "Client closes socket write and stops running after stdin EOF",
+[], [], eof_test("Client", 1, "stdin");
+kill_children;
+
 server_client_test_tcp_ssl "--send-only client closes socket write and stops running after stdin EOF",
-[], ["--send-only"], sub {
-	my $resp;
-
-	syswrite($c_in, "abc\n");
-	$resp = timeout_read($s_out) or die "Read timeout";
-	$resp eq "abc\n" or die "Server got \"$resp\", not \"abc\\n\"";
-
-	close($c_in);
-
-	$resp = timeout_read($s_out);
-	!defined($resp) or die "Server didn't get EOF (got \"$resp\")";
-	sleep 1;
-	waitpid($c_pid, WNOHANG) == -1 or die "Client still running";
-};
+[], ["--send-only"], eof_test("Client", 1, "stdin");
 kill_children;
 
 server_client_test_tcp_ssl "Server closes socket write and keeps running after stdin EOF",
-[], [], sub {
-	my $resp;
-
-	syswrite($s_in, "abc\n");
-	$resp = timeout_read($c_out) or die "Read timeout";
-	$resp eq "abc\n" or die "Client got \"$resp\", not \"abc\\n\"";
-
-	close($s_in);
-
-	$resp = timeout_read($c_out);
-	!defined($resp) or die "Client didn't get EOF (got \"$resp\")";
-	sleep 1;
-	waitpid($s_pid, WNOHANG) != -1 or die "Server stopped running";
-};
+[], ["-k"], eof_test("Server", 0, "stdin");
 kill_children;
 
 server_client_test_tcp_ssl "--send-only server closes socket write and stops running after stdin EOF",
-["--send-only"], [], sub {
-	my $resp;
-
-	syswrite($s_in, "abc\n");
-	$resp = timeout_read($c_out) or die "Read timeout";
-	$resp eq "abc\n" or die "Client got \"$resp\", not \"abc\\n\"";
-
-	close($s_in);
-
-	$resp = timeout_read($c_out);
-	!defined($resp) or die "Client didn't get EOF (got \"$resp\")";
-	sleep 1;
-	waitpid($s_pid, WNOHANG) == -1 or die "Server still running";
-};
+["--send-only"], ["-k"], eof_test("Server", 1, "stdin");
 kill_children;
 
-server_client_test_tcp_ssl "Client closes stdout and keeps running after socket EOF",
-[], [], sub {
-	my $resp;
-
-	syswrite($s_in, "abc\n");
-	$resp = timeout_read($c_out) or die "Read timeout";
-	$resp eq "abc\n" or die "Client got \"$resp\", not \"abc\\n\"";
-
-	close($s_in);
-
-	$resp = timeout_read($c_out);
-	!defined($resp) or die "Client didn't get EOF and didn't exit (got \"$resp\")";
-	sleep 1;
-	waitpid($c_pid, WNOHANG) != -1 or die "Client stopped running";
-};
+server_client_test_sctp_ssl "--send-only server closes socket write and stops running after stdin EOF",
+["--send-only"], [], eof_test("Server", 1, "stdin");
 kill_children;
 
 # SCTP doesn't have half-open sockets, so the program should exit.
 # http://seclists.org/nmap-dev/2013/q1/203
-server_client_test_sctp_ssl "Client closes stdout and stops running after socket EOF",
-[], [], sub {
-	my $resp;
+server_client_test_tcp_sctp_ssl "Client closes stdout and stops running after socket EOF",
+[], [], eof_test("Client", 1, "socket");
+kill_children;
 
-	syswrite($s_in, "abc\n");
-	$resp = timeout_read($c_out) or die "Read timeout";
-	$resp eq "abc\n" or die "Client got \"$resp\", not \"abc\\n\"";
-
-	close($s_in);
-
-	$resp = timeout_read($c_out);
-	!defined($resp) or die "Client didn't get EOF and didn't exit (got \"$resp\")";
-	sleep 1;
-	waitpid($c_pid, WNOHANG) == -1 or die "Client still running";
-};
+server_client_test_tcp_ssl "Client -k closes stdout and keeps running after socket EOF",
+[], ["-k"], eof_test("Client", 0, "socket");
 kill_children;
 
 server_client_test_tcp_sctp_ssl "--recv-only client closes stdout and stops running after socket EOF",
-[], ["--recv-only"], sub {
-	my $resp;
-
-	syswrite($s_in, "abc\n");
-	$resp = timeout_read($c_out) or die "Read timeout";
-	$resp eq "abc\n" or die "Client got \"$resp\", not \"abc\\n\"";
-
-	close($s_in);
-
-	$resp = timeout_read($c_out);
-	!defined($resp) or die "Client didn't get EOF and didn't exit (got \"$resp\")";
-	sleep 1;
-	waitpid($c_pid, WNOHANG) == -1 or die "Client still running";
-};
+[], ["--recv-only"], eof_test("Client", 1, "socket");
 kill_children;
 
 # Test that the server closes its output stream after a client disconnects.
@@ -1030,55 +1001,16 @@ kill_children;
 # part works, but not the "server keeps running" part.
 local $xfail = 1;
 server_client_test_tcp_ssl "Server closes stdout and keeps running after socket EOF",
-[], [], sub {
-	my $resp;
-
-	syswrite($c_in, "abc\n");
-	$resp = timeout_read($s_out) or die "Read timeout";
-	$resp eq "abc\n" or die "Server got \"$resp\", not \"abc\\n\"";
-
-	close($c_in);
-
-	$resp = timeout_read($s_out);
-	!defined($resp) or die "Server didn't send EOF";
-	sleep 1;
-	waitpid($s_pid, WNOHANG) != -1 or die "Server stopped running";
-};
+[], [], eof_test("Server", 0, "socket");
 kill_children;
 }
 
 server_client_test_sctp_ssl "Server closes stdout and stops running after socket EOF",
-[], [], sub {
-	my $resp;
-
-	syswrite($c_in, "abc\n");
-	$resp = timeout_read($s_out) or die "Read timeout";
-	$resp eq "abc\n" or die "Server got \"$resp\", not \"abc\\n\"";
-
-	close($c_in);
-
-	$resp = timeout_read($s_out);
-	!defined($resp) or die "Server didn't send EOF";
-	sleep 1;
-	waitpid($s_pid, WNOHANG) == -1 or die "Server still running";
-};
+[], [], eof_test("Server", 1, "socket");
 kill_children;
 
 server_client_test_tcp_sctp_ssl "--recv-only server closes stdout and stops running after socket EOF",
-["--recv-only"], [], sub {
-	my $resp;
-
-	syswrite($c_in, "abc\n");
-	$resp = timeout_read($s_out) or die "Read timeout";
-	$resp eq "abc\n" or die "Server got \"$resp\", not \"abc\\n\"";
-
-	close($c_in);
-
-	$resp = timeout_read($s_out);
-	!defined($resp) or die "Server didn't send EOF";
-	sleep 1;
-	waitpid($s_pid, WNOHANG) == -1 or die "Server still running";
-};
+["--recv-only"], [], eof_test("Server", 1, "socket");
 kill_children;
 
 # Tests to check that server defaults to non-persistent without --keep-open.
@@ -1247,7 +1179,13 @@ proxy_test "--exec through proxy",
 	$resp eq "abc\n" or die "Server received " . d($resp) . ", not " . d("abc\n");
 };
 
-server_client_test_all "--lua-exec",
+server_client_test_tcp_ssl "--lua-exec",
+["--lua-exec", "toupper.lua"], ["-k"], sub {
+	syswrite($c_in, "abc\n");
+	my $resp = timeout_read($c_out) or die "Read timeout";
+	$resp eq "ABC\n" or die "Client received " . d($resp) . ", not " . d("ABC\n");
+};
+server_client_test_multi ["udp", "udp ssl", "sctp", "sctp ssl"], "--lua-exec",
 ["--lua-exec", "toupper.lua"], [], sub {
 	syswrite($c_in, "abc\n");
 	my $resp = timeout_read($c_out) or die "Read timeout";
@@ -1288,7 +1226,7 @@ sub delaywrite {
 	my ($handle, $data) = @_;
 	my $delay = 0.1;
 	syswrite($handle, $data);
-	select(undef, undef, undef, $delay);
+	usleep($delay * 1000000);
 }
 
 server_client_test_all "-C translation on input",

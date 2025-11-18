@@ -220,7 +220,7 @@ static int dir_iter_factory (lua_State *L) {
   const char *path = luaL_checkstring (L, 1);
   dir_data *d;
   lua_pushcfunction (L, dir_iter);
-  d = (dir_data *) lua_newuserdata (L, sizeof(dir_data));
+  d = (dir_data *) lua_newuserdatauv (L, sizeof(dir_data), 0);
   luaL_getmetatable (L, DIR_METATABLE);
   lua_setmetatable (L, -2);
   d->closed = 0;

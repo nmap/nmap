@@ -48,6 +48,26 @@
   #include <winsock2.h>
   #include <ws2tcpip.h>
 
+  /*!
+   * \brief In Winsock, a socket handle is of type SOCKET; in UN*X, it's
+   * a file descriptor, and therefore a signed integer.
+   * We define PCAP_SOCKET to be a signed integer on UN*X and a
+   * SOCKET on Windows, so that it can be used on both platforms.
+   *
+   * We used to use SOCKET rather than PCAP_SOCKET, but that collided
+   * with other software, such as barnyard2, which had their own
+   * definitions of SOCKET, so we changed it to PCAP_SOCKET.
+   *
+   * On Windows, this shouldn't break any APIs, as any code using
+   * the two active-mode APIs that return a socket handle would
+   * probably be assigning their return values to a SOCKET, and
+   * as, on Windows, we're defining PCAP_SOCKET as SOCKET, there
+   * would be no type clash.
+   */
+  #ifndef PCAP_SOCKET
+    #define PCAP_SOCKET SOCKET
+  #endif
+
   /*
    * Winsock doesn't have this POSIX type; it's used for the
    * tv_usec value of struct timeval.
@@ -61,13 +81,37 @@
   #include <arpa/inet.h>
 
   /*!
-   * \brief In Winsock, a socket handle is of type SOCKET; in UN*X, it's
-   * a file descriptor, and therefore a signed integer.
-   * We define SOCKET to be a signed integer on UN*X, so that it can
-   * be used on both platforms.
+   * \brief In Winsock, a socket handle is of type SOCKET; in UN*Xes,
+   * it's a file descriptor, and therefore a signed integer.
+   * We define PCAP_SOCKET to be a signed integer on UN*X and a
+   * SOCKET on Windows, so that it can be used on both platforms.
+   *
+   * We used to use SOCKET rather than PCAP_SOCKET, but that collided
+   * with other software, such as barnyard2, which had their own
+   * definitions of SOCKET, so we changed it to PCAP_SOCKET.
+   *
+   * On UN*Xes, this might break code that uses one of the two
+   * active-mode APIs that return a socket handle if those programs
+   * were written to assign the return values of those APIs to a
+   * SOCKET, as we're no longer defining SOCKET.  However, as
+   * those APIs are only provided if libpcap is built with remote
+   * capture support - which is not the default - and as they're
+   * somewhat painful to use, there's probably little if any code
+   * that needs to compile for UN*X and that uses them.  If there
+   * *is* any such code, it could do
+   *
+   *    #ifndef PCAP_SOCKET
+   *        #ifdef _WIN32
+   *            #define PCAP_SOCKET SOCKET
+   *        #else
+   *            #defube PCAP_SOCKET int
+   *        #endif
+   *    #endif
+   *
+   * and use PCAP_SOCKET.
    */
-  #ifndef SOCKET
-    #define SOCKET int
+  #ifndef PCAP_SOCKET
+    #define PCAP_SOCKET int
   #endif
 
   /*!

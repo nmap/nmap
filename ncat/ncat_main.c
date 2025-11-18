@@ -3,7 +3,7 @@
  * to mode-specific functions.                                             *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
  *
- * The Nmap Security Scanner is (C) 1996-2024 Nmap Software LLC ("The Nmap
+ * The Nmap Security Scanner is (C) 1996-2025 Nmap Software LLC ("The Nmap
  * Project"). Nmap is also a registered trademark of the Nmap Project.
  *
  * This program is distributed under the terms of the Nmap Public Source
@@ -313,7 +313,7 @@ int main(int argc, char *argv[])
     while (1) {
         /* handle command line arguments */
         int option_index;
-        int c = getopt_long(argc, argv, "46UCc:e:g:G:i:km:hp:d:lo:x:ts:uvw:nz",
+        int c = getopt_long(argc, argv, "46UCc:e:g:G:i:km:hp:q:d:lo:x:ts:uvw:nz",
                             long_options, &option_index);
 
         /* That's the end of the options. */
@@ -394,6 +394,14 @@ int main(int argc, char *argv[])
             break;
         case 'p':
             srcport = parseport(optarg, 0, "source port");
+            break;
+        case 'q':
+            if (optarg[0] == '-' && parse_timespec(optarg + 1, "-q timeout") > 0) {
+                o.quitafter = -1;
+            }
+            else {
+                o.quitafter = parse_timespec(optarg, "-q timeout");
+            }
             break;
         case 'i':
             o.idletimeout = parse_timespec(optarg, "-i timeout");
@@ -609,6 +617,7 @@ int main(int argc, char *argv[])
 "      --send-only            Only send data, ignoring received; quit on EOF\n"
 "      --recv-only            Only receive data, never send anything\n"
 "      --no-shutdown          Continue half-duplex when receiving EOF on stdin\n"
+"  -q <time>                  After EOF on stdin, wait <time> then quit.\n"
 "      --allow                Allow only given hosts to connect to Ncat\n"
 "      --allowfile            A file of hosts allowed to connect to Ncat\n"
 "      --deny                 Deny given hosts from connecting to Ncat\n"
@@ -1008,8 +1017,8 @@ static int ncat_connect_mode(void)
     if (o.chat)
         bye("Invalid option combination: `--chat' with connect.");
 
-    if (o.keepopen)
-        bye("Invalid option combination: `--keep-open' with connect.");
+    if (o.keepopen && o.proto != IPPROTO_TCP)
+        bye("Invalid option combination: `--keep-open' with non-TCP protocol.");
 
     return ncat_connect();
 }

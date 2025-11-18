@@ -2,7 +2,7 @@
  * ncat_core.c -- Contains option definitions and miscellaneous functions. *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
  *
- * The Nmap Security Scanner is (C) 1996-2024 Nmap Software LLC ("The Nmap
+ * The Nmap Security Scanner is (C) 1996-2025 Nmap Software LLC ("The Nmap
  * Project"). Nmap is also a registered trademark of the Nmap Project.
  *
  * This program is distributed under the terms of the Nmap Public Source
@@ -115,6 +115,7 @@ void options_init(void)
     o.normlogfd = -1;
     o.hexlogfd = -1;
     o.append = 0;
+    o.quitafter = 0;
     o.idletimeout = 0;
     o.crlf = 0;
     o.allow = 0;
@@ -285,7 +286,8 @@ int fdinfo_close(struct fdinfo *fdn)
 {
 #ifdef HAVE_OPENSSL
     if (o.ssl && fdn->ssl != NULL) {
-        SSL_shutdown(fdn->ssl);
+        if (!o.noshutdown)
+            SSL_shutdown(fdn->ssl);
         SSL_free(fdn->ssl);
         fdn->ssl = NULL;
     }
@@ -308,9 +310,13 @@ int fdinfo_recv(struct fdinfo *fdn, char *buf, size_t size)
              * cases, SSL_get_error gives SSL_ERROR_WANT_{READ,WRITE}, and we
              * should try the SSL_read again. */
             err = (n <= 0) ? SSL_get_error(fdn->ssl, n) : SSL_ERROR_NONE;
-        } while (err == SSL_ERROR_WANT_READ || err == SSL_ERROR_WANT_WRITE);
+        } while (err == SSL_ERROR_WANT_WRITE);
         switch (err) {
+            case SSL_ERROR_WANT_READ:
+                if (n < 0)
+                    n = 0;
             case SSL_ERROR_NONE:
+                fdn->lasterr = 0;
                 break;
             case SSL_ERROR_ZERO_RETURN:
                 fdn->lasterr = EOF;
@@ -500,13 +506,7 @@ void dotelnet(int s, unsigned char *buf, size_t bufsiz)
  */
 int ncat_delay_timer(int delayval)
 {
-    struct timeval s;
-
-    s.tv_sec = delayval / 1000;
-    s.tv_usec = (delayval % 1000) * (long) 1000;
-
-    select(0, NULL, NULL, NULL, &s);
-    return 1;
+    return 1 + usleep(delayval * 1000);
 }
 
 static int ncat_hexdump(int logfd, const char *data, int len);

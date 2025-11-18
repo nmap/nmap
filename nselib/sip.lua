@@ -267,7 +267,7 @@ Session = {
   --- Prepares and sends the challenge response authentication to the server
   -- @name Session.authenticate
   -- @param request instance of the request object requiring authentication
-  -- @param authdata string containing authentication data
+  -- @param response string containing authentication data
   -- @return status true on success false on failure
   -- @return err string containing an error message if status is false
   authenticate = function(self, request, response)
@@ -582,7 +582,7 @@ Request = {
 
   --- Sets the request content data
   -- @name Request.setContent
-  -- @param string containing the content data
+  -- @param content string containing the content data
   setContent = function(self, content) self.content = content end,
 
   --- Sets the requests' content type

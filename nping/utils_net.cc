@@ -5,7 +5,7 @@
  *                                                                         *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
  *
- * The Nmap Security Scanner is (C) 1996-2024 Nmap Software LLC ("The Nmap
+ * The Nmap Security Scanner is (C) 1996-2025 Nmap Software LLC ("The Nmap
  * Project"). Nmap is also a registered trademark of the Nmap Project.
  *
  * This program is distributed under the terms of the Nmap Public Source
@@ -66,7 +66,6 @@
 #include "output.h"
 #include "nbase.h"
 #include "pcap.h"
-#include "dnet.h"
 #include <vector>
 
 extern NpingOps o;
@@ -1111,8 +1110,8 @@ int send_packet(NpingTarget *target, int rawfd, u8 *pkt, size_t pktLen){
   assert(pktLen > 0);
 
   if ( o.sendEth() ){
-    eth_t *ethsd = eth_open_cached(o.getDevice());
-    eth_send(ethsd, pkt, pktLen);
+    netutil_eth_t *ethsd = eth_open_cached(o.getDevice());
+    netutil_eth_send(ethsd, pkt, pktLen);
   }else{
     if( o.ipv6() ){ /* IPv6 */
         memset(&s6, 0, sizeof(struct sockaddr_in6));

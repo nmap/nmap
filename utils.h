@@ -4,7 +4,7 @@
  *                                                                         *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
  *
- * The Nmap Security Scanner is (C) 1996-2024 Nmap Software LLC ("The Nmap
+ * The Nmap Security Scanner is (C) 1996-2025 Nmap Software LLC ("The Nmap
  * Project"). Nmap is also a registered trademark of the Nmap Project.
  *
  * This program is distributed under the terms of the Nmap Public Source
@@ -70,12 +70,12 @@
 #include "nbase.h"
 #include <assert.h>
 
-/* Arithmatic difference modulo 2^32 */
+/* Arithmetic difference modulo 2^32 */
 #ifndef MOD_DIFF
 #define MOD_DIFF(a,b) ((u32) (MIN((u32)(a) - (u32 ) (b), (u32 )(b) - (u32) (a))))
 #endif
 
-/* Arithmatic difference modulo 2^16 */
+/* Arithmetic difference modulo 2^16 */
 #ifndef MOD_DIFF_USHORT
 #define MOD_DIFF_USHORT(a,b) ((MIN((unsigned short)((unsigned short)(a) - (unsigned short ) (b)), (unsigned short) ((unsigned short )(b) - (unsigned short) (a)))))
 #endif

@@ -26,7 +26,7 @@ local crlf_pattern = "\r?\n"
 -- @return code The numeric response code, as returned by read_reply, or error message if socket is nil.
 -- @return message The response message
 -- @return buffer The socket read buffer function, to be passed to read_reply.
--- @see comm.lua
+-- @see comm
 connect = function(host, port, opts)
   opts = opts or {}
   opts.recv_before = true

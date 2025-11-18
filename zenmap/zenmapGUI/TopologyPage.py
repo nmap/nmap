@@ -2,7 +2,7 @@
 
 # ***********************IMPORTANT NMAP LICENSE TERMS************************
 # *
-# * The Nmap Security Scanner is (C) 1996-2024 Nmap Software LLC ("The Nmap
+# * The Nmap Security Scanner is (C) 1996-2025 Nmap Software LLC ("The Nmap
 # * Project"). Nmap is also a registered trademark of the Nmap Project.
 # *
 # * This program is distributed under the terms of the Nmap Public Source
@@ -139,8 +139,8 @@ class TopologyPage(HIGVBox):
 
         self.slow_label.set_text(_("""\
 Topology is disabled because too many hosts can cause it
-to run slowly. The limit is %d hosts and there are %d.\
-""" % (SLOW_LIMIT, len(hosts_up))))
+to run slowly. The limit is %(limit)d hosts and there are %(num)d.\
+""" % {'limit': SLOW_LIMIT, 'num': len(hosts_up)}))
 
         if len(hosts_up) <= SLOW_LIMIT:
             self.radialnet.show()

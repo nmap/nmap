@@ -8,10 +8,14 @@ for /f "usebackq delims=#" %%a in (`"%ProgramFiles(x86)%\Microsoft Visual Studio
 @echo on
 if "%TARGET%" == "Vars" ( goto :vars )
 
+if "%TARGET%" == "Clean" (
+  rd /S /Q build-pcre2
+) else (
 mkdir build-pcre2
 cd build-pcre2
 cmake.exe -A Win32 -G "Visual Studio 16 2019" ..\..\libpcre\ || goto :QUIT
 cd ..
+)
 msbuild -nologo nmap.sln -m -t:%TARGET% -p:Configuration="%VCCONFIG%" -p:Platform="Win32" -fl
 goto :QUIT
 

@@ -7,9 +7,7 @@
  * Rayan Zachariassen, CA*Net
  */
 
-#ifdef HAVE_CONFIG_H
 #include <config.h>
-#endif
 
 #include <sys/types.h>
 #include <sys/time.h>
@@ -75,7 +73,7 @@ readloop(int cnt, int if_fd, struct bpf_program *fp, printfunc printit)
 			ph = (struct packet_header *)bp;
 			caplen = ph->tap.th_wirelen > snaplen ? snaplen : ph->tap
 .th_wirelen ;
-			if (pcap_filter(fcode, (char *)ph->packet,
+			if (pcapint_filter(fcode, (char *)ph->packet,
 						ph->tap.th_wirelen, caplen)) {
 				if (cnt >= 0 && --cnt < 0)
 					goto out;
@@ -89,7 +87,7 @@ readloop(int cnt, int if_fd, struct bpf_program *fp, printfunc printit)
 		}
 #else	/* !IBMRTPC */
 		caplen = cc > snaplen ? snaplen : cc ;
-		if (pcap_filter(fcode, buf.hdr.packet, cc, caplen)) {
+		if (pcapint_filter(fcode, buf.hdr.packet, cc, caplen)) {
 			if (cnt >= 0 && --cnt < 0)
 				goto out;
 			(*printit)(buf.hdr.packet, &tv, cc, caplen);

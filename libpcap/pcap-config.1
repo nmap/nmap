@@ -18,55 +18,115 @@
 .\" WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF
 .\" MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 .\"
-.TH PCAP-CONFIG 1 "15 February 2015"
+.TH PCAP\-CONFIG 1 "17 April 2023"
 .SH NAME
 pcap-config \- write libpcap compiler and linker flags to standard output
 .SH SYNOPSIS
 .na
 .B pcap-config
 [
-.B \-\-static
+.B \-\-help
 ]
 [
-.B \-\-cflags | \-\-libs | \-\-additional-libs
+.B \-\-version
+]
+[
+.B \-\-cflags
+]
+.ti +12
+[
+.B \-\-libs
+|
+.B \-\-additional\-libs
+]
+.ti +12
+[
+.B \-\-static
+|
+.B \-\-static\-pcap\-only
 ]
 .ad
+
 .SH DESCRIPTION
 .LP
-When run with the
+.I pcap\-config
+writes to the standard output various compiler and linker flags required to
+build a user program with libpcap.  By default, it writes flags appropriate
+for building with a dynamically\-linked version of libpcap; see below
+for static linking.  Depending on the manner of libpcap installation, some
+options or their combinations may produce empty output \- this is by design.
+
+.SH OPTIONS
+.TP
+.B \-\-help
+Produce a help message and exit.
+
+.TP
+.B \-\-version
+Produce libpcap version and exit.  The version is the contents of
+.I VERSION
+file in libpcap source tree rather than the result of
+.BR \%pcap_lib_version (3PCAP).
+
+.TP
 .B \-\-cflags
-option,
-.I pcap-config
-writes to the standard output the
+Produce the
 .B \-I
-compiler flags required to include libpcap's header files.
-When run with the
+compiler flag required to include libpcap's header files.
+
+.TP
 .B \-\-libs
-option,
-.I pcap-config
-writes to the standard output the
+Produce the
 .B \-L
 and
 .B \-l
 linker flags required to link with libpcap, including
 .B \-l
 flags for libraries required by libpcap.
-When run with the
-.B \-\-additional-libs
-option,
-.I pcap-config
-writes to the standard output the
+
+.TP
+.B \-\-additional\-libs
+Produce the
 .B \-L
 and
 .B \-l
-flags for libraries required by libpcap, but not the
-.B \-lpcap
+linker flags for libraries required by libpcap, but not the
+.B \-l
 flag to link with libpcap itself.
-.LP
-By default, it writes flags appropriate for compiling with a
-dynamically-linked version of libpcap; the
+
+.TP
 .B \-\-static
-flag causes it to write flags appropriate for compiling with a
-statically-linked version of libpcap.
+This option causes
+.B \-\-libs
+and
+.B \-\-additional\-libs
+to produce linker flags appropriate for static linking with libpcap.
+
+.TP
+.B \-\-static\-pcap\-only
+This option causes
+.B \-\-libs
+and
+.B \-\-additional\-libs
+to produce linker flags appropriate for static linking with libpcap and
+dynamic linking with all other libraries, including libraries required by
+libpcap.
+
+.SH EXIT STATUS
+.I pcap\-config
+exits with a non-zero status when invoked with an invalid command\-line
+option, and with status 0 otherwise.
+
+.SH BACKWARD COMPATIBILITY
+.PP
+Before libpcap release 1.10.2
+.I pcap\-config
+did not treat invalid command\-line options as an error. The
+.B \-\-static\-pcap\-only
+flag became available in libpcap release 1.10.2.  The
+.B \-\-static
+flag became available in libpcap release 1.1.0.
+
 .SH SEE ALSO
+.BR pkg\-config (1),
 .BR pcap (3PCAP)

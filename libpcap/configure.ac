@@ -16,7 +16,7 @@ dnl
 
 AC_PREREQ(2.69)
 
-AC_INIT(pcap, m4_esyscmd_s([cat VERSION.txt]))
+AC_INIT(pcap, m4_esyscmd_s([cat VERSION]))
 AC_CONFIG_SRCDIR(pcap.c)
 AC_SUBST(PACKAGE_NAME)
 
@@ -24,17 +24,15 @@ AC_SUBST(PACKAGE_NAME)
 # These are the variables that are used in Makefile, pcap-config, and
 # libpcap.pc.
 #
-# CFLAGS: inherited from the environment, not modified by us (except
-# temporarily during tests that involve compilation).  Used only when
-# compiling C source.
-#
-# CXXFLAGS: inherited from the environment, not modified by us.  Used only
-# when compiling C++ source.
+# CFLAGS: inherited from the environment, not modified by us except
+# for flags required for the platform for which we're building (and
+# except temporarily during tests that involve compilation).  Used only
+# when compiling C source.
 #
 # LDFLAGS: inherited from the environment, not modified by us.
 #
 # LIBS: inherited from the environment; we add libraries required by
-# libpcap.  Librares that the core libpcap code requires are added
+# libpcap.  Libraries that the core libpcap code requires are added
 # first; libraries required by additional pcap modules are first
 # added to ADDITIONAL_LIBS, and only added to LIBS at the end, after
 # we're finished doing configuration tests for the modules.
@@ -62,7 +60,7 @@ AC_SUBST(PACKAGE_NAME)
 # libpcap.  Used in Makefile for both C and C++ source.
 #
 # ADDITIONAL_LIBS: additional libraries with which the libpcap dynamic
-# library needs to be linked.  Used in Makwfile; not used in pcap-config
+# library needs to be linked.  Used in Makefile; not used in pcap-config
 # or libpcap.pc, as, in all platforms on which we run, if a dynamic
 # library is linked with other dynamic libraries, a program using
 # that dynamic library doesn't have to link with those libraries -
@@ -121,39 +119,9 @@ AC_CHECK_SIZEOF([void *])
 ac_lbl_c_sizeof_void_p="$ac_cv_sizeof_void_p"
 
 #
-# We only need a C++ compiler for Haiku; all code except for its
-# pcap module is in C.
+# Get the size of a time_t, to know whether it's 32-bit or 64-bit.
 #
-case "$host_os" in
-haiku*)
-	AC_PROG_CXX
-
-	#
-	# Make sure C and C++ have the same pointer sizes with the flags
-	# they're given; if they don't, it means that the compilers for the
-	# languages will, with those flags, not produce code that can be
-	# linked together.
-	#
-	# We have to use different data types, because the results of
-	# a test are cached, so if we test for the size of a given type
-	# in C, the subsequent test in C++ will use the cached variable.
-	# We trick autoconf by testing the size of a "void *" in C and a
-	# "const void *" in C++.
-	#
-	AC_LANG_PUSH([C++])
-	AC_CHECK_SIZEOF([const void *])
-	ac_lbl_cxx_sizeof_void_p="$ac_cv_sizeof_const_void_p"
-	AC_LANG_POP([C++])
-	if test "$ac_lbl_cxx_sizeof_void_p" -eq 0; then
-		AC_MSG_ERROR([No C++ compiler was found])
-	fi
-	if test "$ac_lbl_c_sizeof_void_p" -ne "$ac_lbl_cxx_sizeof_void_p"; then
-		AC_MSG_ERROR([C compiler $CC produces code with $ac_lbl_c_sizeof_void_p-byte pointers
-while C++ compiler $CXX produces code with $ac_lbl_cxx_sizeof_void_p-byte pointers.  This prevents
-code in those languages from being combined.])
-	fi
-	;;
-esac
+AC_CHECK_SIZEOF([time_t],,[#include <time.h>])
 
 AC_LBL_C_INIT(V_CCOPT, V_INCLS)
 AC_LBL_SHLIBS_INIT
@@ -178,11 +146,16 @@ dnl
 AC_CHECK_HEADERS(sys/ioccom.h sys/sockio.h)
 AC_CHECK_HEADERS(netpacket/packet.h)
 
-AC_LBL_SAVE_CHECK_STATE
+#
+# Check whether the platform for which we're compiling requires extra
+# defines and libraries.  If so, add them to CFLAGS and LIBS, as we want
+# all subsequent tests to be done with those defines and libraries.
+#
 case "$host_os" in
 haiku*)
 	#
-	# Haiku needs _BSD_SOURCE for the _IO* macros because it doesn't use them.
+	# Haiku needs _BSD_SOURCE for the _IO* macros because it doesn't
+	# use them.
 	#
 	CFLAGS="$CFLAGS -D_BSD_SOURCE"
 	#
@@ -192,10 +165,10 @@ haiku*)
 	;;
 esac
 
+AC_LBL_SAVE_CHECK_STATE
 AC_LBL_FIXINCLUDES
 AC_LBL_RESTORE_CHECK_STATE
 
-AC_CHECK_FUNCS(strerror)
 AC_CHECK_FUNC(strerror_r,
     [
 	#
@@ -668,6 +641,26 @@ AC_CHECK_HEADER(pthread.h,
     ]
 )
 
+AC_MSG_CHECKING([whether to enable the instrument functions code])
+AC_ARG_ENABLE([instrument-functions],
+   [AS_HELP_STRING([--enable-instrument-functions],
+     [enable instrument functions code [default=no]])],
+   [],
+   [enableval=no])
+case "$enableval" in
+yes)	AC_MSG_RESULT(yes)
+	AC_DEFINE(ENABLE_INSTRUMENT_FUNCTIONS, 1,
+	    [define if you want to build the instrument functions code])
+	# Add '-finstrument-functions' instrumentation option to generate
+	# instrumentation calls for entry and exit to functions.
+	# Use '--enable-instrument-functions' also with tcpdump (or tcpslice)
+	# to see the output. See also https://www.tcpdump.org/faq.html#q17.
+	CFLAGS="$CFLAGS -O0 -ggdb -finstrument-functions"
+	;;
+*)	AC_MSG_RESULT(no)
+	;;
+esac
+
 dnl to pacify those who hate protochain insn
 AC_MSG_CHECKING(if --disable-protochain option is specified)
 AC_ARG_ENABLE(protochain,
@@ -819,11 +812,18 @@ else
 		V_PCAP=haiku
 	else
 		#
-		# Nothing we support.
+		# We don't have any capture type we know about.
+		# Report an error, and tell the user to configure with
+		# --with-pcap=null if they want a libpcap that can't
+		# capture but that can read capture files.  That way,
+		# nobody gets surprised by getting a no-capture
+		# libpcap without asking for that.
 		#
-		V_PCAP=null
-		AC_MSG_WARN(cannot determine packet capture interface)
-		AC_MSG_WARN((see the INSTALL.md file for more info))
+		AC_MSG_ERROR([No supported packet capture interface was found.
+ See the INSTALL.md file for information on packet capture support in
+ various operating systems.
+ If you want a libpcap that cannot capture packets but that can read
+ pcap and pcapng files, run configure with --with-pcap=null.])
 	fi
 fi
 AC_MSG_CHECKING(packet capture type)
@@ -844,7 +844,7 @@ AC_PATH_PROG([BREW], [brew])
 # Solaris pkg-config is annoying.  For at least one package (D-Bus, I'm
 # looking at *you*!), there are separate include files for 32-bit and
 # 64-bit builds (I guess using "unsigned long long" as a 64-bit integer
-# type on a 64-bit build is like crossing the beams or soething), and
+# type on a 64-bit build is like crossing the beams or something), and
 # there are two separate .pc files, so if we're doing a 32-bit build we
 # should make sure we look in /usr/lib/pkgconfig for .pc files and if
 # we're doing a 64-bit build we should make sure we look in
@@ -989,7 +989,7 @@ haiku)
 	#
 	# Capture module
 	#
-	PLATFORM_CXX_SRC="pcap-haiku.cpp"
+	PLATFORM_C_SRC="pcap-haiku.c"
 
 	#
 	# Just for the sake of it.
@@ -1023,14 +1023,14 @@ linux)
 	# let's drop support for older versions of libnl, too.
 	#
 	AC_ARG_WITH(libnl,
-	AS_HELP_STRING([--without-libnl],[disable libnl support @<:@default=disabled@:>@]),
+	AS_HELP_STRING([--without-libnl],[disable libnl support @<:@default=yes, on Linux, if present@:>@]),
 		with_libnl=$withval,with_libnl=if_available)
 
-	if test x$with_libnl = xyes ; then
+	if test x$with_libnl != xno ; then
 		#
 		# Check for libnl-genl-3.0 with pkg-config.
 		#
-		PKG_CHECK_MODULES(LIBNL, libnl-genl-3.0,
+		PKG_CHECK_MODULE(LIBNL, libnl-genl-3.0,
 		    [
 			pkg_config_found_libnl=yes
 			V_INCLS="$V_INCLS $LIBNL_CFLAGS"
@@ -1121,6 +1121,25 @@ bpf)
 		#endif
 		#include <net/bpf.h>
 	    ])
+
+	#
+	# Check whether there's a net/ipnet.h header and,
+	# if so, whether it defines IPNET_ANY_LINK - if so,
+	# we assume we have the "any" device (that's a
+	# Solaris header, and later versions of Solaris
+	# have an "any" device).
+	#
+	# Attempting to include it at compile time could
+	# be a pain, as it's a kernel header.
+	#
+	AC_MSG_CHECKING(whether the Solaris "any" device is supported)
+	if test -e /usr/include/inet/ipnet.h &&
+	    grep -q IPNET_ANY_LINK /usr/include/inet/ipnet.h; then
+		AC_MSG_RESULT(yes)
+		AC_DEFINE(HAVE_SOLARIS_ANY_DEVICE, 1, [target host supports Solaris "any" device])
+	else
+		AC_MSG_RESULT(no)
+	fi
 	;;
 
 pf)
@@ -1795,7 +1814,7 @@ yes)	AC_MSG_RESULT(yes)
 		openssl_pkgconfig_dir=`$BREW --env --plain openssl | sed -n 's/PKG_CONFIG_PATH: //p'`
 		PKG_CONFIG_PATH="$openssl_pkgconfig_dir:$PKG_CONFIG_PATH"
 	fi
-	PKG_CHECK_MODULES(OPENSSL, openssl,
+	PKG_CHECK_MODULE(OPENSSL, openssl,
 	    [
 		#
 		# We found OpenSSL/libressl.
@@ -1921,13 +1940,14 @@ return 0;
 		ADDITIONAL_LIBS_STATIC="$ADDITIONAL_LIBS_STATIC $OPENSSL_LIBS_STATIC"
 		LIBS_PRIVATE="$LIBS_PRIVATE $OPENSSL_LIBS_PRIVATE"
 		REQUIRES_PRIVATE="$REQUIRES_PRIVATE $OPENSSL_REQUIRES_PRIVATE"
+		REMOTE_C_SRC="$REMOTE_C_SRC sslutils.c"
 	else
 		AC_MSG_NOTICE(OpenSSL not found)
 	fi
 
 	AC_DEFINE(ENABLE_REMOTE,,
 	    [Define to 1 if remote packet capture is to be supported])
-	REMOTE_C_SRC="$REMOTE_C_SRC pcap-new.c pcap-rpcap.c rpcap-protocol.c sockutils.c sslutils.c"
+	REMOTE_C_SRC="$REMOTE_C_SRC pcap-new.c pcap-rpcap.c rpcap-protocol.c sockutils.c"
 	BUILD_RPCAPD=build-rpcapd
 	INSTALL_RPCAPD=install-rpcapd
 	;;
@@ -2376,8 +2396,8 @@ AC_SUBST(MAN_MISC_INFO)
 AC_SUBST(MAN_ADMIN_COMMANDS)
 
 AC_ARG_ENABLE(shared,
-AS_HELP_STRING([--enable-shared],[build shared libraries @<:@default=no@:>@]))
-test "x$enable_shared" != "xyes" && DYEXT="none"
+AS_HELP_STRING([--enable-shared],[build shared libraries @<:@default=yes, if support available@:>@]))
+test "x$enable_shared" = "xno" && DYEXT="none"
 
 AC_PROG_RANLIB
 AC_CHECK_TOOL([AR], [ar])
@@ -2427,9 +2447,9 @@ AC_CHECK_MEMBERS([dl_hp_ppa_info_t.dl_module_id_1],,,
 # Various Linux-specific mechanisms.
 #
 AC_ARG_ENABLE([usb],
-[AS_HELP_STRING([--enable-usb],[enable USB capture support @<:@default=no@:>@])],
+[AS_HELP_STRING([--enable-usb],[enable Linux usbmon USB capture support @<:@default=yes, if support available@:>@])],
     [],
-    [enable_usb=no])
+    [enable_usb=yes])
 
 #
 # If somebody requested an XXX-only pcap, that doesn't include
@@ -2450,7 +2470,7 @@ if test "xxx_only" != yes; then
       # software that looks for /dev/null or /dev/tty, for example,
       # so doing that is *REALLY* not a good idea), please provide
       # some mechanism to determine that directory at *run time*,
-      # rather than *configure time*, so that it works when doinga
+      # rather than *configure time*, so that it works when doing
       # a cross-build, and that works with *multiple* distributions,
       # with our without udev, and with multiple versions of udev,
       # with udevinfo or udevadm or any other mechanism to get the
@@ -2533,7 +2553,7 @@ if test "x$enable_netmap" != "xno" ; then
 	#
 	# Check whether net/netmap_user.h is usable if NETMAP_WITH_LIBS is
 	# defined; it's not usable on DragonFly BSD 4.6 if NETMAP_WITH_LIBS
-	# is defined, for example, as it includes a non-existent malloc.h
+	# is defined, for example, as it includes a nonexistent malloc.h
 	# header.
 	#
 	AC_MSG_CHECKING(whether we can compile the netmap support)
@@ -2619,7 +2639,7 @@ if test "$want_dpdk" != no; then
 	if test -n "$dpdk_dir"; then
 		PKG_CONFIG_PATH="$dpdk_dir:$PKG_CONFIG_PATH"
 	fi
-	PKG_CHECK_MODULES(DPDK, libdpdk,
+	PKG_CHECK_MODULE(DPDK, libdpdk,
 	    [
 		found_dpdk=yes
 	    ])
@@ -2760,9 +2780,9 @@ fi
 AC_SUBST(PCAP_SUPPORT_DPDK)
 
 AC_ARG_ENABLE([bluetooth],
-[AS_HELP_STRING([--enable-bluetooth],[enable Bluetooth support @<:@default=no@:>@])],
+[AS_HELP_STRING([--enable-bluetooth],[enable Bluetooth support @<:@default=yes, if support available@:>@])],
     [],
-    [enable_bluetooth=no])
+    [enable_bluetooth=ifsupportavailable])
 
 if test "xxx_only" = yes; then
 	# User requested something-else-only pcap, so they don't
@@ -2802,11 +2822,11 @@ if test "x$enable_bluetooth" != "xno" ; then
 					    #include <bluetooth/hci.h>
 					],
 					[
-					    u_int i = HCI_CHANNEL_MONITOR;
+					    int i = HCI_CHANNEL_MONITOR;
 					],
 					[
 					    AC_MSG_RESULT(yes)
-					    AC_DEFINE(PCAP_SUPPORT_BT_MONITOR,,
+					    AC_DEFINE(PCAP_SUPPORT_BT_MONITOR, 1,
 					      [target host supports Bluetooth Monitor])
 					    MODULE_C_SRC="$MODULE_C_SRC pcap-bt-monitor-linux.c"
 					],
@@ -2843,9 +2863,9 @@ if test "x$enable_bluetooth" != "xno" ; then
 fi
 
 AC_ARG_ENABLE([dbus],
-[AS_HELP_STRING([--enable-dbus],[enable D-Bus capture support @<:@default=no@:>@])],
+[AS_HELP_STRING([--enable-dbus],[enable D-Bus capture support @<:@default=yes, if support available@:>@])],
     [],
-    [enable_dbus=no])
+    [enable_dbus=ifavailable])
 
 if test "xxx_only" = yes; then
 	# User requested something-else-only pcap, so they don't
@@ -2876,7 +2896,7 @@ if test "x$enable_dbus" != "xno"; then
 			#
 			# https://bugs.freedesktop.org/show_bug.cgi?id=74029
 			#
-			# The user dind't explicitly request it, so just
+			# The user didn't explicitly request it, so just
 			# silently refuse to enable it.
 			#
 			enable_dbus="no"
@@ -2886,7 +2906,7 @@ if test "x$enable_dbus" != "xno"; then
 fi
 
 if test "x$enable_dbus" != "xno"; then
-	PKG_CHECK_MODULES(DBUS, dbus-1,
+	PKG_CHECK_MODULE(DBUS, dbus-1,
 	    [
 		AC_LBL_SAVE_CHECK_STATE
 		CFLAGS="$CFLAGS $DBUS_CFLAGS"
@@ -2937,7 +2957,7 @@ if test "xxx_only" = yes; then
 fi
 
 if test "x$enable_rdma" != "xno"; then
-	PKG_CHECK_MODULES(LIBIBVERBS, libibverbs,
+	PKG_CHECK_MODULE(LIBIBVERBS, libibverbs,
 	    [
 		found_libibverbs=yes
 		LIBIBVERBS_REQUIRES_PRIVATE="libibverbs"
@@ -2999,7 +3019,7 @@ if test "x$enable_rdma" != "xno"; then
 
 	if test "x$found_usable_libibverbs" = "xyes"
 	then
-		AC_DEFINE(PCAP_SUPPORT_RDMASNIFF, , [target host supports RDMA sniffing])
+		AC_DEFINE(PCAP_SUPPORT_RDMASNIFF, 1, [target host supports RDMA sniffing])
 		MODULE_C_SRC="$MODULE_C_SRC pcap-rdmasniff.c"
 		CFLAGS="$LIBIBVERBS_CFLAGS $CFLAGS"
 		ADDITIONAL_LIBS="$LIBIBVERBS_LIBS $ADDITIONAL_LIBS"
@@ -3077,7 +3097,6 @@ AC_SUBST(RPATH)
 AC_SUBST(ADDLOBJS)
 AC_SUBST(ADDLARCHIVEOBJS)
 AC_SUBST(PLATFORM_C_SRC)
-AC_SUBST(PLATFORM_CXX_SRC)
 AC_SUBST(MODULE_C_SRC)
 AC_SUBST(REMOTE_C_SRC)
 AC_SUBST(PTHREAD_LIBS)

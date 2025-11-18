@@ -156,7 +156,6 @@ local broadcast_if = function(if_table,icmp_responders)
 
   -- raw sniffing socket (icmp echoreply style)
   local pcap = nmap.new_socket()
-  pcap:set_timeout(timeout)
 
   local mtu = if_table.mtu or 256  -- 256 is minimal mtu
 
@@ -185,7 +184,10 @@ local broadcast_if = function(if_table,icmp_responders)
     try( dnet:ethernet_send(ethernet_icmp) )
   end
 
-  while true do
+  local start_time = nmap.clock_ms()
+  local now = start_time
+  while( now - start_time < timeout ) do
+    pcap:set_timeout(timeout - (now - start_time))
     local status, plen, l2, l3data, _ = pcap:pcap_receive()
     if not status then break end
 
@@ -203,6 +205,7 @@ local broadcast_if = function(if_table,icmp_responders)
     else
       stdnse.debug1("Erroneous ICMP packet received; Cannot parse IP header.")
     end
+    now = nmap.clock_ms()
   end
 
   pcap:close()

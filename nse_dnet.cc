@@ -14,10 +14,6 @@
 #include <assert.h>
 
 extern NmapOps o;
-#ifdef WIN32
-/* from libdnet's intf-win32.c */
-extern "C" int g_has_npcap_loopback;
-#endif
 
 enum {
   DNET_METATABLE = lua_upvalueindex(1),
@@ -28,7 +24,7 @@ enum {
 
 typedef struct nse_dnet_udata
 {
-  eth_t *eth;
+  netutil_eth_t *eth;
   int sock; /* raw ip socket */
   char devname[32]; /* libnetutil uses this len; dnet generally uses 16 */
 } nse_dnet_udata;
@@ -37,21 +33,36 @@ static int l_dnet_new (lua_State *L)
 {
   nse_dnet_udata *udata;
 
-  udata = (nse_dnet_udata *) lua_newuserdata(L, sizeof(nse_dnet_udata));
+  udata = (nse_dnet_udata *) lua_newuserdatauv(L, sizeof(nse_dnet_udata), 0);
   lua_pushvalue(L, DNET_METATABLE);
   lua_setmetatable(L, -2);
   udata->eth = NULL;
   udata->sock = -1;
+  udata->devname[0] = '\0';
 
   return 1;
+}
+
+static struct interface_info *checkdevname (lua_State *L, int idx)
+{
+  size_t len = 0;
+  const char *interface_name = luaL_checklstring(L, idx, &len);
+  if (len >= 32) {
+    luaL_argerror(L, idx, "device name too long");
+    return NULL;
+  }
+  struct interface_info *ii = getInterfaceByName(interface_name, o.af());
+  if (ii == NULL)
+    luaL_argerror(L, idx, "device %s not found or no address configured");
+
+  return ii;
 }
 
 static int l_dnet_get_interface_info (lua_State *L)
 {
   char ipstr[INET6_ADDRSTRLEN];
   struct addr src, bcast;
-  struct interface_info *ii = getInterfaceByName(luaL_checkstring(L, 1),
-                                                 o.af());
+  struct interface_info *ii = checkdevname(L, 1);
 
   if (ii == NULL)
     return nseU_safeerror(L, "failed to find interface");
@@ -112,23 +123,23 @@ static int l_dnet_get_interface_info (lua_State *L)
 
 static int close_eth (lua_State *L)
 {
-  eth_t **eth = (eth_t **) nseU_checkudata(L, 1, DNET_ETHERNET_METATABLE, "ethernet");
+  netutil_eth_t **eth = (netutil_eth_t **) nseU_checkudata(L, 1, DNET_ETHERNET_METATABLE, "ethernet");
   assert(*eth != NULL);
-  eth_close(*eth);
+  netutil_eth_close(*eth);
   *eth = NULL;
   return nseU_success(L);
 }
 
-static eth_t *open_eth_cached (lua_State *L, int dnet_index, const char *device)
+static netutil_eth_t *open_eth_cached (lua_State *L, int dnet_index, const char *device)
 {
-  eth_t **eth;
+  netutil_eth_t **eth;
 
   lua_getfield(L, CACHE_DEVICE_ETHERNET, device);
   if (!lua_isuserdata(L, -1))
   {
     lua_pop(L, 1);
-    eth = (eth_t **) lua_newuserdata(L, sizeof(eth_t *));
-    *eth = eth_open(device);
+    eth = (netutil_eth_t **) lua_newuserdatauv(L, sizeof(netutil_eth_t *), 0);
+    *eth = netutil_eth_open(device);
     if (*eth == NULL)
       luaL_error(L, "unable to open dnet on ethernet interface %s", device);
     lua_pushvalue(L, DNET_ETHERNET_METATABLE);
@@ -136,13 +147,13 @@ static eth_t *open_eth_cached (lua_State *L, int dnet_index, const char *device)
     lua_pushvalue(L, -1);
     lua_setfield(L, CACHE_DEVICE_ETHERNET, device);
   }
-  eth = (eth_t **) lua_touserdata(L, -1);
+  eth = (netutil_eth_t **) lua_touserdata(L, -1);
 
   lua_pushvalue(L, dnet_index);
-  lua_pushvalue(L, -2); /* eth_t userdata */
+  lua_pushvalue(L, -2); /* netutil_eth_t userdata */
   lua_rawset(L, CACHE_DNET_ETHERNET);
 
-  lua_pop(L, 1); /* eth_t userdata */
+  lua_pop(L, 1); /* netutil_eth_t userdata */
 
   return *eth;
 }
@@ -150,22 +161,11 @@ static eth_t *open_eth_cached (lua_State *L, int dnet_index, const char *device)
 static int ethernet_open (lua_State *L)
 {
   nse_dnet_udata *udata = (nse_dnet_udata *) nseU_checkudata(L, 1, DNET_METATABLE, "dnet");
-  size_t len = 0;
-  const char *interface_name = luaL_checklstring(L, 2, &len);
-  if (len >= 32)
-    return luaL_argerror(L, 2, "device name too long");
-  struct interface_info *ii = getInterfaceByName(interface_name, o.af());
+  const char *devname = luaL_checkstring(L, 2);
 
-  if (ii == NULL || ii->device_type != devt_ethernet
-#ifdef WIN32
-    && !(g_has_npcap_loopback && ii->device_type == devt_loopback)
-#endif
-    )
-    return luaL_argerror(L, 2, "device is not valid ethernet interface");
-
-  udata->eth = open_eth_cached(L, 1, interface_name);
-  strncpy(udata->devname, interface_name, len);
-  udata->devname[len] = '\0';
+  udata->eth = open_eth_cached(L, 1, devname);
+  strncpy(udata->devname, devname, 16);
+  udata->devname[16] = '\0';
   if (o.scriptTrace())
   {
       log_write(LOG_STDOUT, "%s: Ethernet open %s\n",
@@ -175,9 +175,9 @@ static int ethernet_open (lua_State *L)
   return nseU_success(L);
 }
 
-static int ethernet_close (lua_State *L)
+static void ethernet_close_main (lua_State *L, int dnet_index)
 {
-  nse_dnet_udata *udata = (nse_dnet_udata *) nseU_checkudata(L, 1, DNET_METATABLE, "dnet");
+  nse_dnet_udata *udata = (nse_dnet_udata *) lua_touserdata(L, dnet_index);
 
   if (o.scriptTrace())
   {
@@ -187,10 +187,15 @@ static int ethernet_close (lua_State *L)
   udata->devname[0] = '\0';
   udata->eth = NULL;
 
-  lua_pushvalue(L, 1);
+  lua_pushvalue(L, dnet_index);
   lua_pushnil(L);
   lua_rawset(L, CACHE_DNET_ETHERNET);
+}
 
+static int ethernet_close (lua_State *L)
+{
+  nseU_checkudata(L, 1, DNET_METATABLE, "dnet");
+  ethernet_close_main(L, 1);
   return nseU_success(L);
 }
 
@@ -206,20 +211,29 @@ static int ethernet_send (lua_State *L)
       log_write(LOG_STDOUT, "%s: Ethernet frame (%lu bytes) > %s\n",
           SCRIPT_ENGINE, len, udata->devname);
   }
-  size_t sent = eth_send(udata->eth, frame, len);
+  size_t sent = netutil_eth_send(udata->eth, frame, len);
   if (sent == len)
     return nseU_success(L);
   else
-    return nseU_safeerror(L, "eth_send error: %lu", sent);
+    return nseU_safeerror(L, "netutil_eth_send error: %lu", sent);
 }
 
 static int ip_open (lua_State *L)
 {
   nse_dnet_udata *udata = (nse_dnet_udata *) nseU_checkudata(L, 1, DNET_METATABLE, "dnet");
-  udata->sock = nmap_raw_socket();
-  if (udata->sock == -1)
-    return luaL_error(L, "failed to open raw socket: %s (errno %d)",
-        socket_strerror(socket_errno()), socket_errno());
+  udata->sock = netutil_raw_socket(NULL);
+  if (udata->sock == -1) {
+    if (o.scriptTrace())
+    {
+      log_write(LOG_STDOUT, "%s: failed to open raw socket: %s (errno %d)", SCRIPT_ENGINE,
+          socket_strerror(socket_errno()), socket_errno());
+    }
+    // If possible, we'll try to use Ethernet headers to send packets, but not
+    // if the user specified --send-ip
+    if (o.sendpref == PACKET_SEND_IP_STRONG) {
+      return luaL_error(L, "Unable to open raw IP socket.");
+    }
+  }
   if (o.scriptTrace())
   {
       log_write(LOG_STDOUT, "%s: raw IP socket open\n", SCRIPT_ENGINE);
@@ -227,17 +241,26 @@ static int ip_open (lua_State *L)
   return nseU_success(L);
 }
 
+static void ip_close_main (lua_State *L, int dnet_index)
+{
+  nse_dnet_udata *udata = (nse_dnet_udata *) lua_touserdata(L, dnet_index);
+  if (udata->sock >= 0) {
+    close(udata->sock);
+    udata->sock = -1;
+    if (o.scriptTrace())
+    {
+      log_write(LOG_STDOUT, "%s: raw IP socket close\n", SCRIPT_ENGINE);
+    }
+  }
+}
+
 static int ip_close (lua_State *L)
 {
   nse_dnet_udata *udata = (nse_dnet_udata *) nseU_checkudata(L, 1, DNET_METATABLE, "dnet");
-  if (udata->sock == -1)
-    return nseU_safeerror(L, "raw socket already closed");
-  close(udata->sock);
-  udata->sock = -1;
-  if (o.scriptTrace())
-  {
-      log_write(LOG_STDOUT, "%s: raw IP socket close\n", SCRIPT_ENGINE);
+  if (udata->eth) {
+    ethernet_close_main(L, 1);
   }
+  ip_close_main(L, 1);
   return nseU_success(L);
 }
 
@@ -250,10 +273,11 @@ static int ip_send (lua_State *L)
   const char *addr, *targetname;
   size_t packetlen;
   unsigned int payloadlen;
-  char dev[16];
   int ret;
 
-  if (udata->sock == -1)
+  // If possible, we'll try to use Ethernet headers to send packets, but not
+  // if the user specified --send-ip
+  if (udata->sock == -1 && o.sendpref == PACKET_SEND_IP_STRONG)
     return luaL_error(L, "raw socket not open to send");
 
   packet = luaL_checklstring(L, 2, &packetlen);
@@ -276,27 +300,18 @@ static int ip_send (lua_State *L)
       return nseU_safeerror(L, gai_strerror(rc));
   }
 
-  *dev = '\0';
-
-  if (o.sendpref & PACKET_SEND_ETH)
-  {
+  if (udata->sock >= 0) {
+    ret = send_ip_packet(udata->sock, NULL, &dst, (u8 *) packet, packetlen);
+  }
+  else {
+    // Already checked for PACKET_SEND_IP_STRONG above, so okay to try eth instead.
     struct sockaddr_storage *nexthop;
     struct route_nfo route;
     u8 dstmac[6];
-    eth_nfo eth;
+    eth_nfo eth = {0};
 
     if (!nmap_route_dst(&dst, &route))
-      goto usesock;
-
-    Strncpy(dev, route.ii.devname, sizeof(dev));
-
-    if (! (route.ii.device_type == devt_ethernet
-#ifdef WIN32
-          || (g_has_npcap_loopback && route.ii.device_type == devt_loopback)
-#endif
-          ) ) {
-      goto usesock;
-    }
+      return nseU_safeerror(L, "Can't find route to %s", addr);
 
     /* above we fallback to using the raw socket if we can't find an (ethernet)
      * route to the host.  From here on out it's ethernet all the way.
@@ -311,38 +326,32 @@ static int ip_send (lua_State *L)
      * track of if we're reusing the same device from the previous packet, and
      * close the cached device if not.
      */
-    memset(&eth, 0, sizeof(eth));
+    if (0 != strncmp(udata->devname, route.ii.devfullname, 16)) {
+      if (udata->eth) {
+        /* close any current ethernet associated with this userdata */
+        ethernet_close_main(L, 1);
+      }
 
+      udata->eth = open_eth_cached(L, 1, route.ii.devname);
+      strncpy(udata->devname, route.ii.devname, 16);
+      udata->devname[16] = '\0';
+    }
+    eth.ethsd = udata->eth;
+
+    if (DLT_EN10MB == netutil_eth_datalink(udata->eth)
 #ifdef WIN32
-    // Only determine mac addr info if it's not the Npcap Loopback Adapter.
-    // Npcap loopback doesn't have a MAC address and isn't an ethernet device,
-    // so getNextHopMAC crashes.
-    if (!(g_has_npcap_loopback && route.ii.device_type == devt_loopback)) {
+        // Some Npcap installs will report DLT_EN10MB for the loopback adapter, but
+        // it ignores the Ethernet header, and getNextHopMAC will crash.
+        && route.ii.device_type != devt_loopback
 #endif
+       ) {
       if (!getNextHopMAC(route.ii.devfullname, route.ii.mac, &hdr.src, nexthop, dstmac))
         return luaL_error(L, "failed to determine next hop MAC address");
-
       memcpy(eth.srcmac, route.ii.mac, sizeof(eth.srcmac));
       memcpy(eth.dstmac, dstmac, sizeof(eth.dstmac));
-#ifdef WIN32
-    } // end if not Npcap loopback
-#endif
-
-    /* close any current ethernet associated with this userdata */
-    lua_getfield(L, 1, "ethernet_close");
-    lua_pushvalue(L, 1);
-    lua_call(L, 1, 0);
-
-    udata->eth = eth.ethsd = open_eth_cached(L, 1, route.ii.devname);
+    }
 
     ret = send_ip_packet(udata->sock, &eth, &dst, (u8 *) packet, packetlen);
-  } else {
-usesock:
-#ifdef WIN32
-    if (strlen(dev) > 0)
-      win32_fatal_raw_sockets(dev);
-#endif
-    ret = send_ip_packet(udata->sock, NULL, &dst, (u8 *) packet, packetlen);
   }
   if (ret == -1)
     return nseU_safeerror(L, "error while sending: %s (errno %d)",
@@ -354,20 +363,6 @@ usesock:
   }
 
   return nseU_success(L);
-}
-
-static int gc (lua_State *L)
-{
-  nseU_checkudata(L, 1, DNET_METATABLE, "dnet");
-
-  lua_getfield(L, 1, "ip_close");
-  lua_pushvalue(L, 1);
-  lua_call(L, 1, 0);
-  lua_getfield(L, 1, "ethernet_close");
-  lua_pushvalue(L, 1);
-  lua_call(L, 1, 0);
-
-  return 0;
 }
 
 LUALIB_API int luaopen_dnet (lua_State *L)
@@ -408,7 +403,7 @@ LUALIB_API int luaopen_dnet (lua_State *L)
   lua_newtable(L);
   lua_setfield(L, top+1, "__metatable");
   for (i = top+1; i < top+1+4; i++) lua_pushvalue(L, i);
-  lua_pushcclosure(L, gc, 4);
+  lua_pushcclosure(L, ip_close, 4);
   lua_setfield(L, top+1, "__gc");
 
   lua_newtable(L);

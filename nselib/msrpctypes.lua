@@ -303,7 +303,7 @@ end
 --              referent_id was '0', then this function doesn't unmarshall
 --              anything.
 --@return The new position
---@reutrn The result. For HEAD the result is either <code>true</code> for valid
+--@return The result. For HEAD the result is either <code>true</code> for valid
 --        pointers or <code>false</code> for null pointers. For BODY or ALL,
 --        the result is <code>nil</code> for null pointers, or the data for
 --        valid pointers.

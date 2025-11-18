@@ -276,7 +276,6 @@ local function get_quoted_string(s, offset, crlf)
       -- continuation." So there are really two definitions of quoted-string,
       -- depending on whether it's in a header field or not. This function does
       -- not allow CRLF.
-      c = s:sub(i, i)
       if c ~= "\t" and c:match("^[\0\001-\031\127]$") then
         error(string.format("Unexpected control character in quoted-string: 0x%02X.", c:byte(1)))
       end
@@ -292,10 +291,9 @@ local function skip_lws(s, pos)
   local _, e
 
   while true do
-    while string.match(s, "^[ \t]", pos) do
-      pos = pos + 1
-    end
-    _, e = string.find(s, "^\r?\n[ \t]", pos)
+    _, pos = string.find(s, "^[ \t]*", pos)
+    pos = pos + 1
+    _, e = string.find(s, "^\r?\n[ \t]+", pos)
     if not e then
       return pos
     end
@@ -360,7 +358,19 @@ local function validate_options(options)
                 stdnse.debug1("http: options.cookies[i].max-age should be a string")
                 bad = true
               end
-            elseif not (cookie_key == 'httponly' or cookie_key == 'secure') then
+            elseif(cookie_key == 'domain') then
+              if(type(cookie_value) ~= 'string') then
+                stdnse.debug1("http: options.cookies[i].domain should be a string")
+                bad = true
+              end
+            elseif(cookie_key == 'samesite') then
+              if(type(cookie_value) ~= 'string') then
+                stdnse.debug1("http: options.cookies[i].samesite should be a string")
+                bad = true
+              end
+            elseif not (cookie_key == 'httponly'
+                     or cookie_key == 'secure'
+                     or cookie_key == 'partitioned') then
               stdnse.debug1("http: Unknown field in cookie table: %s", cookie_key)
               -- Ignore unrecognized attributes (per RFC 6265, Section 5.2)
             end
@@ -858,7 +868,10 @@ local decode_body = function (body, encodings, maxlen)
   local undecoded = tableaux.tcopy(encodings)
   while #undecoded > 0 do
     local enc = undecoded[1]:lower()
-    if enc == "identity" then
+    if enc == "" then
+      -- do nothing (empty encoding placeholder)
+      table.remove(undecoded, 1)
+    elseif enc == "identity" then
       -- do nothing
       table.insert(decoded, table.remove(undecoded, 1))
     elseif enc == "gzip" and have_zlib then
@@ -1710,9 +1723,11 @@ function parse_redirect(host, port, path, response)
     u.path = "/"
   end
   u.path = url.absolute(path, u.path)
-  if ( u.query ) then
-    u.path = ("%s?%s"):format( u.path, u.query )
-  end
+  u.path = url.build({
+      path = u.path,
+      query = u.query,
+      params = u.params,
+    })
   return u
 end
 
@@ -2000,7 +2015,7 @@ function pipeline_go(host, port, all_requests)
   local req = all_requests[1]
   req.options.header = force_header(req.options.header, "Connection", "keep-alive")
   local reqstr = build_request(host, port, req.method, req.path, req.options)
-  local socket, partial, bopt = comm.tryssl(host, port, reqstr, pipeline_comm_opts)
+  local socket, partial, bopt = comm.tryssl(host, port, reqstr, tableaux.tcopy(pipeline_comm_opts))
   if not socket then
     return nil
   end
@@ -2019,27 +2034,24 @@ function pipeline_go(host, port, all_requests)
   stdnse.debug3("HTTP pipeline: connlimit=%d, batchlimit=%d", connlimit, batchlimit)
 
   while #responses < #all_requests do
+    local status, err
     -- reconnect if necessary
     if connsent >= connlimit or resp.truncated or not socket:get_info() then
       socket:close()
       stdnse.debug3("HTTP pipeline: reconnecting")
-      socket:connect(host, port, bopt)
-      if not socket then
-        return nil
+      socket:set_timeout(pipeline_comm_opts.request_timeout)
+      status, err = socket:connect(host, port, bopt)
+      if not status then
+        stdnse.debug3("HTTP pipeline: cannot reconnect: %s", err)
+        return responses
       end
-      socket:set_timeout(10000)
       partial = ""
       connsent = 0
     end
-    if connlimit > connsent + #all_requests - #responses then
-      connlimit = connsent + #all_requests - #responses
-    end
-
+    -- decrease the connection limit to match what we still need to send
+    connlimit = math.min(connlimit, connsent + #all_requests - #responses)
     -- determine the current batch size
-    local batchsize = connlimit - connsent
-    if batchsize > batchlimit then
-      batchsize = batchlimit
-    end
+    local batchsize = math.min(connlimit - connsent, batchlimit)
     stdnse.debug3("HTTP pipeline: batch=%d, conn=%d/%d, resp=%d/%d", batchsize, connsent, connlimit, #responses, #all_requests)
 
     -- build and send a batch of requests
@@ -2050,7 +2062,11 @@ function pipeline_go(host, port, all_requests)
       req.options.header = force_header(req.options.header, "Connection", connmode)
       table.insert(requests, build_request(host, port, req.method, req.path, req.options))
     end
-    socket:send(table.concat(requests))
+    status, err = socket:send(table.concat(requests))
+    if not status then
+      stdnse.debug3("HTTP pipeline: cannot send: %s", err)
+      return responses
+    end
 
     -- receive batch responses
     for i = 1, batchsize do
@@ -2077,18 +2093,8 @@ function pipeline_go(host, port, all_requests)
   return responses
 end
 
--- Parsing of specific headers. skip_space and the read_* functions return the
+-- Parsing of specific headers. The read_* functions return the
 -- byte index following whatever they have just read, or nil on error.
-
--- Skip whitespace (that has already been folded from LWS). See RFC 2616,
--- section 2.2, definition of LWS.
-local function skip_space(s, pos)
-  local _
-
-  _, pos = string.find(s, "^[ \t]*", pos)
-
-  return pos + 1
-end
 
 -- See RFC 2616, section 2.2.
 local function read_token(s, pos)
@@ -3221,6 +3227,100 @@ do
     test_suite:add_test(unittest.equal(fragment, test.fragment), test.name .. " (fragment)")
   end
 
+  local parse_redirect_tests = {}
+  table.insert(parse_redirect_tests,
+    { name = "redirect plain URL",
+      host = "example.com",
+      port = 80,
+      path = "initial_path",
+      redirect_scheme = "http",
+      redirect_host = "example.com",
+      redirect_port = 80,
+      redirect_path = "/redirect_path",
+      response = {
+        status = 301,
+        header = {
+          location = "http://example.com:80/redirect_path"
+        }
+      }
+    }
+  )
+  table.insert(parse_redirect_tests,
+    { name = "redirect URL with query",
+      host = "example.com",
+      port = 80,
+      path = "initial_path",
+      redirect_scheme = "http",
+      redirect_host = "example.com",
+      redirect_port = 80,
+      redirect_path = "/redirect_path?query=1234",
+      response = {
+        status = 301,
+        header = {
+          location = "http://example.com:80/redirect_path?query=1234"
+        }
+      }
+    }
+    )
+  table.insert(parse_redirect_tests,
+    { name = "redirect URL with semicolon params",
+      host = "example.com",
+      port = 80,
+      path = "initial_path",
+      redirect_scheme = "http",
+      redirect_host = "example.com",
+      redirect_port = 80,
+      redirect_path = "/redirect_path;param=1234",
+      response = {
+        status = 301,
+        header = {
+          location = "http://example.com:80/redirect_path;param=1234"
+        }
+      }
+    }
+    )
+  table.insert(parse_redirect_tests,
+    { name = "redirect URL with multiple semicolon params",
+      host = "example.com",
+      port = 80,
+      path = "initial_path",
+      redirect_scheme = "http",
+      redirect_host = "example.com",
+      redirect_port = 80,
+      redirect_path = "/redirect_path;param1=1234;param2",
+      response = {
+        status = 301,
+        header = {
+          location = "http://example.com:80/redirect_path;param1=1234;param2"
+        }
+      }
+    }
+    )
+  table.insert(parse_redirect_tests,
+    { name = "redirect URL with semicolon params and query",
+      host = "example.com",
+      port = 80,
+      path = "initial_path",
+      redirect_scheme = "http",
+      redirect_host = "example.com",
+      redirect_port = 80,
+      redirect_path = "/redirect_path;param1=1234;param2&query=abc",
+      response = {
+        status = 301,
+        header = {
+          location = "http://example.com:80/redirect_path;param1=1234;param2&query=abc"
+        }
+      }
+    }
+    )
+
+  for _, test in ipairs(parse_redirect_tests) do
+    local redirect_url = parse_redirect(test.host, test.port, test.path, test.response)
+    test_suite:add_test(unittest.equal(redirect_url.scheme, test.redirect_scheme))
+    test_suite:add_test(unittest.equal(redirect_url.host, test.redirect_host))
+    test_suite:add_test(unittest.equal(redirect_url.port, test.redirect_port))
+    test_suite:add_test(unittest.equal(redirect_url.path, test.redirect_path))
+  end
 end
 
 return _ENV;

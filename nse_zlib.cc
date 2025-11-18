@@ -93,7 +93,7 @@ static int lzstream_docompress(lua_State *L, lz_stream *s, int from, int to, int
 
 
 static lz_stream *lzstream_new(lua_State *L, int src) {
-    lz_stream *s = (lz_stream*)lua_newuserdata(L, sizeof(lz_stream));
+    lz_stream *s = (lz_stream*)lua_newuserdatauv(L, sizeof(lz_stream), 0);
 
     luaL_getmetatable(L, ZSTREAMMETA);
     lua_setmetatable(L, -2);        /* set metatable */
@@ -564,7 +564,10 @@ static int lzstream_decompress(lua_State *L) {
                 success = (l == 0) ? lz_test_eof(L, s) : lz_read_chars(L, s, l);
             }
             else {
-                const char *p = lua_tostring(L, n);
+                size_t l;
+                const char *p = lua_tolstring(L, n, &l);
+                if (l < 2)
+                    return luaL_argerror(L, n, "invalid format");
                 luaL_argcheck(L, p && p[0] == '*', n, "invalid option");
                 switch (p[1]) {
                     case 'l':  /* line */

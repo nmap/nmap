@@ -70,14 +70,12 @@ mkdir -p build && cd build && cmake -DDPDK_DIR=$RTE_SDK/$RTE_TARGET ../ && make 
 
 4. Link your own program with libpcap, and use DPDK with the device name as dpdk:{portid}, such as dpdk:0.
 And you shall set DPDK configure options by environment variable DPDK_CFG
-For example, the testprogs/capturetest could be lanched by:
+For example, the testprogs/capturetest could be launched by:
 
 env DPDK_CFG="--log-level=debug -l0 -dlibrte_pmd_e1000.so -dlibrte_pmd_ixgbe.so -dlibrte_mempool_ring.so" ./capturetest -i dpdk:0
 */
 
-#ifdef HAVE_CONFIG_H
 #include <config.h>
-#endif
 
 #include <errno.h>
 #include <netdb.h>
@@ -407,7 +405,7 @@ static int pcap_dpdk_dispatch(pcap_t *p, int max_cnt, pcap_handler cb, u_char *c
 
 			}
 			if (bp){
-				if (p->fcode.bf_insns==NULL || pcap_filter(p->fcode.bf_insns, bp, pcap_header.len, pcap_header.caplen)){
+				if (p->fcode.bf_insns==NULL || pcapint_filter(p->fcode.bf_insns, bp, pcap_header.len, pcap_header.caplen)){
 					cb(cb_arg, &pcap_header, bp);
 				}else{
 					pd->bpf_drop++;
@@ -427,7 +425,7 @@ static int pcap_dpdk_dispatch(pcap_t *p, int max_cnt, pcap_handler cb, u_char *c
 static int pcap_dpdk_inject(pcap_t *p, const void *buf _U_, int size _U_)
 {
 	//not implemented yet
-	pcap_strlcpy(p->errbuf,
+	pcapint_strlcpy(p->errbuf,
 	    "dpdk error: Inject function has not been implemented yet",
 	    PCAP_ERRBUF_SIZE);
 	return PCAP_ERROR;
@@ -446,7 +444,7 @@ static void pcap_dpdk_close(pcap_t *p)
 	}
 	rte_eth_dev_stop(pd->portid);
 	rte_eth_dev_close(pd->portid);
-	pcap_cleanup_live_common(p);
+	pcapint_cleanup_live_common(p);
 }
 
 static void nic_stats_display(struct pcap_dpdk *pd)
@@ -529,8 +527,8 @@ static void eth_addr_str(ETHER_ADDR_TYPE *addrp, char* mac_str, int len)
 static uint16_t portid_by_device(char * device)
 {
 	uint16_t ret = DPDK_PORTID_MAX;
-	int len = strlen(device);
-	int prefix_len = strlen(DPDK_PREFIX);
+	size_t len = strlen(device);
+	size_t prefix_len = strlen(DPDK_PREFIX);
 	unsigned long ret_ul = 0L;
 	char *pEnd;
 	if (len<=prefix_len || strncmp(device, DPDK_PREFIX, prefix_len)) // check prefix dpdk:
@@ -570,7 +568,7 @@ static int parse_dpdk_cfg(char* dpdk_cfg,char** dargv)
 			skip_space=!skip_space; // skip normal char
 			dargv[cnt++] = dpdk_cfg+i;
 		}
-		if (!skip_space && dpdk_cfg[i]==' '){ // fint a space
+		if (!skip_space && dpdk_cfg[i]==' '){ // find a space
 			dpdk_cfg[i]=0x00; // end of this opt
 			skip_space=!skip_space; // skip space char
 		}
@@ -600,7 +598,7 @@ static int dpdk_pre_init(char * ebuf, int eaccess_not_fatal)
 	char *dargv[DPDK_ARGC_MAX];
 	char *ptr_dpdk_cfg = NULL;
 	int ret;
-	// globale var
+	// global var
 	if (is_dpdk_pre_inited != 0)
 	{
 		// already inited; did that succeed?
@@ -948,15 +946,15 @@ static int pcap_dpdk_activate(pcap_t *p)
 		p->selectable_fd = p->fd;
 		p->read_op = pcap_dpdk_dispatch;
 		p->inject_op = pcap_dpdk_inject;
-		// using pcap_filter currently, though DPDK provides their own BPF function. Because DPDK BPF needs load a ELF file as a filter.
-		p->setfilter_op = install_bpf_program;
+		// using pcapint_filter currently, though DPDK provides their own BPF function. Because DPDK BPF needs load a ELF file as a filter.
+		p->setfilter_op = pcapint_install_bpf_program;
 		p->setdirection_op = NULL;
 		p->set_datalink_op = NULL;
 		p->getnonblock_op = pcap_dpdk_getnonblock;
 		p->setnonblock_op = pcap_dpdk_setnonblock;
 		p->stats_op = pcap_dpdk_stats;
 		p->cleanup_op = pcap_dpdk_close;
-		p->breakloop_op = pcap_breakloop_common;
+		p->breakloop_op = pcapint_breakloop_common;
 		// set default timeout
 		pd->required_select_timeout.tv_sec = 0;
 		pd->required_select_timeout.tv_usec = DPDK_DEF_MIN_SLEEP_MS*1000;
@@ -966,7 +964,7 @@ static int pcap_dpdk_activate(pcap_t *p)
 
 	if (ret <= PCAP_ERROR) // all kinds of error code
 	{
-		pcap_cleanup_live_common(p);
+		pcapint_cleanup_live_common(p);
 	}else{
 		rte_eth_dev_get_name_by_port(portid,pd->pci_addr);
 		RTE_LOG(INFO, USER1,"Port %d device: %s, MAC:%s, PCI:%s\n", portid, p->opt.device, pd->mac_addr, pd->pci_addr);
@@ -1041,7 +1039,7 @@ int pcap_dpdk_findalldevs(pcap_if_list_t *devlistp, char *ebuf)
 			// PCI addr
 			rte_eth_dev_get_name_by_port(i,pci_addr);
 			snprintf(dpdk_desc,DPDK_DEV_DESC_MAX-1,"%s %s, MAC:%s, PCI:%s", DPDK_DESC, dpdk_name, mac_addr, pci_addr);
-			if (add_dev(devlistp, dpdk_name, 0, dpdk_desc, ebuf)==NULL){
+			if (pcapint_add_dev(devlistp, dpdk_name, 0, dpdk_desc, ebuf)==NULL){
 				ret = PCAP_ERROR;
 				break;
 			}
@@ -1059,7 +1057,7 @@ int pcap_dpdk_findalldevs(pcap_if_list_t *devlistp, char *ebuf)
  * There are no regular interfaces, just DPDK interfaces.
  */
 int
-pcap_platform_finddevs(pcap_if_list_t *devlistp _U_, char *errbuf)
+pcapint_platform_finddevs(pcap_if_list_t *devlistp _U_, char *errbuf)
 {
 	return (0);
 }
@@ -1068,7 +1066,7 @@ pcap_platform_finddevs(pcap_if_list_t *devlistp _U_, char *errbuf)
  * Attempts to open a regular interface fail.
  */
 pcap_t *
-pcap_create_interface(const char *device, char *errbuf)
+pcapint_create_interface(const char *device, char *errbuf)
 {
 	snprintf(errbuf, PCAP_ERRBUF_SIZE,
 	    "This version of libpcap only supports DPDK");

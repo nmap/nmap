@@ -7,7 +7,7 @@
  *                                                                         *
  ***********************IMPORTANT NSOCK LICENSE TERMS***********************
  *
- * The nsock parallel socket event library is (C) 1999-2024 Nmap Software LLC
+ * The nsock parallel socket event library is (C) 1999-2025 Nmap Software LLC
  * This library is free software; you may redistribute and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
  * Foundation; Version 2. This guarantees your right to use, modify, and
@@ -63,8 +63,6 @@
 #endif
 
 #include <string.h>
-
-extern struct timeval nsock_tod;
 
 /* Find the type of an event that spawned a callback */
 enum nse_type nse_type(nsock_event nse) {
@@ -140,8 +138,9 @@ static void first_ev_next(struct nevent *nse, gh_lnode_t **first, int nodeq2) {
   }
 }
 
-void update_first_events(struct nevent *nse) {
-  switch (get_event_id_type(nse->id)) {
+static void update_first_events(struct nevent *nse) {
+  assert(nse->iod || nse->type == NSE_TYPE_TIMER);
+  switch (nse->type) {
     case NSE_TYPE_CONNECT:
     case NSE_TYPE_CONNECT_SSL:
       first_ev_next(nse, &nse->iod->first_connect, 0);
@@ -302,46 +301,7 @@ int nevent_delete(struct npool *nsp, struct nevent *nse, gh_list_t *event_list,
 
   assert(nse->event_done);
 
-  if (nse->timeout.tv_sec)
-    gh_heap_remove(&nsp->expirables, &nse->expire);
-
-  if (event_list) {
-    update_first_events(nse);
-    gh_list_remove(event_list, elem);
-  }
-
-  gh_list_append(&nsp->free_events, &nse->nodeq_io);
-
-  nsock_log_debug_all("NSE #%lu: Removing event from list", nse->id);
-
-#if HAVE_PCAP
-#if PCAP_BSD_SELECT_HACK
-  if (nse->type == NSE_TYPE_PCAP_READ) {
-    nsock_log_debug_all("PCAP NSE #%lu: CANCEL TEST pcap=%p read=%p curr=%p sd=%i",
-                        nse->id, &nsp->pcap_read_events, &nsp->read_events,
-                        event_list,((mspcap *)nse->iod->pcap)->pcap_desc);
-
-    /* If event occurred, and we're in BSD_HACK mode, then this event was added to
-     * two queues. read_event and pcap_read_event Of course we should
-     * destroy it only once.  I assume we're now in read_event, so just unlink
-     * this event from pcap_read_event */
-    if (((mspcap *)nse->iod->pcap)->pcap_desc >= 0 && event_list == &nsp->read_events) {
-      /* event is done, list is read_events and we're in BSD_HACK mode. So unlink
-       * event from pcap_read_events */
-      gh_list_remove(&nsp->pcap_read_events, &nse->nodeq_pcap);
-      nsock_log_debug_all("PCAP NSE #%lu: Removing event from PCAP_READ_EVENTS", nse->id);
-    }
-
-    if (((mspcap *)nse->iod->pcap)->pcap_desc >= 0 && event_list == &nsp->pcap_read_events) {
-      /* event is done, list is read_events and we're in BSD_HACK mode.
-       * So unlink event from read_events */
-      gh_list_remove(&nsp->read_events, &nse->nodeq_io);
-
-      nsock_log_debug_all("PCAP NSE #%lu: Removing event from READ_EVENTS", nse->id);
-    }
-  }
-#endif
-#endif
+  nevent_unref(nsp, nse);
   event_dispatch_and_delete(nsp, nse, notify);
   return 1;
 }
@@ -535,4 +495,60 @@ int event_timedout(struct nevent *nse) {
     return 0;
 
   return (nse->timeout.tv_sec && !TIMEVAL_AFTER(nse->timeout, nsock_tod));
+}
+
+int nevent_unref(struct npool *nsp, struct nevent *nse) {
+  nsock_log_debug_all("NSE #%lu: Removing event from list", nse->id);
+
+  update_first_events(nse);
+  switch (nse->type) {
+    case NSE_TYPE_CONNECT:
+    case NSE_TYPE_CONNECT_SSL:
+      gh_list_remove(&nsp->connect_events, &nse->nodeq_io);
+      break;
+
+    case NSE_TYPE_READ:
+      gh_list_remove(&nsp->read_events, &nse->nodeq_io);
+      break;
+
+    case NSE_TYPE_WRITE:
+      gh_list_remove(&nsp->write_events, &nse->nodeq_io);
+      break;
+
+#if HAVE_PCAP
+    case NSE_TYPE_PCAP_READ: {
+      char read = 0;
+      char pcap = 0;
+
+#if PCAP_BSD_SELECT_HACK
+      read = pcap = 1;
+#else
+      if (((mspcap *)nse->iod->pcap)->pcap_desc >= 0)
+        read = 1;
+      else
+        pcap = 1;
+#endif /* PCAP_BSD_SELECT_HACK */
+
+      if (read)
+        gh_list_remove(&nsp->read_events, &nse->nodeq_io);
+      if (pcap)
+        gh_list_remove(&nsp->pcap_read_events, &nse->nodeq_pcap);
+
+      break;
+    }
+#endif /* HAVE_PCAP */
+
+    case NSE_TYPE_TIMER:
+      /* Nothing to do */
+      break;
+
+    default:
+      fatal("Unknown event type %d", nse->type);
+  }
+  if (nse->timeout.tv_sec) {
+    nse->timeout.tv_sec = nse->timeout.tv_usec = 0;
+    gh_heap_remove(&nsp->expirables, &nse->expire);
+  }
+  gh_list_append(&nsp->free_events, &nse->nodeq_io);
+  return 0;
 }

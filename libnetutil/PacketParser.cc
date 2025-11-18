@@ -6,7 +6,7 @@
  *                                                                         *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
  *
- * The Nmap Security Scanner is (C) 1996-2024 Nmap Software LLC ("The Nmap
+ * The Nmap Security Scanner is (C) 1996-2025 Nmap Software LLC ("The Nmap
  * Project"). Nmap is also a registered trademark of the Nmap Project.
  *
  * This program is distributed under the terms of the Nmap Public Source
@@ -572,6 +572,7 @@ pkt_type_t *PacketParser::parse_packet(const u8 *pkt, size_t pktlen, bool eth_in
                     }else{
                         finished=true;
                     }
+                    continue;
                   }
                 }
               }
@@ -591,7 +592,7 @@ pkt_type_t *PacketParser::parse_packet(const u8 *pkt, size_t pktlen, bool eth_in
 
   /* If we couldn't validate some header, treat that header and any remaining
    * data, as raw application data. */
-  if (unknown_hdr==true){
+  if (unknown_hdr==true && current_header < MAX_HEADERS_IN_PACKET) {
     if(curr_pktlen>0){
         if(PKTPARSERDEBUG)puts("Unknown layer found. Treating it as raw data.");
         this_packet[current_header].length=curr_pktlen;
@@ -599,6 +600,9 @@ pkt_type_t *PacketParser::parse_packet(const u8 *pkt, size_t pktlen, bool eth_in
     }
   }
 
+  /* Ensure the sentinel value is correct: */
+  assert(current_header <= MAX_HEADERS_IN_PACKET);
+  this_packet[current_header].length = 0;
   return this_packet;
 } /* End of parse_received_packet() */
 

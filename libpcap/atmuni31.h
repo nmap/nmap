@@ -68,7 +68,7 @@
 #define B_BEARER		0x5e	/* broadband bearer capability */
 #define B_LOWER			0x5f	/* broadband lower information */
 #define CALLING_PARTY		0x6c	/* calling party number */
-#define CALLED_PARTY		0x70	/* called party nmber */
+#define CALLED_PARTY		0x70	/* called party number */
 
 #define Q2931			0x09
 

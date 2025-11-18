@@ -9,7 +9,7 @@
  *                                                                         *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
  *
- * The Nmap Security Scanner is (C) 1996-2024 Nmap Software LLC ("The Nmap
+ * The Nmap Security Scanner is (C) 1996-2025 Nmap Software LLC ("The Nmap
  * Project"). Nmap is also a registered trademark of the Nmap Project.
  *
  * This program is distributed under the terms of the Nmap Public Source
@@ -107,10 +107,6 @@
 #include <stdio.h>
 
 extern NmapOps o;
-#ifdef WIN32
-/* from libdnet's intf-win32.c */
-extern "C" int g_has_npcap_loopback;
-#endif
 
 struct idle_proxy_info {
   Target host; /* contains name, IP, source IP, timing info, etc. */
@@ -603,30 +599,19 @@ static void initialize_idleproxy(struct idle_proxy_info *proxy, char *proxyName,
 
   /* Now lets send some probes to check IP ID algorithm ... */
   /* First we need a raw socket ... */
-  if ((o.sendpref & PACKET_SEND_ETH) && (proxy->host.ifType() == devt_ethernet
-#ifdef WIN32
-    || (g_has_npcap_loopback && proxy->host.ifType() == devt_loopback)
-#endif
-    )) {
+  if (!raw_socket_or_eth(o.sendpref, proxy->host.deviceName(), proxy->host.ifType(),
+        &proxy->rawsd, &proxy->eth.ethsd)) {
+    fatal("%s: Failed to open raw socket or ethernet handle", __func__);
+  }
+  if (proxy->eth.ethsd != NULL) {
     if (!setTargetNextHopMAC(&proxy->host))
       fatal("%s: Failed to determine dst MAC address for Idle proxy", __func__);
     memcpy(proxy->eth.srcmac, proxy->host.SrcMACAddress(), 6);
     memcpy(proxy->eth.dstmac, proxy->host.NextHopMACAddress(), 6);
-    proxy->eth.ethsd = eth_open_cached(proxy->host.deviceName());
-    if (proxy->eth.ethsd == NULL)
-      fatal("%s: Failed to open ethernet device (%s)", __func__, proxy->host.deviceName());
-    proxy->rawsd = -1;
     proxy->ethptr = &proxy->eth;
-  } else {
-#ifdef WIN32
-    win32_fatal_raw_sockets(proxy->host.deviceName());
-#endif
-    proxy->rawsd = nmap_raw_socket();
-    if (proxy->rawsd < 0)
-      pfatal("socket troubles in %s", __func__);
+  }
+  else {
     unblock_socket(proxy->rawsd);
-    proxy->eth.ethsd = NULL;
-    proxy->ethptr = NULL;
   }
 
   if (proxy->host.af() == AF_INET6)
@@ -1058,12 +1043,18 @@ static int idlescan_countopen2(struct idle_proxy_info *proxy,
 
   openports = -1;
   tries = 0;
-  TIMEVAL_MSEC_ADD(probe_times[0], start, MAX(50, (target->to.srtt * 3 / 4) / 1000));
-  TIMEVAL_MSEC_ADD(probe_times[1], start, target->to.srtt / 1000 );
-  TIMEVAL_MSEC_ADD(probe_times[2], end, MAX(75, (2 * target->to.srtt +
-                   target->to.rttvar) / 1000));
-  TIMEVAL_MSEC_ADD(probe_times[3], end, MIN(4000, (2 * target->to.srtt +
-                   (target->to.rttvar << 2 )) / 1000));
+
+  int tmp = (target->to.srtt * 3) / (4 * 1000);
+  tmp = MAX(50, tmp);
+  TIMEVAL_MSEC_ADD(probe_times[0], start, tmp);
+  tmp = target->to.srtt / 1000;
+  TIMEVAL_MSEC_ADD(probe_times[1], start, tmp);
+  tmp = (2 * target->to.srtt + target->to.rttvar) / 1000;
+  tmp = MAX(75, tmp);
+  TIMEVAL_MSEC_ADD(probe_times[2], end, tmp);
+  tmp = (2 * target->to.srtt + (target->to.rttvar << 2 )) / 1000;
+  tmp = MIN(4000, tmp);
+  TIMEVAL_MSEC_ADD(probe_times[3], end, tmp);
 
   do {
     if (tries == 2)

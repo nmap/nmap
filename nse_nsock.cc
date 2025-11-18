@@ -66,6 +66,8 @@ typedef struct nse_nsock_udata
 
 } nse_nsock_udata;
 
+static const char *NU_ACTION_IMMEDIATE = "returned immediately";
+
 static int gc_pool (lua_State *L)
 {
   nsock_pool *nsp = (nsock_pool *) lua_touserdata(L, 1);
@@ -84,14 +86,15 @@ static nsock_pool new_pool (lua_State *L)
   nmap_set_nsock_logger();
   nmap_adjust_loglevel(o.scriptTrace());
 
-  nsock_pool_set_device(nsp, o.device);
+  if (*o.device)
+    nsock_pool_set_device(nsp, o.device);
 
   if (o.proxy_chain)
     nsock_pool_set_proxychain(nsp, o.proxy_chain);
 
   nsock_pool_set_broadcast(nsp, true);
 
-  nspp = (nsock_pool *) lua_newuserdata(L, sizeof(nsock_pool));
+  nspp = (nsock_pool *) lua_newuserdatauv(L, sizeof(nsock_pool), 0);
   *nspp = nsp;
   lua_newtable(L);
   lua_pushcfunction(L, gc_pool);
@@ -348,6 +351,7 @@ static void status (lua_State *L, enum nse_status status)
   }
 }
 
+/* callback for connect and write events */
 static void callback (nsock_pool nsp, nsock_event nse, void *ud)
 {
   nse_nsock_udata *nu = (nse_nsock_udata *) ud;
@@ -361,7 +365,7 @@ static void callback (nsock_pool nsp, nsock_event nse, void *ud)
     // l_connect to return an error instead of yielding.
     // http://seclists.org/nmap-dev/2016/q1/201
     trace(nse_iod(nse), nu->action, nu->direction);
-    nu->action = "ERROR";
+    nu->action = NU_ACTION_IMMEDIATE;
     return;
   }
   switch (nse_type(nse)) {
@@ -574,9 +578,9 @@ static int connect (lua_State *L, int status, lua_KContext ctx)
   if (dest != NULL)
     freeaddrinfo(dest);
 
-  if (!strncmp(nu->action, "ERROR", 5)) {
+  if (nu->action == NU_ACTION_IMMEDIATE) {
     // Immediate error
-    return nseU_safeerror(L, "Nsock connect failed immediately");
+    return nseU_safeerror(L, nse_status2str(NSE_STATUS_ERROR));
   }
   return yield(L, nu, "CONNECT", TO, 0, NULL);
 }
@@ -595,6 +599,10 @@ static int l_send (lua_State *L)
   const char *string = luaL_checklstring(L, 2, &size);
   trace(nu->nsiod, hexify((unsigned char *) string, size).c_str(), TO);
   nsock_write(nsp, nu->nsiod, callback, nu->timeout, nu, string, size);
+  if (nu->action == NU_ACTION_IMMEDIATE) {
+    // Immediate error
+    return nseU_safeerror(L, nse_status2str(NSE_STATUS_ERROR));
+  }
   return yield(L, nu, "SEND", TO, 0, NULL);
 }
 
@@ -632,13 +640,25 @@ static void receive_callback (nsock_pool nsp, nsock_event nse, void *udata)
   assert(nse_type(nse) == NSE_TYPE_READ);
   if (nse_status(nse) == NSE_STATUS_SUCCESS)
   {
-    assert(lua_status(L) == LUA_YIELD);
     int len;
     const char *str = nse_readbuf(nse, &len);
     trace(nse_iod(nse), hexify((const unsigned char *) str, len).c_str(), FROM);
     lua_pushboolean(L, true);
     lua_pushlstring(L, str, len);
-    nse_restore(L, 2);
+    // since r39036, read event can succeed immediately if there's pending SSL data
+    if(lua_status(L) == LUA_YIELD)
+      nse_restore(L, 2);
+    else
+      nu->action = NU_ACTION_IMMEDIATE;
+    return;
+  }
+  else if (lua_status(L) == LUA_OK && nse_status(nse) == NSE_STATUS_EOF) {
+    // since r39028, read event can fail immediately if the socket is EOF.
+    trace(nse_iod(nse), nu->action, "EOF");
+    lua_pushnil(L);
+    lua_pushliteral(L, "EOF");
+    nu->action = NU_ACTION_IMMEDIATE;
+    return;
   }
   else
     status(L, nse_status(nse)); /* will also restore the thread */
@@ -649,7 +669,12 @@ static int l_receive (lua_State *L)
   nsock_pool nsp = get_pool(L);
   nse_nsock_udata *nu = check_nsock_udata(L, 1, true);
   NSOCK_UDATA_ENSURE_OPEN(L, nu);
+  int oldtop = lua_gettop(L);
   nsock_read(nsp, nu->nsiod, receive_callback, nu->timeout, nu);
+  if (nu->action == NU_ACTION_IMMEDIATE) {
+    // Immediate return
+    return lua_gettop(L) - oldtop;
+  }
   return yield(L, nu, "RECEIVE", FROM, 0, NULL);
 }
 
@@ -658,8 +683,13 @@ static int l_receive_lines (lua_State *L)
   nsock_pool nsp = get_pool(L);
   nse_nsock_udata *nu = check_nsock_udata(L, 1, true);
   NSOCK_UDATA_ENSURE_OPEN(L, nu);
+  int oldtop = lua_gettop(L);
   nsock_readlines(nsp, nu->nsiod, receive_callback, nu->timeout, nu,
       luaL_checkinteger(L, 2));
+  if (nu->action == NU_ACTION_IMMEDIATE) {
+    // Immediate return
+    return lua_gettop(L) - oldtop;
+  }
   return yield(L, nu, "RECEIVE LINES", FROM, 0, NULL);
 }
 
@@ -668,8 +698,13 @@ static int l_receive_bytes (lua_State *L)
   nsock_pool nsp = get_pool(L);
   nse_nsock_udata *nu = check_nsock_udata(L, 1, true);
   NSOCK_UDATA_ENSURE_OPEN(L, nu);
+  int oldtop = lua_gettop(L);
   nsock_readbytes(nsp, nu->nsiod, receive_callback, nu->timeout, nu,
       luaL_checkinteger(L, 2));
+  if (nu->action == NU_ACTION_IMMEDIATE) {
+    // Immediate return
+    return lua_gettop(L) - oldtop;
+  }
   return yield(L, nu, "RECEIVE BYTES", FROM, 0, NULL);
 }
 
@@ -733,7 +768,12 @@ static int receive_buf (lua_State *L, int status, lua_KContext ctx)
   else
   {
     lua_pop(L, 2); /* pop 2 results */
+    int oldtop = lua_gettop(L);
     nsock_read(nsp, nu->nsiod, receive_callback, nu->timeout, nu);
+    if (nu->action == NU_ACTION_IMMEDIATE) {
+      // Immediate return
+      return lua_gettop(L) - oldtop;
+    }
     return yield(L, nu, "RECEIVE BUF", FROM, 0, receive_buf);
   }
 }
@@ -751,8 +791,8 @@ static int l_get_info (lua_State *L)
   int af;                                        // address family
   struct sockaddr_storage local;
   struct sockaddr_storage remote;
-  char *ipstring_local = (char *) lua_newuserdata(L, sizeof(char) * INET6_ADDRSTRLEN);
-  char *ipstring_remote = (char *) lua_newuserdata(L, sizeof(char) * INET6_ADDRSTRLEN);
+  char *ipstring_local = (char *) lua_newuserdatauv(L, sizeof(char) * INET6_ADDRSTRLEN, 0);
+  char *ipstring_remote = (char *) lua_newuserdatauv(L, sizeof(char) * INET6_ADDRSTRLEN, 0);
 
   nsock_iod_get_communication_info(nu->nsiod, &protocol, &af,
       (struct sockaddr*)&local, (struct sockaddr*)&remote,
@@ -812,7 +852,7 @@ static int l_sleep (lua_State *L)
   /* Convert to milliseconds for nsock_timer_create. */
   msecs = (int) (secs * 1000 + 0.5);
 
-  nsock_event_id *neidp = (nsock_event_id *) lua_newuserdata(L, sizeof(nsock_event_id *));
+  nsock_event_id *neidp = (nsock_event_id *) lua_newuserdatauv(L, sizeof(nsock_event_id *), 0);
   *neidp = nsock_timer_create(nsp, sleep_callback, msecs, L);
   lua_pushvalue(L, NSOCK_POOL);
   lua_pushcclosure(L, sleep_destructor, 1);
@@ -930,7 +970,7 @@ static int l_new (lua_State *L)
 
   lua_settop(L, 0);
 
-  nu = (nse_nsock_udata *) lua_newuserdata(L, sizeof(nse_nsock_udata));
+  nu = (nse_nsock_udata *) lua_newuserdatauv(L, sizeof(nse_nsock_udata), 1);
   lua_pushvalue(L, NSOCK_SOCKET);
   lua_setmetatable(L, -2);
   initialize(L, 1, nu, proto, af);

@@ -9,7 +9,7 @@
  *                                                                         *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
  *
- * The Nmap Security Scanner is (C) 1996-2024 Nmap Software LLC ("The Nmap
+ * The Nmap Security Scanner is (C) 1996-2025 Nmap Software LLC ("The Nmap
  * Project"). Nmap is also a registered trademark of the Nmap Project.
  *
  * This program is distributed under the terms of the Nmap Public Source
@@ -121,12 +121,6 @@ class Target;
 # else
 #  include <time.h>
 # endif
-#endif
-
-#ifdef WIN32
-/* Show a fatal error explaining that an interface is not Ethernet and won't
-   work on Windows. Do nothing if --send-ip (PACKET_SEND_IP_STRONG) was used. */
-void win32_fatal_raw_sockets(const char *devname);
 #endif
 
 /* Prints the familiar Nmap tabular output showing the "interesting"

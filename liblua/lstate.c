@@ -119,7 +119,7 @@ CallInfo *luaE_extendCI (lua_State *L) {
 /*
 ** free all CallInfo structures not in use by a thread
 */
-void luaE_freeCI (lua_State *L) {
+static void freeCI (lua_State *L) {
   CallInfo *ci = L->ci;
   CallInfo *next = ci->next;
   ci->next = NULL;
@@ -166,7 +166,7 @@ void luaE_checkcstack (lua_State *L) {
   if (getCcalls(L) == LUAI_MAXCCALLS)
     luaG_runerror(L, "C stack overflow");
   else if (getCcalls(L) >= (LUAI_MAXCCALLS / 10 * 11))
-    luaD_throw(L, LUA_ERRERR);  /* error while handling stack error */
+    luaD_errerr(L);  /* error while handling stack error */
 }
 
 
@@ -204,7 +204,7 @@ static void freestack (lua_State *L) {
   if (L->stack.p == NULL)
     return;  /* stack not completely built yet */
   L->ci = &L->base_ci;  /* free the entire 'ci' list */
-  luaE_freeCI(L);
+  freeCI(L);
   lua_assert(L->nci == 0);
   luaM_freearray(L, L->stack.p, stacksize(L) + EXTRA_STACK);  /* free stack */
 }
@@ -272,7 +272,9 @@ static void close_state (lua_State *L) {
     luaC_freeallobjects(L);  /* just collect its objects */
   else {  /* closing a fully built state */
     L->ci = &L->base_ci;  /* unwind CallInfo list */
+    L->errfunc = 0;   /* stack unwind can "throw away" the error function */
     luaD_closeprotected(L, 1, LUA_OK);  /* close all upvalues */
+    L->top.p = L->stack.p + 1;  /* empty the stack to run finalizers */
     luaC_freeallobjects(L);  /* collect all objects */
     luai_userstateclose(L);
   }
@@ -328,6 +330,7 @@ int luaE_resetthread (lua_State *L, int status) {
   if (status == LUA_YIELD)
     status = LUA_OK;
   L->status = LUA_OK;  /* so it can run __close metamethods */
+  L->errfunc = 0;   /* stack unwind can "throw away" the error function */
   status = luaD_closeprotected(L, 1, status);
   if (status != LUA_OK)  /* errors? */
     luaD_seterrorobj(L, status, L->stack.p + 1);
@@ -433,7 +436,7 @@ void luaE_warning (lua_State *L, const char *msg, int tocont) {
 void luaE_warnerror (lua_State *L, const char *where) {
   TValue *errobj = s2v(L->top.p - 1);  /* error object */
   const char *msg = (ttisstring(errobj))
-                  ? svalue(errobj)
+                  ? getstr(tsvalue(errobj))
                   : "error object is not a string";
   /* produce warning "error in %s (%s)" (where, msg) */
   luaE_warning(L, "error in ", 1);

@@ -4,7 +4,7 @@
  *                                                                         *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
  *
- * The Nmap Security Scanner is (C) 1996-2024 Nmap Software LLC ("The Nmap
+ * The Nmap Security Scanner is (C) 1996-2025 Nmap Software LLC ("The Nmap
  * Project"). Nmap is also a registered trademark of the Nmap Project.
  *
  * This program is distributed under the terms of the Nmap Public Source
@@ -172,7 +172,7 @@
  * things like "%d target IPs resolved". We don't want that message to always
  * get printed during  Nping's execution. We only want it out when the user
  * has increase the verbosity.
- * 
+ *
  * So the thing here is that there are two things that should be taken
  * into account:
  *  1. The current verbosity level that user has supplied from the command line
@@ -206,7 +206,7 @@
  *
  *  Check the comments after each level definition to see how they should be
  *  used. Here are some examples:
- * 
+ *
  *  nping_fatal(QT_3,"createIPv4(): NULL pointer supplied.");
  *  nping_print(DBG_2,"Resolving specified targets...");
  *  nping_print(VB_0, "Raw packets sent: %llu ", this->stats.getSentPackets() );
@@ -265,7 +265,7 @@
 /* General tunable defines  **************************************************/
 #define NPING_NAME "Nping"
 #define NPING_URL "https://nmap.org/nping"
-#define NPING_VERSION "0.7.95SVN"
+#define NPING_VERSION "0.7.98SVN"
 
 
 #define DEFAULT_VERBOSITY VB_0
@@ -273,7 +273,7 @@
 
 
 /**< Default number of probes that are sent to each target */
-#define DEFAULT_PACKET_COUNT 5          
+#define DEFAULT_PACKET_COUNT 5
 
 /* When doing traceroute, the number of packets sent to each host must be
  * higher because 5 is probably not enough to reach the average target on the
@@ -290,7 +290,7 @@
 #define DEFAULT_DELAY 1000              /**< Milliseconds between each probe */
 
  /** Milliseconds Nping waits for replies after all probes have been sent */
-#define DEFAULT_WAIT_AFTER_PROBES 1000 
+#define DEFAULT_WAIT_AFTER_PROBES 1000
 
 #define DEFAULT_IP_TTL 64               /**< Default IP Time To Live         */
 #define DEFAULT_IP_TOS 0                /**< Default IP Type of Service      */
@@ -305,7 +305,7 @@
 #define DEFAULT_TCP_WINDOW_SIZE 1480    /**< Default TCP Window size         */
 
 /**< MTU used when user just supplies option -f but no MTU value */
-#define DEFAULT_MTU_FOR_FRAGMENTATION 72   
+#define DEFAULT_MTU_FOR_FRAGMENTATION 72
 
 #define DEFAULT_ICMP_TYPE 8  /**< Default ICMP message: Echo Request         */
 #define DEFAULT_ICMP_CODE 0  /**< Default ICMP code: 0 (standard)            */

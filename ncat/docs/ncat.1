@@ -2,12 +2,12 @@
 .\"     Title: Ncat
 .\"    Author: [see the "Authors" section]
 .\" Generator: DocBook XSL Stylesheets v1.79.1 <http://docbook.sf.net/>
-.\"      Date: 04/23/2024
+.\"      Date: 08/21/2025
 .\"    Manual: Ncat Reference Guide
 .\"    Source: Ncat
 .\"  Language: English
 .\"
-.TH "NCAT" "1" "04/23/2024" "Ncat" "Ncat Reference Guide"
+.TH "NCAT" "1" "08/21/2025" "Ncat" "Ncat Reference Guide"
 .\" -----------------------------------------------------------------
 .\" * Define some portability stuff
 .\" -----------------------------------------------------------------
@@ -43,7 +43,7 @@ Among Ncat\*(Aqs vast number of features there is the ability to chain Ncats tog
 .RS 4
 .\}
 .nf
-Ncat 7\&.95SVN ( https://nmap\&.org/ncat )
+Ncat 7\&.98SVN ( https://nmap\&.org/ncat )
 Usage: ncat [options] [hostname] [port]
 
 Options taking a time assume seconds\&. Append \*(Aqms\*(Aq for milliseconds,
@@ -79,6 +79,7 @@ Options taking a time assume seconds\&. Append \*(Aqms\*(Aq for milliseconds,
       \-\-send\-only            Only send data, ignoring received; quit on EOF
       \-\-recv\-only            Only receive data, never send anything
       \-\-no\-shutdown          Continue half\-duplex when receiving EOF on stdin
+  \-q <time>                  After EOF on stdin, wait <time> then quit\&.
       \-\-allow                Allow only given hosts to connect to Ncat
       \-\-allowfile            A file of hosts allowed to connect to Ncat
       \-\-deny                 Deny given hosts from connecting to Ncat
@@ -213,10 +214,14 @@ Listen for connections rather than connecting to a remote machine
 The maximum number of simultaneous connections accepted by an Ncat instance\&. 100 is the default (60 on Windows)\&.
 .RE
 .PP
-\fB\-k\fR, \fB\-\-keep\-open\fR (Accept multiple connections)
+\fB\-k\fR, \fB\-\-keep\-open\fR (Accept multiple connections, do not quit on socket EOF)
 .RS 4
 Normally a listening server accepts only one connection and then quits when the connection is closed\&. This option makes it accept multiple simultaneous connections and wait for more connections after they have all been closed\&. It must be combined with
 \fB\-\-listen\fR\&. In this mode there is no way for Ncat to know when its network input is finished, so it will keep running until interrupted\&. This also means that it will never close its output stream, so any program reading from Ncat and looking for end\-of\-file will also hang\&.
+.sp
+In connect mode, the
+\fB\-k\fR
+option has a different meaning: when the remote end of a TCP connection shuts down its side of the connection, Ncat will keep running and sending any available data\&. This was the default behavior in Ncat 7\&.95 and earlier, but it was changed to better align with existing netcat implementations\&. TCP is the only transport that supports this option in connect mode\&.
 .RE
 .PP
 \fB\-\-broker\fR (Connection brokering)
@@ -458,6 +463,13 @@ options\&.
 \fB\-i \fR\fB\fItime\fR\fR, \fB\-\-idle\-timeout \fR\fB\fItime\fR\fR (Specify idle timeout)
 .RS 4
 Set a fixed timeout for idle connections\&. If the idle timeout is reached, the connection is terminated\&.
+.RE
+.PP
+\fB\-q \fR\fB\fItime\fR\fR (Delay quit after EOF on stdin)
+.RS 4
+After EOF on stdin, wait the specified amount of time, then quit\&. If
+\fItime\fR
+is negative, wait forever\&. Ncat may still quit based on idle timeout or EOF on the socket\&.
 .RE
 .PP
 \fB\-w \fR\fB\fItime\fR\fR, \fB\-\-wait \fR\fB\fItime\fR\fR (Specify connect timeout)

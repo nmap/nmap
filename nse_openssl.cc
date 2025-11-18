@@ -43,7 +43,7 @@ typedef struct bignum_data {
 
 int nse_pushbn( lua_State *L, BIGNUM *num, bool should_free)
 {
-  bignum_data_t * data = (bignum_data_t *) lua_newuserdata( L, sizeof(bignum_data_t));
+  bignum_data_t * data = (bignum_data_t *) lua_newuserdatauv( L, sizeof(bignum_data_t), 0);
   luaL_getmetatable( L, "BIGNUM" );
   lua_setmetatable( L, -2 );
   data->bn = num;
@@ -387,10 +387,10 @@ static int l_encrypt(lua_State *L) /** encrypt( string algorithm, string key, st
 
   size_t key_len, iv_len, data_len;
   const unsigned char *key = (unsigned char *) luaL_checklstring( L, 2, &key_len );
-  const unsigned char *iv = (unsigned char *) luaL_optlstring( L, 3, "", &iv_len );
+  const unsigned char *iv = (unsigned char *) luaL_optlstring( L, 3, NULL, &iv_len );
   const unsigned char *data = (unsigned char *) luaL_checklstring( L, 4, &data_len );
   int padding = lua_toboolean( L, 5 );
-  if (iv[0] == '\0')
+  if (!iv_len)
     iv = NULL;
 
 #if HAVE_OPAQUE_STRUCTS
@@ -449,10 +449,10 @@ static int l_decrypt(lua_State *L) /** decrypt( string algorithm, string key, st
 
   size_t key_len, iv_len, data_len;
   const unsigned char *key = (unsigned char *) luaL_checklstring( L, 2, &key_len );
-  const unsigned char *iv = (unsigned char *) luaL_optlstring( L, 3, "", &iv_len );
+  const unsigned char *iv = (unsigned char *) luaL_optlstring( L, 3, NULL, &iv_len );
   const unsigned char *data = (unsigned char *) luaL_checklstring( L, 4, &data_len );
   int padding = lua_toboolean( L, 5 );
-  if (iv[0] == '\0')
+  if (!iv_len)
     iv = NULL;
 
 #if HAVE_OPAQUE_STRUCTS

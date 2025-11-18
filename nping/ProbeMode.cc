@@ -6,7 +6,7 @@
  *                                                                         *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
  *
- * The Nmap Security Scanner is (C) 1996-2024 Nmap Software LLC ("The Nmap
+ * The Nmap Security Scanner is (C) 1996-2025 Nmap Software LLC ("The Nmap
  * Project"). Nmap is also a registered trademark of the Nmap Project.
  *
  * This program is distributed under the terms of the Nmap Public Source
@@ -97,7 +97,9 @@ int ProbeMode::init_nsock(){
       /* Create a new nsock pool */
       if ((nsp = nsock_pool_new(NULL)) == NULL)
         nping_fatal(QT_3, "Failed to create new pool.  QUITTING.\n");
-      nsock_pool_set_device(nsp, o.getDevice());
+      const char *device = o.getDevice();
+      if (*device)
+        nsock_pool_set_device(nsp, device);
 
       /* Allow broadcast addresses */
       nsock_pool_set_broadcast(nsp, 1);
@@ -301,6 +303,11 @@ int ProbeMode::start(){
         /* Get socket descriptor. No need for it in ARP since we send at eth level */
         if ((rawipsd = obtainRawSocket()) < 0 )
             nping_fatal(QT_3,"Couldn't acquire raw socket. Are you root?");
+        if ( o.issetDevice() )  {
+            if (!socket_bindtodevice(rawipsd, o.getDevice()) && errno != EPERM) {
+                nping_warning(QT_2, "Error binding socket to device %s", o.getDevice() );
+            }
+        }
     }
 
     /* Check if we have enough information to get the party started */
@@ -719,16 +726,6 @@ int ProbeMode::doIPv6ThroughSocket(int rawfd){
         }
     }
 #endif
-
-    /* Bind IPv6 socket to a specific network interface */
-    if ( o.issetDevice() )  {
-        /* It seems that SO_BINDTODEVICE only work on Linux */
-        #ifdef LINUX
-        if (setsockopt(rawfd, SOL_SOCKET, SO_BINDTODEVICE, o.getDevice(), strlen(o.getDevice())+1) == -1) {
-            nping_warning(QT_2, "Error binding IPv6 socket to device %s", o.getDevice() );
-        }
-        #endif
-    }
 
     return OP_SUCCESS;
 
@@ -1570,7 +1567,7 @@ void ProbeMode::probe_nping_event_handler(nsock_pool nsp, nsock_event nse, void 
  const unsigned char *link=NULL;
  size_t linklen=0;
  size_t packetlen=0;
- u16 *ethtype=NULL;
+ u16 ethtype=0;
  u8 buffer[512+1];
  size_t link_offset=0;
  static struct timeval pcaptime;
@@ -1637,9 +1634,9 @@ void ProbeMode::probe_nping_event_handler(nsock_pool nsp, nsock_event nse, void 
             /* If we are on a Ethernet network, extract the next packet protocol
              * from the Ethernet frame. */
             if( nsock_iod_linktype(nsi) == DLT_EN10MB ){
-                ethtype=(u16*)(link+12);
-                *ethtype=ntohs(*ethtype);
-                switch(*ethtype){
+                ethtype=*(u16*)(link + linklen - 2);
+                ethtype=ntohs(ethtype);
+                switch(ethtype){
                     case ETHTYPE_IPV4:
                     case ETHTYPE_IPV6:
                         ip=true;
@@ -1649,7 +1646,7 @@ void ProbeMode::probe_nping_event_handler(nsock_pool nsp, nsock_event nse, void 
                         ip=false;
                     break;
                     default:
-                        nping_warning(QT_1, "RCVD (%.4fs) Unsupported protocol (Ethernet type %02X)", o.stats.elapsedRuntime(t), *ethtype);
+                        nping_warning(QT_1, "RCVD (%.4fs) Unsupported protocol (Ethernet type %02X)", o.stats.elapsedRuntime(t), ethtype);
                         print_hexdump(VB_3, packet, packetlen);
                         return;
                     break;

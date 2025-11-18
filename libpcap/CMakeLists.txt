@@ -2,9 +2,26 @@ if(WIN32)
     #
     # We need 3.12 or later, so that we can set policy CMP0074; see
     # below.
+    #
     cmake_minimum_required(VERSION 3.12)
 else(WIN32)
-    cmake_minimum_required(VERSION 2.8.6)
+    #
+    # For now:
+    #
+    #  if this is a version of CMake less than 3.5, require only
+    #  2.8.12, just in case somebody is configuring with CMake
+    #  on a "long-term support" version # of some OS and that
+    #  version supplies an older version of CMake;
+    #
+    #  otherwise, require 3.5, so we don't get messages warning
+    #  that support for versions of CMake lower than 3.5 is
+    #  deprecated.
+    #
+    if(CMAKE_VERSION VERSION_LESS "3.5")
+        cmake_minimum_required(VERSION 2.8.12)
+    else()
+        cmake_minimum_required(VERSION 3.5)
+    endif()
 endif(WIN32)
 
 #
@@ -12,8 +29,15 @@ endif(WIN32)
 # neither do we with autotools; don't do so with CMake, either, and
 # suppress warnings about that.
 #
+# Setting CMAKE_MACOSX_RPATH to FALSE uses the old behavior,
+# but removes the POLICY CMP0042 OLD deprecated warning.
+# See https://cmake.org/cmake/help/latest/policy/CMP0042.html
+#
+if (NOT DEFINED CMAKE_MACOSX_RPATH)
+    set(CMAKE_MACOSX_RPATH FALSE)
+endif()
 if(POLICY CMP0042)
-    cmake_policy(SET CMP0042 OLD)
+    cmake_policy(SET CMP0042 NEW)
 endif()
 
 #
@@ -47,19 +71,51 @@ endif()
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules)
 
 #
-# We only need a C++ compiler for Haiku; all code except for its
-# pcap module is in C.
+# We explicitly indicate what languages are used in libpcap to avoid
+# checking for a C++ compiler.
 #
-# We do that by specifying just C in the project() call and, after
-# that finishes, checking for Haiku and, if we're building for
-# Haiku, use enable_language() to check for C++.  This means that
-# we don't require a C++ compiler on platforms other than Haiku.
+# One reason to avoid that check is that there's no need to waste
+# configuration time performing it.
 #
-# CMAKE_SYSTEM_NAME is set by project(), so we can't do this by
-# testing CMAKE_SYSTEM_NAME and then passing different language
-# lists to project() based on the system.
+# Another reason is that:
+#
+# CMake will try to determine the sizes of some data types, including
+# void *, early in the process of configuration; apparently, it's done
+# as part of processing the project() command.
+#
+# At least as of CMake 2.8.6, it does so by checking the size of
+# "void *" in C, setting CMAKE_C_SIZEOF_DATA_PTR based on that,
+# setting CMAKE_SIZEOF_VOID_P to that, and then checking the size
+# of "void *" in C++, setting CMAKE_CXX_SIZEOF_DATA_PTR based on
+# that, and then setting CMAKE_SIZEOF_VOID_P to *that*.
+#
+# The compile tests include whatever C flags may have been provided
+# to CMake in the CFLAGS and CXXFLAGS environment variables.
+#
+# If you set an architecture flag such as -m32 or -m64 in CFLAGS
+# but *not* in CXXFLAGS, the size for C++ will win, and hilarity
+# will ensue.
+#
+# Or if, at least on Solaris, you have a newer version of GCC
+# installed, but *not* a newer version of G++, and you have Oracle
+# Studio installed, it will find GCC, which will default to building
+# 64-bit, and Oracle Studio's C++ compiler, which will default to
+# building 32-bit, the size for C++ will win, and, again, hilarity
+# will ensue.
 #
 project(pcap C)
+
+#
+# Setting CMAKE_MACOSX_RPATH to FALSE causes the installed
+# libpcap.A.dylib to have just libpcap.A.dylib as the install
+# name;  Apple built libpcap with an install_name of /usr/lib/libpcap.A.dylib
+# (back when they still shipped individual system dylibs rather than
+# shipping a pre-built shared library cache, at least), and we do the
+# same with autotools; do the same with CMake.
+#
+if (NOT DEFINED CMAKE_INSTALL_NAME_DIR)
+    set(CMAKE_INSTALL_NAME_DIR ${CMAKE_INSTALL_PREFIX}/lib)
+endif()
 
 #
 # For getting raw lists of --libs and --libs --static information from a
@@ -190,55 +246,6 @@ macro(get_link_info_from_library_path  _library_prefix _library_name)
   endif()
 endmacro()
 
-if(CMAKE_SYSTEM_NAME STREQUAL "Haiku")
-    enable_language(CXX)
-
-    #
-    # OK, this is a royal pain.
-    #
-    # CMake will try to determine the sizes of some data types, including
-    # void *, early in the process of configuration; apparently, it's done
-    # as part of processing the project() command.
-    #
-    # At least as of CMake 2.8.6, it does so by checking the size of
-    # "void *" in C, setting CMAKE_C_SIZEOF_DATA_PTR based on that,
-    # setting CMAKE_SIZEOF_VOID_P to that, and then checking the size
-    # of "void *" in C++, setting CMAKE_CXX_SIZEOF_DATA_PTR based on
-    # that, and then setting CMAKE_SIZEOF_VOID_P to *that*.
-    #
-    # The compile tests include whatever C flags may have been provided
-    # to CMake in the CFLAGS and CXXFLAGS environment variables.
-    #
-    # If you set an architecture flag such as -m32 or -m64 in CFLAGS
-    # but *not* in CXXFLAGS, the size for C++ will win, and hilarity
-    # will ensue.
-    #
-    # Or if, at least on Solaris, you have a newer version of GCC
-    # installed, but *not* a newer version of G++, and you have Oracle
-    # Studio installed, it will find GCC, which will default to building
-    # 64-bit, and Oracle Studio's C++ compiler, which will default to
-    # building 32-bit, the size for C++ will win, and, again, hilarity
-    # will ensue.
-    #
-    # So we make sure both languages have the same pointer sizes with
-    # the flags they're given; if they don't, it means that the
-    # compilers for the languages will, with those flags, not produce
-    # code that can be linked together.
-    #
-    # This is unlikely to happen on Haiku, but it *has* happened on
-    # Solaris; we do this for future-proofing, in case we ever need
-    # C++ on a platform where that can happen.
-    #
-    if(NOT ${CMAKE_C_SIZEOF_DATA_PTR} EQUAL ${CMAKE_CXX_SIZEOF_DATA_PTR})
-         message(FATAL_ERROR
-"C compiler ${CMAKE_C_COMPILER} produces code with \
-${CMAKE_C_SIZEOF_DATA_PTR}-byte pointers while C++ compiler \
-${CMAKE_CXX_COMPILER} produces code with \
-${CMAKE_CXX_SIZEOF_DATA_PTR}-byte pointers. \
-This prevents code in these languages from being combined.")
-    endif()
-endif()
-
 #
 # Show the bit width for which we're compiling.
 # This can help debug problems if you're dealing with a compiler that
@@ -256,7 +263,7 @@ endif()
 # Solaris pkg-config is annoying.  For at least one package (D-Bus, I'm
 # looking at *you*!), there are separate include files for 32-bit and
 # 64-bit builds (I guess using "unsigned long long" as a 64-bit integer
-# type on a 64-bit build is like crossing the beams or soething), and
+# type on a 64-bit build is like crossing the beams or something), and
 # there are two separate .pc files, so if we're doing a 32-bit build we
 # should make sure we look in /usr/lib/pkgconfig for .pc files and if
 # we're doing a 64-bit build we should make sure we look in
@@ -563,8 +570,6 @@ set(PACKAGE_STRING "${LIBRARY_NAME} ${PACKAGE_VERSION}")
 # Project settings
 ######################################
 
-add_definitions(-DHAVE_CONFIG_H)
-
 include_directories(
     ${CMAKE_CURRENT_BINARY_DIR}
     ${pcap_SOURCE_DIR}
@@ -615,9 +620,7 @@ if(USE_STATIC_RT)
         if(MSVC)
             foreach(RT_FLAG
                 CMAKE_C_FLAGS CMAKE_C_FLAGS_DEBUG CMAKE_C_FLAGS_RELEASE
-                CMAKE_C_FLAGS_MINSIZEREL CMAKE_C_FLAGS_RELWITHDEBINFO
-                CMAKE_CXX_FLAGS CMAKE_CXX_FLAGS_DEBUG CMAKE_CXX_FLAGS_RELEASE
-                CMAKE_CXX_FLAGS_MINSIZEREL CMAKE_CXX_FLAGS_RELWITHDEBINFO)
+                CMAKE_C_FLAGS_MINSIZEREL CMAKE_C_FLAGS_RELWITHDEBINFO)
                 string(REGEX REPLACE "/MD" "/MT" ${RT_FLAG} "${${RT_FLAG}}")
             endforeach(RT_FLAG)
         elseif(MINGW)
@@ -699,7 +702,6 @@ main(void)
 #
 # Now check for various system functions.
 #
-check_function_exists(strerror HAVE_STRERROR)
 check_function_exists(strerror_r HAVE_STRERROR_R)
 if(HAVE_STRERROR_R)
     #
@@ -755,29 +757,26 @@ if(NOT WIN32)
 endif()
 
 #
-# These tests are for network applications that need socket functions
-# and getaddrinfo()/getnameinfo()-ish functions.  We now require
-# getaddrinfo() and getnameinfo().  On UN*X systems, we also prefer
-# versions of recvmsg() that conform to the Single UNIX Specification,
-# so that we can check whether a datagram received with recvmsg() was
-# truncated when received due to the buffer being too small.
+# Look for various networking-related libraries that we may need.
 #
-# On Windows, getaddrinfo() is in the ws2_32 library.
-
-# On most UN*X systems, they're available in the system library.
+# We need getaddrinfo() to translate host names in filters to IP
+# addresses. We use getaddrinfo() because we want a portable
+# thread-safe way of getting information for a host name or port;
+# there exist _r versions of gethostbyname() and getservbyname() on
+# some platforms, but not on all platforms.
 #
-# Under Solaris, we need to link with libsocket and libnsl to get
-# getaddrinfo() and getnameinfo() and, if we have libxnet, we need to
-# link with libxnet before libsocket to get a version of recvmsg()
-# that conforms to the Single UNIX Specification.
+# We may also need socket() and other socket functions to support:
 #
-# We use getaddrinfo() because we want a portable thread-safe way
-# of getting information for a host name or port; there exist _r
-# versions of gethostbyname() and getservbyname() on some platforms,
-# but not on all platforms.
+#   Local packet capture with capture mechanisms that use sockets.
 #
-# NOTE: if you hand check_library_exists as its last argument a variable
-# that's been set, it skips the test, so we need different variables.
+#   Local capture device enumeration if a socket call is needed to
+#   enumerate devices or get device attributes.
+#
+#   Packet capture from services that put captured packets on the
+#   network, such as rpcap servers.
+#
+# We may also need getnameinfo() for packet capture from services
+# that put packets on the network.
 #
 set(PCAP_LINK_LIBRARIES "")
 set(LIBS "")
@@ -787,7 +786,11 @@ set(LIBS_PRIVATE "")
 include(CheckLibraryExists)
 if(WIN32)
     #
+    # Windows.
+    #
     # We need winsock2.h and ws2tcpip.h.
+    #
+    # On Windows, getaddrinfo() is in the ws2_32 library.
     #
     cmake_push_check_state()
     set(CMAKE_REQUIRED_LIBRARIES ws2_32)
@@ -800,16 +803,28 @@ if(WIN32)
     endif(LIBWS2_32_HAS_GETADDRINFO)
 else(WIN32)
     #
-    # UN*X.  First try the system libraries, then try the libraries
-    # for Solaris and possibly other systems that picked up the
-    # System V library split.
+    # UN*X.
+    #
+    # Most UN*Xes have getaddrinfo(), and the other routines we may
+    # need, in the default searched libraries (e.g., libc).
+    # Check there first.
+    #
+    # NOTE: if you hand check_library_exists as its last argument a
+    # variable that's been set, it skips the test, so we need different
+    # variables for different libraries.
     #
     check_function_exists(getaddrinfo STDLIBS_HAVE_GETADDRINFO)
     if(NOT STDLIBS_HAVE_GETADDRINFO)
-        #
-        # Not found in the standard system libraries.
-        # Try libsocket, which requires libnsl.
-        #
+	#
+	# Not found in the standard system libraries.
+	#
+	# In some versions of Solaris, we need to link with libsocket
+	# and libnsl, so check in libsocket and also link with liblnsl
+	# when doing this test.
+	#
+	# Linking with libsocket and libnsl will find all the routines
+	# we need.
+	#
         cmake_push_check_state()
         set(CMAKE_REQUIRED_LIBRARIES nsl)
         check_library_exists(socket getaddrinfo "" LIBSOCKET_HAS_GETADDRINFO)
@@ -823,10 +838,17 @@ else(WIN32)
             set(LIBS_STATIC "-lsocket -lnsl ${LIBS_STATIC}")
             set(LIBS_PRIVATE "-lsocket -lnsl ${LIBS_PRIVATE}")
         else(LIBSOCKET_HAS_GETADDRINFO)
+	    #
+	    # Not found in libsocket; test for it in libnetwork, which
+	    # is where it is in Haiku.
+	    #
+	    # Linking with libnetwork will find all the routines we
+	    # need.
+	    #
             check_library_exists(network getaddrinfo "" LIBNETWORK_HAS_GETADDRINFO)
             if(LIBNETWORK_HAS_GETADDRINFO)
                 #
-                # OK, we found it in libnetwork (Haiku).
+		# OK, we found it in libnetwork.
                 #
                 set(PCAP_LINK_LIBRARIES network ${PCAP_LINK_LIBRARIES})
                 set(LIBS "-lnetwork ${LIBS}")
@@ -840,17 +862,32 @@ else(WIN32)
             endif(LIBNETWORK_HAS_GETADDRINFO)
         endif(LIBSOCKET_HAS_GETADDRINFO)
 
-        #
-        # OK, do we have recvmsg() in libxnet?
-        # We also link with libsocket and libnsl.
-        #
+	#
+	# We require a version of recvmsg() that conforms to the Single
+	# UNIX Specification, so that we can check whether a datagram
+	# received with recvmsg() was truncated when received due to the
+	# buffer being too small.
+	#
+	# On most systems, the version of recvmsg() in the libraries
+	# found above conforms to the SUS.
+	#
+	# On at least some versions of Solaris, it does not conform to
+	# the SUS, and we need the version in libxnet, which does
+	# conform.
+	#
+	# Check whether libxnet exists and has a version of recvmsg();
+	# if it does, link with libxnet before we link with libsocket,
+	# to get that version.
+	#
+	# This test also links with libsocket and libnsl.
+	#
         cmake_push_check_state()
         set(CMAKE_REQUIRED_LIBRARIES socket nsl)
         check_library_exists(xnet recvmsg "" LIBXNET_HAS_RECVMSG)
         cmake_pop_check_state()
         if(LIBXNET_HAS_RECVMSG)
             #
-            # Yes - link with it as well.
+	    # libxnet has recvmsg(); link with it as well.
             #
             set(PCAP_LINK_LIBRARIES xnet ${PCAP_LINK_LIBRARIES})
             set(LIBSC "-lxnet ${LIBS_LIBS}")
@@ -859,7 +896,9 @@ else(WIN32)
         endif(LIBXNET_HAS_RECVMSG)
     endif(NOT STDLIBS_HAVE_GETADDRINFO)
 
-    # DLPI needs putmsg under HPUX so test for -lstr while we're at it
+    #
+    # DLPI needs putmsg under HP-UX, so test for -lstr while we're at it.
+    #
     check_function_exists(putmsg STDLIBS_HAVE_PUTMSG)
     if(NOT STDLIBS_HAVE_PUTMSG)
         check_library_exists(str putmsg "" LIBSTR_HAS_PUTMSG)
@@ -1231,7 +1270,6 @@ endif(NOT WIN32)
 if(ENABLE_PROFILING)
     if(NOT MSVC)
         set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -pg")
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pg")
     endif()
 endif()
 
@@ -1264,7 +1302,7 @@ endif()
 #
 # Test if the each of the sanitizers in the ENABLE_SANITIZERS list are
 # supported by the compiler, and, if so, adds the appropriate flags to
-# CMAKE_C_FLAGS, CMAKE_CXX_FLAGS, and SANITIZER_FLAGS.  If not, it fails.
+# CMAKE_C_FLAGS, and SANITIZER_FLAGS.  If not, it fails.
 #
 # Do this last, in the hope that it will prevent configuration on Linux
 # from somehow deciding it doesn't need -lpthread when building rpcapd
@@ -1272,17 +1310,25 @@ endif()
 # obvious CMake debugging flag reveals, it doesn't realize that if we
 # turn sanitizer stuff on).
 #
-set(SANITIZER_FLAGS "")
-foreach(sanitizer IN LISTS ENABLE_SANITIZERS)
+# Note: apparently, some projects have decided that ENABLE_SANITIZERS
+# is a Boolean, with OFF meaning "no sanitizers" and ON meaning "all
+# sanitizers".  Whoever decided that didn't put it up as a common
+# CMake idiom, as far as I can tell; we only discovered this because
+# JetBrains' CLion "helpfully" appears to pass -DENABLE_SANITIZERS=OFF
+# to CMake by default, which causes CMake to fail on libpcap.  Thanks!
+#
+# We thus also allow a setting of OFF to mean "no sanitizers" and ON to
+# mean "all supported sanitizers that we know about and that can all
+# be used together".
+#
+macro(test_sanitizer _sanitizer _sanitizer_flag)
+    message(STATUS "Checking sanitizer ${_sanitizer}")
+    set(sanitizer_variable "sanitize_${_sanitizer}")
     # Set -Werror to catch "argument unused during compilation" warnings
-
-    message(STATUS "Checking sanitizer ${sanitizer}")
-    set(sanitizer_variable "sanitize_${sanitizer}")
-    set(CMAKE_REQUIRED_FLAGS "-Werror -fsanitize=${sanitizer}")
-    check_c_compiler_flag("-fsanitize=${sanitizer}" ${sanitizer_variable})
+    set(CMAKE_REQUIRED_FLAGS "-Werror -fsanitize=${_sanitizer}")
+    check_c_compiler_flag("-fsanitize=${_sanitizer}" ${sanitizer_variable})
     if(${${sanitizer_variable}})
-        set(SANITIZER_FLAGS "${SANITIZER_FLAGS} -fsanitize=${sanitizer}")
-        message(STATUS "${sanitizer} sanitizer supported using -fsanitizer=${sanitizer}")
+        set(${_sanitizer_flag} "-fsanitize=${_sanitizer}")
     else()
         #
         # Try the versions supported prior to Clang 3.2.
@@ -1291,119 +1337,397 @@ foreach(sanitizer IN LISTS ENABLE_SANITIZERS)
         # Otherwise, give up.
         #
         set(sanitizer_variable "OLD_${sanitizer_variable}")
-        if ("${sanitizer}" STREQUAL "address")
+        if ("${_sanitizer}" STREQUAL "address")
             set(CMAKE_REQUIRED_FLAGS "-Werror -fsanitize-address")
             check_c_compiler_flag("-fsanitize-address" ${sanitizer_variable})
             if(${${sanitizer_variable}})
-                set(SANITIZER_FLAGS "${SANITIZER_FLAGS} -fsanitize-address")
-                message(STATUS "${sanitizer} sanitizer supported using -fsanitize-address")
-            else()
-                message(FATAL_ERROR "${sanitizer} isn't a supported sanitizer")
+                set(${_sanitizer_flag} "-fsanitize-address")
             endif()
-        elseif("${sanitizer}" STREQUAL "undefined")
+        elseif("${_sanitizer}" STREQUAL "undefined")
             set(CMAKE_REQUIRED_FLAGS "-Werror -fcatch-undefined-behavior")
             check_c_compiler_flag("-fcatch-undefined-behavior" ${sanitizer_variable})
             if(${${sanitizer_variable}})
-                set(SANITIZER_FLAGS "${SANITIZER_FLAGS} -fcatch-undefined-behavior")
-                message(STATUS "${sanitizer} sanitizer supported using catch-undefined-behavior")
+                set(${_sanitizer_flag} "-fcatch-undefined-behavior")
+            endif()
+        endif()
+    endif()
+    unset(CMAKE_REQUIRED_FLAGS)
+endmacro(test_sanitizer)
+
+set(SANITIZER_FLAGS "")
+if("${ENABLE_SANITIZERS}")
+    #
+    # This appears to indicate that ENABLE_SANITIZERS was set to a
+    # string value that is "one of the true constants", meaning
+    # "1, ON, YES, TRUE, Y, or a non-zero number".
+    #
+    # It does not appear to happen for other settings, including
+    # setting it to a list of one or more sanitizers.
+    #
+    # This setting means "enable all sanitizers that the compiler
+    # supports".
+    #
+    foreach(sanitizer "address" "undefined")
+        unset(SANITIZER_FLAG)
+        test_sanitizer(${sanitizer} SANITIZER_FLAG)
+        if(SANITIZER_FLAG)
+            message(STATUS "${sanitizer} sanitizer supported using ${SANITIZER_FLAG}")
+            set(SANITIZER_FLAGS "${SANITIZER_FLAGS} ${SANITIZER_FLAG}")
+        else()
+            message(STATUS "${sanitizer} isn't a supported sanitizer")
+        endif()
+    endforeach()
+    if("${SANITIZER_FLAGS}" STREQUAL "")
+        message(FATAL_ERROR "No supported sanitizers found")
+    endif()
+else()
+    #
+    # This appears to indicate that ENABLE_SANITIZERS was either:
+    #
+    #   not set;
+    #   set to a set to a string value that is not "one of the true
+    #   constants", meaning "1, ON, YES, TRUE, Y, or a non-zero number".
+    #
+    # The latter includes setting it to "one of the false constants",
+    # meaning the string "is 0, OFF, NO, FALSE, N, IGNORE, NOTFOUND,
+    # the empty string, or ends in the suffix -NOTFOUND."
+    #
+    # It also includes setting it to a list of one or more sanitizers.
+    #
+    # We want to treat "not set" and "set to one of the false constants"
+    # as meaning "do not enable any sanitizers".
+    #
+    # We want to treat "set to a list of one or more sanitizers" as
+    # meaning "enable all the sanitizers in the list".
+    #
+    # This requires that we distinguish between those two cases.
+    #
+    if(ENABLE_SANITIZERS)
+        #
+        # This appears to indicate that ENABLE_SANITIZERS was set to
+        # a string value that is "not one of the false constants".
+        #
+        # We already know it's "not one of the true constants", so
+        # we treat it as a list of sanitizers.
+        #
+        foreach(sanitizer IN LISTS ENABLE_SANITIZERS)
+            unset(SANITIZER_FLAG)
+            test_sanitizer(${sanitizer} SANITIZER_FLAG)
+            if(SANITIZER_FLAG)
+                message(STATUS "${sanitizer} sanitizer supported using ${SANITIZER_FLAG}")
+                set(SANITIZER_FLAGS "${SANITIZER_FLAGS} ${SANITIZER_FLAG}")
             else()
                 message(FATAL_ERROR "${sanitizer} isn't a supported sanitizer")
             endif()
-        else()
-            message(FATAL_ERROR "${sanitizer} isn't a supported sanitizer")
-        endif()
+        endforeach()
+    else()
+        #
+        # This appears to indicate that ENABLE_SANITIZERS was either:
+        #
+        #   not set;
+        #   set to a value that's "one of the false constants";
+        #
+        # so we don't enable any sanitizers.
+        #
+        message(STATUS "Not enabling sanitizers")
     endif()
-
-    unset(CMAKE_REQUIRED_FLAGS)
-endforeach()
+endif()
 
 if(NOT "${SANITIZER_FLAGS}" STREQUAL "")
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O1 -g ${SANITIZER_FLAGS} -fno-omit-frame-pointer -fno-optimize-sibling-calls")
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O1 -g ${SANITIZER_FLAGS} -fno-omit-frame-pointer -fno-optimize-sibling-calls")
 endif()
 
-#
-# OpenSSL/libressl.
-#
-find_package(OpenSSL)
-if(OPENSSL_FOUND)
+if(ENABLE_REMOTE)
   #
-  # We have OpenSSL.
+  # OpenSSL/libressl.
   #
-  include_directories(SYSTEM ${OPENSSL_INCLUDE_DIR})
-  set(PCAP_LINK_LIBRARIES ${PCAP_LINK_LIBRARIES} ${OPENSSL_LIBRARIES})
+  find_package(OpenSSL)
+  if(OPENSSL_FOUND)
+    #
+    # We have OpenSSL.
+    #
+    include_directories(SYSTEM ${OPENSSL_INCLUDE_DIR})
+    set(PCAP_LINK_LIBRARIES ${PCAP_LINK_LIBRARIES} ${OPENSSL_LIBRARIES})
 
-  #
-  # The find_package() module CMake provides for OpenSSL uses does not
-  # give us a defined indication of whether it found OpenSSL with
-  # pkg-config or not.  We need to know that as, if it was found with
-  # pkg-config, we should set the Requires.private value in libpcap.pc
-  # to include its package name, openssl, otherwise we should add the
-  # names for the static libraries to Libs.private.
-  #
-  # On UN*X, FindOpenSSL happens to use pkg-config to find OpenSSL, but
-  # it doesn't appear to be documented as doing so; therefore, we don't
-  # assume that, if we got here, we have pkg-config.
-  #
-  # So we use pkg_get_link_info() to run pkg-config ourselves, both
-  # because FindOpenSSL doesn't set the OPENSSL_LDFLAGS or
-  # OPENSSL_STATIC_LDFLAGS variables and because, for reasons explained
-  # in the comment before the pkg_get_link_info() macro, even if it did,
-  # it wouldn't be what we want anyway.
-  #
-  if (PKG_CONFIG_EXECUTABLE)
-    pkg_get_link_info(OPENSSL openssl)
-    if (OPENSSL_FOUND_WITH_PKG_CONFIG)
-      #
-      # pkg-config failed; assume that means that there is no openssl
-      # package for it to find.  Just add OPENSSL_LIBRARIES to
-      # LIBS_PRIVATE AND LIBS_STATIC, as that's the
-      # best we can do. XXX - need list of -l and -L flags to add....
-      #
-      set(LIBS "${LIBS} ${OPENSSL_LIBS}")
-      set(LIBS_STATIC "${LIBS_STATIC} ${OPENSSL_LIBS_STATIC}")
-      set(REQUIRES_PRIVATE "${REQUIRES_PRIVATE} ${OPENSSL_PACKAGE_NAME}")
-    endif()
-  else()
-    # Get it from OPENSSL_LIBRARIES
-    foreach(_lib IN LISTS OPENSSL_LIBRARIES)
-      #
-      # Get the directory in which the library resides.
-      #
-      get_filename_component(_lib_directory "${_lib}" DIRECTORY)
-
-      #
-      # Is the library directory in CMAKE_PLATFORM_IMPLICIT_LINK_DIRECTORIES?
-      # (See comment above on why we use that.)
-      #
-      list(FIND CMAKE_PLATFORM_IMPLICIT_LINK_DIRECTORIES "${_lib_directory}" _lib_index)
-      if(_lib_index EQUAL -1)
+    #
+    # The find_package() module CMake provides for OpenSSL uses does not
+    # give us a defined indication of whether it found OpenSSL with
+    # pkg-config or not.  We need to know that as, if it was found with
+    # pkg-config, we should set the Requires.private value in libpcap.pc
+    # to include its package name, openssl, otherwise we should add the
+    # names for the static libraries to Libs.private.
+    #
+    # On UN*X, FindOpenSSL happens to use pkg-config to find OpenSSL, but
+    # it doesn't appear to be documented as doing so; therefore, we don't
+    # assume that, if we got here, we have pkg-config.
+    #
+    # So we use pkg_get_link_info() to run pkg-config ourselves, both
+    # because FindOpenSSL doesn't set the OPENSSL_LDFLAGS or
+    # OPENSSL_STATIC_LDFLAGS variables and because, for reasons explained
+    # in the comment before the pkg_get_link_info() macro, even if it did,
+    # it wouldn't be what we want anyway.
+    #
+    if (PKG_CONFIG_EXECUTABLE)
+      pkg_get_link_info(OPENSSL openssl)
+      if (OPENSSL_FOUND_WITH_PKG_CONFIG)
         #
-        # No, so add a -L flag to get the linker to search in that
-        # directory.
+        # pkg-config failed; assume that means that there is no openssl
+        # package for it to find.  Just add OPENSSL_LIBRARIES to
+        # LIBS_PRIVATE AND LIBS_STATIC, as that's the
+        # best we can do. XXX - need list of -l and -L flags to add....
         #
-        set(LIBS "${LIBS} -L${_lib_directory}")
-        set(LIBS_STATIC "${LIBS_STATIC} -L${_lib_directory}")
-        set(LIBS_PRIVATE "${LIBS_PRIVATE} -L${_lib_directory}")
+        set(LIBS "${LIBS} ${OPENSSL_LIBS}")
+        set(LIBS_STATIC "${LIBS_STATIC} ${OPENSSL_LIBS_STATIC}")
+        set(REQUIRES_PRIVATE "${REQUIRES_PRIVATE} ${OPENSSL_PACKAGE_NAME}")
       endif()
+    else()
+      # Get it from OPENSSL_LIBRARIES
+      foreach(_lib IN LISTS OPENSSL_LIBRARIES)
+        #
+        # Get the directory in which the library resides.
+        #
+        get_filename_component(_lib_directory "${_lib}" DIRECTORY)
 
-      #
-      # Get the file name of the library, without the extension.
-      #
-      get_filename_component(_lib_filename "${_lib}" NAME_WE)
+        #
+        # Is the library directory in CMAKE_PLATFORM_IMPLICIT_LINK_DIRECTORIES?
+        # (See comment above on why we use that.)
+        #
+        list(FIND CMAKE_PLATFORM_IMPLICIT_LINK_DIRECTORIES "${_lib_directory}" _lib_index)
+        if(_lib_index EQUAL -1)
+          #
+          # No, so add a -L flag to get the linker to search in that
+          # directory.
+          #
+          set(LIBS "${LIBS} -L${_lib_directory}")
+          set(LIBS_STATIC "${LIBS_STATIC} -L${_lib_directory}")
+          set(LIBS_PRIVATE "${LIBS_PRIVATE} -L${_lib_directory}")
+        endif()
 
-      #
-      # Strip off the "lib" prefix to get the library name, and
-      # add a -l flag based on that.
-      #
-      string(REGEX REPLACE "^lib" "" _library_name "${_lib_filename}")
-      set(LIBS "${LIBS} -l${_library_name}")
-      set(LIBS_STATIC "${LIBS_STATIC} -l${_library_name}")
-      set(LIBS_PRIVATE "${LIBS_PRIVATE} -l${_library_name}")
-    endforeach()
-  endif()
-  set(HAVE_OPENSSL YES)
-endif(OPENSSL_FOUND)
+        #
+        # Get the file name of the library, without the extension.
+        #
+        get_filename_component(_lib_filename "${_lib}" NAME_WE)
+
+        #
+        # Strip off the "lib" prefix to get the library name, and
+        # add a -l flag based on that.
+        #
+        string(REGEX REPLACE "^lib" "" _library_name "${_lib_filename}")
+        set(LIBS "${LIBS} -l${_library_name}")
+        set(LIBS_STATIC "${LIBS_STATIC} -l${_library_name}")
+        set(LIBS_PRIVATE "${LIBS_PRIVATE} -l${_library_name}")
+      endforeach()
+    endif()
+    set(HAVE_OPENSSL YES)
+  endif(OPENSSL_FOUND)
+endif(ENABLE_REMOTE)
+
+#
+# On macOS, build libpcap for the appropriate architectures, if
+# CMAKE_OSX_ARCHITECTURES isn't set (if it is, let that control
+# the architectures for which to build it).
+#
+if(APPLE AND "${CMAKE_OSX_ARCHITECTURES}" STREQUAL "")
+    #
+    # Get the major version of Darwin.
+    #
+    string(REGEX MATCH "^([0-9]+)" SYSTEM_VERSION_MAJOR "${CMAKE_SYSTEM_VERSION}")
+
+    if(SYSTEM_VERSION_MAJOR LESS 8)
+        #
+        # Pre-Tiger.
+        #
+        # Build libraries and executables only for 32-bit PowerPC, as
+        # that's all that is supported.
+        #
+        set(OSX_LIBRARY_ARCHITECTURES "ppc")
+        set(OSX_EXECUTABLE_ARCHITECTURES "ppc")
+    elseif(SYSTEM_VERSION_MAJOR EQUAL 8)
+        #
+        # Tiger.  Is this prior to, or with, Intel support?
+        #
+        # Get the minor version of Darwin.
+        #
+        string(REPLACE "${SYSTEM_VERSION_MAJOR}." "" SYSTEM_MINOR_AND_PATCH_VERSION ${CMAKE_SYSTEM_VERSION})
+        string(REGEX MATCH "^([0-9]+)" SYSTEM_VERSION_MINOR "${SYSTEM_MINOR_AND_PATCH_VERSION}")
+        if(SYSTEM_VERSION_MINOR LESS 4)
+            #
+            # Prior to Intel support.
+            #
+            # Build libraries and executables for 32-bit PowerPC and
+            # 64-bit PowerPC, with 32-bit PowerPC first, as those
+            # are both supported.  (I'm guessing that's what Apple
+            # does.)
+            #
+            set(OSX_LIBRARY_ARCHITECTURES "ppc;ppc64")
+            set(OSX_EXECUTABLE_ARCHITECTURES "ppc;ppc64")
+        elseif(SYSTEM_VERSION_MINOR LESS 7)
+            #
+            # With Intel support but prior to x86-64 support.
+            #
+            # Build for 32-bit PowerPC, 64-bit PowerPC, and 32-bit x86,
+            # with 32-bit PowerPC first, as those are all supported.
+            # (I'm guessing that's what Apple does.)
+            #
+            set(OSX_LIBRARY_ARCHITECTURES "ppc;ppc64;i386")
+            set(OSX_EXECUTABLE_ARCHITECTURES "ppc;ppc64;i386")
+        else()
+            #
+            # With Intel support including x86-64 support.
+            #
+            # Build for 32-bit PowerPC, 64-bit PowerPC, 32-bit x86,
+            # and x86-64, with 32-bit PowerPC first, as those are
+            # all supported.  (I'm guessing that's what Apple does.)
+            #
+            set(OSX_LIBRARY_ARCHITECTURES "ppc;ppc64;i386;x86_64")
+            set(OSX_EXECUTABLE_ARCHITECTURES "ppc;ppc64;i386;x86_64")
+        endif()
+    elseif(SYSTEM_VERSION_MAJOR EQUAL 9)
+        #
+        # Leopard.
+        #
+        # Build libraries and executables for 32-bit PowerPC, 64-bit
+        # PowerPC, 32-bit x86, and x86-64, with 32-bit PowerPC
+        # first, as those are all supported.  (That's what Apple
+        # does.)
+        #
+        set(OSX_LIBRARY_ARCHITECTURES "ppc;ppc64;i386;x86_64")
+        set(OSX_EXECUTABLE_ARCHITECTURES "ppc;ppc64;i386;x86_64")
+    elseif(SYSTEM_VERSION_MAJOR EQUAL 10)
+        #
+        # Snow Leopard.
+        #
+        # Build libraries for x86-64, 32-bit x86, and 32-bit PowerPC,
+        # with x86-64 first, because 32-bit PowerPC executables are
+        # supported with Rosetta.  (That's what Apple does, even though
+        # Snow Leopard doesn't run on PPC, so PPC libpcap runs under
+        # Rosetta, and Rosetta doesn't support BPF ioctls, so PPC
+        # executables can't do live captures.)
+        #
+        set(OSX_LIBRARY_ARCHITECTURES "x86_64;i386;ppc")
+
+        #
+        # Build executables only for 32-bit x86 and 64-bit x86, as PPC
+        # machines are no longer supported.
+        #
+        set(OSX_EXECUTABLE_ARCHITECTURES "x86_64;i386")
+    elseif(SYSTEM_VERSION_MAJOR GREATER 10 AND SYSTEM_VERSION_MAJOR LESS 19)
+        #
+        # Post-Snow Leopard, pre-Catalina.
+        #
+        # Build libraries for 64-bit x86 and 32-bit x86, with 64-bit x86
+        # first, as PPC machines are no longer supported, but 32-bit
+        # x86 executables are.  (That's what Apple does.)
+        #
+        # First, check whether we're building with OpenSSL.
+        # If so, don't bother trying to build fat.
+        #
+        if(HAVE_OPENSSL)
+          set(X86_32_BIT_SUPPORTED NO)
+          set(OSX_LIBRARY_ARCHITECTURES "x86_64")
+          set(OSX_EXECUTABLE_ARCHITECTURES "x86_64")
+          message(WARNING "We're assuming the OpenSSL libraries are 64-bit only, so we're not compiling for 32-bit x86")
+        else()
+          #
+          # Now, check whether we *can* build for i386.
+          #
+          cmake_push_check_state()
+          set(CMAKE_REQUIRED_FLAGS "-arch i386")
+          check_c_source_compiles(
+"int
+main(void)
+{
+    return 0;
+}
+"
+                   X86_32_BIT_SUPPORTED)
+          cmake_pop_check_state()
+          if(X86_32_BIT_SUPPORTED)
+              set(OSX_LIBRARY_ARCHITECTURES "x86_64;i386")
+          else()
+              set(OSX_LIBRARY_ARCHITECTURES "x86_64")
+              #
+              # We can't build fat; suggest that the user install the
+              # /usr/include headers if they want to build fat.
+              #
+              if(SYSTEM_VERSION_MAJOR LESS 18)
+                  #
+                  # Pre-Mojave; the command-line tools should be sufficient to
+                  # enable 32-bit x86 builds.
+                  #
+                  message(WARNING "Compiling for 32-bit x86 gives an error; try installing the command-line tools")
+              else()
+                  message(WARNING "Compiling for 32-bit x86 gives an error; try installing the command-line tools and, after that, installing the /usr/include headers from the /Library/Developer/CommandLineTools/Packages/macOS_SDK_headers_for_macOS_10.14.pkg package")
+              endif()
+          endif()
+        endif()
+
+        #
+        # Build executables only for 64-bit x86, as 32-bit x86 machines
+        # are no longer supported.
+        #
+        set(OSX_EXECUTABLE_ARCHITECTURES "x86_64")
+    elseif(SYSTEM_VERSION_MAJOR EQUAL 19)
+        #
+        # Catalina.
+        #
+        # Build libraries and executables only for x86-64, as 32-bit
+        # executables are no longer supported.  (That's what Apple
+        # does.)
+        #
+        set(OSX_LIBRARY_ARCHITECTURES "x86_64")
+        set(OSX_EXECUTABLE_ARCHITECTURES "x86_64")
+    else()
+        #
+        # Post-Catalina.  Build libraries and
+        # executables for x86-64 and ARM64.
+        # (That's what Apple does, except they
+        # build for arm64e, which may include
+        # some of the pointer-checking extensions.)
+        #
+        # If we're building with libssl, make sure
+        # we can build fat with it (i.e., that it
+        # was built fat); if we can't, don't set
+        # the target architectures, and just
+        # build for the host we're on.
+        #
+        # Otherwise, just add both of them.
+        #
+        if(HAVE_OPENSSL)
+          cmake_push_check_state()
+          set(CMAKE_REQUIRED_FLAGS "-arch x86_64 -arch arm64")
+          set(CMAKE_REQUIRED_INCLUDES ${OPENSSL_INCLUDE_DIR})
+          set(CMAKE_REQUIRED_LIBRARIES ${OPENSSL_LIBRARIES})
+          #
+          # We must test whether this compiles and links, so
+          # check_symbol_exists() isn't sufficient.
+          #
+          # SSL_library_init() may be a macro that's #defined
+          # to be the real function to call, so we have to
+          # include <openssl/ssl.h>, and check_function_exists()
+          # isn't sufficient.
+          #
+          check_c_source_compiles(
+"#include <openssl/ssl.h>
+int
+main(void)
+{
+    SSL_library_init();
+    return 0;
+}
+"
+              FAT_SSL_BUILDS_SUPPORTED)
+          cmake_pop_check_state()
+          if(FAT_SSL_BUILDS_SUPPORTED)
+            set(OSX_LIBRARY_ARCHITECTURES "x86_64;arm64")
+            set(OSX_EXECUTABLE_ARCHITECTURES "x86_64;arm64")
+          endif()
+        else()
+          set(OSX_LIBRARY_ARCHITECTURES "x86_64;arm64")
+          set(OSX_EXECUTABLE_ARCHITECTURES "x86_64;arm64")
+        endif()
+    endif()
+endif()
 
 #
 # Additional linker flags.
@@ -1431,7 +1755,6 @@ set(PROJECT_SOURCE_LIST_C
     nametoaddr.c
     optimize.c
     pcap-common.c
-    pcap-usb-linux-common.c
     pcap-util.c
     pcap.c
     savefile.c
@@ -1487,11 +1810,21 @@ if(WIN32)
             set(PCAP_TYPE npf)
         else()
             #
-            # We don't have any capture type we know about, so just use
-            # the null capture type, and only support reading (and writing)
-            # capture files.
+            # We don't have any capture type we know about.
+            # Report an error, and tell the user to configure with
+            # -DPCAP_TYPE=null if they want a libpcap that can't
+            # capture but that can read capture files.  That way,
+            # nobody gets surprised by getting a no-capture
+            # libpcap without asking for that.
             #
-            set(PCAP_TYPE null)
+            message(FATAL_ERROR "No supported packet capture interface was found.
+In order to build a version of libpcap that supports packet capture
+on Windows, you will need to install Npcap and the Npcap SDK, or
+WinPcap and the WinPcap SDK, and run cmake with -DPacket_ROOT={path of SDK},
+where {path of SDK} is the path name of the top-level directory of the SDK.
+That argument may have to be quoted if the path contains blanks.
+If you want a libpcap that cannot capture packets but that can read
+pcap and pcapng files, run cmake with -DPCAP_TYPE=null.")
         endif()
     endif()
 else()
@@ -1607,12 +1940,18 @@ else()
             set(PCAP_TYPE haiku)
         else()
             #
-            # Nothing we support.
+            # We don't have any capture type we know about.
+            # Report an error, and tell the user to configure with
+            # -DPCAP_TYPE=null if they want a libpcap that can't
+            # capture but that can read capture files.  That way,
+            # nobody gets surprised by getting a no-capture
+            # libpcap without asking for that.
             #
-            set(PCAP_TYPE null)
-            message(WARNING
-"cannot determine packet capture interface
-(see the INSTALL.md file for more info)")
+            message(FATAL_ERROR "No supported packet capture interface was found.
+See the INSTALL.md file for information on packet capture support in
+various operating systems.
+If you want a libpcap that cannot capture packets but that can read
+pcap and pcapng files, run cmake with -DPCAP_TYPE=null.")
         endif()
     endif()
 endif(WIN32)
@@ -1756,12 +2095,35 @@ else(WIN32)
             check_type_size("struct BPF_TIMEVAL" STRUCT_BPF_TIMEVAL)
         endif()
         cmake_pop_check_state()
+
+        #
+        # Check whether there's a inet/ipnet.h header and,
+        # if so, whether it defines IPNET_ANY_LINK - if so,
+        # we assume we have the "any" device (that's a
+        # Solaris header, and later versions of Solaris
+        # have an "any" device).
+        #
+        # Attempting to include it at compile time could
+        # be a pain, as it's a kernel header.
+        #
+        message(STATUS "Checking whether the Solaris \"any\" device is supported")
+        if(EXISTS /usr/include/inet/ipnet.h)
+            file(STRINGS /usr/include/inet/ipnet.h IPNET_ANY_LINK_LINES REGEX IPNET_ANY_LINK)
+            if(NOT IPNET_ANY_LINK_LINES STREQUAL "")
+                set(HAVE_SOLARIS_ANY_DEVICE TRUE)
+            endif()
+        endif()
+        if(HAVE_SOLARIS_ANY_DEVICE)
+            message(STATUS "Checking whether the Solaris \"any\" device is supported - supported")
+        else()
+            message(STATUS "Checking whether the Solaris \"any\" device is supported - not supported")
+        endif()
     elseif(PCAP_TYPE STREQUAL "haiku")
         #
         # Check for some headers just in case.
         #
         check_include_files("net/if.h;net/if_dl.h;net/if_types.h" HAVE_NET_IF_TYPES_H)
-        set(PCAP_SRC pcap-${PCAP_TYPE}.cpp)
+        set(PCAP_SRC pcap-${PCAP_TYPE}.c)
     elseif(PCAP_TYPE STREQUAL "null")
     else()
         message(FATAL_ERROR "${PCAP_TYPE} is not a valid pcap type")
@@ -1955,7 +2317,7 @@ if(NOT DISABLE_NETMAP)
     #
     # Check whether net/netmap_user.h is usable if NETMAP_WITH_LIBS is
     # defined; it's not usable on DragonFly BSD 4.6 if NETMAP_WITH_LIBS
-    # is defined, for example, as it includes a non-existent malloc.h
+    # is defined, for example, as it includes a nonexistent malloc.h
     # header.
     #
     check_c_source_compiles(
@@ -1989,7 +2351,7 @@ if(NOT DISABLE_DPDK)
         cmake_pop_check_state()
         if(HAVE_RTE_ETH_DEV_COUNT_AVAIL)
             set(DPDK_C_FLAGS "-march=native")
-            set(CMAKE_C_FLAGS ${CMAKE_C_FLAGS} ${DPDK_C_FLAGS})
+            set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${DPDK_C_FLAGS}")
             include_directories(AFTER ${dpdk_INCLUDE_DIRS})
             link_directories(AFTER ${dpdk_LIBRARIES})
             set(PCAP_LINK_LIBRARIES ${PCAP_LINK_LIBRARIES} ${dpdk_LIBRARIES})
@@ -2042,7 +2404,7 @@ if(NOT DISABLE_BLUETOOTH)
 int
 main(void)
 {
-    u_int i = HCI_CHANNEL_MONITOR;
+    int i = HCI_CHANNEL_MONITOR;
     return 0;
 }
 "
@@ -2425,6 +2787,7 @@ if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/.devel OR EXISTS ${CMAKE_BINARY_DIR}/.deve
         # Microsoft's code generator.  We currently treat them as if
         # they might support GCC-style -W options.
         #
+        check_and_add_compiler_option(-W)
         check_and_add_compiler_option(-Wall)
         check_and_add_compiler_option(-Wcomma)
         # Warns about safeguards added in case the enums are extended
@@ -2434,13 +2797,17 @@ if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/.devel OR EXISTS ${CMAKE_BINARY_DIR}/.deve
         check_and_add_compiler_option(-Wmissing-noreturn)
         check_and_add_compiler_option(-Wmissing-prototypes)
         check_and_add_compiler_option(-Wmissing-variable-declarations)
+        check_and_add_compiler_option(-Wnull-pointer-subtraction)
         check_and_add_compiler_option(-Wpointer-arith)
         check_and_add_compiler_option(-Wpointer-sign)
         check_and_add_compiler_option(-Wshadow)
-        check_and_add_compiler_option(-Wsign-compare)
         check_and_add_compiler_option(-Wshorten-64-to-32)
+        check_and_add_compiler_option(-Wsign-compare)
         check_and_add_compiler_option(-Wstrict-prototypes)
+        check_and_add_compiler_option(-Wundef)
         check_and_add_compiler_option(-Wunreachable-code)
+        check_and_add_compiler_option(-Wunused-but-set-parameter)
+        check_and_add_compiler_option(-Wunused-but-set-variable)
         check_and_add_compiler_option(-Wunused-parameter)
         check_and_add_compiler_option(-Wused-but-marked-unused)
     endif()
@@ -2501,9 +2868,13 @@ endif(NOT MSVC)
 # usage: cmake -DEXTRA_CFLAGS='-Wall -Wextra -Werror' ...
 #
 if(NOT "${EXTRA_CFLAGS}" STREQUAL "")
-    foreach(_extra_cflag ${EXTRA_CFLAGS})
-        check_and_add_compiler_option("${_extra_cflag}")
-    endforeach(_extra_cflag)
+    # The meaning of EXTRA_CFLAGS is "use the exact specified options, or the
+    # build risks failing to fail", not "try every specified option, omit those
+    # that do not work and use the rest".  Thus use add_compile_options(), not
+    # foreach()/check_and_add_compiler_option().  Another reason to do that is
+    # that the effect lasts in testprogs/ and testprogs/fuzz/.
+    string(REPLACE " " ";" _extra_cflags_list ${EXTRA_CFLAGS})
+    add_compile_options(${_extra_cflags_list})
     message(STATUS "Added extra compile options (${EXTRA_CFLAGS})")
 endif()
 
@@ -2787,6 +3158,10 @@ if(BUILD_SHARED_LIBS)
         ${CMAKE_CURRENT_BINARY_DIR}/scanner.c
         ${PROJECT_EXTERNAL_OBJECT_LIST}
     )
+    target_include_directories(${LIBRARY_NAME} PUBLIC
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+        $<INSTALL_INTERFACE:include>
+    )
     add_dependencies(${LIBRARY_NAME} SerializeTarget)
     set_target_properties(${LIBRARY_NAME} PROPERTIES
         COMPILE_DEFINITIONS BUILDING_PCAP)
@@ -2811,6 +3186,10 @@ add_library(${LIBRARY_NAME}_static STATIC
     ${CMAKE_CURRENT_BINARY_DIR}/grammar.c
     ${CMAKE_CURRENT_BINARY_DIR}/scanner.c
     ${PROJECT_EXTERNAL_OBJECT_LIST}
+)
+target_include_directories(${LIBRARY_NAME}_static PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+    $<INSTALL_INTERFACE:include>
 )
 add_dependencies(${LIBRARY_NAME}_static SerializeTarget)
 set_target_properties(${LIBRARY_NAME}_static PROPERTIES
@@ -2873,6 +3252,15 @@ if(BUILD_SHARED_LIBS)
     if(NOT C_ADDITIONAL_FLAGS STREQUAL "")
         set_target_properties(${LIBRARY_NAME} PROPERTIES COMPILE_FLAGS ${C_ADDITIONAL_FLAGS})
     endif()
+
+    #
+    # If this is macOS and we've picked the default architectures on
+    # which to build, build the library on them.
+    #
+    if(APPLE AND "${CMAKE_OSX_ARCHITECTURES}" STREQUAL "")
+        set_target_properties(${LIBRARY_NAME} PROPERTIES
+            OSX_ARCHITECTURES "${OSX_LIBRARY_ARCHITECTURES}")
+    endif()
     target_link_libraries(${LIBRARY_NAME} ${PCAP_LINK_LIBRARIES})
 endif(BUILD_SHARED_LIBS)
 
@@ -2881,177 +3269,10 @@ if(NOT C_ADDITIONAL_FLAGS STREQUAL "")
 endif()
 
 #
-# On macOS, build libpcap for the appropriate architectures, if
-# CMAKE_OSX_ARCHITECTURES isn't set (if it is, let that control
-# the architectures for which to build it).
+# If this is macOS and we've picked the default architectures on
+# which to build, build the library on them.
 #
 if(APPLE AND "${CMAKE_OSX_ARCHITECTURES}" STREQUAL "")
-    #
-    # Get the major version of Darwin.
-    #
-    string(REGEX MATCH "^([0-9]+)" SYSTEM_VERSION_MAJOR "${CMAKE_SYSTEM_VERSION}")
-
-    if(SYSTEM_VERSION_MAJOR LESS 8)
-        #
-        # Pre-Tiger.  Build only for 32-bit PowerPC.
-        #
-        set(OSX_LIBRARY_ARCHITECTURES "ppc")
-    elseif(SYSTEM_VERSION_MAJOR EQUAL 8)
-        #
-        # Tiger.  Is this prior to, or with, Intel support?
-        #
-        # Get the minor version of Darwin.
-        #
-        string(REPLACE "${SYSTEM_VERSION_MAJOR}." "" SYSTEM_MINOR_AND_PATCH_VERSION ${CMAKE_SYSTEM_VERSION})
-        string(REGEX MATCH "^([0-9]+)" SYSTEM_VERSION_MINOR "${SYSTEM_MINOR_AND_PATCH_VERSION}")
-        if(SYSTEM_VERSION_MINOR LESS 4)
-            #
-            # Prior to Intel support.  Build for 32-bit
-            # PowerPC and 64-bit PowerPC, with 32-bit PowerPC
-            # first.  (I'm guessing that's what Apple does.)
-            #
-            set(OSX_LIBRARY_ARCHITECTURES "ppc;ppc64")
-        elseif(SYSTEM_VERSION_MINOR LESS 7)
-            #
-            # With Intel support but prior to x86-64 support.
-            # Build for 32-bit PowerPC, 64-bit PowerPC, and 32-bit x86,
-            # with 32-bit PowerPC first.
-            # (I'm guessing that's what Apple does.)
-            #
-            set(OSX_LIBRARY_ARCHITECTURES "ppc;ppc64;i386")
-        else()
-            #
-            # With Intel support including x86-64 support.
-            # Build for 32-bit PowerPC, 64-bit PowerPC, 32-bit x86,
-            # and x86-64, with 32-bit PowerPC first.
-            # (I'm guessing that's what Apple does.)
-            #
-            set(OSX_LIBRARY_ARCHITECTURES "ppc;ppc64;i386;x86_64")
-        endif()
-    elseif(SYSTEM_VERSION_MAJOR EQUAL 9)
-        #
-        # Leopard.  Build for 32-bit PowerPC, 64-bit
-        # PowerPC, 32-bit x86, and x86-64, with 32-bit PowerPC
-        # first.  (That's what Apple does.)
-        #
-        set(OSX_LIBRARY_ARCHITECTURES "ppc;ppc64;i386;x86_64")
-    elseif(SYSTEM_VERSION_MAJOR EQUAL 10)
-        #
-        # Snow Leopard.  Build for x86-64, 32-bit x86, and
-        # 32-bit PowerPC, with x86-64 first.  (That's
-        # what Apple does, even though Snow Leopard
-        # doesn't run on PPC, so PPC libpcap runs under
-        # Rosetta, and Rosetta doesn't support BPF
-        # ioctls, so PPC programs can't do live
-        # captures.)
-        #
-        set(OSX_LIBRARY_ARCHITECTURES "x86_64;i386;ppc")
-    elseif(SYSTEM_VERSION_MAJOR GREATER 10 AND SYSTEM_VERSION_MAJOR LESS 19)
-        #
-        # Post-Snow Leopard, pre-Catalina.  Build for x86-64
-        # and 32-bit x86, with x86-64 first.  (That's what Apple does)
-        #
-        # First, check whether we're building with OpenSSL.
-        # If so, don't bother trying to build fat.
-        #
-        if(HAVE_OPENSSL)
-          set(X86_32_BIT_SUPPORTED NO)
-          set(OSX_LIBRARY_ARCHITECTURES "x86_64")
-          message(WARNING "We're assuming the OpenSSL libraries are 64-bit only, so we're not compiling for 32-bit x86")
-        else()
-          #
-          # Now, check whether we *can* build for i386.
-          #
-          cmake_push_check_state()
-          set(CMAKE_REQUIRED_FLAGS "-arch i386")
-          check_c_source_compiles(
-"int
-main(void)
-{
-    return 0;
-}
-"
-                   X86_32_BIT_SUPPORTED)
-          cmake_pop_check_state()
-          if(X86_32_BIT_SUPPORTED)
-              set(OSX_LIBRARY_ARCHITECTURES "x86_64;i386")
-          else()
-              set(OSX_LIBRARY_ARCHITECTURES "x86_64")
-              #
-              # We can't build fat; suggest that the user install the
-              # /usr/include headers if they want to build fat.
-              #
-              if(SYSTEM_VERSION_MAJOR LESS 18)
-                  #
-                  # Pre-Mojave; the command-line tools should be sufficient to
-                  # enable 32-bit x86 builds.
-                  #
-                  message(WARNING "Compiling for 32-bit x86 gives an error; try installing the command-line tools")
-              else()
-                  message(WARNING "Compiling for 32-bit x86 gives an error; try installing the command-line tools and, after that, installing the /usr/include headers from the /Library/Developer/CommandLineTools/Packages/macOS_SDK_headers_for_macOS_10.14.pkg package")
-              endif()
-          endif()
-        endif()
-    elseif(SYSTEM_VERSION_MAJOR EQUAL 19)
-        #
-        # Catalina.  Build libraries and executables
-        # only for x86-64.  (That's what Apple does;
-        # 32-bit x86 binaries are not supported on
-        # Catalina.)
-        #
-        set(OSX_LIBRARY_ARCHITECTURES "x86_64")
-    else()
-        #
-        # Post-Catalina.  Build libraries and
-        # executables for x86-64 and ARM64.
-        # (That's what Apple does, except they
-        # build for arm64e, which may include
-        # some of the pointer-checking extensions.)
-        #
-        # If we're building with libssl, make sure
-        # we can build fat with it (i.e., that it
-        # was built fat); if we can't, don't set
-        # the target architectures, and just
-        # build for the host we're on.
-        #
-        # Otherwise, just add both of them.
-        #
-        if(HAVE_OPENSSL)
-          cmake_push_check_state()
-          set(CMAKE_REQUIRED_FLAGS "-arch x86_64 -arch arm64")
-          set(CMAKE_REQUIRED_INCLUDES ${OPENSSL_INCLUDE_DIR})
-          set(CMAKE_REQUIRED_LIBRARIES ${OPENSSL_LIBRARIES})
-          #
-          # We must test whether this compiles and links, so
-          # check_symbol_exists() isn't sufficient.
-          #
-          # SSL_library_init() may be a macro that's #defined
-          # to be the real function to call, so we have to
-          # include <openssl/ssl.h>, and check_function_exists()
-          # isn't sufficient.
-          #
-          check_c_source_compiles(
-"#include <openssl/ssl.h>
-int
-main(void)
-{
-    SSL_library_init();
-    return 0;
-}
-"
-              FAT_SSL_BUILDS_SUPPORTED)
-          cmake_pop_check_state()
-          if(FAT_SSL_BUILDS_SUPPORTED)
-              set(OSX_LIBRARY_ARCHITECTURES "x86_64;arm64")
-          endif()
-        else()
-            set(OSX_LIBRARY_ARCHITECTURES "x86_64;arm64")
-        endif()
-    endif()
-    if(BUILD_SHARED_LIBS)
-        set_target_properties(${LIBRARY_NAME} PROPERTIES
-            OSX_ARCHITECTURES "${OSX_LIBRARY_ARCHITECTURES}")
-    endif(BUILD_SHARED_LIBS)
     set_target_properties(${LIBRARY_NAME}_static PROPERTIES
         OSX_ARCHITECTURES "${OSX_LIBRARY_ARCHITECTURES}")
 endif()
@@ -3092,21 +3313,23 @@ function(install_manpage_symlink SOURCE TARGET MANDIR)
         set(LINK_COMMAND "\"${CMAKE_COMMAND}\" \"-E\" \"create_symlink\" \"${SOURCE}\" \"${TARGET}\"")
     endif(MINGW)
 
-    install(CODE
-        "message(STATUS \"Symlinking: \$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/${MANDIR}/${SOURCE} to ${TARGET}\")
+    install(CODE "
+         if(NOT ${CMAKE_INSTALL_MESSAGE} STREQUAL \"NEVER\")
+             message(STATUS \"Symlinking: \$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${MANDIR}/${SOURCE} to ${TARGET}\")
+         endif()
          execute_process(
             COMMAND \"${CMAKE_COMMAND}\" \"-E\" \"remove\" \"${TARGET}\"
-            WORKING_DIRECTORY \$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/${MANDIR}
+            WORKING_DIRECTORY \$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${MANDIR}
           )
          execute_process(
             COMMAND ${LINK_COMMAND}
-            WORKING_DIRECTORY \$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/${MANDIR}
+            WORKING_DIRECTORY \$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${MANDIR}
             RESULT_VARIABLE EXIT_STATUS
           )
           if(NOT EXIT_STATUS EQUAL 0)
-              message(FATAL_ERROR \"Could not create symbolic link from ${CMAKE_INSTALL_PREFIX}/${MANDIR}/${SOURCE} to ${TARGET}\")
+              message(FATAL_ERROR \"Could not create symbolic link from \${CMAKE_INSTALL_PREFIX}/${MANDIR}/${SOURCE} to ${TARGET}\")
           endif()
-          set(CMAKE_INSTALL_MANIFEST_FILES \${CMAKE_INSTALL_MANIFEST_FILES} ${CMAKE_INSTALL_PREFIX}/${MANDIR}/${TARGET})")
+          set(CMAKE_INSTALL_MANIFEST_FILES \${CMAKE_INSTALL_MANIFEST_FILES} \${CMAKE_INSTALL_PREFIX}/${MANDIR}/${TARGET})")
 endfunction(install_manpage_symlink)
 
 set(MAN1_NOEXPAND pcap-config.1)
@@ -3230,13 +3453,13 @@ if(WIN32 OR CYGWIN OR MSYS)
         endif(MSVC)
     endif(MSVC AND CMAKE_SIZEOF_VOID_P EQUAL 8)
 else(WIN32 OR CYGWIN OR MSYS)
-    install(TARGETS ${LIBRARIES_TO_INSTALL} DESTINATION ${CMAKE_INSTALL_FULL_LIBDIR})
+    install(TARGETS ${LIBRARIES_TO_INSTALL} DESTINATION ${CMAKE_INSTALL_LIBDIR})
 endif(WIN32 OR CYGWIN OR MSYS)
 
-install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/pcap/ DESTINATION include/pcap)
-install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/pcap.h DESTINATION include)
-install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/pcap-bpf.h DESTINATION include)
-install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/pcap-namedb.h DESTINATION include)
+install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/pcap/ DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/pcap)
+install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/pcap.h DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/pcap-bpf.h DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/pcap-namedb.h DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 
 # On UN*X, and on Windows when not using MSVC, generate libpcap.pc and
 # pcap-config and process man pages and arrange that they be installed.

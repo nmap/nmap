@@ -6,7 +6,7 @@
  *                                                                         *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
  *
- * The Nmap Security Scanner is (C) 1996-2024 Nmap Software LLC ("The Nmap
+ * The Nmap Security Scanner is (C) 1996-2025 Nmap Software LLC ("The Nmap
  * Project"). Nmap is also a registered trademark of the Nmap Project.
  *
  * This program is distributed under the terms of the Nmap Public Source
@@ -68,7 +68,7 @@
 #include "scan_lists.h"
 #include "probespec.h"
 
-#include <dnet.h>
+#include "libnetutil/netutil.h"
 
 #include "timing.h"
 
@@ -320,6 +320,7 @@ struct send_delay_nfo {
   unsigned int goodRespSinceDelayChanged;
   unsigned int droppedRespSinceDelayChanged;
   struct timeval last_boost; /* Most recent time of increase to delayms.  Init to creation time. */
+  int maxdelay;
 };
 
 /* To test for rate limiting, there is a delay in sending the first packet
@@ -391,10 +392,10 @@ public:
      true. */
   bool sendOK(struct timeval *when) const;
 
-  /* If there are pending probe timeouts, fills in when with the time of
-     the earliest one and returns true.  Otherwise returns false and
-     puts now in when. */
-  bool nextTimeout(struct timeval *when) const;
+  /* If there are pending probe timeouts, compares the earliest one with `when`;
+     if it is earlier than `when`, replaces `when` with the time of
+     the earliest one and returns true.  Otherwise returns false. */
+  bool soonerTimeout(struct timeval *when) const;
   UltraScanInfo *USI; /* The USI which contains this HSS */
 
   /* Removes a probe from probes_outstanding, adjusts HSS and USS
@@ -556,6 +557,9 @@ public:
   bool ping_scan_arp; /* ONLY includes arp ping scan */
   bool ping_scan_nd; /* ONLY includes ND ping scan */
   bool noresp_open_scan; /* Whether no response means a port is open */
+#ifdef WIN32
+  bool has_tcp_maxrtms; /* Whether TCP_MAXRTMS socket option is available */
+#endif
 
   /* massping state. */
   /* If ping_scan is true (unless ping_scan_arp is also true), this is the set
@@ -622,7 +626,7 @@ public:
   const struct scan_lists *ports;
   int rawsd; /* raw socket descriptor */
   pcap_t *pd;
-  eth_t *ethsd;
+  netutil_eth_t *ethsd;
   u32 seqmask; /* This mask value is used to encode values in sequence
                   numbers.  It is set randomly in UltraScanInfo::Init() */
   u16 base_port;

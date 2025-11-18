@@ -12,7 +12,7 @@ rem (excluding extension).
 set PROG=%~dpn0.py
 
 if not exist "%PROG%" (
-	echo Cannot run %PROG%
+	echo Cannot run !PROG!
 	echo because that file does not exist.
 	exit /B 1
 )
@@ -22,8 +22,10 @@ set PATH=%NMAPDIR%\zenmap\bin;%PATH%
 
 for /D %%P in ("%ProgramFiles%\Python 3.*",
 	       "%ProgramFiles(x86)%\Python 3.*",
+	       "%ProgramFiles%\Python3*",
+	       "%ProgramFiles(x86)%\Python3*",
 	       "%LocalAppData%\Programs\Python\Python3*"
-       ) do set PATH=%PATH%;%%~P
+       ) do set PATH=!PATH!;%%~P
 
 for %%P in ( py.exe, python.exe) do (
 	set PYTHON=%%~f$PATH:P

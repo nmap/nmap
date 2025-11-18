@@ -6,7 +6,7 @@
  *                                                                         *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
  *
- * The Nmap Security Scanner is (C) 1996-2024 Nmap Software LLC ("The Nmap
+ * The Nmap Security Scanner is (C) 1996-2025 Nmap Software LLC ("The Nmap
  * Project"). Nmap is also a registered trademark of the Nmap Project.
  *
  * This program is distributed under the terms of the Nmap Public Source
@@ -77,10 +77,6 @@
 #include "output.h"
 
 extern NmapOps o;
-#ifdef WIN32
-/* from libdnet's intf-win32.c */
-extern "C" int g_has_npcap_loopback;
-#endif
 
 /* Conducts an ARP ping sweep of the given hosts to determine which ones
    are up on a local ethernet network */
@@ -91,10 +87,11 @@ static void arpping(Target *hostbatch[], int num_hosts) {
   int targetno;
   targets.reserve(num_hosts);
 
+  /* Default timeout should be much lower for arp */
+  int default_to = box(o.minRttTimeout(), o.initialRttTimeout(), INITIAL_ARP_RTT_TIMEOUT) * 1000;
   for (targetno = 0; targetno < num_hosts; targetno++) {
     initialize_timeout_info(&hostbatch[targetno]->to);
-    /* Default timout should be much lower for arp */
-    hostbatch[targetno]->to.timeout = MAX(o.minRttTimeout(), MIN(o.initialRttTimeout(), INITIAL_ARP_RTT_TIMEOUT)) * 1000;
+    hostbatch[targetno]->to.timeout = default_to;
     if (!hostbatch[targetno]->SrcMACAddress()) {
       bool islocal = islocalhost(hostbatch[targetno]->TargetSockAddr());
       if (islocal) {
@@ -116,8 +113,10 @@ static void arpping(Target *hostbatch[], int num_hosts) {
   if (!targets.empty()) {
     if (targets[0]->af() == AF_INET)
       ultra_scan(targets, NULL, PING_SCAN_ARP);
-    else
+    else {
+      assert(targets[0]->af() == AF_INET6);
       ultra_scan(targets, NULL, PING_SCAN_ND);
+    }
   }
   return;
 }
@@ -132,21 +131,6 @@ static void hoststructfry(Target *hostbatch[], int nelem) {
 void returnhost(HostGroupState *hs) {
   assert(hs->next_batch_no > 0);
   hs->next_batch_no--;
-}
-
-/* Is the host passed as Target to be excluded? Much of this logic had
-   to be rewritten from wam's original code to allow for the objects */
-static int hostInExclude(struct sockaddr *checksock, size_t checksocklen,
-                  const struct addrset *exclude_group) {
-  if (exclude_group == NULL)
-    return 0;
-
-  if (checksock == NULL)
-    return 0;
-
-  if (addrset_contains(exclude_group,checksock))
-    return 1;
-  return 0;
 }
 
 /* Load an exclude list from a file for --excludefile. */
@@ -285,7 +269,7 @@ bool target_needs_new_hostgroup(Target **targets, int targets_sz, const Target *
    The target_expressions array MUST REMAIN VALID IN MEMORY as long as
    this class instance is used -- the array is NOT copied.
  */
-HostGroupState::HostGroupState(int lookahead, int rnd, unsigned long num_random, int argc, const char **argv) {
+HostGroupState::HostGroupState(int lookahead, int rnd, bool gen_rand, unsigned long num_random, int argc, const char **argv) {
   assert(lookahead > 0);
   this->argc = argc;
   this->argv = argv;
@@ -296,7 +280,7 @@ HostGroupState::HostGroupState(int lookahead, int rnd, unsigned long num_random,
   current_batch_sz = 0;
   next_batch_no = 0;
   randomize = rnd;
-  if (num_random >= 0) {
+  if (gen_rand) {
     current_group.generate_random_ips(num_random);
   }
 }
@@ -390,7 +374,7 @@ static Target *setup_target(const HostGroupState *hs,
         t->setSrcMACAddress(rnfo.ii.mac);
     }
 #ifdef WIN32
-    else if (g_has_npcap_loopback && rnfo.ii.device_type == devt_loopback) {
+    else if (o.have_pcap && rnfo.ii.device_type == devt_loopback) {
       if (o.spoofMACAddress())
         t->setSrcMACAddress(o.spoofMACAddress());
       else
@@ -427,7 +411,7 @@ bool HostGroupState::get_next_host(struct sockaddr_storage *ss, size_t *sslen, s
       }
     }
     /* Check exclude list. */
-    if (!hostInExclude((struct sockaddr *) ss, *sslen, exclude_group)) {
+    if (!addrset_contains(exclude_group, (const struct sockaddr *) ss)) {
       current_group.reject_last_host();
       break;
     }
@@ -514,54 +498,51 @@ static void refresh_hostbatch(HostGroupState *hs, struct addrset *exclude_group,
     hoststructfry(hs->hostbatch, hs->current_batch_sz);
   }
 
-  /* First I'll do the ARP ping if all of the machines in the group are
-     directly connected over ethernet.  I may need the MAC addresses
-     later anyway. */
-  if (hs->hostbatch[0]->ifType() == devt_ethernet &&
-      hs->hostbatch[0]->af() == AF_INET &&
-      hs->hostbatch[0]->directlyConnected() &&
-      o.sendpref != PACKET_SEND_IP_STRONG &&
-      o.implicitARPPing) {
-    arpping(hs->hostbatch, hs->current_batch_sz);
-    arpping_done = true;
-  }
-
-  /* No other interface types are supported by ND ping except devt_ethernet
-     at the moment. */
-  if (hs->hostbatch[0]->ifType() == devt_ethernet &&
-      hs->hostbatch[0]->af() == AF_INET6 &&
-      hs->hostbatch[0]->directlyConnected() &&
-      o.sendpref != PACKET_SEND_IP_STRONG &&
-      o.implicitARPPing) {
-    arpping(hs->hostbatch, hs->current_batch_sz);
-    arpping_done = true;
-  }
-
   gettimeofday(&now, NULL);
-  if ((o.sendpref & PACKET_SEND_ETH) &&
-      hs->hostbatch[0]->ifType() == devt_ethernet) {
-    for (i=0; i < hs->current_batch_sz; i++) {
-      if (!(hs->hostbatch[i]->flags & HOST_DOWN) &&
-          !hs->hostbatch[i]->timedOut(&now)) {
-        if (!setTargetNextHopMAC(hs->hostbatch[i])) {
-          error("%s: Failed to determine dst MAC address for target %s",
-              __func__, hs->hostbatch[i]->NameIP());
-          hs->hostbatch[i]->flags = HOST_DOWN;
+  Target *current_target = hs->hostbatch[0];
+
+  /* If there's a chance we can do ARP ping or may need the MAC address,
+   * we'll do the extra check. Some things like VPN claim devt_ethernet
+   * but are not DLT_EN10MB. */
+  if (current_target->ifType() == devt_ethernet &&
+        o.sendpref != PACKET_SEND_IP_STRONG) {
+    netutil_eth_t *eth = eth_open_cached(current_target->deviceName());
+    if (DLT_EN10MB == netutil_eth_datalink(eth)) {
+      // Do ARP/ND if possible
+      if (current_target->directlyConnected() &&
+          o.implicitARPPing) {
+        arpping(hs->hostbatch, hs->current_batch_sz);
+        arpping_done = true;
+      }
+      // If we want to do layer-2 sending, we'll need a MAC address.
+      if ((o.sendpref & PACKET_SEND_ETH)) {
+        for (i=0; i < hs->current_batch_sz; i++) {
+          current_target = hs->hostbatch[i];
+          if (!(current_target->flags & HOST_DOWN) &&
+              !current_target->timedOut(&now)) {
+            if (!setTargetNextHopMAC(current_target)) {
+              error("%s: Failed to determine dst MAC address for target %s",
+                  __func__, current_target->NameIP());
+              current_target->flags = HOST_DOWN;
+              current_target->reason.reason_id = ER_NOROUTE;
+            }
+          }
         }
       }
     }
   }
 
   /* Then we do the mass ping (if required - IP-level pings) */
-  if ((pingtype == PINGTYPE_NONE && !arpping_done) || hs->hostbatch[0]->ifType() == devt_loopback) {
+  if ((pingtype == PINGTYPE_NONE && !arpping_done) || current_target->ifType() == devt_loopback) {
     for (i=0; i < hs->current_batch_sz; i++) {
-      if (!(hs->hostbatch[i]->flags & HOST_DOWN || hs->hostbatch[i]->timedOut(&now))) {
-        initialize_timeout_info(&hs->hostbatch[i]->to);
-        hs->hostbatch[i]->flags |= HOST_UP; /*hostbatch[i].up = 1;*/
+      current_target = hs->hostbatch[i];
+      if (!(current_target->flags & HOST_DOWN || current_target->timedOut(&now))) {
+        initialize_timeout_info(&current_target->to);
+        current_target->flags |= HOST_UP; /*hostbatch[i].up = 1;*/
         if (pingtype == PINGTYPE_NONE && !arpping_done)
-          hs->hostbatch[i]->reason.reason_id = ER_USER;
+          current_target->reason.reason_id = ER_USER;
         else
-          hs->hostbatch[i]->reason.reason_id = ER_LOCALHOST;
+          current_target->reason.reason_id = ER_LOCALHOST;
       }
     }
   } else if (!arpping_done) {

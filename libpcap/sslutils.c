@@ -30,9 +30,7 @@
  *
  */
 
-#ifdef HAVE_CONFIG_H
 #include <config.h>
-#endif
 
 #ifdef HAVE_OPENSSL
 #include <stdlib.h>
@@ -133,7 +131,7 @@ die:
 	return -1;
 }
 
-SSL *ssl_promotion(int is_server, SOCKET s, char *errbuf, size_t errbuflen)
+SSL *ssl_promotion(int is_server, PCAP_SOCKET s, char *errbuf, size_t errbuflen)
 {
 	if (ssl_init_once(is_server, 1, errbuf, errbuflen) < 0) {
 		return NULL;

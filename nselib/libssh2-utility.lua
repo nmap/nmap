@@ -10,6 +10,7 @@
 
 local stdnse = require "stdnse"
 local table = require "table"
+local tableaux = require "tableaux"
 
 local libssh2 = stdnse.silent_require "libssh2"
 
@@ -57,12 +58,13 @@ end
 -- Runs a shell command on the remote host.
 --
 -- @param cmd A command to run.
+-- @param no_pty If true, skip requesting a PTY.
 -- @return The command output.
-function SSHConnection:run_remote (cmd)
+function SSHConnection:run_remote (cmd, no_pty)
   if not (self.session and self.authenticated) then
     return false
   end
-  local channel = libssh2.open_channel(self.session)
+  local channel = libssh2.open_channel(self.session, no_pty)
   libssh2.channel_exec(self.session, channel, cmd)
   libssh2.channel_send_eof(self.session, channel)
   local buff = {}
@@ -71,13 +73,16 @@ function SSHConnection:run_remote (cmd)
     data = libssh2.channel_read(self.session, channel)
     if data then
       table.insert(buff, data)
+    elseif no_pty then
+      -- PTY is responsible for sending EOF
+      break
     end
   end
   return table.concat(buff)
 end
 
 ---
--- Attempts to authenticate using provided credentials.
+-- Attempts to authenticate using password authentication.
 --
 -- @param username A username to authenticate as.
 -- @param password A password to authenticate as.
@@ -94,11 +99,71 @@ function SSHConnection:password_auth (username, password)
   end
 end
 
+local function kbd_get_cb(func)
+  return function(username, name, instruction, prompts)
+    local responses = {}
+    for i=1, #prompts do
+      stdnse.debug2("Auth for %s: '%s' '%s' '%s'",
+        username, name, instruction, prompts[i])
+      responses[i] = func(username, name, instruction, prompts[i])
+      stdnse.debug2("Response: %s", responses[i])
+    end
+    return responses
+  end
+end
+
 ---
--- Attempts to authenticate using provided private key.
+-- Attempts to authenticate using keyboard-interactive authentication.
 --
 -- @param username A username to authenticate as.
--- @param privatekey_file A path to a privatekey.
+-- @param callback A callback function that takes 4 inputs (username, name,
+--                 instruction, prompt) and returns one string response.
+-- @return true on success or false on failure.
+function SSHConnection:interactive_auth (username, callback)
+  if not self.session then
+    return false
+  end
+  if libssh2.userauth_keyboard_interactive(self.session, username, kbd_get_cb(callback)) then
+    self.authenticated = true
+    return true
+  else
+    return false
+  end
+end
+
+---
+-- Attempts to authenticate using provided credentials.
+--
+-- Lists available userauth methods and attempts to authenticate with the given
+-- credentials. If password authentication is not available, it will use
+-- keyboard-interactive authentication, responding with <code>password</code>
+-- to any prompts.
+--
+-- @param username A username to authenticate as.
+-- @param password A password
+-- @return true on success or false on failure.
+-- @return the successful auth method, or all methods available. If nil, no methods were found.
+function SSHConnection:login (username, password)
+  local methods = self:list(username)
+  if not methods then
+    return false
+  end
+  if (tableaux.contains(methods, "password")
+      and self:password_auth(username, password)) then
+    return true, "password"
+  end
+  if (tableaux.contains(methods, "keyboard-interactive") and
+      self:interactive_auth(username, function() return password end)) then
+    return true, "keyboard-interactive"
+  end
+  return false, methods
+end
+
+---
+-- Attempts to authenticate using provided private key file.
+--
+-- @param username A username to authenticate as.
+-- @param privatekey_file A path to a privatekey file.
 -- @param passphrase A passphrase for the privatekey.
 -- @return true on success or false on failure.
 function SSHConnection:publickey_auth (username, privatekey_file, passphrase)
@@ -106,6 +171,25 @@ function SSHConnection:publickey_auth (username, privatekey_file, passphrase)
     return false
   end
   if libssh2.userauth_publickey(self.session, username, privatekey_file, passphrase or "") then
+    self.authenticated = true
+    return true
+  else
+    return false
+  end
+end
+
+---
+-- Attempts to authenticate using provided private key.
+--
+-- @param username A username to authenticate as.
+-- @param privatekey The privatekey as a string.
+-- @param passphrase A passphrase for the privatekey.
+-- @return true on success or false on failure.
+function SSHConnection:publickey_auth_frommemory (username, privatekey, passphrase)
+  if not self.session then
+    return false
+  end
+  if libssh2.userauth_publickey_frommemory(self.session, username, privatekey, passphrase or "") then
     self.authenticated = true
     return true
   else

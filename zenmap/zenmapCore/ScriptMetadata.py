@@ -2,7 +2,7 @@
 
 # ***********************IMPORTANT NMAP LICENSE TERMS************************
 # *
-# * The Nmap Security Scanner is (C) 1996-2024 Nmap Software LLC ("The Nmap
+# * The Nmap Security Scanner is (C) 1996-2025 Nmap Software LLC ("The Nmap
 # * Project"). Nmap is also a registered trademark of the Nmap Project.
 # *
 # * This program is distributed under the terms of the Nmap Public Source
@@ -296,7 +296,7 @@ class ScriptMetadata (object):
                     self.get_string_variable(filename, "author")]
 
             filepath = os.path.join(self.scripts_dir, filename)
-            with open(filepath, "r", encoding="utf-8") as f:
+            with open(filepath, "r", encoding="utf-8", errors="replace") as f:
                 for tag_name, tag_text in nsedoc_tags_iter(f):
                     if tag_name == "output" and not entry.output:
                         entry.output = tag_text
@@ -309,7 +309,7 @@ class ScriptMetadata (object):
 
     @staticmethod
     def get_file_contents(filename):
-        with open(filename, "r", encoding="utf-8") as f:
+        with open(filename, "r", encoding="utf-8", errors="replace") as f:
             contents = f.read()
         return contents
 
@@ -343,7 +343,7 @@ class ScriptMetadata (object):
 
     @staticmethod
     def get_requires(filename):
-        with open(filename, "r", encoding="utf-8") as f:
+        with open(filename, "r", encoding="utf-8", errors="replace") as f:
             requires = ScriptMetadata.get_requires_from_file(f)
         return requires
 
@@ -359,7 +359,7 @@ class ScriptMetadata (object):
 
     @staticmethod
     def get_script_args(filename):
-        with open(filename, "r", encoding="utf-8") as f:
+        with open(filename, "r", encoding="utf-8", errors="replace") as f:
             args = ScriptMetadata.get_script_args_from_file(f)
         return args
 

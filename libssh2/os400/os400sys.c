@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 Patrick Monnerat, D+H <patrick.monnerat@dh.com>
+ * Copyright (C) Patrick Monnerat <patrick@monnerat.net>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms,
@@ -34,6 +34,8 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY
  * OF SUCH DAMAGE.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
  */
 
 /* OS/400 additional support. */
@@ -75,106 +77,54 @@
 
 
 static int
-convert_sockaddr(struct sockaddr_storage * dstaddr,
-                                const struct sockaddr * srcaddr, int srclen)
-
+convert_sockaddr(struct sockaddr_storage *dstaddr,
+                 const struct sockaddr *srcaddr, int srclen)
 {
-  const struct sockaddr_un * srcu;
-  struct sockaddr_un * dstu;
-  unsigned int i;
-  unsigned int dstsize;
+    const struct sockaddr_un *srcu;
+    struct sockaddr_un *dstu;
+    unsigned int i;
+    unsigned int dstsize;
 
-  /* Convert a socket address into job CCSID, if needed. */
+    /* Convert a socket address into job CCSID, if needed. */
 
-  if(!srcaddr || srclen < offsetof(struct sockaddr, sa_family) +
-     sizeof srcaddr->sa_family || srclen > sizeof *dstaddr) {
-    errno = EINVAL;
-    return -1;
-    }
-
-  memcpy((char *) dstaddr, (char *) srcaddr, srclen);
-
-  switch (srcaddr->sa_family) {
-
-  case AF_UNIX:
-    srcu = (const struct sockaddr_un *) srcaddr;
-    dstu = (struct sockaddr_un *) dstaddr;
-    dstsize = sizeof *dstaddr - offsetof(struct sockaddr_un, sun_path);
-    srclen -= offsetof(struct sockaddr_un, sun_path);
-    i = QadrtConvertA2E(dstu->sun_path, srcu->sun_path, dstsize - 1, srclen);
-    dstu->sun_path[i] = '\0';
-    i += offsetof(struct sockaddr_un, sun_path);
-    srclen = i;
-    }
-
-  return srclen;
-}
-
-
-int
-_libssh2_os400_connect(int sd, struct sockaddr * destaddr, int addrlen)
-
-{
-  int i;
-  struct sockaddr_storage laddr;
-
-  i = convert_sockaddr(&laddr, destaddr, addrlen);
-
-  if(i < 0)
-    return -1;
-
-  return connect(sd, (struct sockaddr *) &laddr, i);
-}
-
-
-int
-_libssh2_os400_vsnprintf(char *dst, size_t len, const char *fmt, va_list args)
-{
-    size_t l = 4096;
-    int i;
-    char *buf;
-
-    if (!dst || !len) {
+    if(!srcaddr || srclen < offsetof(struct sockaddr, sa_family) +
+       sizeof(srcaddr->sa_family) || srclen > sizeof(*dstaddr)) {
         errno = EINVAL;
         return -1;
     }
 
-    if (l < len)
-        l = len;
+    memcpy((char *) dstaddr, (char *) srcaddr, srclen);
 
-    buf = alloca(l);
+    switch(srcaddr->sa_family) {
 
-    if (!buf) {
-        errno = ENOMEM;
-        return -1;
+    case AF_UNIX:
+        srcu = (const struct sockaddr_un *) srcaddr;
+        dstu = (struct sockaddr_un *) dstaddr;
+        dstsize = sizeof(*dstaddr) - offsetof(struct sockaddr_un, sun_path);
+        srclen -= offsetof(struct sockaddr_un, sun_path);
+        i = QadrtConvertA2E(dstu->sun_path, srcu->sun_path,
+                            dstsize - 1, srclen);
+        dstu->sun_path[i] = '\0';
+        i += offsetof(struct sockaddr_un, sun_path);
+        srclen = i;
     }
 
-    i = vsprintf(buf, fmt, args);
-
-    if (i < 0)
-        return i;
-
-    if (--len > i)
-        len = i;
-
-    if (len)
-        memcpy(dst, buf, len);
-
-    dst[len] = '\0';
-    return len;
+    return srclen;
 }
 
-/* VARARGS3 */
-int
-_libssh2_os400_snprintf(char *dst, size_t len, const char *fmt, ...)
-{
-    va_list args;
-    int ret;
 
-    va_start(args, fmt);
-    ret = _libssh2_os400_vsnprintf(dst, len, fmt, args);
-    va_end(args);
-    return ret;
+int
+_libssh2_os400_connect(int sd, struct sockaddr *destaddr, int addrlen)
+{
+    int i;
+    struct sockaddr_storage laddr;
+
+    i = convert_sockaddr(&laddr, destaddr, addrlen);
+
+    if(i < 0)
+        return -1;
+
+    return connect(sd, (struct sockaddr *) &laddr, i);
 }
 
 
@@ -186,11 +136,11 @@ _libssh2_os400_inflateInit_(z_streamp strm,
     char *ebcversion;
     int i;
 
-    if (!version)
+    if(!version)
         return Z_VERSION_ERROR;
     i = strlen(version);
     ebcversion = alloca(i + 1);
-    if (!ebcversion)
+    if(!ebcversion)
         return Z_VERSION_ERROR;
     i = QadrtConvertA2E(ebcversion, version, i, i - 1);
     ebcversion[i] = '\0';
@@ -204,11 +154,11 @@ _libssh2_os400_deflateInit_(z_streamp strm, int level,
     char *ebcversion;
     int i;
 
-    if (!version)
+    if(!version)
         return Z_VERSION_ERROR;
     i = strlen(version);
     ebcversion = alloca(i + 1);
-    if (!ebcversion)
+    if(!ebcversion)
         return Z_VERSION_ERROR;
     i = QadrtConvertA2E(ebcversion, version, i, i - 1);
     ebcversion[i] = '\0';

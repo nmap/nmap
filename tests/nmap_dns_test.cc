@@ -4,7 +4,7 @@
  *                                                                         *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
  *
- * The Nmap Security Scanner is (C) 1996-2024 Nmap Software LLC ("The Nmap
+ * The Nmap Security Scanner is (C) 1996-2025 Nmap Software LLC ("The Nmap
  * Project"). Nmap is also a registered trademark of the Nmap Project.
  *
  * This program is distributed under the terms of the Nmap Public Source
@@ -81,7 +81,7 @@ o.debugging = 1;
   DNS::RECORD_TYPE rt = DNS::A;
   const size_t buflen = 1500;
   u8 buf[buflen];
-  size_t reqlen = DNS::Factory::buildSimpleRequest(target, rt, buf, buflen);
+  size_t reqlen = DNS::Factory::buildSimpleRequest(0xdead, target, rt, buf, buflen);
   
   DNS::Packet p;
   size_t plen = p.parseFromBuffer(buf, buflen);

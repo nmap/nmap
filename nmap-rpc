@@ -719,6 +719,7 @@ ov_oem_svc	300410
 ov_oem_svc	300411
 ov_oem_svc	300412
 ov_oem_svc	300413
+ov_oem_svc	300414
 ov_msg_ctlg_svc	300415
 ov_advt_reg_svc	300416
 showkron	300417
@@ -728,6 +729,7 @@ showkron	300420
 showkron	300421
 showkron	300422
 showkron	300423
+showkron	300424
 daatd		300425
 swiftnet	300426
 ovomdel		300427
@@ -1514,6 +1516,7 @@ mcm		400005	# Sun Microsystems fabric management
 mcm		400006	# Sun Microsystems fabric management
 mcm		400007	# Sun Microsystems fabric management
 mcm		400008	# Sun Microsystems fabric management
+mcm		400009	# Sun Microsystems fabric management
 NetAppPartnerSvc	400010	# Partner Service/NetApp
 Oropo		400011	# Oropo
 Oropo		400012	# Oropo
@@ -1614,6 +1617,7 @@ Oropo		400106	# Oropo
 Oropo		400107	# Oropo
 Oropo		400108	# Oropo
 Oropo		400109	# Oropo
+Oropo		400110	# Oropo
 TintriServices	400111	# Tintri, Inc.
 gss-proxy	400112	# gss-proxy
 inasx		400113	# Extended NFS services
@@ -1624,6 +1628,8 @@ CohoDataServices	400117	# Coho Data
 CohoDataServices	400118	# Coho Data
 CohoDataServices	400119	# Coho Data
 CohoDataServices	400120	# Coho Data
+CohoDataServices	400121	# Coho Data
+nfslocalio	400122	# Linux Kernel Organization
 # BMC
 EnsignAgent	450000	# Ensign Agent
 #

@@ -2,7 +2,7 @@
 
 # ***********************IMPORTANT NMAP LICENSE TERMS************************
 # *
-# * The Nmap Security Scanner is (C) 1996-2024 Nmap Software LLC ("The Nmap
+# * The Nmap Security Scanner is (C) 1996-2025 Nmap Software LLC ("The Nmap
 # * Project"). Nmap is also a registered trademark of the Nmap Project.
 # *
 # * This program is distributed under the terms of the Nmap Public Source
@@ -198,7 +198,8 @@ class NmapCommand(object):
         # We don't need a file name for stdout output, just a handle. A
         # TemporaryFile is deleted as soon as it is closed, and in Unix is
         # unlinked immediately after creation so it's not even visible.
-        f = tempfile.TemporaryFile(mode="r", prefix=APP_NAME + "-stdout-")
+        f = tempfile.TemporaryFile(mode="r", prefix=APP_NAME + "-stdout-", encoding="utf-8",
+                                   errors='backslashreplace')
         self.stdout_file = f
         if stderr is None:
             stderr = f
@@ -223,7 +224,7 @@ class NmapCommand(object):
                 startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
 
         self.command_process = subprocess.Popen(command_list, bufsize=1,
-                                     universal_newlines=True,
+                                     universal_newlines=True, encoding="utf-8",
                                      stdin=subprocess.PIPE,
                                      stdout=f,
                                      stderr=stderr,

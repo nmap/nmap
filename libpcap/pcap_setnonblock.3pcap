@@ -17,7 +17,7 @@
 .\" WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF
 .\" MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 .\"
-.TH PCAP_SETNONBLOCK 3PCAP "5 March 2022"
+.TH PCAP_SETNONBLOCK 3PCAP "30 November 2023"
 .SH NAME
 pcap_setnonblock, pcap_getnonblock \- set or get the state of
 non-blocking mode on a capture device
@@ -43,13 +43,10 @@ puts a capture handle into ``non-blocking'' mode, or takes it out
 of ``non-blocking'' mode, depending on whether the
 .I nonblock
 argument is non-zero or zero.  It has no effect on ``savefiles''.
-If there is an error,
-.B PCAP_ERROR
-is returned and
 .I errbuf
-is filled in with an appropriate error message; otherwise,
-.B 0
-is returned.
+is a buffer large enough to hold at least
+.B PCAP_ERRBUF_SIZE
+chars.
 .PP
 In
 ``non-blocking'' mode, an attempt to read from the capture descriptor
@@ -77,29 +74,34 @@ should be used instead.
 When first activated with
 .BR pcap_activate (3PCAP)
 or opened with
-.BR pcap_open_live (3PCAP) ,
+.BR pcap_open_live (3PCAP),
 a capture handle is not in ``non-blocking mode''; a call to
 .BR pcap_setnonblock ()
 is required in order to put it into ``non-blocking'' mode.
 .SH RETURN VALUE
+.BR pcap_setnonblock()
+return 0 on success,
+.B PCAP_ERROR_NOT_ACTIVATED
+if called on a capture handle that has been created but not activated,
+and
+.B PCAP_ERROR
+for other errors.
 .BR pcap_getnonblock ()
-returns the current ``non-blocking'' state of the capture descriptor; it
-always returns
+returns the current ``non-blocking'' state of the capture descriptor on
+success; it always returns
 .B 0
 on ``savefiles''.
-If called on a capture handle that has been created but not activated,
+It returns
 .B PCAP_ERROR_NOT_ACTIVATED
-is returned.
-If there is another error,
+if called on a capture handle that has been created but not activated,
+and
 .B PCAP_ERROR
-is returned and
+for other errors.
+If
+.B PCAP_ERROR
+is returned,
 .I errbuf
 is filled in with an appropriate error message.
-.PP
-.I errbuf
-is assumed to be able to hold at least
-.B PCAP_ERRBUF_SIZE
-chars.
 .SH SEE ALSO
 .BR pcap (3PCAP),
 .BR pcap_next_ex (3PCAP),

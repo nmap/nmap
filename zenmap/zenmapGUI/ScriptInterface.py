@@ -2,7 +2,7 @@
 
 # ***********************IMPORTANT NMAP LICENSE TERMS************************
 # *
-# * The Nmap Security Scanner is (C) 1996-2024 Nmap Software LLC ("The Nmap
+# * The Nmap Security Scanner is (C) 1996-2025 Nmap Software LLC ("The Nmap
 # * Project"). Nmap is also a registered trademark of the Nmap Project.
 # *
 # * This program is distributed under the terms of the Nmap Public Source
@@ -226,7 +226,8 @@ class ScriptInterface:
         # Separate stderr to avoid breaking XML parsing with "Warning: File
         # ./nse_main.lua exists, but Nmap is using...".
         stderr = tempfile.TemporaryFile(
-                mode="r", prefix=APP_NAME + "-script-help-stderr-")
+                mode="r", prefix=APP_NAME + "-script-help-stderr-",
+                encoding="utf-8")
         log.debug("Script interface: running %s" % repr(command_string))
         nmap_process = NmapCommand(command_string)
         try:

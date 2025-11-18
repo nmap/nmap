@@ -247,6 +247,7 @@ end
 -- @param data The first data payload of the connection. Optional if
 --             <code>opts.recv_before</code> is true.
 -- @param opts Options, such as timeout
+--             Note that opts.proto will get set to correctOpt (see below)
 -- @return sd The socket descriptor, or nil on error
 -- @return response The response received for the payload, or an error message
 -- @return correctOpt Correct option for connection guess
@@ -281,7 +282,7 @@ function tryssl(host, port, data, opts)
   end
   local best = "none"
   local sd, response, early_resp
-  for _, proto in { bestoption(our_port) } do
+  for _, proto in ipairs({ bestoption(our_port) }) do
     opts.proto = proto
     sd, response, early_resp = oops.raise(("%s failed"):format(proto),
       opencon(host, our_port, data, opts))

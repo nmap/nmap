@@ -94,10 +94,6 @@ void luaD_seterrorobj (lua_State *L, int errcode, StkId oldtop) {
       setsvalue2s(L, oldtop, G(L)->memerrmsg); /* reuse preregistered msg. */
       break;
     }
-    case LUA_ERRERR: {
-      setsvalue2s(L, oldtop, luaS_newliteral(L, "error in error handling"));
-      break;
-    }
     case LUA_OK: {  /* special case only for closing upvalues */
       setnilvalue(s2v(oldtop));  /* no error message */
       break;
@@ -120,6 +116,7 @@ l_noret luaD_throw (lua_State *L, int errcode) {
   else {  /* thread has no error handler */
     global_State *g = G(L);
     errcode = luaE_resetthread(L, errcode);  /* close all upvalues */
+    L->status = errcode;
     if (g->mainthread->errorJmp) {  /* main thread has a handler? */
       setobjs2s(L, g->mainthread->top.p++, L->top.p - 1);  /* copy error obj. */
       luaD_throw(g->mainthread, errcode);  /* re-throw in main thread */
@@ -198,6 +195,16 @@ static void correctstack (lua_State *L) {
 /* some space for error handling */
 #define ERRORSTACKSIZE	(LUAI_MAXSTACK + 200)
 
+
+/* raise an error while running the message handler */
+l_noret luaD_errerr (lua_State *L) {
+  TString *msg = luaS_newliteral(L, "error in error handling");
+  setsvalue2s(L, L->top.p, msg);
+  L->top.p++;  /* assume EXTRA_STACK */
+  luaD_throw(L, LUA_ERRERR);
+}
+
+
 /*
 ** Reallocate the stack to a new size, correcting all pointers into it.
 ** In ISO C, any pointer use after the pointer has been deallocated is
@@ -247,7 +254,7 @@ int luaD_growstack (lua_State *L, int n, int raiseerror) {
        a stack error; cannot grow further than that. */
     lua_assert(stacksize(L) == ERRORSTACKSIZE);
     if (raiseerror)
-      luaD_throw(L, LUA_ERRERR);  /* error inside message handler */
+      luaD_errerr(L);  /* error inside message handler */
     return 0;  /* if not 'raiseerror', just signal it */
   }
   else if (n < LUAI_MAXSTACK) {  /* avoids arithmetic overflows */
@@ -409,7 +416,7 @@ static void rethook (lua_State *L, CallInfo *ci, int nres) {
 ** stack, below original 'func', so that 'luaD_precall' can call it. Raise
 ** an error if there is no '__call' metafield.
 */
-StkId luaD_tryfuncTM (lua_State *L, StkId func) {
+static StkId tryfuncTM (lua_State *L, StkId func) {
   const TValue *tm;
   StkId p;
   checkstackGCp(L, 1, func);  /* space for metamethod */
@@ -568,7 +575,7 @@ int luaD_pretailcall (lua_State *L, CallInfo *ci, StkId func,
       return -1;
     }
     default: {  /* not a function */
-      func = luaD_tryfuncTM(L, func);  /* try to get '__call' metamethod */
+      func = tryfuncTM(L, func);  /* try to get '__call' metamethod */
       /* return luaD_pretailcall(L, ci, func, narg1 + 1, delta); */
       narg1++;
       goto retry;  /* try again */
@@ -609,7 +616,7 @@ CallInfo *luaD_precall (lua_State *L, StkId func, int nresults) {
       return ci;
     }
     default: {  /* not a function */
-      func = luaD_tryfuncTM(L, func);  /* try to get '__call' metamethod */
+      func = tryfuncTM(L, func);  /* try to get '__call' metamethod */
       /* return luaD_precall(L, func, nresults); */
       goto retry;  /* try again with metamethod */
     }
@@ -792,6 +799,10 @@ static void resume (lua_State *L, void *ud) {
     lua_assert(L->status == LUA_YIELD);
     L->status = LUA_OK;  /* mark that it is running (again) */
     if (isLua(ci)) {  /* yielded inside a hook? */
+      /* undo increment made by 'luaG_traceexec': instruction was not
+         executed yet */
+      lua_assert(ci->callstatus & CIST_HOOKYIELD);
+      ci->u.l.savedpc--;
       L->top.p = firstArg;  /* discard arguments */
       luaV_execute(L, ci);  /* just continue running Lua code */
     }

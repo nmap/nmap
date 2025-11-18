@@ -598,35 +598,35 @@ The callback for
 and
 .BR pcap_loop ()
 is supplied a pointer to a
-.IR "struct pcap_pkthdr" ,
+.BR "struct pcap_pkthdr" ,
 which includes the following members:
 .RS
 .TP
 .B ts
 a
-.I struct timeval
+.B struct timeval
 containing the time when the packet was captured
 .TP
 .B caplen
 a
-.I bpf_u_int32
+.B bpf_u_int32
 giving the number of bytes of the packet that are available from the
 capture
 .TP
 .B len
 a
-.I bpf_u_int32
+.B bpf_u_int32
 giving the length of the packet, in bytes (which might be more than the
 number of bytes available from the capture, if the length of the packet
 is larger than the maximum number of bytes to capture).
 .RE
 .PP
 The callback is also supplied a
-.I const u_char
+.B const u_char
 pointer to the first
 .B caplen
 (as given in the
-.I struct pcap_pkthdr
+.B struct pcap_pkthdr
 mentioned above)
 bytes of data from the packet.  This won't necessarily be the entire
 packet; to capture the entire packet, you will have to provide a value
@@ -641,10 +641,10 @@ performed will limit the amount of packet data available.
 .PP
 .BR pcap_next ()
 is passed an argument that points to a
-.I struct pcap_pkthdr
+.B struct pcap_pkthdr
 structure, and fills it in with the time stamp and length values for the
 packet.  It returns a
-.I const u_char
+.B const u_char *
 to the first
 .B caplen
 bytes of the packet on success, and
@@ -653,11 +653,11 @@ on error.
 .PP
 .BR pcap_next_ex ()
 is passed two pointer arguments, one of which points to a
-.IR struct pcap_pkthdr *
-and one of which points to a
-.IR "const u_char" *.
+.B struct pcap_pkthdr *
+and the other points to a
+.BR "const u_char *" .
 It sets the first pointer to point to a
-.I struct pcap_pkthdr
+.B struct pcap_pkthdr
 structure with the time stamp and length values for the packet, and sets
 the second pointer to point to the first
 .B caplen

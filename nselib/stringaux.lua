@@ -41,14 +41,13 @@ end
 
 --- Split a string at a given delimiter, which may be a pattern.
 --
--- If you want to loop over the resulting values, consider using string.gmatch instead.
+-- If you want to loop over the resulting values, consider using <code>string.gmatch</code> instead.
 -- @usage
 -- stringaux.strsplit(",%s*", "Anna, Bob, Charlie, Dolores")
 -- --> { "Anna", "Bob", "Charlie", "Dolores" }
 -- @param pattern Pattern that separates the desired strings.
 -- @param text String to split.
 -- @return Array of substrings without the separating pattern.
--- @see string.gmatch
 function strsplit(pattern, text)
   local list, pos = {}, 1;
 

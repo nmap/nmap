@@ -458,7 +458,7 @@ function start_raw(host, port)
   return true, socket
 end
 
---- This function will take a string like "a.b.c.d" and return "a", "a.b", "a.b.c", and "a.b.c.d".
+-- This function will take a string like "a.b.c.d" and return "a", "a.b", "a.b.c", and "a.b.c.d".
 --
 --  This is used for discovering NetBIOS names. If a NetBIOS name is unknown, the substrings of the
 --  DNS name can be used in this way.
@@ -687,7 +687,7 @@ function smb_encode_header(smb, command, overrides)
   return header
 end
 
---- Converts a string containing the parameters section into the encoded
+-- Converts a string containing the parameters section into the encoded
 --  parameters string.
 --
 -- The encoding is simple:
@@ -705,7 +705,7 @@ local function smb_encode_parameters(parameters, overrides)
   return string.pack("<B", overrides['parameters_length'] or (#parameters / 2)) .. parameters
 end
 
---- Converts a string containing the data section into the encoded data string.
+-- Converts a string containing the data section into the encoded data string.
 --
 -- The encoding is simple:
 -- * (2 bytes)  The number of bytes in the data section
@@ -722,7 +722,7 @@ local function smb_encode_data(data, overrides)
   return string.pack("<I2", overrides['data_length'] or #data) .. data
 end
 
----Sign the message, if possible. This is done by replacing the signature with the sequence
+--Sign the message, if possible. This is done by replacing the signature with the sequence
 -- number, creating a hash, then putting that hash in the signature location.
 --@param smb  The smb state object.
 --@param body The body of the packet that's being signed.
@@ -749,7 +749,7 @@ local function message_sign(smb, body)
   return string.sub(body, 1, 14) .. signature .. string.sub(body, 23)
 end
 
----Check the signature of the message.
+--Check the signature of the message.
 --
 -- This is the opposite of <code>message_sign</code>, and works the same way
 -- (replaces the signature with the sequence number, calculates hash, checks)
@@ -2142,7 +2142,7 @@ function delete_file(smb, path, overrides)
   return true
 end
 
----
+--
 -- Implements SMB_COM_TRANSACTION2 to support the find_files function
 -- This function has not been extensively tested
 --

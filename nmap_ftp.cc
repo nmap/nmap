@@ -4,7 +4,7 @@
  *                                                                         *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
  *
- * The Nmap Security Scanner is (C) 1996-2024 Nmap Software LLC ("The Nmap
+ * The Nmap Security Scanner is (C) 1996-2025 Nmap Software LLC ("The Nmap
  * Project"). Nmap is also a registered trademark of the Nmap Project.
  *
  * This program is distributed under the terms of the Nmap Public Source
@@ -263,7 +263,7 @@ void bounce_scan(Target *target, u16 *portarray, int numports,
         return;
       }
     } else { /* Our send is good */
-      res = recvtime(sd, recvbuf, 2048, 15, NULL);
+      res = recvtime(sd, recvbuf, sizeof(recvbuf) - 1, 15, NULL);
       if (res <= 0) {
         perror("recv problem from FTP bounce server");
       } else { /* our recv is good */
@@ -286,7 +286,7 @@ void bounce_scan(Target *target, u16 *portarray, int numports,
             privok = true;
           }
           if (send(sd, "LIST\r\n", 6, 0) > 0 ) {
-            res = recvtime(sd, recvbuf, 2048, 12, &timedout);
+            res = recvtime(sd, recvbuf, sizeof(recvbuf) - 1, 12, &timedout);
             if (res < 0) {
               perror("recv problem from FTP bounce server");
             } else if (res == 0) {
@@ -302,10 +302,10 @@ void bounce_scan(Target *target, u16 *portarray, int numports,
                 /* oh dear, we are not aligned properly */
                 if (o.verbose || o.debugging)
                   error("FTP command misalignment detected ... correcting.");
-                res = recvtime(sd, recvbuf, 2048, 10, NULL);
+                res = recvtime(sd, recvbuf, sizeof(recvbuf) - 1, 10, NULL);
               }
               if (recvbuf[0] == '1') {
-                res = recvtime(sd, recvbuf, 2048, 10, &timedout);
+                res = recvtime(sd, recvbuf, sizeof(recvbuf) - 1, 10, &timedout);
                 if (res < 0)
                   perror("recv problem from FTP bounce server");
                 else if (timedout || res == 0) {
@@ -314,7 +314,7 @@ void bounce_scan(Target *target, u16 *portarray, int numports,
                     target->ports.setPortState(portarray[i], IPPROTO_TCP, PORT_FILTERED);
                   }
                   // Get response and discard
-                  res = recvtime(sd, recvbuf, 2048, 10, &timedout);
+                  res = recvtime(sd, recvbuf, sizeof(recvbuf) - 1, 10, &timedout);
                   recvbuf[0] = '\0';
                   goto nextport;
                 }

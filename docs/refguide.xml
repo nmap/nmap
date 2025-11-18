@@ -2310,10 +2310,14 @@ way.</para>
 
         <listitem>
 
-          <para>Performs a script scan using the default set of scripts. It is 
-		  equivalent to <option>--script=default</option>. Some of the
-		  scripts in this category are considered intrusive and should
-		  not be run against a target network without permission. </para>
+	<para>Performs a script scan using the default set of scripts. It is
+	equivalent to <option>--script=default</option>. Some of the scripts
+	in this category are considered intrusive and should not be run against
+	a target network without permission.</para>
+
+	<para>Note that this shorthand option is ignored whenever at least one
+	<option>--script</option> is also specified.</para>
+
         </listitem>
       </varlistentry>
 
@@ -3459,7 +3463,7 @@ work properly.</para>
           most of the packets it sends, and not to use any
           protocol-specific payloads. (Use <option>--data-length 0</option>
           for no random or protocol-specific
-          payloads.<indexterm><primary>protocol-specific payloads</primary><secondary>disabling with <option>--data-length</option></secondary></indexterm>
+          payloads.)<indexterm><primary>protocol-specific payloads</primary><secondary>disabling with <option>--data-length</option></secondary></indexterm>
           OS detection (<option>-O</option>) packets
           are not affected<indexterm><primary><option>--data-length</option></primary><secondary>no effect in OS detection</secondary></indexterm>
           because accuracy there requires probe consistency, but most pinging and portscan packets

@@ -6,7 +6,7 @@
  *                                                                         *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
  *
- * The Nmap Security Scanner is (C) 1996-2024 Nmap Software LLC ("The Nmap
+ * The Nmap Security Scanner is (C) 1996-2025 Nmap Software LLC ("The Nmap
  * Project"). Nmap is also a registered trademark of the Nmap Project.
  *
  * This program is distributed under the terms of the Nmap Public Source
@@ -188,7 +188,7 @@ const char *MACPrefix2Corp(const u8 *prefix) {
   mac_prefix_init();
 
   /* MA-S: 36 bits (9 nibbles)*/
-  key = ((u64)prefix[0] << 28) + (prefix[1] << 20) + (prefix[2] << 12) + (prefix[3] << 4) + (prefix[4] >> 4);
+  key = ((u64)prefix[0] << 28) + ((u64)prefix[1] << 20) + ((u64)prefix[2] << 12) + ((u64)prefix[3] << 4) + (prefix[4] >> 4);
   corp = findMACEntry(((u64)9 << 36) + key);
   if (corp)
     return corp;

@@ -68,9 +68,7 @@
  *      DL_HP_RAWDLS?
  */
 
-#ifdef HAVE_CONFIG_H
 #include <config.h>
-#endif
 
 #include <sys/types.h>
 #include <sys/time.h>
@@ -232,7 +230,7 @@ pcap_read_dlpi(pcap_t *p, int cnt, pcap_handler callback, u_char *user)
 				case EAGAIN:
 					return (0);
 				}
-				pcap_fmt_errmsg_for_errno(p->errbuf,
+				pcapint_fmt_errmsg_for_errno(p->errbuf,
 				    sizeof(p->errbuf), errno, "getmsg");
 				return (-1);
 			}
@@ -256,7 +254,7 @@ pcap_inject_dlpi(pcap_t *p, const void *buf, int size)
 #if defined(DLIOCRAW)
 	ret = write(p->fd, buf, size);
 	if (ret == -1) {
-		pcap_fmt_errmsg_for_errno(p->errbuf, PCAP_ERRBUF_SIZE,
+		pcapint_fmt_errmsg_for_errno(p->errbuf, PCAP_ERRBUF_SIZE,
 		    errno, "send");
 		return (-1);
 	}
@@ -268,7 +266,7 @@ pcap_inject_dlpi(pcap_t *p, const void *buf, int size)
 	}
 	ret = dlrawdatareq(pd->send_fd, buf, size);
 	if (ret == -1) {
-		pcap_fmt_errmsg_for_errno(p->errbuf, PCAP_ERRBUF_SIZE,
+		pcapint_fmt_errmsg_for_errno(p->errbuf, PCAP_ERRBUF_SIZE,
 		    errno, "send");
 		return (-1);
 	}
@@ -301,7 +299,7 @@ pcap_inject_dlpi(pcap_t *p, const void *buf, int size)
 	 * it should check "p->linktype" and reject the send request if
 	 * it's anything other than DLT_EN10MB.
 	 */
-	pcap_strlcpy(p->errbuf, "send: Not supported on this version of this OS",
+	pcapint_strlcpy(p->errbuf, "send: Not supported on this version of this OS",
 	    PCAP_ERRBUF_SIZE);
 	ret = -1;
 #endif /* raw mode */
@@ -335,7 +333,7 @@ pcap_cleanup_dlpi(pcap_t *p)
 		pd->send_fd = -1;
 	}
 #endif
-	pcap_cleanup_live_common(p);
+	pcapint_cleanup_live_common(p);
 }
 
 static int
@@ -357,9 +355,9 @@ open_dlpi_device(const char *name, u_int *ppa, char *errbuf)
 	*/
 	cp = strrchr(name, '/');
 	if (cp == NULL)
-		pcap_strlcpy(dname, name, sizeof(dname));
+		pcapint_strlcpy(dname, name, sizeof(dname));
 	else
-		pcap_strlcpy(dname, cp + 1, sizeof(dname));
+		pcapint_strlcpy(dname, cp + 1, sizeof(dname));
 
 	/*
 	 * Split the device name into a device type name and a unit number;
@@ -394,7 +392,7 @@ open_dlpi_device(const char *name, u_int *ppa, char *errbuf)
 			    cp, (errno == EPERM) ? "EPERM" : "EACCES");
 		} else {
 			status = PCAP_ERROR;
-			pcap_fmt_errmsg_for_errno(errbuf, PCAP_ERRBUF_SIZE,
+			pcapint_fmt_errmsg_for_errno(errbuf, PCAP_ERRBUF_SIZE,
 			    errno, "Attempt to open %s failed", cp);
 		}
 		return (status);
@@ -417,7 +415,7 @@ open_dlpi_device(const char *name, u_int *ppa, char *errbuf)
 	 * device name.
 	 */
 	if (*name == '/')
-		pcap_strlcpy(dname, name, sizeof(dname));
+		pcapint_strlcpy(dname, name, sizeof(dname));
 	else
 		snprintf(dname, sizeof(dname), "%s/%s", PCAP_DEV_PREFIX,
 		    name);
@@ -438,7 +436,7 @@ open_dlpi_device(const char *name, u_int *ppa, char *errbuf)
 	 * Make a copy of the device pathname, and then remove the unit
 	 * number from the device pathname.
 	 */
-	pcap_strlcpy(dname2, dname, sizeof(dname));
+	pcapint_strlcpy(dname2, dname, sizeof(dname));
 	*cp = '\0';
 
 	/* Try device without unit number */
@@ -452,7 +450,7 @@ open_dlpi_device(const char *name, u_int *ppa, char *errbuf)
 				    (errno == EPERM) ? "EPERM" : "EACCES");
 			} else {
 				status = PCAP_ERROR;
-				pcap_fmt_errmsg_for_errno(errbuf,
+				pcapint_fmt_errmsg_for_errno(errbuf,
 				    PCAP_ERRBUF_SIZE, errno,
 				    "Attempt to open %s failed", dname);
 			}
@@ -498,7 +496,7 @@ open_dlpi_device(const char *name, u_int *ppa, char *errbuf)
 					    (errno == EPERM) ? "EPERM" : "EACCES");
 				} else {
 					status = PCAP_ERROR;
-					pcap_fmt_errmsg_for_errno(errbuf,
+					pcapint_fmt_errmsg_for_errno(errbuf,
 					    PCAP_ERRBUF_SIZE, errno,
 					    "Attempt to open %s failed",
 					    dname2);
@@ -685,7 +683,7 @@ pcap_activate_dlpi(pcap_t *p)
 		*/
 		if (strioctl(p->fd, A_PROMISCON_REQ, 0, NULL) < 0) {
 			status = PCAP_ERROR;
-			pcap_fmt_errmsg_for_errno(p->errbuf, PCAP_ERRBUF_SIZE,
+			pcapint_fmt_errmsg_for_errno(p->errbuf, PCAP_ERRBUF_SIZE,
 			    errno, "A_PROMISCON_REQ");
 			goto bad;
 		}
@@ -803,7 +801,7 @@ pcap_activate_dlpi(pcap_t *p)
 	*/
 	if (strioctl(p->fd, DLIOCRAW, 0, NULL) < 0) {
 		status = PCAP_ERROR;
-		pcap_fmt_errmsg_for_errno(p->errbuf, PCAP_ERRBUF_SIZE,
+		pcapint_fmt_errmsg_for_errno(p->errbuf, PCAP_ERRBUF_SIZE,
 		    errno, "DLIOCRAW");
 		goto bad;
 	}
@@ -844,7 +842,7 @@ pcap_activate_dlpi(pcap_t *p)
 	*/
 	if (ioctl(p->fd, I_FLUSH, FLUSHR) != 0) {
 		status = PCAP_ERROR;
-		pcap_fmt_errmsg_for_errno(p->errbuf, PCAP_ERRBUF_SIZE,
+		pcapint_fmt_errmsg_for_errno(p->errbuf, PCAP_ERRBUF_SIZE,
 		    errno, "FLUSHR");
 		goto bad;
 	}
@@ -865,11 +863,11 @@ pcap_activate_dlpi(pcap_t *p)
 
 	p->read_op = pcap_read_dlpi;
 	p->inject_op = pcap_inject_dlpi;
-	p->setfilter_op = install_bpf_program;	/* no kernel filtering */
+	p->setfilter_op = pcapint_install_bpf_program;	/* no kernel filtering */
 	p->setdirection_op = NULL;	/* Not implemented.*/
 	p->set_datalink_op = NULL;	/* can't change data link type */
-	p->getnonblock_op = pcap_getnonblock_fd;
-	p->setnonblock_op = pcap_setnonblock_fd;
+	p->getnonblock_op = pcapint_getnonblock_fd;
+	p->setnonblock_op = pcapint_setnonblock_fd;
 	p->stats_op = pcap_stats_dlpi;
 	p->cleanup_op = pcap_cleanup_dlpi;
 
@@ -987,7 +985,7 @@ dl_dohpuxbind(int fd, char *ebuf)
 		*ebuf = '\0';
 		hpsap++;
 		if (hpsap > 100) {
-			pcap_strlcpy(ebuf,
+			pcapint_strlcpy(ebuf,
 			    "All SAPs from 22 through 100 are in use",
 			    PCAP_ERRBUF_SIZE);
 			return (-1);
@@ -1100,7 +1098,7 @@ get_if_flags(const char *name _U_, bpf_u_int32 *flags _U_, char *errbuf _U_)
 }
 
 int
-pcap_platform_finddevs(pcap_if_list_t *devlistp, char *errbuf)
+pcapint_platform_finddevs(pcap_if_list_t *devlistp, char *errbuf)
 {
 #ifdef HAVE_SOLARIS
 	int fd;
@@ -1116,7 +1114,7 @@ pcap_platform_finddevs(pcap_if_list_t *devlistp, char *errbuf)
 	/*
 	 * Get the list of regular interfaces first.
 	 */
-	if (pcap_findalldevs_interfaces(devlistp, errbuf, is_dlpi_interface,
+	if (pcapint_findalldevs_interfaces(devlistp, errbuf, is_dlpi_interface,
 	    get_if_flags) == -1)
 		return (-1);	/* failure */
 
@@ -1137,7 +1135,7 @@ pcap_platform_finddevs(pcap_if_list_t *devlistp, char *errbuf)
 	}
 
 	if (strioctl(fd, A_GET_UNITS, sizeof(buf), (char *)&buf) < 0) {
-		pcap_fmt_errmsg_for_errno(errbuf, PCAP_ERRBUF_SIZE,
+		pcapint_fmt_errmsg_for_errno(errbuf, PCAP_ERRBUF_SIZE,
 		    errno, "A_GET_UNITS");
 		return (-1);
 	}
@@ -1148,7 +1146,7 @@ pcap_platform_finddevs(pcap_if_list_t *devlistp, char *errbuf)
 		 * And is there a way to determine whether the
 		 * interface is plugged into a network?
 		 */
-		if (add_dev(devlistp, baname, 0, NULL, errbuf) == NULL)
+		if (pcapint_add_dev(devlistp, baname, 0, NULL, errbuf) == NULL)
 			return (-1);
 	}
 #endif
@@ -1168,7 +1166,7 @@ send_request(int fd, char *ptr, int len, char *what, char *ebuf)
 
 	flags = 0;
 	if (putmsg(fd, &ctl, (struct strbuf *) NULL, flags) < 0) {
-		pcap_fmt_errmsg_for_errno(ebuf, PCAP_ERRBUF_SIZE,
+		pcapint_fmt_errmsg_for_errno(ebuf, PCAP_ERRBUF_SIZE,
 		    errno, "send_request: putmsg \"%s\"", what);
 		return (-1);
 	}
@@ -1197,7 +1195,7 @@ recv_ack(int fd, int size, const char *what, char *bufp, char *ebuf, int *uerror
 
 	flags = 0;
 	if (getmsg(fd, &ctl, (struct strbuf*)NULL, &flags) < 0) {
-		pcap_fmt_errmsg_for_errno(ebuf, PCAP_ERRBUF_SIZE,
+		pcapint_fmt_errmsg_for_errno(ebuf, PCAP_ERRBUF_SIZE,
 		    errno, "recv_ack: %s getmsg", what);
 		return (PCAP_ERROR);
 	}
@@ -1220,7 +1218,7 @@ recv_ack(int fd, int size, const char *what, char *bufp, char *ebuf, int *uerror
 		case DL_SYSERR:
 			if (uerror != NULL)
 				*uerror = dlp->error_ack.dl_unix_errno;
-			pcap_fmt_errmsg_for_errno(ebuf, PCAP_ERRBUF_SIZE,
+			pcapint_fmt_errmsg_for_errno(ebuf, PCAP_ERRBUF_SIZE,
 			    dlp->error_ack.dl_unix_errno,
 			    "recv_ack: %s: UNIX error", what);
 			if (dlp->error_ack.dl_unix_errno == EPERM ||
@@ -1577,7 +1575,7 @@ get_release(char *buf, size_t bufsize, bpf_u_int32 *majorp,
 	*minorp = 0;
 	*microp = 0;
 	if (sysinfo(SI_RELEASE, buf, bufsize) < 0) {
-		pcap_strlcpy(buf, "?", bufsize);
+		pcapint_strlcpy(buf, "?", bufsize);
 		return;
 	}
 	cp = buf;
@@ -1676,7 +1674,7 @@ get_dlpi_ppa(register int fd, register const char *device, register u_int unit,
 	 */
 	/* get the head first */
 	if (getmsg(fd, &ctl, (struct strbuf *)NULL, &flags) < 0) {
-		pcap_fmt_errmsg_for_errno(ebuf, PCAP_ERRBUF_SIZE,
+		pcapint_fmt_errmsg_for_errno(ebuf, PCAP_ERRBUF_SIZE,
 		    errno, "get_dlpi_ppa: hpppa getmsg");
 		return (PCAP_ERROR);
 	}
@@ -1703,7 +1701,7 @@ get_dlpi_ppa(register int fd, register const char *device, register u_int unit,
 
 	/* allocate buffer */
 	if ((ppa_data_buf = (char *)malloc(dlp->dl_length)) == NULL) {
-		pcap_fmt_errmsg_for_errno(ebuf, PCAP_ERRBUF_SIZE,
+		pcapint_fmt_errmsg_for_errno(ebuf, PCAP_ERRBUF_SIZE,
 		    errno, "get_dlpi_ppa: hpppa malloc");
 		return (PCAP_ERROR);
 	}
@@ -1712,7 +1710,7 @@ get_dlpi_ppa(register int fd, register const char *device, register u_int unit,
 	ctl.buf = (char *)ppa_data_buf;
 	/* get the data */
 	if (getmsg(fd, &ctl, (struct strbuf *)NULL, &flags) < 0) {
-		pcap_fmt_errmsg_for_errno(ebuf, PCAP_ERRBUF_SIZE,
+		pcapint_fmt_errmsg_for_errno(ebuf, PCAP_ERRBUF_SIZE,
 		    errno, "get_dlpi_ppa: hpppa getmsg");
 		free(ppa_data_buf);
 		return (PCAP_ERROR);
@@ -1782,7 +1780,7 @@ get_dlpi_ppa(register int fd, register const char *device, register u_int unit,
 		 */
 		snprintf(dname, sizeof(dname), "/dev/%s%u", device, unit);
 		if (stat(dname, &statbuf) < 0) {
-			pcap_fmt_errmsg_for_errno(ebuf, PCAP_ERRBUF_SIZE,
+			pcapint_fmt_errmsg_for_errno(ebuf, PCAP_ERRBUF_SIZE,
 			    errno, "stat: %s", dname);
 			return (PCAP_ERROR);
 		}
@@ -1855,7 +1853,7 @@ get_dlpi_ppa(register int fd, register const char *ifname, register u_int unit,
 	}
 	kd = open("/dev/kmem", O_RDONLY);
 	if (kd < 0) {
-		pcap_fmt_errmsg_for_errno(ebuf, PCAP_ERRBUF_SIZE,
+		pcapint_fmt_errmsg_for_errno(ebuf, PCAP_ERRBUF_SIZE,
 		    errno, "kmem open");
 		return (PCAP_ERROR);
 	}
@@ -1890,13 +1888,13 @@ dlpi_kread(register int fd, register off_t addr,
 	register int cc;
 
 	if (lseek(fd, addr, SEEK_SET) < 0) {
-		pcap_fmt_errmsg_for_errno(ebuf, PCAP_ERRBUF_SIZE,
+		pcapint_fmt_errmsg_for_errno(ebuf, PCAP_ERRBUF_SIZE,
 		    errno, "lseek");
 		return (-1);
 	}
 	cc = read(fd, buf, len);
 	if (cc < 0) {
-		pcap_fmt_errmsg_for_errno(ebuf, PCAP_ERRBUF_SIZE,
+		pcapint_fmt_errmsg_for_errno(ebuf, PCAP_ERRBUF_SIZE,
 		    errno, "read");
 		return (-1);
 	} else if (cc != len) {
@@ -1909,7 +1907,7 @@ dlpi_kread(register int fd, register off_t addr,
 #endif
 
 pcap_t *
-pcap_create_interface(const char *device _U_, char *ebuf)
+pcapint_create_interface(const char *device _U_, char *ebuf)
 {
 	pcap_t *p;
 #ifdef DL_HP_RAWDLS

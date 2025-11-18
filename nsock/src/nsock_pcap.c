@@ -4,7 +4,7 @@
  *                                                                         *
  ***********************IMPORTANT NSOCK LICENSE TERMS***********************
  *
- * The nsock parallel socket event library is (C) 1999-2024 Nmap Software LLC
+ * The nsock parallel socket event library is (C) 1999-2025 Nmap Software LLC
  * This library is free software; you may redistribute and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
  * Foundation; Version 2. This guarantees your right to use, modify, and
@@ -72,8 +72,6 @@
 #endif
 
 #include "nsock_pcap.h"
-
-extern struct timeval nsock_tod;
 
 #if HAVE_PCAP
 
@@ -478,8 +476,15 @@ void nse_readpcap(nsock_event nsev, const unsigned char **l2_data, size_t *l2_le
     return;
   }
 
-  l2l = MIN(mp->l3_offset, n->caplen);
-  l3l = MAX(0, n->caplen-mp->l3_offset);
+  l2l = mp->l3_offset;
+  if (mp->datalink == DLT_EN10MB
+      && n->caplen >= 14 /* size of ethernet header */
+      && 0 == memcmp(n->packet + 12 /* offset of eth_type */, "\x81\x00", 2)) {
+    l2l += 4;
+  }
+  if (l2l > n->caplen)
+    l2l = n->caplen;
+  l3l = MAX(0, n->caplen - l2l);
 
   if (l2_data)
     *l2_data = n->packet;

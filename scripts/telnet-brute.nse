@@ -68,6 +68,7 @@ local is_username_prompt = function (str)
   local lcstr = str:lower()
   return lcstr:find("%f[%w]username%s*:%s*$")
       or lcstr:find("%f[%w]login%s*:%s*$")
+      or lcstr:find("%f[%w]login as%s*:%s*$")
 end
 
 

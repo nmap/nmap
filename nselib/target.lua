@@ -60,7 +60,7 @@ end
 --
 -- Only prerule, portrule and hostrule scripts can add new targets.
 --
--- @param targets  A variable number of targets. Target is a
+-- @param ...  A variable number of targets. Target is a
 -- string that represents an IP or a Hostname. If this function
 -- is called without target arguments then it will return true
 -- and the number of pending targets (waiting to be scanned).

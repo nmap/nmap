@@ -4,7 +4,7 @@
  *                                                                         *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
  *
- * The Nmap Security Scanner is (C) 1996-2024 Nmap Software LLC ("The Nmap
+ * The Nmap Security Scanner is (C) 1996-2025 Nmap Software LLC ("The Nmap
  * Project"). Nmap is also a registered trademark of the Nmap Project.
  *
  * This program is distributed under the terms of the Nmap Public Source
@@ -160,13 +160,13 @@ static void obj_to_key(lua_State *L, const ASN1_OBJECT *obj)
   nid = OBJ_obj2nid(obj);
   if (nid == NID_undef) {
     size_t size = 1;
-    char *buf = (char *) lua_newuserdata(L, size);
+    char *buf = (char *) lua_newuserdatauv(L, size, 0);
     const char *p, *q;
     int i, n;
 
     while ((n = OBJ_obj2txt(buf, size, obj, 1)) < 0 || (unsigned) n >= size) {
       size = size * 2;
-      buf = (char *) lua_newuserdata(L, size);
+      buf = (char *) lua_newuserdatauv(L, size, 0);
       memcpy(lua_touserdata(L, -1), lua_touserdata(L, -2), lua_rawlen(L, -2));
       lua_replace(L, -2);
     }
@@ -555,7 +555,7 @@ static int parse_ssl_cert(lua_State *L, X509 *cert)
   EVP_PKEY *pubkey;
   int pkey_type;
 
-  udata = (struct cert_userdata *) lua_newuserdata(L, sizeof(*udata));
+  udata = (struct cert_userdata *) lua_newuserdatauv(L, sizeof(*udata), 0);
   udata->cert = cert;
 
 #define NSE_NUM_CERT_FIELDS 7

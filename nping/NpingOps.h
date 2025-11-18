@@ -5,7 +5,7 @@
  *                                                                         *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
  *
- * The Nmap Security Scanner is (C) 1996-2024 Nmap Software LLC ("The Nmap
+ * The Nmap Security Scanner is (C) 1996-2025 Nmap Software LLC ("The Nmap
  * Project"). Nmap is also a registered trademark of the Nmap Project.
  *
  * This program is distributed under the terms of the Nmap Public Source
@@ -96,14 +96,6 @@
 #define FLAG_RST  5
 #define FLAG_SYN  6
 #define FLAG_FIN  7
-
-#define PACKET_SEND_NOPREF 1 /* These have been taken from NmapOps.h */
-#define PACKET_SEND_ETH_WEAK 2
-#define PACKET_SEND_ETH_STRONG 4
-#define PACKET_SEND_ETH 6
-#define PACKET_SEND_IP_WEAK 8
-#define PACKET_SEND_IP_STRONG 16
-#define PACKET_SEND_IP 24
 
 #define IP_VERSION_4 0x04
 #define IP_VERSION_6 0x06

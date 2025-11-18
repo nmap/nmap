@@ -5,7 +5,7 @@
  *
  * Copyright (c) 2002 Dug Song <dugsong@monkey.org>
  *
- * $Id: ip6.h 486 2004-02-23 10:01:15Z dugsong $
+ * $Id$
  */
 
 #ifndef DNET_IP6_H
@@ -25,9 +25,9 @@ typedef struct ip6_addr {
 } ip6_addr_t;
 
 #ifndef __GNUC__
-#ifndef __attribute__
-# define __attribute__(x)
-#endif
+# ifndef __attribute__
+#  define __attribute__(x)
+# endif
 # pragma pack(1)
 #endif
 
@@ -164,8 +164,8 @@ struct ip6_ext_hdr {
 
 #define ip6_pack_hdr(hdr, fc, fl, plen, nxt, hlim, src, dst) do {	\
 	struct ip6_hdr *ip6 = (struct ip6_hdr *)(hdr);			\
-	ip6->ip6_flow = htonl(((uint32_t)(fc) << 20) |			\
-	    (0x000fffff & (fl)));					\
+	ip6->ip6_flow = htonl(((uint32_t)(fc) << 20) |          \
+	    (0x000fffff & (fl)));                   \
 	ip6->ip6_vfc = (IP6_VERSION | ((fc) >> 4));			\
 	ip6->ip6_plen = htons((plen));					\
 	ip6->ip6_nxt = (nxt); ip6->ip6_hlim = (hlim);			\
@@ -178,6 +178,9 @@ char	*ip6_ntop(const ip6_addr_t *ip6, char *dst, size_t size);
 int	 ip6_pton(const char *src, ip6_addr_t *dst);
 char	*ip6_ntoa(const ip6_addr_t *ip6);
 #define	 ip6_aton ip6_pton
+
+ssize_t	 ip6_add_option(void *buf, size_t len,
+           int proto, const void *optbuf, size_t optlen);
 
 void	 ip6_checksum(void *buf, size_t len);
 __END_DECLS

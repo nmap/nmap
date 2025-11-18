@@ -2,7 +2,7 @@
 
 # ***********************IMPORTANT NMAP LICENSE TERMS************************
 # *
-# * The Nmap Security Scanner is (C) 1996-2024 Nmap Software LLC ("The Nmap
+# * The Nmap Security Scanner is (C) 1996-2025 Nmap Software LLC ("The Nmap
 # * Project"). Nmap is also a registered trademark of the Nmap Project.
 # *
 # * This program is distributed under the terms of the Nmap Public Source
@@ -63,6 +63,7 @@ import os
 import os.path
 import sys
 import shutil
+from glob import glob
 
 from zenmapCore.BasePaths import base_paths
 from zenmapCore.Name import APP_NAME
@@ -81,7 +82,11 @@ def get_extra_executable_search_paths():
     """Return a list of additional executable search paths as a convenience for
     platforms where the default PATH is inadequate."""
     if sys.platform == 'darwin':
-        return ["/usr/local/bin"]
+        extra = ["/usr/local/bin"]
+        for pf in glob("/etc/paths.d/org.insecure.nmap*"):
+            with open(pf, "r") as f:
+                extra.append(f.read().strip())
+        return extra
     elif sys.platform == 'win32':
         return [dirname(sys.executable)]
     return []
@@ -116,15 +121,6 @@ class Paths(object):
         self.misc_dir = MISC_DIR
         self.docs_dir = DOCS_DIR
         self._delayed_incomplete = True
-        PATH = os.environ.get('PATH', os.defpath)
-        extra = get_extra_executable_search_paths()
-        if extra:
-            PATH += ';' + ';'.join(extra)
-        NMAPPATH = dirname(shutil.which("nmap", path=PATH))
-        if sys.platform == 'win32':
-            self.nmap_dir = NMAPPATH
-        else:
-            self.nmap_dir = join(NMAPPATH, "..", "share", "nmap")
 
     # Delay initializing these paths so that
     # zenmapCore.I18N.install_gettext can install _() before modules that

@@ -5,7 +5,7 @@
  *                                                                         *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
  *
- * The Nmap Security Scanner is (C) 1996-2024 Nmap Software LLC ("The Nmap
+ * The Nmap Security Scanner is (C) 1996-2025 Nmap Software LLC ("The Nmap
  * Project"). Nmap is also a registered trademark of the Nmap Project.
  *
  * This program is distributed under the terms of the Nmap Public Source
@@ -245,7 +245,7 @@ struct ObservationPrint {
   FingerPrintScan scan_info;
   std::vector<FingerTest> extra_tests;
   const char *getInfo(FingerPrintScan::Attribute attr) const {
-    if (attr >= FingerPrintScan::MAX_ATTR)
+    if (attr >= FingerPrintScan::MAX_ATTR || attr < 0)
       return NULL;
     return scan_info.values[static_cast<int>(attr)];
   }

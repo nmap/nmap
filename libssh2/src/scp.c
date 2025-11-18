@@ -1,5 +1,5 @@
-/* Copyright (c) 2009-2019 by Daniel Stenberg
- * Copyright (c) 2004-2008, Sara Golemon <sarag@libssh2.org>
+/* Copyright (C) Daniel Stenberg
+ * Copyright (C) Sara Golemon <sarag@libssh2.org>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms,
@@ -34,6 +34,8 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY
  * OF SUCH DAMAGE.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
  */
 
 #include "libssh2_priv.h"
@@ -746,7 +748,7 @@ scp_recv(LIBSSH2_SESSION * session, const char *path, libssh2_struct_stat * sb)
                 }
                 _libssh2_debug((session, LIBSSH2_TRACE_SCP,
                                "mode = 0%lo size = %ld", session->scpRecv_mode,
-                               session->scpRecv_size));
+                               (long)session->scpRecv_size));
 
                 /* We *should* check that basename is valid, but why let that
                    stop us? */
@@ -762,7 +764,7 @@ scp_recv(LIBSSH2_SESSION * session, const char *path, libssh2_struct_stat * sb)
 
         sb->st_mtime = session->scpRecv_mtime;
         sb->st_atime = session->scpRecv_atime;
-        sb->st_size = session->scpRecv_size;
+        sb->st_size = (libssh2_struct_stat_size)session->scpRecv_size;
         sb->st_mode = (unsigned short)session->scpRecv_mode;
     }
 
@@ -782,7 +784,7 @@ scp_recv_error:
     tmp_err_code = session->err_code;
     tmp_err_msg = session->err_msg;
     while(libssh2_channel_free(session->scpRecv_channel) ==
-           LIBSSH2_ERROR_EAGAIN);
+          LIBSSH2_ERROR_EAGAIN);
     session->err_code = tmp_err_code;
     session->err_msg = tmp_err_msg;
     session->scpRecv_channel = NULL;
@@ -790,6 +792,7 @@ scp_recv_error:
     return NULL;
 }
 
+#ifndef LIBSSH2_NO_DEPRECATED
 /*
  * libssh2_scp_recv
  *
@@ -826,6 +829,7 @@ libssh2_scp_recv(LIBSSH2_SESSION *session, const char *path, struct stat *sb)
 
     return ptr;
 }
+#endif
 
 /*
  * libssh2_scp_recv2

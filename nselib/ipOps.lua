@@ -216,9 +216,9 @@ end
 -- @param left String representing an IPv4 or IPv6 address.  Shortened
 --             notation is permitted.
 -- @param op A comparison operator which may be one of the following strings:
---           <code>"eq"</code>, <code>"ge"</code>, <code>"le"</code>,
---           <code>"gt"</code> or <code>"lt"</code> (respectively ==, >=, <=,
---           >, <).
+--           <code>"eq"</code>, <code>"ne"</code>, <code>"ge"</code>,
+--           <code>"le"</code>, <code>"gt"</code> or <code>"lt"</code>
+--           (respectively ==, ~=, >=, <=, >, <).
 -- @param right String representing an IPv4 or IPv6 address.  Shortened
 --              notation is permitted.
 -- @usage
@@ -380,6 +380,9 @@ expand_ip = function( ip, family )
   local hexadectets = {}
   for hdt in string.gmatch( ip, "[%.z%x]+" ) do
     hexadectets[#hexadectets+1] = hdt
+  end
+  if #hexadectets == 0 then
+    return nil, ( err4:gsub( "IPv4", "IPv6" ) )
   end
 
   -- deal with IPv4in6 (last hexadectet only)

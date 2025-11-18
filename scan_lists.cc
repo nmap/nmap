@@ -3,7 +3,7 @@
  * and scan types                                                          *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
  *
- * The Nmap Security Scanner is (C) 1996-2024 Nmap Software LLC ("The Nmap
+ * The Nmap Security Scanner is (C) 1996-2025 Nmap Software LLC ("The Nmap
  * Project"). Nmap is also a registered trademark of the Nmap Project.
  *
  * This program is distributed under the terms of the Nmap Public Source
@@ -165,7 +165,7 @@ void getpts(const char *origexpr, struct scan_lists *ports) {
       ports->udp_count++;
     if (porttbl[i] & SCAN_SCTP_PORT)
       ports->sctp_count++;
-    if (porttbl[i] & SCAN_PROTOCOLS && i < 256)
+    if (porttbl[i] & SCAN_PROTOCOLS && i <= MAX_IPPROTONUM)
       ports->prot_count++;
   }
 
@@ -192,7 +192,7 @@ void getpts(const char *origexpr, struct scan_lists *ports) {
       ports->udp_ports[udpi++] = i;
     if (porttbl[i] & SCAN_SCTP_PORT)
       ports->sctp_ports[sctpi++] = i;
-    if (porttbl[i] & SCAN_PROTOCOLS && i < 256)
+    if (porttbl[i] & SCAN_PROTOCOLS && i <= MAX_IPPROTONUM)
       ports->prots[proti++] = i;
   }
 
@@ -388,7 +388,7 @@ static void getpts_aux(const char *origexpr, int nested, u8 *porttbl, int range_
     } else if (isdigit((int) (unsigned char) *current_range)) {
       rangestart = strtol(current_range, &endptr, 10);
       if (range_type & SCAN_PROTOCOLS) {
-        if (rangestart < 0 || rangestart > 255)
+        if (rangestart < 0 || rangestart > MAX_IPPROTONUM)
           fatal("Protocols specified must be between 0 and 255 inclusive");
       } else {
         if (rangestart < 0 || rangestart > 65535)
@@ -429,13 +429,13 @@ static void getpts_aux(const char *origexpr, int nested, u8 *porttbl, int range_
       if (!*current_range || *current_range == ',' || *current_range == ']') {
         /* Ended with a -, meaning up until the last possible port */
         if (range_type & SCAN_PROTOCOLS)
-          rangeend = 255;
+          rangeend = MAX_IPPROTONUM;
         else
           rangeend = 65535;
       } else if (isdigit((int) (unsigned char) *current_range)) {
         rangeend = strtol(current_range, &endptr, 10);
         if (range_type & SCAN_PROTOCOLS) {
-          if (rangeend < 0 || rangeend > 255)
+          if (rangeend < 0 || rangeend > MAX_IPPROTONUM)
             fatal("Protocols specified must be between 0 and 255 inclusive");
         } else {
           if (rangeend < 0 || rangeend > 65535)

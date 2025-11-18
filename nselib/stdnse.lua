@@ -314,11 +314,14 @@ function tohex( s, options )
   -- format hex if we got a separator
   if separator then
     local group = options.group or 2
-    local subs = 0
-    local pat = "(%x)(" .. rep("[^:]", group) .. ")%f[\0:]"
-    repeat
-      hex, subs = gsub(hex, pat, "%1:%2")
-    until subs == 0
+    local extra = (group - #hex % group) % group
+    if extra > 0 then
+      -- pad the input to make it an exact multiple of the group size
+      hex = rep("0", extra) .. hex
+    end
+    hex = gsub(hex, rep(".", group), "%0" .. gsub(separator, "%%", "%%%%"))
+    -- remove the padding and trim the last separator
+    hex = sub(hex, extra + 1, -(#separator + 1))
   end
 
   return hex
@@ -640,7 +643,7 @@ end
 --      => mode    = "timed"
 --      => domains = {"host1","host2"}
 --
--- @param Arguments  Script arguments to check.
+-- @param ...  Script arguments to check.
 -- @return Arguments values.
 function get_script_args (...)
   local args = {}
@@ -696,7 +699,10 @@ function get_script_interfaces(filter_func)
   end
   local ret = {}
   for _, if_table in ipairs(nmap.list_interfaces()) do
-    insert(ret, filter_func(if_table))
+    local ift = filter_func(if_table)
+    if ift then
+      insert(ret, ift)
+    end
   end
   return ret
 end

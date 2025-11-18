@@ -77,6 +77,7 @@ blocked in pcap_dispatch(), pcap_loop(), pcap_next(3PCAP), or
 pcap_next_ex(3PCAP), a call to pcap_breakloop() in a different thread
 will only unblock that thread on the platforms and capture devices
 listed above.
+.ft R
 .PP
 If a non-zero packet buffer timeout is set on the
 .BR pcap_t ,
@@ -91,7 +92,6 @@ network interface, you will need to use whatever mechanism the OS
 provides for breaking a thread out of blocking calls in order to unblock
 the thread, such as thread cancellation or thread signalling in systems
 that support POSIX threads.
-.ft R
 .PP
 .ft B
 Note that if pcap_breakloop() unblocks the thread capturing packets, and

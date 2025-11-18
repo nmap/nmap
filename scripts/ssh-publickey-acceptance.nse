@@ -61,12 +61,12 @@ function action (host, port)
         local status, result = helper:read_publickey(publickeys[i])
         if not status then
           stdnse.verbose("Error reading key: " .. result)
-        elseif helper:connect(host, port) then
+        elseif helper:connect_pcall(host, port) then
           successes = successes + 1
           local status, err = helper:publickey_canauth(usernames[j], result)
           if status then
             table.insert(r, "Key " .. publickeys[i] .. " accepted for user " .. usernames[j])
-            stdnse.verbose("Found accepted key: " .. publickeys[i] .. " for user " .. usernames[j])
+            stdnse.verbose("Found accepted key: " .. publickeys[i] .. " for user " .. usernames[j] .. " on host " .. host.ip .. ":" .. port.number)
           elseif err then
             stdnse.debug("Error in publickey_canauth: %s", err)
           end
@@ -100,7 +100,7 @@ function action (host, port)
       local msg = sections[3]
       stdnse.debug("Checking key: " .. key .. " for user " .. user)
       key = base64.dec(key)
-      if helper:connect(host, port) then
+      if helper:connect_pcall(host, port) then
         successes = successes + 1
         if helper:publickey_canauth(user, key) then
           table.insert(r, msg)
@@ -128,14 +128,13 @@ function action (host, port)
     for j = 1, #usernames do
       for i = 1, #privatekeys do
         stdnse.debug("Checking key: " .. privatekeys[i] .. " for user " .. usernames[j])
-        if helper:connect(host, port) then
+        if helper:connect_pcall(host, port) then
           successes = successes + 1
           if not helper:publickey_auth(usernames[j], privatekeys[i], passphrases[i] or "") then
-            stdnse.verbose "Failed to authenticate"
+            stdnse.verbose("Failed to authenticate key " .. privatekeys[i] .. " for user " .. usernames[j] .. " on host " .. host.ip .. ":" .. port.number)
           else
             table.insert(r, "Key " .. privatekeys[i] .. " accepted for user " .. usernames[j])
-            stdnse.verbose("Found accepted key: " .. privatekeys[i] .. " for user " .. usernames[j])
-
+            stdnse.verbose("Found accepted key: " .. privatekeys[i] .. " for user " .. usernames[j] .. " on host " .. host.ip .. ":" .. port.number)
           end
           helper:disconnect()
         else

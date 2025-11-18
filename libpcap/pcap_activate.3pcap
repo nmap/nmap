@@ -17,7 +17,7 @@
 .\" WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF
 .\" MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 .\"
-.TH PCAP_ACTIVATE 3PCAP "24 November 2019"
+.TH PCAP_ACTIVATE 3PCAP "3 June 2024"
 .SH NAME
 pcap_activate \- activate a capture handle
 .SH SYNOPSIS
@@ -89,6 +89,9 @@ monitor mode.
 .B PCAP_ERROR_IFACE_NOT_UP
 The capture source device is not up.
 .TP
+.B PCAP_ERROR_CAPTURE_NOTSUP
+Packet capture is not supported on the capture source.
+.TP
 .B PCAP_ERROR
 Another error occurred.
 .BR pcap_geterr ()
@@ -101,8 +104,9 @@ as an argument to fetch or display a message describing the error.
 If
 .BR PCAP_WARNING_PROMISC_NOTSUP ,
 .BR PCAP_ERROR_NO_SUCH_DEVICE ,
+.BR PCAP_ERROR_PERM_DENIED ,
 or
-.B PCAP_ERROR_PERM_DENIED
+.B PCAP_ERROR_CAPTURE_NOTSUP
 is returned,
 .BR pcap_geterr ()
 or
@@ -124,8 +128,8 @@ message describing the warning or error code.
 If
 .BR pcap_activate ()
 fails, the
-.I pcap_t *
+.B pcap_t *
 is not closed and freed; it should be closed using
-.BR pcap_close ().
+.BR pcap_close (3PCAP).
 .SH SEE ALSO
 .BR pcap (3PCAP)

@@ -262,7 +262,7 @@
       <varlistentry>
         <term>
           <option>-k</option>,
-          <option>--keep-open</option> (Accept multiple connections)
+          <option>--keep-open</option> (Accept multiple connections, do not quit on socket EOF)
           <indexterm><primary><option>--keep-open</option> (Ncat option)</primary></indexterm>
           <indexterm><primary><option>-k</option> (Ncat option)</primary><see><option>--keep-open</option></see></indexterm>
         </term>
@@ -276,6 +276,12 @@
           until interrupted. This also means that it will never close its
           output stream, so any program reading from Ncat and looking for
           end-of-file will also hang.</para>
+        <para>In connect mode, the <option>-k</option> option has a different
+          meaning: when the remote end of a TCP connection shuts down its side
+          of the connection, Ncat will keep running and sending any available
+          data. This was the default behavior in Ncat 7.95 and earlier, but it
+          was changed to better align with existing netcat implementations. TCP
+          is the only transport that supports this option in connect mode.</para>
         </listitem>
       </varlistentry>
 
@@ -723,6 +729,16 @@
         <listitem>
           <para>Set a fixed timeout for idle connections. If the idle timeout
           is reached, the connection is terminated.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>-q <replaceable>time</replaceable></option> (Delay quit after EOF on stdin)
+          <indexterm><primary><option>-q</option> (Ncat option)</primary></indexterm>
+        </term>
+        <listitem>
+          <para>After EOF on stdin, wait the specified amount of time, then quit. If <replaceable>time</replaceable> is negative, wait forever. Ncat may still quit based on idle timeout or EOF on the socket.</para>
         </listitem>
       </varlistentry>
 

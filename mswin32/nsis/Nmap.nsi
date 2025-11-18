@@ -33,12 +33,16 @@
 !define STAGE_DIR_OEM ${STAGE_DIR}
 !endif
 
+!define REG_UNINSTALL_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall"
+!define NMAP_UNINSTALL_KEY "${REG_UNINSTALL_KEY}\${NMAP_NAME}"
+
 ;--------------------------------
 ;Include Modern UI
 
   !include "MUI.nsh"
   !include "AddToPath.nsh"
   !include "FileFunc.nsh"
+  !include "nmap-common.nsh"
 
 ;--------------------------------
 ;General
@@ -66,16 +70,16 @@ SectionEnd
 
   OutFile ${STAGE_DIR_OEM}-setup.exe
   SetCompressor /SOLID /FINAL lzma
+!ifdef NMAP_OEM
+  ; OEM installer is less than 32MB uncompressed, so extra dict is wasted
+  SetCompressorDictSize 32
+!else
+  SetCompressorDictSize 64
+!endif
 
   ;Required for removing shortcuts
   RequestExecutionLevel admin
 !endif
-
-  ;Default installation folder
-  InstallDir "$PROGRAMFILES\${NMAP_NAME}"
-
-  ;Get installation folder from registry if available
-  InstallDirRegKey HKCU "Software\${NMAP_NAME}" ""
 
   VIProductVersion ${NUM_VERSION}
   VIAddVersionKey /LANG=1033 "FileVersion" "${VERSION}"
@@ -135,6 +139,7 @@ ReserveFile "shortcuts.ini"
 !endif
 ReserveFile "final.ini"
 !insertmacro MUI_RESERVEFILE_INSTALLOPTIONS
+ReserveFile /plugin "System.dll"
 
 ;--------------------------------
 ;Functions
@@ -188,29 +193,13 @@ FunctionEnd
 ;--------------------------------
 ;Installer Sections
 
+ReserveFile "${STAGE_DIR_OEM}\Uninstall.exe"
+ReserveFile "..\npcap-${NPCAP_VERSION}.exe"
+ReserveFile ..\${VCREDISTEXE}
+
+!insertmacro SanityCheckInstdir ""
 Section "Nmap Core Files" SecCore
-
-  StrCpy $R0 $INSTDIR "" -2
-  StrCmp $R0 ":\" bad_key_install
-  StrCpy $R0 $INSTDIR "" -14
-  StrCmp $R0 "\Program Files" bad_key_install
-  StrCpy $R0 $INSTDIR "" -8
-  StrCmp $R0 "\Windows" bad_key_install
-  StrCpy $R0 $INSTDIR "" -6
-  StrCmp $R0 "\WinNT" bad_key_install
-  StrCpy $R0 $INSTDIR "" -9
-  StrCmp $R0 "\system32" bad_key_install
-  StrCpy $R0 $INSTDIR "" -8
-  StrCmp $R0 "\Desktop" bad_key_install
-  StrCpy $R0 $INSTDIR "" -22
-  StrCmp $R0 "\Documents and Settings" bad_key_install
-  StrCpy $R0 $INSTDIR "" -13
-  StrCmp $R0 "\My Documents" bad_key_install probably_safe_key_install
-  bad_key_install:
-    MessageBox MB_YESNO "It may not be safe to uninstall the previous installation of ${NMAP_NAME} from the directory '$INSTDIR'.$\r$\nContinue anyway (not recommended)?" IDYES probably_safe_key_install
-    Abort "Install aborted by user"
-  probably_safe_key_install:
-
+  Call SanityCheckInstdir
   ;Delete specific subfolders (NB: custom scripts in scripts folder will be lost)
   RMDir /r "$INSTDIR\nselib"
   ; nselib-bin held NSE C modules up through version 4.68.
@@ -224,31 +213,7 @@ Section "Nmap Core Files" SecCore
   SetOutPath "$INSTDIR"
 
   SetOverwrite on
-  File ${STAGE_DIR}\CHANGELOG
-  File ${STAGE_DIR}\LICENSE
-  File ${STAGE_DIR}\nmap-mac-prefixes
-  File ${STAGE_DIR}\nmap-os-db
-  File ${STAGE_DIR}\nmap-protocols
-  File ${STAGE_DIR}\nmap-rpc
-  File ${STAGE_DIR}\nmap-service-probes
-  File ${STAGE_DIR}\nmap-services
-  File ${STAGE_DIR_OEM}\nmap.exe
-  File ${STAGE_DIR}\nse_main.lua
-  File ${STAGE_DIR}\nmap.xsl
-  File ${STAGE_DIR}\nmap_performance.reg
-  File ${STAGE_DIR}\README-WIN32
-  File ${STAGE_DIR}\3rd-party-licenses.txt
-  File /r /x .svn ${STAGE_DIR}\licenses
-  File ${STAGE_DIR}\libssh2.dll
-  File ${STAGE_DIR}\zlibwapi.dll
-  File ${STAGE_DIR}\libcrypto-3.dll
-  File ${STAGE_DIR}\libssl-3.dll
-  File /r /x mswin32 /x .svn /x ncat ${STAGE_DIR}\scripts
-  File /r /x mswin32 /x .svn ${STAGE_DIR}\nselib
-  File ${STAGE_DIR}\icon1.ico
-
-  ;Store installation folder
-  WriteRegStr HKCU "Software\${NMAP_NAME}" "" $INSTDIR
+  !insertmacro SecCoreFiles
 
   Call vcredistinstaller
   Call create_uninstaller
@@ -287,13 +252,27 @@ Section "Network Performance Improvements" SecPerfRegistryMods
   CopyFiles /SILENT "$PLUGINSDIR\nmap_performance.reg" "$INSTDIR"
 SectionEnd
 
+Section "Ncat (Modern Netcat reincarnation)" SecNcat
+  SetOutPath "$INSTDIR"
+  SetOverwrite on
+  !insertmacro SecNcatFiles
+  Call vcredistinstaller
+  Call create_uninstaller
+SectionEnd
+
+Section "Nping (Packet generator)" SecNping
+  SetOutPath "$INSTDIR"
+  SetOverwrite on
+  !insertmacro SecNpingFiles
+  Call vcredistinstaller
+  Call create_uninstaller
+SectionEnd
+
 !ifndef NMAP_OEM
 Section "Zenmap (GUI Frontend)" SecZenmap
   SetOutPath "$INSTDIR"
   SetOverwrite on
-  File ${STAGE_DIR}\ZENMAP_README
-  File ${STAGE_DIR}\COPYING_HIGWIDGETS
-  File /r ${STAGE_DIR}\zenmap
+  !insertmacro SecZenmapFiles
   WriteINIStr "$INSTDIR\zenmap\share\zenmap\config\zenmap.conf" paths nmap_command_path "$INSTDIR\nmap.exe"
   WriteINIStr "$INSTDIR\zenmap\share\zenmap\config\zenmap.conf" paths ndiff_command_path "$INSTDIR\ndiff.bat"
   !insertmacro writeZenmapShortcut "$INSTDIR\Zenmap.lnk"
@@ -308,29 +287,10 @@ SectionEnd
 Section "Ndiff (Scan comparison tool)" SecNdiff
   SetOutPath "$INSTDIR"
   SetOverwrite on
-  File ${STAGE_DIR}\ndiff.py
-  File ${STAGE_DIR}\ndiff.bat
-  File ${STAGE_DIR}\NDIFF_README
+  !insertmacro SecNdiffFiles
   Call create_uninstaller
 SectionEnd
 !endif
-
-Section "Ncat (Modern Netcat reincarnation)" SecNcat
-  SetOutPath "$INSTDIR"
-  SetOverwrite on
-  File ${STAGE_DIR}\ncat.exe
-  File ${STAGE_DIR}\ca-bundle.crt
-  Call vcredistinstaller
-  Call create_uninstaller
-SectionEnd
-
-Section "Nping (Packet generator)" SecNping
-  SetOutPath "$INSTDIR"
-  SetOverwrite on
-  File ${STAGE_DIR}\nping.exe
-  Call vcredistinstaller
-  Call create_uninstaller
-SectionEnd
 
 # Custom LogicLib test macro
 !macro _VCRedistInstalled _a _b _t _f
@@ -344,15 +304,16 @@ SectionEnd
 Function create_uninstaller
   StrCmp $addremoveset "" 0 skipaddremove
   ; Register Nmap with add/remove programs
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${NMAP_NAME}" "DisplayName" "${NMAP_NAME} ${VERSION}"
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${NMAP_NAME}" "DisplayVersion" "${VERSION}"
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${NMAP_NAME}" "Publisher" "Nmap Project"
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${NMAP_NAME}" "URLInfoAbout" "https://nmap.org/"
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${NMAP_NAME}" "URLUpdateInfo" "https://nmap.org/download.html"
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${NMAP_NAME}" "UninstallString" '"$INSTDIR\uninstall.exe"'
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${NMAP_NAME}" "DisplayIcon" '"$INSTDIR\icon1.ico"'
-  WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${NMAP_NAME}" "NoModify" 1
-  WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${NMAP_NAME}" "NoRepair" 1
+  WriteRegStr HKLM "${NMAP_UNINSTALL_KEY}" "DisplayName" "${NMAP_NAME} ${VERSION}"
+  WriteRegStr HKLM "${NMAP_UNINSTALL_KEY}" "DisplayVersion" "${VERSION}"
+  WriteRegStr HKLM "${NMAP_UNINSTALL_KEY}" "Publisher" "Nmap Project"
+  WriteRegStr HKLM "${NMAP_UNINSTALL_KEY}" "URLInfoAbout" "https://nmap.org/"
+  WriteRegStr HKLM "${NMAP_UNINSTALL_KEY}" "URLUpdateInfo" "https://nmap.org/download.html"
+  WriteRegStr HKLM "${NMAP_UNINSTALL_KEY}" "UninstallString" '"$INSTDIR\uninstall.exe"'
+  WriteRegStr HKLM "${NMAP_UNINSTALL_KEY}" "InstallLocation" $INSTDIR
+  WriteRegStr HKLM "${NMAP_UNINSTALL_KEY}" "DisplayIcon" '"$INSTDIR\icon1.ico"'
+  WriteRegDWORD HKLM "${NMAP_UNINSTALL_KEY}" "NoModify" 1
+  WriteRegDWORD HKLM "${NMAP_UNINSTALL_KEY}" "NoRepair" 1
   ;Create uninstaller
   SetOutPath $INSTDIR
 
@@ -376,6 +337,150 @@ OptionDisableSection_keep_${ID}:
   !undef ID
 !macroend
 
+Function _GetFileVersionProductName
+  System::Store S ; Stash registers
+  Pop $R0 ; file path
+  Push "" ; return value (bad)
+  System::Call 'version::GetFileVersionInfoSize(t"$R0", i.r2) i.r0'
+  ${If} $0 <> 0
+    System::Alloc $0 ; Alloc buffer to top of stack
+    ; Arg 4 pops the buffer off stack and puts it in $1. Pushes return of GetLastError
+    System::Call 'version::GetFileVersionInfo(t"$R0", ir2, ir0, isr1) i.r0 ? e'
+    Pop $2 ; GetLastError
+    ${If} $2 == 0
+    ${AndIf} $0 <> 0
+      ; 0409 = English; 04b0 = Unicode
+      System::Call 'version::VerQueryValue(ir1, t"\StringFileInfo\040904b0\ProductName", *i0r2, *i0r3) i.r0'
+      ${If} $0 <> 0
+        Pop $0 ; Take the "" off the stack
+        ; Push the Unicode string at r2 of length r3
+        System::Call '*$2(&t$3.r0)'
+        Push $0
+      ${EndIf}
+    ${EndIf}
+    System::Free $1
+  ${EndIf}
+  System::Store L ; Restore registers
+FunctionEnd
+!macro GetFileVersionProductName _file _outvar
+  Push ${_file}
+  Call _GetFileVersionProductName
+  Pop ${_outvar}
+!macroend
+!define GetFileVersionProductName "!insertmacro GetFileVersionProductName"
+
+!macro stripQuotes string
+  Push $R0
+  ; Strip double quotes
+  StrCpy $R0 ${string} 1
+  ${If} $R0 == "$\""
+    StrLen $R0 ${string}
+    IntOp $R0 $R0 - 1
+    StrCpy $R0 ${string} 1 $R0
+    ${If} $R0 == "$\""
+      StrCpy ${string} ${string} -1 1
+    ${EndIf}
+  ${EndIf}
+  Pop $R0
+!macroend
+
+Function RunUninstaller
+  System::Store S ; stash registers
+  Pop $2 ; old instdir
+  Pop $1 ; params
+  Pop $0 ; Uninstaller
+  !insertmacro stripQuotes $0
+  !insertmacro stripQuotes $2
+
+  ; Try to run and delete, but ignore errors.
+  ExecWait '"$0" $1 _?=$2'
+  Delete $0
+  RmDir $2
+  System::Store L ; restore registers
+FunctionEnd
+
+; GH#2982: Nmap 7.95 OEM installer uses "Nmap" for NMAP_NAME, not "Nmap OEM"
+; We have to look for this specific problem and correct it.
+Function RepairBug2982
+  System::Store S ; stash registers
+  ; See what's installed as "Nmap"
+  ReadRegStr $0 HKLM "${REG_UNINSTALL_KEY}\Nmap" "UninstallString"
+  ; Nothing? Done.
+  StrCmp $0 "" repair_2982_done
+  Push $0 ; UninstallString
+  ; Check product name on the uninstaller
+  !insertmacro stripQuotes $0
+  ${GetFileVersionProductName} $0 $3
+  Push $3 ; ProductName
+  ; If it's not "Nmap OEM" it's not a buggy install
+  StrCmp $3 "Nmap OEM" 0 repair_2982_done
+  ; Ok, it's a screwed-up install. We need to fix it up first.
+  ; Finish getting the old install info
+  ReadRegStr $2 HKLM "${REG_UNINSTALL_KEY}\Nmap" "DisplayVersion"
+  ${GetParent} $0 $1 ; Get InstallLocation from the path to Uninstall.exe
+  ; Rename the old install reg keys
+  ; winreg.h: #define HKEY_LOCAL_MACHINE (( HKEY ) (ULONG_PTR)((LONG)0x80000002) )
+  System::Call 'advapi32::RegRenameKey(p0x80000002, t"${REG_UNINSTALL_KEY}\Nmap", t"Nmap OEM") i.r3'
+  ${If} $3 <> 0
+	  ; Failed to rename!
+	  goto repair_2982_done
+  ${EndIf}
+  ; Change appropriate entries
+  WriteRegStr HKLM "${REG_UNINSTALL_KEY}\Nmap OEM" "DisplayName" "Nmap OEM $2"
+  WriteRegStr HKLM "${REG_UNINSTALL_KEY}\Nmap OEM" "InstallLocation" $1
+
+  ; winreg.h: #define HKEY_CURRENT_USER (( HKEY ) (ULONG_PTR)((LONG)0x80000001) )
+  System::Call 'advapi32::RegRenameKey(p0x80000001, t"SOFTWARE\Nmap", t"Nmap OEM") i.r3'
+  ${If} $3 <> 0
+	  ; Failed to rename!
+	  goto repair_2982_done
+  ${EndIf}
+ 
+  repair_2982_done:
+  System::Store L ; restore registers
+FunctionEnd
+
+Function _TryUninstall
+  System::Store S ; stash registers
+  Pop $3 ; ProductName
+  Pop $2 ; Old version
+  Pop $1 ; Uninstall dir
+  Pop $0 ; Uninstaller path
+  ${If} ${Silent}
+    StrCpy $5 $3 4
+    ${If} $5 != "Nmap"
+      ; In silent mode, abort the install
+      ; if INSTDIR contains an uninstaller that's not Nmap.
+      Abort
+    ${EndIf}
+  ${Else}
+    ${If} $2 == "UNKNOWN"
+      ${GetFileVersion} $0 $2
+    ${EndIf}
+    MessageBox MB_YESNOCANCEL|MB_ICONQUESTION \
+        '$3 $2 is already installed in "$1". $\n$\nWould you like to uninstall it first?' \
+        /SD IDYES IDYES tryuninstall_go IDNO tryuninstall_end
+    Abort
+  ${EndIf}
+  tryuninstall_go:
+  Push $0 ; Uninstaller
+  Push "/S" ; Params
+  Push $1 ; Old instdir
+  Call RunUninstaller
+
+  tryuninstall_end:
+  System::Store L ; restore registers
+FunctionEnd
+; If _version is "", we use the uninstaller's file version, which is X.X.X.X
+; so for Nmap itself, use the DisplayVersion if known.
+!macro TryUninstall _uninstaller _uninstdir _version _productname
+  Push ${_uninstaller}
+  Push ${_uninstdir}
+  Push ${_version}
+  Push ${_productname}
+  Call _TryUninstall
+!macroend
+
 Function .onInit
   ${GetParameters} $R0
   ; Make /S (silent install) case-insensitive
@@ -391,7 +496,7 @@ Function .onInit
   !insertmacro MUI_INSTALLOPTIONS_EXTRACT "final.ini"
 
   ; Check if Npcap is already installed.
-  ReadRegStr $0 HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\NpcapInst" "DisplayVersion"
+  ReadRegStr $0 HKLM "${REG_UNINSTALL_KEY}\NpcapInst" "DisplayVersion"
   ${If} $0 != ""
     ${VersionCompare} $0 ${NPCAP_VERSION} $1
     ; If our version is not newer than the installed version, don't offer to install Npcap.
@@ -421,6 +526,69 @@ Function .onInit
 !endif
   !insertmacro OptionDisableSection $R0 "/NCAT=" ${SecNcat}
   !insertmacro OptionDisableSection $R0 "/NPING=" ${SecNping}
+
+  Call RepairBug2982
+  ClearErrors
+  Pop $3 ; ProductName?
+  Pop $0 ; UninstallString?
+  ${If} ${Errors}
+  ${OrIf} $3 != "${NMAP_NAME}"
+    ; RepairBug2982 did not get info, so we get it here instead
+    ; $0 = old uninstall.exe path
+    ReadRegStr $1 HKLM "${NMAP_UNINSTALL_KEY}" "UninstallString"
+    ; If it's the same as what RepairBug2982 got, then $3 is valid, too.
+    ${If} $1 != $0
+      StrCpy $0 $1
+      ; $3 is obviously not valid
+      StrCpy $3 ""
+    ${EndIf}
+  ${EndIf}
+
+  ; If no uninstall key was found, assume it's a new install
+  StrCmp $0 "" set_instdir
+
+  !insertmacro stripQuotes $0
+  ; $1 = old instdir
+  ; We want to use this location going forward:
+  ReadRegStr $1 HKLM "${NMAP_UNINSTALL_KEY}" "InstallLocation"
+  StrCmp $1 "" 0 get_old_version
+  ; But old installers used this location instead:
+  ReadRegStr $1 HKCU "Software\${NMAP_NAME}" ""
+  StrCmp $1 "" 0 get_old_version
+  ; Last chance, parent dir of uninstaller
+  ${GetParent} $0 $1
+
+get_old_version:
+  ; $2 = old version
+  ReadRegStr $2 HKLM "${NMAP_UNINSTALL_KEY}" "DisplayVersion"
+
+  ${If} $3 == ""
+    ${GetFileVersionProductName} $0 $3
+  ${EndIf}
+  !insertmacro TryUninstall $0 $1 $2 $3
+
+set_instdir:
+  ; If it's already set, user specified with /D=
+  StrCmp $INSTDIR "" 0 done
+  ; If we got the old instdir from the registry, use that.
+  ${If} $1 != ""
+    StrCpy $INSTDIR $1
+  ${Else}
+    ; Default InstallDir set here
+    StrCpy $INSTDIR "$PROGRAMFILES\${NMAP_NAME}"
+  ${EndIf}
+
+done:
+  ; If we didn't already try to uninstall, check to see if there's something in
+  ; $INSTDIR that needs to be uninstalled.
+  ${If} $INSTDIR != $1
+  ${AndIf} ${FileExists} "$INSTDIR\Uninstall.exe"
+    ${If} $3 == ""
+      ${GetFileVersionProductName} $INSTDIR\Uninstall.exe $3
+    ${EndIf}
+    !insertmacro TryUninstall "$INSTDIR\Uninstall.exe" $INSTDIR "UNKNOWN" $3
+  ${EndIf}
+
 FunctionEnd
 
 ;--------------------------------
@@ -497,28 +665,11 @@ Function .onInit
   Quit  ; just bail out quickly when running the "inner" installer
 FunctionEnd
 
+!insertmacro SanityCheckInstdir "un."
+
 Section "Uninstall"
 
-  StrCpy $R0 $INSTDIR "" -2
-  StrCmp $R0 ":\" bad_key_uninstall
-  StrCpy $R0 $INSTDIR "" -14
-  StrCmp $R0 "\Program Files" bad_key_uninstall
-  StrCpy $R0 $INSTDIR "" -8
-  StrCmp $R0 "\Windows" bad_key_uninstall
-  StrCpy $R0 $INSTDIR "" -6
-  StrCmp $R0 "\WinNT" bad_key_uninstall
-  StrCpy $R0 $INSTDIR "" -9
-  StrCmp $R0 "\system32" bad_key_uninstall
-  StrCpy $R0 $INSTDIR "" -8
-  StrCmp $R0 "\Desktop" bad_key_uninstall
-  StrCpy $R0 $INSTDIR "" -22
-  StrCmp $R0 "\Documents and Settings" bad_key_uninstall
-  StrCpy $R0 $INSTDIR "" -13
-  StrCmp $R0 "\My Documents" bad_key_uninstall probably_safe_key_uninstall
-  bad_key_uninstall:
-    MessageBox MB_YESNO "It may not be safe to uninstall ${NMAP_NAME} from the directory '$INSTDIR'.$\r$\nContinue anyway (not recommended)?" IDYES probably_safe_key_uninstall
-    Abort "Uninstall aborted by user"
-  probably_safe_key_uninstall:
+  Call un.SanityCheckInstdir
 
   IfFileExists $INSTDIR\nmap.exe nmap_installed
   IfFileExists $INSTDIR\zenmap.exe nmap_installed
@@ -533,42 +684,14 @@ Section "Uninstall"
   SetDetailsPrint listonly
 
   nmap_installed:
-  Delete "$INSTDIR\3rd-party-licenses.txt"
-  Delete "$INSTDIR\CHANGELOG"
-  Delete "$INSTDIR\LICENSE"
-  Delete "$INSTDIR\nmap-mac-prefixes"
-  Delete "$INSTDIR\nmap-os-db"
-  Delete "$INSTDIR\nmap-payloads"
-  Delete "$INSTDIR\nmap-protocols"
-  Delete "$INSTDIR\nmap-rpc"
-  Delete "$INSTDIR\nmap-service-probes"
-  Delete "$INSTDIR\nmap-services"
-  Delete "$INSTDIR\nmap.exe"
-  Delete "$INSTDIR\nmap.xsl"
+!insertmacro SecCoreFiles
+!insertmacro SecNcatFiles
+!insertmacro SecNpingFiles
+!ifndef NMAP_OEM
+!insertmacro SecZenmapFiles
+!insertmacro SecNdiffFiles
+!endif
   Delete "$INSTDIR\nmap_performance.reg"
-  Delete "$INSTDIR\nse_main.lua"
-  Delete "$INSTDIR\README-WIN32"
-  Delete "$INSTDIR\icon1.ico"
-  Delete "$INSTDIR\libssh2.dll"
-  Delete "$INSTDIR\zlibwapi.dll"
-  Delete "$INSTDIR\libcrypto-*dll"
-  Delete "$INSTDIR\libssl-*dll"
-  Delete "$INSTDIR\npcap-*.exe"
-  Delete "$INSTDIR\zenmap.exe"
-  Delete "$INSTDIR\ndiff.exe"
-  Delete "$INSTDIR\python27.dll"
-  Delete "$INSTDIR\NDIFF_README"
-  Delete "$INSTDIR\ZENMAP_README"
-  Delete "$INSTDIR\COPYING_HIGWIDGETS"
-  Delete "$INSTDIR\ncat.exe"
-  Delete "$INSTDIR\nping.exe"
-  Delete "$INSTDIR\ca-bundle.crt"
-  ;Delete specific subfolders (NB: custom scripts in scripts folder will be lost)
-  RMDir /r "$INSTDIR\nselib"
-  RMDir /r "$INSTDIR\scripts"
-  RMDir /r "$INSTDIR\share"
-  RMDir /r "$INSTDIR\py2exe"
-  RMDir /r "$INSTDIR\licenses"
 
   Delete "$INSTDIR\Uninstall.exe"
 
@@ -579,7 +702,7 @@ Section "Uninstall"
   DetailPrint "Deleting Registry Keys..."
   SetDetailsPrint listonly
   DeleteRegKey HKCU "Software\${NMAP_NAME}"
-  DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${NMAP_NAME}"
+  DeleteRegKey HKLM "${NMAP_UNINSTALL_KEY}"
   SetDetailsPrint textonly
   DetailPrint "Unregistering Nmap Path..."
   Push $INSTDIR
