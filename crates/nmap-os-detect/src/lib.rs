@@ -179,8 +179,6 @@ impl OsDetector {
     }
 }
 
-impl Default for OsDetector {
-    fn default() -> Self {
-        Self::new().expect("Failed to create default OS detector")
-    }
-}
+// Note: Default trait not implemented because OsDetector::new() can fail.
+// Users should explicitly call OsDetector::new() which returns Result<Self, Error>
+// instead of relying on Default::default() which would panic on failure.

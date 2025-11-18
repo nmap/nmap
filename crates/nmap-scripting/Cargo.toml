@@ -10,5 +10,26 @@ tracing = "0.1"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 async-trait = "0.1"
-reqwest = { version = "0.11", features = ["json"] }
+reqwest = { version = "0.11", features = ["json", "native-tls"] }
 nmap-net = { path = "../nmap-net" }
+
+# For SSL/TLS vulnerability detection
+native-tls = "0.2"
+tokio-native-tls = "0.3"
+rustls = "0.21"
+x509-parser = "0.15"
+
+# For HTTP vulnerability detection
+regex = "1.10"
+base64 = "0.21"
+urlencoding = "2.1"
+
+# For parallel execution
+futures = "0.3"
+
+# For DNS queries
+trust-dns-resolver = "0.23"
+
+[dev-dependencies]
+tokio-test = "0.4"
+mockito = "1.2"

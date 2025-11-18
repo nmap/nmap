@@ -1,0 +1,41 @@
+{
+  "name": "node-red-contrib-rmap",
+  "version": "1.0.0",
+  "description": "R-Map network scanner nodes for Node-RED visual automation",
+  "keywords": [
+    "node-red",
+    "network",
+    "scanner",
+    "security",
+    "rmap",
+    "nmap",
+    "pentesting",
+    "vulnerability"
+  ],
+  "author": "R-Map Contributors",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Ununp3ntium115/R-map.git"
+  },
+  "node-red": {
+    "version": ">=3.0.0",
+    "nodes": {
+      "scanner": "nodes/scanner.js",
+      "script-runner": "nodes/script-runner.js",
+      "filter": "nodes/filter.js",
+      "webhook": "nodes/webhook.js"
+    }
+  },
+  "dependencies": {
+    "axios": "^1.6.7",
+    "ws": "^8.16.0"
+  },
+  "devDependencies": {
+    "node-red": "^3.1.0",
+    "node-red-node-test-helper": "^0.3.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

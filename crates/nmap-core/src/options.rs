@@ -2,61 +2,80 @@ use anyhow::Result;
 use serde::{Deserialize, Serialize};
 use std::net::IpAddr;
 use std::time::Duration;
+use nmap_net::{ScanType, PortSpec};
+pub use nmap_timing::TimingTemplate;
 
 /// Nmap scanning options and configuration
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct NmapOptions {
     // Target specification
     pub targets: Vec<String>,
-    
+
     // Port specification
     pub ports: String,
-    
+    pub port_specs: Vec<PortSpec>,
+
     // Scan types
     pub tcp_scan: bool,
     pub syn_scan: bool,
     pub udp_scan: bool,
     pub connect_scan: bool,
-    
+    pub scan_types: Vec<ScanType>,
+
     // Host discovery
     pub skip_ping: bool,
     pub ping_types: Vec<PingType>,
-    
+
     // Service/Version detection
     pub service_detection: bool,
     pub version_detection: bool,
     pub os_detection: bool,
-    
+
     // Output options
     pub verbose: u8,
     pub debug_level: u8,
     pub output_format: String,
     pub output_file: Option<String>,
-    
-    // Timing and performance
-    pub timing_template: u8,
+
+    // Timing and performance (use u8 for serialization compatibility)
+    pub timing_template_level: u8,  // 0-5
     pub max_rate: Option<u32>,
     pub min_rate: Option<u32>,
     pub max_retries: u32,
     pub host_timeout: Duration,
     pub scan_delay: Duration,
-    
+
     // Advanced options
     pub source_ip: Option<IpAddr>,
     pub source_port: Option<u16>,
     pub interface: Option<String>,
     pub spoof_mac: Option<String>,
     pub decoys: Vec<IpAddr>,
-    
+
     // Firewall/IDS evasion
     pub fragment_packets: bool,
     pub mtu_discovery: bool,
     pub randomize_hosts: bool,
-    
+
     // NSE options
     pub script_scan: bool,
     pub scripts: Vec<String>,
     pub script_args: Vec<String>,
+}
+
+impl NmapOptions {
+    /// Get TimingTemplate from the level
+    pub fn timing_template(&self) -> TimingTemplate {
+        match self.timing_template_level {
+            0 => TimingTemplate::Paranoid,
+            1 => TimingTemplate::Sneaky,
+            2 => TimingTemplate::Polite,
+            3 => TimingTemplate::Normal,
+            4 => TimingTemplate::Aggressive,
+            5 => TimingTemplate::Insane,
+            _ => TimingTemplate::Normal,
+        }
+    }
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
@@ -84,16 +103,6 @@ pub enum ScanTechnique {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
-pub enum TimingTemplate {
-    Paranoid = 0,
-    Sneaky = 1,
-    Polite = 2,
-    Normal = 3,
-    Aggressive = 4,
-    Insane = 5,
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum AddressFamily {
     IPv4,
     IPv6,
@@ -105,41 +114,43 @@ impl Default for NmapOptions {
         Self {
             targets: Vec::new(),
             ports: "1-1000".to_string(),
-            
+            port_specs: vec![PortSpec::default_tcp()],
+
             tcp_scan: true,
             syn_scan: false,
             udp_scan: false,
             connect_scan: false,
-            
+            scan_types: vec![ScanType::Connect],
+
             skip_ping: false,
             ping_types: vec![PingType::Icmp, PingType::TcpSyn],
-            
+
             service_detection: false,
             version_detection: false,
             os_detection: false,
-            
+
             verbose: 0,
             debug_level: 0,
             output_format: "normal".to_string(),
             output_file: None,
-            
-            timing_template: 3, // Normal
+
+            timing_template_level: 3,  // Normal
             max_rate: None,
             min_rate: None,
             max_retries: 3,
             host_timeout: Duration::from_secs(300),
             scan_delay: Duration::from_millis(0),
-            
+
             source_ip: None,
             source_port: None,
             interface: None,
             spoof_mac: None,
             decoys: Vec::new(),
-            
+
             fragment_packets: false,
             mtu_discovery: false,
             randomize_hosts: false,
-            
+
             script_scan: false,
             scripts: Vec::new(),
             script_args: Vec::new(),
@@ -177,8 +188,8 @@ impl NmapOptions {
         self
     }
 
-    pub fn with_timing_template(mut self, template: u8) -> Self {
-        self.timing_template = template.min(5);
+    pub fn with_timing_template(mut self, level: u8) -> Self {
+        self.timing_template_level = level.min(5);
         self
     }
 
@@ -187,15 +198,15 @@ impl NmapOptions {
             return Err(anyhow::anyhow!("No targets specified"));
         }
 
-        if self.timing_template > 5 {
-            return Err(anyhow::anyhow!("Invalid timing template: {}", self.timing_template));
+        if self.timing_template_level > 5 {
+            return Err(anyhow::anyhow!("Invalid timing template level: {}", self.timing_template_level));
         }
 
         Ok(())
     }
 
     pub fn get_timing_values(&self) -> TimingValues {
-        match self.timing_template {
+        match self.timing_template_level {
             0 => TimingValues::paranoid(),
             1 => TimingValues::sneaky(),
             2 => TimingValues::polite(),

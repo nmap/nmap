@@ -1,0 +1,75 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, develop, 'claude/**' ]
+  pull_request:
+    branches: [ main, develop ]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  test:
+    name: Test Suite
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        rust: [stable, nightly]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: ${{ matrix.rust }}
+      - uses: Swatinem/rust-cache@v2
+      - name: Run tests
+        run: cargo test --all-features --workspace
+      - name: Run tests (release)
+        run: cargo test --all-features --workspace --release
+
+  fmt:
+    name: Rustfmt
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt
+      - run: cargo fmt --all -- --check
+
+  clippy:
+    name: Clippy
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy
+      - uses: Swatinem/rust-cache@v2
+      - run: cargo clippy --all-targets --all-features -- -D warnings
+
+  security-audit:
+    name: Security Audit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: rustsec/audit-check@v1.4.1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+  coverage:
+    name: Code Coverage
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - name: Install tarpaulin
+        run: cargo install cargo-tarpaulin
+      - name: Generate coverage
+        run: cargo tarpaulin --out Xml --all-features
+      - name: Upload coverage
+        uses: codecov/codecov-action@v3
+        with:
+          files: ./cobertura.xml

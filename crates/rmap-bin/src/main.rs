@@ -119,12 +119,14 @@ async fn main() -> Result<()> {
     }
 
     // Parse arguments
+    let timing_str = matches.get_one::<String>("timing")
+        .ok_or_else(|| anyhow::anyhow!("timing argument missing despite default value"))?;
+    let timing_template = timing_str.parse::<u8>()
+        .map_err(|e| anyhow::anyhow!("Invalid timing value: {}", e))?;
+
     let mut options = ScanOptions {
         verbose: matches.get_count("verbose") as u8,
-        timing_template: matches.get_one::<String>("timing")
-            .unwrap()
-            .parse::<u8>()
-            .unwrap_or(3),
+        timing_template,
         service_detection: false,
         os_detection: false,
         version_detection: false,
@@ -148,7 +150,9 @@ async fn main() -> Result<()> {
     options.skip_ping = matches.get_flag("ping-scan");
 
     // Parse targets
-    let target_strings: Vec<&String> = matches.get_many::<String>("targets").unwrap().collect();
+    let target_strings: Vec<&String> = matches.get_many::<String>("targets")
+        .ok_or_else(|| anyhow::anyhow!("No targets specified"))?
+        .collect();
     let mut targets = Vec::new();
     
     for target_str in target_strings {
@@ -167,7 +171,9 @@ async fn main() -> Result<()> {
     }
 
     // Parse ports
-    let port_spec = PortSpec::parse(matches.get_one::<String>("ports").unwrap())?;
+    let ports_str = matches.get_one::<String>("ports")
+        .ok_or_else(|| anyhow::anyhow!("ports argument missing despite default value"))?;
+    let port_spec = PortSpec::parse(ports_str)?;
 
     info!("R-Map {} starting scan", env!("CARGO_PKG_VERSION"));
     info!("Scanning {} targets with {} ports", targets.len(), port_spec.count());
@@ -176,7 +182,9 @@ async fn main() -> Result<()> {
     let start_time = std::time::Instant::now();
 
     // Get scan type from arguments
-    let scan_type = matches.get_one::<String>("scan-type").unwrap().as_str();
+    let scan_type = matches.get_one::<String>("scan-type")
+        .ok_or_else(|| anyhow::anyhow!("scan-type argument missing despite default value"))?
+        .as_str();
 
     info!("R-Map {} starting {} scan", env!("CARGO_PKG_VERSION"), scan_type);
     info!("Scanning {} targets with {} ports", targets.len(), port_spec.count());
@@ -212,7 +220,8 @@ async fn main() -> Result<()> {
     let scan_duration = start_time.elapsed();
 
     // Output results
-    let output_format = matches.get_one::<String>("output-format").unwrap();
+    let output_format = matches.get_one::<String>("output-format")
+        .ok_or_else(|| anyhow::anyhow!("output-format argument missing despite default value"))?;
     let output = format_results(&all_results, output_format, scan_duration)?;
     
     if let Some(output_file) = matches.get_one::<String>("output-file") {

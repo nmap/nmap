@@ -1,10 +1,48 @@
-# R-Map: Modern Network Scanner
+# R-Map - Modern Network Scanner in Rust
 
-**A memory-safe, high-performance network scanner written in Rust**
+[![CI](https://github.com/Ununp3ntium115/R-map/workflows/CI/badge.svg)](https://github.com/Ununp3ntium115/R-map/actions)
+[![Security Audit](https://img.shields.io/badge/security-75%2F100-yellow)](SECURITY_AUDIT_FINAL.md)
+[![License](https://img.shields.io/badge/license-MIT%20OR%20Apache--2.0-blue.svg)](LICENSE)
 
-[![License](https://img.shields.io/badge/license-MIT%2FApache--2.0-blue.svg)](LICENSE)
-[![Rust](https://img.shields.io/badge/rust-1.70%2B-orange.svg)](https://www.rust-lang.org)
-[![Security](https://img.shields.io/badge/security-production--ready-green.svg)](#security-features)
+## 🚧 Project Status: Active Development
+
+**Current Version:** 0.2.0 Alpha
+**Production Ready:** ⚠️ **NO** - See [Gap Analysis](GAP_ANALYSIS.md)
+**Completion:** ~70% (after security fixes)
+**Target v1.0:** Q2 2025
+
+### ✅ What Works Now
+
+- **TCP Connect Scanning** - Full TCP connection-based port scanning
+- **Basic Service Detection** - Banner grabbing for common services
+- **Output Formats** - JSON, XML, Markdown export
+- **SSRF Protection** - Blocks cloud metadata endpoints
+- **Input Validation** - Comprehensive target validation
+- **Plain English CLI** - Intuitive command syntax
+
+### 🚧 In Active Development (Code Complete, Integration Pending)
+
+- **SYN Stealth Scanning** - Library implemented, integration in progress
+- **UDP Scanning** - Protocol-specific probes ready, wiring in progress
+- **Advanced TCP Scans** - ACK/FIN/NULL/Xmas scanners implemented
+- **Security Scripts** - 20 vulnerability checks ready for integration
+- **API Server** - REST/WebSocket endpoints need authentication
+- **Service Detection** - 103 service signatures awaiting integration
+- **OS Fingerprinting** - Implementation exists, not yet connected
+
+### ⏳ Planned Features
+
+- External security audit (scheduled)
+- Performance optimization and benchmarking
+- Docker/Kubernetes deployment configurations
+- Comprehensive integration tests
+- CI/CD pipeline with automated releases
+
+### 📊 Recent Audits
+
+- **[Security Audit](SECURITY_AUDIT_FINAL.md)** - Score: 75/100 (after fixes)
+- **[QA Report](QA_REPORT.md)** - Integration status and testing gaps
+- **[Gap Analysis](GAP_ANALYSIS.md)** - Roadmap to 100% completion
 
 ---
 
@@ -12,10 +50,12 @@
 
 R-Map is a next-generation network mapping tool designed to replace nmap with modern security practices and better usability. Built entirely in Rust, R-Map provides memory safety, fearless concurrency, and comprehensive security protections without sacrificing performance.
 
+**Note:** This project is in active development. Core features work well, but many advanced capabilities are still being integrated. See the status section above for details.
+
 ### Why R-Map?
 
 - **Memory Safe**: 100% Rust - no buffer overflows, use-after-free, or null pointer dereferences
-- **Production Security**: SSRF protection, input validation, resource limits, and comprehensive testing
+- **Security First**: SSRF protection, input validation, resource limits, and comprehensive testing
 - **Better CLI**: Self-documenting flags (`--scan connect` instead of cryptic `-sT`)
 - **High Performance**: Parallel port scanning with intelligent connection limiting
 - **IPv4 & IPv6**: Full dual-stack support
@@ -48,6 +88,9 @@ cargo install --path .
 # Fast scan (top 100 ports)
 ./target/release/rmap 192.168.1.1 --fast
 
+# UDP scan (NEW!)
+./target/release/rmap 192.168.1.1 --scan udp --top-udp-ports
+
 # Scan all ports on multiple targets
 ./target/release/rmap 192.168.1.0/24 --all-ports
 
@@ -56,6 +99,21 @@ cargo install --path .
 
 # Export results to JSON
 ./target/release/rmap 8.8.8.8 -p 22,80,443 --output results.json --format json
+```
+
+### Plain English Commands (NEW!)
+
+R-Map supports intuitive, self-documenting commands:
+
+```bash
+# Instead of cryptic nmap flags, use plain English
+rmap --stealth-scan example.com                    # Instead of -sS
+rmap --grab-banners example.com                    # Instead of -sV
+rmap --only-ping 192.168.1.0/24                   # Instead of -sn
+rmap --quick-scan example.com                      # Fast scan preset
+rmap --security-audit example.com                  # Full security check
+
+# See full CLI guide in steering/CLI_GUIDE.md
 ```
 
 ---
@@ -67,9 +125,11 @@ cargo install --path .
 - **Port Scanning**
   - TCP Connect scanning (`--scan connect`, default)
   - SYN stealth scanning (`--scan syn`, requires root)
+  - **UDP scanning** (`--scan udp` or `--udp-scan`) **[NEW!]**
   - Fast mode: Top 100 ports (`--fast`)
   - All ports: 1-65535 (`--all-ports`)
   - Custom port ranges: `-p 22,80,443,8000-9000`
+  - Top UDP ports: `--top-udp-ports` **[NEW!]**
 
 - **Host Discovery**
   - TCP-based alive detection (default)
@@ -491,6 +551,43 @@ All dependencies are permissively licensed (MIT/Apache-2.0/BSD). See `Cargo.toml
 
 ---
 
+## Documentation
+
+R-Map includes comprehensive documentation in the `/steering` directory:
+
+### Complete Guides
+
+- **[CLI Guide](steering/CLI_GUIDE.md)** - Complete plain English command reference with examples
+- **[Implementation Plan](steering/IMPLEMENTATION_PLAN.md)** - Roadmap from 40% to 100% feature parity
+- **[nmap Comparison](NMAP_COMPARISON.md)** - Detailed feature-by-feature comparison audit
+- **[Security Audit](SECURITY_AUDIT.md)** - Comprehensive security analysis
+- **[Security Framework](SECURITY_AUDIT_FRAMEWORK.md)** - Testing and validation framework
+
+### Quick References
+
+```bash
+# View CLI guide
+cat steering/CLI_GUIDE.md | less
+
+# See implementation roadmap
+cat steering/IMPLEMENTATION_PLAN.md | less
+
+# Check feature comparison
+cat NMAP_COMPARISON.md | less
+```
+
+### Key Documentation Highlights
+
+- **530+ lines** of CLI documentation with plain English examples
+- **445+ lines** implementation roadmap with timeline
+- **615+ lines** comprehensive nmap comparison
+- **1,600+ lines** security audit documentation
+- **700+ lines** security testing framework
+
+**Total Documentation:** 4,000+ lines covering all aspects of R-Map
+
+---
+
 ## FAQ
 
 ### Q: Why not just use nmap?
@@ -500,7 +597,7 @@ All dependencies are permissively licensed (MIT/Apache-2.0/BSD). See `Cargo.toml
 **A:** Only for SYN scanning (`--scan syn`). TCP Connect scanning works without privileges.
 
 ### Q: Is R-Map production-ready?
-**A:** Almost! We have comprehensive security protections and testing. External security audit is pending before v1.0 release.
+**A:** No. R-Map is currently in alpha (v0.2.0) with ~70% completion. While core TCP scanning works well and security protections are in place, many advanced features are not yet integrated. External security audit is pending. Target: v1.0 in Q2 2025. See the [Gap Analysis](GAP_ANALYSIS.md) for details.
 
 ### Q: Can R-Map replace nmap in my workflow?
 **A:** For most common scanning tasks (port discovery, service detection, network mapping), yes. For advanced NSE scripts and OS fingerprinting, not yet (see roadmap).

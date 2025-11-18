@@ -21,6 +21,12 @@ ipnet = "2.9"
 dns-lookup = "2.0"
 futures = "0.3"
 
+# Local crate dependencies
+nmap-core = { path = "crates/nmap-core" }
+nmap-engine = { path = "crates/nmap-engine" }
+nmap-net = { path = "crates/nmap-net" }
+nmap-timing = { path = "crates/nmap-timing" }
+
 [target.'cfg(unix)'.dependencies]
 libc = "0.2"
 
