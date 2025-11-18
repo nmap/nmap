@@ -19,7 +19,7 @@ allowed algorithms.
 -- @output
 -- | oracle-sns-crypto:
 -- |   SNS Server Version: 21.0.1.0.0
--- |   ALLOW_WEAK_CRYPTO_CLIENT: false
+-- |   ALLOW_WEAK_CRYPTO_CLIENTS: false
 -- |   DH key size: 2048 bit
 -- |   Encryption:
 -- |     Status: MANDATORY
@@ -33,7 +33,7 @@ allowed algorithms.
 -- @output 
 -- | oracle-sns-crypto:
 -- |   SNS Server Version: 18.0.0.0.0
--- |   ALLOW_WEAK_CRYPTO_CLIENT: true
+-- |   ALLOW_WEAK_CRYPTO_CLIENTS: true
 -- |   DH key size: 2048 bit
 -- |   Encryption:
 -- |     Status: MANDATORY
@@ -51,7 +51,7 @@ allowed algorithms.
 -- PORT     STATE SERVICE    VERSION
 -- | oracle-sns-crypto:
 -- |   SNS Server Version: 11.2.0.2.0
--- |   ALLOW_WEAK_CRYPTO_CLIENT: true
+-- |   ALLOW_WEAK_CRYPTO_CLIENTS: true
 -- |   DH key size: 512 bit
 -- |   Encryption:
 -- |     Status: OPTIONAL
@@ -157,6 +157,7 @@ SNS = {
   ialgs = stdnse.fromhex("0301040506"),
   ealgs = stdnse.fromhex("1106100c0f0a0b08020103"),
   authParm = 0xfcff,
+	authMech = nil,
 
 
 
@@ -225,10 +226,20 @@ SNS = {
         string.pack(">I2I2", 0x12,1) .. stdnse.fromhex("deadbeef0003000000040004000100010002")
 
     -- authentication (1)
-    services = services .. string.pack(">I2I2I4", 1, 3, 0) .. 
-        string.pack(">I2I2I4", 4, 5, self.clientVersion) .. 
-        string.pack(">I2I2I2", 2, 3, 0xe0e1) .. 
-        string.pack(">I2I2I2", 2, 6, self.authParm)    
+		if self.authMech then
+      services = services .. string.pack(">I2I2I4", 1, 5, 0) .. 
+          string.pack(">I2I2I4", 4, 5, self.clientVersion) .. 
+          string.pack(">I2I2I2", 2, 3, 0xe0e1) .. 
+          string.pack(">I2I2I2", 2, 6, self.authParm) ..
+          string.pack(">I2I2B", 1, 2, 1) .. 
+          string.pack(">I2I2", self.authMech:len(), 0) .. self.authMech
+    else
+      services = services .. string.pack(">I2I2I4", 1, 3, 0) .. 
+          string.pack(">I2I2I4", 4, 5, self.clientVersion) .. 
+          string.pack(">I2I2I2", 2, 3, 0xe0e1) .. 
+          string.pack(">I2I2I2", 2, 6, self.authParm)
+    end
+
 
     -- encryption (2)
     services = services .. string.pack(">I2I2I4", 2, 2, 0) .. 
@@ -487,17 +498,17 @@ action = function(host, port)
     issues[#issues+1] = "Allows weak encryption algorithm"
   end
   if contain_any(allowialgs, WeakIntegrity) then
-    issues[#issues+1] = "Allows weak integrity algorithm (also implies legacy/RC4 key derivation)"
+    issues[#issues+1] = "Allows weak integrity algorithm (also implies use of legacy/RC4 key derivation scheme)"
   end
   if vermin2 < 1 or allows_weak_crypto then
-    issues[#issues+1] = "Vulnerable to MitM authenticated connection hijacking (CVE-2021-23511)"
+    issues[#issues+1] = "Vulnerable to MitM authenticated connection hijacking (outdated or ALLOW_WEAK_CRYPTO_CLIENTS=true,CVE-2021-23511)"
   end
 
   table.sort(allowealgs)
   table.sort(allowialgs)
   local output = stdnse.output_table()
   output["SNS Server Version"]=version
-  output["ALLOW_WEAK_CRYPTO_CLIENT"]=allows_weak_crypto
+  output["ALLOW_WEAK_CRYPTO_CLIENTS"]=allows_weak_crypto
   if dhsize then
     output["DH key size"]=("%d bit"):format(dhsize)
   end
