@@ -1,0 +1,42 @@
+# Git
+.git/
+.gitignore
+.github/
+
+# Rust build artifacts
+target/
+**/*.rs.bk
+*.pdb
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Documentation
+*.md
+!README.md
+docs/
+steering/
+
+# Test files
+tests/fixtures/
+*.log
+
+# CI/CD
+.github/
+.gitlab-ci.yml
+
+# Docker
+Dockerfile
+.dockerignore
+docker-compose*.yml
+
+# Misc
+.env
+.env.*
+*.bak
+*.tmp
+node_modules/

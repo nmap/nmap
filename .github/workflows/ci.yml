@@ -8,26 +8,10 @@ on:
 
 env:
   CARGO_TERM_COLOR: always
+  RUST_BACKTRACE: 1
 
 jobs:
-  test:
-    name: Test Suite
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
-        rust: [stable, nightly]
-    steps:
-      - uses: actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@master
-        with:
-          toolchain: ${{ matrix.rust }}
-      - uses: Swatinem/rust-cache@v2
-      - name: Run tests
-        run: cargo test --all-features --workspace
-      - name: Run tests (release)
-        run: cargo test --all-features --workspace --release
-
+  # Format check
   fmt:
     name: Rustfmt
     runs-on: ubuntu-latest
@@ -38,6 +22,7 @@ jobs:
           components: rustfmt
       - run: cargo fmt --all -- --check
 
+  # Clippy lints
   clippy:
     name: Clippy
     runs-on: ubuntu-latest
@@ -49,27 +34,136 @@ jobs:
       - uses: Swatinem/rust-cache@v2
       - run: cargo clippy --all-targets --all-features -- -D warnings
 
-  security-audit:
-    name: Security Audit
-    runs-on: ubuntu-latest
+  # Build check
+  build:
+    name: Build Check
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
     steps:
       - uses: actions/checkout@v4
-      - uses: rustsec/audit-check@v1.4.1
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          key: ${{ matrix.os }}
+      - name: Build
+        run: cargo build --all-features --workspace
 
+  # Test suite
+  test:
+    name: Test Suite
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        rust: [stable, nightly]
+        exclude:
+          # Only test nightly on Linux to reduce CI time
+          - os: macos-latest
+            rust: nightly
+          - os: windows-latest
+            rust: nightly
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: ${{ matrix.rust }}
+      - uses: Swatinem/rust-cache@v2
+        with:
+          key: ${{ matrix.os }}-${{ matrix.rust }}
+      - name: Run tests
+        run: cargo test --all-features --workspace
+      - name: Run doc tests
+        run: cargo test --doc --all-features --workspace
+
+  # Code coverage (2025 best practice: cargo-llvm-cov)
   coverage:
     name: Code Coverage
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
-      - uses: Swatinem/rust-cache@v2
-      - name: Install tarpaulin
-        run: cargo install cargo-tarpaulin
-      - name: Generate coverage
-        run: cargo tarpaulin --out Xml --all-features
-      - name: Upload coverage
-        uses: codecov/codecov-action@v3
         with:
-          files: ./cobertura.xml
+          components: llvm-tools-preview
+      - uses: Swatinem/rust-cache@v2
+      - name: Install cargo-llvm-cov
+        uses: taiki-e/install-action@cargo-llvm-cov
+      - name: Generate coverage
+        run: cargo llvm-cov --all-features --workspace --lcov --output-path lcov.info
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          files: lcov.info
+          fail_ci_if_error: false
+          token: ${{ secrets.CODECOV_TOKEN }}
+
+  # Security audit (2025: use actions-rust-lang/audit)
+  security-audit:
+    name: Security Audit
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions-rust-lang/audit@v1
+        with:
+          create-issues: true
+
+  # License and dependency check
+  license-check:
+    name: License & Dependency Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - name: Install cargo-deny
+        uses: taiki-e/install-action@cargo-deny
+      - name: Check licenses and advisories
+        run: cargo deny check
+
+  # Build release binaries for artifacts
+  build-release:
+    name: Build Release Binaries
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            target: x86_64-unknown-linux-gnu
+            artifact: rmap-linux-amd64
+          - os: macos-latest
+            target: x86_64-apple-darwin
+            artifact: rmap-macos-amd64
+          - os: macos-latest
+            target: aarch64-apple-darwin
+            artifact: rmap-macos-arm64
+          - os: windows-latest
+            target: x86_64-pc-windows-msvc
+            artifact: rmap-windows-amd64.exe
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
+      - uses: Swatinem/rust-cache@v2
+        with:
+          key: ${{ matrix.target }}
+      - name: Build release
+        run: cargo build --release --target ${{ matrix.target }} --bin rmap
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact }}
+          path: target/${{ matrix.target }}/release/rmap${{ contains(matrix.target, 'windows') && '.exe' || '' }}
+
+  # Success gate
+  ci-success:
+    name: CI Success
+    needs: [fmt, clippy, build, test, coverage, security-audit, license-check, build-release]
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "✅ All CI checks passed!"

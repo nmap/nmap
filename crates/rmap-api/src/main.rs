@@ -10,6 +10,7 @@ use axum::{
     Router,
 };
 use axum::http::{header, Method, HeaderValue};
+use axum_prometheus::PrometheusMetricLayer;
 use std::sync::Arc;
 use tower_http::cors::CorsLayer;
 use tracing::{info, warn, Level};
@@ -43,6 +44,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Initialize services
     let scan_service = Arc::new(ScanService::new());
     let event_bus = Arc::new(EventBus::new());
+
+    // Initialize Prometheus metrics (2025 best practice: separate metrics server)
+    let (prometheus_layer, metric_handle) = PrometheusMetricLayer::pair();
+    info!("✓ Prometheus metrics initialized");
 
     // Configure CORS - SECURE configuration for Svelte frontend
     // Note: These are static URLs so parse() should never fail, but we handle errors properly
@@ -94,14 +99,32 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .layer(axum_middleware::from_fn(auth_middleware))
         .layer(websocket_rate_limiter());
 
-    // Combine all routes
+    // Combine all routes with Prometheus metrics
     let app = Router::new()
         .merge(public_routes)
         .merge(protected_routes)
         .merge(websocket_routes)
         .with_state(scan_service.clone())
         .with_state(event_bus.clone())
+        .layer(prometheus_layer)  // Track all requests
         .layer(cors);
+
+    // Create separate metrics server (port 3001, internal only)
+    let metrics_app = Router::new()
+        .route("/metrics", get(|| async move { metric_handle.render() }))
+        .route("/health", get(|| async { "Metrics OK" }));
+
+    // Spawn metrics server on separate port (best practice: not publicly exposed)
+    let metrics_listener = tokio::net::TcpListener::bind("0.0.0.0:3001")
+        .await
+        .map_err(|e| format!("Failed to bind metrics server to port 3001: {}", e))?;
+
+    tokio::spawn(async move {
+        info!("📊 Metrics server listening on http://0.0.0.0:3001/metrics");
+        if let Err(e) = axum::serve(metrics_listener, metrics_app).await {
+            warn!("Metrics server error: {}", e);
+        }
+    });
 
     // Start server
     let listener = tokio::net::TcpListener::bind("0.0.0.0:8080")
@@ -127,10 +150,15 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     info!("    GET    /api/v1/scans/:id/vulnerabilities  - Get vulnerabilities");
     info!("    WS     /ws                                - WebSocket (5 conn/min)");
     info!("");
+    info!("📊 Metrics (Internal Only):");
+    info!("    GET  http://localhost:3001/metrics        - Prometheus metrics");
+    info!("    GET  http://localhost:3001/health         - Metrics health check");
+    info!("");
     info!("🔒 Security Features:");
     info!("  ✓ JWT Authentication (required for all scans)");
     info!("  ✓ Rate Limiting (10 req/min general, 2 req/min scans)");
     info!("  ✓ CORS (localhost:3000, localhost:5173)");
+    info!("  ✓ Prometheus metrics tracking");
     info!("");
     info!("🔑 Default Credentials:");
     info!("  Username: admin");

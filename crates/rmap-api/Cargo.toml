@@ -40,6 +40,11 @@ bcrypt = "0.15"
 # Security - Rate Limiting
 tower_governor = "0.4"
 
+# Metrics and Monitoring
+axum-prometheus = "0.7"
+metrics = "0.23"
+metrics-exporter-prometheus = "0.15"
+
 # R-Map core dependencies
 nmap-core = { path = "../nmap-core" }
 nmap-engine = { path = "../nmap-engine" }

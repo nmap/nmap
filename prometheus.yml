@@ -1,0 +1,21 @@
+# Prometheus configuration for R-Map monitoring
+
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    monitor: 'rmap-monitor'
+
+# Scrape configurations
+scrape_configs:
+  # R-Map API metrics
+  - job_name: 'rmap-api'
+    static_configs:
+      - targets: ['rmap-api:3001']
+    metrics_path: '/metrics'
+    scrape_interval: 10s
+
+  # Prometheus self-monitoring
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
