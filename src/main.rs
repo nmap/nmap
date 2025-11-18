@@ -10,6 +10,12 @@ use tokio::sync::Semaphore;
 use tokio::time::timeout;
 use tracing::{error, info, warn};
 
+// Import nmap engine components
+use nmap_engine::ScanEngine;
+use nmap_core::NmapOptions;
+use nmap_net::{ScanType, PortSpec, Host};
+use nmap_timing::TimingTemplate;
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 struct ScanResult {
     target: IpAddr,
@@ -32,6 +38,68 @@ const MAX_CONCURRENT_SOCKETS: usize = 100;
 
 /// Global scan timeout in seconds (30 minutes max)
 const MAX_SCAN_DURATION_SECS: u64 = 1800;
+
+/// Convert scan type string to ScanType enum
+fn parse_scan_type(scan_type: &str) -> ScanType {
+    match scan_type {
+        "syn" => ScanType::Syn,
+        "connect" => ScanType::Connect,
+        "udp" => ScanType::Udp,
+        "ack" => ScanType::Ack,
+        "fin" => ScanType::Fin,
+        "null" => ScanType::Null,
+        "xmas" => ScanType::Xmas,
+        "ping" => ScanType::Ping,
+        _ => ScanType::Connect, // Default to connect scan
+    }
+}
+
+/// Convert timing string to timing level (0-5)
+fn parse_timing_level(timing: &str) -> u8 {
+    match timing {
+        "paranoid" | "0" => 0,
+        "sneaky" | "1" => 1,
+        "polite" | "2" => 2,
+        "normal" | "3" => 3,
+        "aggressive" | "4" => 4,
+        "insane" | "5" => 5,
+        _ => 3, // Normal
+    }
+}
+
+/// Convert ports vec to port specification string
+fn ports_to_spec_string(ports: &[u16]) -> String {
+    if ports.is_empty() {
+        return "1-1000".to_string();
+    }
+
+    let mut result = Vec::new();
+    let mut start = ports[0];
+    let mut end = ports[0];
+
+    for &port in &ports[1..] {
+        if port == end + 1 {
+            end = port;
+        } else {
+            if start == end {
+                result.push(start.to_string());
+            } else {
+                result.push(format!("{}-{}", start, end));
+            }
+            start = port;
+            end = port;
+        }
+    }
+
+    // Add the last range/port
+    if start == end {
+        result.push(start.to_string());
+    } else {
+        result.push(format!("{}-{}", start, end));
+    }
+
+    result.join(",")
+}
 
 /// Check if an IP address is in a private/reserved range (SSRF protection)
 fn is_private_ip(ip: IpAddr) -> bool {
@@ -510,7 +578,7 @@ async fn main() -> Result<()> {
     let verbose = matches.get_count("verbose");
     let timeout_secs: u64 = matches
         .get_one::<String>("timeout")
-        .expect("timeout has default value")
+        .ok_or_else(|| anyhow!("timeout argument missing despite default value"))?
         .parse()
         .unwrap_or(3);
 
@@ -801,66 +869,136 @@ async fn main() -> Result<()> {
         return Ok(());
     }
 
+    // Build NmapOptions for the scan engine
+    let scan_type_enum = parse_scan_type(scan_type);
+    let timing_level = parse_timing_level(timing);
+    let ports_string = ports_to_spec_string(&ports);
+
+    // Parse port specification
+    let port_specs = match PortSpec::parse(&ports_string) {
+        Ok(spec) => vec![spec],
+        Err(e) => {
+            warn!("Failed to parse port specification: {}, using default", e);
+            vec![PortSpec::default_tcp()]
+        }
+    };
+
+    let mut nmap_options = NmapOptions {
+        targets: target_strings.clone(),
+        ports: ports_string,
+        port_specs,
+        tcp_scan: scan_type == "connect",
+        syn_scan: scan_type == "syn",
+        udp_scan: scan_type == "udp",
+        connect_scan: scan_type == "connect",
+        scan_types: vec![scan_type_enum],
+        skip_ping,
+        ping_types: vec![],
+        service_detection,
+        version_detection: service_detection,
+        os_detection,
+        verbose,
+        debug_level: 0,
+        output_format: "normal".to_string(),
+        output_file: None,
+        timing_template_level: timing_level,
+        max_rate: None,
+        min_rate: None,
+        max_retries: 3,
+        host_timeout: Duration::from_secs(300),
+        scan_delay: Duration::from_millis(0),
+        source_ip: None,
+        source_port: None,
+        interface: None,
+        spoof_mac: None,
+        decoys: Vec::new(),
+        fragment_packets: false,
+        mtu_discovery: false,
+        randomize_hosts: false,
+        script_scan: check_vulns || enumerate_services,
+        scripts: Vec::new(),
+        script_args: Vec::new(),
+    };
+
+    // Create Host objects from target IPs
+    let mut host_targets: Vec<Host> = targets_to_scan.iter().map(|&ip| Host::new(ip)).collect();
+
     // Perform scan with global timeout
     info!("Scan timeout: {} seconds", MAX_SCAN_DURATION_SECS);
     let start_time = Instant::now();
 
     // Security: Enforce global timeout to prevent indefinite hanging
     let scan_future = async {
+        // Create scan engine with options
+        let engine = ScanEngine::new(&nmap_options)
+            .map_err(|e| {
+                if e.to_string().contains("Permission denied") || e.to_string().contains("privileges") {
+                    eprintln!("Error: SYN/UDP scanning requires root privileges.");
+                    eprintln!("Please run with sudo or use --tcp-scan for unprivileged scanning.");
+                    anyhow!("Insufficient privileges for raw socket access")
+                } else {
+                    e
+                }
+            })?;
+
+        // Execute scan with proper engine
+        let scanned_hosts = engine.port_scan(&host_targets).await?;
+
+        // Perform service detection if enabled
+        let scanned_hosts = if service_detection {
+            info!("Performing service detection...");
+            engine.service_detection(&scanned_hosts).await?
+        } else {
+            scanned_hosts
+        };
+
+        // Perform OS detection if enabled
+        let scanned_hosts = if os_detection {
+            info!("Performing OS detection...");
+            engine.os_detection(&scanned_hosts).await?
+        } else {
+            scanned_hosts
+        };
+
+        // Run vulnerability scripts if enabled
+        let scanned_hosts = if check_vulns || enumerate_services {
+            info!("Running vulnerability and enumeration scripts...");
+            engine.script_scan(&scanned_hosts).await?
+        } else {
+            scanned_hosts
+        };
+
+        // Convert Host objects to ScanResult format for output
         let mut all_results = Vec::new();
-
-        // Security: Create semaphore to limit concurrent connections
-        let semaphore = Arc::new(Semaphore::new(MAX_CONCURRENT_SOCKETS));
-
-        for target in targets_to_scan {
-            if verbose > 0 {
-                info!("Scanning target: {}", target);
-            }
-
-            let scan_start = Instant::now();
-
-            // Optimization: Scan ports in parallel using join_all
-            // Each task acquires a semaphore permit to limit concurrency
-            let mut scan_tasks = Vec::with_capacity(ports.len());
-
-            for &port in &ports {
-                let sem = semaphore.clone();
-                let scan_timeout = Duration::from_secs(timeout_secs);
-
-                let task = tokio::spawn(async move {
-                    // Acquire permit before creating connection
-                    let _permit = sem.acquire_owned().await
-                        .expect("semaphore should not be closed");
-
-                    // Scan port (permit auto-released when _permit drops)
-                    scan_port(target, port, scan_timeout, service_detection).await
-                });
-
-                scan_tasks.push(task);
-            }
-
-            // Wait for all port scans to complete
-            let port_results = futures::future::join_all(scan_tasks).await
-                .into_iter()
-                .map(|r| r.expect("port scan task should not panic"))
-                .collect::<Vec<_>>();
-
-            let scan_time = scan_start.elapsed().as_secs_f64();
-
-            // Try to resolve hostname unless --no-dns
+        for host in scanned_hosts {
             let hostname = if no_dns {
-                None
-            } else if verbose > 1 {
-                resolve_hostname(target).await
+                host.hostname
             } else {
-                None
+                host.hostname.or_else(|| {
+                    if verbose > 1 {
+                        // Hostname might already be set by engine
+                        None
+                    } else {
+                        None
+                    }
+                })
             };
 
+            let port_results: Vec<PortResult> = host.ports.iter().map(|p| {
+                PortResult {
+                    port: p.number,
+                    protocol: format!("{:?}", p.protocol).to_lowercase(),
+                    state: format!("{:?}", p.state).to_lowercase(),
+                    service: p.service.clone(),
+                    version: p.version.clone(),
+                }
+            }).collect();
+
             all_results.push(ScanResult {
-                target,
+                target: host.address,
                 hostname,
                 ports: port_results,
-                scan_time,
+                scan_time: 0.0, // Engine tracks this internally
             });
         }
 
@@ -891,7 +1029,7 @@ async fn main() -> Result<()> {
     } else {
         let format = matches
             .get_one::<String>("output-format")
-            .expect("output-format has default value");
+            .ok_or_else(|| anyhow!("output-format argument missing despite default value"))?;
         let file = matches.get_one::<String>("output-file").cloned();
         (format.as_str(), file)
     };

@@ -1,0 +1,32 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build:
+    name: Build Release
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            target: x86_64-unknown-linux-gnu
+          - os: macos-latest
+            target: x86_64-apple-darwin
+          - os: windows-latest
+            target: x86_64-pc-windows-msvc
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Build
+        run: cargo build --release --target ${{ matrix.target }}
+      - name: Create archive
+        run: tar czf rmap-${{ matrix.target }}.tar.gz target/${{ matrix.target }}/release/rmap
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: rmap-${{ matrix.target }}
+          path: rmap-${{ matrix.target }}.tar.gz

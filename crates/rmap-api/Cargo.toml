@@ -33,6 +33,13 @@ redis = { version = "0.27", features = ["tokio-comp", "connection-manager"], opt
 anyhow = "1.0"
 thiserror = "2.0"
 
+# Security - Authentication
+jsonwebtoken = "9.2"
+bcrypt = "0.15"
+
+# Security - Rate Limiting
+tower_governor = "0.4"
+
 # R-Map core dependencies
 nmap-core = { path = "../nmap-core" }
 nmap-engine = { path = "../nmap-engine" }

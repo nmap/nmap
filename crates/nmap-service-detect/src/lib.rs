@@ -299,8 +299,6 @@ impl Clone for ServiceDetector {
     }
 }
 
-impl Default for ServiceDetector {
-    fn default() -> Self {
-        Self::new().expect("Failed to create default service detector")
-    }
-}
+// Note: Default trait not implemented because ServiceDetector::new() can fail.
+// Users should explicitly call ServiceDetector::new() which returns Result<Self, Error>
+// instead of relying on Default::default() which would panic on failure.

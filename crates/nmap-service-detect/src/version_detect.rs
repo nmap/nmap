@@ -239,11 +239,9 @@ impl VersionDetector {
     }
 }
 
-impl Default for VersionDetector {
-    fn default() -> Self {
-        Self::new().expect("Failed to create default version detector")
-    }
-}
+// Note: Default trait not implemented because VersionDetector::new() can fail.
+// Users should explicitly call VersionDetector::new() which returns Result<Self, Error>
+// instead of relying on Default::default() which would panic on failure.
 
 #[cfg(test)]
 mod tests {

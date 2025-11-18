@@ -38,8 +38,15 @@ fn sanitize_banner(banner: &str) -> String {
     }
 
     // Remove any ANSI escape sequences (e.g., \x1b[31m for red color)
-    let ansi_escape = regex::Regex::new(r"\x1b\[[0-9;]*m")
-        .expect("ANSI escape regex is valid");
+    // Note: This regex is a constant pattern so it should never fail to compile
+    let ansi_escape = match regex::Regex::new(r"\x1b\[[0-9;]*m") {
+        Ok(regex) => regex,
+        Err(e) => {
+            warn!("Failed to compile ANSI escape regex (should never happen): {}", e);
+            // Return sanitized string without ANSI removal if regex fails
+            return sanitized.trim().to_string();
+        }
+    };
     let without_ansi = ansi_escape.replace_all(&sanitized, "");
 
     // Trim whitespace and return
@@ -59,7 +66,7 @@ pub struct ScanEngine {
 
 impl ScanEngine {
     pub fn new(options: &nmap_core::NmapOptions) -> Result<Self> {
-        let timing_config = options.timing_template.config();
+        let timing_config = options.timing_template().config();
 
         // Try to create SYN scanner if we have privileges
         let syn_scanner = if check_raw_socket_privileges() {
