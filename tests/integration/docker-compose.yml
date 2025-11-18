@@ -1,0 +1,129 @@
+version: '3.8'
+
+services:
+  # HTTP Server (nginx)
+  http-server:
+    image: nginx:1.24-alpine
+    container_name: rmap-test-http
+    ports:
+      - "8080:80"
+    volumes:
+      - ./fixtures/http/index.html:/usr/share/nginx/html/index.html:ro
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost"]
+      interval: 5s
+      timeout: 3s
+      retries: 3
+
+  # SSH Server (OpenSSH)
+  ssh-server:
+    image: linuxserver/openssh-server:latest
+    container_name: rmap-test-ssh
+    ports:
+      - "2222:2222"
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=UTC
+      - PUBLIC_KEY=test-key
+      - SUDO_ACCESS=false
+      - PASSWORD_ACCESS=true
+      - USER_PASSWORD=testpass123
+      - USER_NAME=testuser
+    healthcheck:
+      test: ["CMD", "nc", "-z", "localhost", "2222"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  # FTP Server (vsftpd)
+  ftp-server:
+    image: fauria/vsftpd:latest
+    container_name: rmap-test-ftp
+    ports:
+      - "21:21"
+      - "21100-21110:21100-21110"
+    environment:
+      - FTP_USER=testuser
+      - FTP_PASS=testpass123
+      - PASV_ADDRESS=127.0.0.1
+      - PASV_MIN_PORT=21100
+      - PASV_MAX_PORT=21110
+    healthcheck:
+      test: ["CMD", "nc", "-z", "localhost", "21"]
+      interval: 5s
+      timeout: 3s
+      retries: 3
+
+  # MySQL Database
+  mysql-server:
+    image: mysql:8.0
+    container_name: rmap-test-mysql
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=rootpass123
+      - MYSQL_DATABASE=testdb
+      - MYSQL_USER=testuser
+      - MYSQL_PASSWORD=testpass123
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-prootpass123"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  # Redis Server
+  redis-server:
+    image: redis:7-alpine
+    container_name: rmap-test-redis
+    ports:
+      - "6379:6379"
+    command: redis-server --requirepass testpass123
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "testpass123", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 3
+
+  # PostgreSQL Database
+  postgres-server:
+    image: postgres:15-alpine
+    container_name: rmap-test-postgres
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=testuser
+      - POSTGRES_PASSWORD=testpass123
+      - POSTGRES_DB=testdb
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U testuser"]
+      interval: 5s
+      timeout: 3s
+      retries: 3
+
+  # DNS Server (for UDP scanning tests)
+  dns-server:
+    image: coredns/coredns:latest
+    container_name: rmap-test-dns
+    ports:
+      - "53:53/udp"
+      - "53:53/tcp"
+    volumes:
+      - ./fixtures/dns/Corefile:/Corefile:ro
+    command: -conf /Corefile
+    healthcheck:
+      test: ["CMD", "nslookup", "test.local", "localhost"]
+      interval: 5s
+      timeout: 3s
+      retries: 3
+
+  # Closed Port Service (starts then stops - for testing closed ports)
+  closed-port-test:
+    image: alpine:latest
+    container_name: rmap-test-closed
+    command: sh -c "sleep 1"
+    restart: "no"
+
+networks:
+  default:
+    name: rmap-test-network

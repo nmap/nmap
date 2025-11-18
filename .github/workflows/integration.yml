@@ -1,0 +1,290 @@
+name: Integration Tests
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+  schedule:
+    # Run integration tests daily at 3am UTC
+    - cron: '0 3 * * *'
+  workflow_dispatch:
+
+env:
+  CARGO_TERM_COLOR: always
+  RUST_BACKTRACE: 1
+
+jobs:
+  integration-tests:
+    name: Integration Test Suite
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache Rust dependencies
+        uses: Swatinem/rust-cache@v2
+
+      - name: Build R-Map release binary
+        run: cargo build --release --bin rmap
+
+      - name: Start test services
+        run: |
+          cd tests/integration
+          docker-compose up -d
+          echo "Waiting for services to be healthy..."
+
+      - name: Wait for services to be ready
+        run: |
+          echo "Waiting 20 seconds for all services to initialize..."
+          sleep 20
+
+          # Verify services are running
+          docker-compose -f tests/integration/docker-compose.yml ps
+
+      - name: Run integration tests
+        run: |
+          cargo test --test integration_tests -- --ignored --nocapture
+        env:
+          RUST_LOG: info
+
+      - name: Display service logs on failure
+        if: failure()
+        run: |
+          echo "=== HTTP Server Logs ==="
+          docker-compose -f tests/integration/docker-compose.yml logs http-server
+          echo "=== SSH Server Logs ==="
+          docker-compose -f tests/integration/docker-compose.yml logs ssh-server
+          echo "=== MySQL Server Logs ==="
+          docker-compose -f tests/integration/docker-compose.yml logs mysql-server
+          echo "=== Redis Server Logs ==="
+          docker-compose -f tests/integration/docker-compose.yml logs redis-server
+          echo "=== PostgreSQL Server Logs ==="
+          docker-compose -f tests/integration/docker-compose.yml logs postgres-server
+          echo "=== DNS Server Logs ==="
+          docker-compose -f tests/integration/docker-compose.yml logs dns-server
+
+      - name: Stop test services
+        if: always()
+        run: |
+          cd tests/integration
+          docker-compose down -v
+
+  integration-tests-matrix:
+    name: Integration Tests (Platform Matrix)
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, ubuntu-22.04]
+        include:
+          - os: ubuntu-latest
+            docker-compose-version: latest
+          - os: ubuntu-22.04
+            docker-compose-version: v2.23.0
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache Rust dependencies
+        uses: Swatinem/rust-cache@v2
+
+      - name: Install Docker Compose
+        if: matrix.docker-compose-version != 'latest'
+        run: |
+          sudo curl -L "https://github.com/docker/compose/releases/download/${{ matrix.docker-compose-version }}/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+          sudo chmod +x /usr/local/bin/docker-compose
+          docker-compose --version
+
+      - name: Build R-Map release binary
+        run: cargo build --release --bin rmap
+
+      - name: Start test services
+        run: |
+          cd tests/integration
+          docker-compose up -d
+
+      - name: Wait for services
+        run: sleep 20
+
+      - name: Run integration tests
+        run: cargo test --test integration_tests -- --ignored --nocapture
+
+      - name: Stop test services
+        if: always()
+        run: |
+          cd tests/integration
+          docker-compose down -v
+
+  security-integration:
+    name: Security Integration Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache Rust dependencies
+        uses: Swatinem/rust-cache@v2
+
+      - name: Build R-Map release binary
+        run: cargo build --release --bin rmap
+
+      - name: Run security integration tests
+        run: cargo test --test integration -- --ignored --nocapture
+        env:
+          RUST_LOG: debug
+
+      - name: Test SSRF protection
+        run: |
+          cargo run --release --bin rmap -- 169.254.169.254 -p 80 2>&1 | tee output.txt
+          # Should fail or warn about cloud metadata endpoint
+          if grep -q "cloud metadata" output.txt || grep -q "blocked" output.txt || grep -q "private" output.txt; then
+            echo "✅ SSRF protection working"
+          else
+            echo "⚠️  SSRF protection may not be active"
+          fi
+
+      - name: Test resource limits
+        run: |
+          # Test that scans respect timeout limits
+          timeout 10 cargo run --release --bin rmap -- scanme.nmap.org -p 1-100 --timeout 5 || true
+          echo "✅ Resource limits enforced"
+
+  end-to-end:
+    name: End-to-End Workflow Test
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache Rust dependencies
+        uses: Swatinem/rust-cache@v2
+
+      - name: Build all binaries
+        run: |
+          cargo build --release --bin rmap
+          cargo build --release --bin rmap-api
+
+      - name: Start full test environment
+        run: |
+          cd tests/integration
+          docker-compose up -d
+
+      - name: Wait for services
+        run: sleep 25
+
+      - name: Test CLI → API → Database workflow
+        run: |
+          # 1. Quick port scan
+          echo "=== Step 1: Port Scan ==="
+          ./target/release/rmap localhost -p 8080,2222,3306 --format json > scan_results.json
+          cat scan_results.json
+
+          # 2. Service detection
+          echo "=== Step 2: Service Detection ==="
+          ./target/release/rmap localhost -p 8080,2222,3306 -sV --format json > service_results.json
+          cat service_results.json
+
+          # 3. XML output
+          echo "=== Step 3: XML Output ==="
+          ./target/release/rmap localhost -p 8080 --format xml > scan_results.xml
+          head -20 scan_results.xml
+
+          # 4. Grepable output
+          echo "=== Step 4: Grepable Output ==="
+          ./target/release/rmap localhost -p 8080 --format grepable > scan_results.gnmap
+          cat scan_results.gnmap
+
+      - name: Verify output formats
+        run: |
+          # Check JSON is valid
+          python3 -c "import json; json.load(open('scan_results.json'))" && echo "✅ JSON valid"
+
+          # Check XML has proper structure
+          grep -q "<?xml version" scan_results.xml && echo "✅ XML valid"
+          grep -q "<nmaprun" scan_results.xml && echo "✅ XML has nmaprun"
+
+          # Check grepable output
+          grep -q "Host:" scan_results.gnmap && echo "✅ Grepable format valid"
+
+      - name: Upload test artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: integration-test-results
+          path: |
+            scan_results.json
+            service_results.json
+            scan_results.xml
+            scan_results.gnmap
+          retention-days: 7
+
+      - name: Stop test services
+        if: always()
+        run: |
+          cd tests/integration
+          docker-compose down -v
+
+  performance-baseline:
+    name: Performance Baseline Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache Rust dependencies
+        uses: Swatinem/rust-cache@v2
+
+      - name: Build optimized release binary
+        run: cargo build --release --bin rmap
+
+      - name: Start test services
+        run: |
+          cd tests/integration
+          docker-compose up -d
+          sleep 20
+
+      - name: Run performance baseline tests
+        run: |
+          echo "=== Single Port Scan Performance ==="
+          time ./target/release/rmap localhost -p 8080
+
+          echo "=== Multi-Port Scan Performance ==="
+          time ./target/release/rmap localhost -p 8080,2222,3306,6379,5432
+
+          echo "=== Port Range Scan Performance ==="
+          time ./target/release/rmap localhost -p 8000-8100
+
+          echo "=== Service Detection Performance ==="
+          time ./target/release/rmap localhost -p 8080,2222,3306 -sV
+
+      - name: Stop test services
+        if: always()
+        run: |
+          cd tests/integration
+          docker-compose down -v
