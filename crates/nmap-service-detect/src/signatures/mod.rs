@@ -3,7 +3,12 @@ pub mod tier1_common;
 pub mod tier2_databases;
 pub mod tier2_webservers;
 pub mod tier2_mail;
+pub mod tier2_queues;
+pub mod tier2_monitoring;
 pub mod tier3_cloud;
+pub mod tier3_iot;
+pub mod tier3_vpn;
+pub mod tier3_specialized;
 
 use nmap_core::{NmapError, Result};
 use regex::Regex;
@@ -76,6 +81,8 @@ impl SignatureDatabase {
             tier2.extend(tier2_webservers::load_tier2_webserver_signatures());
             tier2.extend(tier2_databases::load_tier2_database_signatures());
             tier2.extend(tier2_mail::load_tier2_mail_signatures());
+            tier2.extend(tier2_queues::load_tier2_queue_signatures());
+            tier2.extend(tier2_monitoring::load_tier2_monitoring_signatures());
 
             tier2_signatures = tier2.clone();
             all_signatures.extend(tier2);
@@ -83,8 +90,14 @@ impl SignatureDatabase {
 
         // Load Tier 3: Cloud, enterprise, and specialized services
         if load_tier3 {
-            tier3_signatures = tier3_cloud::load_tier3_cloud_signatures();
-            all_signatures.extend(tier3_signatures.clone());
+            let mut tier3 = Vec::new();
+            tier3.extend(tier3_cloud::load_tier3_cloud_signatures());
+            tier3.extend(tier3_iot::load_tier3_iot_signatures());
+            tier3.extend(tier3_vpn::load_tier3_vpn_signatures());
+            tier3.extend(tier3_specialized::load_tier3_specialized_signatures());
+
+            tier3_signatures = tier3.clone();
+            all_signatures.extend(tier3);
         }
 
         // Load Tier 1: Common/generic services (checked last for fallback)

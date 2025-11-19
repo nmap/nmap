@@ -827,5 +827,951 @@ pub fn load_tier3_cloud_signatures() -> Vec<ServiceSignature> {
         protocol: "tcp".to_string(),
     });
 
+    // ========== KUBERNETES COMPONENTS ==========
+
+    // kubelet
+    signatures.push(ServiceSignature {
+        service_name: "kubelet".to_string(),
+        probe_name: "GetRequest".to_string(),
+        pattern: r"kubelet".to_string(),
+        version_info: Some(VersionInfo {
+            product: Some("Kubernetes kubelet".to_string()),
+            version: None,
+            info: Some("Node agent".to_string()),
+            hostname: None,
+            os_type: None,
+            device_type: None,
+            cpe: vec!["cpe:/a:kubernetes:kubernetes".to_string()],
+        }),
+        ports: vec![10250, 10255],
+        protocol: "tcp".to_string(),
+    });
+
+    // kube-proxy
+    signatures.push(ServiceSignature {
+        service_name: "kube-proxy".to_string(),
+        probe_name: "GetRequest".to_string(),
+        pattern: r"kube-proxy".to_string(),
+        version_info: Some(VersionInfo {
+            product: Some("Kubernetes kube-proxy".to_string()),
+            version: None,
+            info: Some("Network proxy".to_string()),
+            hostname: None,
+            os_type: None,
+            device_type: None,
+            cpe: vec!["cpe:/a:kubernetes:kubernetes".to_string()],
+        }),
+        ports: vec![10256],
+        protocol: "tcp".to_string(),
+    });
+
+    // kube-scheduler
+    signatures.push(ServiceSignature {
+        service_name: "kube-scheduler".to_string(),
+        probe_name: "GetRequest".to_string(),
+        pattern: r"kube-scheduler".to_string(),
+        version_info: Some(VersionInfo {
+            product: Some("Kubernetes scheduler".to_string()),
+            version: None,
+            info: Some("Pod scheduler".to_string()),
+            hostname: None,
+            os_type: None,
+            device_type: None,
+            cpe: vec!["cpe:/a:kubernetes:kubernetes".to_string()],
+        }),
+        ports: vec![10259],
+        protocol: "tcp".to_string(),
+    });
+
+    // kube-controller-manager
+    signatures.push(ServiceSignature {
+        service_name: "kube-controller-manager".to_string(),
+        probe_name: "GetRequest".to_string(),
+        pattern: r"kube-controller-manager".to_string(),
+        version_info: Some(VersionInfo {
+            product: Some("Kubernetes controller manager".to_string()),
+            version: None,
+            info: Some("Control plane component".to_string()),
+            hostname: None,
+            os_type: None,
+            device_type: None,
+            cpe: vec!["cpe:/a:kubernetes:kubernetes".to_string()],
+        }),
+        ports: vec![10257],
+        protocol: "tcp".to_string(),
+    });
+
+    // ========== KUBERNETES INGRESS CONTROLLERS ==========
+
+    // NGINX Ingress Controller
+    signatures.push(ServiceSignature {
+        service_name: "nginx-ingress".to_string(),
+        probe_name: "GetRequest".to_string(),
+        pattern: r"nginx-ingress-controller".to_string(),
+        version_info: Some(VersionInfo {
+            product: Some("NGINX Ingress Controller".to_string()),
+            version: None,
+            info: Some("Kubernetes ingress".to_string()),
+            hostname: None,
+            os_type: None,
+            device_type: None,
+            cpe: vec!["cpe:/a:nginx:ingress_controller".to_string()],
+        }),
+        ports: vec![80, 443, 10254],
+        protocol: "tcp".to_string(),
+    });
+
+    // Traefik Ingress
+    signatures.push(ServiceSignature {
+        service_name: "traefik-ingress".to_string(),
+        probe_name: "GetRequest".to_string(),
+        pattern: r"Traefik.*kubernetes".to_string(),
+        version_info: Some(VersionInfo {
+            product: Some("Traefik Ingress Controller".to_string()),
+            version: None,
+            info: Some("Cloud-native ingress".to_string()),
+            hostname: None,
+            os_type: None,
+            device_type: None,
+            cpe: vec!["cpe:/a:traefik:traefik".to_string()],
+        }),
+        ports: vec![80, 443, 9000],
+        protocol: "tcp".to_string(),
+    });
+
+    // HAProxy Ingress
+    signatures.push(ServiceSignature {
+        service_name: "haproxy-ingress".to_string(),
+        probe_name: "GetRequest".to_string(),
+        pattern: r"haproxy-ingress".to_string(),
+        version_info: Some(VersionInfo {
+            product: Some("HAProxy Ingress Controller".to_string()),
+            version: None,
+            info: Some("Kubernetes ingress".to_string()),
+            hostname: None,
+            os_type: None,
+            device_type: None,
+            cpe: vec!["cpe:/a:haproxy:ingress".to_string()],
+        }),
+        ports: vec![80, 443, 1024],
+        protocol: "tcp".to_string(),
+    });
+
+    // Contour Ingress
+    signatures.push(ServiceSignature {
+        service_name: "contour-ingress".to_string(),
+        probe_name: "GetRequest".to_string(),
+        pattern: r"contour".to_string(),
+        version_info: Some(VersionInfo {
+            product: Some("Contour Ingress Controller".to_string()),
+            version: None,
+            info: Some("Envoy-based ingress".to_string()),
+            hostname: None,
+            os_type: None,
+            device_type: None,
+            cpe: vec!["cpe:/a:vmware:contour".to_string()],
+        }),
+        ports: vec![8000, 8001],
+        protocol: "tcp".to_string(),
+    });
+
+    // ========== SERVICE MESHES ==========
+
+    // Istio Pilot
+    signatures.push(ServiceSignature {
+        service_name: "istio-pilot".to_string(),
+        probe_name: "GetRequest".to_string(),
+        pattern: r"istio.*pilot".to_string(),
+        version_info: Some(VersionInfo {
+            product: Some("Istio Pilot".to_string()),
+            version: None,
+            info: Some("Service mesh control plane".to_string()),
+            hostname: None,
+            os_type: None,
+            device_type: None,
+            cpe: vec!["cpe:/a:istio:istio".to_string()],
+        }),
+        ports: vec![15010, 15011, 15012],
+        protocol: "tcp".to_string(),
+    });
+
+    // Istio Envoy Proxy
+    signatures.push(ServiceSignature {
+        service_name: "istio-proxy".to_string(),
+        probe_name: "GetRequest".to_string(),
+        pattern: r"envoy.*istio".to_string(),
+        version_info: Some(VersionInfo {
+            product: Some("Istio Envoy Proxy".to_string()),
+            version: None,
+            info: Some("Service mesh sidecar".to_string()),
+            hostname: None,
+            os_type: None,
+            device_type: None,
+            cpe: vec!["cpe:/a:istio:istio".to_string()],
+        }),
+        ports: vec![15001, 15006, 15020, 15021, 15090],
+        protocol: "tcp".to_string(),
+    });
+
+    // Linkerd Proxy
+    signatures.push(ServiceSignature {
+        service_name: "linkerd-proxy".to_string(),
+        probe_name: "GetRequest".to_string(),
+        pattern: r"linkerd".to_string(),
+        version_info: Some(VersionInfo {
+            product: Some("Linkerd Proxy".to_string()),
+            version: None,
+            info: Some("Service mesh for Kubernetes".to_string()),
+            hostname: None,
+            os_type: None,
+            device_type: None,
+            cpe: vec!["cpe:/a:linkerd:linkerd".to_string()],
+        }),
+        ports: vec![4140, 4143, 4191],
+        protocol: "tcp".to_string(),
+    });
+
+    // Consul Connect
+    signatures.push(ServiceSignature {
+        service_name: "consul-connect".to_string(),
+        probe_name: "GetRequest".to_string(),
+        pattern: r"consul.*connect".to_string(),
+        version_info: Some(VersionInfo {
+            product: Some("Consul Connect".to_string()),
+            version: None,
+            info: Some("Service mesh solution".to_string()),
+            hostname: None,
+            os_type: None,
+            device_type: None,
+            cpe: vec!["cpe:/a:hashicorp:consul".to_string()],
+        }),
+        ports: vec![8500, 8501, 8502],
+        protocol: "tcp".to_string(),
+    });
+
+    // Kuma Control Plane
+    signatures.push(ServiceSignature {
+        service_name: "kuma-cp".to_string(),
+        probe_name: "GetRequest".to_string(),
+        pattern: r"kuma".to_string(),
+        version_info: Some(VersionInfo {
+            product: Some("Kuma Control Plane".to_string()),
+            version: None,
+            info: Some("Universal service mesh".to_string()),
+            hostname: None,
+            os_type: None,
+            device_type: None,
+            cpe: vec!["cpe:/a:kong:kuma".to_string()],
+        }),
+        ports: vec![5681],
+        protocol: "tcp".to_string(),
+    });
+
+    // ========== DOCKER ECOSYSTEM ==========
+
+    // Docker Swarm Manager
+    signatures.push(ServiceSignature {
+        service_name: "docker-swarm".to_string(),
+        probe_name: "GetRequest".to_string(),
+        pattern: r"swarm".to_string(),
+        version_info: Some(VersionInfo {
+            product: Some("Docker Swarm".to_string()),
+            version: None,
+            info: Some("Container orchestration".to_string()),
+            hostname: None,
+            os_type: None,
+            device_type: None,
+            cpe: vec!["cpe:/a:docker:swarm".to_string()],
+        }),
+        ports: vec![2377],
+        protocol: "tcp".to_string(),
+    });
+
+    // Docker Registry
+    signatures.push(ServiceSignature {
+        service_name: "docker-registry".to_string(),
+        probe_name: "GetRequest".to_string(),
+        pattern: r#""name":"docker-registry""#.to_string(),
+        version_info: Some(VersionInfo {
+            product: Some("Docker Registry".to_string()),
+            version: None,
+            info: Some("Container image registry".to_string()),
+            hostname: None,
+            os_type: None,
+            device_type: None,
+            cpe: vec!["cpe:/a:docker:registry".to_string()],
+        }),
+        ports: vec![5000],
+        protocol: "tcp".to_string(),
+    });
+
+    // Docker Notary
+    signatures.push(ServiceSignature {
+        service_name: "docker-notary".to_string(),
+        probe_name: "GetRequest".to_string(),
+        pattern: r"notary".to_string(),
+        version_info: Some(VersionInfo {
+            product: Some("Docker Notary".to_string()),
+            version: None,
+            info: Some("Content trust for Docker".to_string()),
+            hostname: None,
+            os_type: None,
+            device_type: None,
+            cpe: vec!["cpe:/a:docker:notary".to_string()],
+        }),
+        ports: vec![4443],
+        protocol: "tcp".to_string(),
+    });
+
+    // Portainer
+    signatures.push(ServiceSignature {
+        service_name: "portainer".to_string(),
+        probe_name: "GetRequest".to_string(),
+        pattern: r"Portainer".to_string(),
+        version_info: Some(VersionInfo {
+            product: Some("Portainer".to_string()),
+            version: None,
+            info: Some("Container management UI".to_string()),
+            hostname: None,
+            os_type: None,
+            device_type: None,
+            cpe: vec!["cpe:/a:portainer:portainer".to_string()],
+        }),
+        ports: vec![9000, 9443],
+        protocol: "tcp".to_string(),
+    });
+
+    // ========== CONTAINER RUNTIMES ==========
+
+    // containerd
+    signatures.push(ServiceSignature {
+        service_name: "containerd".to_string(),
+        probe_name: "GetRequest".to_string(),
+        pattern: r"containerd".to_string(),
+        version_info: Some(VersionInfo {
+            product: Some("containerd".to_string()),
+            version: None,
+            info: Some("Container runtime".to_string()),
+            hostname: None,
+            os_type: None,
+            device_type: None,
+            cpe: vec!["cpe:/a:containerd:containerd".to_string()],
+        }),
+        ports: vec![],
+        protocol: "tcp".to_string(),
+    });
+
+    // CRI-O
+    signatures.push(ServiceSignature {
+        service_name: "crio".to_string(),
+        probe_name: "GetRequest".to_string(),
+        pattern: r"cri-o".to_string(),
+        version_info: Some(VersionInfo {
+            product: Some("CRI-O".to_string()),
+            version: None,
+            info: Some("Kubernetes container runtime".to_string()),
+            hostname: None,
+            os_type: None,
+            device_type: None,
+            cpe: vec!["cpe:/a:cri-o:cri-o".to_string()],
+        }),
+        ports: vec![],
+        protocol: "tcp".to_string(),
+    });
+
+    // ========== CLOUD-NATIVE PLATFORMS ==========
+
+    // Rancher
+    signatures.push(ServiceSignature {
+        service_name: "rancher".to_string(),
+        probe_name: "GetRequest".to_string(),
+        pattern: r"Rancher.*([0-9]+\.[0-9]+\.[0-9]+)".to_string(),
+        version_info: Some(VersionInfo {
+            product: Some("Rancher".to_string()),
+            version: Some("$1".to_string()),
+            info: Some("Kubernetes management platform".to_string()),
+            hostname: None,
+            os_type: None,
+            device_type: None,
+            cpe: vec!["cpe:/a:rancher:rancher:$1".to_string()],
+        }),
+        ports: vec![80, 443],
+        protocol: "tcp".to_string(),
+    });
+
+    // OpenShift API
+    signatures.push(ServiceSignature {
+        service_name: "openshift".to_string(),
+        probe_name: "GetRequest".to_string(),
+        pattern: r"OpenShift".to_string(),
+        version_info: Some(VersionInfo {
+            product: Some("Red Hat OpenShift".to_string()),
+            version: None,
+            info: Some("Kubernetes platform".to_string()),
+            hostname: None,
+            os_type: None,
+            device_type: None,
+            cpe: vec!["cpe:/a:redhat:openshift".to_string()],
+        }),
+        ports: vec![6443, 8443],
+        protocol: "tcp".to_string(),
+    });
+
+    // Nomad
+    signatures.push(ServiceSignature {
+        service_name: "nomad".to_string(),
+        probe_name: "GetRequest".to_string(),
+        pattern: r"Nomad.*([0-9]+\.[0-9]+\.[0-9]+)".to_string(),
+        version_info: Some(VersionInfo {
+            product: Some("HashiCorp Nomad".to_string()),
+            version: Some("$1".to_string()),
+            info: Some("Workload orchestrator".to_string()),
+            hostname: None,
+            os_type: None,
+            device_type: None,
+            cpe: vec!["cpe:/a:hashicorp:nomad:$1".to_string()],
+        }),
+        ports: vec![4646, 4647, 4648],
+        protocol: "tcp".to_string(),
+    });
+
+    // Vault
+    signatures.push(ServiceSignature {
+        service_name: "vault".to_string(),
+        probe_name: "GetRequest".to_string(),
+        pattern: r#""version":"([0-9.]+)".*vault"#.to_string(),
+        version_info: Some(VersionInfo {
+            product: Some("HashiCorp Vault".to_string()),
+            version: Some("$1".to_string()),
+            info: Some("Secrets management".to_string()),
+            hostname: None,
+            os_type: None,
+            device_type: None,
+            cpe: vec!["cpe:/a:hashicorp:vault:$1".to_string()],
+        }),
+        ports: vec![8200, 8201],
+        protocol: "tcp".to_string(),
+    });
+
+    // ========== GITOPS & CI/CD ==========
+
+    // ArgoCD Server
+    signatures.push(ServiceSignature {
+        service_name: "argocd".to_string(),
+        probe_name: "GetRequest".to_string(),
+        pattern: r"argocd".to_string(),
+        version_info: Some(VersionInfo {
+            product: Some("Argo CD".to_string()),
+            version: None,
+            info: Some("GitOps continuous delivery".to_string()),
+            hostname: None,
+            os_type: None,
+            device_type: None,
+            cpe: vec!["cpe:/a:argoproj:argo_cd".to_string()],
+        }),
+        ports: vec![8080, 8083],
+        protocol: "tcp".to_string(),
+    });
+
+    // Flux
+    signatures.push(ServiceSignature {
+        service_name: "flux".to_string(),
+        probe_name: "GetRequest".to_string(),
+        pattern: r"flux".to_string(),
+        version_info: Some(VersionInfo {
+            product: Some("Flux".to_string()),
+            version: None,
+            info: Some("GitOps toolkit for Kubernetes".to_string()),
+            hostname: None,
+            os_type: None,
+            device_type: None,
+            cpe: vec!["cpe:/a:fluxcd:flux".to_string()],
+        }),
+        ports: vec![],
+        protocol: "tcp".to_string(),
+    });
+
+    // Tekton Dashboard
+    signatures.push(ServiceSignature {
+        service_name: "tekton-dashboard".to_string(),
+        probe_name: "GetRequest".to_string(),
+        pattern: r"Tekton".to_string(),
+        version_info: Some(VersionInfo {
+            product: Some("Tekton Dashboard".to_string()),
+            version: None,
+            info: Some("Kubernetes-native CI/CD".to_string()),
+            hostname: None,
+            os_type: None,
+            device_type: None,
+            cpe: vec!["cpe:/a:tekton:tekton".to_string()],
+        }),
+        ports: vec![9097],
+        protocol: "tcp".to_string(),
+    });
+
+    // Spinnaker
+    signatures.push(ServiceSignature {
+        service_name: "spinnaker".to_string(),
+        probe_name: "GetRequest".to_string(),
+        pattern: r"Spinnaker".to_string(),
+        version_info: Some(VersionInfo {
+            product: Some("Spinnaker".to_string()),
+            version: None,
+            info: Some("Multi-cloud continuous delivery".to_string()),
+            hostname: None,
+            os_type: None,
+            device_type: None,
+            cpe: vec!["cpe:/a:spinnaker:spinnaker".to_string()],
+        }),
+        ports: vec![9000, 8084],
+        protocol: "tcp".to_string(),
+    });
+
+    // ========== AWS SERVICES (LOCAL/EMULATOR) ==========
+
+    // LocalStack
+    signatures.push(ServiceSignature {
+        service_name: "localstack".to_string(),
+        probe_name: "GetRequest".to_string(),
+        pattern: r"LocalStack.*([0-9]+\.[0-9]+\.[0-9]+)".to_string(),
+        version_info: Some(VersionInfo {
+            product: Some("LocalStack".to_string()),
+            version: Some("$1".to_string()),
+            info: Some("AWS cloud emulator".to_string()),
+            hostname: None,
+            os_type: None,
+            device_type: None,
+            cpe: vec!["cpe:/a:localstack:localstack:$1".to_string()],
+        }),
+        ports: vec![4566],
+        protocol: "tcp".to_string(),
+    });
+
+    // MinIO (S3-compatible)
+    signatures.push(ServiceSignature {
+        service_name: "minio".to_string(),
+        probe_name: "GetRequest".to_string(),
+        pattern: r"MinIO.*([0-9]{4}-[0-9]{2}-[0-9]{2})".to_string(),
+        version_info: Some(VersionInfo {
+            product: Some("MinIO".to_string()),
+            version: Some("$1".to_string()),
+            info: Some("S3-compatible object storage".to_string()),
+            hostname: None,
+            os_type: None,
+            device_type: None,
+            cpe: vec!["cpe:/a:minio:minio:$1".to_string()],
+        }),
+        ports: vec![9000, 9001],
+        protocol: "tcp".to_string(),
+    });
+
+    // AWS S3 LocalStack
+    signatures.push(ServiceSignature {
+        service_name: "localstack-s3".to_string(),
+        probe_name: "GetRequest".to_string(),
+        pattern: r"AmazonS3.*LocalStack".to_string(),
+        version_info: Some(VersionInfo {
+            product: Some("LocalStack S3".to_string()),
+            version: None,
+            info: Some("S3 emulator".to_string()),
+            hostname: None,
+            os_type: None,
+            device_type: None,
+            cpe: vec!["cpe:/a:localstack:localstack".to_string()],
+        }),
+        ports: vec![4566],
+        protocol: "tcp".to_string(),
+    });
+
+    // AWS Lambda LocalStack
+    signatures.push(ServiceSignature {
+        service_name: "localstack-lambda".to_string(),
+        probe_name: "GetRequest".to_string(),
+        pattern: r"Lambda.*LocalStack".to_string(),
+        version_info: Some(VersionInfo {
+            product: Some("LocalStack Lambda".to_string()),
+            version: None,
+            info: Some("Lambda emulator".to_string()),
+            hostname: None,
+            os_type: None,
+            device_type: None,
+            cpe: vec!["cpe:/a:localstack:localstack".to_string()],
+        }),
+        ports: vec![4566],
+        protocol: "tcp".to_string(),
+    });
+
+    // ========== AZURE SERVICES (EMULATOR) ==========
+
+    // Azurite (Azure Storage emulator)
+    signatures.push(ServiceSignature {
+        service_name: "azurite".to_string(),
+        probe_name: "GetRequest".to_string(),
+        pattern: r"Azurite.*([0-9]+\.[0-9]+\.[0-9]+)".to_string(),
+        version_info: Some(VersionInfo {
+            product: Some("Azurite".to_string()),
+            version: Some("$1".to_string()),
+            info: Some("Azure Storage emulator".to_string()),
+            hostname: None,
+            os_type: None,
+            device_type: None,
+            cpe: vec!["cpe:/a:microsoft:azurite:$1".to_string()],
+        }),
+        ports: vec![10000, 10001, 10002],
+        protocol: "tcp".to_string(),
+    });
+
+    // ========== GCP SERVICES (EMULATOR) ==========
+
+    // Cloud Bigtable Emulator
+    signatures.push(ServiceSignature {
+        service_name: "bigtable-emulator".to_string(),
+        probe_name: "GetRequest".to_string(),
+        pattern: r"Cloud Bigtable Emulator".to_string(),
+        version_info: Some(VersionInfo {
+            product: Some("Google Cloud Bigtable Emulator".to_string()),
+            version: None,
+            info: Some("Bigtable local testing".to_string()),
+            hostname: None,
+            os_type: None,
+            device_type: None,
+            cpe: vec!["cpe:/a:google:cloud_bigtable".to_string()],
+        }),
+        ports: vec![8086],
+        protocol: "tcp".to_string(),
+    });
+
+    // Cloud Datastore Emulator
+    signatures.push(ServiceSignature {
+        service_name: "datastore-emulator".to_string(),
+        probe_name: "GetRequest".to_string(),
+        pattern: r"Cloud Datastore Emulator".to_string(),
+        version_info: Some(VersionInfo {
+            product: Some("Google Cloud Datastore Emulator".to_string()),
+            version: None,
+            info: Some("Datastore local testing".to_string()),
+            hostname: None,
+            os_type: None,
+            device_type: None,
+            cpe: vec!["cpe:/a:google:cloud_datastore".to_string()],
+        }),
+        ports: vec![8081],
+        protocol: "tcp".to_string(),
+    });
+
+    // ========== API GATEWAYS ==========
+
+    // Kong Gateway
+    signatures.push(ServiceSignature {
+        service_name: "kong".to_string(),
+        probe_name: "GetRequest".to_string(),
+        pattern: r#""version":"([0-9.]+)".*kong"#.to_string(),
+        version_info: Some(VersionInfo {
+            product: Some("Kong API Gateway".to_string()),
+            version: Some("$1".to_string()),
+            info: Some("Cloud-native API gateway".to_string()),
+            hostname: None,
+            os_type: None,
+            device_type: None,
+            cpe: vec!["cpe:/a:konghq:kong:$1".to_string()],
+        }),
+        ports: vec![8000, 8001, 8443, 8444],
+        protocol: "tcp".to_string(),
+    });
+
+    // Tyk Gateway
+    signatures.push(ServiceSignature {
+        service_name: "tyk".to_string(),
+        probe_name: "GetRequest".to_string(),
+        pattern: r"Tyk".to_string(),
+        version_info: Some(VersionInfo {
+            product: Some("Tyk API Gateway".to_string()),
+            version: None,
+            info: Some("API management platform".to_string()),
+            hostname: None,
+            os_type: None,
+            device_type: None,
+            cpe: vec!["cpe:/a:tyk:tyk".to_string()],
+        }),
+        ports: vec![8080],
+        protocol: "tcp".to_string(),
+    });
+
+    // API Gateway (AWS compatible)
+    signatures.push(ServiceSignature {
+        service_name: "aws-api-gateway".to_string(),
+        probe_name: "GetRequest".to_string(),
+        pattern: r"x-amzn-RequestId.*execute-api".to_string(),
+        version_info: Some(VersionInfo {
+            product: Some("AWS API Gateway".to_string()),
+            version: None,
+            info: Some("Managed API service".to_string()),
+            hostname: None,
+            os_type: None,
+            device_type: None,
+            cpe: vec!["cpe:/a:amazon:api_gateway".to_string()],
+        }),
+        ports: vec![443],
+        protocol: "tcp".to_string(),
+    });
+
+    // KrakenD
+    signatures.push(ServiceSignature {
+        service_name: "krakend".to_string(),
+        probe_name: "GetRequest".to_string(),
+        pattern: r"KrakenD".to_string(),
+        version_info: Some(VersionInfo {
+            product: Some("KrakenD".to_string()),
+            version: None,
+            info: Some("API gateway and aggregator".to_string()),
+            hostname: None,
+            os_type: None,
+            device_type: None,
+            cpe: vec!["cpe:/a:krakend:krakend".to_string()],
+        }),
+        ports: vec![8080],
+        protocol: "tcp".to_string(),
+    });
+
+    // ========== SERVERLESS PLATFORMS ==========
+
+    // OpenFaaS Gateway
+    signatures.push(ServiceSignature {
+        service_name: "openfaas".to_string(),
+        probe_name: "GetRequest".to_string(),
+        pattern: r"openfaas".to_string(),
+        version_info: Some(VersionInfo {
+            product: Some("OpenFaaS Gateway".to_string()),
+            version: None,
+            info: Some("Serverless functions platform".to_string()),
+            hostname: None,
+            os_type: None,
+            device_type: None,
+            cpe: vec!["cpe:/a:openfaas:openfaas".to_string()],
+        }),
+        ports: vec![8080],
+        protocol: "tcp".to_string(),
+    });
+
+    // Knative Serving
+    signatures.push(ServiceSignature {
+        service_name: "knative-serving".to_string(),
+        probe_name: "GetRequest".to_string(),
+        pattern: r"knative".to_string(),
+        version_info: Some(VersionInfo {
+            product: Some("Knative Serving".to_string()),
+            version: None,
+            info: Some("Kubernetes-based serverless".to_string()),
+            hostname: None,
+            os_type: None,
+            device_type: None,
+            cpe: vec!["cpe:/a:knative:knative".to_string()],
+        }),
+        ports: vec![8080],
+        protocol: "tcp".to_string(),
+    });
+
+    // Fission
+    signatures.push(ServiceSignature {
+        service_name: "fission".to_string(),
+        probe_name: "GetRequest".to_string(),
+        pattern: r"fission".to_string(),
+        version_info: Some(VersionInfo {
+            product: Some("Fission".to_string()),
+            version: None,
+            info: Some("Serverless framework for Kubernetes".to_string()),
+            hostname: None,
+            os_type: None,
+            device_type: None,
+            cpe: vec!["cpe:/a:fission:fission".to_string()],
+        }),
+        ports: vec![8888],
+        protocol: "tcp".to_string(),
+    });
+
+    // Kubeless
+    signatures.push(ServiceSignature {
+        service_name: "kubeless".to_string(),
+        probe_name: "GetRequest".to_string(),
+        pattern: r"kubeless".to_string(),
+        version_info: Some(VersionInfo {
+            product: Some("Kubeless".to_string()),
+            version: None,
+            info: Some("Kubernetes-native serverless framework".to_string()),
+            hostname: None,
+            os_type: None,
+            device_type: None,
+            cpe: vec!["cpe:/a:kubeless:kubeless".to_string()],
+        }),
+        ports: vec![8080],
+        protocol: "tcp".to_string(),
+    });
+
+    // ========== CLOUD STORAGE ==========
+
+    // Ceph RADOS Gateway
+    signatures.push(ServiceSignature {
+        service_name: "ceph-radosgw".to_string(),
+        probe_name: "GetRequest".to_string(),
+        pattern: r"ceph.*rgw".to_string(),
+        version_info: Some(VersionInfo {
+            product: Some("Ceph RADOS Gateway".to_string()),
+            version: None,
+            info: Some("Object storage interface".to_string()),
+            hostname: None,
+            os_type: None,
+            device_type: None,
+            cpe: vec!["cpe:/a:redhat:ceph".to_string()],
+        }),
+        ports: vec![7480, 8080],
+        protocol: "tcp".to_string(),
+    });
+
+    // Ceph Manager
+    signatures.push(ServiceSignature {
+        service_name: "ceph-mgr".to_string(),
+        probe_name: "GetRequest".to_string(),
+        pattern: r"ceph.*manager".to_string(),
+        version_info: Some(VersionInfo {
+            product: Some("Ceph Manager".to_string()),
+            version: None,
+            info: Some("Ceph cluster management".to_string()),
+            hostname: None,
+            os_type: None,
+            device_type: None,
+            cpe: vec!["cpe:/a:redhat:ceph".to_string()],
+        }),
+        ports: vec![7000, 9283],
+        protocol: "tcp".to_string(),
+    });
+
+    // GlusterFS
+    signatures.push(ServiceSignature {
+        service_name: "glusterfs".to_string(),
+        probe_name: "GlusterFS".to_string(),
+        pattern: r"GlusterFS".to_string(),
+        version_info: Some(VersionInfo {
+            product: Some("GlusterFS".to_string()),
+            version: None,
+            info: Some("Distributed file system".to_string()),
+            hostname: None,
+            os_type: None,
+            device_type: None,
+            cpe: vec!["cpe:/a:gluster:glusterfs".to_string()],
+        }),
+        ports: vec![24007, 24008],
+        protocol: "tcp".to_string(),
+    });
+
+    // Rook Ceph Operator
+    signatures.push(ServiceSignature {
+        service_name: "rook-ceph".to_string(),
+        probe_name: "GetRequest".to_string(),
+        pattern: r"rook.*ceph".to_string(),
+        version_info: Some(VersionInfo {
+            product: Some("Rook Ceph Operator".to_string()),
+            version: None,
+            info: Some("Ceph on Kubernetes".to_string()),
+            hostname: None,
+            os_type: None,
+            device_type: None,
+            cpe: vec!["cpe:/a:rook:rook".to_string()],
+        }),
+        ports: vec![],
+        protocol: "tcp".to_string(),
+    });
+
+    // Longhorn
+    signatures.push(ServiceSignature {
+        service_name: "longhorn".to_string(),
+        probe_name: "GetRequest".to_string(),
+        pattern: r"Longhorn".to_string(),
+        version_info: Some(VersionInfo {
+            product: Some("Longhorn".to_string()),
+            version: None,
+            info: Some("Cloud-native distributed block storage".to_string()),
+            hostname: None,
+            os_type: None,
+            device_type: None,
+            cpe: vec!["cpe:/a:rancher:longhorn".to_string()],
+        }),
+        ports: vec![9500],
+        protocol: "tcp".to_string(),
+    });
+
+    // ========== CERTIFICATE MANAGEMENT ==========
+
+    // cert-manager
+    signatures.push(ServiceSignature {
+        service_name: "cert-manager".to_string(),
+        probe_name: "GetRequest".to_string(),
+        pattern: r"cert-manager".to_string(),
+        version_info: Some(VersionInfo {
+            product: Some("cert-manager".to_string()),
+            version: None,
+            info: Some("X.509 certificate management for Kubernetes".to_string()),
+            hostname: None,
+            os_type: None,
+            device_type: None,
+            cpe: vec!["cpe:/a:jetstack:cert_manager".to_string()],
+        }),
+        ports: vec![9402],
+        protocol: "tcp".to_string(),
+    });
+
+    // Let's Encrypt Boulder
+    signatures.push(ServiceSignature {
+        service_name: "boulder".to_string(),
+        probe_name: "GetRequest".to_string(),
+        pattern: r"Boulder".to_string(),
+        version_info: Some(VersionInfo {
+            product: Some("Let's Encrypt Boulder".to_string()),
+            version: None,
+            info: Some("ACME CA implementation".to_string()),
+            hostname: None,
+            os_type: None,
+            device_type: None,
+            cpe: vec!["cpe:/a:letsencrypt:boulder".to_string()],
+        }),
+        ports: vec![4001],
+        protocol: "tcp".to_string(),
+    });
+
+    // External Secrets Operator
+    signatures.push(ServiceSignature {
+        service_name: "external-secrets".to_string(),
+        probe_name: "GetRequest".to_string(),
+        pattern: r"external-secrets".to_string(),
+        version_info: Some(VersionInfo {
+            product: Some("External Secrets Operator".to_string()),
+            version: None,
+            info: Some("Kubernetes secrets management".to_string()),
+            hostname: None,
+            os_type: None,
+            device_type: None,
+            cpe: vec!["cpe:/a:external_secrets:operator".to_string()],
+        }),
+        ports: vec![],
+        protocol: "tcp".to_string(),
+    });
+
+    // Sealed Secrets Controller
+    signatures.push(ServiceSignature {
+        service_name: "sealed-secrets".to_string(),
+        probe_name: "GetRequest".to_string(),
+        pattern: r"sealed-secrets".to_string(),
+        version_info: Some(VersionInfo {
+            product: Some("Sealed Secrets Controller".to_string()),
+            version: None,
+            info: Some("Encrypted Kubernetes secrets".to_string()),
+            hostname: None,
+            os_type: None,
+            device_type: None,
+            cpe: vec!["cpe:/a:bitnami:sealed_secrets".to_string()],
+        }),
+        ports: vec![8080],
+        protocol: "tcp".to_string(),
+    });
+
     signatures
 }

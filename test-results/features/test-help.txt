@@ -1,0 +1,149 @@
+R-Map is a modern, memory-safe network mapper written in Rust
+
+Use plain English commands like:
+  rmap --quick-scan example.com
+  rmap --stealth-scan --all-ports 192.168.1.1
+  rmap --grab-banners --fingerprint-os scanme.nmap.org
+
+Usage: rmap [OPTIONS] [TARGETS]...
+
+Arguments:
+  [TARGETS]...
+          Target hosts or networks to scan
+
+Options:
+  -s, --scan <TYPE>
+          Scan type (connect, syn, udp, ping, ack, fin, null, xmas)
+          
+          [possible values: connect, syn, udp, ping, ack, fin, null, xmas]
+
+      --stealth-scan
+          SYN stealth scan (requires root, same as -sS)
+
+      --tcp-scan
+          TCP connect scan (same as -sT, no root required)
+
+      --udp-scan
+          UDP port scan (same as -sU)
+
+      --firewall-test
+          ACK scan for firewall testing (same as -sA)
+
+      --ack-scan
+          ACK scan for firewall mapping (same as -sA)
+
+      --fin-scan
+          FIN scan (stealthy, same as -sF)
+
+      --null-scan
+          NULL scan (all flags off, same as -sN)
+
+      --xmas-scan
+          Xmas scan (FIN+PSH+URG flags, same as -sX)
+
+      --only-ping
+          Only check if hosts are up (no port scan, same as -sn)
+
+      --quick-scan
+          Quick scan: Top 100 TCP ports, T4 timing, no service detection
+
+      --thorough-scan
+          Thorough scan: All ports, service detection, OS detection, slower but comprehensive
+
+  -A, --aggressive-scan
+          Aggressive scan: Fast scan with service detection, OS detection, scripts (same as nmap -A)
+
+      --security-audit
+          Full security audit: All scan types, service detection, OS detection, vulnerability checks
+
+      --web-scan
+          Web application scan: Focus on web ports (80, 443, 8080, 8443) with service detection
+
+      --database-scan
+          Database scan: Focus on database ports (3306, 5432, 1433, 27017, 6379) with service detection
+
+  -p, --ports <PORT_SPEC>
+          Port specification (e.g., 22,80,443 or 1-1000)
+
+  -F, --fast
+          Fast mode - scan top 100 ports
+
+      --all-ports
+          Scan all 65535 ports (same as -p-)
+
+  -V, --service-detect
+          Enable service version detection (same as -sV)
+
+  -O, --os-detect
+          Enable OS detection and fingerprinting
+
+  -P, --skip-ping
+          Skip host discovery (treat all hosts as online, same as -Pn)
+
+  -n, --no-dns
+          Never do reverse DNS resolution
+
+  -T, --timing <TIMING>
+          Timing template: paranoid, sneaky, polite, normal, aggressive, insane (or 0-5)
+          
+          [possible values: 0, 1, 2, 3, 4, 5, paranoid, sneaky, polite, normal, aggressive, insane]
+
+      --scan-fast
+          Use aggressive timing (T4)
+
+      --timing-paranoid
+          Use paranoid timing (T0) - very slow, IDS evasion
+
+      --timing-polite
+          Use polite timing (T2) - slow, less bandwidth
+
+      --timing-aggressive
+          Use aggressive timing (T4) - fast scan
+
+  -o, --output <FORMAT>
+          Output format (normal, xml, json, markdown, grepable)
+          
+          [default: normal]
+          [possible values: normal, xml, json, markdown, grepable]
+
+  -f, --file <FILE>
+          Save output to file
+
+      --output-json <FILE>
+          Save output to JSON file
+
+      --output-xml <FILE>
+          Save output to XML file
+
+      --output-markdown <FILE>
+          Save output to Markdown file
+
+  -v, --verbose...
+          Increase verbosity level (-v, -vv, -vvv)
+
+  -t, --timeout <SECONDS>
+          Connection timeout in seconds
+          
+          [default: 3]
+
+      --max-connections <NUM>
+          Maximum concurrent connections (default: 100)
+
+      --check-vulns
+          Check for known vulnerabilities (requires service detection)
+
+      --enumerate
+          Run enumeration scripts on discovered services
+
+  -i, --target-file <FILE>
+          Read targets from file (one per line)
+
+  -h, --help
+          Print help (see a summary with '-h')
+
+  -V, --version
+          Print version
+
+real	0m0.024s
+user	0m0.050s
+sys	0m0.000s

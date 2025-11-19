@@ -1,0 +1,19 @@
+[2m2025-11-19T01:07:09.143995Z[0m [32m INFO[0m [2mrmap[0m[2m:[0m Quick scan profile activated: Fast TCP scan of top 100 ports
+[2m2025-11-19T01:07:09.144141Z[0m [33m WARN[0m [2mrmap[0m[2m:[0m Scanning private IP address: 127.0.0.1. Use --allow-private to suppress this warning.
+[2m2025-11-19T01:07:09.144245Z[0m [32m INFO[0m [2mrmap[0m[2m:[0m 🦀 R-Map 0.2.0 starting connect scan
+[2m2025-11-19T01:07:09.144274Z[0m [32m INFO[0m [2mrmap[0m[2m:[0m Scanning 1 targets with 100 ports
+[2m2025-11-19T01:07:09.144899Z[0m [32m INFO[0m [2mrmap[0m[2m:[0m Scan timeout: 1800 seconds
+[2m2025-11-19T01:07:09.145206Z[0m [32m INFO[0m [2mnmap_engine[0m[2m:[0m Raw socket access available, using SYN scanning
+[2m2025-11-19T01:07:09.145278Z[0m [32m INFO[0m [2mnmap_engine[0m[2m:[0m Starting port scan for 1 targets
+🦀 R-Map 0.1.0 scan report
+Scan completed in 0.01s
+
+Nmap scan report for 127.0.0.1
+Host is up (0.000s latency).
+All scanned ports are closed
+
+[2m2025-11-19T01:07:09.154419Z[0m [32m INFO[0m [2mrmap[0m[2m:[0m Scan completed in 0.01s
+
+real	0m0.036s
+user	0m0.070s
+sys	0m0.000s

@@ -4,12 +4,33 @@ use serde::{Deserialize, Serialize};
 use std::time::Duration;
 use tracing::info;
 
+// Export new modules
+pub mod html;
+pub mod pdf;
+pub mod markdown;
+pub mod csv;
+pub mod sqlite;
+
+// Re-export public functions
+pub use html::generate_html_report;
+pub use pdf::generate_pdf_report;
+pub use markdown::generate_markdown_report;
+pub use csv::{generate_csv_report, generate_csv_summary_report, generate_csv_port_analysis};
+pub use sqlite::{generate_sqlite_database, query_scan_summary, query_hosts_by_scan, query_ports_by_host, query_service_stats};
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum OutputFormat {
     Normal,
     Xml,
     Grepable,
     Json,
+    Html,
+    Pdf,
+    Markdown,
+    Csv,
+    CsvSummary,
+    CsvPortAnalysis,
+    Sqlite,
 }
 
 pub struct OutputManager {
@@ -18,9 +39,28 @@ pub struct OutputManager {
 
 impl OutputManager {
     pub fn new(options: &nmap_core::NmapOptions) -> Result<Self> {
+        // Parse output format from options
+        let format = match options.output_format.as_str() {
+            "xml" => OutputFormat::Xml,
+            "json" => OutputFormat::Json,
+            "grepable" | "gnmap" => OutputFormat::Grepable,
+            "html" => OutputFormat::Html,
+            "pdf" => OutputFormat::Pdf,
+            "markdown" | "md" => OutputFormat::Markdown,
+            "csv" => OutputFormat::Csv,
+            "csv-summary" => OutputFormat::CsvSummary,
+            "csv-ports" => OutputFormat::CsvPortAnalysis,
+            "sqlite" | "db" => OutputFormat::Sqlite,
+            _ => OutputFormat::Normal,
+        };
+
         Ok(Self {
-            formats: options.output_formats.clone(),
+            formats: vec![format],
         })
+    }
+
+    pub fn with_formats(formats: Vec<OutputFormat>) -> Self {
+        Self { formats }
     }
     
     pub async fn start_scan(&self, options: &nmap_core::NmapOptions) -> Result<()> {
@@ -42,6 +82,10 @@ impl OutputManager {
     }
     
     pub async fn output_results(&self, results: &[Host]) -> Result<()> {
+        self.output_results_with_duration(results, Duration::from_secs(0)).await
+    }
+
+    pub async fn output_results_with_duration(&self, results: &[Host], duration: Duration) -> Result<()> {
         for format in &self.formats {
             match format {
                 OutputFormat::Normal => {
@@ -55,6 +99,41 @@ impl OutputManager {
                 }
                 OutputFormat::Grepable => {
                     self.output_grepable(results).await?;
+                }
+                OutputFormat::Html => {
+                    let filename = format!("rmap-scan-{}.html", chrono::Utc::now().format("%Y%m%d-%H%M%S"));
+                    html::generate_html_report(results, &filename, duration).await?;
+                    info!("HTML report generated: {}", filename);
+                }
+                OutputFormat::Pdf => {
+                    let filename = format!("rmap-scan-{}.pdf", chrono::Utc::now().format("%Y%m%d-%H%M%S"));
+                    pdf::generate_pdf_report(results, &filename, duration).await?;
+                    info!("PDF report generated: {}", filename);
+                }
+                OutputFormat::Markdown => {
+                    let filename = format!("rmap-scan-{}.md", chrono::Utc::now().format("%Y%m%d-%H%M%S"));
+                    markdown::generate_markdown_report(results, &filename, duration).await?;
+                    info!("Markdown report generated: {}", filename);
+                }
+                OutputFormat::Csv => {
+                    let filename = format!("rmap-scan-{}.csv", chrono::Utc::now().format("%Y%m%d-%H%M%S"));
+                    csv::generate_csv_report(results, &filename).await?;
+                    info!("CSV report generated: {}", filename);
+                }
+                OutputFormat::CsvSummary => {
+                    let filename = format!("rmap-scan-summary-{}.csv", chrono::Utc::now().format("%Y%m%d-%H%M%S"));
+                    csv::generate_csv_summary_report(results, &filename).await?;
+                    info!("CSV summary report generated: {}", filename);
+                }
+                OutputFormat::CsvPortAnalysis => {
+                    let filename = format!("rmap-scan-ports-{}.csv", chrono::Utc::now().format("%Y%m%d-%H%M%S"));
+                    csv::generate_csv_port_analysis(results, &filename).await?;
+                    info!("CSV port analysis generated: {}", filename);
+                }
+                OutputFormat::Sqlite => {
+                    let filename = format!("rmap-scan-{}.db", chrono::Utc::now().format("%Y%m%d-%H%M%S"));
+                    sqlite::generate_sqlite_database(results, &filename, duration).await?;
+                    info!("SQLite database generated: {}", filename);
                 }
             }
         }
@@ -139,9 +218,9 @@ impl OutputManager {
                 println!("    </ports>");
             }
 
-            if let Some(os) = &host.os {
+            if let Some(os_info) = &host.os_info {
                 println!("    <os>");
-                println!("      <osmatch name=\"{}\" accuracy=\"90\"/>", os);
+                println!("      <osmatch name=\"{}\" accuracy=\"{}\"/>", os_info.name, os_info.accuracy);
                 println!("    </os>");
             }
 
@@ -210,8 +289,8 @@ impl OutputManager {
                 }
             }
 
-            if let Some(os) = &host.os {
-                line.push_str(&format!("OS: {}\t", os));
+            if let Some(os_info) = &host.os_info {
+                line.push_str(&format!("OS: {}\t", os_info.name));
             }
 
             println!("{}", line.trim_end_matches('\t'));

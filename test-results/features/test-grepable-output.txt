@@ -1,0 +1,11 @@
+error: unexpected argument '--output-grepable' found
+
+  tip: a similar argument exists: '--output'
+
+Usage: rmap --ports <PORT_SPEC> --no-dns --output <FORMAT> [TARGETS]...
+
+For more information, try '--help'.
+
+real	0m0.024s
+user	0m0.010s
+sys	0m0.040s

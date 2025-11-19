@@ -1,0 +1,8 @@
+error: invalid value 'V' for '--scan <TYPE>'
+  [possible values: connect, syn, udp, ping, ack, fin, null, xmas]
+
+For more information, try '--help'.
+
+real	0m0.023s
+user	0m0.020s
+sys	0m0.010s

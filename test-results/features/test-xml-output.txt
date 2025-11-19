@@ -1,0 +1,12 @@
+[2m2025-11-19T01:07:09.366919Z[0m [33m WARN[0m [2mrmap[0m[2m:[0m Scanning private IP address: 127.0.0.1. Use --allow-private to suppress this warning.
+[2m2025-11-19T01:07:09.367090Z[0m [32m INFO[0m [2mrmap[0m[2m:[0m 🦀 R-Map 0.2.0 starting connect scan
+[2m2025-11-19T01:07:09.367126Z[0m [32m INFO[0m [2mrmap[0m[2m:[0m Scanning 1 targets with 2 ports
+[2m2025-11-19T01:07:09.367707Z[0m [32m INFO[0m [2mrmap[0m[2m:[0m Scan timeout: 1800 seconds
+[2m2025-11-19T01:07:09.367971Z[0m [32m INFO[0m [2mnmap_engine[0m[2m:[0m Raw socket access available, using SYN scanning
+[2m2025-11-19T01:07:09.368023Z[0m [32m INFO[0m [2mnmap_engine[0m[2m:[0m Starting port scan for 1 targets
+[2m2025-11-19T01:07:09.368691Z[0m [32m INFO[0m [2mrmap[0m[2m:[0m Results written to /tmp/rmap-test.xml
+[2m2025-11-19T01:07:09.368707Z[0m [32m INFO[0m [2mrmap[0m[2m:[0m Scan completed in 0.00s
+
+real	0m0.028s
+user	0m0.060s
+sys	0m0.000s

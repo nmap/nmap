@@ -1,0 +1,18 @@
+[2m2025-11-19T01:07:09.077652Z[0m [33m WARN[0m [2mrmap[0m[2m:[0m Scanning private IP address: 127.0.0.1. Use --allow-private to suppress this warning.
+[2m2025-11-19T01:07:09.077815Z[0m [32m INFO[0m [2mrmap[0m[2m:[0m 🦀 R-Map 0.2.0 starting connect scan
+[2m2025-11-19T01:07:09.077854Z[0m [32m INFO[0m [2mrmap[0m[2m:[0m Scanning 1 targets with 3 ports
+[2m2025-11-19T01:07:09.078496Z[0m [32m INFO[0m [2mrmap[0m[2m:[0m Scan timeout: 1800 seconds
+[2m2025-11-19T01:07:09.078863Z[0m [32m INFO[0m [2mnmap_engine[0m[2m:[0m Raw socket access available, using SYN scanning
+[2m2025-11-19T01:07:09.078922Z[0m [32m INFO[0m [2mnmap_engine[0m[2m:[0m Starting port scan for 1 targets
+🦀 R-Map 0.1.0 scan report
+Scan completed in 0.00s
+
+Nmap scan report for 127.0.0.1
+Host is up (0.000s latency).
+All scanned ports are closed
+
+[2m2025-11-19T01:07:09.079329Z[0m [32m INFO[0m [2mrmap[0m[2m:[0m Scan completed in 0.00s
+
+real	0m0.026s
+user	0m0.050s
+sys	0m0.130s
