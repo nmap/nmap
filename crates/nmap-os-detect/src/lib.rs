@@ -1,5 +1,4 @@
 use nmap_core::{NmapError, Result};
-use nmap_net::TargetHost;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::net::IpAddr;
@@ -9,11 +8,15 @@ pub mod fingerprint;
 pub mod tcp_tests;
 pub mod udp_tests;
 pub mod icmp_tests;
+pub mod raw_socket;
+pub mod utils;
 
 pub use fingerprint::*;
 pub use tcp_tests::*;
 pub use udp_tests::*;
 pub use icmp_tests::*;
+pub use raw_socket::*;
+pub use utils::*;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct OsMatch {
@@ -73,24 +76,24 @@ impl OsDetector {
         self
     }
 
-    pub async fn detect_os(&self, target: &TargetHost) -> Result<OsDetectionResult> {
-        let ip = target.ip();
+    pub async fn detect_os(&self, target: IpAddr) -> Result<OsDetectionResult> {
+        let ip = target;
         
         // Perform OS detection tests
         let tcp_results = timeout(
             self.timeout,
             self.run_tcp_tests(ip)
-        ).await.map_err(|_| NmapError::Timeout)?;
+        ).await.map_err(|_| NmapError::Timeout("TCP tests timed out".to_string()))?;
 
         let udp_results = timeout(
             self.timeout,
             self.run_udp_tests(ip)
-        ).await.map_err(|_| NmapError::Timeout)?;
+        ).await.map_err(|_| NmapError::Timeout("UDP tests timed out".to_string()))?;
 
         let icmp_results = timeout(
             self.timeout,
             self.run_icmp_tests(ip)
-        ).await.map_err(|_| NmapError::Timeout)?;
+        ).await.map_err(|_| NmapError::Timeout("ICMP tests timed out".to_string()))?;
 
         // Generate fingerprint from test results
         let fingerprint = self.generate_fingerprint(&tcp_results?, &udp_results?, &icmp_results?);

@@ -1,0 +1,63 @@
+# Development environment overrides
+
+# Reduce replicas for dev
+replicaCount: 1
+
+# Use dev image tag
+image:
+  tag: "dev"
+  pullPolicy: Always
+
+# Disable autoscaling in dev
+autoscaling:
+  enabled: false
+
+# Reduced resources for dev
+resources:
+  limits:
+    cpu: 500m
+    memory: 512Mi
+  requests:
+    cpu: 100m
+    memory: 128Mi
+
+# Dev configuration
+config:
+  logLevel: debug
+  maxConcurrentScans: 5
+  rateLimitEnabled: false
+
+# Disable monitoring in dev
+monitoring:
+  serviceMonitor:
+    enabled: false
+  prometheusRule:
+    enabled: false
+
+# Disable PDB in dev (only 1 replica)
+podDisruptionBudget:
+  enabled: false
+
+# Disable NetworkPolicy in dev for easier testing
+networkPolicy:
+  enabled: false
+
+# Dev ingress (if needed)
+ingress:
+  enabled: true
+  className: nginx
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-staging
+  hosts:
+  - host: rmap-dev.example.com
+    paths:
+    - path: /
+      pathType: Prefix
+  tls:
+  - secretName: rmap-dev-tls
+    hosts:
+    - rmap-dev.example.com
+
+# Dev secret (still needs to be changed)
+secrets:
+  jwtSecret: "dev-secret-change-me"

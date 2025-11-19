@@ -1,0 +1,50 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+metadata:
+  name: rmap-base
+  annotations:
+    description: "Base Kubernetes manifests for R-Map"
+
+# Common labels applied to all resources
+commonLabels:
+  app.kubernetes.io/name: rmap
+  app.kubernetes.io/part-of: rmap
+  app.kubernetes.io/managed-by: kustomize
+
+# Common annotations
+commonAnnotations:
+  app.kubernetes.io/version: "0.2.0"
+  maintainer: "rmap-team"
+
+# Resources to include
+resources:
+- deployment.yaml
+- service.yaml
+- configmap.yaml
+- secret.yaml
+- serviceaccount.yaml
+- rbac.yaml
+- hpa.yaml
+- networkpolicy.yaml
+- poddisruptionbudget.yaml
+
+# Namespace (can be overridden in overlays)
+namespace: default
+
+# Image configuration (can be overridden in overlays)
+images:
+- name: ghcr.io/ununp3ntium115/r-map
+  newTag: latest
+
+# ConfigMap generator (optional - for file-based configs)
+# configMapGenerator:
+# - name: rmap-config
+#   files:
+#   - configs/app.yaml
+
+# Secret generator (optional - for external secret management)
+# secretGenerator:
+# - name: rmap-secret
+#   envs:
+#   - secrets/.env

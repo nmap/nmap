@@ -1,0 +1,91 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+metadata:
+  name: rmap-staging
+  annotations:
+    description: "Staging environment overlay for R-Map"
+
+# Reference to base
+resources:
+- ../../base
+
+# Namespace for staging
+namespace: rmap-staging
+
+# Name prefix for all resources
+namePrefix: staging-
+
+# Common labels for staging environment
+commonLabels:
+  environment: staging
+  tier: pre-production
+
+# Common annotations
+commonAnnotations:
+  environment: staging
+  managed-by: kustomize
+
+# Image tag override for staging
+images:
+- name: ghcr.io/ununp3ntium115/r-map
+  newTag: staging
+
+# Replica count patches
+patches:
+# Set replicas to 2 for staging
+- target:
+    kind: Deployment
+    name: rmap
+  patch: |-
+    - op: replace
+      path: /spec/replicas
+      value: 2
+
+# HPA settings for staging
+- target:
+    kind: HorizontalPodAutoscaler
+    name: rmap
+  patch: |-
+    - op: replace
+      path: /spec/minReplicas
+      value: 2
+    - op: replace
+      path: /spec/maxReplicas
+      value: 5
+
+# Moderate resource requests/limits for staging
+- target:
+    kind: Deployment
+    name: rmap
+  patch: |-
+    - op: replace
+      path: /spec/template/spec/containers/0/resources/requests/cpu
+      value: "250m"
+    - op: replace
+      path: /spec/template/spec/containers/0/resources/requests/memory
+      value: "256Mi"
+    - op: replace
+      path: /spec/template/spec/containers/0/resources/limits/cpu
+      value: "1000m"
+    - op: replace
+      path: /spec/template/spec/containers/0/resources/limits/memory
+      value: "768Mi"
+
+# ConfigMap overrides for staging
+configMapGenerator:
+- name: rmap-config
+  behavior: merge
+  literals:
+  - log_level=info
+  - max_concurrent_scans=10
+  - rate_limit_enabled=true
+  - rate_limit_requests=200
+
+# Secret generator for staging
+# IMPORTANT: Use Sealed Secrets or External Secrets Operator in production
+secretGenerator:
+- name: rmap-secret
+  behavior: merge
+  literals:
+  - jwt-secret=staging-secret-replace-with-sealed-secret

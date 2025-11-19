@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "rmap.configMapName" . }}
+  labels:
+    {{- include "rmap.labels" . | nindent 4 }}
+data:
+  log_level: {{ .Values.config.logLevel | quote }}
+  api_timeout: {{ .Values.config.apiTimeout | quote }}
+  max_connections: {{ .Values.config.maxConnections | quote }}
+  max_concurrent_scans: {{ .Values.config.maxConcurrentScans | quote }}
+  scan_timeout: {{ .Values.config.scanTimeout | quote }}
+  rate_limit_enabled: {{ .Values.config.rateLimitEnabled | quote }}
+  rate_limit_requests: {{ .Values.config.rateLimitRequests | quote }}
+  rate_limit_window: {{ .Values.config.rateLimitWindow | quote }}
+  websocket_enabled: {{ .Values.config.websocketEnabled | quote }}
+  metrics_enabled: {{ .Values.config.metricsEnabled | quote }}

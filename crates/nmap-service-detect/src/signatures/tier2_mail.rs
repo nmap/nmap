@@ -153,5 +153,137 @@ pub fn load_tier2_mail_signatures() -> Vec<ServiceSignature> {
         protocol: "tcp".to_string(),
     });
 
+    // ========== MODERN SMTP SERVERS ==========
+
+    // Haraka (Node.js SMTP)
+    signatures.push(ServiceSignature {
+        service_name: "smtp".to_string(),
+        probe_name: "SMTP".to_string(),
+        pattern: r"220.*Haraka".to_string(),
+        version_info: Some(VersionInfo {
+            product: Some("Haraka".to_string()),
+            version: None,
+            info: Some("Node.js SMTP server".to_string()),
+            hostname: None,
+            os_type: None,
+            device_type: None,
+            cpe: vec!["cpe:/a:haraka:haraka".to_string()],
+        }),
+        ports: vec![25, 587],
+        protocol: "tcp".to_string(),
+    });
+
+    // ========== TESTING MAIL SERVERS ==========
+
+    // MailHog
+    signatures.push(ServiceSignature {
+        service_name: "smtp".to_string(),
+        probe_name: "SMTP".to_string(),
+        pattern: r"220.*MailHog".to_string(),
+        version_info: Some(VersionInfo {
+            product: Some("MailHog".to_string()),
+            version: None,
+            info: Some("Email testing tool".to_string()),
+            hostname: None,
+            os_type: None,
+            device_type: None,
+            cpe: vec!["cpe:/a:mailhog:mailhog".to_string()],
+        }),
+        ports: vec![1025, 8025],
+        protocol: "tcp".to_string(),
+    });
+
+    // Mailpit
+    signatures.push(ServiceSignature {
+        service_name: "smtp".to_string(),
+        probe_name: "SMTP".to_string(),
+        pattern: r"220.*Mailpit".to_string(),
+        version_info: Some(VersionInfo {
+            product: Some("Mailpit".to_string()),
+            version: None,
+            info: Some("Email testing tool".to_string()),
+            hostname: None,
+            os_type: None,
+            device_type: None,
+            cpe: vec!["cpe:/a:mailpit:mailpit".to_string()],
+        }),
+        ports: vec![1025, 8025],
+        protocol: "tcp".to_string(),
+    });
+
+    // ========== INTEGRATED MAIL SOLUTIONS ==========
+
+    // Mailu
+    signatures.push(ServiceSignature {
+        service_name: "smtp".to_string(),
+        probe_name: "SMTP".to_string(),
+        pattern: r"220.*Mailu".to_string(),
+        version_info: Some(VersionInfo {
+            product: Some("Mailu".to_string()),
+            version: None,
+            info: Some("Docker-based mail server".to_string()),
+            hostname: None,
+            os_type: None,
+            device_type: None,
+            cpe: vec!["cpe:/a:mailu:mailu".to_string()],
+        }),
+        ports: vec![25, 587, 465],
+        protocol: "tcp".to_string(),
+    });
+
+    // iRedMail
+    signatures.push(ServiceSignature {
+        service_name: "smtp".to_string(),
+        probe_name: "SMTP".to_string(),
+        pattern: r"220.*iRedMail".to_string(),
+        version_info: Some(VersionInfo {
+            product: Some("iRedMail".to_string()),
+            version: None,
+            info: Some("Full-featured mail server solution".to_string()),
+            hostname: None,
+            os_type: None,
+            device_type: None,
+            cpe: vec!["cpe:/a:iredmail:iredmail".to_string()],
+        }),
+        ports: vec![25, 587, 465],
+        protocol: "tcp".to_string(),
+    });
+
+    // Zimbra
+    signatures.push(ServiceSignature {
+        service_name: "smtp".to_string(),
+        probe_name: "SMTP".to_string(),
+        pattern: r"220.*Zimbra".to_string(),
+        version_info: Some(VersionInfo {
+            product: Some("Zimbra Collaboration Suite".to_string()),
+            version: None,
+            info: Some("Groupware server".to_string()),
+            hostname: None,
+            os_type: None,
+            device_type: None,
+            cpe: vec!["cpe:/a:zimbra:collaboration_suite".to_string()],
+        }),
+        ports: vec![25, 587, 7071],
+        protocol: "tcp".to_string(),
+    });
+
+    // Kerio Connect
+    signatures.push(ServiceSignature {
+        service_name: "smtp".to_string(),
+        probe_name: "SMTP".to_string(),
+        pattern: r"220.*Kerio Connect".to_string(),
+        version_info: Some(VersionInfo {
+            product: Some("Kerio Connect".to_string()),
+            version: None,
+            info: Some("Email and collaboration server".to_string()),
+            hostname: None,
+            os_type: None,
+            device_type: None,
+            cpe: vec!["cpe:/a:kerio:connect".to_string()],
+        }),
+        ports: vec![25, 587, 465],
+        protocol: "tcp".to_string(),
+    });
+
     signatures
 }

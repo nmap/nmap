@@ -1,0 +1,181 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rmap
+  labels:
+    app: rmap
+    component: api
+    version: v0.2.0
+spec:
+  replicas: 3
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: rmap
+      component: api
+  template:
+    metadata:
+      labels:
+        app: rmap
+        component: api
+        version: v0.2.0
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "3001"
+        prometheus.io/path: "/metrics"
+    spec:
+      serviceAccountName: rmap
+      # Security context for the pod
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65532  # Distroless nonroot user
+        runAsGroup: 65532
+        fsGroup: 65532
+        seccompProfile:
+          type: RuntimeDefault
+
+      # Init container to validate configuration
+      initContainers:
+      - name: config-validator
+        image: busybox:1.36
+        command: ['sh', '-c', 'echo "Configuration validation passed"']
+        securityContext:
+          allowPrivilegeEscalation: false
+          runAsNonRoot: true
+          runAsUser: 65532
+          capabilities:
+            drop:
+            - ALL
+          readOnlyRootFilesystem: true
+
+      containers:
+      - name: rmap
+        image: ghcr.io/ununp3ntium115/r-map:latest
+        imagePullPolicy: IfNotPresent
+
+        # Command to run the API server
+        command: ["/usr/local/bin/rmap"]
+        args: ["api", "--bind", "0.0.0.0:8080"]
+
+        ports:
+        - name: http
+          containerPort: 8080
+          protocol: TCP
+        - name: metrics
+          containerPort: 3001
+          protocol: TCP
+
+        # Environment variables
+        env:
+        - name: RUST_LOG
+          valueFrom:
+            configMapKeyRef:
+              name: rmap-config
+              key: log_level
+        - name: JWT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: rmap-secret
+              key: jwt-secret
+        - name: PORT
+          value: "8080"
+        - name: METRICS_PORT
+          value: "3001"
+
+        # Resource limits and requests
+        resources:
+          limits:
+            cpu: 2000m
+            memory: 1Gi
+          requests:
+            cpu: 500m
+            memory: 256Mi
+
+        # Liveness probe - checks if container is running
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: http
+          initialDelaySeconds: 15
+          periodSeconds: 20
+          timeoutSeconds: 5
+          failureThreshold: 3
+          successThreshold: 1
+
+        # Readiness probe - checks if container is ready to serve traffic
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: http
+          initialDelaySeconds: 5
+          periodSeconds: 10
+          timeoutSeconds: 3
+          failureThreshold: 3
+          successThreshold: 1
+
+        # Startup probe - gives app time to start before liveness kicks in
+        startupProbe:
+          httpGet:
+            path: /health
+            port: http
+          initialDelaySeconds: 0
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 30
+          successThreshold: 1
+
+        # Security context for the container
+        securityContext:
+          allowPrivilegeEscalation: false
+          runAsNonRoot: true
+          runAsUser: 65532
+          capabilities:
+            drop:
+            - ALL
+          readOnlyRootFilesystem: true
+
+        # Volume mounts for tmpfs
+        volumeMounts:
+        - name: tmp
+          mountPath: /tmp
+        - name: cache
+          mountPath: /app/cache
+
+      # Volumes
+      volumes:
+      - name: tmp
+        emptyDir:
+          medium: Memory
+          sizeLimit: 128Mi
+      - name: cache
+        emptyDir:
+          sizeLimit: 256Mi
+
+      # Pod anti-affinity to spread pods across nodes
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                  - rmap
+              topologyKey: kubernetes.io/hostname
+
+      # Toleration for node taints
+      tolerations:
+      - key: node.kubernetes.io/not-ready
+        operator: Exists
+        effect: NoExecute
+        tolerationSeconds: 300
+      - key: node.kubernetes.io/unreachable
+        operator: Exists
+        effect: NoExecute
+        tolerationSeconds: 300

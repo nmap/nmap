@@ -1,6 +1,11 @@
 use nmap_core::{NmapError, Result};
-use std::net::{IpAddr, SocketAddr, UdpSocket};
-use tokio::time::{timeout, Duration};
+use std::net::{IpAddr, Ipv4Addr, SocketAddr, UdpSocket};
+use tokio::time::Duration;
+use pnet::packet::ip::IpNextHeaderProtocols;
+use pnet::transport::TransportProtocol;
+use rand::Rng;
+use crate::raw_socket::RawSocketSender;
+use crate::utils::guess_initial_ttl;
 
 #[derive(Debug, Clone)]
 pub struct UdpTestResults {
@@ -24,14 +29,26 @@ pub struct U1Test {
 pub struct UdpTester {
     target: IpAddr,
     timeout: Duration,
+    source_ip: IpAddr,
 }
 
 impl UdpTester {
     pub fn new(target: IpAddr) -> Self {
+        let source_ip = match target {
+            IpAddr::V4(_) => IpAddr::V4(Ipv4Addr::new(0, 0, 0, 0)),
+            IpAddr::V6(_) => IpAddr::V6(std::net::Ipv6Addr::UNSPECIFIED),
+        };
+
         Self {
             target,
             timeout: Duration::from_secs(3),
+            source_ip,
         }
+    }
+
+    pub fn with_source_ip(mut self, source_ip: IpAddr) -> Self {
+        self.source_ip = source_ip;
+        self
     }
 
     pub async fn run_all_tests(&mut self) -> Result<UdpTestResults> {
@@ -46,69 +63,99 @@ impl UdpTester {
     }
 
     async fn run_u1_test(&self) -> Result<U1Test> {
-        // Send UDP packet to a likely closed port and analyze ICMP response
+        // Send UDP packet to a likely closed port and analyze ICMP port unreachable response
         let closed_port = 40125; // Commonly closed port
-        let addr = SocketAddr::new(self.target, closed_port);
-        
-        // Create UDP socket
-        let socket = UdpSocket::bind("0.0.0.0:0")
-            .map_err(|_| NmapError::SocketCreationFailed)?;
-        
-        socket.set_read_timeout(Some(self.timeout.into()))
-            .map_err(|_| NmapError::SocketConfigurationFailed)?;
 
-        // Send UDP probe
-        let probe_data = b"nmap-udp-probe";
-        match socket.send_to(probe_data, addr) {
-            Ok(_) => {
-                // Try to receive ICMP port unreachable response
-                let mut buffer = [0u8; 1024];
-                match socket.recv_from(&mut buffer) {
-                    Ok((len, _)) => {
-                        // Analyze the ICMP response
-                        self.analyze_icmp_response(&buffer[..len])
-                    }
-                    Err(_) => {
-                        // No response - port might be open or filtered
-                        Ok(U1Test {
-                            r: "N".to_string(), // No response
-                            df: "N".to_string(),
-                            t: 0,
-                            ipl: 0,
-                            un: closed_port,
-                            ripl: 0,
-                            rid: 0,
-                            ripck: "G".to_string(), // Good checksum
-                            ruck: 0,
-                            rud: "".to_string(),
-                        })
-                    }
-                }
+        // Create UDP sender
+        let protocol = TransportProtocol::Ipv4(IpNextHeaderProtocols::Udp);
+        let mut udp_sender = RawSocketSender::new(self.source_ip, protocol)?;
+
+        // Create ICMP receiver to catch port unreachable
+        let icmp_protocol = TransportProtocol::Ipv4(IpNextHeaderProtocols::Icmp);
+        let mut icmp_receiver = RawSocketSender::new(self.source_ip, icmp_protocol)?;
+
+        let mut rng = rand::thread_rng();
+        let source_port = rng.gen_range(49152..=65535);
+        let probe_data = b"nmap-udp-probe\x00";
+
+        // Send UDP probe to closed port
+        udp_sender.send_udp_probe(
+            self.target,
+            closed_port,
+            source_port,
+            probe_data,
+            64,   // TTL
+            true, // DF bit
+        )?;
+
+        // Try to receive ICMP port unreachable response
+        match icmp_receiver.receive_icmp(self.timeout).await {
+            Ok((data, _addr)) => {
+                // Analyze the ICMP port unreachable response
+                self.analyze_icmp_response(&data, closed_port)
             }
-            Err(_) => Err(NmapError::SendFailed),
+            Err(_) => {
+                // No response - port might be open or filtered
+                Ok(U1Test {
+                    r: "N".to_string(), // No response
+                    df: "N".to_string(),
+                    t: 0,
+                    ipl: 0,
+                    un: closed_port,
+                    ripl: 0,
+                    rid: 0,
+                    ripck: "G".to_string(),
+                    ruck: 0,
+                    rud: "".to_string(),
+                })
+            }
         }
     }
 
-    fn analyze_icmp_response(&self, data: &[u8]) -> Result<U1Test> {
-        // In a real implementation, this would parse the ICMP packet
-        // and extract detailed information about the response
-        
+    fn analyze_icmp_response(&self, data: &[u8], closed_port: u16) -> Result<U1Test> {
+        // Parse ICMP port unreachable packet
         if data.len() < 8 {
             return Err(NmapError::InvalidPacket);
         }
 
-        // Simplified analysis - would need proper ICMP parsing
+        let icmp_type = data[0];
+        let icmp_code = data[1];
+
+        // ICMP Type 3 (Destination Unreachable), Code 3 (Port Unreachable)
+        if icmp_type != 3 || icmp_code != 3 {
+            return Err(NmapError::InvalidPacket);
+        }
+
+        // Extract TTL (would need IP header parsing)
+        let observed_ttl = 64u8; // Placeholder
+        let initial_ttl = guess_initial_ttl(observed_ttl);
+
+        // Extract other fields from ICMP payload
+        // The ICMP payload contains the original IP header + 8 bytes of original datagram
+        let ipl = data.len() as u16;
+        let ripl = if data.len() >= 28 {
+            u16::from_be_bytes([data[8], data[9]]) // IP total length from returned header
+        } else {
+            0
+        };
+
+        let rid = if data.len() >= 28 {
+            u16::from_be_bytes([data[12], data[13]]) // IP ID from returned header
+        } else {
+            0
+        };
+
         Ok(U1Test {
             r: "Y".to_string(), // Response received
-            df: "N".to_string(), // Don't fragment bit not set
-            t: 64,              // Typical Linux TTL
-            ipl: data.len() as u16, // IP total length
-            un: 40125,          // Unused port number
-            ripl: 56,           // Returned IP total length (typical)
-            rid: 0x1234,        // Returned IP ID (would extract from packet)
-            ripck: "G".to_string(), // Good checksum
-            ruck: 0,            // Returned UDP checksum
-            rud: "".to_string(), // Returned UDP data
+            df: "Y".to_string(), // DF bit (would check IP header)
+            t: initial_ttl,
+            ipl,
+            un: closed_port,
+            ripl,
+            rid,
+            ripck: "G".to_string(), // Good checksum (would verify)
+            ruck: 0,                // Returned UDP checksum
+            rud: "".to_string(),    // Returned UDP data (simplified)
         })
     }
 

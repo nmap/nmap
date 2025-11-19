@@ -22,6 +22,24 @@ pub enum NmapError {
     Timeout(String),
     /// Generic errors
     Other(String),
+    /// Insufficient privileges (e.g., raw socket access)
+    InsufficientPrivileges(String),
+    /// Socket creation failed
+    SocketCreationFailed,
+    /// Socket configuration failed
+    SocketConfigurationFailed,
+    /// Packet creation failed
+    PacketCreationFailed,
+    /// Send failed
+    SendFailed,
+    /// Connection failed
+    ConnectionFailed,
+    /// No response received
+    NoResponse,
+    /// Insufficient data
+    InsufficientData,
+    /// Invalid packet
+    InvalidPacket,
 }
 
 impl fmt::Display for NmapError {
@@ -36,6 +54,15 @@ impl fmt::Display for NmapError {
             NmapError::Parse(msg) => write!(f, "Parse error: {}", msg),
             NmapError::Timeout(msg) => write!(f, "Timeout: {}", msg),
             NmapError::Other(msg) => write!(f, "Error: {}", msg),
+            NmapError::InsufficientPrivileges(msg) => write!(f, "Insufficient privileges: {}", msg),
+            NmapError::SocketCreationFailed => write!(f, "Socket creation failed"),
+            NmapError::SocketConfigurationFailed => write!(f, "Socket configuration failed"),
+            NmapError::PacketCreationFailed => write!(f, "Packet creation failed"),
+            NmapError::SendFailed => write!(f, "Send operation failed"),
+            NmapError::ConnectionFailed => write!(f, "Connection failed"),
+            NmapError::NoResponse => write!(f, "No response received"),
+            NmapError::InsufficientData => write!(f, "Insufficient data"),
+            NmapError::InvalidPacket => write!(f, "Invalid packet"),
         }
     }
 }

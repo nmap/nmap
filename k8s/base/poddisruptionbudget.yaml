@@ -1,0 +1,16 @@
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: rmap
+  labels:
+    app: rmap
+    component: api
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: rmap
+      component: api
+  # Alternative: maxUnavailable: 1
+  # This ensures at least 1 pod is always available during disruptions
+  # (node drains, cluster upgrades, etc.)

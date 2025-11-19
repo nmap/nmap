@@ -1,10 +1,16 @@
 use nmap_core::{NmapError, Result};
-use std::net::{IpAddr, SocketAddr};
-use tokio::net::TcpStream;
-use tokio::time::{timeout, Duration};
-use pnet::packet::tcp::{TcpPacket, TcpFlags};
+use std::net::{IpAddr, Ipv4Addr};
+use tokio::time::{Duration, Instant};
+use pnet::packet::tcp::{TcpPacket, TcpFlags, TcpOption};
 use pnet::packet::ip::IpNextHeaderProtocols;
+use pnet::transport::TransportProtocol;
 use rand::Rng;
+use crate::raw_socket::{RawSocketSender, random_source_port, random_seq_num};
+use crate::utils::{
+    guess_initial_ttl, calculate_sequence_predictability, calculate_gcd_of_differences,
+    calculate_isr, format_tcp_options, detect_quirks, classify_ip_id_sequence,
+    sequence_difficulty, parse_tcp_options,
+};
 
 #[derive(Debug, Clone)]
 pub struct TcpTestResults {
@@ -78,14 +84,27 @@ pub struct TTest {
 pub struct TcpTester {
     target: IpAddr,
     timeout: Duration,
+    source_ip: IpAddr,
 }
 
 impl TcpTester {
     pub fn new(target: IpAddr) -> Self {
+        // Get source IP (simplified - should use proper routing table lookup)
+        let source_ip = match target {
+            IpAddr::V4(_) => IpAddr::V4(Ipv4Addr::new(0, 0, 0, 0)),
+            IpAddr::V6(addr) => IpAddr::V6(std::net::Ipv6Addr::UNSPECIFIED),
+        };
+
         Self {
             target,
             timeout: Duration::from_secs(3),
+            source_ip,
         }
+    }
+
+    pub fn with_source_ip(mut self, source_ip: IpAddr) -> Self {
+        self.source_ip = source_ip;
+        self
     }
 
     pub async fn run_all_tests(&mut self) -> Result<TcpTestResults> {
@@ -130,17 +149,33 @@ impl TcpTester {
         // Send 6 TCP SYN packets and analyze responses
         let mut seq_numbers = Vec::new();
         let mut timestamps = Vec::new();
+        let mut ip_ids = Vec::new();
+        let mut time_diffs = Vec::new();
 
-        for _ in 0..6 {
-            match self.send_syn_probe().await {
-                Ok((seq, ts)) => {
+        let mut last_time = Instant::now();
+
+        for i in 0..6 {
+            let start = Instant::now();
+
+            match self.send_syn_and_receive().await {
+                Ok((seq, ts, ip_id)) => {
                     seq_numbers.push(seq);
                     if let Some(ts) = ts {
                         timestamps.push(ts);
                     }
+                    if let Some(id) = ip_id {
+                        ip_ids.push(id);
+                    }
+
+                    if i > 0 {
+                        let diff = start.duration_since(last_time).as_millis() as u64;
+                        time_diffs.push(diff);
+                    }
+                    last_time = start;
                 }
                 Err(_) => continue,
             }
+
             tokio::time::sleep(Duration::from_millis(100)).await;
         }
 
@@ -149,42 +184,85 @@ impl TcpTester {
         }
 
         // Calculate sequence predictability
-        let sp = self.calculate_sequence_predictability(&seq_numbers);
-        let gcd = self.calculate_gcd(&seq_numbers);
-        let isr = self.calculate_isr(&seq_numbers);
+        let sp = calculate_sequence_predictability(&seq_numbers);
+        let gcd = calculate_gcd_of_differences(&seq_numbers);
+        let isr = calculate_isr(&seq_numbers, &time_diffs);
+
+        // Classify IP ID sequence
+        let ii = classify_ip_id_sequence(&ip_ids);
+
+        // Check timestamp implementation
+        let ti = if timestamps.is_empty() {
+            "Z".to_string()
+        } else if timestamps.len() == seq_numbers.len() {
+            // Check if timestamps are sequential
+            let ts_sequential = timestamps.windows(2).all(|w| w[1] > w[0]);
+            if ts_sequential {
+                "I".to_string() // Incremental
+            } else {
+                "U".to_string() // Unsupported/random
+            }
+        } else {
+            "U".to_string()
+        };
+
+        // Check TCP timestamp option
+        let ts = if timestamps.is_empty() {
+            "U".to_string() // Not used
+        } else {
+            "A".to_string() // Available
+        };
 
         Ok(SeqTest {
             sp,
             gcd,
             isr,
-            ti: if timestamps.is_empty() { "Z".to_string() } else { "A".to_string() },
-            ci: "I".to_string(), // Simplified
-            ii: "I".to_string(), // Simplified
-            ts: if timestamps.is_empty() { "U".to_string() } else { "A".to_string() },
+            ti,
+            ci: "I".to_string(), // Connection initiated (simplified)
+            ii,
+            ts,
         })
     }
 
     async fn run_ops_test(&self) -> Result<OpsTest> {
-        // Analyze TCP options in different scenarios
+        // Analyze TCP options in 6 different probe scenarios
+        let mut options_list = Vec::new();
+
+        for _ in 0..6 {
+            match self.send_syn_and_receive().await {
+                Ok((_, _, _)) => {
+                    // In a real implementation, we'd extract the actual TCP options
+                    // from the response packet
+                    options_list.push("M5B4ST11".to_string()); // Placeholder
+                }
+                Err(_) => {
+                    options_list.push("".to_string());
+                }
+            }
+        }
+
         Ok(OpsTest {
-            o1: "M5B4".to_string(), // Simplified - would analyze actual options
-            o2: "M5B4".to_string(),
-            o3: "M5B4".to_string(),
-            o4: "M5B4".to_string(),
-            o5: "M5B4".to_string(),
-            o6: "M5B4".to_string(),
+            o1: options_list.get(0).cloned().unwrap_or_default(),
+            o2: options_list.get(1).cloned().unwrap_or_default(),
+            o3: options_list.get(2).cloned().unwrap_or_default(),
+            o4: options_list.get(3).cloned().unwrap_or_default(),
+            o5: options_list.get(4).cloned().unwrap_or_default(),
+            o6: options_list.get(5).cloned().unwrap_or_default(),
         })
     }
 
     async fn run_win_test(&self) -> Result<WinTest> {
-        // Analyze TCP window sizes
+        // Analyze TCP window sizes from 6 different probes
         let mut windows = Vec::new();
-        
+
         for _ in 0..6 {
-            if let Ok(window) = self.get_tcp_window().await {
-                windows.push(window);
-            } else {
-                windows.push(0);
+            match self.send_syn_and_receive_full().await {
+                Ok(packet) => {
+                    windows.push(packet.get_window());
+                }
+                Err(_) => {
+                    windows.push(0);
+                }
             }
         }
 
@@ -200,64 +278,200 @@ impl TcpTester {
 
     async fn run_ecn_test(&self) -> Result<EcnTest> {
         // Test Explicit Congestion Notification support
-        Ok(EcnTest {
-            r: "Y".to_string(),
-            df: "Y".to_string(),
-            t: 64,
-            w: 8192,
-            o: "M5B4".to_string(),
-            cc: "N".to_string(),
-            q: "".to_string(),
-        })
-    }
+        // Send SYN with ECN flags set
+        match self.send_syn_and_receive_full().await {
+            Ok(packet) => {
+                let ttl = 64; // Would extract from IP header
+                let initial_ttl = guess_initial_ttl(ttl);
+                let options = parse_tcp_options(&packet);
+                let quirks = detect_quirks(&packet);
 
-    async fn run_t_test(&self, test_num: usize) -> Result<TTest> {
-        // Run specific T test (T1-T7)
-        Ok(TTest {
-            r: "Y".to_string(),
-            df: "Y".to_string(),
-            t: 64,
-            tg: 64,
-            w: 8192,
-            s: "A".to_string(),
-            a: "A".to_string(),
-            f: "AS".to_string(),
-            o: "M5B4".to_string(),
-            rd: 0,
-            q: "".to_string(),
-        })
-    }
-
-    async fn send_syn_probe(&self) -> Result<(u32, Option<u32>)> {
-        // Simplified TCP SYN probe - in real implementation would use raw sockets
-        let port = 80; // Common port
-        let addr = SocketAddr::new(self.target, port);
-        
-        match timeout(self.timeout, TcpStream::connect(addr)).await {
-            Ok(Ok(_stream)) => {
-                // Connection successful, extract sequence number from response
-                let mut rng = rand::thread_rng();
-                Ok((rng.gen::<u32>(), Some(rng.gen::<u32>())))
+                Ok(EcnTest {
+                    r: "Y".to_string(), // Response received
+                    df: "Y".to_string(), // DF bit (would check IP header)
+                    t: initial_ttl,
+                    w: packet.get_window(),
+                    o: format_tcp_options(&options),
+                    cc: "N".to_string(), // Congestion control (simplified)
+                    q: quirks.join(""),
+                })
             }
-            _ => Err(NmapError::ConnectionFailed),
+            Err(_) => Err(NmapError::NoResponse),
         }
     }
 
-    async fn get_tcp_window(&self) -> Result<u16> {
-        // Get TCP window size from connection attempt
-        let port = 80;
-        let addr = SocketAddr::new(self.target, port);
-        
-        match timeout(self.timeout, TcpStream::connect(addr)).await {
-            Ok(Ok(_stream)) => Ok(8192), // Simplified
-            _ => Err(NmapError::ConnectionFailed),
+    async fn run_t_test(&self, test_num: usize) -> Result<TTest> {
+        // Run specific T test (T1-T7) with different probe types
+        match self.send_syn_and_receive_full().await {
+            Ok(packet) => {
+                let ttl = 64; // Would extract from IP header
+                let initial_ttl = guess_initial_ttl(ttl);
+                let options = parse_tcp_options(&packet);
+                let quirks = detect_quirks(&packet);
+                let flags = packet.get_flags();
+
+                // Determine flag string (flags is u16 in TcpPacket)
+                let flag_str = self.format_flags(flags);
+
+                Ok(TTest {
+                    r: "Y".to_string(),
+                    df: "Y".to_string(), // Would check IP header
+                    t: initial_ttl,
+                    tg: initial_ttl,
+                    w: packet.get_window(),
+                    s: "A".to_string(), // Sequence number (simplified)
+                    a: "A".to_string(), // ACK number (simplified)
+                    f: flag_str,
+                    o: format_tcp_options(&options),
+                    rd: 0, // RST data checksum (if RST)
+                    q: quirks.join(""),
+                })
+            }
+            Err(_) => {
+                // No response
+                Ok(TTest {
+                    r: "N".to_string(),
+                    df: "N".to_string(),
+                    t: 0,
+                    tg: 0,
+                    w: 0,
+                    s: "".to_string(),
+                    a: "".to_string(),
+                    f: "".to_string(),
+                    o: "".to_string(),
+                    rd: 0,
+                    q: "".to_string(),
+                })
+            }
+        }
+    }
+
+    fn format_flags(&self, flags: u16) -> String {
+        let mut result = String::new();
+        if flags & TcpFlags::FIN != 0 {
+            result.push('F');
+        }
+        if flags & TcpFlags::SYN != 0 {
+            result.push('S');
+        }
+        if flags & TcpFlags::RST != 0 {
+            result.push('R');
+        }
+        if flags & TcpFlags::PSH != 0 {
+            result.push('P');
+        }
+        if flags & TcpFlags::ACK != 0 {
+            result.push('A');
+        }
+        if flags & TcpFlags::URG != 0 {
+            result.push('U');
+        }
+        if flags & TcpFlags::ECE != 0 {
+            result.push('E');
+        }
+        if flags & TcpFlags::CWR != 0 {
+            result.push('C');
+        }
+        result
+    }
+
+    /// Send SYN and receive response, extracting key values
+    async fn send_syn_and_receive(&self) -> Result<(u32, Option<u32>, Option<u16>)> {
+        // Note: This requires raw socket privileges
+        let mut sender = RawSocketSender::new(
+            self.source_ip,
+            TransportProtocol::Ipv4(IpNextHeaderProtocols::Tcp),
+        )?;
+
+        let source_port = random_source_port();
+        let dest_port = 80; // Common open port
+        let seq_num = random_seq_num();
+
+        // Send SYN packet
+        let options = vec![
+            TcpOption::mss(1460),
+            TcpOption::nop(),
+            TcpOption::wscale(7),
+            TcpOption::nop(),
+            TcpOption::nop(),
+            TcpOption::timestamp(0, 0),
+        ];
+
+        sender.send_tcp_syn(
+            self.target,
+            dest_port,
+            source_port,
+            seq_num,
+            5840, // Window size
+            options,
+            64,   // TTL
+            true, // DF bit
+        )?;
+
+        // Receive SYN-ACK response
+        match sender.receive_tcp(self.timeout).await {
+            Ok((packet, _addr)) => {
+                let response_seq = packet.get_sequence();
+
+                // Extract timestamp if present
+                let options = parse_tcp_options(&packet);
+                let timestamp = options.iter().find_map(|opt| {
+                    match opt {
+                        TcpOption::timestamp(ts_val, _) => Some(*ts_val),
+                        _ => None,
+                    }
+                });
+
+                // IP ID would need to be extracted from IP header
+                let ip_id = Some(0u16); // Placeholder
+
+                Ok((response_seq, timestamp, ip_id))
+            }
+            Err(e) => Err(e),
+        }
+    }
+
+    /// Send SYN and receive full packet for analysis
+    async fn send_syn_and_receive_full(&self) -> Result<TcpPacket> {
+        let mut sender = RawSocketSender::new(
+            self.source_ip,
+            TransportProtocol::Ipv4(IpNextHeaderProtocols::Tcp),
+        )?;
+
+        let source_port = random_source_port();
+        let dest_port = 80;
+        let seq_num = random_seq_num();
+
+        let options = vec![
+            TcpOption::mss(1460),
+            TcpOption::sack_perm(),
+            TcpOption::timestamp(0, 0),
+            TcpOption::nop(),
+            TcpOption::wscale(7),
+        ];
+
+        sender.send_tcp_syn(
+            self.target,
+            dest_port,
+            source_port,
+            seq_num,
+            5840,
+            options,
+            64,
+            true,
+        )?;
+
+        // Receive response
+        match sender.receive_tcp(self.timeout).await {
+            Ok((packet, _addr)) => Ok(packet),
+            Err(e) => Err(e),
         }
     }
 
     async fn analyze_tcp_sequence(&self) -> Result<crate::TcpSequence> {
         let mut values = Vec::new();
         for _ in 0..6 {
-            if let Ok((seq, _)) = self.send_syn_probe().await {
+            if let Ok((seq, _, _)) = self.send_syn_and_receive().await {
                 values.push(seq);
             }
         }
@@ -266,14 +480,8 @@ impl TcpTester {
             return Err(NmapError::InsufficientData);
         }
 
-        let index = self.calculate_sequence_predictability(&values);
-        let difficulty = if index < 1000000 {
-            "Good luck!".to_string()
-        } else if index < 10000000 {
-            "Worthy challenge".to_string()
-        } else {
-            "Trivial joke".to_string()
-        };
+        let index = calculate_sequence_predictability(&values);
+        let difficulty = sequence_difficulty(index);
 
         Ok(crate::TcpSequence {
             index,
@@ -283,61 +491,24 @@ impl TcpTester {
     }
 
     async fn analyze_ip_id_sequence(&self) -> Result<crate::IpIdSequence> {
-        // Simplified IP ID sequence analysis
         let mut values = Vec::new();
-        for i in 0..6 {
-            values.push(i as u16 * 256); // Simplified pattern
+        for _ in 0..6 {
+            if let Ok((_, _, ip_id)) = self.send_syn_and_receive().await {
+                if let Some(id) = ip_id {
+                    values.push(id);
+                }
+            }
         }
+
+        if values.is_empty() {
+            return Err(NmapError::InsufficientData);
+        }
+
+        let class = classify_ip_id_sequence(&values);
 
         Ok(crate::IpIdSequence {
-            class: "RI".to_string(), // Random incremental
+            class,
             values,
         })
-    }
-
-    fn calculate_sequence_predictability(&self, sequences: &[u32]) -> u32 {
-        if sequences.len() < 2 {
-            return 0;
-        }
-
-        let mut diffs = Vec::new();
-        for i in 1..sequences.len() {
-            diffs.push(sequences[i].wrapping_sub(sequences[i-1]));
-        }
-
-        // Calculate standard deviation of differences
-        let mean: f64 = diffs.iter().map(|&x| x as f64).sum::<f64>() / diffs.len() as f64;
-        let variance: f64 = diffs.iter()
-            .map(|&x| (x as f64 - mean).powi(2))
-            .sum::<f64>() / diffs.len() as f64;
-        
-        variance.sqrt() as u32
-    }
-
-    fn calculate_gcd(&self, sequences: &[u32]) -> u32 {
-        if sequences.len() < 2 {
-            return 1;
-        }
-
-        let mut result = sequences[1].wrapping_sub(sequences[0]);
-        for i in 2..sequences.len() {
-            let diff = sequences[i].wrapping_sub(sequences[i-1]);
-            result = self.gcd(result, diff);
-        }
-        
-        if result == 0 { 1 } else { result }
-    }
-
-    fn gcd(&self, a: u32, b: u32) -> u32 {
-        if b == 0 { a } else { self.gcd(b, a % b) }
-    }
-
-    fn calculate_isr(&self, sequences: &[u32]) -> u32 {
-        // Initial Sequence Rate - simplified calculation
-        if sequences.len() < 2 {
-            return 0;
-        }
-        
-        sequences[1].wrapping_sub(sequences[0]) / 100 // Simplified
     }
 }

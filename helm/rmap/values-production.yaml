@@ -1,0 +1,115 @@
+# Production environment overrides
+
+# Production replicas
+replicaCount: 3
+
+# Use specific version tag (NOT latest!)
+image:
+  tag: "v0.2.0"
+  pullPolicy: IfNotPresent
+
+# Production autoscaling
+autoscaling:
+  enabled: true
+  minReplicas: 3
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 70
+  targetMemoryUtilizationPercentage: 80
+
+# Production resources
+resources:
+  limits:
+    cpu: 2000m
+    memory: 1Gi
+  requests:
+    cpu: 500m
+    memory: 256Mi
+
+# Production configuration
+config:
+  logLevel: info
+  maxConcurrentScans: 10
+  rateLimitEnabled: true
+  rateLimitRequests: 100
+  rateLimitWindow: 60
+
+# Enable monitoring in production
+monitoring:
+  serviceMonitor:
+    enabled: true
+    interval: 30s
+    scrapeTimeout: 10s
+  prometheusRule:
+    enabled: true
+
+# Enable PDB in production (at least 2 pods)
+podDisruptionBudget:
+  enabled: true
+  minAvailable: 2
+
+# Enable NetworkPolicy in production
+networkPolicy:
+  enabled: true
+
+# Production ingress
+ingress:
+  enabled: true
+  className: nginx
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/limit-rps: "100"
+    nginx.ingress.kubernetes.io/limit-connections: "20"
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      more_set_headers "X-Frame-Options: DENY";
+      more_set_headers "X-Content-Type-Options: nosniff";
+      more_set_headers "X-XSS-Protection: 1; mode=block";
+      more_set_headers "Referrer-Policy: strict-origin-when-cross-origin";
+  hosts:
+  - host: rmap.example.com
+    paths:
+    - path: /
+      pathType: Prefix
+  - host: api.rmap.example.com
+    paths:
+    - path: /
+      pathType: Prefix
+  tls:
+  - secretName: rmap-prod-tls
+    hosts:
+    - rmap.example.com
+    - api.rmap.example.com
+
+# IMPORTANT: Use external secret management in production!
+secrets:
+  externalSecret:
+    enabled: true
+    backend: vault  # or sealed-secrets, external-secrets-operator
+    path: secret/rmap/production
+  # DO NOT set jwtSecret here in production!
+  # Use Sealed Secrets, External Secrets Operator, or HashiCorp Vault
+
+# Node affinity for production workloads
+affinity:
+  nodeAffinity:
+    preferredDuringSchedulingIgnoredDuringExecution:
+    - weight: 100
+      preference:
+        matchExpressions:
+        - key: node.kubernetes.io/instance-type
+          operator: In
+          values:
+          - c5.xlarge
+          - c5.2xlarge
+  podAntiAffinity:
+    preferredDuringSchedulingIgnoredDuringExecution:
+    - weight: 100
+      podAffinityTerm:
+        labelSelector:
+          matchExpressions:
+          - key: app.kubernetes.io/name
+            operator: In
+            values:
+            - rmap
+        topologyKey: kubernetes.io/hostname

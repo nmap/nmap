@@ -151,6 +151,132 @@ pub fn load_tier3_cloud_signatures() -> Vec<ServiceSignature> {
         protocol: "tcp".to_string(),
     });
 
+    // RocketMQ
+    signatures.push(ServiceSignature {
+        service_name: "rocketmq".to_string(),
+        probe_name: "RocketMQ".to_string(),
+        pattern: r"RocketMQ".to_string(),
+        version_info: Some(VersionInfo {
+            product: Some("Apache RocketMQ".to_string()),
+            version: None,
+            info: Some("Distributed messaging platform".to_string()),
+            hostname: None,
+            os_type: None,
+            device_type: None,
+            cpe: vec!["cpe:/a:apache:rocketmq".to_string()],
+        }),
+        ports: vec![9876, 10911],
+        protocol: "tcp".to_string(),
+    });
+
+    // NSQ
+    signatures.push(ServiceSignature {
+        service_name: "nsq".to_string(),
+        probe_name: "GetRequest".to_string(),
+        pattern: r"nsqd".to_string(),
+        version_info: Some(VersionInfo {
+            product: Some("NSQ".to_string()),
+            version: None,
+            info: Some("Realtime distributed messaging platform".to_string()),
+            hostname: None,
+            os_type: None,
+            device_type: None,
+            cpe: vec!["cpe:/a:nsq:nsq".to_string()],
+        }),
+        ports: vec![4150, 4151],
+        protocol: "tcp".to_string(),
+    });
+
+    // Beanstalkd
+    signatures.push(ServiceSignature {
+        service_name: "beanstalkd".to_string(),
+        probe_name: "Beanstalk".to_string(),
+        pattern: r"beanstalkd".to_string(),
+        version_info: Some(VersionInfo {
+            product: Some("Beanstalkd".to_string()),
+            version: None,
+            info: Some("Simple work queue".to_string()),
+            hostname: None,
+            os_type: None,
+            device_type: None,
+            cpe: vec!["cpe:/a:beanstalkd:beanstalkd".to_string()],
+        }),
+        ports: vec![11300],
+        protocol: "tcp".to_string(),
+    });
+
+    // Amazon SQS emulator (ElasticMQ)
+    signatures.push(ServiceSignature {
+        service_name: "sqs-emulator".to_string(),
+        probe_name: "GetRequest".to_string(),
+        pattern: r"ElasticMQ|X-Amzn-RequestId.*sqs".to_string(),
+        version_info: Some(VersionInfo {
+            product: Some("Amazon SQS Emulator".to_string()),
+            version: None,
+            info: Some("Message queue service emulator".to_string()),
+            hostname: None,
+            os_type: None,
+            device_type: None,
+            cpe: vec!["cpe:/a:amazon:sqs".to_string()],
+        }),
+        ports: vec![9324],
+        protocol: "tcp".to_string(),
+    });
+
+    // Google Pub/Sub emulator
+    signatures.push(ServiceSignature {
+        service_name: "pubsub-emulator".to_string(),
+        probe_name: "GetRequest".to_string(),
+        pattern: r"Cloud Pub/Sub Emulator".to_string(),
+        version_info: Some(VersionInfo {
+            product: Some("Google Cloud Pub/Sub Emulator".to_string()),
+            version: None,
+            info: Some("Message queue service emulator".to_string()),
+            hostname: None,
+            os_type: None,
+            device_type: None,
+            cpe: vec!["cpe:/a:google:cloud_pubsub".to_string()],
+        }),
+        ports: vec![8085],
+        protocol: "tcp".to_string(),
+    });
+
+    // Azure Service Bus emulator
+    signatures.push(ServiceSignature {
+        service_name: "servicebus-emulator".to_string(),
+        probe_name: "GetRequest".to_string(),
+        pattern: r"Service Bus Emulator|ServiceBusEmulator".to_string(),
+        version_info: Some(VersionInfo {
+            product: Some("Azure Service Bus Emulator".to_string()),
+            version: None,
+            info: Some("Message broker emulator".to_string()),
+            hostname: None,
+            os_type: None,
+            device_type: None,
+            cpe: vec!["cpe:/a:microsoft:azure_service_bus".to_string()],
+        }),
+        ports: vec![5672],
+        protocol: "tcp".to_string(),
+    });
+
+    // Celery (via Flower monitoring)
+    signatures.push(ServiceSignature {
+        service_name: "celery".to_string(),
+        probe_name: "GetRequest".to_string(),
+        pattern: r"Flower.*Celery".to_string(),
+        version_info: Some(VersionInfo {
+            product: Some("Celery".to_string()),
+            version: None,
+            info: Some("Distributed task queue".to_string()),
+            hostname: None,
+            os_type: None,
+            device_type: None,
+            cpe: vec!["cpe:/a:celery:celery".to_string()],
+        }),
+        ports: vec![5555],
+        protocol: "tcp".to_string(),
+    });
+
     // ========== PROXIES & LOAD BALANCERS ==========
 
     // Squid

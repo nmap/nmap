@@ -1,0 +1,85 @@
+{{- if .Values.monitoring.prometheusRule.enabled }}
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: {{ include "rmap.fullname" . }}-alerts
+  labels:
+    {{- include "rmap.labels" . | nindent 4 }}
+    prometheus: kube-prometheus
+    role: alert-rules
+spec:
+  groups:
+  - name: {{ include "rmap.fullname" . }}-availability
+    interval: 30s
+    rules:
+    - alert: RMapPodDown
+      expr: up{job="{{ include "rmap.fullname" . }}"} == 0
+      for: 5m
+      labels:
+        severity: critical
+        component: rmap
+      annotations:
+        summary: "R-Map pod is down"
+        description: "R-Map pod {{`{{ $labels.pod }}`}} in namespace {{`{{ $labels.namespace }}`}} has been down for more than 5 minutes."
+
+    - alert: RMapDeploymentNoReplicas
+      expr: kube_deployment_status_replicas_ready{deployment="{{ include "rmap.fullname" . }}"} == 0
+      for: 5m
+      labels:
+        severity: critical
+        component: rmap
+      annotations:
+        summary: "R-Map deployment has no ready replicas"
+        description: "R-Map deployment in namespace {{`{{ $labels.namespace }}`}} has had no ready replicas for more than 5 minutes."
+
+  - name: {{ include "rmap.fullname" . }}-performance
+    interval: 30s
+    rules:
+    - alert: RMapHighCPU
+      expr: |
+        rate(container_cpu_usage_seconds_total{pod=~"{{ include "rmap.fullname" . }}-.*"}[5m]) > 0.8
+      for: 10m
+      labels:
+        severity: warning
+        component: rmap
+      annotations:
+        summary: "R-Map pod high CPU usage"
+        description: "R-Map pod {{`{{ $labels.pod }}`}} is using more than 80% CPU for 10 minutes."
+
+    - alert: RMapHighMemory
+      expr: |
+        container_memory_working_set_bytes{pod=~"{{ include "rmap.fullname" . }}-.*"}
+        / container_spec_memory_limit_bytes{pod=~"{{ include "rmap.fullname" . }}-.*"} > 0.9
+      for: 10m
+      labels:
+        severity: warning
+        component: rmap
+      annotations:
+        summary: "R-Map pod high memory usage"
+        description: "R-Map pod {{`{{ $labels.pod }}`}} is using more than 90% of its memory limit for 10 minutes."
+
+    - alert: RMapFrequentRestarts
+      expr: rate(kube_pod_container_status_restarts_total{pod=~"{{ include "rmap.fullname" . }}-.*"}[1h]) > 5
+      for: 5m
+      labels:
+        severity: warning
+        component: rmap
+      annotations:
+        summary: "R-Map pod restarting frequently"
+        description: "R-Map pod {{`{{ $labels.pod }}`}} has restarted more than 5 times in the last hour."
+
+  - name: {{ include "rmap.fullname" . }}-autoscaling
+    interval: 30s
+    rules:
+    - alert: RMapHPAMaxReplicas
+      expr: |
+        kube_horizontalpodautoscaler_status_current_replicas{horizontalpodautoscaler="{{ include "rmap.fullname" . }}"}
+        >= kube_horizontalpodautoscaler_spec_max_replicas{horizontalpodautoscaler="{{ include "rmap.fullname" . }}"}
+      for: 15m
+      labels:
+        severity: warning
+        component: rmap
+      annotations:
+        summary: "R-Map HPA at maximum replicas"
+        description: "R-Map HPA has been running at maximum replicas for 15 minutes. Consider increasing max replicas or investigating load."
+{{- end }}

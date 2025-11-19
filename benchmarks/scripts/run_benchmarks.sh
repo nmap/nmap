@@ -289,7 +289,37 @@ EOF
                 "Single Host, All Common Ports (1-10000)" \
                 "-p 1-10000 -n" \
                 "-p 1-10000 -n -T4"
-    
+
+    # TC-006: Small Network Sweep (/24)
+    run_scenario "TC-006" \
+                "Small Network, Top 100 Ports (10 hosts)" \
+                "--fast -n -iL $BENCHMARK_ROOT/test-targets/small-network.txt" \
+                "--top-ports 100 -n -T4 -iL $BENCHMARK_ROOT/test-targets/small-network.txt"
+
+    # TC-007: Small Network with Service Detection
+    run_scenario "TC-007" \
+                "Small Network, Service Detection (10 hosts)" \
+                "-p 22,80,443,3306,6379,5432 -sV -n -iL $BENCHMARK_ROOT/test-targets/small-network.txt" \
+                "-p 22,80,443,3306,6379,5432 -sV -n -T4 -iL $BENCHMARK_ROOT/test-targets/small-network.txt"
+
+    # TC-008: Medium Network Fast Scan
+    run_scenario "TC-008" \
+                "Medium Network, Fast Scan (100 hosts)" \
+                "--fast -n -iL $BENCHMARK_ROOT/test-targets/medium-network.txt" \
+                "--top-ports 100 -n -T4 -iL $BENCHMARK_ROOT/test-targets/medium-network.txt"
+
+    # TC-009: Stress Test - Large Port Range on Multiple Hosts
+    run_scenario "TC-009" \
+                "Stress Test, Large Port Range (10 hosts, 1-1000)" \
+                "-p 1-1000 -n -iL $BENCHMARK_ROOT/test-targets/small-network.txt" \
+                "-p 1-1000 -n -T4 -iL $BENCHMARK_ROOT/test-targets/small-network.txt"
+
+    # TC-010: Large Network Sweep (simulated CIDR)
+    run_scenario "TC-010" \
+                "Large Network, Fast Scan (1000 hosts)" \
+                "--fast -n -iL $BENCHMARK_ROOT/test-targets/large-network.txt" \
+                "--top-ports 100 -n -T4 -iL $BENCHMARK_ROOT/test-targets/large-network.txt"
+
     # Close JSON
     # Remove trailing comma from last scenario
     sed -i '$ s/,$//' "$RESULTS_FILE"

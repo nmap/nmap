@@ -1,6 +1,11 @@
 use nmap_core::{NmapError, Result};
-use std::net::IpAddr;
+use std::net::{IpAddr, Ipv4Addr};
 use tokio::time::Duration;
+use pnet::packet::ip::IpNextHeaderProtocols;
+use pnet::transport::TransportProtocol;
+use rand::Rng;
+use crate::raw_socket::RawSocketSender;
+use crate::utils::guess_initial_ttl;
 
 #[derive(Debug, Clone)]
 pub struct IcmpTestResults {
@@ -18,14 +23,26 @@ pub struct IeTest {
 pub struct IcmpTester {
     target: IpAddr,
     timeout: Duration,
+    source_ip: IpAddr,
 }
 
 impl IcmpTester {
     pub fn new(target: IpAddr) -> Self {
+        let source_ip = match target {
+            IpAddr::V4(_) => IpAddr::V4(Ipv4Addr::new(0, 0, 0, 0)),
+            IpAddr::V6(_) => IpAddr::V6(std::net::Ipv6Addr::UNSPECIFIED),
+        };
+
         Self {
             target,
             timeout: Duration::from_secs(3),
+            source_ip,
         }
+    }
+
+    pub fn with_source_ip(mut self, source_ip: IpAddr) -> Self {
+        self.source_ip = source_ip;
+        self
     }
 
     pub async fn run_all_tests(&mut self) -> Result<IcmpTestResults> {
@@ -40,42 +57,94 @@ impl IcmpTester {
     }
 
     async fn run_ie_test(&self) -> Result<IeTest> {
-        // Send ICMP echo request and analyze response
-        // In a real implementation, this would use raw sockets to craft ICMP packets
-        
-        // For now, we'll simulate the test results based on common patterns
-        match self.target {
-            IpAddr::V4(_) => {
-                // Simulate ping to IPv4 address
+        // Send ICMP echo request and analyze response using raw sockets
+        let protocol = match self.target {
+            IpAddr::V4(_) => TransportProtocol::Ipv4(IpNextHeaderProtocols::Icmp),
+            IpAddr::V6(_) => TransportProtocol::Ipv6(IpNextHeaderProtocols::Icmpv6),
+        };
+
+        let mut sender = RawSocketSender::new(self.source_ip, protocol)?;
+
+        let mut rng = rand::thread_rng();
+        let identifier = rng.gen::<u16>();
+        let sequence = rng.gen::<u16>();
+        let payload = b"NMAP OS FINGERPRINT PROBE"; // 25 bytes payload
+
+        // Send ICMP echo request
+        sender.send_icmp_echo(
+            self.target,
+            identifier,
+            sequence,
+            payload,
+            64,   // TTL
+            true, // DF bit
+        )?;
+
+        // Receive ICMP echo reply
+        match sender.receive_icmp(self.timeout).await {
+            Ok((data, _addr)) => {
+                // Parse ICMP response
+                if data.len() < 8 {
+                    return Err(NmapError::InvalidPacket);
+                }
+
+                let icmp_type = data[0];
+                let icmp_code = data[1];
+
+                // Extract TTL from IP header (would need IP layer parsing)
+                let observed_ttl = 64u8; // Placeholder - would extract from IP header
+                let initial_ttl = guess_initial_ttl(observed_ttl);
+
+                // Determine if DF bit was set (would check IP header)
+                let df_set = true; // Placeholder
+
                 Ok(IeTest {
-                    r: "Y".to_string(),   // Response received
-                    dfi: "N".to_string(), // Don't fragment bit not set
-                    t: 64,               // Typical Linux TTL
-                    cd: "Z".to_string(),  // ICMP code (0 for echo reply)
+                    r: "Y".to_string(), // Response received
+                    dfi: if df_set { "Y" } else { "N" }.to_string(),
+                    t: initial_ttl,
+                    cd: if icmp_code == 0 {
+                        "Z".to_string() // Code 0 (echo reply)
+                    } else {
+                        format!("{:X}", icmp_code)
+                    },
                 })
             }
-            IpAddr::V6(_) => {
-                // IPv6 ICMP handling
+            Err(_) => {
+                // No response
                 Ok(IeTest {
-                    r: "Y".to_string(),
+                    r: "N".to_string(), // No response
                     dfi: "N".to_string(),
-                    t: 64,
-                    cd: "Z".to_string(),
+                    t: 0,
+                    cd: "".to_string(),
                 })
             }
         }
     }
 
     pub async fn ping(&self) -> Result<Duration> {
-        // Simple ping implementation using system ping
-        // In a real implementation, this would use raw ICMP sockets
-        
+        // Ping implementation using raw ICMP sockets
+        let protocol = match self.target {
+            IpAddr::V4(_) => TransportProtocol::Ipv4(IpNextHeaderProtocols::Icmp),
+            IpAddr::V6(_) => TransportProtocol::Ipv6(IpNextHeaderProtocols::Icmpv6),
+        };
+
+        let mut sender = RawSocketSender::new(self.source_ip, protocol)?;
+
+        let mut rng = rand::thread_rng();
+        let identifier = rng.gen::<u16>();
+        let sequence = rng.gen::<u16>();
+        let payload = b"PING";
+
         let start = std::time::Instant::now();
-        
-        // Simulate ping delay
-        tokio::time::sleep(Duration::from_millis(10)).await;
-        
-        Ok(start.elapsed())
+
+        // Send ICMP echo request
+        sender.send_icmp_echo(self.target, identifier, sequence, payload, 64, true)?;
+
+        // Receive ICMP echo reply
+        match sender.receive_icmp(self.timeout).await {
+            Ok(_) => Ok(start.elapsed()),
+            Err(e) => Err(e),
+        }
     }
 
     pub async fn traceroute(&self, max_hops: u8) -> Result<Vec<(u8, Option<IpAddr>, Duration)>> {

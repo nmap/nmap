@@ -1,0 +1,81 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: rmap
+  labels:
+    app: rmap
+    component: api
+rules:
+# Allow reading configmaps for configuration
+- apiGroups: [""]
+  resources: ["configmaps"]
+  verbs: ["get", "list", "watch"]
+
+# Allow reading secrets for credentials
+- apiGroups: [""]
+  resources: ["secrets"]
+  verbs: ["get", "list"]
+
+# Allow creating/managing scan jobs (if using Jobs for scans)
+- apiGroups: ["batch"]
+  resources: ["jobs"]
+  verbs: ["get", "list", "create", "delete"]
+
+# Allow pod listing for service discovery
+- apiGroups: [""]
+  resources: ["pods"]
+  verbs: ["get", "list"]
+
+# Allow service listing for internal networking
+- apiGroups: [""]
+  resources: ["services"]
+  verbs: ["get", "list"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: rmap
+  labels:
+    app: rmap
+    component: api
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: rmap
+subjects:
+- kind: ServiceAccount
+  name: rmap
+  namespace: default
+---
+# Scanner role with elevated permissions for network scanning
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: rmap-scanner
+  labels:
+    app: rmap
+    component: scanner
+rules:
+# Minimal permissions for scanner jobs
+- apiGroups: [""]
+  resources: ["pods"]
+  verbs: ["get", "list"]
+- apiGroups: [""]
+  resources: ["services"]
+  verbs: ["get", "list"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: rmap-scanner
+  labels:
+    app: rmap
+    component: scanner
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: rmap-scanner
+subjects:
+- kind: ServiceAccount
+  name: rmap-scanner
+  namespace: default

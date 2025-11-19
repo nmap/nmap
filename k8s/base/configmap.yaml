@@ -1,0 +1,48 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: rmap-config
+  labels:
+    app: rmap
+    component: api
+data:
+  # Logging configuration
+  log_level: "info"
+
+  # API server configuration
+  api_timeout: "30"
+  max_connections: "1000"
+
+  # Scanner configuration
+  max_concurrent_scans: "10"
+  scan_timeout: "300"
+
+  # Rate limiting
+  rate_limit_enabled: "true"
+  rate_limit_requests: "100"
+  rate_limit_window: "60"
+
+  # Feature flags
+  websocket_enabled: "true"
+  metrics_enabled: "true"
+
+  # Application configuration file (optional)
+  app.yaml: |
+    api:
+      bind_address: "0.0.0.0:8080"
+      timeout_seconds: 30
+      max_connections: 1000
+
+    scanner:
+      max_concurrent: 10
+      timeout_seconds: 300
+      default_timing: T3
+
+    metrics:
+      enabled: true
+      port: 3001
+      path: /metrics
+
+    logging:
+      level: info
+      format: json

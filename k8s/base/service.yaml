@@ -1,0 +1,53 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: rmap
+  labels:
+    app: rmap
+    component: api
+  annotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "3001"
+    prometheus.io/path: "/metrics"
+spec:
+  type: ClusterIP
+  selector:
+    app: rmap
+    component: api
+  ports:
+  - name: http
+    port: 8080
+    targetPort: http
+    protocol: TCP
+  - name: metrics
+    port: 3001
+    targetPort: metrics
+    protocol: TCP
+  # Session affinity for WebSocket support
+  sessionAffinity: ClientIP
+  sessionAffinityConfig:
+    clientIP:
+      timeoutSeconds: 10800  # 3 hours
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: rmap-headless
+  labels:
+    app: rmap
+    component: api
+spec:
+  type: ClusterIP
+  clusterIP: None
+  selector:
+    app: rmap
+    component: api
+  ports:
+  - name: http
+    port: 8080
+    targetPort: http
+    protocol: TCP
+  - name: metrics
+    port: 3001
+    targetPort: metrics
+    protocol: TCP

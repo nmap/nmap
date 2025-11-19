@@ -1,0 +1,86 @@
+==============================================================================
+  R-Map has been deployed successfully!
+==============================================================================
+
+Application: {{ include "rmap.fullname" . }}
+Namespace: {{ .Release.Namespace }}
+Version: {{ .Chart.AppVersion }}
+
+{{- if .Values.ingress.enabled }}
+
+Your application is accessible at:
+{{- range .Values.ingress.hosts }}
+  - https://{{ .host }}
+{{- end }}
+
+{{- else }}
+
+To access your application:
+
+1. Get the application URL by running:
+
+{{- if contains "NodePort" .Values.service.type }}
+
+  export NODE_PORT=$(kubectl get --namespace {{ .Release.Namespace }} -o jsonpath="{.spec.ports[0].nodePort}" services {{ include "rmap.fullname" . }})
+  export NODE_IP=$(kubectl get nodes --namespace {{ .Release.Namespace }} -o jsonpath="{.items[0].status.addresses[0].address}")
+  echo http://$NODE_IP:$NODE_PORT
+
+{{- else if contains "LoadBalancer" .Values.service.type }}
+
+  NOTE: It may take a few minutes for the LoadBalancer IP to be available.
+        Watch the status with: kubectl get svc --namespace {{ .Release.Namespace }} -w {{ include "rmap.fullname" . }}
+
+  export SERVICE_IP=$(kubectl get svc --namespace {{ .Release.Namespace }} {{ include "rmap.fullname" . }} --template "{{"{{ range (index .status.loadBalancer.ingress 0) }}{{.}}{{ end }}"}}")
+  echo http://$SERVICE_IP:{{ .Values.service.port }}
+
+{{- else if contains "ClusterIP" .Values.service.type }}
+
+  kubectl --namespace {{ .Release.Namespace }} port-forward svc/{{ include "rmap.fullname" . }} 8080:{{ .Values.service.port }}
+
+  Then visit: http://localhost:8080
+
+{{- end }}
+{{- end }}
+
+Monitoring:
+{{- if .Values.monitoring.serviceMonitor.enabled }}
+  - ServiceMonitor enabled: Prometheus will scrape metrics from port {{ .Values.service.metricsPort }}
+{{- else }}
+  - ServiceMonitor disabled: Enable in values.yaml to integrate with Prometheus
+{{- end }}
+
+Health checks:
+  - Liveness:  http://{{ include "rmap.fullname" . }}:{{ .Values.service.port }}/health
+  - Readiness: http://{{ include "rmap.fullname" . }}:{{ .Values.service.port }}/ready
+  - Metrics:   http://{{ include "rmap.fullname" . }}:{{ .Values.service.metricsPort }}/metrics
+
+Scaling:
+{{- if .Values.autoscaling.enabled }}
+  - HPA enabled: {{ .Values.autoscaling.minReplicas }}-{{ .Values.autoscaling.maxReplicas }} replicas
+  - Target CPU: {{ .Values.autoscaling.targetCPUUtilizationPercentage }}%
+  - Target Memory: {{ .Values.autoscaling.targetMemoryUtilizationPercentage }}%
+{{- else }}
+  - Fixed replicas: {{ .Values.replicaCount }}
+{{- end }}
+
+{{- if not .Values.secrets.externalSecret.enabled }}
+
+⚠️  SECURITY WARNING ⚠️
+The JWT secret is currently stored as a plain Kubernetes Secret.
+For production environments, please use:
+  - Sealed Secrets (bitnami-labs/sealed-secrets)
+  - External Secrets Operator (external-secrets/external-secrets)
+  - HashiCorp Vault
+
+{{- end }}
+
+To check the status of your deployment:
+
+  kubectl get pods --namespace {{ .Release.Namespace }} -l "app.kubernetes.io/name={{ include "rmap.name" . }},app.kubernetes.io/instance={{ .Release.Name }}"
+
+To view logs:
+
+  kubectl logs --namespace {{ .Release.Namespace }} -l "app.kubernetes.io/name={{ include "rmap.name" . }}" -f
+
+For more information, visit:
+  https://github.com/Ununp3ntium115/R-map

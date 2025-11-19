@@ -1,0 +1,67 @@
+# Note: PodSecurityPolicy is deprecated in Kubernetes 1.25+
+# Use Pod Security Admission (PSA) or external policy engines like OPA/Kyverno instead
+# This file is kept for backward compatibility with older clusters
+
+apiVersion: policy/v1beta1
+kind: PodSecurityPolicy
+metadata:
+  name: rmap-restricted
+  labels:
+    app: rmap
+  annotations:
+    seccomp.security.alpha.kubernetes.io/allowedProfileNames: 'runtime/default'
+    apparmor.security.beta.kubernetes.io/allowedProfileNames: 'runtime/default'
+    seccomp.security.alpha.kubernetes.io/defaultProfileName: 'runtime/default'
+    apparmor.security.beta.kubernetes.io/defaultProfileName: 'runtime/default'
+spec:
+  privileged: false
+  allowPrivilegeEscalation: false
+
+  # Required security settings
+  requiredDropCapabilities:
+  - ALL
+
+  # Volume types allowed
+  volumes:
+  - 'configMap'
+  - 'emptyDir'
+  - 'projected'
+  - 'secret'
+  - 'downwardAPI'
+  - 'persistentVolumeClaim'
+
+  # Host network/ports/IPC
+  hostNetwork: false
+  hostIPC: false
+  hostPID: false
+
+  # RunAsUser strategy
+  runAsUser:
+    rule: 'MustRunAsNonRoot'
+
+  # SELinux
+  seLinux:
+    rule: 'RunAsAny'
+
+  # Supplemental groups
+  supplementalGroups:
+    rule: 'RunAsAny'
+
+  # FSGroup
+  fsGroup:
+    rule: 'RunAsAny'
+
+  # Read-only root filesystem
+  readOnlyRootFilesystem: true
+---
+# For Kubernetes 1.25+, use Pod Security Standards instead
+# Create a namespace with Pod Security labels:
+#
+# apiVersion: v1
+# kind: Namespace
+# metadata:
+#   name: rmap-prod
+#   labels:
+#     pod-security.kubernetes.io/enforce: restricted
+#     pod-security.kubernetes.io/audit: restricted
+#     pod-security.kubernetes.io/warn: restricted

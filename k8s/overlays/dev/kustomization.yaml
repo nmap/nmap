@@ -1,0 +1,89 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+metadata:
+  name: rmap-dev
+  annotations:
+    description: "Development environment overlay for R-Map"
+
+# Reference to base
+resources:
+- ../../base
+
+# Namespace for dev
+namespace: rmap-dev
+
+# Name prefix for all resources
+namePrefix: dev-
+
+# Common labels for dev environment
+commonLabels:
+  environment: dev
+  tier: development
+
+# Common annotations
+commonAnnotations:
+  environment: development
+  managed-by: kustomize
+
+# Image tag override for dev
+images:
+- name: ghcr.io/ununp3ntium115/r-map
+  newTag: dev
+
+# Replica count patches
+patches:
+# Reduce replicas to 1 for dev
+- target:
+    kind: Deployment
+    name: rmap
+  patch: |-
+    - op: replace
+      path: /spec/replicas
+      value: 1
+
+# Disable HPA in dev (or reduce min/max)
+- target:
+    kind: HorizontalPodAutoscaler
+    name: rmap
+  patch: |-
+    - op: replace
+      path: /spec/minReplicas
+      value: 1
+    - op: replace
+      path: /spec/maxReplicas
+      value: 2
+
+# Reduce resource requests/limits for dev
+- target:
+    kind: Deployment
+    name: rmap
+  patch: |-
+    - op: replace
+      path: /spec/template/spec/containers/0/resources/requests/cpu
+      value: "100m"
+    - op: replace
+      path: /spec/template/spec/containers/0/resources/requests/memory
+      value: "128Mi"
+    - op: replace
+      path: /spec/template/spec/containers/0/resources/limits/cpu
+      value: "500m"
+    - op: replace
+      path: /spec/template/spec/containers/0/resources/limits/memory
+      value: "512Mi"
+
+# ConfigMap overrides for dev
+configMapGenerator:
+- name: rmap-config
+  behavior: merge
+  literals:
+  - log_level=debug
+  - max_concurrent_scans=5
+  - rate_limit_enabled=false
+
+# Secret generator for dev (still needs to be replaced with real values)
+secretGenerator:
+- name: rmap-secret
+  behavior: merge
+  literals:
+  - jwt-secret=dev-secret-change-me

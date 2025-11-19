@@ -1,0 +1,40 @@
+{{- if .Values.monitoring.serviceMonitor.enabled }}
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ include "rmap.fullname" . }}
+  labels:
+    {{- include "rmap.labels" . | nindent 4 }}
+    prometheus: kube-prometheus
+spec:
+  selector:
+    matchLabels:
+      {{- include "rmap.selectorLabels" . | nindent 6 }}
+      component: api
+
+  endpoints:
+  - port: metrics
+    path: /metrics
+    interval: {{ .Values.monitoring.serviceMonitor.interval }}
+    scrapeTimeout: {{ .Values.monitoring.serviceMonitor.scrapeTimeout }}
+    scheme: http
+
+    relabelings:
+    - sourceLabels: [__meta_kubernetes_namespace]
+      targetLabel: namespace
+      action: replace
+    - sourceLabels: [__meta_kubernetes_pod_name]
+      targetLabel: pod
+      action: replace
+    - sourceLabels: [__meta_kubernetes_service_name]
+      targetLabel: service
+      action: replace
+
+    metricRelabelings:
+    - targetLabel: application
+      replacement: rmap
+      action: replace
+
+  jobLabel: app.kubernetes.io/name
+  sampleLimit: 10000
+{{- end }}

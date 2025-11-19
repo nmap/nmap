@@ -1,0 +1,176 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: rmap-alerts
+  labels:
+    app: rmap
+    prometheus: kube-prometheus
+    role: alert-rules
+spec:
+  groups:
+  # Availability alerts
+  - name: rmap-availability
+    interval: 30s
+    rules:
+    # Alert when any pod is down
+    - alert: RMapPodDown
+      expr: up{job="rmap"} == 0
+      for: 5m
+      labels:
+        severity: critical
+        component: rmap
+      annotations:
+        summary: "R-Map pod is down"
+        description: "R-Map pod {{ $labels.pod }} in namespace {{ $labels.namespace }} has been down for more than 5 minutes."
+        runbook_url: "https://github.com/Ununp3ntium115/R-map/docs/runbooks/pod-down.md"
+
+    # Alert when deployment has no ready replicas
+    - alert: RMapDeploymentNoReplicas
+      expr: kube_deployment_status_replicas_ready{deployment="rmap"} == 0
+      for: 5m
+      labels:
+        severity: critical
+        component: rmap
+      annotations:
+        summary: "R-Map deployment has no ready replicas"
+        description: "R-Map deployment in namespace {{ $labels.namespace }} has had no ready replicas for more than 5 minutes."
+
+    # Alert when deployment is not at desired replica count
+    - alert: RMapDeploymentReplicasMismatch
+      expr: |
+        kube_deployment_spec_replicas{deployment="rmap"}
+        != kube_deployment_status_replicas_available{deployment="rmap"}
+      for: 15m
+      labels:
+        severity: warning
+        component: rmap
+      annotations:
+        summary: "R-Map deployment replica mismatch"
+        description: "R-Map deployment {{ $labels.deployment }} in namespace {{ $labels.namespace }} has not matched the desired replica count for 15 minutes."
+
+  # Performance alerts
+  - name: rmap-performance
+    interval: 30s
+    rules:
+    # High CPU usage
+    - alert: RMapHighCPU
+      expr: |
+        rate(container_cpu_usage_seconds_total{pod=~"rmap-.*"}[5m]) > 0.8
+      for: 10m
+      labels:
+        severity: warning
+        component: rmap
+      annotations:
+        summary: "R-Map pod high CPU usage"
+        description: "R-Map pod {{ $labels.pod }} is using more than 80% CPU for 10 minutes."
+
+    # High memory usage
+    - alert: RMapHighMemory
+      expr: |
+        container_memory_working_set_bytes{pod=~"rmap-.*"}
+        / container_spec_memory_limit_bytes{pod=~"rmap-.*"} > 0.9
+      for: 10m
+      labels:
+        severity: warning
+        component: rmap
+      annotations:
+        summary: "R-Map pod high memory usage"
+        description: "R-Map pod {{ $labels.pod }} is using more than 90% of its memory limit for 10 minutes."
+
+    # Container restarts
+    - alert: RMapFrequentRestarts
+      expr: rate(kube_pod_container_status_restarts_total{pod=~"rmap-.*"}[1h]) > 5
+      for: 5m
+      labels:
+        severity: warning
+        component: rmap
+      annotations:
+        summary: "R-Map pod restarting frequently"
+        description: "R-Map pod {{ $labels.pod }} has restarted more than 5 times in the last hour."
+
+  # API/Application alerts
+  - name: rmap-application
+    interval: 30s
+    rules:
+    # High error rate (example - adjust based on your actual metrics)
+    - alert: RMapHighErrorRate
+      expr: |
+        rate(http_requests_total{job="rmap",status=~"5.."}[5m])
+        / rate(http_requests_total{job="rmap"}[5m]) > 0.05
+      for: 5m
+      labels:
+        severity: warning
+        component: rmap
+      annotations:
+        summary: "R-Map high error rate"
+        description: "R-Map is experiencing a high error rate (>5%) for the last 5 minutes."
+
+    # High request latency (example - adjust based on your actual metrics)
+    - alert: RMapHighLatency
+      expr: |
+        histogram_quantile(0.95,
+          rate(http_request_duration_seconds_bucket{job="rmap"}[5m])
+        ) > 1.0
+      for: 10m
+      labels:
+        severity: warning
+        component: rmap
+      annotations:
+        summary: "R-Map high latency"
+        description: "R-Map p95 latency is above 1 second for 10 minutes."
+
+    # No requests (possible issue)
+    - alert: RMapNoRequests
+      expr: rate(http_requests_total{job="rmap"}[5m]) == 0
+      for: 15m
+      labels:
+        severity: warning
+        component: rmap
+      annotations:
+        summary: "R-Map receiving no requests"
+        description: "R-Map has received no requests in the last 15 minutes. This may indicate a problem."
+
+  # HPA alerts
+  - name: rmap-autoscaling
+    interval: 30s
+    rules:
+    # HPA at max replicas
+    - alert: RMapHPAMaxReplicas
+      expr: |
+        kube_horizontalpodautoscaler_status_current_replicas{horizontalpodautoscaler="rmap"}
+        >= kube_horizontalpodautoscaler_spec_max_replicas{horizontalpodautoscaler="rmap"}
+      for: 15m
+      labels:
+        severity: warning
+        component: rmap
+      annotations:
+        summary: "R-Map HPA at maximum replicas"
+        description: "R-Map HPA has been running at maximum replicas for 15 minutes. Consider increasing max replicas or investigating load."
+
+    # HPA unable to scale
+    - alert: RMapHPAScaleFailure
+      expr: kube_horizontalpodautoscaler_status_condition{condition="ScalingLimited",status="true",horizontalpodautoscaler="rmap"} == 1
+      for: 10m
+      labels:
+        severity: warning
+        component: rmap
+      annotations:
+        summary: "R-Map HPA unable to scale"
+        description: "R-Map HPA is unable to scale in namespace {{ $labels.namespace }}."
+
+  # Storage/PVC alerts (if using persistent storage)
+  - name: rmap-storage
+    interval: 60s
+    rules:
+    # High disk usage (if applicable)
+    - alert: RMapHighDiskUsage
+      expr: |
+        (kubelet_volume_stats_used_bytes{persistentvolumeclaim=~"rmap-.*"}
+        / kubelet_volume_stats_capacity_bytes{persistentvolumeclaim=~"rmap-.*"}) > 0.85
+      for: 10m
+      labels:
+        severity: warning
+        component: rmap
+      annotations:
+        summary: "R-Map PVC high disk usage"
+        description: "R-Map PVC {{ $labels.persistentvolumeclaim }} is more than 85% full."

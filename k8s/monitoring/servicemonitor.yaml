@@ -1,0 +1,63 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: rmap
+  labels:
+    app: rmap
+    component: api
+    prometheus: kube-prometheus
+spec:
+  # Selector for the service to monitor
+  selector:
+    matchLabels:
+      app: rmap
+      component: api
+
+  # Namespace selector (optional - monitors services in any namespace with the label)
+  # namespaceSelector:
+  #   matchNames:
+  #   - default
+  #   - rmap-prod
+
+  # Endpoints to scrape
+  endpoints:
+  - port: metrics
+    path: /metrics
+    interval: 30s
+    scrapeTimeout: 10s
+    scheme: http
+
+    # Relabeling configuration
+    relabelings:
+    # Add namespace label
+    - sourceLabels: [__meta_kubernetes_namespace]
+      targetLabel: namespace
+      action: replace
+
+    # Add pod name label
+    - sourceLabels: [__meta_kubernetes_pod_name]
+      targetLabel: pod
+      action: replace
+
+    # Add service name label
+    - sourceLabels: [__meta_kubernetes_service_name]
+      targetLabel: service
+      action: replace
+
+    # Metric relabeling (optional - for filtering/transforming metrics)
+    metricRelabelings:
+    # Drop metrics that are too verbose (example)
+    # - sourceLabels: [__name__]
+    #   regex: 'go_gc_.*'
+    #   action: drop
+
+    # Add application label
+    - targetLabel: application
+      replacement: rmap
+      action: replace
+
+  # Job label (appears as 'job' in Prometheus)
+  jobLabel: app
+
+  # Sample limit (optional - prevents cardinality explosion)
+  sampleLimit: 10000

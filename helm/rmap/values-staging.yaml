@@ -1,0 +1,71 @@
+# Staging environment overrides
+
+# Moderate replicas for staging
+replicaCount: 2
+
+# Use staging image tag
+image:
+  tag: "staging"
+  pullPolicy: IfNotPresent
+
+# Moderate autoscaling
+autoscaling:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 5
+
+# Moderate resources for staging
+resources:
+  limits:
+    cpu: 1000m
+    memory: 768Mi
+  requests:
+    cpu: 250m
+    memory: 256Mi
+
+# Staging configuration
+config:
+  logLevel: info
+  maxConcurrentScans: 10
+  rateLimitEnabled: true
+  rateLimitRequests: 200
+
+# Enable monitoring in staging
+monitoring:
+  serviceMonitor:
+    enabled: true
+    interval: 30s
+  prometheusRule:
+    enabled: true
+
+# Enable PDB in staging
+podDisruptionBudget:
+  enabled: true
+  minAvailable: 1
+
+# Enable NetworkPolicy in staging
+networkPolicy:
+  enabled: true
+
+# Staging ingress
+ingress:
+  enabled: true
+  className: nginx
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-staging
+    nginx.ingress.kubernetes.io/limit-rps: "200"
+  hosts:
+  - host: rmap-staging.example.com
+    paths:
+    - path: /
+      pathType: Prefix
+  tls:
+  - secretName: rmap-staging-tls
+    hosts:
+    - rmap-staging.example.com
+
+# Staging secret (replace with sealed secret or external secret)
+secrets:
+  jwtSecret: "staging-secret-replace-with-sealed-secret"
+  externalSecret:
+    enabled: false

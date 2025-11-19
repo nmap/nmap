@@ -1,0 +1,55 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "rmap.fullname" . }}
+  labels:
+    {{- include "rmap.labels" . | nindent 4 }}
+    component: api
+  {{- with .Values.service.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  type: {{ .Values.service.type }}
+  selector:
+    {{- include "rmap.selectorLabels" . | nindent 4 }}
+    component: api
+  ports:
+  - name: http
+    port: {{ .Values.service.port }}
+    targetPort: http
+    protocol: TCP
+  - name: metrics
+    port: {{ .Values.service.metricsPort }}
+    targetPort: metrics
+    protocol: TCP
+  {{- if .Values.service.sessionAffinity }}
+  sessionAffinity: {{ .Values.service.sessionAffinity }}
+  {{- end }}
+  {{- with .Values.service.sessionAffinityConfig }}
+  sessionAffinityConfig:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "rmap.fullname" . }}-headless
+  labels:
+    {{- include "rmap.labels" . | nindent 4 }}
+    component: api
+spec:
+  type: ClusterIP
+  clusterIP: None
+  selector:
+    {{- include "rmap.selectorLabels" . | nindent 4 }}
+    component: api
+  ports:
+  - name: http
+    port: {{ .Values.service.port }}
+    targetPort: http
+    protocol: TCP
+  - name: metrics
+    port: {{ .Values.service.metricsPort }}
+    targetPort: metrics
+    protocol: TCP

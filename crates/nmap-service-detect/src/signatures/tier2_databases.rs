@@ -319,5 +319,283 @@ pub fn load_tier2_database_signatures() -> Vec<ServiceSignature> {
         protocol: "tcp".to_string(),
     });
 
+    // TimescaleDB (PostgreSQL extension)
+    signatures.push(ServiceSignature {
+        service_name: "timescaledb".to_string(),
+        probe_name: "PostgreSQL".to_string(),
+        pattern: r"TimescaleDB.*([0-9]+\.[0-9]+(?:\.[0-9]+)?)".to_string(),
+        version_info: Some(VersionInfo {
+            product: Some("TimescaleDB".to_string()),
+            version: Some("$1".to_string()),
+            info: Some("Time-series database on PostgreSQL".to_string()),
+            hostname: None,
+            os_type: None,
+            device_type: None,
+            cpe: vec!["cpe:/a:timescale:timescaledb:$1".to_string()],
+        }),
+        ports: vec![5432],
+        protocol: "tcp".to_string(),
+    });
+
+    // ========== DISTRIBUTED DATABASES ==========
+
+    // ClickHouse
+    signatures.push(ServiceSignature {
+        service_name: "clickhouse".to_string(),
+        probe_name: "GetRequest".to_string(),
+        pattern: r"ClickHouse.*([0-9]+\.[0-9]+\.[0-9]+)".to_string(),
+        version_info: Some(VersionInfo {
+            product: Some("ClickHouse".to_string()),
+            version: Some("$1".to_string()),
+            info: Some("OLAP database".to_string()),
+            hostname: None,
+            os_type: None,
+            device_type: None,
+            cpe: vec!["cpe:/a:clickhouse:clickhouse:$1".to_string()],
+        }),
+        ports: vec![9000, 8123],
+        protocol: "tcp".to_string(),
+    });
+
+    // ScyllaDB (Cassandra-compatible)
+    signatures.push(ServiceSignature {
+        service_name: "scylladb".to_string(),
+        probe_name: "Cassandra".to_string(),
+        pattern: r"Scylla.*([0-9]+\.[0-9]+\.[0-9]+)".to_string(),
+        version_info: Some(VersionInfo {
+            product: Some("ScyllaDB".to_string()),
+            version: Some("$1".to_string()),
+            info: Some("NoSQL database (Cassandra-compatible)".to_string()),
+            hostname: None,
+            os_type: None,
+            device_type: None,
+            cpe: vec!["cpe:/a:scylladb:scylla:$1".to_string()],
+        }),
+        ports: vec![9042],
+        protocol: "tcp".to_string(),
+    });
+
+    // CockroachDB
+    signatures.push(ServiceSignature {
+        service_name: "cockroachdb".to_string(),
+        probe_name: "PostgreSQL".to_string(),
+        pattern: r"CockroachDB.*v([0-9]+\.[0-9]+\.[0-9]+)".to_string(),
+        version_info: Some(VersionInfo {
+            product: Some("CockroachDB".to_string()),
+            version: Some("$1".to_string()),
+            info: Some("Distributed SQL database".to_string()),
+            hostname: None,
+            os_type: None,
+            device_type: None,
+            cpe: vec!["cpe:/a:cockroach_labs:cockroachdb:$1".to_string()],
+        }),
+        ports: vec![26257],
+        protocol: "tcp".to_string(),
+    });
+
+    // YugabyteDB
+    signatures.push(ServiceSignature {
+        service_name: "yugabytedb".to_string(),
+        probe_name: "PostgreSQL".to_string(),
+        pattern: r"YugabyteDB.*([0-9]+\.[0-9]+\.[0-9]+)".to_string(),
+        version_info: Some(VersionInfo {
+            product: Some("YugabyteDB".to_string()),
+            version: Some("$1".to_string()),
+            info: Some("Distributed SQL database".to_string()),
+            hostname: None,
+            os_type: None,
+            device_type: None,
+            cpe: vec!["cpe:/a:yugabyte:yugabytedb:$1".to_string()],
+        }),
+        ports: vec![7000, 9000],
+        protocol: "tcp".to_string(),
+    });
+
+    // TiDB
+    signatures.push(ServiceSignature {
+        service_name: "tidb".to_string(),
+        probe_name: "MySQL".to_string(),
+        pattern: r"TiDB.*([0-9]+\.[0-9]+\.[0-9]+)".to_string(),
+        version_info: Some(VersionInfo {
+            product: Some("TiDB".to_string()),
+            version: Some("$1".to_string()),
+            info: Some("Distributed SQL database".to_string()),
+            hostname: None,
+            os_type: None,
+            device_type: None,
+            cpe: vec!["cpe:/a:pingcap:tidb:$1".to_string()],
+        }),
+        ports: vec![4000],
+        protocol: "tcp".to_string(),
+    });
+
+    // Vitess
+    signatures.push(ServiceSignature {
+        service_name: "vitess".to_string(),
+        probe_name: "MySQL".to_string(),
+        pattern: r"Vitess.*([0-9]+\.[0-9]+\.[0-9]+)".to_string(),
+        version_info: Some(VersionInfo {
+            product: Some("Vitess".to_string()),
+            version: Some("$1".to_string()),
+            info: Some("MySQL sharding middleware".to_string()),
+            hostname: None,
+            os_type: None,
+            device_type: None,
+            cpe: vec!["cpe:/a:vitess:vitess:$1".to_string()],
+        }),
+        ports: vec![15991, 15999],
+        protocol: "tcp".to_string(),
+    });
+
+    // ========== MULTI-MODEL DATABASES ==========
+
+    // ArangoDB
+    signatures.push(ServiceSignature {
+        service_name: "arangodb".to_string(),
+        probe_name: "GetRequest".to_string(),
+        pattern: r#""server":"arango".*"version":"([0-9.]+)""#.to_string(),
+        version_info: Some(VersionInfo {
+            product: Some("ArangoDB".to_string()),
+            version: Some("$1".to_string()),
+            info: Some("Multi-model database".to_string()),
+            hostname: None,
+            os_type: None,
+            device_type: None,
+            cpe: vec!["cpe:/a:arangodb:arangodb:$1".to_string()],
+        }),
+        ports: vec![8529],
+        protocol: "tcp".to_string(),
+    });
+
+    // OrientDB
+    signatures.push(ServiceSignature {
+        service_name: "orientdb".to_string(),
+        probe_name: "GetRequest".to_string(),
+        pattern: r"OrientDB.*([0-9]+\.[0-9]+\.[0-9]+)".to_string(),
+        version_info: Some(VersionInfo {
+            product: Some("OrientDB".to_string()),
+            version: Some("$1".to_string()),
+            info: Some("Multi-model database".to_string()),
+            hostname: None,
+            os_type: None,
+            device_type: None,
+            cpe: vec!["cpe:/a:orientdb:orientdb:$1".to_string()],
+        }),
+        ports: vec![2424, 2480],
+        protocol: "tcp".to_string(),
+    });
+
+    // Couchbase
+    signatures.push(ServiceSignature {
+        service_name: "couchbase".to_string(),
+        probe_name: "GetRequest".to_string(),
+        pattern: r#""version":"([0-9.]+)".*Couchbase"#.to_string(),
+        version_info: Some(VersionInfo {
+            product: Some("Couchbase Server".to_string()),
+            version: Some("$1".to_string()),
+            info: Some("NoSQL document database".to_string()),
+            hostname: None,
+            os_type: None,
+            device_type: None,
+            cpe: vec!["cpe:/a:couchbase:couchbase_server:$1".to_string()],
+        }),
+        ports: vec![8091, 8092, 8093, 8094, 8095, 8096],
+        protocol: "tcp".to_string(),
+    });
+
+    // SurrealDB
+    signatures.push(ServiceSignature {
+        service_name: "surrealdb".to_string(),
+        probe_name: "GetRequest".to_string(),
+        pattern: r"SurrealDB.*([0-9]+\.[0-9]+\.[0-9]+)".to_string(),
+        version_info: Some(VersionInfo {
+            product: Some("SurrealDB".to_string()),
+            version: Some("$1".to_string()),
+            info: Some("Multi-model database".to_string()),
+            hostname: None,
+            os_type: None,
+            device_type: None,
+            cpe: vec!["cpe:/a:surrealdb:surrealdb:$1".to_string()],
+        }),
+        ports: vec![8000],
+        protocol: "tcp".to_string(),
+    });
+
+    // ========== GRAPH DATABASES ==========
+
+    // Dgraph
+    signatures.push(ServiceSignature {
+        service_name: "dgraph".to_string(),
+        probe_name: "GetRequest".to_string(),
+        pattern: r#""version":"v([0-9.]+)".*dgraph"#.to_string(),
+        version_info: Some(VersionInfo {
+            product: Some("Dgraph".to_string()),
+            version: Some("$1".to_string()),
+            info: Some("Graph database".to_string()),
+            hostname: None,
+            os_type: None,
+            device_type: None,
+            cpe: vec!["cpe:/a:dgraph:dgraph:$1".to_string()],
+        }),
+        ports: vec![8080, 9080],
+        protocol: "tcp".to_string(),
+    });
+
+    // ========== CLOUD-NATIVE & TESTING DATABASES ==========
+
+    // DynamoDB Local
+    signatures.push(ServiceSignature {
+        service_name: "dynamodb-local".to_string(),
+        probe_name: "GetRequest".to_string(),
+        pattern: r"DynamoDB Local|X-Amzn-RequestId".to_string(),
+        version_info: Some(VersionInfo {
+            product: Some("Amazon DynamoDB Local".to_string()),
+            version: None,
+            info: Some("Local testing version".to_string()),
+            hostname: None,
+            os_type: None,
+            device_type: None,
+            cpe: vec!["cpe:/a:amazon:dynamodb_local".to_string()],
+        }),
+        ports: vec![8000],
+        protocol: "tcp".to_string(),
+    });
+
+    // FaunaDB
+    signatures.push(ServiceSignature {
+        service_name: "faunadb".to_string(),
+        probe_name: "GetRequest".to_string(),
+        pattern: r"Fauna".to_string(),
+        version_info: Some(VersionInfo {
+            product: Some("FaunaDB".to_string()),
+            version: None,
+            info: Some("Distributed document-relational database".to_string()),
+            hostname: None,
+            os_type: None,
+            device_type: None,
+            cpe: vec!["cpe:/a:fauna:faunadb".to_string()],
+        }),
+        ports: vec![8443],
+        protocol: "tcp".to_string(),
+    });
+
+    // Firestore Emulator
+    signatures.push(ServiceSignature {
+        service_name: "firestore".to_string(),
+        probe_name: "GetRequest".to_string(),
+        pattern: r"Cloud Firestore Emulator".to_string(),
+        version_info: Some(VersionInfo {
+            product: Some("Google Cloud Firestore Emulator".to_string()),
+            version: None,
+            info: Some("NoSQL document database emulator".to_string()),
+            hostname: None,
+            os_type: None,
+            device_type: None,
+            cpe: vec!["cpe:/a:google:cloud_firestore".to_string()],
+        }),
+        ports: vec![8080],
+        protocol: "tcp".to_string(),
+    });
+
     signatures
 }

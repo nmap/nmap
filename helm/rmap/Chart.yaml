@@ -1,0 +1,38 @@
+apiVersion: v2
+name: rmap
+description: A Helm chart for R-Map - Modern network scanner written in Rust
+type: application
+
+# Application version
+version: 0.2.0
+appVersion: "0.2.0"
+
+# Metadata
+keywords:
+- network-scanner
+- nmap
+- rust
+- security
+- networking
+
+home: https://github.com/Ununp3ntium115/R-map
+sources:
+- https://github.com/Ununp3ntium115/R-map
+
+maintainers:
+- name: R-Map Team
+  email: team@rmap.example.com
+  url: https://github.com/Ununp3ntium115/R-map
+
+# Icon for the chart (optional)
+# icon: https://raw.githubusercontent.com/Ununp3ntium115/R-map/main/docs/logo.png
+
+# Kubernetes version constraint
+kubeVersion: ">=1.25.0-0"
+
+# Dependencies (if any)
+dependencies: []
+# - name: postgresql
+#   version: "12.x.x"
+#   repository: https://charts.bitnami.com/bitnami
+#   condition: postgresql.enabled

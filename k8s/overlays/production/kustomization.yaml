@@ -1,0 +1,105 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+metadata:
+  name: rmap-production
+  annotations:
+    description: "Production environment overlay for R-Map"
+
+# Reference to base
+resources:
+- ../../base
+- ingress.yaml
+- podsecuritypolicy.yaml
+
+# Namespace for production
+namespace: rmap-prod
+
+# Name prefix for all resources
+namePrefix: prod-
+
+# Common labels for production environment
+commonLabels:
+  environment: production
+  tier: production
+
+# Common annotations
+commonAnnotations:
+  environment: production
+  managed-by: kustomize
+  contact: ops-team@example.com
+
+# Image tag override for production (use specific versions, not 'latest')
+images:
+- name: ghcr.io/ununp3ntium115/r-map
+  newTag: v0.2.0
+
+# Replica count patches
+patches:
+# Set replicas to 3 for production
+- target:
+    kind: Deployment
+    name: rmap
+  patch: |-
+    - op: replace
+      path: /spec/replicas
+      value: 3
+
+# HPA settings for production
+- target:
+    kind: HorizontalPodAutoscaler
+    name: rmap
+  patch: |-
+    - op: replace
+      path: /spec/minReplicas
+      value: 3
+    - op: replace
+      path: /spec/maxReplicas
+      value: 10
+
+# Production resource requests/limits
+- target:
+    kind: Deployment
+    name: rmap
+  patch: |-
+    - op: replace
+      path: /spec/template/spec/containers/0/resources/requests/cpu
+      value: "500m"
+    - op: replace
+      path: /spec/template/spec/containers/0/resources/requests/memory
+      value: "256Mi"
+    - op: replace
+      path: /spec/template/spec/containers/0/resources/limits/cpu
+      value: "2000m"
+    - op: replace
+      path: /spec/template/spec/containers/0/resources/limits/memory
+      value: "1Gi"
+
+# PodDisruptionBudget for production
+- target:
+    kind: PodDisruptionBudget
+    name: rmap
+  patch: |-
+    - op: replace
+      path: /spec/minAvailable
+      value: 2
+
+# ConfigMap overrides for production
+configMapGenerator:
+- name: rmap-config
+  behavior: merge
+  literals:
+  - log_level=info
+  - max_concurrent_scans=10
+  - rate_limit_enabled=true
+  - rate_limit_requests=100
+  - rate_limit_window=60
+
+# IMPORTANT: DO NOT use secretGenerator in production!
+# Use Sealed Secrets, External Secrets Operator, or Vault
+# This is just a placeholder - replace with proper secret management
+# secretGenerator:
+# - name: rmap-secret
+#   behavior: merge
+#   literals:
+#   - jwt-secret=USE_SEALED_SECRETS_OR_VAULT

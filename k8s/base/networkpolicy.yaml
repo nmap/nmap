@@ -1,0 +1,87 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: rmap
+  labels:
+    app: rmap
+    component: api
+spec:
+  podSelector:
+    matchLabels:
+      app: rmap
+      component: api
+
+  policyTypes:
+  - Ingress
+  - Egress
+
+  # Ingress rules - what can connect to R-Map
+  ingress:
+  # Allow ingress from ingress controller
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          name: ingress-nginx
+    - podSelector:
+        matchLabels:
+          app.kubernetes.io/name: ingress-nginx
+    ports:
+    - protocol: TCP
+      port: 8080
+
+  # Allow Prometheus to scrape metrics
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          name: monitoring
+    - podSelector:
+        matchLabels:
+          app: prometheus
+    ports:
+    - protocol: TCP
+      port: 3001
+
+  # Allow within same namespace (for service mesh, etc.)
+  - from:
+    - podSelector: {}
+    ports:
+    - protocol: TCP
+      port: 8080
+    - protocol: TCP
+      port: 3001
+
+  # Egress rules - what R-Map can connect to
+  egress:
+  # Allow DNS
+  - to:
+    - namespaceSelector:
+        matchLabels:
+          name: kube-system
+    - podSelector:
+        matchLabels:
+          k8s-app: kube-dns
+    ports:
+    - protocol: UDP
+      port: 53
+
+  # Allow HTTPS to external APIs (if needed)
+  - to:
+    - namespaceSelector: {}
+    ports:
+    - protocol: TCP
+      port: 443
+
+  # Allow HTTP to external services (if needed)
+  - to:
+    - namespaceSelector: {}
+    ports:
+    - protocol: TCP
+      port: 80
+
+  # Allow all egress for network scanning (R-Map specific)
+  # Comment out in production if you want stricter controls
+  - to:
+    - namespaceSelector: {}
+    ports:
+    - protocol: TCP
+    - protocol: UDP
