@@ -10,6 +10,10 @@ pub mod udp_tests;
 pub mod icmp_tests;
 pub mod raw_socket;
 pub mod utils;
+pub mod signatures;
+pub mod passive;
+pub mod app_layer;
+pub mod fusion;
 
 pub use fingerprint::*;
 pub use tcp_tests::*;
@@ -17,13 +21,27 @@ pub use udp_tests::*;
 pub use icmp_tests::*;
 pub use raw_socket::*;
 pub use utils::*;
+pub use signatures::SignatureDatabase;
+pub use passive::{PassiveDetector, PassiveSignature, OSHint as PassiveOSHint};
+pub use app_layer::{AppLayerDetector, OSHint as AppLayerOSHint};
+pub use fusion::{EvidenceFusion, Evidence, EvidenceSource, OSHint as FusionOSHint, DetailedResult, SourceInfo};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct OsMatch {
     pub name: String,
     pub accuracy: u8,
+    #[serde(default)]
     pub line: String,
+    #[serde(default)]
     pub os_class: Vec<OsClass>,
+    #[serde(default)]
+    pub cpe: Vec<String>,
+    #[serde(default)]
+    pub family: Option<String>,
+    #[serde(default)]
+    pub vendor: Option<String>,
+    #[serde(default)]
+    pub device_type: Option<String>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -33,6 +51,24 @@ pub struct OsClass {
     pub os_type: String,
     pub accuracy: u8,
     pub cpe: Vec<String>,
+}
+
+/// OS fingerprinting tests results
+#[derive(Debug, Clone)]
+pub struct OSTests {
+    pub seq: Option<SeqTest>,
+    pub ops: Option<OpsTest>,
+    pub win: Option<WinTest>,
+    pub ecn: Option<EcnTest>,
+    pub t1: Option<TTest>,
+    pub t2: Option<TTest>,
+    pub t3: Option<TTest>,
+    pub t4: Option<TTest>,
+    pub t5: Option<TTest>,
+    pub t6: Option<TTest>,
+    pub t7: Option<TTest>,
+    pub u1: Option<U1Test>,
+    pub ie: Option<IeTest>,
 }
 
 #[derive(Debug, Clone)]
@@ -78,26 +114,26 @@ impl OsDetector {
 
     pub async fn detect_os(&self, target: IpAddr) -> Result<OsDetectionResult> {
         let ip = target;
-        
+
         // Perform OS detection tests
         let tcp_results = timeout(
             self.timeout,
             self.run_tcp_tests(ip)
-        ).await.map_err(|_| NmapError::Timeout("TCP tests timed out".to_string()))?;
+        ).await.map_err(|_| NmapError::Timeout("TCP tests timed out".to_string()))??;
 
         let udp_results = timeout(
             self.timeout,
             self.run_udp_tests(ip)
-        ).await.map_err(|_| NmapError::Timeout("UDP tests timed out".to_string()))?;
+        ).await.map_err(|_| NmapError::Timeout("UDP tests timed out".to_string()))??;
 
         let icmp_results = timeout(
             self.timeout,
             self.run_icmp_tests(ip)
-        ).await.map_err(|_| NmapError::Timeout("ICMP tests timed out".to_string()))?;
+        ).await.map_err(|_| NmapError::Timeout("ICMP tests timed out".to_string()))??;
 
         // Generate fingerprint from test results
-        let fingerprint = self.generate_fingerprint(&tcp_results?, &udp_results?, &icmp_results?);
-        
+        let fingerprint = self.generate_fingerprint(&tcp_results, &udp_results, &icmp_results);
+
         // Match against database
         let matches = self.fingerprint_db.match_fingerprint(&fingerprint)?;
 
@@ -105,9 +141,9 @@ impl OsDetector {
             target: ip,
             matches,
             fingerprint: Some(fingerprint),
-            uptime: tcp_results?.uptime,
-            tcp_sequence: tcp_results?.sequence,
-            ip_id_sequence: tcp_results?.ip_id_sequence,
+            uptime: tcp_results.uptime,
+            tcp_sequence: tcp_results.sequence,
+            ip_id_sequence: tcp_results.ip_id_sequence,
         })
     }
 
@@ -185,3 +221,244 @@ impl OsDetector {
 // Note: Default trait not implemented because OsDetector::new() can fail.
 // Users should explicitly call OsDetector::new() which returns Result<Self, Error>
 // instead of relying on Default::default() which would panic on failure.
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_passive_detector_creation() {
+        let detector = PassiveDetector::new();
+        // Should have 30+ signatures
+        assert!(detector.signature_count() >= 30);
+    }
+
+    #[test]
+    fn test_app_layer_detector_creation() {
+        let _detector = AppLayerDetector::new();
+        // Just verify it doesn't panic
+    }
+
+    #[test]
+    fn test_evidence_fusion_creation() {
+        let _fusion = EvidenceFusion::new();
+        // Just verify it doesn't panic
+    }
+
+    #[test]
+    fn test_passive_linux_detection() {
+        let detector = PassiveDetector::new();
+        let hint = detector.detect(64, 5840, Some(1460));
+        assert!(hint.is_some());
+        let hint = hint.unwrap();
+        assert_eq!(hint.family, "Linux");
+    }
+
+    #[test]
+    fn test_passive_windows_detection() {
+        let detector = PassiveDetector::new();
+        let hint = detector.detect(128, 8192, Some(1460));
+        assert!(hint.is_some());
+        let hint = hint.unwrap();
+        assert_eq!(hint.family, "Windows");
+    }
+
+    #[test]
+    fn test_app_layer_http_detection() {
+        let detector = AppLayerDetector::new();
+        let mut headers = HashMap::new();
+        headers.insert("Server".to_string(), "Apache/2.4.41 (Ubuntu)".to_string());
+
+        let result = detector.detect_from_http(&headers);
+        assert!(result.is_some());
+        let os = result.unwrap();
+        assert_eq!(os.family, "Linux");
+    }
+
+    #[test]
+    fn test_app_layer_ssh_detection() {
+        let detector = AppLayerDetector::new();
+        let banner = "SSH-2.0-OpenSSH_8.2p1 Ubuntu-4ubuntu0.5";
+
+        let result = detector.detect_from_ssh(banner);
+        assert!(result.is_some());
+        let os = result.unwrap();
+        assert_eq!(os.family, "Linux");
+    }
+
+    #[test]
+    fn test_evidence_fusion_single() {
+        let fusion = EvidenceFusion::new();
+        let evidence = vec![Evidence {
+            source: EvidenceSource::ActiveFingerprint,
+            hint: FusionOSHint {
+                name: "Ubuntu Linux 20.04".to_string(),
+                family: "Linux".to_string(),
+                confidence: 90,
+            },
+        }];
+
+        let matches = fusion.combine(evidence);
+        assert!(!matches.is_empty());
+        assert_eq!(matches[0].name, "Ubuntu Linux 20.04");
+    }
+
+    #[test]
+    fn test_evidence_fusion_multiple() {
+        let fusion = EvidenceFusion::new();
+        let evidence = vec![
+            Evidence {
+                source: EvidenceSource::ActiveFingerprint,
+                hint: FusionOSHint {
+                    name: "Ubuntu Linux 20.04".to_string(),
+                    family: "Linux".to_string(),
+                    confidence: 90,
+                },
+            },
+            Evidence {
+                source: EvidenceSource::SshBanner,
+                hint: FusionOSHint {
+                    name: "Ubuntu Linux 20.04".to_string(),
+                    family: "Linux".to_string(),
+                    confidence: 85,
+                },
+            },
+            Evidence {
+                source: EvidenceSource::HttpHeaders,
+                hint: FusionOSHint {
+                    name: "Ubuntu Linux".to_string(),
+                    family: "Linux".to_string(),
+                    confidence: 70,
+                },
+            },
+        ];
+
+        let matches = fusion.combine(evidence);
+        assert!(!matches.is_empty());
+        // Ubuntu Linux 20.04 should have highest confidence
+        // (Note: "Ubuntu Linux" and "Ubuntu Linux 20.04" are treated as different OSes,
+        //  so the score is split. Expect >= 70% confidence)
+        assert!(matches[0].accuracy >= 70);
+    }
+
+    #[test]
+    fn test_integration_passive_to_fusion() {
+        // Passive detection
+        let passive_detector = PassiveDetector::new();
+        let passive_hint = passive_detector.detect(64, 64240, Some(1460));
+        assert!(passive_hint.is_some());
+
+        // Convert to evidence
+        let evidence = vec![Evidence {
+            source: EvidenceSource::PassiveFingerprint,
+            hint: FusionOSHint {
+                name: passive_hint.as_ref().unwrap().name.clone(),
+                family: passive_hint.as_ref().unwrap().family.clone(),
+                confidence: passive_hint.unwrap().confidence,
+            },
+        }];
+
+        // Fusion
+        let fusion = EvidenceFusion::new();
+        let matches = fusion.combine(evidence);
+        assert!(!matches.is_empty());
+    }
+
+    #[test]
+    fn test_integration_app_layer_to_fusion() {
+        // App-layer detection
+        let app_detector = AppLayerDetector::new();
+        let ssh_hint = app_detector.detect_from_ssh("SSH-2.0-OpenSSH_8.2p1 Ubuntu-4ubuntu0.5");
+        assert!(ssh_hint.is_some());
+
+        let mut headers = HashMap::new();
+        headers.insert("Server".to_string(), "Apache/2.4.41 (Ubuntu)".to_string());
+        let http_hint = app_detector.detect_from_http(&headers);
+        assert!(http_hint.is_some());
+
+        // Combine both
+        let evidence = vec![
+            Evidence {
+                source: EvidenceSource::SshBanner,
+                hint: FusionOSHint {
+                    name: ssh_hint.as_ref().unwrap().name.clone(),
+                    family: ssh_hint.as_ref().unwrap().family.clone(),
+                    confidence: ssh_hint.unwrap().confidence,
+                },
+            },
+            Evidence {
+                source: EvidenceSource::HttpHeaders,
+                hint: FusionOSHint {
+                    name: http_hint.as_ref().unwrap().name.clone(),
+                    family: http_hint.as_ref().unwrap().family.clone(),
+                    confidence: http_hint.unwrap().confidence,
+                },
+            },
+        ];
+
+        let fusion = EvidenceFusion::new();
+        let matches = fusion.combine(evidence);
+        assert!(!matches.is_empty());
+        assert_eq!(matches[0].family, Some("Linux".to_string()));
+    }
+
+    #[test]
+    fn test_full_pipeline() {
+        // Simulate a full detection pipeline with all three components
+
+        // 1. Passive detection
+        let passive = PassiveDetector::new();
+        let passive_hint = passive.detect_full(64, 64240, Some(1460), true, true, true);
+
+        // 2. App-layer detection
+        let app_layer = AppLayerDetector::new();
+        let ssh_hint = app_layer.detect_from_ssh("SSH-2.0-OpenSSH_8.9p1 Ubuntu-3ubuntu0.1");
+        let smb_hint = app_layer.detect_from_smb("SMB 3.1.1");
+
+        // 3. Collect evidence
+        let mut evidence = vec![];
+
+        if let Some(hint) = passive_hint {
+            evidence.push(Evidence {
+                source: EvidenceSource::PassiveFingerprint,
+                hint: FusionOSHint {
+                    name: hint.name,
+                    family: hint.family,
+                    confidence: hint.confidence,
+                },
+            });
+        }
+
+        if let Some(hint) = ssh_hint {
+            evidence.push(Evidence {
+                source: EvidenceSource::SshBanner,
+                hint: FusionOSHint {
+                    name: hint.name,
+                    family: hint.family,
+                    confidence: hint.confidence,
+                },
+            });
+        }
+
+        if let Some(hint) = smb_hint {
+            evidence.push(Evidence {
+                source: EvidenceSource::SmbDialect,
+                hint: FusionOSHint {
+                    name: hint.name,
+                    family: hint.family,
+                    confidence: hint.confidence,
+                },
+            });
+        }
+
+        // 4. Fuse evidence
+        let fusion = EvidenceFusion::new();
+        let matches = fusion.combine(evidence);
+
+        // Should have results
+        assert!(!matches.is_empty());
+
+        // Top match should have reasonable confidence
+        assert!(matches[0].accuracy > 0);
+    }
+}

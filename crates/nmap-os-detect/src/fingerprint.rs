@@ -35,6 +35,10 @@ impl FingerprintDatabase {
                                 cpe: vec!["cpe:/o:linux:linux_kernel:2.6".to_string()],
                             }
                         ],
+                        cpe: vec!["cpe:/o:linux:linux_kernel:2.6".to_string()],
+                        family: Some("Linux".to_string()),
+                        vendor: Some("Linux".to_string()),
+                        device_type: Some("general purpose".to_string()),
                     }
                 ],
             },
@@ -54,6 +58,10 @@ impl FingerprintDatabase {
                                 cpe: vec!["cpe:/o:microsoft:windows".to_string()],
                             }
                         ],
+                        cpe: vec!["cpe:/o:microsoft:windows".to_string()],
+                        family: Some("Windows".to_string()),
+                        vendor: Some("Microsoft".to_string()),
+                        device_type: Some("general purpose".to_string()),
                     }
                 ],
             },
@@ -73,6 +81,10 @@ impl FingerprintDatabase {
                                 cpe: vec!["cpe:/o:freebsd:freebsd".to_string()],
                             }
                         ],
+                        cpe: vec!["cpe:/o:freebsd:freebsd".to_string()],
+                        family: Some("BSD".to_string()),
+                        vendor: Some("FreeBSD".to_string()),
+                        device_type: Some("general purpose".to_string()),
                     }
                 ],
             },

@@ -410,7 +410,11 @@ impl TcpTester {
 
         // Receive SYN-ACK response
         match sender.receive_tcp(self.timeout).await {
-            Ok((packet, _addr)) => {
+            Ok((packet_data, _addr)) => {
+                // Parse the packet data into a TcpPacket
+                let packet = pnet::packet::tcp::TcpPacket::new(&packet_data)
+                    .ok_or(NmapError::InvalidPacket)?;
+
                 let response_seq = packet.get_sequence();
 
                 // Extract timestamp if present (simplified for now)
@@ -458,7 +462,11 @@ impl TcpTester {
 
         // Receive response and extract needed data
         match sender.receive_tcp(self.timeout).await {
-            Ok((packet, _addr)) => {
+            Ok((packet_data, _addr)) => {
+                // Parse the packet data into a TcpPacket
+                let packet = pnet::packet::tcp::TcpPacket::new(&packet_data)
+                    .ok_or(NmapError::InvalidPacket)?;
+
                 let window = packet.get_window();
                 let flags = packet.get_flags();
                 let opts = parse_tcp_options(&packet);

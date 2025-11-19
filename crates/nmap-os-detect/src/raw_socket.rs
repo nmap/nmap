@@ -204,7 +204,7 @@ impl RawSocketSender {
         source_port: u16,
         seq_num: u32,
         ack_num: u32,
-        flags: u16,
+        flags: u8,
         window_size: u16,
         options: Vec<TcpOption>,
         ttl: u8,
@@ -235,7 +235,7 @@ impl RawSocketSender {
         source_port: u16,
         seq_num: u32,
         ack_num: u32,
-        flags: u16,
+        flags: u8,
         window_size: u16,
         options: Vec<TcpOption>,
         ttl: u8,
@@ -252,17 +252,21 @@ impl RawSocketSender {
         let tcp_header_len = 20 + padded_options_len;
 
         let mut tcp_buffer = vec![0u8; tcp_header_len];
-        let mut tcp_packet = MutableTcpPacket::new(&mut tcp_buffer)
-            .ok_or(NmapError::PacketCreationFailed)?;
 
-        tcp_packet.set_source(source_port);
-        tcp_packet.set_destination(dest_port);
-        tcp_packet.set_sequence(seq_num);
-        tcp_packet.set_acknowledgement(ack_num);
-        tcp_packet.set_flags(flags);
-        tcp_packet.set_window(window_size);
-        tcp_packet.set_data_offset((tcp_header_len / 4) as u8);
-        tcp_packet.set_urgent_ptr(0);
+        // Build the TCP packet in a block scope
+        {
+            let mut tcp_packet = MutableTcpPacket::new(&mut tcp_buffer)
+                .ok_or(NmapError::PacketCreationFailed)?;
+
+            tcp_packet.set_source(source_port);
+            tcp_packet.set_destination(dest_port);
+            tcp_packet.set_sequence(seq_num);
+            tcp_packet.set_acknowledgement(ack_num);
+            tcp_packet.set_flags(flags);
+            tcp_packet.set_window(window_size);
+            tcp_packet.set_data_offset((tcp_header_len / 4) as u8);
+            tcp_packet.set_urgent_ptr(0);
+        } // tcp_packet dropped here
 
         // Set TCP options by copying the pre-encoded bytes
         if !options_bytes.is_empty() {
@@ -273,8 +277,14 @@ impl RawSocketSender {
             }
         }
 
-        // Calculate TCP checksum
-        let checksum = tcp_ipv4_checksum(&tcp_packet.to_immutable(), &source_ip, &dest_ip);
+        // Calculate and set TCP checksum
+        let checksum = {
+            let tcp_packet = TcpPacket::new(&tcp_buffer)
+                .ok_or(NmapError::PacketCreationFailed)?;
+            tcp_ipv4_checksum(&tcp_packet, &source_ip, &dest_ip)
+        };
+        let mut tcp_packet = MutableTcpPacket::new(&mut tcp_buffer)
+            .ok_or(NmapError::PacketCreationFailed)?;
         tcp_packet.set_checksum(checksum);
 
         // Send the packet
@@ -293,7 +303,7 @@ impl RawSocketSender {
         source_port: u16,
         seq_num: u32,
         ack_num: u32,
-        flags: u16,
+        flags: u8,
         window_size: u16,
         options: Vec<TcpOption>,
         ttl: u8,
@@ -360,17 +370,26 @@ impl RawSocketSender {
     ) -> Result<()> {
         let icmp_packet_len = 8 + payload.len(); // 8 bytes header + payload
         let mut icmp_buffer = vec![0u8; icmp_packet_len];
-        let mut icmp_packet = MutableEchoRequestPacket::new(&mut icmp_buffer)
-            .ok_or(NmapError::PacketCreationFailed)?;
 
-        icmp_packet.set_icmp_type(IcmpTypes::EchoRequest);
-        icmp_packet.set_icmp_code(IcmpCode::new(0));
-        icmp_packet.set_identifier(identifier);
-        icmp_packet.set_sequence_number(sequence);
-        icmp_packet.set_payload(payload);
+        // Build the ICMP packet
+        {
+            let mut icmp_packet = MutableEchoRequestPacket::new(&mut icmp_buffer)
+                .ok_or(NmapError::PacketCreationFailed)?;
+
+            icmp_packet.set_icmp_type(IcmpTypes::EchoRequest);
+            icmp_packet.set_icmp_code(IcmpCode::new(0));
+            icmp_packet.set_identifier(identifier);
+            icmp_packet.set_sequence_number(sequence);
+            icmp_packet.set_payload(payload);
+            icmp_packet.set_checksum(0);
+        } // icmp_packet dropped here
 
         // Calculate ICMP checksum
-        let checksum = pnet::packet::icmp::checksum(&icmp_packet.to_immutable());
+        let checksum = pnet::util::checksum(&icmp_buffer, 1);
+
+        // Set the checksum
+        let mut icmp_packet = MutableEchoRequestPacket::new(&mut icmp_buffer)
+            .ok_or(NmapError::PacketCreationFailed)?;
         icmp_packet.set_checksum(checksum);
 
         // Send the packet
@@ -500,18 +519,21 @@ impl RawSocketSender {
     }
 
     /// Receive a TCP packet with timeout
-    pub async fn receive_tcp(&mut self, timeout_duration: Duration) -> Result<(TcpPacket, IpAddr)> {
+    /// Returns the TCP packet data as a Vec<u8> and the source IP address
+    pub async fn receive_tcp(&mut self, timeout_duration: Duration) -> Result<(Vec<u8>, IpAddr)> {
         timeout(timeout_duration, async {
             loop {
                 let mut iter = pnet::transport::tcp_packet_iter(&mut self.rx);
                 if let Ok((packet, addr)) = iter.next() {
-                    return Ok((packet, addr));
+                    // Copy packet data to avoid lifetime issues
+                    let packet_data = packet.packet().to_vec();
+                    return Ok((packet_data, addr));
                 }
                 tokio::time::sleep(Duration::from_millis(10)).await;
             }
         })
         .await
-        .map_err(|_| NmapError::Timeout)?
+        .map_err(|_| NmapError::Timeout("Timeout waiting for TCP packet".to_string()))?
     }
 
     /// Receive an ICMP packet with timeout
@@ -526,22 +548,25 @@ impl RawSocketSender {
             }
         })
         .await
-        .map_err(|_| NmapError::Timeout)?
+        .map_err(|_| NmapError::Timeout("Timeout waiting for ICMP packet".to_string()))?
     }
 
     /// Receive a UDP packet with timeout
-    pub async fn receive_udp(&mut self, timeout_duration: Duration) -> Result<(UdpPacket, IpAddr)> {
+    /// Returns the UDP packet data as a Vec<u8> and the source IP address
+    pub async fn receive_udp(&mut self, timeout_duration: Duration) -> Result<(Vec<u8>, IpAddr)> {
         timeout(timeout_duration, async {
             loop {
                 let mut iter = pnet::transport::udp_packet_iter(&mut self.rx);
                 if let Ok((packet, addr)) = iter.next() {
-                    return Ok((packet, addr));
+                    // Copy packet data to avoid lifetime issues
+                    let packet_data = packet.packet().to_vec();
+                    return Ok((packet_data, addr));
                 }
                 tokio::time::sleep(Duration::from_millis(10)).await;
             }
         })
         .await
-        .map_err(|_| NmapError::Timeout)?
+        .map_err(|_| NmapError::Timeout("Timeout waiting for UDP packet".to_string()))?
     }
 }
 
