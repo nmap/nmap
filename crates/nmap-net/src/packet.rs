@@ -1,4 +1,3 @@
-use anyhow::Result;
 use std::net::{IpAddr, Ipv4Addr, Ipv6Addr};
 
 /// Raw packet crafting utilities for R-Map

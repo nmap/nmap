@@ -4,7 +4,6 @@ use std::time::Duration;
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
 use tokio::net::TcpStream;
 use tokio::time::timeout;
-use tracing::{debug, warn};
 
 /// Maximum response size to prevent memory exhaustion
 pub const MAX_RESPONSE_SIZE: usize = 1024 * 1024; // 1MB

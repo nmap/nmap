@@ -2,7 +2,6 @@
 use super::engine::*;
 use super::common::*;
 use anyhow::Result;
-use tokio::io::{AsyncReadExt, AsyncWriteExt};
 
 /// CVE-2014-0160 - Heartbleed Detection
 pub struct SSLHeartbleed;

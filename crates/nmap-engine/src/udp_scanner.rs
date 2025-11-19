@@ -1,11 +1,10 @@
 /// UDP Scanner Implementation
 /// Provides UDP port scanning with ICMP port unreachable detection
 
-use anyhow::{anyhow, Result};
+use anyhow::Result;
 use nmap_net::{Host, Port, PortState, Protocol};
 use nmap_timing::TimingConfig;
 use std::net::{IpAddr, SocketAddr};
-use std::time::Duration;
 use tokio::net::UdpSocket;
 use tokio::time::timeout;
 use tracing::{debug, info};

@@ -1,7 +1,7 @@
 use super::engine::*;
 use anyhow::Result;
 use std::collections::HashMap;
-use tokio::time::{timeout, Duration};
+use tokio::time::timeout;
 
 /// Built-in scripts that replace common NSE functionality
 
@@ -57,7 +57,7 @@ impl Script for SshVersionScript {
 
         match timeout(context.timing.timeout, tokio::net::TcpStream::connect(&addr)).await {
             Ok(Ok(mut stream)) => {
-                use tokio::io::{AsyncReadExt, AsyncWriteExt};
+                use tokio::io::AsyncReadExt;
                 
                 let mut buffer = [0; 1024];
                 match stream.read(&mut buffer).await {
@@ -97,7 +97,7 @@ impl Script for FtpBannerScript {
 
         match timeout(context.timing.timeout, tokio::net::TcpStream::connect(&addr)).await {
             Ok(Ok(mut stream)) => {
-                use tokio::io::{AsyncReadExt, AsyncWriteExt};
+                use tokio::io::AsyncReadExt;
                 
                 let mut buffer = [0; 1024];
                 match stream.read(&mut buffer).await {

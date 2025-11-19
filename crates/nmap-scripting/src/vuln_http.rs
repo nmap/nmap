@@ -3,7 +3,6 @@ use super::engine::*;
 use super::common::*;
 use anyhow::Result;
 use regex::Regex;
-use std::collections::HashMap;
 
 /// CVE-2021-41773 - Apache Path Traversal
 pub struct ApachePathTraversal;

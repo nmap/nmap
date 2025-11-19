@@ -13,7 +13,7 @@ pub use raw_socket::{RawSocket, TcpResponse, parse_tcp_response};
 pub use packet::*;
 
 use serde::{Deserialize, Serialize};
-use std::net::{IpAddr, SocketAddr};
+use std::net::IpAddr;
 
 /// Port state enumeration
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]

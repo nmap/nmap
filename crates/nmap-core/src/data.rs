@@ -1,7 +1,6 @@
 use anyhow::Result;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-use std::str::FromStr;
 
 /// Pure Rust implementation of Nmap data file parsing
 /// Replaces the need for C-based parsing of nmap-services, nmap-os-db, etc.

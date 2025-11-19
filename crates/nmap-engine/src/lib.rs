@@ -9,7 +9,7 @@ pub use advanced_tcp_scanner::{AckScanner, FinScanner, NullScanner, XmasScanner}
 
 use anyhow::Result;
 use nmap_net::{Host, HostState, ScanType, check_raw_socket_privileges};
-use tokio::time::{sleep, Duration};
+use tokio::time::Duration;
 use tracing::{info, debug, warn};
 
 /// Maximum length for banner strings to prevent resource exhaustion

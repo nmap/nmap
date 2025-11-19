@@ -5,7 +5,6 @@ use std::time::Duration;
 use pnet::packet::tcp::{MutableTcpPacket, TcpFlags, TcpPacket};
 use pnet::packet::ip::IpNextHeaderProtocols;
 use pnet::packet::ipv4::{MutableIpv4Packet, Ipv4Packet};
-use pnet::packet::{MutablePacket, Packet};
 use rand::Rng;
 
 /// Raw socket wrapper for packet crafting
