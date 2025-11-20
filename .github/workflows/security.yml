@@ -121,6 +121,8 @@ jobs:
   clippy-security-lints:
     name: Clippy Security Lints
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@v4
 
