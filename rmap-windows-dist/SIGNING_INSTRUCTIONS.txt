@@ -1,0 +1,49 @@
+============================================
+PGP Signing Instructions for rmap.exe
+============================================
+
+To sign the executable with PyroDIFR's key:
+
+1. Ensure you have the private key:
+   PyroDIFR_0xACAFF196_private.asc
+
+2. Import the key (if not already):
+   gpg --import PyroDIFR_0xACAFF196_private.asc
+
+3. Sign the executable:
+   gpg --detach-sign --armor -u 0xACAFF196 rmap.exe
+
+   This creates: rmap.exe.asc
+
+4. Verify the signature:
+   gpg --verify rmap.exe.asc rmap.exe
+
+5. Distribute both files:
+   - rmap.exe (executable)
+   - rmap.exe.asc (signature)
+
+============================================
+For users to verify:
+============================================
+
+1. Import public key:
+   gpg --import PyroDIFR_0xACAFF196_public.asc
+
+2. Verify signature:
+   gpg --verify rmap.exe.asc rmap.exe
+
+Expected output:
+  Good signature from "PyroDIFR"
+
+============================================
+SHA256 Checksum (Alternative Verification)
+============================================
+
+rmap.exe SHA256:
+41ba46bce983f7490eacab4518441cf0f80f846499a2b01019be6ae2c574b889
+
+Verify with:
+  sha256sum rmap.exe  (Linux/Mac)
+  Get-FileHash rmap.exe  (Windows PowerShell)
+
+============================================

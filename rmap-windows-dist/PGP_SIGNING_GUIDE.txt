@@ -1,0 +1,335 @@
+============================================
+R-Map PGP Signing & Verification Guide
+============================================
+
+Complete guide for signing and verifying the rmap.exe executable
+using PGP/GPG cryptographic signatures.
+
+============================================
+OVERVIEW
+============================================
+
+This package includes:
+- rmap.exe (the executable)
+- PGP public key for verification
+- Automated signing/verification scripts
+- SHA256 checksum for additional verification
+
+PGP Key Information:
+  Owner: PyroDIFR (PyroDIFR) <PyroDIFR@proton.me>
+  Key ID: 0xACAFF196
+  Full Fingerprint: 0393969181188112779FB863C287B0F5ACAFF196
+  Algorithm: RSA 4096-bit
+  Created: 2025-07-27
+  Expires: 2029-07-27
+
+============================================
+FOR DEVELOPERS: SIGNING THE EXECUTABLE
+============================================
+
+Prerequisites:
+1. GPG/GnuPG installed (https://gnupg.org/download/)
+2. Private key for 0xACAFF196
+3. Private key passphrase
+
+Method 1: Automated Script (RECOMMENDED)
+-----------------------------------------
+Simply run:
+  sign_executable.bat
+
+The script will:
+  - Check for GPG installation
+  - Verify private key availability
+  - Sign rmap.exe creating rmap.exe.asc
+  - Verify the signature
+  - Display verification instructions
+
+Method 2: Manual Signing
+-------------------------
+1. Import private key (first time only):
+   gpg --import PyroDIFR_0xACAFF196_private.asc
+
+2. Verify key is available:
+   gpg --list-secret-keys 0xACAFF196
+
+3. Sign the executable:
+   gpg --detach-sign --armor -u 0xACAFF196 rmap.exe
+
+   This creates: rmap.exe.asc (ASCII-armored signature)
+
+4. Verify the signature:
+   gpg --verify rmap.exe.asc rmap.exe
+
+   Expected output:
+   "Good signature from 'PyroDIFR (PyroDIFR) <PyroDIFR@proton.me>'"
+
+============================================
+FOR USERS: VERIFYING THE SIGNATURE
+============================================
+
+Why verify?
+  - Ensures the executable is authentic
+  - Confirms it hasn't been tampered with
+  - Validates it came from the official developer
+
+Prerequisites:
+  - GPG/GnuPG installed (https://gnupg.org/download/)
+  - No private key needed (public key only)
+
+Method 1: Automated Script (RECOMMENDED)
+-----------------------------------------
+Simply run:
+  verify_signature.bat
+
+The script will:
+  - Check for required files
+  - Import public key if needed
+  - Verify the signature
+  - Display verification results
+  - Optionally check SHA256 hash
+
+Method 2: Manual Verification
+------------------------------
+1. Import the public key (first time only):
+   gpg --import "PyroDIFR (PyroDIFR)_0xACAFF196_public.asc"
+
+   Expected output:
+   "gpg: key C287B0F5ACAFF196: public key ... imported"
+
+2. Verify the key was imported:
+   gpg --list-keys 0xACAFF196
+
+   You should see:
+   pub   rsa4096 2025-07-27 [SC] [expires: 2029-07-27]
+   uid   PyroDIFR (PyroDIFR) <PyroDIFR@proton.me>
+
+3. Verify the signature:
+   gpg --verify rmap.exe.asc rmap.exe
+
+   GOOD signature:
+   ✓ "Good signature from 'PyroDIFR (PyroDIFR) <PyroDIFR@proton.me>'"
+   ✓ "Primary key fingerprint: 0393 9691 8118 8112 779F B863 C287 B0F5 ACAF F196"
+
+   BAD signature:
+   ✗ "BAD signature from ..."
+   ✗ DO NOT USE the executable!
+
+============================================
+UNDERSTANDING THE OUTPUT
+============================================
+
+Good Signature Example:
+  gpg: Signature made [date] using RSA key
+  gpg: Good signature from "PyroDIFR (PyroDIFR) <PyroDIFR@proton.me>"
+  gpg: WARNING: This key is not certified with a trusted signature!
+
+The "WARNING" is normal if you haven't personally verified the key.
+The important part is "Good signature".
+
+To trust the key (optional):
+  gpg --edit-key 0xACAFF196
+  trust
+  5 (ultimate trust)
+  quit
+
+============================================
+ADDITIONAL VERIFICATION: SHA256 CHECKSUM
+============================================
+
+For extra security, also verify the SHA256 hash:
+
+Windows (PowerShell):
+  Get-FileHash rmap.exe -Algorithm SHA256
+
+Windows (Command Prompt):
+  certutil -hashfile rmap.exe SHA256
+
+Linux/Mac:
+  sha256sum rmap.exe
+
+Expected SHA256:
+  41ba46bce983f7490eacab4518441cf0f80f846499a2b01019be6ae2c574b889
+
+Compare the output with the expected hash above.
+They MUST match exactly.
+
+============================================
+DISTRIBUTION CHECKLIST
+============================================
+
+For developers distributing signed releases:
+
+Required files:
+  [√] rmap.exe - The executable
+  [√] rmap.exe.asc - PGP signature
+  [√] PyroDIFR (PyroDIFR)_0xACAFF196_public.asc - Public key
+  [√] rmap.exe.sha256 - SHA256 checksum
+  [√] README.txt - Usage instructions
+  [√] MANIFEST.txt - Package contents
+  [√] verify_signature.bat - Verification script
+
+Distribution methods:
+  - GitHub Releases (recommended)
+  - Official website
+  - Direct download with HTTPS
+
+Always provide:
+  1. The signature file (.asc)
+  2. The public key file
+  3. SHA256 checksum
+  4. Verification instructions
+
+============================================
+TROUBLESHOOTING
+============================================
+
+Problem: "gpg: command not found"
+Solution: Install GnuPG from https://gnupg.org/download/
+          Windows: Use Gpg4win installer
+          Mac: brew install gnupg
+          Linux: apt-get install gnupg
+
+Problem: "No public key"
+Solution: Import the public key:
+          gpg --import "PyroDIFR (PyroDIFR)_0xACAFF196_public.asc"
+
+Problem: "BAD signature"
+Solution: DO NOT USE the executable!
+          - File may be corrupted
+          - File may be tampered with
+          - Re-download from official source
+
+Problem: "No such file: rmap.exe.asc"
+Solution: The executable hasn't been signed.
+          Only official releases should be signed.
+          For unsigned builds, verify SHA256 hash instead.
+
+Problem: "This key is not certified"
+Solution: This is a warning, not an error.
+          You can:
+          1. Ignore it (signature is still valid)
+          2. Trust the key manually (see above)
+          3. Verify fingerprint through multiple channels
+
+============================================
+SECURITY BEST PRACTICES
+============================================
+
+1. Always verify signatures on downloaded executables
+2. Check the key fingerprint matches:
+   0393969181188112779FB863C287B0F5ACAFF196
+3. Download from official sources only
+4. Verify SHA256 hash as secondary check
+5. Keep GPG software updated
+6. Report suspicious signatures immediately
+
+For developers:
+1. Keep private key secure and encrypted
+2. Use strong passphrase
+3. Never commit private keys to git
+4. Sign all official releases
+5. Distribute public key through multiple channels
+6. Consider key signing parties for web of trust
+
+============================================
+KEY MANAGEMENT
+============================================
+
+Exporting public key (for sharing):
+  gpg --armor --export 0xACAFF196 > public_key.asc
+
+Backing up private key (KEEP SECURE):
+  gpg --armor --export-secret-keys 0xACAFF196 > private_key.asc
+
+  WARNING: Encrypt this file or store on encrypted media!
+
+Revoking a key (if compromised):
+  gpg --gen-revoke 0xACAFF196 > revocation_certificate.asc
+
+  Distribute this certificate if key is compromised.
+
+============================================
+VERIFICATION VIA WEB OF TRUST
+============================================
+
+To establish trust through the web of trust:
+
+1. Obtain the key from multiple sources:
+   - GitHub repository
+   - Official website
+   - Key servers: keys.openpgp.org
+
+2. Verify fingerprint matches everywhere:
+   gpg --fingerprint 0xACAFF196
+
+3. Check key signatures:
+   gpg --list-sigs 0xACAFF196
+
+4. Have the key signed by trusted parties
+
+============================================
+AUTOMATED VERIFICATION IN SCRIPTS
+============================================
+
+For automated verification in CI/CD:
+
+#!/bin/bash
+# Verify rmap.exe signature
+
+# Import public key
+gpg --import PyroDIFR_0xACAFF196_public.asc
+
+# Verify signature
+if gpg --verify rmap.exe.asc rmap.exe 2>&1 | grep "Good signature"; then
+    echo "✓ Signature verified"
+    exit 0
+else
+    echo "✗ Signature verification failed"
+    exit 1
+fi
+
+============================================
+CONTACT & SUPPORT
+============================================
+
+For questions about:
+- Key verification
+- Signature issues
+- Key compromises
+- Trust concerns
+
+Contact:
+  Email: PyroDIFR@proton.me
+  GitHub: https://github.com/Ununp3ntium115/R-map
+
+Key Server:
+  Search for: 0xACAFF196
+  URL: https://keys.openpgp.org/
+
+GitHub:
+  Issues: https://github.com/Ununp3ntium115/R-map/issues
+  Releases: https://github.com/Ununp3ntium115/R-map/releases
+
+============================================
+CHANGELOG
+============================================
+
+2025-11-19:
+  - Added PGP signing infrastructure
+  - Created automated signing/verification scripts
+  - Imported public key 0xACAFF196
+  - Created comprehensive signing guide
+  - Package ready for signed distribution
+
+============================================
+LICENSE
+============================================
+
+This document is part of the R-Map project.
+
+R-Map is dual-licensed under MIT OR Apache-2.0
+Copyright (c) 2025 R-Map Contributors
+
+See LICENSE file for full text.
+
+============================================
