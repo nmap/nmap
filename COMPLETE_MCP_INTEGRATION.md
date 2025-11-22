@@ -121,16 +121,17 @@ All state stored in redb: /var/lib/pyro/integration.db
 
 ## Setup Instructions
 
-### 1. Install PYRO Platform (if not already done)
+### 1. Install PYRO Platform
 
 ```bash
 cd /home/user
-# Clone when available, or if already exists:
-# git clone https://github.com/Ununp3ntium115/PYRO_Platform_Ignition.git
+git clone https://github.com/Ununp3ntium115/PYRO_Platform_Ignition.git
 
 cd PYRO_Platform_Ignition/mcp-server
 npm install
 ```
+
+**Repository:** https://github.com/Ununp3ntium115/PYRO_Platform_Ignition.git
 
 ### 2. Build R-Map + PYRO + Claude MCP
 
