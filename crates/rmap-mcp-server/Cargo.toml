@@ -1,0 +1,43 @@
+[package]
+name = "rmap-mcp-server"
+version = "0.1.0"
+edition = "2021"
+description = "R-Map MCP Server - Network reconnaissance via Model Context Protocol"
+authors = ["R-Map Contributors"]
+license = "MIT OR Apache-2.0"
+
+[dependencies]
+# Async runtime
+tokio = { version = "1.0", features = ["full"] }
+tokio-util = { version = "0.7", features = ["codec"] }
+
+# Serialization
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+# Database - redb for persistent storage
+redb = "2.1"
+
+# Error handling
+anyhow = "1.0"
+thiserror = "1.0"
+
+# Logging
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter", "json"] }
+
+# Date/time
+chrono = { version = "0.4", features = ["serde"] }
+
+# UUID for scan IDs
+uuid = { version = "1.0", features = ["v4", "serde"] }
+
+# R-Map core dependencies
+nmap-core = { path = "../nmap-core" }
+nmap-engine = { path = "../nmap-engine" }
+nmap-service-detect = { path = "../nmap-service-detect" }
+nmap-os-detect = { path = "../nmap-os-detect" }
+nmap-output = { path = "../nmap-output" }
+
+[dev-dependencies]
+tempfile = "3.0"
