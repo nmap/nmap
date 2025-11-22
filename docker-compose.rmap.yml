@@ -1,0 +1,58 @@
+version: '3.8'
+
+services:
+  # R-Map Standalone Scanner
+  rmap-scanner:
+    build:
+      context: .
+      dockerfile: Dockerfile.multi
+    image: rmap:latest
+    container_name: rmap-scanner
+    command: rmap --help
+    volumes:
+      - rmap-data:/var/lib/rmap
+    networks:
+      - rmap-network
+    restart: unless-stopped
+
+  # R-Map MCP Server
+  rmap-mcp:
+    build:
+      context: .
+      dockerfile: Dockerfile.multi
+    image: rmap:latest
+    container_name: rmap-mcp-server
+    command: rmap-mcp-server
+    environment:
+      - RMAP_DB_PATH=/var/lib/rmap/scans.db
+      - RUST_LOG=info
+    volumes:
+      - rmap-data:/var/lib/rmap
+    networks:
+      - rmap-network
+    restart: unless-stopped
+    stdin_open: true
+    tty: true
+
+  # R-Map Web UI (Svelte Frontend)
+  rmap-web:
+    build:
+      context: ./frontend-svelte
+      dockerfile: Dockerfile
+    image: rmap-web:latest
+    container_name: rmap-web-ui
+    ports:
+      - "5173:5173"
+    environment:
+      - API_URL=http://rmap-api:3000
+    networks:
+      - rmap-network
+    restart: unless-stopped
+
+volumes:
+  rmap-data:
+    driver: local
+
+networks:
+  rmap-network:
+    driver: bridge

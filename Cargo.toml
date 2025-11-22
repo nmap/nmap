@@ -1,40 +1,68 @@
-[package]
-name = "rmap"
-version = "0.2.0"
+[workspace]
+members = [
+    "crates/nmap-core",
+    "crates/nmap-engine",
+    "crates/nmap-net",
+    "crates/nmap-timing",
+    "crates/nmap-targets",
+    "crates/nmap-service-detect",
+    "crates/nmap-os-detect",
+    "crates/nmap-output",
+    "crates/nmap-scripting",
+    "crates/nmap-cli",
+    "crates/rmap-bin",
+    "crates/rmap-api",
+    "crates/rmap-mcp-server",
+]
+
+[workspace.package]
+version = "1.0.0"
 edition = "2021"
-description = "R-Map: A modern, memory-safe network mapper written in Rust"
 authors = ["R-Map Contributors"]
 license = "MIT OR Apache-2.0"
-repository = "https://github.com/Ununp3ntium115/nmap"
-keywords = ["network", "scanner", "security", "nmap", "rust"]
-categories = ["network-programming", "command-line-utilities"]
+repository = "https://github.com/Ununp3ntium115/R-map"
 
-[dependencies]
-tokio = { version = "1.0", features = ["full"] }
-anyhow = "1.0"
-clap = { version = "4.0", features = ["derive"] }
-tracing = "0.1"
-tracing-subscriber = "0.3"
+[workspace.dependencies]
+# Async runtime
+tokio = { version = "1.48", features = ["full"] }
+tokio-util = { version = "0.7", features = ["codec"] }
+
+# CLI
+clap = { version = "4.5", features = ["derive", "cargo"] }
+
+# Serialization
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
+
+# Error handling
+anyhow = "1.0"
+thiserror = "1.0"
+
+# Logging
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter", "json"] }
+
+# Network
 ipnet = "2.9"
 dns-lookup = "2.0"
-futures = "0.3"
 
-# Local crate dependencies
-nmap-core = { path = "crates/nmap-core" }
-nmap-engine = { path = "crates/nmap-engine" }
-nmap-net = { path = "crates/nmap-net" }
-nmap-timing = { path = "crates/nmap-timing" }
+# Database
+redb = "2.1"
 
-[target.'cfg(unix)'.dependencies]
-libc = "0.2"
+# Time
+chrono = { version = "0.4", features = ["serde"] }
 
-[dev-dependencies]
-criterion = { version = "0.5", features = ["html_reports"] }
-ipnet = "2.9"
-tokio = { version = "1.0", features = ["full", "test-util"] }
+# UUID
+uuid = { version = "1.0", features = ["v4", "serde"] }
 
-[[bench]]
-name = "performance_benchmarks"
-harness = false
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
+strip = true
+panic = "abort"
+
+[profile.release-with-debug]
+inherits = "release"
+strip = false
+debug = true
