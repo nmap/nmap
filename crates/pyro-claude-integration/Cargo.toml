@@ -1,0 +1,47 @@
+[package]
+name = "pyro-claude-integration"
+version = "1.0.0"
+edition = "2021"
+authors = ["PYRO Team"]
+description = "PYRO Fire Marshal + R-Map + Claude AI Agent Integration"
+license = "MIT OR Apache-2.0"
+
+[dependencies]
+# Core async runtime
+tokio = { version = "1.35", features = ["full"] }
+async-trait = "0.1"
+
+# Database - redb (embedded, zero-copy, ACID)
+redb = "2.1"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+uuid = { version = "1.6", features = ["v4", "serde"] }
+
+# Time handling
+chrono = { version = "0.4", features = ["serde"] }
+
+# Logging
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+
+# Error handling
+thiserror = "1.0"
+anyhow = "1.0"
+
+# HTTP/WebSocket server
+axum = { version = "0.7", features = ["ws", "macros"] }
+tower = "0.4"
+tower-http = { version = "0.5", features = ["cors", "trace", "fs"] }
+
+# JSON-RPC for MCP
+jsonrpc-core = "18.0"
+jsonrpc-derive = "18.0"
+
+# Local crates
+nmap-core = { path = "../nmap-core" }
+nmap-engine = { path = "../nmap-engine" }
+nmap-service-detect = { path = "../nmap-service-detect" }
+nmap-os-detect = { path = "../nmap-os-detect" }
+
+[dev-dependencies]
+tempfile = "3.8"
