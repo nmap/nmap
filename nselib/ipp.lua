@@ -332,7 +332,7 @@ Helper = {
     request:addAttributeGroup(ag)
 
     local status, response = HTTP.Request( self.host, self.port, tostring(request) )
-    if ( not(response) ) then
+    if not status then
       return status, response
     end
 
@@ -387,7 +387,7 @@ Helper = {
     request:addAttributeGroup(ag)
 
     local status, response = HTTP.Request( self.host, self.port, tostring(request) )
-    if ( not(response) ) then
+    if not status then
       return status, response
     end
 
