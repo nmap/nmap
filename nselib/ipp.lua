@@ -360,7 +360,7 @@ Helper = {
   end,
 
   getQueueInfo = function(self, uri)
-    local uri = uri or ("ipp://%s/"):format(self.host.ip)
+    uri = uri or ("ipp://%s/"):format(self.host.ip)
 
     local attribs = {
       IPP.Attribute:new(IPP.Attribute.IPP_TAG_CHARSET, "attributes-charset", "utf-8" ),
