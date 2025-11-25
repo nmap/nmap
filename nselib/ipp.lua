@@ -399,7 +399,6 @@ Helper = {
       local state = ag:getAttributeValue("job-state", IPP.Attribute.IPP_TAG_ENUM) or ag:getAttributeValue("job-state")
       -- some jobs have multiple id tag, so far the INTEGER type have shown the correct ID
       local id = ag:getAttributeValue("job-id", IPP.Attribute.IPP_TAG_INTEGER) or ag:getAttributeValue("job-id")
-      local attr = ag:getAttribute("time-at-creation")
       local tm = ag:getAttributeValue("time-at-creation")
       local size = ag:getAttributeValue("job-k-octets") .. "k"
       local jobname = ag:getAttributeValue("com.apple.print.JobInfo.PMJobName") or "Unknown"
