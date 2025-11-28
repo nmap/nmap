@@ -362,7 +362,7 @@ Helper = {
         { tag = IPP.Attribute.IPP_TAG_KEYWORD, val = "job-name" },
         { tag = IPP.Attribute.IPP_TAG_KEYWORD, val = "job-state" },
         { tag = IPP.Attribute.IPP_TAG_KEYWORD, val = "printer-uri" },
-        -- { tag = IPP.Attribute.IPP_TAG_KEYWORD, val = "job-originating-user-name" },
+        { tag = IPP.Attribute.IPP_TAG_KEYWORD, val = "job-originating-user-name" },
         -- { tag = IPP.Attribute.IPP_TAG_KEYWORD, val = "job-printer-state-message" },
         -- { tag = IPP.Attribute.IPP_TAG_KEYWORD, val = "job-printer-uri" },
         { tag = IPP.Attribute.IPP_TAG_KEYWORD, val = "time-at-creation" } } ),
@@ -380,16 +380,19 @@ Helper = {
 
     local results = {}
     for _, ag in ipairs(response:getAttributeGroups(IPP.Attribute.IPP_TAG_JOB)) do
-      local uri = ag:getAttributeValue("printer-uri")
-      local printer = uri:match(".*/(.*)$") or "Unknown"
+      local printer = ag:getAttributeValue("printer-uri"):match(".*/(.*)$") or "Unknown"
       -- some jobs have multiple state attributes, so far the ENUM ones have been correct
       local state = ag:getAttributeValue("job-state", IPP.Attribute.IPP_TAG_ENUM) or ag:getAttributeValue("job-state")
       -- some jobs have multiple id tag, so far the INTEGER type have shown the correct ID
       local id = ag:getAttributeValue("job-id", IPP.Attribute.IPP_TAG_INTEGER) or ag:getAttributeValue("job-id")
       local tm = ag:getAttributeValue("time-at-creation")
       local size = ag:getAttributeValue("job-k-octets") .. "k"
-      local jobname = ag:getAttributeValue("com.apple.print.JobInfo.PMJobName") or "Unknown"
-      local owner = ag:getAttributeValue("com.apple.print.JobInfo.PMJobOwner") or "Unknown"
+      local jobname = ag:getAttributeValue("com.apple.print.JobInfo.PMJobName")
+                      or ag:getAttributeValue("job-name")
+                      or "Unknown"
+      local owner = ag:getAttributeValue("com.apple.print.JobInfo.PMJobOwner")
+                    or ag:getAttributeValue("job-originating-user-name")
+                    or "Unknown"
 
       results[printer] = results[printer] or {}
       table.insert(results[printer], {
