@@ -151,26 +151,14 @@ IPP = {
     -- @param tag number containing the attribute tag
     getAttribute = function(self, name, tag)
       for _, attrib in ipairs(self.attribs) do
-        if ( attrib.name == name ) then
-          if ( not(tag) ) then
-            return attrib
-          elseif ( tag and attrib.tag == tag ) then
-            return attrib
-          end
+        if attrib.name == name and (not tag or attrib.tag == tag) then
+          return attrib
         end
       end
     end,
 
     getAttributeValue = function(self, name, tag)
-      for _, attrib in ipairs(self.attribs) do
-        if ( attrib.name == name ) then
-          if ( not(tag) ) then
-            return attrib.value
-          elseif ( tag and attrib.tag == tag ) then
-            return attrib.value
-          end
-        end
-      end
+      return (self:getAttribute(name, tag) or {}).value
     end,
 
     __tostring = function(self)
