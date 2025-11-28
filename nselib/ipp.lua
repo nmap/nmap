@@ -100,11 +100,11 @@ IPP = {
       until( name_len ~= 0 )
 
       -- do minimal decoding
-      for i=1, #attrib.value do
-        if ( attrib.value[i].tag == IPP.Attribute.IPP_TAG_INTEGER ) then
-          attrib.value[i].val = string.unpack(">I4", attrib.value[i].val)
-        elseif ( attrib.value[i].tag == IPP.Attribute.IPP_TAG_ENUM ) then
-          attrib.value[i].val = string.unpack(">I4", attrib.value[i].val)
+      for _, av in ipairs(attrib.value) do
+        if av.tag == IPP.Attribute.IPP_TAG_INTEGER then
+          av.val = string.unpack(">I4", av.val)
+        elseif av.tag == IPP.Attribute.IPP_TAG_ENUM then
+          av.val = string.unpack(">I4", av.val)
         end
       end
 
