@@ -111,7 +111,6 @@ IPP = {
       if ( 1 == #attrib.value ) then
         attrib.value = attrib.value[1].val
       end
-      --print(attrib.name, attrib.value, stdnse.tohex(val))
 
       return pos, attrib
     end,
