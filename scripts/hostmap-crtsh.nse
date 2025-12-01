@@ -14,43 +14,20 @@ References:
 ---
 -- @args hostmap.prefix If set, saves the output for each host in a file
 -- called "<prefix><target>". The file contains one entry per line.
+--
+-- @args hostmap-crtsh.strict If set (default true), only return *real* subdomains.
+-- If strict=false, returns all identities containing the hostname (old behavior).
+--
 -- @args newtargets If set, add the new hostnames to the scanning queue.
--- This the names presumably resolve to the same IP address as the
--- original target, this is only useful for services such as HTTP that
--- can change their behavior based on hostname.
+-- This is useful for services that change their behavior based on hostname.
 --
 -- @usage
--- nmap --script hostmap-crtsh --script-args 'hostmap-crtsh.prefix=hostmap-' <targets>
+-- nmap --script hostmap-crtsh --script-args 'hostmap-crtsh.strict=true' <targets>
 -- @usage
--- nmap -sn --script hostmap-crtsh <target>
--- @output
--- Host script results:
--- | hostmap-crtsh:
--- |   subdomains:
--- |     svn.nmap.org
--- |     www.nmap.org
--- |_  filename: output_nmap.org
--- @xmloutput
--- <table key="subdomains">
---  <elem>svn.nmap.org</elem>
---  <elem>www.nmap.org</elem>
---  </table>
--- <elem key="filename">output_nmap.org</elem>
----
+-- nmap --script hostmap-crtsh --script-args 'hostmap-crtsh.strict=false' <targets>
 
--- TODO:
--- At the moment the script reports all hostname-like identities where
--- the parent hostname is present somewhere in the identity. Specifically,
--- the script does not verify that a returned identity is truly a subdomain
--- of the parent hostname. As an example, one of the returned identities for
--- "google.com" is "google.com.gr".
--- Since fixing it would change the script behavior that some users might
--- currently depend on then this should be discussed first. [nnposter]
-
-author = "Paulino Calderon <calderon@websec.mx>"
-
+author = "Paulino Calderon <calderon@websec.mx>, modified by Sweekar-cmd"
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
-
 categories = {"external", "discovery"}
 
 local io = require "io"
@@ -63,20 +40,16 @@ local target = require "target"
 local table = require "table"
 local tableaux = require "tableaux"
 
--- Different from stdnse.get_hostname
--- this function returns nil if the host is only known by IP address
+-- Return nil if host only has IP address
 local function get_hostname (host)
   return host.targetname or (host.name ~= '' and host.name) or nil
 end
 
--- Run on any target that has a name
 hostrule = get_hostname
 
+-- validate hostname structure
 local function is_valid_hostname (name)
   local labels = stringaux.strsplit("%.", name)
-  -- DNS name cannot be longer than 253
-  -- do not accept TLDs; at least second-level domain required
-  -- TLD cannot be all digits
   if #name > 253 or #labels < 2 or labels[#labels]:find("^%d+$") then
     return false
   end
@@ -88,31 +61,51 @@ local function is_valid_hostname (name)
   return true
 end
 
+-- TRUE subdomain check (ends with .parent)
+local function is_subdomain(name, parent)
+  return name:match("%." .. parent .. "$") ~= nil
+end
+
 local function query_ctlogs(hostname)
   local url = string.format("https://crt.sh/?q=%%.%s&output=json", hostname)
   local response = http.get_url(url)
+
   if not (response.status == 200 and response.body) then
     stdnse.debug1("Error: Could not GET %s", url)
     return
   end
+
   local jstatus, jresp = json.parse(response.body)
   if not jstatus then
-    stdnse.debug1("Error: Invalid response from %s", url)
+    stdnse.debug1("Error: Invalid JSON from %s", url)
     return
   end
+
+  local strict = stdnse.get_script_args("hostmap-crtsh.strict")
   local hostnames = {}
+
   for _, cert in ipairs(jresp) do
-    local names = cert.name_value;
+    local names = cert.name_value
     if type(names) == "string" then
       for _, name in ipairs(stringaux.strsplit("%s+", names:lower())) do
-        -- if this is a wildcard name, just proceed with the static portion
+
+        -- strip wildcard
         if name:find("*.", 1, true) == 1 then
           name = name:sub(3)
         end
+
         if name ~= hostname and not hostnames[name] and is_valid_hostname(name) then
-          hostnames[name] = true
-          if target.ALLOW_NEW_TARGETS then
-            target.add(name)
+
+          if strict == nil or strict == "true" or strict == true then
+            -- strict mode (default): real subdomains only
+            if is_subdomain(name, hostname) then
+              hostnames[name] = true
+              if target.ALLOW_NEW_TARGETS then target.add(name) end
+            end
+          else
+            -- non-strict mode: include all names containing hostname
+            hostnames[name] = true
+            if target.ALLOW_NEW_TARGETS then target.add(name) end
           end
         end
       end
@@ -125,9 +118,7 @@ end
 
 local function write_file(filename, contents)
   local f, err = io.open(filename, "w")
-  if not f then
-    return f, err
-  end
+  if not f then return f, err end
   f:write(contents)
   f:close()
   return true
@@ -141,7 +132,7 @@ action = function(host)
 
   local output_tab = stdnse.output_table()
   output_tab.subdomains = hostnames
-  --write to file
+
   if filename_prefix then
     local filename = filename_prefix .. stringaux.filename_escape(hostname)
     local hostnames_str = table.concat(hostnames, "\n")
