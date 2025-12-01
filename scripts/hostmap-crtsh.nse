@@ -144,6 +144,5 @@ action = function(host)
       stdnse.debug1("Error saving file %s: %s", filename, err)
     end
   end
-
   return output_tab
 end
