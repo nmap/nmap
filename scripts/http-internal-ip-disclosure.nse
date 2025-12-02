@@ -1,21 +1,30 @@
+local comm = require "comm"
+local ipOps = require "ipOps"
 local nmap = require "nmap"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
-local ipOps = require "ipOps"
+local target = require "target"
+local url = require "url"
 
 description =  [[
-Determines if the web server leaks its internal IP address when sending an HTTP/1.0 request without a Host header.
+Determines if the web server leaks its internal IP address when sending
+an HTTP/1.0 request without a Host header.
 
 Some misconfigured web servers leak their internal IP address in the response
 headers when returning a redirect response. This is a known issue for some
 versions of Microsoft IIS, but affects other web servers as well.
+
+If script argument <code>newtargets</code> is set, the script will
+add the found IP address as a new target into the scan queue. (See
+the documentation for NSE library <code>target</code> for details.)
 ]]
 
 ---
 -- @usage nmap --script http-internal-ip-disclosure <target>
--- @usage nmap --script http-internal-ip-disclosure --script-args http-internal-ip-disclosure.path=/path <target>
+-- @usage nmap --script http-internal-ip-disclosure --script-args http-internal-ip-disclosure.path=/mypath <target>
 --
--- @args http-internal-ip-disclosure.path Path to URI. Default: /
+-- @args http-internal-ip-disclosure.path Path (or a table of paths) to probe
+--                                        Default: /
 --
 -- @output
 -- 80/tcp open  http    syn-ack
@@ -27,61 +36,59 @@ versions of Microsoft IIS, but affects other web servers as well.
 --
 -- @see ssl-cert-intaddr.nse
 
-author = "Josh Amishav-Zlatin"
+author = {"Josh Amishav-Zlatin", "nnposter"}
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = { "vuln", "discovery", "safe" }
 
 portrule = shortport.http
 
-local function generateHttpV1_0Req(host, port, path)
-  local redirectIP, privateIP
-  local socket = nmap.new_socket()
-  socket:connect(host, port)
-
-  local cmd = "GET " .. path .. " HTTP/1.0\r\n\r\n"
-  socket:send(cmd)
-
-  while true do
-    local status, lines = socket:receive_lines(1)
-    if not status then
-      break
-    end
-
-    -- Check if the response contains a location header
-    if lines:match("Location") then
-      local locTarget = lines:match("Location: [%a%p%d]+")
-      -- Check if the redirect location contains an IP address
-      redirectIP = locTarget:match("[%d%.]+")
-      if redirectIP then
-        privateIP = ipOps.isPrivate(redirectIP)
-      end
-
-      stdnse.debug1("Location: %s", locTarget )
-      stdnse.debug1("Internal IP: %s", redirectIP )
-    end
-  end
-
-  socket:close()
-
-  -- Only report if the internal IP leaked is different then the target IP
-  if privateIP and redirectIP ~= host.ip then
-    return redirectIP
-  end
-end
-
 action = function(host, port)
-  local output = stdnse.output_table()
-  local path = stdnse.get_script_args(SCRIPT_NAME .. ".path") or "/"
-  local IP = generateHttpV1_0Req(host, port, path)
-
-  -- Check /images which is often vulnerable on some unpatched IIS servers
-  if not IP and path ~= "/images" then
-    path = "/images"
-    IP = generateHttpV1_0Req(host, port, path)
+  local patharg = stdnse.get_script_args(SCRIPT_NAME .. ".path") or "/"
+  if type(patharg) ~= "table" then
+    patharg = {patharg}
   end
+  local paths = stdnse.output_table()
+  for _, path in ipairs(patharg) do
+    paths[path] = 1
+  end
+  paths["/images"] = 1
 
-  if IP then
-    output["Internal IP Leaked"] = IP
-    return output
+  local socket
+  local bopt = nil
+  local try = nmap.new_try(function () socket:close() end)
+  for path in pairs(paths) do
+    local req = "GET " .. path .. " HTTP/1.0\r\n\r\n"
+    local resp
+    if not bopt then
+      socket, resp, bopt = comm.tryssl(host, port, req)
+      if not socket then return end
+    else
+      try(socket:connect(host, port, bopt))
+      try(socket:send(req))
+      resp = ""
+    end
+    local findhead = function (s)
+                       return s:find("\r?\n\r?\n")
+                     end
+    if not findhead(resp) then
+      resp = resp .. try(socket:receive_buf(findhead, true))
+    end
+    socket:close()
+
+    local loc = resp:lower():match("\nlocation:[ \t]+(%S+)")
+    local lochost = url.parse(loc or "").host
+    if lochost and lochost ~= "" then
+      -- remove any IPv6 enclosure
+      lochost = lochost:gsub("^%[(.*)%]$", "%1")
+
+      if ipOps.isPrivate(lochost) and ipOps.compare_ip(lochost, "ne", host.ip) then
+        if target.ALLOW_NEW_TARGETS then
+          target.add(lochost)
+        end
+        local output = stdnse.output_table()
+        output["Internal IP Leaked"] = lochost
+        return output
+      end
+    end
   end
 end

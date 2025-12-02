@@ -1,5 +1,9 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [GH#3191][GH#3218] Script http-internal-ip-disclosure has been enhanced,
+  including added support for IPv6 and HTTPS and more accurate processing
+  of target responses. [nnposter]
+
 o [GH#3194] RPC-based scripts were sporadically failing due to privileged
   port conflicts. [nnposter]
 
