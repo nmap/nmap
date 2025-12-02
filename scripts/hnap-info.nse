@@ -74,7 +74,7 @@ local ELEMENTS = {["Type"] = "Type",
 ["string"] = "SOAPACTIONS",
 ["SubDeviceURLs"] = "Sub Device URLs"}
 
-function get_text_callback(store, name)
+local function get_text_callback(store, name)
   if ELEMENTS[name] == nil then return end
   name = ELEMENTS[name]
   if name == 'SOAPACTIONS' or name == 'Sub Device URLs' or name == 'Type' then
