@@ -1,7 +1,6 @@
 local ipp = require "ipp"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
-local string = require "string"
 local table = require "table"
 
 description = [[
@@ -51,13 +50,8 @@ local verbose_states = {
 
 action = function(host, port)
 
-  local helper = ipp.Helper:new(host, port)
-  if ( not(helper:connect()) ) then
-    return stdnse.format_output(false, "Failed to connect to server")
-  end
-
-  local status, printers = helper:getPrinters()
-  if ( not(status) ) then
+  local status, printers = ipp.Helper:new(host, port):getPrinters()
+  if not status then
     return
   end
 

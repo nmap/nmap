@@ -290,17 +290,11 @@ HTTP = {
 
 Helper = {
 
-  new = function(self, host, port, options)
-    local o = { host = host, port = port, options = options or {} }
+  new = function(self, host, port)
+    local o = { host = host, port = port }
     setmetatable(o, self)
     self.__index = self
     return o
-  end,
-
-  connect = function(self)
-    self.socket = nmap.new_socket()
-    self.socket:set_timeout(self.options.timeout or 10000)
-    return self.socket:connect(self.host, self.port)
   end,
 
   getPrinters = function(self)
@@ -411,10 +405,6 @@ Helper = {
     end
 
     return output
-  end,
-
-  close = function(self)
-    return self.socket:close()
   end,
 }
 
