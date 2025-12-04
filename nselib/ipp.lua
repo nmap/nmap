@@ -83,21 +83,17 @@ IPP = {
       attrib.value = {}
       table.insert(attrib.value, { tag = attrib.tag, val = val })
 
-      repeat
+      while pos + 3 < #data do
         local tag, name_len, val
-
-        if ( #data < pos + 3 ) then
+        tag, name_len, pos = string.unpack(">BI2", data, pos)
+        if name_len > 0 then
+          -- done; start of a new attribute
+          pos = pos - 3
           break
         end
-
-        tag, name_len, pos = string.unpack(">BI2", data, pos)
-        if ( name_len == 0 ) then
-          val, pos = string.unpack(">s2", data, pos)
-          table.insert(attrib.value, { tag = tag, val = val })
-        else
-          pos = pos - 3
-        end
-      until( name_len ~= 0 )
+        val, pos = string.unpack(">s2", data, pos)
+        table.insert(attrib.value, { tag = tag, val = val })
+      end
 
       -- do minimal decoding
       for _, av in ipairs(attrib.value) do
