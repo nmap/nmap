@@ -292,7 +292,13 @@ int ncat_listen()
             bye("Unable to open any listening sockets.");
     }
 
-    add_fd(&client_fdlist, STDIN_FILENO);
+    if (!o.recvonly) {
+        add_fd(&client_fdlist, STDIN_FILENO);
+        if (o.debug)
+            logdebug("Added stdin fd %d to list\n", STDIN_FILENO);
+    } else if (o.debug) {
+        logdebug("Skipping stdin in recv-only mode\n");
+    }
 
     init_fdlist(&broadcast_fdlist, o.conn_limit);
 
@@ -597,7 +603,7 @@ static void post_handle_connection(struct fdinfo *sinfo)
             netexec(sinfo, o.cmdexec);
     } else {
         /* Now that a client is connected, pay attention to stdin. */
-        if (!stdin_eof)
+        if (!stdin_eof && !o.recvonly)
             checked_fd_set(STDIN_FILENO, &master_readfds);
         if (!o.sendonly) {
             /* add to our lists */
