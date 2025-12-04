@@ -337,9 +337,7 @@ Helper = {
 
       local printer = {}
       for k, v in pairs(attrib) do
-        if ( ag:getAttributeValue(k) ) then
-          printer[v] = ag:getAttributeValue(k)
-        end
+        printer[v] = ag:getAttributeValue(k)
       end
       table.insert(printers, printer)
     end
