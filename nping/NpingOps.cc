@@ -71,6 +71,7 @@
 #include "ArgParser.h"
 #include "output.h"
 #include "common.h"
+#include <climits>
 
 
 /******************************************************************************
