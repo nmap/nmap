@@ -103,7 +103,12 @@ nsock_iod nsock_iod_new2(nsock_pool nsockp, int sd, void *userdata) {
   } else if (sd == STDIN_FILENO) {
 #ifdef WIN32
     nsi->sd = win_stdin_start_thread();
-    assert(nsi->sd != INVALID_SOCKET);
+    if (nsi->sd == INVALID_SOCKET) {
+      nsock_log_error("nsock_iod_new2: win_stdin_start_thread() returned INVALID_SOCKET. "
+                      "STDIN may not be a real console/pipe on Windows.");
+      free(nsi);
+      return NULL;
+    }
 #else
     nsi->sd = STDIN_FILENO;
 #endif
