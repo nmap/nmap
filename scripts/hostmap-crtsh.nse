@@ -118,8 +118,11 @@ local function query_ctlogs(hostname)
     return
   end
 
-  local lax = stdnse.get_script_args("hostmap-crtsh.lax")
-  local lax_mode = (lax == true or lax == "true")
+local lax = stdnse.get_script_args("hostmap-crtsh.lax")
+local lax_mode = false
+if lax then
+    lax_mode = (lax == true or lax == "true" or lax == "1")
+end
 
   local hostnames = {}
 
