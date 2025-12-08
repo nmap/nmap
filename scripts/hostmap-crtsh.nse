@@ -113,19 +113,25 @@ local function query_ctlogs(hostname)
 
   if not (response.status == 200 and response.body) then
     stdnse.debug1("Error: Could not GET %s", url)
-    return
+    return {}
   end
 
-  local jstatus, jresp = json.parse(response.body)
-  if not jstatus then
+  local ok, jresp = json.parse(response.body)
+  if not ok then
     stdnse.debug1("Error: Invalid JSON from %s", url)
-    return
+    return {}
   end
 
+  -- parse lax mode
   local lax = stdnse.get_script_args("hostmap-crtsh.lax")
-  local lax_mode = (lax == true or lax == "true")
+  local lax_mode = false
+  if lax then
+    local v = tostring(lax):lower()
+    lax_mode = (v == "1" or v == "true" or v == "yes" or v == "on")
+  end
 
-  local hostnames = {}
+  local results = {}      -- array for output
+  local seen = {}         -- set for dedupe
 
   for _, cert in ipairs(jresp) do
     local names = cert.name_value
@@ -133,60 +139,32 @@ local function query_ctlogs(hostname)
       for _, name in ipairs(stringaux.strsplit("%s+", names:lower())) do
 
         -- strip wildcard
-        if name:find("*.", 1, true) == 1 then
+        if name:sub(1, 2) == "*." then
           name = name:sub(3)
         end
 
-        if name ~= hostname and not hostnames[name] and is_valid_hostname(name) then
+        -- skip identical host, invalid labels, or duplicates
+        if name ~= hostname and is_valid_hostname(name) and not seen[name] then
+
           if lax_mode then
-            -- lax mode: include broader hostname-like identities
-            hostnames[name] = true
+            -- lax mode: accept all valid hostnames
+            seen[name] = true
+            table.insert(results, name)
             if target.ALLOW_NEW_TARGETS then target.add(name) end
+
           else
-            -- strict mode (default): only true subdomains
+            -- strict mode: only true subdomains
             if is_subdomain(name, hostname) then
-              hostnames[name] = true
+              seen[name] = true
+              table.insert(results, name)
               if target.ALLOW_NEW_TARGETS then target.add(name) end
             end
           end
+
         end
       end
     end
   end
 
-  hostnames = tableaux.keys(hostnames)
-  return #hostnames > 0 and hostnames or nil
-end
-
-local function write_file(filename, contents)
-  local f, err = io.open(filename, "w")
-  if not f then
-    return f, err
-  end
-  f:write(contents)
-  f:close()
-  return true
-end
-
-action = function(host)
-  local filename_prefix = stdnse.get_script_args("hostmap.prefix")
-  local hostname = get_hostname(host)
-  local hostnames = query_ctlogs(hostname)
-  if not hostnames then return end
-
-  local output_tab = stdnse.output_table()
-  output_tab.subdomains = hostnames
-
-  if filename_prefix then
-    local filename = filename_prefix .. stringaux.filename_escape(hostname)
-    local hostnames_str = table.concat(hostnames, "\n")
-
-    local status, err = write_file(filename, hostnames_str)
-    if status then
-      output_tab.filename = filename
-    else
-      stdnse.debug1("Error saving file %s: %s", filename, err)
-    end
-  end
-  return output_tab
+  return results
 end
