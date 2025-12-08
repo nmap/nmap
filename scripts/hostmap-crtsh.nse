@@ -15,12 +15,14 @@ References:
 -- @args hostmap.prefix If set, saves the output for each host in a file
 -- called "<prefix><target>". The file contains one entry per line.
 --
--- @args hostmap-crtsh.lax If set (default false), include broader hostname-like
--- identities from CT logs that are not strict subdomains. When false (default),
--- only true subdomains are returned.
+-- @args hostmap-crtsh.lax If set, include hostname-like identities from CT logs
+-- that are not strict subdomains. When unset (default), only true subdomains
+-- of the target hostname are returned.
 --
 -- @args newtargets If set, add the new hostnames to the scanning queue.
--- This is useful for services that change their behavior based on hostname.
+-- This the names presumably resolve to the same IP address as the
+-- original target, this is only useful for services such as HTTP that
+-- can change their behavior based on hostname.
 --
 -- @usage
 -- nmap --script hostmap-crtsh --script-args 'hostmap-crtsh.prefix=hostmap-' <targets>
@@ -78,7 +80,6 @@ end
 -- Run on any target that has a name
 hostrule = get_hostname
 
--- validate hostname structure
 local function is_valid_hostname (name)
   local labels = stringaux.strsplit("%.", name)
   -- DNS name cannot be longer than 253
@@ -95,76 +96,89 @@ local function is_valid_hostname (name)
   return true
 end
 
--- TRUE subdomain check (ends with .parent)
--- Uses straightforward string comparison to avoid regex pitfalls.
+-- TRUE subdomain check (ends with ".parent")
 local function is_subdomain(name, parent)
   name = name:lower()
   parent = parent:lower()
   local suffix = "." .. parent
-  if #name <= #suffix then
-    return false
-  end
-  return name:sub(-#suffix) == suffix
+  return #name > #suffix and name:sub(-#suffix) == suffix
 end
 
 local function query_ctlogs(hostname)
   local url = string.format("https://crt.sh/?q=%%.%s&output=json", hostname)
   local response = http.get_url(url)
-
   if not (response.status == 200 and response.body) then
     stdnse.debug1("Error: Could not GET %s", url)
-    return {}
+    return
   end
 
-  local ok, jresp = json.parse(response.body)
-  if not ok then
-    stdnse.debug1("Error: Invalid JSON from %s", url)
-    return {}
+  local jstatus, jresp = json.parse(response.body)
+  if not jstatus then
+    stdnse.debug1("Error: Invalid response from %s", url)
+    return
   end
 
-  -- parse lax mode
   local lax = stdnse.get_script_args("hostmap-crtsh.lax")
-  local lax_mode = false
-  if lax then
-    local v = tostring(lax):lower()
-    lax_mode = (v == "1" or v == "true" or v == "yes" or v == "on")
-  end
+  local lax_mode = (lax == true or lax == "true")
 
-  local results = {}      -- array for output
-  local seen = {}         -- set for dedupe
+  local hostnames = {}
 
   for _, cert in ipairs(jresp) do
     local names = cert.name_value
     if type(names) == "string" then
       for _, name in ipairs(stringaux.strsplit("%s+", names:lower())) do
 
-        -- strip wildcard
-        if name:sub(1, 2) == "*." then
+        -- if this is a wildcard name, just proceed with the static portion
+        if name:find("*.", 1, true) == 1 then
           name = name:sub(3)
         end
 
-        -- skip identical host, invalid labels, or duplicates
-        if name ~= hostname and is_valid_hostname(name) and not seen[name] then
-
-          if lax_mode then
-            -- lax mode: accept all valid hostnames
-            seen[name] = true
-            table.insert(results, name)
-            if target.ALLOW_NEW_TARGETS then target.add(name) end
-
-          else
-            -- strict mode: only true subdomains
-            if is_subdomain(name, hostname) then
-              seen[name] = true
-              table.insert(results, name)
-              if target.ALLOW_NEW_TARGETS then target.add(name) end
+        if name ~= hostname and is_valid_hostname(name) then
+          if lax_mode or is_subdomain(name, hostname) then
+            hostnames[name] = true
+            if target.ALLOW_NEW_TARGETS then
+              target.add(name)
             end
           end
-
         end
       end
     end
   end
 
-  return results
+  hostnames = tableaux.keys(hostnames)
+  return #hostnames > 0 and hostnames or nil
+end
+
+local function write_file(filename, contents)
+  local f, err = io.open(filename, "w")
+  if not f then
+    return f, err
+  end
+  f:write(contents)
+  f:close()
+  return true
+end
+
+action = function(host)
+  local filename_prefix = stdnse.get_script_args("hostmap.prefix")
+  local hostname = get_hostname(host)
+  local hostnames = query_ctlogs(hostname)
+  if not hostnames then return end
+
+  local output_tab = stdnse.output_table()
+  output_tab.subdomains = hostnames
+
+  if filename_prefix then
+    local filename = filename_prefix .. stringaux.filename_escape(hostname)
+    local hostnames_str = table.concat(hostnames, "\n")
+
+    local status, err = write_file(filename, hostnames_str)
+    if status then
+      output_tab.filename = filename
+    else
+      stdnse.debug1("Error saving file %s: %s", filename, err)
+    end
+  end
+
+  return output_tab
 end
