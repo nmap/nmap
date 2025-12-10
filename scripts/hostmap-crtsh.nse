@@ -98,18 +98,20 @@ local function query_ctlogs (hostname, lax_mode)
     stdnse.debug1("Error: Could not GET %s", url)
     return
   end
+
   local jstatus, jresp = json.parse(response.body)
   if not jstatus then
-    stdnse.debug1("Error: Invalid response from %s", url)
+    stdnse.debug1("Error: Invalid JSON response from %s", url)
     return
   end
+
   local hostnames = {}
   for _, cert in ipairs(jresp) do
-    local names = cert.name_value;
+    local names = cert.name_value
     if type(names) == "string" then
       for _, name in ipairs(stringaux.strsplit("%s+", names:lower())) do
         -- if this is a wildcard name, just proceed with the static portion
-        if name:find("*.", 1, true) == 1 then
+        if name:sub(1, 2) == "*." then
           name = name:sub(3)
         end
         if name ~= hostname and not hostnames[name] and is_valid_hostname(name) then
