@@ -2,13 +2,8 @@ description = [[
 Finds subdomains of a web server by querying Google's Certificate Transparency
 logs database (https://crt.sh).
 
-The script will run against any target that has a name, either specified on the
-command line or obtained via reverse-DNS.
-
-NSE implementation of ctfr.py (https://github.com/UnaPibaGeek/ctfr.git) by Sheila Berta.
-
 References:
-* www.certificate-transparency.org
+* https://www.certificate-transparency.org/
 ]]
 
 ---
@@ -24,7 +19,7 @@ References:
 -- of the parent hostname. As an example, one of the returned identities for
 -- "google.com" is "google.com.gr".
 -- Since fixing it would change the script behavior that some users might
--- currently depend on then this should be discussed first. [nnposter]
+-- currently depend on, this should be discussed first. [nnposter]
 
 author = {
   "Paulino Calderon <calderon@websec.mx>",
@@ -38,7 +33,7 @@ local io = require "io"
 local http = require "http"
 local json = require "json"
 local stdnse = require "stdnse"
-local string = require "string"
+local string = require "string"        -- Added as requested
 local stringaux = require "stringaux"
 local target = require "target"
 local table = require "table"
@@ -69,11 +64,11 @@ end
 
 local function query_ctlogs(hostname, lax_mode)
   local hostname_lc = hostname:lower()
-  local suffix = "." .. hostname_lc
-  local parent = suffix:sub(2)
+  local suffix = "." .. hostname_lc    -- precomputed suffix for comparison only
 
-  local url = string.format("https://crt.sh/?q=%%.%s&output=json", parent)
+  local url = string.format("https://crt.sh/?q=%%.%s&output=json", hostname_lc)
   local response = http.get_url(url)
+
   if not (response.status == 200 and response.body) then
     stdnse.debug1("Error: Could not GET %s", url)
     return
@@ -90,6 +85,7 @@ local function query_ctlogs(hostname, lax_mode)
   for _, cert in ipairs(data) do
     local raw = cert.name_value
     if type(raw) == "string" then
+
       for _, name in ipairs(stringaux.strsplit("%s+", raw:lower())) do
 
         if name:find("*.", 1, true) == 1 then
@@ -107,7 +103,6 @@ local function query_ctlogs(hostname, lax_mode)
             end
           end
         end
-
       end
     end
   end
@@ -142,8 +137,10 @@ action = function(host)
     local filename = prefix .. stringaux.filename_escape(hostname)
     local list = table.concat(hostnames, "\n")
     local ok, err = write_file(filename, list)
-    if ok then out.filename = filename
-    else stdnse.debug1("Error saving %s: %s", filename, err)
+    if ok then
+      out.filename = filename
+    else
+      stdnse.debug1("Error saving %s: %s", filename, err)
     end
   end
 
