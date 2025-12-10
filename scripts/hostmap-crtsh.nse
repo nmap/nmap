@@ -2,6 +2,11 @@ description = [[
 Finds subdomains of a web server by querying Google's Certificate Transparency
 logs database (https://crt.sh).
 
+The script will run against any target that has a name, either specified on the
+command line or obtained via reverse-DNS.
+
+NSE implementation of ctfr.py (https://github.com/UnaPibaGeek/ctfr.git) by Sheila Berta.
+
 References:
 * https://www.certificate-transparency.org/
 ]]
@@ -33,7 +38,7 @@ local io = require "io"
 local http = require "http"
 local json = require "json"
 local stdnse = require "stdnse"
-local string = require "string"        -- Added as requested
+local string = require "string"        
 local stringaux = require "stringaux"
 local target = require "target"
 local table = require "table"
