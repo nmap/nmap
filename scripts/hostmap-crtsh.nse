@@ -14,6 +14,11 @@ References:
 ---
 -- @args hostmap.prefix If set, saves the output for each host in a file
 -- called "<prefix><target>". The file contains one entry per line.
+--
+-- @args hostmap-crtsh.lax If set, include hostname-like identities from CT logs
+-- that are not strict subdomains. When unset (default), only true subdomains
+-- of the target hostname are returned.
+--
 -- @args newtargets If set, add the new hostnames to the scanning queue.
 -- This the names presumably resolve to the same IP address as the
 -- original target, this is only useful for services such as HTTP that
@@ -38,16 +43,7 @@ References:
 -- <elem key="filename">output_nmap.org</elem>
 ---
 
--- TODO:
--- At the moment the script reports all hostname-like identities where
--- the parent hostname is present somewhere in the identity. Specifically,
--- the script does not verify that a returned identity is truly a subdomain
--- of the parent hostname. As an example, one of the returned identities for
--- "google.com" is "google.com.gr".
--- Since fixing it would change the script behavior that some users might
--- currently depend on then this should be discussed first. [nnposter]
-
-author = "Paulino Calderon <calderon@websec.mx>"
+author = {"Paulino Calderon <calderon@websec.mx>", "Sweekar-cmd"}
 
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 
@@ -88,8 +84,15 @@ local function is_valid_hostname (name)
   return true
 end
 
-local function query_ctlogs(hostname)
-  local url = string.format("https://crt.sh/?q=%%.%s&output=json", hostname)
+local function is_subdomain (name, suffix)
+  -- suffix already includes ".", e.g., ".google.com"
+  return #name > #suffix and name:sub(-#suffix) == suffix
+end
+
+local function query_ctlogs (hostname, lax_mode)
+  hostname = hostname:lower()
+  local suffix = "." .. hostname
+  local url = string.format("https://crt.sh/?q=%%%s&output=json", suffix)
   local response = http.get_url(url)
   if not (response.status == 200 and response.body) then
     stdnse.debug1("Error: Could not GET %s", url)
@@ -110,9 +113,11 @@ local function query_ctlogs(hostname)
           name = name:sub(3)
         end
         if name ~= hostname and not hostnames[name] and is_valid_hostname(name) then
-          hostnames[name] = true
-          if target.ALLOW_NEW_TARGETS then
-            target.add(name)
+          if lax_mode or is_subdomain(name, suffix) then
+            hostnames[name] = true
+            if target.ALLOW_NEW_TARGETS then
+              target.add(name)
+            end
           end
         end
       end
@@ -136,7 +141,10 @@ end
 action = function(host)
   local filename_prefix = stdnse.get_script_args("hostmap.prefix")
   local hostname = get_hostname(host)
-  local hostnames = query_ctlogs(hostname)
+  local lax = stdnse.get_script_args("hostmap-crtsh.lax")
+  local lax_mode = lax == true or lax == "true" or lax == 1
+
+  local hostnames = query_ctlogs(hostname, lax_mode)
   if not hostnames then return end
 
   local output_tab = stdnse.output_table()

@@ -1,5 +1,11 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [GH#2183][GH#3239] Script hostmap-crtsh now reports only true subdomains
+  of a given target hostname by default. In the past, it was reporting any
+  DNS name that included the target hostname as a substring (but not
+  necessarily as a suffix). The old behavior can be enabled by setting script
+  argument hostmap-crtsh.lax. [Sweekar-cmd, nnposter]
+
 o [GH#3191][GH#3218] Script http-internal-ip-disclosure has been enhanced,
   including added support for IPv6 and HTTPS and more accurate processing
   of target responses. [nnposter]
