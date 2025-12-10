@@ -42,6 +42,15 @@ References:
 -- <elem key="filename">output_nmap.org</elem>
 ---
 
+-- TODO:
+-- At the moment the script reports all hostname-like identities where
+-- the parent hostname is present somewhere in the identity. Specifically,
+-- the script does not verify that a returned identity is truly a subdomain
+-- of the parent hostname. As an example, one of the returned identities for
+-- "google.com" is "google.com.gr".
+-- Since fixing it would change the script behavior that some users might
+-- currently depend on then this should be discussed first. [nnposter]
+
 author = {
   "Paulino Calderon <calderon@websec.mx>",
   "Sweekar-cmd",
