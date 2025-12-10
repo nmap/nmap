@@ -10,36 +10,11 @@ NSE implementation of ctfr.py (https://github.com/UnaPibaGeek/ctfr.git) by Sheil
 References:
 * www.certificate-transparency.org
 ]]
+
 ---
--- @args hostmap.prefix If set, saves the output for each host in a file
--- called "<prefix><target>". The file contains one entry per line.
---
--- @args hostmap-crtsh.lax If set, include hostname-like identities from CT logs
--- that are not strict subdomains. When unset (default), only true subdomains
--- of the target hostname are returned.
---
--- @args newtargets If set, add the new hostnames to the scanning queue.
--- This the names presumably resolve to the same IP address as the
--- original target, this is only useful for services such as HTTP that
--- can change their behavior based on hostname.
---
--- @usage
--- nmap --script hostmap-crtsh --script-args 'hostmap-crtsh.prefix=hostmap-' <targets>
--- @usage
--- nmap -sn --script hostmap-crtsh <target>
--- @output
--- Host script results:
--- | hostmap-crtsh:
--- |   subdomains:
--- |     svn.nmap.org
--- |     www.nmap.org
--- |_  filename: output_nmap.org
--- @xmloutput
--- <table key="subdomains">
---  <elem>svn.nmap.org</elem>
---  <elem>www.nmap.org</elem>
---  </table>
--- <elem key="filename">output_nmap.org</elem>
+-- @args hostmap.prefix  Save results to "<prefix><target>" with one hostname per line.
+-- @args hostmap-crtsh.lax  Include hostname-like identities that are not strict subdomains.
+-- @args newtargets  Add discovered hostnames as new scan targets (for virtual-host services).
 ---
 
 -- TODO:
@@ -57,7 +32,6 @@ author = {
 }
 
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
-
 categories = {"external", "discovery"}
 
 local io = require "io"
@@ -70,7 +44,6 @@ local target = require "target"
 local table = require "table"
 local tableaux = require "tableaux"
 
--- Different from stdnse.get_hostname
 local function get_hostname(host)
   return host.targetname or (host.name ~= '' and host.name) or nil
 end
@@ -90,60 +63,62 @@ local function is_valid_hostname(name)
   return true
 end
 
--- suffix already includes ".", e.g. ".google.com"
 local function is_subdomain(name, suffix)
   return #name > #suffix and name:sub(-#suffix) == suffix
 end
 
 local function query_ctlogs(hostname, lax_mode)
-  local url = string.format("https://crt.sh/?q=%%.%s&output=json", hostname)
+  local hostname_lc = hostname:lower()
+  local suffix = "." .. hostname_lc
+  local parent = suffix:sub(2)
+
+  local url = string.format("https://crt.sh/?q=%%.%s&output=json", parent)
   local response = http.get_url(url)
   if not (response.status == 200 and response.body) then
     stdnse.debug1("Error: Could not GET %s", url)
     return
   end
 
-  local jstatus, jresp = json.parse(response.body)
-  if not jstatus then
+  local ok, data = json.parse(response.body)
+  if not ok then
     stdnse.debug1("Error: Invalid JSON from %s", url)
     return
   end
 
-  local suffix = "." .. hostname:lower()
-  local hostnames = {}
+  local results = {}
 
-  for _, cert in ipairs(jresp) do
-    local names = cert.name_value
-    if type(names) == "string" then
-      for _, name in ipairs(stringaux.strsplit("%s+", names:lower())) do
+  for _, cert in ipairs(data) do
+    local raw = cert.name_value
+    if type(raw) == "string" then
+      for _, name in ipairs(stringaux.strsplit("%s+", raw:lower())) do
+
         if name:find("*.", 1, true) == 1 then
           name = name:sub(3)
         end
 
-        if name ~= hostname
+        if name ~= hostname_lc
           and is_valid_hostname(name)
-          and not hostnames[name]           -- dedupe (requested by reviewer)
+          and not results[name]
         then
           if lax_mode or is_subdomain(name, suffix) then
-            hostnames[name] = true
+            results[name] = true
             if target.ALLOW_NEW_TARGETS then
               target.add(name)
             end
           end
         end
+
       end
     end
   end
 
-  hostnames = tableaux.keys(hostnames)
-  return (#hostnames > 0) and hostnames or nil
+  results = tableaux.keys(results)
+  return (#results > 0) and results or nil
 end
 
-local function write_file(filename, contents)
-  local f, err = io.open(filename, "w")
-  if not f then
-    return nil, err
-  end
+local function write_file(name, contents)
+  local f, err = io.open(name, "w")
+  if not f then return nil, err end
   f:write(contents)
   f:close()
   return true
@@ -153,28 +128,24 @@ action = function(host)
   local hostname = get_hostname(host)
   if not hostname then return end
 
-  -- reviewer requested: compute lax_mode here
   local lax = stdnse.get_script_args("hostmap-crtsh.lax")
   local lax_mode = (lax == true or lax == "true" or lax == "1")
 
-  local filename_prefix = stdnse.get_script_args("hostmap.prefix")
-
+  local prefix = stdnse.get_script_args("hostmap.prefix")
   local hostnames = query_ctlogs(hostname, lax_mode)
   if not hostnames then return end
 
-  local output_tab = stdnse.output_table()
-  output_tab.subdomains = hostnames
+  local out = stdnse.output_table()
+  out.subdomains = hostnames
 
-  if filename_prefix then
-    local filename = filename_prefix .. stringaux.filename_escape(hostname)
-    local hostnames_str = table.concat(hostnames, "\n")
-    local status, err = write_file(filename, hostnames_str)
-    if status then
-      output_tab.filename = filename
-    else
-      stdnse.debug1("Error saving %s: %s", filename, err)
+  if prefix then
+    local filename = prefix .. stringaux.filename_escape(hostname)
+    local list = table.concat(hostnames, "\n")
+    local ok, err = write_file(filename, list)
+    if ok then out.filename = filename
+    else stdnse.debug1("Error saving %s: %s", filename, err)
     end
   end
 
-  return output_tab
+  return out
 end
