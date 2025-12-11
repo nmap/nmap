@@ -35,6 +35,11 @@
 
 #include "dnet.h"
 
+/* NetBSD 10+ removed RTF_LLINFO */
+#ifndef RTF_LLINFO
+#define RTF_LLINFO 0
+#endif
+
 struct arp_handle {
 	int	fd;
 	int	seq;
@@ -138,13 +143,13 @@ arp_add(arp_t *arp, const struct arp_entry *entry)
 		errno = EADDRNOTAVAIL;
 		return (-1);
 	}
-	if (sin->sin_addr.s_addr == entry->arp_pa.addr_ip) {
-		if ((msg.rtm.rtm_flags & RTF_LLINFO) == 0 ||
-		    (msg.rtm.rtm_flags & RTF_GATEWAY) != 0) {
-			errno = EADDRINUSE;
-			return (-1);
-		}
-	}
+    if (sin->sin_addr.s_addr == entry->arp_pa.addr_ip) {
+        if ((RTF_LLINFO && ((msg.rtm.rtm_flags & RTF_LLINFO) == 0)) ||
+            (msg.rtm.rtm_flags & RTF_GATEWAY) != 0) {
+            errno = EADDRINUSE;
+            return (-1);
+        }
+    }
 	if (sa->sa_family != AF_LINK) {
 		errno = EADDRNOTAVAIL;
 		return (-1);
