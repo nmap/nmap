@@ -130,7 +130,7 @@ static int verify_callback(int ok, X509_STORE_CTX *store)
     /* Print the subject, issuer, and fingerprint depending on the verbosity
        level. */
     if ((!ok && o.verbose) || o.debug > 1) {
-        char digest_buf[SHA1_STRING_LENGTH + 1];
+        char digest_buf[SHA256_STRING_LENGTH + 1];
         char *fp;
 
         loguser("Subject: ");
@@ -140,9 +140,9 @@ static int verify_callback(int ok, X509_STORE_CTX *store)
         X509_NAME_print_ex_fp(stderr, X509_get_issuer_name(cert), 0, XN_FLAG_COMPAT);
         loguser_noprefix("\n");
 
-        fp = ssl_cert_fp_str_sha1(cert, digest_buf, sizeof(digest_buf));
+        fp = ssl_cert_fp_str_sha256(cert, digest_buf, sizeof(digest_buf));
         ncat_assert(fp == digest_buf);
-        loguser("SHA-1 fingerprint: %s\n", digest_buf);
+        loguser("SHA-256 fingerprint: %s\n", digest_buf);
     }
 
     if (!ok && o.verbose) {
@@ -236,7 +236,7 @@ static void connect_report(nsock_iod nsi)
         if (nsock_iod_check_ssl(nsi)) {
             X509 *cert;
             X509_NAME *subject;
-            char digest_buf[SHA1_STRING_LENGTH + 1];
+            char digest_buf[SHA256_STRING_LENGTH + 1];
             char *fp;
 
             loguser("SSL connection to %s.", peer_str);
@@ -256,9 +256,9 @@ static void connect_report(nsock_iod nsi)
 
             loguser_noprefix("\n");
 
-            fp = ssl_cert_fp_str_sha1(cert, digest_buf, sizeof(digest_buf));
+            fp = ssl_cert_fp_str_sha256(cert, digest_buf, sizeof(digest_buf));
             ncat_assert(fp == digest_buf);
-            loguser("SHA-1 fingerprint: %s\n", digest_buf);
+            loguser("SHA-256 fingerprint: %s\n", digest_buf);
         } else
 #endif
         {
