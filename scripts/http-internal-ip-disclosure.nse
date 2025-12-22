@@ -58,22 +58,17 @@ action = function(host, port)
   local try = nmap.new_try(function () socket:close() end)
   for path in pairs(paths) do
     local req = "GET " .. path .. " HTTP/1.0\r\n\r\n"
-    local resp
+    local resp = nil
     if not bopt then
       socket, resp, bopt = comm.tryssl(host, port, req)
       if not socket then return end
     else
       try(socket:connect(host, port, bopt))
       try(socket:send(req))
-      resp = ""
     end
-    local findhead = function (s)
-                       return s:find("\r?\n\r?\n")
-                     end
-    if not findhead(resp) then
-      resp = resp .. try(socket:receive_buf(findhead, true))
-    end
+    resp = stdnse.make_buffer(socket, "\r?\n\r?\n", resp)()
     socket:close()
+    if not resp then return end
 
     local loc = resp:lower():match("\nlocation:[ \t]+(%S+)")
     local lochost = url.parse(loc or "").host
