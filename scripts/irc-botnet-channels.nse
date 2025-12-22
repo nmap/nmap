@@ -161,23 +161,6 @@ local function irc_compose_message(prefix, command, ...)
   return table.concat(parts, " ") .. "\r\n"
 end
 
-local function splitlines(s)
-  local lines = {}
-  local _, i, j
-
-  i = 1
-  while i <= #s do
-    _, j = string.find(s, "\r?\n", i)
-    lines[#lines + 1] = string.sub(s, i, j)
-    if not j then
-      break
-    end
-    i = j + 1
-  end
-
-  return lines
-end
-
 local function irc_connect(host, port, nick, user, pass)
   local commands = {}
   local irc = {}
@@ -199,10 +182,7 @@ local function irc_connect(host, port, nick, user, pass)
 
   irc.sd:set_timeout(60 * 1000)
 
-  -- Buffer these initial lines for irc_readline.
-  irc.linebuf = splitlines(banner)
-
-  irc.buf = stdnse.make_buffer(irc.sd, "\r?\n")
+  irc.buf = stdnse.make_buffer(irc.sd, "\r?\n", banner)
 
   return irc
 end
@@ -211,26 +191,10 @@ local function irc_disconnect(irc)
   irc.sd:close()
 end
 
-local function irc_readline(irc)
-  local line
-
-  if next(irc.linebuf) then
-    line = table.remove(irc.linebuf, 1)
-    if string.match(line, "\r?\n$") then
-      return line
-    else
-      -- We had only half a line buffered.
-      return line .. irc.buf()
-    end
-  else
-    return irc.buf()
-  end
-end
-
 local function irc_read_message(irc)
   local line, err
 
-  line, err = irc_readline(irc)
+  line, err = irc.buf()
   if not line then
     return nil, err
   end
