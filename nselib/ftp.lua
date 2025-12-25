@@ -236,18 +236,18 @@ end
 
 --- Start PASV mode
 --
--- For IPv6 connections, attempts to use EPSV (RFC 2428). If the server sends an address that is not the target address, then this is an error.
+-- For IPv6 connections, attempts to use EPSV (RFC 2428). If the server sends
+-- an address that is not the target address, then this is an error.
 -- @param socket The connected command socket
 -- @param buffer The receive buffer
 -- @return The connected data socket, or nil on error
 -- @return Error message if data socket is nil
 function pasv(socket, buffer)
-  local epsv = false
   local status, lhost, lport, rhost, rport = socket:get_info()
   if not status then
     return nil, ("Can't determine remote host IP: %s"):format(lhost)
   end
-  epsv = #ipOps.ip_to_str(rhost) > 4
+  local epsv = #ipOps.ip_to_str(rhost) > 4
 
   ::TRY_AGAIN::
   local cmd = epsv and "EPSV" or "PASV"
