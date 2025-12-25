@@ -4,13 +4,19 @@ compiler:
   - clang
 # Change this to your needs
 sudo: false
-script: mkdir /tmp/n && ./configure $SSL_FLAG $LUA_FLAG --prefix=/tmp/n && make && make check && make install && /tmp/n/bin/nmap -A localhost
+script: mkdir /tmp/n && CFLAGS="-O0 -g -fno-inline -fprofile-arcs -ftest-coverage" CXXFLAGS="-O0 -g -fno-inline -fprofile-arcs -ftest-coverage" LDFLAGS="-fprofile-arcs" ./configure $SSL_FLAG $LUA_FLAG --prefix=/tmp/n && make && make check && make install && /tmp/n/bin/nmap -A scanme.nmap.org
 
 env:
   - SSL_FLAG="--without-openssl" LUA_FLAG="--without-liblua"
   - SSL_FLAG="" LUA_FLAG="--without-liblua"
   - SSL_FLAG="--without-openssl" LUA_FLAG=""
   - SSL_FLAG="" LUA_FLAG=""
+
+before_install:
+  - pip install --user codecov
+
+after_success:
+  - codecov
 
 notifications:
   irc:
