@@ -1,0 +1,206 @@
+name: nmap multiplatform autobuilds
+
+on:
+  push:
+    paths:
+      - ".github/workflows/build.yml"
+      - "**/*.c"
+      - "**/*.cc"
+      - "**/*.cpp"
+      - "**/*.h"
+      - "**/*.H"
+      - "**/*.in"
+      - "**/*.am"
+      - "**/*.ac"
+      - "**/*.lua"
+      - "**/*.cmakein"
+      - "**/configure"
+      - "**/*.pl"
+      - "**/*.py"
+      - "**/*.awk"
+      - "**/*.sh"
+      - "**/*.toml"
+    branches:
+      - master
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      deploymentName:
+        description: "Name for this deployment"
+        required: true
+        default: "Manual Deployment"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  MAKEFLAGS: -j3
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: ubuntu-latest-gcc
+            os: ubuntu-latest
+            cc: gcc
+          - name: ubuntu-latest-gcc-arm64
+            os: ubuntu-latest
+            cc: gcc
+            arch: arm64
+          - name: ubuntu-latest-clang
+            os: ubuntu-latest
+            cc: clang
+          - name: macos-15-clang
+            os: macos-15
+            cc: clang
+          - name: macos-26-clang
+            os: macos-26
+            cc: clang
+          - name: freebsd-15-gcc
+            os: ubuntu-latest
+            cc: gcc
+          - name: freebsd-15-clang
+            os: ubuntu-latest
+            cc: clang
+          - name: openbsd-7-gcc
+            os: ubuntu-latest
+            cc: egcc
+          - name: openbsd-7-clang
+            os: ubuntu-latest
+            cc: clang
+          - name: netbsd-10-gcc
+            os: ubuntu-latest
+            cc: gcc
+          - name: netbsd-10-clang
+            os: ubuntu-latest
+            cc: clang
+          - name: solaris-11-gcc
+            os: ubuntu-latest
+            cc: gcc
+          - name: solaris-11-clang
+            os: ubuntu-latest
+            cc: clang
+          - name: windows-latest-msvc
+            os: windows-latest
+            cc: msvc
+
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up QEMU for ARM64
+        if: matrix.arch == 'arm64'
+        uses: docker/setup-qemu-action@v3
+        with:
+          platforms: linux/arm64
+
+      - name: Build Linux
+        if: startsWith(matrix.name,'ubuntu') && matrix.arch != 'arm64'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential clang tree libpcap-dev libnet-dev libpcre2-dev
+          ./configure
+          make
+          make install DESTDIR=/tmp
+          tree /tmp/usr
+
+      - name: Build Linux ARM64
+        if: startsWith(matrix.name,'ubuntu') && matrix.arch == 'arm64'
+        run: |
+          docker run --rm --platform linux/arm64 -v $PWD:/work -w /work ubuntu:latest bash -c "
+            apt-get update -q -y &&
+            apt-get install -q -y build-essential tree libpcap-dev libnet-dev libpcre2-dev autoconf automake &&
+            ./configure
+            make &&
+            make install DESTDIR=/tmp &&
+            tree /tmp/usr
+          "
+
+      - name: Build MacOS
+        if: startsWith(matrix.name,'macos')
+        run: |
+          brew update
+          # PCRE2 is already installed
+          brew install tree libpcap libnet
+          ./configure
+          make
+          make install DESTDIR=/tmp
+          tree /tmp/usr
+
+      - name: Build FreeBSD
+        if: startsWith(matrix.name,'freebsd')
+        uses: vmactions/freebsd-vm@v1
+        with:
+          release: "15.0"
+          usesh: true
+          prepare: |
+            # OS has libpcap already installed (and adding puts a second in /usr/local)
+            pkg install -y gcc llvm autotools tree pkgconf libnet pcre2 gmake dbus
+          run: |
+            ./configure
+            gmake
+            gmake install DESTDIR=/tmp
+            tree /tmp/usr
+
+      - name: Build OpenBSD
+        if: startsWith(matrix.name,'openbsd')
+        uses: vmactions/openbsd-vm@v1
+        with:
+          usesh: true
+          prepare: |
+            export PKG_PATH=https://cdn.openbsd.org/pub/OpenBSD/$(uname -r)/packages/$(uname -m)/
+            pkg_add -I autoconf%2.72 automake%1.17 gcc%11 llvm%19 tree pkgconf libnet%1.1 pcre2 gmake dbus
+          run: |
+            export AUTOCONF_VERSION=2.72
+            export AUTOMAKE_VERSION=1.17
+            ./configure
+            gmake
+            gmake install DESTDIR=/tmp
+            tree /tmp/usr
+
+      - name: Build NetBSD
+        if: startsWith(matrix.name,'netbsd')
+        uses: vmactions/netbsd-vm@v1
+        with:
+          usesh: true
+          prepare: |
+            export PATH=/usr/sbin:/usr/pkg/sbin:/usr/pkg/bin:$PATH
+            export PKG_PATH="http://cdn.netbsd.org/pub/pkgsrc/packages/NetBSD/$(uname -p)/$(uname -r | cut -d_ -f1)/All"
+            pkg_add gcc13 clang autoconf automake pkgconf libpcap libnet gmake dbus
+          run: |
+            ./configure
+            gmake
+            gmake install DESTDIR=/tmp
+            tree /tmp/usr
+
+      - name: Build Solaris
+        if: startsWith(matrix.name,'solaris')
+        uses: vmactions/solaris-vm@v1
+        with:
+          usesh: true
+          prepare: |
+            pkg install gcc-c clang autoconf automake pcre2 libpcap libnet developer/build/gnu-make
+          run: |
+            ./configure
+            gmake
+            gmake install DESTDIR=/tmp
+            tree /tmp/usr
+
+      - name: Install Subversion
+        if: startsWith(matrix.name,'windows')
+        shell: powershell
+        run: |
+          choco install svn -y --no-progress
+          $env:PATH = "C:\Program Files (x86)\Subversion\bin;C:\Program Files\Subversion\bin;$env:PATH"
+          echo "C:\Program Files (x86)\Subversion\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+          echo "C:\Program Files\Subversion\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+
+      - name: Build Windows
+        if: startsWith(matrix.name,'windows')
+        shell: cmd
+        run: |
+          cd mswin32
+          Build.bat
