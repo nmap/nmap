@@ -64,6 +64,7 @@
 #include <stddef.h>
 #undef NDEBUG
 #include <assert.h>
+#include <climits>
 
 #include "nbase.h"
 

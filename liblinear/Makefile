@@ -35,9 +35,9 @@ linear.o: linear.cpp linear.h
 	$(CXX) $(CFLAGS) -c -o linear.o linear.cpp
 
 blas/blas.a: blas/*.c blas/*.h
-	make -C blas OPTFLAGS='$(CFLAGS)' CC='$(CC)';
+	$(MAKE) -C blas OPTFLAGS='$(CFLAGS)' CC='$(CC)';
 
 clean:
-	make -C blas clean
-	make -C matlab clean
+	$(MAKE) -C blas clean
+	$(MAKE) -C matlab clean
 	rm -f *~ newton.o linear.o train predict liblinear.so.$(SHVER)
