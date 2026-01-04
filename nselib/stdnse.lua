@@ -197,12 +197,19 @@ end
 -- not followed by the separator. Once an error or EOF is reached, it returns
 -- <code>nil, msg</code>. <code>msg</code> is what is returned by
 -- <code>nmap.receive_lines</code>.
+-- In some situations, initial data gets read from a socket before being able to
+-- create a buffer with <code>make_buffer()</code>, such as when the connection
+-- is initiated with <code>comm.tryssl()</code>, instead of just simple
+-- <code>socket:connect()</code>. This data can be passed or "returned" to
+-- <code>make_buffer()</code>, as if it was never read, and later retrieved from
+-- the newly created buffer.
 -- @param socket Socket for the buffer.
--- @param sep Separator for the buffered reads.
+-- @param sep Separator pattern for the buffered reads.
+-- @param data Data initializing the buffer (optional).
 -- @return Data from socket reads or <code>nil</code> on EOF or error.
 -- @return Error message, as with <code>receive_lines</code>.
-function make_buffer(socket, sep)
-  local point, left, buffer, done, msg = 1, "";
+function make_buffer(socket, sep, buffer)
+  local point, left, done, msg = 1, "";
   local function self()
     if done then
       return nil, msg; -- must be nil for stdnse.lines (below)
