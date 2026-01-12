@@ -1,5 +1,8 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [GH#3214] Improve compatibility of build process on various platforms and add
+  multiplatform autobuilds in Github workflow. [Jordan Ritter]
+
 o [GH#2183][GH#3239] Script hostmap-crtsh now reports only true subdomains
   of a given target hostname by default. In the past, it was reporting any
   DNS name that included the target hostname as a substring (but not
