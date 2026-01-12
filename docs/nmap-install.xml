@@ -793,6 +793,52 @@ Install System</ulink>.  After it completes, read <xref
 linkend="inst-win-exec"/> for instructions on executing Nmap on the
 command-line or through Zenmap.</para>
 
+<sect3 id="inst-win-exe-options">
+  <title>Installer options</title>
+  <para>
+    The installer accepts several command-line options to change the installer
+    behavior or the selection of some of the components of the installation. By
+    default, all components are selected. The options are:
+  </para>
+<variablelist>
+  <varlistentry>
+    <term><option>/NMAP=NO</option></term>
+    <listitem>Don't install Nmap</listitem>
+  </varlistentry>
+  <varlistentry>
+    <term><option>/NPCAP=NO</option></term>
+    <listitem>Don't install Npcap. Unless Npcap is installed separately, some
+      features of Nmap and Nping will not work.</listitem>
+  </varlistentry>
+  <varlistentry>
+    <term><option>/NCAT=NO</option></term>
+    <listitem>Don't install Ncat.</listitem>
+  </varlistentry>
+  <varlistentry>
+    <term><option>/NPING=NO</option></term>
+    <listitem>Don't install Nping.</listitem>
+  </varlistentry>
+  <varlistentry>
+    <term><option>/ZENMAP=NO</option></term>
+    <listitem>Don't install Zenmap. Nmap OEM does not include Zenmap.</listitem>
+  </varlistentry>
+  <varlistentry>
+    <term><option>/NDIFF=NO</option></term>
+    <listitem>Don't install Ndiff. Nmap OEM does not include Ndiff.</listitem>
+  </varlistentry>
+  <varlistentry>
+    <term><option>/REGISTRYMODS=NO</option></term>
+    <listitem>Don't install performance-related registry modifications.</listitem>
+  </varlistentry>
+  <varlistentry>
+    <term><option>/REGISTERPATH=NO</option></term>
+    <listitem>Don't add the installation directory to <envar>PATH</envar>.</listitem>
+  </varlistentry>
+</variablelist>
+  <para>Additionally, the <option>/D</option> can be used to change the
+    installation directory. Nmap OEM installers also accept <option>/S</option>
+    for silent installation.</para>
+</sect3>
 </sect2>
 
 <sect2 id="inst-win-zip"><title>Command-line Zip Binaries</title>
