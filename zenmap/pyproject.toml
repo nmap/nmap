@@ -24,12 +24,13 @@ Changelog = "https://nmap.org/changelog"
 [project.gui-scripts]
 zenmap = "zenmapGUI.App:run"
 
-[tool.setuptools]
-packages = [
+[tool.setuptools.packages.find]
+include = [
 "zenmapCore",
 "zenmapCore.data.config",
 "zenmapCore.data.docs",
 "zenmapCore.data.locale",
+"zenmapCore.data.locale.*.LC_MESSAGES",
 "zenmapCore.data.misc",
 "zenmapCore.data.pixmaps",
 "zenmapCore.data.pixmaps.radialnet",
