@@ -65,6 +65,7 @@ Entry { filename = "cics-enum.nse", categories = { "brute", "intrusive", } }
 Entry { filename = "cics-info.nse", categories = { "discovery", "safe", } }
 Entry { filename = "cics-user-brute.nse", categories = { "brute", "intrusive", } }
 Entry { filename = "cics-user-enum.nse", categories = { "brute", "intrusive", } }
+Entry { filename = "citrix-bleed2.nse", categories = { "vuln", "intrusive", } }
 Entry { filename = "citrix-brute-xml.nse", categories = { "brute", "intrusive", } }
 Entry { filename = "citrix-enum-apps-xml.nse", categories = { "discovery", "safe", } }
 Entry { filename = "citrix-enum-apps.nse", categories = { "discovery", "safe", } }
