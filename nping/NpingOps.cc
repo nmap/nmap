@@ -772,14 +772,14 @@ bool NpingOps::issetBPFFilterSpec(){
 
 /** Sets CurrentRound.
  *  @return OP_SUCCESS on success and OP_FAILURE in case of error.           */
-int NpingOps::setCurrentRound(int val){
+int NpingOps::setCurrentRound(u64 val){
   this->current_round=val;
   return OP_SUCCESS;
 } /* End of setCurrentRound() */
 
 
 /** Returns value of attribute current_round */
-int NpingOps::getCurrentRound(){
+u64 NpingOps::getCurrentRound(){
   return this->current_round;
 } /* End of getCurrentRound() */
 
