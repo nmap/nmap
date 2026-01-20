@@ -14,12 +14,11 @@ Source0: https://nmap.org/dist/nmap-%{version}.tgz
 URL: https://nmap.org/zenmap/
 BuildArch: noarch
 
-AutoReqProv: no
 BuildRequires: python3-devel
 # Add any build-time deps declared in pyproject.toml [build-system.requires]
 BuildRequires: python3-setuptools, python3-wheel, python3-build, python3-setuptools-gettext
 BuildRequires: desktop-file-utils
-Requires: python3 >= 3.0, nmap, python3-gobject, gtk3
+Requires: python3 >= 3.8, nmap, python3-gobject, gtk3
 %global debug_package %{nil}
 
 Prefix: %{_prefix}

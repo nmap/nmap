@@ -12,6 +12,7 @@ readme = {file = "README", content-type = "text/plain"}
 dependencies = [
   "PyGObject",
 ]
+requires-python = ">= 3.8"
 
 [project.urls]
 Homepage = "https://nmap.org/zenmap/"
