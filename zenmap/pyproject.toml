@@ -4,8 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "zenmap"
-license = "LicenseRef-Nmap-License"
-license-files = ["LICENSE", "COPYING_HIGWIDGETS"]
+license = {file = "LICENSE", content-type = "text/plain"}
 dynamic = ["version"]
 authors = [{name = "The Nmap Project"}]
 description = "Nmap frontend and results viewer"
@@ -24,6 +23,9 @@ Changelog = "https://nmap.org/changelog"
 [project.gui-scripts]
 zenmap = "zenmapGUI.App:run"
 
+[project.scripts]
+ndiff = "ndiff:run_main"
+
 [tool.setuptools]
 packages = [
 "zenmapCore",
@@ -41,6 +43,7 @@ packages = [
 "radialnet.gui",
 "radialnet.util",
 ]
+py-modules = ["ndiff"]
 
 [tool.setuptools.dynamic]
 version = {attr = "zenmapCore.Version.VERSION"}
