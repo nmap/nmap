@@ -1,5 +1,8 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [GH#3280] Fix a performance regression in reverse-DNS in Nmap 7.98. The fix
+  for #3130 had caused Nmap to send requests too slowly. [Daniel Miller]
+
 o [GH#3214] Improve compatibility of build process on various platforms and add
   multiplatform autobuilds in Github workflow. [Jordan Ritter]
 

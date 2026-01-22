@@ -463,10 +463,41 @@ static void close_dns_servers() {
   nsock_loop_quit(dnspool);
 }
 
+// Attempts to send a request for this server
+static bool server_send(dns_server &serv) {
+  if (serv.write_busy || serv.reqs_on_wire >= serv.capacity) {
+    return false;
+  }
+
+  request *tpreq = NULL;
+  if (!new_reqs.empty()) {
+    tpreq = new_reqs.front();
+    assert(tpreq != NULL);
+    assert(tpreq->targ != NULL);
+    tpreq->first_server = tpreq->curr_server = &serv;
+    new_reqs.pop_front();
+  } else if (!serv.to_process.empty()) {
+    tpreq = serv.to_process.front();
+    serv.to_process.pop_front();
+  } else {
+    return false;
+  }
+
+  assert(tpreq != NULL);
+  assert(tpreq->targ != NULL);
+  assert(tpreq->curr_server == &serv);
+  if (o.debugging >= TRACE_DEBUG_LEVEL)
+    log_write(LOG_STDOUT, "mass_dns: TRANSMITTING for <%s> (server <%s>)\n", tpreq->targ->repr(), serv.hostname.c_str());
+  stat_trans++;
+  serv.write_busy = 1;
+  put_dns_packet_on_wire(tpreq);
+  serv.write_busy = 0;
+  return true;
+}
+
 // Puts as many packets on the line as capacity will allow
 static void do_possible_writes() {
   std::list<dns_server>::iterator servI;
-  request *tpreq;
   bool all_servs_disconnected = true;
 
   for(servI = servs.begin(); servI != servs.end(); servI++) {
@@ -480,27 +511,9 @@ static void do_possible_writes() {
         continue;
         break;
     }
-    if (servI->write_busy == 0 && servI->reqs_on_wire < servI->capacity) {
-      tpreq = NULL;
-      if (!new_reqs.empty()) {
-        tpreq = new_reqs.front();
-        assert(tpreq != NULL);
-        assert(tpreq->targ != NULL);
-        tpreq->first_server = tpreq->curr_server = &*servI;
-        new_reqs.pop_front();
-      } else if (!servI->to_process.empty()) {
-        tpreq = servI->to_process.front();
-        servI->to_process.pop_front();
-        assert(tpreq != NULL);
-        assert(tpreq->targ != NULL);
-        assert(tpreq->curr_server == &*servI);
-      }
-
-      if (tpreq) {
-        if (o.debugging >= TRACE_DEBUG_LEVEL)
-           log_write(LOG_STDOUT, "mass_dns: TRANSMITTING for <%s> (server <%s>)\n", tpreq->targ->repr(), servI->hostname.c_str());
-        stat_trans++;
-        put_dns_packet_on_wire(tpreq);
+    for (int i=servI->capacity - servI->reqs_on_wire; i > 0; i--) {
+      if (!server_send(*servI)) {
+        break;
       }
     }
   }
@@ -515,7 +528,7 @@ static void write_evt_handler(nsock_pool nsp, nsock_event evt, void *req_v) {
   request *req = (request *) req_v;
 
   if (nse_status(evt) == NSE_STATUS_SUCCESS) {
-    do_possible_writes();
+    server_send(*req->curr_server);
   }
   else {
     if (o.debugging) {
@@ -525,10 +538,6 @@ static void write_evt_handler(nsock_pool nsp, nsock_event evt, void *req_v) {
     req->curr_server->in_process.remove(req);
     req->curr_server->to_process.push_front(req);
   }
-
-  // Avoid runaway recursion: when we call do_possible_writes above,
-  // make sure we still are "busy"
-  req->curr_server->write_busy = 0;
 
   if (req->status == request::DONE) {
     delete req;
@@ -556,7 +565,6 @@ static void put_dns_packet_on_wire(request *req) {
   dns_server *srv = req->curr_server;
   info record;
 
-  srv->write_busy = 1;
   srv->reqs_on_wire++;
   DNS::Request &reqt = *req->targ;
 
