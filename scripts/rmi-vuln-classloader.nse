@@ -3,6 +3,7 @@ local shortport = require "shortport"
 local string = require "string"
 local stdnse = require "stdnse"
 local vulns = require "vulns"
+local stdnse = require "stdnse"
 
 description = [[
 Tests whether Java rmiregistry allows class loading.  The default
@@ -105,6 +106,12 @@ Default configuration of RMI registry allows loading classes from remote URLs wh
   -- whatever we get.
   registry.out.dis:canRead(256)
   local data = registry.out.dis.bReader.readBuffer;
+
+  if string.find(data, "error unmarshalling arguments") ~= nil then
+    stdnse.debug1("Received and UnmarshalException from the server");
+    rmi_vuln.state = vulns.STATE.NOT_VULN;
+    return report:make_output(rmi_vuln);
+  end
 
   if string.find(data, "RMI class loader disabled") == nil then
     rmi_vuln.state = vulns.STATE.VULN;
