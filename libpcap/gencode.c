@@ -24,14 +24,7 @@
 #ifdef _WIN32
   #include <ws2tcpip.h>
 #else
-  #include <sys/socket.h>
-
-  #ifdef __NetBSD__
-    #include <sys/param.h>
-  #endif
-
   #include <netinet/in.h>
-  #include <arpa/inet.h>
 #endif /* _WIN32 */
 
 #include <stdlib.h>
@@ -76,6 +69,10 @@
 #endif
 
 #ifdef _WIN32
+  #ifdef HAVE_NPCAP_BPF_H
+    /* Defines BPF extensions for Npcap */
+    #include <npcap-bpf.h>
+  #endif
   #ifdef INET6
     #if defined(__MINGW32__) && defined(DEFINE_ADDITIONAL_IPV6_STUFF)
 /* IPv6 address */
@@ -229,6 +226,26 @@ struct chunk {
 	size_t n_left;
 	void *m;
 };
+
+/*
+ * A chunk can store any of:
+ *  - a string (guaranteed alignment 1 but present for completeness)
+ *  - a block
+ *  - an slist
+ *  - an arth
+ * For this simple allocator every allocated chunk gets rounded up to the
+ * alignment needed for any chunk.
+ */
+struct chunk_align {
+	char dummy;
+	union {
+		char c;
+		struct block b;
+		struct slist s;
+		struct arth a;
+	} u;
+};
+#define CHUNK_ALIGN (offsetof(struct chunk_align, u))
 
 /* Code generator state */
 
@@ -526,7 +543,7 @@ static struct block *gen_hostop(compiler_state_t *, bpf_u_int32, bpf_u_int32,
 static struct block *gen_hostop6(compiler_state_t *, struct in6_addr *,
     struct in6_addr *, int, bpf_u_int32, u_int, u_int);
 #endif
-static struct block *gen_ahostop(compiler_state_t *, const u_char *, int);
+static struct block *gen_ahostop(compiler_state_t *, const uint8_t, int);
 static struct block *gen_ehostop(compiler_state_t *, const u_char *, int);
 static struct block *gen_fhostop(compiler_state_t *, const u_char *, int);
 static struct block *gen_thostop(compiler_state_t *, const u_char *, int);
@@ -598,13 +615,8 @@ newchunk_nolongjmp(compiler_state_t *cstate, size_t n)
 	int k;
 	size_t size;
 
-#ifndef __NetBSD__
-	/* XXX Round up to nearest long. */
-	n = (n + sizeof(long) - 1) & ~(sizeof(long) - 1);
-#else
-	/* XXX Round up to structure boundary. */
-	n = ALIGN(n);
-#endif
+	/* Round up to chunk alignment. */
+	n = (n + CHUNK_ALIGN - 1) & ~(CHUNK_ALIGN - 1);
 
 	cp = &cstate->chunks[cstate->cur_chunk];
 	if (n > cp->n_left) {
@@ -696,12 +708,28 @@ new_stmt(compiler_state_t *cstate, int code)
 }
 
 static struct block *
-gen_retblk(compiler_state_t *cstate, int v)
+gen_retblk_internal(compiler_state_t *cstate, int v)
 {
 	struct block *b = new_block(cstate, BPF_RET|BPF_K);
 
 	b->s.k = v;
 	return b;
+}
+
+static struct block *
+gen_retblk(compiler_state_t *cstate, int v)
+{
+	if (setjmp(cstate->top_ctx)) {
+		/*
+		 * gen_retblk() only fails because a memory
+		 * allocation failed in newchunk(), meaning
+		 * that it can't return a pointer.
+		 *
+		 * Return NULL.
+		 */
+		return NULL;
+	}
+	return gen_retblk_internal(cstate, v);
 }
 
 static inline PCAP_NORETURN_DEF void
@@ -718,9 +746,8 @@ pcap_compile(pcap_t *p, struct bpf_program *program,
 	static int done = 0;
 #endif
 	compiler_state_t cstate;
-	const char * volatile xbuf = buf;
 	yyscan_t scanner = NULL;
-	volatile YY_BUFFER_STATE in_buffer = NULL;
+	YY_BUFFER_STATE in_buffer = NULL;
 	u_int len;
 	int rc;
 
@@ -790,7 +817,7 @@ pcap_compile(pcap_t *p, struct bpf_program *program,
 		rc = PCAP_ERROR;
 		goto quit;
 	}
-	in_buffer = pcap__scan_string(xbuf ? xbuf : "", scanner);
+	in_buffer = pcap__scan_string(buf ? buf : "", scanner);
 
 	/*
 	 * Associate the compiler state with the lexical analyzer
@@ -814,14 +841,15 @@ pcap_compile(pcap_t *p, struct bpf_program *program,
 	}
 
 	if (cstate.ic.root == NULL) {
+		cstate.ic.root = gen_retblk(&cstate, cstate.snaplen);
+
 		/*
 		 * Catch errors reported by gen_retblk().
 		 */
-		if (setjmp(cstate.top_ctx)) {
+		if (cstate.ic.root== NULL) {
 			rc = PCAP_ERROR;
 			goto quit;
 		}
-		cstate.ic.root = gen_retblk(&cstate, cstate.snaplen);
 	}
 
 	if (optimize && !cstate.no_optimize) {
@@ -990,9 +1018,9 @@ finish_parse(compiler_state_t *cstate, struct block *p)
 	if (ppi_dlt_check != NULL)
 		gen_and(ppi_dlt_check, p);
 
-	backpatch(p, gen_retblk(cstate, cstate->snaplen));
+	backpatch(p, gen_retblk_internal(cstate, cstate->snaplen));
 	p->sense = !p->sense;
-	backpatch(p, gen_retblk(cstate, 0));
+	backpatch(p, gen_retblk_internal(cstate, 0));
 	cstate->ic.root = p->head;
 	return (0);
 }
@@ -1704,6 +1732,83 @@ init_linktype(compiler_state_t *cstate, pcap_t *p)
 		cstate->off_nl_nosnap = 3;	/* 802.3+802.2 */
 		break;
 
+	case DLT_EN3MB:
+		/*
+		 * Currently, only raw "link[N:M]" filtering is supported.
+		 */
+		cstate->off_linktype.constant_part = OFFSET_NOT_SET;	/* variable, min 15, max 71 steps of 7 */
+		cstate->off_linkpl.constant_part = OFFSET_NOT_SET;
+		cstate->off_nl = OFFSET_NOT_SET;	/* variable, min 16, max 71 steps of 7 */
+		cstate->off_nl_nosnap = OFFSET_NOT_SET;	/* no 802.2 LLC */
+		break;
+
+	case DLT_AX25:
+		/*
+		 * Currently, only raw "link[N:M]" filtering is supported.
+		 */
+		cstate->off_linktype.constant_part = OFFSET_NOT_SET;	/* variable, min 15, max 71 steps of 7 */
+		cstate->off_linkpl.constant_part = OFFSET_NOT_SET;
+		cstate->off_nl = OFFSET_NOT_SET;	/* variable, min 16, max 71 steps of 7 */
+		cstate->off_nl_nosnap = OFFSET_NOT_SET;	/* no 802.2 LLC */
+		break;
+
+	case DLT_PRONET:
+		/*
+		 * Currently, only raw "link[N:M]" filtering is supported.
+		 */
+		cstate->off_linktype.constant_part = OFFSET_NOT_SET;	/* variable, min 15, max 71 steps of 7 */
+		cstate->off_linkpl.constant_part = OFFSET_NOT_SET;
+		cstate->off_nl = OFFSET_NOT_SET;	/* variable, min 16, max 71 steps of 7 */
+		cstate->off_nl_nosnap = OFFSET_NOT_SET;	/* no 802.2 LLC */
+		break;
+
+	case DLT_CHAOS:
+		/*
+		 * Currently, only raw "link[N:M]" filtering is supported.
+		 */
+		cstate->off_linktype.constant_part = OFFSET_NOT_SET;	/* variable, min 15, max 71 steps of 7 */
+		cstate->off_linkpl.constant_part = OFFSET_NOT_SET;
+		cstate->off_nl = OFFSET_NOT_SET;	/* variable, min 16, max 71 steps of 7 */
+		cstate->off_nl_nosnap = OFFSET_NOT_SET;	/* no 802.2 LLC */
+		break;
+
+#ifdef DLT_HIPPI
+	case DLT_HIPPI:
+		/*
+		 * Currently, only raw "link[N:M]" filtering is supported.
+		 */
+		cstate->off_linktype.constant_part = OFFSET_NOT_SET;	/* variable, min 15, max 71 steps of 7 */
+		cstate->off_linkpl.constant_part = OFFSET_NOT_SET;
+		cstate->off_nl = OFFSET_NOT_SET;	/* variable, min 16, max 71 steps of 7 */
+		cstate->off_nl_nosnap = OFFSET_NOT_SET;	/* no 802.2 LLC */
+		break;
+
+#endif
+
+	case DLT_REDBACK_SMARTEDGE:
+		/*
+		 * Currently, only raw "link[N:M]" filtering is supported.
+		 */
+		cstate->off_linktype.constant_part = OFFSET_NOT_SET;	/* variable, min 15, max 71 steps of 7 */
+		cstate->off_linkpl.constant_part = OFFSET_NOT_SET;
+		cstate->off_nl = OFFSET_NOT_SET;	/* variable, min 16, max 71 steps of 7 */
+		cstate->off_nl_nosnap = OFFSET_NOT_SET;	/* no 802.2 LLC */
+		break;
+
+
+#ifdef DLT_HHDLC
+	case DLT_HHDLC:
+		/*
+		 * Currently, only raw "link[N:M]" filtering is supported.
+		 */
+		cstate->off_linktype.constant_part = OFFSET_NOT_SET;	/* variable, min 15, max 71 steps of 7 */
+		cstate->off_linkpl.constant_part = OFFSET_NOT_SET;
+		cstate->off_nl = OFFSET_NOT_SET;	/* variable, min 16, max 71 steps of 7 */
+		cstate->off_nl_nosnap = OFFSET_NOT_SET;	/* no 802.2 LLC */
+		break;
+
+#endif
+
 	default:
 		/*
 		 * For values in the range in which we've assigned new
@@ -1716,8 +1821,8 @@ init_linktype(compiler_state_t *cstate, pcap_t *p)
 			cstate->off_nl = OFFSET_NOT_SET;
 			cstate->off_nl_nosnap = OFFSET_NOT_SET;
 		} else {
-			bpf_set_error(cstate, "unknown data link type %d (min %d, max %d)",
-			    cstate->linktype, DLT_HIGH_MATCHING_MIN, DLT_HIGH_MATCHING_MAX);
+			bpf_set_error(cstate, "unknown data link type %d",
+			    cstate->linktype);
 			return (-1);
 		}
 		break;
@@ -6945,7 +7050,8 @@ gen_scode(compiler_state_t *cstate, const char *name, struct qual q)
 	int proto = q.proto;
 	int dir = q.dir;
 	int tproto;
-	u_char *eaddr;
+	u_char *eaddrp;
+	u_char eaddr[6];
 	bpf_u_int32 mask, addr;
 	struct addrinfo *res, *res0;
 	struct sockaddr_in *sin4;
@@ -6987,33 +7093,36 @@ gen_scode(compiler_state_t *cstate, const char *name, struct qual q)
 			case DLT_EN10MB:
 			case DLT_NETANALYZER:
 			case DLT_NETANALYZER_TRANSPARENT:
-				eaddr = pcap_ether_hostton(name);
-				if (eaddr == NULL)
+				eaddrp = pcap_ether_hostton(name);
+				if (eaddrp == NULL)
 					bpf_error(cstate,
 					    "unknown ether host '%s'", name);
+				memcpy(eaddr, eaddrp, sizeof(eaddr));
+				free(eaddrp);
 				tmp = gen_prevlinkhdr_check(cstate);
 				b = gen_ehostop(cstate, eaddr, dir);
 				if (tmp != NULL)
 					gen_and(tmp, b);
-				free(eaddr);
 				return b;
 
 			case DLT_FDDI:
-				eaddr = pcap_ether_hostton(name);
-				if (eaddr == NULL)
+				eaddrp = pcap_ether_hostton(name);
+				if (eaddrp == NULL)
 					bpf_error(cstate,
 					    "unknown FDDI host '%s'", name);
+				memcpy(eaddr, eaddrp, sizeof(eaddr));
+				free(eaddrp);
 				b = gen_fhostop(cstate, eaddr, dir);
-				free(eaddr);
 				return b;
 
 			case DLT_IEEE802:
-				eaddr = pcap_ether_hostton(name);
-				if (eaddr == NULL)
+				eaddrp = pcap_ether_hostton(name);
+				if (eaddrp == NULL)
 					bpf_error(cstate,
 					    "unknown token ring host '%s'", name);
+				memcpy(eaddr, eaddrp, sizeof(eaddr));
+				free(eaddrp);
 				b = gen_thostop(cstate, eaddr, dir);
-				free(eaddr);
 				return b;
 
 			case DLT_IEEE802_11:
@@ -7021,21 +7130,23 @@ gen_scode(compiler_state_t *cstate, const char *name, struct qual q)
 			case DLT_IEEE802_11_RADIO_AVS:
 			case DLT_IEEE802_11_RADIO:
 			case DLT_PPI:
-				eaddr = pcap_ether_hostton(name);
-				if (eaddr == NULL)
+				eaddrp = pcap_ether_hostton(name);
+				if (eaddrp == NULL)
 					bpf_error(cstate,
 					    "unknown 802.11 host '%s'", name);
+				memcpy(eaddr, eaddrp, sizeof(eaddr));
+				free(eaddrp);
 				b = gen_wlanhostop(cstate, eaddr, dir);
-				free(eaddr);
 				return b;
 
 			case DLT_IP_OVER_FC:
-				eaddr = pcap_ether_hostton(name);
-				if (eaddr == NULL)
+				eaddrp = pcap_ether_hostton(name);
+				if (eaddrp == NULL)
 					bpf_error(cstate,
 					    "unknown Fibre Channel host '%s'", name);
+				memcpy(eaddr, eaddrp, sizeof(eaddr));
+				free(eaddrp);
 				b = gen_ipfchostop(cstate, eaddr, dir);
-				free(eaddr);
 				return b;
 			}
 
@@ -7080,6 +7191,11 @@ gen_scode(compiler_state_t *cstate, const char *name, struct qual q)
 				switch (res->ai_family) {
 				case AF_INET:
 #ifdef INET6
+					/*
+					 * Ignore any IPv4 addresses when resolving
+					 * "ip6 host NAME", validate all other proto
+					 * qualifiers in gen_host().
+					 */
 					if (tproto == Q_IPV6)
 						continue;
 #endif
@@ -7091,7 +7207,13 @@ gen_scode(compiler_state_t *cstate, const char *name, struct qual q)
 					break;
 #ifdef INET6
 				case AF_INET6:
-					if (tproto6 == Q_IP)
+					/*
+					 * Ignore any IPv6 addresses when resolving
+					 * "(arp|ip|rarp) host NAME", validate all
+					 * other proto qualifiers in gen_host6().
+					 */
+					if (tproto6 == Q_ARP || tproto6 == Q_IP ||
+					    tproto6 == Q_RARP)
 						continue;
 
 					sin6 = (struct sockaddr_in6 *)
@@ -7204,9 +7326,11 @@ gen_scode(compiler_state_t *cstate, const char *name, struct qual q)
 
 	case Q_GATEWAY:
 #ifndef INET6
-		eaddr = pcap_ether_hostton(name);
-		if (eaddr == NULL)
+		eaddrp = pcap_ether_hostton(name);
+		if (eaddrp == NULL)
 			bpf_error(cstate, "unknown ether host: %s", name);
+		memcpy(eaddr, eaddrp, sizeof(eaddr));
+		free(eaddrp);
 
 		res = pcap_nametoaddrinfo(name);
 		cstate->ai = res;
@@ -7252,6 +7376,7 @@ gen_mcode(compiler_state_t *cstate, const char *s1, const char *s2,
 {
 	register int nlen, mlen;
 	bpf_u_int32 n, m;
+	uint64_t m64;
 
 	/*
 	 * Catch errors reported by us and routines below us, and return NULL
@@ -7279,14 +7404,8 @@ gen_mcode(compiler_state_t *cstate, const char *s1, const char *s2,
 		/* Convert mask len to mask */
 		if (masklen > 32)
 			bpf_error(cstate, "mask length must be <= 32");
-		if (masklen == 0) {
-			/*
-			 * X << 32 is not guaranteed by C to be 0; it's
-			 * undefined.
-			 */
-			m = 0;
-		} else
-			m = 0xffffffff << (32 - masklen);
+		m64 = UINT64_C(0xffffffff) << (32 - masklen);
+		m = (bpf_u_int32)m64;
 		if ((n & ~m) != 0)
 			bpf_error(cstate, "non-network bits set in \"%s/%d\"",
 			    s1, masklen);
@@ -7501,6 +7620,11 @@ gen_ecode(compiler_state_t *cstate, const char *s, struct qual q)
 		return (NULL);
 
 	if ((q.addr == Q_HOST || q.addr == Q_DEFAULT) && q.proto == Q_LINK) {
+		/*
+		 * Because the lexer guards the input string format, in this
+		 * context the function returns NULL iff the implicit malloc()
+		 * has failed.
+		 */
 		cstate->e = pcap_ether_aton(s);
 		if (cstate->e == NULL)
 			bpf_error(cstate, "malloc");
@@ -8212,8 +8336,6 @@ gen_byteop(compiler_state_t *cstate, int op, int idx, bpf_u_int32 val)
 	return b;
 }
 
-static const u_char abroadcast[] = { 0x0 };
-
 struct block *
 gen_broadcast(compiler_state_t *cstate, int proto)
 {
@@ -8235,7 +8357,8 @@ gen_broadcast(compiler_state_t *cstate, int proto)
 		switch (cstate->linktype) {
 		case DLT_ARCNET:
 		case DLT_ARCNET_LINUX:
-			return gen_ahostop(cstate, abroadcast, Q_DST);
+			// ARCnet broadcast is [8-bit] destination address 0.
+			return gen_ahostop(cstate, 0, Q_DST);
 		case DLT_EN10MB:
 		case DLT_NETANALYZER:
 		case DLT_NETANALYZER_TRANSPARENT:
@@ -8320,8 +8443,8 @@ gen_multicast(compiler_state_t *cstate, int proto)
 		switch (cstate->linktype) {
 		case DLT_ARCNET:
 		case DLT_ARCNET_LINUX:
-			/* all ARCnet multicasts use the same address */
-			return gen_ahostop(cstate, abroadcast, Q_DST);
+			// ARCnet multicast is the same as broadcast.
+			return gen_ahostop(cstate, 0, Q_DST);
 		case DLT_EN10MB:
 		case DLT_NETANALYZER:
 		case DLT_NETANALYZER_TRANSPARENT:
@@ -8470,7 +8593,12 @@ gen_multicast(compiler_state_t *cstate, int proto)
 
 	case Q_IP:
 		b0 = gen_linktype(cstate, ETHERTYPE_IP);
-		b1 = gen_cmp_ge(cstate, OR_LINKPL, 16, BPF_B, 224);
+
+		/*
+		 * Compare address with 224.0.0.0/4
+		 */
+		b1 = gen_mcmp(cstate, OR_LINKPL, 16, BPF_B, 0xe0, 0xf0);
+
 		gen_and(b0, b1);
 		return b1;
 
@@ -8896,11 +9024,10 @@ gen_p80211_fcdir(compiler_state_t *cstate, bpf_u_int32 fcdir)
 	return (b0);
 }
 
+// Process an ARCnet host address string.
 struct block *
 gen_acode(compiler_state_t *cstate, const char *s, struct qual q)
 {
-	struct block *b;
-
 	/*
 	 * Catch errors reported by us and routines below us, and return NULL
 	 * on an error.
@@ -8914,13 +9041,16 @@ gen_acode(compiler_state_t *cstate, const char *s, struct qual q)
 	case DLT_ARCNET_LINUX:
 		if ((q.addr == Q_HOST || q.addr == Q_DEFAULT) &&
 		    q.proto == Q_LINK) {
-			cstate->e = pcap_ether_aton(s);
-			if (cstate->e == NULL)
-				bpf_error(cstate, "malloc");
-			b = gen_ahostop(cstate, cstate->e, (int)q.dir);
-			free(cstate->e);
-			cstate->e = NULL;
-			return (b);
+			uint8_t addr;
+			/*
+			 * The lexer currently defines the address format in a
+			 * way that makes this error condition never true.
+			 * Let's check it anyway in case this part of the lexer
+			 * changes in future.
+			 */
+			if (! pcapint_atoan(s, &addr))
+			    bpf_error(cstate, "invalid ARCnet address '%s'", s);
+			return gen_ahostop(cstate, addr, (int)q.dir);
 		} else
 			bpf_error(cstate, "ARCnet address used in non-arc expression");
 		/*NOTREACHED*/
@@ -8931,18 +9061,25 @@ gen_acode(compiler_state_t *cstate, const char *s, struct qual q)
 	}
 }
 
+// Compare an ARCnet host address with the given value.
 static struct block *
-gen_ahostop(compiler_state_t *cstate, const u_char *eaddr, int dir)
+gen_ahostop(compiler_state_t *cstate, const uint8_t eaddr, int dir)
 {
 	register struct block *b0, *b1;
 
 	switch (dir) {
-	/* src comes first, different from Ethernet */
+	/*
+	 * ARCnet is different from Ethernet: the source address comes before
+	 * the destination address, each is one byte long.  This holds for all
+	 * three "buffer formats" in RFC 1201 Section 2.1, see also page 4-10
+	 * in the 1983 edition of the "ARCNET Designer's Handbook" published
+	 * by Datapoint (document number 61610-01).
+	 */
 	case Q_SRC:
-		return gen_bcmp(cstate, OR_LINKHDR, 0, 1, eaddr);
+		return gen_cmp(cstate, OR_LINKHDR, 0, BPF_B, eaddr);
 
 	case Q_DST:
-		return gen_bcmp(cstate, OR_LINKHDR, 1, 1, eaddr);
+		return gen_cmp(cstate, OR_LINKHDR, 1, BPF_B, eaddr);
 
 	case Q_AND:
 		b0 = gen_ahostop(cstate, eaddr, Q_SRC);
@@ -9090,7 +9227,7 @@ gen_vlan_patch_vid_test(compiler_state_t *cstate, struct block *b_vid)
 	unsigned cnt;
 
 	s = new_stmt(cstate, BPF_LD|BPF_B|BPF_ABS);
-	s->s.k = SKF_AD_OFF + SKF_AD_VLAN_TAG_PRESENT;
+	s->s.k = (bpf_u_int32)(SKF_AD_OFF + SKF_AD_VLAN_TAG_PRESENT);
 
 	/* true -> next instructions, false -> beginning of b_vid */
 	sjeq = new_stmt(cstate, JMP(BPF_JEQ));
@@ -9098,8 +9235,8 @@ gen_vlan_patch_vid_test(compiler_state_t *cstate, struct block *b_vid)
 	sjeq->s.jf = b_vid->stmts;
 	sappend(s, sjeq);
 
-	s2 = new_stmt(cstate, BPF_LD|BPF_B|BPF_ABS);
-	s2->s.k = SKF_AD_OFF + SKF_AD_VLAN_TAG;
+	s2 = new_stmt(cstate, BPF_LD|BPF_H|BPF_ABS);
+	s2->s.k = (bpf_u_int32)(SKF_AD_OFF + SKF_AD_VLAN_TAG);
 	sappend(s, s2);
 	sjeq->s.jt = s2;
 
@@ -9137,7 +9274,7 @@ gen_vlan_bpf_extensions(compiler_state_t *cstate, bpf_u_int32 vlan_num,
         /* generate new filter code based on extracting packet
          * metadata */
         s = new_stmt(cstate, BPF_LD|BPF_B|BPF_ABS);
-        s->s.k = SKF_AD_OFF + SKF_AD_VLAN_TAG_PRESENT;
+        s->s.k = (bpf_u_int32)(SKF_AD_OFF + SKF_AD_VLAN_TAG_PRESENT);
 
         b0 = new_block(cstate, JMP(BPF_JEQ));
         b0->stmts = s;
@@ -9272,19 +9409,11 @@ gen_vlan(compiler_state_t *cstate, bpf_u_int32 vlan_num, int has_vlan_tag)
  * label_num might be clobbered by longjmp - yeah, it might, but *WHO CARES*?
  * It's not *used* after setjmp returns.
  */
-struct block *
-gen_mpls(compiler_state_t *cstate, bpf_u_int32 label_num_arg,
+static struct block *
+gen_mpls_internal(compiler_state_t *cstate, bpf_u_int32 label_num,
     int has_label_num)
 {
-	volatile bpf_u_int32 label_num = label_num_arg;
 	struct	block	*b0, *b1;
-
-	/*
-	 * Catch errors reported by us and routines below us, and return NULL
-	 * on an error.
-	 */
-	if (setjmp(cstate->top_ctx))
-		return (NULL);
 
 	if (cstate->label_stack_depth > 0) {
 		/* just match the bottom-of-stack bit clear */
@@ -9350,6 +9479,19 @@ gen_mpls(compiler_state_t *cstate, bpf_u_int32 label_num_arg,
 	cstate->off_nl += 4;
 	cstate->label_stack_depth++;
 	return (b0);
+}
+
+struct block *
+gen_mpls(compiler_state_t *cstate, bpf_u_int32 label_num, int has_label_num)
+{
+	/*
+	 * Catch errors reported by us and routines below us, and return NULL
+	 * on an error.
+	 */
+	if (setjmp(cstate->top_ctx))
+		return (NULL);
+
+	return gen_mpls_internal(cstate, label_num, has_label_num);
 }
 
 /*
@@ -10024,29 +10166,16 @@ gen_mtp2type_abbrev(compiler_state_t *cstate, int type)
 	return b0;
 }
 
-/*
- * The jvalue_arg dance is to avoid annoying whining by compilers that
- * jvalue might be clobbered by longjmp - yeah, it might, but *WHO CARES*?
- * It's not *used* after setjmp returns.
- */
-struct block *
-gen_mtp3field_code(compiler_state_t *cstate, int mtp3field,
-    bpf_u_int32 jvalue_arg, int jtype, int reverse)
+static struct block *
+gen_mtp3field_code_internal(compiler_state_t *cstate, int mtp3field,
+    bpf_u_int32 jvalue, int jtype, int reverse)
 {
-	volatile bpf_u_int32 jvalue = jvalue_arg;
 	struct block *b0;
 	bpf_u_int32 val1 , val2 , val3;
 	u_int newoff_sio;
 	u_int newoff_opc;
 	u_int newoff_dpc;
 	u_int newoff_sls;
-
-	/*
-	 * Catch errors reported by us and routines below us, and return NULL
-	 * on an error.
-	 */
-	if (setjmp(cstate->top_ctx))
-		return (NULL);
 
 	newoff_sio = cstate->off_sio;
 	newoff_opc = cstate->off_opc;
@@ -10137,6 +10266,21 @@ gen_mtp3field_code(compiler_state_t *cstate, int mtp3field,
 		abort();
 	}
 	return b0;
+}
+
+struct block *
+gen_mtp3field_code(compiler_state_t *cstate, int mtp3field,
+    bpf_u_int32 jvalue, int jtype, int reverse)
+{
+	/*
+	 * Catch errors reported by us and routines below us, and return NULL
+	 * on an error.
+	 */
+	if (setjmp(cstate->top_ctx))
+		return (NULL);
+
+	return gen_mtp3field_code_internal(cstate, mtp3field, jvalue, jtype,
+	    reverse);
 }
 
 static struct block *

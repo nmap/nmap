@@ -1,3 +1,110 @@
+Tuesday, December 30, 2025 / The Tcpdump Group
+  Summary for 1.10.6 libpcap release
+    General:
+      Fix "tcpdump -i <n>" for something-only libpcap builds.
+      gencode: Fix an undefined behavior in gen_mcode().
+      gencode: Add a missing free() in gen_scode().
+      Remove "DLT_" from the descriptions of two dlt_choices[] entries.
+      Report the size of time_t in the version string.
+      Validate remote capture source strings better.
+      CVE-2025-11961: Fix OOBR and OOBW in pcap_ether_aton().
+    Source code:
+      Remove some unneeded includes.
+      pcapint_find_function() changed to return "void *" to avoid
+        warnings.
+      Clean up code that computes the length of a netmask.
+      Mind netmap support in pcap_lib_version().
+    Link-layer types:
+      Add LINKTYPE_ETW/DLT_ETW.
+      Add LINKTYPE_NETANALYZER_NG/DLT_NETANALYZER_NG (pull request
+        #1008).
+      Add LINKTYPE_ZBOSS_NCP/DLT_ZBOSS_NCP.
+      Add LINKTYPE_USB_2_0_LOW_SPEED/DLT_USB_2_0_LOW_SPEED,
+        LINKTYPE_USB_2_0_FULL_SPEED/DLT_USB_2_0_FULL_SPEED,
+        LINKTYPE_USB_2_0_HIGH_SPEED/DLT_USB_2_0_HIGH_SPEED
+      Add LINKTYPE_AUERSWALD_LOG/DLT_AUERSWALD_LOG.
+      Add LINKTYPE_ZWAVE_TAP/DLT_ZWAVE_TAP.
+      Add LINKTYPE_SILABS_DEBUG_CHANNEL/DLT_SILABS_DEBUG_CHANNEL.
+      Add LINKTYPE_FIRA_UCI/DLT_FIRA_UCI.
+      Rename LINKTYPE_IPMB_LINUX/DLT_IPMB_LINUX to
+        LINKTYPE_I2C_LINUX/DLT_I2C_LINUX, as it's really just an
+        encapsulation of I2C, and is also being used for HDMI DDC.
+        Keep DLT_IPMB_LINUX around as a #define for backwards
+        compatibility.
+      Add LINKTYPE_MDB/DLT_MDB.
+      Add LINKTYPE_DECT_NR/DLT_DECT_NR.
+      Add LINKTYPE_EDK2_MM/DLT_EDK2_MM.
+      Add LINKTYPE_DEBUG_ONLY/DLT_DEBUG_ONLY.
+    Packet filtering:
+      Make the chunk allocator's alignment more general and
+        platform-independent.
+      IEEE 802.11: Fix three undefined behaviors in grammar.y.
+      Fix IPv4 multicast filtering to only include 224.0.0.0/4.
+      Fix "(arp|rarp) host NAME" to ignore IPv6 quietly.
+      Fix ARCnet address parsing.
+    Linux:
+      Fix check for mac80211 phydev.
+      Don't create monitor-mode interface if we're capturing on one.
+      Expand the table of DSA tag types to include all current types.
+      Fix an error message when deleting a monN interface.
+      Fix returning PCAP_ERROR_RFMON_NOTSUP with libnl.
+      Fix the error message when capure permission is denied.
+      Fix the error message if PF_PACKET sockets aren't supported.
+      Fix a file descriptor leak in an error case (pull request #1537).
+      Handle errors better when checking for a DSA-tagged interface.
+      Use DLT_DEBUG_ONLY for DSA tags that do not [yet] have a better support.
+    FreeBSD:
+      Fix detection and enabling of zero-copy support.
+      Fix errors in the zero-copy code.
+    Solaris:
+      Fix not to ignore logical interfaces in fad-gifc.c and
+        fad-glifc.c.
+      Fix attempts to open all-numeric device names with DLPI to
+        return "no such device".
+      Fix error returns and messages when an interface has no DLPI
+        device.
+      Return all interfaces in pcap_findalldevs() even if they can't be
+        opened.
+    HP-UX:
+      Fix attempts to open all-numeric device names to return
+        "no such device".
+      Fix error message if there's no /dev/dlpi device.
+      Return all interfaces in pcap_findalldevs() even if they can't be
+        opened.
+    Windows:
+      Fix filtering for VLAN-tagged frames.
+      Add support for Npcap's nanosecond-resolution time stamps in
+        captures.
+      CVE-2025-11964: Fix a bug in error message character encoding mapping
+        from UTF-16 to UTF-8.
+      Check at create time whether the NPF driver supports nanosecond
+        precision.
+    D-Bus:
+      Fix message leak.
+    Capture file writing:
+      Don't close the output stream if it's stdout, just flush it.
+    Documentation:
+      Explicitly document that closing a pcap_t for a savefile opened
+        with pcap_fopen_offline() will close the standard I/O stream.
+    Building and testing:
+      Makefile.in: Include instrument-functions.c in the release tarball.
+      CMake: Fix libnl usage with pkg-config.
+      CMake: Fix build with CMake 3.31.
+      CI: Report CMake version in builds.
+      CI: Visual Studio 2022 builds added, including ARM64 builds;
+        Visual Studio 2015 builds dropped.
+      Don't build with sslutils.c if we don't have a TLS library.
+      Build on Windows with a newer version of OpenSSL.
+      CMake: generalize handling of non-x86 Windows architectures.
+      CI: use the -A flag for all Visual Studio generators.
+      Remove the fuzzing props from the release tarball.
+      Autoconf: Use AC_SYS_YEAR2038_RECOMMENDED when possible if the
+        environment variable BUILD_YEAR2038 = yes (via autogen.sh)
+      DPDK: don't enable it by default.
+      Update Npcap SDK to 1.15.
+      autogen.sh: Allow to configure Autoconf warnings.
+      autogen.sh: Delete all trailing blank lines at end of configure.
+
 Friday, August 30, 2024 / The Tcpdump Group
   Summary for 1.10.5 libpcap release
     Source code:

@@ -162,7 +162,7 @@ pcapint_findalldevs_interfaces(pcap_if_list_t *devlistp, char *errbuf,
 {
 	struct ifaddrs *ifap, *ifa;
 	struct sockaddr *addr, *netmask, *broadaddr, *dstaddr;
-	size_t addr_size, broadaddr_size, dstaddr_size;
+	size_t addr_size, netmask_size, broadaddr_size, dstaddr_size;
 	int ret = 0;
 	char *p, *q;
 
@@ -235,11 +235,18 @@ pcapint_findalldevs_interfaces(pcap_if_list_t *devlistp, char *errbuf,
 		if (ifa->ifa_addr != NULL) {
 			addr = ifa->ifa_addr;
 			addr_size = SA_LEN(addr);
-			netmask = ifa->ifa_netmask;
+			if (ifa->ifa_netmask != NULL) {
+				netmask = ifa->ifa_netmask;
+				netmask_size = SA_LEN(ifa->ifa_netmask);
+			} else {
+				netmask = NULL;
+				netmask_size = 0;
+			}
 		} else {
 			addr = NULL;
 			addr_size = 0;
 			netmask = NULL;
+			netmask_size = 0;
 		}
 
 		/*
@@ -279,7 +286,7 @@ pcapint_findalldevs_interfaces(pcap_if_list_t *devlistp, char *errbuf,
 		 */
 		if (pcapint_add_addr_to_if(devlistp, ifa->ifa_name, ifa->ifa_flags,
 		    get_flags_func,
-		    addr, addr_size, netmask, addr_size,
+		    addr, addr_size, netmask, netmask_size,
 		    broadaddr, broadaddr_size, dstaddr, dstaddr_size,
 		    errbuf) < 0) {
 			ret = -1;

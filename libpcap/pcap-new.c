@@ -85,6 +85,12 @@ int pcap_findalldevs_ex(const char *source, struct pcap_rmtauth *auth, pcap_if_t
 	(*alldevs) = NULL;
 	lastdev = NULL;
 
+	if (source == NULL)
+	{
+		snprintf(errbuf, PCAP_ERRBUF_SIZE,
+		    "The source string must not be NULL.");
+		return -1;
+	}
 	if (strlen(source) > PCAP_BUF_SIZE)
 	{
 		snprintf(errbuf, PCAP_ERRBUF_SIZE, "The source string is too long. Cannot handle it correctly.");
@@ -93,21 +99,23 @@ int pcap_findalldevs_ex(const char *source, struct pcap_rmtauth *auth, pcap_if_t
 
 	/*
 	 * Determine the type of the source (file, local, remote)
-	 * There are some differences if pcap_findalldevs_ex() is called to list files and remote adapters.
-	 * In the first case, the name of the directory we have to look into must be present (therefore
-	 * the 'name' parameter of the pcap_parsesrcstr() is present).
-	 * In the second case, the name of the adapter is not required (we need just the host). So, we have
-	 * to use a first time this function to get the source type, and a second time to get the appropriate
-	 * info, which depends on the source type.
+	 *
+	 * To list files in a local directory, the source string must specify
+	 * the directory name.  To list local or remote capture devices, the
+	 * source string must not specify a device name.  Retrieve the name
+	 * component now and validate it for each source type next.
 	 */
-	if (pcap_parsesrcstr(source, &type, NULL, NULL, NULL, errbuf) == -1)
+	if (pcap_parsesrcstr(source, &type, NULL, NULL, name, errbuf) == -1)
 		return -1;
 
 	switch (type)
 	{
 	case PCAP_SRC_IFLOCAL:
-		if (pcap_parsesrcstr(source, &type, NULL, NULL, NULL, errbuf) == -1)
+		if (strlen(name)) {
+			snprintf(errbuf, PCAP_ERRBUF_SIZE,
+			    "To list local capture devices, the source string must not include a device name.");
 			return -1;
+		}
 
 		/* Initialize temporary string */
 		tmpstring[PCAP_BUF_SIZE] = 0;
@@ -186,11 +194,14 @@ int pcap_findalldevs_ex(const char *source, struct pcap_rmtauth *auth, pcap_if_t
 		DIR *unixdir;
 #endif
 
-		if (pcap_parsesrcstr(source, &type, NULL, NULL, name, errbuf) == -1)
-			return -1;
-
 		/* Check that the filename is correct */
 		stringlen = strlen(name);
+
+		if (! stringlen) {
+			snprintf(errbuf, PCAP_ERRBUF_SIZE,
+			    "To list local files, the source string must include a directory.");
+			return -1;
+		}
 
 		/* The directory must end with '\' in Win32 and '/' in UNIX */
 #ifdef _WIN32
@@ -378,6 +389,12 @@ int pcap_findalldevs_ex(const char *source, struct pcap_rmtauth *auth, pcap_if_t
 	}
 
 	case PCAP_SRC_IFREMOTE:
+		if (strlen(name)) {
+			snprintf(errbuf, PCAP_ERRBUF_SIZE,
+			    "To list remote capture devices, the source string must not include a device name.");
+			return -1;
+		}
+
 		return pcap_findalldevs_ex_remote(source, auth, alldevs, errbuf);
 
 	default:
@@ -419,13 +436,28 @@ pcap_t *pcap_open(const char *source, int snaplen, int flags, int read_timeout, 
 	switch (type)
 	{
 	case PCAP_SRC_FILE:
+		if (! strlen(name)) {
+			snprintf(errbuf, PCAP_ERRBUF_SIZE,
+			    "To open a local file, the source string must include the file path.");
+			return NULL;
+		}
 		return pcap_open_offline(name, errbuf);
 
 	case PCAP_SRC_IFLOCAL:
+		if (! strlen(name)) {
+			snprintf(errbuf, PCAP_ERRBUF_SIZE,
+			    "To open a local capture device, the source string must include the device name.");
+			return NULL;
+		}
 		fp = pcap_create(name, errbuf);
 		break;
 
 	case PCAP_SRC_IFREMOTE:
+		if (! strlen(name)) {
+			snprintf(errbuf, PCAP_ERRBUF_SIZE,
+			    "To open a remote capture device, the source string must include the device name.");
+			return NULL;
+		}
 		/*
 		 * Although we already have host, port and iface, we prefer
 		 * to pass only 'source' to pcap_open_rpcap(), so that it

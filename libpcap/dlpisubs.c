@@ -60,8 +60,18 @@
 #include <stropts.h>
 #include <unistd.h>
 
+#include <sys/ioctl.h>
+#include <sys/socket.h>
+#include <sys/sockio.h>
+
+#include <net/if.h>
+
 #ifdef HAVE_LIBDLPI
 #include <libdlpi.h>
+#endif
+
+#ifdef HAVE_ZONE_H
+#include <zone.h>
 #endif
 
 #include "pcap-int.h"
@@ -413,3 +423,117 @@ pcap_stream_err(const char *func, int err, char *errbuf)
 	pcapint_fmt_errmsg_for_errno(errbuf, PCAP_ERRBUF_SIZE, err, "%s", func);
 }
 #endif
+
+int
+handle_nonexistent_dlpi_device(const char *ifname, char *errbuf)
+{
+	int fd;
+	int status;
+#ifdef LIFNAMSIZ
+	struct lifreq lifr;
+#else
+	struct ifreq ifr;
+#endif
+
+#ifdef LIFNAMSIZ
+	if (strlen(ifname) >= sizeof(lifr.lifr_name)) {
+#else
+	if (strlen(ifname) >= sizeof(ifr.ifr_name)) {
+#endif
+		/*
+		 * The name is too long, so it can't possibly exist.
+		 */
+		strlcpy(errbuf, "", PCAP_ERRBUF_SIZE);
+		return (PCAP_ERROR_NO_SUCH_DEVICE);
+	}
+
+	/*
+	 * Try to get a socket on which to do an ioctl to get the
+	 * interface's flags.
+	 */
+	fd = socket(AF_INET, SOCK_DGRAM, 0);
+	if (fd < 0) {
+		/* That failed; report that as the error. */
+		pcapint_fmt_errmsg_for_errno(errbuf,  PCAP_ERRBUF_SIZE,
+		    errno, "Can't open socket to get interface flags");
+		return (PCAP_ERROR);
+	}
+
+#ifdef LIFNAMSIZ
+	pcapint_strlcpy(lifr.lifr_name, ifname, sizeof(lifr.lifr_name));
+	status = ioctl(fd, SIOCGLIFFLAGS, (char *)&lifr);
+#else
+	pcapint_strlcpy(ifr.ifr_name, ifname, sizeof(ifr.ifr_name));
+	status = ioctl(fd, SIOCGIFFLAGS, (char *)&ifr);
+#endif
+
+	if (status < 0) {
+		if (errno == ENXIO || errno == EINVAL) {
+			/*
+			 * macOS, *BSD, and Solaris return one of
+			 * those two errors if the device doesn't exist.
+			 */
+			strlcpy(errbuf, "", PCAP_ERRBUF_SIZE);
+			close(fd);
+			return (PCAP_ERROR_NO_SUCH_DEVICE);
+		}
+
+		/*
+		 * Some other error.
+		 */
+		pcapint_fmt_errmsg_for_errno(errbuf, PCAP_ERRBUF_SIZE, errno,
+		    "Can't get interface flags");
+		close(fd);
+		return (PCAP_ERROR);
+	}
+
+	/*
+	 * The interface exists.
+	 */
+	close(fd);
+
+#ifdef HAVE_ZONE_H
+	/*
+	 * If we're not in a global zone, the problem is probably
+	 * that the zone we're in doesn't happen to have any
+	 * DLPI devices.  Exclusive-IP non-global zones have
+	 * their own interfaces and have DLPI devices for them:
+	 *
+	 *    https://docs.oracle.com/cd/E37838_01/html/E61040/z.config.ov-6.html#VLZCRgekkb
+	 *
+	 *    https://docs.oracle.com/cd/E19044-01/sol.containers/817-1592/geprv/index.html
+	 *
+	 * but shared-IP non-global zones don't:
+	 *
+	 *    https://docs.oracle.com/cd/E37838_01/html/E61040/z.config.ov-6.html#VLZCRgekku
+	 */
+	if (getzoneid() != GLOBAL_ZONEID) {
+		/*
+		 * Not a global zone; note that capturing on network
+		 * interfaces is only supported for interfaces
+		 * in an exclusive-IP zone.
+		 */
+		snprintf(errbuf, PCAP_ERRBUF_SIZE,
+		    "Capturing on interfaces in a non-global zone is supported only for interfaces in exclusive-IP zones");
+		return (PCAP_ERROR_CAPTURE_NOTSUP);
+	}
+#endif /* HAVE_ZONE_H */
+
+	/*
+	 * Some other problem; just report it as not having
+	 * a DLPI device.  We don't report the DLPI device
+	 * name, so people don't get confused and think, for
+	 * example, that if they can't capture on that interface
+	 * on Solaris prior to Solaris 11 the fix is to change
+	 * libpcap (or the application that uses it) to look
+	 * for something other than "/dev/{ifname}", as the fix
+	 * is to use Solaris 11 or some operating system other
+	 * than Solaris - you just *can't* capture on that
+	 * interface on Solaris prior to Solaris 11, the lack
+	 * of a DLPI device for the loopback interface is just
+	 * a symptom of that inability.
+	 */
+	snprintf(errbuf, PCAP_ERRBUF_SIZE,
+	    "Capturing on that interface is not supported - no DLPI device found");
+	return (PCAP_ERROR_CAPTURE_NOTSUP);
+}

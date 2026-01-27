@@ -117,7 +117,7 @@ pcap_set_print_dot_graph(int value)
   #define lowest_set_bit(mask) ((u_int)__builtin_ctz(mask))
 #elif defined(_MSC_VER)
   /*
-   * Visual Studio; we support only 2005 and later, so use
+   * Visual Studio; we support only 2015 and later, so use
    * _BitScanForward().
    */
 #include <intrin.h>

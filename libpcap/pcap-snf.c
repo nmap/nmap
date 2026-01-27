@@ -599,8 +599,7 @@ pcapint_platform_finddevs(pcap_if_list_t *devlistp, char *errbuf)
 pcap_t *
 pcapint_create_interface(const char *device, char *errbuf)
 {
-	snprintf(errbuf, PCAP_ERRBUF_SIZE,
-	    "This version of libpcap only supports SNF cards");
+	snprintf(errbuf, PCAP_ERRBUF_SIZE, PCAP_ENODEV_MESSAGE, "SNF");
 	return NULL;
 }
 
@@ -610,6 +609,6 @@ pcapint_create_interface(const char *device, char *errbuf)
 const char *
 pcap_lib_version(void)
 {
-	return (PCAP_VERSION_STRING " (SNF-only)");
+	return (PCAP_VERSION_STRING_WITH_ADDITIONAL_INFO("SNF-only"));
 }
 #endif

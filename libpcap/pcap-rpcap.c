@@ -267,7 +267,7 @@ static int rpcap_read_packet_msg(struct pcap_rpcap const *, pcap_t *p, size_t si
 
 /*
  * Possible IPv4 family values other than the designated over-the-wire value,
- * which is 2 (because everybody, except for Haiku uses 2 for AF_INET,
+ * which is 2 (because everybody, except for Haiku, uses 2 for AF_INET,
  * and Haiku has probably never run the old rpcapd code that put address
  * structures directly on the wire, rather than the new rpcapd code
  * that serializes addresses, using 2 for AF_INET).

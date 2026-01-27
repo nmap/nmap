@@ -13,14 +13,21 @@ else(WIN32)
     #  on a "long-term support" version # of some OS and that
     #  version supplies an older version of CMake;
     #
-    #  otherwise, require 3.5, so we don't get messages warning
-    #  that support for versions of CMake lower than 3.5 is
+    #  otherwise, if it's a version less than 3.10, require only
+    #  3.5, just in case somebody is configuring with CMake
+    #  on a "long-term support" version # of some OS and that
+    #  version supplies an older version of CMake;
+    #
+    #  otherwise, require 3.10, so we don't get messages warning
+    #  that support for versions of CMake lower than 3.10 is
     #  deprecated.
     #
     if(CMAKE_VERSION VERSION_LESS "3.5")
         cmake_minimum_required(VERSION 2.8.12)
-    else()
+    elseif(CMAKE_VERSION VERSION_LESS "3.10")
         cmake_minimum_required(VERSION 3.5)
+    else()
+        cmake_minimum_required(VERSION 3.10)
     endif()
 endif(WIN32)
 
@@ -506,7 +513,13 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
 endif()
 option(DISABLE_BLUETOOTH "Disable Bluetooth sniffing support" OFF)
 option(DISABLE_NETMAP "Disable netmap support" OFF)
-option(DISABLE_DPDK "Disable DPDK support" OFF)
+
+#
+# Require that DPDK support be explicitly enabled, as the code is
+# immensely hard to keep compiling for every random API change
+# the DPDK folks make.
+#
+set(DISABLE_DPDK ON)
 
 #
 # We don't support D-Bus sniffing on macOS; see
@@ -539,11 +552,11 @@ option(YYDEBUG "Build parser debugging code" OFF)
 #   Versioning
 ###################################################################
 
-# Get, parse, format and set pcap's version string from [pcap_root]/VERSION
+# Get, parse, format and set pcap's version string from [pcap_root]/VERSION.txt
 # for later use.
 
 # Get MAJOR, MINOR, PATCH & SUFFIX
-file(STRINGS ${pcap_SOURCE_DIR}/VERSION
+file(STRINGS ${pcap_SOURCE_DIR}/VERSION.txt
     PACKAGE_VERSION
     LIMIT_COUNT 1 # Read only the first line
 )
@@ -578,6 +591,7 @@ include_directories(
 include(CheckFunctionExists)
 include(CMakePushCheckState)
 include(CheckSymbolExists)
+include(CheckIncludeFile)
 
 if(WIN32)
 
@@ -595,8 +609,11 @@ if(WIN32)
         #
         cmake_push_check_state()
         set(CMAKE_REQUIRED_LIBRARIES ${Packet_LIBRARIES})
+        set(CMAKE_REQUIRED_INCLUDES ${Packet_INCLUDE_DIRS})
         check_function_exists(PacketIsLoopbackAdapter HAVE_PACKET_IS_LOOPBACK_ADAPTER)
         check_function_exists(PacketGetTimestampModes HAVE_PACKET_GET_TIMESTAMP_MODES)
+        check_function_exists(PacketGetInfo HAVE_PACKET_GET_INFO)
+        check_include_file(npcap-bpf.h HAVE_NPCAP_BPF_H)
         cmake_pop_check_state()
     endif(Packet_FOUND)
 
@@ -634,7 +651,6 @@ endif(USE_STATIC_RT)
 #   Detect available platform features
 ###################################################################
 
-include(CheckIncludeFile)
 include(CheckIncludeFiles)
 include(CheckStructHasMember)
 include(CheckTypeSize)
@@ -1243,6 +1259,19 @@ if(NOT WIN32)
     add_definitions(${FSEEKO_DEFINITIONS})
   endif()
 endif()
+
+#
+# Find and print the size of time_t.
+#
+cmake_push_check_state()
+set(CMAKE_EXTRA_INCLUDE_FILES time.h)
+check_type_size("time_t" SIZEOF_TIME_T)
+if(SIZEOF_TIME_T EQUAL 4)
+  message(STATUS "32-bit time_t")
+elseif(SIZEOF_TIME_T EQUAL 8)
+  message(STATUS "64-bit time_t")
+endif()
+cmake_pop_check_state()
 
 if(INET6)
     message(STATUS "Support IPv6")
@@ -1984,6 +2013,7 @@ else(WIN32)
         #
         check_include_file(sys/bufmod.h HAVE_SYS_BUFMOD_H)
         check_include_file(sys/dlpi_ext.h HAVE_SYS_DLPI_EXT_H)
+        check_include_file(zone.h HAVE_ZONE_H)
 
         #
         # Checks to see if Solaris has the public libdlpi(3LIB) library.
@@ -2026,12 +2056,6 @@ else(WIN32)
         cmake_pop_check_state()
     elseif(PCAP_TYPE STREQUAL "linux")
         #
-        # Do we have the wireless extensions?
-        # linux/wireless.h requires sys/socket.h.
-        #
-        check_include_files("sys/socket.h;linux/wireless.h" HAVE_LINUX_WIRELESS_H)
-
-        #
         # Do we have libnl?
         # We only want version 3.  Version 2 was, apparently,
         # short-lived, and version 1 is source and binary
@@ -2043,6 +2067,8 @@ else(WIN32)
         if(BUILD_WITH_LIBNL)
             pkg_check_modules(LIBNL libnl-genl-3.0)
             if(LIBNL_FOUND)
+                set(HAVE_LIBNL TRUE)
+                include_directories(${LIBNL_INCLUDE_DIRS})
                 set(PCAP_LINK_LIBRARIES ${LIBNL_LIBRARIES} ${PCAP_LINK_LIBRARIES})
 
                 #
@@ -2698,7 +2724,10 @@ if(ENABLE_REMOTE)
     check_struct_has_member("struct msghdr" msg_flags "ftmacros.h;sys/socket.h" HAVE_STRUCT_MSGHDR_MSG_FLAGS)
     cmake_pop_check_state()
     set(PROJECT_SOURCE_LIST_C ${PROJECT_SOURCE_LIST_C}
-        pcap-new.c pcap-rpcap.c rpcap-protocol.c sockutils.c sslutils.c)
+        pcap-new.c pcap-rpcap.c rpcap-protocol.c sockutils.c)
+    if(OPENSSL_FOUND)
+        set(PROJECT_SOURCE_LIST_C ${PROJECT_SOURCE_LIST_C} sslutils.c)
+    endif()
 endif(ENABLE_REMOTE)
 
 ###################################################################
@@ -2917,7 +2946,6 @@ endif()
 
 add_custom_command(
     OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/scanner.c ${CMAKE_CURRENT_BINARY_DIR}/scanner.h
-    SOURCE ${pcap_SOURCE_DIR}/scanner.l
     COMMAND ${LEX_EXECUTABLE} -P pcap_ --header-file=scanner.h --nounput -o${CMAKE_CURRENT_BINARY_DIR}/scanner.c ${pcap_SOURCE_DIR}/scanner.l
     DEPENDS ${pcap_SOURCE_DIR}/scanner.l
 )
@@ -2992,7 +3020,6 @@ message(STATUS "Parser generator: ${YACC_EXECUTABLE}")
 #
 add_custom_command(
     OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/grammar.c ${CMAKE_CURRENT_BINARY_DIR}/grammar.h
-    SOURCE ${pcap_BINARY_DIR}/grammar.y
     COMMAND ${YACC_EXECUTABLE} -p pcap_ -o ${CMAKE_CURRENT_BINARY_DIR}/grammar.c -d ${pcap_BINARY_DIR}/grammar.y
     DEPENDS ${pcap_BINARY_DIR}/grammar.y
 )

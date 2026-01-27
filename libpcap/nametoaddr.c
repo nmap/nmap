@@ -32,31 +32,6 @@
 #ifdef _WIN32
   #include <winsock2.h>
   #include <ws2tcpip.h>
-
-  #ifdef INET6
-    /*
-     * To quote the MSDN page for getaddrinfo() at
-     *
-     *    https://msdn.microsoft.com/en-us/library/windows/desktop/ms738520(v=vs.85).aspx
-     *
-     * "Support for getaddrinfo on Windows 2000 and older versions
-     * The getaddrinfo function was added to the Ws2_32.dll on Windows XP and
-     * later. To execute an application that uses this function on earlier
-     * versions of Windows, then you need to include the Ws2tcpip.h and
-     * Wspiapi.h files. When the Wspiapi.h include file is added, the
-     * getaddrinfo function is defined to the WspiapiGetAddrInfo inline
-     * function in the Wspiapi.h file. At runtime, the WspiapiGetAddrInfo
-     * function is implemented in such a way that if the Ws2_32.dll or the
-     * Wship6.dll (the file containing getaddrinfo in the IPv6 Technology
-     * Preview for Windows 2000) does not include getaddrinfo, then a
-     * version of getaddrinfo is implemented inline based on code in the
-     * Wspiapi.h header file. This inline code will be used on older Windows
-     * platforms that do not natively support the getaddrinfo function."
-     *
-     * We use getaddrinfo(), so we include Wspiapi.h here.
-     */
-    #include <wspiapi.h>
-  #endif /* INET6 */
 #else /* _WIN32 */
   #include <sys/param.h>
   #include <sys/types.h>
@@ -639,7 +614,7 @@ pcap_nametollc(const char *s)
 
 /* Hex digit to 8-bit unsigned integer. */
 static inline u_char
-xdtoi(u_char c)
+pcapint_xdtoi(u_char c)
 {
 	if (c >= '0' && c <= '9')
 		return (u_char)(c - '0');
@@ -697,38 +672,417 @@ __pcap_atodn(const char *s, bpf_u_int32 *addr)
 }
 
 /*
- * Convert 's', which can have the one of the forms:
+ * libpcap ARCnet address format is "^\$[0-9a-fA-F]{1,2}$" in regexp syntax.
+ * Iff the given string is a well-formed ARCnet address, parse the string,
+ * store the 8-bit unsigned value into the provided integer and return 1.
+ * Otherwise return 0.
  *
- *	"xx:xx:xx:xx:xx:xx"
- *	"xx.xx.xx.xx.xx.xx"
- *	"xx-xx-xx-xx-xx-xx"
- *	"xxxx.xxxx.xxxx"
- *	"xxxxxxxxxxxx"
+ *  --> START -- $ --> DOLLAR -- [0-9a-fA-F] --> HEX1 -- \0 -->-+
+ *        |              |                        |             |
+ *       [.]            [.]                  [0-9a-fA-F]        |
+ *        |              |                        |             |
+ *        v              v                        v             v
+ *    (invalid) <--------+-<---------------[.]-- HEX2 -- \0 -->-+--> (valid)
+ */
+int
+pcapint_atoan(const char *s, uint8_t *addr)
+{
+	enum {
+		START,
+		DOLLAR,
+		HEX1,
+		HEX2,
+	} fsm_state = START;
+	uint8_t tmp = 0;
+
+	while (*s) {
+		switch (fsm_state) {
+		case START:
+			if (*s != '$')
+				goto invalid;
+			fsm_state = DOLLAR;
+			break;
+		case DOLLAR:
+			if (! PCAP_ISXDIGIT(*s))
+				goto invalid;
+			tmp = pcapint_xdtoi(*s);
+			fsm_state = HEX1;
+			break;
+		case HEX1:
+			if (! PCAP_ISXDIGIT(*s))
+				goto invalid;
+			tmp <<= 4;
+			tmp |= pcapint_xdtoi(*s);
+			fsm_state = HEX2;
+			break;
+		case HEX2:
+			goto invalid;
+		} // switch
+		s++;
+	} // while
+	if (fsm_state == HEX1 || fsm_state == HEX2) {
+		*addr = tmp;
+		return 1;
+	}
+
+invalid:
+	return 0;
+}
+
+// Man page: "xxxxxxxxxxxx", regexp: "^[0-9a-fA-F]{12}$".
+static u_char
+pcapint_atomac48_xxxxxxxxxxxx(const char *s, uint8_t *addr)
+{
+	if (strlen(s) == 12 &&
+	    PCAP_ISXDIGIT(s[0]) &&
+	    PCAP_ISXDIGIT(s[1]) &&
+	    PCAP_ISXDIGIT(s[2]) &&
+	    PCAP_ISXDIGIT(s[3]) &&
+	    PCAP_ISXDIGIT(s[4]) &&
+	    PCAP_ISXDIGIT(s[5]) &&
+	    PCAP_ISXDIGIT(s[6]) &&
+	    PCAP_ISXDIGIT(s[7]) &&
+	    PCAP_ISXDIGIT(s[8]) &&
+	    PCAP_ISXDIGIT(s[9]) &&
+	    PCAP_ISXDIGIT(s[10]) &&
+	    PCAP_ISXDIGIT(s[11])) {
+		addr[0] = pcapint_xdtoi(s[0]) << 4 | pcapint_xdtoi(s[1]);
+		addr[1] = pcapint_xdtoi(s[2]) << 4 | pcapint_xdtoi(s[3]);
+		addr[2] = pcapint_xdtoi(s[4]) << 4 | pcapint_xdtoi(s[5]);
+		addr[3] = pcapint_xdtoi(s[6]) << 4 | pcapint_xdtoi(s[7]);
+		addr[4] = pcapint_xdtoi(s[8]) << 4 | pcapint_xdtoi(s[9]);
+		addr[5] = pcapint_xdtoi(s[10]) << 4 | pcapint_xdtoi(s[11]);
+		return 1;
+	}
+	return 0;
+}
+
+// Man page: "xxxx.xxxx.xxxx", regexp: "^[0-9a-fA-F]{4}(\.[0-9a-fA-F]{4}){2}$".
+static u_char
+pcapint_atomac48_xxxx_3_times(const char *s, uint8_t *addr)
+{
+	const char sep = '.';
+	if (strlen(s) == 14 &&
+	    PCAP_ISXDIGIT(s[0]) &&
+	    PCAP_ISXDIGIT(s[1]) &&
+	    PCAP_ISXDIGIT(s[2]) &&
+	    PCAP_ISXDIGIT(s[3]) &&
+	    s[4] == sep &&
+	    PCAP_ISXDIGIT(s[5]) &&
+	    PCAP_ISXDIGIT(s[6]) &&
+	    PCAP_ISXDIGIT(s[7]) &&
+	    PCAP_ISXDIGIT(s[8]) &&
+	    s[9] == sep &&
+	    PCAP_ISXDIGIT(s[10]) &&
+	    PCAP_ISXDIGIT(s[11]) &&
+	    PCAP_ISXDIGIT(s[12]) &&
+	    PCAP_ISXDIGIT(s[13])) {
+		addr[0] = pcapint_xdtoi(s[0]) << 4 | pcapint_xdtoi(s[1]);
+		addr[1] = pcapint_xdtoi(s[2]) << 4 | pcapint_xdtoi(s[3]);
+		addr[2] = pcapint_xdtoi(s[5]) << 4 | pcapint_xdtoi(s[6]);
+		addr[3] = pcapint_xdtoi(s[7]) << 4 | pcapint_xdtoi(s[8]);
+		addr[4] = pcapint_xdtoi(s[10]) << 4 | pcapint_xdtoi(s[11]);
+		addr[5] = pcapint_xdtoi(s[12]) << 4 | pcapint_xdtoi(s[13]);
+		return 1;
+	}
+	return 0;
+}
+
+/*
+ * Man page: "xx:xx:xx:xx:xx:xx", regexp: "^[0-9a-fA-F]{1,2}(:[0-9a-fA-F]{1,2}){5}$".
+ * Man page: "xx-xx-xx-xx-xx-xx", regexp: "^[0-9a-fA-F]{1,2}(-[0-9a-fA-F]{1,2}){5}$".
+ * Man page: "xx.xx.xx.xx.xx.xx", regexp: "^[0-9a-fA-F]{1,2}(\.[0-9a-fA-F]{1,2}){5}$".
+ * (Any "xx" above can be "x", which is equivalent to "0x".)
  *
- * (or various mixes of ':', '.', and '-') into a new
- * ethernet address.  Assumes 's' is well formed.
+ * An equivalent (and parametrisable for EUI-64) FSM could be implemented using
+ * a smaller graph, but that graph would be neither acyclic nor planar nor
+ * trivial to verify.
+ *
+ *                |
+ *    [.]         v
+ * +<---------- START
+ * |              |
+ * |              | [0-9a-fA-F]
+ * |  [.]         v
+ * +<--------- BYTE0_X ----------+
+ * |              |              |
+ * |              | [0-9a-fA-F]  |
+ * |  [.]         v              |
+ * +<--------- BYTE0_XX          | [:\.-]
+ * |              |              |
+ * |              | [:\.-]       |
+ * |  [.]         v              |
+ * +<----- BYTE0_SEP_BYTE1 <-----+
+ * |              |
+ * |              | [0-9a-fA-F]
+ * |  [.]         v
+ * +<--------- BYTE1_X ----------+
+ * |              |              |
+ * |              | [0-9a-fA-F]  |
+ * |  [.]         v              |
+ * +<--------- BYTE1_XX          | <sep>
+ * |              |              |
+ * |              | <sep>        |
+ * |  [.]         v              |
+ * +<----- BYTE1_SEP_BYTE2 <-----+
+ * |              |
+ * |              | [0-9a-fA-F]
+ * |  [.]         v
+ * +<--------- BYTE2_X ----------+
+ * |              |              |
+ * |              | [0-9a-fA-F]  |
+ * |  [.]         v              |
+ * +<--------- BYTE2_XX          | <sep>
+ * |              |              |
+ * |              | <sep>        |
+ * |  [.]         v              |
+ * +<----- BYTE2_SEP_BYTE3 <-----+
+ * |              |
+ * |              | [0-9a-fA-F]
+ * |  [.]         v
+ * +<--------- BYTE3_X ----------+
+ * |              |              |
+ * |              | [0-9a-fA-F]  |
+ * |  [.]         v              |
+ * +<--------- BYTE3_XX          | <sep>
+ * |              |              |
+ * |              | <sep>        |
+ * |  [.]         v              |
+ * +<----- BYTE3_SEP_BYTE4 <-----+
+ * |              |
+ * |              | [0-9a-fA-F]
+ * |  [.]         v
+ * +<--------- BYTE4_X ----------+
+ * |              |              |
+ * |              | [0-9a-fA-F]  |
+ * |  [.]         v              |
+ * +<--------- BYTE4_XX          | <sep>
+ * |              |              |
+ * |              | <sep>        |
+ * |  [.]         v              |
+ * +<----- BYTE4_SEP_BYTE5 <-----+
+ * |              |
+ * |              | [0-9a-fA-F]
+ * |  [.]         v
+ * +<--------- BYTE5_X ----------+
+ * |              |              |
+ * |              | [0-9a-fA-F]  |
+ * |  [.]         v              |
+ * +<--------- BYTE5_XX          | \0
+ * |              |              |
+ * |              | \0           |
+ * |              |              v
+ * +--> (reject)  +---------> (accept)
+ *
+ */
+static u_char
+pcapint_atomac48_x_xx_6_times(const char *s, uint8_t *addr)
+{
+	enum {
+		START,
+		BYTE0_X,
+		BYTE0_XX,
+		BYTE0_SEP_BYTE1,
+		BYTE1_X,
+		BYTE1_XX,
+		BYTE1_SEP_BYTE2,
+		BYTE2_X,
+		BYTE2_XX,
+		BYTE2_SEP_BYTE3,
+		BYTE3_X,
+		BYTE3_XX,
+		BYTE3_SEP_BYTE4,
+		BYTE4_X,
+		BYTE4_XX,
+		BYTE4_SEP_BYTE5,
+		BYTE5_X,
+		BYTE5_XX,
+	} fsm_state = START;
+	uint8_t buf[6];
+	const char *seplist = ":.-";
+	char sep;
+
+	while (*s) {
+		switch (fsm_state) {
+		case START:
+			if (PCAP_ISXDIGIT(*s)) {
+				buf[0] = pcapint_xdtoi(*s);
+				fsm_state = BYTE0_X;
+				break;
+			}
+			goto reject;
+		case BYTE0_X:
+			if (strchr(seplist, *s)) {
+				sep = *s;
+				fsm_state = BYTE0_SEP_BYTE1;
+				break;
+			}
+			if (PCAP_ISXDIGIT(*s)) {
+				buf[0] = buf[0] << 4 | pcapint_xdtoi(*s);
+				fsm_state = BYTE0_XX;
+				break;
+			}
+			goto reject;
+		case BYTE0_XX:
+			if (strchr(seplist, *s)) {
+				sep = *s;
+				fsm_state = BYTE0_SEP_BYTE1;
+				break;
+			}
+			goto reject;
+		case BYTE0_SEP_BYTE1:
+			if (PCAP_ISXDIGIT(*s)) {
+				buf[1] = pcapint_xdtoi(*s);
+				fsm_state = BYTE1_X;
+				break;
+			}
+			goto reject;
+		case BYTE1_X:
+			if (*s == sep) {
+				fsm_state = BYTE1_SEP_BYTE2;
+				break;
+			}
+			if (PCAP_ISXDIGIT(*s)) {
+				buf[1] = buf[1] << 4 | pcapint_xdtoi(*s);
+				fsm_state = BYTE1_XX;
+				break;
+			}
+			goto reject;
+		case BYTE1_XX:
+			if (*s == sep) {
+				fsm_state = BYTE1_SEP_BYTE2;
+				break;
+			}
+			goto reject;
+		case BYTE1_SEP_BYTE2:
+			if (PCAP_ISXDIGIT(*s)) {
+				buf[2] = pcapint_xdtoi(*s);
+				fsm_state = BYTE2_X;
+				break;
+			}
+			goto reject;
+		case BYTE2_X:
+			if (*s == sep) {
+				fsm_state = BYTE2_SEP_BYTE3;
+				break;
+			}
+			if (PCAP_ISXDIGIT(*s)) {
+				buf[2] = buf[2] << 4 | pcapint_xdtoi(*s);
+				fsm_state = BYTE2_XX;
+				break;
+			}
+			goto reject;
+		case BYTE2_XX:
+			if (*s == sep) {
+				fsm_state = BYTE2_SEP_BYTE3;
+				break;
+			}
+			goto reject;
+		case BYTE2_SEP_BYTE3:
+			if (PCAP_ISXDIGIT(*s)) {
+				buf[3] = pcapint_xdtoi(*s);
+				fsm_state = BYTE3_X;
+				break;
+			}
+			goto reject;
+		case BYTE3_X:
+			if (*s == sep) {
+				fsm_state = BYTE3_SEP_BYTE4;
+				break;
+			}
+			if (PCAP_ISXDIGIT(*s)) {
+				buf[3] = buf[3] << 4 | pcapint_xdtoi(*s);
+				fsm_state = BYTE3_XX;
+				break;
+			}
+			goto reject;
+		case BYTE3_XX:
+			if (*s == sep) {
+				fsm_state = BYTE3_SEP_BYTE4;
+				break;
+			}
+			goto reject;
+		case BYTE3_SEP_BYTE4:
+			if (PCAP_ISXDIGIT(*s)) {
+				buf[4] = pcapint_xdtoi(*s);
+				fsm_state = BYTE4_X;
+				break;
+			}
+			goto reject;
+		case BYTE4_X:
+			if (*s == sep) {
+				fsm_state = BYTE4_SEP_BYTE5;
+				break;
+			}
+			if (PCAP_ISXDIGIT(*s)) {
+				buf[4] = buf[4] << 4 | pcapint_xdtoi(*s);
+				fsm_state = BYTE4_XX;
+				break;
+			}
+			goto reject;
+		case BYTE4_XX:
+			if (*s == sep) {
+				fsm_state = BYTE4_SEP_BYTE5;
+				break;
+			}
+			goto reject;
+		case BYTE4_SEP_BYTE5:
+			if (PCAP_ISXDIGIT(*s)) {
+				buf[5] = pcapint_xdtoi(*s);
+				fsm_state = BYTE5_X;
+				break;
+			}
+			goto reject;
+		case BYTE5_X:
+			if (PCAP_ISXDIGIT(*s)) {
+				buf[5] = buf[5] << 4 | pcapint_xdtoi(*s);
+				fsm_state = BYTE5_XX;
+				break;
+			}
+			goto reject;
+		case BYTE5_XX:
+			goto reject;
+		} // switch
+		s++;
+	} // while
+
+	if (fsm_state == BYTE5_X || fsm_state == BYTE5_XX) {
+		// accept
+		memcpy(addr, buf, sizeof(buf));
+		return 1;
+	}
+
+reject:
+	return 0;
+}
+
+// The 'addr' argument must point to an array of at least 6 elements.
+static int
+pcapint_atomac48(const char *s, uint8_t *addr)
+{
+	return s && (
+	    pcapint_atomac48_xxxxxxxxxxxx(s, addr) ||
+	    pcapint_atomac48_xxxx_3_times(s, addr) ||
+	    pcapint_atomac48_x_xx_6_times(s, addr)
+	);
+}
+
+/*
+ * If 's' is a MAC-48 address in one of the forms documented in pcap-filter(7)
+ * for "ether host", return a pointer to an allocated buffer with the binary
+ * value of the address.  Return NULL on any error.
  */
 u_char *
 pcap_ether_aton(const char *s)
 {
-	register u_char *ep, *e;
-	register u_char d;
-
-	e = ep = (u_char *)malloc(6);
-	if (e == NULL)
+	uint8_t tmp[6];
+	if (! pcapint_atomac48(s, tmp))
 		return (NULL);
 
-	while (*s) {
-		if (*s == ':' || *s == '.' || *s == '-')
-			s += 1;
-		d = xdtoi(*s++);
-		if (PCAP_ISXDIGIT(*s)) {
-			d <<= 4;
-			d |= xdtoi(*s++);
-		}
-		*ep++ = d;
-	}
-
+	u_char *e = malloc(6);
+	if (e == NULL)
+		return (NULL);
+	memcpy(e, tmp, sizeof(tmp));
 	return (e);
 }
 

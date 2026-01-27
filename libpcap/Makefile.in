@@ -261,7 +261,7 @@ EXTRA_DIST = \
 	doc/README.windows.md \
 	CONTRIBUTING.md \
 	TODO \
-	VERSION \
+	VERSION.txt \
 	aclocal.m4 \
 	autogen.sh \
 	charconv.c \
@@ -288,6 +288,7 @@ EXTRA_DIST = \
 	fad-glifc.c \
 	grammar.y.in \
 	install-sh \
+	instrument-functions.c \
 	lbl/os-aix4.h \
 	lbl/os-aix7.h \
 	lbl/os-hpux11.h \
@@ -399,14 +400,6 @@ EXTRA_DIST = \
 	testprogs/filtertest.c \
 	testprogs/findalldevstest.c \
 	testprogs/findalldevstest-perf.c \
-	testprogs/fuzz/CMakeLists.txt \
-	testprogs/fuzz/fuzz_both.c \
-	testprogs/fuzz/fuzz_both.options \
-	testprogs/fuzz/fuzz_filter.c \
-	testprogs/fuzz/fuzz_filter.options \
-	testprogs/fuzz/fuzz_pcap.c \
-	testprogs/fuzz/fuzz_pcap.options \
-	testprogs/fuzz/onefile.c \
 	testprogs/nonblocktest.c \
 	testprogs/opentest.c \
 	testprogs/reactivatetest.c \
@@ -414,6 +407,7 @@ EXTRA_DIST = \
 	testprogs/threadsignaltest.c \
 	testprogs/unix.h \
 	testprogs/valgrindtest.c \
+	testprogs/versiontest.c \
 	testprogs/visopts.py \
 	testprogs/writecaptest.c
 
@@ -459,7 +453,7 @@ libpcap.so: $(OBJ)
 # but not in the older version.
 #
 # We also use "A" as the major version, and 1 as the compatibility version,
-# but set the current version to the value in VERSION, with any non-numeric
+# but set the current version to the value in VERSION.txt, with any non-numeric
 # stuff stripped off (the compatibility and current version must be of the
 # form X[.Y[.Z]], with Y and Z possibly absent, and with all components
 # numeric).
@@ -842,7 +836,7 @@ releasetar:
 	     tar xf -) && \
 	    echo "No $$TAG tag. Archive build from HEAD."; \
 	fi && \
-	(cd "$$TAG" && "$${AUTORECONF:-autoreconf}" && rm -rf autom4te.cache) && \
+	(cd "$$TAG" && ./autogen.sh && rm -rf autom4te.cache) && \
 	tar cf "$$DIR/$$TAG".tar "$$TAG" && \
 	rm -f "$$DIR/$$TAG".tar.gz && \
 	gzip --best "$$DIR/$$TAG".tar && \

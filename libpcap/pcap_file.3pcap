@@ -32,7 +32,7 @@ FILE *pcap_file(pcap_t *p);
 .fi
 .SH DESCRIPTION
 .BR pcap_file ()
-returns the standard I/O stream of the ``savefile,'' if a ``savefile''
+returns the standard I/O stream of the ``savefile'', if a ``savefile''
 was opened with
 .BR pcap_open_offline (3PCAP),
 or

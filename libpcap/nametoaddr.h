@@ -42,6 +42,7 @@ extern "C" {
 int __pcap_atodn(const char *, bpf_u_int32 *);
 int __pcap_atoin(const char *, bpf_u_int32 *);
 int __pcap_nametodnaddr(const char *, u_short *);
+extern int pcapint_atoan(const char *, uint8_t *);
 
 #ifdef __cplusplus
 }

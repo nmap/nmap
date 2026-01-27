@@ -1199,6 +1199,8 @@
 
 /*
  * USB 2.0, 1.1, and 1.0 packets as transmitted over the cable.
+ * Deprecated in favor of speed specific LINKTYPEs: LINKTYPE_USB_2_0_LOW_SPEED,
+ * LINKTYPE_USB_2_0_FULL_SPEED and LINKTYPE_USB_2_0_HIGH_SPEED.
  */
 #define LINKTYPE_USB_2_0	288
 
@@ -1207,7 +1209,91 @@
  */
 #define LINKTYPE_ATSC_ALP	289
 
-#define LINKTYPE_HIGH_MATCHING_MAX	289		/* highest value in the "matching" range */
+/*
+ * Event Tracing for Windows messages.
+ */
+#define LINKTYPE_ETW		290
+
+/*
+ * Hilscher Gesellschaft fuer Systemautomation mbH
+ * netANALYZER NG hardware and software.
+ *
+ * The specification for this footer can be found at:
+ * https://kb.hilscher.com/x/brDJBw
+ *
+ * Requested by Jan Adam <jadam@hilscher.com>
+ */
+#define LINKTYPE_NETANALYZER_NG	291
+
+/*
+ * Serial NCP (Network Co-Processor) protocol for Zigbee stack ZBOSS
+ * by DSR, https://dsr-iot.com/downloads
+ */
+#define LINKTYPE_ZBOSS_NCP	292
+
+/*
+ * USB 2.0, 1.1, and 1.0 packets as transmitted over the cable.
+ */
+#define LINKTYPE_USB_2_0_LOW_SPEED	293
+#define LINKTYPE_USB_2_0_FULL_SPEED	294
+#define LINKTYPE_USB_2_0_HIGH_SPEED	295
+
+/*
+ * Auerswald Logger Protocol
+ * description is provided on
+ * https://github.com/Auerswald-GmbH/auerlog/blob/master/auerlog.txt
+ * requested by Auerswald Developer Team <developer(at)auerswald.de>
+ */
+#define LINKTYPE_AUERSWALD_LOG	296
+
+/*
+ * Z-Wave packets with a TAP meta-data header
+ * https://gitlab.com/exegin/zwave-g9959-tap
+ * requested on tcpdump-workers@
+ */
+#define LINKTYPE_ZWAVE_TAP	297
+
+/*
+ * Silicon Labs debug channel protocol:
+ */
+#define LINKTYPE_SILABS_DEBUG_CHANNEL 298
+
+/*
+ * Ultra-wideband (UWB) controller interface protocol (UCI).
+ */
+#define LINKTYPE_FIRA_UCI	299
+
+/*
+ * MDB (Multi-Drop Bus) protocol between a vending machine controller and
+ * peripherals inside the vending machine. See
+ *
+ *	https://www.kaiser.cx/pcap-mdb.html
+ *
+ * for the specification.
+ *
+ * Requested by Martin Kaiser <martin@kaiser.cx>.
+ */
+#define LINKTYPE_MDB		300
+
+/*
+ * DECT-2020 New Radio (NR) - ETSI TS 103 636.
+ * Requested by Stig Bjorlykke <stig@bjorlykke.org>.
+ */
+#define LINKTYPE_DECT_NR	301
+
+/*
+ * Request serialization protocol used by edk2 firmware to communicate between
+ * normal mode and management mode ('MM' for short).
+ *
+ * The qemu uefi variable store implementation reuses the request serialization
+ * protocol for firmware <-> qemu communication.
+ */
+#define LINKTYPE_EDK2_MM	302
+
+// See DLT_DEBUG_ONLY
+#define LINKTYPE_DEBUG_ONLY	303
+
+#define LINKTYPE_HIGH_MATCHING_MAX	303		/* highest value in the "matching" range */
 
 /*
  * The DLT_ and LINKTYPE_ values in the "matching" range should be the
@@ -1274,7 +1360,7 @@ dlt_to_linktype(int dlt)
 	/*
 	 * These DLT_* codes have different values on different
 	 * platforms, so we assigned them LINKTYPE_* codes just
-	 * below the lower bound of the high matchig range;
+	 * below the lower bound of the high matching range;
 	 * those values should never be equal to any DLT_*
 	 * code, so that should avoid collisions.
 	 *
@@ -1426,7 +1512,7 @@ linktype_to_dlt(int linktype)
 	/*
 	 * These DLT_* codes have different values on different
 	 * platforms, so we assigned them LINKTYPE_* codes just
-	 * below the lower bound of the high matchig range;
+	 * below the lower bound of the high matching range;
 	 * those values should never be equal to any DLT_*
 	 * code, so that should avoid collisions.
 	 *

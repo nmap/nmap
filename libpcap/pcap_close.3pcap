@@ -17,7 +17,7 @@
 .\" WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF
 .\" MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 .\"
-.TH PCAP_CLOSE 3PCAP "3 January 2014"
+.TH PCAP_CLOSE 3PCAP "12 October 2024"
 .SH NAME
 pcap_close \- close a capture device or savefile
 .SH SYNOPSIS
@@ -34,6 +34,14 @@ void pcap_close(pcap_t *p);
 .BR pcap_close ()
 closes the files associated with
 .I p
-and deallocates resources.
+and deallocates resources. This means that, for example, if
+.I p
+refers to a savefile that was opened with
+.BR pcap_fopen_offline ()
+or
+.BR pcap_fopen_offline_with_tstamp_precision (),
+the stream provided to the routine will be closed unless it is
+.BR stdin .
 .SH SEE ALSO
-.BR pcap (3PCAP)
+.BR pcap (3PCAP),
+.BR pcap_open_offline (3PCAP)

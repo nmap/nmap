@@ -196,6 +196,10 @@ PacketGetMonitorMode(PCHAR AdapterName _U_)
 #define NDIS_STATUS_NOT_SUPPORTED	0xc00000bb	/* STATUS_NOT_SUPPORTED */
 #define NDIS_STATUS_NOT_RECOGNIZED	0x00010001
 
+#ifndef PACKET_OID_DATA_LENGTH
+#define PACKET_OID_DATA_LENGTH(_DataLength) \
+	(offsetof(PACKET_OID_DATA, Data) + _DataLength)
+#endif
 static int
 oid_get_request(ADAPTER *adapter, bpf_u_int32 oid, void *data, size_t *lenp,
     char *errbuf)
@@ -204,12 +208,9 @@ oid_get_request(ADAPTER *adapter, bpf_u_int32 oid, void *data, size_t *lenp,
 
 	/*
 	 * Allocate a PACKET_OID_DATA structure to hand to PacketRequest().
-	 * It should be big enough to hold "*lenp" bytes of data; it
-	 * will actually be slightly larger, as PACKET_OID_DATA has a
-	 * 1-byte data array at the end, standing in for the variable-length
-	 * data that's actually there.
+	 * It should be big enough to hold "*lenp" bytes of data;
 	 */
-	oid_data_arg = malloc(sizeof (PACKET_OID_DATA) + *lenp);
+	oid_data_arg = malloc(PACKET_OID_DATA_LENGTH(*lenp));
 	if (oid_data_arg == NULL) {
 		snprintf(errbuf, PCAP_ERRBUF_SIZE,
 		    "Couldn't allocate argument buffer for PacketRequest");
@@ -404,12 +405,9 @@ pcap_oid_set_request_npf(pcap_t *p, bpf_u_int32 oid, const void *data,
 
 	/*
 	 * Allocate a PACKET_OID_DATA structure to hand to PacketRequest().
-	 * It should be big enough to hold "*lenp" bytes of data; it
-	 * will actually be slightly larger, as PACKET_OID_DATA has a
-	 * 1-byte data array at the end, standing in for the variable-length
-	 * data that's actually there.
+	 * It should be big enough to hold "*lenp" bytes of data;
 	 */
-	oid_data_arg = malloc(sizeof (PACKET_OID_DATA) + *lenp);
+	oid_data_arg = malloc(PACKET_OID_DATA_LENGTH(*lenp));
 	if (oid_data_arg == NULL) {
 		snprintf(p->errbuf, PCAP_ERRBUF_SIZE,
 		    "Couldn't allocate argument buffer for PacketRequest");
@@ -1033,6 +1031,10 @@ pcap_activate_npf(pcap_t *p)
 	int status = 0;
 	struct bpf_insn total_insn;
 	struct bpf_program total_prog;
+#ifdef HAVE_PACKET_GET_INFO
+	char oid_data_buf[PACKET_OID_DATA_LENGTH(sizeof(ULONG))] = {0};
+	PACKET_OID_DATA *oid_data_arg = (PACKET_OID_DATA *)oid_data_buf;
+#endif
 
 	if (p->opt.rfmon) {
 		/*
@@ -1291,6 +1293,42 @@ pcap_activate_npf(pcap_t *p)
 		break;
 	}
 #endif /* HAVE_PACKET_GET_TIMESTAMP_MODES */
+
+#ifdef PACKET_MODE_NANO
+	/*
+	 * If nanosecond timestamp resolution is requested, set
+	 * the packet mode to enable it.
+	 *
+	 * XXX - it's not nanosecond resolution, as the internal
+	 * NT clock has 100 ns resolution, but we can't indicate
+	 * that.  An updated-for-pcapng API should support that.
+	 */
+	if (p->opt.tstamp_precision == PCAP_TSTAMP_PRECISION_NANO) {
+		res = PacketSetMode(pw->adapter, PACKET_MODE_NANO);
+		if(res == FALSE){
+			snprintf(p->errbuf, PCAP_ERRBUF_SIZE,
+			    "Error setting nanosecond capture mode");
+			goto bad;
+		}
+	}
+#endif /* PACKET_MODE_NANO */
+
+#if defined(HAVE_PACKET_GET_INFO) && defined(NPF_GETINFO_BPFEXT) && defined(SKF_AD_VLAN_TAG_PRESENT)
+
+	/* Can we generate special code for VLAN checks? */
+	oid_data_arg->Oid = NPF_GETINFO_BPFEXT;
+	oid_data_arg->Length = sizeof(ULONG);
+	if (PacketGetInfo(pw->adapter, oid_data_arg)) {
+		if (*((ULONG *)oid_data_arg->Data) >= SKF_AD_VLAN_TAG_PRESENT) {
+			/* Yes, we can.  Request that we do so. */
+			p->bpf_codegen_flags |= BPF_SPECIAL_VLAN_HANDLING;
+		}
+	}
+	else {
+		pcapint_fmt_errmsg_for_win32_err(p->errbuf, PCAP_ERRBUF_SIZE,
+		    GetLastError(), "Error calling PacketGetInfo");
+	}
+#endif /* HAVE_PACKET_GET_INFO */
 
 	/*
 	 * Turn a negative snapshot value (invalid), a snapshot value of
@@ -1613,11 +1651,11 @@ pcap_can_set_rfmon_npf(pcap_t *p)
 }
 
 /*
- * Get a list of time stamp types.
+ * Get lists of time stamp types and precisions.
  */
 #ifdef HAVE_PACKET_GET_TIMESTAMP_MODES
 static int
-get_ts_types(const char *device, pcap_t *p, char *ebuf)
+get_ts_support(const char *device, pcap_t *p, char *ebuf)
 {
 	char *device_copy = NULL;
 	ADAPTER *adapter = NULL;
@@ -1632,6 +1670,12 @@ get_ts_types(const char *device, pcap_t *p, char *ebuf)
 	ULONG *modes = NULL;
 	int status = 0;
 
+	/*
+	 * This is called in pcapint_create_interface(), after the
+	 * pcap_t is allocated and initialized, so the time stamp
+	 * type list and the time stamp precision lists are both
+	 * empty.
+	 */
 	do {
 		/*
 		 * First, find out how many time stamp modes we have.
@@ -1683,8 +1727,6 @@ get_ts_types(const char *device, pcap_t *p, char *ebuf)
 			 */
 			if (error == ERROR_BAD_UNIT ||
 			    error == ERROR_ACCESS_DENIED) {
-				p->tstamp_type_count = 0;
-				p->tstamp_type_list = NULL;
 				status = 0;
 			} else {
 				pcapint_fmt_errmsg_for_win32_err(ebuf,
@@ -1692,6 +1734,10 @@ get_ts_types(const char *device, pcap_t *p, char *ebuf)
 				    "Error opening adapter");
 				status = -1;
 			}
+
+			/*
+			 * We're done; clean up and return the status.
+			 */
 			break;
 		}
 
@@ -1865,6 +1911,25 @@ get_ts_types(const char *device, pcap_t *p, char *ebuf)
 			}
 		}
 		p->tstamp_type_count = num_ts_types;
+
+#ifdef PACKET_MODE_NANO
+		/*
+		 * Check if we support nanosecond time stamps.
+		 */
+		if (PacketSetMode(adapter, PACKET_MODE_NANO)) {
+			p->tstamp_precision_list = malloc(2 * sizeof(u_int));
+			if (p->tstamp_precision_list == NULL) {
+				pcapint_fmt_errmsg_for_errno(ebuf, PCAP_ERRBUF_SIZE,
+						errno, "malloc");
+				pcap_close(p);
+				return (NULL);
+			}
+			p->tstamp_precision_list[0] = PCAP_TSTAMP_PRECISION_MICRO;
+			p->tstamp_precision_list[1] = PCAP_TSTAMP_PRECISION_NANO;
+			p->tstamp_precision_count = 2;
+		}
+#endif /* PACKET_MODE_NANO */
+
 	} while (0);
 
 	/* Clean up temporary allocations */
@@ -1882,7 +1947,7 @@ get_ts_types(const char *device, pcap_t *p, char *ebuf)
 }
 #else /* HAVE_PACKET_GET_TIMESTAMP_MODES */
 static int
-get_ts_types(const char *device _U_, pcap_t *p _U_, char *ebuf _U_)
+get_ts_support(const char *device _U_, pcap_t *p _U_, char *ebuf _U_)
 {
 	/*
 	 * Nothing to fetch, so it always "succeeds".
@@ -1903,10 +1968,11 @@ pcapint_create_interface(const char *device _U_, char *ebuf)
 	p->activate_op = pcap_activate_npf;
 	p->can_set_rfmon_op = pcap_can_set_rfmon_npf;
 
-	if (get_ts_types(device, p, ebuf) == -1) {
+	if (get_ts_support(device, p, ebuf) == -1) {
 		pcap_close(p);
 		return (NULL);
 	}
+
 	return (p);
 }
 
@@ -2766,7 +2832,7 @@ pcap_lib_version(void)
 		char *full_pcap_version_string;
 
 		if (pcapint_asprintf(&full_pcap_version_string,
-		    PCAP_VERSION_STRING " (packet.dll version %s)",
+		    PCAP_VERSION_STRING_WITH_ADDITIONAL_INFO("packet.dll version %s"),
 		    PacketGetVersion()) != -1) {
 			/* Success */
 			pcap_lib_version_string = full_pcap_version_string;

@@ -32,7 +32,7 @@ int pcap_dump_flush(pcap_dumper_t *p);
 .fi
 .SH DESCRIPTION
 .BR pcap_dump_flush ()
-flushes the output buffer to the ``savefile,'' so that any packets
+flushes the output buffer to the ``savefile'', so that any packets
 written with
 .BR pcap_dump (3PCAP)
 but not yet written to the ``savefile'' will be written.

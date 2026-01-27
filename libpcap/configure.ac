@@ -16,7 +16,7 @@ dnl
 
 AC_PREREQ(2.69)
 
-AC_INIT(pcap, m4_esyscmd_s([cat VERSION]))
+AC_INIT(pcap, m4_esyscmd_s([cat VERSION.txt]))
 AC_CONFIG_SRCDIR(pcap.c)
 AC_SUBST(PACKAGE_NAME)
 
@@ -112,6 +112,12 @@ if test "$ac_cv_prog_cc_c99" = "no"; then
 fi
 
 #
+# Try to arrange for large file support.
+#
+AC_SYS_LARGEFILE
+AC_FUNC_FSEEKO
+
+#
 # Get the size of a void *, to determine whether this is a 32-bit
 # or 64-bit build.
 #
@@ -127,12 +133,6 @@ AC_LBL_C_INIT(V_CCOPT, V_INCLS)
 AC_LBL_SHLIBS_INIT
 AC_LBL_C_INLINE
 AC_PCAP_C___ATOMICS
-
-#
-# Try to arrange for large file support.
-#
-AC_SYS_LARGEFILE
-AC_FUNC_FSEEKO
 
 dnl
 dnl Even if <net/bpf.h> were, on all OSes that support BPF, fixed to
@@ -905,7 +905,7 @@ dlpi)
 	#
 	# Checks for some header files.
 	#
-	AC_CHECK_HEADERS(sys/bufmod.h sys/dlpi_ext.h)
+	AC_CHECK_HEADERS(sys/bufmod.h sys/dlpi_ext.h zone.h)
 
 	#
 	# Checks to see if Solaris has the public libdlpi(3LIB) library.
@@ -1004,16 +1004,6 @@ linux)
 	PLATFORM_C_SRC="pcap-linux.c"
 
 	#
-	# Do we have the wireless extensions?
-	#
-	AC_CHECK_HEADERS(linux/wireless.h, [], [],
-	[
-#include <sys/socket.h>
-#include <linux/if.h>
-#include <linux/types.h>
-	])
-
-	#
 	# Do we have libnl?
 	# We only want version 3.  Version 2 was, apparently,
 	# short-lived, and version 1 is source and binary
@@ -1023,10 +1013,10 @@ linux)
 	# let's drop support for older versions of libnl, too.
 	#
 	AC_ARG_WITH(libnl,
-	AS_HELP_STRING([--without-libnl],[disable libnl support @<:@default=yes, on Linux, if present@:>@]),
+	AS_HELP_STRING([--without-libnl],[disable libnl support @<:@default=disabled@:>@]),
 		with_libnl=$withval,with_libnl=if_available)
 
-	if test x$with_libnl != xno ; then
+	if test x$with_libnl = xyes ; then
 		#
 		# Check for libnl-genl-3.0 with pkg-config.
 		#
@@ -2396,8 +2386,8 @@ AC_SUBST(MAN_MISC_INFO)
 AC_SUBST(MAN_ADMIN_COMMANDS)
 
 AC_ARG_ENABLE(shared,
-AS_HELP_STRING([--enable-shared],[build shared libraries @<:@default=yes, if support available@:>@]))
-test "x$enable_shared" = "xno" && DYEXT="none"
+AS_HELP_STRING([--enable-shared],[build shared libraries @<:@default=no@:>@]))
+test "x$enable_shared" != "xyes" && DYEXT="none"
 
 AC_PROG_RANLIB
 AC_CHECK_TOOL([AR], [ar])
@@ -2447,9 +2437,9 @@ AC_CHECK_MEMBERS([dl_hp_ppa_info_t.dl_module_id_1],,,
 # Various Linux-specific mechanisms.
 #
 AC_ARG_ENABLE([usb],
-[AS_HELP_STRING([--enable-usb],[enable Linux usbmon USB capture support @<:@default=yes, if support available@:>@])],
+[AS_HELP_STRING([--enable-usb],[enable USB capture support @<:@default=no@:>@])],
     [],
-    [enable_usb=yes])
+    [enable_usb=no])
 
 #
 # If somebody requested an XXX-only pcap, that doesn't include
@@ -2576,7 +2566,7 @@ fi
 
 # Check for DPDK support.
 AC_ARG_WITH([dpdk],
-AS_HELP_STRING([--with-dpdk@<:@=DIR@:>@],[include DPDK support (located in directory DIR, if supplied).  @<:@default=yes, if present@:>@]),
+AS_HELP_STRING([--with-dpdk@<:@=DIR@:>@],[include DPDK support (located in directory DIR, if supplied).  @<:@default=no@:>@]),
 [
 	if test "$withval" = no
 	then
@@ -2603,9 +2593,12 @@ AS_HELP_STRING([--with-dpdk@<:@=DIR@:>@],[include DPDK support (located in direc
 		want_dpdk=no
 	else
 		#
-		# Use DPDK API if present, otherwise don't
+		# User didn't explicitly request DPDK; don't give it
+		# to them without their consent, as the code is
+		# immensely hard to keep compiling for every random
+		# API change the DPDK folks make.
 		#
-		want_dpdk=ifpresent
+		want_dpdk=no
 	fi
 ])
 
@@ -2780,9 +2773,9 @@ fi
 AC_SUBST(PCAP_SUPPORT_DPDK)
 
 AC_ARG_ENABLE([bluetooth],
-[AS_HELP_STRING([--enable-bluetooth],[enable Bluetooth support @<:@default=yes, if support available@:>@])],
+[AS_HELP_STRING([--enable-bluetooth],[enable Bluetooth support @<:@default=no@:>@])],
     [],
-    [enable_bluetooth=ifsupportavailable])
+    [enable_bluetooth=no])
 
 if test "xxx_only" = yes; then
 	# User requested something-else-only pcap, so they don't
@@ -2845,9 +2838,9 @@ if test "x$enable_bluetooth" != "xno" ; then
 			# Bluetooth sniffing.
 			#
 			if test "x$enable_bluetooth" = "xyes" ; then
-				AC_MSG_ERROR(Bluetooth sniffing is not supported; install bluez-lib devel to enable it)
+				AC_MSG_ERROR(Bluetooth sniffing is not supported; install a Bluetooth devel library (libbluetooth-dev|bluez-libs-devel|bluez-dev|libbluetooth-devel|...) to enable it)
 			else
-				AC_MSG_NOTICE(Bluetooth sniffing is not supported; install bluez-lib devel to enable it)
+				AC_MSG_NOTICE(Bluetooth sniffing is not supported; install a Bluetooth devel library (libbluetooth-dev|bluez-libs-devel|bluez-dev|libbluetooth-devel|...) to enable it)
 			fi
 		    ])
 		;;
@@ -2863,9 +2856,9 @@ if test "x$enable_bluetooth" != "xno" ; then
 fi
 
 AC_ARG_ENABLE([dbus],
-[AS_HELP_STRING([--enable-dbus],[enable D-Bus capture support @<:@default=yes, if support available@:>@])],
+[AS_HELP_STRING([--enable-dbus],[enable D-Bus capture support @<:@default=no@:>@])],
     [],
-    [enable_dbus=ifavailable])
+    [enable_dbus=no])
 
 if test "xxx_only" = yes; then
 	# User requested something-else-only pcap, so they don't
@@ -2927,7 +2920,6 @@ if test "x$enable_dbus" != "xno"; then
 			V_INCLS="$V_INCLS $DBUS_CFLAGS"
 			ADDITIONAL_LIBS="$ADDITIONAL_LIBS $DBUS_LIBS"
 			ADDITIONAL_LIBS_STATIC="$ADDITIONAL_LIBS_STATIC $DBUS_LIBS_STATIC"
-			LIBS_PRIVATE="$LIBS_PRIVATE $DBUS_LIBS"
 			REQUIRES_PRIVATE="$REQUIRES_PRIVATE dbus-1"
 		    ],
 		    [

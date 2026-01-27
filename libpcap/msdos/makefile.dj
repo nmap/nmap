@@ -86,9 +86,9 @@ grammar.c tokdefs.h: grammar.y
 	mv -f y.tab.c grammar.c
 	mv -f y.tab.h tokdefs.h
 
-version.h: ./VERSION
-	@echo '/* Generated from VERSION. Do not edit */' > $@
-	sed -e 's/.*/static char pcap_version_string[] = "libpcap (&)";/' ./VERSION >> $@
+version.h: ./VERSION.txt
+	@echo '/* Generated from VERSION.txt. Do not edit */' > $@
+	sed -e 's/.*/static char pcap_version_string[] = "libpcap (&)";/' ./VERSION.txt >> $@
 
 scanner.c: scanner.l
 	$(LEX) -Ppcap_ -7 -t $^ > $@

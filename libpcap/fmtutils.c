@@ -233,7 +233,7 @@ utf_16le_to_utf_8_truncated(const wchar_t *utf_16, char *utf_8,
 			*utf_8++ = ((uc >> 12) & 0x3F) | 0x80;
 			*utf_8++ = ((uc >> 6) & 0x3F) | 0x80;
 			*utf_8++ = ((uc >> 0) & 0x3F) | 0x80;
-			utf_8_len -= 3;
+			utf_8_len -= 4;
 		}
 	}
 
