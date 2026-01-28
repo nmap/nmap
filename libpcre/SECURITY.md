@@ -1,6 +1,8 @@
-# Security policies
+Security policies
+=================
 
-## Release security
+Release security
+----------------
 
 The PCRE2 project provides source-only releases, with no binaries.
 
@@ -20,7 +22,14 @@ Git checkout of the (GPG-signed) release tag.
 Please contact the maintainers for any queries about release integrity or the
 project's supply-chain.
 
-## Reporting vulnerabilities
+Previous vulnerabilities
+------------------------
+
+* CVE-2025-58050 (August 2025). Affects 10.45 only (not earlier), and is fixed
+  in 10.46.
+
+Reporting vulnerabilities
+-------------------------
 
 The PCRE2 project prioritises security. We appreciate third-party testing and
 security research, and would be grateful if you could responsibly disclose your
@@ -38,7 +47,13 @@ aim to respond within 1 week, or perhaps 2 during holidays.
 
 ### Response procedure
 
-PCRE2 has never previously made a rapid or embargoed release in response to a
-security incident. We would work with security managers from trusted downstream
-distributors, such as major Linux distributions, before disclosing the
-vulnerability publicly.
+PCRE2 has in the past made at least one rapid release in response to
+security incidents.
+
+We have never produced an embargoed release, or provided preferential
+access to security fixes to any clients.
+
+We would aim to notify security managers from trusted downstream distributors,
+such as major Linux distributions, via the `pcre2-dev` mailing list, by
+publicly signalling an upcoming security release before disclosing the
+vulnerability publicly, where advance notification is possible.

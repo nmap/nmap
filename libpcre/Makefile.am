@@ -7,6 +7,12 @@ ACLOCAL_AMFLAGS = -I m4
 
 AM_CPPFLAGS="-I$(srcdir)/src"
 
+## Set some variables to accumulate conditionally-set Automake targets.
+
+CLEAN_LOCAL_TARGETS=
+DISTCLEAN_LOCAL_TARGETS=
+PHONY_TARGETS=
+
 ## Specify the documentation files that are distributed.
 
 dist_doc_DATA = \
@@ -22,6 +28,7 @@ lib_LTLIBRARIES =
 # TESTS is for binary unit tests, check_SCRIPTS for script-based tests
 
 TESTS =
+XFAIL_TESTS =
 check_SCRIPTS =
 dist_noinst_SCRIPTS =
 
@@ -38,12 +45,7 @@ noinst_PROGRAMS =
 # we list them here.
 
 CLEANFILES = \
-  pcre2_dftables \
-  pcre2_jit_test \
-  pcre2fuzzcheck-8 \
-  pcre2fuzzcheck-16 \
-  pcre2fuzzcheck-32 \
-  pcre2demo
+  pcre2_dftables
 
 DISTCLEANFILES = src/config.h.in~
 MAINTAINERCLEANFILES =
@@ -56,14 +58,16 @@ EXTRA_DIST =
 # These files contain additional m4 macros that are used by autoconf.
 
 EXTRA_DIST += \
-  m4/ax_pthread.m4 m4/pcre2_visibility.m4
+  m4/ax_check_vscript.m4 \
+  m4/ax_pthread.m4 \
+  m4/pcre2_visibility.m4 \
+  m4/pcre2_zos.m4
 
 # These are support files for building with Bazel or Zig
 
 EXTRA_DIST += \
   BUILD.bazel \
   MODULE.bazel \
-  WORKSPACE.bazel \
   build.zig
 
 # These are support files for building under VMS
@@ -97,8 +101,9 @@ src/pcre2.h.generic: src/pcre2.h.in configure.ac
 # running configure in a new directory, it complains. For this reason, we move
 # config.status out of the way while doing the default configuration. The
 # resulting config.h is munged by perl to put #ifdefs round any #defines for
-# macros with values, and to #undef all boolean macros such as HAVE_xxx and
-# SUPPORT_xxx. We also get rid of any gcc-specific visibility settings.
+# macros with values, and to #undef all boolean macros such as HAVE_xxx,
+# SUPPORT_xxx, and PCRE2_STATIC/PCRE2POSIX_SHARED. We also get rid of any
+# GCC-specific visibility settings.
 
 src/config.h.generic: configure.ac
 	rm -rf $@ _generic
@@ -108,13 +113,13 @@ src/config.h.generic: configure.ac
 	cs=$(srcdir)/config.status; test ! -f $$cs.aside || mv -f $$cs.aside $$cs
 	test -f _generic/src/config.h
 	perl -n \
-	  -e 'BEGIN{$$blank=0;}' \
-	  -e 'if(/(.+?)\s*__attribute__ \(\(visibility/){print"$$1\n";$$blank=0;next;}' \
-	  -e 'if(/LT_OBJDIR/){print"/* This is ignored unless you are using libtool. */\n";}' \
-	  -e 'if(/^#define\s((?:HAVE|SUPPORT|STDC)_\w+)/){print"/* #undef $$1 */\n";$$blank=0;next;}' \
-	  -e 'if(/^#define\s(?!PACKAGE|VERSION)(\w+)/){print"#ifndef $$1\n$$_#endif\n";$$blank=0;next;}' \
-	  -e 'if(/^\s*$$/){print unless $$blank; $$blank=1;} else{print;$$blank=0;}' \
-	  _generic/src/config.h >$@
+		-e 'BEGIN{$$blank=0;}' \
+		-e 'if(/(.+?)\s*__attribute__ \(\(visibility/){print"$$1\n";$$blank=0;next;}' \
+		-e 'if(/LT_OBJDIR/){print"/* This is ignored unless you are using libtool. */\n";}' \
+		-e 'if(/^#define\s((?:HAVE|SUPPORT|STDC)_\w+|PCRE2_STATIC|PCRE2POSIX_SHARED)/){print"/* #undef $$1 */\n";$$blank=0;next;}' \
+		-e 'if(/^#define\s(?!PACKAGE|VERSION)(\w+)/){print"#ifndef $$1\n$$_#endif\n";$$blank=0;next;}' \
+		-e 'if(/^\s*$$/){print unless $$blank; $$blank=1;} else{print;$$blank=0;}' \
+		_generic/src/config.h >$@
 	rm -rf _generic
 
 MAINTAINERCLEANFILES += src/pcre2.h.generic src/config.h.generic
@@ -143,9 +148,21 @@ src/pcre2_chartables.c: pcre2_dftables$(EXEEXT)
 	rm -f $@
 	./pcre2_dftables$(EXEEXT) $@
 else
+if WITH_EBCDIC
+if WITH_EBCDIC_NL25
+src/pcre2_chartables.c: $(srcdir)/src/pcre2_chartables.c.ebcdic-1047-nl25
+	rm -f $@
+	$(LN_S) $(abs_srcdir)/src/pcre2_chartables.c.ebcdic-1047-nl25 $(abs_builddir)/src/pcre2_chartables.c
+else # WITH_EBCDIC_NL25
+src/pcre2_chartables.c: $(srcdir)/src/pcre2_chartables.c.ebcdic-1047-nl15
+	rm -f $@
+	$(LN_S) $(abs_srcdir)/src/pcre2_chartables.c.ebcdic-1047-nl15 $(abs_builddir)/src/pcre2_chartables.c
+endif # WITH_EBCDIC_NL25
+else # WITH_EBCDIC
 src/pcre2_chartables.c: $(srcdir)/src/pcre2_chartables.c.dist
 	rm -f $@
 	$(LN_S) $(abs_srcdir)/src/pcre2_chartables.c.dist $(abs_builddir)/src/pcre2_chartables.c
+endif # WITH_EBCDIC
 endif # WITH_REBUILD_CHARTABLES
 
 BUILT_SOURCES = src/pcre2_chartables.c
@@ -159,6 +176,7 @@ COMMON_SOURCES = \
   src/pcre2_chkdint.c \
   src/pcre2_compile.c \
   src/pcre2_compile.h \
+  src/pcre2_compile_cgroup.c \
   src/pcre2_compile_class.c \
   src/pcre2_config.c \
   src/pcre2_context.c \
@@ -169,11 +187,10 @@ COMMON_SOURCES = \
   src/pcre2_find_bracket.c \
   src/pcre2_internal.h \
   src/pcre2_intmodedep.h \
-  src/pcre2_jit_char_inc.h \
-  src/pcre2_jit_compile.c \
   src/pcre2_maketables.c \
   src/pcre2_match.c \
   src/pcre2_match_data.c \
+  src/pcre2_match_next.c \
   src/pcre2_newline.c \
   src/pcre2_ord2utf.c \
   src/pcre2_pattern_info.c \
@@ -186,13 +203,10 @@ COMMON_SOURCES = \
   src/pcre2_tables.c \
   src/pcre2_ucd.c \
   src/pcre2_ucp.h \
+  src/pcre2_ucptables_inc.h \
   src/pcre2_util.h \
   src/pcre2_valid_utf.c \
   src/pcre2_xclass.c
-
-# The pcre2_ucptables.c file is #included by pcre2_tables.c
-
-EXTRA_DIST += src/pcre2_ucptables.c
 
 if WITH_PCRE2_8
 lib_LTLIBRARIES += libpcre2-8.la
@@ -239,9 +253,11 @@ endif # WITH_PCRE2_32
 # The pcre2_chartables.c.dist file is the default version of
 # pcre2_chartables.c, used unless --enable-rebuild-chartables is specified.
 
-EXTRA_DIST += src/pcre2_chartables.c.dist
+EXTRA_DIST += \
+  src/pcre2_chartables.c.dist \
+  src/pcre2_chartables.c.ebcdic-1047-nl15 \
+  src/pcre2_chartables.c.ebcdic-1047-nl25
 CLEANFILES += src/pcre2_chartables.c
-
 
 if WITH_PCRE2_8
 libpcre2_8_la_LDFLAGS = $(EXTRA_LIBPCRE2_8_LDFLAGS)
@@ -292,9 +308,44 @@ libpcre2_posix_la_CFLAGS += $(GCOV_CFLAGS)
 endif # WITH_GCOV
 endif # WITH_PCRE2_8
 
-## If fuzzer support is enabled, build a non-distributed library containing the
-## fuzzing function. Also build the standalone checking binary from the same
-## source but using -DSTANDALONE.
+
+## -------- Testing ----------
+
+# RunTest and RunGrepTest should clean up after themselves, but just in case
+# they don't, add their working files to CLEANFILES.
+
+CLEANFILES += \
+  testSinput \
+  testSoutput \
+  test3input \
+  test3output \
+  test3outputA \
+  test3outputB \
+  testtry \
+  teststdout \
+  teststderr \
+  teststderrgrep \
+  testtemp1grep \
+  testtemp2grep \
+  testtrygrep \
+  testNinputgrep
+
+testoutput-clean:
+	-rm -rf testoutput8 testoutput8-jit testoutput8-dfa
+	-rm -rf testoutput16 testoutput16-jit testoutput16-dfa
+	-rm -rf testoutput32 testoutput32-jit testoutput32-dfa
+
+CLEAN_LOCAL_TARGETS += testoutput-clean
+PHONY_TARGETS += testoutput-clean
+
+## ------------ End of testing -------------
+
+# Symbol version files for use with GNU and Sun ld.
+
+EXTRA_DIST += \
+  src/libpcre2-8.sym src/libpcre2-16.sym src/libpcre2-32.sym \
+  src/libpcre2-posix.sym
+
 
 # gcov/lcov code coverage reporting
 #
@@ -375,23 +426,26 @@ coverage-clean: coverage-reset coverage-clean-report coverage-clean-data
 coverage-distclean: coverage-clean
 
 coverage: coverage-reset coverage-baseline coverage-check coverage-report
-clean-local: coverage-clean
-distclean-local: coverage-distclean
 
-.PHONY: coverage coverage-baseline coverage-check coverage-report coverage-reset coverage-clean-report coverage-clean-data coverage-clean coverage-distclean
-
-# Without coverage support, still arrange for 'make distclean' to get rid of
-# any coverage files that may have been left from a different configuration.
+CLEAN_LOCAL_TARGETS += coverage-clean
+DISTCLEAN_LOCAL_TARGETS += coverage-distclean
+PHONY_TARGETS += coverage coverage-baseline coverage-check coverage-report coverage-reset coverage-clean-report coverage-clean-data coverage-clean coverage-distclean
 
 else
 
 coverage:
 	@echo "Configuring with --enable-coverage is required to generate code coverage report."
 
+# Without coverage support, still arrange for 'make distclean' to get rid of
+# any coverage files that may have been left from a different configuration.
+
 DISTCLEANFILES += src/*.gcda src/*.gcno
 
-distclean-local:
+coverage-distclean:
 	rm -rf $(PACKAGE)-$(VERSION)-coverage*
+
+DISTCLEAN_LOCAL_TARGETS += coverage-distclean
+PHONY_TARGETS += coverage-distclean
 
 endif # WITH_GCOV
 
@@ -399,11 +453,21 @@ endif # WITH_GCOV
 
 EXTRA_DIST += \
   cmake/COPYING-CMAKE-SCRIPTS \
-  cmake/FindEditline.cmake \
-  cmake/FindReadline.cmake \
-  cmake/pcre2-config-version.cmake.in \
   cmake/pcre2-config.cmake.in \
-  CMakeLists.txt \
-  config-cmake.h.in
+  cmake/PCRE2CheckVscript.cmake \
+  cmake/PCRE2UseSystemExtensions.cmake \
+  cmake/PCRE2WarningAsError.cmake \
+  src/config-cmake.h.in \
+  CMakeLists.txt
+
+## Set the special make and Automake targets. We could very easily simply
+## redefine these targets to append prerequisites to them, rather than
+## collecting the prerequisites in variables. However, there is an annoying
+## Automake behaviour where it emits a warning if a target has prerequisites
+## appended in a conditional block.
+
+clean-local: $(CLEAN_LOCAL_TARGETS)
+distclean-local: $(DISTCLEAN_LOCAL_TARGETS)
+.PHONY: $(PHONY_TARGETS)
 
 ## end Makefile.am
