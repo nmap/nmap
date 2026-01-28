@@ -1176,12 +1176,11 @@ struct eth_nfo *HostOsScanStats::fill_eth_nfo(struct eth_nfo *eth, netutil_eth_t
   if (ethsd == NULL)
     return NULL;
 
-  if (netutil_eth_datalink(ethsd) == DLT_EN10MB) {
-    memcpy(eth->srcmac, target->SrcMACAddress(), sizeof(eth->srcmac));
-    memcpy(eth->dstmac, target->NextHopMACAddress(), sizeof(eth->dstmac));
+  eth = target->FillEthNfo(eth, ethsd);
+  if (eth) {
+    eth->ethsd = ethsd;
+    eth->devname[0] = '\0';
   }
-  eth->ethsd = ethsd;
-  eth->devname[0] = '\0';
 
   return eth;
 }

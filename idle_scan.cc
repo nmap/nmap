@@ -606,9 +606,7 @@ static void initialize_idleproxy(struct idle_proxy_info *proxy, char *proxyName,
   if (proxy->eth.ethsd != NULL) {
     if (!setTargetNextHopMAC(&proxy->host))
       fatal("%s: Failed to determine dst MAC address for Idle proxy", __func__);
-    memcpy(proxy->eth.srcmac, proxy->host.SrcMACAddress(), 6);
-    memcpy(proxy->eth.dstmac, proxy->host.NextHopMACAddress(), 6);
-    proxy->ethptr = &proxy->eth;
+    proxy->ethptr = proxy->host.FillEthNfo(&proxy->eth, proxy->eth.ethsd);
   }
   else {
     unblock_socket(proxy->rawsd);
@@ -1000,10 +998,8 @@ static int idlescan_countopen2(struct idle_proxy_info *proxy,
   if (proxy->rawsd < 0) {
     if (!setTargetNextHopMAC(target))
       fatal("%s: Failed to determine dst MAC address for Idle proxy", __func__);
-    memcpy(eth.srcmac, target->SrcMACAddress(), 6);
-    memcpy(eth.dstmac, target->NextHopMACAddress(), 6);
     eth.ethsd = eth_open_cached(target->deviceName());
-    if (eth.ethsd == NULL)
+    if (eth.ethsd == NULL || target->FillEthNfo(&eth, eth.ethsd) == NULL)
       fatal("%s: Failed to open ethernet device (%s)", __func__, target->deviceName());
   } else eth.ethsd = NULL;
 

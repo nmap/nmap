@@ -237,6 +237,7 @@ class Target {
   const u8 *MACAddress() const;
   const u8 *SrcMACAddress() const;
   const u8 *NextHopMACAddress() const;
+  eth_nfo *FillEthNfo(eth_nfo *eth, netutil_eth_t *ethsd) const;
 
 /* Set the device names so that they can be returned by deviceName()
    and deviceFullName().  The normal name may not include alias

@@ -1168,7 +1168,6 @@ int raw_socket_or_eth(int sendpref, const char *ifname, devtype iftype,
       try_ip = may_try_ip;
 
       netutil_eth_t *e = eth_open_cached(ifname);
-      *ethsd = e;
       if (e == NULL) {
         netutil_error("dnet: failed to open device %s", ifname);
       }
@@ -1177,6 +1176,7 @@ int raw_socket_or_eth(int sendpref, const char *ifname, devtype iftype,
         e = NULL;
       }
       else {
+        *ethsd = e;
         break;
       }
     }
@@ -1194,8 +1194,8 @@ int raw_socket_or_eth(int sendpref, const char *ifname, devtype iftype,
       }
 #endif
       int sd = netutil_raw_socket(ifname);
-      *rawsd = sd;
       if (sd >= 0) {
+        *rawsd = sd;
         break;
       }
     }

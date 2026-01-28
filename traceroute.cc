@@ -596,13 +596,8 @@ void Probe::send(int rawsd, netutil_eth_t *ethsd, struct timeval *now) {
 
   /* Set up the Ethernet handle if we're using that. */
   if (ethsd != NULL) {
-    if (netutil_eth_datalink(ethsd) == DLT_EN10MB) {
-      memcpy(eth.srcmac, host->target->SrcMACAddress(), 6);
-      memcpy(eth.dstmac, host->target->NextHopMACAddress(), 6);
-    }
-    eth.ethsd = ethsd;
+    ethp = host->target->FillEthNfo(&eth, ethsd);
     eth.devname[0] = '\0';
-    ethp = &eth;
   } else {
     ethp = NULL;
   }

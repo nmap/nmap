@@ -2493,29 +2493,8 @@ size_t FPPacket::getLength() const {
  * Otherwise, pass the source address, the next hop address and the name of
  * the network interface the packet should be injected through. */
 int FPPacket::setEthernet(const Target *target) {
-  const char *devname = target->deviceName();
-  this->link_eth = false;
-  if (devname != NULL) {
-    netutil_eth_t *ethsd = eth_open_cached(devname);
-    if (ethsd == NULL) {
-      error("%s: Failed to open ethernet device (%s)", __func__, devname);
-    }
-    else if (netutil_eth_can_send(ethsd)) {
-      this->link_eth = true;
-      Strncpy(this->eth_hdr.devname, devname, sizeof(this->eth_hdr.devname));
-      if (netutil_eth_datalink(ethsd) == DLT_EN10MB){
-        const u8 *src_mac = target->SrcMACAddress();
-        const u8 *dst_mac = target->NextHopMACAddress();
-        if (src_mac == NULL || dst_mac == NULL) {
-          this->link_eth = false;
-        }
-        else {
-          memcpy(this->eth_hdr.srcmac, src_mac, 6);
-          memcpy(this->eth_hdr.dstmac, dst_mac, 6);
-        }
-      }
-    }
-  }
+  eth_nfo *eth = target->FillEthNfo(&this->eth_hdr, NULL);
+  this->link_eth = (eth != NULL);
 
   if (!this->link_eth) {
    memset(&(this->eth_hdr), 0, sizeof(struct eth_nfo));

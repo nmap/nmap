@@ -970,12 +970,19 @@ UltraProbe *sendNDScanProbe(UltraScanInfo *USI, HostScanStats *hss,
 
   if (USI->ethsd) {
     if (netutil_eth_datalink(USI->ethsd) == DLT_EN10MB) {
+      const u8 *src_mac = hss->target->SrcMACAddress();
+      if (src_mac) {
+        memcpy(eth.srcmac, src_mac, 6);
+      }
+      else {
+        error("%s: Cannot determine source MAC for %s", __func__,
+            hss->target->targetipstr());
+      }
       unsigned char ns_dst_mac[6] = {0x33, 0x33, 0xff};
       ns_dst_mac[3] = ns_dst_ip6.s6_addr[13];
       ns_dst_mac[4] = ns_dst_ip6.s6_addr[14];
       ns_dst_mac[5] = ns_dst_ip6.s6_addr[15];
 
-      memcpy(eth.srcmac, hss->target->SrcMACAddress(), 6);
       memcpy(eth.dstmac, ns_dst_mac, 6);
     }
     eth.ethsd = USI->ethsd;
@@ -1161,13 +1168,8 @@ UltraProbe *sendIPScanProbe(UltraScanInfo *USI, HostScanStats *hss,
   u16 icmp_ident = (get_random_u16() % 0xffff) + 1;
 
   if (USI->ethsd) {
-    if (netutil_eth_datalink(USI->ethsd) == DLT_EN10MB) {
-      memcpy(eth.srcmac, hss->target->SrcMACAddress(), 6);
-      memcpy(eth.dstmac, hss->target->NextHopMACAddress(), 6);
-    }
-    eth.ethsd = USI->ethsd;
+    ethptr = hss->target->FillEthNfo(&eth, USI->ethsd);
     eth.devname[0] = '\0';
-    ethptr = &eth;
   }
 
   if (o.magic_port_set)
