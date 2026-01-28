@@ -453,6 +453,17 @@ int ICMPv4Header::setSum(u16 s){
 } /* End of setSum() */
 
 
+/** Set the ICMP checksum field to a random value that will never
+  * match the correct checksum. This is achieved by computing the correct
+  * checksum first and then XORing it with a random value that can
+  * never be zero. */
+int ICMPv4Header::setSumRandom(){
+  this->setSum();
+  this->h.checksum = this->getSum() ^ (1 + (get_random_u16() % (65535-1)));
+  return OP_SUCCESS;
+} /* End of setSumRandom() */
+
+
 /** Returns the value of the checksum field.
  *  @warning The returned value is in NETWORK byte order, no conversion is
  *  performed */
