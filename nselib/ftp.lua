@@ -34,34 +34,8 @@ connect = function(host, port, opts)
   if not socket then
     return socket, (ERROR_MESSAGES[ret] or 'unspecified error')
   end
-  local buffer = stdnse.make_buffer(socket, crlf_pattern)
-  local pos = 1
-  -- Should we just pass the output of buffer()?
-  local usebuf = false
-  -- Since we already read the first chunk of banner from the socket,
-  -- we have to supply it line-by-line to read_reply.
-  local code, message = read_reply(function()
-      if usebuf then
-        -- done reading the initial banner; pass along the socket buffer.
-        return buffer()
-      end
-      -- Look for CRLF
-      local i, j = ret:find(crlf_pattern, pos)
-      if not i then
-        -- Didn't find it! Grab another chunk (up to CRLF) and return it
-        usebuf = true
-        local chunk = buffer()
-        return ret:sub(pos) .. chunk
-      end
-      local oldpos = pos
-      -- start the next search just after CRLF
-      pos = j + 1
-      if pos >= #ret then
-        -- We consumed the whole thing! Start calling buffer() next.
-        usebuf = true
-      end
-      return ret:sub(oldpos, i - 1)
-    end)
+  local buffer = stdnse.make_buffer(socket, crlf_pattern, ret)
+  local code, message = read_reply(buffer)
   return socket, code, message, buffer
 end
 
