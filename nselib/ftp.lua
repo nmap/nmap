@@ -73,42 +73,36 @@ end
 -- @return numeric code or <code>nil</code>.
 -- @return text reply or error message.
 function read_reply(buffer)
-  local readline
-  local line, err
-  local code, message
-  local _, p, tmp
-
-  line, err = buffer()
+  local line, err = buffer()
   if not line then
     return line, err
   end
 
-  -- Single-line response?
-  code, message = string.match(line, "^(%d%d%d) (.*)$")
-  if code then
-    return tonumber(code), message
+  local code, sep, message = line:match("^(%d%d%d)([- ])(.*)$")
+  if not code then
+    return nil, string.format("Unparseable response: %q", line)
   end
 
-  -- Multi-line response?
-  _, p, code, message = string.find(line, "^(%d%d%d)%-(.*)$")
-  if p then
+  if sep == "-" then
+    -- Multi-line response
+    local prefix = code .. " "
+    local lines = {message}
     while true do
       line, err = buffer()
       if not line then
         return line, err
       end
-      tmp = string.match(line, "^%d%d%d (.*)$")
-      if tmp then
-        message = message .. "\n" .. tmp
+      if line:find(prefix, 1, true) == 1 then
+        -- Last line of the multi-line response
+        table.insert(lines, line:sub(#prefix + 1))
         break
       end
-      message = message .. "\n" .. line
+      table.insert(lines, line)
     end
-
-    return tonumber(code), message
+    message = table.concat(lines, "\n")
   end
 
-  return nil, string.format("Unparseable response: %q", line)
+  return tonumber(code), message
 end
 
 --- Close an FTP command connection
