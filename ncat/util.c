@@ -359,14 +359,14 @@ const char *socktop(const union sockaddr_u *su, socklen_t ss_len)
 #endif
 #ifdef HAVE_LINUX_VM_SOCKETS_H
         case AF_VSOCK:
-            Snprintf(buf, sizeof(buf), "%u:%u", su->vm.svm_cid, su->vm.svm_port);
+            Snprintf(buf, sizeof(buf), "%u", su->vm.svm_cid);
             break;
 #endif
         case AF_INET:
-            Snprintf(buf, sizeof(buf), "%s:%hu", inet_socktop(su), inet_port(su));
+            Snprintf(buf, sizeof(buf), "%s", inet_socktop(su));
             break;
         case AF_INET6:
-            Snprintf(buf, sizeof(buf), "[%s]:%hu", inet_socktop(su), inet_port(su));
+            Snprintf(buf, sizeof(buf), "[%s]", inet_socktop(su));
             break;
         default:
             return NULL;
@@ -457,7 +457,8 @@ int do_listen(int type, int proto, const union sockaddr_u *srcaddr_u)
     }
 #endif
 #endif
-
+    struct sockaddr_in _self;
+    socklen_t struct_len = sizeof(_self);
     sa_len = get_socklen(srcaddr_u);
 
     if (bind(sock, &srcaddr_u->sockaddr, sa_len) < 0) {
@@ -469,7 +470,8 @@ int do_listen(int type, int proto, const union sockaddr_u *srcaddr_u)
         Listen(sock, BACKLOG);
 
     if (o.verbose) {
-        loguser("Listening on %s\n", socktop(srcaddr_u, sa_len));
+        getsockname (sock, (struct sockaddr *) &_self, &struct_len);
+        loguser("Listening on %s:%d\n", socktop(srcaddr_u, sa_len), ntohs(_self.sin_port));
     }
     if (o.test)
         logtest("LISTEN\n");
