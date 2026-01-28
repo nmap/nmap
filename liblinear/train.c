@@ -224,6 +224,7 @@ void parse_command_line(int argc, char **argv, char *input_file_name, char *mode
 	param.weight_label = NULL;
 	param.weight = NULL;
 	param.init_sol = NULL;
+	param.w_recalc = false;
 	flag_cross_validation = 0;
 	flag_C_specified = 0;
 	flag_p_specified = 0;

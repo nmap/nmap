@@ -81,8 +81,7 @@ On Unix systems, type `make' to build the `train', `predict',
 and `svm-scale' programs. Run them without arguments to show the usages.
 
 On other systems, consult `Makefile' to build them (e.g., see
-'Building Windows binaries' in this file) or use the pre-built
-binaries (Windows binaries are in the directory `windows').
+'Building Windows binaries' in this file).
 
 This software uses some level-1 BLAS subroutines. The needed functions are
 included in this package.  If a BLAS library is available on your
@@ -398,6 +397,8 @@ in linear.h, so you can check the version number.
                 double* weight;
                 double p;
                 double *init_sol;
+                int regularize_bias;
+                bool w_recalc;  /* for -s 1, 3; may be extended to -s 12, 13, 21 */
         };
 
     solver_type can be one of L2R_LR, L2R_L2LOSS_SVC_DUAL, L2R_L2LOSS_SVC, L2R_L1LOSS_SVC_DUAL, MCSVM_CS, L1R_L2LOSS_SVC, L1R_LR, L2R_LR_DUAL, L2R_L2LOSS_SVR, L2R_L2LOSS_SVR_DUAL, L2R_L1LOSS_SVR_DUAL, ONECLASS_SVM.
@@ -437,6 +438,16 @@ in linear.h, so you can check the version number.
     init_sol includes the initial weight vectors (supported for only some
     solvers). See the explanation of the vector w in the model
     structure.
+
+    regularize_bias is the flag for bias regularization. By default it is set
+    to be 1. If you don't want to regularize the bias, set it to 0 with
+    specifying the bias in the problem structure to be 1. (DON'T use it unless
+    you know what it is.)
+
+    w_recalc is the flag for recalculating w after optimization
+    with a dual-based solver. This may further reduces the weight density
+    when the data is sparse. The default value is set as false for time
+    efficiency. Currently it only takes effect in -s 1 and 3.
 
     *NOTE* To avoid wrong parameters, check_parameter() should be
     called before train().
@@ -643,11 +654,32 @@ in linear.h, so you can check the version number.
         set_print_string_function(NULL);
     for default printing to stdout.
 
+    Please note that this function is not thread-safe. When multiple threads load or
+    use the same dynamic library (for example, liblinear.so.6), they actually share the
+    same memory space of the dynamic library, which results in all threads modifying
+    the same static function pointer, liblinear_print_string, in linear.cpp when they
+    call this function.
+
+    For example, suppose we have threads A and B. They call this function sequentially
+    and pass their own thread-local print_func into it. After that, they both call (*liblinear_print_string)(str)
+    once. When the last thread finishes setting it (say B), liblinear_print_string
+    is set to B.print_func. Now, if thread A wants to access liblinear_print_string,
+    it is actually accessing B.print_func rather than A.print_func, which is incorrect
+    since we expect to use the functionality of A.print_func.
+
+    Even if A.print_func and B.print_func have identical functionality, it is still risky.
+    Suppose liblinear_print_string is now set to B.print_func, and B deletes B.print_func
+    after finishing its work. Later, thread A calls liblinear_print_string, but the address
+    points to, which is B.print_func, has already been deleted. This invalid memory access
+    will crash the program. To mitigate this issue, in this example, you should ensure that
+    A.print_func and B.print_func remain valid after threads finish their work. For example,
+    in Python, you can assign them as global variables.
+
 Building Windows Binaries
 =========================
 
-Windows binaries are available in the directory `windows'. To re-build
-them via Visual C++, use the following steps:
+Starting from version 2.48, we no longer provide pre-built Windows binaries, 
+to build them via Visual C++, use the following steps:
 
 1. Open a dos command box and change to liblinear directory. If
 environment variables of VC++ have not been set, type

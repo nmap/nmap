@@ -3,9 +3,7 @@ CC ?= gcc
 CFLAGS = -Wall -Wconversion -O3 -fPIC
 LIBS = blas/blas.a
 #LIBS = -lblas
-SHVER = 5
-AR = ar
-RANLIB = ranlib
+SHVER = 6
 OS = $(shell uname)
 ifeq ($(OS),Darwin)
 	SHARED_LIB_FLAG = -dynamiclib -Wl,-install_name,liblinear.so.$(SHVER)
@@ -17,10 +15,6 @@ all: train predict
 
 lib: linear.o newton.o blas/blas.a
 	$(CXX) $(SHARED_LIB_FLAG) linear.o newton.o blas/blas.a -o liblinear.so.$(SHVER)
-
-liblinear.a: linear.o newton.o blas/blas.a
-	$(AR) rcv liblinear.a linear.o newton.o blas/*.o
-	$(RANLIB) liblinear.a
 
 train: newton.o linear.o train.c blas/blas.a
 	$(CXX) $(CFLAGS) -o train train.c newton.o linear.o $(LIBS)
