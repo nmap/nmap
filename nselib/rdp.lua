@@ -179,6 +179,10 @@ Packet = {
       local block_type, block_len
       while userdata:len() > pos do
         block_type, block_len  = string.unpack("<I2I2", userdata, pos)
+        if block_len == 0 then
+          -- Workaround to prevent getting stuck (https://github.com/nmap/nmap/issues/1737)
+          block_len = 1
+        end
         if block_type == 0x0c01 then
           -- 2.2.1.42 Server Core Data - TS_UD_SC_CORE
           local proto_ver = string.unpack("<I4",userdata, pos + 4)
