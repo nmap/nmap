@@ -791,11 +791,18 @@ local function find_ciphers_group(host, port, protocol, group, scores)
                 scores.warnings["Certificate RSA exponent is 1, score capped at F"] = true
               end
             end
+            local letter_grade = letter_grade(score_cipher(kex_strength, info))
+            -- Cap to B if not using Forward Secrecy or AEAD (Changes in 2009p)
+            if letter_grade == "A" then
+              if not kex.pfs or info.mode == "CBC" then
+                letter_grade = "B"
+              end
+            end
             scores[name] = {
               cipher_strength=info.size,
               kex_strength = kex_strength,
               extra = extra,
-              letter_grade = letter_grade(score_cipher(kex_strength, info))
+              letter_grade = letter_grade
             }
           end
         end
