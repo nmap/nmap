@@ -60,7 +60,15 @@ Driver = {
     if not realsocket then
       return false, brute.Error:new( "Couldn't connect to host: " .. (code or message) )
     end
+    if not code then
+      realsocket:close()
+      return false, brute.Error:new( "Invalid response from host: " .. message)
+    end
     self.socket.socket = realsocket
+    if not (code >= 200 and code < 400) then
+      ftp.close(self.socket)
+      return false, brute.Error:new( "Error response from host: " .. code)
+    end
     return true
   end,
 
