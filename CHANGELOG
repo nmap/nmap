@@ -6,7 +6,7 @@ o [GH#3280] Fix a performance regression in reverse-DNS in Nmap 7.98. The fix
 o [GH#3214] Improve compatibility of build process on various platforms and add
   multiplatform autobuilds in Github workflow. [Jordan Ritter]
 
-o [GH#2183][GH#3239] Script hostmap-crtsh now reports only true subdomains
+o [NSE][GH#2183][GH#3239] Script hostmap-crtsh now reports only true subdomains
   of a given target hostname by default. In the past, it was reporting any
   DNS name that included the target hostname as a substring (but not
   necessarily as a suffix). The old behavior can be enabled by setting script
@@ -15,14 +15,14 @@ o [GH#2183][GH#3239] Script hostmap-crtsh now reports only true subdomains
 o [NSE][GH#3253] Function stdnse.make_buffer now accepts an extra parameter
   that allows preloading the newly created buffer with data. [nnposter]
 
-o [GH#3191][GH#3218] Script http-internal-ip-disclosure has been enhanced,
+o [NSE][GH#3191][GH#3218] Script http-internal-ip-disclosure has been enhanced,
   including added support for IPv6 and HTTPS and more accurate processing
   of target responses. [nnposter]
 
-o [GH#3194] RPC-based scripts were sporadically failing due to privileged
+o [NSE][GH#3194] RPC-based scripts were sporadically failing due to privileged
   port conflicts. [nnposter]
 
-o [GH#3196] Script rlogin-brute was sporadically failing due to using
+o [NSE][GH#3196] Script rlogin-brute was sporadically failing due to using
   an off-by-one range for privileged ports and not handling potential
   port conflicts. [nnposter]
 
