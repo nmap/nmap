@@ -115,11 +115,14 @@ end
 
 -- Should we try STARTTLS based on this error?
 local function should_try_ssl(code, message)
-  return code and code >= 400 and (
-        message:match('[Ss][Ss][Ll]') or
-        message:match('[Tt][Ll][Ss]') or
-        message:match('[Ss][Ee][Cc][Uu][Rr]')
-        )
+  if not code or code < 400 then return false end
+  message = message:lower()
+  return message:find("ssl", 1, true) or
+         message:find("tls", 1, true) or
+         message:find("secur", 1, true) or
+         -- z/OS Communications Server
+         -- https://www.ibm.com/docs/en/zos/2.4.0?topic=codes-534-reply
+         message:find("server requires authentication before", 1, true)
 end
 
 -- Try to reconnect over STARTTLS.
