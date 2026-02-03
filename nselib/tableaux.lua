@@ -80,10 +80,10 @@ end
 -- @return A table of keys
 function keys(t)
   local ret = {}
-  local k, v = next(t)
+  local k = next(t)
   while k ~= nil do
     ret[#ret+1] = k
-    k, v = next(t, k)
+    k = next(t, k)
   end
   return ret
 end
