@@ -19,15 +19,15 @@ local tcopy_local
 -- @param t the table to copy
 -- @return a deep copy of the table
 function tcopy (t)
-  local tc = {};
+  local tc = {}
   for k,v in pairs(t) do
     if type(v) == "table" then
-      tc[k] = tcopy_local(v);
+      tc[k] = tcopy_local(v)
     else
-      tc[k] = v;
+      tc[k] = v
     end
   end
-  return tc;
+  return tc
 end
 tcopy_local = tcopy
 
