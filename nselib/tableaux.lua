@@ -41,7 +41,7 @@ tcopy_local = tcopy
 function shallow_tcopy(t)
   local k = next(t)
   local out = {}
-  while k do
+  while k ~= nil do
     out[k] = t[k]
     k = next(t, k)
   end
