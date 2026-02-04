@@ -20,12 +20,14 @@ local tcopy_local
 -- @return a deep copy of the table
 function tcopy (t)
   local tc = {}
-  for k,v in pairs(t) do
+  local k, v = next(t)
+  while k ~= nil do
     if type(v) == "table" then
       tc[k] = tcopy_local(v)
     else
       tc[k] = v
     end
+    k, v = next(t, k)
   end
   return tc
 end
