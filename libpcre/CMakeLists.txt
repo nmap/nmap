@@ -823,7 +823,6 @@ set(
   src/pcre2_error.c
   src/pcre2_extuni.c
   src/pcre2_find_bracket.c
-  src/pcre2_jit_compile.c
   src/pcre2_maketables.c
   src/pcre2_match.c
   src/pcre2_match_data.c
