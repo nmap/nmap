@@ -104,6 +104,8 @@ This script was based on http-enum.
 --   * added ability to select fingerprints by their name
 -- 2020-07-11 nnposter
 --   * added reporting of all matched fingerprints when verbosity is increased
+-- 2025-11-12 nnposter
+--   * added enforcement of mandatory fingerprint elements
 ---
 
 author = {"Paulino Calderon <calderon@websec.mx>", "nnposter"}
@@ -113,71 +115,138 @@ categories = {"discovery", "auth", "intrusive"}
 portrule = shortport.http
 
 ---
---validate_fingerprints(fingerprints)
---Returns an error string if there is something wrong with
---fingerprint table.
---Modified version of http-enums validation code
---@param fingerprints Fingerprint table
---@return Error string if its an invalid fingerprint table
+-- Tests if a given argument is an array, namely that its type is table
+-- and that its indices represent an uninterrupted sequence of integers,
+-- starting with 1. Empty table is considered to be an array.
+-- @param tbl Argument to test
+-- @return verdict (true or false)
 ---
-local function validate_fingerprints(fingerprints)
+local function is_array (tbl)
+  if type(tbl) ~= "table" then return false end
 
-  for i, fingerprint in pairs(fingerprints) do
-    if(type(i) ~= 'number') then
-      return "The 'fingerprints' table is an array, not a table; all indexes should be numeric"
+  local max, count = 0, 0
+  for k in next, tbl do
+    -- keys must be positive integers
+    if type(k) ~= "number" or k <= 0 or k % 1 ~= 0 then
+      return false
     end
-    -- Validate paths
-    if(not(fingerprint.paths) or
-      (type(fingerprint.paths) ~= 'table' and type(fingerprint.paths) ~= 'string') or
-      (type(fingerprint.paths) == 'table' and #fingerprint.paths == 0)) then
-      return "Invalid path found in fingerprint entry #" .. i
-    end
-    if(type(fingerprint.paths) == 'string') then
-      fingerprint.paths = {fingerprint.paths}
-    end
-    for i, path in pairs(fingerprint.paths) do
-      -- Validate index
-      if(type(i) ~= 'number') then
-        return "The 'paths' table is an array, not a table; all indexes should be numeric"
-      end
-      -- Convert the path to a table if it's a string
-      if(type(path) == 'string') then
-        fingerprint.paths[i] = {path=fingerprint.paths[i]}
-        path = fingerprint.paths[i]
-      end
-      -- Make sure the paths table has a 'path'
-      if(not(path['path'])) then
-        return "The 'paths' table requires each element to have a 'path'."
-      end
-    end
-    -- Check login combos
-    for i, combo in pairs(fingerprint.login_combos) do
-      -- Validate index
-      if(type(i) ~= 'number') then
-        return "The 'login_combos' table is an array, not a table; all indexes should be numeric"
-      end
-      -- Make sure the login_combos table has at least one login combo
-      if(not(combo['username']) or not(combo["password"])) then
-        return "The 'login_combos' table requires each element to have a 'username' and 'password'."
-      end
-    end
+    if k > max then max = k end
+    count = count + 1
+  end
 
-     -- Make sure they include the login function
-    if(type(fingerprint.login_check) ~= "function") then
-      return "Missing or invalid login_check function in entry #"..i
+  -- there must be no index gaps
+  return count == max
+end
+
+local fingerprint_checks = stdnse.output_table()
+
+fingerprint_checks.struct = function (fpr)
+  if type(fpr) ~= "table" then
+    return false, "Fingerprint is not a table"
+  end
+  return true, fpr
+end
+
+fingerprint_checks.name = function (fpr)
+  local name = fpr.name
+  if type(name) ~= "string" then
+     return false, "Missing or invalid name"
+  end
+  return true, name
+end
+
+fingerprint_checks.category = function (fpr)
+  local category = fpr.category
+  if type(category) ~= "string" then
+     return false, "Missing or invalid category"
+  end
+  return true, category
+end
+
+fingerprint_checks.paths = function (fpr)
+  local paths = fpr.paths
+  if type(paths) == "string" then
+    paths = {paths}
+    fpr.paths = paths
+  end
+  if not is_array(paths) then
+    return false, "Invalid or missing 'paths' array"
+  end
+  if #paths == 0 then
+    return false, "Empty 'paths' array"
+  end
+  for i, path in ipairs(paths) do
+    -- Convert the path to a table if necessary
+    if type(path) == "string" then
+      path = {['path'] = path}
+      paths[i] = path
     end
-     -- Make sure that the target validation is a function
-    if(fingerprint.target_check and type(fingerprint.target_check) ~= "function") then
-      return "Invalid target_check function in entry #"..i
+    if type(path) ~= "table" then
+      return false, ("'paths' entry #%d is not a table"):format(i)
     end
-      -- Are they missing any fields?
-    if(fingerprint.category and type(fingerprint.category) ~= "string") then
-      return "Missing or invalid category in entry #"..i
-    end
-    if(fingerprint.name and type(fingerprint.name) ~= "string") then
-      return "Missing or invalid name in entry #"..i
+    if type(path.path) ~= "string" then
+      return false, ("'paths' entry #%d is missing element 'path'"):format(i)
     end
   end
+  return true, paths
+end
+
+fingerprint_checks.combos = function (fpr)
+  local combos = fpr.login_combos
+  if not is_array(combos) then
+    return false, "Invalid or missing 'login_combos' array"
+  end
+  if #combos == 0 then
+    return false, "Empty 'login_combos' array"
+  end
+  for i, combo in pairs(combos) do
+    if type(combo) ~= "table" then
+      return false, ("'login_combos' entry #%d is not a table"):format(i)
+    end
+    if not (type(combo.username) == "string"
+        and type(combo.password) == "string") then
+      return false, ("'login_combos' entry #%d requires to have a 'username' and 'password'"):format(i)
+    end
+  end
+return true, combos
+end
+
+fingerprint_checks.target_check = function (fpr)
+  local target_check = fpr.target_check
+  if target_check and type(target_check) ~= "function" then
+    return "Invalid target_check function"
+  end
+  return true, target_check
+end
+
+fingerprint_checks.login_check = function (fpr)
+  local login_check = fpr.login_check
+  if type(login_check) ~= "function" then
+    return "Missing or invalid login_check function"
+  end
+  return true, login_check
+end
+
+---
+-- Validates that a given argument is a properly structed collection
+-- of fingerprints.
+-- @param fingerprints Fingerprint table
+-- @return Verdict (true or false)
+-- @return Error string describing the first encountered irregularity
+---
+local function validate_fingerprints (fingerprints)
+  if not is_array(fingerprints) then
+    return false, "Invalid or missing 'fingerprints' array"
+  end
+  for i, fpr in ipairs(fingerprints) do
+    for _, check in pairs(fingerprint_checks) do
+      local status, err = check(fpr)
+      if not status then
+        return status, ("Fingerprint #%d: %s"):format(i, err)
+      end
+    end
+  end
+  return true
 end
 
 -- Simplify unlocking the mutex, ensuring we don't try to load the fingerprints
@@ -239,9 +308,9 @@ local function load_fingerprints(filename, catlist, namelist)
   fingerprints = env.fingerprints
 
   -- Validate fingerprints
-  local valid_flag = validate_fingerprints(fingerprints)
-  if type(valid_flag) == "string" then
-    return bad_prints(mutex, valid_flag)
+  local status, err = validate_fingerprints(fingerprints)
+  if not status then
+    return bad_prints(mutex, err)
   end
 
   -- Category filter
@@ -290,7 +359,7 @@ local function load_fingerprints(filename, catlist, namelist)
     return bad_prints(mutex, "No fingerprints were loaded after processing ".. filename)
   end
 
-  -- Cache the fingerprints for other scripts, so we aren't reading the files every time
+  -- Cache the fingerprints for other invocations, so we aren't reading the files every time
   nmap.registry.http_default_accounts_fingerprints = fingerprints
   mutex "done"
   return true, fingerprints
