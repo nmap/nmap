@@ -366,6 +366,29 @@ local function load_fingerprints(filename, catlist, namelist)
 end
 
 ---
+-- Generates a default target_check function, which will be used with
+-- fingerprints that lack their own. This default check is just testing
+-- for existence of the probe path on the target.
+-- @param host table as received by the scripts action method
+-- @param port table as received by the scripts action method
+-- @return target_check function
+---
+local function target_check_404 (host, port)
+  -- Determine the target's response to "404" HTTP requests
+  local status_404, result_404, known_404 = http.identify_404(host, port)
+  -- To reduce false-positives, the default target_check will fail if "404"
+  -- responses from the target either cannot be properly identified or they
+  -- have HTTP status 200
+  if not status_404 or result_404 == 200 then
+    return function () return false end
+  end
+  -- The default target_check is the existence of the probe path on the target
+  return function (_host, _port, path, response)
+           return http.page_exists(response, result_404, known_404, path, true)
+         end
+end
+
+---
 -- format_basepath(basepath)
 -- Modifies a given path so that it can be later prepended to another absolute
 -- path to form a new absolute path.
@@ -444,23 +467,22 @@ action = function(host, port)
   local output = stdnse.output_table()
   local text_output = {}
 
-  -- Determine the target's response to "404" HTTP requests.
-  local status_404, result_404, known_404 = http.identify_404(host,port)
-  -- The default target_check is the existence of the probe path on the target.
-  -- To reduce false-positives, fingerprints that lack target_check() will not
-  -- be tested on targets on which a "404" response is 200.
-  local default_target_check =
-    function (host, port, path, response)
-      if status_404 and result_404 == 200 then return false end
-      return http.page_exists(response, result_404, known_404, path, true)
-    end
-
-  --Load fingerprint data or abort
+  -- Load fingerprint data or abort
   local status, fingerprints = load_fingerprints(fingerprint_filename, catlist, namelist)
-  if(not(status)) then
+  if not status then
     return stdnse.format_output(false, fingerprints)
   end
   stdnse.debug(1, "%d fingerprints were loaded", #fingerprints)
+
+  -- Build the default target_check function
+  -- This requires extra web requests to the target so we do it only if needed
+  local default_target_check = nil
+  for _, fpr in ipairs(fingerprints) do
+    if not fpr.target_check then
+      default_target_check = target_check_404(host, port)
+      break
+    end
+  end
 
   -- Format basepath: Removes or adds slashes
   stdnse.debug(1, "Trying known locations under path '%s' (change with '%s.basepath' argument)", basepath, SCRIPT_NAME)
