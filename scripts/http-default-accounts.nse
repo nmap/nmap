@@ -478,7 +478,8 @@ end
 
 
 action = function(host, port)
-  local fingerprint_filename = stdnse.get_script_args("http-default-accounts.fingerprintfile") or "http-default-accounts-fingerprints.lua"
+  local fingerprint_filename = stdnse.get_script_args("http-default-accounts.fingerprintfile")
+                               or "http-default-accounts-fingerprints.lua"
   local catlist = stdnse.get_script_args("http-default-accounts.category")
   local namelist = stdnse.get_script_args("http-default-accounts.name")
   local basepath = stdnse.get_script_args("http-default-accounts.basepath") or "/"
