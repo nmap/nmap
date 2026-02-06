@@ -462,13 +462,13 @@ action = function(host, port)
   end
   stdnse.debug(1, "%d fingerprints were loaded", #fingerprints)
 
-  --Format basepath: Removes or adds slashs
+  -- Format basepath: Removes or adds slashes
+  stdnse.debug(1, "Trying known locations under path '%s' (change with '%s.basepath' argument)", basepath, SCRIPT_NAME)
   basepath = format_basepath(basepath)
 
   -- Add requests to the http pipeline
   local pathmap = {}
   local requests = nil
-  stdnse.debug(1, "Trying known locations under path '%s' (change with '%s.basepath' argument)", basepath, SCRIPT_NAME)
   for _, fingerprint in ipairs(fingerprints) do
     for _, probe in ipairs(fingerprint.paths) do
       -- Multiple fingerprints may share probe paths so only unique paths will
