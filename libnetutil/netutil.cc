@@ -3382,7 +3382,7 @@ static struct interface_info *find_loopback_iface(struct interface_info *ifaces,
 /* Get the source address for routing to dst by creating a socket and asking the
    operating system for the local address. */
 static int get_srcaddr(const struct sockaddr_storage *dst,
-  struct sockaddr_storage *src)
+  struct sockaddr_storage *src, const char *device)
 {
   static const unsigned short DUMMY_PORT = 1234;
   struct sockaddr_storage dst_dummy;
@@ -3405,6 +3405,10 @@ static int get_srcaddr(const struct sockaddr_storage *dst,
     dst_dummy_len = sizeof(*sin6);
   } else {
     goto bail;
+  }
+
+  if (device) {
+    socket_bindtodevice(fd, device);
   }
 
   rc = connect(fd, (struct sockaddr *) &dst_dummy, dst_dummy_len);
@@ -3524,7 +3528,7 @@ static int route_dst_generic(const struct sockaddr_storage *dst,
     rnfo->direct_connect = 1;
     /* But the source address we want to use is the target address. */
     if (!spoofss) {
-      if (get_srcaddr(dst, &rnfo->srcaddr) == -1)
+      if (get_srcaddr(dst, &rnfo->srcaddr, device) == -1)
         rnfo->srcaddr = rnfo->ii.addr;
     }
 
@@ -3552,7 +3556,9 @@ static int route_dst_generic(const struct sockaddr_storage *dst,
       sockaddr_equal(&routes[i].gw, &routes[i].device->addr) ||
       sockaddr_equal(&routes[i].gw, dst));
     if (!spoofss) {
-      if (get_srcaddr(dst, &rnfo->srcaddr) == -1)
+#ifdef SO_BINDTODEVICE
+      if (get_srcaddr(dst, &rnfo->srcaddr, device) == -1)
+#endif
         rnfo->srcaddr = rnfo->ii.addr;
     }
     rnfo->nexthop = routes[i].gw;
@@ -3573,7 +3579,9 @@ static int route_dst_generic(const struct sockaddr_storage *dst,
     rnfo->ii = ifaces[i];
     rnfo->direct_connect = 1;
     if (!spoofss) {
-      if (get_srcaddr(dst, &rnfo->srcaddr) == -1)
+#ifdef SO_BINDTODEVICE
+      if (get_srcaddr(dst, &rnfo->srcaddr, device) == -1)
+#endif
         rnfo->srcaddr = rnfo->ii.addr;
     }
 
