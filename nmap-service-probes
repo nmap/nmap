@@ -5277,8 +5277,11 @@ match zeo-monitor m|^ZEO monitor server version ([\w._-]+)\n.*\n\nStorage: \d+\n
 match zos-commserver m|^EZY1315E \d\d/\d\d/\d\d \d\d:\d\d:\d\d INVALID TRANID=\r\n\r\n PARTNER INET ADDR=[\d.]+ PORT=   \d+                                      | p|IBM z/OS Communications Server| o|z/OS| cpe:/o:ibm:z%2fos/
 
 # http://rfc.zeromq.org/spec:15
-# This is a backwards-compatible handshake
-match zmtp m|^\xff\0\0\0\0\0\0\0\x01\x7f$| p/ZeroMQ ZMTP 2.0/
+# ZMTP signature: 0xFF + 8 padding bytes + 0x7F. Padding may contain identity
+# length for backward compat (can be 0x0A = \n, so 's' flag is required).
+# Original match required exactly 10 bytes ($), but 2.0 servers send more
+# (revision + socket-type + identity frame). Use 's' flag for \n in padding.
+match zmtp m|^\xff.{8}\x7f|s p/ZeroMQ ZMTP/
 
 ##############################NEXT PROBE##############################
 # ZMTP 3.x (ZeroMQ Message Transport Protocol)
@@ -5291,7 +5294,8 @@ ports 41459,50051,56441,30000-65535
 
 # ZMTP response: 64-byte greeting starting with signature 0xFF...0x7F
 # Catches all ZMTP versions (2.0, 3.0, 3.1+). NSE script handles detailed parsing.
-match zmtp m|^\xff.{8}\x7f| p/ZeroMQ ZMTP/
+# 's' flag: padding bytes may contain 0x0A (\n) when identity length == 10.
+match zmtp m|^\xff.{8}\x7f|s p/ZeroMQ ZMTP/
 
 # http://www.space-walrus.com/games/Minebuilder
 # Very general, so leaving it here at the end

@@ -296,12 +296,13 @@ action = function(host, port)
     return nil
   end
 
-  -- Receive at least the 10-byte signature.
-  -- For ZMTP 3.x we typically get 64+ bytes, for 2.0 we get ~14 bytes.
+  -- Receive response. We ask for at least 10 bytes (the signature).
+  -- ZMTP 3.x servers typically send 64+ bytes, 2.0 servers send ~14 bytes.
+  -- CURVE/PLAIN servers may send only 10 bytes initially (partial greeting).
   local response
   status, response = socket:receive_bytes(10)
 
-  if not status or #response < 11 then
+  if not status or #response < 10 then
     socket:close()
     stdnse.debug1("No valid response received")
     return nil
@@ -317,27 +318,41 @@ action = function(host, port)
     return nil
   end
 
+  -- If we only got the 10-byte signature (partial greeting from CURVE/PLAIN
+  -- servers), try to receive more bytes for version info.
+  if #response == 10 then
+    stdnse.debug1("Got only signature (10 bytes), waiting for version...")
+    local s, more = socket:receive_bytes(1)
+    if s and more then
+      response = response .. more
+    end
+  end
+
   local output = stdnse.output_table()
   output.protocol = "ZMTP"
 
-  local major = string.byte(response, 11)
-
-  if major >= 3 then
-    -- ZMTP 3.x: ensure we have the full 64-byte greeting
-    if #response < 64 then
-      local s, more = socket:receive_bytes(64 - #response)
-      if s and more then
-        response = response .. more
-      end
-    end
-    parse_zmtp3(response, socket, output)
-  elseif major == 1 or major == 2 then
-    -- ZMTP 2.0 (revision byte 0x01) or ZMTP 2.1 (0x02)
-    parse_zmtp2(response, output)
+  if #response < 11 then
+    -- Only got the signature, no version byte. Report as ZMTP detected.
+    stdnse.debug1("ZMTP signature confirmed but no version received (%d bytes)", #response)
   else
-    -- Unknown version, report what we know
-    output.version = string.format("%d.0", major)
-    stdnse.debug1("Unknown ZMTP major version: %d", major)
+    local major = string.byte(response, 11)
+
+    if major >= 3 then
+      -- ZMTP 3.x: try to get the full 64-byte greeting
+      if #response < 64 then
+        local s, more = socket:receive_bytes(1)
+        if s and more then
+          response = response .. more
+        end
+      end
+      parse_zmtp3(response, socket, output)
+    elseif major == 1 or major == 2 then
+      -- ZMTP 2.0 (revision byte 0x01) or ZMTP 2.1 (0x02)
+      parse_zmtp2(response, output)
+    else
+      output.version = string.format("%d.0", major)
+      stdnse.debug1("Unknown ZMTP major version: %d", major)
+    end
   end
 
   socket:close()
