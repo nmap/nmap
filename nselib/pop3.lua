@@ -31,7 +31,7 @@ local err = {
 -- Check whether a POP3 response indicates success.
 -- @param line POP3 response line
 -- @return true if response starts with "+OK"
-local function stat(line)
+function stat(line)
   return type(line) == "string" and line:match("^%+OK")
 end
 
