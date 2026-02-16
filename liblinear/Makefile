@@ -33,5 +33,4 @@ blas/blas.a: blas/*.c blas/*.h
 
 clean:
 	$(MAKE) -C blas clean
-	$(MAKE) -C matlab clean
 	rm -f *~ newton.o linear.o train predict liblinear.so.$(SHVER)
