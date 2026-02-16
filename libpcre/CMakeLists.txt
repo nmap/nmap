@@ -411,8 +411,6 @@ set(PCRE2_NEVER_BACKSLASH_C OFF CACHE BOOL "If ON, backslash-C (upper case C) is
 set(PCRE2_SUPPORT_VALGRIND OFF CACHE BOOL "Enable Valgrind support.")
 
 option(PCRE2_SHOW_REPORT "Show the final configuration report" ON)
-option(PCRE2_BUILD_PCRE2GREP "Build pcre2grep" ON)
-option(PCRE2_BUILD_TESTS "Build the tests" ON)
 
 set(
   PCRE2_INSTALL_CMAKEDIR
@@ -488,11 +486,6 @@ endif()
 
 if(PCRE2_BUILD_PCRE2_32)
   set(SUPPORT_PCRE2_32 1)
-endif()
-
-if(PCRE2_BUILD_PCRE2GREP AND NOT PCRE2_BUILD_PCRE2_8)
-  message(STATUS "** PCRE2_BUILD_PCRE2_8 must be enabled for the pcre2grep program")
-  set(PCRE2_BUILD_PCRE2GREP OFF)
 endif()
 
 if(PCRE2_SUPPORT_LIBBZ2)
@@ -1228,196 +1221,6 @@ configure_file(pcre2-config.in pcre2-config @ONLY NEWLINE_STYLE LF)
 
 # Executables
 
-if(PCRE2_BUILD_PCRE2GREP)
-  add_executable(pcre2grep src/pcre2grep.c)
-  set_property(TARGET pcre2grep PROPERTY COMPILE_DEFINITIONS PCRE2_CODE_UNIT_WIDTH=8)
-  list(APPEND TARGETS pcre2grep)
-  target_link_libraries(pcre2grep pcre2-posix ${PCRE2GREP_LIBS})
-endif()
-
-# Testing
-
-if(PCRE2_BUILD_TESTS)
-  enable_testing()
-
-  set(PCRE2TEST_SOURCES src/pcre2test.c)
-
-  set(PCRE2TEST_LINKER_FLAGS "")
-  if(MSVC)
-    # This is needed to avoid a stack overflow error in the standard tests. The
-    # flag should be indicated with a forward-slash instead of a hyphen, but
-    # then CMake treats it as a file path.
-    set(PCRE2TEST_LINKER_FLAGS -STACK:2500000)
-  endif()
-
-  add_executable(pcre2test ${PCRE2TEST_SOURCES})
-  list(APPEND TARGETS pcre2test)
-  if(PCRE2_BUILD_PCRE2_8)
-    list(APPEND PCRE2TEST_LIBS pcre2-posix pcre2-8)
-  endif()
-  if(PCRE2_BUILD_PCRE2_16)
-    list(APPEND PCRE2TEST_LIBS pcre2-16)
-  endif()
-  if(PCRE2_BUILD_PCRE2_32)
-    list(APPEND PCRE2TEST_LIBS pcre2-32)
-  endif()
-  target_link_libraries(pcre2test ${PCRE2TEST_LIBS} ${PCRE2TEST_LINKER_FLAGS})
-
-  if(PCRE2_BUILD_PCRE2_8)
-    add_executable(pcre2posix_test src/pcre2posix_test.c)
-    target_link_libraries(pcre2posix_test pcre2-posix pcre2-8)
-  endif()
-
-  if(PCRE2_SUPPORT_JIT)
-    add_executable(pcre2_jit_test src/pcre2_jit_test.c)
-    set(PCRE2_JIT_TEST_LIBS)
-    if(PCRE2_BUILD_PCRE2_8)
-      list(APPEND PCRE2_JIT_TEST_LIBS pcre2-8)
-    endif()
-    if(PCRE2_BUILD_PCRE2_16)
-      list(APPEND PCRE2_JIT_TEST_LIBS pcre2-16)
-    endif()
-    if(PCRE2_BUILD_PCRE2_32)
-      list(APPEND PCRE2_JIT_TEST_LIBS pcre2-32)
-    endif()
-    target_link_libraries(pcre2_jit_test ${PCRE2_JIT_TEST_LIBS})
-  endif()
-
-  # =================================================
-  # Write out a CTest configuration file
-  #
-  file(
-    WRITE
-    ${PROJECT_BINARY_DIR}/CTestCustom.ctest
-    "# This is a generated file.
-MESSAGE(\"When testing is complete, review test output in the
-\\\"${PROJECT_BINARY_DIR}/Testing/Temporary\\\" folder.\")
-MESSAGE(\" \")
-"
-  )
-
-  file(
-    WRITE
-    ${PROJECT_BINARY_DIR}/pcre2_test.sh
-    "#! /bin/sh
-# This is a generated file.
-srcdir=${PROJECT_SOURCE_DIR}
-pcre2test=${PROJECT_BINARY_DIR}/pcre2test
-test -z \"$CMAKE_CONFIG_TYPE\" || pcre2test=${PROJECT_BINARY_DIR}/$CMAKE_CONFIG_TYPE/pcre2test
-. ${PROJECT_SOURCE_DIR}/RunTest
-if test \"$?\" != \"0\"; then exit 1; fi
-# End
-"
-  )
-
-  if(UNIX)
-    add_test(pcre2_test sh ${PROJECT_BINARY_DIR}/pcre2_test.sh)
-  endif()
-
-  if(PCRE2_BUILD_PCRE2GREP)
-    file(
-      WRITE
-      ${PROJECT_BINARY_DIR}/pcre2_grep_test.sh
-      "#! /bin/sh
-# This is a generated file.
-srcdir=${PROJECT_SOURCE_DIR}
-pcre2grep=${PROJECT_BINARY_DIR}/pcre2grep
-test -z \"$CMAKE_CONFIG_TYPE\" || pcre2grep=${PROJECT_BINARY_DIR}/$CMAKE_CONFIG_TYPE/pcre2grep
-pcre2test=${PROJECT_BINARY_DIR}/pcre2test
-test -z \"$CMAKE_CONFIG_TYPE\" || pcre2test=${PROJECT_BINARY_DIR}/$CMAKE_CONFIG_TYPE/pcre2test
-. ${PROJECT_SOURCE_DIR}/RunGrepTest
-if test \"$?\" != \"0\"; then exit 1; fi
-# End
-"
-    )
-
-    if(UNIX)
-      add_test(pcre2_grep_test sh ${PROJECT_BINARY_DIR}/pcre2_grep_test.sh)
-
-      if(PCRE2_EBCDIC)
-        # The grep tests currently fail in EBCDIC mode because the test data
-        # files are in ASCII. This could be fixed properly, but for now, we
-        # have very few EBCDIC users and the pcre2grep utility is hardly even
-        # part of the official project artifacts.
-        set_property(TEST pcre2_grep_test PROPERTY WILL_FAIL TRUE)
-      endif()
-    endif()
-  endif()
-
-  if(WIN32)
-    # Provide environment for executing the bat file version of RunTest
-    file(TO_NATIVE_PATH ${PROJECT_SOURCE_DIR} winsrc)
-    file(TO_NATIVE_PATH ${PROJECT_BINARY_DIR} winbin)
-
-    file(
-      WRITE
-      ${PROJECT_BINARY_DIR}/pcre2_test.bat
-      "\@REM This is a generated file.
-\@echo off
-setlocal
-SET srcdir=\"${winsrc}\"
-SET pcre2test=\"${winbin}\\pcre2test.exe\"
-if not [%CMAKE_CONFIG_TYPE%]==[] SET pcre2test=\"${winbin}\\%CMAKE_CONFIG_TYPE%\\pcre2test.exe\"
-call %srcdir%\\RunTest.bat
-if errorlevel 1 exit /b 1
-echo RunTest.bat tests successfully completed
-"
-    )
-
-    add_test(NAME pcre2_test_bat COMMAND pcre2_test.bat)
-    set_tests_properties(pcre2_test_bat PROPERTIES PASS_REGULAR_EXPRESSION "RunTest\\.bat tests successfully completed")
-
-    if(PCRE2_BUILD_PCRE2GREP)
-      file(
-        WRITE
-        ${PROJECT_BINARY_DIR}/pcre2_grep_test.bat
-        "\@REM This is a generated file.
-\@echo off
-setlocal
-SET srcdir=\"${winsrc}\"
-SET pcre2test=\"${winbin}\\pcre2test.exe\"
-if not [%CMAKE_CONFIG_TYPE%]==[] SET pcre2test=\"${winbin}\\%CMAKE_CONFIG_TYPE%\\pcre2test.exe\"
-SET pcre2grep=\"${winbin}\\pcre2grep.exe\"
-if not [%CMAKE_CONFIG_TYPE%]==[] SET pcre2grep=\"${winbin}\\%CMAKE_CONFIG_TYPE%\\pcre2grep.exe\"
-call %srcdir%\\RunGrepTest.bat
-if errorlevel 1 exit /b 1
-echo RunGrepTest.bat tests successfully completed
-"
-      )
-
-      add_test(NAME pcre2_grep_test_bat COMMAND pcre2_grep_test.bat)
-      set_tests_properties(
-        pcre2_grep_test_bat
-        PROPERTIES PASS_REGULAR_EXPRESSION "RunGrepTest\\.bat tests successfully completed"
-      )
-    endif()
-
-    if(DEFINED ENV{OSTYPE})
-      if("$ENV{OSTYPE}" STREQUAL "msys")
-        set(MSYS2 TRUE)
-      endif()
-    endif()
-    if(MSYS2)
-      # Both the sh and bat file versions of RunTest are run if make test is used
-      # in msys
-      add_test(pcre2_test_sh sh.exe ${PROJECT_BINARY_DIR}/pcre2_test.sh)
-      if(PCRE2_BUILD_PCRE2GREP)
-        add_test(pcre2_grep_test sh.exe ${PROJECT_BINARY_DIR}/pcre2_grep_test.sh)
-      endif()
-    endif()
-  endif()
-
-  # Changed to accommodate testing whichever location was just built
-
-  if(PCRE2_SUPPORT_JIT)
-    add_test(pcre2_jit_test pcre2_jit_test)
-  endif()
-
-  if(PCRE2_BUILD_PCRE2_8)
-    add_test(pcre2posix_test pcre2posix_test)
-  endif()
-endif()
-
 # Installation
 
 set(CMAKE_INSTALL_ALWAYS 1)
@@ -1561,14 +1364,11 @@ if(PCRE2_SHOW_REPORT)
   endif()
   message(STATUS "  Build static libs ................. : ${BUILD_STATIC_LIBS}")
   message(STATUS "      with PIC enabled .............. : ${PCRE2_STATIC_PIC}")
-  message(STATUS "  Build pcre2grep ................... : ${PCRE2_BUILD_PCRE2GREP}")
   message(STATUS "  Enable JIT in pcre2grep ........... : ${PCRE2GREP_SUPPORT_JIT}")
   message(STATUS "  Enable callouts in pcre2grep ...... : ${PCRE2GREP_SUPPORT_CALLOUT}")
   message(STATUS "  Enable callout fork in pcre2grep .. : ${PCRE2GREP_SUPPORT_CALLOUT_FORK}")
   message(STATUS "  Initial buffer size for pcre2grep . : ${PCRE2GREP_BUFSIZE}")
   message(STATUS "  Maximum buffer size for pcre2grep . : ${PCRE2GREP_MAX_BUFSIZE}")
-  message(STATUS "  Build tests (implies pcre2test .... : ${PCRE2_BUILD_TESTS}")
-  message(STATUS "               and pcre2grep)")
   if(ZLIB_FOUND)
     message(STATUS "  Link pcre2grep with libz .......... : ${PCRE2_SUPPORT_LIBZ}")
   else()

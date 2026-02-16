@@ -70,7 +70,7 @@
     </Midl>
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>.;..;..\liblua;..\nbase;build-pcre2;..\nsock\include;..\..\nmap-mswin32-aux\Npcap\Include;..\libdnet-stripped\include;..\..\nmap-mswin32-aux\OpenSSL\include;..\liblinear;..\libssh2\include;..\libz;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.;..;..\liblua;..\nbase;build-pcre2\interface;..\nsock\include;..\..\nmap-mswin32-aux\Npcap\Include;..\libdnet-stripped\include;..\..\nmap-mswin32-aux\OpenSSL\include;..\liblinear;..\libssh2\include;..\libz;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_CONSOLE;BPF_MAJOR_VERSION;ZLIB_WINAPI;PCRE2_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessToFile>false</PreprocessToFile>
       <PreprocessSuppressLineNumbers>false</PreprocessSuppressLineNumbers>
@@ -115,7 +115,7 @@
     <ClCompile>
       <Optimization>MaxSpeed</Optimization>
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
-      <AdditionalIncludeDirectories>.;..;..\liblua;..\nbase;build-pcre2;..\nsock\include;..\..\nmap-mswin32-aux\Npcap\Include;..\libdnet-stripped\include;..\..\nmap-mswin32-aux\OpenSSL\include;..\liblinear;..\libssh2\include;..\libz;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.;..;..\liblua;..\nbase;build-pcre2\interface;..\nsock\include;..\..\nmap-mswin32-aux\Npcap\Include;..\libdnet-stripped\include;..\..\nmap-mswin32-aux\OpenSSL\include;..\liblinear;..\libssh2\include;..\libz;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_CONSOLE;BPF_MAJOR_VERSION;ZLIB_WINAPI;PCRE2_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -155,7 +155,7 @@
     <ClCompile>
       <Optimization>MaxSpeed</Optimization>
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
-      <AdditionalIncludeDirectories>.;..;..\liblua;..\nbase;build-pcre2;..\nsock\include;..\..\nmap-mswin32-aux\Npcap\Include;..\libdnet-stripped\include;..\..\nmap-mswin32-aux\OpenSSL\include;..\liblinear;..\libssh2\include;..\libz;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.;..;..\liblua;..\nbase;build-pcre2\interface;..\nsock\include;..\..\nmap-mswin32-aux\Npcap\Include;..\libdnet-stripped\include;..\..\nmap-mswin32-aux\OpenSSL\include;..\liblinear;..\libssh2\include;..\libz;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>NMAP_OEM;WIN32;_CONSOLE;BPF_MAJOR_VERSION;ZLIB_WINAPI;PCRE2_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <FunctionLevelLinking>true</FunctionLevelLinking>
