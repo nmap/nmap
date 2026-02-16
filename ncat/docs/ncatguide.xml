@@ -555,6 +555,12 @@ SHA-1 fingerprint: F0:13:BF:FB:2D:AA:76:88:22:60:3E:17:93:29:3E:0E:6B:92:C0:2F
     <title>Running a command with <option>--exec</option></title>
 <literallayout><command>ncat -l --exec "/bin/echo Hello."</command></literallayout>
   </example>
+  <para>
+    On Windows, Ncat uses <code>CreateProcess()</code> to handle the parsing of command and arguments.
+    This function will accept unquoted command paths containing spaces, but
+    <ulink href="https://cwe.mitre.org/data/definitions/428.html">doing so is a security risk</ulink>.
+    A command path that contains spaces <emphasis>must</emphasis> be quoted for safety.
+  </para>
 
   <para>
   The
