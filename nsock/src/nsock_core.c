@@ -743,12 +743,14 @@ static int do_actual_read(struct npool *ms, struct nevent *nse) {
           buflen = 0;
           break;
         case SSL_ERROR_SSL:
+#ifdef SSL_R_UNEXPECTED_EOF_WHILE_READING
           /* On an unexpected EOF, the returned error is SSL_ERROR_SSL with a
            * SSL_R_UNEXPECTED_EOF_WHILE_READING on the error stack */
           if (SSL_R_UNEXPECTED_EOF_WHILE_READING == ERR_peek_error()) {
             buflen = 0;
             break;
           }
+#endif
         default:
           assert(err != SSL_ERROR_NONE);
           /* Unexpected error */
@@ -757,7 +759,7 @@ static int do_actual_read(struct npool *ms, struct nevent *nse) {
           nse->errnum = EIO;
           nsock_log_info("SSL_read() failed for reason %d on NSI %li",
               err, iod->id);
-          while (err = ERR_get_error()) {
+          while (0 != (err = ERR_get_error())) {
             nsock_log_info("Additional SSL error: %s", ERR_error_string(err, NULL));
           }
           return -1;
