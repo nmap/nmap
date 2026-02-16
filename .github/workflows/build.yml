@@ -152,7 +152,7 @@ jobs:
           usesh: true
           prepare: |
             export PKG_PATH=https://cdn.openbsd.org/pub/OpenBSD/$(uname -r)/packages/$(uname -m)/
-            pkg_add -I autoconf%2.72 automake%1.17 gcc%11 llvm%19 tree pkgconf libnet%1.1 pcre2 gmake dbus
+            pkg_add -I -U autoconf%2.72 automake%1.17 gcc%11 llvm%19 tree pkgconf libnet%1.1 pcre2 gmake dbus
           run: |
             export AUTOCONF_VERSION=2.72
             export AUTOMAKE_VERSION=1.17
@@ -169,7 +169,7 @@ jobs:
           prepare: |
             export PATH=/usr/sbin:/usr/pkg/sbin:/usr/pkg/bin:$PATH
             export PKG_PATH="http://cdn.netbsd.org/pub/pkgsrc/packages/NetBSD/$(uname -p)/$(uname -r | cut -d_ -f1)/All"
-            pkg_add gcc13 clang autoconf automake pkgconf libpcap libnet gmake dbus
+            pkg_add -u gcc13 clang autoconf automake pkgconf libpcap libnet gmake dbus
           run: |
             ./configure
             gmake
