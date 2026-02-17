@@ -1,0 +1,271 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --font-sans: 'Inter', system-ui, sans-serif;
+  --font-heading: 'Outfit', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+}
+
+/* ===== SPECTRA COMMAND DARK THEME =====
+ * Design: Dark Cyberpunk Intelligence Center
+ * Base: Near-black (#0A0B14) with deep navy cards (#12141F)
+ * Accents: Purple (#8B5CF6), Green (#10B981), Orange (#F97316), Red (#EF4444), Cyan (#06B6D4)
+ */
+
+:root {
+  --radius: 0.625rem;
+  --background: oklch(0.11 0.015 280);
+  --foreground: oklch(0.92 0.005 280);
+  --card: oklch(0.155 0.018 275);
+  --card-foreground: oklch(0.92 0.005 280);
+  --popover: oklch(0.155 0.018 275);
+  --popover-foreground: oklch(0.92 0.005 280);
+  --primary: oklch(0.585 0.22 280);
+  --primary-foreground: oklch(0.98 0 0);
+  --secondary: oklch(0.18 0.02 275);
+  --secondary-foreground: oklch(0.85 0.01 280);
+  --muted: oklch(0.2 0.015 275);
+  --muted-foreground: oklch(0.6 0.02 280);
+  --accent: oklch(0.2 0.02 275);
+  --accent-foreground: oklch(0.92 0.005 280);
+  --destructive: oklch(0.58 0.22 25);
+  --destructive-foreground: oklch(0.98 0 0);
+  --border: oklch(0.25 0.02 275);
+  --input: oklch(0.22 0.02 275);
+  --ring: oklch(0.585 0.22 280);
+  --chart-1: oklch(0.585 0.22 280);
+  --chart-2: oklch(0.65 0.18 165);
+  --chart-3: oklch(0.7 0.18 55);
+  --chart-4: oklch(0.65 0.2 200);
+  --chart-5: oklch(0.58 0.22 25);
+  --sidebar: oklch(0.13 0.018 275);
+  --sidebar-foreground: oklch(0.85 0.01 280);
+  --sidebar-primary: oklch(0.585 0.22 280);
+  --sidebar-primary-foreground: oklch(0.98 0 0);
+  --sidebar-accent: oklch(0.2 0.02 275);
+  --sidebar-accent-foreground: oklch(0.92 0.005 280);
+  --sidebar-border: oklch(0.25 0.02 275);
+  --sidebar-ring: oklch(0.585 0.22 280);
+}
+
+.dark {
+  --background: oklch(0.11 0.015 280);
+  --foreground: oklch(0.92 0.005 280);
+  --card: oklch(0.155 0.018 275);
+  --card-foreground: oklch(0.92 0.005 280);
+  --popover: oklch(0.155 0.018 275);
+  --popover-foreground: oklch(0.92 0.005 280);
+  --primary: oklch(0.585 0.22 280);
+  --primary-foreground: oklch(0.98 0 0);
+  --secondary: oklch(0.18 0.02 275);
+  --secondary-foreground: oklch(0.85 0.01 280);
+  --muted: oklch(0.2 0.015 275);
+  --muted-foreground: oklch(0.6 0.02 280);
+  --accent: oklch(0.2 0.02 275);
+  --accent-foreground: oklch(0.92 0.005 280);
+  --destructive: oklch(0.58 0.22 25);
+  --destructive-foreground: oklch(0.98 0 0);
+  --border: oklch(0.25 0.02 275);
+  --input: oklch(0.22 0.02 275);
+  --ring: oklch(0.585 0.22 280);
+  --chart-1: oklch(0.585 0.22 280);
+  --chart-2: oklch(0.65 0.18 165);
+  --chart-3: oklch(0.7 0.18 55);
+  --chart-4: oklch(0.65 0.2 200);
+  --chart-5: oklch(0.58 0.22 25);
+  --sidebar: oklch(0.13 0.018 275);
+  --sidebar-foreground: oklch(0.85 0.01 280);
+  --sidebar-accent: oklch(0.2 0.02 275);
+  --sidebar-accent-foreground: oklch(0.92 0.005 280);
+  --sidebar-border: oklch(0.25 0.02 275);
+  --sidebar-ring: oklch(0.585 0.22 280);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-family: 'Inter', system-ui, sans-serif;
+  }
+  button:not(:disabled),
+  [role="button"]:not([aria-disabled="true"]),
+  [type="button"]:not(:disabled),
+  [type="submit"]:not(:disabled),
+  [type="reset"]:not(:disabled),
+  a[href],
+  select:not(:disabled),
+  input[type="checkbox"]:not(:disabled),
+  input[type="radio"]:not(:disabled) {
+    @apply cursor-pointer;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Outfit', system-ui, sans-serif;
+  }
+  code, pre, .font-mono {
+    font-family: 'JetBrains Mono', monospace;
+  }
+}
+
+@layer components {
+  .container {
+    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  .flex {
+    min-height: 0;
+    min-width: 0;
+  }
+
+  @media (min-width: 640px) {
+    .container {
+      padding-left: 1.5rem;
+      padding-right: 1.5rem;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .container {
+      padding-left: 2rem;
+      padding-right: 2rem;
+      max-width: 1440px;
+    }
+  }
+
+  @media (min-width: 1920px) {
+    .container {
+      max-width: 1800px;
+    }
+  }
+
+  /* Glow effects for cyberpunk aesthetic */
+  .glow-purple {
+    box-shadow: 0 0 15px rgba(139, 92, 246, 0.15), 0 0 30px rgba(139, 92, 246, 0.05);
+  }
+  .glow-green {
+    box-shadow: 0 0 15px rgba(16, 185, 129, 0.15), 0 0 30px rgba(16, 185, 129, 0.05);
+  }
+  .glow-orange {
+    box-shadow: 0 0 15px rgba(249, 115, 22, 0.15), 0 0 30px rgba(249, 115, 22, 0.05);
+  }
+  .glow-cyan {
+    box-shadow: 0 0 15px rgba(6, 182, 212, 0.15), 0 0 30px rgba(6, 182, 212, 0.05);
+  }
+  .glow-red {
+    box-shadow: 0 0 15px rgba(239, 68, 68, 0.15), 0 0 30px rgba(239, 68, 68, 0.05);
+  }
+
+  /* Card hover glow */
+  .card-hover {
+    transition: all 0.3s ease;
+  }
+  .card-hover:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0 20px rgba(139, 92, 246, 0.1), 0 4px 20px rgba(0, 0, 0, 0.3);
+  }
+
+  /* Subtle grid background */
+  .bg-grid {
+    background-image:
+      linear-gradient(rgba(139, 92, 246, 0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(139, 92, 246, 0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+  }
+
+  /* Scan line animation */
+  @keyframes scanline {
+    0% { transform: translateY(-100%); }
+    100% { transform: translateY(100vh); }
+  }
+
+  /* Pulse animation for active indicators */
+  @keyframes pulse-glow {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+  }
+  .animate-pulse-glow {
+    animation: pulse-glow 2s ease-in-out infinite;
+  }
+
+  /* Count up animation */
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  .animate-fade-in-up {
+    animation: fadeInUp 0.5s ease-out forwards;
+  }
+
+  /* Stagger delays */
+  .delay-100 { animation-delay: 100ms; }
+  .delay-200 { animation-delay: 200ms; }
+  .delay-300 { animation-delay: 300ms; }
+  .delay-400 { animation-delay: 400ms; }
+  .delay-500 { animation-delay: 500ms; }
+}
+
+/* Custom scrollbar for dark theme */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: rgba(10, 11, 20, 0.5);
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(139, 92, 246, 0.3);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(139, 92, 246, 0.5);
+}
