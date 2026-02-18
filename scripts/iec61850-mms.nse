@@ -78,7 +78,7 @@ function searchTable(searchString, myTable)
 end
 
 -- Rules
-portrule = shortport.portnumber(102, "iso-tsap")
+portrule = shortport.port_or_service(102, "iso-tsap", "tcp")
 
 -- Actions
 action = function(host, port)
