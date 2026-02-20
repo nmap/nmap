@@ -17129,4 +17129,4 @@ ports 48899
 ##############################NEXT PROBE##############################
 Probe TCP GetRequest q|GET /_/ HTTP/1.0\r\n\r\n|
 ports 80,443,8080,8090
-match http m|^HTTP/1\.[01] 200 OK\r\n.*pocketbase| p/PocketBase Go Backend/
+match http m|^HTTP/1\.[01] 200 OK\r\n(?s).*PocketBase| p/PocketBase Go Backend/
