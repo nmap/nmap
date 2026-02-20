@@ -17126,3 +17126,7 @@ ports 34555
 Probe UDP BECKHOFF_ADS q|\x03\x66\x14\x71\0\0\0\0\x01\0\0\0\0\0\0\0\x01\x01\x10\x27\0\0\0\0|
 rarity 8
 ports 48899
+##############################NEXT PROBE##############################
+Probe TCP GetRequest q|GET /_/ HTTP/1.0\r\n\r\n|
+ports 80,443,8080,8090
+match http m|^HTTP/1\.[01] 200 OK\r\n.*pocketbase| p/PocketBase Go Backend/
