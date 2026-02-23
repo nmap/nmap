@@ -1165,6 +1165,13 @@ void ServiceProbe::setProbeDetails(char *pd, int lineno) {
     }
     while (*pd && !isspace((int) (unsigned char) *pd)) pd++;
   }
+
+  if (probename && strcmp(probename, "Sqlping") == 0) {
+    if (o.sqlping_payload) {
+      log_write(LOG_STDOUT, "User-forced Sqlping: overriding no-payload directive.\n");
+      notForPayload = false;
+    }
+  }
 }
 
 void ServiceProbe::setProbeString(const u8 *ps, int stringlen) {
