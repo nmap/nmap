@@ -15993,6 +15993,14 @@ ports 3483
 
 match squeezecenter m|^ENAME.{1}(.+)JSON.{1}(\d+)VERS.{1}(.+)UUID.{1}(.+)$| p/Logitech SqueezeCenter music server/ v/$3/ i/Server Name: $1, JSON: $2, UUID: $4/
 
+##############################NEXT PROBE##############################
+# SqueezeCenter SlimProto
+# http://wiki.slimdevices.com/index.php/SlimProto_TCP_protocol
+Probe TCP SqueezeCenter q|HELO\x00\x00\x00\x13\x03\x0100:00:00:00:00:00|
+rarity 8
+ports 3483
+
+match squeezecenter m|^.{2}vers([\d.]+)| p/Logitech SqueezeCenter music server/ v/$1/
 
 ##############################NEXT PROBE##############################
 # AFP - Request GetStatus
