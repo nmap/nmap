@@ -668,8 +668,8 @@ match ftp m|^220.*\r\n220 WFTPD (\d[-.\w]+) service \(by Texas Imperial Software
 match ftp m|^220 ([-.+\w]+) FTP server \(Version (MICRO-[-.\w:#+ ]+)\) ready\.\r\n| p/Bay Networks MicroAnnex terminal server ftpd/ v/$2/ d/terminal server/ h/$1/
 match ftp m|^220 ([-.+\w]+) FTP server \(Digital UNIX Version (\d[-.\w]+)\) ready\.\r\n| p/Digital UNIX ftpd/ v/$2/ o/Digital UNIX/ h/$1/ cpe:/o:dec:digital_unix/a
 match ftp m|^220 ([-.+\w]+) FTP server \(Version [\d.]+\+Heimdal (\d[-+.\w ]+)\) ready\.\r\n| p/Heimdal Kerberized ftpd/ v/$2/ o/Unix/ h/$1/
-match ftp m|^500 OOPS: (could not bind listening IPv4 socket)\r\n$| p/vsftpd/ i/broken: $1/ o/Unix/ cpe:/a:vsftpd:vsftpd/
-match ftp m|^500 OOPS: vsftpd: (.*)\r\n| p/vsftpd/ i/broken: $1/ o/Unix/ cpe:/a:vsftpd:vsftpd/
+match ftp m|^500 OOPS: (could not bind listening IPv4 socket)\r\n$| p/vsftpd/ i/broken: $1/ o/Unix/ cpe:/a:vsftpd_project:vsftpd/
+match ftp m|^500 OOPS: vsftpd: (.*)\r\n| p/vsftpd/ i/broken: $1/ o/Unix/ cpe:/a:vsftpd_project:vsftpd/
 match ftp m|^220-QTCP at ([-.\w]+)\r\n220| p|IBM OS/400 FTPd| o|OS/400| h/$1/ cpe:/o:ibm:os_400/a
 match ftp m|^220(?:-(?!FileZilla).*\r\n220)*[- ]FileZilla Server (?:version )?(\d[-.\w ]+)\r\n| p/FileZilla ftpd/ v/$1/ o/Windows/ cpe:/a:filezilla-project:filezilla_server:$1/ cpe:/o:microsoft:windows/a
 match ftp m|^220 ([-\w_.]+) running FileZilla Server version (\d[-.\w ]+)\r\n| p/FileZilla ftpd/ v/$2/ o/Windows/ h/$1/ cpe:/a:filezilla-project:filezilla_server:$2/ cpe:/o:microsoft:windows/a
@@ -792,11 +792,11 @@ match ftp m|^220---------- Welcome to Pure-FTPd \[privsep\] \[TLS\] ----------\r
 match ftp m|^220---------- .* Pure-FTPd ----------\r\n220-| p/Pure-FTPd/ cpe:/a:pureftpd:pure-ftpd/
 match ftp m|^220.*214 Pure-FTPd - http://pureftpd\.org/?\r\n|s p/Pure-FTPd/ cpe:/a:pureftpd:pure-ftpd/
 
-match ftp m|^220 vsFTPd (.*) ready\.\.\.\r\n| p/vsftpd/ v/$1/ cpe:/a:vsftpd:vsftpd:$1/
-match ftp m|^220 vsFTPd (.*) ready\.\.\. \[charset=\w+\]\r\n| p/vsftpd/ v/$1/ cpe:/a:vsftpd:vsftpd:$1/
-match ftp m|^220 ready, dude \(vsFTPd (\d[0-9.]+): beat me, break me\)\r\n| p/vsftpd/ v/$1/ o/Unix/ cpe:/a:vsftpd:vsftpd:$1/
-match ftp m|^220 \(vsFTPd ([-.\w]+)\)\r\n$| p/vsftpd/ v/$1/ o/Unix/ cpe:/a:vsftpd:vsftpd:$1/
-match ftp m|^220 Welcome to blah FTP service\.\r\n$| p/vsftpd/ o/Unix/ cpe:/a:vsftpd:vsftpd/
+match ftp m|^220 vsFTPd (.*) ready\.\.\.\r\n| p/vsftpd/ v/$1/ cpe:/a:vsftpd_project:vsftpd:$1/
+match ftp m|^220 vsFTPd (.*) ready\.\.\. \[charset=\w+\]\r\n| p/vsftpd/ v/$1/ cpe:/a:vsftpd_project:vsftpd:$1/
+match ftp m|^220 ready, dude \(vsFTPd (\d[0-9.]+): beat me, break me\)\r\n| p/vsftpd/ v/$1/ o/Unix/ cpe:/a:vsftpd_project:vsftpd:$1/
+match ftp m|^220 \(vsFTPd ([-.\w]+)\)\r\n$| p/vsftpd/ v/$1/ o/Unix/ cpe:/a:vsftpd_project:vsftpd:$1/
+match ftp m|^220 Welcome to blah FTP service\.\r\n$| p/vsftpd/ o/Unix/ cpe:/a:vsftpd_project:vsftpd/
 
 match ftp m|^220 TYPSoft FTP Server (\d\S+) ready\.\.\.\r\n| p/TYPSoft ftpd/ v/$1/ o/Windows/ cpe:/a:typsoft:typsoft_ftp_server:$1/ cpe:/o:microsoft:windows/a
 match ftp m|^220-MegaBit Gear (\S+).*FTP server ready| p/MegaBit Gear ftpd/ v/$1/
@@ -867,8 +867,8 @@ match ftp m|^220 ([-\w_.]+) PacketShaper FTP server ready\.\r\n| p/PacketShaper 
 match ftp m|^220 WfFTP server\(([\w.]+)\) ready\.\r\n| p/Nortel WfFTP/ v/$1/ d/router/
 match ftp m|^220- (.*) WAR-FTPD ([-\w.]+) Ready\r\n220 Please enter your user name\.\r\n| p/WAR-FTPD/ v/$2/ i/Name $1/ o/Windows/ cpe:/o:microsoft:windows/a
 match ftp m|^220 Canon ([\w._-]+) FTP Print Server V([\w._-]+) .* ready\.\r\n| p/Canon $1 FTP Print Server/ v/$2/ d/print server/ cpe:/h:canon:$1/
-match ftp m|^500 OOPS: .*\r\n$| p/vsftpd/ i/Misconfigured/ o/Unix/ cpe:/a:vsftpd:vsftpd/
-match ftp m|^500 OOPS: vsftpd: both local and anonymous access disabled!\r\n| p/vsftpd/ i/Access denied/ o/Unix/ cpe:/a:vsftpd:vsftpd/
+match ftp m|^500 OOPS: .*\r\n$| p/vsftpd/ i/Misconfigured/ o/Unix/ cpe:/a:vsftpd_project:vsftpd/
+match ftp m|^500 OOPS: vsftpd: both local and anonymous access disabled!\r\n| p/vsftpd/ i/Access denied/ o/Unix/ cpe:/a:vsftpd_project:vsftpd/
 match ftp m|^220 FTP Version ([\d.]+) on MPS100\r\n| p/Lantronix MPS100 ftpd/ v/$1/ d/print server/ cpe:/h:lantronix:mps100/a
 match ftp m|^220.*bftpd ([\d.]+) at ([-\w_.]+) ready\.?\r\n|s p/Bftpd/ v/$1/ h/$2/ cpe:/a:jesse_smith:bftpd:$1/
 match ftp m|^220 RICOH Pro (\d+[a-zA-Z]{0,3}) FTP server \(([\d+.]+)\) ready\.\r\n| p/Ricoh Pro $1 ftpd/ v/$2/ d/printer/ cpe:/h:ricoh:pro_$1/a
@@ -1037,7 +1037,7 @@ match ftp m|^220 Welcome to the Pli Jade Server >> OpenDreambox FTP service <<\.
 match ftp m|^220 ([-\w_.]+) FTP server \(KONICA FTPD version ([\d.]+)\) ready\.\r\n| p/Konica Minolta printer ftpd/ v/$2/ d/printer/ h/$1/
 match ftp m|^220 KONICA MINOLTA FTP server ready\.\r\n| p/Konica Minolta bizhub printer ftpd/ d/printer/
 match ftp m|^Error loading /etc/ssl/certs/ftpd\.pem:| p/Linux NetKit ftpd/ i/misconfigured/ o/Linux/ cpe:/a:netkit:netkit/ cpe:/o:linux:linux_kernel/a
-match ftp m|^500 OOPS: cannot locate user entry:([-\w_]+)\r\n500 OOPS: child died\r\n| p/vsftpd/ i/misconfigured; ftp user $1/ cpe:/a:vsftpd:vsftpd/
+match ftp m|^500 OOPS: cannot locate user entry:([-\w_]+)\r\n500 OOPS: child died\r\n| p/vsftpd/ i/misconfigured; ftp user $1/ cpe:/a:vsftpd_project:vsftpd/
 match ftp m|^220 Welcome to Freebox FTP Server\.\r\n| p/Freebox ftpd/ d/media device/
 match ftp m|^220  FTP server \(Medusa Async V([\d.]+) \[experimental\]\) ready\.\r\n| p/Zope Medusa ftpd/ v/$1/
 match ftp m|^220-  Novonyx FTP Server for NetWare, v([\d.]+) \(| p/Novonyx ftpd/ v/$1/ o/NetWare/ cpe:/o:novell:netware/a
@@ -1134,13 +1134,13 @@ match ftp m|^220 ---freeFTPd 1\.0---warFTPd 1\.65---\r\n| p/Nepenthes HoneyTrap 
 match ftp m|^220- \w+\r\n220 FTP Server powered by: Quick 'n Easy FTP Server\r\n| p/Quick 'n Easy FTP Server/ o/Windows/ cpe:/o:microsoft:windows/a
 match ftp m|^220-National Instruments FTP\r\n220 Service Ready \r\n| p/National Instruments LabVIEW ftpd/ d/specialized/ cpe:/a:ni:labview/
 # The ASCII spells "FREETZ".
-match ftp m=^220-   __  _   __  __ ___ __\r\n220-  \|__ \|_\) \|__ \|__  \|   /\r\n220-  \|   \|\\  \|__ \|__  \|  /_\r\n220-\r\n220-   The fun has just begun\.\.\.\r\n220 \r\n= p/vsftpd/ i/Freetz firmware for AVM Fritz!Box/ d/WAP/ cpe:/a:vsftpd:vsftpd/
+match ftp m=^220-   __  _   __  __ ___ __\r\n220-  \|__ \|_\) \|__ \|__  \|   /\r\n220-  \|   \|\\  \|__ \|__  \|  /_\r\n220-\r\n220-   The fun has just begun\.\.\.\r\n220 \r\n= p/vsftpd/ i/Freetz firmware for AVM Fritz!Box/ d/WAP/ cpe:/a:vsftpd_project:vsftpd/
 match ftp m|Permission denied\.\(Please check access control list\)\r\nPermission denied\.\(Please check access control list\)\r\n\n\rSystem administrator is connecting from [\d.]+\n\rReject the connection request !!!\n\r\n\rSystem administrator is connecting from [\d.]+\n\rReject the connection request !!!\n\r| p/DrayTek Vigor 2820 ADSL router ftpd/ i/access denied/ d/broadband router/ cpe:/h:draytek:vigor_2820/a
 match ftp m|^550 Permission denied\.\(Too many user login!!!\)\r\nPermission denied\.\(Please check access control list\)\r\n| p/DrayTek Vigor 2820n ADSL router ftpd/ i/access denied/ d/broadband router/ cpe:/h:draytek:vigor_2820n/a
 match ftp m|^220-FTPSERVE IBM VM Level (\d)(\d+) at ([\w._-]+), [^\r\n]*\r\n220 Connection will close if idle for more than 5 minutes\.\r\n| p/IBM FTPSERVE/ o|z/VM $1.$2| h/$3/ cpe:/o:ibm:z%2fvm:$1.$2/
 match ftp m|^220 MeritFTP ([\d.]+) at ([\d.]+) ready\.\r\n| p/Merit Megatouch game device ftpd/ v/$1/ d/specialized/ h/$2/
 match ftp m|^220 NET\+OS ([\d.]+) FTP server ready\.\r\n503 Bad sequence of commands\r\n| p/NET+OS ftpd/ i/NET+OS $1/ o/NET+OS/ cpe:/o:digi:net%2bos:$1/
-match ftp m|^220 Welcome to the NSLU2 vsftp daemon\.\r\n| p/vsftpd/ i/NSLU2 NAS device/ d/storage-misc/ cpe:/a:vsftpd:vsftpd/
+match ftp m|^220 Welcome to the NSLU2 vsftp daemon\.\r\n| p/vsftpd/ i/NSLU2 NAS device/ d/storage-misc/ cpe:/a:vsftpd_project:vsftpd/
 match ftp m|^220-  Menuet FTP Server v([\d.]+)\r\n220 Username and Password required\r\n| p/Menuet FTP Server/ v/$1/ o/MenuetOS/ cpe:/o:menuetos:menuetos/
 match ftp m|^220 Xyratex (\w+) RAID FTP server ready\.\r\n| p/Xyratex $1 RAID NAS device ftpd/ d/storage-misc/
 match ftp m|^220 MLT-57066 Version ([\w.]+) ready\.\r\n| p/Minolta PagePro 20 printer ftpd/ v/$1/ cpe:/h:minolta:pagepro_20/a
@@ -5600,7 +5600,7 @@ match ftp m|^220 File Manager ready \r\n550 Unsupported command\r\n550 Unsupport
 # Adding this back as a hard match or we'll never stop getting vsftpd
 # submissions. (David)
 # See version 2.0.8 note under TCP Help probe.
-match ftp m|^220 .*\r\n530 Please login with USER and PASS\.\r\n530 Please login with USER and PASS\.\r\n| p/vsftpd (before 2.0.8) or WU-FTPD/ cpe:/a:vsftpd:vsftpd/
+match ftp m|^220 .*\r\n530 Please login with USER and PASS\.\r\n530 Please login with USER and PASS\.\r\n| p/vsftpd (before 2.0.8) or WU-FTPD/ cpe:/a:vsftpd_project:vsftpd/
 
 match ftp-proxy m|^220 .*FTP Proxy\r\n500 Syntax error, command unrecognized\.\r\n| p/Cisco Web Security ftp proxy/ cpe:/h:cisco:web_security_appliance/
 
@@ -13419,7 +13419,7 @@ match ftp m|^220 Opto 22 FTP server ready\.\r\n502 HELP command not implemented,
 # Before version 2.0.8, vsftpd outputs the "Please login" lines in response to
 # blank lines, which is caught under GenericLines above." In 2.0.8 and after,
 # it ignores blank lines.
-match ftp m|^(?:220-.*\r\n)?220 .*\r\n530 Please login with USER and PASS\.\r\n|s p/vsftpd/ v/2.0.8 or later/ cpe:/a:vsftpd:vsftpd/
+match ftp m|^(?:220-.*\r\n)?220 .*\r\n530 Please login with USER and PASS\.\r\n|s p/vsftpd/ v/2.0.8 or later/ cpe:/a:vsftpd_project:vsftpd/
 match ftp m|^220 FTP server ready\.\r\n214- The following commands are recognized \(\* =>'s unimplemented\)\.\r\n   USER    REIN\*   MODE    REST\*   MKD     STAT\*   EPSV    MRSQ\*   XCUP \r\n   PASS    QUIT    RETR    RNFR    PWD     HELP    MLFL\*   MRCP\*   SIZE \r\n   ACCT\*   PORT    STOR    RNTO    LIST    NOOP    MAIL\*   XCWD    MDTM\*\r\n   CWD     PASV    STOU\*   ABOR    NLST    LPRT    MSND\*   XMKD    FEAT\*\r\n   CDUP    TYPE    APPE\*   DELE    SITE\*   LPSV    MSOM\*   XRMD    OPTS\*\r\n   SMNT\*   STRU    ALLO\*   RMD     SYST\*   EPRT    MSAM\*   XPWD \r\n214 End\.\r\n| p/Panasonic AW-HE50 HD Integrated camera ftpd/ d/webcam/ cpe:/h:panasonic:aw-he50/
 match ftp m|^220 ftp server ready\r\n502 Command not recognized\r\n| p/Ice Cold Apps FTP Server Ultimate/ o/Android/ cpe:/a:icecoldapps:ftp_server_ultimate/ cpe:/o:google:android/a cpe:/o:linux:linux_kernel/a
 match ftp m|^220 FTP server ready\r\n500 Invalid command HELP \r\n| p/DeviceWISE M2M ftpd/ cpe:/a:telit:devicewise_m2m/
