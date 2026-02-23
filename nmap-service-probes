@@ -12514,11 +12514,11 @@ match ossec-agent m=^\xdf\x06\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x01\x97\|\0\
 match riverbed-stats m|^a\x0f\x02\x04fiji\x02\x01\0\x02\x01\0\x02\x01\0$| p/Riverbed Steelhead Mobile caching proxy statistics/ d/proxy server/
 
 #RPC Response, MSG_ACCEPTED, any AUTH type
-match rpcbind m|^\x80\0\0.\x72\xfe\x1d\x13\0\0\0\x01\0\0\0\0\0\0\0[\x00-\x03\x06]|
+match sunrpc m|^\x80\0\0.\x72\xfe\x1d\x13\0\0\0\x01\0\0\0\0\0\0\0[\x00-\x03\x06]|
 # RPC Response, MSG_DENIED, RPC_MISMATCH
-match rpcbind m|^\x80\0\0.\x72\xfe\x1d\x13\0\0\0\x01\0\0\0\x01\0\0\0\x00\0\0\0[\x00-\x02]\0\0\0[\x00-\x02]|
+match sunrpc m|^\x80\0\0.\x72\xfe\x1d\x13\0\0\0\x01\0\0\0\x01\0\0\0\x00\0\0\0[\x00-\x02]\0\0\0[\x00-\x02]|
 # RPC Response, MSG_DENIED, AUTH_ERROR, any status
-match rpcbind m|^\x80\0\0.\x72\xfe\x1d\x13\0\0\0\x01\0\0\0\x01\0\0\0\x01\0\0\0[\x00-\x07]|
+match sunrpc m|^\x80\0\0.\x72\xfe\x1d\x13\0\0\0\x01\0\0\0\x01\0\0\0\x01\0\0\0[\x00-\x07]|
 
 match rtdscchcch m|^\x03\x11\0\x02V1\xec\xe7\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\xdd\0\x04\0\0| p/SIX Market Data Feed (MDF)/ cpe:/a:six_group:market_data_feed/
 
@@ -12592,8 +12592,8 @@ match slp-srvreg m|^\x02\x05\0\0\x12\0\0\0\0\0\0\x02\0\x02en\0\x0e$| p/IBM Direc
 
 match radius m|^\x03\xfe\0\x14................$|s p/Juniper Steel-Belted Radius radiusd/
 
-match rpcbind m|^\x72\xFE\x1D\x13\0\0\0\x01\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x01|
-match rpcbind m|^\x72\xFE\x1D\x13\0\0\0\x01\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x02|
+match sunrpc m|^\x72\xFE\x1D\x13\0\0\0\x01\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x01|
+match sunrpc m|^\x72\xFE\x1D\x13\0\0\0\x01\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x02|
 # OpenAFS 1.2.10 on Linux 2.4.22
 match kerberos-sec m|^\x04\n\0\0\0\0\0\0\0\0\0\0\x04code = 4: packet version number unknown\0| p/OpenAFS/ cpe:/a:openafs:openafs/
 # talk-server-0.17 (linux), ports 517-518/udp
@@ -15212,7 +15212,7 @@ match megaraid-monitor m|^\x02\0\0\0\0\0\0/\0\0\0\0\0\0\0\0\0@\x1f\0\0\0\0\0\0\0
 match routeros-api m|^\x06!fatal\rnot logged in\0| p/MikroTik RouterOS API/ o/RouterOS/ cpe:/o:mikrotik:routeros/
 
 # Interesting service: Not sure if it's RPC
-match rpcbind m|^\x18\0\x01\x02Invalid packet length\0| p/Amanda voicemail system/ d/telecom-misc/
+match sunrpc m|^\x18\0\x01\x02Invalid packet length\0| p/Amanda voicemail system/ d/telecom-misc/
 # Moved this from SSLSessionReq because it seems more reliable.
 # May need to generalize and grab the language if we see non-"en" responses
 match srvloc m|^\x02\x02\0\0\x12\0\0\0\0\0\0\0\0\x02en\0\x02$| p/Apple slpd/ o/Mac OS/ cpe:/o:apple:mac_os/a
