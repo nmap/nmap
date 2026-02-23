@@ -39,7 +39,7 @@ found for application IDs.
 -- nmap --script vtam-enum -p 23 <targets>
 --
 -- nmap --script vtam-enum --script-args idlist=defaults.txt,
--- vtam-enum.command="exit;logon applid(logos)",vtam-enum.macros=true
+-- vtam-enum.commands="exit;logon applid(logos)",vtam-enum.macros=true
 -- vtam-enum.path="/home/dade/screenshots/" -p 23 -sV <targets>
 --
 --@output
