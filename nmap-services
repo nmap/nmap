@@ -21383,6 +21383,7 @@ unknown	40063/udp	0.000518
 unknown	40071/udp	0.001036
 unknown	40074/udp	0.001036
 unknown	40076/udp	0.000518
+sap-internet-graphics-server	40080/tcp	0.000518    # HTTP SAP Internet Graphics Server (IGS)
 unknown	40089/udp	0.000518
 unknown	40090/udp	0.000518
 unknown	40093/udp	0.000518
