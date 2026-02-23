@@ -65,13 +65,16 @@
 --                   single character). These hashes are the LanMan or NTLM hash of the user's password,
 --                   and are stored on disk or in memory. They can be retrieved from memory
 --                   using the fgdump or pwdump tools.
---@args  smbtype     The type of SMB authentication to use. These are the possible options:
+--@args  smbtype(s)  The type of SMB authentication to use (or a colon-separeted list of authentication).
+--                   These are the possible options (default: NTLMv1):
 -- * <code>v1</code>:     Sends LMv1 and NTLMv1.
 -- * <code>LMv1</code>:   Sends LMv1 only.
 -- * <code>NTLMv1</code>: Sends NTLMv1 only (default).
 -- * <code>v2</code>:     Sends LMv2 and NTLMv2.
 -- * <code>LMv2</code>:   Sends LMv2 only.
 -- * <code>NTLMv2</code>: Doesn't exist; the protocol doesn't support NTLMv2 alone.
+-- * <code>all</code>:    Will try to authenticate with all the protocol aboves, except for NTLMv2,
+--                        which can throw error.
 --                   The default, <code>NTLMv1</code>, is a pretty decent compromise between security and
 --                   compatibility. If you are paranoid, you might want to use <code>v2</code> or
 --                   <code>lmv2</code> for this. (Actually, if you're paranoid, you should be avoiding this
@@ -86,6 +89,7 @@ local string = require "string"
 local table = require "table"
 local unicode = require "unicode"
 local unittest = require "unittest"
+local stringaux = require "stringaux"
 _ENV = stdnse.module("smbauth", stdnse.seeall)
 
 local have_ssl, openssl = pcall(require, "openssl")
@@ -105,13 +109,13 @@ local ACCOUNT_TYPES = {
   ADMIN     = 3
 }
 
-local function account_exists(host, username, domain)
+local function account_exists(host, username, domain, hash_type)
   if(host.registry['smbaccounts'] == nil) then
     return false
   end
 
   for i, j in pairs(host.registry['smbaccounts']) do
-    if(j['username'] == username and j['domain'] == domain) then
+    if(j['username'] == username and j['domain'] == domain and j['hash_type'] == hash_type) then
       return true
     end
   end
@@ -216,7 +220,7 @@ function add_account(host, username, domain, password, password_hash, hash_type,
   table.sort(host.registry['smbaccounts'], function(a,b) return a['account_type'] > b['account_type'] end)
 
   -- Print a debug message
-  stdnse.debug1("SMB: Added account '%s' to account list", username)
+  stdnse.debug1("SMB: Added account '%s' to account list with %s authentication", username, hash_type)
 
   -- Reset the credentials
   next_account(host, 1)
@@ -267,13 +271,6 @@ function init_account(host)
   -- Create the list
   host.registry['smbaccounts'] = {}
 
-  -- Add the anonymous/guest accounts
-  add_account(host, '',      '', '', nil, 'none')
-
-  if(not stdnse.get_script_args( "smbnoguest" )) then
-    add_account(host, 'guest', '', '', nil, 'ntlm')
-  end
-
   -- Add the account given on the commandline (TODO: allow more than one?)
   local args = nmap.registry.args
   local username      = nil
@@ -297,8 +294,13 @@ function init_account(host)
     end
 
     -- Type
-    if(args.smbtype ~= nil) then
-      hash_type = args.smbtype
+    if ( args.smbtypes == 'all' or args.smbtype == 'all' ) then
+      hash_types = {'v1','lm','ntlm','v2','lmv2'}
+    elseif args.smbtype ~= nil then
+      hash_types = {args.smbtype}
+    -- smbtypes will overwrite smbtype
+    elseif args.smbtypes ~= nil then
+      hash_types = stringaux.strsplit(":", args.smbtypes)
     end
 
     -- Do the password
@@ -317,7 +319,17 @@ function init_account(host)
     if(password == nil and password_hash == nil) then
       stdnse.debug1("SMB: Either smbpass, smbpassword, or smbhash have to be passed as script arguments to use an account")
     else
-      add_account(host, username, domain, password, password_hash, hash_type)
+      for _, hash_type in ipairs(hash_types) do
+        add_account(host, username, domain, password, password_hash, hash_type)
+
+        -- Add the anonymous/guest accounts with all auth method, does it make sense ?
+        add_account(host, '',      '', '', nil, hash_type)
+
+        if(not stdnse.get_script_args( "smbnoguest" )) then
+          add_account(host, 'guest', '', '', nil, hash_type)
+        end
+
+      end
     end
   end
 end
