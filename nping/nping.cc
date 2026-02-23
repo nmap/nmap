@@ -123,7 +123,8 @@ int main(int argc, char *argv[] ){
   /* Register the SIGINT signal so when the users presses CTRL-C we print stats
    * before quitting. */
   #if HAVE_SIGNAL
-    signal(SIGINT, signal_handler); 
+    signal(SIGINT, signal_handler);
+    signal(SIGQUIT, signal_handler);
   #endif
 
   /* Let's parse and validate user supplied args */
@@ -220,10 +221,13 @@ void test_stuff(){
 } /* End of test_stuff() */
 
 
-/** This function is called whenever user presses CTRL-C. Basically what we
-  * do here is stop Tx and Rx clocks, stop global clock, display statistics,
-  * do a bit of cleanup and exit the program. The exit() call makes the
-  * program return EXIT_FAILURE instead of the usual EXIT_SUCCESS.
+/** This function is called whenever user presses CTRL-C (SIGINT). Basically
+  * what we  do here is stop Tx and Rx clocks, stop global clock, display
+  * statistics, do a bit of cleanup and exit the program. The exit() call
+  * makes the program return EXIT_FAILURE instead of the usual EXIT_SUCCESS.
+  *
+  * If we just receive a SIGQUIT signal, we only print the current statistics,
+  * and continue.
   *
   * TODO: Many of the things done in this function may not be safe due to
   * reentrancy issues. Check http://seclists.org/nmap-dev/2009/q3/0596.html
@@ -243,10 +247,15 @@ void signal_handler(int signo){
         exit(EXIT_FAILURE);
       break;
 
+      case SIGQUIT:
+        o.displayStatistics();
+        nping_print(VB_0," "); /* Print newline */
+      break;
+
       default:
         nping_warning(QT_2, "signal_handler(): Unexpected signal received (%d). Please report a bug.", signo);
+        fflush(stderr);
+        exit(EXIT_FAILURE);
       break;
   }
-  fflush(stderr);
-  exit(EXIT_FAILURE);
 } /* End of signal_handler() */
