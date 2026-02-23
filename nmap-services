@@ -48,14 +48,14 @@ netstat	15/tcp	0.000038
 unknown	16/tcp	0.000050
 qotd	17/tcp	0.002346	# Quote of the Day
 qotd	17/udp	0.009209	# Quote of the Day
-msp	18/tcp	0.000000	# Message Send Protocol
+msp	18/tcp	0.000000	# Message Send Protocol | Message Send Protocol (historic)
 msp	18/udp	0.000610	# Message Send Protocol
-chargen	19/tcp	0.002559	# ttytst source Character Generator
+chargen	19/tcp	0.002559	# ttytst source Character Generator | Character Generator
 chargen	19/udp	0.015865	# ttytst source Character Generator
-ftp-data	20/sctp	0.000000	# File Transfer [Default Data]
+ftp-data	20/sctp	0.000000	# File Transfer [Default Data] | FTP
 ftp-data	20/tcp	0.001079	# File Transfer [Default Data]
 ftp-data	20/udp	0.001878	# File Transfer [Default Data]
-ftp	21/sctp	0.000000	# File Transfer [Control]
+ftp	21/sctp	0.000000	# File Transfer [Control] | File Transfer Protocol [Control]
 ftp	21/tcp	0.197667	# File Transfer [Control]
 ftp	21/udp	0.004844	# File Transfer [Control]
 ssh	22/sctp	0.000000	# Secure Shell Login | The Secure Shell (SSH) Protocol
@@ -547,7 +547,7 @@ unknown	293/tcp	0.000013
 unknown	294/tcp	0.000013
 unknown	294/udp	0.000330
 unknown	295/tcp	0.000013
-unknown	300/tcp	0.000050
+tacacss	300/tcp	0.000050	# TLS Secure Login Host Protocol (TACACSS)
 unknown	301/tcp	0.000213
 unknown	303/tcp	0.000025
 unknown	304/udp	0.000991
@@ -2480,7 +2480,7 @@ brcd	1323/tcp	0.000000
 brcd	1323/udp	0.000000
 delta-mcp	1324/tcp	0.000076
 delta-mcp	1324/udp	0.000000
-dx-instrument	1325/tcp	0.000000
+dx-instrument	1325/tcp	0.000000	# Thermo Fisher Scientific Instrumentation (Formally Dionex)
 dx-instrument	1325/udp	0.000330
 wimsic	1326/tcp	0.000000
 wimsic	1326/udp	0.000000
@@ -3788,7 +3788,7 @@ unisql	1978/tcp	0.000000
 unisql	1978/udp	0.000000
 unisql-java	1979/tcp	0.000000	# UniSQL Java
 unisql-java	1979/udp	0.000000	# UniSQL Java
-pearldoc-xact	1980/tcp	0.000000	# PearlDoc XACT
+pearldoc-xact	1980/tcp	0.000000	# panquest-xact | PearlDoc XACT | PanQuest XACT
 pearldoc-xact	1980/udp	0.000000	# PearlDoc XACT
 p2pq	1981/tcp	0.000076
 p2pq	1981/udp	0.000330
@@ -8407,7 +8407,7 @@ choiceview-agt	4314/tcp	0.000000	# ChoiceView Agent
 choiceview-clt	4316/tcp	0.000000	# ChoiceView Client
 opentelemetry	4317/tcp	0.000000	# OpenTelemetry Protocol
 unknown	4318/udp	0.000330
-fox-skytale	4319/tcp	0.000000	# Fox SkyTale encrypted communication
+fox-skytale	4319/tcp	0.000000	# skytale | Fox SkyTale encrypted communication | Sentyron SkyTale encrypted communication
 fdt-rcatp	4320/tcp	0.000000	# FDT Remote Categorization Protocol
 fdt-rcatp	4320/udp	0.000000	# FDT Remote Categorization Protocol
 rwhois	4321/tcp	0.000276	# Remote Who Is
@@ -8547,7 +8547,7 @@ itwo-server	4410/tcp	0.000000	# RIB iTWO Application Server
 found	4411/tcp	0.000000	# Found Messaging Protocol
 unknown	4411/udp	0.000330
 smallchat	4412/tcp	0.000000
-avi-nms	4413/tcp	0.000000	# avi-nms-disc | AVI Systems NMS
+avi-nms	4413/tcp	0.000000	# vision-mon-disc | vision-mon | avi-nms-disc | AVI Systems NMS | FORTÉ Vision Monitoring platform
 unknown	4413/udp	0.000330
 updog	4414/tcp	0.000076	# Updog Monitoring and Status Framework
 brcd-vr-req	4415/tcp	0.000076	# Brocade Virtual Router Request
@@ -8635,6 +8635,7 @@ sae-urn	4500/tcp	0.000038	# ipsec-nat-t | IPsec NAT-Traversal
 nat-t-ike	4500/udp	0.124467	# IKE Nat Traversal negotiation (RFC3947)
 unknown	4501/udp	0.000330
 a25-fap-fgw	4502/tcp	0.000000	# A25 (FAP-FGW)
+m-bus-oms	4503/tcp	0.000000	# M-Bus-OMS over UDP
 unknown	4506/udp	0.000330
 unknown	4507/udp	0.000330
 unknown	4508/udp	0.000330
@@ -8908,7 +8909,7 @@ vxlan	4789/tcp	0.000000	# Virtual eXtensible Local Area Network (VXLAN)
 vxlan-gpe	4790/tcp	0.000000	# Generic Protocol Extension for Virtual eXtensible Local Area Network (VXLAN)
 roce	4791/tcp	0.000000	# IP Routable RocE
 unified-bus	4792/tcp	0.000000	# IP Routable Unified Bus
-unknown	4793/tcp	0.000076
+uet	4793/tcp	0.000076	# Ultra Ethernet Transport
 unknown	4794/udp	0.000330
 unknown	4797/udp	0.000330
 unknown	4798/udp	0.000330
@@ -11345,6 +11346,7 @@ unknown	7654/tcp	0.000076
 unknown	7660/udp	0.000330
 rome	7663/tcp	0.000000	# Proprietary immutable distributed data storage
 unknown	7667/udp	0.000330
+authoritygate	7668/tcp	0.000000	# AuthorityGate Secure API communication for Orchestrated task sequencing
 imqstomp	7672/tcp	0.000000	# iMQ STOMP Server
 imqstomps	7673/tcp	0.000000	# iMQ STOMP Server over SSL
 imqtunnels	7674/tcp	0.000000	# iMQ SSL tunnel
@@ -12682,6 +12684,7 @@ unknown	9975/udp	0.000330
 xybrid-rt	9978/tcp	0.000000	# XYBRID RT Server
 visweather	9979/tcp	0.000076	# Valley Information Systems Weather station data
 pumpkindb	9981/tcp	0.000000	# Event sourcing database engine with a built-in programming language
+kaostransport	9986/tcp	0.000000	# KAOS secure message transport protocol for safety-critical environments
 dsm-scm-target	9987/tcp	0.000000	# DSM/SCM Target Interface
 dsm-scm-target	9987/udp	0.000000	# DSM/SCM Target Interface
 nsesrvr	9988/tcp	0.000152	# Software Essentials Secure HTTP server
@@ -13160,6 +13163,7 @@ unknown	11421/udp	0.000330
 unknown	11423/udp	0.000330
 unknown	11425/udp	0.000661
 lsdp	11430/tcp	0.000000	# Lenbrook Service Discovery Protocol
+ollama	11434/tcp	0.000000
 unknown	11449/udp	0.000661
 unknown	11452/udp	0.000330
 unknown	11455/udp	0.000330
@@ -15921,6 +15925,7 @@ unknown	21320/udp	0.001307
 unknown	21331/udp	0.000654
 unknown	21333/udp	0.001307
 unknown	21334/udp	0.000654
+xahaud	21337/tcp	0.000000	# Xahau P2P network protocol
 unknown	21337/udp	0.000654
 unknown	21344/udp	0.001307
 unknown	21347/udp	0.000654
@@ -16933,6 +16938,7 @@ unknown	24582/udp	0.000654
 unknown	24584/udp	0.000654
 unknown	24594/udp	0.001961
 unknown	24595/udp	0.000654
+udpstp	24601/tcp	0.000000	# UDP-based IP-Layer Capacity and performance measurement protocol
 unknown	24606/udp	0.001961
 unknown	24610/udp	0.000654
 unknown	24611/udp	0.000654
@@ -22417,7 +22423,7 @@ unknown	44312/udp	0.001036
 unknown	44313/udp	0.000518
 pmcd	44321/tcp	0.000000	# PCP server (pmcd)
 pmcd	44321/udp	0.000000	# PCP server (pmcd)
-pmcdproxy	44322/tcp	0.000000	# PCP server (pmcd) proxy
+pmcdproxy	44322/tcp	0.000000	# pmproxy | PCP server (pmcd) proxy | PCP proxy (pmproxy)
 pmcdproxy	44322/udp	0.000000	# PCP server (pmcd) proxy
 pmwebapi	44323/tcp	0.000000	# HTTP binding for Performance Co-Pilot client API
 unknown	44324/udp	0.000518
@@ -22638,6 +22644,7 @@ unknown	45162/udp	0.000518
 unknown	45164/tcp	0.000076
 unknown	45175/udp	0.000518
 unknown	45179/udp	0.000518
+witsnet	45185/tcp	0.000000	# Wire and Wireless transfer on synchroniz
 unknown	45185/udp	0.000518
 unknown	45189/udp	0.000518
 unknown	45190/udp	0.000518
