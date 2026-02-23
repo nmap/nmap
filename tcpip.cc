@@ -1475,13 +1475,13 @@ static bool accept_any (const unsigned char *p, const struct pcap_pkthdr *h, int
 }
 
 static bool accept_ip (const unsigned char *p, const struct pcap_pkthdr *h, int datalink, size_t offset) {
-  const struct ip *ip = NULL;
+  struct ip local;
 
   if (h->caplen < offset + sizeof(struct ip)) {
     return false;
   }
-  ip = (struct ip *) (p + offset);
-  switch (ip->ip_v) {
+  memcpy(&local, (p + offset), sizeof(struct ip));
+  switch (local.ip_v) {
     case 4:
     case 6:
       break;
@@ -1493,9 +1493,11 @@ static bool accept_ip (const unsigned char *p, const struct pcap_pkthdr *h, int 
   return true;
 }
 
-const u8 *readip_pcap(pcap_t *pd, unsigned int *len, long to_usec,
+u8 *readip_pcap(pcap_t *pd, unsigned int *len, long to_usec,
                   struct timeval *rcvdtime, struct link_header *linknfo, bool validate) {
   int datalink;
+  static u8 *alignedbuf = NULL;
+  static unsigned int alignedbufsz = 0;
   size_t offset = 0;
   struct pcap_pkthdr *head;
   const u8 *p;
@@ -1520,8 +1522,14 @@ const u8 *readip_pcap(pcap_t *pd, unsigned int *len, long to_usec,
   *len = head->caplen - offset;
   p += offset;
 
+  if (*len > alignedbufsz) {
+    alignedbuf = (u8 *) safe_realloc(alignedbuf, *len);
+    alignedbufsz = *len;
+  }
+  memcpy(alignedbuf, p, *len);
+
   if (validate) {
-    if (!validatepkt(p, len)) {
+    if (!validatepkt((u8 *) alignedbuf, len)) {
       *len = 0;
       return NULL;
     }
@@ -1532,13 +1540,13 @@ const u8 *readip_pcap(pcap_t *pd, unsigned int *len, long to_usec,
     linknfo->header = p;
   }
   if (rcvdtime)
-    PacketTrace::trace(PacketTrace::RCVD, (u8 *) p, *len,
+    PacketTrace::trace(PacketTrace::RCVD, (u8 *) alignedbuf, *len,
         rcvdtime);
   else
-    PacketTrace::trace(PacketTrace::RCVD, (u8 *) p, *len);
+    PacketTrace::trace(PacketTrace::RCVD, (u8 *) alignedbuf, *len);
 
   *len = head->caplen - offset;
-  return p;
+  return alignedbuf;
 }
 
 // Returns whether the packet receive time value obtained from libpcap
