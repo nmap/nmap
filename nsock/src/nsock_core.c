@@ -364,7 +364,14 @@ void handle_connect_result(struct npool *ms, struct nevent *nse, enum nse_status
     if (nse->type == NSE_TYPE_CONNECT_SSL &&
         nse->status == NSE_STATUS_SUCCESS) {
 #if HAVE_OPENSSL
-      sslctx = iod->lastproto == IPPROTO_UDP ? ms->dtlsctx : ms->sslctx;
+      if (iod->lastproto == IPPROTO_UDP)
+#ifndef OPENSSL_NO_DTLS
+        sslctx = ms->dtlsctx;
+#else
+        fatal("%s called with no OpenSSL DTLS support", __func__);
+#endif
+      else
+        sslctx = ms->sslctx;
       assert(sslctx != NULL);
       /* Reuse iod->ssl if present. If set, this is the second try at connection
          without the SSL_OP_NO_SSLv2 option set. */
