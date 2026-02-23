@@ -2997,7 +2997,7 @@ match sieve m|^\"IMPLEMENTATION\" \"Dovecot Pigeonhole\"\r\n\"SIEVE\" \"[\w._;-]
 match sieve m|^\"IMPLEMENTATION\" \"Dovecot \(Ubuntu\) Pigeonhole\"\r\n\"SIEVE\" \"[\w._;-]+(?:\s+[\w._;-]+)*\"\r\n\"NOTIFY\" \"mailto\"\r\n\"SASL\" \"[\w._;-]*(?:\s+[\w._;-]+)*\"\r\n\"STARTTLS\"\r\n\"VERSION\" \"([\w._-]+)\"\r\nOK \"[^"]*\"\r\n$| p/Dovecot Pigeonhole sieve/ v/$1/ i/Ubuntu/ o/Linux/ cpe:/o:canonical:ubuntu_linux/
 match sieve m|^\"IMPLEMENTATION\" \"(\d+\.\d+)\"\r\n\"SASL\" \"PLAIN\"\r\n\"SIEVE\" \"fileinto reject envelope vacation imapflags notify subaddress relational comparator-i;ascii-numeric\"\r\nOK\r\n| p/pysieved/ v/$1/
 
-softmatch sieve m|^\"IMPLEMENTATION\" \"([^"])\"\r\n\"SIEVE\" \"| p/sieved/ i/$1/
+softmatch sieve m|^\"IMPLEMENTATION\" \"([^"]+)\"\r\n\"SIEVE\" \"| p/sieved/ i/$1/
 
 match silkroad-online m|^%\0\0P\0\0\x0e.{9}\0\0\0.\0\0\0.{20}|s p/Silkroad Online game server/ cpe:/a:joymax:silkroad_online/
 
