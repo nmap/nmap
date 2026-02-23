@@ -4354,6 +4354,23 @@ table.insert(fingerprints, {
     }
   });
 
+table.insert(fingerprints, {
+    category = 'general',
+    ignore_404 = true,
+    probes = {
+      {
+        path = '/',
+        method = 'GET'
+      }
+    },
+    matches = {
+      {
+        match = '^HTTP/1.[01] 418 I\'M A TEAPOT',
+        output = 'It\'s a teapot!'
+      }
+    }
+});
+
 ------------------------------------------------
 ----         SECURITY SOFTWARE              ----
 ------------------------------------------------
