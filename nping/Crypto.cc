@@ -251,7 +251,11 @@ u8 *Crypto::deriveKey(const u8 *from, size_t fromlen, size_t *final_len){
 
         if( EVP_MD_size(EVP_sha256()) != SHA256_HASH_LEN )
           nping_fatal(QT_2, "OpenSSL is broken. SHA256 len is %d\n", EVP_MD_size(EVP_sha256()) );
-
+        // add check against NULL
+        if(!ctx)
+        {
+            //log and exit
+        }
         /* Compute the SHA256 hash of the supplied buffer */
         EVP_DigestInit(ctx, EVP_sha256());
         EVP_DigestUpdate(ctx, from, fromlen);
