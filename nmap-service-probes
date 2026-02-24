@@ -7020,12 +7020,12 @@ match http m|^HTTP/1\.[01] \d\d\d.*\r\nDate:.*\r\nServer: Stronghold/([-.\w]+) A
 softmatch http m|^HTTP/1\.[01] \d\d\d.*\r\nDate:.*\r\nServer: Stronghold| p/Apache Stronghold httpd/ i/based on Apache/ cpe:/a:redhat:stronghold/
 
 
-match ssl/http m|^HTTP/1.1 400 Bad Request\r\n.*?Server: nginx/([\d.]+)[^\r\n]*?\r\n.*<title>400 The plain HTTP request was sent to HTTPS port</title>|s p/nginx/ v/$1/ cpe:/a:igor_sysoev:nginx:$1/
-match ssl/http m|^HTTP/1.1 400 Bad Request\r\n.*<title>400 The plain HTTP request was sent to HTTPS port</title>|s p/nginx/ cpe:/a:igor_sysoev:nginx/
-match http m|^HTTP/1\.[01] \d\d\d.*?\r\nServer: nginx\r\n|s p/nginx/ cpe:/a:igor_sysoev:nginx/
-match http m|^HTTP/1\.[01] \d\d\d.*\r\nServer: nginx/([\d.]+)\r\n|s p/nginx/ v/$1/ cpe:/a:igor_sysoev:nginx:$1/
-match http m|^HTTP/1\.[01] \d\d\d.*\r\nServer: nginx/([\d.]+) \(Ubuntu\)\r\n|s p/nginx/ v/$1/ i/Ubuntu/ o/Linux/ cpe:/a:igor_sysoev:nginx:$1/ cpe:/o:canonical:ubuntu_linux/ cpe:/o:linux:linux_kernel/a
-match http m|^HTTP/1\.[01] \d\d\d.*\r\nServer: nginx/([\d.]+) \+ ([^\r\n]*)\r\n|s p/nginx/ v/$1/ i/$2/ cpe:/a:igor_sysoev:nginx:$1/
+match ssl/http m|^HTTP/1.1 400 Bad Request\r\n.*?Server: nginx/([\d.]+)[^\r\n]*?\r\n.*<title>400 The plain HTTP request was sent to HTTPS port</title>|s p/nginx/ v/$1/ cpe:/a:f5:nginx:$1/
+match ssl/http m|^HTTP/1.1 400 Bad Request\r\n.*<title>400 The plain HTTP request was sent to HTTPS port</title>|s p/nginx/ cpe:/a:f5:nginx/
+match http m|^HTTP/1\.[01] \d\d\d.*?\r\nServer: nginx\r\n|s p/nginx/ cpe:/a:f5:nginx/
+match http m|^HTTP/1\.[01] \d\d\d.*\r\nServer: nginx/([\d.]+)\r\n|s p/nginx/ v/$1/ cpe:/a:f5:nginx:$1/
+match http m|^HTTP/1\.[01] \d\d\d.*\r\nServer: nginx/([\d.]+) \(Ubuntu\)\r\n|s p/nginx/ v/$1/ i/Ubuntu/ o/Linux/ cpe:/a:f5:nginx:$1/ cpe:/o:canonical:ubuntu_linux/ cpe:/o:linux:linux_kernel/a
+match http m|^HTTP/1\.[01] \d\d\d.*\r\nServer: nginx/([\d.]+) \+ ([^\r\n]*)\r\n|s p/nginx/ v/$1/ i/$2/ cpe:/a:f5:nginx:$1/
 
 # Citrix NFuse 2.0 on MS IIS 5.0
 match http m|^HTTP/1\.[01].*\r\nServer: Microsoft-IIS/([-.\w]+)\r\n(?:[^\r\n]+\r\n)*?Content-Location: http://[^/]+/nfuse.htm\r\n.*\r\n---- NFuse ([-.\w]+) \(Build |s p/Citrix NFuse/ v/$2/ i/Microsoft IIS $1/ o/Windows/ cpe:/a:microsoft:internet_information_services:$1/ cpe:/o:microsoft:windows/a
@@ -9893,7 +9893,7 @@ match http m|^HTTP/1\.1 500 Server Error\r\nContent-Length: 0\r\nServer: HBHTTP 
 match http m|^HTTP/1\.1 404 Not Found\r\n(?:[^\r\n]+\r\n)*?Server: AmazonS3\r\n\r\n404|s p/Amazon S3 httpd/
 match http m|^HTTP/1\.0 404 Not Found\r\nX-Powered-By: Servlet/([\d.]+)\r\nContent-Type: text/html\r\nDate: .*\r\n\r\n<H1>SRVE0255E: A WebGroup/Virtual Host to handle / has not been defined\.</H1><BR><H3>SRVE0255E: A WebGroup/Virtual Host to handle localhost:\d+ has not been defined\.</H3><BR><I>IBM WebSphere Application Server</I>| p/IBM Tivoli Enterprise Portal/ i/Servlet $1/ cpe:/a:ibm:websphere_application_server/
 match http m|^HTTP/1\.1 302 Moved Temporarily\r\nLocation: http://([\w.-]+)/index\.do\r\nContent-Type: text/html;charset=UTF-8\r\nContent-Length: 0\r\nDate: .*\r\nConnection: close\r\nServer: ThinkFree Server\r\n\r\n| p/ThinkFree Server Integrator/ h/$1/
-match http m|^HTTP/1\.1 \d\d\d .*<center>nginx/([\d.]+)</center>\r?\n</body>\r?\n</html>[\r\n]+$|s p/nginx/ v/$1/ cpe:/a:igor_sysoev:nginx:$1/
+match http m|^HTTP/1\.1 \d\d\d .*<center>nginx/([\d.]+)</center>\r?\n</body>\r?\n</html>[\r\n]+$|s p/nginx/ v/$1/ cpe:/a:f5:nginx:$1/
 match http m|^HTTP/1\.1 302 Found\r\nDate: .*\r\nCache-Control: no-cache\r\nX-Runtime: \d+\r\nSet-Cookie: spiceworks_session=[^;]+; path=/; HttpOnly\r\nLocation: https?://([\w.-]+):\d+/login\r\n| p/Spiceworks http admin/ h/$1/
 match http m|^HTTP/1\.1 200 OK\r\nDate: .*\r\nServer: Clearswift\r\n| p/Clearswift Secure Web Gateway/ d/security-misc/
 match http m|^HTTP/1\.0 200 OK\r\nContent-Type: text/html\r\nAccept-Ranges: bytes\r\nETag: \"[^"]+\"\r\nLast-Modified: .*\r\nContent-Length: \d+\r\nConnection: close\r\nDate: .*\r\nServer: dcs-lig-httpd\r\n\r\n| p/lighttpd/ i/D-Link DCS IP camera/ d/webcam/ cpe:/a:lighttpd:lighttpd/a
@@ -10643,8 +10643,8 @@ match http m=^HTTP/1\.1 (?:301 Moved Permanently|403 Forbidden|400 Bad Request|5
 match http m|^HTTP/1\.1 415 Unsupported Media Type\r\nDate: .* GMT\r\nContent-Type: application/octet-stream\r\nContent-Length: 1\r\nConnection: close\r\nServer: imunify360-webshield/([\d.]+)\r\n\r\n\n| p/Imunify360 WebShield/ v/$1/ cpe:/a:cloudlinux:imunify360:$1/
 match http m|^HTTP/1\.1 [45]\d\d .*\r\n(?:[^\r\n]+\r\n)*\r\n<html>\r\n<head><title>[45]\d\d [^<]+</title></head>\r\n<body(?: bgcolor="white")?>\r\n<center><h1>[45]\d\d [^<]+</h1></center>\r\n<hr><center>openresty\/([\w.-]+)</center>\r\n</body>\r\n</html>\r\n| p/OpenResty web app server/ v/$1/ cpe:/a:openresty:ngx_openresty:$1/
 match http m|^HTTP/1\.1 [45]\d\d .*\r\n(?:[^\r\n]+\r\n)*\r\n<html>\r\n<head><title>[45]\d\d [^<]+</title></head>\r\n<body(?: bgcolor="white")?>\r\n<center><h1>[45]\d\d [^<]+</h1></center>\r\n<hr><center>openresty</center>\r\n</body>\r\n</html>\r\n| p/OpenResty web app server/ cpe:/a:openresty:ngx_openresty/
-match http m|^HTTP/1\.1 [45]\d\d .*\r\nDate: .* GMT\r\nContent-Type: text/html\r\nContent-Length: 1\d\d\r\nConnection: close\r\n\r\n<html>\r\n<head><title>[45]\d\d [^<]+</title></head>\r\n<body bgcolor="white">\r\n<center><h1>[45]\d\d [^<]+</h1></center>\r\n<hr><center>nginx/([\w._-]+)</center>\r\n</body>\r\n</html>\r\n| p/nginx/ v/$1/ cpe:/a:igor_sysoev:nginx:$1/
-match http m|^HTTP/1\.1 [45]\d\d .*\r\nDate: .* GMT\r\nContent-Type: text/html\r\nContent-Length: 1\d\d\r\nConnection: close\r\n\r\n<html>\r\n<head><title>[45]\d\d [^<]+</title></head>\r\n<body bgcolor="white">\r\n<center><h1>[45]\d\d [^<]+</h1></center>\r\n<hr><center>nginx</center>\r\n</body>\r\n</html>\r\n| p/nginx/ cpe:/a:igor_sysoev:nginx/
+match http m|^HTTP/1\.1 [45]\d\d .*\r\nDate: .* GMT\r\nContent-Type: text/html\r\nContent-Length: 1\d\d\r\nConnection: close\r\n\r\n<html>\r\n<head><title>[45]\d\d [^<]+</title></head>\r\n<body bgcolor="white">\r\n<center><h1>[45]\d\d [^<]+</h1></center>\r\n<hr><center>nginx/([\w._-]+)</center>\r\n</body>\r\n</html>\r\n| p/nginx/ v/$1/ cpe:/a:f5:nginx:$1/
+match http m|^HTTP/1\.1 [45]\d\d .*\r\nDate: .* GMT\r\nContent-Type: text/html\r\nContent-Length: 1\d\d\r\nConnection: close\r\n\r\n<html>\r\n<head><title>[45]\d\d [^<]+</title></head>\r\n<body bgcolor="white">\r\n<center><h1>[45]\d\d [^<]+</h1></center>\r\n<hr><center>nginx</center>\r\n</body>\r\n</html>\r\n| p/nginx/ cpe:/a:f5:nginx/
 match http m|^HTTP/1\.0 200 OK\r\nServer: CloudStack Password Server 4\.x\r\nDate: .* GMT\r\nContent-type: text/plain\r\nServer: CloudStack Password Server\r\n\r\nHTTP/1\.0 400 Bad Request\r\n| p/Apache CloudStack Password Server/ v/4/ i/Python BaseHTTPRequestHandler/ cpe:/a:apache:cloudstack:4/
 match http m|^HTTP/1\.1 404 Not Found\r\nserver: imageio/([\d.]+)\r\ndate: .* GMT\r\ncontent-length: 19\r\ncontent-type: text/plain; charset=UTF-8\r\n\r\nNo handler for '/'\n| p/oVirt imageio/ v/$1/ cpe:/a:ovirt:imageio:$1/
 match http m|^HTTP/1\.0 200 OK\r\nContent-Type: text/html\r\nDate: .* GMT\r\n\r\n<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,shrink-to-fit=no"><meta name="theme-color" content="#3f51b5"><link rel="manifest" href="\./manifest\.json"><title>Gotify</title| p/Gotify WebUI/ cpe:/a:gotify:gotify/
@@ -10872,7 +10872,7 @@ match http m|^HTTP/1\.[01] (?:[^\r\n]*\r\n(?!\r\n))*?Server: proxygen\r\nDate: |
 match http m|^HTTP/1\.1 \d\d\d (?:[^\r\n]*\r\n(?!\r\n))*?Server: 360wzws\r\nDate: |s p/360 WangZhan httpd/
 match http m|^HTTP/1\.[01] 40[04] (?:[^\r\n]*\r\n(?!\r\n))*?Server: ATLAS Platform\r\n|s p/VeriSign Advanced Transaction Look-up Signaling http redirector/
 match http m|^HTTP/1\.[01] (?:[^\r\n]*\r\n(?!\r\n))*?Date: [^\r\n]+ GMT\r\nServer: ECD \(\w+/[0-9A-F]+\)\r\n|s p/Edgecast ECD httpd/
-match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: instart/nginx\r\n| p/nginx/ i/Instart Logic/ cpe:/a:igor_sysoev:nginx/
+match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: instart/nginx\r\n| p/nginx/ i/Instart Logic/ cpe:/a:f5:nginx/
 match http m|^HTTP/1\.[01] \d\d\d (?:[^\r\n]*\r\n(?!\r\n))*?Server: Tengine/([\w._-]+)\r\n|s p/Tengine httpd/ v/$1/ cpe:/a:alibaba:tengine:$1/
 match http m|^HTTP/1\.[01] \d\d\d (?:[^\r\n]*\r\n(?!\r\n))*?Server: Tengine\r\n|s p/Tengine httpd/ cpe:/a:alibaba:tengine/
 match http m|^HTTP/1\.[01] \d\d\d (?:[^\r\n]*\r\n(?!\r\n))*?Server: 0W/(\d[\w._-]+)\r\n|s p/0W-httpd/ v/$1/ cpe:/a:maxim_zotov:0w-httpd:$1/
@@ -12198,7 +12198,7 @@ match http m|^HTTP/1\.1 400 Page not found\r\nServer: GoAhead-Webs\r\nDate: .*\r
 match http m|^HTTP/1\.1 200 OK\r\n(?:[^\r\n]+\r\n)*?Server: Apache/x\.x\.x \(Unix\) mod_ssl/x\.x\.x OpenSSL/([\w._-]+)\r\nContent-Length: 0\r\nAllow: GET, HEAD, POST, OPTIONS, TRACE\r\nConnection: close\r\n\r\n$|s p/Apache httpd/ i/Fastora NAS T2 NAS device; OpenSSL $1/ d/storage-misc/ o/FreeBSD/ cpe:/a:apache:http_server/ cpe:/a:openssl:openssl:$1/ cpe:/o:freebsd:freebsd/a
 match http m|^HTTP/1\.1 200 OK\r\nServer: Virata-EmWeb/R([\d_]+)\r\nContent-Length: 0\r\nAllow: HEAD, GET, OPTIONS\r\n\r\n$| p/Virata-EmWeb/ v/$SUBST(1,"_",".")/ i/HP LaserJet 2430 printer http config/ d/printer/ cpe:/a:virata:emweb:$SUBST(1,"_",".")/a cpe:/h:hp:laserjet_2430/a
 match http m|^HTTP/1\.0 200 OK\r\nContent-Length: 111\r\nContent-Type: text/xml\r\n.*<error xmlns=\"http://www\.slingbox\.com\"><code>ObjectNotFound</code><message>Resource Not Found</message></error>$|s p/Slingbox remote streaming httpd/
-match http m|^HTTP/1\.1 405 Not Allowed\r\nContent-Type: text/html; charset=utf-8\r\n.*<head><title>405 Not Allowed</title></head>\r\n<body bgcolor=\"white\">\r\n<center><h1>405 Not Allowed</h1></center>\r\n<hr><center>nginx</center>\r\n</body>\r\n</html>\r\n|s p/nginx/ cpe:/a:igor_sysoev:nginx/
+match http m|^HTTP/1\.1 405 Not Allowed\r\nContent-Type: text/html; charset=utf-8\r\n.*<head><title>405 Not Allowed</title></head>\r\n<body bgcolor=\"white\">\r\n<center><h1>405 Not Allowed</h1></center>\r\n<hr><center>nginx</center>\r\n</body>\r\n</html>\r\n|s p/nginx/ cpe:/a:f5:nginx/
 match http m|^HTTP/1\.1 405 Method Not Allowed\r\nPragma: no-cache\r\nConnection: close\r\nCache-Control: no-cache\r\n\r\n<html><head><title>Error</title></head><body>Error: 405 METHOD NOT ALLOWED</body></html>$| p/Canon imageRUNNER 1025i printer http config/ d/printer/ cpe:/h:canon:imagerunner_1025i/
 match http m|^HTTP/1\.0 405 Method Not Allowed\r\nContent-Length: 87\r\nContent-Type: text/html; charset=UTF-8\r\nServer: TornadoServer/([\w._-]+)\r\n\r\n<html><title>405: Method Not Allowed</title><body>405: Method Not Allowed</body></html>$| p/Tornado httpd/ v/$1/ cpe:/a:tornadoweb:tornado:$1/a
 # http://www.ibm.com/developerworks/systems/library/es-nweb/index.html
@@ -12390,12 +12390,12 @@ match http m|^HTTP/1\.1 400 Bad Request\r\nServer: Virata-EmWeb/R([\d_]+)\r\nCon
 match http m|^HTTP/1\.1 505 HTTP Version Not Supported\r\nContent-Length: 0\r\n\r\n| p/EMC Navisphere CIM Object Manager httpd/
 match http m|^HTTP/1\.0 200 OK\r\nPragma: no-cache\r\nCache-Control: no-store\r\nContent-Type: text/html\r\nContent-Length: 229\r\n\r\n<html>\r\n<head>\r\n<title> Error </title>\r\n</head>\r\n<body>\r\n<!-- user defined strings -->\r\nAccess denied due to security policy violation<br><br><!-- reject ID -->\r\nReject ID: [0-9a-f-]+\r\n<br>\r\n<br>\r\n</body>\r\n</html>$| p/Check Point R65 firewall http config/ d/firewall/ cpe:/h:checkpoint:r65/a
 match http m|^HTTP/1\.1 406 Not Acceptable\r\nCache-Control: no-cache\r\nPragma: no-cache\r\nContent-Type: text/html; charset=utf-8\r\nConnection: close\r\nContent-Length: 616\r\n\r\n<HTML><HEAD>\n<TITLE>Request Error</TITLE>| p/Blue Coat proxy server/ d/proxy server/
-match http m|^<html>\r\n<head><title>400 Bad Request</title></head>\r\n<body bgcolor=\"white\">\r\n<center><h1>400 Bad Request</h1></center>\r\n<hr><center>nginx</center>\r\n</body>\r\n</html>\r\n$| p/nginx/ cpe:/a:igor_sysoev:nginx/
+match http m|^<html>\r\n<head><title>400 Bad Request</title></head>\r\n<body bgcolor=\"white\">\r\n<center><h1>400 Bad Request</h1></center>\r\n<hr><center>nginx</center>\r\n</body>\r\n</html>\r\n$| p/nginx/ cpe:/a:f5:nginx/
 match http m|^<html>\r\n<head><title>400 Bad Request</title></head>\r\n<body(?: bgcolor=\"white\")?>\r\n<center><h1>400 Bad Request</h1></center>\r\n<hr><center>openresty</center>\r\n</body>\r\n</html>\r\n$| p/OpenResty web app server/ cpe:/a:openresty:ngx_openresty/
-match http m|^<html>\r\n<head><title>400 Bad Request</title></head>\r\n<body bgcolor=\"white\">\r\n<center><h1>400 Bad Request</h1></center>\r\n<hr><center>nginx/([\w._-]+)</center>\r\n</body>\r\n</html>\r\n$| p/nginx/ v/$1/ cpe:/a:igor_sysoev:nginx:$1/
+match http m|^<html>\r\n<head><title>400 Bad Request</title></head>\r\n<body bgcolor=\"white\">\r\n<center><h1>400 Bad Request</h1></center>\r\n<hr><center>nginx/([\w._-]+)</center>\r\n</body>\r\n</html>\r\n$| p/nginx/ v/$1/ cpe:/a:f5:nginx:$1/
 match http m|^<html>\r\n<head><title>400 Bad Request</title></head>\r\n<body bgcolor=\"white\">\r\n<center><h1>400 Bad Request</h1></center>\r\n<hr><center>cloudflare-nginx</center>\r\n</body>\r\n</html>\r\n$| p/cloudflare-nginx/
-match http m|^<html>\r\n<head><title>400 Bad Request</title></head>\r\n<body>\r\n<center><h1>400 Bad Request</h1></center>\r\n</body>\r\n</html>\r\n$| p/nginx/ cpe:/a:igor_sysoev:nginx/
-match http m|^<head><title>400 Bad Request</title></head>\r\n<h1>400 Bad Request</h1>\r\n\r\n| p/nginx/ cpe:/a:igor_sysoev:nginx/
+match http m|^<html>\r\n<head><title>400 Bad Request</title></head>\r\n<body>\r\n<center><h1>400 Bad Request</h1></center>\r\n</body>\r\n</html>\r\n$| p/nginx/ cpe:/a:f5:nginx/
+match http m|^<head><title>400 Bad Request</title></head>\r\n<h1>400 Bad Request</h1>\r\n\r\n| p/nginx/ cpe:/a:f5:nginx/
 # Counting on this 404 being unique enough here in RTSPRequest.
 match http m|^HTTP/1\.0 404 Not Found\r\n\r\n$| p/XBT BitTorrent tracker http interface/
 match http m|^HTTP/1\.1 400 Bad Request\n\n$| p/Adaptec Storage Manager Agent httpd/
@@ -13826,7 +13826,7 @@ match http m|^HTTP/1\.0 500 Internal Server Error\r\nConnection: Close\r\nConten
 match http m|^HTTP/1\.0 400 Bad Request\nContent-type: text/html\r\nDate: .*\r\nConnection: close\r\n\r\n<HEAD><TITLE>400 Bad Request</TITLE></HEAD>\n<BODY><H1>400 Bad Request</H1>\nUnsupported method\.\n</BODY>\n| p/Brivo EdgeReader access control http interface/ d/security-misc/
 match http m|^HTTP/1\.1 400 Bad Request\r\nContent-Length: 30\r\nContent-Type: text/plain\r\n\r\nHTTP requires CRLF terminators| p/CherryPy wsgiserver/ cpe:/a:cherrypy:cherrypy/
 match http m|^<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2\.0//EN">\n<html><head>\n<title>501 Method Not Implemented</title>\n</head><body>\n<h1>Method Not Implemented</h1>\n<p>\x16\x03 to /[^ ]* not supported\.<br />\n</p>\n<hr>\n<address>IBM_HTTP_Server at ([\w.-]+) Port \d+</address>\n</body></html>\n| p/IBM HTTP Server/ h/$1/ cpe:/a:ibm:http_server/
-match http m|^HTTP/1\.1 400 Bad Request\r\nDate: .*<center>nginx</center>\r\n</body>\r\n</html>\r\n$|s p/nginx/ i/reverse proxy/ cpe:/a:igor_sysoev:nginx/
+match http m|^HTTP/1\.1 400 Bad Request\r\nDate: .*<center>nginx</center>\r\n</body>\r\n</html>\r\n$|s p/nginx/ i/reverse proxy/ cpe:/a:f5:nginx/
 match http m|^<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2\.0//EN">\n<html><head>\n<title>501 Method Not Implemented</title>\n</head><body>\n<h1>Method Not Implemented</h1>\n<p>\x16\x03 to /[^ ]* not supported\.<br />\n</p>\n<hr>\n<address>Apache Server at ([\w.-]+) Port \d+</address>\n</body></html>\n| p/Apache httpd/ h/$1/ cpe:/a:apache:http_server/a
 
 match http-proxy m|^ 400 badrequest\r\nVia: 1\.0 ([\w.-]+) \(McAfee Web Gateway ([\w._-]+)\)\r\nConnection: Close\r\n| p/McAfee Web Gateway/ v/$2/ i/Via $1/ cpe:/a:mcafee:web_gateway:$2/
