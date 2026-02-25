@@ -64,6 +64,9 @@
 #if OPENSSL_VERSION_NUMBER >= 0x30000000L
 #include <openssl/provider.h>
 #endif
+#if OPENSSL_VERSION_NUMBER < 0x10100000L
+#define DTLS_client_method DTLSv1_client_method
+#endif
 
 /* Disallow anonymous ciphers (Diffie-Hellman key agreement), low bit-strength
  * ciphers, export-crippled ciphers, and MD5. Prefer ciphers in decreasing order
@@ -214,8 +217,10 @@ nsock_ssl_ctx nsock_pool_dtls_init(nsock_pool ms_pool, int flags) {
     ms->dtlsctx = dtls_init_common();
   dtls_ctx = (SSL_CTX *) nsock_pool_ssl_init_helper(ms->dtlsctx, flags);
 
+#ifdef SSL_OP_TLSEXT_PADDING
   /* Don't add padding or the ClientHello will fragment and not connect properly. */
   SSL_CTX_clear_options(dtls_ctx, SSL_OP_TLSEXT_PADDING);
+#endif
 
   if (!SSL_CTX_set_cipher_list(dtls_ctx, "DEFAULT"))
     fatal("Unable to set OpenSSL cipher list: %s",

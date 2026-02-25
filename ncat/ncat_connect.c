@@ -194,6 +194,7 @@ static void set_ssl_ctx_options(SSL_CTX *ctx)
         bye("Unable to set OpenSSL cipher list: %s", ERR_error_string(ERR_get_error(), NULL));
     }
 
+#if OPENSSL_VERSION_NUMBER >= 0x010002000L
     if (o.sslalpn) {
         size_t alpn_len;
         unsigned char *alpn = next_protos_parse(&alpn_len, o.sslalpn);
@@ -212,6 +213,7 @@ static void set_ssl_ctx_options(SSL_CTX *ctx)
 
         free(alpn);
     }
+#endif
 
 }
 #endif

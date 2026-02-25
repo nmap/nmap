@@ -84,6 +84,9 @@
 #ifdef HAVE_OPENSSL
 #include <openssl/ssl.h>
 #include <openssl/err.h>
+#if OPENSSL_VERSION_NUMBER < 0x10100000L
+#define DTLS_server_method DTLSv1_server_method
+#endif
 #endif
 
 #ifdef WIN32

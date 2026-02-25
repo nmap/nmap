@@ -519,7 +519,11 @@ int main(int argc, char *argv[])
             }
             else if (strcmp(long_options[option_index].name, "ssl-alpn") == 0) {
                 o.ssl = 1;
+#if OPENSSL_VERSION_NUMBER >= 0x010002000L
                 o.sslalpn = Strdup(optarg);
+#else
+		bye("This version of OpenSSL does not support ALPN.");
+#endif
             }
 #else
             else if (strcmp(long_options[option_index].name, "ssl-cert") == 0) {
