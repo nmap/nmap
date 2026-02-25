@@ -31,6 +31,7 @@
 local nmap = require "nmap"
 local stdnse = require "stdnse"
 local table = require "table"
+local unittest = require "unittest"
 _ENV = stdnse.module("omp2", stdnse.seeall)
 
 local HAVE_SSL = false
@@ -38,6 +39,16 @@ local HAVE_SSL = false
 if pcall(require,'openssl') then
   HAVE_SSL = true
 end
+
+local function escape_xml(s)
+  s = s:gsub("&", "&amp;")
+  s = s:gsub("<", "&lt;")
+  s = s:gsub(">", "&gt;")
+  s = s:gsub('"', "&quot;")
+  s = s:gsub("'", "&apos;")
+  return s
+end
+
 
 --- A Session class holds connection and interaction with the server
 Session = {
@@ -76,8 +87,8 @@ Session = {
 
     -- TODO escape credentials
     status, err = self.socket:send("<authenticate><credentials>"
-      .. "<username>" .. username .. "</username>"
-      .. "<password>" .. password .. "</password>"
+      .. "<username>" .. escape_xml(username) .. "</username>"
+      .. "<password>" .. escape_xml(password) .. "</password>"
       .. "</credentials></authenticate>")
 
     if not status then
@@ -178,4 +189,54 @@ function get_accounts(host)
 end
 
 
-return _ENV;
+if not unittest.testing() then
+  return _ENV
+end
+
+local function fake_socket(auth_response)
+  local socket = {sent = nil}
+
+  function socket:send(data)
+    self.sent = data
+    return true
+  end
+
+  function socket:receive()
+    return true, auth_response
+  end
+
+  return socket
+end
+
+test_suite = unittest.TestSuite:new()
+
+do
+  local socket = fake_socket('<authenticate_response status="200"/>')
+  local session = Session:new(socket)
+  local username = [[user<&>'"]]
+  local password = [[pass<&>'"]]
+  local result = session:authenticate(username, password)
+
+  test_suite:add_test(unittest.not_nil(result), "authenticate succeeds with XML-special credentials")
+  test_suite:add_test(unittest.equal(socket.sent,
+    "<authenticate><credentials>"
+    .. "<username>user&lt;&amp;&gt;&apos;&quot;</username>"
+    .. "<password>pass&lt;&amp;&gt;&apos;&quot;</password>"
+    .. "</credentials></authenticate>"),
+    "authenticate escapes XML special characters in username/password")
+end
+
+do
+  local socket = fake_socket('<authenticate_response status="200"/>')
+  local session = Session:new(socket)
+  session:authenticate("plainuser", "plainpass")
+
+  test_suite:add_test(unittest.equal(socket.sent,
+    "<authenticate><credentials>"
+    .. "<username>plainuser</username>"
+    .. "<password>plainpass</password>"
+    .. "</credentials></authenticate>"),
+    "authenticate leaves plain credentials unchanged")
+end
+
+return _ENV
