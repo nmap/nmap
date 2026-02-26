@@ -1,235 +1,194 @@
 ---
--- POP3 functions.
+-- POP3 helper functions for NSE scripts.
 --
--- @copyright Same as Nmap--See https://nmap.org/book/man-legal.html
+-- @copyright Same as Nmap
+-- See https://nmap.org/book/man-legal.html
+--
 
-local base64 = require "base64"
-local comm = require "comm"
-local match = require "match"
-local stdnse = require "stdnse"
-local string = require "string"
+local base64    = require "base64"
+local comm      = require "comm"
+local match     = require "match"
+local stdnse    = require "stdnse"
 local stringaux = require "stringaux"
-local table = require "table"
+
+local string = string
+local table  = table
+
 _ENV = stdnse.module("pop3", stdnse.seeall)
 
-local HAVE_SSL, openssl = pcall(require,'openssl')
+local HAVE_SSL, openssl = pcall(require, "openssl")
 
-
-err = {
-  none = 0,
-  userError = 1,
-  pwError = 2,
-  informationMissing = 3,
-  OpenSSLMissing = 4,
+-- Error codes returned by login helpers
+local err = {
+  none                = 0,
+  userError           = 1,
+  pwError             = 2,
+  informationMissing  = 3,
+  OpenSSLMissing      = 4,
 }
 
 ---
--- Check a POP3 response for <code>"+OK"</code>.
--- @param line First line returned from an POP3 request.
--- @return The string <code>"+OK"</code> if found or <code>nil</code> otherwise.
-function stat(line)
-  return string.match(line, "+OK")
+-- Check whether a POP3 response indicates success.
+-- @param line POP3 response line
+-- @return true if response starts with "+OK"
+local function stat(line)
+  return type(line) == "string" and line:match("^%+OK")
 end
 
-
-
 ---
--- Try to log in using the <code>USER</code>/<code>PASS</code> commands.
--- @param socket Socket connected to POP3 server.
--- @param user User string.
--- @param pw Password string.
--- @return Status (true or false).
--- @return Error code if status is false.
+-- USER / PASS authentication
 function login_user(socket, user, pw)
   socket:send("USER " .. user .. "\r\n")
-  local status, line = socket:receive_lines(1)
-  if not stat(line) then return false, err.userError end
-  socket:send("PASS " .. pw .. "\r\n")
-
-  status, line = socket:receive_lines(1)
-
-  if stat(line) then return true, err.none
-  else return false, err.pwError
+  local _, line = socket:receive_lines(1)
+  if not stat(line) then
+    return false, err.userError
   end
+
+  socket:send("PASS " .. pw .. "\r\n")
+  _, line = socket:receive_lines(1)
+
+  if stat(line) then
+    return true, err.none
+  end
+
+  return false, err.pwError
 end
 
-
 ---
--- Try to login using the <code>AUTH</code> command using SASL/Plain method.
--- @param socket Socket connected to POP3 server.
--- @param user User string.
--- @param pw Password string.
--- @return Status (true or false).
--- @return Error code if status is false.
+-- SASL PLAIN authentication
 function login_sasl_plain(socket, user, pw)
-
   local auth64 = base64.enc(user .. "\0" .. user .. "\0" .. pw)
   socket:send("AUTH PLAIN " .. auth64 .. "\r\n")
 
-  local status, line = socket:receive_lines(1)
-
+  local _, line = socket:receive_lines(1)
   if stat(line) then
     return true, err.none
-  else
-    return false, err.pwError
   end
+
+  return false, err.pwError
 end
 
 ---
--- Try to login using the <code>AUTH</code> command using SASL/Login method.
--- @param user User string.
--- @param pw Password string.
--- @param pw String containing password to login.
--- @return Status (true or false).
--- @return Error code if status is false.
+-- SASL LOGIN authentication
 function login_sasl_login(socket, user, pw)
-
-  local user64 = base64.enc(user)
-
-  local pw64 = base64.enc(pw)
-
   socket:send("AUTH LOGIN\r\n")
 
-  local status, line = socket:receive_lines(1)
-  if not base64.dec(string.sub(line, 3)) == "User Name:" then
+  local _, line = socket:receive_lines(1)
+  local prompt = base64.dec(string.sub(line or "", 3)):lower()
+
+  if not prompt:find("user") then
     return false, err.userError
   end
 
-  socket:send(user64)
+  socket:send(base64.enc(user) .. "\r\n")
+  _, line = socket:receive_lines(1)
 
-  local status, line = socket:receive_lines(1)
-
-  if not base64.dec(string.sub(line, 3)) == "Password:" then
+  prompt = base64.dec(string.sub(line or "", 3)):lower()
+  if not prompt:find("pass") then
     return false, err.userError
   end
 
-  socket:send(pw64)
-
-  local status, line = socket:receive_lines(1)
+  socket:send(base64.enc(pw) .. "\r\n")
+  _, line = socket:receive_lines(1)
 
   if stat(line) then
     return true, err.none
-  else
-    return false, err.pwError
   end
+
+  return false, err.pwError
 end
 
 ---
--- Try to login using the <code>APOP</code> command.
--- @param socket Socket connected to POP3 server.
--- @param user User string.
--- @param pw Password string.
--- @param challenge String containing challenge from POP3 server greeting.
--- @return Status (true or false).
--- @return Error code if status is false.
+-- APOP authentication (RFC 1939)
 function login_apop(socket, user, pw, challenge)
-  if type(challenge) ~= "string" then return false, err.informationMissing end
-
-  local apStr = stdnse.tohex(openssl.md5(challenge .. pw))
-  socket:send(("APOP %s %s\r\n"):format(user, apStr))
-
-  local status, line = socket:receive_lines(1)
-
-  if (stat(line)) then
-    return true, err.none
-  else
-    return false, err.pwError
+  if not HAVE_SSL then
+    return false, err.OpenSSLMissing
   end
+
+  if type(challenge) ~= "string" then
+    return false, err.informationMissing
+  end
+
+  local digest = stdnse.tohex(openssl.md5(challenge .. pw))
+  socket:send(("APOP %s %s\r\n"):format(user, digest))
+
+  local _, line = socket:receive_lines(1)
+  if stat(line) then
+    return true, err.none
+  end
+
+  return false, err.pwError
 end
 
 ---
--- Asks a POP3 server for capabilities.
---
--- See RFC 2449.
--- @param host Host to be queried.
--- @param port Port to connect to.
--- @return Table containing capabilities or nil on error.
--- @return nil or String error message.
-function capabilities(host, port)
-
-  local socket, line, bopt, first_line = comm.tryssl(host, port, "" , {request_timeout=10000, recv_before=true})
-  if not socket then
-    return nil, "Could Not Connect"
+-- SASL CRAM-MD5 authentication
+function login_sasl_crammd5(socket, user, pw)
+  if not HAVE_SSL then
+    return false, err.OpenSSLMissing
   end
-  if not stat(first_line) then
-    return nil, "No Response"
+
+  socket:send("AUTH CRAM-MD5\r\n")
+  local _, line = socket:receive_lines(1)
+
+  local challenge = base64.dec(string.sub(line or "", 3))
+  local digest = stdnse.tohex(openssl.hmac("md5", pw, challenge))
+  local auth = base64.enc(user .. " " .. digest)
+
+  socket:send(auth .. "\r\n")
+  _, line = socket:receive_lines(1)
+
+  if stat(line) then
+    return true, err.none
+  end
+
+  return false, err.pwError
+end
+
+---
+-- Query POP3 server capabilities (RFC 2449)
+function capabilities(host, port)
+  local socket, _, _, greeting =
+    comm.tryssl(host, port, "", { recv_before = true })
+
+  if not socket then
+    return nil, "Could not connect"
+  end
+
+  if not stat(greeting) then
+    socket:close()
+    return nil, "Invalid POP3 greeting"
   end
 
   local capas = {}
-  if string.find(first_line, "<[%p%w]+>") then
+
+  -- APOP challenge present in greeting
+  if greeting:find("<[^>]+>") then
     capas.APOP = {}
   end
 
-  local status = socket:send("CAPA\r\n")
-  if( not(status) ) then
-    return nil, "Failed to send"
-  end
+  socket:send("CAPA\r\n")
+  local status, response =
+    socket:receive_buf(match.pattern_limit("%.\r?\n", 4096), false)
 
-  status, line = socket:receive_buf(match.pattern_limit("%.", 2048), false)
-  if( not(status) ) then
-    return nil, "Failed to receive"
-  end
   socket:close()
+  if not status then
+    return nil, "Failed to receive CAPA response"
+  end
 
-  local lines = stringaux.strsplit("\r\n",line)
-  if not stat(table.remove(lines,1)) then
+  local lines = stringaux.strsplit("\r\n", response)
+  if not stat(table.remove(lines, 1)) then
     capas.capa = false
     return capas
   end
 
   for _, line in ipairs(lines) do
-    if ( line and #line>0 ) then
-      local capability = line:sub(line:find("[%w-]+"))
-      line = line:sub(#capability + 2)
-      if ( line ~= "" ) then
-        capas[capability] = stringaux.strsplit(" ", line)
-      else
-        capas[capability] = {}
-      end
+    if line and #line > 0 then
+      local name, args = line:match("^(%S+)%s*(.*)")
+      capas[name] = args ~= "" and stringaux.strsplit(" ", args) or {}
     end
   end
 
   return capas
 end
 
----
--- Try to login using the <code>AUTH</code> command using SASL/CRAM-MD5 method.
--- @param socket Socket connected to POP3 server.
--- @param user User string.
--- @param pw Password string.
--- @return Status (true or false).
--- @return Error code if status is false.
-function login_sasl_crammd5(socket, user, pw)
-
-  socket:send("AUTH CRAM-MD5\r\n")
-
-  local status, line = socket:receive_lines(1)
-
-  local challenge = base64.dec(string.sub(line, 3))
-
-  local digest = stdnse.tohex(openssl.hmac('md5', pw, challenge))
-  local authStr = base64.enc(user .. " " .. digest)
-  socket:send(authStr .. "\r\n")
-
-  local status, line = socket:receive_lines(1)
-
-  if stat(line) then
-    return true, err.none
-  else
-    return false, err.pwError
-  end
-end
-
--- Overwrite functions requiring OpenSSL if we got no OpenSSL.
-if not HAVE_SSL then
-
-  local no_ssl = function()
-    return false, err.OpenSSLMissing
-  end
-
-  login_apop = no_ssl
-  login_sasl_crammd5 = no_ssl
-end
-
-
-return _ENV;
+return _ENV
