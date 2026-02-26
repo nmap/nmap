@@ -424,6 +424,14 @@ u16 ICMPv6Header::getSum() const{
 } /* End of getSum() */
 
 
+/** Set the ICMP checksum field to a random value that will never
+  * match the correct checksum */
+int ICMPv6Header::setSumRandom(){
+  this->setSum();
+  this->h.checksum = this->getSum() ^ (1 + (get_random_u16() % (65535-1)));
+  return OP_SUCCESS;
+} /* End of setSumRandom() */
+
 /** @warning Supplied value MUST be in host byte order because it will get
  *  converted by this method using htonl() */
 int ICMPv6Header::setReserved(u32 val){

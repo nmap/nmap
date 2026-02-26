@@ -226,9 +226,6 @@ NpingOps::NpingOps() {
     icmp_code=0;
     icmp_code_set=false;
 
-    badsum_icmp=false;
-    badsum_icmp_set=false;
-
     icmp_redir_addr.s_addr=0;
     icmp_redir_addr_set=false;
 
@@ -1671,40 +1668,6 @@ u8 NpingOps::getICMPCode(){
 bool NpingOps::issetICMPCode(){
   return this->icmp_code_set;
 } /* End of issetICMPCode() */
-
-
-/** Sets attribute badsum_icmp to "true". (Generate invalid checksums in ICMP
- *  packets)
- *  @return previous value of the attribute. */
-bool NpingOps::enableBadsumICMP() {
-  bool prev = this->badsum_icmp;
-  this->badsum_icmp=true;
-  this->badsum_icmp_set=true;
-  return prev;
-} /* End of enableBadsumICMPTCP() */
-
-
-/** Sets attribute traceroute to "false". (Do NOT Generate invalid checksums
- *  in UDP / TCP packets)
- *  @return previous value of the attribute. */
-bool NpingOps::disableBadsumICMP() {
-  bool prev = this->badsum_icmp;
-  this->badsum_icmp=false;
-  this->badsum_icmp_set=true;
-  return prev;
-} /* End of disableBadsumICMP() */
-
-
-/** Returns value of attribute badsum_icmp */
-bool NpingOps::getBadsumICMP() {
-  return this->badsum_icmp;
-} /* End of getBadsumICMP() */
-
-
-/* Returns true if option has been set */
-bool NpingOps::issetBadsumICMP(){
-  return this->badsum_icmp_set;
-} /* End of issetBadsumICMP() */
 
 
 /** Sets ICMPRedirectAddress.
