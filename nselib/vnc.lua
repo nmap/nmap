@@ -667,6 +667,11 @@ VNC = {
   end,
 
   login_ard = function(self, username, password)
+    -- Check for empty username
+    if not username then
+      return false, "No username provided"
+    end
+    
     -- Thanks to David Simmons for describing this protocol:
     -- https://cafbit.com/post/apple_remote_desktop_quirks/
     local status, buf = self.socket:receive_bytes(4)
