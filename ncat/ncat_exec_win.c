@@ -189,9 +189,11 @@ static int run_command_redirected(char *cmdexec, struct subprocess_info *info)
     static int pipe_serial_no = 0;
     char pipe_name[32];
     SECURITY_ATTRIBUTES sa;
-    STARTUPINFO si;
+    STARTUPINFOEX si = {0};
+    SIZE_T attrSize = 0;
     PROCESS_INFORMATION pi;
     char *app_name = NULL;
+    int ret = -1;
 
     setup_environment(&info->fdn);
 
@@ -204,7 +206,7 @@ static int run_command_redirected(char *cmdexec, struct subprocess_info *info)
     if (CreatePipe(&info->child_in_r, &info->child_in_w, &sa, 0) == 0) {
         if (o.verbose)
             logdebug("Error in CreatePipe: %d\n", GetLastError());
-        return -1;
+        goto cleanup;
     }
 
     /* Pipe names must have this special form. */
@@ -221,18 +223,13 @@ static int run_command_redirected(char *cmdexec, struct subprocess_info *info)
     if (info->child_out_r == 0) {
         if (o.verbose)
             logdebug("Error in CreateNamedPipe: %d\n", GetLastError());
-        CloseHandle(info->child_in_r);
-        CloseHandle(info->child_in_w);
-        return -1;
+        goto cleanup;
     }
     info->child_out_w = CreateFile(pipe_name,
         GENERIC_WRITE, 0, &sa, OPEN_EXISTING,
         FILE_ATTRIBUTE_NORMAL | FILE_FLAG_OVERLAPPED, NULL);
     if (info->child_out_w == 0) {
-        CloseHandle(info->child_in_r);
-        CloseHandle(info->child_in_w);
-        CloseHandle(info->child_out_r);
-        return -1;
+        goto cleanup;
     }
     pipe_serial_no++;
 
@@ -240,12 +237,40 @@ static int run_command_redirected(char *cmdexec, struct subprocess_info *info)
     SetHandleInformation(info->child_in_w, HANDLE_FLAG_INHERIT, 0);
     SetHandleInformation(info->child_out_r, HANDLE_FLAG_INHERIT, 0);
 
+    HANDLE handleList[3];
     memset(&si, 0, sizeof(si));
-    si.cb = sizeof(si);
-    si.hStdInput = info->child_in_r;
-    si.hStdOutput = info->child_out_w;
-    si.hStdError = GetStdHandle(STD_ERROR_HANDLE);
-    si.dwFlags |= STARTF_USESTDHANDLES;
+    si.StartupInfo.cb = sizeof(si);
+    handleList[0] = si.StartupInfo.hStdInput = info->child_in_r;
+    handleList[1] = si.StartupInfo.hStdOutput = info->child_out_w;
+    handleList[2] = si.StartupInfo.hStdError = GetStdHandle(STD_ERROR_HANDLE);
+    si.StartupInfo.dwFlags = STARTF_USESTDHANDLES;
+
+    InitializeProcThreadAttributeList(NULL, 1, 0, &attrSize);
+    si.lpAttributeList = (PPROC_THREAD_ATTRIBUTE_LIST) HeapAlloc(GetProcessHeap(), 0, attrSize);
+    if (!si.lpAttributeList) {
+        if (o.verbose)
+          logdebug("HeapAlloc failed: %u\n", GetLastError());
+        goto cleanup;
+    }
+    if (!InitializeProcThreadAttributeList(si.lpAttributeList,
+                                           1, 0, &attrSize)) {
+        if (o.verbose)
+          logdebug("InitializeProcThreadAttributeList failed: %u\n", GetLastError());
+        goto cleanup;
+    }
+    if (!UpdateProcThreadAttribute(
+            si.lpAttributeList,
+            0,
+            PROC_THREAD_ATTRIBUTE_HANDLE_LIST,
+            handleList,
+            sizeof(handleList),
+            NULL,
+            NULL))
+    {
+        if (o.verbose)
+          logdebug("UpdateProcThreadAttribute failed: %u\n", GetLastError());
+        goto cleanup;
+    }
 
     memset(&pi, 0, sizeof(pi));
 
@@ -260,7 +285,8 @@ static int run_command_redirected(char *cmdexec, struct subprocess_info *info)
       }
     }
 
-    if (CreateProcess(app_name, cmdexec, NULL, NULL, TRUE, 0, NULL, NULL, &si, &pi) == 0) {
+    if (CreateProcess(app_name, cmdexec, NULL, NULL, TRUE,
+      EXTENDED_STARTUPINFO_PRESENT, NULL, NULL, &si.StartupInfo, &pi) == 0) {
         if (o.verbose) {
             LPVOID lpMsgBuf;
             FormatMessage(
@@ -275,12 +301,9 @@ static int run_command_redirected(char *cmdexec, struct subprocess_info *info)
 
             logdebug("Error in CreateProcess: %s\nCommand was: %s\n", (lpMsgBuf), cmdexec);
         }
-        CloseHandle(info->child_in_r);
-        CloseHandle(info->child_in_w);
-        CloseHandle(info->child_out_r);
-        CloseHandle(info->child_out_w);
-        return -1;
+        goto cleanup;
     }
+    ret = pi.dwProcessId;
 
     /* Close hThread here because we have no use for it. hProcess is closed in
        subprocess_info_close. */
@@ -288,7 +311,22 @@ static int run_command_redirected(char *cmdexec, struct subprocess_info *info)
 
     info->proc = pi.hProcess;
 
-    return pi.dwProcessId;
+cleanup:
+    if (ret == -1) {
+      if (info->child_in_r)
+        CloseHandle(info->child_in_r);
+      if (info->child_in_w)
+        CloseHandle(info->child_in_w);
+      if (info->child_out_r)
+        CloseHandle(info->child_out_r);
+      if (info->child_out_w)
+        CloseHandle(info->child_out_w);
+    }
+    if (si.lpAttributeList) {
+        DeleteProcThreadAttributeList(si.lpAttributeList);
+        HeapFree(GetProcessHeap(), 0, si.lpAttributeList);
+    }
+    return ret;
 }
 
 static const char *get_shell(void)
