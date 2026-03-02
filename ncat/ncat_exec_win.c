@@ -530,7 +530,8 @@ static DWORD WINAPI subprocess_thread_func(void *data)
     /* PIPE_CLOSE sets idx[_PipeName] to -1, shifts events down, updates idx, decrements nCount */
 #define PIPE_CLOSE(_PipeName) shutdown_##_PipeName(info, events, idx, &nCount)
 
-    while (nCount > 0) {
+    /* If nCount is only 1, there's nothing left to do. */
+    while (nCount > 1) {
         DWORD n_w;
         int i, n;
         char *crlf = NULL, *wbuf;
@@ -569,6 +570,15 @@ static DWORD WINAPI subprocess_thread_func(void *data)
                     break;
                 }
             } while (pending);
+            /* Read succeeded, but also check for FD_CLOSE error that was
+             * cleared and won't be signaled again */
+            if (triggered.lNetworkEvents & FD_CLOSE) {
+              if (o.debug && triggered.iErrorCodes[FD_CLOSE_BIT]) {
+                logdebug("Connection closed for fd %d: %s.\n", info->fdn.fd,
+                    socket_strerror(triggered.iErrorCodes[FD_CLOSE_BIT]));
+              }
+              PIPE_CLOSE(PIPE_IN);
+            }
         }
 
         if (PIPE_OUT_IS_OPEN() && (bPipeOutReady || HasOverlappedIoCompleted(&overlap))) {
@@ -577,12 +587,16 @@ static DWORD WINAPI subprocess_thread_func(void *data)
                 if (!GetOverlappedResult(info->child_out_r, &overlap, &n_r, FALSE)) {
                     /* Probably read result wasn't ready, but we got here because
                      * there was data on the socket. */
-                    switch (GetLastError()) {
+                    DWORD dwErr = GetLastError();
+                    switch (dwErr) {
                     case ERROR_IO_PENDING:
                     case ERROR_IO_INCOMPLETE:
                         break;
                     default:
                         /* Error or end of file. */
+                        if (o.debug) {
+                          logdebug("GetOverlappedResult error %08x.\n", dwErr);
+                        }
                         PIPE_CLOSE(PIPE_OUT);
                         break;
                     }
@@ -606,10 +620,16 @@ static DWORD WINAPI subprocess_thread_func(void *data)
                 }
                 /* Queue another asychronous read. */
                 bPipeOutReady = ReadFile(info->child_out_r, pipe_buffer, sizeof(pipe_buffer), &n_r, &overlap);
-                if (!bPipeOutReady && ERROR_IO_PENDING != GetLastError()) {
-                    // Bad error; shut it down.
-                    PIPE_CLOSE(PIPE_OUT);
-                    break;
+                if (!bPipeOutReady) {
+                  DWORD dwErr = GetLastError();
+                  if (ERROR_IO_PENDING != dwErr) {
+                      // Bad error; shut it down.
+                        if (o.debug) {
+                          logdebug("ReadFile error %08x.\n", dwErr);
+                        }
+                      PIPE_CLOSE(PIPE_OUT);
+                      break;
+                  }
                 }
         }
         /* 'else if' because we need to finish all socket writes before
