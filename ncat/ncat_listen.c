@@ -322,8 +322,10 @@ int ncat_listen()
         }
 
         /* The idle timer should only be running when there are active connections */
-        if (o.idletimeout > 0 && get_conn_count() && o.idletimeout * 1000 < usec_wait)
+        if (o.idletimeout > 0 && get_conn_count()) {
+          if (usec_wait < 0 || o.idletimeout * 1000 < usec_wait)
             usec_wait = o.idletimeout * 1000;
+        }
 
         if (usec_wait >= 0) {
             tvp = &tv;
