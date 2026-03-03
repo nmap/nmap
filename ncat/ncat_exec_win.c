@@ -573,9 +573,9 @@ static DWORD WINAPI subprocess_thread_func(void *data)
             /* Read succeeded, but also check for FD_CLOSE error that was
              * cleared and won't be signaled again */
             if (triggered.lNetworkEvents & FD_CLOSE) {
-              if (o.debug && triggered.iErrorCodes[FD_CLOSE_BIT]) {
+              if (o.debug && triggered.iErrorCode[FD_CLOSE_BIT]) {
                 logdebug("Connection closed for fd %d: %s.\n", info->fdn.fd,
-                    socket_strerror(triggered.iErrorCodes[FD_CLOSE_BIT]));
+                    socket_strerror(triggered.iErrorCode[FD_CLOSE_BIT]));
               }
               PIPE_CLOSE(PIPE_IN);
             }
