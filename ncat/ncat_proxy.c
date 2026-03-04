@@ -307,6 +307,7 @@ static void http_server_handler(int c)
         }
     }
 #endif
+    block_socket(sock.fdn.fd);
 
     code = http_read_request_line(&sock, &buf);
     if (code != 0) {
@@ -385,6 +386,8 @@ static void http_server_handler(int c)
             return;
         }
     }
+
+    unblock_socket(sock.fdn.fd);
 
     if (strcmp(request.method, "CONNECT") == 0) {
         code = handle_connect(&sock, &request);
