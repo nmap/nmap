@@ -296,6 +296,8 @@ static void http_server_handler(int c)
     char *buf;
 
     socket_buffer_init(&sock, c);
+    block_socket(sock.fdn.fd);
+
 #if HAVE_OPENSSL
     if (o.ssl) {
         sock.fdn.ssl = new_ssl(sock.fdn.fd);
@@ -307,7 +309,6 @@ static void http_server_handler(int c)
         }
     }
 #endif
-    block_socket(sock.fdn.fd);
 
     code = http_read_request_line(&sock, &buf);
     if (code != 0) {
@@ -478,7 +479,7 @@ static int handle_connect(struct socket_buffer *client_sock,
             do {
                 do {
                     len = fdinfo_recv(&client_sock->fdn, buf, sizeof(buf));
-                } while (len == -1 && socket_errno() == EINTR);
+                } while (len == -1 && client_sock->fdn.lasterr == EINTR);
                 if (len <= 0)
                     goto end;
 
@@ -499,7 +500,7 @@ static int handle_connect(struct socket_buffer *client_sock,
 
             do {
                 rc = fdinfo_send(&client_sock->fdn, buf, len);
-            } while (rc == -1 && socket_errno() == EINTR);
+            } while (rc == -1 && client_sock->fdn.lasterr == EINTR);
             if (rc == -1)
                 goto end;
         }
