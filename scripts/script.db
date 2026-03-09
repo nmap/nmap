@@ -527,6 +527,7 @@ Entry { filename = "snmp-ios-config.nse", categories = { "intrusive", } }
 Entry { filename = "snmp-netstat.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "snmp-processes.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "snmp-sysdescr.nse", categories = { "default", "discovery", "safe", } }
+Entry { filename = "snmp-usernames.nse", categories = { "brute", "discovery", } }
 Entry { filename = "snmp-win32-services.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "snmp-win32-shares.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "snmp-win32-software.nse", categories = { "default", "discovery", "safe", } }
