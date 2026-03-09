@@ -52,7 +52,7 @@ References:
 -- |   monitor  - Valid SNMPv3 username
 -- |_  readonly - Valid SNMPv3 username
 
-author     = "Your Name"
+author     = "Sachin"
 license    = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"discovery", "brute"}
 
