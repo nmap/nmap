@@ -139,6 +139,12 @@ local function normalize_escape (s)
   return escape(unescape(s))
 end
 
+---
+-- Converts an IDN hostname, possibly containing UTF-8 encoded characters,
+-- to its Punycode ACE form.
+-- @param host The host table or a string.
+-- @return Punycode hostname.
+-----------------------------------------------------------------------------
 function ascii_hostname(host)
   local hostname = stdnse.get_hostname(host)
   if hostname:match("[\x80-\xff]") then
@@ -538,6 +544,17 @@ for k, v in ipairs(absolute_path_tests) do
   local bpath, rpath, expected = table.unpack(v)
   test_suite:add_test(unittest.equal(absolute_path(bpath, rpath), expected),
                       ("absolute_path #%d (%q,%q)"):format(k, bpath, rpath))
+end
+
+local ascii_hostname_tests = { -- {UTF-8 IDN in hex, expected}
+                              {"ec8aa4ed8380ebb285ec8aa42e636f6d", "xn--ik3bz5iba065l.com"},
+                              {"6ef09f97baefb88f2e6f7267", "xn--n-6u3s.org"},
+                             }
+for k, v in ipairs(ascii_hostname_tests) do
+  local hexidn, expected = table.unpack(v)
+  local host = stdnse.fromhex(hexidn)
+  test_suite:add_test(unittest.equal(ascii_hostname(host), expected),
+                      ("ascii_hostname #%d"):format(k))
 end
 
 return _ENV;
