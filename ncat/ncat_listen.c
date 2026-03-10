@@ -402,13 +402,13 @@ restart_fd_loop:
                 } else {
                     /* Read from stdin and write to all clients. */
                     rc = read_stdin(&qtv);
-                    if (rc == 0 && type == SOCK_STREAM) {
+                    if (rc == 0 && (type == SOCK_STREAM || o.ssl)) {
+                        if (!o.noshutdown) shutdown_sockets(SHUT_WR);
                         if (o.quitafter == 0 && (o.proto != IPPROTO_TCP || (o.proto == IPPROTO_TCP && o.sendonly))) {
                             /* There will be nothing more to send. If we're not
                                receiving anything, we can quit here. */
                             return 0;
                         }
-                        if (!o.noshutdown) shutdown_sockets(SHUT_WR);
                     }
                     if (rc < 0)
                         return 1;
