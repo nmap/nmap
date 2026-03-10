@@ -116,6 +116,9 @@ sub wait_listen {
 			}
 		}
 	}
+  # Didn't find the LISTEN line, so it's likely dead. waitpid won't detect this
+  # immediately on Windows, so let's sleep a moment to be sure.
+  usleep(100000);
 }
 
 sub ncat_server {
@@ -142,7 +145,7 @@ sub ncat_client {
 	my $host;
 	my @ret = ncat(host_for_args(@_), $PORT, @_);
 	# Give it a moment to connect.
-	usleep(100000);
+	usleep(500000);
 	return @ret;
 }
 
@@ -157,7 +160,7 @@ sub kill_children {
 # Read until a timeout occurs. Return undef on EOF or "" on timeout.
 sub timeout_read {
 	my $fh = shift;
-	my $timeout = 0.50;
+	my $timeout = 0.90;
 	if (scalar(@_) > 0) {
 		$timeout = shift;
 	}
