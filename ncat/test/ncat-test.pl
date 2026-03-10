@@ -49,11 +49,15 @@ my $ECHO;
 my $PERL;
 my $BINSH;
 if ($^O eq "cygwin") {
-	my $CYGPATH="C:/cygwin"; 
-	$CAT = "$CYGPATH/bin/cat";
-	$ECHO = "$CYGPATH/bin/echo";
-	$PERL = "$CYGPATH/bin/perl";
-	$BINSH = "$CYGPATH/bin/sh";
+	my $CYGPATH="C:/cygwin";
+	$CAT = qx{cygpath -w `which cat`} || "$CYGPATH/bin/cat";
+	chomp $CAT;
+	$ECHO = qx{cygpath -w `which echo`} || "$CYGPATH/bin/echo";
+	chomp $ECHO;
+	$PERL = qx{cygpath -w `which perl`} || "$CYGPATH/bin/perl";
+	chomp $PERL;
+	$BINSH = qx{cygpath -w `which sh`} || "$CYGPATH/bin/sh";
+	chomp $BINSH;
 } else {
 	$CAT = "/bin/cat";
 	$ECHO = "/bin/echo";
