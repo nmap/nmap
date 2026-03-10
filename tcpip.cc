@@ -1663,14 +1663,16 @@ bool getNextHopMAC(const char *iface, const u8 *srcmac, const struct sockaddr_st
 
   /* Maybe the system ARP cache will be more helpful */
   a = arp_open();
-  addr_ston((sockaddr *) dstss, &ae.arp_pa);
-  if (arp_get(a, &ae) == 0) {
-    mac_cache_set(dstss, ae.arp_ha.addr_eth.data);
-    memcpy(dstmac, ae.arp_ha.addr_eth.data, 6);
+  if (a) {
+    addr_ston((sockaddr *) dstss, &ae.arp_pa);
+    if (arp_get(a, &ae) == 0) {
+      mac_cache_set(dstss, ae.arp_ha.addr_eth.data);
+      memcpy(dstmac, ae.arp_ha.addr_eth.data, 6);
+      arp_close(a);
+      return true;
+    }
     arp_close(a);
-    return true;
   }
-  arp_close(a);
 
   /* OK, the last choice is to send our own damn ARP request (and
      retransmissions if necessary) to determine the MAC */
