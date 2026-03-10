@@ -201,6 +201,7 @@ elif test "$ac_cv_header_sys_dlpi_h" = yes || \
 	AC_LIBOBJ([eth-dlpi])
 else
 	AC_LIBOBJ([eth-none])
+	AC_MSG_ERROR("Ethernet support not found for this system.")
 fi
 
 AC_LIBOBJ([fw-none])
@@ -232,6 +233,7 @@ elif test "$ac_cv_header_hpsecurity_h" = yes ; then
 	AC_LIBOBJ([route-hpux])
 else
 	AC_LIBOBJ([route-none])
+	AC_MSG_ERROR("Routing interface not found for this system.")
 fi
 
 dnl Check for ndisc interface.
