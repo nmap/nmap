@@ -224,6 +224,10 @@ sub server_client_test {
 	my $client_args = shift;
 	my $code = shift;
 	($s_pid, $s_out, $s_in) = ncat_server(@$server_args);
+  if (waitpid($s_pid, WNOHANG) != 0) {
+    test($desc, sub {die "Server not running\n"});
+    return;
+  }
 	($c_pid, $c_out, $c_in) = ncat_client(@$client_args);
 	test($desc, $code);
 	kill_children;
