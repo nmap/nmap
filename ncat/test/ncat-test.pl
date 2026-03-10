@@ -489,6 +489,56 @@ sub match_ncat_environment {
 	/x;
 }
 
+sub windows_quote_escape {
+  my $quote = shift;
+  $quote =~ s/(.)/\\$1/g;
+  return $quote;
+}
+
+sub plain_quote {
+  my $str = shift;
+  if ($WIN32) {
+    # CmdlineToArgvW() is used within CreateProcess() to split on whitespace
+    # with special double-quote rules.
+    # First escape all quotes and preceding backslashes
+    $str =~ s/(\\*")/windows_quote_escape($1)/ge;
+    # Then put quotes around the entire thing to protect whitespace
+    $str = qq{"$str"};
+  }
+  else {
+    # cmdline_split in ncat_posix.c splits on whitespace without regard for quotes.
+    # escape any literal backslashes
+    $str =~ s/\\/\\\\/g;
+    # escape any whitespace
+    $str =~ s/(\s)/\\$1/g;
+  }
+  return $str;
+}
+
+sub shell_quote {
+  my $str = shift;
+  if ($WIN32) {
+    # As long as it's quoted, shell won't touch it
+    $str = plain_quote($str);
+    # Exception: there is no way to prevent %VAR% from being expanded within quotes,
+    # so we have to break out of the quotes. Technically, whitespace and quotes
+    # are allowed in variable names, but this is good enough for us for now:
+    $str =~ s/%([^\s"]*)%/"^%$1^%"/g;
+  }
+  else {
+    # single quotes are untouchable
+    # escape existing single quotes:
+    $str =~ s/'/'\''/g;
+    # Then wrap the whole thing in single quotes:
+    $str = qq{'$str'};
+  }
+  return $str;
+}
+
+my $perl_uc = 'BEGIN{$|=1}print(uc)';
+my $exec_perl_uc = "$PERL -ne " . plain_quote($perl_uc);
+my $shexec_perl_uc = "$PERL -ne " . shell_quote($perl_uc);
+
 # Ignore broken pipe signals that result when trying to read from a terminated
 # client.
 $SIG{PIPE} = "IGNORE";
@@ -1158,14 +1208,14 @@ kill_children;
 # Test --exec, --sh-exec and --lua-exec.
 
 server_client_test_all "--exec",
-["--exec", "$PERL -e \$|=1;while(<>)\{tr/a-z/A-Z/;print\}"], [], sub {
+["--exec", $exec_perl_uc], [], sub {
 	syswrite($c_in, "abc\n");
 	my $resp = timeout_read($c_out) or die "Read timeout";
 	$resp eq "ABC\n" or die "Client received " . d($resp) . ", not " . d("ABC\n");
 };
 
 server_client_test_all "--sh-exec",
-["--sh-exec", "perl -e '\$|=1;while(<>)\{tr/a-z/A-Z/;print\}'"], [], sub {
+["--sh-exec", $shexec_perl_uc], [], sub {
 	syswrite($c_in, "abc\n");
 	my $resp = timeout_read($c_out) or die "Read timeout";
 	$resp eq "ABC\n" or die "Client received " . d($resp) . ", not " . d("ABC\n");
@@ -1179,7 +1229,7 @@ server_client_test_all "--exec, quits instantly",
 };
 
 server_client_test_all "--sh-exec with -C",
-["--sh-exec", "$PERL -e '\$|=1;while(<>){tr/a-z/A-Z/;print}'", "-C"], [], sub {
+["--sh-exec", $shexec_perl_uc, "-C"], [], sub {
 	syswrite($c_in, "abc\n");
 	my $resp = timeout_read($c_out) or die "Read timeout";
 	$resp eq "ABC\r\n" or die "Client received " . d($resp) . ", not " . d("ABC\r\n");
@@ -1329,7 +1379,7 @@ server_client_test_tcp_sctp_ssl "idle timeout (listen mode)",
 	syswrite($s_in, "abc\n");
 	$resp = timeout_read($c_out) or die "Read timeout";
 	sleep 4;
-	syswrite($c_in, "abc\n");
+	syswrite($c_in, "ABC\n");
 	$resp = timeout_read($s_out);
 	!$resp or die "Server received \"$resp\" after delay of 4000 ms with idle timeout of 3000 ms."
 };
@@ -2740,7 +2790,7 @@ sub {
 kill_children;
 }
 {
-($s_pid, $s_out, $s_in) = ncat_server("--ssl", "--exec","$PERL -e \$|=1;while(<>)\{tr/a-z/A-Z/;print\}", "--ssl-key", "test-cert.pem", "--ssl-cert", "test-cert.pem", "--keep-open");
+($s_pid, $s_out, $s_in) = ncat_server("--ssl", "--exec", $exec_perl_uc, "--ssl-key", "test-cert.pem", "--ssl-cert", "test-cert.pem", "--keep-open");
 test "SSL --exec server doesn't block during handshake",
 sub {
 	my $resp;
