@@ -49,25 +49,9 @@ _VERSION = "URL 1.0"
 
 --[[ Internal functions --]]
 
-local function make_set(t)
-  local s = {}
-  for i,v in base.ipairs(t) do
-    s[t[i]] = 1
-  end
-  return s
-end
-
 local function hex_esc (c)
   return string.format("%%%02X", string.byte(c))
 end
-
--- these are allowed within a path segment, along with alphanum
--- other characters must be escaped
-local segment_set = make_set {
-  "-", "_", ".", "!", "~", "*", "'", "(",
-  ")", ":", "@", "&", "=", "+", "$", ",",
-}
-setmetatable(segment_set, { __index = function(t, c) return hex_esc(c) end })
 
 ---
 -- Protects a path segment, to prevent it from interfering with the
@@ -75,7 +59,7 @@ setmetatable(segment_set, { __index = function(t, c) return hex_esc(c) end })
 -- @param s Binary string to be encoded.
 -- @return Escaped representation of string.
 local function protect_segment(s)
-  return string.gsub(s, "([^A-Za-z0-9_.~-])", segment_set)
+  return string.gsub(s, "[^-A-Za-z0-9_.!~*'():@&=+$,]", hex_esc)
 end
 
 ---
@@ -508,6 +492,15 @@ local test_urls = {
       is_folder = true,
     },
     _nil = {"scheme", "userinfo", "port", "params", "extension"}
+  },
+  { _url = "//example/exam+ple%2F/folder:443/k1=v1&k2=v2",
+    _res = {
+      authority = "example",
+      host = "example",
+      path = "/exam+ple%2F/folder:443/k1=v1&k2=v2",
+      is_folder = false,
+    },
+    _nil = {"scheme", "userinfo", "port", "params", "extension", "query", "fragment"}
   },
 }
 for _, t in ipairs(test_urls) do
