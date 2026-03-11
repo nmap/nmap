@@ -202,17 +202,17 @@ function parse(url, default)
     parsed.fragment = f
     return ""
   end)
+  -- get query string
+  url = string.gsub(url, "%?(.*)", function(q)
+    parsed.query = q
+    return ""
+  end)
   -- get scheme. Lower-case according to RFC 3986 section 3.1.
   url = string.gsub(url, "^(%w[%w.+-]*):",
   function(s) parsed.scheme = string.lower(s); return "" end)
   -- get authority
   url = string.gsub(url, "^//([^/]*)", function(n)
     parsed.authority = n
-    return ""
-  end)
-  -- get query stringing
-  url = string.gsub(url, "%?(.*)", function(q)
-    parsed.query = q
     return ""
   end)
   -- get params
@@ -508,6 +508,16 @@ local test_urls = {
       is_folder = true,
     },
     _nil = {"scheme", "userinfo", "port", "params", "extension"}
+  },
+  { _url = "//example?k1=v1&k2=v2",
+    _res = {
+      authority = "example",
+      host = "example",
+      path = "",
+      query = "k1=v1&k2=v2",
+      is_folder = false,
+    },
+    _nil = {"scheme", "userinfo", "port", "params", "extension", "fragment"}
   },
 }
 for _, t in ipairs(test_urls) do
