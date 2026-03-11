@@ -13,7 +13,7 @@
 -- * <code>password</code>
 -- These correspond to these parts of a URL (some may be <code>nil</code>):
 -- <code>
--- scheme://userinfo@password:authority:port/path;params?query#fragment
+-- scheme://userinfo:password@authority:port/path;params?query#fragment
 -- </code>
 --
 -- @author Diego Nehab
