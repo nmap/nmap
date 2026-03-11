@@ -15,6 +15,20 @@ o [NSE][GH#2183][GH#3239] Script hostmap-crtsh now reports only true subdomains
 o [NSE] Function url.parse was not properly parsing URLs with query strings
   but empty paths. [nnposter]
 
+o [NSE] Function tableaux.shallow_tcopy() did not work correctly for tables
+  with Boolean keys. [nnposter]
+
+o [NSE] IPP print queue job details were not getting populated, having
+  a hard dependency on Apple-specific attributes. [nnposter]
+
+o [NSE][GH#3245] Functions connect and close have been removed from the IPP
+  library, as they served no purpose. [nnposter]
+
+o [NSE] ipOps.expand_ip was crashing upon malformed IPv6 addresses. [nnposter]
+
+o [NSE][GH#3262] FTP banner parsing is now more closely aligned with RFC 959,
+  section 4.2. [nnposter]
+
 o [NSE][GH#3253] Function stdnse.make_buffer now accepts an extra parameter
   that allows preloading the newly created buffer with data. [nnposter]
 
