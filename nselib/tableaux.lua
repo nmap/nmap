@@ -15,12 +15,13 @@ local tcopy_local
 --- Recursively copy a table.
 --
 -- Uses simple assignment to copy keys and values from a table, recursing into
--- subtables as necessary.
+-- subtables as necessary. The keys are iterated over with next(), not pairs(),
+-- resulting in a "raw" copy of the input.
 -- @param t the table to copy
 -- @return a deep copy of the table
 function tcopy (t)
   local tc = {}
-  for k,v in pairs(t) do
+  for k, v in next, t do
     if type(v) == "table" then
       tc[k] = tcopy_local(v)
     else
@@ -36,14 +37,14 @@ tcopy_local = tcopy
 -- Iterates over the keys of a table and copies their values into a new table.
 -- If any values are tables, they are copied by reference only, and modifying
 -- the copy will modify the original table value as well.
+-- The keys are iterated over with next(), not pairs(), resulting in a "raw"
+-- copy of the input.
 -- @param t the table to copy
 -- @return a shallow copy of the table
 function shallow_tcopy(t)
-  local k = next(t)
   local out = {}
-  while k ~= nil do
-    out[k] = t[k]
-    k = next(t, k)
+  for k, v in next, t do
+    out[k] = v
   end
   return out
 end
@@ -75,15 +76,13 @@ function contains(t, item, array)
   return false, nil
 end
 
---- Returns the keys of a table as an array
+--- Returns the raw keys of a table as an array
 -- @param t The table
 -- @return A table of keys
 function keys(t)
   local ret = {}
-  local k = next(t)
-  while k ~= nil do
+  for k in next, t do
     ret[#ret+1] = k
-    k = next(t, k)
   end
   return ret
 end

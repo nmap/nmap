@@ -15,7 +15,11 @@ o [NSE][GH#2183][GH#3239] Script hostmap-crtsh now reports only true subdomains
 o [NSE] Function url.parse was not properly parsing URLs with query strings
   but empty paths. [nnposter]
 
-o [NSE] Function tableaux.shallow_tcopy() did not work correctly for tables
+o [NSE][GH#3287] Functions tableaux.tcopy and tableaux.shallow_tcopy were
+  not behaving the same when the input table had a custom __pairs metamethod.
+  Both functions now perform a raw copy, ignoring the metamethod. [nnposter]
+
+o [NSE] Function tableaux.shallow_tcopy did not work correctly for tables
   with Boolean keys. [nnposter]
 
 o [NSE] IPP print queue job details were not getting populated, having
