@@ -39,6 +39,17 @@ if pcall(require,'openssl') then
   HAVE_SSL = true
 end
 
+-- Helper to escape XML special characters
+local function xml_escape(s)
+  if not s then return "" end
+  s = s:gsub("&", "&amp;")
+  s = s:gsub("<", "&lt;")
+  s = s:gsub(">", "&gt;")
+  s = s:gsub('"', "&quot;")
+  s = s:gsub("'", "&apos;")
+  return s
+end
+
 --- A Session class holds connection and interaction with the server
 Session = {
 
@@ -74,7 +85,10 @@ Session = {
   authenticate = function(self, username, password)
     local status, err, xmldata
 
-    -- TODO escape credentials
+    -- Escape credentials before inserting into XML
+    username = xml_escape(username)
+    password = xml_escape(password)
+
     status, err = self.socket:send("<authenticate><credentials>"
       .. "<username>" .. username .. "</username>"
       .. "<password>" .. password .. "</password>"
@@ -112,16 +126,8 @@ Session = {
       return false, xmldata
     end
 
-    -- As NSE has no XML parser yet, we use regexp to extract the data from the
-    -- XML output. Targets are defined as a name and the corresponding host(s).
-    -- Thus we gather both and return an associative array, using names as keys
-    -- and hosts as values.
-
     local i = 0
     for name in xmldata:gmatch("<name>(.-)</name>") do
-      -- XXX this is hackish: skip the second and third "<name>" tags, as they
-      -- describe other components than the targets.
-      -- see: http://www.openvas.org/omp-2-0.html#command_get_targets
       if i % 3 == 0 then
         table.insert(target_names, name)
       end
@@ -176,6 +182,5 @@ function get_accounts(host)
   end
   return nil
 end
-
 
 return _ENV;
