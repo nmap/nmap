@@ -472,8 +472,12 @@ nsock_event_id nsock_connect_ssl(nsock_pool nsp, nsock_iod nsiod, nsock_ev_handl
 
   if (proto == IPPROTO_UDP)
   {
+#ifndef OPENSSL_NO_DTLS
     if (!ms->dtlsctx)
       nsock_pool_dtls_init(ms, 0);
+#else
+    fatal("%s called with no OpenSSL DTLS support", __func__);
+#endif
   }
   else
   {
