@@ -355,7 +355,7 @@ bool getNextHopMAC(const char *iface, const u8 *srcmac, const struct sockaddr_st
 const u8 *readipv4_pcap(pcap_t *pd, unsigned int *len, long to_usec,
                     struct timeval *rcvdtime, struct link_header *linknfo, bool validate);
 
-const u8 *readip_pcap(pcap_t *pd, unsigned int *len, long to_usec,
+u8 *readip_pcap(pcap_t *pd, unsigned int *len, long to_usec,
                   struct timeval *rcvdtime, struct link_header *linknfo, bool validate);
 
 /* Examines the given tcp packet and obtains the TCP timestamp option
