@@ -9,7 +9,7 @@ Searches for leaked or forgotten backup copies of the WordPress configuration fi
 These files often contain highly sensitive information, such as database credentials.
 ]]
 
-author = "Your Name"
+author = "1nf1n7y"
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"discovery", "vuln", "safe"}
 
