@@ -91,14 +91,25 @@ dnl
 dnl usage:	AC_DNET_BSD_BPF
 dnl results:	HAVE_BSD_BPF
 dnl
+dnl Copied from libpcap's configure.ac
 AC_DEFUN([AC_DNET_BSD_BPF],
     [AC_MSG_CHECKING(for Berkeley Packet Filter)
     AC_CACHE_VAL(ac_cv_dnet_bsd_bpf,
-    if test -c /dev/bpf -o -c /dev/bpf0 ; then
-        ac_cv_dnet_bsd_bpf=yes
-    else
-        ac_cv_dnet_bsd_bpf=no
-    fi)
+			AC_TRY_COMPILE(
+[
+#include <sys/types.h>
+#include <sys/time.h>
+#include <sys/ioctl.h>
+#include <sys/socket.h>
+#ifdef HAVE_SYS_IOCCOM_H
+#include <sys/ioccom.h>
+#endif
+#include <net/bpf.h>
+#include <net/if.h>
+],
+			[u_int i = BIOCSETIF;],
+			ac_cv_dnet_bsd_bpf=yes,
+			ac_cv_dnet_bsd_bpf=no))
     AC_MSG_RESULT($ac_cv_dnet_bsd_bpf)
     if test $ac_cv_dnet_bsd_bpf = yes ; then
     AC_DEFINE(HAVE_BSD_BPF, 1,
@@ -114,7 +125,7 @@ dnl
 AC_DEFUN([AC_DNET_LINUX_PROCFS],
     [AC_MSG_CHECKING(for Linux proc filesystem)
     AC_CACHE_VAL(ac_cv_dnet_linux_procfs,
-    if test "x`cat /proc/sys/kernel/ostype 2>&-`" = "xLinux" ; then
+    if test "$ac_cv_header_linux_netlink_h" = yes ; then
         ac_cv_dnet_linux_procfs=yes
     else
         ac_cv_dnet_linux_procfs=no
