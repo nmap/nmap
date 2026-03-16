@@ -256,6 +256,7 @@ clean-zenmap:
 	rm -f $(ZENMAPDIR)/zenmapCore/Name.pyc
 
 clean-ndiff:
+	rm -f $(NDIFFDIR)/Version.pyc
 
 clean-nping:
 	-cd $(NPINGDIR) && $(MAKE) clean
@@ -366,7 +367,10 @@ install-zenmap: $(ZENMAPDIR)/pyproject.toml
 # Create a symlink from xnmap to zenmap unconditionally.
 	ln -sf zenmap $(DESTDIR)$(bindir)/xnmap
 
-build-ndiff:
+$(NDIFFDIR)/Version.py: $(ZENMAPDIR)/zenmapCore/Version.py
+	cp $^ $@
+
+build-ndiff: $(NDIFFDIR)/pyproject.toml $(NDIFFDIR)/Version.py
 	$(PYTHON) -m build $(NDIFFDIR)/
 
 build-nping: $(NPINGDIR)/Makefile build-nbase build-nsock build-netutil $(NPINGDIR)/nping.h @DNET_BUILD@ @PCAP_BUILD@
