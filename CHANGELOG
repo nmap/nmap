@@ -12,6 +12,9 @@ o [NSE][GH#2183][GH#3239] Script hostmap-crtsh now reports only true subdomains
   necessarily as a suffix). The old behavior can be enabled by setting script
   argument hostmap-crtsh.lax. [Sweekar-cmd, nnposter]
 
+o [NSE] Function url.parse_query was not interpreting plus signs as spaces.
+  [nnposter]
+
 o [NSE] Function url.parse was not properly parsing URLs with query strings
   but empty paths. [nnposter]
 

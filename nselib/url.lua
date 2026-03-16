@@ -392,6 +392,7 @@ function parse_query(query)
   local pos = 1
 
   query = string.gsub(query, "&([ampltg]+);", entities)
+  query = string.gsub(query, "%+", " ")
 
   local function ginsert(qstr)
     local pos = qstr:find("=", 1, true)
