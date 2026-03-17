@@ -391,6 +391,9 @@ function parse_query(query)
   local parsed = {}
   local pos = 1
 
+  -- TODO: https://github.com/nmap/nmap/issues/3324
+  --       This opportunistic HTML decoding is problematic because
+  --       it might accidentally decode what should not be decoded.
   query = string.gsub(query, "&([ampltg]+);", entities)
   query = string.gsub(query, "%+", " ")
 
