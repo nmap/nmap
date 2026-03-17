@@ -431,7 +431,7 @@ function get_default_port (scheme)
   return get_default_port_ports[(scheme or ""):lower()]
 end
 
-get_default_scheme_schemes = tableaux.invert(get_default_port_ports)
+local get_default_scheme_schemes = tableaux.invert(get_default_port_ports)
 
 ---
 -- Provides the default URI scheme for a given port.
