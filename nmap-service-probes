@@ -9,7 +9,7 @@
 # be found in the Nmap Network Scanning book and online at
 # https://nmap.org/book/vscan-community.html
 #
-# This collection of probe data is (C) 1998-2024 by Insecure.Com
+# This collection of probe data is (C) 1998-2026 by Insecure.Com
 # LLC.  It is distributed under the Nmap Public Source license as
 # provided in the LICENSE file of the source distribution or at
 # https://nmap.org/data/LICENSE .  Note that this license
@@ -3536,6 +3536,7 @@ match spideroak m|^\x60\0\0\0\0\0\0\0\0\0.{90}$|s p/SpiderOak/
 match splashtop m|^SRS:Ready\0| p/Splashtop Remote Server/
 
 match spmd m|^SPMD_ACK\0\0\x01\0\x01$| p/Softimage XSI SPMD license server/ o/Windows/ cpe:/o:microsoft:windows/a
+match spotify m|^\{"type":"Tier1","version":"1\.0"\}\r\n$| p/Spotify json/
 
 # F-Secure/WRQ
 match ssh m|^SSH-([\d.]+)-([\d.]+) F-Secure SSH Windows NT Server\r?\n| p/F-Secure WinNT sshd/ v/$2/ i/protocol $1/ o/Windows/ cpe:/o:microsoft:windows/a
@@ -10004,7 +10005,7 @@ match http m|^HTTP/1\.0 \d\d\d (?:[^\r\n]*\r\n(?!\r\n))*?Server: DrWebServer/REL
 # aviosys 9060 webcam
 match http m|^HTTP/1\.0 401 NG \r\nWWW-Authenticate: Basic realm=Camera Name : (.*)\r\n\r\nUnauthorized$| p/Aviosys webcam httpd/ i/camera name: $1/ d/webcam/
 
-# cockpit
+# cockpit versions based on changes to fail.html
 match http m|^HTTP/1\.1 400 Bad request\r\nContent-Length: 80\r\n\r\n<html><head><title>400 Bad request</title></head><body>Bad request</body></html>| p/Cockpit management console/ o/Linux/ cpe:/a:redhat:cockpit/ cpe:/o:linux:linux_kernel/a
 match http m|^HTTP/1\.1 400 Bad request\r\nContent-Type: text/html; charset=utf8\r\nTransfer-Encoding: chunked\r\n\r\n\d+\r\n<!DOCTYPE html>\n<html>\n<head>\n    <title>\r\nb\r\nBad request\r\ncf6\r\n</title>\n    | p/Cockpit web service/ v/161 or earlier/ o/Linux/ cpe:/a:redhat:cockpit/ cpe:/o:linux:linux_kernel/a
 # X-DNS-Prefetch-Control and Referrer-Policy added in 162
@@ -10020,7 +10021,9 @@ match http m|^HTTP/1\.1 400 Bad request\r\nContent-Type: text/html; charset=utf8
 # cockpit 273 dropped OpenSans, removing a bunch of length
 match http m|^HTTP/1\.1 400 Bad request\r\nContent-Type: text/html; charset=utf8\r\nTransfer-Encoding: chunked\r\nX-DNS-Prefetch-Control: off\r\nReferrer-Policy: no-referrer\r\nX-Content-Type-Options: nosniff\r\nCross-Origin-Resource-Policy: same-origin\r\nX-Frame-Options: sameorigin\r\n\r\n29\r\n<!DOCTYPE html>\n<html>\n<head>\n    <title>\r\nb\r\nBad request\r\nc2b\r\n| p/Cockpit web service/ v/273 - 281/ o/Linux/ cpe:/a:redhat:cockpit/ cpe:/o:linux:linux_kernel/a
 # cockpit 282 added 1 char to length between title replacements
-match http m|^HTTP/1\.1 400 Bad request\r\nContent-Type: text/html; charset=utf8\r\nTransfer-Encoding: chunked\r\nX-DNS-Prefetch-Control: off\r\nReferrer-Policy: no-referrer\r\nX-Content-Type-Options: nosniff\r\nCross-Origin-Resource-Policy: same-origin\r\nX-Frame-Options: sameorigin\r\n\r\n29\r\n<!DOCTYPE html>\n<html>\n<head>\n    <title>\r\nb\r\nBad request\r\nc2c\r\n| p/Cockpit web service/ v/282 or later/ o/Linux/ cpe:/a:redhat:cockpit/ cpe:/o:linux:linux_kernel/a
+match http m|^HTTP/1\.1 400 Bad request\r\nContent-Type: text/html; charset=utf8\r\nTransfer-Encoding: chunked\r\nX-DNS-Prefetch-Control: off\r\nReferrer-Policy: no-referrer\r\nX-Content-Type-Options: nosniff\r\nCross-Origin-Resource-Policy: same-origin\r\nX-Frame-Options: sameorigin\r\n\r\n29\r\n<!DOCTYPE html>\n<html>\n<head>\n    <title>\r\nb\r\nBad request\r\nc2c\r\n| p/Cockpit web service/ v/282 - 322/ o/Linux/ cpe:/a:redhat:cockpit/ cpe:/o:linux:linux_kernel/a
+# Whitespace change: \t to 7 spaces
+match http m|^HTTP/1\.1 400 Bad request\r\nContent-Type: text/html; charset=utf8\r\nTransfer-Encoding: chunked\r\nX-DNS-Prefetch-Control: off\r\nReferrer-Policy: no-referrer\r\nX-Content-Type-Options: nosniff\r\nCross-Origin-Resource-Policy: same-origin\r\nX-Frame-Options: sameorigin\r\n\r\n29\r\n<!DOCTYPE html>\n<html>\n<head>\n    <title>\r\nb\r\nBad request\r\nc32\r\n| p/Cockpit web service/ v/323 or later/ o/Linux/ cpe:/a:redhat:cockpit/ cpe:/o:linux:linux_kernel/a
 # softmatch for later version changes
 softmatch http m|^HTTP/1\.1 400 Bad request\r\nContent-Type: text/html; charset=utf8\r\nTransfer-Encoding: chunked\r\nX-DNS-Prefetch-Control: off\r\nReferrer-Policy: no-referrer\r\nX-Content-Type-Options: nosniff\r\nCross-Origin-Resource-Policy: same-origin\r\nX-Frame-Options: sameorigin\r\n\r\n29\r\n| p/Cockpit web service/ o/Linux/ cpe:/a:redhat:cockpit/ cpe:/o:linux:linux_kernel/a
 
@@ -12820,6 +12823,9 @@ match domain m|^(?:\0\))?\0\x06\x80\x80\0\x01\0\0\0\0\0\x01\x07version\x04bind\0
 match domain m|^(?:\0.)?\0\x06\x85\0\0\x01\0\x01\0\0\0\0\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03\0\0\0\0\0\x01\0| p/D-Link router dnsd/ d/broadband router/
 match domain m|^(?:\0.)?\0\x06\x81\x80\0\x01\0\x01\0\0\0\x01\x07version\x04bind\0\0\x10\0\x03\x07version\x04bind\0\0\x10\0\x03\0\x01Q\x80\0\x1b\x1acloudflare-f-root-\d+\0\0\)\x02\0\0\0\x80\0\0\0| p/Cloudflare F-Root DNS server/
 
+# Generic, but most frequently this
+match domain m|^\0\x0c\0\x06\x81\x84\0\0\0\0\0\0\0\0$| p/Mikrotik dnsd/
+
 # Softmatch section
 # Note: the banner "none" is common, recommended by Debian's bind9 package
 softmatch domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03.{7}([^\0\xc0\x0c]+)|s i/unknown banner: $1/
@@ -14149,6 +14155,7 @@ match ouman-trend m|^\0\0\0\x05\xffSMBr$| p/Ouman Trend environmental sensor/
 # Update like this:
 # cd src/backend/postmaster/; git tag -l 'REL_*' | while read tag; do git checkout $tag -- postmaster.c; echo $tag:$(grep -n -B7 "PG_PROTOCOL_MINOR(PG_PROTOCOL_LATEST))));" postmaster.c | grep ereport) >> lines.txt; done
 # For 12.2 and earlier, use this grep instead: grep -n "PG_PROTOCOL_MINOR(PG_PROTOCOL_LATEST))));" postmaster.c
+# For 17.0 and later, the file is src/backend/tcop/backend_startup.c
 
 # The line numbers need to be updated in both the non-Windows and Windows sections
 
@@ -14252,20 +14259,29 @@ match postgresql m|^E\0\0\0.S[^\0]+\0VFATAL\0C0A000\0M.*?65363\.19778.*\0Fpostma
 # 12.3 and later: line number is line of ereport function call
 match postgresql m|^E\0\0\0.S[^\0]+\0VFATAL\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L2087\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/12.6 - 12.8/ cpe:/a:postgresql:postgresql:12/
 match postgresql m|^E\0\0\0.S[^\0]+\0VFATAL\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L2113\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/12.9 - 12.13/ cpe:/a:postgresql:postgresql:12/
-match postgresql m|^E\0\0\0.S[^\0]+\0VFATAL\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L2120\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/12.14 - 12.18/ cpe:/a:postgresql:postgresql:12/
+match postgresql m|^E\0\0\0.S[^\0]+\0VFATAL\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L2120\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/12.14 - 12.22/ cpe:/a:postgresql:postgresql:12/
 match postgresql m|^E\0\0\0.S[^\0]+\0VFATAL\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L2102\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/13.0 - 13.1/ cpe:/a:postgresql:postgresql:13/
 match postgresql m|^E\0\0\0.S[^\0]+\0VFATAL\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L2103\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/13.2 - 13.4/ cpe:/a:postgresql:postgresql:13/
 match postgresql m|^E\0\0\0.S[^\0]+\0VFATAL\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L2127\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/13.5 - 13.9/ cpe:/a:postgresql:postgresql:13/
 match postgresql m|^E\0\0\0.S[^\0]+\0VFATAL\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L2134\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/13.10 - 13.12/ cpe:/a:postgresql:postgresql:13/
-match postgresql m|^E\0\0\0.S[^\0]+\0VFATAL\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L2137\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/13.13 - 13.14/ cpe:/a:postgresql:postgresql:13/
+match postgresql m|^E\0\0\0.S[^\0]+\0VFATAL\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L2137\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/13.13 - 13.18/ cpe:/a:postgresql:postgresql:13/
+match postgresql m|^E\0\0\0.S[^\0]+\0VFATAL\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L2141\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/13.23/ cpe:/a:postgresql:postgresql:13.23/
 match postgresql m|^E\0\0\0.S[^\0]+\0VFATAL\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L2108\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/14.0/ cpe:/a:postgresql:postgresql:14.0/
 match postgresql m|^E\0\0\0.S[^\0]+\0VFATAL\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L2132\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/14.1 - 14.6/ cpe:/a:postgresql:postgresql:14/
-match postgresql m|^E\0\0\0.S[^\0]+\0VFATAL\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L2139\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/14.7 - 14.9/ cpe:/a:postgresql:postgresql:14/
-match postgresql m|^E\0\0\0.S[^\0]+\0VFATAL\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L2142\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/14.10 - 14.11/ cpe:/a:postgresql:postgresql:14/
+match postgresql m|^E\0\0\0.S[^\0]+\0VFATAL\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L2139\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/13.19 - 13.22 or 14.7 - 14.9/ cpe:/a:postgresql:postgresql/
+match postgresql m|^E\0\0\0.S[^\0]+\0VFATAL\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L2142\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/14.10 - 14.15/ cpe:/a:postgresql:postgresql:14/
+match postgresql m|^E\0\0\0.S[^\0]+\0VFATAL\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L2144\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/14.16 - 14.19/ cpe:/a:postgresql:postgresql:14/
+match postgresql m|^E\0\0\0.S[^\0]+\0VFATAL\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L2146\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/14.20 - 14.21/ cpe:/a:postgresql:postgresql:14/
 match postgresql m|^E\0\0\0.S[^\0]+\0VFATAL\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L2188\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/15.0 - 15.1/ cpe:/a:postgresql:postgresql:15/
 match postgresql m|^E\0\0\0.S[^\0]+\0VFATAL\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L2195\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/15.2 - 15.4/ cpe:/a:postgresql:postgresql:15/
-match postgresql m|^E\0\0\0.S[^\0]+\0VFATAL\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L2198\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/15.5 - 15.6/ cpe:/a:postgresql:postgresql:15/
-match postgresql m|^E\0\0\0.S[^\0]+\0VFATAL\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L2145\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/16.0 - 16.2/ cpe:/a:postgresql:postgresql:16/
+match postgresql m|^E\0\0\0.S[^\0]+\0VFATAL\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L2198\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/15.5 - 15.10/ cpe:/a:postgresql:postgresql:15/
+match postgresql m|^E\0\0\0.S[^\0]+\0VFATAL\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L2200\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/15.11 - 15.14/ cpe:/a:postgresql:postgresql:15/
+match postgresql m|^E\0\0\0.S[^\0]+\0VFATAL\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L2202\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/15.15 - 15.16/ cpe:/a:postgresql:postgresql:15/
+match postgresql m|^E\0\0\0.S[^\0]+\0VFATAL\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L2145\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/16.0 - 16.6/ cpe:/a:postgresql:postgresql:16/
+match postgresql m|^E\0\0\0.S[^\0]+\0VFATAL\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L2147\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/16.7 - 16.10/ cpe:/a:postgresql:postgresql:16/
+match postgresql m|^E\0\0\0.S[^\0]+\0VFATAL\0C0A000\0M.*?65363\.19778.*\0Fpostmaster\.c\0L2149\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/16.11 - 16.12/ cpe:/a:postgresql:postgresql:16/
+match postgresql m|^E\0\0\0.S[^\0]+\0VFATAL\0C0A000\0M.*?65363\.19778.*\0Fbackend_startup\.c\0L679\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/17.0 - 17.8/ cpe:/a:postgresql:postgresql:17/
+match postgresql m|^E\0\0\0.S[^\0]+\0VFATAL\0C0A000\0M.*?65363\.19778.*\0Fbackend_startup\.c\0L707\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/18.0 - 18.2/ cpe:/a:postgresql:postgresql:18/
 
 # PostgreSQL - Docker image - most docker images have the same error message as the release version, these do not.
 # Seems images build after the move to from Alpine 3.10 to 3.11 have changed line numbers.
@@ -14371,20 +14387,29 @@ match postgresql m|^E\0\0\0.S[^\0]+\0VFATAL\0C0A000\0M.*?65363\.19778.*\0F\.\\sr
 # 12.3 and later: line number is line of ereport function call
 match postgresql m|^E\0\0\0.S[^\0]+\0VFATAL\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L2087\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/12.6 - 12.8/ o/Windows/ cpe:/a:postgresql:postgresql:12/ cpe:/o:microsoft:windows/a
 match postgresql m|^E\0\0\0.S[^\0]+\0VFATAL\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L2113\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/12.9 - 12.13/ o/Windows/ cpe:/a:postgresql:postgresql:12/ cpe:/o:microsoft:windows/a
-match postgresql m|^E\0\0\0.S[^\0]+\0VFATAL\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L2120\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/12.14 - 12.18/ o/Windows/ cpe:/a:postgresql:postgresql:12/ cpe:/o:microsoft:windows/a
+match postgresql m|^E\0\0\0.S[^\0]+\0VFATAL\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L2120\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/12.14 - 12.22/ o/Windows/ cpe:/a:postgresql:postgresql:12/ cpe:/o:microsoft:windows/a
 match postgresql m|^E\0\0\0.S[^\0]+\0VFATAL\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L2102\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/13.0 - 13.1/ o/Windows/ cpe:/a:postgresql:postgresql:13/ cpe:/o:microsoft:windows/a
 match postgresql m|^E\0\0\0.S[^\0]+\0VFATAL\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L2103\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/13.2 - 13.4/ o/Windows/ cpe:/a:postgresql:postgresql:13/ cpe:/o:microsoft:windows/a
 match postgresql m|^E\0\0\0.S[^\0]+\0VFATAL\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L2127\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/13.5 - 13.9/ o/Windows/ cpe:/a:postgresql:postgresql:13/ cpe:/o:microsoft:windows/a
 match postgresql m|^E\0\0\0.S[^\0]+\0VFATAL\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L2134\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/13.10 - 13.12/ o/Windows/ cpe:/a:postgresql:postgresql:13/ cpe:/o:microsoft:windows/a
-match postgresql m|^E\0\0\0.S[^\0]+\0VFATAL\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L2137\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/13.13 - 13.14/ o/Windows/ cpe:/a:postgresql:postgresql:13/ cpe:/o:microsoft:windows/a
+match postgresql m|^E\0\0\0.S[^\0]+\0VFATAL\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L2137\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/13.13 - 13.18/ o/Windows/ cpe:/a:postgresql:postgresql:13/ cpe:/o:microsoft:windows/a
+match postgresql m|^E\0\0\0.S[^\0]+\0VFATAL\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L2141\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/13.23/ o/Windows/ cpe:/a:postgresql:postgresql:13/ cpe:/o:microsoft:windows/a
 match postgresql m|^E\0\0\0.S[^\0]+\0VFATAL\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L2108\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/14.0/ o/Windows/ cpe:/a:postgresql:postgresql:14.0/ cpe:/o:microsoft:windows/a
 match postgresql m|^E\0\0\0.S[^\0]+\0VFATAL\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L2132\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/14.1 - 14.6/ o/Windows/ cpe:/a:postgresql:postgresql:14/ cpe:/o:microsoft:windows/a
-match postgresql m|^E\0\0\0.S[^\0]+\0VFATAL\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L2139\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/14.7 - 14.9/ o/Windows/ cpe:/a:postgresql:postgresql:14/ cpe:/o:microsoft:windows/a
-match postgresql m|^E\0\0\0.S[^\0]+\0VFATAL\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L2142\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/14.10 - 14.11/ o/Windows/ cpe:/a:postgresql:postgresql:14/ cpe:/o:microsoft:windows/a
+match postgresql m|^E\0\0\0.S[^\0]+\0VFATAL\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L2139\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/13.19 - 13.22 or 14.7 - 14.9/ o/Windows/ cpe:/a:postgresql:postgresql:14/ cpe:/o:microsoft:windows/a
+match postgresql m|^E\0\0\0.S[^\0]+\0VFATAL\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L2142\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/14.10 - 14.15/ o/Windows/ cpe:/a:postgresql:postgresql:14/ cpe:/o:microsoft:windows/a
+match postgresql m|^E\0\0\0.S[^\0]+\0VFATAL\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L2144\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/14.16 - 14.19/ o/Windows/ cpe:/a:postgresql:postgresql:14/ cpe:/o:microsoft:windows/a
+match postgresql m|^E\0\0\0.S[^\0]+\0VFATAL\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L2146\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/14.20 - 14.21/ o/Windows/ cpe:/a:postgresql:postgresql:14/ cpe:/o:microsoft:windows/a
 match postgresql m|^E\0\0\0.S[^\0]+\0VFATAL\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L2188\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/15.0 - 15.1/ o/Windows/ cpe:/a:postgresql:postgresql:15/ cpe:/o:microsoft:windows/a
 match postgresql m|^E\0\0\0.S[^\0]+\0VFATAL\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L2195\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/15.2 - 15.4/ o/Windows/ cpe:/a:postgresql:postgresql:15/ cpe:/o:microsoft:windows/a
-match postgresql m|^E\0\0\0.S[^\0]+\0VFATAL\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L2198\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/15.5 - 15.6/ o/Windows/ cpe:/a:postgresql:postgresql:15/ cpe:/o:microsoft:windows/a
-match postgresql m|^E\0\0\0.S[^\0]+\0VFATAL\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L2145\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/16.0 - 16.2/ o/Windows/ cpe:/a:postgresql:postgresql:15/ cpe:/o:microsoft:windows/a
+match postgresql m|^E\0\0\0.S[^\0]+\0VFATAL\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L2198\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/15.5 - 15.10/ o/Windows/ cpe:/a:postgresql:postgresql:15/ cpe:/o:microsoft:windows/a
+match postgresql m|^E\0\0\0.S[^\0]+\0VFATAL\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L2200\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/15.11 - 15.14/ o/Windows/ cpe:/a:postgresql:postgresql:15/ cpe:/o:microsoft:windows/a
+match postgresql m|^E\0\0\0.S[^\0]+\0VFATAL\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L2202\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/15.15 - 15.16/ o/Windows/ cpe:/a:postgresql:postgresql:15/ cpe:/o:microsoft:windows/a
+match postgresql m|^E\0\0\0.S[^\0]+\0VFATAL\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L2145\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/16.0 - 16.6/ o/Windows/ cpe:/a:postgresql:postgresql:16/ cpe:/o:microsoft:windows/a
+match postgresql m|^E\0\0\0.S[^\0]+\0VFATAL\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L2147\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/16.7 - 16.10/ o/Windows/ cpe:/a:postgresql:postgresql:16/ cpe:/o:microsoft:windows/a
+match postgresql m|^E\0\0\0.S[^\0]+\0VFATAL\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L2149\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/16.11 - 16.12/ o/Windows/ cpe:/a:postgresql:postgresql:16/ cpe:/o:microsoft:windows/a
+match postgresql m|^E\0\0\0.S[^\0]+\0VFATAL\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\tcop\\backend_startup\.c\0L679\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/17.0 - 17.8/ o/Windows/ cpe:/a:postgresql:postgresql:17/ cpe:/o:microsoft:windows/a
+match postgresql m|^E\0\0\0.S[^\0]+\0VFATAL\0C0A000\0M.*?65363\.19778.*\0F\.\\src\\backend\\tcop\\backend_startup\.c\0L707\0RProcessStartupPacket\0\0$|s p/PostgreSQL DB/ v/18.0 - 18.2/ o/Windows/ cpe:/a:postgresql:postgresql:18/ cpe:/o:microsoft:windows/a
 
 # PostgreSQL - Language specific
 match postgresql m|^E\0\0\0.S[^\0]+\0(?:VFATAL\0)?C0A000\0Mnicht unterst\xc3\xbctztes Frontend-Protokoll 65363\.19778: Server unterst\xc3\xbctzt |s p/PostgreSQL DB/ i/German; Unicode support/ cpe:/a:postgresql:postgresql::::de/
@@ -14413,8 +14438,8 @@ match postgresql m|^E\0\0\0.S[^\0]+\00A000\0M.*?65363\.19778.*?\0Fpostmaster\.c\
 match postgresql m|^E\0\0\0.S[^\0]+\00A000\0M.*?65363\.19778.*?\0F\.\\src\\backend\\postmaster\\postmaster\.c\0|s p/PostgreSQL DB/ o/Windows/ cpe:/a:postgresql:postgresql/ cpe:/o:microsoft:windows/a
 
 match postgresql m|^E\0\0\0.S[^\0]+\0VFATAL\0C0A000\0M.*?65363\.19778.*?\0F\.\\src\\backend\\postmaster\\postmaster\.c\0|s p/PostgreSQL DB/ v/9.6.0 or later/ o/Windows/ cpe:/a:postgresql:postgresql/ cpe:/o:microsoft:windows/a
-match postgresql m|^E\0\0\0.S[^\0]+\0VFATAL\0C0A000\0Munsupported frontend protocol 65363| p/PostgreSQL DB/ v/9.6.0 or later/ cpe:/a:postgresql:postgresql/
-match postgresql m|^E\0\0\0.S[^\0]+\0(?:VFATAL\0)?0A000\0Munsupported frontend protocol 65363| p/PostgreSQL DB/ cpe:/a:postgresql:postgresql/
+#match postgresql m|^E\0\0\0.S[^\0]+\0VFATAL\0C0A000\0Munsupported frontend protocol 65363| p/PostgreSQL DB/ v/9.6.0 or later/ cpe:/a:postgresql:postgresql/
+#match postgresql m|^E\0\0\0.S[^\0]+\0(?:VFATAL\0)?0A000\0Munsupported frontend protocol 65363| p/PostgreSQL DB/ cpe:/a:postgresql:postgresql/
 softmatch postgresql m|^E\0\0\0.SFATAL\0(?:VFATAL\0)?C\w{5}\0M| p/PostgreSQL DB/ cpe:/a:postgresql:postgresql/a
 
 match tcsd m|^\0\0\0\x1c\0\0 \x04\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0$| p/TCSD daemon/
