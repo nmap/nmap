@@ -177,9 +177,14 @@ intf_open(void)
 
 #if defined(SIOCGLIFCONF) || defined(SIOCGIFNETMASK_IN6) || defined(SIOCGIFNETMASK6)
 		if ((intf->fd6 = socket(AF_INET6, SOCK_DGRAM, 0)) < 0) {
+			if (1
 #  ifdef EPROTONOSUPPORT
-			if (errno != EPROTONOSUPPORT)
+					&& errno != EPROTONOSUPPORT
 #endif
+#  ifdef EAFNOSUPPORT
+					&& errno != EAFNOSUPPORT
+#endif
+					)
 				return (intf_close(intf));
 		}
 #endif
