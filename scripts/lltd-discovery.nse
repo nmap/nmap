@@ -282,6 +282,11 @@ action = function()
     end
   until next(threads) == nil
 
+  if not next(lltd_responders) then
+    -- nothing was discovered
+    return
+  end
+  
   if target.ALLOW_NEW_TARGETS then
     local addrtype = nmap.address_family() == "inet" and "ipv4" or "ipv6"
     for key, info in pairs(lltd_responders) do
