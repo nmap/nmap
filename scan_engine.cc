@@ -956,6 +956,13 @@ void UltraScanInfo::Init(std::vector<Target *> &Targets, const struct scan_lists
       assert(!(sendpref & PACKET_SEND_IP_STRONG));
       sendpref = PACKET_SEND_ETH;
     }
+    else if (ping_scan_nd && !(sendpref & PACKET_SEND_IP_STRONG)) {
+      /* We prefer eth sending for ND, because otherwise the OS may convert
+       * multicast to unicast (M2U) and we end up sending a Neighbor
+       * Unreachability Detection probe instead of Neighber Discovery. It will
+       * still work for host discovery, but doesn't give us a MAC address. */
+      sendpref = PACKET_SEND_ETH_WEAK;
+    }
     if (!raw_socket_or_eth(sendpref, Targets[0]->deviceName(), Targets[0]->ifType(),
           &rawsd, &ethsd)) {
       fatal("Couldn't open a raw socket or eth handle.");
