@@ -1529,7 +1529,7 @@ const u8 *readip_pcap(pcap_t *pd, unsigned int *len, long to_usec,
   if (offset && linknfo) {
     linknfo->datalinktype = datalink;
     linknfo->headerlen = offset;
-    linknfo->header = p;
+    linknfo->header = p - offset;
   }
   if (rcvdtime)
     PacketTrace::trace(PacketTrace::RCVD, (u8 *) p, *len,
