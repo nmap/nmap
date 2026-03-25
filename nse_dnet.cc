@@ -215,7 +215,7 @@ static int ethernet_send (lua_State *L)
   if (sent == len)
     return nseU_success(L);
   else
-    return nseU_safeerror(L, "netutil_eth_send error: %lu", sent);
+    return nseU_safeerror(L, "netutil_eth_send error: %d", sent);
 }
 
 static int ip_open (lua_State *L)
