@@ -843,3 +843,29 @@ const char *sockaddr_storage_iptop(const struct sockaddr_storage * addr, char * 
     return NULL;
   }}
 }
+
+/* Returns non-zero if the process has CAP_NET_RAW in its effective capability
+ * set.  Handles setcap deployments where the binary runs as a non-root UID:
+ *   sudo setcap cap_net_raw=ep /usr/bin/nmap
+ * CAP_NET_RAW is sufficient for the raw sockets and pcap packet capture nmap
+ * performs (promiscuous mode via PACKET_MR_PROMISC on an AF_PACKET socket
+ * requires only CAP_NET_RAW).
+ * Uses /proc/self/status to avoid a libcap dependency. */
+#ifdef __linux__
+int have_net_capabilities(void) {
+  FILE *f = fopen("/proc/self/status", "r");
+  if (!f)
+    return 0;
+  char line[256];
+  uint64_t capeff = 0;
+  while (fgets(line, sizeof(line), f)) {
+    if (strncmp(line, "CapEff:", 7) == 0) {
+      sscanf(line + 7, "%" SCNx64, &capeff);
+      break;
+    }
+  }
+  fclose(f);
+  /* CAP_NET_RAW=13 */
+  return (capeff & (UINT64_C(1) << 13)) != 0;
+}
+#endif /* __linux__ */
