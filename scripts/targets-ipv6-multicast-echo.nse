@@ -35,7 +35,8 @@ prerule = function()
 end
 
 local function filter_interfaces(if_table)
-  if ipOps.ip_to_str(if_table.address) and if_table.link == "ethernet" then
+  local addr = ipOps.ip_to_str(if_table.address)
+  if addr and #addr == 16 and if_table.link == "ethernet" then
     return if_table
   end
 end

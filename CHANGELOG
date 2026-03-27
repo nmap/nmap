@@ -1,7 +1,50 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+Nmap 7.99 [2026-03-24]
+
+o Integrated many of the most-frequently-submitted IPv4 and IPv6 OS
+  fingerprints, as well as dozens of updated service fingerprints.
+
+o Upgraded included libraries: OpenSSL 3.0.19, libpcap 1.10.6, libpcre2 10.47,
+  liblinear 2.50, zlib 1.3.2
+
+o [Windows] Upgraded the included version of Npcap from 1.83 to 1.87, resolving
+  several crashes and stability-related issues. See https://npcap.com/changelog
+
+o [Zenmap][GH#3182] Zenmap is now distributed as a universal wheel
+  (zenmap-7.99-py3-none-any.whl) instead of an RPM package so that it can be
+  installed on any system with Python 3. [Daniel Miller]
+
+o [Ncat][Windows] Limited the number of handles inherited by subprocesses
+  launched with -e, preventing interference between clients when -e and
+  --keep-open are used. Reported by Nimish Verma.
+
+o [Ncat] Several fixes for regressions or longstanding failure cases in
+  ncat-test.pl [Daniel Miller]:
+
+  + [Windows] Fixed handling of socket EOF with --exec
+
+  + Fixed the -i (idle timeout) option for listen mode, which was broken
+    when adding the -q option in Ncat 7.96
+
+  + Fixed HTTP proxy server when SSL is used.
+
+  + DTLS (SSL over UDP) shutdown connection on stdin EOF.
+
+o [Windows][GH#2711] Nmap now supports scanning over various VPN virtual
+  adapters like OpenVPN TAP adapters. [Daniel Miller]
+
 o [GH#3280] Fix a performance regression in reverse-DNS in Nmap 7.98. The fix
   for #3130 had caused Nmap to send requests too slowly. [Daniel Miller]
+
+o [macOS][GH#3289] Fixed a configure-time failure in libdnet that resulted in
+  incorrect MAC addresses being reported. [Daniel Miller]
+
+o [Zenmap][GH#3189] Fix a crash in Zenmap topology and hosts viewer:
+  "TypeError: format requires a mapping" [Daniel Miller]
+
+o [GH#2955] Fix a routing issue with -e and -S related to #2206
+  causing error "setup_target: failed to determine route" [Daniel Miller]
 
 o [GH#3214] Improve compatibility of build process on various platforms and add
   multiplatform autobuilds in Github workflow. [Jordan Ritter]

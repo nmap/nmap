@@ -60,6 +60,8 @@ addr_cmp(const struct addr *a, const struct addr *b)
 	/* XXX */
 	if ((i = a->addr_type - b->addr_type) != 0)
 		return (i);
+	if ((i = a->scope_id - b->scope_id) != 0)
+		return (i);
 	
 	/* XXX - 10.0.0.1 is "smaller" than 10.0.0.0/8? */
 	if ((i = a->addr_bits - b->addr_bits) != 0)
@@ -274,6 +276,7 @@ addr_ntos(const struct addr *a, struct sockaddr *sa)
 		so->sin6.sin6_len = sizeof(so->sin6);
 #endif
 		so->sin6.sin6_family = AF_INET6;
+		so->sin6.sin6_scope_id = a->scope_id;
 		memcpy(&so->sin6.sin6_addr, &a->addr_ip6, IP6_ADDR_LEN);
 		break;
 #endif
@@ -336,6 +339,7 @@ addr_ston(const struct sockaddr *sa, struct addr *a)
 	case AF_INET6:
 		a->addr_type = ADDR_TYPE_IP6;
 		a->addr_bits = IP6_ADDR_BITS;
+		a->scope_id = so->sin6.sin6_scope_id;
 		memcpy(&a->addr_ip6, &so->sin6.sin6_addr, IP6_ADDR_LEN);
 		break;
 #endif
