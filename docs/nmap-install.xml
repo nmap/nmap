@@ -534,35 +534,45 @@ for the most common distributions.</para>
 <indexterm><primary>SUSE (Linux distribution)</primary><secondary>installing on, with RPM</secondary></indexterm>
 <indexterm><primary>Fedora (Linux distribution)</primary><secondary>installing on, with RPM</secondary></indexterm>
 
-<para>I build RPM packages for every release of Nmap and post them to
-the Nmap download page at <ulink url="https://nmap.org/download.html" />.
-I build two packages:  The <literal>nmap</literal> package contains
-just the command-line executable and data files, while the
-<literal>zenmap</literal> package contains the optional <application>Zenmap</application>
-graphical frontend (see <xref linkend="zenmap"/>).
-The <literal>zenmap</literal> package requires
-that the <literal>nmap</literal> package be installed first.</para>
+<para>Nmap, Ncat, and Nping are available as RPM packages on
+the Nmap download page at <ulink url="https://nmap.org/download#linux-rpm" />.
+Zenmap is available as a Python wheel instead of an RPM. To install it, download
+the wheel from the same page and install it with your system Python 3 using
+<command>pip install zenmap-*.whl</command>. Any required dependencies will be
+downloaded and installed automatically.</para>
 
 <para>
 <indexterm><primary>RPM</primary><secondary>installing from</secondary></indexterm>
 Installing via <application>RPM</application> is quite easy&mdash;it
-even downloads the package for you when given the proper URLs.  The following example downloads and installs Nmap 4.68, including the frontend.  Of course you should use the latest version at the download site above instead.  Any existing RPM-installed versions are
+even downloads the package for you when given the proper URLs.  The following example downloads and installs Nmap 7.98.  Of course you should use the latest version at the download site above instead.  Any existing RPM-installed versions are
 upgraded. <xref linkend="ex-nmap-install-from-rpms" xrefstyle="select: label nopage" /> demonstrates this installation process.</para>
 
 <example id="ex-nmap-install-from-rpms"><title>Installing Nmap from binary RPMs</title>
 <screen>
-# <userinput>rpm -vhU https://nmap.org/dist/nmap-4.68-1.i386.rpm</userinput>
-Retrieving https://nmap.org/dist/nmap-4.68-1.i386.rpm
-Preparing...                ########################################### [100%]
-   1:nmap                   ########################################### [100%]
-# <userinput>rpm -vhU https://nmap.org/dist/zenmap-4.68-1.noarch.rpm</userinput>
-Retrieving https://nmap.org/dist/zenmap-4.68-1.noarch.rpm
-Preparing...                ########################################### [100%]
-   1:zenmap                 ########################################### [100%]
+$ <userinput>sudo rpm -vhU https://nmap.org/dist/nmap-7.98-1.x86_64.rpm</userinput>
+Retrieving https://nmap.org/dist/nmap-7.98-1.x86_64.rpm
+Verifying...                          ################################# [100%]
+Preparing...                          ################################# [100%]
+Updating / installing...
+   1:nmap-1:7.98-1                    ################################# [100%]
 </screen>
 </example>
 
-<para>As the filenames above imply, these binary RPMs were created for normal PCs (x86 architecture).<indexterm><primary>x86 architecture</primary></indexterm>  I also distribute x86_64<indexterm><primary>x86_64 architecture</primary></indexterm> binaries for 64-bit Linux users.  These binaries won't work for the relatively few Linux users on other platforms such as SPARC, Alpha, or PowerPC.  They also may refuse to install if your library versions are sufficiently different from what the RPMs were initially built on.  One option in these cases would be to find binary RPMs prepared by your Linux vendor for your specific distribution.  The original install CDs or DVD are a good place to start.  Unfortunately, those may not be current or available.  Another option is to install Nmap from source code as described previously, though you lose the binary package maintenance consistency benefits.  A third option is to build and install your own binary RPMs from the source RPMs distributed from the download page above.  <xref linkend="ex-nmap-install-from-srpms" xrefstyle="select: label nopage" /> demonstrates this technique with Nmap 4.68.</para>
+<para>As the filenames above imply, these binary RPMs were created for normal
+  PCs (x86_64 architecture).<indexterm><primary>x86_64
+      architecture</primary></indexterm>.  These binaries won't work for the
+  Linux users on other platforms such as ARM64, x86, or PowerPC.  They also
+  may refuse to install if your library versions are sufficiently different
+  from what the RPMs were initially built on.  One option in these cases would
+  be to find binary RPMs prepared by your Linux vendor for your specific
+  distribution.  The original install CDs or DVD are a good place to start.
+  Unfortunately, those may not be current or available.  Another option is to
+  install Nmap from source code as described previously, though you lose the
+  binary package maintenance consistency benefits.  A third option is to build
+  and install your own binary RPMs from the source RPMs distributed from the
+  download page above.  <xref linkend="ex-nmap-install-from-srpms"
+    xrefstyle="select: label nopage" /> demonstrates this technique with Nmap
+  4.68.</para>
 
 <example id="ex-nmap-install-from-srpms"><title>Building and installing Nmap from source RPMs</title>
 <screen>
@@ -579,11 +589,7 @@ Preparing...                ########################################### [100%]
 </screen>
 </example>
 
-<para>It is not necessary to rebuild Zenmap in this fashion because the
-Zenmap RPM is architecture-independent (<quote>noarch</quote>). For that
-reason there are no Zenmap source RPMs.</para>
-
-<para>Removing RPM packages is as easy as <command>rpm -e nmap zenmap</command>.</para>
+<para>Removing RPM packages is as easy as <command>rpm -e nmap ncat</command>.</para>
 </sect2>
 
 <sect2 id="inst-yum"><title>Updating Red Hat, Fedora, Mandrake, and Yellow Dog Linux with Yum</title>
