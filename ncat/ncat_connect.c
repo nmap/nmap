@@ -237,7 +237,7 @@ static void connect_report(nsock_iod nsi)
 #ifdef HAVE_OPENSSL
         if (nsock_iod_check_ssl(nsi)) {
             X509 *cert;
-            X509_NAME *subject;
+            const X509_NAME *subject;
             char digest_buf[SHA1_STRING_LENGTH + 1];
             char *fp;
 
