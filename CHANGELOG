@@ -1,6 +1,6 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
-Nmap 7.99 [2026-03-24]
+Nmap 7.99 [2026-03-26]
 
 o Integrated many of the most-frequently-submitted IPv4 and IPv6 OS
   fingerprints, as well as dozens of updated service fingerprints.
