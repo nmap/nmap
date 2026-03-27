@@ -123,6 +123,7 @@ void options_init(void)
     o.allowset = addrset_new();
     o.denyset = addrset_new();
     o.httpserver = 0;
+    o.watch_allow_deny = 0;
 
     o.nsock_engine = 0;
 
