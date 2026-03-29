@@ -144,7 +144,7 @@ class NpingOps {
     bool spoofsource_set;
     char *bpf_filter_spec;    /* Custom, user-supplied BPF filter spec */
     bool bpf_filter_spec_set;
-    int current_round;        /** Current round. Used in traceroute mode */
+    u64 current_round;        /** Current round. Used in traceroute mode */
     bool have_pcap;           /* True if we have access to libpcap     */
     bool disable_packet_capture; /* If false, no packets are captured  */
     bool disable_packet_capture_set;
@@ -358,8 +358,8 @@ class NpingOps {
     char *getBPFFilterSpec();
     bool issetBPFFilterSpec();
 
-    int setCurrentRound(int val);
-    int getCurrentRound();
+    int setCurrentRound(u64 val);
+    u64 getCurrentRound();
     bool issetCurrentRound();
 
     bool havePcap();
