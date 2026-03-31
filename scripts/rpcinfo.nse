@@ -104,7 +104,7 @@ action = function(host, port)
         if nmapport and (nmapport.state == "open" or nmapport.state == "open|filtered") then
           nmapport.version = nmapport.version or {}
           -- If we don't already know it, or we only know that it's "rpcbind"
-          if nmapport.service == nil or nmapport.version.service_dtype == "table" or port.service == "rpcbind" then
+          if nmapport.service == nil or nmapport.version.service_dtype == "table" or port.service == "sunrpc" then
             nmapport.version.name = rpc.Util.ProgNumberToName(progid)
             nmapport.version.extrainfo = "RPC #" .. progid
             if #v2.version > 1 then
