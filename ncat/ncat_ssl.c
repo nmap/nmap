@@ -267,6 +267,7 @@ static int cert_match_dnsname(X509 *cert, const char *hostname,
     const X509V3_EXT_METHOD *method;
     unsigned char *data;
     int i;
+    int ret = 0;
 
     if (num_checked != NULL)
         *num_checked = 0;
@@ -327,12 +328,15 @@ static int cert_match_dnsname(X509 *cert, const char *hostname,
                 logdebug("Checking certificate DNS name \"%.*s\" against \"%s\".\n", dnslen, dnsname, hostname);
             if (num_checked != NULL)
                 (*num_checked)++;
-            if (wildcard_match(dnsname, hostname, dnslen))
-                return 1;
+            if (wildcard_match(dnsname, hostname, dnslen)) {
+                ret = 1;
+                break;
+            }
         }
     }
 
-    return 0;
+    sk_GENERAL_NAME_pop_free(gen_names, GENERAL_NAME_free);
+    return ret;
 }
 
 /* Returns the number of contiguous blocks of bytes in pattern that do not
