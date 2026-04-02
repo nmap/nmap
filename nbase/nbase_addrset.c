@@ -159,7 +159,9 @@ static void trie_free(struct trie_node *curr)
     }
     /* if next_bit_zero is valid, descend */
     if (curr->next_bit_zero != NULL && curr->next_bit_zero != TRIE_NODE_TRUE) {
+      struct trie_node *tmp = curr;
       curr = curr->next_bit_zero;
+      free(tmp);
     }
     else {
       /* next_bit_one was stashed, next_bit_zero is invalid. Free it and move back up the stack. */
