@@ -194,14 +194,14 @@ static void obj_to_key(lua_State *L, const ASN1_OBJECT *obj)
 /* This is a helper function for l_get_ssl_certificate. It builds a table from
    the given X509_NAME, using keys returned from obj_to_key as keys. The result
    is pushed on the stack. */
-static void x509_name_to_table(lua_State *L, X509_NAME *name)
+static void x509_name_to_table(lua_State *L, const X509_NAME *name)
 {
   int i;
 
   lua_createtable(L, 0, X509_NAME_entry_count(name));
 
   for (i = 0; i < X509_NAME_entry_count(name); i++) {
-    X509_NAME_ENTRY *entry;
+    const X509_NAME_ENTRY *entry;
     const ASN1_OBJECT *obj;
     const ASN1_STRING *value;
 
@@ -210,7 +210,7 @@ static void x509_name_to_table(lua_State *L, X509_NAME *name)
     value = X509_NAME_ENTRY_get_data(entry);
 
     obj_to_key(L, obj);
-    lua_pushlstring(L, (const char *) value->data, value->length);
+    lua_pushlstring(L, (const char *) ASN1_STRING_get0_data(value), ASN1_STRING_length(value));
 
     lua_settable(L, -3);
   }
@@ -224,7 +224,7 @@ static bool x509_extensions_to_table(lua_State *L, const STACK_OF(X509_EXTENSION
   lua_createtable(L, sk_X509_EXTENSION_num(exts), 0);
 
   for (int i = 0; i < sk_X509_EXTENSION_num(exts); i++) {
-    ASN1_OBJECT *obj;
+    const ASN1_OBJECT *obj;
     X509_EXTENSION *ext;
     char *value = NULL;
     BIO *out;
@@ -298,14 +298,16 @@ static int parse_int(const unsigned char *s, size_t len)
    -1 on a parse error. */
 static int time_to_tm(const ASN1_TIME *t, struct tm *result)
 {
+  const unsigned char *data = ASN1_STRING_get0_data(t);
+  int length = ASN1_STRING_length(t);
   const unsigned char *p;
 
-  p = t->data;
-  if (t->length == 13 && t->data[t->length - 1] == 'Z') {
+  p = data;
+  if (length == 13 && data[length - 1] == 'Z') {
     /* yymmddhhmmssZ */
     int year;
 
-    year = parse_int(t->data, 2);
+    year = parse_int(data, 2);
     if (year < 0)
       return -1;
     /* "In coming up with the worlds least efficient machine-readable time
@@ -318,13 +320,13 @@ static int time_to_tm(const ASN1_TIME *t, struct tm *result)
       result->tm_year = 2000 + year;
     else
       result->tm_year = 1900 + year;
-    p = t->data + 2;
-  } else if (t->length == 15 && t->data[t->length - 1] == 'Z') {
+    p = data + 2;
+  } else if (length == 15 && data[length - 1] == 'Z') {
     /* yyyymmddhhmmssZ */
-    result->tm_year = parse_int(t->data, 4);
+    result->tm_year = parse_int(data, 4);
     if (result->tm_year < 0)
       return -1;
-    p = t->data + 4;
+    p = data + 4;
   } else {
     return -1;
   }
@@ -385,7 +387,7 @@ static void asn1_time_to_obj(lua_State *L, const ASN1_TIME *s)
   } else if (time_to_tm(s, &tm) == 0) {
       tm_to_table(L, &tm);
   } else {
-      lua_pushlstring(L, (const char *) s->data, s->length);
+      lua_pushlstring(L, (const char *) ASN1_STRING_get0_data(s), ASN1_STRING_length(s));
   }
 }
 
@@ -568,7 +570,7 @@ int l_get_ssl_certificate(lua_State *L)
 static int parse_ssl_cert(lua_State *L, X509 *cert)
 {
   struct cert_userdata *udata;
-  X509_NAME *subject, *issuer;
+  const X509_NAME *subject, *issuer;
   EVP_PKEY *pubkey;
   int pkey_type;
 

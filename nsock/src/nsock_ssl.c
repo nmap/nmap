@@ -118,7 +118,11 @@ static SSL_CTX *ssl_init_helper(const SSL_METHOD *method) {
     SSL_load_error_strings();
     SSL_library_init();
 #else
+#if OPENSSL_VERSION_NUMBER < 0x40000000L
     OPENSSL_atexit(nsock_ssl_atexit);
+#else
+    atexit(nsock_ssl_atexit);
+#endif
 #if OPENSSL_VERSION_NUMBER >= 0x30000000L
     if (NULL == OSSL_PROVIDER_load(NULL, "legacy"))
     {

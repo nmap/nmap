@@ -262,10 +262,10 @@ static int wildcard_match(const char *pattern, const char *hostname, int len)
 static int cert_match_dnsname(X509 *cert, const char *hostname,
     unsigned int *num_checked)
 {
-    X509_EXTENSION *ext;
+    const X509_EXTENSION *ext;
     STACK_OF(GENERAL_NAME) *gen_names;
     const X509V3_EXT_METHOD *method;
-    unsigned char *data;
+    const unsigned char *data;
     int i;
     int ret = 0;
 
@@ -288,8 +288,8 @@ static int cert_match_dnsname(X509 *cert, const char *hostname,
 
     /* We must copy this address into a temporary variable because ASN1_item_d2i
        increments it. We don't want it to corrupt ext->value->data. */
-    ASN1_OCTET_STRING* asn1_str = X509_EXTENSION_get_data(ext);
-    data = asn1_str->data;
+    const ASN1_OCTET_STRING* asn1_str = X509_EXTENSION_get_data(ext);
+    data = ASN1_STRING_get0_data(asn1_str);
     /* Here we rely on the fact that the internal representation (the "i" in
        "i2d") for NID_subject_alt_name is STACK_OF(GENERAL_NAME). Converting it
        to a stack of CONF_VALUE with a i2v method is not satisfactory, because a
@@ -297,15 +297,17 @@ static int cert_match_dnsname(X509 *cert, const char *hostname,
        presence of null bytes. */
 #if (OPENSSL_VERSION_NUMBER > 0x00907000L)
     if (method->it != NULL) {
-        ASN1_OCTET_STRING* asn1_str_a = X509_EXTENSION_get_data(ext);
+        const ASN1_OCTET_STRING* asn1_str_a = X509_EXTENSION_get_data(ext);
+        int length = ASN1_STRING_length(asn1_str_a);
         gen_names = (STACK_OF(GENERAL_NAME) *) ASN1_item_d2i(NULL,
             (const unsigned char **) &data,
-            asn1_str_a->length, ASN1_ITEM_ptr(method->it));
+            length, ASN1_ITEM_ptr(method->it));
     } else {
-        ASN1_OCTET_STRING* asn1_str_b = X509_EXTENSION_get_data(ext);
+        const ASN1_OCTET_STRING* asn1_str_b = X509_EXTENSION_get_data(ext);
+        int length = ASN1_STRING_length(asn1_str_b);
         gen_names = (STACK_OF(GENERAL_NAME) *) method->d2i(NULL,
             (const unsigned char **) &data,
-            asn1_str_b->length);
+            length);
     }
 #else
     gen_names = (STACK_OF(GENERAL_NAME) *) method->d2i(NULL,
@@ -375,9 +377,9 @@ static int less_specific(const unsigned char *a, size_t a_len,
     return num_components(a, a_len) < num_components(b, b_len);
 }
 
-static int most_specific_commonname(X509_NAME *subject, const char **result)
+static int most_specific_commonname(const X509_NAME *subject, const char **result)
 {
-    ASN1_STRING *best, *cur;
+    const ASN1_STRING *best, *cur;
     int i;
 
     i = -1;
@@ -411,7 +413,7 @@ static int most_specific_commonname(X509_NAME *subject, const char **result)
    components, the one that comes later in the certificate is more specific. */
 static int cert_match_commonname(X509 *cert, const char *hostname)
 {
-    X509_NAME *subject;
+    const X509_NAME *subject;
     const char *commonname;
     int n;
 
@@ -474,7 +476,7 @@ int ssl_post_connect_check(SSL *ssl, const char *hostname)
    "Making Certificates"; and apps/req.c in the OpenSSL source. */
 static int ssl_gen_cert(X509 **cert, EVP_PKEY **key)
 {
-    X509_NAME *subj;
+    const X509_NAME *subj;
     X509_EXTENSION *ext;
     X509V3_CTX ctx;
     const char *commonName = "localhost";
@@ -531,7 +533,7 @@ static int ssl_gen_cert(X509 **cert, EVP_PKEY **key)
     subj = X509_get_subject_name(*cert);
     if (o.target != NULL)
         commonName = o.target;
-    if (X509_NAME_add_entry_by_txt(subj, "commonName", MBSTRING_ASC,
+    if (X509_NAME_add_entry_by_txt((X509_NAME *) subj, "commonName", MBSTRING_ASC,
         (unsigned char *) commonName, -1, -1, 0) == 0) {
         goto err;
     }
