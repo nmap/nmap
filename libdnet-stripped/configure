@@ -15219,7 +15219,7 @@ printf %s "checking for Linux PF_PACKET sockets... " >&6; }
 int
 main (void)
 {
-int foo() { return ETH_P_ALL; }
+int foo = ETH_P_ALL;
   ;
   return 0;
 }
