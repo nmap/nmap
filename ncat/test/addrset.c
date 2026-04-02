@@ -66,13 +66,14 @@ int main(int argc, char *argv[])
     for (i = 1; i < argc; i++) {
         if (!addrset_add_spec(set, argv[i], o.af, !o.nodns)) {
             fprintf(stderr, "Error adding spec \"%s\".\n", argv[i]);
+            addrset_free(set);
             exit(1);
         }
     }
 
     while (fgets(line, sizeof(line), stdin) != NULL) {
         char *s, *hostname;
-        struct addrinfo *addrs;
+        struct addrinfo *addrs = NULL;
 
         s = line;
         while ((hostname = strtok(s, " \t\n")) != NULL) {
@@ -80,9 +81,12 @@ int main(int argc, char *argv[])
 
             s = NULL;
 
+            addrs = NULL;
             rc = resolve_name(hostname, &addrs);
             if (rc != 0) {
                 fprintf(stderr, "Error resolving \"%s\": %s.\n", hostname, gai_strerror(rc));
+                if (addrs)
+                  freeaddrinfo(addrs);
                 continue;
             }
             if (addrs == NULL) {

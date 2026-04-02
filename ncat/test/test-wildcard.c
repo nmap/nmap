@@ -160,14 +160,13 @@ end:
     X509_free(cert);
     EVP_PKEY_free(key);
 
-    (void) BIO_destroy_bio_pair(server_bio);
 
-    SSL_CTX_free(server_ctx);
-    SSL_CTX_free(client_ctx);
-
-    SSL_free(server_ssl);
     SSL_free(client_ssl);
+    SSL_free(server_ssl);
+    SSL_CTX_free(client_ctx);
+    SSL_CTX_free(server_ctx);
 
+    ERR_clear_error();
     return passed;
 }
 
@@ -307,6 +306,14 @@ static int gen_cert(X509 **cert, EVP_PKEY **key,
     if (*key == NULL)
         goto err;
     do {
+        if (bne != NULL) {
+          BN_free(bne);
+          bne = NULL;
+        }
+        if (rsa != NULL) {
+          RSA_free(rsa);
+          rsa = NULL;
+        }
         /* Generate RSA key. */
         bne = BN_new();
         ret = BN_set_word(bne, RSA_F4);
@@ -324,6 +331,7 @@ static int gen_cert(X509 **cert, EVP_PKEY **key,
         goto err;
     if (EVP_PKEY_assign_RSA(*key, rsa) == 0) {
         RSA_free(rsa);
+        rsa = NULL;
         goto err;
     }
 #else
@@ -396,6 +404,12 @@ static int gen_cert(X509 **cert, EVP_PKEY **key,
     return 1;
 
 err:
+#if OPENSSL_VERSION_NUMBER < 0x30000000L
+    if (bne != NULL)
+      BN_free(bne);
+    if (rsa != NULL)
+      RSA_free(rsa);
+#endif
     if (*cert != NULL)
         X509_free(*cert);
     if (*key != NULL)
@@ -622,5 +636,11 @@ int main(void)
 
     printf("%d / %d tests passed.\n", tests_passed, tests_run);
 
+    EVP_cleanup();
+    CRYPTO_cleanup_all_ex_data();
+    ERR_free_strings();
+#if OPENSSL_VERSION_NUMBER >= 0x30000000L
+    OPENSSL_cleanup();
+#endif
     return tests_passed == tests_run ? 0 : 1;
 }
