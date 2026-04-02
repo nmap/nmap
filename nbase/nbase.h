@@ -522,6 +522,12 @@ extern int addrset_contains(const struct addrset *set, const struct sockaddr *sa
 
 #include "nbase_ipv6.h"
 
+#ifdef __linux__
+/* Returns non-zero if the process has CAP_NET_RAW effective.
+ * See nbase_misc.c for details. */
+int have_net_capabilities(void);
+#endif
+
 #ifdef __cplusplus
 }
 #endif
