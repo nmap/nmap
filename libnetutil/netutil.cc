@@ -3132,6 +3132,12 @@ icmpbad:
     if (hdrstr == NULL || *hdrstr == '\0') {
       Snprintf(protoinfo, sizeof(protoinfo), "Unknown protocol (%d) %s > %s: %s",
         hdr.proto, srchost, dsthost, ipinfo);
+    } else if (hdr.version == 6) {
+      /* For IPv6 packets, prefix with "IPv6/" so that next-header values
+         like 4 ("ipv4", i.e. IPIP) are not confused with the packet's own
+         IP version.  See https://github.com/nmap/nmap/issues/3326 */
+      Snprintf(protoinfo, sizeof(protoinfo), "IPv6/%s (%d) %s > %s: %s",
+        hdrstr, hdr.proto, srchost, dsthost, ipinfo);
     } else {
       Snprintf(protoinfo, sizeof(protoinfo), "%s (%d) %s > %s: %s",
         hdrstr, hdr.proto, srchost, dsthost, ipinfo);
