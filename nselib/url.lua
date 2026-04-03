@@ -215,11 +215,11 @@ function parse(url, default)
     parsed.authority = n
     return ""
   end)
-  -- get params
-  url = string.gsub(url, "%;(.*)", function(p)
-    parsed.params = p
-    return ""
-  end)
+  -- get params (RFC 3986 s3.3: parameters are scoped to individual path
+  -- segments, not the entire remaining path). Capture the first occurrence
+  -- and strip all occurrences so the path is reconstructed correctly.
+  parsed.params = url:match("%;([^/]*)")
+  url = url:gsub("%;[^/]*", "")
 
   -- path is whatever was left
   parsed.path = url
