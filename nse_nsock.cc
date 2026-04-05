@@ -58,6 +58,7 @@ typedef struct nse_nsock_udata
 
   const char *direction;
   const char *action;
+  enum nse_status immediate_status; /* Status when callback returns immediately */
 
   void *ssl_session;
 
@@ -359,13 +360,14 @@ static void callback (nsock_pool nsp, nsock_event nse, void *ud)
   if (nse_status(nse) == NSE_STATUS_KILL)
       return;
   assert(nse_type(nse) != NSE_TYPE_READ);
-  if (lua_status(L) == LUA_OK && nse_status(nse) == NSE_STATUS_ERROR) {
+  if (lua_status(L) == LUA_OK && nse_status(nse) != NSE_STATUS_SUCCESS) {
     // Sometimes Nsock fails immediately and callback is called before
     // l_connect has a chance to yield. We'll use nu->action to signal
     // l_connect to return an error instead of yielding.
     // http://seclists.org/nmap-dev/2016/q1/201
     trace(nse_iod(nse), nu->action, nu->direction);
     nu->action = NU_ACTION_IMMEDIATE;
+    nu->immediate_status = nse_status(nse);
     return;
   }
   switch (nse_type(nse)) {
@@ -471,6 +473,10 @@ static int l_reconnect_ssl (lua_State *L)
   nsock_reconnect_ssl(nsp, nu->nsiod, callback, nu->timeout,
       nu, nu->ssl_session);
 
+  if (nu->action == NU_ACTION_IMMEDIATE) {
+    // Immediate error
+    return nseU_safeerror(L, nse_status2str(nu->immediate_status));
+  }
   return yield(L, nu, "SSL RECONNECT", TO, 0, NULL);
 }
 
@@ -580,7 +586,7 @@ static int connect (lua_State *L, int status, lua_KContext ctx)
 
   if (nu->action == NU_ACTION_IMMEDIATE) {
     // Immediate error
-    return nseU_safeerror(L, nse_status2str(NSE_STATUS_ERROR));
+    return nseU_safeerror(L, nse_status2str(nu->immediate_status));
   }
   return yield(L, nu, "CONNECT", TO, 0, NULL);
 }
@@ -601,7 +607,7 @@ static int l_send (lua_State *L)
   nsock_write(nsp, nu->nsiod, callback, nu->timeout, nu, string, size);
   if (nu->action == NU_ACTION_IMMEDIATE) {
     // Immediate error
-    return nseU_safeerror(L, nse_status2str(NSE_STATUS_ERROR));
+    return nseU_safeerror(L, nse_status2str(nu->immediate_status));
   }
   return yield(L, nu, "SEND", TO, 0, NULL);
 }
@@ -629,6 +635,10 @@ static int l_sendto (lua_State *L)
   nsock_sendto(nsp, nu->nsiod, callback, nu->timeout, nu, dest->ai_addr, dest->ai_addrlen, port, string, size);
   trace(nu->nsiod, hexify((unsigned char *) string, size).c_str(), TO);
   freeaddrinfo(dest);
+  if (nu->action == NU_ACTION_IMMEDIATE) {
+    // Immediate error
+    return nseU_safeerror(L, nse_status2str(nu->immediate_status));
+  }
   return yield(L, nu, "SEND", TO, 0, NULL);
 
 }
