@@ -1,5 +1,8 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE][GH#3317] Function url.build_path was mangling special characters in URL
+  path segments. [nnposter]
+
 Nmap 7.99 [2026-03-26]
 
 o Integrated many of the most-frequently-submitted IPv4 and IPv6 OS
