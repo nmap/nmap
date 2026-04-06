@@ -89,15 +89,19 @@ int nsock_proxychain_new(const char *proxystr, nsock_proxychain *chain, nsock_po
 
     while (end != NULL) {
       proxy = proxy_node_new(next, end);
-      if (!proxy)
+      if (!proxy) {
+        nsock_proxychain_delete(pxc);
         return -1;
+      }
       gh_list_append(&pxc->nodes, &proxy->nodeq);
       next = end + 1;
       end = strchr(next, ',');
     }
     proxy = proxy_node_new(next, strchr(next, '\0'));
-    if (!proxy)
+    if (!proxy) {
+      nsock_proxychain_delete(pxc);
       return -1;
+    }
     gh_list_append(&pxc->nodes, &proxy->nodeq);
   }
 
