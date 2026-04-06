@@ -1252,6 +1252,8 @@ void nsock_pool_add_event(struct npool *nsp, struct nevent *nse) {
     assert(nse->type >= 0 && nse->type < NSE_TYPE_MAX);
     event_dispatch_and_delete(nsp, nse, 1);
     // No need to call nevent_unref since we never added it to any lists!
+    // However, we do need to keep ownership of the event object.
+    gh_list_append(&nsp->free_events, &nse->nodeq_io);
     return;
   }
 
