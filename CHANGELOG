@@ -1,5 +1,8 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o Fix a 1-byte overrun (read) while reading certain crafted DNS labels,
+  reported by Peter Parker. [Daniel Miller]
+
 o [NSE][GH#3317] Function url.build_path was mangling special characters in URL
   path segments. [nnposter]
 

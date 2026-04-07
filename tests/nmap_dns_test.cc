@@ -197,6 +197,24 @@ o.debugging = 1;
   DNS::PTR_Record * r = static_cast<DNS::PTR_Record *>(a->record);
   TEST_INCR(r->value == target, ret);
 
+  const u8 inval_answer[] = {
+    0x12, 0x34, // ID
+    0x81, 0x80, // Flags
+    0x00, 0x01, // Questions count
+    0x00, 0x01, // Answers RRs count
+    0x00, 0x00, // Authorities RRs count
+    0x00, 0x00, // Additionals RRs count
+    0x06, // Label length <-- [12]
+    0x73, 0x63, 0x61, 0x6e, 0x6d, 0x65, // "scanme"
+    0x04, // Label length
+    0x6e, 0x6d, 0x61, 0x70, // "nmap"
+    0x03, // Label length
+    0x6f, 0x72, 0x67, // "org"
+    }; // Deliberately ends before final empty label
+  plen = p.parseFromBuffer(inval_answer, sizeof(inval_answer));
+  TEST_INCR(plen == 0, ret);
+
+
   if(ret) std::cout << "Testing nmap_dns finished with errors" << std::endl;
   else std::cout << "Testing nmap_dns finished without errors" << std::endl;
 
