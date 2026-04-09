@@ -164,7 +164,7 @@ class ScanChooser(HIGVBox):
         self.exp_scan.add(self.scrolled)
 
         # Packing text view into scrolled window
-        self.scrolled.add_with_viewport(self.txt_scan_result)
+        self.scrolled.add(self.txt_scan_result)
 
         # Setting scrolled window
         self.scrolled.set_policy(Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC)
