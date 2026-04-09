@@ -246,10 +246,10 @@ class HostDetails(HIGVBox):
         self._pack_noexpand_nofill(self.host_status_expander)
 
     def set_os_image(self, image):
-            self.os_image.set_from_stock(image, Gtk.IconSize.DIALOG)
+            self.os_image.set_from_pixbuf(image)
 
     def set_vulnerability_image(self, image):
-        self.vulnerability_image.set_from_stock(image, Gtk.IconSize.DIALOG)
+        self.vulnerability_image.set_from_pixbuf(image)
 
     def set_addresses(self, address):
         self.address_expander.set_use_markup(True)
