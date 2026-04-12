@@ -416,6 +416,14 @@ if test "$use_openssl" = "yes"; then
     [ -lcrypto ])
 fi
 
+if test "$use_openssl" = "yes"; then
+  AC_CHECK_LIB(ssl, SSL_get0_alpn_selected,
+    [ AC_DEFINE(HAVE_SSL_GET0_ALPN_SELECTED, 1,
+      [Define to 1 if SSL_get0_alpn_selected is available.]) ],
+    [],
+    [ -lcrypto ])
+fi
+
 OPENSSL_LIBS=
 if test "$use_openssl" = "yes"; then
   trace_use="$trace_use openssl"
