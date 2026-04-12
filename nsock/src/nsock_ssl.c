@@ -102,14 +102,11 @@ void nsp_ssl_cleanup(struct npool *nsp)
       SSL_CTX_free(nsp->dtlsctx);
 #endif
 #if OPENSSL_VERSION_NUMBER >= 0x30000000L
-    if (nsp->legacy_provider) {
-      OSSL_PROVIDER_unload(nsp->legacy_provider);
-      nsp->legacy_provider = NULL;
-    }
-    if (nsp->default_provider) {
-      OSSL_PROVIDER_unload(nsp->default_provider);
-      nsp->default_provider = NULL;
-    }
+    /* Provider unload during process teardown has been observed to cause
+     * exit-time crashes on some OpenSSL 3 environments. Leave unloading to
+     * OpenSSL's own shutdown path and just clear local references here. */
+    nsp->legacy_provider = NULL;
+    nsp->default_provider = NULL;
 #endif
   }
   nsp->sslctx = NULL;
