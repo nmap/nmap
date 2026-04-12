@@ -310,7 +310,6 @@ public:
   void compileFallbacks();
 
   int isExcluded(unsigned short port, int proto) const;
-  bool isProbableSSLPort(int proto, u16 portno) const;
   bool excluded_seen;
   struct scan_lists excludedports;
 

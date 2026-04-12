@@ -114,7 +114,6 @@ void serviceDeductions::erase() {
   this->hostname = NULL;
   this->ostype = NULL;
   this->devicetype = NULL;
-  this->alpn.clear();
   this->service_tunnel = SERVICE_TUNNEL_NONE;
   this->service_fp = NULL;
   this->dtype = SERVICE_DETECTION_TABLE;
@@ -182,7 +181,6 @@ serviceDeductions::serviceDeductions() {
   hostname = NULL;
   ostype = NULL;
   devicetype = NULL;
-  alpn.clear();
   service_tunnel = SERVICE_TUNNEL_NONE;
   service_fp = NULL;
   dtype = SERVICE_DETECTION_TABLE;
@@ -312,7 +310,7 @@ static char *cstringSanityCheck(const char* string, int len) {
 void PortList::setServiceProbeResults(u16 portno, int protocol,
   enum serviceprobestate sres, const char *sname,
   enum service_tunnel_type tunnel, const char *product, const char *version,
-  const char *extrainfo, const char *alpn, const char *hostname, const char *ostype,
+  const char *extrainfo, const char *hostname, const char *ostype,
   const char *devicetype, const std::vector<const char *> *cpe,
   const char *fingerprint) {
   std::vector<char *>::iterator it;
@@ -363,7 +361,6 @@ void PortList::setServiceProbeResults(u16 portno, int protocol,
   port->service->product = cstringSanityCheck(product, 80);
   port->service->version = cstringSanityCheck(version, 80);
   port->service->extrainfo = cstringSanityCheck(extrainfo, 256);
-  port->service->alpn = alpn ? alpn : "";
   port->service->hostname = cstringSanityCheck(hostname, 80);
   port->service->ostype = cstringSanityCheck(ostype, 32);
   port->service->devicetype = cstringSanityCheck(devicetype, 32);

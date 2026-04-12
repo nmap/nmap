@@ -130,7 +130,6 @@ struct serviceDeductions {
   char *hostname;
   char *ostype;
   char *devicetype;
-  std::string alpn;
   std::vector<char *> cpe;
   // SERVICE_TUNNEL_NONE or SERVICE_TUNNEL_SSL
   enum service_tunnel_type service_tunnel;
@@ -232,7 +231,7 @@ class PortList {
                               enum serviceprobestate sres, const char *sname,
                               enum service_tunnel_type tunnel, const char *product,
                               const char *version, const char *extrainfo,
-                              const char *alpn, const char *hostname,
+                              const char *hostname,
                               const char *ostype, const char *devicetype,
                               const std::vector<const char *> *cpe,
                               const char *fingerprint);

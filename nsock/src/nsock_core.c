@@ -96,10 +96,8 @@ static void nsock_set_client_alpn(SSL *ssl) {
     return;
   }
 
-  if (SSL_set_alpn_protos(ssl, alpn_protos, sizeof(alpn_protos) - 1) != 0) {
-    nsock_log_info("SSL_set_alpn_protos failed: %s",
-        ERR_error_string(ERR_get_error(), NULL));
-  }
+  /* Intentionally ignore failure: ALPN is opportunistic and non-critical. */
+  (void) SSL_set_alpn_protos(ssl, alpn_protos, sizeof(alpn_protos) - 1);
 }
 #endif
 

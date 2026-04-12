@@ -1588,34 +1588,6 @@ int AllProbes::isExcluded(unsigned short port, int proto) const {
   return 0;
 }
 
-bool AllProbes::isProbableSSLPort(int proto, u16 portno) const {
-  /* Common SSL/TLS ports that should be retried through SSL tunnel if cleartext fails */
-  static const u16 common_ssl_ports[] = {
-    443, 465, 587, 636, 989, 990, 992, 993, 995,
-    8443, 9443, 9999, 3269, 3306, 5432, 5985, 5986, 6697, 8883, 8984, 9001, 0
-  };
-  
-  if (proto != IPPROTO_TCP)
-    return false;
-
-  /* First check hardcoded common SSL ports for this TCP service */
-  for (int i = 0; common_ssl_ports[i] != 0; i++) {
-    if (portno == common_ssl_ports[i])
-      return true;
-  }
-
-  /* Also check if port is explicitly in nmap-service-probes sslports directives */
-  std::vector<ServiceProbe *>::const_iterator vi;
-  for (vi = probes.begin(); vi != probes.end(); vi++) {
-    if ((*vi)->getProbeProtocol() != proto)
-      continue;
-    if ((*vi)->portIsProbable(SERVICE_TUNNEL_SSL, portno))
-      return true;
-  }
-
-  return false;
-}
-
 
 // Before this function is called, the fallbacks exist as unparsed
 // comma-separated strings in the fallbackStr field of each probe.
@@ -1933,24 +1905,6 @@ bool dropdown = false;
      }
      current_probe++;
    }
-
-#ifdef HAVE_OPENSSL
-   if (tunnel == SERVICE_TUNNEL_NONE && proto == IPPROTO_TCP &&
-       AP->isProbableSSLPort(proto, portno)) {
-     /* If cleartext probing produced no match on an SSL-likely port,
-      * retry all probes through SSL to collect tunneled service metadata.
-      */
-     tunnel = SERVICE_TUNNEL_SSL;
-     softMatchFound = false;
-     probe_matched = NULL;
-     product_matched[0] = version_matched[0] = extrainfo_matched[0] = '\0';
-     hostname_matched[0] = ostype_matched[0] = devicetype_matched[0] = '\0';
-     cpe_a_matched[0] = cpe_h_matched[0] = cpe_o_matched[0] = '\0';
-     alpn_selected[0] = '\0';
-     resetProbes(true);
-     return nextProbe(true);
-   }
-#endif
 
    // Tried all NONMATCHINGPROBES -- we're finished
    probe_state = (softMatchFound)? PROBESTATE_FINISHED_SOFTMATCHED : PROBESTATE_FINISHED_NOMATCH;
@@ -2827,10 +2781,6 @@ std::list<ServiceNFO *>::iterator svc;
      else
        Snprintf(annotated_extrainfo, sizeof(annotated_extrainfo), "ALPN:%s", alpn);
      output_extrainfo = annotated_extrainfo;
-
-     if (strcmp(alpn, "h2") == 0 && (service_name == NULL || *service_name == '\0') && version == NULL) {
-       service_name = "http";
-     }
    }
 
    if ((*svc)->probe_state != PROBESTATE_FINISHED_NOMATCH) {
@@ -2850,7 +2800,6 @@ std::list<ServiceNFO *>::iterator svc;
                                           *(*svc)->product_matched? (*svc)->product_matched : NULL,
                                          version,
                                          output_extrainfo,
-                                         alpn,
                                           *(*svc)->hostname_matched? (*svc)->hostname_matched : NULL,
                                           *(*svc)->ostype_matched? (*svc)->ostype_matched : NULL,
                                           *(*svc)->devicetype_matched? (*svc)->devicetype_matched : NULL,
@@ -2862,7 +2811,7 @@ std::list<ServiceNFO *>::iterator svc;
 
        (*svc)->target->ports.setServiceProbeResults((*svc)->portno, (*svc)->proto,
                                             (*svc)->probe_state, nomatch_name,
-                                            (*svc)->tunnel, NULL, NULL, nomatch_extrainfo, alpn, NULL, NULL, NULL,
+                                            (*svc)->tunnel, NULL, NULL, nomatch_extrainfo, NULL, NULL, NULL,
                                             NULL,
                                             (*svc)->getServiceFingerprint(NULL));
    }
