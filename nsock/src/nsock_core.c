@@ -828,7 +828,6 @@ void handle_read_result(struct npool *ms, struct nevent *nse, enum nse_status st
     nse->event_done = 1;
   } else if (status == NSE_STATUS_SUCCESS) {
     rc = do_actual_read(ms, nse);
-    /* printf("DBG: Just read %d new bytes%s.\n", rc, iod->ssl? "( SSL!)" : ""); */
     if (rc > 0) {
       nse->iod->read_count += rc;
       /* We decide whether we have read enough to return */
@@ -1426,4 +1425,3 @@ void nsock_trace_handler_callback(struct npool *ms, struct nevent *nse) {
       fatal("Invalid nsock event type (%d)", nse->type);
   }
 }
-

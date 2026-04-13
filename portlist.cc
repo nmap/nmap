@@ -99,6 +99,8 @@ void serviceDeductions::erase() {
     free(this->ostype);
   if (this->devicetype)
     free(this->devicetype);
+  if (this->alpn)
+    free(this->alpn);
   if (this->service_fp)
     free(this->service_fp);
   // For now, always free CPE strings
@@ -114,6 +116,7 @@ void serviceDeductions::erase() {
   this->hostname = NULL;
   this->ostype = NULL;
   this->devicetype = NULL;
+  this->alpn = NULL;
   this->service_tunnel = SERVICE_TUNNEL_NONE;
   this->service_fp = NULL;
   this->dtype = SERVICE_DETECTION_TABLE;
@@ -181,6 +184,7 @@ serviceDeductions::serviceDeductions() {
   hostname = NULL;
   ostype = NULL;
   devicetype = NULL;
+  alpn = NULL;
   service_tunnel = SERVICE_TUNNEL_NONE;
   service_fp = NULL;
   dtype = SERVICE_DETECTION_TABLE;
@@ -313,6 +317,16 @@ void PortList::setServiceProbeResults(u16 portno, int protocol,
   const char *extrainfo, const char *hostname, const char *ostype,
   const char *devicetype, const std::vector<const char *> *cpe,
   const char *fingerprint) {
+  setServiceProbeResults(portno, protocol, sres, sname, tunnel, product, version,
+    extrainfo, hostname, ostype, devicetype, NULL, cpe, fingerprint);
+}
+
+void PortList::setServiceProbeResults(u16 portno, int protocol,
+  enum serviceprobestate sres, const char *sname,
+  enum service_tunnel_type tunnel, const char *product, const char *version,
+  const char *extrainfo, const char *hostname, const char *ostype,
+  const char *devicetype, const char *alpn, const std::vector<const char *> *cpe,
+  const char *fingerprint) {
   std::vector<char *>::iterator it;
   Port *port;
   char *p;
@@ -364,6 +378,7 @@ void PortList::setServiceProbeResults(u16 portno, int protocol,
   port->service->hostname = cstringSanityCheck(hostname, 80);
   port->service->ostype = cstringSanityCheck(ostype, 32);
   port->service->devicetype = cstringSanityCheck(devicetype, 32);
+  port->service->alpn = cstringSanityCheck(alpn, 80);
 
   if (cpe) {
     std::vector<const char *>::const_iterator cit;
@@ -968,4 +983,3 @@ const char *statenum2str(int state) {
   }
   return "unknown";
 }
-

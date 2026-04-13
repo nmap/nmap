@@ -2231,8 +2231,7 @@ static int scanThroughTunnel(ServiceNFO *svc) {
        strcmp(svc->probe_matched, "dtls") != 0))
     return 0; // Not SSL
 
-  // Alright!  We are going to start the tests over using SSL
-  // printf("DBG: Found SSL service on %s:%hu - starting SSL scan\n", svc->target->NameIP(), svc->portno);
+  // Alright!  We are going to start the tests over using SSL.
   svc->tunnel = SERVICE_TUNNEL_SSL;
   svc->probe_matched = NULL;
   svc->product_matched[0] = svc->version_matched[0] = svc->extrainfo_matched[0] = '\0';
@@ -2773,13 +2772,24 @@ std::list<ServiceNFO *>::iterator svc;
    const char *version = *(*svc)->version_matched ? (*svc)->version_matched : NULL;
    const char *output_extrainfo = *(*svc)->extrainfo_matched ? (*svc)->extrainfo_matched : NULL;
    const char *alpn = *(*svc)->alpn_selected ? (*svc)->alpn_selected : NULL;
+   enum service_tunnel_type output_tunnel = (*svc)->tunnel;
    char annotated_extrainfo[SERVICE_EXTRA_LEN + SERVICE_FIELD_LEN + 8];
 
-   if (alpn != NULL) {
+   /* SSL_get0_alpn_selected returns the single negotiated protocol, so
+    * promote only an exact "h2" selection and only when no service name
+    * has otherwise been identified. */
+   if ((*svc)->probe_state == PROBESTATE_FINISHED_NOMATCH &&
+       service_name == NULL &&
+       alpn != NULL && strcmp(alpn, "h2") == 0) {
+     service_name = "http";
+     output_tunnel = SERVICE_TUNNEL_SSL;
+   }
+
+   if (alpn != NULL && (output_extrainfo == NULL || strstr(output_extrainfo, "ALPN:") == NULL)) {
      if (output_extrainfo != NULL && *output_extrainfo != '\0')
-       Snprintf(annotated_extrainfo, sizeof(annotated_extrainfo), "%s ALPN:%s", output_extrainfo, alpn);
+       Snprintf(annotated_extrainfo, sizeof(annotated_extrainfo), "%s ALPN: %s", output_extrainfo, alpn);
      else
-       Snprintf(annotated_extrainfo, sizeof(annotated_extrainfo), "ALPN:%s", alpn);
+       Snprintf(annotated_extrainfo, sizeof(annotated_extrainfo), "ALPN: %s", alpn);
      output_extrainfo = annotated_extrainfo;
    }
 
@@ -2796,13 +2806,14 @@ std::list<ServiceNFO *>::iterator svc;
      (*svc)->target->ports.setServiceProbeResults((*svc)->portno, (*svc)->proto,
                                           (*svc)->probe_state,
                                          service_name,
-                                          (*svc)->tunnel,
+                                         output_tunnel,
                                           *(*svc)->product_matched? (*svc)->product_matched : NULL,
                                          version,
                                          output_extrainfo,
                                           *(*svc)->hostname_matched? (*svc)->hostname_matched : NULL,
                                           *(*svc)->ostype_matched? (*svc)->ostype_matched : NULL,
                                           *(*svc)->devicetype_matched? (*svc)->devicetype_matched : NULL,
+                                          alpn,
                                           (cpe.size() > 0) ? &cpe : NULL,
                                           shouldWePrintFingerprint(*svc) ? (*svc)->getServiceFingerprint(NULL) : NULL);
    }  else {
@@ -2811,7 +2822,8 @@ std::list<ServiceNFO *>::iterator svc;
 
        (*svc)->target->ports.setServiceProbeResults((*svc)->portno, (*svc)->proto,
                                             (*svc)->probe_state, nomatch_name,
-                                            (*svc)->tunnel, NULL, NULL, nomatch_extrainfo, NULL, NULL, NULL,
+                                            output_tunnel, NULL, NULL, nomatch_extrainfo, NULL, NULL, NULL,
+                                            alpn,
                                             NULL,
                                             (*svc)->getServiceFingerprint(NULL));
    }
