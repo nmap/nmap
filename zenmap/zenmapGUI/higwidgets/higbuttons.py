@@ -84,8 +84,10 @@ class HIGMixButton(Gtk.Box):
         self.hbox1.pack_start(self.img, False, False, 0)
         self.hbox1.pack_start(self.lbl, False, False, 0)
 
-        self.align = Gtk.Alignment.new(0.5, 0.5, 0, 0)
-        self.pack_start(self.align, True, True, 0)
+        self.hbox1.set_halign(Gtk.Align.CENTER)
+        self.hbox1.set_valign(Gtk.Align.CENTER)
+        self.hbox1.set_hexpand(False)
+        self.hbox1.set_vexpand(False)
         self.pack_start(self.hbox1, True, True, 0)
 
 

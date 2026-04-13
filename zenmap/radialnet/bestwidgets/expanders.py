@@ -74,8 +74,15 @@ class BWExpander(Gtk.Expander):
         self.__label = BWSectionLabel(label)
         self.set_label_widget(self.__label)
 
-        self.__alignment = Gtk.Alignment.new(0, 0, 1, 1)
-        self.__alignment.set_padding(12, 0, 24, 0)
+        self.__alignment = Gtk.Box()
+        self.__alignment.set_halign(Gtk.Align.START)
+        self.__alignment.set_valign(Gtk.Align.START)
+        self.__alignment.set_hexpand(True)
+        self.__alignment.set_vexpand(True)
+        self.__alignment.set_margin_top(12)
+        self.__alignment.set_margin_bottom(0)
+        self.__alignment.set_margin_start(24)
+        self.__alignment.set_margin_end(0)
 
         self.add(self.__alignment)
 
@@ -95,4 +102,7 @@ class BWExpander(Gtk.Expander):
     def bw_no_padding(self):
         """
         """
-        self.__alignment.set_padding(0, 0, 0, 0)
+        self.__alignment.set_margin_top(0)
+        self.__alignment.set_margin_bottom(0)
+        self.__alignment.set_margin_start(0)
+        self.__alignment.set_margin_end(0)

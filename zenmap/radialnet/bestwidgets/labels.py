@@ -72,7 +72,8 @@ class BWLabel(Gtk.Label):
 
         self.set_text(text)
         self.set_justify(Gtk.Justification.LEFT)
-        self.set_alignment(0, 0.50)
+        self.set_xalign(0.0)
+        self.set_yalign(0.50)
         self.set_line_wrap(True)
 
 
@@ -86,7 +87,8 @@ class BWSectionLabel(Gtk.Label):
 
         self.set_markup('<b>' + text + '</b>')
         self.set_justify(Gtk.Justification.LEFT)
-        self.set_alignment(0, 0.50)
+        self.set_xalign(0.0)
+        self.set_yalign(0.50)
         self.set_line_wrap(True)
 
     def bw_set_text(self, text):

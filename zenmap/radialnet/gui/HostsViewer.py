@@ -186,7 +186,7 @@ class HostsList(Gtk.ScrolledWindow):
 
         self.__hosts_column[2].set_sort_column_id(2)
 
-        self.add_with_viewport(self.__hosts_treeview)
+        self.add(self.__hosts_treeview)
 
         if len(self.__hosts_treeview.get_model()) > 0:
             self.__hosts_treeview.set_cursor((0,))

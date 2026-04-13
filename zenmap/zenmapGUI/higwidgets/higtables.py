@@ -73,7 +73,7 @@ from gi.repository import Gtk
 #from higentries import *
 
 
-class HIGTable(Gtk.Table):
+class HIGTable(Gtk.Grid):
     """
     A HIGFied table
     """
@@ -83,15 +83,32 @@ class HIGTable(Gtk.Table):
     # - Generic attach function that detects the widget type
 
     def __init__(self, rows=1, columns=1, homogeneous=False):
-        Gtk.Table.__init__(self, n_rows=rows, n_columns=columns, homogeneous=homogeneous)
-        self.set_row_spacings(6)
-        self.set_col_spacings(12)
+        Gtk.Grid.__init__(self)
+        self.set_row_homogeneous(homogeneous)
+        self.set_column_homogeneous(homogeneous)
+        self.set_row_spacing(6)
+        self.set_column_spacing(12)
 
         self.rows = rows
         self.columns = columns
 
     def attach_label(self, widget, x0, x, y0, y):
-        self.attach(widget, x0, x, y0, y, xoptions=Gtk.AttachOptions.FILL)
+        self.attach(widget, x0, y0, x - x0, y - y0)
+        widget.set_halign(Gtk.Align.FILL)
+        widget.set_valign(Gtk.Align.START)
+        widget.set_hexpand(False)
+        widget.set_vexpand(False)
 
     def attach_entry(self, widget, x0, x, y0, y):
-        self.attach(widget, x0, x, y0, y, xoptions=Gtk.AttachOptions.FILL | Gtk.AttachOptions.EXPAND)
+        self.attach(widget, x0, y0, x - x0, y - y0)
+        widget.set_halign(Gtk.Align.FILL)
+        widget.set_valign(Gtk.Align.START)
+        widget.set_hexpand(True)
+        widget.set_vexpand(False)
+
+    def set_border_width(self, width):
+        self.set_margin_start(width)
+        self.set_margin_end(width)
+        self.set_margin_top(width)
+        self.set_margin_bottom(width)
+

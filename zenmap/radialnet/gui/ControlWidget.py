@@ -617,7 +617,8 @@ class ControlInterpolation(BWExpander):
 
         self.__frames_box = BWHBox()
         self.__frames_label = Gtk.Label.new(_('Frames'))
-        self.__frames_label.set_alignment(0.0, 0.5)
+        self.__frames_label.set_xalign(0.0)
+        self.__frames_label.set_yalign(0.5)
         self.__frames = Gtk.Adjustment.new(
             self.radialnet.get_number_of_frames(), 1, 1000, 1, 0, 0)
         self.__frames.connect('value_changed', self.__change_frames)
@@ -744,7 +745,8 @@ class ControlRingGap(BWVBox):
                                         self.radialnet.set_ring_gap)
 
         self.__label = Gtk.Label.new(_('Lower ring gap'))
-        self.__label.set_alignment(0.0, 0.5)
+        self.__label.set_xalign(0.0)
+        self.__label.set_yalign(0.5)
         self.__adjustment = Gtk.Adjustment.new(
             self.radialnet.get_min_ring_gap(), 0, 50, 1, 0, 0)
         self.__spin = Gtk.SpinButton(adjustment=self.__adjustment)
@@ -818,7 +820,7 @@ class ControlOptions(BWScrolledWindow):
         self.__treeview.append_column(self.__column_toggle)
         self.__treeview.append_column(self.__column_text)
 
-        self.add_with_viewport(self.__treeview)
+        self.add(self.__treeview)
 
         GLib.timeout_add(REFRESH_RATE, self.__update_options)
 

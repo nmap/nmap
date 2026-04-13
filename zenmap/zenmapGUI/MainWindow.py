@@ -95,6 +95,8 @@ import zenmapCore.I18N  # lgtm[py/unused-import]
 import zenmapGUI.Print
 from zenmapCore.UmitConf import SearchConfig, is_maemo, WindowConfig, config_parser
 
+import traceback
+
 UmitScanWindow = None
 hildon = None
 
@@ -554,7 +556,7 @@ class ScanWindow(UmitScanWindow):
                 scan_interface.load_from_file(filename)
             except Exception as e:
                 alert = HIGAlertDialog(message_format=_('Error loading file'),
-                                       secondary_text=str(e))
+                                       secondary_text=traceback.format_exc())
                 alert.run()
                 alert.destroy()
                 return

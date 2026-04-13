@@ -65,28 +65,18 @@ from gi.repository import Gtk
 class BWStockButton(Gtk.Button):
     """
     """
-    def __init__(self, stock, text=None, size=Gtk.IconSize.BUTTON):
+    def __init__(self, stock, text=None):
         """
         """
         Gtk.Button.__init__(self, label=text)
-
-        self.__size = size
-
-        self.__image = Gtk.Image()
-        self.__image.set_from_stock(stock, self.__size)
-        self.set_image(self.__image)
+        self.set_icon_name(stock)
 
 
 class BWToggleStockButton(Gtk.ToggleButton):
     """
     """
-    def __init__(self, stock, text=None, size=Gtk.IconSize.BUTTON):
+    def __init__(self, stock, text=None):
         """
         """
         Gtk.ToggleButton.__init__(self, label=text)
-
-        self.__size = size
-
-        self.__image = Gtk.Image()
-        self.__image.set_from_stock(stock, self.__size)
-        self.set_image(self.__image)
+        self.set_icon_name(stock)

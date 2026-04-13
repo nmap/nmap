@@ -255,11 +255,10 @@ class ProfileEditor(HIGWindow):
         vbox_ann = HIGVBox()
         vbox_ann._pack_expand_fill(hig_box_space_holder())
 
-        table.attach(
-                self.profile_name_label, 0, 1, 0, 1, xoptions=0, yoptions=0)
-        table.attach(self.profile_name_entry, 1, 2, 0, 1, yoptions=0)
-        table.attach(vbox_desc, 0, 1, 1, 2, xoptions=0)
-        table.attach(self.profile_description_scroll, 1, 2, 1, 2)
+        table.attach_label(self.profile_name_label, 0, 1, 0, 1)
+        table.attach_label(self.profile_name_entry, 1, 2, 0, 1)
+        table.attach_label(vbox_desc, 0, 1, 1, 2)
+        table.attach_label(self.profile_description_scroll, 1, 2, 1, 2)
 
         # Packing buttons on button_hbox
         self.buttons_hbox._pack_expand_fill(hig_box_space_holder())
@@ -285,7 +284,7 @@ class ProfileEditor(HIGWindow):
         vbox = HIGVBox()
         if tab.notscripttab:  # if notscripttab is set
             table = HIGTable()
-            table.set_row_spacings(2)
+            table.set_row_spacing(2)
             section = HIGSectionLabel(section_name)
             vbox._pack_noexpand_nofill(section)
             vbox._pack_noexpand_nofill(HIGSpacer(table))
