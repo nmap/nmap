@@ -826,9 +826,7 @@ This scan has not been run yet. Start the scan with the "Scan" button first.'))
             vbox.set_border_width(5)
             vbox.set_spacing(12)
 
-            image = Gtk.Image()
-            image.set_from_stock(
-                    Gtk.STOCK_DIALOG_QUESTION, Gtk.IconSize.DIALOG)
+            image = Gtk.Image.new_from_icon_name("dialog-question", Gtk.IconSize.DIALOG)
 
             vbox.pack_start(alert, True, True, 0)
             vbox.pack_start(text, True, True, 0)
@@ -868,9 +866,7 @@ This scan has not been run yet. Start the scan with the "Scan" button first.'))
             vbox.set_border_width(5)
             vbox.set_spacing(12)
 
-            image = Gtk.Image()
-            image.set_from_stock(
-                    Gtk.STOCK_DIALOG_WARNING, Gtk.IconSize.DIALOG)
+            image = Gtk.Image.new_from_icon_name("dialog-warning", Gtk.IconSize.DIALOG)
 
             vbox.pack_start(alert, True, True, 0)
             vbox.pack_start(text, True, True, 0)

@@ -195,13 +195,13 @@ class ProfileEditor(HIGWindow):
         # Buttons
         self.buttons_hbox = HIGHBox()
 
-        self.cancel_button = HIGButton(stock=Gtk.STOCK_CANCEL)
+        self.cancel_button = HIGButton(title=_("Cancel"))
         self.cancel_button.connect('clicked', self.exit)
 
-        self.delete_button = HIGButton(stock=Gtk.STOCK_DELETE)
+        self.delete_button = HIGButton(stock="edit-delete")
         self.delete_button.connect('clicked', self.delete_profile)
 
-        self.save_button = HIGButton(_("Save Changes"), stock=Gtk.STOCK_SAVE)
+        self.save_button = HIGButton(_("Save Changes"), stock="document-save")
         self.save_button.connect('clicked', self.save_profile)
 
         ###
@@ -363,9 +363,7 @@ class ProfileEditor(HIGWindow):
             vbox.set_border_width(5)
             vbox.set_spacing(12)
 
-            image = Gtk.Image()
-            image.set_from_stock(
-                    Gtk.STOCK_DIALOG_WARNING, Gtk.IconSize.DIALOG)
+            image = Gtk.Image.new_from_icon_name("dialog-warning", Gtk.IconSize.DIALOG)
 
             vbox.pack_start(alert, True, True, 0)
             vbox.pack_start(text, True, True, 0)
