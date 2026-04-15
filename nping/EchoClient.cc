@@ -593,15 +593,19 @@ int EchoClient::parse_echo(u8 *pkt, size_t pktlen){
   //    return OP_FAILURE;
   //}
 
-//  /* Ensure message length is correct */
-//  if( h.getTotalLength()!=(pktlen/4)){
-//    nping_print(DBG_1, "Received NEP_ECHO specifies an incorrect length (%u)", h.getTotalLength()*4 );
-//    return OP_FAILURE;
-//  }
+  nping_print(DBG_1, "Received NEP_ECHO pktlen %lu, getTotalLength %u", pktlen, h.getTotalLength()*4 );
+  /* Ensure message length is correct */
+  if( h.getTotalLength()!=(pktlen/4)){
+    nping_print(DBG_1, "Received NEP_ECHO specifies an incorrect length (%u)", h.getTotalLength()*4 );
+    return OP_FAILURE;
+  }
 
   /* Fix the object's internal state, since the ECHO message was not created
    * by the object but from received data. */
-  h.updateEchoInternals();
+  if (h.updateEchoInternals() != OP_SUCCESS) {
+    nping_print(DBG_1, "NEP_ECHO length check failed");
+    return OP_FAILURE;
+  }
 
   /* Check the authenticity of the received message */
   if( h.verifyMessageAuthenticationCode(this->ctx.getMacKeyS2C(), MAC_KEY_LEN )!=OP_SUCCESS ){
