@@ -2368,8 +2368,10 @@ if( this->getMode()!=TCP_CONNECT && this->getMode()!=UDP_UNPRIV && this->getRole
                 /* If that didn't work, ask libpcap */
                 if ( (dev = this->select_network_iface()) == NULL)
                     nping_fatal(QT_3, "Cannot obtain device for packet capture");
-                else
+                else {
                     this->setDevice( dev );
+                    free(dev);
+                }
                 /* Libpcap gave us a device name, try to obtain it's IP */
                 if ( devname2ipaddr(this->getDevice(), this->af(), &ifaddr) != 0 ){
                     if( this->isRoot() )
@@ -2390,8 +2392,10 @@ if( this->getMode()!=TCP_CONNECT && this->getMode()!=UDP_UNPRIV && this->getRole
             char *selected_iface=this->select_network_iface();
             if(selected_iface==NULL)
                 nping_fatal(QT_3, "Error trying to find a suitable network interface ");
-            else
+            else {
                 this->setDevice( selected_iface );
+                free(selected_iface);
+            }
         }
     } /* CASE 2: User did actually supply a device name */
     else{
@@ -2403,8 +2407,10 @@ if( this->getMode()!=TCP_CONNECT && this->getMode()!=UDP_UNPRIV && this->getRole
   char *selected_iface=this->select_network_iface();
   if(selected_iface==NULL)
     nping_fatal(QT_3, "Error trying to find a suitable network interface ");
-  else
+  else {
     this->setDevice( selected_iface );
+    free(selected_iface);
+  }
   nping_print(DBG_2, "Using network interface \"%s\"", this->getDevice() );
 }
 
@@ -2755,6 +2761,7 @@ int NpingOps::cleanup(){
 
 
 char *NpingOps::select_network_iface(){
+    char *devname = NULL;
     char errbuf[PCAP_ERRBUF_SIZE];
     pcap_if_t *pcap_ifaces=NULL;
 
@@ -2857,10 +2864,10 @@ char *NpingOps::select_network_iface(){
         }
 
     }
-    if(candidate==NULL)
-        return NULL;
-    else
-       return candidate->name;
+    if(candidate)
+       devname = strdup(candidate->name);
+    pcap_freealldevs(pcap_ifaces);
+    return devname;
 } /* End of select_network_iface() */
 
 

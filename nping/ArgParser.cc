@@ -1012,7 +1012,7 @@ int ArgParser::parseArguments(int argc, char *argv[]) {
         if(strlen(optarg)==0)
             nping_fatal(QT_3,"Invalid network interface supplied. Interface name cannot be NULL.");
         else
-            o.setDevice( strdup(optarg) );
+            o.setDevice( optarg );
     break; /* case 'e': */
 
     case 'N': /* Don't capture packets */
