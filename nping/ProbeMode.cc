@@ -120,7 +120,10 @@ int ProbeMode::init_nsock(){
 /** Cleans up the internal nsock pool and any other internal data that
   * needs to be taken care of before destroying the object. */
 int ProbeMode::cleanup(){
-  nsock_pool_delete(this->nsp);
+  if (this->nsock_init) {
+    nsock_pool_delete(this->nsp);
+    this->nsp = NULL;
+  }
   return OP_SUCCESS;
 } /* End of cleanup() */
 
