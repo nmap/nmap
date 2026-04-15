@@ -240,7 +240,9 @@ int EchoClient::nep_handshake(){
   /* Send NEP_HANDSHAKE_CLIENT message */
   if( this->generate_hs_client(&h)!=OP_SUCCESS )
     return OP_FAILURE;
-  nsock_write(this->nsp, this->nsi, write_done_handler, ECHO_WRITE_TIMEOUT, NULL, (char *)h.getBinaryBuffer(), h.getLen());
+  int pktlen = 0;
+  u8 *pktbuf = h.getBinaryBuffer(&pktlen);
+  nsock_write(this->nsp, this->nsi, write_done_handler, ECHO_WRITE_TIMEOUT, pktbuf, (const char *)pktbuf, pktlen);
   loopstatus=nsock_loop(this->nsp, ECHO_WRITE_TIMEOUT-1);
   if(loopstatus!=NSOCK_LOOP_QUIT)
     return OP_FAILURE;
@@ -267,7 +269,9 @@ int EchoClient::nep_send_packet_spec(){
     return OP_FAILURE;
 
    /* Send NEP_PACKET_SPEC message */
-  nsock_write(this->nsp, this->nsi, write_done_handler, ECHO_WRITE_TIMEOUT, NULL, (const char*)h.getBinaryBuffer(),  h.getLen());
+  int pktlen = 0;
+  u8 *pktbuf = h.getBinaryBuffer(&pktlen);
+  nsock_write(this->nsp, this->nsi, write_done_handler, ECHO_WRITE_TIMEOUT, pktbuf, (const char *)pktbuf, pktlen);
   loopstatus=nsock_loop(this->nsp, ECHO_WRITE_TIMEOUT-1);
   if(loopstatus!=NSOCK_LOOP_QUIT)
     return OP_FAILURE;
@@ -1041,6 +1045,8 @@ void connect_done_handler(nsock_pool nsp, nsock_event nse, void *arg){
   * in that case it calls nsock_loop_quit(), which indicates the success to
   * the method that scheduled the event and called nsock_loop() */
 void write_done_handler(nsock_pool nsp, nsock_event nse, void *arg){
+  u8 *pktbuf = (u8 *)arg;
+  free(pktbuf);
   nping_print(DBG_4, "%s()", __func__);
   enum nse_status status=nse_status(nse);
   if (status!=NSE_STATUS_SUCCESS){

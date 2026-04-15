@@ -496,12 +496,13 @@ clientid_t EchoServer::nep_match_headers(IPv4Header *ip4, IPv6Header *ip6, TCPHe
                              * the matching logic. */
                             current_score+= MIN(4, fspec->len)*FACTOR_PAYLOAD_MAGIC;
                         }
+                        free(buff);
                     break;
 
                     default:
                         nping_warning(QT_2, "Bogus field specifier found in client #%d context. Please report a bug", ctx->getIdentifier());
                     break;
-                }           
+                }
             } /* End of field specifiers loop */
 
             nping_print(DBG_3, "%s() current_score=%.02f candidate_score=%.02f", __func__, current_score, candidate_score);
@@ -853,7 +854,9 @@ int EchoServer::nep_capture_handler(nsock_pool nsp, nsock_event nse, void *param
 
   if( ctx->ready() ){
       this->generate_echo(&pkt_out, packet, packetlen, ctx);
-      nsock_write(nsp, clnt_iod, echo_handler, NSOCK_INFINITE, NULL, (const char *)pkt_out.getBinaryBuffer(), pkt_out.getLen());
+      int pktlen;
+      u8 *pktbuf = pkt_out.getBinaryBuffer(&pktlen);
+      nsock_write(nsp, clnt_iod, echo_handler, NSOCK_INFINITE, pktbuf, (const char *)pktbuf, pktlen);
       o.stats.addEchoedPacket(packetlen);
   }
   return OP_SUCCESS;
@@ -861,6 +864,7 @@ int EchoServer::nep_capture_handler(nsock_pool nsp, nsock_event nse, void *param
 
 
 int EchoServer::nep_echo_handler(nsock_pool nsp, nsock_event nse, void *param){
+  u8 *pktbuf = (u8 *)param;
   nping_print(DBG_4, "%s()", __func__);
   enum nse_status status=nse_status(nse);
   if (status!=NSE_STATUS_SUCCESS){
@@ -869,6 +873,7 @@ int EchoServer::nep_echo_handler(nsock_pool nsp, nsock_event nse, void *param){
   }else{
     nping_print(DBG_1, "SENT: NEP_ECHO");
   }
+  free(pktbuf);
   return OP_SUCCESS;
 } /* End of nep_echo_handler() */
 
@@ -934,12 +939,16 @@ int EchoServer::nep_hs_client_handler(nsock_pool nsp, nsock_event nse, void *par
       this->nep_session_ended_handler(nsp, nse, param);
       return OP_FAILURE;
   }
-  nsock_write(nsp, nsi, hs_final_handler, NSOCK_INFINITE, NULL, (const char *)pkt_out.getBinaryBuffer(), pkt_out.getLen());
+  int pktlen;
+  u8 *pktbuf = pkt_out.getBinaryBuffer(&pktlen);
+  nsock_write(nsp, nsi, hs_final_handler, NSOCK_INFINITE, pktbuf, (const char *)pktbuf, pktlen);
   return OP_SUCCESS;
 } /* End of nep_hs_client_handler() */
 
 
 int EchoServer::nep_hs_final_handler(nsock_pool nsp, nsock_event nse, void *param){
+  u8 *pktbuf = (u8 *)param;
+  free(pktbuf);
   nping_print(DBG_4, "%s()", __func__);
   nsock_iod nsi = nse_iod(nse);
   nping_print(DBG_1, "SENT: NEP_HANDSHAKE_FINAL");
@@ -989,7 +998,9 @@ int EchoServer::nep_packetspec_handler(nsock_pool nsp, nsock_event nse, void *pa
 
   /* Craft response and send it */
   this->generate_ready(&pkt_out, ctx);
-  nsock_write(nsp, nsi, ready_handler, NSOCK_INFINITE, NULL, (const char *)pkt_out.getBinaryBuffer(), pkt_out.getLen());
+  int pktlen;
+  u8 *pktbuf = pkt_out.getBinaryBuffer(&pktlen);
+  nsock_write(nsp, nsi, ready_handler, NSOCK_INFINITE, pktbuf, (const char *)pktbuf, pktlen);
 
   /* From this point, the client is not supposed to send anything to the server
    * through the side channel. However, we now schedule a read operation so
@@ -1005,6 +1016,8 @@ int EchoServer::nep_packetspec_handler(nsock_pool nsp, nsock_event nse, void *pa
 
 
 int EchoServer::nep_ready_handler(nsock_pool nsp, nsock_event nse, void *param){
+  u8 *pktbuf = (u8 *)param;
+  free(pktbuf);
   nping_print(DBG_4, "%s()", __func__);
   nping_print(DBG_1, "SENT: NEP_READY");
   return OP_SUCCESS;
