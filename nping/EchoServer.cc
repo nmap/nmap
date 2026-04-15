@@ -90,7 +90,7 @@ void EchoServer::reset() {
 
 /** Adds a new client context object to the server context list */
 int EchoServer::addClientContext(NEPContext ctx){
-  nping_print(DBG_4, "%s(ctx->id=%d)", __func__, ctx.getIdentifier());
+  nping_print(DBG_4, "%s(ctx->id=%ld)", __func__, ctx.getIdentifier());
   this->client_ctx.push_back(ctx);
   return OP_SUCCESS;
 } /* End of addClientContext() */
@@ -100,14 +100,14 @@ int EchoServer::addClientContext(NEPContext ctx){
   * On success, it returns a pointer to the client's context object. NULL is
   * returned when no context could be found.  */
 NEPContext *EchoServer::getClientContext(clientid_t clnt){
-  nping_print(DBG_4, "%s(%d) %lu", __func__, clnt, (unsigned long)this->client_ctx.size());
+  nping_print(DBG_4, "%s(%ld) %lu", __func__, clnt, (unsigned long)this->client_ctx.size());
   for(unsigned int i=0; i<this->client_ctx.size(); i++){
     if(this->client_ctx[i].getIdentifier() == clnt ){
-        nping_print(DBG_3, "Found client with ID #%d at p%d. Total clients %lu", clnt, i, (unsigned long)this->client_ctx.size());
+        nping_print(DBG_3, "Found client with ID #%ld at p%d. Total clients %lu", clnt, i, (unsigned long)this->client_ctx.size());
         return &(this->client_ctx[i]);
     }
   }
-  nping_print(DBG_3, "No client with ID #%d was found. Total clients %lu", clnt, (unsigned long)this->client_ctx.size());
+  nping_print(DBG_3, "No client with ID #%ld was found. Total clients %lu", clnt, (unsigned long)this->client_ctx.size());
   return NULL;
 } /* End of getClientContext() */
 
@@ -117,11 +117,11 @@ NEPContext *EchoServer::getClientContext(clientid_t clnt){
   * returned when no context could be found.  */
 NEPContext *EchoServer::getClientContext(nsock_iod iod){
   nping_print(DBG_4, "%s()", __func__);
-  clientid_t *id=NULL;
-  if( (id=(clientid_t *)nsock_iod_get_udata(iod))==NULL )
+  clientid_t id=CLIENT_NOT_FOUND;
+  if( (id=(clientid_t)nsock_iod_get_udata(iod)) == CLIENT_NOT_FOUND )
     return NULL;
   else
-    return this->getClientContext(*id);
+    return this->getClientContext(id);
 } /* End of getClientContext() */
 
 
@@ -145,7 +145,7 @@ int EchoServer::destroyClientContext(clientid_t clnt){
 
 /** Returns the Nsock IOD associated with a given client ID. */
 nsock_iod EchoServer::getClientNsockIOD(clientid_t clnt){
-  nping_print(DBG_4, "%s(%d)", __func__, clnt);
+  nping_print(DBG_4, "%s(%ld)", __func__, clnt);
   NEPContext *ctx;
   if((ctx=this->getClientContext(clnt))==NULL )
     return NULL;
@@ -320,7 +320,7 @@ clientid_t EchoServer::nep_match_headers(IPv4Header *ip4, IPv6Header *ip6, TCPHe
     for(i=0; i<this->client_ctx.size(); i++ ){
         current_score=0;
         ctx=&(this->client_ctx[i]);
-        nping_print(DBG_2, "%s() Trying to match packet against client #%d", __func__, ctx->getIdentifier());
+        nping_print(DBG_2, "%s() Trying to match packet against client #%ld", __func__, ctx->getIdentifier());
         if( ctx->ready() ){
             /* Iterate through client's list of packet field specifiers */
             for(k=0; (fspec=ctx->getClientFieldSpec(k))!=NULL; k++){
@@ -500,7 +500,7 @@ clientid_t EchoServer::nep_match_headers(IPv4Header *ip4, IPv6Header *ip6, TCPHe
                     break;
 
                     default:
-                        nping_warning(QT_2, "Bogus field specifier found in client #%d context. Please report a bug", ctx->getIdentifier());
+                        nping_warning(QT_2, "Bogus field specifier found in client #%ld context. Please report a bug", ctx->getIdentifier());
                     break;
                 }
             } /* End of field specifiers loop */
@@ -509,7 +509,7 @@ clientid_t EchoServer::nep_match_headers(IPv4Header *ip4, IPv6Header *ip6, TCPHe
             if( (current_score>0) && (current_score>=candidate_score)){
                 candidate_score=current_score;
                 candidate=ctx->getIdentifier();
-                nping_print(DBG_3, "%s() Found better candidate (client #%d; score=%.02f)", __func__, candidate, candidate_score);
+                nping_print(DBG_3, "%s() Found better candidate (client #%ld; score=%.02f)", __func__, candidate, candidate_score);
             }
         }
     } /* End of connected clients loop */
@@ -525,7 +525,7 @@ clientid_t EchoServer::nep_match_headers(IPv4Header *ip4, IPv6Header *ip6, TCPHe
 
     /* Check if we managed to match packet and client */
     if (candidate>=0 && candidate_score>=minimum_score){
-        nping_print(DBG_2, "%s() Packet matched successfully with client #%d", __func__, candidate);
+        nping_print(DBG_2, "%s() Packet matched successfully with client #%ld", __func__, candidate);
         return candidate;
     }else{
         if(candidate<0)
@@ -837,18 +837,18 @@ int EchoServer::nep_capture_handler(nsock_pool nsp, nsock_event nse, void *param
     nping_print(DBG_3, "Couldn't match captured packet with a client");
     return OP_FAILURE;
   }else{
-    nping_print(DBG_4, "Captured packet belongs to client #%d", clnt);
+    nping_print(DBG_4, "Captured packet belongs to client #%ld", clnt);
   }
 
   /* Fetch client context */
   if( (ctx=this->getClientContext(clnt)) == NULL ){
-    nping_print(DBG_2, "Error: no context found for client #%d", clnt);
+    nping_print(DBG_2, "Error: no context found for client #%ld", clnt);
     return OP_FAILURE;
   }
 
   /* Lookup client's IOD */
   if( (clnt_iod=ctx->getNsockIOD()) == NULL ){
-    nping_print(DBG_2, "Error: no IOD found for client #%d", clnt);
+    nping_print(DBG_2, "Error: no IOD found for client #%ld", clnt);
     return OP_FAILURE;
   }
 
@@ -990,11 +990,11 @@ int EchoServer::nep_packetspec_handler(nsock_pool nsp, nsock_event nse, void *pa
   /* Validate received NEP_PACKET_SPEC message */
   if( this->parse_packet_spec(recvbuff, recvbytes, ctx)!=OP_SUCCESS ){
       this->nep_session_ended_handler(nsp, nse, param);
-      nping_print(VB_1, "[%lu] Couldn't establish NEP session with client #%d (%s:%d).", (unsigned long)time(NULL), ctx->getIdentifier(), IPtoa(ctx->getAddress()), sockaddr2port(ctx->getAddress()));
+      nping_print(VB_1, "[%lu] Couldn't establish NEP session with client #%ld (%s:%d).", (unsigned long)time(NULL), ctx->getIdentifier(), IPtoa(ctx->getAddress()), sockaddr2port(ctx->getAddress()));
       return OP_FAILURE;
   }
   ctx->setState(STATE_READY_SENT);
-  nping_print(VB_1, "[%lu] NEP handshake with client #%d (%s:%d) was performed successfully", (unsigned long)time(NULL), ctx->getIdentifier(), IPtoa(ctx->getAddress()), sockaddr2port(ctx->getAddress()));
+  nping_print(VB_1, "[%lu] NEP handshake with client #%ld (%s:%d) was performed successfully", (unsigned long)time(NULL), ctx->getIdentifier(), IPtoa(ctx->getAddress()), sockaddr2port(ctx->getAddress()));
 
   /* Craft response and send it */
   this->generate_ready(&pkt_out, ctx);
@@ -1032,12 +1032,12 @@ int EchoServer::nep_session_ended_handler(nsock_pool nsp, nsock_event nse, void 
 
   /* Lookup client context */
   if( (ctx=this->getClientContext(nsi))!=NULL ){
-    nping_print(VB_0, "[%lu] Client #%d (%s:%d) disconnected", (unsigned long)time(NULL), ctx->getIdentifier(), IPtoa(ctx->getAddress()), sockaddr2port(ctx->getAddress()));
+    nping_print(VB_0, "[%lu] Client #%ld (%s:%d) disconnected", (unsigned long)time(NULL), ctx->getIdentifier(), IPtoa(ctx->getAddress()), sockaddr2port(ctx->getAddress()));
     clnt=ctx->getIdentifier();
     if(this->destroyClientContext(clnt)!=OP_SUCCESS)
-        nping_print(DBG_2, "Client #%d disconnected but no context found. This may be a bug.", clnt);
+        nping_print(DBG_2, "Client #%ld disconnected but no context found. This may be a bug.", clnt);
     else
-        nping_print(DBG_2, "Deleted client #%d context.", clnt);
+        nping_print(DBG_2, "Deleted client #%ld context.", clnt);
   }
   nsock_iod_delete(nsi, NSOCK_PENDING_SILENT);
 
@@ -1232,7 +1232,7 @@ int EchoServer::parse_packet_spec(u8 *pkt, size_t pktlen, NEPContext *ctx){
   }
   /* Check client provided mandatory IP ID (or Flow) spec and at least one other spec */
   if(id_received && recvspecs>=4){
-    nping_print(VB_2, "[%lu] Good packet specification received from client #%d (Specs=%d,IP=%d,Proto=%d,Cnt=%d)",
+    nping_print(VB_2, "[%lu] Good packet specification received from client #%ld (Specs=%d,IP=%d,Proto=%d,Cnt=%d)",
       (unsigned long)time(NULL), ctx->getIdentifier(), recvspecs, h.getIPVersion(), h.getProtocol(), h.getPacketCount()
             );
     return OP_SUCCESS;
@@ -1390,7 +1390,7 @@ int EchoServer::start() {
   socklen_t sslen=sizeof(ss);      /**< New client socket address len        */
   int listen_sd=-1;                /**< Socket descriptor for listening      */
   int client_sd=-1;                /**< Socket descriptor for new clients    */
-  clientid_t *idpnt=NULL;          /**< For new client assigned identifiers  */
+  clientid_t newid=CLIENT_NOT_FOUND; /**< For new client assigned identifiers  */
   NEPContext ctx;                  /**< Context for the new client           */
   EchoHeader h;
   int rc;
@@ -1431,13 +1431,8 @@ int EchoServer::start() {
         unblock_socket(listen_sd);
         if ((client_sd=accept(listen_sd, (struct sockaddr *)&ss, &sslen)) >= 0){
             nping_print(VB_0, "[%lu] Connection received from %s:%d", (unsigned long)time(NULL), IPtoa(&ss), sockaddr2port(&ss));
-            /* Assign a new client identifier. The ID is bound to the IOD */
-            if( (idpnt=(clientid_t *)calloc(1, sizeof(clientid_t)))==NULL ){
-                nping_warning(QT_2, "Not enough memory for new clients.");
-                return OP_FAILURE;
-            }
-            *idpnt=this->getNewClientID();
-            if( (client_nsi=nsock_iod_new2(nsp, client_sd, idpnt))==NULL ){
+            newid=this->getNewClientID();
+            if( (client_nsi=nsock_iod_new2(nsp, client_sd, (void *)newid))==NULL ){
                 nping_warning(QT_2, "Not enough memory for new clients.");
                 return OP_FAILURE;
             }else{
@@ -1449,7 +1444,7 @@ int EchoServer::start() {
                 close(listen_sd);
 
             /* Create a new client context object */
-            ctx.setIdentifier(*idpnt);
+            ctx.setIdentifier(newid);
             ctx.setAddress(ss);
             ctx.setNsockIOD(client_nsi);
             ctx.generateServerNonce();
