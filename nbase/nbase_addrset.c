@@ -217,7 +217,7 @@ static u32 common_mask(u32 a, u32 b)
     return 0;
   }
   else {
-    return ~((1 << (r + 1)) - 1);
+    return ~(((u32)1 << (r + 1)) - 1);
   }
 }
 
@@ -349,7 +349,7 @@ static void trie_split (struct trie_node *this, const u32 *addr, const u32 *mask
 static void _trie_insert (struct trie_node *this, const u32 *addr, const u32 *mask)
 {
   /* On entry, at least the 1st bit must match this node */
-  assert(this == TRIE_NODE_TRUE || (this->addr[0] ^ addr[0]) < (1 << 31));
+  assert(this == TRIE_NODE_TRUE || (this->addr[0] ^ addr[0]) < ((u32)1 << 31));
 
   while (this != NULL && this != TRIE_NODE_TRUE) {
     /* Split the node if necessary to ensure a match */
@@ -395,7 +395,7 @@ static int sockaddr_to_addr(const struct sockaddr *sa, u32 *addr)
     u8 i;
     unsigned char *addr6 = ((struct sockaddr_in6 *) sa)->sin6_addr.s6_addr;
     for (i=0; i < 4; i++) {
-      addr[i] = (addr6[i*4] << 24) + (addr6[i*4+1] << 16) + (addr6[i*4+2] << 8) + addr6[i*4+3];
+      addr[i] = ((u32)addr6[i*4] << 24) + ((u32)addr6[i*4+1] << 16) + ((u32)addr6[i*4+2] << 8) + addr6[i*4+3];
     }
   }
 #endif
