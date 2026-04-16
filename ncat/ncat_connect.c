@@ -903,6 +903,14 @@ static int do_proxy_socks5(void)
         return -1;
     }
 
+    /* Not possible, since bndaddrlen cannot be more than UCHAR_MAX + 2, which
+     * is equal to sizeof(bndaddr), but we will be cautious. */
+    if (bndaddrlen > sizeof(bndaddr)) {
+      loguser("Error: proxy bind address length too long.\n");
+      close(sd);
+      return -1;
+    }
+
     if (recv_bytes(sd, bndaddr, bndaddrlen) < bndaddrlen) {
         loguser("Error: malformed request response from proxy.\n");
         close(sd);

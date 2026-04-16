@@ -1,5 +1,10 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [Ncat] Fix several cases where Ncat's SOCKS5 client could interpret
+  uninitialized data as protocol data, triggered by a malicious SOCKS5 proxy
+  server. No code execution or application crash is possible.
+  Reported by Govind Pratap Singh. [Daniel Miller]
+
 o Fix a out-of-bounds access in Nping Echo client allowing a malicious Nping
   EchoServer to zero 32 bytes of memory outside the packet buffer. Reported by
   Harshit Gupta. [Daniel Miller]
