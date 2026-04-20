@@ -548,7 +548,7 @@ int mac_cache_set(const struct sockaddr_storage *ss, u8 *mac){
 }
 
 /* Standard BSD internet checksum routine. Uses libdnet helper functions. */
-unsigned short in_cksum(u16 *ptr,int nbytes) {
+unsigned short in_cksum(const u16 *ptr,int nbytes) {
   int sum;
 
    sum = ip_cksum_add(ptr, nbytes, 0);
@@ -558,6 +558,9 @@ unsigned short in_cksum(u16 *ptr,int nbytes) {
   return 0;
 }
 
+const void *ipv4_get_data(const struct ip *ip, const void *p, unsigned int *len);
+const void *ipv6_get_data(const struct ip6_hdr *ip6, const void *p, unsigned int *len, u8 *nxt);
+const void *ipv6_get_data_any(const struct ip6_hdr *ip6, const void *p, unsigned int *len, u8 *nxt);
 
 /* Return true iff this Next Header type is an extension header we must skip to
    get to the upper-layer header. Types for which neither this function nor
@@ -601,7 +604,7 @@ static int ipv6_is_upperlayer(u8 type)
 /* upperlayer_only controls whether we require a known upper-layer protocol at
    the end of the chain, or return the last readable header even if it is not an
    upper-layer protocol (may even be another extension header). */
-static const void *ipv6_get_data_primitive(const struct ip6_hdr *ip6,
+static const void *ipv6_get_data_primitive(const struct ip6_hdr *ip6, const void *packet,
   unsigned int *len, u8 *nxt, bool upperlayer_only)
 {
   const unsigned char *p, *end;
@@ -609,7 +612,7 @@ static const void *ipv6_get_data_primitive(const struct ip6_hdr *ip6,
   if (*len < sizeof(*ip6))
     return NULL;
 
-  p = (unsigned char *) ip6;
+  p = (unsigned char *) packet;
   end = p + *len;
 
   *nxt = ip6->ip6_nxt;
@@ -630,10 +633,10 @@ static const void *ipv6_get_data_primitive(const struct ip6_hdr *ip6,
 
 static const void *ip_get_data_primitive(const void *packet, unsigned int *len,
   struct abstract_ip_hdr *hdr, bool upperlayer_only) {
-  const struct ip *ip;
+  struct ip ip;
 
-  ip = (struct ip *) packet;
-  if (*len >= 20 && ip->ip_v == 4) {
+  memcpy(&ip, packet, sizeof(ip));
+  if (*len >= 20 && ip.ip_v == 4) {
     struct sockaddr_in *sin;
 
     hdr->version = 4;
@@ -641,19 +644,20 @@ static const void *ip_get_data_primitive(const void *packet, unsigned int *len,
     sin = (struct sockaddr_in *) &hdr->src;
     memset(&hdr->src, 0, sizeof(hdr->src));
     sin->sin_family = AF_INET;
-    sin->sin_addr.s_addr = ip->ip_src.s_addr;
+    sin->sin_addr.s_addr = ip.ip_src.s_addr;
 
     sin = (struct sockaddr_in *) &hdr->dst;
     memset(&hdr->dst, 0, sizeof(hdr->dst));
     sin->sin_family = AF_INET;
-    sin->sin_addr.s_addr = ip->ip_dst.s_addr;
+    sin->sin_addr.s_addr = ip.ip_dst.s_addr;
 
-    hdr->proto = ip->ip_p;
-    hdr->ttl = ip->ip_ttl;
-    hdr->ipid = ntohs(ip->ip_id);
-    return ipv4_get_data(ip, len);
-  } else if (*len >= 40 && ip->ip_v == 6) {
-    const struct ip6_hdr *ip6 = (struct ip6_hdr *) ip;
+    hdr->proto = ip.ip_p;
+    hdr->ttl = ip.ip_ttl;
+    hdr->ipid = ntohs(ip.ip_id);
+    return ipv4_get_data(&ip, packet, len);
+  } else if (*len >= 40 && ip.ip_v == 6) {
+    struct ip6_hdr ip6;
+    memcpy(&ip6, packet, sizeof(ip6));
     struct sockaddr_in6 *sin6;
 
     hdr->version = 6;
@@ -661,16 +665,16 @@ static const void *ip_get_data_primitive(const void *packet, unsigned int *len,
     sin6 = (struct sockaddr_in6 *) &hdr->src;
     memset(&hdr->src, 0, sizeof(hdr->src));
     sin6->sin6_family = AF_INET6;
-    memcpy(&sin6->sin6_addr, &ip6->ip6_src, IP6_ADDR_LEN);
+    memcpy(&sin6->sin6_addr, &ip6.ip6_src, IP6_ADDR_LEN);
 
     sin6 = (struct sockaddr_in6 *) &hdr->dst;
     memset(&hdr->dst, 0, sizeof(hdr->dst));
     sin6->sin6_family = AF_INET6;
-    memcpy(&sin6->sin6_addr, &ip6->ip6_dst, IP6_ADDR_LEN);
+    memcpy(&sin6->sin6_addr, &ip6.ip6_dst, IP6_ADDR_LEN);
 
-    hdr->ttl = ip6->ip6_hlim;
-    hdr->ipid = ntohl(ip6->ip6_flow & IP6_FLOWLABEL_MASK);
-    return ipv6_get_data_primitive(ip6, len, &hdr->proto, upperlayer_only);
+    hdr->ttl = ip6.ip6_hlim;
+    hdr->ipid = ntohl(ip6.ip6_flow & IP6_FLOWLABEL_MASK);
+    return ipv6_get_data_primitive(&ip6, packet, len, &hdr->proto, upperlayer_only);
   }
 
   return NULL;
@@ -694,7 +698,7 @@ const void *ip_get_data_any(const void *packet, unsigned int *len,
 }
 
 /* Get the upper-layer protocol from an IPv4 packet. */
-const void *ipv4_get_data(const struct ip *ip, unsigned int *len)
+const void *ipv4_get_data(const struct ip *ip, const void *p, unsigned int *len)
 {
   unsigned int header_len;
 
@@ -707,33 +711,56 @@ const void *ipv4_get_data(const struct ip *ip, unsigned int *len)
     return NULL;
   *len -= header_len;
 
-  return (char *) ip + header_len;
+  return (const u8 *)p + header_len;
+}
+
+const void *ipv4_get_data(const void *p, unsigned int *len)
+{
+  struct ip ip;
+  memcpy(&ip, p, sizeof(ip));
+  return ipv4_get_data(&ip, p, len);
 }
 
 /* Get the upper-layer protocol from an IPv6 packet. This skips over known
    extension headers. The length of the upper-layer payload is stored in *len.
    The protocol is stored in *nxt. Returns NULL in case of error. */
-const void *ipv6_get_data(const struct ip6_hdr *ip6, unsigned int *len, u8 *nxt)
+const void *ipv6_get_data(const struct ip6_hdr *ip6, const void *p, unsigned int *len, u8 *nxt)
 {
-  return ipv6_get_data_primitive(ip6, len, nxt, true);
+  return ipv6_get_data_primitive(ip6, p, len, nxt, true);
+}
+
+const void *ipv6_get_data(const void *p, unsigned int *len, u8 *nxt)
+{
+  struct ip6_hdr ip6;
+  memcpy(&ip6, p, sizeof(ip6));
+  return ipv6_get_data(&ip6, p, len, nxt);
 }
 
 /* Get the protocol payload from an IPv6 packet. This skips over known extension
    headers. It differs from ipv6_get_data in that it will return a result even
    if the final header is not a known upper-layer protocol. */
-const void *ipv6_get_data_any(const struct ip6_hdr *ip6, unsigned int *len, u8 *nxt)
+const void *ipv6_get_data_any(const struct ip6_hdr *ip6, const void *p, unsigned int *len, u8 *nxt)
 {
-  return ipv6_get_data_primitive(ip6, len, nxt, false);
+  return ipv6_get_data_primitive(ip6, p, len, nxt, false);
 }
 
-const void *icmp_get_data(const struct icmp_hdr *icmp, unsigned int *len)
+const void *ipv6_get_data_any(const void *p, unsigned int *len, u8 *nxt)
+{
+  struct ip6_hdr ip6;
+  memcpy(&ip6, p, sizeof(ip6));
+  return ipv6_get_data_any(&ip6, p, len, nxt);
+}
+
+const void *icmp_get_data(const void *icmp, unsigned int *len)
 {
   unsigned int header_len;
+  struct icmp_hdr hdr;
+  memcpy(&hdr, icmp, sizeof(hdr));
 
-  if (icmp->icmp_type == ICMP_TIMEXCEED || icmp->icmp_type == ICMP_UNREACH)
+  if (hdr.icmp_type == ICMP_TIMEXCEED || hdr.icmp_type == ICMP_UNREACH)
     header_len = 8;
   else
-    netutil_fatal("%s passed ICMP packet with unhandled type %d", __func__, icmp->icmp_type);
+    netutil_fatal("%s passed ICMP packet with unhandled type %d", __func__, hdr.icmp_type);
   if (header_len > *len)
     return NULL;
   *len -= header_len;
@@ -741,14 +768,16 @@ const void *icmp_get_data(const struct icmp_hdr *icmp, unsigned int *len)
   return (char *) icmp + header_len;
 }
 
-const void *icmpv6_get_data(const struct icmpv6_hdr *icmpv6, unsigned int *len)
+const void *icmpv6_get_data(const void *icmpv6, unsigned int *len)
 {
   unsigned int header_len;
+  struct icmpv6_hdr hdr;
+  memcpy(&hdr, icmpv6, sizeof(hdr));
 
-  if (icmpv6->icmpv6_type == ICMPV6_TIMEXCEED || icmpv6->icmpv6_type == ICMPV6_UNREACH)
+  if (hdr.icmpv6_type == ICMPV6_TIMEXCEED || hdr.icmpv6_type == ICMPV6_UNREACH)
     header_len = 8;
   else
-    netutil_fatal("%s passed ICMPv6 packet with unhandled type %d", __func__, icmpv6->icmpv6_type);
+    netutil_fatal("%s passed ICMPv6 packet with unhandled type %d", __func__, hdr.icmpv6_type);
   if (header_len > *len)
     return NULL;
   *len -= header_len;
@@ -2352,7 +2381,6 @@ const char *ippackethdrinfo(const u8 *packet, u32 len, int detail) {
   const u8 *data;
   unsigned int datalen;
 
-  struct tcp_hdr *tcp = NULL;           /* TCP header structure.             */
   struct udp_hdr *udp = NULL;           /* UDP header structure.             */
   struct sctp_hdr *sctp = NULL;         /* SCTP header structure.            */
   static char protoinfo[1024] = "";     /* Stores final info string.         */
@@ -2381,10 +2409,9 @@ const char *ippackethdrinfo(const u8 *packet, u32 len, int detail) {
 
   /* IP INFORMATION ************************************************************/
   if (hdr.version == 4) { /* IPv4 */
-    const struct ip *ip;
+    struct ip ip;
+    memcpy(&ip, packet, sizeof(ip));
     const struct sockaddr_in *sin;
-
-    ip = (struct ip *) packet;
 
     /* Obtain IP source and destination info */
     sin = (struct sockaddr_in *) &hdr.src;
@@ -2393,10 +2420,10 @@ const char *ippackethdrinfo(const u8 *packet, u32 len, int detail) {
 	inet_ntop(AF_INET, (void *)&sin->sin_addr.s_addr, dsthost, sizeof(dsthost));
 
     /* Compute fragment offset and check if flags are set */
-    frag_off = 8 * (ntohs(ip->ip_off) & 8191) /* 2^13 - 1 */;
-    more_fragments = ntohs(ip->ip_off) & IP_MF;
-    dont_fragment = ntohs(ip->ip_off) & IP_DF;
-    reserved_flag = ntohs(ip->ip_off) & IP_RF;
+    frag_off = 8 * (ntohs(ip.ip_off) & 8191) /* 2^13 - 1 */;
+    more_fragments = ntohs(ip.ip_off) & IP_MF;
+    dont_fragment = ntohs(ip.ip_off) & IP_DF;
+    reserved_flag = ntohs(ip.ip_off) & IP_RF;
 
     /* Is this a fragmented packet? is it the last fragment? */
     if (frag_off || more_fragments) {
@@ -2406,33 +2433,33 @@ const char *ippackethdrinfo(const u8 *packet, u32 len, int detail) {
     /* Create a string with information relevant to the specified level of detail */
     if (detail == LOW_DETAIL) {
       Snprintf(ipinfo, sizeof(ipinfo), "ttl=%d id=%hu iplen=%hu%s %s%s%s",
-        ip->ip_ttl, (unsigned short) ntohs(ip->ip_id), (unsigned short) ntohs(ip->ip_len), fragnfo,
-        ip->ip_hl==5?"":"ipopts={",
-        ip->ip_hl==5?"":format_ip_options((u8*) ip + sizeof(struct ip), MIN((unsigned)(ip->ip_hl-5)*4,len-sizeof(struct ip))),
-        ip->ip_hl==5?"":"}");
+        ip.ip_ttl, (unsigned short) ntohs(ip.ip_id), (unsigned short) ntohs(ip.ip_len), fragnfo,
+        ip.ip_hl==5?"":"ipopts={",
+        ip.ip_hl==5?"":format_ip_options((u8*) packet + sizeof(struct ip), MIN((unsigned)(ip.ip_hl-5)*4,len-sizeof(struct ip))),
+        ip.ip_hl==5?"":"}");
     } else if (detail == MEDIUM_DETAIL) {
       Snprintf(ipinfo, sizeof(ipinfo), "ttl=%d id=%hu proto=%d csum=0x%04x iplen=%hu%s %s%s%s",
-        ip->ip_ttl, (unsigned short) ntohs(ip->ip_id),
-        ip->ip_p, ntohs(ip->ip_sum),
-        (unsigned short) ntohs(ip->ip_len), fragnfo,
-        ip->ip_hl==5?"":"ipopts={",
-        ip->ip_hl==5?"":format_ip_options((u8*) ip + sizeof(struct ip), MIN((unsigned)(ip->ip_hl-5)*4,len-sizeof(struct ip))),
-        ip->ip_hl==5?"":"}");
+        ip.ip_ttl, (unsigned short) ntohs(ip.ip_id),
+        ip.ip_p, ntohs(ip.ip_sum),
+        (unsigned short) ntohs(ip.ip_len), fragnfo,
+        ip.ip_hl==5?"":"ipopts={",
+        ip.ip_hl==5?"":format_ip_options((u8*) packet + sizeof(struct ip), MIN((unsigned)(ip.ip_hl-5)*4,len-sizeof(struct ip))),
+        ip.ip_hl==5?"":"}");
     } else if (detail == HIGH_DETAIL) {
       Snprintf(ipinfo, sizeof(ipinfo), "ver=%d ihl=%d tos=0x%02x iplen=%hu id=%hu%s%s%s%s foff=%d%s ttl=%d proto=%d csum=0x%04x%s%s%s",
-        ip->ip_v, ip->ip_hl,
-        ip->ip_tos, (unsigned short) ntohs(ip->ip_len),
-        (unsigned short) ntohs(ip->ip_id),
+        ip.ip_v, ip.ip_hl,
+        ip.ip_tos, (unsigned short) ntohs(ip.ip_len),
+        (unsigned short) ntohs(ip.ip_id),
         (reserved_flag||dont_fragment||more_fragments) ? " flg=" : "",
         (reserved_flag)? "x" : "",
         (dont_fragment)? "D" : "",
         (more_fragments)? "M": "",
         frag_off, (more_fragments) ? "+" : "",
-        ip->ip_ttl, ip->ip_p,
-        ntohs(ip->ip_sum),
-        ip->ip_hl==5?"":" ipopts={",
-        ip->ip_hl==5?"":format_ip_options((u8*) ip + sizeof(struct ip), MIN((unsigned)(ip->ip_hl-5)*4,len-sizeof(struct ip))),
-        ip->ip_hl==5?"":"}");
+        ip.ip_ttl, ip.ip_p,
+        ntohs(ip.ip_sum),
+        ip.ip_hl==5?"":" ipopts={",
+        ip.ip_hl==5?"":format_ip_options((u8*) packet + sizeof(struct ip), MIN((unsigned)(ip.ip_hl-5)*4,len-sizeof(struct ip))),
+        ip.ip_hl==5?"":"}");
     }
   } else { /* IPv6 */
     const struct ip6_hdr *ip6;
@@ -2472,7 +2499,7 @@ const char *ippackethdrinfo(const u8 *packet, u32 len, int detail) {
     char tcpinfo[64] = "";
     char buf[32];
     char tcpoptinfo[256] = "";
-    tcp = (struct tcp_hdr *) data;
+    struct tcp_hdr tcp;
 
     /* Let's parse the TCP header. The following code is very ugly because we
      * have to deal with a lot of different situations. We don't want to
@@ -2511,39 +2538,39 @@ const char *ippackethdrinfo(const u8 *packet, u32 len, int detail) {
     else if (frag_off > 0) {
       /* Fragmentation is on 8-byte boundaries, so 8 is the only legal value here. */
       assert(frag_off == 8);
-      tcp = (struct tcp_hdr *)((u8 *) tcp - frag_off); // ugly?
+      memcpy((u8 *)&tcp + frag_off, data - frag_off, sizeof(tcp) - frag_off);
 
       /* TCP Flags */
       p = tflags;
       /* These are basically in tcpdump order */
-      if (tcp->th_flags & TH_SYN)
+      if (tcp.th_flags & TH_SYN)
         *p++ = 'S';
-      if (tcp->th_flags & TH_FIN)
+      if (tcp.th_flags & TH_FIN)
         *p++ = 'F';
-      if (tcp->th_flags & TH_RST)
+      if (tcp.th_flags & TH_RST)
         *p++ = 'R';
-      if (tcp->th_flags & TH_PUSH)
+      if (tcp.th_flags & TH_PUSH)
         *p++ = 'P';
-      if (tcp->th_flags & TH_ACK) {
+      if (tcp.th_flags & TH_ACK) {
         *p++ = 'A';
         Snprintf(tcpinfo, sizeof(tcpinfo), " ack=%lu",
-          (unsigned long) ntohl(tcp->th_ack));
+          (unsigned long) ntohl(tcp.th_ack));
       }
-      if (tcp->th_flags & TH_URG)
+      if (tcp.th_flags & TH_URG)
         *p++ = 'U';
-      if (tcp->th_flags & TH_ECE)
+      if (tcp.th_flags & TH_ECE)
         *p++ = 'E'; /* rfc 2481/3168 */
-      if (tcp->th_flags & TH_CWR)
+      if (tcp.th_flags & TH_CWR)
         *p++ = 'C'; /* rfc 2481/3168 */
       *p++ = '\0';
 
       /* TCP Options */
-      if ((u32) tcp->th_off * 4 > sizeof(struct tcp_hdr)) {
-        if (datalen < (u32) tcp->th_off * 4 - frag_off) {
+      if ((u32) tcp.th_off * 4 > sizeof(struct tcp_hdr)) {
+        if (datalen < (u32) tcp.th_off * 4 - frag_off) {
           Snprintf(tcpoptinfo, sizeof(tcpoptinfo), "option incomplete");
         } else {
-          tcppacketoptinfo((u8*) tcp + sizeof(struct tcp_hdr),
-            tcp->th_off*4 - sizeof(struct tcp_hdr),
+          tcppacketoptinfo((u8*) data + sizeof(struct tcp_hdr),
+            tcp.th_off*4 - sizeof(struct tcp_hdr),
             tcpoptinfo, sizeof(tcpoptinfo));
         }
       }
@@ -2554,22 +2581,22 @@ const char *ippackethdrinfo(const u8 *packet, u32 len, int detail) {
       } else if (detail == MEDIUM_DETAIL) {
         Snprintf(protoinfo, sizeof(protoinfo), "TCP %s:?? > %s:?? %s ack=%lu win=%hu %s IP [%s]",
           srchost, dsthost, tflags,
-          (unsigned long) ntohl(tcp->th_ack), (unsigned short) ntohs(tcp->th_win),
+          (unsigned long) ntohl(tcp.th_ack), (unsigned short) ntohs(tcp.th_win),
           tcpoptinfo, ipinfo);
       } else if (detail == HIGH_DETAIL) {
         if (datalen >= 12) { /* We have at least bytes 8-20 */
           Snprintf(protoinfo, sizeof(protoinfo), "TCP [%s:?? > %s:?? %s seq=%lu ack=%lu off=%d res=%d win=%hu csum=0x%04X urp=%hu%s%s] IP [%s]",
             srchost, dsthost, tflags,
-            (unsigned long) ntohl(tcp->th_seq),
-            (unsigned long) ntohl(tcp->th_ack),
-            (u8)tcp->th_off, (u8)tcp->th_x2, (unsigned short) ntohs(tcp->th_win),
-            ntohs(tcp->th_sum), (unsigned short) ntohs(tcp->th_urp),
+            (unsigned long) ntohl(tcp.th_seq),
+            (unsigned long) ntohl(tcp.th_ack),
+            (u8)tcp.th_off, (u8)tcp.th_x2, (unsigned short) ntohs(tcp.th_win),
+            ntohs(tcp.th_sum), (unsigned short) ntohs(tcp.th_urp),
             (tcpoptinfo[0]!='\0') ? " " : "",
             tcpoptinfo, ipinfo);
         } else { /* We only have bytes 8-16 */
           Snprintf(protoinfo, sizeof(protoinfo), "TCP %s:?? > %s:?? %s ack=%lu win=%hu %s IP [%s]",
             srchost, dsthost, tflags,
-            (unsigned long) ntohl(tcp->th_ack), (unsigned short) ntohs(tcp->th_win),
+            (unsigned long) ntohl(tcp.th_ack), (unsigned short) ntohs(tcp.th_win),
             tcpoptinfo, ipinfo);
         }
       }
@@ -2579,25 +2606,26 @@ const char *ippackethdrinfo(const u8 *packet, u32 len, int detail) {
     /* CASE 3: where the IP packet is not a fragment but for some reason, we
      * don't have the entire TCP header, just part of it.*/
     else if (datalen < 20) {
+      memcpy(&tcp, data, MIN(datalen, sizeof(tcp)));
       /* We know we have the first 8 bytes, so what's left? */
       /* We only have the first 64 bits: ports and seq number */
       if (datalen < 12) {
         Snprintf(tcpinfo, sizeof(tcpinfo), "TCP %s:%hu > %s:%hu ?? seq=%lu (incomplete) %s",
-          srchost, (unsigned short) ntohs(tcp->th_sport), dsthost,
-          (unsigned short) ntohs(tcp->th_dport), (unsigned long) ntohl(tcp->th_seq), ipinfo);
+          srchost, (unsigned short) ntohs(tcp.th_sport), dsthost,
+          (unsigned short) ntohs(tcp.th_dport), (unsigned long) ntohl(tcp.th_seq), ipinfo);
       }
 
       /* We only have the first 96 bits: ports, seq and ack number */
       else if (datalen < 16) {
         if (detail == LOW_DETAIL) { /* We don't print ACK in low detail */
           Snprintf(tcpinfo, sizeof(tcpinfo), "TCP %s:%hu > %s:%hu seq=%lu (incomplete), %s",
-            srchost, (unsigned short) ntohs(tcp->th_sport), dsthost,
-            (unsigned short) ntohs(tcp->th_dport), (unsigned long) ntohl(tcp->th_seq), ipinfo);
+            srchost, (unsigned short) ntohs(tcp.th_sport), dsthost,
+            (unsigned short) ntohs(tcp.th_dport), (unsigned long) ntohl(tcp.th_seq), ipinfo);
         } else {
           Snprintf(tcpinfo, sizeof(tcpinfo), "TCP [%s:%hu > %s:%hu seq=%lu ack=%lu (incomplete)] IP [%s]",
-            srchost, (unsigned short) ntohs(tcp->th_sport), dsthost,
-            (unsigned short) ntohs(tcp->th_dport), (unsigned long) ntohl(tcp->th_seq),
-            (unsigned long) ntohl(tcp->th_ack), ipinfo);
+            srchost, (unsigned short) ntohs(tcp.th_sport), dsthost,
+            (unsigned short) ntohs(tcp.th_dport), (unsigned long) ntohl(tcp.th_seq),
+            (unsigned long) ntohl(tcp.th_ack), ipinfo);
         }
       }
 
@@ -2605,25 +2633,25 @@ const char *ippackethdrinfo(const u8 *packet, u32 len, int detail) {
       else {
         p = tflags;
         /* These are basically in tcpdump order */
-        if (tcp->th_flags & TH_SYN)
+        if (tcp.th_flags & TH_SYN)
           *p++ = 'S';
-        if (tcp->th_flags & TH_FIN)
+        if (tcp.th_flags & TH_FIN)
           *p++ = 'F';
-        if (tcp->th_flags & TH_RST)
+        if (tcp.th_flags & TH_RST)
           *p++ = 'R';
-        if (tcp->th_flags & TH_PUSH)
+        if (tcp.th_flags & TH_PUSH)
           *p++ = 'P';
-        if (tcp->th_flags & TH_ACK) {
+        if (tcp.th_flags & TH_ACK) {
           *p++ = 'A';
           Snprintf(buf, sizeof(buf), " ack=%lu",
-            (unsigned long) ntohl(tcp->th_ack));
+            (unsigned long) ntohl(tcp.th_ack));
           strncat(tcpinfo, buf, sizeof(tcpinfo) - strlen(tcpinfo) - 1);
         }
-        if (tcp->th_flags & TH_URG)
+        if (tcp.th_flags & TH_URG)
           *p++ = 'U';
-        if (tcp->th_flags & TH_ECE)
+        if (tcp.th_flags & TH_ECE)
           *p++ = 'E'; /* rfc 2481/3168 */
-        if (tcp->th_flags & TH_CWR)
+        if (tcp.th_flags & TH_CWR)
           *p++ = 'C'; /* rfc 2481/3168 */
         *p++ = '\0';
 
@@ -2631,22 +2659,22 @@ const char *ippackethdrinfo(const u8 *packet, u32 len, int detail) {
         /* Create a string with TCP information relevant to the specified level of detail */
         if (detail == LOW_DETAIL) { /* We don't print ACK in low detail */
           Snprintf(protoinfo, sizeof(protoinfo), "TCP %s:%hu > %s:%hu %s %s seq=%lu win=%hu (incomplete)",
-            srchost, (unsigned short) ntohs(tcp->th_sport), dsthost, (unsigned short) ntohs(tcp->th_dport),
-            tflags, ipinfo, (unsigned long) ntohl(tcp->th_seq),
-            (unsigned short) ntohs(tcp->th_win));
+            srchost, (unsigned short) ntohs(tcp.th_sport), dsthost, (unsigned short) ntohs(tcp.th_dport),
+            tflags, ipinfo, (unsigned long) ntohl(tcp.th_seq),
+            (unsigned short) ntohs(tcp.th_win));
         } else if (detail == MEDIUM_DETAIL) {
           Snprintf(protoinfo, sizeof(protoinfo), "TCP [%s:%hu > %s:%hu %s seq=%lu ack=%lu win=%hu (incomplete)] IP [%s]",
-            srchost, (unsigned short) ntohs(tcp->th_sport), dsthost, (unsigned short) ntohs(tcp->th_dport),
-            tflags,  (unsigned long) ntohl(tcp->th_seq),
-            (unsigned long) ntohl(tcp->th_ack),
-            (unsigned short) ntohs(tcp->th_win), ipinfo);
+            srchost, (unsigned short) ntohs(tcp.th_sport), dsthost, (unsigned short) ntohs(tcp.th_dport),
+            tflags,  (unsigned long) ntohl(tcp.th_seq),
+            (unsigned long) ntohl(tcp.th_ack),
+            (unsigned short) ntohs(tcp.th_win), ipinfo);
         } else if (detail == HIGH_DETAIL) {
           Snprintf(protoinfo, sizeof(protoinfo), "TCP [%s:%hu > %s:%hu %s seq=%lu ack=%lu off=%d res=%d win=%hu (incomplete)] IP [%s]",
-            srchost, (unsigned short) ntohs(tcp->th_sport),
-            dsthost, (unsigned short) ntohs(tcp->th_dport),
-            tflags, (unsigned long) ntohl(tcp->th_seq),
-            (unsigned long) ntohl(tcp->th_ack),
-            (u8)tcp->th_off, (u8)tcp->th_x2, (unsigned short) ntohs(tcp->th_win),
+            srchost, (unsigned short) ntohs(tcp.th_sport),
+            dsthost, (unsigned short) ntohs(tcp.th_dport),
+            tflags, (unsigned long) ntohl(tcp.th_seq),
+            (unsigned long) ntohl(tcp.th_ack),
+            (u8)tcp.th_off, (u8)tcp.th_x2, (unsigned short) ntohs(tcp.th_win),
             ipinfo);
         }
       }
@@ -2655,39 +2683,40 @@ const char *ippackethdrinfo(const u8 *packet, u32 len, int detail) {
     /* CASE 4: where we (finally!) have a full 20 byte TCP header so we can
      * safely print all fields */
     else { /* if (datalen >= 20) */
+      memcpy(&tcp, data, MIN(datalen, sizeof(tcp)));
 
       /* TCP Flags */
       p = tflags;
       /* These are basically in tcpdump order */
-      if (tcp->th_flags & TH_SYN)
+      if (tcp.th_flags & TH_SYN)
         *p++ = 'S';
-      if (tcp->th_flags & TH_FIN)
+      if (tcp.th_flags & TH_FIN)
         *p++ = 'F';
-      if (tcp->th_flags & TH_RST)
+      if (tcp.th_flags & TH_RST)
         *p++ = 'R';
-      if (tcp->th_flags & TH_PUSH)
+      if (tcp.th_flags & TH_PUSH)
         *p++ = 'P';
-      if (tcp->th_flags & TH_ACK) {
+      if (tcp.th_flags & TH_ACK) {
         *p++ = 'A';
         Snprintf(buf, sizeof(buf), " ack=%lu",
-            (unsigned long) ntohl(tcp->th_ack));
+            (unsigned long) ntohl(tcp.th_ack));
         strncat(tcpinfo, buf, sizeof(tcpinfo) - strlen(tcpinfo) - 1);
       }
-      if (tcp->th_flags & TH_URG)
+      if (tcp.th_flags & TH_URG)
         *p++ = 'U';
-      if (tcp->th_flags & TH_ECE)
+      if (tcp.th_flags & TH_ECE)
         *p++ = 'E'; /* rfc 2481/3168 */
-      if (tcp->th_flags & TH_CWR)
+      if (tcp.th_flags & TH_CWR)
         *p++ = 'C'; /* rfc 2481/3168 */
       *p++ = '\0';
 
       /* TCP Options */
-      if ((u32) tcp->th_off * 4 > sizeof(struct tcp_hdr)) {
-        if (datalen < (unsigned int) tcp->th_off * 4) {
+      if ((u32) tcp.th_off * 4 > sizeof(struct tcp_hdr)) {
+        if (datalen < (unsigned int) tcp.th_off * 4) {
           Snprintf(tcpoptinfo, sizeof(tcpoptinfo), "option incomplete");
         } else {
-          tcppacketoptinfo((u8*) tcp + sizeof(struct tcp_hdr),
-            tcp->th_off*4 - sizeof(struct tcp_hdr),
+          tcppacketoptinfo((u8*) data + sizeof(struct tcp_hdr),
+            tcp.th_off*4 - sizeof(struct tcp_hdr),
             tcpoptinfo, sizeof(tcpoptinfo));
         }
       }
@@ -2695,24 +2724,24 @@ const char *ippackethdrinfo(const u8 *packet, u32 len, int detail) {
       /* Rest of header fields */
       if (detail == LOW_DETAIL) {
         Snprintf(protoinfo, sizeof(protoinfo), "TCP %s:%hu > %s:%hu %s %s seq=%lu win=%hu %s",
-          srchost, (unsigned short) ntohs(tcp->th_sport), dsthost, (unsigned short) ntohs(tcp->th_dport),
-          tflags, ipinfo, (unsigned long) ntohl(tcp->th_seq),
-          (unsigned short) ntohs(tcp->th_win), tcpoptinfo);
+          srchost, (unsigned short) ntohs(tcp.th_sport), dsthost, (unsigned short) ntohs(tcp.th_dport),
+          tflags, ipinfo, (unsigned long) ntohl(tcp.th_seq),
+          (unsigned short) ntohs(tcp.th_win), tcpoptinfo);
       } else if (detail == MEDIUM_DETAIL) {
         Snprintf(protoinfo, sizeof(protoinfo), "TCP [%s:%hu > %s:%hu %s seq=%lu win=%hu csum=0x%04X%s%s] IP [%s]",
-          srchost, (unsigned short) ntohs(tcp->th_sport), dsthost, (unsigned short) ntohs(tcp->th_dport),
-          tflags, (unsigned long) ntohl(tcp->th_seq),
-          (unsigned short) ntohs(tcp->th_win),  (unsigned short) ntohs(tcp->th_sum),
+          srchost, (unsigned short) ntohs(tcp.th_sport), dsthost, (unsigned short) ntohs(tcp.th_dport),
+          tflags, (unsigned long) ntohl(tcp.th_seq),
+          (unsigned short) ntohs(tcp.th_win),  (unsigned short) ntohs(tcp.th_sum),
           (tcpoptinfo[0]!='\0') ? " " : "",
           tcpoptinfo, ipinfo);
       } else if (detail == HIGH_DETAIL) {
         Snprintf(protoinfo, sizeof(protoinfo), "TCP [%s:%hu > %s:%hu %s seq=%lu ack=%lu off=%d res=%d win=%hu csum=0x%04X urp=%hu%s%s] IP [%s]",
-          srchost, (unsigned short) ntohs(tcp->th_sport),
-          dsthost, (unsigned short) ntohs(tcp->th_dport),
-          tflags, (unsigned long) ntohl(tcp->th_seq),
-          (unsigned long) ntohl(tcp->th_ack),
-          (u8)tcp->th_off, (u8)tcp->th_x2, (unsigned short) ntohs(tcp->th_win),
-          ntohs(tcp->th_sum), (unsigned short) ntohs(tcp->th_urp),
+          srchost, (unsigned short) ntohs(tcp.th_sport),
+          dsthost, (unsigned short) ntohs(tcp.th_dport),
+          tflags, (unsigned long) ntohl(tcp.th_seq),
+          (unsigned long) ntohl(tcp.th_ack),
+          (u8)tcp.th_off, (u8)tcp.th_x2, (unsigned short) ntohs(tcp.th_win),
+          ntohs(tcp.th_sum), (unsigned short) ntohs(tcp.th_urp),
           (tcpoptinfo[0]!='\0') ? " " : "",
           tcpoptinfo, ipinfo);
       }
@@ -2868,14 +2897,6 @@ const char *ippackethdrinfo(const u8 *packet, u32 len, int detail) {
         if ((ip2->ip_v != 4) || ((ip2->ip_hl * 4) < 20) || ((ip2->ip_hl * 4) > 60)) {
           Snprintf(icmptype, sizeof icmptype, "Destination unreachable (bogus original datagram)");
           goto icmpbad;
-        } else {
-          /* We have the original datagram + the first 8 bytes of the
-           * transport layer header */
-          if (pktlen + 8 < datalen) {
-            tcp = (struct tcp_hdr *) ((char *) ip2 + (ip2->ip_hl * 4));
-            udp = (struct udp_hdr *) ((char *) ip2 + (ip2->ip_hl * 4));
-            sctp = (struct sctp_hdr *) ((char *) ip2 + (ip2->ip_hl * 4));
-          }
         }
 
         /* Determine the IP the original datagram was sent to */
@@ -2897,12 +2918,21 @@ const char *ippackethdrinfo(const u8 *packet, u32 len, int detail) {
 
           case 3:
             if (pktlen + 8 < datalen) {
-              if (ip2->ip_p == IPPROTO_UDP && udp)
-                Snprintf(icmptype, sizeof icmptype, "Port %hu unreachable", (unsigned short) ntohs(udp->uh_dport));
-              else if (ip2->ip_p == IPPROTO_TCP && tcp)
-                Snprintf(icmptype, sizeof icmptype, "Port %hu unreachable", (unsigned short) ntohs(tcp->th_dport));
-              else if (ip2->ip_p == IPPROTO_SCTP && sctp)
-                Snprintf(icmptype, sizeof icmptype, "Port %hu unreachable", (unsigned short) ntohs(sctp->sh_dport));
+              /* We have the original datagram + the first 8 bytes of the
+               * transport layer header */
+              const u8 *pp = (const u8 *)ip2 + (ip2->ip_hl * 4);
+              int offset = -1;
+              if (ip2->ip_p == IPPROTO_UDP)
+                offset = offsetof(struct udp_hdr, uh_dport);
+              else if (ip2->ip_p == IPPROTO_TCP)
+                offset = offsetof(struct tcp_hdr, th_dport);
+              else if (ip2->ip_p == IPPROTO_SCTP)
+                offset = offsetof(struct sctp_hdr, sh_dport);
+
+              if (offset >= 0) {
+                pp += offset;
+                Snprintf(icmptype, sizeof icmptype, "Port %hu unreachable", (u16)((pp[0] << 8) + pp[1]));
+              }
               else
                 Snprintf(icmptype, sizeof icmptype, "Port unreachable (unknown protocol %u)", ip2->ip_p);
             }

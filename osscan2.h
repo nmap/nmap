@@ -319,7 +319,7 @@ class HostOsScanStats {
   int TWinReplyNum; /* how many TWin replies are received. */
   int TOpsReplyNum; /* how many TOps replies are received. Actually it is the same with TOpsReplyNum. */
 
-  struct ip *icmpEchoReply; /* To store one of the two icmp replies */
+  u8 *icmpEchoReply; /* To store one of the two icmp replies */
   int storedIcmpReply; /* Which one of the two icmp replies is stored? */
 
   struct udpprobeinfo upi; /* info of the udp probe we sent */
@@ -364,7 +364,7 @@ class HostOsScan {
   void sendNextProbe(HostOsScanStats *hss);
 
   /* Process one response. If the response is useful, return true. */
-  bool processResp(HostOsScanStats *hss, const struct ip *ip, unsigned int len, struct timeval *rcvdtime);
+  bool processResp(HostOsScanStats *hss, const u8 *ip, unsigned int len, struct timeval *rcvdtime);
 
   /* Make up the fingerprint. */
   void makeFP(HostOsScanStats *hss);
@@ -403,13 +403,13 @@ private:
   void sendTUdpProbe(HostOsScanStats *hss, int probeNo);
   void sendTIcmpProbe(HostOsScanStats *hss, int probeNo);
   /* Response process functions. */
-  bool processTSeqResp(HostOsScanStats *hss, const struct ip *ip, int replyNo);
-  bool processTOpsResp(HostOsScanStats *hss, const struct tcp_hdr *tcp, int replyNo);
+  bool processTSeqResp(HostOsScanStats *hss, const u8 *ip, int replyNo);
+  bool processTOpsResp(HostOsScanStats *hss, const u8 *tcp, int replyNo);
   bool processTWinResp(HostOsScanStats *hss, const struct tcp_hdr *tcp, int replyNo);
-  bool processTEcnResp(HostOsScanStats *hss, const struct ip *ip);
-  bool processT1_7Resp(HostOsScanStats *hss, const struct ip *ip, int replyNo);
-  bool processTUdpResp(HostOsScanStats *hss, const struct ip *ip);
-  bool processTIcmpResp(HostOsScanStats *hss, const struct ip *ip, int replyNo);
+  bool processTEcnResp(HostOsScanStats *hss, const u8 *ip);
+  bool processT1_7Resp(HostOsScanStats *hss, const u8 *ip, int replyNo);
+  bool processTUdpResp(HostOsScanStats *hss, const u8 *ip);
+  bool processTIcmpResp(HostOsScanStats *hss, const u8 *ip, int replyNo);
 
   /* Generic sending functions used by the above probe functions. */
   int send_tcp_probe(HostOsScanStats *hss,
@@ -428,7 +428,7 @@ private:
   void makeTOpsFP(HostOsScanStats *hss);
   void makeTWinFP(HostOsScanStats *hss);
 
-  int get_tcpopt_string(const struct tcp_hdr *tcp, int mss, char *result, int maxlen) const;
+  int get_tcpopt_string(const u8 *tcp, int mss, char *result, int maxlen) const;
 
   int rawsd;    /* Raw socket descriptor */
   netutil_eth_t *ethsd; /* Ethernet handle       */

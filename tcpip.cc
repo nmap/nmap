@@ -166,7 +166,7 @@ void PacketTrace::traceArp(pdirection pdir, const u8 *frame, u32 len,
 void PacketTrace::traceND(pdirection pdir, const u8 *frame, u32 len,
                           struct timeval *now) {
   struct timeval tv;
-  const struct ip6_hdr *ip6;
+  struct ip6_hdr ip6;
   const struct icmpv6_hdr *icmpv6;
   const union icmpv6_msg *msg;
   size_t msg_len;
@@ -191,15 +191,15 @@ void PacketTrace::traceND(pdirection pdir, const u8 *frame, u32 len,
   else
     gettimeofday(&tv, NULL);
 
-  if (len < sizeof(*ip6) + sizeof(*icmpv6)) {
+  if (len < sizeof(ip6) + sizeof(*icmpv6)) {
     error("Packet tracer: ND packets must be at least %lu bytes long (is %lu).",
-          (unsigned long) (sizeof(*ip6) + sizeof(*icmpv6)),
+          (unsigned long) (sizeof(ip6) + sizeof(*icmpv6)),
           (unsigned long) len);
     return;
   }
-  ip6 = (struct ip6_hdr *) frame;
-  icmpv6 = (struct icmpv6_hdr *) (frame + sizeof(*ip6));
-  msg = (union icmpv6_msg *) (frame + sizeof(*ip6) + sizeof(*icmpv6));
+  memcpy(&ip6, frame, sizeof(ip6));
+  icmpv6 = (struct icmpv6_hdr *) (frame + sizeof(ip6));
+  msg = (union icmpv6_msg *) (frame + sizeof(ip6) + sizeof(*icmpv6));
   msg_len = frame + len - (u8 *) msg;
 
   if (icmpv6->icmpv6_type == ICMPV6_NEIGHBOR_SOLICITATION) {
@@ -227,8 +227,8 @@ void PacketTrace::traceND(pdirection pdir, const u8 *frame, u32 len,
     return;
   }
 
-  inet_ntop(AF_INET6, (void *)&ip6->ip6_src, src, sizeof(src));
-  inet_ntop(AF_INET6, (void *)&ip6->ip6_dst, dst, sizeof(dst));
+  inet_ntop(AF_INET6, (void *)&ip6.ip6_src, src, sizeof(src));
+  inet_ntop(AF_INET6, (void *)&ip6.ip6_dst, dst, sizeof(dst));
   log_write(LOG_STDOUT | LOG_NORMAL, "%s (%.4fs) %s %s > %s %s\n",
             (pdir == SENT) ? "SENT" : "RCVD",
             o.TimeSinceStart(&tv), label, src, dst, desc);
@@ -1266,10 +1266,13 @@ int readudppacket(const u8 *packet, int readdata) {
 /* Used by validatepkt() to validate the TCP header (including option lengths).
    The options checked are MSS, WScale, SackOK, Sack, and Timestamp. */
 static bool validateTCPhdr(const u8 *tcpc, unsigned len) {
-  const struct tcp_hdr *tcp = (struct tcp_hdr *) tcpc;
+  struct tcp_hdr tcp = {};
+  if (len < sizeof(tcp))
+    return false;
+  memcpy(&tcp, tcpc, sizeof(tcp));
   unsigned hdrlen, optlen;
 
-  hdrlen = tcp->th_off * 4;
+  hdrlen = tcp.th_off * 4;
 
   /* Check header length */
   if (hdrlen > len || hdrlen < sizeof(struct tcp_hdr))
@@ -1354,7 +1357,8 @@ static bool validateTCPhdr(const u8 *tcpc, unsigned len) {
  * data to the caller.
  */
 static bool validatepkt(const u8 *ipc, unsigned *len) {
-  const struct ip *ip = (struct ip *) ipc;
+  struct ip ip;
+  memcpy(&ip, ipc, sizeof(ip));
   const void *data;
   unsigned int datalen, iplen;
   u8 hdr;
@@ -1365,20 +1369,20 @@ static bool validatepkt(const u8 *ipc, unsigned *len) {
     return false;
   }
 
-  if (ip->ip_v == 4) {
+  if (ip.ip_v == 4) {
     unsigned fragoff, iplen;
 
     datalen = *len;
-    data = ipv4_get_data(ip, &datalen);
+    data = ipv4_get_data(ipc, &datalen);
     if (data == NULL) {
       if (o.debugging >= 3)
         error("Rejecting IP packet because of invalid length");
       return false;
     }
 
-    iplen = ntohs(ip->ip_len);
+    iplen = ntohs(ip.ip_len);
 
-    fragoff = 8 * (ntohs(ip->ip_off) & IP_OFFMASK);
+    fragoff = 8 * (ntohs(ip.ip_off) & IP_OFFMASK);
     if (fragoff) {
       if (o.debugging >= 3)
         error("Rejecting IP fragment (offset %u)", fragoff);
@@ -1391,24 +1395,25 @@ static bool validatepkt(const u8 *ipc, unsigned *len) {
     if (*len > iplen)
       *len = iplen;
 
-    hdr = ip->ip_p;
-  } else if (ip->ip_v == 6) {
-    const struct ip6_hdr *ip6 = (struct ip6_hdr *) ipc;
+    hdr = ip.ip_p;
+  } else if (ip.ip_v == 6) {
+    struct ip6_hdr ip6;
+    memcpy(&ip6, ipc, sizeof(ip6));
 
     datalen = *len;
-    data = ipv6_get_data(ip6, &datalen, &hdr);
+    data = ipv6_get_data(ipc, &datalen, &hdr);
     if (data == NULL) {
       if (o.debugging >= 3)
         error("Rejecting IP packet because of invalid length");
       return false;
     }
 
-    iplen = ntohs(ip6->ip6_plen);
+    iplen = ntohs(ip6.ip6_plen);
     if (datalen > iplen)
       *len -= datalen - iplen;
   } else {
     if (o.debugging >= 3)
-      error("Rejecting IP packet because of invalid version number %u", ip->ip_v);
+      error("Rejecting IP packet because of invalid version number %u", ip.ip_v);
     return false;
   }
 
@@ -1460,10 +1465,7 @@ const u8 *readipv4_pcap(pcap_t *pd, unsigned int *len, long to_usec,
 
   buf = readip_pcap(pd, len, to_usec, rcvdtime, linknfo, validate);
   if (buf != NULL) {
-    const struct ip *ip;
-
-    ip = (struct ip *) buf;
-    if (*len < 1 || ip->ip_v != 4)
+    if (*len < 1 || (buf[0] >> 4) != 4)
       return NULL;
   }
 
@@ -1475,13 +1477,12 @@ static bool accept_any (const unsigned char *p, const struct pcap_pkthdr *h, int
 }
 
 static bool accept_ip (const unsigned char *p, const struct pcap_pkthdr *h, int datalink, size_t offset) {
-  const struct ip *ip = NULL;
 
   if (h->caplen < offset + sizeof(struct ip)) {
     return false;
   }
-  ip = (struct ip *) (p + offset);
-  switch (ip->ip_v) {
+  u8 v = p[offset] >> 4;
+  switch (v) {
     case 4:
     case 6:
       break;
@@ -1766,16 +1767,18 @@ int recvtime(int sd, char *buf, int len, int seconds, int *timedout) {
    parameters (if non-null) are filled with 0.  Remember that the
    correct way to check for errors is to look at the return value
    since a zero ts or echots could possibly be valid. */
-int gettcpopt_ts(const struct tcp_hdr *tcp, u32 *timestamp, u32 *echots) {
+int gettcpopt_ts(const u8 *tcppkt, u32 *timestamp, u32 *echots) {
 
-  unsigned char *p;
+  const u8 *p;
   int len = 0;
   int op;
   int oplen;
+  struct tcp_hdr tcp;
+  memcpy(&tcp, tcppkt, sizeof(tcp));
 
   /* first we find where the tcp options start ... */
-  p = ((unsigned char *) tcp) + 20;
-  len = 4 * tcp->th_off - 20;
+  p = tcppkt + 20;
+  len = 4 * tcp.th_off - 20;
   while (len > 0 && *p != 0 /* TCPOPT_EOL */ ) {
     op = *p++;
     if (op == 0 /* TCPOPT_EOL */ )
