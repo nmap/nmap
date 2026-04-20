@@ -491,7 +491,7 @@ static void make_crc_table(void)
    if (crc != original_crc) error();
 */
 static unsigned long update_crc(unsigned long crc,
-                unsigned char *buf, int len)
+                const unsigned char *buf, int len)
 {
   unsigned long c = crc ^ 0xffffffffL;
   int n;
@@ -505,7 +505,7 @@ static unsigned long update_crc(unsigned long crc,
 }
 
 /* Return the CRC of the bytes buf[0..len-1]. */
-unsigned long nbase_crc32(unsigned char *buf, int len)
+unsigned long nbase_crc32(const unsigned char *buf, int len)
 {
   return update_crc(0L, buf, len);
 }
@@ -520,7 +520,7 @@ unsigned long nbase_crc32(unsigned char *buf, int len)
  */
 
 /* Return the CRC-32C of the bytes buf[0..len-1] */
-unsigned long nbase_crc32c(unsigned char *buf, int len)
+unsigned long nbase_crc32c(const unsigned char *buf, int len)
 {
   int i;
   unsigned long crc32 = 0xffffffffL;
@@ -551,7 +551,7 @@ unsigned long nbase_crc32c(unsigned char *buf, int len)
   byte1 = (result >>  8) & 0xff;
   byte2 = (result >> 16) & 0xff;
   byte3 = (result >> 24) & 0xff;
-  crc32 = ((byte0 << 24) | (byte1 << 16) | (byte2 <<  8) | byte3);
+  crc32 = (((unsigned long)byte0 << 24) | (byte1 << 16) | (byte2 <<  8) | byte3);
   return crc32;
 }
 
@@ -569,7 +569,7 @@ unsigned long nbase_crc32c(unsigned char *buf, int len)
  * be initialized to 1.
  */
 static unsigned long update_adler32(unsigned long adler,
-                                    unsigned char *buf, int len)
+                                    const unsigned char *buf, int len)
 {
   unsigned long s1 = adler & 0xffff;
   unsigned long s2 = (adler >> 16) & 0xffff;
@@ -583,7 +583,7 @@ static unsigned long update_adler32(unsigned long adler,
 }
 
 /* Return the Adler32 of the bytes buf[0..len-1] */
-unsigned long nbase_adler32(unsigned char *buf, int len)
+unsigned long nbase_adler32(const unsigned char *buf, int len)
 {
   return update_adler32(1L, buf, len);
 }

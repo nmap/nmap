@@ -480,11 +480,11 @@ int block_socket(int sd);
 int socket_bindtodevice(int sd, const char *device);
 
 /* CRC32 Cyclic Redundancy Check */
-unsigned long nbase_crc32(unsigned char *buf, int len);
+unsigned long nbase_crc32(const unsigned char *buf, int len);
 /* CRC32C Cyclic Redundancy Check (Castagnoli) */
-unsigned long nbase_crc32c(unsigned char *buf, int len);
+unsigned long nbase_crc32c(const unsigned char *buf, int len);
 /* Adler32 Checksum */
-unsigned long nbase_adler32(unsigned char *buf, int len);
+unsigned long nbase_adler32(const unsigned char *buf, int len);
 
 double tval2secs(const char *tspec);
 long tval2msecs(const char *tspec);
