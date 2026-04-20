@@ -28,34 +28,14 @@ zenmap = "zenmapGUI.App:run"
 ndiff = "ndiff:run_main"
 
 [tool.setuptools]
-packages = [
-"zenmapCore",
-"zenmapCore.data.config",
-"zenmapCore.data.docs",
-"zenmapCore.data.locale",
-"zenmapCore.data.misc",
-"zenmapCore.data.pixmaps",
-"zenmapCore.data.pixmaps.radialnet",
-"zenmapGUI",
-"zenmapGUI.higwidgets",
-"radialnet",
-"radialnet.bestwidgets",
-"radialnet.core",
-"radialnet.gui",
-"radialnet.util",
-]
 py-modules = ["ndiff"]
+include-package-data = true
+
+[tool.setuptools.packages.find]
+include = ["zenmapCore", "zenmapGUI", "radialnet"]
 
 [tool.setuptools.dynamic]
 version = {attr = "zenmapCore.Version.VERSION"}
-
-[tool.setuptools.package-data]
-"zenmapCore.data.pixmaps" = ["*.gif", "*.png"]
-"zenmapCore.data.pixmaps.radialnet" = ["*.png"]
-"zenmapCore.data.config" = ["zenmap.conf", "scan_profile.usp", "zenmap_version"]
-"zenmapCore.data.docs" = ["*.html"]
-"zenmapCore.data.locale" = ["*/LC_MESSAGES/zenmap.mo"]
-"zenmapCore.data.misc" = ["*.xml"]
 
 [tool.setuptools-gettext]
 source_dir = "zenmapCore/data/locale"
