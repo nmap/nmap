@@ -308,7 +308,7 @@ static int ip_send (lua_State *L)
     struct sockaddr_storage *nexthop;
     struct route_nfo route;
     u8 dstmac[6];
-    eth_nfo eth = {0};
+    eth_nfo eth = {};
 
     if (!nmap_route_dst(&dst, &route))
       return nseU_safeerror(L, "Can't find route to %s", addr);

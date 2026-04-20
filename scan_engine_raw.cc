@@ -328,7 +328,7 @@ static bool tcp_probe_match(const UltraScanInfo *USI, const UltraProbe *probe,
                             const struct sockaddr_storage *src, const struct sockaddr_storage *dst,
                             u32 ipid) {
   const struct probespec_tcpdata *probedata;
-  tryno_t tryno = {0};
+  tryno_t tryno = {};
   bool goodseq;
 
   // If magic port is *not* set, then tryno is in the source port, and we

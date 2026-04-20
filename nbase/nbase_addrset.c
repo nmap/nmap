@@ -131,7 +131,7 @@ struct addrset {
 
 /* Special node pointer to represent "all possible addresses"
  * This will be used to represent netmask specifications. */
-static struct trie_node g_TRIE_NODE_TRUE = {0};
+static struct trie_node g_TRIE_NODE_TRUE = {{0}, {0}, NULL, NULL};
 #define TRIE_NODE_TRUE &g_TRIE_NODE_TRUE
 
 struct addrset *addrset_new()
