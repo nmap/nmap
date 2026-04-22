@@ -1217,54 +1217,6 @@ int readtcppacket(const u8 *packet, int readdata) {
   return 0;
 }
 
-/* A simple function I wrote to help in debugging, shows the important fields
-   of a UDP packet*/
-int readudppacket(const u8 *packet, int readdata) {
-  const struct ip *ip = (struct ip *) packet;
-  const struct udp_hdr *udp = (struct udp_hdr *) (packet + sizeof(struct ip));
-  const unsigned char *data = packet + sizeof(struct ip) + sizeof(struct udp_hdr);
-  int tot_len;
-  struct in_addr bullshit, bullshit2;
-  char sourcehost[16];
-  int i;
-  int realfrag = 0;
-
-  if (!packet) {
-    error("%s: packet is NULL!", __func__);
-    return -1;
-  }
-
-  bullshit.s_addr = ip->ip_src.s_addr;
-  bullshit2.s_addr = ip->ip_dst.s_addr;
-  realfrag = htons(ntohs(ip->ip_off) & IP_OFFMASK);
-  tot_len = htons(ip->ip_len);
-  strncpy(sourcehost, inet_ntoa(bullshit), 16);
-  i = 4 * (ntohs(ip->ip_hl)) + 8;
-  if (ip->ip_p == IPPROTO_UDP) {
-    if (realfrag)
-      log_write(LOG_PLAIN, "Packet is fragmented, offset field: %u\n",
-                realfrag);
-    else {
-      log_write(LOG_PLAIN,
-                "UDP packet: %s:%d -> %s:%d (total: %d bytes)\n",
-                sourcehost, ntohs(udp->uh_sport), inet_ntoa(bullshit2),
-                ntohs(udp->uh_dport), tot_len);
-
-      log_write(LOG_PLAIN, "ttl: %hhu ", ip->ip_ttl);
-    }
-  }
-  if (readdata && i < tot_len) {
-    log_write(LOG_PLAIN, "Data portion:\n");
-    while (i < tot_len) {
-      log_write(LOG_PLAIN, "%2X%c", data[i], ((i + 1) % 16) ? ' ' : '\n');
-      i++;
-    }
-    log_write(LOG_PLAIN, "\n");
-  }
-  return 0;
-}
-
-
 /* Used by validatepkt() to validate the TCP header (including option lengths).
    The options checked are MSS, WScale, SackOK, Sack, and Timestamp. */
 static bool validateTCPhdr(const u8 *tcpc, unsigned len) {
