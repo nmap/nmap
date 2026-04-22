@@ -1710,18 +1710,21 @@ bool PacketParser::is_response(PacketElement *sent, PacketElement *rcvd){
         /* So far we've verified that the ICMP error contains an IP datagram that matches
          * what we sent. Now, let's find the upper layer protocol (skip extension
          * headers and the like until we find some transport protocol). */
-        TransportLayerElement *layer4error=(TransportLayerElement *)iperror->getNextElement();
-        while(layer4error!=NULL){
-          if(layer4error->protocol_id()==HEADER_TYPE_UDP || layer4error->protocol_id()==HEADER_TYPE_TCP ){
+        iperror = dynamic_cast<NetworkLayerElement *>(iperror->getNextElement());
+        while(iperror!=NULL){
+          if(iperror->protocol_id()==HEADER_TYPE_UDP || iperror->protocol_id()==HEADER_TYPE_TCP ){
               break;
           }else{
-              layer4error=(TransportLayerElement *)layer4error->getNextElement();
+            iperror = dynamic_cast<NetworkLayerElement *>(iperror->getNextElement());
           }
         }
-        if(layer4error==NULL)
+        if(iperror==NULL)
           return false;
 
         /* Now make sure we see the same port numbers */
+        TransportLayerElement *layer4error = dynamic_cast<TransportLayerElement *>(iperror);
+        if (layer4error == NULL)
+          return false;
         if( layer4error->getSourcePort() != ((TransportLayerElement *)sent_layer4)->getSourcePort() )
           return false;
         if( layer4error->getDestinationPort() != ((TransportLayerElement *)sent_layer4)->getDestinationPort() )
