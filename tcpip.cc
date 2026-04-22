@@ -1059,8 +1059,10 @@ u8 *build_icmpv6_raw(const struct in6_addr *source,
   }
 
   /* At this point icmplen <= sizeof(*icmpv6) + sizeof(*msg). */
-  memcpy(packet + icmplen, data, datalen);
-  icmplen += datalen;
+  if (data && datalen) {
+    memcpy(packet + icmplen, data, datalen);
+    icmplen += datalen;
+  }
 
   icmpv6->icmpv6_cksum = 0;
   icmpv6->icmpv6_cksum = ipv6_pseudoheader_cksum(source, victim,

@@ -136,19 +136,20 @@ struct idle_proxy_info {
 /* Finds the IPv6 extension header for fragmentation in an IPv6 packet, and returns
  * the identification value of the fragmentation header
 */
-int ipv6_get_fragment_id(const struct ip6_hdr *ip6, unsigned int len) {
-  const unsigned char *p, *end;
+int ipv6_get_fragment_id(const u8 *pkt, unsigned int len) {
+  const u8 *p, *end;
   u8 hdr;
-  struct ip6_ext_data_fragment *frag_header = NULL;
 
-  if (len < sizeof(*ip6))
+  struct ip6_hdr ip6;
+  if (len < sizeof(ip6))
     return -1;
+  memcpy(&ip6, pkt, sizeof(ip6));
 
-  p = (unsigned char *) ip6;
+  p = pkt;
   end = p + len;
 
-  hdr = ip6->ip6_nxt;
-  p += sizeof(*ip6);
+  hdr = ip6.ip6_nxt;
+  p += sizeof(ip6);
 
   /* If the first extension header is not the fragmentation, we search our way
    * through the extension headers until we find the fragmentation header */
@@ -162,9 +163,10 @@ int ipv6_get_fragment_id(const struct ip6_hdr *ip6, unsigned int len) {
   if (hdr != IP_PROTO_FRAGMENT ||  (p + 2 + sizeof(ip6_ext_data_fragment)) > end)
     return -1;
 
-  frag_header = (struct ip6_ext_data_fragment *)( p + 2 );
+  struct ip6_ext_data_fragment frag_header;
+  memcpy(&frag_header, p + 2, sizeof(frag_header));
 
-  return (ntohl(frag_header->ident));
+  return (ntohl(frag_header.ident));
 
 }
 
@@ -183,19 +185,13 @@ static int ipid_proxy_probe(struct idle_proxy_info *proxy, int *probes_sent,
   struct timeval tv_sent[3], rcvdtime;
   int ipid = -1;
   int to_usec;
-  unsigned int bytes;
   int base_port;
-  struct ip *ip;
-  struct tcp_hdr *tcp = NULL;
   static u32 seq_base = 0;
   static u32 ack = 0;
   static int packet_send_count = 0; /* Total # of probes sent by this program -- to ensure that our sequence # always changes */
   u32 packetlen = 0;
   u8 *ipv6_packet = NULL;
   const struct sockaddr_storage *ss;
-  struct ip6_hdr *ip6 = NULL;
-  const void *ipv6_data;
-  u8 hdr;
   int res;
 
   if (o.magic_port_set)
@@ -248,56 +244,53 @@ static int ipid_proxy_probe(struct idle_proxy_info *proxy, int *probes_sent,
       to_usec = proxy->host.to.timeout - TIMEVAL_SUBTRACT(tv_end, tv_sent[tries - 1]);
       if (to_usec < 0)
         to_usec = 0; // Final no-block poll
-      ip = (struct ip *) readip_pcap(proxy->pd, &bytes, to_usec, &rcvdtime, NULL, true);
+      unsigned int bytes = 0;
+      const u8 *pkt = readip_pcap(proxy->pd, &bytes, to_usec, &rcvdtime, NULL, true);
       gettimeofday(&tv_end, NULL);
-      if (ip) {
-        if (o.af() == AF_INET) {
-          if (bytes < (4 * ip->ip_hl) + 14U)
-            continue;
-          if (ip->ip_p == IPPROTO_TCP)
-            tcp = ((struct tcp_hdr *) (((char *) ip) + 4 * ip->ip_hl));
-        } else if (o.af() == AF_INET6) {
-          if (ip->ip_v != 6) {
-            error("IPv6 packet with a version field != 6 received");
-          } else {
-            ip6 = (struct ip6_hdr *) ip;
-            ipv6_data = ipv6_get_data(ip6, &packetlen, &hdr);
-            if (hdr == IPPROTO_TCP && ipv6_data != NULL) {
-              tcp = (struct tcp_hdr *) ipv6_data;
-            }
-          }
-        }
-        if (tcp) {
-          if (ntohs(tcp->th_dport) < base_port || ntohs(tcp->th_dport) - base_port >= tries  || ntohs(tcp->th_sport) != proxy->probe_port || ((tcp->th_flags & TH_RST) == 0)) {
-            if (ntohs(tcp->th_dport) > o.magic_port && ntohs(tcp->th_dport) < (o.magic_port + 260)) {
-              if (o.debugging) {
-                error("Received IP ID zombie probe response which probably came from an earlier prober instance ... increasing rttvar from %d to %d",
-                      proxy->host.to.rttvar, (int) (proxy->host.to.rttvar * 1.2));
-              }
-              proxy->host.to.rttvar = (int) (proxy->host.to.rttvar * 1.2);
-              rcvd++;
-            } else if (o.debugging > 1) {
-              char straddr[INET6_ADDRSTRLEN];
-              if (o.af() == AF_INET)
-                inet_ntop(AF_INET, &(ip->ip_src), straddr, sizeof(straddr));
-              else if (o.af() == AF_INET6)
-                inet_ntop(AF_INET6, &(ip6->ip6_src), straddr, sizeof(straddr));
-              error("Received unexpected response packet from %s during IP ID zombie probing:", straddr);
-              readtcppacket((unsigned char *) ip, MIN(ntohs(ip->ip_len), bytes));
-            }
-            continue;
-          }
-
-          trynum = ntohs(tcp->th_dport) - base_port;
-          rcvd++;
-
-          if (o.af() == AF_INET)
-            ipid = ntohs(ip->ip_id);
-          else if (o.af() == AF_INET6)
-            ipid = ipv6_get_fragment_id(ip6, bytes);
-          adjust_timeouts2(&(tv_sent[trynum]), &rcvdtime, &(proxy->host.to));
-        }
+      if (!pkt || bytes < 20) {
+        continue;
       }
+      struct abstract_ip_hdr hdr;
+
+      unsigned int tcpbytes = bytes;
+      const u8 *tcppkt = ip_get_data(pkt, &tcpbytes, &hdr);
+      if (!tcppkt || hdr.proto != IPPROTO_TCP) {
+        continue;
+      }
+
+      if ((o.af() == AF_INET && hdr.version != 4) ||
+          (o.af() == AF_INET6 && hdr.version != 6)) {
+        continue;
+      }
+      struct tcp_hdr tcp;
+      if (tcpbytes < sizeof(tcp))
+        continue;
+      memcpy(&tcp, tcppkt, sizeof(tcp));
+
+      if (ntohs(tcp.th_dport) < base_port || ntohs(tcp.th_dport) - base_port >= tries  || ntohs(tcp.th_sport) != proxy->probe_port || ((tcp.th_flags & TH_RST) == 0)) {
+        if (ntohs(tcp.th_dport) > o.magic_port && ntohs(tcp.th_dport) < (o.magic_port + 260)) {
+          if (o.debugging) {
+            error("Received IP ID zombie probe response which probably came from an earlier prober instance ... increasing rttvar from %d to %d",
+                proxy->host.to.rttvar, (int) (proxy->host.to.rttvar * 1.2));
+          }
+          proxy->host.to.rttvar = (int) (proxy->host.to.rttvar * 1.2);
+          rcvd++;
+        } else if (o.debugging > 1) {
+          error("Received unexpected response packet from %s during IP ID zombie probing:",
+              inet_socktop(&hdr.src));
+          readtcppacket(pkt, 0);
+        }
+        continue;
+      }
+
+      trynum = ntohs(tcp.th_dport) - base_port;
+      rcvd++;
+
+      if (o.af() == AF_INET)
+        ipid = hdr.ipid;
+      else if (o.af() == AF_INET6)
+        ipid = ipv6_get_fragment_id(pkt, bytes);
+      adjust_timeouts2(&(tv_sent[trynum]), &rcvdtime, &(proxy->host.to));
     }
   } while (ipid == -1 && tries < maxtries);
 
@@ -354,7 +347,7 @@ static void initialize_proxy_struct(struct idle_proxy_info *proxy) {
 static void ipv6_force_fragmentation(struct idle_proxy_info *proxy, Target *target) {
   int hardtimeout = 9000000; /* Generally don't wait more than 9 secs total */
   char filter[512]; /* Libpcap filter string */
-  struct ip *ip;
+  const u8 *pkt;
   /* The maximum data size we can create without fragmenting, considering that the headers also need place */
   char data[IP6_MTU_MIN - IPv6_HEADER_LEN - ETH_HDR_LEN - ICMPv6_MIN_HEADER_LEN];
   unsigned int datalen, bytes;
@@ -398,8 +391,8 @@ static void ipv6_force_fragmentation(struct idle_proxy_info *proxy, Target *targ
   /* Now let's wait for the answer */
   while (!response_received) {
     gettimeofday(&tmptv, NULL);
-    ip = (struct ip *) readip_pcap(proxy->pd, &bytes, proxy_reply_timeout, &rcvdtime, NULL, true);
-    if (!ip) {
+    pkt = readip_pcap(proxy->pd, &bytes, proxy_reply_timeout, &rcvdtime, NULL, true);
+    if (!pkt) {
       if (TIMEVAL_SUBTRACT(tmptv, ipv6_packet_send_time) >= hardtimeout) {
             fatal("Idle scan zombie %s (%s) port %hu cannot be used because it has not returned any of our ICMPv6 Echo Requests -- perhaps it is down or firewalled.",
                   proxy->host.HostName(), proxy->host.targetipstr(),
@@ -408,7 +401,7 @@ static void ipv6_force_fragmentation(struct idle_proxy_info *proxy, Target *targ
       continue;
     }
     datalen = bytes;
-    rdata = ip_get_data(ip, &datalen, &hdr);
+    rdata = ip_get_data(pkt, &datalen, &hdr);
     if (hdr.version == 6 && hdr.proto == IPPROTO_ICMPV6) {
       icmp6_header = (struct icmpv6_hdr *) rdata;
       if (icmp6_header->icmpv6_type == ICMPV6_ECHOREPLY) {
@@ -426,7 +419,7 @@ static void ipv6_force_fragmentation(struct idle_proxy_info *proxy, Target *targ
   /* Now we can tell the idle host that its reply was too big, we want it smaller than the IPV6 minimum MTU */
   /* the data contains first the MTU we want, and then the received IPv6 package */
   *(uint32_t *)&data = ntohl(IP6_MTU_MIN - 2);
-  memcpy(&data[4], ip, sizeof(data)-4);
+  memcpy(&data[4], pkt, sizeof(data)-4);
 
   ipv6_packet = build_icmpv6_raw(proxy->host.v6sourceip(), proxy->host.v6hostip(), 0x00, 0x0000, o.ttl, 0x00 , 0x00, 0x02, 0x00, data, sizeof(data) , &packetlen);
   res = send_ip_packet(proxy->rawsd, proxy->ethptr, ss, ipv6_packet, packetlen);
@@ -487,8 +480,6 @@ static void initialize_idleproxy(struct idle_proxy_info *proxy, char *proxyName,
   u32 ack = 0;
   struct timeval probe_send_times[NUM_IPID_PROBES], tmptv, rcvdtime;
   u32 lastipid = 0;
-  struct ip *ip;
-  struct tcp_hdr *tcp;
   int distance;
   u32 ipids[NUM_IPID_PROBES];
   u8 probe_returned[NUM_IPID_PROBES];
@@ -496,7 +487,6 @@ static void initialize_idleproxy(struct idle_proxy_info *proxy, char *proxyName,
   assert(proxyName);
   u8 *ipv6_packet = NULL;
   u32 packetlen = 0;
-  const struct ip6_hdr *ip6;
   u8 ip6hdr;
   const void *ip6data;
   bool retried_forcing_fragmentation = false;
@@ -680,11 +670,11 @@ static void initialize_idleproxy(struct idle_proxy_info *proxy, char *proxyName,
     while (probes_returned < probes_sent && !timedout) {
 
       to_usec = (probes_sent == NUM_IPID_PROBES) ? hardtimeout : 1000;
-      ip = (struct ip *) readip_pcap(proxy->pd, &bytes, to_usec, &rcvdtime, NULL, true);
+      const u8 *pkt = readip_pcap(proxy->pd, &bytes, to_usec, &rcvdtime, NULL, true);
 
       gettimeofday(&tmptv, NULL);
 
-      if (!ip) {
+      if (!pkt || bytes < 20) {
         if (probes_sent < NUM_IPID_PROBES)
           break;
         if (TIMEVAL_SUBTRACT(tmptv, probe_send_times[probes_sent - 1]) >= hardtimeout) {
@@ -695,28 +685,37 @@ static void initialize_idleproxy(struct idle_proxy_info *proxy, char *proxyName,
         timedout = 1;
       }
 
+      u8 ip_v = pkt[0] >> 4;
+
       if (o.af() == AF_INET) {
-        if (ip->ip_v != 4) {
+        if (ip_v != 4) {
           error("Received a packet with version field != 4");
           continue;
         }
-        if (lastipid != 0 && ip->ip_id == lastipid) {
+
+        struct ip ip;
+        if (bytes < sizeof(ip))
+          continue;
+        memcpy(&ip, pkt, sizeof(ip));
+
+        if (lastipid != 0 && ip.ip_id == lastipid) {
           continue; /* probably a duplicate */
         }
-        lastipid = ip->ip_id;
-        if (bytes < (4 * ip->ip_hl) + 14U)
+        lastipid = ip.ip_id;
+        if (bytes < (4 * ip.ip_hl) + 14U)
           continue;
 
-        if (ip->ip_p == IPPROTO_TCP) {
-          tcp = ((struct tcp_hdr *) (((char *) ip) + 4 * ip->ip_hl));
+        if (ip.ip_p == IPPROTO_TCP) {
+          struct tcp_hdr tcp;
+          memcpy(&tcp, pkt + 4 * ip.ip_hl, sizeof(tcp));
           /* Checking now for the source port, which we were not able to do in the libpcap filter */
-          if (ntohs(tcp->th_sport) != proxy->probe_port) {
+          if (ntohs(tcp.th_sport) != proxy->probe_port) {
              continue;
           }
 
-          if (ntohs(tcp->th_dport) < (o.magic_port + 1) || ntohs(tcp->th_dport) - o.magic_port > NUM_IPID_PROBES || ((tcp->th_flags & TH_RST) == 0)) {
+          if (ntohs(tcp.th_dport) < (o.magic_port + 1) || ntohs(tcp.th_dport) - o.magic_port > NUM_IPID_PROBES || ((tcp.th_flags & TH_RST) == 0)) {
             if (o.debugging > 1)
-              error("Received unexpected response packet from %s during initial IP ID zombie testing", inet_ntoa(ip->ip_src));
+              error("Received unexpected response packet from %s during initial IP ID zombie testing", inet_ntoa(ip.ip_src));
             continue;
           }
 
@@ -727,17 +726,19 @@ static void initialize_idleproxy(struct idle_proxy_info *proxy, char *proxyName,
              of sneaking through the firewall.  Plus SYN|ACK is what they will
              be receiving back from the target */
           probes_returned++;
-          ipids[seq_response_num] = ntohs(ip->ip_id);
+          ipids[seq_response_num] = ntohs(ip.ip_id);
           probe_returned[seq_response_num] = 1;
           adjust_timeouts2(&probe_send_times[seq_response_num], &rcvdtime, &(proxy->host.to));
         }
       } else if (o.af() == AF_INET6) {
-        if (ip->ip_v != 6) {
+        if (ip_v != 6) {
           error("Received a packet with version field != 6");
           continue;
         } else {
-          ip6 = (struct ip6_hdr *) ip;
-          newipid = ipv6_get_fragment_id(ip6, bytes);
+          struct ip6_hdr ip6;
+          if (bytes < sizeof(ip6))
+            continue;
+          newipid = ipv6_get_fragment_id(pkt, bytes);
           if (newipid < 0 ) {
             /* ok, the idle host does not seem to append the extension header for fragmentation. Let's try this once more,
             * maybe the idle host just adjusted its Path MTU. If we keep on having the problem, we quit */
@@ -753,22 +754,27 @@ static void initialize_idleproxy(struct idle_proxy_info *proxy, char *proxyName,
           }
           lastipid = newipid;
 
-          ip6data = ipv6_get_data(ip6, &packetlen, &ip6hdr);
-          if (ip6hdr == IPPROTO_TCP && ip6data != NULL) {
-              tcp = (struct tcp_hdr *) ip6data;
-              /* Checking now for the source port, which we were not able to do in the libpcap filter */
-              if (ntohs(tcp->th_sport) != proxy->probe_port) {
-                continue;
-              }
-          }else
-          {
+          ip6data = ipv6_get_data(pkt, &packetlen, &ip6hdr);
+          if (ip6data == NULL || ip6hdr != IPPROTO_TCP) {
             error("Malformed packet received");
             continue;
           }
 
-          if (ntohs(tcp->th_dport) < (o.magic_port + 1) || ntohs(tcp->th_dport) - o.magic_port > NUM_IPID_PROBES  || ((tcp->th_flags & TH_RST) == 0)) {
-            if (o.debugging > 1)
-              error("Received unexpected response packet from %s during initial IP ID zombie testing", inet_ntoa(ip->ip_src));
+          struct tcp_hdr tcp;
+          if (packetlen < sizeof(tcp)) {
+            continue;
+          }
+          memcpy(&tcp, ip6data, sizeof(tcp));
+          /* Checking now for the source port, which we were not able to do in the libpcap filter */
+          if (ntohs(tcp.th_sport) != proxy->probe_port) {
+            continue;
+          }
+
+          if (ntohs(tcp.th_dport) < (o.magic_port + 1) || ntohs(tcp.th_dport) - o.magic_port > NUM_IPID_PROBES  || ((tcp.th_flags & TH_RST) == 0)) {
+            if (o.debugging > 1) {
+              memcpy(&ip6, pkt, sizeof(ip6));
+              error("Received unexpected response packet from %s during initial IP ID zombie testing", ip6_ntoa(&ip6.ip6_src));
+            }
             continue;
           }
 

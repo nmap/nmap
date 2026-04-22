@@ -558,9 +558,9 @@ unsigned short in_cksum(const u16 *ptr,int nbytes) {
   return 0;
 }
 
-const void *ipv4_get_data(const struct ip *ip, const void *p, unsigned int *len);
-const void *ipv6_get_data(const struct ip6_hdr *ip6, const void *p, unsigned int *len, u8 *nxt);
-const void *ipv6_get_data_any(const struct ip6_hdr *ip6, const void *p, unsigned int *len, u8 *nxt);
+const u8 *ipv4_get_data(const struct ip *ip, const u8 *p, unsigned int *len);
+const u8 *ipv6_get_data(const struct ip6_hdr *ip6, const u8 *p, unsigned int *len, u8 *nxt);
+const u8 *ipv6_get_data_any(const struct ip6_hdr *ip6, const u8 *p, unsigned int *len, u8 *nxt);
 
 /* Return true iff this Next Header type is an extension header we must skip to
    get to the upper-layer header. Types for which neither this function nor
@@ -604,15 +604,15 @@ static int ipv6_is_upperlayer(u8 type)
 /* upperlayer_only controls whether we require a known upper-layer protocol at
    the end of the chain, or return the last readable header even if it is not an
    upper-layer protocol (may even be another extension header). */
-static const void *ipv6_get_data_primitive(const struct ip6_hdr *ip6, const void *packet,
+static const u8 *ipv6_get_data_primitive(const struct ip6_hdr *ip6, const u8 *packet,
   unsigned int *len, u8 *nxt, bool upperlayer_only)
 {
-  const unsigned char *p, *end;
+  const u8 *p, *end;
 
   if (*len < sizeof(*ip6))
     return NULL;
 
-  p = (unsigned char *) packet;
+  p = packet;
   end = p + *len;
 
   *nxt = ip6->ip6_nxt;
@@ -628,15 +628,19 @@ static const void *ipv6_get_data_primitive(const struct ip6_hdr *ip6, const void
   if (upperlayer_only && !ipv6_is_upperlayer(*nxt))
     return NULL;
 
-  return (char *) p;
+  return p;
 }
 
-static const void *ip_get_data_primitive(const void *packet, unsigned int *len,
+static const u8 *ip_get_data_primitive(const u8 *packet, unsigned int *len,
   struct abstract_ip_hdr *hdr, bool upperlayer_only) {
-  struct ip ip;
+  if (*len < 20)
+    return NULL;
 
-  memcpy(&ip, packet, sizeof(ip));
-  if (*len >= 20 && ip.ip_v == 4) {
+  u8 ip_v = packet[0] >> 4;
+
+  if (ip_v == 4) {
+    struct ip ip;
+    memcpy(&ip, packet, sizeof(ip));
     struct sockaddr_in *sin;
 
     hdr->version = 4;
@@ -655,7 +659,7 @@ static const void *ip_get_data_primitive(const void *packet, unsigned int *len,
     hdr->ttl = ip.ip_ttl;
     hdr->ipid = ntohs(ip.ip_id);
     return ipv4_get_data(&ip, packet, len);
-  } else if (*len >= 40 && ip.ip_v == 6) {
+  } else if (*len >= 40 && ip_v == 6) {
     struct ip6_hdr ip6;
     memcpy(&ip6, packet, sizeof(ip6));
     struct sockaddr_in6 *sin6;
@@ -684,7 +688,7 @@ static const void *ip_get_data_primitive(const void *packet, unsigned int *len,
    Returns the beginning of the payload, updates *len to be the length of the
    payload, and fills in hdr if successful. Otherwise returns NULL and *hdr is
    undefined. */
-const void *ip_get_data(const void *packet, unsigned int *len,
+const u8 *ip_get_data(const u8 *packet, unsigned int *len,
   struct abstract_ip_hdr *hdr) {
   return ip_get_data_primitive(packet, len, hdr, true);
 }
@@ -692,13 +696,13 @@ const void *ip_get_data(const void *packet, unsigned int *len,
 /* As ip_get_data, except that it doesn't insist that the payload be a known
    upper-layer protocol. This can matter in IPv6 where the last element of a nh
    chain may be a protocol we don't know about. */
-const void *ip_get_data_any(const void *packet, unsigned int *len,
+const u8 *ip_get_data_any(const u8 *packet, unsigned int *len,
   struct abstract_ip_hdr *hdr) {
   return ip_get_data_primitive(packet, len, hdr, false);
 }
 
 /* Get the upper-layer protocol from an IPv4 packet. */
-const void *ipv4_get_data(const struct ip *ip, const void *p, unsigned int *len)
+const u8 *ipv4_get_data(const struct ip *ip, const u8 *p, unsigned int *len)
 {
   unsigned int header_len;
 
@@ -711,10 +715,10 @@ const void *ipv4_get_data(const struct ip *ip, const void *p, unsigned int *len)
     return NULL;
   *len -= header_len;
 
-  return (const u8 *)p + header_len;
+  return p + header_len;
 }
 
-const void *ipv4_get_data(const void *p, unsigned int *len)
+const u8 *ipv4_get_data(const u8 *p, unsigned int *len)
 {
   struct ip ip;
   memcpy(&ip, p, sizeof(ip));
@@ -724,12 +728,12 @@ const void *ipv4_get_data(const void *p, unsigned int *len)
 /* Get the upper-layer protocol from an IPv6 packet. This skips over known
    extension headers. The length of the upper-layer payload is stored in *len.
    The protocol is stored in *nxt. Returns NULL in case of error. */
-const void *ipv6_get_data(const struct ip6_hdr *ip6, const void *p, unsigned int *len, u8 *nxt)
+const u8 *ipv6_get_data(const struct ip6_hdr *ip6, const u8 *p, unsigned int *len, u8 *nxt)
 {
   return ipv6_get_data_primitive(ip6, p, len, nxt, true);
 }
 
-const void *ipv6_get_data(const void *p, unsigned int *len, u8 *nxt)
+const u8 *ipv6_get_data(const u8 *p, unsigned int *len, u8 *nxt)
 {
   struct ip6_hdr ip6;
   memcpy(&ip6, p, sizeof(ip6));
@@ -739,19 +743,19 @@ const void *ipv6_get_data(const void *p, unsigned int *len, u8 *nxt)
 /* Get the protocol payload from an IPv6 packet. This skips over known extension
    headers. It differs from ipv6_get_data in that it will return a result even
    if the final header is not a known upper-layer protocol. */
-const void *ipv6_get_data_any(const struct ip6_hdr *ip6, const void *p, unsigned int *len, u8 *nxt)
+const u8 *ipv6_get_data_any(const struct ip6_hdr *ip6, const u8 *p, unsigned int *len, u8 *nxt)
 {
   return ipv6_get_data_primitive(ip6, p, len, nxt, false);
 }
 
-const void *ipv6_get_data_any(const void *p, unsigned int *len, u8 *nxt)
+const u8 *ipv6_get_data_any(const u8 *p, unsigned int *len, u8 *nxt)
 {
   struct ip6_hdr ip6;
   memcpy(&ip6, p, sizeof(ip6));
   return ipv6_get_data_any(&ip6, p, len, nxt);
 }
 
-const void *icmp_get_data(const void *icmp, unsigned int *len)
+const u8 *icmp_get_data(const u8 *icmp, unsigned int *len)
 {
   unsigned int header_len;
   struct icmp_hdr hdr;
@@ -765,10 +769,10 @@ const void *icmp_get_data(const void *icmp, unsigned int *len)
     return NULL;
   *len -= header_len;
 
-  return (char *) icmp + header_len;
+  return icmp + header_len;
 }
 
-const void *icmpv6_get_data(const void *icmpv6, unsigned int *len)
+const u8 *icmpv6_get_data(const u8 *icmpv6, unsigned int *len)
 {
   unsigned int header_len;
   struct icmpv6_hdr hdr;
@@ -782,7 +786,7 @@ const void *icmpv6_get_data(const void *icmpv6, unsigned int *len)
     return NULL;
   *len -= header_len;
 
-  return (char *) icmpv6 + header_len;
+  return icmpv6 + header_len;
 }
 
 

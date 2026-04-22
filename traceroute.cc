@@ -1072,9 +1072,9 @@ struct Reply {
 _Type _Name; \
 memcpy(&_Name, (u8 *)_Ptr + _Offset, MIN(_Len - _Offset, sizeof(_Type)));
 
-static bool parse_encapsulated_reply(const void *ip, unsigned len, Reply *reply) {
+static bool parse_encapsulated_reply(const u8 *ip, unsigned len, Reply *reply) {
   struct abstract_ip_hdr hdr;
-  const void *data;
+  const u8 *data;
 
   data = ip_get_data(ip, &len, &hdr);
   if (data == NULL)
@@ -1118,9 +1118,9 @@ static bool parse_encapsulated_reply(const void *ip, unsigned len, Reply *reply)
   return true;
 }
 
-static bool decode_reply(const void *ip, unsigned int len, Reply *reply) {
+static bool decode_reply(const u8 *ip, unsigned int len, Reply *reply) {
   struct abstract_ip_hdr hdr;
-  const void *data;
+  const u8 *data;
 
   data = ip_get_data(ip, &len, &hdr);
   if (data == NULL)
@@ -1137,7 +1137,7 @@ static bool decode_reply(const void *ip, unsigned int len, Reply *reply) {
          && icmp.icmp_code == ICMP_TIMEXCEED_INTRANS)
         || icmp.icmp_type == ICMP_UNREACH) {
       /* Get the encapsulated IP packet. */
-      const void *encaps = icmp_get_data(data, &len);
+      const u8 *encaps = icmp_get_data(data, &len);
       if (encaps == NULL)
         return false;
       return parse_encapsulated_reply(encaps, len, reply);
@@ -1164,7 +1164,7 @@ static bool decode_reply(const void *ip, unsigned int len, Reply *reply) {
          && icmpv6.icmpv6_code == ICMPV6_TIMEXCEED_INTRANS)
         || icmpv6.icmpv6_type == ICMPV6_UNREACH) {
       /* Get the encapsulated IP packet. */
-      const void *encaps = icmpv6_get_data(data, &len);
+      const u8 *encaps = icmpv6_get_data(data, &len);
       if (encaps == NULL)
         return false;
       return parse_encapsulated_reply(encaps, len, reply);
@@ -1200,7 +1200,7 @@ static bool decode_reply(const void *ip, unsigned int len, Reply *reply) {
 }
 
 static bool read_reply(Reply *reply, pcap_t *pd, long timeout) {
-  const void *ip;
+  const u8 *ip;
   unsigned int iplen;
   struct link_header linkhdr;
 

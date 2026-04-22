@@ -163,14 +163,14 @@ void UltraProbe::setIP(const u8 *ippacket, u32 len, const probespec *pspec) {
 
   type = UP_IP;
   if (ip->ip_v == 4) {
-    data = ipv4_get_data(ip, &len);
+    data = ipv4_get_data(ippacket, &len);
     assert(data != NULL);
     assert(len + ip->ip_hl * 4 == (u32) ntohs(ip->ip_len));
     probes.IP.ipid = ntohs(ip->ip_id);
     hdr = ip->ip_p;
   } else if (ip->ip_v == 6) {
     const struct ip6_hdr *ip6 = (const struct ip6_hdr *) ippacket;
-    data = ipv6_get_data_any(ip6, &len, &hdr);
+    data = ipv6_get_data_any(ippacket, &len, &hdr);
     assert(data != NULL);
     assert(len == (u32) ntohs(ip6->ip6_plen));
     probes.IP.ipid = ntohl(ip6->ip6_flow & IP6_FLOWLABEL_MASK);
@@ -402,7 +402,7 @@ int get_ping_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
   unsigned int listsz;
   reason_t current_reason = ER_NORESPONSE;
 
-  const void *data = NULL;
+  const u8 *data = NULL;
   unsigned int datalen;
   struct abstract_ip_hdr hdr;
 
@@ -512,7 +512,7 @@ int get_ping_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
           continue;
 
         encaps_len = datalen - 8;
-        encaps_data = ip_get_data((char *) data + 8, &encaps_len, &encaps_hdr);
+        encaps_data = ip_get_data(data + 8, &encaps_len, &encaps_hdr);
         if (encaps_data == NULL ||
             /* UDP hdr, or TCP hdr up to seq #, or SCTP hdr up to vtag */
             ((USI->tcp_scan || USI->udp_scan || USI->sctp_scan) && encaps_len < 8)
@@ -1614,19 +1614,19 @@ bool get_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
   reason_t current_reason = ER_NORESPONSE;
   struct sockaddr_storage reason_sip = { AF_UNSPEC };
 
-  const void *data = NULL;
+  const u8 *data = NULL;
   unsigned int datalen;
   struct abstract_ip_hdr hdr;
 
   gettimeofday(&USI->now, NULL);
 
   do {
-    const struct ip *ip_tmp;
+    const u8 *ip_tmp;
 
     to_usec = TIMEVAL_SUBTRACT(*stime, USI->now);
     if (to_usec < 2000)
       to_usec = 2000;
-    ip_tmp = (struct ip *) readip_pcap(USI->pd, &bytes, to_usec, &rcvdtime, &linkhdr, true);
+    ip_tmp = readip_pcap(USI->pd, &bytes, to_usec, &rcvdtime, &linkhdr, true);
     gettimeofday(&USI->now, NULL);
     if (!ip_tmp && TIMEVAL_BEFORE(*stime, USI->now)) {
       timedout = true;
@@ -1746,7 +1746,7 @@ bool get_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
       struct sctp_hdr sctp;
       memcpy(&sctp, data, sizeof(sctp));
       struct dnet_sctp_chunkhdr chunk;
-      memcpy(&chunk, (u8 *)data + 12, sizeof(chunk));
+      memcpy(&chunk, data + 12, sizeof(chunk));
 
       u16 sport = ntohs(sctp.sh_sport);
       u16 dport = ntohs(sctp.sh_dport);
@@ -1810,7 +1810,7 @@ bool get_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
         continue;
 
       encaps_len = datalen - 8;
-      encaps_data = ip_get_data((char *) data + 8, &encaps_len, &encaps_hdr);
+      encaps_data = ip_get_data(data + 8, &encaps_len, &encaps_hdr);
       if (encaps_data == NULL ||
           /* UDP hdr, or TCP hdr up to seq #, or SCTP hdr up to vtag */
           ((USI->tcp_scan || USI->udp_scan || USI->sctp_scan) && encaps_len < 8)
@@ -1909,7 +1909,7 @@ bool get_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
           default:
             error("Unexpected ICMP type/code 3/%d unreachable packet:\n",
                   icmp.icmp_code);
-            nmap_hexdump((const u8*)data, datalen);
+            nmap_hexdump(data, datalen);
             break;
           }
           current_reason = icmp_to_reason(hdr.proto, icmp.icmp_type, icmp.icmp_code);
@@ -1938,7 +1938,7 @@ bool get_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
         continue;
 
       encaps_len = datalen - 8;
-      encaps_data = ip_get_data_any((char *) data + 8, &encaps_len, &encaps_hdr);
+      encaps_data = ip_get_data_any(data + 8, &encaps_len, &encaps_hdr);
       if (encaps_data == NULL ||
           /* UDP hdr, or TCP hdr up to seq #, or SCTP hdr up to vtag */
           ((USI->tcp_scan || USI->udp_scan || USI->sctp_scan) && encaps_len < 8)

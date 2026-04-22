@@ -284,7 +284,7 @@ static int ip_send (lua_State *L)
   nseU_opttarget(L, 3, &addr, &targetname);
 
   payloadlen = packetlen;
-  if (ip_get_data_any(packet, &payloadlen, &hdr) == NULL)
+  if (ip_get_data_any((const u8 *)packet, &payloadlen, &hdr) == NULL)
     return luaL_error(L, "can't parse ip packet");
 
   if (addr == NULL) {
