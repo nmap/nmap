@@ -403,13 +403,14 @@ private:
   void sendTUdpProbe(HostOsScanStats *hss, int probeNo);
   void sendTIcmpProbe(HostOsScanStats *hss, int probeNo);
   /* Response process functions. */
-  bool processTSeqResp(HostOsScanStats *hss, const u8 *ip, int replyNo);
+  bool processTSeqResp(HostOsScanStats *hss, const struct ip *ip, const u8 *pkt, const struct tcp_hdr *tcp, const u8 *tcppkt, int replyNo);
   bool processTOpsResp(HostOsScanStats *hss, const u8 *tcp, int replyNo);
   bool processTWinResp(HostOsScanStats *hss, const struct tcp_hdr *tcp, int replyNo);
-  bool processTEcnResp(HostOsScanStats *hss, const u8 *ip);
-  bool processT1_7Resp(HostOsScanStats *hss, const u8 *ip, int replyNo);
+  bool processTEcnResp(HostOsScanStats *hss, const struct ip *ip, const struct tcp_hdr *tcp, const u8 *tcppkt);
+  bool processT1_7Resp(HostOsScanStats *hss, const struct ip *ip, const struct tcp_hdr *tcp, const u8 *tcppkt, int replyNo);
   bool processTUdpResp(HostOsScanStats *hss, const u8 *ip);
-  bool processTIcmpResp(HostOsScanStats *hss, const u8 *ip, int replyNo);
+  bool processTUdpResp(HostOsScanStats *hss, const struct ip *ip, const struct icmp *icmp, const u8 *icmppkt, unsigned int icmplen);
+  bool processTIcmpResp(HostOsScanStats *hss, const struct ip *ip, const u8 *pkt, int replyNo);
 
   /* Generic sending functions used by the above probe functions. */
   int send_tcp_probe(HostOsScanStats *hss,
