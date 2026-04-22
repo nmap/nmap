@@ -441,19 +441,12 @@ int get_ping_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
     if (sockaddr_storage_cmp(USI->SourceSockAddr(), &hdr.dst) != 0)
       continue;
 
-    struct ip ip_tmp;
-    memcpy(&ip_tmp, pkt, sizeof(ip_tmp));
-
     /* First check if it is ICMP, TCP, or UDP */
     if (hdr.proto == IPPROTO_ICMP || hdr.proto == IPPROTO_ICMPV6) {
       /* if it is our response */
-      if (bytes < 8U) {
-        if (!ip_tmp.ip_off)
-          error("Supposed ping packet is only %d bytes long!", bytes);
-        continue;
-      }
-
       struct ppkt ping;
+      if (datalen < sizeof(ppkt))
+        continue;
       memcpy(&ping, data, sizeof(ping));
       current_reason = icmp_to_reason(hdr.proto, ping.type, ping.code);
 
@@ -559,12 +552,16 @@ int get_ping_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
           if ((encaps_hdr.proto == IPPROTO_ICMP || encaps_hdr.proto == IPPROTO_ICMPV6)
               && USI->ptech.rawicmpscan) {
             /* The response was based on a ping packet we sent */
+            if (encaps_len < ICMP_LEN_MIN)
+              continue;
             struct icmp icmp;
-            memcpy(&icmp, encaps_data, sizeof(icmp));
+            memcpy(&icmp, encaps_data, MIN(encaps_len, sizeof(icmp)));
             if (probe->icmpid() != ntohs(icmp.icmp_id))
               continue;
           } else if (encaps_hdr.proto == IPPROTO_TCP && USI->ptech.rawtcpscan) {
             struct tcp_hdr tcp;
+            if (encaps_len < sizeof(tcp))
+              continue;
             memcpy(&tcp, encaps_data, sizeof(tcp));
             if (probe->dport() != ntohs(tcp.th_dport) ||
                 probe->sport() != ntohs(tcp.th_sport) ||
@@ -572,12 +569,16 @@ int get_ping_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
               continue;
           } else if (encaps_hdr.proto == IPPROTO_UDP && USI->ptech.rawudpscan) {
             struct udp_hdr udp;
+            if (encaps_len < sizeof(udp))
+              continue;
             memcpy(&udp, encaps_data, sizeof(udp));
             if (probe->dport() != ntohs(udp.uh_dport) ||
                 probe->sport() != ntohs(udp.uh_sport))
               continue;
           } else if (encaps_hdr.proto == IPPROTO_SCTP && USI->ptech.rawsctpscan) {
             struct sctp_hdr sctp;
+            if (encaps_len < sizeof(sctp))
+              continue;
             memcpy(&sctp, encaps_data, sizeof(sctp));
             if (probe->dport() != ntohs(sctp.sh_dport) ||
                 probe->sport() != ntohs(sctp.sh_sport) ||
@@ -658,6 +659,8 @@ int get_ping_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
       }
     } else if (hdr.proto == IPPROTO_TCP && USI->ptech.rawtcpscan) {
       struct tcp_hdr tcp;
+      if (datalen < sizeof(tcp))
+        continue;
       memcpy(&tcp, data, sizeof(tcp));
       /* Check that the packet has useful flags. */
       if (o.discovery_ignore_rst
@@ -709,7 +712,8 @@ int get_ping_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
       }
     } else if (hdr.proto == IPPROTO_UDP && USI->ptech.rawudpscan) {
       struct udp_hdr udp;
-      memcpy(&udp, data, sizeof(udp));
+      if (datalen < sizeof(udp))
+        continue;
       /* Search for this host on the incomplete list */
       hss = USI->findHost(&hdr.src);
       if (!hss)
@@ -719,6 +723,7 @@ int get_ping_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
       listsz = hss->num_probes_outstanding();
       goodone = false;
 
+      memcpy(&udp, data, sizeof(udp));
       u16 sport = ntohs(udp.uh_sport);
       u16 dport = ntohs(udp.uh_dport);
 
@@ -745,6 +750,10 @@ int get_ping_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
           log_write(LOG_STDOUT, "In response to UDP-ping, we got UDP packet back from %s port %hu (trynum = %d)\n", inet_ntop_ez(&hdr.src, sizeof(hdr.src)), sport, probe->get_tryno());
       }
     } else if (hdr.proto == IPPROTO_SCTP && USI->ptech.rawsctpscan) {
+      struct sctp_hdr sctp;
+      struct dnet_sctp_chunkhdr chunk;
+      if (datalen < sizeof(sctp) + sizeof(chunk))
+        continue;
       /* Search for this host on the incomplete list */
       hss = USI->findHost(&hdr.src);
       if (!hss)
@@ -753,10 +762,8 @@ int get_ping_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
       listsz = hss->num_probes_outstanding();
       goodone = false;
 
-      struct sctp_hdr sctp;
       memcpy(&sctp, data, sizeof(sctp));
-      struct dnet_sctp_chunkhdr chunk;
-      memcpy(&chunk, (u8 *)data + 12, sizeof(chunk));
+      memcpy(&chunk, (u8 *)data + sizeof(sctp), sizeof(chunk));
 
       u16 sport = ntohs(sctp.sh_sport);
       u16 dport = ntohs(sctp.sh_dport);

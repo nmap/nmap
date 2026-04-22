@@ -1312,16 +1312,12 @@ static bool validateTCPhdr(const u8 *tcpc, unsigned len) {
  */
 static bool validatepkt(const u8 *ipc, unsigned *len) {
   struct ip ip;
+  if (*len < sizeof(ip))
+    return false;
   memcpy(&ip, ipc, sizeof(ip));
   const void *data;
   unsigned int datalen, iplen;
   u8 hdr;
-
-  if (*len < 1) {
-    if (o.debugging >= 3)
-      error("Rejecting tiny, supposed IP packet (size %u)", *len);
-    return false;
-  }
 
   if (ip.ip_v == 4) {
     unsigned fragoff, iplen;
@@ -1352,6 +1348,8 @@ static bool validatepkt(const u8 *ipc, unsigned *len) {
     hdr = ip.ip_p;
   } else if (ip.ip_v == 6) {
     struct ip6_hdr ip6;
+    if (*len < sizeof(ip6))
+      return false;
     memcpy(&ip6, ipc, sizeof(ip6));
 
     datalen = *len;

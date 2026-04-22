@@ -721,6 +721,8 @@ const u8 *ipv4_get_data(const struct ip *ip, const u8 *p, unsigned int *len)
 const u8 *ipv4_get_data(const u8 *p, unsigned int *len)
 {
   struct ip ip;
+  if (*len < sizeof(ip))
+    return NULL;
   memcpy(&ip, p, sizeof(ip));
   return ipv4_get_data(&ip, p, len);
 }
@@ -736,6 +738,8 @@ const u8 *ipv6_get_data(const struct ip6_hdr *ip6, const u8 *p, unsigned int *le
 const u8 *ipv6_get_data(const u8 *p, unsigned int *len, u8 *nxt)
 {
   struct ip6_hdr ip6;
+  if (*len < sizeof(ip6))
+    return NULL;
   memcpy(&ip6, p, sizeof(ip6));
   return ipv6_get_data(&ip6, p, len, nxt);
 }
@@ -751,6 +755,8 @@ const u8 *ipv6_get_data_any(const struct ip6_hdr *ip6, const u8 *p, unsigned int
 const u8 *ipv6_get_data_any(const u8 *p, unsigned int *len, u8 *nxt)
 {
   struct ip6_hdr ip6;
+  if (*len < sizeof(ip6))
+    return NULL;
   memcpy(&ip6, p, sizeof(ip6));
   return ipv6_get_data_any(&ip6, p, len, nxt);
 }
@@ -759,6 +765,8 @@ const u8 *icmp_get_data(const u8 *icmp, unsigned int *len)
 {
   unsigned int header_len;
   struct icmp_hdr hdr;
+  if (*len < sizeof(hdr))
+    return NULL;
   memcpy(&hdr, icmp, sizeof(hdr));
 
   if (hdr.icmp_type == ICMP_TIMEXCEED || hdr.icmp_type == ICMP_UNREACH)
@@ -776,6 +784,8 @@ const u8 *icmpv6_get_data(const u8 *icmpv6, unsigned int *len)
 {
   unsigned int header_len;
   struct icmpv6_hdr hdr;
+  if (*len < sizeof(hdr))
+    return NULL;
   memcpy(&hdr, icmpv6, sizeof(hdr));
 
   if (hdr.icmpv6_type == ICMPV6_TIMEXCEED || hdr.icmpv6_type == ICMPV6_UNREACH)
