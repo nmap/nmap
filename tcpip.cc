@@ -167,8 +167,8 @@ void PacketTrace::traceND(pdirection pdir, const u8 *frame, u32 len,
                           struct timeval *now) {
   struct timeval tv;
   struct ip6_hdr ip6;
-  const struct icmpv6_hdr *icmpv6;
-  const union icmpv6_msg *msg;
+  struct icmpv6_hdr icmpv6;
+  union icmpv6_msg msg;
   size_t msg_len;
   const char *label;
   char src[INET6_ADDRSTRLEN], dst[INET6_ADDRSTRLEN];
@@ -191,36 +191,36 @@ void PacketTrace::traceND(pdirection pdir, const u8 *frame, u32 len,
   else
     gettimeofday(&tv, NULL);
 
-  if (len < sizeof(ip6) + sizeof(*icmpv6)) {
+  if (len < sizeof(ip6) + sizeof(icmpv6) + sizeof(msg)) {
     error("Packet tracer: ND packets must be at least %lu bytes long (is %lu).",
-          (unsigned long) (sizeof(ip6) + sizeof(*icmpv6)),
+          (unsigned long) (sizeof(ip6) + sizeof(icmpv6) + sizeof(msg)),
           (unsigned long) len);
     return;
   }
   memcpy(&ip6, frame, sizeof(ip6));
-  icmpv6 = (struct icmpv6_hdr *) (frame + sizeof(ip6));
-  msg = (union icmpv6_msg *) (frame + sizeof(ip6) + sizeof(*icmpv6));
-  msg_len = frame + len - (u8 *) msg;
+  memcpy(&icmpv6, frame + sizeof(ip6), sizeof(icmpv6));
+  memcpy(&msg, frame + sizeof(ip6) + sizeof(icmpv6), sizeof(msg));
+  msg_len = len - (sizeof(ip6) + sizeof(icmpv6) + sizeof(msg));
 
-  if (icmpv6->icmpv6_type == ICMPV6_NEIGHBOR_SOLICITATION) {
+  if (icmpv6.icmpv6_type == ICMPV6_NEIGHBOR_SOLICITATION) {
     label = "neighbor solicitation";
     if (msg_len < 20) {
       Snprintf(desc, sizeof(desc), "packet too short");
     } else {
-      inet_ntop(AF_INET6, (void *)&msg->nd.icmpv6_target, who_has, sizeof(who_has));
+      inet_ntop(AF_INET6, (void *)&msg.nd.icmpv6_target, who_has, sizeof(who_has));
       Snprintf(desc, sizeof(desc), "who has %s", who_has);
     }
-  } else if (icmpv6->icmpv6_type == ICMPV6_NEIGHBOR_ADVERTISEMENT) {
+  } else if (icmpv6.icmpv6_type == ICMPV6_NEIGHBOR_ADVERTISEMENT) {
     label = "neighbor advertisement";
     if (msg_len < 28) {
       Snprintf(desc, sizeof(desc), "packet too short");
-    } else if (msg->nd.icmpv6_option_length == 0 || msg->nd.icmpv6_option_type != 2) {
+    } else if (msg.nd.icmpv6_option_length == 0 || msg.nd.icmpv6_option_type != 2) {
       /* We only handle target link-layer address in the first option. */
       Snprintf(desc, sizeof(desc), "no link-layer address");
     } else {
-      inet_ntop(AF_INET6, (void *)&msg->nd.icmpv6_target, tgt_is, sizeof(tgt_is));
+      inet_ntop(AF_INET6, (void *)&msg.nd.icmpv6_target, tgt_is, sizeof(tgt_is));
       Snprintf(desc, sizeof(desc), "%s is at %s",
-               tgt_is, eth_ntoa(&msg->nd.icmpv6_mac));
+               tgt_is, eth_ntoa(&msg.nd.icmpv6_mac));
     }
   } else {
     error("Unknown ICMPV6 type in %s.", __func__);
