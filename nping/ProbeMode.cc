@@ -1085,7 +1085,10 @@ int ProbeMode::fillPacketICMP(NpingTarget *target, u8 *buff, int bufflen, int *f
 
     }
     /* Compute checksum */
-    c4.setSum(); /* TODO: Do we want to implement --badsum-icmp? */
+    if( o.getBadsum() == true )
+      c4.setSumRandom();
+    else
+      c4.setSum();
 
     /* Fill the IPv4Header object with the info from NpingOps */
     createIPv4(&i, &c4, "ICMP", target);
@@ -1125,7 +1128,10 @@ int ProbeMode::fillPacketICMP(NpingTarget *target, u8 *buff, int bufflen, int *f
     createIPv6(&i6, &c6, "ICMPv6", target);
 
     /* Compute checksum */
-    c6.setSum();
+    if( o.getBadsum() == true )
+      c6.setSumRandom();
+    else
+      c6.setSum();
 
     /* Store result in user supplied buffer */
     *filledlen = i6.dumpToBinaryBuffer(buff, bufflen);
