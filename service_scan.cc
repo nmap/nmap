@@ -146,9 +146,9 @@ public:
   char hostname_matched[SERVICE_FIELD_LEN];
   char ostype_matched[SERVICE_TYPE_LEN];
   char devicetype_matched[SERVICE_TYPE_LEN];
-  char cpe_a_matched[SERVICE_FIELD_LEN];
-  char cpe_h_matched[SERVICE_FIELD_LEN];
-  char cpe_o_matched[SERVICE_FIELD_LEN];
+  std::vector<char *> cpe_a_matched;
+  std::vector<char *> cpe_h_matched;
+  std::vector<char *> cpe_o_matched;
   enum service_tunnel_type tunnel; /* SERVICE_TUNNEL_NONE, SERVICE_TUNNEL_SSL */
   // This stores our SSL session id, which will help speed up subsequent
   // SSL connections.  It's overwritten each time.  void* is used so we don't
@@ -526,13 +526,29 @@ const struct MatchDetails *ServiceProbeMatch::testMatch(const u8 *buf, int bufle
   static char hostname[SERVICE_FIELD_LEN];
   static char ostype[SERVICE_TYPE_LEN];
   static char devicetype[SERVICE_TYPE_LEN];
-  static char cpe_a[SERVICE_FIELD_LEN], cpe_h[SERVICE_FIELD_LEN], cpe_o[SERVICE_FIELD_LEN];
   char *bufc = (char *) buf;
   assert(isInitialized);
 
-  // Clear out the output struct
-  memset(&MD_return, 0, sizeof(MD_return));
+  // Clear out the output struct - initialize scalar fields to NULL/0
+  MD_return.serviceName = NULL;
+  MD_return.product = NULL;
+  MD_return.version = NULL;
+  MD_return.info = NULL;
+  MD_return.hostname = NULL;
+  MD_return.ostype = NULL;
+  MD_return.devicetype = NULL;
+  MD_return.lineno = 0;
   MD_return.isSoft = isSoft;
+  // Clear CPE vectors (they persist as static members of MD_return)
+  for (std::vector<const char *>::iterator it = MD_return.cpe_a.begin(); it != MD_return.cpe_a.end(); it++)
+    free((void *)*it);
+  for (std::vector<const char *>::iterator it = MD_return.cpe_h.begin(); it != MD_return.cpe_h.end(); it++)
+    free((void *)*it);
+  for (std::vector<const char *>::iterator it = MD_return.cpe_o.begin(); it != MD_return.cpe_o.end(); it++)
+    free((void *)*it);
+  MD_return.cpe_a.clear();
+  MD_return.cpe_h.clear();
+  MD_return.cpe_o.clear();
 
   rc = pcre2_match(regex_compiled, (PCRE2_SPTR8)bufc, buflen, 0, 0, match_data, match_context);
   if (rc < 0) {
@@ -555,16 +571,14 @@ const struct MatchDetails *ServiceProbeMatch::testMatch(const u8 *buf, int bufle
     // Now lets get the version number if available
     getVersionStr(buf, buflen, product, sizeof(product), version, sizeof(version), info, sizeof(info),
                   hostname, sizeof(hostname), ostype, sizeof(ostype), devicetype, sizeof(devicetype),
-                  cpe_a, sizeof(cpe_a), cpe_h, sizeof(cpe_h), cpe_o, sizeof(cpe_o));
+                  &MD_return);
     if (*product) MD_return.product = product;
     if (*version) MD_return.version = version;
     if (*info) MD_return.info = info;
     if (*hostname) MD_return.hostname = hostname;
     if (*ostype) MD_return.ostype = ostype;
     if (*devicetype) MD_return.devicetype = devicetype;
-    if (*cpe_a) MD_return.cpe_a = cpe_a;
-    if (*cpe_h) MD_return.cpe_h = cpe_h;
-    if (*cpe_o) MD_return.cpe_o = cpe_o;
+    // CPE vectors are already populated by getVersionStr
 
     MD_return.serviceName = servicename;
     MD_return.lineno = getLineNo();
@@ -964,9 +978,7 @@ int ServiceProbeMatch::getVersionStr(const u8 *subject, size_t subjectlen,
             char *version, size_t versionlen, char *info, size_t infolen,
                   char *hostname, size_t hostnamelen, char *ostype, size_t ostypelen,
                   char *devicetype, size_t devicetypelen,
-                  char *cpe_a, size_t cpe_alen,
-                  char *cpe_h, size_t cpe_hlen,
-                  char *cpe_o, size_t cpe_olen) const {
+                  struct MatchDetails *MD) const {
 
   int rc;
   assert(productlen >= 0 && versionlen >= 0 && infolen >= 0 &&
@@ -978,9 +990,7 @@ int ServiceProbeMatch::getVersionStr(const u8 *subject, size_t subjectlen,
   if (hostnamelen > 0) *hostname = '\0';
   if (ostypelen > 0) *ostype = '\0';
   if (devicetypelen > 0) *devicetype = '\0';
-  if (cpe_alen > 0) *cpe_a = '\0';
-  if (cpe_hlen > 0) *cpe_h = '\0';
-  if (cpe_olen > 0) *cpe_o = '\0';
+  // CPE vectors are cleared in testMatch before calling getVersionStr
   int retval = 0;
 
   // Now lets get this started!  We begin with the product name
@@ -1051,25 +1061,22 @@ int ServiceProbeMatch::getVersionStr(const u8 *subject, size_t subjectlen,
   }
 
   /* There may be multiple cpe templates. We peek at the first character and
-     store in cpe_a, cpe_h, or cpe_o as appropriate. */
+     allocate a new buffer for each, storing in cpe_a, cpe_h, or cpe_o vector. */
   for (unsigned int i = 0; i < cpe_templates.size(); i++) {
-    char *cpe;
-    size_t cpelen;
+    char cpe_buf[SERVICE_FIELD_LEN];
     int part;
+    std::vector<const char *> *cpe_vec;
 
     part = cpe_get_part(cpe_templates[i]);
     switch (part) {
     case 'a':
-      cpe = cpe_a;
-      cpelen = cpe_alen;
+      cpe_vec = &(MD->cpe_a);
       break;
     case 'h':
-      cpe = cpe_h;
-      cpelen = cpe_hlen;
+      cpe_vec = &(MD->cpe_h);
       break;
     case 'o':
-      cpe = cpe_o;
-      cpelen = cpe_olen;
+      cpe_vec = &(MD->cpe_o);
       break;
     default:
       error("Warning: ignoring cpe:// template with unknown part '%c' (0x%02X)",
@@ -1077,12 +1084,17 @@ int ServiceProbeMatch::getVersionStr(const u8 *subject, size_t subjectlen,
       continue;
       break;
     }
-    rc = dotmplsubst(subject, subjectlen, match_data, cpe_templates[i], cpe, cpelen, transform_cpe);
+    rc = dotmplsubst(subject, subjectlen, match_data, cpe_templates[i], cpe_buf, sizeof(cpe_buf), transform_cpe);
     if (rc != 0) {
-      error("Warning: Servicescan failed to fill cpe_%c (subjectlen: %lu, cpelen: %lu). Too long? Match string was line %d: %s", part, subjectlen, cpelen, deflineno,
+      error("Warning: Servicescan failed to fill cpe_%c (subjectlen: %lu, cpelen: %lu). Too long? Match string was line %d: %s", part, (unsigned long)subjectlen, (unsigned long)sizeof(cpe_buf), deflineno,
             (cpe_templates[i])? cpe_templates[i] : "");
-      if (cpelen > 0) *cpe = '\0';
       retval = -1;
+    } else {
+      // Successfully filled buffer, strdup and push to vector
+      char *cpe_str = strdup(cpe_buf);
+      if (cpe_str == NULL)
+        fatal("Out of memory in %s", __func__);
+      cpe_vec->push_back(cpe_str);
     }
   }
 
@@ -1626,7 +1638,7 @@ ServiceNFO::ServiceNFO(AllProbes *newAP) {
   currentresplen = 0;
   product_matched[0] = version_matched[0] = extrainfo_matched[0] = '\0';
   hostname_matched[0] = ostype_matched[0] = devicetype_matched[0] = '\0';
-  cpe_a_matched[0] = cpe_h_matched[0] = cpe_o_matched[0] = '\0';
+  // cpe_*_matched vectors self-initialize to empty
   tunnel = SERVICE_TUNNEL_NONE;
   ssl_session = NULL;
   softMatchFound = false;
@@ -1641,6 +1653,16 @@ ServiceNFO::~ServiceNFO() {
   if (servicefp) free(servicefp);
   servicefp = NULL;
   servicefpalloc = servicefplen = 0;
+  // Free allocated CPE strings
+  for (std::vector<char *>::iterator it = cpe_a_matched.begin(); it != cpe_a_matched.end(); it++)
+    free(*it);
+  for (std::vector<char *>::iterator it = cpe_h_matched.begin(); it != cpe_h_matched.end(); it++)
+    free(*it);
+  for (std::vector<char *>::iterator it = cpe_o_matched.begin(); it != cpe_o_matched.end(); it++)
+    free(*it);
+  cpe_a_matched.clear();
+  cpe_h_matched.clear();
+  cpe_o_matched.clear();
 #if HAVE_OPENSSL
   if (ssl_session)
     SSL_SESSION_free((SSL_SESSION*)ssl_session);
@@ -2201,7 +2223,16 @@ static int scanThroughTunnel(ServiceNFO *svc) {
   svc->probe_matched = NULL;
   svc->product_matched[0] = svc->version_matched[0] = svc->extrainfo_matched[0] = '\0';
   svc->hostname_matched[0] = svc->ostype_matched[0] = svc->devicetype_matched[0] = '\0';
-  svc->cpe_a_matched[0] = svc->cpe_h_matched[0] = svc->cpe_o_matched[0] = '\0';
+  // Clear CPE vectors
+  for (std::vector<char *>::iterator it = svc->cpe_a_matched.begin(); it != svc->cpe_a_matched.end(); it++)
+    free(*it);
+  for (std::vector<char *>::iterator it = svc->cpe_h_matched.begin(); it != svc->cpe_h_matched.end(); it++)
+    free(*it);
+  for (std::vector<char *>::iterator it = svc->cpe_o_matched.begin(); it != svc->cpe_o_matched.end(); it++)
+    free(*it);
+  svc->cpe_a_matched.clear();
+  svc->cpe_h_matched.clear();
+  svc->cpe_o_matched.clear();
   svc->softMatchFound = false;
    svc->resetProbes(true);
   return 1;
@@ -2500,12 +2531,25 @@ static bool processMatch(const struct MatchDetails *MD, ServiceNFO *svc,
     Strncpy(svc->ostype_matched, MD->ostype, sizeof(svc->ostype_matched));
   if (MD->devicetype)
     Strncpy(svc->devicetype_matched, MD->devicetype, sizeof(svc->devicetype_matched));
-  if (MD->cpe_a)
-    Strncpy(svc->cpe_a_matched, MD->cpe_a, sizeof(svc->cpe_a_matched));
-  if (MD->cpe_h)
-    Strncpy(svc->cpe_h_matched, MD->cpe_h, sizeof(svc->cpe_h_matched));
-  if (MD->cpe_o)
-    Strncpy(svc->cpe_o_matched, MD->cpe_o, sizeof(svc->cpe_o_matched));
+  // Copy CPE vectors - strdup each element
+  for (std::vector<const char *>::const_iterator it = MD->cpe_a.begin(); it != MD->cpe_a.end(); it++) {
+    char *cpe_copy = strdup(*it);
+    if (cpe_copy == NULL)
+      fatal("Out of memory in %s", __func__);
+    svc->cpe_a_matched.push_back(cpe_copy);
+  }
+  for (std::vector<const char *>::const_iterator it = MD->cpe_h.begin(); it != MD->cpe_h.end(); it++) {
+    char *cpe_copy = strdup(*it);
+    if (cpe_copy == NULL)
+      fatal("Out of memory in %s", __func__);
+    svc->cpe_h_matched.push_back(cpe_copy);
+  }
+  for (std::vector<const char *>::const_iterator it = MD->cpe_o.begin(); it != MD->cpe_o.end(); it++) {
+    char *cpe_copy = strdup(*it);
+    if (cpe_copy == NULL)
+      fatal("Out of memory in %s", __func__);
+    svc->cpe_o_matched.push_back(cpe_copy);
+  }
   svc->softMatchFound = MD->isSoft;
   return !MD->isSoft;
 }
@@ -2715,12 +2759,13 @@ std::list<ServiceNFO *>::iterator svc;
    if ((*svc)->probe_state != PROBESTATE_FINISHED_NOMATCH) {
      std::vector<const char *> cpe;
 
-     if (*(*svc)->cpe_a_matched)
-       cpe.push_back((*svc)->cpe_a_matched);
-     if (*(*svc)->cpe_h_matched)
-       cpe.push_back((*svc)->cpe_h_matched);
-     if (*(*svc)->cpe_o_matched)
-       cpe.push_back((*svc)->cpe_o_matched);
+     // Merge all CPE vectors into one
+     for (std::vector<char *>::iterator it = (*svc)->cpe_a_matched.begin(); it != (*svc)->cpe_a_matched.end(); it++)
+       cpe.push_back(*it);
+     for (std::vector<char *>::iterator it = (*svc)->cpe_h_matched.begin(); it != (*svc)->cpe_h_matched.end(); it++)
+       cpe.push_back(*it);
+     for (std::vector<char *>::iterator it = (*svc)->cpe_o_matched.begin(); it != (*svc)->cpe_o_matched.end(); it++)
+       cpe.push_back(*it);
 
      (*svc)->target->ports.setServiceProbeResults((*svc)->portno, (*svc)->proto,
                                           (*svc)->probe_state,
