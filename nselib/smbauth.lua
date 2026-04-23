@@ -863,7 +863,7 @@ function get_host_info_from_security_blob(security_blob)
     ntlm_challenge[ "target_realm" ] = unicode.utf16to8( target_realm )
   end
 
-  if hpos + domain_length > #security_blob then
+  if hpos + 8 + domain_length > #security_blob then
     -- Context, Target Information, and OS Version structure are all omitted
     -- Probably Win9x
     return ntlm_challenge
