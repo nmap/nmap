@@ -1160,6 +1160,11 @@ An alias for
 This causes Nmap to print out extensive debugging info about what version scanning is doing\&. It is a subset of what you get with
 \fB\-\-packet\-trace\fR\&.
 .RE
+.PP
+\fB\-\-sqlping\-payload\fR
+.RS 4
+This option overrides the default \fBno-payload\fR behavior of the \fBSqlping\fR UDP probe. It ensures the probe is sent during UDP scans (\fB-sU\fR) and version scans (\fB-sV\fR). This can be used to help change a UDP port's state from \fIopen|filtered\fR to \fIopen\fR by eliciting a response, and it ensures the specific MS-SQL server check is performed during a version scan.
+.RE
 .SH "OS DETECTION"
 .PP
 One of Nmap\*(Aqs best\-known features is remote OS detection using TCP/IP stack fingerprinting\&. Nmap sends a series of TCP and UDP packets to the remote host and examines practically every bit in the responses\&. After performing dozens of tests such as TCP ISN sampling, TCP options support and ordering, IP ID sampling, and the initial window size check, Nmap compares the results to its
