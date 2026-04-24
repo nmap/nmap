@@ -31,6 +31,10 @@
  * SUCH DAMAGE.
  */
 
+#ifndef _WIN32
+  #include <netinet/in.h>
+#endif
+
 /*
  * pflog headers, at least as they exist now.
  */

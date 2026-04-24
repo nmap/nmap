@@ -6,7 +6,7 @@
  *                                                                         *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
  *
- * The Nmap Security Scanner is (C) 1996-2025 Nmap Software LLC ("The Nmap
+ * The Nmap Security Scanner is (C) 1996-2026 Nmap Software LLC ("The Nmap
  * Project"). Nmap is also a registered trademark of the Nmap Project.
  *
  * This program is distributed under the terms of the Nmap Public Source
@@ -495,6 +495,46 @@ const u8 *Target::SrcMACAddress() const {
 
 const u8 *Target::NextHopMACAddress() const {
   return (NextHopMACaddress_set)? NextHopMACaddress : NULL;
+}
+
+eth_nfo *Target::FillEthNfo(eth_nfo *eth, netutil_eth_t *ethsd) const {
+  assert(eth != NULL);
+  const char *devname = this->deviceName();
+  if (devname == NULL) {
+    return NULL;
+  }
+  if (ethsd == NULL) {
+    ethsd = eth_open_cached(devname);
+  }
+  else {
+    eth->ethsd = ethsd;
+  }
+  if (ethsd == NULL) {
+    error("%s: Failed to open device (%s)", __func__, devname);
+    return NULL;
+  }
+  if (!netutil_eth_can_send(ethsd)) {
+    error("%s: Cannot send on device (%s)", __func__, devname);
+    return NULL;
+  }
+  if (netutil_eth_datalink(ethsd) == DLT_EN10MB){
+    const u8 *src_mac = this->SrcMACAddress();
+    if (src_mac == NULL) {
+      error("%s: Cannot determine source MAC for %s", __func__, this->targetipstr());
+      return NULL;
+    }
+    const u8 *dst_mac = this->NextHopMACAddress();
+    if (dst_mac == NULL) {
+      error("%s: Cannot determine next hop MAC for %s", __func__, this->targetipstr());
+      return NULL;
+    }
+    assert(eth->srcmac != NULL && eth->dstmac != NULL);
+    memcpy(eth->srcmac, src_mac, 6);
+    memcpy(eth->dstmac, dst_mac, 6);
+  }
+
+  Strncpy(eth->devname, devname, sizeof(eth->devname));
+  return eth;
 }
 
 int Target::osscanPerformed(void) const {

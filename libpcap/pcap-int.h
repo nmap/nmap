@@ -73,10 +73,28 @@
 #endif
 
 /*
- * Version string.
- * Uses PACKAGE_VERSION from config.h.
+ * Version string trailer.
+ * Uses SIZEOF_TIME_T from config.h.
+ * (There's no need to announce the pointer size; if it doesn't
+ * match the pointer size in code linked with libpcap, either
+ * build-time linking or run-time linking will fail.)
  */
-#define PCAP_VERSION_STRING "libpcap version " PACKAGE_VERSION
+#if SIZEOF_TIME_T == 8
+  #define PCAP_SIZEOF_TIME_T_BITS_STRING "64"
+#elif SIZEOF_TIME_T == 4
+  #define PCAP_SIZEOF_TIME_T_BITS_STRING "32"
+#else
+  #error Unknown time_t size
+#endif
+
+/*
+ * Version string.
+ * Uses PACKAGE_VERSION from config.h and PCAP_SIZEOF_TIME_T_BITS_STRING.
+ */
+#define PCAP_VERSION_STRING \
+	"libpcap version " PACKAGE_VERSION " (" PCAP_SIZEOF_TIME_T_BITS_STRING "-bit time_t)"
+#define PCAP_VERSION_STRING_WITH_ADDITIONAL_INFO(additional_info) \
+	"libpcap version " PACKAGE_VERSION " (" PCAP_SIZEOF_TIME_T_BITS_STRING "-bit time_t, " additional_info ")"
 
 #ifdef __cplusplus
 extern "C" {
@@ -413,6 +431,14 @@ int	pcapint_setnonblock_fd(pcap_t *p, int);
  * by pcap_create routines.
  */
 pcap_t	*pcapint_create_interface(const char *, char *);
+/*
+ * A format string for something-only libpcap builds, which use a stub
+ * implementation of pcapint_create_interface().  It contains the substring
+ * "No such device" (one of the standard descriptions of ENODEV) -- this way
+ * tcpdump can detect a particular error condition even though pcap_create()
+ * returns NULL for all errors.
+ */
+#define PCAP_ENODEV_MESSAGE "No such device (this build of libpcap supports %s devices only)."
 
 /*
  * This wrapper takes an error buffer pointer and a type to use for the
@@ -530,10 +556,9 @@ FILE	*pcapint_charset_fopen(const char *path, const char *mode);
  */
 #ifdef _WIN32
 #define pcap_code_handle_t	HMODULE
-#define pcap_funcptr_t		FARPROC
 
 pcap_code_handle_t	pcapint_load_code(const char *);
-pcap_funcptr_t		pcapint_find_function(pcap_code_handle_t, const char *);
+void			*pcapint_find_function(pcap_code_handle_t, const char *);
 #endif
 
 /*

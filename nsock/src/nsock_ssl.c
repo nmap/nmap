@@ -6,7 +6,7 @@
  *                                                                         *
  ***********************IMPORTANT NSOCK LICENSE TERMS***********************
  *
- * The nsock parallel socket event library is (C) 1999-2025 Nmap Software LLC
+ * The nsock parallel socket event library is (C) 1999-2026 Nmap Software LLC
  * This library is free software; you may redistribute and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
  * Foundation; Version 2. This guarantees your right to use, modify, and
@@ -64,6 +64,9 @@
 #if OPENSSL_VERSION_NUMBER >= 0x30000000L
 #include <openssl/provider.h>
 #endif
+#if OPENSSL_VERSION_NUMBER < 0x10100000L
+#define DTLS_client_method DTLSv1_client_method
+#endif
 
 /* Disallow anonymous ciphers (Diffie-Hellman key agreement), low bit-strength
  * ciphers, export-crippled ciphers, and MD5. Prefer ciphers in decreasing order
@@ -98,6 +101,16 @@ void nsp_ssl_cleanup(struct npool *nsp)
     if (nsp->dtlsctx != NULL)
       SSL_CTX_free(nsp->dtlsctx);
 #endif
+#if OPENSSL_VERSION_NUMBER >= 0x30000000L
+    if (nsp->legacy_provider) {
+      OSSL_PROVIDER_unload(nsp->legacy_provider);
+      nsp->legacy_provider = NULL;
+    }
+    if (nsp->default_provider) {
+      OSSL_PROVIDER_unload(nsp->default_provider);
+      nsp->default_provider = NULL;
+    }
+#endif
   }
   nsp->sslctx = NULL;
 #ifndef OPENSSL_NO_DTLS
@@ -116,18 +129,6 @@ static SSL_CTX *ssl_init_helper(const SSL_METHOD *method) {
     SSL_library_init();
 #else
     OPENSSL_atexit(nsock_ssl_atexit);
-#if OPENSSL_VERSION_NUMBER >= 0x30000000L
-    if (NULL == OSSL_PROVIDER_load(NULL, "legacy"))
-    {
-      nsock_log_info("OpenSSL legacy provider failed to load: %s",
-          ERR_error_string(ERR_get_error(), NULL));
-    }
-    if (NULL == OSSL_PROVIDER_load(NULL, "default"))
-    {
-      nsock_log_error("OpenSSL default provider failed to load: %s",
-          ERR_error_string(ERR_get_error(), NULL));
-    }
-#endif
 #endif
   }
 
@@ -148,8 +149,27 @@ static SSL_CTX *ssl_init_helper(const SSL_METHOD *method) {
 }
 
 /* Create an SSL_CTX and do initialization that is common to all init modes. */
-static SSL_CTX *ssl_init_common() {
-  return ssl_init_helper(SSLv23_client_method());
+static void ssl_init_common(struct npool *ms) {
+#if OPENSSL_VERSION_NUMBER >= 0x30000000L
+    if (NULL == ms->legacy_provider)
+    {
+      ms->legacy_provider = OSSL_PROVIDER_load(NULL, "legacy");
+      if (NULL == ms->legacy_provider)
+      {
+        nsock_log_info("OpenSSL legacy provider failed to load: %s",
+            ERR_error_string(ERR_get_error(), NULL));
+      }
+    }
+    if (NULL == ms->default_provider)
+    {
+      ms->default_provider = OSSL_PROVIDER_load(NULL, "default");
+      if (NULL == ms->default_provider)
+      {
+        nsock_log_error("OpenSSL default provider failed to load: %s",
+            ERR_error_string(ERR_get_error(), NULL));
+      }
+    }
+#endif
 }
 
 /* Initializes an Nsock pool to create SSL connections. This sets an internal
@@ -192,17 +212,14 @@ static nsock_ssl_ctx nsock_pool_ssl_init_helper(SSL_CTX *ctx, int flags) {
 nsock_ssl_ctx nsock_pool_ssl_init(nsock_pool ms_pool, int flags) {
   struct npool *ms = (struct npool *)ms_pool;
 
-  if (ms->sslctx == NULL)
-    ms->sslctx = ssl_init_common();
+  if (ms->sslctx == NULL) {
+    ssl_init_common(ms);
+    ms->sslctx = ssl_init_helper(SSLv23_client_method());
+  }
   return nsock_pool_ssl_init_helper(ms->sslctx, flags);
 }
 
 #ifndef OPENSSL_NO_DTLS
-
-/* Create an SSL_CTX and do initialisation, creating a DTLS client */
-static SSL_CTX *dtls_init_common() {
-  return ssl_init_helper(DTLS_client_method());
-}
 
 /* Initializes an Nsock pool to create DTLS connections. Very much similar to
  * nsock_pool_ssl_init, just with DTLS. */
@@ -210,12 +227,16 @@ nsock_ssl_ctx nsock_pool_dtls_init(nsock_pool ms_pool, int flags) {
   SSL_CTX *dtls_ctx = NULL;
   struct npool *ms = (struct npool *)ms_pool;
 
-  if (ms->dtlsctx == NULL)
-    ms->dtlsctx = dtls_init_common();
+  if (ms->dtlsctx == NULL) {
+    ssl_init_common(ms);
+    ms->dtlsctx = ssl_init_helper(DTLS_client_method());
+  }
   dtls_ctx = (SSL_CTX *) nsock_pool_ssl_init_helper(ms->dtlsctx, flags);
 
+#ifdef SSL_OP_TLSEXT_PADDING
   /* Don't add padding or the ClientHello will fragment and not connect properly. */
   SSL_CTX_clear_options(dtls_ctx, SSL_OP_TLSEXT_PADDING);
+#endif
 
   if (!SSL_CTX_set_cipher_list(dtls_ctx, "DEFAULT"))
     fatal("Unable to set OpenSSL cipher list: %s",

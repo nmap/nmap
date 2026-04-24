@@ -18,6 +18,7 @@ src/pcre2grep.c
 src/pcre2demo.c
 src/pcre2_fuzzsupport.c
 src/pcre2_printint.c
+src/pcre2_jit_compile.c
 src/pcre2_jit_char_inc.h
 src/pcre2_jit_match.c
 src/pcre2_jit_misc.c
@@ -42,6 +43,6 @@ README
 INSTALL
 NON-AUTOTOOLS-BUILDS
 
-o Made relevant changes to Makefile.am, configure.ac, CMakeLists.txt, and
-  src/pcre2_jit_compile.c to accommodate our smaller, non-JIT build
-  and to disable Unicode support by default.
+o Made relevant changes to Makefile.am, configure.ac, and CMakeLists.txt to
+  accommodate our smaller, non-JIT build and to disable Unicode support by
+  default.

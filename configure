@@ -7258,6 +7258,7 @@ fi
 fi
 
 if test $have_libpcap != yes; then
+  ac_configure_args="$ac_configure_args '--disable-dbus'"
   subdirs="$subdirs libpcap"
 
   if test "${LIBPCAP_INC+set}" = "set"; then
@@ -7274,6 +7275,48 @@ printf "%s\n" "#define PCAP_INCLUDED 1" >>confdefs.h
 
 
 printf "%s\n" "#define HAVE_PCAP_SET_IMMEDIATE_MODE 1" >>confdefs.h
+
+  # Check if D-Bus is available (in case --disable-dbus didn't work)
+  # and add it to LIBS if needed for static linking
+  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for dbus_connection_read_write in -ldbus-1" >&5
+printf %s "checking for dbus_connection_read_write in -ldbus-1... " >&6; }
+if test ${ac_cv_lib_dbus_1_dbus_connection_read_write+y}
+then :
+  printf %s "(cached) " >&6
+else $as_nop
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-ldbus-1  $LIBS"
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+/* Override any GCC internal prototype to avoid an error.
+   Use char because int might match the return type of a GCC
+   builtin and then its argument prototype would still apply.  */
+char dbus_connection_read_write ();
+int
+main (void)
+{
+return dbus_connection_read_write ();
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"
+then :
+  ac_cv_lib_dbus_1_dbus_connection_read_write=yes
+else $as_nop
+  ac_cv_lib_dbus_1_dbus_connection_read_write=no
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.beam \
+    conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_dbus_1_dbus_connection_read_write" >&5
+printf "%s\n" "$ac_cv_lib_dbus_1_dbus_connection_read_write" >&6; }
+if test "x$ac_cv_lib_dbus_1_dbus_connection_read_write" = xyes
+then :
+  LIBS="$LIBS -ldbus-1"
+fi
 
 else
   # We assume our included libpcap doesn't need this check-and-define
@@ -7997,8 +8040,6 @@ ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $
 ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
     # We need Lua 5.4 exactly
-    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for lua version == 504" >&5
-printf %s "checking for lua version == 504... " >&6; }
     ac_ext=c
 ac_cpp='$CPP $CPPFLAGS'
 ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
@@ -8165,6 +8206,10 @@ else $as_nop
   have_lua=no
 fi
 rm -f conftest.err conftest.i conftest.$ac_ext
+    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for lua version == 504" >&5
+printf %s "checking for lua version == 504... " >&6; }
+    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $have_lua" >&5
+printf "%s\n" "$have_lua" >&6; }
     ac_ext=c
 ac_cpp='$CPP $CPPFLAGS'
 ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
@@ -8178,9 +8223,11 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
   fi
 
   # if we didn't find we use our own
+  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether lua was found" >&5
+printf %s "checking whether lua was found... " >&6; }
   if test $have_lua != yes; then
-    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
-printf "%s\n" "no" >&6; }
+    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no, will use our own" >&5
+printf "%s\n" "no, will use our own" >&6; }
     CPPFLAGS="-I\$(top_srcdir)/$LIBLUADIR $CPPFLAGS"
     LIBLUA_LIBS="\$(top_srcdir)/$LIBLUADIR/liblua.a"
     LUA_BUILD="build-lua"
@@ -8298,9 +8345,11 @@ done
 fi
 
 # if we didn't find we use our own
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether liblinear was found" >&5
+printf %s "checking whether liblinear was found... " >&6; }
 if test $have_liblinear != yes; then
-  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
-printf "%s\n" "no" >&6; }
+  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no, will use our own" >&5
+printf "%s\n" "no, will use our own" >&6; }
   CPPFLAGS="-I\$(top_srcdir)/$LIBLINEARDIR $CPPFLAGS"
   LIBLINEAR_LIBS="\$(top_srcdir)/$LIBLINEARDIR/liblinear.a"
   LIBLINEAR_BUILD="build-liblinear"

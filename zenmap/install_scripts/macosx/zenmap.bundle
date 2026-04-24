@@ -64,10 +64,10 @@
        variable in the specified module. Note that any libraries that
        binaries link to are also copied in automatically.
   -->
-<!-- PNG is built-in -->
+<!-- PNG and GIF are built-in
   <binary>
     ${prefix}/lib/gdk-pixbuf-2.0/${pkg:gdk-pixbuf-2.0:gdk_pixbuf_binary_version}/loaders/libpixbufloader-gif.so
-  </binary>
+  </binary> -->
 
 <!-- Copy in the quartz input method. The rest aren't used on MacOS. -->
   <binary>

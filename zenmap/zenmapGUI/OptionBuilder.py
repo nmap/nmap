@@ -2,7 +2,7 @@
 
 # ***********************IMPORTANT NMAP LICENSE TERMS************************
 # *
-# * The Nmap Security Scanner is (C) 1996-2025 Nmap Software LLC ("The Nmap
+# * The Nmap Security Scanner is (C) 1996-2026 Nmap Software LLC ("The Nmap
 # * Project"). Nmap is also a registered trademark of the Nmap Project.
 # *
 # * This program is distributed under the terms of the Nmap Public Source
@@ -332,13 +332,18 @@ class OptionTab(object):
         return check, auxiliary_widget
 
     def fill_table(self, table, expand_fill=True):
-        yopt = (0, Gtk.AttachOptions.EXPAND | Gtk.AttachOptions.FILL)[expand_fill]
         for y, widget in enumerate(self.widgets_list):
+            if expand_fill:
+                widget[0].set_valign(Gtk.Align.FILL)
+                widget[0].set_vexpand(True)
             if widget[1] is None:
-                table.attach(widget[0], 0, 2, y, y + 1, yoptions=yopt)
+                table.attach_label(widget[0], 0, 2, y, y + 1)
             else:
-                table.attach(widget[0], 0, 1, y, y + 1, yoptions=yopt)
-                table.attach(widget[1], 1, 2, y, y + 1, yoptions=yopt)
+                table.attach_label(widget[0], 0, 1, y, y + 1)
+                table.attach_label(widget[1], 1, 2, y, y + 1)
+                if expand_fill:
+                    widget[1].set_valign(Gtk.Align.FILL)
+                    widget[1].set_vexpand(True)
 
     def update_auxiliary_widget(self, auxiliary_widget):
         self.update_command()

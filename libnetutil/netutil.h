@@ -7,7 +7,7 @@
  *                                                                         *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
  *
- * The Nmap Security Scanner is (C) 1996-2025 Nmap Software LLC ("The Nmap
+ * The Nmap Security Scanner is (C) 1996-2026 Nmap Software LLC ("The Nmap
  * Project"). Nmap is also a registered trademark of the Nmap Project.
  *
  * This program is distributed under the terms of the Nmap Public Source
@@ -179,22 +179,22 @@ int ip_is_reserved(const struct sockaddr_storage *addr);
 int mac_cache_get(const struct sockaddr_storage *ss, u8 *mac);
 int mac_cache_set(const struct sockaddr_storage *ss, u8 *mac);
 
-const void *ip_get_data(const void *packet, unsigned int *len,
+const u8 *ip_get_data(const u8 *packet, unsigned int *len,
   struct abstract_ip_hdr *hdr);
-const void *ip_get_data_any(const void *packet, unsigned int *len,
+const u8 *ip_get_data_any(const u8 *packet, unsigned int *len,
   struct abstract_ip_hdr *hdr);
 /* Get the upper-layer protocol from an IPv4 packet. */
-const void *ipv4_get_data(const struct ip *ip, unsigned int *len);
+const u8 *ipv4_get_data(const u8 *ip, unsigned int *len);
 /* Get the upper-layer protocol from an IPv6 packet. This skips over known
    extension headers. The length of the upper-layer payload is stored in *len.
    The protocol is stored in *nxt. Returns NULL in case of error. */
-const void *ipv6_get_data(const struct ip6_hdr *ip6, unsigned int *len, u8 *nxt);
-const void *ipv6_get_data_any(const struct ip6_hdr *ip6, unsigned int *len, u8 *nxt);
-const void *icmp_get_data(const struct icmp_hdr *icmp, unsigned int *len);
-const void *icmpv6_get_data(const struct icmpv6_hdr *icmpv6, unsigned int *len);
+const u8 *ipv6_get_data(const u8 *ip6, unsigned int *len, u8 *nxt);
+const u8 *ipv6_get_data_any(const u8 *ip6, unsigned int *len, u8 *nxt);
+const u8 *icmp_get_data(const u8 *icmp, unsigned int *len);
+const u8 *icmpv6_get_data(const u8 *icmpv6, unsigned int *len);
 
 /* Standard BSD internet checksum routine. */
-unsigned short in_cksum(u16 *ptr, int nbytes);
+unsigned short in_cksum(const u16 *ptr, int nbytes);
 
 /* Calculate the Internet checksum of some given data concatentated with the
    IPv4 pseudo-header. See RFC 1071 and TCP/IP Illustrated sections 3.2, 11.3,

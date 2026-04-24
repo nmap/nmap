@@ -47,42 +47,27 @@
 # (e.g cmake -DPacket_ROOT=C:\path\to\packet [...])
 #
 
-# The 64-bit Packet.lib is located under /x64
-if(CMAKE_SIZEOF_VOID_P EQUAL 8)
+if(CMAKE_GENERATOR_PLATFORM STREQUAL "Win32")
+  #
+  # 32-bit x86; no need to look in subdirectories of the SDK's
+  # Lib directory for the libraries, as the libraries are in
+  # the Lib directory
+  #
+else()
+  #
+  # Platform other than 32-bit x86.
   #
   # For the WinPcap and Npcap SDKs, the Lib subdirectory of the top-level
-  # directory contains 32-bit libraries; the 64-bit libraries are in the
-  # Lib/x64 directory.
+  # directory contains 32-bit x86 libraries; the libraries for other
+  # platforms are in subdirectories of the Lib directory whose names
+  # are the names of the supported platforms.
   #
-  # The only way to *FORCE* CMake to look in the Lib/x64 directory
-  # without searching in the Lib directory first appears to be to set
-  # CMAKE_LIBRARY_ARCHITECTURE to "x64".
+  # The only way to *FORCE* CMake to look in the appropriate
+  # subdirectory of Lib for libraries without searching in the
+  # Lib directory first appears to be to set
+  # CMAKE_LIBRARY_ARCHITECTURE to the name of the subdirectory.
   #
-  # In newer versions of CMake, CMAKE_LIBRARY_ARCHITECTURE is set according to
-  # the language, e.g., CMAKE_<LANG>_LIBRARY_ARCHITECTURE. So, set the new
-  # variable, CMAKE_C_LIBRARY_ARCHITECTURE, so that CMAKE_LIBRARY_ARCHITECTURE
-  # inherits the correct value.
-  #
-  set(archdetect_c_code "
-  #ifndef _M_ARM64
-  #error Not ARM64
-  #endif
-  int main() { return 0; }
-  ")
-
-  file(WRITE "${CMAKE_BINARY_DIR}/archdetect.c" "${archdetect_c_code}")
-  try_compile(
-	  IsArm64
-	  "${CMAKE_BINARY_DIR}/archdetect"
-	  "${CMAKE_BINARY_DIR}/archdetect.c"
-	  )
-  if(IsArm64)
-	  set(CMAKE_C_LIBRARY_ARCHITECTURE "ARM64")
-	  set(CMAKE_LIBRARY_ARCHITECTURE "ARM64")
-  else()
-	  set(CMAKE_C_LIBRARY_ARCHITECTURE "x64")
-	  set(CMAKE_LIBRARY_ARCHITECTURE "x64")
-  endif()
+  set(CMAKE_LIBRARY_ARCHITECTURE "${CMAKE_GENERATOR_PLATFORM}")
 endif()
 
 # Find the header

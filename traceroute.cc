@@ -3,7 +3,7 @@
  *                                                                         *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
  *
- * The Nmap Security Scanner is (C) 1996-2025 Nmap Software LLC ("The Nmap
+ * The Nmap Security Scanner is (C) 1996-2026 Nmap Software LLC ("The Nmap
  * Project"). Nmap is also a registered trademark of the Nmap Project.
  *
  * This program is distributed under the terms of the Nmap Public Source
@@ -596,13 +596,8 @@ void Probe::send(int rawsd, netutil_eth_t *ethsd, struct timeval *now) {
 
   /* Set up the Ethernet handle if we're using that. */
   if (ethsd != NULL) {
-    if (netutil_eth_datalink(ethsd) == DLT_EN10MB) {
-      memcpy(eth.srcmac, host->target->SrcMACAddress(), 6);
-      memcpy(eth.dstmac, host->target->NextHopMACAddress(), 6);
-    }
-    eth.ethsd = ethsd;
+    ethp = host->target->FillEthNfo(&eth, ethsd);
     eth.devname[0] = '\0';
-    ethp = &eth;
   } else {
     ethp = NULL;
   }
@@ -1073,39 +1068,44 @@ struct Reply {
   u16 token;
 };
 
-static bool parse_encapsulated_reply(const void *ip, unsigned len, Reply *reply) {
+#define ALIGN_HEADER(_Type, _Name, _Ptr, _Offset, _Len) \
+_Type _Name; \
+memcpy(&_Name, (u8 *)_Ptr + _Offset, MIN(_Len - _Offset, sizeof(_Type)));
+
+static bool parse_encapsulated_reply(const u8 *ip, unsigned len, Reply *reply) {
   struct abstract_ip_hdr hdr;
-  const void *data;
+  const u8 *data;
 
   data = ip_get_data(ip, &len, &hdr);
   if (data == NULL)
     return false;
 
   if (hdr.version == 4 && hdr.proto == IPPROTO_ICMP) {
-    const struct icmp *icmp = (const struct icmp *) data;
-    if (len < 8 || ntohs(icmp->icmp_id) != global_id)
+    if (len < offsetof(struct icmp, icmp_id) + 2)
       return false;
-    reply->token = ntohs(icmp->icmp_seq);
+    ALIGN_HEADER(struct icmp, icmp, data, 0, len);
+    if (ntohs(icmp.icmp_id) != global_id)
+      return false;
+    reply->token = ntohs(icmp.icmp_seq);
   } else if (hdr.version == 6 && hdr.proto == IPPROTO_ICMPV6) {
-    const struct icmpv6_msg_echo *echo = (struct icmpv6_msg_echo *) ((char *) data + sizeof(struct icmpv6_hdr));
-    if (len < 8 || ntohs(echo->icmpv6_id) != global_id)
+    if (len < sizeof(struct icmpv6_hdr) + offsetof(struct icmpv6_msg_echo, icmpv6_seq) + 2)
       return false;
-    reply->token = ntohs(echo->icmpv6_seq);
+    ALIGN_HEADER(struct icmpv6_msg_echo, echo, data, sizeof(struct icmpv6_hdr), len);
+    if (ntohs(echo.icmpv6_id) != global_id)
+      return false;
+    reply->token = ntohs(echo.icmpv6_seq);
   } else if (hdr.proto == IPPROTO_TCP) {
-    const struct tcp_hdr *tcp = (const struct tcp_hdr *) data;
-    if (len < 2)
-      return false;
-    reply->token = ntohs(tcp->th_sport) ^ global_id;
+    if (len < offsetof(struct tcp_hdr, th_sport) + 2) return false;
+    ALIGN_HEADER(struct tcp_hdr, tcp, data, 0, len);
+    reply->token = ntohs(tcp.th_sport) ^ global_id;
   } else if (hdr.proto == IPPROTO_UDP) {
-    const struct udp_hdr *udp = (const struct udp_hdr *) data;
-    if (len < 2)
-      return false;
-    reply->token = ntohs(udp->uh_sport) ^ global_id;
+    if (len < offsetof(struct udp_hdr, uh_sport) + 2) return false;
+    ALIGN_HEADER(struct udp_hdr, udp, data, 0, len);
+    reply->token = ntohs(udp.uh_sport) ^ global_id;
   } else if (hdr.proto == IPPROTO_SCTP) {
-    const struct sctp_hdr *sctp = (const struct sctp_hdr *) data;
-    if (len < 2)
-      return false;
-    reply->token = ntohs(sctp->sh_sport) ^ global_id;
+    if (len < offsetof(struct sctp_hdr, sh_sport) + 2) return false;
+    ALIGN_HEADER(struct sctp_hdr, sctp, data, 0, len);
+    reply->token = ntohs(sctp.sh_sport) ^ global_id;
   } else {
     if (len < 6)
       return false;
@@ -1118,9 +1118,9 @@ static bool parse_encapsulated_reply(const void *ip, unsigned len, Reply *reply)
   return true;
 }
 
-static bool decode_reply(const void *ip, unsigned int len, Reply *reply) {
+static bool decode_reply(const u8 *ip, unsigned int len, Reply *reply) {
   struct abstract_ip_hdr hdr;
-  const void *data;
+  const u8 *data;
 
   data = ip_get_data(ip, &len, &hdr);
   if (data == NULL)
@@ -1132,26 +1132,26 @@ static bool decode_reply(const void *ip, unsigned int len, Reply *reply) {
   if (hdr.version == 4 && hdr.proto == IPPROTO_ICMP) {
     /* ICMP responses comprise all the TTL exceeded messages we expect from all
        probe types, as well as actual replies from ICMP probes. */
-    const struct icmp_hdr *icmp = (const struct icmp_hdr *) data;
-    if (len < 8)
+    if (len < ICMP_LEN_MIN)
       return false;
-    if ((icmp->icmp_type == ICMP_TIMEXCEED
-         && icmp->icmp_code == ICMP_TIMEXCEED_INTRANS)
-        || icmp->icmp_type == ICMP_UNREACH) {
+    ALIGN_HEADER(struct icmp_hdr, icmp, data, 0, len);
+    if ((icmp.icmp_type == ICMP_TIMEXCEED
+         && icmp.icmp_code == ICMP_TIMEXCEED_INTRANS)
+        || icmp.icmp_type == ICMP_UNREACH) {
       /* Get the encapsulated IP packet. */
-      const void *encaps = icmp_get_data(icmp, &len);
+      const u8 *encaps = icmp_get_data(data, &len);
       if (encaps == NULL)
         return false;
       return parse_encapsulated_reply(encaps, len, reply);
-    } else if (icmp->icmp_type == ICMP_ECHOREPLY
-               || icmp->icmp_type == ICMP_MASKREPLY
-               || icmp->icmp_type == ICMP_TSTAMPREPLY) {
+    } else if (icmp.icmp_type == ICMP_ECHOREPLY
+               || icmp.icmp_type == ICMP_MASKREPLY
+               || icmp.icmp_type == ICMP_TSTAMPREPLY) {
       /* Need this alternate form of header for icmp_id and icmp_seq. */
-      const struct icmp *icmp = (const struct icmp *) data;
+      ALIGN_HEADER(struct icmp, icmp, data, 0, len);
 
-      if (ntohs(icmp->icmp_id) != global_id)
+      if (ntohs(icmp.icmp_id) != global_id)
         return false;
-      reply->token = ntohs(icmp->icmp_seq);
+      reply->token = ntohs(icmp.icmp_seq);
       /* Reply came directly from the target. */
       reply->target_addr = reply->from_addr;
     } else {
@@ -1160,50 +1160,47 @@ static bool decode_reply(const void *ip, unsigned int len, Reply *reply) {
   } else if (hdr.version == 6 && hdr.proto == IP_PROTO_ICMPV6) {
     /* ICMPv6 responses comprise all the TTL exceeded messages we expect from
        all probe types, as well as actual replies from ICMP probes. */
-    const struct icmpv6_hdr *icmpv6 = (const struct icmpv6_hdr *) data;
-    if (len < 2)
+    if (len < ICMP_LEN_MIN)
       return false;
+    ALIGN_HEADER(struct icmpv6_hdr, icmpv6, data, 0, len);
     /* TIMEXCEED, UNREACH */
-    if ((icmpv6->icmpv6_type == ICMPV6_TIMEXCEED
-         && icmpv6->icmpv6_code == ICMPV6_TIMEXCEED_INTRANS)
-        || icmpv6->icmpv6_type == ICMPV6_UNREACH) {
+    if ((icmpv6.icmpv6_type == ICMPV6_TIMEXCEED
+         && icmpv6.icmpv6_code == ICMPV6_TIMEXCEED_INTRANS)
+        || icmpv6.icmpv6_type == ICMPV6_UNREACH) {
       /* Get the encapsulated IP packet. */
-      const void *encaps = icmpv6_get_data(icmpv6, &len);
+      const u8 *encaps = icmpv6_get_data(data, &len);
       if (encaps == NULL)
         return false;
       return parse_encapsulated_reply(encaps, len, reply);
-    } else if (icmpv6->icmpv6_type == ICMPV6_ECHOREPLY) {
+    } else if (icmpv6.icmpv6_type == ICMPV6_ECHOREPLY) {
       /* MASKREPLY, TSTAMPREPLY */
-      const struct icmpv6_msg_echo *echo;
+      ALIGN_HEADER(struct icmpv6_msg_echo, echo, data, sizeof(icmpv6), len);
 
-      if (len < sizeof(*icmpv6) + 4)
+      if (ntohs(echo.icmpv6_id) != global_id)
         return false;
-      echo = (struct icmpv6_msg_echo *) ((char *) icmpv6 + sizeof(*icmpv6));
-      if (ntohs(echo->icmpv6_id) != global_id)
-        return false;
-      reply->token = ntohs(echo->icmpv6_seq);
+      reply->token = ntohs(echo.icmpv6_seq);
       /* Reply came directly from the target. */
       reply->target_addr = reply->from_addr;
     } else {
       return false;
     }
   } else if (hdr.proto == IPPROTO_TCP) {
-    const struct tcp_hdr *tcp = (const struct tcp_hdr *) data;
-    if (len < 4)
+    if (len < sizeof(struct tcp_hdr))
       return false;
-    reply->token = ntohs(tcp->th_dport) ^ global_id;
+    ALIGN_HEADER(struct tcp_hdr, tcp, data, 0, len);
+    reply->token = ntohs(tcp.th_dport) ^ global_id;
     reply->target_addr = reply->from_addr;
   } else if (hdr.proto == IPPROTO_UDP) {
-    const struct udp_hdr *udp = (const struct udp_hdr *) data;
-    if (len < 4)
+    if (len < sizeof(struct udp_hdr))
       return false;
-    reply->token = ntohs(udp->uh_dport) ^ global_id;
+    ALIGN_HEADER(struct udp_hdr, udp, data, 0, len);
+    reply->token = ntohs(udp.uh_dport) ^ global_id;
     reply->target_addr = reply->from_addr;
   } else if (hdr.proto == IPPROTO_SCTP) {
-    const struct sctp_hdr *sctp = (const struct sctp_hdr *) data;
-    if (len < 4)
+    if (len < sizeof(struct sctp_hdr))
       return false;
-    reply->token = ntohs(sctp->sh_dport) ^ global_id;
+    ALIGN_HEADER(struct sctp_hdr, sctp, data, 0, len);
+    reply->token = ntohs(sctp.sh_dport) ^ global_id;
     reply->target_addr = reply->from_addr;
   } else {
     return false;
@@ -1213,17 +1210,14 @@ static bool decode_reply(const void *ip, unsigned int len, Reply *reply) {
 }
 
 static bool read_reply(Reply *reply, pcap_t *pd, long timeout) {
-  const struct ip *ip;
+  const u8 *ip;
   unsigned int iplen;
   struct link_header linkhdr;
 
-  ip = (struct ip *) readip_pcap(pd, &iplen, timeout, &reply->rcvdtime, &linkhdr, true);
-  if (ip == NULL)
-    return false;
-  if (ip->ip_v == 4 || ip->ip_v == 6)
+  ip = readip_pcap(pd, &iplen, timeout, &reply->rcvdtime, &linkhdr, true);
+  if (ip)
     return decode_reply(ip, iplen, reply);
-  else
-    return false;
+  return false;
 }
 
 void TracerouteState::read_replies(long timeout) {

@@ -2,7 +2,7 @@
 
 # ***********************IMPORTANT NMAP LICENSE TERMS************************
 # *
-# * The Nmap Security Scanner is (C) 1996-2025 Nmap Software LLC ("The Nmap
+# * The Nmap Security Scanner is (C) 1996-2026 Nmap Software LLC ("The Nmap
 # * Project"). Nmap is also a registered trademark of the Nmap Project.
 # *
 # * This program is distributed under the terms of the Nmap Public Source
@@ -122,7 +122,8 @@ class ScanToolbar(HIGHBox):
         self._pack_noexpand_nofill(self.cancel_button)
 
         # Skip over the dropdown arrow so you can tab to the profile entry.
-        self.target_entry.set_focus_chain((self.target_entry.get_child(),))
+        self.target_entry.get_child().connect('focus-out-event',
+                        lambda w, e: self.profile_entry.grab_focus())
 
         self.target_entry.get_child().connect('activate',
                         lambda x: self.profile_entry.grab_focus())

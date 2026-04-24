@@ -2,7 +2,7 @@
 
 # ***********************IMPORTANT NMAP LICENSE TERMS************************
 # *
-# * The Nmap Security Scanner is (C) 1996-2025 Nmap Software LLC ("The Nmap
+# * The Nmap Security Scanner is (C) 1996-2026 Nmap Software LLC ("The Nmap
 # * Project"). Nmap is also a registered trademark of the Nmap Project.
 # *
 # * This program is distributed under the terms of the Nmap Public Source
@@ -195,13 +195,13 @@ class ProfileEditor(HIGWindow):
         # Buttons
         self.buttons_hbox = HIGHBox()
 
-        self.cancel_button = HIGButton(stock=Gtk.STOCK_CANCEL)
+        self.cancel_button = HIGButton(title=_("Cancel"))
         self.cancel_button.connect('clicked', self.exit)
 
-        self.delete_button = HIGButton(stock=Gtk.STOCK_DELETE)
+        self.delete_button = HIGButton(stock="edit-delete")
         self.delete_button.connect('clicked', self.delete_profile)
 
-        self.save_button = HIGButton(_("Save Changes"), stock=Gtk.STOCK_SAVE)
+        self.save_button = HIGButton(_("Save Changes"), stock="document-save")
         self.save_button.connect('clicked', self.save_profile)
 
         ###
@@ -255,11 +255,10 @@ class ProfileEditor(HIGWindow):
         vbox_ann = HIGVBox()
         vbox_ann._pack_expand_fill(hig_box_space_holder())
 
-        table.attach(
-                self.profile_name_label, 0, 1, 0, 1, xoptions=0, yoptions=0)
-        table.attach(self.profile_name_entry, 1, 2, 0, 1, yoptions=0)
-        table.attach(vbox_desc, 0, 1, 1, 2, xoptions=0)
-        table.attach(self.profile_description_scroll, 1, 2, 1, 2)
+        table.attach_label(self.profile_name_label, 0, 1, 0, 1)
+        table.attach_label(self.profile_name_entry, 1, 2, 0, 1)
+        table.attach_label(vbox_desc, 0, 1, 1, 2)
+        table.attach_label(self.profile_description_scroll, 1, 2, 1, 2)
 
         # Packing buttons on button_hbox
         self.buttons_hbox._pack_expand_fill(hig_box_space_holder())
@@ -285,7 +284,7 @@ class ProfileEditor(HIGWindow):
         vbox = HIGVBox()
         if tab.notscripttab:  # if notscripttab is set
             table = HIGTable()
-            table.set_row_spacings(2)
+            table.set_row_spacing(2)
             section = HIGSectionLabel(section_name)
             vbox._pack_noexpand_nofill(section)
             vbox._pack_noexpand_nofill(HIGSpacer(table))
@@ -364,9 +363,7 @@ class ProfileEditor(HIGWindow):
             vbox.set_border_width(5)
             vbox.set_spacing(12)
 
-            image = Gtk.Image()
-            image.set_from_stock(
-                    Gtk.STOCK_DIALOG_WARNING, Gtk.IconSize.DIALOG)
+            image = Gtk.Image.new_from_icon_name("dialog-warning", Gtk.IconSize.DIALOG)
 
             vbox.pack_start(alert, True, True, 0)
             vbox.pack_start(text, True, True, 0)

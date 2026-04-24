@@ -5,7 +5,7 @@
  *                                                                         *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
  *
- * The Nmap Security Scanner is (C) 1996-2025 Nmap Software LLC ("The Nmap
+ * The Nmap Security Scanner is (C) 1996-2026 Nmap Software LLC ("The Nmap
  * Project"). Nmap is also a registered trademark of the Nmap Project.
  *
  * This program is distributed under the terms of the Nmap Public Source
@@ -163,14 +163,14 @@ void UltraProbe::setIP(const u8 *ippacket, u32 len, const probespec *pspec) {
 
   type = UP_IP;
   if (ip->ip_v == 4) {
-    data = ipv4_get_data(ip, &len);
+    data = ipv4_get_data(ippacket, &len);
     assert(data != NULL);
     assert(len + ip->ip_hl * 4 == (u32) ntohs(ip->ip_len));
     probes.IP.ipid = ntohs(ip->ip_id);
     hdr = ip->ip_p;
   } else if (ip->ip_v == 6) {
     const struct ip6_hdr *ip6 = (const struct ip6_hdr *) ippacket;
-    data = ipv6_get_data_any(ip6, &len, &hdr);
+    data = ipv6_get_data_any(ippacket, &len, &hdr);
     assert(data != NULL);
     assert(len == (u32) ntohs(ip6->ip6_plen));
     probes.IP.ipid = ntohl(ip6->ip6_flow & IP6_FLOWLABEL_MASK);
@@ -328,7 +328,7 @@ static bool tcp_probe_match(const UltraScanInfo *USI, const UltraProbe *probe,
                             const struct sockaddr_storage *src, const struct sockaddr_storage *dst,
                             u32 ipid) {
   const struct probespec_tcpdata *probedata;
-  tryno_t tryno = {0};
+  tryno_t tryno = {};
   bool goodseq;
 
   // If magic port is *not* set, then tryno is in the source port, and we
@@ -392,9 +392,7 @@ int get_ping_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
   bool adjust_timing = true;
   struct timeval rcvdtime;
   struct link_header linkhdr;
-  const struct ip *ip_tmp;
   unsigned int bytes;
-  const struct ppkt *ping;
   long to_usec;
   HostScanStats *hss = NULL;
   std::list<UltraProbe *>::iterator probeI;
@@ -404,7 +402,7 @@ int get_ping_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
   unsigned int listsz;
   reason_t current_reason = ER_NORESPONSE;
 
-  const void *data = NULL;
+  const u8 *data = NULL;
   unsigned int datalen;
   struct abstract_ip_hdr hdr;
 
@@ -412,10 +410,11 @@ int get_ping_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
     to_usec = TIMEVAL_SUBTRACT(*stime, USI->now);
     if (to_usec < 2000)
       to_usec = 2000;
-    ip_tmp = (struct ip *) readip_pcap(USI->pd, &bytes, to_usec, &rcvdtime,
+    const u8 *pkt = readip_pcap(USI->pd, &bytes, to_usec, &rcvdtime,
                                        &linkhdr, true);
+
     gettimeofday(&USI->now, NULL);
-    if (!ip_tmp) {
+    if (!pkt) {
       if (TIMEVAL_BEFORE(*stime, USI->now)) {
         timedout = true;
         break;
@@ -435,7 +434,7 @@ int get_ping_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
      */
 
     datalen = bytes;
-    data = ip_get_data(ip_tmp, &datalen, &hdr);
+    data = ip_get_data(pkt, &datalen, &hdr);
     if (data == NULL)
       continue;
     // If it's not sent to us, we don't care.
@@ -445,20 +444,17 @@ int get_ping_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
     /* First check if it is ICMP, TCP, or UDP */
     if (hdr.proto == IPPROTO_ICMP || hdr.proto == IPPROTO_ICMPV6) {
       /* if it is our response */
-      ping = (struct ppkt *) data;
-      if (bytes < 8U) {
-        if (!ip_tmp->ip_off)
-          error("Supposed ping packet is only %d bytes long!", bytes);
+      struct ppkt ping;
+      if (datalen < sizeof(ppkt))
         continue;
-      }
-
-      current_reason = icmp_to_reason(hdr.proto, ping->type, ping->code);
+      memcpy(&ping, data, sizeof(ping));
+      current_reason = icmp_to_reason(hdr.proto, ping.type, ping.code);
 
       /* Echo reply, Timestamp reply, or Address Mask Reply. RFCs 792 and 950. */
       /* ICMPv6 Echo reply */
       if (USI->ptech.rawicmpscan
-          && ((hdr.proto == IPPROTO_ICMP && (ping->type == 0 || ping->type == 14 || ping->type == 18))
-              || (hdr.proto == IPPROTO_ICMPV6 && ping->type == 129))) {
+          && ((hdr.proto == IPPROTO_ICMP && (ping.type == 0 || ping.type == 14 || ping.type == 18))
+              || (hdr.proto == IPPROTO_ICMPV6 && ping.type == 129))) {
         hss = USI->findHost(&hdr.src);
         if (!hss)
           continue; // Not from a host that interests us
@@ -485,23 +481,22 @@ int get_ping_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
           probeI--;
           probe = *probeI;
 
-          if (!icmp_probe_match(USI, probe, ping, &hdr.src, &hdr.dst, hdr.proto, hdr.ipid))
+          if (!icmp_probe_match(USI, probe, &ping, &hdr.src, &hdr.dst, hdr.proto, hdr.ipid))
             continue;
 
           goodone = true;
           newstate = HOST_UP;
 
           if (o.debugging)
-            log_write(LOG_STDOUT, "We got a ping packet back from %s: id = %d seq = %d checksum = %d\n", inet_ntop_ez(&hdr.src, sizeof(hdr.src)), ping->id, ping->seq, ping->checksum);
+            log_write(LOG_STDOUT, "We got a ping packet back from %s: id = %d seq = %d checksum = %d\n", inet_ntop_ez(&hdr.src, sizeof(hdr.src)), ping.id, ping.seq, ping.checksum);
         }
       }
       // For ICMP, the reply of TCP/UDP/ICMP packets can be Destination unreachable, source quench, or time exceeded
       /* For ICMPv6, the reply of TCP/UDP/ICMPV6 packets can be Destination Unreachable,
        * Packet Too Big, Time Exceeded and Parameter Problem.*/
-      else if ((hdr.proto == IPPROTO_ICMP && (ping->type == 3 || ping->type
-                                              == 4 || ping->type == 11))
-               || (hdr.proto == IPPROTO_ICMPV6 && (ping->type == 1 || ping->type == 2
-                   || ping->type == 3 || ping->type == 4))) {
+      else if ((hdr.proto == IPPROTO_ICMP && (ping.type == 3 || ping.type == 4 || ping.type == 11))
+               || (hdr.proto == IPPROTO_ICMPV6 && (ping.type == 1 || ping.type == 2
+                   || ping.type == 3 || ping.type == 4))) {
         const void *encaps_data;
         unsigned int encaps_len;
         struct abstract_ip_hdr encaps_hdr;
@@ -510,7 +505,7 @@ int get_ping_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
           continue;
 
         encaps_len = datalen - 8;
-        encaps_data = ip_get_data((char *) data + 8, &encaps_len, &encaps_hdr);
+        encaps_data = ip_get_data(data + 8, &encaps_len, &encaps_hdr);
         if (encaps_data == NULL ||
             /* UDP hdr, or TCP hdr up to seq #, or SCTP hdr up to vtag */
             ((USI->tcp_scan || USI->udp_scan || USI->sctp_scan) && encaps_len < 8)
@@ -557,24 +552,37 @@ int get_ping_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
           if ((encaps_hdr.proto == IPPROTO_ICMP || encaps_hdr.proto == IPPROTO_ICMPV6)
               && USI->ptech.rawicmpscan) {
             /* The response was based on a ping packet we sent */
-            if (probe->icmpid() != ntohs(((struct icmp *) encaps_data)->icmp_id))
+            if (encaps_len < ICMP_LEN_MIN)
+              continue;
+            struct icmp icmp;
+            memcpy(&icmp, encaps_data, MIN(encaps_len, sizeof(icmp)));
+            if (probe->icmpid() != ntohs(icmp.icmp_id))
               continue;
           } else if (encaps_hdr.proto == IPPROTO_TCP && USI->ptech.rawtcpscan) {
-            const struct tcp_hdr *tcp = (struct tcp_hdr *) encaps_data;
-            if (probe->dport() != ntohs(tcp->th_dport) ||
-                probe->sport() != ntohs(tcp->th_sport) ||
-                probe->tcpseq() != ntohl(tcp->th_seq))
+            struct tcp_hdr tcp;
+            if (encaps_len < sizeof(tcp))
+              continue;
+            memcpy(&tcp, encaps_data, sizeof(tcp));
+            if (probe->dport() != ntohs(tcp.th_dport) ||
+                probe->sport() != ntohs(tcp.th_sport) ||
+                probe->tcpseq() != ntohl(tcp.th_seq))
               continue;
           } else if (encaps_hdr.proto == IPPROTO_UDP && USI->ptech.rawudpscan) {
-            const struct udp_hdr *udp = (struct udp_hdr *) encaps_data;
-            if (probe->dport() != ntohs(udp->uh_dport) ||
-                probe->sport() != ntohs(udp->uh_sport))
+            struct udp_hdr udp;
+            if (encaps_len < sizeof(udp))
+              continue;
+            memcpy(&udp, encaps_data, sizeof(udp));
+            if (probe->dport() != ntohs(udp.uh_dport) ||
+                probe->sport() != ntohs(udp.uh_sport))
               continue;
           } else if (encaps_hdr.proto == IPPROTO_SCTP && USI->ptech.rawsctpscan) {
-            const struct sctp_hdr *sctp = (struct sctp_hdr *) encaps_data;
-            if (probe->dport() != ntohs(sctp->sh_dport) ||
-                probe->sport() != ntohs(sctp->sh_sport) ||
-                probe->sctpvtag() != ntohl(sctp->sh_vtag))
+            struct sctp_hdr sctp;
+            if (encaps_len < sizeof(sctp))
+              continue;
+            memcpy(&sctp, encaps_data, sizeof(sctp));
+            if (probe->dport() != ntohs(sctp.sh_dport) ||
+                probe->sport() != ntohs(sctp.sh_sport) ||
+                probe->sctpvtag() != ntohl(sctp.sh_vtag))
               continue;
           } else if (USI->ptech.rawprotoscan) {
             /* Success; we already know that the address and protocol match. */
@@ -591,11 +599,11 @@ int get_ping_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
           continue;
 
         /* Destination unreachable. */
-        if ((hdr.proto == IPPROTO_ICMP && ping->type == 3)
-            || (hdr.proto == IPPROTO_ICMPV6 && ping->type == 1)) {
+        if ((hdr.proto == IPPROTO_ICMP && ping.type == 3)
+            || (hdr.proto == IPPROTO_ICMPV6 && ping.type == 1)) {
           // If it's Port or Proto unreachable and the address matches, it's up.
-          if (((hdr.proto == IPPROTO_ICMP && (ping->code == 2 || ping->code == 3))
-                || (hdr.proto == IPPROTO_ICMPV6 && ping->code == 4))
+          if (((hdr.proto == IPPROTO_ICMP && (ping.code == 2 || ping.code == 3))
+                || (hdr.proto == IPPROTO_ICMPV6 && ping.code == 4))
                 && sockaddr_storage_cmp(hss->target->TargetSockAddr(), &hdr.src) == 0) {
             /* The ICMP or ICMPv6 error came directly from the target, so it's up. */
             goodone = true;
@@ -619,8 +627,8 @@ int get_ping_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
               log_write(LOG_STDOUT, "Got destination unreachable for %s\n", hss->target->targetipstr());
             }
           }
-        } else if ((hdr.proto == IPPROTO_ICMP && ping->type == 11)
-                   || (hdr.proto == IPPROTO_ICMPV6 && ping->type == 3)) {
+        } else if ((hdr.proto == IPPROTO_ICMP && ping.type == 11)
+                   || (hdr.proto == IPPROTO_ICMPV6 && ping.type == 3)) {
           if (o.debugging)
             log_write(LOG_STDOUT, "Got Time Exceeded for %s\n", hss->target->targetipstr());
           goodone = 1;
@@ -628,35 +636,38 @@ int get_ping_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
           /* I don't want anything to do with timing this. */
           adjust_timing = false;
         } else if (hdr.proto == IPPROTO_ICMP) {
-          if (ping->type == 4) {
+          if (ping.type == 4) {
             if (o.debugging)
               log_write(LOG_STDOUT, "Got ICMP source quench\n");
             usleep(50000);
           } else {
             if (o.debugging) {
               log_write(LOG_STDOUT, "Got ICMP message type %d code %d\n",
-                  ping->type, ping->code);
+                  ping.type, ping.code);
             }
           }
         } else if (hdr.proto == IPPROTO_ICMPV6) {
-          if (ping->type == 4) {
+          if (ping.type == 4) {
             if (o.debugging)
               log_write(LOG_STDOUT, "Got ICMPv6 Parameter Problem\n");
           } else {
             if (o.debugging)
               log_write(LOG_STDOUT, "Got ICMPv6 message type %d code %d\n",
-                  ping->type, ping->code);
+                  ping.type, ping.code);
           }
         }
       }
     } else if (hdr.proto == IPPROTO_TCP && USI->ptech.rawtcpscan) {
-      const struct tcp_hdr *tcp = (struct tcp_hdr *) data;
+      struct tcp_hdr tcp;
+      if (datalen < sizeof(tcp))
+        continue;
+      memcpy(&tcp, data, sizeof(tcp));
       /* Check that the packet has useful flags. */
       if (o.discovery_ignore_rst
-        && (tcp->th_flags & TH_RST))
+        && (tcp.th_flags & TH_RST))
           continue;
-      else if (!(tcp->th_flags & TH_RST)
-        && ((tcp->th_flags & (TH_SYN | TH_ACK)) != (TH_SYN | TH_ACK)))
+      else if (!(tcp.th_flags & TH_RST)
+        && ((tcp.th_flags & (TH_SYN | TH_ACK)) != (TH_SYN | TH_ACK)))
           continue;
 
       /* Now ensure this host is even in the incomplete list */
@@ -666,8 +677,8 @@ int get_ping_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
       setTargetMACIfAvailable(hss->target, &linkhdr, &hdr.src, 0);
       probeI = hss->probes_outstanding.end();
       listsz = hss->num_probes_outstanding();
-      u16 sport = ntohs(tcp->th_sport);
-      u16 dport = ntohs(tcp->th_dport);
+      u16 sport = ntohs(tcp.th_sport);
+      u16 dport = ntohs(tcp.th_dport);
 
       goodone = false;
 
@@ -678,7 +689,7 @@ int get_ping_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
 
         if (!probe->check_proto_port(hdr.proto, dport, sport))
             continue;
-        if (!tcp_probe_match(USI, probe, tcp, &hdr.src, &hdr.dst, hdr.ipid))
+        if (!tcp_probe_match(USI, probe, &tcp, &hdr.src, &hdr.dst, hdr.ipid))
           continue;
 
         goodone = true;
@@ -686,13 +697,13 @@ int get_ping_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
 
         /* Fill out the reason. */
         if (o.pingtype & PINGTYPE_TCP_USE_SYN) {
-          if (tcp->th_flags & TH_RST) {
+          if (tcp.th_flags & TH_RST) {
             current_reason = ER_RESETPEER;
-          } else if ((tcp->th_flags & (TH_SYN | TH_ACK)) == (TH_SYN | TH_ACK)) {
+          } else if ((tcp.th_flags & (TH_SYN | TH_ACK)) == (TH_SYN | TH_ACK)) {
             current_reason = ER_SYNACK;
           }
         } else if (o.pingtype & PINGTYPE_TCP_USE_ACK) {
-          if (tcp->th_flags & TH_RST)
+          if (tcp.th_flags & TH_RST)
             current_reason = ER_RESETPEER;
         }
 
@@ -700,7 +711,9 @@ int get_ping_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
           log_write(LOG_STDOUT, "We got a TCP ping packet back from %s port %hu (trynum = %d)\n", inet_ntop_ez(&hdr.src, sizeof(hdr.src)), sport, probe->get_tryno());
       }
     } else if (hdr.proto == IPPROTO_UDP && USI->ptech.rawudpscan) {
-      const struct udp_hdr *udp = (struct udp_hdr *) data;
+      struct udp_hdr udp;
+      if (datalen < sizeof(udp))
+        continue;
       /* Search for this host on the incomplete list */
       hss = USI->findHost(&hdr.src);
       if (!hss)
@@ -710,8 +723,9 @@ int get_ping_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
       listsz = hss->num_probes_outstanding();
       goodone = false;
 
-      u16 sport = ntohs(udp->uh_sport);
-      u16 dport = ntohs(udp->uh_dport);
+      memcpy(&udp, data, sizeof(udp));
+      u16 sport = ntohs(udp.uh_sport);
+      u16 dport = ntohs(udp.uh_dport);
 
       for (probenum = 0; probenum < listsz && !goodone; probenum++) {
         probeI--;
@@ -736,9 +750,10 @@ int get_ping_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
           log_write(LOG_STDOUT, "In response to UDP-ping, we got UDP packet back from %s port %hu (trynum = %d)\n", inet_ntop_ez(&hdr.src, sizeof(hdr.src)), sport, probe->get_tryno());
       }
     } else if (hdr.proto == IPPROTO_SCTP && USI->ptech.rawsctpscan) {
-      const struct sctp_hdr *sctp = (struct sctp_hdr *) data;
-      const struct dnet_sctp_chunkhdr *chunk =
-        (struct dnet_sctp_chunkhdr *) ((u8 *) sctp + 12);
+      struct sctp_hdr sctp;
+      struct dnet_sctp_chunkhdr chunk;
+      if (datalen < sizeof(sctp) + sizeof(chunk))
+        continue;
       /* Search for this host on the incomplete list */
       hss = USI->findHost(&hdr.src);
       if (!hss)
@@ -747,8 +762,11 @@ int get_ping_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
       listsz = hss->num_probes_outstanding();
       goodone = false;
 
-      u16 sport = ntohs(sctp->sh_sport);
-      u16 dport = ntohs(sctp->sh_dport);
+      memcpy(&sctp, data, sizeof(sctp));
+      memcpy(&chunk, (u8 *)data + sizeof(sctp), sizeof(chunk));
+
+      u16 sport = ntohs(sctp.sh_sport);
+      u16 dport = ntohs(sctp.sh_dport);
 
       for (probenum = 0; probenum < listsz && !goodone; probenum++) {
         probeI--;
@@ -767,9 +785,9 @@ int get_ping_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
 
         goodone = true;
         newstate = HOST_UP;
-        if (chunk->sch_type == SCTP_INIT_ACK) {
+        if (chunk.sch_type == SCTP_INIT_ACK) {
           current_reason = ER_INITACK;
-        } else if (chunk->sch_type == SCTP_ABORT) {
+        } else if (chunk.sch_type == SCTP_ABORT) {
           current_reason = ER_ABORT;
         } else {
           current_reason = ER_UNKNOWN;
@@ -970,12 +988,19 @@ UltraProbe *sendNDScanProbe(UltraScanInfo *USI, HostScanStats *hss,
 
   if (USI->ethsd) {
     if (netutil_eth_datalink(USI->ethsd) == DLT_EN10MB) {
+      const u8 *src_mac = hss->target->SrcMACAddress();
+      if (src_mac) {
+        memcpy(eth.srcmac, src_mac, 6);
+      }
+      else {
+        error("%s: Cannot determine source MAC for %s", __func__,
+            hss->target->targetipstr());
+      }
       unsigned char ns_dst_mac[6] = {0x33, 0x33, 0xff};
       ns_dst_mac[3] = ns_dst_ip6.s6_addr[13];
       ns_dst_mac[4] = ns_dst_ip6.s6_addr[14];
       ns_dst_mac[5] = ns_dst_ip6.s6_addr[15];
 
-      memcpy(eth.srcmac, hss->target->SrcMACAddress(), 6);
       memcpy(eth.dstmac, ns_dst_mac, 6);
     }
     eth.ethsd = USI->ethsd;
@@ -1161,13 +1186,8 @@ UltraProbe *sendIPScanProbe(UltraScanInfo *USI, HostScanStats *hss,
   u16 icmp_ident = (get_random_u16() % 0xffff) + 1;
 
   if (USI->ethsd) {
-    if (netutil_eth_datalink(USI->ethsd) == DLT_EN10MB) {
-      memcpy(eth.srcmac, hss->target->SrcMACAddress(), 6);
-      memcpy(eth.dstmac, hss->target->NextHopMACAddress(), 6);
-    }
-    eth.ethsd = USI->ethsd;
+    ethptr = hss->target->FillEthNfo(&eth, USI->ethsd);
     eth.devname[0] = '\0';
-    ethptr = &eth;
   }
 
   if (o.magic_port_set)
@@ -1601,19 +1621,19 @@ bool get_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
   reason_t current_reason = ER_NORESPONSE;
   struct sockaddr_storage reason_sip = { AF_UNSPEC };
 
-  const void *data = NULL;
+  const u8 *data = NULL;
   unsigned int datalen;
   struct abstract_ip_hdr hdr;
 
   gettimeofday(&USI->now, NULL);
 
   do {
-    const struct ip *ip_tmp;
+    const u8 *ip_tmp;
 
     to_usec = TIMEVAL_SUBTRACT(*stime, USI->now);
     if (to_usec < 2000)
       to_usec = 2000;
-    ip_tmp = (struct ip *) readip_pcap(USI->pd, &bytes, to_usec, &rcvdtime, &linkhdr, true);
+    ip_tmp = readip_pcap(USI->pd, &bytes, to_usec, &rcvdtime, &linkhdr, true);
     gettimeofday(&USI->now, NULL);
     if (!ip_tmp && TIMEVAL_BEFORE(*stime, USI->now)) {
       timedout = true;
@@ -1668,7 +1688,8 @@ bool get_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
     }
 
     if (hdr.proto == IPPROTO_TCP && !USI->prot_scan) {
-      const struct tcp_hdr *tcp = (struct tcp_hdr *) data;
+      struct tcp_hdr tcp;
+      memcpy(&tcp, data, sizeof(tcp));
       /* Now ensure this host is even in the incomplete list */
       hss = USI->findHost(&hdr.src);
       if (!hss)
@@ -1676,8 +1697,8 @@ bool get_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
       setTargetMACIfAvailable(hss->target, &linkhdr, &hdr.src, 0);
       probeI = hss->probes_outstanding.end();
       listsz = hss->num_probes_outstanding();
-      u16 sport = ntohs(tcp->th_sport);
-      u16 dport = ntohs(tcp->th_dport);
+      u16 sport = ntohs(tcp.th_sport);
+      u16 dport = ntohs(tcp.th_dport);
 
       goodone = false;
 
@@ -1688,29 +1709,29 @@ bool get_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
 
         if (!probe->check_proto_port(hdr.proto, dport, sport))
             continue;
-        if (!tcp_probe_match(USI, probe, tcp, &hdr.src, &hdr.dst, hdr.ipid))
+        if (!tcp_probe_match(USI, probe, &tcp, &hdr.src, &hdr.dst, hdr.ipid))
           continue;
 
         if (!probe->isPing()) {
           /* Now that response has been matched to a probe, I interpret it */
-          if (USI->scantype == SYN_SCAN && (tcp->th_flags & (TH_SYN | TH_ACK)) == (TH_SYN | TH_ACK)) {
+          if (USI->scantype == SYN_SCAN && (tcp.th_flags & (TH_SYN | TH_ACK)) == (TH_SYN | TH_ACK)) {
             /* Yeah!  An open port */
             newstate = PORT_OPEN;
             current_reason = ER_SYNACK;
-          } else if (tcp->th_flags & TH_RST) {
+          } else if (tcp.th_flags & TH_RST) {
             current_reason = ER_RESETPEER;
             if (USI->scantype == WINDOW_SCAN ) {
-              newstate = (tcp->th_win) ? PORT_OPEN : PORT_CLOSED;
+              newstate = (tcp.th_win) ? PORT_OPEN : PORT_CLOSED;
             } else if (USI->scantype == ACK_SCAN) {
               newstate = PORT_UNFILTERED;
             } else newstate = PORT_CLOSED;
-          } else if (USI->scantype == SYN_SCAN && (tcp->th_flags & TH_SYN)) {
+          } else if (USI->scantype == SYN_SCAN && (tcp.th_flags & TH_SYN)) {
             /* A SYN from a TCP Split Handshake - https://nmap.org/misc/split-handshake.pdf - open port */
             newstate = PORT_OPEN;
             current_reason = ER_SYN;
           } else {
             if (o.debugging)
-              error("Received scan response with unexpected TCP flags: %d", tcp->th_flags);
+              error("Received scan response with unexpected TCP flags: %d", tcp.th_flags);
             break;
           }
         }
@@ -1718,8 +1739,6 @@ bool get_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
         goodone = true;
       }
     } else if (hdr.proto == IPPROTO_SCTP && !USI->prot_scan) {
-      const struct sctp_hdr *sctp = (struct sctp_hdr *) data;
-      const struct dnet_sctp_chunkhdr *chunk = (struct dnet_sctp_chunkhdr *) ((u8 *) sctp + 12);
 
       /* Now ensure this host is even in the incomplete list */
       hss = USI->findHost(&hdr.src);
@@ -1731,8 +1750,13 @@ bool get_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
 
       goodone = false;
 
-      u16 sport = ntohs(sctp->sh_sport);
-      u16 dport = ntohs(sctp->sh_dport);
+      struct sctp_hdr sctp;
+      memcpy(&sctp, data, sizeof(sctp));
+      struct dnet_sctp_chunkhdr chunk;
+      memcpy(&chunk, data + 12, sizeof(chunk));
+
+      u16 sport = ntohs(sctp.sh_sport);
+      u16 dport = ntohs(sctp.sh_dport);
 
       /* Find the probe that provoked this response. */
       for (probenum = 0; probenum < listsz && !goodone; probenum++) {
@@ -1753,26 +1777,26 @@ bool get_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
         if (!probe->isPing()) {
           /* Now that response has been matched to a probe, I interpret it */
           if (USI->scantype == SCTP_INIT_SCAN) {
-            if (chunk->sch_type == SCTP_INIT_ACK) {
+            if (chunk.sch_type == SCTP_INIT_ACK) {
               newstate = PORT_OPEN;
               current_reason = ER_INITACK;
-            } else if (chunk->sch_type == SCTP_ABORT) {
+            } else if (chunk.sch_type == SCTP_ABORT) {
               newstate = PORT_CLOSED;
               current_reason = ER_ABORT;
             } else {
               if (o.debugging)
                 error("Received response with unexpected SCTP chunks: %02x",
-                      chunk->sch_type);
+                      chunk.sch_type);
               break;
             }
           } else if (USI->scantype == SCTP_COOKIE_ECHO_SCAN) {
-            if (chunk->sch_type == SCTP_ABORT) {
+            if (chunk.sch_type == SCTP_ABORT) {
               newstate = PORT_CLOSED;
               current_reason = ER_ABORT;
             } else {
               if (o.debugging)
                 error("Received response with unexpected SCTP chunks: %02x",
-                      chunk->sch_type);
+                      chunk.sch_type);
               break;
             }
           }
@@ -1784,17 +1808,16 @@ bool get_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
       const void *encaps_data;
       unsigned int encaps_len;
       struct abstract_ip_hdr encaps_hdr;
-      const struct icmp *icmp = NULL;
-
-      icmp = (struct icmp *) data;
+      struct icmp icmp;
+      memcpy(&icmp, data, sizeof(icmp));
 
       if (datalen < 8)
         continue;
-      if (icmp->icmp_type != 3 && icmp->icmp_type != 11)
+      if (icmp.icmp_type != 3 && icmp.icmp_type != 11)
         continue;
 
       encaps_len = datalen - 8;
-      encaps_data = ip_get_data((char *) data + 8, &encaps_len, &encaps_hdr);
+      encaps_data = ip_get_data(data + 8, &encaps_len, &encaps_hdr);
       if (encaps_data == NULL ||
           /* UDP hdr, or TCP hdr up to seq #, or SCTP hdr up to vtag */
           ((USI->tcp_scan || USI->udp_scan || USI->sctp_scan) && encaps_len < 8)
@@ -1838,29 +1861,32 @@ bool get_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
           continue;
 
         if (encaps_hdr.proto == IPPROTO_TCP && !USI->prot_scan) {
-          const struct tcp_hdr *tcp = (struct tcp_hdr *) encaps_data;
-          if (ntohs(tcp->th_sport) != probe->sport() ||
-              ntohs(tcp->th_dport) != probe->dport() ||
-              ntohl(tcp->th_seq) != probe->tcpseq())
+          struct tcp_hdr tcp;
+          memcpy(&tcp, encaps_data, sizeof(tcp));
+          if (ntohs(tcp.th_sport) != probe->sport() ||
+              ntohs(tcp.th_dport) != probe->dport() ||
+              ntohl(tcp.th_seq) != probe->tcpseq())
             continue;
         } else if (encaps_hdr.proto == IPPROTO_SCTP && !USI->prot_scan) {
-          const struct sctp_hdr *sctp = (struct sctp_hdr *) encaps_data;
-          if (ntohs(sctp->sh_sport) != probe->sport() ||
-              ntohs(sctp->sh_dport) != probe->dport() ||
-              ntohl(sctp->sh_vtag) != probe->sctpvtag())
+          struct sctp_hdr sctp;
+          memcpy(&sctp, encaps_data, sizeof(sctp));
+          if (ntohs(sctp.sh_sport) != probe->sport() ||
+              ntohs(sctp.sh_dport) != probe->dport() ||
+              ntohl(sctp.sh_vtag) != probe->sctpvtag())
             continue;
         } else if (encaps_hdr.proto == IPPROTO_UDP && !USI->prot_scan) {
           /* TODO: IPID verification */
-          const struct udp_hdr *udp = (struct udp_hdr *) encaps_data;
-          if (ntohs(udp->uh_sport) != probe->sport() ||
-              ntohs(udp->uh_dport) != probe->dport())
+          struct udp_hdr udp;
+          memcpy(&udp, encaps_data, sizeof(udp));
+          if (ntohs(udp.uh_sport) != probe->sport() ||
+              ntohs(udp.uh_dport) != probe->dport())
             continue;
         } else if (!USI->prot_scan) {
           assert(0);
         }
 
-        if (icmp->icmp_type == 3) {
-          switch (icmp->icmp_code) {
+        if (icmp.icmp_type == 3) {
+          switch (icmp.icmp_code) {
           case 0: /* Network unreachable */
             newstate = PORT_FILTERED;
             break;
@@ -1889,18 +1915,18 @@ bool get_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
 
           default:
             error("Unexpected ICMP type/code 3/%d unreachable packet:\n",
-                  icmp->icmp_code);
-            nmap_hexdump((unsigned char *)icmp, datalen);
+                  icmp.icmp_code);
+            nmap_hexdump(data, datalen);
             break;
           }
-          current_reason = icmp_to_reason(hdr.proto, icmp->icmp_type, icmp->icmp_code);
+          current_reason = icmp_to_reason(hdr.proto, icmp.icmp_type, icmp.icmp_code);
           if (newstate == PORT_UNKNOWN)
             break;
           goodone = true;
         }
-        else if (icmp->icmp_type == 11) { /* ICMP Time Exceeded */
+        else if (icmp.icmp_type == 11) { /* ICMP Time Exceeded */
           newstate = PORT_FILTERED;
-          current_reason = icmp_to_reason(hdr.proto, icmp->icmp_type, icmp->icmp_code);
+          current_reason = icmp_to_reason(hdr.proto, icmp.icmp_type, icmp.icmp_code);
           goodone = true;
         }
       }
@@ -1908,17 +1934,18 @@ bool get_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
       const void *encaps_data;
       unsigned int encaps_len;
       struct abstract_ip_hdr encaps_hdr;
-      const struct icmpv6_hdr *icmpv6;
-
-      icmpv6 = (struct icmpv6_hdr *) data;
 
       if (datalen < 8)
         continue;
-      if (!(icmpv6->icmpv6_type == ICMPV6_UNREACH || icmpv6->icmpv6_type == ICMPV6_PARAMPROBLEM))
+
+      struct icmpv6_hdr icmpv6;
+      memcpy(&icmpv6, data, sizeof(icmpv6));
+
+      if (!(icmpv6.icmpv6_type == ICMPV6_UNREACH || icmpv6.icmpv6_type == ICMPV6_PARAMPROBLEM))
         continue;
 
       encaps_len = datalen - 8;
-      encaps_data = ip_get_data_any((char *) data + 8, &encaps_len, &encaps_hdr);
+      encaps_data = ip_get_data_any(data + 8, &encaps_len, &encaps_hdr);
       if (encaps_data == NULL ||
           /* UDP hdr, or TCP hdr up to seq #, or SCTP hdr up to vtag */
           ((USI->tcp_scan || USI->udp_scan || USI->sctp_scan) && encaps_len < 8)
@@ -1962,29 +1989,32 @@ bool get_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
           continue;
 
         if (encaps_hdr.proto == IPPROTO_TCP && !USI->prot_scan) {
-          const struct tcp_hdr *tcp = (struct tcp_hdr *) encaps_data;
-          if (ntohs(tcp->th_sport) != probe->sport() ||
-              ntohs(tcp->th_dport) != probe->dport() ||
-              ntohl(tcp->th_seq) != probe->tcpseq())
+          struct tcp_hdr tcp;
+          memcpy(&tcp, encaps_data, sizeof(tcp));
+          if (ntohs(tcp.th_sport) != probe->sport() ||
+              ntohs(tcp.th_dport) != probe->dport() ||
+              ntohl(tcp.th_seq) != probe->tcpseq())
             continue;
         } else if (encaps_hdr.proto == IPPROTO_SCTP && !USI->prot_scan) {
-          const struct sctp_hdr *sctp = (struct sctp_hdr *) encaps_data;
-          if (ntohs(sctp->sh_sport) != probe->sport() ||
-              ntohs(sctp->sh_dport) != probe->dport() ||
-              ntohl(sctp->sh_vtag) != probe->sctpvtag())
+          struct sctp_hdr sctp;
+          memcpy(&sctp, encaps_data, sizeof(sctp));
+          if (ntohs(sctp.sh_sport) != probe->sport() ||
+              ntohs(sctp.sh_dport) != probe->dport() ||
+              ntohl(sctp.sh_vtag) != probe->sctpvtag())
             continue;
         } else if (encaps_hdr.proto == IPPROTO_UDP && !USI->prot_scan) {
           /* TODO: IPID verification */
-          const struct udp_hdr *udp = (struct udp_hdr *) encaps_data;
-          if (ntohs(udp->uh_sport) != probe->sport() ||
-              ntohs(udp->uh_dport) != probe->dport())
+          struct udp_hdr udp;
+          memcpy(&udp, encaps_data, sizeof(udp));
+          if (ntohs(udp.uh_sport) != probe->sport() ||
+              ntohs(udp.uh_dport) != probe->dport())
             continue;
         } else if (!USI->prot_scan) {
           assert(0);
         }
 
-        if (icmpv6->icmpv6_type == ICMPV6_UNREACH) {
-          switch (icmpv6->icmpv6_code) {
+        if (icmpv6.icmpv6_type == ICMPV6_UNREACH) {
+          switch (icmpv6.icmpv6_code) {
           case ICMPV6_UNREACH_NOROUTE:
             current_reason = ER_NOROUTE;
             newstate = PORT_FILTERED;
@@ -2020,12 +2050,12 @@ bool get_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
             break;
           default:
             error("Unexpected ICMPv6 type/code %d/%d unreachable packet:\n",
-                  icmpv6->icmpv6_type, icmpv6->icmpv6_code);
-            nmap_hexdump((unsigned char *)icmpv6, datalen);
+                  icmpv6.icmpv6_type, icmpv6.icmpv6_code);
+            nmap_hexdump((unsigned char *)data, datalen);
             break;
           }
-        } else if (icmpv6->icmpv6_type == ICMPV6_PARAMPROBLEM) {
-          switch (icmpv6->icmpv6_code) {
+        } else if (icmpv6.icmpv6_type == ICMPV6_PARAMPROBLEM) {
+          switch (icmpv6.icmpv6_code) {
           case ICMPV6_PARAMPROBLEM_FIELD:
             /* "Erroneous header field encountered" means it was understood,
                just invalid. */
@@ -2039,23 +2069,22 @@ bool get_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
             break;
           default:
             error("Unexpected ICMPv6 type/code %d/%d unreachable packet:\n",
-                  icmpv6->icmpv6_type, icmpv6->icmpv6_code);
-            nmap_hexdump((unsigned char *)icmpv6, datalen);
+                  icmpv6.icmpv6_type, icmpv6.icmpv6_code);
+            nmap_hexdump((unsigned char *)data, datalen);
             break;
           }
         } else {
           error("Unexpected ICMPv6 type/code %d/%d unreachable packet:\n",
-                icmpv6->icmpv6_type, icmpv6->icmpv6_code);
-          nmap_hexdump((unsigned char *)icmpv6, datalen);
+                icmpv6.icmpv6_type, icmpv6.icmpv6_code);
+          nmap_hexdump((unsigned char *)data, datalen);
           break;
         }
-        current_reason = icmp_to_reason(hdr.proto, icmpv6->icmpv6_type, icmpv6->icmpv6_code);
+        current_reason = icmp_to_reason(hdr.proto, icmpv6.icmpv6_type, icmpv6.icmpv6_code);
         if (newstate == PORT_UNKNOWN)
           break;
         goodone = true;
       }
     } else if (hdr.proto == IPPROTO_UDP && !USI->prot_scan) {
-      const struct udp_hdr *udp = (struct udp_hdr *) data;
 
       /* Search for this host on the incomplete list */
       hss = USI->findHost(&hdr.src);
@@ -2063,8 +2092,12 @@ bool get_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
         continue; // Not from a host that interests us
       probeI = hss->probes_outstanding.end();
       listsz = hss->num_probes_outstanding();
-      u16 sport = ntohs(udp->uh_sport);
-      u16 dport = ntohs(udp->uh_dport);
+
+      struct udp_hdr udp;
+      memcpy(&udp, data, sizeof(udp));
+
+      u16 sport = ntohs(udp.uh_sport);
+      u16 dport = ntohs(udp.uh_dport);
 
       goodone = false;
 
@@ -2141,17 +2174,18 @@ bool get_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
           if (probe->isPing())
             ultrascan_ping_update(USI, hss, probeI, &rcvdtime, adjust_timing);
           else {
-            const struct icmp *icmp = (struct icmp *) data;
+            struct icmp icmp;
+            memcpy(&icmp, data, sizeof(icmp));
             ultrascan_port_probe_update(USI, hss, probeI, PORT_OPEN, &rcvdtime, adjust_timing);
             if (sockaddr_storage_cmp(&hdr.src, &protoscanicmphackaddy) == 0)
               reason_sip.ss_family = AF_UNSPEC;
             else
               reason_sip = hdr.src;
-            if (!icmp->icmp_code && !icmp->icmp_type)
+            if (!icmp.icmp_code && !icmp.icmp_type)
               hss->target->ports.setStateReason(IPPROTO_ICMP, IPPROTO_IP, ER_ECHOREPLY,
                                                 hdr.ttl, &reason_sip);
             else
-              hss->target->ports.setStateReason(IPPROTO_ICMP, IPPROTO_IP, icmp_to_reason(hdr.proto, icmp->icmp_type, icmp->icmp_code),
+              hss->target->ports.setStateReason(IPPROTO_ICMP, IPPROTO_IP, icmp_to_reason(hdr.proto, icmp.icmp_type, icmp.icmp_code),
                                                 hdr.ttl, &reason_sip);
           }
           if (!goodone)

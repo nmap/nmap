@@ -2,7 +2,7 @@
  * nbase_addrset.c -- Address set (addrset) management.                          *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
  *
- * The Nmap Security Scanner is (C) 1996-2025 Nmap Software LLC ("The Nmap
+ * The Nmap Security Scanner is (C) 1996-2026 Nmap Software LLC ("The Nmap
  * Project"). Nmap is also a registered trademark of the Nmap Project.
  *
  * This program is distributed under the terms of the Nmap Public Source
@@ -131,7 +131,7 @@ struct addrset {
 
 /* Special node pointer to represent "all possible addresses"
  * This will be used to represent netmask specifications. */
-static struct trie_node g_TRIE_NODE_TRUE = {0};
+static struct trie_node g_TRIE_NODE_TRUE = {{0}, {0}, NULL, NULL};
 #define TRIE_NODE_TRUE &g_TRIE_NODE_TRUE
 
 struct addrset *addrset_new()
@@ -159,7 +159,9 @@ static void trie_free(struct trie_node *curr)
     }
     /* if next_bit_zero is valid, descend */
     if (curr->next_bit_zero != NULL && curr->next_bit_zero != TRIE_NODE_TRUE) {
+      struct trie_node *tmp = curr;
       curr = curr->next_bit_zero;
+      free(tmp);
     }
     else {
       /* next_bit_one was stashed, next_bit_zero is invalid. Free it and move back up the stack. */
@@ -215,7 +217,7 @@ static u32 common_mask(u32 a, u32 b)
     return 0;
   }
   else {
-    return ~((1 << (r + 1)) - 1);
+    return ~(((u32)1 << (r + 1)) - 1);
   }
 }
 
@@ -347,7 +349,7 @@ static void trie_split (struct trie_node *this, const u32 *addr, const u32 *mask
 static void _trie_insert (struct trie_node *this, const u32 *addr, const u32 *mask)
 {
   /* On entry, at least the 1st bit must match this node */
-  assert(this == TRIE_NODE_TRUE || (this->addr[0] ^ addr[0]) < (1 << 31));
+  assert(this == TRIE_NODE_TRUE || (this->addr[0] ^ addr[0]) < ((u32)1 << 31));
 
   while (this != NULL && this != TRIE_NODE_TRUE) {
     /* Split the node if necessary to ensure a match */
@@ -393,7 +395,7 @@ static int sockaddr_to_addr(const struct sockaddr *sa, u32 *addr)
     u8 i;
     unsigned char *addr6 = ((struct sockaddr_in6 *) sa)->sin6_addr.s6_addr;
     for (i=0; i < 4; i++) {
-      addr[i] = (addr6[i*4] << 24) + (addr6[i*4+1] << 16) + (addr6[i*4+2] << 8) + addr6[i*4+3];
+      addr[i] = ((u32)addr6[i*4] << 24) + ((u32)addr6[i*4+1] << 16) + ((u32)addr6[i*4+2] << 8) + addr6[i*4+3];
     }
   }
 #endif

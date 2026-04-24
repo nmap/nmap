@@ -2,12 +2,12 @@
 .\"     Title: nmap
 .\"    Author: [see the "Authors" section]
 .\" Generator: DocBook XSL Stylesheets v1.79.1 <http://docbook.sf.net/>
-.\"      Date: 08/21/2025
+.\"      Date: 03/27/2026
 .\"    Manual: Nmap Reference Guide
 .\"    Source: Nmap
 .\"  Language: English
 .\"
-.TH "NMAP" "1" "08/21/2025" "Nmap" "Nmap Reference Guide"
+.TH "NMAP" "1" "03/27/2026" "Nmap" "Nmap Reference Guide"
 .\" -----------------------------------------------------------------
 .\" * Define some portability stuff
 .\" -----------------------------------------------------------------
@@ -119,7 +119,7 @@ This options summary is printed when Nmap is run with no arguments, and the late
 .RS 4
 .\}
 .nf
-Nmap 7\&.98SVN ( https://nmap\&.org )
+Nmap 7\&.99SVN ( https://nmap\&.org )
 Usage: nmap [Scan Type(s)] [Options] {target specification}
 TARGET SPECIFICATION:
   Can pass hostnames, IP addresses, networks, etc\&.
@@ -1380,10 +1380,11 @@ http\-\&.
 Lets you provide arguments to NSE scripts\&. Arguments are a comma\-separated list of
 name=value
 pairs\&. Names and values may be strings not containing whitespace or the characters \(oq{\(cq, \(oq}\(cq, \(oq=\(cq, or \(oq,\(cq\&. To include one of these characters in a string, enclose the string in single or double quotes\&. Within a quoted string, \(oq\e\(cq escapes a quote\&. A backslash is only used to escape quotation marks in this special case; in all other cases a backslash is interpreted literally\&. Values may also be tables enclosed in
-{}, just as in Lua\&. A table may contain simple string values or more name\-value pairs, including nested tables\&. Many scripts qualify their arguments with the script name, as in
-xmpp\-info\&.server_name\&. You may use that full qualified version to affect just the specified script, or you may pass the unqualified version (server_name
-in this case) to affect all scripts using that argument name\&. A script will first check for its fully qualified argument name (the name specified in its documentation) before it accepts an unqualified argument name\&. A complex example of script arguments is
-\fB\-\-script\-args \*(Aquser=foo,pass=",{}=bar",whois={whodb=nofollow+ripe},xmpp\-info\&.server_name=localhost\*(Aq\fR\&. The online NSE Documentation Portal at
+{}, just as in Lua\&. A table may contain simple string values or more name\-value pairs, including nested tables\&. A complex example of script arguments is
+\fB\-\-script\-args \*(Aquser=foo,pass=",{}=bar",whois={whodb=nofollow+ripe},xmpp\-info\&.server_name=localhost\*(Aq\fR\&. Many scripts qualify their arguments with the script name, as in
+xmpp\-info\&.server_name\&. A script will first check for its fully qualified argument name (the name specified in its documentation) before it accepts an unqualified argument name (server_name
+in this case)\&. Some arguments are not specific to one script\&. They typically effect behavior of a library and therefore potentially all the scripts that use the library\&. (One such example is
+http\&.useragent, which sets the default HTTP User\-Agent header for every web request, regardless which script sends it\&.) It is not possible for the exact same argument to be given different values for diferent scripts\&. The online NSE Documentation Portal at
 \m[blue]\fB\%https://nmap.org/nsedoc/\fR\m[]
 lists the arguments that each script accepts\&.
 .RE

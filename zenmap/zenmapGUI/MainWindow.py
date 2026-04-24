@@ -2,7 +2,7 @@
 
 # ***********************IMPORTANT NMAP LICENSE TERMS************************
 # *
-# * The Nmap Security Scanner is (C) 1996-2025 Nmap Software LLC ("The Nmap
+# * The Nmap Security Scanner is (C) 1996-2026 Nmap Software LLC ("The Nmap
 # * Project"). Nmap is also a registered trademark of the Nmap Project.
 # *
 # * This program is distributed under the terms of the Nmap Public Source
@@ -94,6 +94,8 @@ from zenmapCore.UmitLogging import log
 import zenmapCore.I18N  # lgtm[py/unused-import]
 import zenmapGUI.Print
 from zenmapCore.UmitConf import SearchConfig, is_maemo, WindowConfig, config_parser
+
+import traceback
 
 UmitScanWindow = None
 hildon = None
@@ -554,7 +556,7 @@ class ScanWindow(UmitScanWindow):
                 scan_interface.load_from_file(filename)
             except Exception as e:
                 alert = HIGAlertDialog(message_format=_('Error loading file'),
-                                       secondary_text=str(e))
+                                       secondary_text=traceback.format_exc())
                 alert.run()
                 alert.destroy()
                 return
@@ -824,9 +826,7 @@ This scan has not been run yet. Start the scan with the "Scan" button first.'))
             vbox.set_border_width(5)
             vbox.set_spacing(12)
 
-            image = Gtk.Image()
-            image.set_from_stock(
-                    Gtk.STOCK_DIALOG_QUESTION, Gtk.IconSize.DIALOG)
+            image = Gtk.Image.new_from_icon_name("dialog-question", Gtk.IconSize.DIALOG)
 
             vbox.pack_start(alert, True, True, 0)
             vbox.pack_start(text, True, True, 0)
@@ -866,9 +866,7 @@ This scan has not been run yet. Start the scan with the "Scan" button first.'))
             vbox.set_border_width(5)
             vbox.set_spacing(12)
 
-            image = Gtk.Image()
-            image.set_from_stock(
-                    Gtk.STOCK_DIALOG_WARNING, Gtk.IconSize.DIALOG)
+            image = Gtk.Image.new_from_icon_name("dialog-warning", Gtk.IconSize.DIALOG)
 
             vbox.pack_start(alert, True, True, 0)
             vbox.pack_start(text, True, True, 0)

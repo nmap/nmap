@@ -2,7 +2,7 @@
 
 # ***********************IMPORTANT NMAP LICENSE TERMS************************
 # *
-# * The Nmap Security Scanner is (C) 1996-2025 Nmap Software LLC ("The Nmap
+# * The Nmap Security Scanner is (C) 1996-2026 Nmap Software LLC ("The Nmap
 # * Project"). Nmap is also a registered trademark of the Nmap Project.
 # *
 # * This program is distributed under the terms of the Nmap Public Source
@@ -92,8 +92,7 @@ class ToolsMenu(Gtk.Menu):
         """
         self.__hosts = Gtk.ImageMenuItem.new_with_label(_('Hosts viewer'))
         self.__hosts.connect("activate", self.__hosts_viewer_callback)
-        self.__hosts_image = Gtk.Image()
-        self.__hosts_image.set_from_stock(Gtk.STOCK_INDEX, Gtk.IconSize.MENU)
+        self.__hosts_image = Gtk.Image.new_from_icon_name("dialog-information-symbolic", Gtk.IconSize.MENU)
         self.__hosts.set_image(self.__hosts_image)
 
         self.append(self.__hosts)
@@ -159,22 +158,22 @@ class Toolbar(Gtk.Box):
         #self.__tools_button.set_menu(self.__tools_menu)
         #self.__tools_button.connect('clicked', self.__tools_callback)
 
-        self.__save_button = BWStockButton(Gtk.STOCK_SAVE, _("Save Graphic"))
+        self.__save_button = BWStockButton("document-save-symbolic", _("Save Graphic"))
         self.__save_button.connect("clicked", self.__save_image_callback)
 
-        self.__hosts_button = BWStockButton(Gtk.STOCK_INDEX, _("Hosts Viewer"))
+        self.__hosts_button = BWStockButton("dialog-information-symbolic", _("Hosts Viewer"))
         self.__hosts_button.connect("clicked", self.__hosts_viewer_callback)
 
         self.__control = BWToggleStockButton(
-                Gtk.STOCK_PROPERTIES, _("Controls"))
+                "document-properties-symbolic", _("Controls"))
         self.__control.connect('clicked', self.__control_callback)
         self.__control.set_active(False)
 
-        self.__fisheye = BWToggleStockButton(Gtk.STOCK_ZOOM_FIT, _("Fisheye"))
+        self.__fisheye = BWToggleStockButton("zoom-fit-best-symbolic", _("Fisheye"))
         self.__fisheye.connect('clicked', self.__fisheye_callback)
         self.__fisheye.set_active(False)
 
-        self.__legend_button = BWStockButton(Gtk.STOCK_INDEX, _("Legend"))
+        self.__legend_button = BWStockButton("dialog-information-symbolic", _("Legend"))
         self.__legend_button.connect('clicked', self.__legend_callback)
 
         #self.__fullscreen = gtk.ToggleToolButton(gtk.STOCK_FULLSCREEN)

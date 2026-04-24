@@ -6,7 +6,7 @@
  *                                                                         *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
  *
- * The Nmap Security Scanner is (C) 1996-2025 Nmap Software LLC ("The Nmap
+ * The Nmap Security Scanner is (C) 1996-2026 Nmap Software LLC ("The Nmap
  * Project"). Nmap is also a registered trademark of the Nmap Project.
  *
  * This program is distributed under the terms of the Nmap Public Source
@@ -137,15 +137,67 @@ void returnhost(HostGroupState *hs) {
 int load_exclude_file(struct addrset *excludelist, FILE *fp) {
   char host_spec[1024];
   size_t n;
+  std::vector<DNS::Request> requests;
+  DNS::RECORD_TYPE rtype = (o.af() == AF_INET) ? DNS::A : DNS::AAAA;
+  // Ignore errors, allow debug info
+  nbase_set_log(NULL, o.debugging ? error : NULL);
 
   while ((n = read_host_from_file(fp, host_spec, sizeof(host_spec))) > 0) {
     if (n >= sizeof(host_spec))
       fatal("One of your exclude file specifications was too long to read (>= %u chars)", (unsigned int) sizeof(host_spec));
-    if(!addrset_add_spec(excludelist, host_spec, o.af(), 1)){
-      fatal("Invalid address specification:");
+    // First try without DNS
+    if(addrset_add_spec(excludelist, host_spec, o.af(), 0)){
+      continue;
+    }
+    // Since that didn't work, try to resolve via DNS.
+    DNS::Request req;
+    req.type = rtype;
+    const char *slash = strrchr(host_spec, '/');
+    if (slash) {
+      req.userdata = strdup(slash);
+      req.name.assign(host_spec, slash - host_spec);
+    }
+    else {
+      req.name = host_spec;
+    }
+    requests.push_back(req);
+  }
+
+  if (requests.size() > 0) {
+    // Announce errors, allow debug info
+    nbase_set_log(error, o.debugging ? error : NULL);
+    bool fail = false;
+    nmap_mass_dns(requests.data(), requests.size());
+    for (std::vector<DNS::Request>::const_iterator rit = requests.begin();
+        rit != requests.end(); rit++) {
+      const DNS::Request &req = *rit;
+      if (req.ssv.empty()) {
+        error("Could not resolve excluded name %s", req.name.c_str());
+        fail = true;
+      }
+      else {
+        const char *slash = req.userdata ? (const char *) req.userdata : "";
+        for (size_t i = 0; i < req.ssv.size(); i++) {
+          const struct sockaddr_storage &ss = req.ssv[i];
+          assert(ss.ss_family == o.af());
+          Snprintf(host_spec, sizeof(host_spec), "%s%s", inet_socktop(&ss),
+              slash);
+          if(!addrset_add_spec(excludelist, host_spec, o.af(), 0)){
+            error("Invalid address specification: %s", host_spec);
+          }
+        }
+      }
+      if (req.userdata)
+        free(req.userdata);
+    }
+    requests.clear();
+    if (fail) {
+      fatal("Encountered errors processing exclude list");
     }
   }
 
+  // Restore defaults from nmap.cc: errors are fatal
+  nbase_set_log(fatal, o.debugging ? error : NULL);
   return 1;
 }
 

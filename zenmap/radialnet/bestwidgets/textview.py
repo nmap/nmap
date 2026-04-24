@@ -2,7 +2,7 @@
 
 # ***********************IMPORTANT NMAP LICENSE TERMS************************
 # *
-# * The Nmap Security Scanner is (C) 1996-2025 Nmap Software LLC ("The Nmap
+# * The Nmap Security Scanner is (C) 1996-2026 Nmap Software LLC ("The Nmap
 # * Project"). Nmap is also a registered trademark of the Nmap Project.
 # *
 # * This program is distributed under the terms of the Nmap Public Source
@@ -81,7 +81,7 @@ class BWTextView(BWScrolledWindow):
         self.__textbuffer = Gtk.TextBuffer()
         self.__textview = Gtk.TextView.new_with_buffer(self.__textbuffer)
 
-        self.add_with_viewport(self.__textview)
+        self.add(self.__textview)
 
     def bw_set_auto_scroll(self, value):
         """
@@ -154,7 +154,7 @@ class BWTextEditor(BWScrolledWindow):
         self.__hbox.bw_pack_start_noexpand_nofill(self.__lineview)
         self.__hbox.bw_pack_start_expand_fill(self.__textview)
 
-        self.add_with_viewport(self.__hbox)
+        self.add(self.__hbox)
 
     def __draw(self, widget, event):
         """

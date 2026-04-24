@@ -2,7 +2,7 @@
  * ncat_connect.c -- Ncat connect mode.                                    *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
  *
- * The Nmap Security Scanner is (C) 1996-2025 Nmap Software LLC ("The Nmap
+ * The Nmap Security Scanner is (C) 1996-2026 Nmap Software LLC ("The Nmap
  * Project"). Nmap is also a registered trademark of the Nmap Project.
  *
  * This program is distributed under the terms of the Nmap Public Source
@@ -194,6 +194,7 @@ static void set_ssl_ctx_options(SSL_CTX *ctx)
         bye("Unable to set OpenSSL cipher list: %s", ERR_error_string(ERR_get_error(), NULL));
     }
 
+#if OPENSSL_VERSION_NUMBER >= 0x010002000L
     if (o.sslalpn) {
         size_t alpn_len;
         unsigned char *alpn = next_protos_parse(&alpn_len, o.sslalpn);
@@ -212,6 +213,7 @@ static void set_ssl_ctx_options(SSL_CTX *ctx)
 
         free(alpn);
     }
+#endif
 
 }
 #endif
@@ -507,6 +509,18 @@ bail:
     return -1;
 }
 
+static int recv_bytes(int sd, char *buf, size_t len)
+{
+  int t = 0;
+  while (t < len) {
+    int n = recv(sd, buf + t, len - t, 0);
+    if (n <= 0) {
+      return n;
+    }
+    t += n;
+  }
+  return t;
+}
 
 /* SOCKS4a support
  * Return a usable socket descriptor after
@@ -585,7 +599,7 @@ static int do_proxy_socks4(void)
 
     /* The size of the socks4 response is 8 bytes. So read exactly
        8 bytes from the buffer */
-    if (recv(sd, socksbuf, 8, 0) < 0) {
+    if (recv_bytes(sd, socksbuf, 8) < 8) {
         loguser("Error: short response from proxy.\n");
         close(sd);
         return -1;
@@ -648,7 +662,7 @@ static int do_proxy_socks5(void)
     }
 
     /* connect response just two bytes, version and auth method */
-    if (recv(sd, socksbuf, 2, 0) < 0) {
+    if (recv_bytes(sd, socksbuf, 2) < 2) {
         loguser("Error: malformed connect response from proxy.\n");
         close(sd);
         return -1;
@@ -730,7 +744,7 @@ static int do_proxy_socks5(void)
                 return -1;
             }
 
-            if (recv(sd, socksbuf, 2, 0) < 0) {
+            if (recv_bytes(sd, socksbuf, 2) < 2) {
                 loguser("Error: malformed proxy authentication response.\n");
                 close(sd);
                 return -1;
@@ -813,7 +827,7 @@ static int do_proxy_socks5(void)
         return -1;
     }
 
-    if (recv(sd, socksbuf, 4, 0) < 0) {
+    if (recv_bytes(sd, socksbuf, 4) < 4) {
         loguser("Error: malformed request response from proxy.\n");
         close(sd);
         return -1;
@@ -876,7 +890,7 @@ static int do_proxy_socks5(void)
         bndaddrlen = 16 + 2;
         break;
     case SOCKS5_ATYP_NAME:
-        if (recv(sd, socksbuf, 1, 0) < 0) {
+        if (recv_bytes(sd, socksbuf, 1) < 1) {
             loguser("Error: malformed request response from proxy.\n");
             close(sd);
             return -1;
@@ -889,7 +903,15 @@ static int do_proxy_socks5(void)
         return -1;
     }
 
-    if (recv(sd, bndaddr, bndaddrlen, 0) < 0) {
+    /* Not possible, since bndaddrlen cannot be more than UCHAR_MAX + 2, which
+     * is equal to sizeof(bndaddr), but we will be cautious. */
+    if (bndaddrlen > sizeof(bndaddr)) {
+      loguser("Error: proxy bind address length too long.\n");
+      close(sd);
+      return -1;
+    }
+
+    if (recv_bytes(sd, bndaddr, bndaddrlen) < bndaddrlen) {
         loguser("Error: malformed request response from proxy.\n");
         close(sd);
         return -1;

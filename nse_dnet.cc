@@ -215,7 +215,7 @@ static int ethernet_send (lua_State *L)
   if (sent == len)
     return nseU_success(L);
   else
-    return nseU_safeerror(L, "netutil_eth_send error: %lu", sent);
+    return nseU_safeerror(L, "netutil_eth_send error: %d", sent);
 }
 
 static int ip_open (lua_State *L)
@@ -284,7 +284,7 @@ static int ip_send (lua_State *L)
   nseU_opttarget(L, 3, &addr, &targetname);
 
   payloadlen = packetlen;
-  if (ip_get_data_any(packet, &payloadlen, &hdr) == NULL)
+  if (ip_get_data_any((const u8 *)packet, &payloadlen, &hdr) == NULL)
     return luaL_error(L, "can't parse ip packet");
 
   if (addr == NULL) {
@@ -308,7 +308,7 @@ static int ip_send (lua_State *L)
     struct sockaddr_storage *nexthop;
     struct route_nfo route;
     u8 dstmac[6];
-    eth_nfo eth = {0};
+    eth_nfo eth = {};
 
     if (!nmap_route_dst(&dst, &route))
       return nseU_safeerror(L, "Can't find route to %s", addr);

@@ -212,7 +212,7 @@ pcap_inject_haiku(pcap_t *handle, const void *buffer _U_, int size _U_)
 {
 	// Haiku currently (hrev57588) does not support sending raw packets.
 	// https://dev.haiku-os.org/ticket/18810
-	strlcpy(handle->errbuf, "Sending packets isn't supported yet",
+	pcapint_strlcpy(handle->errbuf, "Sending packets isn't supported yet",
 		PCAP_ERRBUF_SIZE);
 	return PCAP_ERROR;
 }
@@ -435,7 +435,8 @@ pcapint_create_interface(const char *device, char *errorBuffer)
 
 	struct pcap_haiku *handlep = (struct pcap_haiku *)handle->priv;
 	handlep->aux_socket = -1;
-	strcpy(handlep->ifreq.ifr_name, device);
+	// validate_ifname() has already checked "device" length.
+	(void)pcapint_strlcpy(handlep->ifreq.ifr_name, device, IF_NAMESIZE);
 
 	return handle;
 }
@@ -468,7 +469,8 @@ get_if_flags(const char *name, bpf_u_int32 *flags, char *errbuf)
 	if (fd < 0)
 		return PCAP_ERROR;
 	struct ifreq ifreq;
-	strcpy(ifreq.ifr_name, name);
+	// validate_ifname() has already checked "name" length.
+	(void)pcapint_strlcpy(ifreq.ifr_name, name, IF_NAMESIZE);
 	if (ioctl_ifreq(fd, SIOCGIFFLAGS, "SIOCGIFFLAGS", &ifreq, errbuf) < 0) {
 		close(fd);
 		return PCAP_ERROR;

@@ -1,9 +1,110 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
-o [GH#3194] RPC-based scripts were sporadically failing due to privileged
+o [Ncat] Fix several cases where Ncat's SOCKS5 client could interpret
+  uninitialized data as protocol data, triggered by a malicious SOCKS5 proxy
+  server. No code execution or application crash is possible.
+  Reported by Govind Pratap Singh. [Daniel Miller]
+
+o Fix a out-of-bounds access in Nping Echo client allowing a malicious Nping
+  EchoServer to zero 32 bytes of memory outside the packet buffer. Reported by
+  Harshit Gupta. [Daniel Miller]
+
+o Fix a 1-byte overrun (read) while reading certain crafted DNS labels,
+  reported by Peter Parker. [Daniel Miller]
+
+o [NSE][GH#3317] Function url.build_path was mangling special characters in URL
+  path segments. [nnposter]
+
+Nmap 7.99 [2026-03-26]
+
+o Integrated many of the most-frequently-submitted IPv4 and IPv6 OS
+  fingerprints, as well as dozens of updated service fingerprints.
+
+o Upgraded included libraries: OpenSSL 3.0.19, libpcap 1.10.6, libpcre2 10.47,
+  liblinear 2.50, zlib 1.3.2
+
+o [Windows] Upgraded the included version of Npcap from 1.83 to 1.87, resolving
+  several crashes and stability-related issues. See https://npcap.com/changelog
+
+o [Zenmap][GH#3182] Zenmap is now distributed as a universal wheel
+  (zenmap-7.99-py3-none-any.whl) instead of an RPM package so that it can be
+  installed on any system with Python 3. [Daniel Miller]
+
+o [Ncat][Windows] Limited the number of handles inherited by subprocesses
+  launched with -e, preventing interference between clients when -e and
+  --keep-open are used. Reported by Nimish Verma.
+
+o [Ncat] Several fixes for regressions or longstanding failure cases in
+  ncat-test.pl [Daniel Miller]:
+
+  + [Windows] Fixed handling of socket EOF with --exec
+
+  + Fixed the -i (idle timeout) option for listen mode, which was broken
+    when adding the -q option in Ncat 7.96
+
+  + Fixed HTTP proxy server when SSL is used.
+
+  + DTLS (SSL over UDP) shutdown connection on stdin EOF.
+
+o [Windows][GH#2711] Nmap now supports scanning over various VPN virtual
+  adapters like OpenVPN TAP adapters. [Daniel Miller]
+
+o [GH#3280] Fix a performance regression in reverse-DNS in Nmap 7.98. The fix
+  for #3130 had caused Nmap to send requests too slowly. [Daniel Miller]
+
+o [macOS][GH#3289] Fixed a configure-time failure in libdnet that resulted in
+  incorrect MAC addresses being reported. [Daniel Miller]
+
+o [Zenmap][GH#3189] Fix a crash in Zenmap topology and hosts viewer:
+  "TypeError: format requires a mapping" [Daniel Miller]
+
+o [GH#2955] Fix a routing issue with -e and -S related to #2206
+  causing error "setup_target: failed to determine route" [Daniel Miller]
+
+o [GH#3214] Improve compatibility of build process on various platforms and add
+  multiplatform autobuilds in Github workflow. [Jordan Ritter]
+
+o [NSE][GH#2183][GH#3239] Script hostmap-crtsh now reports only true subdomains
+  of a given target hostname by default. In the past, it was reporting any
+  DNS name that included the target hostname as a substring (but not
+  necessarily as a suffix). The old behavior can be enabled by setting script
+  argument hostmap-crtsh.lax. [Sweekar-cmd, nnposter]
+
+o [NSE] Function url.parse_query was not interpreting plus signs as spaces.
+  [nnposter]
+
+o [NSE] Function url.parse was not properly parsing URLs with query strings
+  but empty paths. [nnposter]
+
+o [NSE][GH#3287] Functions tableaux.tcopy and tableaux.shallow_tcopy were
+  not behaving the same when the input table had a custom __pairs metamethod.
+  Both functions now perform a raw copy, ignoring the metamethod. [nnposter]
+
+o [NSE] Function tableaux.shallow_tcopy did not work correctly for tables
+  with Boolean keys. [nnposter]
+
+o [NSE] IPP print queue job details were not getting populated, having
+  a hard dependency on Apple-specific attributes. [nnposter]
+
+o [NSE][GH#3245] Functions connect and close have been removed from the IPP
+  library, as they served no purpose. [nnposter]
+
+o [NSE] ipOps.expand_ip was crashing upon malformed IPv6 addresses. [nnposter]
+
+o [NSE][GH#3262] FTP banner parsing is now more closely aligned with RFC 959,
+  section 4.2. [nnposter]
+
+o [NSE][GH#3253] Function stdnse.make_buffer now accepts an extra parameter
+  that allows preloading the newly created buffer with data. [nnposter]
+
+o [NSE][GH#3191][GH#3218] Script http-internal-ip-disclosure has been enhanced,
+  including added support for IPv6 and HTTPS and more accurate processing
+  of target responses. [nnposter]
+
+o [NSE][GH#3194] RPC-based scripts were sporadically failing due to privileged
   port conflicts. [nnposter]
 
-o [GH#3196] Script rlogin-brute was sporadically failing due to using
+o [NSE][GH#3196] Script rlogin-brute was sporadically failing due to using
   an off-by-one range for privileged ports and not handling potential
   port conflicts. [nnposter]
 

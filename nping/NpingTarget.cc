@@ -7,7 +7,7 @@
  *                                                                         *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
  *
- * The Nmap Security Scanner is (C) 1996-2025 Nmap Software LLC ("The Nmap
+ * The Nmap Security Scanner is (C) 1996-2026 Nmap Software LLC ("The Nmap
  * Project"). Nmap is also a registered trademark of the Nmap Project.
  *
  * This program is distributed under the terms of the Nmap Public Source
@@ -769,16 +769,21 @@ bool NpingTarget::determineNextHopMACAddress() {
   /* Maybe the system ARP cache will be more helpful */
   nping_print(DBG_3,"    > Checking system's ARP cache...");
   a = arp_open();
-  addr_ston((sockaddr *)&targetss, &ae.arp_pa);
-  if (arp_get(a, &ae) == 0) {
-    mac_cache_set(&targetss, ae.arp_ha.addr_eth.data);
-    this->setNextHopMACAddress(ae.arp_ha.addr_eth.data);
+  if (a) {
+    addr_ston((sockaddr *)&targetss, &ae.arp_pa);
+    if (arp_get(a, &ae) == 0) {
+      mac_cache_set(&targetss, ae.arp_ha.addr_eth.data);
+      this->setNextHopMACAddress(ae.arp_ha.addr_eth.data);
+      arp_close(a);
+      nping_print(DBG_3,"    > Success: Entry found [%s]", this->getNextHopMACStr() );
+      return true;
+    }
     arp_close(a);
-    nping_print(DBG_3,"    > Success: Entry found [%s]", this->getNextHopMACStr() );
-    return true;
+    nping_print(DBG_3,"    > No relevant entries found in system's ARP cache.");
   }
-  arp_close(a);
-  nping_print(DBG_3,"    > No relevant entries found in system's ARP cache.");
+  else {
+    nping_print(DBG_3,"    > Failed to open system's ARP cache.");
+  }
 
 
   /* OK, the last choice is to send our own damn ARP request (and

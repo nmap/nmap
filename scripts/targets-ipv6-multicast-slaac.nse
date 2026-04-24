@@ -96,7 +96,8 @@ local function build_router_advert(mac_src,prefix,prefix_len,valid_time,preferre
 end
 
 local function filter_interfaces(if_table)
-  if ipOps.ip_to_str(if_table.address) and if_table.link == "ethernet" then
+  local addr = ipOps.ip_to_str(if_table.address)
+  if addr and #addr == 16 and if_table.link == "ethernet" then
     return if_table
   end
 end

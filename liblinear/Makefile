@@ -3,7 +3,7 @@ CC ?= gcc
 CFLAGS = -Wall -Wconversion -O3 -fPIC
 LIBS = blas/blas.a
 #LIBS = -lblas
-SHVER = 5
+SHVER = 6
 AR = ar
 RANLIB = ranlib
 OS = $(shell uname)
@@ -35,9 +35,8 @@ linear.o: linear.cpp linear.h
 	$(CXX) $(CFLAGS) -c -o linear.o linear.cpp
 
 blas/blas.a: blas/*.c blas/*.h
-	make -C blas OPTFLAGS='$(CFLAGS)' CC='$(CC)';
+	$(MAKE) -C blas OPTFLAGS='$(CFLAGS)' CC='$(CC)';
 
 clean:
-	make -C blas clean
-	make -C matlab clean
+	$(MAKE) -C blas clean
 	rm -f *~ newton.o linear.o train predict liblinear.so.$(SHVER)

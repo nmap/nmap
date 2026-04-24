@@ -14476,6 +14476,12 @@ then :
   printf "%s\n" "#define HAVE_SYS_SOCKIO_H 1" >>confdefs.h
 
 fi
+ac_fn_c_check_header_compile "$LINENO" "sys/ioccom.h" "ac_cv_header_sys_ioccom_h" "$ac_includes_default"
+if test "x$ac_cv_header_sys_ioccom_h" = xyes
+then :
+  printf "%s\n" "#define HAVE_SYS_IOCCOM_H 1" >>confdefs.h
+
+fi
 ac_fn_c_check_header_compile "$LINENO" "sys/sysctl.h" "ac_cv_header_sys_sysctl_h" "$ac_includes_default"
 if test "x$ac_cv_header_sys_sysctl_h" = xyes
 then :
@@ -14559,6 +14565,12 @@ ac_fn_c_check_header_compile "$LINENO" "netinet/in6_var.h" "ac_cv_header_netinet
 if test "x$ac_cv_header_netinet_in6_var_h" = xyes
 then :
   printf "%s\n" "#define HAVE_NETINET_IN6_VAR_H 1" >>confdefs.h
+
+fi
+ac_fn_c_check_header_compile "$LINENO" "linux/netlink.h" "ac_cv_header_linux_netlink_h" "$ac_includes_default"
+if test "x$ac_cv_header_linux_netlink_h" = xyes
+then :
+  printf "%s\n" "#define HAVE_LINUX_NETLINK_H 1" >>confdefs.h
 
 fi
 ac_fn_c_check_header_compile "$LINENO" "net/if_tun.h" "ac_cv_header_net_if_tun_h" "$ac_includes_default"
@@ -14662,6 +14674,7 @@ then :
 fi
 
 fi
+
 ac_fn_c_check_header_compile "$LINENO" "bsd/string.h" "ac_cv_header_bsd_string_h" "$ac_includes_default"
 if test "x$ac_cv_header_bsd_string_h" = xyes
 then :
@@ -15137,11 +15150,35 @@ printf %s "checking for Berkeley Packet Filter... " >&6; }
 then :
   printf %s "(cached) " >&6
 else case e in #(
-  e) if test -c /dev/bpf -o -c /dev/bpf0 ; then
-        ac_cv_dnet_bsd_bpf=yes
-    else
-        ac_cv_dnet_bsd_bpf=no
-    fi ;;
+  e) cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+#include <sys/types.h>
+#include <sys/time.h>
+#include <sys/ioctl.h>
+#include <sys/socket.h>
+#ifdef HAVE_SYS_IOCCOM_H
+#include <sys/ioccom.h>
+#endif
+#include <net/bpf.h>
+#include <net/if.h>
+
+int
+main (void)
+{
+u_int i = BIOCSETIF;
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_compile "$LINENO"
+then :
+  ac_cv_dnet_bsd_bpf=yes
+else case e in #(
+  e) ac_cv_dnet_bsd_bpf=no ;;
+esac
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.beam conftest.$ac_ext ;;
 esac
 fi
 
@@ -15158,7 +15195,7 @@ printf %s "checking for Linux proc filesystem... " >&6; }
 then :
   printf %s "(cached) " >&6
 else case e in #(
-  e) if test "x`cat /proc/sys/kernel/ostype 2>&-`" = "xLinux" ; then
+  e) if test "$ac_cv_header_linux_netlink_h" = yes ; then
         ac_cv_dnet_linux_procfs=yes
     else
         ac_cv_dnet_linux_procfs=no
@@ -15182,7 +15219,7 @@ printf %s "checking for Linux PF_PACKET sockets... " >&6; }
 int
 main (void)
 {
-int foo() { return ETH_P_ALL; }
+int foo = ETH_P_ALL;
   ;
   return 0;
 }
@@ -15459,6 +15496,7 @@ else
  ;;
 esac
 
+	as_fn_error $? "\"Ethernet support not found for this system.\"" "$LINENO" 5
 fi
 
 case " $LIBOBJS " in
@@ -15542,6 +15580,7 @@ else
  ;;
 esac
 
+	as_fn_error $? "\"Routing interface not found for this system.\"" "$LINENO" 5
 fi
 
 if test "$ac_cv_dnet_linux_procfs" = yes ; then

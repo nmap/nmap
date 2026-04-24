@@ -47,7 +47,8 @@ void gh_heap_verify(gh_heap_t *heap) {
   gh_hnode_t *a, *b, *c;
   unsigned int bi, ci;
   unsigned int count = gh_heap_count(heap);
-  for (unsigned int i=0; i < heap->count; i++) {
+  unsigned int i;
+  for (i=0; i < heap->count; i++) {
     a = gh_heap_find(heap, i);
     bi = (i << 1) + 1;
     assert(a->index == i);

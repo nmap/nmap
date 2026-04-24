@@ -615,7 +615,7 @@ mkdir )
             if [ ".$opt_t" = .yes ]; then
                 echo "mkdir $p" 1>&2
             fi
-            mkdir $p || errstatus=$?
+            mkdir -p $p || errstatus=$?
             if [ ".$opt_o" != . ]; then
                 if [ ".$opt_t" = .yes ]; then
                     echo "chown $opt_o $p" 1>&2
@@ -652,7 +652,7 @@ mkdir )
                     if [ ".$opt_t" = .yes ]; then
                         echo "mkdir $pathcomp" 1>&2
                     fi
-                    mkdir $pathcomp || errstatus=$?
+                    mkdir -p $pathcomp || errstatus=$?
                     if [ ".$opt_o" != . ]; then
                         if [ ".$opt_t" = .yes ]; then
                             echo "chown $opt_o $pathcomp" 1>&2
@@ -683,4 +683,3 @@ mkdir )
 esac
 
 shtool_exit 0
-

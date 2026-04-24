@@ -20,9 +20,10 @@ use IPC::Open3;
 use strict;
 
 { # If the cert has expired, generate a new one.
-  my $verify = `openssl verify -trusted test-cert.pem test-cert.pem`;
+  my $verify = `openssl verify -trusted test-cert.pem test-cert.pem 2>&1`;
   if ($verify =~ /error 10 at/) {
     system("openssl req -new -x509 -nodes -subj /O=ncat-test/CN=localhost/ -keyout test-cert.pem -out test-cert.pem");
+    exit(1);
   }
 }
 $| = 1;
@@ -48,11 +49,15 @@ my $ECHO;
 my $PERL;
 my $BINSH;
 if ($^O eq "cygwin") {
-	my $CYGPATH="C:/cygwin"; 
-	$CAT = "$CYGPATH/bin/cat";
-	$ECHO = "$CYGPATH/bin/echo";
-	$PERL = "$CYGPATH/bin/perl";
-	$BINSH = "$CYGPATH/bin/sh";
+	my $CYGPATH="C:/cygwin";
+	$CAT = qx{cygpath -w `which cat`} || "$CYGPATH/bin/cat";
+	chomp $CAT;
+	$ECHO = qx{cygpath -w `which echo`} || "$CYGPATH/bin/echo";
+	chomp $ECHO;
+	$PERL = qx{cygpath -w `which perl`} || "$CYGPATH/bin/perl";
+	chomp $PERL;
+	$BINSH = qx{cygpath -w `which sh`} || "$CYGPATH/bin/sh";
+	chomp $BINSH;
 } else {
 	$CAT = "/bin/cat";
 	$ECHO = "/bin/echo";
@@ -111,6 +116,9 @@ sub wait_listen {
 			}
 		}
 	}
+  # Didn't find the LISTEN line, so it's likely dead. waitpid won't detect this
+  # immediately on Windows, so let's sleep a moment to be sure.
+  usleep(100000);
 }
 
 sub ncat_server {
@@ -137,7 +145,7 @@ sub ncat_client {
 	my $host;
 	my @ret = ncat(host_for_args(@_), $PORT, @_);
 	# Give it a moment to connect.
-	usleep(100000);
+	usleep(500000);
 	return @ret;
 }
 
@@ -152,7 +160,7 @@ sub kill_children {
 # Read until a timeout occurs. Return undef on EOF or "" on timeout.
 sub timeout_read {
 	my $fh = shift;
-	my $timeout = 0.50;
+	my $timeout = 0.90;
 	if (scalar(@_) > 0) {
 		$timeout = shift;
 	}
@@ -216,6 +224,10 @@ sub server_client_test {
 	my $client_args = shift;
 	my $code = shift;
 	($s_pid, $s_out, $s_in) = ncat_server(@$server_args);
+  if (waitpid($s_pid, WNOHANG) != 0) {
+    test($desc, sub {die "Server not running\n"});
+    return;
+  }
 	($c_pid, $c_out, $c_in) = ncat_client(@$client_args);
 	test($desc, $code);
 	kill_children;
@@ -477,6 +489,56 @@ sub match_ncat_environment {
 	/x;
 }
 
+sub windows_quote_escape {
+  my $quote = shift;
+  $quote =~ s/(.)/\\$1/g;
+  return $quote;
+}
+
+sub plain_quote {
+  my $str = shift;
+  if ($WIN32) {
+    # CmdlineToArgvW() is used within CreateProcess() to split on whitespace
+    # with special double-quote rules.
+    # First escape all quotes and preceding backslashes
+    $str =~ s/(\\*")/windows_quote_escape($1)/ge;
+    # Then put quotes around the entire thing to protect whitespace
+    $str = qq{"$str"};
+  }
+  else {
+    # cmdline_split in ncat_posix.c splits on whitespace without regard for quotes.
+    # escape any literal backslashes
+    $str =~ s/\\/\\\\/g;
+    # escape any whitespace
+    $str =~ s/(\s)/\\$1/g;
+  }
+  return $str;
+}
+
+sub shell_quote {
+  my $str = shift;
+  if ($WIN32) {
+    # As long as it's quoted, shell won't touch it
+    $str = plain_quote($str);
+    # Exception: there is no way to prevent %VAR% from being expanded within quotes,
+    # so we have to break out of the quotes. Technically, whitespace and quotes
+    # are allowed in variable names, but this is good enough for us for now:
+    $str =~ s/%([^\s"]*)%/"^%$1^%"/g;
+  }
+  else {
+    # single quotes are untouchable
+    # escape existing single quotes:
+    $str =~ s/'/'\''/g;
+    # Then wrap the whole thing in single quotes:
+    $str = qq{'$str'};
+  }
+  return $str;
+}
+
+my $perl_uc = 'BEGIN{$|=1}print(uc)';
+my $exec_perl_uc = "$PERL -ne " . plain_quote($perl_uc);
+my $shexec_perl_uc = "$PERL -ne " . shell_quote($perl_uc);
+
 # Ignore broken pipe signals that result when trying to read from a terminated
 # client.
 $SIG{PIPE} = "IGNORE";
@@ -494,7 +556,7 @@ sub {
 	my ($c_pid, $c_out, $c_in) = ncat("127.0.0.1");
 	syswrite($c_in, "abc\n");
 	close $c_in;
-	$resp = timeout_read($s_out);
+	$resp = timeout_read($s_out) or die "Read timeout";
 	$resp eq "abc\n" or die "Server got \"$resp\", not \"abc\\n\"";
 };
 kill_children;
@@ -507,7 +569,7 @@ sub {
 	my ($c_pid2, $c_out2, $c_in2) = ncat("-6", "::1");
 	syswrite($c_in2, "abc\n");
 	close $c_in2;
-	$resp = timeout_read($s_out);
+	$resp = timeout_read($s_out) or die "Read timeout";
 	$resp eq "abc\n" or die "Server got \"$resp\", not \"abc\\n\"";
 };
 kill_children;
@@ -520,7 +582,7 @@ sub {
 	my ($c_pid, $c_out, $c_in) = ncat("127.0.0.1");
 	syswrite($c_in, "abc\n");
 	close $c_in;
-	$resp = timeout_read($s_out);
+	$resp = timeout_read($s_out) or die "Read timeout";
 	$resp eq "abc\n" or die "Server got \"$resp\", not \"abc\\n\"";
 };
 kill_children;
@@ -533,7 +595,7 @@ sub {
 	my ($c_pid, $c_out, $c_in) = ncat("-6", $IPV6_ADDR);
 	syswrite($c_in, "abc\n");
 	close $c_in;
-	$resp = timeout_read($s_out);
+	$resp = timeout_read($s_out) or die "Read timeout";
 	$resp eq "abc\n" or die "Server got \"$resp\", not \"abc\\n\"";
 };
 kill_children;
@@ -547,7 +609,7 @@ sub {
 	my ($c_pid, $c_out, $c_in) = ncat($HOST);
 	syswrite($c_in, "abc\n");
 	close $c_in;
-	$resp = timeout_read($s_out);
+	$resp = timeout_read($s_out) or die "Read timeout";
 	$resp eq "abc\n" or die "Server got \"$resp\", not \"abc\\n\"";
 };
 kill_children;
@@ -561,7 +623,7 @@ sub {
 	my ($c_pid, $c_out, $c_in) = ncat($HOST, $PORT);
 	syswrite($c_in, "abc\n");
 	close $c_in;
-	$resp = timeout_read($s_out);
+	$resp = timeout_read($s_out) or die "Read timeout";
 	$resp eq "abc\n" or die "Server got \"$resp\", not \"abc\\n\"";
 };
 kill_children;
@@ -578,7 +640,7 @@ sub {
 	my ($c_pid, $c_out, $c_in) = ncat("localhost", "--udp");
 	syswrite($c_in, "abc\n");
 	close $c_in;
-	$resp = timeout_read($s_out);
+	$resp = timeout_read($s_out) or die "Read timeout";
 	$resp eq "abc\n" or die "Server got \"$resp\", not \"abc\\n\" from localhost";
 
 };
@@ -593,7 +655,7 @@ sub {
 	my ($c_pid1, $c_out1, $c_in1) = ncat("localhost", "--udp");
 	syswrite($c_in1, "abc\n");
 	close $c_in1;
-	$resp = timeout_read($s_out);
+	$resp = timeout_read($s_out) or die "Read timeout";
 	$resp eq "abc\n" or die "Server got \"$resp\", not \"abc\\n\" from ::1";
 };
 kill_children;
@@ -606,7 +668,7 @@ sub {
 	my ($c_pid, $c_out, $c_in) = ncat("localhost", "--udp");
 	syswrite($c_in, "abc\n");
 	close $c_in;
-	$resp = timeout_read($s_out);
+	$resp = timeout_read($s_out) or die "Read timeout";
 	$resp eq "abc\n" or die "Server got \"$resp\", not \"abc\\n\" from localhost";
 };
 kill_children;
@@ -619,7 +681,7 @@ sub {
 	my ($c_pid1, $c_out1, $c_in1) = ncat("::1", "--udp");
 	syswrite($c_in1, "abc\n");
 	close $c_in1;
-	$resp = timeout_read($s_out);
+	$resp = timeout_read($s_out) or die "Read timeout";
 	$resp eq "abc\n" or die "Server got \"$resp\", not \"abc\\n\" from ::1";
 };
 kill_children;
@@ -644,7 +706,7 @@ sub {
 	my ($c_pid1, $c_out1, $c_in1) = ncat("::1", "--udp");
 	syswrite($c_in1, "abc\n");
 	close $c_in1;
-	$resp = timeout_read($s_out);
+	$resp = timeout_read($s_out) or die "Read timeout";
 	$resp eq "abc\n" or die "Server got \"$resp\", not \"abc\\n\" from ::1";
 };
 kill_children;
@@ -657,7 +719,7 @@ sub {
 	my ($c_pid, $c_out, $c_in) = ncat("127.0.0.1", "--udp");
 	syswrite($c_in, "abc\n");
 	close $c_in;
-	$resp = timeout_read($s_out);
+	$resp = timeout_read($s_out) or die "Read timeout";
 	$resp eq "abc\n" or die "Server got \"$resp\", not \"abc\\n\" from 127.0.0.1";
 };
 kill_children;
@@ -683,7 +745,7 @@ sub {
 	my ($c_pid, $c_out, $c_in) = ncat("localhost");
 	syswrite($c_in, "abc\n");
 	close $c_in;
-	$resp = timeout_read($s_out);
+	$resp = timeout_read($s_out) or die "Read timeout";
 	$resp eq "abc\n" or die "Server got \"$resp\", not \"abc\\n\"";
 };
 
@@ -695,7 +757,7 @@ sub {
 	my ($c_pid, $c_out, $c_in) = ncat("localhost");
 	syswrite($c_in, "abc\n");
 	close $c_in;
-	$resp = timeout_read($s_out);
+	$resp = timeout_read($s_out) or die "Read timeout";
 	$resp eq "abc\n" or die "Server got \"$resp\", not \"abc\\n\"";
 };
 
@@ -711,7 +773,7 @@ sub {
 	my ($c_pid, $c_out, $c_in) = ncat("-U", $UNIXSOCK);
 	syswrite($c_in, "abc\n");
 	close $c_in;
-	$resp = timeout_read($s_out);
+	$resp = timeout_read($s_out) or die "Read timeout";
 	$resp eq "abc\n" or die "Server got \"$resp\", not \"abc\\n\" from client";
 };
 kill_children;
@@ -728,7 +790,7 @@ sub {
 	my ($c_pid, $c_out, $c_in) = ncat("-U", "--udp", $UNIXSOCK);
 	syswrite($c_in, "abc\n");
 	close $c_in;
-	$resp = timeout_read($s_out);
+	$resp = timeout_read($s_out) or die "Read timeout";
 	$resp eq "abc\n" or die "Server got \"$resp\", not \"abc\\n\" from client";
 };
 kill_children;
@@ -1023,7 +1085,7 @@ sub {
 
 	my ($c_pid, $c_out, $c_in) = ncat_client();
 	syswrite($c_in, "abc\n");
-	$resp = timeout_read($s_out);
+	$resp = timeout_read($s_out) or die "Read timeout";
 	$resp eq "abc\n" or die "Server got \"$resp\", not \"abc\\n\"";
 	kill "TERM", $c_pid;
 	while (waitpid($c_pid, 0) > 0) {
@@ -1042,7 +1104,7 @@ sub {
 
 	my ($c_pid, $c_out, $c_in) = ncat_client();
 	syswrite($c_in, "abc\n");
-	$resp = timeout_read($c_out);
+	$resp = timeout_read($c_out) or die "Read timeout";
 	$resp eq "abc\n" or die "Client got back \"$resp\", not \"abc\\n\"";
 	kill "TERM", $c_pid;
 	while (waitpid($c_pid, 0) > 0) {
@@ -1099,12 +1161,12 @@ sub {
 
 	my ($c1_pid, $c1_out, $c1_in) = ncat_client();
 	syswrite($c1_in, "abc\n");
-	$resp = timeout_read($s_out);
+	$resp = timeout_read($s_out) or die "Read timeout";
 	$resp eq "abc\n" or die "Server got \"$resp\", not \"abc\\n\"";
 
 	my ($c2_pid, $c2_out, $c2_in) = ncat_client();
 	syswrite($c2_in, "abc\n");
-	$resp = timeout_read($s_out);
+	$resp = timeout_read($s_out) or die "Read timeout";
 	$resp eq "abc\n" or die "Server got \"$resp\", not \"abc\\n\"";
 };
 kill_children;
@@ -1116,12 +1178,12 @@ sub {
 
 	my ($c1_pid, $c1_out, $c1_in) = ncat_client();
 	syswrite($c1_in, "abc\n");
-	$resp = timeout_read($c1_out);
+	$resp = timeout_read($c1_out) or die "Read timeout";
 	$resp eq "abc\n" or die "Client 1 got back \"$resp\", not \"abc\\n\"";
 
 	my ($c2_pid, $c2_out, $c2_in) = ncat_client();
 	syswrite($c2_in, "abc\n");
-	$resp = timeout_read($c2_out);
+	$resp = timeout_read($c2_out) or die "Read timeout";
 	$resp eq "abc\n" or die "Client 2 got back \"$resp\", not \"abc\\n\"";
 };
 kill_children;
@@ -1133,12 +1195,12 @@ sub {
 
 	my ($c1_pid, $c1_out, $c1_in) = ncat_client("--udp");
 	syswrite($c1_in, "abc\n");
-	$resp = timeout_read($c1_out);
+	$resp = timeout_read($c1_out) or die "Read timeout";
 	$resp eq "abc\n" or die "Client 1 got back \"$resp\", not \"abc\\n\"";
 
 	my ($c2_pid, $c2_out, $c2_in) = ncat_client("--udp");
 	syswrite($c2_in, "abc\n");
-	$resp = timeout_read($c2_out);
+	$resp = timeout_read($c2_out) or die "Read timeout";
 	$resp eq "abc\n" or die "Client 2 got back \"$resp\", not \"abc\\n\"";
 };
 kill_children;
@@ -1146,14 +1208,14 @@ kill_children;
 # Test --exec, --sh-exec and --lua-exec.
 
 server_client_test_all "--exec",
-["--exec", "$PERL -e \$|=1;while(<>)\{tr/a-z/A-Z/;print\}"], [], sub {
+["--exec", $exec_perl_uc], [], sub {
 	syswrite($c_in, "abc\n");
 	my $resp = timeout_read($c_out) or die "Read timeout";
 	$resp eq "ABC\n" or die "Client received " . d($resp) . ", not " . d("ABC\n");
 };
 
 server_client_test_all "--sh-exec",
-["--sh-exec", "perl -e '\$|=1;while(<>)\{tr/a-z/A-Z/;print\}'"], [], sub {
+["--sh-exec", $shexec_perl_uc], [], sub {
 	syswrite($c_in, "abc\n");
 	my $resp = timeout_read($c_out) or die "Read timeout";
 	$resp eq "ABC\n" or die "Client received " . d($resp) . ", not " . d("ABC\n");
@@ -1167,7 +1229,7 @@ server_client_test_all "--exec, quits instantly",
 };
 
 server_client_test_all "--sh-exec with -C",
-["--sh-exec", "$PERL -e '\$|=1;while(<>){tr/a-z/A-Z/;print}'", "-C"], [], sub {
+["--sh-exec", $shexec_perl_uc, "-C"], [], sub {
 	syswrite($c_in, "abc\n");
 	my $resp = timeout_read($c_out) or die "Read timeout";
 	$resp eq "ABC\r\n" or die "Client received " . d($resp) . ", not " . d("ABC\r\n");
@@ -1317,7 +1379,7 @@ server_client_test_tcp_sctp_ssl "idle timeout (listen mode)",
 	syswrite($s_in, "abc\n");
 	$resp = timeout_read($c_out) or die "Read timeout";
 	sleep 4;
-	syswrite($c_in, "abc\n");
+	syswrite($c_in, "ABC\n");
 	$resp = timeout_read($s_out);
 	!$resp or die "Server received \"$resp\" after delay of 4000 ms with idle timeout of 3000 ms."
 };
@@ -1458,11 +1520,11 @@ sub {
 	my ($c2_pid, $c2_out, $c2_in) = ncat_client();
 
 	syswrite($c2_in, "abc\n");
-	$resp = timeout_read($c1_out);
+	$resp = timeout_read($c1_out) or die "Read timeout";
 	$resp eq "abc\n" or die "Client 1 received \"$resp\", not abc";
 
 	syswrite($c1_in, "abc\n");
-	$resp = timeout_read($c2_out);
+	$resp = timeout_read($c2_out) or die "Read timeout";
 	$resp eq "abc\n" or die "Client 2 received \"$resp\", not abc";
 };
 kill_children;
@@ -1478,11 +1540,11 @@ sub {
 	my ($c2_pid, $c2_out, $c2_in) = ncat_client("--sctp");
 
 	syswrite($c2_in, "abc\n");
-	$resp = timeout_read($c1_out);
+	$resp = timeout_read($c1_out) or die "Read timeout";
 	$resp eq "abc\n" or die "Client 1 received \"$resp\", not abc";
 
 	syswrite($c1_in, "abc\n");
-	$resp = timeout_read($c2_out);
+	$resp = timeout_read($c2_out) or die "Read timeout";
 	$resp eq "abc\n" or die "Client 2 received \"$resp\", not abc";
 };
 kill_children;
@@ -1497,11 +1559,11 @@ sub {
 	my ($c2_pid, $c2_out, $c2_in) = ncat_client("--ssl");
 
 	syswrite($c2_in, "abc\n");
-	$resp = timeout_read($c1_out);
+	$resp = timeout_read($c1_out) or die "Read timeout";
 	$resp eq "abc\n" or die "Client 1 received \"$resp\", not abc";
 
 	syswrite($c1_in, "abc\n");
-	$resp = timeout_read($c2_out);
+	$resp = timeout_read($c2_out) or die "Read timeout";
 	$resp eq "abc\n" or die "Client 2 received \"$resp\", not abc";
 };
 kill_children;
@@ -1517,11 +1579,11 @@ sub {
 	my ($c2_pid, $c2_out, $c2_in) = ncat_client("--sctp", "--ssl");
 
 	syswrite($c2_in, "abc\n");
-	$resp = timeout_read($c1_out);
+	$resp = timeout_read($c1_out) or die "Read timeout";
 	$resp eq "abc\n" or die "Client 1 received \"$resp\", not abc";
 
 	syswrite($c1_in, "abc\n");
-	$resp = timeout_read($c2_out);
+	$resp = timeout_read($c2_out) or die "Read timeout";
 	$resp eq "abc\n" or die "Client 2 received \"$resp\", not abc";
 };
 kill_children;
@@ -1536,11 +1598,11 @@ sub {
 	my ($c2_pid, $c2_out, $c2_in) = ncat_client("-4");
 
 	syswrite($c2_in, "abc\n");
-	$resp = timeout_read($c1_out, 2);
+	$resp = timeout_read($c1_out, 2) or die "Read timeout";
 	$resp eq "abc\n" or die "IPV6 Client received \"$resp\", not abc";
 
 	syswrite($c1_in, "abc\n");
-	$resp = timeout_read($c2_out, 2);
+	$resp = timeout_read($c2_out, 2) or die "Read timeout";
 	$resp eq "abc\n" or die "IPV4 Client received \"$resp\", not abc";
 };
 kill_children;
@@ -2687,7 +2749,7 @@ sub {
 
 	my ($c2_pid, $c2_out, $c2_in) = ncat_client("--ssl");
 	syswrite($c2_in, "abc\n");
-	$resp = timeout_read($s_out);
+	$resp = timeout_read($s_out) or die "Read timeout";
 	$resp eq "abc\n" or die "Server got \"$resp\", not \"abc\\n\"";
 	kill "TERM", $c2_pid;
 	waitpid $c2_pid, 0;
@@ -2722,13 +2784,13 @@ sub {
 
 	my ($c2_pid, $c2_out, $c2_in) = ncat_client("--ssl");
 	syswrite($c2_in, "abc\n");
-	$resp = timeout_read($s_out);
+	$resp = timeout_read($s_out) or die "Read timeout";
 	$resp eq "abc\n" or die "Server got \"$resp\", not \"abc\\n\"";
 };
 kill_children;
 }
 {
-($s_pid, $s_out, $s_in) = ncat_server("--ssl", "--exec","$PERL -e \$|=1;while(<>)\{tr/a-z/A-Z/;print\}", "--ssl-key", "test-cert.pem", "--ssl-cert", "test-cert.pem", "--keep-open");
+($s_pid, $s_out, $s_in) = ncat_server("--ssl", "--exec", $exec_perl_uc, "--ssl-key", "test-cert.pem", "--ssl-cert", "test-cert.pem", "--keep-open");
 test "SSL --exec server doesn't block during handshake",
 sub {
 	my $resp;
@@ -2739,7 +2801,7 @@ sub {
 	my ($c2_pid, $c2_out, $c2_in) = ncat_client("--ssl");
 	syswrite($c2_in, "abc\n");
 
-	$resp = timeout_read($c2_out);
+	$resp = timeout_read($c2_out) or die "Read timeout";
 	$resp eq "ABC\n" or die "Client2 got \"$resp\", not \"ABC\\n\"";
 };
 kill_children;
@@ -2796,7 +2858,7 @@ sub {
 
 	my ($c2_pid, $c2_out, $c2_in) = ncat_client();
 	syswrite($c2_in, "abc\n");
-	$resp = timeout_read($s_out);
+	$resp = timeout_read($s_out) or die "Read timeout";
 	$resp eq "abc\n" or die "Server got \"$resp\", not \"abc\\n\"";
 };
 kill_children;
@@ -2812,7 +2874,7 @@ sub {
 
 	my ($c2_pid, $c2_out, $c2_in) = ncat_client();
 	syswrite($s_in, "abc\n");
-	$resp = timeout_read($c2_out);
+	$resp = timeout_read($c2_out) or die "Read timeout";
 	$resp eq "abc\n" or die "Second client got \"$resp\", not \"abc\\n\"";
 };
 kill_children;
@@ -2828,7 +2890,7 @@ sub {
 
 	my ($c2_pid, $c2_out, $c2_in) = ncat_client("--ssl");
 	syswrite($c2_in, "abc\n");
-	$resp = timeout_read($s_out);
+	$resp = timeout_read($s_out) or die "Read timeout";
 	$resp eq "abc\n" or die "Server got \"$resp\", not \"abc\\n\"";
 };
 kill_children;
@@ -2845,7 +2907,7 @@ sub {
 
 	my ($c2_pid, $c2_out, $c2_in) = ncat_client("--ssl");
 	syswrite($s_in, "abc\n");
-	$resp = timeout_read($c2_out);
+	$resp = timeout_read($c2_out) or die "Read timeout";
 	$resp eq "abc\n" or die "Second client got \"$resp\", not \"abc\\n\"";
 };
 kill_children;
@@ -3163,7 +3225,7 @@ sub {
         local $SIG{CHLD} = sub { };
 
         my ($c_pid, $c_out, $c_in) = ncat_client("-z", "--udp");
-        $resp = timeout_read($s_out);
+        $resp = timeout_read($s_out) or die "Read timeout";
         $resp eq "\0" or die "Server got \"$resp\", not \"\\0\" from client";
 
         do {

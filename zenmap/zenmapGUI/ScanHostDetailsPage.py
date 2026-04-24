@@ -2,7 +2,7 @@
 
 # ***********************IMPORTANT NMAP LICENSE TERMS************************
 # *
-# * The Nmap Security Scanner is (C) 1996-2025 Nmap Software LLC ("The Nmap
+# * The Nmap Security Scanner is (C) 1996-2026 Nmap Software LLC ("The Nmap
 # * Project"). Nmap is also a registered trademark of the Nmap Project.
 # *
 # * This program is distributed under the terms of the Nmap Public Source
@@ -176,6 +176,7 @@ class HostDetails(HIGVBox):
     def create_table_hbox(self):
         table = HIGTable()
         hbox = HIGHBox()
+        hbox.set_halign(Gtk.Align.START)
 
         hbox._pack_noexpand_nofill(hig_box_space_holder())
         hbox._pack_noexpand_nofill(table)
@@ -215,41 +216,42 @@ class HostDetails(HIGVBox):
                 status['lastboot'] != ''):
             self.info_lastboot_label.set_text(status['lastboot'])
 
-        table.attach(self.host_state_label, 0, 1, 0, 1)
-        table.attach(self.info_host_state_label, 1, 2, 0, 1)
+        table.attach_label(self.host_state_label, 0, 1, 0, 1)
+        table.attach_entry(self.info_host_state_label, 1, 2, 0, 1)
 
-        table.attach(self.open_label, 0, 1, 1, 2)
-        table.attach(self.info_open_ports, 1, 2, 1, 2)
+        table.attach_label(self.open_label, 0, 1, 1, 2)
+        table.attach_entry(self.info_open_ports, 1, 2, 1, 2)
 
-        table.attach(self.filtered_label, 0, 1, 2, 3)
-        table.attach(self.info_filtered_label, 1, 2, 2, 3)
+        table.attach_label(self.filtered_label, 0, 1, 2, 3)
+        table.attach_entry(self.info_filtered_label, 1, 2, 2, 3)
 
-        table.attach(self.closed_label, 0, 1, 3, 4)
-        table.attach(self.info_closed_ports, 1, 2, 3, 4)
+        table.attach_label(self.closed_label, 0, 1, 3, 4)
+        table.attach_entry(self.info_closed_ports, 1, 2, 3, 4)
 
-        table.attach(self.scanned_label, 0, 1, 4, 5)
-        table.attach(self.info_scanned_label, 1, 2, 4, 5)
+        table.attach_label(self.scanned_label, 0, 1, 4, 5)
+        table.attach_entry(self.info_scanned_label, 1, 2, 4, 5)
 
-        table.attach(self.uptime_label, 0, 1, 5, 6)
-        table.attach(self.info_uptime_label, 1, 2, 5, 6)
+        table.attach_label(self.uptime_label, 0, 1, 5, 6)
+        table.attach_entry(self.info_uptime_label, 1, 2, 5, 6)
 
-        table.attach(self.lastboot_label, 0, 1, 6, 7)
-        table.attach(self.info_lastboot_label, 1, 2, 6, 7)
+        table.attach_label(self.lastboot_label, 0, 1, 6, 7)
+        table.attach_entry(self.info_lastboot_label, 1, 2, 6, 7)
 
-        table.attach(self.os_image, 2, 4, 0, 3, xoptions=Gtk.AttachOptions.EXPAND)
-        table.attach(
-                self.vulnerability_image, 2, 4, 4, 7, xoptions=Gtk.AttachOptions.EXPAND)
+        spacer = Gtk.Box()
+        spacer.set_size_request(50, -1)
+        table.attach(spacer, 2, 0, 1, 7)
 
-        table.set_col_spacing(1, 50)
+        table.attach_entry(self.os_image, 3, 5, 0, 3)
+        table.attach_entry(self.vulnerability_image, 3, 5, 4, 7)
 
         self.host_status_expander.add(hbox)
         self._pack_noexpand_nofill(self.host_status_expander)
 
     def set_os_image(self, image):
-            self.os_image.set_from_stock(image, Gtk.IconSize.DIALOG)
+        self.os_image.set_from_pixbuf(image)
 
     def set_vulnerability_image(self, image):
-        self.vulnerability_image.set_from_stock(image, Gtk.IconSize.DIALOG)
+        self.vulnerability_image.set_from_pixbuf(image)
 
     def set_addresses(self, address):
         self.address_expander.set_use_markup(True)
@@ -269,14 +271,14 @@ class HostDetails(HIGVBox):
                 address['mac'] != 1):
             self.info_mac_label.set_text(address['mac'])
 
-        table.attach(self.ipv4_label, 0, 1, 0, 1)
-        table.attach(self.info_ipv4_label, 1, 2, 0, 1)
+        table.attach_label(self.ipv4_label, 0, 1, 0, 1)
+        table.attach_label(self.info_ipv4_label, 1, 2, 0, 1)
 
-        table.attach(self.ipv6_label, 0, 1, 1, 2)
-        table.attach(self.info_ipv6_label, 1, 2, 1, 2)
+        table.attach_label(self.ipv6_label, 0, 1, 1, 2)
+        table.attach_label(self.info_ipv6_label, 1, 2, 1, 2)
 
-        table.attach(self.mac_label, 0, 1, 2, 3)
-        table.attach(self.info_mac_label, 1, 2, 2, 3)
+        table.attach_label(self.mac_label, 0, 1, 2, 3)
+        table.attach_label(self.info_mac_label, 1, 2, 2, 3)
 
         self.address_expander.add(hbox)
         self._pack_noexpand_nofill(self.address_expander)
@@ -294,8 +296,8 @@ class HostDetails(HIGVBox):
                 name = h.get('hostname', na)
                 type = h.get('hostname_type', na)
 
-                table.attach(HIGEntryLabel(_('Name - Type:')), 0, 1, y1, y2)
-                table.attach(HIGEntryLabel(name + ' - ' + type), 1, 2, y1, y2)
+                table.attach_label(HIGEntryLabel(_('Name - Type:')), 0, 1, y1, y2)
+                table.attach_entry(HIGEntryLabel(name + ' - ' + type), 1, 2, y1, y2)
                 y1 += 1
                 y2 += 1
 
@@ -308,6 +310,8 @@ class HostDetails(HIGVBox):
             self.os_expander.set_expanded(True)
             table, hbox = self.create_table_hbox()
             progress = Gtk.ProgressBar()
+            progress.set_valign(Gtk.Align.CENTER)
+            progress.set_vexpand(True)
 
             if 'accuracy' in os:
                 progress.set_fraction(float(os['accuracy']) / 100.0)
@@ -315,25 +319,25 @@ class HostDetails(HIGVBox):
             else:
                 progress.set_text(_('Not Available'))
 
-            table.attach(HIGEntryLabel(_('Name:')), 0, 1, 0, 1)
-            table.attach(HIGEntryLabel(os['name']), 1, 2, 0, 1)
+            table.attach_label(HIGEntryLabel(_('Name:')), 0, 1, 0, 1)
+            table.attach_entry(HIGEntryLabel(os['name']), 1, 2, 0, 1)
 
-            table.attach(HIGEntryLabel(_('Accuracy:')), 0, 1, 1, 2)
-            table.attach(progress, 1, 2, 1, 2)
+            table.attach_label(HIGEntryLabel(_('Accuracy:')), 0, 1, 1, 2)
+            table.attach_entry(progress, 1, 2, 1, 2)
 
             y1 = 2
             y2 = 3
 
             if 'portsused' in os:
                 self.set_ports_used(os['portsused'])
-                table.attach(self.portsused_expander, 0, 2, y1, y2)
+                table.attach_entry(self.portsused_expander, 0, 2, y1, y2)
                 y1 += 1
                 y2 += 1
 
             if 'osclasses' in os:
                 self.set_osclass(os['osclasses'])
                 self.osclass_expander.set_use_markup(True)
-                table.attach(self.osclass_expander, 0, 2, y1, y2)
+                table.attach_entry(self.osclass_expander, 0, 2, y1, y2)
 
             self.os_expander.add(hbox)
             self._pack_noexpand_nofill(self.os_expander)
@@ -346,9 +350,9 @@ class HostDetails(HIGVBox):
         y2 = 1
 
         for p in ports:
-            table.attach(HIGEntryLabel(
+            table.attach_label(HIGEntryLabel(
                 _('Port-Protocol-State:')), 0, 1, y1, y2)
-            table.attach(HIGEntryLabel(
+            table.attach_entry(HIGEntryLabel(
                 p['portid'] + ' - ' + p['proto'] + ' - ' + p['state']
                 ), 1, 2, y1, y2)
             y1 += 1
@@ -361,25 +365,27 @@ class HostDetails(HIGVBox):
             self.osclass_expander.set_use_markup(True)
             table, hbox = self.create_table_hbox()
 
-            table.attach(HIGEntryLabel(_('Type')), 0, 1, 0, 1)
-            table.attach(HIGEntryLabel(_('Vendor')), 1, 2, 0, 1)
-            table.attach(HIGEntryLabel(_('OS Family')), 2, 3, 0, 1)
-            table.attach(HIGEntryLabel(_('OS Generation')), 3, 4, 0, 1)
-            table.attach(HIGEntryLabel(_('Accuracy')), 4, 5, 0, 1)
+            table.attach_label(HIGEntryLabel(_('Type')), 0, 1, 0, 1)
+            table.attach_label(HIGEntryLabel(_('Vendor')), 1, 2, 0, 1)
+            table.attach_label(HIGEntryLabel(_('OS Family')), 2, 3, 0, 1)
+            table.attach_label(HIGEntryLabel(_('OS Generation')), 3, 4, 0, 1)
+            table.attach_label(HIGEntryLabel(_('Accuracy')), 4, 5, 0, 1)
 
             y1 = 1
             y2 = 2
 
             for o in osclass:
-                table.attach(HIGEntryLabel(o['type']), 0, 1, y1, y2)
-                table.attach(HIGEntryLabel(o['vendor']), 1, 2, y1, y2)
-                table.attach(HIGEntryLabel(o['osfamily']), 2, 3, y1, y2)
-                table.attach(HIGEntryLabel(o['osgen']), 3, 4, y1, y2)
+                table.attach_entry(HIGEntryLabel(o['type']), 0, 1, y1, y2)
+                table.attach_entry(HIGEntryLabel(o['vendor']), 1, 2, y1, y2)
+                table.attach_entry(HIGEntryLabel(o['osfamily']), 2, 3, y1, y2)
+                table.attach_entry(HIGEntryLabel(o['osgen']), 3, 4, y1, y2)
 
                 progress = Gtk.ProgressBar()
                 progress.set_text(o['accuracy'] + '%')
                 progress.set_fraction(float(o['accuracy']) / 100.0)
-                table.attach(progress, 4, 5, y1, y2)
+                progress.set_valign(Gtk.Align.CENTER)
+                progress.set_vexpand(True)
+                table.attach_entry(progress, 4, 5, y1, y2)
                 y1 += 1
                 y2 += 1
 
@@ -394,14 +400,14 @@ class HostDetails(HIGVBox):
             for v in tcpseq['values'].split(','):
                 combo.append_text(v)
 
-            table.attach(HIGEntryLabel(_('Difficulty:')), 0, 1, 1, 2)
-            table.attach(HIGEntryLabel(tcpseq['difficulty']), 1, 2, 1, 2)
+            table.attach_label(HIGEntryLabel(_('Difficulty:')), 0, 1, 1, 2)
+            table.attach_entry(HIGEntryLabel(tcpseq['difficulty']), 1, 2, 1, 2)
 
-            table.attach(HIGEntryLabel(_('Index:')), 0, 1, 2, 3)
-            table.attach(HIGEntryLabel(tcpseq['index']), 1, 2, 2, 3)
+            table.attach_label(HIGEntryLabel(_('Index:')), 0, 1, 2, 3)
+            table.attach_entry(HIGEntryLabel(tcpseq['index']), 1, 2, 2, 3)
 
-            table.attach(HIGEntryLabel(_('Values:')), 0, 1, 3, 4)
-            table.attach(combo, 1, 2, 3, 4)
+            table.attach_label(HIGEntryLabel(_('Values:')), 0, 1, 3, 4)
+            table.attach_entry(combo, 1, 2, 3, 4)
 
             self.tcp_expander.add(hbox)
             self._pack_noexpand_nofill(self.tcp_expander)
@@ -416,11 +422,11 @@ class HostDetails(HIGVBox):
             for i in ipseq['values'].split(','):
                 combo.append_text(i)
 
-            table.attach(HIGEntryLabel(_('Class:')), 0, 1, 0, 1)
-            table.attach(HIGEntryLabel(ipseq['class']), 1, 2, 0, 1)
+            table.attach_label(HIGEntryLabel(_('Class:')), 0, 1, 0, 1)
+            table.attach_entry(HIGEntryLabel(ipseq['class']), 1, 2, 0, 1)
 
-            table.attach(HIGEntryLabel(_('Values:')), 0, 1, 1, 2)
-            table.attach(combo, 1, 2, 1, 2)
+            table.attach_label(HIGEntryLabel(_('Values:')), 0, 1, 1, 2)
+            table.attach_entry(combo, 1, 2, 1, 2)
 
             self.ip_expander.add(hbox)
             self._pack_noexpand_nofill(self.ip_expander)
@@ -435,11 +441,11 @@ class HostDetails(HIGVBox):
             for i in tcptsseq['values'].split(','):
                 combo.append_text(i)
 
-            table.attach(HIGEntryLabel(_('Class:')), 0, 1, 0, 1)
-            table.attach(HIGEntryLabel(tcptsseq['class']), 1, 2, 0, 1)
+            table.attach_label(HIGEntryLabel(_('Class:')), 0, 1, 0, 1)
+            table.attach_entry(HIGEntryLabel(tcptsseq['class']), 1, 2, 0, 1)
 
-            table.attach(HIGEntryLabel(_('Values:')), 0, 1, 1, 2)
-            table.attach(combo, 1, 2, 1, 2)
+            table.attach_label(HIGEntryLabel(_('Values:')), 0, 1, 1, 2)
+            table.attach_entry(combo, 1, 2, 1, 2)
 
             self.tcpts_expander.add(hbox)
             self._pack_noexpand_nofill(self.tcpts_expander)

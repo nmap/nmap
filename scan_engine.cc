@@ -6,7 +6,7 @@
  *                                                                         *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
  *
- * The Nmap Security Scanner is (C) 1996-2025 Nmap Software LLC ("The Nmap
+ * The Nmap Security Scanner is (C) 1996-2026 Nmap Software LLC ("The Nmap
  * Project"). Nmap is also a registered trademark of the Nmap Project.
  *
  * This program is distributed under the terms of the Nmap Public Source
@@ -955,6 +955,13 @@ void UltraScanInfo::Init(std::vector<Target *> &Targets, const struct scan_lists
     if (ping_scan_arp) {
       assert(!(sendpref & PACKET_SEND_IP_STRONG));
       sendpref = PACKET_SEND_ETH;
+    }
+    else if (ping_scan_nd && !(sendpref & PACKET_SEND_IP_STRONG)) {
+      /* We prefer eth sending for ND, because otherwise the OS may convert
+       * multicast to unicast (M2U) and we end up sending a Neighbor
+       * Unreachability Detection probe instead of Neighber Discovery. It will
+       * still work for host discovery, but doesn't give us a MAC address. */
+      sendpref = PACKET_SEND_ETH_WEAK;
     }
     if (!raw_socket_or_eth(sendpref, Targets[0]->deviceName(), Targets[0]->ifType(),
           &rawsd, &ethsd)) {
@@ -2184,7 +2191,7 @@ void ultrascan_port_probe_update(UltraScanInfo *USI, HostScanStats *hss,
 
 static void sendNextScanProbe(UltraScanInfo *USI, HostScanStats *hss) {
   probespec pspec;
-  tryno_t tryno = {0};
+  tryno_t tryno = {};
 
   if (get_next_target_probe(USI, hss, &pspec) == -1) {
     fatal("%s: No more probes! Error in Nmap.", __func__);
@@ -2217,7 +2224,7 @@ static void sendNextRetryStackProbe(UltraScanInfo *USI, HostScanStats *hss) {
   pspec_tries = hss->retry_stack_tries.back();
   hss->retry_stack_tries.pop_back();
 
-  tryno_t tryno = {0};
+  tryno_t tryno = {};
   tryno.fields.seqnum = pspec_tries + 1;
 
   if (pspec.type == PS_CONNECTTCP)
@@ -2279,7 +2286,7 @@ static void doAnyRetryStackRetransmits(UltraScanInfo *USI) {
    checked that sending is OK w/congestion control and that pingprobe is
    available */
 static void sendPingProbe(UltraScanInfo *USI, HostScanStats *hss) {
-  tryno_t tryno = {0};
+  tryno_t tryno = {};
   tryno.fields.isPing = 1;
   tryno.fields.seqnum = hss->nextPingSeq();
 

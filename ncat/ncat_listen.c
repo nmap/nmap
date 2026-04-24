@@ -2,7 +2,7 @@
  * ncat_listen.c -- --listen mode.                                         *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
  *
- * The Nmap Security Scanner is (C) 1996-2025 Nmap Software LLC ("The Nmap
+ * The Nmap Security Scanner is (C) 1996-2026 Nmap Software LLC ("The Nmap
  * Project"). Nmap is also a registered trademark of the Nmap Project.
  *
  * This program is distributed under the terms of the Nmap Public Source
@@ -84,6 +84,9 @@
 #ifdef HAVE_OPENSSL
 #include <openssl/ssl.h>
 #include <openssl/err.h>
+#if OPENSSL_VERSION_NUMBER < 0x10100000L
+#define DTLS_server_method DTLSv1_server_method
+#endif
 #endif
 
 #ifdef WIN32
@@ -319,8 +322,10 @@ int ncat_listen()
         }
 
         /* The idle timer should only be running when there are active connections */
-        if (o.idletimeout > 0 && get_conn_count() && o.idletimeout * 1000 < usec_wait)
+        if (o.idletimeout > 0 && get_conn_count()) {
+          if (usec_wait < 0 || o.idletimeout * 1000 < usec_wait)
             usec_wait = o.idletimeout * 1000;
+        }
 
         if (usec_wait >= 0) {
             tvp = &tv;
@@ -397,13 +402,13 @@ restart_fd_loop:
                 } else {
                     /* Read from stdin and write to all clients. */
                     rc = read_stdin(&qtv);
-                    if (rc == 0 && type == SOCK_STREAM) {
+                    if (rc == 0 && (type == SOCK_STREAM || o.ssl)) {
+                        if (!o.noshutdown) shutdown_sockets(SHUT_WR);
                         if (o.quitafter == 0 && (o.proto != IPPROTO_TCP || (o.proto == IPPROTO_TCP && o.sendonly))) {
                             /* There will be nothing more to send. If we're not
                                receiving anything, we can quit here. */
                             return 0;
                         }
-                        if (!o.noshutdown) shutdown_sockets(SHUT_WR);
                     }
                     if (rc < 0)
                         return 1;

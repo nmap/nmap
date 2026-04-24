@@ -4,7 +4,7 @@
  *                                                                         *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
  *
- * The Nmap Security Scanner is (C) 1996-2025 Nmap Software LLC ("The Nmap
+ * The Nmap Security Scanner is (C) 1996-2026 Nmap Software LLC ("The Nmap
  * Project"). Nmap is also a registered trademark of the Nmap Project.
  *
  * This program is distributed under the terms of the Nmap Public Source
@@ -240,7 +240,9 @@ int EchoClient::nep_handshake(){
   /* Send NEP_HANDSHAKE_CLIENT message */
   if( this->generate_hs_client(&h)!=OP_SUCCESS )
     return OP_FAILURE;
-  nsock_write(this->nsp, this->nsi, write_done_handler, ECHO_WRITE_TIMEOUT, NULL, (char *)h.getBinaryBuffer(), h.getLen());
+  int pktlen = 0;
+  u8 *pktbuf = h.getBinaryBuffer(&pktlen);
+  nsock_write(this->nsp, this->nsi, write_done_handler, ECHO_WRITE_TIMEOUT, pktbuf, (const char *)pktbuf, pktlen);
   loopstatus=nsock_loop(this->nsp, ECHO_WRITE_TIMEOUT-1);
   if(loopstatus!=NSOCK_LOOP_QUIT)
     return OP_FAILURE;
@@ -267,7 +269,9 @@ int EchoClient::nep_send_packet_spec(){
     return OP_FAILURE;
 
    /* Send NEP_PACKET_SPEC message */
-  nsock_write(this->nsp, this->nsi, write_done_handler, ECHO_WRITE_TIMEOUT, NULL, (const char*)h.getBinaryBuffer(),  h.getLen());
+  int pktlen = 0;
+  u8 *pktbuf = h.getBinaryBuffer(&pktlen);
+  nsock_write(this->nsp, this->nsi, write_done_handler, ECHO_WRITE_TIMEOUT, pktbuf, (const char *)pktbuf, pktlen);
   loopstatus=nsock_loop(this->nsp, ECHO_WRITE_TIMEOUT-1);
   if(loopstatus!=NSOCK_LOOP_QUIT)
     return OP_FAILURE;
@@ -589,15 +593,19 @@ int EchoClient::parse_echo(u8 *pkt, size_t pktlen){
   //    return OP_FAILURE;
   //}
 
-//  /* Ensure message length is correct */
-//  if( h.getTotalLength()!=(pktlen/4)){
-//    nping_print(DBG_1, "Received NEP_ECHO specifies an incorrect length (%u)", h.getTotalLength()*4 );
-//    return OP_FAILURE;
-//  }
+  nping_print(DBG_1, "Received NEP_ECHO pktlen %lu, getTotalLength %u", pktlen, h.getTotalLength()*4 );
+  /* Ensure message length is correct */
+  if( h.getTotalLength()!=(pktlen/4)){
+    nping_print(DBG_1, "Received NEP_ECHO specifies an incorrect length (%u)", h.getTotalLength()*4 );
+    return OP_FAILURE;
+  }
 
   /* Fix the object's internal state, since the ECHO message was not created
    * by the object but from received data. */
-  h.updateEchoInternals();
+  if (h.updateEchoInternals() != OP_SUCCESS) {
+    nping_print(DBG_1, "NEP_ECHO length check failed");
+    return OP_FAILURE;
+  }
 
   /* Check the authenticity of the received message */
   if( h.verifyMessageAuthenticationCode(this->ctx.getMacKeyS2C(), MAC_KEY_LEN )!=OP_SUCCESS ){
@@ -1041,6 +1049,8 @@ void connect_done_handler(nsock_pool nsp, nsock_event nse, void *arg){
   * in that case it calls nsock_loop_quit(), which indicates the success to
   * the method that scheduled the event and called nsock_loop() */
 void write_done_handler(nsock_pool nsp, nsock_event nse, void *arg){
+  u8 *pktbuf = (u8 *)arg;
+  free(pktbuf);
   nping_print(DBG_4, "%s()", __func__);
   enum nse_status status=nse_status(nse);
   if (status!=NSE_STATUS_SUCCESS){

@@ -1,0 +1,200 @@
+--- a/libpcap/CMakeLists.txt
++++ b/libpcap/CMakeLists.txt
+@@ -552,11 +552,11 @@ option(YYDEBUG "Build parser debugging code" OFF)
+ #   Versioning
+ ###################################################################
+ 
+-# Get, parse, format and set pcap's version string from [pcap_root]/VERSION
++# Get, parse, format and set pcap's version string from [pcap_root]/VERSION.txt
+ # for later use.
+ 
+ # Get MAJOR, MINOR, PATCH & SUFFIX
+-file(STRINGS ${pcap_SOURCE_DIR}/VERSION
++file(STRINGS ${pcap_SOURCE_DIR}/VERSION.txt
+     PACKAGE_VERSION
+     LIMIT_COUNT 1 # Read only the first line
+ )
+--- a/libpcap/INSTALL.md
++++ b/libpcap/INSTALL.md
+@@ -215,7 +215,7 @@ in `/usr/include/sys/dlpi.h`, and find the corresponding value.
+ 	doc/README.sita	    - notes on using libpcap to capture on SITA devices
+ 	doc/README.solaris.md - notes on using libpcap on Solaris
+ 	doc/README.windows.md - notes on using libpcap on Windows systems (with Npcap)
+-	VERSION		    - version of this release
++	VERSION.txt		    - version of this release
+ 	aclocal.m4	    - autoconf macros
+ 	arcnet.h	    - ARCNET definitions
+ 	atmuni31.h	    - ATM Q.2931 definitions
+--- a/libpcap/Makefile.in
++++ b/libpcap/Makefile.in
+@@ -160,8 +160,8 @@ GENHDR = \
+ TAGFILES = \
+ 	$(SRC) $(HDR)
+ 
+-CLEANFILES = $(OBJ) libpcap.a libpcap.so.`cat $(srcdir)/VERSION` \
+-	$(PROG)-`cat $(srcdir)/VERSION`.tar.gz \
++CLEANFILES = $(OBJ) libpcap.a libpcap.so.`cat $(srcdir)/VERSION.txt` \
++	$(PROG)-`cat $(srcdir)/VERSION.txt`.tar.gz \
+ 	lex.yy.c pcap-config libpcap.pc libpcap.$(DYEXT)
+ 
+ MAN1 = pcap-config.1
+@@ -261,7 +261,7 @@ EXTRA_DIST = \
+ 	doc/README.windows.md \
+ 	CONTRIBUTING.md \
+ 	TODO \
+-	VERSION \
++	VERSION.txt \
+ 	aclocal.m4 \
+ 	autogen.sh \
+ 	charconv.c \
+@@ -437,8 +437,8 @@ shared: libpcap.$(DYEXT)
+ 
+ libpcap.so: $(OBJ)
+ 	@rm -f $@
+-	VER=`cat $(srcdir)/VERSION`; \
+-	MAJOR_VER=`sed 's/\([0-9][0-9]*\)\..*/\1/' $(srcdir)/VERSION`; \
++	VER=`cat $(srcdir)/VERSION.txt`; \
++	MAJOR_VER=`sed 's/\([0-9][0-9]*\)\..*/\1/' $(srcdir)/VERSION.txt`; \
+ 	@V_SHLIB_CMD@ $(LDFLAGS) @V_SHLIB_OPT@ @V_SONAME_OPT@$@.$$MAJOR_VER \
+ 	    -o $@.$$VER $(OBJ) $(ADDLOBJS) $(LIBS)
+ 
+@@ -453,17 +453,17 @@ libpcap.so: $(OBJ)
+ # but not in the older version.
+ #
+ # We also use "A" as the major version, and 1 as the compatibility version,
+-# but set the current version to the value in VERSION, with any non-numeric
++# but set the current version to the value in VERSION.txt, with any non-numeric
+ # stuff stripped off (the compatibility and current version must be of the
+ # form X[.Y[.Z]], with Y and Z possibly absent, and with all components
+ # numeric).
+ #
+ libpcap.dylib: $(OBJ)
+ 	rm -f libpcap*.dylib
+-	VER=`cat $(srcdir)/VERSION`; \
++	VER=`cat $(srcdir)/VERSION.txt`; \
+ 	MAJOR_VER=A; \
+ 	COMPAT_VER=1; \
+-	CURRENT_VER=`sed 's/[^0-9.].*$$//' $(srcdir)/VERSION`; \
++	CURRENT_VER=`sed 's/[^0-9.].*$$//' $(srcdir)/VERSION.txt`; \
+ 	$(CC) -dynamiclib -undefined error $(LDFLAGS) @V_LIB_LDFLAGS_FAT@ \
+ 	    -o libpcap.$$VER.dylib $(OBJ) $(ADDLOBJS) $(LIBS) \
+ 	    -install_name $(libdir)/libpcap.$$MAJOR_VER.dylib \
+@@ -483,9 +483,9 @@ libpcap.dylib: $(OBJ)
+ # linker, even with GCC.
+ #
+ libpcap.sl: $(OBJ)
+-	@MAJOR_VER=`sed 's/\([0-9][0-9]*\)\..*/\1/' $(srcdir)/VERSION`; \
++	@MAJOR_VER=`sed 's/\([0-9][0-9]*\)\..*/\1/' $(srcdir)/VERSION.txt`; \
+ 	rm -f libpcap.$$MAJOR_VER
+-	MAJOR_VER=`sed 's/\([0-9][0-9]*\)\..*/\1/' $(srcdir)/VERSION`; \
++	MAJOR_VER=`sed 's/\([0-9][0-9]*\)\..*/\1/' $(srcdir)/VERSION.txt`; \
+ 	ld -b $(LDFLAGS) -o libpcap.$$MAJOR_VER +h libpcap.$$MAJOR_VER \
+ 	    $(OBJ) $(ADDLOBJS) $(LIBS)
+ 
+@@ -676,15 +676,15 @@ install-shared: install-shared-$(DYEXT)
+ install-shared-so: libpcap.so
+ 	[ -d $(DESTDIR)$(libdir) ] || \
+ 	    (mkdir -p $(DESTDIR)$(libdir); chmod 755 $(DESTDIR)$(libdir))
+-	VER=`cat $(srcdir)/VERSION`; \
+-	MAJOR_VER=`sed 's/\([0-9][0-9]*\)\..*/\1/' $(srcdir)/VERSION`; \
++	VER=`cat $(srcdir)/VERSION.txt`; \
++	MAJOR_VER=`sed 's/\([0-9][0-9]*\)\..*/\1/' $(srcdir)/VERSION.txt`; \
+ 	$(INSTALL_PROGRAM) libpcap.so.$$VER $(DESTDIR)$(libdir)/libpcap.so.$$VER; \
+ 	ln -sf libpcap.so.$$VER $(DESTDIR)$(libdir)/libpcap.so.$$MAJOR_VER; \
+ 	ln -sf libpcap.so.$$MAJOR_VER $(DESTDIR)$(libdir)/libpcap.so
+ install-shared-dylib: libpcap.dylib
+ 	[ -d $(DESTDIR)$(libdir) ] || \
+ 	    (mkdir -p $(DESTDIR)$(libdir); chmod 755 $(DESTDIR)$(libdir))
+-	VER=`cat $(srcdir)/VERSION`; \
++	VER=`cat $(srcdir)/VERSION.txt`; \
+ 	MAJOR_VER=A; \
+ 	$(INSTALL_PROGRAM) libpcap.$$VER.dylib $(DESTDIR)$(libdir)/libpcap.$$VER.dylib; \
+ 	ln -sf libpcap.$$VER.dylib $(DESTDIR)$(libdir)/libpcap.$$MAJOR_VER.dylib; \
+@@ -692,7 +692,7 @@ install-shared-dylib: libpcap.dylib
+ install-shared-sl: libpcap.sl
+ 	[ -d $(DESTDIR)$(libdir) ] || \
+ 	    (mkdir -p $(DESTDIR)$(libdir); chmod 755 $(DESTDIR)$(libdir))
+-	MAJOR_VER=`sed 's/\([0-9][0-9]*\)\..*/\1/' $(srcdir)/VERSION`; \
++	MAJOR_VER=`sed 's/\([0-9][0-9]*\)\..*/\1/' $(srcdir)/VERSION.txt`; \
+ 	$(INSTALL_PROGRAM) libpcap.$$MAJOR_VER $(DESTDIR)$(libdir)
+ 	ln -sf libpcap.$$MAJOR_VER $(DESTDIR)$(libdir)/libpcap.sl
+ #
+@@ -759,19 +759,19 @@ uninstall: uninstall-shared uninstall-rpcapd
+ 
+ uninstall-shared: uninstall-shared-$(DYEXT)
+ uninstall-shared-so:
+-	VER=`cat $(srcdir)/VERSION`; \
+-	MAJOR_VER=`sed 's/\([0-9][0-9]*\)\..*/\1/' $(srcdir)/VERSION`; \
++	VER=`cat $(srcdir)/VERSION.txt`; \
++	MAJOR_VER=`sed 's/\([0-9][0-9]*\)\..*/\1/' $(srcdir)/VERSION.txt`; \
+ 	rm -f $(DESTDIR)$(libdir)/libpcap.so.$$VER; \
+ 	rm -f $(DESTDIR)$(libdir)/libpcap.so.$$MAJOR_VER; \
+ 	rm -f $(DESTDIR)$(libdir)/libpcap.so
+ uninstall-shared-dylib:
+-	VER=`cat $(srcdir)/VERSION`; \
++	VER=`cat $(srcdir)/VERSION.txt`; \
+ 	MAJOR_VER=A; \
+ 	rm -f $(DESTDIR)$(libdir)/libpcap.$$VER.dylib; \
+ 	rm -f $(DESTDIR)$(libdir)/libpcap.$$MAJOR_VER.dylib; \
+ 	rm -f $(DESTDIR)$(libdir)/libpcap.dylib
+ uninstall-shared-sl:
+-	MAJOR_VER=`sed 's/\([0-9][0-9]*\)\..*/\1/' $(srcdir)/VERSION`; \
++	MAJOR_VER=`sed 's/\([0-9][0-9]*\)\..*/\1/' $(srcdir)/VERSION.txt`; \
+ 	rm -f $(DESTDIR)$(libdir)/libpcap.$$MAJOR_VER; \
+ 	rm -f $(DESTDIR)$(libdir)/libpcap.sl
+ uninstall-shared-shareda:
+@@ -818,7 +818,7 @@ tags: $(TAGFILES)
+ # git archive doesn't write one.)
+ #
+ releasetar:
+-	@TAG=$(PROG)-`cat VERSION` && \
++	@TAG=$(PROG)-`cat VERSION.txt` && \
+ 	if [ ! -d .git ]; then echo 'Not in a git clone, stop.'; exit 1; fi && \
+ 	TMPTESTFILE=`mktemp -t tmptestfile_XXXXXXXX` && \
+ 	rm -f "$$TMPTESTFILE" && \
+@@ -844,7 +844,7 @@ releasetar:
+ 	rm -rf "$$AUTORECONF_DIR"
+ 
+ releasecheck: releasetar
+-	@TAG=$(PROG)-`cat VERSION` && \
++	@TAG=$(PROG)-`cat VERSION.txt` && \
+ 	INSTALL_DIR=/tmp/install_"$$TAG"_$$$$ && \
+ 	DIR=`pwd` && \
+ 	cd /tmp && \
+--- a/libpcap/configure.ac
++++ b/libpcap/configure.ac
+@@ -16,7 +16,7 @@ dnl
+ 
+ AC_PREREQ(2.69)
+ 
+-AC_INIT(pcap, m4_esyscmd_s([cat VERSION]))
++AC_INIT(pcap, m4_esyscmd_s([cat VERSION.txt]))
+ AC_CONFIG_SRCDIR(pcap.c)
+ AC_SUBST(PACKAGE_NAME)
+ 
+--- a/libpcap/msdos/makefile.dj
++++ b/libpcap/msdos/makefile.dj
+@@ -86,9 +86,9 @@ grammar.c tokdefs.h: grammar.y
+ 	mv -f y.tab.c grammar.c
+ 	mv -f y.tab.h tokdefs.h
+ 
+-version.h: ./VERSION
+-	@echo '/* Generated from VERSION. Do not edit */' > $@
+-	sed -e 's/.*/static char pcap_version_string[] = "libpcap (&)";/' ./VERSION >> $@
++version.h: ./VERSION.txt
++	@echo '/* Generated from VERSION.txt. Do not edit */' > $@
++	sed -e 's/.*/static char pcap_version_string[] = "libpcap (&)";/' ./VERSION.txt >> $@
+ 
+ scanner.c: scanner.l
+ 	$(LEX) -Ppcap_ -7 -t $^ > $@
+--- a/libpcap/pcap-config.1
++++ b/libpcap/pcap-config.1
+@@ -64,7 +64,7 @@ Produce a help message and exit.
+ .TP
+ .B \-\-version
+ Produce libpcap version and exit.  The version is the contents of
+-.I VERSION
++.I VERSION.txt
+ file in libpcap source tree rather than the result of
+ .BR \%pcap_lib_version (3PCAP).
+ 

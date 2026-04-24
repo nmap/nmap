@@ -6,7 +6,7 @@
  *                                                                         *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
  *
- * The Nmap Security Scanner is (C) 1996-2025 Nmap Software LLC ("The Nmap
+ * The Nmap Security Scanner is (C) 1996-2026 Nmap Software LLC ("The Nmap
  * Project"). Nmap is also a registered trademark of the Nmap Project.
  *
  * This program is distributed under the terms of the Nmap Public Source
@@ -1126,24 +1126,28 @@ bool PacketParser::is_response(PacketElement *sent, PacketElement *rcvd){
       /* So far we've verified that the ICMP error contains an IP datagram that matches
        * what we sent. Now, let's find the upper layer ICMP header (skip extension
        * headers until we find ICMP) */
-      ICMPHeader *inner_icmp=(ICMPHeader *)iperror->getNextElement();
-      while(inner_icmp!=NULL){
-        if(inner_icmp->protocol_id()==HEADER_TYPE_ICMPv4 || inner_icmp->protocol_id()==HEADER_TYPE_ICMPv6 ){
+
+      iperror = dynamic_cast<NetworkLayerElement *>(iperror->getNextElement());
+      while(iperror!=NULL){
+        if(iperror->protocol_id()==HEADER_TYPE_ICMPv4 || iperror->protocol_id()==HEADER_TYPE_ICMPv6 ){
             break;
         }else{
-            inner_icmp=(ICMPHeader *)inner_icmp->getNextElement();
+          iperror = dynamic_cast<NetworkLayerElement *>(iperror->getNextElement());
         }
       }
-      if(inner_icmp==NULL)
+      if(iperror==NULL)
         return false;
 
       /* If we get here it means that we've found an ICMP header inside the
        * ICMP error message that we received. First of all, check that the
        * ICMP version matches what we sent. */
-      if(sent_layer4->protocol_id() != inner_icmp->protocol_id())
+      if(sent_layer4->protocol_id() != iperror->protocol_id())
         return false;
 
       /* Make sure ICMP type and code match  */
+      ICMPHeader *inner_icmp = dynamic_cast<ICMPHeader *>(iperror);
+      if (inner_icmp == NULL)
+        return false;
       if( ((ICMPHeader*)sent_layer4)->getType() != inner_icmp->getType() )
         return false;
       if( ((ICMPHeader*)sent_layer4)->getCode() != inner_icmp->getCode() )
@@ -1706,18 +1710,21 @@ bool PacketParser::is_response(PacketElement *sent, PacketElement *rcvd){
         /* So far we've verified that the ICMP error contains an IP datagram that matches
          * what we sent. Now, let's find the upper layer protocol (skip extension
          * headers and the like until we find some transport protocol). */
-        TransportLayerElement *layer4error=(TransportLayerElement *)iperror->getNextElement();
-        while(layer4error!=NULL){
-          if(layer4error->protocol_id()==HEADER_TYPE_UDP || layer4error->protocol_id()==HEADER_TYPE_TCP ){
+        iperror = dynamic_cast<NetworkLayerElement *>(iperror->getNextElement());
+        while(iperror!=NULL){
+          if(iperror->protocol_id()==HEADER_TYPE_UDP || iperror->protocol_id()==HEADER_TYPE_TCP ){
               break;
           }else{
-              layer4error=(TransportLayerElement *)layer4error->getNextElement();
+            iperror = dynamic_cast<NetworkLayerElement *>(iperror->getNextElement());
           }
         }
-        if(layer4error==NULL)
+        if(iperror==NULL)
           return false;
 
         /* Now make sure we see the same port numbers */
+        TransportLayerElement *layer4error = dynamic_cast<TransportLayerElement *>(iperror);
+        if (layer4error == NULL)
+          return false;
         if( layer4error->getSourcePort() != ((TransportLayerElement *)sent_layer4)->getSourcePort() )
           return false;
         if( layer4error->getDestinationPort() != ((TransportLayerElement *)sent_layer4)->getDestinationPort() )

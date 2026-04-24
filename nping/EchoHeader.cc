@@ -7,7 +7,7 @@
  *                                                                         *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
  *
- * The Nmap Security Scanner is (C) 1996-2025 Nmap Software LLC ("The Nmap
+ * The Nmap Security Scanner is (C) 1996-2026 Nmap Software LLC ("The Nmap
  * Project"). Nmap is also a registered trademark of the Nmap Project.
  *
  * This program is distributed under the terms of the Nmap Public Source
@@ -773,7 +773,7 @@ int EchoHeader::setPacketLength(u16 len){
 
 u16 EchoHeader::getPacketLength(){
     return ntohs(this->data_echo->packet_len);
-} /* End of setPacketLength() */
+} /* End of getPacketLength() */
 
 
 int EchoHeader::setEchoedPacket(const u8 *pkt, size_t pktlen){
@@ -824,6 +824,11 @@ int EchoHeader::updateEchoInternals(){
   if( this->getMessageType()!=TYPE_NEP_ECHO )
     return OP_FAILURE;
 
+  int totallen = this->getTotalLength() * 4;
+  int packetlen = this->getPacketLength();
+  if ((totallen - STD_NEP_HEADER_LEN - ECHOED_PKT_HEADER_LEN - MAC_LENGTH) < packetlen) {
+    return OP_FAILURE;
+  }
   /* Fix echo bytes length */
   this->echo_bytes=this->getPacketLength();
   if((this->echo_bytes+4)%16!=0){

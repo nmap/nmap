@@ -1630,6 +1630,16 @@ CohoDataServices	400119	# Coho Data
 CohoDataServices	400120	# Coho Data
 CohoDataServices	400121	# Coho Data
 nfslocalio	400122	# Linux Kernel Organization
+awsfile		400123	# AWS File Services
+awsfile		400124	# AWS File Services
+awsfile		400125	# AWS File Services
+awsfile		400126	# AWS File Services
+awsfile		400127	# AWS File Services
+awsfile		400128	# AWS File Services
+awsfile		400129	# AWS File Services
+awsfile		400130	# AWS File Services
+awsfile		400131	# AWS File Services
+awsfile		400132	# AWS File Services
 # BMC
 EnsignAgent	450000	# Ensign Agent
 #

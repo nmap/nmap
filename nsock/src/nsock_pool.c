@@ -6,7 +6,7 @@
  *                                                                         *
  ***********************IMPORTANT NSOCK LICENSE TERMS***********************
  *
- * The nsock parallel socket event library is (C) 1999-2025 Nmap Software LLC
+ * The nsock parallel socket event library is (C) 1999-2026 Nmap Software LLC
  * This library is free software; you may redistribute and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
  * Foundation; Version 2. This guarantees your right to use, modify, and
@@ -228,6 +228,7 @@ void nsock_pool_delete(nsock_pool ms_pool) {
         assert(nse->iod->events_pending >= 0);
       }
       event_delete(nsp, nse);
+      gh_list_append(&nsp->free_events, &nse->nodeq_io);
     }
     gh_list_free(event_lists[i]);
   }

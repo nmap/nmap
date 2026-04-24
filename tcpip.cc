@@ -6,7 +6,7 @@
  *                                                                         *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
  *
- * The Nmap Security Scanner is (C) 1996-2025 Nmap Software LLC ("The Nmap
+ * The Nmap Security Scanner is (C) 1996-2026 Nmap Software LLC ("The Nmap
  * Project"). Nmap is also a registered trademark of the Nmap Project.
  *
  * This program is distributed under the terms of the Nmap Public Source
@@ -166,9 +166,9 @@ void PacketTrace::traceArp(pdirection pdir, const u8 *frame, u32 len,
 void PacketTrace::traceND(pdirection pdir, const u8 *frame, u32 len,
                           struct timeval *now) {
   struct timeval tv;
-  const struct ip6_hdr *ip6;
-  const struct icmpv6_hdr *icmpv6;
-  const union icmpv6_msg *msg;
+  struct ip6_hdr ip6;
+  struct icmpv6_hdr icmpv6;
+  union icmpv6_msg msg;
   size_t msg_len;
   const char *label;
   char src[INET6_ADDRSTRLEN], dst[INET6_ADDRSTRLEN];
@@ -191,44 +191,44 @@ void PacketTrace::traceND(pdirection pdir, const u8 *frame, u32 len,
   else
     gettimeofday(&tv, NULL);
 
-  if (len < sizeof(*ip6) + sizeof(*icmpv6)) {
+  if (len < sizeof(ip6) + sizeof(icmpv6) + sizeof(msg)) {
     error("Packet tracer: ND packets must be at least %lu bytes long (is %lu).",
-          (unsigned long) (sizeof(*ip6) + sizeof(*icmpv6)),
+          (unsigned long) (sizeof(ip6) + sizeof(icmpv6) + sizeof(msg)),
           (unsigned long) len);
     return;
   }
-  ip6 = (struct ip6_hdr *) frame;
-  icmpv6 = (struct icmpv6_hdr *) (frame + sizeof(*ip6));
-  msg = (union icmpv6_msg *) (frame + sizeof(*ip6) + sizeof(*icmpv6));
-  msg_len = frame + len - (u8 *) msg;
+  memcpy(&ip6, frame, sizeof(ip6));
+  memcpy(&icmpv6, frame + sizeof(ip6), sizeof(icmpv6));
+  memcpy(&msg, frame + sizeof(ip6) + sizeof(icmpv6), sizeof(msg));
+  msg_len = len - (sizeof(ip6) + sizeof(icmpv6) + sizeof(msg));
 
-  if (icmpv6->icmpv6_type == ICMPV6_NEIGHBOR_SOLICITATION) {
+  if (icmpv6.icmpv6_type == ICMPV6_NEIGHBOR_SOLICITATION) {
     label = "neighbor solicitation";
     if (msg_len < 20) {
       Snprintf(desc, sizeof(desc), "packet too short");
     } else {
-      inet_ntop(AF_INET6, (void *)&msg->nd.icmpv6_target, who_has, sizeof(who_has));
+      inet_ntop(AF_INET6, (void *)&msg.nd.icmpv6_target, who_has, sizeof(who_has));
       Snprintf(desc, sizeof(desc), "who has %s", who_has);
     }
-  } else if (icmpv6->icmpv6_type == ICMPV6_NEIGHBOR_ADVERTISEMENT) {
+  } else if (icmpv6.icmpv6_type == ICMPV6_NEIGHBOR_ADVERTISEMENT) {
     label = "neighbor advertisement";
     if (msg_len < 28) {
       Snprintf(desc, sizeof(desc), "packet too short");
-    } else if (msg->nd.icmpv6_option_length == 0 || msg->nd.icmpv6_option_type != 2) {
+    } else if (msg.nd.icmpv6_option_length == 0 || msg.nd.icmpv6_option_type != 2) {
       /* We only handle target link-layer address in the first option. */
       Snprintf(desc, sizeof(desc), "no link-layer address");
     } else {
-      inet_ntop(AF_INET6, (void *)&msg->nd.icmpv6_target, tgt_is, sizeof(tgt_is));
+      inet_ntop(AF_INET6, (void *)&msg.nd.icmpv6_target, tgt_is, sizeof(tgt_is));
       Snprintf(desc, sizeof(desc), "%s is at %s",
-               tgt_is, eth_ntoa(&msg->nd.icmpv6_mac));
+               tgt_is, eth_ntoa(&msg.nd.icmpv6_mac));
     }
   } else {
     error("Unknown ICMPV6 type in %s.", __func__);
     return;
   }
 
-  inet_ntop(AF_INET6, (void *)&ip6->ip6_src, src, sizeof(src));
-  inet_ntop(AF_INET6, (void *)&ip6->ip6_dst, dst, sizeof(dst));
+  inet_ntop(AF_INET6, (void *)&ip6.ip6_src, src, sizeof(src));
+  inet_ntop(AF_INET6, (void *)&ip6.ip6_dst, dst, sizeof(dst));
   log_write(LOG_STDOUT | LOG_NORMAL, "%s (%.4fs) %s %s > %s %s\n",
             (pdir == SENT) ? "SENT" : "RCVD",
             o.TimeSinceStart(&tv), label, src, dst, desc);
@@ -1059,8 +1059,10 @@ u8 *build_icmpv6_raw(const struct in6_addr *source,
   }
 
   /* At this point icmplen <= sizeof(*icmpv6) + sizeof(*msg). */
-  memcpy(packet + icmplen, data, datalen);
-  icmplen += datalen;
+  if (data && datalen) {
+    memcpy(packet + icmplen, data, datalen);
+    icmplen += datalen;
+  }
 
   icmpv6->icmpv6_cksum = 0;
   icmpv6->icmpv6_cksum = ipv6_pseudoheader_cksum(source, victim,
@@ -1215,61 +1217,16 @@ int readtcppacket(const u8 *packet, int readdata) {
   return 0;
 }
 
-/* A simple function I wrote to help in debugging, shows the important fields
-   of a UDP packet*/
-int readudppacket(const u8 *packet, int readdata) {
-  const struct ip *ip = (struct ip *) packet;
-  const struct udp_hdr *udp = (struct udp_hdr *) (packet + sizeof(struct ip));
-  const unsigned char *data = packet + sizeof(struct ip) + sizeof(struct udp_hdr);
-  int tot_len;
-  struct in_addr bullshit, bullshit2;
-  char sourcehost[16];
-  int i;
-  int realfrag = 0;
-
-  if (!packet) {
-    error("%s: packet is NULL!", __func__);
-    return -1;
-  }
-
-  bullshit.s_addr = ip->ip_src.s_addr;
-  bullshit2.s_addr = ip->ip_dst.s_addr;
-  realfrag = htons(ntohs(ip->ip_off) & IP_OFFMASK);
-  tot_len = htons(ip->ip_len);
-  strncpy(sourcehost, inet_ntoa(bullshit), 16);
-  i = 4 * (ntohs(ip->ip_hl)) + 8;
-  if (ip->ip_p == IPPROTO_UDP) {
-    if (realfrag)
-      log_write(LOG_PLAIN, "Packet is fragmented, offset field: %u\n",
-                realfrag);
-    else {
-      log_write(LOG_PLAIN,
-                "UDP packet: %s:%d -> %s:%d (total: %d bytes)\n",
-                sourcehost, ntohs(udp->uh_sport), inet_ntoa(bullshit2),
-                ntohs(udp->uh_dport), tot_len);
-
-      log_write(LOG_PLAIN, "ttl: %hhu ", ip->ip_ttl);
-    }
-  }
-  if (readdata && i < tot_len) {
-    log_write(LOG_PLAIN, "Data portion:\n");
-    while (i < tot_len) {
-      log_write(LOG_PLAIN, "%2X%c", data[i], ((i + 1) % 16) ? ' ' : '\n');
-      i++;
-    }
-    log_write(LOG_PLAIN, "\n");
-  }
-  return 0;
-}
-
-
 /* Used by validatepkt() to validate the TCP header (including option lengths).
    The options checked are MSS, WScale, SackOK, Sack, and Timestamp. */
 static bool validateTCPhdr(const u8 *tcpc, unsigned len) {
-  const struct tcp_hdr *tcp = (struct tcp_hdr *) tcpc;
+  struct tcp_hdr tcp = {};
+  if (len < sizeof(tcp))
+    return false;
+  memcpy(&tcp, tcpc, sizeof(tcp));
   unsigned hdrlen, optlen;
 
-  hdrlen = tcp->th_off * 4;
+  hdrlen = tcp.th_off * 4;
 
   /* Check header length */
   if (hdrlen > len || hdrlen < sizeof(struct tcp_hdr))
@@ -1354,31 +1311,28 @@ static bool validateTCPhdr(const u8 *tcpc, unsigned len) {
  * data to the caller.
  */
 static bool validatepkt(const u8 *ipc, unsigned *len) {
-  const struct ip *ip = (struct ip *) ipc;
+  struct ip ip;
+  if (*len < sizeof(ip))
+    return false;
+  memcpy(&ip, ipc, sizeof(ip));
   const void *data;
   unsigned int datalen, iplen;
   u8 hdr;
 
-  if (*len < 1) {
-    if (o.debugging >= 3)
-      error("Rejecting tiny, supposed IP packet (size %u)", *len);
-    return false;
-  }
-
-  if (ip->ip_v == 4) {
+  if (ip.ip_v == 4) {
     unsigned fragoff, iplen;
 
     datalen = *len;
-    data = ipv4_get_data(ip, &datalen);
+    data = ipv4_get_data(ipc, &datalen);
     if (data == NULL) {
       if (o.debugging >= 3)
         error("Rejecting IP packet because of invalid length");
       return false;
     }
 
-    iplen = ntohs(ip->ip_len);
+    iplen = ntohs(ip.ip_len);
 
-    fragoff = 8 * (ntohs(ip->ip_off) & IP_OFFMASK);
+    fragoff = 8 * (ntohs(ip.ip_off) & IP_OFFMASK);
     if (fragoff) {
       if (o.debugging >= 3)
         error("Rejecting IP fragment (offset %u)", fragoff);
@@ -1391,24 +1345,27 @@ static bool validatepkt(const u8 *ipc, unsigned *len) {
     if (*len > iplen)
       *len = iplen;
 
-    hdr = ip->ip_p;
-  } else if (ip->ip_v == 6) {
-    const struct ip6_hdr *ip6 = (struct ip6_hdr *) ipc;
+    hdr = ip.ip_p;
+  } else if (ip.ip_v == 6) {
+    struct ip6_hdr ip6;
+    if (*len < sizeof(ip6))
+      return false;
+    memcpy(&ip6, ipc, sizeof(ip6));
 
     datalen = *len;
-    data = ipv6_get_data(ip6, &datalen, &hdr);
+    data = ipv6_get_data(ipc, &datalen, &hdr);
     if (data == NULL) {
       if (o.debugging >= 3)
         error("Rejecting IP packet because of invalid length");
       return false;
     }
 
-    iplen = ntohs(ip6->ip6_plen);
+    iplen = ntohs(ip6.ip6_plen);
     if (datalen > iplen)
       *len -= datalen - iplen;
   } else {
     if (o.debugging >= 3)
-      error("Rejecting IP packet because of invalid version number %u", ip->ip_v);
+      error("Rejecting IP packet because of invalid version number %u", ip.ip_v);
     return false;
   }
 
@@ -1460,10 +1417,7 @@ const u8 *readipv4_pcap(pcap_t *pd, unsigned int *len, long to_usec,
 
   buf = readip_pcap(pd, len, to_usec, rcvdtime, linknfo, validate);
   if (buf != NULL) {
-    const struct ip *ip;
-
-    ip = (struct ip *) buf;
-    if (*len < 1 || ip->ip_v != 4)
+    if (*len < 1 || (buf[0] >> 4) != 4)
       return NULL;
   }
 
@@ -1475,13 +1429,12 @@ static bool accept_any (const unsigned char *p, const struct pcap_pkthdr *h, int
 }
 
 static bool accept_ip (const unsigned char *p, const struct pcap_pkthdr *h, int datalink, size_t offset) {
-  const struct ip *ip = NULL;
 
   if (h->caplen < offset + sizeof(struct ip)) {
     return false;
   }
-  ip = (struct ip *) (p + offset);
-  switch (ip->ip_v) {
+  u8 v = p[offset] >> 4;
+  switch (v) {
     case 4:
     case 6:
       break;
@@ -1529,7 +1482,7 @@ const u8 *readip_pcap(pcap_t *pd, unsigned int *len, long to_usec,
   if (offset && linknfo) {
     linknfo->datalinktype = datalink;
     linknfo->headerlen = offset;
-    linknfo->header = p;
+    linknfo->header = p - offset;
   }
   if (rcvdtime)
     PacketTrace::trace(PacketTrace::RCVD, (u8 *) p, *len,
@@ -1663,14 +1616,16 @@ bool getNextHopMAC(const char *iface, const u8 *srcmac, const struct sockaddr_st
 
   /* Maybe the system ARP cache will be more helpful */
   a = arp_open();
-  addr_ston((sockaddr *) dstss, &ae.arp_pa);
-  if (arp_get(a, &ae) == 0) {
-    mac_cache_set(dstss, ae.arp_ha.addr_eth.data);
-    memcpy(dstmac, ae.arp_ha.addr_eth.data, 6);
+  if (a) {
+    addr_ston((sockaddr *) dstss, &ae.arp_pa);
+    if (arp_get(a, &ae) == 0) {
+      mac_cache_set(dstss, ae.arp_ha.addr_eth.data);
+      memcpy(dstmac, ae.arp_ha.addr_eth.data, 6);
+      arp_close(a);
+      return true;
+    }
     arp_close(a);
-    return true;
   }
-  arp_close(a);
 
   /* OK, the last choice is to send our own damn ARP request (and
      retransmissions if necessary) to determine the MAC */
@@ -1764,16 +1719,18 @@ int recvtime(int sd, char *buf, int len, int seconds, int *timedout) {
    parameters (if non-null) are filled with 0.  Remember that the
    correct way to check for errors is to look at the return value
    since a zero ts or echots could possibly be valid. */
-int gettcpopt_ts(const struct tcp_hdr *tcp, u32 *timestamp, u32 *echots) {
+int gettcpopt_ts(const u8 *tcppkt, u32 *timestamp, u32 *echots) {
 
-  unsigned char *p;
+  const u8 *p;
   int len = 0;
   int op;
   int oplen;
+  struct tcp_hdr tcp;
+  memcpy(&tcp, tcppkt, sizeof(tcp));
 
   /* first we find where the tcp options start ... */
-  p = ((unsigned char *) tcp) + 20;
-  len = 4 * tcp->th_off - 20;
+  p = tcppkt + 20;
+  len = 4 * tcp.th_off - 20;
   while (len > 0 && *p != 0 /* TCPOPT_EOL */ ) {
     op = *p++;
     if (op == 0 /* TCPOPT_EOL */ )

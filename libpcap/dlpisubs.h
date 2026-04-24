@@ -30,6 +30,7 @@ int pcap_conf_bufmod(pcap_t *, int);
 #endif
 int pcap_alloc_databuf(pcap_t *);
 int strioctl(int, int, int, char *);
+int handle_nonexistent_dlpi_device(const char *ifname, char *errbuf);
 
 #ifdef __cplusplus
 }

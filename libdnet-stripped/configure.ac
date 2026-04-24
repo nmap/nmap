@@ -109,11 +109,11 @@ else
 	AC_CHECK_HEADERS(fcntl.h unistd.h)
 	AC_CHECK_HEADERS(sys/bufmod.h sys/dlpi.h sys/dlpihdr.h sys/dlpi_ext.h \
 	    sys/ioctl.h sys/mib.h sys/ndd_var.h sys/socket.h sys/sockio.h \
-	    sys/sysctl.h sys/time.h sys/types.h)
+	    sys/ioccom.h sys/sysctl.h sys/time.h sys/types.h)
 	AC_CHECK_HEADERS(net/bpf.h net/if.h net/if_var.h \
 	    net/if_arp.h net/if_dl.h net/pfilt.h \
 	    net/pfvar.h net/radix.h net/raw.h netinet/in_var.h \
-	    netinet/in6_var.h \
+	    netinet/in6_var.h linux/netlink.h \
 	    net/if_tun.h linux/if_tun.h netinet/ip_fw.h linux/ip_fw.h \
 	    linux/ip_fwchains.h linux/netfilter_ipv4/ipchains_core.h)
 	AC_CHECK_HEADERS(ip_fil_compat.h netinet/ip_fil_compat.h ip_compat.h \
@@ -127,6 +127,7 @@ AC_INCLUDES_DEFAULT
 #endif
     ])
 fi
+
 AC_CHECK_HEADERS(bsd/string.h)
 if test "$ac_cv_header_bsd_string_h" = yes; then
     STRLCPY_HEADER="bsd/string.h"
@@ -201,6 +202,7 @@ elif test "$ac_cv_header_sys_dlpi_h" = yes || \
 	AC_LIBOBJ([eth-dlpi])
 else
 	AC_LIBOBJ([eth-none])
+	AC_MSG_ERROR("Ethernet support not found for this system.")
 fi
 
 AC_LIBOBJ([fw-none])
@@ -232,6 +234,7 @@ elif test "$ac_cv_header_hpsecurity_h" = yes ; then
 	AC_LIBOBJ([route-hpux])
 else
 	AC_LIBOBJ([route-none])
+	AC_MSG_ERROR("Routing interface not found for this system.")
 fi
 
 dnl Check for ndisc interface.

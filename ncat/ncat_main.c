@@ -3,7 +3,7 @@
  * to mode-specific functions.                                             *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
  *
- * The Nmap Security Scanner is (C) 1996-2025 Nmap Software LLC ("The Nmap
+ * The Nmap Security Scanner is (C) 1996-2026 Nmap Software LLC ("The Nmap
  * Project"). Nmap is also a registered trademark of the Nmap Project.
  *
  * This program is distributed under the terms of the Nmap Public Source
@@ -519,7 +519,11 @@ int main(int argc, char *argv[])
             }
             else if (strcmp(long_options[option_index].name, "ssl-alpn") == 0) {
                 o.ssl = 1;
+#if OPENSSL_VERSION_NUMBER >= 0x010002000L
                 o.sslalpn = Strdup(optarg);
+#else
+		bye("This version of OpenSSL does not support ALPN.");
+#endif
             }
 #else
             else if (strcmp(long_options[option_index].name, "ssl-cert") == 0) {

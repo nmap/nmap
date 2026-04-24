@@ -1781,6 +1781,17 @@ pcap_parse_source(const char *source, char **schemep, char **userinfop,
 	char *parsep, *atsignp, *bracketp;
 	char *userinfo, *host, *port, *path;
 
+	if (source == NULL) {
+		snprintf(ebuf, PCAP_ERRBUF_SIZE,
+		    "The source string must not be NULL.");
+		return (-1);
+	}
+	if (! strcmp(source, "")) {
+		snprintf(ebuf, PCAP_ERRBUF_SIZE,
+		    "The source string must not be empty.");
+		return (-1);
+	}
+
 	/*
 	 * Start out returning nothing.
 	 */
@@ -2271,19 +2282,16 @@ pcapint_parsesrcstr_ex(const char *source, int *type, char *host, char *port,
 	}
 
 	/*
-	 * Neither rpcap: nor file:; just treat the entire string
-	 * as a local device.
+	 * The code above has already completely handled the case of no scheme,
+	 * as well as each case of a valid scheme.
 	 */
-	if (name)
-		pcapint_strlcpy(name, source, PCAP_BUF_SIZE);
-	if (type)
-		*type = PCAP_SRC_IFLOCAL;
+	snprintf(errbuf, PCAP_ERRBUF_SIZE, "The source string URL scheme is not supported.");
 	free(tmppath);
 	free(tmpport);
 	free(tmphost);
 	free(tmpuserinfo);
 	free(scheme);
-	return (0);
+	return (-1);
 }
 
 int
@@ -3341,7 +3349,7 @@ static struct dlt_choice dlt_choices[] = {
 	DLT_CHOICE(BLUETOOTH_BREDR_BB, "Bluetooth Basic Rate/Enhanced Data Rate baseband packets"),
 	DLT_CHOICE(BLUETOOTH_LE_LL_WITH_PHDR, "Bluetooth Low Energy air interface with pseudo-header"),
 	DLT_CHOICE(PROFIBUS_DL, "PROFIBUS data link layer"),
-	DLT_CHOICE(PKTAP, "Apple DLT_PKTAP"),
+	DLT_CHOICE(PKTAP, "Apple PKTAP"),
 	DLT_CHOICE(EPON, "Ethernet with 802.3 Clause 65 EPON preamble"),
 	DLT_CHOICE(IPMI_HPM_2, "IPMI trace packets"),
 	DLT_CHOICE(ZWAVE_R1_R2, "Z-Wave RF profile R1 and R2 packets"),
@@ -3350,7 +3358,7 @@ static struct dlt_choice dlt_choices[] = {
 	DLT_CHOICE(ISO_14443, "ISO 14443 messages"),
 	DLT_CHOICE(RDS, "IEC 62106 Radio Data System groups"),
 	DLT_CHOICE(USB_DARWIN, "USB with Darwin header"),
-	DLT_CHOICE(OPENFLOW, "OpenBSD DLT_OPENFLOW"),
+	DLT_CHOICE(OPENFLOW, "OpenBSD OpenFlow"),
 	DLT_CHOICE(SDLC, "IBM SDLC frames"),
 	DLT_CHOICE(TI_LLN_SNIFFER, "TI LLN sniffer frames"),
 	DLT_CHOICE(VSOCK, "Linux vsock"),
@@ -3371,6 +3379,36 @@ static struct dlt_choice dlt_choices[] = {
 	DLT_CHOICE(Z_WAVE_SERIAL, "Z-Wave serial frames between host and chip"),
 	DLT_CHOICE(USB_2_0, "USB 2.0/1.1/1.0 as transmitted over the cable"),
 	DLT_CHOICE(ATSC_ALP, "ATSC Link-Layer Protocol packets"),
+	DLT_CHOICE(ETW, "Event Tracing for Windows messages"),
+	DLT_CHOICE(NETANALYZER_NG, "Hilscher netANALYZER NG pseudo-footer"),
+	DLT_CHOICE(ZBOSS_NCP, "ZBOSS NCP protocol with pseudo-header"),
+	DLT_CHOICE(USB_2_0_LOW_SPEED, "Low-Speed USB 2.0/1.1/1.0 as transmitted over the cable"),
+	DLT_CHOICE(USB_2_0_FULL_SPEED, "Full-Speed USB 2.0/1.1/1.0 as transmitted over the cable"),
+	DLT_CHOICE(USB_2_0_HIGH_SPEED, "High-Speed USB 2.0 as transmitted over the cable"),
+	DLT_CHOICE(AUERSWALD_LOG, "Auerswald Logger Protocol"),
+	DLT_CHOICE(ZWAVE_TAP, "Z-Wave packets with a TAP meta-data header"),
+	DLT_CHOICE(SILABS_DEBUG_CHANNEL, "Silicon Labs debug channel protocol"),
+	DLT_CHOICE(FIRA_UCI, "Ultra-wideband controller interface protocol"),
+	DLT_CHOICE(MDB, "Multi-Drop Bus"),
+	DLT_CHOICE(DECT_NR, "DECT New Radio"),
+	DLT_CHOICE(USER0, "Private use 0"),
+	DLT_CHOICE(USER1, "Private use 1"),
+	DLT_CHOICE(USER2, "Private use 2"),
+	DLT_CHOICE(USER3, "Private use 3"),
+	DLT_CHOICE(USER4, "Private use 4"),
+	DLT_CHOICE(USER5, "Private use 5"),
+	DLT_CHOICE(USER6, "Private use 6"),
+	DLT_CHOICE(USER7, "Private use 7"),
+	DLT_CHOICE(USER8, "Private use 8"),
+	DLT_CHOICE(USER9, "Private use 9"),
+	DLT_CHOICE(USER10, "Private use 10"),
+	DLT_CHOICE(USER11, "Private use 11"),
+	DLT_CHOICE(USER12, "Private use 12"),
+	DLT_CHOICE(USER13, "Private use 13"),
+	DLT_CHOICE(USER14, "Private use 14"),
+	DLT_CHOICE(USER15, "Private use 15"),
+	DLT_CHOICE(EDK2_MM, "edk2 mm request serialization protocol"),
+	DLT_CHOICE(DEBUG_ONLY, "unstructured data for manual debugging only"),
 	DLT_CHOICE_SENTINEL
 };
 
@@ -4278,10 +4316,23 @@ pcapint_load_code(const char *name)
 	return hModule;
 }
 
-pcap_funcptr_t
+/*
+ * Casting from FARPROC, which is the type of the return value of
+ * GetProcAddress(), to a function pointer gets a C4191 warning
+ * from Visual Studio 2022.
+ *
+ * Casting FARPROC to void * and returning the result, and then
+ * casting the void * to a function pointer, doesn't get the
+ * same warning.
+ *
+ * Given that, and given that the equivalent UN*X API, dlsym(),
+ * returns a void *, we have pcapint_find_function() return
+ * a void *.
+ */
+void *
 pcapint_find_function(pcap_code_handle_t code, const char *func)
 {
-	return (GetProcAddress(code, func));
+	return ((void *)GetProcAddress(code, func));
 }
 #endif
 

@@ -11,13 +11,14 @@ pub fn build(b: *std.Build) !void {
     const optimize = b.standardOptimizeOption(.{});
     const linkage = b.option(std.builtin.LinkMode, "linkage", "whether to statically or dynamically link the library") orelse @as(std.builtin.LinkMode, if (target.result.isGnuLibC()) .dynamic else .static);
     const codeUnitWidth = b.option(CodeUnitWidth, "code-unit-width", "Sets the code unit width") orelse .@"8";
+    const jit = b.option(bool, "support_jit", "Enable/disable JIT compiler support") orelse false;
 
     const pcre2_header_dir = b.addWriteFiles();
     const pcre2_header = pcre2_header_dir.addCopyFile(b.path("src/pcre2.h.generic"), "pcre2.h");
 
     const config_header = b.addConfigHeader(
         .{
-            .style = .{ .cmake = b.path("config-cmake.h.in") },
+            .style = .{ .cmake = b.path("src/config-cmake.h.in") },
             .include_path = "config.h",
         },
         .{
@@ -25,13 +26,15 @@ pub fn build(b: *std.Build) !void {
             .HAVE_UNISTD_H = (target.result.os.tag != .windows),
             .HAVE_WINDOWS_H = (target.result.os.tag == .windows),
 
-            .HAVE_MEMMOVE = true,
-            .HAVE_STRERROR = true,
+            .HAVE_ATTRIBUTE_UNINITIALIZED = true,
+            .HAVE_BUILTIN_MUL_OVERFLOW = true,
+            .HAVE_BUILTIN_UNREACHABLE = true,
 
             .SUPPORT_PCRE2_8 = codeUnitWidth == CodeUnitWidth.@"8",
             .SUPPORT_PCRE2_16 = codeUnitWidth == CodeUnitWidth.@"16",
             .SUPPORT_PCRE2_32 = codeUnitWidth == CodeUnitWidth.@"32",
             .SUPPORT_UNICODE = true,
+            .SUPPORT_JIT = jit,
 
             .PCRE2_EXPORT = null,
             .PCRE2_LINK_SIZE = 2,
@@ -41,27 +44,30 @@ pub fn build(b: *std.Build) !void {
             .PCRE2_MAX_VARLOOKBEHIND = 255,
             .NEWLINE_DEFAULT = 2,
             .PCRE2_PARENS_NEST_LIMIT = 250,
+            .PCRE2GREP_BUFSIZE = 20480,
+            .PCRE2GREP_MAX_BUFSIZE = 1048576,
         },
     );
 
-    // pcre2-8/16/32.so
+    // pcre2-8/16/32 library
 
-    const lib = std.Build.Step.Compile.create(b, .{
-        .name = b.fmt("pcre2-{s}", .{@tagName(codeUnitWidth)}),
-        .root_module = .{
-            .target = target,
-            .optimize = optimize,
-            .link_libc = true,
-        },
-        .kind = .lib,
-        .linkage = linkage,
+    const lib_mod = b.createModule(.{
+        .target = target,
+        .optimize = optimize,
+        .link_libc = true,
     });
 
-    lib.defineCMacro("HAVE_CONFIG_H", null);
-    lib.defineCMacro("PCRE2_CODE_UNIT_WIDTH", @tagName(codeUnitWidth));
+    lib_mod.addCMacro("HAVE_CONFIG_H", "");
+    lib_mod.addCMacro("PCRE2_CODE_UNIT_WIDTH", @tagName(codeUnitWidth));
     if (linkage == .static) {
-        lib.defineCMacro("PCRE2_STATIC", null);
+        lib_mod.addCMacro("PCRE2_STATIC", "");
     }
+
+    const lib = b.addLibrary(.{
+        .name = b.fmt("pcre2-{s}", .{@tagName(codeUnitWidth)}),
+        .root_module = lib_mod,
+        .linkage = linkage,
+    });
 
     lib.addConfigHeader(config_header);
     lib.addIncludePath(pcre2_header_dir.getDirectory());
@@ -76,6 +82,7 @@ pub fn build(b: *std.Build) !void {
             "src/pcre2_auto_possess.c",
             "src/pcre2_chkdint.c",
             "src/pcre2_compile.c",
+            "src/pcre2_compile_cgroup.c",
             "src/pcre2_compile_class.c",
             "src/pcre2_config.c",
             "src/pcre2_context.c",
@@ -88,6 +95,7 @@ pub fn build(b: *std.Build) !void {
             "src/pcre2_maketables.c",
             "src/pcre2_match.c",
             "src/pcre2_match_data.c",
+            "src/pcre2_match_next.c",
             "src/pcre2_newline.c",
             "src/pcre2_ord2utf.c",
             "src/pcre2_pattern_info.c",
@@ -107,35 +115,48 @@ pub fn build(b: *std.Build) !void {
     lib.installHeader(pcre2_header, "pcre2.h");
     b.installArtifact(lib);
 
-
     // pcre2test
+
+    const pcre2test_mod = b.createModule(.{
+        .target = target,
+        .optimize = optimize,
+        .link_libc = true,
+    });
+
+    pcre2test_mod.addCMacro("HAVE_CONFIG_H", "");
+    if (linkage == .static) {
+        pcre2test_mod.addCMacro("PCRE2_STATIC", "");
+    } else {
+        pcre2test_mod.addCMacro("PCRE2POSIX_SHARED", "");
+    }
 
     const pcre2test = b.addExecutable(.{
         .name = "pcre2test",
-        .target = target,
-        .optimize = optimize,
+        .root_module = pcre2test_mod,
     });
 
-
-    // pcre2-posix.so
+    // pcre2-posix library
 
     if (codeUnitWidth == CodeUnitWidth.@"8") {
-        const posixLib = std.Build.Step.Compile.create(b, .{
-            .name = "pcre2-posix",
-            .root_module = .{
-                .target = target,
-                .optimize = optimize,
-                .link_libc = true,
-            },
-            .kind = .lib,
-            .linkage = linkage,
+        const posixLib_mod = b.createModule(.{
+            .target = target,
+            .optimize = optimize,
+            .link_libc = true,
         });
 
-        posixLib.defineCMacro("HAVE_CONFIG_H", null);
-        posixLib.defineCMacro("PCRE2_CODE_UNIT_WIDTH", @tagName(codeUnitWidth));
+        posixLib_mod.addCMacro("HAVE_CONFIG_H", "");
+        posixLib_mod.addCMacro("PCRE2_CODE_UNIT_WIDTH", @tagName(codeUnitWidth));
         if (linkage == .static) {
-            posixLib.defineCMacro("PCRE2_STATIC", null);
+            posixLib_mod.addCMacro("PCRE2_STATIC", "");
+        } else {
+            posixLib_mod.addCMacro("PCRE2POSIX_SHARED", "");
         }
+
+        const posixLib = b.addLibrary(.{
+            .name = "pcre2-posix",
+            .root_module = posixLib_mod,
+            .linkage = linkage,
+        });
 
         posixLib.addConfigHeader(config_header);
         posixLib.addIncludePath(pcre2_header_dir.getDirectory());
@@ -147,16 +168,15 @@ pub fn build(b: *std.Build) !void {
             },
         });
 
+        posixLib.linkLibrary(lib);
+
         posixLib.installHeader(b.path("src/pcre2posix.h"), "pcre2posix.h");
         b.installArtifact(posixLib);
 
         pcre2test.linkLibrary(posixLib);
     }
 
-
     // pcre2test (again)
-
-    pcre2test.defineCMacro("HAVE_CONFIG_H", null);
 
     pcre2test.addConfigHeader(config_header);
     pcre2test.addIncludePath(pcre2_header_dir.getDirectory());
@@ -166,7 +186,6 @@ pub fn build(b: *std.Build) !void {
         .file = b.path("src/pcre2test.c"),
     });
 
-    pcre2test.linkLibC();
     pcre2test.linkLibrary(lib);
 
     b.installArtifact(pcre2test);

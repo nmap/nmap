@@ -99,7 +99,7 @@ with open(sys.argv[1],"r",encoding="utf-8") as f:
     OSX_MIN_VERSION=environ["OSX_MIN_VERSION"],
     VERSION=environ["NMAP_VERSION"],
     APP_WEB_SITE=environ["APP_WEB_SITE"],
-    APP_COPYRIGHT="Copyright 1996-2025 Nmap Software LLC",
+    APP_COPYRIGHT="Copyright 1996-2026 Nmap Software LLC",
     EXTRA_DICT_CONTENT=""
     ))
 EOF

@@ -17,7 +17,7 @@
 .\" WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF
 .\" MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 .\"
-.TH PCAP-SAVEFILE @MAN_FILE_FORMATS@ "16 Aug 2023"
+.TH PCAP-SAVEFILE @MAN_FILE_FORMATS@ "6 Jan 2025"
 .SH NAME
 pcap-savefile \- libpcap savefile format
 .SH DESCRIPTION
@@ -55,19 +55,30 @@ The per-file header length is 24 octets.
 .PP
 All fields in the per-file header are in the byte order of the host
 writing the file.  Normally, the first field in the per-file header is a
-4-byte magic number, with the value 0xa1b2c3d4.  The magic number, when
+4-byte magic number, with the value
+.BR 0xa1b2c3d4 .
+The magic number, when
 read by a host with the same byte order as the host that wrote the file,
-will have the value 0xa1b2c3d4, and, when read by a host with the
+will have the value
+.BR 0xa1b2c3d4 ,
+and, when read by a host with the
 opposite byte order as the host that wrote the file, will have the value
-0xd4c3b2a1.  That allows software reading the file to determine whether
+.BR 0xd4c3b2a1 .
+That allows software reading the file to determine whether
 the byte order of the host that wrote the file is the same as the byte
 order of the host on which the file is being read, and thus whether the
 values in the per-file and per-packet headers need to be byte-swapped.
 .PP
-If the magic number has the value 0xa1b23c4d (with the two nibbles of
+If the magic number has the value
+.B 0xa1b23c4d
+(with the two nibbles of
 the two lower-order bytes of the magic number swapped), which would be
-read as 0xa1b23c4d by a host with the same byte order as the host that
-wrote the file and as 0x4d3cb2a1 by a host with the opposite byte order
+read as
+.B 0xa1b23c4d
+by a host with the same byte order as the host that
+wrote the file and as
+.B 0x4d3cb2a1
+by a host with the opposite byte order
 as the host that wrote the file, the file format is the same as for
 regular files, except that the time stamps for packets are given in
 seconds and nanoseconds rather than seconds and microseconds.
@@ -75,10 +86,10 @@ seconds and nanoseconds rather than seconds and microseconds.
 Following this are:
 .IP
 A 2-byte file format major version number; the current version number is
-2.
+2 (big-endian 0x00 0x02 or little-endian 0x02 0x00).
 .IP
 A 2-byte file format minor version number; the current version number is
-4.
+4 (big-endian 0x00 0x04 or little-endian 0x04 0x00).
 .IP
 A 4-byte not used - SHOULD be filled with 0 by pcap file writers, and MUST
 be ignored by pcap file readers.  This value was documented by some older

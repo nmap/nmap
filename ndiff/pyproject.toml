@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "ndiff"
 license = {text = "Nmap License (https://nmap.org/book/man-legal.html)"}
-version = "7.96"
+dynamic = ["version"]
 authors = [{name = "The Nmap Project"}]
 description = "Nmap scan diff tool"
 readme = {file = "README", content-type = "text/plain"}
@@ -22,6 +22,9 @@ ndiff = "ndiff:run_main"
 
 [tool.setuptools]
 py-modules = ["ndiff"]
+
+[tool.setuptools.dynamic]
+version = {attr = "Version.VERSION"}
 
 #[tool.setuptools.packages.find]
 #include = ["ndiff"]

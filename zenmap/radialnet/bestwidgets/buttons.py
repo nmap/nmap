@@ -2,7 +2,7 @@
 
 # ***********************IMPORTANT NMAP LICENSE TERMS************************
 # *
-# * The Nmap Security Scanner is (C) 1996-2025 Nmap Software LLC ("The Nmap
+# * The Nmap Security Scanner is (C) 1996-2026 Nmap Software LLC ("The Nmap
 # * Project"). Nmap is also a registered trademark of the Nmap Project.
 # *
 # * This program is distributed under the terms of the Nmap Public Source
@@ -62,31 +62,19 @@ gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
 
 
-class BWStockButton(Gtk.Button):
-    """
-    """
-    def __init__(self, stock, text=None, size=Gtk.IconSize.BUTTON):
+class _BWButton:
+    def __init__(self, klass, stock, text=None):
         """
         """
-        Gtk.Button.__init__(self, label=text)
+        klass.__init__(self, label=text)
+        img = Gtk.Image.new_from_icon_name(stock, Gtk.IconSize.BUTTON)
+        self.set_image(img)
 
-        self.__size = size
-
-        self.__image = Gtk.Image()
-        self.__image.set_from_stock(stock, self.__size)
-        self.set_image(self.__image)
+class BWStockButton(Gtk.Button, _BWButton):
+    def __init__(self, *args, **kwargs):
+        _BWButton.__init__(self, Gtk.Button, *args, **kwargs)
 
 
-class BWToggleStockButton(Gtk.ToggleButton):
-    """
-    """
-    def __init__(self, stock, text=None, size=Gtk.IconSize.BUTTON):
-        """
-        """
-        Gtk.ToggleButton.__init__(self, label=text)
-
-        self.__size = size
-
-        self.__image = Gtk.Image()
-        self.__image.set_from_stock(stock, self.__size)
-        self.set_image(self.__image)
+class BWToggleStockButton(Gtk.ToggleButton, _BWButton):
+    def __init__(self, *args, **kwargs):
+        _BWButton.__init__(self, Gtk.ToggleButton, *args, **kwargs)

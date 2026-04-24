@@ -34,34 +34,8 @@ connect = function(host, port, opts)
   if not socket then
     return socket, (ERROR_MESSAGES[ret] or 'unspecified error')
   end
-  local buffer = stdnse.make_buffer(socket, crlf_pattern)
-  local pos = 1
-  -- Should we just pass the output of buffer()?
-  local usebuf = false
-  -- Since we already read the first chunk of banner from the socket,
-  -- we have to supply it line-by-line to read_reply.
-  local code, message = read_reply(function()
-      if usebuf then
-        -- done reading the initial banner; pass along the socket buffer.
-        return buffer()
-      end
-      -- Look for CRLF
-      local i, j = ret:find(crlf_pattern, pos)
-      if not i then
-        -- Didn't find it! Grab another chunk (up to CRLF) and return it
-        usebuf = true
-        local chunk = buffer()
-        return ret:sub(pos) .. chunk
-      end
-      local oldpos = pos
-      -- start the next search just after CRLF
-      pos = j + 1
-      if pos >= #ret then
-        -- We consumed the whole thing! Start calling buffer() next.
-        usebuf = true
-      end
-      return ret:sub(oldpos, i - 1)
-    end)
+  local buffer = stdnse.make_buffer(socket, crlf_pattern, ret)
+  local code, message = read_reply(buffer)
   return socket, code, message, buffer
 end
 
@@ -73,42 +47,36 @@ end
 -- @return numeric code or <code>nil</code>.
 -- @return text reply or error message.
 function read_reply(buffer)
-  local readline
-  local line, err
-  local code, message
-  local _, p, tmp
-
-  line, err = buffer()
+  local line, err = buffer()
   if not line then
     return line, err
   end
 
-  -- Single-line response?
-  code, message = string.match(line, "^(%d%d%d) (.*)$")
-  if code then
-    return tonumber(code), message
+  local code, sep, message = line:match("^(%d%d%d)([- ])(.*)$")
+  if not code then
+    return nil, string.format("Unparseable response: %q", line)
   end
 
-  -- Multi-line response?
-  _, p, code, message = string.find(line, "^(%d%d%d)%-(.*)$")
-  if p then
+  if sep == "-" then
+    -- Multi-line response
+    local prefix = code .. " "
+    local lines = {message}
     while true do
       line, err = buffer()
       if not line then
         return line, err
       end
-      tmp = string.match(line, "^%d%d%d (.*)$")
-      if tmp then
-        message = message .. "\n" .. tmp
+      if line:find(prefix, 1, true) == 1 then
+        -- Last line of the multi-line response
+        table.insert(lines, line:sub(#prefix + 1))
         break
       end
-      message = message .. "\n" .. line
+      table.insert(lines, line)
     end
-
-    return tonumber(code), message
+    message = table.concat(lines, "\n")
   end
 
-  return nil, string.format("Unparseable response: %q", line)
+  return tonumber(code), message
 end
 
 --- Close an FTP command connection
@@ -141,11 +109,14 @@ end
 
 -- Should we try STARTTLS based on this error?
 local function should_try_ssl(code, message)
-  return code and code >= 400 and (
-        message:match('[Ss][Ss][Ll]') or
-        message:match('[Tt][Ll][Ss]') or
-        message:match('[Ss][Ee][Cc][Uu][Rr]')
-        )
+  if not code or code < 400 then return false end
+  message = message:lower()
+  return message:find("ssl", 1, true) or
+         message:find("tls", 1, true) or
+         message:find("secur", 1, true) or
+         -- z/OS Communications Server
+         -- https://www.ibm.com/docs/en/zos/2.4.0?topic=codes-534-reply
+         message:find("server requires authentication before", 1, true)
 end
 
 -- Try to reconnect over STARTTLS.
@@ -236,18 +207,18 @@ end
 
 --- Start PASV mode
 --
--- For IPv6 connections, attempts to use EPSV (RFC 2428). If the server sends an address that is not the target address, then this is an error.
+-- For IPv6 connections, attempts to use EPSV (RFC 2428). If the server sends
+-- an address that is not the target address, then this is an error.
 -- @param socket The connected command socket
 -- @param buffer The receive buffer
 -- @return The connected data socket, or nil on error
 -- @return Error message if data socket is nil
 function pasv(socket, buffer)
-  local epsv = false
   local status, lhost, lport, rhost, rport = socket:get_info()
   if not status then
     return nil, ("Can't determine remote host IP: %s"):format(lhost)
   end
-  epsv = #ipOps.ip_to_str(rhost) > 4
+  local epsv = #ipOps.ip_to_str(rhost) > 4
 
   ::TRY_AGAIN::
   local cmd = epsv and "EPSV" or "PASV"

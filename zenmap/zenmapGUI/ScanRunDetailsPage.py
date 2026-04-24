@@ -2,7 +2,7 @@
 
 # ***********************IMPORTANT NMAP LICENSE TERMS************************
 # *
-# * The Nmap Security Scanner is (C) 1996-2025 Nmap Software LLC ("The Nmap
+# * The Nmap Security Scanner is (C) 1996-2026 Nmap Software LLC ("The Nmap
 # * Project"). Nmap is also a registered trademark of the Nmap Project.
 # *
 # * This program is distributed under the terms of the Nmap Public Source
@@ -94,24 +94,24 @@ class ScanRunDetailsPage(HIGVBox):
 
         self.command_table = HIGTable()
         self.command_table.set_border_width(5)
-        self.command_table.set_row_spacings(6)
-        self.command_table.set_col_spacings(6)
+        self.command_table.set_row_spacing(6)
+        self.command_table.set_column_spacing(6)
 
         self.command_hbox = HIGHBox()
         self.command_hbox._pack_noexpand_nofill(hig_box_space_holder())
         self.command_hbox._pack_noexpand_nofill(self.command_table)
 
-        self.command_table.attach(self.command_label, 0, 1, 0, 1)
-        self.command_table.attach(self.info_command_label, 1, 2, 0, 1)
+        self.command_table.attach_label(self.command_label, 0, 1, 0, 1)
+        self.command_table.attach_label(self.info_command_label, 1, 2, 0, 1)
 
-        self.command_table.attach(self.nmap_version_label, 0, 1, 1, 2)
-        self.command_table.attach(self.info_nmap_version_label, 1, 2, 1, 2)
+        self.command_table.attach_label(self.nmap_version_label, 0, 1, 1, 2)
+        self.command_table.attach_label(self.info_nmap_version_label, 1, 2, 1, 2)
 
-        self.command_table.attach(self.verbose_label, 0, 1, 2, 3)
-        self.command_table.attach(self.info_verbose_label, 1, 2, 2, 3)
+        self.command_table.attach_label(self.verbose_label, 0, 1, 2, 3)
+        self.command_table.attach_label(self.info_verbose_label, 1, 2, 2, 3)
 
-        self.command_table.attach(self.debug_label, 0, 1, 3, 4)
-        self.command_table.attach(self.info_debug_label, 1, 2, 3, 4)
+        self.command_table.attach_label(self.debug_label, 0, 1, 3, 4)
+        self.command_table.attach_label(self.info_debug_label, 1, 2, 3, 4)
 
         self.command_expander.add(self.command_hbox)
         self._pack_noexpand_nofill(self.command_expander)
@@ -148,36 +148,36 @@ class ScanRunDetailsPage(HIGVBox):
 
         self.general_table = HIGTable()
         self.general_table.set_border_width(5)
-        self.general_table.set_row_spacings(6)
-        self.general_table.set_col_spacings(6)
+        self.general_table.set_row_spacing(6)
+        self.general_table.set_column_spacing(6)
 
         self.general_hbox = HIGHBox()
         self.general_hbox._pack_noexpand_nofill(hig_box_space_holder())
         self.general_hbox._pack_noexpand_nofill(self.general_table)
 
-        self.general_table.attach(self.start_label, 0, 1, 0, 1)
-        self.general_table.attach(self.info_start_label, 1, 2, 0, 1)
+        self.general_table.attach_label(self.start_label, 0, 1, 0, 1)
+        self.general_table.attach_label(self.info_start_label, 1, 2, 0, 1)
 
-        self.general_table.attach(self.finished_label, 0, 1, 1, 2)
-        self.general_table.attach(self.info_finished_label, 1, 2, 1, 2)
+        self.general_table.attach_label(self.finished_label, 0, 1, 1, 2)
+        self.general_table.attach_label(self.info_finished_label, 1, 2, 1, 2)
 
-        self.general_table.attach(self.host_up_label, 0, 1, 2, 3)
-        self.general_table.attach(self.info_hosts_up_label, 1, 2, 2, 3)
+        self.general_table.attach_label(self.host_up_label, 0, 1, 2, 3)
+        self.general_table.attach_label(self.info_hosts_up_label, 1, 2, 2, 3)
 
-        self.general_table.attach(self.host_down_label, 0, 1, 3, 4)
-        self.general_table.attach(self.info_hosts_down_label, 1, 2, 3, 4)
+        self.general_table.attach_label(self.host_down_label, 0, 1, 3, 4)
+        self.general_table.attach_label(self.info_hosts_down_label, 1, 2, 3, 4)
 
-        self.general_table.attach(self.host_scanned_label, 0, 1, 4, 5)
-        self.general_table.attach(self.info_hosts_scanned_label, 1, 2, 4, 5)
+        self.general_table.attach_label(self.host_scanned_label, 0, 1, 4, 5)
+        self.general_table.attach_label(self.info_hosts_scanned_label, 1, 2, 4, 5)
 
-        self.general_table.attach(self.open_label, 0, 1, 5, 6)
-        self.general_table.attach(self.info_open_label, 1, 2, 5, 6)
+        self.general_table.attach_label(self.open_label, 0, 1, 5, 6)
+        self.general_table.attach_label(self.info_open_label, 1, 2, 5, 6)
 
-        self.general_table.attach(self.filtered_label, 0, 1, 6, 7)
-        self.general_table.attach(self.info_filtered_label, 1, 2, 6, 7)
+        self.general_table.attach_label(self.filtered_label, 0, 1, 6, 7)
+        self.general_table.attach_label(self.info_filtered_label, 1, 2, 6, 7)
 
-        self.general_table.attach(self.closed_label, 0, 1, 7, 8)
-        self.general_table.attach(self.info_closed_label, 1, 2, 7, 8)
+        self.general_table.attach_label(self.closed_label, 0, 1, 7, 8)
+        self.general_table.attach_label(self.info_closed_label, 1, 2, 7, 8)
 
         self.general_expander.add(self.general_hbox)
         self._pack_noexpand_nofill(self.general_expander)
@@ -219,20 +219,20 @@ class ScanRunDetailsPage(HIGVBox):
         hbox = HIGHBox()
         table = HIGTable()
         table.set_border_width(5)
-        table.set_row_spacings(6)
-        table.set_col_spacings(6)
+        table.set_row_spacing(6)
+        table.set_column_spacing(6)
 
-        table.attach(HIGEntryLabel(_('Scan type:')), 0, 1, 0, 1)
-        table.attach(HIGEntryLabel(scaninfo['type']), 1, 2, 0, 1)
+        table.attach_label(HIGEntryLabel(_('Scan type:')), 0, 1, 0, 1)
+        table.attach_label(HIGEntryLabel(scaninfo['type']), 1, 2, 0, 1)
 
-        table.attach(HIGEntryLabel(_('Protocol:')), 0, 1, 1, 2)
-        table.attach(HIGEntryLabel(scaninfo['protocol']), 1, 2, 1, 2)
+        table.attach_label(HIGEntryLabel(_('Protocol:')), 0, 1, 1, 2)
+        table.attach_label(HIGEntryLabel(scaninfo['protocol']), 1, 2, 1, 2)
 
-        table.attach(HIGEntryLabel(_('# scanned ports:')), 0, 1, 2, 3)
-        table.attach(HIGEntryLabel(scaninfo['numservices']), 1, 2, 2, 3)
+        table.attach_label(HIGEntryLabel(_('# scanned ports:')), 0, 1, 2, 3)
+        table.attach_label(HIGEntryLabel(scaninfo['numservices']), 1, 2, 2, 3)
 
-        table.attach(HIGEntryLabel(_('Services:')), 0, 1, 3, 4)
-        table.attach(
+        table.attach_label(HIGEntryLabel(_('Services:')), 0, 1, 3, 4)
+        table.attach_entry(
                 self.make_services_display(scaninfo['services']), 1, 2, 3, 4)
 
         hbox._pack_noexpand_nofill(hig_box_space_holder())

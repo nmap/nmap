@@ -1425,8 +1425,7 @@ pcapint_platform_finddevs(pcap_if_list_t *devlistp _U_, char *errbuf)
 pcap_t *
 pcapint_create_interface(const char *device, char *errbuf)
 {
-	snprintf(errbuf, PCAP_ERRBUF_SIZE,
-	    "This version of libpcap only supports DAG cards");
+	snprintf(errbuf, PCAP_ERRBUF_SIZE, PCAP_ENODEV_MESSAGE, "DAG");
 	return NULL;
 }
 
@@ -1436,6 +1435,6 @@ pcapint_create_interface(const char *device, char *errbuf)
 const char *
 pcap_lib_version(void)
 {
-	return (PCAP_VERSION_STRING " (DAG-only)");
+	return (PCAP_VERSION_STRING_WITH_ADDITIONAL_INFO("DAG-only"));
 }
 #endif

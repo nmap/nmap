@@ -2,7 +2,7 @@
 
 # ***********************IMPORTANT NMAP LICENSE TERMS************************
 # *
-# * The Nmap Security Scanner is (C) 1996-2025 Nmap Software LLC ("The Nmap
+# * The Nmap Security Scanner is (C) 1996-2026 Nmap Software LLC ("The Nmap
 # * Project"). Nmap is also a registered trademark of the Nmap Project.
 # *
 # * This program is distributed under the terms of the Nmap Public Source
@@ -70,49 +70,34 @@ gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
 
 
-class HIGMixButton(Gtk.Box):
-    def __init__(self, title, stock):
-        Gtk.Box.__init__(self, orientation=Gtk.Orientation.HORIZONTAL,
-                         homogeneous=False, spacing=4)
-        self.img = Gtk.Image()
-        self.img.set_from_stock(stock, Gtk.IconSize.BUTTON)
+class HIGMixButton:
+    def __init__(self, klass, title="", stock=None):
+        klass.__init__(self, label=title)
+        if stock:
+            img = Gtk.Image.new_from_icon_name(stock, Gtk.IconSize.BUTTON)
+            content = img
+            if title:
+                content = Gtk.Box.new(orientation=Gtk.Orientation.HORIZONTAL,
+                                      spacing=4)
+                lbl = Gtk.Label.new(title)
 
-        self.lbl = Gtk.Label.new(title)
+                hbox1 = Gtk.Box.new(orientation=Gtk.Orientation.HORIZONTAL, spacing=2)
+                hbox1.set_homogeneous(False)
+                hbox1.pack_start(img, False, False, 0)
+                hbox1.pack_start(lbl, False, False, 0)
 
-        self.hbox1 = Gtk.Box.new(Gtk.Orientation.HORIZONTAL, 2)
-        self.hbox1.set_homogeneous(False)
-        self.hbox1.pack_start(self.img, False, False, 0)
-        self.hbox1.pack_start(self.lbl, False, False, 0)
-
-        self.align = Gtk.Alignment.new(0.5, 0.5, 0, 0)
-        self.pack_start(self.align, True, True, 0)
-        self.pack_start(self.hbox1, True, True, 0)
-
-
-class HIGButton(Gtk.Button):
-    def __init__(self, title="", stock=None):
-        if title and stock:
-            Gtk.Button.__init__(self)
-            content = HIGMixButton(title, stock)
-            self.add(content)
-        elif title and not stock:
-            Gtk.Button.__init__(self, label=title)
-        elif stock:
-            Gtk.Button.__init__(self, stock=stock)
-        else:
-            Gtk.Button.__init__(self)
+                hbox1.set_halign(Gtk.Align.CENTER)
+                hbox1.set_valign(Gtk.Align.CENTER)
+                hbox1.set_hexpand(False)
+                hbox1.set_vexpand(False)
+                content.pack_start(hbox1, True, True, 0)
+            self.child = content
 
 
-class HIGToggleButton(Gtk.ToggleButton):
-    def __init__(self, title="", stock=None):
-        if title and stock:
-            Gtk.ToggleButton.__init__(self)
-            content = HIGMixButton(title, stock)
-            self.add(content)
-        elif title and not stock:
-            Gtk.ToggleButton.__init__(self, label=title)
-        elif stock:
-            Gtk.ToggleButton.__init__(self, stock=stock)
-            self.set_use_stock(True)
-        else:
-            Gtk.ToggleButton.__init__(self)
+class HIGButton(Gtk.Button, HIGMixButton):
+    def __init__(self, *args, **kwargs):
+        HIGMixButton.__init__(self, Gtk.Button, *args, **kwargs)
+
+class HIGToggleButton(Gtk.ToggleButton, HIGMixButton):
+    def __init__(self, *args, **kwargs):
+        HIGMixButton.__init__(self, Gtk.ToggleButton, *args, **kwargs)

@@ -2,7 +2,7 @@
 
 # ***********************IMPORTANT NMAP LICENSE TERMS************************
 # *
-# * The Nmap Security Scanner is (C) 1996-2025 Nmap Software LLC ("The Nmap
+# * The Nmap Security Scanner is (C) 1996-2026 Nmap Software LLC ("The Nmap
 # * Project"). Nmap is also a registered trademark of the Nmap Project.
 # *
 # * This program is distributed under the terms of the Nmap Public Source
@@ -90,11 +90,16 @@ if __name__ == "__main__":
     w = Gtk.Window()
 
     hframe = HIGFrame("Sample HIGFrame")
-    aalign = Gtk.Alignment.new(0, 0, 0, 0)
-    aalign.set_padding(12, 0, 24, 0)
     abox = Gtk.Box.new(Gtk.Orientation.VERTICAL, 0)
-    aalign.add(abox)
-    hframe.add(aalign)
+    abox.set_halign(Gtk.Align.START)
+    abox.set_valign(Gtk.Align.START)
+    abox.set_hexpand(False)
+    abox.set_vexpand(False)
+    abox.set_margin_top(12)
+    abox.set_margin_bottom(0)
+    abox.set_margin_start(24)
+    abox.set_margin_end(0)
+    hframe.add(abox)
     w.add(hframe)
 
     for i in range(5):

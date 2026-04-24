@@ -8,6 +8,10 @@ To build libpcap with the configure script and `make`:
 run `./autogen.sh` (a shell script). The autogen.sh script will
 build the `configure` and `config.h.in` files.
 
+* If you build on a Linux 32-bit system, with Autoconf version >= 2.72
+and GNU C Library version >= 2.34, run `export BUILD_YEAR2038=yes`
+before running `./autogen.sh` to build with 64-bit time_t (Y2038-safe).
+
 On some system, you may need to set the `AUTORECONF` variable, like:
 `AUTORECONF=autoreconf-2.69 ./autogen.sh`
 to select the `autoreconf` version you want to use.
@@ -211,7 +215,7 @@ in `/usr/include/sys/dlpi.h`, and find the corresponding value.
 	doc/README.sita	    - notes on using libpcap to capture on SITA devices
 	doc/README.solaris.md - notes on using libpcap on Solaris
 	doc/README.windows.md - notes on using libpcap on Windows systems (with Npcap)
-	VERSION		    - version of this release
+	VERSION.txt		    - version of this release
 	aclocal.m4	    - autoconf macros
 	arcnet.h	    - ARCNET definitions
 	atmuni31.h	    - ATM Q.2931 definitions

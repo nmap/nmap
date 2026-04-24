@@ -6,7 +6,7 @@
  *                                                                         *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
  *
- * The Nmap Security Scanner is (C) 1996-2025 Nmap Software LLC ("The Nmap
+ * The Nmap Security Scanner is (C) 1996-2026 Nmap Software LLC ("The Nmap
  * Project"). Nmap is also a registered trademark of the Nmap Project.
  *
  * This program is distributed under the terms of the Nmap Public Source
@@ -69,7 +69,8 @@
 #include <openssl/evp.h>
 #include <openssl/err.h>
 
-#if (OPENSSL_VERSION_NUMBER >= 0x10100000L) && !defined LIBRESSL_VERSION_NUMBER
+#if ((OPENSSL_VERSION_NUMBER >= 0x10100000L) && !defined LIBRESSL_VERSION_NUMBER) || \
+    (defined(LIBRESSL_VERSION_NUMBER) && LIBRESSL_VERSION_NUMBER >= 0x20000000L)
 #define HAVE_OPAQUE_EVP_PKEY 1
 #else
 #define EVP_MD_CTX_new EVP_MD_CTX_create
@@ -132,12 +133,11 @@ int Crypto::aes128_cbc_encrypt(u8 *inbuff, size_t inlen, u8 *dst_buff, u8 *key, 
           EVP_CIPHER_CTX *ctx = &stack_ctx;
           EVP_CIPHER_CTX_init(ctx);
         #endif
-        EVP_CIPHER_CTX_set_padding(ctx, 0);
         int result=OP_SUCCESS;
         if( EVP_EncryptInit(ctx, EVP_aes_128_cbc(), key, iv)==0 ){
             nping_print(DBG_4, "EVP_EncryptInit() failed");
             result=OP_FAILURE;
-        }else if( EVP_EncryptUpdate(ctx, dst_buff, &flen, inbuff, (int)inlen)==0 ){
+        }else if( EVP_CIPHER_CTX_set_padding(ctx, 0) && EVP_EncryptUpdate(ctx, dst_buff, &flen, inbuff, (int)inlen)==0 ){
             nping_print(DBG_4, "EVP_EncryptUpdate() failed");
             result=OP_FAILURE;
         }else if( EVP_EncryptFinal(ctx, dst_buff+flen, &flen2)==0 ){
@@ -172,7 +172,6 @@ int Crypto::aes128_cbc_decrypt(u8 *inbuff, size_t inlen, u8 *dst_buff, u8 *key, 
           EVP_CIPHER_CTX *ctx = &stack_ctx;
           EVP_CIPHER_CTX_init(ctx);
         #endif
-        EVP_CIPHER_CTX_set_padding(ctx, 0);
         int result=OP_SUCCESS;
         if( EVP_DecryptInit(ctx, EVP_aes_128_cbc(), key, iv)==0 ){
           nping_print(DBG_4, "EVP_DecryptInit() failed");
@@ -180,34 +179,9 @@ int Crypto::aes128_cbc_decrypt(u8 *inbuff, size_t inlen, u8 *dst_buff, u8 *key, 
         }else if( EVP_DecryptUpdate(ctx, dst_buff, &flen1, inbuff, (int)inlen)==0 ){
           nping_print(DBG_4, "EVP_DecryptUpdate() failed");
           result=OP_FAILURE;
-        }else  if( EVP_DecryptFinal(ctx, dst_buff+flen1, &flen2)==0 ){
-          nping_print(DBG_4, "OpenSSL bug: it says EVP_DecryptFinal() failed when it didn't (%s).",
-              ERR_error_string(ERR_peek_last_error(), NULL));
-          /* We do not return OP_FAILURE in this case because the
-           * EVP_DecryptFinal() function seems to be buggy and fails when it shouldn't.
-           * We are passing a buffer whose length is multiple of the AES block
-           * size, we've disable padding, and still, the call fails.
-           * The call to EVP_DecryptUpdate() says we've decrypted all blocks but
-           * the last one and then EVP_DecryptFinal says we have decrypted nothing.
-           * However I've tested this for hours and everything works fine. The
-           * full buffer is decrypted correctly, from the first to the last byte,
-           * so we return OP_SUCCESS even if OpenSSL says the opposite. */
-
-          /* NOTE for developers debugging memory issues with Valgrind:
-           * None of these seems to free OpenSSL's internal error structures.
-           * Valgrind currently reports things like:
-           ==12849== 592 bytes in 1 blocks are still reachable in loss record 7 of 9
-           ==12849==    at 0x4C284A8: malloc (vg_replace_malloc.c:236)
-           ==12849==    by 0x531BF21: CRYPTO_malloc (in /lib/libcrypto.so.0.9.8)
-           ==12849==    by 0x537F25D: ERR_get_state (in /lib/libcrypto.so.0.9.8)
-           ==12849==    by 0x537E7BE: ERR_put_error (in /lib/libcrypto.so.0.9.8)
-           ==12849==    by 0x5381EB0: EVP_DecryptFinal_ex (in /lib/libcrypto.so.0.9.8)
-           ==12849==    by 0x429A49: Crypto::aes128_cbc_decrypt(unsigned char*...
-           ==12849==    by 0x41ABBA: EchoHeader::decrypt(unsigned char*, unsign...
-           */
-          //ERR_clear_error();
-          //ERR_free_strings();
-          //ERR_pop_to_mark();
+        }else if( EVP_CIPHER_CTX_set_padding(ctx, 0) && EVP_DecryptFinal(ctx, dst_buff+flen1, &flen2)==0 ){
+          nping_print(DBG_4, "EVP_DecryptFinal() failed");
+          result=OP_FAILURE;
         }
         EVP_CIPHER_CTX_free(ctx);
         return result;

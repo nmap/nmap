@@ -4,7 +4,7 @@ and verify the signature.
 cd
 # Make a copy of this directory.
 cp -r ~/nmap/libpcap/NMAP_MODIFICATIONS .
-tar xzvf libpcap-X.Y.tar.gz
+tar xzvf libpcap-X.Y.tar.xz
 cd nmap
 rsync -rv --delete ~/libpcap-X.Y/ ~/nmap/libpcap/
 # Remove some things we don't want to ship
@@ -20,6 +20,7 @@ git add grammar.[ch] scanner.[ch]
 cd ..
 # Apply remaining patches.
 git apply ~/NMAP_MODIFICATIONS/0001-Don-t-autogenerate-Lex-Yacc-files.patch
+git apply ~/NMAP_MODIFICATIONS/0003-Rename-VERSION-file.patch
 # Make changes as necessary and update the patch files
 cd libpcap
 autoconf

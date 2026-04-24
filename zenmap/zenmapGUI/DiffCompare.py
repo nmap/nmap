@@ -2,7 +2,7 @@
 
 # ***********************IMPORTANT NMAP LICENSE TERMS************************
 # *
-# * The Nmap Security Scanner is (C) 1996-2025 Nmap Software LLC ("The Nmap
+# * The Nmap Security Scanner is (C) 1996-2026 Nmap Software LLC ("The Nmap
 # * Project"). Nmap is also a registered trademark of the Nmap Project.
 # *
 # * This program is distributed under the terms of the Nmap Public Source
@@ -151,10 +151,9 @@ class ScanChooser(HIGVBox):
         self.hbox._pack_expand_fill(self.table)
 
     def _attaching_widgets(self):
-        self.table.attach(self.combo_scan, 0, 1, 0, 1, yoptions=0)
-        self.table.attach(
-            self.btn_open_scan, 1, 2, 0, 1, yoptions=0, xoptions=0)
-        self.table.attach(self.exp_scan, 0, 2, 1, 2)
+        self.table.attach_label(self.combo_scan, 0, 1, 0, 1)
+        self.table.attach_label(self.btn_open_scan, 1, 2, 0, 1)
+        self.table.attach_entry(self.exp_scan, 0, 2, 1, 2)
 
     def _set_scrolled(self):
         self.scrolled.set_border_width(5)
@@ -164,7 +163,7 @@ class ScanChooser(HIGVBox):
         self.exp_scan.add(self.scrolled)
 
         # Packing text view into scrolled window
-        self.scrolled.add_with_viewport(self.txt_scan_result)
+        self.scrolled.add(self.txt_scan_result)
 
         # Setting scrolled window
         self.scrolled.set_policy(Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC)

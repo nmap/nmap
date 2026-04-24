@@ -102,6 +102,7 @@ export-%:
 # Using @BASE discards local changes.
 	svn export .. $*
 
+NMAP_SOURCEDIR=$(JHBUILD_SOURCE)/nmap-$(NMAP_VERSION)
 NMAP_TARBALL=$(JHBUILD_SOURCE)/pkgs/nmap-$(NMAP_VERSION).tar.gz
 $(NMAP_TARBALL):
 	rm -rf nmap-$(NMAP_VERSION)
@@ -132,6 +133,8 @@ LICENSE.formatted:
 	../mswin32/license-format/licformat.sh ../LICENSE > $@
 
 clean: clean-nmap clean-ncat clean-nping
+	rm -f $(NMAP_TARBALL)
+	rm -rf $(NMAP_SOURCEDIR)
 	rm -rf $(IMAGE_STAGING_DIR)
 	rm -rf *-build/
 	rm -rf *-root/

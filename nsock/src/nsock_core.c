@@ -4,7 +4,7 @@
  *                                                                         *
  ***********************IMPORTANT NSOCK LICENSE TERMS***********************
  *
- * The nsock parallel socket event library is (C) 1999-2025 Nmap Software LLC
+ * The nsock parallel socket event library is (C) 1999-2026 Nmap Software LLC
  * This library is free software; you may redistribute and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
  * Foundation; Version 2. This guarantees your right to use, modify, and
@@ -706,6 +706,7 @@ static int do_actual_read(struct npool *ms, struct nevent *nse) {
   } else {
 #if HAVE_OPENSSL
     /* OpenSSL read */
+    ERR_clear_error();
     while ((buflen = SSL_read(iod->ssl, buf, sizeof(buf))) > 0) {
 
       if (fs_cat(&nse->iobuf, buf, buflen) == -1) {
@@ -741,14 +742,26 @@ static int do_actual_read(struct npool *ms, struct nevent *nse) {
           /* EOF because of close_notify */
           buflen = 0;
           break;
+        case SSL_ERROR_SSL:
+#ifdef SSL_R_UNEXPECTED_EOF_WHILE_READING
+          /* On an unexpected EOF, the returned error is SSL_ERROR_SSL with a
+           * SSL_R_UNEXPECTED_EOF_WHILE_READING on the error stack */
+          if (SSL_R_UNEXPECTED_EOF_WHILE_READING == ERR_peek_error()) {
+            buflen = 0;
+            break;
+          }
+#endif
         default:
           assert(err != SSL_ERROR_NONE);
           /* Unexpected error */
           nse->event_done = 1;
           nse->status = NSE_STATUS_ERROR;
           nse->errnum = EIO;
-          nsock_log_info("SSL_read() failed for reason %s on NSI %li",
-              ERR_error_string(err, NULL), iod->id);
+          nsock_log_info("SSL_read() failed for reason %d on NSI %li",
+              err, iod->id);
+          while (0 != (err = ERR_get_error())) {
+            nsock_log_info("Additional SSL error: %s", ERR_error_string(err, NULL));
+          }
           return -1;
       }
     }
@@ -1239,6 +1252,8 @@ void nsock_pool_add_event(struct npool *nsp, struct nevent *nse) {
     assert(nse->type >= 0 && nse->type < NSE_TYPE_MAX);
     event_dispatch_and_delete(nsp, nse, 1);
     // No need to call nevent_unref since we never added it to any lists!
+    // However, we do need to keep ownership of the event object.
+    gh_list_append(&nsp->free_events, &nse->nodeq_io);
     return;
   }
 

@@ -2,7 +2,7 @@
 
 # ***********************IMPORTANT NMAP LICENSE TERMS************************
 # *
-# * The Nmap Security Scanner is (C) 1996-2025 Nmap Software LLC ("The Nmap
+# * The Nmap Security Scanner is (C) 1996-2026 Nmap Software LLC ("The Nmap
 # * Project"). Nmap is also a registered trademark of the Nmap Project.
 # *
 # * This program is distributed under the terms of the Nmap Public Source
@@ -186,7 +186,7 @@ class HostsList(Gtk.ScrolledWindow):
 
         self.__hosts_column[2].set_sort_column_id(2)
 
-        self.add_with_viewport(self.__hosts_treeview)
+        self.add(self.__hosts_treeview)
 
         if len(self.__hosts_treeview.get_model()) > 0:
             self.__hosts_treeview.set_cursor((0,))

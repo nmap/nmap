@@ -463,11 +463,7 @@ Boolean macros such as HAVE_STDLIB_H and SUPPORT_PCRE2_8 should either be
 defined (conventionally to 1) for TRUE, and not defined at all for FALSE. All
 such macros are listed as a commented #undef in config.h.generic. Macros such
 as MATCH_LIMIT, whose actual value is relevant, have defaults defined, but are
-surrounded by #ifndef/#endif lines so that the value can be overridden by -D.
-
-PCRE2 uses memmove() if HAVE_MEMMOVE is defined; otherwise it uses bcopy() if
-HAVE_BCOPY is defined. If your system has neither bcopy() nor memmove(), make
-sure both macros are undefined; an emulation function will then be used. */
+surrounded by #ifndef/#endif lines so that the value can be overridden by -D. */
 
 /* By default, the \R escape sequence matches any Unicode line ending
    character or sequence of characters. If BSR_ANYCRLF is defined (to any
@@ -499,9 +495,6 @@ sure both macros are undefined; an emulation function will then be used. */
 /* Define to 1 if you have the <assert.h> header file. */
 #define HAVE_ASSERT_H 1
 
-/* Define to 1 if you have the 'bcopy' function. */
-#define HAVE_BCOPY 1
-
 /* Define this if your compiler provides __builtin_mul_overflow() */
 #undef HAVE_BUILTIN_MUL_OVERFLOW
 
@@ -528,9 +521,6 @@ sure both macros are undefined; an emulation function will then be used. */
 
 /* Define to 1 if you have the 'memfd_create' function. */
 #undef HAVE_MEMFD_CREATE
-
-/* Define to 1 if you have the 'memmove' function. */
-#define HAVE_MEMMOVE 1
 
 /* Define to 1 if you have the <minix/config.h> header file. */
 #undef HAVE_MINIX_CONFIG_H
@@ -567,9 +557,6 @@ sure both macros are undefined; an emulation function will then be used. */
 
 /* Define to 1 if you have the <stdlib.h> header file. */
 #define HAVE_STDLIB_H 1
-
-/* Define to 1 if you have the 'strerror' function. */
-#define HAVE_STRERROR 1
 
 /* Define to 1 if you have the <strings.h> header file. */
 #define HAVE_STRINGS_H 1
@@ -905,7 +892,7 @@ sure both macros are undefined; an emulation function will then be used. */
 #define PCRE2_EXPORT
 #define LINK_SIZE 2
 #define MAX_NAME_COUNT 10000
-#define MAX_NAME_SIZE 32
+#define MAX_NAME_SIZE 128
 #define MATCH_LIMIT 10000000
 #define HEAP_LIMIT 20000000
 #define NEWLINE_DEFAULT 2
@@ -1037,6 +1024,9 @@ PCRE2_CHKDINT.OBJ : PCRE2_CHKDINT.C
 PCRE2_COMPILE.OBJ : PCRE2_COMPILE.C
          $(CC) $(CFLAGS) $(MMS$SOURCE) /OBJ=$(MMS$TARGET)
 
+PCRE2_COMPILE.OBJ : PCRE2_COMPILE_CGROUP.C
+         $(CC) $(CFLAGS) $(MMS$SOURCE) /OBJ=$(MMS$TARGET)
+
 PCRE2_COMPILE.OBJ : PCRE2_COMPILE_CLASS.C
          $(CC) $(CFLAGS) $(MMS$SOURCE) /OBJ=$(MMS$TARGET)
 
@@ -1070,12 +1060,6 @@ PCRE2_FUZZSUPPORT.OBJ : PCRE2_FUZZSUPPORT.C
 PCRE2_JIT_COMPILE.OBJ : PCRE2_JIT_COMPILE.C
          $(CC) $(CFLAGS) $(MMS$SOURCE) /OBJ=$(MMS$TARGET)
 
-PCRE2_JIT_MATCH.OBJ : PCRE2_JIT_MATCH.C
-         $(CC) $(CFLAGS) $(MMS$SOURCE) /OBJ=$(MMS$TARGET)
-
-PCRE2_JIT_MISC.OBJ : PCRE2_JIT_MISC.C
-         $(CC) $(CFLAGS) $(MMS$SOURCE) /OBJ=$(MMS$TARGET)
-
 PCRE2_JIT_TEST.OBJ : PCRE2_JIT_TEST.C
          $(CC) $(CFLAGS) $(MMS$SOURCE) /OBJ=$(MMS$TARGET)
 
@@ -1088,6 +1072,9 @@ PCRE2_MATCH.OBJ : PCRE2_MATCH.C
 PCRE2_MATCH_DATA.OBJ : PCRE2_MATCH_DATA.C
          $(CC) $(CFLAGS) $(MMS$SOURCE) /OBJ=$(MMS$TARGET)
 
+PCRE2_MATCH_NEXT.OBJ : PCRE2_MATCH_NEXT.C
+         $(CC) $(CFLAGS) $(MMS$SOURCE) /OBJ=$(MMS$TARGET)
+
 PCRE2_NEWLINE.OBJ : PCRE2_NEWLINE.C
          $(CC) $(CFLAGS) $(MMS$SOURCE) /OBJ=$(MMS$TARGET)
 
@@ -1095,9 +1082,6 @@ PCRE2_ORD2UTF.OBJ : PCRE2_ORD2UTF.C
          $(CC) $(CFLAGS) $(MMS$SOURCE) /OBJ=$(MMS$TARGET)
 
 PCRE2_PATTERN_INFO.OBJ : PCRE2_PATTERN_INFO.C
-         $(CC) $(CFLAGS) $(MMS$SOURCE) /OBJ=$(MMS$TARGET)
-
-PCRE2_PRINTINT.OBJ : PCRE2_PRINTINT.C
          $(CC) $(CFLAGS) $(MMS$SOURCE) /OBJ=$(MMS$TARGET)
 
 PCRE2_SCRIPT_RUN.OBJ : PCRE2_SCRIPT_RUN.C
@@ -1122,9 +1106,6 @@ PCRE2_TABLES.OBJ : PCRE2_TABLES.C
          $(CC) $(CFLAGS) $(MMS$SOURCE) /OBJ=$(MMS$TARGET)
 
 PCRE2_UCD.OBJ : PCRE2_UCD.C
-         $(CC) $(CFLAGS) $(MMS$SOURCE) /OBJ=$(MMS$TARGET)
-
-PCRE2_UCPTABLES.OBJ : PCRE2_UCPTABLES.C
          $(CC) $(CFLAGS) $(MMS$SOURCE) /OBJ=$(MMS$TARGET)
 
 PCRE2_VALID_UTF.OBJ : PCRE2_VALID_UTF.C

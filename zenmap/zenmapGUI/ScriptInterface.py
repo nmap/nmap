@@ -2,7 +2,7 @@
 
 # ***********************IMPORTANT NMAP LICENSE TERMS************************
 # *
-# * The Nmap Security Scanner is (C) 1996-2025 Nmap Software LLC ("The Nmap
+# * The Nmap Security Scanner is (C) 1996-2026 Nmap Software LLC ("The Nmap
 # * Project"). Nmap is also a registered trademark of the Nmap Project.
 # *
 # * This program is distributed under the terms of the Nmap Public Source
@@ -163,7 +163,7 @@ class ScriptInterface:
     NMAP_DELAY = 200
 
     def __init__(self, root_tabs, ops, update_command, help_buf):
-        self.hmainbox = HIGHBox(False, 0)
+        self.hmainbox = HIGHBox(spacing=0)
         self.notscripttab = False  # show profile editor it is a script tab
         self.nmap_process = None
         self.script_list_timeout_id = None
@@ -202,7 +202,7 @@ class ScriptInterface:
         self.script_list_widget = self.make_script_list_widget()
         self.script_list_widget.show_all()
 
-        vbox = HIGVBox(False, 5)
+        vbox = HIGVBox(spacing=5)
         vbox.pack_start(self.make_description_widget(), True, True, 0)
         vbox.pack_start(self.make_arguments_widget(), True, True, 0)
         self.hmainbox.pack_end(vbox, True, True, 0)
@@ -478,7 +478,7 @@ clicking in the value field beside the argument name.""")
         self.file_scrolled_window.add(self.file_listview)
         vbox.pack_start(self.file_scrolled_window, False, True, 0)
 
-        hbox = HIGHBox(False, 2)
+        hbox = HIGHBox(spacing=2)
         self.remove_file_button = HIGButton(stock=Gtk.STOCK_REMOVE)
         self.remove_file_button.connect(
                 "clicked", self.remove_file_button_clicked_cb)

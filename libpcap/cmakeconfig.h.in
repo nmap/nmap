@@ -93,9 +93,6 @@
 /* Define to 1 if you have the <linux/usbdevice_fs.h> header file. */
 #cmakedefine HAVE_LINUX_USBDEVICE_FS_H 1
 
-/* Define to 1 if you have the <linux/wireless.h> header file. */
-#cmakedefine HAVE_LINUX_WIRELESS_H 1
-
 /* Define to 1 if you have the <memory.h> header file. */
 #cmakedefine HAVE_MEMORY_H 1
 
@@ -128,6 +125,9 @@
 
 /* Define to 1 if Packet32 API (Npcap driver) is available */
 #cmakedefine HAVE_PACKET32 1
+
+/* Define to 1 if Npcap BPF extension definitions are available */
+#cmakedefine HAVE_NPCAP_BPF_H 1
 
 /* Define to 1 if NPcap's version.h is available */
 #cmakedefine HAVE_VERSION_H 1
@@ -265,6 +265,9 @@
 /* Define to 1 if you have the `PacketIsLoopbackAdapter' function. */
 #cmakedefine HAVE_PACKET_IS_LOOPBACK_ADAPTER 1
 
+/* Define to 1 if you have the `PacketGetInfo' function. */
+#cmakedefine HAVE_PACKET_GET_INFO 1
+
 /* IPv6 */
 #cmakedefine INET6 1
 
@@ -324,6 +327,9 @@
 
 /* target host supports RDMA sniffing */
 #cmakedefine PCAP_SUPPORT_RDMASNIFF 1
+
+/* The size of `time_t', as computed by sizeof. */
+#cmakedefine SIZEOF_TIME_T @SIZEOF_TIME_T@
 
 /* Define to 1 if you have the ANSI C header files. */
 #cmakedefine STDC_HEADERS 1

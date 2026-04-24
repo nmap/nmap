@@ -106,20 +106,47 @@ pcap_activate_libdlpi(pcap_t *p)
 	 */
 	retv = dlpi_open(p->opt.device, &dh, DLPI_RAW|DLPI_PASSIVE);
 	if (retv != DLPI_SUCCESS) {
-		if (retv == DLPI_ELINKNAMEINVAL || retv == DLPI_ENOLINK) {
+		if (retv == DLPI_ELINKNAMEINVAL) {
 			/*
+			 * The interface name is not syntactiacally
+			 * valid, and thus doesn't correspond to
+			 * an interface.
+			 *
 			 * There's nothing more to say, so clear the
 			 * error message.
 			 */
 			status = PCAP_ERROR_NO_SUCH_DEVICE;
 			p->errbuf[0] = '\0';
+		} else if (retv == DLPI_ENOLINK) {
+			/*
+			 * The interface name is syntactically valid,
+			 * but we don't have a DLPI device that
+			 * would be used for that interface.
+			 */
+			status = handle_nonexistent_dlpi_device(p->opt.device,
+			    p->errbuf);
 		} else if (retv == DL_SYSERR &&
 		    (errno == EPERM || errno == EACCES)) {
+			/*
+			 * We got EPERM or EACCES trying to open the
+			 * DLPI device, so we know it exists.
+			 */
 			status = PCAP_ERROR_PERM_DENIED;
 			snprintf(p->errbuf, PCAP_ERRBUF_SIZE,
 			    "Attempt to open DLPI device failed with %s - root privilege may be required",
 			    (errno == EPERM) ? "EPERM" : "EACCES");
 		} else {
+			/*
+			 * pcap_libdlpi_err() calls dlpi_strerror(),
+			 * which handles DL_SYSERR.
+			 *
+			 * XXX - does DLPI_ERAWNOTSUP mean that the
+			 * interface exists and supports DLPI but,
+			 * as it doesn't support raw mode, it
+			 * doesn't support packet capture?
+			 *
+			 * XXX - what does DLPI_EBADLINK mean?
+			 */
 			status = PCAP_ERROR;
 			pcap_libdlpi_err(p->opt.device, "dlpi_open", retv,
 			    p->errbuf);
@@ -131,7 +158,7 @@ pcap_activate_libdlpi(pcap_t *p)
 	if (p->opt.rfmon) {
 		/*
 		 * This device exists, but we don't support monitor mode
-		 * any platforms that support DLPI.
+		 * on any platforms that support DLPI.
 		 */
 		status = PCAP_ERROR_RFMON_NOTSUP;
 		goto bad;
@@ -488,7 +515,7 @@ pcap_cleanup_libdlpi(pcap_t *p)
 static void
 pcap_libdlpi_err(const char *linkname, const char *func, int err, char *errbuf)
 {
-	snprintf(errbuf, PCAP_ERRBUF_SIZE, "libpcap: %s failed on %s: %s",
+	snprintf(errbuf, PCAP_ERRBUF_SIZE, "%s failed on %s: %s",
 	    func, linkname, dlpi_strerror(err));
 }
 

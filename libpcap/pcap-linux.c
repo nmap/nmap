@@ -91,6 +91,7 @@
 #include <linux/ethtool.h>
 #include <netinet/in.h>
 #include <linux/if_ether.h>
+#include <linux/netlink.h>
 #include <linux/if_arp.h>
 #include <poll.h>
 #include <dirent.h>
@@ -213,8 +214,7 @@ struct pcap_linux {
 /*
  * Stuff to do when we close.
  */
-#define MUST_CLEAR_RFMON	0x00000001	/* clear rfmon (monitor) mode */
-#define MUST_DELETE_MONIF	0x00000002	/* delete monitor-mode interface */
+#define MUST_DELETE_MONIF	0x00000001	/* delete monitor-mode interface */
 
 /*
  * Prototypes for internal functions and methods.
@@ -457,9 +457,57 @@ get_mac80211_phydev(pcap_t *handle, const char *device, char *phydev_path,
 	}
 	bytes_read = readlink(pathstr, phydev_path, phydev_max_pathlen);
 	if (bytes_read == -1) {
-		if (errno == ENOENT || errno == EINVAL) {
+		if (errno == ENOENT) {
 			/*
-			 * Doesn't exist, or not a symlink; assume that
+			 * This either means that the directory
+			 * /sys/class/net/{device} exists but doesn't
+			 * have anything named "phy80211" in it,
+			 * in which case it's not a mac80211 device,
+			 * or that the directory doesn't exist,
+			 * in which case the device doesn't exist.
+			 *
+			 * Directly check whether the directory
+			 * exists.
+			 */
+			struct stat statb;
+
+			free(pathstr);
+			if (asprintf(&pathstr, "/sys/class/net/%s", device) == -1) {
+				snprintf(handle->errbuf, PCAP_ERRBUF_SIZE,
+				    "%s: Can't generate path name string for /sys/class/net device",
+				    device);
+				return PCAP_ERROR;
+			}
+			if (stat(pathstr, &statb) == -1) {
+				if (errno == ENOENT) {
+					/*
+					 * No such device.
+					 */
+					snprintf(handle->errbuf, PCAP_ERRBUF_SIZE,
+					    "%s: %s doesn't exist",
+					    device, pathstr);
+					free(pathstr);
+					return PCAP_ERROR_NO_SUCH_DEVICE;
+				}
+				snprintf(handle->errbuf, PCAP_ERRBUF_SIZE,
+				    "%s: Can't stat %s: %s",
+				    device, pathstr, strerror(errno));
+				free(pathstr);
+				return PCAP_ERROR;
+			}
+
+			/*
+			 * Path to the directory that would contain
+			 * "phy80211" exists, but "phy80211" doesn't
+			 * exist; that means it's not a mac80211
+			 * device.
+			 */
+			free(pathstr);
+			return 0;
+		}
+		if (errno == EINVAL) {
+			/*
+			 * Exists, but it's not a symlink; assume that
 			 * means it's not a mac80211 device.
 			 */
 			free(pathstr);
@@ -536,6 +584,119 @@ del_mon_if(pcap_t *handle, int sock_fd, struct nl80211_state *state,
     const char *device, const char *mondevice);
 
 static int
+if_type_cb(struct nl_msg *msg, void* arg)
+{
+	struct nlmsghdr* ret_hdr = nlmsg_hdr(msg);
+	struct nlattr *tb_msg[NL80211_ATTR_MAX + 1];
+	int *type = (int*)arg;
+
+	struct genlmsghdr *gnlh = (struct genlmsghdr*) nlmsg_data(ret_hdr);
+
+	nla_parse(tb_msg, NL80211_ATTR_MAX, genlmsg_attrdata(gnlh, 0),
+		genlmsg_attrlen(gnlh, 0), NULL);
+
+	/*
+	 * We sent a message asking for info about a single index.
+	 * To be really paranoid, we could check if the index matched
+	 * by examining nla_get_u32(tb_msg[NL80211_ATTR_IFINDEX]).
+	 */
+
+	if (tb_msg[NL80211_ATTR_IFTYPE]) {
+		*type = nla_get_u32(tb_msg[NL80211_ATTR_IFTYPE]);
+	}
+
+	return NL_SKIP;
+}
+
+static int
+get_if_type(pcap_t *handle, int sock_fd, struct nl80211_state *state,
+    const char *device, int *type)
+{
+	int ifindex;
+	struct nl_msg *msg;
+	int err;
+
+	ifindex = iface_get_id(sock_fd, device, handle->errbuf);
+	if (ifindex == -1)
+		return PCAP_ERROR;
+
+	msg = nlmsg_alloc();
+	if (!msg) {
+		snprintf(handle->errbuf, PCAP_ERRBUF_SIZE,
+		    "%s: failed to allocate netlink msg", device);
+		return PCAP_ERROR;
+	}
+
+	genlmsg_put(msg, NL_AUTO_PORT, NL_AUTO_SEQ,
+		    genl_family_get_id(state->nl80211), 0,
+		    0, NL80211_CMD_GET_INTERFACE, 0);
+	NLA_PUT_U32(msg, NL80211_ATTR_IFINDEX, ifindex);
+
+	err = nl_send_auto(state->nl_sock, msg);
+	nlmsg_free(msg);
+	if (err < 0) {
+		if (err == -NLE_FAILURE) {
+			/*
+			 * Device not available; our caller should just
+			 * keep trying.  (libnl 2.x maps ENFILE to
+			 * NLE_FAILURE; it can also map other errors
+			 * to that, but there's not much we can do
+			 * about that.)
+			 */
+			return 0;
+		} else {
+			/*
+			 * Real failure, not just "that device is not
+			 * available.
+			 */
+			snprintf(handle->errbuf, PCAP_ERRBUF_SIZE,
+			    "%s: nl_send_auto failed getting interface type: %s",
+			    device, nl_geterror(-err));
+			return PCAP_ERROR;
+		}
+	}
+
+	struct nl_cb *cb = nl_cb_alloc(NL_CB_DEFAULT);
+	nl_cb_set(cb, NL_CB_VALID, NL_CB_CUSTOM, if_type_cb, (void*)type);
+	err = nl_recvmsgs(state->nl_sock, cb);
+	nl_cb_put(cb);
+
+	if (err < 0) {
+		snprintf(handle->errbuf, PCAP_ERRBUF_SIZE,
+		    "%s: nl_recvmsgs failed getting interface type: %s",
+		    device, nl_geterror(-err));
+		return PCAP_ERROR;
+	}
+
+	/*
+	* If this is a mac80211 device not in monitor mode, nl_sock will be
+	* reused for add_mon_if. So we must wait for the ACK here so that
+	* add_mon_if does not receive it instead and incorrectly interpret
+	* the ACK as its NEW_INTERFACE command succeeding, even when it fails.
+	*/
+	err = nl_wait_for_ack(state->nl_sock);
+	if (err < 0) {
+		snprintf(handle->errbuf, PCAP_ERRBUF_SIZE,
+		    "%s: nl_wait_for_ack failed getting interface type: %s",
+		    device, nl_geterror(-err));
+		return PCAP_ERROR;
+	}
+
+	/*
+	 * Success.
+	 */
+	return 1;
+
+nla_put_failure:
+	snprintf(handle->errbuf, PCAP_ERRBUF_SIZE,
+	    "%s: nl_put failed getting interface type",
+	    device);
+	nlmsg_free(msg);
+	// Do not call nl_cb_put(): nl_cb_alloc() has not been called.
+	return PCAP_ERROR;
+}
+
+static int
 add_mon_if(pcap_t *handle, int sock_fd, struct nl80211_state *state,
     const char *device, const char *mondevice)
 {
@@ -555,7 +716,8 @@ add_mon_if(pcap_t *handle, int sock_fd, struct nl80211_state *state,
 		return PCAP_ERROR;
 	}
 
-	genlmsg_put(msg, 0, 0, genl_family_get_id(state->nl80211), 0,
+	genlmsg_put(msg, NL_AUTO_PORT, NL_AUTO_SEQ,
+		    genl_family_get_id(state->nl80211), 0,
 		    0, NL80211_CMD_NEW_INTERFACE, 0);
 	NLA_PUT_U32(msg, NL80211_ATTR_IFINDEX, ifindex);
 DIAG_OFF_NARROWING
@@ -563,9 +725,12 @@ DIAG_OFF_NARROWING
 DIAG_ON_NARROWING
 	NLA_PUT_U32(msg, NL80211_ATTR_IFTYPE, NL80211_IFTYPE_MONITOR);
 
-	err = nl_send_auto_complete(state->nl_sock, msg);
+	err = nl_send_sync(state->nl_sock, msg); // calls nlmsg_free()
 	if (err < 0) {
-		if (err == -NLE_FAILURE) {
+		switch (err) {
+
+		case -NLE_FAILURE:
+		case -NLE_AGAIN:
 			/*
 			 * Device not available; our caller should just
 			 * keep trying.  (libnl 2.x maps ENFILE to
@@ -573,41 +738,25 @@ DIAG_ON_NARROWING
 			 * to that, but there's not much we can do
 			 * about that.)
 			 */
-			nlmsg_free(msg);
 			return 0;
-		} else {
+
+		case -NLE_OPNOTSUPP:
+			/*
+			 * Device is a mac80211 device but adding it as a
+			 * monitor mode device isn't supported.  Report our
+			 * error.
+			 */
+			return PCAP_ERROR_RFMON_NOTSUP;
+
+		default:
 			/*
 			 * Real failure, not just "that device is not
-			 * available.
+			 * available."  Report a generic error, using the
+			 * error message from libnl.
 			 */
 			snprintf(handle->errbuf, PCAP_ERRBUF_SIZE,
-			    "%s: nl_send_auto_complete failed adding %s interface: %s",
+			    "%s: nl_send_sync failed adding %s interface: %s",
 			    device, mondevice, nl_geterror(-err));
-			nlmsg_free(msg);
-			return PCAP_ERROR;
-		}
-	}
-	err = nl_wait_for_ack(state->nl_sock);
-	if (err < 0) {
-		if (err == -NLE_FAILURE) {
-			/*
-			 * Device not available; our caller should just
-			 * keep trying.  (libnl 2.x maps ENFILE to
-			 * NLE_FAILURE; it can also map other errors
-			 * to that, but there's not much we can do
-			 * about that.)
-			 */
-			nlmsg_free(msg);
-			return 0;
-		} else {
-			/*
-			 * Real failure, not just "that device is not
-			 * available.
-			 */
-			snprintf(handle->errbuf, PCAP_ERRBUF_SIZE,
-			    "%s: nl_wait_for_ack failed adding %s interface: %s",
-			    device, mondevice, nl_geterror(-err));
-			nlmsg_free(msg);
 			return PCAP_ERROR;
 		}
 	}
@@ -615,7 +764,6 @@ DIAG_ON_NARROWING
 	/*
 	 * Success.
 	 */
-	nlmsg_free(msg);
 
 	/*
 	 * Try to remember the monitor device.
@@ -659,31 +807,22 @@ del_mon_if(pcap_t *handle, int sock_fd, struct nl80211_state *state,
 		return PCAP_ERROR;
 	}
 
-	genlmsg_put(msg, 0, 0, genl_family_get_id(state->nl80211), 0,
+	genlmsg_put(msg, NL_AUTO_PORT, NL_AUTO_SEQ,
+		    genl_family_get_id(state->nl80211), 0,
 		    0, NL80211_CMD_DEL_INTERFACE, 0);
 	NLA_PUT_U32(msg, NL80211_ATTR_IFINDEX, ifindex);
 
-	err = nl_send_auto_complete(state->nl_sock, msg);
+	err = nl_send_sync(state->nl_sock, msg); // calls nlmsg_free()
 	if (err < 0) {
 		snprintf(handle->errbuf, PCAP_ERRBUF_SIZE,
-		    "%s: nl_send_auto_complete failed deleting %s interface: %s",
+		    "%s: nl_send_sync failed deleting %s interface: %s",
 		    device, mondevice, nl_geterror(-err));
-		nlmsg_free(msg);
-		return PCAP_ERROR;
-	}
-	err = nl_wait_for_ack(state->nl_sock);
-	if (err < 0) {
-		snprintf(handle->errbuf, PCAP_ERRBUF_SIZE,
-		    "%s: nl_wait_for_ack failed adding %s interface: %s",
-		    device, mondevice, nl_geterror(-err));
-		nlmsg_free(msg);
 		return PCAP_ERROR;
 	}
 
 	/*
 	 * Success.
 	 */
-	nlmsg_free(msg);
 	return 1;
 
 nla_put_failure:
@@ -1231,19 +1370,17 @@ linux_check_direction(const pcap_t *handle, const struct sockaddr_ll *sll)
 			return 0;
 
 		/*
-		 * If this is an outgoing CAN or CAN FD frame, and
-		 * the user doesn't only want outgoing packets,
-		 * reject it; CAN devices and drivers, and the CAN
-		 * stack, always arrange to loop back transmitted
-		 * packets, so they also appear as incoming packets.
-		 * We don't want duplicate packets, and we can't
-		 * easily distinguish packets looped back by the CAN
-		 * layer than those received by the CAN layer, so we
-		 * eliminate this packet instead.
+		 * If this is an outgoing CAN frame, and the user doesn't
+		 * want only outgoing packets, reject it; CAN devices
+		 * and drivers, and the CAN stack, always arrange to
+		 * loop back transmitted packets, so they also appear
+		 * as incoming packets.  We don't want duplicate packets,
+		 * and we can't easily distinguish packets looped back
+		 * by the CAN layer than those received by the CAN layer,
+		 * so we eliminate this packet instead.
 		 *
-		 * We check whether this is a CAN or CAN FD frame
-		 * by checking whether the device's hardware type
-		 * is ARPHRD_CAN.
+		 * We check whether this is a CAN frame by checking whether
+		 * the device's hardware type is ARPHRD_CAN.
 		 */
 		if (sll->sll_hatype == ARPHRD_CAN &&
 		     handle->direction != PCAP_D_OUT)
@@ -1925,8 +2062,8 @@ static int map_arphrd_to_dlt(pcap_t *handle, int arptype,
 			if (ret == 1) {
 				/*
 				 * This is a DSA master/management network
-				 * device linktype is already set by
-				 * iface_dsa_get_proto_info() set an
+				 * device, linktype is already set by
+				 * iface_dsa_get_proto_info(), set an
 				 * appropriate offset here.
 				 */
 				handle->offset = 2;
@@ -2218,7 +2355,7 @@ static int map_arphrd_to_dlt(pcap_t *handle, int arptype,
 		 *
 		 *	https://github.com/mcr/libpcap/pull/29
 		 *
-		 * There doesn't seem to be any network drivers that uses
+		 * There don't seem to be any network drivers that uses
 		 * any of the ARPHRD_FC* values for IP-over-FC, and
 		 * it's not exactly clear what the "Dummy types for non
 		 * ARP hardware" are supposed to mean (link-layer
@@ -2374,9 +2511,9 @@ setup_socket(pcap_t *handle, int is_any_device)
 			 * Other error.
 			 */
 			status = PCAP_ERROR;
+			pcapint_fmt_errmsg_for_errno(handle->errbuf,
+			    PCAP_ERRBUF_SIZE, errno, "socket");
 		}
-		pcapint_fmt_errmsg_for_errno(handle->errbuf, PCAP_ERRBUF_SIZE,
-		    errno, "socket");
 		return status;
 	}
 
@@ -2564,6 +2701,7 @@ setup_socket(pcap_t *handle, int is_any_device)
 		if (handle->dlt_list == NULL) {
 			pcapint_fmt_errmsg_for_errno(handle->errbuf,
 			    PCAP_ERRBUF_SIZE, errno, "malloc");
+			close(sock_fd);
 			return (PCAP_ERROR);
 		}
 		handle->dlt_list[0] = DLT_LINUX_SLL;
@@ -4810,18 +4948,40 @@ enter_rfmon_mode(pcap_t *handle, int sock_fd, const char *device)
 	if (ret == 0)
 		return 0;	/* no error, but not mac80211 device */
 
-	/*
-	 * XXX - is this already a monN device?
-	 * If so, we're done.
-	 */
-
-	/*
-	 * OK, it's apparently a mac80211 device.
-	 * Try to find an unused monN device for it.
-	 */
 	ret = nl80211_init(handle, &nlstate, device);
 	if (ret != 0)
 		return ret;
+
+	/*
+	 * Is this already a monN device?
+	 * If so, we're done.
+	 */
+	int type;
+	ret = get_if_type(handle, sock_fd, &nlstate, device, &type);
+	if (ret <= 0) {
+		/*
+		 * < 0 is a Hard failure.  Just return ret; handle->errbuf
+		 * has already been set.
+		 *
+		 * 0 is "device not available"; the caller should retry later.
+		 */
+		nl80211_cleanup(&nlstate);
+		return ret;
+	}
+        if (type == NL80211_IFTYPE_MONITOR) {
+		/*
+		 * OK, it's already a monitor mode device; just use it.
+		 * There's no point in creating another monitor device
+		 * that will have to be cleaned up.
+		 */
+                nl80211_cleanup(&nlstate);
+                return ret;
+        }
+
+	/*
+	 * OK, it's apparently a mac80211 device but not a monitor device.
+	 * Try to find an unused monN device for it.
+	 */
 	for (n = 0; n < UINT_MAX; n++) {
 		/*
 		 * Try mon{n}.
@@ -5267,22 +5427,294 @@ iface_get_offload(pcap_t *handle _U_)
 }
 #endif /* SIOCETHTOOL */
 
+/*
+ * As per
+ *
+ *    https://www.kernel.org/doc/html/latest/networking/dsa/dsa.html#switch-tagging-protocols
+ *
+ * Type 1 means that the tag is prepended to the Ethernet packet.
+ *
+ * Type 2 means that the tag is inserted into the Ethernet header
+ * after the source address and before the type/length field.
+ *
+ * Type 3 means that tag is a packet trailer.
+ *
+ * Every element in the array below uses a DLT.  Because a DSA-tagged frame is
+ * not a standard IEEE 802.3 Ethernet frame, the array elements must not use
+ * DLT_EN10MB.  It is safe, albeit only barely useful, to use DLT_DEBUG_ONLY,
+ * which is also the implicit default for any DSA tag that is not present in
+ * the array.  To implement proper support for a particular DSA tag of
+ * interest, please do as much of the following as is reasonably practicable:
+ *
+ * 1. Using recent versions of tcpdump and libpcap on a Linux host with a
+ *    network interface that implements the required DSA tag, capture packets
+ *    on the interface and study the hex dumps.
+ * 2. Using the hex dumps and any other available supporting materials, produce
+ *    a sufficiently detailed description of the DSA tag structure, complete
+ *    with a full comment indicating whether it's type 1, 2, or 3, and, for
+ *    type 2, indicating whether it has an Ethertype and, if so, what that type
+ *    is, and whether it's registered with the IEEE or not.  Refer to the
+ *    specification(s), existing implementation(s), or any other relevant
+ *    resources.
+ * 3. Using the description, request and obtain a new DLT for the DSA tag.
+ * 4. Associate the new DLT with the DSA tag in the array below.
+ * 5. Using the updated libpcap, capture packets again, produce a .pcap file
+ *    and confirm it uses the new DLT.
+ * 6. Using the .pcap file as a test, prepare additional changes to tcpdump to
+ *    enable decoding of packets for the new DLT.
+ * 7. Using the .pcap file as a test, prepare additional changes to libpcap to
+ *    enable filtering of packets for the new DLT.
+ *
+ * For working examples of such support, see the existing DLTs other than
+ * DLT_DEBUG_ONLY in the array below.
+ */
 static struct dsa_proto {
 	const char *name;
 	bpf_u_int32 linktype;
 } dsa_protos[] = {
 	/*
-	 * None is special and indicates that the interface does not have
-	 * any tagging protocol configured, and is therefore a standard
-	 * Ethernet interface.
+	 * Type 1. See
+	 *
+	 *    https://elixir.bootlin.com/linux/v6.13.2/source/net/dsa/tag_ar9331.c
 	 */
-	{ "none", DLT_EN10MB },
+	{ "ar9331", DLT_DEBUG_ONLY },
+
+	/*
+	 * Type 2, without an EtherType at the beginning.
+	 */
 	{ "brcm", DLT_DSA_TAG_BRCM },
+
+	/*
+	 * Type 2, with EtherType 0x8874, assigned to Broadcom.
+	 */
+	{ "brcm-legacy", DLT_DEBUG_ONLY },
+
+	/*
+	 * Type 1.
+	 */
 	{ "brcm-prepend", DLT_DSA_TAG_BRCM_PREPEND },
+
+	/*
+	 * Type 2, without an EtherType at the beginning.
+	 */
 	{ "dsa", DLT_DSA_TAG_DSA },
+
+	/*
+	 * Type 2, with an Ethertype field, but without
+	 * an assigned EtherType value that can be relied
+	 * on.
+	 */
 	{ "edsa", DLT_DSA_TAG_EDSA },
+
+	/*
+	 * Type 1, with different transmit and receive headers,
+	 * so can't really be handled well with the current
+	 * libpcap API and with pcap files.
+	 *
+	 * See
+	 *
+	 *    https://elixir.bootlin.com/linux/v6.13.2/source/net/dsa/tag_gswip.c
+	 */
+	{ "gswip", DLT_DEBUG_ONLY },
+
+	/*
+	 * Type 3. See
+	 *
+	 *    https://elixir.bootlin.com/linux/v6.13.2/source/net/dsa/tag_hellcreek.c
+	 */
+	{ "hellcreek", DLT_DEBUG_ONLY },
+
+	/*
+	 * Type 3, with different transmit and receive headers,
+	 * so can't really be handled well with the current
+	 * libpcap API and with pcap files.
+	 *
+	 * See
+	 *
+	 *    https://elixir.bootlin.com/linux/v6.13.2/source/net/dsa/tag_ksz.c#L102
+	 */
+	{ "ksz8795", DLT_DEBUG_ONLY },
+
+	/*
+	 * Type 3, with different transmit and receive headers,
+	 * so can't really be handled well with the current
+	 * libpcap API and with pcap files.
+	 *
+	 * See
+	 *
+	 *    https://elixir.bootlin.com/linux/v6.13.2/source/net/dsa/tag_ksz.c#L160
+	 */
+	{ "ksz9477", DLT_DEBUG_ONLY },
+
+	/*
+	 * Type 3, with different transmit and receive headers,
+	 * so can't really be handled well with the current
+	 * libpcap API and with pcap files.
+	 *
+	 * See
+	 *
+	 *    https://elixir.bootlin.com/linux/v6.13.2/source/net/dsa/tag_ksz.c#L341
+	 */
+	{ "ksz9893", DLT_DEBUG_ONLY },
+
+	/*
+	 * Type 3, with different transmit and receive headers,
+	 * so can't really be handled well with the current
+	 * libpcap API and with pcap files.
+	 *
+	 * See
+	 *
+	 *    https://elixir.bootlin.com/linux/v6.13.2/source/net/dsa/tag_ksz.c#L386
+	 */
+	{ "lan937x", DLT_DEBUG_ONLY },
+
+	/*
+	 * Type 2, with EtherType 0x8100; the VID can be interpreted
+	 * as per
+	 *
+	 *    https://elixir.bootlin.com/linux/v6.13.2/source/net/dsa/tag_lan9303.c#L24
+	 */
+	{ "lan9303", DLT_DEBUG_ONLY },
+
+	/*
+	 * Type 2, without an EtherType at the beginning.
+	 *
+	 * See
+	 *
+	 *    https://elixir.bootlin.com/linux/v6.13.2/source/net/dsa/tag_mtk.c#L15
+	 *
+	 * Linux kernel implements this tag so that it does not indicate the frame
+	 * encoding reliably.  The matter is, some drivers use METADATA_HW_PORT_MUX,
+	 * which (for the switch->CPU direction only, at the time of this writing)
+	 * means that the frame does not have a DSA tag, the frame metadata is stored
+	 * elsewhere and libpcap receives the frame only.  Specifically, this is the
+	 * case for drivers/net/ethernet/mediatek/mtk_eth_soc.c, but the tag visible
+	 * in sysfs is still "mtk" even though the wire encoding is different.
+	 */
+	{ "mtk", DLT_DEBUG_ONLY },
+
+	/*
+	 * Type 1.
+	 *
+	 * See
+	 *
+	 *    https://elixir.bootlin.com/linux/v6.13.2/source/net/dsa/tag_ocelot.c
+	 */
+	{ "ocelot", DLT_DEBUG_ONLY },
+
+	/*
+	 * Type 1.
+	 *
+	 * See
+	 *
+	 *    https://elixir.bootlin.com/linux/v6.13.2/source/net/dsa/tag_ocelot.c
+	 */
+	{ "seville", DLT_DEBUG_ONLY },
+
+	/*
+	 * Type 2, with EtherType 0x8100; the VID can be interpreted
+	 * as per
+	 *
+	 *    https://elixir.bootlin.com/linux/v6.13.2/source/net/dsa/tag_8021q.c#L15
+	 */
+	{ "ocelot-8021q", DLT_DEBUG_ONLY },
+
+	/*
+	 * Type 2, without an EtherType at the beginning.
+	 *
+	 * See
+	 *
+	 *    https://elixir.bootlin.com/linux/v6.13.2/source/net/dsa/tag_qca.c
+	 */
+	{ "qca", DLT_DEBUG_ONLY },
+
+	/*
+	 * Type 2, with EtherType 0x8899, assigned to Realtek;
+	 * they use it for several on-the-Ethernet protocols
+	 * as well, but there are fields that allow the two
+	 * tag formats, and all the protocols in question,
+	 * to be distinguiished from one another.
+	 *
+	 * See
+	 *
+	 *    https://elixir.bootlin.com/linux/v6.13.2/source/net/dsa/tag_rtl4_a.c
+	 *
+	 *    http://realtek.info/pdf/rtl8306sd%28m%29_datasheet_1.1.pdf
+	 *
+	 * and various pages in tcpdump's print-realtek.c and Wireshark's
+	 * epan/dissectors/packet-realtek.c for the other protocols.
+	 */
+	{ "rtl4a", DLT_DEBUG_ONLY },
+
+	/*
+	 * Type 2, with EtherType 0x8899, assigned to Realtek;
+	 * see above.
+	 */
+	{ "rtl8_4", DLT_DEBUG_ONLY },
+
+	/*
+	 * Type 3, with the same tag format as rtl8_4.
+	 */
+	{ "rtl8_4t", DLT_DEBUG_ONLY },
+
+	/*
+	 * Type 2, with EtherType 0xe001; that's probably
+	 * self-assigned.
+	 *
+	 * See
+	 *
+	 *    https://elixir.bootlin.com/linux/v6.13.2/source/net/dsa/tag_rzn1_a5psw.c
+	 */
+	{ "a5psw", DLT_DEBUG_ONLY },
+
+	/*
+	 * Type 2, with EtherType 0x8100 or the self-assigned
+	 * 0xdadb, so this really should have its own
+	 * LINKTYPE_/DLT_ value; that would also allow the
+	 * VID of the tag to be dissected as per
+	 *
+	 *    https://elixir.bootlin.com/linux/v6.13.2/source/net/dsa/tag_8021q.c#L15
+	 */
+	{ "sja1105", DLT_DEBUG_ONLY },
+
+	/*
+	 * Type "none of the above", with both a header and trailer,
+	 * with different transmit and receive tags.  Has
+	 * EtherType 0xdadc, which is probably self-assigned.
+	 */
+	{ "sja1110", DLT_DEBUG_ONLY },
+
+	/*
+	 * Type 3, as the name suggests.
+	 *
+	 * See
+	 *
+	 *    https://elixir.bootlin.com/linux/v6.13.2/source/net/dsa/tag_trailer.c
+	 */
+	{ "trailer", DLT_DEBUG_ONLY },
+
+	/*
+	 * Type 2, with EtherType 0x8100; the VID can be interpreted
+	 * as per
+	 *
+	 *    https://elixir.bootlin.com/linux/v6.13.2/source/net/dsa/tag_8021q.c#L15
+	 */
+	{ "vsc73xx-8021q", DLT_DEBUG_ONLY },
+
+	/*
+	 * Type 3.
+	 *
+	 * See
+	 *
+	 *    https://elixir.bootlin.com/linux/v6.13.2/source/net/dsa/tag_xrs700x.c
+	 */
+	{ "xrs700x", DLT_DEBUG_ONLY },
 };
 
+/*
+ * Return 1 if the interface uses DSA tagging, 0 if the interface does not use
+ * DSA tagging, or PCAP_ERROR on error.
+ */
 static int
 iface_dsa_get_proto_info(const char *device, pcap_t *handle)
 {
@@ -5309,10 +5741,18 @@ iface_dsa_get_proto_info(const char *device, pcap_t *handle)
 	fd = open(pathstr, O_RDONLY);
 	free(pathstr);
 	/*
-	 * This is not fatal, kernel >= 4.20 *might* expose this attribute
+	 * This could be not fatal: kernel >= 4.20 *might* expose this
+	 * attribute.  However, if it exposes the attribute, but the read has
+	 * failed due to another reason (ENFILE, EMFILE, ENOMEM...), propagate
+	 * the failure.
 	 */
-	if (fd < 0)
-		return 0;
+	if (fd < 0) {
+		if (errno == ENOENT)
+			return 0;
+		pcapint_fmt_errmsg_for_errno(handle->errbuf, PCAP_ERRBUF_SIZE,
+		                             errno, "open");
+		return PCAP_ERROR;
+	}
 
 	r = read(fd, buf, sizeof(buf) - 1);
 	if (r <= 0) {
@@ -5330,23 +5770,41 @@ iface_dsa_get_proto_info(const char *device, pcap_t *handle)
 		r--;
 	buf[r] = '\0';
 
+	/*
+	 * The string "none" indicates that the interface does not have
+	 * any tagging protocol configured, and is therefore a standard
+	 * Ethernet interface.
+	 */
+	if (strcmp(buf, "none") == 0)
+		return 0;
+
+	/*
+	 * Every element in the array stands for a DSA-tagged interface.  Using
+	 * DLT_EN10MB (the standard IEEE 802.3 Ethernet) for such an interface
+	 * may seem a good idea at first, but doing so would certainly cause
+	 * major problems in areas that are already complicated and depend on
+	 * DLT_EN10MB meaning the standard IEEE 802.3 Ethernet only, namely:
+	 *
+	 * - live capturing of packets on Linux, and
+	 * - live kernel filtering of packets on Linux, and
+	 * - live userspace filtering of packets on Linux, and
+	 * - offline filtering of packets on all supported OSes, and
+	 * - identification of savefiles on all OSes.
+	 *
+	 * Therefore use a default DLT value that does not block capturing and
+	 * hexdumping of unsupported DSA encodings (in case the tag is not in
+	 * the array) and enforce the non-use of DLT_EN10MB (in case the tag is
+	 * in the array, but is incorrectly declared).
+	 */
+	handle->linktype = DLT_DEBUG_ONLY;
 	for (i = 0; i < sizeof(dsa_protos) / sizeof(dsa_protos[0]); i++) {
-		if (strlen(dsa_protos[i].name) == (size_t)r &&
-		    strcmp(buf, dsa_protos[i].name) == 0) {
-			handle->linktype = dsa_protos[i].linktype;
-			switch (dsa_protos[i].linktype) {
-			case DLT_EN10MB:
-				return 0;
-			default:
-				return 1;
-			}
+		if (strcmp(buf, dsa_protos[i].name) == 0) {
+			if (dsa_protos[i].linktype != DLT_EN10MB)
+				handle->linktype = dsa_protos[i].linktype;
+			break;
 		}
 	}
-
-	snprintf(handle->errbuf, PCAP_ERRBUF_SIZE,
-		      "unsupported DSA tag: %s", buf);
-
-	return PCAP_ERROR;
+	return 1;
 }
 
 /*
@@ -5724,12 +6182,18 @@ pcap_set_protocol_linux(pcap_t *p, int protocol)
 /*
  * Libpcap version string.
  */
+#if defined(HAVE_TPACKET3) && defined(PCAP_SUPPORT_NETMAP)
+  #define ADDITIONAL_INFO_STRING	"with TPACKET_V3 and netmap"
+#elif defined(HAVE_TPACKET3)
+  #define ADDITIONAL_INFO_STRING	"with TPACKET_V3"
+#elif defined(PCAP_SUPPORT_NETMAP)
+  #define ADDITIONAL_INFO_STRING	"with TPACKET_V2 and netmap"
+#else
+  #define ADDITIONAL_INFO_STRING	"with TPACKET_V2"
+#endif
+
 const char *
 pcap_lib_version(void)
 {
-#if defined(HAVE_TPACKET3)
-	return (PCAP_VERSION_STRING " (with TPACKET_V3)");
-#else
-	return (PCAP_VERSION_STRING " (with TPACKET_V2)");
-#endif
+	return (PCAP_VERSION_STRING_WITH_ADDITIONAL_INFO(ADDITIONAL_INFO_STRING));
 }

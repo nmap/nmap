@@ -4,7 +4,7 @@
  *                                                                         *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
  *
- * The Nmap Security Scanner is (C) 1996-2025 Nmap Software LLC ("The Nmap
+ * The Nmap Security Scanner is (C) 1996-2026 Nmap Software LLC ("The Nmap
  * Project"). Nmap is also a registered trademark of the Nmap Project.
  *
  * This program is distributed under the terms of the Nmap Public Source
@@ -267,7 +267,7 @@ void PortList::getServiceDeductions(u16 portno, int protocol, struct serviceDedu
     const struct nservent *service;
 
     /* Look up the service name. */
-    *sd = serviceDeductions();
+    sd->erase();
     service = nmap_getservbyport(portno, protocol);
     if (service != NULL)
       sd->name = service->s_name;

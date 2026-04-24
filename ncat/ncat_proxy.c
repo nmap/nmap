@@ -2,7 +2,7 @@
  * ncat_proxy.c -- HTTP proxy server.                                      *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
  *
- * The Nmap Security Scanner is (C) 1996-2025 Nmap Software LLC ("The Nmap
+ * The Nmap Security Scanner is (C) 1996-2026 Nmap Software LLC ("The Nmap
  * Project"). Nmap is also a registered trademark of the Nmap Project.
  *
  * This program is distributed under the terms of the Nmap Public Source
@@ -296,6 +296,8 @@ static void http_server_handler(int c)
     char *buf;
 
     socket_buffer_init(&sock, c);
+    block_socket(sock.fdn.fd);
+
 #if HAVE_OPENSSL
     if (o.ssl) {
         sock.fdn.ssl = new_ssl(sock.fdn.fd);
@@ -386,6 +388,8 @@ static void http_server_handler(int c)
         }
     }
 
+    unblock_socket(sock.fdn.fd);
+
     if (strcmp(request.method, "CONNECT") == 0) {
         code = handle_connect(&sock, &request);
     } else if (strcmp(request.method, "GET") == 0
@@ -475,7 +479,7 @@ static int handle_connect(struct socket_buffer *client_sock,
             do {
                 do {
                     len = fdinfo_recv(&client_sock->fdn, buf, sizeof(buf));
-                } while (len == -1 && socket_errno() == EINTR);
+                } while (len == -1 && client_sock->fdn.lasterr == EINTR);
                 if (len <= 0)
                     goto end;
 
@@ -496,7 +500,7 @@ static int handle_connect(struct socket_buffer *client_sock,
 
             do {
                 rc = fdinfo_send(&client_sock->fdn, buf, len);
-            } while (rc == -1 && socket_errno() == EINTR);
+            } while (rc == -1 && client_sock->fdn.lasterr == EINTR);
             if (rc == -1)
                 goto end;
         }
