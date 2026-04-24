@@ -45,7 +45,7 @@ allowed algorithms.
 -- |     Allowed: SHA256, SHA384, SHA512
 -- |   Issues:
 -- |     Latest key derivation not supported, previous versions have known weaknesses
--- |_    Vulnerable to MitM authenticated connection hijacking (CVE-2021-23511)
+-- |_    Vulnerable to MitM authenticated connection hijacking (CVE-2021-2351)
 --
 -- @output
 -- PORT     STATE SERVICE    VERSION
@@ -68,7 +68,7 @@ allowed algorithms.
 -- |     Latest key derivation not supported, previous versions have known weaknesses
 -- |     Allows weak encryption algorithm
 -- |     Allows weak integrity algorithm (also implies legacy/RC4 key derivation)
--- |_    Vulnerable to MitM authenticated connection hijacking (CVE-2021-23511)
+-- |_    Vulnerable to MitM authenticated connection hijacking (CVE-2021-2351)
 
 
 
@@ -501,7 +501,7 @@ action = function(host, port)
     issues[#issues+1] = "Allows weak integrity algorithm (also implies use of legacy/RC4 key derivation scheme)"
   end
   if vermin2 < 1 or allows_weak_crypto then
-    issues[#issues+1] = "Vulnerable to MitM authenticated connection hijacking (outdated or ALLOW_WEAK_CRYPTO_CLIENTS=true,CVE-2021-23511)"
+    issues[#issues+1] = "Vulnerable to MitM authenticated connection hijacking (outdated or ALLOW_WEAK_CRYPTO_CLIENTS=true,CVE-2021-2351)"
   end
 
   table.sort(allowealgs)
