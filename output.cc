@@ -89,6 +89,9 @@
 #include <set>
 #include <vector>
 #include <list>
+#ifdef __FreeBSD_cc_version
+#include <sys/param.h>
+#endif
 #include <sstream>
 
 extern NmapOps o;

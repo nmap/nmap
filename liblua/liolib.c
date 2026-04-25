@@ -16,6 +16,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#ifdef __FreeBSD_cc_version
+#include <unistd.h>
+#endif
 
 #include "lua.h"
 
