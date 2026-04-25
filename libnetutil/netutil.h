@@ -589,4 +589,8 @@ int get_max_open_descriptors();
    max allowed  */
 int max_sd();
 
+/* Indicates if this process has necessary POSIX-ish Linux capabilities
+   to perform privileged network operations. */
+int have_net_capabilities ();
+
 #endif /* _NETUTIL_H_ */

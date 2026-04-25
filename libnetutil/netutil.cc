@@ -137,6 +137,12 @@ typedef unsigned __int8 u_int8_t;
 #include <sys/resource.h>
 #endif
 
+#if HAVE_CAPABILITIES_LIBCAP_NG
+#include <cap-ng.h>
+#elif HAVE_CAPABILITIES_LIBCAP
+#include <sys/capability.h>
+#endif
+
 #include <stddef.h>
 
 #define NBASE_MAX_ERR_STR_LEN 1024  /* Max length of an error message */
@@ -4945,3 +4951,24 @@ int get_max_open_descriptors() {
 int max_sd() {
   return set_max_open_descriptors(-1);
 }
+
+
+/* Indicates if this process has necessary POSIX-ish Linux capabilities
+   to perform privileged network operations. */
+int have_net_capabilities () {
+ #if HAVE_CAPABILITIES_LIBCAP_NG
+  return !capng_get_caps_process() && capng_have_capability(CAPNG_EFFECTIVE, CAP_NET_RAW);
+ #elif HAVE_CAPABILITIES_LIBCAP
+  const cap_t caps = cap_get_proc();
+  cap_flag_value_t val;
+  int result;
+  if (caps == NULL)
+    return 0;
+  result = !cap_get_flag(caps, CAP_NET_RAW, CAP_EFFECTIVE, &val) && val == CAP_SET;
+  cap_free(caps);
+  return result;
+ #else
+  return 0;
+ #endif
+}
+
