@@ -3116,15 +3116,27 @@ icmpbad:
   } else {
     /* UNKNOWN PROTOCOL **********************************************************/
     const char *hdrstr;
-
     hdrstr = nexthdrtoa(hdr.proto, 1);
-    if (hdrstr == NULL || *hdrstr == '\0') {
-      Snprintf(protoinfo, sizeof(protoinfo), "Unknown protocol (%d) %s > %s: %s",
-        hdr.proto, srchost, dsthost, ipinfo);
+
+    /* Check if the ip version is 6 using the hdr struct*/
+    if (hdr.version == 6) {
+      /* It's an IPv6 packet */
+      if (hdrstr == NULL || *hdrstr == '\0') {
+        Snprintf(protoinfo, sizeof(protoinfo), "IPv6 (nh=%d) %s > %s: %s",
+          hdr.proto, srchost, dsthost, ipinfo);
+      } else {
+        Snprintf(protoinfo, sizeof(protoinfo), "IPv6 (nh=%s/%d) %s > %s: %s",
+          hdrstr, hdr.proto, srchost, dsthost, ipinfo);
+      }
     } else {
-      Snprintf(protoinfo, sizeof(protoinfo), "%s (%d) %s > %s: %s",
-        hdrstr, hdr.proto, srchost, dsthost, ipinfo);
-    }
+      if (hdrstr == NULL || *hdrstr == '\0') {
+        Snprintf(protoinfo, sizeof(protoinfo), "Unknown protocol (%d) %s > %s: %s",
+          hdr.proto, srchost, dsthost, ipinfo);
+      } else {
+        Snprintf(protoinfo, sizeof(protoinfo), "%s (%d) %s > %s: %s",
+          hdrstr, hdr.proto, srchost, dsthost, ipinfo);
+      }
+    } 
   }
 
   return protoinfo;
