@@ -74,8 +74,8 @@ end
 
 action = function(host, port)
 
-  local services = {"/avscan", "/echo", "/srv_clamav", "/url_check", "/nmap" }
-  local headers = {"Service", "ISTag"}
+  local services = {"/avscan", "/echo", "/srv_clamav", "/url_check", "/nmap", "/" }
+  local headers = {"Service", "ISTag", "Methods"}
   local probe = {
     "OPTIONS icap://%s%s ICAP/1.0",
     "Host: %s",
