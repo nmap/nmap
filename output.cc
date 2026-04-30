@@ -2099,7 +2099,7 @@ void printserviceinfooutput(const Target *currenths) {
 
         if (!hostname_tbl[i][0]) {
           numhostnames++;
-          strncpy(&hostname_tbl[i][0], sd.hostname, sizeof(hostname_tbl[i]));
+          Strncpy(&hostname_tbl[i][0], sd.hostname, sizeof(hostname_tbl[i]));
           break;
         }
       }
@@ -2112,7 +2112,7 @@ void printserviceinfooutput(const Target *currenths) {
 
         if (!ostype_tbl[i][0]) {
           numostypes++;
-          strncpy(&ostype_tbl[i][0], sd.ostype, sizeof(ostype_tbl[i]));
+          Strncpy(&ostype_tbl[i][0], sd.ostype, sizeof(ostype_tbl[i]));
           break;
         }
       }
@@ -2125,7 +2125,7 @@ void printserviceinfooutput(const Target *currenths) {
 
         if (!devicetype_tbl[i][0]) {
           numdevicetypes++;
-          strncpy(&devicetype_tbl[i][0], sd.devicetype, sizeof(devicetype_tbl[i]));
+          Strncpy(&devicetype_tbl[i][0], sd.devicetype, sizeof(devicetype_tbl[i]));
           break;
         }
       }
@@ -2145,7 +2145,7 @@ void printserviceinfooutput(const Target *currenths) {
 
         if (!cpe_tbl[i][0]) {
           numcpes++;
-          strncpy(&cpe_tbl[i][0], *it, sizeof(cpe_tbl[i]));
+          Strncpy(&cpe_tbl[i][0], *it, sizeof(cpe_tbl[i]));
           break;
         }
       }

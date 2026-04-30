@@ -522,17 +522,14 @@ static void initialize_idleproxy(struct idle_proxy_info *proxy, char *proxyName,
   if (o.af() == AF_INET && q != NULL ) {
     /* I'm lazy, using a size_t we already had around */
     sslen = MIN(strcspn(proxyName,":"), sizeof(name) - 1);
-    strncpy(name, proxyName, sslen);
-    /* Ensure NULL termination */
-    name[sslen] = '\0';
+    Strncpy(name, proxyName, sslen);
   }
   else if (o.af() == AF_INET6 && strchr(proxyName, '[') != NULL && strchr(proxyName, ']') != NULL) {
     sslen = MIN(strcspn(proxyName,"]") - strcspn(proxyName, "[") - 1, sizeof(name) - 1);
-    strncpy(name, strchr(proxyName, '[') + 1, sslen);
-    name[sslen] = '\0';
+    Strncpy(name, strchr(proxyName, '[') + 1, sslen);
   }
   else
-    strncpy(name, proxyName, sizeof(name));
+    Strncpy(name, proxyName, sizeof(name));
 
   if (q) {
     q++;
@@ -1357,7 +1354,7 @@ void idle_scan(Target *target, u16 *portarray, int numports,
   /* If this is the first call,  */
   if (!*lastproxy) {
     initialize_idleproxy(&proxy, proxyName, target, ports);
-    strncpy(lastproxy, proxyName, sizeof(lastproxy));
+    Strncpy(lastproxy, proxyName, sizeof(lastproxy));
   }
 
   /* If we don't have timing infoz for the new target, we'll use values
