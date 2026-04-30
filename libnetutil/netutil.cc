@@ -1989,14 +1989,11 @@ int islocalhost(const struct sockaddr_storage *ss) {
 }
 
 
-char *nexthdrtoa(u8 nextheader, int acronym){
-
-static char buffer[129];
-memset(buffer, 0, 129);
+static const char *nexthdrtoa(u8 nextheader, int acronym){
 
 #define HDRTOA(num, short_name, long_name) \
   case num: \
-    strncpy(buffer, acronym ? short_name : long_name, 128);\
+    return (acronym ? short_name : long_name);\
     break;
 
 switch(nextheader){
@@ -2151,13 +2148,12 @@ switch(nextheader){
   HDRTOA(253, "experimental1", "Use for experimentation and testing")
   HDRTOA(254, "experimental2", "Use for experimentation and testing")
   default:
-    strncpy(buffer, acronym ? "unknown" : "Unknown protocol", 128);\
     break;
 
   } /* End of switch */
 
 
-   return buffer;
+  return (acronym ? "unknown" : "Unknown protocol");
 
 } /* End of nexthdrtoa() */
 
