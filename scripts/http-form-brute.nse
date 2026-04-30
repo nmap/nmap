@@ -580,10 +580,6 @@ action = function (host, port)
   end
 
   local engine = brute.Engine:new(Driver, host, port, options)
-  -- there's a bug in http.lua that does not allow it to be called by
-  -- multiple threads
-  -- TODO: is this even true any more? We should fix it if not.
-  engine:setMaxThreads(1)
   engine.options.script_name = SCRIPT_NAME
   engine.options:setOption("passonly", not uservar)
 
