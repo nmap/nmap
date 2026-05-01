@@ -141,6 +141,9 @@ SSL_CTX *setup_ssl_listen(const SSL_METHOD *method)
         bye("SSL_CTX_new(): %s.", ERR_error_string(ERR_get_error(), NULL));
 
     SSL_CTX_set_options(sslctx, SSL_OP_ALL | SSL_OP_NO_SSLv2);
+#ifdef SSL_CTX_set_dh_auto
+    SSL_CTX_set_dh_auto(sslctx, 1);
+#endif
 
     /* Secure ciphers list taken from Nsock. */
     if (o.sslciphers == NULL) {
