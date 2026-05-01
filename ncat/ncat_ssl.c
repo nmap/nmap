@@ -588,7 +588,7 @@ static int ssl_gen_cert(X509 **cert, EVP_PKEY **key)
 #endif
 
     /* Sign it. */
-    if (X509_sign(*cert, *key, EVP_sha1()) == 0)
+    if (X509_sign(*cert, *key, EVP_sha256()) == 0)
         goto err;
 
     return 1;
