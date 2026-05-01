@@ -225,7 +225,7 @@ void NmapOps::Initialize() {
   else if (getenv("NMAP_UNPRIVILEGED"))
     isr00t = 0;
   else
-    isr00t = !(geteuid());
+    isr00t = !(geteuid()) || have_net_capabilities();
 #endif
   have_pcap = true;
   debugging = 0;
