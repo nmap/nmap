@@ -123,13 +123,14 @@ struct serviceDeductions {
   // confident) expressing how accurate the service detection is
   // likely to be.
   int name_confidence;
-  // Any of these 6 can be NULL if we weren't able to determine it
+  // Any of these 7 can be NULL if we weren't able to determine it
   char *product;
   char *version;
   char *extrainfo;
   char *hostname;
   char *ostype;
   char *devicetype;
+  char *alpn;
   std::vector<char *> cpe;
   // SERVICE_TUNNEL_NONE or SERVICE_TUNNEL_SSL
   enum service_tunnel_type service_tunnel;
@@ -230,9 +231,18 @@ class PortList {
   void setServiceProbeResults(u16 portno, int protocol,
                               enum serviceprobestate sres, const char *sname,
                               enum service_tunnel_type tunnel, const char *product,
-                              const char *version, const char *hostname,
+                              const char *version, const char *extrainfo,
+                              const char *hostname,
                               const char *ostype, const char *devicetype,
-                              const char *extrainfo,
+                              const char *alpn,
+                              const std::vector<const char *> *cpe,
+                              const char *fingerprint);
+  void setServiceProbeResults(u16 portno, int protocol,
+                              enum serviceprobestate sres, const char *sname,
+                              enum service_tunnel_type tunnel, const char *product,
+                              const char *version, const char *extrainfo,
+                              const char *hostname,
+                              const char *ostype, const char *devicetype,
                               const std::vector<const char *> *cpe,
                               const char *fingerprint);
 
@@ -292,4 +302,3 @@ class PortList {
 };
 
 #endif
-

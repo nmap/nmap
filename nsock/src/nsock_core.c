@@ -82,6 +82,25 @@
 #include "nsock_pcap.h"
 #endif
 
+#ifndef HAVE_SSL_SET_ALPN_PROTOS
+#define HAVE_SSL_SET_ALPN_PROTOS 0
+#endif
+
+#if HAVE_OPENSSL && HAVE_SSL_SET_ALPN_PROTOS
+static void nsock_set_client_alpn(SSL *ssl) {
+  static const unsigned char alpn_protos[] =
+    "\x02h2"
+    "\x08http/1.1";
+
+  if (ssl == NULL) {
+    return;
+  }
+
+  /* Intentionally ignore failure: ALPN is opportunistic and non-critical. */
+  (void) SSL_set_alpn_protos(ssl, alpn_protos, sizeof(alpn_protos) - 1);
+}
+#endif
+
 /* Nsock time of day -- we update this at least once per nsock_loop round (and
  * after most calls that are likely to block).  Other nsock files should grab
  * this */
@@ -372,6 +391,9 @@ void handle_connect_result(struct npool *ms, struct nevent *nse, enum nse_status
         iod->ssl = SSL_new(sslctx);
         if (!iod->ssl)
           fatal("SSL_new failed: %s", ERR_error_string(ERR_get_error(), NULL));
+#if HAVE_SSL_SET_ALPN_PROTOS
+        nsock_set_client_alpn(iod->ssl);
+#endif
       }
 
       /* Avoid sending SNI extension with DTLS because many servers don't allow
@@ -491,6 +513,10 @@ void handle_connect_result(struct npool *ms, struct nevent *nse, enum nse_status
         iod->ssl = SSL_new(ms->sslctx);
         if (!iod->ssl)
           fatal("SSL_new failed: %s", ERR_error_string(ERR_get_error(), NULL));
+
+      #if HAVE_SSL_SET_ALPN_PROTOS
+        nsock_set_client_alpn(iod->ssl);
+      #endif
 
         SSL_set_options(iod->ssl, options | SSL_OP_NO_SSLv2);
         socket_count_read_inc(nse->iod);
@@ -802,7 +828,6 @@ void handle_read_result(struct npool *ms, struct nevent *nse, enum nse_status st
     nse->event_done = 1;
   } else if (status == NSE_STATUS_SUCCESS) {
     rc = do_actual_read(ms, nse);
-    /* printf("DBG: Just read %d new bytes%s.\n", rc, iod->ssl? "( SSL!)" : ""); */
     if (rc > 0) {
       nse->iod->read_count += rc;
       /* We decide whether we have read enough to return */
@@ -1400,4 +1425,3 @@ void nsock_trace_handler_callback(struct npool *ms, struct nevent *nse) {
       fatal("Invalid nsock event type (%d)", nse->type);
   }
 }
-

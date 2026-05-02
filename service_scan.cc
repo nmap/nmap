@@ -90,6 +90,10 @@
 #include <openssl/ssl.h>
 #endif
 
+#ifndef HAVE_SSL_GET0_ALPN_SELECTED
+#define HAVE_SSL_GET0_ALPN_SELECTED 0
+#endif
+
 #if TIME_WITH_SYS_TIME
 # include <sys/time.h>
 # include <time.h>
@@ -113,6 +117,36 @@ extern NmapOps o;
 #define SERVICE_FIELD_LEN 80
 #define SERVICE_EXTRA_LEN 256
 #define SERVICE_TYPE_LEN 32
+
+#if HAVE_OPENSSL
+static int getSelectedAlpn(SSL *ssl, char *buf, size_t buflen) {
+#if HAVE_SSL_GET0_ALPN_SELECTED
+  const unsigned char *proto = NULL;
+  unsigned int proto_len = 0;
+  size_t n;
+
+  if (ssl == NULL || buf == NULL || buflen < 2) {
+    return 0;
+  }
+
+  SSL_get0_alpn_selected(ssl, &proto, &proto_len);
+  if (proto == NULL || proto_len == 0) {
+    return 0;
+  }
+
+  n = proto_len < buflen - 1 ? proto_len : buflen - 1;
+  memcpy(buf, proto, n);
+  buf[n] = '\0';
+  return (int) n;
+#else
+  (void) ssl;
+  if (buf != NULL && buflen > 0)
+    buf[0] = '\0';
+  return 0;
+#endif
+}
+#endif
+
 // Details on a particular service (open port) we are trying to match
 class ServiceNFO {
 public:
@@ -150,6 +184,7 @@ public:
   char cpe_h_matched[SERVICE_FIELD_LEN];
   char cpe_o_matched[SERVICE_FIELD_LEN];
   enum service_tunnel_type tunnel; /* SERVICE_TUNNEL_NONE, SERVICE_TUNNEL_SSL */
+  char alpn_selected[SERVICE_FIELD_LEN];
   // This stores our SSL session id, which will help speed up subsequent
   // SSL connections.  It's overwritten each time.  void* is used so we don't
   // need to #ifdef HAVE_OPENSSL all over.  We'll cast later as needed.
@@ -1628,6 +1663,7 @@ ServiceNFO::ServiceNFO(AllProbes *newAP) {
   hostname_matched[0] = ostype_matched[0] = devicetype_matched[0] = '\0';
   cpe_a_matched[0] = cpe_h_matched[0] = cpe_o_matched[0] = '\0';
   tunnel = SERVICE_TUNNEL_NONE;
+  alpn_selected[0] = '\0';
   ssl_session = NULL;
   softMatchFound = false;
   servicefplen = servicefpalloc = 0;
@@ -2195,13 +2231,13 @@ static int scanThroughTunnel(ServiceNFO *svc) {
        strcmp(svc->probe_matched, "dtls") != 0))
     return 0; // Not SSL
 
-  // Alright!  We are going to start the tests over using SSL
-  // printf("DBG: Found SSL service on %s:%hu - starting SSL scan\n", svc->target->NameIP(), svc->portno);
+  // Alright!  We are going to start the tests over using SSL.
   svc->tunnel = SERVICE_TUNNEL_SSL;
   svc->probe_matched = NULL;
   svc->product_matched[0] = svc->version_matched[0] = svc->extrainfo_matched[0] = '\0';
   svc->hostname_matched[0] = svc->ostype_matched[0] = svc->devicetype_matched[0] = '\0';
   svc->cpe_a_matched[0] = svc->cpe_h_matched[0] = svc->cpe_o_matched[0] = '\0';
+  svc->alpn_selected[0] = '\0';
   svc->softMatchFound = false;
    svc->resetProbes(true);
   return 1;
@@ -2347,6 +2383,9 @@ static void servicescan_connect_handler(nsock_pool nsp, nsock_event nse, void *m
   enum nse_status status = nse_status(nse);
   enum nse_type type = nse_type(nse);
   ServiceNFO *svc = (ServiceNFO *) mydata;
+  if (svc == NULL)
+    return;
+
   ServiceProbe *probe = svc->currentProbe();
   ServiceGroup *SG = (ServiceGroup *) nsock_pool_get_udata(nsp);
 
@@ -2368,6 +2407,12 @@ static void servicescan_connect_handler(nsock_pool nsp, nsock_event nse, void *m
         }
       } else {
         svc->ssl_session = (SSL_SESSION *)(nsock_iod_get_ssl_session(nsi, 1));
+      }
+
+      {
+        char alpn_buf[64];
+        if (getSelectedAlpn((SSL *) nsock_iod_get_ssl(nsi), alpn_buf, sizeof(alpn_buf)) > 0)
+          Strncpy(svc->alpn_selected, alpn_buf, sizeof(svc->alpn_selected));
       }
     }
 #endif
@@ -2418,6 +2463,9 @@ static void servicescan_write_handler(nsock_pool nsp, nsock_event nse, void *myd
   ServiceNFO *svc = (ServiceNFO *)mydata;
   ServiceGroup *SG;
   int err;
+
+  if (svc == NULL)
+    return;
 
   SG = (ServiceGroup *) nsock_pool_get_udata(nsp);
   nsi = nse_iod(nse);
@@ -2515,6 +2563,10 @@ static void servicescan_read_handler(nsock_pool nsp, nsock_event nse, void *myda
   enum nse_status status = nse_status(nse);
   enum nse_type type = nse_type(nse);
   ServiceNFO *svc = (ServiceNFO *) mydata;
+
+  if (svc == NULL)
+    return;
+
   ServiceProbe *probe = svc->currentProbe();
   ServiceGroup *SG = (ServiceGroup *) nsock_pool_get_udata(nsp);
   const u8 *readstr;
@@ -2712,6 +2764,35 @@ static void processResults(ServiceGroup *SG) {
 std::list<ServiceNFO *>::iterator svc;
 
  for(svc = SG->services_finished.begin(); svc != SG->services_finished.end(); svc++) {
+   if (svc == SG->services_finished.end() || *svc == NULL) {
+     continue;
+   }
+
+   const char *service_name = (*svc)->probe_matched;
+   const char *version = *(*svc)->version_matched ? (*svc)->version_matched : NULL;
+   const char *output_extrainfo = *(*svc)->extrainfo_matched ? (*svc)->extrainfo_matched : NULL;
+   const char *alpn = *(*svc)->alpn_selected ? (*svc)->alpn_selected : NULL;
+   enum service_tunnel_type output_tunnel = (*svc)->tunnel;
+   char annotated_extrainfo[SERVICE_EXTRA_LEN + SERVICE_FIELD_LEN + 8];
+
+   /* SSL_get0_alpn_selected returns the single negotiated protocol, so
+    * promote only an exact "h2" selection and only when no service name
+    * has otherwise been identified. */
+   if ((*svc)->probe_state == PROBESTATE_FINISHED_NOMATCH &&
+       service_name == NULL &&
+       alpn != NULL && strcmp(alpn, "h2") == 0) {
+     service_name = "http";
+     output_tunnel = SERVICE_TUNNEL_SSL;
+   }
+
+   if (alpn != NULL && (output_extrainfo == NULL || strstr(output_extrainfo, "ALPN:") == NULL)) {
+     if (output_extrainfo != NULL && *output_extrainfo != '\0')
+       Snprintf(annotated_extrainfo, sizeof(annotated_extrainfo), "%s ALPN: %s", output_extrainfo, alpn);
+     else
+       Snprintf(annotated_extrainfo, sizeof(annotated_extrainfo), "ALPN: %s", alpn);
+     output_extrainfo = annotated_extrainfo;
+   }
+
    if ((*svc)->probe_state != PROBESTATE_FINISHED_NOMATCH) {
      std::vector<const char *> cpe;
 
@@ -2724,20 +2805,25 @@ std::list<ServiceNFO *>::iterator svc;
 
      (*svc)->target->ports.setServiceProbeResults((*svc)->portno, (*svc)->proto,
                                           (*svc)->probe_state,
-                                          (*svc)->probe_matched,
-                                          (*svc)->tunnel,
+                                         service_name,
+                                         output_tunnel,
                                           *(*svc)->product_matched? (*svc)->product_matched : NULL,
-                                          *(*svc)->version_matched? (*svc)->version_matched : NULL,
-                                          *(*svc)->extrainfo_matched? (*svc)->extrainfo_matched : NULL,
+                                         version,
+                                         output_extrainfo,
                                           *(*svc)->hostname_matched? (*svc)->hostname_matched : NULL,
                                           *(*svc)->ostype_matched? (*svc)->ostype_matched : NULL,
                                           *(*svc)->devicetype_matched? (*svc)->devicetype_matched : NULL,
+                                          alpn,
                                           (cpe.size() > 0) ? &cpe : NULL,
                                           shouldWePrintFingerprint(*svc) ? (*svc)->getServiceFingerprint(NULL) : NULL);
    }  else {
+       const char *nomatch_name = service_name;
+       const char *nomatch_extrainfo = output_extrainfo;
+
        (*svc)->target->ports.setServiceProbeResults((*svc)->portno, (*svc)->proto,
-                                            (*svc)->probe_state, NULL,
-                                            (*svc)->tunnel, NULL, NULL, NULL, NULL, NULL, NULL,
+                                            (*svc)->probe_state, nomatch_name,
+                                            output_tunnel, NULL, NULL, nomatch_extrainfo, NULL, NULL, NULL,
+                                            alpn,
                                             NULL,
                                             (*svc)->getServiceFingerprint(NULL));
    }
@@ -2766,7 +2852,7 @@ static void remove_excluded_ports(AllProbes *AP, ServiceGroup *SG) {
                                         PROBESTATE_EXCLUDED, NULL,
                                         SERVICE_TUNNEL_NONE,
                                         "Excluded from version scan", NULL,
-                                        NULL, NULL, NULL, NULL, NULL, NULL);
+                                        NULL, NULL, NULL, NULL, NULL, NULL, NULL);
 
       SG->services_remaining.erase(i);
       SG->services_finished.push_back(svc);
