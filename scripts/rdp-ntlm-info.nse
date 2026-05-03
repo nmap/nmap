@@ -17,7 +17,7 @@ information to include NetBIOS, DNS, and OS build version.
 
 ---
 -- @usage
--- nmap -p 3389 --script rdp-ntlm-info <target>
+-- nmap -p 3389 --script rdp-ntlm-info <target> -sV
 --
 -- @output
 -- 3389/tcp open     ms-wbt-server syn-ack ttl 128 Microsoft Terminal Services
