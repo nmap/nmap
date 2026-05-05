@@ -199,11 +199,6 @@ function parse(url, default)
     parsed.authority = n
     return ""
   end)
-  -- get params
-  url = string.gsub(url, "%;(.*)", function(p)
-    parsed.params = p
-    return ""
-  end)
 
   -- path is whatever was left
   parsed.path = url
@@ -245,7 +240,6 @@ end
 function build(parsed)
   local ppath = parse_path(parsed.path or "")
   local url = build_path(ppath)
-  if parsed.params then url = url .. ";" .. parsed.params end
   if parsed.query then url = url .. "?" .. parsed.query end
   local authority = parsed.authority
   if parsed.host then
@@ -291,11 +285,8 @@ function absolute(base_url, relative_url)
       relative_parsed.authority = base_parsed.authority
       if not relative_parsed.path then
         relative_parsed.path = base_parsed.path
-        if not relative_parsed.params then
-          relative_parsed.params = base_parsed.params
-          if not relative_parsed.query then
-            relative_parsed.query = base_parsed.query
-          end
+        if not relative_parsed.query then
+          relative_parsed.query = base_parsed.query
         end
       else
         relative_parsed.path = absolute_path(base_parsed.path or "",
@@ -460,14 +451,13 @@ local test_urls = {
       user = "dummy",
       host = "example.com",
       port = 1234,
-      path = "/example.ext/another.php",
-      params = "k1=v1",
+      path = "/example.ext/another.php;k1=v1",
       query = "k2=v2",
       fragment = "k3=v3",
       is_folder = false,
       extension = "php",
     },
-    _nil = {"password"}
+    _nil = {"password", "params"}
   },
   { _url = "//example/example.folder/?k1=v1&k2=v2#k3/v3.bar",
     _res = {
@@ -545,6 +535,25 @@ for k, v in ipairs(ascii_hostname_tests) do
   local host = stdnse.fromhex(hexidn)
   test_suite:add_test(unittest.equal(ascii_hostname(host), expected),
                       ("ascii_hostname #%d"):format(k))
+end
+
+-- RFC 3986 compliance test: semicolons in path segments are not path "params"
+local rfc3986_path_tests = {
+  { _url = "/aa/bb;cc/dd;ee/",
+    _res = {
+      path = "/aa/bb;cc/dd;ee/",
+    },
+    _nil = {"params", "query", "fragment"}
+  },
+}
+for _, t in ipairs(rfc3986_path_tests) do
+  local result = parse(t._url)
+  for _, nv in ipairs(t._nil) do
+    test_suite:add_test(unittest.is_nil(result[nv]), nv)
+  end
+  for k, v in pairs(t._res) do
+    test_suite:add_test(unittest.equal(result[k], v), k)
+  end
 end
 
 return _ENV;
