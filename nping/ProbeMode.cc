@@ -1682,8 +1682,10 @@ void ProbeMode::probe_nping_event_handler(nsock_pool nsp, nsock_event nse, void 
                     snprintf(final_output, sizeof(final_output), "RCVD (%.4fs) %s\n", o.stats.elapsedRuntime(t), buffer);
                     if( o.getVerbosity() >= VB_3 ){
                         hex=hexdump(packet, packetlen);
-                        strncat(final_output, hex, sizeof(final_output)-1);
-                        free(hex);
+                        if (hex) {
+                          strncat(final_output, hex, sizeof(final_output)-1);
+                          free(hex);
+                        }
                     }
                     prevtime=pcaptime;
 
@@ -1710,8 +1712,10 @@ void ProbeMode::probe_nping_event_handler(nsock_pool nsp, nsock_event nse, void 
                         snprintf(final_output, sizeof(final_output), "RCVD (%.4fs) %s\n", o.stats.elapsedRuntime(t), buffer);
                         if( o.getVerbosity() >= VB_3 ){
                             hex=hexdump(packet, packetlen);
-                            strncat(final_output, hex, sizeof(final_output)-1);
-                            free(hex);
+                            if (hex) {
+                              strncat(final_output, hex, sizeof(final_output)-1);
+                              free(hex);
+                            }
                         }
                         prevtime=pcaptime;
                         o.stats.addRecvPacket(packetlen);

@@ -626,6 +626,10 @@ char *hexdump(const u8 *cp, u32 length){
       }
   }
   /* Allocate enough space to print the hex dump */
+  if (length > 16 * ((INT_MAX - 1) / LINE_LEN - 1)) {
+    /* Too big; would overflow INT_MAX bytes! */
+    return NULL;
+  }
   bytes2alloc=(length%16==0)? (1 + LINE_LEN * (length/16)) : (1 + LINE_LEN * (1+(length/16))) ;
   buffer=(char *)safe_zalloc(bytes2alloc);
   current_line=buffer;
