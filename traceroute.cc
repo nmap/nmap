@@ -1518,8 +1518,10 @@ int traceroute(std::vector<Target *> &Targets) {
   for (target_iter = Targets.begin();
        target_iter != Targets.end();
        target_iter++) {
-    if ((*target_iter)->ifType() == devt_loopback)
-      ; /* Ignore */
+    Target *target = *target_iter;
+    if (target->ifType() == devt_loopback
+      || target->timedOut(NULL))
+      continue; /* Ignore */
     else if ((*target_iter)->directlyConnected())
       direct.push_back(*target_iter);
     else
