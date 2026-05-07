@@ -101,7 +101,7 @@ class NpingTargets {
     int getTargetSpecCount();
     int processSpecs();
     unsigned long int freeTargets();
-    NpingTarget *findTarget(struct sockaddr_storage *tt);
+    NpingTarget *findTarget(const struct sockaddr_storage *tt);
 
     /* TODO: Make private */
     NpingTarget *currenths;

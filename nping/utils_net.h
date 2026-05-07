@@ -110,14 +110,14 @@ const char *getRandomTextPayload();
 int send_packet(NpingTarget *target, int rawfd, u8 *pkt, size_t pktLen);
 int print_dnet_interface(const struct intf_entry *entry, void *arg) ;
 int print_interfaces_dnet();
-struct sockaddr_storage *getSrcSockAddrFromIPPacket(u8 *pkt, size_t pktLen);
-u8 *getUDPheaderLocation(u8 *pkt, size_t pktLen);
-u8 *getTCPheaderLocation(u8 *pkt, size_t pktLen);
-u8 getProtoFromIPPacket(u8 *pkt, size_t pktLen);
-u16 *getSrcPortFromIPPacket(u8 *pkt, size_t pktLen);
-u16 *getDstPortFromIPPacket(u8 *pkt, size_t pktLen);
-u16 *getDstPortFromTCPHeader(u8 *pkt, size_t pktLen);
-u16 *getDstPortFromUDPHeader(u8 *pkt, size_t pktLen);
+const struct sockaddr_storage *getSrcSockAddrFromIPPacket(const u8 *pkt, size_t pktLen);
+const u8 *getUDPheaderLocation(const u8 *pkt, size_t pktLen);
+const u8 *getTCPheaderLocation(const u8 *pkt, size_t pktLen);
+u8 getProtoFromIPPacket(const u8 *pkt, size_t pktLen);
+const u16 *getSrcPortFromIPPacket(const u8 *pkt, size_t pktLen);
+const u16 *getDstPortFromIPPacket(const u8 *pkt, size_t pktLen);
+const u16 *getDstPortFromTCPHeader(const u8 *pkt, size_t pktLen);
+const u16 *getDstPortFromUDPHeader(const u8 *pkt, size_t pktLen);
 int obtainRawSocket();
 
 #define DEVNAMELEN 16

@@ -1576,7 +1576,6 @@ void ProbeMode::probe_nping_event_handler(nsock_pool nsp, nsock_event nse, void 
  static struct timeval pcaptime;
  static struct timeval prevtime;
  NpingTarget *trg=NULL;
- u16 *prt=NULL;
  u8 proto=0;
  bool ip=false;
  memset(final_output, 0, sizeof(final_output));
@@ -1696,7 +1695,7 @@ void ProbeMode::probe_nping_event_handler(nsock_pool nsp, nsock_event nse, void 
                     trg=o.targets.findTarget( getSrcSockAddrFromIPPacket((u8*)packet, packetlen) );
 
                     if(trg != NULL){
-                        prt=getSrcPortFromIPPacket((u8*)packet, packetlen);
+                        const u16 *prt=getSrcPortFromIPPacket((u8*)packet, packetlen);
                         if( prt!=NULL )
                             trg->setProbeRecvTCP(*prt, 0);
                     }
