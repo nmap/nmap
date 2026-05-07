@@ -657,21 +657,10 @@ bool NpingOps::sendPreferenceIP(){
   return (this->sendpref & PACKET_SEND_IP);
 } /* End of sendPreferenceIP() */
 
-
-/** Sets SendEth.
- *  @return OP_SUCCESS on success and OP_FAILURE in case of error.           */
-int NpingOps::setSendEth(bool val){
-  this->sendpref = PACKET_SEND_ETH;
-  this->sendpref_set = true;
-  return OP_SUCCESS;
-} /* End of setSendEth() */
-
-
 /** Returns value of attribute send_eth */
 bool NpingOps::sendEth(){
   return (this->sendpref & PACKET_SEND_ETH_STRONG);
 } /* End of getSendEth() */
-
 
 /** Sets inter-probe delay. Supplied parameter is assumed to be in milliseconds
  *  and must be a long integer greater than zero.
@@ -2422,7 +2411,6 @@ if(this->getRole()!=ROLE_SERVER){
 
     /* CASE 1: ARP requested. We have to do raw ethernet transmission */
     if(this->getMode()==ARP ){
-        this->setSendEth(true);
         this->setSendPreference( PACKET_SEND_ETH_STRONG );
     }
 
@@ -2437,13 +2425,11 @@ if(this->getRole()!=ROLE_SERVER){
         /* CASE 2.A: If user did not specify custom IPv6 header or Ethernet
          * field values go for raw transport layer level transmission */
         if( this->canDoIPv6ThroughSocket() ){
-            this->setSendEth(false);
             this->setSendPreference( PACKET_SEND_IP_STRONG );
         }
         /* CASE 2.B: User wants to set some IPv6 or Ethernet values. So here we
          * check if enough parameters were supplied. */
         else if (this->canDoIPv6Ethernet() ){
-            this->setSendEth(true);
             this->setSendPreference( PACKET_SEND_ETH_STRONG );
         }else{
             nping_fatal(QT_3, "If you want to control some of the fields"
@@ -2463,10 +2449,8 @@ if(this->getRole()!=ROLE_SERVER){
     else{
          #ifdef WIN32
             this->setSendPreference( PACKET_SEND_ETH_STRONG );
-            this->setSendEth(true);
          #else
             this->setSendPreference( PACKET_SEND_IP_WEAK );
-            this->setSendEth(false);
          #endif
     }
 
@@ -2475,7 +2459,7 @@ if(this->getRole()!=ROLE_SERVER){
  }else{
 
     if( this->getMode()==ARP && !this->sendPreferenceEthernet() ){
-        this->setSendEth(true);
+        this->setSendPreference(PACKET_SEND_ETH_STRONG);
         nping_warning(QT_2, "Warning: ARP mode requires raw ethernet frame transmission. Specified preference will be ignored.");
     }
     else if( this->ipv6() ){
@@ -2483,7 +2467,6 @@ if(this->getRole()!=ROLE_SERVER){
         /* CASE 1: User requested ethernet explicitly and supplied all
          * necessary options. */
         if( this->sendPreferenceEthernet() && this->canDoIPv6Ethernet() ){
-            this->setSendEth(true);
 
         /* CASE 2: User requested Ethernet but did not really supplied all
          * the information we need */
@@ -2495,7 +2478,6 @@ if(this->getRole()!=ROLE_SERVER){
         /* CASE 3: User requested raw IP transmission and did not request
          * any special IPv6 header options. */
         }else if( this->sendPreferenceIP() && this->canDoIPv6ThroughSocket() ){
-            this->setSendEth(false);
 
         /* CASE 4: User requested raw IP transmission but also wanted to
          * set custom IPv6 header field values. */
@@ -2509,11 +2491,11 @@ if(this->getRole()!=ROLE_SERVER){
 
         }
     }
-    else if( this->sendPreferenceEthernet() ){
-            this->setSendEth(true);
-    }else{
-        this->setSendEth(false);
-    }
+ }
+ if ((this->getSendPreference() & PACKET_SEND_IP_STRONG) &&
+     (this->issetSourceMAC() || this->issetDestMAC() || this->issetEtherType())
+    ) {
+   nping_fatal(QT_3, "Incompatible options specifying both Ethernet and IP send modes");
  }
  if( this->getMode()==TCP_CONNECT || this->getMode()==UDP_UNPRIV )
     nping_print(DBG_2,"Nping will send packets in unprivileged mode using regular system calls");

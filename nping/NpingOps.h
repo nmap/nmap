@@ -341,9 +341,7 @@ class NpingOps {
     bool sendPreferenceEthernet();
     bool sendPreferenceIP();
 
-    int setSendEth(bool val);
     bool sendEth();
-    bool issetSendEth();
 
     int setDevice(char *n);
     char *getDevice();
