@@ -912,7 +912,6 @@ void log_vwrite(int logt, const char *fmt, va_list ap) {
   int fileidx = 0;
   int l;
   int logtype;
-  va_list apcopy;
 
   for (logtype = 1; logtype <= LOG_MAX; logtype <<= 1) {
 
@@ -958,7 +957,6 @@ void log_vwrite(int logt, const char *fmt, va_list ap) {
             if (rc != 1) {
               fatal("Failed to write %d bytes of data to (logt==%d) stream. fwrite returned %d.  Quitting.", len, logtype, rc);
             }
-            va_end(apcopy);
           }
           free(writebuf);
         }
@@ -2099,7 +2097,7 @@ void printserviceinfooutput(const Target *currenths) {
 
         if (!hostname_tbl[i][0]) {
           numhostnames++;
-          strncpy(&hostname_tbl[i][0], sd.hostname, sizeof(hostname_tbl[i]));
+          Strncpy(&hostname_tbl[i][0], sd.hostname, sizeof(hostname_tbl[i]));
           break;
         }
       }
@@ -2112,7 +2110,7 @@ void printserviceinfooutput(const Target *currenths) {
 
         if (!ostype_tbl[i][0]) {
           numostypes++;
-          strncpy(&ostype_tbl[i][0], sd.ostype, sizeof(ostype_tbl[i]));
+          Strncpy(&ostype_tbl[i][0], sd.ostype, sizeof(ostype_tbl[i]));
           break;
         }
       }
@@ -2125,7 +2123,7 @@ void printserviceinfooutput(const Target *currenths) {
 
         if (!devicetype_tbl[i][0]) {
           numdevicetypes++;
-          strncpy(&devicetype_tbl[i][0], sd.devicetype, sizeof(devicetype_tbl[i]));
+          Strncpy(&devicetype_tbl[i][0], sd.devicetype, sizeof(devicetype_tbl[i]));
           break;
         }
       }
@@ -2145,7 +2143,7 @@ void printserviceinfooutput(const Target *currenths) {
 
         if (!cpe_tbl[i][0]) {
           numcpes++;
-          strncpy(&cpe_tbl[i][0], *it, sizeof(cpe_tbl[i]));
+          Strncpy(&cpe_tbl[i][0], *it, sizeof(cpe_tbl[i]));
           break;
         }
       }

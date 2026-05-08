@@ -773,7 +773,7 @@ int EchoHeader::setPacketLength(u16 len){
 
 u16 EchoHeader::getPacketLength(){
     return ntohs(this->data_echo->packet_len);
-} /* End of setPacketLength() */
+} /* End of getPacketLength() */
 
 
 int EchoHeader::setEchoedPacket(const u8 *pkt, size_t pktlen){
@@ -824,6 +824,11 @@ int EchoHeader::updateEchoInternals(){
   if( this->getMessageType()!=TYPE_NEP_ECHO )
     return OP_FAILURE;
 
+  int totallen = this->getTotalLength() * 4;
+  int packetlen = this->getPacketLength();
+  if ((totallen - STD_NEP_HEADER_LEN - ECHOED_PKT_HEADER_LEN - MAC_LENGTH) < packetlen) {
+    return OP_FAILURE;
+  }
   /* Fix echo bytes length */
   this->echo_bytes=this->getPacketLength();
   if((this->echo_bytes+4)%16!=0){

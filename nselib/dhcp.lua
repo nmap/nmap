@@ -411,6 +411,7 @@ function dhcp_build(request_type, ip_address, mac_address, options, request_opti
 
   if(request_options == nil) then
     -- Request the defaults, or there's no verbosity; otherwise, request everything!
+    -- TODO: Make scripts decide this, not the library.
     request_options = strbuf.new()
     for i,v in pairs(actions) do
       if(v.default or nmap.verbosity() > 0) then

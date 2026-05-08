@@ -581,7 +581,11 @@ const struct MatchDetails *ServiceProbeMatch::testMatch(const u8 *buf, int bufle
         pcre2_get_error_message(rc, (unsigned char *)info, SERVICE_EXTRA_LEN);
         error("PCRE2 error message: %s", info);
         if (o.debugging > 1) {
-          error("Service data: \n%s", hexdump(buf, buflen));
+          char *hex = hexdump(buf, buflen);
+          if (hex) {
+            error("Service data: \n%s", hex);
+            free(hex);
+          }
         }
       }
     }

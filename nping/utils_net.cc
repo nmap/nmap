@@ -67,6 +67,7 @@
 #include "nbase.h"
 #include "pcap.h"
 #include <vector>
+#include <cstddef>
 
 extern NpingOps o;
 
@@ -1200,118 +1201,70 @@ int print_interfaces_dnet() {
 
 
 /** @warning Returns pointer to an internal static buffer */
-struct sockaddr_storage *getSrcSockAddrFromIPPacket(u8 *pkt, size_t pktLen){
-  static struct sockaddr_storage ss;
-  struct sockaddr_in *s_ip4=(struct sockaddr_in *)&ss;
-  struct sockaddr_in6 *s_ip6=(struct sockaddr_in6 *)&ss;
-  struct ip *i4=(struct ip*)pkt;
-  memset(&ss, 0, sizeof(struct sockaddr_storage));
-
-  if(pkt==NULL || pktLen < 20)
+const struct sockaddr_storage *getSrcSockAddrFromIPPacket(const u8 *pkt, size_t pktLen){
+  if (pkt == NULL || pktLen > UINT_MAX)
     return NULL;
 
-  if( i4->ip_v == 4 ){
-    s_ip4->sin_family=AF_INET;
-    memcpy(&(s_ip4->sin_addr.s_addr), pkt+12, 4);
-  }
-  else if(i4->ip_v == 6 ){
-    if(pktLen<40) /* Min length of an IPv6 header: 40 bytes*/
-        return NULL;
-    s_ip6->sin6_family=AF_INET6;
-    memcpy(s_ip6->sin6_addr.s6_addr, pkt+8, 16);
-  }
-  else{
-      return NULL;
-  }
-  return &ss;
+  static struct abstract_ip_hdr hdr = {};
+  unsigned int datalen = pktLen;
+  const u8 *data = ip_get_data(pkt, &datalen, &hdr);
+
+  if (data == NULL)
+    return NULL;
+
+  return &hdr.src;
 } /* End of getSrcSockAddrFromPacket() */
 
 
 
 
-
-u8 *getUDPheaderLocation(u8 *pkt, size_t pktLen){
-  struct ip *i4=(struct ip*)pkt;
-  if(pkt==NULL || pktLen < 40)
+static const u8 *getDataLocation(const u8 *pkt, size_t pktLen, u8 proto, size_t minLen){
+  if (pkt == NULL || pktLen > UINT_MAX)
     return NULL;
 
-  /* Packet is IPv4 */
-  if( i4->ip_v == 4 ){
-    if (i4->ip_p == IPPROTO_UDP) {
-        if( pktLen >= ((size_t)(i4->ip_hl*4 + 8)) ) /* We have a full IP+UDP packet */
-            return pkt+(i4->ip_hl*4);    
-    }
-    else
-        return NULL;
-  }
-  /* Packet is IPv6 */
-  else if(i4->ip_v == 6 ){
-    if(pktLen<40 + 8 )
-        return NULL;
-    if( pkt[6] == IPPROTO_UDP ) /* Next Header is UDP? */
-        return pkt+40;
-    else /* Extension headers not supported, return NULL TODO: support it? */
-        return NULL;
-  }
-  else{
-      return NULL;
-  }
-  return NULL;
+  struct abstract_ip_hdr hdr = {};
+  unsigned int datalen = pktLen;
+  const u8 *data = ip_get_data(pkt, &datalen, &hdr);
+
+  if (data == NULL)
+    return NULL;
+
+  if (hdr.proto != proto)
+    return NULL;
+
+  // Ensure we have a full TCP header
+  if (datalen < minLen)
+    return NULL;
+
+  return data;
+}
+
+
+const u8 *getUDPheaderLocation(const u8 *pkt, size_t pktLen){
+  return getDataLocation(pkt, pktLen, IPPROTO_UDP, 8);
 } /* End of getUDPheaderLocation */
 
 
-u8 *getTCPheaderLocation(u8 *pkt, size_t pktLen){
-  struct ip *i4=(struct ip*)pkt;
-  if(pkt==NULL || pktLen < 40)
-    return NULL;
-
-  /* Packet is IPv4 */
-  if( i4->ip_v == 4 ){
-    if (i4->ip_p == IPPROTO_TCP) { /* Next proto is TCP? */
-        if( pktLen >= ((size_t)(i4->ip_hl*4 + 20)) ) /* We have a full IP+TCP packet */
-            return pkt+(i4->ip_hl*4);    
-    }
-    else
-        return NULL;
-  }
-  /* Packet is IPv6 */
-  else if(i4->ip_v == 6 ){
-    if(pktLen<40 + 20 )
-        return NULL;
-    if( pkt[6] == IPPROTO_TCP ) /* Next Header is TCP? */
-        return pkt+40;
-    else /* Extension headers not supported, return NULL TODO: support it? */
-        return NULL;
-  }
-  else{
-      return NULL;
-  }
-
-  return NULL;
-
-} /* End of getTCPHeaderLocation() */
-
-
+const u8 *getTCPheaderLocation(const u8 *pkt, size_t pktLen){
+  return getDataLocation(pkt, pktLen, IPPROTO_TCP, 20);
+}
 
 
 /* Returns the IP protocol of the packet or -1 in case of failure */
-u8 getProtoFromIPPacket(u8 *pkt, size_t pktLen){
-  struct ip *i4=(struct ip*)pkt;
-  static u8 proto;
-
+u8 getProtoFromIPPacket(const u8 *pkt, size_t pktLen){
   if(pkt==NULL || pktLen < 28)
     return -1;
 
+  u8 ip_v = pkt[0] >> 4;
+
   /* Packet is IPv4 */
-  if( i4->ip_v == 4 ){
-    proto = i4->ip_p;
-    return proto;
+  if (ip_v == 4) {
+    return pkt[offsetof(struct ip, ip_p)];
   }
 
   /* Packet is IPv6 */
-  else if(i4->ip_v == 6 ){
-    proto = pkt[6];
-    return proto;
+  else if (ip_v == 6) {
+    return pkt[offsetof(struct ip6_hdr, ip6_nxt)];
   }
   return -1;
 } /* End of getProtoFromIPPacket() */
@@ -1320,10 +1273,10 @@ u8 getProtoFromIPPacket(u8 *pkt, size_t pktLen){
 
 /** @warning Returns pointer to an internal static buffer
  * @return pointer on success, NULL in case of failure */
-u16 *getSrcPortFromIPPacket(u8 *pkt, size_t pktLen){
+const u16 *getSrcPortFromIPPacket(const u8 *pkt, size_t pktLen){
   static u16 port;
-  u16 *pnt=NULL;
-  u8 *header=NULL;
+  const u16 *pnt=NULL;
+  const u8 *header=NULL;
 
   if(pkt==NULL || pktLen < 28)
     return NULL;
@@ -1341,10 +1294,10 @@ u16 *getSrcPortFromIPPacket(u8 *pkt, size_t pktLen){
 
 /** @warning Returns pointer to an internal static buffer
  * @return pointer on success, NULL in case of failure */
-u16 *getDstPortFromIPPacket(u8 *pkt, size_t pktLen){
+const u16 *getDstPortFromIPPacket(const u8 *pkt, size_t pktLen){
   static u16 port;
-  u16 *pnt=NULL;
-  u8 *header=NULL;
+  const u16 *pnt=NULL;
+  const u8 *header=NULL;
 
   if(pkt==NULL || pktLen < 28)
     return NULL;
@@ -1361,9 +1314,9 @@ u16 *getDstPortFromIPPacket(u8 *pkt, size_t pktLen){
 
 /** @warning Returns pointer to an internal static buffer
  * @return pointer on success, NULL in case of failure */
-u16 *getDstPortFromTCPHeader(u8 *pkt, size_t pktLen){
+const u16 *getDstPortFromTCPHeader(const u8 *pkt, size_t pktLen){
   static u16 port;
-  u16 *pnt=NULL;
+  const u16 *pnt=NULL;
 
   if(pkt==NULL || pktLen < 20)
     return NULL;
@@ -1375,9 +1328,9 @@ u16 *getDstPortFromTCPHeader(u8 *pkt, size_t pktLen){
 
 /** @warning Returns pointer to an internal static buffer
  * @return pointer on success, NULL in case of failure */
-u16 *getDstPortFromUDPHeader(u8 *pkt, size_t pktLen){
+const u16 *getDstPortFromUDPHeader(const u8 *pkt, size_t pktLen){
   static u16 port;
-  u16 *pnt=NULL;
+  const u16 *pnt=NULL;
 
   if(pkt==NULL || pktLen < 8)
     return NULL;

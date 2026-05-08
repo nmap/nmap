@@ -350,14 +350,14 @@ unsigned long int NpingTargets::freeTargets(){
 } /* End of freeTargets() */
 
 
-NpingTarget *NpingTargets::findTarget(struct sockaddr_storage *tt){
+NpingTarget *NpingTargets::findTarget(const struct sockaddr_storage *tt){
   size_t i=0;
   struct sockaddr_storage ss;
   size_t ss_len;
   struct sockaddr_in *s_ip4=(struct sockaddr_in *)&ss;
   struct sockaddr_in6 *s_ip6=(struct sockaddr_in6 *)&ss;
-  struct sockaddr_in *t_ip4=(struct sockaddr_in *)tt;
-  struct sockaddr_in6 *t_ip6=(struct sockaddr_in6 *)tt;
+  const struct sockaddr_in *t_ip4=(const struct sockaddr_in *)tt;
+  const struct sockaddr_in6 *t_ip6=(const struct sockaddr_in6 *)tt;
 
   if (tt==NULL)
     return NULL;

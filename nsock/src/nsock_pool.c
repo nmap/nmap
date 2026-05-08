@@ -228,6 +228,7 @@ void nsock_pool_delete(nsock_pool ms_pool) {
         assert(nse->iod->events_pending >= 0);
       }
       event_delete(nsp, nse);
+      gh_list_append(&nsp->free_events, &nse->nodeq_io);
     }
     gh_list_free(event_lists[i]);
   }

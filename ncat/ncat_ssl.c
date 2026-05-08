@@ -141,6 +141,9 @@ SSL_CTX *setup_ssl_listen(const SSL_METHOD *method)
         bye("SSL_CTX_new(): %s.", ERR_error_string(ERR_get_error(), NULL));
 
     SSL_CTX_set_options(sslctx, SSL_OP_ALL | SSL_OP_NO_SSLv2);
+#ifdef SSL_CTX_set_dh_auto
+    SSL_CTX_set_dh_auto(sslctx, 1);
+#endif
 
     /* Secure ciphers list taken from Nsock. */
     if (o.sslciphers == NULL) {
@@ -585,7 +588,7 @@ static int ssl_gen_cert(X509 **cert, EVP_PKEY **key)
 #endif
 
     /* Sign it. */
-    if (X509_sign(*cert, *key, EVP_sha1()) == 0)
+    if (X509_sign(*cert, *key, EVP_sha256()) == 0)
         goto err;
 
     return 1;
