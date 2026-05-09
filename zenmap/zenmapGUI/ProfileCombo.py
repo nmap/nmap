@@ -74,13 +74,19 @@ class ProfileCombo(Gtk.ComboBoxText, object):
         self.completion.set_model(self.get_model())
         self.completion.set_text_column(0)
 
+        # Map: display_name (translated) -> original_name (for .usp lookup)
+        self._display_to_original = {}
+
         self.update()
 
     def set_profiles(self, profiles):
         self.remove_all()
+        self._display_to_original.clear()
 
-        for command in profiles:
-            self.append_text(command)
+        for original_name in profiles:
+            display_name = _(original_name)
+            self._display_to_original[display_name] = original_name
+            self.append_text(display_name)
 
     def update(self):
         profile = CommandProfile()
@@ -91,9 +97,19 @@ class ProfileCombo(Gtk.ComboBoxText, object):
         self.set_profiles(profiles)
 
     def get_selected_profile(self):
-        return self.get_child().get_text()
+        """Return the original (untranslated) profile name for .usp lookup."""
+        display_name = self.get_child().get_text()
+        # Try to map back to original name; if not found, return as-is
+        return self._display_to_original.get(display_name, display_name)
 
     def set_selected_profile(self, profile):
+        """Set the displayed profile name. Translates if possible."""
+        # Try to find the display name for this original name
+        for display, original in self._display_to_original.items():
+            if original == profile:
+                self.get_child().set_text(display)
+                return
+        # Fallback: set the original name directly
         self.get_child().set_text(profile)
 
     selected_profile = property(get_selected_profile, set_selected_profile)

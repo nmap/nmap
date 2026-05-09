@@ -168,6 +168,34 @@ def create_dir(path):
             raise
 
 
+def _translate_scan_profile(template_filename, output_filename):
+    """Read a scan_profile.usp file and write a version with translated
+    profile names and descriptions using the current gettext language."""
+    import configparser
+    config = configparser.ConfigParser()
+    config.read(template_filename)
+
+    # Build a mapping: original section name -> translated content
+    sections_data = []
+    for section in config.sections():
+        translated_name = _(section)
+        items = dict(config.items(section))
+        if 'description' in items:
+            original_desc = items['description']
+            translated_desc = _(original_desc)
+            if translated_desc != original_desc:
+                items['description'] = translated_desc
+        sections_data.append((translated_name, items))
+
+    # Write with translated section names
+    with open(output_filename, 'w', encoding='utf-8') as f:
+        for name, items in sections_data:
+            f.write('[%s]\n' % name)
+            for key, val in items.items():
+                f.write('%s = %s\n' % (key, val))
+            f.write('\n')
+
+
 def create_user_config_dir(user_dir, template_dir):
     """Create a user configuration directory by creating the directory if
     necessary, then copying all the files from the given template directory,
@@ -186,8 +214,14 @@ def create_user_config_dir(user_dir, template_dir):
         if os.path.exists(user_filename):
             log.debug(">>> %s already exists." % user_filename)
             continue
-        shutil.copyfile(template_filename, user_filename)
-        log.debug(">>> Copy %s to %s." % (template_filename, user_filename))
+
+        # Translate scan_profile.usp descriptions on first copy
+        if filename == 'scan_profile.usp':
+            _translate_scan_profile(template_filename, user_filename)
+            log.debug(">>> Translated %s to %s." % (template_filename, user_filename))
+        else:
+            shutil.copyfile(template_filename, user_filename)
+            log.debug(">>> Copy %s to %s." % (template_filename, user_filename))
 
 
 def return_if_exists(path, create=False):

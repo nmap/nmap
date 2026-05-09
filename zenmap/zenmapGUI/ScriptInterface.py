@@ -310,7 +310,7 @@ class ScriptInterface:
             entry = entries.get(basename)
             if entry:
                 script_id = self.strip_file_name(basename)
-                self.liststore.append([script_id, False, entry])
+                self.liststore.append([_(script_id), False, entry])
             else:
                 # ScriptMetadata found nothing for this script?
                 self.file_liststore.append([filename, False])
@@ -479,12 +479,12 @@ clicking in the value field beside the argument name.""")
         vbox.pack_start(self.file_scrolled_window, False, True, 0)
 
         hbox = HIGHBox(spacing=2)
-        self.remove_file_button = HIGButton(stock=Gtk.STOCK_REMOVE)
+        self.remove_file_button = HIGButton(_("Remove"), stock=Gtk.STOCK_REMOVE)
         self.remove_file_button.connect(
                 "clicked", self.remove_file_button_clicked_cb)
         self.remove_file_button.set_sensitive(False)
         hbox.pack_end(self.remove_file_button, True, True, 0)
-        add_file_button = HIGButton(stock=Gtk.STOCK_ADD)
+        add_file_button = HIGButton(_("Add"), stock=Gtk.STOCK_ADD)
         add_file_button.connect("clicked", self.add_file_button_clicked_cb)
         hbox.pack_end(add_file_button, True, True, 0)
 
@@ -569,8 +569,8 @@ clicking in the value field beside the argument name.""")
         argument = Gtk.CellRendererText()
         self.value = Gtk.CellRendererText()
         self.value.connect("edited", self.value_edited_cb, self.arg_liststore)
-        arg_col = Gtk.TreeViewColumn(title="Arguments\t")
-        val_col = Gtk.TreeViewColumn(title="values")
+        arg_col = Gtk.TreeViewColumn(title=_("Arguments"))
+        val_col = Gtk.TreeViewColumn(title=_("Values"))
         arg_listview.append_column(arg_col)
         arg_listview.append_column(val_col)
         arg_col.pack_start(argument, True)
@@ -670,24 +670,43 @@ clicking in the value field beside the argument name.""")
             self.remove_file_button.set_sensitive(False)
         self.set_script_from_selection()
 
+    def _translate_category(self, cat):
+        """Translate common NSE script category names."""
+        cat_translations = {
+            "safe": _("safe"),
+            "intrusive": _("intrusive"),
+            "malware": _("malware"),
+            "discovery": _("discovery"),
+            "vuln": _("vuln"),
+            "auth": _("auth"),
+            "external": _("external"),
+            "default": _("default"),
+            "broadcast": _("broadcast"),
+            "dos": _("dos"),
+            "exploit": _("exploit"),
+            "fuzzer": _("fuzzer"),
+            "version": _("version"),
+        }
+        return cat_translations.get(cat, cat)
+
     def set_description(self, entry):
         """Sets the content that is to be displayed in the description box."""
         self.text_buffer.set_text("")
 
-        self.text_buffer.insert(self.text_buffer.get_end_iter(), """\
-Categories: %(cats)s
-""" % {"cats": ", ".join(entry.categories)})
-        text_buffer_insert_nsedoc(self.text_buffer, entry.description)
+        translated_cats = [self._translate_category(c) for c in entry.categories]
+        self.text_buffer.insert(self.text_buffer.get_end_iter(), _(
+                "Categories: %(cats)s\n") % {"cats": ", ".join(translated_cats)})
+        text_buffer_insert_nsedoc(self.text_buffer, _(entry.description))
         if entry.usage:
             self.text_buffer.insert(
-                    self.text_buffer.get_end_iter(), "\nUsage\n")
+                    self.text_buffer.get_end_iter(), _("\nUsage\n"))
             self.text_buffer.insert_with_tags_by_name(
-                    self.text_buffer.get_end_iter(), entry.usage, "Usage")
+                    self.text_buffer.get_end_iter(), _(entry.usage), "Usage")
         if entry.output:
             self.text_buffer.insert(
-                    self.text_buffer.get_end_iter(), "\nOutput\n")
+                    self.text_buffer.get_end_iter(), _("\nOutput\n"))
             self.text_buffer.insert_with_tags_by_name(
-                    self.text_buffer.get_end_iter(), entry.output, "Output")
+                    self.text_buffer.get_end_iter(), _(entry.output), "Output")
         if entry.url:
             self.text_buffer.insert(
                     self.text_buffer.get_end_iter(), "\n" + entry.url)
