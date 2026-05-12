@@ -444,6 +444,39 @@ char *format_ip_options(const u8* ipopt, int ipoptlen) {
 #undef UNKNOWN
 #undef HEXDUMP
 
+static int tcpflagsinfo (char *buf, int len, u8 f) {
+  switch (f) {
+    case TH_ACK:
+      return Snprintf(buf, len, "%s", "A");
+    case (TH_PUSH | TH_ACK):
+      return Snprintf(buf, len, "%s", "PA");
+    case TH_SYN:
+      return Snprintf(buf, len, "%s", "S");
+    case (TH_SYN | TH_ACK):
+      return Snprintf(buf, len, "%s", "SA");
+    case TH_FIN:
+      return Snprintf(buf, len, "%s", "F");
+    case (TH_FIN | TH_ACK):
+      return Snprintf(buf, len, "%s", "FA");
+    case 0:
+      return 0;
+  }
+  /* If we can't handle worst-case, don't write partial */
+  if (len < 9)
+    return 0;
+  char *p = buf;
+  /* These are basically in tcpdump order */
+  if (f & TH_SYN) *p++ = 'S';
+  if (f & TH_FIN) *p++ = 'F';
+  if (f & TH_RST) *p++ = 'R';
+  if (f & TH_PUSH) *p++ = 'P';
+  if (f & TH_ACK) *p++ = 'A';
+  if (f & TH_URG) *p++ = 'U';
+  if (f & TH_ECE) *p++ = 'E'; /* rfc 2481/3168 */
+  if (f & TH_CWR) *p++ = 'C'; /* rfc 2481/3168 */
+  *p = '\0';
+  return (p - buf);
+}
 
 const char *tcphdrinfo (const u8 *data, unsigned int datalen, int detail,
     int frag_off, const char *srchost, const char *dsthost);
@@ -622,12 +655,8 @@ const char *tcphdrinfo (const u8 *data, unsigned int datalen, int detail,
 {
   /* TCP INFORMATION ***********************************************************/
   static char protoinfo[512] = "";
-    char tflags[10];
-    char tcpinfo[64] = "";
-    char buf[32];
-    char tcpoptinfo[256] = "";
-    char *p = NULL;                       /* Aux pointer.                      */
-    struct tcp_hdr tcp;
+  char tcpoptinfo[256] = "";
+  struct tcp_hdr tcp;
 
     /* Let's parse the TCP header. The following code is very ugly because we
      * have to deal with a lot of different situations. We don't want to
@@ -635,244 +664,114 @@ const char *tcphdrinfo (const u8 *data, unsigned int datalen, int detail,
      * don't read past the packet. We cannot even trust the contents of the
      * received packet because, for example, an IPv4 header may state it
      * carries a TCP packet but may actually carry nothing at all.
-     *
-     * So we distinguish 4 situations. I know the first two are weird but they
-     * were there when I modified this code so I left them there just in
-     * case.
-     *      1. IP datagram is very small or is a fragment where we are missing
-     *         the first part of the TCP header
-     *      2. IP datagram is a fragment and although we are missing the first
-     *         8 bytes of the TCP header, we have the rest of it (or some of
-     *         the rest of it)
-     *      3. IP datagram is NOT a fragment but we don't have the full TCP
-     *         header, we are missing some bytes.
-     *      4. IP datagram is NOT a fragment and we have at least a full 20
-     *         byte TCP header.
      */
 
-    /* CASE 1: where we don't have the first 8 bytes of the TCP header because
-     * either the fragment belongs to somewhere past that or the IP contains
-     * less than 8 bytes. This also includes empty IP packets that say they
-     * contain a TCP packet. */
-    if (frag_off > 8 || datalen < 8) {
-      Snprintf(protoinfo, sizeof(protoinfo), "TCP %s:?? > %s:?? ?? (incomplete)",
-          srchost, dsthost);
-    }
-    /* For all cases after this, datalen is necessarily >= 8 and frag_off is <= 8 */
+  /* CASE 1: where we don't have the first 8 bytes of the TCP header because
+   * either the fragment belongs to somewhere past that or the IP contains
+   * less than 8 bytes. This also includes empty IP packets that say they
+   * contain a TCP packet. */
+  if (frag_off > 8 || datalen < 8) {
+    Snprintf(protoinfo, sizeof(protoinfo), "TCP %s:?? > %s:?? ?? (incomplete)",
+        srchost, dsthost);
+  }
+  /* For all cases after this, datalen is necessarily >= 8 and frag_off is <= 8 */
+  else {
+    memcpy((u8 *)&tcp + frag_off, data, MIN(datalen, sizeof(tcp) - frag_off));
+    /* how much of the original packet do we have? */
+    int lastbyte = datalen + frag_off;
+    bool have_seq=false, have_flags_win=false, have_sum_urp=false;
 
-    /* CASE 2: where we are missing the first 8 bytes of the TCP header but we
-     * have, at least, the next 8 bytes so we can see the ACK number, the
-     * flags and window size. */
-    else if (frag_off > 0) {
+    char *p = protoinfo;
+    int remains = sizeof(protoinfo) - 1;
+    int used = 0;
+    u32 tcpdataoffset = 0;
+
+    if (frag_off > 0) {
       /* Fragmentation is on 8-byte boundaries, so 8 is the only legal value here. */
       assert(frag_off == 8);
-      memcpy((u8 *)&tcp + frag_off, data - frag_off, sizeof(tcp) - frag_off);
-
-      /* TCP Flags */
-      p = tflags;
-      /* These are basically in tcpdump order */
-      if (tcp.th_flags & TH_SYN)
-        *p++ = 'S';
-      if (tcp.th_flags & TH_FIN)
-        *p++ = 'F';
-      if (tcp.th_flags & TH_RST)
-        *p++ = 'R';
-      if (tcp.th_flags & TH_PUSH)
-        *p++ = 'P';
-      if (tcp.th_flags & TH_ACK) {
-        *p++ = 'A';
-        Snprintf(tcpinfo, sizeof(tcpinfo), " ack=%lu",
-          (unsigned long) ntohl(tcp.th_ack));
-      }
-      if (tcp.th_flags & TH_URG)
-        *p++ = 'U';
-      if (tcp.th_flags & TH_ECE)
-        *p++ = 'E'; /* rfc 2481/3168 */
-      if (tcp.th_flags & TH_CWR)
-        *p++ = 'C'; /* rfc 2481/3168 */
-      *p++ = '\0';
-
-      /* TCP Options */
-      if ((u32) tcp.th_off * 4 > sizeof(struct tcp_hdr)) {
-        if (datalen < (u32) tcp.th_off * 4 - frag_off) {
-          Snprintf(tcpoptinfo, sizeof(tcpoptinfo), "option incomplete");
-        } else {
-          tcppacketoptinfo((u8*) data + sizeof(struct tcp_hdr),
-            tcp.th_off*4 - sizeof(struct tcp_hdr),
-            tcpoptinfo, sizeof(tcpoptinfo));
-        }
-      }
-
-      /* Create a string with TCP information relevant to the specified level of detail */
-      if (detail == LOW_DETAIL) { Snprintf(protoinfo, sizeof(protoinfo), "TCP %s:?? > %s:?? %s %s %s",
-          srchost, dsthost, tflags, tcpinfo, tcpoptinfo);
-      } else if (detail == MEDIUM_DETAIL) {
-        Snprintf(protoinfo, sizeof(protoinfo), "TCP %s:?? > %s:?? %s ack=%lu win=%hu %s",
-          srchost, dsthost, tflags,
-          (unsigned long) ntohl(tcp.th_ack), (unsigned short) ntohs(tcp.th_win),
-          tcpoptinfo);
-      } else if (detail == HIGH_DETAIL) {
-        if (datalen >= 12) { /* We have at least bytes 8-20 */
-          Snprintf(protoinfo, sizeof(protoinfo), "TCP [%s:?? > %s:?? %s seq=%lu ack=%lu off=%d res=%d win=%hu csum=0x%04X urp=%hu%s%s]",
-            srchost, dsthost, tflags,
-            (unsigned long) ntohl(tcp.th_seq),
-            (unsigned long) ntohl(tcp.th_ack),
-            (u8)tcp.th_off, (u8)tcp.th_x2, (unsigned short) ntohs(tcp.th_win),
-            ntohs(tcp.th_sum), (unsigned short) ntohs(tcp.th_urp),
-            (tcpoptinfo[0]!='\0') ? " " : "",
-            tcpoptinfo);
-        } else { /* We only have bytes 8-16 */
-          Snprintf(protoinfo, sizeof(protoinfo), "TCP %s:?? > %s:?? %s ack=%lu win=%hu %s",
-            srchost, dsthost, tflags,
-            (unsigned long) ntohl(tcp.th_ack), (unsigned short) ntohs(tcp.th_win),
-            tcpoptinfo);
-        }
-      }
+      used = Snprintf(p, remains, "TCP [%s:?? > %s:??", srchost, dsthost);
+      have_seq = false;
     }
-    /* For all cases after this, frag_off is necessarily 0 */
-
-    /* CASE 3: where the IP packet is not a fragment but for some reason, we
-     * don't have the entire TCP header, just part of it.*/
-    else if (datalen < 20) {
-      memcpy(&tcp, data, MIN(datalen, sizeof(tcp)));
-      /* We know we have the first 8 bytes, so what's left? */
-      /* We only have the first 64 bits: ports and seq number */
-      if (datalen < 12) {
-        Snprintf(tcpinfo, sizeof(tcpinfo), "TCP %s:%hu > %s:%hu ?? seq=%lu (incomplete)",
-          srchost, (unsigned short) ntohs(tcp.th_sport), dsthost,
-          (unsigned short) ntohs(tcp.th_dport), (unsigned long) ntohl(tcp.th_seq));
-      }
-
-      /* We only have the first 96 bits: ports, seq and ack number */
-      else if (datalen < 16) {
-        if (detail == LOW_DETAIL) { /* We don't print ACK in low detail */
-          Snprintf(tcpinfo, sizeof(tcpinfo), "TCP %s:%hu > %s:%hu seq=%lu (incomplete)",
-            srchost, (unsigned short) ntohs(tcp.th_sport), dsthost,
-            (unsigned short) ntohs(tcp.th_dport), (unsigned long) ntohl(tcp.th_seq));
-        } else {
-          Snprintf(tcpinfo, sizeof(tcpinfo), "TCP [%s:%hu > %s:%hu seq=%lu ack=%lu (incomplete)]",
-            srchost, (unsigned short) ntohs(tcp.th_sport), dsthost,
-            (unsigned short) ntohs(tcp.th_dport), (unsigned long) ntohl(tcp.th_seq),
-            (unsigned long) ntohl(tcp.th_ack));
-        }
-      }
-
-      /* We are missing some part of the last 32 bits (checksum and urgent pointer) */
-      else {
-        p = tflags;
-        /* These are basically in tcpdump order */
-        if (tcp.th_flags & TH_SYN)
-          *p++ = 'S';
-        if (tcp.th_flags & TH_FIN)
-          *p++ = 'F';
-        if (tcp.th_flags & TH_RST)
-          *p++ = 'R';
-        if (tcp.th_flags & TH_PUSH)
-          *p++ = 'P';
-        if (tcp.th_flags & TH_ACK) {
-          *p++ = 'A';
-          Snprintf(buf, sizeof(buf), " ack=%lu",
-            (unsigned long) ntohl(tcp.th_ack));
-          strncat(tcpinfo, buf, sizeof(tcpinfo) - strlen(tcpinfo) - 1);
-        }
-        if (tcp.th_flags & TH_URG)
-          *p++ = 'U';
-        if (tcp.th_flags & TH_ECE)
-          *p++ = 'E'; /* rfc 2481/3168 */
-        if (tcp.th_flags & TH_CWR)
-          *p++ = 'C'; /* rfc 2481/3168 */
-        *p++ = '\0';
-
-
-        /* Create a string with TCP information relevant to the specified level of detail */
-        if (detail == LOW_DETAIL) { /* We don't print ACK in low detail */
-          Snprintf(protoinfo, sizeof(protoinfo), "TCP %s:%hu > %s:%hu %s seq=%lu win=%hu (incomplete)",
-            srchost, (unsigned short) ntohs(tcp.th_sport), dsthost, (unsigned short) ntohs(tcp.th_dport),
-            tflags, (unsigned long) ntohl(tcp.th_seq),
-            (unsigned short) ntohs(tcp.th_win));
-        } else if (detail == MEDIUM_DETAIL) {
-          Snprintf(protoinfo, sizeof(protoinfo), "TCP [%s:%hu > %s:%hu %s seq=%lu ack=%lu win=%hu (incomplete)]",
-            srchost, (unsigned short) ntohs(tcp.th_sport), dsthost, (unsigned short) ntohs(tcp.th_dport),
-            tflags,  (unsigned long) ntohl(tcp.th_seq),
-            (unsigned long) ntohl(tcp.th_ack),
-            (unsigned short) ntohs(tcp.th_win));
-        } else if (detail == HIGH_DETAIL) {
-          Snprintf(protoinfo, sizeof(protoinfo), "TCP [%s:%hu > %s:%hu %s seq=%lu ack=%lu off=%d res=%d win=%hu (incomplete)]",
-            srchost, (unsigned short) ntohs(tcp.th_sport),
-            dsthost, (unsigned short) ntohs(tcp.th_dport),
-            tflags, (unsigned long) ntohl(tcp.th_seq),
-            (unsigned long) ntohl(tcp.th_ack),
-            (u8)tcp.th_off, (u8)tcp.th_x2, (unsigned short) ntohs(tcp.th_win));
-        }
-      }
-    }
-
-    /* CASE 4: where we (finally!) have a full 20 byte TCP header so we can
-     * safely print all fields */
-    else { /* if (datalen >= 20) */
-      memcpy(&tcp, data, MIN(datalen, sizeof(tcp)));
-
-      /* TCP Flags */
-      p = tflags;
-      /* These are basically in tcpdump order */
-      if (tcp.th_flags & TH_SYN)
-        *p++ = 'S';
-      if (tcp.th_flags & TH_FIN)
-        *p++ = 'F';
-      if (tcp.th_flags & TH_RST)
-        *p++ = 'R';
-      if (tcp.th_flags & TH_PUSH)
-        *p++ = 'P';
-      if (tcp.th_flags & TH_ACK) {
-        *p++ = 'A';
-        Snprintf(buf, sizeof(buf), " ack=%lu",
-            (unsigned long) ntohl(tcp.th_ack));
-        strncat(tcpinfo, buf, sizeof(tcpinfo) - strlen(tcpinfo) - 1);
-      }
-      if (tcp.th_flags & TH_URG)
-        *p++ = 'U';
-      if (tcp.th_flags & TH_ECE)
-        *p++ = 'E'; /* rfc 2481/3168 */
-      if (tcp.th_flags & TH_CWR)
-        *p++ = 'C'; /* rfc 2481/3168 */
-      *p++ = '\0';
-
-      /* TCP Options */
-      if ((u32) tcp.th_off * 4 > sizeof(struct tcp_hdr)) {
-        if (datalen < (unsigned int) tcp.th_off * 4) {
-          Snprintf(tcpoptinfo, sizeof(tcpoptinfo), "option incomplete");
-        } else {
-          tcppacketoptinfo((u8*) data + sizeof(struct tcp_hdr),
-            tcp.th_off*4 - sizeof(struct tcp_hdr),
-            tcpoptinfo, sizeof(tcpoptinfo));
-        }
-      }
-
-      /* Rest of header fields */
-      if (detail == LOW_DETAIL) {
-        Snprintf(protoinfo, sizeof(protoinfo), "TCP %s:%hu > %s:%hu %s seq=%lu win=%hu %s",
-          srchost, (unsigned short) ntohs(tcp.th_sport), dsthost, (unsigned short) ntohs(tcp.th_dport),
-          tflags, (unsigned long) ntohl(tcp.th_seq),
-          (unsigned short) ntohs(tcp.th_win), tcpoptinfo);
-      } else if (detail == MEDIUM_DETAIL) {
-        Snprintf(protoinfo, sizeof(protoinfo), "TCP [%s:%hu > %s:%hu %s seq=%lu win=%hu csum=0x%04X%s%s]",
-          srchost, (unsigned short) ntohs(tcp.th_sport), dsthost, (unsigned short) ntohs(tcp.th_dport),
-          tflags, (unsigned long) ntohl(tcp.th_seq),
-          (unsigned short) ntohs(tcp.th_win),  (unsigned short) ntohs(tcp.th_sum),
-          (tcpoptinfo[0]!='\0') ? " " : "",
-          tcpoptinfo);
-      } else if (detail == HIGH_DETAIL) {
-        Snprintf(protoinfo, sizeof(protoinfo), "TCP [%s:%hu > %s:%hu %s seq=%lu ack=%lu off=%d res=%d win=%hu csum=0x%04X urp=%hu%s%s]",
+    else {
+      used = Snprintf(p, remains, "TCP [%s:%hu > %s:%hu",
           srchost, (unsigned short) ntohs(tcp.th_sport),
-          dsthost, (unsigned short) ntohs(tcp.th_dport),
-          tflags, (unsigned long) ntohl(tcp.th_seq),
-          (unsigned long) ntohl(tcp.th_ack),
-          (u8)tcp.th_off, (u8)tcp.th_x2, (unsigned short) ntohs(tcp.th_win),
-          ntohs(tcp.th_sum), (unsigned short) ntohs(tcp.th_urp),
-          (tcpoptinfo[0]!='\0') ? " " : "",
-          tcpoptinfo);
+          dsthost, (unsigned short) ntohs(tcp.th_dport));
+      have_seq = true;
+    }
+    p += used;
+    remains -= used;
+
+    if (lastbyte >= offsetof(struct tcp_hdr, th_sum)) {
+      have_flags_win = true;
+      if (lastbyte >= sizeof(struct tcp_hdr)) {
+        have_sum_urp = true;
       }
     }
+
+    if (have_flags_win) {
+      *p++ = ' '; remains--;
+      used = tcpflagsinfo(p, remains, tcp.th_flags);
+      p += used;
+      remains -= used;
+    }
+    if (have_seq) {
+      used = Snprintf(p, remains, " seq=%lu", (unsigned long) ntohl(tcp.th_seq));
+      p += used;
+      remains -= used;
+    }
+
+    if (!have_flags_win)
+      goto tcpdone;
+
+    if (tcp.th_flags & TH_ACK) {
+      int used = Snprintf(p, remains, " ack=%lu",
+          (unsigned long) ntohl(tcp.th_ack));
+      p += used;
+      remains -= used;
+    }
+
+    if (detail >= MEDIUM_DETAIL) {
+      if (detail == HIGH_DETAIL) {
+        used = Snprintf(p, remains, " off=%d res=%d", tcp.th_off, tcp.th_x2);
+        p += used;
+        remains -= used;
+      }
+      used = Snprintf(p, remains, " win=%hu", (unsigned short) ntohl(tcp.th_win));
+      p += used;
+      remains -= used;
+    }
+
+    if (!have_sum_urp)
+      goto tcpdone;
+
+    if (detail == HIGH_DETAIL) {
+      used = Snprintf(p, remains, " csum=0x%04X urp=%hu",
+          ntohs(tcp.th_sum), (unsigned short) ntohs(tcp.th_urp));
+      p += used;
+      remains -= used;
+    }
+
+    /* TCP Options */
+    tcpdataoffset = tcp.th_off * 4;
+    if (tcpdataoffset > sizeof(struct tcp_hdr)
+        && tcpdataoffset <= lastbyte) {
+      tcppacketoptinfo((u8*) data + sizeof(struct tcp_hdr) - frag_off,
+          tcpdataoffset - sizeof(struct tcp_hdr),
+          tcpoptinfo, sizeof(tcpoptinfo));
+    }
+tcpdone:
+    if (tcpoptinfo[0] != '\0') {
+      used = Snprintf(p, remains, " %s]", tcpoptinfo);
+      p += used;
+      remains -= used;
+    }
+    else {
+      used = Snprintf(p, remains, "]");
+      p += used;
+      remains -= used;
+    }
+    assert(remains > 0);
+  }
   return protoinfo;
 }
 
