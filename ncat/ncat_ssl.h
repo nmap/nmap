@@ -69,9 +69,9 @@
 #define NCAT_CA_CERTS_FILE "ca-bundle.crt"
 
 enum {
-    SHA1_BYTES = 160 / 8,
-    /* 40 bytes for hex digits and 9 bytes for ' '. */
-    SHA1_STRING_LENGTH = SHA1_BYTES * 2 + (SHA1_BYTES / 2 - 1)
+    SHA256_BYTES = 256 / 8,
+    /* 64 bytes for hex digits and 15 bytes for ' '. */
+    SHA256_STRING_LENGTH = SHA256_BYTES * 2 + (SHA256_BYTES / 2 - 1)
 };
 
 /* These status variables are returned by ssl_handshake() to describe the
@@ -89,7 +89,7 @@ extern SSL *new_ssl(int fd);
 
 extern int ssl_post_connect_check(SSL *ssl, const char *hostname);
 
-extern char *ssl_cert_fp_str_sha1(const X509 *cert, char *strbuf, size_t len);
+extern char *ssl_cert_fp_str_sha256(const X509 *cert, char *strbuf, size_t len);
 
 extern int ssl_load_default_ca_certs(SSL_CTX *ctx);
 
