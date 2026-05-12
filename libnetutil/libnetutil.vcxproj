@@ -91,6 +91,7 @@
     <ClCompile Include="NetworkLayerElement.cc" />
     <ClCompile Include="PacketElement.cc" />
     <ClCompile Include="PacketParser.cc" />
+    <ClCompile Include="packettrace.cc" />
     <ClCompile Include="RawData.cc" />
     <ClCompile Include="RoutingHeader.cc" />
     <ClCompile Include="TCPHeader.cc" />
