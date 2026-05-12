@@ -478,16 +478,6 @@ static int tcpflagsinfo (char *buf, int len, u8 f) {
   return (p - buf);
 }
 
-const char *tcphdrinfo (const u8 *data, unsigned int datalen, int detail,
-    int frag_off, const char *srchost, const char *dsthost);
-const char *udphdrinfo (const u8 *data, unsigned int datalen, int detail,
-    int frag_off, const char *srchost, const char *dsthost);
-const char *sctphdrinfo (const u8 *data, unsigned int datalen, int detail,
-    int frag_off, const char *srchost, const char *dsthost);
-const char *icmphdrinfo (const u8 *data, unsigned int datalen, int detail,
-    int frag_off, const char *srchost, const char *dsthost);
-const char *icmp6hdrinfo (const u8 *data, unsigned int datalen, int detail,
-    int frag_off, const char *srchost, const char *dsthost);
 /* Returns a buffer of ASCII information about an IP packet that may
  * look like "TCP 127.0.0.1:50923 > 127.0.0.1:3 S ttl=61 id=39516
  * iplen=40 seq=625950769" or "ICMP PING (0/1) ttl=61 id=39516 iplen=40".
@@ -544,7 +534,7 @@ const char *ippackethdrinfo(const u8 *packet, u32 len, int detail) {
     sin = (struct sockaddr_in *) &hdr.src;
     inet_ntop(AF_INET, (void *)&sin->sin_addr.s_addr, srchost, sizeof(srchost));
     sin = (struct sockaddr_in *) &hdr.dst;
-	inet_ntop(AF_INET, (void *)&sin->sin_addr.s_addr, dsthost, sizeof(dsthost));
+    inet_ntop(AF_INET, (void *)&sin->sin_addr.s_addr, dsthost, sizeof(dsthost));
 
     /* Compute fragment offset and check if flags are set */
     frag_off = 8 * (ntohs(ip.ip_off) & 8191) /* 2^13 - 1 */;
@@ -595,9 +585,9 @@ const char *ippackethdrinfo(const u8 *packet, u32 len, int detail) {
 
     /* Obtain IP source and destination info */
     sin6 = (struct sockaddr_in6 *) &hdr.src;
-	inet_ntop(AF_INET6, (void *)sin6->sin6_addr.s6_addr, srchost, sizeof(srchost));
+    inet_ntop(AF_INET6, (void *)sin6->sin6_addr.s6_addr, srchost, sizeof(srchost));
     sin6 = (struct sockaddr_in6 *) &hdr.dst;
-	inet_ntop(AF_INET6, (void *)sin6->sin6_addr.s6_addr, dsthost, sizeof(dsthost));
+    inet_ntop(AF_INET6, (void *)sin6->sin6_addr.s6_addr, dsthost, sizeof(dsthost));
 
     /* Obtain flow label and traffic class */
     u32 flow = ntohl(ip6.ip6_flow);
@@ -692,7 +682,7 @@ const char *tcphdrinfo (const u8 *data, unsigned int datalen, int detail,
    * either the fragment belongs to somewhere past that or the IP contains
    * less than 8 bytes. This also includes empty IP packets that say they
    * contain a TCP packet. */
-  if (frag_off > 8 || datalen < 8) {
+  if (frag_off > 8 || datalen < 8 || (frag_off % 8 != 0)) {
     Snprintf(protoinfo, sizeof(protoinfo), "TCP %s:?? > %s:?? ?? (incomplete)",
         srchost, dsthost);
   }
@@ -1177,17 +1167,17 @@ const char *icmp6hdrinfo (const u8 *data, unsigned int datalen, int detail,
   if (dsthost == NULL)
     dsthost = "??";
   static char protoinfo[512] = "";
-  if (datalen > sizeof(struct icmpv6_hdr)) {
+  if (frag_off || datalen < sizeof(struct icmpv6_hdr)) {
+    Snprintf(protoinfo, sizeof(protoinfo), "ICMPv6 %s > %s (type=?/code=?)",
+        srchost, dsthost);
+  }
+  else {
     const struct icmpv6_hdr *icmpv6;
 
     icmpv6 = (struct icmpv6_hdr *) data;
     Snprintf(protoinfo, sizeof(protoinfo), "ICMPv6 %s > %s (type=%d/code=%d)",
         srchost, dsthost,
         icmpv6->icmpv6_type, icmpv6->icmpv6_code);
-  }
-  else {
-    Snprintf(protoinfo, sizeof(protoinfo), "ICMPv6 %s > %s (type=?/code=?)",
-        srchost, dsthost);
   }
   return protoinfo;
 }

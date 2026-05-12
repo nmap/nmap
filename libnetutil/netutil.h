@@ -441,6 +441,16 @@ char *format_ip_options(const u8* ipopt, int ipoptlen);
 #define MEDIUM_DETAIL  2
 #define HIGH_DETAIL    3
 const char *ippackethdrinfo(const u8 *packet, u32 len, int detail);
+const char *tcphdrinfo (const u8 *data, unsigned int datalen, int detail,
+    int frag_off, const char *srchost, const char *dsthost);
+const char *udphdrinfo (const u8 *data, unsigned int datalen, int detail,
+    int frag_off, const char *srchost, const char *dsthost);
+const char *sctphdrinfo (const u8 *data, unsigned int datalen, int detail,
+    int frag_off, const char *srchost, const char *dsthost);
+const char *icmphdrinfo (const u8 *data, unsigned int datalen, int detail,
+    int frag_off, const char *srchost, const char *dsthost);
+const char *icmp6hdrinfo (const u8 *data, unsigned int datalen, int detail,
+    int frag_off, const char *srchost, const char *dsthost);
 
 
 /* Takes an IPv4 destination address (dst) and tries to determine the
