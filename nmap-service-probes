@@ -2255,6 +2255,7 @@ match mysql m|^.\0\0\0\x0a(4\.[-_~.+\w]+)\0|s p/MySQL/ v/$1/ cpe:/a:mysql:mysql:
 match mysql m|^.\0\0\0\x0a(5\.[-_~.+\w]+)\0|s p/MySQL/ v/$1/ cpe:/a:mysql:mysql:$1/
 match mysql m|^.\0\0\0\x0a(6\.[-_~.+\w]+)\0...\0|s p/MySQL/ v/$1/ cpe:/a:mysql:mysql:$1/
 match mysql m|^.\0\0\0\x0a(8\.[-_~.+\w]+)\0....|s p/MySQL/ v/$1/ cpe:/a:mysql:mysql:$1/
+match mysql m|^.\0\0\0\x0a(9\.[-_~.+\w]+)\0....|s p/MySQL/ v/$1/ cpe:/a:mysql:mysql:$1/
 match mysql m|^.\0\0\0\xffj\x04'[\d.]+' .* MySQL|s p/MySQL/ cpe:/a:mysql:mysql/
 
 # This will get awkward if Sphinx goes to version 3.
