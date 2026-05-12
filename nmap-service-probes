@@ -14114,7 +14114,7 @@ match netbios-ssn m=^\0\0\0.\xffSMBr\0\0\0\0\x88..\0\0[-\w. ]*\0+@\x06\0\0\x01\0
 match netbios-ssn m|^\0\0\0.\xffSMBr\0\0\0\0\x88..\0\0\0\0\0\0\0\0\0\0\0\0\0\0@\x06\0\0\x01\0\x11\x06\0..\0\x01\0..\0\0...\0..\0\0|s p/Samba smbd/ v/3.X - 4.X/ cpe:/a:samba:samba/
 # Samba 2.2.8a on Linux 2.4.20
 match netbios-ssn m|^\x83\0\0\x01\x81$| p/Samba smbd/ cpe:/a:samba:samba/
-match netbios-ssn m|^\0\0\0.\xffSMBr\0\0\0\0\x88..\0\0\0\0\0\0\0\0\0\0\0\0\0\0@\x06\0\0\x01\0\x01\xff\xff\0\0$|s p/Samba smbd/ v/4/ cpe:/a:samba:samba:4/
+match netbios-ssn m|^\0\0\0.\xffSMBr\0\0\0\0\x88..\0\0\0\0\0\0\0\0\0\0\0\0\0\0@\x06\0\0\x01\0\x01\xff\xff\0\0.*[Ss][Aa][Mm][Bb][Aa] (\d+[\.\d]+).*$|s p/Samba smbd/ v/$1/ cpe:/a:samba:samba:$1/
 # DAVE 4.1 enhanced windows networks services for Mac on Mac OS X
 match netbios-ssn m|^\0\0\0.\xffSMBr\x02\0Y\0\x98\x01.\0\0\0\0\0\0\0\0\0\0\0\0\0\0@\x06\0\0\x01\0\0\x07\0|s p/Thursby DAVE Windows filesharing/ i/Runs on Macintosh systems/ o/Mac OS/ cpe:/o:apple:mac_os/a
 # Windows Session Service - 139/tcp - Formerly Window 98 match, actually matches Win 98 through Windows 8 / 2012 R2
