@@ -650,9 +650,31 @@ const char *ippackethdrinfo(const u8 *packet, u32 len, int detail) {
   return protoinfo;
 }
 
+#ifndef INET6_ADDRSTRLEN
+#define INET6_ADDRSTRLEN 46
+#endif
+#define INFO_ADDRSTRLEN (INET6_ADDRSTRLEN + 2)
+/* Format optional IP address string for use with :port suffix */
+static const char *get_addrstr(const char *host, char strbuf[INFO_ADDRSTRLEN])
+{
+  if (host == NULL) {
+    return "??";
+  }
+  else if (NULL != strchr(host, ':')) {
+    Snprintf(strbuf, INFO_ADDRSTRLEN, "[%s]", host);
+    return strbuf;
+  }
+  return host;
+}
+
 const char *tcphdrinfo (const u8 *data, unsigned int datalen, int detail,
     int frag_off, const char *srchost, const char *dsthost)
 {
+  char srcstr[INFO_ADDRSTRLEN] = "";
+  char dststr[INFO_ADDRSTRLEN] = "";
+  srchost = get_addrstr(srchost, srcstr);
+  dsthost = get_addrstr(dsthost, dststr);
+
   /* TCP INFORMATION ***********************************************************/
   static char protoinfo[512] = "";
   char tcpoptinfo[256] = "";
@@ -778,6 +800,11 @@ tcpdone:
 const char *udphdrinfo (const u8 *data, unsigned int datalen, int detail,
     int frag_off, const char *srchost, const char *dsthost)
 {
+  char srcstr[INFO_ADDRSTRLEN] = "";
+  char dststr[INFO_ADDRSTRLEN] = "";
+  srchost = get_addrstr(srchost, srcstr);
+  dsthost = get_addrstr(dsthost, dststr);
+
   static char protoinfo[512] = "";
     /* UDP INFORMATION ***********************************************************/
       if((frag_off || datalen < sizeof(struct udp_hdr))) {
@@ -805,6 +832,11 @@ const char *udphdrinfo (const u8 *data, unsigned int datalen, int detail,
 const char *sctphdrinfo (const u8 *data, unsigned int datalen, int detail,
     int frag_off, const char *srchost, const char *dsthost)
 {
+  char srcstr[INFO_ADDRSTRLEN] = "";
+  char dststr[INFO_ADDRSTRLEN] = "";
+  srchost = get_addrstr(srchost, srcstr);
+  dsthost = get_addrstr(dsthost, dststr);
+
   static char protoinfo[512] = "";
     /* SCTP INFORMATION **********************************************************/
       if ((frag_off || datalen < sizeof(struct sctp_hdr))) {
@@ -832,6 +864,10 @@ const char *sctphdrinfo (const u8 *data, unsigned int datalen, int detail,
 const char *icmphdrinfo (const u8 *data, unsigned int datalen, int detail,
     int frag_off, const char *srchost, const char *dsthost)
 {
+  if (srchost == NULL)
+    srchost = "??";
+  if (dsthost == NULL)
+    dsthost = "??";
   static char protoinfo[512] = "";
   char icmptype[128] = "";              /* Temp info about ICMP type & code  */
   char icmpfields[256] = "";            /* Temp info for various ICMP fields */
@@ -1136,6 +1172,10 @@ icmpbad:
 const char *icmp6hdrinfo (const u8 *data, unsigned int datalen, int detail,
     int frag_off, const char *srchost, const char *dsthost)
 {
+  if (srchost == NULL)
+    srchost = "??";
+  if (dsthost == NULL)
+    dsthost = "??";
   static char protoinfo[512] = "";
   if (datalen > sizeof(struct icmpv6_hdr)) {
     const struct icmpv6_hdr *icmpv6;
