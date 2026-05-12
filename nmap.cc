@@ -68,6 +68,9 @@
 #include <shlobj.h>
 #endif
 
+#ifdef __FreeBSD_cc_version
+#include <getopt.h>
+#endif
 #include "nmap.h"
 #include "osscan.h"
 #include "scan_engine.h"

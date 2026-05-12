@@ -83,6 +83,10 @@
 #endif /* NETINET_IF_ETHER_H */
 #endif /* HAVE_NETINET_IF_ETHER_H */
 
+#ifdef __FreeBSD_cc_version
+#include <sys/param.h>
+#endif
+
 extern NmapOps o;
 
 static PacketCounter PktCt;
