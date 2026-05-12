@@ -904,20 +904,14 @@ int arppackethdrinfo(const u8 *packet, u32 len, u8 *dstbuff, u32 dstlen){
 } /* End of arppackethdrinfo() */
 
 
-
 int tcppackethdrinfo(const u8 *packet, size_t len, u8 *dstbuff, size_t dstlen,
      int detail, const char *src, const char *dst){
  assert(packet);
  assert(dstbuff);
 
-  const char *protoinfo = tcphdrinfo(packet, len, detail, 0, src, dst);
-  Strncpy((char*)dstbuff, protoinfo, dstlen);
-
-  return OP_SUCCESS;
-
+ return (tcppackethdrinfo(packet, len, (char *)dstbuff, dstlen,
+      detail, 0, src, dst) > 0 ? OP_SUCCESS : OP_FAILURE);
 } /* End of tcppackethdrinfo() */
-
-
 
 
 int udppackethdrinfo(const u8 *packet, size_t len, u8 *dstbuff, size_t dstlen,
@@ -926,13 +920,9 @@ int udppackethdrinfo(const u8 *packet, size_t len, u8 *dstbuff, size_t dstlen,
  assert(packet);
  assert(dstbuff);
 
-  const char *protoinfo = udphdrinfo(packet, len, detail, 0, src, dst);
-  strncpy((char*)dstbuff, protoinfo, dstlen);
-
-  return OP_SUCCESS;
-
+ return (udppackethdrinfo(packet, len, (char *)dstbuff, dstlen,
+      detail, 0, src, dst) > 0 ? OP_SUCCESS : OP_FAILURE);
 } /* End of udppackethdrinfo() */
-
 
 
 /** Returns a random (null-terminated) ASCII string with no special
