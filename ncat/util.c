@@ -72,6 +72,9 @@
 #include <stdarg.h>
 #include <string.h>
 #include <stddef.h>
+#ifndef WIN32
+#include <pthread.h>
+#endif
 
 #if HAVE_SYS_STAT_H
 #include <sys/stat.h>
@@ -542,14 +545,23 @@ unsigned char *buildsrcrte(struct in_addr dstaddr, struct in_addr routes[],
 
 int allow_access(const union sockaddr_u *su)
 {
-    /* A host not in the allow set is denied, but only if the --allow or
-       --allowfile option was given. */
-    if (o.allow && !addrset_contains(o.allowset, &su->sockaddr))
-        return 0;
-    if (addrset_contains(o.denyset, &su->sockaddr))
-        return 0;
+#ifndef WIN32
+    extern pthread_mutex_t g_allowdeny_mutex;
+    pthread_mutex_lock(&g_allowdeny_mutex);
+#endif
 
-    return 1;
+    int allowed = 1;
+
+    /* A host not in the allow set is denied, but only if --allow/--allowfile was used. */
+    if (o.allow && !addrset_contains(o.allowset, &su->sockaddr))
+        allowed = 0;
+    if (addrset_contains(o.denyset, &su->sockaddr))
+        allowed = 0;
+
+#ifndef WIN32
+    pthread_mutex_unlock(&g_allowdeny_mutex);
+#endif
+    return allowed;
 }
 
 /*
