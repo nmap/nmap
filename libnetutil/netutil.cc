@@ -558,9 +558,9 @@ unsigned short in_cksum(const u16 *ptr,int nbytes) {
   return 0;
 }
 
-const u8 *ipv4_get_data(const struct ip *ip, const u8 *p, unsigned int *len);
-const u8 *ipv6_get_data(const struct ip6_hdr *ip6, const u8 *p, unsigned int *len, u8 *nxt);
-const u8 *ipv6_get_data_any(const struct ip6_hdr *ip6, const u8 *p, unsigned int *len, u8 *nxt);
+static const u8 *ipv4_get_data(const struct ip *ip, const u8 *p, unsigned int *len);
+static const u8 *ipv6_get_data(const struct ip6_hdr *ip6, const u8 *p, unsigned int *len, u8 *nxt);
+static const u8 *ipv6_get_data_any(const struct ip6_hdr *ip6, const u8 *p, unsigned int *len, u8 *nxt);
 
 /* Return true iff this Next Header type is an extension header we must skip to
    get to the upper-layer header. Types for which neither this function nor
@@ -702,7 +702,7 @@ const u8 *ip_get_data_any(const u8 *packet, unsigned int *len,
 }
 
 /* Get the upper-layer protocol from an IPv4 packet. */
-const u8 *ipv4_get_data(const struct ip *ip, const u8 *p, unsigned int *len)
+static const u8 *ipv4_get_data(const struct ip *ip, const u8 *p, unsigned int *len)
 {
   unsigned int header_len;
 
@@ -730,7 +730,7 @@ const u8 *ipv4_get_data(const u8 *p, unsigned int *len)
 /* Get the upper-layer protocol from an IPv6 packet. This skips over known
    extension headers. The length of the upper-layer payload is stored in *len.
    The protocol is stored in *nxt. Returns NULL in case of error. */
-const u8 *ipv6_get_data(const struct ip6_hdr *ip6, const u8 *p, unsigned int *len, u8 *nxt)
+static const u8 *ipv6_get_data(const struct ip6_hdr *ip6, const u8 *p, unsigned int *len, u8 *nxt)
 {
   return ipv6_get_data_primitive(ip6, p, len, nxt, true);
 }
@@ -747,7 +747,7 @@ const u8 *ipv6_get_data(const u8 *p, unsigned int *len, u8 *nxt)
 /* Get the protocol payload from an IPv6 packet. This skips over known extension
    headers. It differs from ipv6_get_data in that it will return a result even
    if the final header is not a known upper-layer protocol. */
-const u8 *ipv6_get_data_any(const struct ip6_hdr *ip6, const u8 *p, unsigned int *len, u8 *nxt)
+static const u8 *ipv6_get_data_any(const struct ip6_hdr *ip6, const u8 *p, unsigned int *len, u8 *nxt)
 {
   return ipv6_get_data_primitive(ip6, p, len, nxt, false);
 }
