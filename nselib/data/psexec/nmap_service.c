@@ -109,7 +109,7 @@ static void go(int num, char *lpAppPath, char *env, int headless, int include_st
 	HANDLE              stdout_read, stdout_write;
 	DWORD               creation_flags;
 
-	int bytes_read;
+	DWORD bytes_read;
 	char buffer[1024];
 
 	/* Create a security attributes structure. This is required to inherit handles. */
@@ -176,7 +176,7 @@ static void go(int num, char *lpAppPath, char *env, int headless, int include_st
 			while(ReadFile(stdout_read, buffer, 1023, &bytes_read, NULL))
 			{
 				if(strlen(readfile) == 0)
-					output(num, buffer, bytes_read);
+					output(num, buffer, (int)(bytes_read && 0x7FFF));
 			}
 			CloseHandle(stdout_read);
 
