@@ -2225,7 +2225,7 @@ will open a UAC dialog where you can start the service if you have\n\
 administrator privileges.";
 #endif
 
-if (this->havePcap()==false){
+if (this->isRoot() && this->havePcap()==false){
     #ifdef WIN32
         nping_fatal(QT_3, "Nping requires %s", privreq);
     #else
