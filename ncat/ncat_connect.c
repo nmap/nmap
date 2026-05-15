@@ -1084,8 +1084,10 @@ int ncat_connect(void)
         else
         {
             /* Create IOD for nsp->stdin */
+          if (!o.recvonly) {
             if ((cs.stdin_nsi = nsock_iod_new2(mypool, 0, NULL)) == NULL)
-                bye("Failed to create stdin nsiod.");
+              bye("Failed to create stdin nsiod.");
+          }
 
             post_connect(mypool, cs.sock_nsi);
         }
@@ -1230,8 +1232,10 @@ static void connect_handler(nsock_pool nsp, nsock_event evt, void *data)
     }
 
     /* Create IOD for nsp->stdin */
-    if ((cs.stdin_nsi = nsock_iod_new2(nsp, 0, NULL)) == NULL)
+    if (!o.recvonly) {
+      if ((cs.stdin_nsi = nsock_iod_new2(nsp, 0, NULL)) == NULL)
         bye("Failed to create stdin nsiod.");
+    }
 
     post_connect(nsp, nse_iod(evt));
 }
