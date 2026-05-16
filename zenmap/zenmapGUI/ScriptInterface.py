@@ -671,29 +671,15 @@ clicking in the value field beside the argument name.""")
         self.set_script_from_selection()
 
     def _translate_category(self, cat):
-        """Translate common NSE script category names."""
-        cat_translations = {
-            "safe": _("safe"),
-            "intrusive": _("intrusive"),
-            "malware": _("malware"),
-            "discovery": _("discovery"),
-            "vuln": _("vuln"),
-            "auth": _("auth"),
-            "external": _("external"),
-            "default": _("default"),
-            "broadcast": _("broadcast"),
-            "dos": _("dos"),
-            "exploit": _("exploit"),
-            "fuzzer": _("fuzzer"),
-            "version": _("version"),
-        }
-        return cat_translations.get(cat, cat)
+        """Translate NSE script category name via gettext.
+        Falls back to the original English name if no translation is available."""
+        return _(cat)
 
     def set_description(self, entry):
         """Sets the content that is to be displayed in the description box."""
         self.text_buffer.set_text("")
 
-        translated_cats = [self._translate_category(c) for c in entry.categories]
+        translated_cats = [_(c) for c in entry.categories]
         self.text_buffer.insert(self.text_buffer.get_end_iter(), _(
                 "Categories: %(cats)s\n") % {"cats": ", ".join(translated_cats)})
         text_buffer_insert_nsedoc(self.text_buffer, _(entry.description))

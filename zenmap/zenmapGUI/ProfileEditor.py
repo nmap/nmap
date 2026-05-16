@@ -88,6 +88,7 @@ class ProfileEditor(HIGWindow):
 
         self.deletable = deletable
         self.profile_name = profile_name
+        self._original_profile_name = profile_name  # keep original (untranslated) name for saving
         self.overwrite = overwrite
 
         # Used to block recursive updating of the command entry when the
@@ -297,9 +298,15 @@ class ProfileEditor(HIGWindow):
         self.notebook.append_page(vbox, Gtk.Label.new(tab_name))
 
     def save_profile(self, widget):
-        if self.overwrite:
-            self.profile.remove_profile(self.profile_name)
-        profile_name = self.profile_name_entry.get_text()
+        # Get the display name (may be translated)
+        display_name = self.profile_name_entry.get_text()
+        # Map back to original name if the user didn't edit the translated text
+        if self._original_profile_name and display_name == _(self._original_profile_name):
+            profile_name = self._original_profile_name
+        else:
+            profile_name = display_name
+        if self.overwrite and profile_name == self._original_profile_name:
+            self.profile.remove_profile(self._original_profile_name)
         if profile_name == '':
             alert = HIGAlertDialog(
                     message_format=_('Unnamed profile'),
@@ -378,7 +385,8 @@ class ProfileEditor(HIGWindow):
             dialog.destroy()
             if response == Gtk.ResponseType.CANCEL:
                 return True
-            self.profile.remove_profile(self.profile_name)
+            if self._original_profile_name:
+                self.profile.remove_profile(self._original_profile_name)
 
         self.update_profile_entry()
         self.destroy()
