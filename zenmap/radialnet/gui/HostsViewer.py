@@ -69,9 +69,9 @@ from radialnet.gui.NodeNotebook import NodeNotebook
 from radialnet.util.misc import ipv4_compare
 
 
-HOSTS_COLORS = ['#d5ffd5', '#ffffd5', '#ffd5d5']
+HOSTS_COLORS = ['#a5d6a7', '#ffcc80', '#ef9a9a']
 
-HOSTS_HEADER = ['ID', '#', 'Hosts']
+HOSTS_HEADER = [_('ID'), _('#'), _('Hosts')]
 
 DIMENSION = (700, 400)
 

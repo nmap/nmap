@@ -286,10 +286,36 @@ class ScriptMetadata (object):
         self.library_requires = {}
         self.construct_library_arguments()
 
+    def _get_localized_description(self, filename):
+        """Return a localized description if available for the current locale."""
+        import json
+        # Check if the current language is Chinese
+        lang = os.environ.get("LANG", "").lower()
+        if not lang.startswith("zh"):
+            return None
+        # Try to load Chinese script descriptions
+        script_name = filename.replace(".nse", "")
+        locale_dir = os.path.join(os.path.dirname(__file__), "data", "locale")
+        scripts_json = os.path.join(locale_dir, "zh", "scripts.json")
+        if os.path.exists(scripts_json):
+            try:
+                with open(scripts_json, "r", encoding="utf-8") as f:
+                    zh_descs = json.load(f)
+                if script_name in zh_descs:
+                    return zh_descs[script_name]
+            except (IOError, json.JSONDecodeError):
+                pass
+        return None
+
     def get_metadata(self, filename):
         entry = self.Entry(filename)
         try:
-            entry.description = self.get_string_variable(filename, "description")
+            # Check for localized description first
+            localized_desc = self._get_localized_description(filename)
+            if localized_desc:
+                entry.description = localized_desc
+            else:
+                entry.description = self.get_string_variable(filename, "description")
             entry.arguments = self.get_arguments(entry.filename)
             entry.license = self.get_string_variable(filename, "license")
             entry.author = self.get_list_variable(filename, "author") or [
