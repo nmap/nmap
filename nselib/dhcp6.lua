@@ -126,11 +126,18 @@ DHCP6.Option = {
       local opt = DHCP6.Option[DHCP6.OptionTypes.OPTION_CLIENTID]:new()
       local pos
       opt.duid, pos = string.unpack(">I2", data, pos)
-      if ( 1 ~= opt.duid ) then
+
+      if ( 1 == opt.duid ) then
+        opt.hwtype, opt.time, pos = string.unpack(">I2I4", data, pos)
+      elseif ( 2 == opt.duid ) then
+        pos = pos + 4
+      elseif ( 3 == opt.duid ) then
+        opt.hwtype, pos = string.unpack(">I2", data, pos)
+      else
         stdnse.debug1("Unexpected DUID type (%d)", opt.duid)
         return
       end
-      opt.hwtype, opt.time = string.unpack(">I2I4", data, pos)
+
       opt.mac = data:sub(pos)
       opt.time = opt.time + DHCP6_EPOCH
       return opt
