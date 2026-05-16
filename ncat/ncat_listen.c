@@ -211,6 +211,10 @@ int ncat_listen()
     unsigned int num_sockets;
     int proto = o.proto;
     int type = o.proto == IPPROTO_UDP ? SOCK_DGRAM : SOCK_STREAM;
+#define BREAKLOOP_ERROR 2
+#define BREAKLOOP_SUCCESS 1
+#define BREAKLOOP_CONTINUE 0
+    int breakloop = BREAKLOOP_CONTINUE;
 
     if (o.httpserver)
         return ncat_http_server();
@@ -300,7 +304,7 @@ int ncat_listen()
 
     init_fdlist(&broadcast_fdlist, o.conn_limit);
 
-    while (client_fdlist.nfds > 1 || get_conn_count() > 0) {
+    while (!breakloop && (client_fdlist.nfds > 1 || get_conn_count() > 0)) {
         long usec_wait = -1;
         tvp = NULL;
         /* We pass these temporary descriptor sets to fselect, since fselect
@@ -388,7 +392,7 @@ restart_fd_loop:
                     /* Are we in single listening mode(without -k)? If so
                        then we should quit also. */
                     if (!o.keepopen && !o.broker)
-                        return 1;
+                        breakloop = BREAKLOOP_ERROR;
                     --conn_inc;
                     break;
                 }
@@ -407,16 +411,16 @@ restart_fd_loop:
                     if (o.quitafter == 0 && (o.proto != IPPROTO_TCP || (o.proto == IPPROTO_TCP && o.sendonly))) {
                         /* There will be nothing more to send. If we're not
                            receiving anything, we can quit here. */
-                        return 0;
+                        breakloop = BREAKLOOP_SUCCESS;
                     }
                 }
-                if (rc < 0)
-                    return 1;
+                else if (rc < 0)
+                    breakloop = BREAKLOOP_ERROR;
             } else {
                 /* Read from a client and write to stdout. */
                 rc = read_socket(cfd, o.sendonly ? Ignore : Write);
                 if (rc <= 0 && !o.keepopen)
-                    return rc == 0 ? 0 : 1;
+                    breakloop = (rc == 0 ? BREAKLOOP_SUCCESS : BREAKLOOP_ERROR);
             }
 
             fds_ready--;
@@ -436,7 +440,7 @@ restart_fd_loop:
         }
     }
 
-    return 0;
+    return (breakloop == BREAKLOOP_ERROR ? 1 : 0);
 }
 
 /* Accept a connection on a listening socket. Allow or deny the connection.
