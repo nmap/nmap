@@ -68,6 +68,7 @@
 #include "scan_engine_connect.h"
 #include "libnetutil/netutil.h" /* for max_sd() */
 #include "NmapOps.h"
+#include <nsock.h>
 
 #include <errno.h>
 
@@ -207,6 +208,10 @@ bool ConnectScanInfo::clearSD(int sd) {
 
 ConnectProbe::ConnectProbe() {
   sd = -1;
+  proxy_state = PROXY_NONE;
+  proxy_target_sslen = 0;
+  proxy_target_port = 0;
+  proxy_resp_len = 0;
 }
 
 ConnectProbe::~ConnectProbe() {
@@ -489,6 +494,31 @@ UltraProbe *sendConnectScanProbe(UltraScanInfo *USI, HostScanStats *hss,
 #if HAVE_IPV6
   else sin6->sin6_port = htons(probe->pspec()->pd.tcp.dport);
 #endif
+
+  /* If a SOCKS4 proxy chain is configured, connect to the proxy instead of
+   * the target directly and perform the SOCKS4 handshake asynchronously. */
+  struct sockaddr_storage proxy_ss;
+  size_t proxy_sslen = 0;
+  unsigned short proxy_port = 0;
+  int proxy_type = -1;
+  if (o.proxy_chain &&
+      nsock_proxychain_first_node_info(o.proxy_chain, &proxy_ss, &proxy_sslen,
+                                       &proxy_port, &proxy_type) == 1 &&
+      proxy_type == NSOCK_PROXY_TYPE_SOCKS4 &&
+      sock.ss_family == AF_INET) {
+    /* Save the real target so we can build the SOCKS4 request later. */
+    CP->proxy_state = ConnectProbe::PROXY_CONNECTING;
+    memcpy(&CP->proxy_target_ss, &sock, socklen);
+    CP->proxy_target_sslen = socklen;
+    CP->proxy_target_port = destport;
+
+    /* Point sin/socklen at the proxy address. */
+    ((struct sockaddr_in *)&proxy_ss)->sin_port = htons(proxy_port);
+    memcpy(&sock, &proxy_ss, proxy_sslen);
+    socklen = proxy_sslen;
+    sin = (struct sockaddr_in *) &sock;
+  }
+
   /* We don't record a byte count for connect probes. */
   hss->probeSent(0);
   rc = connect(CP->sd, (struct sockaddr *)&sock, socklen);
@@ -511,6 +541,23 @@ UltraProbe *sendConnectScanProbe(UltraScanInfo *USI, HostScanStats *hss,
     PacketTrace::traceConnect(IPPROTO_TCP, (sockaddr *) &sock, socklen, rc,
         connect_errno, &USI->now);
     USI->gstats->CSI->watchSD(CP->sd);
+  } else if (CP->proxy_state == ConnectProbe::PROXY_CONNECTING && connect_errno == 0) {
+    /* Immediate synchronous connect to proxy succeeded — send SOCKS4 request
+     * and watch for the response. */
+    uint8_t req[9];
+    struct sockaddr_in *tsin = (struct sockaddr_in *)&CP->proxy_target_ss;
+    req[0] = 4; req[1] = 1;
+    req[2] = (CP->proxy_target_port >> 8) & 0xff;
+    req[3] =  CP->proxy_target_port       & 0xff;
+    memcpy(&req[4], &tsin->sin_addr.s_addr, 4);
+    req[8] = 0; /* empty user id */
+    if (send(CP->sd, (char *)req, sizeof(req), 0) == (int)sizeof(req)) {
+      CP->proxy_state = ConnectProbe::PROXY_READING;
+      USI->gstats->CSI->watchSD(CP->sd);
+    } else {
+      handleConnectResult(USI, hss, probeI, ECONNREFUSED, true);
+      probe = NULL;
+    }
   } else {
     handleConnectResult(USI, hss, probeI, connect_errno, true);
     probe = NULL;
@@ -602,11 +649,60 @@ bool do_one_select_round(UltraScanInfo *USI, struct timeval *stime) {
                       checked_fd_isset(sd, &fds_wtmp) ||
                       checked_fd_isset(sd, &fds_xtmp))) {
         numGoodSD++;
-        if (getsockopt(sd, SOL_SOCKET, SO_ERROR, (char *) &optval,
-                       &optlen) != 0)
-          optval = socket_errno(); /* Stupid Solaris ... */
+        ConnectProbe *CP = probe->CP();
 
-        handleConnectResult(USI, host, probeI, optval);
+        if (CP->proxy_state == ConnectProbe::PROXY_CONNECTING) {
+          /* Connected (or failed) to proxy server.  Check result. */
+          if (getsockopt(sd, SOL_SOCKET, SO_ERROR, (char *) &optval,
+                         &optlen) != 0)
+            optval = socket_errno();
+          if (optval != 0) {
+            handleConnectResult(USI, host, probeI, optval);
+          } else {
+            /* Send the 9-byte SOCKS4 CONNECT request. */
+            uint8_t req[9];
+            struct sockaddr_in *tsin =
+                (struct sockaddr_in *)&CP->proxy_target_ss;
+            req[0] = 4; req[1] = 1;
+            req[2] = (CP->proxy_target_port >> 8) & 0xff;
+            req[3] =  CP->proxy_target_port       & 0xff;
+            memcpy(&req[4], &tsin->sin_addr.s_addr, 4);
+            req[8] = 0; /* empty user id */
+            if (send(sd, (char *)req, sizeof(req), 0) == (int)sizeof(req)) {
+              CP->proxy_state = ConnectProbe::PROXY_READING;
+              /* Stop watching for writability; keep read + except. */
+              checked_fd_clr(sd, &USI->gstats->CSI->fds_write);
+            } else {
+              handleConnectResult(USI, host, probeI, ECONNREFUSED);
+            }
+          }
+        } else if (CP->proxy_state == ConnectProbe::PROXY_READING) {
+          /* Reading the 8-byte SOCKS4 response. */
+          int recvd = recv(sd,
+                           (char *)CP->proxy_resp_buf + CP->proxy_resp_len,
+                           8 - CP->proxy_resp_len, 0);
+          if (recvd > 0) {
+            CP->proxy_resp_len += recvd;
+            if (CP->proxy_resp_len >= 8) {
+              /* Full response received: byte[1]==90 means granted. */
+              if (CP->proxy_resp_buf[1] == 90)
+                handleConnectResult(USI, host, probeI, 0);
+              else
+                handleConnectResult(USI, host, probeI, ECONNREFUSED);
+            }
+            /* Partial read: probe stays outstanding, wait for more data. */
+          } else if (recvd == 0) {
+            handleConnectResult(USI, host, probeI, ECONNREFUSED);
+          } else {
+            handleConnectResult(USI, host, probeI, socket_errno());
+          }
+        } else {
+          /* Normal (no proxy) connect result. */
+          if (getsockopt(sd, SOL_SOCKET, SO_ERROR, (char *) &optval,
+                         &optlen) != 0)
+            optval = socket_errno(); /* Stupid Solaris ... */
+          handleConnectResult(USI, host, probeI, optval);
+        }
       }
     }
   }
