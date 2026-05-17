@@ -138,7 +138,7 @@ NpingOps::NpingOps() {
   else if (getenv("NMAP_UNPRIVILEGED") || getenv("NPING_UNPRIVILEGED"))
     isr00t=false;
   else
-    isr00t = !(geteuid());
+    isr00t = !(geteuid()) || have_net_capabilities();
 #endif
 
     /* Payloads */
