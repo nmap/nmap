@@ -114,6 +114,9 @@
 
 #undef HAVE_OPENSSL
 
+/* Define to 1 if SSL_get0_alpn_selected is available. */
+#undef HAVE_SSL_GET0_ALPN_SELECTED
+
 #undef HAVE_LIBSSH2
 
 #undef HAVE_LIBZ

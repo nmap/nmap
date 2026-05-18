@@ -259,6 +259,14 @@ if test "$use_openssl" = "yes" -a -z "$specialssldir"; then
     AC_MSG_WARN([Failed to find libssl so OpenSSL will not be used. If it is installed you can try the --with-openssl=DIR argument]) ],
     [ -lcrypto ])
  fi
+
+ if test "$use_openssl" = "yes"; then
+   AC_CHECK_LIB(ssl, SSL_set_alpn_protos,
+    [ AC_DEFINE(HAVE_SSL_SET_ALPN_PROTOS, 1,
+      [Define to 1 if SSL_set_alpn_protos is available.]) ],
+    [],
+    [ -lcrypto ])
+ fi
 fi
 
 # OpenSSL requires dlopen on some platforms

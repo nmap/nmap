@@ -80,6 +80,9 @@
 
 #undef HAVE_OPENSSL
 
+/* Define to 1 if SSL_set_alpn_protos is available. */
+#undef HAVE_SSL_SET_ALPN_PROTOS
+
 #undef HAVE_EPOLL
 #undef HAVE_POLL
 #undef HAVE_KQUEUE
