@@ -497,7 +497,7 @@ int lua_push_ecdhparams(lua_State *L, EVP_PKEY *pubkey) {
      * Just mark as UNKNOWN. */
     lua_pushstring(L, "UNKNOWN");
 #elif HAVE_OPAQUE_STRUCTS
-    nid = EC_GROUP_get_field_type(group);
+    nid = EC_METHOD_get_field_type(EC_GROUP_method_of(group));
     if (nid == NID_X9_62_prime_field) {
       lua_pushstring(L, "explicit_prime");
     }
