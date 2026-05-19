@@ -469,7 +469,14 @@ int do_listen(int type, int proto, const union sockaddr_u *srcaddr_u)
         Listen(sock, BACKLOG);
 
     if (o.verbose) {
-        loguser("Listening on %s\n", socktop(srcaddr_u, sa_len));
+        union sockaddr_u listenaddr;
+        socklen_t la_len = sizeof(listenaddr);
+        if (0 == getsockname(sock, (struct sockaddr *)&listenaddr, &la_len)) {
+            loguser("Listening on %s\n", socktop(&listenaddr, la_len));
+        }
+        else {
+            loguser("Listening on %s\n", socktop(srcaddr_u, sa_len));
+        }
     }
     if (o.test)
         logtest("LISTEN\n");

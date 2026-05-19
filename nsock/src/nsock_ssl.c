@@ -90,6 +90,12 @@ static void nsock_ssl_atexit(void)
 {
   nsock_ssl_state = NSOCK_SSL_STATE_ATEXIT;
 }
+
+#define HAVE_SSL_CTX_SET_SECURITY_LEVEL 1
+static int nsock_allowall_cb(const SSL *s, const SSL_CTX *ctx,
+    int op, int bits, int nid, void *other, void *ex) {
+  return 1;
+}
 #endif
 void nsp_ssl_cleanup(struct npool *nsp)
 {
@@ -195,13 +201,30 @@ static nsock_ssl_ctx nsock_pool_ssl_init_helper(SSL_CTX *ctx, int flags) {
    * SSLv2-compatible SSLv23_client_method. */
   SSL_CTX_set_verify(ctx, SSL_VERIFY_NONE, NULL);
   SSL_CTX_clear_options(ctx, SSL_OP_NO_SSLv2);
-  SSL_CTX_set_options(ctx, flags & NSOCK_SSL_MAX_SPEED ?
-                                  SSL_OP_ALL : SSL_OP_ALL|SSL_OP_NO_SSLv2);
+  if (flags & NSOCK_SSL_MAX_SPEED) {
+    SSL_CTX_set_options(ctx, SSL_OP_ALL);
 
-  if (!SSL_CTX_set_cipher_list(ctx, flags & NSOCK_SSL_MAX_SPEED ?
-                                           CIPHERS_FAST : CIPHERS_SECURE))
-    fatal("Unable to set OpenSSL cipher list: %s",
+    if (!SSL_CTX_set_cipher_list(ctx, CIPHERS_FAST))
+      fatal("Unable to set OpenSSL cipher list: %s",
           ERR_error_string(ERR_get_error(), NULL));
+
+#ifdef HAVE_SSL_CTX_SET_SECURITY_LEVEL
+    /* Attempt to allow all connections */
+    SSL_CTX_set_security_level(ctx, 0);
+    SSL_CTX_set_security_callback(ctx, nsock_allowall_cb);
+#endif
+  }
+  else {
+    SSL_CTX_set_options(ctx, SSL_OP_ALL|SSL_OP_NO_SSLv2);
+
+    if (!SSL_CTX_set_cipher_list(ctx, CIPHERS_SECURE))
+      fatal("Unable to set OpenSSL cipher list: %s",
+          ERR_error_string(ERR_get_error(), NULL));
+#ifdef HAVE_SSL_CTX_SET_SECURITY_LEVEL
+    /* This is stricter than default, but still quite loose */
+    SSL_CTX_set_security_level(ctx, 2);
+#endif
+  }
 
   return ctx;
 }

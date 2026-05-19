@@ -16,9 +16,6 @@ determine if the fuzzing was successful.
 -- We consider an error to be either: a response with status 500 or with an empty body,
 -- a response that contains "server error" or "sql error" strings. ATM anything other than
 -- that is considered not to be an 'error'.
--- TODO: develop more sophisticated techniques that will let us determine if the fuzzing was
--- successful (i.e. we got an 'error'). Ideally, an algorithm that will tell us a percentage
--- difference between responses should be implemented.
 --
 -- @output
 -- PORT   STATE SERVICE REASON
@@ -47,6 +44,10 @@ determine if the fuzzing was successful.
 -- defaults to 310000
 --
 
+-- TODO: develop more sophisticated techniques that will let us determine if the fuzzing was
+-- successful (i.e. we got an 'error'). Ideally, an algorithm that will tell us a percentage
+-- difference between responses should be implemented.
+-- TODO: See https://github.com/nmap/nmap/issues/552 for more ideas
 author = {"Piotr Olma", "Gioacchino Mazzurco"}
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"fuzzer", "intrusive"}

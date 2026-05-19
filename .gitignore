@@ -94,6 +94,7 @@ stamp-h1
 /mswin32/build-pcre2/
 /mswin32/ipch
 /mswin32/make-vars.make
+/mswin32/msbuild.log
 /mswin32/nmap-[0-9]*/
 /mswin32/nmap.opensdf
 /mswin32/nmap.sdf

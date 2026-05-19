@@ -108,5 +108,6 @@ sighandler_t Signal(int signum, sighandler_t handler);
 int Socket(int domain, int type, int protocol);
 char *Strdup(const char *s);
 ssize_t Write(int fd, const void *buf, size_t count);
+ssize_t Ignore(int fd, const void *buf, size_t count);
 
 #endif

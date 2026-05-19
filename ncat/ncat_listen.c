@@ -131,7 +131,7 @@ static int crlf_state = 0;
 
 static void handle_connection(int socket_accept, int type, fd_set *listen_fds);
 static int read_stdin(struct timeval *qtv);
-static int read_socket(int recv_fd);
+static int read_socket(int recv_fd, ssize_t (*writefunc)(int, const void *, size_t));
 static void post_handle_connection(struct fdinfo *sinfo);
 static void close_fd(struct fdinfo *fdn, int eof);
 static void read_and_broadcast(int recv_socket);
@@ -211,6 +211,10 @@ int ncat_listen()
     unsigned int num_sockets;
     int proto = o.proto;
     int type = o.proto == IPPROTO_UDP ? SOCK_DGRAM : SOCK_STREAM;
+#define BREAKLOOP_ERROR 2
+#define BREAKLOOP_SUCCESS 1
+#define BREAKLOOP_CONTINUE 0
+    int breakloop = BREAKLOOP_CONTINUE;
 
     if (o.httpserver)
         return ncat_http_server();
@@ -295,11 +299,12 @@ int ncat_listen()
             bye("Unable to open any listening sockets.");
     }
 
-    add_fd(&client_fdlist, STDIN_FILENO);
+    if (!o.recvonly)
+      add_fd(&client_fdlist, STDIN_FILENO);
 
     init_fdlist(&broadcast_fdlist, o.conn_limit);
 
-    while (client_fdlist.nfds > 1 || get_conn_count() > 0) {
+    while (!breakloop && (client_fdlist.nfds > 1 || get_conn_count() > 0)) {
         long usec_wait = -1;
         tvp = NULL;
         /* We pass these temporary descriptor sets to fselect, since fselect
@@ -387,7 +392,7 @@ restart_fd_loop:
                     /* Are we in single listening mode(without -k)? If so
                        then we should quit also. */
                     if (!o.keepopen && !o.broker)
-                        return 1;
+                        breakloop = BREAKLOOP_ERROR;
                     --conn_inc;
                     break;
                 }
@@ -396,32 +401,26 @@ restart_fd_loop:
             if (checked_fd_isset(cfd, &listen_fds)) {
                 /* we have a new connection request */
                 handle_connection(cfd, type, &listen_fds);
+            } else if (o.broker) {
+                read_and_broadcast(cfd);
             } else if (cfd == STDIN_FILENO) {
-                if (o.broker) {
-                    read_and_broadcast(cfd);
-                } else {
-                    /* Read from stdin and write to all clients. */
-                    rc = read_stdin(&qtv);
-                    if (rc == 0 && (type == SOCK_STREAM || o.ssl)) {
-                        if (!o.noshutdown) shutdown_sockets(SHUT_WR);
-                        if (o.quitafter == 0 && (o.proto != IPPROTO_TCP || (o.proto == IPPROTO_TCP && o.sendonly))) {
-                            /* There will be nothing more to send. If we're not
-                               receiving anything, we can quit here. */
-                            return 0;
-                        }
+                /* Read from stdin and write to all clients. */
+                rc = read_stdin(&qtv);
+                if (rc == 0 && (type == SOCK_STREAM || o.ssl)) {
+                    if (!o.noshutdown) shutdown_sockets(SHUT_WR);
+                    if (o.quitafter == 0 && (o.proto != IPPROTO_TCP || (o.proto == IPPROTO_TCP && o.sendonly))) {
+                        /* There will be nothing more to send. If we're not
+                           receiving anything, we can quit here. */
+                        breakloop = BREAKLOOP_SUCCESS;
                     }
-                    if (rc < 0)
-                        return 1;
                 }
-            } else if (!o.sendonly) {
-                if (o.broker) {
-                    read_and_broadcast(cfd);
-                } else {
-                    /* Read from a client and write to stdout. */
-                    rc = read_socket(cfd);
-                    if (rc <= 0 && !o.keepopen)
-                        return rc == 0 ? 0 : 1;
-                }
+                else if (rc < 0)
+                    breakloop = BREAKLOOP_ERROR;
+            } else {
+                /* Read from a client and write to stdout. */
+                rc = read_socket(cfd, o.sendonly ? Ignore : Write);
+                if (rc <= 0 && !o.keepopen)
+                    breakloop = (rc == 0 ? BREAKLOOP_SUCCESS : BREAKLOOP_ERROR);
             }
 
             fds_ready--;
@@ -441,7 +440,7 @@ restart_fd_loop:
         }
     }
 
-    return 0;
+    return (breakloop == BREAKLOOP_ERROR ? 1 : 0);
 }
 
 /* Accept a connection on a listening socket. Allow or deny the connection.
@@ -602,22 +601,20 @@ static void post_handle_connection(struct fdinfo *sinfo)
             netexec(sinfo, o.cmdexec);
     } else {
         /* Now that a client is connected, pay attention to stdin. */
-        if (!stdin_eof)
+        if (!stdin_eof && !o.recvonly)
             checked_fd_set(STDIN_FILENO, &master_readfds);
-        if (!o.sendonly) {
-            /* add to our lists */
-            checked_fd_set(sinfo->fd, &master_readfds);
-            /* add it to our list of fds for maintaining maxfd */
+        /* add to our lists */
+        checked_fd_set(sinfo->fd, &master_readfds);
+        /* add it to our list of fds for maintaining maxfd */
 #ifdef HAVE_OPENSSL
-            /* Don't add it twice (see handle_connection above) */
-            if (!o.ssl) {
+        /* Don't add it twice (see handle_connection above) */
+        if (!o.ssl) {
 #endif
-            if (add_fdinfo(&client_fdlist, sinfo) < 0)
-                bye("add_fdinfo() failed.");
+          if (add_fdinfo(&client_fdlist, sinfo) < 0)
+            bye("add_fdinfo() failed.");
 #ifdef HAVE_OPENSSL
-            }
-#endif
         }
+#endif
         checked_fd_set(sinfo->fd, &master_broadcastfds);
         if (add_fdinfo(&broadcast_fdlist, sinfo) < 0)
             bye("add_fdinfo() failed.");
@@ -702,7 +699,7 @@ int read_stdin(struct timeval *qtv)
 
 /* Read from a client socket and write to stdout. Return the number of bytes
    read from the socket, or -1 on error. */
-int read_socket(int recv_fd)
+int read_socket(int recv_fd, ssize_t (*writefunc)(int, const void *, size_t))
 {
     char buf[DEFAULT_TCP_BUF_LEN];
     struct fdinfo *fdn;
@@ -727,7 +724,7 @@ int read_socket(int recv_fd)
             return n;
         }
         else {
-            Write(STDOUT_FILENO, buf, n);
+            writefunc(STDOUT_FILENO, buf, n);
             nbytes += n;
         }
     } while (pending);
@@ -793,6 +790,10 @@ static void read_and_broadcast(int recv_fd)
                 }
                 close_fd(fdn, n == 0);
                 return;
+            }
+            /* Ignore any read data in sendonly mode */
+            if (o.sendonly) {
+              continue;
             }
         }
 
