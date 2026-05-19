@@ -1327,7 +1327,7 @@ void parse_nmap_service_probe_file(AllProbes *AP, const char *filename) {
     lineno++;
     size_t linelen = strnlen(line, sizeof(line));
     if (linelen == sizeof(line) - 1 && line[linelen - 1] != '\n' && !feof(fp))
-      fatal("Line %d of %s is too long (limit is %d characters)", lineno, filename, (int)(sizeof(line) - 2));
+      fatal("Line %d of %s is too long (limit is %d characters)", lineno, filename, (int)(sizeof(line) - 1));
 
     if (*line == '\n' || *line == '#')
       continue;
