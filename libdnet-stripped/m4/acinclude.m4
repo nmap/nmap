@@ -149,7 +149,7 @@ AC_DEFUN([AC_DNET_LINUX_PF_PACKET],
     [AC_MSG_CHECKING(for Linux PF_PACKET sockets)
     AC_TRY_COMPILE([#include <netpacket/packet.h>
                     #include <linux/if_ether.h>],
-                   [int foo() { return ETH_P_ALL; }],
+                   [int foo = ETH_P_ALL;],
     ac_cv_dnet_linux_pf_packet=yes,
     ac_cv_dnet_linux_pf_packet=no)
     AC_MSG_RESULT($ac_cv_dnet_linux_pf_packet)

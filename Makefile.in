@@ -438,7 +438,7 @@ uninstall-nping:
 	@cd $(NPINGDIR) && $(MAKE) uninstall
 
 check-nse:
-	./nmap -d --datadir . --script=unittest --script-args=unittest.run
+	./nmap -d --datadir . --script=unittest --script-args=unittest.run --release-mem
 
 check-ncat:
 	@cd $(NCATDIR) && $(MAKE) check

@@ -20,7 +20,6 @@ LDFLAGS = @LDFLAGS@ $(STATIC)
 LIBS =  @LIBS@ 
 SHTOOL = ./shtool
 INSTALL = $(SHTOOL) install 
-MAKEDEPEND = @MAKEDEPEND@
 
 TARGET = libnbase.a
 
@@ -40,9 +39,6 @@ clean:
 distclean: clean
 	rm -f Makefile config.cache config.log config.status nbase_config.h
 
-depend:
-	$(MAKEDEPEND) $(INCLS) -s "# DO NOT DELETE" -- $(DEFS) -- $(SRCS)
-
 configure: configure.ac
 	autoconf
 
@@ -54,12 +50,3 @@ config.status: configure
 
 .cc.o:
 	$(CC) -c $(CFLAGS) $*.cc
-
-# DO NOT DELETE -- Needed by makedepend
-
-
-
-
-
-
-

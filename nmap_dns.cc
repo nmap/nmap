@@ -1886,9 +1886,10 @@ size_t DNS::Factory::parseDomainName(std::string &name, const u8 *buf, size_t of
   size_t tmp = 0;
   size_t max_offset = offset;
   size_t curr_offset = offset;
+  u8 label_length = 0;
 
   name.clear();
-  while(u8 label_length = buf[curr_offset])
+  while(curr_offset < maxlen && 0 != (label_length = buf[curr_offset]))
   {
     if((label_length & COMPRESSED_NAME) == COMPRESSED_NAME)
     {
@@ -1938,6 +1939,7 @@ size_t DNS::Factory::parseDomainName(std::string &name, const u8 *buf, size_t of
     }
   }
 
+  DNS_CHECK_UPPER_BOUND(curr_offset, maxlen - 1);
   if (max_offset == curr_offset && buf[curr_offset] == '\0') {
     max_offset++;
   }

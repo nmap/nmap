@@ -132,7 +132,7 @@ class ScanOpenPortsPage(Gtk.ScrolledWindow):
 
         self.__create_widgets()
 
-        self.add_with_viewport(self.host)
+        self.add(self.host)
 
     def __create_widgets(self):
         self.host = HostOpenPorts()

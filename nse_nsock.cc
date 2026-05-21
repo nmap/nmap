@@ -359,15 +359,23 @@ static void callback (nsock_pool nsp, nsock_event nse, void *ud)
   if (nse_status(nse) == NSE_STATUS_KILL)
       return;
   assert(nse_type(nse) != NSE_TYPE_READ);
-  if (lua_status(L) == LUA_OK && nse_status(nse) == NSE_STATUS_ERROR) {
-    // Sometimes Nsock fails immediately and callback is called before
-    // l_connect has a chance to yield. We'll use nu->action to signal
-    // l_connect to return an error instead of yielding.
-    // http://seclists.org/nmap-dev/2016/q1/201
-    trace(nse_iod(nse), nu->action, nu->direction);
+  trace(nse_iod(nse), nu->action, nu->direction);
+
+  if (lua_status(L) == LUA_OK) {
+    // Sometimes an operation finishes immediately and Nsock calls the callback
+    // before the caller has a chance to yield. We'll use nu->action to signal
+    // the caller to return instead of yielding.
     nu->action = NU_ACTION_IMMEDIATE;
+    if (nse_status(nse) == NSE_STATUS_SUCCESS) {
+      lua_pushboolean(L, true);
+    }
+    else {
+      lua_pushboolean(L, false);
+      lua_pushstring(L, nse_status2str(nse_status(nse)));
+    }
     return;
   }
+  assert(lua_status(L) == LUA_YIELD);
   switch (nse_type(nse)) {
     case NSE_TYPE_CONNECT:
     case NSE_TYPE_CONNECT_SSL:
@@ -378,8 +386,6 @@ static void callback (nsock_pool nsp, nsock_event nse, void *ud)
     default:
       break;
   }
-  assert(lua_status(L) == LUA_YIELD);
-  trace(nse_iod(nse), nu->action, nu->direction);
   status(L, nse_status(nse));
 }
 
@@ -468,9 +474,15 @@ static int l_reconnect_ssl (lua_State *L)
   return nseU_safeerror(L, "sorry, you don't have OpenSSL");
 #endif
 
+  int oldtop = lua_gettop(L);
+  nu->action = "SSL RECONNECT";
   nsock_reconnect_ssl(nsp, nu->nsiod, callback, nu->timeout,
       nu, nu->ssl_session);
 
+  if (nu->action == NU_ACTION_IMMEDIATE) {
+    // Immediate return
+    return lua_gettop(L) - oldtop;
+  }
   return yield(L, nu, "SSL RECONNECT", TO, 0, NULL);
 }
 
@@ -553,6 +565,7 @@ static int connect (lua_State *L, int status, lua_KContext ctx)
   nu->action = "PRECONNECT";
   nu->direction = TO;
 
+  int oldtop = lua_gettop(L);
   switch (what)
   {
     case TCP:
@@ -579,8 +592,8 @@ static int connect (lua_State *L, int status, lua_KContext ctx)
     freeaddrinfo(dest);
 
   if (nu->action == NU_ACTION_IMMEDIATE) {
-    // Immediate error
-    return nseU_safeerror(L, nse_status2str(NSE_STATUS_ERROR));
+    // Immediate return
+    return lua_gettop(L) - oldtop;
   }
   return yield(L, nu, "CONNECT", TO, 0, NULL);
 }
@@ -598,10 +611,12 @@ static int l_send (lua_State *L)
   size_t size;
   const char *string = luaL_checklstring(L, 2, &size);
   trace(nu->nsiod, hexify((unsigned char *) string, size).c_str(), TO);
+  int oldtop = lua_gettop(L);
+  nu->action = "SEND";
   nsock_write(nsp, nu->nsiod, callback, nu->timeout, nu, string, size);
   if (nu->action == NU_ACTION_IMMEDIATE) {
-    // Immediate error
-    return nseU_safeerror(L, nse_status2str(NSE_STATUS_ERROR));
+    // Immediate return
+    return lua_gettop(L) - oldtop;
   }
   return yield(L, nu, "SEND", TO, 0, NULL);
 }
@@ -626,9 +641,15 @@ static int l_sendto (lua_State *L)
   if (dest == NULL)
     return nseU_safeerror(L, "getaddrinfo returned success but no addresses");
 
-  nsock_sendto(nsp, nu->nsiod, callback, nu->timeout, nu, dest->ai_addr, dest->ai_addrlen, port, string, size);
   trace(nu->nsiod, hexify((unsigned char *) string, size).c_str(), TO);
+  int oldtop = lua_gettop(L);
+  nu->action = "SENDTO";
+  nsock_sendto(nsp, nu->nsiod, callback, nu->timeout, nu, dest->ai_addr, dest->ai_addrlen, port, string, size);
   freeaddrinfo(dest);
+  if (nu->action == NU_ACTION_IMMEDIATE) {
+    // Immediate return
+    return lua_gettop(L) - oldtop;
+  }
   return yield(L, nu, "SEND", TO, 0, NULL);
 
 }
@@ -652,11 +673,11 @@ static void receive_callback (nsock_pool nsp, nsock_event nse, void *udata)
       nu->action = NU_ACTION_IMMEDIATE;
     return;
   }
-  else if (lua_status(L) == LUA_OK && nse_status(nse) == NSE_STATUS_EOF) {
+  else if (lua_status(L) == LUA_OK) {
     // since r39028, read event can fail immediately if the socket is EOF.
-    trace(nse_iod(nse), nu->action, "EOF");
-    lua_pushnil(L);
-    lua_pushliteral(L, "EOF");
+    trace(nse_iod(nse), nse_status2str(nse_status(nse)), FROM);
+    lua_pushboolean(L, false);
+    lua_pushstring(L, nse_status2str(nse_status(nse)));
     nu->action = NU_ACTION_IMMEDIATE;
     return;
   }
@@ -670,6 +691,7 @@ static int l_receive (lua_State *L)
   nse_nsock_udata *nu = check_nsock_udata(L, 1, true);
   NSOCK_UDATA_ENSURE_OPEN(L, nu);
   int oldtop = lua_gettop(L);
+  nu->action = "RECEIVE";
   nsock_read(nsp, nu->nsiod, receive_callback, nu->timeout, nu);
   if (nu->action == NU_ACTION_IMMEDIATE) {
     // Immediate return
@@ -684,6 +706,7 @@ static int l_receive_lines (lua_State *L)
   nse_nsock_udata *nu = check_nsock_udata(L, 1, true);
   NSOCK_UDATA_ENSURE_OPEN(L, nu);
   int oldtop = lua_gettop(L);
+  nu->action = "RECEIVE LINES";
   nsock_readlines(nsp, nu->nsiod, receive_callback, nu->timeout, nu,
       luaL_checkinteger(L, 2));
   if (nu->action == NU_ACTION_IMMEDIATE) {
@@ -699,6 +722,7 @@ static int l_receive_bytes (lua_State *L)
   nse_nsock_udata *nu = check_nsock_udata(L, 1, true);
   NSOCK_UDATA_ENSURE_OPEN(L, nu);
   int oldtop = lua_gettop(L);
+  nu->action = "RECEIVE BYTES";
   nsock_readbytes(nsp, nu->nsiod, receive_callback, nu->timeout, nu,
       luaL_checkinteger(L, 2));
   if (nu->action == NU_ACTION_IMMEDIATE) {
@@ -768,11 +792,12 @@ static int receive_buf (lua_State *L, int status, lua_KContext ctx)
   else
   {
     lua_pop(L, 2); /* pop 2 results */
-    int oldtop = lua_gettop(L);
+    nu->action = "RECEIVE BUF";
     nsock_read(nsp, nu->nsiod, receive_callback, nu->timeout, nu);
     if (nu->action == NU_ACTION_IMMEDIATE) {
-      // Immediate return
-      return lua_gettop(L) - oldtop;
+      // Immediate return. We can't yield since the callback already ran, so we
+      // call ourselves as a continuation just like Lua would have.
+      return receive_buf(L, LUA_YIELD, 0);
     }
     return yield(L, nu, "RECEIVE BUF", FROM, 0, receive_buf);
   }
@@ -1072,7 +1097,7 @@ static void pcap_receive_handler (nsock_pool nsp, nsock_event nse, void *ud)
   nse_nsock_udata *nu = (nse_nsock_udata *) ud;
   lua_State *L = nu->thread;
 
-  assert(lua_status(L) == LUA_YIELD);
+  assert(nse_type(nse) == NSE_TYPE_PCAP_READ);
   if (nse_status(nse) == NSE_STATUS_SUCCESS)
   {
     const unsigned char *l2_data, *l3_data;
@@ -1086,7 +1111,18 @@ static void pcap_receive_handler (nsock_pool nsp, nsock_event nse, void *ud)
     lua_pushlstring(L, (const char *) l2_data, l2_len);
     lua_pushlstring(L, (const char *) l3_data, l3_len);
     lua_pushnumber(L, TIMEVAL_SECS(tv));
-    nse_restore(L, 5);
+    if(lua_status(L) == LUA_YIELD)
+      nse_restore(L, 5);
+    else
+      nu->action = NU_ACTION_IMMEDIATE;
+    return;
+  }
+  else if (lua_status(L) == LUA_OK) {
+    // Not aware this can happen, but better to be safe
+    lua_pushboolean(L, false);
+    lua_pushstring(L, nse_status2str(nse_status(nse)));
+    nu->action = NU_ACTION_IMMEDIATE;
+    return;
   }
   else
     status(L, nse_status(nse)); /* will also restore the thread */
@@ -1099,8 +1135,13 @@ static int l_pcap_receive (lua_State *L)
   if (nu->nsiod == NULL || nu->af != NSE_AF_PCAP) {
     return luaL_error(L, "not a pcap socket");
   }
+  int oldtop = lua_gettop(L);
   nsock_pcap_read_packet(nsp, nu->nsiod, pcap_receive_handler,
       nu->timeout, nu);
+  if (nu->action == NU_ACTION_IMMEDIATE) {
+    // Immediate return
+    return lua_gettop(L) - oldtop;
+  }
   return yield(L, nu, "PCAP RECEIVE", FROM, 0, NULL);
 }
 

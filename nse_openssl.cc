@@ -579,25 +579,61 @@ static const struct luaL_Reg openssllib[] = {
   { NULL, NULL }
 };
 
-LUALIB_API int luaopen_openssl(lua_State *L) {
+struct nse_openssl_state {
+#if OPENSSL_VERSION_NUMBER >= 0x30000000L
+  OSSL_PROVIDER *legacy_provider;
+  OSSL_PROVIDER *default_provider;
+#endif
+};
+
+static int nse_openssl_gc(lua_State *L) {
+  nse_openssl_state *state = (nse_openssl_state *) luaL_checkudata(L, 1, "NSE_OPENSSL_STATE");
+#if OPENSSL_VERSION_NUMBER >= 0x30000000L
+  if (state->legacy_provider) {
+    OSSL_PROVIDER_unload(state->legacy_provider);
+    state->legacy_provider = NULL;
+  }
+  if (state->default_provider) {
+    OSSL_PROVIDER_unload(state->default_provider);
+    state->default_provider = NULL;
+  }
+#endif
+  return 0;
+}
+
+static void create_openssl_state(lua_State *L) {
+  nse_openssl_state *state = (nse_openssl_state *) lua_newuserdatauv(L, sizeof(nse_openssl_state), 0);
+  if (luaL_newmetatable(L, "NSE_OPENSSL_STATE")) {
+    lua_pushcfunction(L, nse_openssl_gc);
+    lua_setfield(L, -2, "__gc");
+  }
+  lua_setmetatable(L, -2);
+  lua_setfield(L, -2, "nse_openssl_state");
 
 #if OPENSSL_VERSION_NUMBER < 0x10100000L || defined LIBRESSL_VERSION_NUMBER
   OpenSSL_add_all_algorithms();
   ERR_load_crypto_strings();
 #elif OPENSSL_VERSION_NUMBER >= 0x30000000L
-  if (NULL == OSSL_PROVIDER_load(NULL, "legacy") && o.debugging > 1)
+  state->legacy_provider = OSSL_PROVIDER_load(NULL, "legacy");
+  if (NULL == state->legacy_provider && o.debugging > 1)
   {
     // Legacy provider may not be available.
     // On Windows, legacy crypto is still available even though this fails.
     log_write(LOG_STDOUT, "%s: OpenSSL legacy provider failed to load: %s\n", SCRIPT_ENGINE, ERR_error_string(ERR_get_error(), NULL));
   }
-  if (NULL == OSSL_PROVIDER_load(NULL, "default") && o.verbose)
+  state->default_provider = OSSL_PROVIDER_load(NULL, "default");
+  if (NULL == state->default_provider && o.verbose)
   {
     log_write(LOG_STDOUT, "%s: OpenSSL default provider failed to load: %s\n", SCRIPT_ENGINE, ERR_error_string(ERR_get_error(), NULL));
   }
 #endif
+}
+
+LUALIB_API int luaopen_openssl(lua_State *L) {
 
   luaL_newlib(L, openssllib);
+
+  create_openssl_state(L);
 
   // create metatable for bignum
   luaL_newmetatable( L, "BIGNUM" );

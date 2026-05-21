@@ -140,8 +140,8 @@ typedef struct{
 
 typedef struct{
   struct timeval ts;
-  int caplen;
-  int len;
+  u32 caplen;
+  u32 len;
   const unsigned char *packet;  /* caplen bytes */
 } nsock_pcap;
 

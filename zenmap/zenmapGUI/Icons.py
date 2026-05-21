@@ -87,6 +87,7 @@ icon_names = (
     'vl_4',
     'vl_5')
 
+ICONS = {}
 pixmap_path = Path.pixmaps_dir
 if pixmap_path:
     # This is a generator that returns file names for pixmaps in the order they
@@ -94,7 +95,6 @@ if pixmap_path:
     def get_pixmap_file_names(icon_name, size):
         yield '%s_%s.png' % (icon_name, size)
 
-    iconfactory = Gtk.IconFactory()
     for icon_name in icon_names:
         for type, size in (('icon', '32'), ('logo', '75')):
             key = '%s_%s' % (icon_name, type)
@@ -114,94 +114,54 @@ if pixmap_path:
                             ', '.join(get_pixmap_file_names(icon_name, size)),
                             pixmap_path))
                 continue
-            iconset = Gtk.IconSet(pixbuf=pixbuf)
-            iconfactory.add(key, iconset)
+            ICONS[key] = pixbuf
             log.debug('Register %s icon name for file %s' % (key, file_path))
-    iconfactory.add_default()
 
 
 def get_os_icon(host):
-    osmatch = host.get_best_osmatch()
-    if osmatch and osmatch['osclasses']:
-        osclass = osmatch['osclasses'][0]
-    else:
-        osclass = None
-
-    if osclass and osmatch:
-        return get_os(osclass['osfamily'], osmatch['name'], 'icon')
-    else:
-        return get_os(None, None, 'icon')
+    return ICONS["%s_icon" % get_os(host)]
 
 
 def get_os_logo(host):
+    return ICONS["%s_logo" % get_os(host)]
+
+
+OSNAMES = {
+        'Windows': 'win',
+        'OpenBSD': 'openbsd',
+        'FreeBSD': 'freebsd',
+        'Solaris': 'solaris',
+        'OpenSolaris': 'solaris',
+        'IRIX': 'irix',
+        'Mac OS X': 'macosx',
+        'Mac OS': 'macosx',
+        'macOS': 'macosx',
+        }
+
+
+def get_os(host):
     osmatch = host.get_best_osmatch()
-    if osmatch and osmatch['osclasses']:
-        osclass = osmatch['osclasses'][0]
-    else:
-        osclass = None
+    try:
+        osfamily = osmatch['osclasses'][0]['osfamily']
+    except (KeyError, TypeError):
+        return 'unknown'
 
-    if osclass and osmatch:
-        return get_os(osclass['osfamily'], osmatch['name'], 'logo')
-    else:
-        return get_os(None, None, 'logo')
-
-
-def get_os(osfamily, osmatch, type):
-    if osfamily:
-        if osfamily == 'Linux':
-            if re.findall("ubuntu", osmatch.lower()):
-                # Ubuntu icon
-                return 'ubuntu_%s' % type
-            elif re.findall("red hat", osmatch.lower()):
-                # RedHat icon
-                return 'redhat_%s' % type
-            else:
-                # Generic Linux icon
-                return 'linux_%s' % type
-        elif osfamily == 'Windows':
-            # Windows icon
-            return 'win_%s' % type
-        elif osfamily == 'OpenBSD':
-            # OpenBSD icon
-            return 'openbsd_%s' % type
-        elif osfamily == 'FreeBSD':
-            # FreeBSD icon
-            return 'freebsd_%s' % type
-        elif osfamily == 'NetBSD':
-            # NetBSD icon
-            return 'default_%s' % type
-        elif osfamily == 'Solaris':
-            # Solaris icon
-            return 'solaris_%s' % type
-        elif osfamily == 'OpenSolaris':
-            # OpenSolaris icon
-            return 'solaris_%s' % type
-        elif osfamily == 'IRIX':
-            # Irix icon
-            return 'irix_%s' % type
-        elif osfamily == 'Mac OS X':
-            # Mac OS X icon
-            return 'macosx_%s' % type
-        elif osfamily == 'Mac OS':
-            # Mac OS icon
-            return 'macosx_%s' % type
+    if osfamily == 'Linux':
+        matchname = osmatch['name'].lower()
+        if "ubuntu" in matchname:
+            # Ubuntu icon
+            return 'ubuntu'
+        elif "red hat" in matchname:
+            # RedHat icon
+            return 'redhat'
         else:
-            # Default OS icon
-            return 'default_%s' % type
+            # Generic Linux icon
+            return 'linux'
     else:
-        # Unknown OS icon
-        return 'unknown_%s' % type
+        return OSNAMES.get(osfamily, 'default')
 
 
 def get_vulnerability_logo(open_ports):
-    open_ports = int(open_ports)
-    if open_ports < 3:
-        return 'vl_1_logo'
-    elif open_ports < 5:
-        return 'vl_2_logo'
-    elif open_ports < 7:
-        return 'vl_3_logo'
-    elif open_ports < 9:
-        return 'vl_4_logo'
-    else:
-        return 'vl_5_logo'
+    ports = min(int(open_ports), 10)
+    lvl = (ports // 2) + 1
+    return ICONS['vl_%d_logo' % (lvl,)]

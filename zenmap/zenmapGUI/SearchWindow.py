@@ -126,7 +126,8 @@ class SearchWindow(BaseSearchWindow):
         self.btn_box.pack_start(self.btn_append, True, True, 0)
         self.btn_box.pack_start(self.btn_open, True, True, 0)
 
-        self.bottom_label.set_alignment(0.0, 0.5)
+        self.bottom_label.set_xalign(0.0)
+        self.bottom_label.set_yalign(0.5)
         self.bottom_label.set_use_markup(True)
 
         self.bottom_hbox.pack_start(self.bottom_label, True, True, 0)

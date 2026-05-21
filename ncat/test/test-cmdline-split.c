@@ -9,32 +9,38 @@ char **cmdline_split(const char *cmdexec);
 
 int test_cmdline(const char *line, const char **target_args)
 {
-    char **cmd_args;
+    char **cmd_args, **cur_arg;
     int args_match = 1;
 
     test_count++;
 
     cmd_args = cmdline_split(line);
+    cur_arg = cmd_args;
 
     /*
      * Make sure that all of the target arguments are have been extracted
      * by cmdline_split.
      */
-    while (*cmd_args && *target_args) {
-        if (strcmp(*cmd_args, *target_args)) {
+    while (*cur_arg && *target_args) {
+        if (args_match && strcmp(*cur_arg, *target_args)) {
             args_match = 0;
-            break;
         }
-        cmd_args++;
+        free(*cur_arg);
+        cur_arg++;
         target_args++;
     }
-    if ((*cmd_args != NULL) || (*target_args != NULL)) {
+    if ((*cur_arg != NULL) || (*target_args != NULL)) {
         /*
          * One of the argument list had more arguments than the other.
          * Therefore, they do not match
          */
         args_match = 0;
+        while (*cur_arg != NULL) {
+          free(*cur_arg);
+          cur_arg++;
+        }
     }
+    free(cmd_args);
 
     if (args_match) {
         success_count++;
@@ -55,11 +61,13 @@ int test_cmdline_fail(const char *line)
     cmd_args = cmdline_split(line);
 
     if (*cmd_args == NULL) {
+        free(cmd_args);
         success_count++;
         printf("PASS '%s'\n", line);
         return 1;
     } else {
-        printf("PASS '%s'\n", line);
+        free(cmd_args);
+        printf("FAIL '%s'\n", line);
         return 0;
     }
 }

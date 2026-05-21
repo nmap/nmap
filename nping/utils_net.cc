@@ -67,6 +67,7 @@
 #include "nbase.h"
 #include "pcap.h"
 #include <vector>
+#include <cstddef>
 
 extern NpingOps o;
 
@@ -373,6 +374,11 @@ bool isICMPCode(u8 code, u8 type){
 } /* End of isICMPType() */
 
 
+const char *arppackethdrinfo(const u8 *packet, u32 len, int detail );
+int arppackethdrinfo(const u8 *packet, u32 len, u8 *dstbuff, u32 dstlen);
+int tcppackethdrinfo(const u8 *packet, size_t len, u8 *dstbuff, size_t dstlen, int detail, const char *src, const char *dst);
+int udppackethdrinfo(const u8 *packet, size_t len, u8 *dstbuff, size_t dstlen, int detail, const char *src, const char *dst);
+
 /* This function fills buffer "dstbuff" with a printable string that
  * represents the supplied packet. When sending IPv6 packet at raw TCP
  * level, the caller may specify source and/or destination address so they
@@ -400,10 +406,28 @@ int getPacketStrInfo(const char *proto, const u8 *packet, u32 len, u8 *dstbuff,
   }else if( !strcasecmp(proto, "ARP") || !strcasecmp(proto, "RARP") ){
     return  arppackethdrinfo(packet, len, dstbuff, dstlen);
   }else if( !strcasecmp(proto, "IPv6_NO_HEADER") || o.ipv6UsingSocket() ){
+    char srcipstring[128];
+    const char *src = NULL;
+    char dstipstring[128];
+    const char *dst = NULL;
+    if (ss_src) {
+      src = inet_ntop_ez(ss_src, sizeof(*ss_src));
+      if (src) {
+        Strncpy(srcipstring, src, sizeof(srcipstring));
+        src = srcipstring;
+      }
+    }
+    if (ss_dst) {
+      dst = inet_ntop_ez(ss_dst, sizeof(*ss_dst));
+      if (dst) {
+        Strncpy(dstipstring, dst, sizeof(dstipstring));
+        dst = dstipstring;
+      }
+    }
     if( o.getMode()==TCP )
-        return  tcppackethdrinfo(packet, len, dstbuff, dstlen, detail, ss_src, ss_dst);
+        return  tcppackethdrinfo(packet, len, dstbuff, dstlen, detail, src, dst);
     else if ( o.getMode()==UDP )
-        return  udppackethdrinfo(packet, len, dstbuff, dstlen, detail, ss_src, ss_dst);
+        return  udppackethdrinfo(packet, len, dstbuff, dstlen, detail, src, dst);
     else
         nping_fatal(QT_3, "getPacketStrInfo(): Unable to determinate transport layer protocol");
   }else{
@@ -880,196 +904,25 @@ int arppackethdrinfo(const u8 *packet, u32 len, u8 *dstbuff, u32 dstlen){
 } /* End of arppackethdrinfo() */
 
 
-
 int tcppackethdrinfo(const u8 *packet, size_t len, u8 *dstbuff, size_t dstlen,
-     int detail, struct sockaddr_storage *src, struct sockaddr_storage *dst){
-
-  struct tcp_hdr *tcp=NULL; ;           /* TCP header structure.             */
-  char *p = NULL;                       /* Aux pointer.                      */
-  static char protoinfo[1024] = "";     /* Stores final info string.         */
-  char tflags[10];
-  char tcpinfo[64] = "";
-  char buf[32];
-  char tcpoptinfo[256] = "";
-  struct sockaddr_in *s4=(struct sockaddr_in *)src;
-  struct sockaddr_in6 *s6=(struct sockaddr_in6 *)src;
-  struct sockaddr_in *d4=(struct sockaddr_in *)dst;
-  struct sockaddr_in6 *d6=(struct sockaddr_in6 *)dst;
-  char srcipstring[128];
-  char dstipstring[128];
-
+     int detail, const char *src, const char *dst){
  assert(packet);
  assert(dstbuff);
- assert(len>=20);
 
- tcp=(struct tcp_hdr *)packet;
-
-   /* Ensure we end up with a valid detail number */
-  if( detail!=LOW_DETAIL && detail!=MEDIUM_DETAIL && detail!=HIGH_DETAIL)
-    detail=LOW_DETAIL;
-
-
-  /* Determine target IP address */
-  if(src!=NULL){
-    if( s4->sin_family==AF_INET ){
-        inet_ntop(AF_INET, &s4->sin_addr, srcipstring, sizeof(srcipstring));
-    }
-    else if( s6->sin6_family==AF_INET6){
-        inet_ntop(AF_INET6, &s6->sin6_addr, srcipstring, sizeof(srcipstring));
-    }else{
-        sprintf(dstipstring, "unknown_addr_family");
-    }
-  }else{
-    sprintf(srcipstring, "this_host");
-  }
-
-  /* Determine source IP address */
-  if(dst!=NULL){
-    if( d4->sin_family==AF_INET ){
-        inet_ntop(AF_INET, &d4->sin_addr, dstipstring, sizeof(dstipstring));
-    }
-    else if( d6->sin6_family==AF_INET6){
-        inet_ntop(AF_INET6, &d6->sin6_addr, dstipstring, sizeof(dstipstring));
-    }else{
-        sprintf(dstipstring, "unknown_addr_family");
-    }
-  }else{
-    sprintf(dstipstring, "unknown_host");
-  }
-
-  /* TCP Flags */
-  p = tflags;
-  /* These are basically in tcpdump order */
-  if (tcp->th_flags & TH_SYN) *p++ = 'S';
-  if (tcp->th_flags & TH_FIN) *p++ = 'F';
-  if (tcp->th_flags & TH_RST) *p++ = 'R';
-  if (tcp->th_flags & TH_PUSH) *p++ = 'P';
-  if (tcp->th_flags & TH_ACK){ *p++ = 'A';
-    Snprintf(buf, sizeof(buf), " ack=%lu",
-         (unsigned long) ntohl(tcp->th_ack));
-    strncat(tcpinfo, buf, sizeof(tcpinfo) - strlen(tcpinfo) - 1);
-  }
-  if (tcp->th_flags & TH_URG) *p++ = 'U';
-  if (tcp->th_flags & TH_ECE) *p++ = 'E'; /* rfc 2481/3168 */
-  if (tcp->th_flags & TH_CWR) *p++ = 'C'; /* rfc 2481/3168 */
-  *p++ = '\0';
-
-
-  /* TCP Options */
-  if((u32) tcp->th_off * 4 > sizeof(struct tcp_hdr)) {
-    if(len < (u32) tcp->th_off * 4) {
-      Snprintf(tcpoptinfo, sizeof(tcpoptinfo), "option incomplete");
-
-    } else {
-      tcppacketoptinfo((u8*) tcp + sizeof(struct tcp_hdr),
-                 tcp->th_off*4 - sizeof(struct tcp_hdr),
-                 tcpoptinfo, sizeof(tcpoptinfo));
-    }
-  }
-
-  /* Rest of header fields */
-  if( detail == LOW_DETAIL ){
-    Snprintf(protoinfo, sizeof(protoinfo), "TCP %s:%d > %s:%d %s seq=%lu win=%hu %s",
-       srcipstring, ntohs(tcp->th_sport), dstipstring, ntohs(tcp->th_dport),
-           tflags, (unsigned long) ntohl(tcp->th_seq),
-           ntohs(tcp->th_win), tcpoptinfo);               
-  }else if( detail == MEDIUM_DETAIL ){
-    Snprintf(protoinfo, sizeof(protoinfo), "TCP [%s:%d > %s:%d %s seq=%lu win=%hu csum=0x%04X%s%s]",
-       srcipstring, ntohs(tcp->th_sport), dstipstring, ntohs(tcp->th_dport),
-           tflags, (unsigned long) ntohl(tcp->th_seq),
-           ntohs(tcp->th_win),  ntohs(tcp->th_sum),
-           (tcpoptinfo[0]!='\0') ? " " : "",
-           tcpoptinfo);                 
-  }else if( detail==HIGH_DETAIL ){
-    Snprintf(protoinfo, sizeof(protoinfo), "TCP [%s:%d > %s:%d %s seq=%lu ack=%lu off=%d res=%d win=%hu csum=0x%04X urp=%d%s%s] ",
-       srcipstring, ntohs(tcp->th_sport),
-       dstipstring, ntohs(tcp->th_dport),
-       tflags, (unsigned long) ntohl(tcp->th_seq),
-       (unsigned long) ntohl(tcp->th_ack),
-       (u8)tcp->th_off, (u8)tcp->th_x2, ntohs(tcp->th_win),
-       ntohs(tcp->th_sum), ntohs(tcp->th_urp),
-       (tcpoptinfo[0]!='\0') ? " " : "",
-       tcpoptinfo);  
-  }
-
-  strncpy((char*)dstbuff, protoinfo, dstlen);
-
-  return OP_SUCCESS;
-
+ return (tcppackethdrinfo(packet, len, (char *)dstbuff, dstlen,
+      detail, 0, src, dst) > 0 ? OP_SUCCESS : OP_FAILURE);
 } /* End of tcppackethdrinfo() */
 
 
-
-
 int udppackethdrinfo(const u8 *packet, size_t len, u8 *dstbuff, size_t dstlen,
-    int detail, struct sockaddr_storage *src, struct sockaddr_storage *dst){
-
-  struct udp_hdr *udp = NULL;           /* UDP header structure.             */
-  static char protoinfo[1024] = "";     /* Stores final info string.         */
-  struct sockaddr_in *s4=(struct sockaddr_in *)src;
-  struct sockaddr_in6 *s6=(struct sockaddr_in6 *)src;
-  struct sockaddr_in *d4=(struct sockaddr_in *)dst;
-  struct sockaddr_in6 *d6=(struct sockaddr_in6 *)dst;
-  char srcipstring[128];
-  char dstipstring[128];
+    int detail, const char *src, const char *dst){
 
  assert(packet);
  assert(dstbuff);
- assert(len>=8);
 
- udp=(struct udp_hdr *)packet;
-
-   /* Ensure we end up with a valid detail number */
-  if( detail!=LOW_DETAIL && detail!=MEDIUM_DETAIL && detail!=HIGH_DETAIL)
-    detail=LOW_DETAIL;
-
-
-  /* Determine target IP address */
-  if(src!=NULL){
-    if( s4->sin_family==AF_INET ){
-        inet_ntop(AF_INET, &s4->sin_addr, srcipstring, sizeof(srcipstring));
-    }
-    else if( s6->sin6_family==AF_INET6){
-        inet_ntop(AF_INET6, &s6->sin6_addr, srcipstring, sizeof(srcipstring));
-    }else{
-        sprintf(dstipstring, "unknown_addr_family");
-    }
-  }else{
-    sprintf(srcipstring, "this_host");
-  }
-
-  /* Determine source IP address */
-  if(dst!=NULL){
-    if( d4->sin_family==AF_INET ){
-        inet_ntop(AF_INET, &d4->sin_addr, dstipstring, sizeof(dstipstring));
-    }
-    else if( d6->sin6_family==AF_INET6){
-        inet_ntop(AF_INET6, &d6->sin6_addr, dstipstring, sizeof(dstipstring));
-    }else{
-        sprintf(dstipstring, "unknown_addr_family");
-    }
-  }else{
-    sprintf(dstipstring, "unknown_host");
-  }
-
-  if( detail == LOW_DETAIL ){
-    Snprintf(protoinfo, sizeof(protoinfo), "UDP %s:%d > %s:%d",
-         srcipstring, ntohs(udp->uh_sport), dstipstring, ntohs(udp->uh_dport));
-  }else if( detail == MEDIUM_DETAIL ){
-    Snprintf(protoinfo, sizeof(protoinfo), "UDP [%s:%d > %s:%d csum=0x%04X]",
-         srcipstring, ntohs(udp->uh_sport), dstipstring, ntohs(udp->uh_dport), ntohs(udp->uh_sum));
-  }else if( detail==HIGH_DETAIL ){
-    Snprintf(protoinfo, sizeof(protoinfo), "UDP [%s:%d > %s:%d len=%d csum=0x%04X]",
-         srcipstring, ntohs(udp->uh_sport), dstipstring, ntohs(udp->uh_dport),
-         ntohs(udp->uh_ulen), ntohs(udp->uh_sum));
-  }
-
-  strncpy((char*)dstbuff, protoinfo, dstlen);
-
-  return OP_SUCCESS;
-
+ return (udppackethdrinfo(packet, len, (char *)dstbuff, dstlen,
+      detail, 0, src, dst) > 0 ? OP_SUCCESS : OP_FAILURE);
 } /* End of udppackethdrinfo() */
-
 
 
 /** Returns a random (null-terminated) ASCII string with no special
@@ -1200,118 +1053,70 @@ int print_interfaces_dnet() {
 
 
 /** @warning Returns pointer to an internal static buffer */
-struct sockaddr_storage *getSrcSockAddrFromIPPacket(u8 *pkt, size_t pktLen){
-  static struct sockaddr_storage ss;
-  struct sockaddr_in *s_ip4=(struct sockaddr_in *)&ss;
-  struct sockaddr_in6 *s_ip6=(struct sockaddr_in6 *)&ss;
-  struct ip *i4=(struct ip*)pkt;
-  memset(&ss, 0, sizeof(struct sockaddr_storage));
-
-  if(pkt==NULL || pktLen < 20)
+const struct sockaddr_storage *getSrcSockAddrFromIPPacket(const u8 *pkt, size_t pktLen){
+  if (pkt == NULL || pktLen > UINT_MAX)
     return NULL;
 
-  if( i4->ip_v == 4 ){
-    s_ip4->sin_family=AF_INET;
-    memcpy(&(s_ip4->sin_addr.s_addr), pkt+12, 4);
-  }
-  else if(i4->ip_v == 6 ){
-    if(pktLen<40) /* Min length of an IPv6 header: 40 bytes*/
-        return NULL;
-    s_ip6->sin6_family=AF_INET6;
-    memcpy(s_ip6->sin6_addr.s6_addr, pkt+8, 16);
-  }
-  else{
-      return NULL;
-  }
-  return &ss;
+  static struct abstract_ip_hdr hdr = {};
+  unsigned int datalen = pktLen;
+  const u8 *data = ip_get_data(pkt, &datalen, &hdr);
+
+  if (data == NULL)
+    return NULL;
+
+  return &hdr.src;
 } /* End of getSrcSockAddrFromPacket() */
 
 
 
 
-
-u8 *getUDPheaderLocation(u8 *pkt, size_t pktLen){
-  struct ip *i4=(struct ip*)pkt;
-  if(pkt==NULL || pktLen < 40)
+static const u8 *getDataLocation(const u8 *pkt, size_t pktLen, u8 proto, size_t minLen){
+  if (pkt == NULL || pktLen > UINT_MAX)
     return NULL;
 
-  /* Packet is IPv4 */
-  if( i4->ip_v == 4 ){
-    if (i4->ip_p == IPPROTO_UDP) {
-        if( pktLen >= ((size_t)(i4->ip_hl*4 + 8)) ) /* We have a full IP+UDP packet */
-            return pkt+(i4->ip_hl*4);    
-    }
-    else
-        return NULL;
-  }
-  /* Packet is IPv6 */
-  else if(i4->ip_v == 6 ){
-    if(pktLen<40 + 8 )
-        return NULL;
-    if( pkt[6] == IPPROTO_UDP ) /* Next Header is UDP? */
-        return pkt+40;
-    else /* Extension headers not supported, return NULL TODO: support it? */
-        return NULL;
-  }
-  else{
-      return NULL;
-  }
-  return NULL;
+  struct abstract_ip_hdr hdr = {};
+  unsigned int datalen = pktLen;
+  const u8 *data = ip_get_data(pkt, &datalen, &hdr);
+
+  if (data == NULL)
+    return NULL;
+
+  if (hdr.proto != proto)
+    return NULL;
+
+  // Ensure we have a full TCP header
+  if (datalen < minLen)
+    return NULL;
+
+  return data;
+}
+
+
+const u8 *getUDPheaderLocation(const u8 *pkt, size_t pktLen){
+  return getDataLocation(pkt, pktLen, IPPROTO_UDP, 8);
 } /* End of getUDPheaderLocation */
 
 
-u8 *getTCPheaderLocation(u8 *pkt, size_t pktLen){
-  struct ip *i4=(struct ip*)pkt;
-  if(pkt==NULL || pktLen < 40)
-    return NULL;
-
-  /* Packet is IPv4 */
-  if( i4->ip_v == 4 ){
-    if (i4->ip_p == IPPROTO_TCP) { /* Next proto is TCP? */
-        if( pktLen >= ((size_t)(i4->ip_hl*4 + 20)) ) /* We have a full IP+TCP packet */
-            return pkt+(i4->ip_hl*4);    
-    }
-    else
-        return NULL;
-  }
-  /* Packet is IPv6 */
-  else if(i4->ip_v == 6 ){
-    if(pktLen<40 + 20 )
-        return NULL;
-    if( pkt[6] == IPPROTO_TCP ) /* Next Header is TCP? */
-        return pkt+40;
-    else /* Extension headers not supported, return NULL TODO: support it? */
-        return NULL;
-  }
-  else{
-      return NULL;
-  }
-
-  return NULL;
-
-} /* End of getTCPHeaderLocation() */
-
-
+const u8 *getTCPheaderLocation(const u8 *pkt, size_t pktLen){
+  return getDataLocation(pkt, pktLen, IPPROTO_TCP, 20);
+}
 
 
 /* Returns the IP protocol of the packet or -1 in case of failure */
-u8 getProtoFromIPPacket(u8 *pkt, size_t pktLen){
-  struct ip *i4=(struct ip*)pkt;
-  static u8 proto;
-
+u8 getProtoFromIPPacket(const u8 *pkt, size_t pktLen){
   if(pkt==NULL || pktLen < 28)
     return -1;
 
+  u8 ip_v = pkt[0] >> 4;
+
   /* Packet is IPv4 */
-  if( i4->ip_v == 4 ){
-    proto = i4->ip_p;
-    return proto;
+  if (ip_v == 4) {
+    return pkt[offsetof(struct ip, ip_p)];
   }
 
   /* Packet is IPv6 */
-  else if(i4->ip_v == 6 ){
-    proto = pkt[6];
-    return proto;
+  else if (ip_v == 6) {
+    return pkt[offsetof(struct ip6_hdr, ip6_nxt)];
   }
   return -1;
 } /* End of getProtoFromIPPacket() */
@@ -1320,10 +1125,10 @@ u8 getProtoFromIPPacket(u8 *pkt, size_t pktLen){
 
 /** @warning Returns pointer to an internal static buffer
  * @return pointer on success, NULL in case of failure */
-u16 *getSrcPortFromIPPacket(u8 *pkt, size_t pktLen){
+const u16 *getSrcPortFromIPPacket(const u8 *pkt, size_t pktLen){
   static u16 port;
-  u16 *pnt=NULL;
-  u8 *header=NULL;
+  const u16 *pnt=NULL;
+  const u8 *header=NULL;
 
   if(pkt==NULL || pktLen < 28)
     return NULL;
@@ -1341,10 +1146,10 @@ u16 *getSrcPortFromIPPacket(u8 *pkt, size_t pktLen){
 
 /** @warning Returns pointer to an internal static buffer
  * @return pointer on success, NULL in case of failure */
-u16 *getDstPortFromIPPacket(u8 *pkt, size_t pktLen){
+const u16 *getDstPortFromIPPacket(const u8 *pkt, size_t pktLen){
   static u16 port;
-  u16 *pnt=NULL;
-  u8 *header=NULL;
+  const u16 *pnt=NULL;
+  const u8 *header=NULL;
 
   if(pkt==NULL || pktLen < 28)
     return NULL;
@@ -1361,9 +1166,9 @@ u16 *getDstPortFromIPPacket(u8 *pkt, size_t pktLen){
 
 /** @warning Returns pointer to an internal static buffer
  * @return pointer on success, NULL in case of failure */
-u16 *getDstPortFromTCPHeader(u8 *pkt, size_t pktLen){
+const u16 *getDstPortFromTCPHeader(const u8 *pkt, size_t pktLen){
   static u16 port;
-  u16 *pnt=NULL;
+  const u16 *pnt=NULL;
 
   if(pkt==NULL || pktLen < 20)
     return NULL;
@@ -1375,9 +1180,9 @@ u16 *getDstPortFromTCPHeader(u8 *pkt, size_t pktLen){
 
 /** @warning Returns pointer to an internal static buffer
  * @return pointer on success, NULL in case of failure */
-u16 *getDstPortFromUDPHeader(u8 *pkt, size_t pktLen){
+const u16 *getDstPortFromUDPHeader(const u8 *pkt, size_t pktLen){
   static u16 port;
-  u16 *pnt=NULL;
+  const u16 *pnt=NULL;
 
   if(pkt==NULL || pktLen < 8)
     return NULL;

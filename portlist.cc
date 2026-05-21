@@ -267,7 +267,7 @@ void PortList::getServiceDeductions(u16 portno, int protocol, struct serviceDedu
     const struct nservent *service;
 
     /* Look up the service name. */
-    *sd = serviceDeductions();
+    sd->erase();
     service = nmap_getservbyport(portno, protocol);
     if (service != NULL)
       sd->name = service->s_name;

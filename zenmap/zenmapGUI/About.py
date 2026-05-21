@@ -115,7 +115,8 @@ class _program_entry(Gtk.Box):
 
         if description is not None:
             description_label = Gtk.Label()
-            description_label.set_alignment(0.0, 0.0)
+            description_label.set_xalign(0.0)
+            description_label.set_yalign(0.0)
             description_label.set_line_wrap(True)
             description_label.set_text(description)
             self.pack_start(description_label, True, True, 0)

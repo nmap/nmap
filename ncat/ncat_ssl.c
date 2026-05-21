@@ -141,6 +141,9 @@ SSL_CTX *setup_ssl_listen(const SSL_METHOD *method)
         bye("SSL_CTX_new(): %s.", ERR_error_string(ERR_get_error(), NULL));
 
     SSL_CTX_set_options(sslctx, SSL_OP_ALL | SSL_OP_NO_SSLv2);
+#ifdef SSL_CTX_set_dh_auto
+    SSL_CTX_set_dh_auto(sslctx, 1);
+#endif
 
     /* Secure ciphers list taken from Nsock. */
     if (o.sslciphers == NULL) {
@@ -267,6 +270,7 @@ static int cert_match_dnsname(X509 *cert, const char *hostname,
     const X509V3_EXT_METHOD *method;
     unsigned char *data;
     int i;
+    int ret = 0;
 
     if (num_checked != NULL)
         *num_checked = 0;
@@ -327,12 +331,15 @@ static int cert_match_dnsname(X509 *cert, const char *hostname,
                 logdebug("Checking certificate DNS name \"%.*s\" against \"%s\".\n", dnslen, dnsname, hostname);
             if (num_checked != NULL)
                 (*num_checked)++;
-            if (wildcard_match(dnsname, hostname, dnslen))
-                return 1;
+            if (wildcard_match(dnsname, hostname, dnslen)) {
+                ret = 1;
+                break;
+            }
         }
     }
 
-    return 0;
+    sk_GENERAL_NAME_pop_free(gen_names, GENERAL_NAME_free);
+    return ret;
 }
 
 /* Returns the number of contiguous blocks of bytes in pattern that do not
@@ -581,7 +588,7 @@ static int ssl_gen_cert(X509 **cert, EVP_PKEY **key)
 #endif
 
     /* Sign it. */
-    if (X509_sign(*cert, *key, EVP_sha1()) == 0)
+    if (X509_sign(*cert, *key, EVP_sha256()) == 0)
         goto err;
 
     return 1;

@@ -41,6 +41,7 @@ int main(void) {
     if (ai->ai_addr->sa_family != AF_INET) {
         return 1;
     }
+    freeaddrinfo(ai);
     return 0;
 }
 ],[

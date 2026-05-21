@@ -122,7 +122,8 @@ class ScanToolbar(HIGHBox):
         self._pack_noexpand_nofill(self.cancel_button)
 
         # Skip over the dropdown arrow so you can tab to the profile entry.
-        self.target_entry.set_focus_chain((self.target_entry.get_child(),))
+        self.target_entry.get_child().connect('focus-out-event',
+                        lambda w, e: self.profile_entry.grab_focus())
 
         self.target_entry.get_child().connect('activate',
                         lambda x: self.profile_entry.grab_focus())

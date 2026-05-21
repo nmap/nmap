@@ -1838,6 +1838,7 @@ void nmap_free_mem() {
   AllProbes::service_scan_free();
   traceroute_hop_cache_clear();
   nsock_set_default_engine(NULL);
+  close_nse();
 }
 
 int nmap_main(int argc, char *argv[]) {

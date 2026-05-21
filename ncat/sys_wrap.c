@@ -189,3 +189,15 @@ ssize_t Write(int fd, const void *buf, size_t count)
 
     return ret;
 }
+
+#ifndef UNUSED
+#define UNUSED(x) ((void) x)
+#endif
+/* Like Write, but does nothing. */
+ssize_t Ignore(int fd, const void *buf, size_t count)
+{
+  UNUSED(fd);
+  UNUSED(buf);
+  UNUSED(count);
+  return 0;
+}

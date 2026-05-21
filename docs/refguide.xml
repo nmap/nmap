@@ -309,6 +309,8 @@ you would expect.</para>
           wish to scan includes untouchable mission-critical servers,
           systems that are known to react adversely to port scans,
           or subnets administered by other people.</para>
+          <para>If an excluded name cannot be resolved to a network address, Nmap
+          will quit without performing scanning.</para>
         </listitem>
       </varlistentry>
 

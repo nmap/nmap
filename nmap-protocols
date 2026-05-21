@@ -149,5 +149,8 @@ wesp            141  # Wrapped Encapsulating Security Payload
 rohc            142  # Robust Header Compression
 ethernet        143  # RFC 8986 Ethernet next-header
 aggfrag         144  # AGGFRAG encapsulation payload for ESP [draft-ietf-ipsecme-iptfs-18]
+nsh             145  # Network Service Header
+homa            146  # Homa
+bit-emu         147  # Bit-stream Emulation
 experimental1   253  # Use for experimentation and testing
 experimental2   254  # Use for experimentation and testing

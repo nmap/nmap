@@ -129,14 +129,15 @@ class BWStatusbar(Gtk.Statusbar, BWBox):
                          homogeneous=homogeneous, spacing=spacing)
 
 
-class BWTable(Gtk.Table, BWBox):
+class BWTable(Gtk.Grid, BWBox):
     """
     """
     def __init__(self, rows=1, columns=1, homogeneous=False):
         """
         """
-        Gtk.Table.__init__(self, n_rows=rows, n_columns=columns,
-                           homogeneous=homogeneous)
+        Gtk.Grid.__init__(self)
+        self.set_row_homogeneous(homogeneous)
+        self.set_column_homogeneous(homogeneous)
         self.bw_set_spacing(12)
 
         self.__rows = rows
@@ -147,16 +148,8 @@ class BWTable(Gtk.Table, BWBox):
     def bw_set_spacing(self, spacing):
         """
         """
-        self.set_row_spacings(spacing)
-        self.set_col_spacings(spacing)
-
-    def bw_resize(self, rows, columns):
-        """
-        """
-        self.__rows = rows
-        self.__columns = columns
-
-        self.resize(rows, columns)
+        self.set_row_spacing(spacing)
+        self.set_column_spacing(spacing)
 
     def bw_attach_next(self,
                        child,
@@ -172,19 +165,21 @@ class BWTable(Gtk.Table, BWBox):
 
             self.attach(child,
                         column,
-                        column + 1,
                         row,
-                        row + 1,
-                        xoptions,
-                        yoptions,
-                        xpadding,
-                        ypadding)
+                        1,
+                        1)
+            child.set_hexpand(bool(xoptions & Gtk.AttachOptions.EXPAND))
+            child.set_vexpand(bool(yoptions & Gtk.AttachOptions.EXPAND))
+
+            child.set_halign(Gtk.Align.FILL if (xoptions & Gtk.AttachOptions.FILL)
+                             else Gtk.Align.START)
+
+            child.set_valign(Gtk.Align.FILL if (yoptions & Gtk.AttachOptions.FILL)
+                             else Gtk.Align.START)
 
             if column + 1 == self.__columns:
-
                 column = 0
                 row += 1
-
             else:
                 column += 1
 

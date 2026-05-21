@@ -273,7 +273,7 @@ class ServicesPage(Gtk.Notebook):
 
             self.__ports_treeview.append_column(self.__ports_column[i])
 
-        self.__ports_scroll.add_with_viewport(self.__ports_treeview)
+        self.__ports_scroll.add(self.__ports_treeview)
 
         # extraports information
         number_of_xports = 0
@@ -328,7 +328,7 @@ class ServicesPage(Gtk.Notebook):
         xports_label_text = _('Extraports (%s)') % number_of_xports
         self.__xports_label = BWLabel(xports_label_text)
 
-        self.__xports_scroll.add_with_viewport(self.__xports_treeview)
+        self.__xports_scroll.add(self.__xports_treeview)
 
         self.append_page(self.__ports_scroll, self.__ports_label)
         self.append_page(self.__xports_scroll, self.__xports_label)
@@ -481,7 +481,7 @@ class SystemPage(BWScrolledWindow):
                     self.__match_column[i].set_sort_column_id(i)
                     self.__match_treeview.append_column(self.__match_column[i])
 
-                self.__match_scroll.add_with_viewport(self.__match_treeview)
+                self.__match_scroll.add(self.__match_treeview)
 
                 self.__os.append_page(self.__match_scroll, BWLabel(_('Match')))
 
@@ -522,7 +522,7 @@ class SystemPage(BWScrolledWindow):
                     self.__class_column[i].set_sort_column_id(i)
                     self.__class_treeview.append_column(self.__class_column[i])
 
-                self.__class_scroll.add_with_viewport(self.__class_treeview)
+                self.__class_scroll.add(self.__class_treeview)
 
                 self.__os.append_page(self.__class_scroll, BWLabel(_('Class')))
 
@@ -565,7 +565,7 @@ class SystemPage(BWScrolledWindow):
         self.__vbox.bw_pack_start_expand_fill(self.__os_frame)
         self.__vbox.bw_pack_start_noexpand_nofill(self.__sequences_frame)
 
-        self.add_with_viewport(self.__vbox)
+        self.add(self.__vbox)
 
     def __create_sequences_widget(self, sequences):
         """Return a widget representing various OS detection sequences. The
@@ -600,7 +600,8 @@ class SystemPage(BWScrolledWindow):
             tcp_note = BWLabel()
             tcp_note.set_selectable(True)
             tcp_note.set_line_wrap(False)
-            tcp_note.set_alignment(1.0, 0.5)
+            tcp_note.set_xalign(1.0)
+            tcp_note.set_yalign(0.5)
             tcp_note.set_markup(
                     TCP_SEQ_NOTE % tcp)
 
@@ -727,7 +728,7 @@ class TraceroutePage(BWVBox):
 
             self.__trace_column[0].set_sort_column_id(0)
 
-            self.__trace_scroll.add_with_viewport(self.__trace_treeview)
+            self.__trace_scroll.add(self.__trace_treeview)
 
             self.__trace_info = {'port': self.__node.get_info('trace')['port'],
                                  'proto': self.__node.get_info('trace')['protocol'],

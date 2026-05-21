@@ -1767,7 +1767,6 @@ int FPHost6::build_probe_list() {
   routing = new RoutingHeader();
   hopbyhop2 = new HopByHopHeader();
   icmp6 = new ICMPv6Header();
-  payload = new RawData();
   ss6 = (const sockaddr_in6 *) this->target_host->SourceSockAddr();
   ip6->setSourceAddress(ss6->sin6_addr);
   ss6 = (const sockaddr_in6 *) this->target_host->TargetSockAddr();

@@ -120,7 +120,10 @@ int ProbeMode::init_nsock(){
 /** Cleans up the internal nsock pool and any other internal data that
   * needs to be taken care of before destroying the object. */
 int ProbeMode::cleanup(){
-  nsock_pool_delete(this->nsp);
+  if (this->nsock_init) {
+    nsock_pool_delete(this->nsp);
+    this->nsp = NULL;
+  }
   return OP_SUCCESS;
 } /* End of cleanup() */
 
@@ -1573,7 +1576,6 @@ void ProbeMode::probe_nping_event_handler(nsock_pool nsp, nsock_event nse, void 
  static struct timeval pcaptime;
  static struct timeval prevtime;
  NpingTarget *trg=NULL;
- u16 *prt=NULL;
  u8 proto=0;
  bool ip=false;
  memset(final_output, 0, sizeof(final_output));
@@ -1679,8 +1681,10 @@ void ProbeMode::probe_nping_event_handler(nsock_pool nsp, nsock_event nse, void 
                     snprintf(final_output, sizeof(final_output), "RCVD (%.4fs) %s\n", o.stats.elapsedRuntime(t), buffer);
                     if( o.getVerbosity() >= VB_3 ){
                         hex=hexdump(packet, packetlen);
-                        strncat(final_output, hex, sizeof(final_output)-1);
-                        free(hex);
+                        if (hex) {
+                          strncat(final_output, hex, sizeof(final_output)-1);
+                          free(hex);
+                        }
                     }
                     prevtime=pcaptime;
 
@@ -1691,7 +1695,7 @@ void ProbeMode::probe_nping_event_handler(nsock_pool nsp, nsock_event nse, void 
                     trg=o.targets.findTarget( getSrcSockAddrFromIPPacket((u8*)packet, packetlen) );
 
                     if(trg != NULL){
-                        prt=getSrcPortFromIPPacket((u8*)packet, packetlen);
+                        const u16 *prt=getSrcPortFromIPPacket((u8*)packet, packetlen);
                         if( prt!=NULL )
                             trg->setProbeRecvTCP(*prt, 0);
                     }
@@ -1707,8 +1711,10 @@ void ProbeMode::probe_nping_event_handler(nsock_pool nsp, nsock_event nse, void 
                         snprintf(final_output, sizeof(final_output), "RCVD (%.4fs) %s\n", o.stats.elapsedRuntime(t), buffer);
                         if( o.getVerbosity() >= VB_3 ){
                             hex=hexdump(packet, packetlen);
-                            strncat(final_output, hex, sizeof(final_output)-1);
-                            free(hex);
+                            if (hex) {
+                              strncat(final_output, hex, sizeof(final_output)-1);
+                              free(hex);
+                            }
                         }
                         prevtime=pcaptime;
                         o.stats.addRecvPacket(packetlen);

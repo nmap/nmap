@@ -99,7 +99,7 @@
 #define STATE_READY_SENT      0x03
 
 #define CLIENT_NOT_FOUND -1
-typedef int clientid_t; /**< Type for client identifiers */
+typedef intptr_t clientid_t; /**< Type for client identifiers */
 
 #define MAC_KEY_S2C_INITIAL 0x01
 #define MAC_KEY_S2C         0x02

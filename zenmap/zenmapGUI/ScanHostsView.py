@@ -59,7 +59,7 @@
 import gi
 
 gi.require_version("Gtk", "3.0")
-from gi.repository import Gtk
+from gi.repository import Gtk, GdkPixbuf
 
 from zenmapGUI.higwidgets.higboxes import HIGVBox
 from zenmapGUI.Icons import get_os_icon
@@ -114,7 +114,7 @@ class ScanHostsView(HIGVBox):
         self.main_vbox = HIGVBox()
 
         # Host list
-        self.host_list = Gtk.ListStore.new([object, str, str])
+        self.host_list = Gtk.ListStore.new([object, GdkPixbuf.Pixbuf, str])
         self.host_list.set_sort_func(1000, cmp_treemodel_addr)
         self.host_list.set_sort_column_id(1000, Gtk.SortType.ASCENDING)
         self.host_view = Gtk.TreeView.new_with_model(self.host_list)
@@ -215,7 +215,7 @@ class ScanHostsView(HIGVBox):
         self.host_column.pack_start(self.host_cell, True)
 
         self.pic_column.set_min_width(35)
-        self.pic_column.set_attributes(self.os_cell, stock_id=1)
+        self.pic_column.set_attributes(self.os_cell, pixbuf=1)
         self.host_column.set_attributes(self.host_cell, text=2)
 
     def mass_update(self, hosts):
