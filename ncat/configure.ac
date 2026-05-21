@@ -10,6 +10,7 @@ m4_include([../acinclude.m4])
 
 AC_CANONICAL_HOST
 
+use_pty="yes"
 use_openssl="yes"
 specialssldir=""
 AC_ARG_WITH(openssl,[  --with-openssl=DIR    Use optional openssl libs and includes from [DIR]/lib/ and [DIR]/include/openssl/],
@@ -63,6 +64,14 @@ AC_SEARCH_LIBS(gethostbyname, nsl)
 # OpenSSL requires dlopen on some platforms
 AC_SEARCH_LIBS(dlopen, dl)
 AC_CHECK_FUNCS([dup2 gettimeofday inet_ntoa memset mkstemp select socket strcasecmp strchr strdup strerror strncasecmp strtol])
+
+if test "$use_pty" = "yes"; then
+  AC_SEARCH_LIBS(forkpty, util,
+                 [AC_DEFINE([HAVE_PTY], [1], [Define if forkpty exists])] )
+  AC_CHECK_HEADER([termios.h],
+                 [AC_DEFINE([HAVE_PTY], [1], [Define if forkpty exists])] )
+  HAVE_PTY="yes"
+fi
 
 # If they didn't specify it, we try to find it
 if test "$use_openssl" = "yes" -a -z "$specialssldir" ; then
