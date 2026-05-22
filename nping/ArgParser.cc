@@ -93,6 +93,7 @@ int ArgParser::parseArguments(int argc, char *argv[]) {
   long l=0;
   int option_index=0;
   struct in_addr aux_ip4;
+  u64 aux64 = 0;
   u32 aux32=0;
   u16 aux16=0;
   u8 aux8=0;
@@ -1000,9 +1001,9 @@ int ArgParser::parseArguments(int argc, char *argv[]) {
 
     case 'c': /* Packet count */
         if( meansRandom(optarg) ){
-           o.setPacketCount( get_random_u32()%1024 );
-        }else if( parse_u32(optarg, &aux32) == OP_SUCCESS ){
-            o.setPacketCount(aux32);
+           o.setPacketCount( get_random_u64()%1024 );
+        }else if( parse_u64(optarg, &aux64) == OP_SUCCESS ){
+            o.setPacketCount(aux64);
         }else{
             nping_fatal(QT_3,"Packet count must be an integer greater than or equal to 0.");
         }
