@@ -49,25 +49,27 @@ software name and its version (or CPE), so one can still have the desired privac
 --   </table>
 -- </table>
 
+dependencies = {"http-vulners-regex"}
 author = 'gmedian AT vulners DOT com'
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
-categories = {"vuln", "safe", "external"}
+categories = {"vuln", "safe", "external", "default"}
 
 
 local http = require "http"
+local url = require "url"
 local json = require "json"
 local string = require "string"
 local table = require "table"
 local nmap = require "nmap"
 local stdnse = require "stdnse"
 
-local api_version="1.2"
+local api_version="1.7"
 local mincvss=stdnse.get_script_args("vulners.mincvss")
 mincvss = tonumber(mincvss) or 0.0
 
 portrule = function(host, port)
   local vers=port.version
-  return vers ~= nil and vers.version ~= nil
+  return vers ~= nil and vers.version ~= nil or (host.registry.vulners_cpe ~= nil)
 end
 
 local cve_meta = {
@@ -125,31 +127,63 @@ end
 function get_results(what, vers, type)
   local api_endpoint = "https://vulners.com/api/v3/burp/software/"
   local vulns
+  local response
+  local status
+  local attempt_n=0
+  local query = {
+          software= what,
+          version= vers,
+          type=type
+  }
+  local api_url = ('%s?%s'):format(api_endpoint, url.build_query(query))
   local option={
     header={
-      ['User-Agent'] = string.format('Vulners NMAP Plugin %s', api_version)
+      ['User-Agent'] = string.format('Vulners NMAP Plugin %s', api_version),
+      ['Accept-Encoding'] = "gzip, deflate"
     },
     any_af = true,
   }
+  
 
-  local response = http.get_url(('%s?software=%s&version=%s&type=%s'):format(api_endpoint, what, vers, type), option)
+  stdnse.debug1("Trying to get vulns of " .. what .. " for type " .. type)
 
-  local status = response.status
+  -- Sometimes we cannot contact vulners, so have to try several more times
+  while attempt_n < 3 do
+    stdnse.debug1("Attempt ".. attempt_n .. " to contact vulners.")
+    response = http.get_url(api_url, option)
+    status = response.status
+    if status ~= nil then
+      break
+    end
+    attempt_n = attempt_n + 1
+    stdnse.sleep(1)
+  end
+
   if status == nil then
     -- Something went really wrong out there
     -- According to the NSE way we will die silently rather than spam user with error messages
+    stdnse.debug1("Failed to cantact vulners in several attempts.")
     return
   elseif status ~= 200 then
     -- Again just die silently
+    stdnse.debug1("Response from vulners is not 200 but " .. status)
     return
   end
 
   status, vulns = json.parse(response.body)
 
   if status == true then
+    stdnse.debug1("Have successfully parsed json response.")
     if vulns.result == "OK" then
+      stdnse.debug1("Response from vulners is OK.")
       return make_links(vulns)
+    else
+      stdnse.debug1("Response from vulners is not OK with body:")
+      stdnse.debug1(response.body)
     end
+  else
+    stdnse.debug1("Unable to parse json.")
+    stdnse.debug1(response.body)
   end
 end
 
@@ -184,20 +218,24 @@ function get_vulns_by_cpe(cpe)
   -- TODO[gmedian]: work not with the LAST part but simply with the THIRD one (according to cpe doc it must be version)
 
   -- NOTE[gmedian]: take only the numeric part of the version
-  local _, _, vers = cpe:find(vers_regexp)
-
+  local _, _, vers, patch = cpe:find(vers_regexp)
 
   if not vers then
     return
   end
 
+  stdnse.debug1("Got cpe " .. cpe .. " with version ".. vers .. " and patch " .. (patch or "nil"))
+
   local output = get_results(cpe, vers, "cpe")
 
   if not output then
-    local new_cpe
-
-    new_cpe = cpe:gsub(vers_regexp, ":%1:%2")
-    output = get_results(new_cpe, vers, "cpe")
+    if patch and patch ~= "" then
+        local new_cpe
+        
+        new_cpe = cpe:gsub(vers_regexp, ":%1:%2")
+        stdnse.debug1("Forming new cpe for another attempt " .. new_cpe)
+        output = get_results(new_cpe, vers, "cpe")
+    end
   end
 
   return output
@@ -207,14 +245,52 @@ end
 action = function(host, port)
   local tab=stdnse.output_table()
   local changed=false
-  local response
   local output
-
+  
   for i, cpe in ipairs(port.version.cpe) do
-    output = get_vulns_by_cpe(cpe, port.version)
+    -- There are two cpe's for nginx, have to check them both
+    cpe = cpe:gsub(":nginx:nginx", ":igor_sysoev:nginx")
+    stdnse.debug1("Analyzing cpe " .. cpe)
+    output = get_vulns_by_cpe(cpe)
+    if cpe:find(":igor_sysoev:nginx") then
+      cpe = cpe:gsub(":igor_sysoev:nginx", ":nginx:nginx")
+      stdnse.debug1("Now going to analyze the second version " .. cpe)
+      local output_nginx=get_vulns_by_cpe(cpe)
+      if not output then
+        output = output_nginx
+      elseif output_nginx then
+        -- Need to merge two arrays, sorted by cvss
+        -- Presumably the former output contains by far less entries, so iterate on it and insert into the latter
+        -- pos will represent current position in output_nginx
+        local pos=1
+        for i, v in ipairs(output) do
+          while pos <= #output_nginx and output_nginx[pos].cvss >= v.cvss do
+              pos = pos + 1
+          end
+          table.insert(output_nginx, pos, v)
+        end
+        output = output_nginx
+      end
+    end
     if output then
       tab[cpe] = output
       changed = true
+    end
+  end
+  
+  -- NOTE[gmedian]: check whether we have pre-matched CPEs in registry (from http-vulners-regex.nse in particular)
+  if host.registry.vulners_cpe ~= nil and #host.registry.vulners_cpe > 0 then 
+    stdnse.debug1("Found some CPEs in host registry.")
+    for i, cpe in ipairs(host.registry.vulners_cpe) do
+      -- avoid duplicates in output, will still however make redundant requests
+      if tab[cpe] == nil then
+        stdnse.debug1("Analyzing pre-matched cpe " .. cpe)
+        output = get_vulns_by_cpe(cpe)
+        if output then
+          tab[cpe] = output
+          changed = true
+        end
+      end
     end
   end
 
