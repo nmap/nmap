@@ -452,7 +452,7 @@ check-nsock:
 check-zenmap:
 	@cd $(ZENMAPDIR)/test && $(PYTHON) run_tests.py
 
-check-nmap: tests/nmap_dns_test tests/expr_match_test
+check-nmap: tests/nmap_dns_test tests/expr_match_test tests/packettrace_test
 	for test in $^; do ./$$test; done
 
 check: @NCAT_CHECK@ @NSOCK_CHECK@ @ZENMAP_CHECK@ @NSE_CHECK@ @NDIFF_CHECK@ check-nmap
