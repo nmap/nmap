@@ -115,6 +115,11 @@ action = function( host )
     -- First server to query is iana's.
     local referral = "whois.iana.org"
 
+    -- unless the domain is bz as iana doesn't give us a referal for that
+    if string.sub(query_data, -4) == '.bz\n' then
+      referral = "whois.afilias-grs.info"
+    end
+
     while referral do
 
       if not mutexes[referral] then
@@ -135,8 +140,16 @@ action = function( host )
 
       socket:set_timeout( 50000 )
 
+      stdnse.debug1( "query: " .. referral )
       try( socket:connect(referral, 43 ) )
-      try( socket:send( query_data ) )
+      
+      -- string.len('.verisign-grs.com') == 17
+      if string.sub(referral,-17) == '.verisign-grs.com' then
+        stdnse.debug1( "verisign whois (update query string): domain " .. query_data)
+        try( socket:send( "domain " .. query_data ) )
+      else
+        try( socket:send( query_data ) )
+      end
 
       while true do
         local status, lines = socket:receive_lines(1)
