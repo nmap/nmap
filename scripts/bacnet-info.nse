@@ -1291,15 +1291,34 @@ end
 -- @param packet The packet that was received and is ready to be parsed
 function field_size(packet)
   -- read the Length field from the packet data byte 18
+  if #packet < 20 then
+    stdnse.debug1("Packet too short : Received" .. tostring(#packet) .. "bytes")
+    return nil
+  end
   local offset
   -- Verify the field from byte 18 to determine if the vendor number is one byte or two bytes?
   local value = string.byte(packet, 18)
+  if not value then
+    stdnse.debug1("Invalid packet: unable to read byte 18")
+    return nil
+  end
   if ( value % 0x10 < 5 ) then
     value = value % 0x10 - 1
+    if value < 0 then value = 0 end
     offset = 19
   else
+    if #packet < 20 then
+      stdnse.debug1("Packet too short for 2-byte vendor ID")
+      return nil
+    end
     value = string.byte(packet, 19) - 1
+    if value < 0 then value = 0 end
     offset = 20
+  end
+
+  if #packet < (offset + value) then
+    stdnse.debug1("Packet too short for expected length: offset=" .. tostring(offset) .. ", value=" .. tostring(value))
+    return nil
   end
   -- unpack a string of length <value>
   local charset, info
@@ -1388,6 +1407,10 @@ function standard_query(socket, type)
   local rcvstatus, response = socket:receive()
   if(rcvstatus == false) then
     stdnse.debug1("Socket error receiving: %s", response)
+    return nil
+  end
+  if #response == 0 then
+    stdnse.debug1("Received an empty response.")
     return nil
   end
   -- validate valid BACNet Packet
