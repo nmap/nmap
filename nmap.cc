@@ -2374,6 +2374,9 @@ int nmap_main(int argc, char *argv[]) {
   if (o.release_memory) {
     nmap_free_mem();
   }
+  if (o.resuming) {
+    arg_parse_free(argv);
+  }
   return 0;
 }
 
