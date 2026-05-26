@@ -203,6 +203,7 @@ private:
   std::vector<ServiceProbe *>::iterator current_probe;
   u8 *currentresp;
   int currentresplen;
+  int currentrespalloc;
   char *servicefp;
   int servicefplen;
   int servicefpalloc;
@@ -1621,7 +1622,7 @@ ServiceNFO::ServiceNFO(AllProbes *newAP) {
   portno = proto = 0;
   AP = newAP;
   currentresp = NULL;
-  currentresplen = 0;
+  currentresplen = currentrespalloc = 0;
   product_matched[0] = version_matched[0] = extrainfo_matched[0] = '\0';
   hostname_matched[0] = ostype_matched[0] = devicetype_matched[0] = '\0';
   cpe_a_matched[0] = cpe_h_matched[0] = cpe_o_matched[0] = '\0';
@@ -1808,7 +1809,7 @@ bool dropdown = false;
 // This invalidates the probe response string if any
  if (newresp) {
    if (currentresp) free(currentresp);
-   currentresp = NULL; currentresplen = 0;
+   currentresp = NULL; currentresplen = currentrespalloc = 0;
  }
 
  if (probe_state == PROBESTATE_INITIAL) {
@@ -1889,7 +1890,7 @@ void ServiceNFO::resetProbes(bool freefp) {
     servicefplen = servicefpalloc = 0;
   }
 
-  currentresp = NULL; currentresplen = 0;
+  currentresp = NULL; currentresplen = currentrespalloc = 0;
 
   probe_state = PROBESTATE_INITIAL;
 }
@@ -1923,7 +1924,16 @@ int ServiceNFO::probe_timemsleft(const ServiceProbe *probe, const struct timeval
 }
 
 void ServiceNFO::appendtocurrentproberesponse(const u8 *respstr, int respstrlen) {
-  currentresp = (u8 *) safe_realloc(currentresp, currentresplen + respstrlen);
+  size_t newlen = (size_t) currentresplen + respstrlen;
+  if (newlen > currentrespalloc) {
+    if (currentrespalloc == 0 || newlen >= 4096) {
+      currentrespalloc = newlen;
+    }
+    else {
+      currentrespalloc = newlen * 2;
+    }
+    currentresp = (u8 *) safe_realloc(currentresp, currentrespalloc);
+  }
   memcpy(currentresp + currentresplen, respstr, respstrlen);
   currentresplen += respstrlen;
 }
