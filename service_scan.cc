@@ -817,7 +817,6 @@ static char *substvar(char *tmplvar, char **tmplvarend,
   } else if (strcmp(substcommand, "I") == 0 ){
     // Parse an unsigned int
     long long unsigned val = 0;
-    bool bigendian = true;
     char buf[24]; //0xffffffffffffffff = 18446744073709551615, 20 chars
     int buflen;
     if (command_args.num_args != 2 ||
@@ -839,24 +838,19 @@ static char *substvar(char *tmplvar, char **tmplvarend,
       return NULL;
     }
     switch (command_args.str_args[1][0]) {
-      case '>':
-        bigendian = true;
+      case '>': // big endian
+        for(PCRE2_SIZE i=offstart; i < offend; i++) {
+          val = (val<<8) + subject[i];
+        }
         break;
-      case '<':
-        bigendian = false;
+      case '<': // little endian
+        for(PCRE2_SIZE i=offend; i > offstart; i--) {
+          val = (val<<8) + subject[i-1];
+        }
         break;
       default:
         return NULL;
         break;
-    }
-    if (bigendian) {
-      for(PCRE2_SIZE i=offstart; i < offend; i++) {
-        val = (val<<8) + subject[i];
-      }
-    } else {
-      for(PCRE2_SIZE i=offend - 1; i > offstart - 1; i--) {
-        val = (val<<8) + subject[i];
-      }
     }
     buflen = Snprintf(buf, sizeof(buf), "%llu", val);
     if (buflen < 0 || buflen >= (int) sizeof(buf)) {
