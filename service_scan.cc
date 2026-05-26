@@ -435,6 +435,12 @@ void ServiceProbeMatch::InitMatch(const char *matchtext, int lineno) {
   if (regex_compiled == NULL)
     fatal("%s: illegal regexp on line %d of nmap-service-probes (at regexp offset %ld): %d\n", __func__, lineno, pcre2_erroffset, pcre2_errcode);
 
+  uint32_t value = 0;
+  pcre2_errcode = pcre2_pattern_info(regex_compiled, PCRE2_INFO_MATCHEMPTY, &value);
+  if (pcre2_errcode == 0 && value != 0)
+    fatal("%s: parse error on line %d of nmap-service-probes: pattern matches zero-length string", __func__, lineno);
+
+
   // creates a new match data block for holding the result of a match
   match_data = pcre2_match_data_create_from_pattern(
     regex_compiled,NULL
