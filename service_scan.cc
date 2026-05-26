@@ -457,13 +457,13 @@ void ServiceProbeMatch::InitMatch(const char *matchtext, int lineno) {
   }
   // Set some limits to avoid evil match cases.
   // These are flexible; if they cause problems, increase them.
-  pcre2_set_match_limit(match_context, 100000);
+  pcre2_set_match_limit(match_context, 50000);
 #ifdef pcre2_set_depth_limit
   // Changed name in PCRE2 10.30. PCRE2 uses macro definitions for function
   // names, so we don't have to add this to configure.ac.
-  pcre2_set_depth_limit(match_context, 10000);
+  pcre2_set_depth_limit(match_context, 1000);
 #else
-  pcre2_set_recursion_limit(match_context, 10000);
+  pcre2_set_recursion_limit(match_context, 1000);
 #endif
 #ifdef pcre2_set_heap_limit
   pcre2_set_heap_limit(match_context, 10); // units = kibibytes
