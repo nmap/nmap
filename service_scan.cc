@@ -465,6 +465,9 @@ void ServiceProbeMatch::InitMatch(const char *matchtext, int lineno) {
 #else
   pcre2_set_recursion_limit(match_context, 10000);
 #endif
+#ifdef pcre2_set_heap_limit
+  pcre2_set_heap_limit(match_context, 10); // units = kibibytes
+#endif
 
   /* OK! Now we look for any templates of the form ?/.../
    * where ? is either p, v, i, h, o, or d. / is any
