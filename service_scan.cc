@@ -466,7 +466,7 @@ void ServiceProbeMatch::InitMatch(const char *matchtext, int lineno) {
   pcre2_set_recursion_limit(match_context, 1000);
 #endif
 #ifdef pcre2_set_heap_limit
-  pcre2_set_heap_limit(match_context, 10); // units = kibibytes
+  pcre2_set_heap_limit(match_context, 10240); // units = kibibytes
 #endif
 
   /* OK! Now we look for any templates of the form ?/.../
