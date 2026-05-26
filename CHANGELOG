@@ -1,5 +1,8 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o The --release-memory option is now a no-op. Nmap will always run finalization
+  routines that release allocated memory before closing.
+
 o Fixed an integer underflow in service_scan.cc that would cause little-endian
   integers extracted from the beginning of a service banner to be interpreted
   as 0. Discovered with AFL++ by Malek Althubiany.
