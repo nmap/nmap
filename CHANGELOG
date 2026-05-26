@@ -1,5 +1,9 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [Nsock][GH#2595] Fix an issue where Nsock's SOCKS4 proxy code would send
+  additional null bytes on Windows and other platforms where the compiler does
+  not understand __attribute__((packed)). [Daniel Miller]
+
 o The --release-memory option is now a no-op. Nmap will always run finalization
   routines that release allocated memory before closing.
 
