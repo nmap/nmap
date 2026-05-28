@@ -1,5 +1,9 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [Ncat] Fixed several issues reported by Muhammed Hussein involving crashes in
+  Ncat's server-mode HTTP proxy, as well as one code-quality issue with its
+  Telnet negotiation code.
+
 o [Nsock][GH#2595] Fix an issue where Nsock's SOCKS4 proxy code would send
   additional null bytes on Windows and other platforms where the compiler does
   not understand __attribute__((packed)). [Daniel Miller]
