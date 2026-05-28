@@ -1074,37 +1074,28 @@ int http_read_request_line(struct socket_buffer *buf, char **line)
    parse error. */
 static const char *parse_http_version(const char *s, enum http_version *version)
 {
-    const char *PREFIX = "HTTP/";
+    static const char PREFIX[] = "HTTP/";
+    const size_t prefixlen = sizeof(PREFIX) - 1;
     const char *p, *q;
-    long major, minor;
 
     *version = HTTP_UNKNOWN;
 
     p = s;
-    if (memcmp(p, PREFIX, strlen(PREFIX)) != 0)
+    if (strncmp(p, PREFIX, prefixlen) != 0)
         return s;
-    p += strlen(PREFIX);
+    p += sizeof(PREFIX) - 1;
 
-    /* Major version. */
-    errno = 0;
-    major = parse_long(p, &q);
-    if (errno != 0 || q == p)
-        return s;
+    q = strpbrk(p, " \t\r\n");
+    if (!q)
+        q = p + strlen(p);
 
-    p = q;
-    if (*p != '.')
-        return s;
-    p++;
-
-    /* Minor version. */
-    errno = 0;
-    minor = parse_long(p, &q);
-    if (errno != 0 || q == p)
-        return s;
-
-    if (major == 1 && minor == 0)
+    /* Any version is accepted and not a parse error,
+     * but only 1.0 and 1.1 are understood. */
+    if ((q - p) != 3)
+        return q;
+    if (0 == strncmp(p, "1.0", 3))
         *version = HTTP_10;
-    else if (major == 1 && minor == 1)
+    else if (0 == strncmp(p, "1.1", 3))
         *version = HTTP_11;
 
     return q;
