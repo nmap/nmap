@@ -203,7 +203,7 @@ private:
   std::vector<ServiceProbe *>::iterator current_probe;
   u8 *currentresp;
   int currentresplen;
-  int currentrespalloc;
+  size_t currentrespalloc;
   char *servicefp;
   int servicefplen;
   int servicefpalloc;

@@ -710,9 +710,9 @@ int tcppackethdrinfo (const u8 *data, unsigned int datalen,
     p += used;
     remains -= used;
 
-    if (lastbyte >= offsetof(struct tcp_hdr, th_sum)) {
+    if (lastbyte >= (int)offsetof(struct tcp_hdr, th_sum)) {
       have_flags_win = true;
-      if (lastbyte >= sizeof(struct tcp_hdr)) {
+      if (lastbyte >= (int)sizeof(struct tcp_hdr)) {
         have_sum_urp = true;
       }
     }
@@ -763,7 +763,7 @@ int tcppackethdrinfo (const u8 *data, unsigned int datalen,
     /* TCP Options */
     tcpdataoffset = tcp.th_off * 4;
     if (tcpdataoffset > sizeof(struct tcp_hdr)
-        && tcpdataoffset <= lastbyte) {
+        && tcpdataoffset <= (u32) lastbyte) {
       tcppacketoptinfo((u8*) data + sizeof(struct tcp_hdr) - frag_off,
           tcpdataoffset - sizeof(struct tcp_hdr),
           tcpoptinfo, sizeof(tcpoptinfo));
