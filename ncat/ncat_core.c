@@ -370,7 +370,7 @@ int ncat_recv(struct fdinfo *fdn, char *buf, size_t size, int *pending)
     if (o.linedelay)
         ncat_delay_timer(o.linedelay);
     if (o.telnet)
-        dotelnet(fdn->fd, (unsigned char *) buf, n);
+        dotelnet(fdn->fd, (unsigned char *) buf, &n);
     ncat_log_recv(buf, n);
 
     /* SSL can buffer our input, so doing another select() won't necessarily
@@ -470,29 +470,59 @@ int ncat_broadcast(fd_set *fds, const fd_list_t *fdlist, const char *msg, size_t
 }
 
 /* Do telnet WILL/WONT DO/DONT negotiations */
-void dotelnet(int s, unsigned char *buf, size_t bufsiz)
+void dotelnet(int s, unsigned char *buf, int *bufsiz)
 {
-    unsigned char *end = buf + bufsiz, *p;
-    unsigned char tbuf[3];
+    unsigned char *end = buf + *bufsiz;
+    unsigned char *q = buf;
+    unsigned char *p = buf;
+    unsigned char tbuf[3] = {0xff, 0, 0};
 
-    for (p = buf; buf < end; p++) {
+    /* RFC 854:
+     * All TELNET commands consist of at least a two byte sequence: the
+     * "Interpret as Command" (IAC) escape character followed by the code for
+     * the command.  The commands dealing with option negotiation are three
+     * byte sequences, the third byte being the code for the option referenced.
+     */
+    for (p = buf; p < end; p++) {
         if (*p != 255) /* IAC */
+        {
+          *q++ = *p;
+          continue;
+        }
+
+        p++; if (p >= end) break;
+        switch (*p) {
+          /* Answer DONT for WILL or WONT */
+          case 251:
+          case 252:
+            tbuf[1] = 254;
             break;
 
-        tbuf[0] = *p++;
-
-        /* Answer DONT for WILL or WONT */
-        if (*p == 251 || *p == 252)
-            tbuf[1] = 254;
-
-        /* Answer WONT for DO or DONT */
-        else if (*p == 253 || *p == 254)
+          /* Answer WONT for DO or DONT */
+          case 253:
+          case 254:
             tbuf[1] = 252;
+            break;
 
-        tbuf[2] = *++p;
+          /* IAC escaped data byte 255 */
+          case 255:
+            *q++ = 255;
+            continue;
+            break;
+
+            /* Unhandled command; ignore */
+          default:
+            continue;
+            break;
+        }
+
+        p++; if (p >= end) break;
+        tbuf[2] = *p;
 
         send(s, (const char *) tbuf, 3, 0);
     }
+    // Adjust length for deleted IAC sequences
+    *bufsiz = q - buf;
 }
 
 /* sleep(), usleep(), msleep(), Sleep() -- all together now, "portability".

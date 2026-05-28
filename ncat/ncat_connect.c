@@ -1381,7 +1381,7 @@ static void read_socket_handler(nsock_pool nsp, nsock_event evt, void *data)
         ncat_delay_timer(o.linedelay);
 
     if (o.telnet)
-        dotelnet(nsock_iod_get_sd(nse_iod(evt)), (unsigned char *) buf, nbytes);
+        dotelnet(nsock_iod_get_sd(nse_iod(evt)), (unsigned char *) buf, &nbytes);
 
     /* Write socket data to stdout */
     Write(STDOUT_FILENO, buf, nbytes);
