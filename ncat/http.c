@@ -642,7 +642,7 @@ static const char *read_quoted_string(const char *s, char **quoted_string)
     }
     s++;
 
-    *quoted_string = buf;
+    *quoted_string = buf ? buf : Strdup("");
     return s;
 }
 

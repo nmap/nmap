@@ -173,6 +173,8 @@ char *Strdup(const char *s)
 {
     char *ret;
 
+    if (s == NULL)
+        bye("Strdup argument must not be NULL");
     ret = strdup(s);
     if (ret == NULL)
         die("strdup");
