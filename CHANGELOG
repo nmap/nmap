@@ -1,5 +1,16 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [Nsock][GH#2595] Fix an issue where Nsock's SOCKS4 proxy code would send
+  additional null bytes on Windows and other platforms where the compiler does
+  not understand __attribute__((packed)). [Daniel Miller]
+
+o The --release-memory option is now a no-op. Nmap will always run finalization
+  routines that release allocated memory before closing.
+
+o Fixed an integer underflow in service_scan.cc that would cause little-endian
+  integers extracted from the beginning of a service banner to be interpreted
+  as 0. Discovered with AFL++ by Malek Althubiany.
+
 o [NSE][GH#3250][GH#3206] Fix assertion failures in cases where connect or send
   returns immediately with a status other than ERROR, e.g. TIMEOUT or CANCELED.
   [Daniel Miller]

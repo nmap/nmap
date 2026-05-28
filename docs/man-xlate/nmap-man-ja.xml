@@ -1362,7 +1362,7 @@ rttvar: 14987 to: 100000</computeroutput>。こうした行の内容が理解で
         </listitem>
       </varlistentry>
 
-      <!-- Missing options: -/-unprivileged -/-release-memory -->
+      <!-- Missing options: -/-unprivileged -->
       <varlistentry>
         <term>
           <option>-V</option>; <option>--version</option> (バージョン番号を表示する)

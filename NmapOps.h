@@ -339,7 +339,6 @@ class NmapOps {
   bool noninteractive;
   char *locale;
 
-  bool release_memory;	/* suggest to release memory before quitting. used to find memory leaks. */
  private:
   int max_os_tries;
   int max_rtt_timeout;

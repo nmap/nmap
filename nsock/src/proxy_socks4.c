@@ -64,6 +64,7 @@
 extern const struct proxy_spec ProxySpecSocks4;
 
 
+#pragma pack(push, 1)
 struct socks4_data {
     uint8_t  version;
     uint8_t  type;
@@ -71,6 +72,7 @@ struct socks4_data {
     uint32_t address;
     uint8_t  null;
 } __attribute__((packed));
+#pragma pack(pop)
 
 
 static int proxy_socks4_node_new(struct proxy_node **node, const struct uri *uri) {

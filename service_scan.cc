@@ -203,6 +203,7 @@ private:
   std::vector<ServiceProbe *>::iterator current_probe;
   u8 *currentresp;
   int currentresplen;
+  int currentrespalloc;
   char *servicefp;
   int servicefplen;
   int servicefpalloc;
@@ -434,6 +435,12 @@ void ServiceProbeMatch::InitMatch(const char *matchtext, int lineno) {
   if (regex_compiled == NULL)
     fatal("%s: illegal regexp on line %d of nmap-service-probes (at regexp offset %ld): %d\n", __func__, lineno, pcre2_erroffset, pcre2_errcode);
 
+  uint32_t value = 0;
+  pcre2_errcode = pcre2_pattern_info(regex_compiled, PCRE2_INFO_MATCHEMPTY, &value);
+  if (pcre2_errcode == 0 && value != 0)
+    fatal("%s: parse error on line %d of nmap-service-probes: pattern matches zero-length string", __func__, lineno);
+
+
   // creates a new match data block for holding the result of a match
   match_data = pcre2_match_data_create_from_pattern(
     regex_compiled,NULL
@@ -450,13 +457,16 @@ void ServiceProbeMatch::InitMatch(const char *matchtext, int lineno) {
   }
   // Set some limits to avoid evil match cases.
   // These are flexible; if they cause problems, increase them.
-  pcre2_set_match_limit(match_context, 100000);
+  pcre2_set_match_limit(match_context, 50000);
 #ifdef pcre2_set_depth_limit
   // Changed name in PCRE2 10.30. PCRE2 uses macro definitions for function
   // names, so we don't have to add this to configure.ac.
-  pcre2_set_depth_limit(match_context, 10000);
+  pcre2_set_depth_limit(match_context, 1000);
 #else
-  pcre2_set_recursion_limit(match_context, 10000);
+  pcre2_set_recursion_limit(match_context, 1000);
+#endif
+#ifdef pcre2_set_heap_limit
+  pcre2_set_heap_limit(match_context, 10240); // units = kibibytes
 #endif
 
   /* OK! Now we look for any templates of the form ?/.../
@@ -817,7 +827,6 @@ static char *substvar(char *tmplvar, char **tmplvarend,
   } else if (strcmp(substcommand, "I") == 0 ){
     // Parse an unsigned int
     long long unsigned val = 0;
-    bool bigendian = true;
     char buf[24]; //0xffffffffffffffff = 18446744073709551615, 20 chars
     int buflen;
     if (command_args.num_args != 2 ||
@@ -839,24 +848,19 @@ static char *substvar(char *tmplvar, char **tmplvarend,
       return NULL;
     }
     switch (command_args.str_args[1][0]) {
-      case '>':
-        bigendian = true;
+      case '>': // big endian
+        for(PCRE2_SIZE i=offstart; i < offend; i++) {
+          val = (val<<8) + subject[i];
+        }
         break;
-      case '<':
-        bigendian = false;
+      case '<': // little endian
+        for(PCRE2_SIZE i=offend; i > offstart; i--) {
+          val = (val<<8) + subject[i-1];
+        }
         break;
       default:
         return NULL;
         break;
-    }
-    if (bigendian) {
-      for(PCRE2_SIZE i=offstart; i < offend; i++) {
-        val = (val<<8) + subject[i];
-      }
-    } else {
-      for(PCRE2_SIZE i=offend - 1; i > offstart - 1; i--) {
-        val = (val<<8) + subject[i];
-      }
     }
     buflen = Snprintf(buf, sizeof(buf), "%llu", val);
     if (buflen < 0 || buflen >= (int) sizeof(buf)) {
@@ -1627,7 +1631,7 @@ ServiceNFO::ServiceNFO(AllProbes *newAP) {
   portno = proto = 0;
   AP = newAP;
   currentresp = NULL;
-  currentresplen = 0;
+  currentresplen = currentrespalloc = 0;
   product_matched[0] = version_matched[0] = extrainfo_matched[0] = '\0';
   hostname_matched[0] = ostype_matched[0] = devicetype_matched[0] = '\0';
   cpe_a_matched[0] = cpe_h_matched[0] = cpe_o_matched[0] = '\0';
@@ -1814,7 +1818,7 @@ bool dropdown = false;
 // This invalidates the probe response string if any
  if (newresp) {
    if (currentresp) free(currentresp);
-   currentresp = NULL; currentresplen = 0;
+   currentresp = NULL; currentresplen = currentrespalloc = 0;
  }
 
  if (probe_state == PROBESTATE_INITIAL) {
@@ -1895,7 +1899,7 @@ void ServiceNFO::resetProbes(bool freefp) {
     servicefplen = servicefpalloc = 0;
   }
 
-  currentresp = NULL; currentresplen = 0;
+  currentresp = NULL; currentresplen = currentrespalloc = 0;
 
   probe_state = PROBESTATE_INITIAL;
 }
@@ -1929,7 +1933,16 @@ int ServiceNFO::probe_timemsleft(const ServiceProbe *probe, const struct timeval
 }
 
 void ServiceNFO::appendtocurrentproberesponse(const u8 *respstr, int respstrlen) {
-  currentresp = (u8 *) safe_realloc(currentresp, currentresplen + respstrlen);
+  size_t newlen = (size_t) currentresplen + respstrlen;
+  if (newlen > currentrespalloc) {
+    if (currentrespalloc == 0 || newlen >= 4096) {
+      currentrespalloc = newlen;
+    }
+    else {
+      currentrespalloc = newlen * 2;
+    }
+    currentresp = (u8 *) safe_realloc(currentresp, currentrespalloc);
+  }
   memcpy(currentresp + currentresplen, respstr, respstrlen);
   currentresplen += respstrlen;
 }

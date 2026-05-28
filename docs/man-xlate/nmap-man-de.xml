@@ -4076,21 +4076,6 @@ gesetzt werden.</para>
       </varlistentry>
 
       <varlistentry>
-	 <term>
-	 <option>--release-memory</option> (gibt Speicher vor Terminierung frei)
-	 <indexterm><primary><option>--release-memory</option></primary></indexterm>
-         </term>
-         <listitem>
-
-<para>Diese Option ist nur bei der Suche nach Speicherlecks nützlich. 
-Sie bewirkt, dass Nmap den von ihm belegten Speicher direkt vor seiner 
-Terminierung freigibt, damit man echte Speicherlecks einfacher finden kann. 
-Normalerweise macht Nmap das nicht, weil es das Betriebssystem ohnehin 
-macht, wenn es den Prozess terminiert.</para>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry>
         <term>
           <option>-V</option>; <option>--version</option> (gibt Versionsnummer aus)
           <indexterm><primary><option>-V</option></primary></indexterm>

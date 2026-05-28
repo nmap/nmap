@@ -728,7 +728,7 @@ void parse_options(int argc, char **argv) {
         } else if (strcmp(long_options[option_index].name, "nogcc") == 0) {
           o.nogcc = true;
         } else if (strcmp(long_options[option_index].name, "release-memory") == 0) {
-          o.release_memory = true;
+          /* No-op. We always release memory now. */
         } else if (strcmp(long_options[option_index].name, "min-parallelism") == 0) {
           o.min_parallelism = atoi(optarg);
           if (o.min_parallelism < 1)
@@ -2371,8 +2371,9 @@ int nmap_main(int argc, char *argv[]) {
 
   eth_close_cached();
 
-  if (o.release_memory) {
-    nmap_free_mem();
+  nmap_free_mem();
+  if (o.resuming) {
+    arg_parse_free(argv);
   }
   return 0;
 }

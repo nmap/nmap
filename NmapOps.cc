@@ -315,7 +315,6 @@ void NmapOps::Initialize() {
   ipoptionslen = 0;
   ipopt_firsthop = 0;
   ipopt_lasthop  = 0;
-  release_memory = false;
   topportlevel = -1;
 #ifndef NOLUA
   script = false;
