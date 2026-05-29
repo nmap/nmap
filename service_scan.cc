@@ -1318,7 +1318,7 @@ void ServiceProbe::addMatch(const char *match, int lineno) {
    (servicematch) which use this */
 void parse_nmap_service_probe_file(AllProbes *AP, const char *filename) {
   ServiceProbe *newProbe = NULL;
-  char line[2048];
+  char line[16384];
   int lineno = 0;
   FILE *fp;
 
@@ -1329,6 +1329,9 @@ void parse_nmap_service_probe_file(AllProbes *AP, const char *filename) {
 
   while(fgets(line, sizeof(line), fp)) {
     lineno++;
+    size_t linelen = strnlen(line, sizeof(line));
+    if (linelen == sizeof(line) - 1 && line[linelen - 1] != '\n' && !feof(fp))
+      fatal("Line %d of %s is too long (limit is %d characters)", lineno, filename, (int)(sizeof(line) - 1));
 
     if (*line == '\n' || *line == '#')
       continue;
