@@ -1,5 +1,40 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [Nsock][GH#2595] Fixed Nsock's SOCKS4 proxy code on Windows, which was
+  sending an extra 3 null bytes at the beginning of connections.
+
+o [Ncat][GH#3005] Correctly report listening port number. `ncat -l -p 0` will
+  cause Ncat to listen on an ephemeral port, but it was reporting itself as
+  listening on port 0.
+
+o [Ncat][GH#1672] Fixed an issue where Ncat in server mode would quit without
+  printing the last received data on a connection, particularly affecting SCTP.
+
+o [Ncat][GH#2827] Fixed an issue where Ncat in --send-only mode would ignore
+  disconnects and crash when it tries to send data to a disconnected client.
+
+o [Ncat][GH#3291] Fixed an issue where Ncat on Windows would quit after 2
+  minutes due to an OS-enforced timeout on the half-open TCP socket used to
+  emulate STDIN.
+
+o [Nping][GH#564] Allow Nping to fall back to TCP Connect mode on Windows when
+  Npcap is not installed.
+
+o [Ncat] Fixed several issues reported by Muhammed Hussein involving crashes in
+  Ncat's server-mode HTTP proxy, as well as one code-quality issue with its
+  Telnet negotiation code.
+
+o [Nsock][GH#2595] Fix an issue where Nsock's SOCKS4 proxy code would send
+  additional null bytes on Windows and other platforms where the compiler does
+  not understand __attribute__((packed)). [Daniel Miller]
+
+o The --release-memory option is now a no-op. Nmap will always run finalization
+  routines that release allocated memory before closing.
+
+o Fixed an integer underflow in service_scan.cc that would cause little-endian
+  integers extracted from the beginning of a service banner to be interpreted
+  as 0. Discovered with AFL++ by Malek Althubiany.
+
 o [NSE][GH#3250][GH#3206] Fix assertion failures in cases where connect or send
   returns immediately with a status other than ERROR, e.g. TIMEOUT or CANCELED.
   [Daniel Miller]

@@ -3460,22 +3460,6 @@ kapuk csak egy számként jelennek meg, ha túl sok van belőlük.
       </varlistentry>
 
       <varlistentry>
-	 <term>
-	 <option>--release-memory</option> (Kilépés előtt felszabadítja a memóriát)
-	 <indexterm significance="normal"><primary>--release-memory</primary></indexterm>
-         </term>
-         <listitem>
-
-          <para>Ez a paraméter csak a memóriaszivárgási hibák keresésekor hasznos. 
-          Arra utasítja az Nmap programot, hogy a kilépés előtt szabadítsa fel a 
-	  lefoglalt memóriát, így a memóriaszivárgás könnyen felderíthető. Normál 
-	  helyzetben az Nmap átugorja ezt, mivel a program leállításakor az operációs 
-	  rendszert ezt amúgy is végrehajtja.</para>
-        </listitem>
-      </varlistentry>
-
-
-      <varlistentry>
         <term>
           <option>-V</option>; <option>--version</option> (Programváltozat megjelenítése)
           <indexterm significance="normal"><primary>-V</primary></indexterm>

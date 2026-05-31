@@ -217,11 +217,17 @@ void uri_init(struct uri *uri)
     uri->path = NULL;
 }
 
+#define FREE_AND_NULL(_FreeFunc, _P) do { \
+    _FreeFunc(_P); \
+    _P = NULL; \
+} while (0);
+
 void uri_free(struct uri *uri)
 {
-    free(uri->scheme);
-    free(uri->host);
-    free(uri->path);
+    ncat_assert(uri);
+    FREE_AND_NULL(free, uri->scheme);
+    FREE_AND_NULL(free, uri->host);
+    FREE_AND_NULL(free, uri->path);
 }
 
 static int hex_digit_value(char digit)
@@ -445,9 +451,10 @@ struct uri *uri_parse_authority(struct uri *uri, const char *authority)
 
 static void http_header_node_free(struct http_header *node)
 {
-    free(node->name);
-    free(node->value);
-    free(node);
+    ncat_assert(node != NULL);
+    FREE_AND_NULL(free, node->name);
+    FREE_AND_NULL(free, node->value);
+    FREE_AND_NULL(free, node);
 }
 
 void http_header_free(struct http_header *header)
@@ -621,7 +628,7 @@ static const char *read_quoted_string(const char *s, char **quoted_string)
         while (*t != '"' && *t != '\\') {
             /* This is qdtext, which is TEXT except for CTL. */
             if (is_ctl_char(*t)) {
-                free(buf);
+                FREE_AND_NULL(free, buf);
                 return NULL;
             }
             t++;
@@ -632,7 +639,7 @@ static const char *read_quoted_string(const char *s, char **quoted_string)
             t++;
             /* You can only escape a CHAR, octets 0-127. But we disallow 0. */
             if (*t <= 0) {
-                free(buf);
+                FREE_AND_NULL(free, buf);
                 return NULL;
             }
             strbuf_append(&buf, &size, &offset, t, 1);
@@ -642,7 +649,7 @@ static const char *read_quoted_string(const char *s, char **quoted_string)
     }
     s++;
 
-    *quoted_string = buf;
+    *quoted_string = buf ? buf : Strdup("");
     return s;
 }
 
@@ -787,9 +794,10 @@ void http_request_init(struct http_request *request)
 
 void http_request_free(struct http_request *request)
 {
-    free(request->method);
+    ncat_assert(request != NULL);
+    FREE_AND_NULL(free, request->method);
     uri_free(&request->uri);
-    http_header_free(request->header);
+    FREE_AND_NULL(http_header_free, request->header);
 }
 
 char *http_request_to_string(const struct http_request *request, size_t *n)
@@ -843,8 +851,9 @@ void http_response_init(struct http_response *response)
 
 void http_response_free(struct http_response *response)
 {
-    free(response->phrase);
-    http_header_free(response->header);
+    ncat_assert(response != NULL);
+    FREE_AND_NULL(free, response->phrase);
+    FREE_AND_NULL(http_header_free, response->header);
 }
 
 char *http_response_to_string(const struct http_response *response, size_t *n)
@@ -952,7 +961,7 @@ int http_parse_header(struct http_header **result, const char *header)
         while (*q != '\0' && is_token_char(*q))
             q++;
         if (*q != ':') {
-            http_header_free(*result);
+            FREE_AND_NULL(http_header_free, *result);
             return 400;
         }
 
@@ -1074,37 +1083,28 @@ int http_read_request_line(struct socket_buffer *buf, char **line)
    parse error. */
 static const char *parse_http_version(const char *s, enum http_version *version)
 {
-    const char *PREFIX = "HTTP/";
+    static const char PREFIX[] = "HTTP/";
+    const size_t prefixlen = sizeof(PREFIX) - 1;
     const char *p, *q;
-    long major, minor;
 
     *version = HTTP_UNKNOWN;
 
     p = s;
-    if (memcmp(p, PREFIX, strlen(PREFIX)) != 0)
+    if (strncmp(p, PREFIX, prefixlen) != 0)
         return s;
-    p += strlen(PREFIX);
+    p += sizeof(PREFIX) - 1;
 
-    /* Major version. */
-    errno = 0;
-    major = parse_long(p, &q);
-    if (errno != 0 || q == p)
-        return s;
+    q = strpbrk(p, " \t\r\n");
+    if (!q)
+        q = p + strlen(p);
 
-    p = q;
-    if (*p != '.')
-        return s;
-    p++;
-
-    /* Minor version. */
-    errno = 0;
-    minor = parse_long(p, &q);
-    if (errno != 0 || q == p)
-        return s;
-
-    if (major == 1 && minor == 0)
+    /* Any version is accepted and not a parse error,
+     * but only 1.0 and 1.1 are understood. */
+    if ((q - p) != 3)
+        return q;
+    if (0 == strncmp(p, "1.0", 3))
         *version = HTTP_10;
-    else if (major == 1 && minor == 1)
+    else if (0 == strncmp(p, "1.1", 3))
         *version = HTTP_11;
 
     return q;
@@ -1591,10 +1591,10 @@ void http_challenge_init(struct http_challenge *challenge)
 
 void http_challenge_free(struct http_challenge *challenge)
 {
-    free(challenge->realm);
+    FREE_AND_NULL(free, challenge->realm);
     if (challenge->scheme == AUTH_DIGEST) {
-        free(challenge->digest.nonce);
-        free(challenge->digest.opaque);
+        FREE_AND_NULL(free, challenge->digest.nonce);
+        FREE_AND_NULL(free, challenge->digest.opaque);
     }
 }
 
@@ -1621,14 +1621,14 @@ void http_credentials_init_digest(struct http_credentials *credentials)
 void http_credentials_free(struct http_credentials *credentials)
 {
     if (credentials->scheme == AUTH_BASIC) {
-        free(credentials->u.basic);
+        FREE_AND_NULL(free, credentials->u.basic);
     } else if (credentials->scheme == AUTH_DIGEST) {
-        free(credentials->u.digest.username);
-        free(credentials->u.digest.realm);
-        free(credentials->u.digest.nonce);
-        free(credentials->u.digest.uri);
-        free(credentials->u.digest.response);
-        free(credentials->u.digest.nc);
-        free(credentials->u.digest.cnonce);
+        FREE_AND_NULL(free, credentials->u.digest.username);
+        FREE_AND_NULL(free, credentials->u.digest.realm);
+        FREE_AND_NULL(free, credentials->u.digest.nonce);
+        FREE_AND_NULL(free, credentials->u.digest.uri);
+        FREE_AND_NULL(free, credentials->u.digest.response);
+        FREE_AND_NULL(free, credentials->u.digest.nc);
+        FREE_AND_NULL(free, credentials->u.digest.cnonce);
     }
 }
