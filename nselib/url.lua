@@ -379,7 +379,7 @@ function parse_query(query)
   query = string.gsub(query, "&([ampltg]+);", entities)
 
   local parsed = {}
-  for qseg in query:gsub(query, "%+", " "):gmatch("[^&]+") do
+  for qseg in query:gsub("%+", " "):gmatch("[^&]+") do
     local k, v = qseg:match("^([^=]*)=?(.*)")
     parsed[unescape(k)] = unescape(v)
   end
@@ -510,6 +510,21 @@ for _, t in ipairs(test_urls) do
   end
   test_suite:add_test(unittest.equal(build(t._res), t._url), "build test url")
   test_suite:add_test(unittest.equal(build(result), t._url), "parse/build round trip")
+end
+
+-- parse_query tests. {query, expected name/value table}
+local parse_query_tests = {
+                           {"foo=1&bar=2", {foo = "1", bar = "2"}},
+                           {"a+b=c+d",     {["a b"] = "c d"}},
+                           {"a%20b=c%26d", {["a b"] = "c&d"}},
+                          }
+for k, v in ipairs(parse_query_tests) do
+  local query, expected = table.unpack(v)
+  local result = parse_query(query)
+  for name, value in pairs(expected) do
+    test_suite:add_test(unittest.equal(result[name], value),
+                        ("parse_query #%d (%q) %q"):format(k, query, name))
+  end
 end
 
 
