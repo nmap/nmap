@@ -17,6 +17,10 @@ o [NSE] Fixed url.parse_query, which raised a Lua error on every call due to
   passing the query string as the gsub pattern. Plus-to-space decoding is
   restored.
 
+o [NSE][GH#3324] url.parse_query no longer performs incomplete HTML entity
+  decoding (&amp; &lt; &gt;) that could mis-split query strings. Callers that
+  need HTML decoding should do it explicitly.
+
 o [Nsock][GH#2595] Fixed Nsock's SOCKS4 proxy code on Windows, which was
   sending an extra 3 null bytes at the beginning of connections.
 
