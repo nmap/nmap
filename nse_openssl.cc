@@ -589,14 +589,11 @@ struct nse_openssl_state {
 static int nse_openssl_gc(lua_State *L) {
   nse_openssl_state *state = (nse_openssl_state *) luaL_checkudata(L, 1, "NSE_OPENSSL_STATE");
 #if OPENSSL_VERSION_NUMBER >= 0x30000000L
-  if (state->legacy_provider) {
-    OSSL_PROVIDER_unload(state->legacy_provider);
-    state->legacy_provider = NULL;
-  }
-  if (state->default_provider) {
-    OSSL_PROVIDER_unload(state->default_provider);
-    state->default_provider = NULL;
-  }
+  /* Unloading providers from GC/finalizer during process teardown can
+   * crash on some OpenSSL 3 setups. Leave provider lifecycle to OpenSSL
+   * shutdown and clear local handles here. */
+  state->legacy_provider = NULL;
+  state->default_provider = NULL;
 #endif
   return 0;
 }
