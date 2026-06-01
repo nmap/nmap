@@ -1,5 +1,9 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Fixed url.parse_query, which raised a Lua error on every call due to
+  passing the query string as the gsub pattern. Plus-to-space decoding is
+  restored.
+
 o [Nsock][GH#2595] Fixed Nsock's SOCKS4 proxy code on Windows, which was
   sending an extra 3 null bytes at the beginning of connections.
 
