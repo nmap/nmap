@@ -403,11 +403,11 @@ private:
   void sendTUdpProbe(HostOsScanStats *hss, int probeNo);
   void sendTIcmpProbe(HostOsScanStats *hss, int probeNo);
   /* Response process functions. */
-  bool processTSeqResp(HostOsScanStats *hss, const struct ip *ip, const u8 *pkt, const struct tcp_hdr *tcp, const u8 *tcppkt, int replyNo);
-  bool processTOpsResp(HostOsScanStats *hss, const u8 *tcp, int replyNo);
+  bool processTSeqResp(HostOsScanStats *hss, const struct ip *ip, const u8 *pkt, const struct tcp_hdr *tcp, const u8 *tcppkt, int tcplen, int replyNo);
+  bool processTOpsResp(HostOsScanStats *hss, const u8 *tcp, int tcplen, int replyNo);
   bool processTWinResp(HostOsScanStats *hss, const struct tcp_hdr *tcp, int replyNo);
-  bool processTEcnResp(HostOsScanStats *hss, const struct ip *ip, const struct tcp_hdr *tcp, const u8 *tcppkt);
-  bool processT1_7Resp(HostOsScanStats *hss, const struct ip *ip, const struct tcp_hdr *tcp, const u8 *tcppkt, int replyNo);
+  bool processTEcnResp(HostOsScanStats *hss, const struct ip *ip, const struct tcp_hdr *tcp, const u8 *tcppkt, int tcplen);
+  bool processT1_7Resp(HostOsScanStats *hss, const struct ip *ip, const struct tcp_hdr *tcp, const u8 *tcppkt, int tcplen, int replyNo);
   bool processTUdpResp(HostOsScanStats *hss, const u8 *ip);
   bool processTUdpResp(HostOsScanStats *hss, const struct ip *ip, const struct icmp *icmp, const u8 *icmppkt, unsigned int icmplen);
   bool processTIcmpResp(HostOsScanStats *hss, const struct ip *ip, const u8 *pkt, int replyNo);
@@ -429,7 +429,7 @@ private:
   void makeTOpsFP(HostOsScanStats *hss);
   void makeTWinFP(HostOsScanStats *hss);
 
-  int get_tcpopt_string(const u8 *tcp, int mss, char *result, int maxlen) const;
+  int get_tcpopt_string(const u8 *tcp, int tcplen, int mss, char *result, int maxlen) const;
 
   int rawsd;    /* Raw socket descriptor */
   netutil_eth_t *ethsd; /* Ethernet handle       */

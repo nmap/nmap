@@ -1719,18 +1719,19 @@ int recvtime(int sd, char *buf, int len, int seconds, int *timedout) {
    parameters (if non-null) are filled with 0.  Remember that the
    correct way to check for errors is to look at the return value
    since a zero ts or echots could possibly be valid. */
-int gettcpopt_ts(const u8 *tcppkt, u32 *timestamp, u32 *echots) {
+int gettcpopt_ts(const u8 *tcppkt, int tcplen, u32 *timestamp, u32 *echots) {
 
   const u8 *p;
   int len = 0;
   int op;
   int oplen;
   struct tcp_hdr tcp;
+  assert(tcplen >= sizeof(tcp));
   memcpy(&tcp, tcppkt, sizeof(tcp));
 
   /* first we find where the tcp options start ... */
   p = tcppkt + 20;
-  len = 4 * tcp.th_off - 20;
+  len = MIN(4 * tcp.th_off, tcplen) - 20;
   while (len > 0 && *p != 0 /* TCPOPT_EOL */ ) {
     op = *p++;
     if (op == 0 /* TCPOPT_EOL */ )

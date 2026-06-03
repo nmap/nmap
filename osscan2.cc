@@ -1924,7 +1924,7 @@ bool HostOsScan::processResp(HostOsScanStats *hss, const u8 *pkt, unsigned int l
 
     if (testno >= 0 && testno < NUM_SEQ_SAMPLES) {
       /* TSeq */
-      isPktUseful = processTSeqResp(hss, &ip, pkt, &tcp, l4pkt, testno);
+      isPktUseful = processTSeqResp(hss, &ip, pkt, &tcp, l4pkt, len, testno);
 
       if (isPktUseful) {
         hss->ipid.tcp_ipids[testno] = ntohs(ip.ip_id);
@@ -1937,16 +1937,16 @@ bool HostOsScan::processResp(HostOsScanStats *hss, const u8 *pkt, unsigned int l
        */
       if (testno == 0) {
         /* the first reply is used to do T1 */
-        processT1_7Resp(hss, &ip, &tcp, l4pkt, 0);
+        processT1_7Resp(hss, &ip, &tcp, l4pkt, len, 0);
       }
       /* the 1st NUM_SEQ_SAMPLES replies are used to do TOps and TWin */
-      processTOpsResp(hss, l4pkt, testno);
+      processTOpsResp(hss, l4pkt, len, testno);
       processTWinResp(hss, &tcp, testno);
 
     } else if (testno >= NUM_SEQ_SAMPLES && testno < NUM_SEQ_SAMPLES + 6) {
 
       /* TOps/Twin */
-      isPktUseful = processTOpsResp(hss, l4pkt, testno - NUM_SEQ_SAMPLES);
+      isPktUseful = processTOpsResp(hss, l4pkt, len, testno - NUM_SEQ_SAMPLES);
       isPktUseful |= processTWinResp(hss, &tcp, testno - NUM_SEQ_SAMPLES);
       if (isPktUseful) {
         probeI = hss->getActiveProbe(OFP_TOPS, testno - NUM_SEQ_SAMPLES);
@@ -1955,14 +1955,14 @@ bool HostOsScan::processResp(HostOsScanStats *hss, const u8 *pkt, unsigned int l
     } else if (testno == NUM_SEQ_SAMPLES + 6) {
 
       /* TEcn */
-      isPktUseful = processTEcnResp(hss, &ip, &tcp, l4pkt);
+      isPktUseful = processTEcnResp(hss, &ip, &tcp, l4pkt, len);
       if (isPktUseful) {
         probeI = hss->getActiveProbe(OFP_TECN, 0);
       }
 
     } else if (testno >= NUM_SEQ_SAMPLES + 7 && testno < NUM_SEQ_SAMPLES + 14) {
 
-      isPktUseful = processT1_7Resp(hss, &ip, &tcp, l4pkt, testno - NUM_SEQ_SAMPLES - 7);
+      isPktUseful = processT1_7Resp(hss, &ip, &tcp, l4pkt, len, testno - NUM_SEQ_SAMPLES - 7);
 
       if (isPktUseful) {
         probeI = hss->getActiveProbe(OFP_T1_7, testno - NUM_SEQ_SAMPLES - 7);
@@ -2613,7 +2613,7 @@ void HostOsScan::makeTWinFP(HostOsScanStats *hss) {
 }
 
 
-bool HostOsScan::processTSeqResp(HostOsScanStats *hss, const struct ip *ip, const u8 *pkt, const struct tcp_hdr *tcp, const u8 *tcppkt, int replyNo) {
+bool HostOsScan::processTSeqResp(HostOsScanStats *hss, const struct ip *ip, const u8 *pkt, const struct tcp_hdr *tcp, const u8 *tcppkt, int tcplen, int replyNo) {
   assert(replyNo >= 0 && replyNo < NUM_SEQ_SAMPLES);
 
   int seq_response_num; /* response # for sequencing */
@@ -2659,7 +2659,7 @@ bool HostOsScan::processTSeqResp(HostOsScanStats *hss, const struct ip *ip, cons
       hss->si.seqs[seq_response_num] = ntohl(tcp->th_seq); /* TCP ISN */
       hss->si.ipids[seq_response_num] = ntohs(ip->ip_id);
 
-      if ((gettcpopt_ts(tcppkt, &timestamp, NULL) == 0))
+      if ((gettcpopt_ts(tcppkt, tcplen, &timestamp, NULL) == 0))
         hss->si.ts_seqclass = TS_SEQ_UNSUPPORTED;
       else {
         if (timestamp == 0) {
@@ -2677,14 +2677,14 @@ bool HostOsScan::processTSeqResp(HostOsScanStats *hss, const struct ip *ip, cons
 }
 
 
-bool HostOsScan::processTOpsResp(HostOsScanStats *hss, const u8 *tcp, int replyNo) {
+bool HostOsScan::processTOpsResp(HostOsScanStats *hss, const u8 *tcp, int tcplen, int replyNo) {
   assert(replyNo >= 0 && replyNo < 6);
   char ops_buf[256];
 
   if (hss->FP_TOps || hss->TOps_AVs[replyNo])
     return false;
 
-  int opsParseResult = get_tcpopt_string(tcp, this->tcpMss, ops_buf, sizeof(ops_buf));
+  int opsParseResult = get_tcpopt_string(tcp, tcplen, this->tcpMss, ops_buf, sizeof(ops_buf));
 
   if (opsParseResult <= 0) {
     if (opsParseResult < 0 && o.debugging)
@@ -2713,7 +2713,7 @@ bool HostOsScan::processTWinResp(HostOsScanStats *hss, const struct tcp_hdr *tcp
 }
 
 
-bool HostOsScan::processTEcnResp(HostOsScanStats *hss, const struct ip *ip, const struct tcp_hdr *tcp, const u8 *tcppkt) {
+bool HostOsScan::processTEcnResp(HostOsScanStats *hss, const struct ip *ip, const struct tcp_hdr *tcp, const u8 *tcppkt, int tcplen) {
   char ops_buf[256];
   char quirks_buf[10];
   char *p;
@@ -2740,7 +2740,7 @@ bool HostOsScan::processTEcnResp(HostOsScanStats *hss, const struct ip *ip, cons
   test.setAVal("W", hss->target->FPR->cp_hex(ntohs(tcp->th_win)));
 
   /* Now for the TCP options ... */
-  int opsParseResult = get_tcpopt_string(tcppkt, this->tcpMss, ops_buf, sizeof(ops_buf));
+  int opsParseResult = get_tcpopt_string(tcppkt, tcplen, this->tcpMss, ops_buf, sizeof(ops_buf));
 
   if (opsParseResult <= 0) {
     if (opsParseResult < 0 && o.debugging)
@@ -2783,11 +2783,10 @@ bool HostOsScan::processTEcnResp(HostOsScanStats *hss, const struct ip *ip, cons
 }
 
 
-bool HostOsScan::processT1_7Resp(HostOsScanStats *hss, const struct ip *ip, const struct tcp_hdr *tcp, const u8 *tcppkt, int replyNo) {
+bool HostOsScan::processT1_7Resp(HostOsScanStats *hss, const struct ip *ip, const struct tcp_hdr *tcp, const u8 *tcppkt, int tcplen, int replyNo) {
   assert(replyNo >= 0 && replyNo < 7);
 
   int i;
-  int length;
   char flags_buf[10];
   char quirks_buf[10];
   char *p;
@@ -2881,7 +2880,7 @@ bool HostOsScan::processT1_7Resp(HostOsScanStats *hss, const struct ip *ip, cons
     char ops_buf[256];
 
     /* Now for the TCP options ... */
-    int opsParseResult = get_tcpopt_string(tcppkt, this->tcpMss, ops_buf, sizeof(ops_buf));
+    int opsParseResult = get_tcpopt_string(tcppkt, tcplen, this->tcpMss, ops_buf, sizeof(ops_buf));
     if (opsParseResult <= 0) {
       if (opsParseResult < 0 && o.debugging)
         error("Option parse error for T%d response from %s.", replyNo, hss->target->targetipstr());
@@ -2893,7 +2892,7 @@ bool HostOsScan::processT1_7Resp(HostOsScanStats *hss, const struct ip *ip, cons
   }
 
   /* Rst Data CRC32 */
-  length = (int) ntohs(ip->ip_len) - 4 * ip->ip_hl -4 * tcp->th_off;
+  int length = tcplen - 4 * tcp->th_off;
   if ((tcp->th_flags & TH_RST) && length>0) {
     test.setAVal("RD", hss->target->FPR->cp_hex(nbase_crc32(tcppkt + 4 * tcp->th_off, length)));
   } else {
@@ -3138,7 +3137,7 @@ bool HostOsScan::processTIcmpResp(HostOsScanStats *hss, const struct ip *ip, con
 }
 
 
-int HostOsScan::get_tcpopt_string(const u8 *tcp, int mss, char *result, int maxlen) const {
+int HostOsScan::get_tcpopt_string(const u8 *tcp, int tcplen, int mss, char *result, int maxlen) const {
   char *p;
   const u8 *q;
   u16 tmpshort;
@@ -3149,7 +3148,7 @@ int HostOsScan::get_tcpopt_string(const u8 *tcp, int mss, char *result, int maxl
   p = result;
   struct tcp_hdr hdr;
   memcpy(&hdr, tcp, sizeof(hdr));
-  length = (hdr.th_off * 4) - sizeof(struct tcp_hdr);
+  length = MIN(hdr.th_off * 4, tcplen) - sizeof(struct tcp_hdr);
   q = tcp + sizeof(struct tcp_hdr);
 
   /*

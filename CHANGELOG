@@ -1,5 +1,9 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o Fixed an issue where Nmap OS scan trusts a packet's ip_len to size a CRC32
+  computation over TCP RST payload data, which may result in reading arbitrary
+  heap data. Reported by Michael Bommarito.
+
 o [Nsock][GH#2595] Fixed Nsock's SOCKS4 proxy code on Windows, which was
   sending an extra 3 null bytes at the beginning of connections.
 
