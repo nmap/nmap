@@ -534,7 +534,6 @@ static const struct luaL_Reg bignum_methods[] = {
   { "is_bit_set", l_bignum_is_bit_set },
   { "set_bit", l_bignum_set_bit },
   { "clear_bit", l_bignum_clear_bit },
-  { "is_bit_set", l_bignum_is_bit_set },
   { "is_prime", l_bignum_is_prime },
   { "is_safe_prime", l_bignum_is_safe_prime },
   { "__gc", l_bignum_free },
