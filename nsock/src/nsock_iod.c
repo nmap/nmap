@@ -389,7 +389,7 @@ int nsock_iod_get_peerport(nsock_iod iod) {
 }
 
 /* Sets the local address to bind to before connect() */
-int nsock_iod_set_localaddr(nsock_iod iod, struct sockaddr_storage *ss,
+int nsock_iod_set_localaddr(nsock_iod iod, const struct sockaddr_storage *ss,
                             size_t sslen) {
   struct niod *nsi = (struct niod *)iod;
 
@@ -406,7 +406,7 @@ int nsock_iod_set_localaddr(nsock_iod iod, struct sockaddr_storage *ss,
 /* Sets IPv4 options to apply before connect(). It makes a copy of the options,
  * so you can free() yours if necessary. This copy is freed when the iod is
  * destroyed. */
-int nsock_iod_set_ipoptions(nsock_iod iod, void *opts, size_t optslen) {
+int nsock_iod_set_ipoptions(nsock_iod iod, const void *opts, size_t optslen) {
   struct niod *nsi = (struct niod *)iod;
 
   assert(nsi);

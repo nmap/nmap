@@ -279,9 +279,9 @@ public:
   void setAF(int af);
   void setStatusCallback(void (*callback)(const Stats *));
   void setLogFunc(void (*log_func)(int lvl, const char *, ...));
-  void setSource(const char *device, struct sockaddr_storage *src, size_t srclen, bool spoof);
-  void setIpOptions(void *opts, size_t optslen);
-  void setProxyChain(nsock_proxychain proxy_chain);
+  void setSource(const char *device, const struct sockaddr_storage *src, size_t srclen, bool spoof);
+  void setIpOptions(const u8 *opts, size_t optslen);
+  void setProxyChain(const nsock_proxychain proxy_chain);
   void setServers(const char *servers);
 
   bool isMassDnsOK(const char **err) const;

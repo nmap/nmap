@@ -454,7 +454,7 @@ private:
   const char *device;
   struct sockaddr_storage src1, src2;
   size_t sslen1, sslen2;
-  void *ipopts;
+  const u8 *ipopts;
   size_t ipoptslen;
   std::list<dns_server> servs;
   std::list<request *> new_reqs;
@@ -554,7 +554,7 @@ void DNS::Resolver::setLogFunc(void (*log_func)(int lvl, const char *, ...))
   impl->log_func = log_func;
 }
 
-void DNS::Resolver::setSource(const char *device, struct sockaddr_storage *src, size_t srclen, bool spoof)
+void DNS::Resolver::setSource(const char *device, const struct sockaddr_storage *src, size_t srclen, bool spoof)
 {
   impl->device = device;
   if (src) {
@@ -571,7 +571,7 @@ void DNS::Resolver::setSource(const char *device, struct sockaddr_storage *src, 
   }
 }
 
-void DNS::Resolver::setIpOptions(void *opts, size_t optslen)
+void DNS::Resolver::setIpOptions(const u8 *opts, size_t optslen)
 {
   impl->ipopts = opts;
   impl->ipoptslen = optslen;
@@ -1423,7 +1423,7 @@ void DNS::ResolverImpl::connect_dns_servers() {
       nsock_iod_set_localaddr(serverI->nsd, &src2, sslen2);
     }
     if (ipoptslen)
-      nsock_iod_set_ipoptions(serverI->nsd, ipopts, ipoptslen);
+      nsock_iod_set_ipoptions(serverI->nsd, (const void *)ipopts, ipoptslen);
 
     serverI->status = dns_server::CONNECTING;
     nsock_connect_udp(dnspool, serverI->nsd, &DNS::ResolverImpl::connect_evt_handler, &*serverI, (struct sockaddr *) &serverI->addr, serverI->addr_len, 53);
