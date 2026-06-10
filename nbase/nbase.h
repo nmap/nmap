@@ -144,6 +144,7 @@
 #endif
 
 #include <stdio.h>
+#include <limits.h> /* CHAR_BIT */
 
 #ifndef MAXHOSTNAMELEN
 #define MAXHOSTNAMELEN 64
@@ -507,6 +508,17 @@ extern void addrset_print(FILE *fp, const struct addrset *set);
 extern int addrset_add_spec(struct addrset *set, const char *spec, int af, int dns);
 extern int addrset_add_file(struct addrset *set, FILE *fd, int af, int dns);
 extern int addrset_contains(const struct addrset *set, const struct sockaddr *sa);
+
+/* We use bit vectors to represent what values are allowed in an IPv4 octet.
+   Each vector is built up of an array of bitvector_t (any convenient integer
+   type). */
+typedef unsigned long bitvector_t;
+/* A 256-element bit vector, representing legal values for one octet. */
+typedef bitvector_t octet_bitvector[(256 - 1) / (sizeof(unsigned long) * CHAR_BIT) + 1];
+
+#define BITVECTOR_BITS (sizeof(bitvector_t) * CHAR_BIT)
+#define BIT_SET(v, n) ((v)[(n) / BITVECTOR_BITS] |= 1UL << ((n) % BITVECTOR_BITS))
+#define BIT_IS_SET(v, n) (((v)[(n) / BITVECTOR_BITS] & 1UL << ((n) % BITVECTOR_BITS)) != 0)
 
 #ifndef STDIN_FILENO
 #define STDIN_FILENO 0

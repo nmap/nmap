@@ -62,7 +62,6 @@
    program after making any big changes. Also, please add tests for any new
    features. */
 
-#include <limits.h> /* CHAR_BIT */
 #include <errno.h>
 #include <assert.h>
 
@@ -103,13 +102,6 @@ struct trie_node {
   /* Addresses with the next bit after the mask equal to 0 are on this branch. */
   struct trie_node *next_bit_zero;
 };
-
-/* We use bit vectors to represent what values are allowed in an IPv4 octet.
-   Each vector is built up of an array of bitvector_t (any convenient integer
-   type). */
-typedef unsigned long bitvector_t;
-/* A 256-element bit vector, representing legal values for one octet. */
-typedef bitvector_t octet_bitvector[(256 - 1) / (sizeof(unsigned long) * CHAR_BIT) + 1];
 
 /* A chain of tests for set inclusion. If one test is passed, the address is in
    the set. */
@@ -585,10 +577,6 @@ static void in_addr_to_octets(const struct in_addr *ia, uint8_t octets[4])
     octets[2] = (uint8_t) ((hbo & (0xFFU << 8)) >> 8);
     octets[3] = (uint8_t) (hbo & 0xFFU);
 }
-
-#define BITVECTOR_BITS (sizeof(bitvector_t) * CHAR_BIT)
-#define BIT_SET(v, n) ((v)[(n) / BITVECTOR_BITS] |= 1UL << ((n) % BITVECTOR_BITS))
-#define BIT_IS_SET(v, n) (((v)[(n) / BITVECTOR_BITS] & 1UL << ((n) % BITVECTOR_BITS)) != 0)
 
 static int parse_ipv4_ranges(struct addrset_elem *elem, const char *spec);
 static void apply_ipv4_netmask_bits(struct addrset_elem *elem, int bits);
