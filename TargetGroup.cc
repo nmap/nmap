@@ -125,20 +125,21 @@ bool TargetGroup::load_expressions(HostGroupState *hs, int af) {
       rit != requests.end(); rit++) {
     const DNS::Request &req = *rit;
     NetBlock *nb_old = (NetBlock *) req.userdata;
+    assert(nb_old != NULL);
     NetBlock *nb_new = nb_old->resolve(req);
     nb_it = std::find(nb_it, netblocks.end(), nb_old);
+    assert(nb_it != netblocks.end());
 
     if (nb_new == NULL) {
       // Resolution failed; remove the NetBlock
       nb_it = netblocks.erase(nb_it);
-      delete nb_old;
     }
     else {
       assert (nb_new != nb_old);
       // Resolution succeeded; replace the NetBlock
       *nb_it = nb_new;
-      delete nb_old;
     }
+    delete nb_old;
   }
   requests.clear();
   return !netblocks.empty();
