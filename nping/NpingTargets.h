@@ -66,7 +66,9 @@
 /* TODO: Needs to be changed if we move TargetGroup to another source file */
 #include "common_modified.h"
 #include "NpingTarget.h"
+#include "../libnetutil/NetBlock.h"
 #include <vector>
+#include <list>
 
 #define MAX_NPING_HOSTNAME_LEN 512    /**< Max length for named hosts */
 
@@ -74,16 +76,10 @@ class NpingTargets {
 
   private:
 
-    char *specs[1024];
-    bool skipspec[1024];
-    int speccount;
-    int current_spec;
-    bool lastwaslastingroup;
-    bool finished;
-    TargetGroup current_group;
+    std::vector<DNS::Request> requests;
+    std::list<NetBlock *> netblocks;
 
     bool ready;
-    unsigned long int targets_fetched;
     unsigned long int current_target;
 
   public:
