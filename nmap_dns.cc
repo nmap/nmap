@@ -126,6 +126,7 @@ static DNS::Resolver *nmap_get_resolver() {
 void nmap_mass_dns(DNS::Request requests[], int num_requests) {
   DNS::Resolver *resolver = nmap_get_resolver();
   bool use_systemdns = !o.mass_dns;
+  resolver->Init(requests, num_requests);
 
   if (o.mass_dns) {
     const char *errstr = NULL;
@@ -140,7 +141,6 @@ void nmap_mass_dns(DNS::Request requests[], int num_requests) {
     }
   }
 
-  resolver->Init(requests, num_requests);
   DNS::Stats stat = resolver->getStats();
   char spmobuf[1024];
   Snprintf(spmobuf, sizeof(spmobuf), "%s DNS resolution of %d host%s.",

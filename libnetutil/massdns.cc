@@ -504,7 +504,7 @@ DNS::Resolver::Resolver()
 
 bool DNS::Resolver::isMassDnsOK(const char **err) const
 {
-  if (impl->servs.size() == 0) {
+  if (impl->servs.empty()) {
     *err = "Unable to determine any DNS servers. ";
     return false;
   }
@@ -519,6 +519,8 @@ bool DNS::Resolver::isSystemDnsOK(const char **err) const
 // Actual main loop
 void DNS::Resolver::Init(DNS::Request *requests, int num_requests)
 {
+  if (impl->servs.empty())
+    setServers(NULL);
   impl->reset();
   // Set up the request structure
   for (int i=0; i < num_requests; i++)
