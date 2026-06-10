@@ -87,6 +87,7 @@
     <ClCompile Include="ICMPv6RRBody.cc" />
     <ClCompile Include="IPv4Header.cc" />
     <ClCompile Include="IPv6Header.cc" />
+    <ClCompile Include="massdns.cc" />
     <ClCompile Include="netutil.cc" />
     <ClCompile Include="NetworkLayerElement.cc" />
     <ClCompile Include="PacketElement.cc" />
@@ -113,6 +114,7 @@
     <ClInclude Include="ICMPv6RRBody.h" />
     <ClInclude Include="IPv4Header.h" />
     <ClInclude Include="IPv6Header.h" />
+    <ClInclude Include="massdns.h" />
     <ClInclude Include="netutil.h" />
     <ClInclude Include="NetworkLayerElement.h" />
     <ClInclude Include="npacket.h" />
