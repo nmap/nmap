@@ -1671,7 +1671,7 @@ int ipaddr2devname(char *dev, const struct sockaddr_storage *addr) {
   return -1;
 }
 
-int devname2ipaddr(char *dev, int af, struct sockaddr_storage *addr) {
+int devname2ipaddr(const char *dev, int af, struct sockaddr_storage *addr) {
   struct interface_info *ifaces;
   int numifaces;
   int i;
