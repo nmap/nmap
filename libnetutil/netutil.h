@@ -146,6 +146,12 @@ int resolve(const char *hostname, unsigned short port,
 int resolve_numeric(const char *ip, unsigned short port,
   struct sockaddr_storage *ss, size_t *sslen, int af);
 
+/* Tries to resolve the given name (or literal IP) into a sockaddr
+   structure. This function calls getaddrinfo and returns the same
+   addrinfo linked list that getaddrinfo produces. Returns NULL for any
+   error or failure to resolve. */
+struct addrinfo *resolve_all(const char *hostname, int pf);
+
 /*
  * Returns 1 if this is a reserved IP address, where "reserved" means
  * either a private address, non-routable address, or even a non-reserved

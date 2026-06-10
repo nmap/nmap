@@ -138,6 +138,7 @@ typedef unsigned __int8 u_int8_t;
 #endif
 
 #include <stddef.h>
+#include <locale.h>
 
 #define NBASE_MAX_ERR_STR_LEN 1024  /* Max length of an error message */
 
@@ -351,24 +352,33 @@ after:
   return(d - data);
 }
 
-/* Internal helper for resolve and resolve_numeric. addl_flags is ored into
-   hints.ai_flags, so you can add AI_NUMERICHOST. */
-static int resolve_internal(const char *hostname, unsigned short port,
-  struct sockaddr_storage *ss, size_t *sslen, int af, int addl_flags) {
+/* Tries to resolve the given name (or literal IP) into a sockaddr structure.
+   This function calls getaddrinfo and returns the same addrinfo linked list
+   that getaddrinfo produces. Returns NULL for any error or failure to resolve.
+   You need to call freeaddrinfo on the result if non-NULL. */
+static addrinfo *resolve_all_internal(const char *hostname, unsigned short port,
+    int af, int addl_flags) {
   struct addrinfo hints;
   struct addrinfo *result;
   char portbuf[16];
   char *servname = NULL;
   int rc;
 
-  assert(hostname);
-  assert(ss);
-  assert(sslen);
-
   memset(&hints, 0, sizeof(hints));
   hints.ai_family = af;
+  /* Otherwise we get multiple identical addresses with different socktypes. */
   hints.ai_socktype = SOCK_DGRAM;
   hints.ai_flags |= addl_flags;
+
+#ifdef AI_IDN
+  /* Try resolving internationalized domain names */
+  locale_t env_locale = newlocale(LC_CTYPE_MASK, "", (locale_t)0);
+  hints.ai_flags |= AI_IDN;
+  locale_t old_locale = (locale_t)0;
+  if (env_locale != old_locale) {
+    old_locale = uselocale(env_locale);
+  }
+#endif
 
   /* Make the port number a string to give to getaddrinfo. */
   if (port != 0) {
@@ -378,8 +388,36 @@ static int resolve_internal(const char *hostname, unsigned short port,
   }
 
   rc = getaddrinfo(hostname, servname, &hints, &result);
-  if (rc != 0)
-    return rc;
+
+#ifdef AI_IDN
+  if (env_locale != (locale_t)0) {
+      // Restore the thread's previous locale configuration
+      uselocale(old_locale);
+      // Free the allocated memory for the temporary locale
+      freelocale(env_locale);
+  }
+#endif
+
+  if (rc != 0){
+    if ((AI_NUMERICHOST & addl_flags) == 0)
+      netutil_error("Error resolving %s: %s", hostname, gai_strerror(rc));
+    return NULL;
+  }
+
+  return result;
+}
+
+/* Internal helper for resolve and resolve_numeric. addl_flags is ored into
+   hints.ai_flags, so you can add AI_NUMERICHOST. */
+static int resolve_internal(const char *hostname, unsigned short port,
+  struct sockaddr_storage *ss, size_t *sslen, int af, int addl_flags) {
+  struct addrinfo *result;
+
+  assert(hostname);
+  assert(ss);
+  assert(sslen);
+
+  result = resolve_all_internal(hostname, port, af, addl_flags);
   if (result == NULL)
     return EAI_NONAME;
   assert(result->ai_addrlen > 0 && result->ai_addrlen <= (int) sizeof(struct sockaddr_storage));
@@ -407,6 +445,10 @@ int resolve(const char *hostname, unsigned short port,
 int resolve_numeric(const char *ip, unsigned short port,
   struct sockaddr_storage *ss, size_t *sslen, int af) {
   return resolve_internal(ip, port, ss, sslen, af, AI_NUMERICHOST);
+}
+
+struct addrinfo *resolve_all(const char *hostname, int pf) {
+  return resolve_all_internal(hostname, 0, pf, 0);
 }
 
 /*

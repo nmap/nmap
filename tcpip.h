@@ -137,12 +137,6 @@ class PacketCounter {
 */
 const char *inet_socktop(const struct sockaddr_storage *ss);
 
-/* Tries to resolve the given name (or literal IP) into a sockaddr
-   structure. This function calls getaddrinfo and returns the same
-   addrinfo linked list that getaddrinfo produces. Returns NULL for any
-   error or failure to resolve. */
-struct addrinfo *resolve_all(const char *hostname, int pf);
-
 /* Takes a destination address (dst) and tries to determine the
    source address and interface necessary to route to this address.
    If no route is found, false is returned and rnfo is undefined.  If

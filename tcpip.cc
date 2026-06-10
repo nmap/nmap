@@ -381,37 +381,6 @@ const char *inet_socktop(const struct sockaddr_storage *ss) {
   return buf;
 }
 
-/* Tries to resolve the given name (or literal IP) into a sockaddr structure.
-   This function calls getaddrinfo and returns the same addrinfo linked list
-   that getaddrinfo produces. Returns NULL for any error or failure to resolve.
-   You need to call freeaddrinfo on the result if non-NULL. */
-struct addrinfo *resolve_all(const char *hostname, int pf) {
-  struct addrinfo hints;
-  struct addrinfo *result;
-  int rc;
-
-  memset(&hints, 0, sizeof(hints));
-  hints.ai_family = pf;
-  /* Otherwise we get multiple identical addresses with different socktypes. */
-  hints.ai_socktype = SOCK_DGRAM;
-#ifdef AI_IDN
-  /* Try resolving internationalized domain names */
-  hints.ai_flags = AI_IDN;
-  setlocale(LC_CTYPE, "");
-#endif
-  rc = getaddrinfo(hostname, NULL, &hints, &result);
-#ifdef AI_IDN
-  setlocale(LC_CTYPE, o.locale);
-#endif
-  if (rc != 0){
-    if (o.debugging > 1)
-      error("Error resolving %s: %s", hostname, gai_strerror(rc));
-    return NULL;
-  }
-
-  return result;
-}
-
 
 /* Send a pre-built IPv4 packet. Handles fragmentation and whether to send with
    an ethernet handle or a socket. */
