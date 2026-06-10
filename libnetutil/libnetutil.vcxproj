@@ -89,6 +89,7 @@
     <ClCompile Include="IPv6Header.cc" />
     <ClCompile Include="massdns.cc" />
     <ClCompile Include="netutil.cc" />
+    <ClCompile Include="NetBlock.cc" />
     <ClCompile Include="NetworkLayerElement.cc" />
     <ClCompile Include="PacketElement.cc" />
     <ClCompile Include="PacketParser.cc" />
@@ -116,6 +117,7 @@
     <ClInclude Include="IPv6Header.h" />
     <ClInclude Include="massdns.h" />
     <ClInclude Include="netutil.h" />
+    <ClInclude Include="NetBlock.h" />
     <ClInclude Include="NetworkLayerElement.h" />
     <ClInclude Include="npacket.h" />
     <ClInclude Include="PacketElement.h" />
