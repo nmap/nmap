@@ -766,8 +766,8 @@ bool FingerTest::str2AVal(const char *str, const char *end) {
       return false;
     }
     std::map<FPstr, u8>::const_iterator idx = def->AttrIdx.find(FPstr(p, q));
-    u8 j = idx->second;
-    if (idx == def->AttrIdx.end() || AVs[j] != NULL) {
+    u8 j = 0;
+    if (idx == def->AttrIdx.end() || AVs[(j = idx->second)] != NULL) {
       error("Parse error with AVal string (%s) in nmap-os-db file", str);
       return false;
     }
