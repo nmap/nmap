@@ -1,5 +1,8 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE][GH#3368] Fixed an out-of-memory issue in packet.lua when parsing a
+  zero-length TCP header option. [Maxim Suhanov]
+
 o Fixed an issue where Nmap OS scan trusts a packet's ip_len to size a CRC32
   computation over TCP RST payload data, which may result in reading arbitrary
   heap data. Reported by Michael Bommarito.

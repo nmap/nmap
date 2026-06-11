@@ -686,10 +686,7 @@ function Packet:parse_options(offset, length)
   local opt_ptr = 0
   while opt_ptr < length do
     local t, l, d
-    options[op] = {}
-
     t = self:u8(offset + opt_ptr)
-    options[op].type = t
     if t==0 or t==1 then
       l = 1
       d = nil
@@ -699,6 +696,11 @@ function Packet:parse_options(offset, length)
         d = self:raw(offset + opt_ptr + 2, l-2)
       end
     end
+    if l==0 then
+      break
+    end
+    options[op] = {}
+    options[op].type = t
     options[op].len  = l
     options[op].data = d
     opt_ptr = opt_ptr + l
