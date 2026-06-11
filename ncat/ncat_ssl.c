@@ -668,7 +668,7 @@ int ssl_handshake(struct fdinfo *sinfo)
 
     if (o.verbose) {
         loguser("Failed SSL connection from %s: %s\n",
-        inet_socktop(&sinfo->remoteaddr),
+        inet_socktop_safe(&sinfo->remoteaddr),
                      ERR_error_string(ERR_get_error(), NULL));
     }
     return NCAT_SSL_HANDSHAKE_FAILED;

@@ -843,7 +843,7 @@ static int l_resolve(lua_State *L)
     if (addr->ai_addrlen > sizeof(ss))
       continue;
     memcpy(&ss, addr->ai_addr, addr->ai_addrlen);
-    nseU_appendfstr(L, -1, "%s", inet_socktop(&ss));
+    nseU_appendfstr(L, -1, "%s", inet_socktop_safe(&ss));
   }
 
   if (addrs != NULL)

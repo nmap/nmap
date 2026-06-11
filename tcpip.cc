@@ -361,21 +361,9 @@ void PacketTrace::traceConnect(u8 proto, const struct sockaddr *sock,
 /* Converts an IP address given in a sockaddr_storage to an IPv4 or
    IPv6 IP address string.  Since a static buffer is returned, this is
    not thread-safe and can only be used once in calls like printf() */
-const char *inet_socktop(const struct sockaddr_storage *ss) {
-  static char buf[INET6_ADDRSTRLEN];
-  const struct sockaddr_in *sin = (struct sockaddr_in *) ss;
-#if HAVE_IPV6
-  const struct sockaddr_in6 *sin6 = (struct sockaddr_in6 *) ss;
-#endif
-
-  if (inet_ntop(sin->sin_family, (sin->sin_family == AF_INET) ?
-                (char *) &sin->sin_addr :
-#if HAVE_IPV6
-                (char *) &sin6->sin6_addr,
-#else
-                (char *) NULL,
-#endif /* HAVE_IPV6 */
-                buf, sizeof(buf)) == NULL) {
+const char *inet_socktop_safe(const struct sockaddr_storage *ss) {
+  const char *buf = inet_socktop(ss);
+  if (buf == NULL) {
     fatal("Failed to convert target address to presentation format in %s!?!  Error: %s", __func__, strerror(socket_errno()));
   }
   return buf;

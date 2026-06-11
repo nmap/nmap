@@ -191,6 +191,11 @@ const char *inet_ntop_ez(const struct sockaddr_storage *ss, size_t sslen) {
   return NULL;
 }
 
+/* Same as inet_ntop_ez, but assumes sslen==sizeof(sockaddr_storage) */
+const char *inet_socktop(const struct sockaddr_storage *ss) {
+  return inet_ntop_ez(ss, sizeof(*ss));
+}
+
 /* Create a new socket inheritable by subprocesses. On non-Windows systems it's
    just a normal socket. */
 int inheritable_socket(int af, int style, int protocol) {

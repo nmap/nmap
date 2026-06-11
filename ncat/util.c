@@ -363,10 +363,10 @@ const char *socktop(const union sockaddr_u *su, socklen_t ss_len)
             break;
 #endif
         case AF_INET:
-            Snprintf(buf, sizeof(buf), "%s:%hu", inet_socktop(su), inet_port(su));
+            Snprintf(buf, sizeof(buf), "%s:%hu", inet_socktop_safe(su), inet_port(su));
             break;
         case AF_INET6:
-            Snprintf(buf, sizeof(buf), "[%s]:%hu", inet_socktop(su), inet_port(su));
+            Snprintf(buf, sizeof(buf), "[%s]:%hu", inet_socktop_safe(su), inet_port(su));
             break;
         default:
             return NULL;
@@ -379,21 +379,10 @@ const char *socktop(const union sockaddr_u *su, socklen_t ss_len)
    IPv6 IP address string.  Since a static buffer is returned, this is
    not thread-safe and can only be used once in calls like printf()
 */
-const char *inet_socktop(const union sockaddr_u *su)
+const char *inet_socktop_safe(const union sockaddr_u *su)
 {
-    static char buf[INET6_ADDRSTRLEN + 1];
-    void *addr;
-
-    if (su->storage.ss_family == AF_INET)
-        addr = (void *) &su->in.sin_addr;
-#if HAVE_IPV6
-    else if (su->storage.ss_family == AF_INET6)
-        addr = (void *) &su->in6.sin6_addr;
-#endif
-    else
-        bye("Invalid address family passed to inet_socktop().");
-
-    if (inet_ntop(su->storage.ss_family, addr, buf, sizeof(buf)) == NULL) {
+    const char *buf = inet_socktop(&su->storage);
+    if (buf == NULL) {
         bye("Failed to convert address to presentation format!  Error: %s.",
             strerror(socket_errno()));
     }

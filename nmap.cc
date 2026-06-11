@@ -2178,7 +2178,7 @@ int nmap_main(int argc, char *argv[]) {
             currenths->setSourceSockAddr(&ss, sslen);
             if (! sourceaddrwarning) {
               error("WARNING: We could not determine for sure which interface to use, so we are guessing %s .  If this is wrong, use -S <my_IP_address>.",
-                    inet_socktop(&ss));
+                    inet_socktop_safe(&ss));
               sourceaddrwarning = 1;
             }
           }

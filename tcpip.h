@@ -135,7 +135,7 @@ class PacketCounter {
    IPv6 IP address string.  Since a static buffer is returned, this is
    not thread-safe and can only be used once in calls like printf()
 */
-const char *inet_socktop(const struct sockaddr_storage *ss);
+const char *inet_socktop_safe(const struct sockaddr_storage *ss);
 
 /* Takes a destination address (dst) and tries to determine the
    source address and interface necessary to route to this address.

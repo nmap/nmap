@@ -139,6 +139,8 @@ int sockaddr_storage_equal(const struct sockaddr_storage *a,
    thread in the process).  If there is a weird error (like sslen being
    too short) then NULL will be returned. */
 const char *inet_ntop_ez(const struct sockaddr_storage *ss, size_t sslen);
+/* Same, but no extra length checks */
+const char *inet_socktop(const struct sockaddr_storage *ss);
 
 
 #if !HAVE_GETNAMEINFO || !HAVE_GETADDRINFO

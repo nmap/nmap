@@ -269,7 +269,7 @@ static void connect_report(nsock_iod nsi)
     }
 }
 
-/* Just like inet_socktop, but it puts IPv6 addresses in square brackets. */
+/* Just like socktop, but it puts IPv6 addresses in square brackets. */
 static const char *sock_to_url(char *host_str, unsigned short port)
 {
     static char buf[512];
@@ -391,7 +391,7 @@ static int do_proxy_http(void)
         target = o.target;
     } else {
         /* addr is now populated with either sockaddr_in or sockaddr_in6 */
-        Strncpy(addrstr, inet_socktop(&addr), sizeof(addrstr));
+        Strncpy(addrstr, inet_socktop_safe(&addr), sizeof(addrstr));
         target = addrstr;
         if (o.verbose && getaddrfamily(o.target) == -1)
             loguser("Host %s locally resolved to %s.\n", o.target, target);
@@ -548,7 +548,7 @@ static int do_proxy_socks4(void)
     }
 
     if (o.verbose) {
-        loguser("Connected to proxy %s:%hu\n", inet_socktop(&targetaddrs->addr),
+        loguser("Connected to proxy %s:%hu\n", inet_socktop_safe(&targetaddrs->addr),
             inet_port(&targetaddrs->addr));
     }
 
@@ -588,7 +588,7 @@ static int do_proxy_socks4(void)
         socks4msg.address = addr.in.sin_addr.s_addr;
         if (o.verbose && getaddrfamily(o.target) == -1)
             loguser("Host %s locally resolved to %s.\n", o.target,
-                inet_socktop(&addr));
+                inet_socktop_safe(&addr));
     }
 
     if (send(sd, (char *)&socks4msg, offsetof(struct socks4_data, data) + datalen, 0) < 0) {
@@ -643,7 +643,7 @@ static int do_proxy_socks5(void)
     }
 
     if (o.verbose) {
-        loguser("Connected to proxy %s:%hu\n", inet_socktop(&targetaddrs->addr),
+        loguser("Connected to proxy %s:%hu\n", inet_socktop_safe(&targetaddrs->addr),
             inet_port(&targetaddrs->addr));
     }
 
@@ -815,7 +815,7 @@ static int do_proxy_socks5(void)
         dstlen = addrlen;
         if (o.verbose && getaddrfamily(o.target) == -1)
             loguser("Host %s locally resolved to %s.\n", o.target,
-                inet_socktop(&addr));
+                inet_socktop_safe(&addr));
     }
 
     memcpy(socks5msg2.dst + dstlen, &proxyport, 2);
@@ -1190,7 +1190,7 @@ static void connect_handler(nsock_pool nsp, nsock_event evt, void *data)
                 zmem(&peer, sizeof(peer.storage));
                 nsock_iod_get_communication_info(cs.sock_nsi, NULL, NULL, NULL,
                     &peer.sockaddr, sizeof(peer.storage));
-                loguser("Connection to %s failed: %s.\n", inet_socktop(&peer),
+                loguser("Connection to %s failed: %s.\n", inet_socktop_safe(&peer),
                     (status == NSE_STATUS_TIMEOUT)
                     ? nse_status2str(status)
                     : socket_strerror(nse_errorcode(evt)));

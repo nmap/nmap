@@ -180,7 +180,7 @@ int load_exclude_file(struct addrset *excludelist, FILE *fp) {
         for (size_t i = 0; i < req.ssv.size(); i++) {
           const struct sockaddr_storage &ss = req.ssv[i];
           assert(ss.ss_family == o.af());
-          Snprintf(host_spec, sizeof(host_spec), "%s%s", inet_socktop(&ss),
+          Snprintf(host_spec, sizeof(host_spec), "%s%s", inet_socktop_safe(&ss),
               slash);
           if(!addrset_add_spec(excludelist, host_spec, o.af(), 0)){
             error("Invalid address specification: %s", host_spec);

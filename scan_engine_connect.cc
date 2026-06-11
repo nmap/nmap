@@ -436,7 +436,7 @@ static void init_socket(int sd, const HostScanStats *hss, UltraScanInfo *USI) {
   if (o.spoofsource && !bind_failed) {
     o.SourceSockAddr(&ss, &sslen);
     if (::bind(sd, (struct sockaddr*)&ss, sslen) != 0) {
-      error("%s: Problem binding source address (%s), errno: %d", __func__, inet_socktop(&ss), socket_errno());
+      error("%s: Problem binding source address (%s), errno: %d", __func__, inet_socktop_safe(&ss), socket_errno());
       perror("bind");
       bind_failed = 1;
     }
