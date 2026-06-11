@@ -190,7 +190,7 @@ public:
 class Query
 {
 public:
-  Query() : record_type(RECORD_TYPE::NONE), record_class(RECORD_CLASS::CLASS_IN) {}
+  Query() : record_type(NONE), record_class(CLASS_IN) {}
   std::string name;
   u16 record_type;
   u16 record_class;
@@ -201,8 +201,7 @@ public:
 class Answer
 {
 public:
-  Answer() : record_type(RECORD_TYPE::NONE),
-    record_class(RECORD_CLASS::CLASS_IN), ttl(0), length(0),
+  Answer() : record_type(NONE), record_class(CLASS_IN), ttl(0), length(0),
     record(NULL) {}
   Answer(const Answer &c) : name(c.name), record_type(c.record_type),
     record_class(c.record_class), ttl(c.ttl), length(c.length),
