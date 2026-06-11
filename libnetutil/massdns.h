@@ -157,6 +157,7 @@ class A_Record : public Record
 {
 public:
   sockaddr_storage value;
+  A_Record() : value() {}
   Record * clone() { return new A_Record(*this); }
   ~A_Record() {}
   size_t parseFromBuffer(const u8 *buf, size_t offset, size_t maxlen, RECORD_TYPE rt);
@@ -189,6 +190,7 @@ public:
 class Query
 {
 public:
+  Query() : record_type(RECORD_TYPE::NONE), record_class(RECORD_CLASS::CLASS_IN) {}
   std::string name;
   u16 record_type;
   u16 record_class;
@@ -199,7 +201,9 @@ public:
 class Answer
 {
 public:
-  Answer() : record(NULL) {}
+  Answer() : record_type(RECORD_TYPE::NONE),
+    record_class(RECORD_CLASS::CLASS_IN), ttl(0), length(0),
+    record(NULL) {}
   Answer(const Answer &c) : name(c.name), record_type(c.record_type),
     record_class(c.record_class), ttl(c.ttl), length(c.length),
     record(c.record->clone()) {}

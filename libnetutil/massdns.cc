@@ -110,21 +110,20 @@
 //
 // * Figure out best way to estimate completion time
 //   and display it in a ScanProgressMeter
-
-#include "massdns.h"
-#include "netutil.h"
-#include <limits.h>
-#include <sstream>
-#include <fstream>
-//#include <istream>
-#include <algorithm>
-#include <map>
-#include <assert.h>
-
 #ifdef WIN32
 #include <winsock2.h>
 #include <iphlpapi.h>
 #endif
+
+#include <sstream>
+#include <fstream>
+#include <algorithm>
+#include <map>
+#include "massdns.h"
+#include "netutil.h"
+#include <limits.h>
+#include <assert.h>
+
 
 // From nmap.h
 #ifndef MIN_RTT_TIMEOUT
@@ -218,7 +217,7 @@ struct dns_server {
   std::list<request *> to_process;
   std::list<request *> in_process;
   struct timeval last_increase;
-  dns_server(DNS::ResolverImpl *i) : impl(i), hostname(), addr_len(0), status(DISCONNECTED), reqs_on_wire(0),
+  dns_server(DNS::ResolverImpl *i) : impl(i), hostname(), addr_len(0), nsd(NULL), status(DISCONNECTED), reqs_on_wire(0),
     capacity(CAPACITY_MIN), ssthresh((CAPACITY_MAX + CAPACITY_MIN)/2), write_busy(0), to_process(), in_process()
   {
     memset(&addr, 0, sizeof(addr));
@@ -738,7 +737,7 @@ bool DNS::ResolverImpl::resolve_nsock()
 
   connect_dns_servers();
 
-  int read_timeout_index = MIN(sizeof(read_timeouts)/sizeof(read_timeouts[0]), servs.size()) - 1;
+  int read_timeout_index = MIN(sizeof(default_read_timeouts)/sizeof(default_read_timeouts[0]), servs.size()) - 1;
   read_timeouts = default_read_timeouts[read_timeout_index];
 
   int timeout = 0;
@@ -1600,8 +1599,8 @@ void DNS::ResolverImpl::etchosts_init(void) {
   char tpbuf[2048];
   int has_backslash;
 
-  if (!GetWindowsDirectory(windows_dir, sizeof(windows_dir)))
-    log_func(0, "Failed to determine your windows directory");
+  if (!GetWindowsDirectoryA(windows_dir, sizeof(windows_dir)))
+    fprintf(stderr, "massdns: Failed to determine your windows directory\n");
 
   // If it has a backslash it's C:\, otherwise something like C:\WINNT
   has_backslash = (windows_dir[strlen(windows_dir)-1] == '\\');
