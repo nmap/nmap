@@ -131,6 +131,7 @@ ICMP PROBE MODE:
   \-\-icmp\-orig\-time  <timestamp>    : Set originate timestamp\&.
   \-\-icmp\-recv\-time  <timestamp>    : Set receive timestamp\&.
   \-\-icmp\-trans\-time <timestamp>    : Set transmit timestamp\&.
+  \-\-badsum                         : Use a random invalid checksum\&.
 ARP/RARP PROBE MODE:
   \-\-arp\-type <type>                : Type: ARP, ARP\-reply, RARP, RARP\-reply\&.
   \-\-arp\-sender\-mac <mac>           : Set sender MAC address\&.
@@ -677,6 +678,12 @@ This option sets the Transmit Timestamp in ICMP Timestamp messages\&. The Transm
 \fItimestamp\fR
 is as with
 \fB\-\-icmp\-orig\-time\fR\&.
+.RE
+.PP
+\fB\-\-badsum\fR (Invalid Checksum)
+.RS 4
+Asks Nping to use an invalid ICMP checksum for the packets sent to target hosts\&. Since virtually all host IP stacks properly drop these packets, any responses received are likely coming from a firewall or an IDS that didn\*(Aqt bother to verify the checksum\&. For more details on this technique, see
+\m[blue]\fB\%https://nmap.org/p60-12.html\fR\m[]\&.
 .RE
 .SS "ICMP Types"
 .PP

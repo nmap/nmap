@@ -135,6 +135,8 @@ int ArgParser::parseArguments(int argc, char *argv[]) {
   {"flags", required_argument, 0, 0},
   {"ack", required_argument, 0, 0},
   {"win", required_argument, 0, 0},
+
+  /* TCP/UDP/ICMP */
   {"badsum", no_argument, 0, 0},
 
   /* ICMP */ 
@@ -1180,6 +1182,7 @@ void ArgParser::printUsage(void){
 "  --icmp-orig-time  <timestamp>    : Set originate timestamp.\n"
 "  --icmp-recv-time  <timestamp>    : Set receive timestamp.\n"
 "  --icmp-trans-time <timestamp>    : Set transmit timestamp.\n"
+"   --badsum                        : Use a random invalid checksum. \n"
 "ARP/RARP PROBE MODE:\n"
 "  --arp-type <type>                : Type: ARP, ARP-reply, RARP, RARP-reply.\n"
 "  --arp-sender-mac <mac>           : Set sender MAC address.\n"
