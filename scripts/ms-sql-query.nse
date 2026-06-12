@@ -99,9 +99,13 @@ do_action, portrule, hostrule = mssql.Helper.InitScript(process_instance)
 action = function(...)
   local scriptOutput = do_action(...)
 
+  if not scriptOutput then
+    return nil
+  end
+
   if ( not( stdnse.get_script_args( {'ms-sql-query.query', 'mssql-query.query' } ) ) ) then
     table.insert(scriptOutput, 1, "(Use --script-args=ms-sql-query.query='<QUERY>' to change query.)")
   end
 
-  return stdnse.format_output( true, scriptOutput )
+  return scriptOutput
 end
