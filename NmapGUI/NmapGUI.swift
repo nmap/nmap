@@ -1,6 +1,7 @@
 import SwiftUI
 import Foundation
 import AppKit
+import UniformTypeIdentifiers
  
 @main
 struct NmapGUIApp: App {
@@ -11,8 +12,24 @@ struct NmapGUIApp: App {
         }
         .commands {
             CommandGroup(replacing: .newItem) { }
+            CommandGroup(after: .newItem) {
+                Button("Open XML...") {
+                    NotificationCenter.default.post(name: .nmapGUIOpenXML, object: nil)
+                }
+                .keyboardShortcut("o", modifiers: [.command])
+
+                Button("Save XML...") {
+                    NotificationCenter.default.post(name: .nmapGUISaveXML, object: nil)
+                }
+                .keyboardShortcut("s", modifiers: [.command])
+            }
         }
     }
+}
+
+extension Notification.Name {
+    static let nmapGUIOpenXML = Notification.Name("NmapGUIOpenXML")
+    static let nmapGUISaveXML = Notification.Name("NmapGUISaveXML")
 }
 
 struct ScanProfile: Identifiable, Hashable {
@@ -159,6 +176,15 @@ struct ContentView: View {
                 footer
             }
         }
+        .onReceive(NotificationCenter.default.publisher(for: .nmapGUIOpenXML)) { _ in
+            guard !isRunning else {
+                return
+            }
+            openXML()
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .nmapGUISaveXML)) { _ in
+            saveCurrentXML()
+        }
     }
     
     private var sidebar: some View {
@@ -197,21 +223,21 @@ struct ContentView: View {
                     Text("Native SwiftUI wrapper around bundled Nmap")
                         .foregroundStyle(.secondary)
                 }
-                
+
                 Spacer()
-                
+
                 if isRunning {
                     ProgressView()
                         .controlSize(.small)
                 }
-                
+
                 Button(role: .destructive) {
                     stopScan()
                 } label: {
                     Label("Stop", systemImage: "stop.fill")
                 }
                 .disabled(!isRunning)
-                
+
                 Button {
                     runScan()
                 } label: {
@@ -220,7 +246,7 @@ struct ContentView: View {
                 .buttonStyle(.borderedProminent)
                 .disabled(isRunning || target.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
             }
-            
+
             Grid(alignment: .leading, horizontalSpacing: 12, verticalSpacing: 10) {
                 GridRow {
                     Text("Target")
@@ -228,7 +254,7 @@ struct ContentView: View {
                     TextField("scanme.nmap.org, 192.168.1.0/24, etc.", text: $target)
                         .textFieldStyle(.roundedBorder)
                 }
-                
+
                 GridRow {
                     Text("Profile")
                         .foregroundStyle(.secondary)
@@ -241,7 +267,7 @@ struct ContentView: View {
                         arguments = newProfile.arguments
                     }
                 }
-                
+
                 GridRow {
                     Text("Arguments")
                         .foregroundStyle(.secondary)
@@ -249,7 +275,7 @@ struct ContentView: View {
                         .textFieldStyle(.roundedBorder)
                         .font(.system(.body, design: .monospaced))
                 }
-                
+
                 GridRow {
                     Text("Preview")
                         .foregroundStyle(.secondary)
@@ -262,14 +288,13 @@ struct ContentView: View {
                         .clipShape(RoundedRectangle(cornerRadius: 8))
                 }
             }
-            
+
             Text(selectedProfile.description)
                 .font(.callout)
                 .foregroundStyle(.secondary)
         }
         .padding()
     }
-    
     private var tabView: some View {
         TabView(selection: $selectedTab) {
             outputView
@@ -671,6 +696,59 @@ struct ContentView: View {
         NSPasteboard.general.setString(output, forType: .string)
     }
     
+    private func saveCurrentXML() {
+        guard !lastXMLPath.isEmpty else {
+            output += "\nNo XML scan result is available to save."
+            return
+        }
+
+        let sourceURL = URL(fileURLWithPath: lastXMLPath)
+
+        let panel = NSSavePanel()
+        panel.title = "Save Nmap XML"
+        panel.nameFieldStringValue = "nmap-scan.xml"
+        panel.allowedContentTypes = [.xml]
+        panel.canCreateDirectories = true
+
+        if panel.runModal() == .OK, let destinationURL = panel.url {
+            do {
+                if FileManager.default.fileExists(atPath: destinationURL.path) {
+                    try FileManager.default.removeItem(at: destinationURL)
+                }
+                try FileManager.default.copyItem(at: sourceURL, to: destinationURL)
+                output += "\nSaved XML to: \(destinationURL.path)"
+            } catch {
+                output += "\nFailed to save XML: \(error.localizedDescription)"
+            }
+        }
+    }
+    
+    private func openXML() {
+        let panel = NSOpenPanel()
+        panel.title = "Open Nmap XML"
+        panel.allowedContentTypes = [.xml]
+        panel.allowsMultipleSelection = false
+        panel.canChooseDirectories = false
+        panel.canChooseFiles = true
+
+        if panel.runModal() == .OK, let url = panel.url {
+            let parsedHosts = parseNmapXML(at: url)
+
+            hosts = parsedHosts
+            selectedHostID = parsedHosts.first?.id
+            lastXMLPath = url.path
+            lastCommand = "Opened XML file"
+            exitStatus = nil
+            status = parsedHosts.isEmpty ? "Opened XML with no hosts" : "Opened XML"
+            selectedTab = "Hosts"
+
+            let parsedPorts = parsedHosts.flatMap { $0.ports }
+            output = "Opened XML: \(url.path)\n"
+            output += "Parsed \(parsedHosts.count) host\(parsedHosts.count == 1 ? "" : "s").\n"
+            output += "Parsed \(parsedPorts.count) port result\(parsedPorts.count == 1 ? "" : "s")."
+        }
+    }
+    
     private func emptyResultsView(_ message: String) -> some View {
         VStack(spacing: 12) {
             Image(systemName: "tray")
@@ -864,3 +942,4 @@ struct ContentView: View {
         return result
     }
 }
+
