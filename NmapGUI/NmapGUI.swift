@@ -15,6 +15,23 @@ struct NmapGUIApp: App {
         }
         .commands {
             NewWindowCommands()
+            CommandGroup(after: .pasteboard) {
+                Divider()
+
+                Button("Find in Output...") {
+                    NotificationCenter.default.post(name: .nmapGUIFindOutput, object: nil)
+                }
+                .keyboardShortcut("f", modifiers: [.command])
+
+                Button("Copy Output") {
+                    NotificationCenter.default.post(name: .nmapGUICopyOutput, object: nil)
+                }
+                .keyboardShortcut("c", modifiers: [.command, .shift])
+
+                Button("Clear Output") {
+                    NotificationCenter.default.post(name: .nmapGUIClearOutput, object: nil)
+                }
+            }
             CommandGroup(after: .newItem) {
                 Button("Open Scan...") {
                     NotificationCenter.default.post(name: .nmapGUIOpenXML, object: nil)
@@ -86,6 +103,9 @@ extension Notification.Name {
     static let nmapGUISaveXML = Notification.Name("NmapGUISaveXML")
     static let nmapGUISaveAllScans = Notification.Name("NmapGUISaveAllScans")
     static let nmapGUIPrintOutput = Notification.Name("NmapGUIPrintOutput")
+    static let nmapGUIFindOutput = Notification.Name("NmapGUIFindOutput")
+    static let nmapGUICopyOutput = Notification.Name("NmapGUICopyOutput")
+    static let nmapGUIClearOutput = Notification.Name("NmapGUIClearOutput")
 }
 
 struct ScanProfile: Identifiable, Hashable {
@@ -208,6 +228,10 @@ struct ContentView: View {
     @State private var exitStatus: Int32?
     @State private var isRunning = false
     @State private var selectedTab = "Output"
+    @State private var isOutputFindVisible = false
+    @State private var outputFindText = ""
+    @State private var outputFindSelection = 0
+    @FocusState private var isOutputFindFocused: Bool
     
     @State private var runningProcess: Process?
     @State private var scanStartedAt: Date?
@@ -224,6 +248,168 @@ struct ContentView: View {
             description: "Detect service and version information."
         )
         _selectedProfile = State(initialValue: defaultProfile)
+    }
+    
+    struct FindableOutputTextView: NSViewRepresentable {
+        @Binding var text: String
+        var findText: String
+        var selectedMatchIndex: Int
+
+        func makeCoordinator() -> Coordinator {
+            Coordinator(self)
+        }
+
+        func makeNSView(context: Context) -> NSScrollView {
+            let scrollView = NSScrollView()
+            scrollView.hasVerticalScroller = true
+            scrollView.hasHorizontalScroller = true
+            scrollView.autohidesScrollers = false
+            scrollView.borderType = .noBorder
+
+            let textView = NSTextView()
+            textView.isEditable = true
+            textView.isSelectable = true
+            textView.isRichText = false
+            textView.usesFontPanel = false
+            textView.allowsUndo = true
+            textView.drawsBackground = true
+            textView.backgroundColor = NSColor.textBackgroundColor
+            textView.textColor = NSColor.textColor
+            textView.insertionPointColor = NSColor.textColor
+            textView.font = NSFont.monospacedSystemFont(
+                ofSize: NSFont.systemFontSize,
+                weight: .regular
+            )
+            textView.minSize = NSSize(width: 0, height: 0)
+            textView.maxSize = NSSize(
+                width: CGFloat.greatestFiniteMagnitude,
+                height: CGFloat.greatestFiniteMagnitude
+            )
+            textView.isHorizontallyResizable = true
+            textView.isVerticallyResizable = true
+            textView.autoresizingMask = [.width]
+            textView.textContainer?.containerSize = NSSize(
+                width: CGFloat.greatestFiniteMagnitude,
+                height: CGFloat.greatestFiniteMagnitude
+            )
+            textView.textContainer?.widthTracksTextView = false
+            textView.delegate = context.coordinator
+
+            scrollView.documentView = textView
+            context.coordinator.textView = textView
+            return scrollView
+        }
+
+        func updateNSView(_ scrollView: NSScrollView, context: Context) {
+            guard let textView = scrollView.documentView as? NSTextView else {
+                return
+            }
+
+            context.coordinator.parent = self
+
+            if textView.string != text {
+                textView.string = text
+            }
+
+            context.coordinator.applyFindHighlight()
+        }
+
+        final class Coordinator: NSObject, NSTextViewDelegate {
+            var parent: FindableOutputTextView
+            weak var textView: NSTextView?
+
+            init(_ parent: FindableOutputTextView) {
+                self.parent = parent
+            }
+
+            func textDidChange(_ notification: Notification) {
+                guard let textView else {
+                    return
+                }
+
+                parent.text = textView.string
+            }
+
+            func applyFindHighlight() {
+                guard let textView else {
+                    return
+                }
+
+                let text = textView.string as NSString
+                let fullRange = NSRange(location: 0, length: text.length)
+                textView.textStorage?.removeAttribute(.backgroundColor, range: fullRange)
+                textView.textStorage?.addAttribute(.foregroundColor, value: NSColor.textColor, range: fullRange)
+
+                if let font = textView.font {
+                    textView.textStorage?.addAttribute(.font, value: font, range: fullRange)
+                }
+                
+                let query = parent.findText.trimmingCharacters(in: .whitespacesAndNewlines)
+                guard !query.isEmpty else {
+                    return
+                }
+
+                var searchRange = NSRange(location: 0, length: text.length)
+                var matches: [NSRange] = []
+
+                while searchRange.location < text.length {
+                    let foundRange = text.range(
+                        of: query,
+                        options: [.caseInsensitive],
+                        range: searchRange
+                    )
+
+                    if foundRange.location == NSNotFound {
+                        break
+                    }
+
+                    matches.append(foundRange)
+
+                    let nextLocation = foundRange.location + max(foundRange.length, 1)
+                    searchRange = NSRange(
+                        location: nextLocation,
+                        length: text.length - nextLocation
+                    )
+                }
+
+                guard !matches.isEmpty else {
+                    return
+                }
+
+                let normalMatchBackground = NSColor.systemYellow.withAlphaComponent(0.90)
+                let normalMatchForeground = NSColor.black
+                let selectedMatchBackground = NSColor.systemOrange.withAlphaComponent(0.95)
+                let selectedMatchForeground = NSColor.black
+
+                for match in matches {
+                    textView.textStorage?.addAttribute(
+                        .backgroundColor,
+                        value: normalMatchBackground,
+                        range: match
+                    )
+                    textView.textStorage?.addAttribute(
+                        .foregroundColor,
+                        value: normalMatchForeground,
+                        range: match
+                    )
+                }
+
+                let selectedIndex = min(max(parent.selectedMatchIndex, 0), matches.count - 1)
+                let selectedRange = matches[selectedIndex]
+
+                textView.textStorage?.addAttribute(
+                    .backgroundColor,
+                    value: selectedMatchBackground,
+                    range: selectedRange
+                )
+                textView.textStorage?.addAttribute(
+                    .foregroundColor,
+                    value: selectedMatchForeground,
+                    range: selectedRange
+                )
+                textView.scrollRangeToVisible(selectedRange)
+            }
+        }
     }
     
     private var allPorts: [ScannedPort] {
@@ -270,6 +456,22 @@ struct ContentView: View {
         }
         .onReceive(NotificationCenter.default.publisher(for: .nmapGUIPrintOutput)) { _ in
             printOutput()
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .nmapGUIFindOutput)) { _ in
+            selectedTab = "Output"
+            isOutputFindVisible = true
+            DispatchQueue.main.async {
+                isOutputFindFocused = true
+            }
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .nmapGUICopyOutput)) { _ in
+            copyOutput()
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .nmapGUIClearOutput)) { _ in
+            guard !isRunning else {
+                return
+            }
+            output = ""
         }
     }
     
@@ -427,6 +629,19 @@ struct ContentView: View {
                 Text("Raw Output")
                     .font(.headline)
                 Spacer()
+
+                Button {
+                    isOutputFindVisible.toggle()
+                    if isOutputFindVisible {
+                        selectedTab = "Output"
+                        DispatchQueue.main.async {
+                            isOutputFindFocused = true
+                        }
+                    }
+                } label: {
+                    Label("Find", systemImage: "magnifyingglass")
+                }
+
                 Button {
                     copyOutput()
                 } label: {
@@ -440,10 +655,56 @@ struct ContentView: View {
                 }
                 .disabled(isRunning)
             }
+
+            if isOutputFindVisible {
+                HStack {
+                    Image(systemName: "magnifyingglass")
+                        .foregroundStyle(.secondary)
+
+                    TextField("Find in output", text: $outputFindText)
+                        .textFieldStyle(.roundedBorder)
+                        .focused($isOutputFindFocused)
+                        .onChange(of: outputFindText) { _ in
+                            outputFindSelection = 0
+                        }
+                    
+                    Text(outputFindSummary)
+                        .foregroundStyle(.secondary)
+
+                    Button {
+                        moveToPreviousOutputMatch()
+                    } label: {
+                        Image(systemName: "chevron.up")
+                    }
+                    .help("Previous Match")
+                    .disabled(outputFindMatchCount == 0)
+
+                    Button {
+                        moveToNextOutputMatch()
+                    } label: {
+                        Image(systemName: "chevron.down")
+                    }
+                    .help("Next Match")
+                    .disabled(outputFindMatchCount == 0)
+
+                    Button {
+                        outputFindText = ""
+                        outputFindSelection = 0
+                        isOutputFindVisible = false
+                    } label: {
+                        Image(systemName: "xmark.circle.fill")
+                    }
+                    .buttonStyle(.plain)
+                    .foregroundStyle(.secondary)
+                }
+            }
             
-            TextEditor(text: $output)
-                .font(.system(.body, design: .monospaced))
-                .border(.separator)
+            FindableOutputTextView(
+                text: $output,
+                findText: outputFindText,
+                selectedMatchIndex: outputFindSelection
+            )
+            .border(.separator)
         }
         .padding()
     }
@@ -762,6 +1023,43 @@ struct ContentView: View {
         } else {
             return "nmap \(trimmedArgs) \(trimmedTarget)"
         }
+    }
+    
+    private var outputFindMatchCount: Int {
+        let query = outputFindText.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !query.isEmpty else {
+            return 0
+        }
+
+        return output.lowercased().components(separatedBy: query.lowercased()).count - 1
+    }
+
+    private var outputFindSummary: String {
+        let count = outputFindMatchCount
+        guard count > 0 else {
+            return outputFindText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? "" : "No matches"
+        }
+
+        let displayIndex = min(outputFindSelection + 1, count)
+        return "\(displayIndex) of \(count)"
+    }
+
+    private func moveToNextOutputMatch() {
+        let count = outputFindMatchCount
+        guard count > 0 else {
+            return
+        }
+
+        outputFindSelection = (outputFindSelection + 1) % count
+    }
+
+    private func moveToPreviousOutputMatch() {
+        let count = outputFindMatchCount
+        guard count > 0 else {
+            return
+        }
+
+        outputFindSelection = (outputFindSelection - 1 + count) % count
     }
     
     private func runScan() {
