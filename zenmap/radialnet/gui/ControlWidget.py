@@ -131,28 +131,28 @@ class ControlAction(BWExpander):
 
         self.__jump_to = Gtk.RadioToolButton(group=None,
                                              stock_id=Gtk.STOCK_JUMP_TO)
-        self.__jump_to.set_tooltip_text('Change focus')
+        self.__jump_to.set_tooltip_text(_('Change focus'))
         self.__jump_to.connect('toggled',
                                self.__change_pointer,
                                RadialNet.POINTER_JUMP_TO)
 
         self.__info = Gtk.RadioToolButton(group=self.__jump_to,
                                           stock_id=Gtk.STOCK_INFO)
-        self.__info.set_tooltip_text('Show information')
+        self.__info.set_tooltip_text(_('Show information'))
         self.__info.connect('toggled',
                             self.__change_pointer,
                             RadialNet.POINTER_INFO)
 
         self.__group = Gtk.RadioToolButton(group=self.__jump_to,
                                            stock_id=Gtk.STOCK_ADD)
-        self.__group.set_tooltip_text('Group children')
+        self.__group.set_tooltip_text(_('Group children'))
         self.__group.connect('toggled',
                              self.__change_pointer,
                              RadialNet.POINTER_GROUP)
 
         self.__region = Gtk.RadioToolButton(group=self.__jump_to,
                                             stock_id=Gtk.STOCK_SELECT_COLOR)
-        self.__region.set_tooltip_text('Fill region')
+        self.__region.set_tooltip_text(_('Fill region'))
         self.__region.connect('toggled',
                               self.__change_pointer,
                               RadialNet.POINTER_FILL)

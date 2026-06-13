@@ -88,6 +88,7 @@ class ProfileEditor(HIGWindow):
 
         self.deletable = deletable
         self.profile_name = profile_name
+        self._original_profile_name = profile_name  # keep original (untranslated) name for saving
         self.overwrite = overwrite
 
         # Used to block recursive updating of the command entry when the
@@ -105,7 +106,7 @@ class ProfileEditor(HIGWindow):
             prof = self.profile.get_profile(profile_name)
 
             # Interface settings
-            self.profile_name_entry.set_text(profile_name)
+            self.profile_name_entry.set_text(_(profile_name))
             self.profile_description_text.get_buffer().set_text(
                     prof['description'])
 
@@ -149,13 +150,13 @@ class ProfileEditor(HIGWindow):
 
     def update_help_name(self, widget, extra):
         self.help_field.get_buffer().set_text(
-                "Profile name\n\nThis is how the profile will be identified "
-                "in the drop-down combo box in the scan tab.")
+                _("Profile name\n\nThis is how the profile will be identified "
+                "in the drop-down combo box in the scan tab."))
 
     def update_help_desc(self, widget, extra):
         self.help_field.get_buffer().set_text(
-                "Description\n\nThe description is a full description of what "
-                "the scan does, which may be long.")
+                _("Description\n\nThe description is a full description of what "
+                "the scan does, which may be long."))
 
     def __create_widgets(self):
 
@@ -188,6 +189,7 @@ class ProfileEditor(HIGWindow):
         self.profile_description_label = HIGEntryLabel(_('Description'))
         self.profile_description_scroll = HIGScrolledWindow()
         self.profile_description_scroll.set_border_width(0)
+        self.profile_description_scroll.set_size_request(-1, 120)
         self.profile_description_text = HIGTextView()
         self.profile_description_text.connect(
                 'motion-notify-event', self.update_help_desc)
@@ -198,7 +200,7 @@ class ProfileEditor(HIGWindow):
         self.cancel_button = HIGButton(title=_("Cancel"))
         self.cancel_button.connect('clicked', self.exit)
 
-        self.delete_button = HIGButton(stock="edit-delete")
+        self.delete_button = HIGButton(_("Delete"), stock="edit-delete")
         self.delete_button.connect('clicked', self.delete_profile)
 
         self.save_button = HIGButton(_("Save Changes"), stock="document-save")
@@ -296,9 +298,15 @@ class ProfileEditor(HIGWindow):
         self.notebook.append_page(vbox, Gtk.Label.new(tab_name))
 
     def save_profile(self, widget):
-        if self.overwrite:
-            self.profile.remove_profile(self.profile_name)
-        profile_name = self.profile_name_entry.get_text()
+        # Get the display name (may be translated)
+        display_name = self.profile_name_entry.get_text()
+        # Map back to original name if the user didn't edit the translated text
+        if self._original_profile_name and display_name == _(self._original_profile_name):
+            profile_name = self._original_profile_name
+        else:
+            profile_name = display_name
+        if self.overwrite and profile_name == self._original_profile_name:
+            self.profile.remove_profile(self._original_profile_name)
         if profile_name == '':
             alert = HIGAlertDialog(
                     message_format=_('Unnamed profile'),
@@ -377,7 +385,8 @@ class ProfileEditor(HIGWindow):
             dialog.destroy()
             if response == Gtk.ResponseType.CANCEL:
                 return True
-            self.profile.remove_profile(self.profile_name)
+            if self._original_profile_name:
+                self.profile.remove_profile(self._original_profile_name)
 
         self.update_profile_entry()
         self.destroy()
