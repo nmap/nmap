@@ -55,8 +55,7 @@ struct NmapGUIApp: App {
                         Divider()
 
                         Button("Clear Recent Scans") {
-                            scanHistory.savedScans.removeAll()
-                            scanHistory.selectedSavedScanID = nil
+                            scanHistory.clearSavedScans()
                         }
                     }
                 }
@@ -214,19 +213,69 @@ struct ScannedPort: Identifiable, Hashable {
 }
 
 
-struct SavedScan: Identifiable, Hashable {
-    let id = UUID()
+struct SavedScan: Identifiable, Hashable, Codable {
+    let id: UUID
     var title: String
     var command: String
     var xmlPath: String
     var scannedAt: Date
     var hostCount: Int
     var portCount: Int
+
+    init(
+        id: UUID = UUID(),
+        title: String,
+        command: String,
+        xmlPath: String,
+        scannedAt: Date,
+        hostCount: Int,
+        portCount: Int
+    ) {
+        self.id = id
+        self.title = title
+        self.command = command
+        self.xmlPath = xmlPath
+        self.scannedAt = scannedAt
+        self.hostCount = hostCount
+        self.portCount = portCount
+    }
 }
 
 final class ScanHistoryStore: ObservableObject {
-    @Published var savedScans: [SavedScan] = []
+    private static let savedScansDefaultsKey = "NmapGUI.SavedScans"
+
+    @Published var savedScans: [SavedScan] = [] {
+        didSet {
+            saveSavedScans()
+        }
+    }
     @Published var selectedSavedScanID: SavedScan.ID?
+
+    init() {
+        savedScans = Self.loadSavedScans()
+    }
+
+    func clearSavedScans() {
+        savedScans.removeAll()
+        selectedSavedScanID = nil
+    }
+
+    private static func loadSavedScans() -> [SavedScan] {
+        guard let data = UserDefaults.standard.data(forKey: savedScansDefaultsKey),
+              let decoded = try? JSONDecoder().decode([SavedScan].self, from: data) else {
+            return []
+        }
+
+        return decoded.filter { FileManager.default.fileExists(atPath: $0.xmlPath) }
+    }
+
+    private func saveSavedScans() {
+        guard let data = try? JSONEncoder().encode(savedScans) else {
+            return
+        }
+
+        UserDefaults.standard.set(data, forKey: Self.savedScansDefaultsKey)
+    }
 }
 
 struct ContentView: View {
@@ -1073,8 +1122,7 @@ struct ContentView: View {
                     Spacer()
 
                     Button(role: .destructive) {
-                        scanHistory.savedScans.removeAll()
-                        scanHistory.selectedSavedScanID = nil
+                        scanHistory.clearSavedScans()
                     } label: {
                         Label("Clear History", systemImage: "trash.slash")
                     }
