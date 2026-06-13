@@ -1,0 +1,330 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXAggregateTarget section */
+		A10000000000000000000013 /* NmapCLI */ = {
+			isa = PBXAggregateTarget;
+			buildConfigurationList = A10000000000000000000014 /* Build configuration list for PBXAggregateTarget "NmapCLI" */;
+			buildPhases = (
+				A10000000000000000000012 /* Build Nmap CLI */,
+			);
+			dependencies = (
+			);
+			name = NmapCLI;
+			productName = NmapCLI;
+		};
+/* End PBXAggregateTarget section */
+
+/* Begin PBXBuildFile section */
+		A10000000000000000000001 /* NmapGUI.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000002 /* NmapGUI.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		A10000000000000000000017 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A10000000000000000000015 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = A10000000000000000000013;
+			remoteInfo = NmapCLI;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		A10000000000000000000002 /* NmapGUI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NmapGUI.swift; sourceTree = "<group>"; };
+		A10000000000000000000003 /* NmapGUI.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = NmapGUI.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		A10000000000000000000004 /* build-nmap-macos.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = "build-nmap-macos.sh"; sourceTree = "<group>"; };
+		A10000000000000000000005 /* clean-nmap-macos.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = "clean-nmap-macos.sh"; sourceTree = "<group>"; };
+		A10000000000000000000006 /* README-XCODE.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "README-XCODE.md"; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		A10000000000000000000007 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		A10000000000000000000008 = {
+			isa = PBXGroup;
+			children = (
+				A10000000000000000000006 /* README-XCODE.md */,
+				A10000000000000000000009 /* NmapGUI */,
+				A1000000000000000000000A /* xcode */,
+				A1000000000000000000000B /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		A10000000000000000000009 /* NmapGUI */ = {
+			isa = PBXGroup;
+			children = (
+				A10000000000000000000002 /* NmapGUI.swift */,
+			);
+			path = NmapGUI;
+			sourceTree = "<group>";
+		};
+		A1000000000000000000000A /* xcode */ = {
+			isa = PBXGroup;
+			children = (
+				A1000000000000000000000C /* scripts */,
+			);
+			path = xcode;
+			sourceTree = "<group>";
+		};
+		A1000000000000000000000B /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				A10000000000000000000003 /* NmapGUI.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		A1000000000000000000000C /* scripts */ = {
+			isa = PBXGroup;
+			children = (
+				A10000000000000000000004 /* build-nmap-macos.sh */,
+				A10000000000000000000005 /* clean-nmap-macos.sh */,
+			);
+			path = scripts;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		A1000000000000000000000D /* NmapGUI */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A1000000000000000000000E /* Build configuration list for PBXNativeTarget "NmapGUI" */;
+			buildPhases = (
+				A1000000000000000000000F /* Sources */,
+				A10000000000000000000007 /* Frameworks */,
+				A10000000000000000000010 /* Resources */,
+				2F05FE642FDD1E7000B3D1DC /* Bundle nmap runtime files */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				A10000000000000000000011 /* PBXTargetDependency */,
+			);
+			name = NmapGUI;
+			productName = NmapGUI;
+			productReference = A10000000000000000000003 /* NmapGUI.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		A10000000000000000000015 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1600;
+				LastUpgradeCheck = 1600;
+				TargetAttributes = {
+					A1000000000000000000000D = {
+						CreatedOnToolsVersion = 16.0;
+					};
+				};
+			};
+			buildConfigurationList = A10000000000000000000016 /* Build configuration list for PBXProject "NmapMac" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = A10000000000000000000008;
+			productRefGroup = A1000000000000000000000B /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				A10000000000000000000013 /* NmapCLI */,
+				A1000000000000000000000D /* NmapGUI */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		A10000000000000000000010 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		2F05FE642FDD1E7000B3D1DC /* Bundle nmap runtime files */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Bundle nmap runtime files";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\nset -e\n\nROOT=\"${PROJECT_DIR}\"\nRES=\"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}\"\n\necho \"Bundling Nmap runtime files\"\necho \"ROOT=$ROOT\"\necho \"RES=$RES\"\n\nmkdir -p \"$RES\"\n\nif [ ! -x \"$ROOT/nmap\" ]; then\n  echo \"error: Built nmap binary not found at $ROOT/nmap\"\n  echo \"Build the NmapCLI target first, or run make from the repo root.\"\n  exit 1\nfi\n\ncp \"$ROOT/nmap\" \"$RES/nmap\"\nchmod +x \"$RES/nmap\"\n\nfor f in \\\n  nmap-services \\\n  nmap-protocols \\\n  nmap-rpc \\\n  nmap-mac-prefixes \\\n  nmap-os-db \\\n  nmap-service-probes \\\n  nmap.dtd \\\n  nse_main.lua\ndo\n  if [ -e \"$ROOT/$f\" ]; then\n    cp \"$ROOT/$f\" \"$RES/\"\n  else\n    echo \"warning: optional Nmap data file missing: $f\"\n  fi\ndone\n\nif [ -d \"$ROOT/scripts\" ]; then\n  rm -rf \"$RES/scripts\"\n  cp -R \"$ROOT/scripts\" \"$RES/scripts\"\nelse\n  echo \"warning: scripts directory missing\"\nfi\n\nif [ -d \"$ROOT/nselib\" ]; then\n  rm -rf \"$RES/nselib\"\n  cp -R \"$ROOT/nselib\" \"$RES/nselib\"\nelse\n  echo \"warning: nselib directory missing\"\nfi\n\necho \"Bundled nmap:\"\n\"$RES/nmap\" --version\n";
+		};
+		A10000000000000000000012 /* Build Nmap CLI */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Build Nmap CLI";
+			outputPaths = (
+				"$(SRCROOT)/nmap",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"$SRCROOT/xcode/scripts/build-nmap-macos.sh\"";
+		};
+/* End PBXShellScriptBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		A1000000000000000000000F /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A10000000000000000000001 /* NmapGUI.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		A10000000000000000000011 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = A10000000000000000000013 /* NmapCLI */;
+			targetProxy = A10000000000000000000017 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		A10000000000000000000018 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = NmapGUI;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				MARKETING_VERSION = 0.1;
+				PRODUCT_BUNDLE_IDENTIFIER = local.nmap.NmapGUI;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		A10000000000000000000019 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = NmapGUI;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				MARKETING_VERSION = 0.1;
+				PRODUCT_BUNDLE_IDENTIFIER = local.nmap.NmapGUI;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		A1000000000000000000001A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_NAME = NmapCLI;
+			};
+			name = Debug;
+		};
+		A1000000000000000000001B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_NAME = NmapCLI;
+			};
+			name = Release;
+		};
+		A1000000000000000000001C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+			};
+			name = Debug;
+		};
+		A1000000000000000000001D /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		A1000000000000000000000E /* Build configuration list for PBXNativeTarget "NmapGUI" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A10000000000000000000018 /* Debug */,
+				A10000000000000000000019 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A10000000000000000000014 /* Build configuration list for PBXAggregateTarget "NmapCLI" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A1000000000000000000001A /* Debug */,
+				A1000000000000000000001B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A10000000000000000000016 /* Build configuration list for PBXProject "NmapMac" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A1000000000000000000001C /* Debug */,
+				A1000000000000000000001D /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = A10000000000000000000015 /* Project object */;
+}
