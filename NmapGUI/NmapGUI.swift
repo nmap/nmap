@@ -1,12 +1,13 @@
 import SwiftUI
 import Foundation
-
+import AppKit
+ 
 @main
 struct NmapGUIApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()
-                .frame(minWidth: 980, minHeight: 680)
+                .frame(minWidth: 1080, minHeight: 720)
         }
         .commands {
             CommandGroup(replacing: .newItem) { }
@@ -19,6 +20,40 @@ struct ScanProfile: Identifiable, Hashable {
     let name: String
     let arguments: String
     let description: String
+}
+
+struct ScannedHost: Identifiable, Hashable {
+    let id = UUID()
+    var address: String
+    var hostname: String
+    var status: String
+    var ports: [ScannedPort]
+
+    var displayName: String {
+        hostname.isEmpty ? address : hostname
+    }
+
+    var openPortCount: Int {
+        ports.filter { $0.state == "open" }.count
+    }
+}
+
+struct ScannedPort: Identifiable, Hashable {
+    let id = UUID()
+    var hostAddress: String
+    var protocolName: String
+    var portNumber: String
+    var state: String
+    var serviceName: String
+    var product: String
+    var version: String
+    var extraInfo: String
+
+    var serviceSummary: String {
+        [product, version, extraInfo]
+            .filter { !$0.isEmpty }
+            .joined(separator: " ")
+    }
 }
 
 struct ContentView: View {
@@ -74,7 +109,7 @@ struct ContentView: View {
             description: "Edit arguments manually."
         )
     ]
-
+    
     @State private var selectedProfile: ScanProfile
     @State private var target = "scanme.nmap.org"
     @State private var arguments = "-sV"
@@ -83,11 +118,15 @@ struct ContentView: View {
     @State private var exitStatus: Int32?
     @State private var isRunning = false
     @State private var selectedTab = "Output"
-
+    
     @State private var runningProcess: Process?
     @State private var scanStartedAt: Date?
     @State private var lastCommand = ""
-
+    @State private var lastXMLPath = ""
+    
+    @State private var hosts: [ScannedHost] = []
+    @State private var selectedHostID: ScannedHost.ID?
+    
     init() {
         let defaultProfile = ScanProfile(
             name: "Service Detection",
@@ -96,7 +135,18 @@ struct ContentView: View {
         )
         _selectedProfile = State(initialValue: defaultProfile)
     }
-
+    
+    private var allPorts: [ScannedPort] {
+        hosts.flatMap { $0.ports }
+    }
+    
+    private var selectedHost: ScannedHost? {
+        guard let selectedHostID else {
+            return hosts.first
+        }
+        return hosts.first { $0.id == selectedHostID }
+    }
+    
     var body: some View {
         NavigationSplitView {
             sidebar
@@ -110,7 +160,7 @@ struct ContentView: View {
             }
         }
     }
-
+    
     private var sidebar: some View {
         List(selection: $selectedTab) {
             Section("Scan") {
@@ -125,7 +175,7 @@ struct ContentView: View {
                 Label("Details", systemImage: "info.circle")
                     .tag("Details")
             }
-
+            
             Section("Later") {
                 Label("Saved Scans", systemImage: "archivebox")
                     .tag("Saved Scans")
@@ -137,7 +187,7 @@ struct ContentView: View {
         }
         .navigationTitle("Nmap")
     }
-
+    
     private var header: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
@@ -147,21 +197,21 @@ struct ContentView: View {
                     Text("Native SwiftUI wrapper around bundled Nmap")
                         .foregroundStyle(.secondary)
                 }
-
+                
                 Spacer()
-
+                
                 if isRunning {
                     ProgressView()
                         .controlSize(.small)
                 }
-
+                
                 Button(role: .destructive) {
                     stopScan()
                 } label: {
                     Label("Stop", systemImage: "stop.fill")
                 }
                 .disabled(!isRunning)
-
+                
                 Button {
                     runScan()
                 } label: {
@@ -170,7 +220,7 @@ struct ContentView: View {
                 .buttonStyle(.borderedProminent)
                 .disabled(isRunning || target.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
             }
-
+            
             Grid(alignment: .leading, horizontalSpacing: 12, verticalSpacing: 10) {
                 GridRow {
                     Text("Target")
@@ -178,7 +228,7 @@ struct ContentView: View {
                     TextField("scanme.nmap.org, 192.168.1.0/24, etc.", text: $target)
                         .textFieldStyle(.roundedBorder)
                 }
-
+                
                 GridRow {
                     Text("Profile")
                         .foregroundStyle(.secondary)
@@ -187,11 +237,11 @@ struct ContentView: View {
                             Text(profile.name).tag(profile)
                         }
                     }
-                    .onChange(of: selectedProfile) { _, newProfile in
+                    .onChange(of: selectedProfile) { newProfile in
                         arguments = newProfile.arguments
                     }
                 }
-
+                
                 GridRow {
                     Text("Arguments")
                         .foregroundStyle(.secondary)
@@ -199,7 +249,7 @@ struct ContentView: View {
                         .textFieldStyle(.roundedBorder)
                         .font(.system(.body, design: .monospaced))
                 }
-
+                
                 GridRow {
                     Text("Preview")
                         .foregroundStyle(.secondary)
@@ -212,48 +262,36 @@ struct ContentView: View {
                         .clipShape(RoundedRectangle(cornerRadius: 8))
                 }
             }
-
+            
             Text(selectedProfile.description)
                 .font(.callout)
                 .foregroundStyle(.secondary)
         }
         .padding()
     }
-
+    
     private var tabView: some View {
         TabView(selection: $selectedTab) {
             outputView
                 .tabItem { Label("Output", systemImage: "terminal") }
                 .tag("Output")
-
-            placeholderView(
-                title: "Hosts",
-                systemImage: "desktopcomputer",
-                message: "Next milestone: run Nmap with XML output and parse discovered hosts into this table."
-            )
-            .tabItem { Label("Hosts", systemImage: "desktopcomputer") }
-            .tag("Hosts")
-
-            placeholderView(
-                title: "Ports",
-                systemImage: "list.bullet.rectangle",
-                message: "Next milestone: parse open, closed, and filtered ports from Nmap XML."
-            )
-            .tabItem { Label("Ports", systemImage: "list.bullet.rectangle") }
-            .tag("Ports")
-
-            placeholderView(
-                title: "Services",
-                systemImage: "network",
-                message: "Next milestone: parse service names, versions, products, CPEs, and scripts."
-            )
-            .tabItem { Label("Services", systemImage: "network") }
-            .tag("Services")
-
+            
+            hostsView
+                .tabItem { Label("Hosts", systemImage: "desktopcomputer") }
+                .tag("Hosts")
+            
+            portsView
+                .tabItem { Label("Ports", systemImage: "list.bullet.rectangle") }
+                .tag("Ports")
+            
+            servicesView
+                .tabItem { Label("Services", systemImage: "network") }
+                .tag("Services")
+            
             detailsView
                 .tabItem { Label("Details", systemImage: "info.circle") }
                 .tag("Details")
-
+            
             placeholderView(
                 title: "Topology",
                 systemImage: "point.3.connected.trianglepath.dotted",
@@ -261,13 +299,13 @@ struct ContentView: View {
             )
             .tabItem { Label("Topology", systemImage: "point.3.connected.trianglepath.dotted") }
             .tag("Topology")
-
+            
             profilesView
                 .tabItem { Label("Profiles", systemImage: "slider.horizontal.3") }
                 .tag("Profiles")
         }
     }
-
+    
     private var outputView: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
@@ -279,7 +317,7 @@ struct ContentView: View {
                 } label: {
                     Label("Copy", systemImage: "doc.on.doc")
                 }
-
+                
                 Button {
                     output = ""
                 } label: {
@@ -287,19 +325,125 @@ struct ContentView: View {
                 }
                 .disabled(isRunning)
             }
-
+            
             TextEditor(text: $output)
                 .font(.system(.body, design: .monospaced))
                 .border(.separator)
         }
         .padding()
     }
-
+    
+    private var hostsView: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack {
+                Text("Hosts")
+                    .font(.headline)
+                Spacer()
+                Text("\(hosts.count) host\(hosts.count == 1 ? "" : "s")")
+                    .foregroundStyle(.secondary)
+            }
+            
+            if hosts.isEmpty {
+                emptyResultsView("Run a scan to populate discovered hosts.")
+            } else {
+                Table(hosts, selection: $selectedHostID) {
+                    TableColumn("Address") { host in
+                        Text(host.address)
+                            .font(.system(.body, design: .monospaced))
+                    }
+                    TableColumn("Hostname") { host in
+                        Text(host.hostname.isEmpty ? "-" : host.hostname)
+                    }
+                    TableColumn("Status") { host in
+                        Text(host.status)
+                    }
+                    TableColumn("Open Ports") { host in
+                        Text("\(host.openPortCount)")
+                    }
+                }
+            }
+        }
+        .padding()
+    }
+    
+    private var portsView: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack {
+                Text("Ports")
+                    .font(.headline)
+                Spacer()
+                Text("\(allPorts.count) port result\(allPorts.count == 1 ? "" : "s")")
+                    .foregroundStyle(.secondary)
+            }
+            
+            if allPorts.isEmpty {
+                emptyResultsView("Run a scan to populate port results.")
+            } else {
+                Table(allPorts) {
+                    TableColumn("Host") { port in
+                        Text(port.hostAddress)
+                            .font(.system(.body, design: .monospaced))
+                    }
+                    TableColumn("Port") { port in
+                        Text("\(port.portNumber)/\(port.protocolName)")
+                            .font(.system(.body, design: .monospaced))
+                    }
+                    TableColumn("State") { port in
+                        Text(port.state)
+                    }
+                    TableColumn("Service") { port in
+                        Text(port.serviceName.isEmpty ? "-" : port.serviceName)
+                    }
+                    TableColumn("Version") { port in
+                        Text(port.serviceSummary.isEmpty ? "-" : port.serviceSummary)
+                    }
+                }
+            }
+        }
+        .padding()
+    }
+    
+    private var servicesView: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack {
+                Text("Services")
+                    .font(.headline)
+                Spacer()
+                Text("\(allPorts.filter { !$0.serviceName.isEmpty }.count) service result\(allPorts.filter { !$0.serviceName.isEmpty }.count == 1 ? "" : "s")")
+                    .foregroundStyle(.secondary)
+            }
+            
+            if allPorts.isEmpty {
+                emptyResultsView("Run a service detection scan to populate service results.")
+            } else {
+                Table(allPorts.filter { !$0.serviceName.isEmpty || !$0.serviceSummary.isEmpty }) {
+                    TableColumn("Host") { port in
+                        Text(port.hostAddress)
+                            .font(.system(.body, design: .monospaced))
+                    }
+                    TableColumn("Service") { port in
+                        Text(port.serviceName.isEmpty ? "-" : port.serviceName)
+                    }
+                    TableColumn("Product") { port in
+                        Text(port.product.isEmpty ? "-" : port.product)
+                    }
+                    TableColumn("Version") { port in
+                        Text(port.version.isEmpty ? "-" : port.version)
+                    }
+                    TableColumn("Extra Info") { port in
+                        Text(port.extraInfo.isEmpty ? "-" : port.extraInfo)
+                    }
+                }
+            }
+        }
+        .padding()
+    }
+    
     private var detailsView: some View {
         VStack(alignment: .leading, spacing: 12) {
             Label("Scan Details", systemImage: "info.circle")
                 .font(.title2.bold())
-
+            
             Grid(alignment: .leading, horizontalSpacing: 12, verticalSpacing: 8) {
                 GridRow {
                     Text("Status")
@@ -319,6 +463,23 @@ struct ContentView: View {
                     Text(exitStatus.map(String.init) ?? "None")
                 }
                 GridRow {
+                    Text("Hosts")
+                        .foregroundStyle(.secondary)
+                    Text("\(hosts.count)")
+                }
+                GridRow {
+                    Text("Ports")
+                        .foregroundStyle(.secondary)
+                    Text("\(allPorts.count)")
+                }
+                GridRow {
+                    Text("XML output")
+                        .foregroundStyle(.secondary)
+                    Text(lastXMLPath.isEmpty ? "None" : lastXMLPath)
+                        .font(.system(.body, design: .monospaced))
+                        .textSelection(.enabled)
+                }
+                GridRow {
                     Text("NMAPDIR")
                         .foregroundStyle(.secondary)
                     Text(Bundle.main.resourceURL?.path ?? "Unavailable")
@@ -333,17 +494,29 @@ struct ContentView: View {
                         .textSelection(.enabled)
                 }
             }
-
+            
+            if let selectedHost {
+                Divider()
+                VStack(alignment: .leading, spacing: 6) {
+                    Text("Selected Host")
+                        .font(.headline)
+                    Text(selectedHost.displayName)
+                        .font(.system(.body, design: .monospaced))
+                    Text("\(selectedHost.openPortCount) open port\(selectedHost.openPortCount == 1 ? "" : "s")")
+                        .foregroundStyle(.secondary)
+                }
+            }
+            
             Spacer()
         }
         .padding()
     }
-
+    
     private var profilesView: some View {
         VStack(alignment: .leading, spacing: 12) {
             Text("Built-in Profiles")
                 .font(.title2.bold())
-
+            
             Table(profiles) {
                 TableColumn("Name") { profile in
                     Text(profile.name)
@@ -356,212 +529,338 @@ struct ContentView: View {
                     Text(profile.description)
                 }
             }
-
-            Text("Custom editable profiles will be added after XML parsing and saved scans.")
+            
+            Text("Custom editable profiles will be added after saved scans.")
                 .foregroundStyle(.secondary)
         }
         .padding()
     }
-
+    
     private var footer: some View {
         HStack {
             Circle()
                 .fill(isRunning ? .orange : .green)
                 .frame(width: 8, height: 8)
-
+            
             Text(status)
                 .foregroundStyle(.secondary)
-
+            
             Spacer()
-
+            
             if let started = scanStartedAt, isRunning {
                 Text("Started \(started.formatted(date: .omitted, time: .standard))")
                     .foregroundStyle(.secondary)
             }
-
+            
             if let exitStatus {
                 Text("Exit \(exitStatus)")
-                    .foregroundStyle(exitStatus == 0 ? .secondary : .red)
+                    .foregroundColor(exitStatus == 0 ? .secondary : .red)
             }
         }
         .font(.callout)
         .padding(.horizontal)
         .padding(.vertical, 8)
     }
-
+    
     private var commandPreview: String {
         let trimmedArgs = arguments.trimmingCharacters(in: .whitespacesAndNewlines)
         let trimmedTarget = target.trimmingCharacters(in: .whitespacesAndNewlines)
-
+        
         if trimmedArgs.isEmpty {
             return "nmap \(trimmedTarget)"
         } else {
             return "nmap \(trimmedArgs) \(trimmedTarget)"
         }
     }
-
+    
     private func runScan() {
         let trimmedTarget = target.trimmingCharacters(in: .whitespacesAndNewlines)
-        let args = shellSplit(arguments) + [trimmedTarget]
+        let xmlURL = FileManager.default.temporaryDirectory
+            .appendingPathComponent("NmapGUI-\(UUID().uuidString).xml")
+        var args = shellSplit(arguments)
+        args.append(contentsOf: ["-oX", xmlURL.path, trimmedTarget])
 
         isRunning = true
         exitStatus = nil
         status = "Running"
         scanStartedAt = Date()
         lastCommand = commandPreview
-        output = "Running \(commandPreview)...\n\n"
+        lastXMLPath = xmlURL.path
+        hosts = []
+        selectedHostID = nil
+        output = "Running \(commandPreview)...\nXML output: \(xmlURL.path)\n\n"
 
-        DispatchQueue.global(qos: .userInitiated).async {
-            let process = Process()
-            let pipe = Pipe()
+        let process = Process()
+        let pipe = Pipe()
 
-            process.standardOutput = pipe
-            process.standardError = pipe
+        process.standardOutput = pipe
+        process.standardError = pipe
 
-            guard let binary = nmapBinaryPath() else {
-                DispatchQueue.main.async {
-                    output += "Failed to run nmap: bundled Resources/nmap and /usr/local/bin/nmap were not found."
-                    status = "Failed"
-                    isRunning = false
-                    scanStartedAt = nil
-                }
+        guard let binary = nmapBinaryPath() else {
+            output += "Failed to run nmap: bundled Resources/nmap and /usr/local/bin/nmap were not found."
+            status = "Failed"
+            isRunning = false
+            scanStartedAt = nil
+            return
+        }
+
+        process.executableURL = URL(fileURLWithPath: binary)
+        process.arguments = args
+
+        var env = ProcessInfo.processInfo.environment
+        if let resources = Bundle.main.resourceURL?.path {
+            env["NMAPDIR"] = resources
+        }
+        process.environment = env
+
+        runningProcess = process
+
+        pipe.fileHandleForReading.readabilityHandler = { handle in
+            let data = handle.availableData
+            guard !data.isEmpty else {
                 return
             }
 
-            process.executableURL = URL(fileURLWithPath: binary)
-            process.arguments = args
-
-            var env = ProcessInfo.processInfo.environment
-            if let resources = Bundle.main.resourceURL?.path {
-                env["NMAPDIR"] = resources
-            }
-            process.environment = env
-
+            let text = String(data: data, encoding: .utf8) ?? ""
             DispatchQueue.main.async {
-                runningProcess = process
-            }
-
-            do {
-                try process.run()
-
-                let data = pipe.fileHandleForReading.readDataToEndOfFile()
-                process.waitUntilExit()
-
-                let text = String(data: data, encoding: .utf8) ?? ""
-
-                DispatchQueue.main.async {
-                    output += text
-                    output += "\nExit status: \(process.terminationStatus)"
-                    exitStatus = process.terminationStatus
-                    status = process.terminationStatus == 0 ? "Completed" : "Exited with errors"
-                    isRunning = false
-                    runningProcess = nil
-                    scanStartedAt = nil
-                }
-            } catch {
-                DispatchQueue.main.async {
-                    output += "Failed to run nmap: \(error.localizedDescription)\n"
-                    output += "Expected bundled Resources/nmap or /usr/local/bin/nmap."
-                    status = "Failed"
-                    isRunning = false
-                    runningProcess = nil
-                    scanStartedAt = nil
-                }
+                output += text
             }
         }
-    }
 
+        process.terminationHandler = { finishedProcess in
+            pipe.fileHandleForReading.readabilityHandler = nil
+            let parsedHosts = parseNmapXML(at: xmlURL)
+
+            DispatchQueue.main.async {
+                exitStatus = finishedProcess.terminationStatus
+                output += "\nExit status: \(finishedProcess.terminationStatus)"
+                status = finishedProcess.terminationStatus == 0 ? "Completed" : "Exited with errors"
+                hosts = parsedHosts
+                selectedHostID = parsedHosts.first?.id
+                isRunning = false
+                runningProcess = nil
+                scanStartedAt = nil
+            }
+        }
+
+        do {
+            try process.run()
+        } catch {
+            pipe.fileHandleForReading.readabilityHandler = nil
+            output += "Failed to run nmap: \(error.localizedDescription)\n"
+            output += "Expected bundled Resources/nmap or /usr/local/bin/nmap."
+            status = "Failed"
+            isRunning = false
+            runningProcess = nil
+            scanStartedAt = nil
+        }
+    }
+    
     private func stopScan() {
         guard let process = runningProcess else {
             return
         }
-
+        
         process.terminate()
         status = "Stopping"
         output += "\n\nStopping scan...\n"
     }
-
+    
     private func copyOutput() {
         NSPasteboard.general.clearContents()
         NSPasteboard.general.setString(output, forType: .string)
     }
-}
-
-private func placeholderView(title: String, systemImage: String, message: String) -> some View {
-    VStack(spacing: 16) {
-        Image(systemName: systemImage)
-            .font(.system(size: 48))
-            .foregroundStyle(.secondary)
-
-        Text(title)
-            .font(.title.bold())
-
-        Text(message)
-            .multilineTextAlignment(.center)
-            .foregroundStyle(.secondary)
-            .frame(maxWidth: 520)
+    
+    private func emptyResultsView(_ message: String) -> some View {
+        VStack(spacing: 12) {
+            Image(systemName: "tray")
+                .font(.system(size: 36))
+                .foregroundStyle(.secondary)
+            Text(message)
+                .foregroundStyle(.secondary)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
-    .frame(maxWidth: .infinity, maxHeight: .infinity)
-    .padding()
-}
-
-private func nmapBinaryPath() -> String? {
-    if let bundled = Bundle.main.resourceURL?.appendingPathComponent("nmap").path,
-       FileManager.default.isExecutableFile(atPath: bundled) {
-        return bundled
+    
+    private func placeholderView(title: String, systemImage: String, message: String) -> some View {
+        VStack(spacing: 16) {
+            Image(systemName: systemImage)
+                .font(.system(size: 48))
+                .foregroundStyle(.secondary)
+            
+            Text(title)
+                .font(.title.bold())
+            
+            Text(message)
+                .multilineTextAlignment(.center)
+                .foregroundStyle(.secondary)
+                .frame(maxWidth: 520)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .padding()
     }
-
-    let fallback = "/usr/local/bin/nmap"
-    if FileManager.default.isExecutableFile(atPath: fallback) {
-        return fallback
+    
+    private func nmapBinaryPath() -> String? {
+        if let bundled = Bundle.main.resourceURL?.appendingPathComponent("nmap").path,
+           FileManager.default.isExecutableFile(atPath: bundled) {
+            return bundled
+        }
+        
+        let fallback = "/usr/local/bin/nmap"
+        if FileManager.default.isExecutableFile(atPath: fallback) {
+            return fallback
+        }
+        
+        return nil
     }
-
-    return nil
-}
-
-private func shellSplit(_ string: String) -> [String] {
-    var result: [String] = []
-    var current = ""
-    var isInSingleQuotes = false
-    var isInDoubleQuotes = false
-    var shouldEscapeNext = false
-
-    for character in string {
-        if shouldEscapeNext {
-            current.append(character)
-            shouldEscapeNext = false
-            continue
+    
+    private func parseNmapXML(at url: URL) -> [ScannedHost] {
+        guard let parser = XMLParser(contentsOf: url) else {
+            return []
         }
-
-        if character == "\\" {
-            shouldEscapeNext = true
-            continue
+        
+        let delegate = NmapXMLParserDelegate()
+        parser.delegate = delegate
+        
+        guard parser.parse() else {
+            return []
         }
-
-        if character == "'" && !isInDoubleQuotes {
-            isInSingleQuotes.toggle()
-            continue
-        }
-
-        if character == "\"" && !isInSingleQuotes {
-            isInDoubleQuotes.toggle()
-            continue
-        }
-
-        if character.isWhitespace && !isInSingleQuotes && !isInDoubleQuotes {
-            if !current.isEmpty {
-                result.append(current)
-                current = ""
+        
+        return delegate.hosts
+    }
+    
+    private final class NmapXMLParserDelegate: NSObject, XMLParserDelegate {
+        private(set) var hosts: [ScannedHost] = []
+        
+        private var currentHost: ScannedHost?
+        private var currentPort: ScannedPort?
+        private var isInsideHostnames = false
+        
+        func parser(
+            _ parser: XMLParser,
+            didStartElement elementName: String,
+            namespaceURI: String?,
+            qualifiedName qName: String?,
+            attributes attributeDict: [String: String] = [:]
+        ) {
+            switch elementName {
+            case "host":
+                currentHost = ScannedHost(address: "", hostname: "", status: "unknown", ports: [])
+                
+            case "status":
+                currentHost?.status = attributeDict["state"] ?? "unknown"
+                
+            case "address":
+                if currentHost?.address.isEmpty == true {
+                    currentHost?.address = attributeDict["addr"] ?? ""
+                }
+                
+            case "hostnames":
+                isInsideHostnames = true
+                
+            case "hostname":
+                if isInsideHostnames, currentHost?.hostname.isEmpty == true {
+                    currentHost?.hostname = attributeDict["name"] ?? ""
+                }
+                
+            case "port":
+                currentPort = ScannedPort(
+                    hostAddress: currentHost?.address ?? "",
+                    protocolName: attributeDict["protocol"] ?? "",
+                    portNumber: attributeDict["portid"] ?? "",
+                    state: "unknown",
+                    serviceName: "",
+                    product: "",
+                    version: "",
+                    extraInfo: ""
+                )
+                
+            case "state":
+                currentPort?.state = attributeDict["state"] ?? "unknown"
+                
+            case "service":
+                currentPort?.serviceName = attributeDict["name"] ?? ""
+                currentPort?.product = attributeDict["product"] ?? ""
+                currentPort?.version = attributeDict["version"] ?? ""
+                currentPort?.extraInfo = attributeDict["extrainfo"] ?? ""
+                
+            default:
+                break
             }
-            continue
         }
-
-        current.append(character)
+        
+        func parser(
+            _ parser: XMLParser,
+            didEndElement elementName: String,
+            namespaceURI: String?,
+            qualifiedName qName: String?
+        ) {
+            switch elementName {
+            case "hostnames":
+                isInsideHostnames = false
+                
+            case "port":
+                if let currentPort {
+                    currentHost?.ports.append(currentPort)
+                }
+                currentPort = nil
+                
+            case "host":
+                if let currentHost {
+                    hosts.append(currentHost)
+                }
+                currentHost = nil
+                
+            default:
+                break
+            }
+        }
     }
-
-    if !current.isEmpty {
-        result.append(current)
+    
+    private func shellSplit(_ string: String) -> [String] {
+        var result: [String] = []
+        var current = ""
+        var isInSingleQuotes = false
+        var isInDoubleQuotes = false
+        var shouldEscapeNext = false
+        
+        for character in string {
+            if shouldEscapeNext {
+                current.append(character)
+                shouldEscapeNext = false
+                continue
+            }
+            
+            if character == "\\" {
+                shouldEscapeNext = true
+                continue
+            }
+            
+            if character == "'" && !isInDoubleQuotes {
+                isInSingleQuotes.toggle()
+                continue
+            }
+            
+            if character == "\"" && !isInSingleQuotes {
+                isInDoubleQuotes.toggle()
+                continue
+            }
+            
+            if character.isWhitespace && !isInSingleQuotes && !isInDoubleQuotes {
+                if !current.isEmpty {
+                    result.append(current)
+                    current = ""
+                }
+                continue
+            }
+            
+            current.append(character)
+        }
+        
+        if !current.isEmpty {
+            result.append(current)
+        }
+        
+        return result
     }
-
-    return result
 }
