@@ -11,7 +11,7 @@ struct NmapGUIApp: App {
         WindowGroup("Nmap", id: "main") {
             ContentView()
                 .environmentObject(scanHistory)
-                .frame(minWidth: 1080, minHeight: 720)
+                .frame(minWidth: 1250, minHeight: 850)
         }
         .commands {
             NewWindowCommands()
@@ -162,6 +162,7 @@ struct ScanProfile: Identifiable, Hashable {
     let name: String
     let arguments: String
     let description: String
+    var isBuiltIn = true
 }
 
 struct ScannedHost: Identifiable, Hashable {
@@ -216,7 +217,7 @@ final class ScanHistoryStore: ObservableObject {
 
 struct ContentView: View {
     @EnvironmentObject private var scanHistory: ScanHistoryStore
-    private let profiles: [ScanProfile] = [
+    @State private var profiles: [ScanProfile] = [
         ScanProfile(
             name: "Quick Scan",
             arguments: "-T4 -F",
@@ -272,6 +273,10 @@ struct ContentView: View {
     @State private var selectedProfile: ScanProfile
     @State private var target = "scanme.nmap.org"
     @State private var arguments = "-sV"
+    @State private var newProfileName = ""
+    @State private var newProfileArguments = "-sV"
+    @State private var newProfileDescription = "Custom scan profile."
+    @State private var selectedProfileID: ScanProfile.ID?
     @State private var output = "Ready. Choose a profile, enter a target, then run a scan."
     @State private var status = "Idle"
     @State private var exitStatus: Int32?
@@ -470,6 +475,23 @@ struct ContentView: View {
             return hosts.first
         }
         return hosts.first { $0.id == selectedHostID }
+    }
+    
+    private var selectedProfileForActions: ScanProfile? {
+        guard let selectedProfileID else {
+            return nil
+        }
+
+        return profiles.first { $0.id == selectedProfileID }
+    }
+    
+    private var selectedCustomProfileForEditing: ScanProfile? {
+        guard let profile = selectedProfileForActions,
+              !profile.isBuiltIn else {
+            return nil
+        }
+
+        return profile
     }
     
     var body: some View {
@@ -1047,11 +1069,36 @@ struct ContentView: View {
                 VStack(alignment: .leading, spacing: 4) {
                     Text("Profiles")
                         .font(.title2.bold())
-                    Text("Choose a built-in profile to load its arguments into the scan form.")
+                    Text("Choose a profile to load its arguments into the scan form, or create a custom one.")
                         .foregroundStyle(.secondary)
                 }
 
                 Spacer()
+
+                Button("Use") {
+                    if let profile = selectedProfileForActions {
+                        useProfile(profile)
+                    }
+                }
+                .disabled(selectedProfileForActions == nil)
+
+                Button("Duplicate") {
+                    if let profile = selectedProfileForActions {
+                        duplicateProfile(profile)
+                    }
+                }
+                .disabled(selectedProfileForActions == nil)
+
+                Button(role: .destructive) {
+                    if let profile = selectedProfileForActions {
+                        deleteProfile(profile)
+                    }
+                } label: {
+                    Text("Delete")
+                }
+                .disabled(selectedProfileForActions?.isBuiltIn ?? true)
+
+                Divider()
 
                 Button {
                     selectedProfile = profiles.first { $0.name == "Custom" } ?? selectedProfile
@@ -1060,10 +1107,73 @@ struct ContentView: View {
                     Label("Custom", systemImage: "slider.horizontal.3")
                 }
             }
+
+            GroupBox("Profile Editor") {
+                Grid(alignment: .leading, horizontalSpacing: 12, verticalSpacing: 10) {
+                    GridRow {
+                        Text("Name")
+                            .foregroundStyle(.secondary)
+                        TextField("My scan profile", text: $newProfileName)
+                            .textFieldStyle(.roundedBorder)
+                    }
+
+                    GridRow {
+                        Text("Arguments")
+                            .foregroundStyle(.secondary)
+                        TextField("-sV -T4", text: $newProfileArguments)
+                            .textFieldStyle(.roundedBorder)
+                            .font(.system(.body, design: .monospaced))
+                    }
+
+                    GridRow {
+                        Text("Description")
+                            .foregroundStyle(.secondary)
+                        TextField("Describe when to use this profile", text: $newProfileDescription)
+                            .textFieldStyle(.roundedBorder)
+                    }
+                }
+
+                HStack {
+                    Spacer()
+
+                    Button {
+                        addCustomProfile()
+                    } label: {
+                        Label("Add Custom Profile", systemImage: "plus")
+                    }
+                    .disabled(newProfileName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+
+                    Button {
+                        updateSelectedCustomProfile()
+                    } label: {
+                        Label("Update Selected Profile", systemImage: "checkmark")
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .disabled(selectedCustomProfileForEditing == nil || newProfileName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+
+                    Button {
+                        clearProfileEditor()
+                    } label: {
+                        Label("Clear Editor", systemImage: "xmark.circle")
+                    }
+                }
+                .padding(.top, 8)
+            }
             
-            Table(profiles) {
+            Table(profiles, selection: $selectedProfileID) {
                 TableColumn("Name") { profile in
-                    Text(profile.name)
+                    HStack {
+                        Text(profile.name)
+                        if !profile.isBuiltIn {
+                            Text("Custom")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                                .padding(.horizontal, 6)
+                                .padding(.vertical, 2)
+                                .background(.quaternary)
+                                .clipShape(Capsule())
+                        }
+                    }
                 }
                 TableColumn("Arguments") { profile in
                     Text(profile.arguments.isEmpty ? "default" : profile.arguments)
@@ -1072,16 +1182,12 @@ struct ContentView: View {
                 TableColumn("Description") { profile in
                     Text(profile.description)
                 }
-                TableColumn("Action") { profile in
-                    Button("Use") {
-                        selectedProfile = profile
-                        arguments = profile.arguments
-                        selectedTab = "Output"
-                    }
-                }
+            }
+            .onChange(of: selectedProfileID) { _ in
+                loadSelectedProfileForEditingIfNeeded()
             }
             
-            Text("Editable custom profiles will be added in the next milestone.")
+            Text("Duplicate a built-in profile, edit it here, then click Update Selected Profile before using it.")
                 .foregroundStyle(.secondary)
         }
         .padding()
@@ -1269,6 +1375,108 @@ struct ContentView: View {
         outputFindText = ""
         outputFindSelection = 0
         selectedTab = "Output"
+    }
+    
+    private func useProfile(_ profile: ScanProfile) {
+        selectedProfile = profile
+        arguments = profile.arguments
+        selectedProfileID = profile.id
+        selectedTab = "Output"
+    }
+    
+    private func addCustomProfile() {
+        let trimmedName = newProfileName.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmedName.isEmpty else {
+            return
+        }
+
+        let profile = ScanProfile(
+            name: trimmedName,
+            arguments: newProfileArguments.trimmingCharacters(in: .whitespacesAndNewlines),
+            description: newProfileDescription.trimmingCharacters(in: .whitespacesAndNewlines),
+            isBuiltIn: false
+        )
+
+        profiles.append(profile)
+        selectedProfileID = profile.id
+        loadProfileIntoEditor(profile)
+    }
+    
+    private func updateSelectedCustomProfile() {
+        guard let profile = selectedCustomProfileForEditing,
+              let index = profiles.firstIndex(where: { $0.id == profile.id }) else {
+            return
+        }
+
+        let trimmedName = newProfileName.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmedName.isEmpty else {
+            return
+        }
+
+        let updated = ScanProfile(
+            name: trimmedName,
+            arguments: newProfileArguments.trimmingCharacters(in: .whitespacesAndNewlines),
+            description: newProfileDescription.trimmingCharacters(in: .whitespacesAndNewlines),
+            isBuiltIn: false
+        )
+
+        profiles[index] = updated
+        selectedProfileID = updated.id
+
+        if selectedProfile.id == profile.id {
+            selectedProfile = updated
+            arguments = updated.arguments
+        }
+    }
+    
+    private func duplicateProfile(_ profile: ScanProfile) {
+        let copy = ScanProfile(
+            name: "\(profile.name) Copy",
+            arguments: profile.arguments,
+            description: profile.description,
+            isBuiltIn: false
+        )
+
+        profiles.append(copy)
+        selectedProfileID = copy.id
+        loadProfileIntoEditor(copy)
+        selectedTab = "Profiles"
+    }
+    
+    private func deleteProfile(_ profile: ScanProfile) {
+        guard !profile.isBuiltIn else {
+            return
+        }
+
+        profiles.removeAll { $0.id == profile.id }
+
+        if selectedProfile.id == profile.id,
+           let fallback = profiles.first {
+            useProfile(fallback)
+        }
+
+        clearProfileEditor()
+    }
+    
+    private func loadSelectedProfileForEditingIfNeeded() {
+        guard let profile = selectedCustomProfileForEditing else {
+            return
+        }
+
+        loadProfileIntoEditor(profile)
+    }
+    
+    private func loadProfileIntoEditor(_ profile: ScanProfile) {
+        newProfileName = profile.name
+        newProfileArguments = profile.arguments
+        newProfileDescription = profile.description
+    }
+    
+    private func clearProfileEditor() {
+        selectedProfileID = nil
+        newProfileName = ""
+        newProfileArguments = "-sV"
+        newProfileDescription = "Custom scan profile."
     }
     
     private func copyOutput() {
