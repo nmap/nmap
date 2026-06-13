@@ -139,3 +139,13 @@ stamp-h1
 .xcode-products/
 
 .xcode-products/
+
+# Local Xcode user state
+NmapMac.xcodeproj/project.xcworkspace/xcuserdata/
+NmapMac.xcodeproj/xcuserdata/
+
+# Local overlay copy
+NmapMacXcodeOverlay/
+
+# Local libpcap generated file
+libpcap/pcap-savefile.manfile
