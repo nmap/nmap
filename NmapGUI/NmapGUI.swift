@@ -157,12 +157,26 @@ extension Notification.Name {
     static let nmapGUIShowTab = Notification.Name("NmapGUIShowTab")
 }
 
-struct ScanProfile: Identifiable, Hashable {
-    let id = UUID()
+struct ScanProfile: Identifiable, Hashable, Codable {
+    let id: UUID
     let name: String
     let arguments: String
     let description: String
     var isBuiltIn = true
+
+    init(
+        id: UUID = UUID(),
+        name: String,
+        arguments: String,
+        description: String,
+        isBuiltIn: Bool = true
+    ) {
+        self.id = id
+        self.name = name
+        self.arguments = arguments
+        self.description = description
+        self.isBuiltIn = isBuiltIn
+    }
 }
 
 struct ScannedHost: Identifiable, Hashable {
@@ -217,7 +231,8 @@ final class ScanHistoryStore: ObservableObject {
 
 struct ContentView: View {
     @EnvironmentObject private var scanHistory: ScanHistoryStore
-    @State private var profiles: [ScanProfile] = [
+    private static let customProfilesDefaultsKey = "NmapGUI.CustomProfiles"
+    private static let builtInProfiles: [ScanProfile] = [
         ScanProfile(
             name: "Quick Scan",
             arguments: "-T4 -F",
@@ -270,6 +285,8 @@ struct ContentView: View {
         )
     ]
     
+    @State private var profiles: [ScanProfile] = Self.builtInProfiles
+    
     @State private var selectedProfile: ScanProfile
     @State private var target = "scanme.nmap.org"
     @State private var arguments = "-sV"
@@ -302,6 +319,10 @@ struct ContentView: View {
             description: "Detect service and version information."
         )
         _selectedProfile = State(initialValue: defaultProfile)
+
+        if let savedCustomProfiles = Self.loadSavedCustomProfiles(), !savedCustomProfiles.isEmpty {
+            _profiles = State(initialValue: Self.builtInProfiles + savedCustomProfiles)
+        }
     }
     
     struct FindableOutputTextView: NSViewRepresentable {
@@ -1400,6 +1421,7 @@ struct ContentView: View {
         profiles.append(profile)
         selectedProfileID = profile.id
         loadProfileIntoEditor(profile)
+        saveCustomProfiles()
     }
     
     private func updateSelectedCustomProfile() {
@@ -1427,6 +1449,8 @@ struct ContentView: View {
             selectedProfile = updated
             arguments = updated.arguments
         }
+
+        saveCustomProfiles()
     }
     
     private func duplicateProfile(_ profile: ScanProfile) {
@@ -1441,6 +1465,7 @@ struct ContentView: View {
         selectedProfileID = copy.id
         loadProfileIntoEditor(copy)
         selectedTab = "Profiles"
+        saveCustomProfiles()
     }
     
     private func deleteProfile(_ profile: ScanProfile) {
@@ -1456,6 +1481,7 @@ struct ContentView: View {
         }
 
         clearProfileEditor()
+        saveCustomProfiles()
     }
     
     private func loadSelectedProfileForEditingIfNeeded() {
@@ -1477,6 +1503,24 @@ struct ContentView: View {
         newProfileName = ""
         newProfileArguments = "-sV"
         newProfileDescription = "Custom scan profile."
+    }
+    
+    private static func loadSavedCustomProfiles() -> [ScanProfile]? {
+        guard let data = UserDefaults.standard.data(forKey: customProfilesDefaultsKey) else {
+            return nil
+        }
+
+        return try? JSONDecoder().decode([ScanProfile].self, from: data)
+    }
+    
+    private func saveCustomProfiles() {
+        let customProfiles = profiles.filter { !$0.isBuiltIn }
+
+        guard let data = try? JSONEncoder().encode(customProfiles) else {
+            return
+        }
+
+        UserDefaults.standard.set(data, forKey: Self.customProfilesDefaultsKey)
     }
     
     private func copyOutput() {
