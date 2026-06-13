@@ -25,6 +25,25 @@ struct NmapGUIApp: App {
                     NotificationCenter.default.post(name: .nmapGUIOpenXML, object: nil)
                 }
 
+                Menu("Recent Scans") {
+                    if scanHistory.savedScans.isEmpty {
+                        Text("No Recent Scans")
+                    } else {
+                        ForEach(scanHistory.savedScans.prefix(10)) { scan in
+                            Button(scan.title) {
+                                NotificationCenter.default.post(name: .nmapGUIOpenRecentScan, object: scan.id)
+                            }
+                        }
+
+                        Divider()
+
+                        Button("Clear Recent Scans") {
+                            scanHistory.savedScans.removeAll()
+                            scanHistory.selectedSavedScanID = nil
+                        }
+                    }
+                }
+
                 Divider()
 
                 Button("Save Scan") {
@@ -63,6 +82,7 @@ struct NewWindowCommands: Commands {
 
 extension Notification.Name {
     static let nmapGUIOpenXML = Notification.Name("NmapGUIOpenXML")
+    static let nmapGUIOpenRecentScan = Notification.Name("NmapGUIOpenRecentScan")
     static let nmapGUISaveXML = Notification.Name("NmapGUISaveXML")
     static let nmapGUISaveAllScans = Notification.Name("NmapGUISaveAllScans")
     static let nmapGUIPrintOutput = Notification.Name("NmapGUIPrintOutput")
@@ -234,6 +254,13 @@ struct ContentView: View {
                 return
             }
             openXML()
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .nmapGUIOpenRecentScan)) { notification in
+            guard !isRunning,
+                  let savedScanID = notification.object as? SavedScan.ID else {
+                return
+            }
+            reloadSavedScan(id: savedScanID)
         }
         .onReceive(NotificationCenter.default.publisher(for: .nmapGUISaveXML)) { _ in
             saveCurrentXML()
@@ -964,10 +991,19 @@ struct ContentView: View {
     }
 
     private func reloadSelectedSavedScan() {
-        guard let selectedSavedScanID = scanHistory.selectedSavedScanID,
-              let savedScan = scanHistory.savedScans.first(where: { $0.id == selectedSavedScanID }) else {
+        guard let selectedSavedScanID = scanHistory.selectedSavedScanID else {
             return
         }
+
+        reloadSavedScan(id: selectedSavedScanID)
+    }
+
+    private func reloadSavedScan(id savedScanID: SavedScan.ID) {
+        guard let savedScan = scanHistory.savedScans.first(where: { $0.id == savedScanID }) else {
+            return
+        }
+
+        scanHistory.selectedSavedScanID = savedScanID
 
         let url = URL(fileURLWithPath: savedScan.xmlPath)
         let parsedHosts = parseNmapXML(at: url)
