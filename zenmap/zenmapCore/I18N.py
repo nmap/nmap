@@ -74,7 +74,7 @@ def get_locales():
             locales = val.split(":")
             break
     try:
-        loc, enc = locale.getdefaultlocale()
+        loc, enc = locale.getlocale()
         if loc is not None:
             locales.append(loc)
     except ValueError:
