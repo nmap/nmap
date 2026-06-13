@@ -564,9 +564,12 @@ struct ContentView: View {
                     .tag("Details")
             }
             
-            Section("Later") {
+            Section("History") {
                 Label("Saved Scans", systemImage: "archivebox")
                     .tag("Saved Scans")
+            }
+
+            Section("Later") {
                 Label("Topology", systemImage: "point.3.connected.trianglepath.dotted")
                     .tag("Topology")
                 Label("Profiles", systemImage: "slider.horizontal.3")
