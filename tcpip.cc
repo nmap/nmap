@@ -1561,47 +1561,6 @@ bool setTargetNextHopMAC(Target *target) {
   return false;
 }
 
-/* Like to getTargetNextHopMAC(), but for arbitrary hosts (not Targets) */
-bool getNextHopMAC(const char *iface, const u8 *srcmac, const struct sockaddr_storage *srcss,
-                   const struct sockaddr_storage *dstss, u8 *dstmac) {
-  arp_t *a;
-  struct arp_entry ae;
-
-  /* First, let us check the Nmap arp cache ... */
-  if (mac_cache_get(dstss, dstmac))
-    return true;
-
-  /* Maybe the system ARP cache will be more helpful */
-  a = arp_open();
-  if (a) {
-    addr_ston((sockaddr *) dstss, &ae.arp_pa);
-    if (arp_get(a, &ae) == 0) {
-      mac_cache_set(dstss, ae.arp_ha.addr_eth.data);
-      memcpy(dstmac, ae.arp_ha.addr_eth.data, 6);
-      arp_close(a);
-      return true;
-    }
-    arp_close(a);
-  }
-
-  /* OK, the last choice is to send our own damn ARP request (and
-     retransmissions if necessary) to determine the MAC */
-  if (dstss->ss_family == AF_INET) {
-    if (doArp(iface, srcmac, srcss, dstss, dstmac, PacketTrace::traceArp)) {
-      mac_cache_set(dstss, dstmac);
-      return true;
-    }
-  } else if (dstss->ss_family == AF_INET6) {
-    if (doND(iface, srcmac, srcss, dstss, dstmac, PacketTrace::traceND)) {
-      mac_cache_set(dstss, dstmac);
-      return true;
-    }
-  }
-
-  return false;
-}
-
-
 int nmap_route_dst(const struct sockaddr_storage *dst, struct route_nfo *rnfo) {
   struct sockaddr_storage spoofss;
   size_t spoofsslen;

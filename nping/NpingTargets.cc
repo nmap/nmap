@@ -226,89 +226,90 @@ int NpingTargets::processSpecs(){
 
   /* Get next host IP address and, if it is a named host, its hostname */
   while ( this->getNextTargetAddressAndName(&ss, &slen, buff, MAX_NPING_HOSTNAME_LEN) == OP_SUCCESS ){
-      NpingTarget *mytarget = new NpingTarget();
-      mytarget->setTargetSockAddr(&ss, slen);
-      if( buff[0]=='\0')
-        mytarget->setNamedHost(false);
-      else{
-        mytarget->setSuppliedHostName(buff);
-        mytarget->setNamedHost(true);
-      }
-
-    /* For the moment, we only run this code if we are not dealing with IPv6 */
-    if( !o.ipv6() ){
-
-      /* Get all the information needed to send packets to this target.
-	   * (Only in case we are not in unprivileged modes) */
-		if(o.getMode()!=TCP_CONNECT && o.getMode()!=UDP_UNPRIV){
-		  result=route_dst( &ss, &rnfo, o.getDevice(), NULL );
-		  if(result==false){
-			nping_warning(QT_2, "Failed to determine route to host %s. Skipping it...", mytarget->getTargetIPstr() );
-			delete mytarget;
-			continue;
-		  }
-#ifdef WIN32
-		if (!o.havePcap() && rnfo.ii.device_type == devt_loopback){
-			nping_warning(QT_2, "Skipping %s because Windows does not allow localhost scans (try --unprivileged).", mytarget->getTargetIPstr() );
-			delete mytarget;
-			continue;
-		}
-#endif
-		   /* Determine next hop */
-		  if( rnfo.direct_connect ){
-			mytarget->setDirectlyConnected(true);
-			mytarget->setNextHop(&ss, slen);
-		  }
-		  else{
-			mytarget->setDirectlyConnected(false);  
-			mytarget->setNextHop(&rnfo.nexthop, sizeof(struct sockaddr_storage));
-		  }
-		  /* Source IP address that we should use when targeting this host */
-		  mytarget->setSourceSockAddr(&rnfo.srcaddr, sizeof(struct sockaddr_storage));
-
-		  /* If user requested to spoof IP source address, set it */
-		  if( o.spoofSource() ){
-			mytarget->setSpoofedSourceSockAddr( o.getSourceSockAddr(), sizeof(struct sockaddr_storage));
-		  }
-
-		  /* Network interface */  
-		  mytarget->setDeviceNames( rnfo.ii.devname, rnfo.ii.devfullname );
-		  mytarget->setDeviceType( rnfo.ii.device_type );
-
-		  /* Set source MAC address */
-		  mytarget->setSrcMACAddress( rnfo.ii.mac );
-
-		  if( rnfo.ii.device_up == false )
-			nping_warning(QT_2, "Device used for target host %s seems to be down.", mytarget->getTargetIPstr());
-
-		  /* Determine next hop MAC address and target MAC address */
-		  if( o.sendEth() ){
-#ifdef WIN32
-		    if (o.havePcap() && rnfo.ii.device_type == devt_loopback) {
-		      mytarget->setNextHopMACAddress(mytarget->getSrcMACAddress());
-		    }
-		    else {
-#endif
-		      mytarget->determineNextHopMACAddress();
-		      mytarget->determineTargetMACAddress(); /* Sets Target MAC only if is directly connected to us */
-#ifdef WIN32
-		    }
-#endif
-          }
-		  /* If we are in debug mode print target details */
-		  if(o.getDebugging() >= DBG_3)
-			mytarget->printTargetDetails();
-		}
-    }else{
-        struct sockaddr_storage ss;
-        struct sockaddr_in6 *s6=(struct sockaddr_in6 *)&ss;
-        memset(&ss, 0, sizeof(sockaddr_storage));
-        s6->sin6_family=AF_INET6;        
-        mytarget->setSourceSockAddr(&ss, sizeof(struct sockaddr_storage));
+    NpingTarget *mytarget = new NpingTarget();
+    mytarget->setTargetSockAddr(&ss, slen);
+    if( buff[0]=='\0')
+      mytarget->setNamedHost(false);
+    else{
+      mytarget->setSuppliedHostName(buff);
+      mytarget->setNamedHost(true);
     }
 
-      /* Insert current target into targets array */
-      this->Targets.push_back(mytarget);
+    if (o.spoofSource()) {
+      mytarget->setSourceSockAddr(o.getSourceSockAddr(), sizeof(sockaddr_storage));
+    }
+
+    /* Get all the information needed to send packets to this target.
+     * (Only in case we are not in unprivileged modes) */
+    if(o.getMode()!=TCP_CONNECT && o.getMode()!=UDP_UNPRIV){
+      result=route_dst( &ss, &rnfo, o.getDevice(),
+          o.spoofSource() ? o.getSourceSockAddr() : NULL );
+      if(result==false){
+        nping_warning(QT_2, "Failed to determine route to host %s. Skipping it...", mytarget->getTargetIPstr() );
+        delete mytarget;
+        continue;
+      }
+#ifdef WIN32
+      if (!o.havePcap() && rnfo.ii.device_type == devt_loopback){
+        nping_warning(QT_2, "Skipping %s because Windows does not allow localhost scans (try --unprivileged).", mytarget->getTargetIPstr() );
+        delete mytarget;
+        continue;
+      }
+#endif
+      printf("%s %s", rnfo.ii.devname, rnfo.ii.devfullname);
+      printf(" srcaddr %s", inet_ntop_ez(&rnfo.srcaddr, sizeof(rnfo.srcaddr)));
+      if (rnfo.direct_connect)
+        printf(" direct");
+      else
+        printf(" nexthop %s\n", inet_ntop_ez(&rnfo.nexthop, sizeof(rnfo.nexthop)));
+      /* Determine next hop */
+      if( rnfo.direct_connect ){
+        mytarget->setDirectlyConnected(true);
+        mytarget->setNextHop(&ss, slen);
+      }
+      else{
+        mytarget->setDirectlyConnected(false);
+        mytarget->setNextHop(&rnfo.nexthop, sizeof(struct sockaddr_storage));
+      }
+      /* Source IP address that we should use when targeting this host */
+      mytarget->setSourceSockAddr(&rnfo.srcaddr, sizeof(struct sockaddr_storage));
+
+      /* If user requested to spoof IP source address, set it */
+      if( o.spoofSource() ){
+        mytarget->setSpoofedSourceSockAddr( o.getSourceSockAddr(), sizeof(struct sockaddr_storage));
+      }
+
+      /* Network interface */
+      mytarget->setDeviceNames( rnfo.ii.devname, rnfo.ii.devfullname );
+      mytarget->setDeviceType( rnfo.ii.device_type );
+
+      /* Set source MAC address */
+      mytarget->setSrcMACAddress( rnfo.ii.mac );
+
+      if( rnfo.ii.device_up == false )
+        nping_warning(QT_2, "Device used for target host %s seems to be down.", mytarget->getTargetIPstr());
+
+      /* Determine next hop MAC address and target MAC address */
+      if( o.sendEth() ){
+#ifdef WIN32
+        if (o.havePcap() && rnfo.ii.device_type == devt_loopback) {
+          mytarget->setNextHopMACAddress(mytarget->getSrcMACAddress());
+        }
+        else {
+#endif
+          mytarget->determineNextHopMACAddress();
+          mytarget->determineTargetMACAddress(); /* Sets Target MAC only if is directly connected to us */
+#ifdef WIN32
+        }
+#endif
+      }
+      /* If we are in debug mode print target details */
+      if(o.getDebugging() >= DBG_3)
+        mytarget->printTargetDetails();
+    }
+
+    /* Insert current target into targets array */
+    this->Targets.push_back(mytarget);
   }
 
   /* getNextTarget() checks this to ensure user has previously called processSpecs() */
