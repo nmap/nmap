@@ -603,6 +603,61 @@ struct ContentView: View {
                 footer
             }
         }
+        .toolbar {
+            ToolbarItemGroup {
+                Button {
+                    openXML()
+                } label: {
+                    Label("Open XML", systemImage: "folder")
+                }
+                .help("Open Nmap XML")
+                .disabled(isRunning)
+
+                Button {
+                    saveCurrentXML()
+                } label: {
+                    Label("Save XML", systemImage: "square.and.arrow.down")
+                }
+                .help("Save Current XML")
+                .disabled(lastXMLPath.isEmpty)
+
+                Button {
+                    selectedTab = "Saved Scans"
+                } label: {
+                    Label("Saved Scans", systemImage: "archivebox")
+                }
+                .help("Show Saved Scans")
+            }
+
+            ToolbarItemGroup {
+                Button {
+                    selectedTab = "Output"
+                    isOutputFindVisible = true
+                    DispatchQueue.main.async {
+                        isOutputFindFocused = true
+                    }
+                } label: {
+                    Label("Find", systemImage: "magnifyingglass")
+                }
+                .help("Find in Output")
+
+                Button(role: .destructive) {
+                    stopScan()
+                } label: {
+                    Label("Stop", systemImage: "stop.fill")
+                }
+                .help("Stop Scan")
+                .disabled(!isRunning)
+
+                Button {
+                    runScan()
+                } label: {
+                    Label("Scan", systemImage: "play.fill")
+                }
+                .help("Start Scan")
+                .disabled(isRunning || target.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+            }
+        }
         .onReceive(NotificationCenter.default.publisher(for: .nmapGUIOpenXML)) { _ in
             guard !isRunning else {
                 return
