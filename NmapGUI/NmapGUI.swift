@@ -80,6 +80,51 @@ struct NmapGUIApp: App {
                 }
                 .keyboardShortcut("p", modifiers: [.command])
             }
+                CommandMenu("Scan") {
+                    Button("Start Scan") {
+                        NotificationCenter.default.post(name: .nmapGUIStartScan, object: nil)
+                    }
+                    .keyboardShortcut("r", modifiers: [.command])
+
+                    Button("Stop Scan") {
+                        NotificationCenter.default.post(name: .nmapGUIStopScan, object: nil)
+                    }
+                    .keyboardShortcut(".", modifiers: [.command])
+
+                    Divider()
+
+                    Button("Clear Results") {
+                        NotificationCenter.default.post(name: .nmapGUIClearResults, object: nil)
+                    }
+                    .keyboardShortcut("k", modifiers: [.command, .shift])
+
+                    Divider()
+
+                    Button("Show Output") {
+                        NotificationCenter.default.post(name: .nmapGUIShowTab, object: "Output")
+                    }
+                    .keyboardShortcut("1", modifiers: [.command])
+
+                    Button("Show Hosts") {
+                        NotificationCenter.default.post(name: .nmapGUIShowTab, object: "Hosts")
+                    }
+                    .keyboardShortcut("2", modifiers: [.command])
+
+                    Button("Show Ports") {
+                        NotificationCenter.default.post(name: .nmapGUIShowTab, object: "Ports")
+                    }
+                    .keyboardShortcut("3", modifiers: [.command])
+
+                    Button("Show Services") {
+                        NotificationCenter.default.post(name: .nmapGUIShowTab, object: "Services")
+                    }
+                    .keyboardShortcut("4", modifiers: [.command])
+
+                    Button("Show Details") {
+                        NotificationCenter.default.post(name: .nmapGUIShowTab, object: "Details")
+                    }
+                    .keyboardShortcut("5", modifiers: [.command])
+            }
         }
     }
 }
@@ -106,6 +151,10 @@ extension Notification.Name {
     static let nmapGUIFindOutput = Notification.Name("NmapGUIFindOutput")
     static let nmapGUICopyOutput = Notification.Name("NmapGUICopyOutput")
     static let nmapGUIClearOutput = Notification.Name("NmapGUIClearOutput")
+    static let nmapGUIStartScan = Notification.Name("NmapGUIStartScan")
+    static let nmapGUIStopScan = Notification.Name("NmapGUIStopScan")
+    static let nmapGUIClearResults = Notification.Name("NmapGUIClearResults")
+    static let nmapGUIShowTab = Notification.Name("NmapGUIShowTab")
 }
 
 struct ScanProfile: Identifiable, Hashable {
@@ -472,6 +521,31 @@ struct ContentView: View {
                 return
             }
             output = ""
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .nmapGUIStartScan)) { _ in
+            guard !isRunning,
+                  !target.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+                return
+            }
+            runScan()
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .nmapGUIStopScan)) { _ in
+            guard isRunning else {
+                return
+            }
+            stopScan()
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .nmapGUIClearResults)) { _ in
+            guard !isRunning else {
+                return
+            }
+            clearResults()
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .nmapGUIShowTab)) { notification in
+            guard let tabName = notification.object as? String else {
+                return
+            }
+            selectedTab = tabName
         }
     }
     
@@ -1156,6 +1230,20 @@ struct ContentView: View {
         process.terminate()
         status = "Stopping"
         output += "\n\nStopping scan...\n"
+    }
+    
+    private func clearResults() {
+        output = "Ready. Choose a profile, enter a target, then run a scan."
+        status = "Idle"
+        exitStatus = nil
+        scanStartedAt = nil
+        lastCommand = ""
+        lastXMLPath = ""
+        hosts = []
+        selectedHostID = nil
+        outputFindText = ""
+        outputFindSelection = 0
+        selectedTab = "Output"
     }
     
     private func copyOutput() {
