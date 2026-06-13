@@ -1043,8 +1043,23 @@ struct ContentView: View {
     
     private var profilesView: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("Built-in Profiles")
-                .font(.title2.bold())
+            HStack {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Profiles")
+                        .font(.title2.bold())
+                    Text("Choose a built-in profile to load its arguments into the scan form.")
+                        .foregroundStyle(.secondary)
+                }
+
+                Spacer()
+
+                Button {
+                    selectedProfile = profiles.first { $0.name == "Custom" } ?? selectedProfile
+                    selectedTab = "Output"
+                } label: {
+                    Label("Custom", systemImage: "slider.horizontal.3")
+                }
+            }
             
             Table(profiles) {
                 TableColumn("Name") { profile in
@@ -1057,9 +1072,16 @@ struct ContentView: View {
                 TableColumn("Description") { profile in
                     Text(profile.description)
                 }
+                TableColumn("Action") { profile in
+                    Button("Use") {
+                        selectedProfile = profile
+                        arguments = profile.arguments
+                        selectedTab = "Output"
+                    }
+                }
             }
             
-            Text("Custom editable profiles will be added after saved scans.")
+            Text("Editable custom profiles will be added in the next milestone.")
                 .foregroundStyle(.secondary)
         }
         .padding()
