@@ -1111,6 +1111,22 @@ struct ContentView: View {
                 .help("Reload Selected Scan")
                 .disabled(scanHistory.selectedSavedScanID == nil)
 
+                Button {
+                    revealSelectedSavedScanInFinder()
+                } label: {
+                    Image(systemName: "folder")
+                }
+                .help("Reveal XML in Finder")
+                .disabled(scanHistory.selectedSavedScanID == nil)
+
+                Button {
+                    openSelectedSavedScanExternally()
+                } label: {
+                    Image(systemName: "arrow.up.right.square")
+                }
+                .help("Open XML Externally")
+                .disabled(scanHistory.selectedSavedScanID == nil)
+
                 Button(role: .destructive) {
                     deleteSelectedSavedScan()
                 } label: {
@@ -1789,6 +1805,26 @@ struct ContentView: View {
         }
 
         reloadSavedScan(id: selectedSavedScanID)
+    }
+
+    private func revealSelectedSavedScanInFinder() {
+        guard let selectedSavedScanID = scanHistory.selectedSavedScanID,
+              let savedScan = scanHistory.savedScans.first(where: { $0.id == selectedSavedScanID }) else {
+            return
+        }
+
+        NSWorkspace.shared.activateFileViewerSelecting([
+            URL(fileURLWithPath: savedScan.xmlPath)
+        ])
+    }
+
+    private func openSelectedSavedScanExternally() {
+        guard let selectedSavedScanID = scanHistory.selectedSavedScanID,
+              let savedScan = scanHistory.savedScans.first(where: { $0.id == selectedSavedScanID }) else {
+            return
+        }
+
+        NSWorkspace.shared.open(URL(fileURLWithPath: savedScan.xmlPath))
     }
 
     private func reloadSavedScan(id savedScanID: SavedScan.ID) {
