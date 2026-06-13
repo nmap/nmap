@@ -1687,18 +1687,69 @@ struct ContentView: View {
     }
     
     private func addSavedScan(title: String, command: String, xmlPath: String, parsedHosts: [ScannedHost]) {
+        let durableXMLPath = copyXMLToSavedScansDirectory(sourcePath: xmlPath, title: title) ?? xmlPath
+
         let savedScan = SavedScan(
             title: title,
             command: command,
-            xmlPath: xmlPath,
+            xmlPath: durableXMLPath,
             scannedAt: Date(),
             hostCount: parsedHosts.count,
             portCount: parsedHosts.flatMap { $0.ports }.count
         )
 
-        scanHistory.savedScans.removeAll { $0.xmlPath == xmlPath }
+        scanHistory.savedScans.removeAll { $0.xmlPath == durableXMLPath }
         scanHistory.savedScans.insert(savedScan, at: 0)
         scanHistory.selectedSavedScanID = savedScan.id
+    }
+
+    private func copyXMLToSavedScansDirectory(sourcePath: String, title: String) -> String? {
+        let sourceURL = URL(fileURLWithPath: sourcePath)
+
+        guard FileManager.default.fileExists(atPath: sourceURL.path),
+              let savedScansDirectory = savedScansDirectoryURL() else {
+            return nil
+        }
+
+        do {
+            try FileManager.default.createDirectory(
+                at: savedScansDirectory,
+                withIntermediateDirectories: true
+            )
+
+            let safeTitle = title
+                .replacingOccurrences(of: "/", with: "-")
+                .replacingOccurrences(of: ":", with: "-")
+                .replacingOccurrences(of: " ", with: "_")
+            let timestamp = ISO8601DateFormatter()
+                .string(from: Date())
+                .replacingOccurrences(of: ":", with: "-")
+            let filename = "\(timestamp)-\(safeTitle).xml"
+            let destinationURL = savedScansDirectory.appendingPathComponent(filename)
+
+            if FileManager.default.fileExists(atPath: destinationURL.path) {
+                try FileManager.default.removeItem(at: destinationURL)
+            }
+
+            try FileManager.default.copyItem(at: sourceURL, to: destinationURL)
+            return destinationURL.path
+        } catch {
+            output += "\nFailed to copy saved scan XML: \(error.localizedDescription)"
+            return nil
+        }
+    }
+
+    private func savedScansDirectoryURL() -> URL? {
+        guard let applicationSupportURL = FileManager.default.urls(
+            for: .applicationSupportDirectory,
+            in: .userDomainMask
+        ).first else {
+            return nil
+        }
+
+        return applicationSupportURL
+            .appendingPathComponent("NmapGUI", isDirectory: true)
+            .appendingPathComponent("SavedScans", isDirectory: true)
     }
 
     private func reloadSelectedSavedScan() {
