@@ -1623,11 +1623,7 @@ struct ContentView: View {
 
             for scan in scanHistory.savedScans {
                 let sourceURL = URL(fileURLWithPath: scan.xmlPath)
-                let safeTitle = scan.title
-                    .replacingOccurrences(of: "/", with: "-")
-                    .replacingOccurrences(of: ":", with: "-")
-                    .replacingOccurrences(of: " ", with: "_")
-                let destinationName = safeTitle.hasSuffix(".xml") ? safeTitle : "\(safeTitle).xml"
+                let destinationName = savedScanFilename(title: scan.title, date: scan.scannedAt)
                 let destinationURL = directoryURL.appendingPathComponent(destinationName)
 
                 do {
@@ -1717,14 +1713,7 @@ struct ContentView: View {
                 withIntermediateDirectories: true
             )
 
-            let safeTitle = title
-                .replacingOccurrences(of: "/", with: "-")
-                .replacingOccurrences(of: ":", with: "-")
-                .replacingOccurrences(of: " ", with: "_")
-            let timestamp = ISO8601DateFormatter()
-                .string(from: Date())
-                .replacingOccurrences(of: ":", with: "-")
-            let filename = "\(timestamp)-\(safeTitle).xml"
+            let filename = savedScanFilename(title: title, date: Date())
             let destinationURL = savedScansDirectory.appendingPathComponent(filename)
 
             if FileManager.default.fileExists(atPath: destinationURL.path) {
@@ -1737,6 +1726,21 @@ struct ContentView: View {
             output += "\nFailed to copy saved scan XML: \(error.localizedDescription)"
             return nil
         }
+    }
+
+    private func savedScanFilename(title: String, date: Date) -> String {
+        let timestamp = ISO8601DateFormatter()
+            .string(from: date)
+            .replacingOccurrences(of: ":", with: "-")
+        let baseTitle = (title as NSString).deletingPathExtension
+        let safeTitle = baseTitle
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+            .replacingOccurrences(of: "/", with: "-")
+            .replacingOccurrences(of: ":", with: "-")
+            .replacingOccurrences(of: " ", with: "_")
+        let finalTitle = safeTitle.isEmpty ? "nmap-scan" : safeTitle
+
+        return "\(timestamp)-\(finalTitle).xml"
     }
 
     private func savedScansDirectoryURL() -> URL? {
