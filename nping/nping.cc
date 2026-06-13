@@ -69,7 +69,6 @@
 #include "utils.h"
 #include "utils_net.h"
 #include "nsock.h"
-#include "global_structures.h"
 #include "ArgParser.h"
 #include "EchoHeader.h"
 #include "EchoClient.h"

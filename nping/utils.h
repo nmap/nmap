@@ -73,8 +73,6 @@
 #include <unistd.h>
 #endif
 
-#include "global_structures.h"
-
 /* Function prototypes */
 bool contains(const char *source, const char *substring);
 bool meansRandom(const char *source);

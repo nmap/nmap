@@ -61,7 +61,6 @@
 
 #include "nping.h"
 #include "NpingOps.h"
-#include "global_structures.h"
 #include "output.h"
 #include "nbase.h"
 #include "utils.h"

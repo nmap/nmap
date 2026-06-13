@@ -159,7 +159,6 @@
     <ClInclude Include="EchoClient.h" />
     <ClInclude Include="EchoHeader.h" />
     <ClInclude Include="EchoServer.h" />
-    <ClInclude Include="global_structures.h" />
     <ClInclude Include="NEPContext.h" />
     <ClInclude Include="nping.h" />
     <ClInclude Include="NpingOps.h" />

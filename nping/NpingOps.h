@@ -106,7 +106,7 @@
 #define MAX_ICMP_ADVERT_ENTRIES 128
 
 #include "nping.h"
-#include "global_structures.h"
+#include "nsock.h"
 #include "stats.h"
 #include "NpingTargets.h"
 #include <string>
