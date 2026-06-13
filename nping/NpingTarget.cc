@@ -74,7 +74,6 @@
 #include "nbase.h"
 #include "nping.h"
 #include "output.h"
-#include "common.h"
 #include "stats.h"
 #include "common_modified.h"
 

@@ -74,7 +74,6 @@
 #include "EchoClient.h"
 #include "EchoServer.h"
 #include "ProbeMode.h"
-#include "common.h"
 #include "dnet.h"
 #include "pcap.h"
 #include <signal.h>

@@ -62,8 +62,6 @@
 #ifndef UTILS_H
 #define UTILS_H 1
 
-#include "common.h"
-
 #include <stdlib.h>
 
 #include <stdarg.h>

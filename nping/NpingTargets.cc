@@ -65,7 +65,6 @@
 #include "nbase.h"
 #include "utils.h"
 #include "NpingTargets.h"
-#include "common.h"
 #include "common_modified.h"
 #include <algorithm>
 

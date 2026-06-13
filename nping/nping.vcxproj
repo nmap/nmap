@@ -133,7 +133,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="ArgParser.cc" />
-    <ClCompile Include="common.cc" />
     <ClCompile Include="common_modified.cc" />
     <ClCompile Include="Crypto.cc" />
     <ClCompile Include="EchoClient.cc" />
@@ -153,7 +152,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ArgParser.h" />
-    <ClInclude Include="common.h" />
     <ClInclude Include="common_modified.h" />
     <ClInclude Include="Crypto.h" />
     <ClInclude Include="EchoClient.h" />

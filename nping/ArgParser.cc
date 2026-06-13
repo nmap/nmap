@@ -66,7 +66,6 @@
 
 #include "ArgParser.h"
 #include "NpingOps.h"
-#include "common.h"
 #include "nbase.h"
 #include "utils.h"
 #include "utils_net.h"

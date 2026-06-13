@@ -65,7 +65,6 @@
 #define NPINGTARGET_H
 
 #include "nping.h"
-#include "common.h"
 #include "../libnetutil/netutil.h"
 
 #ifndef INET6_ADDRSTRLEN
