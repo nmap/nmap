@@ -5,24 +5,58 @@ import UniformTypeIdentifiers
  
 @main
 struct NmapGUIApp: App {
+    @StateObject private var scanHistory = ScanHistoryStore()
+
     var body: some Scene {
-        WindowGroup {
+        WindowGroup("Nmap", id: "main") {
             ContentView()
+                .environmentObject(scanHistory)
                 .frame(minWidth: 1080, minHeight: 720)
         }
         .commands {
-            CommandGroup(replacing: .newItem) { }
+            NewWindowCommands()
             CommandGroup(after: .newItem) {
-                Button("Open XML...") {
+                Button("Open Scan...") {
                     NotificationCenter.default.post(name: .nmapGUIOpenXML, object: nil)
                 }
                 .keyboardShortcut("o", modifiers: [.command])
 
-                Button("Save XML...") {
+                Button("Open Scan in This Window...") {
+                    NotificationCenter.default.post(name: .nmapGUIOpenXML, object: nil)
+                }
+
+                Divider()
+
+                Button("Save Scan") {
                     NotificationCenter.default.post(name: .nmapGUISaveXML, object: nil)
                 }
                 .keyboardShortcut("s", modifiers: [.command])
+
+                Button("Save All Scans to Directory...") {
+                    NotificationCenter.default.post(name: .nmapGUISaveAllScans, object: nil)
+                }
+                .keyboardShortcut("s", modifiers: [.command, .shift])
+
+                Divider()
+
+                Button("Print...") {
+                    NotificationCenter.default.post(name: .nmapGUIPrintOutput, object: nil)
+                }
+                .keyboardShortcut("p", modifiers: [.command])
             }
+        }
+    }
+}
+
+struct NewWindowCommands: Commands {
+    @Environment(\.openWindow) private var openWindow
+
+    var body: some Commands {
+        CommandGroup(replacing: .newItem) {
+            Button("New Window") {
+                openWindow(id: "main")
+            }
+            .keyboardShortcut("n", modifiers: [.command])
         }
     }
 }
@@ -30,6 +64,8 @@ struct NmapGUIApp: App {
 extension Notification.Name {
     static let nmapGUIOpenXML = Notification.Name("NmapGUIOpenXML")
     static let nmapGUISaveXML = Notification.Name("NmapGUISaveXML")
+    static let nmapGUISaveAllScans = Notification.Name("NmapGUISaveAllScans")
+    static let nmapGUIPrintOutput = Notification.Name("NmapGUIPrintOutput")
 }
 
 struct ScanProfile: Identifiable, Hashable {
@@ -73,7 +109,24 @@ struct ScannedPort: Identifiable, Hashable {
     }
 }
 
+
+struct SavedScan: Identifiable, Hashable {
+    let id = UUID()
+    var title: String
+    var command: String
+    var xmlPath: String
+    var scannedAt: Date
+    var hostCount: Int
+    var portCount: Int
+}
+
+final class ScanHistoryStore: ObservableObject {
+    @Published var savedScans: [SavedScan] = []
+    @Published var selectedSavedScanID: SavedScan.ID?
+}
+
 struct ContentView: View {
+    @EnvironmentObject private var scanHistory: ScanHistoryStore
     private let profiles: [ScanProfile] = [
         ScanProfile(
             name: "Quick Scan",
@@ -184,6 +237,12 @@ struct ContentView: View {
         }
         .onReceive(NotificationCenter.default.publisher(for: .nmapGUISaveXML)) { _ in
             saveCurrentXML()
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .nmapGUISaveAllScans)) { _ in
+            saveAllScansToDirectory()
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .nmapGUIPrintOutput)) { _ in
+            printOutput()
         }
     }
     
@@ -316,6 +375,10 @@ struct ContentView: View {
             detailsView
                 .tabItem { Label("Details", systemImage: "info.circle") }
                 .tag("Details")
+            
+            savedScansView
+                .tabItem { Label("Saved Scans", systemImage: "archivebox") }
+                .tag("Saved Scans")
             
             placeholderView(
                 title: "Topology",
@@ -537,6 +600,82 @@ struct ContentView: View {
         .padding()
     }
     
+    private var savedScansView: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack {
+                Text("Saved Scans")
+                    .font(.headline)
+
+                Spacer()
+
+                Text("\(scanHistory.savedScans.count) saved")
+                    .foregroundStyle(.secondary)
+
+                Button {
+                    openXML()
+                } label: {
+                    Image(systemName: "plus")
+                }
+                .help("Open Nmap XML")
+                .disabled(isRunning)
+
+                Button {
+                    reloadSelectedSavedScan()
+                } label: {
+                    Image(systemName: "arrow.clockwise")
+                }
+                .help("Reload Selected Scan")
+                .disabled(scanHistory.selectedSavedScanID == nil)
+
+                Button(role: .destructive) {
+                    deleteSelectedSavedScan()
+                } label: {
+                    Image(systemName: "trash")
+                }
+                .help("Remove Selected Scan")
+                .disabled(scanHistory.selectedSavedScanID == nil)
+            }
+            if scanHistory.savedScans.isEmpty {
+                emptyResultsView("Completed scans and opened XML files will appear here for quick reload during this app session.")
+            } else {
+                Table(scanHistory.savedScans, selection: $scanHistory.selectedSavedScanID) {
+                    TableColumn("Date") { scan in
+                        Text(scan.scannedAt.formatted(date: .abbreviated, time: .shortened))
+                    }
+                    TableColumn("Title") { scan in
+                        Text(scan.title)
+                    }
+                    TableColumn("Command") { scan in
+                        Text(scan.command)
+                            .font(.system(.body, design: .monospaced))
+                    }
+                    TableColumn("Hosts") { scan in
+                        Text("\(scan.hostCount)")
+                    }
+                    TableColumn("Ports") { scan in
+                        Text("\(scan.portCount)")
+                    }
+                    TableColumn("XML") { scan in
+                        Text(scan.xmlPath)
+                            .font(.system(.body, design: .monospaced))
+                    }
+                }
+
+                HStack {
+                    Spacer()
+
+                    Button(role: .destructive) {
+                        scanHistory.savedScans.removeAll()
+                        scanHistory.selectedSavedScanID = nil
+                    } label: {
+                        Label("Clear History", systemImage: "trash.slash")
+                    }
+                }
+            }
+        }
+        .padding()
+    }
+    
     private var profilesView: some View {
         VStack(alignment: .leading, spacing: 12) {
             Text("Built-in Profiles")
@@ -662,6 +801,9 @@ struct ContentView: View {
                 status = finishedProcess.terminationStatus == 0 ? "Completed" : "Exited with errors"
                 hosts = parsedHosts
                 selectedHostID = parsedHosts.first?.id
+                if finishedProcess.terminationStatus == 0 {
+                    addSavedScan(title: trimmedTarget, command: lastCommand, xmlPath: xmlURL.path, parsedHosts: parsedHosts)
+                }
                 isRunning = false
                 runningProcess = nil
                 scanStartedAt = nil
@@ -722,6 +864,62 @@ struct ContentView: View {
             }
         }
     }
+
+    private func saveAllScansToDirectory() {
+        guard !scanHistory.savedScans.isEmpty else {
+            output += "\nNo saved scans are available to export."
+            return
+        }
+
+        let panel = NSOpenPanel()
+        panel.title = "Save All Scans to Directory"
+        panel.prompt = "Choose"
+        panel.canChooseFiles = false
+        panel.canChooseDirectories = true
+        panel.canCreateDirectories = true
+        panel.allowsMultipleSelection = false
+
+        if panel.runModal() == .OK, let directoryURL = panel.url {
+            var savedCount = 0
+            var failedCount = 0
+
+            for scan in scanHistory.savedScans {
+                let sourceURL = URL(fileURLWithPath: scan.xmlPath)
+                let safeTitle = scan.title
+                    .replacingOccurrences(of: "/", with: "-")
+                    .replacingOccurrences(of: ":", with: "-")
+                    .replacingOccurrences(of: " ", with: "_")
+                let destinationName = safeTitle.hasSuffix(".xml") ? safeTitle : "\(safeTitle).xml"
+                let destinationURL = directoryURL.appendingPathComponent(destinationName)
+
+                do {
+                    if FileManager.default.fileExists(atPath: destinationURL.path) {
+                        try FileManager.default.removeItem(at: destinationURL)
+                    }
+                    try FileManager.default.copyItem(at: sourceURL, to: destinationURL)
+                    savedCount += 1
+                } catch {
+                    failedCount += 1
+                }
+            }
+
+            output += "\nSaved \(savedCount) scan\(savedCount == 1 ? "" : "s") to: \(directoryURL.path)"
+            if failedCount > 0 {
+                output += "\nFailed to save \(failedCount) scan\(failedCount == 1 ? "" : "s")."
+            }
+        }
+    }
+
+    private func printOutput() {
+        let printView = NSTextView(frame: NSRect(x: 0, y: 0, width: 720, height: 960))
+        printView.string = output
+        printView.isEditable = false
+        printView.font = NSFont.monospacedSystemFont(ofSize: 10, weight: .regular)
+
+        let printOperation = NSPrintOperation(view: printView)
+        printOperation.jobTitle = lastCommand.isEmpty ? "Nmap Scan Output" : lastCommand
+        printOperation.run()
+    }
     
     private func openXML() {
         let panel = NSOpenPanel()
@@ -743,10 +941,58 @@ struct ContentView: View {
             selectedTab = "Hosts"
 
             let parsedPorts = parsedHosts.flatMap { $0.ports }
+            addSavedScan(title: url.lastPathComponent, command: "Opened XML file", xmlPath: url.path, parsedHosts: parsedHosts)
             output = "Opened XML: \(url.path)\n"
             output += "Parsed \(parsedHosts.count) host\(parsedHosts.count == 1 ? "" : "s").\n"
             output += "Parsed \(parsedPorts.count) port result\(parsedPorts.count == 1 ? "" : "s")."
         }
+    }
+    
+    private func addSavedScan(title: String, command: String, xmlPath: String, parsedHosts: [ScannedHost]) {
+        let savedScan = SavedScan(
+            title: title,
+            command: command,
+            xmlPath: xmlPath,
+            scannedAt: Date(),
+            hostCount: parsedHosts.count,
+            portCount: parsedHosts.flatMap { $0.ports }.count
+        )
+
+        scanHistory.savedScans.removeAll { $0.xmlPath == xmlPath }
+        scanHistory.savedScans.insert(savedScan, at: 0)
+        scanHistory.selectedSavedScanID = savedScan.id
+    }
+
+    private func reloadSelectedSavedScan() {
+        guard let selectedSavedScanID = scanHistory.selectedSavedScanID,
+              let savedScan = scanHistory.savedScans.first(where: { $0.id == selectedSavedScanID }) else {
+            return
+        }
+
+        let url = URL(fileURLWithPath: savedScan.xmlPath)
+        let parsedHosts = parseNmapXML(at: url)
+        let parsedPorts = parsedHosts.flatMap { $0.ports }
+
+        hosts = parsedHosts
+        selectedHostID = parsedHosts.first?.id
+        lastXMLPath = savedScan.xmlPath
+        lastCommand = savedScan.command
+        exitStatus = nil
+        status = parsedHosts.isEmpty ? "Reloaded saved scan with no hosts" : "Reloaded saved scan"
+        selectedTab = "Hosts"
+
+        output = "Reloaded saved scan: \(savedScan.xmlPath)\n"
+        output += "Parsed \(parsedHosts.count) host\(parsedHosts.count == 1 ? "" : "s").\n"
+        output += "Parsed \(parsedPorts.count) port result\(parsedPorts.count == 1 ? "" : "s")."
+    }
+
+    private func deleteSelectedSavedScan() {
+        guard let selectedSavedScanID = scanHistory.selectedSavedScanID else {
+            return
+        }
+
+        scanHistory.savedScans.removeAll { $0.id == selectedSavedScanID }
+        scanHistory.selectedSavedScanID = nil
     }
     
     private func emptyResultsView(_ message: String) -> some View {
