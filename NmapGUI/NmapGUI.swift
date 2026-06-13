@@ -55,7 +55,7 @@ struct NmapGUIApp: App {
                         Divider()
 
                         Button("Clear Recent Scans") {
-                            scanHistory.clearSavedScans()
+                            scanHistory.clearSavedScans(deleteFiles: true)
                         }
                     }
                 }
@@ -79,50 +79,50 @@ struct NmapGUIApp: App {
                 }
                 .keyboardShortcut("p", modifiers: [.command])
             }
-                CommandMenu("Scan") {
-                    Button("Start Scan") {
-                        NotificationCenter.default.post(name: .nmapGUIStartScan, object: nil)
-                    }
-                    .keyboardShortcut("r", modifiers: [.command])
+            CommandMenu("Scan") {
+                Button("Start Scan") {
+                    NotificationCenter.default.post(name: .nmapGUIStartScan, object: nil)
+                }
+                .keyboardShortcut("r", modifiers: [.command])
 
-                    Button("Stop Scan") {
-                        NotificationCenter.default.post(name: .nmapGUIStopScan, object: nil)
-                    }
-                    .keyboardShortcut(".", modifiers: [.command])
+                Button("Stop Scan") {
+                    NotificationCenter.default.post(name: .nmapGUIStopScan, object: nil)
+                }
+                .keyboardShortcut(".", modifiers: [.command])
 
-                    Divider()
+                Divider()
 
-                    Button("Clear Results") {
-                        NotificationCenter.default.post(name: .nmapGUIClearResults, object: nil)
-                    }
-                    .keyboardShortcut("k", modifiers: [.command, .shift])
+                Button("Clear Results") {
+                    NotificationCenter.default.post(name: .nmapGUIClearResults, object: nil)
+                }
+                .keyboardShortcut("k", modifiers: [.command, .shift])
 
-                    Divider()
+                Divider()
 
-                    Button("Show Output") {
-                        NotificationCenter.default.post(name: .nmapGUIShowTab, object: "Output")
-                    }
-                    .keyboardShortcut("1", modifiers: [.command])
+                Button("Show Output") {
+                    NotificationCenter.default.post(name: .nmapGUIShowTab, object: "Output")
+                }
+                .keyboardShortcut("1", modifiers: [.command])
 
-                    Button("Show Hosts") {
-                        NotificationCenter.default.post(name: .nmapGUIShowTab, object: "Hosts")
-                    }
-                    .keyboardShortcut("2", modifiers: [.command])
+                Button("Show Hosts") {
+                    NotificationCenter.default.post(name: .nmapGUIShowTab, object: "Hosts")
+                }
+                .keyboardShortcut("2", modifiers: [.command])
 
-                    Button("Show Ports") {
-                        NotificationCenter.default.post(name: .nmapGUIShowTab, object: "Ports")
-                    }
-                    .keyboardShortcut("3", modifiers: [.command])
+                Button("Show Ports") {
+                    NotificationCenter.default.post(name: .nmapGUIShowTab, object: "Ports")
+                }
+                .keyboardShortcut("3", modifiers: [.command])
 
-                    Button("Show Services") {
-                        NotificationCenter.default.post(name: .nmapGUIShowTab, object: "Services")
-                    }
-                    .keyboardShortcut("4", modifiers: [.command])
+                Button("Show Services") {
+                    NotificationCenter.default.post(name: .nmapGUIShowTab, object: "Services")
+                }
+                .keyboardShortcut("4", modifiers: [.command])
 
-                    Button("Show Details") {
-                        NotificationCenter.default.post(name: .nmapGUIShowTab, object: "Details")
-                    }
-                    .keyboardShortcut("5", modifiers: [.command])
+                Button("Show Details") {
+                    NotificationCenter.default.post(name: .nmapGUIShowTab, object: "Details")
+                }
+                .keyboardShortcut("5", modifiers: [.command])
             }
         }
     }
@@ -255,9 +255,36 @@ final class ScanHistoryStore: ObservableObject {
         savedScans = Self.loadSavedScans()
     }
 
-    func clearSavedScans() {
+    func clearSavedScans(deleteFiles: Bool = false) {
+        if deleteFiles {
+            for scan in savedScans {
+                deleteSavedScanFile(at: scan.xmlPath)
+            }
+        }
+
         savedScans.removeAll()
         selectedSavedScanID = nil
+    }
+
+    func removeSavedScan(id savedScanID: SavedScan.ID, deleteFile: Bool = false) {
+        if deleteFile,
+           let scan = savedScans.first(where: { $0.id == savedScanID }) {
+            deleteSavedScanFile(at: scan.xmlPath)
+        }
+
+        savedScans.removeAll { $0.id == savedScanID }
+
+        if selectedSavedScanID == savedScanID {
+            selectedSavedScanID = nil
+        }
+    }
+
+    private func deleteSavedScanFile(at path: String) {
+        guard FileManager.default.fileExists(atPath: path) else {
+            return
+        }
+
+        try? FileManager.default.removeItem(atPath: path)
     }
 
     private static func loadSavedScans() -> [SavedScan] {
@@ -1122,7 +1149,7 @@ struct ContentView: View {
                     Spacer()
 
                     Button(role: .destructive) {
-                        scanHistory.clearSavedScans()
+                        scanHistory.clearSavedScans(deleteFiles: true)
                     } label: {
                         Label("Clear History", systemImage: "trash.slash")
                     }
@@ -1793,8 +1820,7 @@ struct ContentView: View {
             return
         }
 
-        scanHistory.savedScans.removeAll { $0.id == selectedSavedScanID }
-        scanHistory.selectedSavedScanID = nil
+        scanHistory.removeSavedScan(id: selectedSavedScanID, deleteFile: true)
     }
     
     private func emptyResultsView(_ message: String) -> some View {
