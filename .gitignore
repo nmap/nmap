@@ -135,3 +135,7 @@ stamp-h1
 /zenmap/install_scripts/windows/*.pkg.tar.zst
 /zenmap/install_scripts/windows/tmp.cfg
 /zenmap/zenmapCore/data/locale/*/
+
+.xcode-products/
+
+.xcode-products/
