@@ -1771,11 +1771,6 @@ struct ContentView: View {
             return 98
         }
 
-        if line.hasPrefix("Completed NSE") {
-            scanScriptPhasePercent = 100
-            return max(scanProgressPercent ?? 0, 85)
-        }
-
         if line.contains("NSE Timing:") || line.hasPrefix("NSE: Script scanning") {
             return 85
         }
