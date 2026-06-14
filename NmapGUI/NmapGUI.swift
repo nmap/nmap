@@ -1630,12 +1630,13 @@ struct ContentView: View {
 
     private var commandPreview: String {
         let trimmedArgs = arguments.trimmingCharacters(in: .whitespacesAndNewlines)
-        let trimmedTarget = target.trimmingCharacters(in: .whitespacesAndNewlines)
+        let targetList = splitTargets(target)
+        let displayTargets = targetList.isEmpty ? target.trimmingCharacters(in: .whitespacesAndNewlines) : targetList.joined(separator: " ")
         
         if trimmedArgs.isEmpty {
-            return "nmap \(trimmedTarget)"
+            return "nmap \(displayTargets)"
         } else {
-            return "nmap \(trimmedArgs) \(trimmedTarget)"
+            return "nmap \(trimmedArgs) \(displayTargets)"
         }
     }
     
@@ -1955,7 +1956,14 @@ struct ContentView: View {
     }
 
     private func runScan() {
-        let trimmedTarget = target.trimmingCharacters(in: .whitespacesAndNewlines)
+        let targetList = splitTargets(target)
+        let trimmedTarget = targetList.joined(separator: " ")
+        guard !targetList.isEmpty else {
+            output += "\nNo target specified."
+            status = "Idle"
+            return
+        }
+
         let xmlURL = FileManager.default.temporaryDirectory
             .appendingPathComponent("NmapGUI-\(UUID().uuidString).xml")
         var args = shellSplit(arguments)
@@ -1965,7 +1973,8 @@ struct ContentView: View {
         if !args.contains(where: isVerboseOrDebugArgument) {
             args.append("-v")
         }
-        args.append(contentsOf: ["-oX", xmlURL.path, trimmedTarget])
+        args.append(contentsOf: ["-oX", xmlURL.path])
+        args.append(contentsOf: targetList)
 
         isRunning = true
         exitStatus = nil
@@ -2626,6 +2635,10 @@ struct ContentView: View {
                 break
             }
         }
+    }
+    
+    private func splitTargets(_ string: String) -> [String] {
+        shellSplit(string)
     }
     
     private func shellSplit(_ string: String) -> [String] {
