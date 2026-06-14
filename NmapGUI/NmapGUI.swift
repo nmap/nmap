@@ -1361,6 +1361,22 @@ struct ContentView: View {
                     }
                 }
                 .disabled(comparisonCompareScanID == nil)
+
+                Button("Copy Report") {
+                    copyScanComparisonReport()
+                }
+                .disabled(currentScanComparison == nil)
+
+                Button("Export Report...") {
+                    exportScanComparisonReport()
+                }
+                .disabled(currentScanComparison == nil)
+
+                Button("Clear") {
+                    baselineCompareScanID = nil
+                    comparisonCompareScanID = nil
+                }
+                .disabled(baselineCompareScanID == nil && comparisonCompareScanID == nil)
             }
 
             if scanHistory.savedScans.count < 2 {
@@ -2668,6 +2684,88 @@ struct ContentView: View {
             .joined(separator: " ")
 
         return description.isEmpty ? "(no service details)" : description
+    }
+
+    private func copyScanComparisonReport() {
+        guard let report = scanComparisonReportText() else {
+            return
+        }
+
+        NSPasteboard.general.clearContents()
+        NSPasteboard.general.setString(report, forType: .string)
+        output += "\nCopied scan comparison report to clipboard."
+    }
+
+    private func exportScanComparisonReport() {
+        guard let report = scanComparisonReportText() else {
+            return
+        }
+
+        let panel = NSSavePanel()
+        panel.title = "Export Scan Comparison Report"
+        panel.nameFieldStringValue = "nmap-scan-comparison.txt"
+        panel.allowedContentTypes = [.plainText]
+        panel.canCreateDirectories = true
+
+        if panel.runModal() == .OK, let destinationURL = panel.url {
+            do {
+                try report.write(to: destinationURL, atomically: true, encoding: .utf8)
+                output += "\nExported scan comparison report to: \(destinationURL.path)"
+            } catch {
+                output += "\nFailed to export scan comparison report: \(error.localizedDescription)"
+            }
+        }
+    }
+
+    private func scanComparisonReportText() -> String? {
+        guard let baselineCompareScanID,
+              let comparisonCompareScanID,
+              let baselineScan = scanHistory.savedScans.first(where: { $0.id == baselineCompareScanID }),
+              let comparisonScan = scanHistory.savedScans.first(where: { $0.id == comparisonCompareScanID }),
+              let comparison = currentScanComparison else {
+            return nil
+        }
+
+        let baselineLabel = scanComparisonScanLabel(baselineScan)
+        let comparisonLabel = scanComparisonScanLabel(comparisonScan)
+
+        return [
+            "Nmap Scan Comparison",
+            "",
+            "Baseline:",
+            baselineLabel,
+            baselineScan.xmlPath,
+            "",
+            "Comparison:",
+            comparisonLabel,
+            comparisonScan.xmlPath,
+            "",
+            "Summary:",
+            "New Hosts: \(comparison.newHosts.count)",
+            "Missing Hosts: \(comparison.missingHosts.count)",
+            "New Open Ports: \(comparison.newOpenPorts.count)",
+            "Closed Ports: \(comparison.closedPorts.count)",
+            "Service Changes: \(comparison.changedServices.count)",
+            "",
+            "New Hosts:",
+            scanComparisonReportSection(comparison.newHosts),
+            "",
+            "Missing Hosts:",
+            scanComparisonReportSection(comparison.missingHosts),
+            "",
+            "New Open Ports:",
+            scanComparisonReportSection(comparison.newOpenPorts),
+            "",
+            "Closed Ports:",
+            scanComparisonReportSection(comparison.closedPorts),
+            "",
+            "Changed Services:",
+            scanComparisonReportSection(comparison.changedServices)
+        ].joined(separator: "\n")
+    }
+
+    private func scanComparisonReportSection(_ rows: [String]) -> String {
+        rows.isEmpty ? "No changes" : rows.map { "- \($0)" }.joined(separator: "\n")
     }
 
     private func reloadSelectedSavedScan() {
