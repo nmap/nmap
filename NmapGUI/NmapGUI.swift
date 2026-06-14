@@ -1,4 +1,5 @@
 import SwiftUI
+import Combine
 import Foundation
 import AppKit
 import UniformTypeIdentifiers
@@ -845,7 +846,7 @@ struct ContentView: View {
                             Text(profile.name).tag(profile)
                         }
                     }
-                    .onChange(of: selectedProfile) { newProfile in
+                    .onChange(of: selectedProfile) { _, newProfile in
                         arguments = newProfile.arguments
                     }
                 }
@@ -962,7 +963,7 @@ struct ContentView: View {
                     TextField("Find in output", text: $outputFindText)
                         .textFieldStyle(.roundedBorder)
                         .focused($isOutputFindFocused)
-                        .onChange(of: outputFindText) { _ in
+                        .onChange(of: outputFindText) { _, _ in
                             outputFindSelection = 0
                         }
                     
@@ -1715,7 +1716,7 @@ struct ContentView: View {
                     Text(profile.description)
                 }
             }
-            .onChange(of: selectedProfileID) { _ in
+            .onChange(of: selectedProfileID) { _, _ in
                 loadSelectedProfileForEditingIfNeeded()
             }
             
