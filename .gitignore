@@ -149,3 +149,6 @@ NmapMacXcodeOverlay/
 
 # Local libpcap generated file
 libpcap/pcap-savefile.manfile
+
+# Local release artifacts
+dist/
