@@ -308,6 +308,8 @@ final class ScanHistoryStore: ObservableObject {
 struct ContentView: View {
     @EnvironmentObject private var scanHistory: ScanHistoryStore
     private static let customProfilesDefaultsKey = "NmapGUI.CustomProfiles"
+    private let elapsedTimer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
+
     private static let builtInProfiles: [ScanProfile] = [
         ScanProfile(
             name: "Quick Scan",
@@ -382,6 +384,12 @@ struct ContentView: View {
     
     @State private var runningProcess: Process?
     @State private var scanStartedAt: Date?
+    @State private var scanProgressPercent: Double?
+    @State private var isUsingEstimatedScanProgress = false
+    @State private var scanEstimatedCompletionText = ""
+    @State private var scanProgressMessage = ""
+    @State private var scanElapsedText = ""
+    @State private var scanProgressBuffer = ""
     @State private var lastCommand = ""
     @State private var lastXMLPath = ""
     
@@ -460,6 +468,16 @@ struct ContentView: View {
 
             if textView.string != text {
                 textView.string = text
+                let endRange = NSRange(location: max(textView.string.count - 1, 0), length: 1)
+                textView.scrollRangeToVisible(endRange)
+
+                DispatchQueue.main.async {
+                    let documentHeight = textView.bounds.height
+                    let visibleHeight = scrollView.contentView.bounds.height
+                    let y = max(0, documentHeight - visibleHeight)
+                    scrollView.contentView.scroll(to: NSPoint(x: 0, y: y))
+                    scrollView.reflectScrolledClipView(scrollView.contentView)
+                }
             }
 
             context.coordinator.applyFindHighlight()
@@ -657,6 +675,9 @@ struct ContentView: View {
                 .help("Start Scan")
                 .disabled(isRunning || target.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
             }
+        }
+        .onReceive(elapsedTimer) { _ in
+            updateScanElapsedTime()
         }
         .onReceive(NotificationCenter.default.publisher(for: .nmapGUIOpenXML)) { _ in
             guard !isRunning else {
@@ -1534,9 +1555,34 @@ struct ContentView: View {
             
             Spacer()
             
-            if let started = scanStartedAt, isRunning {
-                Text("Started \(started.formatted(date: .omitted, time: .standard))")
-                    .foregroundStyle(.secondary)
+            if isRunning {
+                if let scanProgressPercent {
+                    ProgressView(value: scanProgressPercent, total: 100)
+                        .frame(width: 140)
+
+                    Text(String(format: "%.0f%%", scanProgressPercent))
+                        .foregroundStyle(.secondary)
+                        .monospacedDigit()
+                }
+
+                if !scanElapsedText.isEmpty {
+                    Text(scanElapsedText)
+                        .foregroundStyle(.secondary)
+                } else if let started = scanStartedAt {
+                    Text("Started \(started.formatted(date: .omitted, time: .standard))")
+                        .foregroundStyle(.secondary)
+                }
+
+                if !scanProgressMessage.isEmpty {
+                    Text(scanProgressMessage)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(1)
+                }
+
+                if !scanEstimatedCompletionText.isEmpty {
+                    Text(scanEstimatedCompletionText)
+                        .foregroundStyle(.secondary)
+                }
             }
             
             if let exitStatus {
@@ -1579,6 +1625,19 @@ struct ContentView: View {
         return "\(displayIndex) of \(count)"
     }
 
+    private func forceOutputScrollToBottom(_ scrollView: NSScrollView, textView: NSTextView) {
+        textView.layoutManager?.ensureLayout(for: textView.textContainer!)
+
+        let endRange = NSRange(location: max(textView.string.count - 1, 0), length: 1)
+        textView.scrollRangeToVisible(endRange)
+
+        let documentHeight = textView.bounds.height
+        let visibleHeight = scrollView.contentView.bounds.height
+        let y = max(0, documentHeight - visibleHeight)
+        scrollView.contentView.scroll(to: NSPoint(x: 0, y: y))
+        scrollView.reflectScrolledClipView(scrollView.contentView)
+    }
+
     private func moveToNextOutputMatch() {
         let count = outputFindMatchCount
         guard count > 0 else {
@@ -1597,17 +1656,250 @@ struct ContentView: View {
         outputFindSelection = (outputFindSelection - 1 + count) % count
     }
     
+
+    private func isVerboseOrDebugArgument(_ argument: String) -> Bool {
+        argument == "-v" ||
+        argument == "-vv" ||
+        argument == "-d" ||
+        argument.hasPrefix("-v") ||
+        argument.hasPrefix("-d") ||
+        argument == "--verbose" ||
+        argument.hasPrefix("--verbose=")
+    }
+
+    private func progressPercentText(from line: String) -> String? {
+        guard let aboutRange = line.range(of: "About", options: [.caseInsensitive]),
+              let percentRange = line[aboutRange.upperBound...].range(of: "%") else {
+            return nil
+        }
+
+        let candidate = line[aboutRange.upperBound..<percentRange.lowerBound]
+        let allowed = CharacterSet(charactersIn: "0123456789.")
+        let percentText = String(candidate.unicodeScalars.filter { allowed.contains($0) })
+        return percentText.isEmpty ? nil : percentText
+    }
+
+    private func overallProgressPercent(from line: String, phasePercent: Double) -> (percent: Double, message: String)? {
+        let normalizedPhasePercent = min(max(phasePercent, 0), 100)
+
+        if line.contains("Connect Scan Timing:") || line.contains("SYN Stealth Scan Timing:") {
+            let overall = 15 + (normalizedPhasePercent * 0.50)
+            return (min(overall, 65), String(format: "Port scan %.1f%%; overall %.0f%%", normalizedPhasePercent, min(overall, 65)))
+        }
+
+        if line.contains("Service scan Timing:") {
+            let overall = 65 + (normalizedPhasePercent * 0.15)
+            return (min(overall, 80), String(format: "Service scan %.1f%%; overall %.0f%%", normalizedPhasePercent, min(overall, 80)))
+        }
+
+        if line.contains("NSE Timing:") {
+            let overall = 80 + (normalizedPhasePercent * 0.16)
+            return (min(overall, 96), String(format: "Script scan %.1f%%; overall %.0f%%", normalizedPhasePercent, min(overall, 96)))
+        }
+
+        return nil
+    }
+
+    private func progressFloorPercent(from line: String) -> Double? {
+        if line.hasPrefix("Nmap scan report") || line.hasPrefix("Nmap done") {
+            return 98
+        }
+
+        if line.contains("NSE Timing:") || line.hasPrefix("NSE: Script scanning") {
+            return 85
+        }
+
+        if line.contains("Service scan Timing:") || line.contains("undergoing Service Scan") || line.hasPrefix("Initiating Service scan") {
+            return 70
+        }
+
+        if line.contains("Connect Scan Timing:") || line.contains("SYN Stealth Scan Timing:") || line.contains("undergoing Connect Scan") || line.contains("undergoing SYN Stealth Scan") {
+            return 25
+        }
+
+        if line.hasPrefix("Completed Ping Scan") || line.hasPrefix("Initiating Connect Scan") || line.hasPrefix("Initiating SYN Stealth Scan") {
+            return 15
+        }
+
+        if line.hasPrefix("Initiating Ping Scan") || line.hasPrefix("Scanning ") {
+            return 5
+        }
+
+        return nil
+    }
+
+    private func updateScanProgress(from text: String) {
+        guard isRunning else {
+            return
+        }
+
+        scanProgressBuffer += text
+        if scanProgressBuffer.count > 20000 {
+            scanProgressBuffer = String(scanProgressBuffer.suffix(20000))
+        }
+
+        let normalizedProgressText = scanProgressBuffer
+            .replacingOccurrences(of: "\r", with: "\n")
+        let lines = normalizedProgressText.components(separatedBy: .newlines)
+        for line in lines {
+            let trimmedLine = line.trimmingCharacters(in: .whitespacesAndNewlines)
+            guard !trimmedLine.isEmpty else {
+                continue
+            }
+
+            if let percentText = progressPercentText(from: trimmedLine),
+               let phasePercent = Double(percentText) {
+                isUsingEstimatedScanProgress = false
+                let normalizedPhasePercent = min(max(phasePercent, 0), 100)
+                if let overallProgress = overallProgressPercent(from: trimmedLine, phasePercent: normalizedPhasePercent) {
+                    scanProgressPercent = max(scanProgressPercent ?? 0, overallProgress.percent)
+                    scanProgressMessage = overallProgress.message
+                    updateEstimatedCompletionFromPercent(scanProgressPercent ?? overallProgress.percent)
+                } else {
+                    scanProgressPercent = max(scanProgressPercent ?? 0, normalizedPhasePercent)
+                    scanProgressMessage = String(format: "Nmap reports %.1f%% done", normalizedPhasePercent)
+                    updateEstimatedCompletionFromPercent(scanProgressPercent ?? normalizedPhasePercent)
+                }
+            } else if let floorPercent = progressFloorPercent(from: trimmedLine),
+                      isUsingEstimatedScanProgress || scanProgressPercent == nil {
+                isUsingEstimatedScanProgress = true
+                scanProgressPercent = max(scanProgressPercent ?? 0, floorPercent)
+                scanProgressMessage = String(format: "Estimated %.0f%% done", scanProgressPercent ?? floorPercent)
+                updateEstimatedCompletionFromPercent(scanProgressPercent ?? floorPercent)
+            }
+
+            if let etcRange = trimmedLine.range(of: #"ETC:\s*[^()]+"#, options: .regularExpression) {
+                let etcText = String(trimmedLine[etcRange])
+                    .trimmingCharacters(in: .whitespacesAndNewlines)
+                if !etcText.isEmpty {
+                    scanEstimatedCompletionText = etcText
+                }
+            }
+
+            if let remainingRange = trimmedLine.range(of: #"\([^)]*remaining\)"#, options: .regularExpression) {
+                let remainingText = String(trimmedLine[remainingRange])
+                    .trimmingCharacters(in: CharacterSet(charactersIn: "()"))
+
+                if scanEstimatedCompletionText.isEmpty {
+                    scanEstimatedCompletionText = remainingText
+                } else if !scanEstimatedCompletionText.contains(remainingText) {
+                    scanEstimatedCompletionText += " " + remainingText
+                }
+            }
+
+            if trimmedLine.hasPrefix("Stats:") ||
+                trimmedLine.contains("Timing:") ||
+                trimmedLine.hasPrefix("Initiating ") ||
+                trimmedLine.hasPrefix("Completed ") ||
+                trimmedLine.hasPrefix("Scanning ") ||
+                trimmedLine.hasPrefix("Discovered ") ||
+                trimmedLine.hasPrefix("Nmap scan report") {
+                if progressPercentText(from: trimmedLine) == nil {
+                    scanProgressMessage = trimmedLine
+                }
+            }
+        }
+
+        updateScanElapsedTime()
+    }
+
+    private func updateEstimatedCompletionFromPercent(_ percent: Double) {
+        guard percent > 0,
+              percent < 100,
+              let started = scanStartedAt else {
+            return
+        }
+
+        let elapsed = Date().timeIntervalSince(started)
+        guard elapsed > 0 else {
+            return
+        }
+
+        let totalEstimatedSeconds = elapsed / (percent / 100)
+        let remainingSeconds = max(0, Int(totalEstimatedSeconds - elapsed))
+        let remainingMinutes = remainingSeconds / 60
+        let remainingRemainderSeconds = remainingSeconds % 60
+        let completionDate = Date().addingTimeInterval(TimeInterval(remainingSeconds))
+        scanEstimatedCompletionText = String(
+            format: "ETA %@ (%d:%02d remaining)",
+            completionDate.formatted(date: .omitted, time: .shortened),
+            remainingMinutes,
+            remainingRemainderSeconds
+        )
+    }
+
+    private func estimatedScanDurationSeconds() -> Double {
+        let args = arguments.lowercased()
+
+        if args.contains("-su") || args.contains("-sU".lowercased()) {
+            return 420
+        }
+
+        if args.contains("-a") || args.contains("-A".lowercased()) {
+            return 180
+        }
+
+        if args.contains("-sv") || args.contains("-sV".lowercased()) {
+            return 120
+        }
+
+        if args.contains("-sn") {
+            return 45
+        }
+
+        if target.contains("/") {
+            return 240
+        }
+
+        return 90
+    }
+
+    private func updateScanElapsedTime() {
+        guard isRunning, let started = scanStartedAt else {
+            return
+        }
+
+        let elapsedInterval = Date().timeIntervalSince(started)
+        let elapsed = Int(elapsedInterval)
+        let minutes = elapsed / 60
+        let seconds = elapsed % 60
+        scanElapsedText = String(format: "Elapsed %d:%02d", minutes, seconds)
+
+        if scanProgressPercent == nil || isUsingEstimatedScanProgress {
+            isUsingEstimatedScanProgress = true
+            let estimatedDuration = estimatedScanDurationSeconds()
+            let estimatedPercent = min(95, max(scanProgressPercent ?? 1, (elapsedInterval / estimatedDuration) * 100))
+            scanProgressPercent = estimatedPercent
+            scanProgressMessage = String(format: "Estimated %.0f%% done", estimatedPercent)
+            updateEstimatedCompletionFromPercent(estimatedPercent)
+        } else if scanProgressMessage == "Waiting for Nmap progress", elapsed >= 5 {
+            scanProgressMessage = "Nmap is running"
+        }
+    }
+
     private func runScan() {
         let trimmedTarget = target.trimmingCharacters(in: .whitespacesAndNewlines)
         let xmlURL = FileManager.default.temporaryDirectory
             .appendingPathComponent("NmapGUI-\(UUID().uuidString).xml")
         var args = shellSplit(arguments)
+        if !args.contains("--stats-every") && !args.contains(where: { $0.hasPrefix("--stats-every=") }) {
+            args.append(contentsOf: ["--stats-every", "5s"])
+        }
+        if !args.contains(where: isVerboseOrDebugArgument) {
+            args.append("-v")
+        }
         args.append(contentsOf: ["-oX", xmlURL.path, trimmedTarget])
 
         isRunning = true
         exitStatus = nil
         status = "Running"
         scanStartedAt = Date()
+        scanProgressPercent = nil
+        isUsingEstimatedScanProgress = false
+        scanEstimatedCompletionText = ""
+        scanProgressMessage = "Waiting for Nmap progress"
+        scanElapsedText = ""
+        scanProgressBuffer = ""
         lastCommand = commandPreview
         lastXMLPath = xmlURL.path
         hosts = []
@@ -1648,6 +1940,7 @@ struct ContentView: View {
             let text = String(data: data, encoding: .utf8) ?? ""
             DispatchQueue.main.async {
                 output += text
+                updateScanProgress(from: text)
             }
         }
 
@@ -1658,11 +1951,18 @@ struct ContentView: View {
             DispatchQueue.main.async {
                 exitStatus = finishedProcess.terminationStatus
                 output += "\nExit status: \(finishedProcess.terminationStatus)"
+                updateScanProgress(from: output)
                 status = finishedProcess.terminationStatus == 0 ? "Completed" : "Exited with errors"
                 hosts = parsedHosts
                 selectedHostID = parsedHosts.first?.id
                 if finishedProcess.terminationStatus == 0 {
                     addSavedScan(title: trimmedTarget, command: lastCommand, xmlPath: xmlURL.path, parsedHosts: parsedHosts)
+                }
+                if finishedProcess.terminationStatus == 0 {
+                    isUsingEstimatedScanProgress = false
+                    scanProgressPercent = 100
+                    scanProgressMessage = "Complete"
+                    scanEstimatedCompletionText = ""
                 }
                 isRunning = false
                 runningProcess = nil
@@ -1677,6 +1977,12 @@ struct ContentView: View {
             output += "Failed to run nmap: \(error.localizedDescription)\n"
             output += "Expected bundled Resources/nmap or /usr/local/bin/nmap."
             status = "Failed"
+            scanProgressPercent = nil
+            isUsingEstimatedScanProgress = false
+            scanProgressMessage = ""
+            scanEstimatedCompletionText = ""
+            scanElapsedText = ""
+            scanProgressBuffer = ""
             isRunning = false
             runningProcess = nil
             scanStartedAt = nil
@@ -1702,6 +2008,12 @@ struct ContentView: View {
         lastXMLPath = ""
         hosts = []
         selectedHostID = nil
+        scanProgressPercent = nil
+        isUsingEstimatedScanProgress = false
+        scanEstimatedCompletionText = ""
+        scanProgressMessage = ""
+        scanElapsedText = ""
+        scanProgressBuffer = ""
         outputFindText = ""
         outputFindSelection = 0
         selectedTab = "Output"
