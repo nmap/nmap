@@ -310,6 +310,12 @@ struct ContentView: View {
     private static let customProfilesDefaultsKey = "NmapGUI.CustomProfiles"
     private let elapsedTimer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
 
+    @AppStorage("NmapGUI.AutoAddVerbose") private var autoAddVerbose = true
+    @AppStorage("NmapGUI.AutoAddStatsEvery") private var autoAddStatsEvery = true
+    @AppStorage("NmapGUI.StatsEveryValue") private var statsEveryValue = "5s"
+    @AppStorage("NmapGUI.DefaultTarget") private var defaultTarget = "scanme.nmap.org"
+    @AppStorage("NmapGUI.DefaultProfileName") private var defaultProfileName = "Service Detection"
+
     private static let builtInProfiles: [ScanProfile] = [
         ScanProfile(
             name: "Quick Scan",
@@ -366,7 +372,7 @@ struct ContentView: View {
     @State private var profiles: [ScanProfile] = Self.builtInProfiles
     
     @State private var selectedProfile: ScanProfile
-    @State private var target = "scanme.nmap.org"
+    @State private var target = UserDefaults.standard.string(forKey: "NmapGUI.DefaultTarget") ?? "scanme.nmap.org"
     @State private var arguments = "-sV"
     @State private var newProfileName = ""
     @State private var newProfileArguments = "-sV"
@@ -403,16 +409,21 @@ struct ContentView: View {
     @State private var selectedHostID: ScannedHost.ID?
     
     init() {
-        let defaultProfile = ScanProfile(
-            name: "Service Detection",
-            arguments: "-sV",
-            description: "Detect service and version information."
-        )
-        _selectedProfile = State(initialValue: defaultProfile)
+        let savedCustomProfiles = Self.loadSavedCustomProfiles() ?? []
+        let allProfiles = Self.builtInProfiles + savedCustomProfiles
+        let savedDefaultProfileName = UserDefaults.standard.string(forKey: "NmapGUI.DefaultProfileName") ?? "Service Detection"
+        let defaultProfile = allProfiles.first { $0.name == savedDefaultProfileName }
+            ?? allProfiles.first { $0.name == "Service Detection" }
+            ?? allProfiles.first
+            ?? ScanProfile(
+                name: "Service Detection",
+                arguments: "-sV",
+                description: "Detect service and version information."
+            )
 
-        if let savedCustomProfiles = Self.loadSavedCustomProfiles(), !savedCustomProfiles.isEmpty {
-            _profiles = State(initialValue: Self.builtInProfiles + savedCustomProfiles)
-        }
+        _profiles = State(initialValue: allProfiles)
+        _selectedProfile = State(initialValue: defaultProfile)
+        _arguments = State(initialValue: defaultProfile.arguments)
     }
     
     struct FindableOutputTextView: NSViewRepresentable {
@@ -778,6 +789,8 @@ struct ContentView: View {
                     .tag("Topology")
                 Label("Profiles", systemImage: "slider.horizontal.3")
                     .tag("Profiles")
+                Label("Settings", systemImage: "gearshape")
+                    .tag("Settings")
             }
         }
         .navigationTitle("Nmap")
@@ -901,6 +914,10 @@ struct ContentView: View {
             profilesView
                 .tabItem { Label("Profiles", systemImage: "slider.horizontal.3") }
                 .tag("Profiles")
+            
+            settingsView
+                .tabItem { Label("Settings", systemImage: "gearshape") }
+                .tag("Settings")
         }
     }
     
@@ -1708,6 +1725,147 @@ struct ContentView: View {
         .padding()
     }
     
+    private var settingsView: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            HStack {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Settings")
+                        .font(.title2.bold())
+                    Text("Control default scan behavior and startup values.")
+                        .foregroundStyle(.secondary)
+                }
+
+                Spacer()
+
+                Button("Apply Defaults Now") {
+                    applyScanDefaults()
+                }
+
+                Button("Reset Defaults") {
+                    resetScanDefaults()
+                }
+            }
+
+            GroupBox("Scan Behavior") {
+                Grid(alignment: .leading, horizontalSpacing: 12, verticalSpacing: 12) {
+                    GridRow {
+                        Text("Verbose output")
+                            .foregroundStyle(.secondary)
+                        Toggle("Auto-add -v when no verbose/debug flag is present", isOn: $autoAddVerbose)
+                    }
+
+                    GridRow {
+                        Text("Progress stats")
+                            .foregroundStyle(.secondary)
+                        Toggle("Auto-add --stats-every", isOn: $autoAddStatsEvery)
+                    }
+
+                    GridRow {
+                        Text("Stats interval")
+                            .foregroundStyle(.secondary)
+                        Picker("Stats interval", selection: $statsEveryValue) {
+                            Text("5 seconds").tag("5s")
+                            Text("10 seconds").tag("10s")
+                            Text("30 seconds").tag("30s")
+                            Text("60 seconds").tag("60s")
+                        }
+                        .labelsHidden()
+                        .disabled(!autoAddStatsEvery)
+                    }
+                }
+                .padding(.vertical, 4)
+            }
+
+            GroupBox("Defaults") {
+                Grid(alignment: .leading, horizontalSpacing: 12, verticalSpacing: 12) {
+                    GridRow {
+                        Text("Default target")
+                            .foregroundStyle(.secondary)
+                        TextField("scanme.nmap.org", text: $defaultTarget)
+                            .textFieldStyle(.roundedBorder)
+                    }
+
+                    GridRow {
+                        Text("Default profile")
+                            .foregroundStyle(.secondary)
+                        Picker("Default profile", selection: $defaultProfileName) {
+                            ForEach(profiles) { profile in
+                                Text(profile.name).tag(profile.name)
+                            }
+                        }
+                        .labelsHidden()
+                    }
+                }
+                .padding(.vertical, 4)
+            }
+
+            GroupBox("Current Effective Defaults") {
+                Grid(alignment: .leading, horizontalSpacing: 12, verticalSpacing: 8) {
+                    GridRow {
+                        Text("Target")
+                            .foregroundStyle(.secondary)
+                        Text(defaultTarget.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? "scanme.nmap.org" : defaultTarget)
+                            .font(.system(.body, design: .monospaced))
+                            .textSelection(.enabled)
+                    }
+
+                    GridRow {
+                        Text("Profile")
+                            .foregroundStyle(.secondary)
+                        Text(defaultProfileName)
+                    }
+
+                    GridRow {
+                        Text("Auto arguments")
+                            .foregroundStyle(.secondary)
+                        Text(settingsAutoArgumentsSummary)
+                            .font(.system(.body, design: .monospaced))
+                            .textSelection(.enabled)
+                    }
+                }
+            }
+
+            Spacer()
+        }
+        .padding()
+    }
+
+    private var settingsAutoArgumentsSummary: String {
+        var values: [String] = []
+
+        if autoAddVerbose {
+            values.append("-v")
+        }
+
+        if autoAddStatsEvery {
+            values.append("--stats-every \(statsEveryValue)")
+        }
+
+        return values.isEmpty ? "None" : values.joined(separator: " ")
+    }
+
+    private func applyScanDefaults() {
+        let trimmedDefaultTarget = defaultTarget.trimmingCharacters(in: .whitespacesAndNewlines)
+        target = trimmedDefaultTarget.isEmpty ? "scanme.nmap.org" : trimmedDefaultTarget
+
+        if let profile = profiles.first(where: { $0.name == defaultProfileName }) {
+            selectedProfile = profile
+            selectedProfileID = profile.id
+            arguments = profile.arguments
+        }
+
+        selectedTab = "Output"
+    }
+
+    private func resetScanDefaults() {
+        autoAddVerbose = true
+        autoAddStatsEvery = true
+        statsEveryValue = "5s"
+        defaultTarget = "scanme.nmap.org"
+        defaultProfileName = "Service Detection"
+        applyScanDefaults()
+    }
+
     private var footer: some View {
         VStack(alignment: .leading, spacing: 4) {
             HStack {
@@ -2127,10 +2285,10 @@ struct ContentView: View {
         let xmlURL = FileManager.default.temporaryDirectory
             .appendingPathComponent("NmapGUI-\(UUID().uuidString).xml")
         var args = shellSplit(arguments)
-        if !args.contains("--stats-every") && !args.contains(where: { $0.hasPrefix("--stats-every=") }) {
-            args.append(contentsOf: ["--stats-every", "5s"])
+        if autoAddStatsEvery && !args.contains("--stats-every") && !args.contains(where: { $0.hasPrefix("--stats-every=") }) {
+            args.append(contentsOf: ["--stats-every", statsEveryValue])
         }
-        if !args.contains(where: isVerboseOrDebugArgument) {
+        if autoAddVerbose && !args.contains(where: isVerboseOrDebugArgument) {
             args.append("-v")
         }
         args.append(contentsOf: ["-oX", xmlURL.path])
