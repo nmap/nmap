@@ -388,6 +388,10 @@ struct ContentView: View {
     @State private var isUsingEstimatedScanProgress = false
     @State private var scanEstimatedCompletionText = ""
     @State private var scanProgressMessage = ""
+    @State private var scanPhaseProgressText = ""
+    @State private var scanPortPhasePercent: Double?
+    @State private var scanServicePhasePercent: Double?
+    @State private var scanScriptPhasePercent: Double?
     @State private var scanElapsedText = ""
     @State private var scanProgressBuffer = ""
     @State private var lastCommand = ""
@@ -1545,49 +1549,74 @@ struct ContentView: View {
     }
     
     private var footer: some View {
-        HStack {
-            Circle()
-                .fill(isRunning ? .orange : .green)
-                .frame(width: 8, height: 8)
-            
-            Text(status)
-                .foregroundStyle(.secondary)
-            
-            Spacer()
-            
-            if isRunning {
-                if let scanProgressPercent {
-                    ProgressView(value: scanProgressPercent, total: 100)
-                        .frame(width: 140)
+        VStack(alignment: .leading, spacing: 4) {
+            HStack {
+                Circle()
+                    .fill(isRunning ? .orange : .green)
+                    .frame(width: 8, height: 8)
 
-                    Text(String(format: "%.0f%%", scanProgressPercent))
-                        .foregroundStyle(.secondary)
-                        .monospacedDigit()
+                Text(status)
+                    .foregroundStyle(.secondary)
+
+                Spacer()
+
+                if isRunning {
+                    if let scanProgressPercent {
+                        ProgressView(value: scanProgressPercent, total: 100)
+                            .frame(width: 160)
+
+                        Text(String(format: "Overall %.0f%%", scanProgressPercent))
+                            .foregroundStyle(.secondary)
+                            .monospacedDigit()
+                    } else if !scanProgressMessage.isEmpty {
+                        Text(scanProgressMessage)
+                            .foregroundStyle(.secondary)
+                            .lineLimit(1)
+                    }
+
+                    if !scanElapsedText.isEmpty {
+                        Text(scanElapsedText)
+                            .foregroundStyle(.secondary)
+                    } else if let started = scanStartedAt {
+                        Text("Started \(started.formatted(date: .omitted, time: .standard))")
+                            .foregroundStyle(.secondary)
+                    }
                 }
 
-                if !scanElapsedText.isEmpty {
-                    Text(scanElapsedText)
-                        .foregroundStyle(.secondary)
-                } else if let started = scanStartedAt {
-                    Text("Started \(started.formatted(date: .omitted, time: .standard))")
-                        .foregroundStyle(.secondary)
-                }
-
-                if !scanProgressMessage.isEmpty {
-                    Text(scanProgressMessage)
-                        .foregroundStyle(.secondary)
-                        .lineLimit(1)
-                }
-
-                if !scanEstimatedCompletionText.isEmpty {
-                    Text(scanEstimatedCompletionText)
-                        .foregroundStyle(.secondary)
+                if let exitStatus {
+                    Text("Exit \(exitStatus)")
+                        .foregroundColor(exitStatus == 0 ? .secondary : .red)
                 }
             }
-            
-            if let exitStatus {
-                Text("Exit \(exitStatus)")
-                    .foregroundColor(exitStatus == 0 ? .secondary : .red)
+
+            if isRunning {
+                HStack(spacing: 10) {
+                    Text(scanPhaseProgressText.isEmpty ? "Phase: waiting for Nmap timing" : scanPhaseProgressText)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(1)
+                        .truncationMode(.middle)
+
+                    if !scanEstimatedCompletionText.isEmpty {
+                        Text(scanEstimatedCompletionText)
+                            .foregroundStyle(.secondary)
+                            .lineLimit(1)
+                    }
+
+                    Spacer()
+                }
+                .font(.caption)
+                .padding(.leading, 18)
+
+                HStack(spacing: 10) {
+                    Text(scanPhaseBreakdownText)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(1)
+                        .truncationMode(.middle)
+
+                    Spacer()
+                }
+                .font(.caption)
+                .padding(.leading, 18)
             }
         }
         .font(.callout)
@@ -1595,6 +1624,10 @@ struct ContentView: View {
         .padding(.vertical, 8)
     }
     
+    private var scanPhaseBreakdownText: String {
+        "Phases: Port \(phasePercentDisplay(scanPortPhasePercent)) | Service \(phasePercentDisplay(scanServicePhasePercent)) | Script \(phasePercentDisplay(scanScriptPhasePercent))"
+    }
+
     private var commandPreview: String {
         let trimmedArgs = arguments.trimmingCharacters(in: .whitespacesAndNewlines)
         let trimmedTarget = target.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -1657,6 +1690,14 @@ struct ContentView: View {
     }
     
 
+    private func phasePercentDisplay(_ percent: Double?) -> String {
+        guard let percent else {
+            return "--"
+        }
+
+        return String(format: "%.1f%%", percent)
+    }
+
     private func isVerboseOrDebugArgument(_ argument: String) -> Bool {
         argument == "-v" ||
         argument == "-vv" ||
@@ -1679,30 +1720,60 @@ struct ContentView: View {
         return percentText.isEmpty ? nil : percentText
     }
 
-    private func overallProgressPercent(from line: String, phasePercent: Double) -> (percent: Double, message: String)? {
+    private func overallProgressPercent(from line: String, phasePercent: Double) -> (percent: Double, overallMessage: String, phaseMessage: String)? {
         let normalizedPhasePercent = min(max(phasePercent, 0), 100)
 
         if line.contains("Connect Scan Timing:") || line.contains("SYN Stealth Scan Timing:") {
-            let overall = 15 + (normalizedPhasePercent * 0.50)
-            return (min(overall, 65), String(format: "Port scan %.1f%%; overall %.0f%%", normalizedPhasePercent, min(overall, 65)))
+            scanPortPhasePercent = normalizedPhasePercent
+            let overall = min(15 + (normalizedPhasePercent * 0.50), 65)
+            return (
+                overall,
+                String(format: "Overall %.0f%%", overall),
+                String(format: "Phase: port scan %.1f%%", normalizedPhasePercent)
+            )
         }
 
         if line.contains("Service scan Timing:") {
-            let overall = 65 + (normalizedPhasePercent * 0.15)
-            return (min(overall, 80), String(format: "Service scan %.1f%%; overall %.0f%%", normalizedPhasePercent, min(overall, 80)))
+            scanServicePhasePercent = normalizedPhasePercent
+            let overall = min(65 + (normalizedPhasePercent * 0.15), 80)
+            return (
+                overall,
+                String(format: "Overall %.0f%%", overall),
+                String(format: "Phase: service scan %.1f%%", normalizedPhasePercent)
+            )
         }
 
         if line.contains("NSE Timing:") {
-            let overall = 80 + (normalizedPhasePercent * 0.16)
-            return (min(overall, 96), String(format: "Script scan %.1f%%; overall %.0f%%", normalizedPhasePercent, min(overall, 96)))
+            scanScriptPhasePercent = normalizedPhasePercent
+            let overall = min(80 + (normalizedPhasePercent * 0.16), 96)
+            return (
+                overall,
+                String(format: "Overall %.0f%%", overall),
+                String(format: "Phase: script scan %.1f%%", normalizedPhasePercent)
+            )
         }
 
         return nil
     }
 
     private func progressFloorPercent(from line: String) -> Double? {
+        if line.hasPrefix("Completed Connect Scan") || line.hasPrefix("Completed SYN Stealth Scan") {
+            scanPortPhasePercent = 100
+            return 65
+        }
+
+        if line.hasPrefix("Completed Service scan") {
+            scanServicePhasePercent = 100
+            return 80
+        }
+
         if line.hasPrefix("Nmap scan report") || line.hasPrefix("Nmap done") {
             return 98
+        }
+
+        if line.hasPrefix("Completed NSE") {
+            scanScriptPhasePercent = 100
+            return max(scanProgressPercent ?? 0, 85)
         }
 
         if line.contains("NSE Timing:") || line.hasPrefix("NSE: Script scanning") {
@@ -1753,18 +1824,26 @@ struct ContentView: View {
                 let normalizedPhasePercent = min(max(phasePercent, 0), 100)
                 if let overallProgress = overallProgressPercent(from: trimmedLine, phasePercent: normalizedPhasePercent) {
                     scanProgressPercent = max(scanProgressPercent ?? 0, overallProgress.percent)
-                    scanProgressMessage = overallProgress.message
+                    scanProgressMessage = overallProgress.overallMessage
+                    scanPhaseProgressText = overallProgress.phaseMessage
                     updateEstimatedCompletionFromPercent(scanProgressPercent ?? overallProgress.percent)
                 } else {
-                    scanProgressPercent = max(scanProgressPercent ?? 0, normalizedPhasePercent)
-                    scanProgressMessage = String(format: "Nmap reports %.1f%% done", normalizedPhasePercent)
-                    updateEstimatedCompletionFromPercent(scanProgressPercent ?? normalizedPhasePercent)
+                    isUsingEstimatedScanProgress = true
+                    let estimatedDuration = estimatedScanDurationSeconds()
+                    let elapsedInterval = scanStartedAt.map { Date().timeIntervalSince($0) } ?? 0
+                    let estimatedOverall = min(95, max(scanProgressPercent ?? 1, (elapsedInterval / estimatedDuration) * 100))
+                    scanProgressPercent = estimatedOverall
+                    scanProgressMessage = String(format: "Overall %.0f%% estimated", estimatedOverall)
+                    scanPhaseProgressText = String(format: "Phase: Nmap %.1f%%", normalizedPhasePercent)
+                    updateEstimatedCompletionFromPercent(estimatedOverall)
                 }
-            } else if let floorPercent = progressFloorPercent(from: trimmedLine),
-                      isUsingEstimatedScanProgress || scanProgressPercent == nil {
+            } else if let floorPercent = progressFloorPercent(from: trimmedLine) {
                 isUsingEstimatedScanProgress = true
                 scanProgressPercent = max(scanProgressPercent ?? 0, floorPercent)
-                scanProgressMessage = String(format: "Estimated %.0f%% done", scanProgressPercent ?? floorPercent)
+                scanProgressMessage = String(format: "Overall %.0f%% estimated", scanProgressPercent ?? floorPercent)
+                if scanPhaseProgressText.isEmpty || scanPhaseProgressText == "Phase: waiting for Nmap timing" {
+                    scanPhaseProgressText = "Phase: waiting for Nmap timing"
+                }
                 updateEstimatedCompletionFromPercent(scanProgressPercent ?? floorPercent)
             }
 
@@ -1795,7 +1874,7 @@ struct ContentView: View {
                 trimmedLine.hasPrefix("Discovered ") ||
                 trimmedLine.hasPrefix("Nmap scan report") {
                 if progressPercentText(from: trimmedLine) == nil {
-                    scanProgressMessage = trimmedLine
+                    scanPhaseProgressText = trimmedLine
                 }
             }
         }
@@ -1870,7 +1949,10 @@ struct ContentView: View {
             let estimatedDuration = estimatedScanDurationSeconds()
             let estimatedPercent = min(95, max(scanProgressPercent ?? 1, (elapsedInterval / estimatedDuration) * 100))
             scanProgressPercent = estimatedPercent
-            scanProgressMessage = String(format: "Estimated %.0f%% done", estimatedPercent)
+            scanProgressMessage = String(format: "Overall %.0f%% estimated", estimatedPercent)
+            if scanPhaseProgressText.isEmpty {
+                scanPhaseProgressText = "Phase: waiting for Nmap timing"
+            }
             updateEstimatedCompletionFromPercent(estimatedPercent)
         } else if scanProgressMessage == "Waiting for Nmap progress", elapsed >= 5 {
             scanProgressMessage = "Nmap is running"
@@ -1898,6 +1980,10 @@ struct ContentView: View {
         isUsingEstimatedScanProgress = false
         scanEstimatedCompletionText = ""
         scanProgressMessage = "Waiting for Nmap progress"
+        scanPhaseProgressText = ""
+        scanPortPhasePercent = nil
+        scanServicePhasePercent = nil
+        scanScriptPhasePercent = nil
         scanElapsedText = ""
         scanProgressBuffer = ""
         lastCommand = commandPreview
@@ -1961,7 +2047,11 @@ struct ContentView: View {
                 if finishedProcess.terminationStatus == 0 {
                     isUsingEstimatedScanProgress = false
                     scanProgressPercent = 100
-                    scanProgressMessage = "Complete"
+                    scanProgressMessage = "Overall 100%"
+                    scanPhaseProgressText = "Phase: complete"
+                    scanPortPhasePercent = scanPortPhasePercent ?? 100
+                    scanServicePhasePercent = scanServicePhasePercent ?? 100
+                    scanScriptPhasePercent = scanScriptPhasePercent ?? 100
                     scanEstimatedCompletionText = ""
                 }
                 isRunning = false
@@ -1980,6 +2070,10 @@ struct ContentView: View {
             scanProgressPercent = nil
             isUsingEstimatedScanProgress = false
             scanProgressMessage = ""
+            scanPhaseProgressText = ""
+            scanPortPhasePercent = nil
+            scanServicePhasePercent = nil
+            scanScriptPhasePercent = nil
             scanEstimatedCompletionText = ""
             scanElapsedText = ""
             scanProgressBuffer = ""
@@ -2012,6 +2106,10 @@ struct ContentView: View {
         isUsingEstimatedScanProgress = false
         scanEstimatedCompletionText = ""
         scanProgressMessage = ""
+        scanPhaseProgressText = ""
+        scanPortPhasePercent = nil
+        scanServicePhasePercent = nil
+        scanScriptPhasePercent = nil
         scanElapsedText = ""
         scanProgressBuffer = ""
         outputFindText = ""
