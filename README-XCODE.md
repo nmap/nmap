@@ -28,3 +28,15 @@ The `NmapGUI` target is a minimal SwiftUI starter app. In this first scaffold it
 3. Replace the simple argument splitter with structured scan options.
 4. Add XML output parsing so the GUI renders hosts, ports, services, and scripts natively.
 5. Later, consider splitting Nmap internals into a library-style target if the CLI wrapper proves too limiting.
+
+## Package a portable development app
+
+Build the GUI first, then bundle the Homebrew OpenSSL and libssh2 dylibs into the app:
+
+    bash xcode/scripts/package-nmapgui-macos.sh
+
+If the script cannot find the built app automatically, pass APP_PATH:
+
+    APP_PATH="/path/to/NmapGUI.app" bash xcode/scripts/package-nmapgui-macos.sh
+
+This performs development ad-hoc signing. Final external distribution will still need proper Developer ID signing and notarization.
