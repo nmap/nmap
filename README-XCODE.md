@@ -40,3 +40,30 @@ If the script cannot find the built app automatically, pass APP_PATH:
     APP_PATH="/path/to/NmapGUI.app" bash xcode/scripts/package-nmapgui-macos.sh
 
 This performs development ad-hoc signing. Final external distribution will still need proper Developer ID signing and notarization.
+
+## macOS installer validation
+
+The official-style macOS installer staging flow builds component packages that match the current Nmap macOS installer layout:
+
+- `org.insecure.nmap` installs `/Applications/nmap.app`
+- `org.insecure.nmap.ncat` installs `/Applications/ncat.app`
+- `org.insecure.nmap.nping` installs `/Applications/nping.app`
+- `org.insecure.nmap.ndiff` installs `/usr/local/bin/ndiff`, `/usr/local/bin/ndiff.py`, and the ndiff man page
+- `org.insecure.nmap.zenmap` installs `/Applications/Zenmap.app`
+
+Build and install locally:
+
+```sh
+bash xcode/scripts/release-nmap-cli-macos.sh
+bash xcode/scripts/stage-nmap-replacement-root-macos.sh
+bash xcode/scripts/pkg-nmap-macos.sh
+sudo installer -pkg dist/pkg/NmapComplete.pkg -target /
+/Applications/nmap.app/Contents/Resources/bin/nmap --version
+/Applications/ncat.app/Contents/Resources/bin/ncat --version
+/Applications/nping.app/Contents/Resources/bin/nping --version
+/usr/local/bin/ndiff -h >/dev/null && echo "ndiff OK"
+/Applications/nmap.app/Contents/Resources/bin/nmap -A -T4 -v --stats-every 5s scanme.nmap.org
+
+```
+
+A successful installed scan should load NSE scripts from the bundled /Applications/nmap.app share/nmap directory and complete without NSE load failures.
