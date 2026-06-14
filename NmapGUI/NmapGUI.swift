@@ -678,6 +678,7 @@ struct ContentView: View {
                 }
                 .help("Start Scan")
                 .disabled(isRunning || target.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+                    .keyboardShortcut(.return, modifiers: [])
             }
         }
         .onReceive(elapsedTimer) { _ in
