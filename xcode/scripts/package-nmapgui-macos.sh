@@ -37,6 +37,16 @@ fi
 
 mkdir -p "$FRAMEWORKS_DIR"
 
+ZENMAP_ICON="$ROOT_DIR/zenmap/install_scripts/macosx/zenmap.icns"
+if [ -f "$ZENMAP_ICON" ]; then
+  cp "$ZENMAP_ICON" "$RESOURCES_DIR/zenmap.icns"
+  /usr/libexec/PlistBuddy -c "Set :CFBundleIconFile zenmap.icns" "$CONTENTS_DIR/Info.plist" 2>/dev/null || \
+    /usr/libexec/PlistBuddy -c "Add :CFBundleIconFile string zenmap.icns" "$CONTENTS_DIR/Info.plist"
+else
+  echo "warning: optional Zenmap app icon missing: $ZENMAP_ICON"
+fi
+
+
 OPENSSL_PREFIX="${OPENSSL_PREFIX:-}"
 LIBSSH2_PREFIX="${LIBSSH2_PREFIX:-}"
 
