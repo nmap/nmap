@@ -1,0 +1,194 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
+cd "$ROOT_DIR"
+
+DIST_DIR="$ROOT_DIR/dist"
+REPLACEMENT_ROOT="$DIST_DIR/replacement-root"
+APPLICATIONS_DIR="$REPLACEMENT_ROOT/Applications"
+USR_LOCAL_DIR="$REPLACEMENT_ROOT/usr/local"
+PKG_WORK_DIR="$DIST_DIR/pkg-work"
+PKG_OUT_DIR="$DIST_DIR/pkg"
+IDENTIFIER_PREFIX="${IDENTIFIER_PREFIX:-org.insecure.nmap}"
+VERSION="${VERSION:-7.99}"
+
+NMAP_PKG="$PKG_OUT_DIR/Nmap.pkg"
+NCAT_PKG="$PKG_OUT_DIR/Ncat.pkg"
+NPING_PKG="$PKG_OUT_DIR/Nping.pkg"
+NDIFF_PKG="$PKG_OUT_DIR/Ndiff.pkg"
+ZENMAP_PKG="$PKG_OUT_DIR/Zenmap.pkg"
+COMPLETE_PKG="$PKG_OUT_DIR/NmapComplete.pkg"
+
+require_replacement_root() {
+  if [ ! -d "$REPLACEMENT_ROOT" ]; then
+    echo "Missing $REPLACEMENT_ROOT"
+    echo "Running: bash xcode/scripts/stage-nmap-replacement-root-macos.sh"
+    bash xcode/scripts/stage-nmap-replacement-root-macos.sh
+  fi
+
+  if [ ! -d "$REPLACEMENT_ROOT" ]; then
+    echo "error: replacement root was not created" >&2
+    exit 1
+  fi
+}
+
+copy_gui_as_zenmap() {
+  local gui_source="$DIST_DIR/NmapGUI.app"
+  local zenmap_destination="$APPLICATIONS_DIR/Zenmap.app"
+
+  if [ ! -d "$gui_source" ]; then
+    echo "Missing $gui_source"
+    echo "Running: bash xcode/scripts/release-nmapgui-macos.sh"
+    bash xcode/scripts/release-nmapgui-macos.sh
+  fi
+
+  if [ ! -d "$gui_source" ]; then
+    echo "error: required GUI app was not created: $gui_source" >&2
+    exit 1
+  fi
+
+  rm -rf "$zenmap_destination"
+  cp -R "$gui_source" "$zenmap_destination"
+
+  if [ -f "$zenmap_destination/Contents/Info.plist" ]; then
+    /usr/libexec/PlistBuddy -c "Set :CFBundleName Zenmap" "$zenmap_destination/Contents/Info.plist" 2>/dev/null || true
+    /usr/libexec/PlistBuddy -c "Set :CFBundleDisplayName Zenmap" "$zenmap_destination/Contents/Info.plist" 2>/dev/null || \
+      /usr/libexec/PlistBuddy -c "Add :CFBundleDisplayName string Zenmap" "$zenmap_destination/Contents/Info.plist"
+    /usr/libexec/PlistBuddy -c "Set :CFBundleIdentifier org.insecure.nmap.zenmap" "$zenmap_destination/Contents/Info.plist" 2>/dev/null || true
+  fi
+
+  codesign --force --deep --sign - "$zenmap_destination" >/dev/null 2>&1 || true
+}
+
+make_component_root() {
+  local source_path="$1"
+  local destination_root="$2"
+  local relative_path="$3"
+
+  rm -rf "$destination_root"
+  mkdir -p "$destination_root/$(dirname "$relative_path")"
+  cp -R "$source_path" "$destination_root/$relative_path"
+  chmod -R u+rwX "$destination_root"
+}
+
+require_replacement_root
+copy_gui_as_zenmap
+
+rm -rf "$PKG_WORK_DIR" "$PKG_OUT_DIR"
+mkdir -p "$PKG_WORK_DIR" "$PKG_OUT_DIR"
+
+cat > "$PKG_WORK_DIR/NoBundleComponents.plist" <<PLIST
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "https://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<array/>
+</plist>
+PLIST
+
+make_component_root "$APPLICATIONS_DIR/nmap.app" "$PKG_WORK_DIR/nmap-root" "Applications/nmap.app"
+make_component_root "$APPLICATIONS_DIR/ncat.app" "$PKG_WORK_DIR/ncat-root" "Applications/ncat.app"
+make_component_root "$APPLICATIONS_DIR/nping.app" "$PKG_WORK_DIR/nping-root" "Applications/nping.app"
+make_component_root "$USR_LOCAL_DIR" "$PKG_WORK_DIR/ndiff-root" "usr/local"
+make_component_root "$APPLICATIONS_DIR/Zenmap.app" "$PKG_WORK_DIR/zenmap-root" "Applications/Zenmap.app"
+
+pkgbuild \
+  --component-plist "$PKG_WORK_DIR/NoBundleComponents.plist" \
+  --root "$PKG_WORK_DIR/nmap-root" \
+  --identifier "$IDENTIFIER_PREFIX" \
+  --version "$VERSION" \
+  --install-location / \
+  "$NMAP_PKG"
+
+pkgbuild \
+  --component-plist "$PKG_WORK_DIR/NoBundleComponents.plist" \
+  --root "$PKG_WORK_DIR/ncat-root" \
+  --identifier "$IDENTIFIER_PREFIX.ncat" \
+  --version "$VERSION" \
+  --install-location / \
+  "$NCAT_PKG"
+
+pkgbuild \
+  --component-plist "$PKG_WORK_DIR/NoBundleComponents.plist" \
+  --root "$PKG_WORK_DIR/nping-root" \
+  --identifier "$IDENTIFIER_PREFIX.nping" \
+  --version "$VERSION" \
+  --install-location / \
+  "$NPING_PKG"
+
+pkgbuild \
+  --component-plist "$PKG_WORK_DIR/NoBundleComponents.plist" \
+  --root "$PKG_WORK_DIR/ndiff-root" \
+  --identifier "$IDENTIFIER_PREFIX.ndiff" \
+  --version "$VERSION" \
+  --install-location / \
+  "$NDIFF_PKG"
+
+pkgbuild \
+  --component-plist "$PKG_WORK_DIR/NoBundleComponents.plist" \
+  --root "$PKG_WORK_DIR/zenmap-root" \
+  --identifier "$IDENTIFIER_PREFIX.zenmap" \
+  --version "$VERSION" \
+  --install-location / \
+  "$ZENMAP_PKG"
+
+cat > "$PKG_WORK_DIR/Distribution.xml" <<XML
+<?xml version="1.0" encoding="utf-8"?>
+<installer-gui-script minSpecVersion="1">
+  <title>Nmap 7.99 for macOS</title>
+  <organization>org.insecure</organization>
+  <domains enable_anywhere="false" enable_currentUserHome="false" enable_localSystem="true"/>
+  <options customize="always" require-scripts="false" rootVolumeOnly="true"/>
+
+  <choices-outline>
+    <line choice="nmap"/>
+    <line choice="ncat"/>
+    <line choice="nping"/>
+    <line choice="ndiff"/>
+    <line choice="zenmap"/>
+  </choices-outline>
+
+  <choice id="nmap" title="Nmap" description="Install the native macOS Nmap command-line bundle at /Applications/nmap.app." selected="true" enabled="true" visible="true">
+    <pkg-ref id="$IDENTIFIER_PREFIX"/>
+  </choice>
+
+  <choice id="ncat" title="Ncat" description="Install the native macOS Ncat command-line bundle at /Applications/ncat.app." selected="true" enabled="true" visible="true">
+    <pkg-ref id="$IDENTIFIER_PREFIX.ncat"/>
+  </choice>
+
+  <choice id="nping" title="Nping" description="Install the native macOS Nping command-line bundle at /Applications/nping.app." selected="true" enabled="true" visible="true">
+    <pkg-ref id="$IDENTIFIER_PREFIX.nping"/>
+  </choice>
+
+  <choice id="ndiff" title="Ndiff" description="Install Ndiff into /usr/local/bin and /usr/local/share/man." selected="true" enabled="true" visible="true">
+    <pkg-ref id="$IDENTIFIER_PREFIX.ndiff"/>
+  </choice>
+
+  <choice id="zenmap" title="Zenmap" description="Install the native SwiftUI macOS frontend as /Applications/Zenmap.app." selected="true" enabled="true" visible="true">
+    <pkg-ref id="$IDENTIFIER_PREFIX.zenmap"/>
+  </choice>
+
+  <pkg-ref id="$IDENTIFIER_PREFIX" version="$VERSION" onConclusion="none">Nmap.pkg</pkg-ref>
+  <pkg-ref id="$IDENTIFIER_PREFIX.ncat" version="$VERSION" onConclusion="none">Ncat.pkg</pkg-ref>
+  <pkg-ref id="$IDENTIFIER_PREFIX.nping" version="$VERSION" onConclusion="none">Nping.pkg</pkg-ref>
+  <pkg-ref id="$IDENTIFIER_PREFIX.ndiff" version="$VERSION" onConclusion="none">Ndiff.pkg</pkg-ref>
+  <pkg-ref id="$IDENTIFIER_PREFIX.zenmap" version="$VERSION" onConclusion="none">Zenmap.pkg</pkg-ref>
+</installer-gui-script>
+XML
+
+productbuild \
+  --distribution "$PKG_WORK_DIR/Distribution.xml" \
+  --package-path "$PKG_OUT_DIR" \
+  "$COMPLETE_PKG"
+
+echo
+echo "Installer packages created:"
+ls -lh "$NMAP_PKG" "$NCAT_PKG" "$NPING_PKG" "$NDIFF_PKG" "$ZENMAP_PKG" "$COMPLETE_PKG"
+
+echo
+echo "Inspect packages with:"
+echo "  pkgutil --payload-files '$NMAP_PKG' | head -80"
+echo "  pkgutil --payload-files '$NCAT_PKG' | head -80"
+echo "  pkgutil --payload-files '$NPING_PKG' | head -80"
+echo "  pkgutil --payload-files '$NDIFF_PKG' | head -80"
+echo "  pkgutil --payload-files '$ZENMAP_PKG' | head -80"
