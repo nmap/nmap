@@ -377,6 +377,8 @@ struct ContentView: View {
     @State private var exitStatus: Int32?
     @State private var isRunning = false
     @State private var selectedTab = "Output"
+    @State private var baselineCompareScanID: SavedScan.ID?
+    @State private var comparisonCompareScanID: SavedScan.ID?
     @State private var isOutputFindVisible = false
     @State private var outputFindText = ""
     @State private var outputFindSelection = 0
@@ -767,6 +769,8 @@ struct ContentView: View {
             Section("History") {
                 Label("Saved Scans", systemImage: "archivebox")
                     .tag("Saved Scans")
+                Label("Compare", systemImage: "rectangle.split.2x1")
+                    .tag("Compare")
             }
 
             Section("Later") {
@@ -885,6 +889,10 @@ struct ContentView: View {
             savedScansView
                 .tabItem { Label("Saved Scans", systemImage: "archivebox") }
                 .tag("Saved Scans")
+            
+            scanComparisonView
+                .tabItem { Label("Compare", systemImage: "rectangle.split.2x1") }
+                .tag("Compare")
             
             topologyView
             .tabItem { Label("Topology", systemImage: "point.3.connected.trianglepath.dotted") }
@@ -1326,6 +1334,141 @@ struct ContentView: View {
             x: center.x + CGFloat(cos(angle)) * radius,
             y: center.y + CGFloat(sin(angle)) * radius
         )
+    }
+
+    private var scanComparisonView: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            HStack {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Compare Saved Scans")
+                        .font(.title2.bold())
+                    Text("Choose two saved XML scans to see host, port, and service changes.")
+                        .foregroundStyle(.secondary)
+                }
+
+                Spacer()
+
+                Button("Open Baseline") {
+                    if let baselineCompareScanID {
+                        reloadSavedScan(id: baselineCompareScanID)
+                    }
+                }
+                .disabled(baselineCompareScanID == nil)
+
+                Button("Open Comparison") {
+                    if let comparisonCompareScanID {
+                        reloadSavedScan(id: comparisonCompareScanID)
+                    }
+                }
+                .disabled(comparisonCompareScanID == nil)
+            }
+
+            if scanHistory.savedScans.count < 2 {
+                emptyResultsView("Save at least two scans to compare them.")
+            } else {
+                HStack(spacing: 12) {
+                    VStack(alignment: .leading, spacing: 6) {
+                        Text("Baseline")
+                            .font(.headline)
+                        Picker("Baseline", selection: $baselineCompareScanID) {
+                            Text("Choose scan").tag(Optional<SavedScan.ID>.none)
+                            ForEach(scanHistory.savedScans) { scan in
+                                Text(scanComparisonScanLabel(scan)).tag(Optional(scan.id))
+                            }
+                        }
+                        .labelsHidden()
+                        .frame(maxWidth: 420)
+                    }
+
+                    VStack(alignment: .leading, spacing: 6) {
+                        Text("Comparison")
+                            .font(.headline)
+                        Picker("Comparison", selection: $comparisonCompareScanID) {
+                            Text("Choose scan").tag(Optional<SavedScan.ID>.none)
+                            ForEach(scanHistory.savedScans) { scan in
+                                Text(scanComparisonScanLabel(scan)).tag(Optional(scan.id))
+                            }
+                        }
+                        .labelsHidden()
+                        .frame(maxWidth: 420)
+                    }
+                }
+
+                if baselineCompareScanID == comparisonCompareScanID && baselineCompareScanID != nil {
+                    emptyResultsView("Choose two different saved scans.")
+                } else if let comparison = currentScanComparison {
+                    scanComparisonSummaryView(comparison)
+                } else {
+                    emptyResultsView("Choose a baseline scan and a comparison scan.")
+                }
+            }
+        }
+        .padding()
+    }
+
+    private func scanComparisonSummaryView(_ comparison: ScanComparison) -> some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 16) {
+                HStack(spacing: 12) {
+                    scanComparisonMetricCard(title: "New Hosts", value: comparison.newHosts.count, systemImage: "plus.circle")
+                    scanComparisonMetricCard(title: "Missing Hosts", value: comparison.missingHosts.count, systemImage: "minus.circle")
+                    scanComparisonMetricCard(title: "New Open Ports", value: comparison.newOpenPorts.count, systemImage: "lock.open")
+                    scanComparisonMetricCard(title: "Closed Ports", value: comparison.closedPorts.count, systemImage: "lock")
+                    scanComparisonMetricCard(title: "Service Changes", value: comparison.changedServices.count, systemImage: "arrow.triangle.2.circlepath")
+                }
+
+                scanComparisonSection(title: "New Hosts", rows: comparison.newHosts)
+                scanComparisonSection(title: "Missing Hosts", rows: comparison.missingHosts)
+                scanComparisonSection(title: "New Open Ports", rows: comparison.newOpenPorts)
+                scanComparisonSection(title: "Closed Ports", rows: comparison.closedPorts)
+                scanComparisonSection(title: "Changed Services", rows: comparison.changedServices)
+            }
+        }
+    }
+
+    private func scanComparisonMetricCard(title: String, value: Int, systemImage: String) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack {
+                Image(systemName: systemImage)
+                    .foregroundStyle(.secondary)
+                Spacer()
+            }
+
+            Text("\(value)")
+                .font(.title.bold())
+
+            Text(title)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+        }
+        .padding()
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(.quaternary.opacity(0.35), in: RoundedRectangle(cornerRadius: 12))
+    }
+
+    private func scanComparisonSection(title: String, rows: [String]) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(title)
+                .font(.headline)
+
+            if rows.isEmpty {
+                Text("No changes")
+                    .foregroundStyle(.secondary)
+                    .padding(.vertical, 6)
+            } else {
+                VStack(alignment: .leading, spacing: 6) {
+                    ForEach(rows, id: \.self) { row in
+                        Text(row)
+                            .font(.system(.body, design: .monospaced))
+                            .textSelection(.enabled)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding(.vertical, 3)
+                    }
+                }
+                .padding()
+                .background(.quaternary.opacity(0.25), in: RoundedRectangle(cornerRadius: 10))
+            }
+        }
     }
 
     private var savedScansView: some View {
@@ -2432,6 +2575,101 @@ struct ContentView: View {
             .appendingPathComponent("SavedScans", isDirectory: true)
     }
 
+    private var currentScanComparison: ScanComparison? {
+        guard let baselineCompareScanID,
+              let comparisonCompareScanID,
+              baselineCompareScanID != comparisonCompareScanID,
+              let baselineScan = scanHistory.savedScans.first(where: { $0.id == baselineCompareScanID }),
+              let comparisonScan = scanHistory.savedScans.first(where: { $0.id == comparisonCompareScanID }) else {
+            return nil
+        }
+
+        let baselineHosts = parseNmapXML(at: URL(fileURLWithPath: baselineScan.xmlPath))
+        let comparisonHosts = parseNmapXML(at: URL(fileURLWithPath: comparisonScan.xmlPath))
+        return compareScans(baseline: baselineHosts, comparison: comparisonHosts)
+    }
+
+    private func scanComparisonScanLabel(_ scan: SavedScan) -> String {
+        let date = scan.scannedAt.formatted(date: .abbreviated, time: .shortened)
+        return "\(date) - \(scan.title)"
+    }
+
+    private func compareScans(baseline: [ScannedHost], comparison: [ScannedHost]) -> ScanComparison {
+        let baselineHostMap = Dictionary(uniqueKeysWithValues: baseline.map { ($0.address, $0) })
+        let comparisonHostMap = Dictionary(uniqueKeysWithValues: comparison.map { ($0.address, $0) })
+
+        let baselineHostAddresses = Set(baselineHostMap.keys)
+        let comparisonHostAddresses = Set(comparisonHostMap.keys)
+
+        let newHosts = comparisonHostAddresses.subtracting(baselineHostAddresses).sorted()
+        let missingHosts = baselineHostAddresses.subtracting(comparisonHostAddresses).sorted()
+
+        var newOpenPorts: [String] = []
+        var closedPorts: [String] = []
+        var changedServices: [String] = []
+
+        for hostAddress in baselineHostAddresses.intersection(comparisonHostAddresses).sorted() {
+            guard let baselineHost = baselineHostMap[hostAddress],
+                  let comparisonHost = comparisonHostMap[hostAddress] else {
+                continue
+            }
+
+            let baselinePorts = openPortMap(for: baselineHost)
+            let comparisonPorts = openPortMap(for: comparisonHost)
+            let baselineKeys = Set(baselinePorts.keys)
+            let comparisonKeys = Set(comparisonPorts.keys)
+
+            for key in comparisonKeys.subtracting(baselineKeys).sorted() {
+                if let port = comparisonPorts[key] {
+                    newOpenPorts.append("\(hostAddress) \(port.protocolName)/\(port.portNumber) \(scanPortServiceDescription(port))")
+                }
+            }
+
+            for key in baselineKeys.subtracting(comparisonKeys).sorted() {
+                if let port = baselinePorts[key] {
+                    closedPorts.append("\(hostAddress) \(port.protocolName)/\(port.portNumber) \(scanPortServiceDescription(port))")
+                }
+            }
+
+            for key in baselineKeys.intersection(comparisonKeys).sorted() {
+                guard let baselinePort = baselinePorts[key],
+                      let comparisonPort = comparisonPorts[key] else {
+                    continue
+                }
+
+                let baselineService = scanPortServiceDescription(baselinePort)
+                let comparisonService = scanPortServiceDescription(comparisonPort)
+
+                if baselineService != comparisonService {
+                    changedServices.append("\(hostAddress) \(comparisonPort.protocolName)/\(comparisonPort.portNumber): \(baselineService) -> \(comparisonService)")
+                }
+            }
+        }
+
+        return ScanComparison(
+            newHosts: newHosts,
+            missingHosts: missingHosts,
+            newOpenPorts: newOpenPorts,
+            closedPorts: closedPorts,
+            changedServices: changedServices
+        )
+    }
+
+    private func openPortMap(for host: ScannedHost) -> [String: ScannedPort] {
+        Dictionary(uniqueKeysWithValues: host.ports
+            .filter { $0.state == "open" }
+            .map { ("\($0.protocolName)/\($0.portNumber)", $0) })
+    }
+
+    private func scanPortServiceDescription(_ port: ScannedPort) -> String {
+        let description = [port.serviceName, port.product, port.version, port.extraInfo]
+            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+            .filter { !$0.isEmpty }
+            .joined(separator: " ")
+
+        return description.isEmpty ? "(no service details)" : description
+    }
+
     private func reloadSelectedSavedScan() {
         guard let selectedSavedScanID = scanHistory.selectedSavedScanID else {
             return
@@ -2550,6 +2788,14 @@ struct ContentView: View {
         return delegate.hosts
     }
     
+    private struct ScanComparison {
+        let newHosts: [String]
+        let missingHosts: [String]
+        let newOpenPorts: [String]
+        let closedPorts: [String]
+        let changedServices: [String]
+    }
+
     private final class NmapXMLParserDelegate: NSObject, XMLParserDelegate {
         private(set) var hosts: [ScannedHost] = []
         
