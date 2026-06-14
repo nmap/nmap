@@ -62,7 +62,6 @@
 #include "utils.h"
 #include "utils_net.h"
 #include "NpingOps.h"
-#include "global_structures.h"
 #include "output.h"
 #include "nbase.h"
 #include "pcap.h"

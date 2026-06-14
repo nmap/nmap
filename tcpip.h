@@ -339,9 +339,6 @@ int setTargetMACIfAvailable(Target *target, struct link_header *linkhdr,
    after an ARP scan if many directly connected machines are involved. */
 bool setTargetNextHopMAC(Target *target);
 
-bool getNextHopMAC(const char *iface, const u8 *srcmac, const struct sockaddr_storage *srcss,
-                   const struct sockaddr_storage *dstss, u8 *dstmac);
-
 /* If rcvdtime is non-null and a packet is returned, rcvd will be
    filled with the time that packet was captured from the wire by
    pcap.  If linknfo is not NULL, lnkinfo->headerlen and

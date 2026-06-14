@@ -173,7 +173,8 @@ struct addrinfo *resolve_all(const char *hostname, int pf);
  */
 int ip_is_reserved(const struct sockaddr_storage *addr);
 
-
+bool getNextHopMAC(const char *iface, const u8 *srcmac, const struct sockaddr_storage *srcss,
+                   const struct sockaddr_storage *dstss, u8 *dstmac);
 
 /* A couple of trivial functions that maintain a cache of IP to MAC
  * Address entries. Function mac_cache_get() looks for the IPv4 address

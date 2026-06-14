@@ -60,7 +60,6 @@
  *
  ***************************************************************************/
 #include "nping.h"
-#include "common.h"
 #include "common_modified.h"
 #include "output.h"
 

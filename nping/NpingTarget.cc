@@ -71,11 +71,9 @@
 #endif
 
 #include "NpingTarget.h"
-#include <dnet.h>
 #include "nbase.h"
 #include "nping.h"
 #include "output.h"
-#include "common.h"
 #include "stats.h"
 #include "common_modified.h"
 
@@ -735,9 +733,7 @@ u16 NpingTarget::getICMPIdentifier(){
 bool NpingTarget::determineNextHopMACAddress() {
   struct sockaddr_storage targetss, srcss;
   size_t sslen;
-  arp_t *a;
   u8 mac[6];
-  struct arp_entry ae;
 
   if (this->getDeviceType() != devt_ethernet)
     return false; /* Duh. */
@@ -760,57 +756,12 @@ bool NpingTarget::determineNextHopMACAddress() {
       fatal("%s: Failed to determine nextHop to target", __func__);
   }
 
-  /* First, let us check the ARP cache ... */
-  if (mac_cache_get(&targetss, mac)) {
-    this->setNextHopMACAddress(mac);
-    return true;
-  }
-
-  /* Maybe the system ARP cache will be more helpful */
-  nping_print(DBG_3,"    > Checking system's ARP cache...");
-  a = arp_open();
-  if (a) {
-    addr_ston((sockaddr *)&targetss, &ae.arp_pa);
-    if (arp_get(a, &ae) == 0) {
-      mac_cache_set(&targetss, ae.arp_ha.addr_eth.data);
-      this->setNextHopMACAddress(ae.arp_ha.addr_eth.data);
-      arp_close(a);
-      nping_print(DBG_3,"    > Success: Entry found [%s]", this->getNextHopMACStr() );
-      return true;
-    }
-    arp_close(a);
-    nping_print(DBG_3,"    > No relevant entries found in system's ARP cache.");
-  }
-  else {
-    nping_print(DBG_3,"    > Failed to open system's ARP cache.");
-  }
-
-
-  /* OK, the last choice is to send our own damn ARP request (and
-     retransmissions if necessary) to determine the MAC */
-  /* We first try sending the ARP with our spoofed IP address on it */
-  if( this->spoofingSourceAddress() ){
-    nping_print(DBG_3,"    > Sending ARP request using spoofed IP %s...", this->getSpoofedSourceIPStr() );
-      this->getSpoofedSourceSockAddr(&srcss, NULL);
-      if (doArp(this->getDeviceName(), this->getSrcMACAddress(), &srcss, &targetss, mac, NULL)) {
-        mac_cache_set(&targetss, mac);
-        this->setNextHopMACAddress(mac);
-        nping_print(DBG_4,"    > Success: 1 ARP response received [%s]", this->getNextHopMACStr() );
-        return true;
-      }
-  }
-  nping_print(DBG_3,"    > No ARP responses received." );
-
-  /* If our spoofed IP address didn't work, try our real IP */
-  nping_print(DBG_4,"    > Sending ARP request using our real IP %s...", this->getSourceIPStr() );
   this->getSourceSockAddr(&srcss, NULL);
-  if (doArp(this->getDeviceName(), this->getSrcMACAddress(), &srcss, &targetss, mac, NULL)) {
-    mac_cache_set(&targetss, mac);
+  if (getNextHopMAC(this->getDeviceName(), this->getSrcMACAddress(),
+        &srcss, &targetss, mac)) {
     this->setNextHopMACAddress(mac);
-    nping_print(DBG_3,"    > Success: 1 ARP response received [%s]", this->getNextHopMACStr() );
     return true;
   }
-  nping_print(DBG_3,"    > No ARP responses received" );
 
   /* I'm afraid that we couldn't find it!  Maybe it doesn't exist?*/
   return false;

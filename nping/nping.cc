@@ -69,13 +69,11 @@
 #include "utils.h"
 #include "utils_net.h"
 #include "nsock.h"
-#include "global_structures.h"
 #include "ArgParser.h"
 #include "EchoHeader.h"
 #include "EchoClient.h"
 #include "EchoServer.h"
 #include "ProbeMode.h"
-#include "common.h"
 #include "dnet.h"
 #include "pcap.h"
 #include <signal.h>

@@ -64,7 +64,6 @@
 #define COMMON_MODIFIED_H 1
 
 #include "nping.h"
-#include "common.h"
 
 /*****************************************************************************
   * STUFF FROM tcpip.cc
