@@ -18,7 +18,7 @@ struct NmapGUIApp: App {
             NewWindowCommands()
             CommandGroup(replacing: .help) {
                 Button("Nmap Reference Guide") {
-                    openHelpURL("https://nmap.org/book/man.html")
+                    openHelpURL("https://nmap.org/docs.html")
                 }
 
                 Button("Nmap Book") {
