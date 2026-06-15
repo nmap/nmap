@@ -1231,7 +1231,38 @@ const char *ProbeMode::getBPFFilterString(){
     break;
 
     case  ICMP: /* Restrict to packets that are replies to our ICMP packets */
-        icmp_send_type= o.issetICMPType() ? o.getICMPType() : DEFAULT_ICMP_TYPE;
+      icmp_send_type= o.getICMPType();
+      if (o.ipv6()) {
+        switch( icmp_send_type ){
+            case ICMPV6_NEIGHBOR_SOLICITATION:
+                icmp_recv_type=ICMPV6_NEIGHBOR_ADVERTISEMENT;
+            break;
+            /* If we are sending replies we probably want to see */
+            /* the requests that are being put into the network  */
+            case ICMPV6_NEIGHBOR_ADVERTISEMENT:
+                icmp_recv_type=ICMPV6_NEIGHBOR_SOLICITATION;
+            break;
+            case ICMPV6_ECHO:
+                icmp_recv_type=ICMPV6_ECHOREPLY;
+            break;
+            case ICMPV6_ECHOREPLY:
+                icmp_recv_type=ICMPV6_ECHO;
+            break;
+
+            /* These don't generate any response so we behave different */
+            case ICMPV6_UNREACH:
+            case ICMPV6_TIMEXCEED:
+            case ICMPV6_PARAMPROBLEM:
+            default:
+                skip_icmp_matching=true;
+            break;
+        }
+        /* Libpcap: IPv6 upper-layer protocol is not supported by proto[x] */
+        /* Grab the ICMPv6 type using ip6[X:Y] syntax. This works only if there are no
+           extension headers (top-level nh is IPPROTO_ICMPV6). */
+        filter << "(icmp6 and ip6[6:1]=" << IPPROTO_ICMPV6 << " and ip6[40:1]";
+      }
+      else {
         switch( icmp_send_type ){
             case ICMP_TSTAMP:
                 icmp_recv_type=ICMP_TSTAMPREPLY;
@@ -1273,6 +1304,7 @@ const char *ProbeMode::getBPFFilterString(){
         }
         /* We have an specific ICMP type to look for */
         filter << "(icmp and icmp[icmptype]";
+      }
         if(!skip_icmp_matching){
             filter << "=" << +icmp_recv_type << ")";
         }else{
@@ -1334,11 +1366,19 @@ const char *ProbeMode::getBPFFilterString(){
 
   /* We also want to get all ICMP error messages */
   if(o.getMode()!=ARP){
-    filter << " or (icmp and (icmp[icmptype]=" << ICMP_UNREACH;
-    filter << " or icmp[icmptype]=" << ICMP_SOURCEQUENCH;
-    filter << " or icmp[icmptype]=" << ICMP_REDIRECT;
-    filter << " or icmp[icmptype]=" << ICMP_TIMXCEED;
-    filter << " or icmp[icmptype]=" << ICMP_PARAMPROB << ")))";
+    if (o.ipv6()) {
+      filter << " or (icmp6 and ip6[6:1]=" << IPPROTO_ICMPV6;
+      filter << " and (ip6[40:1]=" << ICMPV6_UNREACH;
+      filter << " or ip6[40:1]=" << ICMPV6_TIMEXCEED;
+      filter << " or ip6[40:1]="  << ICMPV6_PARAMPROBLEM << ")))";
+    }
+    else {
+      filter << " or (icmp and (icmp[icmptype]=" << ICMP_UNREACH;
+      filter << " or icmp[icmptype]=" << ICMP_SOURCEQUENCH;
+      filter << " or icmp[icmptype]=" << ICMP_REDIRECT;
+      filter << " or icmp[icmptype]=" << ICMP_TIMXCEED;
+      filter << " or icmp[icmptype]=" << ICMP_PARAMPROB << ")))";
+    }
   }
   filterstring = filter.str();
   nping_print(DBG_1, "BPF-filter: %s", filterstring.c_str());
