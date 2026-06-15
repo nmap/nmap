@@ -324,6 +324,12 @@ struct ContentView: View {
             description: "Fast scan of common ports."
         ),
         ScanProfile(
+            name: "TCP Connect over VPN",
+            arguments: "-sT -sV -T4 -v",
+            description: "Uses TCP connect scanning to avoid raw-packet SYN scan behavior that can be unreliable or noisy on macOS VPN interfaces.",
+            isBuiltIn: true
+        ),
+        ScanProfile(
             name: "Regular Scan",
             arguments: "",
             description: "Default Nmap TCP scan."
