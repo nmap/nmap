@@ -3440,25 +3440,43 @@ struct ContentView: View {
 
         let baselineLabel = scanComparisonScanLabel(baselineScan)
         let comparisonLabel = scanComparisonScanLabel(comparisonScan)
+        let generatedAt = Date().formatted(date: .abbreviated, time: .standard)
+        let changeLines = scanComparisonNdiffStyleLines(comparison)
 
         return [
-            "Nmap Scan Comparison",
+            "Nmap Scan Comparison Report",
+            "Generated: \(generatedAt)",
             "",
-            "Baseline:",
-            baselineLabel,
-            baselineScan.xmlPath,
+            "Baseline Scan:",
+            "  \(baselineLabel)",
+            "  Command: \(baselineScan.command)",
+            "  XML: \(baselineScan.xmlPath)",
+            "  Hosts: \(baselineScan.hostCount)",
+            "  Ports: \(baselineScan.portCount)",
             "",
-            "Comparison:",
-            comparisonLabel,
-            comparisonScan.xmlPath,
+            "Comparison Scan:",
+            "  \(comparisonLabel)",
+            "  Command: \(comparisonScan.command)",
+            "  XML: \(comparisonScan.xmlPath)",
+            "  Hosts: \(comparisonScan.hostCount)",
+            "  Ports: \(comparisonScan.portCount)",
             "",
             "Summary:",
-            "New Hosts: \(comparison.newHosts.count)",
-            "Missing Hosts: \(comparison.missingHosts.count)",
-            "New Open Ports: \(comparison.newOpenPorts.count)",
-            "Closed Ports: \(comparison.closedPorts.count)",
-            "Service Changes: \(comparison.changedServices.count)",
+            "  New Hosts: \(comparison.newHosts.count)",
+            "  Missing Hosts: \(comparison.missingHosts.count)",
+            "  New Open Ports: \(comparison.newOpenPorts.count)",
+            "  Closed Ports: \(comparison.closedPorts.count)",
+            "  Service Changes: \(comparison.changedServices.count)",
             "",
+            "Ndiff-style Changes:",
+            changeLines.joined(separator: "\n"),
+            "",
+            "Legend:",
+            "  + added in comparison scan",
+            "  - removed from comparison scan",
+            "  ~ changed between scans",
+            "",
+            "Details:",
             "New Hosts:",
             scanComparisonReportSection(comparison.newHosts),
             "",
@@ -3478,6 +3496,18 @@ struct ContentView: View {
 
     private func scanComparisonReportSection(_ rows: [String]) -> String {
         rows.isEmpty ? "No changes" : rows.map { "- \($0)" }.joined(separator: "\n")
+    }
+
+    private func scanComparisonNdiffStyleLines(_ comparison: ScanComparison) -> [String] {
+        var lines: [String] = []
+
+        lines.append(contentsOf: comparison.newHosts.map { "+ Host added: \($0)" })
+        lines.append(contentsOf: comparison.missingHosts.map { "- Host removed: \($0)" })
+        lines.append(contentsOf: comparison.newOpenPorts.map { "+ Open port: \($0)" })
+        lines.append(contentsOf: comparison.closedPorts.map { "- Open port removed or closed: \($0)" })
+        lines.append(contentsOf: comparison.changedServices.map { "~ Service changed: \($0)" })
+
+        return lines.isEmpty ? ["No differences detected."] : lines
     }
 
     private func reloadSelectedSavedScan() {
