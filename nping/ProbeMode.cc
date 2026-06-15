@@ -1,4 +1,3 @@
-
 /***************************************************************************
  * ProbeMode.cc -- Probe Mode is nping's default working mode. Basically,  *
  * it involves sending the packets that the user requested at regular      *
@@ -157,7 +156,7 @@ int ProbeMode::start(){
   u16 *targetPorts=NULL;           /**< Pointer to array of target ports     */
   int numTargetPorts=0;            /**< Total number of target ports         */
   u16 currentPort=0;               /**< Current target port                  */
-  char *filterstring;              /**< Stores BFP filter spec string        */
+  const char *filterstring;        /**< Stores BFP filter spec string        */
   int rawipsd=-1;                  /**< Descriptor for raw IP socket         */
   enum nsock_loopstatus loopret;   /**< Stores nsock_loop returned status    */
   nsock_iod pcap_nsi;              /**< Stores Pcap IOD                      */
@@ -1237,7 +1236,6 @@ int ProbeMode::fillPacketARP(NpingTarget *target, u8 *buff, int bufflen, int *fi
 }
 
 
-
 /** This function creates a BPF filter specification, suitable to be passed to
   * pcap_compile() or nsock_pcap_open(). It reads info from "NpingOps o" and
   * creates the right BPF filter for the current operation mode. However, if
@@ -1247,7 +1245,7 @@ int ProbeMode::fillPacketARP(NpingTarget *target, u8 *buff, int bufflen, int *fi
   * is done here already.
   * @warning Returned pointer is a statically allocated buffer that subsequent
   *  calls will overwrite. */
-char *ProbeMode::getBPFFilterString(){
+const char *ProbeMode::getBPFFilterString(){
 
  char ipstring[128];
  static char filterstring[1024];
