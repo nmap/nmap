@@ -98,7 +98,7 @@ int ProbeMode::init_nsock(){
       if ((nsp = nsock_pool_new(NULL)) == NULL)
         nping_fatal(QT_3, "Failed to create new pool.  QUITTING.\n");
       const char *device = o.getDevice();
-      if (*device)
+      if (device && *device)
         nsock_pool_set_device(nsp, device);
 
       /* Allow broadcast addresses */
@@ -304,7 +304,7 @@ int ProbeMode::start(){
 
     if( o.getMode()!=ARP && o.sendEth()==false ){
         /* Get socket descriptor. No need for it in ARP since we send at eth level */
-        if ((rawipsd = netutil_raw_socket(o.issetDevice() ? o.getDevice() : NULL)) < 0 )
+        if ((rawipsd = netutil_raw_socket(o.getDevice())) < 0 )
             nping_fatal(QT_3,"Couldn't acquire raw socket. Are you root?");
     }
 
@@ -314,30 +314,33 @@ int ProbeMode::start(){
 
     /* Set up libpcap */
     if(!o.disablePacketCapture()){
+        const char *device = o.getDevice();
+        if (!device)
+            nping_fatal(QT_3, "Unable to determine device name.  QUITTING.\n");
         /* Create new IOD for pcap */
         if ((pcap_nsi = nsock_iod_new(nsp, NULL)) == NULL)
             nping_fatal(QT_3, "Failed to create new nsock_iod.  QUITTING.\n");
 
         /* Open pcap */
         filterstring=getBPFFilterString();
-        nping_print(DBG_2,"Opening pcap device %s", o.getDevice() );
+        nping_print(DBG_2,"Opening pcap device %s", device);
         #ifdef WIN32
         /* Nping normally uses device names obtained through dnet for interfaces,
          * but Pcap has its own naming system.  So the conversion is done here */
-          if (!DnetName2PcapName(o.getDevice(), pcapdev, sizeof(pcapdev))) {
+          if (!DnetName2PcapName(device, pcapdev, sizeof(pcapdev))) {
                /* Oh crap -- couldn't find the corresponding dev apparently.
                 * Let's just go with what we have then ... */
-               Strncpy(pcapdev, o.getDevice(), sizeof(pcapdev));
+               Strncpy(pcapdev, device, sizeof(pcapdev));
           }
         #else
-          Strncpy(pcapdev, o.getDevice(), sizeof(pcapdev));
+          Strncpy(pcapdev, device, sizeof(pcapdev));
         #endif
 
         rc = nsock_pcap_open(nsp, pcap_nsi, pcapdev, 8192,
                              (o.spoofSource()) ? 1 : 0, filterstring);
         if (rc)
-            nping_fatal(QT_3, "Error opening capture device %s\n", o.getDevice());
-        nping_print(DBG_2,"Pcap device %s open successfully", o.getDevice());
+            nping_fatal(QT_3, "Error opening capture device %s\n", device);
+        nping_print(DBG_2,"Pcap device %s open successfully", device);
     }
 
     /* Ready? Go! */

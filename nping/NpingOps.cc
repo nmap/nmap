@@ -701,8 +701,14 @@ int NpingOps::setDevice(char *n){
 } /* End of setDevice() */
 
 
-char *NpingOps::getDevice(){
-  return this->device;
+const char *NpingOps::getDevice(){
+  if (this->device_set)
+    return this->device;
+  if (this->targets.devices.empty())
+    return NULL;
+  if (this->targets.devices.size() > 1)
+    nping_fatal(QT_3, "Nping does not support targets on multiple devices. QUITTING.\n");
+  return this->targets.devices.front()->getName();
 } /* End of getDevice() */
 
 
@@ -2301,86 +2307,8 @@ if (this->isRoot() && this->havePcap()==false){
         nping_print(VB_0, "Warning: Payload supplied in TCP Connect mode. Payload will be ignored.");
   }
 
-/** SOURCE IP, SOURCE MAC and NETWORK DEVICE *********************************/
-/* If we are in a mode where we need to craft IP packets, then we need to
- * obtain a network interface name and a source IP address. There are three
- * different possibilities:
- *  1. User did NOT specify both network interface and source IP address.
- *  2. User did specify a network interface but not a source IP address.
- *  3. User did actually supply a source IP but not a network interface name
- *
- * I know the following code is ugly but the thing is that we want to determine
- * interface and source IP without user intervention, so we try in many ways
- * until either we succeed or we run out of possibilities and fatal().
- */
-if( this->getMode()!=TCP_CONNECT && this->getMode()!=UDP_UNPRIV && this->getRole()!=ROLE_SERVER){
-
-    char devbuff[32];
-    char *dev;
-    struct sockaddr_storage ss, ifaddr;
-    struct sockaddr_in *s4=(struct sockaddr_in *)&ifaddr;
-    struct sockaddr_in6 *s6=(struct sockaddr_in6 *)&ifaddr;
-    size_t ss_len;
-    char hostname[128];
-    memset(&ss, 0, sizeof(struct sockaddr_storage));
-    memset(&ifaddr, 0, sizeof(struct sockaddr_storage));
-
-
-   /* CASE 1: User did not specify a device so we have to select one. */
-    if( !this->issetDevice() ){
-        if( this->ipv4() ){
-            /* Ugly hack. Get the first resolvable target and determine net interface. Let's
-             * hope user did not specify something that mixes localhost with
-             * other targets, like "nping localhost google.com playboy.com" */
-             for(int z=0; z<this->targets.getTargetSpecCount(); z++){
-                if( this->targets.getNextTargetAddressAndName(&ss, &ss_len, hostname, sizeof(hostname)) == OP_SUCCESS )
-                    break;
-                else if( z>=(this->targets.getTargetSpecCount()-1) )
-                    nping_fatal(QT_3,"Cannot find a valid target. Please make sure the specified hosts are either IP addresses in standard notation or hostnames that can be resolved with DNS");
-             }
-             this->targets.rewind();
-
-             /* Try to obtain a device name from the target IP */
-             if ( getNetworkInterfaceName( &ss , devbuff) != OP_SUCCESS ) {
-                /* If that didn't work, ask libpcap */
-                if ( (dev = this->select_network_iface()) == NULL)
-                    nping_fatal(QT_3, "Cannot obtain device for packet capture");
-                else {
-                    this->setDevice( dev );
-                    free(dev);
-                }
-                /* Libpcap gave us a device name, try to obtain it's IP */
-                if ( devname2ipaddr(this->getDevice(), this->af(), &ifaddr) != 0 ){
-                    if( this->isRoot() )
-                        nping_fatal(QT_3,"Cannot figure out what source address to use for device %s, does it even exist?", this->getDevice());
-                    else
-                        nping_fatal(QT_3,"Cannot figure out what source address to use for device %s, are you root?", this->getDevice());
-                }
-                else{
-                    if( s4->sin_family==AF_INET )
-                        this->setIPv4SourceAddress(s4->sin_addr);
-                    else if ( s6->sin6_family==AF_INET6 )
-                        this->setIPv6SourceAddress(s6->sin6_addr.s6_addr);
-                }
-            }else{
-                this->setDevice(devbuff);
-            }
-        }else{ /* In IPv6 we just select one in libpcap and hope is the right one */
-            char *selected_iface=this->select_network_iface();
-            if(selected_iface==NULL)
-                nping_fatal(QT_3, "Error trying to find a suitable network interface ");
-            else {
-                this->setDevice( selected_iface );
-                free(selected_iface);
-            }
-        }
-    } /* CASE 2: User did actually supply a device name */
-    else{
-        nping_print(DBG_2, "Using network interface \"%s\"", this->getDevice() );
-    }
-
 /* The echo server needs to find out a network interface*/
-}else if (this->getRole()==ROLE_SERVER && this->issetDevice()==false){
+if (this->getRole()==ROLE_SERVER && this->issetDevice()==false){
   char *selected_iface=this->select_network_iface();
   if(selected_iface==NULL)
     nping_fatal(QT_3, "Error trying to find a suitable network interface ");

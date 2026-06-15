@@ -72,6 +72,17 @@
 
 #define MAX_NPING_HOSTNAME_LEN 512    /**< Max length for named hosts */
 
+class NpingDevice {
+private:
+  // Note: this class doesn't own the storage for this name;
+  // it has to continue to exist elsewhere.
+  const char *devname;
+public:
+  NpingDevice(const char *d) : devname(d) {}
+  bool strEqual(const char *name) const;
+  const char *getName() const { return devname; }
+};
+
 class NpingTargets {
 
   private:
@@ -87,6 +98,7 @@ class NpingTargets {
     NpingTargets();
     ~NpingTargets();
     int addSpec(char *spec);
+    void addDevice(const char *dev);
     int getNextTargetSockAddr(struct sockaddr_storage *t, size_t *tlen);
     NpingTarget *getNextTarget();
     int rewind();
@@ -102,6 +114,7 @@ class NpingTargets {
     /* TODO: Make private */
     NpingTarget *currenths;
     std::vector<NpingTarget *> Targets;
+    std::vector<NpingDevice *> devices;
 
 }; /* End of class NpingTargets */
 

@@ -344,7 +344,7 @@ class NpingOps {
     bool sendEth();
 
     int setDevice(char *n);
-    char *getDevice();
+    const char *getDevice();
     bool issetDevice();
 
     int setSpoofSource();
