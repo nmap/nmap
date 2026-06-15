@@ -1001,7 +1001,7 @@ int ProbeMode::fillPacketICMP(NpingTarget *target, u8 *buff, int bufflen, int *f
         break;
     }
 
-    /* Fill the IPv4Header object with the info from NpingOps */
+    /* Fill the IPv6Header object with the info from NpingOps */
     createIPv6(&i6, &c6, "ICMPv6", target);
 
     /* Compute checksum */
