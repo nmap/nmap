@@ -458,6 +458,7 @@ struct ContentView: View {
     
     @State private var hosts: [ScannedHost] = []
     @State private var selectedHostID: ScannedHost.ID?
+    @State private var resultsFilterText = ""
     
     init() {
         let savedCustomProfiles = Self.loadSavedCustomProfiles() ?? []
@@ -652,6 +653,85 @@ struct ContentView: View {
     private var allPorts: [ScannedPort] {
         hosts.flatMap { $0.ports }
     }
+
+    private var filteredHosts: [ScannedHost] {
+        let query = normalizedResultsFilterText
+
+        guard !query.isEmpty else {
+            return hosts
+        }
+
+        return hosts.filter { hostMatchesFilter($0, query: query) }
+    }
+
+    private var filteredPorts: [ScannedPort] {
+        let query = normalizedResultsFilterText
+
+        guard !query.isEmpty else {
+            return allPorts
+        }
+
+        return allPorts.filter { portMatchesFilter($0, query: query) }
+    }
+
+    private var allServicePorts: [ScannedPort] {
+        allPorts.filter { !$0.serviceName.isEmpty || !$0.serviceSummary.isEmpty }
+    }
+
+    private var filteredServicePorts: [ScannedPort] {
+        let query = normalizedResultsFilterText
+
+        guard !query.isEmpty else {
+            return allServicePorts
+        }
+
+        return allServicePorts.filter { portMatchesFilter($0, query: query) }
+    }
+
+    private var normalizedResultsFilterText: String {
+        resultsFilterText
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+            .lowercased()
+    }
+
+    private var isFilteringResults: Bool {
+        !normalizedResultsFilterText.isEmpty
+    }
+
+    private func hostMatchesFilter(_ host: ScannedHost, query: String) -> Bool {
+        let hostText = [
+            host.address,
+            host.hostname,
+            host.status,
+            "\(host.openPortCount)"
+        ]
+        .joined(separator: " ")
+        .lowercased()
+
+        if hostText.contains(query) {
+            return true
+        }
+
+        return host.ports.contains { portMatchesFilter($0, query: query) }
+    }
+
+    private func portMatchesFilter(_ port: ScannedPort, query: String) -> Bool {
+        [
+            port.hostAddress,
+            port.protocolName,
+            port.portNumber,
+            port.state,
+            port.serviceName,
+            port.product,
+            port.version,
+            port.extraInfo,
+            port.serviceSummary
+        ]
+        .joined(separator: " ")
+        .lowercased()
+        .contains(query)
+    }
+
     
     private var selectedHost: ScannedHost? {
         guard let selectedHostID else {
@@ -1064,14 +1144,18 @@ struct ContentView: View {
                 Text("Hosts")
                     .font(.headline)
                 Spacer()
-                Text("\(hosts.count) host\(hosts.count == 1 ? "" : "s")")
+                Text(isFilteringResults ? "\(filteredHosts.count) of \(hosts.count) hosts" : "\(hosts.count) host\(hosts.count == 1 ? "" : "s")")
                     .foregroundStyle(.secondary)
             }
             
+            resultsFilterBar
+
             if hosts.isEmpty {
                 emptyResultsView("Run a scan to populate discovered hosts.")
+            } else if filteredHosts.isEmpty {
+                emptyResultsView("No hosts match the current filter.")
             } else {
-                Table(hosts, selection: $selectedHostID) {
+                Table(filteredHosts, selection: $selectedHostID) {
                     TableColumn("Address") { host in
                         Text(host.address)
                             .font(.system(.body, design: .monospaced))
@@ -1097,14 +1181,18 @@ struct ContentView: View {
                 Text("Ports")
                     .font(.headline)
                 Spacer()
-                Text("\(allPorts.count) port result\(allPorts.count == 1 ? "" : "s")")
+                Text(isFilteringResults ? "\(filteredPorts.count) of \(allPorts.count) port results" : "\(allPorts.count) port result\(allPorts.count == 1 ? "" : "s")")
                     .foregroundStyle(.secondary)
             }
             
+            resultsFilterBar
+
             if allPorts.isEmpty {
                 emptyResultsView("Run a scan to populate port results.")
+            } else if filteredPorts.isEmpty {
+                emptyResultsView("No ports match the current filter.")
             } else {
-                Table(allPorts) {
+                Table(filteredPorts) {
                     TableColumn("Host") { port in
                         Text(port.hostAddress)
                             .font(.system(.body, design: .monospaced))
@@ -1134,14 +1222,18 @@ struct ContentView: View {
                 Text("Services")
                     .font(.headline)
                 Spacer()
-                Text("\(allPorts.filter { !$0.serviceName.isEmpty }.count) service result\(allPorts.filter { !$0.serviceName.isEmpty }.count == 1 ? "" : "s")")
+                Text(isFilteringResults ? "\(filteredServicePorts.count) of \(allServicePorts.count) service results" : "\(filteredServicePorts.count) service result\(filteredServicePorts.count == 1 ? "" : "s")")
                     .foregroundStyle(.secondary)
             }
             
-            if allPorts.isEmpty {
+            resultsFilterBar
+
+            if allServicePorts.isEmpty {
                 emptyResultsView("Run a service detection scan to populate service results.")
+            } else if filteredServicePorts.isEmpty {
+                emptyResultsView("No services match the current filter.")
             } else {
-                Table(allPorts.filter { !$0.serviceName.isEmpty || !$0.serviceSummary.isEmpty }) {
+                Table(filteredServicePorts) {
                     TableColumn("Host") { port in
                         Text(port.hostAddress)
                             .font(.system(.body, design: .monospaced))
@@ -2734,6 +2826,7 @@ struct ContentView: View {
         scanProgressBuffer = ""
         outputFindText = ""
         outputFindSelection = 0
+        resultsFilterText = ""
         selectedTab = "Output"
     }
     
@@ -3284,6 +3377,26 @@ struct ContentView: View {
         scanHistory.removeSavedScan(id: selectedSavedScanID, deleteFile: true)
     }
     
+    private var resultsFilterBar: some View {
+        HStack(spacing: 8) {
+            Image(systemName: "magnifyingglass")
+                .foregroundStyle(.secondary)
+
+            TextField("Filter results by host, port, state, service, or version", text: $resultsFilterText)
+                .textFieldStyle(.roundedBorder)
+                .onSubmit {
+                    // Consume Return so the window's default Run button does not start a new scan.
+                }
+
+            if isFilteringResults {
+                Button("Clear") {
+                    resultsFilterText = ""
+                }
+                .keyboardShortcut(.cancelAction)
+            }
+        }
+    }
+
     private func emptyResultsView(_ message: String) -> some View {
         VStack(spacing: 12) {
             Image(systemName: "tray")
