@@ -67,3 +67,18 @@ sudo installer -pkg dist/pkg/NmapComplete.pkg -target /
 ```
 
 A successful installed scan should load NSE scripts from the bundled /Applications/nmap.app share/nmap directory and complete without NSE load failures.
+
+
+## Native macOS GUI layout
+
+The `NmapGUI/` directory contains the native SwiftUI macOS GUI target. It is intentionally separate from `zenmap/`, which contains the existing legacy Zenmap Python/GTK frontend.
+
+The Xcode project builds the native GUI and uses `xcode/scripts/build-nmap-macos.sh` to build the Nmap command-line binary from the current source tree. The `xcode/scripts/bundle-nmap-runtime.sh` script then copies the runtime files into the app bundle using an app-local layout:
+
+```text
+NmapGUI.app/Contents/Resources/bin/nmap
+NmapGUI.app/Contents/Resources/share/nmap/
+```
+
+This keeps the SwiftUI frontend, legacy Zenmap frontend, Nmap command-line source, and macOS app-bundling logic separate.
+
