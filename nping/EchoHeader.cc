@@ -627,7 +627,7 @@ int EchoHeader::getFieldLength(u8 field){
     /* 8bit fields */
     case PSPEC_IPv4_TOS:
     case PSPEC_IPv4_PROTO:
-    case PSPEC_IPv6_FLOW:
+    case PSPEC_IPv6_TCLASS:
     case PSPEC_IPv6_NHDR:
     case PSPEC_TCP_FLAGS:
     case PSPEC_ICMP_TYPE:
@@ -649,7 +649,7 @@ int EchoHeader::getFieldLength(u8 field){
     break;
 
     /* 24bit fields */
-    case PSPEC_IPv6_TCLASS:
+    case PSPEC_IPv6_FLOW:
         return 3;
     break;
 
