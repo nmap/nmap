@@ -479,6 +479,7 @@ struct ContentView: View {
     @State private var hosts: [ScannedHost] = []
     @State private var selectedHostID: ScannedHost.ID?
     @State private var resultsFilterText = ""
+    @State private var savedScansFilterText = ""
     @State private var didInstallDiagnosticInfoObserver = false
     
     init() {
@@ -747,6 +748,42 @@ struct ContentView: View {
             port.version,
             port.extraInfo,
             port.serviceSummary
+        ]
+        .joined(separator: " ")
+        .lowercased()
+        .contains(query)
+    }
+
+    private var filteredSavedScans: [SavedScan] {
+        let query = normalizedSavedScansFilterText
+
+        guard !query.isEmpty else {
+            return scanHistory.savedScans
+        }
+
+        return scanHistory.savedScans.filter { savedScanMatchesFilter($0, query: query) }
+    }
+
+    private var normalizedSavedScansFilterText: String {
+        savedScansFilterText
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+            .lowercased()
+    }
+
+    private var isFilteringSavedScans: Bool {
+        !normalizedSavedScansFilterText.isEmpty
+    }
+
+    private func savedScanMatchesFilter(_ scan: SavedScan, query: String) -> Bool {
+        let dateText = scan.scannedAt.formatted(date: .abbreviated, time: .shortened)
+
+        return [
+            scan.title,
+            scan.command,
+            scan.xmlPath,
+            dateText,
+            "\(scan.hostCount)",
+            "\(scan.portCount)"
         ]
         .joined(separator: " ")
         .lowercased()
@@ -1740,7 +1777,9 @@ struct ContentView: View {
             if scanHistory.savedScans.isEmpty {
                 emptyResultsView("Completed scans and opened XML files will appear here for quick reload during this app session.")
             } else {
-                Table(scanHistory.savedScans, selection: $scanHistory.selectedSavedScanID) {
+                savedScansFilterBar
+
+                Table(filteredSavedScans, selection: $scanHistory.selectedSavedScanID) {
                     TableColumn("Date") { scan in
                         Text(scan.scannedAt.formatted(date: .abbreviated, time: .shortened))
                     }
@@ -3497,6 +3536,26 @@ struct ContentView: View {
         scanHistory.removeSavedScan(id: selectedSavedScanID, deleteFile: true)
     }
     
+    private var savedScansFilterBar: some View {
+        HStack(spacing: 8) {
+            Image(systemName: "magnifyingglass")
+                .foregroundStyle(.secondary)
+
+            TextField("Filter saved scans by title, command, date, XML path, host count, or port count", text: $savedScansFilterText)
+                .textFieldStyle(.roundedBorder)
+                .onSubmit {
+                    // Consume Return so the window's default Run button does not start a new scan.
+                }
+
+            if isFilteringSavedScans {
+                Button("Clear") {
+                    savedScansFilterText = ""
+                }
+                .keyboardShortcut(.cancelAction)
+            }
+        }
+    }
+
     private var resultsFilterBar: some View {
         HStack(spacing: 8) {
             Image(systemName: "magnifyingglass")
