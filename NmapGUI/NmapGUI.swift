@@ -2095,8 +2095,12 @@ struct ContentView: View {
             return 80
         }
 
-        if line.hasPrefix("Nmap scan report") || line.hasPrefix("Nmap done") {
+        if line.hasPrefix("Nmap done") {
             return 98
+        }
+
+        if line.hasPrefix("Nmap scan report") {
+            return nil
         }
 
         if line.contains("NSE Timing:") || line.hasPrefix("NSE: Script scanning") {
@@ -2143,10 +2147,15 @@ struct ContentView: View {
 
             if let percentText = progressPercentText(from: trimmedLine),
                let phasePercent = Double(percentText) {
+                let wasUsingEstimatedScanProgress = isUsingEstimatedScanProgress
                 isUsingEstimatedScanProgress = false
                 let normalizedPhasePercent = min(max(phasePercent, 0), 100)
                 if let overallProgress = overallProgressPercent(from: trimmedLine, phasePercent: normalizedPhasePercent) {
-                    scanProgressPercent = max(scanProgressPercent ?? 0, overallProgress.percent)
+                    if wasUsingEstimatedScanProgress {
+                        scanProgressPercent = overallProgress.percent
+                    } else {
+                        scanProgressPercent = max(scanProgressPercent ?? 0, overallProgress.percent)
+                    }
                     scanProgressMessage = overallProgress.overallMessage
                     scanPhaseProgressText = overallProgress.phaseMessage
                     updateEstimatedCompletionFromPercent(scanProgressPercent ?? overallProgress.percent)
