@@ -2362,11 +2362,16 @@ struct ContentView: View {
             return
         }
 
+        let dataDirectory = nmapDataDirectory(for: binary)
+        output += "Using nmap: \(binary)\n"
+        output += "Using NMAPDIR: \(dataDirectory)\n"
+        output += "Privilege mode: normal user\n\n"
+
         process.executableURL = URL(fileURLWithPath: binary)
         process.arguments = args
 
         var env = ProcessInfo.processInfo.environment
-        env["NMAPDIR"] = nmapDataDirectory(for: binary)
+        env["NMAPDIR"] = dataDirectory
         process.environment = env
 
         runningProcess = process
@@ -2488,6 +2493,16 @@ struct ContentView: View {
         let childPIDURL = FileManager.default.temporaryDirectory
             .appendingPathComponent("NmapGUI-\(UUID().uuidString)-privileged.childpid")
 
+        do {
+            let privilegedBinary = try PrivilegedNmapRunner.bundledNmapPath()
+            let privilegedDataDirectory = PrivilegedNmapRunner.nmapDataDirectory(for: privilegedBinary)
+            output += "Using nmap: \(privilegedBinary)\n"
+            output += "Using NMAPDIR: \(privilegedDataDirectory)\n"
+            output += "Privilege mode: administrator\n"
+        } catch {
+            output += "Using nmap: unavailable before administrator launch (\(error.localizedDescription))\n"
+            output += "Privilege mode: administrator\n"
+        }
         output += "Administrator authorization requested. Running nmap as root...\n"
         output += "Privileged output log: \(logURL.path)\n"
         status = "Running as administrator"
