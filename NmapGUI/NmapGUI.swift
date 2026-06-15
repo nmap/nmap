@@ -1820,6 +1820,59 @@ struct ContentView: View {
         .padding()
     }
     
+    private var profileAdvancedOptionsRow: some View {
+        HStack(spacing: 10) {
+            Menu("Add Option") {
+                Button("TCP Connect (-sT)") { appendProfileArgumentIfMissing("-sT") }
+                Button("SYN Scan (-sS)") { appendProfileArgumentIfMissing("-sS") }
+                Button("UDP Scan (-sU)") { appendProfileArgumentIfMissing("-sU") }
+
+                Divider()
+
+                Button("Service Detection (-sV)") { appendProfileArgumentIfMissing("-sV") }
+                Button("OS Detection (-O)") { appendProfileArgumentIfMissing("-O") }
+                Button("Default Scripts (-sC)") { appendProfileArgumentIfMissing("-sC") }
+                Button("Aggressive (-A)") { appendProfileArgumentIfMissing("-A") }
+
+                Divider()
+
+                Button("Treat Hosts as Up (-Pn)") { appendProfileArgumentIfMissing("-Pn") }
+                Button("Traceroute") { appendProfileArgumentIfMissing("--traceroute") }
+                Button("Fast Scan (-F)") { appendProfileArgumentIfMissing("-F") }
+            }
+
+            Menu("Remove Option") {
+                ForEach(["-sT", "-sS", "-sU", "-sV", "-O", "-sC", "-A", "-Pn", "--traceroute", "-F"], id: \.self) { argument in
+                    Button(argument) {
+                        removeProfileArgument(argument)
+                    }
+                    .disabled(!profileHasArgument(argument))
+                }
+            }
+
+            Picker("Timing", selection: Binding(
+                get: { profileTimingValue() },
+                set: { setProfileTimingValue($0) }
+            )) {
+                Text("Default timing").tag("")
+                Text("T0 Paranoid").tag("-T0")
+                Text("T1 Sneaky").tag("-T1")
+                Text("T2 Polite").tag("-T2")
+                Text("T3 Normal").tag("-T3")
+                Text("T4 Aggressive").tag("-T4")
+                Text("T5 Insane").tag("-T5")
+            }
+            .pickerStyle(.menu)
+            .frame(width: 170)
+
+            Text("Adds/removes common options from the Arguments field.")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+
+            Spacer()
+        }
+    }
+
     private var profilesView: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
@@ -1880,6 +1933,12 @@ struct ContentView: View {
                         TextField("-sV -T4", text: $newProfileArguments)
                             .textFieldStyle(.roundedBorder)
                             .font(.system(.body, design: .monospaced))
+                    }
+
+                    GridRow {
+                        Text("Advanced")
+                            .foregroundStyle(.secondary)
+                        profileAdvancedOptionsRow
                     }
 
                     GridRow {
@@ -3012,6 +3071,48 @@ struct ContentView: View {
         newProfileDescription = profile.description
     }
     
+    private func profileArgumentsArray() -> [String] {
+        shellSplit(newProfileArguments)
+    }
+
+    private func profileHasArgument(_ argument: String) -> Bool {
+        profileArgumentsArray().contains(argument)
+    }
+
+    private func appendProfileArgumentIfMissing(_ argument: String) {
+        var argumentsArray = profileArgumentsArray()
+
+        guard !argumentsArray.contains(argument) else {
+            return
+        }
+
+        argumentsArray.append(argument)
+        newProfileArguments = argumentsArray.joined(separator: " ")
+    }
+
+    private func removeProfileArgument(_ argument: String) {
+        let argumentsArray = profileArgumentsArray().filter { $0 != argument }
+        newProfileArguments = argumentsArray.joined(separator: " ")
+    }
+
+    private func profileTimingValue() -> String {
+        profileArgumentsArray().first {
+            $0.range(of: #"^-T[0-5]$"#, options: .regularExpression) != nil
+        } ?? ""
+    }
+
+    private func setProfileTimingValue(_ value: String) {
+        var argumentsArray = profileArgumentsArray().filter {
+            $0.range(of: #"^-T[0-5]$"#, options: .regularExpression) == nil
+        }
+
+        if !value.isEmpty {
+            argumentsArray.append(value)
+        }
+
+        newProfileArguments = argumentsArray.joined(separator: " ")
+    }
+
     private func clearProfileEditor() {
         selectedProfileID = nil
         newProfileName = ""
