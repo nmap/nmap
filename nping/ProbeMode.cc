@@ -1631,11 +1631,11 @@ void ProbeMode::probe_nping_event_handler(nsock_pool nsp, nsock_event nse, void 
  } else if (status == NSE_STATUS_ERROR) {
      nping_warning(QT_2, "nping_event_handler(): %s failed: %s", nse_type2str(type), strerror(socket_errno()));
  } else if (status == NSE_STATUS_TIMEOUT) {
-    nping_print(DBG_4,"nping_event_handler(): %s timeout: %s\n", nse_type2str(type), strerror(socket_errno()));
+    nping_print(DBG_4,"nping_event_handler(): %s timeout\n", nse_type2str(type));
  } else if (status == NSE_STATUS_CANCELLED) {
-    nping_warning(QT_2, "nping_event_handler(): %s canceled: %s", nse_type2str(type), strerror(socket_errno()));
+    nping_warning(QT_2, "nping_event_handler(): %s canceled", nse_type2str(type));
  } else if (status == NSE_STATUS_KILL) {
-    nping_warning(QT_2, "nping_event_handler(): %s killed: %s", nse_type2str(type), strerror(socket_errno()));
+    nping_warning(QT_2, "nping_event_handler(): %s killed", nse_type2str(type));
  } else{
     nping_warning(QT_2, "nping_event_handler(): Unknown status code %d\n", status);
  }
