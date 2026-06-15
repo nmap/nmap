@@ -16,6 +16,39 @@ struct NmapGUIApp: App {
         }
         .commands {
             NewWindowCommands()
+            CommandGroup(replacing: .help) {
+                Button("Nmap Reference Guide") {
+                    openHelpURL("https://nmap.org/book/man.html")
+                }
+
+                Button("Nmap Book") {
+                    openHelpURL("https://nmap.org/book/")
+                }
+
+                Button("Nmap Man Page") {
+                    openHelpURL("https://nmap.org/book/man.html")
+                }
+
+                Button("NSE Script Documentation") {
+                    openHelpURL("https://nmap.org/nsedoc/")
+                }
+
+                Divider()
+
+                Button("Zenmap User Guide") {
+                    openHelpURL("https://nmap.org/book/zenmap.html")
+                }
+
+                Divider()
+
+                Button("Report a Bug") {
+                    openHelpURL("https://github.com/nmap/nmap/issues")
+                }
+
+                Button("Nmap Website") {
+                    openHelpURL("https://nmap.org/")
+                }
+            }
             CommandGroup(after: .pasteboard) {
                 Divider()
 
@@ -305,6 +338,15 @@ final class ScanHistoryStore: ObservableObject {
         UserDefaults.standard.set(data, forKey: Self.savedScansDefaultsKey)
     }
 }
+
+    private func openHelpURL(_ string: String) {
+        guard let url = URL(string: string) else {
+            return
+        }
+
+        NSWorkspace.shared.open(url)
+    }
+
 
 struct ContentView: View {
     @EnvironmentObject private var scanHistory: ScanHistoryStore
