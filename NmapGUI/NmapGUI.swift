@@ -392,6 +392,8 @@ struct ContentView: View {
     @FocusState private var isOutputFindFocused: Bool
     
     @State private var runningProcess: Process?
+    @State private var privilegedScanPID: Int32?
+    @State private var privilegedChildPIDPath: String?
     @State private var scanStartedAt: Date?
     @State private var scanProgressPercent: Double?
     @State private var isUsingEstimatedScanProgress = false
@@ -2315,6 +2317,22 @@ struct ContentView: View {
         selectedHostID = nil
         output = "Running \(commandPreview)...\nXML output: \(xmlURL.path)\n\n"
 
+        switch ScanPrivilegeEvaluator.requirement(for: args) {
+        case .normalUser:
+            break
+
+        case .administrator(let reason):
+            Task {
+                await runPrivilegedScan(
+                    args: args,
+                    xmlURL: xmlURL,
+                    trimmedTarget: trimmedTarget,
+                    reason: reason
+                )
+            }
+            return
+        }
+        
         let process = Process()
         let pipe = Pipe()
 
@@ -2322,7 +2340,7 @@ struct ContentView: View {
         process.standardError = pipe
 
         guard let binary = nmapBinaryPath() else {
-            output += "Failed to run nmap: bundled Resources/nmap and /usr/local/bin/nmap were not found."
+            output += "Failed to run nmap: no executable nmap was found. Checked bundled Resources/bin/nmap, /Applications/nmap.app/Contents/Resources/bin/nmap, /usr/local/bin/nmap, and /opt/homebrew/bin/nmap."
             status = "Failed"
             isRunning = false
             scanStartedAt = nil
@@ -2333,9 +2351,7 @@ struct ContentView: View {
         process.arguments = args
 
         var env = ProcessInfo.processInfo.environment
-        if let resources = Bundle.main.resourceURL?.path {
-            env["NMAPDIR"] = resources
-        }
+        env["NMAPDIR"] = nmapDataDirectory(for: binary)
         process.environment = env
 
         runningProcess = process
@@ -2388,7 +2404,7 @@ struct ContentView: View {
         } catch {
             pipe.fileHandleForReading.readabilityHandler = nil
             output += "Failed to run nmap: \(error.localizedDescription)\n"
-            output += "Expected bundled Resources/nmap or /usr/local/bin/nmap."
+            output += "Expected bundled Resources/bin/nmap, /Applications/nmap.app/Contents/Resources/bin/nmap, /usr/local/bin/nmap, or /opt/homebrew/bin/nmap."
             status = "Failed"
             scanProgressPercent = nil
             isUsingEstimatedScanProgress = false
@@ -2406,14 +2422,223 @@ struct ContentView: View {
         }
     }
     
-    private func stopScan() {
-        guard let process = runningProcess else {
+    @MainActor
+    private func confirmPrivilegedScan(reason: String) async -> Bool {
+        let alert = NSAlert()
+        alert.messageText = "Administrator Privileges Required"
+        alert.informativeText = """
+        This scan uses options that require root privileges.
+
+        \(reason)
+
+        Only the nmap scan process will be run as administrator. The GUI will continue running as your normal user.
+        """
+        alert.alertStyle = .warning
+        alert.addButton(withTitle: "Run as Administrator")
+        alert.addButton(withTitle: "Cancel")
+
+        return alert.runModal() == .alertFirstButtonReturn
+    }
+
+    @MainActor
+    private func runPrivilegedScan(args: [String], xmlURL: URL, trimmedTarget: String, reason: String) async {
+        let shouldRun = await confirmPrivilegedScan(reason: reason)
+
+        guard shouldRun else {
+            output += "\nPrivileged scan cancelled by user.\n"
+            status = "Cancelled"
+            exitStatus = nil
+            scanProgressPercent = nil
+            isUsingEstimatedScanProgress = false
+            scanProgressMessage = ""
+            scanPhaseProgressText = ""
+            scanPortPhasePercent = nil
+            scanServicePhasePercent = nil
+            scanScriptPhasePercent = nil
+            scanEstimatedCompletionText = ""
+            scanElapsedText = ""
+            scanProgressBuffer = ""
+            isRunning = false
+            runningProcess = nil
+            scanStartedAt = nil
             return
         }
-        
-        process.terminate()
-        status = "Stopping"
-        output += "\n\nStopping scan...\n"
+
+        let logURL = FileManager.default.temporaryDirectory
+            .appendingPathComponent("NmapGUI-\(UUID().uuidString)-privileged.log")
+        let statusURL = FileManager.default.temporaryDirectory
+            .appendingPathComponent("NmapGUI-\(UUID().uuidString)-privileged.status")
+        let doneURL = FileManager.default.temporaryDirectory
+            .appendingPathComponent("NmapGUI-\(UUID().uuidString)-privileged.done")
+        let childPIDURL = FileManager.default.temporaryDirectory
+            .appendingPathComponent("NmapGUI-\(UUID().uuidString)-privileged.childpid")
+
+        output += "Administrator authorization requested. Running nmap as root...\n"
+        output += "Privileged output log: \(logURL.path)\n"
+        status = "Running as administrator"
+        scanProgressMessage = "Waiting for privileged Nmap scan"
+        scanPhaseProgressText = "Phase: privileged scan starting"
+
+        do {
+            let pid = try await PrivilegedNmapRunner.start(
+                arguments: args,
+                logPath: logURL.path,
+                statusPath: statusURL.path,
+                donePath: doneURL.path,
+                childPIDPath: childPIDURL.path
+            )
+            privilegedScanPID = pid
+            privilegedChildPIDPath = childPIDURL.path
+            output += "Privileged nmap PID: \(pid)\n\n"
+            scanPhaseProgressText = "Phase: privileged scan running"
+
+            var lastOffset: UInt64 = 0
+
+            while !FileManager.default.fileExists(atPath: doneURL.path) && PrivilegedNmapRunner.isRunning(pid: pid) {
+                let newTextAndOffset = readNewText(from: logURL, startingAt: lastOffset)
+                lastOffset = newTextAndOffset.offset
+
+                if !newTextAndOffset.text.isEmpty {
+                    output += newTextAndOffset.text
+                    updateScanProgress(from: newTextAndOffset.text)
+                }
+
+                try await Task.sleep(nanoseconds: 750_000_000)
+            }
+
+            let finalTextAndOffset = readNewText(from: logURL, startingAt: lastOffset)
+            lastOffset = finalTextAndOffset.offset
+
+            if !finalTextAndOffset.text.isEmpty {
+                output += finalTextAndOffset.text
+                updateScanProgress(from: finalTextAndOffset.text)
+            }
+
+            let parsedHosts = parseNmapXML(at: xmlURL)
+            let realExitStatus = readExitStatus(from: statusURL) ?? 1
+            let succeeded = realExitStatus == 0 && FileManager.default.fileExists(atPath: xmlURL.path)
+
+            output += "\nExit status: \(realExitStatus)\n"
+            updateScanProgress(from: output)
+
+            status = succeeded ? "Completed" : "Privileged scan exited with errors"
+            exitStatus = Int32(realExitStatus)
+            hosts = parsedHosts
+            selectedHostID = parsedHosts.first?.id
+
+            if succeeded {
+                addSavedScan(
+                    title: trimmedTarget,
+                    command: lastCommand,
+                    xmlPath: xmlURL.path,
+                    parsedHosts: parsedHosts
+                )
+
+                isUsingEstimatedScanProgress = false
+                scanProgressPercent = 100
+                scanProgressMessage = "Overall 100%"
+                scanPhaseProgressText = "Phase: complete"
+                scanPortPhasePercent = scanPortPhasePercent ?? 100
+                scanServicePhasePercent = scanServicePhasePercent ?? 100
+                scanScriptPhasePercent = scanScriptPhasePercent ?? 100
+                scanEstimatedCompletionText = ""
+            } else {
+                scanProgressPercent = nil
+                isUsingEstimatedScanProgress = false
+                scanProgressMessage = ""
+                scanPhaseProgressText = ""
+                scanPortPhasePercent = nil
+                scanServicePhasePercent = nil
+                scanScriptPhasePercent = nil
+                scanEstimatedCompletionText = ""
+            }
+        } catch {
+            let parsedHosts = parseNmapXML(at: xmlURL)
+
+            output += "\nFailed to run privileged nmap: \(error.localizedDescription)\n"
+            output += "\nExit status: 1"
+
+            status = "Privileged scan failed"
+            exitStatus = 1
+            hosts = parsedHosts
+            selectedHostID = parsedHosts.first?.id
+            scanProgressPercent = nil
+            isUsingEstimatedScanProgress = false
+            scanProgressMessage = ""
+            scanPhaseProgressText = ""
+            scanPortPhasePercent = nil
+            scanServicePhasePercent = nil
+            scanScriptPhasePercent = nil
+            scanEstimatedCompletionText = ""
+        }
+
+        isRunning = false
+        runningProcess = nil
+        privilegedScanPID = nil
+        privilegedChildPIDPath = nil
+        scanStartedAt = nil
+    }
+    
+    private func readNewText(from url: URL, startingAt offset: UInt64) -> (text: String, offset: UInt64) {
+        guard FileManager.default.fileExists(atPath: url.path),
+              let handle = try? FileHandle(forReadingFrom: url) else {
+            return ("", offset)
+        }
+
+        defer {
+            try? handle.close()
+        }
+
+        do {
+            try handle.seek(toOffset: offset)
+            let data = handle.readDataToEndOfFile()
+            let newOffset = offset + UInt64(data.count)
+            let text = String(data: data, encoding: .utf8) ?? ""
+            return (text, newOffset)
+        } catch {
+            return ("", offset)
+        }
+    }
+    
+    private func readExitStatus(from url: URL) -> Int? {
+        guard let text = try? String(contentsOf: url, encoding: .utf8) else {
+            return nil
+        }
+
+        return Int(text.trimmingCharacters(in: .whitespacesAndNewlines))
+    }
+    
+    private func stopScan() {
+        if let process = runningProcess {
+            process.terminate()
+            status = "Stopping"
+            output += "\n\nStopping scan...\n"
+            return
+        }
+
+        if let pid = privilegedScanPID {
+            status = "Stopping privileged scan"
+            output += "\n\nStopping privileged scan PID \(pid)...\n"
+
+            Task {
+                do {
+                    try await PrivilegedNmapRunner.stop(pid: pid, childPIDPath: privilegedChildPIDPath)
+                    await MainActor.run {
+                        output += "Privileged scan stop requested.\n"
+                        privilegedScanPID = nil
+                        privilegedChildPIDPath = nil
+                        isRunning = false
+                        status = "Stopped"
+                        scanStartedAt = nil
+                    }
+                } catch {
+                    await MainActor.run {
+                        output += "Failed to stop privileged scan: \(error.localizedDescription)\n"
+                    }
+                }
+            }
+            return
+        }
     }
     
     private func clearResults() {
@@ -3016,17 +3241,56 @@ struct ContentView: View {
         .padding()
     }
     
+    private func nmapDataDirectory(for binaryPath: String) -> String {
+        let nmapURL = URL(fileURLWithPath: binaryPath)
+        var candidates: [String] = []
+
+        candidates.append(
+            nmapURL
+                .deletingLastPathComponent()
+                .deletingLastPathComponent()
+                .appendingPathComponent("share/nmap")
+                .path
+        )
+
+        if let resourcePath = Bundle.main.resourceURL?.appendingPathComponent("share/nmap").path {
+            candidates.append(resourcePath)
+        }
+
+        if let resourcePath = Bundle.main.resourceURL?.path {
+            candidates.append(resourcePath)
+        }
+
+        candidates.append("/Applications/nmap.app/Contents/Resources/share/nmap")
+        candidates.append("/usr/local/share/nmap")
+        candidates.append("/opt/homebrew/share/nmap")
+
+        for path in candidates {
+            var isDirectory: ObjCBool = false
+            if FileManager.default.fileExists(atPath: path, isDirectory: &isDirectory),
+               isDirectory.boolValue {
+                return path
+            }
+        }
+
+        return Bundle.main.resourceURL?.path ?? ""
+    }
+
     private func nmapBinaryPath() -> String? {
-        if let bundled = Bundle.main.resourceURL?.appendingPathComponent("nmap").path,
-           FileManager.default.isExecutableFile(atPath: bundled) {
-            return bundled
+        let candidates = [
+            Bundle.main.resourceURL?.appendingPathComponent("bin/nmap").path,
+            Bundle.main.resourceURL?.appendingPathComponent("nmap").path,
+            "/Applications/nmap.app/Contents/Resources/bin/nmap",
+            "/usr/local/bin/nmap",
+            "/opt/homebrew/bin/nmap"
+        ].compactMap { $0 }
+
+        for path in candidates {
+            if FileManager.default.isExecutableFile(atPath: path) {
+                return path
+            }
         }
-        
-        let fallback = "/usr/local/bin/nmap"
-        if FileManager.default.isExecutableFile(atPath: fallback) {
-            return fallback
-        }
-        
+
         return nil
     }
     
