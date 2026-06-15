@@ -3,6 +3,7 @@ import Combine
 import Foundation
 import AppKit
 import UniformTypeIdentifiers
+import Darwin
  
 @main
 struct NmapGUIApp: App {
@@ -40,6 +41,10 @@ struct NmapGUIApp: App {
                 }
 
                 Divider()
+
+                Button("Copy Diagnostic Info") {
+                    NotificationCenter.default.post(name: .nmapGUICopyDiagnosticInfo, object: nil)
+                }
 
                 Button("Report a Bug") {
                     openHelpURL("https://github.com/nmap/nmap/issues")
@@ -176,6 +181,7 @@ struct NewWindowCommands: Commands {
 }
 
 extension Notification.Name {
+    static let nmapGUICopyDiagnosticInfo = Notification.Name("nmapGUICopyDiagnosticInfo")
     static let nmapGUIOpenXML = Notification.Name("NmapGUIOpenXML")
     static let nmapGUIOpenRecentScan = Notification.Name("NmapGUIOpenRecentScan")
     static let nmapGUISaveXML = Notification.Name("NmapGUISaveXML")
@@ -348,6 +354,20 @@ final class ScanHistoryStore: ObservableObject {
     }
 
 
+
+private extension ProcessInfo {
+    var machineHardwareName: String {
+        var systemInfo = utsname()
+        uname(&systemInfo)
+
+        return withUnsafePointer(to: &systemInfo.machine) {
+            $0.withMemoryRebound(to: CChar.self, capacity: 1) {
+                String(cString: $0)
+            }
+        }
+    }
+}
+
 struct ContentView: View {
     @EnvironmentObject private var scanHistory: ScanHistoryStore
     private static let customProfilesDefaultsKey = "NmapGUI.CustomProfiles"
@@ -459,6 +479,7 @@ struct ContentView: View {
     @State private var hosts: [ScannedHost] = []
     @State private var selectedHostID: ScannedHost.ID?
     @State private var resultsFilterText = ""
+    @State private var didInstallDiagnosticInfoObserver = false
     
     init() {
         let savedCustomProfiles = Self.loadSavedCustomProfiles() ?? []
@@ -890,6 +911,24 @@ struct ContentView: View {
                 return
             }
             selectedTab = tabName
+        }
+        .onAppear {
+            installDiagnosticInfoObserverIfNeeded()
+        }
+    }
+
+    private func installDiagnosticInfoObserverIfNeeded() {
+        guard !didInstallDiagnosticInfoObserver else {
+            return
+        }
+
+        didInstallDiagnosticInfoObserver = true
+        NotificationCenter.default.addObserver(
+            forName: .nmapGUICopyDiagnosticInfo,
+            object: nil,
+            queue: .main
+        ) { _ in
+            copyDiagnosticInfo()
         }
     }
     
@@ -2958,6 +2997,87 @@ struct ContentView: View {
     private func copyOutput() {
         NSPasteboard.general.clearContents()
         NSPasteboard.general.setString(output, forType: .string)
+    }
+
+    private func copyDiagnosticInfo() {
+        NSPasteboard.general.clearContents()
+        NSPasteboard.general.setString(diagnosticInfoText(), forType: .string)
+        output += "\nCopied diagnostic info to clipboard."
+    }
+
+    private func diagnosticInfoText() -> String {
+        let nmapPath = nmapBinaryPath() ?? "unavailable"
+        let nmapDirectory = nmapPath == "unavailable" ? "unavailable" : nmapDataDirectory(for: nmapPath)
+        let bundlePath = Bundle.main.bundlePath
+        let appVersion = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "unknown"
+        let appBuild = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? "unknown"
+        let processInfo = ProcessInfo.processInfo
+        let macOSVersion = processInfo.operatingSystemVersionString
+        let hostName = Host.current().localizedName ?? Host.current().name ?? "unknown"
+        let nmapVersion = nmapVersionText(nmapPath: nmapPath, nmapDirectory: nmapDirectory)
+
+        return [
+            "NmapGUI Diagnostic Info",
+            "",
+            "App:",
+            "Bundle: \(bundlePath)",
+            "Version: \(appVersion)",
+            "Build: \(appBuild)",
+            "",
+            "System:",
+            "macOS: \(macOSVersion)",
+            "Host: \(hostName)",
+            "Architecture: \(processInfo.machineHardwareName)",
+            "",
+            "Nmap Runtime:",
+            "Nmap binary: \(nmapPath)",
+            "NMAPDIR: \(nmapDirectory)",
+            "Nmap version:",
+            nmapVersion,
+            "",
+            "Last Scan:",
+            "Command: \(lastCommand.isEmpty ? "none" : lastCommand)",
+            "XML: \(lastXMLPath.isEmpty ? "none" : lastXMLPath)",
+            "Exit status: \(exitStatus.map(String.init) ?? "none")",
+            "Status: \(status)",
+            "Hosts parsed: \(hosts.count)",
+            "Ports parsed: \(allPorts.count)",
+            "",
+            "Privilege:",
+            "Currently running: \(isRunning ? "yes" : "no")",
+            "Privileged scan PID: \(privilegedScanPID.map(String.init) ?? "none")"
+        ].joined(separator: "\n")
+    }
+
+    private func nmapVersionText(nmapPath: String, nmapDirectory: String) -> String {
+        guard nmapPath != "unavailable",
+              FileManager.default.isExecutableFile(atPath: nmapPath) else {
+            return "unavailable"
+        }
+
+        let process = Process()
+        process.executableURL = URL(fileURLWithPath: nmapPath)
+        process.arguments = ["--version"]
+
+        var environment = ProcessInfo.processInfo.environment
+        if nmapDirectory != "unavailable" {
+            environment["NMAPDIR"] = nmapDirectory
+        }
+        process.environment = environment
+
+        let pipe = Pipe()
+        process.standardOutput = pipe
+        process.standardError = pipe
+
+        do {
+            try process.run()
+            process.waitUntilExit()
+            let data = pipe.fileHandleForReading.readDataToEndOfFile()
+            return String(data: data, encoding: .utf8)?
+                .trimmingCharacters(in: .whitespacesAndNewlines) ?? "unavailable"
+        } catch {
+            return "unavailable (\(error.localizedDescription))"
+        }
     }
     
     private func saveCurrentXML() {
