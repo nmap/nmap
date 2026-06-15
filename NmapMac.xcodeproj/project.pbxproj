@@ -21,6 +21,9 @@
 /* End PBXAggregateTarget section */
 
 /* Begin PBXBuildFile section */
+		2F0ADB1B2FE0607300D6A060 /* PrivilegedNmapRunner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F0ADB182FE0605F00D6A060 /* PrivilegedNmapRunner.swift */; };
+		2F0ADB1D2FE0610400D6A060 /* ScanPrivilegeEvaluator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F0ADB1C2FE060FF00D6A060 /* ScanPrivilegeEvaluator.swift */; };
+		2F0ADB1F2FE0613300D6A060 /* ShellEscaping.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F0ADB1E2FE0612000D6A060 /* ShellEscaping.swift */; };
 		A10000000000000000000001 /* NmapGUI.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000002 /* NmapGUI.swift */; };
 /* End PBXBuildFile section */
 
@@ -42,6 +45,9 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		2F0ADB182FE0605F00D6A060 /* PrivilegedNmapRunner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrivilegedNmapRunner.swift; sourceTree = "<group>"; };
+		2F0ADB1C2FE060FF00D6A060 /* ScanPrivilegeEvaluator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScanPrivilegeEvaluator.swift; sourceTree = "<group>"; };
+		2F0ADB1E2FE0612000D6A060 /* ShellEscaping.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShellEscaping.swift; sourceTree = "<group>"; };
 		2F4890E32FDF4CA500DBE74E /* charpool.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = charpool.h; sourceTree = SOURCE_ROOT; };
 		2F4890E42FDF4CA500DBE74E /* charpool.cc */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = charpool.cc; sourceTree = SOURCE_ROOT; };
 		2F4890E52FDF4CA500DBE74E /* FingerPrintResults.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FingerPrintResults.h; sourceTree = SOURCE_ROOT; };
@@ -6536,6 +6542,9 @@
 		A10000000000000000000009 /* NmapGUI */ = {
 			isa = PBXGroup;
 			children = (
+				2F0ADB1E2FE0612000D6A060 /* ShellEscaping.swift */,
+				2F0ADB1C2FE060FF00D6A060 /* ScanPrivilegeEvaluator.swift */,
+				2F0ADB182FE0605F00D6A060 /* PrivilegedNmapRunner.swift */,
 				A10000000000000000000002 /* NmapGUI.swift */,
 			);
 			path = NmapGUI;
@@ -6700,6 +6709,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2F0ADB1F2FE0613300D6A060 /* ShellEscaping.swift in Sources */,
+				2F0ADB1D2FE0610400D6A060 /* ScanPrivilegeEvaluator.swift in Sources */,
+				2F0ADB1B2FE0607300D6A060 /* PrivilegedNmapRunner.swift in Sources */,
 				A10000000000000000000001 /* NmapGUI.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
