@@ -1779,26 +1779,30 @@ struct ContentView: View {
             } else {
                 savedScansFilterBar
 
-                Table(filteredSavedScans, selection: $scanHistory.selectedSavedScanID) {
-                    TableColumn("Date") { scan in
-                        Text(scan.scannedAt.formatted(date: .abbreviated, time: .shortened))
-                    }
-                    TableColumn("Title") { scan in
-                        Text(scan.title)
-                    }
-                    TableColumn("Command") { scan in
-                        Text(scan.command)
-                            .font(.system(.body, design: .monospaced))
-                    }
-                    TableColumn("Hosts") { scan in
-                        Text("\(scan.hostCount)")
-                    }
-                    TableColumn("Ports") { scan in
-                        Text("\(scan.portCount)")
-                    }
-                    TableColumn("XML") { scan in
-                        Text(scan.xmlPath)
-                            .font(.system(.body, design: .monospaced))
+                if filteredSavedScans.isEmpty {
+                    emptyResultsView("No saved scans match the current filter.")
+                } else {
+                    Table(filteredSavedScans, selection: $scanHistory.selectedSavedScanID) {
+                        TableColumn("Date") { scan in
+                            Text(scan.scannedAt.formatted(date: .abbreviated, time: .shortened))
+                        }
+                        TableColumn("Title") { scan in
+                            Text(scan.title)
+                        }
+                        TableColumn("Command") { scan in
+                            Text(scan.command)
+                                .font(.system(.body, design: .monospaced))
+                        }
+                        TableColumn("Hosts") { scan in
+                            Text("\(scan.hostCount)")
+                        }
+                        TableColumn("Ports") { scan in
+                            Text("\(scan.portCount)")
+                        }
+                        TableColumn("XML") { scan in
+                            Text(scan.xmlPath)
+                                .font(.system(.body, design: .monospaced))
+                        }
                     }
                 }
 
