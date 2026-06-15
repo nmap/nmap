@@ -110,7 +110,6 @@ class ProbeMode  {
 
         static int createIPv4(IPv4Header *i, PacketElement *next_element, const char *next_proto, NpingTarget *target);
         static int createIPv6(IPv6Header *i, PacketElement *next_element, const char *next_proto, NpingTarget *target);
-        static int doIPv6ThroughSocket(int rawfd);
         static int fillPacket(NpingTarget *target, u16 port, u8 *buff, int bufflen, int *filledlen, int rawfd);
         static int fillPacketTCP(NpingTarget *target, u16 port, u8 *buff, int bufflen, int *filledlen, int rawfd);
         static int fillPacketUDP(NpingTarget *target, u16 port, u8 *buff, int bufflen, int *filledlen, int rawfd);

@@ -848,17 +848,6 @@ bool NpingOps::ipv6(){
 } /* End of ipv6() */
 
 
-/* Returns true if we are sending IPv6 packets at raw TCP level (using a
- * useless and boring IPv6 socket that doesn't let us include our own IPv6
- * header)*/
-bool NpingOps::ipv6UsingSocket(){
-  if( this->getIPVersion() == IP_VERSION_6 && this->sendEth()==false)
-    return true;
-  else
-    return false;
-} /* End of ipv6UsingSocket() */
-
-
 /* Returns AF_INET or AF_INET6, depending on current configuration */
 int NpingOps::af(){
   if( this->getIPVersion() == IP_VERSION_6 )

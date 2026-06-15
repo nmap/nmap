@@ -304,13 +304,8 @@ int ProbeMode::start(){
 
     if( o.getMode()!=ARP && o.sendEth()==false ){
         /* Get socket descriptor. No need for it in ARP since we send at eth level */
-        if ((rawipsd = obtainRawSocket()) < 0 )
+        if ((rawipsd = netutil_raw_socket(o.issetDevice() ? o.getDevice() : NULL)) < 0 )
             nping_fatal(QT_3,"Couldn't acquire raw socket. Are you root?");
-        if ( o.issetDevice() )  {
-            if (!socket_bindtodevice(rawipsd, o.getDevice()) && errno != EPERM) {
-                nping_warning(QT_2, "Error binding socket to device %s", o.getDevice() );
-            }
-        }
     }
 
     /* Check if we have enough information to get the party started */
@@ -675,75 +670,9 @@ int ProbeMode::createIPv6(IPv6Header *i, PacketElement *next_element, const char
 } /* End of createIPv6() */
 
 
-/** This function is a bit tricky. The thing is that some engineer had
- * the brilliant idea to remove IP_HDRINCL support in IPv6. As a result, it's
- * a big pain in the ass to create raw IPv6 headers because we can only do it
- * if we are sending packets at raw Ethernet level. So if we want our own IPv6
- * header (for source IP spoofing, etc) we have to do things like determine
- * source and dest MAC addresses (this is even more complicated in IPv6 than
- * in IPv4 because we don't have ARP anymore, we have to use something new, the
- * NDP, Neighbor Discovery Protocol.)
- * So the thing is that, if the user does not want to play with the IPv6 header,
- * why bother with all that link layer work? So what we do is create raw
- * transport layer packets and then send them through a raw IPv6 socket. The
- * socket will encapsulate our packets into a nice clean IPv6 header
- * automatically so we don't have to worry about low level details anymore.
- *
- * So this function basically takes a raw IPv6 socket descriptor and then tries
- * to set some basic parameters (like Hop Limit) using setsockopt() calls.
- * It always returns OP_SUCCESS. However, if errors are found, they are printed
- * (QT_2 level) using nping_warning();
- * */
-int ProbeMode::doIPv6ThroughSocket(int rawfd){
-
-    /* Hop Limit */
-    int hoplimit=0;
-    if( o.issetHopLimit() )
-       hoplimit= o.getHopLimit();
-    else if ( o.issetTraceroute() ){
-         hoplimit= (o.getCurrentRound()<255)? o.getCurrentRound() : (o.getCurrentRound()%255)+1;
-    }else{
-       hoplimit=DEFAULT_IPv6_TTL;
-    }
-    if( setsockopt(rawfd, IPPROTO_IPV6, IPV6_UNICAST_HOPS, (char *)&hoplimit, sizeof(hoplimit)) != 0 )
-        nping_warning(QT_2, "doIPv6ThroughSocket(): setsockopt() for Unicast Hop Limit on IPv6 socket failed");
-    if( setsockopt(rawfd, IPPROTO_IPV6, IPV6_MULTICAST_HOPS, (char *)&hoplimit, sizeof(hoplimit)) != 0 )
-        nping_warning(QT_2, "doIPv6ThroughSocket(): setsockopt() for Multicast Hop Limit on IPv6 socket failed");
-
-#ifdef IPV6_CHECKSUM  /* This is not available in when compiling with MinGW */
-    /* Transport layer checksum */
-    /* This is totally crazy. We have to tell the kernel EXPLICITLY that we
-     * want it to set the TCP/UDP checksum for us. Why the hell is this the
-     * default behavior if it's so incredibly difficult to get the IPv6 source
-     * address?
-     * Additionally, we have to be very careful not to set this option when
-     * dealing with ICMPv6 because in that case the kernel computes the
-     * checksum automatically and Nping can actually crash if we've set
-     * this option manually, can you believe it? */
-    if( o.getMode()==TCP || o.getMode()==UDP){
-        /* We don't request valid TCP checksums if the user requested bogus sums */
-        if( o.getBadsum()==false ){
-            int offset = 16;
-            if( setsockopt (rawfd, IPPROTO_IPV6, IPV6_CHECKSUM, (char *)&offset, sizeof(offset)) != 0 )
-                nping_warning(QT_2, "doIPv6ThroughSocket(): failed to set IPV6_CHECKSUM option on IPv6 socket. ");
-        }
-    }
-#endif
-
-    return OP_SUCCESS;
-
-} /* End of doIPv6ThroughSocket() */
-
-
-
-
-
 /** This function handles TCP packet creation. However, the final packet that
   * it produces also includes an IP header.
-  * There is one exception. When we are sending IPv6 packet at raw TCP level,
-  * the returned packet does not contain an IPv6 header but the supplied
-  * rawfd socket descriptor is ready to go because some options have been
-  * set on it by doIPv6ThroughSocket(). */
+  */
 int ProbeMode::fillPacketTCP(NpingTarget *target, u16 port, u8 *buff, int bufflen, int *filledlen, int rawfd){
 
  IPv4Header i;
@@ -813,47 +742,19 @@ int ProbeMode::fillPacketTCP(NpingTarget *target, u16 port, u8 *buff, int buffle
     break;
 
     case IP_VERSION_6:
-        if( o.sendEth() ){
-            /* Fill the IPv6Header object with the info from NpingOps */
-            createIPv6(&i6, &t, "TCP", target);
+        /* Fill the IPv6Header object with the info from NpingOps */
+        createIPv6(&i6, &t, "TCP", target);
 
-            if( o.getBadsum() == true )
-                t.setSumRandom();
-            else{
-                *filledlen = i6.dumpToBinaryBuffer(buff, bufflen);
-                ip6_checksum(buff, *filledlen); /* Provided by dnet */
-                return OP_SUCCESS;
-            }
-
-            /* Store result in user supplied buffer */
+        if( o.getBadsum() == true )
+            t.setSumRandom();
+        else{
             *filledlen = i6.dumpToBinaryBuffer(buff, bufflen);
-        }else{
-            doIPv6ThroughSocket(rawfd);
-
-             /* Set some bogus checksum */
-             if( o.getBadsum()==true )
-                t.setSumRandom();
-            /* Set checksum to zero and pray for the kernel to set it to
-             * the right value. Brothers and sisters:
-             *
-             * Our TCP/IP stack, Who is in the kernel,
-             * Holy is Your Name;
-             * Your kingdom come,
-             * Your will be done,
-             * on userland as it is in kernel space.
-             * Give us this day our TCP checksum,
-             * and forgive us for our raw sockets,
-             * as we forgive you for your kernel panics;
-             * and lead us not into /dev/null,
-             * but deliver our packet to the next hop. Amen.
-             * */
-            else
-                t.setSum(0);
-
-            /* Since we cannot include our own header like we do in IPv4, the
-             * buffer we return is the TCP one. */
-            *filledlen = t.dumpToBinaryBuffer(buff, bufflen);
+            ip6_checksum(buff, *filledlen); /* Provided by dnet */
+            return OP_SUCCESS;
         }
+
+        /* Store result in user supplied buffer */
+        *filledlen = i6.dumpToBinaryBuffer(buff, bufflen);
     break;
 
     default:
@@ -873,10 +774,7 @@ int ProbeMode::fillPacketTCP(NpingTarget *target, u16 port, u8 *buff, int buffle
 
 /** This function handles UDP packet creation. However, the final packet that
   * it produces also includes an IP header.
-  * There is one exception. When we are sending IPv6 packet at raw TCP level,
-  * the returned packet does not contain an IPv6 header but the supplied
-  * rawfd socket descriptor is ready to go because some options have been
-  * set on it by doIPv6ThroughSocket(). */
+  */
 int ProbeMode::fillPacketUDP(NpingTarget *target, u16 port, u8 *buff, int bufflen, int *filledlen, int rawfd){
 
  IPv4Header i;
@@ -932,36 +830,18 @@ int ProbeMode::fillPacketUDP(NpingTarget *target, u16 port, u8 *buff, int buffle
     break;
 
     case IP_VERSION_6:
+        /* Fill the IPv6Header object with the info from NpingOps */
+        createIPv6(&i6, &u, "UDP", target);
 
-       if( o.sendEth() ){
-            /* Fill the IPv6Header object with the info from NpingOps */
-            createIPv6(&i6, &u, "UDP", target);
-
-            if( o.getBadsum() == true ){
-                u.setSumRandom();
-                /* Store result in user supplied buffer */
-                *filledlen = i6.dumpToBinaryBuffer(buff, bufflen);
-            }
-            else{
-                *filledlen = i6.dumpToBinaryBuffer(buff, bufflen);
-                ip6_checksum(buff, *filledlen); /* Provided by dnet */
-                return OP_SUCCESS;
-            }
-        }else{
-            doIPv6ThroughSocket(rawfd);
-
-             /* Set some bogus checksum */
-             if( o.getBadsum()==true )
-                u.setSumRandom();
-            /* Set checksum to zero and assume the kernel is gonna set the
-             * right value. If it doesn't, it's not that important since
-             * UDP checksum is optional and can safely be set to zero */
-            else
-                u.setSum(0);
-
-            /* Since we cannot include our own header like we do in IPv4, the
-             * buffer we return is the UDP one. */
-            *filledlen = u.dumpToBinaryBuffer(buff, bufflen);
+        if( o.getBadsum() == true ){
+            u.setSumRandom();
+            /* Store result in user supplied buffer */
+            *filledlen = i6.dumpToBinaryBuffer(buff, bufflen);
+        }
+        else{
+            *filledlen = i6.dumpToBinaryBuffer(buff, bufflen);
+            ip6_checksum(buff, *filledlen); /* Provided by dnet */
+            return OP_SUCCESS;
         }
     break;
 
@@ -1599,14 +1479,6 @@ void ProbeMode::probe_nping_event_handler(nsock_pool nsp, nsock_event nse, void 
 
                 if( mypacket->type==PKT_TYPE_ARP_RAW )
                     getPacketStrInfo("ARP",mypacket->pkt+14, mypacket->pktLen-14, pktinfobuffer, 512);
-                else if ( o.ipv6UsingSocket() ){
-                    size_t sslen;
-                    struct sockaddr_storage ss_src;
-                    struct sockaddr_storage ss_dst;
-                    mypacket->target->getSourceSockAddr(&ss_src, &sslen);
-                    mypacket->target->getTargetSockAddr(&ss_dst, &sslen);
-                    getPacketStrInfo("IPv6_NO_HEADER", mypacket->pkt, mypacket->pktLen, pktinfobuffer, 512, &ss_src, &ss_dst );
-                }
                 else
                     getPacketStrInfo("IP", mypacket->pkt+link_offset, mypacket->pktLen-link_offset, pktinfobuffer, 512);
 

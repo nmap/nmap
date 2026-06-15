@@ -372,7 +372,6 @@ class NpingOps {
     bool issetIPVersion();
     bool ipv4();
     bool ipv6();
-    bool ipv6UsingSocket();
     int af();
 
     /* Privileges */
