@@ -62,6 +62,7 @@
 #include "nping.h"
 #include "ProbeMode.h"
 #include <vector>
+#include <sstream>
 #include "nsock.h"
 #include "output.h"
 #include "NpingOps.h"
@@ -1247,9 +1248,9 @@ int ProbeMode::fillPacketARP(NpingTarget *target, u8 *buff, int bufflen, int *fi
   *  calls will overwrite. */
 const char *ProbeMode::getBPFFilterString(){
 
- char ipstring[128];
- static char filterstring[1024];
- char *buffer=filterstring;
+ char ipstring[INET6_ADDRSTRLEN];
+ std::ostringstream filter;
+ static std::string filterstring;
  u8 icmp_send_type=0;
  u8 icmp_recv_type=0;
  u16 arp_send_type=0;
@@ -1267,27 +1268,24 @@ const char *ProbeMode::getBPFFilterString(){
  size_t dstlen, srclen;
  memset(&srcss, 0, sizeof(struct sockaddr_storage));
  memset(&dstss, 0, sizeof(struct sockaddr_storage));
- memset(buffer, 0, 1024);
- memset(ipstring, 0, 128);
+ memset(ipstring, 0, sizeof(ipstring));
 
  /* If user supplied a BPF from the cmd line, use it */
  if( o.issetBPFFilterSpec() ){
-    buffer=o.getBPFFilterSpec();
-    /* We copy it to our internal static buffer just in case... */
-    if(buffer!=NULL)
-        strncpy(filterstring, buffer, sizeof(filterstring)-1);
-    else
-        strncpy(filterstring, "", 2);
-    nping_print(DBG_1, "BPF-filter: %s", filterstring);
-    return filterstring;
+    const char *buffer=o.getBPFFilterSpec();
+    assert(buffer!=NULL);
+    nping_print(DBG_1, "BPF-filter: %s", buffer);
+    return buffer;
  }
 
  /* For the server in Echo mode we need a special filter */
  if( o.getRole()==ROLE_SERVER ){
     /* Capture all IP packets but the ones that belong to the side-channel */
-    sprintf(filterstring, "ip and ( not (tcp and (dst port %d or src port %d) ) )", o.getEchoPort(), o.getEchoPort() );
-    nping_print(DBG_1, "BPF-filter: %s", filterstring);
-    return filterstring;
+    filter << "ip and (not (tcp and (dst port " << o.getEchoPort();
+    filter << " or src port " << o.getEchoPort() << ")))";
+    filterstring = filter.str();
+    nping_print(DBG_1, "BPF-filter: %s", filterstring.c_str());
+    return filterstring.c_str();
  }
 
  /* Obtain source IP address */
@@ -1335,21 +1333,18 @@ const char *ProbeMode::getBPFFilterString(){
 
  /* Tell the filter that we only want incoming packets, destined to our source IP */
  if(o.getMode()!=ARP){
-     if(src_equals_target)
-         Snprintf(buffer, 1024, "(src host %s and dst host %s) and (", ipstring, ipstring);
-     else
-         Snprintf(buffer, 1024, "(not src host %s and dst host %s) and (", ipstring, ipstring);
-    buffer=filterstring+strlen(filterstring);
+   filter << (src_equals_target ? "(src host " : "(not src host ");
+   filter << ipstring << " and dst host " << ipstring << ") and (";
  }
 
  /* Time for protocol specific constraints */
  switch( o.getMode() ){
     case  TCP: /* Restrict to packets targeting our TCP source port */
-        Snprintf(buffer, 1024-strlen(filterstring), "(tcp and dst port %d) ", o.getSourcePort());
+        filter << "(tcp and dst port " << o.getSourcePort() << ")";
     break;
 
     case  UDP: /* Restrict to packets targeting our UDP source port */
-        Snprintf(buffer, 1024-strlen(filterstring), "(udp and dst port %d) ", o.getSourcePort());
+        filter << "(udp and dst port " << o.getSourcePort() << ")";
     break;
 
     case  ICMP: /* Restrict to packets that are replies to our ICMP packets */
@@ -1394,14 +1389,15 @@ const char *ProbeMode::getBPFFilterString(){
             break;
         }
         /* We have an specific ICMP type to look for */
+        filter << "(icmp and icmp[icmptype]";
         if(!skip_icmp_matching){
-            Snprintf(buffer, 1024-strlen(filterstring), "(icmp and icmp[icmptype] = %d) ", icmp_recv_type);
+            filter << "=" << +icmp_recv_type << ")";
         }else{
             /* If we are sending messages that don't generate responses, receive anything but the type we send.
              * This conflicts in some cases with the conditions added at the end of this functions where we
              * allow ICMP error messages to be received. However, this is not a problem since we are already
              * filtering out our own outgoing packets and the packets that are not for us. */
-            Snprintf(buffer, 1024-strlen(filterstring), "(icmp and icmp[icmptype] != %d) ", icmp_send_type);
+            filter << "!=" << +icmp_send_type << ")";
         }
     break;
 
@@ -1439,27 +1435,31 @@ const char *ProbeMode::getBPFFilterString(){
                 skip_arp_matching=true;
             break;
         }
+        filter << "arp and arp[6]=0 and (arp[7]=";
         if(!skip_arp_matching){
             /* If we are doing DRARP we also want to receive DRARP errors */
-            if(arp_send_type==OP_DRARP_REQUEST || arp_send_type==OP_DRARP_REPLY)
-                Snprintf(buffer, 1024-strlen(filterstring),  "arp and arp[6]==0x00 and (arp[7]==0x%02X or arp[7]==0x%02X)", (u8)arp_recv_type, (u8)OP_DRARP_ERROR);
-            else
-                Snprintf(buffer, 1024-strlen(filterstring),  "arp and arp[6]==0x00 and arp[7]==0x%02X", (u8)arp_recv_type);
+          filter << arp_recv_type;
+          if(arp_send_type==OP_DRARP_REQUEST || arp_send_type==OP_DRARP_REPLY)
+            filter << " or arp[7]=" << OP_DRARP_ERROR;
         }else{
             /* If we are sending things like ATMARP's ARP_NAK, we just skip the type we send and receive all others */
-            Snprintf(buffer, 1024-strlen(filterstring),  "arp and arp[6]==0x00 and arp[7]!=0x%02X", (u8)arp_send_type);
+          filter << arp_send_type;
         }
+        filter << ")";
     break;
   }
 
   /* We also want to get all ICMP error messages */
   if(o.getMode()!=ARP){
-    buffer=filterstring+strlen(filterstring);
-    Snprintf(buffer, 1024-strlen(filterstring), "or (icmp and (icmp[icmptype] = %d or icmp[icmptype] = %d or icmp[icmptype] = %d or icmp[icmptype] = %d or icmp[icmptype] = %d)) )" ,
-                                 ICMP_UNREACH, ICMP_SOURCEQUENCH, ICMP_REDIRECT, ICMP_TIMXCEED, ICMP_PARAMPROB);
+    filter << " or (icmp and (icmp[icmptype]=" << ICMP_UNREACH;
+    filter << " or icmp[icmptype]=" << ICMP_SOURCEQUENCH;
+    filter << " or icmp[icmptype]=" << ICMP_REDIRECT;
+    filter << " or icmp[icmptype]=" << ICMP_TIMXCEED;
+    filter << " or icmp[icmptype]=" << ICMP_PARAMPROB << ")))";
   }
-  nping_print(DBG_1, "BPF-filter: %s", filterstring);
-  return filterstring;
+  filterstring = filter.str();
+  nping_print(DBG_1, "BPF-filter: %s", filterstring.c_str());
+  return filterstring.c_str();
 } /* End of getBPFFilterString() */
 
 
