@@ -2111,6 +2111,16 @@ struct ContentView: View {
                     }
                 }
 
+                HStack(alignment: .top, spacing: 12) {
+                    if let baselineScan = selectedBaselineComparisonScan {
+                        scanComparisonMetadataCard(title: "Baseline Metadata", scan: baselineScan)
+                    }
+
+                    if let comparisonScan = selectedComparisonComparisonScan {
+                        scanComparisonMetadataCard(title: "Comparison Metadata", scan: comparisonScan)
+                    }
+                }
+
                 if baselineCompareScanID == comparisonCompareScanID && baselineCompareScanID != nil {
                     emptyResultsView("Choose two different saved scans.")
                 } else if let comparison = currentScanComparison {
@@ -2121,6 +2131,50 @@ struct ContentView: View {
             }
         }
         .padding()
+    }
+
+    private var selectedBaselineComparisonScan: SavedScan? {
+        guard let baselineCompareScanID else {
+            return nil
+        }
+
+        return scanHistory.savedScans.first { $0.id == baselineCompareScanID }
+    }
+
+    private var selectedComparisonComparisonScan: SavedScan? {
+        guard let comparisonCompareScanID else {
+            return nil
+        }
+
+        return scanHistory.savedScans.first { $0.id == comparisonCompareScanID }
+    }
+
+    private func scanComparisonMetadataCard(title: String, scan: SavedScan) -> some View {
+        GroupBox(title) {
+            VStack(alignment: .leading, spacing: 6) {
+                Text(scan.title)
+                    .font(.headline)
+                    .textSelection(.enabled)
+
+                Text(scan.scannedAt.formatted(date: .abbreviated, time: .shortened))
+                    .foregroundStyle(.secondary)
+
+                Text("Command: \(scan.command)")
+                    .font(.system(.caption, design: .monospaced))
+                    .textSelection(.enabled)
+
+                Text("Hosts: \(scan.hostCount)    Ports: \(scan.portCount)")
+                    .foregroundStyle(.secondary)
+
+                Text("Tags: \(scan.tags.isEmpty ? "(none)" : scan.tags)")
+                    .textSelection(.enabled)
+
+                Text("Notes: \(scan.notes.isEmpty ? "(none)" : scan.notes)")
+                    .textSelection(.enabled)
+                    .lineLimit(4)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+        }
     }
 
     private func scanComparisonSummaryView(_ comparison: ScanComparison) -> some View {
@@ -4838,17 +4892,23 @@ struct ContentView: View {
             "",
             "Baseline Scan:",
             "  \(baselineLabel)",
+            "  Date: \(baselineScan.scannedAt.formatted(date: .abbreviated, time: .standard))",
             "  Command: \(baselineScan.command)",
             "  XML: \(baselineScan.xmlPath)",
             "  Hosts: \(baselineScan.hostCount)",
             "  Ports: \(baselineScan.portCount)",
+            "  Tags: \(baselineScan.tags.isEmpty ? "(none)" : baselineScan.tags)",
+            "  Notes: \(baselineScan.notes.isEmpty ? "(none)" : baselineScan.notes)",
             "",
             "Comparison Scan:",
             "  \(comparisonLabel)",
+            "  Date: \(comparisonScan.scannedAt.formatted(date: .abbreviated, time: .standard))",
             "  Command: \(comparisonScan.command)",
             "  XML: \(comparisonScan.xmlPath)",
             "  Hosts: \(comparisonScan.hostCount)",
             "  Ports: \(comparisonScan.portCount)",
+            "  Tags: \(comparisonScan.tags.isEmpty ? "(none)" : comparisonScan.tags)",
+            "  Notes: \(comparisonScan.notes.isEmpty ? "(none)" : comparisonScan.notes)",
             "",
             "Summary:",
             "  New Hosts: \(comparison.newHosts.count)",
