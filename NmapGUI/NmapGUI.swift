@@ -484,6 +484,7 @@ struct ContentView: View {
     @State private var selectedNSEScriptCategory = "default"
     @State private var selectedNSEScriptName = ""
     @State private var nseScriptHelperMessage = ""
+    @State private var nseScriptArgsText = ""
     
     init() {
         let savedCustomProfiles = Self.loadSavedCustomProfiles() ?? []
@@ -1991,6 +1992,34 @@ struct ContentView: View {
         }
     }
 
+    private var profileNSEScriptArgsRow: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            HStack(spacing: 8) {
+                TextField("key=value,key2=value2", text: $nseScriptArgsText)
+                    .textFieldStyle(.roundedBorder)
+                    .font(.system(.body, design: .monospaced))
+                    .onSubmit {
+                        setProfileScriptArgs(nseScriptArgsText)
+                    }
+
+                Button("Apply") {
+                    setProfileScriptArgs(nseScriptArgsText)
+                }
+                .disabled(nseScriptArgsText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+
+                Button("Clear") {
+                    clearProfileScriptArgs()
+                }
+                .disabled(profileScriptArgsValue().isEmpty && nseScriptArgsText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+            }
+
+            Text(profileScriptArgsHelperText)
+                .font(.caption)
+                .foregroundStyle(profileScriptArgsValue().isEmpty ? Color.secondary : Color.orange)
+                .lineLimit(2)
+        }
+    }
+
     private var nseScriptHelperDisplayText: String {
         nseScriptHelperMessage.isEmpty ? nseScriptHelperStatusText : nseScriptHelperMessage
     }
@@ -2000,6 +2029,15 @@ struct ContentView: View {
         nseScriptHelperMessage.hasPrefix("Already") ||
         nseScriptHelperMessage.hasPrefix("Warning") ||
         nseScriptHelperMessage.hasPrefix("Note")
+    }
+
+    private var profileScriptArgsHelperText: String {
+        let activeValue = profileScriptArgsValue()
+        if !activeValue.isEmpty {
+            return "Active script args: --script-args \(activeValue). Clear removes them from Arguments."
+        }
+
+        return "Optional NSE args. Apply writes --script-args to Arguments. Only use values appropriate for the selected scripts."
     }
 
     private var nseScriptHelperStatusText: String {
@@ -2129,6 +2167,12 @@ struct ContentView: View {
                         Text("Scripts")
                             .foregroundStyle(.secondary)
                         profileNSEScriptRow
+                    }
+
+                    GridRow {
+                        Text("Script Args")
+                            .foregroundStyle(.secondary)
+                        profileNSEScriptArgsRow
                     }
 
                     GridRow {
@@ -3260,6 +3304,7 @@ struct ContentView: View {
         newProfileArguments = profile.arguments
         newProfileDescription = profile.description
         nseScriptHelperMessage = ""
+        nseScriptArgsText = profileScriptArgsValue(from: shellSplit(profile.arguments))
     }
     
     private func profileArgumentsArray() -> [String] {
@@ -3401,6 +3446,92 @@ struct ContentView: View {
         newProfileArguments = updatedArguments.joined(separator: " ")
     }
 
+    private func profileScriptArgsValue() -> String {
+        profileScriptArgsValue(from: profileArgumentsArray())
+    }
+
+    private func profileScriptArgsValue(from argumentsArray: [String]) -> String {
+        var index = 0
+
+        while index < argumentsArray.count {
+            let argument = argumentsArray[index]
+
+            if argument == "--script-args", index + 1 < argumentsArray.count {
+                return argumentsArray[index + 1]
+            }
+
+            if argument.hasPrefix("--script-args=") {
+                return String(argument.dropFirst("--script-args=".count))
+            }
+
+            index += 1
+        }
+
+        return ""
+    }
+
+    private func setProfileScriptArgs(_ value: String) {
+        let trimmedValue = value.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmedValue.isEmpty else {
+            clearProfileScriptArgs()
+            return
+        }
+
+        let argumentsArray = profileArgumentsArray()
+        var updatedArguments: [String] = []
+        var index = 0
+
+        while index < argumentsArray.count {
+            let argument = argumentsArray[index]
+
+            if argument == "--script-args" {
+                index += 2
+                continue
+            }
+
+            if argument.hasPrefix("--script-args=") {
+                index += 1
+                continue
+            }
+
+            updatedArguments.append(argument)
+            index += 1
+        }
+
+        updatedArguments.append("--script-args")
+        updatedArguments.append(trimmedValue)
+        newProfileArguments = updatedArguments.joined(separator: " ")
+        nseScriptArgsText = trimmedValue
+        nseScriptHelperMessage = "Applied --script-args \(trimmedValue) to Arguments. Use Add/Update to save the profile."
+    }
+
+    private func clearProfileScriptArgs() {
+        let argumentsArray = profileArgumentsArray()
+        var updatedArguments: [String] = []
+        var index = 0
+
+        while index < argumentsArray.count {
+            let argument = argumentsArray[index]
+
+            if argument == "--script-args" {
+                index += 2
+                continue
+            }
+
+            if argument.hasPrefix("--script-args=") {
+                index += 1
+                continue
+            }
+
+            updatedArguments.append(argument)
+            index += 1
+        }
+
+        newProfileArguments = updatedArguments.joined(separator: " ")
+        nseScriptArgsText = ""
+        nseScriptHelperMessage = "Cleared --script-args from Arguments."
+    }
+
     private func parseBundledNSEScriptDatabase() -> [NSEScriptEntry] {
         let candidateURLs = [
             Bundle.main.resourceURL?.appendingPathComponent("share/nmap/scripts/script.db"),
@@ -3452,6 +3583,7 @@ struct ContentView: View {
         newProfileArguments = "-sV"
         newProfileDescription = "Custom scan profile."
         nseScriptHelperMessage = ""
+        nseScriptArgsText = ""
     }
     
     private static func loadSavedCustomProfiles() -> [ScanProfile]? {
