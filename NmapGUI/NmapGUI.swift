@@ -3572,6 +3572,20 @@ struct ContentView: View {
         newProfileArguments = updatedArguments.joined(separator: " ")
     }
 
+    private func normalizedProfileScriptArgs(_ value: String) -> String {
+        value
+            .split { character in
+                character == "," || character.isWhitespace
+            }
+            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+            .filter { !$0.isEmpty }
+            .joined(separator: ",")
+    }
+
+    private func isLikelyOrphanScriptArg(_ argument: String) -> Bool {
+        !argument.hasPrefix("-") && argument.contains("=")
+    }
+
     private func profileScriptArgsValue() -> String {
         profileScriptArgsValue(from: profileArgumentsArray())
     }
@@ -3583,11 +3597,20 @@ struct ContentView: View {
             let argument = argumentsArray[index]
 
             if argument == "--script-args", index + 1 < argumentsArray.count {
-                return argumentsArray[index + 1]
+                var values = [argumentsArray[index + 1]]
+                var valueIndex = index + 2
+
+                while valueIndex < argumentsArray.count,
+                      isLikelyOrphanScriptArg(argumentsArray[valueIndex]) {
+                    values.append(argumentsArray[valueIndex])
+                    valueIndex += 1
+                }
+
+                return normalizedProfileScriptArgs(values.joined(separator: ","))
             }
 
             if argument.hasPrefix("--script-args=") {
-                return String(argument.dropFirst("--script-args=".count))
+                return normalizedProfileScriptArgs(String(argument.dropFirst("--script-args=".count)))
             }
 
             index += 1
@@ -3597,7 +3620,7 @@ struct ContentView: View {
     }
 
     private func setProfileScriptArgs(_ value: String) {
-        let trimmedValue = value.trimmingCharacters(in: .whitespacesAndNewlines)
+        let trimmedValue = normalizedProfileScriptArgs(value)
         guard !trimmedValue.isEmpty else {
             clearProfileScriptArgs()
             return
@@ -3612,6 +3635,12 @@ struct ContentView: View {
 
             if argument == "--script-args" {
                 index += 2
+
+                while index < argumentsArray.count,
+                      isLikelyOrphanScriptArg(argumentsArray[index]) {
+                    index += 1
+                }
+
                 continue
             }
 
@@ -3641,6 +3670,12 @@ struct ContentView: View {
 
             if argument == "--script-args" {
                 index += 2
+
+                while index < argumentsArray.count,
+                      isLikelyOrphanScriptArg(argumentsArray[index]) {
+                    index += 1
+                }
+
                 continue
             }
 
