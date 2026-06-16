@@ -261,6 +261,8 @@ struct SavedScan: Identifiable, Hashable, Codable {
     var scannedAt: Date
     var hostCount: Int
     var portCount: Int
+    var notes: String
+    var tags: String
 
     init(
         id: UUID = UUID(),
@@ -269,7 +271,9 @@ struct SavedScan: Identifiable, Hashable, Codable {
         xmlPath: String,
         scannedAt: Date,
         hostCount: Int,
-        portCount: Int
+        portCount: Int,
+        notes: String = "",
+        tags: String = ""
     ) {
         self.id = id
         self.title = title
@@ -278,6 +282,33 @@ struct SavedScan: Identifiable, Hashable, Codable {
         self.scannedAt = scannedAt
         self.hostCount = hostCount
         self.portCount = portCount
+        self.notes = notes
+        self.tags = tags
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case id
+        case title
+        case command
+        case xmlPath
+        case scannedAt
+        case hostCount
+        case portCount
+        case notes
+        case tags
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        id = try container.decode(UUID.self, forKey: .id)
+        title = try container.decode(String.self, forKey: .title)
+        command = try container.decode(String.self, forKey: .command)
+        xmlPath = try container.decode(String.self, forKey: .xmlPath)
+        scannedAt = try container.decode(Date.self, forKey: .scannedAt)
+        hostCount = try container.decode(Int.self, forKey: .hostCount)
+        portCount = try container.decode(Int.self, forKey: .portCount)
+        notes = try container.decodeIfPresent(String.self, forKey: .notes) ?? ""
+        tags = try container.decodeIfPresent(String.self, forKey: .tags) ?? ""
     }
 }
 
@@ -495,6 +526,8 @@ struct ContentView: View {
     @State private var selectedHostID: ScannedHost.ID?
     @State private var resultsFilterText = ""
     @State private var savedScansFilterText = ""
+    @State private var savedScanNotesText = ""
+    @State private var savedScanTagsText = ""
     @State private var didInstallDiagnosticInfoObserver = false
     @State private var selectedNSEScriptCategory = "default"
     @State private var selectedNSEScriptName = ""
@@ -801,6 +834,8 @@ struct ContentView: View {
             scan.title,
             scan.command,
             scan.xmlPath,
+            scan.notes,
+            scan.tags,
             dateText,
             "\(scan.hostCount)",
             "\(scan.portCount)"
@@ -1923,11 +1958,16 @@ struct ContentView: View {
                         TableColumn("Ports") { scan in
                             Text("\(scan.portCount)")
                         }
+                        TableColumn("Tags") { scan in
+                            Text(scan.tags.isEmpty ? "-" : scan.tags)
+                        }
                         TableColumn("XML") { scan in
                             Text(scan.xmlPath)
                                 .font(.system(.body, design: .monospaced))
                         }
                     }
+
+                    savedScanMetadataEditor
                 }
 
                 HStack {
@@ -4528,6 +4568,47 @@ struct ContentView: View {
         return lines.isEmpty ? ["No differences detected."] : lines
     }
 
+    private func loadSelectedSavedScanMetadata() {
+        guard let selectedSavedScan else {
+            savedScanNotesText = ""
+            savedScanTagsText = ""
+            return
+        }
+
+        savedScanNotesText = selectedSavedScan.notes
+        savedScanTagsText = selectedSavedScan.tags
+    }
+
+    private func saveSelectedSavedScanMetadata() {
+        guard let selectedSavedScanID = scanHistory.selectedSavedScanID,
+              let scanIndex = scanHistory.savedScans.firstIndex(where: { $0.id == selectedSavedScanID }) else {
+            return
+        }
+
+        var updatedScans = scanHistory.savedScans
+        updatedScans[scanIndex].notes = savedScanNotesText.trimmingCharacters(in: .whitespacesAndNewlines)
+        updatedScans[scanIndex].tags = normalizedSavedScanTags(savedScanTagsText)
+        scanHistory.savedScans = updatedScans
+        loadSelectedSavedScanMetadata()
+        output += "\nSaved notes for saved scan: \(updatedScans[scanIndex].title)"
+    }
+
+    private func clearSelectedSavedScanMetadata() {
+        savedScanNotesText = ""
+        savedScanTagsText = ""
+        saveSelectedSavedScanMetadata()
+    }
+
+    private func normalizedSavedScanTags(_ tags: String) -> String {
+        tags
+            .split { character in
+                character == "," || character.isWhitespace
+            }
+            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+            .filter { !$0.isEmpty }
+            .joined(separator: ", ")
+    }
+
     private func reloadSelectedSavedScan() {
         guard let selectedSavedScanID = scanHistory.selectedSavedScanID else {
             return
@@ -4658,6 +4739,8 @@ struct ContentView: View {
             "Command: \(savedScan.command)",
             "Hosts: \(savedScan.hostCount)",
             "Ports: \(savedScan.portCount)",
+            "Tags: \(savedScan.tags.isEmpty ? "(none)" : savedScan.tags)",
+            "Notes: \(savedScan.notes.isEmpty ? "(none)" : savedScan.notes)",
             "XML: \(savedScan.xmlPath)"
         ].joined(separator: "\n")
     }
@@ -4694,6 +4777,69 @@ struct ContentView: View {
         scanHistory.removeSavedScan(id: selectedSavedScanID, deleteFile: true)
     }
     
+    private var selectedSavedScan: SavedScan? {
+        guard let selectedSavedScanID = scanHistory.selectedSavedScanID else {
+            return nil
+        }
+
+        return scanHistory.savedScans.first { $0.id == selectedSavedScanID }
+    }
+
+    private var savedScanMetadataEditor: some View {
+        GroupBox("Saved Scan Notes") {
+            if let selectedSavedScan {
+                VStack(alignment: .leading, spacing: 8) {
+                    HStack {
+                        Text(selectedSavedScan.title)
+                            .font(.headline)
+
+                        Spacer()
+
+                        Text(selectedSavedScan.scannedAt.formatted(date: .abbreviated, time: .shortened))
+                            .foregroundStyle(.secondary)
+                    }
+
+                    TextField("Tags, comma separated", text: $savedScanTagsText)
+                        .textFieldStyle(.roundedBorder)
+
+                    TextEditor(text: $savedScanNotesText)
+                        .font(.body)
+                        .frame(minHeight: 70)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 6)
+                                .stroke(.quaternary)
+                        )
+
+                    HStack {
+                        Button {
+                            saveSelectedSavedScanMetadata()
+                        } label: {
+                            Label("Save Notes", systemImage: "square.and.arrow.down")
+                        }
+
+                        Button {
+                            clearSelectedSavedScanMetadata()
+                        } label: {
+                            Label("Clear Notes", systemImage: "eraser")
+                        }
+                        .disabled(savedScanNotesText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty && savedScanTagsText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+
+                        Spacer()
+                    }
+                }
+            } else {
+                Text("Select a saved scan to add notes or tags.")
+                    .foregroundStyle(.secondary)
+            }
+        }
+        .onChange(of: scanHistory.selectedSavedScanID) { _, _ in
+            loadSelectedSavedScanMetadata()
+        }
+        .onAppear {
+            loadSelectedSavedScanMetadata()
+        }
+    }
+
     private var savedScansFilterBar: some View {
         HStack(spacing: 8) {
             Image(systemName: "magnifyingglass")
