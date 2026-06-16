@@ -6,7 +6,7 @@ import UniformTypeIdentifiers
 import Darwin
  
 @main
-struct NmapGUIApp: App {
+struct ZenmapApp: App {
     @StateObject private var scanHistory = ScanHistoryStore()
 
     var body: some Scene {
@@ -43,7 +43,7 @@ struct NmapGUIApp: App {
                 Divider()
 
                 Button("Copy Diagnostic Info") {
-                    NotificationCenter.default.post(name: .nmapGUICopyDiagnosticInfo, object: nil)
+                    NotificationCenter.default.post(name: .zenmapCopyDiagnosticInfo, object: nil)
                 }
 
                 Button("Report a Bug") {
@@ -58,27 +58,27 @@ struct NmapGUIApp: App {
                 Divider()
 
                 Button("Find in Output...") {
-                    NotificationCenter.default.post(name: .nmapGUIFindOutput, object: nil)
+                    NotificationCenter.default.post(name: .zenmapFindOutput, object: nil)
                 }
                 .keyboardShortcut("f", modifiers: [.command])
 
                 Button("Copy Output") {
-                    NotificationCenter.default.post(name: .nmapGUICopyOutput, object: nil)
+                    NotificationCenter.default.post(name: .zenmapCopyOutput, object: nil)
                 }
                 .keyboardShortcut("c", modifiers: [.command, .shift])
 
                 Button("Clear Output") {
-                    NotificationCenter.default.post(name: .nmapGUIClearOutput, object: nil)
+                    NotificationCenter.default.post(name: .zenmapClearOutput, object: nil)
                 }
             }
             CommandGroup(after: .newItem) {
                 Button("Open Scan...") {
-                    NotificationCenter.default.post(name: .nmapGUIOpenXML, object: nil)
+                    NotificationCenter.default.post(name: .zenmapOpenXML, object: nil)
                 }
                 .keyboardShortcut("o", modifiers: [.command])
 
                 Button("Open Scan in This Window...") {
-                    NotificationCenter.default.post(name: .nmapGUIOpenXML, object: nil)
+                    NotificationCenter.default.post(name: .zenmapOpenXML, object: nil)
                 }
 
                 Menu("Recent Scans") {
@@ -87,7 +87,7 @@ struct NmapGUIApp: App {
                     } else {
                         ForEach(scanHistory.savedScans.prefix(10)) { scan in
                             Button(scan.title) {
-                                NotificationCenter.default.post(name: .nmapGUIOpenRecentScan, object: scan.id)
+                                NotificationCenter.default.post(name: .zenmapOpenRecentScan, object: scan.id)
                             }
                         }
 
@@ -102,64 +102,64 @@ struct NmapGUIApp: App {
                 Divider()
 
                 Button("Save Scan") {
-                    NotificationCenter.default.post(name: .nmapGUISaveXML, object: nil)
+                    NotificationCenter.default.post(name: .zenmapSaveXML, object: nil)
                 }
                 .keyboardShortcut("s", modifiers: [.command])
 
                 Button("Save All Scans to Directory...") {
-                    NotificationCenter.default.post(name: .nmapGUISaveAllScans, object: nil)
+                    NotificationCenter.default.post(name: .zenmapSaveAllScans, object: nil)
                 }
                 .keyboardShortcut("s", modifiers: [.command, .shift])
 
                 Divider()
 
                 Button("Print...") {
-                    NotificationCenter.default.post(name: .nmapGUIPrintOutput, object: nil)
+                    NotificationCenter.default.post(name: .zenmapPrintOutput, object: nil)
                 }
                 .keyboardShortcut("p", modifiers: [.command])
             }
             CommandMenu("Scan") {
                 Button("Start Scan") {
-                    NotificationCenter.default.post(name: .nmapGUIStartScan, object: nil)
+                    NotificationCenter.default.post(name: .zenmapStartScan, object: nil)
                 }
                 .keyboardShortcut("r", modifiers: [.command])
 
                 Button("Stop Scan") {
-                    NotificationCenter.default.post(name: .nmapGUIStopScan, object: nil)
+                    NotificationCenter.default.post(name: .zenmapStopScan, object: nil)
                 }
                 .keyboardShortcut(".", modifiers: [.command])
 
                 Divider()
 
                 Button("Clear Results") {
-                    NotificationCenter.default.post(name: .nmapGUIClearResults, object: nil)
+                    NotificationCenter.default.post(name: .zenmapClearResults, object: nil)
                 }
                 .keyboardShortcut("k", modifiers: [.command, .shift])
 
                 Divider()
 
                 Button("Show Output") {
-                    NotificationCenter.default.post(name: .nmapGUIShowTab, object: "Output")
+                    NotificationCenter.default.post(name: .zenmapShowTab, object: "Output")
                 }
                 .keyboardShortcut("1", modifiers: [.command])
 
                 Button("Show Hosts") {
-                    NotificationCenter.default.post(name: .nmapGUIShowTab, object: "Hosts")
+                    NotificationCenter.default.post(name: .zenmapShowTab, object: "Hosts")
                 }
                 .keyboardShortcut("2", modifiers: [.command])
 
                 Button("Show Ports") {
-                    NotificationCenter.default.post(name: .nmapGUIShowTab, object: "Ports")
+                    NotificationCenter.default.post(name: .zenmapShowTab, object: "Ports")
                 }
                 .keyboardShortcut("3", modifiers: [.command])
 
                 Button("Show Services") {
-                    NotificationCenter.default.post(name: .nmapGUIShowTab, object: "Services")
+                    NotificationCenter.default.post(name: .zenmapShowTab, object: "Services")
                 }
                 .keyboardShortcut("4", modifiers: [.command])
 
                 Button("Show Details") {
-                    NotificationCenter.default.post(name: .nmapGUIShowTab, object: "Details")
+                    NotificationCenter.default.post(name: .zenmapShowTab, object: "Details")
                 }
                 .keyboardShortcut("5", modifiers: [.command])
             }
@@ -181,19 +181,19 @@ struct NewWindowCommands: Commands {
 }
 
 extension Notification.Name {
-    static let nmapGUICopyDiagnosticInfo = Notification.Name("nmapGUICopyDiagnosticInfo")
-    static let nmapGUIOpenXML = Notification.Name("NmapGUIOpenXML")
-    static let nmapGUIOpenRecentScan = Notification.Name("NmapGUIOpenRecentScan")
-    static let nmapGUISaveXML = Notification.Name("NmapGUISaveXML")
-    static let nmapGUISaveAllScans = Notification.Name("NmapGUISaveAllScans")
-    static let nmapGUIPrintOutput = Notification.Name("NmapGUIPrintOutput")
-    static let nmapGUIFindOutput = Notification.Name("NmapGUIFindOutput")
-    static let nmapGUICopyOutput = Notification.Name("NmapGUICopyOutput")
-    static let nmapGUIClearOutput = Notification.Name("NmapGUIClearOutput")
-    static let nmapGUIStartScan = Notification.Name("NmapGUIStartScan")
-    static let nmapGUIStopScan = Notification.Name("NmapGUIStopScan")
-    static let nmapGUIClearResults = Notification.Name("NmapGUIClearResults")
-    static let nmapGUIShowTab = Notification.Name("NmapGUIShowTab")
+    static let zenmapCopyDiagnosticInfo = Notification.Name("zenmapCopyDiagnosticInfo")
+    static let zenmapOpenXML = Notification.Name("ZenmapOpenXML")
+    static let zenmapOpenRecentScan = Notification.Name("ZenmapOpenRecentScan")
+    static let zenmapSaveXML = Notification.Name("ZenmapSaveXML")
+    static let zenmapSaveAllScans = Notification.Name("ZenmapSaveAllScans")
+    static let zenmapPrintOutput = Notification.Name("ZenmapPrintOutput")
+    static let zenmapFindOutput = Notification.Name("ZenmapFindOutput")
+    static let zenmapCopyOutput = Notification.Name("ZenmapCopyOutput")
+    static let zenmapClearOutput = Notification.Name("ZenmapClearOutput")
+    static let zenmapStartScan = Notification.Name("ZenmapStartScan")
+    static let zenmapStopScan = Notification.Name("ZenmapStopScan")
+    static let zenmapClearResults = Notification.Name("ZenmapClearResults")
+    static let zenmapShowTab = Notification.Name("ZenmapShowTab")
 }
 
 struct ScanProfile: Identifiable, Hashable, Codable {
@@ -313,7 +313,7 @@ struct SavedScan: Identifiable, Hashable, Codable {
 }
 
 final class ScanHistoryStore: ObservableObject {
-    private static let savedScansDefaultsKey = "NmapGUI.SavedScans"
+    private static let savedScansDefaultsKey = "Zenmap.SavedScans"
 
     @Published var savedScans: [SavedScan] = [] {
         didSet {
@@ -417,14 +417,14 @@ private extension JSONDecoder {
 
 struct ContentView: View {
     @EnvironmentObject private var scanHistory: ScanHistoryStore
-    private static let customProfilesDefaultsKey = "NmapGUI.CustomProfiles"
+    private static let customProfilesDefaultsKey = "Zenmap.CustomProfiles"
     private let elapsedTimer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
 
-    @AppStorage("NmapGUI.AutoAddVerbose") private var autoAddVerbose = true
-    @AppStorage("NmapGUI.AutoAddStatsEvery") private var autoAddStatsEvery = true
-    @AppStorage("NmapGUI.StatsEveryValue") private var statsEveryValue = "5s"
-    @AppStorage("NmapGUI.DefaultTarget") private var defaultTarget = "scanme.nmap.org"
-    @AppStorage("NmapGUI.DefaultProfileName") private var defaultProfileName = "Service Detection"
+    @AppStorage("Zenmap.AutoAddVerbose") private var autoAddVerbose = true
+    @AppStorage("Zenmap.AutoAddStatsEvery") private var autoAddStatsEvery = true
+    @AppStorage("Zenmap.StatsEveryValue") private var statsEveryValue = "5s"
+    @AppStorage("Zenmap.DefaultTarget") private var defaultTarget = "scanme.nmap.org"
+    @AppStorage("Zenmap.DefaultProfileName") private var defaultProfileName = "Service Detection"
 
     private static let builtInProfiles: [ScanProfile] = [
         ScanProfile(
@@ -488,7 +488,7 @@ struct ContentView: View {
     @State private var profiles: [ScanProfile] = Self.builtInProfiles
     
     @State private var selectedProfile: ScanProfile
-    @State private var target = UserDefaults.standard.string(forKey: "NmapGUI.DefaultTarget") ?? "scanme.nmap.org"
+    @State private var target = UserDefaults.standard.string(forKey: "Zenmap.DefaultTarget") ?? "scanme.nmap.org"
     @State private var arguments = "-sV"
     @State private var newProfileName = ""
     @State private var newProfileArguments = "-sV"
@@ -546,7 +546,7 @@ struct ContentView: View {
     init() {
         let savedCustomProfiles = Self.loadSavedCustomProfiles() ?? []
         let allProfiles = Self.builtInProfiles + savedCustomProfiles
-        let savedDefaultProfileName = UserDefaults.standard.string(forKey: "NmapGUI.DefaultProfileName") ?? "Service Detection"
+        let savedDefaultProfileName = UserDefaults.standard.string(forKey: "Zenmap.DefaultProfileName") ?? "Service Detection"
         let defaultProfile = allProfiles.first { $0.name == savedDefaultProfileName }
             ?? allProfiles.first { $0.name == "Service Detection" }
             ?? allProfiles.first
@@ -1036,64 +1036,64 @@ struct ContentView: View {
         .onReceive(elapsedTimer) { _ in
             updateScanElapsedTime()
         }
-        .onReceive(NotificationCenter.default.publisher(for: .nmapGUIOpenXML)) { _ in
+        .onReceive(NotificationCenter.default.publisher(for: .zenmapOpenXML)) { _ in
             guard !isRunning else {
                 return
             }
             openXML()
         }
-        .onReceive(NotificationCenter.default.publisher(for: .nmapGUIOpenRecentScan)) { notification in
+        .onReceive(NotificationCenter.default.publisher(for: .zenmapOpenRecentScan)) { notification in
             guard !isRunning,
                   let savedScanID = notification.object as? SavedScan.ID else {
                 return
             }
             reloadSavedScan(id: savedScanID)
         }
-        .onReceive(NotificationCenter.default.publisher(for: .nmapGUISaveXML)) { _ in
+        .onReceive(NotificationCenter.default.publisher(for: .zenmapSaveXML)) { _ in
             saveCurrentXML()
         }
-        .onReceive(NotificationCenter.default.publisher(for: .nmapGUISaveAllScans)) { _ in
+        .onReceive(NotificationCenter.default.publisher(for: .zenmapSaveAllScans)) { _ in
             saveAllScansToDirectory()
         }
-        .onReceive(NotificationCenter.default.publisher(for: .nmapGUIPrintOutput)) { _ in
+        .onReceive(NotificationCenter.default.publisher(for: .zenmapPrintOutput)) { _ in
             printOutput()
         }
-        .onReceive(NotificationCenter.default.publisher(for: .nmapGUIFindOutput)) { _ in
+        .onReceive(NotificationCenter.default.publisher(for: .zenmapFindOutput)) { _ in
             selectedTab = "Output"
             isOutputFindVisible = true
             DispatchQueue.main.async {
                 isOutputFindFocused = true
             }
         }
-        .onReceive(NotificationCenter.default.publisher(for: .nmapGUICopyOutput)) { _ in
+        .onReceive(NotificationCenter.default.publisher(for: .zenmapCopyOutput)) { _ in
             copyOutput()
         }
-        .onReceive(NotificationCenter.default.publisher(for: .nmapGUIClearOutput)) { _ in
+        .onReceive(NotificationCenter.default.publisher(for: .zenmapClearOutput)) { _ in
             guard !isRunning else {
                 return
             }
             output = ""
         }
-        .onReceive(NotificationCenter.default.publisher(for: .nmapGUIStartScan)) { _ in
+        .onReceive(NotificationCenter.default.publisher(for: .zenmapStartScan)) { _ in
             guard !isRunning,
                   !target.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
                 return
             }
             runScan()
         }
-        .onReceive(NotificationCenter.default.publisher(for: .nmapGUIStopScan)) { _ in
+        .onReceive(NotificationCenter.default.publisher(for: .zenmapStopScan)) { _ in
             guard isRunning else {
                 return
             }
             stopScan()
         }
-        .onReceive(NotificationCenter.default.publisher(for: .nmapGUIClearResults)) { _ in
+        .onReceive(NotificationCenter.default.publisher(for: .zenmapClearResults)) { _ in
             guard !isRunning else {
                 return
             }
             clearResults()
         }
-        .onReceive(NotificationCenter.default.publisher(for: .nmapGUIShowTab)) { notification in
+        .onReceive(NotificationCenter.default.publisher(for: .zenmapShowTab)) { notification in
             guard let tabName = notification.object as? String else {
                 return
             }
@@ -1112,7 +1112,7 @@ struct ContentView: View {
 
         didInstallDiagnosticInfoObserver = true
         NotificationCenter.default.addObserver(
-            forName: .nmapGUICopyDiagnosticInfo,
+            forName: .zenmapCopyDiagnosticInfo,
             object: nil,
             queue: .main
         ) { _ in
@@ -3572,7 +3572,7 @@ struct ContentView: View {
         }
 
         let xmlURL = FileManager.default.temporaryDirectory
-            .appendingPathComponent("NmapGUI-\(UUID().uuidString).xml")
+            .appendingPathComponent("Zenmap-\(UUID().uuidString).xml")
         var args = shellSplit(arguments)
         if autoAddStatsEvery && !args.contains("--stats-every") && !args.contains(where: { $0.hasPrefix("--stats-every=") }) {
             args.append(contentsOf: ["--stats-every", statsEveryValue])
@@ -3769,13 +3769,13 @@ struct ContentView: View {
         }
 
         let logURL = FileManager.default.temporaryDirectory
-            .appendingPathComponent("NmapGUI-\(UUID().uuidString)-privileged.log")
+            .appendingPathComponent("Zenmap-\(UUID().uuidString)-privileged.log")
         let statusURL = FileManager.default.temporaryDirectory
-            .appendingPathComponent("NmapGUI-\(UUID().uuidString)-privileged.status")
+            .appendingPathComponent("Zenmap-\(UUID().uuidString)-privileged.status")
         let doneURL = FileManager.default.temporaryDirectory
-            .appendingPathComponent("NmapGUI-\(UUID().uuidString)-privileged.done")
+            .appendingPathComponent("Zenmap-\(UUID().uuidString)-privileged.done")
         let childPIDURL = FileManager.default.temporaryDirectory
-            .appendingPathComponent("NmapGUI-\(UUID().uuidString)-privileged.childpid")
+            .appendingPathComponent("Zenmap-\(UUID().uuidString)-privileged.childpid")
 
         var privilegedStartupLines: [String]
         do {
@@ -4673,7 +4673,7 @@ struct ContentView: View {
         let nmapVersion = nmapVersionText(nmapPath: nmapPath, nmapDirectory: nmapDirectory)
 
         return [
-            "NmapGUI Diagnostic Info",
+            "Zenmap Diagnostic Info",
             "",
             "App:",
             "Bundle: \(bundlePath)",
@@ -4913,7 +4913,7 @@ struct ContentView: View {
         }
 
         return applicationSupportURL
-            .appendingPathComponent("NmapGUI", isDirectory: true)
+            .appendingPathComponent("Zenmap", isDirectory: true)
             .appendingPathComponent("SavedScans", isDirectory: true)
     }
 
