@@ -428,7 +428,7 @@ struct ContentView: View {
         ),
         ScanProfile(
             name: "Slow Comprehensive Scan",
-            arguments: "-sS -sU -T4 -A -v -PE -PP -PS80,443 -PA3389 -PU40125 -PY -g 53 --script default or safe",
+            arguments: "-sS -sU -T4 -A -v -PE -PP -PS80,443 -PA3389 -PU40125 -PY -g 53 --script default,safe",
             description: "Broad scan inspired by classic Zenmap profiles."
         ),
         ScanProfile(
