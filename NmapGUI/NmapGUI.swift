@@ -803,6 +803,13 @@ struct ContentView: View {
         var id: String { name }
     }
 
+    private struct NSEScriptDetails {
+        let name: String
+        let categories: [String]
+        let path: String
+        let description: String
+    }
+
     private var nseScriptCategories: [String] {
         let parsedCategories = Set(nseScriptEntries.flatMap { $0.categories })
         let fallbackCategories = Set(["default", "safe", "vuln", "auth", "discovery", "version", "all"])
@@ -812,6 +819,14 @@ struct ContentView: View {
     private var filteredNSEScriptEntries: [NSEScriptEntry] {
         let entries = nseScriptEntries.filter { $0.categories.contains(selectedNSEScriptCategory) }
         return entries.isEmpty ? nseScriptEntries : entries
+    }
+
+    private var selectedNSEScriptDetails: NSEScriptDetails? {
+        guard !selectedNSEScriptName.isEmpty else {
+            return nil
+        }
+
+        return loadNSEScriptDetails(named: selectedNSEScriptName)
     }
 
     private var selectedHost: ScannedHost? {
@@ -1995,7 +2010,43 @@ struct ContentView: View {
                 .font(.caption)
                 .foregroundStyle(nseScriptHelperDisplayIsWarning ? Color.orange : Color.secondary)
                 .lineLimit(2)
+
+            if let selectedNSEScriptDetails {
+                nseScriptDetailsView(selectedNSEScriptDetails)
+            }
         }
+    }
+
+    private func nseScriptDetailsView(_ details: NSEScriptDetails) -> some View {
+        VStack(alignment: .leading, spacing: 6) {
+            HStack {
+                Text(details.name)
+                    .font(.caption.bold())
+
+                if !details.categories.isEmpty {
+                    Text(details.categories.joined(separator: ", "))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+
+                Spacer()
+            }
+
+            Text(details.description.isEmpty ? "No description found in bundled NSE script." : details.description)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .lineLimit(4)
+                .textSelection(.enabled)
+
+            Text(details.path)
+                .font(.system(.caption2, design: .monospaced))
+                .foregroundStyle(.tertiary)
+                .lineLimit(1)
+                .truncationMode(.middle)
+                .textSelection(.enabled)
+        }
+        .padding(8)
+        .background(.quaternary.opacity(0.35), in: RoundedRectangle(cornerRadius: 8))
     }
 
     private var profileNSEScriptArgsRow: some View {
@@ -3581,6 +3632,91 @@ struct ContentView: View {
             return NSEScriptEntry(name: name, categories: categories)
         }
         .sorted { $0.name < $1.name }
+    }
+
+    private func loadNSEScriptDetails(named scriptName: String) -> NSEScriptDetails? {
+        let candidateURLs = nseScriptFileCandidateURLs(named: scriptName)
+        let categories = nseScriptEntries.first(where: { $0.name == scriptName })?.categories ?? []
+
+        guard let scriptURL = candidateURLs.first(where: { FileManager.default.fileExists(atPath: $0.path) }) else {
+            return NSEScriptDetails(
+                name: scriptName,
+                categories: categories,
+                path: "Bundled NSE script file not found.",
+                description: ""
+            )
+        }
+
+        let scriptText = (try? String(contentsOf: scriptURL, encoding: .utf8)) ?? ""
+
+        return NSEScriptDetails(
+            name: scriptName,
+            categories: categories,
+            path: scriptURL.path,
+            description: nseScriptDescription(from: scriptText)
+        )
+    }
+
+    private func nseScriptFileCandidateURLs(named scriptName: String) -> [URL] {
+        let filename = scriptName.hasSuffix(".nse") ? scriptName : "\(scriptName).nse"
+        var urls: [URL] = []
+
+        if let resourceURL = Bundle.main.resourceURL {
+            urls.append(resourceURL.appendingPathComponent("share/nmap/scripts/\(filename)"))
+            urls.append(resourceURL.appendingPathComponent("scripts/\(filename)"))
+            urls.append(resourceURL.appendingPathComponent(filename))
+        }
+
+        if let nmapPath = nmapBinaryPath() {
+            urls.append(URL(fileURLWithPath: nmapDataDirectory(for: nmapPath)).appendingPathComponent("scripts/\(filename)"))
+        }
+
+        urls.append(URL(fileURLWithPath: "/Applications/nmap.app/Contents/Resources/share/nmap/scripts/\(filename)"))
+        urls.append(URL(fileURLWithPath: "/usr/local/share/nmap/scripts/\(filename)"))
+        urls.append(URL(fileURLWithPath: "/opt/homebrew/share/nmap/scripts/\(filename)"))
+
+        return urls
+    }
+
+    private func nseScriptDescription(from scriptText: String) -> String {
+        if let bracketDescription = firstMatch(
+            in: scriptText,
+            pattern: #"description\s*=\s*\[\[(.*?)\]\]"#,
+            options: [.dotMatchesLineSeparators]
+        ) {
+            return cleanNSEScriptDescription(bracketDescription)
+        }
+
+        if let quotedDescription = firstMatch(
+            in: scriptText,
+            pattern: #"description\s*=\s*"([^"]*)""#
+        ) {
+            return cleanNSEScriptDescription(quotedDescription)
+        }
+
+        return ""
+    }
+
+    private func firstMatch(in text: String, pattern: String, options: NSRegularExpression.Options = []) -> String? {
+        guard let regex = try? NSRegularExpression(pattern: pattern, options: options) else {
+            return nil
+        }
+
+        let nsText = text as NSString
+        guard let match = regex.firstMatch(in: text, range: NSRange(location: 0, length: nsText.length)),
+              match.numberOfRanges > 1 else {
+            return nil
+        }
+
+        return nsText.substring(with: match.range(at: 1))
+    }
+
+    private func cleanNSEScriptDescription(_ description: String) -> String {
+        description
+            .components(separatedBy: .newlines)
+            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+            .filter { !$0.isEmpty }
+            .joined(separator: " ")
     }
 
     private func clearProfileEditor() {
