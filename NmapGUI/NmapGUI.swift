@@ -321,6 +321,7 @@ final class ScanHistoryStore: ObservableObject {
         }
     }
     @Published var selectedSavedScanID: SavedScan.ID?
+    @Published var selectedSavedScanIDs: Set<SavedScan.ID> = []
 
     init() {
         savedScans = Self.loadSavedScans()
@@ -335,6 +336,7 @@ final class ScanHistoryStore: ObservableObject {
 
         savedScans.removeAll()
         selectedSavedScanID = nil
+        selectedSavedScanIDs.removeAll()
     }
 
     func removeSavedScan(id savedScanID: SavedScan.ID, deleteFile: Bool = false) {
@@ -2345,8 +2347,8 @@ struct ContentView: View {
                 } label: {
                     Image(systemName: "trash")
                 }
-                .help("Remove Selected Scan")
-                .disabled(scanHistory.selectedSavedScanID == nil)
+                .help("Remove Selected Scan(s)")
+                .disabled(selectedSavedScanIDsForDeletion.isEmpty)
             }
             if scanHistory.savedScans.isEmpty {
                 emptyResultsView("Completed scans and opened XML files will appear here for quick reload during this app session.")
@@ -2356,7 +2358,7 @@ struct ContentView: View {
                 if filteredSavedScans.isEmpty {
                     emptyResultsView("No saved scans match the current filter.")
                 } else {
-                    Table(filteredSavedScans, selection: $scanHistory.selectedSavedScanID) {
+                    Table(filteredSavedScans, selection: $scanHistory.selectedSavedScanIDs) {
                         TableColumn("Date") { scan in
                             Text(scan.scannedAt.formatted(date: .abbreviated, time: .shortened))
                         }
@@ -2415,6 +2417,9 @@ struct ContentView: View {
                         openSelectedSavedScanExternally()
                     }
                     .disabled(scanHistory.selectedSavedScanID == nil)
+                }
+                .onChange(of: scanHistory.selectedSavedScanIDs) { _, selectedIDs in
+                    syncPrimarySavedScanSelection(selectedIDs)
                 }
 
 
@@ -4754,6 +4759,7 @@ struct ContentView: View {
         scanHistory.savedScans.removeAll { $0.xmlPath == durableXMLPath }
         scanHistory.savedScans.insert(savedScan, at: 0)
         scanHistory.selectedSavedScanID = savedScan.id
+        scanHistory.selectedSavedScanIDs = [savedScan.id]
     }
 
     private func copyXMLToSavedScansDirectory(sourcePath: String, title: String) -> String? {
@@ -5235,6 +5241,7 @@ struct ContentView: View {
         }
 
         scanHistory.selectedSavedScanID = savedScanID
+        scanHistory.selectedSavedScanIDs = [savedScanID]
 
         let url = URL(fileURLWithPath: savedScan.xmlPath)
         let parsedHosts = parseNmapXML(at: url)
@@ -5321,16 +5328,55 @@ struct ContentView: View {
 
         if let newestImportedScan = importedScans.sorted(by: { $0.scannedAt > $1.scannedAt }).first {
             scanHistory.selectedSavedScanID = newestImportedScan.id
+            scanHistory.selectedSavedScanIDs = [newestImportedScan.id]
             loadSelectedSavedScanMetadata()
         }
     }
 
-    private func deleteSelectedSavedScan() {
-        guard let selectedSavedScanID = scanHistory.selectedSavedScanID else {
+    private var selectedSavedScanIDsForDeletion: Set<SavedScan.ID> {
+        if !scanHistory.selectedSavedScanIDs.isEmpty {
+            return scanHistory.selectedSavedScanIDs
+        }
+
+        if let selectedSavedScanID = scanHistory.selectedSavedScanID {
+            return [selectedSavedScanID]
+        }
+
+        return []
+    }
+
+    private func syncPrimarySavedScanSelection(_ selectedIDs: Set<SavedScan.ID>) {
+        guard !selectedIDs.isEmpty else {
+            scanHistory.selectedSavedScanID = nil
+            loadSelectedSavedScanMetadata()
             return
         }
 
-        scanHistory.removeSavedScan(id: selectedSavedScanID, deleteFile: true)
+        if let selectedSavedScanID = scanHistory.selectedSavedScanID,
+           selectedIDs.contains(selectedSavedScanID) {
+            loadSelectedSavedScanMetadata()
+            return
+        }
+
+        scanHistory.selectedSavedScanID = scanHistory.savedScans.first { selectedIDs.contains($0.id) }?.id
+        loadSelectedSavedScanMetadata()
+    }
+
+    private func deleteSelectedSavedScan() {
+        let selectedIDs = selectedSavedScanIDsForDeletion
+        guard !selectedIDs.isEmpty else {
+            return
+        }
+
+        for savedScanID in selectedIDs {
+            scanHistory.removeSavedScan(id: savedScanID, deleteFile: true)
+        }
+
+        scanHistory.selectedSavedScanIDs.removeAll()
+        scanHistory.selectedSavedScanID = nil
+        loadSelectedSavedScanMetadata()
+
+        output += "\nDeleted \(selectedIDs.count) saved scan\(selectedIDs.count == 1 ? "" : "s")."
     }
     
     private var selectedSavedScan: SavedScan? {
