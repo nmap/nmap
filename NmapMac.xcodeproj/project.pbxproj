@@ -2426,11 +2426,6 @@
 		2F489AA62FDF4D0B00DBE74E /* nmap_dns_test.cc */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = nmap_dns_test.cc; sourceTree = "<group>"; };
 		2F489AA82FDF4D0B00DBE74E /* build-nmap-macos.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = "build-nmap-macos.sh"; sourceTree = "<group>"; };
 		2F489AA92FDF4D0B00DBE74E /* clean-nmap-macos.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = "clean-nmap-macos.sh"; sourceTree = "<group>"; };
-		2F489AAA2FDF4D0B00DBE74E /* package-zenmap-macos.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = "package-zenmap-macos.sh"; sourceTree = "<group>"; };
-		2F489AAB2FDF4D0B00DBE74E /* pkg-nmap-macos.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = "pkg-nmap-macos.sh"; sourceTree = "<group>"; };
-		2F489AAC2FDF4D0B00DBE74E /* release-nmap-cli-macos.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = "release-nmap-cli-macos.sh"; sourceTree = "<group>"; };
-		2F489AAD2FDF4D0B00DBE74E /* release-zenmap-macos.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = "release-zenmap-macos.sh"; sourceTree = "<group>"; };
-		2F489AAE2FDF4D0B00DBE74E /* stage-nmap-replacement-root-macos.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = "stage-nmap-replacement-root-macos.sh"; sourceTree = "<group>"; };
 		2F489AB12FDF4D0B00DBE74E /* gtkrc */ = {isa = PBXFileReference; lastKnownFileType = text; path = gtkrc; sourceTree = "<group>"; };
 		2F489AB22FDF4D0B00DBE74E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		2F489AB32FDF4D0B00DBE74E /* launcher.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = launcher.sh; sourceTree = "<group>"; };
@@ -6053,11 +6048,6 @@
 			children = (
 				2F489AA82FDF4D0B00DBE74E /* build-nmap-macos.sh */,
 				2F489AA92FDF4D0B00DBE74E /* clean-nmap-macos.sh */,
-				2F489AAA2FDF4D0B00DBE74E /* package-zenmap-macos.sh */,
-				2F489AAB2FDF4D0B00DBE74E /* pkg-nmap-macos.sh */,
-				2F489AAC2FDF4D0B00DBE74E /* release-nmap-cli-macos.sh */,
-				2F489AAD2FDF4D0B00DBE74E /* release-zenmap-macos.sh */,
-				2F489AAE2FDF4D0B00DBE74E /* stage-nmap-replacement-root-macos.sh */,
 			);
 			path = scripts;
 			sourceTree = "<group>";

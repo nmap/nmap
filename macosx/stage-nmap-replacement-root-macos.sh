@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-ROOT_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
+ROOT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT_DIR"
 
 DIST_DIR="$ROOT_DIR/dist"
@@ -53,7 +53,7 @@ PLIST
 
 if [ ! -d "$DIST_DIR/nmap.app" ]; then
   echo "Missing dist/nmap.app; running CLI release first..."
-  bash xcode/scripts/release-nmap-cli-macos.sh
+  bash macosx/release-nmap-cli-macos.sh
 fi
 
 if [ ! -d "$DIST_DIR/nmap.app" ]; then

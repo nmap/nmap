@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-ROOT_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
+ROOT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT_DIR"
 
 CONFIGURATION="${CONFIGURATION:-Debug}"
@@ -18,7 +18,7 @@ xcodebuild \
 
 echo
 echo "Packaging bundled dylibs..."
-bash xcode/scripts/package-zenmap-macos.sh
+bash macosx/package-zenmap-macos.sh
 
 APP_PATH="$(find "$HOME/Library/Developer/Xcode/DerivedData" \
   -path "*/Build/Products/$CONFIGURATION/$APP_NAME" \
