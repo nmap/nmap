@@ -1851,6 +1851,14 @@ struct ContentView: View {
                 .disabled(scanHistory.selectedSavedScanID == nil)
 
                 Button {
+                    copySelectedSavedScanCommand()
+                } label: {
+                    Image(systemName: "doc.on.doc")
+                }
+                .help("Copy Scan Command")
+                .disabled(scanHistory.selectedSavedScanID == nil)
+
+                Button {
                     revealSelectedSavedScanInFinder()
                 } label: {
                     Image(systemName: "folder")
@@ -4530,6 +4538,17 @@ struct ContentView: View {
         }
 
         NSWorkspace.shared.open(URL(fileURLWithPath: savedScan.xmlPath))
+    }
+
+    private func copySelectedSavedScanCommand() {
+        guard let selectedSavedScanID = scanHistory.selectedSavedScanID,
+              let savedScan = scanHistory.savedScans.first(where: { $0.id == selectedSavedScanID }) else {
+            return
+        }
+
+        NSPasteboard.general.clearContents()
+        NSPasteboard.general.setString(savedScan.command, forType: .string)
+        output += "\nCopied saved scan command to clipboard: \(savedScan.command)"
     }
 
     private func reloadSavedScan(id savedScanID: SavedScan.ID) {
