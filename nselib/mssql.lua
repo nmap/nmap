@@ -3424,7 +3424,7 @@ Auth = {
   end,
 
   NtlmResponse = function( password, nonce )
-    local lm_response, ntlm_response, mac_key = smbauth.get_password_response(nil,
+    local lm_response, ntlm_response, mac_key = smbauth.get_password_response(
       nil,
       nil,
       password,

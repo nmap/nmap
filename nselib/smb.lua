@@ -1176,7 +1176,7 @@ local function start_session_basic(smb, log_errors, overrides)
   while result ~= false do
     local lanman, ntlm
 
-    lanman, ntlm, smb['mac_key'] = smbauth.get_password_response(smb['ip'], username, domain, password, password_hash, hash_type, smb['server_challenge'], false)
+    lanman, ntlm, smb['mac_key'] = smbauth.get_password_response(username, domain, password, password_hash, hash_type, smb['server_challenge'], false)
 
     -- Parameters
     parameters = string.pack("<BBI2 I2I2 I2 I4 I2I2 I4I4",
@@ -1353,7 +1353,7 @@ local function start_session_extended(smb, log_errors, overrides)
     repeat
       -- Get the new security blob, passing the old security blob as a parameter. If there was no previous security blob, then nil is passed, which creates a new one
       if ( not(security_blob) ) then
-        status, security_blob, smb['mac_key'] = smbauth.get_security_blob(security_blob, smb['ip'], username, domain, password, password_hash, hash_type, (sp_nego and 0x00088215))
+        status, security_blob, smb['mac_key'] = smbauth.get_security_blob(security_blob, username, domain, password, password_hash, hash_type, (sp_nego and 0x00088215))
 
         if ( sp_nego ) then
           local enc = asn1.ASN1Encoder:new()
@@ -1376,7 +1376,7 @@ local function start_session_extended(smb, log_errors, overrides)
           hash_type = "ntlm"
         end
 
-        status, security_blob, smb['mac_key'] = smbauth.get_security_blob(security_blob, smb['ip'], username, domain, password, password_hash, hash_type, (sp_nego and 0x00088215))
+        status, security_blob, smb['mac_key'] = smbauth.get_security_blob(security_blob, username, domain, password, password_hash, hash_type, (sp_nego and 0x00088215))
 
         if ( sp_nego ) then
           local enc = asn1.ASN1Encoder:new()

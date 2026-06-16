@@ -54,7 +54,7 @@ categories = {"default", "discovery", "safe"}
 portrule = shortport.http
 
 local auth_blob = base64.enc( select( 2,
-  smbauth.get_security_blob(nil, nil, nil, nil, nil, nil, nil,
+  smbauth.get_security_blob(nil, nil, nil, nil, nil, nil,
     0x00000001 + -- Negotiate Unicode
     0x00000002 + -- Negotiate OEM strings
     0x00000004 + -- Request Target
