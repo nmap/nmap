@@ -1,6 +1,6 @@
-# Nmap macOS Xcode scaffold
+# Nmap macOS Xcode project
 
-This overlay adds an Xcode project to an upstream Nmap checkout. It does not fork or rewrite Nmap yet; the first target delegates to the upstream `./configure && make` build so we get a known-good native macOS binary before building a deeper GUI integration.
+This overlay adds an Xcode project for building a native macOS Zenmap app from an upstream Nmap checkout. The Xcode build delegates the command-line scanner build to the upstream `./configure && make` flow, then bundles the resulting `nmap` binary and runtime data into the app.
 
 ## Use
 
@@ -11,7 +11,7 @@ cd nmap
 open NmapMac.xcodeproj
 ```
 
-Build the `NmapCLI` target first. It runs:
+The Xcode build helper scripts run the normal command-line build flow:
 
 ```sh
 ./configure --prefix=/usr/local
@@ -19,15 +19,13 @@ make -j$(sysctl -n hw.ncpu)
 make install DESTDIR=.xcode-products/nmap-root
 ```
 
-The `Zenmap` target is a minimal SwiftUI starter app. In this first scaffold it runs either a bundled `nmap` binary at `Zenmap.app/Contents/Resources/nmap` or `/usr/local/bin/nmap`.
+The `Zenmap` target is a native SwiftUI app. It runs the bundled scanner at `Zenmap.app/Contents/Resources/bin/nmap` and uses bundled runtime data from `Zenmap.app/Contents/Resources/share/nmap`.
 
-## Next steps
+## Layout
 
-1. Add an Xcode copy-files phase that copies the just-built `./nmap` into the app bundle resources.
-2. Copy Nmap data files into the app bundle and set `NMAPDIR` when launching scans.
-3. Replace the simple argument splitter with structured scan options.
-4. Add XML output parsing so the GUI renders hosts, ports, services, and scripts natively.
-5. Later, consider splitting Nmap internals into a library-style target if the CLI wrapper proves too limiting.
+- `zenmap/macos/native/` contains the native SwiftUI macOS GUI source.
+- `xcode/scripts/` contains scripts used directly by Xcode build phases.
+- `macosx/` contains macOS release, packaging, installer, and legacy bundling support files.
 
 ## Package a portable development app
 
@@ -71,7 +69,7 @@ A successful installed scan should load NSE scripts from the bundled /Applicatio
 
 ## Native macOS GUI layout
 
-The ``zenmap/macos/native/` directory contains the native SwiftUI macOS GUI target. It is intentionally separate from `zenmap/`, which contains the existing legacy Zenmap Python/GTK frontend.
+The `zenmap/macos/native/` directory contains the native SwiftUI macOS GUI target. It is intentionally separate from `zenmap/`, which contains the existing legacy Zenmap Python/GTK frontend.
 
 The Xcode project builds the native GUI and uses `xcode/scripts/build-nmap-macos.sh` to build the Nmap command-line binary from the current source tree. The `xcode/scripts/bundle-nmap-runtime.sh` script then copies the runtime files into the app bundle using an app-local layout:
 
