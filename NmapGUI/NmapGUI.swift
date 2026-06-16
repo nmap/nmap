@@ -1359,6 +1359,30 @@ struct ContentView: View {
                     .foregroundStyle(.secondary)
 
                 Button {
+                    copySelectedHostAddress()
+                } label: {
+                    Label("Copy Address", systemImage: "number")
+                }
+                .disabled(selectedHost == nil)
+                .help("Copy the selected host address")
+
+                Button {
+                    copySelectedHostSummary()
+                } label: {
+                    Label("Copy Summary", systemImage: "doc.on.doc")
+                }
+                .disabled(selectedHost == nil)
+                .help("Copy a summary of the selected host")
+
+                Button {
+                    copySelectedHostOpenPorts()
+                } label: {
+                    Label("Copy Open Ports", systemImage: "list.bullet.rectangle")
+                }
+                .disabled(selectedHost == nil)
+                .help("Copy open ports for the selected host")
+
+                Button {
                     selectedTab = "Details"
                 } label: {
                     Label("Details", systemImage: "info.circle")
@@ -1388,6 +1412,29 @@ struct ContentView: View {
                     TableColumn("Open Ports") { host in
                         Text("\(host.openPortCount)")
                     }
+                }
+                .contextMenu {
+                    Button("Copy Address") {
+                        copySelectedHostAddress()
+                    }
+                    .disabled(selectedHost == nil)
+
+                    Button("Copy Host Summary") {
+                        copySelectedHostSummary()
+                    }
+                    .disabled(selectedHost == nil)
+
+                    Button("Copy Open Ports") {
+                        copySelectedHostOpenPorts()
+                    }
+                    .disabled(selectedHost == nil)
+
+                    Divider()
+
+                    Button("Show Details") {
+                        selectedTab = "Details"
+                    }
+                    .disabled(selectedHost == nil)
                 }
             }
         }
@@ -4983,6 +5030,16 @@ struct ContentView: View {
         NSPasteboard.general.clearContents()
         NSPasteboard.general.setString(scanDetailsSummaryText(), forType: .string)
         output += "\nCopied scan details summary to clipboard."
+    }
+
+    private func copySelectedHostAddress() {
+        guard let selectedHost else {
+            return
+        }
+
+        NSPasteboard.general.clearContents()
+        NSPasteboard.general.setString(selectedHost.address, forType: .string)
+        output += "\nCopied selected host address to clipboard: \(selectedHost.address)"
     }
 
     private func copySelectedHostSummary() {
