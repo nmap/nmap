@@ -503,6 +503,7 @@ struct ContentView: View {
     @State private var baselineCompareScanID: SavedScan.ID?
     @State private var comparisonCompareScanID: SavedScan.ID?
     @State private var isOutputFindVisible = false
+    @State private var isOutputAutoScrollEnabled = true
     @State private var outputFindText = ""
     @State private var outputFindSelection = 0
     @FocusState private var isOutputFindFocused: Bool
@@ -564,6 +565,7 @@ struct ContentView: View {
         @Binding var text: String
         var findText: String
         var selectedMatchIndex: Int
+        var autoScrollEnabled: Bool
 
         func makeCoordinator() -> Coordinator {
             Coordinator(self)
@@ -1277,6 +1279,10 @@ struct ContentView: View {
                     .font(.headline)
                 Spacer()
 
+                Toggle("Auto-scroll", isOn: $isOutputAutoScrollEnabled)
+                    .toggleStyle(.switch)
+                    .help("Automatically follow the latest scan output")
+
                 Button {
                     isOutputFindVisible.toggle()
                     if isOutputFindVisible {
@@ -1349,7 +1355,8 @@ struct ContentView: View {
             FindableOutputTextView(
                 text: $output,
                 findText: outputFindText,
-                selectedMatchIndex: outputFindSelection
+                selectedMatchIndex: outputFindSelection,
+                autoScrollEnabled: isOutputAutoScrollEnabled
             )
             .border(.separator)
         }
