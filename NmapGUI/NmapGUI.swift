@@ -1859,6 +1859,14 @@ struct ContentView: View {
                 .disabled(scanHistory.selectedSavedScanID == nil)
 
                 Button {
+                    copySelectedSavedScanSummary()
+                } label: {
+                    Image(systemName: "doc.plaintext")
+                }
+                .help("Copy Scan Summary")
+                .disabled(scanHistory.selectedSavedScanID == nil)
+
+                Button {
                     revealSelectedSavedScanInFinder()
                 } label: {
                     Image(systemName: "folder")
@@ -4549,6 +4557,30 @@ struct ContentView: View {
         NSPasteboard.general.clearContents()
         NSPasteboard.general.setString(savedScan.command, forType: .string)
         output += "\nCopied saved scan command to clipboard: \(savedScan.command)"
+    }
+
+    private func copySelectedSavedScanSummary() {
+        guard let selectedSavedScanID = scanHistory.selectedSavedScanID,
+              let savedScan = scanHistory.savedScans.first(where: { $0.id == selectedSavedScanID }) else {
+            return
+        }
+
+        let summary = savedScanSummaryText(savedScan)
+        NSPasteboard.general.clearContents()
+        NSPasteboard.general.setString(summary, forType: .string)
+        output += "\nCopied saved scan summary to clipboard."
+    }
+
+    private func savedScanSummaryText(_ savedScan: SavedScan) -> String {
+        [
+            "Nmap Saved Scan Summary",
+            "Title: \(savedScan.title)",
+            "Date: \(savedScan.scannedAt.formatted(date: .abbreviated, time: .standard))",
+            "Command: \(savedScan.command)",
+            "Hosts: \(savedScan.hostCount)",
+            "Ports: \(savedScan.portCount)",
+            "XML: \(savedScan.xmlPath)"
+        ].joined(separator: "\n")
     }
 
     private func reloadSavedScan(id savedScanID: SavedScan.ID) {
