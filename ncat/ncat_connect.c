@@ -237,7 +237,7 @@ static void connect_report(nsock_iod nsi)
 #ifdef HAVE_OPENSSL
         if (nsock_iod_check_ssl(nsi)) {
             X509 *cert;
-            X509_NAME *subject;
+            const X509_NAME *subject;
             char digest_buf[SHA1_STRING_LENGTH + 1];
             char *fp;
 
@@ -249,11 +249,34 @@ static void connect_report(nsock_iod nsi)
             subject = X509_get_subject_name(cert);
             if (subject != NULL) {
                 char buf[256];
-                int n;
+                int lastpos = -1;
 
-                n = X509_NAME_get_text_by_NID(subject, NID_organizationName, buf, sizeof(buf));
-                if (n >= 0 && n <= sizeof(buf) - 1)
-                    loguser_noprefix(" %s", buf);
+                lastpos = X509_NAME_get_index_by_NID(subject, NID_organizationName, lastpos);
+
+                if (lastpos >= 0) {
+                    const X509_NAME_ENTRY *entry = X509_NAME_get_entry(subject, lastpos);
+                    if (entry != NULL) {
+                        const ASN1_STRING *asn1_str = X509_NAME_ENTRY_get_data(entry);
+                        if (asn1_str != NULL) {
+                            // ASN1_STRING_to_UTF8 handles converting BMPString, UniversalString,
+                            // or UTF8String into a standard, readable UTF-8 format.
+                            unsigned char *utf8_buf = NULL;
+                            int len = ASN1_STRING_to_UTF8(&utf8_buf, asn1_str);
+
+                            if (len >= 0) {
+                                // Ensure we don't overflow our local buffer and null-terminate safely
+                                int copy_len = (len < (int)sizeof(buf) - 1) ? len : (int)sizeof(buf) - 1;
+                                memcpy(buf, utf8_buf, copy_len);
+                                buf[copy_len] = '\0';
+
+                                loguser_noprefix(" %s", buf);
+
+                                // OpenSSL allocates memory for utf8_buf, so we must free it
+                                OPENSSL_free(utf8_buf);
+                            }
+                        }
+                    }
+                }
             }
 
             loguser_noprefix("\n");

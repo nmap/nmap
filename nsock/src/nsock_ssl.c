@@ -133,6 +133,8 @@ static SSL_CTX *ssl_init_helper(const SSL_METHOD *method) {
 #if OPENSSL_VERSION_NUMBER < 0x10100000L || defined LIBRESSL_VERSION_NUMBER
     SSL_load_error_strings();
     SSL_library_init();
+#elif OPENSSL_VERSION_NUMBER >= 0x40000000L
+    atexit(nsock_ssl_atexit);
 #else
     OPENSSL_atexit(nsock_ssl_atexit);
 #endif

@@ -17,6 +17,7 @@ are rejected. The SSL transactions happen over OpenSSL BIO pairs.
 #include <openssl/rsa.h>
 #include <openssl/x509.h>
 #include <openssl/x509v3.h>
+#include <openssl/safestack.h>
 
 #include "ncat_core.h"
 #include "ncat_ssl.h"
@@ -351,16 +352,24 @@ static int gen_cert(X509 **cert, EVP_PKEY **key,
 
     /* Set the commonNames. */
     if (commonNames != NULL) {
-        X509_NAME *subj;
         const struct lstr *name;
+        X509_NAME *subj = X509_NAME_new();
+        if (subj == NULL)
+          goto err;
 
-        subj = X509_get_subject_name(*cert);
         for (name = commonNames; !is_sentinel(name); name++) {
             if (X509_NAME_add_entry_by_txt(subj, "commonName", MBSTRING_ASC,
                 (unsigned char *) name->s, name->len, -1, 0) == 0) {
+                X509_NAME_free(subj);
                 goto err;
             }
         }
+        if (X509_set_subject_name(*cert, subj) == 0) {
+          X509_NAME_free(subj);
+          goto err;
+        }
+        X509_NAME_free(subj);
+        subj = NULL;
     }
 
     /* Set the dNSNames. */
