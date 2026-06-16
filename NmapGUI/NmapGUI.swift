@@ -1851,6 +1851,14 @@ struct ContentView: View {
                 .disabled(scanHistory.selectedSavedScanID == nil)
 
                 Button {
+                    useSelectedSavedScanCommand()
+                } label: {
+                    Image(systemName: "arrow.uturn.forward")
+                }
+                .help("Use Command in Scan Form")
+                .disabled(scanHistory.selectedSavedScanID == nil)
+
+                Button {
                     copySelectedSavedScanCommand()
                 } label: {
                     Image(systemName: "doc.on.doc")
@@ -4546,6 +4554,77 @@ struct ContentView: View {
         }
 
         NSWorkspace.shared.open(URL(fileURLWithPath: savedScan.xmlPath))
+    }
+
+    private func useSelectedSavedScanCommand() {
+        guard let selectedSavedScanID = scanHistory.selectedSavedScanID,
+              let savedScan = scanHistory.savedScans.first(where: { $0.id == selectedSavedScanID }) else {
+            return
+        }
+
+        let parsedCommand = scanFormValues(fromSavedCommand: savedScan.command)
+        guard !parsedCommand.target.isEmpty else {
+            output += "\nCould not load saved scan command into scan form: no target found."
+            return
+        }
+
+        arguments = parsedCommand.arguments
+        target = parsedCommand.target
+        lastCommand = savedScan.command
+        selectedTab = "Output"
+        output += "\nLoaded saved scan command into scan form."
+        output += "\nTarget: \(target)"
+        output += "\nArguments: \(arguments.isEmpty ? "(none)" : arguments)"
+    }
+
+    private func scanFormValues(fromSavedCommand command: String) -> (arguments: String, target: String) {
+        var parts = shellSplit(command)
+
+        if let firstPart = parts.first {
+            let firstName = URL(fileURLWithPath: firstPart).lastPathComponent
+            if firstPart == "nmap" || firstName == "nmap" {
+                parts.removeFirst()
+            }
+        }
+
+        var argumentValues: [String] = []
+        var targetValues: [String] = []
+        var index = 0
+
+        while index < parts.count {
+            let part = parts[index]
+
+            if part == "-oX" || part == "-oA" || part == "-oN" || part == "-oG" || part == "-oS" {
+                index += 2
+                continue
+            }
+
+            if part.hasPrefix("-oX") || part.hasPrefix("-oA") || part.hasPrefix("-oN") || part.hasPrefix("-oG") || part.hasPrefix("-oS") {
+                index += 1
+                continue
+            }
+
+            if part == "--stylesheet" || part == "--webxml" || part == "--resume" || part == "-iL" || part == "-iR" {
+                argumentValues.append(part)
+                if index + 1 < parts.count {
+                    argumentValues.append(parts[index + 1])
+                    index += 2
+                } else {
+                    index += 1
+                }
+                continue
+            }
+
+            if part.hasPrefix("-") {
+                argumentValues.append(part)
+            } else {
+                targetValues.append(part)
+            }
+
+            index += 1
+        }
+
+        return (argumentValues.joined(separator: " "), targetValues.joined(separator: " "))
     }
 
     private func copySelectedSavedScanCommand() {
