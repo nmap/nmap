@@ -10,7 +10,7 @@ struct ZenmapApp: App {
     @StateObject private var scanHistory = ScanHistoryStore()
 
     var body: some Scene {
-        WindowGroup("Nmap", id: "main") {
+        WindowGroup("Zenmap", id: "main") {
             ContentView()
                 .environmentObject(scanHistory)
                 .frame(minWidth: 1250, minHeight: 850)
@@ -180,6 +180,8 @@ struct NewWindowCommands: Commands {
     }
 }
 
+// Keep command-menu notifications centralized so menu actions can reach the
+// active SwiftUI view without tightly coupling the app scene to ContentView.
 extension Notification.Name {
     static let zenmapCopyDiagnosticInfo = Notification.Name("zenmapCopyDiagnosticInfo")
     static let zenmapOpenXML = Notification.Name("ZenmapOpenXML")

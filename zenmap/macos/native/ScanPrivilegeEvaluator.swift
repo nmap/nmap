@@ -1,10 +1,7 @@
-//
-//  ScanPrivilegeEvaluator.swift
-//  NmapMac
-//
-//  Created by st0rmshadow on 6/15/26.
-//
-
+/*
+ * Determines whether a requested nmap scan can run as the GUI user or needs
+ * administrator privileges.
+ */
 import Foundation
 
 enum ScanPrivilegeRequirement: Equatable {
@@ -14,6 +11,9 @@ enum ScanPrivilegeRequirement: Equatable {
 
 struct ScanPrivilegeEvaluator {
     static func requirement(for arguments: [String]) -> ScanPrivilegeRequirement {
+        // These options require privileges on macOS because they use raw sockets,
+        // packet capture, traceroute behavior, or scan types unavailable to an
+        // unprivileged process.
         let rootRequiredFlags: Set<String> = [
             "-sS",          // SYN scan
             "-sU",          // UDP scan
