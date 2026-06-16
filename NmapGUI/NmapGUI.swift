@@ -481,6 +481,8 @@ struct ContentView: View {
     @State private var resultsFilterText = ""
     @State private var savedScansFilterText = ""
     @State private var didInstallDiagnosticInfoObserver = false
+    @State private var selectedNSEScriptCategory = "default"
+    @State private var selectedNSEScriptName = ""
     
     init() {
         let savedCustomProfiles = Self.loadSavedCustomProfiles() ?? []
@@ -791,6 +793,28 @@ struct ContentView: View {
     }
 
     
+    private struct NSEScriptEntry: Identifiable, Hashable {
+        let name: String
+        let categories: [String]
+
+        var id: String { name }
+    }
+
+    private var nseScriptEntries: [NSEScriptEntry] {
+        parseBundledNSEScriptDatabase()
+    }
+
+    private var nseScriptCategories: [String] {
+        let parsedCategories = Set(nseScriptEntries.flatMap { $0.categories })
+        let fallbackCategories = Set(["default", "safe", "vuln", "auth", "discovery", "version", "all"])
+        return Array(parsedCategories.union(fallbackCategories)).sorted()
+    }
+
+    private var filteredNSEScriptEntries: [NSEScriptEntry] {
+        let entries = nseScriptEntries.filter { $0.categories.contains(selectedNSEScriptCategory) }
+        return entries.isEmpty ? nseScriptEntries : entries
+    }
+
     private var selectedHost: ScannedHost? {
         guard let selectedHostID else {
             return hosts.first
@@ -1873,6 +1897,54 @@ struct ContentView: View {
         }
     }
 
+    private var profileNSEScriptRow: some View {
+        HStack(spacing: 10) {
+            Picker("Category", selection: $selectedNSEScriptCategory) {
+                ForEach(nseScriptCategories, id: \.self) { category in
+                    Text(category).tag(category)
+                }
+            }
+            .pickerStyle(.menu)
+            .frame(width: 145)
+
+            Picker("Script", selection: $selectedNSEScriptName) {
+                Text("Choose script").tag("")
+                ForEach(filteredNSEScriptEntries) { script in
+                    Text(script.name).tag(script.name)
+                }
+            }
+            .pickerStyle(.menu)
+            .frame(width: 240)
+
+            Button("Add Category") {
+                appendProfileScriptExpression(selectedNSEScriptCategory)
+            }
+            .disabled(selectedNSEScriptCategory.isEmpty)
+
+            Button("Add Script") {
+                appendProfileScriptExpression(selectedNSEScriptName)
+            }
+            .disabled(selectedNSEScriptName.isEmpty)
+
+            Menu("Common") {
+                Button("default") { appendProfileScriptExpression("default") }
+                Button("safe") { appendProfileScriptExpression("safe") }
+                Button("vuln") { appendProfileScriptExpression("vuln") }
+                Button("auth") { appendProfileScriptExpression("auth") }
+                Button("discovery") { appendProfileScriptExpression("discovery") }
+                Button("version") { appendProfileScriptExpression("version") }
+                Button("all (slow/noisy)") { appendProfileScriptExpression("all") }
+            }
+
+            Text(nseScriptEntries.isEmpty ? "Bundled NSE script database not found; common categories are still available." : "Loaded \(nseScriptEntries.count) bundled NSE scripts.")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .lineLimit(1)
+
+            Spacer()
+        }
+    }
+
     private var profilesView: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
@@ -1939,6 +2011,12 @@ struct ContentView: View {
                         Text("Advanced")
                             .foregroundStyle(.secondary)
                         profileAdvancedOptionsRow
+                    }
+
+                    GridRow {
+                        Text("Scripts")
+                            .foregroundStyle(.secondary)
+                        profileNSEScriptRow
                     }
 
                     GridRow {
@@ -3111,6 +3189,92 @@ struct ContentView: View {
         }
 
         newProfileArguments = argumentsArray.joined(separator: " ")
+    }
+
+    private func appendProfileScriptExpression(_ expression: String) {
+        let trimmedExpression = expression.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmedExpression.isEmpty else {
+            return
+        }
+
+        var argumentsArray = profileArgumentsArray()
+        let existingScriptExpressions = profileScriptExpressions(in: argumentsArray)
+
+        guard !existingScriptExpressions.contains(trimmedExpression) else {
+            return
+        }
+
+        argumentsArray.append("--script")
+        argumentsArray.append(trimmedExpression)
+        newProfileArguments = argumentsArray.joined(separator: " ")
+    }
+
+    private func profileScriptExpressions(in argumentsArray: [String]) -> Set<String> {
+        var expressions = Set<String>()
+        var index = 0
+
+        while index < argumentsArray.count {
+            let argument = argumentsArray[index]
+
+            if argument == "--script", index + 1 < argumentsArray.count {
+                expressions.insert(argumentsArray[index + 1])
+                index += 2
+                continue
+            }
+
+            if argument.hasPrefix("--script=") {
+                expressions.insert(String(argument.dropFirst("--script=".count)))
+            }
+
+            index += 1
+        }
+
+        return expressions
+    }
+
+    private func parseBundledNSEScriptDatabase() -> [NSEScriptEntry] {
+        let candidateURLs = [
+            Bundle.main.resourceURL?.appendingPathComponent("share/nmap/scripts/script.db"),
+            Bundle.main.resourceURL?.appendingPathComponent("scripts/script.db"),
+            Bundle.main.resourceURL?.appendingPathComponent("script.db")
+        ].compactMap { $0 }
+
+        guard let scriptDatabaseURL = candidateURLs.first(where: { FileManager.default.fileExists(atPath: $0.path) }),
+              let databaseText = try? String(contentsOf: scriptDatabaseURL, encoding: .utf8) else {
+            return []
+        }
+
+        let entryPattern = #"Entry\s*\{\s*filename\s*=\s*"([^"]+)"\s*,\s*categories\s*=\s*\{([^}]*)\}"#
+        guard let entryRegex = try? NSRegularExpression(pattern: entryPattern) else {
+            return []
+        }
+
+        let nsDatabaseText = databaseText as NSString
+        let matches = entryRegex.matches(
+            in: databaseText,
+            range: NSRange(location: 0, length: nsDatabaseText.length)
+        )
+
+        return matches.compactMap { match in
+            guard match.numberOfRanges >= 3 else {
+                return nil
+            }
+
+            let filename = nsDatabaseText.substring(with: match.range(at: 1))
+            let categoriesText = nsDatabaseText.substring(with: match.range(at: 2))
+            let name = filename.replacingOccurrences(of: ".nse", with: "")
+            let categories = categoriesText
+                .components(separatedBy: ",")
+                .map {
+                    $0
+                        .replacingOccurrences(of: "\"", with: "")
+                        .trimmingCharacters(in: .whitespacesAndNewlines)
+                }
+                .filter { !$0.isEmpty }
+
+            return NSEScriptEntry(name: name, categories: categories)
+        }
+        .sorted { $0.name < $1.name }
     }
 
     private func clearProfileEditor() {
