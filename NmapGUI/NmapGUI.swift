@@ -525,6 +525,7 @@ struct ContentView: View {
     @State private var hosts: [ScannedHost] = []
     @State private var selectedHostID: ScannedHost.ID?
     @State private var selectedPortID: ScannedPort.ID?
+    @State private var selectedServicePortID: ScannedPort.ID?
     @State private var resultsFilterText = ""
     @State private var savedScansFilterText = ""
     @State private var savedScanNotesText = ""
@@ -1450,6 +1451,14 @@ struct ContentView: View {
         return allPorts.first { $0.id == selectedPortID }
     }
 
+    private var selectedServicePort: ScannedPort? {
+        guard let selectedServicePortID else {
+            return nil
+        }
+
+        return allServicePorts.first { $0.id == selectedServicePortID }
+    }
+
     private var portsView: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
@@ -1541,6 +1550,38 @@ struct ContentView: View {
                 Spacer()
                 Text(isFilteringResults ? "\(filteredServicePorts.count) of \(allServicePorts.count) service results" : "\(filteredServicePorts.count) service result\(filteredServicePorts.count == 1 ? "" : "s")")
                     .foregroundStyle(.secondary)
+
+                Button {
+                    copySelectedServiceHostPort()
+                } label: {
+                    Label("Copy Host:Port", systemImage: "number")
+                }
+                .disabled(selectedServicePort == nil)
+                .help("Copy the selected service host and port")
+
+                Button {
+                    copySelectedServiceSummary()
+                } label: {
+                    Label("Copy Service", systemImage: "doc.on.doc")
+                }
+                .disabled(selectedServicePort == nil)
+                .help("Copy a summary of the selected service")
+
+                Button {
+                    copySelectedServiceProductVersion()
+                } label: {
+                    Label("Copy Version", systemImage: "shippingbox")
+                }
+                .disabled(selectedServicePort == nil)
+                .help("Copy product and version for the selected service")
+
+                Button {
+                    showSelectedServiceHostDetails()
+                } label: {
+                    Label("Host Details", systemImage: "info.circle")
+                }
+                .disabled(selectedServicePort == nil)
+                .help("Show details for the selected service's host")
             }
             
             resultsFilterBar
@@ -1550,7 +1591,7 @@ struct ContentView: View {
             } else if filteredServicePorts.isEmpty {
                 emptyResultsView("No services match the current filter.")
             } else {
-                Table(filteredServicePorts) {
+                Table(filteredServicePorts, selection: $selectedServicePortID) {
                     TableColumn("Host") { port in
                         Text(port.hostAddress)
                             .font(.system(.body, design: .monospaced))
@@ -1567,6 +1608,29 @@ struct ContentView: View {
                     TableColumn("Extra Info") { port in
                         Text(port.extraInfo.isEmpty ? "-" : port.extraInfo)
                     }
+                }
+                .contextMenu {
+                    Button("Copy Host:Port") {
+                        copySelectedServiceHostPort()
+                    }
+                    .disabled(selectedServicePort == nil)
+
+                    Button("Copy Service Summary") {
+                        copySelectedServiceSummary()
+                    }
+                    .disabled(selectedServicePort == nil)
+
+                    Button("Copy Product/Version") {
+                        copySelectedServiceProductVersion()
+                    }
+                    .disabled(selectedServicePort == nil)
+
+                    Divider()
+
+                    Button("Show Host Details") {
+                        showSelectedServiceHostDetails()
+                    }
+                    .disabled(selectedServicePort == nil)
                 }
             }
         }
@@ -5147,6 +5211,69 @@ struct ContentView: View {
     private func selectedPortSummaryText(_ port: ScannedPort) -> String {
         [
             "Nmap Port Summary",
+            "Host: \(port.hostAddress)",
+            "Port: \(port.portNumber)/\(port.protocolName)",
+            "State: \(port.state)",
+            "Service: \(port.serviceName.isEmpty ? "None" : port.serviceName)",
+            "Product: \(port.product.isEmpty ? "None" : port.product)",
+            "Version: \(port.version.isEmpty ? "None" : port.version)",
+            "Extra Info: \(port.extraInfo.isEmpty ? "None" : port.extraInfo)",
+            "Summary: \(scanPortServiceDescription(port))"
+        ].joined(separator: "\n")
+    }
+
+    private func copySelectedServiceHostPort() {
+        guard let selectedServicePort else {
+            return
+        }
+
+        let hostPort = "\(selectedServicePort.hostAddress):\(selectedServicePort.portNumber)/\(selectedServicePort.protocolName)"
+        NSPasteboard.general.clearContents()
+        NSPasteboard.general.setString(hostPort, forType: .string)
+        output += "\nCopied selected service host and port to clipboard: \(hostPort)"
+    }
+
+    private func copySelectedServiceSummary() {
+        guard let selectedServicePort else {
+            return
+        }
+
+        NSPasteboard.general.clearContents()
+        NSPasteboard.general.setString(selectedServiceSummaryText(selectedServicePort), forType: .string)
+        output += "\nCopied selected service summary to clipboard."
+    }
+
+    private func copySelectedServiceProductVersion() {
+        guard let selectedServicePort else {
+            return
+        }
+
+        let productVersion = [
+            selectedServicePort.product,
+            selectedServicePort.version,
+            selectedServicePort.extraInfo
+        ]
+        .filter { !$0.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
+        .joined(separator: " ")
+
+        NSPasteboard.general.clearContents()
+        NSPasteboard.general.setString(productVersion.isEmpty ? selectedServicePort.serviceName : productVersion, forType: .string)
+        output += "\nCopied selected service product/version to clipboard."
+    }
+
+    private func showSelectedServiceHostDetails() {
+        guard let selectedServicePort,
+              let host = hosts.first(where: { $0.address == selectedServicePort.hostAddress }) else {
+            return
+        }
+
+        selectedHostID = host.id
+        selectedTab = "Details"
+    }
+
+    private func selectedServiceSummaryText(_ port: ScannedPort) -> String {
+        [
+            "Nmap Service Summary",
             "Host: \(port.hostAddress)",
             "Port: \(port.portNumber)/\(port.protocolName)",
             "State: \(port.state)",
