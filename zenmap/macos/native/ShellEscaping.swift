@@ -1,10 +1,7 @@
-//
-//  ShellEscaping.swift
-//  NmapMac
-//
-//  Created by st0rmshadow on 6/15/26.
-//
-
+/*
+ * Escaping helpers for commands that must pass through both AppleScript and
+ * the shell before they reach nmap.
+ */
 import Foundation
 
 extension String {

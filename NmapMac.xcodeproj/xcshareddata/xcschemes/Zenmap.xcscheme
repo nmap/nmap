@@ -16,7 +16,7 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "A1000000000000000000000D"
-               BuildableName = "NmapGUI.app"
+               BuildableName = "Zenmap.app"
                ReferencedContainer = "container:NmapMac.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -45,7 +45,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "A1000000000000000000000D"
-            BuildableName = "NmapGUI.app"
+            BuildableName = "Zenmap.app"
             ReferencedContainer = "container:NmapMac.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
@@ -61,7 +61,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "A1000000000000000000000D"
-            BuildableName = "NmapGUI.app"
+            BuildableName = "Zenmap.app"
             ReferencedContainer = "container:NmapMac.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>

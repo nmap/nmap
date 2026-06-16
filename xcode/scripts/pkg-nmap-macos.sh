@@ -34,13 +34,13 @@ require_replacement_root() {
 }
 
 copy_gui_as_zenmap() {
-  local gui_source="$DIST_DIR/NmapGUI.app"
+  local gui_source="$DIST_DIR/Zenmap.app"
   local zenmap_destination="$APPLICATIONS_DIR/Zenmap.app"
 
   if [ ! -d "$gui_source" ]; then
     echo "Missing $gui_source"
-    echo "Running: bash xcode/scripts/release-nmapgui-macos.sh"
-    bash xcode/scripts/release-nmapgui-macos.sh
+    echo "Running: bash xcode/scripts/release-zenmap-macos.sh"
+    bash xcode/scripts/release-zenmap-macos.sh
   fi
 
   if [ ! -d "$gui_source" ]; then

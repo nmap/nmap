@@ -1,9 +1,10 @@
-//
-//  PrivilegedNmapRunner.swift
-//  NmapMac
-//
-//  Created by st0rmshadow on 6/15/26.
-//
+/*
+ * Runs nmap commands that require administrator privileges.
+ *
+ * Normal scans run as the GUI user. This helper is used only when selected
+ * scan options require raw sockets, packet capture, or other privileged nmap
+ * behavior.
+ */
 import Foundation
 import Darwin
 
@@ -26,6 +27,9 @@ struct PrivilegedNmapRunner {
     }
 
     static func bundledNmapPath() throws -> String {
+        // Prefer the app-bundled nmap first so Zenmap behaves consistently when
+        // launched outside a developer shell. The fallback paths keep local debug
+        // builds usable before the app bundle has been assembled.
         let candidates = [
             Bundle.main.resourceURL?.appendingPathComponent("bin/nmap").path,
             Bundle.main.resourceURL?.appendingPathComponent("nmap").path,
@@ -48,6 +52,8 @@ struct PrivilegedNmapRunner {
 
     static func nmapDataDirectory(for nmapPath: String) -> String {
         let nmapURL = URL(fileURLWithPath: nmapPath)
+        // Nmap data files must match the binary being executed. Start near the
+        // selected binary, then fall back to bundle and common install locations.
         var candidates: [String] = []
 
         candidates.append(

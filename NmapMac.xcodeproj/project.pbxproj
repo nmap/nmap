@@ -24,7 +24,7 @@
 		2F0ADB1B2FE0607300D6A060 /* PrivilegedNmapRunner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F0ADB182FE0605F00D6A060 /* PrivilegedNmapRunner.swift */; };
 		2F0ADB1D2FE0610400D6A060 /* ScanPrivilegeEvaluator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F0ADB1C2FE060FF00D6A060 /* ScanPrivilegeEvaluator.swift */; };
 		2F0ADB1F2FE0613300D6A060 /* ShellEscaping.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F0ADB1E2FE0612000D6A060 /* ShellEscaping.swift */; };
-		A10000000000000000000001 /* NmapGUI.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000002 /* NmapGUI.swift */; };
+		A10000000000000000000001 /* Zenmap.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000002 /* Zenmap.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -33,7 +33,7 @@
 			containerPortal = 2F4896E02FDF4D0B00DBE74E /* NmapMac.xcodeproj */;
 			proxyType = 2;
 			remoteGlobalIDString = A10000000000000000000003;
-			remoteInfo = NmapGUI;
+			remoteInfo = Zenmap;
 		};
 		A10000000000000000000017 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -1471,7 +1471,7 @@
 		2F4896D62FDF4D0B00DBE74E /* pyproject.toml */ = {isa = PBXFileReference; lastKnownFileType = text; path = pyproject.toml; sourceTree = "<group>"; };
 		2F4896D72FDF4D0B00DBE74E /* README */ = {isa = PBXFileReference; lastKnownFileType = text; path = README; sourceTree = "<group>"; };
 		2F4896D82FDF4D0B00DBE74E /* Version.py */ = {isa = PBXFileReference; lastKnownFileType = text.script.python; path = Version.py; sourceTree = "<group>"; };
-		2F4896DA2FDF4D0B00DBE74E /* NmapGUI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NmapGUI.swift; sourceTree = "<group>"; };
+		2F4896DA2FDF4D0B00DBE74E /* Zenmap.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Zenmap.swift; sourceTree = "<group>"; };
 		2F4896DC2FDF4D0B00DBE74E /* build-nmap-macos.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = "build-nmap-macos.sh"; sourceTree = "<group>"; };
 		2F4896DD2FDF4D0B00DBE74E /* clean-nmap-macos.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = "clean-nmap-macos.sh"; sourceTree = "<group>"; };
 		2F4896E02FDF4D0B00DBE74E /* NmapMac.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = NmapMac.xcodeproj; sourceTree = "<group>"; };
@@ -2426,10 +2426,10 @@
 		2F489AA62FDF4D0B00DBE74E /* nmap_dns_test.cc */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = nmap_dns_test.cc; sourceTree = "<group>"; };
 		2F489AA82FDF4D0B00DBE74E /* build-nmap-macos.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = "build-nmap-macos.sh"; sourceTree = "<group>"; };
 		2F489AA92FDF4D0B00DBE74E /* clean-nmap-macos.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = "clean-nmap-macos.sh"; sourceTree = "<group>"; };
-		2F489AAA2FDF4D0B00DBE74E /* package-nmapgui-macos.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = "package-nmapgui-macos.sh"; sourceTree = "<group>"; };
+		2F489AAA2FDF4D0B00DBE74E /* package-zenmap-macos.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = "package-zenmap-macos.sh"; sourceTree = "<group>"; };
 		2F489AAB2FDF4D0B00DBE74E /* pkg-nmap-macos.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = "pkg-nmap-macos.sh"; sourceTree = "<group>"; };
 		2F489AAC2FDF4D0B00DBE74E /* release-nmap-cli-macos.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = "release-nmap-cli-macos.sh"; sourceTree = "<group>"; };
-		2F489AAD2FDF4D0B00DBE74E /* release-nmapgui-macos.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = "release-nmapgui-macos.sh"; sourceTree = "<group>"; };
+		2F489AAD2FDF4D0B00DBE74E /* release-zenmap-macos.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = "release-zenmap-macos.sh"; sourceTree = "<group>"; };
 		2F489AAE2FDF4D0B00DBE74E /* stage-nmap-replacement-root-macos.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = "stage-nmap-replacement-root-macos.sh"; sourceTree = "<group>"; };
 		2F489AB12FDF4D0B00DBE74E /* gtkrc */ = {isa = PBXFileReference; lastKnownFileType = text; path = gtkrc; sourceTree = "<group>"; };
 		2F489AB22FDF4D0B00DBE74E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -2668,8 +2668,8 @@
 		2F489BB22FDF4D0B00DBE74E /* pyproject.toml */ = {isa = PBXFileReference; lastKnownFileType = text; path = pyproject.toml; sourceTree = "<group>"; };
 		2F489BB32FDF4D0B00DBE74E /* README */ = {isa = PBXFileReference; lastKnownFileType = text; path = README; sourceTree = "<group>"; };
 		2F489BB42FDF4D0B00DBE74E /* zenmap */ = {isa = PBXFileReference; lastKnownFileType = text; path = zenmap; sourceTree = "<group>"; };
-		A10000000000000000000002 /* NmapGUI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NmapGUI.swift; sourceTree = "<group>"; };
-		A10000000000000000000003 /* NmapGUI.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = NmapGUI.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		A10000000000000000000002 /* Zenmap.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Zenmap.swift; sourceTree = "<group>"; };
+		A10000000000000000000003 /* Zenmap.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Zenmap.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A10000000000000000000004 /* build-nmap-macos.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = "build-nmap-macos.sh"; sourceTree = "<group>"; };
 		A10000000000000000000005 /* clean-nmap-macos.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = "clean-nmap-macos.sh"; sourceTree = "<group>"; };
 		A10000000000000000000006 /* README-XCODE.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "README-XCODE.md"; sourceTree = "<group>"; };
@@ -4933,12 +4933,12 @@
 			path = ndiff;
 			sourceTree = "<group>";
 		};
-		2F4896DB2FDF4D0B00DBE74E /* NmapGUI */ = {
+		2F4896DB2FDF4D0B00DBE74E /* Zenmap */ = {
 			isa = PBXGroup;
 			children = (
-				2F4896DA2FDF4D0B00DBE74E /* NmapGUI.swift */,
+				2F4896DA2FDF4D0B00DBE74E /* Zenmap.swift */,
 			);
-			path = NmapGUI;
+			path = Zenmap;
 			sourceTree = "<group>";
 		};
 		2F4896DE2FDF4D0B00DBE74E /* scripts */ = {
@@ -4961,7 +4961,7 @@
 		2F4896E22FDF4D0B00DBE74E /* NmapMacXcodeOverlay */ = {
 			isa = PBXGroup;
 			children = (
-				2F4896DB2FDF4D0B00DBE74E /* NmapGUI */,
+				2F4896DB2FDF4D0B00DBE74E /* Zenmap */,
 				2F4896DF2FDF4D0B00DBE74E /* xcode */,
 				2F4896E02FDF4D0B00DBE74E /* NmapMac.xcodeproj */,
 				2F4896E12FDF4D0B00DBE74E /* README-XCODE.md */,
@@ -6053,10 +6053,10 @@
 			children = (
 				2F489AA82FDF4D0B00DBE74E /* build-nmap-macos.sh */,
 				2F489AA92FDF4D0B00DBE74E /* clean-nmap-macos.sh */,
-				2F489AAA2FDF4D0B00DBE74E /* package-nmapgui-macos.sh */,
+				2F489AAA2FDF4D0B00DBE74E /* package-zenmap-macos.sh */,
 				2F489AAB2FDF4D0B00DBE74E /* pkg-nmap-macos.sh */,
 				2F489AAC2FDF4D0B00DBE74E /* release-nmap-cli-macos.sh */,
-				2F489AAD2FDF4D0B00DBE74E /* release-nmapgui-macos.sh */,
+				2F489AAD2FDF4D0B00DBE74E /* release-zenmap-macos.sh */,
 				2F489AAE2FDF4D0B00DBE74E /* stage-nmap-replacement-root-macos.sh */,
 			);
 			path = scripts;
@@ -6501,7 +6501,7 @@
 		2F489BB62FDF4D0B00DBE74E /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				2F489BBB2FDF4D0C00DBE74E /* NmapGUI.app */,
+				2F489BBB2FDF4D0C00DBE74E /* Zenmap.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -6533,21 +6533,21 @@
 				2F489BB52FDF4D0B00DBE74E /* zenmap */,
 				2F4890E22FDF4B4B00DBE74E /* Nmap Core */,
 				A10000000000000000000006 /* README-XCODE.md */,
-				A10000000000000000000009 /* NmapGUI */,
+				A10000000000000000000009 /* Zenmap */,
 				A1000000000000000000000A /* xcode */,
 				A1000000000000000000000B /* Products */,
 			);
 			sourceTree = "<group>";
 		};
-		A10000000000000000000009 /* NmapGUI */ = {
+		A10000000000000000000009 /* Zenmap */ = {
 			isa = PBXGroup;
 			children = (
 				2F0ADB1E2FE0612000D6A060 /* ShellEscaping.swift */,
 				2F0ADB1C2FE060FF00D6A060 /* ScanPrivilegeEvaluator.swift */,
 				2F0ADB182FE0605F00D6A060 /* PrivilegedNmapRunner.swift */,
-				A10000000000000000000002 /* NmapGUI.swift */,
+				A10000000000000000000002 /* Zenmap.swift */,
 			);
-			path = NmapGUI;
+			path = zenmap/macos/native;
 			sourceTree = "<group>";
 		};
 		A1000000000000000000000A /* xcode */ = {
@@ -6561,7 +6561,7 @@
 		A1000000000000000000000B /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				A10000000000000000000003 /* NmapGUI.app */,
+				A10000000000000000000003 /* Zenmap.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -6578,9 +6578,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		A1000000000000000000000D /* NmapGUI */ = {
+		A1000000000000000000000D /* Zenmap */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = A1000000000000000000000E /* Build configuration list for PBXNativeTarget "NmapGUI" */;
+			buildConfigurationList = A1000000000000000000000E /* Build configuration list for PBXNativeTarget "Zenmap" */;
 			buildPhases = (
 				A1000000000000000000000F /* Sources */,
 				A10000000000000000000007 /* Frameworks */,
@@ -6592,9 +6592,9 @@
 			dependencies = (
 				A10000000000000000000011 /* PBXTargetDependency */,
 			);
-			name = NmapGUI;
-			productName = NmapGUI;
-			productReference = A10000000000000000000003 /* NmapGUI.app */;
+			name = Zenmap;
+			productName = Zenmap;
+			productReference = A10000000000000000000003 /* Zenmap.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -6632,16 +6632,16 @@
 			projectRoot = "";
 			targets = (
 				A10000000000000000000013 /* NmapCLI */,
-				A1000000000000000000000D /* NmapGUI */,
+				A1000000000000000000000D /* Zenmap */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXReferenceProxy section */
-		2F489BBB2FDF4D0C00DBE74E /* NmapGUI.app */ = {
+		2F489BBB2FDF4D0C00DBE74E /* Zenmap.app */ = {
 			isa = PBXReferenceProxy;
 			fileType = wrapper.application;
-			path = NmapGUI.app;
+			path = Zenmap.app;
 			remoteRef = 2F489BBA2FDF4D0C00DBE74E /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
@@ -6713,7 +6713,7 @@
 				2F0ADB1F2FE0613300D6A060 /* ShellEscaping.swift in Sources */,
 				2F0ADB1D2FE0610400D6A060 /* ScanPrivilegeEvaluator.swift in Sources */,
 				2F0ADB1B2FE0607300D6A060 /* PrivilegedNmapRunner.swift in Sources */,
-				A10000000000000000000001 /* NmapGUI.swift in Sources */,
+				A10000000000000000000001 /* Zenmap.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -6741,7 +6741,7 @@
 				DEVELOPMENT_TEAM = "";
 				ENABLE_HARDENED_RUNTIME = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_CFBundleDisplayName = NmapGUI;
+				INFOPLIST_KEY_CFBundleDisplayName = Zenmap;
 				INFOPLIST_KEY_CFBundleIconFile = zenmap.icns;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -6749,7 +6749,7 @@
 				);
 				MACOSX_DEPLOYMENT_TARGET = 26.5;
 				MARKETING_VERSION = 0.1;
-				PRODUCT_BUNDLE_IDENTIFIER = local.nmap.NmapGUI;
+				PRODUCT_BUNDLE_IDENTIFIER = org.nmap.Zenmap;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
 				SWIFT_VERSION = 5.0;
@@ -6769,14 +6769,14 @@
 				DEVELOPMENT_TEAM = "";
 				ENABLE_HARDENED_RUNTIME = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_CFBundleDisplayName = NmapGUI;
+				INFOPLIST_KEY_CFBundleDisplayName = Zenmap;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 26.5;
 				MARKETING_VERSION = 0.1;
-				PRODUCT_BUNDLE_IDENTIFIER = local.nmap.NmapGUI;
+				PRODUCT_BUNDLE_IDENTIFIER = org.nmap.Zenmap;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
 				SWIFT_VERSION = 5.0;
@@ -6879,7 +6879,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		A1000000000000000000000E /* Build configuration list for PBXNativeTarget "NmapGUI" */ = {
+		A1000000000000000000000E /* Build configuration list for PBXNativeTarget "Zenmap" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				A10000000000000000000018 /* Debug */,

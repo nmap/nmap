@@ -6,19 +6,19 @@ cd "$ROOT_DIR"
 
 CONFIGURATION="${CONFIGURATION:-Debug}"
 DIST_DIR="$ROOT_DIR/dist"
-APP_NAME="NmapGUI.app"
-ZIP_NAME="NmapGUI-macOS-arm64-dev.zip"
+APP_NAME="Zenmap.app"
+ZIP_NAME="zenmap-macOS-arm64-dev.zip"
 
-echo "Building NmapGUI..."
+echo "Building Zenmap..."
 xcodebuild \
   -project NmapMac.xcodeproj \
-  -scheme NmapGUI \
+  -scheme Zenmap \
   -configuration "$CONFIGURATION" \
   clean build
 
 echo
 echo "Packaging bundled dylibs..."
-bash xcode/scripts/package-nmapgui-macos.sh
+bash xcode/scripts/package-zenmap-macos.sh
 
 APP_PATH="$(find "$HOME/Library/Developer/Xcode/DerivedData" \
   -path "*/Build/Products/$CONFIGURATION/$APP_NAME" \

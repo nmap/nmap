@@ -1,5 +1,5 @@
 #!/bin/sh
-# Bundle Nmap runtime files into an app-local layout for NmapGUI.app.
+# Bundle Nmap runtime files into an app-local layout for Zenmap.app.
 
 set -e
 

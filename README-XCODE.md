@@ -19,7 +19,7 @@ make -j$(sysctl -n hw.ncpu)
 make install DESTDIR=.xcode-products/nmap-root
 ```
 
-The `NmapGUI` target is a minimal SwiftUI starter app. In this first scaffold it runs either a bundled `nmap` binary at `NmapGUI.app/Contents/Resources/nmap` or `/usr/local/bin/nmap`.
+The `Zenmap` target is a minimal SwiftUI starter app. In this first scaffold it runs either a bundled `nmap` binary at `Zenmap.app/Contents/Resources/nmap` or `/usr/local/bin/nmap`.
 
 ## Next steps
 
@@ -33,11 +33,11 @@ The `NmapGUI` target is a minimal SwiftUI starter app. In this first scaffold it
 
 Build the GUI first, then bundle the Homebrew OpenSSL and libssh2 dylibs into the app:
 
-    bash xcode/scripts/package-nmapgui-macos.sh
+    bash xcode/scripts/package-zenmap-macos.sh
 
 If the script cannot find the built app automatically, pass APP_PATH:
 
-    APP_PATH="/path/to/NmapGUI.app" bash xcode/scripts/package-nmapgui-macos.sh
+    APP_PATH="/path/to/Zenmap.app" bash xcode/scripts/package-zenmap-macos.sh
 
 This performs development ad-hoc signing. Final external distribution will still need proper Developer ID signing and notarization.
 
@@ -71,13 +71,13 @@ A successful installed scan should load NSE scripts from the bundled /Applicatio
 
 ## Native macOS GUI layout
 
-The `NmapGUI/` directory contains the native SwiftUI macOS GUI target. It is intentionally separate from `zenmap/`, which contains the existing legacy Zenmap Python/GTK frontend.
+The ``zenmap/macos/native/` directory contains the native SwiftUI macOS GUI target. It is intentionally separate from `zenmap/`, which contains the existing legacy Zenmap Python/GTK frontend.
 
 The Xcode project builds the native GUI and uses `xcode/scripts/build-nmap-macos.sh` to build the Nmap command-line binary from the current source tree. The `xcode/scripts/bundle-nmap-runtime.sh` script then copies the runtime files into the app bundle using an app-local layout:
 
 ```text
-NmapGUI.app/Contents/Resources/bin/nmap
-NmapGUI.app/Contents/Resources/share/nmap/
+Zenmap.app/Contents/Resources/bin/nmap
+Zenmap.app/Contents/Resources/share/nmap/
 ```
 
 This keeps the SwiftUI frontend, legacy Zenmap frontend, Nmap command-line source, and macOS app-bundling logic separate.

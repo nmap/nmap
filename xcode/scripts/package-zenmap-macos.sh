@@ -10,10 +10,10 @@ APP_PATH="${APP_PATH:-}"
 
 if [ -z "$APP_PATH" ]; then
   if [ -n "$DERIVED_DATA_PATH" ]; then
-    APP_PATH="$DERIVED_DATA_PATH/Build/Products/$CONFIGURATION/NmapGUI.app"
+    APP_PATH="$DERIVED_DATA_PATH/Build/Products/$CONFIGURATION/Zenmap.app"
   else
     APP_PATH="$(find "$HOME/Library/Developer/Xcode/DerivedData" \
-      -path "*/Build/Products/$CONFIGURATION/NmapGUI.app" \
+      -path "*/Build/Products/$CONFIGURATION/Zenmap.app" \
       -not -path "*/Index.noindex/*" \
       -type d \
       -print 2>/dev/null | sort | tail -n 1)"
@@ -21,7 +21,7 @@ if [ -z "$APP_PATH" ]; then
 fi
 
 if [ -z "$APP_PATH" ] || [ ! -d "$APP_PATH" ]; then
-  echo "error: NmapGUI.app was not found. Build the NmapGUI scheme first, or pass APP_PATH=/path/to/NmapGUI.app." >&2
+  echo "error: Zenmap.app was not found. Build the Zenmap scheme first, or pass APP_PATH=/path/to/Zenmap.app." >&2
   exit 1
 fi
 
