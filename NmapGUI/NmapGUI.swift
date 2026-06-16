@@ -621,15 +621,13 @@ struct ContentView: View {
 
             if textView.string != text {
                 textView.string = text
-                let endRange = NSRange(location: max(textView.string.count - 1, 0), length: 1)
-                textView.scrollRangeToVisible(endRange)
 
-                DispatchQueue.main.async {
-                    let documentHeight = textView.bounds.height
-                    let visibleHeight = scrollView.contentView.bounds.height
-                    let y = max(0, documentHeight - visibleHeight)
-                    scrollView.contentView.scroll(to: NSPoint(x: 0, y: y))
-                    scrollView.reflectScrolledClipView(scrollView.contentView)
+                if autoScrollEnabled {
+                    scrollOutputToBottom(scrollView, textView: textView)
+
+                    DispatchQueue.main.async {
+                        scrollOutputToBottom(scrollView, textView: textView)
+                    }
                 }
             }
 
@@ -6057,3 +6055,20 @@ struct ContentView: View {
     }
 }
 
+
+        private func scrollOutputToBottom(_ scrollView: NSScrollView, textView: NSTextView) {
+            guard let textContainer = textView.textContainer else {
+                return
+            }
+
+            textView.layoutManager?.ensureLayout(for: textContainer)
+
+            let endRange = NSRange(location: max(textView.string.count - 1, 0), length: 1)
+            textView.scrollRangeToVisible(endRange)
+
+            let documentHeight = textView.bounds.height
+            let visibleHeight = scrollView.contentView.bounds.height
+            let y = max(0, documentHeight - visibleHeight)
+            scrollView.contentView.scroll(to: NSPoint(x: 0, y: y))
+            scrollView.reflectScrolledClipView(scrollView.contentView)
+        }
