@@ -304,7 +304,7 @@ int ProbeMode::start(){
 
     if( o.getMode()!=ARP && o.sendEth()==false ){
         /* Get socket descriptor. No need for it in ARP since we send at eth level */
-        if ((rawipsd = netutil_raw_socket(o.getDevice())) < 0 )
+        if ((rawipsd = netutil_raw_socket(o.getDevice(), o.ipv6() ? AF_INET6 : AF_INET)) < 0 )
             nping_fatal(QT_3,"Couldn't acquire raw socket. Are you root?");
     }
 

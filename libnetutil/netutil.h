@@ -318,7 +318,7 @@ void eth_close_cached();
     * Bind to an interface with SO_BINDTODEVICE (if device is not NULL).
    The socket is created with address family AF_INET, but may be usable for
    AF_INET6, depending on the operating system. */
-int netutil_raw_socket(const char *device);
+int netutil_raw_socket(const char *device, int af=AF_INET);
 
 /* How should we send raw IP packets?  Nmap can generally use either
    ethernet or raw ip sockets.  Which is better depends on platform
@@ -338,7 +338,7 @@ int netutil_raw_socket(const char *device);
 #define PACKET_SEND_IP_STRONG   0x10
 #define PACKET_SEND_IP (PACKET_SEND_IP_WEAK | PACKET_SEND_IP_STRONG)
 int raw_socket_or_eth(int sendpref, const char *ifname, devtype iftype,
-    int *rawsd, netutil_eth_t **ethsd);
+    int *rawsd, netutil_eth_t **ethsd, int af=AF_INET);
 
 /* Takes a protocol number like IPPROTO_TCP, IPPROTO_UDP, or
  * IPPROTO_IP and returns a ascii representation (or "unknown" if it

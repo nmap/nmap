@@ -161,7 +161,7 @@ void FPNetworkControl::init(const char *ifname, devtype iftype) {
   netutil_eth_t *ethsd = NULL;
 
   /* Obtain raw socket or check that we can obtain an eth descriptor. */
-  if (!raw_socket_or_eth(o.sendpref, ifname, iftype, &this->rawsd, &ethsd)) {
+  if (!raw_socket_or_eth(o.sendpref, ifname, iftype, &this->rawsd, &ethsd, AF_INET6)) {
     fatal("Couldn't obtain raw socket or eth handle in %s", __func__);
   }
 
