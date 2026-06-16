@@ -1243,6 +1243,7 @@ struct ContentView: View {
         }
         .padding()
     }
+    
     private var tabView: some View {
         TabView(selection: $selectedTab) {
             outputView
@@ -1274,8 +1275,8 @@ struct ContentView: View {
                 .tag("Compare")
             
             topologyView
-            .tabItem { Label("Topology", systemImage: "point.3.connected.trianglepath.dotted") }
-            .tag("Topology")
+                .tabItem { Label("Topology", systemImage: "point.3.connected.trianglepath.dotted") }
+                .tag("Topology")
             
             profilesView
                 .tabItem { Label("Profiles", systemImage: "slider.horizontal.3") }
@@ -2320,21 +2321,21 @@ struct ContentView: View {
                 .help("Copy Scan Summary")
                 .disabled(scanHistory.selectedSavedScanID == nil)
 
-            Button {
-                useSelectedSavedScanAsBaseline()
-            } label: {
-                Image(systemName: "1.circle")
-            }
-            .help("Use Selected Scan as Comparison Baseline")
-            .disabled(scanHistory.selectedSavedScanID == nil)
+                Button {
+                    useSelectedSavedScanAsBaseline()
+                } label: {
+                    Image(systemName: "1.circle")
+                }
+                .help("Use Selected Scan as Comparison Baseline")
+                .disabled(scanHistory.selectedSavedScanID == nil)
 
-            Button {
-                useSelectedSavedScanAsComparison()
-            } label: {
-                Image(systemName: "2.circle")
-            }
-            .help("Use Selected Scan as Comparison Target")
-            .disabled(scanHistory.selectedSavedScanID == nil)
+                Button {
+                    useSelectedSavedScanAsComparison()
+                } label: {
+                    Image(systemName: "2.circle")
+                }
+                .help("Use Selected Scan as Comparison Target")
+                .disabled(scanHistory.selectedSavedScanID == nil)
 
                 Button {
                     revealSelectedSavedScanInFinder()
@@ -2408,41 +2409,41 @@ struct ContentView: View {
                                 .font(.system(.body, design: .monospaced))
                         }
                     }
-                .contextMenu {
-                    Button("Use as Baseline") {
-                        useSelectedSavedScanAsBaseline()
+                    .contextMenu {
+                        Button("Use as Baseline") {
+                            useSelectedSavedScanAsBaseline()
+                        }
+                        .disabled(scanHistory.selectedSavedScanID == nil)
+
+                        Button("Use as Comparison Target") {
+                            useSelectedSavedScanAsComparison()
+                        }
+                        .disabled(scanHistory.selectedSavedScanID == nil)
+
+                        Divider()
+
+                        Button("Copy Scan Summary") {
+                            copySelectedSavedScanSummary()
+                        }
+                        .disabled(scanHistory.selectedSavedScanID == nil)
+
+                        Button("Copy Scan Command") {
+                            copySelectedSavedScanCommand()
+                        }
+                        .disabled(scanHistory.selectedSavedScanID == nil)
+
+                        Divider()
+
+                        Button("Reveal XML in Finder") {
+                            revealSelectedSavedScanInFinder()
+                        }
+                        .disabled(scanHistory.selectedSavedScanID == nil)
+
+                        Button("Open XML Externally") {
+                            openSelectedSavedScanExternally()
+                        }
+                        .disabled(scanHistory.selectedSavedScanID == nil)
                     }
-                    .disabled(scanHistory.selectedSavedScanID == nil)
-
-                    Button("Use as Comparison Target") {
-                        useSelectedSavedScanAsComparison()
-                    }
-                    .disabled(scanHistory.selectedSavedScanID == nil)
-
-                    Divider()
-
-                    Button("Copy Scan Summary") {
-                        copySelectedSavedScanSummary()
-                    }
-                    .disabled(scanHistory.selectedSavedScanID == nil)
-
-                    Button("Copy Scan Command") {
-                        copySelectedSavedScanCommand()
-                    }
-                    .disabled(scanHistory.selectedSavedScanID == nil)
-
-                    Divider()
-
-                    Button("Reveal XML in Finder") {
-                        revealSelectedSavedScanInFinder()
-                    }
-                    .disabled(scanHistory.selectedSavedScanID == nil)
-
-                    Button("Open XML Externally") {
-                        openSelectedSavedScanExternally()
-                    }
-                    .disabled(scanHistory.selectedSavedScanID == nil)
-                }
                 .onChange(of: scanHistory.selectedSavedScanIDs) { _, selectedIDs in
                     syncPrimarySavedScanSelection(selectedIDs)
                 }
