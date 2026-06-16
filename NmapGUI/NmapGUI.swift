@@ -3029,6 +3029,7 @@ struct ContentView: View {
     }
 
     private func runScan() {
+        selectedTab = "Output"
         let targetList = splitTargets(target)
         let trimmedTarget = targetList.joined(separator: " ")
         guard !targetList.isEmpty else {
