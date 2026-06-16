@@ -521,6 +521,9 @@ struct ContentView: View {
     @State private var scanScriptPhasePercent: Double?
     @State private var scanElapsedText = ""
     @State private var scanProgressBuffer = ""
+    @State private var pendingScanOutputBuffer = ""
+    @State private var pendingScanProgressBuffer = ""
+    @State private var pendingScanOutputFlushWorkItem: DispatchWorkItem?
     @State private var lastCommand = ""
     @State private var lastXMLPath = ""
     
@@ -3484,6 +3487,57 @@ struct ContentView: View {
         }
     }
 
+    private func resetPendingScanOutput() {
+        pendingScanOutputFlushWorkItem?.cancel()
+        pendingScanOutputFlushWorkItem = nil
+        pendingScanOutputBuffer = ""
+        pendingScanProgressBuffer = ""
+    }
+
+    private func appendBufferedScanOutput(_ text: String, updateProgress: Bool = true) {
+        guard !text.isEmpty else {
+            return
+        }
+
+        pendingScanOutputBuffer += text
+        if updateProgress {
+            pendingScanProgressBuffer += text
+        }
+
+        schedulePendingScanOutputFlush()
+    }
+
+    private func schedulePendingScanOutputFlush() {
+        guard pendingScanOutputFlushWorkItem == nil else {
+            return
+        }
+
+        let workItem = DispatchWorkItem {
+            flushPendingScanOutput()
+        }
+
+        pendingScanOutputFlushWorkItem = workItem
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.30, execute: workItem)
+    }
+
+    private func flushPendingScanOutput() {
+        pendingScanOutputFlushWorkItem?.cancel()
+        pendingScanOutputFlushWorkItem = nil
+
+        let outputText = pendingScanOutputBuffer
+        let progressText = pendingScanProgressBuffer
+        pendingScanOutputBuffer = ""
+        pendingScanProgressBuffer = ""
+
+        if !outputText.isEmpty {
+            output += outputText
+        }
+
+        if !progressText.isEmpty {
+            updateScanProgress(from: progressText)
+        }
+    }
+
     private func runScan() {
         selectedTab = "Output"
         let targetList = splitTargets(target)
@@ -3520,11 +3574,17 @@ struct ContentView: View {
         scanScriptPhasePercent = nil
         scanElapsedText = ""
         scanProgressBuffer = ""
+        resetPendingScanOutput()
         lastCommand = commandPreview
         lastXMLPath = xmlURL.path
         hosts = []
         selectedHostID = nil
-        output = "Running \(commandPreview)...\nXML output: \(xmlURL.path)\n\n"
+        let scanStartupLines = [
+            "Running \(commandPreview)...",
+            "XML output: \(xmlURL.path)",
+            ""
+        ]
+        output = scanStartupLines.joined(separator: "\n") + "\n"
 
         switch ScanPrivilegeEvaluator.requirement(for: args) {
         case .normalUser:
@@ -3557,9 +3617,14 @@ struct ContentView: View {
         }
 
         let dataDirectory = nmapDataDirectory(for: binary)
-        output += "Using nmap: \(binary)\n"
-        output += "Using NMAPDIR: \(dataDirectory)\n"
-        output += "Privilege mode: normal user\n\n"
+        output = (
+            scanStartupLines + [
+                "Using nmap: \(binary)",
+                "Using NMAPDIR: \(dataDirectory)",
+                "Privilege mode: normal user",
+                ""
+            ]
+        ).joined(separator: "\n") + "\n"
 
         process.executableURL = URL(fileURLWithPath: binary)
         process.arguments = args
@@ -3578,8 +3643,7 @@ struct ContentView: View {
 
             let text = String(data: data, encoding: .utf8) ?? ""
             DispatchQueue.main.async {
-                output += text
-                updateScanProgress(from: text)
+                appendBufferedScanOutput(text)
             }
         }
 
@@ -3588,6 +3652,7 @@ struct ContentView: View {
             let parsedHosts = parseNmapXML(at: xmlURL)
 
             DispatchQueue.main.async {
+                flushPendingScanOutput()
                 exitStatus = finishedProcess.terminationStatus
                 output += "\nExit status: \(finishedProcess.terminationStatus)"
                 updateScanProgress(from: output)
@@ -3617,6 +3682,7 @@ struct ContentView: View {
             try process.run()
         } catch {
             pipe.fileHandleForReading.readabilityHandler = nil
+            flushPendingScanOutput()
             output += "Failed to run nmap: \(error.localizedDescription)\n"
             output += "Expected bundled Resources/bin/nmap, /Applications/nmap.app/Contents/Resources/bin/nmap, /usr/local/bin/nmap, or /opt/homebrew/bin/nmap."
             status = "Failed"
@@ -3630,6 +3696,7 @@ struct ContentView: View {
             scanEstimatedCompletionText = ""
             scanElapsedText = ""
             scanProgressBuffer = ""
+            resetPendingScanOutput()
             isRunning = false
             runningProcess = nil
             scanStartedAt = nil
@@ -3687,18 +3754,24 @@ struct ContentView: View {
         let childPIDURL = FileManager.default.temporaryDirectory
             .appendingPathComponent("NmapGUI-\(UUID().uuidString)-privileged.childpid")
 
+        var privilegedStartupLines: [String]
         do {
             let privilegedBinary = try PrivilegedNmapRunner.bundledNmapPath()
             let privilegedDataDirectory = PrivilegedNmapRunner.nmapDataDirectory(for: privilegedBinary)
-            output += "Using nmap: \(privilegedBinary)\n"
-            output += "Using NMAPDIR: \(privilegedDataDirectory)\n"
-            output += "Privilege mode: administrator\n"
+            privilegedStartupLines = [
+                "Using nmap: \(privilegedBinary)",
+                "Using NMAPDIR: \(privilegedDataDirectory)",
+                "Privilege mode: administrator"
+            ]
         } catch {
-            output += "Using nmap: unavailable before administrator launch (\(error.localizedDescription))\n"
-            output += "Privilege mode: administrator\n"
+            privilegedStartupLines = [
+                "Using nmap: unavailable before administrator launch (\(error.localizedDescription))",
+                "Privilege mode: administrator"
+            ]
         }
-        output += "Administrator authorization requested. Running nmap as root...\n"
-        output += "Privileged output log: \(logURL.path)\n"
+        privilegedStartupLines.append("Administrator authorization requested. Running nmap as root...")
+        privilegedStartupLines.append("Privileged output log: \(logURL.path)")
+        output += privilegedStartupLines.joined(separator: "\n") + "\n"
         status = "Running as administrator"
         scanProgressMessage = "Waiting for privileged Nmap scan"
         scanPhaseProgressText = "Phase: privileged scan starting"
@@ -3713,8 +3786,9 @@ struct ContentView: View {
             )
             privilegedScanPID = pid
             privilegedChildPIDPath = childPIDURL.path
-            output += "Privileged nmap PID: \(pid)\n\n"
+            output += "Privileged nmap PID: \(pid)\n"
             scanPhaseProgressText = "Phase: privileged scan running"
+            resetPendingScanOutput()
 
             var lastOffset: UInt64 = 0
 
@@ -3723,8 +3797,7 @@ struct ContentView: View {
                 lastOffset = newTextAndOffset.offset
 
                 if !newTextAndOffset.text.isEmpty {
-                    output += newTextAndOffset.text
-                    updateScanProgress(from: newTextAndOffset.text)
+                    appendBufferedScanOutput(newTextAndOffset.text)
                 }
 
                 try await Task.sleep(nanoseconds: 750_000_000)
@@ -3734,14 +3807,15 @@ struct ContentView: View {
             lastOffset = finalTextAndOffset.offset
 
             if !finalTextAndOffset.text.isEmpty {
-                output += finalTextAndOffset.text
-                updateScanProgress(from: finalTextAndOffset.text)
+                appendBufferedScanOutput(finalTextAndOffset.text)
+                flushPendingScanOutput()
             }
 
             let parsedHosts = parseNmapXML(at: xmlURL)
             let realExitStatus = readExitStatus(from: statusURL) ?? 1
             let succeeded = realExitStatus == 0 && FileManager.default.fileExists(atPath: xmlURL.path)
 
+            flushPendingScanOutput()
             output += "\nExit status: \(realExitStatus)\n"
             updateScanProgress(from: output)
 
@@ -3779,6 +3853,7 @@ struct ContentView: View {
         } catch {
             let parsedHosts = parseNmapXML(at: xmlURL)
 
+            flushPendingScanOutput()
             output += "\nFailed to run privileged nmap: \(error.localizedDescription)\n"
             output += "\nExit status: 1"
 
