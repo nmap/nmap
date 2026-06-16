@@ -3931,7 +3931,14 @@ struct ContentView: View {
             }
 
             mergeImportedCustomProfiles(importedProfiles)
-            nseScriptHelperMessage = "Imported \(importedProfiles.count) custom profile(s)."
+
+            if let lastImportedProfile = importedProfiles.last,
+               let importedProfile = profiles.first(where: { $0.name == lastImportedProfile.name && !$0.isBuiltIn }) {
+                selectedProfileID = importedProfile.id
+                loadProfileIntoEditor(importedProfile)
+            }
+
+            nseScriptHelperMessage = "Imported \(importedProfiles.count) custom profile(s) and loaded the latest import."
         } catch {
             nseScriptHelperMessage = "Failed to import custom profiles: \(error.localizedDescription)"
         }
