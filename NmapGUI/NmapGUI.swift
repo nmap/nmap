@@ -1795,6 +1795,38 @@ struct ContentView: View {
 
                 Text("\(hosts.count) host\(hosts.count == 1 ? "" : "s")")
                     .foregroundStyle(.secondary)
+
+                Button {
+                    copySelectedHostAddress()
+                } label: {
+                    Label("Copy Address", systemImage: "number")
+                }
+                .disabled(selectedHost == nil)
+                .help("Copy the selected topology host address")
+
+                Button {
+                    copySelectedHostSummary()
+                } label: {
+                    Label("Copy Summary", systemImage: "doc.on.doc")
+                }
+                .disabled(selectedHost == nil)
+                .help("Copy a summary of the selected topology host")
+
+                Button {
+                    copySelectedHostOpenPorts()
+                } label: {
+                    Label("Copy Open Ports", systemImage: "list.bullet.rectangle")
+                }
+                .disabled(selectedHost == nil)
+                .help("Copy open ports for the selected topology host")
+
+                Button {
+                    selectedTab = "Details"
+                } label: {
+                    Label("Details", systemImage: "info.circle")
+                }
+                .disabled(selectedHost == nil)
+                .help("Show details for the selected topology host")
             }
 
             if hosts.isEmpty {
@@ -1844,6 +1876,29 @@ struct ContentView: View {
                                 topologyNode(host)
                             }
                             .buttonStyle(.plain)
+                            .contextMenu {
+                                Button("Copy Address") {
+                                    selectedHostID = host.id
+                                    copySelectedHostAddress()
+                                }
+
+                                Button("Copy Host Summary") {
+                                    selectedHostID = host.id
+                                    copySelectedHostSummary()
+                                }
+
+                                Button("Copy Open Ports") {
+                                    selectedHostID = host.id
+                                    copySelectedHostOpenPorts()
+                                }
+
+                                Divider()
+
+                                Button("Show Details") {
+                                    selectedHostID = host.id
+                                    selectedTab = "Details"
+                                }
+                            }
                             .position(point)
                         }
                     }
@@ -1852,32 +1907,62 @@ struct ContentView: View {
 
                 if let selectedHost {
                     GroupBox("Selected Host") {
-                        Grid(alignment: .leading, horizontalSpacing: 12, verticalSpacing: 6) {
-                            GridRow {
-                                Text("Address")
-                                    .foregroundStyle(.secondary)
-                                Text(selectedHost.address)
-                                    .font(.system(.body, design: .monospaced))
-                                    .textSelection(.enabled)
+                        VStack(alignment: .leading, spacing: 10) {
+                            Grid(alignment: .leading, horizontalSpacing: 12, verticalSpacing: 6) {
+                                GridRow {
+                                    Text("Address")
+                                        .foregroundStyle(.secondary)
+                                    Text(selectedHost.address)
+                                        .font(.system(.body, design: .monospaced))
+                                        .textSelection(.enabled)
+                                }
+
+                                GridRow {
+                                    Text("Hostname")
+                                        .foregroundStyle(.secondary)
+                                    Text(selectedHost.hostname.isEmpty ? "-" : selectedHost.hostname)
+                                        .textSelection(.enabled)
+                                }
+
+                                GridRow {
+                                    Text("Status")
+                                        .foregroundStyle(.secondary)
+                                    Text(selectedHost.status)
+                                }
+
+                                GridRow {
+                                    Text("Open Ports")
+                                        .foregroundStyle(.secondary)
+                                    Text("\(selectedHost.openPortCount)")
+                                }
                             }
 
-                            GridRow {
-                                Text("Hostname")
-                                    .foregroundStyle(.secondary)
-                                Text(selectedHost.hostname.isEmpty ? "-" : selectedHost.hostname)
-                                    .textSelection(.enabled)
-                            }
+                            HStack {
+                                Button {
+                                    copySelectedHostAddress()
+                                } label: {
+                                    Label("Copy Address", systemImage: "number")
+                                }
 
-                            GridRow {
-                                Text("Status")
-                                    .foregroundStyle(.secondary)
-                                Text(selectedHost.status)
-                            }
+                                Button {
+                                    copySelectedHostSummary()
+                                } label: {
+                                    Label("Copy Summary", systemImage: "doc.on.doc")
+                                }
 
-                            GridRow {
-                                Text("Open Ports")
-                                    .foregroundStyle(.secondary)
-                                Text("\(selectedHost.openPortCount)")
+                                Button {
+                                    copySelectedHostOpenPorts()
+                                } label: {
+                                    Label("Copy Open Ports", systemImage: "list.bullet.rectangle")
+                                }
+
+                                Button {
+                                    selectedTab = "Details"
+                                } label: {
+                                    Label("Details", systemImage: "info.circle")
+                                }
+
+                                Spacer()
                             }
                         }
                     }
@@ -1914,6 +1999,11 @@ struct ContentView: View {
             Text("\(openPorts) open port\(openPorts == 1 ? "" : "s")")
                 .font(.caption2)
                 .foregroundStyle(.secondary)
+
+            Text(host.status)
+                .font(.caption2)
+                .foregroundStyle(.secondary)
+                .lineLimit(1)
         }
         .padding(.horizontal, 10)
         .padding(.vertical, 8)
