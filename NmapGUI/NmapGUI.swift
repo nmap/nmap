@@ -2261,6 +2261,13 @@ struct ContentView: View {
                 }
 
                 HStack {
+                    Button {
+                        copyProfileArguments()
+                    } label: {
+                        Label("Copy Arguments", systemImage: "doc.on.doc")
+                    }
+                    .disabled(newProfileArguments.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+
                     Spacer()
 
                     Button {
@@ -3850,6 +3857,17 @@ struct ContentView: View {
         UserDefaults.standard.set(data, forKey: Self.customProfilesDefaultsKey)
     }
     
+    private func copyProfileArguments() {
+        let trimmedArguments = newProfileArguments.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmedArguments.isEmpty else {
+            return
+        }
+
+        NSPasteboard.general.clearContents()
+        NSPasteboard.general.setString(trimmedArguments, forType: .string)
+        nseScriptHelperMessage = "Copied profile arguments to clipboard."
+    }
+
     private func copyOutput() {
         NSPasteboard.general.clearContents()
         NSPasteboard.general.setString(output, forType: .string)
