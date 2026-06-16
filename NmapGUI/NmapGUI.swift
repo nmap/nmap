@@ -1357,6 +1357,14 @@ struct ContentView: View {
                 Spacer()
                 Text(isFilteringResults ? "\(filteredHosts.count) of \(hosts.count) hosts" : "\(hosts.count) host\(hosts.count == 1 ? "" : "s")")
                     .foregroundStyle(.secondary)
+
+                Button {
+                    selectedTab = "Details"
+                } label: {
+                    Label("Details", systemImage: "info.circle")
+                }
+                .disabled(selectedHost == nil)
+                .help("Show details for the selected host")
             }
             
             resultsFilterBar
@@ -1468,78 +1476,148 @@ struct ContentView: View {
     }
     
     private var detailsView: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Label("Scan Details", systemImage: "info.circle")
-                .font(.title2.bold())
-            
-            Grid(alignment: .leading, horizontalSpacing: 12, verticalSpacing: 8) {
-                GridRow {
-                    Text("Status")
-                        .foregroundStyle(.secondary)
-                    Text(status)
+        VStack(alignment: .leading, spacing: 14) {
+            HStack {
+                Label("Scan Details", systemImage: "info.circle")
+                    .font(.title2.bold())
+
+                Spacer()
+
+                Button {
+                    copyScanDetailsSummary()
+                } label: {
+                    Label("Copy Scan Summary", systemImage: "doc.plaintext")
                 }
-                GridRow {
-                    Text("Last command")
-                        .foregroundStyle(.secondary)
-                    Text(lastCommand.isEmpty ? "None" : lastCommand)
-                        .font(.system(.body, design: .monospaced))
-                        .textSelection(.enabled)
-                }
-                GridRow {
-                    Text("Exit status")
-                        .foregroundStyle(.secondary)
-                    Text(exitStatus.map(String.init) ?? "None")
-                }
-                GridRow {
-                    Text("Hosts")
-                        .foregroundStyle(.secondary)
-                    Text("\(hosts.count)")
-                }
-                GridRow {
-                    Text("Ports")
-                        .foregroundStyle(.secondary)
-                    Text("\(allPorts.count)")
-                }
-                GridRow {
-                    Text("XML output")
-                        .foregroundStyle(.secondary)
-                    Text(lastXMLPath.isEmpty ? "None" : lastXMLPath)
-                        .font(.system(.body, design: .monospaced))
-                        .textSelection(.enabled)
-                }
-                GridRow {
-                    Text("NMAPDIR")
-                        .foregroundStyle(.secondary)
-                    Text(Bundle.main.resourceURL?.path ?? "Unavailable")
-                        .font(.system(.body, design: .monospaced))
-                        .textSelection(.enabled)
-                }
-                GridRow {
-                    Text("Bundled binary")
-                        .foregroundStyle(.secondary)
-                    Text(nmapBinaryPath() ?? "Not found")
-                        .font(.system(.body, design: .monospaced))
-                        .textSelection(.enabled)
+                .disabled(hosts.isEmpty && lastCommand.isEmpty && lastXMLPath.isEmpty)
+
+                if selectedHost != nil {
+                    Button {
+                        copySelectedHostSummary()
+                    } label: {
+                        Label("Copy Host Summary", systemImage: "doc.on.doc")
+                    }
+
+                    Button {
+                        copySelectedHostOpenPorts()
+                    } label: {
+                        Label("Copy Open Ports", systemImage: "list.bullet.rectangle")
+                    }
                 }
             }
-            
+
+            HStack(spacing: 12) {
+                scanMetricCard(title: "Hosts", value: "\(hosts.count)", systemImage: "desktopcomputer")
+                scanMetricCard(title: "Ports", value: "\(allPorts.count)", systemImage: "network")
+                scanMetricCard(title: "Open", value: "\(scanPortStateCount("open"))", systemImage: "checkmark.circle")
+                scanMetricCard(title: "Filtered", value: "\(scanPortStateCount("filtered"))", systemImage: "line.3.horizontal.decrease.circle")
+                scanMetricCard(title: "Closed", value: "\(scanPortStateCount("closed"))", systemImage: "xmark.circle")
+            }
+
+            GroupBox("Scan Context") {
+                Grid(alignment: .leading, horizontalSpacing: 12, verticalSpacing: 8) {
+                    GridRow {
+                        Text("Status")
+                            .foregroundStyle(.secondary)
+                        Text(status)
+                    }
+                    GridRow {
+                        Text("Last command")
+                            .foregroundStyle(.secondary)
+                        Text(lastCommand.isEmpty ? "None" : lastCommand)
+                            .font(.system(.body, design: .monospaced))
+                            .textSelection(.enabled)
+                    }
+                    GridRow {
+                        Text("Exit status")
+                            .foregroundStyle(.secondary)
+                        Text(exitStatus.map(String.init) ?? "None")
+                    }
+                    GridRow {
+                        Text("XML output")
+                            .foregroundStyle(.secondary)
+                        Text(lastXMLPath.isEmpty ? "None" : lastXMLPath)
+                            .font(.system(.body, design: .monospaced))
+                            .textSelection(.enabled)
+                    }
+                    GridRow {
+                        Text("NMAPDIR")
+                            .foregroundStyle(.secondary)
+                        Text(Bundle.main.resourceURL?.path ?? "Unavailable")
+                            .font(.system(.body, design: .monospaced))
+                            .textSelection(.enabled)
+                    }
+                    GridRow {
+                        Text("Bundled binary")
+                            .foregroundStyle(.secondary)
+                        Text(nmapBinaryPath() ?? "Not found")
+                            .font(.system(.body, design: .monospaced))
+                            .textSelection(.enabled)
+                    }
+                }
+            }
+
             if let selectedHost {
-                Divider()
-                VStack(alignment: .leading, spacing: 6) {
-                    Text("Selected Host")
-                        .font(.headline)
-                    Text(selectedHost.displayName)
-                        .font(.system(.body, design: .monospaced))
-                    Text("\(selectedHost.openPortCount) open port\(selectedHost.openPortCount == 1 ? "" : "s")")
-                        .foregroundStyle(.secondary)
+                GroupBox("Selected Host") {
+                    VStack(alignment: .leading, spacing: 10) {
+                        HStack {
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text(selectedHost.displayName)
+                                    .font(.headline)
+                                    .textSelection(.enabled)
+
+                                Text(selectedHost.address)
+                                    .font(.system(.body, design: .monospaced))
+                                    .foregroundStyle(.secondary)
+                                    .textSelection(.enabled)
+                            }
+
+                            Spacer()
+
+                            Text(selectedHost.status)
+                                .font(.caption.bold())
+                                .padding(.horizontal, 8)
+                                .padding(.vertical, 4)
+                                .background(.quaternary, in: Capsule())
+                        }
+
+                        HStack(spacing: 12) {
+                            scanMetricCard(title: "Host Ports", value: "\(selectedHost.ports.count)", systemImage: "number")
+                            scanMetricCard(title: "Open", value: "\(hostPortStateCount(selectedHost, state: "open"))", systemImage: "checkmark.circle")
+                            scanMetricCard(title: "Filtered", value: "\(hostPortStateCount(selectedHost, state: "filtered"))", systemImage: "line.3.horizontal.decrease.circle")
+                            scanMetricCard(title: "Closed", value: "\(hostPortStateCount(selectedHost, state: "closed"))", systemImage: "xmark.circle")
+                        }
+
+                        if selectedHost.ports.isEmpty {
+                            Text("No port results were parsed for this host.")
+                                .foregroundStyle(.secondary)
+                        } else {
+                            Table(sortedPorts(selectedHost.ports)) {
+                                TableColumn("Port") { port in
+                                    Text("\(port.portNumber)/\(port.protocolName)")
+                                        .font(.system(.body, design: .monospaced))
+                                }
+                                TableColumn("State") { port in
+                                    Text(port.state)
+                                }
+                                TableColumn("Service") { port in
+                                    Text(port.serviceName.isEmpty ? "-" : port.serviceName)
+                                }
+                                TableColumn("Version") { port in
+                                    Text(port.serviceSummary.isEmpty ? "-" : port.serviceSummary)
+                                }
+                            }
+                            .frame(minHeight: 160)
+                        }
+                    }
                 }
+            } else {
+                emptyResultsView("Select a host in the Hosts tab to view host details here.")
             }
-            
+
             Spacer()
         }
         .padding()
     }
-    
 
     private var topologyView: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -4859,6 +4937,124 @@ struct ContentView: View {
                 .keyboardShortcut(.cancelAction)
             }
         }
+    }
+
+    private func scanMetricCard(title: String, value: String, systemImage: String) -> some View {
+        VStack(alignment: .leading, spacing: 6) {
+            HStack(spacing: 6) {
+                Image(systemName: systemImage)
+                    .foregroundStyle(.secondary)
+                Text(title)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+
+            Text(value)
+                .font(.title3.bold())
+                .textSelection(.enabled)
+        }
+        .padding(10)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(.quaternary.opacity(0.35), in: RoundedRectangle(cornerRadius: 10))
+    }
+
+    private func scanPortStateCount(_ state: String) -> Int {
+        allPorts.filter { $0.state == state }.count
+    }
+
+    private func hostPortStateCount(_ host: ScannedHost, state: String) -> Int {
+        host.ports.filter { $0.state == state }.count
+    }
+
+    private func sortedPorts(_ ports: [ScannedPort]) -> [ScannedPort] {
+        ports.sorted {
+            let leftNumber = Int($0.portNumber) ?? Int.max
+            let rightNumber = Int($1.portNumber) ?? Int.max
+
+            if leftNumber == rightNumber {
+                return $0.protocolName < $1.protocolName
+            }
+
+            return leftNumber < rightNumber
+        }
+    }
+
+    private func copyScanDetailsSummary() {
+        NSPasteboard.general.clearContents()
+        NSPasteboard.general.setString(scanDetailsSummaryText(), forType: .string)
+        output += "\nCopied scan details summary to clipboard."
+    }
+
+    private func copySelectedHostSummary() {
+        guard let selectedHost else {
+            return
+        }
+
+        NSPasteboard.general.clearContents()
+        NSPasteboard.general.setString(selectedHostSummaryText(selectedHost), forType: .string)
+        output += "\nCopied selected host summary to clipboard."
+    }
+
+    private func copySelectedHostOpenPorts() {
+        guard let selectedHost else {
+            return
+        }
+
+        NSPasteboard.general.clearContents()
+        NSPasteboard.general.setString(selectedHostOpenPortsText(selectedHost), forType: .string)
+        output += "\nCopied selected host open ports to clipboard."
+    }
+
+    private func scanDetailsSummaryText() -> String {
+        [
+            "Nmap Scan Details",
+            "Status: \(status)",
+            "Command: \(lastCommand.isEmpty ? "None" : lastCommand)",
+            "Exit status: \(exitStatus.map(String.init) ?? "None")",
+            "Hosts: \(hosts.count)",
+            "Ports: \(allPorts.count)",
+            "Open ports: \(scanPortStateCount("open"))",
+            "Filtered ports: \(scanPortStateCount("filtered"))",
+            "Closed ports: \(scanPortStateCount("closed"))",
+            "XML: \(lastXMLPath.isEmpty ? "None" : lastXMLPath)"
+        ].joined(separator: "\n")
+    }
+
+    private func selectedHostSummaryText(_ host: ScannedHost) -> String {
+        var lines = [
+            "Nmap Host Summary",
+            "Host: \(host.displayName)",
+            "Address: \(host.address)",
+            "Hostname: \(host.hostname.isEmpty ? "None" : host.hostname)",
+            "Status: \(host.status)",
+            "Ports: \(host.ports.count)",
+            "Open ports: \(hostPortStateCount(host, state: "open"))",
+            "Filtered ports: \(hostPortStateCount(host, state: "filtered"))",
+            "Closed ports: \(hostPortStateCount(host, state: "closed"))"
+        ]
+
+        let openPorts = sortedPorts(host.ports.filter { $0.state == "open" })
+        if !openPorts.isEmpty {
+            lines.append("")
+            lines.append("Open Port Details:")
+            lines.append(contentsOf: openPorts.map { port in
+                "- \(port.portNumber)/\(port.protocolName) \(scanPortServiceDescription(port))"
+            })
+        }
+
+        return lines.joined(separator: "\n")
+    }
+
+    private func selectedHostOpenPortsText(_ host: ScannedHost) -> String {
+        let openPorts = sortedPorts(host.ports.filter { $0.state == "open" })
+
+        guard !openPorts.isEmpty else {
+            return "No open ports for \(host.displayName)."
+        }
+
+        return openPorts
+            .map { "\($0.portNumber)/\($0.protocolName) \(scanPortServiceDescription($0))" }
+            .joined(separator: "\n")
     }
 
     private var resultsFilterBar: some View {
