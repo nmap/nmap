@@ -485,6 +485,7 @@ struct ContentView: View {
     @State private var selectedNSEScriptName = ""
     @State private var nseScriptHelperMessage = ""
     @State private var nseScriptArgsText = ""
+    @State private var nseScriptEntries: [NSEScriptEntry] = []
     
     init() {
         let savedCustomProfiles = Self.loadSavedCustomProfiles() ?? []
@@ -802,10 +803,6 @@ struct ContentView: View {
         var id: String { name }
     }
 
-    private var nseScriptEntries: [NSEScriptEntry] {
-        parseBundledNSEScriptDatabase()
-    }
-
     private var nseScriptCategories: [String] {
         let parsedCategories = Set(nseScriptEntries.flatMap { $0.categories })
         let fallbackCategories = Set(["default", "safe", "vuln", "auth", "discovery", "version", "all"])
@@ -977,6 +974,7 @@ struct ContentView: View {
         }
         .onAppear {
             installDiagnosticInfoObserverIfNeeded()
+            loadNSEScriptDatabaseIfNeeded()
         }
     }
 
@@ -993,6 +991,14 @@ struct ContentView: View {
         ) { _ in
             copyDiagnosticInfo()
         }
+    }
+    
+    private func loadNSEScriptDatabaseIfNeeded() {
+        guard nseScriptEntries.isEmpty else {
+            return
+        }
+
+        nseScriptEntries = parseBundledNSEScriptDatabase()
     }
     
     private var sidebar: some View {
