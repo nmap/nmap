@@ -524,6 +524,7 @@ struct ContentView: View {
     
     @State private var hosts: [ScannedHost] = []
     @State private var selectedHostID: ScannedHost.ID?
+    @State private var selectedPortID: ScannedPort.ID?
     @State private var resultsFilterText = ""
     @State private var savedScansFilterText = ""
     @State private var savedScanNotesText = ""
@@ -1441,6 +1442,14 @@ struct ContentView: View {
         .padding()
     }
     
+    private var selectedPort: ScannedPort? {
+        guard let selectedPortID else {
+            return nil
+        }
+
+        return allPorts.first { $0.id == selectedPortID }
+    }
+
     private var portsView: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
@@ -1449,6 +1458,30 @@ struct ContentView: View {
                 Spacer()
                 Text(isFilteringResults ? "\(filteredPorts.count) of \(allPorts.count) port results" : "\(allPorts.count) port result\(allPorts.count == 1 ? "" : "s")")
                     .foregroundStyle(.secondary)
+
+                Button {
+                    copySelectedPortHostPort()
+                } label: {
+                    Label("Copy Host:Port", systemImage: "number")
+                }
+                .disabled(selectedPort == nil)
+                .help("Copy the selected host and port")
+
+                Button {
+                    copySelectedPortSummary()
+                } label: {
+                    Label("Copy Port Summary", systemImage: "doc.on.doc")
+                }
+                .disabled(selectedPort == nil)
+                .help("Copy a summary of the selected port")
+
+                Button {
+                    showSelectedPortHostDetails()
+                } label: {
+                    Label("Host Details", systemImage: "info.circle")
+                }
+                .disabled(selectedPort == nil)
+                .help("Show details for the selected port's host")
             }
             
             resultsFilterBar
@@ -1458,7 +1491,7 @@ struct ContentView: View {
             } else if filteredPorts.isEmpty {
                 emptyResultsView("No ports match the current filter.")
             } else {
-                Table(filteredPorts) {
+                Table(filteredPorts, selection: $selectedPortID) {
                     TableColumn("Host") { port in
                         Text(port.hostAddress)
                             .font(.system(.body, design: .monospaced))
@@ -1476,6 +1509,24 @@ struct ContentView: View {
                     TableColumn("Version") { port in
                         Text(port.serviceSummary.isEmpty ? "-" : port.serviceSummary)
                     }
+                }
+                .contextMenu {
+                    Button("Copy Host:Port") {
+                        copySelectedPortHostPort()
+                    }
+                    .disabled(selectedPort == nil)
+
+                    Button("Copy Port Summary") {
+                        copySelectedPortSummary()
+                    }
+                    .disabled(selectedPort == nil)
+
+                    Divider()
+
+                    Button("Show Host Details") {
+                        showSelectedPortHostDetails()
+                    }
+                    .disabled(selectedPort == nil)
                 }
             }
         }
@@ -5060,6 +5111,51 @@ struct ContentView: View {
         NSPasteboard.general.clearContents()
         NSPasteboard.general.setString(selectedHostOpenPortsText(selectedHost), forType: .string)
         output += "\nCopied selected host open ports to clipboard."
+    }
+
+    private func copySelectedPortHostPort() {
+        guard let selectedPort else {
+            return
+        }
+
+        let hostPort = "\(selectedPort.hostAddress):\(selectedPort.portNumber)/\(selectedPort.protocolName)"
+        NSPasteboard.general.clearContents()
+        NSPasteboard.general.setString(hostPort, forType: .string)
+        output += "\nCopied selected port to clipboard: \(hostPort)"
+    }
+
+    private func copySelectedPortSummary() {
+        guard let selectedPort else {
+            return
+        }
+
+        NSPasteboard.general.clearContents()
+        NSPasteboard.general.setString(selectedPortSummaryText(selectedPort), forType: .string)
+        output += "\nCopied selected port summary to clipboard."
+    }
+
+    private func showSelectedPortHostDetails() {
+        guard let selectedPort,
+              let host = hosts.first(where: { $0.address == selectedPort.hostAddress }) else {
+            return
+        }
+
+        selectedHostID = host.id
+        selectedTab = "Details"
+    }
+
+    private func selectedPortSummaryText(_ port: ScannedPort) -> String {
+        [
+            "Nmap Port Summary",
+            "Host: \(port.hostAddress)",
+            "Port: \(port.portNumber)/\(port.protocolName)",
+            "State: \(port.state)",
+            "Service: \(port.serviceName.isEmpty ? "None" : port.serviceName)",
+            "Product: \(port.product.isEmpty ? "None" : port.product)",
+            "Version: \(port.version.isEmpty ? "None" : port.version)",
+            "Extra Info: \(port.extraInfo.isEmpty ? "None" : port.extraInfo)",
+            "Summary: \(scanPortServiceDescription(port))"
+        ].joined(separator: "\n")
     }
 
     private func scanDetailsSummaryText() -> String {
