@@ -59,29 +59,17 @@ For far more in-depth compilation, installation, and removal notes, read the **N
 
 ## <a name="zenmap"></a>Zenmap
 
-### Files into `zenmap/install_scripts/macosx/`:
+The native macOS Zenmap app is built by the Xcode project in the repository root. Its SwiftUI source lives in `zenmap/macos/native/`, while macOS packaging and release helper scripts live in this `macosx/` directory.
 
-All of the files have to do with packaging on Mac OS X. They are useful only for those wanting to build binary distributions of Zenmap for Mac OS X.
+Useful release and packaging scripts include:
 
-* [Info.plist](../zenmap/install_scripts/macosx/Info.plist): A properties list file template that is filled out by [make-bundle.sh](../zenmap/install_scripts/macosx/make-bundle.sh).
-* [make-bundle.sh](../zenmap/install_scripts/macosx/make-bundle.sh): This script builds a .app bundle. It must be run from the root of the Zenmap source tree. The finished bundle is put in `dist/Zenmap.app`.
-* [zenmap.icns](../zenmap/install_scripts/macosx/zenmap.icns): The icon file for the bundle. It was created using the Icon Composer utility (`$ open -a "Icon Composer"`).
-* [zenmap_auth.c](../zenmap/install_scripts/macosx/zenmap_auth.c): This is a simple wrapper program that attempts to run [launcher.sh](../zenmap/install_scripts/macosx/launcher.sh) with privileges.
-* [launcher.sh](../zenmap/install_scripts/macosx/launcher.sh): A launcher script that configures the environment for Zenmap, Python, and GTK before launching the main Zenmap script file.
-* [zenmap.bundle](../zenmap/install_scripts/macosx/zenmap.bundle): An XML configuration file for gtk-mac-bundler which specifies files and metadata for the application bundle ([https://wiki.gnome.org/Projects/GTK%2B/OSX/Building](https://wiki.gnome.org/Projects/GTK%2B/OSX/Building)).
+* [package-zenmap-macos.sh](package-zenmap-macos.sh): Bundles Homebrew OpenSSL and libssh2 dylibs into a built `Zenmap.app`, adjusts library install names, and performs development ad-hoc signing.
+* [release-zenmap-macos.sh](release-zenmap-macos.sh): Builds the native `Zenmap` target, packages bundled dylibs, copies the app into `dist/`, and creates a development zip archive.
+* [release-nmap-cli-macos.sh](release-nmap-cli-macos.sh): Builds the command-line Nmap tools used by the macOS installer staging flow.
+* [stage-nmap-replacement-root-macos.sh](stage-nmap-replacement-root-macos.sh): Stages replacement-root contents for the macOS installer package.
+* [pkg-nmap-macos.sh](pkg-nmap-macos.sh): Builds the local macOS installer package from the staged files.
 
-### Authorization Wrapper:
-
-The **bundling** process is as follows: 
-
-1.	First, the bundler ([make-bundle.sh](../zenmap/install_scripts/macosx/make-bundle.sh)) look at the bundle XML (`zenmap.bundle`) and copy everything over.
-2. The launcher script ([launcher.sh](../zenmap/install_scripts/macosx/launcher.sh)) gets renamed into the app name (`Zenmap`).
-3. The authorization wrapper is compiled to `Zenmap` so that it is the entry point of the app.
-4. The last part is filling in the [Info.plist template file](../zenmap/install_scripts/macosx/Info.plist) based on the current information in `zenmap.ZenmapCore.Version`.
-
-After the bundling process is done and the app is installed, the **execution** path is as follows:
-
-**Zenmap (zenmap_auth) > zenmap.bin (launcher.sh) > python zenmap.py**
+The Xcode build-phase helper scripts remain under `xcode/scripts/` because they are invoked directly by `NmapMac.xcodeproj`.
 
 ## <a name="repo"></a>Repositories and Troubleshooting
 
