@@ -1867,6 +1867,22 @@ struct ContentView: View {
         .padding()
     }
     
+    private var profileValidationWarningsView: some View {
+        let warnings = profileValidationWarnings()
+
+        return Group {
+            if !warnings.isEmpty {
+                VStack(alignment: .leading, spacing: 4) {
+                    ForEach(warnings, id: \.self) { warning in
+                        Label(warning, systemImage: "exclamationmark.triangle")
+                            .font(.caption)
+                            .foregroundStyle(.orange)
+                    }
+                }
+            }
+        }
+    }
+
     private var profileAdvancedOptionsRow: some View {
         HStack(spacing: 10) {
             Menu("Add Option") {
@@ -2209,9 +2225,13 @@ struct ContentView: View {
                     GridRow {
                         Text("Arguments")
                             .foregroundStyle(.secondary)
-                        TextField("-sV -T4", text: $newProfileArguments)
-                            .textFieldStyle(.roundedBorder)
-                            .font(.system(.body, design: .monospaced))
+                        VStack(alignment: .leading, spacing: 6) {
+                            TextField("-sV -T4", text: $newProfileArguments)
+                                .textFieldStyle(.roundedBorder)
+                                .font(.system(.body, design: .monospaced))
+
+                            profileValidationWarningsView
+                        }
                     }
 
                     GridRow {
@@ -3364,6 +3384,55 @@ struct ContentView: View {
         nseScriptArgsText = profileScriptArgsValue(from: shellSplit(profile.arguments))
     }
     
+    private func profileValidationWarnings() -> [String] {
+        let argumentsArray = profileArgumentsArray()
+        let argumentsSet = Set(argumentsArray)
+        let joinedArguments = argumentsArray.joined(separator: " ").lowercased()
+        var warnings: [String] = []
+
+        if newProfileName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            warnings.append("Profile name is empty.")
+        }
+
+        if joinedArguments.contains("--script default or safe") {
+            warnings.append("Use --script default,safe instead of '--script default or safe'.")
+        }
+
+        if profileHasScriptArgs(argumentsArray), !profileEnablesScripts(argumentsArray) {
+            warnings.append("--script-args is set, but no --script, -sC, or -A option enables NSE scripts.")
+        }
+
+        if profileScriptExpressions().contains("all") {
+            warnings.append("--script all can be very slow and noisy. Use it only when intentional.")
+        }
+
+        if argumentsSet.contains("-sU") {
+            warnings.append("UDP scans can be slow and may require administrator privileges.")
+        }
+
+        if argumentsSet.contains("-sS") {
+            warnings.append("SYN scans usually require administrator privileges on macOS.")
+        }
+
+        if argumentsSet.contains("-A") {
+            warnings.append("-A enables OS detection, version detection, scripts, and traceroute.")
+        }
+
+        return warnings
+    }
+
+    private func profileHasScriptArgs(_ argumentsArray: [String]) -> Bool {
+        argumentsArray.contains("--script-args") ||
+        argumentsArray.contains { $0.hasPrefix("--script-args=") }
+    }
+
+    private func profileEnablesScripts(_ argumentsArray: [String]) -> Bool {
+        argumentsArray.contains("-sC") ||
+        argumentsArray.contains("-A") ||
+        argumentsArray.contains("--script") ||
+        argumentsArray.contains { $0.hasPrefix("--script=") }
+    }
+
     private func profileArgumentsArray() -> [String] {
         shellSplit(newProfileArguments)
     }
