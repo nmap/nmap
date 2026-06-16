@@ -137,8 +137,8 @@ stamp-h1
 /zenmap/zenmapCore/data/locale/*/
 
 .xcode-products/
+.xcode-build/
 
-.xcode-products/
 
 # Local Xcode user state
 NmapMac.xcodeproj/project.xcworkspace/xcuserdata/
