@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-ROOT_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
+ROOT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT_DIR"
 
 DIST_DIR="$ROOT_DIR/dist"
@@ -23,8 +23,8 @@ COMPLETE_PKG="$PKG_OUT_DIR/NmapComplete.pkg"
 require_replacement_root() {
   if [ ! -d "$REPLACEMENT_ROOT" ]; then
     echo "Missing $REPLACEMENT_ROOT"
-    echo "Running: bash xcode/scripts/stage-nmap-replacement-root-macos.sh"
-    bash xcode/scripts/stage-nmap-replacement-root-macos.sh
+    echo "Running: bash macosx/stage-nmap-replacement-root-macos.sh"
+    bash macosx/stage-nmap-replacement-root-macos.sh
   fi
 
   if [ ! -d "$REPLACEMENT_ROOT" ]; then
@@ -39,8 +39,8 @@ copy_gui_as_zenmap() {
 
   if [ ! -d "$gui_source" ]; then
     echo "Missing $gui_source"
-    echo "Running: bash xcode/scripts/release-zenmap-macos.sh"
-    bash xcode/scripts/release-zenmap-macos.sh
+    echo "Running: bash macosx/release-zenmap-macos.sh"
+    bash macosx/release-zenmap-macos.sh
   fi
 
   if [ ! -d "$gui_source" ]; then

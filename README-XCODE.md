@@ -33,11 +33,11 @@ The `Zenmap` target is a minimal SwiftUI starter app. In this first scaffold it 
 
 Build the GUI first, then bundle the Homebrew OpenSSL and libssh2 dylibs into the app:
 
-    bash xcode/scripts/package-zenmap-macos.sh
+    bash macosx/package-zenmap-macos.sh
 
 If the script cannot find the built app automatically, pass APP_PATH:
 
-    APP_PATH="/path/to/Zenmap.app" bash xcode/scripts/package-zenmap-macos.sh
+    APP_PATH="/path/to/Zenmap.app" bash macosx/package-zenmap-macos.sh
 
 This performs development ad-hoc signing. Final external distribution will still need proper Developer ID signing and notarization.
 
@@ -54,9 +54,9 @@ The official-style macOS installer staging flow builds component packages that m
 Build and install locally:
 
 ```sh
-bash xcode/scripts/release-nmap-cli-macos.sh
-bash xcode/scripts/stage-nmap-replacement-root-macos.sh
-bash xcode/scripts/pkg-nmap-macos.sh
+bash macosx/release-nmap-cli-macos.sh
+bash macosx/stage-nmap-replacement-root-macos.sh
+bash macosx/pkg-nmap-macos.sh
 sudo installer -pkg dist/pkg/NmapComplete.pkg -target /
 /Applications/nmap.app/Contents/Resources/bin/nmap --version
 /Applications/ncat.app/Contents/Resources/bin/ncat --version
