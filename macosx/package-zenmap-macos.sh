@@ -55,7 +55,7 @@ fi
 
 mkdir -p "$FRAMEWORKS_DIR"
 
-ZENMAP_ICON="$ROOT_DIR/zenmap/install_scripts/macosx/zenmap.icns"
+ZENMAP_ICON="$ROOT_DIR/macosx/zenmap.icns"
 if [ -f "$ZENMAP_ICON" ]; then
   cp "$ZENMAP_ICON" "$RESOURCES_DIR/zenmap.icns"
   /usr/libexec/PlistBuddy -c "Set :CFBundleIconFile zenmap.icns" "$CONTENTS_DIR/Info.plist" 2>/dev/null || \
