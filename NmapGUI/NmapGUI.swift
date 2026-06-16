@@ -461,6 +461,7 @@ struct ContentView: View {
     @State private var newProfileArguments = "-sV"
     @State private var newProfileDescription = "Custom scan profile."
     @State private var selectedProfileID: ScanProfile.ID?
+    @State private var profileFilterText = ""
     @State private var output = "Ready. Choose a profile, enter a target, then run a scan."
     @State private var status = "Idle"
     @State private var exitStatus: Int32?
@@ -848,6 +849,40 @@ struct ContentView: View {
             return hosts.first
         }
         return hosts.first { $0.id == selectedHostID }
+    }
+    
+    private var filteredProfiles: [ScanProfile] {
+        let query = normalizedProfileFilterText
+
+        guard !query.isEmpty else {
+            return profiles
+        }
+
+        return profiles.filter { profileMatchesFilter($0, query: query) }
+    }
+
+    private var normalizedProfileFilterText: String {
+        profileFilterText
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+            .lowercased()
+    }
+
+    private var isFilteringProfiles: Bool {
+        !normalizedProfileFilterText.isEmpty
+    }
+
+    private func profileMatchesFilter(_ profile: ScanProfile, query: String) -> Bool {
+        let profileType = profile.isBuiltIn ? "built-in builtin default" : "custom user"
+
+        return [
+            profile.name,
+            profile.arguments,
+            profile.description,
+            profileType
+        ]
+        .joined(separator: " ")
+        .lowercased()
+        .contains(query)
     }
     
     private var customProfiles: [ScanProfile] {
@@ -2325,7 +2360,21 @@ struct ContentView: View {
                 .padding(.top, 8)
             }
             
-            Table(profiles, selection: $selectedProfileID) {
+            HStack(spacing: 8) {
+                Label("Search Profiles", systemImage: "magnifyingglass")
+                    .foregroundStyle(.secondary)
+
+                TextField("Name, arguments, description, built-in, custom", text: $profileFilterText)
+                    .textFieldStyle(.roundedBorder)
+
+                if isFilteringProfiles {
+                    Button("Clear") {
+                        profileFilterText = ""
+                    }
+                }
+            }
+
+            Table(filteredProfiles, selection: $selectedProfileID) {
                 TableColumn("Name") { profile in
                     HStack {
                         Text(profile.name)
