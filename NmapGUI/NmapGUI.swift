@@ -483,6 +483,7 @@ struct ContentView: View {
     @State private var didInstallDiagnosticInfoObserver = false
     @State private var selectedNSEScriptCategory = "default"
     @State private var selectedNSEScriptName = ""
+    @State private var nseScriptHelperMessage = ""
     
     init() {
         let savedCustomProfiles = Self.loadSavedCustomProfiles() ?? []
@@ -1898,51 +1899,136 @@ struct ContentView: View {
     }
 
     private var profileNSEScriptRow: some View {
-        HStack(spacing: 10) {
-            Picker("Category", selection: $selectedNSEScriptCategory) {
-                ForEach(nseScriptCategories, id: \.self) { category in
-                    Text(category).tag(category)
+        VStack(alignment: .leading, spacing: 4) {
+            HStack(spacing: 10) {
+                Picker("Category", selection: $selectedNSEScriptCategory) {
+                    ForEach(nseScriptCategories, id: \.self) { category in
+                        Text(nseScriptCategoryDisplayName(category)).tag(category)
+                    }
                 }
-            }
-            .pickerStyle(.menu)
-            .frame(width: 145)
-
-            Picker("Script", selection: $selectedNSEScriptName) {
-                Text("Choose script").tag("")
-                ForEach(filteredNSEScriptEntries) { script in
-                    Text(script.name).tag(script.name)
+                .pickerStyle(.menu)
+                .frame(width: 190)
+                .onChange(of: selectedNSEScriptCategory) { _, newCategory in
+                    nseScriptHelperMessage = "Selected category \(newCategory). Click Add Category to add --script \(newCategory), or choose a script and click Add Script."
                 }
-            }
-            .pickerStyle(.menu)
-            .frame(width: 240)
 
-            Button("Add Category") {
-                appendProfileScriptExpression(selectedNSEScriptCategory)
-            }
-            .disabled(selectedNSEScriptCategory.isEmpty)
+                Picker("Script", selection: $selectedNSEScriptName) {
+                    Text("Choose script").tag("")
+                    ForEach(filteredNSEScriptEntries) { script in
+                        Text(script.name).tag(script.name)
+                    }
+                }
+                .pickerStyle(.menu)
+                .frame(width: 260)
+                .onChange(of: selectedNSEScriptName) { _, newScript in
+                    guard !newScript.isEmpty else {
+                        return
+                    }
 
-            Button("Add Script") {
-                appendProfileScriptExpression(selectedNSEScriptName)
-            }
-            .disabled(selectedNSEScriptName.isEmpty)
+                    nseScriptHelperMessage = "Selected script \(newScript). Click Add Script to add --script \(newScript)."
+                }
 
-            Menu("Common") {
-                Button("default") { appendProfileScriptExpression("default") }
-                Button("safe") { appendProfileScriptExpression("safe") }
-                Button("vuln") { appendProfileScriptExpression("vuln") }
-                Button("auth") { appendProfileScriptExpression("auth") }
-                Button("discovery") { appendProfileScriptExpression("discovery") }
-                Button("version") { appendProfileScriptExpression("version") }
-                Button("all (slow/noisy)") { appendProfileScriptExpression("all") }
+                Button("Add Category") {
+                    appendProfileScriptExpression(selectedNSEScriptCategory)
+                }
+                .disabled(selectedNSEScriptCategory.isEmpty)
+
+                Button("Add Script") {
+                    appendProfileScriptExpression(selectedNSEScriptName)
+                }
+                .disabled(selectedNSEScriptName.isEmpty)
+
+                Menu("Common") {
+                    Button("default - normal NSE set") { appendProfileScriptExpression("default") }
+                    Button("safe - low risk") { appendProfileScriptExpression("safe") }
+                    Button("default,safe - broad safe set") { appendProfileScriptExpression("default,safe") }
+
+                    Divider()
+
+                    Button("version - version scripts") { appendProfileScriptExpression("version") }
+                    Button("discovery - noisy discovery") { appendProfileScriptExpression("discovery") }
+                    Button("vuln - vulnerability checks") { appendProfileScriptExpression("vuln") }
+                    Button("auth - authentication checks") { appendProfileScriptExpression("auth") }
+
+                    Divider()
+
+                    Button("all - very slow/noisy") { appendProfileScriptExpression("all") }
+                }
+
+                Spacer()
             }
 
-            Text(nseScriptEntries.isEmpty ? "Bundled NSE script database not found; common categories are still available." : "Loaded \(nseScriptEntries.count) bundled NSE scripts.")
+            Text(nseScriptHelperDisplayText)
                 .font(.caption)
-                .foregroundStyle(.secondary)
-                .lineLimit(1)
-
-            Spacer()
+                .foregroundStyle(nseScriptHelperDisplayIsWarning ? Color.orange : Color.secondary)
+                .lineLimit(2)
         }
+    }
+
+    private var nseScriptHelperDisplayText: String {
+        nseScriptHelperMessage.isEmpty ? nseScriptHelperStatusText : nseScriptHelperMessage
+    }
+
+    private var nseScriptHelperDisplayIsWarning: Bool {
+        nseScriptCategoryIsRiskyOrSlow(selectedNSEScriptCategory) ||
+        nseScriptHelperMessage.hasPrefix("Already") ||
+        nseScriptHelperMessage.hasPrefix("Warning") ||
+        nseScriptHelperMessage.hasPrefix("Note")
+    }
+
+    private var nseScriptHelperStatusText: String {
+        let databaseStatus = nseScriptEntries.isEmpty
+            ? "Bundled NSE script database not found; common categories are still available."
+            : "Loaded \(nseScriptEntries.count) bundled NSE scripts."
+
+        let selectedCategoryText = "Selected category \(selectedNSEScriptCategory). Click Add Category to add --script \(selectedNSEScriptCategory), or choose a script and click Add Script."
+        let warning = nseScriptCategoryWarningText(selectedNSEScriptCategory)
+
+        if warning.isEmpty {
+            return "\(selectedCategoryText) \(databaseStatus)"
+        }
+
+        return "\(warning) \(selectedCategoryText) \(databaseStatus)"
+    }
+
+    private func nseScriptCategoryDisplayName(_ category: String) -> String {
+        switch category {
+        case "default":
+            return "default - normal"
+        case "safe":
+            return "safe - low risk"
+        case "vuln":
+            return "vuln - vulnerability checks"
+        case "auth":
+            return "auth - authentication checks"
+        case "discovery":
+            return "discovery - noisy"
+        case "version":
+            return "version - version scripts"
+        case "all":
+            return "all - very slow/noisy"
+        default:
+            return category
+        }
+    }
+
+    private func nseScriptCategoryWarningText(_ category: String) -> String {
+        switch category {
+        case "all":
+            return "Warning: all can be very slow and noisy."
+        case "vuln":
+            return "Warning: vuln runs vulnerability checks."
+        case "auth":
+            return "Warning: auth may test authentication behavior."
+        case "discovery":
+            return "Note: discovery can be noisy on larger networks."
+        default:
+            return ""
+        }
+    }
+
+    private func nseScriptCategoryIsRiskyOrSlow(_ category: String) -> Bool {
+        ["all", "vuln", "auth", "discovery"].contains(category)
     }
 
     private var profilesView: some View {
@@ -2081,7 +2167,7 @@ struct ContentView: View {
                 loadSelectedProfileForEditingIfNeeded()
             }
             
-            Text("Duplicate a built-in profile, edit it here, then click Update Selected Profile before using it.")
+            Text("Selecting a profile loads it into the editor. Built-in profiles are view-only here; duplicate one to edit and save your own version.")
                 .foregroundStyle(.secondary)
         }
         .padding()
@@ -3136,7 +3222,7 @@ struct ContentView: View {
     }
     
     private func loadSelectedProfileForEditingIfNeeded() {
-        guard let profile = selectedCustomProfileForEditing else {
+        guard let profile = selectedProfileForActions else {
             return
         }
 
@@ -3147,6 +3233,7 @@ struct ContentView: View {
         newProfileName = profile.name
         newProfileArguments = profile.arguments
         newProfileDescription = profile.description
+        nseScriptHelperMessage = ""
     }
     
     private func profileArgumentsArray() -> [String] {
@@ -3201,12 +3288,14 @@ struct ContentView: View {
         let existingScriptExpressions = profileScriptExpressions(in: argumentsArray)
 
         guard !existingScriptExpressions.contains(trimmedExpression) else {
+            nseScriptHelperMessage = "Already added --script \(trimmedExpression) to Arguments."
             return
         }
 
         argumentsArray.append("--script")
         argumentsArray.append(trimmedExpression)
         newProfileArguments = argumentsArray.joined(separator: " ")
+        nseScriptHelperMessage = "Added --script \(trimmedExpression) to Arguments. Use Add/Update to save the profile."
     }
 
     private func profileScriptExpressions(in argumentsArray: [String]) -> Set<String> {
@@ -3282,6 +3371,7 @@ struct ContentView: View {
         newProfileName = ""
         newProfileArguments = "-sV"
         newProfileDescription = "Custom scan profile."
+        nseScriptHelperMessage = ""
     }
     
     private static func loadSavedCustomProfiles() -> [ScanProfile]? {
