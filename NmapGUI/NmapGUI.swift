@@ -1899,7 +1899,7 @@ struct ContentView: View {
     }
 
     private var profileNSEScriptRow: some View {
-        VStack(alignment: .leading, spacing: 4) {
+        VStack(alignment: .leading, spacing: 6) {
             HStack(spacing: 10) {
                 Picker("Category", selection: $selectedNSEScriptCategory) {
                     ForEach(nseScriptCategories, id: \.self) { category in
@@ -1956,6 +1956,32 @@ struct ContentView: View {
                 }
 
                 Spacer()
+            }
+
+            if !profileScriptExpressions().isEmpty {
+                HStack(spacing: 6) {
+                    Text("Active Scripts:")
+                        .font(.caption.bold())
+                        .foregroundStyle(.secondary)
+
+                    ForEach(profileScriptExpressions(), id: \.self) { expression in
+                        Button {
+                            removeProfileScriptExpression(expression)
+                        } label: {
+                            HStack(spacing: 4) {
+                                Text(expression)
+                                    .font(.caption)
+                                Image(systemName: "xmark.circle.fill")
+                                    .font(.caption2)
+                            }
+                            .padding(.horizontal, 6)
+                            .padding(.vertical, 3)
+                            .background(.quaternary, in: Capsule())
+                        }
+                        .buttonStyle(.plain)
+                        .help("Remove --script \(expression)")
+                    }
+                }
             }
 
             Text(nseScriptHelperDisplayText)
@@ -3284,41 +3310,95 @@ struct ContentView: View {
             return
         }
 
-        var argumentsArray = profileArgumentsArray()
-        let existingScriptExpressions = profileScriptExpressions(in: argumentsArray)
+        var scriptExpressions = profileScriptExpressions()
+        let expressionsToAdd = splitProfileScriptExpression(trimmedExpression)
+        let existingExpressions = Set(scriptExpressions)
+        let newExpressions = expressionsToAdd.filter { !existingExpressions.contains($0) }
 
-        guard !existingScriptExpressions.contains(trimmedExpression) else {
+        guard !newExpressions.isEmpty else {
             nseScriptHelperMessage = "Already added --script \(trimmedExpression) to Arguments."
             return
         }
 
-        argumentsArray.append("--script")
-        argumentsArray.append(trimmedExpression)
-        newProfileArguments = argumentsArray.joined(separator: " ")
-        nseScriptHelperMessage = "Added --script \(trimmedExpression) to Arguments. Use Add/Update to save the profile."
+        scriptExpressions.append(contentsOf: newExpressions)
+        setProfileScriptExpressions(scriptExpressions)
+        nseScriptHelperMessage = "Added --script \(newExpressions.joined(separator: ",")) to Arguments. Use Add/Update to save the profile."
     }
 
-    private func profileScriptExpressions(in argumentsArray: [String]) -> Set<String> {
-        var expressions = Set<String>()
+    private func profileScriptExpressions() -> [String] {
+        var expressions: [String] = []
+        let argumentsArray = profileArgumentsArray()
         var index = 0
 
         while index < argumentsArray.count {
             let argument = argumentsArray[index]
 
             if argument == "--script", index + 1 < argumentsArray.count {
-                expressions.insert(argumentsArray[index + 1])
+                expressions.append(contentsOf: splitProfileScriptExpression(argumentsArray[index + 1]))
                 index += 2
                 continue
             }
 
             if argument.hasPrefix("--script=") {
-                expressions.insert(String(argument.dropFirst("--script=".count)))
+                let value = String(argument.dropFirst("--script=".count))
+                expressions.append(contentsOf: splitProfileScriptExpression(value))
             }
 
             index += 1
         }
 
-        return expressions
+        var seen = Set<String>()
+        return expressions.filter { expression in
+            guard !seen.contains(expression) else {
+                return false
+            }
+
+            seen.insert(expression)
+            return true
+        }
+    }
+
+    private func splitProfileScriptExpression(_ expression: String) -> [String] {
+        expression
+            .split(separator: ",")
+            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+            .filter { !$0.isEmpty }
+    }
+
+    private func removeProfileScriptExpression(_ expression: String) {
+        let updatedExpressions = profileScriptExpressions().filter { $0 != expression }
+        setProfileScriptExpressions(updatedExpressions)
+        nseScriptHelperMessage = "Removed --script \(expression) from Arguments."
+    }
+
+    private func setProfileScriptExpressions(_ expressions: [String]) {
+        let argumentsArray = profileArgumentsArray()
+        var updatedArguments: [String] = []
+        var index = 0
+
+        while index < argumentsArray.count {
+            let argument = argumentsArray[index]
+
+            if argument == "--script" {
+                index += 2
+                continue
+            }
+
+            if argument.hasPrefix("--script=") {
+                index += 1
+                continue
+            }
+
+            updatedArguments.append(argument)
+            index += 1
+        }
+
+        if !expressions.isEmpty {
+            updatedArguments.append("--script")
+            updatedArguments.append(expressions.joined(separator: ","))
+        }
+
+        newProfileArguments = updatedArguments.joined(separator: " ")
     }
 
     private func parseBundledNSEScriptDatabase() -> [NSEScriptEntry] {
