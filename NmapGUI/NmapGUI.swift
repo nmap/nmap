@@ -2293,6 +2293,22 @@ struct ContentView: View {
                 .help("Copy Scan Summary")
                 .disabled(scanHistory.selectedSavedScanID == nil)
 
+            Button {
+                useSelectedSavedScanAsBaseline()
+            } label: {
+                Image(systemName: "1.circle")
+            }
+            .help("Use Selected Scan as Comparison Baseline")
+            .disabled(scanHistory.selectedSavedScanID == nil)
+
+            Button {
+                useSelectedSavedScanAsComparison()
+            } label: {
+                Image(systemName: "2.circle")
+            }
+            .help("Use Selected Scan as Comparison Target")
+            .disabled(scanHistory.selectedSavedScanID == nil)
+
                 Button {
                     revealSelectedSavedScanInFinder()
                 } label: {
@@ -5000,6 +5016,32 @@ struct ContentView: View {
             .joined(separator: ", ")
     }
 
+    private func useSelectedSavedScanAsBaseline() {
+        guard let selectedSavedScanID = scanHistory.selectedSavedScanID else {
+            return
+        }
+
+        baselineCompareScanID = selectedSavedScanID
+        if comparisonCompareScanID == selectedSavedScanID {
+            comparisonCompareScanID = nil
+        }
+        selectedTab = "Compare"
+        output += "\nSet selected saved scan as comparison baseline."
+    }
+
+    private func useSelectedSavedScanAsComparison() {
+        guard let selectedSavedScanID = scanHistory.selectedSavedScanID else {
+            return
+        }
+
+        comparisonCompareScanID = selectedSavedScanID
+        if baselineCompareScanID == selectedSavedScanID {
+            baselineCompareScanID = nil
+        }
+        selectedTab = "Compare"
+        output += "\nSet selected saved scan as comparison target."
+    }
+
     private func reloadSelectedSavedScan() {
         guard let selectedSavedScanID = scanHistory.selectedSavedScanID else {
             return
@@ -5183,6 +5225,18 @@ struct ContentView: View {
                     HStack {
                         Text(selectedSavedScan.title)
                             .font(.headline)
+
+                        Button {
+                            useSelectedSavedScanAsBaseline()
+                        } label: {
+                            Label("Compare as Baseline", systemImage: "1.circle")
+                        }
+
+                        Button {
+                            useSelectedSavedScanAsComparison()
+                        } label: {
+                            Label("Compare as Target", systemImage: "2.circle")
+                        }
 
                         Spacer()
 
