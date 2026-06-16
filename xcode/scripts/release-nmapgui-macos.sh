@@ -40,10 +40,30 @@ cp -R "$APP_PATH" "$DIST_DIR/$APP_NAME"
 
 echo
 echo "Verifying copied app..."
-"$DIST_DIR/$APP_NAME/Contents/Resources/nmap" --version
-otool -L "$DIST_DIR/$APP_NAME/Contents/Resources/nmap"
+if [ -x "$DIST_DIR/$APP_NAME/Contents/Resources/bin/nmap" ]; then
+  NMAP_BIN="$DIST_DIR/$APP_NAME/Contents/Resources/bin/nmap"
+elif [ -x "$DIST_DIR/$APP_NAME/Contents/Resources/nmap" ]; then
+  NMAP_BIN="$DIST_DIR/$APP_NAME/Contents/Resources/nmap"
+else
+  echo "error: copied app does not contain an executable nmap binary" >&2
+  exit 1
+fi
+NMAP_SHARE="$DIST_DIR/$APP_NAME/Contents/Resources/share/nmap"
 
-if otool -L "$DIST_DIR/$APP_NAME/Contents/Resources/nmap" | grep -q "/opt/homebrew"; then
+if [ ! -f "$NMAP_SHARE/nmap-services" ]; then
+  echo "error: copied app is missing bundled nmap-services" >&2
+  exit 1
+fi
+
+if [ ! -f "$NMAP_SHARE/scripts/script.db" ]; then
+  echo "error: copied app is missing bundled NSE script database" >&2
+  exit 1
+fi
+
+NMAPDIR="$NMAP_SHARE" "$NMAP_BIN" --datadir "$NMAP_SHARE" --version
+otool -L "$NMAP_BIN"
+
+if otool -L "$NMAP_BIN" | grep -q "/opt/homebrew"; then
   echo "error: copied app still references Homebrew dylibs" >&2
   exit 1
 fi

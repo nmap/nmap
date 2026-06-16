@@ -28,10 +28,28 @@ fi
 CONTENTS_DIR="$APP_PATH/Contents"
 RESOURCES_DIR="$CONTENTS_DIR/Resources"
 FRAMEWORKS_DIR="$CONTENTS_DIR/Frameworks"
-NMAP_BIN="$RESOURCES_DIR/nmap"
+if [ -x "$RESOURCES_DIR/bin/nmap" ]; then
+  NMAP_BIN="$RESOURCES_DIR/bin/nmap"
+elif [ -x "$RESOURCES_DIR/nmap" ]; then
+  NMAP_BIN="$RESOURCES_DIR/nmap"
+else
+  NMAP_BIN="$RESOURCES_DIR/bin/nmap"
+fi
+NMAP_SHARE="$RESOURCES_DIR/share/nmap"
+SIGN_IDENTITY="${SIGN_IDENTITY:--}"
 
 if [ ! -x "$NMAP_BIN" ]; then
   echo "error: bundled nmap binary not found or not executable: $NMAP_BIN" >&2
+  exit 1
+fi
+
+if [ ! -f "$NMAP_SHARE/nmap-services" ]; then
+  echo "error: bundled nmap-services not found: $NMAP_SHARE/nmap-services" >&2
+  exit 1
+fi
+
+if [ ! -f "$NMAP_SHARE/scripts/script.db" ]; then
+  echo "error: bundled NSE script database not found: $NMAP_SHARE/scripts/script.db" >&2
   exit 1
 fi
 
@@ -119,21 +137,34 @@ set_id "$SSL_BUNDLED" "@rpath/$SSL_NAME"
 set_id "$CRYPTO_BUNDLED" "@rpath/$CRYPTO_NAME"
 set_id "$SSH2_BUNDLED" "@rpath/$SSH2_NAME"
 
-rewrite_dependency "$NMAP_BIN" "$SSL_DYLIB" "@executable_path/../Frameworks/$SSL_NAME"
-rewrite_dependency "$NMAP_BIN" "$CRYPTO_DYLIB" "@executable_path/../Frameworks/$CRYPTO_NAME"
-rewrite_dependency "$NMAP_BIN" "$SSH2_DYLIB" "@executable_path/../Frameworks/$SSH2_NAME"
+NMAP_RELATIVE_FRAMEWORKS="@executable_path/../../Frameworks"
+if [ "$(dirname "$NMAP_BIN")" = "$RESOURCES_DIR" ]; then
+  NMAP_RELATIVE_FRAMEWORKS="@executable_path/../Frameworks"
+fi
+
+rewrite_dependency "$NMAP_BIN" "$SSL_DYLIB" "$NMAP_RELATIVE_FRAMEWORKS/$SSL_NAME"
+rewrite_dependency "$NMAP_BIN" "$CRYPTO_DYLIB" "$NMAP_RELATIVE_FRAMEWORKS/$CRYPTO_NAME"
+rewrite_dependency "$NMAP_BIN" "$SSH2_DYLIB" "$NMAP_RELATIVE_FRAMEWORKS/$SSH2_NAME"
+
+# Correct stale relative paths left by earlier package runs.
+rewrite_dependency "$NMAP_BIN" "@executable_path/../Frameworks/$SSL_NAME" "$NMAP_RELATIVE_FRAMEWORKS/$SSL_NAME"
+rewrite_dependency "$NMAP_BIN" "@executable_path/../Frameworks/$CRYPTO_NAME" "$NMAP_RELATIVE_FRAMEWORKS/$CRYPTO_NAME"
+rewrite_dependency "$NMAP_BIN" "@executable_path/../Frameworks/$SSH2_NAME" "$NMAP_RELATIVE_FRAMEWORKS/$SSH2_NAME"
+rewrite_dependency "$NMAP_BIN" "@executable_path/../../Frameworks/$SSL_NAME" "$NMAP_RELATIVE_FRAMEWORKS/$SSL_NAME"
+rewrite_dependency "$NMAP_BIN" "@executable_path/../../Frameworks/$CRYPTO_NAME" "$NMAP_RELATIVE_FRAMEWORKS/$CRYPTO_NAME"
+rewrite_dependency "$NMAP_BIN" "@executable_path/../../Frameworks/$SSH2_NAME" "$NMAP_RELATIVE_FRAMEWORKS/$SSH2_NAME"
 
 rewrite_dependency "$SSL_BUNDLED" "$CRYPTO_DYLIB" "@loader_path/$CRYPTO_NAME"
 rewrite_dependency "$SSH2_BUNDLED" "$SSL_DYLIB" "@loader_path/$SSL_NAME"
 rewrite_dependency "$SSH2_BUNDLED" "$CRYPTO_DYLIB" "@loader_path/$CRYPTO_NAME"
 
-install_name_tool -add_rpath "@executable_path/../Frameworks" "$NMAP_BIN" 2>/dev/null || true
+install_name_tool -add_rpath "$NMAP_RELATIVE_FRAMEWORKS" "$NMAP_BIN" 2>/dev/null || true
 
-codesign --force --sign - "$SSL_BUNDLED" >/dev/null
-codesign --force --sign - "$CRYPTO_BUNDLED" >/dev/null
-codesign --force --sign - "$SSH2_BUNDLED" >/dev/null
-codesign --force --sign - "$NMAP_BIN" >/dev/null
-codesign --force --deep --sign - "$APP_PATH" >/dev/null
+codesign --force --sign "$SIGN_IDENTITY" "$SSL_BUNDLED" >/dev/null
+codesign --force --sign "$SIGN_IDENTITY" "$CRYPTO_BUNDLED" >/dev/null
+codesign --force --sign "$SIGN_IDENTITY" "$SSH2_BUNDLED" >/dev/null
+codesign --force --sign "$SIGN_IDENTITY" "$NMAP_BIN" >/dev/null
+codesign --force --deep --options runtime --sign "$SIGN_IDENTITY" "$APP_PATH" >/dev/null
 
 echo
 echo "Packaged app: $APP_PATH"
@@ -147,4 +178,7 @@ otool -L "$NMAP_BIN"
 
 echo
 echo "Verification:"
-"$NMAP_BIN" --version
+echo "Using nmap binary: $NMAP_BIN"
+echo "Using NMAPDIR: $NMAP_SHARE"
+NMAPDIR="$NMAP_SHARE" "$NMAP_BIN" --datadir "$NMAP_SHARE" --version
+codesign --verify --deep --strict --verbose=2 "$APP_PATH"
