@@ -2366,6 +2366,42 @@ struct ContentView: View {
                                 .font(.system(.body, design: .monospaced))
                         }
                     }
+                .contextMenu {
+                    Button("Use as Baseline") {
+                        useSelectedSavedScanAsBaseline()
+                    }
+                    .disabled(scanHistory.selectedSavedScanID == nil)
+
+                    Button("Use as Comparison Target") {
+                        useSelectedSavedScanAsComparison()
+                    }
+                    .disabled(scanHistory.selectedSavedScanID == nil)
+
+                    Divider()
+
+                    Button("Copy Scan Summary") {
+                        copySelectedSavedScanSummary()
+                    }
+                    .disabled(scanHistory.selectedSavedScanID == nil)
+
+                    Button("Copy Scan Command") {
+                        copySelectedSavedScanCommand()
+                    }
+                    .disabled(scanHistory.selectedSavedScanID == nil)
+
+                    Divider()
+
+                    Button("Reveal XML in Finder") {
+                        revealSelectedSavedScanInFinder()
+                    }
+                    .disabled(scanHistory.selectedSavedScanID == nil)
+
+                    Button("Open XML Externally") {
+                        openSelectedSavedScanExternally()
+                    }
+                    .disabled(scanHistory.selectedSavedScanID == nil)
+                }
+
 
                     savedScanMetadataEditor
                 }
