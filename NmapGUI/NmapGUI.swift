@@ -2325,6 +2325,21 @@ struct ContentView: View {
                 .help("Open XML Externally")
                 .disabled(scanHistory.selectedSavedScanID == nil)
 
+                Button {
+                    exportSavedScanHistory()
+                } label: {
+                    Image(systemName: "square.and.arrow.up")
+                }
+                .help("Export Saved Scan History")
+                .disabled(scanHistory.savedScans.isEmpty)
+
+                Button {
+                    importSavedScanHistory()
+                } label: {
+                    Image(systemName: "square.and.arrow.down")
+                }
+                .help("Import Saved Scan History")
+
                 Button(role: .destructive) {
                     deleteSelectedSavedScan()
                 } label: {
@@ -5236,6 +5251,78 @@ struct ContentView: View {
         output = "Reloaded saved scan: \(savedScan.xmlPath)\n"
         output += "Parsed \(parsedHosts.count) host\(parsedHosts.count == 1 ? "" : "s").\n"
         output += "Parsed \(parsedPorts.count) port result\(parsedPorts.count == 1 ? "" : "s")."
+    }
+
+    private func exportSavedScanHistory() {
+        let panel = NSSavePanel()
+        panel.allowedContentTypes = [.json]
+        panel.canCreateDirectories = true
+        panel.isExtensionHidden = false
+        panel.nameFieldStringValue = "nmap-saved-scan-history.json"
+
+        guard panel.runModal() == .OK,
+              let url = panel.url else {
+            return
+        }
+
+        do {
+            let encoder = JSONEncoder()
+            encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
+            let data = try encoder.encode(scanHistory.savedScans)
+            try data.write(to: url, options: .atomic)
+            output += "\nExported \(scanHistory.savedScans.count) saved scan history item\(scanHistory.savedScans.count == 1 ? "" : "s") to: \(url.path)"
+        } catch {
+            output += "\nFailed to export saved scan history: \(error.localizedDescription)"
+        }
+    }
+
+    private func importSavedScanHistory() {
+        let panel = NSOpenPanel()
+        panel.allowedContentTypes = [.json]
+        panel.allowsMultipleSelection = false
+        panel.canChooseDirectories = false
+        panel.canChooseFiles = true
+
+        guard panel.runModal() == .OK,
+              let url = panel.url else {
+            return
+        }
+
+        do {
+            let data = try Data(contentsOf: url)
+            let importedScans = try JSONDecoder().decode([SavedScan].self, from: data)
+                .filter { !$0.title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
+
+            guard !importedScans.isEmpty else {
+                output += "\nNo saved scan history items found in selected JSON file."
+                return
+            }
+
+            mergeImportedSavedScans(importedScans)
+            output += "\nImported \(importedScans.count) saved scan history item\(importedScans.count == 1 ? "" : "s")."
+        } catch {
+            output += "\nFailed to import saved scan history: \(error.localizedDescription)"
+        }
+    }
+
+    private func mergeImportedSavedScans(_ importedScans: [SavedScan]) {
+        var mergedScans = scanHistory.savedScans
+
+        for importedScan in importedScans {
+            if let existingIndex = mergedScans.firstIndex(where: { $0.id == importedScan.id || $0.xmlPath == importedScan.xmlPath }) {
+                mergedScans[existingIndex] = importedScan
+            } else {
+                mergedScans.append(importedScan)
+            }
+        }
+
+        mergedScans.sort { $0.scannedAt > $1.scannedAt }
+        scanHistory.savedScans = mergedScans
+
+        if let newestImportedScan = importedScans.sorted(by: { $0.scannedAt > $1.scannedAt }).first {
+            scanHistory.selectedSavedScanID = newestImportedScan.id
+            loadSelectedSavedScanMetadata()
+        }
     }
 
     private func deleteSelectedSavedScan() {
