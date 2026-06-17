@@ -339,9 +339,15 @@ static int port_compare(const void *a, const void *b) {
 
 
 template <typename T>
-class C_array_iterator: public std::iterator<std::random_access_iterator_tag, T, std::ptrdiff_t> {
+class C_array_iterator {
   T *ptr;
-  public:
+public:
+  typedef std::random_access_iterator_tag iterator_category;
+  typedef T value_type;
+  typedef std::ptrdiff_t difference_type;
+  typedef T* pointer;
+  typedef T& reference;
+
   C_array_iterator(T *_ptr=NULL) : ptr(_ptr) {}
   C_array_iterator(const C_array_iterator &other) : ptr(other.ptr) {}
   C_array_iterator& operator=(T *_ptr) {ptr = _ptr; return *this;}
@@ -354,7 +360,6 @@ class C_array_iterator: public std::iterator<std::random_access_iterator_tag, T,
   bool operator<(const C_array_iterator &other) const {return ptr < other.ptr;}
   C_array_iterator& operator+=(std::ptrdiff_t n) {ptr += n; return *this;}
   C_array_iterator& operator-=(std::ptrdiff_t n) {ptr -= n; return *this;}
-  std::ptrdiff_t operator+(const C_array_iterator &other) {return ptr + other.ptr;}
   std::ptrdiff_t operator-(const C_array_iterator &other) {return ptr - other.ptr;}
   T& operator*() const {return *ptr;}
 };
