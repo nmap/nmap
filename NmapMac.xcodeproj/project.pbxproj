@@ -31,6 +31,7 @@
 		A1B100000000000000000008 /* ZenmapProfiles.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B100000000000000000007 /* ZenmapProfiles.swift */; };
 		A1B100000000000000000010 /* ZenmapProfileArguments.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B100000000000000000009 /* ZenmapProfileArguments.swift */; };
 		A1B100000000000000000012 /* ZenmapProgress.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B100000000000000000011 /* ZenmapProgress.swift */; };
+		A1B100000000000000000014 /* ZenmapResultsFiltering.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B100000000000000000013 /* ZenmapResultsFiltering.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -2676,6 +2677,7 @@
 		A1B100000000000000000007 /* ZenmapProfiles.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZenmapProfiles.swift; sourceTree = "<group>"; };
 		A1B100000000000000000009 /* ZenmapProfileArguments.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZenmapProfileArguments.swift; sourceTree = "<group>"; };
 		A1B100000000000000000011 /* ZenmapProgress.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZenmapProgress.swift; sourceTree = "<group>"; };
+		A1B100000000000000000013 /* ZenmapResultsFiltering.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZenmapResultsFiltering.swift; sourceTree = "<group>"; };
 		A10000000000000000000003 /* Zenmap.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Zenmap.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A10000000000000000000004 /* build-nmap-macos.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = "build-nmap-macos.sh"; sourceTree = "<group>"; };
 		A10000000000000000000005 /* clean-nmap-macos.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = "clean-nmap-macos.sh"; sourceTree = "<group>"; };
@@ -6554,6 +6556,7 @@
 				A1B100000000000000000007 /* ZenmapProfiles.swift */,
 				A1B100000000000000000009 /* ZenmapProfileArguments.swift */,
 				A1B100000000000000000011 /* ZenmapProgress.swift */,
+				A1B100000000000000000013 /* ZenmapResultsFiltering.swift */,
 			);
 			path = zenmap/macos/native;
 			sourceTree = "<group>";
@@ -6728,6 +6731,7 @@
 				A1B100000000000000000008 /* ZenmapProfiles.swift in Sources */,
 				A1B100000000000000000010 /* ZenmapProfileArguments.swift in Sources */,
 				A1B100000000000000000012 /* ZenmapProgress.swift in Sources */,
+				A1B100000000000000000014 /* ZenmapResultsFiltering.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
