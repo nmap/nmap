@@ -833,7 +833,7 @@ TracerouteState::TracerouteState(std::vector<Target *> &targets) {
   assert(targets.size() > 0);
 
   if (!raw_socket_or_eth(o.sendpref, targets[0]->deviceName(), targets[0]->ifType(),
-        &rawsd, &ethsd)) {
+        &rawsd, &ethsd, targets[0]->af())) {
     fatal("traceroute: socket troubles");
   }
 
@@ -1224,7 +1224,7 @@ void TracerouteState::read_replies(long timeout) {
   struct timeval now;
   Reply reply;
 
-  assert(timeout / 1000 <= (long) o.scan_delay);
+  assert(o.scan_delay == 0 || (timeout / 1000 <= (long) o.scan_delay));
   timeout = MAX(timeout, 10000);
   now = get_now();
 

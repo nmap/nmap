@@ -84,9 +84,13 @@
 /* Technically some of these things were added in 0x10100006
  * but that was pre-release. */
 #define HAVE_OPAQUE_STRUCTS 1
+#define FUNC_ASN1_STRING_get0_data ASN1_STRING_get0_data
+#define FUNC_ASN1_STRING_length ASN1_STRING_length
 #else
 #define X509_get0_notBefore X509_get_notBefore
 #define X509_get0_notAfter X509_get_notAfter
+#define FUNC_ASN1_STRING_get0_data(_s) ((_s)->data)
+#define FUNC_ASN1_STRING_length(_s) ((_s)->length)
 #endif
 
 #if OPENSSL_VERSION_NUMBER >= 0x30000000L
@@ -194,14 +198,14 @@ static void obj_to_key(lua_State *L, const ASN1_OBJECT *obj)
 /* This is a helper function for l_get_ssl_certificate. It builds a table from
    the given X509_NAME, using keys returned from obj_to_key as keys. The result
    is pushed on the stack. */
-static void x509_name_to_table(lua_State *L, X509_NAME *name)
+static void x509_name_to_table(lua_State *L, const X509_NAME *name)
 {
   int i;
 
   lua_createtable(L, 0, X509_NAME_entry_count(name));
 
   for (i = 0; i < X509_NAME_entry_count(name); i++) {
-    X509_NAME_ENTRY *entry;
+    const X509_NAME_ENTRY *entry;
     const ASN1_OBJECT *obj;
     const ASN1_STRING *value;
 
@@ -210,7 +214,7 @@ static void x509_name_to_table(lua_State *L, X509_NAME *name)
     value = X509_NAME_ENTRY_get_data(entry);
 
     obj_to_key(L, obj);
-    lua_pushlstring(L, (const char *) value->data, value->length);
+    lua_pushlstring(L, (const char *) FUNC_ASN1_STRING_get0_data(value), FUNC_ASN1_STRING_length(value));
 
     lua_settable(L, -3);
   }
@@ -224,7 +228,7 @@ static bool x509_extensions_to_table(lua_State *L, const STACK_OF(X509_EXTENSION
   lua_createtable(L, sk_X509_EXTENSION_num(exts), 0);
 
   for (int i = 0; i < sk_X509_EXTENSION_num(exts); i++) {
-    ASN1_OBJECT *obj;
+    const ASN1_OBJECT *obj;
     X509_EXTENSION *ext;
     char *value = NULL;
     BIO *out;
@@ -265,6 +269,7 @@ static bool x509_extensions_to_table(lua_State *L, const STACK_OF(X509_EXTENSION
 
 }
 
+#ifndef HAVE_OPAQUE_STRUCTS
 /* Parse as a decimal integer the len characters starting at s. This function
    can only process positive numbers; if the return value is negative then a
    parsing error occurred. */
@@ -292,12 +297,17 @@ static int parse_int(const unsigned char *s, size_t len)
 
   return (int) v;
 }
+#endif
 
 /* This is a helper function for asn1_time_to_obj. It parses a textual ASN1_TIME
    value and stores the time in the given struct tm. It returns 0 on success and
    -1 on a parse error. */
 static int time_to_tm(const ASN1_TIME *t, struct tm *result)
 {
+#ifdef HAVE_OPAQUE_STRUCTS
+  /* Returns 1 on success, 0 on error */
+  return ASN1_TIME_to_tm(t, result) - 1;
+#else
   const unsigned char *p;
 
   p = t->data;
@@ -345,6 +355,7 @@ static int time_to_tm(const ASN1_TIME *t, struct tm *result)
   }
 
   return 0;
+#endif
 }
 
 /* This is a helper function for asn1_time_to_obj. It converts a struct tm into
@@ -385,7 +396,7 @@ static void asn1_time_to_obj(lua_State *L, const ASN1_TIME *s)
   } else if (time_to_tm(s, &tm) == 0) {
       tm_to_table(L, &tm);
   } else {
-      lua_pushlstring(L, (const char *) s->data, s->length);
+      lua_pushlstring(L, (const char *) FUNC_ASN1_STRING_get0_data(s), FUNC_ASN1_STRING_length(s));
   }
 }
 
@@ -549,7 +560,7 @@ int l_get_ssl_certificate(lua_State *L)
 static int parse_ssl_cert(lua_State *L, X509 *cert)
 {
   struct cert_userdata *udata;
-  X509_NAME *subject, *issuer;
+  const X509_NAME *subject, *issuer;
   EVP_PKEY *pubkey;
   int pkey_type;
 

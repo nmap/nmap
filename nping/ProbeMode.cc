@@ -1,4 +1,3 @@
-
 /***************************************************************************
  * ProbeMode.cc -- Probe Mode is nping's default working mode. Basically,  *
  * it involves sending the packets that the user requested at regular      *
@@ -63,6 +62,7 @@
 #include "nping.h"
 #include "ProbeMode.h"
 #include <vector>
+#include <sstream>
 #include "nsock.h"
 #include "output.h"
 #include "NpingOps.h"
@@ -98,7 +98,7 @@ int ProbeMode::init_nsock(){
       if ((nsp = nsock_pool_new(NULL)) == NULL)
         nping_fatal(QT_3, "Failed to create new pool.  QUITTING.\n");
       const char *device = o.getDevice();
-      if (*device)
+      if (device && *device)
         nsock_pool_set_device(nsp, device);
 
       /* Allow broadcast addresses */
@@ -157,7 +157,7 @@ int ProbeMode::start(){
   u16 *targetPorts=NULL;           /**< Pointer to array of target ports     */
   int numTargetPorts=0;            /**< Total number of target ports         */
   u16 currentPort=0;               /**< Current target port                  */
-  char *filterstring;              /**< Stores BFP filter spec string        */
+  const char *filterstring;        /**< Stores BFP filter spec string        */
   int rawipsd=-1;                  /**< Descriptor for raw IP socket         */
   enum nsock_loopstatus loopret;   /**< Stores nsock_loop returned status    */
   nsock_iod pcap_nsi;              /**< Stores Pcap IOD                      */
@@ -304,13 +304,8 @@ int ProbeMode::start(){
 
     if( o.getMode()!=ARP && o.sendEth()==false ){
         /* Get socket descriptor. No need for it in ARP since we send at eth level */
-        if ((rawipsd = obtainRawSocket()) < 0 )
+        if ((rawipsd = netutil_raw_socket(o.getDevice(), o.ipv6() ? AF_INET6 : AF_INET)) < 0 )
             nping_fatal(QT_3,"Couldn't acquire raw socket. Are you root?");
-        if ( o.issetDevice() )  {
-            if (!socket_bindtodevice(rawipsd, o.getDevice()) && errno != EPERM) {
-                nping_warning(QT_2, "Error binding socket to device %s", o.getDevice() );
-            }
-        }
     }
 
     /* Check if we have enough information to get the party started */
@@ -319,30 +314,33 @@ int ProbeMode::start(){
 
     /* Set up libpcap */
     if(!o.disablePacketCapture()){
+        const char *device = o.getDevice();
+        if (!device)
+            nping_fatal(QT_3, "Unable to determine device name.  QUITTING.\n");
         /* Create new IOD for pcap */
         if ((pcap_nsi = nsock_iod_new(nsp, NULL)) == NULL)
             nping_fatal(QT_3, "Failed to create new nsock_iod.  QUITTING.\n");
 
         /* Open pcap */
         filterstring=getBPFFilterString();
-        nping_print(DBG_2,"Opening pcap device %s", o.getDevice() );
+        nping_print(DBG_2,"Opening pcap device %s", device);
         #ifdef WIN32
         /* Nping normally uses device names obtained through dnet for interfaces,
          * but Pcap has its own naming system.  So the conversion is done here */
-          if (!DnetName2PcapName(o.getDevice(), pcapdev, sizeof(pcapdev))) {
+          if (!DnetName2PcapName(device, pcapdev, sizeof(pcapdev))) {
                /* Oh crap -- couldn't find the corresponding dev apparently.
                 * Let's just go with what we have then ... */
-               Strncpy(pcapdev, o.getDevice(), sizeof(pcapdev));
+               Strncpy(pcapdev, device, sizeof(pcapdev));
           }
         #else
-          Strncpy(pcapdev, o.getDevice(), sizeof(pcapdev));
+          Strncpy(pcapdev, device, sizeof(pcapdev));
         #endif
 
         rc = nsock_pcap_open(nsp, pcap_nsi, pcapdev, 8192,
                              (o.spoofSource()) ? 1 : 0, filterstring);
         if (rc)
-            nping_fatal(QT_3, "Error opening capture device %s\n", o.getDevice());
-        nping_print(DBG_2,"Pcap device %s open successfully", o.getDevice());
+            nping_fatal(QT_3, "Error opening capture device %s\n", device);
+        nping_print(DBG_2,"Pcap device %s open successfully", device);
     }
 
     /* Ready? Go! */
@@ -675,75 +673,9 @@ int ProbeMode::createIPv6(IPv6Header *i, PacketElement *next_element, const char
 } /* End of createIPv6() */
 
 
-/** This function is a bit tricky. The thing is that some engineer had
- * the brilliant idea to remove IP_HDRINCL support in IPv6. As a result, it's
- * a big pain in the ass to create raw IPv6 headers because we can only do it
- * if we are sending packets at raw Ethernet level. So if we want our own IPv6
- * header (for source IP spoofing, etc) we have to do things like determine
- * source and dest MAC addresses (this is even more complicated in IPv6 than
- * in IPv4 because we don't have ARP anymore, we have to use something new, the
- * NDP, Neighbor Discovery Protocol.)
- * So the thing is that, if the user does not want to play with the IPv6 header,
- * why bother with all that link layer work? So what we do is create raw
- * transport layer packets and then send them through a raw IPv6 socket. The
- * socket will encapsulate our packets into a nice clean IPv6 header
- * automatically so we don't have to worry about low level details anymore.
- *
- * So this function basically takes a raw IPv6 socket descriptor and then tries
- * to set some basic parameters (like Hop Limit) using setsockopt() calls.
- * It always returns OP_SUCCESS. However, if errors are found, they are printed
- * (QT_2 level) using nping_warning();
- * */
-int ProbeMode::doIPv6ThroughSocket(int rawfd){
-
-    /* Hop Limit */
-    int hoplimit=0;
-    if( o.issetHopLimit() )
-       hoplimit= o.getHopLimit();
-    else if ( o.issetTraceroute() ){
-         hoplimit= (o.getCurrentRound()<255)? o.getCurrentRound() : (o.getCurrentRound()%255)+1;
-    }else{
-       hoplimit=DEFAULT_IPv6_TTL;
-    }
-    if( setsockopt(rawfd, IPPROTO_IPV6, IPV6_UNICAST_HOPS, (char *)&hoplimit, sizeof(hoplimit)) != 0 )
-        nping_warning(QT_2, "doIPv6ThroughSocket(): setsockopt() for Unicast Hop Limit on IPv6 socket failed");
-    if( setsockopt(rawfd, IPPROTO_IPV6, IPV6_MULTICAST_HOPS, (char *)&hoplimit, sizeof(hoplimit)) != 0 )
-        nping_warning(QT_2, "doIPv6ThroughSocket(): setsockopt() for Multicast Hop Limit on IPv6 socket failed");
-
-#ifdef IPV6_CHECKSUM  /* This is not available in when compiling with MinGW */
-    /* Transport layer checksum */
-    /* This is totally crazy. We have to tell the kernel EXPLICITLY that we
-     * want it to set the TCP/UDP checksum for us. Why the hell is this the
-     * default behavior if it's so incredibly difficult to get the IPv6 source
-     * address?
-     * Additionally, we have to be very careful not to set this option when
-     * dealing with ICMPv6 because in that case the kernel computes the
-     * checksum automatically and Nping can actually crash if we've set
-     * this option manually, can you believe it? */
-    if( o.getMode()==TCP || o.getMode()==UDP){
-        /* We don't request valid TCP checksums if the user requested bogus sums */
-        if( o.getBadsum()==false ){
-            int offset = 16;
-            if( setsockopt (rawfd, IPPROTO_IPV6, IPV6_CHECKSUM, (char *)&offset, sizeof(offset)) != 0 )
-                nping_warning(QT_2, "doIPv6ThroughSocket(): failed to set IPV6_CHECKSUM option on IPv6 socket. ");
-        }
-    }
-#endif
-
-    return OP_SUCCESS;
-
-} /* End of doIPv6ThroughSocket() */
-
-
-
-
-
 /** This function handles TCP packet creation. However, the final packet that
   * it produces also includes an IP header.
-  * There is one exception. When we are sending IPv6 packet at raw TCP level,
-  * the returned packet does not contain an IPv6 header but the supplied
-  * rawfd socket descriptor is ready to go because some options have been
-  * set on it by doIPv6ThroughSocket(). */
+  */
 int ProbeMode::fillPacketTCP(NpingTarget *target, u16 port, u8 *buff, int bufflen, int *filledlen, int rawfd){
 
  IPv4Header i;
@@ -813,47 +745,19 @@ int ProbeMode::fillPacketTCP(NpingTarget *target, u16 port, u8 *buff, int buffle
     break;
 
     case IP_VERSION_6:
-        if( o.sendEth() ){
-            /* Fill the IPv6Header object with the info from NpingOps */
-            createIPv6(&i6, &t, "TCP", target);
+        /* Fill the IPv6Header object with the info from NpingOps */
+        createIPv6(&i6, &t, "TCP", target);
 
-            if( o.getBadsum() == true )
-                t.setSumRandom();
-            else{
-                *filledlen = i6.dumpToBinaryBuffer(buff, bufflen);
-                ip6_checksum(buff, *filledlen); /* Provided by dnet */
-                return OP_SUCCESS;
-            }
-
-            /* Store result in user supplied buffer */
+        if( o.getBadsum() == true )
+            t.setSumRandom();
+        else{
             *filledlen = i6.dumpToBinaryBuffer(buff, bufflen);
-        }else{
-            doIPv6ThroughSocket(rawfd);
-
-             /* Set some bogus checksum */
-             if( o.getBadsum()==true )
-                t.setSumRandom();
-            /* Set checksum to zero and pray for the kernel to set it to
-             * the right value. Brothers and sisters:
-             *
-             * Our TCP/IP stack, Who is in the kernel,
-             * Holy is Your Name;
-             * Your kingdom come,
-             * Your will be done,
-             * on userland as it is in kernel space.
-             * Give us this day our TCP checksum,
-             * and forgive us for our raw sockets,
-             * as we forgive you for your kernel panics;
-             * and lead us not into /dev/null,
-             * but deliver our packet to the next hop. Amen.
-             * */
-            else
-                t.setSum(0);
-
-            /* Since we cannot include our own header like we do in IPv4, the
-             * buffer we return is the TCP one. */
-            *filledlen = t.dumpToBinaryBuffer(buff, bufflen);
+            ip6_checksum(buff, *filledlen); /* Provided by dnet */
+            return OP_SUCCESS;
         }
+
+        /* Store result in user supplied buffer */
+        *filledlen = i6.dumpToBinaryBuffer(buff, bufflen);
     break;
 
     default:
@@ -873,10 +777,7 @@ int ProbeMode::fillPacketTCP(NpingTarget *target, u16 port, u8 *buff, int buffle
 
 /** This function handles UDP packet creation. However, the final packet that
   * it produces also includes an IP header.
-  * There is one exception. When we are sending IPv6 packet at raw TCP level,
-  * the returned packet does not contain an IPv6 header but the supplied
-  * rawfd socket descriptor is ready to go because some options have been
-  * set on it by doIPv6ThroughSocket(). */
+  */
 int ProbeMode::fillPacketUDP(NpingTarget *target, u16 port, u8 *buff, int bufflen, int *filledlen, int rawfd){
 
  IPv4Header i;
@@ -932,36 +833,18 @@ int ProbeMode::fillPacketUDP(NpingTarget *target, u16 port, u8 *buff, int buffle
     break;
 
     case IP_VERSION_6:
+        /* Fill the IPv6Header object with the info from NpingOps */
+        createIPv6(&i6, &u, "UDP", target);
 
-       if( o.sendEth() ){
-            /* Fill the IPv6Header object with the info from NpingOps */
-            createIPv6(&i6, &u, "UDP", target);
-
-            if( o.getBadsum() == true ){
-                u.setSumRandom();
-                /* Store result in user supplied buffer */
-                *filledlen = i6.dumpToBinaryBuffer(buff, bufflen);
-            }
-            else{
-                *filledlen = i6.dumpToBinaryBuffer(buff, bufflen);
-                ip6_checksum(buff, *filledlen); /* Provided by dnet */
-                return OP_SUCCESS;
-            }
-        }else{
-            doIPv6ThroughSocket(rawfd);
-
-             /* Set some bogus checksum */
-             if( o.getBadsum()==true )
-                u.setSumRandom();
-            /* Set checksum to zero and assume the kernel is gonna set the
-             * right value. If it doesn't, it's not that important since
-             * UDP checksum is optional and can safely be set to zero */
-            else
-                u.setSum(0);
-
-            /* Since we cannot include our own header like we do in IPv4, the
-             * buffer we return is the UDP one. */
-            *filledlen = u.dumpToBinaryBuffer(buff, bufflen);
+        if( o.getBadsum() == true ){
+            u.setSumRandom();
+            /* Store result in user supplied buffer */
+            *filledlen = i6.dumpToBinaryBuffer(buff, bufflen);
+        }
+        else{
+            *filledlen = i6.dumpToBinaryBuffer(buff, bufflen);
+            ip6_checksum(buff, *filledlen); /* Provided by dnet */
+            return OP_SUCCESS;
         }
     break;
 
@@ -1121,7 +1004,7 @@ int ProbeMode::fillPacketICMP(NpingTarget *target, u8 *buff, int bufflen, int *f
         break;
     }
 
-    /* Fill the IPv4Header object with the info from NpingOps */
+    /* Fill the IPv6Header object with the info from NpingOps */
     createIPv6(&i6, &c6, "ICMPv6", target);
 
     /* Compute checksum */
@@ -1237,7 +1120,6 @@ int ProbeMode::fillPacketARP(NpingTarget *target, u8 *buff, int bufflen, int *fi
 }
 
 
-
 /** This function creates a BPF filter specification, suitable to be passed to
   * pcap_compile() or nsock_pcap_open(). It reads info from "NpingOps o" and
   * creates the right BPF filter for the current operation mode. However, if
@@ -1247,11 +1129,11 @@ int ProbeMode::fillPacketARP(NpingTarget *target, u8 *buff, int bufflen, int *fi
   * is done here already.
   * @warning Returned pointer is a statically allocated buffer that subsequent
   *  calls will overwrite. */
-char *ProbeMode::getBPFFilterString(){
+const char *ProbeMode::getBPFFilterString(){
 
- char ipstring[128];
- static char filterstring[1024];
- char *buffer=filterstring;
+ char ipstring[INET6_ADDRSTRLEN];
+ std::ostringstream filter;
+ static std::string filterstring;
  u8 icmp_send_type=0;
  u8 icmp_recv_type=0;
  u16 arp_send_type=0;
@@ -1269,27 +1151,24 @@ char *ProbeMode::getBPFFilterString(){
  size_t dstlen, srclen;
  memset(&srcss, 0, sizeof(struct sockaddr_storage));
  memset(&dstss, 0, sizeof(struct sockaddr_storage));
- memset(buffer, 0, 1024);
- memset(ipstring, 0, 128);
+ memset(ipstring, 0, sizeof(ipstring));
 
  /* If user supplied a BPF from the cmd line, use it */
  if( o.issetBPFFilterSpec() ){
-    buffer=o.getBPFFilterSpec();
-    /* We copy it to our internal static buffer just in case... */
-    if(buffer!=NULL)
-        strncpy(filterstring, buffer, sizeof(filterstring)-1);
-    else
-        strncpy(filterstring, "", 2);
-    nping_print(DBG_1, "BPF-filter: %s", filterstring);
-    return filterstring;
+    const char *buffer=o.getBPFFilterSpec();
+    assert(buffer!=NULL);
+    nping_print(DBG_1, "BPF-filter: %s", buffer);
+    return buffer;
  }
 
  /* For the server in Echo mode we need a special filter */
  if( o.getRole()==ROLE_SERVER ){
     /* Capture all IP packets but the ones that belong to the side-channel */
-    sprintf(filterstring, "ip and ( not (tcp and (dst port %d or src port %d) ) )", o.getEchoPort(), o.getEchoPort() );
-    nping_print(DBG_1, "BPF-filter: %s", filterstring);
-    return filterstring;
+    filter << "ip and (not (tcp and (dst port " << o.getEchoPort();
+    filter << " or src port " << o.getEchoPort() << ")))";
+    filterstring = filter.str();
+    nping_print(DBG_1, "BPF-filter: %s", filterstring.c_str());
+    return filterstring.c_str();
  }
 
  /* Obtain source IP address */
@@ -1337,25 +1216,53 @@ char *ProbeMode::getBPFFilterString(){
 
  /* Tell the filter that we only want incoming packets, destined to our source IP */
  if(o.getMode()!=ARP){
-     if(src_equals_target)
-         Snprintf(buffer, 1024, "(src host %s and dst host %s) and (", ipstring, ipstring);
-     else
-         Snprintf(buffer, 1024, "(not src host %s and dst host %s) and (", ipstring, ipstring);
-    buffer=filterstring+strlen(filterstring);
+   filter << (src_equals_target ? "(src host " : "(not src host ");
+   filter << ipstring << " and dst host " << ipstring << ") and (";
  }
 
  /* Time for protocol specific constraints */
  switch( o.getMode() ){
     case  TCP: /* Restrict to packets targeting our TCP source port */
-        Snprintf(buffer, 1024-strlen(filterstring), "(tcp and dst port %d) ", o.getSourcePort());
+        filter << "(tcp and dst port " << o.getSourcePort() << ")";
     break;
 
     case  UDP: /* Restrict to packets targeting our UDP source port */
-        Snprintf(buffer, 1024-strlen(filterstring), "(udp and dst port %d) ", o.getSourcePort());
+        filter << "(udp and dst port " << o.getSourcePort() << ")";
     break;
 
     case  ICMP: /* Restrict to packets that are replies to our ICMP packets */
-        icmp_send_type= o.issetICMPType() ? o.getICMPType() : DEFAULT_ICMP_TYPE;
+      icmp_send_type= o.getICMPType();
+      if (o.ipv6()) {
+        switch( icmp_send_type ){
+            case ICMPV6_NEIGHBOR_SOLICITATION:
+                icmp_recv_type=ICMPV6_NEIGHBOR_ADVERTISEMENT;
+            break;
+            /* If we are sending replies we probably want to see */
+            /* the requests that are being put into the network  */
+            case ICMPV6_NEIGHBOR_ADVERTISEMENT:
+                icmp_recv_type=ICMPV6_NEIGHBOR_SOLICITATION;
+            break;
+            case ICMPV6_ECHO:
+                icmp_recv_type=ICMPV6_ECHOREPLY;
+            break;
+            case ICMPV6_ECHOREPLY:
+                icmp_recv_type=ICMPV6_ECHO;
+            break;
+
+            /* These don't generate any response so we behave different */
+            case ICMPV6_UNREACH:
+            case ICMPV6_TIMEXCEED:
+            case ICMPV6_PARAMPROBLEM:
+            default:
+                skip_icmp_matching=true;
+            break;
+        }
+        /* Libpcap: IPv6 upper-layer protocol is not supported by proto[x] */
+        /* Grab the ICMPv6 type using ip6[X:Y] syntax. This works only if there are no
+           extension headers (top-level nh is IPPROTO_ICMPV6). */
+        filter << "(icmp6 and ip6[6:1]=" << IPPROTO_ICMPV6 << " and ip6[40:1]";
+      }
+      else {
         switch( icmp_send_type ){
             case ICMP_TSTAMP:
                 icmp_recv_type=ICMP_TSTAMPREPLY;
@@ -1396,14 +1303,16 @@ char *ProbeMode::getBPFFilterString(){
             break;
         }
         /* We have an specific ICMP type to look for */
+        filter << "(icmp and icmp[icmptype]";
+      }
         if(!skip_icmp_matching){
-            Snprintf(buffer, 1024-strlen(filterstring), "(icmp and icmp[icmptype] = %d) ", icmp_recv_type);
+            filter << "=" << +icmp_recv_type << ")";
         }else{
             /* If we are sending messages that don't generate responses, receive anything but the type we send.
              * This conflicts in some cases with the conditions added at the end of this functions where we
              * allow ICMP error messages to be received. However, this is not a problem since we are already
              * filtering out our own outgoing packets and the packets that are not for us. */
-            Snprintf(buffer, 1024-strlen(filterstring), "(icmp and icmp[icmptype] != %d) ", icmp_send_type);
+            filter << "!=" << +icmp_send_type << ")";
         }
     break;
 
@@ -1441,27 +1350,39 @@ char *ProbeMode::getBPFFilterString(){
                 skip_arp_matching=true;
             break;
         }
+        filter << "arp and arp[6]=0 and (arp[7]=";
         if(!skip_arp_matching){
             /* If we are doing DRARP we also want to receive DRARP errors */
-            if(arp_send_type==OP_DRARP_REQUEST || arp_send_type==OP_DRARP_REPLY)
-                Snprintf(buffer, 1024-strlen(filterstring),  "arp and arp[6]==0x00 and (arp[7]==0x%02X or arp[7]==0x%02X)", (u8)arp_recv_type, (u8)OP_DRARP_ERROR);
-            else
-                Snprintf(buffer, 1024-strlen(filterstring),  "arp and arp[6]==0x00 and arp[7]==0x%02X", (u8)arp_recv_type);
+          filter << arp_recv_type;
+          if(arp_send_type==OP_DRARP_REQUEST || arp_send_type==OP_DRARP_REPLY)
+            filter << " or arp[7]=" << OP_DRARP_ERROR;
         }else{
             /* If we are sending things like ATMARP's ARP_NAK, we just skip the type we send and receive all others */
-            Snprintf(buffer, 1024-strlen(filterstring),  "arp and arp[6]==0x00 and arp[7]!=0x%02X", (u8)arp_send_type);
+          filter << arp_send_type;
         }
+        filter << ")";
     break;
   }
 
   /* We also want to get all ICMP error messages */
   if(o.getMode()!=ARP){
-    buffer=filterstring+strlen(filterstring);
-    Snprintf(buffer, 1024-strlen(filterstring), "or (icmp and (icmp[icmptype] = %d or icmp[icmptype] = %d or icmp[icmptype] = %d or icmp[icmptype] = %d or icmp[icmptype] = %d)) )" ,
-                                 ICMP_UNREACH, ICMP_SOURCEQUENCH, ICMP_REDIRECT, ICMP_TIMXCEED, ICMP_PARAMPROB);
+    if (o.ipv6()) {
+      filter << " or (icmp6 and ip6[6:1]=" << IPPROTO_ICMPV6;
+      filter << " and (ip6[40:1]=" << ICMPV6_UNREACH;
+      filter << " or ip6[40:1]=" << ICMPV6_TIMEXCEED;
+      filter << " or ip6[40:1]="  << ICMPV6_PARAMPROBLEM << ")))";
+    }
+    else {
+      filter << " or (icmp and (icmp[icmptype]=" << ICMP_UNREACH;
+      filter << " or icmp[icmptype]=" << ICMP_SOURCEQUENCH;
+      filter << " or icmp[icmptype]=" << ICMP_REDIRECT;
+      filter << " or icmp[icmptype]=" << ICMP_TIMXCEED;
+      filter << " or icmp[icmptype]=" << ICMP_PARAMPROB << ")))";
+    }
   }
-  nping_print(DBG_1, "BPF-filter: %s", filterstring);
-  return filterstring;
+  filterstring = filter.str();
+  nping_print(DBG_1, "BPF-filter: %s", filterstring.c_str());
+  return filterstring.c_str();
 } /* End of getBPFFilterString() */
 
 
@@ -1601,14 +1522,6 @@ void ProbeMode::probe_nping_event_handler(nsock_pool nsp, nsock_event nse, void 
 
                 if( mypacket->type==PKT_TYPE_ARP_RAW )
                     getPacketStrInfo("ARP",mypacket->pkt+14, mypacket->pktLen-14, pktinfobuffer, 512);
-                else if ( o.ipv6UsingSocket() ){
-                    size_t sslen;
-                    struct sockaddr_storage ss_src;
-                    struct sockaddr_storage ss_dst;
-                    mypacket->target->getSourceSockAddr(&ss_src, &sslen);
-                    mypacket->target->getTargetSockAddr(&ss_dst, &sslen);
-                    getPacketStrInfo("IPv6_NO_HEADER", mypacket->pkt, mypacket->pktLen, pktinfobuffer, 512, &ss_src, &ss_dst );
-                }
                 else
                     getPacketStrInfo("IP", mypacket->pkt+link_offset, mypacket->pktLen-link_offset, pktinfobuffer, 512);
 
@@ -1761,11 +1674,11 @@ void ProbeMode::probe_nping_event_handler(nsock_pool nsp, nsock_event nse, void 
  } else if (status == NSE_STATUS_ERROR) {
      nping_warning(QT_2, "nping_event_handler(): %s failed: %s", nse_type2str(type), strerror(socket_errno()));
  } else if (status == NSE_STATUS_TIMEOUT) {
-    nping_print(DBG_4,"nping_event_handler(): %s timeout: %s\n", nse_type2str(type), strerror(socket_errno()));
+    nping_print(DBG_4,"nping_event_handler(): %s timeout\n", nse_type2str(type));
  } else if (status == NSE_STATUS_CANCELLED) {
-    nping_warning(QT_2, "nping_event_handler(): %s canceled: %s", nse_type2str(type), strerror(socket_errno()));
+    nping_warning(QT_2, "nping_event_handler(): %s canceled", nse_type2str(type));
  } else if (status == NSE_STATUS_KILL) {
-    nping_warning(QT_2, "nping_event_handler(): %s killed: %s", nse_type2str(type), strerror(socket_errno()));
+    nping_warning(QT_2, "nping_event_handler(): %s killed", nse_type2str(type));
  } else{
     nping_warning(QT_2, "nping_event_handler(): Unknown status code %d\n", status);
  }

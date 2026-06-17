@@ -67,16 +67,33 @@
 #include "NpingTargets.h"
 #include "common_modified.h"
 #include <algorithm>
+#include <cstring>
 
 extern NpingOps o;
+
+bool NpingDevice::strEqual(const char *name) const
+{
+  return 0 == std::strcmp(devname, name);
+}
 
 NpingTargets::NpingTargets()
 : ready(false), current_target(0)
 {
+  if (o.issetDevice()) {
+    devices.push_back(new NpingDevice(o.getDevice()));
+  }
 } /* End of NpingTargets constructor */
 
 
 NpingTargets::~NpingTargets(){
+  while (!netblocks.empty()) {
+    delete netblocks.back();
+    netblocks.pop_back();
+  }
+  while (!devices.empty()) {
+    delete devices.back();
+    devices.pop_back();
+  }
 } /* End of NpingTargets destructor */
 
 
@@ -91,8 +108,20 @@ int NpingTargets::addSpec(char *spec){
     return OP_FAILURE;
   netblocks.push_back(nb);
   return OP_SUCCESS;
-} /* End of NpingTargets */
+} /* End of NpingTargets::addSpec */
 
+void NpingTargets::addDevice(const char *dev)
+{
+  if(dev == NULL || *dev == '\0')
+    return;
+  for (std::vector<NpingDevice *>::iterator it=devices.begin();
+      it != devices.end(); ++it) {
+    NpingDevice *d = *it;
+    if (d->strEqual(dev))
+      return;
+  }
+  devices.push_back(new NpingDevice(dev));
+}
 
 /** Returns next target */
 int NpingTargets::getNextTargetAddressAndName(struct sockaddr_storage *t, size_t *tlen, char *hname, size_t hlen){
@@ -309,6 +338,7 @@ int NpingTargets::processSpecs(){
 
     /* Insert current target into targets array */
     this->Targets.push_back(mytarget);
+    this->addDevice(mytarget->getDeviceName());
   }
 
   /* getNextTarget() checks this to ensure user has previously called processSpecs() */

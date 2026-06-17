@@ -6,6 +6,7 @@
 local comm = require "comm"
 local stdnse = require "stdnse"
 local string = require "string"
+local table = require "table"
 local ipOps = require "ipOps"
 local nmap = require "nmap"
 _ENV = stdnse.module("ftp", stdnse.seeall)

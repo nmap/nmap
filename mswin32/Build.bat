@@ -27,7 +27,7 @@ for /f "usebackq delims=" %%v in ("%TEMP%\vsver.txt") do (
   set VSVER=%%v
   if "%%v:~0,2%%" == "16" set VS_GENERATOR=Visual Studio 16 2019
   if "%%v:~0,2%%" == "17" set VS_GENERATOR=Visual Studio 17 2022
-  if "%%v:~0,2%%" == "18" set VS_GENERATOR=Visual Studio 18 2025
+  if "%%v:~0,2%%" == "18" set VS_GENERATOR=Visual Studio 18 2026
 )
 
 :generator_set

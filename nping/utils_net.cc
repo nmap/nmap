@@ -375,8 +375,6 @@ bool isICMPCode(u8 code, u8 type){
 
 const char *arppackethdrinfo(const u8 *packet, u32 len, int detail );
 int arppackethdrinfo(const u8 *packet, u32 len, u8 *dstbuff, u32 dstlen);
-int tcppackethdrinfo(const u8 *packet, size_t len, u8 *dstbuff, size_t dstlen, int detail, const char *src, const char *dst);
-int udppackethdrinfo(const u8 *packet, size_t len, u8 *dstbuff, size_t dstlen, int detail, const char *src, const char *dst);
 
 /* This function fills buffer "dstbuff" with a printable string that
  * represents the supplied packet. When sending IPv6 packet at raw TCP
@@ -398,39 +396,12 @@ int getPacketStrInfo(const char *proto, const u8 *packet, u32 len, u8 *dstbuff,
   else
     detail=LOW_DETAIL;
 
-  if( !strcasecmp(proto, "IP") || !strcasecmp(proto, "IPv4") || !strcasecmp(proto, "IPv6")){
-    b=(char *)ippackethdrinfo(packet, len, detail);
-    strncpy((char*)dstbuff, b, dstlen);
-    dstbuff[dstlen-1]=0; /* Just to be sure, NULL-terminate the last position*/
-  }else if( !strcasecmp(proto, "ARP") || !strcasecmp(proto, "RARP") ){
+  if( !strcasecmp(proto, "ARP") || !strcasecmp(proto, "RARP") ){
     return  arppackethdrinfo(packet, len, dstbuff, dstlen);
-  }else if( !strcasecmp(proto, "IPv6_NO_HEADER") || o.ipv6UsingSocket() ){
-    char srcipstring[128];
-    const char *src = NULL;
-    char dstipstring[128];
-    const char *dst = NULL;
-    if (ss_src) {
-      src = inet_ntop_ez(ss_src, sizeof(*ss_src));
-      if (src) {
-        Strncpy(srcipstring, src, sizeof(srcipstring));
-        src = srcipstring;
-      }
-    }
-    if (ss_dst) {
-      dst = inet_ntop_ez(ss_dst, sizeof(*ss_dst));
-      if (dst) {
-        Strncpy(dstipstring, dst, sizeof(dstipstring));
-        dst = dstipstring;
-      }
-    }
-    if( o.getMode()==TCP )
-        return  tcppackethdrinfo(packet, len, dstbuff, dstlen, detail, src, dst);
-    else if ( o.getMode()==UDP )
-        return  udppackethdrinfo(packet, len, dstbuff, dstlen, detail, src, dst);
-    else
-        nping_fatal(QT_3, "getPacketStrInfo(): Unable to determinate transport layer protocol");
-  }else{
-    nping_fatal(QT_3, "getPacketStrInfo(): Unknown protocol");
+  }
+  else {
+    b=(char *)ippackethdrinfo(packet, len, detail);
+    strncpy((char*)dstbuff, b, dstlen-1);
   }
   return OP_SUCCESS;
 } /* getPacketStrInfo() */
@@ -903,27 +874,6 @@ int arppackethdrinfo(const u8 *packet, u32 len, u8 *dstbuff, u32 dstlen){
 } /* End of arppackethdrinfo() */
 
 
-int tcppackethdrinfo(const u8 *packet, size_t len, u8 *dstbuff, size_t dstlen,
-     int detail, const char *src, const char *dst){
- assert(packet);
- assert(dstbuff);
-
- return (tcppackethdrinfo(packet, len, (char *)dstbuff, dstlen,
-      detail, 0, src, dst) > 0 ? OP_SUCCESS : OP_FAILURE);
-} /* End of tcppackethdrinfo() */
-
-
-int udppackethdrinfo(const u8 *packet, size_t len, u8 *dstbuff, size_t dstlen,
-    int detail, const char *src, const char *dst){
-
- assert(packet);
- assert(dstbuff);
-
- return (udppackethdrinfo(packet, len, (char *)dstbuff, dstlen,
-      detail, 0, src, dst) > 0 ? OP_SUCCESS : OP_FAILURE);
-} /* End of udppackethdrinfo() */
-
-
 /** Returns a random (null-terminated) ASCII string with no special
   * meaning. Returned string may be between 1 and 512 bytes and contain
   * random letters and some whitespace.
@@ -969,33 +919,7 @@ int send_packet(NpingTarget *target, int rawfd, u8 *pkt, size_t pktLen){
         memset(&s6, 0, sizeof(struct sockaddr_in6));
         s6.sin6_family=AF_INET6;
         s6.sin6_addr = target->getIPv6Address();
-
-        /*
-        if( o.getMode()==TCP ){
-            dport=getDstPortFromTCPHeader(pkt, pktLen);
-            if(dport!=NULL)
-                s6.sin6_port = *dport;
-            else
-                nping_fatal(QT_3, "send_packet(): Could not determine TCP destination port.");
-        }
-        else if( o.getMode()==UDP){
-            dport=getDstPortFromUDPHeader(pkt, pktLen);
-            if(dport!=NULL)
-                s6.sin6_port = *dport;
-            else
-                nping_fatal(QT_3, "send_packet(): Could not determine UDP destination port.");
-        }
-        */
-
-        /* Linux doesn't seem to like sin6_port to be set to other value
-         * than 0. Unless we set it to zero, the sendto() call returns
-         * "Invalid argument" error. Does this happen in other systems?
-         * TODO: Should we check here if #ifdef LINUX and set the port to
-         * zero? */
-         s6.sin6_port=0;
-
-        res = Sendto("send_packet", rawfd, pkt, pktLen, 0, (struct sockaddr *)&s6, (int) sizeof(struct sockaddr_in6));
-        /*Sendto returns errors as -1 according to netutil.cc so lets catch that and return OP_FAILURE*/
+        res = send_ipv6_packet_eth_or_sd(rawfd, NULL, &s6, pkt, pktLen);
         if (res == -1) return OP_FAILURE;
     }else{ /* IPv4 */
         struct sockaddr_storage dst;

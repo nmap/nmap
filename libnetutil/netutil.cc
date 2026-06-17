@@ -1236,7 +1236,7 @@ static void netutil_perror(const char *msg) {
     * Bind to an interface with SO_BINDTODEVICE (if device is not NULL).
    The socket is created with address family AF_INET, but may be usable for
    AF_INET6, depending on the operating system. */
-int netutil_raw_socket(const char *device) {
+int netutil_raw_socket(const char *device, int af) {
 #ifdef WIN32
   netutil_error("Windows does not have adequate raw socket support.");
   return -1;
@@ -1244,7 +1244,7 @@ int netutil_raw_socket(const char *device) {
   int rawsd;
   int one = 1;
 
-  rawsd = socket(AF_INET, SOCK_RAW, IPPROTO_RAW);
+  rawsd = socket(af, SOCK_RAW, IPPROTO_RAW);
   if (rawsd < 0) {
     netutil_perror("Couldn't open a raw socket. "
 #if defined(sun) && defined(__SVR4)
@@ -1266,7 +1266,7 @@ int netutil_raw_socket(const char *device) {
 }
 
 int raw_socket_or_eth(int sendpref, const char *ifname, devtype iftype,
-    int *rawsd, netutil_eth_t **ethsd) {
+    int *rawsd, netutil_eth_t **ethsd, int af) {
   assert(rawsd != NULL);
   *rawsd = -1;
   assert(ethsd != NULL);
@@ -1317,7 +1317,7 @@ int raw_socket_or_eth(int sendpref, const char *ifname, devtype iftype,
         continue;
       }
 #endif
-      int sd = netutil_raw_socket(ifname);
+      int sd = netutil_raw_socket(ifname, af);
       if (sd >= 0) {
         *rawsd = sd;
         break;
@@ -2790,14 +2790,12 @@ int send_frag_ip_packet(int sd, const struct eth_nfo *eth,
 
 /* Send an IPv6 packet over a raw socket, on platforms where IPPROTO_RAW implies
    IP_HDRINCL-like behavior. */
-static int send_ipv6_ipproto_raw(const struct sockaddr_in6 *dst,
+static int send_ipv6_ipproto_raw(int sd, const struct sockaddr_in6 *dst,
   const unsigned char *packet, unsigned int packetlen) {
-  int sd, n;
+  int n;
 
-  sd = -1;
   n = -1;
 
-  sd = socket(AF_INET6, SOCK_RAW, IPPROTO_RAW);
   if (sd == -1) {
     perror("socket");
     goto bail;
@@ -2806,9 +2804,6 @@ static int send_ipv6_ipproto_raw(const struct sockaddr_in6 *dst,
   n = Sendto(__func__, sd, packet, packetlen, 0, (struct sockaddr *) dst, sizeof(*dst));
 
 bail:
-  if (sd != -1)
-    close(sd);
-
   return n;
 }
 
@@ -2991,14 +2986,13 @@ bail:
 
 #endif
 
-/* For now, the sd argument is ignored. */
 int send_ipv6_packet_eth_or_sd(int sd, const struct eth_nfo *eth,
   const struct sockaddr_in6 *dst, const u8 *packet, unsigned int packetlen) {
   if (eth != NULL) {
     return send_ip_packet_eth(eth, packet, packetlen, AF_INET6);
   } else {
 #if HAVE_IPV6_IPPROTO_RAW
-    return send_ipv6_ipproto_raw(dst, packet, packetlen);
+    return send_ipv6_ipproto_raw(sd, dst, packet, packetlen);
 #elif !WIN32
     return send_ipv6_ip(dst, packet, packetlen);
 #endif

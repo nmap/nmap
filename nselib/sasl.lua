@@ -219,7 +219,7 @@ if HAVE_SSL then
 
     --- Calculates the response
     calcResponse = function(self)
-      local ntlm, lm = smbauth.get_password_response(nil, self.username, self.domain, self.password, nil, "v1", self.chall, self.is_extended)
+      local ntlm, lm = smbauth.get_password_response(self.username, self.domain, self.password, nil, "v1", self.chall, self.is_extended)
       local msg_type = 3
       local response
       local BASE_OFFSET = 72

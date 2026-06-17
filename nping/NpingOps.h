@@ -344,7 +344,7 @@ class NpingOps {
     bool sendEth();
 
     int setDevice(char *n);
-    char *getDevice();
+    const char *getDevice();
     bool issetDevice();
 
     int setSpoofSource();
@@ -372,7 +372,6 @@ class NpingOps {
     bool issetIPVersion();
     bool ipv4();
     bool ipv6();
-    bool ipv6UsingSocket();
     int af();
 
     /* Privileges */

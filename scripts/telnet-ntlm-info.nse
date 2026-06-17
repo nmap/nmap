@@ -48,7 +48,7 @@ categories = {"default", "discovery", "safe"}
 
 
 local _, ntlm_auth_blob = smbauth.get_security_blob(
-  nil, nil, nil, nil, nil, nil, nil,
+  nil, nil, nil, nil, nil, nil,
   0x00000001 + -- Negotiate Unicode
   0x00000002 + -- Negotiate OEM strings
   0x00000004 + -- Request Target

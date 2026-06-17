@@ -353,7 +353,7 @@ struct in6_addr NpingTarget::getIPv6SourceAddress() {
 /** Returns IPv6 host address or NULL if unavailable.*/
 const struct in6_addr *NpingTarget::getIPv6SourceAddress_aux() {
   struct sockaddr_in6 *sin6 = (struct sockaddr_in6 *) &sourcesock;
-  if (sin6->sin6_family == AF_INET) {
+  if (sin6->sin6_family == AF_INET6) {
     return &(sin6->sin6_addr);
   }
   return NULL;
@@ -366,7 +366,7 @@ u8 *NpingTarget::getIPv6SourceAddress_u8(){
     return NULL;
   else
     return (u8*)in->s6_addr;
-} /* End of getIPv6Address_u8() */
+} /* End of getIPv6SourceAddress_u8() */
 
 
 /** If the host is directly connected on a network, set and retrieve

@@ -1344,7 +1344,7 @@ HostOsScan::HostOsScan(Target *t) {
   ethsd = NULL;
   int sendpref = o.sendpref;
 
-  if (!raw_socket_or_eth(sendpref, t->deviceName(), t->ifType(), &rawsd, &ethsd)) {
+  if (!raw_socket_or_eth(sendpref, t->deviceName(), t->ifType(), &rawsd, &ethsd, AF_INET)) {
     fatal("%s: Failed to open raw socket or ethernet device", __func__);
   }
   if (rawsd >= 0)

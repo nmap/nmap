@@ -257,10 +257,7 @@ bool keyWasPressed()
   static struct timeval stats_time = { 0 };
   int c;
 
-  if (o.noninteractive)
-    return false;
-
-  if ((c = tty_getchar()) >= 0) {
+  if (!o.noninteractive && (c = tty_getchar()) >= 0) {
     tty_flush(); /* flush input queue */
 
     // printf("You pressed key '%c'!\n", c);
