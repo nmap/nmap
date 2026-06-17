@@ -81,55 +81,57 @@ extension ContentView {
     }
 
     var footer: some View {
-        VStack(alignment: .leading, spacing: 4) {
+        let scanSession = currentScanSessionSnapshot
+
+        return VStack(alignment: .leading, spacing: 4) {
             HStack {
                 Circle()
-                    .fill(isRunning ? .orange : .green)
+                    .fill(scanSession.isFooterActive ? .orange : .green)
                     .frame(width: 8, height: 8)
 
-                Text(status)
+                Text(scanSession.footerStatusText)
                     .foregroundStyle(.secondary)
 
                 Spacer()
 
-                if isRunning {
-                    if let scanProgressPercent {
-                        ProgressView(value: scanProgressPercent, total: 100)
+                if scanSession.isFooterActive {
+                    if let progressPercent = scanSession.footerProgressPercent {
+                        ProgressView(value: progressPercent, total: 100)
                             .frame(width: 160)
 
-                        Text(String(format: "Overall %.0f%%", scanProgressPercent))
+                        Text(scanSession.footerOverallProgressText)
                             .foregroundStyle(.secondary)
                             .monospacedDigit()
-                    } else if !scanProgressMessage.isEmpty {
-                        Text(scanProgressMessage)
+                    } else if !scanSession.footerProgressMessageText.isEmpty {
+                        Text(scanSession.footerProgressMessageText)
                             .foregroundStyle(.secondary)
                             .lineLimit(1)
                     }
 
-                    if !scanElapsedText.isEmpty {
-                        Text(scanElapsedText)
+                    if !scanSession.footerElapsedText.isEmpty {
+                        Text(scanSession.footerElapsedText)
                             .foregroundStyle(.secondary)
-                    } else if let started = scanStartedAt {
-                        Text("Started \(started.formatted(date: .omitted, time: .standard))")
+                    } else if !scanSession.footerStartedText.isEmpty {
+                        Text(scanSession.footerStartedText)
                             .foregroundStyle(.secondary)
                     }
                 }
 
-                if let exitStatus {
+                if let exitStatus = scanSession.footerExitStatus {
                     Text("Exit \(exitStatus)")
                         .foregroundColor(exitStatus == 0 ? .secondary : .red)
                 }
             }
 
-            if isRunning {
+            if scanSession.isFooterActive {
                 HStack(spacing: 10) {
-                    Text(scanPhaseProgressText.isEmpty ? "Phase: waiting for Nmap timing" : scanPhaseProgressText)
+                    Text(scanSession.footerPhaseProgressText)
                         .foregroundStyle(.secondary)
                         .lineLimit(1)
                         .truncationMode(.middle)
 
-                    if !scanEstimatedCompletionText.isEmpty {
-                        Text(scanEstimatedCompletionText)
+                    if !scanSession.footerEstimatedCompletionText.isEmpty {
+                        Text(scanSession.footerEstimatedCompletionText)
                             .foregroundStyle(.secondary)
                             .lineLimit(1)
                     }
@@ -140,7 +142,7 @@ extension ContentView {
                 .padding(.leading, 18)
 
                 HStack(spacing: 10) {
-                    Text(scanPhaseBreakdownText)
+                    Text(scanSession.footerPhaseBreakdownText)
                         .foregroundStyle(.secondary)
                         .lineLimit(1)
                         .truncationMode(.middle)
@@ -155,4 +157,5 @@ extension ContentView {
         .padding(.horizontal)
         .padding(.vertical, 8)
     }
+
 }
