@@ -199,7 +199,7 @@ extension Notification.Name {
 }
 
 struct ContentView: View {
-    @EnvironmentObject private var scanHistory: ScanHistoryStore
+    @EnvironmentObject var scanHistory: ScanHistoryStore
     private static let customProfilesDefaultsKey = "Zenmap.CustomProfiles"
     private let elapsedTimer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
 
@@ -252,12 +252,12 @@ struct ContentView: View {
     @State private var lastCommand = ""
     @State private var lastXMLPath = ""
     
-    @State private var hosts: [ScannedHost] = []
+    @State var hosts: [ScannedHost] = []
     @State private var selectedHostID: ScannedHost.ID?
     @State private var selectedPortID: ScannedPort.ID?
     @State private var selectedServicePortID: ScannedPort.ID?
-    @State private var resultsFilterText = ""
-    @State private var savedScansFilterText = ""
+    @State var resultsFilterText = ""
+    @State var savedScansFilterText = ""
     @State private var savedScanNotesText = ""
     @State private var savedScanTagsText = ""
     @State private var didInstallDiagnosticInfoObserver = false
@@ -472,127 +472,6 @@ struct ContentView: View {
             }
         }
     }
-    
-    private var allPorts: [ScannedPort] {
-        hosts.flatMap { $0.ports }
-    }
-
-    private var filteredHosts: [ScannedHost] {
-        let query = normalizedResultsFilterText
-
-        guard !query.isEmpty else {
-            return hosts
-        }
-
-        return hosts.filter { hostMatchesFilter($0, query: query) }
-    }
-
-    private var filteredPorts: [ScannedPort] {
-        let query = normalizedResultsFilterText
-
-        guard !query.isEmpty else {
-            return allPorts
-        }
-
-        return allPorts.filter { portMatchesFilter($0, query: query) }
-    }
-
-    private var allServicePorts: [ScannedPort] {
-        allPorts.filter { !$0.serviceName.isEmpty || !$0.serviceSummary.isEmpty }
-    }
-
-    private var filteredServicePorts: [ScannedPort] {
-        let query = normalizedResultsFilterText
-
-        guard !query.isEmpty else {
-            return allServicePorts
-        }
-
-        return allServicePorts.filter { portMatchesFilter($0, query: query) }
-    }
-
-    private var normalizedResultsFilterText: String {
-        resultsFilterText
-            .trimmingCharacters(in: .whitespacesAndNewlines)
-            .lowercased()
-    }
-
-    private var isFilteringResults: Bool {
-        !normalizedResultsFilterText.isEmpty
-    }
-
-    private func hostMatchesFilter(_ host: ScannedHost, query: String) -> Bool {
-        let hostText = [
-            host.address,
-            host.hostname,
-            host.status,
-            "\(host.openPortCount)"
-        ]
-        .joined(separator: " ")
-        .lowercased()
-
-        if hostText.contains(query) {
-            return true
-        }
-
-        return host.ports.contains { portMatchesFilter($0, query: query) }
-    }
-
-    private func portMatchesFilter(_ port: ScannedPort, query: String) -> Bool {
-        [
-            port.hostAddress,
-            port.protocolName,
-            port.portNumber,
-            port.state,
-            port.serviceName,
-            port.product,
-            port.version,
-            port.extraInfo,
-            port.serviceSummary
-        ]
-        .joined(separator: " ")
-        .lowercased()
-        .contains(query)
-    }
-
-    private var filteredSavedScans: [SavedScan] {
-        let query = normalizedSavedScansFilterText
-
-        guard !query.isEmpty else {
-            return scanHistory.savedScans
-        }
-
-        return scanHistory.savedScans.filter { savedScanMatchesFilter($0, query: query) }
-    }
-
-    private var normalizedSavedScansFilterText: String {
-        savedScansFilterText
-            .trimmingCharacters(in: .whitespacesAndNewlines)
-            .lowercased()
-    }
-
-    private var isFilteringSavedScans: Bool {
-        !normalizedSavedScansFilterText.isEmpty
-    }
-
-    private func savedScanMatchesFilter(_ scan: SavedScan, query: String) -> Bool {
-        let dateText = scan.scannedAt.formatted(date: .abbreviated, time: .shortened)
-
-        return [
-            scan.title,
-            scan.command,
-            scan.xmlPath,
-            scan.notes,
-            scan.tags,
-            dateText,
-            "\(scan.hostCount)",
-            "\(scan.portCount)"
-        ]
-        .joined(separator: " ")
-        .lowercased()
-        .contains(query)
-    }
-
     
     private struct NSEScriptEntry: Identifiable, Hashable {
         let name: String
