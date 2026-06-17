@@ -51,6 +51,7 @@
 		A1B100000000000000000048 /* ZenmapOutputView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B100000000000000000047 /* ZenmapOutputView.swift */; };
 		A1B100000000000000000050 /* ZenmapScanFormView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B100000000000000000049 /* ZenmapScanFormView.swift */; };
 		A1B100000000000000000052 /* ZenmapAppChrome.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B100000000000000000051 /* ZenmapAppChrome.swift */; };
+		A1B100000000000000000054 /* ZenmapLifecycleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B100000000000000000053 /* ZenmapLifecycleView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -2716,6 +2717,7 @@
 		A1B100000000000000000047 /* ZenmapOutputView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZenmapOutputView.swift; sourceTree = "<group>"; };
 		A1B100000000000000000049 /* ZenmapScanFormView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZenmapScanFormView.swift; sourceTree = "<group>"; };
 		A1B100000000000000000051 /* ZenmapAppChrome.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZenmapAppChrome.swift; sourceTree = "<group>"; };
+		A1B100000000000000000053 /* ZenmapLifecycleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZenmapLifecycleView.swift; sourceTree = "<group>"; };
 		A10000000000000000000003 /* Zenmap.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Zenmap.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A10000000000000000000004 /* build-nmap-macos.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = "build-nmap-macos.sh"; sourceTree = "<group>"; };
 		A10000000000000000000005 /* clean-nmap-macos.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = "clean-nmap-macos.sh"; sourceTree = "<group>"; };
@@ -6614,6 +6616,7 @@
 				A1B100000000000000000047 /* ZenmapOutputView.swift */,
 				A1B100000000000000000049 /* ZenmapScanFormView.swift */,
 				A1B100000000000000000051 /* ZenmapAppChrome.swift */,
+				A1B100000000000000000053 /* ZenmapLifecycleView.swift */,
 			);
 			path = zenmap/macos/native;
 			sourceTree = "<group>";
@@ -6808,6 +6811,7 @@
 				A1B100000000000000000048 /* ZenmapOutputView.swift in Sources */,
 				A1B100000000000000000050 /* ZenmapScanFormView.swift in Sources */,
 				A1B100000000000000000052 /* ZenmapAppChrome.swift in Sources */,
+				A1B100000000000000000054 /* ZenmapLifecycleView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
