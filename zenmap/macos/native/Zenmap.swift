@@ -203,11 +203,11 @@ struct ContentView: View {
     static let customProfilesDefaultsKey = "Zenmap.CustomProfiles"
     private let elapsedTimer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
 
-    @AppStorage("Zenmap.AutoAddVerbose") private var autoAddVerbose = true
-    @AppStorage("Zenmap.AutoAddStatsEvery") private var autoAddStatsEvery = true
-    @AppStorage("Zenmap.StatsEveryValue") private var statsEveryValue = "5s"
-    @AppStorage("Zenmap.DefaultTarget") private var defaultTarget = "scanme.nmap.org"
-    @AppStorage("Zenmap.DefaultProfileName") private var defaultProfileName = "Service Detection"
+    @AppStorage("Zenmap.AutoAddVerbose") var autoAddVerbose = true
+    @AppStorage("Zenmap.AutoAddStatsEvery") var autoAddStatsEvery = true
+    @AppStorage("Zenmap.StatsEveryValue") var statsEveryValue = "5s"
+    @AppStorage("Zenmap.DefaultTarget") var defaultTarget = "scanme.nmap.org"
+    @AppStorage("Zenmap.DefaultProfileName") var defaultProfileName = "Service Detection"
 
     @State var profiles: [ScanProfile] = Self.builtInProfiles
     
@@ -975,112 +975,8 @@ struct ContentView: View {
     }
 
     
-    private var settingsView: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            HStack {
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("Settings")
-                        .font(.title2.bold())
-                    Text("Control default scan behavior and startup values.")
-                        .foregroundStyle(.secondary)
-                }
 
-                Spacer()
-
-                Button("Apply Defaults Now") {
-                    applyScanDefaults()
-                }
-
-                Button("Reset Defaults") {
-                    resetScanDefaults()
-                }
-            }
-
-            GroupBox("Scan Behavior") {
-                Grid(alignment: .leading, horizontalSpacing: 12, verticalSpacing: 12) {
-                    GridRow {
-                        Text("Verbose output")
-                            .foregroundStyle(.secondary)
-                        Toggle("Auto-add -v when no verbose/debug flag is present", isOn: $autoAddVerbose)
-                    }
-
-                    GridRow {
-                        Text("Progress stats")
-                            .foregroundStyle(.secondary)
-                        Toggle("Auto-add --stats-every", isOn: $autoAddStatsEvery)
-                    }
-
-                    GridRow {
-                        Text("Stats interval")
-                            .foregroundStyle(.secondary)
-                        Picker("Stats interval", selection: $statsEveryValue) {
-                            Text("5 seconds").tag("5s")
-                            Text("10 seconds").tag("10s")
-                            Text("30 seconds").tag("30s")
-                            Text("60 seconds").tag("60s")
-                        }
-                        .labelsHidden()
-                        .disabled(!autoAddStatsEvery)
-                    }
-                }
-                .padding(.vertical, 4)
-            }
-
-            GroupBox("Defaults") {
-                Grid(alignment: .leading, horizontalSpacing: 12, verticalSpacing: 12) {
-                    GridRow {
-                        Text("Default target")
-                            .foregroundStyle(.secondary)
-                        TextField("scanme.nmap.org", text: $defaultTarget)
-                            .textFieldStyle(.roundedBorder)
-                    }
-
-                    GridRow {
-                        Text("Default profile")
-                            .foregroundStyle(.secondary)
-                        Picker("Default profile", selection: $defaultProfileName) {
-                            ForEach(profiles) { profile in
-                                Text(profile.name).tag(profile.name)
-                            }
-                        }
-                        .labelsHidden()
-                    }
-                }
-                .padding(.vertical, 4)
-            }
-
-            GroupBox("Current Effective Defaults") {
-                Grid(alignment: .leading, horizontalSpacing: 12, verticalSpacing: 8) {
-                    GridRow {
-                        Text("Target")
-                            .foregroundStyle(.secondary)
-                        Text(defaultTarget.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? "scanme.nmap.org" : defaultTarget)
-                            .font(.system(.body, design: .monospaced))
-                            .textSelection(.enabled)
-                    }
-
-                    GridRow {
-                        Text("Profile")
-                            .foregroundStyle(.secondary)
-                        Text(defaultProfileName)
-                    }
-
-                    GridRow {
-                        Text("Auto arguments")
-                            .foregroundStyle(.secondary)
-                        Text(settingsAutoArgumentsSummary)
-                            .font(.system(.body, design: .monospaced))
-                            .textSelection(.enabled)
-                    }
-                }
-            }
-
-            Spacer()
-        }
-        .padding()
-    }
-
-    private var settingsAutoArgumentsSummary: String {
+    var settingsAutoArgumentsSummary: String {
         var values: [String] = []
 
         if autoAddVerbose {
@@ -1094,7 +990,7 @@ struct ContentView: View {
         return values.isEmpty ? "None" : values.joined(separator: " ")
     }
 
-    private func applyScanDefaults() {
+    func applyScanDefaults() {
         let trimmedDefaultTarget = defaultTarget.trimmingCharacters(in: .whitespacesAndNewlines)
         target = trimmedDefaultTarget.isEmpty ? "scanme.nmap.org" : trimmedDefaultTarget
 
@@ -1107,7 +1003,7 @@ struct ContentView: View {
         selectedTab = "Output"
     }
 
-    private func resetScanDefaults() {
+    func resetScanDefaults() {
         autoAddVerbose = true
         autoAddStatsEvery = true
         statsEveryValue = "5s"
