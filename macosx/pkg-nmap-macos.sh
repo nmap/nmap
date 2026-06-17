@@ -66,14 +66,31 @@ make_component_root() {
   local destination_root="$2"
   local relative_path="$3"
 
-  rm -rf "$destination_root"
   mkdir -p "$destination_root/$(dirname "$relative_path")"
-  cp -R "$source_path" "$destination_root/$relative_path"
+
+  # Use ditto without resource forks or extended attributes so pkgbuild does not
+  # synthesize AppleDouble files like ._nselib and ._scripts.
+  ditto --norsrc --noextattr "$source_path" "$destination_root/$relative_path"
+
   chmod -R u+rwX "$destination_root"
+  xattr -cr "$destination_root" 2>/dev/null || true
+  xattr -dr com.apple.macl "$destination_root" 2>/dev/null || true
+  dot_clean -m "$destination_root" 2>/dev/null || true
+  find "$destination_root" -name '._*' -delete 2>/dev/null || true
 }
 
 require_replacement_root
 copy_gui_as_zenmap
+
+clean_packaging_metadata() {
+  local root="$1"
+
+  if [ -e "$root" ]; then
+    xattr -cr "$root" 2>/dev/null || true
+    dot_clean -m "$root" 2>/dev/null || true
+    find "$root" -name '._*' -delete 2>/dev/null || true
+  fi
+}
 
 rm -rf "$PKG_WORK_DIR" "$PKG_OUT_DIR"
 mkdir -p "$PKG_WORK_DIR" "$PKG_OUT_DIR"
@@ -86,11 +103,31 @@ cat > "$PKG_WORK_DIR/NoBundleComponents.plist" <<PLIST
 </plist>
 PLIST
 
+rm -rf "$PKG_WORK_DIR/nmap-root" "$PKG_WORK_DIR/ncat-root" "$PKG_WORK_DIR/nping-root" "$PKG_WORK_DIR/ndiff-root" "$PKG_WORK_DIR/zenmap-root"
+
 make_component_root "$APPLICATIONS_DIR/nmap.app" "$PKG_WORK_DIR/nmap-root" "Applications/nmap.app"
+make_component_root "$USR_LOCAL_DIR/bin/nmap" "$PKG_WORK_DIR/nmap-root" "usr/local/bin/nmap"
+
 make_component_root "$APPLICATIONS_DIR/ncat.app" "$PKG_WORK_DIR/ncat-root" "Applications/ncat.app"
+make_component_root "$USR_LOCAL_DIR/bin/ncat" "$PKG_WORK_DIR/ncat-root" "usr/local/bin/ncat"
+
 make_component_root "$APPLICATIONS_DIR/nping.app" "$PKG_WORK_DIR/nping-root" "Applications/nping.app"
-make_component_root "$USR_LOCAL_DIR" "$PKG_WORK_DIR/ndiff-root" "usr/local"
+make_component_root "$USR_LOCAL_DIR/bin/nping" "$PKG_WORK_DIR/nping-root" "usr/local/bin/nping"
+
+make_component_root "$USR_LOCAL_DIR/bin/ndiff" "$PKG_WORK_DIR/ndiff-root" "usr/local/bin/ndiff"
+make_component_root "$USR_LOCAL_DIR/bin/ndiff.py" "$PKG_WORK_DIR/ndiff-root" "usr/local/bin/ndiff.py"
+
 make_component_root "$APPLICATIONS_DIR/Zenmap.app" "$PKG_WORK_DIR/zenmap-root" "Applications/Zenmap.app"
+
+echo "Cleaning packaging metadata..."
+xattr -cr "$REPLACEMENT_ROOT" 2>/dev/null || true
+find "$REPLACEMENT_ROOT" -name '._*' -delete
+
+clean_packaging_metadata "$PKG_WORK_DIR/nmap-root"
+clean_packaging_metadata "$PKG_WORK_DIR/ncat-root"
+clean_packaging_metadata "$PKG_WORK_DIR/nping-root"
+clean_packaging_metadata "$PKG_WORK_DIR/ndiff-root"
+clean_packaging_metadata "$PKG_WORK_DIR/zenmap-root"
 
 pkgbuild \
   --component-plist "$PKG_WORK_DIR/NoBundleComponents.plist" \

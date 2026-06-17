@@ -26,6 +26,9 @@ make_cli_plist() {
   local executable="$2"
   local identifier="$3"
   local name="$4"
+  local icon="$5"
+
+  mkdir -p "$(dirname "$plist")"
 
   cat > "$plist" <<PLIST
 <?xml version="1.0" encoding="UTF-8"?>
@@ -42,6 +45,8 @@ make_cli_plist() {
   <string>$name</string>
   <key>CFBundlePackageType</key>
   <string>APPL</string>
+  <key>CFBundleIconFile</key>
+  <string>$icon</string>
   <key>CFBundleShortVersionString</key>
   <string>7.99</string>
   <key>CFBundleVersion</key>
@@ -49,6 +54,39 @@ make_cli_plist() {
 </dict>
 </plist>
 PLIST
+}
+
+make_cli_launcher() {
+  local launcher="$1"
+  local app_name="$2"
+  local tool_name="$3"
+  local nmapdir="$4"
+
+  mkdir -p "$(dirname "$launcher")"
+
+  cat > "$launcher" <<LAUNCHER
+#!/bin/sh
+if [ -n "$nmapdir" ]; then
+  export NMAPDIR="$nmapdir"
+fi
+exec "/Applications/$app_name.app/Contents/Resources/bin/$tool_name" "\$@"
+LAUNCHER
+
+  chmod 755 "$launcher"
+}
+
+
+copy_cli_icon() {
+  local icon_source="$1"
+  local app_dir="$2"
+  local icon_name="$3"
+
+  if [ -f "$icon_source" ]; then
+    mkdir -p "$app_dir/Contents/Resources"
+    cp "$icon_source" "$app_dir/Contents/Resources/$icon_name.icns"
+  else
+    echo "warning: missing optional icon: $icon_source"
+  fi
 }
 
 if [ ! -d "$DIST_DIR/nmap.app" ]; then
@@ -70,10 +108,12 @@ cp -R "$DIST_DIR/nmap.app" "$APPLICATIONS_DIR/nmap.app"
 copy_if_exists "$ROOT_DIR/docs/nmap.xsl" "$APPLICATIONS_DIR/nmap.app/Contents/Resources/share/nmap/nmap.xsl"
 copy_if_exists "$ROOT_DIR/docs/nmap.dtd" "$APPLICATIONS_DIR/nmap.app/Contents/Resources/share/nmap/nmap.dtd"
 
-make_cli_plist "$APPLICATIONS_DIR/nmap.app/Info.plist" "nmap" "org.insecure.nmap" "nmap"
+make_cli_plist "$APPLICATIONS_DIR/nmap.app/Contents/Info.plist" "nmap" "org.insecure.nmap" "Nmap" "nmap"
+copy_cli_icon "$ROOT_DIR/macosx/nmap.icns" "$APPLICATIONS_DIR/nmap.app" "nmap"
 mkdir -p "$APPLICATIONS_DIR/nmap.app/Contents/MacOS"
 cp "$APPLICATIONS_DIR/nmap.app/Contents/Resources/bin/nmap" "$APPLICATIONS_DIR/nmap.app/Contents/MacOS/nmap"
 chmod 755 "$APPLICATIONS_DIR/nmap.app/Contents/MacOS/nmap"
+make_cli_launcher "$USR_LOCAL_DIR/bin/nmap" "nmap" "nmap" "/Applications/nmap.app/Contents/Resources/share/nmap"
 
 if [ -x "$ROOT_DIR/ncat/ncat" ]; then
   echo "Creating ncat.app..."
@@ -84,12 +124,14 @@ if [ -x "$ROOT_DIR/ncat/ncat" ]; then
     "$APPLICATIONS_DIR/ncat.app/Contents/Resources/share/ncat" \
     "$APPLICATIONS_DIR/ncat.app/Contents/Resources/share/man/man1"
 
-  make_cli_plist "$APPLICATIONS_DIR/ncat.app/Info.plist" "ncat" "org.insecure.nmap.ncat" "ncat"
+  make_cli_plist "$APPLICATIONS_DIR/ncat.app/Contents/Info.plist" "ncat" "org.insecure.nmap.ncat" "Ncat" "ncat"
+  copy_cli_icon "$ROOT_DIR/macosx/ncat.icns" "$APPLICATIONS_DIR/ncat.app" "ncat"
   cp "$ROOT_DIR/ncat/ncat" "$APPLICATIONS_DIR/ncat.app/Contents/MacOS/ncat"
   cp "$ROOT_DIR/ncat/ncat" "$APPLICATIONS_DIR/ncat.app/Contents/Resources/bin/ncat"
   chmod 755 "$APPLICATIONS_DIR/ncat.app/Contents/MacOS/ncat" "$APPLICATIONS_DIR/ncat.app/Contents/Resources/bin/ncat"
   copy_if_exists "$ROOT_DIR/ncat/certs/ca-bundle.crt" "$APPLICATIONS_DIR/ncat.app/Contents/Resources/share/ncat/ca-bundle.crt"
   copy_if_exists "$ROOT_DIR/ncat/docs/ncat.1" "$APPLICATIONS_DIR/ncat.app/Contents/Resources/share/man/man1/ncat.1"
+  make_cli_launcher "$USR_LOCAL_DIR/bin/ncat" "ncat" "ncat" ""
 
   cp "$APPLICATIONS_DIR/nmap.app/Contents/Resources/lib/libssl.3.dylib" "$APPLICATIONS_DIR/ncat.app/Contents/Resources/lib/" 2>/dev/null || true
   cp "$APPLICATIONS_DIR/nmap.app/Contents/Resources/lib/libcrypto.3.dylib" "$APPLICATIONS_DIR/ncat.app/Contents/Resources/lib/" 2>/dev/null || true
@@ -117,18 +159,20 @@ if [ -x "$ROOT_DIR/nping/nping" ]; then
     "$APPLICATIONS_DIR/nping.app/Contents/Resources/lib" \
     "$APPLICATIONS_DIR/nping.app/Contents/Resources/share/man/man1"
 
-  make_cli_plist "$APPLICATIONS_DIR/nping.app/Info.plist" "nping" "org.insecure.nmap.nping" "nping"
+  make_cli_plist "$APPLICATIONS_DIR/nping.app/Contents/Info.plist" "nping" "org.insecure.nmap.nping" "Nping" "nping"
+  copy_cli_icon "$ROOT_DIR/macosx/nping.icns" "$APPLICATIONS_DIR/nping.app" "nping"
   cp "$ROOT_DIR/nping/nping" "$APPLICATIONS_DIR/nping.app/Contents/MacOS/nping"
   cp "$ROOT_DIR/nping/nping" "$APPLICATIONS_DIR/nping.app/Contents/Resources/bin/nping"
   chmod 755 "$APPLICATIONS_DIR/nping.app/Contents/MacOS/nping" "$APPLICATIONS_DIR/nping.app/Contents/Resources/bin/nping"
   copy_if_exists "$ROOT_DIR/nping/docs/nping.1" "$APPLICATIONS_DIR/nping.app/Contents/Resources/share/man/man1/nping.1"
+  make_cli_launcher "$USR_LOCAL_DIR/bin/nping" "nping" "nping" ""
 
   for lib in libssl.3.dylib libcrypto.3.dylib libpcap.A.dylib; do
     cp "$APPLICATIONS_DIR/nmap.app/Contents/Resources/lib/$lib" "$APPLICATIONS_DIR/nping.app/Contents/Resources/lib/" 2>/dev/null || true
   done
   ln -sf libssl.3.dylib "$APPLICATIONS_DIR/nping.app/Contents/Resources/lib/libssl.dylib"
   ln -sf libcrypto.3.dylib "$APPLICATIONS_DIR/nping.app/Contents/Resources/lib/libcrypto.dylib"
-  ln -sf libpcap.A.dylib "$APPLICATIONS_DIR/nping.app/Contents/Resources/lib/libpcap.dylib"
+  rm -f "$APPLICATIONS_DIR/nping.app/Contents/Resources/lib/libpcap.dylib"
 
   for bin in "$APPLICATIONS_DIR/nping.app/Contents/MacOS/nping" "$APPLICATIONS_DIR/nping.app/Contents/Resources/bin/nping"; do
     for lib in libssl.3.dylib libcrypto.3.dylib libpcap.A.dylib; do
@@ -186,3 +230,17 @@ fi
 echo
 echo "Replacement root created:"
 find "$REPLACEMENT_ROOT" -maxdepth 5 -print | sed "s#^$ROOT_DIR/##" | head -120
+
+if [ -d "$DIST_DIR/Zenmap.app" ]; then
+  echo "Copying Zenmap.app into replacement root..."
+  cp -R "$DIST_DIR/Zenmap.app" "$APPLICATIONS_DIR/Zenmap.app"
+else
+  echo "warning: missing dist/Zenmap.app; run macosx/release-zenmap-macos.sh to include Zenmap in the installer root"
+fi
+
+echo "Signing staged app bundles..."
+for app in "$APPLICATIONS_DIR/nmap.app" "$APPLICATIONS_DIR/ncat.app" "$APPLICATIONS_DIR/nping.app" "$APPLICATIONS_DIR/Zenmap.app"; do
+  if [ -d "$app" ]; then
+    codesign --force --deep --sign - "$app"
+  fi
+done
