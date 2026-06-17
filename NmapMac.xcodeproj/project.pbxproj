@@ -25,6 +25,9 @@
 		2F0ADB1D2FE0610400D6A060 /* ScanPrivilegeEvaluator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F0ADB1C2FE060FF00D6A060 /* ScanPrivilegeEvaluator.swift */; };
 		2F0ADB1F2FE0613300D6A060 /* ShellEscaping.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F0ADB1E2FE0612000D6A060 /* ShellEscaping.swift */; };
 		A10000000000000000000001 /* Zenmap.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000002 /* Zenmap.swift */; };
+		A1B100000000000000000002 /* ZenmapModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B100000000000000000001 /* ZenmapModels.swift */; };
+		A1B100000000000000000004 /* ScanHistoryStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B100000000000000000003 /* ScanHistoryStore.swift */; };
+		A1B100000000000000000006 /* ZenmapSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B100000000000000000005 /* ZenmapSupport.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -2664,6 +2667,9 @@
 		2F489BB32FDF4D0B00DBE74E /* README */ = {isa = PBXFileReference; lastKnownFileType = text; path = README; sourceTree = "<group>"; };
 		2F489BB42FDF4D0B00DBE74E /* zenmap */ = {isa = PBXFileReference; lastKnownFileType = text; path = zenmap; sourceTree = "<group>"; };
 		A10000000000000000000002 /* Zenmap.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Zenmap.swift; sourceTree = "<group>"; };
+		A1B100000000000000000001 /* ZenmapModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZenmapModels.swift; sourceTree = "<group>"; };
+		A1B100000000000000000003 /* ScanHistoryStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScanHistoryStore.swift; sourceTree = "<group>"; };
+		A1B100000000000000000005 /* ZenmapSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZenmapSupport.swift; sourceTree = "<group>"; };
 		A10000000000000000000003 /* Zenmap.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Zenmap.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A10000000000000000000004 /* build-nmap-macos.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = "build-nmap-macos.sh"; sourceTree = "<group>"; };
 		A10000000000000000000005 /* clean-nmap-macos.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = "clean-nmap-macos.sh"; sourceTree = "<group>"; };
@@ -6536,6 +6542,9 @@
 				2F0ADB1C2FE060FF00D6A060 /* ScanPrivilegeEvaluator.swift */,
 				2F0ADB182FE0605F00D6A060 /* PrivilegedNmapRunner.swift */,
 				A10000000000000000000002 /* Zenmap.swift */,
+				A1B100000000000000000001 /* ZenmapModels.swift */,
+				A1B100000000000000000003 /* ScanHistoryStore.swift */,
+				A1B100000000000000000005 /* ZenmapSupport.swift */,
 			);
 			path = zenmap/macos/native;
 			sourceTree = "<group>";
@@ -6704,6 +6713,9 @@
 				2F0ADB1D2FE0610400D6A060 /* ScanPrivilegeEvaluator.swift in Sources */,
 				2F0ADB1B2FE0607300D6A060 /* PrivilegedNmapRunner.swift in Sources */,
 				A10000000000000000000001 /* Zenmap.swift in Sources */,
+				A1B100000000000000000002 /* ZenmapModels.swift in Sources */,
+				A1B100000000000000000004 /* ScanHistoryStore.swift in Sources */,
+				A1B100000000000000000006 /* ZenmapSupport.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
