@@ -237,12 +237,32 @@ productbuild \
 
 echo
 echo "Installer packages created:"
-ls -lh "$NMAP_PKG" "$NCAT_PKG" "$NPING_PKG" "$NDIFF_PKG" "$ZENMAP_PKG" "$COMPLETE_PKG"
+ls -lh \
+  "$PKG_OUT_DIR/Nmap.pkg" \
+  "$PKG_OUT_DIR/Ncat.pkg" \
+  "$PKG_OUT_DIR/Nping.pkg" \
+  "$PKG_OUT_DIR/Ndiff.pkg" \
+  "$PKG_OUT_DIR/Zenmap.pkg" \
+  "$PKG_OUT_DIR/NmapCLI.pkg" \
+  "$PKG_OUT_DIR/ZenmapOnly.pkg" \
+  "$PKG_OUT_DIR/NmapComplete.pkg"
 
 echo
-echo "Inspect packages with:"
-echo "  pkgutil --payload-files '$NMAP_PKG' | head -80"
-echo "  pkgutil --payload-files '$NCAT_PKG' | head -80"
-echo "  pkgutil --payload-files '$NPING_PKG' | head -80"
-echo "  pkgutil --payload-files '$NDIFF_PKG' | head -80"
-echo "  pkgutil --payload-files '$ZENMAP_PKG' | head -80"
+echo "Install choices:"
+echo "  NmapCLI.pkg       command-line tools only"
+echo "  ZenmapOnly.pkg    Zenmap GUI only"
+echo "  NmapComplete.pkg  command-line tools plus Zenmap"
+
+echo
+echo "Inspect component packages with:"
+echo "  pkgutil --payload-files '$PKG_OUT_DIR/Nmap.pkg' | head -80"
+echo "  pkgutil --payload-files '$PKG_OUT_DIR/Ncat.pkg' | head -80"
+echo "  pkgutil --payload-files '$PKG_OUT_DIR/Nping.pkg' | head -80"
+echo "  pkgutil --payload-files '$PKG_OUT_DIR/Ndiff.pkg' | head -80"
+echo "  pkgutil --payload-files '$PKG_OUT_DIR/Zenmap.pkg' | head -80"
+
+echo
+echo "Inspect product packages with:"
+echo "  pkgutil --expand '$PKG_OUT_DIR/NmapCLI.pkg' /tmp/NmapCLI-expanded"
+echo "  pkgutil --expand '$PKG_OUT_DIR/ZenmapOnly.pkg' /tmp/ZenmapOnly-expanded"
+echo "  pkgutil --expand '$PKG_OUT_DIR/NmapComplete.pkg' /tmp/NmapComplete-expanded"
