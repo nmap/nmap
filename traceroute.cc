@@ -1224,7 +1224,7 @@ void TracerouteState::read_replies(long timeout) {
   struct timeval now;
   Reply reply;
 
-  assert(timeout / 1000 <= (long) o.scan_delay);
+  assert(o.scan_delay == 0 || (timeout / 1000 <= (long) o.scan_delay));
   timeout = MAX(timeout, 10000);
   now = get_now();
 
