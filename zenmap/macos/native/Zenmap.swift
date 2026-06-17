@@ -2757,7 +2757,7 @@ struct ContentView: View {
         case "vuln":
             return "Warning: vuln runs vulnerability checks."
         case "auth":
-            return "Warning: auth may test authentication behavior."
+            return "Warning: auth scripts may test authentication behavior."
         case "discovery":
             return "Note: discovery can be noisy on larger networks."
         default:
