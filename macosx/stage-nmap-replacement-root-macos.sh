@@ -227,9 +227,6 @@ if [ -x "$USR_LOCAL_DIR/bin/ndiff" ]; then
   "$USR_LOCAL_DIR/bin/ndiff" -h >/dev/null
 fi
 
-echo
-echo "Replacement root created:"
-find "$REPLACEMENT_ROOT" -maxdepth 5 -print | sed "s#^$ROOT_DIR/##" | head -120
 
 if [ -d "$DIST_DIR/Zenmap.app" ]; then
   echo "Copying Zenmap.app into replacement root..."
@@ -244,3 +241,7 @@ for app in "$APPLICATIONS_DIR/nmap.app" "$APPLICATIONS_DIR/ncat.app" "$APPLICATI
     codesign --force --deep --sign - "$app"
   fi
 done
+
+echo
+echo "Replacement root created:"
+find "$REPLACEMENT_ROOT" -maxdepth 5 -print | sed "s#^$ROOT_DIR/##" | head -120
