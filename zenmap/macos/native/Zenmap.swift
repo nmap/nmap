@@ -226,11 +226,11 @@ struct ContentView: View {
     @State var selectedTab = "Output"
     @State var baselineCompareScanID: SavedScan.ID?
     @State var comparisonCompareScanID: SavedScan.ID?
-    @State private var isOutputFindVisible = false
-    @State private var isOutputAutoScrollEnabled = true
+    @State var isOutputFindVisible = false
+    @State var isOutputAutoScrollEnabled = true
     @State var outputFindText = ""
     @State var outputFindSelection = 0
-    @FocusState private var isOutputFindFocused: Bool
+    @FocusState var isOutputFindFocused: Bool
     
     @State private var runningProcess: Process?
     @State var privilegedScanPID: Int32?
@@ -803,96 +803,6 @@ struct ContentView: View {
         }
     }
     
-    private var outputView: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            HStack {
-                Text("Raw Output")
-                    .font(.headline)
-                Spacer()
-
-                Toggle("Auto-scroll", isOn: $isOutputAutoScrollEnabled)
-                    .toggleStyle(.switch)
-                    .help("Automatically follow the latest scan output")
-
-                Button {
-                    isOutputFindVisible.toggle()
-                    if isOutputFindVisible {
-                        selectedTab = "Output"
-                        DispatchQueue.main.async {
-                            isOutputFindFocused = true
-                        }
-                    }
-                } label: {
-                    Label("Find", systemImage: "magnifyingglass")
-                }
-
-                Button {
-                    copyOutput()
-                } label: {
-                    Label("Copy", systemImage: "doc.on.doc")
-                }
-                
-                Button {
-                    output = ""
-                } label: {
-                    Label("Clear", systemImage: "trash")
-                }
-                .disabled(isRunning)
-            }
-
-            if isOutputFindVisible {
-                HStack {
-                    Image(systemName: "magnifyingglass")
-                        .foregroundStyle(.secondary)
-
-                    TextField("Find in output", text: $outputFindText)
-                        .textFieldStyle(.roundedBorder)
-                        .focused($isOutputFindFocused)
-                        .onChange(of: outputFindText) { _, _ in
-                            outputFindSelection = 0
-                        }
-                    
-                    Text(outputFindSummary)
-                        .foregroundStyle(.secondary)
-
-                    Button {
-                        moveToPreviousOutputMatch()
-                    } label: {
-                        Image(systemName: "chevron.up")
-                    }
-                    .help("Previous Match")
-                    .disabled(outputFindMatchCount == 0)
-
-                    Button {
-                        moveToNextOutputMatch()
-                    } label: {
-                        Image(systemName: "chevron.down")
-                    }
-                    .help("Next Match")
-                    .disabled(outputFindMatchCount == 0)
-
-                    Button {
-                        outputFindText = ""
-                        outputFindSelection = 0
-                        isOutputFindVisible = false
-                    } label: {
-                        Image(systemName: "xmark.circle.fill")
-                    }
-                    .buttonStyle(.plain)
-                    .foregroundStyle(.secondary)
-                }
-            }
-            
-            FindableOutputTextView(
-                text: $output,
-                findText: outputFindText,
-                selectedMatchIndex: outputFindSelection,
-                autoScrollEnabled: isOutputAutoScrollEnabled
-            )
-            .border(.separator)
-        }
-        .padding()
-    }
     
 
 
@@ -1104,7 +1014,7 @@ struct ContentView: View {
         }
     }
     
-    private var outputFindMatchCount: Int {
+    var outputFindMatchCount: Int {
         let query = outputFindText.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !query.isEmpty else {
             return 0
@@ -1113,7 +1023,7 @@ struct ContentView: View {
         return output.lowercased().components(separatedBy: query.lowercased()).count - 1
     }
 
-    private var outputFindSummary: String {
+    var outputFindSummary: String {
         let count = outputFindMatchCount
         guard count > 0 else {
             return outputFindText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? "" : "No matches"
@@ -1136,7 +1046,7 @@ struct ContentView: View {
         scrollView.reflectScrolledClipView(scrollView.contentView)
     }
 
-    private func moveToNextOutputMatch() {
+    func moveToNextOutputMatch() {
         let count = outputFindMatchCount
         guard count > 0 else {
             return
@@ -1145,7 +1055,7 @@ struct ContentView: View {
         outputFindSelection = (outputFindSelection + 1) % count
     }
 
-    private func moveToPreviousOutputMatch() {
+    func moveToPreviousOutputMatch() {
         let count = outputFindMatchCount
         guard count > 0 else {
             return
