@@ -213,9 +213,26 @@ cat > "$PKG_WORK_DIR/Distribution.xml" <<XML
 </installer-gui-script>
 XML
 
+CLI_PKG="$PKG_OUT_DIR/NmapCLI.pkg"
+GUI_PKG="$PKG_OUT_DIR/ZenmapOnly.pkg"
+
 productbuild \
-  --distribution "$PKG_WORK_DIR/Distribution.xml" \
-  --package-path "$PKG_OUT_DIR" \
+  --package "$PKG_OUT_DIR/Nmap.pkg" \
+  --package "$PKG_OUT_DIR/Ncat.pkg" \
+  --package "$PKG_OUT_DIR/Nping.pkg" \
+  --package "$PKG_OUT_DIR/Ndiff.pkg" \
+  "$CLI_PKG"
+
+productbuild \
+  --package "$PKG_OUT_DIR/Zenmap.pkg" \
+  "$GUI_PKG"
+
+productbuild \
+  --package "$PKG_OUT_DIR/Nmap.pkg" \
+  --package "$PKG_OUT_DIR/Ncat.pkg" \
+  --package "$PKG_OUT_DIR/Nping.pkg" \
+  --package "$PKG_OUT_DIR/Ndiff.pkg" \
+  --package "$PKG_OUT_DIR/Zenmap.pkg" \
   "$COMPLETE_PKG"
 
 echo
