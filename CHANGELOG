@@ -433,7 +433,7 @@ o [GH#2672] Fixed an issue where TCP Connect scan (-sT) on Windows would fail
   to open any sockets, leading to scans that never finish. [Daniel Miller]
 
 o [Zenmap][Ndiff][GH#2649] Zenmap and Ndiff now use setuptools, not distutils
-   for packaging.
+  for packaging.
 
 o [Ncat][GH#2685] Fixed Ncat UDP server mode to not quit after EOF on
   stdin. Reported as Debian bug:
@@ -3423,8 +3423,7 @@ o [Zenmap] Fixed a bug which caused this crash message:
      IOError: [Errno socket error] [Errno 10060] A connection attempt failed
      because the connected party did not properly respond after a period of
      time, or established connection failed because connected host has
-     failed to
-     respond
+     failed to respond
   The bug was caused by us adding a DOCTYPE definition to Nmap's XML
   output which caused Python's XML parser to try and fetch the DTD
   every time it parses an XML file.  We now override that DTD-fetching
