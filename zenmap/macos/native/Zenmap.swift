@@ -200,7 +200,7 @@ extension Notification.Name {
 
 struct ContentView: View {
     @EnvironmentObject var scanHistory: ScanHistoryStore
-    private static let customProfilesDefaultsKey = "Zenmap.CustomProfiles"
+    static let customProfilesDefaultsKey = "Zenmap.CustomProfiles"
     private let elapsedTimer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
 
     @AppStorage("Zenmap.AutoAddVerbose") private var autoAddVerbose = true
@@ -209,7 +209,7 @@ struct ContentView: View {
     @AppStorage("Zenmap.DefaultTarget") private var defaultTarget = "scanme.nmap.org"
     @AppStorage("Zenmap.DefaultProfileName") private var defaultProfileName = "Service Detection"
 
-    @State private var profiles: [ScanProfile] = Self.builtInProfiles
+    @State var profiles: [ScanProfile] = Self.builtInProfiles
     
     @State private var selectedProfile: ScanProfile
     @State var target = UserDefaults.standard.string(forKey: "Zenmap.DefaultTarget") ?? "scanme.nmap.org"
@@ -217,8 +217,8 @@ struct ContentView: View {
     @State var newProfileName = ""
     @State var newProfileArguments = "-sV"
     @State private var newProfileDescription = "Custom scan profile."
-    @State private var selectedProfileID: ScanProfile.ID?
-    @State private var profileFilterText = ""
+    @State var selectedProfileID: ScanProfile.ID?
+    @State var profileFilterText = ""
     @State private var output = "Ready. Choose a profile, enter a target, then run a scan."
     @State private var status = "Idle"
     @State private var exitStatus: Int32?
@@ -478,61 +478,6 @@ struct ContentView: View {
             return hosts.first
         }
         return hosts.first { $0.id == selectedHostID }
-    }
-    
-    private var filteredProfiles: [ScanProfile] {
-        let query = normalizedProfileFilterText
-
-        guard !query.isEmpty else {
-            return profiles
-        }
-
-        return profiles.filter { profileMatchesFilter($0, query: query) }
-    }
-
-    private var normalizedProfileFilterText: String {
-        profileFilterText
-            .trimmingCharacters(in: .whitespacesAndNewlines)
-            .lowercased()
-    }
-
-    private var isFilteringProfiles: Bool {
-        !normalizedProfileFilterText.isEmpty
-    }
-
-    private func profileMatchesFilter(_ profile: ScanProfile, query: String) -> Bool {
-        let profileType = profile.isBuiltIn ? "built-in builtin default" : "custom user"
-
-        return [
-            profile.name,
-            profile.arguments,
-            profile.description,
-            profileType
-        ]
-        .joined(separator: " ")
-        .lowercased()
-        .contains(query)
-    }
-    
-    private var customProfiles: [ScanProfile] {
-        profiles.filter { !$0.isBuiltIn }
-    }
-    
-    private var selectedProfileForActions: ScanProfile? {
-        guard let selectedProfileID else {
-            return nil
-        }
-
-        return profiles.first { $0.id == selectedProfileID }
-    }
-    
-    private var selectedCustomProfileForEditing: ScanProfile? {
-        guard let profile = selectedProfileForActions,
-              !profile.isBuiltIn else {
-            return nil
-        }
-
-        return profile
     }
     
     var body: some View {
@@ -3397,7 +3342,7 @@ struct ContentView: View {
         loadProfileIntoEditor(profile)
     }
     
-    private func loadProfileIntoEditor(_ profile: ScanProfile) {
+    func loadProfileIntoEditor(_ profile: ScanProfile) {
         newProfileName = profile.name
         newProfileArguments = profile.arguments
         newProfileDescription = profile.description
@@ -3414,81 +3359,8 @@ struct ContentView: View {
         nseScriptArgsText = ""
     }
     
-    private static func loadSavedCustomProfiles() -> [ScanProfile]? {
-        guard let data = UserDefaults.standard.data(forKey: customProfilesDefaultsKey) else {
-            return nil
-        }
-
-        return try? JSONDecoder.profileDecoder.decode([ScanProfile].self, from: data)
-    }
     
-    private func exportCustomProfiles() {
-        let panel = NSSavePanel()
-        panel.allowedContentTypes = [.json]
-        panel.canCreateDirectories = true
-        panel.isExtensionHidden = false
-        panel.nameFieldStringValue = "nmap-custom-profiles.json"
-
-        guard panel.runModal() == .OK,
-              let url = panel.url else {
-            return
-        }
-
-        do {
-            let data = try JSONEncoder.profileEncoder.encode(customProfiles)
-            try data.write(to: url, options: .atomic)
-            nseScriptHelperMessage = "Exported \(customProfiles.count) custom profile(s)."
-        } catch {
-            nseScriptHelperMessage = "Failed to export custom profiles: \(error.localizedDescription)"
-        }
-    }
-
-    private func importCustomProfiles() {
-        let panel = NSOpenPanel()
-        panel.allowedContentTypes = [.json]
-        panel.allowsMultipleSelection = false
-        panel.canChooseDirectories = false
-        panel.canChooseFiles = true
-
-        guard panel.runModal() == .OK,
-              let url = panel.url else {
-            return
-        }
-
-        do {
-            let data = try Data(contentsOf: url)
-            let importedProfiles = try JSONDecoder.profileDecoder.decode([ScanProfile].self, from: data)
-                .map { profile in
-                    ScanProfile(
-                        id: profile.id,
-                        name: profile.name,
-                        arguments: profile.arguments,
-                        description: profile.description,
-                        isBuiltIn: false
-                    )
-                }
-                .filter { !$0.name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
-
-            guard !importedProfiles.isEmpty else {
-                nseScriptHelperMessage = "No custom profiles found in selected JSON file."
-                return
-            }
-
-            mergeImportedCustomProfiles(importedProfiles)
-
-            if let lastImportedProfile = importedProfiles.last,
-               let importedProfile = profiles.first(where: { $0.name == lastImportedProfile.name && !$0.isBuiltIn }) {
-                selectedProfileID = importedProfile.id
-                loadProfileIntoEditor(importedProfile)
-            }
-
-            nseScriptHelperMessage = "Imported \(importedProfiles.count) custom profile(s) and loaded the latest import."
-        } catch {
-            nseScriptHelperMessage = "Failed to import custom profiles: \(error.localizedDescription)"
-        }
-    }
-
-    private func mergeImportedCustomProfiles(_ importedProfiles: [ScanProfile]) {
+    func mergeImportedCustomProfiles(_ importedProfiles: [ScanProfile]) {
         let builtIns = profiles.filter { $0.isBuiltIn }
         var mergedCustomProfiles = customProfiles
 
@@ -3505,15 +3377,6 @@ struct ContentView: View {
         saveCustomProfiles()
     }
 
-    private func saveCustomProfiles() {
-        let customProfiles = profiles.filter { !$0.isBuiltIn }
-
-        guard let data = try? JSONEncoder.profileEncoder.encode(customProfiles) else {
-            return
-        }
-
-        UserDefaults.standard.set(data, forKey: Self.customProfilesDefaultsKey)
-    }
     
     private func copyProfileArguments() {
         let trimmedArguments = newProfileArguments.trimmingCharacters(in: .whitespacesAndNewlines)
