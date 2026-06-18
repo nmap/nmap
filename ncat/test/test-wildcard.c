@@ -307,10 +307,7 @@ static int gen_cert(X509 **cert, EVP_PKEY **key,
     if (*key == NULL)
         goto err;
     do {
-        if (bne != NULL) {
-          BN_free(bne);
-          bne = NULL;
-        }
+        rc = -1;
         if (rsa != NULL) {
           RSA_free(rsa);
           rsa = NULL;
@@ -319,17 +316,29 @@ static int gen_cert(X509 **cert, EVP_PKEY **key,
         bne = BN_new();
         ret = BN_set_word(bne, RSA_F4);
         if (ret != 1)
-            goto err;
+            break;
 
         rsa = RSA_new();
         ret = RSA_generate_key_ex(rsa, KEY_BITS, bne, NULL);
         if (ret != 1)
-            goto err;
+            break;
+        BN_free(bne);
+        bne = NULL;
         /* Check RSA key. */
         rc = RSA_check_key(rsa);
     } while (rc == 0);
-    if (rc == -1)
+
+    if (bne != NULL) {
+      BN_free(bne);
+      bne = NULL;
+    }
+    if (rc == -1 || rsa == NULL) {
+        if (rsa != NULL) {
+            RSA_free(rsa);
+            rsa = NULL;
+        }
         goto err;
+    }
     if (EVP_PKEY_assign_RSA(*key, rsa) == 0) {
         RSA_free(rsa);
         rsa = NULL;

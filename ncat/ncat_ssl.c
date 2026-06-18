@@ -485,6 +485,7 @@ static int ssl_gen_cert(X509 **cert, EVP_PKEY **key)
     const char *commonName = "localhost";
     char dNSName[128];
     int rc;
+    unsigned long err = 0;
 #if OPENSSL_VERSION_NUMBER < 0x30000000L
     int ret = 0;
     RSA *rsa = NULL;
@@ -492,29 +493,52 @@ static int ssl_gen_cert(X509 **cert, EVP_PKEY **key)
 
     *cert = NULL;
     *key = NULL;
+    ERR_clear_error();
 
     /* Generate a private key. */
     *key = EVP_PKEY_new();
     if (*key == NULL)
         goto err;
     do {
+        rc = -1;
+        if (rsa != NULL) {
+            RSA_free(rsa);
+            rsa = NULL;
+        }
         /* Generate RSA key. */
         bne = BN_new();
+        if (bne == NULL)
+          break;
         ret = BN_set_word(bne, RSA_F4);
         if (ret != 1)
-            goto err;
+            break;
 
         rsa = RSA_new();
+        if (rsa == NULL)
+          break;
         ret = RSA_generate_key_ex(rsa, DEFAULT_KEY_BITS, bne, NULL);
         if (ret != 1)
-            goto err;
+            break;
 
+        BN_free(bne);
+        bne = NULL;
         rc = RSA_check_key(rsa);
     } while (rc == 0);
-    if (rc == -1)
-        bye("Error generating RSA key: %s", ERR_error_string(ERR_get_error(), NULL));
+
+    if (bne != NULL) {
+        BN_free(bne);
+        bne = NULL;
+    }
+    if (rc == -1 || rsa == NULL) {
+        if (rsa != NULL) {
+            RSA_free(rsa);
+            rsa = NULL;
+        }
+        goto err;
+    }
     if (EVP_PKEY_assign_RSA(*key, rsa) == 0) {
         RSA_free(rsa);
+        rsa = NULL;
         goto err;
     }
 #else
@@ -609,6 +633,9 @@ err:
         X509_free(*cert);
     if (*key != NULL)
         EVP_PKEY_free(*key);
+
+    while (0 != (err = ERR_get_error()))
+        loguser("SSL error: %s", ERR_error_string(err, NULL));
 
     return 0;
 }

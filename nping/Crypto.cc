@@ -128,6 +128,10 @@ int Crypto::aes128_cbc_encrypt(u8 *inbuff, size_t inlen, u8 *dst_buff, u8 *key, 
         int flen=0, flen2=0;
         #if HAVE_OPAQUE_EVP_PKEY
           EVP_CIPHER_CTX *ctx = EVP_CIPHER_CTX_new();
+          if (ctx == NULL) {
+            nping_print(DBG_4, "Failed to allocate cipher context");
+            return OP_FAILURE;
+          }
         #else
           EVP_CIPHER_CTX stack_ctx;
           EVP_CIPHER_CTX *ctx = &stack_ctx;
@@ -167,6 +171,10 @@ int Crypto::aes128_cbc_decrypt(u8 *inbuff, size_t inlen, u8 *dst_buff, u8 *key, 
         int flen1=0, flen2=0;
         #if HAVE_OPAQUE_EVP_PKEY
           EVP_CIPHER_CTX *ctx = EVP_CIPHER_CTX_new();
+          if (ctx == NULL) {
+            nping_print(DBG_4, "Failed to allocate cipher context");
+            return OP_FAILURE;
+          }
         #else
           EVP_CIPHER_CTX stack_ctx;
           EVP_CIPHER_CTX *ctx = &stack_ctx;
@@ -221,6 +229,10 @@ u8 *Crypto::deriveKey(const u8 *from, size_t fromlen, size_t *final_len){
         static u8 next[MAX(SHA256_HASH_LEN, EVP_MAX_MD_SIZE)];
         unsigned int lastlen;
         EVP_MD_CTX *ctx = EVP_MD_CTX_new();
+        if (ctx == NULL) {
+          nping_print(DBG_4, "Failed to allocate MD context");
+          return NULL;
+        }
 
         if( EVP_MD_size(EVP_sha256()) != SHA256_HASH_LEN )
           nping_fatal(QT_2, "OpenSSL is broken. SHA256 len is %d\n", EVP_MD_size(EVP_sha256()) );
