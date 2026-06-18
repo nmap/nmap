@@ -63,6 +63,7 @@
 
 #include <signal.h>
 #include <locale.h>
+#include <typeinfo>
 
 #include "nmap.h"
 #include "NmapOps.h"
@@ -139,6 +140,7 @@ int main(int argc, char *argv[]) {
   mtrace();
 #endif
 
+ try {
   if ((cptr = getenv("NMAP_ARGS"))) {
     if (Snprintf(command, sizeof(command), "nmap %s", cptr) >= (int) sizeof(command)) {
         error("Warning: NMAP_ARGS variable is too long, truncated");
@@ -168,4 +170,18 @@ int main(int argc, char *argv[]) {
   }
 
   return nmap_main(argc, argv);
+ }
+ catch (const std::bad_alloc &) {
+   fprintf(stderr, "FATAL: Out of memory.\n");
+   return 1;
+ }
+ catch (const std::exception &e) {
+   fprintf(stderr, "FATAL: Unhandled C++ exception (%s): %s\n",
+       typeid(e).name(), e.what());
+   return 1;
+ }
+ catch (...) {
+   fprintf(stderr, "FATAL: Unhandled unknown C++ exception.\n");
+   return 1;
+ }
 }
