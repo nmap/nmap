@@ -1899,8 +1899,7 @@ int nmap_main(int argc, char *argv[]) {
   else
     nbase_set_log(fatal, NULL);
 
-
-  tty_init(); // Put the keyboard in raw mode
+  TTYState ttystate; // Put the keyboard in raw mode
 
 #ifdef WIN32
   // Must come after parse_options because of --unprivileged

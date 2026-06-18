@@ -246,6 +246,10 @@ void tty_init()
 
 #endif  //!win32
 
+TTYState::~TTYState() {
+  tty_done();
+}
+
 /* Catches all of the predefined
    keypresses and interpret them, and it will also tell you if you
    should print anything. A value of true being returned means a

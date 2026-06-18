@@ -74,4 +74,11 @@ void tty_init();
    calling method should print a status message */
 bool keyWasPressed();
 
+/* RAII object for TTY management */
+class TTYState {
+  public:
+  TTYState() { tty_init(); }
+  ~TTYState(); // calls tty_done()
+};
+
 #endif
