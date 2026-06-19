@@ -81,6 +81,12 @@
 #define FUNC_ASN1_STRING_length(_s) ((_s)->length)
 #endif
 
+#if OPENSSL_VERSION_NUMBER >= 0x40000000L
+#define OPENSSL4_CONST const
+#else
+#define OPENSSL4_CONST
+#endif
+
 #if OPENSSL_VERSION_NUMBER >= 0x30000000L
 #include <openssl/provider.h>
 /* Deprecated in OpenSSL 3.0 */
@@ -267,7 +273,7 @@ static int wildcard_match(const char *pattern, const char *hostname, int len)
 static int cert_match_dnsname(X509 *cert, const char *hostname,
     unsigned int *num_checked)
 {
-    const X509_EXTENSION *ext;
+    OPENSSL4_CONST X509_EXTENSION *ext;
     STACK_OF(GENERAL_NAME) *gen_names;
     const X509V3_EXT_METHOD *method;
     const unsigned char *data;
