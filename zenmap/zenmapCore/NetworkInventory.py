@@ -286,7 +286,7 @@ class NetworkInventory(object):
         """Saves the scan with the given list index into a file with a given
         path. With format = "xml", saves Nmap XML; otherwise saves plain text
         output."""
-        f = open(path, 'wb')
+        f = open(path, 'wb', encoding="utf-8")
         if format == "xml":
             self.get_scans()[index].write_xml(f)
             self.filenames[self.get_scans()[index]] = f
