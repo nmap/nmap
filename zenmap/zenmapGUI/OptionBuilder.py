@@ -394,7 +394,7 @@ class OptionTab(object):
             text += "\n\n"
             text += self.profilehelp.get_shortdesc()
             if self.profilehelp.get_example():
-                text += "\n\nExample input:\n"
+                text += "\n\n" + _("Example input:") + "\n"
                 text += self.profilehelp.get_example()
         self.help_buf.set_text(text)
 

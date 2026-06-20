@@ -69,6 +69,8 @@ from radialnet.gui.Toolbar import Toolbar
 from radialnet.util.integration import make_graph_from_hosts
 
 
+
+
 SLOW_LIMIT = 1000
 
 
@@ -99,6 +101,20 @@ class TopologyPage(HIGVBox):
 
         self.display_panel = HIGVBox()
 
+        # Zoom controls
+        self.zoom_hbox = Gtk.Box.new(Gtk.Orientation.HORIZONTAL, 2)
+        self.zoom_out_btn = Gtk.Button.new_with_label("−")
+        self.zoom_out_btn.set_size_request(32, 28)
+        self.zoom_out_btn.connect("clicked", self._on_zoom_out)
+        self.zoom_in_btn = Gtk.Button.new_with_label("+")
+        self.zoom_in_btn.set_size_request(32, 28)
+        self.zoom_in_btn.connect("clicked", self._on_zoom_in)
+        self.zoom_label = Gtk.Label(label="100%")
+        self.zoom_label.set_size_request(48, -1)
+        self.zoom_hbox.pack_start(self.zoom_out_btn, False, False, 0)
+        self.zoom_hbox.pack_start(self.zoom_label, False, False, 0)
+        self.zoom_hbox.pack_start(self.zoom_in_btn, False, False, 0)
+
         self.radialnet.set_no_show_all(True)
 
         self.slow_vbox = HIGVBox()
@@ -121,10 +137,23 @@ class TopologyPage(HIGVBox):
         self.rn_vbox.pack_start(self.fisheye, False, True, 0)
 
         self.pack_start(self.rn_toolbar, False, False, 0)
+        self.pack_start(self.zoom_hbox, False, False, 0)
         self.pack_start(self.rn_vbox, True, True, 0)
 
         self.display_panel.pack_start(self.slow_vbox, True, False, 0)
         self.display_panel.pack_start(self.radialnet, True, True, 0)
+
+    def _on_zoom_in(self, widget):
+        zoom = self.radialnet.get_zoom()
+        zoom = min(zoom + 10, 500)
+        self.radialnet.set_zoom(zoom)
+        self.zoom_label.set_text("%d%%" % zoom)
+
+    def _on_zoom_out(self, widget):
+        zoom = self.radialnet.get_zoom()
+        zoom = max(zoom - 10, 10)
+        self.radialnet.set_zoom(zoom)
+        self.zoom_label.set_text("%d%%" % zoom)
 
     def add_scan(self, scan):
         """Parses a given XML file and adds the parsed result to the network
