@@ -163,9 +163,14 @@ local function dhcp_listener(sock, iface, macaddr, options, timeout, xid, result
   local now = start_time
   while( now - start_time < timeout ) do
     sock:set_timeout(timeout - (now - start_time))
-    local status, _, _, data = sock:pcap_receive()
+    local status, _, l2_data, data = sock:pcap_receive()
 
     if ( status ) then
+      -- do we have a vlan tag to be removed?
+      local f = packet.Frame:new( l2_data )
+      if ( 0x8100 == f.ether_type and 4 <= #data ) then
+        data = string.sub( data, 5, -1)
+      end
       local p = packet.Packet:new( data, #data )
       if ( p and p.udp_dport ) then
         local data = data:sub(p.udp_offset + 9)
