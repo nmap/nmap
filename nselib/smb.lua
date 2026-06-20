@@ -3310,7 +3310,6 @@ function share_get_list(host)
       stdnse.debug1("SMB: Share doesn't exist: %s", shares[i])
     elseif(status == false) then
       stdnse.debug1("SMB: Error while getting share details: %s", result)
-      return false, result
     else
       -- Save the share details
       table.insert(share_details, result)
