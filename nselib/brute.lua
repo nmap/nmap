@@ -1532,10 +1532,12 @@ BruteSocket = {
 
       local thread_data = Engine.getThreadData(coroutine.running())
 
-      engine.retry_accounts[#engine.retry_accounts + 1] = {
-        username = thread_data.username,
-        password = thread_data.password,
-      }
+      if thread_data.username or thread_data.password then
+        engine.retry_accounts[#engine.retry_accounts + 1] = {
+          username = thread_data.username,
+          password = thread_data.password,
+        }
+      end
 
       thread_data.connection_error = true
       thread_data.con_error_reason = err
