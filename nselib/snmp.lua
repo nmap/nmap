@@ -148,8 +148,8 @@ function decode(encStr, pos)
   return decoder:decode( encStr, pos )
 end
 
-local version_to_num = {v1=0, v2c=1}
-local num_to_version = {[0]="v1", [1]="v2c"}
+local version_to_num = {v1=0, v2c=1, v3=2}
+local num_to_version = {[0]="v1", [1]="v2c", [2]="v3"}
 
 -- Returns the numerical value of a given SNMP protocol version
 --
@@ -462,8 +462,17 @@ Helper = {
           if account.pass and account.pass ~= "<empty>" and account.pass ~= "" then
             o.community = account.pass
             break
-          elseif account.user then
+          elseif account.user and account.user ~= "" then
+            -- Using original string syntax: --script-args 'creds.snmp=public'
             o.community = account.user
+            break
+          elseif account.named_params and account.named_params.community and account.named_params.community ~= "" then
+            -- Using named parameters syntax (SNMPv2): --script-args 'creds.snmp={community=public}'
+            o.community = account.named_params.community
+            break
+          elseif account.named_params and account.named_params.username and account.named_params.username ~= "" then
+            -- Using named parameters syntax (SNMPv3): --script-args 'creds.snmp={username=alice,auth-protocol=SHA,...}'
+            print(string.format("SNMPv3: TBD"))
             break
           end
         end
