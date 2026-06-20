@@ -40,11 +40,9 @@ portrule = shortport.port_or_service(3306, "mysql")
 local arg_username = stdnse.get_script_args(SCRIPT_NAME .. ".username")
 local arg_password = stdnse.get_script_args(SCRIPT_NAME .. ".password") or ""
 
-local function fail(err) return stdnse.format_output(false, err) end
-
 local function getCredentials()
   -- first, let's see if the script has any credentials as arguments?
-  if ( arg_username ) then
+  if arg_username then
     return { [arg_username] = arg_password }
   -- next, let's see if mysql-brute or mysql-empty-password brought us anything
   elseif nmap.registry.mysqlusers then
@@ -59,44 +57,39 @@ local function getCredentials()
   end
 end
 
-local function mysqlLogin(socket, username, password)
-  local status, response = mysql.receiveGreeting( socket )
-  if ( not(status) ) then
-    return response
-  end
-  return mysql.loginRequest( socket, { authversion = "post41", charset = response.charset }, username, password, response.salt )
-end
 
-
-action = function(host, port)
+action = function (host, port)
   local creds = getCredentials()
-  if ( not(creds) ) then
+  if not creds then
+    socket:close()
     stdnse.debug2("No credentials were supplied, aborting ...")
     return
   end
 
-  local result = {}
   for username, password in pairs(creds) do
     local socket = nmap.new_socket()
-    if ( not(socket:connect(host, port)) ) then
-      return fail("Failed to connect to server")
+    if not socket:connect(host, port) then
+      socket:close()
+      return stdnse.format_output(false, "Failed to connect to server")
     end
 
-    local status, response = mysqlLogin(socket, username, password)
-    if ( status ) then
-      local query = "SELECT DISTINCT CONCAT(user, ':', password) FROM mysql.user WHERE password <> ''"
-      local status, rows = mysql.sqlQuery( socket, query )
-      socket:close()
-      if ( status ) then
-        result = mysql.formatResultset(rows, { noheaders = true })
-        break
+    local status, response = mysql.receiveGreeting(socket)
+    if status then
+      status = mysql.loginRequest(socket, {authversion = "post41", charset = response.charset}, username, password, response.salt)
+    end
+    if status then
+      local auth_field = "authentication_string"
+      -- the 'authentication_string' field was called 'password' in MySQL 5.6, and earlier
+      if tonumber(response.version:sub(1, 3)) <= 5.6 then
+        auth_field = "password"
       end
-    else
-      socket:close()
+      local query = "SELECT DISTINCT CONCAT(user, ':', " .. auth_field .. ") FROM mysql.user WHERE " .. auth_field .. " <> ''"
+      local status, rows = mysql.sqlQuery( socket, query )
+      if status then
+        socket:close()
+        return stdnse.format_output(true, mysql.formatResultset(rows, {noheaders = true}))
+      end
     end
-  end
-
-  if ( result ) then
-    return stdnse.format_output(true, result)
+    socket:close()
   end
 end
