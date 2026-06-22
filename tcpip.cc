@@ -1119,7 +1119,7 @@ int readtcppacket(const u8 *packet, int readdata) {
   bullshit2.s_addr = ip->ip_dst.s_addr;
   realfrag = htons(ntohs(ip->ip_off) & IP_OFFMASK);
   tot_len = htons(ip->ip_len);
-  strncpy(sourcehost, inet_ntoa(bullshit), 16);
+  inet_ntop(AF_INET, &bullshit, sourcehost, sizeof(sourcehost));
   i = 4 * (ntohs(ip->ip_hl) + ntohs(tcp->th_off));
   if (ip->ip_p == IPPROTO_TCP) {
     if (realfrag)
@@ -1642,7 +1642,7 @@ int gettcpopt_ts(const u8 *tcppkt, int tcplen, u32 *timestamp, u32 *echots) {
   int op;
   int oplen;
   struct tcp_hdr tcp;
-  assert(tcplen >= sizeof(tcp));
+  assert((size_t)tcplen >= sizeof(tcp));
   memcpy(&tcp, tcppkt, sizeof(tcp));
 
   /* first we find where the tcp options start ... */
