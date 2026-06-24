@@ -115,19 +115,6 @@
 
 
 
-/*
-+--------+--------+---------+--------...
-|  Type  |  Len   |       Value
-+--------+--------+---------+--------...
-*/
-struct nping_tcp_opt {
-    u8 type;                           /* Option type code.           */
-    u8 len;                            /* Option length.              */
-    const u8 *value;                   /* Option value                */
-}__attribute__((__packed__));
-typedef struct nping_tcp_opt nping_tcp_opt_t;
-
-
 class TCPHeader : public TransportLayerElement {
 
     private:
@@ -252,7 +239,6 @@ class TCPHeader : public TransportLayerElement {
 
         int setOptions(const u8 *optsbuff, size_t optslen);
         const u8 *getOptions(size_t *optslen) const;
-        nping_tcp_opt_t getOption(unsigned int index) const;
         static const char *optcode2str(u8 optcode);
 
 }; /* End of class TCPHeader */

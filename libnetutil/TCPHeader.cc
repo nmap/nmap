@@ -813,47 +813,6 @@ const u8 *TCPHeader::getOptions(size_t *optslen) const {
   return this->h.options;
 } /* End of getOptions() */
 
-struct tcpopt_atindex_ctx {
-  unsigned int index;
-  unsigned int found;
-  nping_tcp_opt_t result;
-  tcpopt_atindex_ctx() : index(0), found(0) {
-    memset(&result, 0, sizeof(result));
-  }
-};
-
-static bool tcpopt_atindex(u8 op, u8 oplen, const u8 *data, void *ctx)
-{
-  tcpopt_atindex_ctx *args = static_cast<tcpopt_atindex_ctx *>(ctx);
-  if (args->index == args->found) {
-    args->result.type = op;
-    args->result.len = oplen;
-    args->result.value = data + 2;
-    return false;
-  }
-  args->found += 1;
-  return true;
-}
-
-/* Returns the index-th option in the TCP header. On success it returns a
- * structure filled with option information. If there is no index-th option,
- * it returns a structure with st.value==NULL. Note that this function does
- * not perform strict validity checking. It does check that the length claimed
- * by the options does not exceed the available buffer but it does not check,
- * for example, that the MSS option always contains a length of 4. Also,
- * if the returned option type is TCPOPT_EOL or TCPOPT_NOOP, the len field
- * would be set to zero and the "value" field should NOT be accessed, as it
- * will not contain reliable information. */
-nping_tcp_opt_t TCPHeader::getOption(unsigned int index) const {
-  TCPOptions opts;
-  tcpopt_atindex_ctx ctx;
-  if (opts.fromTCPHeader(*this)) {
-    ctx.index = index;
-    opts.foreachOpt(tcpopt_atindex, &ctx);
-  }
-  return ctx.result;
-}
-
 
 /* Returns a textual representation of a TCP Options code */
 const char *TCPHeader::optcode2str(u8 optcode){
