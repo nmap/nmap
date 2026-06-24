@@ -73,6 +73,7 @@
 #include "utils.h"
 #include "nmap_error.h"
 #include "libnetutil/netutil.h"
+#include "libnetutil/TCPHeader.h"
 
 #include "struct_ip.h"
 
@@ -1625,6 +1626,33 @@ int recvtime(int sd, char *buf, int len, int seconds, int *timedout) {
   return -1;
 }
 
+struct getTS_args {
+  u32 *timestamp;
+  u32 *echots;
+  int found;
+  getTS_args() : timestamp(NULL), echots(NULL), found(0) {}
+};
+
+static bool tcpopt_ts_cb(u8 op, u8 oplen, const u8 *data, void *ctx)
+{
+  if (op == 8 /* TCPOPT_TIMESTAMP */  && oplen == 10) {
+    getTS_args *args = static_cast<getTS_args *>(ctx);
+    const u8 *p = data + 2;
+    /* Legitimate ts option */
+    if (args->timestamp) {
+      *args->timestamp = (p[0] << 24) + (p[1] << 16) + (p[2] << 8) + p[3];
+    }
+    if (args->echots) {
+      *args->echots = (p[4] << 24) + (p[5] << 16) + (p[6] << 8) + p[7];
+    }
+    // done!
+    args->found = 1;
+    return false;
+  }
+  // Keep looking
+  return true;
+}
+
 /* Examines the given tcp packet and obtains the TCP timestamp option
    information if available.  Note that the CALLER must ensure that
    "tcp" contains a valid header (in particular the th_off must be the
@@ -1636,52 +1664,19 @@ int recvtime(int sd, char *buf, int len, int seconds, int *timedout) {
    correct way to check for errors is to look at the return value
    since a zero ts or echots could possibly be valid. */
 int gettcpopt_ts(const u8 *tcppkt, int tcplen, u32 *timestamp, u32 *echots) {
-
-  const u8 *p;
-  int len = 0;
-  int op;
-  int oplen;
-  struct tcp_hdr tcp;
-  assert(tcplen >= sizeof(tcp));
-  memcpy(&tcp, tcppkt, sizeof(tcp));
-
-  /* first we find where the tcp options start ... */
-  p = tcppkt + 20;
-  len = MIN(4 * tcp.th_off, tcplen) - 20;
-  while (len > 0 && *p != 0 /* TCPOPT_EOL */ ) {
-    op = *p++;
-    if (op == 0 /* TCPOPT_EOL */ )
-      break;
-    if (op == 1 /* TCPOPT_NOP */ ) {
-      len--;
-      continue;
-    }
-    oplen = *p++;
-    if (oplen < 2)
-      break; /* No infinite loops, please */
-    if (oplen > len)
-      break; /* Not enough space */
-    if (op == 8 /* TCPOPT_TIMESTAMP */  && oplen == 10) {
-      /* Legitimate ts option */
-      if (timestamp) {
-        memcpy((char *) timestamp, p, 4);
-        *timestamp = ntohl(*timestamp);
-      }
-      p += 4;
-      if (echots) {
-        memcpy((char *) echots, p, 4);
-        *echots = ntohl(*echots);
-      }
-      return 1;
-    }
-    len -= oplen;
-    p += oplen - 2;
-  }
-
-  /* Didn't find anything */
   if (timestamp)
     *timestamp = 0;
   if (echots)
     *echots = 0;
-  return 0;
+
+  TCPOptions opts;
+  if (!opts.fromTCPPacket(tcppkt, tcplen))
+    return 0;
+
+  getTS_args args;
+  args.timestamp = timestamp;
+  args.echots = echots;
+
+  opts.foreachOpt(tcpopt_ts_cb, &args);
+  return args.found;
 }

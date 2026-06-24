@@ -2684,7 +2684,7 @@ bool HostOsScan::processTOpsResp(HostOsScanStats *hss, const u8 *tcp, int tcplen
   if (hss->FP_TOps || hss->TOps_AVs[replyNo])
     return false;
 
-  int opsParseResult = get_tcpopt_string(tcp, tcplen, this->tcpMss, ops_buf, sizeof(ops_buf));
+  int opsParseResult = get_tcpopt_string(tcp, tcplen, ops_buf, sizeof(ops_buf));
 
   if (opsParseResult <= 0) {
     if (opsParseResult < 0 && o.debugging)
@@ -2740,7 +2740,7 @@ bool HostOsScan::processTEcnResp(HostOsScanStats *hss, const struct ip *ip, cons
   test.setAVal("W", hss->target->FPR->cp_hex(ntohs(tcp->th_win)));
 
   /* Now for the TCP options ... */
-  int opsParseResult = get_tcpopt_string(tcppkt, tcplen, this->tcpMss, ops_buf, sizeof(ops_buf));
+  int opsParseResult = get_tcpopt_string(tcppkt, tcplen, ops_buf, sizeof(ops_buf));
 
   if (opsParseResult <= 0) {
     if (opsParseResult < 0 && o.debugging)
@@ -2880,7 +2880,7 @@ bool HostOsScan::processT1_7Resp(HostOsScanStats *hss, const struct ip *ip, cons
     char ops_buf[256];
 
     /* Now for the TCP options ... */
-    int opsParseResult = get_tcpopt_string(tcppkt, tcplen, this->tcpMss, ops_buf, sizeof(ops_buf));
+    int opsParseResult = get_tcpopt_string(tcppkt, tcplen, ops_buf, sizeof(ops_buf));
     if (opsParseResult <= 0) {
       if (opsParseResult < 0 && o.debugging)
         error("Option parse error for T%d response from %s.", replyNo, hss->target->targetipstr());
@@ -3136,86 +3136,103 @@ bool HostOsScan::processTIcmpResp(HostOsScanStats *hss, const struct ip *ip, con
   return true;
 }
 
-
-int HostOsScan::get_tcpopt_string(const u8 *tcp, int tcplen, int mss, char *result, int maxlen) const {
+struct tcpopt_string_ctx {
   char *p;
-  const u8 *q;
-  u16 tmpshort;
-  u32 tmpword;
-  int length;
-  int opcode;
+  char *end;
+  bool valid;
+  tcpopt_string_ctx() : p(NULL), end(NULL), valid(true) {}
+  bool check_length(size_t len) const {
+    return (end - p) >= len;
+  }
+  void put(char c) {
+    assert(end > p);
+    *p++ = c;
+  }
+  void put_hex(unsigned int u) {
+    int w = sprintf(p, "%X", u);
+    p += w;
+  }
+};
 
-  p = result;
-  struct tcp_hdr hdr;
-  memcpy(&hdr, tcp, sizeof(hdr));
-  length = MIN(hdr.th_off * 4, tcplen) - sizeof(struct tcp_hdr);
-  q = tcp + sizeof(struct tcp_hdr);
+static bool tcpopt_tostring(u8 op, u8 oplen, const u8 *data, void *ctx)
+{
+  tcpopt_string_ctx *args = static_cast<tcpopt_string_ctx *>(ctx);
+
+  if (!args->check_length(1))
+    return false;
+
+  const u8 *q = data + 2;
+
+  switch (op) {
+    case 0: /* End of List */
+      args->put('L');
+      break;
+    case 1: /* No Op */
+      args->put('N');
+      break;
+    case 2: /* MSS */
+      if (oplen < 4) {
+        args->valid = false;
+        break; /* MSS has 4 bytes */
+      }
+      args->put('M');
+      if (!args->check_length(4))
+        return false;
+      args->put_hex((q[0] << 8) + q[1]);
+      break;
+    case 3:/* Window Scale */
+      if (oplen < 3) {
+        args->valid = false;
+        break; /* Window Scale option has 3 bytes */
+      }
+      args->put('W');
+      if (!args->check_length(2))
+        return false;
+      args->put_hex(q[0]);
+      break;
+    case 4:/* SACK permitted */
+      if (oplen < 2) {
+        args->valid = false;
+        break; /* SACK permitted option has 2 bytes */
+      }
+      args->put('S');
+      break;
+    case 8: /* Timestamp */
+      if (oplen < 10) {
+        args->valid = false;
+        break; /* Timestamp option has 10 bytes */
+      }
+      args->put('T');
+      if (!args->check_length(2))
+        return false;
+      args->put((q[0] || q[1] || q[2] || q[3]) ? '1' : '0');
+      args->put((q[4] || q[5] || q[6] || q[7]) ? '1' : '0');
+      break;
+    default:
+      break;
+  }
+  return args->valid;
+}
+
+int HostOsScan::get_tcpopt_string(const u8 *tcp, int tcplen, char *result, int maxlen) const {
+  assert(tcp);
+  assert(result);
+  assert(maxlen > 0);
+  memset(result, 0, maxlen);
 
   /*
    * Example parsed result: M5B4ST11NW2
    *   MSS, Sack Permitted, Timestamp with both value not zero, Nop, WScale with value 2
    */
 
-  /* Be aware of the max increment value for p in parsing,
-   * now is 5 = strlen("Mxxxx") <-> MSS Option
-   */
-  while (length > 0 && (p - result) < (maxlen - 5)) {
-    opcode = *q++;
-    if (!opcode) { /* End of List */
-      *p++ = 'L';
-      length--;
-    } else if (opcode == 1) { /* No Op */
-      *p++ = 'N';
-      length--;
-    } else if (opcode == 2) { /* MSS */
-      if (length < 4)
-        break; /* MSS has 4 bytes */
-      *p++ = 'M';
-      q++;
-      memcpy(&tmpshort, q, 2);
-      /*  if (ntohs(tmpshort) == mss) */
-      /*    *p++ = 'E'; */
-      sprintf(p, "%hX", ntohs(tmpshort));
-      p += strlen(p); /* max movement of p is 4 (0xFFFF) */
-      q += 2;
-      length -= 4;
-    } else if (opcode == 3) { /* Window Scale */
-      if (length < 3)
-        break; /* Window Scale option has 3 bytes */
-      *p++ = 'W';
-      q++;
-      snprintf(p, length, "%hhX", *((u8*)q));
-      p += strlen(p); /* max movement of p is 2 (max WScale value is 0xFF) */
-      q++;
-      length -= 3;
-    } else if (opcode == 4) { /* SACK permitted */
-      if (length < 2)
-        break; /* SACK permitted option has 2 bytes */
-      *p++ = 'S';
-      q++;
-      length -= 2;
-    } else if (opcode == 8) { /* Timestamp */
-      if (length < 10)
-        break; /* Timestamp option has 10 bytes */
-      *p++ = 'T';
-      q++;
-      memcpy(&tmpword, q, 4);
-      if (tmpword)
-        *p++ = '1';
-      else
-        *p++ = '0';
-      q += 4;
-      memcpy(&tmpword, q, 4);
-      if (tmpword)
-        *p++ = '1';
-      else
-        *p++ = '0';
-      q += 4;
-      length -= 10;
-    }
-  }
+  TCPOptions opts;
+  if (!opts.fromTCPPacket(tcp, tcplen))
+    return -1;
+  tcpopt_string_ctx ctx;
+  ctx.p = result;
+  ctx.end = result + maxlen - 1;
 
-  if (length > 0) {
+  if (!opts.foreachOpt(tcpopt_tostring, &ctx) || !ctx.valid) {
     /* We could reach here for one of the two reasons:
      *  1. At least one option is not correct. (Eg. Should have 4 bytes but only has 3 bytes left).
      *  2. The option string is too long.
@@ -3223,9 +3240,7 @@ int HostOsScan::get_tcpopt_string(const u8 *tcp, int tcplen, int mss, char *resu
     *result = '\0';
     return -1;
   }
-
-  *p = '\0';
-  return p - result;
+  return ctx.p - result;
 }
 
 

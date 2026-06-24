@@ -813,6 +813,27 @@ const u8 *TCPHeader::getOptions(size_t *optslen) const {
   return this->h.options;
 } /* End of getOptions() */
 
+struct tcpopt_atindex_ctx {
+  unsigned int index;
+  unsigned int found;
+  nping_tcp_opt_t result;
+  tcpopt_atindex_ctx() : index(0), found(0) {
+    memset(&result, 0, sizeof(result));
+  }
+};
+
+static bool tcpopt_atindex(u8 op, u8 oplen, const u8 *data, void *ctx)
+{
+  tcpopt_atindex_ctx *args = static_cast<tcpopt_atindex_ctx *>(ctx);
+  if (args->index == args->found) {
+    args->result.type = op;
+    args->result.len = oplen;
+    args->result.value = data + 2;
+    return false;
+  }
+  args->found += 1;
+  return true;
+}
 
 /* Returns the index-th option in the TCP header. On success it returns a
  * structure filled with option information. If there is no index-th option,
@@ -824,61 +845,13 @@ const u8 *TCPHeader::getOptions(size_t *optslen) const {
  * would be set to zero and the "value" field should NOT be accessed, as it
  * will not contain reliable information. */
 nping_tcp_opt_t TCPHeader::getOption(unsigned int index) const {
-  nping_tcp_opt_t *curr_opt=NULL;
-  u8 *curr_pnt=(u8 *)this->h.options;
-  int bytes_left=this->length - TCP_HEADER_LEN;
-  assert((this->length - TCP_HEADER_LEN) == this->tcpoptlen);
-  unsigned int optsfound=0;
-  nping_tcp_opt_t result;
-  memset(&result, 0, sizeof(nping_tcp_opt_t));
-
-  while(bytes_left>0){
-      /* Use the opts structure as a template to access current option. It is
-       * OK to use it because we only access the first two elements. */
-      curr_opt=(nping_tcp_opt_t *)curr_pnt;
-
-      /* If we are right in the option that the caller wants, just return it */
-      if(optsfound==index){
-        result.type=curr_opt->type;
-        if(result.type==TCPOPT_EOL || result.type==TCPOPT_NOOP)
-          result.len=1;
-        else
-          result.len=curr_opt->len;
-        result.value=(u8 *)curr_pnt+2;
-        return result;
-      }
-
-      /* Otherwise, we have to parse it, so we can skip it and access the next
-       * option */
-      switch(curr_opt->type){
-
-        /* EOL or NOOP
-        +-+-+-+-+-+-+-+-+
-        |       X       |
-        +-+-+-+-+-+-+-+-+  */
-        case TCPOPT_EOL:
-          goto out;
-
-        case TCPOPT_NOOP:
-          curr_pnt++; /* Skip one octet */
-          bytes_left--;
-        break;
-
-        /* TLV encoded option */
-        default:
-          /* If we don't have as many octets as the option advertises, the
-           * option is bogus. Return failure. */
-          if(bytes_left<curr_opt->len)
-            return result;
-          curr_pnt+=curr_opt->len;
-          bytes_left-=curr_opt->len;
-        break;
-      }
-      optsfound++;
+  TCPOptions opts;
+  tcpopt_atindex_ctx ctx;
+  if (opts.fromTCPHeader(*this)) {
+    ctx.index = index;
+    opts.foreachOpt(tcpopt_atindex, &ctx);
   }
-
-out:
-  return result;
+  return ctx.result;
 }
 
 
@@ -934,4 +907,72 @@ const char *TCPHeader::optcode2str(u8 optcode){
   }
 } /* End of optcode2str() */
 
+
+bool TCPOptions::fromTCPPacket(const u8 *tcppkt, int tcplen)
+{
+  tcpopts = NULL;
+  optslen = 0;
+  if (tcplen < TCP_HEADER_LEN)
+    return false;
+
+  u8 data_offset = tcppkt[12] >> 4;
+  if (data_offset < 5)
+    return false;
+
+  tcpopts = tcppkt + TCP_HEADER_LEN;
+  optslen = MIN(4 * data_offset, tcplen) - TCP_HEADER_LEN;
+  if (optslen == 0)
+    tcpopts = NULL;
+  return true;
+}
+
+bool TCPOptions::fromBuffer(const u8 *tcpoptions, int optionslen)
+{
+  if (!tcpoptions || optionslen <= 0)
+    return false;
+  tcpopts = tcpoptions;
+  optslen = optionslen;
+  return true;
+}
+
+bool TCPOptions::fromTCPHeader(const TCPHeader &T)
+{
+  size_t len = 0;
+  tcpopts = T.getOptions(&len);
+  if (len > INT_MAX) {
+    tcpopts = NULL;
+    return false;
+  }
+  optslen = len;
+  return tcpopts != NULL;
+}
+
+bool TCPOptions::foreachOpt(tcpopt_callback cb, void *ctx) const
+{
+  const u8 *p = tcpopts;
+  int len = optslen;
+  while (len > 0) {
+    int op = p[0];
+    int oplen = 1;
+    switch (op) {
+      case 0: /* TCPOPT_EOL */
+      case 1: /* TCPOPT_NOP */
+        break;
+      default: /* TLV option */
+        if (len < 2)
+          return false;
+        oplen = p[1];
+        if (oplen < 2)
+          return false; /* No infinite loops, please */
+        if (oplen > len)
+          return false; /* Not enough space */
+        break;
+    }
+    if (!cb(op, oplen, p, ctx))
+      return true;
+    len -= oplen;
+    p += oplen;
+  }
+  return len == 0;
+}
 

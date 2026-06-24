@@ -429,7 +429,7 @@ private:
   void makeTOpsFP(HostOsScanStats *hss);
   void makeTWinFP(HostOsScanStats *hss);
 
-  int get_tcpopt_string(const u8 *tcp, int tcplen, int mss, char *result, int maxlen) const;
+  int get_tcpopt_string(const u8 *tcp, int tcplen, char *result, int maxlen) const;
 
   int rawsd;    /* Raw socket descriptor */
   netutil_eth_t *ethsd; /* Ethernet handle       */
