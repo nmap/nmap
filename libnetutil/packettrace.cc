@@ -764,7 +764,7 @@ int tcppackethdrinfo (const u8 *data, unsigned int datalen,
     tcpdataoffset = tcp.th_off * 4;
     if (tcpdataoffset > sizeof(struct tcp_hdr)
         && tcpdataoffset <= (u32) lastbyte) {
-      tcppacketoptinfo((u8*) data + sizeof(struct tcp_hdr) - frag_off,
+      tcppacketoptinfo((const u8*) data + sizeof(struct tcp_hdr) - frag_off,
           tcpdataoffset - sizeof(struct tcp_hdr),
           tcpoptinfo, sizeof(tcpoptinfo));
     }

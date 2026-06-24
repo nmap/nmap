@@ -1433,7 +1433,7 @@ static bool tcpopt_info(u8 opcode, u8 len, const u8 *data, void *ctx);
    optp, with a length of len. The result is stored in the result
    buffer. The result may look like "<mss 1452,sackOK,timestamp
    45848914 0,nop,wscale 7>" */
-void tcppacketoptinfo(u8 *optp, int len, char *result, int bufsize) {
+void tcppacketoptinfo(const u8 *optp, int len, char *result, int bufsize) {
   assert(optp);
   assert(result);
   assert(bufsize > 0);

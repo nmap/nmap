@@ -182,7 +182,7 @@ int TCPHeader::print(FILE *output, int detail) const {
     fprintf(output, " urp=%d", this->getUrgPointer() );
 
   if(this->tcpoptlen>0 && (this->length >= TCP_HEADER_LEN+this->tcpoptlen) && this->tcpoptlen<=MAX_TCP_OPTIONS_LEN){
-    this->__tcppacketoptinfo(this->h.options, this->tcpoptlen, optinfo, sizeof(optinfo)-1);
+    tcppacketoptinfo(this->h.options, this->tcpoptlen, optinfo, sizeof(optinfo)-1);
     optinfo[255]='\0';
     fprintf(output, " %s", optinfo);
   }
@@ -194,139 +194,6 @@ int TCPHeader::print(FILE *output, int detail) const {
   }
   return OP_SUCCESS;
 } /* End of print() */
-
-
-/* Get an ASCII information about a tcp option which is pointed by
-   optp, with a length of len. The result is stored in the result
-   buffer. The result may look like "<mss 1452,sackOK,timestamp
-   45848914 0,nop,wscale 7>" */
-void TCPHeader::__tcppacketoptinfo(const u8 *optp, int len, char *result, int bufsize) const {
-  assert(optp);
-  assert(result);
-  char *p, ch;
-  const u8 *q;
-  int opcode;
-  u16 tmpshort;
-  u32 tmpword1, tmpword2;
-  unsigned int i=0;
-
-  p = result;
-  *p = '\0';
-  q = optp;
-  ch = '<';
-
-  while (len > 0 && bufsize > 2) {
-    Snprintf(p, bufsize, "%c", ch);
-    bufsize--;
-    p++;
-    opcode = *q++;
-    if (!opcode) { /* End of List */
-
-      Snprintf(p, bufsize, "eol");
-      bufsize -= strlen(p);
-      p += strlen(p);
-
-      len--;
-
-    } else if (opcode == 1) { /* No Op */
-      Snprintf(p, bufsize, "nop");
-      bufsize -= strlen(p);
-      p += strlen(p);
-
-      len--;
-    } else if (opcode == 2) { /* MSS */
-      if (len < 4)
-        break; /* MSS has 4 bytes */
-
-      q++;
-      memcpy(&tmpshort, q, 2);
-
-      Snprintf(p, bufsize, "mss %u", ntohs(tmpshort));
-      bufsize -= strlen(p);
-      p += strlen(p);
-
-      q += 2;
-      len -= 4;
-    } else if (opcode == 3) { /* Window Scale */
-      if (len < 3)
-        break; /* Window Scale option has 3 bytes */
-
-      q++;
-
-      Snprintf(p, bufsize, "wscale %u", *q);
-      bufsize -= strlen(p);
-      p += strlen(p);
-
-      q++;
-      len -= 3;
-    } else if (opcode == 4) { /* SACK permitted */
-      if (len < 2)
-        break; /* SACK permitted option has 2 bytes */
-
-      Snprintf(p, bufsize, "sackOK");
-      bufsize -= strlen(p);
-      p += strlen(p);
-
-      q++;
-      len -= 2;
-    } else if (opcode == 5) { /* SACK */
-      unsigned sackoptlen = *q;
-      if ((unsigned) len < sackoptlen)
-        break;
-
-      /* This would break parsing, so it's best to just give up */
-      if (sackoptlen < 2)
-        break;
-
-      q++;
-
-      if ((sackoptlen - 2) == 0 || ((sackoptlen - 2) % 8 != 0)) {
-        Snprintf(p, bufsize, "malformed sack");
-        bufsize -= strlen(p);
-        p += strlen(p);
-      } else {
-        Snprintf(p, bufsize, "sack %d ", (sackoptlen - 2) / 8);
-        bufsize -= strlen(p);
-        p += strlen(p);
-        for (i = 0; i < sackoptlen - 2; i += 8) {
-          memcpy(&tmpword1, q + i, 4);
-          memcpy(&tmpword2, q + i + 4, 4);
-          Snprintf(p, bufsize, "{%u:%u}", tmpword1, tmpword2);
-          bufsize -= strlen(p);
-          p += strlen(p);
-        }
-      }
-
-      q += sackoptlen - 2;
-      len -= sackoptlen;
-    } else if (opcode == 8) { /* Timestamp */
-      if (len < 10)
-        break; /* Timestamp option has 10 bytes */
-
-      q++;
-      memcpy(&tmpword1, q, 4);
-      memcpy(&tmpword2, q + 4, 4);
-
-      Snprintf(p, bufsize, "timestamp %u %u", ntohl(tmpword1),
-               ntohl(tmpword2));
-      bufsize -= strlen(p);
-      p += strlen(p);
-
-      q += 8;
-      len -= 10;
-    }
-
-    ch = ',';
-  }
-
-  if (len > 0) {
-    *result = '\0';
-    return;
-  }
-
-  Snprintf(p, bufsize, ">");
-}
-
 
 
 /******************************************************************************/

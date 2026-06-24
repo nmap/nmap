@@ -161,8 +161,6 @@ class TCPHeader : public TransportLayerElement {
 
         int tcpoptlen; /**< Length of TCP options */
 
-        void __tcppacketoptinfo(const u8 *optp, int len, char *result, int bufsize) const;
-
     public:
 
         TCPHeader();
