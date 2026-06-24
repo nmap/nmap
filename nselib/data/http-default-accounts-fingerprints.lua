@@ -1186,6 +1186,28 @@ table.insert(fingerprints, {
 })
 
 table.insert(fingerprints, {
+  -- Avigilon Cameras and Analog Video Encoders
+  -- These return a Www-Authenticate header with a 12-digit number in the Realm
+  -- That number is the serial number of the camera or video encoder.
+  name = "Avigilon Cameras and Video Converters",
+  category = "security",
+  paths = {
+    {path = "/media/cam0/still.jpg"}
+  },
+  target_check = function (host, port, path, response)
+    local realm = http_auth_realm(response) or ""
+    return realm:match("%d%d%d%d%d%d%d%d%d%d%d%d")
+  end,
+  login_combos = {
+    {username = "administrator", password = ""}
+  },
+  login_check = function (host, port, path, user, pass)
+    return try_http_basic_login(host, port, url.absolute(path, "/media/cam0/still.jpg"),
+                               user, pass, true)
+  end
+})
+
+table.insert(fingerprints, {
   name = "NUOO DVR",
   category = "security",
   paths = {
