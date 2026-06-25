@@ -216,6 +216,41 @@ o.debugging = 1;
   plen = p.parseFromBuffer(inval_answer, sizeof(inval_answer));
   TEST_INCR(plen == 0, ret, tot);
 
+  const u8 ptr_answer1[] = { 0x12, 0x34, // ID
+                               0x81, 0x80, // Flags
+                               0x00, 0x01, // Questions count
+                               0x00, 0x01, // Answers RRs count
+                               0x00, 0x00, // Authorities RRs count
+                               0x00, 0x00, // Additionals RRs count
+                               0x00, // Label length
+                               0x00, 0x0c, // PTR
+                               0x00, 0x01, // CLASS_IN
+                               0x00, // label length
+                               0x00, 0x0c, // PTR
+                               0x00, 0x01, // CLASS_IN
+                               0x00, 0x01, 0x51, 0x78, // TTL 86392
+                               0x00, 0x01, // Record Length
+                               0x00, // Label length
+                               };
+
+  plen = p.parseFromBuffer(ptr_answer1, sizeof(ptr_answer1));
+  TEST_INCR(plen == sizeof(ptr_answer1), ret, tot);
+  TEST_INCR(p.id == 0x1234, ret, tot);
+  TEST_INCR(p.flags == 0x8180, ret, tot);
+  TEST_INCR(p.queries.size() == 1, ret, tot);
+  TEST_INCR(p.answers.size() == 1, ret, tot);
+
+  q = &*p.queries.begin();
+  TEST_INCR(q->name == ".", ret, tot);
+  TEST_INCR(q->record_class == DNS::CLASS_IN, ret, tot);
+  TEST_INCR(q->record_type == DNS::PTR, ret, tot);
+
+  a = &*p.answers.begin();
+  TEST_INCR(a->name == ".", ret, tot);
+  TEST_INCR(a->record_class == DNS::CLASS_IN, ret, tot);
+  TEST_INCR(a->record_type == DNS::PTR, ret, tot);
+  TEST_INCR(a->length == 0x01, ret, tot);
+  TEST_INCR(a->ttl == 86392, ret, tot);
 
   if(ret) std::cout << "Testing nmap_dns finished with errors" << std::endl;
   else std::cout << "Testing nmap_dns finished without errors" << std::endl;
