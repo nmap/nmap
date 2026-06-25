@@ -1015,8 +1015,6 @@ HostOsScanStats::HostOsScanStats(Target * t) {
     TWin_AVs[i] = NULL;
   }
 
-  icmpEchoReply = NULL;
-
   distance = -1;
   distance_guess = -1;
 }
@@ -1041,8 +1039,6 @@ HostOsScanStats::~HostOsScanStats() {
     delete probesActive.front();
     probesActive.pop_front();
   }
-
-  if (icmpEchoReply) free(icmpEchoReply);
 }
 
 
@@ -1164,12 +1160,6 @@ void HostOsScanStats::initScanStats() {
   }
 
   memset(&seq_send_times, 0, sizeof(seq_send_times));
-
-  if (icmpEchoReply) {
-    free(icmpEchoReply);
-    icmpEchoReply = NULL;
-  }
-  storedIcmpReply = -1;
 
   memset(&upi, 0, sizeof(upi));
 }
@@ -1982,13 +1972,9 @@ bool HostOsScan::processResp(HostOsScanStats *hss, const u8 *pkt, unsigned int l
 
     /* Is it an icmp echo reply? */
     if (icmp.icmp_type == ICMP_ECHOREPLY) {
-      if (len + iphlen < ntohs(ip.ip_len)) {
-        /* processTIcmpResp requires ip.ip_len bytes of actual packet */
-        return false;
-      }
       testno = ntohs(icmp.icmp_id) - icmpEchoId;
       if (testno == 0 || testno == 1) {
-        isPktUseful = processTIcmpResp(hss, &ip, pkt, testno);
+        isPktUseful = processTIcmpResp(hss, &ip, &icmp, testno);
         if (isPktUseful) {
           probeI = hss->getActiveProbe(OFP_TICMP, testno);
         }
@@ -3037,53 +3023,27 @@ bool HostOsScan::processTUdpResp(HostOsScanStats *hss, const struct ip *ip, cons
 }
 
 
-bool HostOsScan::processTIcmpResp(HostOsScanStats *hss, const struct ip *ip, const u8 *pkt, int replyNo) {
+bool HostOsScan::processTIcmpResp(HostOsScanStats *hss, const struct ip *ip, const struct icmp *icmp, int replyNo) {
   assert(replyNo == 0 || replyNo == 1);
-
-  unsigned short value1, value2;
 
   if (hss->FP_TIcmp)
     return false;
 
-  u16 iplen = ntohs(ip->ip_len);
-  if (hss->icmpEchoReply == NULL) {
-    /* This is the first icmp reply we get, store it and return. */
-    hss->icmpEchoReply = (u8 *) safe_malloc(iplen);
-    memcpy(hss->icmpEchoReply, pkt, iplen);
-    hss->storedIcmpReply = replyNo;
-    return true;
-  } else if (hss->storedIcmpReply == replyNo) {
+  if (hss->icmpEchoReply[replyNo].received) {
     /* This is a duplicated icmp reply. */
     return false;
   }
-
-  const struct ip *ip1, *ip2;
-  const u8 *ip1pkt, *ip2pkt;
-  struct ip tmp;
-  /* Ok, now we get another reply. */
-  if (hss->storedIcmpReply == 0) {
-    ip1pkt = hss->icmpEchoReply;
-    memcpy(&tmp, ip1pkt, sizeof(tmp));
-    ip1 = &tmp;
-
-    ip2pkt = pkt;
-    ip2 = ip;
-  } else {
-    ip2pkt = hss->icmpEchoReply;
-    memcpy(&tmp, ip2pkt, sizeof(tmp));
-    ip2 = &tmp;
-
-    ip1pkt = pkt;
-    ip1 = ip;
+  else {
+    hss->icmpEchoReply[replyNo].received = true;
+    hss->icmpEchoReply[replyNo].ip_off = ip->ip_off;
+    hss->icmpEchoReply[replyNo].icmp_code = icmp->icmp_code;
   }
+  HostOsScanStats::icmpEchoReply_t &reply1 = hss->icmpEchoReply[0];
+  HostOsScanStats::icmpEchoReply_t &reply2 = hss->icmpEchoReply[1];
 
-  struct icmp icmp1, icmp2;
-  iplen = ntohs(ip1->ip_len);
-  memcpy(&icmp1, ip1pkt + 4 * ip1->ip_hl, MIN(iplen, sizeof(icmp1)));
-  iplen = ntohs(ip2->ip_len);
-  memcpy(&icmp2, ip2pkt + 4 * ip2->ip_hl, MIN(iplen, sizeof(icmp2)));
-
-  assert(icmp1.icmp_type == 0 && icmp2.icmp_type == 0);
+  if (!reply1.received || !reply2.received) {
+    return true;
+  }
 
   hss->FP_TIcmp= new FingerTest(FingerPrintDef::IE, *o.reference_FPs->MatchPoints);
   FingerTest &test = *hss->FP_TIcmp;
@@ -3096,8 +3056,8 @@ bool HostOsScan::processTIcmpResp(HostOsScanStats *hss, const struct ip *ip, con
    * N. Both not set;
    * O. Other(both different with the sender, -_-b).
    */
-  value1 = (ntohs(ip1->ip_off) & IP_DF);
-  value2 = (ntohs(ip2->ip_off) & IP_DF);
+  u16 value1 = (ntohs(reply1.ip_off) & IP_DF);
+  u16 value2 = (ntohs(reply2.ip_off) & IP_DF);
   if (value1 && value2)
     /* both set */
     test.setAVal("DFI", "Y");
@@ -3112,15 +3072,15 @@ bool HostOsScan::processTIcmpResp(HostOsScanStats *hss, const struct ip *ip, con
 
   /* TTL */
 
-  test.setAVal("T", hss->target->FPR->cp_hex(ip1->ip_ttl));
+  test.setAVal("T", hss->target->FPR->cp_hex(ip->ip_ttl));
 
   /* ICMP Code value. Test values:
    * [Value]. Both set Code to the same value [Value];
    * S. Both use the Code that the sender uses;
    * O. Other.
    */
-  value1 = icmp1.icmp_code;
-  value2 = icmp2.icmp_code;
+  value1 = reply1.icmp_code;
+  value2 = reply2.icmp_code;
   if (value1 == value2) {
     if (value1 == 0)
       test.setAVal("CD", "Z");
