@@ -79,6 +79,11 @@
 #include <signal.h>
 #include <time.h>
 
+#ifdef LINUX
+/* Check for Windows Subsystem for Linux (WSL) */
+#include <sys/utsname.h>
+#endif
+
 NpingOps o;
 EchoClient ec;
 EchoServer es;
@@ -199,6 +204,18 @@ int main(int argc, char *argv[] ){
 int do_safe_checks(){
  if( (sizeof(u32) != 4) || (sizeof(u16) != 2) || (sizeof(u8) != 1) )
     nping_fatal(QT_3,"Types u32, u16 and u8 do not have the correct sizes on your system.");
+#ifdef LINUX
+  /* Check for WSL and warn that things may not go well. */
+  struct utsname uts;
+  if (!uname(&uts)) {
+    if (strstr(uts.release, "Microsoft") != NULL) {
+      error("Warning: %s may not work correctly on Windows Subsystem for Linux.\n"
+          "For best performance and accuracy, use the native Windows build from %s/download.html#windows.",
+          NPING_NAME, NPING_URL);
+    }
+  }
+#endif
+
   test_stuff(); /* Little function that is called quite early to test some misc stuff. */
   return OP_SUCCESS;
 } /* End of do_safe_checks() */
