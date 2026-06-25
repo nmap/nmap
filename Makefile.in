@@ -341,7 +341,7 @@ $(NCATDIR)/ncat.h: nmap.h
 
 # Update the Nping version number.
 $(NPINGDIR)/nping.h: nmap.h
-	sed -e 's/^#[ \t]*define[ \t]\+NPING_VERSION[ \t]\+\(".*"\)/#define NPING_VERSION "0.$(NMAP_VERSION)"/' $@ > $@.tmp
+	sed -e 's/^#[ \t]*define[ \t]\+NPING_VERSION[ \t]\+\(".*"\)/#define NPING_VERSION "$(NMAP_VERSION)"/' $@ > $@.tmp
 	mv -f $@.tmp $@
 
 # Update the version number used by Zenmap.
