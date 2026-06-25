@@ -2922,7 +2922,10 @@ bool HostOsScan::processTUdpResp(HostOsScanStats *hss, const struct ip *ip, cons
 
   const u8 *ip2pkt = icmppkt + 8;
   memcpy(&ip2, ip2pkt, sizeof(ip2));
-  const u8 *udppkt = ip2pkt + 4 * ip2.ip_hl;
+  unsigned int ip2hlen = 4 * ip2.ip_hl;
+  if (icmplen < 8 + ip2hlen + sizeof(udp))
+    return false;
+  const u8 *udppkt = ip2pkt + ip2hlen;
   memcpy(&udp, udppkt, sizeof(udp));
 
   /* The ports should match. */

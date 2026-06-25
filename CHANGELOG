@@ -1,5 +1,9 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o Fixed several issues reported by Himanshu Anand: infinite loop in TCP options
+  parsing and out-of-bounds memory read in IPv4 OS detection; integer underflow
+  in IPv6 extension header processing; and undefined behavior in DNS label parsing.
+
 o [NSE][GH#3368] Fixed an out-of-memory issue in packet.lua when parsing a
   zero-length TCP header option. [Maxim Suhanov]
 
