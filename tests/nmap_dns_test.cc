@@ -63,12 +63,13 @@
 
 #include <iostream>
 
-#define TEST_INCR(pred,acc) \
+#define TEST_INCR(pred,acc,tot) \
 if ( !(pred) ) \
 { \
   std::cout << "Test " << #pred << " failed at " << __FILE__ << ":" << __LINE__ << std::endl; \
   ++acc; \
-}
+} \
+++tot;
 
 extern NmapOps o;
 int main()
@@ -77,6 +78,7 @@ int main()
 o.debugging = 1;
 
   int ret = 0;
+  int tot = 0;
   std::string target = "scanme.nmap.org";
   DNS::RECORD_TYPE rt = DNS::A;
   const size_t buflen = 1500;
@@ -85,12 +87,12 @@ o.debugging = 1;
   
   DNS::Packet p;
   size_t plen = p.parseFromBuffer(buf, buflen);
-  TEST_INCR(reqlen == plen, ret);
+  TEST_INCR(reqlen == plen, ret, tot);
 
   DNS::Query * q = &*p.queries.begin();
-  TEST_INCR(q->name == target, ret);
-  TEST_INCR(q->record_class == DNS::CLASS_IN, ret);
-  TEST_INCR(q->record_type == rt, ret);
+  TEST_INCR(q->name == target, ret, tot);
+  TEST_INCR(q->record_class == DNS::CLASS_IN, ret, tot);
+  TEST_INCR(q->record_type == rt, ret, tot);
 
 
   // This is a possible answere for an A query for scanme.nmap.org
@@ -119,28 +121,28 @@ o.debugging = 1;
                        0x2d, 0x21, 0x20, 0x9c }; // 45.33.32.156
 
   plen = p.parseFromBuffer(answere_buf, answere_len);
-  TEST_INCR(answere_len == plen, ret);
+  TEST_INCR(answere_len == plen, ret, tot);
 
   q = &*p.queries.begin();
-  TEST_INCR(q->name == target, ret);
-  TEST_INCR(q->record_class == DNS::CLASS_IN, ret);
-  TEST_INCR(q->record_type == rt, ret );
+  TEST_INCR(q->name == target, ret, tot);
+  TEST_INCR(q->record_class == DNS::CLASS_IN, ret, tot);
+  TEST_INCR(q->record_type == rt, ret , tot);
 
   DNS::Answer * a = &*p.answers.begin();
-  TEST_INCR(a->name == target, ret );
-  TEST_INCR(a->record_class == DNS::CLASS_IN, ret);
-  TEST_INCR(a->record_type == DNS::A, ret);
-  TEST_INCR(a->ttl == 3599, ret)
+  TEST_INCR(a->name == target, ret , tot);
+  TEST_INCR(a->record_class == DNS::CLASS_IN, ret, tot);
+  TEST_INCR(a->record_type == DNS::A, ret, tot);
+  TEST_INCR(a->ttl == 3599, ret, tot);
 
   DNS::A_Record * ar = static_cast<DNS::A_Record *>(a->record);
   char ar_ipp[INET6_ADDRSTRLEN];
   sockaddr_storage_iptop(&ar->value, ar_ipp);
-  TEST_INCR(!strcmp(ipp, ar_ipp), ret);
+  TEST_INCR(!strcmp(ipp, ar_ipp), ret, tot);
 
   const size_t ptr_answere_len = 72;
   std::string ptr_target;
-  TEST_INCR(DNS::Factory::ipToPtr(ar->value, ptr_target), ret);
-  TEST_INCR(ptr_target == "156.32.33.45.in-addr.arpa", ret);
+  TEST_INCR(DNS::Factory::ipToPtr(ar->value, ptr_target), ret, tot);
+  TEST_INCR(ptr_target == "156.32.33.45.in-addr.arpa", ret, tot);
   const u8 ptr_answere[] = { 0x08, 0xf2, // ID
                                0x81, 0x80, // Flags
                                0x00, 0x01, // Questions count
@@ -176,26 +178,26 @@ o.debugging = 1;
                                0x00 };  // Name terminator
 
   plen = p.parseFromBuffer(ptr_answere, ptr_answere_len);
-  TEST_INCR(plen == ptr_answere_len, ret);
-  TEST_INCR(p.id == 0x08f2, ret);
-  TEST_INCR(p.flags == 0x8180, ret);
-  TEST_INCR(p.queries.size() == 1, ret);
-  TEST_INCR(p.answers.size() == 1, ret);
+  TEST_INCR(plen == ptr_answere_len, ret, tot);
+  TEST_INCR(p.id == 0x08f2, ret, tot);
+  TEST_INCR(p.flags == 0x8180, ret, tot);
+  TEST_INCR(p.queries.size() == 1, ret, tot);
+  TEST_INCR(p.answers.size() == 1, ret, tot);
 
   q = &*p.queries.begin();
-  TEST_INCR(q->name == ptr_target, ret);
-  TEST_INCR(q->record_class == DNS::CLASS_IN, ret);
-  TEST_INCR(q->record_type == DNS::PTR, ret);
+  TEST_INCR(q->name == ptr_target, ret, tot);
+  TEST_INCR(q->record_class == DNS::CLASS_IN, ret, tot);
+  TEST_INCR(q->record_type == DNS::PTR, ret, tot);
 
   a = &*p.answers.begin();
-  TEST_INCR(a->name == ptr_target, ret);
-  TEST_INCR(a->record_class == DNS::CLASS_IN, ret);
-  TEST_INCR(a->record_type == DNS::PTR, ret);
-  TEST_INCR(a->length == 0x11, ret);
-  TEST_INCR(a->ttl == 86392, ret);
+  TEST_INCR(a->name == ptr_target, ret, tot);
+  TEST_INCR(a->record_class == DNS::CLASS_IN, ret, tot);
+  TEST_INCR(a->record_type == DNS::PTR, ret, tot);
+  TEST_INCR(a->length == 0x11, ret, tot);
+  TEST_INCR(a->ttl == 86392, ret, tot);
 
   DNS::PTR_Record * r = static_cast<DNS::PTR_Record *>(a->record);
-  TEST_INCR(r->value == target, ret);
+  TEST_INCR(r->value == target, ret, tot);
 
   const u8 inval_answer[] = {
     0x12, 0x34, // ID
@@ -212,11 +214,12 @@ o.debugging = 1;
     0x6f, 0x72, 0x67, // "org"
     }; // Deliberately ends before final empty label
   plen = p.parseFromBuffer(inval_answer, sizeof(inval_answer));
-  TEST_INCR(plen == 0, ret);
+  TEST_INCR(plen == 0, ret, tot);
 
 
   if(ret) std::cout << "Testing nmap_dns finished with errors" << std::endl;
   else std::cout << "Testing nmap_dns finished without errors" << std::endl;
+  std::cout << "Ran " << tot << " tests. " << ret << " failures." << std::endl;
 
   return ret; // 0 means ok
 }
