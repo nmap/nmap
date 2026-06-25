@@ -700,11 +700,13 @@ static const u8 *ipv6_get_data_primitive(const struct ip6_hdr *ip6, const u8 *pa
   *nxt = ip6->ip6_nxt;
   p += sizeof(*ip6);
   while (p < end && ipv6_is_extension_header(*nxt)) {
-    if (p + 2 > end)
+    if (p + 8 > end)
       return NULL;
     *nxt = *p;
     p += (*(p + 1) + 1) * 8;
   }
+  if (p >= end)
+    return NULL;
 
   *len = end - p;
   if (upperlayer_only && !ipv6_is_upperlayer(*nxt))
