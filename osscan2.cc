@@ -1908,7 +1908,8 @@ bool HostOsScan::processResp(HostOsScanStats *hss, const u8 *pkt, unsigned int l
     if (len < sizeof(tcp))
       return false;
     memcpy(&tcp, l4pkt, sizeof(tcp));
-    if (len < (unsigned int)(4 * tcp.th_off))
+    const unsigned int tcphlen = 4 * tcp.th_off;
+    if (tcphlen < sizeof(tcp) || len < tcphlen)
       return false;
     testno = ntohs(tcp.th_dport) - tcpPortBase;
 
