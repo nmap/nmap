@@ -263,11 +263,11 @@ void PortList::getServiceDeductions(u16 portno, int protocol, struct serviceDedu
   const Port *port;
 
   port = lookupPort(portno, protocol);
+  sd->erase();
+
   if (port == NULL || port->service == NULL) {
     const struct nservent *service;
 
-    /* Look up the service name. */
-    sd->erase();
     service = nmap_getservbyport(portno, protocol);
     if (service != NULL)
       sd->name = service->s_name;
@@ -275,10 +275,27 @@ void PortList::getServiceDeductions(u16 portno, int protocol, struct serviceDedu
       sd->name = NULL;
     sd->name_confidence = 3;
   } else {
-    *sd = *port->service;
+    const serviceDeductions *src = port->service;
+
+    sd->name = src->name;
+    sd->name_confidence = src->name_confidence;
+    sd->service_tunnel = src->service_tunnel;
+    sd->dtype = src->dtype;
+
+    sd->product = src->product ? strdup(src->product) : NULL;
+    sd->version = src->version ? strdup(src->version) : NULL;
+    sd->extrainfo = src->extrainfo ? strdup(src->extrainfo) : NULL;
+    sd->hostname = src->hostname ? strdup(src->hostname) : NULL;
+    sd->ostype = src->ostype ? strdup(src->ostype) : NULL;
+    sd->devicetype = src->devicetype ? strdup(src->devicetype) : NULL;
+    sd->service_fp = src->service_fp ? strdup(src->service_fp) : NULL;
+
+    for (std::vector<char *>::const_iterator it = src->cpe.begin();
+         it != src->cpe.end(); it++) {
+      sd->cpe.push_back(*it ? strdup(*it) : NULL);
+    }
   }
 }
-
 
 // sname should be NULL if sres is not
 // PROBESTATE_FINISHED_MATCHED. product,version, and/or extrainfo
@@ -313,7 +330,6 @@ void PortList::setServiceProbeResults(u16 portno, int protocol,
   const char *extrainfo, const char *hostname, const char *ostype,
   const char *devicetype, const std::vector<const char *> *cpe,
   const char *fingerprint) {
-  std::vector<char *>::iterator it;
   Port *port;
   char *p;
 
