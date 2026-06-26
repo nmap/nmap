@@ -260,17 +260,15 @@ u32 TCPHeader::getAck() const {
 } /* End of getAck() */
 
 
-/* TODO: Test this method. It may not work becuasse th_off is supposed to
- * be 4 bits long and arg o is 8.
- * UPDATE: It seems to work just fine. However, let's keep this note just
- * in case problems arise. */
 int TCPHeader::setOffset(u8 o){
+  assert(o <= 0x0f);
   h.th_off = o;
   return OP_SUCCESS;
 } /* End of setOffset() */
 
 
 int TCPHeader::setOffset(){
+  assert(tcpoptlen <= 40);
   h.th_off = 5 + tcpoptlen/4;
   return OP_SUCCESS;
 } /* End of setOffset() */
