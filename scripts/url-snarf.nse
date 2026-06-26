@@ -127,17 +127,19 @@ action = function()
     local status, len, _, l3 = socket:pcap_receive()
     if ( status ) then
       local p = packet.Packet:new( l3, #l3 )
-      local pos = p.tcp_data_offset + 1
-      local http_data = p.buf:sub(pos)
+      if p then
+        local pos = p.tcp_data_offset + 1
+        local http_data = p.buf:sub(pos)
 
-      local url = get_url(http_data)
-      if ( url ) then
-        counter = counter + 1
-        if ( not(arg_nostdout) ) then
-          print(p.ip_src, url)
-        end
-        if ( arg_outfile ) then
-          log_entry(p.ip_src, url)
+        local url = get_url(http_data)
+        if ( url ) then
+          counter = counter + 1
+          if ( not(arg_nostdout) ) then
+            print(p.ip_src, url)
+          end
+          if ( arg_outfile ) then
+            log_entry(p.ip_src, url)
+          end
         end
       end
     end

@@ -111,10 +111,12 @@ local helloListen = function(interface, timeout, responses)
     status, _, _, l3data = listener:pcap_receive()
     if status then
       p = packet.Packet:new(l3data, #l3data)
-      hello_raw = string.sub(l3data, p.ip_hl*4 + 1)
-      -- Check that PIM Type is Hello
-      if p and hello_raw:byte(1) == 0x20 then
-        table.insert(responses, p.ip_src)
+      if p then
+        hello_raw = string.sub(l3data, p.ip_hl*4 + 1)
+        -- Check that PIM Type is Hello
+        if p and hello_raw:byte(1) == 0x20 then
+          table.insert(responses, p.ip_src)
+        end
       end
     end
   end

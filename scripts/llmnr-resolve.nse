@@ -98,34 +98,36 @@ local llmnrListen = function(interface, timeout, result)
     status, _, _, l3data = listener:pcap_receive()
     if status then
       local p = packet.Packet:new(l3data, #l3data)
-      -- Skip IP and UDP headers
-      local llmnr = string.sub(l3data, p.ip_hl*4 + 8 + 1)
-      -- Flags
-      local trans, flags, questions = string.unpack(">I2 I2 I2", llmnr)
+      if p then
+        -- Skip IP and UDP headers
+        local llmnr = string.sub(l3data, p.ip_hl*4 + 8 + 1)
+        -- Flags
+        local trans, flags, questions = string.unpack(">I2 I2 I2", llmnr)
 
-      -- Make verifications
-      -- Message == Response bit
-      -- and 1 Question (hostname we requested) and
-      if ((flags >> 15) == 1) and questions == 0x01 then
-        stdnse.debug1("got response from %s", p.ip_src)
-        -- Skip header's 12 bytes
-        -- extract host length
-        local qlen, index = string.unpack(">B", llmnr, 13)
-        -- Skip hostname, null byte, type field and class field
-        index = index + qlen + 1 + 2 + 2
+        -- Make verifications
+        -- Message == Response bit
+        -- and 1 Question (hostname we requested) and
+        if ((flags >> 15) == 1) and questions == 0x01 then
+          stdnse.debug1("got response from %s", p.ip_src)
+          -- Skip header's 12 bytes
+          -- extract host length
+          local qlen, index = string.unpack(">B", llmnr, 13)
+          -- Skip hostname, null byte, type field and class field
+          index = index + qlen + 1 + 2 + 2
 
-        -- Now, answer record
-        local response, alen = {}
-        -- Extract hostname with the correct case sensitivity.
-        response.hostname, index = string.unpack(">s1x", llmnr, index)
+          -- Now, answer record
+          local response, alen = {}
+          -- Extract hostname with the correct case sensitivity.
+          response.hostname, index = string.unpack(">s1x", llmnr, index)
 
-        -- skip type, class, ttl, dlen
-        index = index + 2 + 2 + 4 + 2
-        response.address, index = string.unpack(">c4", llmnr, index)
-        response.address = ipOps.str_to_ip(response.address)
-        table.insert(result, response)
-      else
-        stdnse.debug1("skipped llmnr response.")
+          -- skip type, class, ttl, dlen
+          index = index + 2 + 2 + 4 + 2
+          response.address, index = string.unpack(">c4", llmnr, index)
+          response.address = ipOps.str_to_ip(response.address)
+          table.insert(result, response)
+        else
+          stdnse.debug1("skipped llmnr response.")
+        end
       end
     end
   end

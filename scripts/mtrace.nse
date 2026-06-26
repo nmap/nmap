@@ -264,8 +264,8 @@ local traceListener = function(interface, timeout, responses)
     status, _, _, l3data = listener:pcap_receive()
     if status then
       p = packet.Packet:new(l3data, #l3data)
-      trace_raw = string.sub(l3data, p.ip_hl*4 + 1)
       if p then
+        trace_raw = string.sub(l3data, p.ip_hl*4 + 1)
         -- Check that IGMP Type == 0x1e (Traceroute Response)
         if trace_raw:byte(1) == 0x1e then
           response = traceParse(trace_raw)

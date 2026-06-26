@@ -247,7 +247,7 @@ local function handle_received_packet(buf)
   local text
 
   local p = packet.Packet:new(buf)
-  if p.icmpv6_type ~= ICMPv6_NODEINFORESP then
+  if not p or p.icmpv6_type ~= ICMPv6_NODEINFORESP then
     return
   end
   local qtype, flags, pos = string.unpack(">I2I2", p.buf, p.icmpv6_offset + 4)

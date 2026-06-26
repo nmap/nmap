@@ -61,6 +61,7 @@ end
 -- Returns an array of address strings.
 local function get_ip_addresses(layer3)
   local ip = packet.Packet:new(layer3, layer3:len())
+  if not ip then return {} end
   return { ipOps.str_to_ip(ip.ip_bin_src), ipOps.str_to_ip(ip.ip_bin_dst) }
 end
 

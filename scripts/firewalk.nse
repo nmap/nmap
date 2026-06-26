@@ -456,7 +456,7 @@ local Firewalk_v4 = {
   -- @return whether the packet seems to be a valid reply or not
   check = function(src, layer3)
     local ip = packet.Packet:new(layer3, layer3:len())
-    return ip.ip_bin_dst == src
+    return ip and ip.ip_bin_dst == src
             and ip.ip_p == packet.IPPROTO_ICMP
             and ip.icmp_type == ICMP_TIME_EXCEEDEDv4
   end,
@@ -467,7 +467,7 @@ local Firewalk_v4 = {
   parse_reply = function(scanner, pkt)
     local ip = packet.Packet:new(pkt, pkt:len())
 
-    if ip.ip_p ~= packet.IPPROTO_ICMP or ip.icmp_type ~= ICMP_TIME_EXCEEDEDv4 then
+    if not ip or ip.ip_p ~= packet.IPPROTO_ICMP or ip.icmp_type ~= ICMP_TIME_EXCEEDEDv4 then
       return
     end
 
@@ -475,7 +475,7 @@ local Firewalk_v4 = {
     local ip2 = packet.Packet:new(is, is:len(), true)
 
     -- check ICMP payload
-    if ip2.ip_bin_src == scanner.target.bin_ip_src and
+    if ip2 and ip2.ip_bin_src == scanner.target.bin_ip_src and
       ip2.ip_bin_dst == scanner.target.bin_ip then
 
       -- layer 4 checks
@@ -522,7 +522,7 @@ local Firewalk_v6 = {
   -- @return whether the packet seems to be a valid reply or not
   check = function(src, layer3)
     local ip = packet.Packet:new(layer3)
-    return ip.ip_bin_dst == src
+    return ip and ip.ip_bin_dst == src
             and ip.ip_p == packet.IPPROTO_ICMPV6
             and ip.icmpv6_type == ICMP_TIME_EXCEEDEDv6
   end,
@@ -533,7 +533,7 @@ local Firewalk_v6 = {
   parse_reply = function(scanner, pkt)
     local ip = packet.Packet:new(pkt)
 
-    if ip.ip_p ~= packet.IPPROTO_ICMPV6 or ip.icmpv6_type ~= ICMP_TIME_EXCEEDEDv6 then
+    if not ip or ip.ip_p ~= packet.IPPROTO_ICMPV6 or ip.icmpv6_type ~= ICMP_TIME_EXCEEDEDv6 then
       return
     end
 
@@ -541,7 +541,7 @@ local Firewalk_v6 = {
     local ip2 = packet.Packet:new(is)
 
     -- check ICMP payload
-    if ip2.ip_bin_src == scanner.target.bin_ip_src and
+    if ip2 and ip2.ip_bin_src == scanner.target.bin_ip_src and
       ip2.ip_bin_dst == scanner.target.bin_ip then
 
       -- layer 4 checks

@@ -132,23 +132,25 @@ local eigrpListener = function(interface, timeout, responses)
     status, _, _, l3data = listener:pcap_receive()
     if status then
       p = packet.Packet:new(l3data, #l3data)
-      eigrp_raw = string.sub(l3data, p.ip_hl*4 + 1)
-      -- Check if it is an EIGRPv2 Update
-      if eigrp_raw:byte(1) == 0x02 and eigrp_raw:byte(2) == 0x01 then
-        -- Skip if did get the info from this router before
-        if not routers[p.ip_src] then
-          -- Parse header
-          response = eigrp.EIGRP.parse(eigrp_raw)
-          response.src = p.ip_src
-          response.interface = interface.shortname
-        end
-        if response then
-          -- See, if it has routing information
-          for _,tlv in pairs(response.tlvs) do
-            if eigrp.EIGRP.isRoutingTLV(tlv.type) then
-              routers[p.ip_src] = true
-              table.insert(responses, response)
-              break
+      if p then
+        eigrp_raw = string.sub(l3data, p.ip_hl*4 + 1)
+        -- Check if it is an EIGRPv2 Update
+        if eigrp_raw:byte(1) == 0x02 and eigrp_raw:byte(2) == 0x01 then
+          -- Skip if did get the info from this router before
+          if not routers[p.ip_src] then
+            -- Parse header
+            response = eigrp.EIGRP.parse(eigrp_raw)
+            response.src = p.ip_src
+            response.interface = interface.shortname
+          end
+          if response then
+            -- See, if it has routing information
+            for _,tlv in pairs(response.tlvs) do
+              if eigrp.EIGRP.isRoutingTLV(tlv.type) then
+                routers[p.ip_src] = true
+                table.insert(responses, response)
+                break
+              end
             end
           end
         end
@@ -178,13 +180,15 @@ local asListener = function(interface, timeout, astab)
     status, _, _, l3data = listener:pcap_receive()
     if status then
       p = packet.Packet:new(l3data, #l3data)
-      eigrp_raw = string.sub(l3data, p.ip_hl*4 + 1)
-      -- Listen for EIGRPv2 Hello packets
-      if eigrp_raw:byte(1) == 0x02 and eigrp_raw:byte(2) == 0x05 then
-        eigrp_hello = eigrp.EIGRP.parse(eigrp_raw)
-        if eigrp_hello and eigrp_hello.as then
-          table.insert(astab, eigrp_hello.as)
-          break
+      if p then
+        eigrp_raw = string.sub(l3data, p.ip_hl*4 + 1)
+        -- Listen for EIGRPv2 Hello packets
+        if eigrp_raw:byte(1) == 0x02 and eigrp_raw:byte(2) == 0x05 then
+          eigrp_hello = eigrp.EIGRP.parse(eigrp_raw)
+          if eigrp_hello and eigrp_hello.as then
+            table.insert(astab, eigrp_hello.as)
+            break
+          end
         end
       end
     end
