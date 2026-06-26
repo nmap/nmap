@@ -1108,7 +1108,7 @@ int readtcppacket(const u8 *packet, int readdata) {
   int tot_len;
   struct in_addr bullshit, bullshit2;
   char sourcehost[16];
-  int i;
+  int i = 0;
   int realfrag = 0;
 
   if (!packet) {
@@ -1121,7 +1121,9 @@ int readtcppacket(const u8 *packet, int readdata) {
   realfrag = htons(ntohs(ip->ip_off) & IP_OFFMASK);
   tot_len = htons(ip->ip_len);
   strncpy(sourcehost, inet_ntoa(bullshit), 16);
-  i = 4 * (ntohs(ip->ip_hl) + ntohs(tcp->th_off));
+  if (ip->ip_hl >= 5 && tcp->th_off >= 5) {
+    i = 4 * (ip->ip_hl + tcp->th_off);
+  }
   if (ip->ip_p == IPPROTO_TCP) {
     if (realfrag)
       log_write(LOG_PLAIN, "Packet is fragmented, offset field: %u\n",
@@ -1163,7 +1165,7 @@ int readtcppacket(const u8 *packet, int readdata) {
                   (unsigned int) ntohl(tcp->th_ack));
     }
   }
-  if (readdata && i < tot_len) {
+  if (readdata && i > 0 && i < tot_len) {
     log_write(LOG_PLAIN, "Data portion:\n");
     while (i < tot_len) {
       log_write(LOG_PLAIN, "%2X%c", data[i], ((i + 1) % 16) ? ' ' : '\n');
