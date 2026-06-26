@@ -534,6 +534,10 @@ function Packet:ip_parse(force_continue)
     stdnse.debug2("Packet.ip_parse: Not IPv4")
     return false
   end
+  if self.ip_hl < 5 then
+    stdnse.debug2("Packet.ip_parse: Header length bad")
+    return false
+  end
   self.ip = true
   self.ip_tos = self:u8(self.ip_offset + 1)
   self.ip_len = self:u16(self.ip_offset + 2)
@@ -796,6 +800,10 @@ function Packet:tcp_parse(force_continue)
   self.tcp_seq = self:u32(self.tcp_offset + 4)
   self.tcp_ack = self:u32(self.tcp_offset + 8)
   self.tcp_hl = (self:u8(self.tcp_offset+12) & 0xF0) >> 4 -- header_length or data_offset
+  if self.tcp_hl < 5 then
+    stdnse.debug2("Packet.tcp_parse: Header length bad")
+    return false
+  end
   self.tcp_x2 = (self:u8(self.tcp_offset+12) & 0x0F)
   self.tcp_flags = self:u8(self.tcp_offset + 13)
   self.tcp_th_fin = (self.tcp_flags & 0x01)~=0 -- true/false
