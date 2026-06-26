@@ -479,7 +479,7 @@ static void initialize_idleproxy(struct idle_proxy_info *proxy, char *proxyName,
   u32 sequence_base;
   u32 ack = 0;
   struct timeval probe_send_times[NUM_IPID_PROBES], tmptv, rcvdtime;
-  u32 lastipid = 0;
+  int lastipid = 0;
   int distance;
   u32 ipids[NUM_IPID_PROBES];
   u8 probe_returned[NUM_IPID_PROBES];
@@ -487,8 +487,6 @@ static void initialize_idleproxy(struct idle_proxy_info *proxy, char *proxyName,
   assert(proxyName);
   u8 *ipv6_packet = NULL;
   u32 packetlen = 0;
-  u8 ip6hdr;
-  const void *ip6data;
   bool retried_forcing_fragmentation = false;
   assert(proxy);
   assert(proxyName);
@@ -682,111 +680,64 @@ static void initialize_idleproxy(struct idle_proxy_info *proxy, char *proxyName,
         timedout = 1;
       }
 
-      u8 ip_v = pkt[0] >> 4;
+      abstract_ip_hdr hdr;
+      struct tcp_hdr tcp;
+      unsigned int tcpbytes = bytes;
+      const u8 *tcppkt = ip_get_data(pkt, &tcpbytes, &hdr);
+      if (!tcppkt || hdr.proto != IPPROTO_TCP || tcpbytes < sizeof(tcp))
+        continue;
+      memcpy(&tcp, tcppkt, sizeof(tcp));
+      newipid = hdr.ipid;
 
       if (o.af() == AF_INET) {
-        if (ip_v != 4) {
+        if (hdr.version != 4) {
           error("Received a packet with version field != 4");
           continue;
         }
 
-        struct ip ip;
-        if (bytes < sizeof(ip))
-          continue;
-        memcpy(&ip, pkt, sizeof(ip));
-
-        if (lastipid != 0 && ip.ip_id == lastipid) {
-          continue; /* probably a duplicate */
-        }
-        lastipid = ip.ip_id;
-        if (bytes < (4 * ip.ip_hl) + 14U)
-          continue;
-
-        if (ip.ip_p == IPPROTO_TCP) {
-          struct tcp_hdr tcp;
-          memcpy(&tcp, pkt + 4 * ip.ip_hl, sizeof(tcp));
-          /* Checking now for the source port, which we were not able to do in the libpcap filter */
-          if (ntohs(tcp.th_sport) != proxy->probe_port) {
-             continue;
-          }
-
-          if (ntohs(tcp.th_dport) < (o.magic_port + 1) || ntohs(tcp.th_dport) - o.magic_port > NUM_IPID_PROBES || ((tcp.th_flags & TH_RST) == 0)) {
-            if (o.debugging > 1)
-              error("Received unexpected response packet from %s during initial IP ID zombie testing", inet_ntoa(ip.ip_src));
-            continue;
-          }
-
-          seq_response_num = probes_returned;
-
-          /* The stuff below only works when we send SYN packets instead of
-             SYN|ACK, but then are slightly less stealthy and have less chance
-             of sneaking through the firewall.  Plus SYN|ACK is what they will
-             be receiving back from the target */
-          probes_returned++;
-          ipids[seq_response_num] = ntohs(ip.ip_id);
-          probe_returned[seq_response_num] = 1;
-          adjust_timeouts2(&probe_send_times[seq_response_num], &rcvdtime, &(proxy->host.to));
-        }
+        assert(newipid < 0xffff);
+        newipid = ntohs(newipid);
       } else if (o.af() == AF_INET6) {
-        if (ip_v != 6) {
+        if (hdr.version != 6) {
           error("Received a packet with version field != 6");
           continue;
-        } else {
-          struct ip6_hdr ip6;
-          if (bytes < sizeof(ip6))
-            continue;
-          newipid = ipv6_get_fragment_id(pkt, bytes);
-          if (newipid < 0 ) {
-            /* ok, the idle host does not seem to append the extension header for fragmentation. Let's try this once more,
-            * maybe the idle host just adjusted its Path MTU. If we keep on having the problem, we quit */
-            if (!retried_forcing_fragmentation) {
-              ipv6_force_fragmentation(proxy, target);
-              retried_forcing_fragmentation = true;
-            } else
-              fatal("IPv6 packet without fragmentation header received - issues with the zombie?");
-          }
-          /* now that the additional ipv6 stuff is done, we do as for IPv4 */
-          if (lastipid != 0 && newipid == (int)lastipid) {
-            continue; /* probably a duplicate */
-          }
-          lastipid = newipid;
-
-          ip6data = ipv6_get_data(pkt, &packetlen, &ip6hdr);
-          if (ip6data == NULL || ip6hdr != IPPROTO_TCP) {
-            error("Malformed packet received");
-            continue;
-          }
-
-          struct tcp_hdr tcp;
-          if (packetlen < sizeof(tcp)) {
-            continue;
-          }
-          memcpy(&tcp, ip6data, sizeof(tcp));
-          /* Checking now for the source port, which we were not able to do in the libpcap filter */
-          if (ntohs(tcp.th_sport) != proxy->probe_port) {
-            continue;
-          }
-
-          if (ntohs(tcp.th_dport) < (o.magic_port + 1) || ntohs(tcp.th_dport) - o.magic_port > NUM_IPID_PROBES  || ((tcp.th_flags & TH_RST) == 0)) {
-            if (o.debugging > 1) {
-              memcpy(&ip6, pkt, sizeof(ip6));
-              error("Received unexpected response packet from %s during initial IP ID zombie testing", ip6_ntoa(&ip6.ip6_src));
-            }
-            continue;
-          }
-
-          seq_response_num = probes_returned;
-
-          /* The stuff below only works when we send SYN packets instead of
-             SYN|ACK, but then are slightly less stealthy and have less chance
-             of sneaking through the firewall.  Plus SYN|ACK is what they will
-             be receiving back from the target */
-          probes_returned++;
-          ipids[seq_response_num] = newipid;
-          probe_returned[seq_response_num] = 1;
-          adjust_timeouts2(&probe_send_times[seq_response_num], &rcvdtime, &(proxy->host.to));
+        }
+        newipid = ipv6_get_fragment_id(pkt, bytes);
+        if (newipid < 0 ) {
+          /* ok, the idle host does not seem to append the extension header for fragmentation. Let's try this once more,
+           * maybe the idle host just adjusted its Path MTU. If we keep on having the problem, we quit */
+          if (!retried_forcing_fragmentation) {
+            ipv6_force_fragmentation(proxy, target);
+            retried_forcing_fragmentation = true;
+          } else
+            fatal("IPv6 packet without fragmentation header received - issues with the zombie?");
         }
       }
+      if (lastipid != 0 && newipid == lastipid) {
+        continue; /* probably a duplicate */
+      }
+      lastipid = newipid;
+      /* Checking now for the source port, which we were not able to do in the libpcap filter */
+      if (ntohs(tcp.th_sport) != proxy->probe_port) {
+        continue;
+      }
+
+      if (ntohs(tcp.th_dport) < (o.magic_port + 1) || ntohs(tcp.th_dport) - o.magic_port > NUM_IPID_PROBES || ((tcp.th_flags & TH_RST) == 0)) {
+        if (o.debugging > 1)
+          error("Received unexpected response packet from %s during initial IP ID zombie testing", inet_socktop(&hdr.src));
+        continue;
+      }
+
+      seq_response_num = probes_returned;
+
+      /* The stuff below only works when we send SYN packets instead of
+         SYN|ACK, but then are slightly less stealthy and have less chance
+         of sneaking through the firewall.  Plus SYN|ACK is what they will
+         be receiving back from the target */
+      probes_returned++;
+      ipids[seq_response_num] = newipid;
+      probe_returned[seq_response_num] = 1;
+      adjust_timeouts2(&probe_send_times[seq_response_num], &rcvdtime, &(proxy->host.to));
     }
   }
 
