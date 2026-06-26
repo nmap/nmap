@@ -580,7 +580,7 @@ static void doSeqTests(OsScanInfo *OSI, HostOsScan *HOS) {
       if (bytes < sizeof(iphdr))
         continue;
       memcpy(&iphdr, ip, sizeof(iphdr));
-      if (bytes < (4 * iphdr.ip_hl) + 4U)
+      if (iphdr.ip_hl < 5 || bytes < (4 * iphdr.ip_hl) + 4U)
         continue;
 
       memset(&ss, 0, sizeof(ss));
@@ -754,7 +754,7 @@ static void doTUITests(OsScanInfo *OSI, HostOsScan *HOS) {
       if (bytes < sizeof(iphdr))
         continue;
       memcpy(&iphdr, ip, sizeof(iphdr));
-      if (bytes < (4 * iphdr.ip_hl) + 4U)
+      if (iphdr.ip_hl < 5 || bytes < (4 * iphdr.ip_hl) + 4U)
         continue;
 
       memset(&ss, 0, sizeof(ss));
@@ -1897,7 +1897,7 @@ bool HostOsScan::processResp(HostOsScanStats *hss, const u8 *pkt, unsigned int l
     return false;
   memcpy(&ip, pkt, sizeof(ip));
   const unsigned int iphlen = 4 * ip.ip_hl;
-  if (len < iphlen + 4U)
+  if (iphlen < sizeof(ip) || len < iphlen + 4U)
     return false;
 
   len -= iphlen;
@@ -2923,7 +2923,7 @@ bool HostOsScan::processTUdpResp(HostOsScanStats *hss, const struct ip *ip, cons
   const u8 *ip2pkt = icmppkt + 8;
   memcpy(&ip2, ip2pkt, sizeof(ip2));
   unsigned int ip2hlen = 4 * ip2.ip_hl;
-  if (icmplen < 8 + ip2hlen + sizeof(udp))
+  if (ip2hlen < sizeof(ip2) || icmplen < 8 + ip2hlen + sizeof(udp))
     return false;
   const u8 *udppkt = ip2pkt + ip2hlen;
   memcpy(&udp, udppkt, sizeof(udp));

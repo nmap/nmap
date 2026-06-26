@@ -381,6 +381,7 @@ static int send_ipv4_packet(int sd, const struct eth_nfo *eth,
 
   assert(packet);
   assert((int) packetlen > 0);
+  assert(ip->ip_hl >= 5);
 
   /* Fragmentation requested && packet is bigger than MTU */
   if (o.fragscan && !(ntohs(ip->ip_off) & IP_DF) &&

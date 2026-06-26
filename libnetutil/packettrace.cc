@@ -890,7 +890,10 @@ int icmppackethdrinfo (const u8 *data, unsigned int datalen,
       pktlen += offsetof(struct icmp_msg_quote, icmp_ip);
       if (datalen >= pktlen + sizeof(ip2)) {
         memcpy(&ip2, data + pktlen, sizeof(ip2));
-        pktlen += ip2.ip_hl * 4;
+        if (ip2.ip_hl >= 5)
+          pktlen += ip2.ip_hl * 4;
+        else
+          pktlen += sizeof(ip2);
       } else {
         pktlen += sizeof(ip2);
       }
