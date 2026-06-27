@@ -124,7 +124,10 @@ as_reserve (struct state *state, size_t n)
     if (state->max_sz && state->sz >= state->max_sz)
       return 1;
 
-    state->sz = max(state->sz * 2, state->sz + n);
+    if (n > (size_t)-1 - state->sz)
+      return 1;
+    state->sz = max(state->sz > (size_t)-1 / 2 ? (size_t)-1 : state->sz * 2,
+                    state->sz + n);
     if (state->max_sz)
       state->sz = min(state->sz, state->max_sz);
     tmp = safe_realloc(state->str, state->sz);
