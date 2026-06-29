@@ -1,6 +1,6 @@
 <html>
 <body>
-<h1>NMAP-ODFICIAL</h1>
+<h1>NMAP-OFFICIAL</h1>
 <h5>THIS TOOL USES NMAP TO HELP ANALYZE NETWORKS, IDENTIFY OPEN PORTS, AND GATHER INFORMATION ABOUT CONNECTED DEVICES FOR AUTHORIZED SECURITY TESTING AND EDUCATIONAL PURPOSES. USE ONLY ON NETWORKS YOU OWN OR HAVE EXPLICIT PERMISSION TO TEST.</h5>
 
 <h3>OS For:</h3>
@@ -8,7 +8,7 @@
 
 <h4>Install Linux / Termux</h4>
 <p>apt upgrade & update -y</p>
-<p>Gitclone https://github.com/OFFICIALcybersatyam27/NMAP-OFFICIAL.git</p>
+<p>Gitclone https://github.com/OFFICIALcybersatyam27/NMAP-OFFICIALL.git</p>
 <p>./configure
 make
 make install</p>
