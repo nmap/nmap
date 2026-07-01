@@ -628,8 +628,15 @@ const char *ippackethdrinfo(const u8 *packet, u32 len, int detail) {
   }
   else {
     /* UNKNOWN PROTOCOL **********************************************************/
-    used = Snprintf(p, remains, "%s (%d) %s > %s",
-        nexthdrtoa(hdr.proto, 1), hdr.proto, srchost, dsthost);
+    const char *hdrstr = nexthdrtoa(hdr.proto, 1);
+    if (hdr.version == 6) {
+      /* Make the packet family explicit without renaming the next header. */
+      used = Snprintf(p, remains, "IPv6/%s (%d) %s > %s",
+          hdrstr, hdr.proto, srchost, dsthost);
+    } else {
+      used = Snprintf(p, remains, "%s (%d) %s > %s",
+          hdrstr, hdr.proto, srchost, dsthost);
+    }
   }
   p += used;
   remains -= used;
@@ -1178,4 +1185,3 @@ int icmp6packethdrinfo (const u8 *data, unsigned int datalen,
         icmpv6->icmpv6_type, icmpv6->icmpv6_code);
   }
 }
-
