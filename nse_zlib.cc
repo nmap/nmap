@@ -817,6 +817,7 @@ static int lzlib_decompress(lua_State *L)
     size_t avail_in;
     const char *next_in = luaL_checklstring(L, 1, &avail_in);
     int windowBits = (int) luaL_optinteger(L, 2, 15);
+    int decompLimit = (int) luaL_optinteger(L, 3, 10*1024*1024);
 
     int ret;
     luaL_Buffer b;
@@ -842,15 +843,20 @@ static int lzlib_decompress(lua_State *L)
     zs.next_in = (unsigned char*)next_in;
     zs.avail_in = avail_in;
 
-    for (;;) {
-        zs.next_out = (unsigned char*)luaL_prepbuffer(&b);
-        zs.avail_out = LUAL_BUFFERSIZE;
+    while(decompLimit > 0) {
+        unsigned int bufsize = LUAL_BUFFERSIZE;
+        if (bufsize > decompLimit)
+            bufsize = decompLimit;
+        zs.next_out = (unsigned char*)luaL_prepbuffsize(&b, bufsize);
+        zs.avail_out = bufsize;
 
         /* bake some more */
         ret = inflate(&zs, Z_FINISH);
 
         /* push gathered data */
-        luaL_addsize(&b, LUAL_BUFFERSIZE - zs.avail_out);
+        unsigned int inflatesize = bufsize - zs.avail_out;
+        luaL_addsize(&b, inflatesize);
+        decompLimit -= inflatesize;
 
         /* done processing? */
         if (ret == Z_STREAM_END)
