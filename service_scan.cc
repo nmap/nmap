@@ -217,6 +217,7 @@ public:
   std::list<ServiceNFO *> services_finished; // Services finished (discovered or not)
   std::list<ServiceNFO *> services_in_progress; // Services currently being probed
   std::list<ServiceNFO *> services_remaining; // Probes not started yet
+  size_t total_services;
   unsigned int ideal_parallelism; // Max (and desired) number of probes out at once.
   ScanProgressMeter *SPM;
   int num_hosts_timedout; // # of hosts timed out during (or before) scan
@@ -1992,6 +1993,7 @@ ServiceGroup::ServiceGroup(std::vector<Target *> &Targets, AllProbes *AP) {
       svc->proto = nxtport->proto;
       services_remaining.push_back(svc);
     }
+    total_services = services_remaining.size();
 
     /* Check if any early responses can help */
     for (std::vector<EarlySvcResponse *>::iterator it = target->earlySvcResponses.begin();
@@ -2232,17 +2234,13 @@ static void considerPrintingStats(ServiceGroup *SG) {
    /* Check for status requests */
    if (keyWasPressed()) {
       nmap_adjust_loglevel(o.versionTrace());
-      SG->SPM->printStats(SG->services_finished.size() /
-                          ((double)SG->services_remaining.size() + SG->services_in_progress.size() +
-                           SG->services_finished.size()), nsock_gettimeofday());
+      SG->SPM->printStats(SG->services_finished.size(), SG->total_services, nsock_gettimeofday());
    }
-
-
-  /* Perhaps this should be made more complex, but I suppose it should be
-     good enough for now. */
-  if (SG->SPM->mayBePrinted(nsock_gettimeofday())) {
-    SG->SPM->printStatsIfNecessary(SG->services_finished.size() / ((double)SG->services_remaining.size() + SG->services_in_progress.size() + SG->services_finished.size()), nsock_gettimeofday());
-  }
+   else {
+      /* Perhaps this should be made more complex, but I suppose it should be
+         good enough for now. */
+      SG->SPM->printStatsIfNecessary(SG->services_finished.size(), SG->total_services, nsock_gettimeofday());
+   }
 }
 
 /* Check if target is done (no more probes remaining for it in service group),
@@ -2441,9 +2439,7 @@ static void servicescan_write_handler(nsock_pool nsp, nsock_event nse, void *myd
 
   // Check if a status message was requested
   if (keyWasPressed()) {
-     SG->SPM->printStats(SG->services_finished.size() /
-                         ((double)SG->services_remaining.size() + SG->services_in_progress.size() +
-                          SG->services_finished.size()), nsock_gettimeofday());
+     SG->SPM->printStats(SG->services_finished.size(), SG->total_services, nsock_gettimeofday());
   }
 
 

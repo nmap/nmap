@@ -265,8 +265,11 @@ struct Stats
   void reset() {
     servers = names = actual = ok = nx = sf = trans = dropped = system = 0;
   }
+  int statDone() const {
+    return ok + nx + sf + dropped;
+  }
   double getCompletion() const {
-    return (double) (ok + nx + sf + dropped) / actual;
+    return (double) statDone() / actual;
   }
 };
 

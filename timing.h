@@ -232,10 +232,10 @@ class ScanProgressMeter {
    so if mayBePrinted() is true, and it seems reasonable to do so
    because the estimate has changed significantly.  Returns whether
    or not a line was printed.*/
-  bool printStatsIfNecessary(double perc_done, const struct timeval *now);
+  bool printStatsIfNecessary(size_t num_done, size_t num_total, const struct timeval *now);
 
   /* Prints an estimate of when this scan will complete. */
-  bool printStats(double perc_done, const struct timeval *now);
+  bool printStats(size_t num_done, size_t num_total, const struct timeval *now);
 
   /* Prints that this task is complete. */
   bool endTask(const struct timeval *now, const char *additional_info) { return beginOrEndTask(now, additional_info, false); }
@@ -246,8 +246,14 @@ class ScanProgressMeter {
   struct timeval last_print; /* The most recent time the ETC was printed */
   char *scantypestr;
   struct timeval last_est; /* The latest PRINTED estimate */
+  struct timeval prev_time;
+  size_t prev_done;
+  double prev_rate;
+  unsigned int last_time_left;
 
   bool beginOrEndTask(const struct timeval *now, const char *additional_info, bool beginning);
+  unsigned int estimate_time_left(size_t num_done, size_t num_total, const struct timeval *now);
+  bool printStats_common(unsigned int time_left_s, double perc_done, const struct timeval *now);
 };
 
 #endif /* NMAP_TIMING_H */

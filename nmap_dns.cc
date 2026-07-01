@@ -84,7 +84,7 @@ void nmap_massdns_status(const DNS::Stats *stat)
 {
   if (keyWasPressed()) {
     assert(SPM != NULL);
-    SPM->printStats(stat->getCompletion(), NULL);
+    SPM->printStats(stat->statDone(), stat->actual, NULL);
     /* Because this can change with runtime interaction */
     nmap_adjust_loglevel(o.packetTrace());
   }

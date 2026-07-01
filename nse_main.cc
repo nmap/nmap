@@ -161,10 +161,10 @@ static int scp (lua_State *L)
   switch (luaL_checkoption(L, 1, NULL, ops))
   {
     case 0: /* printStats */
-      progress->printStats((double) luaL_checknumber(L, 2), NULL);
+      progress->printStats(luaL_checkinteger(L, 2), luaL_checkinteger(L, 3), NULL);
       break;
     case 1:
-      progress->printStatsIfNecessary((double) luaL_checknumber(L, 2), NULL);
+      progress->printStatsIfNecessary(luaL_checkinteger(L, 2), luaL_checkinteger(L, 3), NULL);
       break;
     case 2: /*mayBePrinted */
       lua_pushboolean(L, progress->mayBePrinted(NULL));

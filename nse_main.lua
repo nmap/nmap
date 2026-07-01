@@ -994,7 +994,7 @@ local function run (threads_iter)
     if total > 0 and cnse.key_was_pressed() then
       print_verbose(1, "Active NSE Script Threads: %d (%d waiting)",
           nr+nw, nw);
-      progress("printStats", 1-(nr+nw)/total);
+      progress("printStats", total - (nr+nw), total);
       if debugging() >= 2 then
         for co, thread in pairs(running) do
           thread:d("Running: %THREAD_AGAINST\n\t%s",
@@ -1042,9 +1042,9 @@ local function run (threads_iter)
       end
     elseif total > 0 and progress "mayBePrinted" then
       if verbosity() > 1 or debugging() > 0 then
-        progress("printStats", 1-(nr+nw)/total);
+        progress("printStats", total - (nr+nw), total);
       else
-        progress("printStatsIfNecessary", 1-(nr+nw)/total);
+        progress("printStatsIfNecessary", total - (nr+nw), total);
       end
     end
 
