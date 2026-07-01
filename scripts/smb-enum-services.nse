@@ -862,6 +862,10 @@ action = function(host, port)
   local result
 
   local status, smbstate = msrpc.start_smb(host, msrpc.SVCCTL_PATH)
+  if not status then
+    return nil, stdnse.format_output(false, smbstate)
+  end
+
   status, bind_result = msrpc.bind(smbstate, msrpc.SVCCTL_UUID, msrpc.SVCCTL_VERSION, nil)
 
   if(status == false) then
