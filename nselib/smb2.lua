@@ -56,9 +56,19 @@ local smb2_values = {
   SMB2_GLOBAL_CAP_PERSISTENT_HANDLES  = 0x00000010,
   SMB2_GLOBAL_CAP_DIRECTORY_LEASING   = 0x00000020,
   SMB2_GLOBAL_CAP_ENCRYPTION          = 0x00000040,
-  -- Context Types
+  -- Context Types (MS-SMB2 2.2.3.1)
+  SMB2_PREAUTH_INTEGRITY_CAPABILITIES = 0x0001,
   SMB2_ENCRYPTION_CAPABILITIES        = 0x0002,
-  SMB2_PREAUTH_INTEGRITY_CAPABILITIES = 0x0001
+  SMB2_COMPRESSION_CAPABILITIES       = 0x0003, -- Win 10 v1903 / Server 2019+
+  SMB2_NETNAME_NEGOTIATE_CONTEXT_ID   = 0x0005,
+  SMB2_TRANSPORT_CAPABILITIES         = 0x0006, -- Win 11 / Server 2022+
+  SMB2_RDMA_TRANSFORM_CAPABILITIES    = 0x0007, -- Win 11 / Server 2022+
+  SMB2_SIGNING_CAPABILITIES           = 0x0008, -- Win 11 / Server 2022+
+  -- Cipher codes (SMB2_ENCRYPTION_CAPABILITIES)
+  SMB2_AES_128_CCM                    = 0x0001,
+  SMB2_AES_128_GCM                    = 0x0002, -- Win 10+
+  SMB2_AES_256_CCM                    = 0x0003, -- Win 11 / Server 2022+
+  SMB2_AES_256_GCM                    = 0x0004, -- Win 11 / Server 2022+
 }
 local smb2_values_codes = tableaux.invert(smb2_values)
 
@@ -300,10 +310,14 @@ function negotiate_v2(smb, overrides)
     data = data .. padding_data
     local negotiate_context_list, context_data
 
-    -- We set SMB2_ENCRYPTION_CAPABILITIES first
-    context_data = string.pack("<I2 I2 I2",
-                    0x2,      -- CipherCount (2 bytes): 2 ciphers available
+    -- We set SMB2_ENCRYPTION_CAPABILITIES first. Offer all four ciphers so
+    -- the server's choice doubles as a version fingerprint: AES-256-GCM/CCM
+    -- are only supported by Windows 11 / Server 2022 and later.
+    context_data = string.pack("<I2 I2 I2 I2 I2",
+                    0x4,      -- CipherCount (2 bytes): 4 ciphers available
+                    0x0004,   -- Ciphers (2 bytes each): AES-256-GCM
                     0x0002,   -- Ciphers (2 bytes each): AES-128-GCM
+                    0x0003,   -- Ciphers (2 bytes each): AES-256-CCM
                     0x0001    -- Ciphers (2 bytes each): AES-128-CCM
                   )
     data = data .. string.pack("<I2 I2 I4",
@@ -380,8 +394,69 @@ function negotiate_v2(smb, overrides)
     smb['start_date'] = "N/A"
   end
 
-  local security_buffer_offset, security_buffer_length, neg_context_offset
-  security_buffer_offset, security_buffer_length, neg_context_offset = string.unpack("<I2 I2 I4", data)
+  -- SecurityBufferOffset/Length and NegotiateContextOffset live immediately
+  -- after ServerStartTime. The previous code re-read from byte 1, which
+  -- yielded garbage. Start from the end of the fixed-size struct instead.
+  -- Absolute file-header offsets in the packet are measured from the start
+  -- of the SMB2 header (64 bytes); within <code>data</code> (the body only)
+  -- we subtract 64 to convert them to local offsets.
+  local params_size = string.packsize(parameters_format)
+  local security_buffer_offset, security_buffer_length, neg_context_offset =
+    string.unpack("<I2 I2 I4", data, params_size + 1)
+
+  -- SMB 3.1.1 only: parse the NegotiateContextList to capture the server's
+  -- chosen cipher, signing algorithm, compression algorithms and which
+  -- optional contexts (transport/RDMA/signing) it echoed back. These are
+  -- strong fingerprints for Windows 11 / Server 2022+ vs Windows 10.
+  if smb['dialect'] == 0x0311 and neg_context_offset and negotiate_context_count
+     and negotiate_context_count > 0 then
+    -- neg_context_offset is relative to the start of the SMB2 header.
+    -- The header is 64 bytes, so within `data` the offset is (neg_context_offset - 64).
+    local rel = neg_context_offset - 64
+    if rel >= 0 and rel < #data then
+      local pos = rel + 1  -- Lua 1-based
+      smb['negotiate_contexts'] = {}
+      for i = 1, negotiate_context_count do
+        if pos + 7 > #data then break end
+        local ctx_type, ctx_data_len, ctx_reserved
+        ctx_type, ctx_data_len, ctx_reserved, pos = string.unpack("<I2 I2 I4", data, pos)
+        if pos - 1 + ctx_data_len > #data then break end
+        local ctx_body = string.sub(data, pos, pos + ctx_data_len - 1)
+        smb['negotiate_contexts'][ctx_type] = ctx_body
+        pos = pos + ctx_data_len
+        -- 8-byte alignment padding between contexts
+        local pad = (8 - ((pos - 1) % 8)) % 8
+        pos = pos + pad
+      end
+
+      -- Pull out the server's chosen values. 3.1.1 responses contain a
+      -- Ciphers array with exactly one entry (the server's selection).
+      local enc = smb['negotiate_contexts'][smb2_values['SMB2_ENCRYPTION_CAPABILITIES']]
+      if enc and #enc >= 4 then
+        local count, cipher = string.unpack("<I2 I2", enc)
+        smb['cipher'] = cipher
+      end
+
+      local sign = smb['negotiate_contexts'][smb2_values['SMB2_SIGNING_CAPABILITIES']]
+      if sign and #sign >= 4 then
+        local count, algo = string.unpack("<I2 I2", sign)
+        smb['signing_algorithm'] = algo
+      end
+
+      local comp = smb['negotiate_contexts'][smb2_values['SMB2_COMPRESSION_CAPABILITIES']]
+      if comp and #comp >= 8 then
+        smb['has_compression'] = true
+      end
+
+      if smb['negotiate_contexts'][smb2_values['SMB2_TRANSPORT_CAPABILITIES']] then
+        smb['has_transport_caps'] = true
+      end
+      if smb['negotiate_contexts'][smb2_values['SMB2_RDMA_TRANSFORM_CAPABILITIES']] then
+        smb['has_rdma_transform'] = true
+      end
+    end
+  end
+
   if status == 0 then
     return true, smb['dialect']
   else

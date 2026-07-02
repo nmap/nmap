@@ -1478,6 +1478,13 @@ local function start_session_extended(smb, log_errors, overrides)
             smb['forest_dns'] = host_info['dns_forest_name']
             smb['server'] = host_info['netbios_computer_name']
             smb['domain'] = host_info['netbios_domain_name']
+            -- NTLMSSP Version field (MS-NLMP 2.2.2.10). Reliable OS
+            -- fingerprint on modern Windows where NativeOS/NativeLanMan are
+            -- blank. Only the NTLM CHALLENGE carries this; it is not
+            -- available in the basic session-setup flow.
+            smb['os_major_version'] = host_info['os_major_version']
+            smb['os_minor_version'] = host_info['os_minor_version']
+            smb['os_build']         = host_info['os_build']
           end
           ntlm_challenge_accepted = true
         end
@@ -3359,19 +3366,189 @@ function share_find_writable(host)
   end
 end
 
+--- Converts a Windows NT major/minor/build triple into a human-readable name.
+--
+-- Build-number ranges come from the MSRC release table and Microsoft's
+-- "Windows 10/11 release information" pages. Where a build number is used by
+-- both a client and server SKU (e.g. 14393 = Windows 10 1607 and Server 2016),
+-- the caller must supply <code>is_server</code> to disambiguate; otherwise both
+-- possibilities are listed. 2-byte build field caps at 65535, which covers all
+-- released Windows versions.
+--@param major NT major version number (integer).
+--@param minor NT minor version number (integer).
+--@param build Build number (integer). Optional; if nil, only major.minor is used.
+--@param is_server True if the Server SKU is known (string contains "Server"), false
+--                 for known Client, nil if unknown.
+--@return Friendly Windows version name, or nil if the triple is unrecognised.
+function get_windows_version_from_ntlm(major, minor, build, is_server)
+  if major == nil or minor == nil then
+    return nil
+  end
+
+  if major == 5 and minor == 0 then
+    return "Windows 2000"
+  elseif major == 5 and minor == 1 then
+    return "Windows XP"
+  elseif major == 5 and minor == 2 then
+    return is_server == false and "Windows XP Professional x64"
+      or "Windows Server 2003"
+  elseif major == 6 and minor == 0 then
+    return is_server == false and "Windows Vista"
+      or (is_server and "Windows Server 2008" or "Windows Vista or Server 2008")
+  elseif major == 6 and minor == 1 then
+    return is_server == false and "Windows 7"
+      or (is_server and "Windows Server 2008 R2" or "Windows 7 or Server 2008 R2")
+  elseif major == 6 and minor == 2 then
+    return is_server == false and "Windows 8"
+      or (is_server and "Windows Server 2012" or "Windows 8 or Server 2012")
+  elseif major == 6 and minor == 3 then
+    return is_server == false and "Windows 8.1"
+      or (is_server and "Windows Server 2012 R2" or "Windows 8.1 or Server 2012 R2")
+  elseif major == 10 and minor == 0 then
+    if build == nil then
+      return "Windows 10/11 or Server 2016-2025"
+    end
+    -- Unambiguously Windows Server (no client SKU at these builds). Check
+    -- before the wider Windows 11 range so 25398 isn't misclassified.
+    if build == 20348 then
+      return "Windows Server 2022"
+    elseif build == 25398 then
+      return "Windows Server 23H2"
+    end
+    -- Unambiguously Windows 11 build numbers (no Windows 10/Server release
+    -- ever used these).
+    if build >= 22000 and build < 26100 then
+      return "Windows 11"
+    elseif build >= 26100 and build < 27000 then
+      return is_server == true and "Windows Server 2025" or (is_server == false and "Windows 11 (24H2)" or "Windows 11 24H2 or Server 2025")
+    elseif build >= 27000 then
+      return "Windows 11 (Insider)"
+    end
+    -- Client/Server shared build numbers. Use is_server to disambiguate.
+    if build == 14393 then
+      return is_server == true and "Windows Server 2016"
+        or (is_server == false and "Windows 10 (1607)" or "Windows 10 1607 or Server 2016")
+    elseif build == 17763 then
+      return is_server == true and "Windows Server 2019"
+        or (is_server == false and "Windows 10 (1809)" or "Windows 10 1809 or Server 2019")
+    end
+    -- Windows 10 client feature releases (no matching server release).
+    local win10_builds = {
+      [10240] = "1507",
+      [10586] = "1511",
+      [15063] = "1703",
+      [16299] = "1709",
+      [17134] = "1803",
+      [18362] = "1903",
+      [18363] = "1909",
+      [19041] = "2004",
+      [19042] = "20H2",
+      [19043] = "21H1",
+      [19044] = "21H2",
+      [19045] = "22H2",
+    }
+    if win10_builds[build] then
+      return string.format("Windows 10 (%s)", win10_builds[build])
+    end
+    if build < 10240 then
+      return "Windows 10 (pre-release)"
+    end
+    return string.format("Windows 10/11 (build %d)", build)
+  end
+
+  return nil
+end
+
 --- Converts numbered Windows version strings (<code>"Windows 5.0"</code>, <code>"Windows 5.1"</code>) to names (<code>"Windows 2000"</code>, <code>"Windows XP"</code>).
---@param os The numbered OS version.
+-- Accepts either a string (legacy SMB1 NativeOS) or a result table from
+-- <code>get_os</code> (preferred; uses NTLM build number and SMB2 context
+-- signals when available).
+--@param os Either the numbered OS string, or a result table with optional
+--          os_major_version/os_minor_version/os_build fields, plus optional
+--          SMB2-derived signals (smb2_dialect, smb2_cipher, smb2_signing_algo,
+--          smb2_has_transport_caps, smb2_has_rdma_transform, smb2_has_compression).
 --@return The actual name of the OS (or the same as the <code>os</code> parameter if no match was found).
 function get_windows_version(os)
+  local major, minor, build, lanman_str, is_server, t
 
-  if(os == "Windows 5.0") then
+  if type(os) == "table" then
+    t = os
+    major = os.os_major_version
+    minor = os.os_minor_version
+    build = os.os_build
+    lanman_str = os.lanmanager or os.os or ""
+  else
+    lanman_str = os or ""
+  end
+
+  -- Try the legacy OS string first for backward compatibility.
+  if lanman_str == "Windows 5.0" then
     return "Windows 2000"
-  elseif(os == "Windows 5.1")then
+  elseif lanman_str == "Windows 5.1" then
     return "Windows XP"
   end
 
-  return os
+  -- Don't apply Windows naming to Samba or Unix targets: their NTLMSSP
+  -- Version field often contains stub values (0.0.0) that would otherwise
+  -- be classified as "Windows 10 (pre-release)".
+  if t and (t.os == "Unix" or (lanman_str:sub(1, 6) == "Samba ")) then
+    return lanman_str ~= "" and lanman_str or (t.os or nil)
+  end
 
+  -- If we have NTLM build info, it's authoritative (modern Windows blanks
+  -- out the NativeOS/NativeLanMan strings).
+  if major and minor then
+    if string.find(lanman_str, "Server", 1, true) then
+      is_server = true
+    elseif lanman_str ~= "" and not string.find(lanman_str, "Server", 1, true) then
+      -- A non-empty non-Server LanMan string implies client SKU.
+      is_server = false
+    end
+    local name = get_windows_version_from_ntlm(major, minor, build, is_server)
+    if name then
+      if build and build > 0 then
+        return string.format("%s (build %d)", name, build)
+      end
+      return name
+    end
+  end
+
+  -- No NTLM version (e.g. SMB1 disabled and extended session setup never
+  -- ran). Fall back to SMB2 signals: dialect and NegotiateContextList.
+  if t then
+    local dialect = t.smb2_dialect
+    local cipher  = t.smb2_cipher
+    -- AES-256 ciphers, SMB2_SIGNING_CAPABILITIES, SMB2_TRANSPORT_CAPABILITIES
+    -- and SMB2_RDMA_TRANSFORM_CAPABILITIES were all introduced together in
+    -- Windows 11 / Windows Server 2022 (build >= 20348).
+    local is_win11_era = (cipher == 0x0003 or cipher == 0x0004)
+      or t.smb2_signing_algo ~= nil
+      or t.smb2_has_transport_caps
+      or t.smb2_has_rdma_transform
+    if dialect == 0x0311 then
+      if is_win11_era then
+        return "Windows 11 or Server 2022/2025 (SMB 3.1.1, AES-256 or signing caps)"
+      end
+      -- SMB 3.1.1 without the newer contexts: Windows 10 / Server 2016 / 2019.
+      if t.smb2_has_compression then
+        return "Windows 10 v1903+ or Server 2019/2022 (SMB 3.1.1, compression)"
+      end
+      return "Windows 10 or Server 2016/2019 (SMB 3.1.1)"
+    elseif dialect == 0x0302 then
+      return "Windows 8.1 or Server 2012 R2 (SMB 3.0.2)"
+    elseif dialect == 0x0300 then
+      return "Windows 8 or Server 2012 (SMB 3.0)"
+    elseif dialect == 0x0210 then
+      return "Windows 7 or Server 2008 R2 (SMB 2.1)"
+    elseif dialect == 0x0202 then
+      return "Windows Vista or Server 2008 (SMB 2.0.2)"
+    end
+  end
+
+  if type(os) == "string" then
+    return os
+  end
+  return lanman_str ~= "" and lanman_str or nil
 end
 
 ---Retrieve information about the host's operating system. This should always be possible to call, as long as there isn't already
@@ -3392,6 +3569,11 @@ end
 -- * <code>domain_dns</code>: <code>"lab.test.local"</code>
 -- * <code>forest_dns</code>: <code>"test.local"</code>
 -- * <code>workgroup</code>
+-- * <code>os_major_version</code>, <code>os_minor_version</code>, <code>os_build</code>:
+--   NT version from the NTLMSSP Version field (authoritative on Windows
+--   10/11/Server 2016+ where NativeOS/NativeLanMan are blank).
+-- * <code>smb2_dialect</code>: highest SMB2 dialect supported by the server
+--   (e.g. 0x0311 for SMB 3.1.1). Only present if SMB2 negotiate succeeded.
 --
 --@param host The host object
 --@return (status, data) If status is true, data is a table of values; otherwise, data is an error message.
@@ -3400,34 +3582,33 @@ function get_os(host)
   local status, smbstate
 
   local response = {}
+  local smb1_ok = false
 
-  -- Start up SMB
+  -- Start up SMB with the basic (non-extended) session setup. On hosts that
+  -- still accept SMB1 NEGOTIATE this yields the legacy NativeOS/NativeLanMan
+  -- strings. Modern Windows typically blanks them out, but keep the path for
+  -- legacy targets (Samba, older Windows, embedded devices).
   status, smbstate = start_ex(host, true, true, nil, nil, true)
-  if(status == false) then
-    return false, smbstate
+  if status then
+    smb1_ok = true
+    response['os']           = smbstate['os']
+    response['lanmanager']   = smbstate['lanmanager']
+    response['domain']       = smbstate['domain']
+    response['server']       = smbstate['server']
+    response['date']         = smbstate['date']
+    response['time']         = smbstate['time']
+    response['timezone_str'] = smbstate['timezone_str']
+    response['timezone']     = smbstate['timezone']
+    response['port']         = smbstate['port']
+    stop(smbstate)
+  else
+    stdnse.debug1("SMB: basic session setup failed: %s", tostring(smbstate))
   end
 
-  -- See if we actually got something
-  if(smbstate['os'] == nil and smbstate['lanmanager'] == nil) then
-    return false, "Server didn't return OS details"
-  end
 
-  response['os']           = smbstate['os']
-  response['lanmanager']   = smbstate['lanmanager']
-  response['domain']       = smbstate['domain']
-  response['server']       = smbstate['server']
-  response['date']         = smbstate['date']
-  response['time']         = smbstate['time']
-  response['timezone_str'] = smbstate['timezone_str']
-  response['timezone']     = smbstate['timezone']
-  response['port']         = smbstate['port']
-
-  -- Kill SMB
-  stop(smbstate)
-
-
-  -- Start another session with extended security. This will allow us to get
-  -- additional information about the target.
+  -- Start another session with extended security. This negotiates NTLMSSP
+  -- and returns the Version field (major.minor.build) plus DNS/FQDN info.
+  -- This is the authoritative OS fingerprint on modern Windows.
   status, smbstate = start_ex(host, true, true, nil, nil, false)
   if(status == true) then
     -- See if we actually got something
@@ -3447,8 +3628,69 @@ function get_os(host)
       end
     end
 
-    -- Kill SMB again
+    -- Propagate NTLMSSP Version (MS-NLMP 2.2.2.10). On Windows 10/11 and
+    -- Server 2016+ this is the only reliable OS version signal, since the
+    -- legacy NativeOS/NativeLanMan strings are blanked out.
+    response['os_major_version'] = smbstate['os_major_version']
+    response['os_minor_version'] = smbstate['os_minor_version']
+    response['os_build']         = smbstate['os_build']
+    if response['port'] == nil then response['port'] = smbstate['port'] end
+    if response['server'] == nil then response['server'] = smbstate['server'] end
+    if response['domain'] == nil and response['workgroup'] == nil then
+      response['domain'] = smbstate['domain']
+    end
+
+    smb1_ok = true
     stop(smbstate)
+  end
+
+  -- Best-effort SMB2 NEGOTIATE to record the highest dialect supported.
+  -- This gives a coarse OS-family signal (e.g. only Windows 10+ and Server
+  -- 2016+ support SMB 3.1.1) and, crucially, lets us report *something*
+  -- when SMB1 has been disabled on the target (Windows 11 / Server 2022
+  -- default). When the 3.1.1 NegotiateContextList includes AES-256 ciphers,
+  -- transport capabilities, or signing capabilities, we can positively
+  -- identify Windows 11 / Server 2022+ without ever seeing a NativeOS
+  -- string.
+  local smb2_state
+  status, smb2_state = start(host)
+  if status then
+    local negotiated
+    status, negotiated = smb2.negotiate_v2(smb2_state, {})
+    if status then
+      response['smb2_dialect']     = negotiated
+      response['smb2_capabilities'] = smb2_state['capabilities']
+      response['smb2_server_guid'] = smb2_state['server_guid']
+      response['smb2_cipher']      = smb2_state['cipher']
+      response['smb2_signing_algo']= smb2_state['signing_algorithm']
+      response['smb2_has_compression']   = smb2_state['has_compression']
+      response['smb2_has_transport_caps']= smb2_state['has_transport_caps']
+      response['smb2_has_rdma_transform']= smb2_state['has_rdma_transform']
+      if response['time'] == nil and smb2_state['time'] then
+        response['time'] = smb2_state['time']
+        response['date'] = smb2_state['date']
+      end
+      smb1_ok = true
+    end
+    stop(smb2_state)
+  end
+
+  if not smb1_ok then
+    return false, "Server didn't return OS details (no SMB1 or SMB2 response)"
+  end
+
+  -- If we got NTLM version info but no legacy OS string, synthesise one so
+  -- downstream consumers that read response['os'] still see something.
+  if (response['os'] == nil or response['os'] == "") and response['os_major_version'] then
+    response['os'] = string.format("Windows %d.%d",
+      response['os_major_version'], response['os_minor_version'])
+    if response['os_build'] and response['os_build'] > 0 then
+      response['os'] = response['os'] .. " build " .. tostring(response['os_build'])
+    end
+  end
+  if (response['lanmanager'] == nil or response['lanmanager'] == "") and response['os_major_version'] then
+    response['lanmanager'] = string.format("Windows %d.%d",
+      response['os_major_version'], response['os_minor_version'])
   end
 
   return true, response
