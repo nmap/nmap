@@ -150,7 +150,6 @@ int ProbeMode::start(){
   int p=0, pc=-1;                  /**< Indexes for ports count              */
   u32 c=0;                         /**< Index for packet count               */
   u32 zero=0;                      /**< Empty payload                        */
-  u8 pktinfobuffer[512+1];         /**< Used in ippackethdrinfo() calls      */
   u8 pkt[MAX_IP_PACKET_LEN];       /**< Holds packets returned by fillpacket */
   int pktLen=0;                    /**< Length of current packet             */
   NpingTarget *target=NULL;        /**< Current target                       */
@@ -180,7 +179,6 @@ int ProbeMode::start(){
 
 
   /* Some safe zero initializations */
-  memset(pktinfobuffer, 0, 512+1);
   memset(pkt, 0, MAX_IP_PACKET_LEN);
   memset(&pcap_nsi, 0, sizeof(pcap_nsi));
   memset(pkts2send, 0, MX_PKT * sizeof(sendpkt_t));
