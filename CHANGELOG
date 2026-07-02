@@ -1,5 +1,7 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE][GH#2016] Removed hostmap-bfk.nse, since the service it used shut down.
+
 o Fixed several issues reported by Himanshu Anand: infinite loop in TCP options
   parsing and out-of-bounds memory read in IPv4 OS detection; integer underflow
   in IPv6 extension header processing; and undefined behavior in DNS label parsing.
