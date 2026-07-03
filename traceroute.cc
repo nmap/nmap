@@ -237,7 +237,7 @@ public:
   int cancel_probes_above(u8 ttl);
   Hop *insert_hop(u8 ttl, const struct sockaddr_storage *addr, float rtt);
   void link_to(Hop *hop);
-  double completion_fraction() const;
+  unsigned int completion() const;
 
 private:
   void child_parent_ttl(u8 ttl, Hop **child, Hop **parent) const;
@@ -289,7 +289,7 @@ public:
   void resolve_hops();
   void transfer_hops();
 
-  double completion_fraction() const;
+  unsigned int completion(unsigned int *total) const;
 
 private:
   netutil_eth_t *ethsd;
@@ -491,11 +491,11 @@ void HostState::link_to(Hop *hop) {
     prev->parent = hop;
 }
 
-double HostState::completion_fraction() const {
+unsigned int HostState::completion() const {
   unsigned int i, n;
 
   if (this->is_finished())
-    return 1.0;
+    return sent_ttls.size();
 
   n = 0;
   for (i = 0; i < sent_ttls.size(); i++) {
@@ -503,7 +503,7 @@ double HostState::completion_fraction() const {
       n++;
   }
 
-  return (double) n / sent_ttls.size();
+  return n;
 }
 
 void HostState::child_parent_ttl(u8 ttl, Hop **child, Hop **parent) const {
@@ -1414,14 +1414,18 @@ Probe *TracerouteState::lookup_probe(
   return NULL;
 }
 
-double TracerouteState::completion_fraction() const {
+unsigned int TracerouteState::completion(unsigned int *total) const {
   std::vector<HostState *>::const_iterator it;
-  double sum;
+  unsigned int complete = 0;
+  unsigned int sum = 0;
 
-  sum = 0.0;
   for (it = hosts.begin(); it != hosts.end(); it++)
-    sum += (*it)->completion_fraction();
-  return sum / hosts.size();
+  {
+    complete += (*it)->completion();
+    sum += (*it)->sent_ttls.size();
+  }
+  *total = sum;
+  return complete;
 }
 
 /* This is a special case of traceroute when all the targets are directly
@@ -1479,8 +1483,11 @@ static int traceroute_remote(std::vector<Target *> targets) {
     global_state.cull_timeouts();
     global_state.remove_finished_hosts();
 
-    if (keyWasPressed())
-      SPM.printStats(global_state.completion_fraction(), NULL);
+    if (keyWasPressed()) {
+      unsigned int complete, total;
+      complete = global_state.completion(&total);
+      SPM.printStats(complete, total, NULL);
+    }
   }
 
   SPM.endTask(NULL, NULL);

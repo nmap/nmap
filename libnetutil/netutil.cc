@@ -120,6 +120,7 @@ typedef unsigned __int8 u_int8_t;
 #endif
 
 #include "netutil.h"
+#include "TCPHeader.h"
 
 #if HAVE_NET_IF_H
 #ifndef NET_IF_H /* This guarding is needed for at least some versions of OpenBSD */
@@ -699,11 +700,13 @@ static const u8 *ipv6_get_data_primitive(const struct ip6_hdr *ip6, const u8 *pa
   *nxt = ip6->ip6_nxt;
   p += sizeof(*ip6);
   while (p < end && ipv6_is_extension_header(*nxt)) {
-    if (p + 2 > end)
+    if (p + 8 > end)
       return NULL;
     *nxt = *p;
     p += (*(p + 1) + 1) * 8;
   }
+  if (p >= end)
+    return NULL;
 
   *len = end - p;
   if (upperlayer_only && !ipv6_is_upperlayer(*nxt))
@@ -1392,137 +1395,136 @@ const char *proto2ascii_uppercase(u8 proto) {
     return proto2ascii_case(proto, 1);
 }
 
+struct tcpopt_info_ctx {
+  char *p;
+  char *end;
+  bool valid;
+  tcpopt_info_ctx() : p(NULL), end(NULL), valid(true) {}
+  bool check_length(size_t len) const {
+    return (end - p) >= len;
+  }
+  void put_str(const char *str) {
+    if (p >= end)
+      return;
+    int r = Snprintf(p, end - p, "%s", str);
+    if (r < 0)
+      p = end;
+    else {
+      p += r;
+      if (p > end)
+        p = end;
+    }
+  }
+  void fmt_num(const char *fmt, unsigned int n) {
+    if (p >= end)
+      return;
+    int r = Snprintf(p, end - p, fmt, n);
+    if (r < 0)
+      p = end;
+    else {
+      p += r;
+      if (p > end)
+        p = end;
+    }
+  }
+};
+
+static bool tcpopt_info(u8 opcode, u8 len, const u8 *data, void *ctx);
+
 /* Get an ASCII information about a tcp option which is pointed by
    optp, with a length of len. The result is stored in the result
    buffer. The result may look like "<mss 1452,sackOK,timestamp
    45848914 0,nop,wscale 7>" */
-void tcppacketoptinfo(u8 *optp, int len, char *result, int bufsize) {
+void tcppacketoptinfo(const u8 *optp, int len, char *result, int bufsize) {
   assert(optp);
   assert(result);
-  char *p, ch;
-  u8 *q;
-  int opcode;
-  u16 tmpshort;
-  u32 tmpword1, tmpword2;
-  unsigned int i=0;
+  assert(bufsize > 0);
+  memset(result, 0, bufsize);
 
-  p = result;
-  *p = '\0';
-  q = optp;
-  ch = '<';
+  TCPOptions opts;
+  if (bufsize < 2 || !opts.fromBuffer(optp, len))
+    return;
+  tcpopt_info_ctx ctx;
+  ctx.p = result;
+  ctx.end = result + bufsize - 1;
+  ctx.put_str("<");
 
-  while (len > 0 && bufsize > 2) {
-    Snprintf(p, bufsize, "%c", ch);
-    bufsize--;
-    p++;
-    opcode = *q++;
-    if (!opcode) { /* End of List */
-
-      Snprintf(p, bufsize, "eol");
-      bufsize -= strlen(p);
-      p += strlen(p);
-
-      len--;
-
-    } else if (opcode == 1) { /* No Op */
-      Snprintf(p, bufsize, "nop");
-      bufsize -= strlen(p);
-      p += strlen(p);
-
-      len--;
-    } else if (opcode == 2) { /* MSS */
-      if (len < 4)
-        break; /* MSS has 4 bytes */
-
-      q++;
-      memcpy(&tmpshort, q, 2);
-
-      Snprintf(p, bufsize, "mss %hu", (unsigned short) ntohs(tmpshort));
-      bufsize -= strlen(p);
-      p += strlen(p);
-
-      q += 2;
-      len -= 4;
-    } else if (opcode == 3) { /* Window Scale */
-      if (len < 3)
-        break; /* Window Scale option has 3 bytes */
-
-      q++;
-
-      Snprintf(p, bufsize, "wscale %u", *q);
-      bufsize -= strlen(p);
-      p += strlen(p);
-
-      q++;
-      len -= 3;
-    } else if (opcode == 4) { /* SACK permitted */
-      if (len < 2)
-        break; /* SACK permitted option has 2 bytes */
-
-      Snprintf(p, bufsize, "sackOK");
-      bufsize -= strlen(p);
-      p += strlen(p);
-
-      q++;
-      len -= 2;
-    } else if (opcode == 5) { /* SACK */
-      unsigned sackoptlen = *q;
-      if ((unsigned) len < sackoptlen)
-        break;
-
-      /* This would break parsing, so it's best to just give up */
-      if (sackoptlen < 2)
-        break;
-
-      q++;
-
-      if ((sackoptlen - 2) == 0 || ((sackoptlen - 2) % 8 != 0)) {
-        Snprintf(p, bufsize, "malformed sack");
-        bufsize -= strlen(p);
-        p += strlen(p);
-      } else {
-        Snprintf(p, bufsize, "sack %d ", (sackoptlen - 2) / 8);
-        bufsize -= strlen(p);
-        p += strlen(p);
-        for (i = 0; i < sackoptlen - 2; i += 8) {
-          memcpy(&tmpword1, q + i, 4);
-          memcpy(&tmpword2, q + i + 4, 4);
-          Snprintf(p, bufsize, "{%u:%u}", tmpword1, tmpword2);
-          bufsize -= strlen(p);
-          p += strlen(p);
-        }
-      }
-
-      q += sackoptlen - 2;
-      len -= sackoptlen;
-    } else if (opcode == 8) { /* Timestamp */
-      if (len < 10)
-        break; /* Timestamp option has 10 bytes */
-
-      q++;
-      memcpy(&tmpword1, q, 4);
-      memcpy(&tmpword2, q + 4, 4);
-
-      Snprintf(p, bufsize, "timestamp %lu %lu", (unsigned long) ntohl(tmpword1),
-               (unsigned long) ntohl(tmpword2));
-      bufsize -= strlen(p);
-      p += strlen(p);
-
-      q += 8;
-      len -= 10;
-    }
-
-    ch = ',';
-  }
-
-  if (len > 0) {
-    *result = '\0';
+  if (!opts.foreachOpt(tcpopt_info, &ctx) || !ctx.valid) {
+    Snprintf(result, bufsize, "<Invalid TCP options>");
     return;
   }
 
-  Snprintf(p, bufsize, ">");
+  char *q = ctx.p - 1;
+  if (*q != ',')
+    q++;
+  *q++ = '>';
+  *q++ = '\0';
+  return;
 }
 
+static bool tcpopt_info(u8 opcode, u8 len, const u8 *data, void *ctx)
+{
+  tcpopt_info_ctx *args = static_cast<tcpopt_info_ctx *>(ctx);
+  if (!args->check_length(4))
+    return false;
+  const u8 *q = data + 2;
+
+  switch (opcode) {
+    case 0: /* End of List */
+      args->put_str("eol,");
+        break;
+    case 1: /* No Op */
+      args->put_str("nop,");
+        break;
+    case 2: /* MSS */
+      if (len < 4) {
+        args->valid = false;
+        break; /* MSS has 4 bytes */
+      }
+      args->fmt_num("mss %u,", (q[0] << 8) + q[1]);
+    case 3: /* Window Scale */
+      if (len < 3) {
+        args->valid = false;
+        break; /* Window Scale option has 3 bytes */
+      }
+      args->fmt_num("wscale %u,", q[0]);
+      break;
+    case 4: /* SACK permitted */
+      if (len < 2) {
+        args->valid = false;
+        break; /* SACK permitted option has 2 bytes */
+      }
+      args->put_str("sackOK,");
+      break;
+    case 5: /* SACK */
+      if (len < 2) {
+        args->valid = false;
+        break;
+      }
+      if ((len - 2) == 0 || ((len - 2) % 8 != 0)) {
+        args->put_str("malformed sack,");
+      } else {
+        args->fmt_num("sack %u ", (len - 2) / 8);
+        for (int i = 0; i < len - 2; i += 8) {
+          args->fmt_num("{%u:", (q[i]   << 24) + (q[i+1] << 16) + (q[i+2] << 8) + q[i+3]);
+          args->fmt_num("%u}",  (q[i+4] << 24) + (q[i+5] << 16) + (q[i+6] << 8) + q[i+7]);
+        }
+        args->put_str(",");
+      }
+      break;
+    case 8: /* Timestamp */
+      if (len < 10) {
+        args->valid = false;
+        break; /* Timestamp option has 10 bytes */
+      }
+      args->fmt_num("timestamp %u ", (q[0] << 24) + (q[1] << 16) + (q[2] << 8) + q[3]);
+      args->fmt_num("%u,",           (q[4] << 24) + (q[5] << 16) + (q[6] << 8) + q[7]);
+      break;
+    default:
+      break;
+  }
+  return args->valid;
+}
 
 
 /* A trivial function used with qsort to sort the routes by netmask and metric */

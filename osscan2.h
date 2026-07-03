@@ -319,8 +319,13 @@ class HostOsScanStats {
   int TWinReplyNum; /* how many TWin replies are received. */
   int TOpsReplyNum; /* how many TOps replies are received. Actually it is the same with TOpsReplyNum. */
 
-  u8 *icmpEchoReply; /* To store one of the two icmp replies */
-  int storedIcmpReply; /* Which one of the two icmp replies is stored? */
+  struct icmpEchoReply_t {
+    bool received;
+    u16 ip_off;
+    u8 icmp_code;
+    icmpEchoReply_t() : received(false), ip_off(0), icmp_code(0) {}
+  };
+  icmpEchoReply_t icmpEchoReply[2]; /* To store the two icmp replies */
 
   struct udpprobeinfo upi; /* info of the udp probe we sent */
 };
@@ -410,7 +415,7 @@ private:
   bool processT1_7Resp(HostOsScanStats *hss, const struct ip *ip, const struct tcp_hdr *tcp, const u8 *tcppkt, int tcplen, int replyNo);
   bool processTUdpResp(HostOsScanStats *hss, const u8 *ip);
   bool processTUdpResp(HostOsScanStats *hss, const struct ip *ip, const struct icmp *icmp, const u8 *icmppkt, unsigned int icmplen);
-  bool processTIcmpResp(HostOsScanStats *hss, const struct ip *ip, const u8 *pkt, int replyNo);
+  bool processTIcmpResp(HostOsScanStats *hss, const struct ip *ip, const struct icmp *icmp, int replyNo);
 
   /* Generic sending functions used by the above probe functions. */
   int send_tcp_probe(HostOsScanStats *hss,
@@ -429,7 +434,7 @@ private:
   void makeTOpsFP(HostOsScanStats *hss);
   void makeTWinFP(HostOsScanStats *hss);
 
-  int get_tcpopt_string(const u8 *tcp, int tcplen, int mss, char *result, int maxlen) const;
+  int get_tcpopt_string(const u8 *tcp, int tcplen, char *result, int maxlen) const;
 
   int rawsd;    /* Raw socket descriptor */
   netutil_eth_t *ethsd; /* Ethernet handle       */

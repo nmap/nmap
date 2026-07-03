@@ -1974,8 +1974,13 @@ size_t DNS::Factory::parseDomainName(std::string &name, const u8 *buf, size_t of
     max_offset++;
   }
 
-  std::string::iterator it = name.end()-1;
-  if( *it == '.') name.erase(it);
+  if (name.empty()) {
+    name = ".";
+  }
+  else {
+    std::string::iterator it = name.end()-1;
+    if( *it == '.') name.erase(it);
+  }
 
   return max_offset - offset;
 }

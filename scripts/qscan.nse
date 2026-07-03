@@ -178,6 +178,7 @@ end
 -- @return Destination and source IP addresses and TCP ports
 local check = function(layer3)
   local ip = packet.Packet:new(layer3, layer3:len())
+  if not ip then return nil end
   return string.pack('>c4c4I2I2', ip.ip_bin_dst, ip.ip_bin_src, ip.tcp_dport, ip.tcp_sport)
 end
 

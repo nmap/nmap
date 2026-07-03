@@ -352,7 +352,7 @@ const char *proto2ascii_uppercase(u8 proto);
    optp, with a length of len. The result is stored in the result
    buffer. The result may look like "<mss 1452,sackOK,timestamp
    45848914 0,nop,wscale 7>" */
-void tcppacketoptinfo(u8 *optp, int len, char *result, int bufsize);
+void tcppacketoptinfo(const u8 *optp, int len, char *result, int bufsize);
 
 /* Convert an IP address to the device (IE ppp0 eth0) using that
  * address.  Supplied "dev" must be able to hold at least 32 bytes.

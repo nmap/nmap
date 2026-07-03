@@ -316,73 +316,75 @@ local ospfListen = function(interface, timeout)
     if status then
       stdnse.print_debug(2, "Packet received on interface %s.", interface.shortname)
       local p = packet.Packet:new(l3_data, #l3_data)
-      local ospf_raw = string.sub(l3_data, p.ip_hl * 4 + 1)
-      if ospf_raw:byte(1) == 0x02 and ospf_raw:byte(2) == OSPF_MSG_HELLO then
-        stdnse.print_debug(2, "OSPFv2 Hello packet detected.")
+      if p then
+        local ospf_raw = string.sub(l3_data, p.ip_hl * 4 + 1)
+        if ospf_raw:byte(1) == 0x02 and ospf_raw:byte(2) == OSPF_MSG_HELLO then
+          stdnse.print_debug(2, "OSPFv2 Hello packet detected.")
 
-        local ospf_hello = ospf.OSPF.Hello.parse(ospf_raw)
-        stdnse.print_debug(2, "Captured OSPFv2 Hello packet with the following parameters:")
-        ospfDumpHello(ospf_hello)
+          local ospf_hello = ospf.OSPF.Hello.parse(ospf_raw)
+          stdnse.print_debug(2, "Captured OSPFv2 Hello packet with the following parameters:")
+          ospfDumpHello(ospf_hello)
 
-        -- Additional checks required for message digest authentication
-        if ospf_hello.header.auth_type == 0x02 then
-          if not md5_key then
-            return fail("Argument md5_key must be present when message digest authentication is disclosed.")
-          elseif not have_ssl then
-            return fail("Cannot handle message digest authentication unless openssl is compiled in.")
+          -- Additional checks required for message digest authentication
+          if ospf_hello.header.auth_type == 0x02 then
+            if not md5_key then
+              return fail("Argument md5_key must be present when message digest authentication is disclosed.")
+            elseif not have_ssl then
+              return fail("Cannot handle message digest authentication unless openssl is compiled in.")
+            end
           end
-        end
 
-        ospfReplyHello(interface, ospf_hello)
-        start = nmap.clock_ms()
-      elseif ospf_raw:byte(1) == 0x02 and ospf_raw:byte(2) == OSPF_MSG_DBDESC then
-        stdnse.print_debug(2, "OSPFv2 Database Description packet detected.")
+          ospfReplyHello(interface, ospf_hello)
+          start = nmap.clock_ms()
+        elseif ospf_raw:byte(1) == 0x02 and ospf_raw:byte(2) == OSPF_MSG_DBDESC then
+          stdnse.print_debug(2, "OSPFv2 Database Description packet detected.")
 
-        local ospf_db_desc = ospf.OSPF.DBDescription.parse(ospf_raw)
-        stdnse.print_debug(2, "Captured OSPFv2 Database Description packet with the following parameters:")
-        ospfDumpDBDesc(ospf_db_desc)
+          local ospf_db_desc = ospf.OSPF.DBDescription.parse(ospf_raw)
+          stdnse.print_debug(2, "Captured OSPFv2 Database Description packet with the following parameters:")
+          ospfDumpDBDesc(ospf_db_desc)
 
-        if not ospfReplyDBDesc(interface, string.sub(l2_data, 7, 12), ospf_db_desc) then
-          return
-        end
-      elseif ospf_raw:byte(1) == 0x02 and ospf_raw:byte(2) == OSPF_MSG_LSUPD then
-        stdnse.print_debug(2, "OSPFv2 LS Update packet detected.")
+          if not ospfReplyDBDesc(interface, string.sub(l2_data, 7, 12), ospf_db_desc) then
+            return
+          end
+        elseif ospf_raw:byte(1) == 0x02 and ospf_raw:byte(2) == OSPF_MSG_LSUPD then
+          stdnse.print_debug(2, "OSPFv2 LS Update packet detected.")
 
-        local ospf_ls_upd = ospf.OSPF.LSUpdate.parse(ospf_raw)
-        stdnse.print_debug(2, "Captured OSPFv2 LS Update packet with the following parameters:")
-        ospfDumpLSUpdate(ospf_ls_upd)
+          local ospf_ls_upd = ospf.OSPF.LSUpdate.parse(ospf_raw)
+          stdnse.print_debug(2, "Captured OSPFv2 LS Update packet with the following parameters:")
+          ospfDumpLSUpdate(ospf_ls_upd)
 
-        local targets = {}
-        for i, lsa in ipairs(ospf_ls_upd.lsas) do
-          -- Only Type 1 (Router-LSA) and Type 5 (AS-External-LSA) are supported at the moment
-          if lsa.header.type == 1 then
-            for j, link in ipairs(lsa.links) do
-              if link.type == 3 then
-                local target = link.id .. ipOps.subnet_to_cidr(link.data)
-                targets[target] = 1
+          local targets = {}
+          for i, lsa in ipairs(ospf_ls_upd.lsas) do
+            -- Only Type 1 (Router-LSA) and Type 5 (AS-External-LSA) are supported at the moment
+            if lsa.header.type == 1 then
+              for j, link in ipairs(lsa.links) do
+                if link.type == 3 then
+                  local target = link.id .. ipOps.subnet_to_cidr(link.data)
+                  targets[target] = 1
+                end
+              end
+            elseif lsa.header.type == 5 then
+              local target = lsa.header.id .. ipOps.subnet_to_cidr(lsa.netmask)
+              targets[target] = 1
+            end
+          end
+          local output = stdnse.output_table()
+          if next(targets) then
+            local out_links = {}
+            output["Area ID"] = ipOps.fromdword(ospf_ls_upd.header.area_id)
+            output["External Routes"] = out_links
+            for t, _ in pairs(targets) do
+              table.insert(out_links, t)
+              if target.ALLOW_NEW_TARGETS then
+                target.add(t)
               end
             end
-          elseif lsa.header.type == 5 then
-            local target = lsa.header.id .. ipOps.subnet_to_cidr(lsa.netmask)
-            targets[target] = 1
-          end
-        end
-        local output = stdnse.output_table()
-        if next(targets) then
-          local out_links = {}
-          output["Area ID"] = ipOps.fromdword(ospf_ls_upd.header.area_id)
-          output["External Routes"] = out_links
-          for t, _ in pairs(targets) do
-            table.insert(out_links, t)
-            if target.ALLOW_NEW_TARGETS then
-              target.add(t)
+            if not target.ALLOW_NEW_TARGETS then
+              stdnse.verbose("Use the newtargets script-arg to add the results as targets")
             end
           end
-          if not target.ALLOW_NEW_TARGETS then
-            stdnse.verbose("Use the newtargets script-arg to add the results as targets")
-          end
+          return output
         end
-        return output
       end
     end
   end

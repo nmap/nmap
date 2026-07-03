@@ -580,7 +580,7 @@ static void doSeqTests(OsScanInfo *OSI, HostOsScan *HOS) {
       if (bytes < sizeof(iphdr))
         continue;
       memcpy(&iphdr, ip, sizeof(iphdr));
-      if (bytes < (4 * iphdr.ip_hl) + 4U)
+      if (iphdr.ip_hl < 5 || bytes < (4 * iphdr.ip_hl) + 4U)
         continue;
 
       memset(&ss, 0, sizeof(ss));
@@ -754,7 +754,7 @@ static void doTUITests(OsScanInfo *OSI, HostOsScan *HOS) {
       if (bytes < sizeof(iphdr))
         continue;
       memcpy(&iphdr, ip, sizeof(iphdr));
-      if (bytes < (4 * iphdr.ip_hl) + 4U)
+      if (iphdr.ip_hl < 5 || bytes < (4 * iphdr.ip_hl) + 4U)
         continue;
 
       memset(&ss, 0, sizeof(ss));
@@ -1015,8 +1015,6 @@ HostOsScanStats::HostOsScanStats(Target * t) {
     TWin_AVs[i] = NULL;
   }
 
-  icmpEchoReply = NULL;
-
   distance = -1;
   distance_guess = -1;
 }
@@ -1041,8 +1039,6 @@ HostOsScanStats::~HostOsScanStats() {
     delete probesActive.front();
     probesActive.pop_front();
   }
-
-  if (icmpEchoReply) free(icmpEchoReply);
 }
 
 
@@ -1164,12 +1160,6 @@ void HostOsScanStats::initScanStats() {
   }
 
   memset(&seq_send_times, 0, sizeof(seq_send_times));
-
-  if (icmpEchoReply) {
-    free(icmpEchoReply);
-    icmpEchoReply = NULL;
-  }
-  storedIcmpReply = -1;
 
   memset(&upi, 0, sizeof(upi));
 }
@@ -1907,7 +1897,7 @@ bool HostOsScan::processResp(HostOsScanStats *hss, const u8 *pkt, unsigned int l
     return false;
   memcpy(&ip, pkt, sizeof(ip));
   const unsigned int iphlen = 4 * ip.ip_hl;
-  if (len < iphlen + 4U)
+  if (iphlen < sizeof(ip) || len < iphlen + 4U)
     return false;
 
   len -= iphlen;
@@ -1918,7 +1908,8 @@ bool HostOsScan::processResp(HostOsScanStats *hss, const u8 *pkt, unsigned int l
     if (len < sizeof(tcp))
       return false;
     memcpy(&tcp, l4pkt, sizeof(tcp));
-    if (len < (unsigned int)(4 * tcp.th_off))
+    const unsigned int tcphlen = 4 * tcp.th_off;
+    if (tcphlen < sizeof(tcp) || len < tcphlen)
       return false;
     testno = ntohs(tcp.th_dport) - tcpPortBase;
 
@@ -1982,13 +1973,9 @@ bool HostOsScan::processResp(HostOsScanStats *hss, const u8 *pkt, unsigned int l
 
     /* Is it an icmp echo reply? */
     if (icmp.icmp_type == ICMP_ECHOREPLY) {
-      if (len + iphlen < ntohs(ip.ip_len)) {
-        /* processTIcmpResp requires ip.ip_len bytes of actual packet */
-        return false;
-      }
       testno = ntohs(icmp.icmp_id) - icmpEchoId;
       if (testno == 0 || testno == 1) {
-        isPktUseful = processTIcmpResp(hss, &ip, pkt, testno);
+        isPktUseful = processTIcmpResp(hss, &ip, &icmp, testno);
         if (isPktUseful) {
           probeI = hss->getActiveProbe(OFP_TICMP, testno);
         }
@@ -2684,7 +2671,7 @@ bool HostOsScan::processTOpsResp(HostOsScanStats *hss, const u8 *tcp, int tcplen
   if (hss->FP_TOps || hss->TOps_AVs[replyNo])
     return false;
 
-  int opsParseResult = get_tcpopt_string(tcp, tcplen, this->tcpMss, ops_buf, sizeof(ops_buf));
+  int opsParseResult = get_tcpopt_string(tcp, tcplen, ops_buf, sizeof(ops_buf));
 
   if (opsParseResult <= 0) {
     if (opsParseResult < 0 && o.debugging)
@@ -2740,7 +2727,7 @@ bool HostOsScan::processTEcnResp(HostOsScanStats *hss, const struct ip *ip, cons
   test.setAVal("W", hss->target->FPR->cp_hex(ntohs(tcp->th_win)));
 
   /* Now for the TCP options ... */
-  int opsParseResult = get_tcpopt_string(tcppkt, tcplen, this->tcpMss, ops_buf, sizeof(ops_buf));
+  int opsParseResult = get_tcpopt_string(tcppkt, tcplen, ops_buf, sizeof(ops_buf));
 
   if (opsParseResult <= 0) {
     if (opsParseResult < 0 && o.debugging)
@@ -2880,7 +2867,7 @@ bool HostOsScan::processT1_7Resp(HostOsScanStats *hss, const struct ip *ip, cons
     char ops_buf[256];
 
     /* Now for the TCP options ... */
-    int opsParseResult = get_tcpopt_string(tcppkt, tcplen, this->tcpMss, ops_buf, sizeof(ops_buf));
+    int opsParseResult = get_tcpopt_string(tcppkt, tcplen, ops_buf, sizeof(ops_buf));
     if (opsParseResult <= 0) {
       if (opsParseResult < 0 && o.debugging)
         error("Option parse error for T%d response from %s.", replyNo, hss->target->targetipstr());
@@ -2936,7 +2923,10 @@ bool HostOsScan::processTUdpResp(HostOsScanStats *hss, const struct ip *ip, cons
 
   const u8 *ip2pkt = icmppkt + 8;
   memcpy(&ip2, ip2pkt, sizeof(ip2));
-  const u8 *udppkt = ip2pkt + 4 * ip2.ip_hl;
+  unsigned int ip2hlen = 4 * ip2.ip_hl;
+  if (ip2hlen < sizeof(ip2) || icmplen < 8 + ip2hlen + sizeof(udp))
+    return false;
+  const u8 *udppkt = ip2pkt + ip2hlen;
   memcpy(&udp, udppkt, sizeof(udp));
 
   /* The ports should match. */
@@ -3037,53 +3027,27 @@ bool HostOsScan::processTUdpResp(HostOsScanStats *hss, const struct ip *ip, cons
 }
 
 
-bool HostOsScan::processTIcmpResp(HostOsScanStats *hss, const struct ip *ip, const u8 *pkt, int replyNo) {
+bool HostOsScan::processTIcmpResp(HostOsScanStats *hss, const struct ip *ip, const struct icmp *icmp, int replyNo) {
   assert(replyNo == 0 || replyNo == 1);
-
-  unsigned short value1, value2;
 
   if (hss->FP_TIcmp)
     return false;
 
-  u16 iplen = ntohs(ip->ip_len);
-  if (hss->icmpEchoReply == NULL) {
-    /* This is the first icmp reply we get, store it and return. */
-    hss->icmpEchoReply = (u8 *) safe_malloc(iplen);
-    memcpy(hss->icmpEchoReply, pkt, iplen);
-    hss->storedIcmpReply = replyNo;
-    return true;
-  } else if (hss->storedIcmpReply == replyNo) {
+  if (hss->icmpEchoReply[replyNo].received) {
     /* This is a duplicated icmp reply. */
     return false;
   }
-
-  const struct ip *ip1, *ip2;
-  const u8 *ip1pkt, *ip2pkt;
-  struct ip tmp;
-  /* Ok, now we get another reply. */
-  if (hss->storedIcmpReply == 0) {
-    ip1pkt = hss->icmpEchoReply;
-    memcpy(&tmp, ip1pkt, sizeof(tmp));
-    ip1 = &tmp;
-
-    ip2pkt = pkt;
-    ip2 = ip;
-  } else {
-    ip2pkt = hss->icmpEchoReply;
-    memcpy(&tmp, ip2pkt, sizeof(tmp));
-    ip2 = &tmp;
-
-    ip1pkt = pkt;
-    ip1 = ip;
+  else {
+    hss->icmpEchoReply[replyNo].received = true;
+    hss->icmpEchoReply[replyNo].ip_off = ip->ip_off;
+    hss->icmpEchoReply[replyNo].icmp_code = icmp->icmp_code;
   }
+  HostOsScanStats::icmpEchoReply_t &reply1 = hss->icmpEchoReply[0];
+  HostOsScanStats::icmpEchoReply_t &reply2 = hss->icmpEchoReply[1];
 
-  struct icmp icmp1, icmp2;
-  iplen = ntohs(ip1->ip_len);
-  memcpy(&icmp1, ip1pkt + 4 * ip1->ip_hl, MIN(iplen, sizeof(icmp1)));
-  iplen = ntohs(ip2->ip_len);
-  memcpy(&icmp2, ip2pkt + 4 * ip2->ip_hl, MIN(iplen, sizeof(icmp2)));
-
-  assert(icmp1.icmp_type == 0 && icmp2.icmp_type == 0);
+  if (!reply1.received || !reply2.received) {
+    return true;
+  }
 
   hss->FP_TIcmp= new FingerTest(FingerPrintDef::IE, *o.reference_FPs->MatchPoints);
   FingerTest &test = *hss->FP_TIcmp;
@@ -3096,8 +3060,8 @@ bool HostOsScan::processTIcmpResp(HostOsScanStats *hss, const struct ip *ip, con
    * N. Both not set;
    * O. Other(both different with the sender, -_-b).
    */
-  value1 = (ntohs(ip1->ip_off) & IP_DF);
-  value2 = (ntohs(ip2->ip_off) & IP_DF);
+  u16 value1 = (ntohs(reply1.ip_off) & IP_DF);
+  u16 value2 = (ntohs(reply2.ip_off) & IP_DF);
   if (value1 && value2)
     /* both set */
     test.setAVal("DFI", "Y");
@@ -3112,15 +3076,15 @@ bool HostOsScan::processTIcmpResp(HostOsScanStats *hss, const struct ip *ip, con
 
   /* TTL */
 
-  test.setAVal("T", hss->target->FPR->cp_hex(ip1->ip_ttl));
+  test.setAVal("T", hss->target->FPR->cp_hex(ip->ip_ttl));
 
   /* ICMP Code value. Test values:
    * [Value]. Both set Code to the same value [Value];
    * S. Both use the Code that the sender uses;
    * O. Other.
    */
-  value1 = icmp1.icmp_code;
-  value2 = icmp2.icmp_code;
+  value1 = reply1.icmp_code;
+  value2 = reply2.icmp_code;
   if (value1 == value2) {
     if (value1 == 0)
       test.setAVal("CD", "Z");
@@ -3136,86 +3100,103 @@ bool HostOsScan::processTIcmpResp(HostOsScanStats *hss, const struct ip *ip, con
   return true;
 }
 
-
-int HostOsScan::get_tcpopt_string(const u8 *tcp, int tcplen, int mss, char *result, int maxlen) const {
+struct tcpopt_string_ctx {
   char *p;
-  const u8 *q;
-  u16 tmpshort;
-  u32 tmpword;
-  int length;
-  int opcode;
+  char *end;
+  bool valid;
+  tcpopt_string_ctx() : p(NULL), end(NULL), valid(true) {}
+  bool check_length(int len) const {
+    return (end - p) >= len;
+  }
+  void put(char c) {
+    assert(end > p);
+    *p++ = c;
+  }
+  void put_hex(unsigned int u) {
+    int w = sprintf(p, "%X", u);
+    p += w;
+  }
+};
 
-  p = result;
-  struct tcp_hdr hdr;
-  memcpy(&hdr, tcp, sizeof(hdr));
-  length = MIN(hdr.th_off * 4, tcplen) - sizeof(struct tcp_hdr);
-  q = tcp + sizeof(struct tcp_hdr);
+static bool tcpopt_tostring(u8 op, u8 oplen, const u8 *data, void *ctx)
+{
+  tcpopt_string_ctx *args = static_cast<tcpopt_string_ctx *>(ctx);
+
+  if (!args->check_length(1))
+    return false;
+
+  const u8 *q = data + 2;
+
+  switch (op) {
+    case 0: /* End of List */
+      args->put('L');
+      break;
+    case 1: /* No Op */
+      args->put('N');
+      break;
+    case 2: /* MSS */
+      if (oplen < 4) {
+        args->valid = false;
+        break; /* MSS has 4 bytes */
+      }
+      args->put('M');
+      if (!args->check_length(4))
+        return false;
+      args->put_hex((q[0] << 8) + q[1]);
+      break;
+    case 3:/* Window Scale */
+      if (oplen < 3) {
+        args->valid = false;
+        break; /* Window Scale option has 3 bytes */
+      }
+      args->put('W');
+      if (!args->check_length(2))
+        return false;
+      args->put_hex(q[0]);
+      break;
+    case 4:/* SACK permitted */
+      if (oplen < 2) {
+        args->valid = false;
+        break; /* SACK permitted option has 2 bytes */
+      }
+      args->put('S');
+      break;
+    case 8: /* Timestamp */
+      if (oplen < 10) {
+        args->valid = false;
+        break; /* Timestamp option has 10 bytes */
+      }
+      args->put('T');
+      if (!args->check_length(2))
+        return false;
+      args->put((q[0] || q[1] || q[2] || q[3]) ? '1' : '0');
+      args->put((q[4] || q[5] || q[6] || q[7]) ? '1' : '0');
+      break;
+    default:
+      break;
+  }
+  return args->valid;
+}
+
+int HostOsScan::get_tcpopt_string(const u8 *tcp, int tcplen, char *result, int maxlen) const {
+  assert(tcp);
+  assert(result);
+  assert(maxlen > 0);
+  memset(result, 0, maxlen);
 
   /*
    * Example parsed result: M5B4ST11NW2
    *   MSS, Sack Permitted, Timestamp with both value not zero, Nop, WScale with value 2
    */
 
-  /* Be aware of the max increment value for p in parsing,
-   * now is 5 = strlen("Mxxxx") <-> MSS Option
-   */
-  while (length > 0 && (p - result) < (maxlen - 5)) {
-    opcode = *q++;
-    if (!opcode) { /* End of List */
-      *p++ = 'L';
-      length--;
-    } else if (opcode == 1) { /* No Op */
-      *p++ = 'N';
-      length--;
-    } else if (opcode == 2) { /* MSS */
-      if (length < 4)
-        break; /* MSS has 4 bytes */
-      *p++ = 'M';
-      q++;
-      memcpy(&tmpshort, q, 2);
-      /*  if (ntohs(tmpshort) == mss) */
-      /*    *p++ = 'E'; */
-      sprintf(p, "%hX", ntohs(tmpshort));
-      p += strlen(p); /* max movement of p is 4 (0xFFFF) */
-      q += 2;
-      length -= 4;
-    } else if (opcode == 3) { /* Window Scale */
-      if (length < 3)
-        break; /* Window Scale option has 3 bytes */
-      *p++ = 'W';
-      q++;
-      snprintf(p, length, "%hhX", *((u8*)q));
-      p += strlen(p); /* max movement of p is 2 (max WScale value is 0xFF) */
-      q++;
-      length -= 3;
-    } else if (opcode == 4) { /* SACK permitted */
-      if (length < 2)
-        break; /* SACK permitted option has 2 bytes */
-      *p++ = 'S';
-      q++;
-      length -= 2;
-    } else if (opcode == 8) { /* Timestamp */
-      if (length < 10)
-        break; /* Timestamp option has 10 bytes */
-      *p++ = 'T';
-      q++;
-      memcpy(&tmpword, q, 4);
-      if (tmpword)
-        *p++ = '1';
-      else
-        *p++ = '0';
-      q += 4;
-      memcpy(&tmpword, q, 4);
-      if (tmpword)
-        *p++ = '1';
-      else
-        *p++ = '0';
-      q += 4;
-      length -= 10;
-    }
-  }
+  TCPOptions opts;
+  if (!opts.fromTCPPacket(tcp, tcplen))
+    return -1;
+  tcpopt_string_ctx ctx;
+  ctx.p = result;
+  ctx.end = result + maxlen - 1;
 
-  if (length > 0) {
+  if (!opts.foreachOpt(tcpopt_tostring, &ctx) || !ctx.valid) {
     /* We could reach here for one of the two reasons:
      *  1. At least one option is not correct. (Eg. Should have 4 bytes but only has 3 bytes left).
      *  2. The option string is too long.
@@ -3223,9 +3204,7 @@ int HostOsScan::get_tcpopt_string(const u8 *tcp, int tcplen, int mss, char *resu
     *result = '\0';
     return -1;
   }
-
-  *p = '\0';
-  return p - result;
+  return ctx.p - result;
 }
 
 

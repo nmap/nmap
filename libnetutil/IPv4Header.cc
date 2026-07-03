@@ -234,12 +234,14 @@ u8 IPv4Header::getVersion() const {
 
 
 int IPv4Header::setHeaderLength(){
+  assert(ipoptlen <= 40);
   h.ip_hl  = 5 + (ipoptlen/4);
   return OP_SUCCESS;
 } /* End of setHeaderLength() */
 
 
 int IPv4Header::setHeaderLength(u8 l){
+  assert(l <= 0x0f);
   h.ip_hl  = l;
   return OP_SUCCESS;
 } /* End of setHeaderLength() */

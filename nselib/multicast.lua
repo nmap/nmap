@@ -109,8 +109,7 @@ mld_query = function( if_nfo, arg_timeout )
     if status then
       local l2reply = packet.Frame:new(layer2)
       local l3reply = packet.Packet:new(layer3, length, true)
-      local target_ip = l3reply.ip_src
-      if l3reply.ip6_nhdr == packet.MLD_LISTENER_REPORT or l3reply.ip6_nhdr == packet.MLDV2_LISTENER_REPORT then
+      if l3reply and (l3reply.ip6_nhdr == packet.MLD_LISTENER_REPORT or l3reply.ip6_nhdr == packet.MLDV2_LISTENER_REPORT) then
         table.insert(
           nmap.registry[reg_entry],
           { if_nfo.device, l2reply, l3reply }

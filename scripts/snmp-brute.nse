@@ -190,7 +190,7 @@ local sniff_snmp_responses = function(host, port, lport, result)
 
     if status then
       local p = packet.Packet:new(l3,#l3)
-      if not p:udp_parse() then
+      if not p or not p:udp_parse() then
         --shouldn't happen
         result.status = false
         result.msg = "Wrong type of packet received"

@@ -833,6 +833,33 @@ static int vectorize_icmpv6_code(const PacketElement *pe) {
   return icmpv6->getCode();
 }
 
+struct tcpopt_vectorize_ctx {
+  feature_node *features;
+  const unsigned int base;
+  unsigned int optnum;
+  int mss;
+  int sackok;
+  int wscale;
+  tcpopt_vectorize_ctx(feature_node *f, unsigned int i)
+    : features(f), base(i), optnum(0), mss(-1), sackok(-1), wscale(-1) {}
+};
+
+static const u8 MODEL_NUM_OPTS = 16;
+static bool tcpopt_vectorize(u8 op, u8 oplen, const u8 *data, void *ctx) {
+  tcpopt_vectorize_ctx *c = static_cast<tcpopt_vectorize_ctx *>(ctx);
+  c->features[c->base + c->optnum].value = op;
+  c->features[c->base + c->optnum + MODEL_NUM_OPTS].value = oplen;
+  if (op == TCPOPT_MSS && oplen == 4 && c->mss == -1)
+    c->mss = (data[2] << 8) + data[3];
+  else if (op == TCPOPT_SACKOK && oplen == 2 && c->sackok == -1)
+    c->sackok = 1;
+  else if (op == TCPOPT_WSCALE && oplen == 3 && c->wscale == -1)
+    c->wscale = data[2];
+  if (c->optnum++ < MODEL_NUM_OPTS)
+    return true;
+  return false;
+}
+
 static struct feature_node *vectorize(const FingerPrintResultsIPv6 *FPR) {
   const char * const IPV6_PROBE_NAMES[] = {"S1", "S2", "S3", "S4", "S5", "S6", "IE1", "IE2", "NS", "U1", "TECN", "T2", "T3", "T4", "T5", "T6", "T7"};
   const char * const TCP_PROBE_NAMES[] = {"S1", "S2", "S3", "S4", "S5", "S6", "TECN", "T2", "T3", "T4", "T5", "T6", "T7"};
@@ -877,16 +904,8 @@ static struct feature_node *vectorize(const FingerPrintResultsIPv6 *FPR) {
     const TCPHeader *tcp;
     u16 flags;
     u16 mask;
-    unsigned int j;
-    int mss;
-    int sackok;
-    int wscale;
 
     probe_name = TCP_PROBE_NAMES[i];
-
-    mss = -1;
-    sackok = -1;
-    wscale = -1;
 
     tcp = find_tcp(resps[probe_name].getPacket());
     if (tcp == NULL) {
@@ -899,40 +918,17 @@ static struct feature_node *vectorize(const FingerPrintResultsIPv6 *FPR) {
     for (mask = 0x001; mask <= 0x800; mask <<= 1)
       features[idx++].value = (flags & mask) != 0;
 
-    for (j = 0; j < 16; j++) {
-      nping_tcp_opt_t opt;
-      opt = tcp->getOption(j);
-      if (opt.value == NULL)
-        break;
-      features[idx++].value = opt.type;
-      /* opt.len includes the two (type, len) bytes. */
-      if (opt.type == TCPOPT_MSS && opt.len == 4 && mss == -1)
-        mss = ntohs(*(u16 *) opt.value);
-      else if (opt.type == TCPOPT_SACKOK && opt.len == 2 && sackok == -1)
-        sackok = 1;
-      else if (opt.type == TCPOPT_WSCALE && opt.len == 3 && wscale == -1)
-        wscale = *(u8 *) opt.value;
+    TCPOptions opts;
+    tcpopt_vectorize_ctx ctx(features, idx);
+    if (opts.fromTCPHeader(*tcp)) {
+      opts.foreachOpt(tcpopt_vectorize, &ctx);
     }
-    for (; j < 16; j++)
-      idx++;
+    idx += MODEL_NUM_OPTS * 2;
 
-    for (j = 0; j < 16; j++) {
-      nping_tcp_opt_t opt;
-      opt = tcp->getOption(j);
-      if (opt.value == NULL)
-        break;
-      features[idx++].value = opt.len;
-    }
-    for (; j < 16; j++)
-      idx++;
-
-    features[idx++].value = mss;
-    features[idx++].value = sackok;
-    features[idx++].value = wscale;
-    if (mss != 0 && mss != -1)
-      features[idx++].value = (float)tcp->getWindow() / mss;
-    else
-      features[idx++].value = -1;
+    features[idx++].value = ctx.mss;
+    features[idx++].value = ctx.sackok;
+    features[idx++].value = ctx.wscale;
+    features[idx++].value = (ctx.mss > 0) ? (float)tcp->getWindow() / ctx.mss : -1;
   }
   /* ICMPv6 features */
   for (i = 0; i < NELEMS(ICMPV6_PROBE_NAMES); i++) {
