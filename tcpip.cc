@@ -1122,7 +1122,9 @@ int readtcppacket(const u8 *packet, int readdata) {
   realfrag = htons(ntohs(ip->ip_off) & IP_OFFMASK);
   tot_len = htons(ip->ip_len);
   inet_ntop(AF_INET, &bullshit, sourcehost, sizeof(sourcehost));
-  i = 4 * (ntohs(ip->ip_hl) + ntohs(tcp->th_off));
+  if (ip->ip_hl >= 5 && tcp->th_off >= 5) {
+    i = 4 * (ip->ip_hl + tcp->th_off);
+  }
   if (ip->ip_p == IPPROTO_TCP) {
     if (realfrag)
       log_write(LOG_PLAIN, "Packet is fragmented, offset field: %u\n",
