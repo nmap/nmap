@@ -349,6 +349,9 @@ char *cstring_unescape(char *str, unsigned int *newlen) {
     if (*src == '\\' ) {
       src++;
       switch (*src) {
+      case '\0':
+        return NULL;
+        break;
       case '0':
         newchar = '\0';
         src++;

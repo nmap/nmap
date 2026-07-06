@@ -1,5 +1,8 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o Fixed an issue with parsing nmap-service-probes that could cause a corrupted
+  file to crash Nmap. Reported by Muhammed Hussein.
+
 o [NSE][GH#2016] Removed hostmap-bfk.nse, since the service it used shut down.
 
 o Fixed several issues reported by Himanshu Anand: infinite loop in TCP options
