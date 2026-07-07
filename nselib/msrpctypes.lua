@@ -786,7 +786,7 @@ function marshall_int16(int16, pad)
 
   stdnse.debug4("MSRPC: Entering marshall_int16()")
 
-  if(pad == false) then
+  if not pad then
     return string.pack("<I2", int16)
   end
 
@@ -811,7 +811,7 @@ function marshall_int8(int8, pad)
 
   stdnse.debug4("MSRPC: Entering marshall_int8()")
 
-  if(pad == false) then
+  if not pad then
     return string.pack("<B", int8)
   end
 

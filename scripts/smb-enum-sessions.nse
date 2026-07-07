@@ -86,20 +86,20 @@ local function srvsvc_enum_sessions(host)
 
   -- Create the SMB session
   status, smbstate = msrpc.start_smb(host, msrpc.SRVSVC_PATH)
-  if(status == false) then
+  if not status then
     return false, smbstate
   end
 
   -- Bind to SRVSVC service
   status, bind_result = msrpc.bind(smbstate, msrpc.SRVSVC_UUID, msrpc.SRVSVC_VERSION, nil)
-  if(status == false) then
+  if not status then
     msrpc.stop_smb(smbstate)
     return false, bind_result
   end
 
   -- Call netsessenum
   status, netsessenum_result = msrpc.srvsvc_netsessenum(smbstate, host.ip)
-  if(status == false) then
+  if not status then
     msrpc.stop_smb(smbstate)
     return false, netsessenum_result
   end
@@ -125,19 +125,19 @@ local function winreg_enum_rids(host)
 
   -- Create the SMB session
   local status, smbstate = msrpc.start_smb(host, msrpc.WINREG_PATH)
-  if(status == false) then
+  if not status then
     return false, smbstate
   end
 
   -- Bind to WINREG service
   local status, bind_result = msrpc.bind(smbstate, msrpc.WINREG_UUID, msrpc.WINREG_VERSION, nil)
-  if(status == false) then
+  if not status then
     msrpc.stop_smb(smbstate)
     return false, bind_result
   end
 
   local status, openhku_result = msrpc.winreg_openhku(smbstate)
-  if(status == false) then
+  if not status then
     msrpc.stop_smb(smbstate)
     return false, openhku_result
   end
@@ -161,13 +161,13 @@ local function winreg_enum_rids(host)
 
         -- Query the info about this key. The response will tell us when the user logged into the server.
         local status, queryinfokey_result = msrpc.winreg_queryinfokey(smbstate, openkey_result['handle'])
-        if(status == false) then
+        if not status then
           msrpc.stop_smb(smbstate)
           return false, queryinfokey_result
         end
 
         local status, closekey_result = msrpc.winreg_closekey(smbstate, openkey_result['handle'])
-        if(status == false) then
+        if not status then
           msrpc.stop_smb(smbstate)
           return false, closekey_result
         end
@@ -184,7 +184,7 @@ local function winreg_enum_rids(host)
   until status ~= true
 
   local status, closekey_result = msrpc.winreg_closekey(smbstate, openhku_result['handle'])
-  if(status == false) then
+  if not status then
     msrpc.stop_smb(smbstate)
     return false, closekey_result
   end
@@ -193,20 +193,20 @@ local function winreg_enum_rids(host)
 
   -- Start a new SMB session
   local status, smbstate = msrpc.start_smb(host, msrpc.LSA_PATH)
-  if(status == false) then
+  if not status then
     return false, smbstate
   end
 
   -- Bind to LSA service
   local status, bind_result = msrpc.bind(smbstate, msrpc.LSA_UUID, msrpc.LSA_VERSION, nil)
-  if(status == false) then
+  if not status then
     msrpc.stop_smb(smbstate)
     return false, bind_result
   end
 
   -- Get a policy handle
   local status, openpolicy2_result = msrpc.lsa_openpolicy2(smbstate, host.ip)
-  if(status == false) then
+  if not status then
     msrpc.stop_smb(smbstate)
     return false, openpolicy2_result
   end
@@ -223,7 +223,7 @@ local function winreg_enum_rids(host)
 
         local status, lookupsids2_result = msrpc.lsa_lookupsids2(smbstate, openpolicy2_result['policy_handle'], {elements[i]['name']})
 
-        if(status == false) then
+        if not status then
           -- It may not succeed, if it doesn't that's ok
           stdnse.debug3("MSRPC: Lookup failed")
         else
@@ -273,7 +273,7 @@ action = function(host)
   -- Enumerate the logged in users
   local logged_in = {}
   local status1, users = winreg_enum_rids(host)
-  if(status1 == false) then
+  if not status1 then
     logged_in['warning'] = "Couldn't enumerate login sessions: " .. users
   else
     logged_in['name'] = "Users logged in"
@@ -292,7 +292,7 @@ action = function(host)
   -- Get the connected sessions
   local sessions_output = {}
   local status2, sessions = srvsvc_enum_sessions(host)
-  if(status2 == false) then
+  if not status2 then
     sessions_output['warning'] = "Couldn't enumerate SMB sessions: " .. sessions
   else
     sessions_output['name'] = "Active SMB sessions"

@@ -254,7 +254,7 @@ local function stop_session(hostinfo)
   if(hostinfo['smbstate'] ~= nil) then
     stdnse.debug2("Stopping the SMB session")
     status, err = smb.stop(hostinfo['smbstate'])
-    if(status == false) then
+    if not status then
       return false, err
     end
 
@@ -277,7 +277,7 @@ local function restart_session(hostinfo)
 
   stdnse.debug2("Starting the SMB session")
   status, smbstate = smb.start_ex(hostinfo['host'], true, nil, nil, nil, true)
-  if(status == false) then
+  if not status then
     return false, smbstate
   end
 
@@ -547,7 +547,7 @@ local function initialize(host)
 
   -- Get the OS (identifying windows versions tells us which hash to use)
   result, os = smb.get_os(host)
-  if(result == false or os['os'] == nil) then
+  if not result or not os['os'] then
     hostinfo['os'] = "<Unknown>"
   else
     hostinfo['os'] = os['os']
@@ -577,7 +577,7 @@ local function initialize(host)
   if(not(hostinfo['have_user_list'])) then
     stdnse.debug1("Couldn't enumerate users (normal for Windows XP and higher), using unpwdb initially")
     status, hostinfo['user_list_default'] = unpwdb.usernames()
-    if(status == false) then
+    if not status then
       return false, "Couldn't open username file"
     end
   end
@@ -585,7 +585,7 @@ local function initialize(host)
   -- Open the password file
   stdnse.debug1("Opening password list")
   status, hostinfo['password_list'] = unpwdb.passwords()
-  if(status == false) then
+  if not status then
     return false, "Couldn't open password file"
   end
 
@@ -593,7 +593,7 @@ local function initialize(host)
   stdnse.debug1("Starting the initial SMB session")
   local err
   status, err = restart_session(hostinfo)
-  if(status == false) then
+  if not status then
     stop_session(hostinfo)
     return false, err
   end
@@ -630,7 +630,7 @@ local function initialize(host)
   -- Restart the SMB connection so we have a clean slate
   stdnse.debug1("Restarting the session before the bruteforce")
   status, err = restart_session(hostinfo)
-  if(status == false) then
+  if not status then
     stop_session(hostinfo)
     return false, err
   end
@@ -808,7 +808,7 @@ local function validate_usernames(hostinfo)
 
   -- Start a session
   status, err = restart_session(hostinfo)
-  if(status == false) then
+  if not status then
     return false, err
   end
 
@@ -850,13 +850,13 @@ local function validate_usernames(hostinfo)
         -- Any password works (often happens with 'guest' account)
         stdnse.debug1("All passwords accepted for %s (goes to %s)", username, result_short_strings[result])
         status, err = found_account(hostinfo, username, "<anything>", result)
-        if(status == false) then
+        if not status then
           return false, err
         end
       else
         -- Blank password worked, but not random one
         status, err = found_account(hostinfo, username, "", result)
-        if(status == false) then
+        if not status then
           return false, err
         end
       end
@@ -901,7 +901,7 @@ function found_account(hostinfo, username, password, result)
   if(result == results.SUCCESS) then
     -- Stop the connection -- this lets us do some queries
     status, err = stop_session(hostinfo)
-    if(status == false) then
+    if not status then
       return false, err
     end
 
@@ -925,7 +925,7 @@ function found_account(hostinfo, username, password, result)
     end
 
     -- If we haven't retrieved the real user list yet, do so
-    if(hostinfo['have_user_list'] == false) then
+    if not hostinfo['have_user_list'] then
       -- Attempt to enumerate users
       stdnse.debug1("Trying to get user list from server using newly discovered account")
       local _
@@ -947,7 +947,7 @@ function found_account(hostinfo, username, password, result)
 
     -- Start the session again
     status, err = restart_session(hostinfo)
-    if(status == false) then
+    if not status then
       return false, err
     end
 
@@ -968,20 +968,20 @@ local function go(host)
 
   -- Initialize the hostinfo object, which sets up the initial variables
   result, hostinfo = initialize(host)
-  if(result == false) then
+  if not result then
     return false, hostinfo
   end
 
   -- If invalid accounts don't give guest, we can determine the existence of users by trying to
   -- log in with an invalid password and checking the value
   status, err = validate_usernames(hostinfo)
-  if(status == false) then
+  if not status then
     return false, err
   end
 
   -- Start up the SMB session
   status, err = restart_session(hostinfo)
-  if(status == false) then
+  if not status then
     return false, err
   end
 
@@ -1015,7 +1015,7 @@ local function go(host)
         if(not(stdnse.get_script_args( "smblockout" ))) then
           -- Mark it as found, which is technically true
           status, err = found_account(hostinfo, username, nil, results.ACCOUNT_LOCKED_NOW)
-          if(status == false) then
+          if not status then
             return err
           end
 
@@ -1032,7 +1032,7 @@ local function go(host)
         -- Reset the connection
         stdnse.debug2("Found an account; resetting connection")
         status, err = restart_session(hostinfo)
-        if(status == false) then
+        if not status then
           return false, err
         end
 
@@ -1048,7 +1048,7 @@ local function go(host)
 
         -- Take normal actions for finding an account
         status, err = found_account(hostinfo, username, case_password, result)
-        if(status == false) then
+        if not status then
           return err
         end
       end
@@ -1075,7 +1075,7 @@ action = function(host)
   local locked_result
 
   status, result, locked_result = go(host)
-  if(status == false) then
+  if not status then
     return stdnse.format_output(false, result)
   end
 

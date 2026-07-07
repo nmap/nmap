@@ -435,12 +435,12 @@ function call_function(smbstate, opnum, arguments)
     is_last  = ((result['packet_flags'] & 0x02) == 0x02)
 
     -- We have a fragmented packet, make sure it's the first (if we're on the first)
-    if(first == true and is_first == false) then
+    if first and not is_first then
       return false, "MSRPC: First fragment doesn't have proper 'first' (0x01) flag set"
     end
 
     -- We have a fragmented packet, make sure it isn't the first (if we aren't on the first)
-    if(first == false and is_first) then
+    if not first and is_first then
       return false, "MSRPC: Middle (or last) fragment doesn't have proper 'first' (0x01) flag set"
     end
 
@@ -3792,20 +3792,20 @@ function samr_enum_users(host)
   -- Create the SMB session
   status, smbstate = start_smb(host, SAMR_PATH, true)
 
-  if(status == false) then
+  if not status then
     return false, smbstate
   end
 
   -- Bind to SAMR service
   status, bind_result = bind(smbstate, SAMR_UUID, SAMR_VERSION, nil)
-  if(status == false) then
+  if not status then
     stop_smb(smbstate)
     return false, bind_result
   end
 
   -- Call connect4()
   status, connect4_result = samr_connect4(smbstate, host.ip)
-  if(status == false) then
+  if not status then
     stop_smb(smbstate)
     return false, connect4_result
   end
@@ -3815,7 +3815,7 @@ function samr_enum_users(host)
 
   -- Call EnumDomains()
   status, enumdomains_result = samr_enumdomains(smbstate, connect_handle)
-  if(status == false) then
+  if not status then
     stop_smb(smbstate)
     return false, enumdomains_result
   end
@@ -3834,7 +3834,7 @@ function samr_enum_users(host)
     if(domain ~= 'Builtin') then
       -- Call LookupDomain()
       local status, lookupdomain_result = samr_lookupdomain(smbstate, connect_handle, domain)
-      if(status == false) then
+      if not status then
         stop_smb(smbstate)
         return false, lookupdomain_result
       end
@@ -3844,7 +3844,7 @@ function samr_enum_users(host)
 
       -- Call OpenDomain()
       local status, opendomain_result = samr_opendomain(smbstate, connect_handle, sid)
-      if(status == false) then
+      if not status then
         stop_smb(smbstate)
         return false, opendomain_result
       end
@@ -3857,7 +3857,7 @@ function samr_enum_users(host)
       repeat
         -- Call QueryDisplayInfo()
         local status, querydisplayinfo_result = samr_querydisplayinfo(smbstate, domain_handle, j, SAMR_GROUPSIZE)
-        if(status == false) then
+        if not status then
           stop_smb(smbstate)
           return false, querydisplayinfo_result
         end
@@ -3911,20 +3911,20 @@ function samr_enum_groups(host)
   -- Create the SMB session
   local status, smbstate = start_smb(host, SAMR_PATH, true)
 
-  if(status == false) then
+  if not status then
     return false, smbstate
   end
 
   -- Bind to SAMR service
   local status, bind_result = bind(smbstate, SAMR_UUID, SAMR_VERSION, nil)
-  if(status == false) then
+  if not status then
     stop_smb(smbstate)
     return false, bind_result
   end
 
   -- Call connect4()
   local status, connect4_result = samr_connect4(smbstate, host.ip)
-  if(status == false) then
+  if not status then
     stop_smb(smbstate)
     return false, connect4_result
   end
@@ -3934,7 +3934,7 @@ function samr_enum_groups(host)
 
   -- Call EnumDomains()
   local status, enumdomains_result = samr_enumdomains(smbstate, connect_handle)
-  if(status == false) then
+  if not status then
     stop_smb(smbstate)
     return false, enumdomains_result
   end
@@ -3954,7 +3954,7 @@ function samr_enum_groups(host)
 
     -- Call LookupDomain()
     local status, lookupdomain_result = samr_lookupdomain(smbstate, connect_handle, domain)
-    if(status == false) then
+    if not status then
       stop_smb(smbstate)
       return false, lookupdomain_result
     end
@@ -3964,7 +3964,7 @@ function samr_enum_groups(host)
 
     -- Call OpenDomain()
     local status, opendomain_result = samr_opendomain(smbstate, connect_handle, domain_sid)
-    if(status == false) then
+    if not status then
       stop_smb(smbstate)
       return false, opendomain_result
     end
@@ -3974,7 +3974,7 @@ function samr_enum_groups(host)
 
     -- Get a list of groups
     local status, enumaliases_result = samr_enumdomainaliases(smbstate, domain_handle)
-    if(status == false) then
+    if not status then
       stop_smb(smbstate)
       return false, "Couldn't enumerate groups: " .. enumaliases_result
     end
@@ -4049,20 +4049,20 @@ function samr_enum_groups(host)
   -- Now, we need a handle to LSA (in order to convert the RIDs to users
   -- Create the SMB session
   local status, smbstate = start_smb(host, LSA_PATH, true)
-  if(status == false) then
+  if not status then
     return false, smbstate
   end
 
   -- Bind to LSA service
   local status, bind_result = bind(smbstate, LSA_UUID, LSA_VERSION, nil)
-  if(status == false) then
+  if not status then
     stop_smb(smbstate)
     return false, bind_result
   end
 
   -- Open the LSA policy
   local status, openpolicy2_result = lsa_openpolicy2(smbstate, host.ip)
-  if(status == false) then
+  if not status then
     stop_smb(smbstate)
     return false, openpolicy2_result
   end
@@ -4072,7 +4072,7 @@ function samr_enum_groups(host)
     for group_rid, group in pairs(domain_data) do
       -- Look up the SIDs
       local status, lookupsids2_result = lsa_lookupsids2(smbstate, openpolicy2_result['policy_handle'], group['member_sids'])
-      if(status == false) then
+      if not status then
         stop_smb(smbstate)
         return false, "Error looking up RIDs: " .. lookupsids2_result
       end
@@ -4117,20 +4117,20 @@ function lsa_enum_users(host)
 
   -- Create the SMB session
   status, smbstate = start_smb(host, LSA_PATH, true)
-  if(status == false) then
+  if not status then
     return false, smbstate
   end
 
   -- Bind to LSA service
   status, bind_result = bind(smbstate, LSA_UUID, LSA_VERSION, nil)
-  if(status == false) then
+  if not status then
     stop_smb(smbstate)
     return false, bind_result
   end
 
   -- Open the LSA policy
   status, openpolicy2_result = lsa_openpolicy2(smbstate, host.ip)
-  if(status == false) then
+  if not status then
     stop_smb(smbstate)
     return false, openpolicy2_result
   end
@@ -4160,7 +4160,7 @@ function lsa_enum_users(host)
 
   -- Look up the names, if any are valid than the server's SID will be returned
   status, lookupnames2_result = lsa_lookupnames2(smbstate, openpolicy2_result['policy_handle'], names)
-  if(status == false) then
+  if not status then
     stop_smb(smbstate)
     return false, lookupnames2_result
   end
@@ -4176,7 +4176,7 @@ function lsa_enum_users(host)
     end
 
     status, lookupsids2_result = lsa_lookupsids2(smbstate, openpolicy2_result['policy_handle'], sids)
-    if(status == false) then
+    if not status then
       stdnse.debug1("Error looking up RIDs: %s", lookupsids2_result)
     else
       -- Put the details for each name into an array
@@ -4210,7 +4210,7 @@ function lsa_enum_users(host)
 
       -- Try converting this group of RIDs into names
       status, lookupsids2_result = lsa_lookupsids2(smbstate, openpolicy2_result['policy_handle'], sids)
-      if(status == false) then
+      if not status then
         stdnse.debug1("Error looking up RIDs: %s", lookupsids2_result)
       else
         -- Put the details for each name into an array
@@ -4251,7 +4251,7 @@ function lsa_enum_users(host)
 
       -- Go to the next set of RIDs
       start = start + LSA_GROUPSIZE
-    until (status == false or (empty == LSA_MINEMPTY))
+    until not status or (empty == LSA_MINEMPTY)
   end
 
   -- Close the handle
@@ -4276,7 +4276,7 @@ function get_user_list(host)
   local names = {}
 
   status_lsa,  result_lsa  = lsa_enum_users(host)
-  if(status_lsa == false) then
+  if not status_lsa then
     stdnse.debug1("MSRPC: Failed to enumerate users through LSA: %s", result_lsa)
   else
     for i = 1, #result_lsa, 1 do
@@ -4287,7 +4287,7 @@ function get_user_list(host)
   end
 
   status_samr, result_samr = samr_enum_users(host)
-  if(status_samr == false) then
+  if not status_samr then
     stdnse.debug1("MSRPC: Failed to enumerate users through SAMR: %s", result_samr)
   else
     for i = 1, #result_samr, 1 do
@@ -4297,7 +4297,7 @@ function get_user_list(host)
     end
   end
 
-  if(status_samr == false and status_lsa == false) then
+  if not status_samr and not status_lsa then
     return false, "MSRPC: Couldn't enumerate users; see debug output for more information"
   end
 
@@ -4317,27 +4317,27 @@ local function get_domain_info(host, domain)
 
   -- Create the SMB session
   status, smbstate  = start_smb(host, SAMR_PATH)
-  if(status == false) then
+  if not status then
     return false, smbstate
   end
 
   -- Bind to SAMR service
   status, bind_result = bind(smbstate, SAMR_UUID, SAMR_VERSION, nil)
-  if(status == false) then
+  if not status then
     stop_smb(smbstate)
     return false, bind_result
   end
 
   -- Call connect4()
   status, connect4_result = samr_connect4(smbstate, host.ip)
-  if(status == false) then
+  if not status then
     stop_smb(smbstate)
     return false, connect4_result
   end
 
   -- Call LookupDomain()
   status, lookupdomain_result = samr_lookupdomain(smbstate, connect4_result['connect_handle'], domain)
-  if(status == false) then
+  if not status then
     samr_close(smbstate, connect4_result['connect_handle'])
     stop_smb(smbstate)
     return false, "Couldn't look up the domain: " .. lookupdomain_result
@@ -4345,7 +4345,7 @@ local function get_domain_info(host, domain)
 
   -- Call OpenDomain()
   status, opendomain_result = samr_opendomain(smbstate, connect4_result['connect_handle'], lookupdomain_result['sid'])
-  if(status == false) then
+  if not status then
     samr_close(smbstate, connect4_result['connect_handle'])
     stop_smb(smbstate)
     return false, opendomain_result
@@ -4357,19 +4357,19 @@ local function get_domain_info(host, domain)
   local status_8,  querydomaininfo2_result_8  = samr_querydomaininfo2(smbstate, opendomain_result['domain_handle'], 8)
   local status_12, querydomaininfo2_result_12 = samr_querydomaininfo2(smbstate, opendomain_result['domain_handle'], 12)
 
-  if(status_1 == false) then
+  if not status_1 then
     samr_close(smbstate, connect4_result['connect_handle'])
     stop_smb(smbstate)
     return false, querydomaininfo2_result_1
   end
 
-  if(status_8 == false) then
+  if not status_8 then
     samr_close(smbstate, connect4_result['connect_handle'])
     stop_smb(smbstate)
     return false, querydomaininfo2_result_8
   end
 
-  if(status_12 == false) then
+  if not status_12 then
     samr_close(smbstate, connect4_result['connect_handle'])
     stop_smb(smbstate)
     return false, querydomaininfo2_result_12
@@ -4377,7 +4377,7 @@ local function get_domain_info(host, domain)
 
   -- Call EnumDomainUsers() to get users
   status, enumdomainusers_result = samr_enumdomainusers(smbstate, opendomain_result['domain_handle'])
-  if(status == false) then
+  if not status then
     samr_close(smbstate, connect4_result['connect_handle'])
     stop_smb(smbstate)
     return false, enumdomainusers_result
@@ -4385,7 +4385,7 @@ local function get_domain_info(host, domain)
 
   -- Call EnumDomainAliases() to get groups
   local status, enumdomaingroups_result = samr_enumdomainaliases(smbstate, opendomain_result['domain_handle'])
-  if(status == false) then
+  if not status then
     samr_close(smbstate, connect4_result['connect_handle'])
     stop_smb(smbstate)
     return false, enumdomaingroups_result
@@ -4485,27 +4485,27 @@ function get_domains(host)
 
   -- Create the SMB session
   status, smbstate  = start_smb(host, SAMR_PATH)
-  if(status == false) then
+  if not status then
     return false, smbstate
   end
 
   -- Bind to SAMR service
   status, bind_result = bind(smbstate, SAMR_UUID, SAMR_VERSION, nil)
-  if(status == false) then
+  if not status then
     stop_smb(smbstate)
     return false, bind_result
   end
 
   -- Call connect4()
   status, connect4_result = samr_connect4(smbstate, host.ip)
-  if(status == false) then
+  if not status then
     stop_smb(smbstate)
     return false, connect4_result
   end
 
   -- Call EnumDomains()
   status, enumdomains_result = samr_enumdomains(smbstate, connect4_result['connect_handle'])
-  if(status == false) then
+  if not status then
     samr_close(smbstate, connect4_result['connect_handle'])
     stop_smb(smbstate)
 
@@ -4569,13 +4569,13 @@ function service_create(host, servicename, path)
 
   -- Create the SMB session
   status, smbstate = start_smb(host, SVCCTL_PATH)
-  if(status == false) then
+  if not status then
     return false, smbstate
   end
 
   -- Bind to SVCCTL service
   status, bind_result = bind(smbstate, SVCCTL_UUID, SVCCTL_VERSION, nil)
-  if(status == false) then
+  if not status then
     smb.stop(smbstate)
     return false, bind_result
   end
@@ -4583,7 +4583,7 @@ function service_create(host, servicename, path)
   -- Open the service manager
   stdnse.debug2("Opening the remote service manager")
   status, open_result = svcctl_openscmanagerw(smbstate, host.ip, 0x02000000)
-  if(status == false) then
+  if not status then
     smb.stop(smbstate)
     return false, open_result
   end
@@ -4591,20 +4591,20 @@ function service_create(host, servicename, path)
   -- Create the service
   stdnse.debug2("Creating the service")
   status, create_result = svcctl_createservicew(smbstate, open_result['handle'], servicename, servicename, path)
-  if(status == false) then
+  if not status then
     smb.stop(smbstate)
     return false, create_result
   end
   -- Close the handle to the service
   status, close_result = svcctl_closeservicehandle(smbstate, create_result['handle'])
-  if(status == false) then
+  if not status then
     smb.stop(smbstate)
     return false, close_result
   end
 
   -- Close the service manager
   status, close_result = svcctl_closeservicehandle(smbstate, open_result['handle'])
-  if(status == false) then
+  if not status then
     smb.stop(smbstate)
     return false, close_result
   end
@@ -4633,13 +4633,13 @@ function service_start(host, servicename, args)
 
   -- Create the SMB session
   status, smbstate = start_smb(host, SVCCTL_PATH)
-  if(status == false) then
+  if not status then
     return false, smbstate
   end
 
   -- Bind to SVCCTL service
   status, bind_result = bind(smbstate, SVCCTL_UUID, SVCCTL_VERSION, nil)
-  if(status == false) then
+  if not status then
     smb.stop(smbstate)
     return false, bind_result
   end
@@ -4647,7 +4647,7 @@ function service_start(host, servicename, args)
   -- Open the service manager
   stdnse.debug1("Opening the remote service manager")
   status, open_result = svcctl_openscmanagerw(smbstate, host.ip, 0x02000000)
-  if(status == false) then
+  if not status then
     smb.stop(smbstate)
     return false, open_result
   end
@@ -4655,7 +4655,7 @@ function service_start(host, servicename, args)
   -- Get a handle to the service
   stdnse.debug2("Getting a handle to the service")
   status, open_service_result = svcctl_openservicew(smbstate, open_result['handle'], servicename, 0x000f01ff)
-  if(status == false) then
+  if not status then
     smb.stop(smbstate)
     return false, open_service_result
   end
@@ -4663,7 +4663,7 @@ function service_start(host, servicename, args)
   -- Start it
   stdnse.debug2("Starting the service")
   status, start_result = svcctl_startservicew(smbstate, open_service_result['handle'], args)
-  if(status == false) then
+  if not status then
     smb.stop(smbstate)
     return false, start_result
   end
@@ -4672,7 +4672,7 @@ function service_start(host, servicename, args)
   stdnse.debug1("Waiting for the service to start")
   repeat
     status, query_result = svcctl_queryservicestatus(smbstate, open_service_result['handle'])
-    if(status == false) then
+    if not status then
       smb.stop(smbstate)
       return false, query_result
     end
@@ -4681,14 +4681,14 @@ function service_start(host, servicename, args)
 
   -- Close the handle to the service
   status, close_result = svcctl_closeservicehandle(smbstate, open_service_result['handle'])
-  if(status == false) then
+  if not status then
     smb.stop(smbstate)
     return false, close_result
   end
 
   -- Close the service manager
   status, close_result = svcctl_closeservicehandle(smbstate, open_result['handle'])
-  if(status == false) then
+  if not status then
     smb.stop(smbstate)
     return false, close_result
   end
@@ -4715,13 +4715,13 @@ function service_stop(host, servicename)
 
   -- Create the SMB session
   status, smbstate = start_smb(host, SVCCTL_PATH)
-  if(status == false) then
+  if not status then
     return false, smbstate
   end
 
   -- Bind to SVCCTL service
   status, bind_result = bind(smbstate, SVCCTL_UUID, SVCCTL_VERSION, nil)
-  if(status == false) then
+  if not status then
     smb.stop(smbstate)
     return false, bind_result
   end
@@ -4729,7 +4729,7 @@ function service_stop(host, servicename)
   -- Open the service manager
   stdnse.debug2("Opening the remote service manager")
   status, open_result = svcctl_openscmanagerw(smbstate, host.ip, 0x02000000)
-  if(status == false) then
+  if not status then
     smb.stop(smbstate)
     return false, open_result
   end
@@ -4737,7 +4737,7 @@ function service_stop(host, servicename)
   -- Get a handle to the service
   stdnse.debug2("Getting a handle to the service")
   status, open_service_result = svcctl_openservicew(smbstate, open_result['handle'], servicename, 0x000f01ff)
-  if(status == false) then
+  if not status then
     smb.stop(smbstate)
     return false, open_service_result
   end
@@ -4745,7 +4745,7 @@ function service_stop(host, servicename)
   -- Stop it
   stdnse.debug2("Stopping the service")
   status, control_result = svcctl_controlservice(smbstate, open_service_result['handle'], "SERVICE_CONTROL_STOP")
-  if(status == false) then
+  if not status then
     smb.stop(smbstate)
     return false, control_result
   end
@@ -4754,7 +4754,7 @@ function service_stop(host, servicename)
   stdnse.debug2("Waiting for the service to stop")
   repeat
     status, query_result = svcctl_queryservicestatus(smbstate, open_service_result['handle'])
-    if(status == false) then
+    if not status then
       smb.stop(smbstate)
       return false, query_result
     end
@@ -4763,14 +4763,14 @@ function service_stop(host, servicename)
 
   -- Close the handle to the service
   status, close_result = svcctl_closeservicehandle(smbstate, open_service_result['handle'])
-  if(status == false) then
+  if not status then
     smb.stop(smbstate)
     return false, close_result
   end
 
   -- Close the service manager
   status, close_result = svcctl_closeservicehandle(smbstate, open_result['handle'])
-  if(status == false) then
+  if not status then
     smb.stop(smbstate)
     return false, close_result
   end
@@ -4794,13 +4794,13 @@ function service_delete(host, servicename)
 
   -- Create the SMB session
   status, smbstate = start_smb(host, SVCCTL_PATH)
-  if(status == false) then
+  if not status then
     return false, smbstate
   end
 
   -- Bind to SVCCTL service
   status, bind_result = bind(smbstate, SVCCTL_UUID, SVCCTL_VERSION, nil)
-  if(status == false) then
+  if not status then
     smb.stop(smbstate)
     return false, bind_result
   end
@@ -4808,7 +4808,7 @@ function service_delete(host, servicename)
   -- Open the service manager
   stdnse.debug2("Opening the remote service manager")
   status, open_result = svcctl_openscmanagerw(smbstate, host.ip, 0x02000000)
-  if(status == false) then
+  if not status then
     smb.stop(smbstate)
     return false, open_result
   end
@@ -4816,7 +4816,7 @@ function service_delete(host, servicename)
   -- Get a handle to the service
   stdnse.debug2("Getting a handle to the service: %s", servicename)
   status, open_service_result = svcctl_openservicew(smbstate, open_result['handle'], servicename, 0x000f01ff)
-  if(status == false) then
+  if not status then
     smb.stop(smbstate)
     return false, open_service_result
   end
@@ -4824,21 +4824,21 @@ function service_delete(host, servicename)
   -- Delete the service
   stdnse.debug2("Deleting the service")
   status, delete_result = svcctl_deleteservice(smbstate, open_service_result['handle'])
-  if(status == false) then
+  if not status then
     smb.stop(smbstate)
     return false, delete_result
   end
 
   -- Close the handle to the service
   status, close_result = svcctl_closeservicehandle(smbstate, open_service_result['handle'])
-  if(status == false) then
+  if not status then
     smb.stop(smbstate)
     return false, close_result
   end
 
   -- Close the service manager
   status, close_result = svcctl_closeservicehandle(smbstate, open_result['handle'])
-  if(status == false) then
+  if not status then
     smb.stop(smbstate)
     return false, close_result
   end
@@ -4864,20 +4864,20 @@ function get_server_stats(host)
 
   -- Create the SMB session
   status, smbstate = start_smb(host, SRVSVC_PATH)
-  if(status == false) then
+  if not status then
     return false, smbstate
   end
 
   -- Bind to SRVSVC service
   local status, bind_result = bind(smbstate, SRVSVC_UUID, SRVSVC_VERSION, nil)
-  if(status == false) then
+  if not status then
     smb.stop(smbstate)
     return false, bind_result
   end
 
   -- Call netservergetstatistics for 'server'
   local status, netservergetstatistics_result = srvsvc_netservergetstatistics(smbstate, host.ip)
-  if(status == false) then
+  if not status then
     smb.stop(smbstate)
     return false, netservergetstatistics_result
   end
@@ -4925,20 +4925,20 @@ function enum_shares(host)
 
   -- Create the SMB session
   status, smbstate = start_smb(host, SRVSVC_PATH)
-  if(status == false) then
+  if not status then
     return false, smbstate
   end
 
   -- Bind to SRVSVC service
   status, bind_result = bind(smbstate, SRVSVC_UUID, SRVSVC_VERSION, nil)
-  if(status == false) then
+  if not status then
     smb.stop(smbstate)
     return false, bind_result
   end
 
   -- Call netshareenumall
   status, netshareenumall_result = srvsvc_netshareenumall(smbstate, host.ip)
-  if(status == false) then
+  if not status then
     smb.stop(smbstate)
     return false, netshareenumall_result
   end
@@ -4968,13 +4968,13 @@ function get_share_info(host, name)
 
   -- Create the SMB session
   local status, smbstate = start_smb(host, SRVSVC_PATH)
-  if(status == false) then
+  if not status then
     return false, smbstate
   end
 
   -- Bind to SRVSVC service
   local status, bind_result = bind(smbstate, SRVSVC_UUID, SRVSVC_VERSION, nil)
-  if(status == false) then
+  if not status then
     smb.stop(smbstate)
     return false, bind_result
   end
@@ -4983,7 +4983,7 @@ function get_share_info(host, name)
 
   local status, netsharegetinfo_result = srvsvc_netsharegetinfo(smbstate, host.ip, name, 2)
   stdnse.debug2("NetShareGetInfo status:%s result:%s", status, netsharegetinfo_result)
-  if(status == false) then
+  if not status then
     if(string.find(netsharegetinfo_result, "NT_STATUS_WERR_ACCESS_DENIED")) then
       stdnse.debug2("Calling NetShareGetInfo with information level 1")
       status, netsharegetinfo_result = srvsvc_netsharegetinfo(smbstate, host.ip, name, 1)
@@ -5128,7 +5128,7 @@ function RRAS_SubmitRequest(smbstate, pReqBuffer, dwcbBufSize)
   RRAS_Opnums["RasRpcSubmitRequest"],
   req_blob)
   --sanity check
-  if(status == false) then
+  if not status then
     stdnse.debug(
       RRAS_DEBUG_LVL,
       "RRAS_SubmitRequest: Call function failed: %s",
@@ -5266,7 +5266,7 @@ function DNSSERVER_Query(smbstate, server_name, zone, operation)
     DNSSERVER_Opnums['R_DnssrvQuery'],
     req_blob)
   --sanity check
-  if(status == false) then
+  if not status then
     stdnse.debug(
       DNSSERVER_DEBUG_LVL,
       "DNSSERVER_Query: Call function failed: %s",

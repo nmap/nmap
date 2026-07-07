@@ -91,14 +91,14 @@ aka "Print Spooler Service Impersonation Vulnerability."
   ms10_061.state = vulns.STATE.NOT_VULN
   local status, smbstate
   status, smbstate = msrpc.start_smb(host, msrpc.SPOOLSS_PATH,true)
-  if(status == false) then
+  if not status then
     stdnse.debug1("SMB: " .. smbstate)
     return false, smbstate
   end
 
   local bind_result
   status, bind_result = msrpc.bind(smbstate,msrpc.SPOOLSS_UUID, msrpc.SPOOLSS_VERSION, nil)
-  if(status == false) then
+  if not status then
     msrpc.stop_smb(smbstate)
     stdnse.debug1("SMB: " .. bind_result)
     return false, bind_result
@@ -112,7 +112,7 @@ aka "Print Spooler Service Impersonation Vulnerability."
     local REMSmb_share_info_1 = "B13BWz"
     status, lanman_result = msrpc.call_lanmanapi(
       smbstate, 0, REMSmb_NetShareEnum_P, REMSmb_share_info_1, "\x01\x00\x7e\xff")
-    if status == false then
+    if not status then
       stdnse.debug1("SMB: " .. lanman_result)
       stdnse.debug1("SMB: Looks like LANMAN API is not available. Try setting printer script arg.")
     end

@@ -868,7 +868,7 @@ action = function(host, port)
 
   status, bind_result = msrpc.bind(smbstate, msrpc.SVCCTL_UUID, msrpc.SVCCTL_VERSION, nil)
 
-  if(status == false) then
+  if not status then
     smb.stop(smbstate)
     return nil, stdnse.format_output(false, bind_result)
   end
@@ -878,7 +878,7 @@ action = function(host, port)
 
   status, open_result = msrpc.svcctl_openscmanagerw(smbstate, host.ip, 0x02000000)
 
-  if(status == false) then
+  if not status then
     smb.stop(smbstate)
     return nil, stdnse.format_output(false, open_result)
   end
@@ -904,7 +904,7 @@ action = function(host, port)
   -- Fetches service name, display name and service status of every service.
   status, result = msrpc.svcctl_enumservicesstatusw(smbstate, open_result["handle"], dwservicetype, dwservicestate)
 
-  if(status == false) then
+  if not status then
     smb.stop(smbstate)
     return nil, stdnse.format_output(false, result)
   end

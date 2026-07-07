@@ -197,7 +197,7 @@ end
 action = function(host)
   -- Get the process list
   local status, result = msrpcperformance.get_performance_data(host, "230")
-  if status == false then
+  if not status then
     return stdnse.format_output(false, result)
   end
 

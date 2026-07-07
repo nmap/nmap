@@ -200,7 +200,7 @@ action = function(host)
   end
 
   -- Check if both failed
-  if(samr_status == false and lsa_status == false) then
+  if not samr_status and not lsa_status then
     if(string.find(lsa_result, 'ACCESS_DENIED')) then
       return stdnse.format_output(false, "Access denied while trying to enumerate users; except against Windows 2000, Guest or better is typically required")
     end

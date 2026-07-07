@@ -532,7 +532,7 @@ function dhcp_parse(data, transaction_id)
       stdnse.debug2("dhcp-discover: Attempting to parse %s", action['name'])
       pos, value = action['func'](data, pos, length)
 
-      if(nmap.verbosity() == 0 and action.default == false) then
+      if(nmap.verbosity() == 0 and not action.default) then
         stdnse.debug1("dhcp-discover: Server returned unrequested option (%s => %s)", action['name'], value)
 
       else

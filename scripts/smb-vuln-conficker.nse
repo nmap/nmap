@@ -108,13 +108,13 @@ function check_conficker(host)
 
   -- Create the SMB session
   status, smbstate = msrpc.start_smb(host, "\\\\BROWSER", true)
-  if(status == false) then
+  if not status then
     return false, smbstate
   end
 
   -- Bind to SRVSVC service
   status, bind_result = msrpc.bind(smbstate, msrpc.SRVSVC_UUID, msrpc.SRVSVC_VERSION, nil)
-  if(status == false) then
+  if not status then
     msrpc.stop_smb(smbstate)
     return false, bind_result
   end
@@ -130,7 +130,7 @@ function check_conficker(host)
   -- Try checking an illegal string ("\..\") to find Conficker.C and earlier
   status, netpathcanonicalize_result, error_result = msrpc.srvsvc_netpathcanonicalize(smbstate, host.ip, "\\..\\")
 
-  if(status == false) then
+  if not status then
     if(string.find(netpathcanonicalize_result, "INVALID_NAME")) then
       msrpc.stop_smb(smbstate)
       return true, CLEAN
@@ -168,7 +168,7 @@ This system shows signs of being infected by a variant of the worm Conficker.]],
 
   -- Check for Conficker
   status, result = check_conficker(host)
-  if(status == false) then
+  if not status then
     vuln_table.extra_info = CONFICKER_ERROR_HELP[result] or "UNKNOWN; got error " .. result
     vuln_table.state = vulns.STATE.NOT_VULN
   else

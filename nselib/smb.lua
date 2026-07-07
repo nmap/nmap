@@ -308,7 +308,7 @@ function start(host)
     status, state['socket'] = start_raw(host, port)
     state['port'] = port
 
-    if(status == false) then
+    if not status then
       return false, state['socket']
     end
     return true, state
@@ -316,7 +316,7 @@ function start(host)
   else
     status, state['socket'] = start_netbios(host, port)
     state['port'] = port
-    if(status == false) then
+    if not status then
       return false, state['socket']
     end
     return true, state
@@ -358,7 +358,7 @@ function start_ex(host, bool_negotiate_protocol, bool_start_session, str_tree_co
 
   -- Begin the SMB session
   status, smbstate = start(host)
-  if(status == false) then
+  if not status then
     return false, smbstate
   end
 
@@ -370,7 +370,7 @@ function start_ex(host, bool_negotiate_protocol, bool_start_session, str_tree_co
   if(bool_negotiate_protocol == true) then
     -- Negotiate the protocol
     status, err = negotiate_protocol(smbstate, overrides)
-    if(status == false) then
+    if not status then
       stop(smbstate)
       return false, err
     end
@@ -378,7 +378,7 @@ function start_ex(host, bool_negotiate_protocol, bool_start_session, str_tree_co
     if(bool_start_session == true) then
       -- Start up a session
       status, err = start_session(smbstate, overrides)
-      if(status == false) then
+      if not status then
         stop(smbstate)
         return false, err
       end
@@ -386,7 +386,7 @@ function start_ex(host, bool_negotiate_protocol, bool_start_session, str_tree_co
       if(str_tree_connect ~= nil) then
         -- Connect to share
         status, err = tree_connect(smbstate, str_tree_connect, overrides)
-        if(status == false) then
+        if not status then
           stop(smbstate)
           return false, err
         end
@@ -394,7 +394,7 @@ function start_ex(host, bool_negotiate_protocol, bool_start_session, str_tree_co
         if(str_create_file ~= nil) then
           -- Try to connect to requested pipe
           status, err = create_file(smbstate, str_create_file, overrides)
-          if(status == false) then
+          if not status then
             stop(smbstate)
             return false, err
           end
@@ -429,7 +429,7 @@ function stop(smb)
   if(smb['socket'] ~= nil) then
     local status, err = smb['socket']:close()
 
-    if(status == false) then
+    if not status then
       return false, "SMB: Failed to close socket: " .. err
     end
   end
@@ -451,7 +451,7 @@ function start_raw(host, port)
   socket:set_timeout(TIMEOUT)
   status, err = socket:connect(host, port, "tcp")
 
-  if(status == false) then
+  if not status then
     return false, "SMB: Failed to connect to host: " .. err
   end
 
@@ -561,7 +561,7 @@ function start_netbios(host, port, name)
     stdnse.debug3("SMB: Connecting to %s", host.ip)
     socket:set_timeout(TIMEOUT)
     status, err = socket:connect(host, port, "tcp")
-    if(status == false) then
+    if not status then
       socket:close()
       return false, "SMB: Failed to connect: " .. err
     end
@@ -569,7 +569,7 @@ function start_netbios(host, port, name)
     -- Send the session request
     stdnse.debug3("SMB: Sending NetBIOS session request with name %s", name)
     status, err = socket:send(session_request)
-    if(status == false) then
+    if not status then
       socket:close()
       return false, "SMB: Failed to send: " .. err
     end
@@ -578,7 +578,7 @@ function start_netbios(host, port, name)
     -- Receive the session response
     stdnse.debug3("SMB: Receiving NetBIOS session response")
     status, result = socket:receive_buf(match.numbytes(4), true);
-    if(status == false) then
+    if not status then
       socket:close()
       return false, "SMB: Failed to close socket: " .. result
     end
@@ -873,7 +873,7 @@ function smb_read(smb, read_data)
 
   -- Check the message signature (ignoring the first four bytes, which are the netbios header)
   local good_signature = message_check_signature(smb, string.sub(result, 5))
-  if(good_signature == false) then
+  if not good_signature then
     return false, "SMB: ERROR: Server returned invalid signature"
   end
 
@@ -945,7 +945,7 @@ function negotiate_v1(smb, overrides)
   -- Send the negotiate request
   stdnse.debug2("SMB: Sending SMB_COM_NEGOTIATE")
   local result, err = smb_send(smb, header, parameters, data, overrides)
-  if(result == false) then
+  if not result then
     return false, err
   end
   -- Read the result
@@ -1098,7 +1098,7 @@ function list_dialects(host, overrides)
   -- Check for SMBv1 first
   stdnse.debug2("Checking if SMBv1 is supported")
   status, smbstate = start(host)
-  if(status == false) then
+  if not status then
     return false, smbstate
   end
 
@@ -1109,7 +1109,7 @@ function list_dialects(host, overrides)
   stop(smbstate) -- Finish SMBv1 and close connection
 
   status, smbstate = start(host)
-  if(status == false) then
+  if not status then
     return false, smbstate
   end
   stdnse.debug2("Checking if SMB 2+ is supported in general")
@@ -1130,7 +1130,7 @@ function list_dialects(host, overrides)
     local dialect_name = smb2.dialect_name(dialect)
     -- we need a clean connection for each negotiate request
     status, smbstate = start(host)
-    if(status == false) then
+    if not status then
       return false, smbstate
     end
     stdnse.debug2("SMB2: Checking if dialect '%s' is supported", dialect_name)
@@ -1206,7 +1206,7 @@ local function start_session_basic(smb, log_errors, overrides)
     -- Send the session setup request
     stdnse.debug2("SMB: Sending SMB_COM_SESSION_SETUP_ANDX")
     result, err = smb_send(smb, header, parameters, data, overrides)
-    if(result == false) then
+    if not result then
       return false, err
     end
 
@@ -1389,7 +1389,7 @@ local function start_session_extended(smb, log_errors, overrides)
       end
 
       -- There was an error processing the security blob
-      if(status == false) then
+      if not status then
         return false, string.format("SMB: ERROR: Security blob: %s", security_blob)
       end
 
@@ -1420,7 +1420,7 @@ local function start_session_extended(smb, log_errors, overrides)
       -- Send the session setup request
       stdnse.debug2("SMB: Sending SMB_COM_SESSION_SETUP_ANDX")
       result, err = smb_send(smb, header, parameters, data, overrides)
-      if(result == false) then
+      if not result then
         return false, err
       end
 
@@ -1632,7 +1632,7 @@ function tree_connect(smb, path, overrides)
   -- Send the tree connect request
   stdnse.debug2("SMB: Sending SMB_COM_TREE_CONNECT_ANDX")
   result, err = smb_send(smb, header, parameters, data, overrides)
-  if(result == false) then
+  if not result then
     return false, err
   end
 
@@ -1677,7 +1677,7 @@ function tree_disconnect(smb, overrides)
   -- Send the tree disconnect request
   stdnse.debug2("SMB: Sending SMB_COM_TREE_DISCONNECT")
   local result, err = smb_send(smb, header, "", "", overrides)
-  if(result == false) then
+  if not result then
     return false, err
   end
 
@@ -1728,7 +1728,7 @@ function logoff(smb, overrides)
   -- Send the tree disconnect request
   stdnse.debug2("SMB: Sending SMB_COM_LOGOFF_ANDX")
   local result, err = smb_send(smb, header, parameters, "", overrides)
-  if(result == false) then
+  if not result then
     return false, err
   end
 
@@ -1812,7 +1812,7 @@ function create_file(smb, path, overrides)
     -- Send the create file
     stdnse.debug2("SMB: Sending SMB_COM_NT_CREATE_ANDX")
     local result, err = smb_send(smb, header, parameters, data, overrides)
-    if(result == false) then
+    if not result then
       mutex "done"
       return false, err
     end
@@ -1907,7 +1907,7 @@ function read_file(smb, offset, count, overrides)
   -- Send the create file
   stdnse.debug2("SMB: Sending SMB_COM_READ_ANDX")
   local result, err = smb_send(smb, header, parameters, data, overrides)
-  if(result == false) then
+  if not result then
     return false, err
   end
 
@@ -2003,7 +2003,7 @@ function write_file(smb, write_data, offset, overrides)
   -- Send the create file
   stdnse.debug2("SMB: Sending SMB_COM_WRITE_ANDX")
   local result, err = smb_send(smb, header, parameters, data, overrides)
-  if(result == false) then
+  if not result then
     return false, err
   end
 
@@ -2066,7 +2066,7 @@ function close_file(smb, overrides)
   -- Send the close file
   stdnse.debug2("SMB: Sending SMB_CLOSE")
   local result, err = smb_send(smb, header, parameters, data, overrides)
-  if(result == false) then
+  if not result then
     return false, err
   end
 
@@ -2116,7 +2116,7 @@ function delete_file(smb, path, overrides)
   -- Send the close file
   stdnse.debug2("SMB: Sending SMB_CLOSE")
   local result, err = smb_send(smb, header, parameters, data, overrides)
-  if(result == false) then
+  if not result then
     return false, err
   end
 
@@ -2346,7 +2346,7 @@ function send_transaction_named_pipe(smb, function_parameters, function_data, pi
   -- Send the transaction request
   stdnse.debug2("SMB: Sending SMB_COM_TRANSACTION")
   local result, err = smb_send(smb, header, parameters, data, overrides)
-  if(result == false) then
+  if not result then
     return false, err
   end
 
@@ -2433,7 +2433,7 @@ function send_transaction_waitnamedpipe(smb, priority, pipe, overrides)
   -- Send the transaction request
   stdnse.debug2("SMB: Sending SMB_COM_TRANSACTION (WaitNamedPipe)")
   local result, err = smb_send(smb, header, parameters, data, overrides)
-  if(result == false) then
+  if not result then
     return false, err
   end
 
@@ -2499,7 +2499,7 @@ function file_upload(host, localfile, share, remotefile, overrides, encoded)
 
   -- Create the SMB session
   status, smbstate = start_ex(host, true, true, share, remotefile, nil, overrides)
-  if(status == false) then
+  if not status then
     return false, smbstate
   end
 
@@ -2517,7 +2517,7 @@ function file_upload(host, localfile, share, remotefile, overrides, encoded)
     end
 
     status, err = write_file(smbstate, data, i)
-    if(status == false) then
+    if not status then
       stop(smbstate)
       return false, err
     end
@@ -2528,7 +2528,7 @@ function file_upload(host, localfile, share, remotefile, overrides, encoded)
 
   handle:close()
   status, err = close_file(smbstate)
-  if(status == false) then
+  if not status then
     stop(smbstate)
     return false, err
   end
@@ -2561,7 +2561,7 @@ function file_write(host, data, share, remotefile, use_anonymous)
   -- Create the SMB session
   status, smbstate = start_ex(host, true, true, share, remotefile, nil, overrides)
 
-  if(status == false) then
+  if not status then
     return false, smbstate
   end
 
@@ -2569,7 +2569,7 @@ function file_write(host, data, share, remotefile, use_anonymous)
   while(i <= #data) do
     local chunkdata = string.sub(data, i, i + chunk - 1)
     status, err = write_file(smbstate, chunkdata, i - 1)
-    if(status == false) then
+    if not status then
       stop(smbstate)
       return false, err
     end
@@ -2578,7 +2578,7 @@ function file_write(host, data, share, remotefile, use_anonymous)
   end
 
   status, err = close_file(smbstate)
-  if(status == false) then
+  if not status then
     stop(smbstate)
     return false, err
   end
@@ -2615,14 +2615,14 @@ function file_read(host, share, remotefile, use_anonymous, overrides)
   -- Create the SMB session
   status, smbstate = start_ex(host, true, true, share, remotefile, nil, overrides)
 
-  if(status == false) then
+  if not status then
     return false, smbstate
   end
 
   local i = 1
   while true do
     status, result = read_file(smbstate, i - 1, chunk)
-    if(status == false) then
+    if not status then
       stop(smbstate)
       return false, result
     end
@@ -2636,7 +2636,7 @@ function file_read(host, share, remotefile, use_anonymous, overrides)
   end
 
   status, err = close_file(smbstate)
-  if(status == false) then
+  if not status then
     stop(smbstate)
     return false, err
   end
@@ -2667,7 +2667,7 @@ function files_exist(host, share, files, overrides)
   -- Create the SMB session
   status, smbstate = start_ex(host, true, true, share, nil, nil, overrides)
 
-  if(status == false) then
+  if not status then
     return false, smbstate
   end
 
@@ -2688,7 +2688,7 @@ function files_exist(host, share, files, overrides)
       exist = exist + 1
       table.insert(list, file)
       status, err = close_file(smbstate)
-      if(status == false) then
+      if not status then
         stop(smbstate)
         return false, err
       end
@@ -2711,7 +2711,7 @@ function file_delete(host, share, remotefile)
 
   -- Create the SMB session
   status, smbstate = start_ex(host, true, true, share)
-  if(status == false) then
+  if not status then
     return false, smbstate
   end
 
@@ -2723,7 +2723,7 @@ function file_delete(host, share, remotefile)
 
   for _, file in ipairs(remotefile) do
     status, err = delete_file(smbstate, file)
-    if(status == false) then
+    if not status then
       stdnse.debug1("SMB: Couldn't delete %s\\%s: %s", share, file, err)
       if(err ~= 'NT_STATUS_OBJECT_NAME_NOT_FOUND') then
         stop(smbstate)
@@ -2942,7 +2942,7 @@ function share_anonymous_can_write(host, share)
 
   -- Next, attempt to write to that file
   status, err = file_write(host, string.rep("ABCDEFGHIJKLMNOPQRSTUVWXYZ", 10), share, filename, true)
-  if(status == false) then
+  if not status then
     if(err == "NT_STATUS_OBJECT_NAME_NOT_FOUND") then
       return false, err
     end
@@ -2956,7 +2956,7 @@ function share_anonymous_can_write(host, share)
 
   -- Now the important part: delete it
   status, err = file_delete(host, share, filename)
-  if(status == false) then
+  if not status then
     return false, "Error deleting test file as anonymous: " .. err
   end
 
@@ -2981,7 +2981,7 @@ function share_user_can_write(host, share)
 
   -- Next, attempt to write to that file
   status, err = file_write(host, string.rep("ABCDEFGHIJKLMNOPQRSTUVWXYZ", 10), share, filename)
-  if(status == false) then
+  if not status then
     if(err == "NT_STATUS_OBJECT_NAME_NOT_FOUND") then
       return false, err
     end
@@ -2995,7 +2995,7 @@ function share_user_can_write(host, share)
 
   -- Now the important part: delete it
   status, err = file_delete(host, share, filename)
-  if(status == false) then
+  if not status then
     return false, "Error deleting test file as user: " .. err
   end
 
@@ -3015,13 +3015,13 @@ function share_anonymous_can_read(host, share)
 
   -- Begin the SMB session
   status, smbstate = start(host)
-  if(status == false) then
+  if not status then
     return false, smbstate
   end
 
   -- Negotiate the protocol
   status, err = negotiate_protocol(smbstate, overrides)
-  if(status == false) then
+  if not status then
     stop(smbstate)
     return false, err
   end
@@ -3029,14 +3029,14 @@ function share_anonymous_can_read(host, share)
   -- Start up a null session
   status, err = start_session(smbstate, overrides)
 
-  if(status == false) then
+  if not status then
     stop(smbstate)
     return false, err
   end
 
   -- Attempt a connection to the share
   status, err = tree_connect(smbstate, share, overrides)
-  if(status == false) then
+  if not status then
 
     -- Stop the session
     stop(smbstate)
@@ -3068,27 +3068,27 @@ function share_user_can_read(host, share)
 
   -- Begin the SMB session
   status, smbstate = start(host)
-  if(status == false) then
+  if not status then
     return false, smbstate
   end
 
   -- Negotiate the protocol
   status, err = negotiate_protocol(smbstate, overrides)
-  if(status == false) then
+  if not status then
     stop(smbstate)
     return false, err
   end
 
   -- Start up a null session
   status, err = start_session(smbstate, overrides)
-  if(status == false) then
+  if not status then
     stop(smbstate)
     return false, err
   end
 
   -- Attempt a connection to the share
   status, err = tree_connect(smbstate, share, overrides)
-  if(status == false) then
+  if not status then
 
     -- Stop the session
     stop(smbstate)
@@ -3123,20 +3123,20 @@ function share_host_returns_proper_error(host, use_anonymous)
 
   -- Begin the SMB session
   status, smbstate = start(host)
-  if(status == false) then
+  if not status then
     return false, smbstate
   end
 
   -- Negotiate the protocol
   status, err = negotiate_protocol(smbstate, overrides)
-  if(status == false) then
+  if not status then
     stop(smbstate)
     return false, err
   end
 
   -- Start up a null session
   status, err = start_session(smbstate, overrides)
-  if(status == false) then
+  if not status then
     stop(smbstate)
     return false, err
   end
@@ -3145,7 +3145,7 @@ function share_host_returns_proper_error(host, use_anonymous)
   stdnse.debug1("SMB: Trying a random share to see if server responds properly: %s", share)
   status, err = tree_connect(smbstate, share, overrides)
 
-  if(status == false) then
+  if not status then
     -- If the error is NT_STATUS_ACCESS_DENIED (0xc0000022), that's bad -- we don't want non-existent shares
     -- showing up as 'access denied'. Any other error is ok.
     if(err == 0xc0000022 or err == 'NT_STATUS_ACCESS_DENIED') then
@@ -3188,7 +3188,7 @@ function share_get_details(host, share)
   -- Check if the current user can read the share
   stdnse.debug1("SMB: Checking if share %s can be read by the current user", share)
   status, result = share_user_can_read(host, share)
-  if(status == false) then
+  if not status then
     return false, result
   end
   details['user_can_read'] = result
@@ -3203,7 +3203,7 @@ function share_get_details(host, share)
   -- Check if the current user can write to the share
   stdnse.debug1("SMB: Checking if share %s can be written by the current user", share)
   status, result = share_user_can_write(host, share)
-  if(status == false) then
+  if not status then
     if(result == "NT_STATUS_OBJECT_NAME_NOT_FOUND") then
       details['user_can_write'] = "NT_STATUS_OBJECT_NAME_NOT_FOUND"
     else
@@ -3215,7 +3215,7 @@ function share_get_details(host, share)
   -- Check if the anonymous user can write to the share
   stdnse.debug1("SMB: Checking if share %s can be written by the anonymous user", share)
   status, result = share_anonymous_can_write(host, share)
-  if(status == false and result == "NT_STATUS_OBJECT_NAME_NOT_FOUND") then
+  if not status and result == "NT_STATUS_OBJECT_NAME_NOT_FOUND" then
     details['anonymous_can_write'] = "NT_STATUS_OBJECT_NAME_NOT_FOUND"
   elseif( status == true ) then
     details['anonymous_can_write'] = result
@@ -3223,7 +3223,7 @@ function share_get_details(host, share)
 
   -- Try and get full details about the share
   status, result = msrpc.get_share_info(host, share)
-  if(status == false) then
+  if not status then
     -- We don't stop for this error (it's pretty common since administrative privileges are required here)
     stdnse.debug1("SMB: Failed to get share info for %s: %s", share, result)
     details['details'] = result
@@ -3263,7 +3263,7 @@ function share_get_list(host)
 
   -- If that failed, try doing it with brute force. This almost certainly won't find everything, but it's the
   -- best we can do.
-  if(enum_status == false) then
+  if not enum_status then
     stdnse.debug1("SMB: Enumerating shares failed, guessing at common ones (%s)", shares)
     extra = string.format("ERROR: Enumerating shares failed, guessing at common ones (%s)", shares)
 
@@ -3292,12 +3292,12 @@ function share_get_list(host)
   for _, anon in ipairs({true, false}) do
     status, result = share_host_returns_proper_error(host, anon)
 
-    if(status == true and result == false) then
+    if status and not result then
       return false, "Server doesn't return proper value for non-existent shares; can't enumerate shares"
     end
   end
 
-  if(status == false) then
+  if not status then
     return false, result
   end
 
@@ -3306,9 +3306,9 @@ function share_get_list(host)
     local status, result
     stdnse.debug1("SMB: Getting information for share: %s", shares[i])
     status, result = share_get_details(host, shares[i])
-    if(status == false and result == 'NT_STATUS_BAD_NETWORK_NAME') then
+    if not status and result == 'NT_STATUS_BAD_NETWORK_NAME' then
       stdnse.debug1("SMB: Share doesn't exist: %s", shares[i])
-    elseif(status == false) then
+    elseif not status then
       stdnse.debug1("SMB: Error while getting share details: %s", result)
       return false, result
     else
@@ -3334,7 +3334,7 @@ function share_find_writable(host)
   local writable = {}
 
   status, shares = share_get_list(host)
-  if(status == false) then
+  if not status then
     return false, shares
   end
 
@@ -3403,7 +3403,7 @@ function get_os(host)
 
   -- Start up SMB
   status, smbstate = start_ex(host, true, true, nil, nil, true)
-  if(status == false) then
+  if not status then
     return false, smbstate
   end
 
@@ -3470,13 +3470,13 @@ function get_socket_info(host)
 
   -- Start SMB (we need a socket to get the proper local ip
   status, smbstate = start_ex(host)
-  if(status == false) then
+  if not status then
     return false, smbstate
   end
 
   socket = smbstate['socket']
   status, lhost, lport, rhost, rport = socket:get_info()
-  if(status == false) then
+  if not status then
     return false, lhost
   end
 
@@ -3554,21 +3554,21 @@ function is_admin(host, username, domain, password, password_hash, hash_type)
   stdnse.debug1("SMB: Checking if %s is an administrator", username)
 
   local status, smbstate = start(host)
-  if(status == false) then
+  if not status then
     stdnse.debug1("SMB; is_admin: Failed to start SMB: %s [%s]", smbstate, username)
     stop(smbstate)
     return false
   end
 
   local status, err      = negotiate_protocol(smbstate, overrides)
-  if(status == false) then
+  if not status then
     stdnse.debug1("SMB; is_admin: Failed to negotiate protocol: %s [%s]", err, username)
     stop(smbstate)
     return false
   end
 
   status, err      = start_session(smbstate, overrides)
-  if(status == false) then
+  if not status then
     stdnse.debug1("SMB; is_admin: Failed to start session %s [%s]", err, username)
     stop(smbstate)
     return false
@@ -3576,21 +3576,21 @@ function is_admin(host, username, domain, password, password_hash, hash_type)
 
   local _, fqpn_share = get_fqpn(host, "IPC$")
   status, err      = tree_connect(smbstate, fqpn_share, overrides)
-  if(status == false) then
+  if not status then
     stdnse.debug1("SMB; is_admin: Failed to connect tree: %s [%s]", err, username)
     stop(smbstate)
     return false
   end
 
   status, err      = create_file(smbstate, msrpc.SRVSVC_PATH, overrides)
-  if(status == false) then
+  if not status then
     stdnse.debug1("SMB; is_admin: Failed to create file: %s [%s]", err, username)
     stop(smbstate)
     return false
   end
 
   status, err      = msrpc.bind(smbstate, msrpc.SRVSVC_UUID, msrpc.SRVSVC_VERSION, nil)
-  if(status == false) then
+  if not status then
     stdnse.debug1("SMB; is_admin: Failed to bind: %s [%s]", err, username)
     stop(smbstate)
     return false
@@ -3598,7 +3598,7 @@ function is_admin(host, username, domain, password, password_hash, hash_type)
 
   -- Call netservergetstatistics for 'server'
   status, err = msrpc.srvsvc_netservergetstatistics(smbstate, host.ip)
-  if(status == false) then
+  if not status then
     stdnse.debug1("SMB; is_admin: Couldn't get server stats (may be normal): %s [%s]", err, username)
     stop(smbstate)
     return false

@@ -63,12 +63,12 @@ portrule = shortport.version_port_or_service(102, "iso-tsap", "tcp")
 -- @param bytes how many bytes (minimum) you expect back
 local function send_receive(socket, query, bytes)
   local sendstatus, senderr = socket:send(query)
-  if(sendstatus == false) then
+  if not sendstatus then
     return "Error Sending S7COMM"
   end
   -- receive response
   local rcvstatus, response = socket:receive_bytes(bytes)
-  if(rcvstatus == false) then
+  if not rcvstatus then
     return "Error Reading S7COMM"
   end
   return response

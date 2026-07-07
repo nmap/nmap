@@ -315,8 +315,8 @@ fetch_host_key = function( host, port, key_type )
   -- check for proper msg code
   local msg_code = kexdh_reply:byte(1)
 
-  if ( kexdh_gex_used == true and msg_code ~= SSH2.SSH_MSG_KEX_DH_GEX_REPLY )
-    or ( kexdh_gex_used == false and msg_code ~= SSH2.SSH_MSG_KEXDH_REPLY )
+  if ( kexdh_gex_used and msg_code ~= SSH2.SSH_MSG_KEX_DH_GEX_REPLY )
+    or ( not kexdh_gex_used and msg_code ~= SSH2.SSH_MSG_KEXDH_REPLY )
   then
     socket:close()
     return

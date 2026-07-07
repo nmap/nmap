@@ -258,7 +258,7 @@ local function prng_generate_ports(ip, seed)
 
       ports[(i % 2) + 3] = (v2 & 0xFFFF) ~ ports[(i % 2) + 3]
     end
-  until(is_blacklisted_port(ports[3]) == false and is_blacklisted_port(ports[4]) == false and ports[3] ~= ports[4])
+  until not is_blacklisted_port(ports[3]) and not is_blacklisted_port(ports[4]) and ports[3] ~= ports[4]
 
   return {ports[1], ports[2], ports[3], ports[4]}
 end
@@ -483,7 +483,7 @@ local function conficker_check(ip, port, protocol)
   local response
 
   status, packet = p2p_create_packet(protocol)
-  if(status == false) then
+  if not status then
     return false, packet
   end
 
@@ -491,7 +491,7 @@ local function conficker_check(ip, port, protocol)
   socket = nmap.new_socket()
   socket:set_timeout(5000)
   status, response = socket:connect(ip, port, protocol)
-  if(status == false) then
+  if not status then
     return false, "Couldn't establish connection (" .. response .. ")"
   end
 
@@ -500,7 +500,7 @@ local function conficker_check(ip, port, protocol)
 
   -- Read a response (2 bytes minimum, because that's the TCP length)
   status, response = socket:receive_bytes(2)
-  if(status == false) then
+  if not status then
     return false, "Couldn't receive bytes: " .. response
   elseif(response == "ERROR") then
     return false, "Failed to receive data"
@@ -522,7 +522,7 @@ local function conficker_check(ip, port, protocol)
       tries = tries - 1
 
       local status, response2 = socket:receive_bytes(length - (#response - 2))
-      if(status == false) then
+      if not status then
         return false, "Couldn't receive bytes: " .. response2
       elseif(response2 == "ERROR") then
         return false, "Failed to receive data"
@@ -544,7 +544,7 @@ local function conficker_check(ip, port, protocol)
 
   local status, result = p2p_parse(response)
 
-  if(status == false) then
+  if not status then
     return false, "Data received, but wasn't Conficker data: " .. result
   end
 

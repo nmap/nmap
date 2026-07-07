@@ -51,7 +51,7 @@ action = function(host)
 
   result, stats = msrpc.get_server_stats(host)
 
-  if(result == false) then
+  if not result then
     return stdnse.format_output(false, response)
   end
 
