@@ -174,6 +174,7 @@ end
 ---
 function smb2_read(smb, read_data)
   stdnse.debug3("SMB2: Receiving SMB2 packet")
+  if read_data == nil then read_data = true end
 
   -- Receive the response -- we make sure to receive at least 4 bytes, the length of the NetBIOS length
   smb['socket']:set_timeout(TIMEOUT)
@@ -217,7 +218,7 @@ function smb2_read(smb, read_data)
 
   -- Read the data section or skip it if read_data is false.
   local data
-  if(read_data == nil or read_data == true) then
+  if read_data then
     data = result:sub(pos)
   end
 

@@ -315,7 +315,7 @@ local function check_login(hostinfo, username, password, logintype)
     status, err = smb.start_session(smbstate, smb.get_overrides(username, domain, password, nil, logintype), false)
   end
 
-  if(status == true) then
+  if status then
     if(smbstate['is_guest'] == 1) then
       result = results.GUEST_ACCESS
     else

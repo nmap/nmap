@@ -149,7 +149,7 @@ function string_to_unicode(string, do_null)
   local result = unicode.utf8to16(string)
 
   -- Add a null, if the caller requested it
-  if(do_null == true) then
+  if do_null then
     result = result .. "\0\0"
   end
 
@@ -338,7 +338,7 @@ local function unmarshall_ptr(location, data, pos, func, args, result)
   end
 
   if(location == BODY or location == ALL) then
-    if(result == true) then
+    if result then
       pos, result = func(data, pos, table.unpack(args))
     else
       result = nil
@@ -866,6 +866,7 @@ end
 --@param pad  [optional] If set, will remove extra bytes to align the packet, Default: true
 --@return (pos, int16) The new position, and the value.
 function unmarshall_int16(data, pos, pad)
+  if pad == nil then pad = true end
   local value
 
   stdnse.debug4("MSRPC: Entering unmarshall_int16()")
@@ -877,7 +878,7 @@ function unmarshall_int16(data, pos, pad)
   end
   value, pos = string.unpack("<I2", data, pos)
 
-  if(pad == nil or pad == true) then
+  if pad then
     pos = pos + 2
   end
 
@@ -893,6 +894,7 @@ end
 --@param pad  [optional] If set, will remove extra bytes to align the packet, Default: true
 --@return (pos, int8) The new position, and the value.
 function unmarshall_int8(data, pos, pad)
+  if pad == nil then pad = true end
   local value
 
   stdnse.debug4("MSRPC: Entering unmarshall_int8()")
@@ -904,7 +906,7 @@ function unmarshall_int8(data, pos, pad)
   end
   value, pos = string.unpack("<B", data, pos)
 
-  if(pad == nil or pad == true) then
+  if pad then
     pos = pos + 3
   end
 
@@ -1064,6 +1066,7 @@ end
 --            true.
 --@return (pos, str) The position, and the resulting string, which cannot be nil.
 function unmarshall_int8_array(data, pos, pad)
+  if pad == nil then pad = true end
   local max, offset, actual
   local str
 
@@ -1083,7 +1086,7 @@ function unmarshall_int8_array(data, pos, pad)
   str, pos = string.unpack("<c"..actual, data, pos)
 
   -- Do the alignment (note the "- 1", it's there because of 1-based arrays)
-  if(pad == nil or pad == true) then
+  if pad then
     while(((pos - 1) % 4) ~= 0) do
       pos = pos + 1
     end

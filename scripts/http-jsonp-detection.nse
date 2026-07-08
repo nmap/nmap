@@ -76,7 +76,7 @@ local callback_url = function(host, port, target, callback_variable)
     local status, func
     status, func = checkjson(response.body)
 
-    if status == true then
+    if status then
       if func == value then
         report = "Completely controllable from URL"
       else
@@ -102,7 +102,7 @@ local callback_bruteforce = function(host, port, target)
       local status, func
       status, func = checkjson(response.body)
 
-      if status == true then
+      if status then
         report = callback_url(host, port, target, p)
         if report ~= nil then
           report = string.format("%s\t%s", target, report)
@@ -152,7 +152,7 @@ action = function(host, port)
       local status, func, report
       status, func = checkjson(r.response.body)
 
-      if status == true then
+      if status then
         --We have found JSONP endpoint
         --Put it inside a returnable table.
         output_str = string.format("%s\n%s", output_str, target)

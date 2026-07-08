@@ -612,7 +612,7 @@ action = function(host)
     status, reason = conficker_check(host.ip, port, "tcp")
     checks = checks + 1
 
-    if(status == true) then
+    if status then
       table.insert(response, string.format("Check %d (port %d/%s): INFECTED (%s)", checks, port, "tcp", reason))
       count = count + 1
     else
@@ -627,7 +627,7 @@ action = function(host)
     status, reason = conficker_check(host.ip, port, "udp")
     checks = checks + 1
 
-    if(status == true) then
+    if status then
       table.insert(response, string.format("Check %d (port %d/%s): INFECTED (%s)", checks, port, "udp", reason))
       count = count + 1
     else

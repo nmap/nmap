@@ -147,7 +147,7 @@ local function winreg_enum_rids(host)
   repeat
     local status, enumkey_result = msrpc.winreg_enumkey(smbstate, openhku_result['handle'], i, "")
 
-    if(status == true) then
+    if status then
       local status, openkey_result
 
       local element = {}

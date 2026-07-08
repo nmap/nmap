@@ -473,7 +473,7 @@ function call_function(smbstate, opnum, arguments)
 
     -- No longer the 'first'
     first = false
-  until is_last == true
+  until is_last
 
   result['arguments'] = arguments
 
@@ -4148,13 +4148,13 @@ function lsa_enum_users(host)
 
   -- Get the server's name from nbstat
   local result, server_name = netbios.get_server_name(host.ip)
-  if(result == true) then
+  if result then
     names[#names + 1] = server_name
   end
 
   -- Get the logged in user from nbstat
   local result, user_name = netbios.get_user_name(host.ip)
-  if(result == true) then
+  if result then
     names[#names + 1] = user_name
   end
 

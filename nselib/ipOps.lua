@@ -56,7 +56,7 @@ isPrivate = function( ip )
 
     for _, range in ipairs( ipv6_private ) do
       is_private, err = ip_in_range( ip, range )
-      if is_private == true then
+      if is_private then
         return true, range
       end
       if err then
@@ -79,7 +79,7 @@ isPrivate = function( ip )
   elseif ip:sub(1,4) == '172.' then
 
     local p, e = ip_in_range(ip, '172.16/12')
-    if p == true then
+    if p then
       return true, '172.16/12'
     else
       return p, e

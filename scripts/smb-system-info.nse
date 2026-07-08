@@ -191,7 +191,7 @@ action = function(host)
 
   local response = {}
 
-  if(result['status-os'] == true) then
+  if result['status-os'] then
     local osdetails = {}
     osdetails['name'] = "OS Details"
     table.insert(osdetails, string.format("%s %s (%s %s build %s)",                     result['productname'], result['csdversion'], result['producttype'], result['currentversion'], result['currentbuildnumber']))
@@ -228,7 +228,7 @@ action = function(host)
     table.insert(response, browsers)
 
     return stdnse.format_output(true, response)
-  elseif(result['status-productname'] == true) then
+  elseif result['status-productname'] then
 
     local osdetails = {}
     osdetails['name'] = 'OS Details'

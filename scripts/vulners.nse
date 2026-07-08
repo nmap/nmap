@@ -146,7 +146,7 @@ function get_results(what, vers, type)
 
   status, vulns = json.parse(response.body)
 
-  if status == true then
+  if status then
     if vulns.result == "OK" then
       return make_links(vulns)
     end

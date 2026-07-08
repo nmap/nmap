@@ -122,7 +122,7 @@ function check_conficker(host)
   -- Try checking a valid string to find Conficker.D
   local netpathcanonicalize_result, error_result
   status, netpathcanonicalize_result, error_result = msrpc.srvsvc_netpathcanonicalize(smbstate, host.ip, "\\")
-  if(status == true and netpathcanonicalize_result['can_path'] == 0x5c45005c) then
+  if status and netpathcanonicalize_result['can_path'] == 0x5c45005c then
     msrpc.stop_smb(smbstate)
     return true, INFECTED2
   end

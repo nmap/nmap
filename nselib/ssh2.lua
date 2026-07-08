@@ -298,7 +298,7 @@ fetch_host_key = function( host, port, key_type )
   -- end
 
   local payload
-  if kexdh_gex_used == true then
+  if kexdh_gex_used then
     payload = transport.kexdh_gex_init( e )
   else
     payload = transport.kexdh_init( e )

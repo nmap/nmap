@@ -27,7 +27,7 @@ hostrule = function(host)
     stdnse.debug1("is IPv4 compatible only.")
     return false
   end
-  if host.directly_connected == true and
+  if host.directly_connected and
       host.mac_addr ~= nil and
       host.mac_addr_src ~= nil and
       host.interface ~= nil then
@@ -70,7 +70,7 @@ do_test = function(dnet, pcap, host, test)
     while status and test ~= check(layer2) do
       status, length, layer2, layer3 = pcap:pcap_receive()
     end
-    if status == true then
+    if status then
       -- the basic idea, was to inform user about time, when we got packet
       -- so that 1 would mean (0-10ms), 2=(10-40ms) and 3=(40ms-90ms)
       -- but when we're running this tests on macs, first test is always 2.

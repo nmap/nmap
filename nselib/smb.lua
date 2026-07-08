@@ -285,7 +285,7 @@ function start(host)
   nbcache_mutex "lock"
   if ( not(host.registry['netbios_name']) ) then
     status, result = netbios.get_server_name(host.ip)
-    if(status == true) then
+    if status then
       host.registry['netbios_name'] = result
       state['name'] = result
     end
@@ -363,11 +363,11 @@ function start_ex(host, bool_negotiate_protocol, bool_start_session, str_tree_co
   end
 
   -- Disable extended security if it was requested
-  if(bool_disable_extended == true) then
+  if bool_disable_extended then
     disable_extended(smbstate)
   end
 
-  if(bool_negotiate_protocol == true) then
+  if bool_negotiate_protocol then
     -- Negotiate the protocol
     status, err = negotiate_protocol(smbstate, overrides)
     if not status then
@@ -375,7 +375,7 @@ function start_ex(host, bool_negotiate_protocol, bool_start_session, str_tree_co
       return false, err
     end
 
-    if(bool_start_session == true) then
+    if bool_start_session then
       -- Start up a session
       status, err = start_session(smbstate, overrides)
       if not status then
@@ -523,7 +523,7 @@ function start_netbios(host, port, name)
 
   -- Get the name of the server from NetBIOS
   status, name = netbios.get_server_name(host.ip)
-  if(status == true) then
+  if status then
     names[#names + 1] = name
   end
 
@@ -657,7 +657,7 @@ function smb_encode_header(smb, command, overrides)
   end
 
 
-  if(smb['extended_security'] == true) then
+  if smb['extended_security'] then
     flags2 = (flags2 | 0x0800) -- SMB_EXTENDED_SECURITY
   end
 
@@ -834,6 +834,7 @@ end
 --        removed). If status is false, header contains an error message and parameters/
 --        data are undefined.
 function smb_read(smb, read_data)
+  if read_data == nil then read_data = true end
   local pos, netbios_data, netbios_length, length, header, parameter_length, parameters, data_length, data
 
   stdnse.debug3("SMB: Receiving SMB packet")
@@ -893,7 +894,7 @@ function smb_read(smb, read_data)
   data_length, pos = string.unpack("<I2", result, pos)
 
   -- Read that many bytes of data.
-  if(read_data == nil or read_data == true) then
+  if read_data then
     if (length - pos + 1) < data_length then
       return false, "SMB: ERROR: data_length greater than response length"
     end
@@ -1019,7 +1020,7 @@ function negotiate_v1(smb, overrides)
   end
 
   -- Data section
-  if(smb['extended_security'] == true) then
+  if smb['extended_security'] then
     if #data < 16 then
       return false, "SMB: ERROR: not enough data for extended security"
     end
@@ -1151,6 +1152,7 @@ end
 --- This is an internal function and should not be called externally. Use
 --  the start_session() function instead.
 local function start_session_basic(smb, log_errors, overrides)
+  if log_errors == nil then log_errors = true end
   local i, err
   local status, result
   local header, parameters, data, domain
@@ -1254,7 +1256,7 @@ local function start_session_basic(smb, log_errors, overrides)
       end
 
       -- Check if they were logged in as a guest
-      if(log_errors == nil or log_errors == true) then
+      if log_errors then
         if(smb['is_guest'] == 1) then
           stdnse.debug1("SMB: Login as %s\\%s failed, but was given guest access (username may be wrong, or system may only allow guest)", domain, stdnse.string_or_blank(username))
         else
@@ -1281,7 +1283,7 @@ local function start_session_basic(smb, log_errors, overrides)
         stdnse.sleep(backoff)
       else
         -- This username failed, print a warning and keep going
-        if(log_errors == nil or log_errors == true) then
+        if log_errors then
           stdnse.debug1("SMB: Login as %s\\%s failed (%s)", domain, stdnse.string_or_blank(username), get_status_name(status))
         end
 
@@ -1310,6 +1312,7 @@ end
 --- This is an internal function and should not be called externally. Use
 --  the start_session() function instead.
 local function start_session_extended(smb, log_errors, overrides)
+  if log_errors == nil then log_errors = true end
   local i
   local status, status_name, result, err
   local header, parameters, data
@@ -1493,7 +1496,7 @@ local function start_session_extended(smb, log_errors, overrides)
           end
 
           -- Check if they were logged in as a guest
-          if(log_errors == nil or log_errors == true) then
+          if log_errors then
             if(smb['is_guest'] == 1) then
               stdnse.debug1("SMB: Extended login to %s as %s\\%s failed, but was given guest access (username may be wrong, or system may only allow guest)", smb['ip'], domain, stdnse.string_or_blank(username))
             else
@@ -1522,7 +1525,7 @@ local function start_session_extended(smb, log_errors, overrides)
       stdnse.sleep(backoff)
     else
       -- Display a message to the user, and try the next account
-      if(log_errors == nil or log_errors == true) then
+      if log_errors then
         stdnse.debug1("SMB: Extended login to %s as %s\\%s failed (%s)", smb['ip'], domain, stdnse.string_or_blank(username), status_name)
       end
 
@@ -1543,7 +1546,7 @@ local function start_session_extended(smb, log_errors, overrides)
 
   end -- Loop over the accounts
 
-  if(log_errors == nil or log_errors == true) then
+  if log_errors then
     stdnse.debug1("SMB: ERROR: All logins failed, sorry it didn't work out!")
   end
 
@@ -1580,7 +1583,7 @@ function start_session(smb, overrides, log_errors)
   smb_auth_mutex( "lock" )
 
   local status, result
-  if(smb['extended_security'] == true) then
+  if smb['extended_security'] then
     status, result = start_session_extended(smb, log_errors, overrides)
   else
     status, result = start_session_basic(smb, log_errors, overrides)
@@ -3196,7 +3199,7 @@ function share_get_details(host, share)
   -- Check if the anonymous reader can read the share
   stdnse.debug1("SMB: Checking if share %s can be read by the anonymous user", share)
   status, result = share_anonymous_can_read(host, share)
-  if(status == true) then
+  if status then
     details['anonymous_can_read'] = result
   end
 
@@ -3217,7 +3220,7 @@ function share_get_details(host, share)
   status, result = share_anonymous_can_write(host, share)
   if not status and result == "NT_STATUS_OBJECT_NAME_NOT_FOUND" then
     details['anonymous_can_write'] = "NT_STATUS_OBJECT_NAME_NOT_FOUND"
-  elseif( status == true ) then
+  elseif status then
     details['anonymous_can_write'] = result
   end
 
@@ -3339,7 +3342,7 @@ function share_find_writable(host)
   end
 
   for i = 1, #shares, 1 do
-    if(shares[i]['user_can_write'] == true) then
+    if shares[i]['user_can_write'] then
       if(main_name == nil) then
         main_name = shares[i]['name']
 
@@ -3429,7 +3432,7 @@ function get_os(host)
   -- Start another session with extended security. This will allow us to get
   -- additional information about the target.
   status, smbstate = start_ex(host, true, true, nil, nil, false)
-  if(status == true) then
+  if status then
     -- See if we actually got something
     if (smbstate['fqdn'] or smbstate['domain_dns'] or smbstate['forest_dns']) then
       response['fqdn']         = smbstate['fqdn']

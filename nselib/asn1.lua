@@ -454,7 +454,7 @@ function BERtoInt(class, constructed, number)
 
   local asn1_type = class + number
 
-  if constructed == true then
+  if constructed then
     asn1_type = asn1_type + 32
   end
 

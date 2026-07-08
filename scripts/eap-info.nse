@@ -170,7 +170,7 @@ action = function()
 
   local results = { ["name"] = ("Available authentication methods with identity=\"%s\" on interface %s"):format(identity.name, iface.device) }
   for i,v in pairs(identity.auth) do
-    if v== true then
+    if v then
       table.insert(results, 1, ("%-8s %s"):format(tostring(v), eap.eap_str[i] or "unassigned" ))
     else
       table.insert(results, ("%-8s %s"):format(tostring(v), eap.eap_str[i] or "unassigned" ))
