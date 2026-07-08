@@ -6036,7 +6036,7 @@ match postgresql m|^EInvalid packet length\0$| p/PostgreSQL DB/ cpe:/a:postgresq
 # postgresql-7.2.3-5.73; linux 2.4.20-18.7 redhat 7.3
 match postgresql m|^EFATAL 1:  invalid length of startup packet\n\0| p/PostgreSQL DB/ cpe:/a:postgresql:postgresql/
 match postgresql m|^EFATAL:  ung\xfcltige L\xe4nge des Startpakets\n\0| p/PostgreSQL DB/ i/German/ cpe:/a:postgresql:postgresql::::de/
-match postgresql m|^E\0\0\09SFATAL\0MExpecting a startup message, but received \r\0\0| p/Postgres-XC/ v/1.1/
+match postgresql m|^E\0\0\0\x39SFATAL\0MExpecting a startup message, but received \r\0\0| p/Postgres-XC/ v/1.1/
 
 # Port 6509.
 match printer m|^\xff$| p/Panasonic mfpscdl.exe service/
@@ -12272,7 +12272,7 @@ match rtsp m|^RTSP/1\.0 200 OK\r\nCSeq: 0\r\nPublic: OPTIONS, DESCRIBE, SETUP, T
 match sand-db m|^\xff\x02\x04\0\x03\0r\n\x08\0@L\x01\0\x01\x01\0\0\0\0[A-Z]{16}$| p/SAND database/
 
 # www.hermstedtstingray.com/user_guides/stingray_security_white_paper.pdf
-match stingray m|^\x02\x004ComDU2\0\0\0\0\0\0\0\0\0ON\0\x08OPTIONS \0\0\0\0<\x9e\x0e\x08!\x8a6@@\xb2W@\0\0\0\00\xd8\xdd\xbf\xbe\x99\r9@\x0c\xe0\x0b\x08\xb5\xd6\x0f@\xe8\xdd\xbf\xbeh\xa6>@0O\x18\x08\xd4\xb4U@| p/StingRay file transfer/
+match stingray m|^\x02\x004ComDU2\0\0\0\0\0\0\0\0\0ON\0\x08OPTIONS \0\0\0\0<\x9e\x0e\x08!\x8a6@@\xb2W@\0\0\0\0\x30\xd8\xdd\xbf\xbe\x99\r9@\x0c\xe0\x0b\x08\xb5\xd6\x0f@\xe8\xdd\xbf\xbeh\xa6>@0O\x18\x08\xd4\xb4U@| p/StingRay file transfer/
 
 match tgcmd m|^\d+ \d+ \d+,Invalid command\.\n$| p/tgcmd.exe support daemon/ o/Windows/ cpe:/o:microsoft:windows/a
 
@@ -13189,7 +13189,7 @@ match netbios-ns m|^\x80\xf0\x84\0\0\0\0\x01\0\0\0\0 CKAAAAAAAAAAAAAAAAAAAAAAAAA
 
 match netbios-ns m|^\x80\xf0\x84\0\0\0\0\x01\0\0\0\0 CKAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\0\0!\0\x01\0\0\0\0\0/\x00......\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0|s p/Microsoft Windows Mobile netbios-ns/ o/Windows/ cpe:/o:microsoft:windows/a
 
-match netbios-ns m|^\x80\xf0\x85\0\0\0\0\x01\0\0\0\0 CKAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\0\0!\0\x01\0\0\0\0...([\w\-]{1,15}).*\04\0([\w\-]{1,15}) *\x1e\x84\0|s p/Novell NetWare netbios-ns/ i/workgroup: $2/ o/NetWare/ h/$1/ cpe:/o:novell:netware/a
+match netbios-ns m|^\x80\xf0\x85\0\0\0\0\x01\0\0\0\0 CKAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\0\0!\0\x01\0\0\0\0...([\w\-]{1,15}).*\0\x34\0([\w\-]{1,15}) *\x1e\x84\0|s p/Novell NetWare netbios-ns/ i/workgroup: $2/ o/NetWare/ h/$1/ cpe:/o:novell:netware/a
 
 
 #
@@ -14435,8 +14435,8 @@ match postgresql m|^E\0\0\0.S[^\0]+\0(?:VFATAL\0)?0A000\0MProtocole non support.
 match postgresql m|^E\0\0\0.S[^\0]+\0(?:VFATAL\0)?0A000\0Mel protocolo 65363| p/PostgreSQL DB/ i/Spanish/ cpe:/a:postgresql:postgresql::::es/
 match postgresql m|^E\0\0\0.S[^\0]+\0(?:VFATAL\0)?0A000\0Mnicht unterst.*?Frontend-Protokoll 65363\.19778:|s p/PostgreSQL DB/ i/German/ cpe:/a:postgresql:postgresql::::de/
 match postgresql m|^E\0\0\0.S[^\0]+\0(?:VFATAL\0)?0A000\0M\xe3\x83\x95\xe3\x83\xad\xe3\x83\xb3\xe3\x83\x88\xe3\x82\xa8\xe3\x83\xb3\xe3\x83\x89\xe3\x83\x97\xe3\x83\xad\xe3\x83\x88\xe3\x82\xb3\xe3\x83\xab|s p/PostgreSQL DB/ i/Japanese/ cpe:/a:postgresql:postgresql::::ja/
-match postgresql m|^E\0\0\0.S[^\0]+\00A000\0M.*?65363\.19778.*?\0Fpostmaster\.c\0|s p/PostgreSQL DB/ cpe:/a:postgresql:postgresql/
-match postgresql m|^E\0\0\0.S[^\0]+\00A000\0M.*?65363\.19778.*?\0F\.\\src\\backend\\postmaster\\postmaster\.c\0|s p/PostgreSQL DB/ o/Windows/ cpe:/a:postgresql:postgresql/ cpe:/o:microsoft:windows/a
+match postgresql m|^E\0\0\0.S[^\0]+\0\x30A000\0M.*?65363\.19778.*?\0Fpostmaster\.c\0|s p/PostgreSQL DB/ cpe:/a:postgresql:postgresql/
+match postgresql m|^E\0\0\0.S[^\0]+\0\x30A000\0M.*?65363\.19778.*?\0F\.\\src\\backend\\postmaster\\postmaster\.c\0|s p/PostgreSQL DB/ o/Windows/ cpe:/a:postgresql:postgresql/ cpe:/o:microsoft:windows/a
 
 match postgresql m|^E\0\0\0.S[^\0]+\0VFATAL\0C0A000\0M.*?65363\.19778.*?\0F\.\\src\\backend\\postmaster\\postmaster\.c\0|s p/PostgreSQL DB/ v/9.6.0 or later/ o/Windows/ cpe:/a:postgresql:postgresql/ cpe:/o:microsoft:windows/a
 #match postgresql m|^E\0\0\0.S[^\0]+\0VFATAL\0C0A000\0Munsupported frontend protocol 65363| p/PostgreSQL DB/ v/9.6.0 or later/ cpe:/a:postgresql:postgresql/
@@ -16280,7 +16280,7 @@ rarity 8
 # ports 9001 and 49153 supported by Shodan search for "It looks like you are trying to access MongoDB"
 ports 9001,27017,49153
 match mongodb m|^.*version.....([\.\d]+)|s p/MongoDB/ v/$1/ cpe:/a:mongodb:mongodb:$1/
-match mongodb m|^\xcb\0\0\0....:0\0\0\x01\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x01\0\0\0\xa7\0\0\0\x01uptime\0\0\0\0\0\0 `@\x03globalLock\09\0\0\0\x01totalTime\0\0\0\0\x7c\xf0\x9a\x9eA\x01lockTime\0\0\0\0\0\0\xac\x9e@\x01ratio\0!\xc6\$G\xeb\x08\xf0>\0\x03mem\0<\0\0\0\x10resident\0\x03\0\0\0\x10virtual\0\xa2\0\0\0\x08supported\0\x01\x12mapped\0\0\0\0\0\0\0\0\0\0\x01ok\0\0\0\0\0\0\0\xf0\?\0$|s p/MongoDB/ cpe:/a:mongodb:mongodb/
+match mongodb m|^\xcb\0\0\0....:0\0\0\x01\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x01\0\0\0\xa7\0\0\0\x01uptime\0\0\0\0\0\0 `@\x03globalLock\0\x39\0\0\0\x01totalTime\0\0\0\0\x7c\xf0\x9a\x9eA\x01lockTime\0\0\0\0\0\0\xac\x9e@\x01ratio\0!\xc6\$G\xeb\x08\xf0>\0\x03mem\0<\0\0\0\x10resident\0\x03\0\0\0\x10virtual\0\xa2\0\0\0\x08supported\0\x01\x12mapped\0\0\0\0\0\0\0\0\0\0\x01ok\0\0\0\0\0\0\0\xf0\?\0$|s p/MongoDB/ cpe:/a:mongodb:mongodb/
 match mongodb m|^.\0\0\0....:0\0\0\x01\0\0\0\x08\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x01\0\0\0\+\0\0\0\x02errmsg\0\x0e\0\0\0need to login\0\x01ok\0\0\0\0\0\0\0\0\0\0|s p/MongoDB/ v/2.3.1 or earlier/ i/need to login/ cpe:/a:mongodb:mongodb/
 match mongodb m|^.\0\0\0....:0\0\0\x01\0\0\0\x08\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x01\0\0\0.\0\0\0\x01ok\0\0\0\0\0\0\0\0\0\x02errmsg\0.\0\0\0not authorized on (\S+) to execute command \{ serverStatus: 1\.0 \}\0\x10code\0\r\0\0\0|s p/MongoDB/ v/2.3.2 - 4.1.0/ i/not authorized; database: $1/ cpe:/a:mongodb:mongodb/
 match mongodb m|^.\0\0\0....:0\0\0\x01\0\0\0\x08\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x01\0\0\0o\0\0\0\x01ok\0\0\0\0\0\0\0\0\0\x02errmsg\0-\0\0\0command serverStatus requires authentication\0\x10code\0\r\0\0\0\x02codeName\0\r\0\0\0Unauthorized\0\0|s p/MongoDB/ v/4.1.1 - 5.0/ cpe:/a:mongodb:mongodb/
