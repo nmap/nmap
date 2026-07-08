@@ -15487,7 +15487,7 @@ match snmp m|^0\x82\0\x3a\x02\x01\0\x04\x06public\xa2\x82\0\x2b.{20}\x06\x08\x2b
 softmatch snmp m|^..\x02\x01\x030.\x02\x02Ji\x02.{3,4}\x04\x01.\x02\x01\x03\x04|s p/SNMPv3 server/
 
 ##############################NEXT PROBE##############################
-Probe TCP WMSRequest q|\x01\0\0\xfd\xce\xfa\x0b\xb0\xa0\0\0\0MMS\x14\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x12\0\0\0\x01\0\x03\0\xf0\xf0\xf0\xf0\x0b\0\x04\0\x1c\0\x03\0N\0S\0P\0l\0a\0y\0e\0r\0/\09\0.\00\0.\00\0.\02\09\08\00\0;\0 \0{\00\00\00\00\0A\0A\00\00\0-\00\0A\00\00\0-\00\00\0a\00\0-\0A\0A\00\0A\0-\00\00\00\00\0A\00\0A\0A\00\0A\0A\00\0}\0\0\0\xe0\x6d\xdf\x5f|
+Probe TCP WMSRequest q|\x01\0\0\xfd\xce\xfa\x0b\xb0\xa0\0\0\0MMS\x14\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x12\0\0\0\x01\0\x03\0\xf0\xf0\xf0\xf0\x0b\0\x04\0\x1c\0\x03\0N\0S\0P\0l\0a\0y\0e\0r\0/\x009\0.\x000\0.\x000\0.\x002\x009\x008\x000\0;\0 \0{\x000\x000\x000\x000\0A\0A\x000\x000\0-\x000\0A\x000\x000\0-\x000\x000\0a\x000\0-\0A\0A\x000\0A\0-\x000\x000\x000\x000\0A\x000\0A\0A\x000\0A\0A\x000\0}\0\0\0\xe0\x6d\xdf\x5f|
 rarity 6
 ports 1549,1755,5001,9090
 
@@ -15519,7 +15519,7 @@ match wms m|^\x01\0\0.\xce\xfa\x0b\xb0.\0\0\0MMS .\0{7}.{9}\0\0\0\x01\0\x04\0\0\
 match wms m|^\x01\0\0.\xce\xfa\x0b\xb0.\0\0\0MMS .\0{7}.{9}\0\0\0\x01\0\x04\0\0\0\0\0\xf0\xf0\xf0\xf0\x0b\0\x04\0\x1c\0\x03\0\0\0\0\0\0\0\xf0\?\x01\0\0\0\x01\0\0\0\0\x80\0\0...\0.\0\0\0\0\0\0\0\0\0\0\0.\0\0\x00(\d)\0\.\x00(\d)\x00(\d)\0\.\x00(\d)\x00(\d)\0\.\x00(\d)\x00(\d)\x00(\d)\x00(\d)\0\0\0|s p/Microsoft Windows Media Services/ v/$1.$2$3.$4$5.$6$7$8$9/ o/Windows/ cpe:/a:microsoft:windows_media_services:$1.$2$3.$4$5.$6$7$8$9/a cpe:/o:microsoft:windows/a
 
 ##############################NEXT PROBE##############################
-Probe TCP oracle-tns q|\0Z\0\0\x01\0\0\0\x016\x01,\0\0\x08\0\x7F\xFF\x7F\x08\0\0\0\x01\0 \0:\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\04\xE6\0\0\0\x01\0\0\0\0\0\0\0\0(CONNECT_DATA=(COMMAND=version))|
+Probe TCP oracle-tns q|\0Z\0\0\x01\0\0\0\x016\x01,\0\0\x08\0\x7F\xFF\x7F\x08\0\0\0\x01\0 \0:\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x004\xE6\0\0\0\x01\0\0\0\0\0\0\0\0(CONNECT_DATA=(COMMAND=version))|
 rarity 7
 ports 1035,1521,1522,1525,1526,1574,1748,1754,14238,20000
 
@@ -16719,7 +16719,7 @@ softmatch telnet m|^\xff\xfd\x18\xff\xfa\x18\x01\xff\xf0\xff\xfb\x01\xff\xfb\x03
 # - ServiceContextList (\x00\x00\x00\x00)
 # - Request Id: 1 (\x01\x00\x00\x00)
 # - Response expected: 1 (\x01)
-# - Object key Length: 6 (\x06x\00\x00\x00)
+# - Object key Length: 6 (\x06\x00\x00\x00)
 # - Object Key: 616263646566
 # - Operation length : 4 (\x04\x00\x00\x00)
 # - Req Operation: get (i.e \x67\x65\x74\x00)
