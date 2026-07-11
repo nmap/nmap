@@ -364,6 +364,16 @@ restart_fd_loop:
             int cfd = fdi->fd;
             /* If we saw an error, close this fd */
             if (fdi->lasterr != 0) {
+                if (checked_fd_isset(cfd, &listen_fds)) {
+                    /* We may want to reopen this listener instead of quitting here. */
+                    bye("Listening socket error %d: %s",
+                            fdi->lasterr, socket_strerror(fdi->lasterr));
+                }
+                else if (cfd == STDIN_FILENO) {
+                    /* We may want to close STDIN and continue instead of quitting here. */
+                    bye("STDIN error %d: %s",
+                            fdi->lasterr, socket_strerror(fdi->lasterr));
+                }
                 close_fd(fdi, 0);
                 goto restart_fd_loop;
             }
@@ -636,6 +646,8 @@ static void post_handle_connection(struct fdinfo *sinfo)
 static void close_fd(struct fdinfo *fdn, int eof) {
     /* rm_fd invalidates fdn, so save what we need here. */
     int fd = fdn->fd;
+    /* This should never be used to close stdin or a listening socket. */
+    ncat_assert(fd != STDIN_FILENO);
     if (o.debug)
         logdebug("Closing connection.\n");
 #ifdef HAVE_OPENSSL
