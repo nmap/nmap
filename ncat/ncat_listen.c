@@ -671,6 +671,19 @@ static void close_fd(struct fdinfo *fdn, int eof) {
         chat_announce_disconnect(fd);
 }
 
+static void close_stdin(int rc) {
+    if (rc < 0 && o.verbose)
+        READ_STDIN_ERR();
+    if (rc == 0 && o.debug)
+        logdebug("EOF on stdin\n");
+
+    /* Don't close the file because that allows a socket to be fd 0. */
+    checked_fd_clr(STDIN_FILENO, &master_readfds);
+    /* Buf mark that we've seen EOF so it doesn't get re-added to the
+       select list. */
+    stdin_eof = 1;
+}
+
 /* Read from stdin and broadcast to all client sockets. Return the number of
    bytes read, or -1 on error. */
 int read_stdin(struct timeval *qtv)
@@ -681,21 +694,13 @@ int read_stdin(struct timeval *qtv)
 
     nbytes = READ_STDIN(buf, sizeof(buf));
     if (nbytes <= 0) {
-        if (nbytes < 0 && o.verbose)
-            READ_STDIN_ERR();
-        if (nbytes == 0 && o.debug)
-            logdebug("EOF on stdin\n");
+        close_stdin(nbytes);
 
         if (o.quitafter > 0) {
             struct timeval when;
             gettimeofday(&when, 0);
             TIMEVAL_MSEC_ADD(*qtv, when, o.quitafter);
         }
-        /* Don't close the file because that allows a socket to be fd 0. */
-        checked_fd_clr(STDIN_FILENO, &master_readfds);
-        /* Buf mark that we've seen EOF so it doesn't get re-added to the
-           select list. */
-        stdin_eof = 1;
 
         return nbytes;
     }
@@ -779,18 +784,7 @@ static void read_and_broadcast(int recv_fd)
         if (recv_fd == STDIN_FILENO) {
             n = READ_STDIN(buf, sizeof(buf));
             if (n <= 0) {
-                if (n < 0 && o.verbose)
-                    READ_STDIN_ERR();
-                if (n == 0 && o.debug)
-                    logdebug("EOF on stdin\n");
-
-                /* Don't close the file because that allows a socket to be
-                   fd 0. */
-                checked_fd_clr(recv_fd, &master_readfds);
-                /* But mark that we've seen EOF so it doesn't get re-added to
-                   the select list. */
-                stdin_eof = 1;
-
+                close_stdin(n);
                 return;
             }
 
