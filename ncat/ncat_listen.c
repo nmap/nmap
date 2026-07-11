@@ -173,8 +173,10 @@ static int get_conn_count(void)
 #ifndef WIN32
 static void sigchld_handler(int signum)
 {
+    int saved_errno = errno;
     while (waitpid(-1, NULL, WNOHANG) > 0)
         decrease_conn_count();
+    errno = saved_errno;
 }
 #endif
 
