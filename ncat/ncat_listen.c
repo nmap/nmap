@@ -342,6 +342,13 @@ int ncat_listen()
 
         fds_ready = fselect(client_fdlist.fdmax + 1, &readfds, &writefds, NULL, tvp);
 
+        if (fds_ready < 0) {
+          int e = socket_errno();
+          if (e != EINTR) {
+            bye("fselect error %d: %s", e, socket_strerror(e));
+          }
+        }
+
         if (o.debug > 1)
             logdebug("select returned %d fds ready\n", fds_ready);
 
