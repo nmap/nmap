@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Zenmap Native
+Comment=Native GTK front end for Nmap
+Exec=zenmap-native
+Icon=network-workgroup
+Terminal=false
+Categories=Network;Security;
+StartupNotify=true
