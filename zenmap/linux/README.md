@@ -93,6 +93,12 @@ chmod +x zenmap/linux/zenmap-native
 
 Edit the desktop file `Exec=` line if `zenmap-native` is not on your `PATH`.
 
+## Packaging
+
+Linux packages follow the same layout as classic `zenmap` RPM packaging. See
+`packaging/README.md` at the repository root for `.deb`, `.rpm`, and Arch
+build instructions, plus autotools `make install-zenmap-native`.
+
 ## Privileged scans
 
 Scans that need raw sockets (`-sS`, `-sU`, `-A`, etc.) trigger a Zenmap

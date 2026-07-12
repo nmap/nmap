@@ -152,3 +152,8 @@ libpcap/pcap-savefile.manfile
 
 # Local release artifacts
 dist/
+
+# Linux zenmap-native packaging build trees
+packaging/rpm-build/
+packaging/deb-build/
+packaging/arch-build/

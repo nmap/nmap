@@ -1,0 +1,8 @@
+usr/bin/zenmap-native
+usr/lib/python3*/dist-packages/zenmap
+usr/lib/python3*/dist-packages/zenmap_native-*.dist-info
+usr/lib/python3*/site-packages/zenmap
+usr/lib/python3*/site-packages/zenmap_native-*.dist-info
+usr/share/applications/org.nmap.ZenmapNativeLinux.desktop
+usr/share/icons/hicolor/256x256/apps/zenmap.png
+usr/share/man/man1/zenmap-native.1

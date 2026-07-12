@@ -1,0 +1,41 @@
+# Maintainer: The Nmap Project <dev@nmap.org>
+pkgname=zenmap-native
+pkgver=7.99
+pkgrel=1
+pkgdesc="Native GTK4/Libadwaita front end for Nmap"
+arch=('any')
+url="https://nmap.org/zenmap/"
+license=('custom:NPSL')
+depends=(
+  'nmap'
+  'python'
+  'python-gobject'
+  'gtk4'
+  'libadwaita'
+  'polkit'
+)
+makedepends=(
+  'python-build'
+  'python-installer'
+  'python-setuptools'
+  'python-wheel'
+)
+source=("nmap-${pkgver}.tar.gz")
+sha256sums=('SKIP')
+
+package() {
+  cd "${srcdir}/nmap-${pkgver}"
+
+  cd zenmap/linux
+  python -m build --wheel --no-isolation
+  pip install --root="${pkgdir}" --no-deps dist/*.whl
+
+  install -Dm644 "../../../docs/zenmap-native.1" \
+    "${pkgdir}/usr/share/man/man1/zenmap-native.1"
+  install -Dm644 data/org.nmap.ZenmapNativeLinux.desktop \
+    "${pkgdir}/usr/share/applications/org.nmap.ZenmapNativeLinux.desktop"
+  install -Dm644 ../zenmapCore/data/pixmaps/zenmap.png \
+    "${pkgdir}/usr/share/icons/hicolor/256x256/apps/zenmap.png"
+
+  rm -f "${pkgdir}/usr/bin/uninstall_zenmap-native"
+}

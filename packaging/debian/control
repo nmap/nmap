@@ -1,0 +1,30 @@
+Source: nmap
+Section: net
+Priority: optional
+Maintainer: The Nmap Project <dev@nmap.org>
+Build-Depends: debhelper-compat (= 13),
+               dh-python,
+               python3-all,
+               python3-build,
+               python3-setuptools,
+               python3-wheel,
+               desktop-file-utils
+Standards-Version: 4.6.2
+Rules-Requires-Root: no
+Homepage: https://nmap.org/zenmap/
+
+Package: zenmap-native
+Architecture: all
+Depends: ${python3:Depends},
+         ${misc:Depends},
+         nmap,
+         python3-gi,
+         gir1.2-gtk-4.0 (>= 4.0),
+         gir1.2-adw-1,
+         libadwaita-1-0,
+         policykit-1
+Description: Native GTK4 front end for Nmap
+ Zenmap Native is a Linux graphical front end for the Nmap Security Scanner.
+ It is built with GTK 4 and Libadwaita and complements the classic GTK3
+ zenmap package. Saved scans and settings are stored under
+ ~/.config/zenmap-native/.
