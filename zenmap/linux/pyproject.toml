@@ -1,0 +1,36 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "zenmap-native"
+license = {text = "Nmap Public Source License (NPSL)"}
+dynamic = ["version"]
+authors = [{name = "The Nmap Project"}]
+description = "Native GTK4/Libadwaita front end for Nmap"
+readme = {file = "README.md", content-type = "text/markdown"}
+dependencies = [
+  "PyGObject",
+]
+requires-python = ">= 3.8"
+
+[project.urls]
+Homepage = "https://nmap.org/zenmap/"
+Documentation = "https://nmap.org/book/zenmap.html"
+Repository = "https://github.com/nmap/nmap.git"
+Issues = "https://github.com/nmap/nmap/issues"
+
+[project.gui-scripts]
+zenmap-native = "zenmap.linux.native.app:main"
+
+[tool.setuptools]
+packages = ["zenmap", "zenmap.linux", "zenmap.linux.native", "zenmap.linux.native.views"]
+
+[tool.setuptools.package-dir]
+"zenmap" = ".."
+"zenmap.linux" = "."
+"zenmap.linux.native" = "native"
+"zenmap.linux.native.views" = "native/views"
+
+[tool.setuptools.dynamic]
+version = {attr = "zenmap.linux._version.VERSION"}

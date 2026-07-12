@@ -135,3 +135,25 @@ stamp-h1
 /zenmap/install_scripts/windows/*.pkg.tar.zst
 /zenmap/install_scripts/windows/tmp.cfg
 /zenmap/zenmapCore/data/locale/*/
+
+.xcode-products/
+.xcode-build/
+
+
+# Local Xcode user state
+NmapMac.xcodeproj/project.xcworkspace/xcuserdata/
+NmapMac.xcodeproj/xcuserdata/
+
+# Local overlay copy
+NmapMacXcodeOverlay/
+
+# Local libpcap generated file
+libpcap/pcap-savefile.manfile
+
+# Local release artifacts
+dist/
+
+# Linux zenmap-native packaging build trees
+packaging/rpm-build/
+packaging/deb-build/
+packaging/arch-build/

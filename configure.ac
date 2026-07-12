@@ -321,6 +321,46 @@ AC_SUBST(ZENMAP_CHECK)
 AC_SUBST(ZENMAP_CLEAN)
 AC_SUBST(ZENMAP_DIST_CLEAN)
 
+# Do they want the native Linux Zenmap frontend (GTK4)?
+AC_ARG_WITH(zenmap-native, AC_HELP_STRING([--without-zenmap-native], [Skip installation of the native GTK4 Zenmap frontend]), [], [with_zenmap_native=check])
+
+if $PY_BUILD_OK ; then : ;
+else
+  if test "$with_zenmap_native" = "yes"; then
+    AC_MSG_FAILURE([--with-zenmap-native requires Python])
+  fi
+  with_zenmap_native=no
+fi
+if test "$with_zenmap" = "no"; then
+  with_zenmap_native=no
+fi
+if test "$with_zenmap_native" = "no"; then
+  trace_no_use="$trace_no_use zenmap-native"
+  BUILDZENMAPNATIVE=""
+  INSTALLZENMAPNATIVE=""
+  UNINSTALLZENMAPNATIVE=""
+  ZENMAP_NATIVE_CHECK=""
+  ZENMAP_NATIVE_CLEAN=clean-zenmap-native
+  ZENMAP_NATIVE_DIST_CLEAN=distclean-zenmap-native
+else
+  if test "$with_zenmap_native" = "check"; then
+    with_zenmap_native=yes
+  fi
+  trace_use="$trace_use zenmap-native"
+  BUILDZENMAPNATIVE=build-zenmap-native
+  INSTALLZENMAPNATIVE=install-zenmap-native
+  UNINSTALLZENMAPNATIVE=uninstall-zenmap-native
+  ZENMAP_NATIVE_CHECK=check-zenmap-native
+  ZENMAP_NATIVE_CLEAN=clean-zenmap-native
+  ZENMAP_NATIVE_DIST_CLEAN=distclean-zenmap-native
+fi
+AC_SUBST(BUILDZENMAPNATIVE)
+AC_SUBST(INSTALLZENMAPNATIVE)
+AC_SUBST(UNINSTALLZENMAPNATIVE)
+AC_SUBST(ZENMAP_NATIVE_CHECK)
+AC_SUBST(ZENMAP_NATIVE_CLEAN)
+AC_SUBST(ZENMAP_NATIVE_DIST_CLEAN)
+
 NPINGDIR=nping
 
 # Do they want Nping?

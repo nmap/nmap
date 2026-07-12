@@ -1,0 +1,5 @@
+nmap (7.99+svn) UNRELEASED; urgency=medium
+
+  * Native GTK4/Libadwaita Zenmap front end packaging.
+
+ -- The Nmap Project <dev@nmap.org>  Sat, 12 Jul 2026 00:00:00 +0000

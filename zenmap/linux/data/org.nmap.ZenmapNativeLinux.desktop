@@ -1,0 +1,12 @@
+[Desktop Entry]
+Name=Zenmap Native
+GenericName=GUI Port Scanner
+Comment=Native GTK4 front end for the Nmap Security Scanner
+TryExec=zenmap-native
+Exec=zenmap-native %F
+Terminal=false
+Icon=zenmap
+Type=Application
+Categories=Network;Security;
+Keywords=network;scan;scanner;IP;security;
+StartupNotify=true

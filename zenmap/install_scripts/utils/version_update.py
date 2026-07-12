@@ -92,6 +92,11 @@ def update_version(base_dir, version):
     print("VERSION = \"%s\"" % version, file=vf)
     vf.close()
 
+    linux_version_py = os.path.join(base_dir, "linux", "_version.py")
+    print(">>> Updating %s" % linux_version_py)
+    with open(linux_version_py, "w", encoding="utf-8") as linux_vf:
+        print("VERSION = \"%s\"" % version, file=linux_vf)
+
 
 if __name__ == "__main__":
     if len(sys.argv) != 2:

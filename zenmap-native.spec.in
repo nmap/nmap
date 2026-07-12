@@ -1,0 +1,73 @@
+%define name zenmap-native
+%define version @VERSION@
+%define release 1
+%define _prefix /usr
+
+Summary: Native GTK4 front end for the Nmap Security Scanner
+Name: %{name}
+Version: %{version}
+Release: %{release}
+Epoch: 1
+License: https://nmap.org/man/man-legal.html
+Group: Applications/System
+Source0: https://nmap.org/dist/nmap-%{version}.tgz
+URL: https://nmap.org/zenmap/
+BuildArch: noarch
+
+BuildRequires: python3-devel
+BuildRequires: python3-setuptools, python3-wheel, python3-build
+BuildRequires: desktop-file-utils
+Requires: python3 >= 3.8, nmap, python3-gobject, gtk4, libadwaita, polkit
+%global debug_package %{nil}
+
+Prefix: %{_prefix}
+BuildRoot: %{_tmppath}/%{name}-root
+
+%global _description %{expand:
+Native Linux graphical front end for Nmap built with GTK 4 and Libadwaita.
+It complements the classic Python/GTK3 Zenmap package and stores its own
+configuration under ~/.config/zenmap-native/.}
+
+%description %{_description}
+
+%package -n python3-%{name}
+Summary: %{summary}
+
+%description -n python3-%{name} %{_description}
+
+%prep
+%autosetup -n nmap-%{version}
+
+%generate_buildrequires
+cd zenmap/linux/
+%pyproject_buildrequires
+
+%build
+cd zenmap/linux/
+%pyproject_wheel
+
+%install
+install -Dpm 0644 docs/zenmap-native.1 %{buildroot}%{_mandir}/man1/zenmap-native.1
+install -Dpm 0644 -t %{buildroot}%{_datadir}/applications/ zenmap/linux/data/org.nmap.ZenmapNativeLinux.desktop
+install -Dpm 0644 zenmap/zenmapCore/data/pixmaps/zenmap.png %{buildroot}%{_datadir}/icons/hicolor/256x256/apps/zenmap.png
+rm -f %{buildroot}%{_bindir}/uninstall_zenmap-native
+cd zenmap/linux/
+%pyproject_install
+%pyproject_save_files zenmap zenmap.linux zenmap.linux.native zenmap.linux.native.views
+
+%clean
+[ "$RPM_BUILD_ROOT" != "/" ] && rm -rf $RPM_BUILD_ROOT
+
+%check
+%pyproject_check_import zenmap.linux.native.app
+desktop-file-validate %{buildroot}%{_datadir}/applications/org.nmap.ZenmapNativeLinux.desktop
+
+%files -f %{pyproject_files}
+%doc zenmap/linux/README.md
+%doc %{_mandir}/man1/zenmap-native.1*
+%license zenmap/LICENSE
+%{_bindir}/zenmap-native
+%{_datadir}/applications/org.nmap.ZenmapNativeLinux.desktop
+%{_datadir}/icons/hicolor/256x256/apps/zenmap.png
+
+%changelog

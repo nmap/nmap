@@ -1,0 +1,37 @@
+.\"     Title: zenmap-native
+.\"    Author: [see the "Authors" section]
+.\"    Manual: Zenmap Reference Guide
+.\"    Source: Zenmap Native Linux
+.\"  Language: English
+.\"
+.TH "ZENMAP-NATIVE" "1" "07/11/2026" "Zenmap Native" "Zenmap Reference Guide"
+.SH "NAME"
+zenmap-native \- native GTK4 front end for Nmap
+.SH "SYNOPSIS"
+.HP \w'zenmap-native\ 'u
+zenmap-native
+.SH "DESCRIPTION"
+\fBzenmap-native\fR is a native Linux graphical front end for the Nmap Security Scanner.
+It is built with GTK 4 and Libadwaita and complements the classic Python/GTK3
+\fBzenmap\fR application.
+.PP
+Configuration and saved scans are stored under
+\fI~/.config/zenmap-native/\fR.
+.PP
+Scans that require raw sockets or other privileged behavior may prompt for
+administrator authorization through \fBpkexec\fR.
+.SH "FILES"
+.TP
+\fI~/.config/zenmap-native/settings.json\fR
+Application settings.
+.TP
+\fI~/.config/zenmap-native/saved-scans.json\fR
+Saved scan index.
+.TP
+\fI~/.config/zenmap-native/saved-scans/\fR
+Saved scan XML files.
+.SH "SEE ALSO"
+.BR nmap (1),
+.BR zenmap (1)
+.SH "AUTHORS"
+The Nmap Project
