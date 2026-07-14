@@ -59,6 +59,7 @@ RM = rm -f
 STRIP = @STRIP@
 OPENSSL_LIBS = @OPENSSL_LIBS@
 HAVE_OPENSSL = @HAVE_OPENSSL@
+HAVE_PTY = @HAVE_PTY@
 PCAP_LIBS = @PCAP_LIBS@
 NOLUA = @NOLUA@
 LIBLUADIR = @LIBLUADIR@
@@ -76,6 +77,10 @@ DESTDIR =
 SRCS = ncat_main.c ncat_connect.c ncat_core.c ncat_posix.c ncat_listen.c ncat_proxy.c ncat_ssl.c base64.c http.c util.c sys_wrap.c
 OBJS = ncat_main.o ncat_connect.o ncat_core.o ncat_posix.o ncat_listen.o ncat_proxy.o ncat_ssl.o base64.o http.o util.o sys_wrap.o
 DATAFILES =
+
+ifneq ($(HAVE_PTY),)
+CFLAGS += -DHAVE_PTY
+endif
 
 ifneq ($(HAVE_OPENSSL),)
 SRCS += http_digest.c
