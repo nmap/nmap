@@ -66,6 +66,16 @@
 
 char **cmdline_split(const char *cmdexec);
 
+static int child_alive = 0;
+
+static void sigchld_watcher(int signum)
+{
+    int saved_errno = errno;
+    if (waitpid(-1, NULL, WNOHANG) > 0)
+        child_alive = 0;
+    errno = saved_errno;
+}
+
 /* fork and exec a child process with netexec. Close the given file descriptor
    in the parent process. Return the child's PID or -1 on error. */
 int netrun(struct fdinfo *info, char *cmdexec)
@@ -177,6 +187,10 @@ void netexec(struct fdinfo *info, char *cmdexec)
     if (pipe(child_stdin) == -1 || pipe(child_stdout) == -1)
         bye("Can't create child pipes: %s", strerror(errno));
 
+    /* No longer using ncat_listen.c's sigchld_handler */
+    Signal(SIGCHLD, sigchld_watcher);
+
+    child_alive = 1;
     pid = fork();
     if (pid == -1)
         bye("Error in fork: %s", strerror(errno));
@@ -242,7 +256,7 @@ void netexec(struct fdinfo *info, char *cmdexec)
     checked_fd_set(child_stdout[0], &all_fds);
 #define PIPE_CLOSE(_PipeName) shutdown_##_PipeName(info, child_stdout[0], child_stdin[1], &all_fds, &maxfd)
 
-    while (maxfd >= 0) {
+    while (child_alive && maxfd >= 0) {
         fd_set fds = all_fds;
         int r, n_r;
 
@@ -311,6 +325,16 @@ void netexec(struct fdinfo *info, char *cmdexec)
     }
 #endif
     close(info->fd);
+
+    while (waitpid(pid, NULL, 0) < 0) {
+        if (errno == ECHILD) {
+            break;
+        }
+        else if (errno == EINTR) {
+            continue;
+        }
+        die("waitpid");
+    }
 
     exit(0);
 }

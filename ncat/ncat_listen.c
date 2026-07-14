@@ -489,6 +489,20 @@ restart_fd_loop:
         }
     }
 
+#ifndef WIN32
+    /* Reap remaining children */
+    Signal(SIGCHLD, SIG_DFL);
+    while (waitpid(-1, NULL, 0) < 0) {
+        if (errno == ECHILD) {
+            break;
+        }
+        else if (errno == EINTR) {
+            continue;
+        }
+        die("waitpid");
+    }
+#endif
+
     return (breakloop == BREAKLOOP_ERROR ? 1 : 0);
 }
 
