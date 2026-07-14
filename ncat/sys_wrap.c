@@ -148,13 +148,15 @@ int Setsockopt(int s, int level, int optname, const void *optval,
 
 sighandler_t Signal(int signum, sighandler_t handler)
 {
-    sighandler_t ret;
+    struct sigaction sa, osa;
+    memset(&sa, 0, sizeof(sa));
+    sa.sa_handler = handler;
+    sigemptyset(&sa.sa_mask);
+    sa.sa_flags = 0;
 
-    ret = signal(signum, handler);
-    if (ret == SIG_ERR)
-        die("signal");
-
-    return ret;
+    if (0 > sigaction(signum, &sa, &osa))
+      die("sigaction");
+    return osa.sa_handler;
 }
 
 

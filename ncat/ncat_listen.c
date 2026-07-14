@@ -178,6 +178,40 @@ static void sigchld_handler(int signum)
         decrease_conn_count();
     errno = saved_errno;
 }
+
+/* Propagate the trapped signal to the entire process group */
+static void signal_propagate_exit(int signum)
+{
+  /* Send signal to process group */
+  kill(0, signum);
+  /* Exit, since we only use this for INT/TERM/HUP */
+  exit(128 + signum);
+}
+
+static void install_signal_handlers(void)
+{
+    struct sigaction sa;
+    memset(&sa, 0, sizeof(sa));
+    sigemptyset(&sa.sa_mask);
+
+    /* Ignore the SIGPIPE that occurs when a client disconnects suddenly and we
+       send data to it before noticing. */
+    sa.sa_handler = SIG_IGN;
+    sigaction(SIGPIPE, &sa, NULL);
+
+    /* Reap on SIGCHLD */
+    sa.sa_handler = sigchld_handler;
+    sa.sa_flags = SA_RESTART;
+    sigaction(SIGCHLD, &sa, NULL);
+
+    /* Nab any process-terminating signals and propagate them */
+    sa.sa_handler = signal_propagate_exit;
+    sa.sa_flags = SA_RESTART | SA_RESETHAND;
+    sigaction(SIGINT, &sa, NULL);
+    sigaction(SIGTERM, &sa, NULL);
+    sigaction(SIGHUP, &sa, NULL);
+    sigaction(SIGQUIT, &sa, NULL);
+}
 #endif
 
 int new_listen_socket(int type, int proto, const union sockaddr_u *addr, fd_set *listen_fds)
@@ -243,11 +277,7 @@ int ncat_listen()
 #ifdef WIN32
     set_pseudo_sigchld_handler(decrease_conn_count);
 #else
-    /* Reap on SIGCHLD */
-    Signal(SIGCHLD, sigchld_handler);
-    /* Ignore the SIGPIPE that occurs when a client disconnects suddenly and we
-       send data to it before noticing. */
-    Signal(SIGPIPE, SIG_IGN);
+    install_signal_handlers();
 #endif
 
 #ifdef HAVE_OPENSSL
