@@ -1,5 +1,17 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added 2 new scripts:
+
+  + http-vuln-cve2026-42945 detects NGINX servers vulnerable to
+    CVE-2026-42945 (NGINX Rift), a heap buffer overflow in the
+    ngx_http_rewrite_module affecting Open Source 0.6.27 through
+    1.30.0 and NGINX Plus R32 through R36. [Ishaan Jindal]
+
+  + http-vuln-cve2026-9256 detects NGINX servers vulnerable to
+    CVE-2026-9256, a heap buffer overflow from overlapping PCRE
+    captures in the rewrite module, affecting Open Source 1.0.0
+    through 1.30.1 and version 1.31.0. [Ishaan Jindal]
+
 o Fixed an issue with parsing nmap-service-probes that could cause a corrupted
   file to crash Nmap. Reported by Muhammed Hussein.
 
