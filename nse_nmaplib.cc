@@ -64,18 +64,16 @@ void set_version (lua_State *L, const struct serviceDeductions *sd)
  * */
 void set_portinfo (lua_State *L, const Target *target, const Port *port)
 {
-  struct serviceDeductions sd;
-
-  target->ports.getServiceDeductions(port->portno, port->proto, &sd);
+  const serviceDeductions *sd = target->ports.getServiceDeductions(port->portno, port->proto);
 
   nseU_setifield(L, -1, "number", port->portno);
-  nseU_setsfield(L, -1, "service", sd.name);
+  nseU_setsfield(L, -1, "service", sd->name);
   nseU_setsfield(L, -1, "protocol", IPPROTO2STR(port->proto));
   nseU_setsfield(L, -1, "state", statenum2str(port->state));
   nseU_setsfield(L, -1, "reason", reason_str(port->reason.reason_id, 1));
   nseU_setifield(L, -1, "reason_ttl", port->reason.ttl);
   lua_createtable(L, 0, NSE_NUM_VERSION_FIELDS);
-  set_version(L, &sd);
+  set_version(L, sd);
   lua_setfield(L, -2, "version");
 }
 

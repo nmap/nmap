@@ -491,7 +491,6 @@ void printportoutput(const Target *currenths, const PortList *plist) {
   Port *current;
   Port port;
   char hostname[1200];
-  struct serviceDeductions sd;
   NmapOutputTable *Tbl = NULL;
   int portcol = -1;             // port or IP protocol #
   int statecol = -1;            // port/protocol state
@@ -719,9 +718,10 @@ void printportoutput(const Target *currenths, const PortList *plist) {
         Strncpy(protocol, IPPROTO2STR(current->proto), sizeof(protocol));
         Snprintf(portinfo, sizeof(portinfo), "%d/%s", current->portno, protocol);
         state = statenum2str(current->state);
-        plist->getServiceDeductions(current->portno, current->proto, &sd);
-        if (sd.service_fp && saved_servicefps.size() <= 8)
-          saved_servicefps.push_back(sd.service_fp);
+        const serviceDeductions *sd = plist->getServiceDeductions(
+            current->portno, current->proto);
+        if (sd->service_fp && saved_servicefps.size() <= 8)
+          saved_servicefps.push_back(sd->service_fp);
 
         current->getNmapServiceName(serviceinfo, sizeof(serviceinfo));
 
@@ -736,7 +736,7 @@ void printportoutput(const Target *currenths, const PortList *plist) {
             Tbl->addItem(rowno, reasoncol, true, port_reason_str(current->reason));
         }
 
-        sd.populateFullVersionString(fullversion, sizeof(fullversion));
+        sd->populateFullVersionString(fullversion, sizeof(fullversion));
         if (*fullversion && versioncol > 0)
           Tbl->addItem(rowno, versioncol, true, fullversion);
 
@@ -752,7 +752,7 @@ void printportoutput(const Target *currenths, const PortList *plist) {
           *p = '|';
           p++;
         }
-        if (sd.name || sd.service_fp || sd.service_tunnel != SERVICE_TUNNEL_NONE) {
+        if (sd->name || sd->service_fp || sd->service_tunnel != SERVICE_TUNNEL_NONE) {
           p = serviceinfo;
           while ((p = strchr(p, '/'))) {
             *p = '|';
@@ -780,8 +780,8 @@ void printportoutput(const Target *currenths, const PortList *plist) {
         }
         xml_close_empty_tag();
 
-        if (sd.name || sd.service_fp || sd.service_tunnel != SERVICE_TUNNEL_NONE)
-          print_xml_service(&sd);
+        if (sd->name || sd->service_fp || sd->service_tunnel != SERVICE_TUNNEL_NONE)
+          print_xml_service(sd);
 
         rowno++;
 #ifndef NOLUA
@@ -2072,7 +2072,6 @@ static int hostcmp(const char *a, const char *b) {
 void printserviceinfooutput(const Target *currenths) {
   Port *p = NULL;
   Port port;
-  struct serviceDeductions sd;
   int i, numhostnames = 0, numostypes = 0, numdevicetypes = 0, numcpes = 0;
   char hostname_tbl[MAX_SERVICE_INFO_FIELDS][FQDN_LEN+1];
   char ostype_tbl[MAX_SERVICE_INFO_FIELDS][64];
@@ -2084,52 +2083,49 @@ void printserviceinfooutput(const Target *currenths) {
     hostname_tbl[i][0] = ostype_tbl[i][0] = devicetype_tbl[i][0] = cpe_tbl[i][0] = '\0';
 
   while ((p = currenths->ports.nextPort(p, &port, TCPANDUDPANDSCTP, PORT_OPEN))) {
-    // The following 2 lines (from portlist.h) tell us that we don't need to
-    // worry about free()ing anything in the serviceDeductions struct. pass in
-    // an allocated struct serviceDeductions (don't worry about initializing, and
-    // you don't have to free any internal ptrs.
-    currenths->ports.getServiceDeductions(p->portno, p->proto, &sd);
+    const serviceDeductions *sd = currenths->ports.getServiceDeductions(
+        p->portno, p->proto);
 
-    if (sd.hostname && !hostcmp(currenths->HostName(), sd.hostname)) {
+    if (sd->hostname && !hostcmp(currenths->HostName(), sd->hostname)) {
       for (i = 0; i < MAX_SERVICE_INFO_FIELDS; i++) {
-        if (hostname_tbl[i][0] && hostcmp(&hostname_tbl[i][0], sd.hostname))
+        if (hostname_tbl[i][0] && hostcmp(&hostname_tbl[i][0], sd->hostname))
           break;
 
         if (!hostname_tbl[i][0]) {
           numhostnames++;
-          Strncpy(&hostname_tbl[i][0], sd.hostname, sizeof(hostname_tbl[i]));
+          Strncpy(&hostname_tbl[i][0], sd->hostname, sizeof(hostname_tbl[i]));
           break;
         }
       }
     }
 
-    if (sd.ostype) {
+    if (sd->ostype) {
       for (i = 0; i < MAX_SERVICE_INFO_FIELDS; i++) {
-        if (ostype_tbl[i][0] && !strcmp(&ostype_tbl[i][0], sd.ostype))
+        if (ostype_tbl[i][0] && !strcmp(&ostype_tbl[i][0], sd->ostype))
           break;
 
         if (!ostype_tbl[i][0]) {
           numostypes++;
-          Strncpy(&ostype_tbl[i][0], sd.ostype, sizeof(ostype_tbl[i]));
+          Strncpy(&ostype_tbl[i][0], sd->ostype, sizeof(ostype_tbl[i]));
           break;
         }
       }
     }
 
-    if (sd.devicetype) {
+    if (sd->devicetype) {
       for (i = 0; i < MAX_SERVICE_INFO_FIELDS; i++) {
-        if (devicetype_tbl[i][0] && !strcmp(&devicetype_tbl[i][0], sd.devicetype))
+        if (devicetype_tbl[i][0] && !strcmp(&devicetype_tbl[i][0], sd->devicetype))
           break;
 
         if (!devicetype_tbl[i][0]) {
           numdevicetypes++;
-          Strncpy(&devicetype_tbl[i][0], sd.devicetype, sizeof(devicetype_tbl[i]));
+          Strncpy(&devicetype_tbl[i][0], sd->devicetype, sizeof(devicetype_tbl[i]));
           break;
         }
       }
     }
 
-    for (std::vector<char *>::const_iterator it = sd.cpe.begin(); it != sd.cpe.end(); it++) {
+    for (std::vector<char *>::const_iterator it = sd->cpe.begin(); it != sd->cpe.end(); it++) {
       for (i = 0; i < MAX_SERVICE_INFO_FIELDS; i++) {
         if (cpe_tbl[i][0] && !strcmp(&cpe_tbl[i][0], *it))
           break;

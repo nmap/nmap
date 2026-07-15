@@ -256,10 +256,8 @@ void serviceDeductions::populateFullVersionString(char *buf, size_t n) const {
 }
 
 
-// pass in an allocated struct serviceDeductions (don't worry about
-// initializing, and you don't have to free any internal ptrs.  See the
-// serviceDeductions definition for the fields that are populated.
-void PortList::getServiceDeductions(u16 portno, int protocol, struct serviceDeductions *sd) const {
+const serviceDeductions *PortList::getServiceDeductions(u16 portno, int protocol) const {
+  static serviceDeductions sd;
   const Port *port;
 
   port = lookupPort(portno, protocol);
@@ -267,16 +265,15 @@ void PortList::getServiceDeductions(u16 portno, int protocol, struct serviceDedu
     const struct nservent *service;
 
     /* Look up the service name. */
-    sd->erase();
     service = nmap_getservbyport(portno, protocol);
     if (service != NULL)
-      sd->name = service->s_name;
+      sd.name = service->s_name;
     else
-      sd->name = NULL;
-    sd->name_confidence = 3;
-  } else {
-    *sd = *port->service;
+      sd.name = NULL;
+    sd.name_confidence = 3;
+    return &sd;
   }
+  return port->service;
 }
 
 
