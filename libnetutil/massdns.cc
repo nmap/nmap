@@ -1669,36 +1669,35 @@ bool DNS::ResolverImpl::system_resolve(DNS::Request &reqt)
   return true;
 }
 
+static const char hex[] = "0123456789abcdef";
 bool DNS::Factory::ipToPtr(const sockaddr_storage &ip, std::string &ptr)
 {
-  static const size_t maxlen = sizeof("0.0.1.1.2.2.3.3.4.4.5.5.6.6.7.7.8.8.9.9.a.a.b.b.c.c.d.d.e.e.f.f.ip6.arpa");
-  ptr.reserve(maxlen);
-  char tmp[INET_ADDRSTRLEN];
+#define C_IPV6_PTR_EXAMPLE "0.0.1.1.2.2.3.3.4.4.5.5.6.6.7.7.8.8.9.9.a.a.b.b.c.c.d.d.e.e.f.f.ip6.arpa"
+  char buf[] = C_IPV6_PTR_EXAMPLE;
+  static const size_t buf_len = sizeof(C_IPV6_PTR_EXAMPLE) - 1;
   switch (ip.ss_family) {
     case AF_INET:
     {
       const u32 ipv4_addr = ((const sockaddr_in *) &ip)->sin_addr.s_addr;
       const u8 *ipv4_c = (const u8 *)&ipv4_addr;
-      sprintf(tmp, "%d.%d.%d.%d", ipv4_c[3], ipv4_c[2], ipv4_c[1], ipv4_c[0]);
-      ptr = tmp;
-      ptr += IPV4_PTR_DOMAIN;
+      int len = Snprintf(buf, buf_len, "%d.%d.%d.%d" C_IPV4_PTR_DOMAIN,
+          ipv4_c[3], ipv4_c[2], ipv4_c[1], ipv4_c[0]);
+      ptr.assign(buf, len);
       break;
     }
     case AF_INET6:
     {
-      ptr.clear();
       const struct sockaddr_in6 &s6 = (const struct sockaddr_in6 &) ip;
       const u8 * ipv6 = s6.sin6_addr.s6_addr;
+      char *p = buf;
       for (short i=15; i>=0; --i)
       {
-        sprintf(tmp, "%02x", ipv6[i]);
-        ptr += '.';
-        ptr += tmp[1];
-        ptr += '.';
-        ptr += tmp[0];
+        *p++ = hex[ipv6[i] & 0xf];
+        *p++ = '.';
+        *p++ = hex[(ipv6[i] >> 4) & 0xf];
+        *p++ = '.';
       }
-      ptr.erase(ptr.begin());
-      ptr += IPV6_PTR_DOMAIN;
+      ptr.assign(buf, buf_len);
       break;
     }
     default:
