@@ -163,6 +163,28 @@
 /* Keep assert() defined for security reasons */
 #undef NDEBUG
 
+#ifndef static_assert
+# if defined(__cplusplus)
+   // If C++ but older than C++11
+#  if __cplusplus < 201103L
+#   include <cassert>
+#   define static_assert(expr, msg) assert((expr) && (msg))
+#  endif
+# else
+   // If C but older than C11 (which introduced _Static_assert)
+#  if !defined(__STDC_VERSION__) || __STDC_VERSION__ < 201112L
+#   include <assert.h>
+#   define static_assert(expr, msg) assert((expr) && (msg))
+#  endif
+# endif
+#endif
+
+#define bufset(_Buf, _Str) do { \
+  static_assert((void *)&_Buf == (void *)&_Buf[0], "bufset called with pointer"); \
+  static_assert(sizeof("" _Str) <= sizeof(_Buf), "buffer too small"); \
+  memcpy(_Buf, "" _Str, sizeof("" _Str)); \
+} while (0)
+
 /* Integer types */
 #include <stdint.h>
 typedef uint8_t u8;

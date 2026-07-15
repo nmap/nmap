@@ -131,7 +131,7 @@ static int nmap_services_init() {
   if (nmap_fetchfile(filename, sizeof(filename), "nmap-services") != 1) {
     error("Unable to find nmap-services!  Resorting to /etc/services");
 #ifndef WIN32
-    strcpy(filename, "/etc/services");
+    bufset(filename, "/etc/services");
 #else
     int len = GetSystemDirectory(filename, 480);	//	be safe
     if(!len)
