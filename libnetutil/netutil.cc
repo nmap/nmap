@@ -3134,7 +3134,7 @@ pcap_t *my_pcap_open_live(const char *device, int snaplen, int promisc, int to_m
     pcap_close(p_t);\
     return NULL;\
   }\
-} while(0);
+} while(0)
 
   MY_PCAP_SET(pcap_set_snaplen, pt, snaplen);
   MY_PCAP_SET(pcap_set_promisc, pt, promisc);

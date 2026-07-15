@@ -220,7 +220,7 @@ void uri_init(struct uri *uri)
 #define FREE_AND_NULL(_FreeFunc, _P) do { \
     _FreeFunc(_P); \
     _P = NULL; \
-} while (0);
+} while (0)
 
 void uri_free(struct uri *uri)
 {
