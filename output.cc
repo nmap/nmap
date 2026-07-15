@@ -716,7 +716,7 @@ void printportoutput(const Target *currenths, const PortList *plist) {
           log_write(LOG_MACHINE, ", ");
         else
           first = 0;
-        strcpy(protocol, IPPROTO2STR(current->proto));
+        Strncpy(protocol, IPPROTO2STR(current->proto), sizeof(protocol));
         Snprintf(portinfo, sizeof(portinfo), "%d/%s", current->portno, protocol);
         state = statenum2str(current->state);
         plist->getServiceDeductions(current->portno, current->proto, &sd);

@@ -553,11 +553,12 @@ static int do_proxy_socks4(void)
 {
     char socksbuf[8];
     struct socks4_data socks4msg;
-    size_t datalen;
+    size_t datalen, remaining;
     char *username = o.proxy_auth != NULL ? o.proxy_auth : "";
     union sockaddr_u addr;
     size_t sslen;
     int sd;
+    int tmp = 0;
 
     if (getaddrfamily(o.target) == 2) {
         loguser("Error: IPv6 addresses are not supported with Socks4.\n");
@@ -581,13 +582,15 @@ static int do_proxy_socks4(void)
     socks4msg.type = SOCKS_CONNECT;
     socks4msg.port = htons(o.portno);
 
-    if (strlen(username) >= sizeof(socks4msg.data)) {
+    remaining = sizeof(socks4msg.data);
+    tmp = Snprintf(socks4msg.data, remaining, "%s", username);
+    if (tmp >= remaining) {
         loguser("Error: username is too long.\n");
         close(sd);
         return -1;
     }
-    strcpy(socks4msg.data, username);
-    datalen = strlen(username) + 1;
+    datalen = tmp + 1;
+    remaining -= tmp + 1;
 
     if (proxyresolve(o.target, 0, &addr.storage, &sslen, AF_INET)) {
         /* target resolution has failed, possibly because it is disabled */
@@ -599,13 +602,14 @@ static int do_proxy_socks4(void)
         if (o.verbose)
             loguser("Host %s will be resolved by the proxy.\n", o.target);
         socks4msg.address = inet_addr("0.0.0.1");
-        if (datalen + strlen(o.target) >= sizeof(socks4msg.data)) {
+        tmp = Snprintf(socks4msg.data + datalen, remaining, "%s", o.target);
+        if (tmp >= remaining) {
             loguser("Error: host name is too long.\n");
             close(sd);
             return -1;
         }
-        strcpy(socks4msg.data + datalen, o.target);
-        datalen += strlen(o.target) + 1;
+        datalen += tmp + 1;
+        remaining -= tmp + 1;
     } else {
         /* addr is now populated with sockaddr_in */
         socks4msg.address = addr.in.sin_addr.s_addr;

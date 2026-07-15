@@ -133,11 +133,13 @@ static int nmap_services_init() {
 #ifndef WIN32
     bufset(filename, "/etc/services");
 #else
-    int len = GetSystemDirectory(filename, 480);	//	be safe
-    if(!len)
+#define SERVICES_FILENAME_WIN "\\drivers\\etc\\services"
+    UINT remaining = sizeof(filename) - sizeof(SERVICES_FILENAME_WIN);
+    UINT len = GetSystemDirectory(filename, remaining);
+    if(!len || len > remaining)
       fatal("GetSystemDirectory failed (%d) @#!#@", GetLastError());
     else
-      strcpy(filename + len, "\\drivers\\etc\\services");
+      Snprintf(filename + len, sizeof(filename) - len, "%s", SERVICES_FILENAME_WIN);
 #endif
   }
 
