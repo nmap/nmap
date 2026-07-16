@@ -166,7 +166,7 @@
 #ifndef static_assert
 # if defined(__cplusplus)
    // If C++ but older than C++11
-#  if __cplusplus < 201103L
+#  if __cplusplus < 201103L && !(defined(_MSVC_LANG) && _MSVC_LANG >= 201103L)
 #   include <cassert>
 #   define static_assert(expr, msg) assert((expr) && (msg))
 #  endif
