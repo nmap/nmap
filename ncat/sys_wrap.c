@@ -146,6 +146,7 @@ int Setsockopt(int s, int level, int optname, const void *optval,
     return ret;
 }
 
+#ifndef WIN32
 sighandler_t Signal(int signum, sighandler_t handler)
 {
     struct sigaction sa, osa;
@@ -158,6 +159,7 @@ sighandler_t Signal(int signum, sighandler_t handler)
       die("sigaction");
     return osa.sa_handler;
 }
+#endif
 
 
 int Socket(int domain, int type, int protocol)
