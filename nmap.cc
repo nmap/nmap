@@ -888,24 +888,36 @@ void parse_options(int argc, char **argv) {
         } else if (strcmp(long_options[option_index].name, "webxml") == 0) {
           o.setXSLStyleSheet("https://svn.nmap.org/nmap/docs/nmap.xsl");
         } else if (strcmp(long_options[option_index].name, "oN") == 0) {
+          if (delayed_options.normalfilename)
+            fatal("Can't use -oN multiple times or with -oA.");
           test_file_name(optarg, long_options[option_index].name);
           delayed_options.normalfilename = logfilename(optarg, &local_time);
         } else if (strcmp(long_options[option_index].name, "oG") == 0
                    || strcmp(long_options[option_index].name, "oM") == 0) {
+          if (long_options[option_index].name[1] == 'M')
+            delayed_options.warn_deprecated("oM", "oG");
+          if (delayed_options.machinefilename)
+            fatal("Can't use -oG multiple times or with -oA.");
           test_file_name(optarg, long_options[option_index].name);
           delayed_options.machinefilename = logfilename(optarg, &local_time);
           if (long_options[option_index].name[1] == 'M')
             delayed_options.warn_deprecated("oM", "oG");
         } else if (strcmp(long_options[option_index].name, "oS") == 0) {
+          if (delayed_options.kiddiefilename)
+            fatal("Can't use -oS multiple times.");
           test_file_name(optarg, long_options[option_index].name);
           delayed_options.kiddiefilename = logfilename(optarg, &local_time);
         } else if (strcmp(long_options[option_index].name, "oH") == 0) {
           fatal("HTML output is not directly supported, though Nmap includes an XSL for transforming XML output into HTML.  See the man page.");
         } else if (strcmp(long_options[option_index].name, "oX") == 0) {
+          if (delayed_options.xmlfilename)
+            fatal("Can't use -oX multiple times or with -oA.");
           test_file_name(optarg, long_options[option_index].name);
           delayed_options.xmlfilename = logfilename(optarg, &local_time);
         } else if (strcmp(long_options[option_index].name, "oA") == 0) {
           char buf[MAXPATHLEN];
+          if (delayed_options.normalfilename || delayed_options.machinefilename || delayed_options.xmlfilename)
+            fatal("Can't use -oA multiple times or with -oN, -oX, or -oG.");
           char *logname = logfilename(optarg, &local_time);
           if (strlen(logname) > (MAXPATHLEN - sizeof(".gnmap")))
             fatal("Filename too long!");
@@ -1115,6 +1127,8 @@ void parse_options(int argc, char **argv) {
       break;
     case 'm':
       delayed_options.warn_deprecated("m", "oG");
+      if (delayed_options.machinefilename)
+        fatal("Can't use -oG multiple times or with -oA.");
       test_file_name(optarg, "oG");
       delayed_options.machinefilename = logfilename(optarg, &local_time);
       break;
@@ -1131,6 +1145,8 @@ void parse_options(int argc, char **argv) {
       break;
     case 'o':
       delayed_options.warn_deprecated("o", "oN");
+      if (delayed_options.normalfilename)
+        fatal("Can't use -oN multiple times or with -oA.");
       test_file_name(optarg, "o");
       delayed_options.normalfilename = logfilename(optarg, &local_time);
       break;
