@@ -1508,6 +1508,7 @@ static void printosclassificationoutput(const struct
   char fullfamily[MAX_OS_CLASSMEMBERS][128];    // "[vendor] [os family]"
   double familyaccuracy[MAX_OS_CLASSMEMBERS];   // highest accuracy for this fullfamily
   char familygenerations[MAX_OS_CLASSMEMBERS][96];      // example: "4.X|5.X|6.X"
+  static const size_t fambufsz = sizeof(familygenerations[0]);
   int numtypes = 0, numcpes = 0, numfamilies = 0;
   char tmpbuf[1024];
 
@@ -1552,19 +1553,19 @@ static void printosclassificationoutput(const struct
       for (familyno = 0; familyno < numfamilies; familyno++) {
         if (strcmp(fullfamily[familyno], tmpbuf) == 0) {
           // got a match ... do we need to add the generation?
-          if (OSR->OSC[classno]->OS_Generation
-              && !strstr(familygenerations[familyno],
-                         OSR->OSC[classno]->OS_Generation)) {
-            int flen = strlen(familygenerations[familyno]);
+          char *fambuf = familygenerations[familyno];
+          const char *osgen = OSR->OSC[classno]->OS_Generation;
+          if (osgen && !strstr(fambuf, osgen)) {
+            int flen = strlen(fambuf);
             // We add it, preceded by | if something is already there
-            if (flen + 2 + strlen(OSR->OSC[classno]->OS_Generation) >=
-                sizeof(familygenerations[familyno]))
-              fatal("buffer 0verfl0w of familygenerations");
-            if (*familygenerations[familyno])
-              strcat(familygenerations[familyno], "|");
-            strncat(familygenerations[familyno],
-                    OSR->OSC[classno]->OS_Generation,
-                    sizeof(familygenerations[familyno]) - flen - 1);
+            if (flen > 0) {
+              if (0 != Strncpy(fambuf + flen, "|", fambufsz - flen))
+                fatal("OS generations too long");
+              flen++;
+            }
+            if (0 != Strncpy(fambuf + flen, osgen, fambufsz - flen)) {
+                fatal("OS generations too long");
+            }
           }
           break;
         }
