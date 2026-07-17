@@ -824,23 +824,35 @@ const char *arppackethdrinfo(const u8 *packet, u32 len, int detail){
   u8 *tMAC = (u8 *)(packet+18);
   u32 *tIP = (u32 *)(packet+24);
 
+  int rem = sizeof(protoinfo);
+  int n = 0;
   if( ntohs(*op) == 1 ){ /* ARP Request */
-    sprintf(protoinfo, "ARP who has %s? ", IPtoa(*tIP));
-    sprintf(protoinfo+strlen(protoinfo),"Tell %s", IPtoa(*sIP) );
+    n = Snprintf(protoinfo, rem, "ARP who has %s? ", IPtoa(*tIP));
+    if (n < rem) {
+      rem -= n;
+      Snprintf(protoinfo + n, rem, "Tell %s", IPtoa(*sIP));
+    }
   }
   else if( ntohs(*op) == 2 ){ /* ARP Reply */
-    sprintf(protoinfo, "ARP reply %s ", IPtoa(*sIP));
-    sprintf(protoinfo+strlen(protoinfo),"is at %s", MACtoa(sMAC) );
+    Snprintf(protoinfo, sizeof(protoinfo), "ARP reply %s is at %s", IPtoa(*sIP), MACtoa(sMAC));
   }
   else if( ntohs(*op) == 3 ){ /* RARP Request */
-    sprintf(protoinfo, "RARP who is %s? Tell %s", MACtoa(tMAC), MACtoa(sMAC) );
+    n = Snprintf(protoinfo, rem, "RARP who is %s? ", MACtoa(tMAC));
+    if (n < rem) {
+      rem -= n;
+      Snprintf(protoinfo + n, rem, "Tell %s", MACtoa(sMAC));
+    }
   }
   else if( ntohs(*op) ==4 ){ /* RARP Reply */
-    sprintf(protoinfo, "RARP reply: %s is at %s", MACtoa(tMAC), IPtoa(*tIP) );
+    Snprintf(protoinfo, sizeof(protoinfo), "RARP reply: %s is at %s", MACtoa(tMAC), IPtoa(*tIP) );
   }
   else{
-    sprintf(protoinfo, "HTYPE:%04X PTYPE:%04X HLEN:%d PLEN:%d OP:%04X SMAC:%s SIP:%s DMAC:%s DIP:%s",
-            *htype, *ptype, *hlen, *plen, *op, MACtoa(sMAC), IPtoa(*sIP), MACtoa(tMAC), IPtoa(*tIP));
+    n = Snprintf(protoinfo, rem, "HTYPE:%04X PTYPE:%04X HLEN:%d PLEN:%d OP:%04X SMAC:%s SIP:%s ",
+            *htype, *ptype, *hlen, *plen, *op, MACtoa(sMAC), IPtoa(*sIP));
+    if (n < rem) {
+      rem -= n;
+      Snprintf(protoinfo + n, rem, "DMAC:%s DIP:%s", MACtoa(tMAC), IPtoa(*tIP));
+    }
   }
  return protoinfo;
 } /* End of arppackethdrinfo() */

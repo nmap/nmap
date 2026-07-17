@@ -87,7 +87,7 @@ extern NmapOps o;
 #ifndef HAVE_STRERROR
 char *strerror(int errnum) {
   static char buf[1024];
-  sprintf(buf, "your system is too old for strerror of errno %d\n", errnum);
+  Snprintf(buf, sizeof(buf), "your system is too old for strerror of errno %d\n", errnum);
   return buf;
 }
 #endif

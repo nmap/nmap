@@ -1148,11 +1148,8 @@ icmpbad:
           srchost, dsthost);
     }
   } else {
-    char icmpinfo[512] = "";              /* Temp info about ICMP.             */
-    sprintf(icmpinfo,"type=%d/code=%d", icmp.icmp_type, icmp.icmp_code);
-
-    return Snprintf(outbuf, outlen, "ICMP [%s > %s %s (%s) %s]",
-        srchost, dsthost, icmptype, icmpinfo, icmpfields);
+    return Snprintf(outbuf, outlen, "ICMP [%s > %s %s (type=%d/code=%d) %s]",
+        srchost, dsthost, icmptype, icmp.icmp_type, icmp.icmp_code, icmpfields);
   }
 }
 

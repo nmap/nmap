@@ -157,12 +157,12 @@ static char *get_addr_string(const struct sockaddr_storage *ss, size_t sslen) {
 
 #if HAVE_SYS_UN_H
   if (ss->ss_family == AF_UNIX) {
-    sprintf(buffer, "%s", get_unixsock_path(ss));
+    Strncpy(buffer, get_unixsock_path(ss), sizeof(buffer));
     return buffer;
   }
 #endif
 
-  sprintf(buffer, "%s:%d", inet_ntop_ez(ss, sslen), get_port(ss));
+  Snprintf(buffer, sizeof(buffer), "%s:%d", inet_ntop_ez(ss, sslen), get_port(ss));
   return buffer;
 }
 

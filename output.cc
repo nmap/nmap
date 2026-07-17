@@ -1995,14 +1995,14 @@ void printosscanoutput(const Target *currenths) {
 
   if (currenths->seq.responses > 3) {
     p = numlst;
+    size_t remaining = sizeof(numlst);
     for (i = 0; i < currenths->seq.responses; i++) {
-      if (p - numlst > (int) (sizeof(numlst) - 15))
-        fatal("STRANGE ERROR #3877 -- please report to fyodor@nmap.org\n");
-      if (p != numlst)
-        *p++ = ',';
-      sprintf(p, "%X", currenths->seq.seqs[i]);
-      while (*p)
-        p++;
+      int n = Snprintf(p, remaining, "%s%X",
+          (p != numlst) ? "," : "", currenths->seq.seqs[i]);
+      if (n >= remaining)
+        fatal("numlst overflow");
+      p += n;
+      remaining -= n;
     }
 
     xml_open_start_tag("tcpsequence");
@@ -2019,14 +2019,14 @@ void printosscanoutput(const Target *currenths) {
 
   if (currenths->seq.responses > 2) {
     p = numlst;
+    size_t remaining = sizeof(numlst);
     for (i = 0; i < currenths->seq.responses; i++) {
-      if (p - numlst > (int) (sizeof(numlst) - 15))
-        fatal("STRANGE ERROR #3876 -- please report to fyodor@nmap.org\n");
-      if (p != numlst)
-        *p++ = ',';
-      sprintf(p, "%hX", currenths->seq.ipids[i]);
-      while (*p)
-        p++;
+      int n = Snprintf(p, remaining, "%s%hX",
+          (p != numlst) ? "," : "", currenths->seq.ipids[i]);
+      if (n >= remaining)
+        fatal("numlst overflow");
+      p += n;
+      remaining -= n;
     }
     xml_open_start_tag("ipidsequence");
     xml_attribute("class", "%s", ipidclass2ascii(currenths->seq.ipid_seqclass));
@@ -2040,14 +2040,14 @@ void printosscanoutput(const Target *currenths) {
               ipidclass2ascii(currenths->seq.ipid_seqclass));
 
     p = numlst;
+    remaining = sizeof(numlst);
     for (i = 0; i < currenths->seq.responses; i++) {
-      if (p - numlst > (int) (sizeof(numlst) - 15))
-        fatal("STRANGE ERROR #3878 -- please report to fyodor@nmap.org\n");
-      if (p != numlst)
-        *p++ = ',';
-      sprintf(p, "%X", currenths->seq.timestamps[i]);
-      while (*p)
-        p++;
+      int n = Snprintf(p, remaining, "%s%X",
+          (p != numlst) ? "," : "", currenths->seq.timestamps[i]);
+      if (n >= remaining)
+        fatal("numlst overflow");
+      p += n;
+      remaining -= n;
     }
 
     xml_open_start_tag("tcptssequence");
