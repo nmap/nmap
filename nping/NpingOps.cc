@@ -374,31 +374,31 @@ char * NpingOps::mode2Ascii(int md) {
 
   switch( md ){
     case TCP_CONNECT:
-        sprintf(buff, "TCP-Connect");
+        bufset(buff, "TCP-Connect");
     break;
 
     case TCP:
-        sprintf(buff, "TCP");
+        bufset(buff, "TCP");
     break;
 
     case UDP:
-        sprintf(buff, "UDP");
+        bufset(buff, "UDP");
     break;
 
     case UDP_UNPRIV:
-        sprintf(buff, "UDP-Unprivileged");
+        bufset(buff, "UDP-Unprivileged");
     break;
 
     case ICMP:
-        sprintf(buff, "ICMP");
+        bufset(buff, "ICMP");
     break;
 
     case ARP:
-        sprintf(buff, "ARP");
+        bufset(buff, "ARP");
     break;
 
     default:
-        sprintf(buff, "Unknown mode");
+        bufset(buff, "Unknown mode");
     break;
  }
  return buff;

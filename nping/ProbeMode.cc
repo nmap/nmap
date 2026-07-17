@@ -1209,7 +1209,7 @@ const char *ProbeMode::getBPFFilterString(){
     inet_ntop(AF_INET, &s4->sin_addr, ipstring, sizeof(ipstring));
  }else{
     nping_warning(QT_2, "Warning: Wrong address family (%d) in getBPFFilterString(). Please report a bug", srcss.ss_family);
-    sprintf(ipstring,"127.0.0.1");
+    bufset(ipstring,"127.0.0.1");
  }
 
  /* Tell the filter that we only want incoming packets, destined to our source IP */
