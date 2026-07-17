@@ -999,11 +999,7 @@ Crawler = {
     self.options.useheadfornonwebfiles = tobool(self.options.useheadfornonwebfiles)
 
     if ( self.options.withinhost == nil ) then
-      if ( self.options.withindomain ~= true ) then
-        self.options.withinhost = true
-      else
-        self.options.withinhost = false
-      end
+      self.options.withinhost = not self.options.withindomain
     end
     if ( self.options.withindomain == nil ) then
       self.options.withindomain = false
