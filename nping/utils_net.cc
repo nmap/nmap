@@ -795,16 +795,12 @@ int parseMAC(const char *txt, u8 *targetbuff){
 } /* End of parseMAC() */
 
 
-
-char *MACtoa(u8 *mac){
+const char *MACtoa(u8 *mac){
   static char macinfo[24];
-  memset(macinfo, 0, 24);
-  sprintf(macinfo,"%02X:%02X:%02X:%02X:%02X:%02X",
+  Snprintf(macinfo, sizeof(macinfo), "%02X:%02X:%02X:%02X:%02X:%02X",
           mac[0],mac[1],mac[2],mac[3],mac[4],mac[5]);
   return macinfo;
 } /* End of MACtoa() */
-
-
 
 
 /* Returns a buffer of ASCII information about an ARP/RARP packet that may look
