@@ -906,13 +906,17 @@ void parse_options(int argc, char **argv) {
           delayed_options.xmlfilename = logfilename(optarg, &local_time);
         } else if (strcmp(long_options[option_index].name, "oA") == 0) {
           char buf[MAXPATHLEN];
+          char *logname = logfilename(optarg, &local_time);
+          if (strlen(logname) > (MAXPATHLEN - sizeof(".gnmap")))
+            fatal("Filename too long!");
           test_file_name(optarg, long_options[option_index].name);
-          Snprintf(buf, sizeof(buf), "%s.nmap", logfilename(optarg, &local_time));
+          Snprintf(buf, sizeof(buf), "%s.nmap", logname);
           delayed_options.normalfilename = strdup(buf);
-          Snprintf(buf, sizeof(buf), "%s.gnmap", logfilename(optarg, &local_time));
+          Snprintf(buf, sizeof(buf), "%s.gnmap", logname);
           delayed_options.machinefilename = strdup(buf);
-          Snprintf(buf, sizeof(buf), "%s.xml", logfilename(optarg, &local_time));
+          Snprintf(buf, sizeof(buf), "%s.xml", logname);
           delayed_options.xmlfilename = strdup(buf);
+          free(logname);
         } else if (strcmp(long_options[option_index].name, "thc") == 0) {
           log_write(LOG_STDOUT, "!!Greets to Van Hauser, Plasmoid, Skyper and the rest of THC!!\n");
           exit(0);
