@@ -125,7 +125,7 @@ extern int tcsetattr(int fd, int actions, struct termios *termios_p);
 #endif
 #endif
 
-static int tty_fd = 0;
+static volatile sig_atomic_t tty_fd = 0;
 static struct termios saved_ti;
 
 static int tty_getchar()

@@ -146,7 +146,7 @@ static char *chat_filter(char *buf, size_t size, int fd, int *nwritten);
    (synchronously) only in the main program. get_conn_count loops while conn_dec
    is being modified. */
 static unsigned int conn_inc = 0;
-static volatile unsigned int conn_dec = 0;
+static volatile sig_atomic_t conn_dec = 0;
 static volatile sig_atomic_t conn_dec_changed;
 
 static void decrease_conn_count(void)

@@ -66,7 +66,7 @@
 
 char **cmdline_split(const char *cmdexec);
 
-static int child_alive = 0;
+volatile sig_atomic_t child_alive = 0;
 
 static void sigchld_watcher(int signum)
 {
