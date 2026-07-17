@@ -1121,7 +1121,7 @@ int readtcppacket(const u8 *packet, int readdata) {
   bullshit2.s_addr = ip->ip_dst.s_addr;
   realfrag = htons(ntohs(ip->ip_off) & IP_OFFMASK);
   tot_len = htons(ip->ip_len);
-  strncpy(sourcehost, inet_ntoa(bullshit), 16);
+  inet_ntop(AF_INET, &bullshit, sourcehost, sizeof(sourcehost));
   if (ip->ip_hl >= 5 && tcp->th_off >= 5) {
     i = 4 * (ip->ip_hl + tcp->th_off);
   }
