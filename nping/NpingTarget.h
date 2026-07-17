@@ -201,7 +201,6 @@ class NpingTarget {
     const char *getSourceIPStr();
     const char *getSpoofedSourceIPStr();
     const char *getNextHopIPStr();
-    const char *getMACStr(u8 *mac);
     const char *getTargetMACStr();
     const char *getSourceMACStr();
     const char *getNextHopMACStr(); 
