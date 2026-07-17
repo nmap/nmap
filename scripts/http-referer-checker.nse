@@ -33,28 +33,32 @@ portrule = shortport.port_or_service( {80, 443}, {"http", "https"}, "tcp", "open
 
 action = function(host, port)
 
+  local scripts = {}
+
   local crawler = httpspider.Crawler:new(host, port, '/', { scriptname = SCRIPT_NAME,
     maxpagecount = 30,
     maxdepth = -1,
-    withinhost = 0,
-    withindomain = 0
+    withinhost = true
   })
-
-  crawler.options.doscraping = function(url)
-    if crawler:iswithinhost(url)
-      and not crawler:isresource(url, "js")
-      and not crawler:isresource(url, "css") then
-      return true
-    end
-  end
-
-  crawler:set_timeout(10000)
-
-  if (not(crawler)) then
+  if not crawler then
     return
   end
 
-  local scripts = {}
+  crawler.options.withinhost = function(url)
+    -- Check for cross-domain javascript
+    if not crawler:iswithindomain(url) and crawler:isresource(url, "js") then
+      scripts[tostring(url)] = true
+    end
+    -- But don't actually fetch it if it's not on the same host
+    return crawler:iswithinhost(url)
+  end
+
+  crawler.options.doscraping = function(url)
+    return (not crawler:isresource(url, "js")
+      and not crawler:isresource(url, "css"))
+  end
+
+  crawler:set_timeout(10000)
 
   while(true) do
 
@@ -65,10 +69,6 @@ action = function(host, port)
       else
         break
       end
-    end
-
-    if crawler:isresource(r.url, "js") and not crawler:iswithinhost(r.url) then
-      scripts[tostring(r.url)] = true
     end
 
   end
