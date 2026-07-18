@@ -86,6 +86,12 @@ local LOGIN_PATH_INDICATORS = {
 
 local COMMON_JOOMLA_PATHS = {"", "/joomla", "/cms", "/site", "/joomla3", "/joomla4"}
 
+local MANIFEST_PATHS = {
+  "administrator/components/com_sppagebuilder/sp_page_builder.xml",
+  "administrator/components/com_sppagebuilder/sppagebuilder.xml",
+  "administrator/components/com_sppagebuilder/com_sppagebuilder.xml",
+}
+
 local function version_ge(v1, v2)
   local function split(v)
     local parts = {}
@@ -229,10 +235,27 @@ local function is_controller_response(resp)
   if not is_joomla_json_format(data) then
     return false
   end
-  if indicates_auth(data) then
+  return not indicates_auth(data)
+end
+
+local function is_auth_response(resp)
+  if not resp or not resp.body or #resp.body == 0 then
     return false
   end
-  return true
+  if body_is_html(resp.body) then
+    return false
+  end
+  if not has_json_content_type(resp) and not response_looks_like_json(resp.body) then
+    return false
+  end
+  local ok, data = json.parse(resp.body)
+  if not ok or type(data) ~= "table" then
+    return false
+  end
+  if not is_joomla_json_format(data) then
+    return false
+  end
+  return indicates_auth(data)
 end
 
 local function is_login_redirect(resp)
@@ -245,10 +268,16 @@ local function is_login_redirect(resp)
       return true
     end
   end
-  local set_cookie = resp.header["set-cookie"] or ""
-  if string.find(string.lower(set_cookie), "session", 1, true) or
-     string.find(string.lower(set_cookie), "joomla", 1, true) then
-    return true
+  if resp.rawheader then
+    for _, line in ipairs(resp.rawheader) do
+      local lower = string.lower(line)
+      if string.find(lower, "^set%-cookie:", 1) then
+        if string.find(lower, "session", 1, true) or
+           string.find(lower, "joomla", 1, true) then
+          return true
+        end
+      end
+    end
   end
   return false
 end
@@ -257,8 +286,13 @@ local function classify_endpoint(resp)
   if not resp then
     return nil
   end
-  if resp.status == 200 and is_controller_response(resp) then
-    return EP_UNPROTECTED
+  if resp.status == 200 then
+    if is_controller_response(resp) then
+      return EP_UNPROTECTED
+    end
+    if is_auth_response(resp) then
+      return EP_AUTH_ENFORCED
+    end
   end
   if resp.status == 401 or resp.status == 403 then
     return EP_AUTH_ENFORCED
@@ -282,14 +316,16 @@ local function classify_endpoint(resp)
 end
 
 local function try_get_version(host, port, base_path)
-  local manifest_path = base_path .. "/administrator/components/com_sppagebuilder/sp_page_builder.xml"
-  local resp = http.get(host, port, manifest_path)
-  if resp and resp.status == 200 and resp.body then
-    local ver = string.match(resp.body, "<version>([^<]+)</version>")
-    if ver then
-      ver = string.match(ver, "%d[%d%.]*")
+  for _, manifest_rel in ipairs(MANIFEST_PATHS) do
+    local manifest_path = base_path .. "/" .. manifest_rel
+    local resp = http.get(host, port, manifest_path)
+    if resp and resp.status == 200 and resp.body then
+      local ver = string.match(resp.body, "<version>([^<]+)</version>")
       if ver then
-        return ver
+        ver = string.match(ver, "%d[%d%.]*")
+        if ver then
+          return ver
+        end
       end
     end
   end
@@ -299,6 +335,7 @@ end
 local function find_base_path(host, port)
   local path_arg = stdnse.get_script_args(SCRIPT_NAME .. ".path")
   if path_arg and #path_arg > 0 then
+    path_arg = string.match(path_arg, "^(.-)/*$") or path_arg
     return path_arg
   end
   for _, p in ipairs(COMMON_JOOMLA_PATHS) do
@@ -309,6 +346,62 @@ local function find_base_path(host, port)
     end
   end
   return ""
+end
+
+local function build_probe_parts()
+  local boundary = "----NseB" .. rand.random_alpha(8)
+  local empty_zip = string.char(
+    0x50, 0x4B, 0x05, 0x06,
+    0x00, 0x00,
+    0x00, 0x00,
+    0x00, 0x00,
+    0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00,
+    0x00, 0x00
+  )
+  local parts = {}
+  table.insert(parts, "--" .. boundary)
+  table.insert(parts, 'Content-Disposition: form-data; name="custom_icon"; filename="icon.zip"')
+  table.insert(parts, "Content-Type: application/zip")
+  table.insert(parts, "")
+  table.insert(parts, empty_zip)
+  table.insert(parts, "--" .. boundary .. "--")
+  return boundary, table.concat(parts, "\r\n")
+end
+
+local function probe_endpoint(host, port, base_path, probe_suffixes)
+  local boundary, body = build_probe_parts()
+  local best = nil
+  for _, suffix in ipairs(probe_suffixes) do
+    local url = base_path .. suffix
+    local resp = http.post(host, port, url, {
+      header = {["Content-Type"] = "multipart/form-data; boundary=" .. boundary},
+      content = body,
+    })
+    local ep = classify_endpoint(resp)
+    if ep == EP_UNPROTECTED then
+      return EP_UNPROTECTED
+    end
+    if ep ~= nil and ep ~= EP_ABSENT then
+      return ep
+    end
+    if ep == EP_ABSENT and best == nil then
+      best = EP_ABSENT
+    end
+  end
+  return best
+end
+
+local function combine_classifications(c1, c2)
+  if c1 == EP_UNPROTECTED or c2 == EP_UNPROTECTED then
+    return EP_UNPROTECTED
+  end
+  if c1 == nil then return c2 end
+  if c2 == nil then return c1 end
+  if c1 == EP_ABSENT then return c2 end
+  if c2 == EP_ABSENT then return c1 end
+  return math.min(c1, c2)
 end
 
 action = function(host, port)
@@ -330,38 +423,19 @@ leading to PHP code execution and full server compromise (CVSS 10.0).
   local report = vulns.Report:new(SCRIPT_NAME, host, port)
   local base_path = find_base_path(host, port)
   local found_version = try_get_version(host, port, base_path)
-  if found_version then
-    if version_ge(found_version, "6.6.2") then
-      return report:make_output(vuln)
-    end
-    if version_lt(found_version, "1.0.0") then
-      return report:make_output(vuln)
-    end
+  if found_version and version_lt(found_version, "1.0.0") then
+    return report:make_output(vuln)
   end
-  local boundary = "----NseB" .. rand.random_alpha(8)
-  local empty_zip = string.char(
-    0x50, 0x4B, 0x05, 0x06,
-    0x00, 0x00,
-    0x00, 0x00,
-    0x00, 0x00,
-    0x00, 0x00,
-    0x00, 0x00, 0x00, 0x00,
-    0x00, 0x00, 0x00, 0x00,
-    0x00, 0x00
-  )
-  local probe_parts = {}
-  table.insert(probe_parts, "--" .. boundary)
-  table.insert(probe_parts, 'Content-Disposition: form-data; name="custom_icon"; filename="icon.zip"')
-  table.insert(probe_parts, "Content-Type: application/zip")
-  table.insert(probe_parts, "")
-  table.insert(probe_parts, empty_zip)
-  table.insert(probe_parts, "--" .. boundary .. "--")
-  local probe_path = base_path .. "/index.php?option=com_sppagebuilder&task=asset.uploadCustomIcon"
-  local resp = http.post(host, port, probe_path, {
-    header = {["Content-Type"] = "multipart/form-data; boundary=" .. boundary},
-    content = table.concat(probe_parts, "\r\n"),
+  local ep_class = probe_endpoint(host, port, base_path, {
+    "/index.php?option=com_sppagebuilder&task=asset.uploadCustomIcon",
   })
-  local ep_class = classify_endpoint(resp)
+  if ep_class ~= EP_UNPROTECTED then
+    local ep_class2 = probe_endpoint(host, port, base_path, {
+      "/index.php?option=com_sppagebuilder&task=editor.uploadIcons",
+      "/administrator/index.php?option=com_sppagebuilder&task=editor.uploadIcons",
+    })
+    ep_class = combine_classifications(ep_class, ep_class2)
+  end
   if ep_class == EP_UNPROTECTED then
     if found_version then
       vuln.state = vulns.STATE.VULN
@@ -369,15 +443,15 @@ leading to PHP code execution and full server compromise (CVSS 10.0).
       vuln.state = vulns.STATE.LIKELY_VULN
     end
   elseif ep_class == EP_AUTH_ENFORCED then
-    if found_version then
+    if found_version and version_ge(found_version, "6.6.2") then
+      vuln.state = vulns.STATE.NOT_VULN
+    else
       vuln.state = vulns.STATE.LIKELY_VULN
     end
   elseif ep_class == EP_PRESENT_METHOD_REJECTED then
-    if found_version then
-      vuln.state = vulns.STATE.LIKELY_VULN
-    end
+    vuln.state = vulns.STATE.LIKELY_VULN
   elseif ep_class == EP_ABSENT then
-    if found_version then
+    if found_version and not version_ge(found_version, "6.6.2") then
       vuln.state = vulns.STATE.LIKELY_VULN
     end
   end

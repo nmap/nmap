@@ -4,6 +4,7 @@ local stdnse = require "stdnse"
 local string = require "string"
 local table = require "table"
 local json = require "json"
+local rand = require "rand"
 local vulns = require "vulns"
 
 description = [[
@@ -76,6 +77,17 @@ local EP_ACTION_BLOCKED = 2
 local EP_ACTION_ABSENT = 3
 
 local COMMON_WP_PATHS = {"", "/wordpress", "/wp", "/blog", "/site", "/cms"}
+
+local NONCE_PATTERNS = {
+  '["\']nonce["\']%s*:%s*["\']([A-Za-z0-9_%-]+)["\']',
+  '["\']wpfnl_nonce["\']%s*:%s*["\']([A-Za-z0-9_%-]+)["\']',
+  '["\']security["\']%s*:%s*["\']([A-Za-z0-9_%-]+)["\']',
+  'data%-nonce=["\']([A-Za-z0-9_%-]+)["\']',
+}
+
+local NONCE_PARAM_NAMES = {"_wpnonce", "security", "wpfnl_nonce"}
+
+local NONCE_FETCH_PATHS = {"/", "/checkout/", "/cart/", "/checkout", "/cart"}
 
 local function version_ge(v1, v2)
   local function split(v)
@@ -155,7 +167,7 @@ local function classify_ajax_response(resp)
   if trimmed and string.sub(trimmed, 1, 1) == "<" then
     return nil
   end
-  return EP_ACTION_ACTIVE
+  return nil
 end
 
 local function try_get_version(host, port, base_path)
@@ -189,6 +201,7 @@ end
 local function find_base_path(host, port)
   local path_arg = stdnse.get_script_args(SCRIPT_NAME .. ".path")
   if path_arg and #path_arg > 0 then
+    path_arg = string.match(path_arg, "^(.-)/*$") or path_arg
     return path_arg
   end
   for _, p in ipairs(COMMON_WP_PATHS) do
@@ -199,6 +212,50 @@ local function find_base_path(host, port)
     end
   end
   return ""
+end
+
+local function url_encode(s)
+  if not s then return "" end
+  local result = ""
+  for i = 1, #s do
+    local c = string.byte(s, i)
+    if (c >= 48 and c <= 57) or (c >= 65 and c <= 90) or (c >= 97 and c <= 122) or c == 45 or c == 46 or c == 95 or c == 126 then
+      result = result .. string.char(c)
+    else
+      result = result .. string.format("%%%02X", c)
+    end
+  end
+  return result
+end
+
+local function extract_nonce(host, port, base_path)
+  for _, rel_path in ipairs(NONCE_FETCH_PATHS) do
+    local url = base_path .. rel_path
+    local resp = http.get(host, port, url)
+    if resp and resp.status == 200 and resp.body then
+      for _, pattern in ipairs(NONCE_PATTERNS) do
+        local nonce = string.match(resp.body, pattern)
+        if nonce and #nonce >= 8 then
+          return nonce
+        end
+      end
+    end
+  end
+  return nil
+end
+
+local function try_ajax_with_nonce(host, port, ajax_path, probe_value, nonce)
+  local param = NONCE_PARAM_NAMES[1]
+  local content = "action=wpfnl_log&postData=" .. url_encode(probe_value) .. "&" .. param .. "=" .. url_encode(nonce)
+  local resp = http.post(host, port, ajax_path, {
+    header = {["Content-Type"] = "application/x-www-form-urlencoded"},
+    content = content,
+  })
+  local ep = classify_ajax_response(resp)
+  if ep == EP_ACTION_ACTIVE then
+    return ep
+  end
+  return nil
 end
 
 action = function(host, port)
@@ -228,12 +285,21 @@ is subsequently executed via include_once when an admin views the log (CVSS 9.8)
       return report:make_output(vuln)
     end
   end
+  local probe_value = rand.random_alpha(12)
   local ajax_path = base_path .. "/wp-admin/admin-ajax.php"
-  local resp = http.post(host, port, ajax_path, {
-    header = {["Content-Type"] = "application/x-www-form-urlencoded"},
-    content = "action=wpfnl_log&postData=CVE-2026-14345-probe",
-  })
-  local ep_class = classify_ajax_response(resp)
+  local nonce = extract_nonce(host, port, base_path)
+  local ep_class
+  if nonce then
+    ep_class = try_ajax_with_nonce(host, port, ajax_path, probe_value, nonce)
+  end
+  if not ep_class then
+    local content = "action=wpfnl_log&postData=" .. probe_value
+    local resp = http.post(host, port, ajax_path, {
+      header = {["Content-Type"] = "application/x-www-form-urlencoded"},
+      content = content,
+    })
+    ep_class = classify_ajax_response(resp)
+  end
   if ep_class == EP_ACTION_ACTIVE or ep_class == EP_ACTION_BLOCKED then
     if found_version then
       vuln.state = vulns.STATE.VULN
