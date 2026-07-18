@@ -556,6 +556,12 @@ typedef bitvector_t octet_bitvector[(256 - 1) / (sizeof(unsigned long) * CHAR_BI
 
 #include "nbase_ipv6.h"
 
+#ifdef __linux__
+/* Returns non-zero if the process has CAP_NET_RAW effective.
+ * See nbase_misc.c for details. */
+int have_net_capabilities(void);
+#endif
+
 #ifdef __cplusplus
 }
 #endif
