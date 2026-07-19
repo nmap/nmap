@@ -693,7 +693,7 @@ class PortSubcriterion(Subcriterion):
         if self.argument:
             self.entry.set_text(self.argument)
 
-        self.label = Gtk.Label.new("  is  ")
+        self.label = Gtk.Label.new(_("  is  "))
 
         self.port_state_combo = Gtk.ComboBoxText()
         states = ["open", "scanned", "closed", "filtered", "unfiltered",

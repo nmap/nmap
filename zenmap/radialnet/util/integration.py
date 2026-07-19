@@ -62,8 +62,8 @@ from radialnet.gui.RadialNet import NetNode
 import math
 
 
-COLORS = [(0.0, 1.0, 0.0),
-          (1.0, 1.0, 0.0),
+COLORS = [(0.0, 0.7, 0.0),
+          (1.0, 0.7, 0.0),
           (1.0, 0.0, 0.0)]
 
 BASE_RADIUS = 5.5

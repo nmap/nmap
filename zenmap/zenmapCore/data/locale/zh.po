@@ -1,14 +1,14 @@
 # Copyright (C) 2008 - 2021 Nmap Software LLC
-# Copyright (C) Jiang Jie <jerrynwin () gmail com>, 2014.
 # This file is distributed under the same license as Nmap.
+#
 msgid ""
 msgstr ""
 "Project-Id-Version: Zenmap\n"
 "Report-Msgid-Bugs-To: dev@nmap.org\n"
 "POT-Creation-Date: 2025-05-19 16:32+0000\n"
-"PO-Revision-Date: 2014-12-06 13:59+0800\n"
-"Last-Translator: Jiang Jie <jerrynwin () gmail com>\n"
-"Language-Team: Chinese\n"
+"PO-Revision-Date: 2025-05-08 21:43+0800\n"
+"Last-Translator: Zenmap Chinese Translation Team\n"
+"Language-Team: Chinese <zh@li.org>\n"
 "Language: zh\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -25,18 +25,18 @@ msgstr "未知版本"
 #: zenmapCore/NmapParser.py:642
 #, python-format
 msgid "%(profile_name)s on %(targets)s"
-msgstr "%(profile_name)s: %(targets)s"
+msgstr "%(profile_name)s 于 %(targets)s"
 
 #: zenmapCore/UmitOptionParser.py:77
 #, python-format
 msgid "Use DIR as the user configuration directory. Default: %default"
-msgstr "使用DIR目录作为用户配置文件存放目录，默认为: %default"
+msgstr "使用 DIR 作为用户配置目录。默认值：%default"
 
 #: zenmapCore/UmitOptionParser.py:91
 msgid ""
 "Specify a scan result file in Nmap XML output format. Can be used more than "
 "once to specify several scan result files."
-msgstr "指定扫描结果输出为Nmap XML格式, 可以多次使用来指定多个扫描结果文件。"
+msgstr "指定一个 Nmap XML 格式的扫描结果文件。可多次使用以指定多个扫描结果文件。"
 
 #: zenmapCore/UmitOptionParser.py:102
 #, python-format
@@ -45,78 +45,74 @@ msgstr "使用指定参数 %s 运行。"
 
 #: zenmapCore/UmitOptionParser.py:110
 msgid ""
-"Begin with the specified profile selected. If combined with the -t (--"
-"target) option, automatically run the profile against the specified target."
-msgstr ""
-"用选定的配置运行，如果同时使用-t (--target)选项，自动把该配置用于指定目标。"
+"Begin with the specified profile selected. If combined with the -t "
+"(--target) option, automatically run the profile against the specified "
+"target."
+msgstr "以选定的配置启动。如果结合 -t (--target) 选项使用，则自动对指定目标运行该配置。"
 
 #: zenmapCore/UmitOptionParser.py:121
 msgid ""
 "Specify a target to be used along with other options. If specified alone, "
 "open with the target field filled with the specified target"
-msgstr "指定单个目标使用特定选项，如果单独指定，目标字段为所指定的目标。"
+msgstr "指定与其他选项一起使用的目标。如果单独指定，则打开时目标字段已填入指定的目标。"
 
 #: zenmapCore/UmitOptionParser.py:129
 msgid ""
 "Increase verbosity of the output. May be used more than once to get even "
 "more verbosity"
-msgstr "提高输出的详细级别，可以多次使用来获得更高的详细级别。"
+msgstr "提高输出详细级别。可多次使用以获得更详细的输出。"
 
 #: zenmapCore/UmitConf.py:198
 msgid "No profiles found"
-msgstr "未找到任何配置文件"
+msgstr "未找到配置"
 
 #: zenmapCore/UmitConf.py:200
 msgid "The {} file is missing or corrupted"
-msgstr "{} 文件丢失或损坏"
+msgstr "{} 文件缺失或损坏"
 
 #: zenmapGUI/ScriptInterface.py:197
 msgid ""
-"There was an error getting the list of scripts from Nmap. Try upgrading Nmap."
-msgstr "检测脚本列表失败，请尝试更新Nmap."
+"There was an error getting the list of scripts from Nmap. Try upgrading "
+"Nmap."
+msgstr "从 Nmap 获取脚本列表时出错。请尝试升级 Nmap。"
 
 #: zenmapGUI/ScriptInterface.py:402
 msgid ""
 "List of scripts\n"
 "\n"
-"A list of all installed scripts. Activate or deactivate a script by clicking "
-"the box next to the script name."
+"A list of all installed scripts. Activate or deactivate a script by clicking the box next to the script name."
 msgstr ""
 "脚本列表\n"
 "\n"
-"所有已安装的脚本列表。勾选脚本名旁的复选框选择是否启动该脚本。 "
+"所有已安装脚本的列表。点击脚本名称旁的复选框来启用或禁用脚本。"
 
 #: zenmapGUI/ScriptInterface.py:406
 msgid ""
 "Description\n"
 "\n"
-"This box shows the categories a script belongs to. In addition, it gives a "
-"detailed description of the script which is present in script. A URL points "
-"to online NSEDoc documentation."
+"This box shows the categories a script belongs to. In addition, it gives a detailed description of the script which is present in script. A URL points to online NSEDoc documentation."
 msgstr ""
 "描述\n"
 "\n"
-"这个窗口显示脚本所属类别。此外，还显示脚本的详细描述和指向NSEDoc在线文档的链"
-"接。"
+"此框显示脚本所属的类别。此外，还提供脚本的详细描述。URL 指向在线 NSEDoc 文档。"
 
 #: zenmapGUI/ScriptInterface.py:411
 msgid ""
 "Arguments\n"
 "\n"
-"A list of arguments that affect the selected script. Enter a value by "
-"clicking in the value field beside the argument name."
+"A list of arguments that affect the selected script. Enter a value by clicking in the value field beside the argument name."
 msgstr ""
 "参数\n"
 "\n"
-"脚本接受的参数列表，点击参数名旁的文本框,输入参数值。"
+"影响选定脚本的参数列表。点击参数名旁的值字段输入值。"
 
 #: zenmapGUI/ScriptInterface.py:418
 msgid "Please wait."
-msgstr "请等待。"
+msgstr "请稍候。"
 
 #: zenmapGUI/ScriptInterface.py:441
 msgid "Names"
-msgstr "脚本名"
+msgstr "名称"
 
 #: zenmapGUI/ScriptInterface.py:562
 msgid "Arguments"
@@ -128,41 +124,37 @@ msgstr "选择脚本文件"
 
 #: zenmapGUI/FilterBar.py:26
 msgid "Host Filter:"
-msgstr "主机过滤:"
+msgstr "主机过滤："
 
 #: zenmapGUI/FilterBar.py:59
 msgid ""
-"Entering the text into the search performs a <b>keyword search</b> - the "
-"search string is matched against every aspect of the host.\n"
+"Entering the text into the search performs a <b>keyword search</b> - the search string is matched against every aspect of the host.\n"
 "\n"
-"To refine the search, you can use <b>operators</b> to search only specific "
-"fields within a host. Most operators have a short form, listed. \n"
+"To refine the search, you can use <b>operators</b> to search only specific fields within a host. Most operators have a short form, listed. \n"
 "<b>target: (t:)</b> - User-supplied target, or a rDNS result.\n"
 "<b>os:</b> - All OS-related fields.\n"
 "<b>open: (op:)</b> - Open ports discovered in a scan.\n"
 "<b>closed: (cp:)</b> - Closed ports discovered in a scan.\n"
 "<b>filtered: (fp:)</b> - Filtered ports discovered in scan.\n"
-"<b>unfiltered: (ufp:)</b> - Unfiltered ports found in a scan (using, for "
-"example, an ACK scan).\n"
+"<b>unfiltered: (ufp:)</b> - Unfiltered ports found in a scan (using, for example, an ACK scan).\n"
 "<b>open|filtered: (ofp:)</b> - Ports in the \"open|filtered\" state.\n"
 "<b>closed|filtered: (cfp:)</b> - Ports in the \"closed|filtered\" state.\n"
 "<b>service: (s:)</b> - All service-related fields.\n"
 "<b>inroute: (ir:)</b> - Matches a router in the scan's traceroute output.\n"
 msgstr ""
-"在文本框中输入信息来进行<b>关键词搜索</b>- 关键词匹配主机信息的任一内容。\n"
+"在文本框中输入内容进行<b>关键词搜索</b>—搜索字符串会匹配主机的方方面面。\n"
 "\n"
-"你可以用<b>运算符</b>来筛选主机信息内指定的字段。大部分的运算符都有缩写形式，"
-"如下:\n"
-"<b>target: (t:)</b> - 用户提供的目标,或者是rDNS结果。\n"
-"<b>os:</b> - 所有和操作系统相关的字段。\n"
-"<b>open: (op:)</b> - 扫描中发现的开放端口。\n"
-"<b>closed: (cp:)</b> - 扫描中发现的未开放端口。\n"
-"<b>filtered: (fp:)</b> - 扫描中发现的被过滤端口。\n"
-"<b>unfiltered: (ufp:)</b> - 扫描中发现的未被过滤的端口(例如:使用ACK扫描)。\n"
-"<b>open|filtered: (ofp:)</b> - 属于\"open|filtered\"状态的端口。\n"
-"<b>closed|filtered: (cfp:)</b> - 属于\"closed|filtered\"状态的端口。\n"
-"<b>service: (s:)</b> - 所有与服务相关的字段。\n"
-"<b>inroute: (ir:)</b> - 与扫描的路由追踪输出中匹配的路由器。\n"
+"要精确搜索，可以使用<b>运算符</b>仅搜索主机中的特定字段。大多数运算符都有缩写形式，如下所列：\n"
+"<b>target: (t:)</b>—用户提供的目标或 rDNS 结果。\n"
+"<b>os:</b>—所有与操作系统相关的字段。\n"
+"<b>open: (op:)</b>—扫描中发现的开放端口。\n"
+"<b>closed: (cp:)</b>—扫描中发现的关闭端口。\n"
+"<b>filtered: (fp:)</b>—扫描中发现的被过滤端口。\n"
+"<b>unfiltered: (ufp:)</b>—扫描中发现的未过滤端口（例如使用 ACK 扫描）。\n"
+"<b>open|filtered: (ofp:)</b>—处于 \"open|filtered\" 状态的端口。\n"
+"<b>closed|filtered: (cfp:)</b>—处于 \"closed|filtered\" 状态的端口。\n"
+"<b>service: (s:)</b>—所有与服务相关的字段。\n"
+"<b>inroute: (ir:)</b>—匹配扫描路由追踪输出中的路由器。\n"
 
 #: zenmapGUI/ScanHostsView.py:109 radialnet/gui/LegendWindow.py:157
 msgid "Hosts"
@@ -187,7 +179,7 @@ msgstr "服务"
 
 #: zenmapGUI/DiffCompare.py:133
 msgid "Scan Output"
-msgstr "扫描结果"
+msgstr "扫描输出"
 
 #: zenmapGUI/DiffCompare.py:186
 msgid "Select Scan Result"
@@ -200,16 +192,15 @@ msgstr "解析文件错误"
 #: zenmapGUI/DiffCompare.py:199
 #, python-format
 msgid ""
-"The file is not an Nmap XML output file. The parsing error that occurred "
-"was\n"
+"The file is not an Nmap XML output file. The parsing error that occurred was\n"
 "%s"
 msgstr ""
-"这个文件不是Nmap XML输出文件。解析时发生错误: \n"
+"该文件不是 Nmap XML 输出文件。解析时发生的错误为\n"
 "%s"
 
 #: zenmapGUI/DiffCompare.py:207
 msgid "Cannot open selected file"
-msgstr "打开文件失败"
+msgstr "无法打开选定的文件"
 
 #: zenmapGUI/DiffCompare.py:209
 #, python-format
@@ -217,45 +208,45 @@ msgid ""
 "This error occurred while trying to open the file:\n"
 "%s"
 msgstr ""
-"尝试打开文件时发生此错误:"
+"尝试打开文件时发生此错误：\n"
 "%s"
 
 #: zenmapGUI/DiffCompare.py:256 zenmapGUI/MainWindow.py:289
 msgid "Compare Results"
-msgstr "结果比对"
+msgstr "比较结果"
 
 #: zenmapGUI/DiffCompare.py:272
 msgid "A Scan"
-msgstr "扫描A"
+msgstr "扫描 A"
 
 #: zenmapGUI/DiffCompare.py:273
 msgid "B Scan"
-msgstr "扫描B"
+msgstr "扫描 B"
 
 #: zenmapGUI/DiffCompare.py:332 zenmapGUI/DiffCompare.py:385
 msgid "Error running ndiff"
-msgstr "运行ndiff失败"
+msgstr "运行 ndiff 出错"
 
 #: zenmapGUI/DiffCompare.py:334
 msgid ""
 "There was an error running the ndiff program.\n"
 "\n"
 msgstr ""
-"运行ndiff时出错。\n"
+"运行 ndiff 程序时出错。\n"
 "\n"
 
 #: zenmapGUI/DiffCompare.py:369
 msgid "Error parsing ndiff output"
-msgstr "解析ndiff输出时出错。"
+msgstr "解析 ndiff 输出时出错"
 
 #: zenmapGUI/DiffCompare.py:378
 #, python-format
 msgid "The ndiff process terminated with status code %d."
-msgstr "ndiff程序终止,返回状态码: %d."
+msgstr "ndiff 进程以状态码 %d 终止。"
 
 #: zenmapGUI/ScanToolbar.py:80 zenmapGUI/ScanRunDetailsPage.py:79
 msgid "Command:"
-msgstr "命令:"
+msgstr "命令："
 
 #: zenmapGUI/ScanToolbar.py:112 zenmapGUI/SearchGUI.py:271
 #: zenmapGUI/ProfileEditor.py:175 zenmapCore/data/misc/profile_editor.xml:8
@@ -268,15 +259,15 @@ msgstr "取消"
 
 #: zenmapGUI/ScanToolbar.py:134
 msgid "Target:"
-msgstr "目标:"
+msgstr "目标："
 
 #: zenmapGUI/ScanToolbar.py:141
 msgid "Profile:"
-msgstr "配置:"
+msgstr "配置："
 
 #: zenmapGUI/MainWindow.py:195
 msgid "Sc_an"
-msgstr "扫描(_a)"
+msgstr "扫描(_A)"
 
 #: zenmapGUI/MainWindow.py:199
 msgid "_Save Scan"
@@ -292,7 +283,7 @@ msgstr "保存所有扫描到目录(_D)"
 
 #: zenmapGUI/MainWindow.py:208
 msgid "Save all scans into a directory"
-msgstr "保存所有扫描到单个目录"
+msgstr "将所有扫描保存到一个目录中"
 
 #: zenmapGUI/MainWindow.py:213
 msgid "_Open Scan"
@@ -300,7 +291,7 @@ msgstr "打开扫描(_O)"
 
 #: zenmapGUI/MainWindow.py:215
 msgid "Open the results of a previous scan"
-msgstr "打开之前扫描结果"
+msgstr "打开之前扫描的结果"
 
 #: zenmapGUI/MainWindow.py:220
 msgid "_Open Scan in This Window"
@@ -308,7 +299,7 @@ msgstr "在当前窗口打开扫描(_O)"
 
 #: zenmapGUI/MainWindow.py:222
 msgid "Append a saved scan to the list of scans in this window."
-msgstr "在当前窗口新增一个保存的扫描。"
+msgstr "将保存的扫描附加到此窗口的扫描列表中。"
 
 #: zenmapGUI/MainWindow.py:226
 msgid "_Tools"
@@ -328,7 +319,7 @@ msgstr "关闭窗口"
 
 #: zenmapGUI/MainWindow.py:239
 msgid "Close this scan window"
-msgstr "关闭扫描窗口"
+msgstr "关闭此扫描窗口"
 
 #: zenmapGUI/MainWindow.py:244
 msgid "Print..."
@@ -344,15 +335,15 @@ msgstr "退出"
 
 #: zenmapGUI/MainWindow.py:253
 msgid "Quit the application"
-msgstr "退出程序"
+msgstr "退出应用程序"
 
 #: zenmapGUI/MainWindow.py:258
 msgid "New _Profile or Command"
-msgstr "新的配置或命令(_P)"
+msgstr "新建配置或命令(_P)"
 
 #: zenmapGUI/MainWindow.py:260
 msgid "Create a new scan profile using the current command"
-msgstr "使用当前命令创建一个新的扫描配置"
+msgstr "使用当前命令创建新的扫描配置"
 
 #: zenmapGUI/MainWindow.py:265
 msgid "Search Scan Results"
@@ -372,11 +363,11 @@ msgstr "按条件搜索主机"
 
 #: zenmapGUI/MainWindow.py:279
 msgid "_Edit Selected Profile"
-msgstr "编辑选中配置(_E)"
+msgstr "编辑选中的配置(_E)"
 
 #: zenmapGUI/MainWindow.py:281
 msgid "Edit selected scan profile"
-msgstr "编辑所选扫描配置"
+msgstr "编辑选定的扫描配置"
 
 #: zenmapGUI/MainWindow.py:285
 msgid "_Profile"
@@ -384,7 +375,7 @@ msgstr "配置(_P)"
 
 #: zenmapGUI/MainWindow.py:291
 msgid "Compare Scan Results using Diffies"
-msgstr "用Diff比较扫描结果"
+msgstr "使用 Diff 比较扫描结果"
 
 #: zenmapGUI/MainWindow.py:296 zenmapGUI/MainWindow.py:316
 msgid "_Help"
@@ -392,11 +383,11 @@ msgstr "帮助(_H)"
 
 #: zenmapGUI/MainWindow.py:300
 msgid "_Report a bug"
-msgstr "报告Bug(_R)"
+msgstr "报告错误(_R)"
 
 #: zenmapGUI/MainWindow.py:302
 msgid "Report a bug"
-msgstr "报告Bug"
+msgstr "报告错误"
 
 #: zenmapGUI/MainWindow.py:308
 msgid "_About"
@@ -405,19 +396,19 @@ msgstr "关于(_A)"
 #: zenmapGUI/MainWindow.py:310
 #, python-format
 msgid "About %s"
-msgstr "关于%s"
+msgstr "关于 %s"
 
 #: zenmapGUI/MainWindow.py:318
 msgid "Shows the application help"
-msgstr "打开程序帮助"
+msgstr "显示应用程序帮助"
 
 #: zenmapGUI/MainWindow.py:323
 msgid "Toggle Dark Mode"
-msgstr "切换暗模式"
+msgstr "切换深色模式"
 
 #: zenmapGUI/MainWindow.py:430
 msgid "Can't save to database"
-msgstr "保存到数据库失败"
+msgstr "无法保存到数据库"
 
 #: zenmapGUI/MainWindow.py:431
 #, python-format
@@ -425,7 +416,7 @@ msgid ""
 "Can't store unsaved scans to the recent scans database:\n"
 "%s"
 msgstr ""
-"未保存的扫描不能保存到当前扫描数据库:\n"
+"无法将未保存的扫描存储到最近扫描数据库：\n"
 "%s"
 
 #: zenmapGUI/MainWindow.py:556
@@ -434,26 +425,27 @@ msgstr "加载文件出错"
 
 #: zenmapGUI/MainWindow.py:579 zenmapGUI/MainWindow.py:658
 msgid "Nothing to save"
-msgstr "并未做任何修改"
+msgstr "没有可保存的内容"
 
 #: zenmapGUI/MainWindow.py:581
 msgid ""
 "There are no scans with results to be saved. Run a scan with the \"Scan\" "
 "button first."
-msgstr "没有扫描结果需要保存。请先点击\"扫描\"按钮运行一次扫描。"
+msgstr "没有有结果的扫描需要保存。请先点击「扫描」按钮运行一次扫描。"
 
 #: zenmapGUI/MainWindow.py:589 zenmapGUI/MainWindow.py:667
 msgid "There is a scan still running. Wait until it finishes and then save."
-msgstr "有扫描正在运行，等待其运行完后再保存。"
+msgstr "有扫描仍在运行。请等待它完成后再保存。"
 
 #: zenmapGUI/MainWindow.py:592 zenmapGUI/MainWindow.py:670
 #, python-format
-msgid "There are %u scans still running. Wait until they finish and then save."
-msgstr "有%u个扫描正在运行，等待其运行完后再保存。"
+msgid ""
+"There are %u scans still running. Wait until they finish and then save."
+msgstr "有 %u 个扫描仍在运行。请等待它们完成后再保存。"
 
 #: zenmapGUI/MainWindow.py:594 zenmapGUI/MainWindow.py:672
 msgid "Scan is running"
-msgstr "扫描仍在运行"
+msgstr "扫描正在运行"
 
 #: zenmapGUI/MainWindow.py:636
 msgid "Save Scan"
@@ -463,15 +455,15 @@ msgstr "保存扫描"
 msgid ""
 "This scan has not been run yet. Start the scan with the \"Scan\" button "
 "first."
-msgstr "这个扫描并未运行，点击\"扫描\"按钮来启动。"
+msgstr "此扫描尚未运行。请先点击「扫描」按钮启动扫描。"
 
 #: zenmapGUI/MainWindow.py:681
 msgid "Choose a directory to save scans into"
-msgstr "选择保存扫描目录"
+msgstr "选择保存扫描的目录"
 
 #: zenmapGUI/MainWindow.py:706 zenmapGUI/MainWindow.py:738
 msgid "Can't save file"
-msgstr "不能保存文件"
+msgstr "无法保存文件"
 
 #: zenmapGUI/MainWindow.py:721 zenmapGUI/MainWindow.py:756
 msgid "Can't save recent scan information"
@@ -484,28 +476,28 @@ msgid ""
 "Can't open file to write.\n"
 "%s"
 msgstr ""
-"打开文件失败。\n"
+"无法打开文件进行写入。\n"
 "%s"
 
 #: zenmapGUI/MainWindow.py:811 zenmapGUI/MainWindow.py:852
 msgid "Close anyway"
-msgstr "始终关闭"
+msgstr "仍然关闭"
 
 #: zenmapGUI/MainWindow.py:815
 msgid "Unsaved changes"
-msgstr "未保存更改"
+msgstr "未保存的更改"
 
 #: zenmapGUI/MainWindow.py:817
 msgid ""
 "The given scan has unsaved changes.\n"
 "What do you want to do?"
 msgstr ""
-"选定的扫描未保存更改，\n"
-"请选择:"
+"选定的扫描有未保存的更改。\n"
+"您想怎么做？"
 
 #: zenmapGUI/MainWindow.py:856
 msgid "Trying to close"
-msgstr "尝试关闭"
+msgstr "正在尝试关闭"
 
 #: zenmapGUI/MainWindow.py:859
 msgid ""
@@ -513,7 +505,7 @@ msgid ""
 "What do you want to do?"
 msgstr ""
 "您尝试关闭的窗口正在后台运行扫描。\n"
-"您想做什么？"
+"您想怎么做？"
 
 #: zenmapGUI/MainWindow.py:896
 msgid "Can't save Zenmap configuration"
@@ -526,34 +518,36 @@ msgid ""
 "%(configfile)s\n"
 "The error was: %(error)s."
 msgstr ""
-"保存到\n%(configfile)s\n时发生错误。\n错误为：%(error)s。"
+"保存到\n"
+"%(configfile)s\n"
+"时发生错误。\n"
+"错误信息：%(error)s。"
 
 #: zenmapGUI/MainWindow.py:947
 msgid "Can't find documentation files"
-msgstr "未找到说明文档"
+msgstr "找不到文档文件"
 
 #: zenmapGUI/MainWindow.py:948
 #, python-format
 msgid ""
 "There was an error loading the documentation file %(helpfile)s (%(error)s). "
 "See the online documentation at %(url)s."
-msgstr ""
-"加载说明文档出错%(helpfile)s (%(error)s). 请查阅在线文档"
-"%(url)s."
+msgstr "加载文档文件 %(helpfile)s (%(error)s) 时出错。请查阅在线文档 %(url)s。"
 
 #: zenmapGUI/ScanInterface.py:379
 msgid "Empty Nmap Command"
-msgstr "空Nmap命令"
+msgstr "空的 Nmap 命令"
 
 #: zenmapGUI/ScanInterface.py:380
 msgid ""
-"There is no command to execute. Maybe the selected/typed profile doesn't exist. Please check the profile name or type the nmap command you would like to execute."
-msgstr ""
-"“没有要执行的命令。可能所选/输入的配置文件不存在。请检查配置文件名称或输入要执行的 nmap 命令。"
+"There is no command to execute. Maybe the selected/typed profile doesn't "
+"exist. Please check the profile name or type the nmap command you would like"
+" to execute."
+msgstr "没有要执行的命令。可能选中的或输入的配置不存在。请检查配置名称或输入要执行的 nmap 命令。"
 
 #: zenmapGUI/ScanInterface.py:468
 msgid "Error building command"
-msgstr "错误构建命令"
+msgstr "构建命令出错"
 
 #: zenmapGUI/ScanInterface.py:469
 #, python-format
@@ -562,9 +556,9 @@ msgstr "错误信息：%s"
 
 #: zenmapGUI/ScanInterface.py:489
 msgid ""
-"This means that the nmap executable was not found in your system PATH, which "
-"is"
-msgstr "nmap不在环境变量PATH中,您系统的PATH变量为:"
+"This means that the nmap executable was not found in your system PATH, which"
+" is"
+msgstr "这意味着在您的系统 PATH 中未找到 nmap 可执行文件，您的 PATH 是"
 
 #: zenmapGUI/ScanInterface.py:491
 msgid "<undefined>"
@@ -572,15 +566,15 @@ msgstr "<未定义>"
 
 #: zenmapGUI/ScanInterface.py:498
 msgid "plus the extra directory"
-msgstr "加上额外的目录"
+msgstr "加上额外目录"
 
 #: zenmapGUI/ScanInterface.py:500
 msgid "plus the extra directories"
-msgstr "加上额外的目录"
+msgstr "加上额外目录"
 
 #: zenmapGUI/ScanInterface.py:505 zenmapGUI/ScanInterface.py:512
 msgid "Error executing command"
-msgstr "执行命令错误"
+msgstr "执行命令出错"
 
 #: zenmapGUI/ScanInterface.py:583
 msgid "Parse error"
@@ -593,13 +587,13 @@ msgid ""
 "\n"
 "%s"
 msgstr ""
-"解析扫描输出XML文件出错:\n"
+"解析扫描生成的 XML 文件时出错：\n"
 "\n"
 "%s"
 
 #: zenmapGUI/ScanInterface.py:598
 msgid "Cannot merge scan"
-msgstr "合并扫描失败"
+msgstr "无法合并扫描"
 
 #: zenmapGUI/ScanInterface.py:600
 #, python-format
@@ -608,22 +602,22 @@ msgid ""
 "\n"
 "%s"
 msgstr ""
-"合并新的扫描XML文件时出错:\n"
+"合并新扫描的 XML 时出错：\n"
 "\n"
 "%s"
 
 #: zenmapGUI/ScanInterface.py:688
 #, python-format
 msgid "%(num_shown)d/%(total)d hosts shown"
-msgstr "显示 %(num_shown)d/%(total)d主机"
+msgstr "显示 %(num_shown)d/%(total)d 台主机"
 
 #: zenmapGUI/ScanInterface.py:926
 msgid "Nmap Output"
-msgstr "Nmap输出"
+msgstr "Nmap 输出"
 
 #: zenmapGUI/ScanInterface.py:927
 msgid "Ports / Hosts"
-msgstr "端口/主机"
+msgstr "端口 / 主机"
 
 #: zenmapGUI/ScanInterface.py:928
 msgid "Topology"
@@ -631,7 +625,7 @@ msgstr "拓扑"
 
 #: zenmapGUI/ScanInterface.py:929
 msgid "Host Details"
-msgstr "主机明细"
+msgstr "主机详情"
 
 #: zenmapGUI/ScanInterface.py:930
 msgid "Scans"
@@ -648,7 +642,7 @@ msgid ""
 "Zenmap will continue to run the scan to completion. However, some features of Zenmap might not work as expected."
 msgstr ""
 "警告：%s\n"
-"Zenmap 将继续运行扫描直至完成，但是，Zenmap 的某些功能可能无法按预期运行。"
+"Zenmap 将继续运行扫描直至完成。但是，Zenmap 的某些功能可能无法按预期工作。"
 
 #: zenmapGUI/NmapOutputViewer.py:267
 #, python-format
@@ -657,7 +651,7 @@ msgid ""
 "The scan has completed. However, some features of Zenmap might not work as expected."
 msgstr ""
 "警告：%s\n"
-"扫描已完成，但是，Zenmap 的某些功能可能无法按预期运行。"
+"扫描已完成。但是，Zenmap 的某些功能可能无法按预期工作。"
 
 #: zenmapGUI/NmapOutputViewer.py:271
 #, python-format
@@ -666,7 +660,7 @@ msgid ""
 "The scan has been stopped. Some features of Zenmap might not work as expected."
 msgstr ""
 "警告：%s\n"
-"扫描已停止，Zenmap 的某些功能可能无法按预期运行。"
+"扫描已停止。Zenmap 的某些功能可能无法按预期工作。"
 
 #: zenmapGUI/NmapOutputViewer.py:277
 msgid ""
@@ -676,7 +670,7 @@ msgstr "您的资源不足以让 Zenmap 在此处显示 Nmap 的完整输出。\
 
 #: zenmapGUI/NmapOutputViewer.py:294
 msgid "The Nmap output file has been closed unexpectedly."
-msgstr "Nmap 输出文件已意外关闭。"
+msgstr "Nmap 输出文件意外关闭。"
 
 #: zenmapGUI/ScanOpenPortsPage.py:173 zenmapGUI/ScanOpenPortsPage.py:203
 #: radialnet/gui/NodeNotebook.py:72
@@ -708,48 +702,30 @@ msgstr "未知"
 
 #: zenmapGUI/BugReport.py:81
 msgid "How to Report a Bug"
-msgstr "如何报告Bug"
+msgstr "如何报告错误"
 
 #: zenmapGUI/BugReport.py:102
 #, python-format
 msgid ""
 "<big><b>How to report a bug</b></big>\n"
 "\n"
-"Like their author, %(nmap)s and %(app)s aren't perfect. But you can help "
-"make it better by sending bug reports or even writing patches. If %(nmap)s "
-"doesn't behave the way you expect, first upgrade to the latest version "
-"available from <b>%(nmap_web)s</b>. If the problem persists, do some "
-"research to determine whether it has already been discovered and addressed. "
-"Try Googling the error message or browsing the nmap-dev archives at https://"
-"seclists.org. Read the full manual page as well. If nothing comes of this, "
-"open a bug report at <b>https://issues.nmap.org</b>. Please include "
-"everything you have learned about the problem, as well as what version of "
-"Nmap you are running and what operating system version it is running on.\n"
+"Like their author, %(nmap)s and %(app)s aren't perfect. But you can help make it better by sending bug reports or even writing patches. If %(nmap)s doesn't behave the way you expect, first upgrade to the latest version available from <b>%(nmap_web)s</b>. If the problem persists, do some research to determine whether it has already been discovered and addressed. Try Googling the error message or browsing the nmap-dev archives at https://seclists.org. Read the full manual page as well. If nothing comes of this, open a bug report at <b>https://issues.nmap.org</b>. Please include everything you have learned about the problem, as well as what version of Nmap you are running and what operating system version it is running on.\n"
 "\n"
-"Code patches to fix bugs are even better than bug reports. Basic "
-"instructions for creating patch files with your changes are available at "
-"https://nmap.org/data/HACKING\n"
+"Code patches to fix bugs are even better than bug reports. Basic instructions for creating patch files with your changes are available at https://nmap.org/data/HACKING\n"
 msgstr ""
-"<big><b>如何报告Bug</b></big>\n"
+"<big><b>如何报告错误</b></big>\n"
 "\n"
-"就像它的作者一样, %(nmap)s和%(app)s并不完美。但是你可以通过发送Bug报告甚至提"
-"供补丁来让它变得更好。如果%(nmap)s没有达到你预期的效果, 先升级到最新版本，你"
-"可以在<b>%(nmap_web)s</b>上下载到。如果问题仍然没有解决，自己做些研究，看看这"
-"个问题是否已经被发现并提出了。尝试用Google搜索错误信息，或者查看nmap开发者文"
-"档(http://seclists.org/)。仔细阅读整个手册，如果仍然没有结果，发送Bug报告邮件"
-"到<b>https://issues.nmap.org</b>. 请在邮件中囊括所有你搜集到的信息，包括: 你"
-"所使用的Nmap版本以及操作系统版本。\n"
+"就像它们的作者一样，%(nmap)s 和 %(app)s 也并不完美。但您可以通过发送错误报告甚至编写补丁来帮助改进它们。如果 %(nmap)s 的行为与您的预期不符，请先从 <b>%(nmap_web)s</b> 升级到最新版本。如果问题仍然存在，请做些研究以确定该问题是否已被发现和解决。尝试在 Google 上搜索错误信息，或浏览 https://seclists.org 上的 nmap-dev 存档。也请阅读完整的手册页。如果仍然没有结果，请在 <b>https://issues.nmap.org</b> 上提交错误报告。请包含您了解到的所有问题相关信息，以及您运行的 Nmap 版本和操作系统版本。\n"
 "\n"
-"提供补丁比报告Bug更受欢迎，https://nmap.org/data/HACKING上有编写补丁的基本介"
-"绍。\n"
+"修复错误的代码补丁比错误报告更好。有关创建补丁文件的基本说明，请访问 https://nmap.org/data/HACKING\n"
 
 #: zenmapGUI/SearchGUI.py:254
 msgid "Search:"
-msgstr "搜索:"
+msgstr "搜索："
 
 #: zenmapGUI/SearchGUI.py:257
 msgid "Expressions "
-msgstr "表达式"
+msgstr "表达式 "
 
 #: zenmapGUI/SearchGUI.py:272
 msgid "Date"
@@ -765,66 +741,67 @@ msgid ""
 "%s can search results on directories or inside its own database. Please "
 "select a method by choosing a directory or by checking the search data base "
 "option in the 'Search options' tab before starting a search"
-msgstr ""
-"%s 可以在目录或自身数据库中搜索结果。请在开始搜索之前，通过选择目录或勾选"
-"“搜索选项”选项卡中的“搜索数据库”选项来选择搜索方法。"
+msgstr "%s 可以在目录或自身数据库中搜索。请在开始搜索之前，通过选择目录或在「搜索选项」选项卡中勾选搜索数据库选项来选择方法。"
 
 #: zenmapGUI/SearchGUI.py:884
 msgid ""
-"Entering the text into the search performs a <b>keyword search</b> - the "
-"search string is matched against the entire output of each scan.\n"
+"Entering the text into the search performs a <b>keyword search</b> - the search string is matched against the entire output of each scan.\n"
 "\n"
-"To refine the search, you can use <b>operators</b> to search only within a "
-"specific part of a scan. Operators can be added to the search interactively "
-"if you click on the <b>Expressions</b> button, or you can enter them "
-"manually into the search field. Most operators have a short form, listed.\n"
+"To refine the search, you can use <b>operators</b> to search only within a specific part of a scan. Operators can be added to the search interactively if you click on the <b>Expressions</b> button, or you can enter them manually into the search field. Most operators have a short form, listed.\n"
 "\n"
 "<b>profile: (pr:)</b> - Profile used.\n"
 "<b>target: (t:)</b> - User-supplied target, or a rDNS result.\n"
 "<b>option: (o:)</b> - Scan options.\n"
-"<b>date: (d:)</b> - The date when scan was performed. Fuzzy matching is "
-"possible using the \"~\" suffix. Each \"~\" broadens the search by one day "
-"on \"each side\" of the date. In addition, it is possible to use the \"date:-"
-"n\" notation which means \"n days ago\".\n"
-"<b>after: (a:)</b> - Matches scans made after the supplied date (<i>YYYY-MM-"
-"DD</i> or <i>-n</i>).\n"
-"<b>before (b:)</b> - Matches scans made before the supplied date(<i>YYYY-MM-"
-"DD</i> or <i>-n</i>).\n"
+"<b>date: (d:)</b> - The date when scan was performed. Fuzzy matching is possible using the \"~\" suffix. Each \"~\" broadens the search by one day on \"each side\" of the date. In addition, it is possible to use the \"date:-n\" notation which means \"n days ago\".\n"
+"<b>after: (a:)</b> - Matches scans made after the supplied date (<i>YYYY-MM-DD</i> or <i>-n</i>).\n"
+"<b>before (b:)</b> - Matches scans made before the supplied date(<i>YYYY-MM-DD</i> or <i>-n</i>).\n"
 "<b>os:</b> - All OS-related fields.\n"
 "<b>scanned: (sp:)</b> - Matches a port if it was among those scanned.\n"
 "<b>open: (op:)</b> - Open ports discovered in a scan.\n"
 "<b>closed: (cp:)</b> - Closed ports discovered in a scan.\n"
 "<b>filtered: (fp:)</b> - Filtered ports discovered in scan.\n"
-"<b>unfiltered: (ufp:)</b> - Unfiltered ports found in a scan (using, for "
-"example, an ACK scan).\n"
+"<b>unfiltered: (ufp:)</b> - Unfiltered ports found in a scan (using, for example, an ACK scan).\n"
 "<b>open|filtered: (ofp:)</b> - Ports in the \"open|filtered\" state.\n"
 "<b>closed|filtered: (cfp:)</b> - Ports in the \"closed|filtered\" state.\n"
 "<b>service: (s:)</b> - All service-related fields.\n"
 "<b>inroute: (ir:)</b> - Matches a router in the scan's traceroute output.\n"
 msgstr ""
-"在文本框中输入信息来进行<b>关键词搜索</b> - 关键词匹配扫描输出中的所有内"
-"容。\n"
+"在搜索框中输入内容进行<b>关键词搜索</b>—搜索字符串会匹配每个扫描的完整输出。\n"
 "\n"
-"你可以用<b>运算符</b>来筛选扫描中指定部分。你可以通过点击<b>表达式</b>按钮，"
-"交互地加入运算符, 或者你可以手动在搜索框内写入运算符。大多数运算符有缩写形"
-"式，如下:\n"
+"要精确搜索，可以使用<b>运算符</b>仅搜索扫描中的特定部分。点击<b>表达式</b>按钮可以交互式地添加运算符，也可以手动在搜索框中输入。大多数运算符都有缩写形式，如下所列：\n"
 "\n"
+"<b>profile: (pr:)</b>—使用的配置。\n"
+"<b>target: (t:)</b>—用户提供的目标或 rDNS 结果。\n"
+"<b>option: (o:)</b>—扫描选项。\n"
+"<b>date: (d:)</b>—执行扫描的日期。可以使用 \"~\" 后缀进行模糊匹配。每个 \"~\" 将搜索范围在日期两侧各扩展一天。此外，还可以使用 \"date:-n\" 表示法，意思是「n 天前」。\n"
+"<b>after: (a:)</b>—匹配在指定日期之后进行的扫描（<i>YYYY-MM-DD</i> 或 <i>-n</i>）。\n"
+"<b>before: (b:)</b>—匹配在指定日期之前进行的扫描（<i>YYYY-MM-DD</i> 或 <i>-n</i>）。\n"
+"<b>os:</b>—所有与操作系统相关的字段。\n"
+"<b>scanned: (sp:)</b>—如果端口在被扫描的范围内则匹配。\n"
+"<b>open: (op:)</b>—扫描中发现的开放端口。\n"
+"<b>closed: (cp:)</b>—扫描中发现的关闭端口。\n"
+"<b>filtered: (fp:)</b>—扫描中发现的被过滤端口。\n"
+"<b>unfiltered: (ufp:)</b>—扫描中发现的未过滤端口（例如使用 ACK 扫描）。\n"
+"<b>open|filtered: (ofp:)</b>—处于 \"open|filtered\" 状态的端口。\n"
+"<b>closed|filtered: (cfp:)</b>—处于 \"closed|filtered\" 状态的端口。\n"
+"<b>service: (s:)</b>—所有与服务相关的字段。\n"
+"<b>inroute: (ir:)</b>—匹配扫描路由追踪输出中的路由器。\n"
 
 #: zenmapGUI/ScanRunDetailsPage.py:76 zenmapGUI/ScanHostDetailsPage.py:73
 msgid "Not available"
-msgstr "未知"
+msgstr "不可用"
 
 #: zenmapGUI/ScanRunDetailsPage.py:82
 msgid "Nmap Version:"
-msgstr "Nmap版本:"
+msgstr "Nmap 版本："
 
 #: zenmapGUI/ScanRunDetailsPage.py:85
 msgid "Verbosity level:"
-msgstr "详细级别:"
+msgstr "详细级别："
 
 #: zenmapGUI/ScanRunDetailsPage.py:88
 msgid "Debug level:"
-msgstr "调试级别:"
+msgstr "调试级别："
 
 #: zenmapGUI/ScanRunDetailsPage.py:92
 msgid "Command Info"
@@ -832,35 +809,35 @@ msgstr "命令信息"
 
 #: zenmapGUI/ScanRunDetailsPage.py:121
 msgid "Started on:"
-msgstr "开始于:"
+msgstr "开始于："
 
 #: zenmapGUI/ScanRunDetailsPage.py:124
 msgid "Finished on:"
-msgstr "结束于:"
+msgstr "完成于："
 
 #: zenmapGUI/ScanRunDetailsPage.py:127
 msgid "Hosts up:"
-msgstr "在线主机:"
+msgstr "在线主机："
 
 #: zenmapGUI/ScanRunDetailsPage.py:130
 msgid "Hosts down:"
-msgstr "离线主机:"
+msgstr "离线主机："
 
 #: zenmapGUI/ScanRunDetailsPage.py:133
 msgid "Hosts scanned:"
-msgstr "扫描主机:"
+msgstr "已扫描主机："
 
 #: zenmapGUI/ScanRunDetailsPage.py:136 zenmapGUI/ScanHostDetailsPage.py:145
 msgid "Open ports:"
-msgstr "开放端口:"
+msgstr "开放端口："
 
 #: zenmapGUI/ScanRunDetailsPage.py:139 zenmapGUI/ScanHostDetailsPage.py:148
 msgid "Filtered ports:"
-msgstr "过滤端口:"
+msgstr "被过滤端口："
 
 #: zenmapGUI/ScanRunDetailsPage.py:142 zenmapGUI/ScanHostDetailsPage.py:151
 msgid "Closed ports:"
-msgstr "未开放端口:"
+msgstr "关闭端口："
 
 #: zenmapGUI/ScanRunDetailsPage.py:146
 msgid "General Info"
@@ -872,19 +849,19 @@ msgstr "扫描信息"
 
 #: zenmapGUI/ScanRunDetailsPage.py:225
 msgid "Scan type:"
-msgstr "扫描类型"
+msgstr "扫描类型："
 
 #: zenmapGUI/ScanRunDetailsPage.py:228
 msgid "Protocol:"
-msgstr "协议"
+msgstr "协议："
 
 #: zenmapGUI/ScanRunDetailsPage.py:231
 msgid "# scanned ports:"
-msgstr "# 已扫描端口:"
+msgstr "# 已扫描端口："
 
 #: zenmapGUI/ScanRunDetailsPage.py:234
 msgid "Services:"
-msgstr "服务:"
+msgstr "服务："
 
 #: zenmapGUI/CrashReport.py:87
 msgid "Crash Report"
@@ -897,27 +874,26 @@ msgid ""
 "below and open a bug report at https://issues.nmap.org/ The developers will "
 "see your report and try to fix the problem."
 msgstr ""
-"未知的错误造成%(app_name)s崩溃。请复制下面的堆栈追踪记录发送到https://issues."
-"nmap.org/ 邮件列表。Nmap开发者们会看见你的报告并尽力修复错误。"
+"意外错误导致 %(app_name)s 崩溃。请复制下面的堆栈跟踪并在 https://issues.nmap.org/ "
+"上提交错误报告。开发人员将看到您的报告并尝试修复问题。"
 
 #: zenmapGUI/CrashReport.py:114
 msgid ""
 "<b>Copy and <a href=\"https://issues.nmap.org/new/choose\">open a bug "
 "report</a></b>:"
-msgstr ""
-"<b>复制并<a href=\"https://issues.nmap.org/new/choose\">提交错误报告</a></b>："
+msgstr "<b>复制并<a href=\"https://issues.nmap.org/new/choose\">提交错误报告</a></b>："
 
 #: zenmapGUI/ScanNmapOutputPage.py:156
 msgid "Details"
-msgstr "明细"
+msgstr "详情"
 
 #: zenmapGUI/NmapOutputProperties.py:77
 msgid "Nmap Output Properties"
-msgstr "Nmap输出属性"
+msgstr "Nmap 输出属性"
 
 #: zenmapGUI/NmapOutputProperties.py:104
 msgid "details"
-msgstr "明细"
+msgstr "详情"
 
 #: zenmapGUI/NmapOutputProperties.py:105
 msgid "port listing title"
@@ -929,7 +905,7 @@ msgstr "开放端口"
 
 #: zenmapGUI/NmapOutputProperties.py:109
 msgid "closed port"
-msgstr "未开放端口"
+msgstr "关闭端口"
 
 #: zenmapGUI/NmapOutputProperties.py:111
 msgid "filtered port"
@@ -966,40 +942,37 @@ msgstr "高亮颜色"
 #: zenmapGUI/About.py:132
 #, python-format
 msgid "About %(nmap)s and %(zenmap)s"
-msgstr "关于%(nmap)s和%(zenmap)s"
+msgstr "关于 %(nmap)s 和 %(zenmap)s"
 
 #: zenmapGUI/About.py:151
 #, python-format
 msgid ""
 "%s is a free and open source utility for network exploration and security "
 "auditing."
-msgstr "%s是一款免费开源的软件，用于网络探测和安全审计。"
+msgstr "%s 是一款用于网络探测和安全审计的免费开源工具。"
 
 #: zenmapGUI/About.py:156
 #, python-format
 msgid ""
 "%(zenmap)s is a multi-platform graphical %(nmap)s frontend and results "
 "viewer. It was originally derived from %(umit)s."
-msgstr ""
-"%(zenmap)s是一款跨平台图形化%(nmap)s前端，也是一款结果浏览器。"
-"最初由%(umit)s衍生而来。"
+msgstr "%(zenmap)s 是一个跨平台的图形化 %(nmap)s 前端和结果查看器。最初衍生自 %(umit)s。"
 
 #: zenmapGUI/About.py:164
 #, python-format
 msgid ""
-"%(umit)s is a %(nmap)s GUI created as part of the Nmap/Google Summer of Code "
-"program."
-msgstr ""
-"%(umit)s是%(nmap)s的图形界面，是Nmap/Google Summer of Code的一个子项目。"
+"%(umit)s is a %(nmap)s GUI created as part of the Nmap/Google Summer of Code"
+" program."
+msgstr "%(umit)s 是一个 %(nmap)s 图形界面，是 Nmap/Google Summer of Code 计划的一部分。"
 
 #: zenmapGUI/About.py:166 zenmapGUI/About.py:208
 #, python-format
 msgid "%s credits"
-msgstr "%s开发团队"
+msgstr "%s 致谢"
 
 #: zenmapGUI/About.py:250
 msgid "Written by"
-msgstr "作者"
+msgstr "编写者"
 
 #: zenmapGUI/About.py:252
 msgid "Design"
@@ -1027,7 +1000,7 @@ msgstr "失败"
 
 #: zenmapGUI/ScanScanListPage.py:82
 msgid "Canceled"
-msgstr "取消"
+msgstr "已取消"
 
 #: zenmapGUI/ScanScanListPage.py:107
 msgid "Status"
@@ -1051,15 +1024,14 @@ msgstr "取消扫描"
 
 #: zenmapGUI/TopologyPage.py:107
 msgid "Show the topology anyway"
-msgstr "始终显示拓扑结构"
+msgstr "仍然显示拓扑"
 
 #: zenmapGUI/TopologyPage.py:140
 #, python-format
 msgid ""
 "Topology is disabled because too many hosts can cause it\n"
 "to run slowly. The limit is %(limit)d hosts and there are %(num)d."
-msgstr ""
-"由于主机数量过多会导致拓扑运行缓慢，因此拓扑已被禁用。主机数量限制为 %(limit)d 个，而实际数量为 %(num)d 个。"
+msgstr "拓扑已禁用，因为主机过多会导致运行缓慢。限制为 %(limit)d 台主机，当前有 %(num)d 台。"
 
 #: zenmapGUI/FileChoosers.py:78
 #, python-format
@@ -1069,28 +1041,28 @@ msgstr "所有文件 (%s)"
 #: zenmapGUI/FileChoosers.py:88
 #, python-format
 msgid "Nmap XML files (%s)"
-msgstr "Nmap XML文件 (%s)"
+msgstr "Nmap XML 文件 (%s)"
 
 #: zenmapGUI/FileChoosers.py:98
 #, python-format
 msgid "NSE scripts (%s)"
-msgstr "NSE脚本 (%s)"
+msgstr "NSE 脚本 (%s)"
 
 #: zenmapGUI/FileChoosers.py:158 radialnet/gui/SaveDialog.py:72
 msgid "By extension"
-msgstr "自定义扩展名"
+msgstr "按扩展名"
 
 #: zenmapGUI/FileChoosers.py:159
 msgid "Nmap XML format (.xml)"
-msgstr "Nmap XML格式 (.xml)"
+msgstr "Nmap XML 格式 (.xml)"
 
 #: zenmapGUI/FileChoosers.py:160
 msgid "Nmap text format (.nmap)"
-msgstr "Nmap文本格式 (.nmap)"
+msgstr "Nmap 文本格式 (.nmap)"
 
 #: zenmapGUI/FileChoosers.py:190 radialnet/gui/SaveDialog.py:109
 msgid "Select File Type:"
-msgstr "选择文本类型:"
+msgstr "选择文件类型："
 
 #: zenmapGUI/OptionBuilder.py:235
 msgid "Choose file"
@@ -1106,7 +1078,7 @@ msgstr "配置信息"
 
 #: zenmapGUI/ProfileEditor.py:183
 msgid "Profile name"
-msgstr "配置文件名"
+msgstr "配置名称"
 
 #: zenmapGUI/ProfileEditor.py:188
 msgid "Description"
@@ -1126,15 +1098,15 @@ msgstr "配置"
 
 #: zenmapGUI/ProfileEditor.py:305
 msgid "Unnamed profile"
-msgstr "未命名配置"
+msgstr "未命名的配置"
 
 #: zenmapGUI/ProfileEditor.py:307
 msgid "You must provide a name for this profile."
-msgstr "您必须为这个配置命名。"
+msgstr "您必须为此配置提供一个名称。"
 
 #: zenmapGUI/ProfileEditor.py:329
 msgid "Disallowed profile name"
-msgstr "不允许的配置名"
+msgstr "不允许的配置名称"
 
 #: zenmapGUI/ProfileEditor.py:330
 #, python-format
@@ -1142,9 +1114,7 @@ msgid ""
 "Sorry, the name \"%s\" is not allowed due to technical limitations. (The "
 "underlying ConfigParser used to store profiles does not allow it.) Choose a "
 "different name."
-msgstr ""
-"抱歉，\"%s\"由于技术限制是不允许的。( 用于存放配置的ConfigParser不允许) 请选"
-"择另外一个名字。"
+msgstr "抱歉，由于技术限制，不允许使用名称 \"%s\"。（用于存储配置的 ConfigParser 不允许此名称。）请选择其他名称。"
 
 #: zenmapGUI/ProfileEditor.py:355
 msgid "Deleting Profile"
@@ -1154,7 +1124,7 @@ msgstr "删除配置"
 msgid ""
 "Your profile is going to be deleted! Click Ok to continue, or Cancel to go "
 "back to Profile Editor."
-msgstr "您的配置将被删除！点击Ok继续,或者点击取消回到配置编辑器。"
+msgstr "您的配置将被删除！单击「确定」继续，或「取消」返回配置编辑器。"
 
 #: zenmapGUI/SearchWindow.py:88
 msgid "Search Scans"
@@ -1173,7 +1143,7 @@ msgid ""
 "A required module was not found.\n"
 "\n"
 msgstr ""
-"未找到需要的模块。\n"
+"未找到所需的模块。\n"
 "\n"
 
 #: zenmapGUI/App.py:220
@@ -1183,22 +1153,17 @@ msgstr "创建用户配置目录出错"
 #: zenmapGUI/App.py:221
 #, python-format
 msgid ""
-"There was an error creating the directory %(dirname)s or one of the files in "
-"it. The directory is created by copying the contents of %(configdir)s. The "
-"specific error was\n"
+"There was an error creating the directory %(dirname)s or one of the files in it. The directory is created by copying the contents of %(configdir)s. The specific error was\n"
 "\n"
 "%(error)s\n"
 "\n"
-"%(zenmap)s needs to create this directory to store information such as the "
-"list of scan profiles. Check for access to the directory and try again."
+"%(zenmap)s needs to create this directory to store information such as the list of scan profiles. Check for access to the directory and try again."
 msgstr ""
-"创建目录%(dirname)s或其中某个文件失败。"
-"复制%(configdir)s内容时创建该目录，具体错误为:\n"
+"创建目录 %(dirname)s 或其某个文件时出错。该目录是通过复制 %(configdir)s 的内容创建的。具体错误为\n"
 "\n"
 "%(error)s\n"
 "\n"
-"%(zenmap)s需要创建该目录用于保存扫描配置等信息。"
-"请检查目录访问权限。"
+"%(zenmap)s 需要创建此目录来存储扫描配置列表等信息。请检查目录的访问权限，然后重试。"
 
 #: zenmapGUI/App.py:247
 msgid "Error parsing the configuration file"
@@ -1207,20 +1172,17 @@ msgstr "解析配置文件出错"
 #: zenmapGUI/App.py:248
 #, python-format
 msgid ""
-"There was an error parsing the configuration file %(filename)s. The specific "
-"error was\n"
+"There was an error parsing the configuration file %(filename)s. The specific error was\n"
 "\n"
 "%(error)s\n"
 "\n"
-"%(zenmap)s can continue without this file but any information in it will be "
-"ignored until it is repaired."
+"%(zenmap)s can continue without this file but any information in it will be ignored until it is repaired."
 msgstr ""
-"解析配置文件%(filename)s时出错。 具体错误为:"
-"\n"
+"解析配置文件 %(filename)s 时出错。具体错误为\n"
 "\n"
 "%(error)s\n"
 "\n"
-"%(zenmap)s可以不需要该文件继续执行，但在修复之前，该文件中的任何信息都会被忽略。"
+"%(zenmap)s 可以在没有此文件的情况下继续运行，但其中的所有信息都将被忽略，直到文件被修复。"
 
 #: zenmapGUI/App.py:263
 msgid "Restore default configuration?"
@@ -1229,8 +1191,7 @@ msgstr "恢复默认配置？"
 #: zenmapGUI/App.py:264
 #, python-format
 msgid ""
-"To avoid further errors parsing the configuration file %(filename)s, you can "
-"copy the default configuration from %(dirname)s.\n"
+"To avoid further errors parsing the configuration file %(filename)s, you can copy the default configuration from %(dirname)s.\n"
 "\n"
 "Do this now? "
 msgstr ""
@@ -1245,13 +1206,13 @@ msgid ""
 "\n"
 "Some %(nmap)s options need root privileges to work."
 msgstr ""
-"您正在试图以非root身份运行%(zenmap)s!\n"
+"您正尝试以非 root 用户身份运行 %(zenmap)s！\n"
 "\n"
-"一些%(nmap)s选项需要root权限。"
+"某些 %(nmap)s 选项需要 root 权限才能工作。"
 
 #: zenmapGUI/App.py:328
 msgid "Non-root user"
-msgstr "非root用户"
+msgstr "非 root 用户"
 
 #: zenmapGUI/ScanHostDetailsPage.py:126
 msgid "Host Status"
@@ -1259,7 +1220,7 @@ msgstr "主机状态"
 
 #: zenmapGUI/ScanHostDetailsPage.py:127
 msgid "Addresses"
-msgstr "地址列表"
+msgstr "地址"
 
 #: zenmapGUI/ScanHostDetailsPage.py:128
 msgid "Hostnames"
@@ -1271,7 +1232,7 @@ msgstr "操作系统"
 
 #: zenmapGUI/ScanHostDetailsPage.py:131
 msgid "Ports used"
-msgstr "使用端口"
+msgstr "使用的端口"
 
 #: zenmapGUI/ScanHostDetailsPage.py:132
 msgid "OS Classes"
@@ -1279,15 +1240,15 @@ msgstr "操作系统类别"
 
 #: zenmapGUI/ScanHostDetailsPage.py:133
 msgid "TCP Sequence"
-msgstr "TCP序列"
+msgstr "TCP 序列"
 
 #: zenmapGUI/ScanHostDetailsPage.py:134
 msgid "IP ID Sequence"
-msgstr "IP IP序列"
+msgstr "IP ID 序列"
 
 #: zenmapGUI/ScanHostDetailsPage.py:136
 msgid "TCP TS Sequence"
-msgstr "TCP TS序列"
+msgstr "TCP TS 序列"
 
 #: zenmapGUI/ScanHostDetailsPage.py:137
 msgid "Comments"
@@ -1295,43 +1256,43 @@ msgstr "备注"
 
 #: zenmapGUI/ScanHostDetailsPage.py:142
 msgid "State:"
-msgstr "状态:"
+msgstr "状态："
 
 #: zenmapGUI/ScanHostDetailsPage.py:154
 msgid "Scanned ports:"
-msgstr "已扫描端口:"
+msgstr "已扫描端口："
 
 #: zenmapGUI/ScanHostDetailsPage.py:157
 msgid "Up time:"
-msgstr "上线时间:"
+msgstr "运行时间："
 
 #: zenmapGUI/ScanHostDetailsPage.py:160 radialnet/gui/NodeNotebook.py:421
 msgid "Last boot:"
-msgstr "最后启动:"
+msgstr "上次启动："
 
 #: zenmapGUI/ScanHostDetailsPage.py:173
 msgid "Vendor:"
-msgstr "供应商:"
+msgstr "供应商："
 
 #: zenmapGUI/ScanHostDetailsPage.py:297
 msgid "Name - Type:"
-msgstr "名称 - 类型:"
+msgstr "名称 - 类型："
 
 #: zenmapGUI/ScanHostDetailsPage.py:316
 msgid "Not Available"
-msgstr "未知"
+msgstr "不可用"
 
 #: zenmapGUI/ScanHostDetailsPage.py:318
 msgid "Name:"
-msgstr "名称:"
+msgstr "名称："
 
 #: zenmapGUI/ScanHostDetailsPage.py:321
 msgid "Accuracy:"
-msgstr "精确度:"
+msgstr "精确度："
 
 #: zenmapGUI/ScanHostDetailsPage.py:350
 msgid "Port-Protocol-State:"
-msgstr "端口-协议-状态:"
+msgstr "端口-协议-状态："
 
 #: zenmapGUI/ScanHostDetailsPage.py:364 radialnet/gui/NodeNotebook.py:96
 msgid "Type"
@@ -1343,11 +1304,11 @@ msgstr "供应商"
 
 #: zenmapGUI/ScanHostDetailsPage.py:366
 msgid "OS Family"
-msgstr "操作系统族"
+msgstr "操作系统系列"
 
 #: zenmapGUI/ScanHostDetailsPage.py:367
 msgid "OS Generation"
-msgstr "OS Generation"
+msgstr "操作系统代次"
 
 #: zenmapGUI/ScanHostDetailsPage.py:368
 msgid "Accuracy"
@@ -1355,40 +1316,40 @@ msgstr "精确度"
 
 #: zenmapGUI/ScanHostDetailsPage.py:397
 msgid "Difficulty:"
-msgstr "难度:"
+msgstr "难度："
 
 #: zenmapGUI/ScanHostDetailsPage.py:400
 msgid "Index:"
-msgstr "索引:"
+msgstr "索引："
 
 #: zenmapGUI/ScanHostDetailsPage.py:403 zenmapGUI/ScanHostDetailsPage.py:422
 #: zenmapGUI/ScanHostDetailsPage.py:441
 msgid "Values:"
-msgstr "值:"
+msgstr "值："
 
 #: zenmapGUI/ScanHostDetailsPage.py:419 zenmapGUI/ScanHostDetailsPage.py:438
 msgid "Class:"
-msgstr "类别:"
+msgstr "类别："
 
 #: radialnet/gui/Toolbar.py:93
 msgid "Hosts viewer"
-msgstr "查看主机信息"
+msgstr "主机查看器"
 
 #: radialnet/gui/Toolbar.py:162
 msgid "Save Graphic"
-msgstr "保存图表"
+msgstr "保存图形"
 
 #: radialnet/gui/Toolbar.py:165 radialnet/gui/HostsViewer.py:88
 msgid "Hosts Viewer"
-msgstr "查看主机信息"
+msgstr "主机查看器"
 
 #: radialnet/gui/Toolbar.py:169
 msgid "Controls"
-msgstr "操作面板"
+msgstr "控制"
 
 #: radialnet/gui/Toolbar.py:173
 msgid "Fisheye"
-msgstr "Fisheye"
+msgstr "鱼眼"
 
 #: radialnet/gui/Toolbar.py:177
 msgid "Legend"
@@ -1396,7 +1357,7 @@ msgstr "图例"
 
 #: radialnet/gui/Toolbar.py:260
 msgid "Error saving snapshot"
-msgstr "保存截图时出错"
+msgstr "保存快照时出错"
 
 #: radialnet/gui/NodeNotebook.py:72
 msgid "Method"
@@ -1404,17 +1365,18 @@ msgstr "方法"
 
 #: radialnet/gui/NodeNotebook.py:73
 msgid "Count"
-msgstr "数量"
+msgstr "计数"
 
 #: radialnet/gui/NodeNotebook.py:73
 msgid "Reasons"
-msgstr "原由"
+msgstr "原因"
 
 #: radialnet/gui/NodeNotebook.py:86
 #, python-format
 msgid ""
-"Traceroute on port <b>%(port)s/%(proto)s</b> took <b>%(hops)d</b> known hops."
-msgstr "<b>%(port)s/%(proto)s<b>端口路由追踪信息总共<b>%(hops)d<b>次已知的跳。"
+"Traceroute on port <b>%(port)s/%(proto)s</b> took <b>%(hops)d</b> known "
+"hops."
+msgstr "端口 <b>%(port)s/%(proto)s</b> 的路由追踪经过了 <b>%(hops)d</b> 个已知跳点。"
 
 #: radialnet/gui/NodeNotebook.py:88
 msgid "No traceroute information available."
@@ -1426,19 +1388,18 @@ msgstr "名称"
 
 #: radialnet/gui/NodeNotebook.py:95
 msgid "DB Line"
-msgstr "DB Line"
+msgstr "数据库行"
 
 #: radialnet/gui/NodeNotebook.py:96
 msgid "Family"
-msgstr "族"
+msgstr "系列"
 
 #: radialnet/gui/NodeNotebook.py:100
 #, python-format
 msgid ""
 "<b>*</b> TCP sequence <i>index</i> equal to %(index)d and <i>difficulty</i> "
 "is \"%(difficulty)s\"."
-msgstr ""
-"<b>*</b> TCP序列<i>索引</i>%(index)d, <i>难度</i>是\"%(difficulty)s\"."
+msgstr "<b>*</b> TCP 序列<i>索引</i>等于 %(index)d，<i>难度</i>为「%(difficulty)s」。"
 
 #: radialnet/gui/NodeNotebook.py:134
 msgid "General"
@@ -1464,7 +1425,7 @@ msgstr "<无>"
 #: radialnet/gui/NodeNotebook.py:223
 #, python-format
 msgid "[%(port)d] service: %(servicefp)s"
-msgstr "[%(port)d] 服务: %(servicefp)s"
+msgstr "[%(port)d] 服务：%(servicefp)s"
 
 #: radialnet/gui/NodeNotebook.py:228
 msgid "<special field>"
@@ -1473,7 +1434,7 @@ msgstr "<特殊字段>"
 #: radialnet/gui/NodeNotebook.py:328
 #, python-format
 msgid "Extraports (%s)"
-msgstr "额外端口(%s)"
+msgstr "额外端口 (%s)"
 
 #: radialnet/gui/NodeNotebook.py:335
 msgid "Special fields"
@@ -1497,16 +1458,16 @@ msgstr "无操作系统信息。"
 
 #: radialnet/gui/NodeNotebook.py:379
 msgid "Address:"
-msgstr "地址:"
+msgstr "地址："
 
 #: radialnet/gui/NodeNotebook.py:402
 msgid "Hostname:"
-msgstr "主机名:"
+msgstr "主机名："
 
 #: radialnet/gui/NodeNotebook.py:423
 #, python-format
 msgid "%(lastboot)s (%(seconds)s seconds)."
-msgstr "%(lastboot)s (%(seconds)s秒)。"
+msgstr "%(lastboot)s（%(seconds)s 秒）。"
 
 #: radialnet/gui/NodeNotebook.py:486
 msgid "Match"
@@ -1514,11 +1475,11 @@ msgstr "匹配"
 
 #: radialnet/gui/NodeNotebook.py:527 radialnet/gui/NodeNotebook.py:577
 msgid "Class"
-msgstr "类别:"
+msgstr "类别"
 
 #: radialnet/gui/NodeNotebook.py:535
 msgid "Used ports:"
-msgstr "已使用端口:"
+msgstr "已使用端口："
 
 #: radialnet/gui/NodeNotebook.py:558
 msgid "Fingerprint"
@@ -1530,7 +1491,7 @@ msgstr "值"
 
 #: radialnet/gui/NodeNotebook.py:582
 msgid "TCP Timestamp"
-msgstr "TCP时间戳"
+msgstr "TCP 时间戳"
 
 #: radialnet/gui/LegendWindow.py:140
 msgid "Topology Legend"
@@ -1546,23 +1507,23 @@ msgstr "主机未进行端口扫描"
 
 #: radialnet/gui/LegendWindow.py:166
 msgid "host with fewer than 3 open ports"
-msgstr "主机开放端口少于 3 个"
+msgstr "开放端口少于 3 个的主机"
 
 #: radialnet/gui/LegendWindow.py:170
 msgid "host with 3 to 6 open ports"
-msgstr "主机开放 3 到 6 个端口"
+msgstr "开放 3 到 6 个端口的主机"
 
 #: radialnet/gui/LegendWindow.py:174
 msgid "host with more than 6 open ports"
-msgstr "主机开放超过 6 个端口"
+msgstr "开放超过 6 个端口的主机"
 
 #: radialnet/gui/LegendWindow.py:189
 msgid "host is a router, switch, or WAP"
-msgstr "主机是路由器、交换机或无线接入点（WAP）"
+msgstr "主机是路由器、交换机或无线接入点"
 
 #: radialnet/gui/LegendWindow.py:193
 msgid "Traceroute connections"
-msgstr "路由跟踪连接"
+msgstr "路由追踪连接"
 
 #: radialnet/gui/LegendWindow.py:197
 msgid "Thicker line means higher round-trip time"
@@ -1570,7 +1531,7 @@ msgstr "线条越粗表示往返时间越长"
 
 #: radialnet/gui/LegendWindow.py:201
 msgid "primary traceroute connection"
-msgstr "主路由跟踪连接"
+msgstr "主要路由追踪连接"
 
 #: radialnet/gui/LegendWindow.py:205
 msgid "alternate path"
@@ -1578,11 +1539,11 @@ msgstr "备用路径"
 
 #: radialnet/gui/LegendWindow.py:209
 msgid "no traceroute information"
-msgstr "无路由跟踪信息"
+msgstr "无路由追踪信息"
 
 #: radialnet/gui/LegendWindow.py:217
 msgid "missing traceroute hop"
-msgstr "缺少路由跟踪跳点"
+msgstr "缺少路由追踪跳点"
 
 #: radialnet/gui/LegendWindow.py:221
 msgid "Additional host icons"
@@ -1606,7 +1567,7 @@ msgstr "防火墙"
 
 #: radialnet/gui/LegendWindow.py:243
 msgid "host with some filtered ports"
-msgstr "包含部分已过滤端口的主机"
+msgstr "包含部分过滤端口的主机"
 
 #: radialnet/gui/SaveDialog.py:89
 msgid "Save Topology"
@@ -1619,12 +1580,11 @@ msgstr "无文件扩展名"
 #: radialnet/gui/SaveDialog.py:144
 #, python-format
 msgid ""
-"The filename \"%s\" does not have an extension, and no specific file type "
-"was chosen.\n"
+"The filename \"%s\" does not have an extension, and no specific file type was chosen.\n"
 "Enter a known extension or select the file type from the list."
 msgstr ""
-"文件名\"%s\"没有扩展名，未选择指定的文件类型。\n"
-"输入一个已知的扩展名或者选择列表中的文件类型。"
+"文件名 \"%s\" 没有扩展名，且未选择特定的文件类型。\n"
+"请输入已知的扩展名或从列表中选择文件类型。"
 
 #: radialnet/gui/SaveDialog.py:151
 msgid "Unknown filename extension"
@@ -1636,12 +1596,12 @@ msgid ""
 "There is no file type known for the filename extension \"%s\".\n"
 "Enter a known extension or select the file type from the list."
 msgstr ""
-"没有与文件扩展名\"%s\"相符的文件类型。\n"
-"输入一个已知的扩展名或者选择列表中的文件类型。"
+"没有与文件扩展名 \"%s\" 对应的已知文件类型。\n"
+"请输入已知的扩展名或从列表中选择文件类型。"
 
 #: radialnet/gui/ControlWidget.py:118
 msgid "Action"
-msgstr "启动"
+msgstr "操作"
 
 #: radialnet/gui/ControlWidget.py:161
 msgid "Red"
@@ -1657,15 +1617,15 @@ msgstr "绿"
 
 #: radialnet/gui/ControlWidget.py:468
 msgid "<b>Fisheye</b> on ring"
-msgstr "<b>Fisheye</b> on ring"
+msgstr "<b>鱼眼</b>在环上"
 
 #: radialnet/gui/ControlWidget.py:482
 msgid "with interest factor"
-msgstr "with interest factor"
+msgstr "兴趣因子"
 
 #: radialnet/gui/ControlWidget.py:487
 msgid "and spread factor"
-msgstr "and spread factor"
+msgstr "扩散因子"
 
 #: radialnet/gui/ControlWidget.py:592
 msgid "Interpolation"
@@ -1673,7 +1633,7 @@ msgstr "插值"
 
 #: radialnet/gui/ControlWidget.py:604
 msgid "Cartesian"
-msgstr "笛卡尔坐标"
+msgstr "笛卡尔"
 
 #: radialnet/gui/ControlWidget.py:606
 msgid "Polar"
@@ -1681,7 +1641,7 @@ msgstr "极坐标"
 
 #: radialnet/gui/ControlWidget.py:619
 msgid "Frames"
-msgstr "Frames"
+msgstr "帧数"
 
 #: radialnet/gui/ControlWidget.py:674
 msgid "Layout"
@@ -1697,11 +1657,11 @@ msgstr "加权"
 
 #: radialnet/gui/ControlWidget.py:742
 msgid "Ring gap"
-msgstr "Ring gap"
+msgstr "环间距"
 
 #: radialnet/gui/ControlWidget.py:746
 msgid "Lower ring gap"
-msgstr "Lower ring gap"
+msgstr "低环间距"
 
 #: radialnet/gui/ControlWidget.py:893
 msgid "View"
@@ -1741,7 +1701,7 @@ msgstr "源"
 
 #: zenmapCore/data/misc/profile_editor.xml:13
 msgid "Other"
-msgstr "其它"
+msgstr "其他"
 
 #: zenmapCore/data/misc/profile_editor.xml:14
 msgid "Timing"
@@ -1753,11 +1713,11 @@ msgstr "扫描选项"
 
 #: zenmapCore/data/misc/profile_editor.xml:17
 msgid "Targets (optional): "
-msgstr "目标(可选):"
+msgstr "目标（可选）："
 
 #: zenmapCore/data/misc/profile_editor.xml:18
 msgid "TCP scan: "
-msgstr "TCP扫描:"
+msgstr "TCP 扫描："
 
 #: zenmapCore/data/misc/profile_editor.xml:19
 #: zenmapCore/data/misc/profile_editor.xml:30
@@ -1769,62 +1729,54 @@ msgstr "无"
 msgid ""
 "Send probes with the ACK flag set. Ports will be marked \"filtered\" or "
 "\"unfiltered\". Use ACK scan to map out firewall rulesets."
-msgstr ""
-"发送带有ACK标识位的包进行探测。端口会被标记为\"filtered\"或者\"unfiltered\". "
-"使用ACK扫描制定出防火墙的规则集。"
+msgstr "发送设置了 ACK 标志的探测包。端口将被标记为 \"filtered\" 或 \"unfiltered\"。使用 ACK 扫描来绘制防火墙规则集。"
 
 #: zenmapCore/data/misc/profile_editor.xml:20
 msgid "ACK scan"
-msgstr "ACK扫描"
+msgstr "ACK 扫描"
 
 #: zenmapCore/data/misc/profile_editor.xml:21
 msgid ""
 "Send probes with the FIN bit set. FIN scan can differentiate \"closed\" and "
 "\"open|filtered\" ports on some systems."
-msgstr ""
-"发送带有FIN标识位的包进行探测。FIN扫描在一些系统中可以区分\"closed\"和\"open|"
-"filtered\"的端口."
+msgstr "发送设置了 FIN 位的探测包。FIN 扫描在某些系统上可以区分 \"closed\" 和 \"open|filtered\" 端口。"
 
 #: zenmapCore/data/misc/profile_editor.xml:21
 msgid "FIN scan"
-msgstr "FIN扫描"
+msgstr "FIN 扫描"
 
 #: zenmapCore/data/misc/profile_editor.xml:22
 msgid ""
 "Send probes with the FIN and ACK bits set. Against some BSD-derived systems "
 "this can differentiate between \"closed\" and \"open|filtered\" ports."
-msgstr ""
-"发送带有FIN和ACK标识位的包进行探测。对于一些类Unix系统，这样可以区分\"closed"
-"\"和\"open|filtered\"的端口。"
+msgstr "发送设置了 FIN 和 ACK 位的探测包。针对某些 BSD 衍生系统，可以区分 \"closed\" 和 \"open|filtered\" 端口。"
 
 #: zenmapCore/data/misc/profile_editor.xml:22
 msgid "Maimon scan"
-msgstr "Maimon扫描"
+msgstr "Maimon 扫描"
 
 #: zenmapCore/data/misc/profile_editor.xml:23
 msgid ""
 "Send probes with no flags set (TCP flag header is 0). Null scan can "
 "differentiate \"closed\" and \"open|filtered\" ports on some systems."
 msgstr ""
-"发送不带任何标识位的包(TCP标识头部为0)。Null扫描在一些系统上可以区分\"closed"
-"\"和\"open|filtered\"的端口。"
+"发送未设置任何标志的探测包（TCP 标志头为 0）。Null 扫描在某些系统上可以区分 \"closed\" 和 \"open|filtered\" "
+"端口。"
 
 #: zenmapCore/data/misc/profile_editor.xml:23
 msgid "Null scan"
-msgstr "Null扫描"
+msgstr "Null 扫描"
 
 #: zenmapCore/data/misc/profile_editor.xml:24
 msgid ""
 "Send probes with the SYN flag set. This is the most popular scan and the "
 "most generally useful. It is known as a \"stealth\" scan because it avoids "
 "making a full TCP connection."
-msgstr ""
-"发送带有SYN标识位的包进行探测。这是最流行的扫描方式，一般来说，也是最实用的一"
-"种。它也被称作\"stealth\"扫描，因为这种扫描并不建立一次完整的TCP连接。"
+msgstr "发送设置了 SYN 标志的探测包。这是最流行且最通用的扫描方式。它被称为「隐蔽」扫描，因为它避免了建立完整的 TCP 连接。"
 
 #: zenmapCore/data/misc/profile_editor.xml:24
 msgid "TCP SYN scan"
-msgstr "TCP SYN扫描"
+msgstr "TCP SYN 扫描"
 
 #: zenmapCore/data/misc/profile_editor.xml:25
 msgid ""
@@ -1832,25 +1784,23 @@ msgid ""
 "because it makes a full TCP connection. It is the default when a user does "
 "not have raw packet privileges or is scanning IPv6 networks."
 msgstr ""
-"利用connect系统调用扫描。这类似于SYN扫描但是没有其隐秘，因为它建立一次完整的"
-"TCP连接。当用户没有原始套接字权限时或者扫描IPv6网络时，这是默认的扫描方式。"
+"使用 connect 系统调用进行扫描。类似于 SYN 扫描，但隐蔽性较差，因为它会建立完整的 TCP 连接。当用户没有原始数据包权限或扫描 IPv6 "
+"网络时，这是默认扫描方式。"
 
 #: zenmapCore/data/misc/profile_editor.xml:25
 msgid "TCP connect scan"
-msgstr "TCP connect扫描"
+msgstr "TCP connect 扫描"
 
 #: zenmapCore/data/misc/profile_editor.xml:26
 msgid ""
-"Same as ACK scan except that it exploits an implementation detail of certain "
-"systems to differentiate open ports from closed ones, rather than always "
+"Same as ACK scan except that it exploits an implementation detail of certain"
+" systems to differentiate open ports from closed ones, rather than always "
 "printing \"unfiltered\" when a RST is returned. "
-msgstr ""
-"和ACK扫描一样，除了它利用确定系统的实现细节来区分开放端口和未开放端口，而不是"
-"每次收到返回的RST标识都显示为\"unfiltered\". "
+msgstr "与 ACK 扫描类似，但它利用某些系统的实现细节来区分开放端口和关闭端口，而不是在返回 RST 时始终显示 \"unfiltered\"。"
 
 #: zenmapCore/data/misc/profile_editor.xml:26
 msgid "Window scan"
-msgstr "滑动窗口扫描"
+msgstr "Window 扫描"
 
 #: zenmapCore/data/misc/profile_editor.xml:27
 msgid ""
@@ -1858,44 +1808,42 @@ msgid ""
 "like a Christmas tree. Xmas tree scan can differentiate \"closed\" and "
 "\"open|filtered\" ports on some systems."
 msgstr ""
-"发送带有FIN, PSH, URG标识位的探测时, 像颗圣诞树一样指明所有的包。 Xmas Tree扫"
-"描可以区分一些系统上的\"closed\"和\"open|filtered\"的端口。"
+"发送设置了 FIN、PSH 和 URG 标志的探测包，让数据包像圣诞树一样点亮。Xmas Tree 扫描在某些系统上可以区分 \"closed\" 和 "
+"\"open|filtered\" 端口。"
 
 #: zenmapCore/data/misc/profile_editor.xml:27
 msgid "Xmas Tree scan"
-msgstr "Xmas Tree扫描"
+msgstr "Xmas Tree 扫描"
 
 #: zenmapCore/data/misc/profile_editor.xml:29
 msgid "Non-TCP scans: "
-msgstr "Non-TCP扫描"
+msgstr "非 TCP 扫描："
 
 #: zenmapCore/data/misc/profile_editor.xml:31
 msgid ""
 "Scan UDP ports. UDP is in general slower and more difficult to scan than "
 "TCP, and is often ignored by security auditors."
-msgstr ""
-"扫描UDP端口。UDP扫描一般比TCP扫描更慢并且难度更大，也经常被安全审计员们忽略。"
+msgstr "扫描 UDP 端口。UDP 通常比 TCP 扫描更慢、更困难，且常被安全审计人员忽略。"
 
 #: zenmapCore/data/misc/profile_editor.xml:31
 msgid "UDP scan"
-msgstr "UDP扫描"
+msgstr "UDP 扫描"
 
 #: zenmapCore/data/misc/profile_editor.xml:32
 msgid ""
 "Scan IP protocols (TCP, ICMP, IGMP, etc.) to find which are supported by "
 "target machines."
-msgstr "扫描目标机器支持的IP协议总类(TCP, ICMP, IGMP等等)。"
+msgstr "扫描 IP 协议（TCP、ICMP、IGMP 等），发现目标机器支持的协议。"
 
 #: zenmapCore/data/misc/profile_editor.xml:32
 msgid "IP protocol scan"
-msgstr "IP协议扫描"
+msgstr "IP 协议扫描"
 
 #: zenmapCore/data/misc/profile_editor.xml:33
 msgid ""
-"Do not scan any targets, just list which ones would be scanned (with reverse "
-"DNS names if available)."
-msgstr ""
-"不扫描任何目标, 仅仅列出将要扫描的主机列表(如果有，则加上它们的反向DNS域名)."
+"Do not scan any targets, just list which ones would be scanned (with reverse"
+" DNS names if available)."
+msgstr "不扫描任何目标，仅列出将要扫描的目标（如有可用反向 DNS 名称）。"
 
 #: zenmapCore/data/misc/profile_editor.xml:33
 msgid "List scan"
@@ -1905,105 +1853,99 @@ msgstr "列表扫描"
 msgid ""
 "Skip the port scanning phase. Other phases (host discovery, script scan, "
 "traceroute) may still run."
-msgstr "跳过端口扫描阶段。其它阶段(主机发现，脚本扫描，路由追踪)任然进行。"
+msgstr "跳过端口扫描阶段。其他阶段（主机发现、脚本扫描、路由追踪）仍可运行。"
 
 #: zenmapCore/data/misc/profile_editor.xml:34
 msgid "No port scan"
-msgstr "无端口扫描"
+msgstr "不进行端口扫描"
 
 #: zenmapCore/data/misc/profile_editor.xml:35
 msgid ""
 "SCTP is a layer 4 protocol used mostly for telephony related applications.  "
 "This is the SCTP equivalent of a TCP SYN stealth scan."
-msgstr ""
-"SCTP是运行在第四层上的协议，主要用于电话学相关应用。这个类似于TCP SYN stealth"
-"扫描。"
+msgstr "SCTP 是一种主要用于电话相关应用的第 4 层协议。这是相当于 TCP SYN 隐蔽扫描的 SCTP 版本。"
 
 #: zenmapCore/data/misc/profile_editor.xml:35
 msgid "SCTP INIT port scan"
-msgstr "SCTP INIT端口扫描"
+msgstr "SCTP INIT 端口扫描"
 
 #: zenmapCore/data/misc/profile_editor.xml:36
 msgid ""
 "SCTP is a layer 4 protocol used mostly for telephony related applications."
-msgstr "SCTP是运行在第四层上的协议，主要用于电化学相关的应用。"
+msgstr "SCTP 是一种主要用于电话相关应用的第 4 层协议。"
 
 #: zenmapCore/data/misc/profile_editor.xml:36
 msgid "SCTP cookie-echo port scan"
-msgstr "SCTP cookie-echo端口扫描"
+msgstr "SCTP cookie-echo 端口扫描"
 
 #: zenmapCore/data/misc/profile_editor.xml:39
 msgid "Timing template: "
-msgstr "时间模版:"
+msgstr "定时模板："
 
 #: zenmapCore/data/misc/profile_editor.xml:41
 #: zenmapCore/data/misc/profile_editor.xml:42
 msgid "Set the timing template for IDS evasion."
-msgstr "为IDS规避设置时间模版。"
+msgstr "设置用于规避 IDS 的定时模板。"
 
 #: zenmapCore/data/misc/profile_editor.xml:41
 msgid "Paranoid"
-msgstr "偏执"
+msgstr "Paranoid（偏执）"
 
 #: zenmapCore/data/misc/profile_editor.xml:42
 msgid "Sneaky"
-msgstr "鬼祟"
+msgstr "Sneaky（鬼祟）"
 
 #: zenmapCore/data/misc/profile_editor.xml:43
 msgid ""
 "Set the timing template to slow down the scan to use less bandwidth and "
 "target machine resources."
-msgstr "设置定时模版来降低扫描的速度，以减少带宽和目标机器资源的利用。"
+msgstr "设置定时模板以降低扫描速度，减少带宽和目标机器资源的使用。"
 
 #: zenmapCore/data/misc/profile_editor.xml:43
 msgid "Polite"
-msgstr "礼貌"
+msgstr "Polite（礼貌）"
 
 #: zenmapCore/data/misc/profile_editor.xml:44
 msgid "Set the timing template to not modify the default Nmap value."
-msgstr "设置定时模版以更改Nmap的默认值。"
+msgstr "设置定时模板为不修改默认的 Nmap 值。"
 
 #: zenmapCore/data/misc/profile_editor.xml:44
 msgid "Normal"
-msgstr "正常"
+msgstr "Normal（正常）"
 
 #: zenmapCore/data/misc/profile_editor.xml:45
 msgid ""
 "Set the timing template for faster scan. Used when on a reasonably fast and "
 "reliable network."
-msgstr "为快速扫描设置定时模版，在合理稳定的网络中使用。"
+msgstr "设置用于更快扫描的定时模板。在速度较快且可靠的网络上使用。"
 
 #: zenmapCore/data/misc/profile_editor.xml:45
 msgid "Aggressive"
-msgstr "侵略"
+msgstr "Aggressive（激进）"
 
 #: zenmapCore/data/misc/profile_editor.xml:46
 msgid ""
-"Set the timing template for the fastest scan. Used when on a fast network or "
-"when willing to sacrifice accuracy for speed."
-msgstr ""
-"为全速扫描设置定时模版， 在处于快速网络或者用户愿意牺牲精确度来换取速度时使"
-"用。"
+"Set the timing template for the fastest scan. Used when on a fast network or"
+" when willing to sacrifice accuracy for speed."
+msgstr "设置用于最快扫描的定时模板。在快速网络上或愿意为速度牺牲准确性时使用。"
 
 #: zenmapCore/data/misc/profile_editor.xml:46
 msgid "Insane"
-msgstr "疯狂"
+msgstr "Insane（疯狂）"
 
 #: zenmapCore/data/misc/profile_editor.xml:48
 msgid ""
 "Enable OS detection (-O), version detection (-sV), script scanning (-sC), "
 "and traceroute (--traceroute)."
-msgstr ""
-"开启操作系统检测(-O), 服务版本检测(-sV), 脚本扫描(-sC), 和路由追踪(--"
-"traceroute)."
+msgstr "启用操作系统检测 (-O)、版本检测 (-sV)、脚本扫描 (-sC) 和路由追踪 (--traceroute)。"
 
 #: zenmapCore/data/misc/profile_editor.xml:48
 msgid "Enable all advanced/aggressive options"
-msgstr "启用所有高级/攻击性选项"
+msgstr "启用所有高级/激进选项"
 
 #: zenmapCore/data/misc/profile_editor.xml:49
 msgid "Attempt to discover the operating system running on remote systems."
-msgstr "尝试识别远程目标的操作系统。"
+msgstr "尝试发现远程系统上运行的操作系统。"
 
 #: zenmapCore/data/misc/profile_editor.xml:49
 msgid "Operating system detection"
@@ -2012,7 +1954,7 @@ msgstr "操作系统检测"
 #: zenmapCore/data/misc/profile_editor.xml:50
 msgid ""
 "Attempt to discover the version number of services running on remote ports."
-msgstr "尝试识别远程目标的服务版本。"
+msgstr "尝试发现远程端口上运行服务的版本号。"
 
 #: zenmapCore/data/misc/profile_editor.xml:50
 msgid "Version detection"
@@ -2023,146 +1965,135 @@ msgid ""
 "Scan by spoofing packets from a zombie computer so that the targets receive "
 "no packets from your IP address. The zombie must meet certain conditions "
 "which Nmap will check before scanning."
-msgstr ""
-"从僵尸主机上发送伪装数据包来扫描，这样目标主机不会收到来自你的IP地址的数据"
-"包。Nmap在扫描前会检查僵尸主机是否满足要求。"
+msgstr "通过从僵尸计算机伪造数据包进行扫描，使目标不会收到来自您 IP 地址的数据包。僵尸机必须满足某些条件，Nmap 会在扫描前进行检查。"
 
 #: zenmapCore/data/misc/profile_editor.xml:51
 msgid "Idle Scan (Zombie)"
-msgstr "Idle扫描(Zombie)"
+msgstr "空闲扫描（僵尸）"
 
 #: zenmapCore/data/misc/profile_editor.xml:52
 msgid ""
 "Use an FTP server to port scan other hosts by sending a file to each "
 "interesting port of a target host."
-msgstr "利用FTP服务器发送文件到感兴趣的目标端口来进行端口扫描。"
+msgstr "使用 FTP 服务器通过向目标主机的每个感兴趣的端口发送文件来扫描其他主机。"
 
 #: zenmapCore/data/misc/profile_editor.xml:52
 msgid "FTP bounce attack"
-msgstr "FTP bounce攻击"
+msgstr "FTP 反弹攻击"
 
 #: zenmapCore/data/misc/profile_editor.xml:53
 msgid "Never do reverse DNS. This can slash scanning times."
-msgstr "始终不启用反向DNS解析，这样可以消减扫描时长。"
+msgstr "从不进行反向 DNS 解析。这可以大幅缩短扫描时间。"
 
 #: zenmapCore/data/misc/profile_editor.xml:53
 msgid "Disable reverse DNS resolution"
-msgstr "禁用反向DNS解析"
+msgstr "禁用反向 DNS 解析"
 
 #: zenmapCore/data/misc/profile_editor.xml:54
 msgid "Enable IPv6 scanning."
-msgstr "启用IPv6扫描。"
+msgstr "启用 IPv6 扫描。"
 
 #: zenmapCore/data/misc/profile_editor.xml:54
 msgid "IPv6 support"
-msgstr "IPv6支持"
+msgstr "IPv6 支持"
 
 #: zenmapCore/data/misc/profile_editor.xml:56
 msgid "Ping options"
-msgstr "Ping选项"
+msgstr "Ping 选项"
 
 #: zenmapCore/data/misc/profile_editor.xml:57
 msgid ""
-"Don't check if targets are up before scanning them. Scan every target listed."
-msgstr "在扫描主机之前不检查目标是否在线，扫描列出的所有目标。"
+"Don't check if targets are up before scanning them. Scan every target "
+"listed."
+msgstr "扫描前不检查目标是否在线。扫描列出的所有目标。"
 
 #: zenmapCore/data/misc/profile_editor.xml:57
 msgid "Don't ping before scanning"
-msgstr "扫描之前不ping远程主机"
+msgstr "扫描前不进行 Ping"
 
 #: zenmapCore/data/misc/profile_editor.xml:58
 msgid "Send an ICMP echo request (ping) probe to see if targets are up."
-msgstr "发送一个ICMP echo request(ping)包探测目标是否在线。"
+msgstr "发送 ICMP 回显请求（ping）探测包来检查目标是否在线。"
 
 #: zenmapCore/data/misc/profile_editor.xml:58
 msgid "ICMP ping"
-msgstr "ICMP ping"
+msgstr "ICMP Ping"
 
 #: zenmapCore/data/misc/profile_editor.xml:59
 msgid "Send an ICMP timestamp probe to see if targets are up."
-msgstr "发送ICMP时间戳探测主机是否在线。"
+msgstr "发送 ICMP 时间戳探测包来检查目标是否在线。"
 
 #: zenmapCore/data/misc/profile_editor.xml:59
 msgid "ICMP timestamp request"
-msgstr "ICMP时间戳请求"
+msgstr "ICMP 时间戳请求"
 
 #: zenmapCore/data/misc/profile_editor.xml:60
 msgid "Send an ICMP address mask request probe to see if targets are up."
-msgstr "发送ICMP地址掩码请求探测主机是否在线。"
+msgstr "发送 ICMP 地址掩码请求探测包来检查目标是否在线。"
 
 #: zenmapCore/data/misc/profile_editor.xml:60
 msgid "ICMP netmask request"
-msgstr "ICMP网络掩码请求"
+msgstr "ICMP 网络掩码请求"
 
 #: zenmapCore/data/misc/profile_editor.xml:61
 msgid ""
 "Send one or more ACK probes to see if targets are up. Give a list of ports "
 "or leave the argument blank to use a default port."
-msgstr ""
-"发送一个或多个ACK探测来检测目标主机是否在线。提供要扫描的端口列表，或者把端口"
-"列表参数留空来选择默认端口。"
+msgstr "发送一个或多个 ACK 探测包来检查目标是否在线。提供端口列表或留空以使用默认端口。"
 
 #: zenmapCore/data/misc/profile_editor.xml:61
 msgid "ACK ping"
-msgstr "ACK ping"
+msgstr "ACK Ping"
 
 #: zenmapCore/data/misc/profile_editor.xml:62
 msgid ""
 "Send one or more SYN probes to see if targets are up. Give a list of ports "
 "or leave the argument blank to use a default port."
-msgstr ""
-"发送一个或多个SYN探测来检测目标主机是否在线。提供要扫描的端口列表，或者把端口"
-"列表参数留空来选择默认端口。"
+msgstr "发送一个或多个 SYN 探测包来检查目标是否在线。提供端口列表或留空以使用默认端口。"
 
 #: zenmapCore/data/misc/profile_editor.xml:62
 msgid "SYN ping"
-msgstr "SYN ping"
+msgstr "SYN Ping"
 
 #: zenmapCore/data/misc/profile_editor.xml:63
 msgid ""
 "Send one or more UDP probes to see if targets are up. Give a list of ports "
 "or leave the argument blank to use a default port."
-msgstr ""
-"发送一个或多个UDP探测来检测目标主机是否在线。提供要扫描的端口列表，或者把端口"
-"列表参数留空来选择默认端口。"
+msgstr "发送一个或多个 UDP 探测包来检查目标是否在线。提供端口列表或留空以使用默认端口。"
 
 #: zenmapCore/data/misc/profile_editor.xml:63
 msgid "UDP probes"
-msgstr "UDP探测"
+msgstr "UDP 探测"
 
 #: zenmapCore/data/misc/profile_editor.xml:64
 msgid ""
 "Send one or more raw IP protocol probes to see if targets are up. Give a "
 "list of protocols or leave the argument blank to use a default list"
-msgstr ""
-"发送一个或多个原始IP协议探测来检测目标主机是否在线。提供协议列表，或者把协议"
-"列表参数留空来选择默认列表。"
+msgstr "发送一个或多个原始 IP 协议探测包来检查目标是否在线。提供协议列表或留空以使用默认列表。"
 
 #: zenmapCore/data/misc/profile_editor.xml:64
 msgid "IPProto probes"
-msgstr "IPProto探测"
+msgstr "IP 协议探测"
 
 #: zenmapCore/data/misc/profile_editor.xml:65
 msgid ""
-"Send SCTP INIT chunk packets to see if targets are up.  Give a list of ports "
-"or leave the argument blank to use a default port."
-msgstr ""
-"发送SCTP INIT数据包分块来检测目标主机是否在线。提供要扫描的端口列表，或者把端"
-"口列表参数留空来选择默认端口。"
+"Send SCTP INIT chunk packets to see if targets are up.  Give a list of ports"
+" or leave the argument blank to use a default port."
+msgstr "发送 SCTP INIT 块数据包来检查目标是否在线。提供端口列表或留空以使用默认端口。"
 
 #: zenmapCore/data/misc/profile_editor.xml:65
 msgid "SCTP INIT ping probes"
-msgstr "SCTP INIT ping探测"
+msgstr "SCTP INIT Ping 探测"
 
 #: zenmapCore/data/misc/profile_editor.xml:67
 msgid "Scripting options (NSE)"
-msgstr "脚本选项(NSE)"
+msgstr "脚本选项 (NSE)"
 
 #: zenmapCore/data/misc/profile_editor.xml:68
 msgid ""
 "Use the Nmap Scripting Engine to gain more information about targets after "
 "scanning them."
-msgstr "扫描目标主机之后利用Nmap脚本引擎来获得更多信息。"
+msgstr "使用 Nmap 脚本引擎在扫描后获取更多关于目标的信息。"
 
 #: zenmapCore/data/misc/profile_editor.xml:68
 msgid "Script scan"
@@ -2175,21 +2106,18 @@ msgid ""
 "\"vuln\", \"auth\", \"external\", \"default\", and \"all\". If blank, "
 "scripts in the \"default\" category are run."
 msgstr ""
-"执行指定的脚本。指定脚本名，目录名或者类别名。类别有:\"safe\", \"intrusive"
-"\", \"malware\", \"discovery\", \"vuln\", \"auth\", \"external\", \"default"
-"\", and \"all\". 如果为空，在\"default\"类别中的脚本会被执行。"
+"运行指定的脚本。提供脚本名称、目录名称或类别名称。类别包括：\"safe\"、\"intrusive\"、\"malware\"、\"discovery\"、\"vuln\"、\"auth\"、\"external\"、\"default\""
+" 和 \"all\"。如果留空，则运行 \"default\" 类别中的脚本。"
 
 #: zenmapCore/data/misc/profile_editor.xml:69
 msgid "Scripts to run"
-msgstr "执行脚本"
+msgstr "要运行的脚本"
 
 #: zenmapCore/data/misc/profile_editor.xml:70
 msgid ""
 "Give arguments to certain scripts that use them. Arguments are "
 "<name>=<value> pairs, separated by commas. Values may be Lua tables."
-msgstr ""
-"提供参数给指定的脚本使用。参数是以逗号分割的<name>=<value>对，值可以为Lua中的"
-"关系表类型。"
+msgstr "为某些需要参数的脚本提供参数。参数是 <name>=<value> 对，用逗号分隔。值可以是 Lua 表。"
 
 #: zenmapCore/data/misc/profile_editor.xml:70
 msgid "Script arguments"
@@ -2197,11 +2125,11 @@ msgstr "脚本参数"
 
 #: zenmapCore/data/misc/profile_editor.xml:71
 msgid "Show all information sent and received by the scripting engine."
-msgstr "显示所有脚本引擎发送和接收到的信息。"
+msgstr "显示脚本引擎发送和接收的所有信息。"
 
 #: zenmapCore/data/misc/profile_editor.xml:71
 msgid "Trace script execution"
-msgstr "追终脚本执行"
+msgstr "跟踪脚本执行"
 
 #: zenmapCore/data/misc/profile_editor.xml:73
 msgid "Target options"
@@ -2209,25 +2137,25 @@ msgstr "目标选项"
 
 #: zenmapCore/data/misc/profile_editor.xml:74
 msgid "Specifies a comma-separated list of targets to exclude from the scan."
-msgstr "指定一个逗号分割的例外扫描列表。"
+msgstr "指定要从扫描中排除的逗号分隔的目标列表。"
 
 #: zenmapCore/data/misc/profile_editor.xml:74
 msgid "Excluded hosts/networks"
-msgstr "例外的主机/网络"
+msgstr "排除的主机/网络"
 
 #: zenmapCore/data/misc/profile_editor.xml:75
 msgid ""
 "Specifies a newline-, space-, or tab-delimited file of targets to exclude "
 "from the scan."
-msgstr "为扫描指定一个以换行符，空格或者制表符分割的例外目标文件。"
+msgstr "指定一个以换行、空格或制表符分隔的目标文件，这些目标将从扫描中排除。"
 
 #: zenmapCore/data/misc/profile_editor.xml:75
 msgid "Exclusion file"
-msgstr "例外文件"
+msgstr "排除文件"
 
 #: zenmapCore/data/misc/profile_editor.xml:76
 msgid "Reads target list specification from an input file."
-msgstr "从输入文件读取指定目标列表。"
+msgstr "从输入文件中读取目标列表规范。"
 
 #: zenmapCore/data/misc/profile_editor.xml:76
 msgid "Target list file"
@@ -2237,7 +2165,7 @@ msgstr "目标列表文件"
 msgid ""
 "Option to choose targets at random. Tells Nmap how many IPs to generate. 0 "
 "is used for a never-ending scan."
-msgstr "扫描随机目标选项。 告诉Nmap生成多少随机IP. 0代表无穷个IP."
+msgstr "随机选择目标的选项。告诉 Nmap 要生成多少个 IP。0 表示无限扫描。"
 
 #: zenmapCore/data/misc/profile_editor.xml:77
 msgid "Scan random hosts"
@@ -2245,8 +2173,9 @@ msgstr "扫描随机主机"
 
 #: zenmapCore/data/misc/profile_editor.xml:78
 msgid ""
-"This option specifies which ports you want to scan and overrides the default."
-msgstr "这个选项指定要扫描的端口，覆盖默认值。"
+"This option specifies which ports you want to scan and overrides the "
+"default."
+msgstr "此选项指定要扫描的端口，并覆盖默认设置。"
 
 #: zenmapCore/data/misc/profile_editor.xml:78
 msgid "Ports to scan"
@@ -2256,9 +2185,7 @@ msgstr "要扫描的端口"
 msgid ""
 "Only scan ports named in the nmap-services file which comes with Nmap (or "
 "nmap-protocols file for -sO)."
-msgstr ""
-"仅扫描nmap-services文件中包含的端口(使用-sO选项时，仅扫描nmap-protocols文件内"
-"包括的服务)。"
+msgstr "仅扫描 Nmap 附带的 nmap-services 文件（对于 -sO 为 nmap-protocols 文件）中命名的端口。"
 
 #: zenmapCore/data/misc/profile_editor.xml:79
 msgid "Fast scan"
@@ -2270,31 +2197,29 @@ msgstr "源选项"
 
 #: zenmapCore/data/misc/profile_editor.xml:82
 msgid ""
-"Send fake decoy probes from spoofed addresses to hide your own address. Give "
-"a list of addresses separated by commas. Use RND for a random address and ME "
-"to set the position of your address."
-msgstr ""
-"使用伪装地址发送诱骗探测来隐藏自己的地址。指定一组以逗号分隔的地址，RND代表随"
-"机地址，ME代表自己的地址。"
+"Send fake decoy probes from spoofed addresses to hide your own address. Give"
+" a list of addresses separated by commas. Use RND for a random address and "
+"ME to set the position of your address."
+msgstr "从伪造地址发送虚假的诱饵探测包以隐藏您的真实地址。提供逗号分隔的地址列表。使用 RND 表示随机地址，ME 表示设置您的地址位置。"
 
 #: zenmapCore/data/misc/profile_editor.xml:82
 msgid "Use decoys to hide identity"
-msgstr "使用诱骗来隐藏身份"
+msgstr "使用诱饵隐藏身份"
 
 #: zenmapCore/data/misc/profile_editor.xml:83
 msgid ""
 "Specify the IP address of the interface you wish to send packets through."
-msgstr "指定你希望用于发送数据包的接口的IP地址。"
+msgstr "指定您希望通过其发送数据包的接口的 IP 地址。"
 
 #: zenmapCore/data/misc/profile_editor.xml:83
 msgid "Set source IP address"
-msgstr "设置源IP地址"
+msgstr "设置源 IP 地址"
 
 #: zenmapCore/data/misc/profile_editor.xml:84
 msgid ""
 "Provide a port number and Nmap will send packets from that port where "
 "possible."
-msgstr "指定一个合法的端口号，Nmap会从这端口发送数据包。"
+msgstr "提供一个端口号，Nmap 将尽可能从该端口发送数据包。"
 
 #: zenmapCore/data/misc/profile_editor.xml:84
 msgid "Set source port"
@@ -2302,47 +2227,47 @@ msgstr "设置源端口"
 
 #: zenmapCore/data/misc/profile_editor.xml:85
 msgid "Tells Nmap what interface to send and receive packets on."
-msgstr "指定发送和接收数据包的网卡。"
+msgstr "告诉 Nmap 在哪个接口上发送和接收数据包。"
 
 #: zenmapCore/data/misc/profile_editor.xml:85
 msgid "Set network interface"
-msgstr "设置网卡"
+msgstr "设置网络接口"
 
 #: zenmapCore/data/misc/profile_editor.xml:87
 msgid "Other options"
-msgstr "其它选项"
+msgstr "其他选项"
 
 #: zenmapCore/data/misc/profile_editor.xml:88
 msgid "Any extra options to add to the command line."
-msgstr "需要追加到命令行内的额外选项。"
+msgstr "要添加到命令行的任何额外选项。"
 
 #: zenmapCore/data/misc/profile_editor.xml:88
 msgid "Extra options defined by user"
-msgstr "用户指定的额外选项"
+msgstr "用户定义的额外选项"
 
 #: zenmapCore/data/misc/profile_editor.xml:89
 msgid "Set the IPv4 time-to-live field in sent packets to the given value."
-msgstr "设置已发送包的IPv4生存时间字段为指定的值。"
+msgstr "将发送数据包中的 IPv4 生存时间字段设置为给定值。"
 
 #: zenmapCore/data/misc/profile_editor.xml:89
 msgid "Set IPv4 time to live (ttl)"
-msgstr "设置IPv4生存时间(ttl)"
+msgstr "设置 IPv4 生存时间 (TTL)"
 
 #: zenmapCore/data/misc/profile_editor.xml:90
 msgid ""
 "Causes the requested scan (including ping scans) to split up TCP headers "
 "over several packets."
-msgstr "导致请求的扫描(包括ping扫描)分割TCP头部到多个数据包中。"
+msgstr "使请求的扫描（包括 ping 扫描）将 TCP 头分割到多个数据包中。"
 
 #: zenmapCore/data/misc/profile_editor.xml:90
 msgid "Fragment IP packets"
-msgstr "分片IP包"
+msgstr "分片 IP 数据包"
 
 #: zenmapCore/data/misc/profile_editor.xml:91
 msgid ""
 "Print more information about the scan in progress. Open ports are shown as "
 "they are found as well as completion time estimates."
-msgstr "打印更多扫描进程中的信息。开放端口的发现会和预计完成时间同时显示。"
+msgstr "打印更多关于正在进行的扫描的信息。开放端口在发现时即会显示，同时还会显示完成时间估计。"
 
 #: zenmapCore/data/misc/profile_editor.xml:91
 msgid "Verbosity level"
@@ -2352,9 +2277,7 @@ msgstr "详细级别"
 msgid ""
 "When even verbose mode doesn't provide sufficient data for you, debugging "
 "level is available to show more detailed output."
-msgstr ""
-"如果详细输出模式仍然不能提供你足够的信息，增加调试级别能够输出更多的细节信"
-"息。"
+msgstr "当详细模式仍不能提供足够数据时，调试级别可显示更详细的输出。"
 
 #: zenmapCore/data/misc/profile_editor.xml:92
 msgid "Debugging level"
@@ -2362,37 +2285,35 @@ msgstr "调试级别"
 
 #: zenmapCore/data/misc/profile_editor.xml:93
 msgid "Print a summary of every packet sent or received."
-msgstr "打印每个数据包的摘要。"
+msgstr "打印每个发送或接收的数据包的摘要。"
 
 #: zenmapCore/data/misc/profile_editor.xml:93
 msgid "Packet trace"
-msgstr "数据包追踪"
+msgstr "数据包跟踪"
 
 #: zenmapCore/data/misc/profile_editor.xml:94
 msgid "Scan ports in order instead of randomizing them."
-msgstr "按序扫描端口。"
+msgstr "按顺序扫描端口，而不是随机化。"
 
 #: zenmapCore/data/misc/profile_editor.xml:94
 msgid "Disable randomizing scanned ports"
-msgstr "禁用随机打乱已扫描端口"
+msgstr "禁用扫描端口随机化"
 
 #: zenmapCore/data/misc/profile_editor.xml:95
 msgid ""
 "Trace the network path to each target after scanning. This works with all "
 "scan types except connect scan (-sT) and idle scan (-sI)."
-msgstr ""
-"扫描完成后追踪每个目标的网络路径。除了connect扫描(-sT)和idle扫描(-sI)外的其它"
-"扫描类型都支持。"
+msgstr "扫描后追踪到每个目标的网络路径。适用于除 connect 扫描 (-sT) 和空闲扫描 (-sI) 之外的所有扫描类型。"
 
 #: zenmapCore/data/misc/profile_editor.xml:95
 msgid "Trace routes to targets"
-msgstr "追踪到目标的路径"
+msgstr "追踪到目标的路由"
 
 #: zenmapCore/data/misc/profile_editor.xml:96
 msgid ""
 "Try sending a probe to each port no more than this many times before giving "
 "up."
-msgstr "发送至少给定次数的探测到每个端口。"
+msgstr "在放弃之前，尝试向每个端口发送探测的次数不超过此值。"
 
 #: zenmapCore/data/misc/profile_editor.xml:96
 msgid "Max Retries"
@@ -2400,20 +2321,18 @@ msgstr "最大重试次数"
 
 #: zenmapCore/data/misc/profile_editor.xml:98
 msgid "Timing and performance"
-msgstr "时间和性能"
+msgstr "定时和性能"
 
 #: zenmapCore/data/misc/profile_editor.xml:99
 msgid ""
 "Give up on a host if it has not finished being scanning in this long. Time "
 "is in seconds by default, or may be followed by a suffix of 'ms' for "
 "milliseconds, 's' for seconds, 'm' for minutes, or 'h' for hours."
-msgstr ""
-"如果在给定时间内扫描仍未完成，则放弃这个主机。时间单位默认为秒，可以"
-"以'ms','s','m','h'结尾来指定单位为毫秒，秒，分钟或者小时。"
+msgstr "如果主机在此时间内未完成扫描则放弃。时间默认为秒，也可以加上 'ms'（毫秒）、's'（秒）、'm'（分钟）或 'h'（小时）后缀。"
 
 #: zenmapCore/data/misc/profile_editor.xml:99
 msgid "Max time to scan a target"
-msgstr "扫描目标最大用时"
+msgstr "扫描目标的最大时间"
 
 #: zenmapCore/data/misc/profile_editor.xml:100
 msgid ""
@@ -2422,8 +2341,7 @@ msgid ""
 "by a suffix of 'ms' for milliseconds, 's' for seconds, 'm' for minutes, or "
 "'h' for hours."
 msgstr ""
-"最多花费给定时间来等待探测回复和重传探测。时间单位默认为秒，可以"
-"以'ms','s','m','h'结尾来指定单位为毫秒，秒，分钟或者小时。"
+"等待探测响应的最长时间，超过则放弃或重传探测。时间默认为秒，也可以加上 'ms'（毫秒）、's'（秒）、'm'（分钟）或 'h'（小时）后缀。"
 
 #: zenmapCore/data/misc/profile_editor.xml:100
 msgid "Max probe timeout"
@@ -2436,8 +2354,7 @@ msgid ""
 "by a suffix of 'ms' for milliseconds, 's' for seconds, 'm' for minutes, or "
 "'h' for hours."
 msgstr ""
-"最少花费给定时间来等待探测回复和重传探测。时间单位默认为秒，可以"
-"以'ms','s','m','h'结尾来指定单位为毫秒，秒，分钟或者小时。"
+"等待探测响应的最短时间，超过则放弃或重传探测。时间默认为秒，也可以加上 'ms'（毫秒）、's'（秒）、'm'（分钟）或 'h'（小时）后缀。"
 
 #: zenmapCore/data/misc/profile_editor.xml:101
 msgid "Min probe timeout"
@@ -2447,54 +2364,49 @@ msgstr "最小探测超时"
 msgid ""
 "Use the time given as the initial estimate of round-trip time. This can "
 "speed up scans if you know a good time for the network you're scanning."
-msgstr ""
-"用给定时间作为往返初始预计时间。如果你了解你要扫描的网络，这可以加速扫描。"
+msgstr "使用给定的时间作为往返时间的初始估计值。如果您了解所扫描网络的合理时间值，这可以加快扫描速度。"
 
 #: zenmapCore/data/misc/profile_editor.xml:102
 msgid "Initial probe timeout"
-msgstr "初始化探测超时"
+msgstr "初始探测超时"
 
 #: zenmapCore/data/misc/profile_editor.xml:103
 msgid "Scan no more than this many hosts in parallel."
-msgstr "最多并行探测以上数量的主机。"
+msgstr "并行扫描的主机数不超过此值。"
 
 #: zenmapCore/data/misc/profile_editor.xml:103
 msgid "Max hosts in parallel"
-msgstr "最大并行探测主机数量"
+msgstr "最大并行主机数"
 
 #: zenmapCore/data/misc/profile_editor.xml:104
 msgid "Scan at least this many hosts in parallel."
-msgstr "最少并行探测以上数量的主机。"
+msgstr "并行扫描的主机数至少为此值。"
 
 #: zenmapCore/data/misc/profile_editor.xml:104
 msgid "Min hosts in parallel"
-msgstr "最小并行探测主机数量"
+msgstr "最小并行主机数"
 
 #: zenmapCore/data/misc/profile_editor.xml:105
 msgid ""
 "Never allow more than the given number of probes to be outstanding at a "
 "time. May be set to 1 to prevent Nmap from sending more than one probe at a "
 "time to hosts."
-msgstr ""
-"不允许多于给定数量的扫描变为未解决扫描。可以设置为１来阻止Nmap一次发起多个主"
-"机探测。"
+msgstr "不允许同时未完成的探测数超过给定值。可设置为 1，以防止 Nmap 一次向主机发送多个探测。"
 
 #: zenmapCore/data/misc/profile_editor.xml:105
 msgid "Max outstanding probes"
-msgstr "最大未解决扫描数"
+msgstr "最大未完成探测数"
 
 #: zenmapCore/data/misc/profile_editor.xml:106
 msgid ""
 "Try to maintain at least the given number of probes outstanding during a "
 "scan. Common usage is to set to a number higher than 1 to speed up scans of "
 "poorly performing hosts or networks."
-msgstr ""
-"尝试维持至少这么多数量的未解决扫描。一般用法是把这个设为大于１的数值，以加速"
-"目标为网络质量较差的主机或网络的扫描。"
+msgstr "尝试在扫描期间保持至少给定数量的未完成探测。通常设置为大于 1 以加快对性能不佳的主机或网络的扫描。"
 
 #: zenmapCore/data/misc/profile_editor.xml:106
 msgid "Min outstanding probes"
-msgstr "最小未解决扫描数"
+msgstr "最小未完成探测数"
 
 #: zenmapCore/data/misc/profile_editor.xml:107
 msgid ""
@@ -2503,8 +2415,8 @@ msgid ""
 "be followed by a suffix of 'ms' for milliseconds, 's' for seconds, 'm' for "
 "minutes, or 'h' for hours."
 msgstr ""
-"不允许扫描延迟(成功探测之间的延迟)多于给定的时间。时间单位默认为秒，可以"
-"以'ms','s','m','h'结尾来指定单位为毫秒，秒，分钟或者小时。"
+"不允许扫描延迟（连续探测之间的时间延迟）超过给定的时间量。时间默认为秒，也可以加上 'ms'（毫秒）、's'（秒）、'm'（分钟）或 "
+"'h'（小时）后缀。"
 
 #: zenmapCore/data/misc/profile_editor.xml:107
 msgid "Max scan delay"
@@ -2516,9 +2428,3414 @@ msgid ""
 "host. Time is in seconds by default, or may be followed by a suffix of 'ms' "
 "for milliseconds, 's' for seconds, 'm' for minutes, or 'h' for hours."
 msgstr ""
-"发送到主机探测间的等待不少于给定的时间。时间单位默认为秒，可以"
-"以'ms','s','m','h'结尾来指定单位为毫秒，秒，分钟或者小时。"
+"在向给定主机发送的每个探测之间至少等待给定的时间量。时间默认为秒，也可以加上 'ms'（毫秒）、's'（秒）、'm'（分钟）或 'h'（小时）后缀。"
 
 #: zenmapCore/data/misc/profile_editor.xml:108
 msgid "Min delay between probes"
-msgstr "最小探测间隔延迟"
+msgstr "探测间的最小延迟"
+
+msgid "Intense scan"
+msgstr "深度扫描"
+
+msgid "Intense scan plus UDP"
+msgstr "深度扫描+UDP"
+
+msgid "Intense scan, all TCP ports"
+msgstr "深度扫描，所有TCP端口"
+
+msgid "Intense scan, no ping"
+msgstr "深度扫描，无Ping"
+
+msgid "Ping scan"
+msgstr "Ping扫描"
+
+msgid "Quick scan"
+msgstr "快速扫描"
+
+msgid "Quick scan plus"
+msgstr "快速扫描增强版"
+
+msgid "Quick traceroute"
+msgstr "快速路由追踪"
+
+msgid "Regular scan"
+msgstr "常规扫描"
+
+msgid "Slow comprehensive scan"
+msgstr "慢速全面扫描"
+
+msgid ""
+"An intense, comprehensive scan. The -A option enables OS detection (-O), "
+"version detection (-sV), script scanning (-sC), and traceroute "
+"(--traceroute). Without root privileges only version detection and script "
+"scanning are run. This is considered an intrusive scan."
+msgstr ""
+"一种深入的全面扫描。-A选项启用操作系统检测(-O)、版本检测(-sV)、脚本扫描(-sC)和路由追踪(--traceroute)。没有root权限时仅运行版本检测和脚本扫描。这被认为是一种侵入式扫描。"
+
+msgid ""
+"Does OS detection (-O), version detection (-sV), script scanning (-sC), and "
+"traceroute (--traceroute) in addition to scanning TCP and UDP ports."
+msgstr "除了扫描TCP和UDP端口外，还执行操作系统检测(-O)、版本检测(-sV)、脚本扫描(-sC)和路由追踪(--traceroute)。"
+
+msgid ""
+"Scans all TCP ports, then does OS detection (-O), version detection (-sV), "
+"script scanning (-sC), and traceroute (--traceroute)."
+msgstr "扫描所有TCP端口，然后执行操作系统检测(-O)、版本检测(-sV)、脚本扫描(-sC)和路由追踪(--traceroute)。"
+
+msgid ""
+"Does an intense scan without checking to see if targets are up first. This "
+"can be useful when a target seems to ignore the usual host discovery probes."
+msgstr "执行深度扫描但不先检查目标是否在线。当目标似乎忽略常规主机发现探测时，此选项很有用。"
+
+msgid "This scan only finds which targets are up and does not port scan them."
+msgstr "此扫描仅发现哪些目标在线，不进行端口扫描。"
+
+msgid ""
+"This scan is faster than a normal scan because it uses the aggressive timing"
+" template and scans fewer ports."
+msgstr "此扫描比常规扫描更快，因为它使用激进定时模板并扫描较少端口。"
+
+msgid "A quick scan plus OS and version detection."
+msgstr "快速扫描加操作系统和版本检测。"
+
+msgid "Traces the paths to targets without doing a full port scan on them."
+msgstr "追踪到目标的路径，而不对其进行完整的端口扫描。"
+
+msgid "A basic port scan with no extra options."
+msgstr "没有额外选项的基本端口扫描。"
+
+msgid ""
+"This is a comprehensive, slow scan. Every TCP and UDP port is scanned. OS "
+"detection (-O), version detection (-sV), script scanning (-sC), and "
+"traceroute (--traceroute) are all enabled. Many probes are sent for host "
+"discovery. This is a highly intrusive scan."
+msgstr ""
+"这是一种全面的慢速扫描。每个TCP和UDP端口都被扫描。操作系统检测(-O)、版本检测(-sV)、脚本扫描(-sC)和路由追踪(--traceroute)都已启用。发送大量探测包进行主机发现。这是一种高度侵入式扫描。"
+
+msgid "Delete"
+msgstr "删除"
+
+msgid ""
+"Profile name\n"
+"\n"
+"This is how the profile will be identified in the drop-down combo box in the scan tab."
+msgstr ""
+"配置名称\n"
+"\n"
+"这是配置在扫描选项卡的下拉组合框中显示的名称。"
+
+msgid ""
+"Description\n"
+"\n"
+"The description is a full description of what the scan does, which may be long."
+msgstr ""
+"描述\n"
+"\n"
+"描述是对扫描内容的完整说明，可能会比较长。"
+
+msgid "Example input:"
+msgstr "示例输入："
+
+msgid "Categories: %(cats)s\n"
+msgstr "类别：%(cats)s\n"
+
+msgid ""
+"\n"
+"Usage\n"
+msgstr ""
+"\n"
+"用法\n"
+
+msgid ""
+"\n"
+"Output\n"
+msgstr ""
+"\n"
+"输出\n"
+
+msgid "safe"
+msgstr "安全"
+
+msgid "intrusive"
+msgstr "入侵"
+
+msgid "malware"
+msgstr "恶意软件"
+
+msgid "discovery"
+msgstr "发现"
+
+msgid "vuln"
+msgstr "漏洞"
+
+msgid "auth"
+msgstr "认证"
+
+msgid "external"
+msgstr "外部"
+
+msgid "default"
+msgstr "默认"
+
+msgid "broadcast"
+msgstr "广播"
+
+msgid "dos"
+msgstr "拒绝服务"
+
+msgid "exploit"
+msgstr "利用"
+
+msgid "fuzzer"
+msgstr "模糊测试"
+
+msgid "version"
+msgstr "版本"
+
+msgid ""
+"A simple banner grabber which connects to an open TCP port and prints out "
+"anything sent by the listening service within five seconds."
+msgstr ""
+"一个简单的横幅抓取器，连接到开放的TCP端口并打印出监听服务在五秒内发送的任何内容。横幅将被截断为单行，但每增加一个详细级别可额外打印一行。"
+
+msgid "Shows the title of the default page of a web server."
+msgstr "显示Web服务器默认页面的标题。"
+
+msgid "Shows SSH hostkeys."
+msgstr "显示SSH主机密钥。"
+
+msgid ""
+"Retrieves information from a listening acarsd daemon. Acarsd decodes\n"
+"ACARS (Aircraft Communication Addressing and Reporting System) data in\n"
+"real time.  The information retrieved by this script includes the\n"
+"daemon version, API version, administrator e-mail address and\n"
+"listening frequency."
+msgstr ""
+
+msgid ""
+"Shows extra information about IPv6 addresses, such as embedded MAC or IPv4 "
+"addresses when available."
+msgstr ""
+
+msgid "Performs password guessing against Apple Filing Protocol (AFP)."
+msgstr ""
+
+msgid ""
+"Attempts to get useful information about files from AFP volumes.\n"
+"The output is intended to resemble the output of <code>ls</code>."
+msgstr ""
+
+msgid ""
+"Detects the Mac OS X AFP directory traversal vulnerability, CVE-2010-0533."
+msgstr ""
+
+msgid ""
+"Shows AFP server information. This information includes the server's\n"
+"hostname, IPv4 and IPv6 addresses, and hardware type (for example\n"
+"<code>Macmini</code> or <code>MacBookPro</code>)."
+msgstr ""
+
+msgid "Shows AFP shares and ACLs."
+msgstr ""
+
+msgid ""
+"Retrieves the authentication scheme and realm of an AJP service (Apache "
+"JServ Protocol) that requires authentication."
+msgstr ""
+
+msgid ""
+"Performs brute force passwords auditing against the Apache JServ protocol.\n"
+"The Apache JServ Protocol is commonly used by web servers to communicate with\n"
+"back-end Java application server containers."
+msgstr ""
+
+msgid ""
+"Performs a HEAD or GET request against either the root directory or any\n"
+"optional directory of an Apache JServ Protocol server and returns the server response headers."
+msgstr ""
+
+msgid ""
+"Discovers which options are supported by the AJP (Apache JServ\n"
+"Protocol) server by sending an OPTIONS request and lists potentially\n"
+"risky methods."
+msgstr ""
+
+msgid ""
+"Requests a URI over the Apache JServ Protocol and displays the result\n"
+"(or stores it in a file). Different AJP methods such as; GET, HEAD,\n"
+"TRACE, PUT or DELETE may be used."
+msgstr ""
+
+msgid ""
+"Detects the All-Seeing Eye service. Provided by some game servers for\n"
+"querying the server's status."
+msgstr ""
+
+msgid ""
+"Gathers information (a list of all server properties) from an AMQP (advanced"
+" message queuing protocol) server."
+msgstr ""
+
+msgid "Maps IP addresses to autonomous system (AS) numbers."
+msgstr ""
+
+msgid ""
+"Attempts to find the owner of an open TCP port by querying an auth\n"
+"daemon which must also be open on the target system. The auth service,\n"
+"also known as identd, normally runs on port 113."
+msgstr ""
+
+msgid "Checks for an identd (auth) server which is spoofing its replies."
+msgstr ""
+
+msgid ""
+"Performs brute force password auditing against the BackOrifice service. The\n"
+"<code>backorifice-brute.ports</code> script argument is mandatory (it specifies ports to run\n"
+"the script against)."
+msgstr ""
+
+msgid ""
+"Connects to a BackOrifice service and gathers information about\n"
+"the host and the BackOrifice service itself."
+msgstr ""
+
+msgid ""
+"Discovers and enumerates BACNet Devices collects device information based off\n"
+"standard requests. In some cases, devices may not strictly follow the\n"
+"specifications, or may comply with older versions of the specifications, and\n"
+"will result in a BACNET error response. Presence of this error positively\n"
+"identifies the device as a BACNet device, but no enumeration is possible."
+msgstr ""
+
+msgid "Queries a Bitcoin server for a list of known Bitcoin nodes"
+msgstr ""
+
+msgid "Extracts version and node information from a Bitcoin server"
+msgstr ""
+
+msgid ""
+"Obtains information from a Bitcoin server by calling <code>getinfo</code> on"
+" its JSON-RPC interface."
+msgstr ""
+
+msgid ""
+"Discovers bittorrent peers sharing a file based on a user-supplied\n"
+"torrent file or magnet link.  Peers implement the Bittorrent protocol\n"
+"and share the torrent, whereas the nodes (only shown if the\n"
+"include-nodes NSE argument is given) implement the DHT protocol and\n"
+"are used to track the peers. The sets of peers and nodes are not the\n"
+"same, but they usually intersect."
+msgstr ""
+
+msgid ""
+"Retrieves printer or scanner information from a remote device supporting the\n"
+"BJNP protocol. The protocol is known to be supported by network based Canon\n"
+"devices."
+msgstr ""
+
+msgid ""
+"Discovers servers supporting the ATA over Ethernet protocol. ATA over Ethernet\n"
+"is an ethernet protocol developed by the Brantley Coile Company and allows for\n"
+"simple, high-performance access to SATA drives over Ethernet."
+msgstr ""
+
+msgid ""
+"Attempts to discover hosts in the local network using the DNS Service\n"
+"Discovery protocol and sends a NULL UDP packet to each host to test\n"
+"if it is vulnerable to the Avahi NULL UDP packet denial of service\n"
+"(CVE-2011-1002)."
+msgstr ""
+
+msgid ""
+"Attempts to discover Canon devices (Printers/Scanners) supporting the\n"
+"BJNP protocol by sending BJNP Discover requests to the network\n"
+"broadcast address for both ports associated with the protocol."
+msgstr ""
+
+msgid ""
+"Attempts to discover DB2 servers on the network by sending a broadcast "
+"request to port 523/udp."
+msgstr ""
+
+msgid ""
+"Sends a DHCP request to the broadcast address (255.255.255.255) and reports\n"
+"the results. By default, the script uses a static MAC address\n"
+"(DE:AD:CO:DE:CA:FE) in order to prevent IP pool exhaustion."
+msgstr ""
+
+msgid ""
+"Sends a DHCPv6 request (Solicit) to the DHCPv6 multicast address,\n"
+"parses the response, then extracts and prints the address along with\n"
+"any options returned by the server."
+msgstr ""
+
+msgid ""
+"Attempts to discover hosts' services using the DNS Service Discovery "
+"protocol.  It sends a multicast DNS-SD query and collects all the responses."
+msgstr ""
+
+msgid ""
+"Listens for the LAN sync information broadcasts that the Dropbox.com client\n"
+"broadcasts every 20 seconds, then prints all the discovered client IP\n"
+"addresses, port numbers, version numbers, display names, and more."
+msgstr ""
+
+msgid ""
+"Performs network discovery and routing information gathering through\n"
+"Cisco's Enhanced Interior Gateway Routing Protocol (EIGRP)."
+msgstr ""
+
+msgid ""
+"Discovers HID devices on a LAN by sending a discoveryd network broadcast "
+"probe."
+msgstr ""
+
+msgid ""
+"Discovers targets that have IGMP Multicast memberships and grabs interesting"
+" information."
+msgstr ""
+
+msgid ""
+"Discovers Jenkins servers on a LAN by sending a discovery broadcast probe."
+msgstr ""
+
+msgid ""
+"Sniffs the network for incoming broadcast communication and\n"
+"attempts to decode the received packets. It supports protocols like CDP, HSRP,\n"
+"Spotify, DropBox, DHCP, ARP and a few more. See packetdecoders.lua for more\n"
+"information."
+msgstr ""
+
+msgid "Discovers Microsoft SQL servers in the same broadcast domain."
+msgstr ""
+
+msgid "Attempts to discover master browsers and the domains they manage."
+msgstr ""
+
+msgid ""
+"Discovers EMC Networker backup software servers on a LAN by sending a "
+"network broadcast query."
+msgstr ""
+
+msgid ""
+"Attempts to use the Service Location Protocol to discover Novell NetWare "
+"Core Protocol (NCP) servers."
+msgstr ""
+
+msgid ""
+"Discover IPv4 networks using Open Shortest Path First version 2(OSPFv2) "
+"protocol."
+msgstr ""
+
+msgid ""
+"Sends a special broadcast probe to discover PC-Anywhere hosts running on a "
+"LAN."
+msgstr ""
+
+msgid ""
+"Discovers PC-DUO remote control hosts and gateways running on a LAN by "
+"sending a special broadcast UDP probe."
+msgstr ""
+
+msgid ""
+"Discovers routers that are running PIM (Protocol Independent Multicast)."
+msgstr ""
+
+msgid ""
+"Sends broadcast pings on a selected interface using raw ethernet packets and\n"
+"outputs the responding hosts' IP and MAC addresses or (if requested) adds them\n"
+"as targets.  Root privileges on UNIX are required to run this script since it\n"
+"uses raw sockets.  Most operating systems don't respond to broadcast-ping\n"
+"probes, but they can be configured to do so."
+msgstr ""
+
+msgid ""
+"Discovers PPPoE (Point-to-Point Protocol over Ethernet) servers using\n"
+"the PPPoE Discovery protocol (PPPoED).  PPPoE is an ethernet based\n"
+"protocol so the script has to know what ethernet interface to use for\n"
+"discovery. If no interface is specified, requests are sent out on all\n"
+"available interfaces."
+msgstr ""
+
+msgid ""
+"Discovers hosts and routing information from devices running RIPv2 on the\n"
+"LAN. It does so by sending a RIPv2 Request command and collects the responses\n"
+"from all devices responding to the request."
+msgstr ""
+
+msgid ""
+"Discovers hosts and routing information from devices running RIPng on the\n"
+"LAN by sending a broadcast RIPng Request command and collecting any responses."
+msgstr ""
+
+msgid ""
+"Discovers Sonicwall firewalls which are directly attached (not routed) using\n"
+"the same method as the manufacturers own 'SetupTool'. An interface needs to be\n"
+"configured, as the script broadcasts a UDP packet."
+msgstr ""
+
+msgid ""
+"Discovers Sybase Anywhere servers on the LAN by sending broadcast discovery "
+"messages."
+msgstr ""
+
+msgid ""
+"Discovers Telldus Technologies TellStickNet devices on the LAN. The Telldus\n"
+"TellStick is used to wirelessly control electric devices such as lights,\n"
+"dimmers and electric outlets. For more information: http://www.telldus.com/"
+msgstr ""
+
+msgid ""
+"Attempts to extract system information from the UPnP service by sending a "
+"multicast query, then collecting, parsing, and displaying all responses."
+msgstr ""
+
+msgid ""
+"Discovers Versant object databases using the broadcast srvloc protocol."
+msgstr ""
+
+msgid "Wakes a remote system up from sleep by sending a Wake-On-Lan packet."
+msgstr ""
+
+msgid ""
+"Retrieves a list of proxy servers on a LAN using the Web Proxy\n"
+"Autodiscovery Protocol (WPAD).  It implements both the DHCP and DNS\n"
+"methods of doing so and starts by querying DHCP to get the address.\n"
+"DHCP discovery requires nmap to be running in privileged mode and will\n"
+"be skipped when this is not the case.  DNS discovery relies on the\n"
+"script being able to resolve the local domain either through a script\n"
+"argument or by attempting to reverse resolve the local IP."
+msgstr ""
+
+msgid ""
+"Uses a multicast query to discover devices supporting the Web Services\n"
+"Dynamic Discovery (WS-Discovery) protocol. It also attempts to locate\n"
+"any published Windows Communication Framework (WCF) web services (.NET\n"
+"4.0 or later)."
+msgstr ""
+
+msgid ""
+"Discovers servers running the X Display Manager Control Protocol (XDMCP) by\n"
+"sending a XDMCP broadcast request to the LAN. Display managers allowing access\n"
+"are marked using the keyword Willing in the result."
+msgstr ""
+
+msgid "Performs brute force password auditing against the Cassandra database."
+msgstr ""
+
+msgid ""
+"Attempts to get basic info and server status from a Cassandra database."
+msgstr ""
+
+msgid ""
+"Detects the CCcam service (software for sharing subscription TV among\n"
+"multiple receivers)."
+msgstr ""
+
+msgid ""
+"CICS transaction ID enumerator for IBM mainframes.\n"
+"This script is based on mainframe_brute by Dominic White\n"
+"(https://github.com/sensepost/mainframe_brute). However, this script\n"
+"doesn't rely on any third party libraries or tools and instead uses\n"
+"the NSE TN3270 library which emulates a TN3270 screen in lua."
+msgstr ""
+
+msgid ""
+"Using the CICS transaction CEMT, this script attempts to gather information\n"
+"about the current CICS transaction server region. It gathers OS information,\n"
+"Datasets (files), transactions and user ids. Based on CICSpwn script by\n"
+"Ayoub ELAASSAL."
+msgstr ""
+
+msgid "CICS User ID brute forcing script for the CESL login screen."
+msgstr ""
+
+msgid "CICS User ID enumeration script for the CESL/CESN Login screen."
+msgstr ""
+
+msgid ""
+"Attempts to guess valid credentials for the Citrix PN Web Agent XML\n"
+"Service. The XML service authenticates against the local Windows server\n"
+"or the Active Directory."
+msgstr ""
+
+msgid ""
+"Extracts a list of published applications from the ICA Browser service."
+msgstr ""
+
+msgid ""
+"Extracts a list of applications, ACLs, and settings from the Citrix XML\n"
+"service."
+msgstr ""
+
+msgid "Extracts a list of Citrix servers from the ICA Browser service."
+msgstr ""
+
+msgid ""
+"Extracts the name of the server farm and member servers from Citrix XML\n"
+"service."
+msgstr ""
+
+msgid ""
+"Exploits ClamAV servers vulnerable to unauthenticated clamav comand "
+"execution."
+msgstr ""
+
+msgid ""
+"Analyzes the clock skew between the scanner and various services that report"
+" timestamps."
+msgstr ""
+
+msgid "Dumps list of available resources from CoAP endpoints."
+msgstr ""
+
+msgid "Gets database tables from a CouchDB database."
+msgstr ""
+
+msgid "Gets database statistics from a CouchDB database."
+msgstr ""
+
+msgid ""
+"Lists all discovered credentials (e.g. from brute force and default password"
+" checking scripts) at end of scan."
+msgstr ""
+
+msgid "Lists printers managed by the CUPS printing service."
+msgstr ""
+
+msgid ""
+"Lists currently queued print jobs of the remote CUPS service grouped by\n"
+"printer."
+msgstr ""
+
+msgid ""
+"Performs brute force password auditing against CVS pserver authentication."
+msgstr ""
+
+msgid ""
+"Attempts to guess the name of the CVS repositories hosted on the remote server.\n"
+"With knowledge of the correct repository name, usernames and passwords can be guessed."
+msgstr ""
+
+msgid ""
+"Retrieves a list of music from a DAAP server. The list includes artist\n"
+"names and album and song titles."
+msgstr ""
+
+msgid "Retrieves the day and time from the Daytime service."
+msgstr ""
+
+msgid ""
+"Connects to the IBM DB2 Administration Server (DAS) on TCP or UDP port 523 and\n"
+"exports the server profile.  No authentication is required for this request."
+msgstr ""
+
+msgid "Performs brute force password auditing against the DelugeRPC daemon."
+msgstr ""
+
+msgid ""
+"Sends a DHCPINFORM request to a host on UDP port 67 to obtain all the local configuration parameters\n"
+"without allocating a new address."
+msgstr ""
+
+msgid ""
+"Attempts to brute force the Application Entity Title of a DICOM server "
+"(DICOM Service Provider)."
+msgstr ""
+
+msgid ""
+"Attempts to discover DICOM servers (DICOM Service Provider) through a partial C-ECHO request.\n"
+"It also detects if the server allows any called Application Entity Title or not."
+msgstr ""
+
+msgid ""
+"Connects to a dictionary server using the DICT protocol, runs the SHOW\n"
+"SERVER command, and displays the result. The DICT protocol is defined in RFC\n"
+"2229 and is a protocol which allows a client to query a dictionary server for\n"
+"definitions from a set of natural language dictionary databases."
+msgstr ""
+
+msgid ""
+"Detects and exploits a remote code execution vulnerability in the distributed\n"
+"compiler daemon distcc. The vulnerability was disclosed in 2002, but is still\n"
+"present in modern implementation due to poor configuration of the service."
+msgstr ""
+
+msgid ""
+"Checks target IP addresses against multiple DNS anti-spam and open\n"
+"proxy blacklists and returns a list of services for which an IP has been flagged.  Checks may be limited by service category (eg: SPAM,\n"
+"PROXY) or to a specific service name."
+msgstr ""
+
+msgid ""
+"Attempts to enumerate DNS hostnames by brute force guessing of common\n"
+"subdomains. With the <code>dns-brute.srv</code> argument, dns-brute will also\n"
+"try to enumerate common DNS SRV records."
+msgstr ""
+
+msgid "Performs DNS cache snooping against a DNS server."
+msgstr ""
+
+msgid ""
+"Checks DNS zone configuration against best practices, including RFC 1912.\n"
+"The configuration checks are divided into categories which each have a number\n"
+"of different tests."
+msgstr ""
+
+msgid ""
+"Performs a domain lookup using the edns-client-subnet option which\n"
+"allows clients to specify the subnet that queries supposedly originate\n"
+"from.  The script uses this option to supply a number of\n"
+"geographically distributed locations in an attempt to enumerate as\n"
+"many different address records as possible. The script also supports\n"
+"requests using a given subnet."
+msgstr ""
+
+msgid "Launches a DNS fuzzing attack against DNS servers."
+msgstr ""
+
+msgid ""
+"Performs a quick reverse DNS lookup of an IPv6 network using a technique\n"
+"which analyzes DNS server response codes to dramatically reduce the number of queries needed to enumerate large networks."
+msgstr ""
+
+msgid "Enumerates DNS names using the DNSSEC NSEC-walking technique."
+msgstr ""
+
+msgid ""
+"Tries to enumerate domain names from the DNS server that supports DNSSEC\n"
+"NSEC3 records."
+msgstr ""
+
+msgid ""
+"Retrieves information from a DNS nameserver by requesting\n"
+"its nameserver ID (nsid) and asking for its id.server and\n"
+"version.bind values. This script performs the same queries as the following\n"
+"two dig commands:\n"
+"- dig CH TXT bind.version @target\n"
+"- dig +nsid CH TXT id.server @target"
+msgstr ""
+
+msgid ""
+"Checks a DNS server for the predictable-port recursion vulnerability.\n"
+"Predictable source ports can make a DNS server vulnerable to cache poisoning\n"
+"attacks (see CVE-2008-1447)."
+msgstr ""
+
+msgid ""
+"Checks a DNS server for the predictable-TXID DNS recursion\n"
+"vulnerability.  Predictable TXID values can make a DNS server vulnerable to\n"
+"cache poisoning attacks (see CVE-2008-1447)."
+msgstr ""
+
+msgid ""
+"Checks if a DNS server allows queries for third-party names. It is\n"
+"expected that recursion will be enabled on your own internal\n"
+"nameservers."
+msgstr ""
+
+msgid ""
+"Attempts to discover target hosts' services using the DNS Service Discovery "
+"protocol."
+msgstr ""
+
+msgid ""
+"Enumerates various common service (SRV) records for a given domain name.\n"
+"The service records contain the hostname, port and priority of servers for a given service.\n"
+"The following services are enumerated by the script:\n"
+"- Active Directory Global Catalog\n"
+"- Exchange Autodiscovery\n"
+"- Kerberos KDC Service\n"
+"- Kerberos Passwd Change Service\n"
+"- LDAP Servers\n"
+"- SIP Servers\n"
+"- XMPP S2S\n"
+"- XMPP C2S"
+msgstr ""
+
+msgid "Attempts to perform a dynamic DNS update without authentication."
+msgstr ""
+
+msgid ""
+"Checks if the target IP range is part of a Zeus botnet by querying ZTDNS @ abuse.ch.\n"
+"Please review the following information before you start to scan:\n"
+"* https://zeustracker.abuse.ch/ztdns.php"
+msgstr ""
+
+msgid "Requests a zone transfer (AXFR) from a DNS server."
+msgstr ""
+
+msgid "Detects the Docker service version."
+msgstr ""
+
+msgid ""
+"Performs brute force password auditing against the Lotus Domino Console."
+msgstr ""
+
+msgid ""
+"Runs a console command on the Lotus Domino Console using the given "
+"authentication credentials (see also: domcon-brute)"
+msgstr ""
+
+msgid ""
+"Attempts to discover valid IBM Lotus Domino users and download their ID "
+"files by exploiting the CVE-2006-5835 vulnerability."
+msgstr ""
+
+msgid "Performs brute force password auditing against an iPhoto Library."
+msgstr ""
+
+msgid ""
+"Performs password guessing against databases supporting the IBM DB2 protocol"
+" such as Informix, DB2 and Derby"
+msgstr ""
+
+msgid ""
+"Attempts to extract information from database servers supporting the DRDA\n"
+"protocol. The script sends a DRDA EXCSAT (exchange server attributes)\n"
+"command packet and parses the response."
+msgstr ""
+
+msgid ""
+"Attempts to discover multihomed systems by analysing and comparing\n"
+"information collected by other scripts. The information analyzed\n"
+"currently includes, SSL certificates, SSH host keys, MAC addresses,\n"
+"and Netbios server names."
+msgstr ""
+
+msgid ""
+"Enumerates the authentication methods offered by an EAP (Extensible\n"
+"Authentication Protocol) authenticator for a given identity or for the\n"
+"anonymous identity if no argument is passed."
+msgstr ""
+
+msgid ""
+"This NSE script is used to send a EtherNet/IP packet to a remote device that\n"
+"has TCP 44818 open. The script will send a Request Identity Packet and once a\n"
+"response is received, it validates that it was a proper response to the command\n"
+"that was sent, and then will parse out the data. Information that is parsed\n"
+"includes Device Type, Vendor ID, Product name, Serial Number, Product code,\n"
+"Revision Number, status, state, as well as the Device IP."
+msgstr ""
+
+msgid ""
+"Connects to Erlang Port Mapper Daemon (epmd) and retrieves a list of nodes "
+"with their respective port numbers."
+msgstr ""
+
+msgid ""
+"Attempts to enumerate process info over the Apple Remote Event protocol.\n"
+"When accessing an application over the Apple Remote Event protocol the\n"
+"service responds with the uid and pid of the application, if it is running,\n"
+"prior to requesting authentication."
+msgstr ""
+
+msgid ""
+"Performs a Forward-confirmed Reverse DNS lookup and reports anomalous "
+"results."
+msgstr ""
+
+msgid "Attempts to retrieve a list of usernames using the finger service."
+msgstr ""
+
+msgid ""
+"Prints the readable strings from service fingerprints of unknown services."
+msgstr ""
+
+msgid ""
+"Tries to discover firewall rules using an IP TTL expiration technique known\n"
+"as firewalking."
+msgstr ""
+
+msgid ""
+"Detects a vulnerability in netfilter and other firewalls that use helpers to\n"
+"dynamically open ports for protocols such as ftp and sip."
+msgstr ""
+
+msgid "Retrieves information from Flume master HTTP pages."
+msgstr ""
+
+msgid ""
+"Tridium Niagara Fox is a protocol used within Building Automation Systems. Based\n"
+"off Billy Rios and Terry McCorkle's work this Nmap NSE will collect information\n"
+"from A Tridium Niagara system."
+msgstr ""
+
+msgid ""
+"Detects the Freelancer game server (FLServer.exe) service by sending a\n"
+"status query UDP probe."
+msgstr ""
+
+msgid "Checks if an FTP server allows anonymous logins."
+msgstr ""
+
+msgid ""
+"Checks to see if an FTP server allows port scanning using the FTP bounce "
+"method."
+msgstr ""
+
+msgid "Performs brute force password auditing against FTP servers."
+msgstr ""
+
+msgid ""
+"Checks if an FTPd is prone to CVE-2010-1938 (OPIE off-by-one stack overflow),\n"
+"a vulnerability discovered by Maksymilian Arciemowicz and Adam \"pi3\" Zabrocki.\n"
+"See the advisory at https://nmap.org/r/fbsd-sa-opie.\n"
+"Be advised that, if launched against a vulnerable host, this script will crash the FTPd."
+msgstr ""
+
+msgid ""
+"Tests for the presence of the ProFTPD 1.3.3c backdoor reported as BID\n"
+"45150. This script attempts to exploit the backdoor using the innocuous\n"
+"<code>id</code> command by default, but that can be changed with the\n"
+"<code>ftp-proftpd-backdoor.cmd</code> script argument."
+msgstr ""
+
+msgid "Sends FTP SYST and STAT commands and returns the result."
+msgstr ""
+
+msgid ""
+"Tests for the presence of the vsFTPd 2.3.4 backdoor reported on 2011-07-04\n"
+"(CVE-2011-2523). This script attempts to exploit the backdoor using the\n"
+"innocuous <code>id</code> command by default, but that can be changed with\n"
+"the <code>exploit.cmd</code> or <code>ftp-vsftpd-backdoor.cmd</code> script\n"
+"arguments."
+msgstr ""
+
+msgid ""
+"Checks for a stack-based buffer overflow in the ProFTPD server, version\n"
+"between 1.3.2rc3 and 1.3.3b. By sending a large number of TELNET_IAC escape\n"
+"sequence, the proftpd process miscalculates the buffer length, and a remote\n"
+"attacker will be able to corrupt the stack and execute arbitrary code within\n"
+"the context of the proftpd process (CVE-2010-4221). Authentication is not\n"
+"required to exploit this vulnerability."
+msgstr ""
+
+msgid ""
+"Retrieves system information (OS version, available memory, etc.) from\n"
+"a listening Ganglia Monitoring Daemon or Ganglia Meta Daemon."
+msgstr ""
+
+msgid "Queries a CORBA naming server for a list of objects."
+msgstr ""
+
+msgid ""
+"Queries a GKRellM service for monitoring information. A single round of\n"
+"collection is made, showing a snapshot of information at the time of the\n"
+"request."
+msgstr ""
+
+msgid "Lists files and directories at the root of a gopher service."
+msgstr ""
+
+msgid ""
+"Retrieves GPS time, coordinates and speed from the GPSD network daemon."
+msgstr ""
+
+msgid ""
+"Discovers information such as log directories from an Apache Hadoop DataNode\n"
+"HTTP status page."
+msgstr ""
+
+msgid ""
+"Retrieves information from an Apache Hadoop JobTracker HTTP status page."
+msgstr ""
+
+msgid "Retrieves information from an Apache Hadoop NameNode HTTP status page."
+msgstr ""
+
+msgid ""
+"Retrieves information from an Apache Hadoop secondary NameNode HTTP status "
+"page."
+msgstr ""
+
+msgid ""
+"Retrieves information from an Apache Hadoop TaskTracker HTTP status page."
+msgstr ""
+
+msgid ""
+"This NSE script is used to send a HART-IP packet to a HART device that has TCP 5094 open.\n"
+"The script will establish Session with HART device, then Read Unique Identifier and\n"
+"Read Long Tag packets are sent to parse the required HART device information.\n"
+"Read Sub-Device Identity Summary packet with Sub-Device index 00 01 is sent\n"
+"to request information on Sub-Device, if any available. If the response code\n"
+"differs from 0 (success), the error code is passed as Sub-Device Information.\n"
+"Otherwise, the required Sub-Device information is parsed from response packet."
+msgstr ""
+
+msgid ""
+"Retrieves information from an Apache HBase (Hadoop database) master HTTP "
+"status page."
+msgstr ""
+
+msgid ""
+"Retrieves information from an Apache HBase (Hadoop database) region server "
+"HTTP status page."
+msgstr ""
+
+msgid ""
+"Reads hard disk information (such as brand, model, and sometimes "
+"temperature) from a listening hddtemp service."
+msgstr ""
+
+msgid ""
+"Retrieve hardwares details and configuration information utilizing HNAP, the \"Home Network Administration Protocol\".\n"
+"It is an HTTP-Simple Object Access Protocol (SOAP)-based protocol which allows for remote topology discovery,\n"
+"configuration, and management of devices (routers, cameras, PCs, NAS, etc.)"
+msgstr ""
+
+msgid ""
+"Discovers hostnames that resolve to the target's IP address by querying the "
+"online database at http://www.bfk.de/bfk_dnslogger.html."
+msgstr ""
+
+msgid ""
+"Finds subdomains of a web server by querying Google's Certificate Transparency\n"
+"logs database (https://crt.sh)."
+msgstr ""
+
+msgid ""
+"Discovers hostnames that resolve to the target's IP address by querying the "
+"online Robtex service at http://ip.robtex.com/."
+msgstr ""
+
+msgid ""
+"Attempts to exploit an authentication bypass vulnerability in Adobe Coldfusion\n"
+"servers to retrieve a valid administrator's session cookie."
+msgstr ""
+
+msgid ""
+"Grabs affiliate network IDs (e.g. Google AdSense or Analytics, Amazon\n"
+"Associates, etc.) from a web page. These can be used to identify pages\n"
+"with the same owner."
+msgstr ""
+
+msgid ""
+"Checks if the target http server has mod_negotiation enabled.  This\n"
+"feature can be leveraged to find hidden resources and spider a web\n"
+"site using fewer requests."
+msgstr ""
+
+msgid ""
+"Attempts to retrieve the server-status page for Apache webservers that\n"
+"have mod_status enabled. If the server-status page exists and appears to\n"
+"be from mod_status the script will parse useful information such as the\n"
+"system uptime, Apache version and recent HTTP requests."
+msgstr ""
+
+msgid ""
+"Determines if a ASP.NET application has debugging enabled using a HTTP DEBUG"
+" request."
+msgstr ""
+
+msgid ""
+"Retrieves the authentication scheme and realm of a web service that requires\n"
+"authentication."
+msgstr ""
+
+msgid ""
+"Spiders a web site to find web pages requiring form-based or HTTP-based authentication. The results are returned in a table with each url and the\n"
+"detected method."
+msgstr ""
+
+msgid "Attempts to enumerate users in Avaya IP Office systems 7.x."
+msgstr ""
+
+msgid ""
+"Exploits a remote code execution vulnerability in Awstats Totals 1.0 up to 1.14\n"
+"and possibly other products based on it (CVE: 2008-3922)."
+msgstr ""
+
+msgid ""
+"Exploits a directory traversal vulnerability in Apache Axis2 version 1.4.1 by\n"
+"sending a specially crafted request to the parameter <code>xsd</code>\n"
+"(BID 40343). By default it will try to retrieve the configuration file of the\n"
+"Axis2 service <code>'/conf/axis2.xml'</code> using the path\n"
+"<code>'/axis2/services/'</code> to return the username and password of the\n"
+"admin account."
+msgstr ""
+
+msgid ""
+"Spiders a website and attempts to identify backup copies of discovered files.\n"
+"It does so by requesting a number of different combinations of the filename (eg. index.bak, index.html~, copy of index.html)."
+msgstr ""
+
+msgid ""
+"Attempts to retrieve the configuration settings from a Barracuda\n"
+"Networks Spam & Virus Firewall device using the directory traversal\n"
+"vulnerability described at\n"
+"http://seclists.org/fulldisclosure/2010/Oct/119."
+msgstr ""
+
+msgid ""
+"Decodes any unencrypted F5 BIG-IP cookies in the HTTP response.\n"
+"BIG-IP cookies contain information on backend systems such as\n"
+"internal IP addresses and port numbers.\n"
+"See here for more info: https://support.f5.com/csp/article/K6917"
+msgstr ""
+
+msgid ""
+"Performs brute force password auditing against http basic, digest and ntlm "
+"authentication."
+msgstr ""
+
+msgid ""
+"Obtains the CakePHP version of a web application built with the CakePHP\n"
+"framework by fingerprinting default files shipped with the CakePHP framework."
+msgstr ""
+
+msgid ""
+"Measures the time a website takes to deliver a web page and returns\n"
+"the maximum, minimum and average time it took to fetch a page."
+msgstr ""
+
+msgid ""
+"Connect as Cisco AnyConnect client to a Cisco SSL VPN and retrieves version\n"
+"and tunnel information."
+msgstr ""
+
+msgid ""
+"Attempts to retrieve version, absolute path of administration panel and the\n"
+"file 'password.properties' from vulnerable installations of ColdFusion 9 and\n"
+"10."
+msgstr ""
+
+msgid "Extracts and outputs HTML and JavaScript comments from HTTP responses."
+msgstr ""
+
+msgid ""
+"Checks for backups and swap files of common content management system\n"
+"and web server configuration files."
+msgstr ""
+
+msgid ""
+"Examines cookies set by HTTP services.  Reports any session cookies set\n"
+"without the httponly flag.  Reports any session cookies set over SSL without\n"
+"the secure flag.  If http-enum.nse is also run, any interesting paths found\n"
+"by it will be checked in addition to the root."
+msgstr ""
+
+msgid ""
+"Tests an http server for Cross-Origin Resource Sharing (CORS), a way\n"
+"for domains to explicitly opt in to having certain methods invoked by\n"
+"another domain."
+msgstr ""
+
+msgid ""
+"Checks the cross-domain policy file (/crossdomain.xml) and the client-acces-policy file (/clientaccesspolicy.xml)\n"
+"in web applications and lists the trusted domains. Overly permissive settings enable Cross Site Request Forgery\n"
+"attacks and may allow attackers to access sensitive data. This script is useful to detect permissive\n"
+"configurations and possible domain names available for purchase to exploit the application."
+msgstr ""
+
+msgid ""
+"This script detects Cross Site Request Forgeries (CSRF) vulnerabilities."
+msgstr ""
+
+msgid ""
+"Gets the date from HTTP-like services. Also prints how much the date\n"
+"differs from local time. Local time is the time the HTTP request was\n"
+"sent, so the difference includes at least the duration of one RTT."
+msgstr ""
+
+msgid ""
+"Tests for access with default credentials used by a variety of web "
+"applications and devices."
+msgstr ""
+
+msgid "Tries to find out the technology behind the target website."
+msgstr ""
+
+msgid ""
+"Detects a firmware backdoor on some D-Link routers by changing the User-Agent\n"
+"to a \"secret\" value. Using the \"secret\" User-Agent bypasses authentication\n"
+"and allows admin access to the router."
+msgstr ""
+
+msgid ""
+"It looks for places where attacker-controlled information in the DOM may be used\n"
+"to affect JavaScript execution in certain ways. The attack is explained here:\n"
+"http://www.webappsec.org/projects/articles/071105.shtml"
+msgstr ""
+
+msgid ""
+"Attempts to enumerate the hashed Domino Internet Passwords that are (by\n"
+"default) accessible by all authenticated users. This script can also download\n"
+"any Domino ID Files attached to the Person document.  Passwords are presented\n"
+"in a form suitable for running in John the Ripper."
+msgstr ""
+
+msgid ""
+"Enumerates the installed Drupal modules/themes by using a list of known "
+"modules and themes."
+msgstr ""
+
+msgid ""
+"Enumerates Drupal users by exploiting an information disclosure vulnerability\n"
+"in Views, Drupal's most popular module."
+msgstr ""
+
+msgid "Enumerates directories used by popular web applications and servers."
+msgstr ""
+
+msgid "This script crawls through the website and returns any error pages."
+msgstr ""
+
+msgid ""
+"Spiders a site's images looking for interesting exif data embedded in\n"
+".jpg files. Displays the make and model of the camera, the date the photo was\n"
+"taken, and the embedded geotag information."
+msgstr ""
+
+msgid ""
+"Gets the favicon (\"favorites icon\") from a web page and matches it against a\n"
+"database of the icons of known web applications. If there is a match, the name\n"
+"of the application is printed; otherwise the MD5 hash of the icon data is\n"
+"printed."
+msgstr ""
+
+msgid "This script crawls through the website to find any rss or atom feeds."
+msgstr ""
+
+msgid "The script is used to fetch files from servers."
+msgstr ""
+
+msgid ""
+"Exploits insecure file upload forms in web applications\n"
+"using various techniques like changing the Content-type\n"
+"header or creating valid image files containing the\n"
+"payload in the comment."
+msgstr ""
+
+msgid ""
+"Performs brute force password auditing against http form-based "
+"authentication."
+msgstr ""
+
+msgid ""
+"Performs a simple form fuzzing against forms found on websites.\n"
+"Tries strings and numbers of increasing length and attempts to\n"
+"determine if the fuzzing was successful."
+msgstr ""
+
+msgid ""
+"Checks whether target machines are vulnerable to anonymous Frontpage login."
+msgstr ""
+
+msgid ""
+"Displays the contents of the \"generator\" meta tag of a web page (default: /)\n"
+"if there is one."
+msgstr ""
+
+msgid ""
+"Checks for a Git repository found in a website's document root\n"
+"/.git/<something>) and retrieves as much repo information as\n"
+"possible, including language/framework, remotes, last commit\n"
+"message, and repository description."
+msgstr ""
+
+msgid ""
+"Retrieves a list of Git projects, owners and descriptions from a gitweb (web"
+" interface to the Git revision control system)."
+msgstr ""
+
+msgid ""
+"Checks if hosts are on Google's blacklist of suspected malware and phishing\n"
+"servers. These lists are constantly updated and are part of Google's Safe\n"
+"Browsing service."
+msgstr ""
+
+msgid ""
+"Spiders a website and attempts to match all pages and urls against a given\n"
+"string. Matches are counted and grouped per url under which they were\n"
+"discovered."
+msgstr ""
+
+msgid ""
+"Performs a HEAD request for the root folder (\"/\") of a web server and "
+"displays the HTTP headers returned."
+msgstr ""
+
+msgid ""
+"Attempts to extract information from HP iLO boards including versions and "
+"addresses."
+msgstr ""
+
+msgid ""
+"Detects Huawei modems models HG530x, HG520x, HG510x (and possibly others...)\n"
+"vulnerable to a remote credential and information disclosure vulnerability. It\n"
+"also extracts the PPPoE credentials and other interesting configuration values."
+msgstr ""
+
+msgid ""
+"Retrieves the locations of all \"Find my iPhone\" enabled iOS devices by querying\n"
+"the MobileMe web service (authentication required)."
+msgstr ""
+
+msgid ""
+"Sends a message to a iOS device through the Apple MobileMe web service. The\n"
+"device has to be registered with an Apple ID using the Find My Iphone\n"
+"application."
+msgstr ""
+
+msgid ""
+"Attempts to brute force the 8.3 filenames (commonly known as short names) of files and directories in the root folder\n"
+"of vulnerable IIS servers. This script is an implementation of the PoC \"iis shortname scanner\"."
+msgstr ""
+
+msgid ""
+"Checks for a vulnerability in IIS 5.1/6.0 that allows arbitrary users to access\n"
+"secured WebDAV folders by searching for a password-protected folder and\n"
+"attempting to access it. This vulnerability was patched in Microsoft Security\n"
+"Bulletin MS09-020, https://nmap.org/r/ms09-020."
+msgstr ""
+
+msgid ""
+"Determines if the web server leaks its internal IP address when sending\n"
+"an HTTP/1.0 request without a Host header."
+msgstr ""
+
+msgid ""
+"Performs brute force password auditing against Joomla web CMS installations."
+msgstr ""
+
+msgid ""
+"Attempts to discover JSONP endpoints in web servers. JSONP endpoints can be\n"
+"used to bypass Same-origin Policy restrictions in web browsers."
+msgstr ""
+
+msgid ""
+"Exploits a null-byte poisoning vulnerability in Litespeed Web Servers 4.0.x\n"
+"before 4.0.15 to retrieve the target script's source code by sending a HTTP\n"
+"request with a null byte followed by a .txt file extension (CVE-2010-2333)."
+msgstr ""
+
+msgid "Shows the content of an \"index\" Web page."
+msgstr ""
+
+msgid ""
+"Exploits a directory traversal vulnerability existing in Majordomo2 to "
+"retrieve remote files. (CVE-2011-0049)."
+msgstr ""
+
+msgid "Looks for signature of known server compromises."
+msgstr ""
+
+msgid ""
+"Checks if the webserver allows mod_cluster management protocol (MCMP) "
+"methods."
+msgstr ""
+
+msgid ""
+"Attempts to bypass password protected resources (HTTP 401 status) by performing HTTP verb tampering.\n"
+"If an array of paths to check is not set, it will crawl the web server and perform the check against any\n"
+"password protected resource that it finds."
+msgstr ""
+
+msgid ""
+"Finds out what options are supported by an HTTP server by sending an\n"
+"OPTIONS request. Lists potentially risky methods. It tests those methods\n"
+"not mentioned in the OPTIONS headers individually and sees if they are\n"
+"implemented. Any output other than 501/405 suggests that the method is\n"
+"if not in the range 400 to 600. If the response falls under that range then\n"
+"it is compared to the response from a randomly generated method."
+msgstr ""
+
+msgid "Checks if the website holds a mobile version."
+msgstr ""
+
+msgid ""
+"This script enumerates information from remote HTTP services with NTLM\n"
+"authentication enabled."
+msgstr ""
+
+msgid "Checks if an HTTP proxy is open."
+msgstr ""
+
+msgid ""
+"Spiders a website and attempts to identify open redirects. Open\n"
+"redirects are handlers which commonly take a URL as a parameter and\n"
+"responds with a HTTP redirect (3XX) to the target.  Risks of open redirects are\n"
+"described at http://cwe.mitre.org/data/definitions/601.html."
+msgstr ""
+
+msgid ""
+"Checks if a web server is vulnerable to directory traversal by attempting to\n"
+"retrieve <code>/etc/passwd</code> or <code>\\boot.ini</code>."
+msgstr ""
+
+msgid ""
+"Attempts to retrieve the PHP version from a web server. PHP has a number\n"
+"of magic queries that return images or text that can vary with the PHP\n"
+"version. This script uses the following queries:\n"
+"* <code>/?=PHPE9568F36-D428-11d2-A769-00AA001ACF42</code>: gets a GIF logo, which changes on April Fool's Day.\n"
+"* <code>/?=PHPB8B5F2A0-3C92-11d3-A3A9-4C7B08C10000</code>: gets an HTML credits page."
+msgstr ""
+
+msgid ""
+"Exploits a directory traversal vulnerability in phpMyAdmin 2.6.4-pl1 (and\n"
+"possibly other versions) to retrieve remote files on the web server."
+msgstr ""
+
+msgid ""
+"Crawls a web server and attempts to find PHP files vulnerable to reflected\n"
+"cross site scripting via the variable <code>$_SERVER[\"PHP_SELF\"]</code>."
+msgstr ""
+
+msgid "Performs brute force password guessing against HTTP proxy servers."
+msgstr ""
+
+msgid ""
+"Uploads a local file to a remote web server using the HTTP PUT method. You "
+"must specify the filename and URL path with NSE arguments."
+msgstr ""
+
+msgid ""
+"Attempts to retrieve the model, firmware version, and enabled services from a\n"
+"QNAP Network Attached Storage (NAS) device."
+msgstr ""
+
+msgid ""
+"Informs about cross-domain include of scripts. Websites that include\n"
+"external javascript scripts are delegating part of their security to\n"
+"third-party entities."
+msgstr ""
+
+msgid ""
+"Crawls webservers in search of RFI (remote file inclusion) vulnerabilities. It\n"
+"tests every form field it finds and every parameter of a URL containing a\n"
+"query."
+msgstr ""
+
+msgid ""
+"Checks for disallowed entries in <code>/robots.txt</code> on a web server."
+msgstr ""
+
+msgid ""
+"Obtains up to 100 forward DNS names for a target IP address by querying the "
+"Robtex service (https://www.robtex.com/ip-lookup/)."
+msgstr ""
+
+msgid ""
+"Finds up to 100 domain names which use the same name server as the target by"
+" querying the Robtex service at http://www.robtex.com/dns/."
+msgstr ""
+
+msgid ""
+"Detects SAP Netweaver Portal instances that allow anonymous access to the\n"
+"KM unit navigation page. This page leaks file names, ldap users, etc."
+msgstr ""
+
+msgid ""
+"Checks for the HTTP response headers related to security given in OWASP Secure Headers Project\n"
+"and gives a brief description of the header and its configuration value."
+msgstr ""
+
+msgid ""
+"Uses the HTTP Server header for missing version info. This is currently\n"
+"infeasible with version probes because of the need to match non-HTTP services\n"
+"correctly."
+msgstr ""
+
+msgid ""
+"Attempts to exploit the \"shellshock\" vulnerability (CVE-2014-6271 and\n"
+"CVE-2014-7169) in web applications."
+msgstr ""
+
+msgid ""
+"Spiders a web server and displays its directory structure along with\n"
+"number and types of files in each folder. Note that files listed as\n"
+"having an 'Other' extension are ones that have no extension or that\n"
+"are a root document."
+msgstr ""
+
+msgid ""
+"Tests a web server for vulnerability to the Slowloris DoS attack by "
+"launching a Slowloris attack."
+msgstr ""
+
+msgid ""
+"Tests a web server for vulnerability to the Slowloris DoS attack without\n"
+"actually launching a DoS attack."
+msgstr ""
+
+msgid ""
+"Spiders an HTTP server looking for URLs containing queries vulnerable to an SQL\n"
+"injection attack. It also extracts forms from found websites and tries to identify\n"
+"fields that are vulnerable."
+msgstr ""
+
+msgid ""
+"Posts specially crafted strings to every form it\n"
+"encounters and then searches through the website for those\n"
+"strings to determine whether the payloads were successful."
+msgstr ""
+
+msgid ""
+"Enumerates users of a Subversion repository by examining logs of most recent"
+" commits."
+msgstr ""
+
+msgid "Requests information from a Subversion repository."
+msgstr ""
+
+msgid ""
+"Exploits a directory traversal vulnerability existing in several TP-Link\n"
+"wireless routers. Attackers may exploit this vulnerability to read any of the\n"
+"configuration and password files remotely and without authentication."
+msgstr ""
+
+msgid ""
+"Sends an HTTP TRACE request and shows if the method TRACE is enabled. If debug\n"
+"is enabled, it returns the header fields that were modified in the response."
+msgstr ""
+
+msgid ""
+"Exploits the Max-Forwards HTTP header to detect the presence of reverse "
+"proxies."
+msgstr ""
+
+msgid ""
+"Attempts to obtain information from Trane Tracer SC devices. Trane Tracer SC\n"
+"is an intelligent field panel for communicating with HVAC equipment controllers\n"
+"deployed across several sectors including commercial facilities and others."
+msgstr ""
+
+msgid ""
+"Spiders a website and attempts to identify output escaping problems\n"
+"where content is reflected back to the user.  This script locates all\n"
+"parameters, ?x=foo&y=bar and checks if the values are reflected on the\n"
+"page. If they are indeed reflected, the script will try to insert\n"
+"ghz>hzx\"zxc'xcv and check which (if any) characters were reflected\n"
+"back onto the page without proper html escaping.  This is an\n"
+"indication of potential XSS vulnerability."
+msgstr ""
+
+msgid "Checks if various crawling utilities are allowed by the host."
+msgstr ""
+
+msgid ""
+"Attempts to enumerate valid usernames on web servers running with the mod_userdir\n"
+"module or similar enabled."
+msgstr ""
+
+msgid ""
+"Searches for web virtual hostnames by making a large number of HEAD requests"
+" against http servers using common hostnames."
+msgstr ""
+
+msgid ""
+"Checks whether a file has been determined as malware by Virustotal. Virustotal\n"
+"is a service that provides the capability to scan a file or check a checksum\n"
+"against a number of the major antivirus vendors. The script uses the public\n"
+"API which requires a valid API key and has a limit on 4 queries per minute.\n"
+"A key can be acquired by registering as a user on the virustotal web page:\n"
+"* http://www.virustotal.com"
+msgstr ""
+
+msgid ""
+"Connects to a VLC Streamer helper service and lists directory contents. The\n"
+"VLC Streamer helper service is used by the iOS VLC Streamer application to\n"
+"enable streaming of multimedia content from the remote server to the device."
+msgstr ""
+
+msgid ""
+"Checks for a path-traversal vulnerability in VMWare ESX, ESXi, and Server "
+"(CVE-2009-3733)."
+msgstr ""
+
+msgid "Exploits a file disclosure vulnerability in Webmin (CVE-2006-3392)"
+msgstr ""
+
+msgid ""
+"Exploits cve-2009-3960 also known as Adobe XML External Entity Injection."
+msgstr ""
+
+msgid ""
+"Tests whether a JBoss target is vulnerable to jmx console authentication "
+"bypass (CVE-2010-0738)."
+msgstr ""
+
+msgid ""
+"Executes a directory traversal attack against a ColdFusion\n"
+"server and tries to grab the password hash for the administrator user. It\n"
+"then uses the salt value (hidden in the web page) to create the SHA1\n"
+"HMAC hash that the web server needs for authentication as admin. You can\n"
+"pass this value to the ColdFusion server as the admin without cracking\n"
+"the password hash."
+msgstr ""
+
+msgid ""
+"Detects a denial of service vulnerability in the way the Apache web server\n"
+"handles requests for multiple overlapping/simple ranges of a page."
+msgstr ""
+
+msgid ""
+"Tests for the CVE-2011-3368 (Reverse Proxy Bypass) vulnerability in Apache HTTP server's reverse proxy mode.\n"
+"The script will run 3 tests:\n"
+"* the loopback test, with 3 payloads to handle different rewrite rules\n"
+"* the internal hosts test. According to Contextis, we expect a delay before a server error.\n"
+"* The external website test. This does not mean that you can reach a LAN ip, but this is a relevant issue anyway."
+msgstr ""
+
+msgid ""
+"Detects PHP-CGI installations that are vulnerable to CVE-2012-1823, This\n"
+"critical vulnerability allows attackers to retrieve source code and execute\n"
+"code remotely."
+msgstr ""
+
+msgid ""
+"Detects Ruby on Rails servers vulnerable to object injection, remote command\n"
+"executions and denial of service attacks. (CVE-2013-0156)"
+msgstr ""
+
+msgid ""
+"Detects a URL redirection and reflected XSS vulnerability in Allegro RomPager\n"
+"Web server. The vulnerability has been assigned CVE-2013-6786."
+msgstr ""
+
+msgid ""
+"An 0 day was released on the 6th December 2013 by rubina119, and was patched"
+" in Zimbra 7.2.6."
+msgstr ""
+
+msgid ""
+"Detects whether the Cisco ASA appliance is vulnerable to the Cisco ASA ASDM\n"
+"Privilege Escalation Vulnerability (CVE-2014-2126)."
+msgstr ""
+
+msgid ""
+"Detects whether the Cisco ASA appliance is vulnerable to the Cisco ASA SSL VPN\n"
+"Privilege Escalation Vulnerability (CVE-2014-2127)."
+msgstr ""
+
+msgid ""
+"Detects whether the Cisco ASA appliance is vulnerable to the Cisco ASA SSL VPN\n"
+"Authentication Bypass Vulnerability (CVE-2014-2128)."
+msgstr ""
+
+msgid ""
+"Detects whether the Cisco ASA appliance is vulnerable to the Cisco ASA SIP\n"
+"Denial of Service Vulnerability (CVE-2014-2129)."
+msgstr ""
+
+msgid ""
+"Exploits CVE-2014-3704 also known as 'Drupageddon' in Drupal. Versions < 7.32\n"
+"of Drupal core are known to be affected."
+msgstr ""
+
+msgid ""
+"Exploits a remote code injection vulnerability (CVE-2014-8877) in Wordpress CM\n"
+"Download Manager plugin. Versions <= 2.0.0 are known to be affected."
+msgstr ""
+
+msgid ""
+"This script attempts to detect a vulnerability, CVE-2015-1427, which  allows attackers\n"
+"to leverage features of this API to gain unauthenticated remote code execution (RCE)."
+msgstr ""
+
+msgid ""
+"Checks for a remote code execution vulnerability (MS15-034) in Microsoft "
+"Windows systems (CVE2015-2015-1635)."
+msgstr ""
+
+msgid ""
+"Attempts to detect a privilege escalation vulnerability in Wordpress 4.7.0 and 4.7.1 that\n"
+"allows unauthenticated users to inject content in posts."
+msgstr ""
+
+msgid ""
+"Detects whether the specified URL is vulnerable to the Apache Struts\n"
+"Remote Code Execution Vulnerability (CVE-2017-5638)."
+msgstr ""
+
+msgid ""
+"Detects if a system with Intel Active Management Technology is vulnerable to the INTEL-SA-00075\n"
+"privilege escalation vulnerability (CVE2017-5689)."
+msgstr ""
+
+msgid ""
+"An SQL Injection vulnerability affecting Joomla! 3.7.x before 3.7.1 allows for\n"
+"unauthenticated users to execute arbitrary SQL commands. This vulnerability was\n"
+"caused by a new component, <code>com_fields</code>, which was introduced in\n"
+"version 3.7. This component is publicly accessible, which means this can be\n"
+"exploited by any malicious individual visiting the site."
+msgstr ""
+
+msgid ""
+"Detects the RomPager 4.07 Misfortune Cookie vulnerability by safely "
+"exploiting it."
+msgstr ""
+
+msgid ""
+"A vulnerability has been discovered in WNR 1000 series that allows an attacker\n"
+"to retrieve administrator credentials with the router interface.\n"
+"Tested On Firmware Version(s): V1.0.2.60_60.0.86 (Latest) and V1.0.2.54_60.0.82NA"
+msgstr ""
+
+msgid ""
+"Attempts to determine whether a web server is protected by an IPS (Intrusion\n"
+"Prevention System), IDS (Intrusion Detection System) or WAF (Web Application\n"
+"Firewall) by probing the web server with malicious payloads and detecting\n"
+"changes in the response code and body."
+msgstr ""
+
+msgid ""
+"Tries to detect the presence of a web application firewall and its type and\n"
+"version."
+msgstr ""
+
+msgid ""
+"A script to detect WebDAV installations. Uses the OPTIONS and PROPFIND "
+"methods."
+msgstr ""
+
+msgid ""
+"performs brute force password auditing against Wordpress CMS/blog "
+"installations."
+msgstr ""
+
+msgid ""
+"Enumerates themes and plugins of Wordpress installations. The script can also detect\n"
+"outdated plugins by comparing version numbers with information pulled from api.wordpress.org."
+msgstr ""
+
+msgid ""
+"Enumerates usernames in Wordpress blog/CMS installations by exploiting an\n"
+"information disclosure vulnerability existing in versions 2.6, 3.1, 3.1.1,\n"
+"3.1.3 and 3.2-beta2 and possibly others."
+msgstr ""
+
+msgid "This script searches the xssed.com database and outputs the result."
+msgstr ""
+
+msgid "Check for HTTP services that redirect to the HTTPS on the same port."
+msgstr ""
+
+msgid ""
+"Performs brute force password auditing against the Asterisk IAX2 protocol.\n"
+"Guessing fails when a large number of attempts is made due to the maxcallnumber limit (default 2048).\n"
+"In case your getting \"ERROR: Too many retries, aborted ...\" after a while, this is most likely what's happening.\n"
+"In order to avoid this problem try:\n"
+"- reducing the size of your dictionary\n"
+"- use the brute delay option to introduce a delay between guesses\n"
+"- split the guessing up in chunks and wait for a while between them"
+msgstr ""
+
+msgid "Detects the UDP IAX2 service."
+msgstr ""
+
+msgid ""
+"Tests a list of known ICAP service names and prints information about\n"
+"any it detects. The Internet Content Adaptation Protocol (ICAP) is\n"
+"used to extend transparent proxy servers and is generally used for\n"
+"content filtering and antivirus scanning."
+msgstr ""
+
+msgid "Attempts to identify IEC 60870-5-104 ICS protocol."
+msgstr ""
+
+msgid ""
+"Queries a IEC 61850-8-1 MMS server. Sends Initate-Request, Identify-Request "
+"and Read-Request to LN0 and LPHD."
+msgstr ""
+
+msgid ""
+"Obtains information (such as vendor and device type where available) from an\n"
+"IKE service by sending four packets to the host.  This scripts tests with both\n"
+"Main and Aggressive Mode and sends multiple transforms per request."
+msgstr ""
+
+msgid ""
+"Performs brute force password auditing against IMAP servers using either "
+"LOGIN, PLAIN, CRAM-MD5, DIGEST-MD5 or NTLM authentication."
+msgstr ""
+
+msgid "Retrieves IMAP email server capabilities."
+msgstr ""
+
+msgid ""
+"This script enumerates information from remote IMAP services with NTLM\n"
+"authentication enabled."
+msgstr ""
+
+msgid ""
+"Tests for the presence of the LibreOffice Impress Remote server.\n"
+"Checks if a PIN is valid if provided and will bruteforce the PIN\n"
+"if requested."
+msgstr ""
+
+msgid ""
+"Performs brute force password auditing against IBM Informix Dynamic Server."
+msgstr ""
+
+msgid ""
+"Runs a query against IBM Informix Dynamic Server using the given\n"
+"authentication credentials (see also: informix-brute)."
+msgstr ""
+
+msgid ""
+"Retrieves a list of tables and column definitions for each database on an "
+"Informix server."
+msgstr ""
+
+msgid ""
+"Detects whether the remote device has ip forwarding or \"Internet connection\n"
+"sharing\" enabled, by sending an ICMP echo request to a given target using\n"
+"the scanned host as default gateway."
+msgstr ""
+
+msgid ""
+"Tries to identify the physical location of an IP address using the\n"
+"Geoplugin geolocation web service (http://www.geoplugin.com/). There\n"
+"is no limit on lookups using this service."
+msgstr ""
+
+msgid ""
+"Tries to identify the physical location of an IP address using the\n"
+"IPInfoDB geolocation web service\n"
+"(http://ipinfodb.com/ip_location_api.php)."
+msgstr ""
+
+msgid ""
+"This script queries the Nmap registry for the GPS coordinates of targets stored\n"
+"by previous geolocation scripts and renders a Bing Map of markers representing\n"
+"the targets."
+msgstr ""
+
+msgid ""
+"This script queries the Nmap registry for the GPS coordinates of targets stored\n"
+"by previous geolocation scripts and renders a Google Map of markers representing\n"
+"the targets."
+msgstr ""
+
+msgid ""
+"This script queries the Nmap registry for the GPS coordinates of targets stored\n"
+"by previous geolocation scripts and produces a KML file of points representing\n"
+"the targets."
+msgstr ""
+
+msgid ""
+"Tries to identify the physical location of an IP address using a\n"
+"Geolocation Maxmind database file (available from\n"
+"http://www.maxmind.com/app/ip-location). This script supports queries\n"
+"using all Maxmind databases that are supported by their API including\n"
+"the commercial ones."
+msgstr ""
+
+msgid ""
+"Checks if the IP over HTTPS (IP-HTTPS) Tunneling Protocol [1] is supported."
+msgstr ""
+
+msgid ""
+"Classifies a host's IP ID sequence (test for susceptibility to idle\n"
+"scan)."
+msgstr ""
+
+msgid "Performs brute force password auditing against IPMI RPC server."
+msgstr ""
+
+msgid ""
+"IPMI 2.0 Cipher Zero Authentication Bypass Scanner. This module identifies IPMI 2.0\n"
+"compatible systems that are vulnerable to an authentication bypass vulnerability\n"
+"through the use of cipher zero."
+msgstr ""
+
+msgid "Performs IPMI Information Discovery through Channel Auth probes."
+msgstr ""
+
+msgid ""
+"Uses Multicast Listener Discovery to list the multicast addresses subscribed to\n"
+"by IPv6 multicast listeners on the link-local scope. Addresses in the IANA IPv6\n"
+"Multicast Address Space Registry have their descriptions listed."
+msgstr ""
+
+msgid ""
+"Obtains hostnames, IPv4 and IPv6 addresses through IPv6 Node Information "
+"Queries."
+msgstr ""
+
+msgid ""
+"Generates a flood of Router Advertisements (RA) with random source MAC\n"
+"addresses and IPv6 prefixes. Computers, which have stateless autoconfiguration\n"
+"enabled by default (every major OS), will start to compute IPv6 suffix and\n"
+"update their routing table to reflect the accepted announcement. This will\n"
+"cause 100% CPU usage on Windows and platforms, preventing to process other\n"
+"application requests."
+msgstr ""
+
+msgid ""
+"Checks an IRC server for channels that are commonly used by malicious "
+"botnets."
+msgstr ""
+
+msgid ""
+"Performs brute force password auditing against IRC (Internet Relay Chat) "
+"servers."
+msgstr ""
+
+msgid "Gathers information from an IRC server."
+msgstr ""
+
+msgid ""
+"Performs brute force password auditing against IRC (Internet Relay Chat) "
+"servers supporting SASL authentication."
+msgstr ""
+
+msgid ""
+"Checks if an IRC server is backdoored by running a time-based command (ping)\n"
+"and checking how long it takes to respond."
+msgstr ""
+
+msgid "Performs brute force password auditing against iSCSI targets."
+msgstr ""
+
+msgid "Collects and displays information from remote iSCSI targets."
+msgstr ""
+
+msgid ""
+"Lists portals and iSCSI nodes registered with the Internet Storage Name\n"
+"Service (iSNS)."
+msgstr ""
+
+msgid ""
+"Attempts to exploit java's remote debugging port. When remote debugging\n"
+"port is left open, it is possible to inject java bytecode and achieve\n"
+"remote code execution.  This script abuses this to inject and execute\n"
+"a Java class file that executes the supplied shell command and returns\n"
+"its output."
+msgstr ""
+
+msgid ""
+"Attempts to exploit java's remote debugging port.  When remote\n"
+"debugging port is left open, it is possible to inject java bytecode\n"
+"and achieve remote code execution.  This script injects and execute a\n"
+"Java class file that returns remote system information."
+msgstr ""
+
+msgid ""
+"Attempts to exploit java's remote debugging port.  When remote debugging port\n"
+"is left open, it is possible to inject  java bytecode and achieve remote code\n"
+"execution.  This script allows injection of arbitrary class files."
+msgstr ""
+
+msgid ""
+"Detects the Java Debug Wire Protocol. This protocol is used by Java programs\n"
+"to be debugged via the network. It should not be open to the public Internet,\n"
+"as it does not provide any security against malicious attackers who can inject\n"
+"their own bytecode into the debugged process."
+msgstr ""
+
+msgid ""
+"Discovers KNX gateways by sending a KNX Search Request to the multicast address\n"
+"224.0.23.12 including a UDP payload with destination port 3671. KNX gateways\n"
+"will respond with a KNX Search Response including various information about the\n"
+"gateway, such as KNX address and supported services."
+msgstr ""
+
+msgid ""
+"Identifies a KNX gateway on UDP port 3671 by sending a KNX Description "
+"Request."
+msgstr ""
+
+msgid ""
+"Discovers valid usernames by brute force querying likely usernames against a Kerberos service.\n"
+"When an invalid username is requested the server will respond using the\n"
+"Kerberos error code KRB5KDC_ERR_C_PRINCIPAL_UNKNOWN, allowing us to determine\n"
+"that the user name was invalid. Valid user names will illicit either the\n"
+"TGT in a AS-REP response or the error KRB5KDC_ERR_PREAUTH_REQUIRED, signaling\n"
+"that the user is required to perform pre authentication."
+msgstr ""
+
+msgid ""
+"Attempts to brute-force LDAP authentication. By default\n"
+"it uses the built-in username and password lists. In order to use your\n"
+"own lists use the <code>userdb</code> and <code>passdb</code> script arguments."
+msgstr ""
+
+msgid ""
+"Attempts to retrieve the Novell Universal Password for a user. You\n"
+"must already have (and include in script arguments) the username and password for an eDirectory server\n"
+"administrative account."
+msgstr ""
+
+msgid "Retrieves the LDAP root DSA-specific Entry (DSE)"
+msgstr ""
+
+msgid "Attempts to perform an LDAP search and returns all matches."
+msgstr ""
+
+msgid "Retrieves configuration information from a Lexmark S300-S400 printer."
+msgstr ""
+
+msgid ""
+"Resolves a hostname by using the LLMNR (Link-Local Multicast Name "
+"Resolution) protocol."
+msgstr ""
+
+msgid "Uses the Microsoft LLTD protocol to discover hosts on a local network."
+msgstr ""
+
+msgid "Attempts to enumerate Logical Units (LU) of TN3270E servers."
+msgstr ""
+
+msgid "Retrieves version and database information from a SAP Max DB database."
+msgstr ""
+
+msgid ""
+"Check if ePO agent is running on port 8081 or port identified as ePO Agent "
+"port."
+msgstr ""
+
+msgid ""
+"Performs brute force password auditing against Couchbase Membase servers."
+msgstr ""
+
+msgid ""
+"Retrieves information (hostname, OS, uptime, etc.) from the CouchBase\n"
+"Web Administration port.  The information retrieved by this script\n"
+"does not require any credentials."
+msgstr ""
+
+msgid ""
+"Retrieves information (including system architecture, process ID, and\n"
+"server time) from distributed memory object caching system memcached."
+msgstr ""
+
+msgid ""
+"Gathers info from the Metasploit rpc service.  It requires a valid login pair.\n"
+"After authentication it tries to determine Metasploit version and deduce the OS\n"
+"type.  Then it creates a new console and executes few commands to get\n"
+"additional info."
+msgstr ""
+
+msgid ""
+"Performs brute force username and password auditing against\n"
+"Metasploit msgrpc interface."
+msgstr ""
+
+msgid ""
+"Performs brute force password auditing against a Metasploit RPC server using"
+" the XMLRPC protocol."
+msgstr ""
+
+msgid ""
+"Performs brute force password auditing against Mikrotik RouterOS devices "
+"with the API RouterOS interface enabled."
+msgstr ""
+
+msgid ""
+"Attempts to enumerate valid usernames on MikroTik devices running the Winbox"
+" service on port 8291 in MikroTik-RouterOS."
+msgstr ""
+
+msgid ""
+"Detects MikroTik RouterOS version from devices running the Winbox service on"
+" port 8291."
+msgstr ""
+
+msgid ""
+"Performs brute force password auditing against the RPA Tech Mobile Mouse\n"
+"servers."
+msgstr ""
+
+msgid ""
+"Connects to an RPA Tech Mobile Mouse server, starts an application and\n"
+"sends a sequence of keys to it. Any application that the user has\n"
+"access to can be started and the key sequence is sent to the\n"
+"application after it has been started."
+msgstr ""
+
+msgid ""
+"Enumerates SCADA Modbus slave ids (sids) and collects their device "
+"information."
+msgstr ""
+
+msgid "Performs brute force password auditing against the MongoDB database."
+msgstr ""
+
+msgid "Attempts to get a list of tables from a MongoDB database."
+msgstr ""
+
+msgid "Attempts to get build info and server status from a MongoDB database."
+msgstr ""
+
+msgid "Dumps message traffic from MQTT brokers."
+msgstr ""
+
+msgid "Queries targets for multicast routing information."
+msgstr ""
+
+msgid ""
+"Performs password guessing against Microsoft SQL Server (ms-sql). Works best in\n"
+"conjunction with the <code>broadcast-ms-sql-discover</code> script."
+msgstr ""
+
+msgid ""
+"Queries Microsoft SQL Server (ms-sql) instances for a list of databases, linked servers,\n"
+"and configuration settings."
+msgstr ""
+
+msgid ""
+"Queries the Microsoft SQL Browser service for the DAC (Dedicated Admin\n"
+"Connection) port of a given (or all) SQL Server instance. The DAC port\n"
+"is used to connect to the database instance when normal connection\n"
+"attempts fail, for example, when server is hanging, out of memory or\n"
+"in other bad states. In addition, the DAC port provides an admin with\n"
+"access to system objects otherwise not accessible over normal\n"
+"connections."
+msgstr ""
+
+msgid ""
+"Dumps the password hashes from an MS-SQL server in a format suitable for\n"
+"cracking by tools such as John-the-ripper. In order to do so the user\n"
+"needs to have the appropriate DB privileges."
+msgstr ""
+
+msgid ""
+"Attempts to authenticate to Microsoft SQL Servers using an empty password for\n"
+"the sysadmin (sa) account."
+msgstr ""
+
+msgid ""
+"Queries Microsoft SQL Server (ms-sql) instances for a list of databases a user has\n"
+"access to."
+msgstr ""
+
+msgid ""
+"Attempts to determine configuration and version information for Microsoft SQL\n"
+"Server instances."
+msgstr ""
+
+msgid ""
+"This script enumerates information from remote Microsoft SQL services with NTLM\n"
+"authentication enabled."
+msgstr ""
+
+msgid "Runs a query against Microsoft SQL Server (ms-sql)."
+msgstr ""
+
+msgid ""
+"Queries Microsoft SQL Server (ms-sql) for a list of tables per database."
+msgstr ""
+
+msgid ""
+"Attempts to run a command using the command shell of Microsoft SQL\n"
+"Server (ms-sql)."
+msgstr ""
+
+msgid ""
+"Queries an MSRPC endpoint mapper for a list of mapped\n"
+"services and displays the gathered information."
+msgstr ""
+
+msgid "Queries for the multicast path from a source to a destination host."
+msgstr ""
+
+msgid ""
+"Sends a multicast PROFINET DCP Identify All message and prints the "
+"responses."
+msgstr ""
+
+msgid ""
+"Detects the Murmur service (server for the Mumble voice communication\n"
+"client) versions 1.2.X."
+msgstr ""
+
+msgid ""
+"Audits MySQL database server security configuration against parts of\n"
+"the CIS MySQL v1.0.2 benchmark (the engine can be used for other MySQL\n"
+"audits by creating appropriate audit files)."
+msgstr ""
+
+msgid "Performs password guessing against MySQL."
+msgstr ""
+
+msgid "Attempts to list all databases on a MySQL server."
+msgstr ""
+
+msgid ""
+"Dumps the password hashes from an MySQL server in a format suitable for\n"
+"cracking by tools such as John the Ripper.  Appropriate DB privileges (root) are required."
+msgstr ""
+
+msgid ""
+"Checks for MySQL servers with an empty password for <code>root</code> or\n"
+"<code>anonymous</code>."
+msgstr ""
+
+msgid ""
+"Performs valid-user enumeration against MySQL server using a bug\n"
+"discovered and published by Kingcope\n"
+"(http://seclists.org/fulldisclosure/2012/Dec/9)."
+msgstr ""
+
+msgid ""
+"Connects to a MySQL server and prints information such as the protocol and\n"
+"version numbers, thread ID, status, capabilities, and the password salt."
+msgstr ""
+
+msgid ""
+"Runs a query against a MySQL database and returns the results as a table."
+msgstr ""
+
+msgid "Attempts to list all users on a MySQL server."
+msgstr ""
+
+msgid "Attempts to show all variables on a MySQL server."
+msgstr ""
+
+msgid ""
+"Attempts to bypass authentication in MySQL and MariaDB servers by\n"
+"exploiting CVE2012-2122. If its vulnerable, it will also attempt to\n"
+"dump the MySQL usernames and password hashes."
+msgstr ""
+
+msgid ""
+"Gets the routers WAN IP using the NAT Port Mapping Protocol (NAT-PMP).\n"
+"The NAT-PMP protocol is supported by a broad range of routers including:\n"
+"* Apple AirPort Express\n"
+"* Apple AirPort Extreme\n"
+"* Apple Time Capsule\n"
+"* DD-WRT\n"
+"* OpenWrt v8.09 or higher, with MiniUPnP daemon\n"
+"* pfSense v2.0\n"
+"* Tarifa (firmware) (Linksys WRT54G/GL/GS)\n"
+"* Tomato Firmware v1.24 or higher. (Linksys WRT54G/GL/GS and many more)\n"
+"* Peplink Balance"
+msgstr ""
+
+msgid "Displays protocol and block device information from NBD servers."
+msgstr ""
+
+msgid ""
+"Retrieves IP addresses of the target's network interfaces via NetBIOS NS.\n"
+"Additional network interfaces may reveal more information about the target,\n"
+"including finding paths to hidden non-routed networks via multihomed systems."
+msgstr ""
+
+msgid "Attempts to retrieve the target's NetBIOS names and MAC address."
+msgstr ""
+
+msgid ""
+"Retrieves a list of all eDirectory users from the Novell NetWare Core "
+"Protocol (NCP) service."
+msgstr ""
+
+msgid ""
+"Retrieves eDirectory server information (OS version, server name,\n"
+"mounts, etc.) from the Novell NetWare Core Protocol (NCP) service."
+msgstr ""
+
+msgid ""
+"Lists remote file systems by querying the remote device using the Network\n"
+"Data Management Protocol (ndmp). NDMP is a protocol intended to transport\n"
+"data between a NAS device and the backup device, removing the need for the\n"
+"data to pass through the backup server. The following products are known\n"
+"to support the protocol:\n"
+"* Amanda\n"
+"* Bacula\n"
+"* CA Arcserve\n"
+"* CommVault Simpana\n"
+"* EMC Networker\n"
+"* Hitachi Data Systems\n"
+"* IBM Tivoli\n"
+"* Quest Software Netvault Backup\n"
+"* Symantec Netbackup\n"
+"* Symantec Backup Exec"
+msgstr ""
+
+msgid ""
+"Retrieves version information from the remote Network Data Management Protocol\n"
+"(ndmp) service. NDMP is a protocol intended to transport data between a NAS\n"
+"device and the backup device, removing the need for the data to pass through\n"
+"the backup server. The following products are known to support the protocol:\n"
+"* Amanda\n"
+"* Bacula\n"
+"* CA Arcserve\n"
+"* CommVault Simpana\n"
+"* EMC Networker\n"
+"* Hitachi Data Systems\n"
+"* IBM Tivoli\n"
+"* Quest Software Netvault Backup\n"
+"* Symantec Netbackup\n"
+"* Symantec Backup Exec"
+msgstr ""
+
+msgid ""
+"Performs brute force password auditing against a Nessus vulnerability "
+"scanning daemon using the NTP 1.2 protocol."
+msgstr ""
+
+msgid ""
+"Performs brute force password auditing against a Nessus vulnerability "
+"scanning daemon using the XMLRPC protocol."
+msgstr ""
+
+msgid ""
+"Checks if a NetBus server is vulnerable to an authentication bypass\n"
+"vulnerability which allows full access without knowing the password."
+msgstr ""
+
+msgid ""
+"Performs brute force password auditing against the Netbus backdoor (\"remote"
+" administration\") service."
+msgstr ""
+
+msgid ""
+"Opens a connection to a NetBus server and extracts information about\n"
+"the host and the NetBus service itself."
+msgstr ""
+
+msgid ""
+"Extends version detection to detect NetBuster, a honeypot service\n"
+"that mimes NetBus."
+msgstr ""
+
+msgid ""
+"Performs brute force password auditing against a Nexpose vulnerability scanner\n"
+"using the API 1.1."
+msgstr ""
+
+msgid ""
+"Attempts to get useful information about files from NFS exports.\n"
+"The output is intended to resemble the output of <code>ls</code>."
+msgstr ""
+
+msgid "Shows NFS exports, like the <code>showmount -e</code> command."
+msgstr ""
+
+msgid ""
+"Retrieves disk space statistics and information from a remote NFS share.\n"
+"The output is intended to resemble the output of <code>df</code>."
+msgstr ""
+
+msgid "z/OS JES Network Job Entry (NJE) target node name brute force."
+msgstr ""
+
+msgid "z/OS JES Network Job Entry (NJE) 'I record' password brute forcer."
+msgstr ""
+
+msgid ""
+"This script enumerates information from remote NNTP services with NTLM\n"
+"authentication enabled."
+msgstr ""
+
+msgid "Performs brute force password auditing against an Nping Echo service."
+msgstr ""
+
+msgid ""
+"Queries Nagios Remote Plugin Executor (NRPE) daemons to obtain information such\n"
+"as load averages, process counts, logged in user information, etc."
+msgstr ""
+
+msgid ""
+"Gets the time and configuration variables from an NTP server. We send two\n"
+"requests: a time request and a \"read variables\" (opcode 2) control message.\n"
+"Without verbosity, the script shows the time and the value of the\n"
+"<code>version</code>, <code>processor</code>, <code>system</code>,\n"
+"<code>refid</code>, and <code>stratum</code> variables. With verbosity, all\n"
+"variables are shown."
+msgstr ""
+
+msgid "Obtains and prints an NTP server's monitor data."
+msgstr ""
+
+msgid ""
+"Performs brute force password auditing against the OpenVAS manager using "
+"OMPv2."
+msgstr ""
+
+msgid ""
+"Attempts to retrieve the list of target systems and networks from an OpenVAS"
+" Manager server."
+msgstr ""
+
+msgid ""
+"This NSE script is used to send a FINS packet to a remote device. The script\n"
+"will send a Controller Data Read Command and once a response is received, it\n"
+"validates that it was a proper response to the command that was sent, and then\n"
+"will parse out the data."
+msgstr ""
+
+msgid ""
+"Queries OpenFlow controllers for information. Newer versions of the OpenFlow\n"
+"protocol (1.3 and greater) will return a list of all protocol versions supported\n"
+"by the controller. Versions prior to 1.3 only return their own version number."
+msgstr ""
+
+msgid ""
+"Parses and displays the banner information of an OpenLookup (network key-"
+"value store) server."
+msgstr ""
+
+msgid ""
+"Performs brute force password auditing against a OpenVAS vulnerability "
+"scanner daemon using the OTP 1.0 protocol."
+msgstr ""
+
+msgid ""
+"OpenWebNet is a communications protocol developed by Bticino since 2000.\n"
+"Retrieves device identifying information and number of connected devices."
+msgstr ""
+
+msgid "Performs brute force password auditing against Oracle servers."
+msgstr ""
+
+msgid ""
+"Exploits the CVE-2012-3137 vulnerability, a weakness in Oracle's\n"
+"O5LOGIN authentication scheme.  The vulnerability exists in Oracle 11g\n"
+"R1/R2 and allows linking the session key to a password hash.  When\n"
+"initiating an authentication attempt as a valid user the server will\n"
+"respond with a session key and salt.  Once received the script will\n"
+"disconnect the connection thereby not recording the login attempt.\n"
+"The session key and salt can then be used to brute force the users\n"
+"password."
+msgstr ""
+
+msgid ""
+"Attempts to enumerate valid Oracle user names against unpatched Oracle 11g\n"
+"servers (this bug was fixed in Oracle's October 2009 Critical Patch Update)."
+msgstr ""
+
+msgid "Guesses Oracle instance/SID names against the TNS-listener."
+msgstr ""
+
+msgid "Decodes the VSNNUM version number from an Oracle TNS listener."
+msgstr ""
+
+msgid ""
+"Detects the version of an Oracle Virtual Server Agent by fingerprinting\n"
+"responses to an HTTP GET request and an XML-RPC method call."
+msgstr ""
+
+msgid ""
+"Checks if a host is infected with Conficker.C or higher, based on\n"
+"Conficker's peer to peer communication."
+msgstr ""
+
+msgid "Performs simple Path MTU Discovery to target hosts."
+msgstr ""
+
+msgid ""
+"Performs brute force password auditing against the pcAnywhere remote access "
+"protocol."
+msgstr ""
+
+msgid ""
+"This NSE script will query and parse pcworx protocol to a remote PLC.\n"
+"The script will send a initial request packets and once a response is received,\n"
+"it validates that it was a proper response to the command that was sent, and then\n"
+"will parse out the data. PCWorx is a protocol and Program by Phoenix Contact."
+msgstr ""
+
+msgid "Performs password guessing against PostgreSQL."
+msgstr ""
+
+msgid ""
+"Retrieves or sets the ready message on printers that support the Printer\n"
+"Job Language. This includes most PostScript printers that listen on port\n"
+"9100. Without an argument, displays the current ready message. With the\n"
+"<code>pjl_ready_message</code> script argument, displays the old ready\n"
+"message and changes it to the message given."
+msgstr ""
+
+msgid "Tries to log into a POP3 account by guessing usernames and passwords."
+msgstr ""
+
+msgid "Retrieves POP3 email server capabilities."
+msgstr ""
+
+msgid ""
+"This script enumerates information from remote POP3 services with NTLM\n"
+"authentication enabled."
+msgstr ""
+
+msgid "Prints a list of ports found in each state."
+msgstr ""
+
+msgid ""
+"Attempts to extract system information from the point-to-point tunneling "
+"protocol (PPTP) service."
+msgstr ""
+
+msgid ""
+"Sends a DCERPC EPM Lookup Request to PROFINET devices. the DCE/RPC Endpoint "
+"Mapper (EPM) targeting Profinet Devices."
+msgstr ""
+
+msgid ""
+"Detects if naive signing is enabled on a Puppet server. This enables attackers\n"
+"to create any Certificate Signing Request and have it signed, allowing them\n"
+"to impersonate as a puppet agent. This can leak the configuration of the agents\n"
+"as well as any other sensitive information found in the configuration files."
+msgstr ""
+
+msgid ""
+"Attempts to identify whether a listening QNX QCONN daemon allows\n"
+"unauthenticated users to execute arbitrary operating system commands."
+msgstr ""
+
+msgid ""
+"Repeatedly probe open and/or closed ports on a host to obtain a series\n"
+"of round-trip time values for each port.  These values are used to\n"
+"group collections of ports which are statistically different from other\n"
+"groups.  Ports being in different groups (or \"families\") may be due to\n"
+"network mechanisms such as port forwarding to machines behind a NAT."
+msgstr ""
+
+msgid ""
+"Extracts information from Quake game servers and other game servers\n"
+"which use the same protocol."
+msgstr ""
+
+msgid ""
+"Extracts information from a Quake3 game server and other games which use the"
+" same protocol."
+msgstr ""
+
+msgid ""
+"Queries Quake3-style master servers for game servers (many games other than "
+"Quake 3 use this same protocol)."
+msgstr ""
+
+msgid ""
+"Determines which Security layer and Encryption level is supported by the\n"
+"RDP service. It does so by cycling through all existing protocols and ciphers.\n"
+"When run in debug mode, the script also returns the protocols and ciphers that\n"
+"fail and any errors that were reported."
+msgstr ""
+
+msgid ""
+"This script enumerates information from remote RDP services with CredSSP\n"
+"(NLA) authentication enabled."
+msgstr ""
+
+msgid "Checks if a machine is vulnerable to MS12-020 RDP vulnerability."
+msgstr ""
+
+msgid ""
+"Checks if a VNC server is vulnerable to the RealVNC authentication bypass\n"
+"(CVE-2006-2369)."
+msgstr ""
+
+msgid ""
+"Performs brute force passwords auditing against a Redis key-value store."
+msgstr ""
+
+msgid ""
+"Retrieves information (such as version number and architecture) from a Redis"
+" key-value store."
+msgstr ""
+
+msgid ""
+"Creates a reverse index at the end of scan output showing which hosts run a\n"
+"particular service.  This is in addition to Nmap's normal output listing the\n"
+"services on each host."
+msgstr ""
+
+msgid ""
+"Performs brute force password auditing against the classic UNIX rexec "
+"(remote exec) service."
+msgstr ""
+
+msgid "Retrieves the day and time from the Time service."
+msgstr ""
+
+msgid ""
+"Retrieves information (such as node name and architecture) from a Basho Riak"
+" distributed database using the HTTP protocol."
+msgstr ""
+
+msgid ""
+"Performs brute force password auditing against the classic UNIX rlogin (remote\n"
+"login) service.  This script must be run in privileged mode on UNIX because it\n"
+"must bind to a low source port number."
+msgstr ""
+
+msgid ""
+"Connects to a remote RMI registry and attempts to dump all of its\n"
+"objects."
+msgstr ""
+
+msgid ""
+"Tests whether Java rmiregistry allows class loading.  The default\n"
+"configuration of rmiregistry allows loading classes from remote URLs,\n"
+"which can lead to remote code execution. The vendor (Oracle/Sun)\n"
+"classifies this as a design feature."
+msgstr ""
+
+msgid ""
+"Fingerprints the target RPC port to extract the target service, RPC number "
+"and version."
+msgstr ""
+
+msgid ""
+"Performs brute force password auditing against the WinPcap Remote Capture\n"
+"Daemon (rpcap)."
+msgstr ""
+
+msgid ""
+"Connects to the rpcap service (provides remote sniffing capabilities\n"
+"through WinPcap) and retrieves interface information. The service can either be\n"
+"setup to require authentication or not and also supports IP restrictions."
+msgstr ""
+
+msgid ""
+"Connects to portmapper and fetches a list of all registered programs.  It then\n"
+"prints out a table including (for each program) the RPC program number,\n"
+"supported version numbers, port number and protocol, and program name."
+msgstr ""
+
+msgid ""
+"Detects RSA keys vulnerable to Return Of Coppersmith Attack (ROCA) "
+"factorization."
+msgstr ""
+
+msgid ""
+"Performs brute force password auditing against the rsync remote file syncing"
+" protocol."
+msgstr ""
+
+msgid "Lists modules available for rsync (remote file sync) synchronization."
+msgstr ""
+
+msgid ""
+"Determines which methods are supported by the RTSP (real time streaming "
+"protocol) server."
+msgstr ""
+
+msgid ""
+"Attempts to enumerate RTSP media URLS by testing for common paths on devices"
+" such as surveillance IP cameras."
+msgstr ""
+
+msgid ""
+"Connects to rusersd RPC service and retrieves a list of logged-in users."
+msgstr ""
+
+msgid ""
+"Enumerates Siemens S7 PLC Devices and collects their device information. This\n"
+"script is based off PLCScan that was developed by Positive Research and\n"
+"Scadastrangelove (https://code.google.com/p/plcscan/). This script is meant to\n"
+"provide the same functionality as PLCScan inside of Nmap. Some of the\n"
+"information that is collected by PLCScan was not ported over; this\n"
+"information can be parsed out of the packets that are received."
+msgstr ""
+
+msgid ""
+"Checks if target machines are vulnerable to the Samba heap overflow "
+"vulnerability CVE-2012-1182."
+msgstr ""
+
+msgid ""
+"Attempts to extract system information (OS, hardware, etc.) from the Sun "
+"Service Tags service agent (UDP port 6481)."
+msgstr ""
+
+msgid ""
+"Performs brute force password auditing against Session Initiation Protocol\n"
+"(SIP) accounts. This protocol is most commonly associated with VoIP sessions."
+msgstr ""
+
+msgid ""
+"Spoofs a call to a SIP phone and detects the action taken by the target "
+"(busy, declined, hung up, etc.)"
+msgstr ""
+
+msgid "Enumerates a SIP server's valid extensions (users)."
+msgstr ""
+
+msgid ""
+"Enumerates a SIP Server's allowed methods (INVITE, OPTIONS, SUBSCRIBE, etc.)"
+msgstr ""
+
+msgid "Detects the Skype version 2 service."
+msgstr ""
+
+msgid ""
+"Attempts to guess username/password combinations over SMB, storing discovered combinations\n"
+"for use in other scripts. Every attempt will be made to get a valid list of users and to\n"
+"verify each username before actually using them. When a username is discovered, besides\n"
+"being printed, it is also saved in the Nmap registry so other Nmap scripts can use it. That\n"
+"means that if you're going to run <code>smb-brute.nse</code>, you should run other <code>smb</code> scripts you want.\n"
+"This checks passwords in a case-insensitive way, determining case after a password is found,\n"
+"for Windows versions before Vista."
+msgstr ""
+
+msgid ""
+"Checks if the target machine is running the Double Pulsar SMB backdoor."
+msgstr ""
+
+msgid ""
+"Attempts to enumerate domains on a system, along with their policies. This generally requires\n"
+"credentials, except against Windows 2000. In addition to the actual domain, the \"Builtin\"\n"
+"domain is generally displayed. Windows returns this in the list of domains, but its policies\n"
+"don't appear to be used anywhere."
+msgstr ""
+
+msgid ""
+"Obtains a list of groups from the remote Windows system, as well as a list of the group's users.\n"
+"This works similarly to <code>enum.exe</code> with the <code>/G</code> switch."
+msgstr ""
+
+msgid ""
+"Pulls a list of processes from the remote server over SMB. This will determine\n"
+"all running processes, their process IDs, and their parent processes. It is done\n"
+"by querying the remote registry service, which is disabled by default on Vista;\n"
+"on all other Windows versions, it requires Administrator privileges."
+msgstr ""
+
+msgid ""
+"Retrieves the list of services running on a remote Windows system.\n"
+"Each service attribute contains service name, display name and service status of\n"
+"each service."
+msgstr ""
+
+msgid ""
+"Enumerates the users logged into a system either locally or through an SMB share. The local users\n"
+"can be logged on either physically on the machine, or through a terminal services session.\n"
+"Connections to a SMB share are, for example, people connected to fileshares or making RPC calls.\n"
+"Nmap's connection will also show up, and is generally identified by the one that connected \"0\n"
+"seconds ago\"."
+msgstr ""
+
+msgid ""
+"Attempts to list shares using the <code>srvsvc.NetShareEnumAll</code> MSRPC function and\n"
+"retrieve more information about them using <code>srvsvc.NetShareGetInfo</code>. If access\n"
+"to those functions is denied, a list of common share names are checked."
+msgstr ""
+
+msgid ""
+"Attempts to enumerate the users on a remote Windows system, with as much\n"
+"information as possible, through two different techniques (both over MSRPC,\n"
+"which uses port 445 or 139; see <code>smb.lua</code>). The goal of this script\n"
+"is to discover all user accounts that exist on a remote system. This can be\n"
+"helpful for administration, by seeing who has an account on a server, or for\n"
+"penetration testing or network footprinting, by determining which accounts\n"
+"exist on a system."
+msgstr ""
+
+msgid ""
+"Exhausts a remote SMB server's connection limit by by opening as many\n"
+"connections as we can.  Most implementations of SMB have a hard global\n"
+"limit of 11 connections for user accounts and 10 connections for\n"
+"anonymous. Once that limit is reached, further connections are\n"
+"denied. This script exploits that limit by taking up all the\n"
+"connections and holding them."
+msgstr ""
+
+msgid ""
+"Attempts to retrieve useful information about files shared on SMB volumes.\n"
+"The output is intended to resemble the output of the UNIX <code>ls</code> command."
+msgstr ""
+
+msgid "Queries information managed by the Windows Master Browser."
+msgstr ""
+
+msgid ""
+"Attempts to determine the operating system, computer name, domain, workgroup, and current\n"
+"time over the SMB protocol (ports 445 or 139).\n"
+"This is done by starting a session with the anonymous\n"
+"account (or with a proper user account, if one is given; it likely doesn't make\n"
+"a difference); in response to a session starting, the server will send back all this\n"
+"information."
+msgstr ""
+
+msgid ""
+"Attempts to print text on a shared printer by calling Print Spooler Service "
+"RPC functions."
+msgstr ""
+
+msgid "Attempts to list the supported protocols and dialects of a SMB server."
+msgstr ""
+
+msgid ""
+"Implements remote process execution similar to the Sysinternals' psexec\n"
+"tool, allowing a user to run a series of programs on a remote machine and\n"
+"read the output. This is great for gathering information about servers,\n"
+"running the same tool on a range of system, or even installing a backdoor on\n"
+"a collection of computers."
+msgstr ""
+
+msgid "Returns information about the SMB security level determined by SMB."
+msgstr ""
+
+msgid ""
+"Attempts to grab the server's statistics over SMB and MSRPC, which uses TCP\n"
+"ports 445 or 139."
+msgstr ""
+
+msgid ""
+"Pulls back information about the remote system from the registry. Getting all\n"
+"of the information requires an administrative account, although a user account\n"
+"will still get a lot of it. Guest probably won't get any, nor will anonymous.\n"
+"This goes for all operating systems, including Windows 2000."
+msgstr ""
+
+msgid ""
+"Detects Microsoft Windows systems infected by the Conficker worm. This check is dangerous and\n"
+"it may crash systems."
+msgstr ""
+
+msgid ""
+"Checks if target machines are vulnerable to the arbitrary shared library load\n"
+"vulnerability CVE-2017-7494."
+msgstr ""
+
+msgid ""
+"Detects Microsoft Windows systems vulnerable to denial of service (CVE-2009-3103).\n"
+"This script will crash the service if it is vulnerable."
+msgstr ""
+
+msgid ""
+"Detects Microsoft Windows systems with Ras RPC service vulnerable to "
+"MS06-025."
+msgstr ""
+
+msgid ""
+"Detects Microsoft Windows systems with Dns Server RPC vulnerable to "
+"MS07-029."
+msgstr ""
+
+msgid ""
+"Detects Microsoft Windows systems vulnerable to the remote code execution vulnerability\n"
+"known as MS08-067. This check is dangerous and it may crash systems."
+msgstr ""
+
+msgid ""
+"Tests whether target machines are vulnerable to the ms10-054 SMB remote memory\n"
+"corruption vulnerability."
+msgstr ""
+
+msgid ""
+"Tests whether target machines are vulnerable to ms10-061 Printer Spooler "
+"impersonation vulnerability."
+msgstr ""
+
+msgid ""
+"Attempts to detect if a Microsoft SMBv1 server is vulnerable to a remote code\n"
+"execution vulnerability (ms17-010, a.k.a. EternalBlue).\n"
+"The vulnerability is actively exploited by WannaCry and Petya ransomware and other malware."
+msgstr ""
+
+msgid ""
+"Checks if a Microsoft Windows 2000 system is vulnerable to a crash in regsvc caused by a null pointer\n"
+"dereference. This check will crash the service if it is vulnerable and requires a guest account or\n"
+"higher to work."
+msgstr ""
+
+msgid ""
+"Checks whether the WebExService is installed and allows us to run code."
+msgstr ""
+
+msgid ""
+"Attempts to run a command via WebExService, using the WebExec vulnerability.\n"
+"Given a Windows account (local or domain), this will start an arbitrary\n"
+"executable with SYSTEM privileges over the SMB protocol."
+msgstr ""
+
+msgid ""
+"Attempts to list the supported capabilities in a SMBv2 server for each\n"
+"enabled dialect."
+msgstr ""
+
+msgid ""
+"Determines the message signing configuration in SMBv2 servers\n"
+"for all supported dialects."
+msgstr ""
+
+msgid ""
+"Attempts to obtain the current system date and the start date of a SMB2 "
+"server."
+msgstr ""
+
+msgid ""
+"Attempts to detect missing patches in Windows systems by checking the\n"
+"uptime returned during the SMB2 protocol negotiation."
+msgstr ""
+
+msgid ""
+"Performs brute force password auditing against SMTP servers using either "
+"LOGIN, PLAIN, CRAM-MD5, DIGEST-MD5 or NTLM authentication."
+msgstr ""
+
+msgid ""
+"Attempts to use EHLO and HELP to gather the Extended commands supported by an\n"
+"SMTP server."
+msgstr ""
+
+msgid ""
+"Attempts to enumerate the users on a SMTP server by issuing the VRFY, EXPN or RCPT TO\n"
+"commands. The goal of this script is to discover all the user accounts in the remote\n"
+"system."
+msgstr ""
+
+msgid ""
+"This script enumerates information from remote SMTP services with NTLM\n"
+"authentication enabled."
+msgstr ""
+
+msgid ""
+"Attempts to relay mail by issuing a predefined combination of SMTP commands. The goal\n"
+"of this script is to tell if a SMTP server is vulnerable to mail relaying."
+msgstr ""
+
+msgid "Checks if SMTP is running on a non-standard port."
+msgstr ""
+
+msgid ""
+"Checks for and/or exploits a heap overflow within versions of Exim\n"
+"prior to version 4.69 (CVE-2010-4344) and a privilege escalation\n"
+"vulnerability in Exim 4.72 and prior (CVE-2010-4345)."
+msgstr ""
+
+msgid ""
+"Checks for a memory corruption in the Postfix SMTP server when it uses\n"
+"Cyrus SASL library authentication mechanisms (CVE-2011-1720).  This\n"
+"vulnerability can allow denial of service and possibly remote code\n"
+"execution."
+msgstr ""
+
+msgid ""
+"Checks for a format string vulnerability in the Exim SMTP server\n"
+"(version 4.70 through 4.75) with DomainKeys Identified Mail (DKIM) support\n"
+"(CVE-2011-1764).  The DKIM logging mechanism did not use format string\n"
+"specifiers when logging some parts of the DKIM-Signature header field.\n"
+"A remote attacker who is able to send emails, can exploit this vulnerability\n"
+"and execute arbitrary code with the privileges of the Exim daemon."
+msgstr ""
+
+msgid ""
+"Checks if a target on a local Ethernet has its network card in promiscuous "
+"mode."
+msgstr ""
+
+msgid "Attempts to find an SNMP community string by brute force guessing."
+msgstr ""
+
+msgid ""
+"Attempts to enumerate Huawei / HP/H3C Locally Defined Users through the\n"
+"hh3c-user.mib OID"
+msgstr ""
+
+msgid ""
+"Extracts basic information from an SNMPv3 GET request. The same probe is used\n"
+"here as in the service version detection scan."
+msgstr ""
+
+msgid "Attempts to enumerate network interfaces through SNMP."
+msgstr ""
+
+msgid ""
+"Attempts to downloads Cisco router IOS configuration files using SNMP RW "
+"(v1) and display or save them."
+msgstr ""
+
+msgid ""
+"Attempts to query SNMP for a netstat like output. The script can be used to\n"
+"identify and automatically add new targets to the scan by supplying the\n"
+"newtargets script argument."
+msgstr ""
+
+msgid "Attempts to enumerate running processes through SNMP."
+msgstr ""
+
+msgid "Attempts to extract system information from an SNMP service."
+msgstr ""
+
+msgid "Attempts to enumerate Windows services through SNMP."
+msgstr ""
+
+msgid "Attempts to enumerate Windows Shares through SNMP."
+msgstr ""
+
+msgid "Attempts to enumerate installed software through SNMP."
+msgstr ""
+
+msgid "Attempts to enumerate Windows user accounts through SNMP"
+msgstr ""
+
+msgid ""
+"Determines the supported authentication mechanisms of a remote SOCKS\n"
+"proxy server.  Starting with SOCKS version 5 socks servers may support\n"
+"authentication.  The script checks for the following authentication\n"
+"types:\n"
+"0 - No authentication\n"
+"1 - GSSAPI\n"
+"2 - Username and password"
+msgstr ""
+
+msgid "Performs brute force password auditing against SOCKS 5 proxy servers."
+msgstr ""
+
+msgid "Checks if an open socks proxy is running on the target."
+msgstr ""
+
+msgid "Returns authentication methods that a SSH server supports."
+msgstr ""
+
+msgid "Performs brute-force password guessing against ssh servers."
+msgstr ""
+
+msgid ""
+"This script takes a table of paths to private keys, passphrases, and usernames\n"
+"and checks each pair to see if the target ssh server accepts them for publickey\n"
+"authentication. If no keys are given or the known-bad option is given, the\n"
+"script will check if a list of known static public keys are accepted for\n"
+"authentication."
+msgstr ""
+
+msgid "Runs remote command on ssh server and returns command output."
+msgstr ""
+
+msgid ""
+"Reports the number of algorithms (for encryption, compression, etc.) that\n"
+"the target SSH2 server offers. If verbosity is set, the offered algorithms\n"
+"are each listed by type."
+msgstr ""
+
+msgid ""
+"Checks if an SSH server supports the obsolete and less secure SSH Protocol "
+"Version 1."
+msgstr ""
+
+msgid ""
+"Detects whether a server is vulnerable to the SSL/TLS \"CCS Injection\"\n"
+"vulnerability (CVE-2014-0224), first discovered by Masashi Kikuchi.\n"
+"The script is based on the ccsinjection.c code authored by Ramon de C Valle\n"
+"(https://gist.github.com/rcvalle/71f4b027d61a78c42607)"
+msgstr ""
+
+msgid ""
+"Retrieves a server's SSL certificate. The amount of information printed about\n"
+"the certificate depends on the verbosity level. With no extra verbosity, the\n"
+"script prints the validity period and the commonName, organizationName,\n"
+"stateOrProvinceName, and countryName of the subject. When present, it also\n"
+"outputs all the subject alternative names."
+msgstr ""
+
+msgid ""
+"Reports any private (RFC1918) IPv4 addresses found in the various fields of\n"
+"an SSL service's certificate.  These will only be reported if the target\n"
+"address itself is not private.  Nmap v7.30 or later is required."
+msgstr ""
+
+msgid ""
+"Retrieves a target host's time and date from its TLS ServerHello response."
+msgstr ""
+
+msgid ""
+"Weak ephemeral Diffie-Hellman parameter detection for SSL/TLS services."
+msgstr ""
+
+msgid ""
+"This script repeatedly initiates SSLv3/TLS connections, each time trying a new\n"
+"cipher or compressor while recording whether a host accepts or rejects it. The\n"
+"end result is a list of all the ciphersuites and compressors that a server accepts."
+msgstr ""
+
+msgid ""
+"Detects whether a server is vulnerable to the OpenSSL Heartbleed bug (CVE-2014-0160).\n"
+"The code is based on the Python script ssltest.py authored by Katie Stafford (katie@ktpanda.org)"
+msgstr ""
+
+msgid ""
+"Checks whether the SSL certificate used by a host has a fingerprint\n"
+"that matches an included database of problematic keys."
+msgstr ""
+
+msgid "Checks whether SSLv3 CBC ciphers are allowed (POODLE)"
+msgstr ""
+
+msgid ""
+"Determines whether the server supports obsolete and less secure SSLv2, and discovers which ciphers it\n"
+"supports."
+msgstr ""
+
+msgid ""
+"Determines whether the server supports SSLv2, what ciphers it supports and tests for\n"
+"CVE-2015-3197, CVE-2016-0703 and CVE-2016-0800 (DROWN)"
+msgstr ""
+
+msgid ""
+"Check if the Secure Socket Tunneling Protocol is supported. This is\n"
+"accomplished by trying to establish the HTTPS layer which is used to\n"
+"carry SSTP traffic as described in:\n"
+"- http://msdn.microsoft.com/en-us/library/cc247364.aspx"
+msgstr ""
+
+msgid ""
+"Retrieves the external IP address of a NAT:ed host using the STUN protocol."
+msgstr ""
+
+msgid ""
+"Sends a binding request to the server and attempts to extract version\n"
+"information from the response, if the server attribute is present."
+msgstr ""
+
+msgid ""
+"Detects whether a host is infected with the Stuxnet worm "
+"(http://en.wikipedia.org/wiki/Stuxnet)."
+msgstr ""
+
+msgid ""
+"Attempts to download an unprotected configuration file containing plain-text\n"
+"user credentials in vulnerable Supermicro Onboard IPMI controllers."
+msgstr ""
+
+msgid ""
+"Performs brute force password auditing against Subversion source code "
+"control servers."
+msgstr ""
+
+msgid "Produces a list of IP prefixes for a given routing AS number (ASN)."
+msgstr ""
+
+msgid ""
+"This script runs in the pre-scanning phase to convert 48-bit MAC addresses to\n"
+"EUI-64 IPv6 addresses, which are often used for auto-configuration. Generated\n"
+"addresses may be added to the scan queue."
+msgstr ""
+
+msgid ""
+"This script runs in the pre-scanning phase to map IPv4 addresses onto IPv6\n"
+"networks and add them to the scan queue."
+msgstr ""
+
+msgid ""
+"Sends an ICMPv6 echo request packet to the all-nodes link-local\n"
+"multicast address (<code>ff02::1</code>) to discover responsive hosts\n"
+"on a LAN without needing to individually ping each IPv6 address."
+msgstr ""
+
+msgid ""
+"Sends an ICMPv6 packet with an invalid extension header to the\n"
+"all-nodes link-local multicast address (<code>ff02::1</code>) to\n"
+"discover (some) available hosts on the LAN. This works because some\n"
+"hosts will respond to this probe with an ICMPv6 Parameter Problem\n"
+"packet."
+msgstr ""
+
+msgid ""
+"Attempts to discover available IPv6 hosts on the LAN by sending an MLD\n"
+"(multicast listener discovery) query to the link-local multicast address\n"
+"(ff02::1) and listening for any responses.  The query's maximum response delay\n"
+"set to 1 to provoke hosts to respond immediately rather than waiting for other\n"
+"responses from their multicast group."
+msgstr ""
+
+msgid ""
+"Performs IPv6 host discovery by triggering stateless address auto-configuration\n"
+"(SLAAC)."
+msgstr ""
+
+msgid ""
+"Adds IPv6 addresses to the scan queue using a wordlist of hexadecimal \"words\"\n"
+"that form addresses in a given subnet."
+msgstr ""
+
+msgid ""
+"Sniffs the local network for a configurable amount of time (10 seconds\n"
+"by default) and prints discovered addresses. If the\n"
+"<code>newtargets</code> script argument is set, discovered addresses\n"
+"are added to the scan queue."
+msgstr ""
+
+msgid ""
+"Inserts traceroute hops into the Nmap scanning queue. It only functions if\n"
+"Nmap's <code>--traceroute</code> option is used and the <code>newtargets</code>\n"
+"script argument is given."
+msgstr ""
+
+msgid "Loads addresses from an Nmap XML output file for scanning."
+msgstr ""
+
+msgid ""
+"Detects the TeamSpeak 2 voice communication server and attempts to determine\n"
+"version and configuration information."
+msgstr ""
+
+msgid "Performs brute-force password auditing against telnet servers."
+msgstr ""
+
+msgid ""
+"Determines whether the encryption option is supported on a remote telnet\n"
+"server.  Some systems (including FreeBSD and the krb5 telnetd available in many\n"
+"Linux distributions) implement this option incorrectly, leading to a remote\n"
+"root vulnerability. This script currently only tests whether encryption is\n"
+"supported, not for that particular vulnerability."
+msgstr ""
+
+msgid ""
+"This script enumerates information from remote Microsoft Telnet services with NTLM\n"
+"authentication enabled."
+msgstr ""
+
+msgid ""
+"Enumerates TFTP (trivial file transfer protocol) filenames by testing\n"
+"for a list of common ones."
+msgstr ""
+
+msgid ""
+"Obtains information (such as vendor and device type where available) from a\n"
+"TFTP service by requesting a random filename. Software vendor information is\n"
+"determined by matching the error message against a database of known software."
+msgstr ""
+
+msgid ""
+"Enumerates a TLS server's supported application-layer protocols using the "
+"ALPN protocol."
+msgstr ""
+
+msgid ""
+"Enumerates a TLS server's supported protocols by using the next protocol\n"
+"negotiation extension."
+msgstr ""
+
+msgid ""
+"Detects whether a server is vulnerable to the F5 Ticketbleed bug "
+"(CVE-2016-9244)."
+msgstr ""
+
+msgid "Connects to a tn3270 'server' and returns the screen."
+msgstr ""
+
+msgid "Checks if a target is a known Tor node."
+msgstr ""
+
+msgid ""
+"Lists the geographic locations of each hop in a traceroute and optionally\n"
+"saves the results to a KML file, plottable on Google earth and maps."
+msgstr ""
+
+msgid "TSO account brute forcer."
+msgstr ""
+
+msgid ""
+"TSO User ID enumerator for IBM mainframes (z/OS). The TSO logon panel\n"
+"tells you when a user ID is valid or invalid with the message:\n"
+"<code>IKJ56420I Userid <user ID> not authorized to use TSO</code>."
+msgstr ""
+
+msgid "Extracts information from Ubiquiti networking devices."
+msgstr ""
+
+msgid "Runs unit tests on all NSE libraries."
+msgstr ""
+
+msgid ""
+"Compares the detected service on a port against the expected service for that\n"
+"port number (e.g. ssh on 22, http on 80) and reports deviations. The script\n"
+"requires that a version scan has been run in order to be able to discover what\n"
+"service is actually running on each port."
+msgstr ""
+
+msgid "Attempts to extract system information from the UPnP service."
+msgstr ""
+
+msgid ""
+"Gets system information from an Idera Uptime Infrastructure Monitor agent."
+msgstr ""
+
+msgid ""
+"Sniffs an interface for HTTP traffic and dumps any URLs, and their\n"
+"originating IP address. Script output differs from other script as\n"
+"URLs are written to stdout directly. There is also an option to log\n"
+"the results to file."
+msgstr ""
+
+msgid ""
+"Detects the Ventrilo voice communication server service versions 2.1.2\n"
+"and above and tries to determine version and configuration\n"
+"information. Some of the older versions (pre 3.0.0) may not have the\n"
+"UDP service that this probe relies on enabled by default."
+msgstr ""
+
+msgid ""
+"Extracts information, including file paths, version and database names from\n"
+"a Versant object database."
+msgstr ""
+
+msgid ""
+"Performs brute force password auditing against the VMWare Authentication "
+"Daemon (vmware-authd)."
+msgstr ""
+
+msgid ""
+"Queries VMware server (vCenter, ESX, ESXi) SOAP API to extract the version "
+"information."
+msgstr ""
+
+msgid "Performs brute force password auditing against VNC servers."
+msgstr ""
+
+msgid ""
+"Queries a VNC server for its protocol version and supported security types."
+msgstr ""
+
+msgid ""
+"Tries to log into a VNC server and get its desktop name. Uses credentials\n"
+"discovered by vnc-brute, or None authentication types. If\n"
+"<code>realvnc-auth-bypass</code> was run and returned VULNERABLE, this script\n"
+"will use that vulnerability to bypass authentication."
+msgstr ""
+
+msgid ""
+"Retrieves cluster and store information from the Voldemort distributed key-"
+"value store using the Voldemort Native Protocol."
+msgstr ""
+
+msgid ""
+"Many mainframes use VTAM screens to connect to various applications\n"
+"(CICS, IMS, TSO, and many more)."
+msgstr ""
+
+msgid ""
+"For each available CPE the script prints out known vulns (links to the "
+"correspondent info) and correspondent CVSS scores."
+msgstr ""
+
+msgid ""
+"Retrieves some basic information, including protocol version from a Vuze "
+"filesharing node."
+msgstr ""
+
+msgid ""
+"Detects vulnerabilities and gathers information (such as version\n"
+"numbers and hardware support) from VxWorks Wind DeBug agents."
+msgstr ""
+
+msgid "Detect the T3 RMI protocol and Weblogic version"
+msgstr ""
+
+msgid "Attempts to retrieve information about the domain name of the target"
+msgstr ""
+
+msgid ""
+"Queries the WHOIS services of Regional Internet Registries (RIR) and attempts to retrieve information about the IP Address\n"
+"Assignment which contains the Target IP Address."
+msgstr ""
+
+msgid ""
+"Retrieves and displays information from devices supporting the Web\n"
+"Services Dynamic Discovery (WS-Discovery) protocol. It also attempts\n"
+"to locate any published Windows Communication Framework (WCF) web\n"
+"services (.NET 4.0 or later)."
+msgstr ""
+
+msgid "Checks if you're allowed to connect to the X server."
+msgstr ""
+
+msgid ""
+"Requests an XDMCP (X display manager control protocol) session and lists "
+"supported authentication and authorization mechanisms."
+msgstr ""
+
+msgid "Performs XMLRPC Introspection via the system.listMethods method."
+msgstr ""
+
+msgid ""
+"Performs brute force password auditing against XMPP (Jabber) instant "
+"messaging servers."
+msgstr ""
+
+msgid ""
+"Connects to XMPP server (port 5222) and collects server information such as:\n"
+"supported auth mechanisms, compression methods, whether TLS is supported\n"
+"and mandatory, stream management, language, support of In-Band registration,\n"
+"server capabilities.  If possible, studies server vendor."
+msgstr ""
+
+msgid ""
+"Maps a WAN port on the router to a local port on the client using the NAT Port Mapping Protocol (NAT-PMP).  It supports the following operations:\n"
+"* map - maps a new external port on the router to an internal port of the requesting IP\n"
+"* unmap - unmaps a previously mapped port for the requesting IP\n"
+"* unmapall - unmaps all previously mapped ports for the requesting IP"
+msgstr ""
+
+msgid ""
+"NOTE: This script has been replaced by the <code>--resolve-all</code>\n"
+"command-line option in Nmap 7.70"
+msgstr ""
+
+msgid ""
+"Queries Shodan API for given targets and produces similar output to\n"
+"a -sV nmap scan. The ShodanAPI key can be set with the 'apikey' script\n"
+"argument, or hardcoded in the .nse file itself. You can get a free key from"
+msgstr ""
+
+msgid "Add"
+msgstr "添加"
+
+msgid "Remove"
+msgstr "移除"
+
+msgid "Root Privileges Required"
+msgstr "需要Root权限"
+
+msgid "Privilege Escalation"
+msgstr "权限提升"
+
+msgid "Continue without root"
+msgstr "继续执行（无root权限）"
+
+msgid ""
+"The '%(profile)s' profile uses options that require root privileges (e.g., "
+"SYN scan, OS detection). Choose how to proceed:"
+msgstr "「%(profile)s」配置使用了需要root权限的选项（如SYN扫描、操作系统检测）。请选择如何处理："
+
+msgid "TTL"
+msgstr "TTL"
+
+msgid "RTT"
+msgstr "RTT"
+
+msgid "IP"
+msgstr "IP"
+
+msgid "%"
+msgstr "%"
+
+msgid "TCP sequence"
+msgstr "TCP序列"
+
+msgid "IP ID sequence"
+msgstr "IP ID序列"
+
+msgid "Change focus"
+msgstr "切换焦点"
+
+msgid "Show information"
+msgstr "显示信息"
+
+msgid "Group children"
+msgstr "分组子节点"
+
+msgid "Fill region"
+msgstr "填充区域"
+
+msgid "ID"
+msgstr "编号"
+
+msgid "#"
+msgstr "#"
+
+msgid "  is  "
+msgstr "  是  "
+
+msgid "SoC 2007"
+msgstr "SoC 2007"
+
+msgid "Maemo"
+msgstr "Maemo"
+
+msgid "Run with sudo (SUDO_ASKPASS)"
+msgstr "使用 sudo 运行（SUDO_ASKPASS）"
+
+msgid ""
+"Uses sudo -A to run nmap as root. SUDO_ASKPASS must be set to an askpass "
+"program (e.g., ssh-askpass, kdialog, or zenity)."
+msgstr ""
+"使用 sudo -A 以 root 身份运行 nmap。必须设置 SUDO_ASKPASS 环境变量指向一个 askpass 程序（如 ssh-"
+"askpass、kdialog 或 zenity）。"

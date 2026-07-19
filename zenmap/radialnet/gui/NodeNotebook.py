@@ -80,7 +80,7 @@ SERVICE_COLORS = {'open':            '#ffd5d5',  # noqa
                   'closed|filtered': '#d5ffd5'}  # noqa
 UNKNOWN_SERVICE_COLOR = '#d5d5d5'
 
-TRACE_HEADER = ['TTL', 'RTT', 'IP', _('Hostname')]
+TRACE_HEADER = [_('TTL'), _('RTT'), _('IP'), _('Hostname')]
 
 TRACE_TEXT = _(
     "Traceroute on port <b>%(port)s/%(proto)s</b> took <b>%(hops)d</b> known hops.")
@@ -92,8 +92,8 @@ HOP_COLOR = {'known':   '#ffffff',  # noqa
 
 SYSTEM_ADDRESS_TEXT = "[%s] %s"
 
-OSMATCH_HEADER = ['%', _('Name'), _('DB Line')]
-OSCLASS_HEADER = ['%', _('Vendor'), _('Type'), _('Family'), _('Version')]
+OSMATCH_HEADER = [_('%'), _('Name'), _('DB Line')]
+OSCLASS_HEADER = [_('%'), _('Vendor'), _('Type'), _('Family'), _('Version')]
 
 USED_PORTS_TEXT = "%d/%s %s"
 
@@ -574,19 +574,19 @@ class SystemPage(BWScrolledWindow):
         # sequences information widgets
         table = BWTable(5, 3)
 
-        table.attach(BWSectionLabel(_('Class')), 1, 2, 0, 1)
-        table.attach(BWSectionLabel(_('Values')), 2, 3, 0, 1)
+        table.attach(BWSectionLabel(_('Class')), 1, 0, 1, 1)
+        table.attach(BWSectionLabel(_('Values')), 2, 0, 1, 1)
 
-        table.attach(BWSectionLabel('TCP *'), 0, 1, 1, 2)
-        table.attach(BWSectionLabel('IP ID'), 0, 1, 2, 3)
-        table.attach(BWSectionLabel(_('TCP Timestamp')), 0, 1, 3, 4)
+        table.attach(BWSectionLabel(_('TCP sequence')), 0, 1, 1, 1)
+        table.attach(BWSectionLabel(_('IP ID sequence')), 0, 2, 1, 1)
+        table.attach(BWSectionLabel(_('TCP Timestamp')), 0, 3, 1, 1)
 
         tcp = sequences.get('tcp')
         if tcp is not None:
             tcp_class = BWLabel(tcp['class'])
             tcp_class.set_selectable(True)
 
-            table.attach(tcp_class, 1, 2, 1, 2)
+            table.attach(tcp_class, 1, 1, 1, 1)
 
             tcp_values = Gtk.ComboBoxText.new_with_entry()
 
@@ -595,7 +595,7 @@ class SystemPage(BWScrolledWindow):
 
             tcp_values.set_active(0)
 
-            table.attach(tcp_values, 2, 3, 1, 2)
+            table.attach(tcp_values, 2, 1, 1, 1)
 
             tcp_note = BWLabel()
             tcp_note.set_selectable(True)
@@ -605,14 +605,14 @@ class SystemPage(BWScrolledWindow):
             tcp_note.set_markup(
                     TCP_SEQ_NOTE % tcp)
 
-            table.attach(tcp_note, 0, 3, 4, 5)
+            table.attach(tcp_note, 0, 4, 3, 1)
 
         ip_id = sequences.get('ip_id')
         if ip_id is not None:
             ip_id_class = BWLabel(ip_id['class'])
             ip_id_class.set_selectable(True)
 
-            table.attach(ip_id_class, 1, 2, 2, 3)
+            table.attach(ip_id_class, 1, 2, 1, 1)
 
             ip_id_values = Gtk.ComboBoxText.new_with_entry()
 
@@ -621,14 +621,14 @@ class SystemPage(BWScrolledWindow):
 
             ip_id_values.set_active(0)
 
-            table.attach(ip_id_values, 2, 3, 2, 3)
+            table.attach(ip_id_values, 2, 2, 1, 1)
 
         tcp_ts = sequences.get('tcp_ts')
         if tcp_ts is not None:
             tcp_ts_class = BWLabel(tcp_ts['class'])
             tcp_ts_class.set_selectable(True)
 
-            table.attach(tcp_ts_class, 1, 2, 3, 4)
+            table.attach(tcp_ts_class, 1, 3, 1, 1)
 
             if tcp_ts['values'] is not None:
 
@@ -639,7 +639,7 @@ class SystemPage(BWScrolledWindow):
 
                 tcp_ts_values.set_active(0)
 
-                table.attach(tcp_ts_values, 2, 3, 3, 4)
+                table.attach(tcp_ts_values, 2, 3, 1, 1)
 
         return table
 
