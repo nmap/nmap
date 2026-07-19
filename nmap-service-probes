@@ -14779,6 +14779,54 @@ match modbus m|^0\x84\0\0\0\x03\x02\x81[\x0a\x0b]| p/Modbus TCP/ i/gateway/
 
 softmatch ldap m|^0..?\x02\x01\x07e..?\n\x01.\x04\0\x04|s
 
+##############################NEXT PROBE##############################
+# Model Context Protocol (MCP) servers, Streamable HTTP transport: a JSON-RPC initialize
+# handshake (POST /mcp). The Content-Length (149) matches the JSON body byte-for-byte. For
+# capability/tool enumeration and risk flagging, use the mcp-info and mcp-enum NSE scripts.
+Probe TCP MCPInitialize q|POST /mcp HTTP/1.1\r\nHost: nmap\r\nUser-Agent: nmap-mcp\r\nContent-Type: application/json\r\nAccept: application/json, text/event-stream\r\nContent-Length: 149\r\nConnection: close\r\n\r\n{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-06-18","capabilities":{},"clientInfo":{"name":"nmap","version":"1"}}}|
+rarity 7
+ports 3000,3001,5000,6274,8000,8080,8081,8888,9000
+
+# Full match: capture serverInfo name + version (order-tolerant within the object).
+match mcp m|"serverInfo"\s*:\s*\{[^}]*"name"\s*:\s*"([^"]+)"[^}]*"version"\s*:\s*"([^"]+)"|s p/$1/ v/$2/ i/Model Context Protocol server/ cpe:/a:modelcontextprotocol:mcp/
+# serverInfo in the other field order.
+match mcp m|"serverInfo"\s*:\s*\{[^}]*"version"\s*:\s*"([^"]+)"[^}]*"name"\s*:\s*"([^"]+)"|s p/$2/ v/$1/ i/Model Context Protocol server/ cpe:/a:modelcontextprotocol:mcp/
+# Softmatch: JSON-RPC initialize result without parseable serverInfo.
+softmatch mcp m|"jsonrpc"\s*:\s*"2\.0".*"protocolVersion"\s*:\s*"([0-9-]+)"|s i/MCP protocol $1/
+# Auth-gated MCP server advertising OAuth protected-resource metadata.
+match mcp m|WWW-Authenticate:\s*Bearer[^\r\n]*resource_metadata|s i/MCP server, OAuth-protected/ cpe:/a:modelcontextprotocol:mcp/
+
+##############################NEXT PROBE##############################
+# MCP legacy HTTP+SSE transport: GET /sse returns an `endpoint` event.
+Probe TCP MCPLegacySSE q|GET /sse HTTP/1.1\r\nHost: nmap\r\nUser-Agent: nmap-mcp\r\nAccept: text/event-stream\r\nConnection: close\r\n\r\n|
+rarity 7
+ports 3000,3001,5000,6274,8000,8080,8081,8888,9000
+
+match mcp m|event:\s*endpoint\s+data:\s*(\S+)|s i/MCP legacy HTTP+SSE, endpoint $1/ cpe:/a:modelcontextprotocol:mcp/
+softmatch mcp m|Content-Type:\s*text/event-stream|s i/MCP legacy HTTP+SSE (probable)/
+
+##############################NEXT PROBE##############################
+# LLM inference APIs. Read-only metadata requests; no inference is run. For active
+# confirmation, Anthropic detection, model enumeration, and risk flagging, use the llm-info
+# NSE script. Ollama: GET /api/tags lists installed models (name + digest + details).
+Probe TCP OllamaTags q|GET /api/tags HTTP/1.1\r\nHost: nmap\r\nUser-Agent: nmap-llm\r\nAccept: application/json\r\nConnection: close\r\n\r\n|
+rarity 7
+ports 11434
+
+match ollama m|"models"\s*:\s*\[.*"digest"\s*:\s*"[^"]+".*"parameter_size"|s p/Ollama/ i/LLM inference API/ cpe:/a:ollama:ollama/
+softmatch ollama m|"models"\s*:\s*\[.*"modified_at"|s p/Ollama/ i/LLM inference API/
+
+##############################NEXT PROBE##############################
+# OpenAI-compatible inference API (vLLM, LiteLLM, LocalAI, LM Studio, and similar):
+# GET /v1/models returns an object:list of object:model.
+Probe TCP OpenAIModels q|GET /v1/models HTTP/1.1\r\nHost: nmap\r\nUser-Agent: nmap-llm\r\nAccept: application/json\r\nConnection: close\r\n\r\n|
+rarity 7
+ports 1234,4000,5000,8000,8001,8080,8888,9000,30000
+
+match llm m|"object"\s*:\s*"list".*"object"\s*:\s*"model"|s p/OpenAI-compatible LLM API/ i/inference API/
+softmatch llm m|"object"\s*:\s*"list".*"data"\s*:\s*\[|s p/OpenAI-compatible LLM API/ i/inference API (probable)/
+
+
 # Ldap searchRequest for objectClass = * over TCP - Active Directory specific
 ##############################NEXT PROBE##############################
 Probe UDP LDAPSearchReqUDP q|\x30\x84\x00\x00\x00\x2d\x02\x01\x07\x63\x84\x00\x00\x00\x24\x04\x00\x0a\x01\x00\x0a\x01\x00\x02\x01\x00\x02\x01\x64\x01\x01\x00\x87\x0b\x6f\x62\x6a\x65\x63\x74\x43\x6c\x61\x73\x73\x30\x84\x00\x00\x00\x00|
