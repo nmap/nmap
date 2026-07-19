@@ -173,7 +173,9 @@ nsock_pool nsock_pool_new(void *userdata) {
 
 #if HAVE_OPENSSL
   nsp->sslctx = NULL;
+#ifndef OPENSSL_NO_DTLS
   nsp->dtlsctx = NULL;
+#endif
 #endif
 
   nsp->px_chain = NULL;
