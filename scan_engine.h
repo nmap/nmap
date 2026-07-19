@@ -109,6 +109,15 @@ public:
   ConnectProbe();
   ~ConnectProbe();
   int sd; /* Socket descriptor used for connection.  -1 if not valid. */
+
+  /* SOCKS4 proxy state for connect scans using --proxy. */
+  enum ProxyState { PROXY_NONE = 0, PROXY_CONNECTING, PROXY_READING };
+  ProxyState proxy_state;
+  struct sockaddr_storage proxy_target_ss; /* original target address */
+  size_t proxy_target_sslen;
+  uint16_t proxy_target_port;
+  uint8_t proxy_resp_buf[8];  /* buffer for 8-byte SOCKS4 response */
+  int proxy_resp_len;         /* bytes received so far */
 };
 
 struct IPExtraProbeData_icmp {
