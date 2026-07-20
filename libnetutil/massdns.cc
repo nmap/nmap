@@ -1713,8 +1713,11 @@ bool DNS::Factory::ptrToIp(const std::string &ptr, sockaddr_storage &ip)
 
   memset(&ip, 0, sizeof(sockaddr_storage));
 
-  // Check whether the name ends with the IPv4 PTR domain
-  if (NULL != (p = strcasestr(cptr + ptr.length() + 1 - sizeof(C_IPV4_PTR_DOMAIN), C_IPV4_PTR_DOMAIN)))
+  // Check whether the name ends with the IPv4 PTR domain. The length check
+  // keeps the search from starting before the beginning of the name: a name
+  // shorter than the suffix cannot end with it.
+  if (ptr.length() >= sizeof(C_IPV4_PTR_DOMAIN) - 1
+      && NULL != (p = strcasestr(cptr + ptr.length() + 1 - sizeof(C_IPV4_PTR_DOMAIN), C_IPV4_PTR_DOMAIN)))
   {
     struct sockaddr_in *ip4 = (struct sockaddr_in *)&ip;
     static const u8 place_value[] = {1, 10, 100};
@@ -1749,7 +1752,8 @@ bool DNS::Factory::ptrToIp(const std::string &ptr, sockaddr_storage &ip)
     ip.ss_family = AF_INET;
   }
   // If not, check IPv6
-  else if (NULL != (p = strcasestr(cptr + ptr.length() + 1 - sizeof(C_IPV6_PTR_DOMAIN), C_IPV6_PTR_DOMAIN)))
+  else if (ptr.length() >= sizeof(C_IPV6_PTR_DOMAIN) - 1
+      && NULL != (p = strcasestr(cptr + ptr.length() + 1 - sizeof(C_IPV6_PTR_DOMAIN), C_IPV6_PTR_DOMAIN)))
   {
     struct sockaddr_in6 *ip6 = (struct sockaddr_in6 *)&ip;
     u8 alt = 0;
