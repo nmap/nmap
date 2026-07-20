@@ -194,11 +194,12 @@ static void init_npcap_dll_path()
 		pfatal("Error in GetProcAddress");
 	}
 	else {
+#define NPCAP_SUBDIR "\\Npcap"
 		UINT remaining = sizeof(sysdir_name) - sizeof(NPCAP_SUBDIR);
 		UINT len = GetSystemDirectory(sysdir_name, remaining);
 		if (!len || len > remaining)
 			pfatal("Error in GetSystemDirectory (%d)", GetLastError());
-		Strncpy(sysdir_name + len, "\\Npcap", sizeof(sysdir_name) - len);
+		Strncpy(sysdir_name + len, NPCAP_SUBDIR, sizeof(sysdir_name) - len);
 		if (SetDllDirectory(sysdir_name) == 0)
 			pfatal("Error in SetDllDirectory(\"%s\")", sysdir_name);
 	}

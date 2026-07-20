@@ -197,7 +197,7 @@ static void init_npcap_dll_path()
 		UINT len = GetSystemDirectory(sysdir_name, remaining);
 		if (!len || len > remaining)
 			pfatal("Error in GetSystemDirectory");
-		Strncpy(sysdir_name + len, "\\Npcap", sizeof(sysdir_name) - len);
+		Strncpy(sysdir_name + len, NPCAP_SUBDIR, sizeof(sysdir_name) - len);
 		if (SetDllDirectory(sysdir_name) == 0)
 			pfatal("Error in SetDllDirectory(\"%s\")", sysdir_name);
 	}
