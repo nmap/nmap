@@ -81,7 +81,10 @@ void set_portinfo (lua_State *L, const Target *target, const Port *port)
    an unknown address family, push nil. */
 static void push_bin_ip(lua_State *L, const struct sockaddr_storage *ss)
 {
-  if (ss->ss_family == AF_INET) {
+  if (!ss) {
+    lua_pushnil(L);
+  }
+  else if (ss->ss_family == AF_INET) {
     const struct sockaddr_in *sin;
 
     sin = (struct sockaddr_in *) ss;
