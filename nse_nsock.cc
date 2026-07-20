@@ -417,15 +417,14 @@ static nse_nsock_udata *check_nsock_udata (lua_State *L, int idx, bool open)
        throw an error if that's not possible. */
     if (nu->proto == IPPROTO_UDP) {
       nsock_pool nsp;
+      struct sockaddr_storage ss;
+      size_t sslen;
 
       nsp = get_pool(L);
       nu->nsiod = nsock_iod_new(nsp, NULL);
       if (nu->source_addr.ss_family != AF_UNSPEC) {
         nsock_iod_set_localaddr(nu->nsiod, &nu->source_addr, nu->source_addrlen);
-      } else if (o.spoofsource) {
-        struct sockaddr_storage ss;
-        size_t sslen;
-        o.SourceSockAddr(&ss, &sslen);
+      } else if (0 == o.SourceSockAddr(&ss, &sslen)) {
         nsock_iod_set_localaddr(nu->nsiod, &ss, sslen);
       }
       if (o.ipoptionslen)
@@ -544,13 +543,11 @@ static int connect (lua_State *L, int status, lua_KContext ctx)
   if (nu->nsiod != NULL)
     close_internal(L, nu);
   nu->nsiod = nsock_iod_new(nsp, NULL);
+  struct sockaddr_storage ss;
+  size_t sslen;
   if (nu->source_addr.ss_family != AF_UNSPEC) {
     nsock_iod_set_localaddr(nu->nsiod, &nu->source_addr, nu->source_addrlen);
-  } else if (o.spoofsource) {
-    struct sockaddr_storage ss;
-    size_t sslen;
-
-    o.SourceSockAddr(&ss, &sslen);
+  } else if (0 == o.SourceSockAddr(&ss, &sslen)) {
     nsock_iod_set_localaddr(nu->nsiod, &ss, sslen);
   }
   if (o.ipoptionslen)

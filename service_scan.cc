@@ -2139,8 +2139,7 @@ static void startNextProbe(nsock_pool nsp, nsock_iod nsi, ServiceGroup *SG,
       if ((svc->niod = nsock_iod_new(nsp, svc)) == NULL) {
         fatal("Failed to allocate Nsock I/O descriptor in %s()", __func__);
       }
-      if (o.spoofsource) {
-        o.SourceSockAddr(&ss, &ss_len);
+      if (0 == svc->target->SourceSockAddr(&ss, &ss_len)) {
         nsock_iod_set_localaddr(svc->niod, &ss, ss_len);
       }
       if (o.ipoptionslen)
