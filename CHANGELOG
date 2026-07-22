@@ -1,5 +1,7 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [GH#3414] Avoid out-of-bounds read when parsing PTR domain names. [@toor11 (Juri)]
+
 o Fixed an issue with parsing nmap-service-probes that could cause a corrupted
   file to crash Nmap. Reported by Muhammed Hussein.
 
