@@ -1,5 +1,8 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [GH#2732] Fix a potential crash on 32-bit platforms in debug mode due to
+  incorrect format specifier for 64-bit integer type. [Christopher Chavez]
+
 o [GH#3201][GH#3367] Increase line length limit for nmap-service-probes and
   correctly handle lines that are too long. [@liquidpele, Ashutosh Kumar Singh]
 
