@@ -71,6 +71,7 @@
 #include "NmapOps.h"
 #include "nmap_error.h"
 #include "string_pool.h"
+#include "inttypes.h"
 
 extern NmapOps o;
 
