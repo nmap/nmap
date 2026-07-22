@@ -1,5 +1,8 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [GH#3201][GH#3367] Increase line length limit for nmap-service-probes and
+  correctly handle lines that are too long. [@liquidpele, Ashutosh Kumar Singh]
+
 o [GH#3414] Avoid out-of-bounds read when parsing PTR domain names. [@toor11 (Juri)]
 
 o Fixed an issue with parsing nmap-service-probes that could cause a corrupted
