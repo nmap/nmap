@@ -70,6 +70,14 @@ o [Nping] Fix a out-of-bounds access in Nping Echo client allowing a malicious N
 o Fix a 1-byte overrun (read) while reading certain crafted DNS labels,
   reported by Peter Parker. [Daniel Miller]
 
+o [NSE] Added http-vuln-cve2026-48908.nse for CVE-2026-48908, an
+  unauthenticated remote code execution in SP Page Builder for Joomla.
+  [Aditya Agrawal]
+
+o [NSE] Added http-vuln-cve2026-14345.nse for CVE-2026-14345, an
+  unauthenticated remote code execution in WPFunnels for WordPress.
+  [Aditya Agrawal]
+
 o [NSE][GH#3317] Function url.build_path was mangling special characters in URL
   path segments. [nnposter]
 
