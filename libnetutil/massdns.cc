@@ -1801,6 +1801,9 @@ bool DNS::Factory::ptrToIp(const std::string &ptr, sockaddr_storage &ip)
     }
     ip.ss_family = AF_INET6;
   }
+  else {
+    return false;
+  }
   return true;
 }
 
