@@ -1157,6 +1157,11 @@ void DNS::ResolverImpl::process_request(int action, info &reqinfo) {
   }
 }
 
+bool iequals(const std::string &a, const std::string &b)
+{
+  return a.size() == b.size() && (0 == strcasecmp(a.c_str(), b.c_str()));
+}
+
 // After processing a DNS response, we search through the IPs we're
 // looking for and update their results as necessary.
 bool DNS::ResolverImpl::process_result(const std::string &name, const DNS::Record *rr,
@@ -1179,7 +1184,7 @@ bool DNS::ResolverImpl::process_result(const std::string &name, const DNS::Recor
     case DNS::A:
     case DNS::AAAA:
     case DNS::ANY:
-      if (!already_matched && name != reqt->name) {
+      if (!already_matched && !iequals(name, reqt->name)) {
         return false;
       }
       a_rec = static_cast<const DNS::A_Record *>(rr);
@@ -1311,7 +1316,7 @@ void DNS::ResolverImpl::handle_read(nsock_pool nsp, nsock_event evt, dns_server 
     if(a.record_class == DNS::CLASS_IN)
     {
       if (wire_type(reqt->type) == a.record_type) {
-        processing_successful = process_result(a.name, a.record, reqinfo, a.name == alias);
+        processing_successful = process_result(a.name, a.record, reqinfo, iequals(a.name,alias));
         if (!processing_successful) {
           log_func(1, "mass_dns: Mismatched record for request %s\n", reqt->repr());
         }
@@ -1319,7 +1324,7 @@ void DNS::ResolverImpl::handle_read(nsock_pool nsp, nsock_event evt, dns_server 
       else if (a.record_type == DNS::CNAME) {
         const DNS::CNAME_Record *cname = static_cast<const DNS::CNAME_Record *>(a.record);
         if((reqt->type == DNS::PTR && DNS::Factory::ptrToIp(a.name, ip))
-          || a.name == reqt->name || (!alias.empty() && a.name == alias))
+          || iequals(a.name, reqt->name) || (!alias.empty() && iequals(a.name, alias)))
         {
           alias = cname->value;
           log_func(TRACE_DEBUG_LEVEL, "mass_dns: CNAME found for <%s> to <%s>\n", a.name.c_str(), alias.c_str());
