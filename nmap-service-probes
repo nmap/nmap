@@ -2103,6 +2103,9 @@ match mwti-rpc m=^Welcome MWTI RPC Communication Server Version ([\w._-]+) \[(?:
 
 softmatch napster m|^1$|
 
+# NATS messaging system; the server sends an INFO {...} JSON banner including its version on connect (default port 4222)
+match nats m|^INFO \{"server_id":"\w+".*?"version":"([\d][\w.+-]*)"|s p/NATS server/ v/$1/ cpe:/a:linuxfoundation:nats-server:$1/
+
 # Ncat --chat mode, since 4.85BETA4
 match ncat-chat m|^<announce> [\d.:a-f]+ is connected as <\w+>\.\n<announce> already connected: (.*?)\.\n| p/Ncat chat/ i/users: $1/
 
