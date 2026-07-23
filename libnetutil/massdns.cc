@@ -1502,7 +1502,9 @@ void DNS::ResolverImpl::platform_get_servers() {
 // add_dns_server() function.
   FILE *fp;
   char buf[2048], *tp;
-  char fmt[32];
+#define _STR(X) #X
+#define FMT_STR_LEN(X) "%" _STR(X) "s"
+  static const char fmt[] = "nameserver " FMT_STR_LEN(INET6_ADDRSTRLEN);
   char ipaddr[INET6_ADDRSTRLEN+1];
   static bool firstrun = true;
 
@@ -1512,8 +1514,6 @@ void DNS::ResolverImpl::platform_get_servers() {
     firstrun = false;
     return;
   }
-
-  Snprintf(fmt, sizeof(fmt), "nameserver %%%us", INET6_ADDRSTRLEN);
 
   while (fgets(buf, sizeof(buf), fp)) {
     tp = buf;
