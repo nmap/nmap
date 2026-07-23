@@ -1,5 +1,9 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE][GH#1066] Added service names for SSL-protected services like
+  amt-soap-https to portrules for several scripts, ensuring they run on these
+  as well as the standard unencrypted services.
+
 o Audited and converted most instances of strcat, strcpy, and sprintf to use
   bounded functions instead.
 

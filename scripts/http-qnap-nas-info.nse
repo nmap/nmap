@@ -47,7 +47,7 @@ license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"safe","discovery"}
 
 
-portrule = shortport.port_or_service ({443,8080}, "https", "tcp")
+portrule = shortport.http
 
 action = function(host, port)
 

@@ -33,7 +33,7 @@ local table = require "table"
 local string = require "string"
 local httpspider = require "httpspider"
 
-portrule = shortport.port_or_service( {80, 443}, {"http", "https"}, "tcp", "open")
+portrule = shortport.http
 
 FEEDS = { RSS = { search = { '<rss(.*)>' }, version = 'version=["\'](.-)["\']' },
           Atom = { search = { '<feed(.*)>' }, version = 'version=["\'](.-)["\']' },

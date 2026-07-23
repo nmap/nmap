@@ -90,7 +90,7 @@ categories = {"intrusive", "auth"}
 dependencies = {"http-brute", "http-form-brute"}
 
 
-portrule = shortport.port_or_service({80, 443}, {"http","https"}, "tcp", "open")
+portrule = shortport.http
 
 --- Checks if the <code>path</code> require authentication
 --

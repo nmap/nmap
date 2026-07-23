@@ -75,13 +75,13 @@ local tnap_login_packet = string.pack("<BBBBBBB I4I4",
   .. ntlm_auth_blob .. string.pack("<BB",
   0xff, 0xf0) -- Sub-option End
 
-portrule = shortport.port_or_service(23, "telnet")
+portrule = shortport.port_or_service({23, 992}, {'telnet', 'telnets'})
 
 action = function(host, port)
 
   local output = stdnse.output_table()
 
-  local socket, response, early_resp = comm.opencon(host, port, tnap_login_packet, {recv_before=true})
+  local socket, response, _, early_resp = comm.tryssl(host, port, tnap_login_packet, {recv_before=true})
 
   if not socket then
     return nil

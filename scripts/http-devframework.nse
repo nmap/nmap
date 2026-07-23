@@ -48,7 +48,7 @@ local stdnse = require "stdnse"
 local httpspider = require "httpspider"
 local _G = require "_G"
 
-portrule = shortport.port_or_service( {80, 443}, {"http", "https"}, "tcp", "open")
+portrule = shortport.http
 
 local function loadFingerprints(filename)
 

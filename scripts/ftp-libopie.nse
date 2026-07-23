@@ -37,7 +37,7 @@ author = "Ange Gutek"
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"vuln","intrusive"}
 
-
+-- TODO: use comm.lua or ftp.lua and add ftps
 portrule = shortport.port_or_service(21, "ftp")
 
 action = function(host, port)

@@ -1,7 +1,6 @@
 local ftp = require "ftp"
 local match = require "match"
 local nmap = require "nmap"
-local shortport = require "shortport"
 local stdnse = require "stdnse"
 local string = require "string"
 local table = require "table"
@@ -38,7 +37,7 @@ license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"default", "auth", "safe"}
 
 
-portrule = shortport.port_or_service({21,990}, {"ftp","ftps"})
+portrule = ftp.portrule
 
 -- ---------------------
 -- Directory listing function.
