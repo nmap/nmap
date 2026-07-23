@@ -1,5 +1,19 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o Audited and converted most instances of strcat, strcpy, and sprintf to use
+  bounded functions instead.
+
+o [NSE][GH#2221] mysql-dump-hashes now uses the correct column name for MySQL 5.7+
+
+o [NSE][GH#2238] http-referer-checker was incorrectly fetching off-host URLs.
+  Now only URLs on the target are fetched.
+
+o [GH#2122] When an interface is specified with -e, also bind to the IP address
+  for that device so that it works for non-Linux systems and non-root users.
+
+o [Nsock][GH#1939] When nsock_iod_set_localaddr() is used, nsock_connect_*()
+  will now treat errors in bind(2) as connection failure.
+
 o [GH#2732] Fix a potential crash on 32-bit platforms in debug mode due to
   incorrect format specifier for 64-bit integer type. [Christopher Chavez]
 
@@ -7,6 +21,14 @@ o [GH#3201][GH#3367] Increase line length limit for nmap-service-probes and
   correctly handle lines that are too long. [@liquidpele, Ashutosh Kumar Singh]
 
 o [GH#3414] Avoid out-of-bounds read when parsing PTR domain names. [@toor11 (Juri)]
+
+o [GH#2245] Ensure variables updated by signal handlers are volatile sig_atomic_t.
+
+o [Ncat][GH#1410] Fix an assertion failure (count <= INT_MAX) in ncat -lk in
+  some cases where stdin or a listening socket produces an error.
+
+o [NSE][GH#1946] Fix a cryptic error in smb-enum-services, "Server returned
+  less data than needed for header" when smb.start_smb() failed.
 
 o Fixed an issue with parsing nmap-service-probes that could cause a corrupted
   file to crash Nmap. Reported by Muhammed Hussein.
@@ -17,15 +39,34 @@ o Fixed several issues reported by Himanshu Anand: infinite loop in TCP options
   parsing and out-of-bounds memory read in IPv4 OS detection; integer underflow
   in IPv6 extension header processing; and undefined behavior in DNS label parsing.
 
+o [GH#2721] Added checks for returned pointers from OpenSSL allocation functions.
+
+o [GH#1546] Fix an incorrect assertion "timeout / 1000 <= (long) o.scan_delay"
+  in traceroute which failed for timeouts greater than 1 second when there was
+  no scan delay.
+
+o [GH#3175] The --stats-every option can now be used in conjunction with
+  --noninteractive. Previously, no stats messages were printed if a TTY was not
+  attached.
+
+o [GH#3375] Nmap can now be built with OpenSSL 4.0
+
+o [Nping][GH#1751] The --rate option will not accept a rate higher than 1000
+  packets per second, since Nsock timers have millisecond resolution. Use
+  --delay 0 for unlimited rate.
+
+o [Nping] Fixed several issues with Nping in IPv6 mode including:
+
+  + [GH#1261] Incorrect BPF generated leading to "expression rejects all packets"
+
+  + [GH#3215] Incorrect constant used to check for IP version in Echo Server
+
 o [NSE][GH#3368] Fixed an out-of-memory issue in packet.lua when parsing a
   zero-length TCP header option. [Maxim Suhanov]
 
 o Fixed an issue where Nmap OS scan trusts a packet's ip_len to size a CRC32
   computation over TCP RST payload data, which may result in reading arbitrary
   heap data. Reported by Michael Bommarito.
-
-o [Nsock][GH#2595] Fixed Nsock's SOCKS4 proxy code on Windows, which was
-  sending an extra 3 null bytes at the beginning of connections.
 
 o [Ncat][GH#3005] Correctly report listening port number. `ncat -l -p 0` will
   cause Ncat to listen on an ephemeral port, but it was reporting itself as
@@ -59,9 +100,21 @@ o Fixed an integer underflow in service_scan.cc that would cause little-endian
   integers extracted from the beginning of a service banner to be interpreted
   as 0. Discovered with AFL++ by Malek Althubiany.
 
+o [Nsock][GH#583] Use OpenSSL security levels and callbacks to prevent errors
+  connecting to certain insecure targets when using NSOCK_SSL_MAX_SPEED. The
+  default, as used in Ncat, now uses stricter-than-default security level.
+
+o [GH#410] If a target times out due to --host-timeout, do not perform traceroute.
+
+o [Nping][GH#380] Disallow combining Ethernet-related options like --dest-mac
+  with --send-ip
+
 o [NSE][GH#3250][GH#3206] Fix assertion failures in cases where connect or send
   returns immediately with a status other than ERROR, e.g. TIMEOUT or CANCELED.
   [Daniel Miller]
+
+o [Ncat][GH#290] Enable ncat -l --ssl to use DHE and ECDHE cipher suites for
+  perfect forward secrecy.
 
 o Fix a crash when writing long CPE strings to output. Reported by Harshit
   Gupta. [Daniel Miller]
