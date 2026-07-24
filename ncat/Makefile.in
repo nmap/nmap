@@ -50,7 +50,7 @@ CC = @CC@
 CPPFLAGS = @CPPFLAGS@
 CFLAGS = @CFLAGS@
 LDFLAGS = @LDFLAGS@
-LIBS = @LIBS@
+LIBS = @LIBS@ @PTHREAD_LIBS@
 DEFS = @DEFS@ -DNCAT_DATADIR="\"$(pkgdatadir)\""
 # With GCC, add extra security checks to source code.
 DEFS += -D_FORTIFY_SOURCE=2
@@ -73,8 +73,8 @@ SHTOOL = ../shtool
 # usual directory structure into a different tree.
 DESTDIR =
 
-SRCS = ncat_main.c ncat_connect.c ncat_core.c ncat_posix.c ncat_listen.c ncat_proxy.c ncat_ssl.c base64.c http.c util.c sys_wrap.c
-OBJS = ncat_main.o ncat_connect.o ncat_core.o ncat_posix.o ncat_listen.o ncat_proxy.o ncat_ssl.o base64.o http.o util.o sys_wrap.o
+SRCS = ncat_main.c ncat_connect.c ncat_core.c ncat_posix.c ncat_listen.c ncat_proxy.c ncat_ssl.c allowdeny_watcher.c base64.c http.c util.c sys_wrap.c
+OBJS = ncat_main.o ncat_connect.o ncat_core.o ncat_posix.o ncat_listen.o ncat_proxy.o ncat_ssl.o allowdeny_watcher.o base64.o http.o util.o sys_wrap.o
 DATAFILES =
 
 ifneq ($(HAVE_OPENSSL),)
@@ -138,16 +138,16 @@ config.h:
 		        $(SHELL) ./config.status; \
 	fi
 
-test/addrset: test/addrset.o ncat_core.o sys_wrap.o util.o ncat_posix.o $(LUA_OBJS) @LUA_DEPENDS@
+test/addrset: test/addrset.o ncat_core.o sys_wrap.o util.o ncat_posix.o allowdeny_watcher.o $(LUA_OBJS) @LUA_DEPENDS@
 	$(CC) -o $@ $(CFLAGS) $(LDFLAGS) $^ $(NSOCKLIB) $(NBASELIB) $(OPENSSL_LIBS) $(PCAP_LIBS) $(LUA_LIBS) $(LIBS)
 
-test/test-uri: test/test-uri.o base64.o http.o ncat_core.o  sys_wrap.o util.o ncat_posix.o $(LUA_OBJS) @LUA_DEPENDS@
+test/test-uri: test/test-uri.o base64.o http.o ncat_core.o  sys_wrap.o util.o ncat_posix.o allowdeny_watcher.o $(LUA_OBJS) @LUA_DEPENDS@
 	$(CC) -o $@ $(CFLAGS) $(LDFLAGS) $^ $(NSOCKLIB) $(NBASELIB) $(OPENSSL_LIBS) $(PCAP_LIBS) $(LUA_LIBS) $(LIBS)
 
-test/test-cmdline-split: test/test-cmdline-split.o ncat_posix.o ncat_core.o sys_wrap.o util.o $(LUA_OBJS) @LUA_DEPENDS@
+test/test-cmdline-split: test/test-cmdline-split.o ncat_posix.o ncat_core.o sys_wrap.o util.o allowdeny_watcher.o $(LUA_OBJS) @LUA_DEPENDS@
 	$(CC) -o $@ $(CFLAGS) $(LDFLAGS) $^ $(NSOCKLIB) $(NBASELIB) $(OPENSSL_LIBS) $(PCAP_LIBS) $(LUA_LIBS) $(LIBS)
 
-test/test-wildcard: test/test-wildcard.o ncat_core.o ncat_ssl.o sys_wrap.o util.o ncat_posix.o $(LUA_OBJS) @LUA_DEPENDS@
+test/test-wildcard: test/test-wildcard.o ncat_core.o ncat_ssl.o sys_wrap.o util.o ncat_posix.o allowdeny_watcher.o $(LUA_OBJS) @LUA_DEPENDS@
 	$(CC) -o $@ $(CFLAGS) $(LDFLAGS) $^ $(NSOCKLIB) $(NBASELIB) $(OPENSSL_LIBS) $(PCAP_LIBS) $(LUA_LIBS) $(LIBS)
 
 .PHONY: uninstall all clean distclean build-lua
@@ -191,7 +191,7 @@ distclean-lua:
 distclean: clean @LUA_DIST_CLEAN@
 	-rm -f Makefile makefile.dep $(CONFIG_CLEAN_FILES)
 
-TESTS = ./test-addrset.sh ./test-cmdline-split ./test-uri
+TESTS = ./test-addrset.sh ./test-cmdline-split ./test-uri ./test-watch-allow-deny.sh
 ifneq ($(HAVE_OPENSSL),)
 TESTS += ./test-wildcard
 endif
