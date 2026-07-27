@@ -2833,9 +2833,9 @@ static void display_nmap_version() {
 
 #if HAVE_LIBSSH2
 #ifdef LIBSSH2_INCLUDED
-  with.push_back(std::string("nmap-libssh2-") + get_word_or_quote(LIBSSH2_VERSION, 0));
+  with.push_back(std::string("nmap-libssh2-") + libssh2_version(0));
 #else
-  with.push_back(std::string("libssh2-") + get_word_or_quote(LIBSSH2_VERSION, 0));
+  with.push_back(std::string("libssh2-") + libssh2_version(0));
 #endif
 #else
   without.push_back("libssh2");
