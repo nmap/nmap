@@ -1,5 +1,18 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o Patched our included libssh2 source with upstream fixes for CVE-2025-15661,
+  CVE-2026-7598, CVE-2026-55199, CVE-2026-55200, CVE-2026-58050, and
+  CVE-2026-58051. The version number has been annotated as 1.11.1_NMAP1
+
+o [Zenmap][GH#3347] Fixed several issues leading to crashes when parsing,
+  editing, or saving command profiles containing '%' characters.
+
+o [NSE][GH#2272] smb-enum-shares failed to produce output for valid shares when
+  an error was encountered on one share.
+
+o [GH#3410] Fixed an issue where DNS resolution would incorrectly fail to match
+  the same name in a different case.
+
 o [NSE][GH#1066] Added service names for SSL-protected services like
   amt-soap-https to portrules for several scripts, ensuring they run on these
   as well as the standard unencrypted services.
