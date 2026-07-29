@@ -9679,7 +9679,7 @@ sgi-eventmond	5553/tcp	0.000076	# SGI Eventmond Port
 sgi-eventmond	5553/udp	0.000000	# SGI Eventmond Port
 sgi-esphttp	5554/tcp	0.000076	# SGI ESP HTTP
 sgi-esphttp	5554/udp	0.000000	# SGI ESP HTTP
-freeciv	5555/tcp	0.001305	# personal-agent | Personal Agent
+personal-agent	5555/tcp	0.001305	# Freeciv 1.X | Personal Agent
 rplay	5555/udp	0.001615
 freeciv	5556/tcp	0.000000	# Freeciv gameplay
 freeciv	5556/udp	0.000000	# Freeciv gameplay
