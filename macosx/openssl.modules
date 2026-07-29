@@ -23,7 +23,7 @@
         </dependencies>
     </cmake>
     <cmake id="libssh2">
-        <branch repo="libssh2-org" version="&libpcap_version;" module="libssh2-&libssh2_version;.tar.xz"/>
+        <branch repo="libssh2-org" version="&libssh2_version;" module="libssh2-&libssh2_version;.tar.xz"/>
         <dependencies>
             <dep package="openssl" />
             <dep package="zlib" />
@@ -40,8 +40,10 @@
         <branch repo="openssl" version="&openssl_version;" module="openssl-&openssl_version;.tar.gz"/>
     </autotools>
 
+<!-- Remove "--with-libssh2=included" when libssh2 upstream releases a version greater than 1.11.1 to address CVEs we patched in our copy. -->
     <autotools id="nmap" supports-non-srcdir-builds="no"
        autogen-sh="configure" autogenargs="--with-libdnet=included --with-liblua=included
+--with-libssh2=included
 --without-zenmap --without-ncat --without-ndiff --without-nping"
     >
         <branch repo="nmap-local" module="nmap-&nmap_version;.tar.gz" version="&nmap_version;"/>
