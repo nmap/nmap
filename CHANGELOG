@@ -1,5 +1,8 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o Fixed a memory-consumption hang in Ncat's HTTP proxy code that affected both
+  connect and listen modes, reported by kumama_nui.
+
 o Patched our included libssh2 source with upstream fixes for CVE-2025-15661,
   CVE-2026-7598, CVE-2026-55199, CVE-2026-55200, CVE-2026-58050, and
   CVE-2026-58051. The version number has been annotated as 1.11.1_NMAP1
