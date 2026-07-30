@@ -1401,7 +1401,7 @@ struct tcpopt_info_ctx {
   bool valid;
   tcpopt_info_ctx() : p(NULL), end(NULL), valid(true) {}
   bool check_length(size_t len) const {
-    return (end - p) >= len;
+    return end >= (p + len);
   }
   void put_str(const char *str) {
     if (p >= end)

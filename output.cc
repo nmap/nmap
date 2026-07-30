@@ -1996,7 +1996,7 @@ void printosscanoutput(const Target *currenths) {
 
   if (currenths->seq.responses > 3) {
     p = numlst;
-    size_t remaining = sizeof(numlst);
+    int remaining = sizeof(numlst);
     for (i = 0; i < currenths->seq.responses; i++) {
       int n = Snprintf(p, remaining, "%s%X",
           (p != numlst) ? "," : "", currenths->seq.seqs[i]);
@@ -2020,7 +2020,7 @@ void printosscanoutput(const Target *currenths) {
 
   if (currenths->seq.responses > 2) {
     p = numlst;
-    size_t remaining = sizeof(numlst);
+    int remaining = sizeof(numlst);
     for (i = 0; i < currenths->seq.responses; i++) {
       int n = Snprintf(p, remaining, "%s%hX",
           (p != numlst) ? "," : "", currenths->seq.ipids[i]);
