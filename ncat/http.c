@@ -974,7 +974,7 @@ int http_parse_header(struct http_header **result, const char *header)
         /* Copy the header field value until we hit a CRLF. */
         p = q + 1;
         p = skip_lws(p);
-        while (*p != '\0' && !is_crlf(p)) {
+        do {
             if (value_len > 0) {
                 /* Replace LWS with a single space. */
                 strbuf_append_str(&node->value, &value_len, &value_offset, " ");
@@ -982,14 +982,14 @@ int http_parse_header(struct http_header **result, const char *header)
             q = p;
             while (*q != '\0' && !is_space_char(*q) && !is_crlf(q)) {
                 if (is_ctl_char(*q)) {
-                    http_header_node_free(node);
+                    FREE_AND_NULL(http_header_free, *result);
                     return 400;
                 }
                 q++;
             }
             strbuf_append(&node->value, &value_len, &value_offset, p, q - p);
             p = skip_lws(q);
-        }
+        } while (*p != '\0' && !is_crlf(p));
         *prev = node;
         prev = &node->next;
 
