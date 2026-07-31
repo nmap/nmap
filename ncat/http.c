@@ -117,7 +117,6 @@ char *socket_buffer_readline(struct socket_buffer *buf, size_t *n, size_t maxlen
     char *line;
     char *newline;
     size_t count;
-    const char *p;
 
     line = NULL;
     *n = 0;
@@ -150,17 +149,6 @@ char *socket_buffer_readline(struct socket_buffer *buf, size_t *n, size_t maxlen
             free(line);
             *n += count;
             return NULL;
-        }
-        /* Check for disallowed characters */
-        p = buf->p + count - 2;
-        if (p >= buf->p && *p == '\r')
-          --p;
-        while (p >= buf->p) {
-            if (is_ctl_char(*p) && *p != '\t') {
-                free(line);
-                return NULL;
-            }
-            --p;
         }
 
         line = (char *) safe_realloc(line, *n + count + 1);
@@ -992,9 +980,14 @@ int http_parse_header(struct http_header **result, const char *header)
                 /* Replace LWS with a single space. */
                 strbuf_append_str(&node->value, &value_len, &value_offset, " ");
             }
-            q = strpbrk(p, " \t\r\n");
-            if (!q)
-              q = p + strlen(p);
+            q = p;
+            while (*q != '\0' && !is_space_char(*q) && !is_crlf(q)) {
+                if (is_ctl_char(*q)) {
+                    http_header_node_free(node);
+                    return 400;
+                }
+                q++;
+            }
             strbuf_append(&node->value, &value_len, &value_offset, p, q - p);
             p = skip_lws(q);
         }
