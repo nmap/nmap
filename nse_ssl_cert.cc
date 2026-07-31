@@ -325,9 +325,8 @@ static int time_to_tm(const ASN1_TIME *t, struct tm *result)
        is 2050 or later."
        http://www.cs.auckland.ac.nz/~pgut001/pubs/x509guide.txt */
     if (year < 50)
-      result->tm_year = 2000 + year;
-    else
-      result->tm_year = 1900 + year;
+      year += 100;
+    result->tm_year = year;
     p = t->data + 2;
   } else if (t->length == 15 && t->data[t->length - 1] == 'Z') {
     /* yyyymmddhhmmssZ */
@@ -366,7 +365,7 @@ static void tm_to_table(lua_State *L, const struct tm *tm)
 #define NSE_NUM_TM_FIELDS 6
   lua_createtable(L, 0, NSE_NUM_TM_FIELDS);
 
-  lua_pushinteger(L, tm->tm_year);
+  lua_pushinteger(L, tm->tm_year + 1900);
   lua_setfield(L, -2, "year");
   /* Lua uses one-indexed months. */
   lua_pushinteger(L, tm->tm_mon + 1);
