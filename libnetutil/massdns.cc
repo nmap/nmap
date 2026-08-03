@@ -1157,6 +1157,11 @@ void DNS::ResolverImpl::process_request(int action, info &reqinfo) {
   }
 }
 
+bool iequals(const std::string &a, const std::string &b)
+{
+  return a.size() == b.size() && (0 == strcasecmp(a.c_str(), b.c_str()));
+}
+
 // After processing a DNS response, we search through the IPs we're
 // looking for and update their results as necessary.
 bool DNS::ResolverImpl::process_result(const std::string &name, const DNS::Record *rr,
@@ -1179,7 +1184,7 @@ bool DNS::ResolverImpl::process_result(const std::string &name, const DNS::Recor
     case DNS::A:
     case DNS::AAAA:
     case DNS::ANY:
-      if (!already_matched && name != reqt->name) {
+      if (!already_matched && !iequals(name, reqt->name)) {
         return false;
       }
       a_rec = static_cast<const DNS::A_Record *>(rr);
@@ -1311,7 +1316,7 @@ void DNS::ResolverImpl::handle_read(nsock_pool nsp, nsock_event evt, dns_server 
     if(a.record_class == DNS::CLASS_IN)
     {
       if (wire_type(reqt->type) == a.record_type) {
-        processing_successful = process_result(a.name, a.record, reqinfo, a.name == alias);
+        processing_successful = process_result(a.name, a.record, reqinfo, iequals(a.name,alias));
         if (!processing_successful) {
           log_func(1, "mass_dns: Mismatched record for request %s\n", reqt->repr());
         }
@@ -1319,7 +1324,7 @@ void DNS::ResolverImpl::handle_read(nsock_pool nsp, nsock_event evt, dns_server 
       else if (a.record_type == DNS::CNAME) {
         const DNS::CNAME_Record *cname = static_cast<const DNS::CNAME_Record *>(a.record);
         if((reqt->type == DNS::PTR && DNS::Factory::ptrToIp(a.name, ip))
-          || a.name == reqt->name || (!alias.empty() && a.name == alias))
+          || iequals(a.name, reqt->name) || (!alias.empty() && iequals(a.name, alias)))
         {
           alias = cname->value;
           log_func(TRACE_DEBUG_LEVEL, "mass_dns: CNAME found for <%s> to <%s>\n", a.name.c_str(), alias.c_str());
@@ -1497,7 +1502,9 @@ void DNS::ResolverImpl::platform_get_servers() {
 // add_dns_server() function.
   FILE *fp;
   char buf[2048], *tp;
-  char fmt[32];
+#define _STR(X) #X
+#define FMT_STR_LEN(X) "%" _STR(X) "s"
+  static const char fmt[] = "nameserver " FMT_STR_LEN(INET6_ADDRSTRLEN);
   char ipaddr[INET6_ADDRSTRLEN+1];
   static bool firstrun = true;
 
@@ -1507,8 +1514,6 @@ void DNS::ResolverImpl::platform_get_servers() {
     firstrun = false;
     return;
   }
-
-  Snprintf(fmt, sizeof(fmt), "nameserver %%%us", INET6_ADDRSTRLEN);
 
   while (fgets(buf, sizeof(buf), fp)) {
     tp = buf;
@@ -1669,36 +1674,35 @@ bool DNS::ResolverImpl::system_resolve(DNS::Request &reqt)
   return true;
 }
 
+static const char hex[] = "0123456789abcdef";
 bool DNS::Factory::ipToPtr(const sockaddr_storage &ip, std::string &ptr)
 {
-  static const size_t maxlen = sizeof("0.0.1.1.2.2.3.3.4.4.5.5.6.6.7.7.8.8.9.9.a.a.b.b.c.c.d.d.e.e.f.f.ip6.arpa");
-  ptr.reserve(maxlen);
-  char tmp[INET_ADDRSTRLEN];
+#define C_IPV6_PTR_EXAMPLE "0.0.1.1.2.2.3.3.4.4.5.5.6.6.7.7.8.8.9.9.a.a.b.b.c.c.d.d.e.e.f.f.ip6.arpa"
+  char buf[] = C_IPV6_PTR_EXAMPLE;
+  static const size_t buf_len = sizeof(C_IPV6_PTR_EXAMPLE) - 1;
   switch (ip.ss_family) {
     case AF_INET:
     {
       const u32 ipv4_addr = ((const sockaddr_in *) &ip)->sin_addr.s_addr;
       const u8 *ipv4_c = (const u8 *)&ipv4_addr;
-      sprintf(tmp, "%d.%d.%d.%d", ipv4_c[3], ipv4_c[2], ipv4_c[1], ipv4_c[0]);
-      ptr = tmp;
-      ptr += IPV4_PTR_DOMAIN;
+      int len = Snprintf(buf, buf_len, "%d.%d.%d.%d" C_IPV4_PTR_DOMAIN,
+          ipv4_c[3], ipv4_c[2], ipv4_c[1], ipv4_c[0]);
+      ptr.assign(buf, len);
       break;
     }
     case AF_INET6:
     {
-      ptr.clear();
       const struct sockaddr_in6 &s6 = (const struct sockaddr_in6 &) ip;
       const u8 * ipv6 = s6.sin6_addr.s6_addr;
+      char *p = buf;
       for (short i=15; i>=0; --i)
       {
-        sprintf(tmp, "%02x", ipv6[i]);
-        ptr += '.';
-        ptr += tmp[1];
-        ptr += '.';
-        ptr += tmp[0];
+        *p++ = hex[ipv6[i] & 0xf];
+        *p++ = '.';
+        *p++ = hex[(ipv6[i] >> 4) & 0xf];
+        *p++ = '.';
       }
-      ptr.erase(ptr.begin());
-      ptr += IPV6_PTR_DOMAIN;
+      ptr.assign(buf, buf_len);
       break;
     }
     default:
@@ -1714,8 +1718,11 @@ bool DNS::Factory::ptrToIp(const std::string &ptr, sockaddr_storage &ip)
 
   memset(&ip, 0, sizeof(sockaddr_storage));
 
-  // Check whether the name ends with the IPv4 PTR domain
-  if (NULL != (p = strcasestr(cptr + ptr.length() + 1 - sizeof(C_IPV4_PTR_DOMAIN), C_IPV4_PTR_DOMAIN)))
+  // Check whether the name ends with the IPv4 PTR domain. The length check
+  // keeps the search from starting before the beginning of the name: a name
+  // shorter than the suffix cannot end with it.
+  if (ptr.length() >= sizeof(C_IPV4_PTR_DOMAIN) - 1
+      && NULL != (p = strcasestr(cptr + ptr.length() + 1 - sizeof(C_IPV4_PTR_DOMAIN), C_IPV4_PTR_DOMAIN)))
   {
     struct sockaddr_in *ip4 = (struct sockaddr_in *)&ip;
     static const u8 place_value[] = {1, 10, 100};
@@ -1750,7 +1757,8 @@ bool DNS::Factory::ptrToIp(const std::string &ptr, sockaddr_storage &ip)
     ip.ss_family = AF_INET;
   }
   // If not, check IPv6
-  else if (NULL != (p = strcasestr(cptr + ptr.length() + 1 - sizeof(C_IPV6_PTR_DOMAIN), C_IPV6_PTR_DOMAIN)))
+  else if (ptr.length() >= sizeof(C_IPV6_PTR_DOMAIN) - 1
+      && NULL != (p = strcasestr(cptr + ptr.length() + 1 - sizeof(C_IPV6_PTR_DOMAIN), C_IPV6_PTR_DOMAIN)))
   {
     struct sockaddr_in6 *ip6 = (struct sockaddr_in6 *)&ip;
     u8 alt = 0;
@@ -1797,6 +1805,9 @@ bool DNS::Factory::ptrToIp(const std::string &ptr, sockaddr_storage &ip)
       p--;
     }
     ip.ss_family = AF_INET6;
+  }
+  else {
+    return false;
   }
   return true;
 }

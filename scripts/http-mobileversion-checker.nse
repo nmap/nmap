@@ -57,7 +57,7 @@ getLastLoc = function(host, port, useragent)
 
 end
 
-portrule = shortport.port_or_service( {80, 443}, {"http", "https"}, "tcp", "open")
+portrule = shortport.http
 
 action = function(host, port)
 

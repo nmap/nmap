@@ -323,13 +323,15 @@ class ProfileEditor(HIGWindow):
                     profile_name,
                     command=command,
                     description=description)
-        except ValueError:
+        except ValueError as e:
+            message = str(e)
+            if e.__cause__:
+                message += "\nReason: {}".format(e.__cause__)
             alert = HIGAlertDialog(
-                    message_format=_('Disallowed profile name'),
-                    secondary_text=_('Sorry, the name "%s" is not allowed due '
-                        'to technical limitations. (The underlying '
-                        'ConfigParser used to store profiles does not allow '
-                        'it.) Choose a different name.' % profile_name))
+                    message_format=_('Unable to save profile'),
+                    secondary_text=_(
+                        'An error was encountered when saving the profile:\n'
+                        '%(message)s') % {"message": message})
             alert.run()
             alert.destroy()
             return

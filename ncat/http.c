@@ -220,7 +220,7 @@ void uri_init(struct uri *uri)
 #define FREE_AND_NULL(_FreeFunc, _P) do { \
     _FreeFunc(_P); \
     _P = NULL; \
-} while (0);
+} while (0)
 
 void uri_free(struct uri *uri)
 {
@@ -503,8 +503,7 @@ static const char *skip_crlf(const char *s)
     else if (*s == '\r' && *(s + 1) == '\n')
         return s + 2;
 
-    ncat_assert(0);
-    return NULL;
+    return s;
 }
 
 static int field_name_equal(const char *a, const char *b)
@@ -627,7 +626,7 @@ static const char *read_quoted_string(const char *s, char **quoted_string)
         /* Get a block of normal characters. */
         while (*t != '"' && *t != '\\') {
             /* This is qdtext, which is TEXT except for CTL. */
-            if (is_ctl_char(*t)) {
+            if (is_ctl_char(*t) && !is_space_char(*t)) {
                 FREE_AND_NULL(free, buf);
                 return NULL;
             }
@@ -975,23 +974,22 @@ int http_parse_header(struct http_header **result, const char *header)
         /* Copy the header field value until we hit a CRLF. */
         p = q + 1;
         p = skip_lws(p);
-        for (;;) {
+        do {
+            if (value_len > 0) {
+                /* Replace LWS with a single space. */
+                strbuf_append_str(&node->value, &value_len, &value_offset, " ");
+            }
             q = p;
             while (*q != '\0' && !is_space_char(*q) && !is_crlf(q)) {
-                /* Section 2.2 of RFC 2616 disallows control characters. */
-                if (iscntrl((int) (unsigned char) *q)) {
-                    http_header_node_free(node);
+                if (is_ctl_char(*q)) {
+                    FREE_AND_NULL(http_header_free, *result);
                     return 400;
                 }
                 q++;
             }
             strbuf_append(&node->value, &value_len, &value_offset, p, q - p);
             p = skip_lws(q);
-            if (is_crlf(p))
-                break;
-            /* Replace LWS with a single space. */
-            strbuf_append_str(&node->value, &value_len, &value_offset, " ");
-        }
+        } while (*p != '\0' && !is_crlf(p));
         *prev = node;
         prev = &node->next;
 
@@ -1083,9 +1081,11 @@ int http_read_request_line(struct socket_buffer *buf, char **line)
    parse error. */
 static const char *parse_http_version(const char *s, enum http_version *version)
 {
+    /* HTTP-Version   = "HTTP" "/" 1*DIGIT "." 1*DIGIT */
     static const char PREFIX[] = "HTTP/";
     const size_t prefixlen = sizeof(PREFIX) - 1;
     const char *p, *q;
+    int dot = 0;
 
     *version = HTTP_UNKNOWN;
 
@@ -1094,12 +1094,16 @@ static const char *parse_http_version(const char *s, enum http_version *version)
         return s;
     p += sizeof(PREFIX) - 1;
 
-    q = strpbrk(p, " \t\r\n");
-    if (!q)
-        q = p + strlen(p);
-
     /* Any version is accepted and not a parse error,
      * but only 1.0 and 1.1 are understood. */
+    q = p;
+    while (*q && (isdigit(*q) || (*q == '.' && dot++ == 0))) {
+        q++;
+    }
+    if (*q != '\0' && *q != ' ' && !is_crlf(q)) {
+      return s;
+    }
+
     if ((q - p) != 3)
         return q;
     if (0 == strncmp(p, "1.0", 3))
@@ -1160,7 +1164,7 @@ int http_parse_request_line(const char *line, struct http_request *request)
     p = q;
     while (*p == ' ')
         p++;
-    if (*p == '\0') {
+    if (*p == '\0' || is_crlf(p)) {
         /* No HTTP/X.X version number indicates version 0.9. */
         request->version = HTTP_09;
     } else {
@@ -1195,6 +1199,28 @@ int http_read_status_line(struct socket_buffer *buf, char **line)
     return 0;
 }
 
+static int parse_code(const char *p, const char **tail) {
+  int code = 0;
+#define CODE_DIGIT(_Place) do { \
+    if (!isdigit((int) (unsigned char) *p)) { \
+      *tail = p; \
+      return -1; \
+    } \
+    code += (*p - 0x30) * _Place; \
+    p++; \
+  } while (0)
+
+  CODE_DIGIT(100);
+  CODE_DIGIT(10);
+  CODE_DIGIT(1);
+
+  *tail = p;
+  if (*p != '\0' && !isspace((int) (unsigned char) *p)) {
+    return -1;
+  }
+  return code;
+}
+
 /* Returns 0 on success and nonzero on failure. */
 int http_parse_status_line(const char *line, struct http_response *response)
 {
@@ -1211,8 +1237,8 @@ int http_parse_status_line(const char *line, struct http_response *response)
 
     /* Status code. */
     errno = 0;
-    response->code = parse_long(p, &q);
-    if (errno != 0 || q == p)
+    response->code = parse_code(p, &q);
+    if (response->code < 0)
         return -1;
     p = q;
 
@@ -1220,8 +1246,12 @@ int http_parse_status_line(const char *line, struct http_response *response)
     while (*p == ' ')
         p++;
     q = p;
-    while (!is_crlf(q))
+    while (*q != '\0' && !is_crlf(q)) {
+        if (is_ctl_char(*q) && !is_space_char(*q)) {
+            return -1;
+        }
         q++;
+    }
     /* We expect that the CRLF ends the string. */
     if (*skip_crlf(q) != '\0')
         return -1;

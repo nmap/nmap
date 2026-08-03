@@ -1401,7 +1401,7 @@ struct tcpopt_info_ctx {
   bool valid;
   tcpopt_info_ctx() : p(NULL), end(NULL), valid(true) {}
   bool check_length(size_t len) const {
-    return (end - p) >= len;
+    return end >= (p + len);
   }
   void put_str(const char *str) {
     if (p >= end)
@@ -3134,7 +3134,7 @@ pcap_t *my_pcap_open_live(const char *device, int snaplen, int promisc, int to_m
     pcap_close(p_t);\
     return NULL;\
   }\
-} while(0);
+} while(0)
 
   MY_PCAP_SET(pcap_set_snaplen, pt, snaplen);
   MY_PCAP_SET(pcap_set_promisc, pt, promisc);

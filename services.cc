@@ -131,13 +131,15 @@ static int nmap_services_init() {
   if (nmap_fetchfile(filename, sizeof(filename), "nmap-services") != 1) {
     error("Unable to find nmap-services!  Resorting to /etc/services");
 #ifndef WIN32
-    strcpy(filename, "/etc/services");
+    bufset(filename, "/etc/services");
 #else
-    int len = GetSystemDirectory(filename, 480);	//	be safe
-    if(!len)
+#define SERVICES_FILENAME_WIN "\\drivers\\etc\\services"
+    UINT remaining = sizeof(filename) - sizeof(SERVICES_FILENAME_WIN);
+    UINT len = GetSystemDirectory(filename, remaining);
+    if(!len || len > remaining)
       fatal("GetSystemDirectory failed (%d) @#!#@", GetLastError());
     else
-      strcpy(filename + len, "\\drivers\\etc\\services");
+      Snprintf(filename + len, sizeof(filename) - len, "%s", SERVICES_FILENAME_WIN);
 #endif
   }
 

@@ -3309,11 +3309,13 @@ function share_get_list(host)
     local status, result
     stdnse.debug1("SMB: Getting information for share: %s", shares[i])
     status, result = share_get_details(host, shares[i])
-    if not status and result == 'NT_STATUS_BAD_NETWORK_NAME' then
-      stdnse.debug1("SMB: Share doesn't exist: %s", shares[i])
-    elseif not status then
-      stdnse.debug1("SMB: Error while getting share details: %s", result)
-      return false, result
+    if not status then
+      if result == 'NT_STATUS_BAD_NETWORK_NAME' then
+        stdnse.debug1("SMB: Share doesn't exist: %s", shares[i])
+      else
+        stdnse.debug1("SMB: Error while getting share details: %s", result)
+      end
+      table.insert(share_details, {name=shares[i], details=result})
     else
       -- Save the share details
       table.insert(share_details, result)

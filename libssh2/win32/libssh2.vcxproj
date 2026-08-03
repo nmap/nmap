@@ -140,6 +140,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ResourceCompile Include="libssh2.rc" />
+  </ItemGroup>
+  <ItemGroup>
     <ClCompile Include="..\src\agent.c" />
     <ClCompile Include="..\src\agent_win.c" />
     <ClCompile Include="..\src\bcrypt_pbkdf.c" />

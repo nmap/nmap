@@ -4,12 +4,17 @@
 -- @copyright Same as Nmap--See https://nmap.org/book/man-legal.html
 
 local comm = require "comm"
+local shortport = require "shortport"
 local stdnse = require "stdnse"
 local string = require "string"
 local table = require "table"
 local ipOps = require "ipOps"
 local nmap = require "nmap"
 _ENV = stdnse.module("ftp", stdnse.seeall)
+
+--- Portrule for FTP services
+-- @class function
+portrule = shortport.port_or_service({21, 990}, {"ftp", "ftps"})
 
 local ERROR_MESSAGES = {
   ["EOF"]     = "connection closed",

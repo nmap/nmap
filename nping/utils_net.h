@@ -101,7 +101,7 @@ struct hostent *gethostbynameCached(char *host);
 struct hostent *hostentcpy(struct hostent *src);
 int hostentfree(struct hostent *src);
 int parseMAC(const char *txt, u8 *targetbuff);
-char *MACtoa(u8 *mac);
+const char *MACtoa(u8 *mac);
 const char *getRandomTextPayload();
 int send_packet(NpingTarget *target, int rawfd, u8 *pkt, size_t pktLen);
 int print_dnet_interface(const struct intf_entry *entry, void *arg) ;

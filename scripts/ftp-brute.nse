@@ -1,6 +1,5 @@
 local brute = require "brute"
 local creds = require "creds"
-local shortport = require "shortport"
 local stdnse = require "stdnse"
 local ftp = require "ftp"
 
@@ -37,7 +36,7 @@ author = "Aleksandar Nikolic"
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"intrusive", "brute"}
 
-portrule = shortport.port_or_service(21, "ftp")
+portrule = ftp.portrule
 
 local arg_timeout = stdnse.parse_timespec(stdnse.get_script_args(SCRIPT_NAME .. ".timeout"))
 arg_timeout = (arg_timeout or 5) * 1000

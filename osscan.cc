@@ -944,7 +944,7 @@ const char *mergeFPs(FingerPrint *FPs[], int numFPs, bool isGoodFP,
 
     while (*p && end-p1 >= 3) {
       len = 0;
-      strcpy(p1, "OS:"); p1 += 3; len +=3;
+      *p1++ = 'O'; *p1++ = 'S'; *p1++ = ':'; len +=3;
       while (*p && len <= FP_RESULT_WRAP_LINE_LEN && end-p1 > 0) {
         *p1++ = *p++;
         len++;

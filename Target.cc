@@ -262,7 +262,7 @@ const struct in6_addr *Target::v6hostip() const {
 
  /* The source address used to reach the target */
 int Target::SourceSockAddr(struct sockaddr_storage *ss, size_t *ss_len) const {
-  if (sourcesocklen <= 0)
+  if (sourcesocklen <= 0 || sourcesock.ss_family == AF_UNSPEC)
     return 1;
   assert(sourcesocklen <= sizeof(*ss));
   if (ss)
@@ -273,7 +273,10 @@ int Target::SourceSockAddr(struct sockaddr_storage *ss, size_t *ss_len) const {
 }
 
 const struct sockaddr_storage *Target::SourceSockAddr() const {
-  return &sourcesock;
+  if (sourcesocklen <= 0 || sourcesock.ss_family == AF_UNSPEC)
+    return NULL;
+  else
+    return &sourcesock;
 }
 
 /* Note that it is OK to pass in a sockaddr_in or sockaddr_in6 casted

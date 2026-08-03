@@ -72,8 +72,10 @@
 /* SIG_CHLD handler */
 static void proxyreaper(int signo)
 {
+    int saved_errno = errno;
     while (waitpid(-1, NULL, WNOHANG) > 0)
         ;
+    errno = saved_errno;
 }
 #endif
 
