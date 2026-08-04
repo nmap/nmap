@@ -13,18 +13,21 @@ local brute = require "brute"
 local openssl = stdnse.silent_require("openssl")
 
 description = [[
-Performs password guessing against Apple Filing Protocol (AFP).
+Performs brute force password guessing against Apple Filing Protocol (AFP).
 ]]
 
 ---
 -- @usage
--- nmap -p 548 --script afp-brute <host>
+-- nmap -p 548 --script afp-brute
 --
 -- @output
 -- PORT    STATE SERVICE
 -- 548/tcp open  afp
 -- | afp-brute:
--- |_  admin:KenSentMe => Valid credentials
+-- |   Accounts
+-- |     admin:KenSentMe => Valid credentials
+-- |   Statistics
+-- |_    Performed 5000 guesses in 3 seconds, average tps: 1666
 
 -- Information on AFP implementations
 --
