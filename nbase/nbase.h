@@ -179,8 +179,38 @@
 # endif
 #endif
 
+/* Cross-platform array vs. pointer verification.
+ * Uses compile-time checks where possible, and falls back to a runtime
+ * assertion where the standard lacks compile-time capabilities.
+ */
+#if defined(__cplusplus)
+  /* C++11 and later (including MSVC C++11) */
+# if __cplusplus >= 201103L || (defined(_MSVC_LANG) && _MSVC_LANG >= 201103L)
+#  include <type_traits>
+#  define ASSERT_IS_ARRAY(_Buf, _Msg) \
+     static_assert(std::is_array<decltype(_Buf)>::value, _Msg)
+# else
+  /* C++98: Address comparison is not an ICE, fall back to runtime assert */
+#  include <cassert>
+#  define ASSERT_IS_ARRAY(_Buf, _Msg) \
+     assert(((void *)&(_Buf) == (void *)&(_Buf)[0]) && _Msg)
+# endif
+#else
+  /* C compilers supporting GCC/Clang extensions */
+# if defined(__GNUC__) || defined(__clang__)
+   /* __typeof__ and __builtin_types_compatible_p resolve to an ICE */
+#  define ASSERT_IS_ARRAY(_Buf, _Msg) \
+     static_assert(!__builtin_types_compatible_p(__typeof__(_Buf), __typeof__(&(_Buf)[0])), _Msg)
+# else
+  /* Standard C / MSVC C mode: No standard ICE for array deduction, use runtime assert */
+#  include <assert.h>
+#  define ASSERT_IS_ARRAY(_Buf, _Msg) \
+     assert(((void *)&(_Buf) == (void *)&(_Buf)[0]) && _Msg)
+# endif
+#endif
+
 #define bufset(_Buf, _Str) do { \
-  static_assert((void *)&_Buf == (void *)&_Buf[0], "bufset called with pointer"); \
+  ASSERT_IS_ARRAY(_Buf, "bufset called with pointer"); \
   static_assert(sizeof("" _Str) <= sizeof(_Buf), "buffer too small"); \
   memcpy(_Buf, "" _Str, sizeof("" _Str)); \
 } while (0)
