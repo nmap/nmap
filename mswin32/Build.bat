@@ -65,9 +65,7 @@ echo Detected Visual Studio Generator: %VS_GENERATOR%
 @echo on
 if "%TARGET%" == "Vars" ( goto :vars )
 
-if "%TARGET%" == "Clean" (
-  rd /S /Q build-pcre2
-) else (
+if not "%TARGET%" == "Clean" (
 echo Using CMake Generator: %VS_GENERATOR%
 mkdir build-pcre2
 cd build-pcre2
@@ -75,6 +73,9 @@ cmake.exe -A Win32 -G "%VS_GENERATOR%" ..\..\libpcre\ || goto :QUIT
 cd ..
 )
 msbuild -nologo nmap.sln -m -t:%TARGET% -p:Configuration="%VCCONFIG%" -p:Platform="Win32" -fl
+if "%TARGET%" == "Clean" (
+  rd /S /Q build-pcre2
+)
 goto :QUIT
 
 :vars
