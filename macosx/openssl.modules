@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <!DOCTYPE moduleset SYSTEM "moduleset.dtd" [
-<!ENTITY nmap_version "7.99">
+<!ENTITY nmap_version "7.991">
 <!ENTITY openssl_version "3.0.21">
 <!ENTITY libpcap_version "1.10.6">
 <!ENTITY libssh2_version "1.11.1">
@@ -30,7 +30,7 @@
         </dependencies>
     </cmake>
 
-    <autotools id="openssl" autogen-sh="Configure" autogenargs="shared no-dso enable-legacy enable-ssl3 enable-ssl3-method enable-weak-ssl-ciphers"
+    <autotools id="xopenssl" autogen-sh="Configure" autogenargs="shared no-dso enable-legacy enable-ssl3 enable-ssl3-method enable-weak-ssl-ciphers"
         autogen-template="%(srcdir)s/%(autogen-sh)s --prefix=%(prefix)s
             --openssldir=%(prefix)s/etc/ssl %(autogenargs)s"
             makeargs="depend all"
@@ -40,7 +40,7 @@
         <branch repo="openssl" version="&openssl_version;" module="openssl-&openssl_version;.tar.gz"/>
     </autotools>
 
-<!-- Remove "--with-libssh2=included" when libssh2 upstream releases a version greater than 1.11.1 to address CVEs we patched in our copy. -->
+<!-- Remove "-\-with-libssh2=included" when libssh2 upstream releases a version greater than 1.11.1 to address CVEs we patched in our copy. -->
     <autotools id="nmap" supports-non-srcdir-builds="no"
        autogen-sh="configure" autogenargs="--with-libdnet=included --with-liblua=included
 --with-libssh2=included
