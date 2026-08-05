@@ -7266,7 +7266,7 @@ if test $have_libpcap != yes; then
   else
     CPPFLAGS="$CPPFLAGS -I\$(top_srcdir)/$libpcapdir"
   fi
-  LIBPCAP_LIBS='$(LIBPCAPDIR)/libpcap.a'
+  LIBPCAP_LIBS='\$(top_srcdir)/$(LIBPCAPDIR)/libpcap.a'
   PCAP_BUILD="build-pcap"
   PCAP_CLEAN="clean-pcap"
   PCAP_DIST_CLEAN="distclean-pcap"
@@ -7477,7 +7477,7 @@ if test $have_pcre != yes ; then
   subdirs="$subdirs libpcre"
 
   CPPFLAGS="-I\$(top_srcdir)/$LIBPCREDIR/src $CPPFLAGS"
-  LIBPCRE_LIBS="$LIBPCREDIR/.libs/libpcre2-8.a"
+  LIBPCRE_LIBS="\$(top_srcdir)/$LIBPCREDIR/.libs/libpcre2-8.a"
   PCRE_BUILD="build-pcre"
   PCRE_CLEAN="clean-pcre"
   PCRE_DIST_CLEAN="distclean-pcre"
@@ -7648,7 +7648,7 @@ fi
     # headers/libs on your own if you want compression support for SSH.
     #ac_configure_args="$ac_configure_args '--with-libz-prefix=../../$ZLIBDIR'"
     CPPFLAGS="-I\$(top_srcdir)/$ZLIBDIR $CPPFLAGS"
-    ZLIB_LIBS="$ZLIBDIR/libz.a"
+    ZLIB_LIBS="\$(top_srcdir)/$ZLIBDIR/libz.a"
     ZLIB_BUILD="build-zlib"
     ZLIB_CLEAN="clean-zlib"
     ZLIB_DIST_CLEAN="distclean-zlib"
@@ -7824,7 +7824,7 @@ fi
     subdirs="$subdirs libssh2"
 
     CPPFLAGS="-I\$(top_srcdir)/$LIBSSH2DIR/include $CPPFLAGS"
-    LIBSSH2_LIBS="$LIBSSH2DIR/lib/libssh2.a"
+    LIBSSH2_LIBS="\$(top_srcdir)/$LIBSSH2DIR/lib/libssh2.a"
     LIBSSH2_BUILD="build-libssh2"
     LIBSSH2_CLEAN="clean-libssh2"
     LIBSSH2_DIST_CLEAN="distclean-libssh2"
@@ -8865,7 +8865,7 @@ NBASEDIR="nbase"
 fi
 
 
-LDFLAGS="$LDFLAGS -L$NBASEDIR"
+LDFLAGS="$LDFLAGS -L\$(top_srcdir)/$NBASEDIR"
 CPPFLAGS="$CPPFLAGS -I\$(top_srcdir)/$NBASEDIR"
 LIBNBASE_LIBS="-lnbase"
 
@@ -8896,7 +8896,7 @@ then :
 fi
 
 
-LDFLAGS="$LDFLAGS -L$NSOCKDIR/src/"
+LDFLAGS="$LDFLAGS -L\$(top_srcdir)/$NSOCKDIR/src/"
 CPPFLAGS="$CPPFLAGS -I\$(top_srcdir)/$NSOCKDIR/include"
 LIBNSOCK_LIBS="-lnsock"
 
