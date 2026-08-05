@@ -310,7 +310,6 @@ void PortList::setServiceProbeResults(u16 portno, int protocol,
   const char *extrainfo, const char *hostname, const char *ostype,
   const char *devicetype, const std::vector<const char *> *cpe,
   const char *fingerprint) {
-  std::vector<char *>::iterator it;
   Port *port;
   char *p;
 
