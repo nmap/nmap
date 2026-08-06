@@ -554,6 +554,50 @@ dnl Checks for library functions.
 AC_CHECK_FUNCS(strerror)
 #RECVFROM_ARG6_TYPE
 
+
+AC_ARG_WITH([capabilities],
+  [AS_HELP_STRING([--with-capabilities=(libcap/libcap-ng/yes/no/auto)],
+                  [Detect POSIX capabilities (default=auto)])],
+  [with_caps=$withval],
+  [with_caps=auto])
+
+have_caps=no
+if test $have_caps = no && ( test "x$with_caps" = "xlibcap-ng" ||  test "x$with_caps" = "xyes"  || test "x$with_caps" = "xauto" ); then
+  AC_CHECK_HEADERS([cap-ng.h])
+  AC_SEARCH_LIBS([capng_get_caps_process], [cap-ng])
+  if test "x$ac_cv_header_cap_ng_h" = "xno" -o "x$ac_cv_search_capng_get_caps_process" = "xno"; then
+    if test "x$with_caps" = "xlibcap-ng"; then
+      AC_MSG_ERROR([libcap-ng support was requested but not found])
+    fi
+  else
+    have_caps=libcap-ng
+    AC_DEFINE([HAVE_CAPABILITIES_LIBCAP_NG], [1], [Use libcap-ng support for POSIX capabilities])
+  fi
+fi
+if test $have_caps = no && ( test "x$with_caps" = "xlibcap" ||  test "x$with_caps" = "xyes" || test "x$with_caps" = "xauto" ); then
+  AC_CHECK_HEADERS([sys/capability.h])
+  AC_SEARCH_LIBS([cap_get_proc], [cap])
+  if test "x$ac_cv_header_sys_capability_h" = "xno" -o "x$ac_cv_search_cap_get_proc" = "xno"; then
+    if test "x$with_caps" = "xlibcap"; then
+      AC_MSG_ERROR([libcap support was requested but not found])
+    fi
+  else
+    have_caps=libcap
+    AC_DEFINE([HAVE_CAPABILITIES_LIBCAP], [1], [Use libcap support for POSIX capabilities])
+  fi
+fi
+AC_MSG_CHECKING([for POSIX capabilities])
+AC_MSG_RESULT([$have_caps])
+if test $have_caps = no; then
+  AC_DEFINE([HAVE_CAPABILITIES], [0], [Whether to use POSIX capabilities])
+  if test "x$with_caps" = "xyes"; then
+    AC_MSG_ERROR([Support for POSIX capabilities was requested but not found])
+  fi
+else
+  AC_DEFINE([HAVE_CAPABILITIES], [1], [Whether to use POSIX capabilities])
+fi
+
+
 AC_OUTPUT(Makefile)
 # Some ASCII ART#!#@$!@#$
 if test -f docs/leet-nping-ascii-art.txt; then
