@@ -87,7 +87,7 @@ from zenmapGUI.DiffCompare import DiffWindow
 from zenmapGUI.SearchWindow import SearchWindow
 from zenmapGUI.BugReport import BugReport
 
-from zenmapCore.Name import APP_DISPLAY_NAME, APP_DOCUMENTATION_SITE
+from zenmapCore.Name import APP_NAME, APP_DISPLAY_NAME, APP_DOCUMENTATION_SITE
 from zenmapCore.Paths import Path
 from zenmapCore.RecentScans import recent_scans
 from zenmapCore.UmitLogging import log
@@ -146,6 +146,7 @@ class ScanWindow(UmitScanWindow):
                     ScanWindow.dark_mode)
 
         self.set_title(_(APP_DISPLAY_NAME))
+        self.set_icon_name(APP_NAME)
         self.move(window.x, window.y)
         self.set_default_size(window.width, window.height)
 
