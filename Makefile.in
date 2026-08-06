@@ -89,30 +89,22 @@ UNINSTALLNPING=@UNINSTALLNPING@
 
 ifneq (@NOLUA@,yes)
 NSE_SRC=nse_main.cc nse_utility.cc nse_nsock.cc nse_db.cc nse_dnet.cc nse_fs.cc nse_nmaplib.cc nse_debug.cc nse_lpeg.cc
-NSE_HDRS=nse_main.h nse_utility.h nse_nsock.h nse_db.h nse_dnet.h nse_fs.h nse_nmaplib.h nse_debug.h nse_lpeg.h
-NSE_OBJS=nse_main.o nse_utility.o nse_nsock.o nse_db.o nse_dnet.o nse_fs.o nse_nmaplib.o nse_debug.o nse_lpeg.o
 ifneq (@OPENSSL_LIBS@,)
 NSE_SRC+=nse_openssl.cc nse_ssl_cert.cc
-NSE_HDRS+=nse_openssl.h nse_ssl_cert.h
-NSE_OBJS+=nse_openssl.o nse_ssl_cert.o
 endif
 ifneq (@LIBSSH2_LIBS@,)
 NSE_SRC+=nse_libssh2.cc
-NSE_HDRS+=nse_libssh2.h
-NSE_OBJS+=nse_libssh2.o
 endif
 ifneq (@ZLIB_LIBS@,)
 NSE_SRC+=nse_zlib.cc
-NSE_HDRS+=nse_zlib.h
-NSE_OBJS+=nse_zlib.o
 endif
 endif
 
-export SRCS = charpool.cc FingerPrintResults.cc FPEngine.cc FPModel.cc idle_scan.cc MACLookup.cc main.cc nmap.cc nmap_dns.cc nmap_error.cc nmap_ftp.cc NmapOps.cc NmapOutputTable.cc nmap_tty.cc osscan2.cc osscan.cc output.cc payload.cc portlist.cc portreasons.cc protocols.cc scan_engine.cc scan_engine_connect.cc scan_engine_raw.cc scan_lists.cc service_scan.cc services.cc string_pool.cc Target.cc NewTargets.cc TargetGroup.cc targets.cc tcpip.cc timing.cc traceroute.cc utils.cc xml.cc $(NSE_SRC)
+export SRCS = $(filter-out $(NSE_SRC),$(wildcard *.cc)) $(NSE_SRC)
 
-export HDRS = charpool.h FingerPrintResults.h FPEngine.h idle_scan.h MACLookup.h nmap_amigaos.h nmap_dns.h nmap_error.h nmap.h nmap_ftp.h NmapOps.h NmapOutputTable.h nmap_tty.h nmap_winconfig.h osscan2.h osscan.h output.h payload.h portlist.h portreasons.h probespec.h protocols.h scan_engine.h scan_engine_connect.h scan_engine_raw.h service_scan.h scan_lists.h services.h string_pool.h NewTargets.h TargetGroup.h Target.h targets.h tcpip.h timing.h traceroute.h utils.h xml.h $(NSE_HDRS)
+export HDRS = $(patsubst %.cc,%.h,$(filter-out main.cc FPModel.cc,$(SRCS))) nmap_amigaos.h nmap_winconfig.h probespec.h
 
-OBJS = charpool.o FingerPrintResults.o FPEngine.o FPModel.o idle_scan.o MACLookup.o nmap_dns.o nmap_error.o nmap.o nmap_ftp.o NmapOps.o NmapOutputTable.o nmap_tty.o osscan2.o osscan.o output.o payload.o portlist.o portreasons.o protocols.o scan_engine.o scan_engine_connect.o scan_engine_raw.o scan_lists.o service_scan.o services.o string_pool.o NewTargets.o TargetGroup.o Target.o targets.o tcpip.o timing.o traceroute.o utils.o xml.o $(NSE_OBJS)
+OBJS = $(patsubst %.cc,%.o,$(filter-out main.cc,$(SRCS)))
 
 # %.o : %.cc -- nope this is a GNU extension
 .cc.o:
