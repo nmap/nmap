@@ -113,9 +113,9 @@ struct MatchDetails {
   const char *devicetype;
 
   // CPE identifiers for application, OS, and hardware type.
-  const char *cpe_a;
-  const char *cpe_o;
-  const char *cpe_h;
+  std::vector<const char *> cpe_a;
+  std::vector<const char *> cpe_o;
+  std::vector<const char *> cpe_h;
 };
 
 /**********************  CLASSES     ***********************************/
@@ -182,9 +182,7 @@ class ServiceProbeMatch {
                   char *version, size_t versionlen, char *info, size_t infolen,
                   char *hostname, size_t hostnamelen, char *ostype, size_t ostypelen,
                   char *devicetype, size_t devicetypelen,
-                  char *cpe_a, size_t cpe_alen,
-                  char *cpe_h, size_t cpe_hlen,
-                  char *cpe_o, size_t cpe_olen) const;
+                  struct MatchDetails *MD) const;
 };
 
 
