@@ -32,7 +32,7 @@ if int(platform.release().split('.')[0]) > 10:
 os.environ['GI_TYPELIB_PATH'] = join(bundle_lib, 'girepository-1.0')
 
 #Set $PYTHON to point inside the bundle
-PYVER = 'python3.10'
+PYVER = 'python3.14'
 sys.path.append(bundle_res)
 
 os.environ['USERPROFILE'] = os.environ['HOME']
