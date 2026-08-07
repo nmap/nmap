@@ -100,13 +100,13 @@ check-zenmap: stage-zenmap
 export-%:
 	rm -rf $*
 # Using @BASE discards local changes.
-	svn export .. $*
+	git -C .. archive | tar -x -C $*
 
 NMAP_SOURCEDIR=$(JHBUILD_SOURCE)/nmap-$(NMAP_VERSION)
 NMAP_TARBALL=$(JHBUILD_SOURCE)/pkgs/nmap-$(NMAP_VERSION).tar.gz
 $(NMAP_TARBALL):
 	rm -rf nmap-$(NMAP_VERSION)
-	svn export .. nmap-$(NMAP_VERSION)
+	git -C .. archive | tar -x -C nmap-$(NMAP_VERSION)
 	tar czf nmap-$(NMAP_VERSION).tar.gz nmap-$(NMAP_VERSION)
 	cp nmap-$(NMAP_VERSION).tar.gz $(JHBUILD_SOURCE)/pkgs/
 

@@ -1,5 +1,7 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+Nmap 7.991 [2026-07-31]
+
 o Fixed a memory-consumption hang in Ncat's HTTP proxy code that affected both
   connect and listen modes, reported by kumama_nui.
 
