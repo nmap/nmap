@@ -8646,7 +8646,7 @@ unknown	4523/udp	0.000330
 unknown	4524/udp	0.000330
 unknown	4530/tcp	0.000076
 unknown	4533/udp	0.000330
-armagetronad	4534/tcp	0.000076	# Armagetron Advanced Game Server
+armagetronad	4534/udp	0.000076	# Armagetron Advanced Game Server
 ehs	4535/tcp	0.000000	# Event Heap Server
 ehs	4535/udp	0.000000	# Event Heap Server
 ehs-ssl	4536/tcp	0.000000	# Event Heap Server SSL
