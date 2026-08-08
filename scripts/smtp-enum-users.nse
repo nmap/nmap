@@ -1,4 +1,5 @@
 local nmap = require "nmap"
+local rand = require "rand"
 local shortport = require "shortport"
 local smtp = require "smtp"
 local stdnse = require "stdnse"
@@ -160,9 +161,7 @@ function do_gnrc(socket, command, username, domain)
       -- If the command failed, check if authentication is
       -- needed because all the other attempts will fail.
       return STATUS_CODES.AUTHENTICATION
-    elseif string.match(response, "^502") or
-      string.match(response, "^252") or
-      string.match(response, "^550") then
+    elseif string.match(response, "^502") then
       -- The server doesn't implement the command or it is disallowed.
       return STATUS_CODES.NOTPERMITTED
     elseif smtp.check_reply(command, response) then
@@ -248,8 +247,9 @@ function do_rcpt(socket, username, domain)
   elseif string.match(response, "^550") then
     -- 550 User Unknown
     return STATUS_CODES.UNKNOWN
-  elseif string.match(response, "^553") then
-    -- 553 Relaying Denied
+  elseif string.match(response, "^553") or
+    string.match(response, "^554") then
+    -- 553/554 Relaying Denied
     return STATUS_CODES.NOTPERMITTED
   elseif string.match(response, "^530") then
     -- If the command failed, check if authentication is needed because
@@ -275,12 +275,7 @@ end
 -- @param port Target port
 -- @return The user accounts or a error message.
 function go(host, port)
-  -- Get the current usernames list from the file.
-  local status, nextuser = unpwdb.usernames()
-
-  if not status then
-    return false, "Failed to read the user names database"
-  end
+  local status, nextuser
 
   local options = {
     timeout = 10000,
@@ -324,10 +319,27 @@ function go(host, port)
     end
   end
 
-  -- Get the first user to be tested.
-  local username = nextuser()
-
   for index, method in ipairs(methods) do
+
+    if method == "VRFY" then
+      if do_vrfy(socket, "root", domain) == STATUS_CODES.VALID and
+        do_vrfy(socket, rand.random_string(56, "abcdefghijklmnopqrstuvwxyz"), domain) == STATUS_CODES.VALID then
+          -- Do not continue with the VRFY method if we can confirm that the mailserver
+          -- is reporting all VRFY requests with a valid / 252 response
+          return false, "Mailserver returning 252 for all VRFY requests, enumeration not possible"
+      end
+    end
+
+    -- Get the current usernames list from the file.
+    status, nextuser = unpwdb.usernames()
+
+    if not status then
+      return false, "Failed to read the user names database"
+    end
+
+    -- Get the first user to be tested.
+    local username = nextuser()
+
     while username do
       if method == "RCPT" then
         status, response = do_rcpt(socket, username, domain)
@@ -350,18 +362,8 @@ function go(host, port)
       elseif status == STATUS_CODES.AUTHENTICATION then
         smtp.quit(socket)
         return false, "Couldn't perform user enumeration, authentication needed"
-      elseif status == STATUS_CODES.INVALID then
-        table.insert(result,
-          string.format("Method %s returned a unhandled status code.",
-          method))
-        break
       end
       username = nextuser()
-    end
-
-    -- No more users to test, don't test with other methods.
-    if username == nil then
-      break
     end
   end
 
