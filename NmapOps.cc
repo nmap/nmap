@@ -224,8 +224,13 @@ void NmapOps::Initialize() {
     isr00t = 1;
   else if (getenv("NMAP_UNPRIVILEGED"))
     isr00t = 0;
-  else
-    isr00t = !(geteuid());
+  else {
+#ifdef __linux__
+    isr00t = (geteuid() == 0) || have_net_capabilities();
+#else
+    isr00t = (geteuid() == 0);
+#endif
+  }
 #endif
   have_pcap = true;
   debugging = 0;
