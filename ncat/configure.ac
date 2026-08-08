@@ -64,6 +64,12 @@ AC_SEARCH_LIBS(gethostbyname, nsl)
 AC_SEARCH_LIBS(dlopen, dl)
 AC_CHECK_FUNCS([dup2 gettimeofday inet_ntoa memset mkstemp select socket strcasecmp strchr strdup strerror strncasecmp strtol])
 
+# Detect pthread library (for allow/deny watcher thread)
+AC_SEARCH_LIBS([pthread_create], [pthread], [PTHREAD_LIBS="$ac_cv_search_pthread_create"], [PTHREAD_LIBS=""])
+# Sanitize possible 'none required' response which indicates pthread symbols are in libc
+AS_IF([test "x$PTHREAD_LIBS" = "xnone required"], [PTHREAD_LIBS=""])
+AC_SUBST([PTHREAD_LIBS])
+
 # If they didn't specify it, we try to find it
 if test "$use_openssl" = "yes" -a -z "$specialssldir" ; then
 	AC_CHECK_HEADER(openssl/ssl.h,,
