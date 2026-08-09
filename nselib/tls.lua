@@ -2094,6 +2094,33 @@ function record_buffer(sock, buffer, i)
   return true, buffer
 end
 
+---
+-- Returns an iterator that yields TLS records read from a socket.
+-- @param sock Connected socket
+-- @return function Iterator returning a record, or nil and an error string
+function record_iter(sock)
+  local buffer = ""
+  local i = 1
+  local fragment
+  return function()
+    local record
+    i, record = record_read(buffer, i, fragment)
+    if not record then
+      local status, err
+      status, buffer, err = record_buffer(sock, buffer, i)
+      if not status then
+        return nil, err
+      end
+      i, record = record_read(buffer, i, fragment)
+      if not record then
+        return nil, "done"
+      end
+    end
+    fragment = record.fragment
+    return record
+  end
+end
+
 -- Get a server_name for use with the TLS Server Name Indication extension.
 --
 -- This returns the value of the script argument "tls.servername" if given.  Otherwise, it
