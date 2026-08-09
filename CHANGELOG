@@ -1,5 +1,8 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE][GH#3430] Nmap now tolerates TLS targets that do not send close_notify.
+  [nnposter]
+
 Nmap 7.991 [2026-08-06]
 
 o Fixed a memory-consumption hang in Ncat's HTTP proxy code that affected both
