@@ -1,4 +1,3 @@
-local asn1 = require "asn1"
 local nmap = require "nmap"
 local shortport = require "shortport"
 local sslcert = require "sslcert"
@@ -20,12 +19,12 @@ TLS 1.3 handshake decryption, so this script intentionally negotiates TLS 1.2.
 -- @output
 -- 443/tcp open  https
 -- | tls-client-cert-request:
--- |   Acceptable Certificate Authorities:
--- |     C = US, ST = California, L = San Francisco, O = BadSSL, CN = BadSSL Client Root Certificate Authority
 -- |   Client Certificate Types:
 -- |     rsa_sign
 -- |     dss_sign
 -- |     ecdsa_sign
+-- |   Acceptable Certificate Authorities:
+-- |_    C = US, ST = California, L = San Francisco, O = BadSSL, CN = BadSSL Client Root Certificate Authority
 -- |   Signature Algorithms:
 -- |     sha512-rsa
 -- |     sha512-dsa
@@ -107,7 +106,7 @@ action = function(host, port)
           end
           for _, authority in ipairs(message.certificate_authorities) do
             output["Acceptable Certificate Authorities"][#output["Acceptable Certificate Authorities"] + 1] =
-              asn1.decodeX509Name(authority)
+              nmap.socket.parse_ssl_name(authority)
           end
           return output
         elseif message.type == "server_hello_done" then

@@ -904,6 +904,11 @@ int l_parse_ssl_certificate(lua_State *L)
 {
   return luaL_error(L, "SSL is not available");
 }
+
+int l_parse_ssl_name(lua_State *L)
+{
+  return luaL_error(L, "SSL is not available");
+}
 #endif
 
 /* Set the local address for socket operations. The two optional parameters
@@ -1182,6 +1187,7 @@ LUALIB_API int luaopen_nsock (lua_State *L)
     {"new", l_new},
     {"sleep", l_sleep},
     {"parse_ssl_certificate", l_parse_ssl_certificate},
+    {"parse_ssl_name", l_parse_ssl_name},
     {"get_stats", l_get_stats},
     {NULL, NULL}
   };

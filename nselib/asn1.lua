@@ -10,12 +10,11 @@
 -- @name asn1
 --
 
--- Version 0.4
+-- Version 0.3
 -- Created 01/12/2010 - v0.1 - Created by Patrik Karlsson <patrik@cqure.net>
 -- Revised 01/28/2010 - v0.2 - Adapted to create a framework for SNMP, LDAP and future protocols
 -- Revised 02/02/2010 - v0.3 - Changes: o Re-designed so that ASN1Encoder and ASN1Decoder are separate classes
 --                             o Each script or library should now create its own Encoder and Decoder instance
--- Revised 08/09/2026 - v0.4 - Added X.509 Name decoding.
 --
 
 local math = require "math"
@@ -30,23 +29,6 @@ BERCLASS = {
   ContextSpecific = 128,
   Private = 192
 }
-
--- Common X.509 distinguished-name attribute OIDs and their RFC 4514 names.
-X509_NAME_OIDS = {
-  ["2.5.4.3"] = "CN", ["2.5.4.4"] = "SN", ["2.5.4.5"] = "serialNumber",
-  ["2.5.4.6"] = "C", ["2.5.4.7"] = "L", ["2.5.4.8"] = "ST",
-  ["2.5.4.10"] = "O", ["2.5.4.11"] = "OU",
-  ["0.9.2342.19200300.100.1.25"] = "DC",
-  ["1.2.840.113549.1.9.1"] = "emailAddress",
-}
-
-local function decode_x509_name_string(_, encoded, length, position)
-  return encoded:sub(position, position + length - 1), position + length
-end
-
-local function decode_x509_name_set(self, encoded, length, position)
-  return self:decodeSeq(encoded, length, position)
-end
 
 --- The decoder class
 --
@@ -268,45 +250,6 @@ ASN1Decoder = {
   end,
 
 }
-
----
--- Decodes a DER-encoded X.509 Name into a human-readable distinguished name.
--- Unknown attribute OIDs are rendered in dotted-decimal notation. If the Name
--- cannot be decoded, returns its hexadecimal DER representation.
--- @param der DER-encoded X.509 Name
--- @return string Distinguished name
-function decodeX509Name(der)
-  local decoder = ASN1Decoder:new()
-  decoder:setStopOnError(true)
-  decoder:registerTagDecoders({
-    ["\x31"] = decode_x509_name_set, -- SET OF RelativeDistinguishedName
-    ["\x0c"] = decode_x509_name_string, -- UTF8String
-    ["\x13"] = decode_x509_name_string, -- PrintableString
-    ["\x14"] = decode_x509_name_string, -- T61String
-    ["\x16"] = decode_x509_name_string, -- IA5String
-  })
-  local ok, name = pcall(decoder.decode, decoder, der, 1)
-  if not ok or type(name) ~= "table" then
-    return stdnse.tohex(der)
-  end
-
-  local rdns = {}
-  for _, rdn in ipairs(name) do
-    local attributes = {}
-    for _, attribute in ipairs(rdn) do
-      local oid, value = attribute[1], attribute[2]
-      if type(oid) == "table" and type(value) == "string" then
-        local oid_text = table.concat(oid, ".")
-        attributes[#attributes + 1] = ("%s = %s"):format(
-          X509_NAME_OIDS[oid_text] or oid_text, value)
-      end
-    end
-    if #attributes > 0 then
-      rdns[#rdns + 1] = table.concat(attributes, " + ")
-    end
-  end
-  return #rdns > 0 and table.concat(rdns, ", ") or stdnse.tohex(der)
-end
 
 --- The encoder class
 --
