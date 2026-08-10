@@ -13,7 +13,7 @@
 -- * <code>password</code>
 -- These correspond to these parts of a URL (some may be <code>nil</code>):
 -- <code>
--- scheme://userinfo@password:authority:port/path;params?query#fragment
+-- scheme://userinfo:password@authority:port/path;params?query#fragment
 -- </code>
 --
 -- @author Diego Nehab
@@ -49,20 +49,9 @@ _VERSION = "URL 1.0"
 
 --[[ Internal functions --]]
 
-local function make_set(t)
-  local s = {}
-  for i,v in base.ipairs(t) do
-    s[t[i]] = 1
-  end
-  return s
+local function hex_esc (c)
+  return string.format("%%%02X", string.byte(c))
 end
-
--- these are allowed within a path segment, along with alphanum
--- other characters must be escaped
-local segment_set = make_set {
-  "-", "_", ".", "!", "~", "*", "'", "(",
-  ")", ":", "@", "&", "=", "+", "$", ",",
-}
 
 ---
 -- Protects a path segment, to prevent it from interfering with the
@@ -70,10 +59,7 @@ local segment_set = make_set {
 -- @param s Binary string to be encoded.
 -- @return Escaped representation of string.
 local function protect_segment(s)
-  return string.gsub(s, "([^A-Za-z0-9_.~-])", function (c)
-    if segment_set[c] then return c
-    else return string.format("%%%02x", string.byte(c)) end
-  end)
+  return string.gsub(s, "[^-A-Za-z0-9_.!~*'():@&=+$,]", hex_esc)
 end
 
 ---
@@ -89,7 +75,8 @@ local function absolute_path(base_path, relative_path)
                   end
   local path = relative_path
   if path:sub(1, 1) ~= "/" then
-    path = fixdots(base_path):gsub("[^/]*$", path)
+    -- function wrapper to avoid %-substitution of captures
+    path = fixdots(base_path):gsub("[^/]*$", function() return path end)
   end
   -- Break the path into segments, processing dot and dot-dot
   local segs = {}
@@ -115,12 +102,13 @@ end
 -- @return Escaped representation of string.
 -----------------------------------------------------------------------------
 function escape(s)
-  local ret = string.gsub(s, "([^A-Za-z0-9_.~-])", function(c)
-    return string.format("%%%02x", string.byte(c))
-  end)
-  return ret
+  return (string.gsub(s, "([^A-Za-z0-9_.~-])", hex_esc))
 end
 
+
+local function hex_unesc (hex)
+    return string.char(base.tonumber(hex, 16))
+end
 
 ---
 -- Decodes an escaped hexadecimal string.
@@ -128,12 +116,33 @@ end
 -- @return Decoded string.
 -----------------------------------------------------------------------------
 function unescape(s)
-  local ret = string.gsub(s, "%%(%x%x)", function(hex)
-    return string.char(base.tonumber(hex, 16))
-  end)
-  return ret
+  return (string.gsub(s, "%%(%x%x)", hex_unesc))
 end
 
+local function normalize_escape (s)
+  return escape(unescape(s))
+end
+
+---
+-- Converts an IDN hostname, possibly containing UTF-8 encoded characters,
+-- to its Punycode ACE form.
+-- @param host The host table or a string.
+-- @return Punycode hostname.
+-----------------------------------------------------------------------------
+function ascii_hostname(host)
+  local hostname = stdnse.get_hostname(host)
+  if hostname:match("[\x80-\xff]") then
+    -- TODO: Allow other Unicode encodings
+    local decoded = unicode.decode(hostname, unicode.utf8_dec)
+    if decoded then
+      local ascii_host = idna.toASCII(decoded)
+      if ascii_host then
+        hostname = ascii_host
+      end
+    end
+  end
+  return hostname
+end
 
 ---
 -- Parses a URL and returns a table with all its parts according to RFC 3986.
@@ -171,17 +180,15 @@ function parse(url, default)
   -- remove whitespace
   -- url = string.gsub(url, "%s", "")
   -- Decode unreserved characters
-  url = string.gsub(url, "%%(%x%x)", function(hex)
-      local char = string.char(base.tonumber(hex, 16))
-      if string.match(char, "[a-zA-Z0-9._~-]") then
-        return char
-      end
-      -- Hex encodings that are not unreserved must be preserved.
-      return nil
-    end)
+  url = string.gsub(url, "%%%x%x", normalize_escape)
   -- get fragment
   url = string.gsub(url, "#(.*)$", function(f)
     parsed.fragment = f
+    return ""
+  end)
+  -- get query string
+  url = string.gsub(url, "%?(.*)", function(q)
+    parsed.query = q
     return ""
   end)
   -- get scheme. Lower-case according to RFC 3986 section 3.1.
@@ -190,11 +197,6 @@ function parse(url, default)
   -- get authority
   url = string.gsub(url, "^//([^/]*)", function(n)
     parsed.authority = n
-    return ""
-  end)
-  -- get query stringing
-  url = string.gsub(url, "%?(.*)", function(q)
-    parsed.query = q
     return ""
   end)
   -- get params
@@ -223,8 +225,7 @@ function parse(url, default)
                 function(p) parsed.port = tonumber(p); return "" end)
   if authority ~= "" then parsed.host = authority end
   if parsed.host then
-    -- TODO: Allow other Unicode encodings
-    parsed.ascii_host = idna.toASCII(unicode.decode(parsed.host, unicode.utf8_dec))
+    parsed.ascii_host = ascii_hostname(parsed.host)
   end
   local userinfo = parsed.userinfo
   if not userinfo then return parsed end
@@ -353,6 +354,11 @@ function build_path(parsed, unsafe)
   return table.concat(path)
 end
 
+local entities = {
+  ["amp"] = "&",
+  ["lt"] = "<",
+  ["gt"] = ">"
+}
 ---
 -- Breaks a query string into name/value pairs.
 --
@@ -366,31 +372,16 @@ end
 -- <code>table["name"]</code> = <code>value</code>.
 -----------------------------------------------------------------------------
 function parse_query(query)
+
+  -- TODO: https://github.com/nmap/nmap/issues/3324
+  --       This opportunistic HTML decoding is problematic because
+  --       it might accidentally decode what should not be decoded.
+  query = string.gsub(query, "&([ampltg]+);", entities)
+
   local parsed = {}
-  local pos = 1
-
-  query = string.gsub(query, "&amp;", "&")
-  query = string.gsub(query, "&lt;", "<")
-  query = string.gsub(query, "&gt;", ">")
-
-  local function ginsert(qstr)
-    local pos = qstr:find("=", 1, true)
-    if pos then
-      parsed[unescape(qstr:sub(1, pos - 1))] = unescape(qstr:sub(pos + 1))
-    else
-      parsed[unescape(qstr)] = ""
-    end
-  end
-
-  while true do
-    local first, last = string.find(query, "&", pos, true)
-    if first then
-      ginsert(string.sub(query, pos, first-1));
-      pos = last+1
-    else
-      ginsert(string.sub(query, pos));
-      break;
-    end
+  for qseg in query:gsub(query, "%+", " "):gmatch("[^&]+") do
+    local k, v = qseg:match("^([^=]*)=?(.*)")
+    parsed[unescape(k)] = unescape(v)
   end
   return parsed
 end
@@ -424,7 +415,7 @@ function get_default_port (scheme)
   return get_default_port_ports[(scheme or ""):lower()]
 end
 
-get_default_scheme_schemes = tableaux.invert(get_default_port_ports)
+local get_default_scheme_schemes = tableaux.invert(get_default_port_ports)
 
 ---
 -- Provides the default URI scheme for a given port.
@@ -443,66 +434,84 @@ end
 
 test_suite = unittest.TestSuite:new()
 
-local result = parse("https://dummy:pass@example.com:9999/example.ext?k1=v1&k2=v2#fragment=/")
-local expected = {
-  scheme = "https",
-  authority = "dummy:pass@example.com:9999",
-  userinfo = "dummy:pass",
-  user = "dummy",
-  password = "pass",
-  host = "example.com",
-  port = 9999,
-  path = "/example.ext",
-  query = "k1=v1&k2=v2",
-  fragment = "fragment=/",
-  is_folder = false,
-  extension = "ext",
+local test_urls = {
+  { _url = "https://dummy:pass@example.com:9999/example.ext?k1=v1&k2=v2#fragment=/",
+    _res = {
+      scheme = "https",
+      authority = "dummy:pass@example.com:9999",
+      userinfo = "dummy:pass",
+      user = "dummy",
+      password = "pass",
+      host = "example.com",
+      port = 9999,
+      path = "/example.ext",
+      query = "k1=v1&k2=v2",
+      fragment = "fragment=/",
+      is_folder = false,
+      extension = "ext",
+    },
+    _nil = {"params"}
+  },
+  { _url = "http://dummy@example.com:1234/example.ext/another.php;k1=v1?k2=v2#k3=v3",
+    _res = {
+      scheme = "http",
+      authority = "dummy@example.com:1234",
+      userinfo = "dummy",
+      user = "dummy",
+      host = "example.com",
+      port = 1234,
+      path = "/example.ext/another.php",
+      params = "k1=v1",
+      query = "k2=v2",
+      fragment = "k3=v3",
+      is_folder = false,
+      extension = "php",
+    },
+    _nil = {"password"}
+  },
+  { _url = "//example/example.folder/?k1=v1&k2=v2#k3/v3.bar",
+    _res = {
+      authority = "example",
+      host = "example",
+      path = "/example.folder/",
+      query = "k1=v1&k2=v2",
+      fragment = "k3/v3.bar",
+      is_folder = true,
+    },
+    _nil = {"scheme", "userinfo", "port", "params", "extension"}
+  },
+  { _url = "//example/exam+ple%2F/folder:443/k1=v1&k2=v2",
+    _res = {
+      authority = "example",
+      host = "example",
+      path = "/exam+ple%2F/folder:443/k1=v1&k2=v2",
+      is_folder = false,
+    },
+    _nil = {"scheme", "userinfo", "port", "params", "extension", "query", "fragment"}
+  },
+  { _url = "//example?k1=v1&k2=v2",
+    _res = {
+      authority = "example",
+      host = "example",
+      path = "",
+      query = "k1=v1&k2=v2",
+      is_folder = false,
+    },
+    _nil = {"scheme", "userinfo", "port", "params", "extension", "fragment"}
+  },
 }
-
-test_suite:add_test(unittest.is_nil(result.params), "params")
-for k, v in pairs(expected) do
-  test_suite:add_test(unittest.equal(result[k], v), k)
+for _, t in ipairs(test_urls) do
+  local result = parse(t._url)
+  for _, nv in ipairs(t._nil) do
+    test_suite:add_test(unittest.is_nil(result[nv]), nv)
+  end
+  for k, v in pairs(t._res) do
+    test_suite:add_test(unittest.equal(result[k], v), k)
+  end
+  test_suite:add_test(unittest.equal(build(t._res), t._url), "build test url")
+  test_suite:add_test(unittest.equal(build(result), t._url), "parse/build round trip")
 end
 
-local result = parse("http://dummy@example.com:1234/example.ext/another.php;k1=v1?k2=v2#k3=v3")
-local expected = {
-  scheme = "http",
-  authority = "dummy@example.com:1234",
-  userinfo = "dummy",
-  user = "dummy",
-  host = "example.com",
-  port = 1234,
-  path = "/example.ext/another.php",
-  params = "k1=v1",
-  query = "k2=v2",
-  fragment = "k3=v3",
-  is_folder = false,
-  extension = "php",
-}
-
-test_suite:add_test(unittest.is_nil(result.password), "password")
-for k, v in pairs(expected) do
-  test_suite:add_test(unittest.equal(result[k], v), k)
-end
-
-local result = parse("//example/example.folder/?k1=v1&k2=v2#k3/v3.bar")
-local expected = {
-  authority = "example",
-  host = "example",
-  path = "/example.folder/",
-  query = "k1=v1&k2=v2",
-  fragment = "k3/v3.bar",
-  is_folder = true,
-}
-
-test_suite:add_test(unittest.is_nil(result.scheme), "scheme")
-test_suite:add_test(unittest.is_nil(result.userinfo), "userinfo")
-test_suite:add_test(unittest.is_nil(result.port), "port")
-test_suite:add_test(unittest.is_nil(result.params), "params")
-test_suite:add_test(unittest.is_nil(result.extension), "extension")
-for k, v in pairs(expected) do
-  test_suite:add_test(unittest.equal(result[k], v), k)
-end
 
 -- path merging tests for compliance with RFC 3986, section 5.2
 -- https://tools.ietf.org/html/rfc3986#section-5.2
@@ -525,6 +534,17 @@ for k, v in ipairs(absolute_path_tests) do
   local bpath, rpath, expected = table.unpack(v)
   test_suite:add_test(unittest.equal(absolute_path(bpath, rpath), expected),
                       ("absolute_path #%d (%q,%q)"):format(k, bpath, rpath))
+end
+
+local ascii_hostname_tests = { -- {UTF-8 IDN in hex, expected}
+                              {"ec8aa4ed8380ebb285ec8aa42e636f6d", "xn--ik3bz5iba065l.com"},
+                              {"6ef09f97baefb88f2e6f7267", "xn--n-6u3s.org"},
+                             }
+for k, v in ipairs(ascii_hostname_tests) do
+  local hexidn, expected = table.unpack(v)
+  local host = stdnse.fromhex(hexidn)
+  test_suite:add_test(unittest.equal(ascii_hostname(host), expected),
+                      ("ascii_hostname #%d"):format(k))
 end
 
 return _ENV;

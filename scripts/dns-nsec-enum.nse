@@ -88,7 +88,7 @@ local function split(domain)
 end
 
 local function join(components)
-  return table.concat(remove_empty(components, "."))
+  return table.concat(remove_empty(components), ".")
 end
 
 -- Remove the first component of a domain name. Return nil if the number of

@@ -64,18 +64,16 @@ void set_version (lua_State *L, const struct serviceDeductions *sd)
  * */
 void set_portinfo (lua_State *L, const Target *target, const Port *port)
 {
-  struct serviceDeductions sd;
-
-  target->ports.getServiceDeductions(port->portno, port->proto, &sd);
+  const serviceDeductions *sd = target->ports.getServiceDeductions(port->portno, port->proto);
 
   nseU_setifield(L, -1, "number", port->portno);
-  nseU_setsfield(L, -1, "service", sd.name);
+  nseU_setsfield(L, -1, "service", sd->name);
   nseU_setsfield(L, -1, "protocol", IPPROTO2STR(port->proto));
   nseU_setsfield(L, -1, "state", statenum2str(port->state));
   nseU_setsfield(L, -1, "reason", reason_str(port->reason.reason_id, 1));
   nseU_setifield(L, -1, "reason_ttl", port->reason.ttl);
   lua_createtable(L, 0, NSE_NUM_VERSION_FIELDS);
-  set_version(L, &sd);
+  set_version(L, sd);
   lua_setfield(L, -2, "version");
 }
 
@@ -83,7 +81,10 @@ void set_portinfo (lua_State *L, const Target *target, const Port *port)
    an unknown address family, push nil. */
 static void push_bin_ip(lua_State *L, const struct sockaddr_storage *ss)
 {
-  if (ss->ss_family == AF_INET) {
+  if (!ss) {
+    lua_pushnil(L);
+  }
+  else if (ss->ss_family == AF_INET) {
     const struct sockaddr_in *sin;
 
     sin = (struct sockaddr_in *) ss;
@@ -153,6 +154,7 @@ static void push_osmatch_table(lua_State *L, const FingerMatch *match,
  * points to nil!
  * */
 void set_hostinfo(lua_State *L, Target *currenths) {
+  nseU_setpfield(L, -1, "_Target", (void *)currenths);
   nseU_setsfield(L, -1, "ip", currenths->targetipstr());
   nseU_setsfield(L, -1, "name", currenths->HostName());
   nseU_setsfield(L, -1, "targetname", currenths->TargetName());
@@ -623,7 +625,14 @@ static int l_log_write (lua_State *L)
 
 static int finalize_cleanup (lua_State *L, int status, lua_KContext ctx)
 {
-  lua_settop(L, 2);
+  lua_settop(L, 2); // top of stack: error message
+  lua_createtable(L, 0, 2); // error object table
+  lua_pushliteral(L, "errtype");
+  lua_pushliteral(L, "nmap.new_try");
+  lua_rawset(L, -3);
+  lua_pushliteral(L, "message"); // stack: err(string), err(table), "message"
+  lua_rotate(L, -3, -1); // stack: err(table), "message", err(string)
+  lua_rawset(L, -3);
   return lua_error(L);
 }
 
@@ -778,7 +787,7 @@ static int l_add_targets (lua_State *L)
   } else {
       /* function called without arguments */
       /* push the number of pending targets that are in the queue */
-      lua_pushinteger(L, NewTargets::insert(""));
+      lua_pushinteger(L, NewTargets::get_queued());
       return 1;
   }
 }
@@ -835,7 +844,7 @@ static int l_resolve(lua_State *L)
     if (addr->ai_addrlen > sizeof(ss))
       continue;
     memcpy(&ss, addr->ai_addr, addr->ai_addrlen);
-    nseU_appendfstr(L, -1, "%s", inet_socktop(&ss));
+    nseU_appendfstr(L, -1, "%s", inet_socktop_safe(&ss));
   }
 
   if (addrs != NULL)

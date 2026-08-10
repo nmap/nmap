@@ -24,14 +24,13 @@ packet.
 -- | targets-ipv6-multicast-invalid-dst:
 -- |   IP: 2001:0db8:0000:0000:0000:0000:0000:0001  MAC: 11:22:33:44:55:66  IFACE: eth0
 -- |_  Use --script-args=newtargets to add the results as targets
--- @args newtargets  If true, add discovered targets to the scan queue.
 -- @args targets-ipv6-multicast-invalid-dst.interface  The interface to use for host discovery.
 
 author = {"David Fifield", "Xu Weilin"}
 
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 
-categories = {"discovery","broadcast"}
+categories = {"discovery", "broadcast", "safe"}
 
 
 prerule = function()
@@ -50,29 +49,11 @@ local function build_invalid_extension_header(nxt_hdr)
   "\x80\x01\x00\x00\x00\x00"
 end
 
-local function get_interfaces()
-  local interface_name = stdnse.get_script_args(SCRIPT_NAME .. ".interface")
-    or nmap.get_interface()
-
-  -- interfaces list (decide which interfaces to broadcast on)
-  local interfaces = {}
-  if interface_name then
-    -- single interface defined
-    local if_table = nmap.get_interface_info(interface_name)
-    if if_table and ipOps.ip_to_str(if_table.address) and if_table.link == "ethernet" then
-      interfaces[#interfaces + 1] = if_table
-    else
-      stdnse.debug1("Interface not supported or not properly configured.")
-    end
-  else
-    for _, if_table in ipairs(nmap.list_interfaces()) do
-      if ipOps.ip_to_str(if_table.address) and if_table.link == "ethernet" then
-        table.insert(interfaces, if_table)
-      end
-    end
+local function filter_interfaces(if_table)
+  local addr = ipOps.ip_to_str(if_table.address)
+  if addr and #addr == 16 and if_table.link == "ethernet" then
+    return if_table
   end
-
-  return interfaces
 end
 
 local function single_interface_broadcast(if_nfo, results)
@@ -142,13 +123,15 @@ local function single_interface_broadcast(if_nfo, results)
       local l2reply = packet.Frame:new(layer2)
       if l2reply.mac_dst == src_mac then
         local reply = packet.Packet:new(layer3)
-        local target_str = reply.ip_src
-        if not results[target_str] then
-          if target.ALLOW_NEW_TARGETS then
-            target.add(target_str)
+        if reply then
+          local target_str = reply.ip_src
+          if not results[target_str] then
+            if target.ALLOW_NEW_TARGETS then
+              target.add(target_str)
+            end
+            results[#results + 1] = { address = target_str, mac = stdnse.format_mac(l2reply.mac_src), iface = if_nfo.device }
+            results[target_str] = true
           end
-          results[#results + 1] = { address = target_str, mac = stdnse.format_mac(l2reply.mac_src), iface = if_nfo.device }
-          results[target_str] = true
         end
       end
     end
@@ -180,7 +163,7 @@ action = function()
   local results = {}
   local condvar = nmap.condvar(results)
 
-  for _, if_nfo in ipairs(get_interfaces()) do
+  for _, if_nfo in ipairs(stdnse.get_script_interfaces(filter_interfaces)) do
     -- create a thread for each interface
     local co = stdnse.new_thread(single_interface_broadcast, if_nfo, results)
     threads[co] = true

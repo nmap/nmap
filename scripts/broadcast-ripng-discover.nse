@@ -170,7 +170,14 @@ action = function()
 
   local req = RIPng.Request:new( { RIPng.RTE:new("0::", 0, 0, 16) } )
   local host, port = "FF02::9", { number = 521, protocol = "udp" }
-  local iface = nmap.get_interface()
+  local iface
+  local collect_interface = function (if_table)
+    if not iface and if_table.up == "up" and if_table.link == "ethernet"
+      and if_table.address and if_table.address:match(":") then
+      iface = if_table.device
+    end
+  end
+  stdnse.get_script_interfaces(collect_interface)
   local timeout = stdnse.parse_timespec(stdnse.get_script_args(SCRIPT_NAME..".timeout"))
   timeout = (timeout or 5) * 1000
 

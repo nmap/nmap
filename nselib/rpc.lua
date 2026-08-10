@@ -82,6 +82,7 @@ local nmap = require "nmap"
 local stdnse = require "stdnse"
 local string = require "string"
 local table = require "table"
+local tableaux = require "tableaux"
 _ENV = stdnse.module("rpc", stdnse.seeall)
 
 -- Version 0.3
@@ -114,7 +115,7 @@ local RPC_PROTOCOLS = (nmap.registry.args and nmap.registry.args[RPC_args['rpcbi
 nmap.registry.args[RPC_args['rpcbind'].proto] or { "tcp", "udp" }
 
 -- used to cache the contents of the rpc datafile
-local RPC_PROGRAMS
+local RPC_PROGRAMS, RPC_NUMBERS
 
 -- local mutex to synchronize I/O operations on nmap.registry[host.ip]['portmapper']
 local mutex = nmap.mutex("rpc")
@@ -153,67 +154,54 @@ Comm = {
   -- @return status boolean true on success, false on failure
   -- @return string containing error message (if status is false)
   Connect = function(self, host, port, timeout)
-    local status, err, socket
-    status, err = self:ChkProgram()
-    if (not(status)) then
+    timeout = timeout or stdnse.get_timeout(host, 10000)
+    local status, err = self:ChkProgram()
+    if not status then
       return status, err
     end
     status, err = self:ChkVersion()
-    if (not(status)) then
+    if not status then
       return status, err
     end
-    timeout = timeout or stdnse.get_timeout(host, 10000)
-    local new_socket = function(...)
-      local socket = nmap.new_socket(...)
-      socket:set_timeout(timeout)
-      return socket
-    end
-    if ( port.protocol == "tcp" ) then
-      if nmap.is_privileged() then
-        -- Try to bind to a reserved port
-        for i = 1, 10, 1 do
-          local resvport = math.random(512, 1023)
-          socket = new_socket()
-          status, err = socket:bind(nil, resvport)
+    local socket = nmap.new_socket(port.protocol)
+    if nmap.is_privileged() then
+      -- Let's make several attempts to bind to an unused well-known port
+      for _ = 1, 10 do
+        local srcport = math.random(512, 1023)
+        status, err = socket:bind(nil, srcport)
+        if status then
+          socket:set_timeout(timeout)
+          status, err = socket:connect(host, port)
           if status then
-            status, err = socket:connect(host, port)
-            if status or err == "TIMEOUT" then break end
-            socket:close()
+            -- socket:connect() succeeds even if mksock_bind_addr() fails.
+            -- It just assigns an ephemeral port instead of our choice,
+            -- so we need to check the actual source port afterwards.
+            local lport
+            status, err, lport = socket:get_info()
+            if status then
+              if lport == srcport then
+                break
+              end
+              status = false
+              err = "Address already in use"
+            end
           end
         end
-      else
-        socket = new_socket()
-        status, err = socket:connect(host, port)
+        socket:close()
       end
     else
-      if nmap.is_privileged() then
-        -- Try to bind to a reserved port
-        for i = 1, 10, 1 do
-          local resvport = math.random(512, 1023)
-          socket = new_socket("udp")
-          status, err = socket:bind(nil, resvport)
-          if status then
-            status, err = socket:connect(host, port)
-            if status or err == "TIMEOUT" then break end
-            socket:close()
-          end
-        end
-      else
-        socket = new_socket("udp")
-        status, err = socket:connect(host, port)
-      end
+      -- No privileges to force a specific source port
+      status, err = socket:connect(host, port)
     end
-    if (not(status)) then
-      return status, string.format("%s connect error: %s",
-        self.program, err)
-    else
-      self.socket = socket
-      self.host = host
-      self.ip = host.ip
-      self.port = port.number
-      self.proto = port.protocol
-      return status, nil
+    if not status then
+      return status, ("%s connect error: %s"):format(self.program, err)
     end
+    self.socket = socket
+    self.host = host
+    self.ip = host.ip
+    self.port = port.number
+    self.proto = port.protocol
+    return status, nil
   end,
 
   --- Disconnects from the remote program
@@ -475,7 +463,7 @@ Comm = {
 
         pos = pos + length
         data = bufcopy
-      until (lastfragment == true) or (retries == 0)
+      until lastfragment or retries == 0
 
       if retries == 0 then
         return false, "Aborted after too many retries"
@@ -3450,13 +3438,10 @@ Util =
         return
       end
     end
-    for num, name in pairs(RPC_PROGRAMS) do
-      if ( prog_name == name ) then
-        return num
-      end
+    if not RPC_NUMBERS then
+      RPC_NUMBERS = tableaux.invert(RPC_PROGRAMS)
     end
-
-    return
+    return RPC_NUMBERS[prog_name]
   end,
 
   --- Converts the RPC program number to its equivalent name

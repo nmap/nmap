@@ -126,6 +126,12 @@ typedef struct _usb_header_mmapped {
 } pcap_usb_header_mmapped;
 
 /*
+ * Maximum number of descriptors supported.
+ * It's currently 128 in the Linux binary USB monitoring code.
+ */
+#define USB_MAXDESC	128
+
+/*
  * Isochronous descriptors; for isochronous transfers there might be
  * one or more of these at the beginning of the packet data.  The
  * number of descriptors is given by the "ndesc" field in the header;

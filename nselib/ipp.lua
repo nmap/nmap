@@ -83,35 +83,30 @@ IPP = {
       attrib.value = {}
       table.insert(attrib.value, { tag = attrib.tag, val = val })
 
-      repeat
+      while pos + 3 < #data do
         local tag, name_len, val
-
-        if ( #data < pos + 3 ) then
+        tag, name_len, pos = string.unpack(">BI2", data, pos)
+        if name_len > 0 then
+          -- done; start of a new attribute
+          pos = pos - 3
           break
         end
-
-        tag, name_len, pos = string.unpack(">BI2", data, pos)
-        if ( name_len == 0 ) then
-          val, pos = string.unpack(">s2", data, pos)
-          table.insert(attrib.value, { tag = tag, val = val })
-        else
-          pos = pos - 3
-        end
-      until( name_len ~= 0 )
+        val, pos = string.unpack(">s2", data, pos)
+        table.insert(attrib.value, { tag = tag, val = val })
+      end
 
       -- do minimal decoding
-      for i=1, #attrib.value do
-        if ( attrib.value[i].tag == IPP.Attribute.IPP_TAG_INTEGER ) then
-          attrib.value[i].val = string.unpack(">I4", attrib.value[i].val)
-        elseif ( attrib.value[i].tag == IPP.Attribute.IPP_TAG_ENUM ) then
-          attrib.value[i].val = string.unpack(">I4", attrib.value[i].val)
+      for _, av in ipairs(attrib.value) do
+        if av.tag == IPP.Attribute.IPP_TAG_INTEGER then
+          av.val = string.unpack(">I4", av.val)
+        elseif av.tag == IPP.Attribute.IPP_TAG_ENUM then
+          av.val = string.unpack(">I4", av.val)
         end
       end
 
       if ( 1 == #attrib.value ) then
         attrib.value = attrib.value[1].val
       end
-      --print(attrib.name, attrib.value, stdnse.tohex(val))
 
       return pos, attrib
     end,
@@ -152,26 +147,14 @@ IPP = {
     -- @param tag number containing the attribute tag
     getAttribute = function(self, name, tag)
       for _, attrib in ipairs(self.attribs) do
-        if ( attrib.name == name ) then
-          if ( not(tag) ) then
-            return attrib
-          elseif ( tag and attrib.tag == tag ) then
-            return attrib
-          end
+        if attrib.name == name and (not tag or attrib.tag == tag) then
+          return attrib
         end
       end
     end,
 
     getAttributeValue = function(self, name, tag)
-      for _, attrib in ipairs(self.attribs) do
-        if ( attrib.name == name ) then
-          if ( not(tag) ) then
-            return attrib.value
-          elseif ( tag and attrib.tag == tag ) then
-            return attrib.value
-          end
-        end
-      end
+      return (self:getAttribute(name, tag) or {}).value
     end,
 
     __tostring = function(self)
@@ -307,17 +290,11 @@ HTTP = {
 
 Helper = {
 
-  new = function(self, host, port, options)
-    local o = { host = host, port = port, options = options or {} }
+  new = function(self, host, port)
+    local o = { host = host, port = port }
     setmetatable(o, self)
     self.__index = self
     return o
-  end,
-
-  connect = function(self)
-    self.socket = nmap.new_socket()
-    self.socket:set_timeout(self.options.timeout or 10000)
-    return self.socket:connect(self.host, self.port)
   end,
 
   getPrinters = function(self)
@@ -332,7 +309,7 @@ Helper = {
     request:addAttributeGroup(ag)
 
     local status, response = HTTP.Request( self.host, self.port, tostring(request) )
-    if ( not(response) ) then
+    if not status then
       return status, response
     end
 
@@ -350,9 +327,7 @@ Helper = {
 
       local printer = {}
       for k, v in pairs(attrib) do
-        if ( ag:getAttributeValue(k) ) then
-          printer[v] = ag:getAttributeValue(k)
-        end
+        printer[v] = ag:getAttributeValue(k)
       end
       table.insert(printers, printer)
     end
@@ -360,7 +335,7 @@ Helper = {
   end,
 
   getQueueInfo = function(self, uri)
-    local uri = uri or ("ipp://%s/"):format(self.host.ip)
+    uri = uri or ("ipp://%s/"):format(self.host.ip)
 
     local attribs = {
       IPP.Attribute:new(IPP.Attribute.IPP_TAG_CHARSET, "attributes-charset", "utf-8" ),
@@ -375,7 +350,7 @@ Helper = {
         { tag = IPP.Attribute.IPP_TAG_KEYWORD, val = "job-name" },
         { tag = IPP.Attribute.IPP_TAG_KEYWORD, val = "job-state" },
         { tag = IPP.Attribute.IPP_TAG_KEYWORD, val = "printer-uri" },
-        -- { tag = IPP.Attribute.IPP_TAG_KEYWORD, val = "job-originating-user-name" },
+        { tag = IPP.Attribute.IPP_TAG_KEYWORD, val = "job-originating-user-name" },
         -- { tag = IPP.Attribute.IPP_TAG_KEYWORD, val = "job-printer-state-message" },
         -- { tag = IPP.Attribute.IPP_TAG_KEYWORD, val = "job-printer-uri" },
         { tag = IPP.Attribute.IPP_TAG_KEYWORD, val = "time-at-creation" } } ),
@@ -387,23 +362,25 @@ Helper = {
     request:addAttributeGroup(ag)
 
     local status, response = HTTP.Request( self.host, self.port, tostring(request) )
-    if ( not(response) ) then
+    if not status then
       return status, response
     end
 
     local results = {}
     for _, ag in ipairs(response:getAttributeGroups(IPP.Attribute.IPP_TAG_JOB)) do
-      local uri = ag:getAttributeValue("printer-uri")
-      local printer = uri:match(".*/(.*)$") or "Unknown"
+      local printer = ag:getAttributeValue("printer-uri"):match(".*/(.*)$") or "Unknown"
       -- some jobs have multiple state attributes, so far the ENUM ones have been correct
       local state = ag:getAttributeValue("job-state", IPP.Attribute.IPP_TAG_ENUM) or ag:getAttributeValue("job-state")
       -- some jobs have multiple id tag, so far the INTEGER type have shown the correct ID
       local id = ag:getAttributeValue("job-id", IPP.Attribute.IPP_TAG_INTEGER) or ag:getAttributeValue("job-id")
-      local attr = ag:getAttribute("time-at-creation")
       local tm = ag:getAttributeValue("time-at-creation")
       local size = ag:getAttributeValue("job-k-octets") .. "k"
-      local jobname = ag:getAttributeValue("com.apple.print.JobInfo.PMJobName") or "Unknown"
-      local owner = ag:getAttributeValue("com.apple.print.JobInfo.PMJobOwner") or "Unknown"
+      local jobname = ag:getAttributeValue("com.apple.print.JobInfo.PMJobName")
+                      or ag:getAttributeValue("job-name")
+                      or "Unknown"
+      local owner = ag:getAttributeValue("com.apple.print.JobInfo.PMJobOwner")
+                    or ag:getAttributeValue("job-originating-user-name")
+                    or "Unknown"
 
       results[printer] = results[printer] or {}
       table.insert(results[printer], {
@@ -428,10 +405,6 @@ Helper = {
     end
 
     return output
-  end,
-
-  close = function(self)
-    return self.socket:close()
   end,
 }
 

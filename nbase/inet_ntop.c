@@ -247,7 +247,7 @@ inet_ntop6(const unsigned char *src, char *dst, size_t size)
 #endif
         return (NULL);
     }
-    strncpy(dst, tmp, size);
+    Strncpy(dst, tmp, size);
     return (dst);
 }
 #endif

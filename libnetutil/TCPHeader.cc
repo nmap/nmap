@@ -1,4 +1,3 @@
-
 /***************************************************************************
  * TCPHeader.cc -- The TCPHeader Class represents a TCP packet. It         *
  * contains methods to set the different header fields. These methods      *
@@ -6,128 +5,59 @@
  * conversions.                                                            *
  *                                                                         *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
- *                                                                         *
- * The Nmap Security Scanner is (C) 1996-2019 Insecure.Com LLC ("The Nmap  *
- * Project"). Nmap is also a registered trademark of the Nmap Project.     *
- * This program is free software; you may redistribute and/or modify it    *
- * under the terms of the GNU General Public License as published by the   *
- * Free Software Foundation; Version 2 ("GPL"), BUT ONLY WITH ALL OF THE   *
- * CLARIFICATIONS AND EXCEPTIONS DESCRIBED HEREIN.  This guarantees your   *
- * right to use, modify, and redistribute this software under certain      *
- * conditions.  If you wish to embed Nmap technology into proprietary      *
- * software, we sell alternative licenses (contact sales@nmap.com).        *
- * Dozens of software vendors already license Nmap technology such as      *
- * host discovery, port scanning, OS detection, version detection, and     *
- * the Nmap Scripting Engine.                                              *
- *                                                                         *
- * Note that the GPL places important restrictions on "derivative works",  *
- * yet it does not provide a detailed definition of that term.  To avoid   *
- * misunderstandings, we interpret that term as broadly as copyright law   *
- * allows.  For example, we consider an application to constitute a        *
- * derivative work for the purpose of this license if it does any of the   *
- * following with any software or content covered by this license          *
- * ("Covered Software"):                                                   *
- *                                                                         *
- * o Integrates source code from Covered Software.                         *
- *                                                                         *
- * o Reads or includes copyrighted data files, such as Nmap's nmap-os-db   *
- * or nmap-service-probes.                                                 *
- *                                                                         *
- * o Is designed specifically to execute Covered Software and parse the    *
- * results (as opposed to typical shell or execution-menu apps, which will *
- * execute anything you tell them to).                                     *
- *                                                                         *
- * o Includes Covered Software in a proprietary executable installer.  The *
- * installers produced by InstallShield are an example of this.  Including *
- * Nmap with other software in compressed or archival form does not        *
- * trigger this provision, provided appropriate open source decompression  *
- * or de-archiving software is widely available for no charge.  For the    *
- * purposes of this license, an installer is considered to include Covered *
- * Software even if it actually retrieves a copy of Covered Software from  *
- * another source during runtime (such as by downloading it from the       *
- * Internet).                                                              *
- *                                                                         *
- * o Links (statically or dynamically) to a library which does any of the  *
- * above.                                                                  *
- *                                                                         *
- * o Executes a helper program, module, or script to do any of the above.  *
- *                                                                         *
- * This list is not exclusive, but is meant to clarify our interpretation  *
- * of derived works with some common examples.  Other people may interpret *
- * the plain GPL differently, so we consider this a special exception to   *
- * the GPL that we apply to Covered Software.  Works which meet any of     *
- * these conditions must conform to all of the terms of this license,      *
- * particularly including the GPL Section 3 requirements of providing      *
- * source code and allowing free redistribution of the work as a whole.    *
- *                                                                         *
- * As another special exception to the GPL terms, the Nmap Project grants  *
- * permission to link the code of this program with any version of the     *
- * OpenSSL library which is distributed under a license identical to that  *
- * listed in the included docs/licenses/OpenSSL.txt file, and distribute   *
- * linked combinations including the two.                                  *
- *                                                                         *
- * The Nmap Project has permission to redistribute Npcap, a packet         *
- * capturing driver and library for the Microsoft Windows platform.        *
- * Npcap is a separate work with it's own license rather than this Nmap    *
- * license.  Since the Npcap license does not permit redistribution        *
- * without special permission, our Nmap Windows binary packages which      *
- * contain Npcap may not be redistributed without special permission.      *
- *                                                                         *
- * Any redistribution of Covered Software, including any derived works,    *
- * must obey and carry forward all of the terms of this license, including *
- * obeying all GPL rules and restrictions.  For example, source code of    *
- * the whole work must be provided and free redistribution must be         *
- * allowed.  All GPL references to "this License", are to be treated as    *
- * including the terms and conditions of this license text as well.        *
- *                                                                         *
- * Because this license imposes special exceptions to the GPL, Covered     *
- * Work may not be combined (even as part of a larger work) with plain GPL *
- * software.  The terms, conditions, and exceptions of this license must   *
- * be included as well.  This license is incompatible with some other open *
- * source licenses as well.  In some cases we can relicense portions of    *
- * Nmap or grant special permissions to use it in other open source        *
- * software.  Please contact fyodor@nmap.org with any such requests.       *
- * Similarly, we don't incorporate incompatible open source software into  *
- * Covered Software without special permission from the copyright holders. *
- *                                                                         *
- * If you have any questions about the licensing restrictions on using     *
- * Nmap in other works, we are happy to help.  As mentioned above, we also *
- * offer an alternative license to integrate Nmap into proprietary         *
- * applications and appliances.  These contracts have been sold to dozens  *
- * of software vendors, and generally include a perpetual license as well  *
- * as providing support and updates.  They also fund the continued         *
- * development of Nmap.  Please email sales@nmap.com for further           *
- * information.                                                            *
- *                                                                         *
- * If you have received a written license agreement or contract for        *
- * Covered Software stating terms other than these, you may choose to use  *
- * and redistribute Covered Software under those terms instead of these.   *
- *                                                                         *
- * Source is provided to this software because we believe users have a     *
- * right to know exactly what a program is going to do before they run it. *
- * This also allows you to audit the software for security holes.          *
- *                                                                         *
- * Source code also allows you to port Nmap to new platforms, fix bugs,    *
- * and add new features.  You are highly encouraged to send your changes   *
- * to the dev@nmap.org mailing list for possible incorporation into the    *
- * main distribution.  By sending these changes to Fyodor or one of the    *
- * Insecure.Org development mailing lists, or checking them into the Nmap  *
- * source code repository, it is understood (unless you specify            *
- * otherwise) that you are offering the Nmap Project the unlimited,        *
- * non-exclusive right to reuse, modify, and relicense the code.  Nmap     *
- * will always be available Open Source, but this is important because     *
- * the inability to relicense code has caused devastating problems for     *
- * other Free Software projects (such as KDE and NASM).  We also           *
- * occasionally relicense the code to third parties as discussed above.    *
- * If you wish to specify special license conditions of your               *
- * contributions, just say so when you send them.                          *
- *                                                                         *
- * This program is distributed in the hope that it will be useful, but     *
- * WITHOUT ANY WARRANTY; without even the implied warranty of              *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the Nmap      *
- * license file for more details (it's in a COPYING file included with     *
- * Nmap, and also available from https://svn.nmap.org/nmap/COPYING)        *
- *                                                                         *
+ *
+ * The Nmap Security Scanner is (C) 1996-2026 Nmap Software LLC ("The Nmap
+ * Project"). Nmap is also a registered trademark of the Nmap Project.
+ *
+ * This program is distributed under the terms of the Nmap Public Source
+ * License (NPSL). The exact license text applying to a particular Nmap
+ * release or source code control revision is contained in the LICENSE
+ * file distributed with that version of Nmap or source code control
+ * revision. More Nmap copyright/legal information is available from
+ * https://nmap.org/book/man-legal.html, and further information on the
+ * NPSL license itself can be found at https://nmap.org/npsl/ . This
+ * header summarizes some key points from the Nmap license, but is no
+ * substitute for the actual license text.
+ *
+ * Nmap is generally free for end users to download and use themselves,
+ * including commercial use. It is available from https://nmap.org.
+ *
+ * The Nmap license generally prohibits companies from using and
+ * redistributing Nmap in commercial products, but we sell a special Nmap
+ * OEM Edition with a more permissive license and special features for
+ * this purpose. See https://nmap.org/oem/
+ *
+ * If you have received a written Nmap license agreement or contract
+ * stating terms other than these (such as an Nmap OEM license), you may
+ * choose to use and redistribute Nmap under those terms instead.
+ *
+ * The official Nmap Windows builds include the Npcap software
+ * (https://npcap.com) for packet capture and transmission. It is under
+ * separate license terms which forbid redistribution without special
+ * permission. So the official Nmap Windows builds may not be redistributed
+ * without special permission (such as an Nmap OEM license).
+ *
+ * Source is provided to this software because we believe users have a
+ * right to know exactly what a program is going to do before they run it.
+ * This also allows you to audit the software for security holes.
+ *
+ * Source code also allows you to port Nmap to new platforms, fix bugs, and
+ * add new features. You are highly encouraged to submit your changes as a
+ * Github PR or by email to the dev@nmap.org mailing list for possible
+ * incorporation into the main distribution. Unless you specify otherwise, it
+ * is understood that you are offering us very broad rights to use your
+ * submissions as described in the Nmap Public Source License Contributor
+ * Agreement. This is important because we fund the project by selling licenses
+ * with various terms, and also because the inability to relicense code has
+ * caused devastating problems for other Free Software projects (such as KDE
+ * and NASM).
+ *
+ * The free version of Nmap is distributed in the hope that it will be
+ * useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. Warranties,
+ * indemnification and commercial support are all available through the
+ * Npcap OEM program--see https://nmap.org/oem/
+ *
  ***************************************************************************/
 /* This code was originally part of the Nping tool.                        */
 
@@ -252,7 +182,7 @@ int TCPHeader::print(FILE *output, int detail) const {
     fprintf(output, " urp=%d", this->getUrgPointer() );
 
   if(this->tcpoptlen>0 && (this->length >= TCP_HEADER_LEN+this->tcpoptlen) && this->tcpoptlen<=MAX_TCP_OPTIONS_LEN){
-    this->__tcppacketoptinfo(this->h.options, this->tcpoptlen, optinfo, sizeof(optinfo)-1);
+    tcppacketoptinfo(this->h.options, this->tcpoptlen, optinfo, sizeof(optinfo)-1);
     optinfo[255]='\0';
     fprintf(output, " %s", optinfo);
   }
@@ -264,139 +194,6 @@ int TCPHeader::print(FILE *output, int detail) const {
   }
   return OP_SUCCESS;
 } /* End of print() */
-
-
-/* Get an ASCII information about a tcp option which is pointed by
-   optp, with a length of len. The result is stored in the result
-   buffer. The result may look like "<mss 1452,sackOK,timestamp
-   45848914 0,nop,wscale 7>" */
-void TCPHeader::__tcppacketoptinfo(const u8 *optp, int len, char *result, int bufsize) const {
-  assert(optp);
-  assert(result);
-  char *p, ch;
-  const u8 *q;
-  int opcode;
-  u16 tmpshort;
-  u32 tmpword1, tmpword2;
-  unsigned int i=0;
-
-  p = result;
-  *p = '\0';
-  q = optp;
-  ch = '<';
-
-  while (len > 0 && bufsize > 2) {
-    Snprintf(p, bufsize, "%c", ch);
-    bufsize--;
-    p++;
-    opcode = *q++;
-    if (!opcode) { /* End of List */
-
-      Snprintf(p, bufsize, "eol");
-      bufsize -= strlen(p);
-      p += strlen(p);
-
-      len--;
-
-    } else if (opcode == 1) { /* No Op */
-      Snprintf(p, bufsize, "nop");
-      bufsize -= strlen(p);
-      p += strlen(p);
-
-      len--;
-    } else if (opcode == 2) { /* MSS */
-      if (len < 4)
-        break; /* MSS has 4 bytes */
-
-      q++;
-      memcpy(&tmpshort, q, 2);
-
-      Snprintf(p, bufsize, "mss %u", ntohs(tmpshort));
-      bufsize -= strlen(p);
-      p += strlen(p);
-
-      q += 2;
-      len -= 4;
-    } else if (opcode == 3) { /* Window Scale */
-      if (len < 3)
-        break; /* Window Scale option has 3 bytes */
-
-      q++;
-
-      Snprintf(p, bufsize, "wscale %u", *q);
-      bufsize -= strlen(p);
-      p += strlen(p);
-
-      q++;
-      len -= 3;
-    } else if (opcode == 4) { /* SACK permitted */
-      if (len < 2)
-        break; /* SACK permitted option has 2 bytes */
-
-      Snprintf(p, bufsize, "sackOK");
-      bufsize -= strlen(p);
-      p += strlen(p);
-
-      q++;
-      len -= 2;
-    } else if (opcode == 5) { /* SACK */
-      unsigned sackoptlen = *q;
-      if ((unsigned) len < sackoptlen)
-        break;
-
-      /* This would break parsing, so it's best to just give up */
-      if (sackoptlen < 2)
-        break;
-
-      q++;
-
-      if ((sackoptlen - 2) == 0 || ((sackoptlen - 2) % 8 != 0)) {
-        Snprintf(p, bufsize, "malformed sack");
-        bufsize -= strlen(p);
-        p += strlen(p);
-      } else {
-        Snprintf(p, bufsize, "sack %d ", (sackoptlen - 2) / 8);
-        bufsize -= strlen(p);
-        p += strlen(p);
-        for (i = 0; i < sackoptlen - 2; i += 8) {
-          memcpy(&tmpword1, q + i, 4);
-          memcpy(&tmpword2, q + i + 4, 4);
-          Snprintf(p, bufsize, "{%u:%u}", tmpword1, tmpword2);
-          bufsize -= strlen(p);
-          p += strlen(p);
-        }
-      }
-
-      q += sackoptlen - 2;
-      len -= sackoptlen;
-    } else if (opcode == 8) { /* Timestamp */
-      if (len < 10)
-        break; /* Timestamp option has 10 bytes */
-
-      q++;
-      memcpy(&tmpword1, q, 4);
-      memcpy(&tmpword2, q + 4, 4);
-
-      Snprintf(p, bufsize, "timestamp %u %u", ntohl(tmpword1),
-               ntohl(tmpword2));
-      bufsize -= strlen(p);
-      p += strlen(p);
-
-      q += 8;
-      len -= 10;
-    }
-
-    ch = ',';
-  }
-
-  if (len > 0) {
-    *result = '\0';
-    return;
-  }
-
-  Snprintf(p, bufsize, ">");
-}
-
 
 
 /******************************************************************************/
@@ -463,17 +260,15 @@ u32 TCPHeader::getAck() const {
 } /* End of getAck() */
 
 
-/* TODO: Test this method. It may not work becuasse th_off is supposed to
- * be 4 bits long and arg o is 8.
- * UPDATE: It seems to work just fine. However, let's keep this note just
- * in case problems arise. */
 int TCPHeader::setOffset(u8 o){
+  assert(o <= 0x0f);
   h.th_off = o;
   return OP_SUCCESS;
 } /* End of setOffset() */
 
 
 int TCPHeader::setOffset(){
+  assert(tcpoptlen <= 40);
   h.th_off = 5 + tcpoptlen/4;
   return OP_SUCCESS;
 } /* End of setOffset() */
@@ -884,74 +679,6 @@ const u8 *TCPHeader::getOptions(size_t *optslen) const {
 } /* End of getOptions() */
 
 
-/* Returns the index-th option in the TCP header. On success it returns a
- * structure filled with option information. If there is no index-th option,
- * it returns a structure with st.value==NULL. Note that this function does
- * not perform strict validity checking. It does check that the length claimed
- * by the options does not exceed the available buffer but it does not check,
- * for example, that the MSS option always contains a length of 4. Also,
- * if the returned option type is TCPOPT_EOL or TCPOPT_NOOP, the len field
- * would be set to zero and the "value" field should NOT be accessed, as it
- * will not contain reliable information. */
-nping_tcp_opt_t TCPHeader::getOption(unsigned int index) const {
-  nping_tcp_opt_t *curr_opt=NULL;
-  u8 *curr_pnt=(u8 *)this->h.options;
-  int bytes_left=this->length - TCP_HEADER_LEN;
-  assert((this->length - TCP_HEADER_LEN) == this->tcpoptlen);
-  unsigned int optsfound=0;
-  nping_tcp_opt_t result;
-  memset(&result, 0, sizeof(nping_tcp_opt_t));
-
-  while(bytes_left>0){
-      /* Use the opts structure as a template to access current option. It is
-       * OK to use it because we only access the first two elements. */
-      curr_opt=(nping_tcp_opt_t *)curr_pnt;
-
-      /* If we are right in the option that the caller wants, just return it */
-      if(optsfound==index){
-        result.type=curr_opt->type;
-        if(result.type==TCPOPT_EOL || result.type==TCPOPT_NOOP)
-          result.len=1;
-        else
-          result.len=curr_opt->len;
-        result.value=(u8 *)curr_pnt+2;
-        return result;
-      }
-
-      /* Otherwise, we have to parse it, so we can skip it and access the next
-       * option */
-      switch(curr_opt->type){
-
-        /* EOL or NOOP
-        +-+-+-+-+-+-+-+-+
-        |       X       |
-        +-+-+-+-+-+-+-+-+  */
-        case TCPOPT_EOL:
-          goto out;
-
-        case TCPOPT_NOOP:
-          curr_pnt++; /* Skip one octet */
-          bytes_left--;
-        break;
-
-        /* TLV encoded option */
-        default:
-          /* If we don't have as many octets as the option advertises, the
-           * option is bogus. Return failure. */
-          if(bytes_left<curr_opt->len)
-            return result;
-          curr_pnt+=curr_opt->len;
-          bytes_left-=curr_opt->len;
-        break;
-      }
-      optsfound++;
-  }
-
-out:
-  return result;
-}
-
-
 /* Returns a textual representation of a TCP Options code */
 const char *TCPHeader::optcode2str(u8 optcode){
   switch(optcode){
@@ -1004,4 +731,72 @@ const char *TCPHeader::optcode2str(u8 optcode){
   }
 } /* End of optcode2str() */
 
+
+bool TCPOptions::fromTCPPacket(const u8 *tcppkt, int tcplen)
+{
+  tcpopts = NULL;
+  optslen = 0;
+  if (tcplen < TCP_HEADER_LEN)
+    return false;
+
+  u8 data_offset = tcppkt[12] >> 4;
+  if (data_offset < 5)
+    return false;
+
+  tcpopts = tcppkt + TCP_HEADER_LEN;
+  optslen = MIN(4 * data_offset, tcplen) - TCP_HEADER_LEN;
+  if (optslen == 0)
+    tcpopts = NULL;
+  return true;
+}
+
+bool TCPOptions::fromBuffer(const u8 *tcpoptions, int optionslen)
+{
+  if (!tcpoptions || optionslen <= 0)
+    return false;
+  tcpopts = tcpoptions;
+  optslen = optionslen;
+  return true;
+}
+
+bool TCPOptions::fromTCPHeader(const TCPHeader &T)
+{
+  size_t len = 0;
+  tcpopts = T.getOptions(&len);
+  if (len > INT_MAX) {
+    tcpopts = NULL;
+    return false;
+  }
+  optslen = len;
+  return tcpopts != NULL;
+}
+
+bool TCPOptions::foreachOpt(tcpopt_callback cb, void *ctx) const
+{
+  const u8 *p = tcpopts;
+  int len = optslen;
+  while (len > 0) {
+    int op = p[0];
+    int oplen = 1;
+    switch (op) {
+      case 0: /* TCPOPT_EOL */
+      case 1: /* TCPOPT_NOP */
+        break;
+      default: /* TLV option */
+        if (len < 2)
+          return false;
+        oplen = p[1];
+        if (oplen < 2)
+          return false; /* No infinite loops, please */
+        if (oplen > len)
+          return false; /* Not enough space */
+        break;
+    }
+    if (!cb(op, oplen, p, ctx))
+      return true;
+    len -= oplen;
+    p += oplen;
+  }
+  return len == 0;
+}
 

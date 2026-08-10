@@ -24,6 +24,8 @@
 #   than 256 bytes, otherwise the compiler driver will dump core. The only
 #   known workaround is to choose shorter directory names for the build
 #   directory and/or the installation directory.
+#
+# SPDX-License-Identifier: FSFULLR
 
 # All known linkers require a `.a' archive for static linking (except MSVC,
 # which needs '.lib').

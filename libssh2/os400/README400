@@ -18,7 +18,8 @@ additional procedures are provided for string transcoding (see below). No
 wrappers to standard procedures are provided: however, nested calls to
 transcoding procedures may be used.
 
-Crypto API is provided by the IBM QC3 API library. It supports RSA, but not DSA.
+Crypto API is provided by the IBM QC3 API library. It supports RSA and EC,
+but not DSA.
 
 
   Standard compilation environment does support neither autotools nor make;
@@ -36,22 +37,31 @@ Compiling on OS/400:
 archive extraction. Do not ask questions about these subjects if you're not
 familiar with.
 
-_ As a prerequisite, QADRT development environment must be installed.
-_ Install the libssh2 sources directory in IFS.
-_ Enter shell (QSH)
+_ As a prerequisite, QADRT development environment >= 20211112 must be
+  installed.
+  For more information on downloading and installing the QADRT development kit,
+  please see https://www.ibm.com/support/pages/node/6258183
+_ If data compression has to be supported, ZLIB development environment must
+  be installed.
+_ Install the libssh2 sources directory in IFS. Do NOT install it in the
+  installation target directory (which defaults to /libssh2).
+_ Enter shell (QSH). You may need to change the LANG environment variable
+  to be in phase with the libssh2 source files CCSID.
 _ Change current directory to the libssh2 sources installation directory
 _ Change current directory to os400
-_ Edit file iniscript.sh. You may want to change tunable configuration
-  parameters, like debug info generation, optimisation level, listing option,
-  target library, zlib availability and location, etc.
+- If you want to change the default configuration parameters like debug info
+  generation, optimization level, listing option, target library, zlib
+  availability and location, etc., copy file config400.default to
+  config400.override and edit the latter. Do not edit the original default file
+  as it might be overwritten by a subsequent source installation.
 _ Copy any file in the current directory to makelog (i.e.:
   cp initscript.sh makelog): this is intended to create the makelog file with
   an ASCII CCSID!
 _ Enter the command "sh make.sh > makelog 2>&1'
 _ Examine the makelog file to check for compilation errors.
 
-  Leaving file initscript.sh unchanged, this will produce the following OS/400
-objects:
+  Without configuration parameters override, this will produce the following
+OS/400 objects:
 _ Library LIBSSH2. All other objects will be stored in this library.
 _ Modules for all libssh2 units.
 _ Binding directory LIBSSH2_A, to be used at calling program link time for
@@ -96,9 +106,9 @@ String transcoding support:
 values from/to the libssh2 API, three non-standard additional procedures are
 provided. They use a session pointer and a "string cache" pointer.
   Each time a string is transcoded, it is cached in the given cache. It is
-the responsibility of the caller to release the cache when its associted strings
-are no longer needed. These procedures and the string cache type are defined
-in a new libssh2_ccsid.h header file.
+the responsibility of the caller to release the cache when its associated
+strings are no longer needed. These procedures and the string cache type are
+defined in a new libssh2_ccsid.h header file.
   To create a string cache, use:
 
 #include <libssh2_ccsid.h>
@@ -122,7 +132,8 @@ char * libssh2_to_ccsid(LIBSSH2_SESSION *session,
                         size_t *outlen);
 
 where:
-    session      is a libssh2 session used for memory allocation.
+    session      is a libssh2 session used for memory allocation or NULL for
+                 global allocation scheme.
     cache        is the address of a string cache.
     ccsid        is the external (i.e.: non libssh2) coded character set id.
                  65535 means no conversion and 0 means the current job's CCSID.
@@ -143,6 +154,8 @@ string results in a program's native encoding.
 or NULL if an error occurred. In addition, the variable pointed by outlen
 receives the effective byte length of the (cached) translated string, or -1
 in case of error.
+
+  Please take care to never mix different sessions into the same cache.
 
 
 

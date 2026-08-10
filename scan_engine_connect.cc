@@ -4,128 +4,59 @@
  * that are related to port scanning using connect() system call.          *
  *                                                                         *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
- *                                                                         *
- * The Nmap Security Scanner is (C) 1996-2019 Insecure.Com LLC ("The Nmap  *
- * Project"). Nmap is also a registered trademark of the Nmap Project.     *
- * This program is free software; you may redistribute and/or modify it    *
- * under the terms of the GNU General Public License as published by the   *
- * Free Software Foundation; Version 2 ("GPL"), BUT ONLY WITH ALL OF THE   *
- * CLARIFICATIONS AND EXCEPTIONS DESCRIBED HEREIN.  This guarantees your   *
- * right to use, modify, and redistribute this software under certain      *
- * conditions.  If you wish to embed Nmap technology into proprietary      *
- * software, we sell alternative licenses (contact sales@nmap.com).        *
- * Dozens of software vendors already license Nmap technology such as      *
- * host discovery, port scanning, OS detection, version detection, and     *
- * the Nmap Scripting Engine.                                              *
- *                                                                         *
- * Note that the GPL places important restrictions on "derivative works",  *
- * yet it does not provide a detailed definition of that term.  To avoid   *
- * misunderstandings, we interpret that term as broadly as copyright law   *
- * allows.  For example, we consider an application to constitute a        *
- * derivative work for the purpose of this license if it does any of the   *
- * following with any software or content covered by this license          *
- * ("Covered Software"):                                                   *
- *                                                                         *
- * o Integrates source code from Covered Software.                         *
- *                                                                         *
- * o Reads or includes copyrighted data files, such as Nmap's nmap-os-db   *
- * or nmap-service-probes.                                                 *
- *                                                                         *
- * o Is designed specifically to execute Covered Software and parse the    *
- * results (as opposed to typical shell or execution-menu apps, which will *
- * execute anything you tell them to).                                     *
- *                                                                         *
- * o Includes Covered Software in a proprietary executable installer.  The *
- * installers produced by InstallShield are an example of this.  Including *
- * Nmap with other software in compressed or archival form does not        *
- * trigger this provision, provided appropriate open source decompression  *
- * or de-archiving software is widely available for no charge.  For the    *
- * purposes of this license, an installer is considered to include Covered *
- * Software even if it actually retrieves a copy of Covered Software from  *
- * another source during runtime (such as by downloading it from the       *
- * Internet).                                                              *
- *                                                                         *
- * o Links (statically or dynamically) to a library which does any of the  *
- * above.                                                                  *
- *                                                                         *
- * o Executes a helper program, module, or script to do any of the above.  *
- *                                                                         *
- * This list is not exclusive, but is meant to clarify our interpretation  *
- * of derived works with some common examples.  Other people may interpret *
- * the plain GPL differently, so we consider this a special exception to   *
- * the GPL that we apply to Covered Software.  Works which meet any of     *
- * these conditions must conform to all of the terms of this license,      *
- * particularly including the GPL Section 3 requirements of providing      *
- * source code and allowing free redistribution of the work as a whole.    *
- *                                                                         *
- * As another special exception to the GPL terms, the Nmap Project grants  *
- * permission to link the code of this program with any version of the     *
- * OpenSSL library which is distributed under a license identical to that  *
- * listed in the included docs/licenses/OpenSSL.txt file, and distribute   *
- * linked combinations including the two.                                  *
- *                                                                         *
- * The Nmap Project has permission to redistribute Npcap, a packet         *
- * capturing driver and library for the Microsoft Windows platform.        *
- * Npcap is a separate work with it's own license rather than this Nmap    *
- * license.  Since the Npcap license does not permit redistribution        *
- * without special permission, our Nmap Windows binary packages which      *
- * contain Npcap may not be redistributed without special permission.      *
- *                                                                         *
- * Any redistribution of Covered Software, including any derived works,    *
- * must obey and carry forward all of the terms of this license, including *
- * obeying all GPL rules and restrictions.  For example, source code of    *
- * the whole work must be provided and free redistribution must be         *
- * allowed.  All GPL references to "this License", are to be treated as    *
- * including the terms and conditions of this license text as well.        *
- *                                                                         *
- * Because this license imposes special exceptions to the GPL, Covered     *
- * Work may not be combined (even as part of a larger work) with plain GPL *
- * software.  The terms, conditions, and exceptions of this license must   *
- * be included as well.  This license is incompatible with some other open *
- * source licenses as well.  In some cases we can relicense portions of    *
- * Nmap or grant special permissions to use it in other open source        *
- * software.  Please contact fyodor@nmap.org with any such requests.       *
- * Similarly, we don't incorporate incompatible open source software into  *
- * Covered Software without special permission from the copyright holders. *
- *                                                                         *
- * If you have any questions about the licensing restrictions on using     *
- * Nmap in other works, we are happy to help.  As mentioned above, we also *
- * offer an alternative license to integrate Nmap into proprietary         *
- * applications and appliances.  These contracts have been sold to dozens  *
- * of software vendors, and generally include a perpetual license as well  *
- * as providing support and updates.  They also fund the continued         *
- * development of Nmap.  Please email sales@nmap.com for further           *
- * information.                                                            *
- *                                                                         *
- * If you have received a written license agreement or contract for        *
- * Covered Software stating terms other than these, you may choose to use  *
- * and redistribute Covered Software under those terms instead of these.   *
- *                                                                         *
- * Source is provided to this software because we believe users have a     *
- * right to know exactly what a program is going to do before they run it. *
- * This also allows you to audit the software for security holes.          *
- *                                                                         *
- * Source code also allows you to port Nmap to new platforms, fix bugs,    *
- * and add new features.  You are highly encouraged to send your changes   *
- * to the dev@nmap.org mailing list for possible incorporation into the    *
- * main distribution.  By sending these changes to Fyodor or one of the    *
- * Insecure.Org development mailing lists, or checking them into the Nmap  *
- * source code repository, it is understood (unless you specify            *
- * otherwise) that you are offering the Nmap Project the unlimited,        *
- * non-exclusive right to reuse, modify, and relicense the code.  Nmap     *
- * will always be available Open Source, but this is important because     *
- * the inability to relicense code has caused devastating problems for     *
- * other Free Software projects (such as KDE and NASM).  We also           *
- * occasionally relicense the code to third parties as discussed above.    *
- * If you wish to specify special license conditions of your               *
- * contributions, just say so when you send them.                          *
- *                                                                         *
- * This program is distributed in the hope that it will be useful, but     *
- * WITHOUT ANY WARRANTY; without even the implied warranty of              *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the Nmap      *
- * license file for more details (it's in a COPYING file included with     *
- * Nmap, and also available from https://svn.nmap.org/nmap/COPYING)        *
- *                                                                         *
+ *
+ * The Nmap Security Scanner is (C) 1996-2026 Nmap Software LLC ("The Nmap
+ * Project"). Nmap is also a registered trademark of the Nmap Project.
+ *
+ * This program is distributed under the terms of the Nmap Public Source
+ * License (NPSL). The exact license text applying to a particular Nmap
+ * release or source code control revision is contained in the LICENSE
+ * file distributed with that version of Nmap or source code control
+ * revision. More Nmap copyright/legal information is available from
+ * https://nmap.org/book/man-legal.html, and further information on the
+ * NPSL license itself can be found at https://nmap.org/npsl/ . This
+ * header summarizes some key points from the Nmap license, but is no
+ * substitute for the actual license text.
+ *
+ * Nmap is generally free for end users to download and use themselves,
+ * including commercial use. It is available from https://nmap.org.
+ *
+ * The Nmap license generally prohibits companies from using and
+ * redistributing Nmap in commercial products, but we sell a special Nmap
+ * OEM Edition with a more permissive license and special features for
+ * this purpose. See https://nmap.org/oem/
+ *
+ * If you have received a written Nmap license agreement or contract
+ * stating terms other than these (such as an Nmap OEM license), you may
+ * choose to use and redistribute Nmap under those terms instead.
+ *
+ * The official Nmap Windows builds include the Npcap software
+ * (https://npcap.com) for packet capture and transmission. It is under
+ * separate license terms which forbid redistribution without special
+ * permission. So the official Nmap Windows builds may not be redistributed
+ * without special permission (such as an Nmap OEM license).
+ *
+ * Source is provided to this software because we believe users have a
+ * right to know exactly what a program is going to do before they run it.
+ * This also allows you to audit the software for security holes.
+ *
+ * Source code also allows you to port Nmap to new platforms, fix bugs, and
+ * add new features. You are highly encouraged to submit your changes as a
+ * Github PR or by email to the dev@nmap.org mailing list for possible
+ * incorporation into the main distribution. Unless you specify otherwise, it
+ * is understood that you are offering us very broad rights to use your
+ * submissions as described in the Nmap Public Source License Contributor
+ * Agreement. This is important because we fund the project by selling licenses
+ * with various terms, and also because the inability to relicense code has
+ * caused devastating problems for other Free Software projects (such as KDE
+ * and NASM).
+ *
+ * The free version of Nmap is distributed in the hope that it will be
+ * useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. Warranties,
+ * indemnification and commercial support are all available through the
+ * Npcap OEM program--see https://nmap.org/oem/
+ *
  ***************************************************************************/
 
 /* $Id$ */
@@ -139,6 +70,10 @@
 #include "NmapOps.h"
 
 #include <errno.h>
+
+#ifdef WIN32
+#include <mstcpip.h>
+#endif
 
 extern NmapOps o;
 
@@ -156,32 +91,82 @@ void UltraProbe::setConnect(u16 portno) {
 ConnectScanInfo::ConnectScanInfo() {
   maxValidSD = -1;
   numSDs = 0;
-  if (o.max_parallelism > 0) {
+  nextSD = -1;
+#ifndef WIN32
+  /* We can't issue a FD_SET operation with a socket descriptor greater than
+   * FD_SETSIZE, and we can't stop the OS from handing us ones that are greater
+   * than that, either, so leave a buffer here. */
+  maxSocketsAllowed = FD_SETSIZE - 10;
+#else
+  /* Windows does not have an explicit limit, but we have to keep it below
+   * FD_SETSIZE or select() will fail. Fortunately, it's about the *number* of
+   * sockets, not the socket descriptor number, so we can run right up to that
+   * limit. */
+  maxSocketsAllowed = FD_SETSIZE - 1;
+#endif
+  if (o.max_parallelism > 0 && o.max_parallelism < maxSocketsAllowed) {
     maxSocketsAllowed = o.max_parallelism;
-  } else {
-    /* Subtracting 10 from max_sd accounts for
-       stdin
-       stdout
-       stderr
-       /dev/tty
-       /var/run/utmpx, which is opened on Mac OS X at least
-       -oG log file
-       -oN log file
-       -oS log file
-       -oX log file
-       perhaps another we've forgotten. */
-    maxSocketsAllowed = max_sd() - 10;
-    if (maxSocketsAllowed < 5)
-      maxSocketsAllowed = 5;
   }
-  maxSocketsAllowed = MIN(maxSocketsAllowed, FD_SETSIZE - 10);
+#ifndef WIN32
+  /* Subtracting 10 from max_sd accounts for
+     stdin
+     stdout
+     stderr
+     /dev/tty
+     /var/run/utmpx, which is opened on Mac OS X at least
+     -oG log file
+     -oN log file
+     -oS log file
+     -oX log file
+     perhaps another we've forgotten. */
+  int tmp_max_sd = max_sd() - 10;
+  if (tmp_max_sd < 5)
+    tmp_max_sd = 5;
+  maxSocketsAllowed = MIN(maxSocketsAllowed, tmp_max_sd);
+  #endif
+  assert(maxSocketsAllowed > 0);
   FD_ZERO(&fds_read);
   FD_ZERO(&fds_write);
   FD_ZERO(&fds_except);
 }
 
-/* Nothing really to do here. */
-ConnectScanInfo::~ConnectScanInfo() {}
+ConnectScanInfo::~ConnectScanInfo() {
+  if (nextSD >= 0) {
+    close(nextSD);
+  }
+}
+
+bool ConnectScanInfo::sendOK() {
+  if (numSDs >= maxSocketsAllowed)
+    return false;
+
+  if (nextSD > 0)
+    return true;
+
+  nextSD = socket(o.af(), SOCK_STREAM, IPPROTO_TCP);
+  if (nextSD == -1)
+    pfatal("Socket creation in %s", __func__);
+#ifndef WIN32
+  /* Check here whether this socket descriptor number will be a problem. If so,
+   * close it and tell the engine to slow down. Windows doesn't have this
+   * limit, only maxSocketsAllowed. */
+  if (nextSD >= FD_SETSIZE) {
+    if (o.debugging) {
+      log_write(LOG_STDOUT, "Socket descriptor %d greater than FD_SETSIZE: slow down.\n", nextSD);
+    }
+    close(nextSD);
+    nextSD = -1;
+    return false;
+  }
+#endif
+  return true;
+}
+
+int ConnectScanInfo::getSocket() {
+  int sd = nextSD;
+  nextSD = -1;
+  return sd;
+}
 
 /* Watch a socket descriptor (add to fd_sets and maxValidSD).  Returns
    true if the SD was absent from the list, false if you tried to
@@ -237,7 +222,7 @@ static void handleConnectResult(UltraScanInfo *USI, HostScanStats *hss,
   bool adjust_timing = true;
   int newportstate = PORT_UNKNOWN;
   int newhoststate = HOST_UNKNOWN;
-  reason_t current_reason = ER_NORESPONSE;
+  reason_t current_reason = ER_UNKNOWN;
   UltraProbe *probe = *probeI;
   struct sockaddr_storage local;
   socklen_t local_len = sizeof(struct sockaddr_storage);
@@ -272,7 +257,9 @@ static void handleConnectResult(UltraScanInfo *USI, HostScanStats *hss,
     /* This can happen on localhost, successful/failing connection immediately
        in non-blocking mode. */
     case ECONNREFUSED:
-      newhoststate = HOST_UP;
+      if (!o.discovery_ignore_rst) {
+        newhoststate = HOST_UP;
+      }
       newportstate = PORT_CLOSED;
       current_reason = ER_CONREFUSED;
       break;
@@ -331,7 +318,10 @@ static void handleConnectResult(UltraScanInfo *USI, HostScanStats *hss,
       error("Strange read error from %s (%d - '%s')", hss->target->targetipstr(), connect_errno, strerror(connect_errno));
       break;
   }
-  if (probe->isPing() && newhoststate != HOST_UNKNOWN ) {
+  if (current_reason == ER_NORESPONSE) {
+    hss->markProbeTimedout(probeI);
+  }
+  else if (probe->isPing() && newhoststate != HOST_UNKNOWN ) {
     ultrascan_ping_update(USI, hss, probeI, &USI->now, adjust_timing);
   } else if (USI->ping_scan && newhoststate != HOST_UNKNOWN) {
     ultrascan_host_probe_update(USI, hss, probeI, newhoststate, &USI->now, adjust_timing);
@@ -389,7 +379,7 @@ static void handleConnectResult(UltraScanInfo *USI, HostScanStats *hss,
 /* Set the socket lingering so we will RST connections instead of wasting
    bandwidth with the four-step close. Set the source address if needed. Bind to
    a specific interface if needed. */
-static void init_socket(int sd) {
+static void init_socket(int sd, const HostScanStats *hss, UltraScanInfo *USI) {
   static int bind_failed = 0;
   struct linger l;
   struct sockaddr_storage ss;
@@ -402,10 +392,50 @@ static void init_socket(int sd) {
     error("Problem setting socket SO_LINGER, errno: %d", socket_errno());
     perror("setsockopt");
   }
-  if (o.spoofsource && !bind_failed) {
-    o.SourceSockAddr(&ss, &sslen);
+#ifdef WIN32
+  DWORD dwVal;
+  unsigned long to_us = hss->probeTimeout();
+#ifdef TCP_FAIL_CONNECT_ON_ICMP_ERROR
+  // return WSAEHOSTUNREACH on ICMP error. Default is to ignore!
+  dwVal = 1;
+  if (setsockopt(sd, IPPROTO_TCP, TCP_FAIL_CONNECT_ON_ICMP_ERROR, (const char *) &dwVal, sizeof(dwVal)) != 0) {
+    error("Problem setting socket TCP_FAIL_CONNECT_ON_ICMP_ERROR, errno: %d", socket_errno());
+    perror("setsockopt");
+  }
+#endif
+
+  int err, opt;
+  do {
+    err = ERROR_SUCCESS;
+    if (USI->has_tcp_maxrtms) {
+      opt = TCP_MAXRTMS;
+      dwVal = to_us / 1000; // connect timeout in milliseconds
+    }
+    else {
+      opt = TCP_MAXRT;
+      dwVal = to_us / 1000000; // connect timeout in seconds
+    }
+    dwVal = MAX(dwVal, 1);
+    if (setsockopt(sd, IPPROTO_TCP, opt, (const char*)&dwVal, sizeof(dwVal)) != 0) {
+      err = socket_errno();
+      error("Problem setting socket TCP_MAXRT (%d), errno: %d", opt, err);
+      perror("setsockopt");
+      USI->has_tcp_maxrtms = false;
+    }
+  } while (err == WSAENOPROTOOPT && opt == TCP_MAXRTMS);
+
+  dwVal = 0;
+  TCP_INITIAL_RTO_PARAMETERS params = { 1000 /* ms RTT */,
+    TCP_INITIAL_RTO_NO_SYN_RETRANSMISSIONS };
+  if (WSAIoctl(sd, SIO_TCP_INITIAL_RTO, &params, sizeof(params), NULL, 0, &dwVal, NULL, NULL)) {
+    error("Problem setting SIO_TCP_INITIAL_RTO, errno: %d", socket_errno());
+    perror("WSAIoctl");
+  }
+#endif
+
+  if (!bind_failed && 0 == o.SourceSockAddr(&ss, &sslen)) {
     if (::bind(sd, (struct sockaddr*)&ss, sslen) != 0) {
-      error("%s: Problem binding source address (%s), errno: %d", __func__, inet_socktop(&ss), socket_errno());
+      error("%s: Problem binding source address (%s), errno: %d", __func__, inet_socktop_safe(&ss), socket_errno());
       perror("bind");
       bind_failed = 1;
     }
@@ -420,10 +450,10 @@ static void init_socket(int sd) {
   }
 }
 
-/* If this is NOT a ping probe, set pingseq to 0.  Otherwise it will be the
+/* If this is NOT a ping probe, set tryno.fields.isPing to 0.  Otherwise it will be the
    ping sequence number (they start at 1).  The probe sent is returned. */
 UltraProbe *sendConnectScanProbe(UltraScanInfo *USI, HostScanStats *hss,
-                                 u16 destport, u8 tryno, u8 pingseq) {
+                                 u16 destport, tryno_t tryno) {
 
   UltraProbe *probe = new UltraProbe();
   std::list<UltraProbe *>::iterator probeI;
@@ -436,18 +466,17 @@ UltraProbe *sendConnectScanProbe(UltraScanInfo *USI, HostScanStats *hss,
 #endif
   size_t socklen;
   ConnectProbe *CP;
+  ConnectScanInfo *CSI = USI->gstats->CSI;
 
   probe->tryno = tryno;
-  probe->pingseq = pingseq;
   /* First build the probe */
   probe->setConnect(destport);
   CP = probe->CP();
   /* Initiate the connection */
-  CP->sd = socket(o.af(), SOCK_STREAM, IPPROTO_TCP);
-  if (CP->sd == -1)
-    pfatal("Socket creation in %s", __func__);
+  CP->sd = CSI->getSocket();
+  assert(CP->sd > 0);
   unblock_socket(CP->sd);
-  init_socket(CP->sd);
+  init_socket(CP->sd, hss, USI);
   set_ttl(CP->sd, o.ttl);
   if (o.ipoptionslen)
     set_ipoptions(CP->sd, o.ipoptions, o.ipoptionslen);
@@ -459,11 +488,11 @@ UltraProbe *sendConnectScanProbe(UltraScanInfo *USI, HostScanStats *hss,
 #if HAVE_IPV6
   else sin6->sin6_port = htons(probe->pspec()->pd.tcp.dport);
 #endif
-  probe->sent = USI->now;
   /* We don't record a byte count for connect probes. */
   hss->probeSent(0);
   rc = connect(CP->sd, (struct sockaddr *)&sock, socklen);
   gettimeofday(&USI->now, NULL);
+  probe->sent = USI->now;
   if (rc == -1)
     connect_errno = socket_errno();
   /* This counts as probe being sent, so update structures */
@@ -485,6 +514,7 @@ UltraProbe *sendConnectScanProbe(UltraScanInfo *USI, HostScanStats *hss,
     handleConnectResult(USI, hss, probeI, connect_errno, true);
     probe = NULL;
   }
+  // Not sure if we need to call this again:
   gettimeofday(&USI->now, NULL);
   return probe;
 }
@@ -527,9 +557,8 @@ bool do_one_select_round(UltraScanInfo *USI, struct timeval *stime) {
       usleep(timeleft * 1000);
       selectres = 0;
     }
+    gettimeofday(&USI->now, NULL);
   } while (selectres == -1 && err == EINTR);
-
-  gettimeofday(&USI->now, NULL);
 
   if (selectres == -1)
     pfatal("select failed in %s()", __func__);

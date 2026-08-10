@@ -1,9 +1,9 @@
-Nping 0.5.59BETA1 ( https://nmap.org/nping )
+Nping 0.7.92SVN ( https://nmap.org/nping )
 Usage: nping [Probe mode] [Options] {target specification}
 
 TARGET SPECIFICATION:
   Targets may be specified as hostnames, IP addresses, networks, etc.
-  Ex: scanme.nmap.org, microsoft.com/24, 192.168.0.1; 10.0.0-255.1-254
+  Ex: scanme.nmap.org, microsoft.com/24, 192.168.0.1; 10.0.*.1-24
 PROBE MODES:
   --tcp-connect                    : Unprivileged TCP connect probe mode.
   --tcp                            : TCP probe mode.
@@ -53,6 +53,7 @@ IPv4 OPTIONS:
   --id  <id>                       : Set identification field (16 bits).
   --df                             : Set Don't Fragment flag.
   --mf                             : Set More Fragments flag.
+  --evil                           : Set Reserved / Evil flag.
   --ttl <hops>                     : Set time to live [0-255].
   --badsum-ip                      : Use a random invalid checksum. 
   --ip-options <S|R [route]|L [route]|T|U ...> : Set IP options
@@ -96,7 +97,7 @@ MISC:
   -N, --no-capture                 : Do not try to capture replies.
   --privileged                     : Assume user is fully privileged.
   --unprivileged                   : Assume user lacks raw socket privileges.
-  --send-eth                       : Send packets at the raw ethernet layer.
+  --send-eth                       : Send packets at the raw Ethernet layer.
   --send-ip                        : Send packets using raw IP sockets.
   --bpf-filter <filter spec>       : Specify custom BPF filter.
 OUTPUT:

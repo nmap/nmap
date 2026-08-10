@@ -197,6 +197,7 @@ Decoders = {
 
       process = function(self, layer3)
         local p = packet.Packet:new( layer3, #layer3 )
+        if not p then return end
         -- EIGRP is IP protocol 88 (0x58), so verify this
         if ( p.ip_p ~= 88 ) then return end
 
@@ -250,6 +251,7 @@ Decoders = {
       process = function(self, layer3)
 
         local p = packet.Packet:new( layer3, #layer3 )
+        if not p then return end
         -- EIGRP is IP protocol 88 (0x58), so verify this
         if ( p.ip_p ~= 88 ) then return end
 
@@ -294,6 +296,7 @@ Decoders = {
 
     process = function(self, layer3)
       local p = packet.Packet:new( layer3, #layer3 )
+      if not p then return end
       -- IP Protocol is 89 for OSPF
       if p.ip_p ~= 89 then return end
 
@@ -368,6 +371,7 @@ udp = {
     process = function(self, layer3)
       local dhcp = require("dhcp")
       local p = packet.Packet:new( layer3, #layer3 )
+      if not p then return end
       local data = layer3:sub(p.udp_offset + 9)
 
       -- the dhcp.parse function isn't optimal for doing
@@ -421,6 +425,7 @@ udp = {
       local netbios = require('netbios')
       local tab = require('tab')
       local p = packet.Packet:new( layer3, #layer3 )
+      if not p then return end
       local data = layer3:sub(p.udp_offset + 9)
 
       local dresp = dns.decode(data)
@@ -472,6 +477,7 @@ udp = {
     process = function(self, layer3)
       local netbios = require('netbios')
       local p = packet.Packet:new( layer3, #layer3 )
+      if not p then return end
       local data = layer3:sub(p.udp_offset + 9)
 
       local ip, src, dst = string.unpack(">c4 xxxxxx c34 c34", data, 5)
@@ -508,6 +514,7 @@ udp = {
     process = function(self, layer3)
       local tab = require('tab')
       local p = packet.Packet:new( layer3, #layer3 )
+      if not p then return end
       local data = layer3:sub(p.udp_offset + 9)
 
       local dhcp6 = require("dhcp6")
@@ -544,6 +551,7 @@ udp = {
     process = function(self, layer3)
       local tab = require('tab')
       local p = packet.Packet:new( layer3, #layer3 )
+      if not p then return end
       local data = layer3:sub(p.udp_offset + 9)
 
       local function split(str)
@@ -596,6 +604,7 @@ udp = {
 
     process = function(self, layer3)
       local p = packet.Packet:new( layer3, #layer3 )
+      if not p then return end
       local data = layer3:sub(p.udp_offset + 9)
 
       local headers = stringaux.strsplit("\r\n", data)
@@ -631,6 +640,7 @@ udp = {
 
     process = function(self, layer3)
       local p = packet.Packet:new( layer3, #layer3 )
+      if not p then return end
       local data = layer3:sub(p.udp_offset + 9)
 
       local State = {
@@ -682,6 +692,7 @@ udp = {
     process = function(self, layer3)
       local json = require("json")
       local p = packet.Packet:new( layer3, #layer3 )
+      if not p then return end
       local data = layer3:sub(p.udp_offset + 9)
       local status, info = json.parse(data)
       if ( not(status) ) then
@@ -738,6 +749,7 @@ udp = {
 
     process = function(self, layer3)
       local p = packet.Packet:new( layer3, #layer3 )
+      if not p then return end
       local data = layer3:sub(p.udp_offset + 9)
 
       if ( data:match("^eIPAD") ) then
@@ -776,6 +788,7 @@ udp = {
     process = function(self, layer3)
       local dns = require('dns')
       local p = packet.Packet:new( layer3, #layer3 )
+      if not p then return end
       local data = layer3:sub(p.udp_offset + 9)
       local dresp = dns.decode(data)
       local name
@@ -878,6 +891,7 @@ udp = {
     local tab = require('tab')
     local dns = require('dns')
     local p = packet.Packet:new( layer3, #layer3 )
+    if not p then return end
     local data = layer3:sub(p.udp_offset + 9)
 
     local resp = dns.decode(data)
@@ -911,6 +925,7 @@ udp = {
 
   process = function(self, layer3)
     local p = packet.Packet:new( layer3, #layer3 )
+    if not p then return end
     local data = layer3:sub(p.udp_offset + 9)
 
     if ( data:match("^SpotUdp") ) then

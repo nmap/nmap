@@ -25,32 +25,21 @@ local table = require "table"
 _ENV = stdnse.module("citrixxml", stdnse.seeall)
 
 --- Decodes html-entities to chars eg. &#32; => <space>
+-- Note that only decimal references of ASCII characters are supported.
+-- Named and hexadecimal references are left untouched, and so are codepoints
+-- greater than 255.
 --
 -- @param xmldata string to convert
--- @return string an e
+-- @return string with XML character references replaced with the corresponding characters
 function decode_xml_document(xmldata)
-
-  local hexval
-
   if not xmldata then
     return ""
   end
-
-  local newstr = xmldata
-  local escaped_val
-
-  while string.match(newstr, "(&#%d+;)" ) do
-    escaped_val = string.match(newstr, "(&#%d+;)")
-    hexval = escaped_val:match("(%d+)")
-
-    if ( hexval ) then
-      newstr = newstr:gsub(escaped_val, string.char(hexval))
-    end
-
-  end
-
-  return newstr
-
+  return (xmldata:gsub("&#%d+;",
+                       function (e)
+                         local cp = tonumber(e:sub(3, -2))
+                         return cp <= 0xFF and string.char(cp) or nil
+                       end))
 end
 
 --- Sends the request to the server using the http lib

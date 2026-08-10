@@ -1,5 +1,5 @@
-/* Copyright (C) 2010  Simon Josefsson
- * Author: Simon Josefsson
+/* Copyright (C) Simon Josefsson
+ * All rights reserved.
  *
  * Redistribution and use in source and binary forms,
  * with or without modification, are permitted provided
@@ -34,6 +34,7 @@
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY
  * OF SUCH DAMAGE.
  *
+ * SPDX-License-Identifier: BSD-3-Clause
  */
 
 #include "libssh2_priv.h"
@@ -42,9 +43,9 @@
 /* Keep-alive stuff. */
 
 LIBSSH2_API void
-libssh2_keepalive_config (LIBSSH2_SESSION *session,
-                          int want_reply,
-                          unsigned interval)
+libssh2_keepalive_config(LIBSSH2_SESSION *session,
+                         int want_reply,
+                         unsigned int interval)
 {
     if(interval == 1)
         session->keepalive_interval = 2;
@@ -54,8 +55,8 @@ libssh2_keepalive_config (LIBSSH2_SESSION *session,
 }
 
 LIBSSH2_API int
-libssh2_keepalive_send (LIBSSH2_SESSION *session,
-                        int *seconds_to_next)
+libssh2_keepalive_send(LIBSSH2_SESSION *session,
+                       int *seconds_to_next)
 {
     time_t now;
 

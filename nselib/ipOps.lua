@@ -56,7 +56,7 @@ isPrivate = function( ip )
 
     for _, range in ipairs( ipv6_private ) do
       is_private, err = ip_in_range( ip, range )
-      if is_private == true then
+      if is_private then
         return true, range
       end
       if err then
@@ -79,7 +79,7 @@ isPrivate = function( ip )
   elseif ip:sub(1,4) == '172.' then
 
     local p, e = ip_in_range(ip, '172.16/12')
-    if p == true then
+    if p then
       return true, '172.16/12'
     else
       return p, e
@@ -216,9 +216,9 @@ end
 -- @param left String representing an IPv4 or IPv6 address.  Shortened
 --             notation is permitted.
 -- @param op A comparison operator which may be one of the following strings:
---           <code>"eq"</code>, <code>"ge"</code>, <code>"le"</code>,
---           <code>"gt"</code> or <code>"lt"</code> (respectively ==, >=, <=,
---           >, <).
+--           <code>"eq"</code>, <code>"ne"</code>, <code>"ge"</code>,
+--           <code>"le"</code>, <code>"gt"</code> or <code>"lt"</code>
+--           (respectively ==, ~=, >=, <=, >, <).
 -- @param right String representing an IPv4 or IPv6 address.  Shortened
 --              notation is permitted.
 -- @usage
@@ -381,6 +381,9 @@ expand_ip = function( ip, family )
   for hdt in string.gmatch( ip, "[%.z%x]+" ) do
     hexadectets[#hexadectets+1] = hdt
   end
+  if #hexadectets == 0 then
+    return nil, ( err4:gsub( "IPv4", "IPv6" ) )
+  end
 
   -- deal with IPv4in6 (last hexadectet only)
   local t = {}
@@ -539,7 +542,7 @@ end
 ---
 -- Converts an IP address into an opaque string (big-endian)
 -- @param ip  String representing an IPv4 or IPv6 address.
--- @param family (optional) Address family to convert to. "ipv6" converts IPv4
+-- @param family (optional) Address family to convert to. "inet6" converts IPv4
 -- addresses to IPv4-mapped IPv6.
 -- @usage
 -- opaque = ipOps.ip_to_str( "192.168.3.4" )
@@ -680,9 +683,28 @@ end
 
 
 local bin_lookup = {
-  [0]="0000", "0001", "0010", "0011", "0100", "0101", "0110", "0111",
-      "1000", "1001", "1010", "1011", "1100", "1101", "1110", "1111",
+  ["0"]="0000",
+  ["1"]="0001",
+  ["2"]="0010",
+  ["3"]="0011",
+  ["4"]="0100",
+  ["5"]="0101",
+  ["6"]="0110",
+  ["7"]="0111",
+  ["8"]="1000",
+  ["9"]="1001",
+  ["a"]="1010",
+  ["b"]="1011",
+  ["c"]="1100",
+  ["d"]="1101",
+  ["e"]="1110",
+  ["f"]="1111",
 }
+setmetatable(bin_lookup, {
+    __index = function()
+      error("Error in ipOps.hex_to_bin: Expected string representing a hexadecimal number.")
+    end
+  })
 ---
 -- Converts a string of hexadecimal digits into the corresponding string of
 -- binary digits.
@@ -699,14 +721,7 @@ hex_to_bin = function( hex )
     return nil, "Error in ipOps.hex_to_bin: Expected string"
   end
 
-  local status, result = pcall( string.gsub, hex, ".", function(nibble)
-      local n = bin_lookup[tonumber(nibble, 16)]
-      if n then
-        return n
-      else
-        error("Error in ipOps.hex_to_bin: Expected string representing a hexadecimal number.")
-      end
-    end)
+  local status, result = pcall( string.gsub, string.lower(hex), ".", bin_lookup)
   if status then
     return result
   end
@@ -820,7 +835,7 @@ end
 do
   for _, h in ipairs({
       {"a", "1010"},
-      {"aa", "10101010"},
+      {"aA", "10101010"},
       {"12", "00010010"},
       {"54321", "01010100001100100001"},
       {"123error", false},

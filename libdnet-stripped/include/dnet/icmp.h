@@ -6,7 +6,7 @@
  *
  * Copyright (c) 2000 Dug Song <dugsong@monkey.org>
  *
- * $Id: icmp.h 416 2003-03-16 17:39:18Z dugsong $
+ * $Id$
  */
 
 #ifndef DNET_ICMP_H
@@ -16,9 +16,9 @@
 #define ICMP_LEN_MIN	8	/* minimum ICMP message size, with header */
 
 #ifndef __GNUC__
-#ifndef __attribute__
-# define __attribute__(x)
-#endif
+# ifndef __attribute__
+#  define __attribute__(x)
+# endif
 # pragma pack(1)
 #endif
 

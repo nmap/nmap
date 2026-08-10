@@ -150,25 +150,7 @@ license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 
 categories = {"default", "discovery", "safe"}
 
-
-hostrule = function(host)
-  if ( mssql.Helper.WasDiscoveryPerformed( host ) ) then
-    return mssql.Helper.GetDiscoveredInstances( host ) ~= nil
-  else
-    local sqlDefaultPort = nmap.get_port_state( host, {number = 1433, protocol = "tcp"} )
-    local sqlBrowserPort = nmap.get_port_state( host, {number = 1434, protocol = "udp"} )
-    -- smb.get_port() will return nil if no SMB port was scanned OR if SMB ports were scanned but none was open
-    local smbPortNumber = smb.get_port( host )
-
-    if ( (stdnse.get_script_args( {"mssql.instance-all", "mssql.instance-name", "mssql.instance-port"} ) ~= nil) or
-        (sqlBrowserPort and (sqlBrowserPort.state == "open" or sqlBrowserPort.state == "open|filtered")) or
-        (sqlDefaultPort and (sqlDefaultPort.state == "open" or sqlDefaultPort.state == "open|filtered")) or
-        (smbPortNumber ~= nil)  ) then
-      return true
-    end
-  end
-end
-
+dependencies = {"broadcast-ms-sql-discover"}
 
 --- Returns formatted output for the given version data
 local function create_version_output_table( versionInfo )
@@ -247,35 +229,9 @@ local function process_instance( instance )
 
 end
 
-
-action = function( host )
-  local scriptOutput = stdnse.output_table()
-
-  local status, instanceList = mssql.Helper.GetTargetInstances( host )
-  -- if no instances were targeted, then display info on all
-  if ( not status ) then
-    if ( not mssql.Helper.WasDiscoveryPerformed( host ) ) then
-      mssql.Helper.Discover( host )
-    end
-    instanceList = mssql.Helper.GetDiscoveredInstances( host )
-  end
-
-
-  if ( not instanceList ) then
-    return stdnse.format_output( false, instanceList or "" )
-  else
-    for _, instance in ipairs( instanceList ) do
-      if instance.serverName then
-        scriptOutput["Windows server name"] = instance.serverName
-        break
-      end
-    end
-    for _, instance in pairs( instanceList ) do
-      process_instance( instance )
-      scriptOutput[instance:GetName()] = create_instance_output_table( instance )
-    end
-  end
-
-  return scriptOutput
+local function do_instance (instance)
+  process_instance( instance )
+  return create_instance_output_table( instance )
 end
 
+action, portrule, hostrule = mssql.Helper.InitScript(do_instance)

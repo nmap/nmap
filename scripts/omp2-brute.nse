@@ -53,7 +53,7 @@ Driver = {
     return self.session:close()
   end,
 
-  --- Attempts to login the the OpenVAS Manager using a given username/password
+  --- Attempts to login the OpenVAS Manager using a given username/password
   -- couple. Store the credentials in the registry on success.
   --
   -- @param username string containing the login username

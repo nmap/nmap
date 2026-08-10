@@ -21,6 +21,7 @@
   Mark Adler    madler@alumni.caltech.edu
  */
 
+#define local static            /* for local function definitions */
 
 /*
  * blast() decompresses the PKWare Data Compression Library (DCL) compressed
@@ -57,7 +58,7 @@ int blast(blast_in infun, void *inhow, blast_out outfun, void *outhow,
  * use by the application to pass an input descriptor to infun(), if desired.
  *
  * If left and in are not NULL and *left is not zero when blast() is called,
- * then the *left bytes are *in are consumed for input before infun() is used.
+ * then the *left bytes at *in are consumed for input before infun() is used.
  *
  * The output function is invoked: err = outfun(how, buf, len), where the bytes
  * to be written are buf[0..len-1].  If err is not zero, then blast() returns

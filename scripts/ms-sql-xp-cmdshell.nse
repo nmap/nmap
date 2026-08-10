@@ -86,10 +86,7 @@ license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"intrusive"}
 
 
-dependencies = {"ms-sql-brute", "ms-sql-empty-password"}
-
-hostrule = mssql.Helper.GetHostrule_Standard()
-portrule = mssql.Helper.GetPortrule_Standard()
+dependencies = {"broadcast-ms-sql-discover", "ms-sql-brute", "ms-sql-empty-password"}
 
 
 local function process_instance( instance )
@@ -143,23 +140,13 @@ local function process_instance( instance )
 end
 
 
-action = function( host, port )
-  local scriptOutput = {}
-  local status, instanceList = mssql.Helper.GetTargetInstances( host, port )
+local do_action
+do_action, portrule, hostrule = mssql.Helper.InitScript(process_instance)
 
-  if ( not status ) then
-    return stdnse.format_output( false, instanceList )
-  else
-    for _, instance in pairs( instanceList ) do
-      local instanceOutput = process_instance( instance )
-      if instanceOutput then
-        table.insert( scriptOutput, instanceOutput )
-      end
-    end
-
-    if ( not(stdnse.get_script_args( {'ms-sql-xp-cmdshell.cmd', 'mssql-xp-cmdshell.cmd'} ) ) ) then
-      table.insert(scriptOutput, 1, "(Use --script-args=ms-sql-xp-cmdshell.cmd='<CMD>' to change command.)")
-    end
+action = function(...)
+  local scriptOutput = do_action(...)
+  if ( not(stdnse.get_script_args( {'ms-sql-xp-cmdshell.cmd', 'mssql-xp-cmdshell.cmd'} ) ) ) then
+    table.insert(scriptOutput, 1, "(Use --script-args=ms-sql-xp-cmdshell.cmd='<CMD>' to change command.)")
   end
 
   return stdnse.format_output( true, scriptOutput )

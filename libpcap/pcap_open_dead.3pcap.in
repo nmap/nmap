@@ -35,18 +35,18 @@ pcap_t *pcap_open_dead_with_tstamp_precision(int linktype, int snaplen,
 .fi
 .SH DESCRIPTION
 .PP
-.B pcap_open_dead()
+.BR pcap_open_dead ()
 and
-.B pcap_open_dead_with_tstamp_precision()
+.BR pcap_open_dead_with_tstamp_precision ()
 are used for creating a
 .B pcap_t
 structure to use when calling the other functions in libpcap.  It is
 typically used when just using libpcap for compiling BPF code; it can
 also be used if using
-.BR pcap_dump_open(3PCAP) ,
-.BR pcap_dump(3PCAP) ,
+.BR pcap_dump_open (3PCAP),
+.BR pcap_dump (3PCAP),
 and
-.B pcap_dump_close(3PCAP)
+.BR pcap_dump_close (3PCAP)
 to write a savefile if there is no
 .B pcap_t
 that supplies the packets to be written.
@@ -60,11 +60,11 @@ specifies the snapshot length for the
 .BR pcap_t .
 .PP
 When
-.BR pcap_open_dead_with_tstamp_precision() ,
+.BR pcap_open_dead_with_tstamp_precision (),
 is used to create a
 .B pcap_t
 for use with
-.BR pcap_dump_open() ,
+.BR pcap_dump_open (),
 .I precision
 specifies the time stamp precision for packets;
 .B PCAP_TSTAMP_PRECISION_MICRO
@@ -73,6 +73,13 @@ seconds and microseconds, and
 .B PCAP_TSTAMP_PRECISION_NANO
 should be specified if the packets to be written have time stamps in
 seconds and nanoseconds.  Its value does not affect
-.BR pcap_compile(3PCAP) .
+.BR pcap_compile (3PCAP).
+.SH BACKWARD COMPATIBILITY
+The
+.BR pcap_open_dead_with_tstamp_precision ()
+function became available in libpcap release 1.5.1.  In previous
+releases, there was no mechanism to open a savefile for writing with
+time stamps given in seconds and nanoseconds.
 .SH SEE ALSO
-pcap(3PCAP), \%pcap-linktype(@MAN_MISC_INFO@)
+.BR pcap (3PCAP),
+.BR \%pcap-linktype (@MAN_MISC_INFO@)

@@ -145,6 +145,7 @@ local stringaux = require "stringaux"
 local table = require "table"
 local tableaux = require "tableaux"
 local url = require "url"
+local ascii_hostname = url.ascii_hostname
 local smbauth = require "smbauth"
 local unicode = require "unicode"
 
@@ -187,8 +188,9 @@ local function get_host_field(host, port, scheme)
   if host_header then return host_header end
   -- If there's no host, we can't invent a name.
   if not host then return nil end
+  local hostname = ascii_hostname(host)
   -- If there's no port, just return hostname.
-  if not port then return stdnse.get_hostname(host) end
+  if not port then return hostname end
   if type(port) == "string" then
     port = tonumber(port)
     assert(port, "Invalid port: not a number or table")
@@ -200,7 +202,7 @@ local function get_host_field(host, port, scheme)
   if scheme then
     -- Caller provided scheme. If it's default, return just the hostname.
     if number == get_default_port(scheme) then
-      return stdnse.get_hostname(host)
+      return hostname
     end
   else
     scheme = url.get_default_scheme(port)
@@ -210,12 +212,12 @@ local function get_host_field(host, port, scheme)
       if (ssl_port and scheme == 'https') or
         (not ssl_port and scheme == 'http') then
         -- If it's SSL and https, or if it's plaintext and http, return just the hostname.
-        return stdnse.get_hostname(host)
+        return hostname
       end
     end
   end
   -- No special cases matched, so include the port number in the host header
-  return stdnse.get_hostname(host) .. ":" .. number
+  return hostname .. ":" .. number
 end
 
 -- Skip *( SP | HT ) starting at offset. See RFC 2616, section 2.2.
@@ -274,7 +276,6 @@ local function get_quoted_string(s, offset, crlf)
       -- continuation." So there are really two definitions of quoted-string,
       -- depending on whether it's in a header field or not. This function does
       -- not allow CRLF.
-      c = s:sub(i, i)
       if c ~= "\t" and c:match("^[\0\001-\031\127]$") then
         error(string.format("Unexpected control character in quoted-string: 0x%02X.", c:byte(1)))
       end
@@ -290,10 +291,9 @@ local function skip_lws(s, pos)
   local _, e
 
   while true do
-    while string.match(s, "^[ \t]", pos) do
-      pos = pos + 1
-    end
-    _, e = string.find(s, "^\r?\n[ \t]", pos)
+    _, pos = string.find(s, "^[ \t]*", pos)
+    pos = pos + 1
+    _, e = string.find(s, "^\r?\n[ \t]+", pos)
     if not e then
       return pos
     end
@@ -302,6 +302,7 @@ local function skip_lws(s, pos)
 end
 
 
+local digestauth_required = {"username","realm","nonce","digest-uri","response"}
 ---Validate an 'options' table, which is passed to a number of the HTTP functions. It is
 -- often difficult to track down a mistake in the options table, and requires fiddling
 -- with the http.lua source, but this should make that a lot easier.
@@ -357,7 +358,19 @@ local function validate_options(options)
                 stdnse.debug1("http: options.cookies[i].max-age should be a string")
                 bad = true
               end
-            elseif not (cookie_key == 'httponly' or cookie_key == 'secure') then
+            elseif(cookie_key == 'domain') then
+              if(type(cookie_value) ~= 'string') then
+                stdnse.debug1("http: options.cookies[i].domain should be a string")
+                bad = true
+              end
+            elseif(cookie_key == 'samesite') then
+              if(type(cookie_value) ~= 'string') then
+                stdnse.debug1("http: options.cookies[i].samesite should be a string")
+                bad = true
+              end
+            elseif not (cookie_key == 'httponly'
+                     or cookie_key == 'secure'
+                     or cookie_key == 'partitioned') then
               stdnse.debug1("http: Unknown field in cookie table: %s", cookie_key)
               -- Ignore unrecognized attributes (per RFC 6265, Section 5.2)
             end
@@ -379,8 +392,7 @@ local function validate_options(options)
       end
     elseif (key == 'digestauth') then
       if(type(value) == 'table') then
-        local req_keys = {"username","realm","nonce","digest-uri","response"}
-        for _,k in ipairs(req_keys) do
+        for _,k in ipairs(digestauth_required) do
           if not value[k] then
             stdnse.debug1("http: options.digestauth missing key: %s",k)
             bad = true
@@ -856,7 +868,10 @@ local decode_body = function (body, encodings, maxlen)
   local undecoded = tableaux.tcopy(encodings)
   while #undecoded > 0 do
     local enc = undecoded[1]:lower()
-    if enc == "identity" then
+    if enc == "" then
+      -- do nothing (empty encoding placeholder)
+      table.remove(undecoded, 1)
+    elseif enc == "identity" then
       -- do nothing
       table.insert(decoded, table.remove(undecoded, 1))
     elseif enc == "gzip" and have_zlib then
@@ -1030,21 +1045,23 @@ end
 --   size: The size of the record, equal to #record.result.body.
 local cache = {size = 0};
 
+local function cmp_last_used (r1, r2)
+      return (r1.last_used or 0) < (r2.last_used or 0);
+end
+
+local arg_max_cache_size = tonumber(stdnse.get_script_args({'http.max-cache-size', 'http-max-cache-size'}) or 1e6);
 local function check_size (cache)
-  local max_size = tonumber(stdnse.get_script_args({'http.max-cache-size', 'http-max-cache-size'}) or 1e6);
 
   local size = cache.size;
 
-  if size > max_size then
+  if size > arg_max_cache_size then
     stdnse.debug1(
         "Current http cache size (%d bytes) exceeds max size of %d",
-        size, max_size);
-    table.sort(cache, function(r1, r2)
-      return (r1.last_used or 0) < (r2.last_used or 0);
-    end);
+        size, arg_max_cache_size);
+    table.sort(cache, cmp_last_used);
 
     for i, record in ipairs(cache) do
-      if size <= max_size then break end
+      if size <= arg_max_cache_size then break end
       local result = record.result;
       if type(result.body) == "string" then
         size = size - record.size;
@@ -1054,7 +1071,7 @@ local function check_size (cache)
     cache.size = size;
   end
   stdnse.debug2("Final http cache size (%d bytes) of max size of %d",
-      size, max_size);
+      size, arg_max_cache_size);
   return size;
 end
 
@@ -1074,7 +1091,7 @@ local function lookup_cache (method, host, port, path, options)
 
   if type(port) == "table" then port = port.number end
 
-  local key = stdnse.get_hostname(host)..":"..port..":"..path;
+  local key = ascii_hostname(host)..":"..port..":"..path;
   local mutex = nmap.mutex(tostring(lookup_cache)..key);
 
   local state = {
@@ -1500,9 +1517,9 @@ function generic_request(host, port, method, path, options)
     local lanman, ntlm
     if is_extended then
     -- this essentially calls the new ntlmv2_session_response function in smbauth.lua and returns whatever it returns
-      lanman, ntlm = smbauth.get_password_response(nil, username, "", options.auth.password, nil, "ntlmv2_session", challenge, true)
+      lanman, ntlm = smbauth.get_password_response(username, "", options.auth.password, nil, "ntlmv2_session", challenge, true)
     else
-      lanman, ntlm = smbauth.get_password_response(nil, username, "", options.auth.password, nil, "ntlm", challenge, false)
+      lanman, ntlm = smbauth.get_password_response(username, "", options.auth.password, nil, "ntlm", challenge, false)
       type_3_flags = type_3_flags - 0x00080000 -- Removing the Extended Security Flag as server doesn't support it.
     end
 
@@ -1593,6 +1610,9 @@ function put(host, port, path, options, putdata)
   return generic_request(host, port, "PUT", path, mod_options)
 end
 
+local function domain (h)
+  return (h:match("%..+%..+") or h):lower()
+end
 -- A battery of tests a URL is subjected to in order to decide if it may be
 -- redirected to.
 local redirect_ok_rules = {
@@ -1610,11 +1630,10 @@ local redirect_ok_rules = {
   -- * ccTLDs are not treated as such. The rule will not stop a redirect
   --   from foo.co.uk to bar.co.uk even though it logically should.
   function (url, host, port)
-    local hostname = stdnse.get_hostname(host)
+    local hostname = ascii_hostname(host)
     if hostname == host.ip then
       return url.host == hostname
     end
-    local domain = function (h) return (h:match("%..+%..+") or h):lower() end
     return domain(hostname) == domain(url.host)
   end,
 
@@ -1696,7 +1715,7 @@ function parse_redirect(host, port, path, response)
   local u = url.parse(response.header.location)
   if ( not(u.host) ) then
     -- we're dealing with a relative url
-    u.host = stdnse.get_hostname(host)
+    u.host = ascii_hostname(host)
   end
   -- do port fixup
   u.port = u.port or get_default_port(u.scheme) or port.number
@@ -1704,12 +1723,15 @@ function parse_redirect(host, port, path, response)
     u.path = "/"
   end
   u.path = url.absolute(path, u.path)
-  if ( u.query ) then
-    u.path = ("%s?%s"):format( u.path, u.query )
-  end
+  u.path = url.build({
+      path = u.path,
+      query = u.query,
+      params = u.params,
+    })
   return u
 end
 
+local ret_false = function () return false end
 -- Retrieves the correct function to use to validate HTTP redirects
 -- @param host table as received by the action function
 -- @param port table as received by the action function
@@ -1717,8 +1739,8 @@ end
 -- @return redirect_ok function used to validate HTTP redirects
 local function get_redirect_ok(host, port, options)
   if ( options ) then
-    if ( options.redirect_ok == false ) then
-      return function() return false end
+    if not options.redirect_ok then
+      return ret_false
     elseif( "function" == type(options.redirect_ok) ) then
       return options.redirect_ok(host, port)
     elseif( type(options.redirect_ok) == "number") then
@@ -1806,7 +1828,7 @@ function get_url( u, options )
     path = path .. "?" .. parsed.query
   end
 
-  return get( parsed.host, port, path, options )
+  return get( parsed.ascii_host or parsed.host, port, path, options )
 end
 
 ---Fetches a resource with a HEAD request.
@@ -1963,6 +1985,7 @@ local function force_header (headers, header, value)
   return headers
 end
 
+local pipeline_comm_opts = {recv_before=false, request_timeout=10000}
 ---Performs all queued requests in the all_requests variable (created by the
 -- <code>pipeline_add</code> function).
 --
@@ -1985,14 +2008,14 @@ function pipeline_go(host, port, all_requests)
     stdnse.debug1("Warning: empty set of requests passed to http.pipeline_go()")
     return responses
   end
-  stdnse.debug1("HTTP pipeline: Total number of requests: " .. #all_requests)
+  stdnse.debug1("HTTP pipeline: Total number of requests: %d", #all_requests)
 
   -- We'll try a first request with keep-alive, just to check if the server
   -- supports it and how many requests we can send into one socket
   local req = all_requests[1]
   req.options.header = force_header(req.options.header, "Connection", "keep-alive")
   local reqstr = build_request(host, port, req.method, req.path, req.options)
-  local socket, partial, bopt = comm.tryssl(host, port, reqstr, {recv_before=false, request_timeout=10000})
+  local socket, partial, bopt = comm.tryssl(host, port, reqstr, tableaux.tcopy(pipeline_comm_opts))
   if not socket then
     return nil
   end
@@ -2011,27 +2034,24 @@ function pipeline_go(host, port, all_requests)
   stdnse.debug3("HTTP pipeline: connlimit=%d, batchlimit=%d", connlimit, batchlimit)
 
   while #responses < #all_requests do
+    local status, err
     -- reconnect if necessary
     if connsent >= connlimit or resp.truncated or not socket:get_info() then
       socket:close()
       stdnse.debug3("HTTP pipeline: reconnecting")
-      socket:connect(host, port, bopt)
-      if not socket then
-        return nil
+      socket:set_timeout(pipeline_comm_opts.request_timeout)
+      status, err = socket:connect(host, port, bopt)
+      if not status then
+        stdnse.debug3("HTTP pipeline: cannot reconnect: %s", err)
+        return responses
       end
-      socket:set_timeout(10000)
       partial = ""
       connsent = 0
     end
-    if connlimit > connsent + #all_requests - #responses then
-      connlimit = connsent + #all_requests - #responses
-    end
-
+    -- decrease the connection limit to match what we still need to send
+    connlimit = math.min(connlimit, connsent + #all_requests - #responses)
     -- determine the current batch size
-    local batchsize = connlimit - connsent
-    if batchsize > batchlimit then
-      batchsize = batchlimit
-    end
+    local batchsize = math.min(connlimit - connsent, batchlimit)
     stdnse.debug3("HTTP pipeline: batch=%d, conn=%d/%d, resp=%d/%d", batchsize, connsent, connlimit, #responses, #all_requests)
 
     -- build and send a batch of requests
@@ -2042,7 +2062,11 @@ function pipeline_go(host, port, all_requests)
       req.options.header = force_header(req.options.header, "Connection", connmode)
       table.insert(requests, build_request(host, port, req.method, req.path, req.options))
     end
-    socket:send(table.concat(requests))
+    status, err = socket:send(table.concat(requests))
+    if not status then
+      stdnse.debug3("HTTP pipeline: cannot send: %s", err)
+      return responses
+    end
 
     -- receive batch responses
     for i = 1, batchsize do
@@ -2069,18 +2093,8 @@ function pipeline_go(host, port, all_requests)
   return responses
 end
 
--- Parsing of specific headers. skip_space and the read_* functions return the
+-- Parsing of specific headers. The read_* functions return the
 -- byte index following whatever they have just read, or nil on error.
-
--- Skip whitespace (that has already been folded from LWS). See RFC 2616,
--- section 2.2, definition of LWS.
-local function skip_space(s, pos)
-  local _
-
-  _, pos = string.find(s, "^[ \t]*", pos)
-
-  return pos + 1
-end
 
 -- See RFC 2616, section 2.2.
 local function read_token(s, pos)
@@ -2558,6 +2572,16 @@ local function cache_404_response(host, port, response)
   return table.unpack(response)
 end
 
+local bad_responses = { 301, 302, 400, 401, 403, 499, 501, 503 }
+local identify_404_get_opts = {redirect_ok=false}
+local identify_404_cache_404 = {true, 404}
+local identify_404_cache_unknown = {false,
+  "Two known 404 pages returned valid and different pages; unable to identify valid response."
+}
+local identify_404_cache_unknown_folder = {false,
+  "Two known 404 pages returned valid and different pages; unable to identify valid response (happened when checking a folder)."
+}
+local identify_404_cache_200 = {true, 200}
 ---Try requesting a non-existent file to determine how the server responds to
 -- unknown pages ("404 pages")
 --
@@ -2602,14 +2626,13 @@ function identify_404(host, port)
     end
   end
   local data
-  local bad_responses = { 301, 302, 400, 401, 403, 499, 501, 503 }
 
   -- The URLs used to check 404s
   local URL_404_1 = '/nmaplowercheck' .. os.time(os.date('*t'))
   local URL_404_2 = '/NmapUpperCheck' .. os.time(os.date('*t'))
   local URL_404_3 = '/Nmap/folder/check' .. os.time(os.date('*t'))
 
-  data = get(host, port, URL_404_1,{redirect_ok=false})
+  data = get(host, port, URL_404_1, identify_404_get_opts)
   if(data == nil) then
     stdnse.debug1("HTTP: Failed while testing for 404 status code")
     -- do not cache; maybe it will work next time?
@@ -2618,7 +2641,7 @@ function identify_404(host, port)
 
   if(data.status and data.status == 404) then
     stdnse.debug1("HTTP: Host returns proper 404 result.")
-    return cache_404_response(host, port, {true, 404})
+    return cache_404_response(host, port, identify_404_cache_404)
   end
 
   if(data.status and data.status == 200) then
@@ -2666,17 +2689,13 @@ function identify_404(host, port)
       if(clean_body ~= clean_body2) then
         stdnse.debug1("HTTP: Two known 404 pages returned valid and different pages; unable to identify valid response.")
         stdnse.debug1("HTTP: If you investigate the server and it's possible to clean up the pages, please post to nmap-dev mailing list.")
-        return cache_404_response(host, port, {false,
-            "Two known 404 pages returned valid and different pages; unable to identify valid response."
-          })
+        return cache_404_response(host, port, identify_404_cache_unknown)
       end
 
       if(clean_body ~= clean_body3) then
         stdnse.debug1("HTTP: Two known 404 pages returned valid and different pages; unable to identify valid response (happened when checking a folder).")
         stdnse.debug1("HTTP: If you investigate the server and it's possible to clean up the pages, please post to nmap-dev mailing list.")
-        return cache_404_response(host, port, {false,
-            "Two known 404 pages returned valid and different pages; unable to identify valid response (happened when checking a folder)."
-          })
+        return cache_404_response(host, port, identify_404_cache_unknown_folder)
       end
 
       cache_404_response(host, port, {true, 200, clean_body})
@@ -2684,7 +2703,7 @@ function identify_404(host, port)
     end
 
     stdnse.debug1("HTTP: The 200 response didn't contain a body.")
-    return cache_404_response(host, port, {true, 200})
+    return cache_404_response(host, port, identify_404_cache_200)
   end
 
   -- Loop through any expected error codes
@@ -2764,6 +2783,12 @@ function page_exists(data, result_404, known_404, page, displayall)
   end
 end
 
+local lowercase = function (p)
+  return (p or ''):lower()
+end
+local safe_string = function (p)
+  return p or ''
+end
 ---Check if the response variable contains the given text.
 --
 -- Response variable could be a return from a http.get, http.post,
@@ -2792,10 +2817,7 @@ function response_contains(response, pattern, case_sensitive)
   end
 
   -- Create a function that either lowercases everything or doesn't, depending on case sensitivity
-  local case = function(pattern) return string.lower(pattern or '') end
-  if(case_sensitive == true) then
-    case = function(pattern) return (pattern or '') end
-  end
+  local case = case_sensitive and safe_string or lowercase
 
   -- Set the case of the pattern
   pattern = case(pattern)
@@ -2843,7 +2865,7 @@ end
 --@param contenttype [optional] The content-type value for the path, if it's known.
 function save_path(host, port, path, status, links_to, linked_from, contenttype)
   -- Make sure we have a proper hostname and port
-  host = stdnse.get_hostname(host)
+  host = ascii_hostname(host)
   if(type(port) == 'table') then
     port = port['number']
   end
@@ -2874,42 +2896,50 @@ function save_path(host, port, path, status, links_to, linked_from, contenttype)
     end
   end
 
+  if parsed.host then
+    host = parsed.ascii_host or parsed.host
+  end
+
+  if parsed.port then
+    port = parsed.port
+  end
+
   -- Add to the 'all_pages' key
-  stdnse.registry_add_array({parsed['host'] or host, 'www', parsed['port'] or port, 'all_pages'}, parsed['path'])
+  stdnse.registry_add_array({host, 'www', port, 'all_pages'}, parsed['path'])
 
   -- Add the URL with querystring to all_pages_full_query
-  stdnse.registry_add_array({parsed['host'] or host, 'www', parsed['port'] or port, 'all_pages_full_query'}, parsed['path_query'])
+  stdnse.registry_add_array({host, 'www', port, 'all_pages_full_query'}, parsed['path_query'])
 
   -- Add the URL to a key matching the response code
   if(status) then
-    stdnse.registry_add_array({parsed['host'] or host, 'www', parsed['port'] or port, 'status_codes', status}, parsed['path'])
+    stdnse.registry_add_array({host, 'www', port, 'status_codes', status}, parsed['path'])
   end
 
   -- If it's a directory, add it to the directories list; otherwise, add it to the files list
   if(parsed['is_folder']) then
-    stdnse.registry_add_array({parsed['host'] or host, 'www', parsed['port'] or port, 'directories'}, parsed['path'])
+    stdnse.registry_add_array({host, 'www', port, 'directories'}, parsed['path'])
   else
-    stdnse.registry_add_array({parsed['host'] or host, 'www', parsed['port'] or port, 'files'}, parsed['path'])
+    stdnse.registry_add_array({host, 'www', port, 'files'}, parsed['path'])
   end
 
 
   -- If we have an extension, add it to the extensions key
   if(parsed['extension']) then
-    stdnse.registry_add_array({parsed['host'] or host, 'www', parsed['port'] or port, 'extensions', parsed['extension']}, parsed['path'])
+    stdnse.registry_add_array({host, 'www', port, 'extensions', parsed['extension']}, parsed['path'])
   end
 
   -- Add an entry for the page and its arguments
   if(parsed['querystring']) then
     -- Add all scripts with a querystring to the 'cgi' and 'cgi_full_query' keys
-    stdnse.registry_add_array({parsed['host'] or host, 'www', parsed['port'] or port, 'cgi'}, parsed['path'])
-    stdnse.registry_add_array({parsed['host'] or host, 'www', parsed['port'] or port, 'cgi_full_query'}, parsed['path_query'])
+    stdnse.registry_add_array({host, 'www', port, 'cgi'}, parsed['path'])
+    stdnse.registry_add_array({host, 'www', port, 'cgi_full_query'}, parsed['path_query'])
 
     -- Add the query string alone to the registry (probably not necessary)
-    stdnse.registry_add_array({parsed['host'] or host, 'www', parsed['port'] or port, 'cgi_querystring', parsed['path'] }, parsed['raw_querystring'])
+    stdnse.registry_add_array({host, 'www', port, 'cgi_querystring', parsed['path'] }, parsed['raw_querystring'])
 
     -- Add the individual arguments for the page, along with their values
     for key, value in pairs(parsed['querystring']) do
-      stdnse.registry_add_array({parsed['host'] or host, 'www', parsed['port'] or port, 'cgi_args', parsed['path']}, parsed['querystring'])
+      stdnse.registry_add_array({host, 'www', port, 'cgi_args', parsed['path']}, parsed['querystring'])
     end
   end
 
@@ -2920,7 +2950,7 @@ function save_path(host, port, path, status, links_to, linked_from, contenttype)
     end
 
     for _, v in ipairs(links_to) do
-      stdnse.registry_add_array({parsed['host'] or host, 'www', parsed['port'] or port, 'links_to', parsed['path_query']}, v)
+      stdnse.registry_add_array({host, 'www', port, 'links_to', parsed['path_query']}, v)
     end
   end
 
@@ -2931,13 +2961,13 @@ function save_path(host, port, path, status, links_to, linked_from, contenttype)
     end
 
     for _, v in ipairs(linked_from) do
-      stdnse.registry_add_array({parsed['host'] or host, 'www', parsed['port'] or port, 'links_to', v}, parsed['path_query'])
+      stdnse.registry_add_array({host, 'www', port, 'links_to', v}, parsed['path_query'])
     end
   end
 
   -- Save it as a content-type, if we have one
   if(contenttype) then
-    stdnse.registry_add_array({parsed['host'] or host, 'www', parsed['port'] or port, 'content-type', contenttype}, parsed['path_query'])
+    stdnse.registry_add_array({host, 'www', port, 'content-type', contenttype}, parsed['path_query'])
   end
 end
 
@@ -3197,6 +3227,100 @@ do
     test_suite:add_test(unittest.equal(fragment, test.fragment), test.name .. " (fragment)")
   end
 
+  local parse_redirect_tests = {}
+  table.insert(parse_redirect_tests,
+    { name = "redirect plain URL",
+      host = "example.com",
+      port = 80,
+      path = "initial_path",
+      redirect_scheme = "http",
+      redirect_host = "example.com",
+      redirect_port = 80,
+      redirect_path = "/redirect_path",
+      response = {
+        status = 301,
+        header = {
+          location = "http://example.com:80/redirect_path"
+        }
+      }
+    }
+  )
+  table.insert(parse_redirect_tests,
+    { name = "redirect URL with query",
+      host = "example.com",
+      port = 80,
+      path = "initial_path",
+      redirect_scheme = "http",
+      redirect_host = "example.com",
+      redirect_port = 80,
+      redirect_path = "/redirect_path?query=1234",
+      response = {
+        status = 301,
+        header = {
+          location = "http://example.com:80/redirect_path?query=1234"
+        }
+      }
+    }
+    )
+  table.insert(parse_redirect_tests,
+    { name = "redirect URL with semicolon params",
+      host = "example.com",
+      port = 80,
+      path = "initial_path",
+      redirect_scheme = "http",
+      redirect_host = "example.com",
+      redirect_port = 80,
+      redirect_path = "/redirect_path;param=1234",
+      response = {
+        status = 301,
+        header = {
+          location = "http://example.com:80/redirect_path;param=1234"
+        }
+      }
+    }
+    )
+  table.insert(parse_redirect_tests,
+    { name = "redirect URL with multiple semicolon params",
+      host = "example.com",
+      port = 80,
+      path = "initial_path",
+      redirect_scheme = "http",
+      redirect_host = "example.com",
+      redirect_port = 80,
+      redirect_path = "/redirect_path;param1=1234;param2",
+      response = {
+        status = 301,
+        header = {
+          location = "http://example.com:80/redirect_path;param1=1234;param2"
+        }
+      }
+    }
+    )
+  table.insert(parse_redirect_tests,
+    { name = "redirect URL with semicolon params and query",
+      host = "example.com",
+      port = 80,
+      path = "initial_path",
+      redirect_scheme = "http",
+      redirect_host = "example.com",
+      redirect_port = 80,
+      redirect_path = "/redirect_path;param1=1234;param2&query=abc",
+      response = {
+        status = 301,
+        header = {
+          location = "http://example.com:80/redirect_path;param1=1234;param2&query=abc"
+        }
+      }
+    }
+    )
+
+  for _, test in ipairs(parse_redirect_tests) do
+    local redirect_url = parse_redirect(test.host, test.port, test.path, test.response)
+    test_suite:add_test(unittest.equal(redirect_url.scheme, test.redirect_scheme))
+    test_suite:add_test(unittest.equal(redirect_url.host, test.redirect_host))
+    test_suite:add_test(unittest.equal(redirect_url.port, test.redirect_port))
+    test_suite:add_test(unittest.equal(redirect_url.path, test.redirect_path))
+  end
 end
 
 return _ENV;

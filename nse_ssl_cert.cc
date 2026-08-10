@@ -3,128 +3,59 @@
  * nse_ssl_cert.cc -- NSE userdatum representing an SSL certificate.       *
  *                                                                         *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
- *                                                                         *
- * The Nmap Security Scanner is (C) 1996-2019 Insecure.Com LLC ("The Nmap  *
- * Project"). Nmap is also a registered trademark of the Nmap Project.     *
- * This program is free software; you may redistribute and/or modify it    *
- * under the terms of the GNU General Public License as published by the   *
- * Free Software Foundation; Version 2 ("GPL"), BUT ONLY WITH ALL OF THE   *
- * CLARIFICATIONS AND EXCEPTIONS DESCRIBED HEREIN.  This guarantees your   *
- * right to use, modify, and redistribute this software under certain      *
- * conditions.  If you wish to embed Nmap technology into proprietary      *
- * software, we sell alternative licenses (contact sales@nmap.com).        *
- * Dozens of software vendors already license Nmap technology such as      *
- * host discovery, port scanning, OS detection, version detection, and     *
- * the Nmap Scripting Engine.                                              *
- *                                                                         *
- * Note that the GPL places important restrictions on "derivative works",  *
- * yet it does not provide a detailed definition of that term.  To avoid   *
- * misunderstandings, we interpret that term as broadly as copyright law   *
- * allows.  For example, we consider an application to constitute a        *
- * derivative work for the purpose of this license if it does any of the   *
- * following with any software or content covered by this license          *
- * ("Covered Software"):                                                   *
- *                                                                         *
- * o Integrates source code from Covered Software.                         *
- *                                                                         *
- * o Reads or includes copyrighted data files, such as Nmap's nmap-os-db   *
- * or nmap-service-probes.                                                 *
- *                                                                         *
- * o Is designed specifically to execute Covered Software and parse the    *
- * results (as opposed to typical shell or execution-menu apps, which will *
- * execute anything you tell them to).                                     *
- *                                                                         *
- * o Includes Covered Software in a proprietary executable installer.  The *
- * installers produced by InstallShield are an example of this.  Including *
- * Nmap with other software in compressed or archival form does not        *
- * trigger this provision, provided appropriate open source decompression  *
- * or de-archiving software is widely available for no charge.  For the    *
- * purposes of this license, an installer is considered to include Covered *
- * Software even if it actually retrieves a copy of Covered Software from  *
- * another source during runtime (such as by downloading it from the       *
- * Internet).                                                              *
- *                                                                         *
- * o Links (statically or dynamically) to a library which does any of the  *
- * above.                                                                  *
- *                                                                         *
- * o Executes a helper program, module, or script to do any of the above.  *
- *                                                                         *
- * This list is not exclusive, but is meant to clarify our interpretation  *
- * of derived works with some common examples.  Other people may interpret *
- * the plain GPL differently, so we consider this a special exception to   *
- * the GPL that we apply to Covered Software.  Works which meet any of     *
- * these conditions must conform to all of the terms of this license,      *
- * particularly including the GPL Section 3 requirements of providing      *
- * source code and allowing free redistribution of the work as a whole.    *
- *                                                                         *
- * As another special exception to the GPL terms, the Nmap Project grants  *
- * permission to link the code of this program with any version of the     *
- * OpenSSL library which is distributed under a license identical to that  *
- * listed in the included docs/licenses/OpenSSL.txt file, and distribute   *
- * linked combinations including the two.                                  *
- *                                                                         *
- * The Nmap Project has permission to redistribute Npcap, a packet         *
- * capturing driver and library for the Microsoft Windows platform.        *
- * Npcap is a separate work with it's own license rather than this Nmap    *
- * license.  Since the Npcap license does not permit redistribution        *
- * without special permission, our Nmap Windows binary packages which      *
- * contain Npcap may not be redistributed without special permission.      *
- *                                                                         *
- * Any redistribution of Covered Software, including any derived works,    *
- * must obey and carry forward all of the terms of this license, including *
- * obeying all GPL rules and restrictions.  For example, source code of    *
- * the whole work must be provided and free redistribution must be         *
- * allowed.  All GPL references to "this License", are to be treated as    *
- * including the terms and conditions of this license text as well.        *
- *                                                                         *
- * Because this license imposes special exceptions to the GPL, Covered     *
- * Work may not be combined (even as part of a larger work) with plain GPL *
- * software.  The terms, conditions, and exceptions of this license must   *
- * be included as well.  This license is incompatible with some other open *
- * source licenses as well.  In some cases we can relicense portions of    *
- * Nmap or grant special permissions to use it in other open source        *
- * software.  Please contact fyodor@nmap.org with any such requests.       *
- * Similarly, we don't incorporate incompatible open source software into  *
- * Covered Software without special permission from the copyright holders. *
- *                                                                         *
- * If you have any questions about the licensing restrictions on using     *
- * Nmap in other works, we are happy to help.  As mentioned above, we also *
- * offer an alternative license to integrate Nmap into proprietary         *
- * applications and appliances.  These contracts have been sold to dozens  *
- * of software vendors, and generally include a perpetual license as well  *
- * as providing support and updates.  They also fund the continued         *
- * development of Nmap.  Please email sales@nmap.com for further           *
- * information.                                                            *
- *                                                                         *
- * If you have received a written license agreement or contract for        *
- * Covered Software stating terms other than these, you may choose to use  *
- * and redistribute Covered Software under those terms instead of these.   *
- *                                                                         *
- * Source is provided to this software because we believe users have a     *
- * right to know exactly what a program is going to do before they run it. *
- * This also allows you to audit the software for security holes.          *
- *                                                                         *
- * Source code also allows you to port Nmap to new platforms, fix bugs,    *
- * and add new features.  You are highly encouraged to send your changes   *
- * to the dev@nmap.org mailing list for possible incorporation into the    *
- * main distribution.  By sending these changes to Fyodor or one of the    *
- * Insecure.Org development mailing lists, or checking them into the Nmap  *
- * source code repository, it is understood (unless you specify            *
- * otherwise) that you are offering the Nmap Project the unlimited,        *
- * non-exclusive right to reuse, modify, and relicense the code.  Nmap     *
- * will always be available Open Source, but this is important because     *
- * the inability to relicense code has caused devastating problems for     *
- * other Free Software projects (such as KDE and NASM).  We also           *
- * occasionally relicense the code to third parties as discussed above.    *
- * If you wish to specify special license conditions of your               *
- * contributions, just say so when you send them.                          *
- *                                                                         *
- * This program is distributed in the hope that it will be useful, but     *
- * WITHOUT ANY WARRANTY; without even the implied warranty of              *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the Nmap      *
- * license file for more details (it's in a COPYING file included with     *
- * Nmap, and also available from https://svn.nmap.org/nmap/COPYING)        *
- *                                                                         *
+ *
+ * The Nmap Security Scanner is (C) 1996-2026 Nmap Software LLC ("The Nmap
+ * Project"). Nmap is also a registered trademark of the Nmap Project.
+ *
+ * This program is distributed under the terms of the Nmap Public Source
+ * License (NPSL). The exact license text applying to a particular Nmap
+ * release or source code control revision is contained in the LICENSE
+ * file distributed with that version of Nmap or source code control
+ * revision. More Nmap copyright/legal information is available from
+ * https://nmap.org/book/man-legal.html, and further information on the
+ * NPSL license itself can be found at https://nmap.org/npsl/ . This
+ * header summarizes some key points from the Nmap license, but is no
+ * substitute for the actual license text.
+ *
+ * Nmap is generally free for end users to download and use themselves,
+ * including commercial use. It is available from https://nmap.org.
+ *
+ * The Nmap license generally prohibits companies from using and
+ * redistributing Nmap in commercial products, but we sell a special Nmap
+ * OEM Edition with a more permissive license and special features for
+ * this purpose. See https://nmap.org/oem/
+ *
+ * If you have received a written Nmap license agreement or contract
+ * stating terms other than these (such as an Nmap OEM license), you may
+ * choose to use and redistribute Nmap under those terms instead.
+ *
+ * The official Nmap Windows builds include the Npcap software
+ * (https://npcap.com) for packet capture and transmission. It is under
+ * separate license terms which forbid redistribution without special
+ * permission. So the official Nmap Windows builds may not be redistributed
+ * without special permission (such as an Nmap OEM license).
+ *
+ * Source is provided to this software because we believe users have a
+ * right to know exactly what a program is going to do before they run it.
+ * This also allows you to audit the software for security holes.
+ *
+ * Source code also allows you to port Nmap to new platforms, fix bugs, and
+ * add new features. You are highly encouraged to submit your changes as a
+ * Github PR or by email to the dev@nmap.org mailing list for possible
+ * incorporation into the main distribution. Unless you specify otherwise, it
+ * is understood that you are offering us very broad rights to use your
+ * submissions as described in the Nmap Public Source License Contributor
+ * Agreement. This is important because we fund the project by selling licenses
+ * with various terms, and also because the inability to relicense code has
+ * caused devastating problems for other Free Software projects (such as KDE
+ * and NASM).
+ *
+ * The free version of Nmap is distributed in the hope that it will be
+ * useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. Warranties,
+ * indemnification and commercial support are all available through the
+ * Npcap OEM program--see https://nmap.org/oem/
+ *
  ***************************************************************************/
 
 /* $Id:$ */
@@ -142,21 +73,34 @@
 #include <openssl/bn.h>
 #include <openssl/bio.h>
 #include <openssl/pem.h>
-#include <openssl/rsa.h>
 #include <openssl/ssl.h>
 #include <openssl/x509.h>
 #include <openssl/x509v3.h>
 #include <openssl/evp.h>
 #include <openssl/err.h>
 
-#if (OPENSSL_VERSION_NUMBER >= 0x10100000L) && !defined LIBRESSL_VERSION_NUMBER
+#if ((OPENSSL_VERSION_NUMBER >= 0x10100000L) && !defined LIBRESSL_VERSION_NUMBER) || \
+    (defined LIBRESSL_VERSION_NUMBER && LIBRESSL_VERSION_NUMBER >= 0x3050000fL)
 /* Technically some of these things were added in 0x10100006
  * but that was pre-release. */
 #define HAVE_OPAQUE_STRUCTS 1
+#define FUNC_ASN1_STRING_get0_data ASN1_STRING_get0_data
+#define FUNC_ASN1_STRING_length ASN1_STRING_length
 #else
 #define X509_get0_notBefore X509_get_notBefore
 #define X509_get0_notAfter X509_get_notAfter
+#define FUNC_ASN1_STRING_get0_data(_s) ((_s)->data)
+#define FUNC_ASN1_STRING_length(_s) ((_s)->length)
 #endif
+
+#if OPENSSL_VERSION_NUMBER >= 0x30000000L
+#include <openssl/core_names.h>
+/* Deprecated in OpenSSL 3.0 */
+#define SSL_get_peer_certificate SSL_get1_peer_certificate
+#else
+#include <openssl/rsa.h>
+#endif
+
 
 /* struct tm */
 #include <time.h>
@@ -164,16 +108,12 @@
 #include "nse_lua.h"
 
 #include "nse_nsock.h"
+#include "nse_openssl.h"
 
 struct cert_userdata {
   X509 *cert;
   int attributes_table;
 };
-
-typedef struct bignum_data {
-  BIGNUM * bn;
-  bool should_free;
-} bignum_data_t;
 
 SSL *nse_nsock_get_ssl(lua_State *L);
 
@@ -225,13 +165,13 @@ static void obj_to_key(lua_State *L, const ASN1_OBJECT *obj)
   nid = OBJ_obj2nid(obj);
   if (nid == NID_undef) {
     size_t size = 1;
-    char *buf = (char *) lua_newuserdata(L, size);
+    char *buf = (char *) lua_newuserdatauv(L, size, 0);
     const char *p, *q;
     int i, n;
 
     while ((n = OBJ_obj2txt(buf, size, obj, 1)) < 0 || (unsigned) n >= size) {
       size = size * 2;
-      buf = (char *) lua_newuserdata(L, size);
+      buf = (char *) lua_newuserdatauv(L, size, 0);
       memcpy(lua_touserdata(L, -1), lua_touserdata(L, -2), lua_rawlen(L, -2));
       lua_replace(L, -2);
     }
@@ -258,14 +198,14 @@ static void obj_to_key(lua_State *L, const ASN1_OBJECT *obj)
 /* This is a helper function for l_get_ssl_certificate. It builds a table from
    the given X509_NAME, using keys returned from obj_to_key as keys. The result
    is pushed on the stack. */
-static void x509_name_to_table(lua_State *L, X509_NAME *name)
+static void x509_name_to_table(lua_State *L, const X509_NAME *name)
 {
   int i;
 
   lua_createtable(L, 0, X509_NAME_entry_count(name));
 
   for (i = 0; i < X509_NAME_entry_count(name); i++) {
-    X509_NAME_ENTRY *entry;
+    const X509_NAME_ENTRY *entry;
     const ASN1_OBJECT *obj;
     const ASN1_STRING *value;
 
@@ -274,7 +214,7 @@ static void x509_name_to_table(lua_State *L, X509_NAME *name)
     value = X509_NAME_ENTRY_get_data(entry);
 
     obj_to_key(L, obj);
-    lua_pushlstring(L, (const char *) value->data, value->length);
+    lua_pushlstring(L, (const char *) FUNC_ASN1_STRING_get0_data(value), FUNC_ASN1_STRING_length(value));
 
     lua_settable(L, -3);
   }
@@ -288,7 +228,7 @@ static bool x509_extensions_to_table(lua_State *L, const STACK_OF(X509_EXTENSION
   lua_createtable(L, sk_X509_EXTENSION_num(exts), 0);
 
   for (int i = 0; i < sk_X509_EXTENSION_num(exts); i++) {
-    ASN1_OBJECT *obj;
+    const ASN1_OBJECT *obj;
     X509_EXTENSION *ext;
     char *value = NULL;
     BIO *out;
@@ -329,6 +269,7 @@ static bool x509_extensions_to_table(lua_State *L, const STACK_OF(X509_EXTENSION
 
 }
 
+#ifndef HAVE_OPAQUE_STRUCTS
 /* Parse as a decimal integer the len characters starting at s. This function
    can only process positive numbers; if the return value is negative then a
    parsing error occurred. */
@@ -356,12 +297,17 @@ static int parse_int(const unsigned char *s, size_t len)
 
   return (int) v;
 }
+#endif
 
 /* This is a helper function for asn1_time_to_obj. It parses a textual ASN1_TIME
    value and stores the time in the given struct tm. It returns 0 on success and
    -1 on a parse error. */
 static int time_to_tm(const ASN1_TIME *t, struct tm *result)
 {
+#ifdef HAVE_OPAQUE_STRUCTS
+  /* Returns 1 on success, 0 on error */
+  return ASN1_TIME_to_tm(t, result) - 1;
+#else
   const unsigned char *p;
 
   p = t->data;
@@ -379,9 +325,8 @@ static int time_to_tm(const ASN1_TIME *t, struct tm *result)
        is 2050 or later."
        http://www.cs.auckland.ac.nz/~pgut001/pubs/x509guide.txt */
     if (year < 50)
-      result->tm_year = 2000 + year;
-    else
-      result->tm_year = 1900 + year;
+      year += 100;
+    result->tm_year = year;
     p = t->data + 2;
   } else if (t->length == 15 && t->data[t->length - 1] == 'Z') {
     /* yyyymmddhhmmssZ */
@@ -409,6 +354,7 @@ static int time_to_tm(const ASN1_TIME *t, struct tm *result)
   }
 
   return 0;
+#endif
 }
 
 /* This is a helper function for asn1_time_to_obj. It converts a struct tm into
@@ -419,7 +365,7 @@ static void tm_to_table(lua_State *L, const struct tm *tm)
 #define NSE_NUM_TM_FIELDS 6
   lua_createtable(L, 0, NSE_NUM_TM_FIELDS);
 
-  lua_pushinteger(L, tm->tm_year);
+  lua_pushinteger(L, tm->tm_year + 1900);
   lua_setfield(L, -2, "year");
   /* Lua uses one-indexed months. */
   lua_pushinteger(L, tm->tm_mon + 1);
@@ -449,7 +395,7 @@ static void asn1_time_to_obj(lua_State *L, const ASN1_TIME *s)
   } else if (time_to_tm(s, &tm) == 0) {
       tm_to_table(L, &tm);
   } else {
-      lua_pushlstring(L, (const char *) s->data, s->length);
+      lua_pushlstring(L, (const char *) FUNC_ASN1_STRING_get0_data(s), FUNC_ASN1_STRING_length(s));
   }
 }
 
@@ -497,7 +443,7 @@ static const char *pkey_type_to_string(int type)
     return "dsa";
   case EVP_PKEY_DH:
     return "dh";
-#ifdef HAVE_OPENSSL_EC
+#ifdef EVP_PKEY_EC
   case EVP_PKEY_EC:
     return "ec";
 #endif
@@ -507,23 +453,53 @@ static const char *pkey_type_to_string(int type)
 }
 
 int lua_push_ecdhparams(lua_State *L, EVP_PKEY *pubkey) {
-#ifdef HAVE_OPENSSL_EC
-  EC_KEY *ec_key = EVP_PKEY_get1_EC_KEY(pubkey);
-  const EC_GROUP *group = EC_KEY_get0_group(ec_key);
-  int nid;
+#ifdef OPENSSL_NO_EC
+  return 0;
+#else
   /* This structure (ecdhparams.curve_params) comes from tls.lua */
   lua_createtable(L, 0, 1); /* ecdhparams */
   lua_createtable(L, 0, 2); /* curve_params */
+
+  /* According to RFC 5480 section 2.1.1, explicit curves must not be used with
+     X.509. This may change in the future, but for now it doesn't seem worth it
+     to add in code to extract the extra parameters. */
+#if OPENSSL_VERSION_NUMBER >= 0x30000000L
+  char tmp[64] = {0};
+  size_t len = 0;
+  if (EVP_PKEY_get_utf8_string_param(pubkey, OSSL_PKEY_PARAM_GROUP_NAME,
+        tmp, sizeof(tmp), &len)) {
+    lua_pushlstring(L, tmp, len);
+    lua_setfield(L, -2, "curve");
+    lua_pushliteral(L, "namedcurve");
+  }
+  else if (EVP_PKEY_get_utf8_string_param(pubkey, OSSL_PKEY_PARAM_EC_FIELD_TYPE,
+        tmp, sizeof(tmp), &len)) {
+    if (0 == strncmp(tmp, "prime-field", len)) {
+      lua_pushliteral(L, "explicit_prime");
+    }
+    else if (0 == strncmp(tmp, "characteristic-two-field", len)) {
+      lua_pushliteral(L, "explicit_char2");
+    }
+    else {
+      /* Something weird happened. */
+      lua_pushlstring(L, tmp, len);
+    }
+  }
+#else // OPENSSL_VERSION_NUMBER < 0x30000000L
+  EC_KEY *ec_key = EVP_PKEY_get1_EC_KEY(pubkey);
+  const EC_GROUP *group = EC_KEY_get0_group(ec_key);
+  int nid;
   if ((nid = EC_GROUP_get_curve_name(group)) != 0) {
     lua_pushstring(L, OBJ_nid2sn(nid));
     lua_setfield(L, -2, "curve");
     lua_pushstring(L, "namedcurve");
-    lua_setfield(L, -2, "ec_curve_type");
   }
   else {
-    /* According to RFC 5480 section 2.1.1, explicit curves must not be used with
-       X.509. This may change in the future, but for now it doesn't seem worth it
-       to add in code to extract the extra parameters. */
+#if defined(LIBRESSL_VERSION_NUMBER)
+    /* LibreSSL doesn't have EC_GROUP_get_field_type, and explicit curves are rare.
+     * Just mark as UNKNOWN. */
+    lua_pushstring(L, "UNKNOWN");
+#else
     nid = EC_METHOD_get_field_type(EC_GROUP_method_of(group));
     if (nid == NID_X9_62_prime_field) {
       lua_pushstring(L, "explicit_prime");
@@ -532,17 +508,16 @@ int lua_push_ecdhparams(lua_State *L, EVP_PKEY *pubkey) {
       lua_pushstring(L, "explicit_char2");
     }
     else {
-      /* Something weird happened. */
       lua_pushstring(L, "UNKNOWN");
     }
-    lua_setfield(L, -2, "ec_curve_type");
-  }
-  lua_setfield(L, -2, "curve_params");
-  EC_KEY_free(ec_key);
-  return 1;
-#else
-  return 0;
 #endif
+  }
+  EC_KEY_free(ec_key);
+#endif
+  lua_setfield(L, -2, "ec_curve_type");
+  lua_setfield(L, -2, "curve_params");
+  return 1;
+#endif // OPENSSL_NO_EC
 }
 
 static int parse_ssl_cert(lua_State *L, X509 *cert);
@@ -584,11 +559,11 @@ int l_get_ssl_certificate(lua_State *L)
 static int parse_ssl_cert(lua_State *L, X509 *cert)
 {
   struct cert_userdata *udata;
-  X509_NAME *subject, *issuer;
+  const X509_NAME *subject, *issuer;
   EVP_PKEY *pubkey;
   int pkey_type;
 
-  udata = (struct cert_userdata *) lua_newuserdata(L, sizeof(*udata));
+  udata = (struct cert_userdata *) lua_newuserdatauv(L, sizeof(*udata), 0);
   udata->cert = cert;
 
 #define NSE_NUM_CERT_FIELDS 7
@@ -642,7 +617,7 @@ static int parse_ssl_cert(lua_State *L, X509 *cert)
 #else
   pkey_type = EVP_PKEY_type(pubkey->type);
 #endif
-#ifdef HAVE_OPENSSL_EC
+#ifdef EVP_PKEY_EC
   if (pkey_type == EVP_PKEY_EC) {
     lua_push_ecdhparams(L, pubkey);
     lua_setfield(L, -2, "ecdhparams");
@@ -650,34 +625,37 @@ static int parse_ssl_cert(lua_State *L, X509 *cert)
   else
 #endif
   if (pkey_type == EVP_PKEY_RSA) {
+#if OPENSSL_VERSION_NUMBER >= 0x30000000L
+    BIGNUM *n = NULL, *e = NULL;
+    bool should_free = true;
+    EVP_PKEY_get_bn_param(pubkey, OSSL_PKEY_PARAM_RSA_E, &e);
+    EVP_PKEY_get_bn_param(pubkey, OSSL_PKEY_PARAM_RSA_N, &n);
+#else
+    bool should_free = false;
     RSA *rsa = EVP_PKEY_get1_RSA(pubkey);
-    if (rsa) {
-      /* exponent */
-      bignum_data_t * data = (bignum_data_t *) lua_newuserdata( L, sizeof(bignum_data_t));
-      luaL_getmetatable( L, "BIGNUM" );
-      lua_setmetatable( L, -2 );
-      data->should_free = false;
-#if HAVE_OPAQUE_STRUCTS
-      const BIGNUM *n, *e;
-      RSA_get0_key(rsa, &n, &e, NULL);
-      data->bn = (BIGNUM*) e;
-#else
-      data->bn = rsa->e;
-#endif
-      lua_setfield(L, -2, "exponent");
-      /* modulus */
-      data = (bignum_data_t *) lua_newuserdata( L, sizeof(bignum_data_t));
-      luaL_getmetatable( L, "BIGNUM" );
-      lua_setmetatable( L, -2 );
-      data->should_free = false;
-#if HAVE_OPAQUE_STRUCTS
-      data->bn = (BIGNUM*) n;
-#else
-      data->bn = rsa->n;
-#endif
-      lua_setfield(L, -2, "modulus");
-      RSA_free(rsa);
+    if (!rsa) {
+      // This should be impossible for this key type
+      return luaL_error(L, "EVP_PKEY_RSA missing RSA key!");
     }
+# if HAVE_OPAQUE_STRUCTS
+    const BIGNUM *n = NULL, *e = NULL;
+    RSA_get0_key(rsa, &n, &e, NULL);
+# endif
+#endif
+#if HAVE_OPAQUE_STRUCTS
+# define PASS_RSA_PARAM(_P) ((BIGNUM *)(_P))
+#else /* not HAVE_OPAQUE_STRUCTS */
+# define PASS_RSA_PARAM(_P) (rsa->_P)
+#endif
+    /* exponent */
+    nse_pushbn(L, PASS_RSA_PARAM(e), should_free);
+    lua_setfield(L, -2, "exponent");
+    /* modulus */
+    nse_pushbn(L, PASS_RSA_PARAM(n), should_free);
+    lua_setfield(L, -2, "modulus");
+#if OPENSSL_VERSION_NUMBER < 0x30000000L
+    RSA_free(rsa);
+#endif
   }
   lua_pushstring(L, pkey_type_to_string(pkey_type));
   lua_setfield(L, -2, "type");

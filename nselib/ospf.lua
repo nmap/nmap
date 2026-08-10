@@ -69,7 +69,7 @@ OSPF = {
         header.auth_data.hash = hash
       else
         -- Shouldn't happen
-        stdnse.debug1("Unknown authentication type " .. header.auth_type)
+        stdnse.debug1("Unknown authentication type %s", header.auth_type)
         return nil
       end
       header.router_id = ipOps.fromdword(header.router_id)

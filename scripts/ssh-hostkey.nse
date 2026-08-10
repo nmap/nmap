@@ -274,11 +274,13 @@ local function portaction(host, port)
     -- Since the fetch_host_key functions don't indicate what failed, we could
     -- waste a lot of time on e.g. tcpwrapped port 22
     -- Using opencon instead of get_banner to avoid trying SSL first in some cases
-    local status, banner = comm.opencon(host, port, nil, {recv_before=true})
-    if not string.match(banner, "^SSH") then
+    local sock, banner = comm.opencon(host, port, nil, {recv_before=true})
+    if not (sock and string.match(banner, "^SSH")) then
+      stdnse.debug2("Banner: %s", banner)
       stdnse.debug1("Service does not appear to be SSH: quitting.")
       return nil
     end
+    sock:close()
   end
   local output_tab = {}
   local keys = {}

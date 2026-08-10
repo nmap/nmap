@@ -5,6 +5,10 @@
 #include <errno.h>
 #include "linear.h"
 
+int print_null(const char *s,...) {return 0;}
+
+static int (*info)(const char *fmt,...) = &printf;
+
 struct feature_node *x;
 int max_nr_attr = 64;
 
@@ -23,7 +27,7 @@ static int max_line_len;
 static char* readline(FILE *input)
 {
 	int len;
-	
+
 	if(fgets(line,max_line_len,input) == NULL)
 		return NULL;
 
@@ -38,10 +42,12 @@ static char* readline(FILE *input)
 	return line;
 }
 
-void do_predict(FILE *input, FILE *output, struct model* model_)
+void do_predict(FILE *input, FILE *output)
 {
 	int correct = 0;
 	int total = 0;
+	double error = 0;
+	double sump = 0, sumt = 0, sumpp = 0, sumtt = 0, sumpt = 0;
 
 	int nr_class=get_nr_class(model_);
 	double *prob_estimates=NULL;
@@ -65,7 +71,7 @@ void do_predict(FILE *input, FILE *output, struct model* model_)
 		labels=(int *) malloc(nr_class*sizeof(int));
 		get_labels(model_,labels);
 		prob_estimates = (double *) malloc(nr_class*sizeof(double));
-		fprintf(output,"labels");		
+		fprintf(output,"labels");
 		for(j=0;j<nr_class;j++)
 			fprintf(output," %d",labels[j]);
 		fprintf(output,"\n");
@@ -77,7 +83,7 @@ void do_predict(FILE *input, FILE *output, struct model* model_)
 	while(readline(input) != NULL)
 	{
 		int i = 0;
-		int target_label, predict_label;
+		double target_label, predict_label;
 		char *idx, *val, *label, *endptr;
 		int inst_max_index = 0; // strtol gives 0 if wrong format
 
@@ -85,13 +91,13 @@ void do_predict(FILE *input, FILE *output, struct model* model_)
 		if(label == NULL) // empty line
 			exit_input_error(total+1);
 
-		target_label = (int) strtol(label,&endptr,10);
+		target_label = strtod(label,&endptr);
 		if(endptr == label || *endptr != '\0')
 			exit_input_error(total+1);
 
 		while(1)
 		{
-			if(i>=max_nr_attr-2)	// need one more for index = -1
+			if(i>=max_nr_attr-2)    // need one more for index = -1
 			{
 				max_nr_attr *= 2;
 				x = (struct feature_node *) realloc(x,max_nr_attr*sizeof(struct feature_node));
@@ -131,7 +137,7 @@ void do_predict(FILE *input, FILE *output, struct model* model_)
 		{
 			int j;
 			predict_label = predict_probability(model_,x,prob_estimates);
-			fprintf(output,"%d",predict_label);
+			fprintf(output,"%g",predict_label);
 			for(j=0;j<model_->nr_class;j++)
 				fprintf(output," %g",prob_estimates[j]);
 			fprintf(output,"\n");
@@ -139,14 +145,29 @@ void do_predict(FILE *input, FILE *output, struct model* model_)
 		else
 		{
 			predict_label = predict(model_,x);
-			fprintf(output,"%d\n",predict_label);
+			fprintf(output,"%.17g\n",predict_label);
 		}
 
 		if(predict_label == target_label)
 			++correct;
+		error += (predict_label-target_label)*(predict_label-target_label);
+		sump += predict_label;
+		sumt += target_label;
+		sumpp += predict_label*predict_label;
+		sumtt += target_label*target_label;
+		sumpt += predict_label*target_label;
 		++total;
 	}
-	printf("Accuracy = %g%% (%d/%d)\n",(double) correct/total*100,correct,total);
+	if(check_regression_model(model_))
+	{
+		info("Mean squared error = %g (regression)\n",error/total);
+		info("Squared correlation coefficient = %g (regression)\n",
+			((total*sumpt-sump*sumt)*(total*sumpt-sump*sumt))/
+			((total*sumpp-sump*sump)*(total*sumtt-sumt*sumt))
+			);
+	}
+	else
+		info("Accuracy = %g%% (%d/%d)\n",(double) correct/total*100,correct,total);
 	if(flag_predict_probability)
 		free(prob_estimates);
 }
@@ -156,7 +177,8 @@ void exit_with_help()
 	printf(
 	"Usage: predict [options] test_file model_file output_file\n"
 	"options:\n"
-	"-b probability_estimates: whether to output probability estimates, 0 or 1 (default 0)\n"
+	"-b probability_estimates: whether to output probability estimates, 0 or 1 (default 0); currently for logistic regression only\n"
+	"-q : quiet mode (no outputs)\n"
 	);
 	exit(1);
 }
@@ -176,7 +198,10 @@ int main(int argc, char **argv)
 			case 'b':
 				flag_predict_probability = atoi(argv[i]);
 				break;
-
+			case 'q':
+				info = &print_null;
+				i--;
+				break;
 			default:
 				fprintf(stderr,"unknown option: -%c\n", argv[i-1][1]);
 				exit_with_help();
@@ -207,7 +232,7 @@ int main(int argc, char **argv)
 	}
 
 	x = (struct feature_node *) malloc(max_nr_attr*sizeof(struct feature_node));
-	do_predict(input, output, model_);
+	do_predict(input, output);
 	free_and_destroy_model(&model_);
 	free(line);
 	free(x);

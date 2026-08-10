@@ -19,7 +19,7 @@
 .\"IMPLIED WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED
 .\"WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 
-.TH PCAP_GET_TSTAMP_PRECISION 3PCAP "18 December 2013"
+.TH PCAP_GET_TSTAMP_PRECISION 3PCAP "23 August 2018"
 .SH NAME
 pcap_get_tstamp_precision \- get the time stamp precision returned in
 captures
@@ -34,11 +34,11 @@ int pcap_get_tstamp_precision(pcap_t *p);
 .ft
 .fi
 .SH DESCRIPTION
-.B pcap_get_tstamp_precision()
+.BR pcap_get_tstamp_precision ()
 returns the precision of the time stamp returned in packet captures on the pcap
 descriptor.
 .SH RETURN VALUE
-.B pcap_get_tstamp_precision()
+.BR pcap_get_tstamp_precision ()
 returns
 .B PCAP_TSTAMP_PRECISION_MICRO
 or
@@ -51,6 +51,6 @@ This function became available in libpcap release 1.5.1.  In previous
 releases, time stamps from a capture device or savefile are always given
 in seconds and microseconds.
 .SH SEE ALSO
-pcap(3PCAP),
-pcap_set_tstamp_precision(3PCAP),
-pcap-tstamp(@MAN_MISC_INFO@)
+.BR pcap (3PCAP),
+.BR pcap_set_tstamp_precision (3PCAP),
+.BR \%pcap-tstamp (@MAN_MISC_INFO@)

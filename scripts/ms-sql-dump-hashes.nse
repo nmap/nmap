@@ -40,29 +40,19 @@ author = "Patrik Karlsson"
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"auth", "discovery", "safe"}
 
-
-dependencies = {"ms-sql-brute", "ms-sql-empty-password"}
-
-hostrule = mssql.Helper.GetHostrule_Standard()
-portrule = mssql.Helper.GetPortrule_Standard()
+dependencies = {"broadcast-ms-sql-discover", "ms-sql-brute", "ms-sql-empty-password"}
 
 local function process_instance(instance)
 
   local helper = mssql.Helper:new()
   local status, errorMessage = helper:ConnectEx( instance )
   if ( not(status) ) then
-    return false, {
-      ['name'] = string.format( "[%s]", instance:GetName() ),
-      "ERROR: " .. errorMessage
-    }
+    return "ERROR: " .. errorMessage
   end
 
   status, errorMessage = helper:LoginEx( instance )
   if ( not(status) ) then
-    return false, {
-      ['name'] = string.format( "[%s]", instance:GetName() ),
-      "ERROR: " .. errorMessage
-    }
+    return "ERROR: " .. errorMessage
   end
 
   local result
@@ -83,12 +73,7 @@ local function process_instance(instance)
   end
 
   helper:Disconnect()
-  local instanceOutput = {}
-  instanceOutput["name"] = string.format( "[%s]", instance:GetName() )
-  table.insert( instanceOutput, output )
-
-  return true, instanceOutput
-
+  return output
 end
 
 -- Saves the hashes to file
@@ -110,31 +95,19 @@ local function saveToFile(filename, response)
   return true
 end
 
-action = function( host, port )
-  local dir = stdnse.get_script_args("ms-sql-dump-hashes.dir")
-  local scriptOutput = {}
-  local status, instanceList = mssql.Helper.GetTargetInstances( host, port )
+local dir = stdnse.get_script_args("ms-sql-dump-hashes.dir")
 
-  if ( not status ) then
-    return stdnse.format_output( false, instanceList )
-  else
-    for _, instance in pairs( instanceList ) do
-      local status, instanceOutput = process_instance( instance )
-      if ( status ) then
-        local filename
-        if ( dir ) then
-          local instance = instance:GetName():match("%\\+(.+)$") or instance:GetName()
-          filename = dir .. "/" .. stringaux.filename_escape(("%s_%s_ms-sql_hashes.txt"):format(host.ip, instance))
-          saveToFile(filename, instanceOutput[1])
-        end
-      end
-      table.insert( scriptOutput, instanceOutput )
-    end
+local function process_and_save (instance)
+  local instanceOutput = process_instance( instance )
+  if type(instanceOutput) == "table" then
+    local inst = instance:GetName():gsub(".*\\", "")
+    local filename = dir .. "/" .. stringaux.filename_escape(
+      ("%s_%s_ms-sql_hashes.txt"):format(instance.host.ip, inst))
+    saveToFile(filename, instanceOutput)
   end
-
-  if ( #scriptOutput == 0 ) then return end
-
-  local output = ( #scriptOutput > 1 and scriptOutput or scriptOutput[1] )
-
-  return stdnse.format_output( true, output )
+  return instanceOutput
 end
+
+local do_instance = dir and process_and_save or process_instance
+
+action, portrule, hostrule = mssql.Helper.InitScript(do_instance)

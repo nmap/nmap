@@ -3,7 +3,7 @@
  *
  * Copyright (c) 2000 Dug Song <dugsong@monkey.org>
  *
- * $Id: route-linux.c 619 2006-01-15 07:33:29Z dugsong $
+ * $Id$
  */
 
 #include "config.h"
@@ -40,6 +40,7 @@
 
 struct route_handle {
 	int	 fd;
+	int	 fd6;
 	int	 nlfd;
 };
 
@@ -50,9 +51,12 @@ route_open(void)
 	route_t *r;
 
 	if ((r = calloc(1, sizeof(*r))) != NULL) {
-		r->fd = r->nlfd = -1;
+		r->fd = r->fd6 = r->nlfd = -1;
 		
 		if ((r->fd = socket(AF_INET, SOCK_DGRAM, 0)) < 0)
+			return (route_close(r));
+
+		if ((r->fd6 = socket(AF_INET6, SOCK_DGRAM, 0)) < 0)
 			return (route_close(r));
 		
 		if ((r->nlfd = socket(AF_NETLINK, SOCK_RAW,
@@ -92,6 +96,67 @@ route_add(route_t *r, const struct route_entry *entry)
 }
 
 int
+route_add_dev(route_t *r, const struct route_entry *entry, const char* dev)
+{
+	struct rtentry rt;
+	struct addr dst;
+
+	memset(&rt, 0, sizeof(rt));
+	rt.rt_flags = RTF_UP;
+	rt.rt_dev = (char*)dev;
+
+	if (ADDR_ISHOST(&entry->route_dst)) {
+		rt.rt_flags |= RTF_HOST;
+		memcpy(&dst, &entry->route_dst, sizeof(dst));
+	} else
+		addr_net(&entry->route_dst, &dst);
+
+	if (entry->route_gw.addr_ip != 0) {
+		rt.rt_flags |= RTF_GATEWAY;
+	}
+
+	if (addr_ntos(&dst, &rt.rt_dst) < 0 ||
+	    addr_ntos(&entry->route_gw, &rt.rt_gateway) < 0 ||
+	    addr_btos(entry->route_dst.addr_bits, &rt.rt_genmask) < 0)
+		return (-1);
+
+	int ret = (ioctl(r->fd, SIOCADDRT, &rt));
+	return ret;
+}
+
+int
+route6_add(route_t *r, const struct route_entry *entry, int intf_index)
+{
+	struct in6_rtmsg rt;
+	struct addr dst;
+
+	memset(&rt, 0, sizeof(rt));
+	rt.rtmsg_flags = RTF_UP;
+
+	if (ADDR_ISHOST(&entry->route_dst)) {
+		rt.rtmsg_flags |= RTF_HOST;
+		memcpy(&dst, &entry->route_dst, sizeof(dst));
+	} else {
+		addr_net(&entry->route_dst, &dst);
+	}
+
+	rt.rtmsg_dst_len = entry->route_dst.addr_bits;
+	rt.rtmsg_ifindex = intf_index;
+	rt.rtmsg_metric = 1;
+
+	memcpy(&rt.rtmsg_dst, &dst.addr_ip6, sizeof(rt.rtmsg_dst));
+
+	if (!IN6_IS_ADDR_UNSPECIFIED(&entry->route_gw.addr_ip6)) {
+		rt.rtmsg_flags |= RTF_GATEWAY;
+		memcpy(&rt.rtmsg_gateway, &entry->route_gw.addr_ip6,
+				sizeof(rt.rtmsg_gateway));
+	}
+
+	int ret = (ioctl(r->fd6, SIOCADDRT, &rt));
+	return ret;
+}
+
+int
 route_delete(route_t *r, const struct route_entry *entry)
 {
 	struct rtentry rt;
@@ -111,6 +176,32 @@ route_delete(route_t *r, const struct route_entry *entry)
 		return (-1);
 	
 	return (ioctl(r->fd, SIOCDELRT, &rt));
+}
+
+int
+route6_delete(route_t *r, const struct route_entry *entry, int intf_index)
+{
+	struct in6_rtmsg rt;
+	struct addr dst;
+
+	memset(&rt, 0, sizeof(rt));
+	rt.rtmsg_flags = RTF_UP;
+
+	if (ADDR_ISHOST(&entry->route_dst)) {
+		rt.rtmsg_flags |= RTF_HOST;
+		memcpy(&dst, &entry->route_dst, sizeof(dst));
+	} else
+		addr_net(&entry->route_dst, &dst);
+
+	rt.rtmsg_dst_len = entry->route_dst.addr_bits;
+	rt.rtmsg_ifindex = intf_index;
+	rt.rtmsg_metric = 1;
+
+	memcpy(&rt.rtmsg_dst, &dst, sizeof(rt.rtmsg_dst));
+	memcpy(&rt.rtmsg_gateway, &entry->route_gw, sizeof(rt.rtmsg_gateway));
+
+	int ret = (ioctl(r->fd6, SIOCDELRT, &rt));
+	return ret;
 }
 
 int
@@ -302,6 +393,8 @@ route_close(route_t *r)
 	if (r != NULL) {
 		if (r->fd >= 0)
 			close(r->fd);
+		if (r->fd6 >= 0)
+			close(r->fd6);
 		if (r->nlfd >= 0)
 			close(r->nlfd);
 		free(r);

@@ -61,7 +61,7 @@ action = function(host, port)
   if ( status ) then
     -- set port to open
     nmap.set_port_state(host, port, "open")
-    return stdnse.format_output(true, result)
+    return result
   end
 end
 

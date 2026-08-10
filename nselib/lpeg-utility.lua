@@ -13,17 +13,19 @@ local pairs = pairs
 local string = require "string"
 local tonumber = tonumber
 local rawset = rawset
+local lower = string.lower
+local upper = string.upper
 
 _ENV = {}
 
+local caselessP = lpeg.Cf((lpeg.P(1) / function (a) return lpeg.S(lower(a)..upper(a)) end)^1, function (a, b) return a * b end)
 ---
 -- Returns a pattern which matches the literal string caselessly.
 --
 -- @param literal A literal string to match case-insensitively.
 -- @return An LPeg pattern.
 function caseless (literal)
-  local caseless = lpeg.Cf((lpeg.P(1) / function (a) return lpeg.S(a:lower()..a:upper()) end)^1, function (a, b) return a * b end)
-  return assert(caseless:match(literal))
+  return assert(caselessP:match(literal))
 end
 
 ---

@@ -1,6 +1,10 @@
 
 *BSD, MacOS X, Linux
 --------------------
+Make sure you have `pkg-config` installed.
+
+Install Check (https://libcheck.github.io/check/) for additional checks
+during build time.
 
 ./configure && make
 
@@ -56,4 +60,4 @@ To build a Microsoft Visual C++ native library and Python module
 	cd ../src && lib /out:dnet.lib *.obj
 
 
-# $Id: INSTALL 590 2005-02-15 07:38:19Z dugsong $
+# $Id$

@@ -6,6 +6,7 @@ local stdnse = require "stdnse"
 local string = require "string"
 local stringaux = require "stringaux"
 local table = require "table"
+local tableaux = require "tableaux"
 local ipOps = require "ipOps"
 
 description = [[
@@ -89,15 +90,12 @@ local order = {
 
 local extras = {
   {
+    -- https://redis.io/commands/config-get/
     "Bind addresses", {"CONFIG", "GET", "bind"}, function (data)
       if data[1] ~= "bind" or not data[2] then
         return nil
       end
       local restab = stringaux.strsplit(" ", data[2])
-      if not restab or 0 == #restab then
-        stdnse.debug1("Failed to parse response from server")
-        return nil
-      end
       for i, ip in ipairs(restab) do
         if ip == '' then restab[i] = '0.0.0.0' end
       end
@@ -105,75 +103,72 @@ local extras = {
     end
   },
   {
+    -- https://redis.io/commands/pubsub-channels/
     "Active channels", {"PUBSUB", "CHANNELS"}, function (data)
       local channels = {}
-      local i = 0
       local omitted = 0
       local limit = nmap.verbosity() <= 1 and 20 or false
       for _, channel in ipairs(data) do
-        if limit and i > limit then
+        if limit and #channels >= limit then
           omitted = omitted + 1
         else
           table.insert(channels, channel)
         end
-        i = i + 1
       end
 
       if omitted > 0 then
         table.insert(channels, ("(omitted %s item(s), use verbose mode -v to show them)"):format(omitted))
       end
-      return i > 0 and channels or nil
+      return #channels > 0 and channels or nil
     end
   },
   {
+    -- https://redis.io/commands/client-list/
     "Client connections", {"CLIENT", "LIST"}, function(data)
-      local restab = stringaux.strsplit("\n", data)
-      if not restab or 0 == #restab then
+      if not data then
         stdnse.debug1("Failed to parse response from server")
         return nil
       end
 
       local client_ips = {}
-      for _, item in ipairs(restab) do
-        local ip = item:match("addr=%[?([0-9a-f:.]+)%]?:[0-9]+ ")
-        client_ips[ip] = true;
-      end
-      if not next(client_ips) then
-        return nil
-      end
-      local out = {}
-      for ip, _ in pairs(client_ips) do
-        local sortable = ipOps.ip_to_str(ip)
-        if sortable then
-          -- prepending length sorts IPv4 and IPv6 separately
-          out[#out+1] = string.pack("s1", sortable)
+      for conn in data:gmatch("[^\n]+") do
+        local ip = conn:match("%f[^%s\0]addr=%[?([%x:.]+)%]?:%d+%f[%s\0]")
+        if ip then
+          local binip = ipOps.ip_to_str(ip)
+          if binip then
+            -- prepending length sorts IPv4 and IPv6 separately
+            client_ips[string.pack("s1", binip)] = binip
+          end
         end
       end
-      if not next(out) then
-        return nil
+
+      local out = {}
+      local keys = tableaux.keys(client_ips)
+      table.sort(keys)
+      for _, packed in ipairs(keys) do
+        table.insert(out, ipOps.str_to_ip(client_ips[packed]))
       end
-      table.sort(out)
-      for i, packed in ipairs(out) do
-        out[i] = ipOps.str_to_ip(string.unpack("s1", packed))
-      end
-      return out
+      return #out > 0 and out or nil
     end
   },
   {
+    -- https://redis.io/commands/cluster-nodes/
     "Cluster nodes", {"CLUSTER", "NODES"}, function(data)
-      local restab = stringaux.strsplit("\n", data)
-      if not restab or 0 == #restab then
+      if not data then
+        stdnse.debug1("Failed to parse response from server")
         return nil
       end
 
-      local ips = {}
-      for _, item in ipairs(restab) do
-        local id, ip, port, flags = item:match("^([a-f0-9]+) ([0-9.:a-f]+):([0-9]+) ([a-z,]+)")
-        stdnse.debug1("ip=%s port=%s flags=%s", ip, port, flags)
-        table.insert(ips, ip .. ":" .. port .. " (" .. flags .. ")")
+      local out = {}
+      for node in data:gmatch("[^\n]+") do
+        local ipport, flags = node:match("^%x+%s+([%x.:%[%]]+)@?%d*%s+(%S+)")
+        if ipport then
+          table.insert(out, ("%s (%s)"):format(ipport, flags))
+        else
+          stdnse.debug1("Unable to parse cluster node info")
+        end
       end
-
-      return ips
+      return #out > 0 and out or nil
     end
   },
 }

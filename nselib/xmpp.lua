@@ -427,7 +427,7 @@ Helper = {
   -- @param username string
   -- @param password string
   -- @param mech string containing a supported authentication mechanism
-  -- @see Helper.getAuthMechs
+  -- @see XMPP.getAuthMechs
   -- @return status true on success, false on failure
   -- @return err string containing error message if status is false
   login = function(self, username, password, mech)

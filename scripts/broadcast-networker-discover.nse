@@ -62,7 +62,19 @@ action = function()
 
   local results = {}
   local ip = ( nmap.address_family() == "inet" ) and "255.255.255.255" or "ff02::202"
-  local iface = nmap.get_interface()
+  local iface
+  local collect_interface = function (if_table)
+    if not iface and if_table.up == "up" and if_table.link == "ethernet"
+      and if_table.address and (
+        (nmap.address_family() == "inet" and if_table.address:match("^%d+%.%d+%.%d+%.%d+$"))
+        or (nmap.address_family() == "inet6" and if_table.address:match(":"))
+        )
+      then
+      iface = if_table.device
+    end
+  end
+
+  stdnse.get_script_interfaces(collect_interface)
 
   -- handle problematic sends on OS X requiring the interface to be
   -- supplied as part of IPv6

@@ -151,7 +151,7 @@ local send_snmp_queries = function(socket, result, nextcommunity)
       condvar("signal")
       return
     end
-    payload = snmp.encode(snmp.buildPacket(request, 0, community))
+    payload = snmp.encode(snmp.buildPacket(request, nil, community))
     status, err = socket:send(payload)
     if not status then
       result.status = false
@@ -190,7 +190,7 @@ local sniff_snmp_responses = function(host, port, lport, result)
 
     if status then
       local p = packet.Packet:new(l3,#l3)
-      if not p:udp_parse() then
+      if not p or not p:udp_parse() then
         --shouldn't happen
         result.status = false
         result.msg = "Wrong type of packet received"
@@ -247,12 +247,12 @@ action = function(host, port)
   local socket = nmap.new_socket("udp")
   status = socket:connect(host, port)
 
-  if ( not(status) ) then
+  if not status then
     return fail("Failed to connect to server")
   end
 
   local status, _, lport = socket:get_info()
-  if( not(status) ) then
+  if not status then
     return fail("Failed to retrieve local port")
   end
 

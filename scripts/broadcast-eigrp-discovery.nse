@@ -74,6 +74,7 @@ license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"discovery", "broadcast", "safe"}
 
 prerule = function()
+  -- TODO: EIGRP for IPv6 uses ff02::10
   if nmap.address_family() ~= 'inet' then
     stdnse.verbose1("is IPv4 only.")
     return false
@@ -131,23 +132,25 @@ local eigrpListener = function(interface, timeout, responses)
     status, _, _, l3data = listener:pcap_receive()
     if status then
       p = packet.Packet:new(l3data, #l3data)
-      eigrp_raw = string.sub(l3data, p.ip_hl*4 + 1)
-      -- Check if it is an EIGRPv2 Update
-      if eigrp_raw:byte(1) == 0x02 and eigrp_raw:byte(2) == 0x01 then
-        -- Skip if did get the info from this router before
-        if not routers[p.ip_src] then
-          -- Parse header
-          response = eigrp.EIGRP.parse(eigrp_raw)
-          response.src = p.ip_src
-          response.interface = interface.shortname
-        end
-        if response then
-          -- See, if it has routing information
-          for _,tlv in pairs(response.tlvs) do
-            if eigrp.EIGRP.isRoutingTLV(tlv.type) then
-              routers[p.ip_src] = true
-              table.insert(responses, response)
-              break
+      if p then
+        eigrp_raw = string.sub(l3data, p.ip_hl*4 + 1)
+        -- Check if it is an EIGRPv2 Update
+        if eigrp_raw:byte(1) == 0x02 and eigrp_raw:byte(2) == 0x01 then
+          -- Skip if did get the info from this router before
+          if not routers[p.ip_src] then
+            -- Parse header
+            response = eigrp.EIGRP.parse(eigrp_raw)
+            response.src = p.ip_src
+            response.interface = interface.shortname
+          end
+          if response then
+            -- See, if it has routing information
+            for _,tlv in pairs(response.tlvs) do
+              if eigrp.EIGRP.isRoutingTLV(tlv.type) then
+                routers[p.ip_src] = true
+                table.insert(responses, response)
+                break
+              end
             end
           end
         end
@@ -177,13 +180,15 @@ local asListener = function(interface, timeout, astab)
     status, _, _, l3data = listener:pcap_receive()
     if status then
       p = packet.Packet:new(l3data, #l3data)
-      eigrp_raw = string.sub(l3data, p.ip_hl*4 + 1)
-      -- Listen for EIGRPv2 Hello packets
-      if eigrp_raw:byte(1) == 0x02 and eigrp_raw:byte(2) == 0x05 then
-        eigrp_hello = eigrp.EIGRP.parse(eigrp_raw)
-        if eigrp_hello and eigrp_hello.as then
-          table.insert(astab, eigrp_hello.as)
-          break
+      if p then
+        eigrp_raw = string.sub(l3data, p.ip_hl*4 + 1)
+        -- Listen for EIGRPv2 Hello packets
+        if eigrp_raw:byte(1) == 0x02 and eigrp_raw:byte(2) == 0x05 then
+          eigrp_hello = eigrp.EIGRP.parse(eigrp_raw)
+          if eigrp_hello and eigrp_hello.as then
+            table.insert(astab, eigrp_hello.as)
+            break
+          end
         end
       end
     end
@@ -198,7 +203,6 @@ action = function()
   local as = stdnse.get_script_args(SCRIPT_NAME .. ".as")
   local kparams = stdnse.get_script_args(SCRIPT_NAME .. ".kparams") or "101000"
   local timeout = stdnse.parse_timespec(stdnse.get_script_args(SCRIPT_NAME .. ".timeout"))
-  local interface = stdnse.get_script_args(SCRIPT_NAME .. ".interface")
   local output, responses, interfaces, lthreads = {}, {}, {}, {}
   local result, response, route, eigrp_hello, k
   local timeout = (timeout or 10) * 1000
@@ -217,27 +221,13 @@ action = function()
     k[6] = string.sub(kparams, 6)
   end
 
-  interface = interface or nmap.get_interface()
-  if interface then
-    -- If an interface was provided, get its information
-    interface = nmap.get_interface_info(interface)
-    if not interface then
-      return fail(("Failed to retrieve %s interface information."):format(interface))
-    end
-    interfaces = {interface}
-    stdnse.debug1("Will use %s interface.", interface.shortname)
-  else
-    local ifacelist = nmap.list_interfaces()
-    for _, iface in ipairs(ifacelist) do
-      -- Match all ethernet interfaces
-      if iface.address and iface.link=="ethernet" and
-        iface.address:match("%d+%.%d+%.%d+%.%d+") then
-
-        stdnse.debug1("Will use %s interface.", iface.shortname)
-        table.insert(interfaces, iface)
-      end
+  local collect_interfaces = function (if_table)
+    if if_table and if_table.up == "up" and if_table.link=="ethernet"
+      and if_table.address:match("%d+%.%d+%.%d+%.%d+") then
+      interfaces[#interfaces+1] = if_table
     end
   end
+  stdnse.get_script_interfaces(collect_interfaces)
 
   -- If user didn't provide an Autonomous System value, we listen fro multicast
   -- HELLO router announcements to get one.

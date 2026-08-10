@@ -35,13 +35,8 @@ categories = {"safe", "discovery"}
 portrule = shortport.port_or_service(631, "ipp", "tcp", "open")
 
 action = function(host, port)
-  local helper = ipp.Helper:new(host, port)
-  if ( not(helper:connect()) ) then
-    return stdnse.format_output(false, "Failed to connect to server")
-  end
-
-  local output = helper:getQueueInfo()
-  if ( output ) then
+  local output = ipp.Helper:new(host, port):getQueueInfo()
+  if output then
     return stdnse.format_output(true, output)
   end
 end

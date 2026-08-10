@@ -85,13 +85,13 @@ local function check_smbv2_dos(host)
   end
 
   local status, result = socket:connect(host, 445)
-  if(status == false) then
+  if not status then
     socket:close()
     return false, "Couldn't connect to host: " .. result
   end
 
   status, result = socket:send(buf)
-  if(status == false) then
+  if not status then
     socket:close()
     return false, "Couldn't send the buffer: " .. result
   end
@@ -115,7 +115,7 @@ local function check_smbv2_dos(host)
   status, result = socket:connect(host, 445)
 
   -- Check the result
-  if(status == false or status == nil) then
+  if not status then
     stdnse.debug1("Connect failed, host is likely vulnerable!")
     socket:close()
     return true, VULNERABLE
@@ -124,7 +124,7 @@ local function check_smbv2_dos(host)
   -- Try sending something
   stdnse.debug1("Attempting to send data to the host")
   status, result = socket:send("AAAA")
-  if(status == false or status == nil) then
+  if not status then
     stdnse.debug1("Send failed, host is likely vulnerable!")
     socket:close()
     return true, VULNERABLE
@@ -161,7 +161,7 @@ action = function(host)
 
   -- Check for SMBv2 vulnerability
   status, result = check_smbv2_dos(host)
-  if(status == false) then
+  if not status then
     vuln_table.state = vulns.STATE.NOT_VULN
   else
     if(result == VULNERABLE) then

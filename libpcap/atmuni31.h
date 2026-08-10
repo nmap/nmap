@@ -68,7 +68,7 @@
 #define B_BEARER		0x5e	/* broadband bearer capability */
 #define B_LOWER			0x5f	/* broadband lower information */
 #define CALLING_PARTY		0x6c	/* calling party number */
-#define CALLED_PARTY		0x70	/* called party nmber */
+#define CALLED_PARTY		0x70	/* called party number */
 
 #define Q2931			0x09
 
@@ -76,7 +76,7 @@
 #define PROTO_POS       0	/* offset of protocol discriminator */
 #define CALL_REF_POS    2	/* offset of call reference value */
 #define MSG_TYPE_POS    5	/* offset of message type */
-#define MSG_LEN_POS     7	/* offset of mesage length */
+#define MSG_LEN_POS     7	/* offset of message length */
 #define IE_BEGIN_POS    9	/* offset of first information element */
 
 /* format of signalling messages */

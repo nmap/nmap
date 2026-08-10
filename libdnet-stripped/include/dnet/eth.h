@@ -5,7 +5,7 @@
  *
  * Copyright (c) 2000 Dug Song <dugsong@monkey.org>
  *
- * $Id: eth.h 547 2005-01-25 21:30:40Z dugsong $
+ * $Id$
  */
 
 #ifndef DNET_ETH_H
@@ -67,8 +67,6 @@ int	 eth_get(eth_t *e, eth_addr_t *ea);
 int	 eth_set(eth_t *e, const eth_addr_t *ea);
 ssize_t	 eth_send(eth_t *e, const void *buf, size_t len);
 eth_t	*eth_close(eth_t *e);
-
-int	 eth_get_pcap_devname(const char *ifname, char *pcapdev, int pcapdevlen);
 
 char	*eth_ntop(const eth_addr_t *eth, char *dst, size_t len);
 int	 eth_pton(const char *src, eth_addr_t *dst);

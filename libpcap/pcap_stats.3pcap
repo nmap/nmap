@@ -17,7 +17,7 @@
 .\" WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF
 .\" MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 .\"
-.TH PCAP_STATS 3PCAP "25 July 2018"
+.TH PCAP_STATS 3PCAP "5 March 2022"
 .SH NAME
 pcap_stats \- get capture statistics
 .SH SYNOPSIS
@@ -31,13 +31,13 @@ int pcap_stats(pcap_t *p, struct pcap_stat *ps);
 .ft
 .fi
 .SH DESCRIPTION
-.B pcap_stats()
+.BR pcap_stats ()
 fills in the
 .B struct pcap_stat
 pointed to by its second argument.  The values represent
 packet statistics from the start of the run to the time of the call.
 .PP
-.B pcap_stats()
+.BR pcap_stats ()
 is supported only on live captures, not on ``savefiles''; no statistics
 are stored in ``savefiles'', so no statistics are available when reading
 from a ``savefile''.
@@ -82,19 +82,24 @@ no packets were dropped by the interface, or it might mean that the
 statistic is unavailable, so it should not be treated as an indication
 that the interface did not drop any packets.
 .SH RETURN VALUE
-.B pcap_stats()
-returns 0 on success and returns
+.BR pcap_stats ()
+returns
+.B 0
+on success,
+.B PCAP_ERROR_NOT_ACTIVATED
+if called on a capture handle that has been created but not activated,
+or
 .B PCAP_ERROR
-if there is an error or if
+if there is another error or if
 .I p
 doesn't support packet statistics. If
 .B PCAP_ERROR
 is returned,
-.B pcap_geterr(3PCAP)
+.BR pcap_geterr (3PCAP)
 or
-.B pcap_perror(3PCAP)
+.BR pcap_perror (3PCAP)
 may be called with
 .I p
 as an argument to fetch or display the error text.
 .SH SEE ALSO
-pcap(3PCAP)
+.BR pcap (3PCAP)

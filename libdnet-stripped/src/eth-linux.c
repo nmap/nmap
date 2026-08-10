@@ -3,7 +3,7 @@
  *
  * Copyright (c) 2000 Dug Song <dugsong@monkey.org>
  *
- * $Id: eth-linux.c 547 2005-01-25 21:30:40Z dugsong $
+ * $Id$
  */
 
 #include "config.h"

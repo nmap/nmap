@@ -1,137 +1,68 @@
-
 /***************************************************************************
  * ProbeMode.cc -- Probe Mode is nping's default working mode. Basically,  *
  * it involves sending the packets that the user requested at regular      *
  * intervals and capturing responses from the wire.                        *
  *                                                                         *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
- *                                                                         *
- * The Nmap Security Scanner is (C) 1996-2019 Insecure.Com LLC ("The Nmap  *
- * Project"). Nmap is also a registered trademark of the Nmap Project.     *
- * This program is free software; you may redistribute and/or modify it    *
- * under the terms of the GNU General Public License as published by the   *
- * Free Software Foundation; Version 2 ("GPL"), BUT ONLY WITH ALL OF THE   *
- * CLARIFICATIONS AND EXCEPTIONS DESCRIBED HEREIN.  This guarantees your   *
- * right to use, modify, and redistribute this software under certain      *
- * conditions.  If you wish to embed Nmap technology into proprietary      *
- * software, we sell alternative licenses (contact sales@nmap.com).        *
- * Dozens of software vendors already license Nmap technology such as      *
- * host discovery, port scanning, OS detection, version detection, and     *
- * the Nmap Scripting Engine.                                              *
- *                                                                         *
- * Note that the GPL places important restrictions on "derivative works",  *
- * yet it does not provide a detailed definition of that term.  To avoid   *
- * misunderstandings, we interpret that term as broadly as copyright law   *
- * allows.  For example, we consider an application to constitute a        *
- * derivative work for the purpose of this license if it does any of the   *
- * following with any software or content covered by this license          *
- * ("Covered Software"):                                                   *
- *                                                                         *
- * o Integrates source code from Covered Software.                         *
- *                                                                         *
- * o Reads or includes copyrighted data files, such as Nmap's nmap-os-db   *
- * or nmap-service-probes.                                                 *
- *                                                                         *
- * o Is designed specifically to execute Covered Software and parse the    *
- * results (as opposed to typical shell or execution-menu apps, which will *
- * execute anything you tell them to).                                     *
- *                                                                         *
- * o Includes Covered Software in a proprietary executable installer.  The *
- * installers produced by InstallShield are an example of this.  Including *
- * Nmap with other software in compressed or archival form does not        *
- * trigger this provision, provided appropriate open source decompression  *
- * or de-archiving software is widely available for no charge.  For the    *
- * purposes of this license, an installer is considered to include Covered *
- * Software even if it actually retrieves a copy of Covered Software from  *
- * another source during runtime (such as by downloading it from the       *
- * Internet).                                                              *
- *                                                                         *
- * o Links (statically or dynamically) to a library which does any of the  *
- * above.                                                                  *
- *                                                                         *
- * o Executes a helper program, module, or script to do any of the above.  *
- *                                                                         *
- * This list is not exclusive, but is meant to clarify our interpretation  *
- * of derived works with some common examples.  Other people may interpret *
- * the plain GPL differently, so we consider this a special exception to   *
- * the GPL that we apply to Covered Software.  Works which meet any of     *
- * these conditions must conform to all of the terms of this license,      *
- * particularly including the GPL Section 3 requirements of providing      *
- * source code and allowing free redistribution of the work as a whole.    *
- *                                                                         *
- * As another special exception to the GPL terms, the Nmap Project grants  *
- * permission to link the code of this program with any version of the     *
- * OpenSSL library which is distributed under a license identical to that  *
- * listed in the included docs/licenses/OpenSSL.txt file, and distribute   *
- * linked combinations including the two.                                  *
- *                                                                         *
- * The Nmap Project has permission to redistribute Npcap, a packet         *
- * capturing driver and library for the Microsoft Windows platform.        *
- * Npcap is a separate work with it's own license rather than this Nmap    *
- * license.  Since the Npcap license does not permit redistribution        *
- * without special permission, our Nmap Windows binary packages which      *
- * contain Npcap may not be redistributed without special permission.      *
- *                                                                         *
- * Any redistribution of Covered Software, including any derived works,    *
- * must obey and carry forward all of the terms of this license, including *
- * obeying all GPL rules and restrictions.  For example, source code of    *
- * the whole work must be provided and free redistribution must be         *
- * allowed.  All GPL references to "this License", are to be treated as    *
- * including the terms and conditions of this license text as well.        *
- *                                                                         *
- * Because this license imposes special exceptions to the GPL, Covered     *
- * Work may not be combined (even as part of a larger work) with plain GPL *
- * software.  The terms, conditions, and exceptions of this license must   *
- * be included as well.  This license is incompatible with some other open *
- * source licenses as well.  In some cases we can relicense portions of    *
- * Nmap or grant special permissions to use it in other open source        *
- * software.  Please contact fyodor@nmap.org with any such requests.       *
- * Similarly, we don't incorporate incompatible open source software into  *
- * Covered Software without special permission from the copyright holders. *
- *                                                                         *
- * If you have any questions about the licensing restrictions on using     *
- * Nmap in other works, we are happy to help.  As mentioned above, we also *
- * offer an alternative license to integrate Nmap into proprietary         *
- * applications and appliances.  These contracts have been sold to dozens  *
- * of software vendors, and generally include a perpetual license as well  *
- * as providing support and updates.  They also fund the continued         *
- * development of Nmap.  Please email sales@nmap.com for further           *
- * information.                                                            *
- *                                                                         *
- * If you have received a written license agreement or contract for        *
- * Covered Software stating terms other than these, you may choose to use  *
- * and redistribute Covered Software under those terms instead of these.   *
- *                                                                         *
- * Source is provided to this software because we believe users have a     *
- * right to know exactly what a program is going to do before they run it. *
- * This also allows you to audit the software for security holes.          *
- *                                                                         *
- * Source code also allows you to port Nmap to new platforms, fix bugs,    *
- * and add new features.  You are highly encouraged to send your changes   *
- * to the dev@nmap.org mailing list for possible incorporation into the    *
- * main distribution.  By sending these changes to Fyodor or one of the    *
- * Insecure.Org development mailing lists, or checking them into the Nmap  *
- * source code repository, it is understood (unless you specify            *
- * otherwise) that you are offering the Nmap Project the unlimited,        *
- * non-exclusive right to reuse, modify, and relicense the code.  Nmap     *
- * will always be available Open Source, but this is important because     *
- * the inability to relicense code has caused devastating problems for     *
- * other Free Software projects (such as KDE and NASM).  We also           *
- * occasionally relicense the code to third parties as discussed above.    *
- * If you wish to specify special license conditions of your               *
- * contributions, just say so when you send them.                          *
- *                                                                         *
- * This program is distributed in the hope that it will be useful, but     *
- * WITHOUT ANY WARRANTY; without even the implied warranty of              *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the Nmap      *
- * license file for more details (it's in a COPYING file included with     *
- * Nmap, and also available from https://svn.nmap.org/nmap/COPYING)        *
- *                                                                         *
+ *
+ * The Nmap Security Scanner is (C) 1996-2026 Nmap Software LLC ("The Nmap
+ * Project"). Nmap is also a registered trademark of the Nmap Project.
+ *
+ * This program is distributed under the terms of the Nmap Public Source
+ * License (NPSL). The exact license text applying to a particular Nmap
+ * release or source code control revision is contained in the LICENSE
+ * file distributed with that version of Nmap or source code control
+ * revision. More Nmap copyright/legal information is available from
+ * https://nmap.org/book/man-legal.html, and further information on the
+ * NPSL license itself can be found at https://nmap.org/npsl/ . This
+ * header summarizes some key points from the Nmap license, but is no
+ * substitute for the actual license text.
+ *
+ * Nmap is generally free for end users to download and use themselves,
+ * including commercial use. It is available from https://nmap.org.
+ *
+ * The Nmap license generally prohibits companies from using and
+ * redistributing Nmap in commercial products, but we sell a special Nmap
+ * OEM Edition with a more permissive license and special features for
+ * this purpose. See https://nmap.org/oem/
+ *
+ * If you have received a written Nmap license agreement or contract
+ * stating terms other than these (such as an Nmap OEM license), you may
+ * choose to use and redistribute Nmap under those terms instead.
+ *
+ * The official Nmap Windows builds include the Npcap software
+ * (https://npcap.com) for packet capture and transmission. It is under
+ * separate license terms which forbid redistribution without special
+ * permission. So the official Nmap Windows builds may not be redistributed
+ * without special permission (such as an Nmap OEM license).
+ *
+ * Source is provided to this software because we believe users have a
+ * right to know exactly what a program is going to do before they run it.
+ * This also allows you to audit the software for security holes.
+ *
+ * Source code also allows you to port Nmap to new platforms, fix bugs, and
+ * add new features. You are highly encouraged to submit your changes as a
+ * Github PR or by email to the dev@nmap.org mailing list for possible
+ * incorporation into the main distribution. Unless you specify otherwise, it
+ * is understood that you are offering us very broad rights to use your
+ * submissions as described in the Nmap Public Source License Contributor
+ * Agreement. This is important because we fund the project by selling licenses
+ * with various terms, and also because the inability to relicense code has
+ * caused devastating problems for other Free Software projects (such as KDE
+ * and NASM).
+ *
+ * The free version of Nmap is distributed in the hope that it will be
+ * useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. Warranties,
+ * indemnification and commercial support are all available through the
+ * Npcap OEM program--see https://nmap.org/oem/
+ *
  ***************************************************************************/
 
 #include "nping.h"
 #include "ProbeMode.h"
 #include <vector>
+#include <sstream>
 #include "nsock.h"
 #include "output.h"
 #include "NpingOps.h"
@@ -166,7 +97,9 @@ int ProbeMode::init_nsock(){
       /* Create a new nsock pool */
       if ((nsp = nsock_pool_new(NULL)) == NULL)
         nping_fatal(QT_3, "Failed to create new pool.  QUITTING.\n");
-      nsock_pool_set_device(nsp, o.getDevice());
+      const char *device = o.getDevice();
+      if (device && *device)
+        nsock_pool_set_device(nsp, device);
 
       /* Allow broadcast addresses */
       nsock_pool_set_broadcast(nsp, 1);
@@ -187,7 +120,10 @@ int ProbeMode::init_nsock(){
 /** Cleans up the internal nsock pool and any other internal data that
   * needs to be taken care of before destroying the object. */
 int ProbeMode::cleanup(){
-  nsock_pool_delete(this->nsp);
+  if (this->nsock_init) {
+    nsock_pool_delete(this->nsp);
+    this->nsp = NULL;
+  }
   return OP_SUCCESS;
 } /* End of cleanup() */
 
@@ -214,14 +150,13 @@ int ProbeMode::start(){
   int p=0, pc=-1;                  /**< Indexes for ports count              */
   u32 c=0;                         /**< Index for packet count               */
   u32 zero=0;                      /**< Empty payload                        */
-  u8 pktinfobuffer[512+1];         /**< Used in ippackethdrinfo() calls      */
   u8 pkt[MAX_IP_PACKET_LEN];       /**< Holds packets returned by fillpacket */
   int pktLen=0;                    /**< Length of current packet             */
   NpingTarget *target=NULL;        /**< Current target                       */
   u16 *targetPorts=NULL;           /**< Pointer to array of target ports     */
   int numTargetPorts=0;            /**< Total number of target ports         */
   u16 currentPort=0;               /**< Current target port                  */
-  char *filterstring;              /**< Stores BFP filter spec string        */
+  const char *filterstring;        /**< Stores BFP filter spec string        */
   int rawipsd=-1;                  /**< Descriptor for raw IP socket         */
   enum nsock_loopstatus loopret;   /**< Stores nsock_loop returned status    */
   nsock_iod pcap_nsi;              /**< Stores Pcap IOD                      */
@@ -244,7 +179,6 @@ int ProbeMode::start(){
 
 
   /* Some safe zero initializations */
-  memset(pktinfobuffer, 0, 512+1);
   memset(pkt, 0, MAX_IP_PACKET_LEN);
   memset(&pcap_nsi, 0, sizeof(pcap_nsi));
   memset(pkts2send, 0, MX_PKT * sizeof(sendpkt_t));
@@ -368,7 +302,7 @@ int ProbeMode::start(){
 
     if( o.getMode()!=ARP && o.sendEth()==false ){
         /* Get socket descriptor. No need for it in ARP since we send at eth level */
-        if ((rawipsd = obtainRawSocket()) < 0 )
+        if ((rawipsd = netutil_raw_socket(o.getDevice(), o.ipv6() ? AF_INET6 : AF_INET)) < 0 )
             nping_fatal(QT_3,"Couldn't acquire raw socket. Are you root?");
     }
 
@@ -378,30 +312,33 @@ int ProbeMode::start(){
 
     /* Set up libpcap */
     if(!o.disablePacketCapture()){
+        const char *device = o.getDevice();
+        if (!device)
+            nping_fatal(QT_3, "Unable to determine device name.  QUITTING.\n");
         /* Create new IOD for pcap */
         if ((pcap_nsi = nsock_iod_new(nsp, NULL)) == NULL)
             nping_fatal(QT_3, "Failed to create new nsock_iod.  QUITTING.\n");
 
         /* Open pcap */
         filterstring=getBPFFilterString();
-        nping_print(DBG_2,"Opening pcap device %s", o.getDevice() );
+        nping_print(DBG_2,"Opening pcap device %s", device);
         #ifdef WIN32
         /* Nping normally uses device names obtained through dnet for interfaces,
          * but Pcap has its own naming system.  So the conversion is done here */
-          if (!DnetName2PcapName(o.getDevice(), pcapdev, sizeof(pcapdev))) {
+          if (!DnetName2PcapName(device, pcapdev, sizeof(pcapdev))) {
                /* Oh crap -- couldn't find the corresponding dev apparently.
                 * Let's just go with what we have then ... */
-               Strncpy(pcapdev, o.getDevice(), sizeof(pcapdev));
+               Strncpy(pcapdev, device, sizeof(pcapdev));
           }
         #else
-          Strncpy(pcapdev, o.getDevice(), sizeof(pcapdev));
+          Strncpy(pcapdev, device, sizeof(pcapdev));
         #endif
 
         rc = nsock_pcap_open(nsp, pcap_nsi, pcapdev, 8192,
                              (o.spoofSource()) ? 1 : 0, filterstring);
         if (rc)
-            nping_fatal(QT_3, "Error opening capture device %s\n", o.getDevice());
-        nping_print(DBG_2,"Pcap device %s open successfully", o.getDevice());
+            nping_fatal(QT_3, "Error opening capture device %s\n", device);
+        nping_print(DBG_2,"Pcap device %s open successfully", device);
     }
 
     /* Ready? Go! */
@@ -675,6 +612,8 @@ int ProbeMode::createIPv4(IPv4Header *i, PacketElement *next_element, const char
     i->setMF();
   if( o.issetDF() && o.getDF() == true )
     i->setDF();
+  if( o.issetRF() && o.getRF() == true )
+    i->setRF();
 
   /* IP Options */
   if( o.issetIPOptions() == true )
@@ -732,85 +671,9 @@ int ProbeMode::createIPv6(IPv6Header *i, PacketElement *next_element, const char
 } /* End of createIPv6() */
 
 
-/** This function is a bit tricky. The thing is that some engineer had
- * the brilliant idea to remove IP_HDRINCL support in IPv6. As a result, it's
- * a big pain in the ass to create raw IPv6 headers because we can only do it
- * if we are sending packets at raw Ethernet level. So if we want our own IPv6
- * header (for source IP spoofing, etc) we have to do things like determine
- * source and dest MAC addresses (this is even more complicated in IPv6 than
- * in IPv4 because we don't have ARP anymore, we have to use something new, the
- * NDP, Neighbor Discovery Protocol.)
- * So the thing is that, if the user does not want to play with the IPv6 header,
- * why bother with all that link layer work? So what we do is create raw
- * transport layer packets and then send them through a raw IPv6 socket. The
- * socket will encapsulate our packets into a nice clean IPv6 header
- * automatically so we don't have to worry about low level details anymore.
- *
- * So this function basically takes a raw IPv6 socket descriptor and then tries
- * to set some basic parameters (like Hop Limit) using setsockopt() calls.
- * It always returns OP_SUCCESS. However, if errors are found, they are printed
- * (QT_2 level) using nping_warning();
- * */
-int ProbeMode::doIPv6ThroughSocket(int rawfd){
-
-    /* Hop Limit */
-    int hoplimit=0;
-    if( o.issetHopLimit() )
-       hoplimit= o.getHopLimit();
-    else if ( o.issetTraceroute() ){
-         hoplimit= (o.getCurrentRound()<255)? o.getCurrentRound() : (o.getCurrentRound()%255)+1;
-    }else{
-       hoplimit=DEFAULT_IPv6_TTL;
-    }
-    if( setsockopt(rawfd, IPPROTO_IPV6, IPV6_UNICAST_HOPS, (char *)&hoplimit, sizeof(hoplimit)) != 0 )
-        nping_warning(QT_2, "doIPv6ThroughSocket(): setsockopt() for Unicast Hop Limit on IPv6 socket failed");
-    if( setsockopt(rawfd, IPPROTO_IPV6, IPV6_MULTICAST_HOPS, (char *)&hoplimit, sizeof(hoplimit)) != 0 )
-        nping_warning(QT_2, "doIPv6ThroughSocket(): setsockopt() for Multicast Hop Limit on IPv6 socket failed");
-
-#ifdef IPV6_CHECKSUM  /* This is not available in when compiling with MinGW */
-    /* Transport layer checksum */
-    /* This is totally crazy. We have to tell the kernel EXPLICITLY that we
-     * want it to set the TCP/UDP checksum for us. Why the hell is this the
-     * default behavior if it's so incredibly difficult to get the IPv6 source
-     * address?
-     * Additionally, we have to be very careful not to set this option when
-     * dealing with ICMPv6 because in that case the kernel computes the
-     * checksum automatically and Nping can actually crash if we've set
-     * this option manually, can you believe it? */
-    if( o.getMode()==TCP || o.getMode()==UDP){
-        /* We don't request valid TCP checksums if the user requested bogus sums */
-        if( o.getBadsum()==false ){
-            int offset = 16;
-            if( setsockopt (rawfd, IPPROTO_IPV6, IPV6_CHECKSUM, (char *)&offset, sizeof(offset)) != 0 )
-                nping_warning(QT_2, "doIPv6ThroughSocket(): failed to set IPV6_CHECKSUM option on IPv6 socket. ");
-        }
-    }
-#endif
-
-    /* Bind IPv6 socket to a specific network interface */
-    if ( o.issetDevice() )  {
-        /* It seems that SO_BINDTODEVICE only work on Linux */
-        #ifdef LINUX
-        if (setsockopt(rawfd, SOL_SOCKET, SO_BINDTODEVICE, o.getDevice(), strlen(o.getDevice())+1) == -1) {
-            nping_warning(QT_2, "Error binding IPv6 socket to device %s", o.getDevice() );
-        }
-        #endif
-    }
-
-    return OP_SUCCESS;
-
-} /* End of doIPv6ThroughSocket() */
-
-
-
-
-
 /** This function handles TCP packet creation. However, the final packet that
   * it produces also includes an IP header.
-  * There is one exception. When we are sending IPv6 packet at raw TCP level,
-  * the returned packet does not contain an IPv6 header but the supplied
-  * rawfd socket descriptor is ready to go because some options have been
-  * set on it by doIPv6ThroughSocket(). */
+  */
 int ProbeMode::fillPacketTCP(NpingTarget *target, u16 port, u8 *buff, int bufflen, int *filledlen, int rawfd){
 
  IPv4Header i;
@@ -880,47 +743,19 @@ int ProbeMode::fillPacketTCP(NpingTarget *target, u16 port, u8 *buff, int buffle
     break;
 
     case IP_VERSION_6:
-        if( o.sendEth() ){
-            /* Fill the IPv6Header object with the info from NpingOps */
-            createIPv6(&i6, &t, "TCP", target);
+        /* Fill the IPv6Header object with the info from NpingOps */
+        createIPv6(&i6, &t, "TCP", target);
 
-            if( o.getBadsum() == true )
-                t.setSumRandom();
-            else{
-                *filledlen = i6.dumpToBinaryBuffer(buff, bufflen);
-                ip6_checksum(buff, *filledlen); /* Provided by dnet */
-                return OP_SUCCESS;
-            }
-
-            /* Store result in user supplied buffer */
+        if( o.getBadsum() == true )
+            t.setSumRandom();
+        else{
             *filledlen = i6.dumpToBinaryBuffer(buff, bufflen);
-        }else{
-            doIPv6ThroughSocket(rawfd);
-
-             /* Set some bogus checksum */
-             if( o.getBadsum()==true )
-                t.setSumRandom();
-            /* Set checksum to zero and pray for the kernel to set it to
-             * the right value. Brothers and sisters:
-             *
-             * Our TCP/IP stack, Who is in the kernel,
-             * Holy is Your Name;
-             * Your kingdom come,
-             * Your will be done,
-             * on userland as it is in kernel space.
-             * Give us this day our TCP checksum,
-             * and forgive us for our raw sockets,
-             * as we forgive you for your kernel panics;
-             * and lead us not into /dev/null,
-             * but deliver our packet to the next hop. Amen.
-             * */
-            else
-                t.setSum(0);
-
-            /* Since we cannot include our own header like we do in IPv4, the
-             * buffer we return is the TCP one. */
-            *filledlen = t.dumpToBinaryBuffer(buff, bufflen);
+            ip6_checksum(buff, *filledlen); /* Provided by dnet */
+            return OP_SUCCESS;
         }
+
+        /* Store result in user supplied buffer */
+        *filledlen = i6.dumpToBinaryBuffer(buff, bufflen);
     break;
 
     default:
@@ -940,10 +775,7 @@ int ProbeMode::fillPacketTCP(NpingTarget *target, u16 port, u8 *buff, int buffle
 
 /** This function handles UDP packet creation. However, the final packet that
   * it produces also includes an IP header.
-  * There is one exception. When we are sending IPv6 packet at raw TCP level,
-  * the returned packet does not contain an IPv6 header but the supplied
-  * rawfd socket descriptor is ready to go because some options have been
-  * set on it by doIPv6ThroughSocket(). */
+  */
 int ProbeMode::fillPacketUDP(NpingTarget *target, u16 port, u8 *buff, int bufflen, int *filledlen, int rawfd){
 
  IPv4Header i;
@@ -999,36 +831,18 @@ int ProbeMode::fillPacketUDP(NpingTarget *target, u16 port, u8 *buff, int buffle
     break;
 
     case IP_VERSION_6:
+        /* Fill the IPv6Header object with the info from NpingOps */
+        createIPv6(&i6, &u, "UDP", target);
 
-       if( o.sendEth() ){
-            /* Fill the IPv6Header object with the info from NpingOps */
-            createIPv6(&i6, &u, "UDP", target);
-
-            if( o.getBadsum() == true ){
-                u.setSumRandom();
-                /* Store result in user supplied buffer */
-                *filledlen = i6.dumpToBinaryBuffer(buff, bufflen);
-            }
-            else{
-                *filledlen = i6.dumpToBinaryBuffer(buff, bufflen);
-                ip6_checksum(buff, *filledlen); /* Provided by dnet */
-                return OP_SUCCESS;
-            }
-        }else{
-            doIPv6ThroughSocket(rawfd);
-
-             /* Set some bogus checksum */
-             if( o.getBadsum()==true )
-                u.setSumRandom();
-            /* Set checksum to zero and assume the kernel is gonna set the
-             * right value. If it doesn't, it's not that important since
-             * UDP checksum is optional and can safely be set to zero */
-            else
-                u.setSum(0);
-
-            /* Since we cannot include our own header like we do in IPv4, the
-             * buffer we return is the UDP one. */
-            *filledlen = u.dumpToBinaryBuffer(buff, bufflen);
+        if( o.getBadsum() == true ){
+            u.setSumRandom();
+            /* Store result in user supplied buffer */
+            *filledlen = i6.dumpToBinaryBuffer(buff, bufflen);
+        }
+        else{
+            *filledlen = i6.dumpToBinaryBuffer(buff, bufflen);
+            ip6_checksum(buff, *filledlen); /* Provided by dnet */
+            return OP_SUCCESS;
         }
     break;
 
@@ -1188,7 +1002,7 @@ int ProbeMode::fillPacketICMP(NpingTarget *target, u8 *buff, int bufflen, int *f
         break;
     }
 
-    /* Fill the IPv4Header object with the info from NpingOps */
+    /* Fill the IPv6Header object with the info from NpingOps */
     createIPv6(&i6, &c6, "ICMPv6", target);
 
     /* Compute checksum */
@@ -1304,7 +1118,6 @@ int ProbeMode::fillPacketARP(NpingTarget *target, u8 *buff, int bufflen, int *fi
 }
 
 
-
 /** This function creates a BPF filter specification, suitable to be passed to
   * pcap_compile() or nsock_pcap_open(). It reads info from "NpingOps o" and
   * creates the right BPF filter for the current operation mode. However, if
@@ -1314,11 +1127,11 @@ int ProbeMode::fillPacketARP(NpingTarget *target, u8 *buff, int bufflen, int *fi
   * is done here already.
   * @warning Returned pointer is a statically allocated buffer that subsequent
   *  calls will overwrite. */
-char *ProbeMode::getBPFFilterString(){
+const char *ProbeMode::getBPFFilterString(){
 
- char ipstring[128];
- static char filterstring[1024];
- char *buffer=filterstring;
+ char ipstring[INET6_ADDRSTRLEN];
+ std::ostringstream filter;
+ static std::string filterstring;
  u8 icmp_send_type=0;
  u8 icmp_recv_type=0;
  u16 arp_send_type=0;
@@ -1336,27 +1149,24 @@ char *ProbeMode::getBPFFilterString(){
  size_t dstlen, srclen;
  memset(&srcss, 0, sizeof(struct sockaddr_storage));
  memset(&dstss, 0, sizeof(struct sockaddr_storage));
- memset(buffer, 0, 1024);
- memset(ipstring, 0, 128);
+ memset(ipstring, 0, sizeof(ipstring));
 
  /* If user supplied a BPF from the cmd line, use it */
  if( o.issetBPFFilterSpec() ){
-    buffer=o.getBPFFilterSpec();
-    /* We copy it to our internal static buffer just in case... */
-    if(buffer!=NULL)
-        strncpy(filterstring, buffer, sizeof(filterstring)-1);
-    else
-        strncpy(filterstring, "", 2);
-    nping_print(DBG_1, "BPF-filter: %s", filterstring);
-    return filterstring;
+    const char *buffer=o.getBPFFilterSpec();
+    assert(buffer!=NULL);
+    nping_print(DBG_1, "BPF-filter: %s", buffer);
+    return buffer;
  }
 
  /* For the server in Echo mode we need a special filter */
  if( o.getRole()==ROLE_SERVER ){
     /* Capture all IP packets but the ones that belong to the side-channel */
-    sprintf(filterstring, "ip and ( not (tcp and (dst port %d or src port %d) ) )", o.getEchoPort(), o.getEchoPort() );
-    nping_print(DBG_1, "BPF-filter: %s", filterstring);
-    return filterstring;
+    filter << "ip and (not (tcp and (dst port " << o.getEchoPort();
+    filter << " or src port " << o.getEchoPort() << ")))";
+    filterstring = filter.str();
+    nping_print(DBG_1, "BPF-filter: %s", filterstring.c_str());
+    return filterstring.c_str();
  }
 
  /* Obtain source IP address */
@@ -1399,30 +1209,58 @@ char *ProbeMode::getBPFFilterString(){
     inet_ntop(AF_INET, &s4->sin_addr, ipstring, sizeof(ipstring));
  }else{
     nping_warning(QT_2, "Warning: Wrong address family (%d) in getBPFFilterString(). Please report a bug", srcss.ss_family);
-    sprintf(ipstring,"127.0.0.1");
+    bufset(ipstring,"127.0.0.1");
  }
 
  /* Tell the filter that we only want incoming packets, destined to our source IP */
  if(o.getMode()!=ARP){
-     if(src_equals_target)
-         Snprintf(buffer, 1024, "(src host %s and dst host %s) and (", ipstring, ipstring);
-     else
-         Snprintf(buffer, 1024, "(not src host %s and dst host %s) and (", ipstring, ipstring);
-    buffer=filterstring+strlen(filterstring);
+   filter << (src_equals_target ? "(src host " : "(not src host ");
+   filter << ipstring << " and dst host " << ipstring << ") and (";
  }
 
  /* Time for protocol specific constraints */
  switch( o.getMode() ){
     case  TCP: /* Restrict to packets targeting our TCP source port */
-        Snprintf(buffer, 1024-strlen(filterstring), "(tcp and dst port %d) ", o.getSourcePort());
+        filter << "(tcp and dst port " << o.getSourcePort() << ")";
     break;
 
     case  UDP: /* Restrict to packets targeting our UDP source port */
-        Snprintf(buffer, 1024-strlen(filterstring), "(udp and dst port %d) ", o.getSourcePort());
+        filter << "(udp and dst port " << o.getSourcePort() << ")";
     break;
 
     case  ICMP: /* Restrict to packets that are replies to our ICMP packets */
-        icmp_send_type= o.issetICMPType() ? o.getICMPType() : DEFAULT_ICMP_TYPE;
+      icmp_send_type= o.getICMPType();
+      if (o.ipv6()) {
+        switch( icmp_send_type ){
+            case ICMPV6_NEIGHBOR_SOLICITATION:
+                icmp_recv_type=ICMPV6_NEIGHBOR_ADVERTISEMENT;
+            break;
+            /* If we are sending replies we probably want to see */
+            /* the requests that are being put into the network  */
+            case ICMPV6_NEIGHBOR_ADVERTISEMENT:
+                icmp_recv_type=ICMPV6_NEIGHBOR_SOLICITATION;
+            break;
+            case ICMPV6_ECHO:
+                icmp_recv_type=ICMPV6_ECHOREPLY;
+            break;
+            case ICMPV6_ECHOREPLY:
+                icmp_recv_type=ICMPV6_ECHO;
+            break;
+
+            /* These don't generate any response so we behave different */
+            case ICMPV6_UNREACH:
+            case ICMPV6_TIMEXCEED:
+            case ICMPV6_PARAMPROBLEM:
+            default:
+                skip_icmp_matching=true;
+            break;
+        }
+        /* Libpcap: IPv6 upper-layer protocol is not supported by proto[x] */
+        /* Grab the ICMPv6 type using ip6[X:Y] syntax. This works only if there are no
+           extension headers (top-level nh is IPPROTO_ICMPV6). */
+        filter << "(icmp6 and ip6[6:1]=" << IPPROTO_ICMPV6 << " and ip6[40:1]";
+      }
+      else {
         switch( icmp_send_type ){
             case ICMP_TSTAMP:
                 icmp_recv_type=ICMP_TSTAMPREPLY;
@@ -1463,14 +1301,16 @@ char *ProbeMode::getBPFFilterString(){
             break;
         }
         /* We have an specific ICMP type to look for */
+        filter << "(icmp and icmp[icmptype]";
+      }
         if(!skip_icmp_matching){
-            Snprintf(buffer, 1024-strlen(filterstring), "(icmp and icmp[icmptype] = %d) ", icmp_recv_type);
+            filter << "=" << +icmp_recv_type << ")";
         }else{
             /* If we are sending messages that don't generate responses, receive anything but the type we send.
              * This conflicts in some cases with the conditions added at the end of this functions where we
              * allow ICMP error messages to be received. However, this is not a problem since we are already
              * filtering out our own outgoing packets and the packets that are not for us. */
-            Snprintf(buffer, 1024-strlen(filterstring), "(icmp and icmp[icmptype] != %d) ", icmp_send_type);
+            filter << "!=" << +icmp_send_type << ")";
         }
     break;
 
@@ -1508,27 +1348,39 @@ char *ProbeMode::getBPFFilterString(){
                 skip_arp_matching=true;
             break;
         }
+        filter << "arp and arp[6]=0 and (arp[7]=";
         if(!skip_arp_matching){
             /* If we are doing DRARP we also want to receive DRARP errors */
-            if(arp_send_type==OP_DRARP_REQUEST || arp_send_type==OP_DRARP_REPLY)
-                Snprintf(buffer, 1024-strlen(filterstring),  "arp and arp[6]==0x00 and (arp[7]==0x%02X or arp[7]==0x%02X)", (u8)arp_recv_type, (u8)OP_DRARP_ERROR);
-            else
-                Snprintf(buffer, 1024-strlen(filterstring),  "arp and arp[6]==0x00 and arp[7]==0x%02X", (u8)arp_recv_type);
+          filter << arp_recv_type;
+          if(arp_send_type==OP_DRARP_REQUEST || arp_send_type==OP_DRARP_REPLY)
+            filter << " or arp[7]=" << OP_DRARP_ERROR;
         }else{
             /* If we are sending things like ATMARP's ARP_NAK, we just skip the type we send and receive all others */
-            Snprintf(buffer, 1024-strlen(filterstring),  "arp and arp[6]==0x00 and arp[7]!=0x%02X", (u8)arp_send_type);
+          filter << arp_send_type;
         }
+        filter << ")";
     break;
   }
 
   /* We also want to get all ICMP error messages */
   if(o.getMode()!=ARP){
-    buffer=filterstring+strlen(filterstring);
-    Snprintf(buffer, 1024-strlen(filterstring), "or (icmp and (icmp[icmptype] = %d or icmp[icmptype] = %d or icmp[icmptype] = %d or icmp[icmptype] = %d or icmp[icmptype] = %d)) )" ,
-                                 ICMP_UNREACH, ICMP_SOURCEQUENCH, ICMP_REDIRECT, ICMP_TIMXCEED, ICMP_PARAMPROB);
+    if (o.ipv6()) {
+      filter << " or (icmp6 and ip6[6:1]=" << IPPROTO_ICMPV6;
+      filter << " and (ip6[40:1]=" << ICMPV6_UNREACH;
+      filter << " or ip6[40:1]=" << ICMPV6_TIMEXCEED;
+      filter << " or ip6[40:1]="  << ICMPV6_PARAMPROBLEM << ")))";
+    }
+    else {
+      filter << " or (icmp and (icmp[icmptype]=" << ICMP_UNREACH;
+      filter << " or icmp[icmptype]=" << ICMP_SOURCEQUENCH;
+      filter << " or icmp[icmptype]=" << ICMP_REDIRECT;
+      filter << " or icmp[icmptype]=" << ICMP_TIMXCEED;
+      filter << " or icmp[icmptype]=" << ICMP_PARAMPROB << ")))";
+    }
   }
-  nping_print(DBG_1, "BPF-filter: %s", filterstring);
-  return filterstring;
+  filterstring = filter.str();
+  nping_print(DBG_1, "BPF-filter: %s", filterstring.c_str());
+  return filterstring.c_str();
 } /* End of getBPFFilterString() */
 
 
@@ -1637,13 +1489,12 @@ void ProbeMode::probe_nping_event_handler(nsock_pool nsp, nsock_event nse, void 
  const unsigned char *link=NULL;
  size_t linklen=0;
  size_t packetlen=0;
- u16 *ethtype=NULL;
+ u16 ethtype=0;
  u8 buffer[512+1];
  size_t link_offset=0;
  static struct timeval pcaptime;
  static struct timeval prevtime;
  NpingTarget *trg=NULL;
- u16 *prt=NULL;
  u8 proto=0;
  bool ip=false;
  memset(final_output, 0, sizeof(final_output));
@@ -1669,14 +1520,6 @@ void ProbeMode::probe_nping_event_handler(nsock_pool nsp, nsock_event nse, void 
 
                 if( mypacket->type==PKT_TYPE_ARP_RAW )
                     getPacketStrInfo("ARP",mypacket->pkt+14, mypacket->pktLen-14, pktinfobuffer, 512);
-                else if ( o.ipv6UsingSocket() ){
-                    size_t sslen;
-                    struct sockaddr_storage ss_src;
-                    struct sockaddr_storage ss_dst;
-                    mypacket->target->getSourceSockAddr(&ss_src, &sslen);
-                    mypacket->target->getTargetSockAddr(&ss_dst, &sslen);
-                    getPacketStrInfo("IPv6_NO_HEADER", mypacket->pkt, mypacket->pktLen, pktinfobuffer, 512, &ss_src, &ss_dst );
-                }
                 else
                     getPacketStrInfo("IP", mypacket->pkt+link_offset, mypacket->pktLen-link_offset, pktinfobuffer, 512);
 
@@ -1704,9 +1547,9 @@ void ProbeMode::probe_nping_event_handler(nsock_pool nsp, nsock_event nse, void 
             /* If we are on a Ethernet network, extract the next packet protocol
              * from the Ethernet frame. */
             if( nsock_iod_linktype(nsi) == DLT_EN10MB ){
-                ethtype=(u16*)(link+12);
-                *ethtype=ntohs(*ethtype);
-                switch(*ethtype){
+                ethtype=*(u16*)(link + linklen - 2);
+                ethtype=ntohs(ethtype);
+                switch(ethtype){
                     case ETHTYPE_IPV4:
                     case ETHTYPE_IPV6:
                         ip=true;
@@ -1716,7 +1559,7 @@ void ProbeMode::probe_nping_event_handler(nsock_pool nsp, nsock_event nse, void 
                         ip=false;
                     break;
                     default:
-                        nping_warning(QT_1, "RCVD (%.4fs) Unsupported protocol (Ethernet type %02X)", o.stats.elapsedRuntime(t), *ethtype);
+                        nping_warning(QT_1, "RCVD (%.4fs) Unsupported protocol (Ethernet type %02X)", o.stats.elapsedRuntime(t), ethtype);
                         print_hexdump(VB_3, packet, packetlen);
                         return;
                     break;
@@ -1749,8 +1592,10 @@ void ProbeMode::probe_nping_event_handler(nsock_pool nsp, nsock_event nse, void 
                     snprintf(final_output, sizeof(final_output), "RCVD (%.4fs) %s\n", o.stats.elapsedRuntime(t), buffer);
                     if( o.getVerbosity() >= VB_3 ){
                         hex=hexdump(packet, packetlen);
-                        strncat(final_output, hex, sizeof(final_output)-1);
-                        free(hex);
+                        if (hex) {
+                          strncat(final_output, hex, sizeof(final_output)-1);
+                          free(hex);
+                        }
                     }
                     prevtime=pcaptime;
 
@@ -1761,7 +1606,7 @@ void ProbeMode::probe_nping_event_handler(nsock_pool nsp, nsock_event nse, void 
                     trg=o.targets.findTarget( getSrcSockAddrFromIPPacket((u8*)packet, packetlen) );
 
                     if(trg != NULL){
-                        prt=getSrcPortFromIPPacket((u8*)packet, packetlen);
+                        const u16 *prt=getSrcPortFromIPPacket((u8*)packet, packetlen);
                         if( prt!=NULL )
                             trg->setProbeRecvTCP(*prt, 0);
                     }
@@ -1777,8 +1622,10 @@ void ProbeMode::probe_nping_event_handler(nsock_pool nsp, nsock_event nse, void 
                         snprintf(final_output, sizeof(final_output), "RCVD (%.4fs) %s\n", o.stats.elapsedRuntime(t), buffer);
                         if( o.getVerbosity() >= VB_3 ){
                             hex=hexdump(packet, packetlen);
-                            strncat(final_output, hex, sizeof(final_output)-1);
-                            free(hex);
+                            if (hex) {
+                              strncat(final_output, hex, sizeof(final_output)-1);
+                              free(hex);
+                            }
                         }
                         prevtime=pcaptime;
                         o.stats.addRecvPacket(packetlen);
@@ -1825,11 +1672,11 @@ void ProbeMode::probe_nping_event_handler(nsock_pool nsp, nsock_event nse, void 
  } else if (status == NSE_STATUS_ERROR) {
      nping_warning(QT_2, "nping_event_handler(): %s failed: %s", nse_type2str(type), strerror(socket_errno()));
  } else if (status == NSE_STATUS_TIMEOUT) {
-    nping_print(DBG_4,"nping_event_handler(): %s timeout: %s\n", nse_type2str(type), strerror(socket_errno()));
+    nping_print(DBG_4,"nping_event_handler(): %s timeout\n", nse_type2str(type));
  } else if (status == NSE_STATUS_CANCELLED) {
-    nping_warning(QT_2, "nping_event_handler(): %s canceled: %s", nse_type2str(type), strerror(socket_errno()));
+    nping_warning(QT_2, "nping_event_handler(): %s canceled", nse_type2str(type));
  } else if (status == NSE_STATUS_KILL) {
-    nping_warning(QT_2, "nping_event_handler(): %s killed: %s", nse_type2str(type), strerror(socket_errno()));
+    nping_warning(QT_2, "nping_event_handler(): %s killed", nse_type2str(type));
  } else{
     nping_warning(QT_2, "nping_event_handler(): Unknown status code %d\n", status);
  }

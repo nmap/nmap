@@ -1,128 +1,59 @@
 /***************************************************************************
  * ncat_posix.c -- POSIX-specific functions.                               *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
- *                                                                         *
- * The Nmap Security Scanner is (C) 1996-2019 Insecure.Com LLC ("The Nmap  *
- * Project"). Nmap is also a registered trademark of the Nmap Project.     *
- * This program is free software; you may redistribute and/or modify it    *
- * under the terms of the GNU General Public License as published by the   *
- * Free Software Foundation; Version 2 ("GPL"), BUT ONLY WITH ALL OF THE   *
- * CLARIFICATIONS AND EXCEPTIONS DESCRIBED HEREIN.  This guarantees your   *
- * right to use, modify, and redistribute this software under certain      *
- * conditions.  If you wish to embed Nmap technology into proprietary      *
- * software, we sell alternative licenses (contact sales@nmap.com).        *
- * Dozens of software vendors already license Nmap technology such as      *
- * host discovery, port scanning, OS detection, version detection, and     *
- * the Nmap Scripting Engine.                                              *
- *                                                                         *
- * Note that the GPL places important restrictions on "derivative works",  *
- * yet it does not provide a detailed definition of that term.  To avoid   *
- * misunderstandings, we interpret that term as broadly as copyright law   *
- * allows.  For example, we consider an application to constitute a        *
- * derivative work for the purpose of this license if it does any of the   *
- * following with any software or content covered by this license          *
- * ("Covered Software"):                                                   *
- *                                                                         *
- * o Integrates source code from Covered Software.                         *
- *                                                                         *
- * o Reads or includes copyrighted data files, such as Nmap's nmap-os-db   *
- * or nmap-service-probes.                                                 *
- *                                                                         *
- * o Is designed specifically to execute Covered Software and parse the    *
- * results (as opposed to typical shell or execution-menu apps, which will *
- * execute anything you tell them to).                                     *
- *                                                                         *
- * o Includes Covered Software in a proprietary executable installer.  The *
- * installers produced by InstallShield are an example of this.  Including *
- * Nmap with other software in compressed or archival form does not        *
- * trigger this provision, provided appropriate open source decompression  *
- * or de-archiving software is widely available for no charge.  For the    *
- * purposes of this license, an installer is considered to include Covered *
- * Software even if it actually retrieves a copy of Covered Software from  *
- * another source during runtime (such as by downloading it from the       *
- * Internet).                                                              *
- *                                                                         *
- * o Links (statically or dynamically) to a library which does any of the  *
- * above.                                                                  *
- *                                                                         *
- * o Executes a helper program, module, or script to do any of the above.  *
- *                                                                         *
- * This list is not exclusive, but is meant to clarify our interpretation  *
- * of derived works with some common examples.  Other people may interpret *
- * the plain GPL differently, so we consider this a special exception to   *
- * the GPL that we apply to Covered Software.  Works which meet any of     *
- * these conditions must conform to all of the terms of this license,      *
- * particularly including the GPL Section 3 requirements of providing      *
- * source code and allowing free redistribution of the work as a whole.    *
- *                                                                         *
- * As another special exception to the GPL terms, the Nmap Project grants  *
- * permission to link the code of this program with any version of the     *
- * OpenSSL library which is distributed under a license identical to that  *
- * listed in the included docs/licenses/OpenSSL.txt file, and distribute   *
- * linked combinations including the two.                                  *
- *                                                                         *
- * The Nmap Project has permission to redistribute Npcap, a packet         *
- * capturing driver and library for the Microsoft Windows platform.        *
- * Npcap is a separate work with it's own license rather than this Nmap    *
- * license.  Since the Npcap license does not permit redistribution        *
- * without special permission, our Nmap Windows binary packages which      *
- * contain Npcap may not be redistributed without special permission.      *
- *                                                                         *
- * Any redistribution of Covered Software, including any derived works,    *
- * must obey and carry forward all of the terms of this license, including *
- * obeying all GPL rules and restrictions.  For example, source code of    *
- * the whole work must be provided and free redistribution must be         *
- * allowed.  All GPL references to "this License", are to be treated as    *
- * including the terms and conditions of this license text as well.        *
- *                                                                         *
- * Because this license imposes special exceptions to the GPL, Covered     *
- * Work may not be combined (even as part of a larger work) with plain GPL *
- * software.  The terms, conditions, and exceptions of this license must   *
- * be included as well.  This license is incompatible with some other open *
- * source licenses as well.  In some cases we can relicense portions of    *
- * Nmap or grant special permissions to use it in other open source        *
- * software.  Please contact fyodor@nmap.org with any such requests.       *
- * Similarly, we don't incorporate incompatible open source software into  *
- * Covered Software without special permission from the copyright holders. *
- *                                                                         *
- * If you have any questions about the licensing restrictions on using     *
- * Nmap in other works, we are happy to help.  As mentioned above, we also *
- * offer an alternative license to integrate Nmap into proprietary         *
- * applications and appliances.  These contracts have been sold to dozens  *
- * of software vendors, and generally include a perpetual license as well  *
- * as providing support and updates.  They also fund the continued         *
- * development of Nmap.  Please email sales@nmap.com for further           *
- * information.                                                            *
- *                                                                         *
- * If you have received a written license agreement or contract for        *
- * Covered Software stating terms other than these, you may choose to use  *
- * and redistribute Covered Software under those terms instead of these.   *
- *                                                                         *
- * Source is provided to this software because we believe users have a     *
- * right to know exactly what a program is going to do before they run it. *
- * This also allows you to audit the software for security holes.          *
- *                                                                         *
- * Source code also allows you to port Nmap to new platforms, fix bugs,    *
- * and add new features.  You are highly encouraged to send your changes   *
- * to the dev@nmap.org mailing list for possible incorporation into the    *
- * main distribution.  By sending these changes to Fyodor or one of the    *
- * Insecure.Org development mailing lists, or checking them into the Nmap  *
- * source code repository, it is understood (unless you specify            *
- * otherwise) that you are offering the Nmap Project the unlimited,        *
- * non-exclusive right to reuse, modify, and relicense the code.  Nmap     *
- * will always be available Open Source, but this is important because     *
- * the inability to relicense code has caused devastating problems for     *
- * other Free Software projects (such as KDE and NASM).  We also           *
- * occasionally relicense the code to third parties as discussed above.    *
- * If you wish to specify special license conditions of your               *
- * contributions, just say so when you send them.                          *
- *                                                                         *
- * This program is distributed in the hope that it will be useful, but     *
- * WITHOUT ANY WARRANTY; without even the implied warranty of              *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the Nmap      *
- * license file for more details (it's in a COPYING file included with     *
- * Nmap, and also available from https://svn.nmap.org/nmap/COPYING)        *
- *                                                                         *
+ *
+ * The Nmap Security Scanner is (C) 1996-2026 Nmap Software LLC ("The Nmap
+ * Project"). Nmap is also a registered trademark of the Nmap Project.
+ *
+ * This program is distributed under the terms of the Nmap Public Source
+ * License (NPSL). The exact license text applying to a particular Nmap
+ * release or source code control revision is contained in the LICENSE
+ * file distributed with that version of Nmap or source code control
+ * revision. More Nmap copyright/legal information is available from
+ * https://nmap.org/book/man-legal.html, and further information on the
+ * NPSL license itself can be found at https://nmap.org/npsl/ . This
+ * header summarizes some key points from the Nmap license, but is no
+ * substitute for the actual license text.
+ *
+ * Nmap is generally free for end users to download and use themselves,
+ * including commercial use. It is available from https://nmap.org.
+ *
+ * The Nmap license generally prohibits companies from using and
+ * redistributing Nmap in commercial products, but we sell a special Nmap
+ * OEM Edition with a more permissive license and special features for
+ * this purpose. See https://nmap.org/oem/
+ *
+ * If you have received a written Nmap license agreement or contract
+ * stating terms other than these (such as an Nmap OEM license), you may
+ * choose to use and redistribute Nmap under those terms instead.
+ *
+ * The official Nmap Windows builds include the Npcap software
+ * (https://npcap.com) for packet capture and transmission. It is under
+ * separate license terms which forbid redistribution without special
+ * permission. So the official Nmap Windows builds may not be redistributed
+ * without special permission (such as an Nmap OEM license).
+ *
+ * Source is provided to this software because we believe users have a
+ * right to know exactly what a program is going to do before they run it.
+ * This also allows you to audit the software for security holes.
+ *
+ * Source code also allows you to port Nmap to new platforms, fix bugs, and
+ * add new features. You are highly encouraged to submit your changes as a
+ * Github PR or by email to the dev@nmap.org mailing list for possible
+ * incorporation into the main distribution. Unless you specify otherwise, it
+ * is understood that you are offering us very broad rights to use your
+ * submissions as described in the Nmap Public Source License Contributor
+ * Agreement. This is important because we fund the project by selling licenses
+ * with various terms, and also because the inability to relicense code has
+ * caused devastating problems for other Free Software projects (such as KDE
+ * and NASM).
+ *
+ * The free version of Nmap is distributed in the hope that it will be
+ * useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. Warranties,
+ * indemnification and commercial support are all available through the
+ * Npcap OEM program--see https://nmap.org/oem/
+ *
  ***************************************************************************/
 
 /* $Id$ */
@@ -134,6 +65,16 @@
 #endif
 
 char **cmdline_split(const char *cmdexec);
+
+volatile sig_atomic_t child_alive = 0;
+
+static void sigchld_watcher(int signum)
+{
+    int saved_errno = errno;
+    if (waitpid(-1, NULL, WNOHANG) > 0)
+        child_alive = 0;
+    errno = saved_errno;
+}
 
 /* fork and exec a child process with netexec. Close the given file descriptor
    in the parent process. Return the child's PID or -1 on error. */
@@ -179,6 +120,38 @@ static int write_loop(int fd, char *buf, size_t size)
     return p - buf;
 }
 
+static void shutdown_PIPE_IN(struct fdinfo *info, int child_stdout, int child_stdin, fd_set *fds, int *maxfd)
+{
+  if (!o.noshutdown
+#ifdef HAVE_OPENSSL
+      // SSL can only shut down in the write direction
+      && info->ssl == NULL
+#endif
+    ) {
+    shutdown(info->fd, SHUT_RD);
+  }
+  close(child_stdin);
+  checked_fd_clr(info->fd, fds);
+  *maxfd = checked_fd_isset(child_stdout, fds) ? child_stdout : -1;
+}
+
+static void shutdown_PIPE_OUT(struct fdinfo *info, int child_stdout, int child_stdin, fd_set *fds, int *maxfd)
+{
+  if (!o.noshutdown) {
+#ifdef HAVE_OPENSSL
+    if (info->ssl != NULL &&
+        // These errors mean we cannot send close_notify alert
+        info->lasterr != SSL_ERROR_SYSCALL && info->lasterr != SSL_ERROR_SSL) {
+      SSL_shutdown(info->ssl);
+    } else
+#endif
+      shutdown(info->fd, SHUT_WR);
+  }
+  close(child_stdout);
+  checked_fd_clr(child_stdout, fds);
+  *maxfd = checked_fd_isset(info->fd, fds) ? info->fd : -1;
+}
+
 /* Run the given command line as if with exec. What we actually do is fork the
    command line as a subprocess, then loop, relaying data between the socket and
    the subprocess. This allows Ncat to handle SSL from the socket and give plain
@@ -193,6 +166,7 @@ void netexec(struct fdinfo *info, char *cmdexec)
 
     char buf[DEFAULT_TCP_BUF_LEN];
     int maxfd;
+    fd_set all_fds;
 
     if (o.debug) {
         switch (o.execmode) {
@@ -213,6 +187,10 @@ void netexec(struct fdinfo *info, char *cmdexec)
     if (pipe(child_stdin) == -1 || pipe(child_stdout) == -1)
         bye("Can't create child pipes: %s", strerror(errno));
 
+    /* No longer using ncat_listen.c's sigchld_handler */
+    Signal(SIGCHLD, sigchld_watcher);
+
+    child_alive = 1;
     pid = fork();
     if (pid == -1)
         bye("Error in fork: %s", strerror(errno));
@@ -268,13 +246,19 @@ void netexec(struct fdinfo *info, char *cmdexec)
        writes to the socket. We exit the loop on any read error (or EOF). On a
        write error we just close the opposite side of the conversation. */
     crlf_state = 0;
-    for (;;) {
-        fd_set fds;
-        int r, n_r;
+    FD_ZERO(&all_fds);
+    /* There are 2 directions that are managed together:
+     * PIPE_IN: Data read from socket read written to child stdin. */
+#define PIPE_IN_IS_OPEN() FD_ISSET(info->fd, &all_fds)
+    checked_fd_set(info->fd, &all_fds);
+    /* PIPE_OUT: Data read from child stdout and written to socket. */
+#define PIPE_OUT_IS_OPEN() FD_ISSET(child_stdout[0], &all_fds)
+    checked_fd_set(child_stdout[0], &all_fds);
+#define PIPE_CLOSE(_PipeName) shutdown_##_PipeName(info, child_stdout[0], child_stdin[1], &all_fds, &maxfd)
 
-        FD_ZERO(&fds);
-        FD_SET(info->fd, &fds);
-        FD_SET(child_stdout[0], &fds);
+    while (child_alive && maxfd >= 0) {
+        fd_set fds = all_fds;
+        int r, n_r;
 
         r = fselect(maxfd + 1, &fds, NULL, NULL, NULL);
         if (r == -1) {
@@ -283,40 +267,74 @@ void netexec(struct fdinfo *info, char *cmdexec)
             else
                 break;
         }
-        if (FD_ISSET(info->fd, &fds)) {
+        if (checked_fd_isset(info->fd, &fds)) {
             int pending;
 
             do {
                 n_r = ncat_recv(info, buf, sizeof(buf), &pending);
-                if (n_r <= 0)
-                    goto loop_end;
-                write_loop(child_stdin[1], buf, n_r);
+                if (n_r <= 0) {
+                    /* return value can be 0 without meaning EOF in some cases such as SSL
+                     * renegotiations that require read/write socket operations but do not
+                     * have any application data. */
+                    if(n_r == 0 && info->lasterr == 0) {
+                        continue; /* Check pending */
+                    }
+                    // socket EOF/err
+                    PIPE_CLOSE(PIPE_IN);
+                    break;
+                }
+                r = write_loop(child_stdin[1], buf, n_r);
+                if (r != n_r) {
+                  PIPE_CLOSE(PIPE_IN);
+                  break;
+                }
             } while (pending);
         }
-        if (FD_ISSET(child_stdout[0], &fds)) {
+        if (checked_fd_isset(child_stdout[0], &fds)) {
             char *crlf = NULL, *wbuf;
             n_r = read(child_stdout[0], buf, sizeof(buf));
-            if (n_r <= 0)
-                break;
+            if (n_r <= 0) {
+              PIPE_CLOSE(PIPE_OUT);
+              continue;
+            }
             wbuf = buf;
             if (o.crlf) {
                 if (fix_line_endings((char *) buf, &n_r, &crlf, &crlf_state))
                     wbuf = crlf;
             }
-            ncat_send(info, wbuf, n_r);
+            r = ncat_send(info, wbuf, n_r);
             if (crlf != NULL)
                 free(crlf);
+            if (r <= 0) {
+              PIPE_CLOSE(PIPE_OUT);
+              continue;
+            }
         }
     }
-loop_end:
 
+    if (PIPE_OUT_IS_OPEN()) {
+      PIPE_CLOSE(PIPE_OUT);
+    }
+    if (PIPE_IN_IS_OPEN()) {
+      PIPE_CLOSE(PIPE_IN);
+    }
 #ifdef HAVE_OPENSSL
     if (info->ssl != NULL) {
-        SSL_shutdown(info->ssl);
         SSL_free(info->ssl);
+        info->ssl = NULL;
     }
 #endif
     close(info->fd);
+
+    while (waitpid(pid, NULL, 0) < 0) {
+        if (errno == ECHILD) {
+            break;
+        }
+        else if (errno == EINTR) {
+            continue;
+        }
+        die("waitpid");
+    }
 
     exit(0);
 }

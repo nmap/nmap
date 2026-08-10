@@ -5,7 +5,7 @@
  *
  * Copyright (c) 2001 Dug Song <dugsong@monkey.org>
  *
- * $Id: eth-pfilt.c 563 2005-02-10 17:06:36Z dugsong $
+ * $Id$
  */
 
 #include "config.h"

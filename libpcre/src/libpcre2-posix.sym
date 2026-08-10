@@ -1,0 +1,13 @@
+# First version of PCRE2 in which symbols were assigned versions.
+PCRE2_10.47 {
+  global:
+    pcre2_regcomp;
+    pcre2_regerror;
+    pcre2_regexec;
+    pcre2_regfree;
+  local:
+    _fini;
+    _init;
+};
+
+# PCRE2_10.48 {} PCRE2_10.47;

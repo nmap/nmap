@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 by Daniel Stenberg
+ * Copyright (C) Daniel Stenberg
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms,
@@ -34,10 +34,11 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY
  * OF SUCH DAMAGE.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
  */
 
 #include "libssh2_priv.h"
-#include "misc.h"
 
 struct known_host {
     struct list_node node;
@@ -111,7 +112,7 @@ libssh2_knownhost_init(LIBSSH2_SESSION *session)
 
 #define KNOWNHOST_MAGIC 0xdeadcafe
 /*
- * knownhost_to_external()
+ * knownhost_to_external
  *
  * Copies data from the internal to the external representation struct.
  *
@@ -123,7 +124,7 @@ static struct libssh2_knownhost *knownhost_to_external(struct known_host *node)
     ext->magic = KNOWNHOST_MAGIC;
     ext->node = node;
     ext->name = ((node->typemask & LIBSSH2_KNOWNHOST_TYPE_MASK) ==
-                 LIBSSH2_KNOWNHOST_TYPE_PLAIN)? node->name:NULL;
+                 LIBSSH2_KNOWNHOST_TYPE_PLAIN) ? node->name : NULL;
     ext->key = node->key;
     ext->typemask = node->typemask;
 
@@ -142,7 +143,7 @@ knownhost_add(LIBSSH2_KNOWNHOSTS *hosts,
     size_t hostlen = strlen(host);
     int rc;
     char *ptr;
-    unsigned int ptrlen;
+    size_t ptrlen;
 
     /* make sure we have a key type set */
     if(!(typemask & LIBSSH2_KNOWNHOST_KEY_MASK))
@@ -170,15 +171,15 @@ knownhost_add(LIBSSH2_KNOWNHOSTS *hosts,
         entry->name_len = hostlen;
         break;
     case LIBSSH2_KNOWNHOST_TYPE_SHA1:
-        rc = libssh2_base64_decode(hosts->session, &ptr, &ptrlen,
-                                   host, hostlen);
+        rc = _libssh2_base64_decode(hosts->session, &ptr, &ptrlen,
+                                    host, hostlen);
         if(rc)
             goto error;
         entry->name = ptr;
         entry->name_len = ptrlen;
 
-        rc = libssh2_base64_decode(hosts->session, &ptr, &ptrlen,
-                                   salt, strlen(salt));
+        rc = _libssh2_base64_decode(hosts->session, &ptr, &ptrlen,
+                                    salt, strlen(salt));
         if(rc)
             goto error;
         entry->salt = ptr;
@@ -252,7 +253,7 @@ knownhost_add(LIBSSH2_KNOWNHOSTS *hosts,
         *store = knownhost_to_external(entry);
 
     return LIBSSH2_ERROR_NONE;
-  error:
+error:
     free_host(hosts->session, entry);
     return rc;
 }
@@ -420,19 +421,23 @@ knownhost_check(LIBSSH2_KNOWNHOSTS *hosts,
                     */
                     unsigned char hash[SHA_DIGEST_LENGTH];
                     libssh2_hmac_ctx ctx;
-                    libssh2_hmac_ctx_init(ctx);
+                    if(!_libssh2_hmac_ctx_init(&ctx))
+                        break;
 
                     if(SHA_DIGEST_LENGTH != node->name_len) {
                         /* the name hash length must be the sha1 size or
                            we can't match it */
                         break;
                     }
-                    libssh2_hmac_sha1_init(&ctx, (unsigned char *)node->salt,
-                                           node->salt_len);
-                    libssh2_hmac_update(ctx, (unsigned char *)host,
-                                        strlen(host));
-                    libssh2_hmac_final(ctx, hash);
-                    libssh2_hmac_cleanup(&ctx);
+                    if(!_libssh2_hmac_sha1_init(&ctx,
+                                                node->salt, node->salt_len))
+                        break;
+                    if(!_libssh2_hmac_update(&ctx, host, strlen(host)) ||
+                       !_libssh2_hmac_final(&ctx, hash)) {
+                        _libssh2_hmac_cleanup(&ctx);
+                        break;
+                    }
+                    _libssh2_hmac_cleanup(&ctx);
 
                     if(!memcmp(hash, node->name, SHA_DIGEST_LENGTH))
                         /* this is a node we're interested in */
@@ -727,7 +732,7 @@ static int hashed_hostline(LIBSSH2_KNOWNHOSTS *hosts,
 }
 
 /*
- * hostline()
+ * hostline
  *
  * Parse a single known_host line pre-split into host and key.
  *
@@ -774,18 +779,20 @@ static int hostline(LIBSSH2_KNOWNHOSTS *hosts,
         }
         key_type_len = key - key_type_name;
 
-        if(!strncmp(key_type_name, "ssh-dss", key_type_len))
-            key_type = LIBSSH2_KNOWNHOST_KEY_SSHDSS;
-        else if(!strncmp(key_type_name, "ssh-rsa", key_type_len))
-            key_type = LIBSSH2_KNOWNHOST_KEY_SSHRSA;
+        if(!strncmp(key_type_name, "ssh-ed25519", key_type_len))
+            key_type = LIBSSH2_KNOWNHOST_KEY_ED25519;
         else if(!strncmp(key_type_name, "ecdsa-sha2-nistp256", key_type_len))
             key_type = LIBSSH2_KNOWNHOST_KEY_ECDSA_256;
         else if(!strncmp(key_type_name, "ecdsa-sha2-nistp384", key_type_len))
             key_type = LIBSSH2_KNOWNHOST_KEY_ECDSA_384;
         else if(!strncmp(key_type_name, "ecdsa-sha2-nistp521", key_type_len))
             key_type = LIBSSH2_KNOWNHOST_KEY_ECDSA_521;
-        else if(!strncmp(key_type_name, "ssh-ed25519", key_type_len))
-            key_type = LIBSSH2_KNOWNHOST_KEY_ED25519;
+        else if(!strncmp(key_type_name, "ssh-rsa", key_type_len))
+            key_type = LIBSSH2_KNOWNHOST_KEY_SSHRSA;
+#if LIBSSH2_DSA
+        else if(!strncmp(key_type_name, "ssh-dss", key_type_len))
+            key_type = LIBSSH2_KNOWNHOST_KEY_SSHDSS;
+#endif
         else
             key_type = LIBSSH2_KNOWNHOST_KEY_UNKNOWN;
 
@@ -822,7 +829,7 @@ static int hostline(LIBSSH2_KNOWNHOSTS *hosts,
     }
 
     /* Figure out host format */
-    if((hostlen >2) && memcmp(host, "|1|", 3)) {
+    if((hostlen > 2) && memcmp(host, "|1|", 3)) {
         /* old style plain text: [name]([,][name])*
 
            for the sake of simplicity, we add them as separate hosts with the
@@ -841,7 +848,7 @@ static int hostline(LIBSSH2_KNOWNHOSTS *hosts,
 }
 
 /*
- * libssh2_knownhost_readline()
+ * libssh2_knownhost_readline
  *
  * Pass in a line of a file of 'type'.
  *
@@ -955,7 +962,7 @@ libssh2_knownhost_readfile(LIBSSH2_KNOWNHOSTS *hosts,
 {
     FILE *file;
     int num = 0;
-    char buf[2048];
+    char buf[4092];
 
     if(type != LIBSSH2_KNOWNHOST_FILE_OPENSSH)
         return _libssh2_error(hosts->session,
@@ -983,7 +990,7 @@ libssh2_knownhost_readfile(LIBSSH2_KNOWNHOSTS *hosts,
 }
 
 /*
- * knownhost_writeline()
+ * knownhost_writeline
  *
  * Ask libssh2 to convert a known host to an output line for storage.
  *
@@ -1021,10 +1028,12 @@ knownhost_writeline(LIBSSH2_KNOWNHOSTS *hosts,
         key_type_name = "ssh-rsa";
         key_type_len = 7;
         break;
+#if LIBSSH2_DSA
     case LIBSSH2_KNOWNHOST_KEY_SSHDSS:
         key_type_name = "ssh-dss";
         key_type_len = 7;
         break;
+#endif
     case LIBSSH2_KNOWNHOST_KEY_ECDSA_256:
         key_type_name = "ecdsa-sha2-nistp256";
         key_type_len = 19;
@@ -1048,7 +1057,7 @@ knownhost_writeline(LIBSSH2_KNOWNHOSTS *hosts,
             break;
         }
         /* otherwise fallback to default and error */
-        /* FALL-THROUGH */
+        LIBSSH2_FALLTHROUGH();
     default:
         return _libssh2_error(hosts->session,
                               LIBSSH2_ERROR_METHOD_NOT_SUPPORTED,
@@ -1157,7 +1166,7 @@ knownhost_writeline(LIBSSH2_KNOWNHOSTS *hosts,
 }
 
 /*
- * libssh2_knownhost_writeline()
+ * libssh2_knownhost_writeline
  *
  * Ask libssh2 to convert a known host to an output line for storage.
  *
@@ -1183,7 +1192,7 @@ libssh2_knownhost_writeline(LIBSSH2_KNOWNHOSTS *hosts,
 }
 
 /*
- * libssh2_knownhost_writefile()
+ * libssh2_knownhost_writefile
  *
  * Write hosts+key pairs to the given file.
  */
@@ -1194,7 +1203,7 @@ libssh2_knownhost_writefile(LIBSSH2_KNOWNHOSTS *hosts,
     struct known_host *node;
     FILE *file;
     int rc = LIBSSH2_ERROR_NONE;
-    char buffer[2048];
+    char buffer[4092];
 
     /* we only support this single file type for now, bail out on all other
        attempts */
@@ -1234,7 +1243,7 @@ libssh2_knownhost_writefile(LIBSSH2_KNOWNHOSTS *hosts,
 
 
 /*
- * libssh2_knownhost_get()
+ * libssh2_knownhost_get
  *
  * Traverse the internal list of known hosts. Pass NULL to 'prev' to get
  * the first one.

@@ -248,20 +248,12 @@ do
   table.sort(multicast_ranges, sort_ip_ascending)
 end
 
-local function get_interfaces()
-  local if_list = nmap.list_interfaces()
-  local if_ret = {}
-  local arg_interface = stdnse.get_script_args(SCRIPT_NAME .. ".interface") or nmap.get_interface()
-
-  for _, if_nfo in pairs(if_list) do
-    if (arg_interface == nil or if_nfo.device == arg_interface) -- check for correct interface
+local function filter_interfaces(if_nfo)
+  if (if_nfo.link == "ethernet" -- not the loopback interface
       and ipOps.ip_in_range(if_nfo.address, "fe80::/10") -- link local address
-      and if_nfo.link == "ethernet" then                        -- not the loopback interface
-      table.insert(if_ret, if_nfo)
-    end
+      ) then
+    return if_nfo
   end
-
-  return if_ret
 end
 
 local function single_interface_broadcast(if_nfo, results)
@@ -327,7 +319,7 @@ action = function()
   local threads = {}
   local condvar = nmap.condvar(results)
 
-  for _, if_nfo in ipairs(get_interfaces()) do
+  for _, if_nfo in ipairs(stdnse.get_script_interfaces(filter_interfaces)) do
     -- create a thread for each interface
     local co = stdnse.new_thread(single_interface_broadcast, if_nfo, results)
     threads[co] = true

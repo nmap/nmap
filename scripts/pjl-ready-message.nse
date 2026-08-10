@@ -45,7 +45,7 @@ action = function(host, port)
   local statusmsg  --stores the PJL command to get the printer's status
   local response  --stores the response sent over the network from the printer by the PJL status command
 
-  statusmsg="@PJL INFO STATUS\n"
+  statusmsg="@PJL INFO STATUS\r\n"
 
   local rdymsg=""  --string containing text to send to the printer.
   local rdymsgarg=""  --will contain the argument from the command line if one exists

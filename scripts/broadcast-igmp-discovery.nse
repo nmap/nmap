@@ -39,7 +39,7 @@ interfaces.
 -- nmap --script broadcast-igmp-discovery
 -- nmap --script broadcast-igmp-discovery -e wlan0
 -- nmap --script broadcast-igmp-discovery
--- --script-args 'broadcast-igmp-discovery.version=all, broadcast-igmp-discovery.timeout=3'
+-- --script-args 'broadcast-igmp-discovery.version=all, broadcast-igmp-discovery.timeout=3s'
 --
 --@output
 --Pre-scan script results:
@@ -164,23 +164,25 @@ local igmpListener = function(interface, timeout, responses)
     status, _, _, l3data = listener:pcap_receive()
     if status then
       p = packet.Packet:new(l3data, #l3data)
-      igmp_raw = string.sub(l3data, p.ip_hl*4 + 1)
       if p then
-        -- check the first byte before sending to the parser
-        -- response 0x12 == Membership Response version 1
-        -- response 0x16 == Membership Response version 2
-        -- response 0x22 == Membership Response version 3
-        local igmptype = igmp_raw:byte(1)
-        if igmptype == 0x12 or igmptype == 0x16 or igmptype == 0x22 then
-          response = igmpParse(igmp_raw)
-          if response then
-            response.src = p.ip_src
-            response.interface = interface.shortname
-            -- Many hosts return more than one same response message
-            -- this is to not output duplicates
-            if not devices[response.src..response.type..(response.group or response.ngroups)] then
-              devices[response.src..response.type..(response.group or response.ngroups)] = true
-              table.insert(responses, response)
+        igmp_raw = string.sub(l3data, p.ip_hl*4 + 1)
+        if p then
+          -- check the first byte before sending to the parser
+          -- response 0x12 == Membership Response version 1
+          -- response 0x16 == Membership Response version 2
+          -- response 0x22 == Membership Response version 3
+          local igmptype = igmp_raw:byte(1)
+          if igmptype == 0x12 or igmptype == 0x16 or igmptype == 0x22 then
+            response = igmpParse(igmp_raw)
+            if response then
+              response.src = p.ip_src
+              response.interface = interface.shortname
+              -- Many hosts return more than one same response message
+              -- this is to not output duplicates
+              if not devices[response.src..response.type..(response.group or response.ngroups)] then
+                devices[response.src..response.type..(response.group or response.ngroups)] = true
+                table.insert(responses, response)
+              end
             end
           end
         end
@@ -302,7 +304,6 @@ end
 action = function(host, port)
   local timeout = stdnse.parse_timespec(stdnse.get_script_args(SCRIPT_NAME .. ".timeout"))
   local version = stdnse.get_script_args(SCRIPT_NAME .. ".version") or 2
-  local interface = stdnse.get_script_args(SCRIPT_NAME .. ".interface")
   timeout = (timeout or 7) * 1000
   if version ~= 'all' then
     version = tonumber(version)
@@ -315,29 +316,13 @@ action = function(host, port)
   nmap.fetchfile("nselib/data/mgroupnames.db")
   local mg_names_db = group_names_fname and mgroup_names_fetch(group_names_fname)
 
-  -- Check the interface
-  interface = interface or nmap.get_interface()
-  if interface then
-    -- Get the interface information
-    interface = nmap.get_interface_info(interface)
-    if not interface then
-      return stdnse.format_output(false, ("Failed to retrieve %s interface information."):format(interface))
-    end
-    interfaces = {interface}
-    stdnse.debug1("Will use %s interface.", interface.shortname)
-  else
-    local ifacelist = nmap.list_interfaces()
-    for _, iface in ipairs(ifacelist) do
-      -- Match all ethernet interfaces
-      if iface.address and iface.link=="ethernet" and
-        iface.address:match("%d+%.%d+%.%d+%.%d+") then
-
-        stdnse.debug1("Will use %s interface.", iface.shortname)
-        table.insert(interfaces, iface)
-      end
+  local collect_interfaces = function (if_table)
+    if if_table and if_table.up == "up" and if_table.link=="ethernet"
+      and if_table.address:match("%d+%.%d+%.%d+%.%d+") then
+      interfaces[#interfaces+1] = if_table
     end
   end
-
+  stdnse.get_script_interfaces(collect_interfaces)
 
   -- We should iterate over interfaces
   for _, interface in pairs(interfaces) do

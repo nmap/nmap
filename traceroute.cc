@@ -2,128 +2,59 @@
  * traceroute.cc -- Parallel multi-protocol traceroute feature             *
  *                                                                         *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
- *                                                                         *
- * The Nmap Security Scanner is (C) 1996-2019 Insecure.Com LLC ("The Nmap  *
- * Project"). Nmap is also a registered trademark of the Nmap Project.     *
- * This program is free software; you may redistribute and/or modify it    *
- * under the terms of the GNU General Public License as published by the   *
- * Free Software Foundation; Version 2 ("GPL"), BUT ONLY WITH ALL OF THE   *
- * CLARIFICATIONS AND EXCEPTIONS DESCRIBED HEREIN.  This guarantees your   *
- * right to use, modify, and redistribute this software under certain      *
- * conditions.  If you wish to embed Nmap technology into proprietary      *
- * software, we sell alternative licenses (contact sales@nmap.com).        *
- * Dozens of software vendors already license Nmap technology such as      *
- * host discovery, port scanning, OS detection, version detection, and     *
- * the Nmap Scripting Engine.                                              *
- *                                                                         *
- * Note that the GPL places important restrictions on "derivative works",  *
- * yet it does not provide a detailed definition of that term.  To avoid   *
- * misunderstandings, we interpret that term as broadly as copyright law   *
- * allows.  For example, we consider an application to constitute a        *
- * derivative work for the purpose of this license if it does any of the   *
- * following with any software or content covered by this license          *
- * ("Covered Software"):                                                   *
- *                                                                         *
- * o Integrates source code from Covered Software.                         *
- *                                                                         *
- * o Reads or includes copyrighted data files, such as Nmap's nmap-os-db   *
- * or nmap-service-probes.                                                 *
- *                                                                         *
- * o Is designed specifically to execute Covered Software and parse the    *
- * results (as opposed to typical shell or execution-menu apps, which will *
- * execute anything you tell them to).                                     *
- *                                                                         *
- * o Includes Covered Software in a proprietary executable installer.  The *
- * installers produced by InstallShield are an example of this.  Including *
- * Nmap with other software in compressed or archival form does not        *
- * trigger this provision, provided appropriate open source decompression  *
- * or de-archiving software is widely available for no charge.  For the    *
- * purposes of this license, an installer is considered to include Covered *
- * Software even if it actually retrieves a copy of Covered Software from  *
- * another source during runtime (such as by downloading it from the       *
- * Internet).                                                              *
- *                                                                         *
- * o Links (statically or dynamically) to a library which does any of the  *
- * above.                                                                  *
- *                                                                         *
- * o Executes a helper program, module, or script to do any of the above.  *
- *                                                                         *
- * This list is not exclusive, but is meant to clarify our interpretation  *
- * of derived works with some common examples.  Other people may interpret *
- * the plain GPL differently, so we consider this a special exception to   *
- * the GPL that we apply to Covered Software.  Works which meet any of     *
- * these conditions must conform to all of the terms of this license,      *
- * particularly including the GPL Section 3 requirements of providing      *
- * source code and allowing free redistribution of the work as a whole.    *
- *                                                                         *
- * As another special exception to the GPL terms, the Nmap Project grants  *
- * permission to link the code of this program with any version of the     *
- * OpenSSL library which is distributed under a license identical to that  *
- * listed in the included docs/licenses/OpenSSL.txt file, and distribute   *
- * linked combinations including the two.                                  *
- *                                                                         *
- * The Nmap Project has permission to redistribute Npcap, a packet         *
- * capturing driver and library for the Microsoft Windows platform.        *
- * Npcap is a separate work with it's own license rather than this Nmap    *
- * license.  Since the Npcap license does not permit redistribution        *
- * without special permission, our Nmap Windows binary packages which      *
- * contain Npcap may not be redistributed without special permission.      *
- *                                                                         *
- * Any redistribution of Covered Software, including any derived works,    *
- * must obey and carry forward all of the terms of this license, including *
- * obeying all GPL rules and restrictions.  For example, source code of    *
- * the whole work must be provided and free redistribution must be         *
- * allowed.  All GPL references to "this License", are to be treated as    *
- * including the terms and conditions of this license text as well.        *
- *                                                                         *
- * Because this license imposes special exceptions to the GPL, Covered     *
- * Work may not be combined (even as part of a larger work) with plain GPL *
- * software.  The terms, conditions, and exceptions of this license must   *
- * be included as well.  This license is incompatible with some other open *
- * source licenses as well.  In some cases we can relicense portions of    *
- * Nmap or grant special permissions to use it in other open source        *
- * software.  Please contact fyodor@nmap.org with any such requests.       *
- * Similarly, we don't incorporate incompatible open source software into  *
- * Covered Software without special permission from the copyright holders. *
- *                                                                         *
- * If you have any questions about the licensing restrictions on using     *
- * Nmap in other works, we are happy to help.  As mentioned above, we also *
- * offer an alternative license to integrate Nmap into proprietary         *
- * applications and appliances.  These contracts have been sold to dozens  *
- * of software vendors, and generally include a perpetual license as well  *
- * as providing support and updates.  They also fund the continued         *
- * development of Nmap.  Please email sales@nmap.com for further           *
- * information.                                                            *
- *                                                                         *
- * If you have received a written license agreement or contract for        *
- * Covered Software stating terms other than these, you may choose to use  *
- * and redistribute Covered Software under those terms instead of these.   *
- *                                                                         *
- * Source is provided to this software because we believe users have a     *
- * right to know exactly what a program is going to do before they run it. *
- * This also allows you to audit the software for security holes.          *
- *                                                                         *
- * Source code also allows you to port Nmap to new platforms, fix bugs,    *
- * and add new features.  You are highly encouraged to send your changes   *
- * to the dev@nmap.org mailing list for possible incorporation into the    *
- * main distribution.  By sending these changes to Fyodor or one of the    *
- * Insecure.Org development mailing lists, or checking them into the Nmap  *
- * source code repository, it is understood (unless you specify            *
- * otherwise) that you are offering the Nmap Project the unlimited,        *
- * non-exclusive right to reuse, modify, and relicense the code.  Nmap     *
- * will always be available Open Source, but this is important because     *
- * the inability to relicense code has caused devastating problems for     *
- * other Free Software projects (such as KDE and NASM).  We also           *
- * occasionally relicense the code to third parties as discussed above.    *
- * If you wish to specify special license conditions of your               *
- * contributions, just say so when you send them.                          *
- *                                                                         *
- * This program is distributed in the hope that it will be useful, but     *
- * WITHOUT ANY WARRANTY; without even the implied warranty of              *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the Nmap      *
- * license file for more details (it's in a COPYING file included with     *
- * Nmap, and also available from https://svn.nmap.org/nmap/COPYING)        *
- *                                                                         *
+ *
+ * The Nmap Security Scanner is (C) 1996-2026 Nmap Software LLC ("The Nmap
+ * Project"). Nmap is also a registered trademark of the Nmap Project.
+ *
+ * This program is distributed under the terms of the Nmap Public Source
+ * License (NPSL). The exact license text applying to a particular Nmap
+ * release or source code control revision is contained in the LICENSE
+ * file distributed with that version of Nmap or source code control
+ * revision. More Nmap copyright/legal information is available from
+ * https://nmap.org/book/man-legal.html, and further information on the
+ * NPSL license itself can be found at https://nmap.org/npsl/ . This
+ * header summarizes some key points from the Nmap license, but is no
+ * substitute for the actual license text.
+ *
+ * Nmap is generally free for end users to download and use themselves,
+ * including commercial use. It is available from https://nmap.org.
+ *
+ * The Nmap license generally prohibits companies from using and
+ * redistributing Nmap in commercial products, but we sell a special Nmap
+ * OEM Edition with a more permissive license and special features for
+ * this purpose. See https://nmap.org/oem/
+ *
+ * If you have received a written Nmap license agreement or contract
+ * stating terms other than these (such as an Nmap OEM license), you may
+ * choose to use and redistribute Nmap under those terms instead.
+ *
+ * The official Nmap Windows builds include the Npcap software
+ * (https://npcap.com) for packet capture and transmission. It is under
+ * separate license terms which forbid redistribution without special
+ * permission. So the official Nmap Windows builds may not be redistributed
+ * without special permission (such as an Nmap OEM license).
+ *
+ * Source is provided to this software because we believe users have a
+ * right to know exactly what a program is going to do before they run it.
+ * This also allows you to audit the software for security holes.
+ *
+ * Source code also allows you to port Nmap to new platforms, fix bugs, and
+ * add new features. You are highly encouraged to submit your changes as a
+ * Github PR or by email to the dev@nmap.org mailing list for possible
+ * incorporation into the main distribution. Unless you specify otherwise, it
+ * is understood that you are offering us very broad rights to use your
+ * submissions as described in the Nmap Public Source License Contributor
+ * Agreement. This is important because we fund the project by selling licenses
+ * with various terms, and also because the inability to relicense code has
+ * caused devastating problems for other Free Software projects (such as KDE
+ * and NASM).
+ *
+ * The free version of Nmap is distributed in the hope that it will be
+ * useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. Warranties,
+ * indemnification and commercial support are all available through the
+ * Npcap OEM program--see https://nmap.org/oem/
+ *
  ***************************************************************************/
 
 /*
@@ -177,6 +108,7 @@ individually.
 #include "NmapOps.h"
 #include "Target.h"
 #include "tcpip.h"
+#include "utils.h"
 
 #include "struct_ip.h"
 
@@ -297,7 +229,7 @@ public:
   ~HostState();
   bool has_more_probes() const;
   bool is_finished() const;
-  bool send_next_probe(int rawsd, eth_t *ethsd);
+  bool send_next_probe(int rawsd, netutil_eth_t *ethsd);
   void next_ttl();
   void count_up();
   int cancel_probe(std::list<Probe *>::iterator it);
@@ -305,10 +237,10 @@ public:
   int cancel_probes_above(u8 ttl);
   Hop *insert_hop(u8 ttl, const struct sockaddr_storage *addr, float rtt);
   void link_to(Hop *hop);
-  double completion_fraction() const;
+  unsigned int completion() const;
 
 private:
-  void child_parent_ttl(u8 ttl, Hop **child, Hop **parent);
+  void child_parent_ttl(u8 ttl, Hop **child, Hop **parent) const;
   static u8 distance_guess(const Target *target);
   static struct probespec get_probe(const Target *target);
 };
@@ -330,8 +262,8 @@ public:
 
   Probe(HostState *host, struct probespec pspec, u8 ttl);
   virtual ~Probe();
-  void send(int rawsd, eth_t *ethsd, struct timeval *now = NULL);
-  void resend(int rawsd, eth_t *ethsd, struct timeval *now = NULL);
+  void send(int rawsd, netutil_eth_t *ethsd, struct timeval *now = NULL);
+  void resend(int rawsd, netutil_eth_t *ethsd, struct timeval *now = NULL);
   bool is_timedout(struct timeval *now = NULL) const;
   bool may_resend() const;
   virtual unsigned char *build_packet(const struct sockaddr_storage *source,
@@ -357,10 +289,10 @@ public:
   void resolve_hops();
   void transfer_hops();
 
-  double completion_fraction() const;
+  unsigned int completion(unsigned int *total) const;
 
 private:
-  eth_t *ethsd;
+  netutil_eth_t *ethsd;
   int rawsd;
   pcap_t *pd;
   int num_active_probes;
@@ -382,7 +314,7 @@ static unsigned int hop_cache_size();
 
 HostState::HostState(Target *target) : sent_ttls(MAX_TTL + 1, false) {
   this->target = target;
-  current_ttl = MIN(MAX(1, HostState::distance_guess(target)), MAX_TTL);
+  current_ttl = box(1, MAX_TTL, (int)HostState::distance_guess(target));
   state = HostState::COUNTING_DOWN;
   reached_target = 0;
   pspec = HostState::get_probe(target);
@@ -416,7 +348,7 @@ bool HostState::is_finished() const {
     && active_probes.empty() && pending_resends.empty();
 }
 
-bool HostState::send_next_probe(int rawsd, eth_t *ethsd) {
+bool HostState::send_next_probe(int rawsd, netutil_eth_t *ethsd) {
   Probe *probe;
 
   /* Do a resend if possible. */
@@ -559,12 +491,11 @@ void HostState::link_to(Hop *hop) {
     prev->parent = hop;
 }
 
-double HostState::completion_fraction() const {
-  std::vector<bool>::iterator it;
+unsigned int HostState::completion() const {
   unsigned int i, n;
 
   if (this->is_finished())
-    return 1.0;
+    return sent_ttls.size();
 
   n = 0;
   for (i = 0; i < sent_ttls.size(); i++) {
@@ -572,10 +503,10 @@ double HostState::completion_fraction() const {
       n++;
   }
 
-  return (double) n / sent_ttls.size();
+  return n;
 }
 
-void HostState::child_parent_ttl(u8 ttl, Hop **child, Hop **parent) {
+void HostState::child_parent_ttl(u8 ttl, Hop **child, Hop **parent) const {
   *child = NULL;
   *parent = this->hops;
   while (*parent != NULL && (*parent)->ttl > ttl) {
@@ -658,43 +589,38 @@ Probe::Probe(HostState *host, struct probespec pspec, u8 ttl) {
 Probe::~Probe() {
 }
 
-void Probe::send(int rawsd, eth_t *ethsd, struct timeval *now) {
+void Probe::send(int rawsd, netutil_eth_t *ethsd, struct timeval *now) {
   struct eth_nfo eth;
   struct eth_nfo *ethp;
   int decoy;
 
   /* Set up the Ethernet handle if we're using that. */
   if (ethsd != NULL) {
-    memcpy(eth.srcmac, host->target->SrcMACAddress(), 6);
-    memcpy(eth.dstmac, host->target->NextHopMACAddress(), 6);
-    eth.ethsd = ethsd;
+    ethp = host->target->FillEthNfo(&eth, ethsd);
     eth.devname[0] = '\0';
-    ethp = &eth;
   } else {
     ethp = NULL;
   }
 
   for (decoy = 0; decoy < o.numdecoys; decoy++) {
-    struct sockaddr_storage source;
-    size_t source_len;
+    const struct sockaddr_storage *source;
     unsigned char *packet;
     u32 packetlen;
 
     if (decoy == o.decoyturn) {
-      source_len = sizeof(source);
-      host->target->SourceSockAddr(&source, &source_len);
+      source = host->target->SourceSockAddr();
       sent_time = get_now(now);
     } else {
-      source = o.decoys[decoy];
+      source = &(o.decoys[decoy]);
     }
 
-    packet = this->build_packet(&source, &packetlen);
+    packet = this->build_packet(source, &packetlen);
     send_ip_packet(rawsd, ethp, host->target->TargetSockAddr(), packet, packetlen);
     free(packet);
   }
 }
 
-void Probe::resend(int rawsd, eth_t *ethsd, struct timeval *now) {
+void Probe::resend(int rawsd, netutil_eth_t *ethsd, struct timeval *now) {
   num_resends++;
   this->send(rawsd, ethsd, now);
 }
@@ -782,10 +708,10 @@ public:
   : Probe(host, pspec, ttl) {
   }
   unsigned char *build_packet(const struct sockaddr_storage *source, u32 *len) const {
-    const char *payload;
-    size_t payload_length;
+    const u8 *payload;
+    int payload_length;
 
-    payload = get_udp_payload(pspec.pd.udp.dport, &payload_length);
+    payload = get_udp_payload(pspec.pd.udp.dport, &payload_length, 0);
 
     /* For UDP we encode the token in the source port. */
     if (source->ss_family == AF_INET) {
@@ -793,13 +719,13 @@ public:
       return build_udp_raw(&sin->sin_addr, host->target->v4hostip(), ttl,
         get_random_u16(), get_random_u8(), false, NULL, 0,
         token ^ global_id, pspec.pd.udp.dport,
-        payload, payload_length, len);
+        (char *) payload, payload_length, len);
     } else if (source->ss_family == AF_INET6) {
       const struct sockaddr_in6 *sin6 = (struct sockaddr_in6 *) source;
       return build_udp_raw_ipv6(&sin6->sin6_addr, host->target->v6hostip(),
         0, 0, ttl,
         token ^ global_id, pspec.pd.udp.dport,
-        payload, payload_length, len);
+        (char *) payload, payload_length, len);
     } else {
       fatal("Unknown address family %u in %s.", source->ss_family, __func__);
     }
@@ -900,38 +826,22 @@ Probe *Probe::make(HostState *host, struct probespec pspec, u8 ttl)
 }
 
 TracerouteState::TracerouteState(std::vector<Target *> &targets) {
-  std::vector<Target *>::iterator it;
-  struct sockaddr_storage srcaddr;
-  size_t sslen;
+  std::vector<Target *>::const_iterator it;
   char pcap_filter[128];
   int n;
 
   assert(targets.size() > 0);
 
-  if ((o.sendpref & PACKET_SEND_ETH) && targets[0]->ifType() == devt_ethernet) {
-    /* No need to check for g_has_npcap_loopback on WIN32 because devt_loopback
-     * is checked earlier. */
-    ethsd = eth_open_cached(targets[0]->deviceName());
-    if (ethsd == NULL)
-      fatal("dnet: failed to open device %s", targets[0]->deviceName());
-    rawsd = -1;
-  } else {
-#ifdef WIN32
-    win32_fatal_raw_sockets(targets[0]->deviceName());
-#endif
-    rawsd = nmap_raw_socket();
-    if (rawsd < 0)
-      pfatal("traceroute: socket troubles");
-    ethsd = NULL;
+  if (!raw_socket_or_eth(o.sendpref, targets[0]->deviceName(), targets[0]->ifType(),
+        &rawsd, &ethsd, targets[0]->af())) {
+    fatal("traceroute: socket troubles");
   }
 
   /* Assume that all the targets share the same device. */
   if((pd=my_pcap_open_live(targets[0]->deviceName(), 128, o.spoofsource, 2))==NULL)
     fatal("%s", PCAP_OPEN_ERRMSG);
-  sslen = sizeof(srcaddr);
-  targets[0]->SourceSockAddr(&srcaddr, &sslen);
   n = Snprintf(pcap_filter, sizeof(pcap_filter), "(ip or ip6) and dst host %s",
-    ss_to_string(&srcaddr));
+    ss_to_string(targets[0]->SourceSockAddr()));
   assert(n < (int) sizeof(pcap_filter));
   set_pcap_filter(targets[0]->deviceFullName(), pd, pcap_filter);
  if (o.debugging)
@@ -966,7 +876,7 @@ void TracerouteState::next_active_host() {
 }
 
 void TracerouteState::send_new_probes() {
-  std::list<HostState *>::iterator failed_host;
+  std::list<HostState *>::const_iterator failed_host;
   struct timeval now;
 
   now = get_now();
@@ -1125,17 +1035,13 @@ void TracerouteState::set_host_hop(HostState *host, u8 ttl,
       /* Hit the cache going down. Seek to the end of the chain. If we have the
          tag for the last node, we take responsibility for finishing the trace.
          Otherwise, start counting up. */
-      struct sockaddr_storage addr;
-      size_t sslen;
 
       while (hop->parent != NULL) {
         hop = hop->parent;
         /* No need to re-probe any merged hops. */
         host->sent_ttls[hop->ttl] = true;
       }
-      sslen = sizeof(addr);
-      host->target->TargetSockAddr(&addr, &sslen);
-      if (sockaddr_storage_equal(&hop->tag, &addr)) {
+      if (sockaddr_storage_equal(&hop->tag, host->target->TargetSockAddr())) {
         if (o.debugging > 1) {
           log_write(LOG_STDOUT, "%s continuing trace from TTL %d\n",
             host->target->targetipstr(), host->current_ttl);
@@ -1162,39 +1068,44 @@ struct Reply {
   u16 token;
 };
 
-static bool parse_encapsulated_reply(const void *ip, unsigned len, Reply *reply) {
+#define ALIGN_HEADER(_Type, _Name, _Ptr, _Offset, _Len) \
+_Type _Name; \
+memcpy(&_Name, (u8 *)_Ptr + _Offset, MIN(_Len - _Offset, sizeof(_Type)));
+
+static bool parse_encapsulated_reply(const u8 *ip, unsigned len, Reply *reply) {
   struct abstract_ip_hdr hdr;
-  const void *data;
+  const u8 *data;
 
   data = ip_get_data(ip, &len, &hdr);
   if (data == NULL)
     return false;
 
   if (hdr.version == 4 && hdr.proto == IPPROTO_ICMP) {
-    const struct icmp *icmp = (const struct icmp *) data;
-    if (len < 8 || ntohs(icmp->icmp_id) != global_id)
+    if (len < offsetof(struct icmp, icmp_id) + 2)
       return false;
-    reply->token = ntohs(icmp->icmp_seq);
+    ALIGN_HEADER(struct icmp, icmp, data, 0, len);
+    if (ntohs(icmp.icmp_id) != global_id)
+      return false;
+    reply->token = ntohs(icmp.icmp_seq);
   } else if (hdr.version == 6 && hdr.proto == IPPROTO_ICMPV6) {
-    const struct icmpv6_msg_echo *echo = (struct icmpv6_msg_echo *) ((char *) data + sizeof(struct icmpv6_hdr));
-    if (len < 8 || ntohs(echo->icmpv6_id) != global_id)
+    if (len < sizeof(struct icmpv6_hdr) + offsetof(struct icmpv6_msg_echo, icmpv6_seq) + 2)
       return false;
-    reply->token = ntohs(echo->icmpv6_seq);
+    ALIGN_HEADER(struct icmpv6_msg_echo, echo, data, sizeof(struct icmpv6_hdr), len);
+    if (ntohs(echo.icmpv6_id) != global_id)
+      return false;
+    reply->token = ntohs(echo.icmpv6_seq);
   } else if (hdr.proto == IPPROTO_TCP) {
-    const struct tcp_hdr *tcp = (const struct tcp_hdr *) data;
-    if (len < 2)
-      return false;
-    reply->token = ntohs(tcp->th_sport) ^ global_id;
+    if (len < offsetof(struct tcp_hdr, th_sport) + 2) return false;
+    ALIGN_HEADER(struct tcp_hdr, tcp, data, 0, len);
+    reply->token = ntohs(tcp.th_sport) ^ global_id;
   } else if (hdr.proto == IPPROTO_UDP) {
-    const struct udp_hdr *udp = (const struct udp_hdr *) data;
-    if (len < 2)
-      return false;
-    reply->token = ntohs(udp->uh_sport) ^ global_id;
+    if (len < offsetof(struct udp_hdr, uh_sport) + 2) return false;
+    ALIGN_HEADER(struct udp_hdr, udp, data, 0, len);
+    reply->token = ntohs(udp.uh_sport) ^ global_id;
   } else if (hdr.proto == IPPROTO_SCTP) {
-    const struct sctp_hdr *sctp = (const struct sctp_hdr *) data;
-    if (len < 2)
-      return false;
-    reply->token = ntohs(sctp->sh_sport) ^ global_id;
+    if (len < offsetof(struct sctp_hdr, sh_sport) + 2) return false;
+    ALIGN_HEADER(struct sctp_hdr, sctp, data, 0, len);
+    reply->token = ntohs(sctp.sh_sport) ^ global_id;
   } else {
     if (len < 6)
       return false;
@@ -1207,9 +1118,9 @@ static bool parse_encapsulated_reply(const void *ip, unsigned len, Reply *reply)
   return true;
 }
 
-static bool decode_reply(const void *ip, unsigned int len, Reply *reply) {
+static bool decode_reply(const u8 *ip, unsigned int len, Reply *reply) {
   struct abstract_ip_hdr hdr;
-  const void *data;
+  const u8 *data;
 
   data = ip_get_data(ip, &len, &hdr);
   if (data == NULL)
@@ -1221,26 +1132,26 @@ static bool decode_reply(const void *ip, unsigned int len, Reply *reply) {
   if (hdr.version == 4 && hdr.proto == IPPROTO_ICMP) {
     /* ICMP responses comprise all the TTL exceeded messages we expect from all
        probe types, as well as actual replies from ICMP probes. */
-    const struct icmp_hdr *icmp = (const struct icmp_hdr *) data;
-    if (len < 8)
+    if (len < ICMP_LEN_MIN)
       return false;
-    if ((icmp->icmp_type == ICMP_TIMEXCEED
-         && icmp->icmp_code == ICMP_TIMEXCEED_INTRANS)
-        || icmp->icmp_type == ICMP_UNREACH) {
+    ALIGN_HEADER(struct icmp_hdr, icmp, data, 0, len);
+    if ((icmp.icmp_type == ICMP_TIMEXCEED
+         && icmp.icmp_code == ICMP_TIMEXCEED_INTRANS)
+        || icmp.icmp_type == ICMP_UNREACH) {
       /* Get the encapsulated IP packet. */
-      const void *encaps = icmp_get_data(icmp, &len);
+      const u8 *encaps = icmp_get_data(data, &len);
       if (encaps == NULL)
         return false;
       return parse_encapsulated_reply(encaps, len, reply);
-    } else if (icmp->icmp_type == ICMP_ECHOREPLY
-               || icmp->icmp_type == ICMP_MASKREPLY
-               || icmp->icmp_type == ICMP_TSTAMPREPLY) {
+    } else if (icmp.icmp_type == ICMP_ECHOREPLY
+               || icmp.icmp_type == ICMP_MASKREPLY
+               || icmp.icmp_type == ICMP_TSTAMPREPLY) {
       /* Need this alternate form of header for icmp_id and icmp_seq. */
-      const struct icmp *icmp = (const struct icmp *) data;
+      ALIGN_HEADER(struct icmp, icmp, data, 0, len);
 
-      if (ntohs(icmp->icmp_id) != global_id)
+      if (ntohs(icmp.icmp_id) != global_id)
         return false;
-      reply->token = ntohs(icmp->icmp_seq);
+      reply->token = ntohs(icmp.icmp_seq);
       /* Reply came directly from the target. */
       reply->target_addr = reply->from_addr;
     } else {
@@ -1249,50 +1160,47 @@ static bool decode_reply(const void *ip, unsigned int len, Reply *reply) {
   } else if (hdr.version == 6 && hdr.proto == IP_PROTO_ICMPV6) {
     /* ICMPv6 responses comprise all the TTL exceeded messages we expect from
        all probe types, as well as actual replies from ICMP probes. */
-    const struct icmpv6_hdr *icmpv6 = (const struct icmpv6_hdr *) data;
-    if (len < 2)
+    if (len < ICMP_LEN_MIN)
       return false;
+    ALIGN_HEADER(struct icmpv6_hdr, icmpv6, data, 0, len);
     /* TIMEXCEED, UNREACH */
-    if ((icmpv6->icmpv6_type == ICMPV6_TIMEXCEED
-         && icmpv6->icmpv6_code == ICMPV6_TIMEXCEED_INTRANS)
-        || icmpv6->icmpv6_type == ICMPV6_UNREACH) {
+    if ((icmpv6.icmpv6_type == ICMPV6_TIMEXCEED
+         && icmpv6.icmpv6_code == ICMPV6_TIMEXCEED_INTRANS)
+        || icmpv6.icmpv6_type == ICMPV6_UNREACH) {
       /* Get the encapsulated IP packet. */
-      const void *encaps = icmpv6_get_data(icmpv6, &len);
+      const u8 *encaps = icmpv6_get_data(data, &len);
       if (encaps == NULL)
         return false;
       return parse_encapsulated_reply(encaps, len, reply);
-    } else if (icmpv6->icmpv6_type == ICMPV6_ECHOREPLY) {
+    } else if (icmpv6.icmpv6_type == ICMPV6_ECHOREPLY) {
       /* MASKREPLY, TSTAMPREPLY */
-      const struct icmpv6_msg_echo *echo;
+      ALIGN_HEADER(struct icmpv6_msg_echo, echo, data, sizeof(icmpv6), len);
 
-      if (len < sizeof(*icmpv6) + 4)
+      if (ntohs(echo.icmpv6_id) != global_id)
         return false;
-      echo = (struct icmpv6_msg_echo *) ((char *) icmpv6 + sizeof(*icmpv6));
-      if (ntohs(echo->icmpv6_id) != global_id)
-        return false;
-      reply->token = ntohs(echo->icmpv6_seq);
+      reply->token = ntohs(echo.icmpv6_seq);
       /* Reply came directly from the target. */
       reply->target_addr = reply->from_addr;
     } else {
       return false;
     }
   } else if (hdr.proto == IPPROTO_TCP) {
-    const struct tcp_hdr *tcp = (const struct tcp_hdr *) data;
-    if (len < 4)
+    if (len < sizeof(struct tcp_hdr))
       return false;
-    reply->token = ntohs(tcp->th_dport) ^ global_id;
+    ALIGN_HEADER(struct tcp_hdr, tcp, data, 0, len);
+    reply->token = ntohs(tcp.th_dport) ^ global_id;
     reply->target_addr = reply->from_addr;
   } else if (hdr.proto == IPPROTO_UDP) {
-    const struct udp_hdr *udp = (const struct udp_hdr *) data;
-    if (len < 4)
+    if (len < sizeof(struct udp_hdr))
       return false;
-    reply->token = ntohs(udp->uh_dport) ^ global_id;
+    ALIGN_HEADER(struct udp_hdr, udp, data, 0, len);
+    reply->token = ntohs(udp.uh_dport) ^ global_id;
     reply->target_addr = reply->from_addr;
   } else if (hdr.proto == IPPROTO_SCTP) {
-    const struct sctp_hdr *sctp = (const struct sctp_hdr *) data;
-    if (len < 4)
+    if (len < sizeof(struct sctp_hdr))
       return false;
-    reply->token = ntohs(sctp->sh_dport) ^ global_id;
+    ALIGN_HEADER(struct sctp_hdr, sctp, data, 0, len);
+    reply->token = ntohs(sctp.sh_dport) ^ global_id;
     reply->target_addr = reply->from_addr;
   } else {
     return false;
@@ -1302,26 +1210,21 @@ static bool decode_reply(const void *ip, unsigned int len, Reply *reply) {
 }
 
 static bool read_reply(Reply *reply, pcap_t *pd, long timeout) {
-  const struct ip *ip;
+  const u8 *ip;
   unsigned int iplen;
   struct link_header linkhdr;
 
-  ip = (struct ip *) readip_pcap(pd, &iplen, timeout, &reply->rcvdtime, &linkhdr, true);
-  if (ip == NULL)
-    return false;
-  if (ip->ip_v == 4 || ip->ip_v == 6)
+  ip = readip_pcap(pd, &iplen, timeout, &reply->rcvdtime, &linkhdr, true);
+  if (ip)
     return decode_reply(ip, iplen, reply);
-  else
-    return false;
+  return false;
 }
 
 void TracerouteState::read_replies(long timeout) {
-  struct sockaddr_storage ss;
   struct timeval now;
-  size_t sslen;
   Reply reply;
 
-  assert(timeout / 1000 <= (long) o.scan_delay);
+  assert(o.scan_delay == 0 || (timeout / 1000 <= (long) o.scan_delay));
   timeout = MAX(timeout, 10000);
   now = get_now();
 
@@ -1341,9 +1244,7 @@ void TracerouteState::read_replies(long timeout) {
       continue;
     host = probe->host;
 
-    sslen = sizeof(ss);
-    host->target->TargetSockAddr(&ss, &sslen);
-    if (sockaddr_storage_equal(&ss, &reply.from_addr)) {
+    if (sockaddr_storage_equal(host->target->TargetSockAddr(), &reply.from_addr)) {
       adjust_timeouts2(&probe->sent_time, &reply.rcvdtime, &host->target->to);
       if (host->reached_target == 0 || probe->ttl < host->reached_target)
         host->reached_target = probe->ttl;
@@ -1417,7 +1318,6 @@ void TracerouteState::resolve_hops() {
   std::set<sockaddr_storage, lt_sockaddr_storage>::iterator addr_iter;
   std::vector<HostState *>::iterator host_iter;
   std::map<sockaddr_storage, const char *, lt_sockaddr_storage> name_map;
-  Target **targets;
   Hop *hop;
   int i, n;
 
@@ -1431,43 +1331,32 @@ void TracerouteState::resolve_hops() {
     }
   }
   n = addrs.size();
-  /* Second, make an array of pointer to Target to suit the interface of
-     nmap_mass_rdns. */
-  targets = (Target **) safe_malloc(sizeof(*targets) * n);
-  i = 0;
-  addr_iter = addrs.begin();
-  while (i < n) {
-    targets[i] = new Target();
-    targets[i]->setTargetSockAddr(&*addr_iter, sizeof(*addr_iter));
-    targets[i]->flags = HOST_UP;
-    i++;
-    addr_iter++;
+  /* Second, make an array of pointer to DNS::Request to suit the interface of
+     nmap_mass_dns. */
+  DNS::Request *requests = new DNS::Request[n];
+  for (i = 0, addr_iter = addrs.begin(); i < n; i++, addr_iter++) {
+    requests[i].ssv.push_back(*addr_iter);
+    requests[i].type = DNS::PTR;
   }
-  nmap_mass_rdns(targets, n);
+  nmap_mass_dns(requests, n);
   /* Third, make a map from addresses to names for easy lookup. */
   for (i = 0; i < n; i++) {
-    struct sockaddr_storage ss;
-    size_t ss_len;
-    const char *hostname = targets[i]->HostName();
-    if (*hostname == '\0')
-      hostname = NULL;
-    ss_len = sizeof(ss);
-    targets[i]->TargetSockAddr(&ss, &ss_len);
-    name_map[ss] = hostname;
+    std::string &hostname = requests[i].name;
+    if (!hostname.empty())
+      name_map[requests[i].ssv.front()] = hostname.c_str();
   }
   /* Finally, copy the names into the hops. */
   for (host_iter = hosts.begin(); host_iter != hosts.end(); host_iter++) {
     for (hop = (*host_iter)->hops; hop != NULL; hop = hop->parent) {
       if (hop->addr.ss_family != AF_UNSPEC) {
-        const char *hostname = name_map[hop->addr];
-        if (hostname != NULL)
-          hop->hostname = hostname;
+        std::map<sockaddr_storage, const char *, lt_sockaddr_storage>::const_iterator it;
+        it = name_map.find(hop->addr);
+        if (it != name_map.end())
+          hop->hostname = it->second;
       }
     }
   }
-  for (i = 0; i < n; i++)
-    delete targets[i];
-  free(targets);
+  delete [] requests;
 }
 
 void TracerouteState::transfer_hops() {
@@ -1507,16 +1396,12 @@ void TracerouteState::transfer_hops() {
 
 Probe *TracerouteState::lookup_probe(
   const struct sockaddr_storage *target_addr, u16 token) {
-  std::list<HostState *>::iterator host_iter;
+  std::list<HostState *>::const_iterator host_iter;
   std::list<Probe *>::iterator probe_iter;
 
   for (host_iter = active_hosts.begin(); host_iter != active_hosts.end(); host_iter++) {
-    struct sockaddr_storage ss;
-    size_t sslen;
 
-    sslen = sizeof(ss);
-    (*host_iter)->target->TargetSockAddr(&ss, &sslen);
-    if (!sockaddr_storage_equal(&ss, target_addr))
+    if (!sockaddr_storage_equal((*host_iter)->target->TargetSockAddr(), target_addr))
       continue;
     for (probe_iter = (*host_iter)->unanswered_probes.begin();
          probe_iter != (*host_iter)->unanswered_probes.end();
@@ -1529,14 +1414,18 @@ Probe *TracerouteState::lookup_probe(
   return NULL;
 }
 
-double TracerouteState::completion_fraction() const {
+unsigned int TracerouteState::completion(unsigned int *total) const {
   std::vector<HostState *>::const_iterator it;
-  double sum;
+  unsigned int complete = 0;
+  unsigned int sum = 0;
 
-  sum = 0.0;
   for (it = hosts.begin(); it != hosts.end(); it++)
-    sum += (*it)->completion_fraction();
-  return sum / hosts.size();
+  {
+    complete += (*it)->completion();
+    sum += (*it)->sent_ttls.size();
+  }
+  *total = sum;
+  return complete;
 }
 
 /* This is a special case of traceroute when all the targets are directly
@@ -1594,8 +1483,11 @@ static int traceroute_remote(std::vector<Target *> targets) {
     global_state.cull_timeouts();
     global_state.remove_finished_hosts();
 
-    if (keyWasPressed())
-      SPM.printStats(global_state.completion_fraction(), NULL);
+    if (keyWasPressed()) {
+      unsigned int complete, total;
+      complete = global_state.completion(&total);
+      SPM.printStats(complete, total, NULL);
+    }
   }
 
   SPM.endTask(NULL, NULL);
@@ -1633,8 +1525,10 @@ int traceroute(std::vector<Target *> &Targets) {
   for (target_iter = Targets.begin();
        target_iter != Targets.end();
        target_iter++) {
-    if ((*target_iter)->ifType() == devt_loopback)
-      ; /* Ignore */
+    Target *target = *target_iter;
+    if (target->ifType() == devt_loopback
+      || target->timedOut(NULL))
+      continue; /* Ignore */
     else if ((*target_iter)->directlyConnected())
       direct.push_back(*target_iter);
     else

@@ -1,7 +1,7 @@
 #ifndef LIBSSH2_USERAUTH_H
 #define LIBSSH2_USERAUTH_H
-/* Copyright (c) 2004-2007, Sara Golemon <sarag@libssh2.org>
- * Copyright (c) 2009-2010 by Daniel Stenberg
+/* Copyright (C) Sara Golemon <sarag@libssh2.org>
+ * Copyright (C) Daniel Stenberg
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms,
@@ -36,16 +36,18 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY
  * OF SUCH DAMAGE.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
  */
 
 int
 _libssh2_userauth_publickey(LIBSSH2_SESSION *session,
                             const char *username,
-                            unsigned int username_len,
+                            size_t username_len,
                             const unsigned char *pubkeydata,
-                            unsigned long pubkeydata_len,
+                            size_t pubkeydata_len,
                             LIBSSH2_USERAUTH_PUBLICKEY_SIGN_FUNC
-                            ((*sign_callback)),
+                                ((*sign_callback)),
                             void *abstract);
 
 #endif /* LIBSSH2_USERAUTH_H */

@@ -59,9 +59,7 @@ author = "Patrik Karlsson"
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"auth","intrusive"}
 
-
-hostrule = mssql.Helper.GetHostrule_Standard()
-portrule = mssql.Helper.GetPortrule_Standard()
+dependencies = {"broadcast-ms-sql-discover"}
 
 local function test_credentials( instance, helper, username, password )
   local database = "tempdb"
@@ -150,7 +148,6 @@ local function process_instance( instance )
   local instanceOutput
   if ( instance.ms_sql_empty ) then
     instanceOutput = {}
-    instanceOutput["name"] = string.format( "[%s]", instance:GetName() )
     for _, message in ipairs( instance.ms_sql_empty ) do
       table.insert( instanceOutput, message )
     end
@@ -163,21 +160,4 @@ local function process_instance( instance )
 
 end
 
-
-action = function( host, port )
-  local scriptOutput = {}
-  local status, instanceList = mssql.Helper.GetTargetInstances( host, port )
-
-  if ( not status ) then
-    return stdnse.format_output( false, instanceList )
-  else
-    for _, instance in pairs( instanceList ) do
-      local instanceOutput = process_instance( instance )
-      if instanceOutput then
-        table.insert( scriptOutput, instanceOutput )
-      end
-    end
-  end
-
-  return stdnse.format_output( true, scriptOutput )
-end
+action, portrule, hostrule = mssql.Helper.InitScript(process_instance)

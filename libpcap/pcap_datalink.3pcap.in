@@ -31,19 +31,19 @@ int pcap_datalink(pcap_t *p);
 .ft
 .fi
 .SH DESCRIPTION
-.B pcap_datalink()
+.BR pcap_datalink ()
 returns the link-layer header type for the live capture or ``savefile''
 specified by
 .IR p .
 .PP
 It must not be called on a pcap descriptor created by
-.B \%pcap_create(3PCAP)
+.BR \%pcap_create (3PCAP)
 that has not yet been activated by
-.BR \%pcap_activate(3PCAP) .
+.BR \%pcap_activate (3PCAP).
 .PP
 .I https://www.tcpdump.org/linktypes.html
 lists the values
-.B pcap_datalink()
+.BR pcap_datalink ()
 can return and describes the packet formats that
 correspond to those values.
 .PP
@@ -55,14 +55,17 @@ any given link-layer header type, such as
 for Ethernet.  For example, the "any" device on Linux will have a
 link-layer header type of
 .B DLT_LINUX_SLL
+or
+.B DLT_LINUX_SLL2
 even if all devices on the system at the time the "any" device is opened
 have some other data link type, such as
 .B DLT_EN10MB
 for Ethernet.
 .SH RETURN VALUE
-.B pcap_datalink()
+.BR pcap_datalink ()
 returns the link-layer header type on success and
 .B PCAP_ERROR_NOT_ACTIVATED
 if called on a capture handle that has been created but not activated.
 .SH SEE ALSO
-pcap(3PCAP), pcap-linktype(@MAN_MISC_INFO@)
+.BR pcap (3PCAP),
+.BR pcap-linktype (@MAN_MISC_INFO@)

@@ -1,128 +1,59 @@
 /***************************************************************************
  * ncat_ssl.c -- SSL support functions.                                    *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
- *                                                                         *
- * The Nmap Security Scanner is (C) 1996-2019 Insecure.Com LLC ("The Nmap  *
- * Project"). Nmap is also a registered trademark of the Nmap Project.     *
- * This program is free software; you may redistribute and/or modify it    *
- * under the terms of the GNU General Public License as published by the   *
- * Free Software Foundation; Version 2 ("GPL"), BUT ONLY WITH ALL OF THE   *
- * CLARIFICATIONS AND EXCEPTIONS DESCRIBED HEREIN.  This guarantees your   *
- * right to use, modify, and redistribute this software under certain      *
- * conditions.  If you wish to embed Nmap technology into proprietary      *
- * software, we sell alternative licenses (contact sales@nmap.com).        *
- * Dozens of software vendors already license Nmap technology such as      *
- * host discovery, port scanning, OS detection, version detection, and     *
- * the Nmap Scripting Engine.                                              *
- *                                                                         *
- * Note that the GPL places important restrictions on "derivative works",  *
- * yet it does not provide a detailed definition of that term.  To avoid   *
- * misunderstandings, we interpret that term as broadly as copyright law   *
- * allows.  For example, we consider an application to constitute a        *
- * derivative work for the purpose of this license if it does any of the   *
- * following with any software or content covered by this license          *
- * ("Covered Software"):                                                   *
- *                                                                         *
- * o Integrates source code from Covered Software.                         *
- *                                                                         *
- * o Reads or includes copyrighted data files, such as Nmap's nmap-os-db   *
- * or nmap-service-probes.                                                 *
- *                                                                         *
- * o Is designed specifically to execute Covered Software and parse the    *
- * results (as opposed to typical shell or execution-menu apps, which will *
- * execute anything you tell them to).                                     *
- *                                                                         *
- * o Includes Covered Software in a proprietary executable installer.  The *
- * installers produced by InstallShield are an example of this.  Including *
- * Nmap with other software in compressed or archival form does not        *
- * trigger this provision, provided appropriate open source decompression  *
- * or de-archiving software is widely available for no charge.  For the    *
- * purposes of this license, an installer is considered to include Covered *
- * Software even if it actually retrieves a copy of Covered Software from  *
- * another source during runtime (such as by downloading it from the       *
- * Internet).                                                              *
- *                                                                         *
- * o Links (statically or dynamically) to a library which does any of the  *
- * above.                                                                  *
- *                                                                         *
- * o Executes a helper program, module, or script to do any of the above.  *
- *                                                                         *
- * This list is not exclusive, but is meant to clarify our interpretation  *
- * of derived works with some common examples.  Other people may interpret *
- * the plain GPL differently, so we consider this a special exception to   *
- * the GPL that we apply to Covered Software.  Works which meet any of     *
- * these conditions must conform to all of the terms of this license,      *
- * particularly including the GPL Section 3 requirements of providing      *
- * source code and allowing free redistribution of the work as a whole.    *
- *                                                                         *
- * As another special exception to the GPL terms, the Nmap Project grants  *
- * permission to link the code of this program with any version of the     *
- * OpenSSL library which is distributed under a license identical to that  *
- * listed in the included docs/licenses/OpenSSL.txt file, and distribute   *
- * linked combinations including the two.                                  *
- *                                                                         *
- * The Nmap Project has permission to redistribute Npcap, a packet         *
- * capturing driver and library for the Microsoft Windows platform.        *
- * Npcap is a separate work with it's own license rather than this Nmap    *
- * license.  Since the Npcap license does not permit redistribution        *
- * without special permission, our Nmap Windows binary packages which      *
- * contain Npcap may not be redistributed without special permission.      *
- *                                                                         *
- * Any redistribution of Covered Software, including any derived works,    *
- * must obey and carry forward all of the terms of this license, including *
- * obeying all GPL rules and restrictions.  For example, source code of    *
- * the whole work must be provided and free redistribution must be         *
- * allowed.  All GPL references to "this License", are to be treated as    *
- * including the terms and conditions of this license text as well.        *
- *                                                                         *
- * Because this license imposes special exceptions to the GPL, Covered     *
- * Work may not be combined (even as part of a larger work) with plain GPL *
- * software.  The terms, conditions, and exceptions of this license must   *
- * be included as well.  This license is incompatible with some other open *
- * source licenses as well.  In some cases we can relicense portions of    *
- * Nmap or grant special permissions to use it in other open source        *
- * software.  Please contact fyodor@nmap.org with any such requests.       *
- * Similarly, we don't incorporate incompatible open source software into  *
- * Covered Software without special permission from the copyright holders. *
- *                                                                         *
- * If you have any questions about the licensing restrictions on using     *
- * Nmap in other works, we are happy to help.  As mentioned above, we also *
- * offer an alternative license to integrate Nmap into proprietary         *
- * applications and appliances.  These contracts have been sold to dozens  *
- * of software vendors, and generally include a perpetual license as well  *
- * as providing support and updates.  They also fund the continued         *
- * development of Nmap.  Please email sales@nmap.com for further           *
- * information.                                                            *
- *                                                                         *
- * If you have received a written license agreement or contract for        *
- * Covered Software stating terms other than these, you may choose to use  *
- * and redistribute Covered Software under those terms instead of these.   *
- *                                                                         *
- * Source is provided to this software because we believe users have a     *
- * right to know exactly what a program is going to do before they run it. *
- * This also allows you to audit the software for security holes.          *
- *                                                                         *
- * Source code also allows you to port Nmap to new platforms, fix bugs,    *
- * and add new features.  You are highly encouraged to send your changes   *
- * to the dev@nmap.org mailing list for possible incorporation into the    *
- * main distribution.  By sending these changes to Fyodor or one of the    *
- * Insecure.Org development mailing lists, or checking them into the Nmap  *
- * source code repository, it is understood (unless you specify            *
- * otherwise) that you are offering the Nmap Project the unlimited,        *
- * non-exclusive right to reuse, modify, and relicense the code.  Nmap     *
- * will always be available Open Source, but this is important because     *
- * the inability to relicense code has caused devastating problems for     *
- * other Free Software projects (such as KDE and NASM).  We also           *
- * occasionally relicense the code to third parties as discussed above.    *
- * If you wish to specify special license conditions of your               *
- * contributions, just say so when you send them.                          *
- *                                                                         *
- * This program is distributed in the hope that it will be useful, but     *
- * WITHOUT ANY WARRANTY; without even the implied warranty of              *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the Nmap      *
- * license file for more details (it's in a COPYING file included with     *
- * Nmap, and also available from https://svn.nmap.org/nmap/COPYING)        *
- *                                                                         *
+ *
+ * The Nmap Security Scanner is (C) 1996-2026 Nmap Software LLC ("The Nmap
+ * Project"). Nmap is also a registered trademark of the Nmap Project.
+ *
+ * This program is distributed under the terms of the Nmap Public Source
+ * License (NPSL). The exact license text applying to a particular Nmap
+ * release or source code control revision is contained in the LICENSE
+ * file distributed with that version of Nmap or source code control
+ * revision. More Nmap copyright/legal information is available from
+ * https://nmap.org/book/man-legal.html, and further information on the
+ * NPSL license itself can be found at https://nmap.org/npsl/ . This
+ * header summarizes some key points from the Nmap license, but is no
+ * substitute for the actual license text.
+ *
+ * Nmap is generally free for end users to download and use themselves,
+ * including commercial use. It is available from https://nmap.org.
+ *
+ * The Nmap license generally prohibits companies from using and
+ * redistributing Nmap in commercial products, but we sell a special Nmap
+ * OEM Edition with a more permissive license and special features for
+ * this purpose. See https://nmap.org/oem/
+ *
+ * If you have received a written Nmap license agreement or contract
+ * stating terms other than these (such as an Nmap OEM license), you may
+ * choose to use and redistribute Nmap under those terms instead.
+ *
+ * The official Nmap Windows builds include the Npcap software
+ * (https://npcap.com) for packet capture and transmission. It is under
+ * separate license terms which forbid redistribution without special
+ * permission. So the official Nmap Windows builds may not be redistributed
+ * without special permission (such as an Nmap OEM license).
+ *
+ * Source is provided to this software because we believe users have a
+ * right to know exactly what a program is going to do before they run it.
+ * This also allows you to audit the software for security holes.
+ *
+ * Source code also allows you to port Nmap to new platforms, fix bugs, and
+ * add new features. You are highly encouraged to submit your changes as a
+ * Github PR or by email to the dev@nmap.org mailing list for possible
+ * incorporation into the main distribution. Unless you specify otherwise, it
+ * is understood that you are offering us very broad rights to use your
+ * submissions as described in the Nmap Public Source License Contributor
+ * Agreement. This is important because we fund the project by selling licenses
+ * with various terms, and also because the inability to relicense code has
+ * caused devastating problems for other Free Software projects (such as KDE
+ * and NASM).
+ *
+ * The free version of Nmap is distributed in the hope that it will be
+ * useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. Warranties,
+ * indemnification and commercial support are all available through the
+ * Npcap OEM program--see https://nmap.org/oem/
+ *
  ***************************************************************************/
 
 /* $Id$ */
@@ -135,18 +66,33 @@
 
 #include <stdio.h>
 #include <openssl/ssl.h>
-#include <openssl/bn.h>
 #include <openssl/err.h>
 #include <openssl/rsa.h>
 #include <openssl/rand.h>
 #include <openssl/x509.h>
 #include <openssl/x509v3.h>
 
-#if (OPENSSL_VERSION_NUMBER >= 0x10100000L) && !defined LIBRESSL_VERSION_NUMBER
+#if (OPENSSL_VERSION_NUMBER >= 0x10100000L) && !defined LIBRESSL_VERSION_NUMBER || \
+    (defined LIBRESSL_VERSION_NUMBER && LIBRESSL_VERSION_NUMBER >= 0x3050000fL)
 #define HAVE_OPAQUE_STRUCTS 1
 #define FUNC_ASN1_STRING_data ASN1_STRING_get0_data
 #else
 #define FUNC_ASN1_STRING_data ASN1_STRING_data
+#define FUNC_ASN1_STRING_length(_s) ((_s)->length)
+#endif
+
+#if OPENSSL_VERSION_NUMBER >= 0x40000000L
+#define OPENSSL4_CONST const
+#else
+#define OPENSSL4_CONST
+#endif
+
+#if OPENSSL_VERSION_NUMBER >= 0x30000000L
+#include <openssl/provider.h>
+/* Deprecated in OpenSSL 3.0 */
+#define SSL_get_peer_certificate SSL_get1_peer_certificate
+#else
+#include <openssl/bn.h>
 #endif
 
 /* Required for windows compilation to Eliminate APPLINK errors.
@@ -166,10 +112,8 @@ enum {
 };
 #define CERTIFICATE_COMMENT "Automatically generated by Ncat. See https://nmap.org/ncat/."
 
-SSL_CTX *setup_ssl_listen(void)
+SSL_CTX *setup_ssl_listen(const SSL_METHOD *method)
 {
-    const SSL_METHOD *method;
-
     if (sslctx)
         goto done;
 
@@ -178,6 +122,17 @@ SSL_CTX *setup_ssl_listen(void)
     OpenSSL_add_all_algorithms();
     ERR_load_crypto_strings();
     SSL_load_error_strings();
+#elif OPENSSL_VERSION_NUMBER >= 0x30000000L
+  if (NULL == OSSL_PROVIDER_load(NULL, "legacy") && o.debug)
+  {
+    loguser("OpenSSL legacy provider failed to load: %s",
+        ERR_error_string(ERR_get_error(), NULL));
+  }
+  if (NULL == OSSL_PROVIDER_load(NULL, "default"))
+  {
+    loguser("OpenSSL default provider failed to load: %s",
+        ERR_error_string(ERR_get_error(), NULL));
+  }
 #endif
 
     /* RAND_status initializes the random number generator through a variety of
@@ -188,12 +143,15 @@ SSL_CTX *setup_ssl_listen(void)
     if (!RAND_status())
         bye("Failed to seed OpenSSL PRNG (RAND_status returned false).");
 
-    if (!(method = SSLv23_server_method()))
-        bye("SSLv23_server_method(): %s.", ERR_error_string(ERR_get_error(), NULL));
+    if (!method)
+        bye("Invalid SSL method: %s.", ERR_error_string(ERR_get_error(), NULL));
     if (!(sslctx = SSL_CTX_new(method)))
         bye("SSL_CTX_new(): %s.", ERR_error_string(ERR_get_error(), NULL));
 
     SSL_CTX_set_options(sslctx, SSL_OP_ALL | SSL_OP_NO_SSLv2);
+#ifdef SSL_CTX_set_dh_auto
+    SSL_CTX_set_dh_auto(sslctx, 1);
+#endif
 
     /* Secure ciphers list taken from Nsock. */
     if (o.sslciphers == NULL) {
@@ -255,27 +213,35 @@ SSL *new_ssl(int fd)
    may be a wildcard pattern. A wildcard pattern may contain only one '*', it
    must be the entire leftmost component, and there must be at least two
    components following it. len is the length of pattern; pattern may contain
-   null bytes so that len != strlen(pattern). */
-static int wildcard_match(const char *pattern, const char *hostname, size_t len)
+   null bytes so that len != strlen(pattern); pattern may also not be null terminated.
+   hostname *must* be null-terminated. */
+static int wildcard_match(const char *pattern, const char *hostname, int len)
 {
-    if (pattern[0] == '*' && pattern[1] == '.') {
+    const char *p = pattern;
+    const char *h = hostname;
+    int remaining = len;
+    if (len > 1 && pattern[0] == '*' && pattern[1] == '.') {
         /* A wildcard pattern. */
-        const char *p, *h, *dot;
+        const char *dot;
 
         /* Skip the wildcard component. */
-        p = pattern + 2;
+        p += 2;
+        remaining -= 2;
 
         /* Ensure there are no more wildcard characters. */
-        if (memchr(p, '*', len - 2) != NULL)
+        if (memchr(p, '*', remaining) != NULL)
             return 0;
 
         /* Ensure there's at least one more dot, not counting a dot at the
            end. */
-        dot = strchr(p, '.');
-        if (dot == NULL || *(dot + 1) == '\0') {
+        dot = (const char *) memchr(p, '.', remaining);
+        if (dot == NULL /* not found */
+          || dot - p == remaining /* dot in last position */
+          || *(dot + 1) == '\0') /* dot immediately before null terminator */
+          {
             if (o.debug > 1) {
-                logdebug("Wildcard name \"%s\" doesn't have at least two"
-                    " components after the wildcard; rejecting.\n", pattern);
+                logdebug("Wildcard name \"%.*s\" doesn't have at least two"
+                    " components after the wildcard; rejecting.\n", len, pattern);
             }
             return 0;
         }
@@ -286,14 +252,12 @@ static int wildcard_match(const char *pattern, const char *hostname, size_t len)
             return 0;
         h++;
 
-        /* Compare what remains of the pattern and hostname. */
-        return len == strlen(h) + (p - pattern) && strcmp(p, h) == 0;
-    } else {
-        /* Normal string comparison. Check the name length because I'm concerned
-           about someone somehow embedding a '\0' in the subject and matching
-           against a shorter name. */
-        return len == strlen(hostname) && strcmp(pattern, hostname) == 0;
     }
+    /* Compare what remains of the pattern and hostname. */
+    /* Normal string comparison. Check the name length because I'm concerned
+       about someone somehow embedding a '\0' in the subject and matching
+       against a shorter name. */
+    return remaining == strlen(h) && strncmp(p, h, remaining) == 0;
 }
 
 /* Match a hostname against the contents of a dNSName field of the
@@ -309,11 +273,12 @@ static int wildcard_match(const char *pattern, const char *hostname, size_t len)
 static int cert_match_dnsname(X509 *cert, const char *hostname,
     unsigned int *num_checked)
 {
-    X509_EXTENSION *ext;
+    OPENSSL4_CONST X509_EXTENSION *ext;
     STACK_OF(GENERAL_NAME) *gen_names;
     const X509V3_EXT_METHOD *method;
-    unsigned char *data;
+    const unsigned char *data;
     int i;
+    int ret = 0;
 
     if (num_checked != NULL)
         *num_checked = 0;
@@ -334,8 +299,8 @@ static int cert_match_dnsname(X509 *cert, const char *hostname,
 
     /* We must copy this address into a temporary variable because ASN1_item_d2i
        increments it. We don't want it to corrupt ext->value->data. */
-    ASN1_OCTET_STRING* asn1_str = X509_EXTENSION_get_data(ext);
-    data = asn1_str->data;
+    const ASN1_OCTET_STRING* asn1_str = X509_EXTENSION_get_data(ext);
+    data = FUNC_ASN1_STRING_data(asn1_str);
     /* Here we rely on the fact that the internal representation (the "i" in
        "i2d") for NID_subject_alt_name is STACK_OF(GENERAL_NAME). Converting it
        to a stack of CONF_VALUE with a i2v method is not satisfactory, because a
@@ -343,15 +308,15 @@ static int cert_match_dnsname(X509 *cert, const char *hostname,
        presence of null bytes. */
 #if (OPENSSL_VERSION_NUMBER > 0x00907000L)
     if (method->it != NULL) {
-        ASN1_OCTET_STRING* asn1_str_a = X509_EXTENSION_get_data(ext);
+        const ASN1_OCTET_STRING* asn1_str_a = X509_EXTENSION_get_data(ext);
         gen_names = (STACK_OF(GENERAL_NAME) *) ASN1_item_d2i(NULL,
             (const unsigned char **) &data,
-            asn1_str_a->length, ASN1_ITEM_ptr(method->it));
+            ASN1_STRING_length(asn1_str_a), ASN1_ITEM_ptr(method->it));
     } else {
-        ASN1_OCTET_STRING* asn1_str_b = X509_EXTENSION_get_data(ext);
+        const ASN1_OCTET_STRING* asn1_str_b = X509_EXTENSION_get_data(ext);
         gen_names = (STACK_OF(GENERAL_NAME) *) method->d2i(NULL,
             (const unsigned char **) &data,
-            asn1_str_b->length);
+            ASN1_STRING_length(asn1_str_b));
     }
 #else
     gen_names = (STACK_OF(GENERAL_NAME) *) method->d2i(NULL,
@@ -368,16 +333,21 @@ static int cert_match_dnsname(X509 *cert, const char *hostname,
 
         gen_name = sk_GENERAL_NAME_value(gen_names, i);
         if (gen_name->type == GEN_DNS) {
+            const char *dnsname = (const char *) FUNC_ASN1_STRING_data(gen_name->d.dNSName);
+            int dnslen = ASN1_STRING_length(gen_name->d.dNSName);
             if (o.debug > 1)
-                logdebug("Checking certificate DNS name \"%s\" against \"%s\".\n", FUNC_ASN1_STRING_data(gen_name->d.dNSName), hostname);
+                logdebug("Checking certificate DNS name \"%.*s\" against \"%s\".\n", dnslen, dnsname, hostname);
             if (num_checked != NULL)
                 (*num_checked)++;
-            if (wildcard_match((char *) FUNC_ASN1_STRING_data(gen_name->d.dNSName), hostname, ASN1_STRING_length(gen_name->d.dNSName)))
-                return 1;
+            if (wildcard_match(dnsname, hostname, dnslen)) {
+                ret = 1;
+                break;
+            }
         }
     }
 
-    return 0;
+    sk_GENERAL_NAME_pop_free(gen_names, GENERAL_NAME_free);
+    return ret;
 }
 
 /* Returns the number of contiguous blocks of bytes in pattern that do not
@@ -416,9 +386,9 @@ static int less_specific(const unsigned char *a, size_t a_len,
     return num_components(a, a_len) < num_components(b, b_len);
 }
 
-static int most_specific_commonname(X509_NAME *subject, const char **result)
+static int most_specific_commonname(const X509_NAME *subject, const char **result)
 {
-    ASN1_STRING *best, *cur;
+    const ASN1_STRING *best, *cur;
     int i;
 
     i = -1;
@@ -452,7 +422,7 @@ static int most_specific_commonname(X509_NAME *subject, const char **result)
    components, the one that comes later in the certificate is more specific. */
 static int cert_match_commonname(X509 *cert, const char *hostname)
 {
-    X509_NAME *subject;
+    const X509_NAME *subject;
     const char *commonname;
     int n;
 
@@ -515,42 +485,74 @@ int ssl_post_connect_check(SSL *ssl, const char *hostname)
    "Making Certificates"; and apps/req.c in the OpenSSL source. */
 static int ssl_gen_cert(X509 **cert, EVP_PKEY **key)
 {
-    RSA *rsa = NULL;
-    X509_NAME *subj;
+    X509_NAME *subj = NULL;
     X509_EXTENSION *ext;
     X509V3_CTX ctx;
-    BIGNUM *bne = NULL;
     const char *commonName = "localhost";
     char dNSName[128];
-    int rc, ret=0;
+    int rc;
+    unsigned long err = 0;
+#if OPENSSL_VERSION_NUMBER < 0x30000000L
+    int ret = 0;
+    RSA *rsa = NULL;
+    BIGNUM *bne = NULL;
 
     *cert = NULL;
     *key = NULL;
+    ERR_clear_error();
 
     /* Generate a private key. */
     *key = EVP_PKEY_new();
     if (*key == NULL)
         goto err;
     do {
+        rc = -1;
+        if (rsa != NULL) {
+            RSA_free(rsa);
+            rsa = NULL;
+        }
         /* Generate RSA key. */
         bne = BN_new();
+        if (bne == NULL)
+          break;
         ret = BN_set_word(bne, RSA_F4);
         if (ret != 1)
-            goto err;
+            break;
 
         rsa = RSA_new();
+        if (rsa == NULL)
+          break;
         ret = RSA_generate_key_ex(rsa, DEFAULT_KEY_BITS, bne, NULL);
         if (ret != 1)
-            goto err;
+            break;
 
+        BN_free(bne);
+        bne = NULL;
         rc = RSA_check_key(rsa);
     } while (rc == 0);
-    if (rc == -1)
-        bye("Error generating RSA key: %s", ERR_error_string(ERR_get_error(), NULL));
-    if (EVP_PKEY_assign_RSA(*key, rsa) == 0) {
-        RSA_free(rsa);
+
+    if (bne != NULL) {
+        BN_free(bne);
+        bne = NULL;
+    }
+    if (rc == -1 || rsa == NULL) {
+        if (rsa != NULL) {
+            RSA_free(rsa);
+            rsa = NULL;
+        }
         goto err;
     }
+    if (EVP_PKEY_assign_RSA(*key, rsa) == 0) {
+        RSA_free(rsa);
+        rsa = NULL;
+        goto err;
+    }
+#else
+    *cert = NULL;
+    *key = EVP_RSA_gen(DEFAULT_KEY_BITS);
+    if (*key == NULL)
+        goto err;
+#endif
 
     /* Generate a certificate. */
     *cert = X509_new();
@@ -561,13 +563,20 @@ static int ssl_gen_cert(X509 **cert, EVP_PKEY **key)
     ASN1_INTEGER_set(X509_get_serialNumber(*cert), get_random_u32() & 0x7FFFFFFF);
 
     /* Set the commonName. */
-    subj = X509_get_subject_name(*cert);
+    subj = X509_NAME_new();
+    if (subj == NULL)
+      goto err;
     if (o.target != NULL)
         commonName = o.target;
     if (X509_NAME_add_entry_by_txt(subj, "commonName", MBSTRING_ASC,
         (unsigned char *) commonName, -1, -1, 0) == 0) {
         goto err;
     }
+    if (X509_set_subject_name(*cert, subj) == 0) {
+        goto err;
+    }
+    X509_NAME_free(subj);
+    subj = NULL;
 
     /* Set the dNSName. */
     rc = Snprintf(dNSName, sizeof(dNSName), "DNS:%s", commonName);
@@ -598,7 +607,7 @@ static int ssl_gen_cert(X509 **cert, EVP_PKEY **key)
             || X509_gmtime_adj(tb, 0) == 0
             || X509_set1_notBefore(*cert, tb) == 0
             || (ta = ASN1_STRING_dup(X509_get0_notAfter(*cert))) == 0
-            || X509_gmtime_adj(ta, 60) == 0
+            || X509_gmtime_adj(ta, DEFAULT_CERT_DURATION) == 0
             || X509_set1_notAfter(*cert, ta) == 0
             || X509_set_pubkey(*cert, *key) == 0) {
             ASN1_STRING_free(tb);
@@ -618,16 +627,21 @@ static int ssl_gen_cert(X509 **cert, EVP_PKEY **key)
 #endif
 
     /* Sign it. */
-    if (X509_sign(*cert, *key, EVP_sha1()) == 0)
+    if (X509_sign(*cert, *key, EVP_sha256()) == 0)
         goto err;
 
     return 1;
 
 err:
+    if (subj != NULL)
+        X509_NAME_free(subj);
     if (*cert != NULL)
         X509_free(*cert);
     if (*key != NULL)
         EVP_PKEY_free(*key);
+
+    while (0 != (err = ERR_get_error()))
+        loguser("SSL error: %s", ERR_error_string(err, NULL));
 
     return 0;
 }
@@ -698,7 +712,7 @@ int ssl_handshake(struct fdinfo *sinfo)
 
     if (o.verbose) {
         loguser("Failed SSL connection from %s: %s\n",
-        inet_socktop(&sinfo->remoteaddr),
+        inet_socktop_safe(&sinfo->remoteaddr),
                      ERR_error_string(ERR_get_error(), NULL));
     }
     return NCAT_SSL_HANDSHAKE_FAILED;

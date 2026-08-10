@@ -8,6 +8,9 @@ author = {"Alessandro ZANNI <alessandro.zanni@bt.com>", "Daniel Miller"}
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"default","safe","discovery","version"}
 
+---@output
+--|_weblogic-t3-info: T3 protocol in use (WebLogic version: 12.1.2)
+
 portrule = function(host, port)
   if type(port.version) == "table" and port.version.name_confidence > 3 and port.version.product ~= nil then
     return string.find(port.version.product, "WebLogic", 1, true) and nmap.version_intensity() >= 7

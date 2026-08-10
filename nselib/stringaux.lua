@@ -41,14 +41,13 @@ end
 
 --- Split a string at a given delimiter, which may be a pattern.
 --
--- If you want to loop over the resulting values, consider using string.gmatch instead.
+-- If you want to loop over the resulting values, consider using <code>string.gmatch</code> instead.
 -- @usage
 -- stringaux.strsplit(",%s*", "Anna, Bob, Charlie, Dolores")
 -- --> { "Anna", "Bob", "Charlie", "Dolores" }
 -- @param pattern Pattern that separates the desired strings.
 -- @param text String to split.
 -- @return Array of substrings without the separating pattern.
--- @see string.gmatch
 function strsplit(pattern, text)
   local list, pos = {}, 1;
 
@@ -70,6 +69,9 @@ end
 -- This pattern must match the percent sign '%' since it is used in
 -- escaping.
 local FILESYSTEM_UNSAFE = "[^a-zA-Z0-9._-]"
+local function _escape_helper (c)
+  return format("%%%02x", byte(c))
+end
 ---
 -- Escape a string to remove bytes and strings that may have meaning to
 -- a filesystem, such as slashes.
@@ -97,9 +99,7 @@ function filename_escape(s)
   elseif s == ".." then
     return "%2e%2e"
   else
-    return (gsub(s, FILESYSTEM_UNSAFE, function (c)
-      return format("%%%02x", byte(c))
-    end))
+    return (gsub(s, FILESYSTEM_UNSAFE, _escape_helper))
   end
 end
 

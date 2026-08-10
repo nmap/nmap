@@ -60,10 +60,7 @@ license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"discovery", "safe"}
 
 
-dependencies = {"ms-sql-brute", "ms-sql-empty-password"}
-
-hostrule = mssql.Helper.GetHostrule_Standard()
-portrule = mssql.Helper.GetPortrule_Standard()
+dependencies = {"broadcast-ms-sql-discover", "ms-sql-brute", "ms-sql-empty-password"}
 
 ---
 local function process_instance( instance )
@@ -92,30 +89,18 @@ local function process_instance( instance )
     result = mssql.Util.FormatOutputTable( result, true )
     result["name"] = string.format( "Query: %s", query )
   end
-  local instanceOutput = {}
-  instanceOutput["name"] = string.format( "[%s]", instance:GetName() )
-  table.insert( instanceOutput, result )
 
-  return instanceOutput
+  return result
 end
 
+local do_action
+do_action, portrule, hostrule = mssql.Helper.InitScript(process_instance)
 
-action = function( host, port )
-  local scriptOutput = {}
-  local status, instanceList = mssql.Helper.GetTargetInstances( host, port )
+action = function(...)
+  local scriptOutput = do_action(...)
 
-  if ( not status ) then
-    return stdnse.format_output( false, instanceList )
-  else
-    for _, instance in pairs( instanceList ) do
-      local instanceOutput = process_instance( instance )
-      if instanceOutput then
-        table.insert( scriptOutput, instanceOutput )
-      end
-    end
-    if ( not( stdnse.get_script_args( {'ms-sql-query.query', 'mssql-query.query' } ) ) ) then
-      table.insert(scriptOutput, 1, "(Use --script-args=ms-sql-query.query='<QUERY>' to change query.)")
-    end
+  if ( not( stdnse.get_script_args( {'ms-sql-query.query', 'mssql-query.query' } ) ) ) then
+    table.insert(scriptOutput, 1, "(Use --script-args=ms-sql-query.query='<QUERY>' to change query.)")
   end
 
   return stdnse.format_output( true, scriptOutput )

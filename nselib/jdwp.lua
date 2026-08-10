@@ -549,9 +549,9 @@ end
 --@param id  Packet id.
 --@param classID Reference type id of the class.
 --@param methodID ID of the static method to call.
---@numberOfArguments Number of method arguments.
---@arguments Already packed arguments.
---@options Invocation options.
+--@param numberOfArguments Number of method arguments.
+--@param arguments Already packed arguments.
+--@param options Invocation options.
 --@return (status, data) If status is false data contains an error string, else it contains a reply data and needs to be parsed manually.
 function invokeStaticMethod(socket,id,classID,methodID,numberOfArguments,arguments,options)
   local params
@@ -582,8 +582,8 @@ end
 --@param classID Reference type id of the class.
 --@param threadID The thread in which to invoke the constructor.
 --@param methodID The constructor to invoke.
---@numberOfArguments Number of constructor arguments.
---@arguments Already packed arguments.
+--@param numberOfArguments Number of constructor arguments.
+--@param arguments Already packed arguments.
 --@return (status, objectID) If status is false data contains an error string, else it contains a reference ID of the newly created object.
 function newClassInstance(socket,id,classID,threadID,methodID,numberOfArguments,arguments)
   local params
@@ -668,7 +668,7 @@ end
 --@param classID The class type.
 --@param methodID ID of the method to invoke.
 --@param numberOfArguments Number of method arguments.
---@arguments Already packed arguments.
+--@param arguments Already packed arguments.
 --@return (status, data) If status is false data contains an error string, else it contains a reply data and needs to be parsed manually.
 function invokeObjectMethod(socket,id,objectID,threadID,classID,methodID,numberOfArguments,arguments)
   local params

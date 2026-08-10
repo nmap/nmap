@@ -1,14 +1,18 @@
 #include "blas.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 int dscal_(int *n, double *sa, double *sx, int *incx)
 {
   long int i, m, nincx, nn, iincx;
   double ssa;
 
-  /* scales a vector by a constant.   
-     uses unrolled loops for increment equal to 1.   
-     jack dongarra, linpack, 3/11/78.   
-     modified 3/93 to return if incx .le. 0.   
+  /* scales a vector by a constant.
+     uses unrolled loops for increment equal to 1.
+     jack dongarra, linpack, 3/11/78.
+     modified 3/93 to return if incx .le. 0.
      modified 12/3/93, array(1) declarations changed to array(*) */
 
   /* Dereference inputs */
@@ -42,3 +46,7 @@ int dscal_(int *n, double *sa, double *sx, int *incx)
 
   return 0;
 } /* dscal_ */
+
+#ifdef __cplusplus
+}
+#endif

@@ -5,7 +5,7 @@
  *
  * Copyright (c) 2001 Dug Song <dugsong@monkey.org>
  *
- * $Id: eth-dlpi.c 560 2005-02-10 16:48:36Z dugsong $
+ * $Id$
  */
 
 #include "config.h"

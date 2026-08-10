@@ -13,14 +13,14 @@
 extern "C" {
 #endif
 
-#ifdef HAVE_LUA5_3_LUA_H
-  #include <lua5.3/lua.h>
-  #include <lua5.3/lauxlib.h>
-  #include <lua5.3/lualib.h>
-#elif defined HAVE_LUA_5_3_LUA_H
-  #include <lua/5.3/lua.h>
-  #include <lua/5.3/lauxlib.h>
-  #include <lua/5.3/lualib.h>
+#ifdef HAVE_LUA5_4_LUA_H
+  #include <lua5.4/lua.h>
+  #include <lua5.4/lauxlib.h>
+  #include <lua5.4/lualib.h>
+#elif defined HAVE_LUA_5_4_LUA_H
+  #include <lua/5.4/lua.h>
+  #include <lua/5.4/lauxlib.h>
+  #include <lua/5.4/lualib.h>
 #elif defined HAVE_LUA_H || defined LUA_INCLUDED
   #include <lua.h>
   #include <lauxlib.h>

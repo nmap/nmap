@@ -43,7 +43,7 @@ end
 function login_user(socket, user, pw)
   socket:send("USER " .. user .. "\r\n")
   local status, line = socket:receive_lines(1)
-  if not stat(line) then return false, err.user_error end
+  if not stat(line) then return false, err.userError end
   socket:send("PASS " .. pw .. "\r\n")
 
   status, line = socket:receive_lines(1)
@@ -55,7 +55,7 @@ end
 
 
 ---
--- Try to login using the the <code>AUTH</code> command using SASL/Plain method.
+-- Try to login using the <code>AUTH</code> command using SASL/Plain method.
 -- @param socket Socket connected to POP3 server.
 -- @param user User string.
 -- @param pw Password string.

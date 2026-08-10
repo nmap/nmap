@@ -14,10 +14,10 @@ above), please navigate to https://github.com/the-tcpdump-group/libpcap/issues
 and check if the problem has already been reported. If it has not, please open
 a new issue and provide the following details:
 
-* libpcap version (e.g. from tcpdump --version)
+* libpcap version (e.g. from `tcpdump --version`)
 * operating system name and version and any other details that may be relevant
-  (uname -a, compiler name and version, CPU type etc.)
-* configure flags if any were used
+  (`uname -a`, compiler name and version, CPU type etc.)
+* `configure` or `cmake` flags if any were used
 * statement of the problem
 * steps to reproduce
 

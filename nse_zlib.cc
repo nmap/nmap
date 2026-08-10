@@ -93,7 +93,7 @@ static int lzstream_docompress(lua_State *L, lz_stream *s, int from, int to, int
 
 
 static lz_stream *lzstream_new(lua_State *L, int src) {
-    lz_stream *s = (lz_stream*)lua_newuserdata(L, sizeof(lz_stream));
+    lz_stream *s = (lz_stream*)lua_newuserdatauv(L, sizeof(lz_stream), 0);
 
     luaL_getmetatable(L, ZSTREAMMETA);
     lua_setmetatable(L, -2);        /* set metatable */
@@ -163,7 +163,7 @@ static lz_stream *lzstream_check(lua_State *L, int index, int state) {
 
 static int lzstream_tostring(lua_State *L) {
     lz_stream *s = (lz_stream*)luaL_checkudata(L, 1, ZSTREAMMETA);
-    if (s == NULL) luaL_argerror(L, 1, "bad zlib stream");
+    if (s == NULL) return luaL_argerror(L, 1, "bad zlib stream");
 
     if (s->state == LZ_NONE) {
         lua_pushstring(L, "zlib stream (closed)");
@@ -564,7 +564,10 @@ static int lzstream_decompress(lua_State *L) {
                 success = (l == 0) ? lz_test_eof(L, s) : lz_read_chars(L, s, l);
             }
             else {
-                const char *p = lua_tostring(L, n);
+                size_t l;
+                const char *p = lua_tolstring(L, n, &l);
+                if (l < 2)
+                    return luaL_argerror(L, n, "invalid format");
                 luaL_argcheck(L, p && p[0] == '*', n, "invalid option");
                 switch (p[1]) {
                     case 'l':  /* line */
@@ -814,6 +817,7 @@ static int lzlib_decompress(lua_State *L)
     size_t avail_in;
     const char *next_in = luaL_checklstring(L, 1, &avail_in);
     int windowBits = (int) luaL_optinteger(L, 2, 15);
+    int decompLimit = (int) luaL_optinteger(L, 3, 10*1024*1024);
 
     int ret;
     luaL_Buffer b;
@@ -839,15 +843,20 @@ static int lzlib_decompress(lua_State *L)
     zs.next_in = (unsigned char*)next_in;
     zs.avail_in = avail_in;
 
-    for (;;) {
-        zs.next_out = (unsigned char*)luaL_prepbuffer(&b);
-        zs.avail_out = LUAL_BUFFERSIZE;
+    while(decompLimit > 0) {
+        int bufsize = LUAL_BUFFERSIZE;
+        if (bufsize > decompLimit)
+            bufsize = decompLimit;
+        zs.next_out = (unsigned char*)luaL_prepbuffsize(&b, bufsize);
+        zs.avail_out = bufsize;
 
         /* bake some more */
         ret = inflate(&zs, Z_FINISH);
 
         /* push gathered data */
-        luaL_addsize(&b, LUAL_BUFFERSIZE - zs.avail_out);
+        unsigned int inflatesize = bufsize - zs.avail_out;
+        luaL_addsize(&b, inflatesize);
+        decompLimit -= inflatesize;
 
         /* done processing? */
         if (ret == Z_STREAM_END)

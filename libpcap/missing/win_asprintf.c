@@ -5,7 +5,7 @@
 #include "portability.h"
 
 int
-pcap_vasprintf(char **strp, const char *format, va_list args)
+pcapint_vasprintf(char **strp, const char *format, va_list args)
 {
 	int len;
 	size_t str_size;
@@ -23,7 +23,7 @@ pcap_vasprintf(char **strp, const char *format, va_list args)
 		*strp = NULL;
 		return (-1);
 	}
-	ret = pcap_vsnprintf(str, str_size, format, args);
+	ret = vsnprintf(str, str_size, format, args);
 	if (ret == -1) {
 		free(str);
 		*strp = NULL;
@@ -31,7 +31,7 @@ pcap_vasprintf(char **strp, const char *format, va_list args)
 	}
 	*strp = str;
 	/*
-	 * pcap_vsnprintf() shouldn't truncate the string, as we have
+	 * vsnprintf() shouldn't truncate the string, as we have
 	 * allocated a buffer large enough to hold the string, so its
 	 * return value should be the number of characters printed.
 	 */
@@ -39,13 +39,13 @@ pcap_vasprintf(char **strp, const char *format, va_list args)
 }
 
 int
-pcap_asprintf(char **strp, const char *format, ...)
+pcapint_asprintf(char **strp, const char *format, ...)
 {
 	va_list args;
 	int ret;
 
 	va_start(args, format);
-	ret = pcap_vasprintf(strp, format, args);
+	ret = pcapint_vasprintf(strp, format, args);
 	va_end(args);
 	return (ret);
 }

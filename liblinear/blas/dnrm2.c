@@ -1,18 +1,22 @@
 #include <math.h>  /* Needed for fabs() and sqrt() */
 #include "blas.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 double dnrm2_(int *n, double *x, int *incx)
 {
   long int ix, nn, iincx;
   double norm, scale, absxi, ssq, temp;
 
-/*  DNRM2 returns the euclidean norm of a vector via the function   
-    name, so that   
+/*  DNRM2 returns the euclidean norm of a vector via the function
+    name, so that
 
-       DNRM2 := sqrt( x'*x )   
+       DNRM2 := sqrt( x'*x )
 
-    -- This version written on 25-October-1982.   
-       Modified on 14-October-1993 to inline the call to SLASSQ.   
+    -- This version written on 25-October-1982.
+       Modified on 14-October-1993 to inline the call to SLASSQ.
        Sven Hammarling, Nag Ltd.   */
 
   /* Dereference inputs */
@@ -24,13 +28,13 @@ double dnrm2_(int *n, double *x, int *incx)
     if (nn == 1)
     {
       norm = fabs(x[0]);
-    }  
+    }
     else
     {
       scale = 0.0;
       ssq = 1.0;
 
-      /* The following loop is equivalent to this call to the LAPACK 
+      /* The following loop is equivalent to this call to the LAPACK
          auxiliary routine:   CALL SLASSQ( N, X, INCX, SCALE, SSQ ) */
 
       for (ix=(nn-1)*iincx; ix>=0; ix-=iincx)
@@ -60,3 +64,7 @@ double dnrm2_(int *n, double *x, int *incx)
   return norm;
 
 } /* dnrm2_ */
+
+#ifdef __cplusplus
+}
+#endif

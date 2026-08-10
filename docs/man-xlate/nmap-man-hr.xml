@@ -8,6 +8,8 @@
   <refmeta>
     <refentrytitle>nmap</refentrytitle>
     <manvolnum>1</manvolnum>
+    <refmiscinfo class="source">Nmap</refmiscinfo>
+    <refmiscinfo class="manual">Nmap vodič</refmiscinfo>
   </refmeta>
   <refnamediv id="man-name">
     <refname>nmap</refname>
@@ -2408,7 +2410,7 @@ samoobjašnjavajuće, ali poruke postaju sve čudnije što je nivo debugiranja v
     dostupnu na
     <ulink url="https://nmap.org/"></ulink>. Ukoliko je problem i dalje tu, istražite da li je već
     otkriven i prijavljen. Pokušajte "zaguglati" poruku o grešci ili otiđite na Nmap-dev arhive na
-    <ulink url="http://seclists.org/"></ulink>. Također pročitajte i kompletan manual. Ukoliko ništa od toga ne
+    <ulink url="https://seclists.org/"></ulink>. Također pročitajte i kompletan manual. Ukoliko ništa od toga ne
     pomogne, pošaljite izvještaj o grešci na <email>dev@nmap.org</email>. Molim Vas napišite sve što ste do
     tad otkrili o problemu, te koju verziju Nmap- imate i koju verziju OS-a imate. Izvještaji o prijavljenim
     problemima i upiti o korištenju Nmap-a koji su poslani na dev@nmap.org imaju više šansi da budu

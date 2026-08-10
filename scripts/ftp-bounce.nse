@@ -1,5 +1,4 @@
 local nmap = require "nmap"
-local shortport = require "shortport"
 local stdnse = require "stdnse"
 local string = require "string"
 local ftp = require "ftp"
@@ -29,7 +28,7 @@ license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 
 categories = {"default", "safe"}
 
-portrule = shortport.port_or_service({21, 990}, {"ftp", "ftps"})
+portrule = ftp.portrule
 
 local function get_portfmt()
   local arghost = stdnse.get_script_args(SCRIPT_NAME .. ".checkhost") or "scanme.nmap.org"

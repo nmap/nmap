@@ -38,10 +38,19 @@ categories = {"safe", "discovery"}
 local arg_target = stdnse.get_script_args(SCRIPT_NAME .. ".target")
 
 hostrule = function(host)
+  if nmap.address_family() ~= 'inet' then
+    stdnse.verbose1("Script is IPv4-only")
+    return false
+  end
   if ( not(host.mac_addr) ) then
     stdnse.debug1("Failed to determine hosts remote MAC address" )
+    return false
   end
-  return (arg_target ~= nil and host.mac_addr ~= nil)
+  if not arg_target then
+    stdnse.verbose1("Required argument %s.target not given", SCRIPT_NAME)
+    return false
+  end
+  return true
 end
 
 

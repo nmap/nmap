@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 # This is an Nmap command line parser. It has two main parts:
 #
@@ -539,7 +539,7 @@ class NmapOptions(object):
         return self.d.setdefault(self.canonicalize_name(key), default)
 
     def handle_result(self, result):
-        if isinstance(result, basestring):
+        if isinstance(result, str):
             # A positional argument.
             self.target_specs.append(result)
             return
@@ -640,7 +640,7 @@ class NmapOptions(object):
                 self["-d"] = int(arg)
             except ValueError:
                 if reduce(lambda x, y: x and y,
-                        map(lambda z: z == "d", arg), True):
+                        [z == "d" for z in arg], True):
                     self.setdefault("-d", 0)
                     self["-d"] += len(arg) + 1
                 else:
@@ -720,7 +720,7 @@ class NmapOptions(object):
                     self["-v"] = -1
             except ValueError:
                 if reduce(lambda x, y: x and y,
-                        map(lambda z: z == "v", arg), True):
+                        [z == "v" for z in arg], True):
                     self.setdefault("-v", 0)
                     self["-v"] += len(arg) + 1
                 else:
@@ -763,7 +763,7 @@ class NmapOptions(object):
             opt_list.append("-T%s" % str(self["-T"]))
 
         if self["-O"] is not None:
-            if isinstance(self["-O"], basestring):
+            if isinstance(self["-O"], str):
                 opt_list.append("-O%s" % self["-O"])
             elif self["-O"]:
                 opt_list.append("-O")
@@ -815,7 +815,7 @@ class NmapOptions(object):
             if self[ping_option] is not None:
                 opt_list.append(ping_option + self[ping_option])
         if self["-PB"] is not None:
-            if isinstance(self["-PB"], basestring):
+            if isinstance(self["-PB"], str):
                 opt_list.append("-PB" + self["-PB"])
             elif self["-PB"]:
                 opt_list.append("-PB")

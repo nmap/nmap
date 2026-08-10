@@ -52,20 +52,20 @@ function bignum_is_bit_set(bignum, position)
 --
 -- Performs Miller-Rabin probabilistic primality tests.
 -- @param bignum bignum to check for primality
--- @param nchecks Number of checks to perform. Default: number of checks dependent on bitsize of bignum, with a false positive rate of at most 2^-80
--- @return True if the number is probably prime, false if it is composite.
-function bignum_is_prime(bignum, nchecks)
+-- @return True if the number is probably prime with a false positive rate of at most 2^-80, false if it is composite.
+
+function bignum_is_prime(bignum)
 
 --- Checks whether <code>bignum</code> is a safe prime.
 --
 -- A safe prime is defined as a prime p so that (p-1)/2 is also prime. Using
 -- non-safe primes in discrete logarithm cryptography like Diffie-Hellman can
--- result in weak, easily broken key exchanges.
+-- result in weak, easily broken key exchanges. The number of checks is
+-- dependent on bitsize of bignum, with a false positive rate of at most 2^-80
 -- @param bignum bignum to check for primality
--- @param nchecks Number of checks to perform. Default: number of checks dependent on bitsize of bignum, with a false positive rate of at most 2^-80
 -- @return True if the number is a safe prime, false if it is not.
 -- @return True if the number is probably prime, false if it is composite.
-function bignum_is_safe_prime(bignum, nchecks)
+function bignum_is_safe_prime(bignum)
 
 --- Converts a binary-encoded string into a bignum.
 -- @param string Binary string.
@@ -103,8 +103,10 @@ function bignum_bn2hex(bignum)
 function bignum_rand(bits)
 
 --- Returns a pseudorandom bignum.
+--
+-- Alias for <code>bignum_rand()</code>.
 -- @param bits Size of the returned bignum in bits.
--- @return Pseudorandom bignum.
+-- @return Random bignum.
 function bignum_pseudo_rand(bits)
 
 --- Returns the bignum which is the result of <code>a</code>^<code>p</code> mod
@@ -208,12 +210,3 @@ function supported_digests()
 -- @param data A 7-byte string.
 -- @return An 8-byte string.
 function DES_string_to_key(data)
-
---- Returns options for RC4.
--- @return Option string.
-function rc4_options()
-
---- Function which generates an RC4 cipher function with the given key.
--- @param key_data The key for the cipher.
--- @return A function which performs the RC4 stream cipher on an input string and returns the result.
-function rc4(key_data)

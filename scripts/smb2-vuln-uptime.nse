@@ -107,32 +107,34 @@ This security update resolves a privately reported vulnerability in Microsoft
 }
 
 local function check_vulns(host, port)
-  local smbstate, status, overrides
+  local smbstate, status
   local vulns_detected = {}
 
-  overrides = {}
-  overrides['Dialects'] = {0x0202}
   status, smbstate = smb.start(host)
-  status = smb2.negotiate_v2(smbstate, overrides)
+  status = smb2.negotiate_v2(smbstate)
 
-  if status then
-    datetime.record_skew(host, smbstate.time, os.time())
-    stdnse.debug2("SMB2: Date: %s (%s) Start date:%s (%s)",
-                        smbstate['date'], smbstate['time'],
-            smbstate['start_date'], smbstate['start_time'])
-
-    for _, vuln in pairs(ms_vulns) do
-      if smbstate['start_time'] < vuln['disclosure_time'] then
-        stdnse.debug2("Vulnerability detected")
-        vuln.extra_info = string.format("The system hasn't been rebooted since %s", smbstate['start_date'])
-        table.insert(vulns_detected, vuln)
-      end
-    end
-
-  else
+  if not status then
     stdnse.debug2("Negotiation failed")
     return nil, "Protocol negotiation failed (SMB2)"
   end
+
+  datetime.record_skew(host, smbstate.time, os.time())
+  stdnse.debug2("SMB2: Date: %s (%s) Start date:%s (%s)",
+                      smbstate['date'], smbstate['time'],
+          smbstate['start_date'], smbstate['start_time'])
+  if smbstate['start_time'] == 0 then
+    stdnse.debug2("Boot time not provided")
+    return nil, "Boot time not provided"
+  end
+
+  for _, vuln in pairs(ms_vulns) do
+    if smbstate['start_time'] < vuln['disclosure_time'] then
+      stdnse.debug2("Vulnerability detected")
+      vuln.extra_info = string.format("The system hasn't been rebooted since %s", smbstate['start_date'])
+      table.insert(vulns_detected, vuln)
+    end
+  end
+
   return true, vulns_detected
 end
 

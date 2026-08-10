@@ -32,12 +32,12 @@ local _ENV = {}
 -- instead.
 --@param  t    The table whose data should be used
 --@return out  A table that can be passed to pairs() to get sorted results
-function sorted_by_key(t)
+function sorted_by_key(t, sortfunc)
   local out = {}
   setmetatable(out, {
     __pairs = function(_)
       local order = keys(t)
-      sort(order)
+      sort(order, sortfunc)
       return wrap(function()
         for i,k in ipairs(order) do
           yield(k, t[k])

@@ -106,7 +106,7 @@ function describe_cluster_name (socket,cnt)
   local status,resp = sendcmd(socket,cname,cnt)
 
   if (not(status)) then
-    stdnse.debug1("sendcmd"..resp)
+    stdnse.debug1("sendcmd: %s", resp)
     return false, "error in communication"
   end
 
@@ -127,7 +127,7 @@ function describe_version (socket,cnt)
   local status,resp = sendcmd(socket,cname,cnt)
 
   if (not(status)) then
-    stdnse.debug1("sendcmd"..resp)
+    stdnse.debug1("sendcmd: %s", resp)
     return false, "error in communication"
   end
 
@@ -151,20 +151,20 @@ function login (socket,username,password)
 
   local status, err = socket:send(string.pack(">I4", #loginstr))
   if ( not(status) ) then
-          stdnse.debug3("cannot send len "..combo)
+          stdnse.debug3("cannot send len %s", combo)
           return false, "Failed to connect to server"
   end
 
   status, err = socket:send(loginstr)
   if ( not(status) ) then
-          stdnse.debug3("Sent packet for "..combo)
+          stdnse.debug3("Sent packet for %s", combo)
           return false, err
   end
 
   local response
   status, response = socket:receive_bytes(22)
   if ( not(status) ) then
-          stdnse.debug3("Receive packet for "..combo)
+          stdnse.debug3("Receive packet for %s", combo)
           return false, err
   end
   local size = string.unpack(">I4", response)
@@ -175,7 +175,7 @@ function login (socket,username,password)
   end
 
   local magic = string.sub(response,18,22)
-  stdnse.debug3("packet for "..combo)
+  stdnse.debug3("packet for %s", combo)
   stdnse.debug3("packet hex: %s", stdnse.tohex(response) )
   stdnse.debug3("size packet hex: %s", stdnse.tohex(size) )
   stdnse.debug3("magic packet hex: %s", stdnse.tohex(magic) )

@@ -134,7 +134,7 @@ Decoders = {
     local response = {}
 
     -- extracts the messagid, so we can check if we already got a response
-    response.msgid = data:match("<[^:]*:MessageID>urn:uuid:([^<]*)</[^:]*:MessageID>")
+    response.msgid = data:match("<%w+:MessageID>[%w:]-%f[^>:]uuid:([^<]*)</%w+:MessageID>")
 
     -- if unable to parse msgid return nil
     if ( not(response.msgid) ) then

@@ -1,0 +1,54 @@
+[build-system]
+requires = ["setuptools", "setuptools-gettext"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "zenmap"
+license = {file = "LICENSE", content-type = "text/plain"}
+dynamic = ["version"]
+authors = [{name = "The Nmap Project"}]
+description = "Nmap frontend and results viewer"
+readme = {file = "README", content-type = "text/plain"}
+dependencies = [
+  "PyGObject",
+]
+requires-python = ">= 3.8"
+
+[project.urls]
+Homepage = "https://nmap.org/zenmap/"
+Documentation = "https://nmap.org/book/zenmap.html"
+Repository = "https://github.com/nmap/nmap.git"
+Issues = "https://github.com/nmap/nmap/issues"
+Changelog = "https://nmap.org/changelog"
+
+[project.gui-scripts]
+zenmap = "zenmapGUI.App:run"
+
+[project.scripts]
+ndiff = "ndiff:run_main"
+
+[tool.setuptools]
+py-modules = ["ndiff"]
+include-package-data = true
+
+[tool.setuptools.packages.find]
+include = ["zenmapCore*", "zenmapGUI*", "radialnet*"]
+
+[tool.setuptools.package-data]
+"*" = [
+  "*.gif",
+  "*.png",
+  "*.conf",
+  "*.usp",
+  "*.html",
+  "*.mo",
+  "*.xml",
+  "zenmap_version"
+]
+
+[tool.setuptools.dynamic]
+version = {attr = "zenmapCore.Version.VERSION"}
+
+[tool.setuptools-gettext]
+source_dir = "zenmapCore/data/locale"
+build_dir = "zenmapCore/data/locale"

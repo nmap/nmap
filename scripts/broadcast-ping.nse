@@ -156,7 +156,6 @@ local broadcast_if = function(if_table,icmp_responders)
 
   -- raw sniffing socket (icmp echoreply style)
   local pcap = nmap.new_socket()
-  pcap:set_timeout(timeout)
 
   local mtu = if_table.mtu or 256  -- 256 is minimal mtu
 
@@ -185,24 +184,32 @@ local broadcast_if = function(if_table,icmp_responders)
     try( dnet:ethernet_send(ethernet_icmp) )
   end
 
-  while true do
+  local start_time = nmap.clock_ms()
+  local now = start_time
+  while( now - start_time < timeout ) do
+    pcap:set_timeout(timeout - (now - start_time))
     local status, plen, l2, l3data, _ = pcap:pcap_receive()
     if not status then break end
 
     -- Do stuff with packet
     local icmpreply = packet.Packet:new(l3data,plen,false)
-    -- We check whether the packet is parsed ok, and whether the ICMP ID of the sent packet
-    -- is the same with the ICMP ID of the received packet. We don't want ping probes interfering
-    local icmp_id = icmpreply:raw(icmpreply.icmp_offset+4,2)
-    if icmpreply:ip_parse() and icmp_ids[icmp_id] then
-      if not icmp_responders[icmpreply.ip_src] then
-        -- [key = IP]=MAC
-        local mac_pretty = stdnse.format_mac(l2:sub(7,12))
-        icmp_responders[icmpreply.ip_src] = mac_pretty
+    if icmpreply then
+      -- We check whether the packet is parsed ok, and whether the ICMP ID of the sent packet
+      -- is the same with the ICMP ID of the received packet. We don't want ping probes interfering
+      local icmp_id = icmpreply:raw(icmpreply.icmp_offset+4,2)
+      if icmpreply:ip_parse() and icmp_ids[icmp_id] then
+        if not icmp_responders[icmpreply.ip_src] then
+          -- [key = IP]=MAC
+          local mac_pretty = stdnse.format_mac(l2:sub(7,12))
+          icmp_responders[icmpreply.ip_src] = mac_pretty
+        end
+      else
+        stdnse.debug1("Erroneous ICMP packet received; Cannot parse IP header.")
       end
     else
       stdnse.debug1("Erroneous ICMP packet received; Cannot parse IP header.")
     end
+    now = nmap.clock_ms()
   end
 
   pcap:close()
@@ -212,33 +219,17 @@ local broadcast_if = function(if_table,icmp_responders)
 end
 
 
+local filter_interfaces = function (if_table)
+  if if_table.up == "up" and if_table.link=="ethernet" and if_table.address and
+    if_table.address:match("%d+%.%d+%.%d+%.%d+") then
+    return if_table
+  end
+end
+
 action = function()
 
-  --get interface script-args, if any
-  local interface_arg = stdnse.get_script_args(SCRIPT_NAME .. ".interface")
-  local interface_opt = nmap.get_interface()
-
   -- interfaces list (decide which interfaces to broadcast on)
-  local interfaces ={}
-  if interface_opt or interface_arg then
-    -- single interface defined
-    local interface = interface_opt or interface_arg
-    local if_table = nmap.get_interface_info(interface)
-    if not (if_table and if_table.address and if_table.link=="ethernet") then
-      stdnse.debug1("Interface not supported or not properly configured.")
-      return false
-    end
-    table.insert(interfaces, if_table)
-  else
-    local tmp_ifaces = nmap.list_interfaces()
-    for _, if_table in ipairs(tmp_ifaces) do
-      if if_table.address and
-        if_table.link=="ethernet" and
-        if_table.address:match("%d+%.%d+%.%d+%.%d+") then
-        table.insert(interfaces, if_table)
-      end
-    end
-  end
+  local interfaces = stdnse.get_script_interfaces(filter_interfaces)
 
   if #interfaces == 0 then
     stdnse.debug1("No interfaces found.")

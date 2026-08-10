@@ -45,6 +45,13 @@ Some of the more useful fields:
 --         request. Keep in mind that you may not see the response if
 --         a non-native address is used. Setting it to <code>random</code> will
 --         possibly cause the DHCP server to reserve a new IP address each time.
+-- @args dhcp-discover.clientid Client identifier to use in DHCP option 61.
+--         The value is a string, while hardware type 0, appropriate for FQDNs,
+--         is assumed. Example: clientid=kurtz is equivalent to specifying
+--         clientid-hex=00:6b:75:72:74:7a (see below).
+-- @args dhcp-discover.clientid-hex Client identifier to use in DHCP option 61.
+--         The value is a hexadecimal string, where the first octet is
+--         the hardware type.
 -- @args dhcp-discover.requests Set to an integer to make up to that many
 --         requests (and display the results).
 --
@@ -74,6 +81,10 @@ Some of the more useful fields:
 -- </table>
 --
 
+--
+-- 2022-04-22 - Revised by nnposter
+--   o Implemented script arguments "clientid" and "clientid-hex" to allow
+--     passing a specific client identifier (option 61)
 --
 -- 2020-01-14 - Revised by nnposter
 --   o Added script argument  "mac" to prescribe a specific MAC address
@@ -123,6 +134,7 @@ action = function(host, port)
     return stdnse.format_output(false, "Couldn't determine local IP for interface: " .. host.interface)
   end
 
+  local options = {}
   local overrides = {}
 
   local macaddr = (stdnse.get_script_args(SCRIPT_NAME .. ".mac") or "native"):lower()
@@ -152,11 +164,31 @@ action = function(host, port)
     macaddr_iter = function () return macaddr end
   end
 
+  local clientid = stdnse.get_script_args(SCRIPT_NAME .. ".clientid")
+  if clientid then
+    clientid = "\x00" .. clientid  -- hardware type 0 presumed
+  else
+    clientid = stdnse.get_script_args(SCRIPT_NAME .. ".clientid-hex")
+    if clientid then
+      clientid = clientid:gsub(":", "")
+      if not clientid:find("^%x+$") then
+        return stdnse.format_output(false, "Invalid hexadecimal client ID")
+      end
+      clientid = stdnse.fromhex(clientid)
+    end
+  end
+  if clientid then
+    if #clientid == 0 or #clientid > 255 then
+      return stdnse.format_output(false, "Client ID must be between 1 and 255 characters long")
+    end
+    table.insert(options, {number = 61, type = "string", value = clientid })
+  end
+
   local results = {}
   for i = 1, reqcount do
     local macaddr = macaddr_iter()
     stdnse.debug1("Client MAC address: %s", stdnse.tohex(macaddr, {separator = ":"}))
-    local status, result = dhcp.make_request(host.ip, dhcptypeid, iface.address, macaddr, nil, nil, overrides)
+    local status, result = dhcp.make_request(host.ip, dhcptypeid, iface.address, macaddr, options, nil, overrides)
     if not status then
       return stdnse.format_output(false, "Couldn't send DHCP request: " .. result)
     end

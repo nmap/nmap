@@ -275,7 +275,8 @@ function loginRequest( socket, params, username, password, salt )
       response.sqlstate, pos = string.unpack( "c5", packet, pos )
     end
 
-    response.errormessage, pos = string.unpack( "z", packet, pos )
+    -- Error message is a RestOfPacketString
+    response.errormessage = string.sub(packet, pos)
 
     return false, response.errormessage
   else
@@ -384,7 +385,7 @@ function decodeQueryResponse( socket )
         -- Is this the EOF packet?
         if b == EOF_MARKER then
           -- we don't want the EOF Packet included
-          block_end = pos - HEADER_SIZE
+          block_end = pos - HEADER_SIZE - 1
           pos = pos + header.len
           break
         end

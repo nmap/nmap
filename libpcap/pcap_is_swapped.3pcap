@@ -31,21 +31,21 @@ int pcap_is_swapped(pcap_t *p);
 .ft
 .fi
 .SH DESCRIPTION
-.B pcap_is_swapped()
-returns true (1) if
+.BR pcap_is_swapped ()
+returns true (\fB1\fP) if
 .I p
 refers to a ``savefile'' that uses a different byte order
 than the current system.  For a live capture, it always returns false
-(0).
+(\fB0\fP).
 .PP
 It must not be called on a pcap descriptor created by
-.B \%pcap_create(3PCAP)
+.BR \%pcap_create (3PCAP)
 that has not yet been activated by
-.BR \%pcap_activate(3PCAP) .
+.BR \%pcap_activate (3PCAP).
 .SH RETURN VALUE
-.B pcap_is_swapped()
-returns true (1) or false (0) on success and
+.BR pcap_is_swapped ()
+returns true (\fB1\fP) or false (\fB0\fP) on success and
 .B PCAP_ERROR_NOT_ACTIVATED
 if called on a capture handle that has been created but not activated.
 .SH SEE ALSO
-pcap(3PCAP)
+.BR pcap (3PCAP)

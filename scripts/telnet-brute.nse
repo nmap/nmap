@@ -34,7 +34,7 @@ author = "nnposter"
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {'brute', 'intrusive'}
 
-portrule = shortport.port_or_service(23, 'telnet')
+portrule = shortport.port_or_service({23, 992}, {'telnet', 'telnets'})
 
 
 -- Miscellaneous script-wide parameters and constants
@@ -68,6 +68,7 @@ local is_username_prompt = function (str)
   local lcstr = str:lower()
   return lcstr:find("%f[%w]username%s*:%s*$")
       or lcstr:find("%f[%w]login%s*:%s*$")
+      or lcstr:find("%f[%w]login as%s*:%s*$")
 end
 
 

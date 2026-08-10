@@ -45,6 +45,8 @@ local Oops = {
       -- Show just the top error
       return banner .. ": " .. self[1]
     end
+    -- By default, no string output shown.
+    return ""
   end,
 }
 

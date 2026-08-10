@@ -5,7 +5,7 @@
  *
  * Copyright (c) 2000 Dug Song <dugsong@monkey.org>
  *
- * $Id: addr.h 404 2003-02-27 03:44:55Z dugsong $
+ * $Id$
  */
 
 #ifndef DNET_ADDR_H
@@ -28,6 +28,7 @@ struct addr {
 		uint16_t	__data16[8];
 		uint32_t	__data32[4];
 	} __addr_u;
+	uint32_t scope_id;
 };
 #define addr_eth	__addr_u.__eth
 #define addr_ip		__addr_u.__ip

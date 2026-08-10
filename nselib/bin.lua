@@ -78,6 +78,10 @@ local function clamp (args, i, j, mask)
     end
 end
 
+local function _fromhex (s)
+  return char(tonumber(s, 16))
+end
+
 --- Returns a binary packed string.
 --
 -- The format string describes how the parameters (<code>p1</code>,
@@ -107,7 +111,7 @@ function _ENV.pack (format, ...)
             assert(n > 0, "n cannot be 0") -- original bin library allowed this, it doesn't make sense
             local new = "=" -- !! in original bin library, hex strings are always native
             for j = i, i+n-1 do
-                args[j] = tostring(args[j]):gsub("%s*(%S%S?)%s*", function (s) return char(tonumber(s, 16)) end)
+                args[j] = tostring(args[j]):gsub("%s*(%S%S?)%s*", _fromhex)
                 new = new .. ("c%d"):format(#args[j])
             end
             new = new .. endianness -- restore old endianness
@@ -208,15 +212,24 @@ do
     assert(_ENV.pack("<C2SIL", 0x123, 0xfff1, 0x1ffff, 0x112345678, 0x1234567812345678) == "\x23\xf1\xff\xff\x78\x56\x34\x12\x78\x56\x34\x12\x78\x56\x34\x12")
 end
 
+local function _fmt_hex (c)
+  return ("%02X"):format(c:byte())
+end
+
+local function _fmt_bin (c)
+  local n = tobinary(c:byte())
+  return ("0"):rep(8-#n)..n
+end
+
 local function unpacker (fixer, status, ...)
     if not status then return 1 end
     -- Lua's unpack gives the stop index last:
     local list = pack(...)
     for i, v in ipairs(fixer) do
         if v.what == "H" then
-            list[v.which] = list[v.which]:gsub(".", function (c) return ("%02X"):format(c:byte()) end)
+            list[v.which] = list[v.which]:gsub(".", _fmt_hex)
         elseif v.what == "B" then
-            list[v.which] = list[v.which]:gsub(".", function (c) local n = tobinary(c:byte()); return ("0"):rep(8-#n)..n end)
+            list[v.which] = list[v.which]:gsub(".", _fmt_bin)
         else
             assert(false)
         end

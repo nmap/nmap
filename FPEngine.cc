@@ -5,128 +5,59 @@
  * https://nmap.org/osdetect/                                               *
  *                                                                         *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
- *                                                                         *
- * The Nmap Security Scanner is (C) 1996-2019 Insecure.Com LLC ("The Nmap  *
- * Project"). Nmap is also a registered trademark of the Nmap Project.     *
- * This program is free software; you may redistribute and/or modify it    *
- * under the terms of the GNU General Public License as published by the   *
- * Free Software Foundation; Version 2 ("GPL"), BUT ONLY WITH ALL OF THE   *
- * CLARIFICATIONS AND EXCEPTIONS DESCRIBED HEREIN.  This guarantees your   *
- * right to use, modify, and redistribute this software under certain      *
- * conditions.  If you wish to embed Nmap technology into proprietary      *
- * software, we sell alternative licenses (contact sales@nmap.com).        *
- * Dozens of software vendors already license Nmap technology such as      *
- * host discovery, port scanning, OS detection, version detection, and     *
- * the Nmap Scripting Engine.                                              *
- *                                                                         *
- * Note that the GPL places important restrictions on "derivative works",  *
- * yet it does not provide a detailed definition of that term.  To avoid   *
- * misunderstandings, we interpret that term as broadly as copyright law   *
- * allows.  For example, we consider an application to constitute a        *
- * derivative work for the purpose of this license if it does any of the   *
- * following with any software or content covered by this license          *
- * ("Covered Software"):                                                   *
- *                                                                         *
- * o Integrates source code from Covered Software.                         *
- *                                                                         *
- * o Reads or includes copyrighted data files, such as Nmap's nmap-os-db   *
- * or nmap-service-probes.                                                 *
- *                                                                         *
- * o Is designed specifically to execute Covered Software and parse the    *
- * results (as opposed to typical shell or execution-menu apps, which will *
- * execute anything you tell them to).                                     *
- *                                                                         *
- * o Includes Covered Software in a proprietary executable installer.  The *
- * installers produced by InstallShield are an example of this.  Including *
- * Nmap with other software in compressed or archival form does not        *
- * trigger this provision, provided appropriate open source decompression  *
- * or de-archiving software is widely available for no charge.  For the    *
- * purposes of this license, an installer is considered to include Covered *
- * Software even if it actually retrieves a copy of Covered Software from  *
- * another source during runtime (such as by downloading it from the       *
- * Internet).                                                              *
- *                                                                         *
- * o Links (statically or dynamically) to a library which does any of the  *
- * above.                                                                  *
- *                                                                         *
- * o Executes a helper program, module, or script to do any of the above.  *
- *                                                                         *
- * This list is not exclusive, but is meant to clarify our interpretation  *
- * of derived works with some common examples.  Other people may interpret *
- * the plain GPL differently, so we consider this a special exception to   *
- * the GPL that we apply to Covered Software.  Works which meet any of     *
- * these conditions must conform to all of the terms of this license,      *
- * particularly including the GPL Section 3 requirements of providing      *
- * source code and allowing free redistribution of the work as a whole.    *
- *                                                                         *
- * As another special exception to the GPL terms, the Nmap Project grants  *
- * permission to link the code of this program with any version of the     *
- * OpenSSL library which is distributed under a license identical to that  *
- * listed in the included docs/licenses/OpenSSL.txt file, and distribute   *
- * linked combinations including the two.                                  *
- *                                                                         *
- * The Nmap Project has permission to redistribute Npcap, a packet         *
- * capturing driver and library for the Microsoft Windows platform.        *
- * Npcap is a separate work with it's own license rather than this Nmap    *
- * license.  Since the Npcap license does not permit redistribution        *
- * without special permission, our Nmap Windows binary packages which      *
- * contain Npcap may not be redistributed without special permission.      *
- *                                                                         *
- * Any redistribution of Covered Software, including any derived works,    *
- * must obey and carry forward all of the terms of this license, including *
- * obeying all GPL rules and restrictions.  For example, source code of    *
- * the whole work must be provided and free redistribution must be         *
- * allowed.  All GPL references to "this License", are to be treated as    *
- * including the terms and conditions of this license text as well.        *
- *                                                                         *
- * Because this license imposes special exceptions to the GPL, Covered     *
- * Work may not be combined (even as part of a larger work) with plain GPL *
- * software.  The terms, conditions, and exceptions of this license must   *
- * be included as well.  This license is incompatible with some other open *
- * source licenses as well.  In some cases we can relicense portions of    *
- * Nmap or grant special permissions to use it in other open source        *
- * software.  Please contact fyodor@nmap.org with any such requests.       *
- * Similarly, we don't incorporate incompatible open source software into  *
- * Covered Software without special permission from the copyright holders. *
- *                                                                         *
- * If you have any questions about the licensing restrictions on using     *
- * Nmap in other works, we are happy to help.  As mentioned above, we also *
- * offer an alternative license to integrate Nmap into proprietary         *
- * applications and appliances.  These contracts have been sold to dozens  *
- * of software vendors, and generally include a perpetual license as well  *
- * as providing support and updates.  They also fund the continued         *
- * development of Nmap.  Please email sales@nmap.com for further           *
- * information.                                                            *
- *                                                                         *
- * If you have received a written license agreement or contract for        *
- * Covered Software stating terms other than these, you may choose to use  *
- * and redistribute Covered Software under those terms instead of these.   *
- *                                                                         *
- * Source is provided to this software because we believe users have a     *
- * right to know exactly what a program is going to do before they run it. *
- * This also allows you to audit the software for security holes.          *
- *                                                                         *
- * Source code also allows you to port Nmap to new platforms, fix bugs,    *
- * and add new features.  You are highly encouraged to send your changes   *
- * to the dev@nmap.org mailing list for possible incorporation into the    *
- * main distribution.  By sending these changes to Fyodor or one of the    *
- * Insecure.Org development mailing lists, or checking them into the Nmap  *
- * source code repository, it is understood (unless you specify            *
- * otherwise) that you are offering the Nmap Project the unlimited,        *
- * non-exclusive right to reuse, modify, and relicense the code.  Nmap     *
- * will always be available Open Source, but this is important because     *
- * the inability to relicense code has caused devastating problems for     *
- * other Free Software projects (such as KDE and NASM).  We also           *
- * occasionally relicense the code to third parties as discussed above.    *
- * If you wish to specify special license conditions of your               *
- * contributions, just say so when you send them.                          *
- *                                                                         *
- * This program is distributed in the hope that it will be useful, but     *
- * WITHOUT ANY WARRANTY; without even the implied warranty of              *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the Nmap      *
- * license file for more details (it's in a COPYING file included with     *
- * Nmap, and also available from https://svn.nmap.org/nmap/COPYING)        *
- *                                                                         *
+ *
+ * The Nmap Security Scanner is (C) 1996-2026 Nmap Software LLC ("The Nmap
+ * Project"). Nmap is also a registered trademark of the Nmap Project.
+ *
+ * This program is distributed under the terms of the Nmap Public Source
+ * License (NPSL). The exact license text applying to a particular Nmap
+ * release or source code control revision is contained in the LICENSE
+ * file distributed with that version of Nmap or source code control
+ * revision. More Nmap copyright/legal information is available from
+ * https://nmap.org/book/man-legal.html, and further information on the
+ * NPSL license itself can be found at https://nmap.org/npsl/ . This
+ * header summarizes some key points from the Nmap license, but is no
+ * substitute for the actual license text.
+ *
+ * Nmap is generally free for end users to download and use themselves,
+ * including commercial use. It is available from https://nmap.org.
+ *
+ * The Nmap license generally prohibits companies from using and
+ * redistributing Nmap in commercial products, but we sell a special Nmap
+ * OEM Edition with a more permissive license and special features for
+ * this purpose. See https://nmap.org/oem/
+ *
+ * If you have received a written Nmap license agreement or contract
+ * stating terms other than these (such as an Nmap OEM license), you may
+ * choose to use and redistribute Nmap under those terms instead.
+ *
+ * The official Nmap Windows builds include the Npcap software
+ * (https://npcap.com) for packet capture and transmission. It is under
+ * separate license terms which forbid redistribution without special
+ * permission. So the official Nmap Windows builds may not be redistributed
+ * without special permission (such as an Nmap OEM license).
+ *
+ * Source is provided to this software because we believe users have a
+ * right to know exactly what a program is going to do before they run it.
+ * This also allows you to audit the software for security holes.
+ *
+ * Source code also allows you to port Nmap to new platforms, fix bugs, and
+ * add new features. You are highly encouraged to submit your changes as a
+ * Github PR or by email to the dev@nmap.org mailing list for possible
+ * incorporation into the main distribution. Unless you specify otherwise, it
+ * is understood that you are offering us very broad rights to use your
+ * submissions as described in the Nmap Public Source License Contributor
+ * Agreement. This is important because we fund the project by selling licenses
+ * with various terms, and also because the inability to relicense code has
+ * caused devastating problems for other Free Software projects (such as KDE
+ * and NASM).
+ *
+ * The free version of Nmap is distributed in the hope that it will be
+ * useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. Warranties,
+ * indemnification and commercial support are all available through the
+ * Npcap OEM program--see https://nmap.org/oem/
+ *
  ***************************************************************************/
 
 /* $Id$ */
@@ -145,8 +76,6 @@ extern NmapOps o;
 #ifdef WIN32
 /* Need DnetName2PcapName */
 #include "libnetutil/netutil.h"
-/* from libdnet's intf-win32.c */
-extern "C" int g_has_npcap_loopback;
 #endif
 
 #include <math.h>
@@ -210,7 +139,8 @@ void FPNetworkControl::init(const char *ifname, devtype iftype) {
   nmap_set_nsock_logger();
   nmap_adjust_loglevel(o.packetTrace());
 
-  nsock_pool_set_device(nsp, o.device);
+  if (*o.device)
+    nsock_pool_set_device(nsp, o.device);
 
   if (o.proxy_chain)
     nsock_pool_set_proxychain(this->nsp, o.proxy_chain);
@@ -225,27 +155,14 @@ void FPNetworkControl::init(const char *ifname, devtype iftype) {
   /* Flag it as already initialized so we free this nsp next time */
   this->nsock_init = true;
 
+  /* We don't need to store the eth handle because FPProbes come with a
+   * suitable one (FPProbes::getEthernet()), we just attempt to obtain one
+   * to see if it fails. */
+  netutil_eth_t *ethsd = NULL;
+
   /* Obtain raw socket or check that we can obtain an eth descriptor. */
-  if ((o.sendpref & PACKET_SEND_ETH) && (iftype == devt_ethernet
-#ifdef WIN32
-        || (g_has_npcap_loopback && iftype == devt_loopback)
-#endif
-        ) && ifname != NULL) {
-    /* We don't need to store the eth handler because FPProbes come with a
-     * suitable one (FPProbes::getEthernet()), we just attempt to obtain one
-     * to see if it fails. */
-    if (eth_open_cached(ifname) == NULL)
-      fatal("dnet: failed to open device %s", ifname);
-    this->rawsd = -1;
-  } else {
-#ifdef WIN32
-    win32_fatal_raw_sockets(ifname);
-#endif
-    if (this->rawsd >= 0)
-      close(this->rawsd);
-    rawsd = nmap_raw_socket();
-    if (rawsd < 0)
-      pfatal("Couldn't obtain raw socket in %s", __func__);
+  if (!raw_socket_or_eth(o.sendpref, ifname, iftype, &this->rawsd, &ethsd, AF_INET6)) {
+    fatal("Couldn't obtain raw socket or eth handle in %s", __func__);
   }
 
   /* De-register existing callers */
@@ -868,7 +785,7 @@ static double vectorize_isr(std::map<std::string, FPPacket>& resps) {
     const char *probe_name;
     const FPPacket *fp;
     const TCPHeader *tcp;
-    std::map<std::string, FPPacket>::iterator it;
+    std::map<std::string, FPPacket>::const_iterator it;
 
     probe_name = SEQ_PROBE_NAMES[i];
     it = resps.find(probe_name);
@@ -916,6 +833,33 @@ static int vectorize_icmpv6_code(const PacketElement *pe) {
   return icmpv6->getCode();
 }
 
+struct tcpopt_vectorize_ctx {
+  feature_node *features;
+  const unsigned int base;
+  unsigned int optnum;
+  int mss;
+  int sackok;
+  int wscale;
+  tcpopt_vectorize_ctx(feature_node *f, unsigned int i)
+    : features(f), base(i), optnum(0), mss(-1), sackok(-1), wscale(-1) {}
+};
+
+static const u8 MODEL_NUM_OPTS = 16;
+static bool tcpopt_vectorize(u8 op, u8 oplen, const u8 *data, void *ctx) {
+  tcpopt_vectorize_ctx *c = static_cast<tcpopt_vectorize_ctx *>(ctx);
+  c->features[c->base + c->optnum].value = op;
+  c->features[c->base + c->optnum + MODEL_NUM_OPTS].value = oplen;
+  if (op == TCPOPT_MSS && oplen == 4 && c->mss == -1)
+    c->mss = (data[2] << 8) + data[3];
+  else if (op == TCPOPT_SACKOK && oplen == 2 && c->sackok == -1)
+    c->sackok = 1;
+  else if (op == TCPOPT_WSCALE && oplen == 3 && c->wscale == -1)
+    c->wscale = data[2];
+  if (c->optnum++ < MODEL_NUM_OPTS)
+    return true;
+  return false;
+}
+
 static struct feature_node *vectorize(const FingerPrintResultsIPv6 *FPR) {
   const char * const IPV6_PROBE_NAMES[] = {"S1", "S2", "S3", "S4", "S5", "S6", "IE1", "IE2", "NS", "U1", "TECN", "T2", "T3", "T4", "T5", "T6", "T7"};
   const char * const TCP_PROBE_NAMES[] = {"S1", "S2", "S3", "S4", "S5", "S6", "TECN", "T2", "T3", "T4", "T5", "T6", "T7"};
@@ -960,16 +904,8 @@ static struct feature_node *vectorize(const FingerPrintResultsIPv6 *FPR) {
     const TCPHeader *tcp;
     u16 flags;
     u16 mask;
-    unsigned int j;
-    int mss;
-    int sackok;
-    int wscale;
 
     probe_name = TCP_PROBE_NAMES[i];
-
-    mss = -1;
-    sackok = -1;
-    wscale = -1;
 
     tcp = find_tcp(resps[probe_name].getPacket());
     if (tcp == NULL) {
@@ -982,40 +918,17 @@ static struct feature_node *vectorize(const FingerPrintResultsIPv6 *FPR) {
     for (mask = 0x001; mask <= 0x800; mask <<= 1)
       features[idx++].value = (flags & mask) != 0;
 
-    for (j = 0; j < 16; j++) {
-      nping_tcp_opt_t opt;
-      opt = tcp->getOption(j);
-      if (opt.value == NULL)
-        break;
-      features[idx++].value = opt.type;
-      /* opt.len includes the two (type, len) bytes. */
-      if (opt.type == TCPOPT_MSS && opt.len == 4 && mss == -1)
-        mss = ntohs(*(u16 *) opt.value);
-      else if (opt.type == TCPOPT_SACKOK && opt.len == 2 && sackok == -1)
-        sackok = 1;
-      else if (opt.type == TCPOPT_WSCALE && opt.len == 3 && wscale == -1)
-        wscale = *(u8 *) opt.value;
+    TCPOptions opts;
+    tcpopt_vectorize_ctx ctx(features, idx);
+    if (opts.fromTCPHeader(*tcp)) {
+      opts.foreachOpt(tcpopt_vectorize, &ctx);
     }
-    for (; j < 16; j++)
-      idx++;
+    idx += MODEL_NUM_OPTS * 2;
 
-    for (j = 0; j < 16; j++) {
-      nping_tcp_opt_t opt;
-      opt = tcp->getOption(j);
-      if (opt.value == NULL)
-        break;
-      features[idx++].value = opt.len;
-    }
-    for (; j < 16; j++)
-      idx++;
-
-    features[idx++].value = mss;
-    features[idx++].value = sackok;
-    features[idx++].value = wscale;
-    if (mss != 0 && mss != -1)
-      features[idx++].value = (float)tcp->getWindow() / mss;
-    else
-      features[idx++].value = -1;
+    features[idx++].value = ctx.mss;
+    features[idx++].value = ctx.sackok;
+    features[idx++].value = ctx.wscale;
+    features[idx++].value = (ctx.mss > 0) ? (float)tcp->getWindow() / ctx.mss : -1;
   }
   /* ICMPv6 features */
   for (i = 0; i < NELEMS(ICMPV6_PROBE_NAMES); i++) {
@@ -1241,6 +1154,10 @@ int FPEngine6::os_scan(std::vector<Target *> &Targets) {
         (int) curr_hosts.size(), (int) left_hosts.size(), (int) done_hosts.size());
     }
 
+#ifdef WIN32
+    // Reset system idle timer to avoid going to sleep
+    SetThreadExecutionState(ES_SYSTEM_REQUIRED);
+#endif
     /* Go through the list of hosts and ask them to schedule their probes */
     for (unsigned int i = 0; i < curr_hosts.size(); i++) {
 
@@ -1758,9 +1675,7 @@ int FPHost6::build_probe_list() {
       "\x03\x03\x0f\x01\x02\x04\x01\x09\x08\x0A\xff\xff\xff\xff\x00\x00\x00\x00\x04\x02", 20 },
   };
 
-  sockaddr_storage ss;
-  size_t slen = 0;
-  sockaddr_in6 *ss6 = (sockaddr_in6 *)&ss;
+  const sockaddr_in6 *ss6 = NULL;
   IPv6Header *ip6;
   ICMPv6Header *icmp6;
   UDPHeader *udp;
@@ -1793,7 +1708,9 @@ int FPHost6::build_probe_list() {
     this->fp_probes[this->total_probes].host = this;
     this->fp_probes[this->total_probes].setPacket(ip6);
     this->fp_probes[this->total_probes].setProbeID(TCP_DESCS[i].id);
-    this->fp_probes[this->total_probes].setEthernet(this->target_host->SrcMACAddress(), this->target_host->NextHopMACAddress(), this->target_host->deviceName());
+    if (this->netctl->l2_frames()) {
+      this->fp_probes[this->total_probes].setEthernet(this->target_host);
+    }
     /* Mark as a timed probe. */
     this->fp_probes[this->total_probes].setTimed();
     this->timed_probes++;
@@ -1812,9 +1729,9 @@ int FPHost6::build_probe_list() {
   icmp6 = new ICMPv6Header();
   hopbyhop1 = new HopByHopHeader();
   payload = new RawData();
-  this->target_host->SourceSockAddr(&ss, &slen);
+  ss6 = (const sockaddr_in6 *) this->target_host->SourceSockAddr();
   ip6->setSourceAddress(ss6->sin6_addr);
-  this->target_host->TargetSockAddr(&ss, &slen);
+  ss6 = (const sockaddr_in6 *) this->target_host->TargetSockAddr();
   ip6->setDestinationAddress(ss6->sin6_addr);
   ip6->setFlowLabel(OSDETECT_FLOW_LABEL);
   ip6->setHopLimit(get_hoplimit());
@@ -1834,7 +1751,9 @@ int FPHost6::build_probe_list() {
   this->fp_probes[this->total_probes].host = this;
   this->fp_probes[this->total_probes].setPacket(ip6);
   this->fp_probes[this->total_probes].setProbeID("IE1");
-  this->fp_probes[this->total_probes].setEthernet(this->target_host->SrcMACAddress(), this->target_host->NextHopMACAddress(), this->target_host->deviceName());
+  if (this->netctl->l2_frames()) {
+    this->fp_probes[this->total_probes].setEthernet(this->target_host);
+  }
   this->total_probes++;
 
   /* ICMP Probe #2: Echo Request with badly ordered extension headers */
@@ -1844,10 +1763,9 @@ int FPHost6::build_probe_list() {
   routing = new RoutingHeader();
   hopbyhop2 = new HopByHopHeader();
   icmp6 = new ICMPv6Header();
-  payload = new RawData();
-  this->target_host->SourceSockAddr(&ss, &slen);
+  ss6 = (const sockaddr_in6 *) this->target_host->SourceSockAddr();
   ip6->setSourceAddress(ss6->sin6_addr);
-  this->target_host->TargetSockAddr(&ss, &slen);
+  ss6 = (const sockaddr_in6 *) this->target_host->TargetSockAddr();
   ip6->setDestinationAddress(ss6->sin6_addr);
   ip6->setFlowLabel(OSDETECT_FLOW_LABEL);
   ip6->setHopLimit(get_hoplimit());
@@ -1871,20 +1789,22 @@ int FPHost6::build_probe_list() {
   this->fp_probes[this->total_probes].host = this;
   this->fp_probes[this->total_probes].setPacket(ip6);
   this->fp_probes[this->total_probes].setProbeID("IE2");
-  this->fp_probes[this->total_probes].setEthernet(this->target_host->SrcMACAddress(), this->target_host->NextHopMACAddress(), this->target_host->deviceName());
+  if (this->netctl->l2_frames()) {
+    this->fp_probes[this->total_probes].setEthernet(this->target_host);
+  }
   this->total_probes++;
 
   /* ICMP Probe #3: Neighbor Solicitation. (only sent to on-link targets) */
   if (this->target_host->directlyConnected()
 #ifdef WIN32
-    && !(g_has_npcap_loopback && this->target_host->ifType() == devt_loopback)
+    && this->target_host->ifType() != devt_loopback
 #endif
     ) {
     ip6 = new IPv6Header();
     icmp6 = new ICMPv6Header();
-    this->target_host->SourceSockAddr(&ss, &slen);
+    ss6 = (const sockaddr_in6 *) this->target_host->SourceSockAddr();
     ip6->setSourceAddress(ss6->sin6_addr);
-    this->target_host->TargetSockAddr(&ss, &slen);
+    ss6 = (const sockaddr_in6 *) this->target_host->TargetSockAddr();
     ip6->setDestinationAddress(ss6->sin6_addr);
     ip6->setFlowLabel(OSDETECT_FLOW_LABEL);
     /* RFC 2461 section 7.1.1: "A node MUST silently discard any received
@@ -1901,7 +1821,9 @@ int FPHost6::build_probe_list() {
     this->fp_probes[this->total_probes].host = this;
     this->fp_probes[this->total_probes].setPacket(ip6);
     this->fp_probes[this->total_probes].setProbeID("NS");
-    this->fp_probes[this->total_probes].setEthernet(this->target_host->SrcMACAddress(), this->target_host->NextHopMACAddress(), this->target_host->deviceName());
+    if (this->netctl->l2_frames()) {
+      this->fp_probes[this->total_probes].setEthernet(this->target_host);
+    }
     this->total_probes++;
   }
 
@@ -1912,9 +1834,9 @@ int FPHost6::build_probe_list() {
   ip6 = new IPv6Header();
   udp = new UDPHeader();
   payload = new RawData();
-  this->target_host->SourceSockAddr(&ss, &slen);
+  ss6 = (const sockaddr_in6 *) this->target_host->SourceSockAddr();
   ip6->setSourceAddress(ss6->sin6_addr);
-  this->target_host->TargetSockAddr(&ss, &slen);
+  ss6 = (const sockaddr_in6 *) this->target_host->TargetSockAddr();
   ip6->setDestinationAddress(ss6->sin6_addr);
   ip6->setFlowLabel(OSDETECT_FLOW_LABEL);
   ip6->setHopLimit(get_hoplimit());
@@ -1930,7 +1852,9 @@ int FPHost6::build_probe_list() {
   this->fp_probes[this->total_probes].host = this;
   this->fp_probes[this->total_probes].setPacket(ip6);
   this->fp_probes[this->total_probes].setProbeID("U1");
-  this->fp_probes[this->total_probes].setEthernet(this->target_host->SrcMACAddress(), this->target_host->NextHopMACAddress(), this->target_host->deviceName());
+  if (this->netctl->l2_frames()) {
+    this->fp_probes[this->total_probes].setEthernet(this->target_host);
+  }
   this->total_probes++;
 
   /* Set TECN probe */
@@ -1947,7 +1871,9 @@ int FPHost6::build_probe_list() {
     this->fp_probes[this->total_probes].host = this;
     this->fp_probes[this->total_probes].setPacket(ip6);
     this->fp_probes[this->total_probes].setProbeID(TCP_DESCS[i].id);
-    this->fp_probes[this->total_probes].setEthernet(this->target_host->SrcMACAddress(), this->target_host->NextHopMACAddress(), this->target_host->deviceName());
+    if (this->netctl->l2_frames()) {
+      this->fp_probes[this->total_probes].setEthernet(this->target_host);
+    }
     this->total_probes++;
   }
   i++;
@@ -1972,7 +1898,9 @@ int FPHost6::build_probe_list() {
     this->fp_probes[this->total_probes].host = this;
     this->fp_probes[this->total_probes].setPacket(ip6);
     this->fp_probes[this->total_probes].setProbeID(TCP_DESCS[i].id);
-    this->fp_probes[this->total_probes].setEthernet(this->target_host->SrcMACAddress(), this->target_host->NextHopMACAddress(), this->target_host->deviceName());
+    if (this->netctl->l2_frames()) {
+      this->fp_probes[this->total_probes].setEthernet(this->target_host);
+    }
     this->total_probes++;
   }
 
@@ -2108,7 +2036,8 @@ int FPHost6::schedule() {
       }
 
       /* Check if the probe timedout */
-      if (TIMEVAL_SUBTRACT(now, this->fp_probes[i].getTimeSent()) >= this->rto) {
+      struct timeval sent = this->fp_probes[i].getTimeSent();
+      if (TIMEVAL_SUBTRACT(now, sent) >= this->rto) {
 
         /* If we have reached the maximum number of retransmissions, mark the
          * probe as failed. Otherwise, schedule its transmission. */
@@ -2166,10 +2095,11 @@ int FPHost6::schedule() {
         continue;
       }
 
+      struct timeval sent = this->fp_probes[i].getTimeSent();
       /* If there is some timed probe for which we have already scheduled its
        * retransmission but it hasn't been sent yet, break the loop. We don't
        * have to worry about retransmitting these probes yet.*/
-      if (this->fp_probes[i].getTimeSent().tv_sec == 0)
+      if (sent.tv_sec == 0)
         return OP_SUCCESS;
 
       /* If we got a total timeout for any of the timed probes, we shouldn't
@@ -2185,7 +2115,7 @@ int FPHost6::schedule() {
        * time out (max retransmissions done and still no answer) then mark
        * it as such. Otherwise, count it so we can retransmit the whole
        * group of timed probes later if appropriate. */
-      if (TIMEVAL_SUBTRACT(now, this->fp_probes[i].getTimeSent()) >= this->rto) {
+      if (TIMEVAL_SUBTRACT(now, sent) >= this->rto) {
         if (o.debugging > 3) {
           log_write(LOG_PLAIN, "[%s] timed probe %d (%s) timedout\n",
             this->target_host->targetipstr(), i, this->fp_probes[i].getProbeID());
@@ -2385,11 +2315,13 @@ int FPHost6::callback(const u8 *pkt, size_t pkt_len, const struct timeval *tv) {
 
       /* See if the received packet is a response to a probe */
       if (this->fp_probes[i].isResponse(rcvd)) {
-          struct timeval now, time_sent;
+          struct timeval time_sent = this->fp_probes[i].getTimeSent();
+          assert(time_sent.tv_sec > 0);
+          struct timeval now;
 
           gettimeofday(&now, NULL);
           this->fp_responses[i] = new FPResponse(this->fp_probes[i].getProbeID(),
-            pkt, pkt_len, fp_probes[i].getTimeSent(), *tv);
+            pkt, pkt_len, time_sent, *tv);
           this->fp_probes[i].incrementReplies();
           match_found = true;
 
@@ -2408,8 +2340,6 @@ int FPHost6::callback(const u8 *pkt, size_t pkt_len, const struct timeval *tv) {
           }
           this->probes_answered++;
           /* Recompute the Retransmission Timeout based on this new RTT observation. */
-          time_sent = this->fp_probes[i].getTimeSent();
-          assert(time_sent.tv_sec > 0);
           this->update_RTO(TIMEVAL_SUBTRACT(now, time_sent), this->fp_probes[i].getRetransmissions() != 0);
           break;
       }
@@ -2557,22 +2487,13 @@ size_t FPPacket::getLength() const {
  * values, like this: instance.setEthernet(NULL, NULL, NULL);
  * Otherwise, pass the source address, the next hop address and the name of
  * the network interface the packet should be injected through. */
-int FPPacket::setEthernet(const u8 *src_mac, const u8 *dst_mac, const char *devname) {
-  if (src_mac == NULL || dst_mac == NULL) {
+int FPPacket::setEthernet(const Target *target) {
+  eth_nfo *eth = target->FillEthNfo(&this->eth_hdr, NULL);
+  this->link_eth = (eth != NULL);
+
+  if (!this->link_eth) {
    memset(&(this->eth_hdr), 0, sizeof(struct eth_nfo));
-   this->link_eth = false;
    return OP_FAILURE;
-  }
-  memcpy(this->eth_hdr.srcmac, src_mac, 6);
-  memcpy(this->eth_hdr.dstmac, dst_mac, 6);
-  this->link_eth = true;
-  if (devname != NULL) {
-    strncpy(this->eth_hdr.devname, devname, sizeof(this->eth_hdr.devname)-1);
-    if ((this->eth_hdr.ethsd = eth_open_cached(devname)) == NULL)
-      fatal("%s: Failed to open ethernet device (%s)", __func__, devname);
-  } else {
-    this->eth_hdr.devname[0] = '\0';
-    this->eth_hdr.ethsd = NULL;
   }
   return OP_SUCCESS;
 }
@@ -2627,8 +2548,6 @@ FPProbe::FPProbe() {
 
 
 FPProbe::~FPProbe() {
-  if (this->probe_id != NULL)
-    free(this->probe_id);
 }
 
 
@@ -2638,8 +2557,6 @@ void FPProbe::reset() {
   this->times_replied = 0;
   this->failed = false;
   this->timed = false;
-  if (this->probe_id != NULL)
-    free(this->probe_id);
   this->probe_id = NULL;
 
   /* Also call FPPacket::__reset() to free any existing packet information */
@@ -2669,7 +2586,7 @@ bool FPProbe::isResponse(PacketElement *rcvd) {
  * of the supplied string, so you can safely change its contents without
  * affecting the object's state. */
 int FPProbe::setProbeID(const char *id) {
-  this->probe_id = strdup(id);
+  this->probe_id = string_pool_insert(id);
   return OP_SUCCESS;
 }
 

@@ -4,128 +4,59 @@
  * on user-provided command-line settings.                                 *
  *                                                                         *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
- *                                                                         *
- * The Nmap Security Scanner is (C) 1996-2019 Insecure.Com LLC ("The Nmap  *
- * Project"). Nmap is also a registered trademark of the Nmap Project.     *
- * This program is free software; you may redistribute and/or modify it    *
- * under the terms of the GNU General Public License as published by the   *
- * Free Software Foundation; Version 2 ("GPL"), BUT ONLY WITH ALL OF THE   *
- * CLARIFICATIONS AND EXCEPTIONS DESCRIBED HEREIN.  This guarantees your   *
- * right to use, modify, and redistribute this software under certain      *
- * conditions.  If you wish to embed Nmap technology into proprietary      *
- * software, we sell alternative licenses (contact sales@nmap.com).        *
- * Dozens of software vendors already license Nmap technology such as      *
- * host discovery, port scanning, OS detection, version detection, and     *
- * the Nmap Scripting Engine.                                              *
- *                                                                         *
- * Note that the GPL places important restrictions on "derivative works",  *
- * yet it does not provide a detailed definition of that term.  To avoid   *
- * misunderstandings, we interpret that term as broadly as copyright law   *
- * allows.  For example, we consider an application to constitute a        *
- * derivative work for the purpose of this license if it does any of the   *
- * following with any software or content covered by this license          *
- * ("Covered Software"):                                                   *
- *                                                                         *
- * o Integrates source code from Covered Software.                         *
- *                                                                         *
- * o Reads or includes copyrighted data files, such as Nmap's nmap-os-db   *
- * or nmap-service-probes.                                                 *
- *                                                                         *
- * o Is designed specifically to execute Covered Software and parse the    *
- * results (as opposed to typical shell or execution-menu apps, which will *
- * execute anything you tell them to).                                     *
- *                                                                         *
- * o Includes Covered Software in a proprietary executable installer.  The *
- * installers produced by InstallShield are an example of this.  Including *
- * Nmap with other software in compressed or archival form does not        *
- * trigger this provision, provided appropriate open source decompression  *
- * or de-archiving software is widely available for no charge.  For the    *
- * purposes of this license, an installer is considered to include Covered *
- * Software even if it actually retrieves a copy of Covered Software from  *
- * another source during runtime (such as by downloading it from the       *
- * Internet).                                                              *
- *                                                                         *
- * o Links (statically or dynamically) to a library which does any of the  *
- * above.                                                                  *
- *                                                                         *
- * o Executes a helper program, module, or script to do any of the above.  *
- *                                                                         *
- * This list is not exclusive, but is meant to clarify our interpretation  *
- * of derived works with some common examples.  Other people may interpret *
- * the plain GPL differently, so we consider this a special exception to   *
- * the GPL that we apply to Covered Software.  Works which meet any of     *
- * these conditions must conform to all of the terms of this license,      *
- * particularly including the GPL Section 3 requirements of providing      *
- * source code and allowing free redistribution of the work as a whole.    *
- *                                                                         *
- * As another special exception to the GPL terms, the Nmap Project grants  *
- * permission to link the code of this program with any version of the     *
- * OpenSSL library which is distributed under a license identical to that  *
- * listed in the included docs/licenses/OpenSSL.txt file, and distribute   *
- * linked combinations including the two.                                  *
- *                                                                         *
- * The Nmap Project has permission to redistribute Npcap, a packet         *
- * capturing driver and library for the Microsoft Windows platform.        *
- * Npcap is a separate work with it's own license rather than this Nmap    *
- * license.  Since the Npcap license does not permit redistribution        *
- * without special permission, our Nmap Windows binary packages which      *
- * contain Npcap may not be redistributed without special permission.      *
- *                                                                         *
- * Any redistribution of Covered Software, including any derived works,    *
- * must obey and carry forward all of the terms of this license, including *
- * obeying all GPL rules and restrictions.  For example, source code of    *
- * the whole work must be provided and free redistribution must be         *
- * allowed.  All GPL references to "this License", are to be treated as    *
- * including the terms and conditions of this license text as well.        *
- *                                                                         *
- * Because this license imposes special exceptions to the GPL, Covered     *
- * Work may not be combined (even as part of a larger work) with plain GPL *
- * software.  The terms, conditions, and exceptions of this license must   *
- * be included as well.  This license is incompatible with some other open *
- * source licenses as well.  In some cases we can relicense portions of    *
- * Nmap or grant special permissions to use it in other open source        *
- * software.  Please contact fyodor@nmap.org with any such requests.       *
- * Similarly, we don't incorporate incompatible open source software into  *
- * Covered Software without special permission from the copyright holders. *
- *                                                                         *
- * If you have any questions about the licensing restrictions on using     *
- * Nmap in other works, we are happy to help.  As mentioned above, we also *
- * offer an alternative license to integrate Nmap into proprietary         *
- * applications and appliances.  These contracts have been sold to dozens  *
- * of software vendors, and generally include a perpetual license as well  *
- * as providing support and updates.  They also fund the continued         *
- * development of Nmap.  Please email sales@nmap.com for further           *
- * information.                                                            *
- *                                                                         *
- * If you have received a written license agreement or contract for        *
- * Covered Software stating terms other than these, you may choose to use  *
- * and redistribute Covered Software under those terms instead of these.   *
- *                                                                         *
- * Source is provided to this software because we believe users have a     *
- * right to know exactly what a program is going to do before they run it. *
- * This also allows you to audit the software for security holes.          *
- *                                                                         *
- * Source code also allows you to port Nmap to new platforms, fix bugs,    *
- * and add new features.  You are highly encouraged to send your changes   *
- * to the dev@nmap.org mailing list for possible incorporation into the    *
- * main distribution.  By sending these changes to Fyodor or one of the    *
- * Insecure.Org development mailing lists, or checking them into the Nmap  *
- * source code repository, it is understood (unless you specify            *
- * otherwise) that you are offering the Nmap Project the unlimited,        *
- * non-exclusive right to reuse, modify, and relicense the code.  Nmap     *
- * will always be available Open Source, but this is important because     *
- * the inability to relicense code has caused devastating problems for     *
- * other Free Software projects (such as KDE and NASM).  We also           *
- * occasionally relicense the code to third parties as discussed above.    *
- * If you wish to specify special license conditions of your               *
- * contributions, just say so when you send them.                          *
- *                                                                         *
- * This program is distributed in the hope that it will be useful, but     *
- * WITHOUT ANY WARRANTY; without even the implied warranty of              *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the Nmap      *
- * license file for more details (it's in a COPYING file included with     *
- * Nmap, and also available from https://svn.nmap.org/nmap/COPYING)        *
- *                                                                         *
+ *
+ * The Nmap Security Scanner is (C) 1996-2026 Nmap Software LLC ("The Nmap
+ * Project"). Nmap is also a registered trademark of the Nmap Project.
+ *
+ * This program is distributed under the terms of the Nmap Public Source
+ * License (NPSL). The exact license text applying to a particular Nmap
+ * release or source code control revision is contained in the LICENSE
+ * file distributed with that version of Nmap or source code control
+ * revision. More Nmap copyright/legal information is available from
+ * https://nmap.org/book/man-legal.html, and further information on the
+ * NPSL license itself can be found at https://nmap.org/npsl/ . This
+ * header summarizes some key points from the Nmap license, but is no
+ * substitute for the actual license text.
+ *
+ * Nmap is generally free for end users to download and use themselves,
+ * including commercial use. It is available from https://nmap.org.
+ *
+ * The Nmap license generally prohibits companies from using and
+ * redistributing Nmap in commercial products, but we sell a special Nmap
+ * OEM Edition with a more permissive license and special features for
+ * this purpose. See https://nmap.org/oem/
+ *
+ * If you have received a written Nmap license agreement or contract
+ * stating terms other than these (such as an Nmap OEM license), you may
+ * choose to use and redistribute Nmap under those terms instead.
+ *
+ * The official Nmap Windows builds include the Npcap software
+ * (https://npcap.com) for packet capture and transmission. It is under
+ * separate license terms which forbid redistribution without special
+ * permission. So the official Nmap Windows builds may not be redistributed
+ * without special permission (such as an Nmap OEM license).
+ *
+ * Source is provided to this software because we believe users have a
+ * right to know exactly what a program is going to do before they run it.
+ * This also allows you to audit the software for security holes.
+ *
+ * Source code also allows you to port Nmap to new platforms, fix bugs, and
+ * add new features. You are highly encouraged to submit your changes as a
+ * Github PR or by email to the dev@nmap.org mailing list for possible
+ * incorporation into the main distribution. Unless you specify otherwise, it
+ * is understood that you are offering us very broad rights to use your
+ * submissions as described in the Nmap Public Source License Contributor
+ * Agreement. This is important because we fund the project by selling licenses
+ * with various terms, and also because the inability to relicense code has
+ * caused devastating problems for other Free Software projects (such as KDE
+ * and NASM).
+ *
+ * The free version of Nmap is distributed in the hope that it will be
+ * useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. Warranties,
+ * indemnification and commercial support are all available through the
+ * Npcap OEM program--see https://nmap.org/oem/
+ *
  ***************************************************************************/
 
 #ifdef WIN32
@@ -139,7 +70,7 @@
 #include "utils_net.h"
 #include "ArgParser.h"
 #include "output.h"
-#include "common.h"
+#include <climits>
 
 
 /******************************************************************************
@@ -174,7 +105,6 @@ NpingOps::NpingOps() {
     sendpref_set=false;
 
     send_eth=false;
-    send_eth_set=false;
 
     delay=0;
     delay_set=false;
@@ -322,7 +252,7 @@ NpingOps::NpingOps() {
     icmp_trans_time=0;
     icmp_trans_time_set=false;
 
-    memset( icmp_advert_entry_addr, 0, sizeof(u32)*MAX_ICMP_ADVERT_ENTRIES );
+    memset( icmp_advert_entry_addr, 0, sizeof(struct in_addr)*MAX_ICMP_ADVERT_ENTRIES );
     memset( icmp_advert_entry_pref, 0, sizeof(u32)*MAX_ICMP_ADVERT_ENTRIES );
     icmp_advert_entry_count=0;
     icmp_advert_entry_set=false;
@@ -444,31 +374,31 @@ char * NpingOps::mode2Ascii(int md) {
 
   switch( md ){
     case TCP_CONNECT:
-        sprintf(buff, "TCP-Connect");
+        bufset(buff, "TCP-Connect");
     break;
 
     case TCP:
-        sprintf(buff, "TCP");
+        bufset(buff, "TCP");
     break;
 
     case UDP:
-        sprintf(buff, "UDP");
+        bufset(buff, "UDP");
     break;
 
     case UDP_UNPRIV:
-        sprintf(buff, "UDP-Unprivileged");
+        bufset(buff, "UDP-Unprivileged");
     break;
 
     case ICMP:
-        sprintf(buff, "ICMP");
+        bufset(buff, "ICMP");
     break;
 
     case ARP:
-        sprintf(buff, "ARP");
+        bufset(buff, "ARP");
     break;
 
     default:
-        sprintf(buff, "Unknown mode");
+        bufset(buff, "Unknown mode");
     break;
  }
  return buff;
@@ -689,10 +619,10 @@ bool NpingOps::issetPacketCount(){
  *  PACKET_SEND_ETH, PACKET_SEND_IP_WEAK, PACKET_SEND_IP_STRONG, PACKET_SEND_IP
  *  @return OP_SUCCESS on success and OP_FAILURE in case of error.           */
 int NpingOps::setSendPreference(int v){
-   if( v!=PACKET_SEND_NOPREF && v!=PACKET_SEND_ETH_WEAK &&
-       v!=PACKET_SEND_ETH_STRONG && v!=PACKET_SEND_ETH &&
-       v!=PACKET_SEND_IP_WEAK && v!=PACKET_SEND_IP_STRONG &&
-       v!=PACKET_SEND_IP ){
+  // Validate: no extra bits set
+  if( (v & ~(PACKET_SEND_ETH | PACKET_SEND_IP))
+      // Validate: both ETH and IP cannot be STRONG
+      || ((v & PACKET_SEND_ETH_STRONG) && (v & PACKET_SEND_IP_STRONG))) {
         nping_fatal(QT_3,"setSendPreference(): Invalid value supplied\n");
         return OP_FAILURE;
     }else{
@@ -717,50 +647,19 @@ bool NpingOps::issetSendPreference(){
 
 /* Returns true if send preference is Ethernet */
 bool NpingOps::sendPreferenceEthernet(){
-  if ( this->getSendPreference()==PACKET_SEND_ETH_WEAK )
-    return true;
-  else if (this->getSendPreference()==PACKET_SEND_ETH_STRONG)
-    return true;
-  else if (this->getSendPreference()==PACKET_SEND_ETH )
-    return true;
-  else
-    return false;
+  return (this->sendpref & PACKET_SEND_ETH);
 } /* End of sendPreferenceEthernet() */
 
 
 /* Returns true if send preference is Ethernet */
 bool NpingOps::sendPreferenceIP(){
-  if ( this->getSendPreference()==PACKET_SEND_IP_WEAK )
-    return true;
-  else if (this->getSendPreference()==PACKET_SEND_IP_STRONG)
-    return true;
-  else if (this->getSendPreference()==PACKET_SEND_IP )
-    return true;
-  else
-    return false;
+  return (this->sendpref & PACKET_SEND_IP);
 } /* End of sendPreferenceIP() */
-
-
-/** Sets SendEth.
- *  @return OP_SUCCESS on success and OP_FAILURE in case of error.           */
-int NpingOps::setSendEth(bool val){
-  this->send_eth=val;
-  this->send_eth_set=true;
-  return OP_SUCCESS;
-} /* End of setSendEth() */
-
 
 /** Returns value of attribute send_eth */
 bool NpingOps::sendEth(){
-  return this->send_eth;
+  return (this->sendpref & PACKET_SEND_ETH_STRONG);
 } /* End of getSendEth() */
-
-
-/* Returns true if option has been set */
-bool NpingOps::issetSendEth(){
-  return this->send_eth_set;
-} /* End of issetSendEth() */
-
 
 /** Sets inter-probe delay. Supplied parameter is assumed to be in milliseconds
  *  and must be a long integer greater than zero.
@@ -802,8 +701,14 @@ int NpingOps::setDevice(char *n){
 } /* End of setDevice() */
 
 
-char *NpingOps::getDevice(){
-  return this->device;
+const char *NpingOps::getDevice(){
+  if (this->device_set)
+    return this->device;
+  if (this->targets.devices.empty())
+    return NULL;
+  if (this->targets.devices.size() > 1)
+    nping_fatal(QT_3, "Nping does not support targets on multiple devices. QUITTING.\n");
+  return this->targets.devices.front()->getName();
 } /* End of getDevice() */
 
 
@@ -947,17 +852,6 @@ bool NpingOps::ipv6(){
   else
     return false;
 } /* End of ipv6() */
-
-
-/* Returns true if we are sending IPv6 packets at raw TCP level (using a
- * useless and boring IPv6 socket that doesn't let us include our own IPv6
- * header)*/
-bool NpingOps::ipv6UsingSocket(){
-  if( this->getIPVersion() == IP_VERSION_6 && this->sendEth()==false)
-    return true;
-  else
-    return false;
-} /* End of ipv6UsingSocket() */
 
 
 /* Returns AF_INET or AF_INET6, depending on current configuration */
@@ -1247,6 +1141,20 @@ bool NpingOps::getDF(){
 } /* End of getDF() */
 
 
+/** Set Reserved / Evil flag */
+int NpingOps::setRF(){
+  this->rf = true;
+  this->rf_set = true;
+  return OP_SUCCESS;
+} /* End of setRF() */
+
+
+/** Get Reserved / Evil flag */
+bool NpingOps::getRF(){
+  return this->rf;
+} /* End of getRF() */
+
+
 /* Returns true if option has been set */
 bool NpingOps::issetMF(){
   return this->mf_set;
@@ -1256,6 +1164,12 @@ bool NpingOps::issetMF(){
 /* Returns true if option has been set */
 bool NpingOps::issetDF(){
   return this->df_set;
+} /* End of isset() */
+
+
+/* Returns true if option has been set */
+bool NpingOps::issetRF(){
+  return this->rf_set;
 } /* End of isset() */
 
 
@@ -1465,7 +1379,6 @@ struct sockaddr_storage *NpingOps::getSourceSockAddr(struct sockaddr_storage *ss
         s6->sin6_addr=this->getIPv6SourceAddress();
     else
         s6->sin6_addr=in6addr_any;
-    s6->sin6_addr=this->getIPv6SourceAddress();
     s6->sin6_family=AF_INET6;
     if(this->issetSourcePort())
         s6->sin6_port=htons(this->getSourcePort());
@@ -1945,7 +1858,7 @@ bool NpingOps::issetICMPTransmitTimestamp(){
 
 
 int NpingOps::addICMPAdvertEntry(struct in_addr addr, u32 pref ){
-  if( this->icmp_advert_entry_count > MAX_ICMP_ADVERT_ENTRIES )
+  if( this->icmp_advert_entry_count >= MAX_ICMP_ADVERT_ENTRIES )
     return OP_FAILURE;
   this->icmp_advert_entry_addr[this->icmp_advert_entry_count] = addr;
   this->icmp_advert_entry_pref[this->icmp_advert_entry_count] = pref;
@@ -2299,10 +2212,14 @@ void NpingOps::validateOptions() {
 const char *privreq = "root privileges";
 #ifdef WIN32
     //if (!this->have_pcap)
-        privreq = "that WinPcap version 3.1 or higher and iphlpapi.dll be installed. You seem to be missing one or both of these.  Winpcap is available from http://www.winpcap.org.  iphlpapi.dll comes with Win98 and later operating systems and NT 4.0 with SP4 or greater.  For previous Windows versions, you may be able to take iphlpapi.dll from another system and place it in your system32 dir (e.g. c:\\windows\\system32)";
+          privreq = "Npcap, but it seems to be missing.\n\
+Npcap is available from https://npcap.com. The Npcap driver service must\n\
+be started by an administrator before Npcap can be used. Running nping.exe\n\
+will open a UAC dialog where you can start the service if you have\n\
+administrator privileges.";
 #endif
 
-if (this->havePcap()==false){
+if (this->isRoot() && this->havePcap()==false){
     #ifdef WIN32
         nping_fatal(QT_3, "Nping requires %s", privreq);
     #else
@@ -2390,88 +2307,15 @@ if (this->havePcap()==false){
         nping_print(VB_0, "Warning: Payload supplied in TCP Connect mode. Payload will be ignored.");
   }
 
-/** SOURCE IP, SOURCE MAC and NETWORK DEVICE *********************************/
-/* If we are in a mode where we need to craft IP packets, then we need to
- * obtain a network interface name and a source IP address. There are three
- * different possibilities:
- *  1. User did NOT specify both network interface and source IP address.
- *  2. User did specify a network interface but not a source IP address.
- *  3. User did actually supply a source IP but not a network interface name
- *
- * I know the following code is ugly but the thing is that we want to determine
- * interface and source IP without user intervention, so we try in many ways
- * until either we succeed or we run out of possibilities and fatal().
- */
-if( this->getMode()!=TCP_CONNECT && this->getMode()!=UDP_UNPRIV && this->getRole()!=ROLE_SERVER){
-
-    char devbuff[32];
-    char *dev;
-    struct sockaddr_storage ss, ifaddr;
-    struct sockaddr_in *s4=(struct sockaddr_in *)&ifaddr;
-    struct sockaddr_in6 *s6=(struct sockaddr_in6 *)&ifaddr;
-    size_t ss_len;
-    char hostname[128];
-    memset(&ss, 0, sizeof(struct sockaddr_storage));
-    memset(&ifaddr, 0, sizeof(struct sockaddr_storage));
-
-
-   /* CASE 1: User did not specify a device so we have to select one. */
-    if( !this->issetDevice() ){
-        if( this->ipv4() ){
-            /* Ugly hack. Get the first resolvable target and determine net interface. Let's
-             * hope user did not specify something that mixes localhost with
-             * other targets, like "nping localhost google.com playboy.com" */
-             for(int z=0; z<this->targets.getTargetSpecCount(); z++){
-                if( this->targets.getNextTargetAddressAndName(&ss, &ss_len, hostname, sizeof(hostname)) == OP_SUCCESS )
-                    break;
-                else if( z>=(this->targets.getTargetSpecCount()-1) )
-                    nping_fatal(QT_3,"Cannot find a valid target. Please make sure the specified hosts are either IP addresses in standard notation or hostnames that can be resolved with DNS");
-             }
-             this->targets.rewind();
-
-             /* Try to obtain a device name from the target IP */
-             if ( getNetworkInterfaceName( &ss , devbuff) != OP_SUCCESS ) {
-                /* If that didn't work, ask libpcap */
-                char errbuf[PCAP_ERRBUF_SIZE];
-                if ( (dev = pcap_lookupdev(errbuf)) == NULL)
-                    nping_fatal(QT_3, "Cannot obtain device for packet capture --> %s", errbuf);
-                else
-                    this->setDevice( dev );
-                /* Libpcap gave us a device name, try to obtain it's IP */
-                if ( devname2ipaddr_alt(this->getDevice(), &ifaddr) != 0 ){
-                    if( this->isRoot() )
-                        nping_fatal(QT_3,"Cannot figure out what source address to use for device %s, does it even exist?", this->getDevice());
-                    else
-                        nping_fatal(QT_3,"Cannot figure out what source address to use for device %s, are you root?", this->getDevice());
-                }
-                else{
-                    if( s4->sin_family==AF_INET )
-                        this->setIPv4SourceAddress(s4->sin_addr);
-                    else if ( s6->sin6_family==AF_INET6 )
-                        this->setIPv6SourceAddress(s6->sin6_addr.s6_addr);
-                }
-            }else{
-                this->setDevice(devbuff);
-            }
-        }else{ /* In IPv6 we just select one in libpcap and hope is the right one */
-            char *selected_iface=this->select_network_iface();
-            if(selected_iface==NULL)
-                nping_fatal(QT_3, "Error trying to find a suitable network interface ");
-            else
-                this->setDevice( selected_iface );
-        }
-    } /* CASE 2: User did actually supply a device name */
-    else{
-        nping_print(DBG_2, "Using network interface \"%s\"", this->getDevice() );
-    }
-
 /* The echo server needs to find out a network interface*/
-}else if (this->getRole()==ROLE_SERVER && this->issetDevice()==false){
+if (this->getRole()==ROLE_SERVER && this->issetDevice()==false){
   char *selected_iface=this->select_network_iface();
   if(selected_iface==NULL)
     nping_fatal(QT_3, "Error trying to find a suitable network interface ");
-  else
+  else {
     this->setDevice( selected_iface );
+    free(selected_iface);
+  }
   nping_print(DBG_2, "Using network interface \"%s\"", this->getDevice() );
 }
 
@@ -2483,7 +2327,6 @@ if(this->getRole()!=ROLE_SERVER){
 
     /* CASE 1: ARP requested. We have to do raw ethernet transmission */
     if(this->getMode()==ARP ){
-        this->setSendEth(true);
         this->setSendPreference( PACKET_SEND_ETH_STRONG );
     }
 
@@ -2498,13 +2341,11 @@ if(this->getRole()!=ROLE_SERVER){
         /* CASE 2.A: If user did not specify custom IPv6 header or Ethernet
          * field values go for raw transport layer level transmission */
         if( this->canDoIPv6ThroughSocket() ){
-            this->setSendEth(false);
             this->setSendPreference( PACKET_SEND_IP_STRONG );
         }
         /* CASE 2.B: User wants to set some IPv6 or Ethernet values. So here we
          * check if enough parameters were supplied. */
         else if (this->canDoIPv6Ethernet() ){
-            this->setSendEth(true);
             this->setSendPreference( PACKET_SEND_ETH_STRONG );
         }else{
             nping_fatal(QT_3, "If you want to control some of the fields"
@@ -2524,10 +2365,8 @@ if(this->getRole()!=ROLE_SERVER){
     else{
          #ifdef WIN32
             this->setSendPreference( PACKET_SEND_ETH_STRONG );
-            this->setSendEth(true);
          #else
             this->setSendPreference( PACKET_SEND_IP_WEAK );
-            this->setSendEth(false);
          #endif
     }
 
@@ -2536,7 +2375,7 @@ if(this->getRole()!=ROLE_SERVER){
  }else{
 
     if( this->getMode()==ARP && !this->sendPreferenceEthernet() ){
-        this->setSendEth(true);
+        this->setSendPreference(PACKET_SEND_ETH_STRONG);
         nping_warning(QT_2, "Warning: ARP mode requires raw ethernet frame transmission. Specified preference will be ignored.");
     }
     else if( this->ipv6() ){
@@ -2544,7 +2383,6 @@ if(this->getRole()!=ROLE_SERVER){
         /* CASE 1: User requested ethernet explicitly and supplied all
          * necessary options. */
         if( this->sendPreferenceEthernet() && this->canDoIPv6Ethernet() ){
-            this->setSendEth(true);
 
         /* CASE 2: User requested Ethernet but did not really supplied all
          * the information we need */
@@ -2556,7 +2394,6 @@ if(this->getRole()!=ROLE_SERVER){
         /* CASE 3: User requested raw IP transmission and did not request
          * any special IPv6 header options. */
         }else if( this->sendPreferenceIP() && this->canDoIPv6ThroughSocket() ){
-            this->setSendEth(false);
 
         /* CASE 4: User requested raw IP transmission but also wanted to
          * set custom IPv6 header field values. */
@@ -2570,11 +2407,11 @@ if(this->getRole()!=ROLE_SERVER){
 
         }
     }
-    else if( this->sendPreferenceEthernet() ){
-            this->setSendEth(true);
-    }else{
-        this->setSendEth(false);
-    }
+ }
+ if ((this->getSendPreference() & PACKET_SEND_IP_STRONG) &&
+     (this->issetSourceMAC() || this->issetDestMAC() || this->issetEtherType())
+    ) {
+   nping_fatal(QT_3, "Incompatible options specifying both Ethernet and IP send modes");
  }
  if( this->getMode()==TCP_CONNECT || this->getMode()==UDP_UNPRIV )
     nping_print(DBG_2,"Nping will send packets in unprivileged mode using regular system calls");
@@ -2641,6 +2478,7 @@ bool NpingOps::canRunUDPWithoutPrivileges(){
     this->issetIdentification() ||
     this->issetMF() ||
     this->issetDF() ||
+    this->issetRF() ||
     this->issetIPv4SourceAddress() ||
     this->issetIPv6SourceAddress() ||
     this->issetIPOptions() ||
@@ -2821,6 +2659,7 @@ int NpingOps::cleanup(){
 
 
 char *NpingOps::select_network_iface(){
+    char *devname = NULL;
     char errbuf[PCAP_ERRBUF_SIZE];
     pcap_if_t *pcap_ifaces=NULL;
 
@@ -2923,10 +2762,10 @@ char *NpingOps::select_network_iface(){
         }
 
     }
-    if(candidate==NULL)
-        return NULL;
-    else
-       return candidate->name;
+    if(candidate)
+       devname = strdup(candidate->name);
+    pcap_freealldevs(pcap_ifaces);
+    return devname;
 } /* End of select_network_iface() */
 
 

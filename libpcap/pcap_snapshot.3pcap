@@ -31,22 +31,22 @@ int pcap_snapshot(pcap_t *p);
 .ft
 .fi
 .SH DESCRIPTION
-.B pcap_snapshot()
+.BR pcap_snapshot ()
 returns the snapshot length specified when
-.B pcap_set_snaplen(3PCAP)
+.BR pcap_set_snaplen (3PCAP)
 or
-.B pcap_open_live(3PCAP)
+.BR pcap_open_live (3PCAP)
 was called, for a live capture, or the snapshot length from the capture
 file, for a ``savefile''.
 .PP
 It must not be called on a pcap descriptor created by
-.B \%pcap_create(3PCAP)
+.BR \%pcap_create (3PCAP)
 that has not yet been activated by
-.BR \%pcap_activate(3PCAP) .
+.BR \%pcap_activate (3PCAP).
 .SH RETURN VALUE
-.B pcap_snapshot()
+.BR pcap_snapshot ()
 returns the snapshot length on success and
 .B PCAP_ERROR_NOT_ACTIVATED
 if called on a capture handle that has been created but not activated.
 .SH SEE ALSO
-pcap(3PCAP)
+.BR pcap (3PCAP)

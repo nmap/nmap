@@ -2,54 +2,50 @@
  * engine_epoll.c -- epoll(7) based IO engine.                             *
  *                                                                         *
  ***********************IMPORTANT NSOCK LICENSE TERMS***********************
- *                                                                         *
- * The nsock parallel socket event library is (C) 1999-2019 Insecure.Com   *
- * LLC This library is free software; you may redistribute and/or          *
- * modify it under the terms of the GNU General Public License as          *
- * published by the Free Software Foundation; Version 2.  This guarantees  *
- * your right to use, modify, and redistribute this software under certain *
- * conditions.  If this license is unacceptable to you, Insecure.Com LLC   *
- * may be willing to sell alternative licenses (contact                    *
- * sales@insecure.com ).                                                   *
- *                                                                         *
- * As a special exception to the GPL terms, Insecure.Com LLC grants        *
- * permission to link the code of this program with any version of the     *
- * OpenSSL library which is distributed under a license identical to that  *
- * listed in the included docs/licenses/OpenSSL.txt file, and distribute   *
- * linked combinations including the two. You must obey the GNU GPL in all *
- * respects for all of the code used other than OpenSSL.  If you modify    *
- * this file, you may extend this exception to your version of the file,   *
- * but you are not obligated to do so.                                     *
- *                                                                         *
- * If you received these files with a written license agreement stating    *
- * terms other than the (GPL) terms above, then that alternative license   *
- * agreement takes precedence over this comment.                           *
- *                                                                         *
- * Source is provided to this software because we believe users have a     *
- * right to know exactly what a program is going to do before they run it. *
- * This also allows you to audit the software for security holes.          *
- *                                                                         *
- * Source code also allows you to port Nmap to new platforms, fix bugs,    *
- * and add new features.  You are highly encouraged to send your changes   *
- * to the dev@nmap.org mailing list for possible incorporation into the    *
- * main distribution.  By sending these changes to Fyodor or one of the    *
- * Insecure.Org development mailing lists, or checking them into the Nmap  *
- * source code repository, it is understood (unless you specify otherwise) *
- * that you are offering the Nmap Project (Insecure.Com LLC) the           *
- * unlimited, non-exclusive right to reuse, modify, and relicense the      *
- * code.  Nmap will always be available Open Source, but this is important *
- * because the inability to relicense code has caused devastating problems *
- * for other Free Software projects (such as KDE and NASM).  We also       *
- * occasionally relicense the code to third parties as discussed above.    *
- * If you wish to specify special license conditions of your               *
- * contributions, just say so when you send them.                          *
- *                                                                         *
- * This program is distributed in the hope that it will be useful, but     *
- * WITHOUT ANY WARRANTY; without even the implied warranty of              *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU       *
- * General Public License v2.0 for more details                            *
- * (http://www.gnu.org/licenses/gpl-2.0.html).                             *
- *                                                                         *
+ *
+ * The nsock parallel socket event library is (C) 1999-2026 Nmap Software LLC
+ * This library is free software; you may redistribute and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation; Version 2. This guarantees your right to use, modify, and
+ * redistribute this software under certain conditions. If this license is
+ * unacceptable to you, Nmap Software LLC may be willing to sell alternative
+ * licenses (contact sales@nmap.com ).
+ *
+ * As a special exception to the GPL terms, Nmap Software LLC grants permission
+ * to link the code of this program with any version of the OpenSSL library
+ * which is distributed under a license identical to that listed in the included
+ * docs/licenses/OpenSSL.txt file, and distribute linked combinations including
+ * the two. You must obey the GNU GPL in all respects for all of the code used
+ * other than OpenSSL. If you modify this file, you may extend this exception to
+ * your version of the file, but you are not obligated to do so.
+ *
+ * If you received these files with a written license agreement stating terms
+ * other than the (GPL) terms above, then that alternative license agreement
+ * takes precedence over this comment.
+ *
+ * Source is provided to this software because we believe users have a right to
+ * know exactly what a program is going to do before they run it. This also
+ * allows you to audit the software for security holes.
+ *
+ * Source code also allows you to port Nmap to new platforms, fix bugs, and add
+ * new features. You are highly encouraged to send your changes to the
+ * dev@nmap.org mailing list for possible incorporation into the main
+ * distribution. By sending these changes to Fyodor or one of the Insecure.Org
+ * development mailing lists, or checking them into the Nmap source code
+ * repository, it is understood (unless you specify otherwise) that you are
+ * offering the Nmap Project (Nmap Software LLC) the unlimited, non-exclusive
+ * right to reuse, modify, and relicense the code. Nmap will always be available
+ * Open Source, but this is important because the inability to relicense code
+ * has caused devastating problems for other Free Software projects (such as KDE
+ * and NASM). We also occasionally relicense the code to third parties as
+ * discussed above. If you wish to specify special license conditions of your
+ * contributions, just say so when you send them.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License v2.0 for more
+ * details (http://www.gnu.org/licenses/gpl-2.0.html).
+ *
  ***************************************************************************/
 
 /* $Id$ */
@@ -108,22 +104,6 @@ struct io_engine engine_epoll = {
 /* --- INTERNAL PROTOTYPES --- */
 static void iterate_through_event_lists(struct npool *nsp, int evcount);
 
-/* defined in nsock_core.c */
-void process_iod_events(struct npool *nsp, struct niod *nsi, int ev);
-void process_event(struct npool *nsp, gh_list_t *evlist, struct nevent *nse, int ev);
-void process_expired_events(struct npool *nsp);
-#if HAVE_PCAP
-#ifndef PCAP_CAN_DO_SELECT
-int pcap_read_on_nonselect(struct npool *nsp);
-#endif
-#endif
-
-/* defined in nsock_event.c */
-void update_first_events(struct nevent *nse);
-
-
-extern struct timeval nsock_tod;
-
 
 /*
  * Engine specific data structure
@@ -135,6 +115,8 @@ struct epoll_engine_info {
   int evlen;
   /* list of epoll events, resized if necessary (when polling over large numbers of IODs) */
   struct epoll_event *events;
+  /* Number of IODs incompatible with epoll */
+  int num_pcap_nonselect;
 };
 
 
@@ -146,6 +128,7 @@ int epoll_init(struct npool *nsp) {
   einfo->epfd = epoll_create(10); /* argument is ignored */
   einfo->evlen = INITIAL_EV_COUNT;
   einfo->events = (struct epoll_event *)safe_malloc(einfo->evlen * sizeof(struct epoll_event));
+  einfo->num_pcap_nonselect = 0;
 
   nsp->engine_data = (void *)einfo;
 
@@ -170,18 +153,26 @@ int epoll_iod_register(struct npool *nsp, struct niod *iod, struct nevent *nse, 
 
   iod->watched_events = ev;
 
-  memset(&epev, 0x00, sizeof(struct epoll_event));
-  epev.events = EPOLLET;
-  epev.data.ptr = (void *)iod;
-
-  if (ev & EV_READ)
-    epev.events |= EPOLL_R_FLAGS;
-  if (ev & EV_WRITE)
-    epev.events |= EPOLL_W_FLAGS;
-
   sd = nsock_iod_get_sd(iod);
-  if (epoll_ctl(einfo->epfd, EPOLL_CTL_ADD, sd, &epev) < 0)
-    fatal("Unable to register IOD #%lu: %s", iod->id, strerror(errno));
+  if (sd == -1) {
+    if (iod->pcap)
+      einfo->num_pcap_nonselect++;
+    else
+      fatal("Unable to get descriptor for IOD #%lu", iod->id);
+  }
+  else {
+    memset(&epev, 0x00, sizeof(struct epoll_event));
+    epev.events = EPOLLET;
+    epev.data.ptr = (void *)iod;
+
+    if (ev & EV_READ)
+      epev.events |= EPOLL_R_FLAGS;
+    if (ev & EV_WRITE)
+      epev.events |= EPOLL_W_FLAGS;
+
+    if (epoll_ctl(einfo->epfd, EPOLL_CTL_ADD, sd, &epev) < 0)
+      fatal("Unable to register IOD #%lu: %s", iod->id, strerror(errno));
+  }
 
   IOD_PROPSET(iod, IOD_REGISTERED);
   return 1;
@@ -197,7 +188,13 @@ int epoll_iod_unregister(struct npool *nsp, struct niod *iod) {
     int sd;
 
     sd = nsock_iod_get_sd(iod);
-    epoll_ctl(einfo->epfd, EPOLL_CTL_DEL, sd, NULL);
+    if (sd == -1) {
+      assert(iod->pcap);
+      einfo->num_pcap_nonselect--;
+    }
+    else {
+      epoll_ctl(einfo->epfd, EPOLL_CTL_DEL, sd, NULL);
+    }
 
     IOD_PROPCLR(iod, IOD_REGISTERED);
   }
@@ -226,16 +223,17 @@ int epoll_iod_modify(struct npool *nsp, struct niod *iod, struct nevent *nse, in
 
   iod->watched_events = new_events;
 
-  /* regenerate the current set of events for this IOD */
-  if (iod->watched_events & EV_READ)
-    epev.events |= EPOLL_R_FLAGS;
-  if (iod->watched_events & EV_WRITE)
-    epev.events |= EPOLL_W_FLAGS;
-
   sd = nsock_iod_get_sd(iod);
+  if (sd != -1) {
+    /* regenerate the current set of events for this IOD */
+    if (iod->watched_events & EV_READ)
+      epev.events |= EPOLL_R_FLAGS;
+    if (iod->watched_events & EV_WRITE)
+      epev.events |= EPOLL_W_FLAGS;
 
-  if (epoll_ctl(einfo->epfd, EPOLL_CTL_MOD, sd, &epev) < 0)
-    fatal("Unable to update events for IOD #%lu: %s", iod->id, strerror(errno));
+    if (epoll_ctl(einfo->epfd, EPOLL_CTL_MOD, sd, &epev) < 0)
+      fatal("Unable to update events for IOD #%lu: %s", iod->id, strerror(errno));
+  }
 
   return 1;
 }
@@ -254,7 +252,7 @@ int epoll_loop(struct npool *nsp, int msec_timeout) {
     return 0; /* No need to wait on 0 events ... */
 
 
-  iod_count = gh_list_count(&nsp->active_iods);
+  iod_count = gh_list_count(&nsp->active_iods) - einfo->num_pcap_nonselect;
   if (iod_count > einfo->evlen) {
     einfo->evlen = iod_count * 2;
     einfo->events = (struct epoll_event *)safe_realloc(einfo->events, einfo->evlen * sizeof(struct epoll_event));
@@ -264,40 +262,48 @@ int epoll_loop(struct npool *nsp, int msec_timeout) {
     struct nevent *nse;
 
     nsock_log_debug_all("wait for events");
+    results_left = 0;
 
     nse = next_expirable_event(nsp);
     if (!nse)
       event_msecs = -1; /* None of the events specified a timeout */
-    else
-      event_msecs = MAX(0, TIMEVAL_MSEC_SUBTRACT(nse->timeout, nsock_tod));
+    else {
+      event_msecs = TIMEVAL_MSEC_SUBTRACT(nse->timeout, nsock_tod);
+      event_msecs = MAX(0, event_msecs);
+    }
 
 #if HAVE_PCAP
-#ifndef PCAP_CAN_DO_SELECT
-    /* Force a low timeout when capturing packets on systems where
-     * the pcap descriptor is not select()able. */
-    if (gh_list_count(&nsp->pcap_read_events) > 0)
-      if (event_msecs > PCAP_POLL_INTERVAL)
-        event_msecs = PCAP_POLL_INTERVAL;
-#endif
-#endif
+    if (einfo->num_pcap_nonselect > 0 && gh_list_count(&nsp->pcap_read_events) > 0) {
 
+      /* do non-blocking read on pcap devices that doesn't support select()
+       * If there is anything read, just leave this loop. */
+      if (pcap_read_on_nonselect(nsp)) {
+        /* okay, something was read. */
+        // Check all pcap events that won't be signaled
+        gettimeofday(&nsock_tod, NULL);
+        iterate_through_pcap_events(nsp);
+        // Make the system call non-blocking
+        event_msecs = 0;
+      }
+      /* Force a low timeout when capturing packets on systems where
+       * the pcap descriptor is not select()able. */
+      else if (event_msecs > PCAP_POLL_INTERVAL) {
+        event_msecs = PCAP_POLL_INTERVAL;
+      }
+    }
+#endif
     /* We cast to unsigned because we want -1 to be very high (since it means no
      * timeout) */
     combined_msecs = MIN((unsigned)event_msecs, (unsigned)msec_timeout);
 
-#if HAVE_PCAP
-#ifndef PCAP_CAN_DO_SELECT
-    /* do non-blocking read on pcap devices that doesn't support select()
-     * If there is anything read, just leave this loop. */
-    if (pcap_read_on_nonselect(nsp)) {
-      /* okay, something was read. */
-    } else
-#endif
-#endif
-    {
+    if (iod_count > 0) {
       results_left = epoll_wait(einfo->epfd, einfo->events, einfo->evlen, combined_msecs);
       if (results_left == -1)
         sock_err = socket_errno();
+    }
+    else if (combined_msecs > 0) {
+      // No compatible IODs; sleep the remainder of the wait time.
+      usleep(combined_msecs * 1000);
     }
 
     gettimeofday(&nsock_tod, NULL); /* Due to epoll delay */

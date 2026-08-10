@@ -40,7 +40,7 @@ categories = {"default", "safe"}
 
 
 portrule = function(host, port)
-  return shortport.ssl(host, port) or sslcert.getPrepareTLSWithoutReconnect(port)
+  return port.protocol == "tcp" and (shortport.ssl(host, port) or sslcert.getPrepareTLSWithoutReconnect(port))
 end
 
 action = function(host, port)

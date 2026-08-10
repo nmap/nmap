@@ -1,4 +1,4 @@
-# $Id: THANKS 596 2005-02-17 02:58:11Z dugsong $
+# $Id$
 
 many thanks to all the folks who have contributed to libdnet:
 
@@ -77,6 +77,9 @@ Niels Provos <provos@monkey.org>
 Andrew Reiter <arr@watson.org>
 	help with ipfw braindeath
 
+Daniel Roethlisberger <daniel@roe.ch>
+	initial SCTP support
+
 John S <sjohns@users.sourceforge.net>
 	VPATH build bug report
 
@@ -104,3 +107,8 @@ Christophe Ternat <christophe.ternat@rstpacket.org>
 xs <xs@nitric.net>
 	NetBSD testing
 
+Kris Katterjohn <katterjohn@gmail.com>
+	void dereferencing and ifloop NetBSD fixes
+
+David Fifield <david@bamsoftware.com>
+	Many fixes from Nmap developers

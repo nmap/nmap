@@ -36,16 +36,11 @@
     starts_enabled="true" starts_hidden="false">
       <pkgref id="org.insecure.nmap.Nping.pkg" />
     </choice>
-    <choice title="nmap-update" id="choice97" starts_selected="true"
-    description="nmap-update updater for architecture-independent files."
-    starts_enabled="true" starts_hidden="false">
-      <pkgref id="org.insecure.nmap.nmap-update.pkg" />
-    </choice>
   </contents>
   <resources bg-scale="none" bg-align="topleft">
     <locale lang="en">
       <resource relative="true" type="welcome">README</resource>
-      <resource relative="true" type="license">COPYING.formatted</resource>
+      <resource relative="true" type="license">LICENSE.formatted</resource>
     </locale>
   </resources>
   <flags />
@@ -54,7 +49,6 @@
   <item type="file">03ncat.xml</item>
   <item type="file">04ndiff.xml</item>
   <item type="file">05nping.xml</item>
-  <item type="file">06nmap-update.xml</item>
   <mod>properties.customizeOption</mod>
   <mod>properties.title</mod>
   <mod>properties.anywhereDomain</mod>

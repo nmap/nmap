@@ -5,9 +5,7 @@
  * (+961 3 485243)
  */
 
-#ifdef HAVE_CONFIG_H
 #include <config.h>
-#endif
 
 #include <sys/param.h>
 
@@ -17,7 +15,6 @@
 
 #include "pcap-int.h"
 
-#include <ctype.h>
 #include <netinet/in.h>
 #include <sys/mman.h>
 #include <sys/socket.h>
@@ -32,7 +29,6 @@
 
 #include "pcap-septel.h"
 
-static int septel_setfilter(pcap_t *p, struct bpf_program *fp);
 static int septel_stats(pcap_t *p, struct pcap_stat *ps);
 static int septel_getnonblock(pcap_t *p);
 static int septel_setnonblock(pcap_t *p, int nonblock);
@@ -47,7 +43,7 @@ struct pcap_septel {
 /*
  *  Read at most max_packets from the capture queue and call the callback
  *  for each of them. Returns the number of packets handled, -1 if an
- *  error occured, or -2 if we were told to break out of the loop.
+ *  error occurred, or -2 if we were told to break out of the loop.
  */
 static int septel_read(pcap_t *p, int cnt, pcap_handler callback, u_char *user) {
 
@@ -95,7 +91,7 @@ loop:
       h = GCT_grab(id);
 
       m = (MSG*)h;
-      /* a couter is added here to avoid an infinite loop
+      /* a counter is added here to avoid an infinite loop
        * that will cause our capture program GUI to freeze while waiting
        * for a packet*/
       counter++ ;
@@ -107,7 +103,7 @@ loop:
 
       t = h->type ;
 
-      /* catch only messages with type = 0xcf00 or 0x8f01 corrsponding to ss7 messages*/
+      /* catch only messages with type = 0xcf00 or 0x8f01 corresponding to ss7 messages*/
       /* XXX = why not use API_MSG_TX_REQ for 0xcf00 and API_MSG_RX_IND
        * for 0x8f01? */
       if ((t != 0xcf00) && (t != 0x8f01)) {
@@ -126,7 +122,7 @@ loop:
         caplen = packet_len;
       }
       /* Run the packet filter if there is one. */
-      if ((p->fcode.bf_insns == NULL) || bpf_filter(p->fcode.bf_insns, dp, packet_len, caplen)) {
+      if ((p->fcode.bf_insns == NULL) || pcapint_filter(p->fcode.bf_insns, dp, packet_len, caplen)) {
 
 
         /*  get a time stamp , consisting of :
@@ -171,9 +167,9 @@ loop:
 
 
 static int
-septel_inject(pcap_t *handle, const void *buf _U_, size_t size _U_)
+septel_inject(pcap_t *handle, const void *buf _U_, int size _U_)
 {
-  pcap_strlcpy(handle->errbuf, "Sending packets isn't supported on Septel cards",
+  pcapint_strlcpy(handle->errbuf, "Sending packets isn't supported on Septel cards",
           PCAP_ERRBUF_SIZE);
   return (-1);
 }
@@ -209,7 +205,7 @@ static pcap_t *septel_activate(pcap_t* handle) {
 
   handle->read_op = septel_read;
   handle->inject_op = septel_inject;
-  handle->setfilter_op = septel_setfilter;
+  handle->setfilter_op = pcapint_install_bpf_program;
   handle->set_datalink_op = NULL; /* can't change data link type */
   handle->getnonblock_op = septel_getnonblock;
   handle->setnonblock_op = septel_setnonblock;
@@ -235,7 +231,7 @@ pcap_t *septel_create(const char *device, char *ebuf, int *is_ours) {
 	/* OK, it's probably ours. */
 	*is_ours = 1;
 
-	p = pcap_create_common(ebuf, sizeof (struct pcap_septel));
+	p = PCAP_CREATE_COMMON(ebuf, struct pcap_septel);
 	if (p == NULL)
 		return NULL;
 
@@ -269,33 +265,11 @@ septel_findalldevs(pcap_if_list_t *devlistp, char *errbuf)
   /*
    * XXX - do the notions of "up", "running", or "connected" apply here?
    */
-  if (add_dev(devlistp,"septel",0,"Intel/Septel device",errbuf) == NULL)
+  if (pcapint_add_dev(devlistp,"septel",0,"Intel/Septel device",errbuf) == NULL)
     return -1;
   return 0;
 }
 
-
-/*
- * Installs the given bpf filter program in the given pcap structure.  There is
- * no attempt to store the filter in kernel memory as that is not supported
- * with Septel cards.
- */
-static int septel_setfilter(pcap_t *p, struct bpf_program *fp) {
-  if (!p)
-    return -1;
-  if (!fp) {
-    strncpy(p->errbuf, "setfilter: No filter specified",
-	    sizeof(p->errbuf));
-    return -1;
-  }
-
-  /* Make our private copy of the filter */
-
-  if (install_bpf_program(p, fp) < 0)
-    return -1;
-
-  return (0);
-}
 
 /*
  * We don't support non-blocking mode.  I'm not sure what we'd
@@ -327,7 +301,7 @@ septel_setnonblock(pcap_t *p, int nonblock _U_)
  * There are no regular interfaces, just Septel interfaces.
  */
 int
-pcap_platform_finddevs(pcap_if_list_t *devlistp, char *errbuf)
+pcapint_platform_finddevs(pcap_if_list_t *devlistp, char *errbuf)
 {
   return (0);
 }
@@ -336,10 +310,9 @@ pcap_platform_finddevs(pcap_if_list_t *devlistp, char *errbuf)
  * Attempts to open a regular interface fail.
  */
 pcap_t *
-pcap_create_interface(const char *device, char *errbuf)
+pcapint_create_interface(const char *device, char *errbuf)
 {
-  pcap_snprintf(errbuf, PCAP_ERRBUF_SIZE,
-                "This version of libpcap only supports Septel cards");
+  snprintf(errbuf, PCAP_ERRBUF_SIZE, PCAP_ENODEV_MESSAGE, "Septel");
   return (NULL);
 }
 

@@ -31,8 +31,8 @@ FILE *pcap_dump_file(pcap_dumper_t *p);
 .ft
 .fi
 .SH DESCRIPTION
-.B pcap_dump_file()
+.BR pcap_dump_file ()
 returns the standard I/O stream of the ``savefile'' opened by
-.BR pcap_dump_open(3PCAP) .
+.BR pcap_dump_open (3PCAP).
 .SH SEE ALSO
-pcap(3PCAP)
+.BR pcap (3PCAP)

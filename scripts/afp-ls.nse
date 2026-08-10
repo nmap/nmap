@@ -94,8 +94,11 @@ The output is intended to resemble the output of <code>ls</code>.
 --   <elem key="bytes">0</elem>
 -- </table>
 
--- Version 0.1
+-- Version 0.2
 -- Created 04/03/2011 - v0.1 - created by Patrik Karlsson
+-- Modified 08/02/2020 - v0.2 - replaced individual date/size/ownership calls
+--                              with direct sourcing from the output of
+--                              afp.Helper.Dir
 
 
 author = "Patrik Karlsson"
@@ -147,40 +150,23 @@ action = function(host, port)
       for _, vol in ipairs( vols ) do
         local status, tbl = afpHelper:Dir( vol )
         if ( not(status) ) then
-          ls.report_error(
-            output,
-            ("ERROR: Failed to list the contents of %s"):format(vol))
+          ls.report_error(output, ("ERROR: Failed to list the contents of %s"):format(vol))
         else
           ls.new_vol(output, vol, true)
-          local continue = true
           for _, item in ipairs(tbl[1]) do
-            if ( item and item.name ) then
-              local status, result = afpHelper:GetFileUnixPermissions(
-                vol, item.name)
-              if ( status ) then
-                local status, fsize = afpHelper:GetFileSize( vol, item.name)
-                if ( not(status) ) then
-                  ls.report_error(
-                    output,
-                    ("ERROR: Failed to retrieve file size for %/%s"):format(vol, item.name))
-                else
-                  local status, date = afpHelper:GetFileDates( vol, item.name)
-                  if ( not(status) ) then
-                    ls.report_error(
-                      output,
-                      ("\n\nERROR: Failed to retrieve file dates for %/%s"):format(vol, item.name))
-                  else
-                    continue = ls.add_file(output, {
-                        result.privs, result.uid, result.gid,
-                        fsize, date.create, item.name
-                      })
-                  end
+            if item and item.name then
+              if not (item.privs and item.create) then
+                ls.report_error(output, ("ERROR: Failed to retrieve file details for %/%s"):format(vol, item.name))
+              else
+                local continue = ls.add_file(output, {
+                            item.privs, item.uid, item.gid,
+                            item.fsize, item.create, item.name
+                          })
+                if not continue then
+                  ls.report_info(output, ("maxfiles limit reached (%d)"):format(maxfiles))
+                  break
                 end
               end
-            end
-            if not continue then
-              ls.report_info(output, ("maxfiles limit reached (%d)"):format(maxfiles))
-              break
             end
           end
           ls.end_vol(output)

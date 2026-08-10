@@ -324,8 +324,8 @@ Telnet = {
   -- Buffer addresses can come in 14 or 12 (this terminal doesn't support 16 bit)
   -- this function takes two bytes (buffer addresses are two bytes long) and returns
   -- the decoded buffer address.
-  -- @param1 unsigned char, first byte of buffer address.
-  -- @param2 unsigned char, second byte of buffer address.
+  -- @param unsigned char, first byte of buffer address.
+  -- @param unsigned char, second byte of buffer address.
   -- @return integer of buffer address
   DECODE_BADDR = function ( byte1, byte2 )
     if (byte1 & 0xC0) == 0 then
@@ -339,10 +339,10 @@ Telnet = {
 
   --- Encode Buffer Address
   --
-  -- @param integer buffer address
+  -- @param address integer buffer address
   -- @return TN3270 encoded buffer address (12 bit) as string
   ENCODE_BADDR = function ( self, address )
-    stdnse.debug(3, "Encoding Address: " .. address)
+    stdnse.debug(3, "Encoding Address: %s", address)
     return string.pack("BB",
       -- (address >> 8) & 0x3F
       -- we need the +1 because LUA tables start at 1 (yay!)
@@ -461,7 +461,7 @@ Telnet = {
     local WONT_reply = self.commands.IAC .. self.commands.WONT
 
     --nsedebug.print_hex(data)
-    --stdnse.debug(3,"current state:" .. self.telnet_state)
+    --stdnse.debug(3,"current state:%s", self.telnet_state)
 
     if self.telnet_state == TNS_DATA then
       if data == self.commands.IAC then
@@ -549,7 +549,7 @@ Telnet = {
         end
       else
         self:send_data(WONT_reply..data)
-        stdnse.debug(3, "[TELNET] Got unsupported Do. Sent Won't Reply: " .. data .. " " .. self.telnet_data)
+        stdnse.debug(3, "[TELNET] Got unsupported Do. Sent Won't Reply: %s %s", data, self.telnet_data)
       end
       self.telnet_state = TNS_DATA
     elseif self.telnet_state == TNS_DONT then
@@ -715,9 +715,9 @@ Telnet = {
         self.fa_buffer[i] = "\0"
         self.overwrite_buf[i] = "\0"
       end
-      stdnse.debug(3, "[in3270] Empty Buffer Created. Length: " .. #self.buffer)
+      stdnse.debug(3, "[in3270] Empty Buffer Created. Length: %d", #self.buffer)
     end
-    stdnse.debug(3,"[in3270] Current State: "..self.word_state[self.state])
+    stdnse.debug(3,"[in3270] Current State: %s", self.word_state[self.state])
   end,
 
   --- Also known as process_eor
@@ -832,7 +832,7 @@ Telnet = {
       stdnse.debug(3,"TN3270 Command: No OP (NOP)")
       return self.NO_OUTPUT
     else
-      stdnse.debug(3,"Unknown 3270 Data Stream command: 0x"..stdnse.tohex(com))
+      stdnse.debug(3,"Unknown 3270 Data Stream command: 0x%s", stdnse.tohex(com))
       return self.BAD_COMMAND
 
     end
@@ -842,7 +842,7 @@ Telnet = {
 
   --- WCC / tn3270 data stream processor
   --
-  -- @param tn3270 data stream
+  -- @param data tn3270 data stream
   -- @return status true on success, false on failure
   -- @return changes self.buffer to match requested changes
   process_write = function ( self, data )
@@ -864,8 +864,8 @@ Telnet = {
     i = 3 -- skip the SF and the WCC.
     while i <= #data do
       cp = data:sub(i,i)
-      stdnse.debug(4,"Current Position: ".. i .. " of " .. #data)
-      stdnse.debug(4,"Current Item: ".. stdnse.tohex(cp))
+      stdnse.debug(4,"Current Position: %d of %d", i, #data)
+      stdnse.debug(4,"Current Item: %s", stdnse.tohex(cp))
       -- yay! lua has no switch statement
       if cp == self.orders.SF then
         stdnse.debug(4,"Start Field")
@@ -873,8 +873,8 @@ Telnet = {
 
         last_cmd = true
         i = i + 1 -- skip SF
-        stdnse.debug(4,"Writting Zero to buffer at address: " .. self.buffer_address)
-        stdnse.debug(4,"Attribute Type: 0x".. stdnse.tohex(data:sub(i,i)))
+        stdnse.debug(4,"Writing Zero to buffer at address: %s", self.buffer_address)
+        stdnse.debug(4,"Attribute Type: 0x%s", stdnse.tohex(data:sub(i,i)))
         self:write_field_attribute(data:sub(i,i))
         self:write_char("\00")
         self.buffer_address = self:INC_BUF_ADDR(self.buffer_address)
@@ -885,12 +885,12 @@ Telnet = {
         stdnse.debug(4,"Start Field Extended")
         i = i + 1 -- skip SFE
         num_attr = data:byte(i)
-        stdnse.debug(4,"Number of Attributes: ".. num_attr)
+        stdnse.debug(4,"Number of Attributes: %d", num_attr)
         for j = 1,num_attr do
           i = i + 1
           if data:byte(i) == 0xc0 then
-            stdnse.debug(4,"Writting Zero to buffer at address: " .. self.buffer_address)
-            stdnse.debug(4,"Attribute Type: 0x".. stdnse.tohex(data:sub(i,i)))
+            stdnse.debug(4,"Writing Zero to buffer at address: %s", self.buffer_address)
+            stdnse.debug(4,"Attribute Type: 0x%s", stdnse.tohex(data:sub(i,i)))
             self:write_char("\00")
             self:write_field_attribute(data:sub(i,i))
           end
@@ -902,20 +902,20 @@ Telnet = {
       elseif cp == self.orders.SBA then
         stdnse.debug(4,"Set Buffer Address (SBA) 0x11")
         self.buffer_address = self.DECODE_BADDR(data:byte(i+1), data:byte(i+2))
-        stdnse.debug(4,"Buffer Address: " .. self.buffer_address)
-        stdnse.debug(4,"Row: " .. self:BA_TO_ROW(self.buffer_address))
-        stdnse.debug(4,"Col: " .. self:BA_TO_COL(self.buffer_address))
+        stdnse.debug(4,"Buffer Address: %s", self.buffer_address)
+        stdnse.debug(4,"Row: %s", self:BA_TO_ROW(self.buffer_address))
+        stdnse.debug(4,"Col: %s", self:BA_TO_COL(self.buffer_address))
         last_cmd = true
         prev = 'SBA'
         -- the current position is SBA, the next two bytes are the lengths
         i = i + 3
-        stdnse.debug(4,"Next Command: ".. stdnse.tohex(data:sub(i,i)))
+        stdnse.debug(4,"Next Command: %s", stdnse.tohex(data:sub(i,i)))
       elseif cp == self.orders.IC then -- Insert Cursor
         stdnse.debug(4,"Insert Cursor (IC) 0x13")
-        stdnse.debug(4,"Current Cursor Address: " .. self.cursor_addr)
-        stdnse.debug(4,"Buffer Address: " .. self.buffer_address)
-        stdnse.debug(4,"Row: " .. self:BA_TO_ROW(self.buffer_address))
-        stdnse.debug(4,"Col: " .. self:BA_TO_COL(self.buffer_address))
+        stdnse.debug(4,"Current Cursor Address: %s", self.cursor_addr)
+        stdnse.debug(4,"Buffer Address: %s", self.buffer_address)
+        stdnse.debug(4,"Row: %s", self:BA_TO_ROW(self.buffer_address))
+        stdnse.debug(4,"Col: %s", self:BA_TO_COL(self.buffer_address))
         prev = 'ORDER'
         self.cursor_addr = self.buffer_address
         last_cmd = true
@@ -925,15 +925,15 @@ Telnet = {
         -- There's all kinds of weird GE stuff we could do, but not now. Maybe in future vers
         stdnse.debug(4,"Repeat to Address (RA) 0x3C")
         local ra_baddr = self.DECODE_BADDR(data:byte(i+1), data:byte(i+2))
-        stdnse.debug(4,"Repeat Character: " .. stdnse.tohex(data:sub(i+1,i+2)))
+        stdnse.debug(4,"Repeat Character: %s", stdnse.tohex(data:sub(i+1,i+2)))
 
-        stdnse.debug(4,"Repeat to this Address: " .. ra_baddr)
-        stdnse.debug(4,"Currrent Address: " .. self.buffer_address)
+        stdnse.debug(4,"Repeat to this Address: %s", ra_baddr)
+        stdnse.debug(4,"Current Address: %s", self.buffer_address)
         prev = 'ORDER'
         --char_code = data:sub(i+3,i+3)
         i = i + 3
         local char_to_repeat = data:sub(i,i)
-        stdnse.debug(4,"Repeat Character: " .. stdnse.tohex(char_to_repeat))
+        stdnse.debug(4,"Repeat Character: %s", stdnse.tohex(char_to_repeat))
         while (self.buffer_address ~= ra_baddr) do
           self:write_char(char_to_repeat)
           self.buffer_address = self:INC_BUF_ADDR(self.buffer_address)
@@ -942,13 +942,13 @@ Telnet = {
         stdnse.debug(4,"Erase Unprotected All (EAU) 0x12")
         local eua_baddr = self.DECODE_BADDR(data:byte(i+1), data:byte(i+2))
         i = i + 3
-        stdnse.debug(4,"EAU to this Address: " .. eua_baddr)
-        stdnse.debug(4,"Currrent Address: " .. self.buffer_address)
+        stdnse.debug(4,"EAU to this Address: %s", eua_baddr)
+        stdnse.debug(4,"Current Address: %s", self.buffer_address)
         while (self.buffer_address ~= eua_baddr) do
           -- do nothing for now. this feature isn't supported/required at the moment
           self.buffer_address = self:INC_BUF_ADDR(self.buffer_address)
-          --stdnse.debug(3,"Currrent Address: " .. self.buffer_address)
-          --stdnse.debug(3,"EAU to this Address: " .. eua_baddr)
+          --stdnse.debug(3,"Current Address: %s", self.buffer_address)
+          --stdnse.debug(3,"EAU to this Address: %s", eua_baddr)
         end
       elseif cp == self.orders.GE then
         stdnse.debug(4,"Graphical Escape (GE) 0x08")
@@ -994,9 +994,9 @@ Telnet = {
       else -- whoa we made it.
         local ascii_char = drda.StringUtil.toASCII(cp)
         stdnse.debug(4,"Inserting 0x"..stdnse.tohex(cp).." (".. ascii_char ..") at the following location:")
-        stdnse.debug(4,"Row: " .. self:BA_TO_ROW(self.buffer_address))
-        stdnse.debug(4,"Col: " .. self:BA_TO_COL(self.buffer_address))
-        stdnse.debug(4,"Buffer Address: " .. self.buffer_address)
+        stdnse.debug(4,"Row: %s", self:BA_TO_ROW(self.buffer_address))
+        stdnse.debug(4,"Col: %s", self:BA_TO_COL(self.buffer_address))
+        stdnse.debug(4,"Buffer Address: %s", self.buffer_address)
         self:write_char(data:sub(i,i))
         self.buffer_address = self:INC_BUF_ADDR(self.buffer_address)
         self.first_screen = true
@@ -1025,7 +1025,7 @@ Telnet = {
     stdnse.debug(3,"Generating Read Buffer")
     self.output_buffer[output_addr] = string.pack("B",self.aid)
     output_addr = output_addr + 1
-    stdnse.debug(3,"Output Address: ".. output_addr)
+    stdnse.debug(3,"Output Address: %s", output_addr)
     self.output_buffer[output_addr] = self:ENCODE_BADDR(self.cursor_addr)
     return self:send_tn3270(self.output_buffer)
 
@@ -1065,7 +1065,7 @@ Telnet = {
   --- Sends TN3270 Packet
   --
   -- Expands IAC to IAC IAC and finally appends IAC EOR
-  -- @param data: table containing buffer array
+  -- @param data table containing buffer array
   send_tn3270 = function ( self, data )
     local packet = ''
     if self.state == self.TN3270E_DATA then
@@ -1164,8 +1164,8 @@ Telnet = {
   --- Sends the data to the location specified
   --
   -- Using a location on the screen sends the data
-  -- @param location: a location on the screen (between 0 and 1920)
-  -- @param data: ascii data to send to that location
+  -- @param location a location on the screen (between 0 and 1920)
+  -- @param data ascii data to send to that location
   send_location = function( self, location, data )
     local cursor_location = location + #data
     local ebcdic_letter = ''
@@ -1191,7 +1191,7 @@ Telnet = {
   --
   -- Using a supplied tuple of location and data generates tn3270 data to
   -- fill out the screen
-  -- @param location_tuple: and array of tuples with location and data. For
+  -- @param location_tuple and array of tuples with location and data. For
   --                        example: send_locations([{579:"dade"},{630:"secret"}])
   send_locations = function( self, location_tuple )
     local cursor_location = location_tuple[#location_tuple][1] + #location_tuple[#location_tuple][2]
@@ -1303,7 +1303,7 @@ Telnet = {
 
   --- Any Hidden Fields
   --
-  -- @returns true if there are any hidden fields in the buffer
+  -- @return true if there are any hidden fields in the buffer
   any_hidden = function ( self )
     local hidden_attrib = 0x0c -- 00001100 is hidden
     for i = 0,#self.fa_buffer do
@@ -1315,7 +1315,7 @@ Telnet = {
 
   --- Hidden Fields
   --
-  -- @returns the locations of hidden fields in a table with each pair being the start and stop of the hidden field
+  -- @return the locations of hidden fields in a table with each pair being the start and stop of the hidden field
   hidden_fields_location = function ( self )
     local hidden_attrib = 0x0c -- 00001100 is hidden
     local hidden_location = {}

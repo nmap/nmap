@@ -31,11 +31,10 @@
  *
  */
 
-#ifdef HAVE_CONFIG_H
 #include <config.h>
-#endif
 
 #include "ftmacros.h"
+#include "diag-control.h"
 
 /*
  * sockutils.h may include <crtdbg.h> on Windows, and pcap-int.h will
@@ -86,29 +85,37 @@ int pcap_findalldevs_ex(const char *source, struct pcap_rmtauth *auth, pcap_if_t
 	(*alldevs) = NULL;
 	lastdev = NULL;
 
+	if (source == NULL)
+	{
+		snprintf(errbuf, PCAP_ERRBUF_SIZE,
+		    "The source string must not be NULL.");
+		return -1;
+	}
 	if (strlen(source) > PCAP_BUF_SIZE)
 	{
-		pcap_snprintf(errbuf, PCAP_ERRBUF_SIZE, "The source string is too long. Cannot handle it correctly.");
+		snprintf(errbuf, PCAP_ERRBUF_SIZE, "The source string is too long. Cannot handle it correctly.");
 		return -1;
 	}
 
 	/*
 	 * Determine the type of the source (file, local, remote)
-	 * There are some differences if pcap_findalldevs_ex() is called to list files and remote adapters.
-	 * In the first case, the name of the directory we have to look into must be present (therefore
-	 * the 'name' parameter of the pcap_parsesrcstr() is present).
-	 * In the second case, the name of the adapter is not required (we need just the host). So, we have
-	 * to use a first time this function to get the source type, and a second time to get the appropriate
-	 * info, which depends on the source type.
+	 *
+	 * To list files in a local directory, the source string must specify
+	 * the directory name.  To list local or remote capture devices, the
+	 * source string must not specify a device name.  Retrieve the name
+	 * component now and validate it for each source type next.
 	 */
-	if (pcap_parsesrcstr(source, &type, NULL, NULL, NULL, errbuf) == -1)
+	if (pcap_parsesrcstr(source, &type, NULL, NULL, name, errbuf) == -1)
 		return -1;
 
 	switch (type)
 	{
 	case PCAP_SRC_IFLOCAL:
-		if (pcap_parsesrcstr(source, &type, NULL, NULL, NULL, errbuf) == -1)
+		if (strlen(name)) {
+			snprintf(errbuf, PCAP_ERRBUF_SIZE,
+			    "To list local capture devices, the source string must not include a device name.");
 			return -1;
+		}
 
 		/* Initialize temporary string */
 		tmpstring[PCAP_BUF_SIZE] = 0;
@@ -119,7 +126,7 @@ int pcap_findalldevs_ex(const char *source, struct pcap_rmtauth *auth, pcap_if_t
 
 		if (*alldevs == NULL)
 		{
-			pcap_snprintf(errbuf, PCAP_ERRBUF_SIZE,
+			snprintf(errbuf, PCAP_ERRBUF_SIZE,
 				"No interfaces found! Make sure libpcap/Npcap is properly installed"
 				" on the local machine.");
 			return -1;
@@ -143,7 +150,7 @@ int pcap_findalldevs_ex(const char *source, struct pcap_rmtauth *auth, pcap_if_t
 			dev->name = strdup(tmpstring);
 			if (dev->name == NULL)
 			{
-				pcap_fmt_errmsg_for_errno(errbuf,
+				pcapint_fmt_errmsg_for_errno(errbuf,
 				    PCAP_ERRBUF_SIZE, errno,
 				    "malloc() failed");
 				pcap_freealldevs(*alldevs);
@@ -157,11 +164,11 @@ int pcap_findalldevs_ex(const char *source, struct pcap_rmtauth *auth, pcap_if_t
 				localdesc = dev->name;
 			else
 				localdesc = dev->description;
-			if (pcap_asprintf(&desc, "%s '%s' %s",
+			if (pcapint_asprintf(&desc, "%s '%s' %s",
 			    PCAP_TEXT_SOURCE_ADAPTER, localdesc,
 			    PCAP_TEXT_SOURCE_ON_LOCAL_HOST) == -1)
 			{
-				pcap_fmt_errmsg_for_errno(errbuf,
+				pcapint_fmt_errmsg_for_errno(errbuf,
 				    PCAP_ERRBUF_SIZE, errno,
 				    "malloc() failed");
 				pcap_freealldevs(*alldevs);
@@ -187,11 +194,14 @@ int pcap_findalldevs_ex(const char *source, struct pcap_rmtauth *auth, pcap_if_t
 		DIR *unixdir;
 #endif
 
-		if (pcap_parsesrcstr(source, &type, NULL, NULL, name, errbuf) == -1)
-			return -1;
-
 		/* Check that the filename is correct */
 		stringlen = strlen(name);
+
+		if (! stringlen) {
+			snprintf(errbuf, PCAP_ERRBUF_SIZE,
+			    "To list local files, the source string must include a directory.");
+			return -1;
+		}
 
 		/* The directory must end with '\' in Win32 and '/' in UNIX */
 #ifdef _WIN32
@@ -209,7 +219,7 @@ int pcap_findalldevs_ex(const char *source, struct pcap_rmtauth *auth, pcap_if_t
 		}
 
 		/* Save the path for future reference */
-		pcap_snprintf(path, sizeof(path), "%s", name);
+		snprintf(path, sizeof(path), "%s", name);
 		pathlen = strlen(path);
 
 #ifdef _WIN32
@@ -224,20 +234,32 @@ int pcap_findalldevs_ex(const char *source, struct pcap_rmtauth *auth, pcap_if_t
 
 		if (filehandle == INVALID_HANDLE_VALUE)
 		{
-			pcap_snprintf(errbuf, PCAP_ERRBUF_SIZE, "Error when listing files: does folder '%s' exist?", path);
+			snprintf(errbuf, PCAP_ERRBUF_SIZE, "Error when listing files: does folder '%s' exist?", path);
 			return -1;
 		}
 
 #else
 		/* opening the folder */
 		unixdir= opendir(path);
+		if (unixdir == NULL) {
+			DIAG_OFF_FORMAT_TRUNCATION
+			snprintf(errbuf, PCAP_ERRBUF_SIZE,
+			    "Error when listing files in '%s': %s", path, pcap_strerror(errno));
+			DIAG_ON_FORMAT_TRUNCATION
+			return -1;
+		}
 
 		/* get the first file into it */
+		errno = 0;
 		filedata= readdir(unixdir);
 
 		if (filedata == NULL)
 		{
-			pcap_snprintf(errbuf, PCAP_ERRBUF_SIZE, "Error when listing files: does folder '%s' exist?", path);
+			DIAG_OFF_FORMAT_TRUNCATION
+			snprintf(errbuf, PCAP_ERRBUF_SIZE,
+			    "Error when listing files in '%s': %s", path, pcap_strerror(errno));
+			DIAG_ON_FORMAT_TRUNCATION
+			closedir(unixdir);
 			return -1;
 		}
 #endif
@@ -249,11 +271,13 @@ int pcap_findalldevs_ex(const char *source, struct pcap_rmtauth *auth, pcap_if_t
 			/* Skip the file if the pathname won't fit in the buffer */
 			if (pathlen + strlen(filedata.cFileName) >= sizeof(filename))
 				continue;
-			pcap_snprintf(filename, sizeof(filename), "%s%s", path, filedata.cFileName);
+			snprintf(filename, sizeof(filename), "%s%s", path, filedata.cFileName);
 #else
 			if (pathlen + strlen(filedata->d_name) >= sizeof(filename))
 				continue;
-			pcap_snprintf(filename, sizeof(filename), "%s%s", path, filedata->d_name);
+			DIAG_OFF_FORMAT_TRUNCATION
+			snprintf(filename, sizeof(filename), "%s%s", path, filedata->d_name);
+			DIAG_ON_FORMAT_TRUNCATION
 #endif
 
 			fp = pcap_open_offline(filename, errbuf);
@@ -264,10 +288,15 @@ int pcap_findalldevs_ex(const char *source, struct pcap_rmtauth *auth, pcap_if_t
 				dev = (pcap_if_t *)malloc(sizeof(pcap_if_t));
 				if (dev == NULL)
 				{
-					pcap_fmt_errmsg_for_errno(errbuf,
+					pcapint_fmt_errmsg_for_errno(errbuf,
 					    PCAP_ERRBUF_SIZE, errno,
 					    "malloc() failed");
 					pcap_freealldevs(*alldevs);
+#ifdef _WIN32
+					FindClose(filehandle);
+#else
+					closedir(unixdir);
+#endif
 					return -1;
 				}
 
@@ -297,30 +326,45 @@ int pcap_findalldevs_ex(const char *source, struct pcap_rmtauth *auth, pcap_if_t
 				if (pcap_createsrcstr(tmpstring, PCAP_SRC_FILE, NULL, NULL, filename, errbuf) == -1)
 				{
 					pcap_freealldevs(*alldevs);
+#ifdef _WIN32
+					FindClose(filehandle);
+#else
+					closedir(unixdir);
+#endif
 					return -1;
 				}
 
 				dev->name = strdup(tmpstring);
 				if (dev->name == NULL)
 				{
-					pcap_fmt_errmsg_for_errno(errbuf,
+					pcapint_fmt_errmsg_for_errno(errbuf,
 					    PCAP_ERRBUF_SIZE, errno,
 					    "malloc() failed");
 					pcap_freealldevs(*alldevs);
+#ifdef _WIN32
+					FindClose(filehandle);
+#else
+					closedir(unixdir);
+#endif
 					return -1;
 				}
 
 				/*
 				 * Create the description.
 				 */
-				if (pcap_asprintf(&dev->description,
+				if (pcapint_asprintf(&dev->description,
 				    "%s '%s' %s", PCAP_TEXT_SOURCE_FILE,
 				    filename, PCAP_TEXT_SOURCE_ON_LOCAL_HOST) == -1)
 				{
-					pcap_fmt_errmsg_for_errno(errbuf,
+					pcapint_fmt_errmsg_for_errno(errbuf,
 					    PCAP_ERRBUF_SIZE, errno,
 					    "malloc() failed");
 					pcap_freealldevs(*alldevs);
+#ifdef _WIN32
+					FindClose(filehandle);
+#else
+					closedir(unixdir);
+#endif
 					return -1;
 				}
 
@@ -334,19 +378,27 @@ int pcap_findalldevs_ex(const char *source, struct pcap_rmtauth *auth, pcap_if_t
 #endif
 
 
-#ifdef _WIN32
 		/* Close the search handle. */
+#ifdef _WIN32
 		FindClose(filehandle);
+#else
+		closedir(unixdir);
 #endif
 
 		return 0;
 	}
 
 	case PCAP_SRC_IFREMOTE:
+		if (strlen(name)) {
+			snprintf(errbuf, PCAP_ERRBUF_SIZE,
+			    "To list remote capture devices, the source string must not include a device name.");
+			return -1;
+		}
+
 		return pcap_findalldevs_ex_remote(source, auth, alldevs, errbuf);
 
 	default:
-		pcap_strlcpy(errbuf, "Source type not supported", PCAP_ERRBUF_SIZE);
+		pcapint_strlcpy(errbuf, "Source type not supported", PCAP_ERRBUF_SIZE);
 		return -1;
 	}
 }
@@ -370,7 +422,7 @@ pcap_t *pcap_open(const char *source, int snaplen, int flags, int read_timeout, 
 
 	if (strlen(source) > PCAP_BUF_SIZE)
 	{
-		pcap_snprintf(errbuf, PCAP_ERRBUF_SIZE, "The source string is too long. Cannot handle it correctly.");
+		snprintf(errbuf, PCAP_ERRBUF_SIZE, "The source string is too long. Cannot handle it correctly.");
 		return NULL;
 	}
 
@@ -384,13 +436,28 @@ pcap_t *pcap_open(const char *source, int snaplen, int flags, int read_timeout, 
 	switch (type)
 	{
 	case PCAP_SRC_FILE:
+		if (! strlen(name)) {
+			snprintf(errbuf, PCAP_ERRBUF_SIZE,
+			    "To open a local file, the source string must include the file path.");
+			return NULL;
+		}
 		return pcap_open_offline(name, errbuf);
 
 	case PCAP_SRC_IFLOCAL:
+		if (! strlen(name)) {
+			snprintf(errbuf, PCAP_ERRBUF_SIZE,
+			    "To open a local capture device, the source string must include the device name.");
+			return NULL;
+		}
 		fp = pcap_create(name, errbuf);
 		break;
 
 	case PCAP_SRC_IFREMOTE:
+		if (! strlen(name)) {
+			snprintf(errbuf, PCAP_ERRBUF_SIZE,
+			    "To open a remote capture device, the source string must include the device name.");
+			return NULL;
+		}
 		/*
 		 * Although we already have host, port and iface, we prefer
 		 * to pass only 'source' to pcap_open_rpcap(), so that it
@@ -400,7 +467,7 @@ pcap_t *pcap_open(const char *source, int snaplen, int flags, int read_timeout, 
 		return pcap_open_rpcap(source, snaplen, flags, read_timeout, auth, errbuf);
 
 	default:
-		pcap_strlcpy(errbuf, "Source type not supported", PCAP_ERRBUF_SIZE);
+		pcapint_strlcpy(errbuf, "Source type not supported", PCAP_ERRBUF_SIZE);
 		return NULL;
 	}
 
@@ -444,17 +511,19 @@ pcap_t *pcap_open(const char *source, int snaplen, int flags, int read_timeout, 
 	return fp;
 
 fail:
+	DIAG_OFF_FORMAT_TRUNCATION
 	if (status == PCAP_ERROR)
-		pcap_snprintf(errbuf, PCAP_ERRBUF_SIZE, "%s: %s",
+		snprintf(errbuf, PCAP_ERRBUF_SIZE, "%s: %s",
 		    name, fp->errbuf);
 	else if (status == PCAP_ERROR_NO_SUCH_DEVICE ||
 	    status == PCAP_ERROR_PERM_DENIED ||
 	    status == PCAP_ERROR_PROMISC_PERM_DENIED)
-		pcap_snprintf(errbuf, PCAP_ERRBUF_SIZE, "%s: %s (%s)",
+		snprintf(errbuf, PCAP_ERRBUF_SIZE, "%s: %s (%s)",
 		    name, pcap_statustostr(status), fp->errbuf);
 	else
-		pcap_snprintf(errbuf, PCAP_ERRBUF_SIZE, "%s: %s",
+		snprintf(errbuf, PCAP_ERRBUF_SIZE, "%s: %s",
 		    name, pcap_statustostr(status));
+	DIAG_ON_FORMAT_TRUNCATION
 	pcap_close(fp);
 	return NULL;
 }

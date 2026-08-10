@@ -21,10 +21,10 @@
 
 /*
  * Prototypes missing in Tru64 UNIX 5.x
- * XXX - "pcap_snprintf()" and "pcap_vsnprintf()" aren't missing, but you have to
+ * XXX - "snprintf()" and "vsnprintf()" aren't missing, but you have to
  * #define the right value to get them defined by <stdio.h>.
  */
-int	pcap_snprintf(char *, size_t, const char *, ...);
-int	pcap_vsnprintf(char *, size_t, const char *, va_list);
+int	snprintf(char *, size_t, const char *, ...);
+int	vsnprintf(char *, size_t, const char *, va_list);
 int	pfopen(char *, int);
 

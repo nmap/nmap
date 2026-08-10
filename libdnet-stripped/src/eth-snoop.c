@@ -3,7 +3,7 @@
  *
  * Copyright (c) 2000 Dug Song <dugsong@monkey.org>
  *
- * $Id: eth-snoop.c 548 2005-01-30 06:01:57Z dugsong $
+ * $Id$
  */
 
 #include "config.h"

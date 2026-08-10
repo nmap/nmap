@@ -3,128 +3,59 @@
  * EchoServer.cc --                                                        *
  *                                                                         *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
- *                                                                         *
- * The Nmap Security Scanner is (C) 1996-2019 Insecure.Com LLC ("The Nmap  *
- * Project"). Nmap is also a registered trademark of the Nmap Project.     *
- * This program is free software; you may redistribute and/or modify it    *
- * under the terms of the GNU General Public License as published by the   *
- * Free Software Foundation; Version 2 ("GPL"), BUT ONLY WITH ALL OF THE   *
- * CLARIFICATIONS AND EXCEPTIONS DESCRIBED HEREIN.  This guarantees your   *
- * right to use, modify, and redistribute this software under certain      *
- * conditions.  If you wish to embed Nmap technology into proprietary      *
- * software, we sell alternative licenses (contact sales@nmap.com).        *
- * Dozens of software vendors already license Nmap technology such as      *
- * host discovery, port scanning, OS detection, version detection, and     *
- * the Nmap Scripting Engine.                                              *
- *                                                                         *
- * Note that the GPL places important restrictions on "derivative works",  *
- * yet it does not provide a detailed definition of that term.  To avoid   *
- * misunderstandings, we interpret that term as broadly as copyright law   *
- * allows.  For example, we consider an application to constitute a        *
- * derivative work for the purpose of this license if it does any of the   *
- * following with any software or content covered by this license          *
- * ("Covered Software"):                                                   *
- *                                                                         *
- * o Integrates source code from Covered Software.                         *
- *                                                                         *
- * o Reads or includes copyrighted data files, such as Nmap's nmap-os-db   *
- * or nmap-service-probes.                                                 *
- *                                                                         *
- * o Is designed specifically to execute Covered Software and parse the    *
- * results (as opposed to typical shell or execution-menu apps, which will *
- * execute anything you tell them to).                                     *
- *                                                                         *
- * o Includes Covered Software in a proprietary executable installer.  The *
- * installers produced by InstallShield are an example of this.  Including *
- * Nmap with other software in compressed or archival form does not        *
- * trigger this provision, provided appropriate open source decompression  *
- * or de-archiving software is widely available for no charge.  For the    *
- * purposes of this license, an installer is considered to include Covered *
- * Software even if it actually retrieves a copy of Covered Software from  *
- * another source during runtime (such as by downloading it from the       *
- * Internet).                                                              *
- *                                                                         *
- * o Links (statically or dynamically) to a library which does any of the  *
- * above.                                                                  *
- *                                                                         *
- * o Executes a helper program, module, or script to do any of the above.  *
- *                                                                         *
- * This list is not exclusive, but is meant to clarify our interpretation  *
- * of derived works with some common examples.  Other people may interpret *
- * the plain GPL differently, so we consider this a special exception to   *
- * the GPL that we apply to Covered Software.  Works which meet any of     *
- * these conditions must conform to all of the terms of this license,      *
- * particularly including the GPL Section 3 requirements of providing      *
- * source code and allowing free redistribution of the work as a whole.    *
- *                                                                         *
- * As another special exception to the GPL terms, the Nmap Project grants  *
- * permission to link the code of this program with any version of the     *
- * OpenSSL library which is distributed under a license identical to that  *
- * listed in the included docs/licenses/OpenSSL.txt file, and distribute   *
- * linked combinations including the two.                                  *
- *                                                                         *
- * The Nmap Project has permission to redistribute Npcap, a packet         *
- * capturing driver and library for the Microsoft Windows platform.        *
- * Npcap is a separate work with it's own license rather than this Nmap    *
- * license.  Since the Npcap license does not permit redistribution        *
- * without special permission, our Nmap Windows binary packages which      *
- * contain Npcap may not be redistributed without special permission.      *
- *                                                                         *
- * Any redistribution of Covered Software, including any derived works,    *
- * must obey and carry forward all of the terms of this license, including *
- * obeying all GPL rules and restrictions.  For example, source code of    *
- * the whole work must be provided and free redistribution must be         *
- * allowed.  All GPL references to "this License", are to be treated as    *
- * including the terms and conditions of this license text as well.        *
- *                                                                         *
- * Because this license imposes special exceptions to the GPL, Covered     *
- * Work may not be combined (even as part of a larger work) with plain GPL *
- * software.  The terms, conditions, and exceptions of this license must   *
- * be included as well.  This license is incompatible with some other open *
- * source licenses as well.  In some cases we can relicense portions of    *
- * Nmap or grant special permissions to use it in other open source        *
- * software.  Please contact fyodor@nmap.org with any such requests.       *
- * Similarly, we don't incorporate incompatible open source software into  *
- * Covered Software without special permission from the copyright holders. *
- *                                                                         *
- * If you have any questions about the licensing restrictions on using     *
- * Nmap in other works, we are happy to help.  As mentioned above, we also *
- * offer an alternative license to integrate Nmap into proprietary         *
- * applications and appliances.  These contracts have been sold to dozens  *
- * of software vendors, and generally include a perpetual license as well  *
- * as providing support and updates.  They also fund the continued         *
- * development of Nmap.  Please email sales@nmap.com for further           *
- * information.                                                            *
- *                                                                         *
- * If you have received a written license agreement or contract for        *
- * Covered Software stating terms other than these, you may choose to use  *
- * and redistribute Covered Software under those terms instead of these.   *
- *                                                                         *
- * Source is provided to this software because we believe users have a     *
- * right to know exactly what a program is going to do before they run it. *
- * This also allows you to audit the software for security holes.          *
- *                                                                         *
- * Source code also allows you to port Nmap to new platforms, fix bugs,    *
- * and add new features.  You are highly encouraged to send your changes   *
- * to the dev@nmap.org mailing list for possible incorporation into the    *
- * main distribution.  By sending these changes to Fyodor or one of the    *
- * Insecure.Org development mailing lists, or checking them into the Nmap  *
- * source code repository, it is understood (unless you specify            *
- * otherwise) that you are offering the Nmap Project the unlimited,        *
- * non-exclusive right to reuse, modify, and relicense the code.  Nmap     *
- * will always be available Open Source, but this is important because     *
- * the inability to relicense code has caused devastating problems for     *
- * other Free Software projects (such as KDE and NASM).  We also           *
- * occasionally relicense the code to third parties as discussed above.    *
- * If you wish to specify special license conditions of your               *
- * contributions, just say so when you send them.                          *
- *                                                                         *
- * This program is distributed in the hope that it will be useful, but     *
- * WITHOUT ANY WARRANTY; without even the implied warranty of              *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the Nmap      *
- * license file for more details (it's in a COPYING file included with     *
- * Nmap, and also available from https://svn.nmap.org/nmap/COPYING)        *
- *                                                                         *
+ *
+ * The Nmap Security Scanner is (C) 1996-2026 Nmap Software LLC ("The Nmap
+ * Project"). Nmap is also a registered trademark of the Nmap Project.
+ *
+ * This program is distributed under the terms of the Nmap Public Source
+ * License (NPSL). The exact license text applying to a particular Nmap
+ * release or source code control revision is contained in the LICENSE
+ * file distributed with that version of Nmap or source code control
+ * revision. More Nmap copyright/legal information is available from
+ * https://nmap.org/book/man-legal.html, and further information on the
+ * NPSL license itself can be found at https://nmap.org/npsl/ . This
+ * header summarizes some key points from the Nmap license, but is no
+ * substitute for the actual license text.
+ *
+ * Nmap is generally free for end users to download and use themselves,
+ * including commercial use. It is available from https://nmap.org.
+ *
+ * The Nmap license generally prohibits companies from using and
+ * redistributing Nmap in commercial products, but we sell a special Nmap
+ * OEM Edition with a more permissive license and special features for
+ * this purpose. See https://nmap.org/oem/
+ *
+ * If you have received a written Nmap license agreement or contract
+ * stating terms other than these (such as an Nmap OEM license), you may
+ * choose to use and redistribute Nmap under those terms instead.
+ *
+ * The official Nmap Windows builds include the Npcap software
+ * (https://npcap.com) for packet capture and transmission. It is under
+ * separate license terms which forbid redistribution without special
+ * permission. So the official Nmap Windows builds may not be redistributed
+ * without special permission (such as an Nmap OEM license).
+ *
+ * Source is provided to this software because we believe users have a
+ * right to know exactly what a program is going to do before they run it.
+ * This also allows you to audit the software for security holes.
+ *
+ * Source code also allows you to port Nmap to new platforms, fix bugs, and
+ * add new features. You are highly encouraged to submit your changes as a
+ * Github PR or by email to the dev@nmap.org mailing list for possible
+ * incorporation into the main distribution. Unless you specify otherwise, it
+ * is understood that you are offering us very broad rights to use your
+ * submissions as described in the Nmap Public Source License Contributor
+ * Agreement. This is important because we fund the project by selling licenses
+ * with various terms, and also because the inability to relicense code has
+ * caused devastating problems for other Free Software projects (such as KDE
+ * and NASM).
+ *
+ * The free version of Nmap is distributed in the hope that it will be
+ * useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. Warranties,
+ * indemnification and commercial support are all available through the
+ * Npcap OEM program--see https://nmap.org/oem/
+ *
  ***************************************************************************/
 
 #include "nping.h"
@@ -159,7 +90,7 @@ void EchoServer::reset() {
 
 /** Adds a new client context object to the server context list */
 int EchoServer::addClientContext(NEPContext ctx){
-  nping_print(DBG_4, "%s(ctx->id=%d)", __func__, ctx.getIdentifier());
+  nping_print(DBG_4, "%s(ctx->id=%ld)", __func__, ctx.getIdentifier());
   this->client_ctx.push_back(ctx);
   return OP_SUCCESS;
 } /* End of addClientContext() */
@@ -169,14 +100,14 @@ int EchoServer::addClientContext(NEPContext ctx){
   * On success, it returns a pointer to the client's context object. NULL is
   * returned when no context could be found.  */
 NEPContext *EchoServer::getClientContext(clientid_t clnt){
-  nping_print(DBG_4, "%s(%d) %lu", __func__, clnt, (unsigned long)this->client_ctx.size());
+  nping_print(DBG_4, "%s(%ld) %lu", __func__, clnt, (unsigned long)this->client_ctx.size());
   for(unsigned int i=0; i<this->client_ctx.size(); i++){
     if(this->client_ctx[i].getIdentifier() == clnt ){
-        nping_print(DBG_3, "Found client with ID #%d at p%d. Total clients %lu", clnt, i, (unsigned long)this->client_ctx.size());
+        nping_print(DBG_3, "Found client with ID #%ld at p%d. Total clients %lu", clnt, i, (unsigned long)this->client_ctx.size());
         return &(this->client_ctx[i]);
     }
   }
-  nping_print(DBG_3, "No client with ID #%d was found. Total clients %lu", clnt, (unsigned long)this->client_ctx.size());
+  nping_print(DBG_3, "No client with ID #%ld was found. Total clients %lu", clnt, (unsigned long)this->client_ctx.size());
   return NULL;
 } /* End of getClientContext() */
 
@@ -186,11 +117,11 @@ NEPContext *EchoServer::getClientContext(clientid_t clnt){
   * returned when no context could be found.  */
 NEPContext *EchoServer::getClientContext(nsock_iod iod){
   nping_print(DBG_4, "%s()", __func__);
-  clientid_t *id=NULL;
-  if( (id=(clientid_t *)nsock_iod_get_udata(iod))==NULL )
+  clientid_t id=CLIENT_NOT_FOUND;
+  if( (id=(clientid_t)nsock_iod_get_udata(iod)) == CLIENT_NOT_FOUND )
     return NULL;
   else
-    return this->getClientContext(*id);
+    return this->getClientContext(id);
 } /* End of getClientContext() */
 
 
@@ -214,7 +145,7 @@ int EchoServer::destroyClientContext(clientid_t clnt){
 
 /** Returns the Nsock IOD associated with a given client ID. */
 nsock_iod EchoServer::getClientNsockIOD(clientid_t clnt){
-  nping_print(DBG_4, "%s(%d)", __func__, clnt);
+  nping_print(DBG_4, "%s(%ld)", __func__, clnt);
   NEPContext *ctx;
   if((ctx=this->getClientContext(clnt))==NULL )
     return NULL;
@@ -389,7 +320,7 @@ clientid_t EchoServer::nep_match_headers(IPv4Header *ip4, IPv6Header *ip6, TCPHe
     for(i=0; i<this->client_ctx.size(); i++ ){
         current_score=0;
         ctx=&(this->client_ctx[i]);
-        nping_print(DBG_2, "%s() Trying to match packet against client #%d", __func__, ctx->getIdentifier());
+        nping_print(DBG_2, "%s() Trying to match packet against client #%ld", __func__, ctx->getIdentifier());
         if( ctx->ready() ){
             /* Iterate through client's list of packet field specifiers */
             for(k=0; (fspec=ctx->getClientFieldSpec(k))!=NULL; k++){
@@ -565,19 +496,20 @@ clientid_t EchoServer::nep_match_headers(IPv4Header *ip4, IPv6Header *ip6, TCPHe
                              * the matching logic. */
                             current_score+= MIN(4, fspec->len)*FACTOR_PAYLOAD_MAGIC;
                         }
+                        free(buff);
                     break;
 
                     default:
-                        nping_warning(QT_2, "Bogus field specifier found in client #%d context. Please report a bug", ctx->getIdentifier());
+                        nping_warning(QT_2, "Bogus field specifier found in client #%ld context. Please report a bug", ctx->getIdentifier());
                     break;
-                }           
+                }
             } /* End of field specifiers loop */
 
             nping_print(DBG_3, "%s() current_score=%.02f candidate_score=%.02f", __func__, current_score, candidate_score);
             if( (current_score>0) && (current_score>=candidate_score)){
                 candidate_score=current_score;
                 candidate=ctx->getIdentifier();
-                nping_print(DBG_3, "%s() Found better candidate (client #%d; score=%.02f)", __func__, candidate, candidate_score);
+                nping_print(DBG_3, "%s() Found better candidate (client #%ld; score=%.02f)", __func__, candidate, candidate_score);
             }
         }
     } /* End of connected clients loop */
@@ -593,7 +525,7 @@ clientid_t EchoServer::nep_match_headers(IPv4Header *ip4, IPv6Header *ip6, TCPHe
 
     /* Check if we managed to match packet and client */
     if (candidate>=0 && candidate_score>=minimum_score){
-        nping_print(DBG_2, "%s() Packet matched successfully with client #%d", __func__, candidate);
+        nping_print(DBG_2, "%s() Packet matched successfully with client #%ld", __func__, candidate);
         return candidate;
     }else{
         if(candidate<0)
@@ -905,24 +837,26 @@ int EchoServer::nep_capture_handler(nsock_pool nsp, nsock_event nse, void *param
     nping_print(DBG_3, "Couldn't match captured packet with a client");
     return OP_FAILURE;
   }else{
-    nping_print(DBG_4, "Captured packet belongs to client #%d", clnt);
+    nping_print(DBG_4, "Captured packet belongs to client #%ld", clnt);
   }
 
   /* Fetch client context */
   if( (ctx=this->getClientContext(clnt)) == NULL ){
-    nping_print(DBG_2, "Error: no context found for client #%d", clnt);
+    nping_print(DBG_2, "Error: no context found for client #%ld", clnt);
     return OP_FAILURE;
   }
 
   /* Lookup client's IOD */
   if( (clnt_iod=ctx->getNsockIOD()) == NULL ){
-    nping_print(DBG_2, "Error: no IOD found for client #%d", clnt);
+    nping_print(DBG_2, "Error: no IOD found for client #%ld", clnt);
     return OP_FAILURE;
   }
 
   if( ctx->ready() ){
       this->generate_echo(&pkt_out, packet, packetlen, ctx);
-      nsock_write(nsp, clnt_iod, echo_handler, NSOCK_INFINITE, NULL, (const char *)pkt_out.getBinaryBuffer(), pkt_out.getLen());
+      int pktlen;
+      u8 *pktbuf = pkt_out.getBinaryBuffer(&pktlen);
+      nsock_write(nsp, clnt_iod, echo_handler, NSOCK_INFINITE, pktbuf, (const char *)pktbuf, pktlen);
       o.stats.addEchoedPacket(packetlen);
   }
   return OP_SUCCESS;
@@ -930,6 +864,7 @@ int EchoServer::nep_capture_handler(nsock_pool nsp, nsock_event nse, void *param
 
 
 int EchoServer::nep_echo_handler(nsock_pool nsp, nsock_event nse, void *param){
+  u8 *pktbuf = (u8 *)param;
   nping_print(DBG_4, "%s()", __func__);
   enum nse_status status=nse_status(nse);
   if (status!=NSE_STATUS_SUCCESS){
@@ -938,6 +873,7 @@ int EchoServer::nep_echo_handler(nsock_pool nsp, nsock_event nse, void *param){
   }else{
     nping_print(DBG_1, "SENT: NEP_ECHO");
   }
+  free(pktbuf);
   return OP_SUCCESS;
 } /* End of nep_echo_handler() */
 
@@ -1003,12 +939,16 @@ int EchoServer::nep_hs_client_handler(nsock_pool nsp, nsock_event nse, void *par
       this->nep_session_ended_handler(nsp, nse, param);
       return OP_FAILURE;
   }
-  nsock_write(nsp, nsi, hs_final_handler, NSOCK_INFINITE, NULL, (const char *)pkt_out.getBinaryBuffer(), pkt_out.getLen());
+  int pktlen;
+  u8 *pktbuf = pkt_out.getBinaryBuffer(&pktlen);
+  nsock_write(nsp, nsi, hs_final_handler, NSOCK_INFINITE, pktbuf, (const char *)pktbuf, pktlen);
   return OP_SUCCESS;
 } /* End of nep_hs_client_handler() */
 
 
 int EchoServer::nep_hs_final_handler(nsock_pool nsp, nsock_event nse, void *param){
+  u8 *pktbuf = (u8 *)param;
+  free(pktbuf);
   nping_print(DBG_4, "%s()", __func__);
   nsock_iod nsi = nse_iod(nse);
   nping_print(DBG_1, "SENT: NEP_HANDSHAKE_FINAL");
@@ -1050,15 +990,17 @@ int EchoServer::nep_packetspec_handler(nsock_pool nsp, nsock_event nse, void *pa
   /* Validate received NEP_PACKET_SPEC message */
   if( this->parse_packet_spec(recvbuff, recvbytes, ctx)!=OP_SUCCESS ){
       this->nep_session_ended_handler(nsp, nse, param);
-      nping_print(VB_1, "[%lu] Couldn't establish NEP session with client #%d (%s:%d).", (unsigned long)time(NULL), ctx->getIdentifier(), IPtoa(ctx->getAddress()), sockaddr2port(ctx->getAddress()));
+      nping_print(VB_1, "[%lu] Couldn't establish NEP session with client #%ld (%s:%d).", (unsigned long)time(NULL), ctx->getIdentifier(), IPtoa(ctx->getAddress()), sockaddr2port(ctx->getAddress()));
       return OP_FAILURE;
   }
   ctx->setState(STATE_READY_SENT);
-  nping_print(VB_1, "[%lu] NEP handshake with client #%d (%s:%d) was performed successfully", (unsigned long)time(NULL), ctx->getIdentifier(), IPtoa(ctx->getAddress()), sockaddr2port(ctx->getAddress()));
+  nping_print(VB_1, "[%lu] NEP handshake with client #%ld (%s:%d) was performed successfully", (unsigned long)time(NULL), ctx->getIdentifier(), IPtoa(ctx->getAddress()), sockaddr2port(ctx->getAddress()));
 
   /* Craft response and send it */
   this->generate_ready(&pkt_out, ctx);
-  nsock_write(nsp, nsi, ready_handler, NSOCK_INFINITE, NULL, (const char *)pkt_out.getBinaryBuffer(), pkt_out.getLen());
+  int pktlen;
+  u8 *pktbuf = pkt_out.getBinaryBuffer(&pktlen);
+  nsock_write(nsp, nsi, ready_handler, NSOCK_INFINITE, pktbuf, (const char *)pktbuf, pktlen);
 
   /* From this point, the client is not supposed to send anything to the server
    * through the side channel. However, we now schedule a read operation so
@@ -1074,6 +1016,8 @@ int EchoServer::nep_packetspec_handler(nsock_pool nsp, nsock_event nse, void *pa
 
 
 int EchoServer::nep_ready_handler(nsock_pool nsp, nsock_event nse, void *param){
+  u8 *pktbuf = (u8 *)param;
+  free(pktbuf);
   nping_print(DBG_4, "%s()", __func__);
   nping_print(DBG_1, "SENT: NEP_READY");
   return OP_SUCCESS;
@@ -1088,12 +1032,12 @@ int EchoServer::nep_session_ended_handler(nsock_pool nsp, nsock_event nse, void 
 
   /* Lookup client context */
   if( (ctx=this->getClientContext(nsi))!=NULL ){
-    nping_print(VB_0, "[%lu] Client #%d (%s:%d) disconnected", (unsigned long)time(NULL), ctx->getIdentifier(), IPtoa(ctx->getAddress()), sockaddr2port(ctx->getAddress()));
+    nping_print(VB_0, "[%lu] Client #%ld (%s:%d) disconnected", (unsigned long)time(NULL), ctx->getIdentifier(), IPtoa(ctx->getAddress()), sockaddr2port(ctx->getAddress()));
     clnt=ctx->getIdentifier();
     if(this->destroyClientContext(clnt)!=OP_SUCCESS)
-        nping_print(DBG_2, "Client #%d disconnected but no context found. This may be a bug.", clnt);
+        nping_print(DBG_2, "Client #%ld disconnected but no context found. This may be a bug.", clnt);
     else
-        nping_print(DBG_2, "Deleted client #%d context.", clnt);
+        nping_print(DBG_2, "Deleted client #%ld context.", clnt);
   }
   nsock_iod_delete(nsi, NSOCK_PENDING_SILENT);
 
@@ -1288,7 +1232,7 @@ int EchoServer::parse_packet_spec(u8 *pkt, size_t pktlen, NEPContext *ctx){
   }
   /* Check client provided mandatory IP ID (or Flow) spec and at least one other spec */
   if(id_received && recvspecs>=4){
-    nping_print(VB_2, "[%lu] Good packet specification received from client #%d (Specs=%d,IP=%d,Proto=%d,Cnt=%d)",
+    nping_print(VB_2, "[%lu] Good packet specification received from client #%ld (Specs=%d,IP=%d,Proto=%d,Cnt=%d)",
       (unsigned long)time(NULL), ctx->getIdentifier(), recvspecs, h.getIPVersion(), h.getProtocol(), h.getPacketCount()
             );
     return OP_SUCCESS;
@@ -1446,7 +1390,7 @@ int EchoServer::start() {
   socklen_t sslen=sizeof(ss);      /**< New client socket address len        */
   int listen_sd=-1;                /**< Socket descriptor for listening      */
   int client_sd=-1;                /**< Socket descriptor for new clients    */
-  clientid_t *idpnt=NULL;          /**< For new client assigned identifiers  */
+  clientid_t newid=CLIENT_NOT_FOUND; /**< For new client assigned identifiers  */
   NEPContext ctx;                  /**< Context for the new client           */
   EchoHeader h;
   int rc;
@@ -1467,14 +1411,17 @@ int EchoServer::start() {
     nping_fatal(QT_3, "Failed to create new nsock_iod.  QUITTING.\n");
 
   /* Open pcap */
-  nping_print(DBG_2,"Opening pcap device %s", o.getDevice());
-  Strncpy(pcapdev, o.getDevice(), sizeof(pcapdev));
+  const char *device = o.getDevice();
+  if (!device)
+    nping_fatal(QT_3, "Unable to determine device name.  QUITTING.\n");
+  nping_print(DBG_2,"Opening pcap device %s", device);
+  Strncpy(pcapdev, device, sizeof(pcapdev));
   rc = nsock_pcap_open(nsp, pcap_nsi, pcapdev, MAX_ECHOED_PACKET_LEN, 1,
                        ProbeMode::getBPFFilterString());
   if (rc)
-    nping_fatal(QT_3, "Error opening capture device %s\n", o.getDevice());
+    nping_fatal(QT_3, "Error opening capture device %s\n", device);
   else
-    nping_print(VB_0,"Packet capture will be performed using network interface %s.", o.getDevice());
+    nping_print(VB_0,"Packet capture will be performed using network interface %s.", device);
   nping_print(VB_0,"Waiting for connections...");
 
   /* Get a socket suitable for an accept() call */
@@ -1487,13 +1434,8 @@ int EchoServer::start() {
         unblock_socket(listen_sd);
         if ((client_sd=accept(listen_sd, (struct sockaddr *)&ss, &sslen)) >= 0){
             nping_print(VB_0, "[%lu] Connection received from %s:%d", (unsigned long)time(NULL), IPtoa(&ss), sockaddr2port(&ss));
-            /* Assign a new client identifier. The ID is bound to the IOD */
-            if( (idpnt=(clientid_t *)calloc(1, sizeof(clientid_t)))==NULL ){
-                nping_warning(QT_2, "Not enough memory for new clients.");
-                return OP_FAILURE;
-            }
-            *idpnt=this->getNewClientID();
-            if( (client_nsi=nsock_iod_new2(nsp, client_sd, idpnt))==NULL ){
+            newid=this->getNewClientID();
+            if( (client_nsi=nsock_iod_new2(nsp, client_sd, (void *)newid))==NULL ){
                 nping_warning(QT_2, "Not enough memory for new clients.");
                 return OP_FAILURE;
             }else{
@@ -1505,7 +1447,7 @@ int EchoServer::start() {
                 close(listen_sd);
 
             /* Create a new client context object */
-            ctx.setIdentifier(*idpnt);
+            ctx.setIdentifier(newid);
             ctx.setAddress(ss);
             ctx.setNsockIOD(client_nsi);
             ctx.generateServerNonce();

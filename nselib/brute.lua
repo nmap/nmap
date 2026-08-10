@@ -246,7 +246,7 @@
 -- @args brute.mode can be user, pass or creds and determines what mode to run
 --       the engine in.
 --       * user - the unpwdb library is used to guess passwords, every password
---                password is tried for each user. (The user iterator is in the
+--                is tried for each user. (The user iterator is in the
 --                outer loop)
 --       * pass - the unpwdb library is used to guess passwords, each password
 --                is tried for every user. (The password iterator is in the
@@ -357,8 +357,8 @@ Options = {
     return (val == "true" or val == true or tonumber(val) == 1)
   end,
 
-  --- Sets the brute mode to either iterate over users or passwords
-  -- @see description for more information.
+  --- Sets the brute mode to either iterate over users or passwords.
+  --  See description for more information.
   --
   -- @param mode string containing either "user" or "password"
   -- @return status true on success else false
@@ -470,13 +470,13 @@ Error = {
     self.done = b
   end,
 
-  -- Marks the username as invalid, aborting further guessing.
+  --- Marks the username as invalid, aborting further guessing.
   -- @param username
   setInvalidAccount = function (self, username)
     self.invalid_account = username
   end,
 
-  -- Checks if the error reported the account as invalid.
+  --- Checks if the error reported the account as invalid.
   -- @return username string containing the invalid account
   isInvalidAccount = function (self)
     return self.invalid_account
@@ -995,10 +995,10 @@ Engine = {
     local passwords = self.passwords
 
     if "function" ~= type(usernames) then
-      return false, "Invalid usernames iterator"
+      return false, ("Invalid usernames iterator: %s"):format(usernames)
     end
     if "function" ~= type(passwords) then
-      return false, "Invalid passwords iterator"
+      return false, ("Invalid passwords iterator: %s"):format(passwords)
     end
 
     local mode = self.options.mode or stdnse.get_script_args "brute.mode"
@@ -1145,7 +1145,7 @@ Engine = {
         end
       end
 
-      if stagnated == true then
+      if stagnated then
         stagnation_count = stagnation_count + 1
 
         -- If we get inside `if` below, then we are not making any
@@ -1300,7 +1300,7 @@ Engine = {
 function usernames_iterator ()
   local status, usernames = unpwdb.usernames()
   if not status then
-    return "Failed to load usernames"
+    return usernames or "Failed to load usernames"
   end
   return usernames
 end
@@ -1310,7 +1310,7 @@ end
 function passwords_iterator ()
   local status, passwords = unpwdb.passwords()
   if not status then
-    return "Failed to load passwords"
+    return passwords or "Failed to load passwords"
   end
   return passwords
 end

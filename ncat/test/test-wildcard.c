@@ -12,14 +12,18 @@ are rejected. The SSL transactions happen over OpenSSL BIO pairs.
 #include <unistd.h>
 
 #include <openssl/bio.h>
-#include <openssl/bn.h>
 #include <openssl/ssl.h>
 #include <openssl/err.h>
 #include <openssl/rsa.h>
 #include <openssl/x509.h>
 #include <openssl/x509v3.h>
+#include <openssl/safestack.h>
 
 #include "ncat_core.h"
+#include "ncat_ssl.h"
+#if OPENSSL_VERSION_NUMBER < 0x30000000L
+#include <openssl/bn.h>
+#endif
 
 #define KEY_BITS 2048
 
@@ -157,14 +161,13 @@ end:
     X509_free(cert);
     EVP_PKEY_free(key);
 
-    (void) BIO_destroy_bio_pair(server_bio);
 
-    SSL_CTX_free(server_ctx);
-    SSL_CTX_free(client_ctx);
-
-    SSL_free(server_ssl);
     SSL_free(client_ssl);
+    SSL_free(server_ssl);
+    SSL_CTX_free(client_ctx);
+    SSL_CTX_free(server_ctx);
 
+    ERR_clear_error();
     return passed;
 }
 
@@ -291,9 +294,10 @@ stack_err:
 static int gen_cert(X509 **cert, EVP_PKEY **key,
     const struct lstr commonNames[], const struct lstr dNSNames[])
 {
+#if OPENSSL_VERSION_NUMBER < 0x30000000L
+    int rc, ret=0;
     RSA *rsa = NULL;
     BIGNUM *bne = NULL;
-    int rc, ret=0;
 
     *cert = NULL;
     *key = NULL;
@@ -303,25 +307,49 @@ static int gen_cert(X509 **cert, EVP_PKEY **key,
     if (*key == NULL)
         goto err;
     do {
+        rc = -1;
+        if (rsa != NULL) {
+          RSA_free(rsa);
+          rsa = NULL;
+        }
         /* Generate RSA key. */
         bne = BN_new();
         ret = BN_set_word(bne, RSA_F4);
         if (ret != 1)
-            goto err;
+            break;
 
         rsa = RSA_new();
         ret = RSA_generate_key_ex(rsa, KEY_BITS, bne, NULL);
         if (ret != 1)
-            goto err;
+            break;
+        BN_free(bne);
+        bne = NULL;
         /* Check RSA key. */
         rc = RSA_check_key(rsa);
     } while (rc == 0);
-    if (rc == -1)
-        goto err;
-    if (EVP_PKEY_assign_RSA(*key, rsa) == 0) {
-        RSA_free(rsa);
+
+    if (bne != NULL) {
+      BN_free(bne);
+      bne = NULL;
+    }
+    if (rc == -1 || rsa == NULL) {
+        if (rsa != NULL) {
+            RSA_free(rsa);
+            rsa = NULL;
+        }
         goto err;
     }
+    if (EVP_PKEY_assign_RSA(*key, rsa) == 0) {
+        RSA_free(rsa);
+        rsa = NULL;
+        goto err;
+    }
+#else
+    *cert = NULL;
+    *key = EVP_RSA_gen(KEY_BITS);
+    if (*key == NULL)
+        goto err;
+#endif
 
     /* Generate a certificate. */
     *cert = X509_new();
@@ -333,16 +361,24 @@ static int gen_cert(X509 **cert, EVP_PKEY **key,
 
     /* Set the commonNames. */
     if (commonNames != NULL) {
-        X509_NAME *subj;
         const struct lstr *name;
+        X509_NAME *subj = X509_NAME_new();
+        if (subj == NULL)
+          goto err;
 
-        subj = X509_get_subject_name(*cert);
         for (name = commonNames; !is_sentinel(name); name++) {
             if (X509_NAME_add_entry_by_txt(subj, "commonName", MBSTRING_ASC,
                 (unsigned char *) name->s, name->len, -1, 0) == 0) {
+                X509_NAME_free(subj);
                 goto err;
             }
         }
+        if (X509_set_subject_name(*cert, subj) == 0) {
+          X509_NAME_free(subj);
+          goto err;
+        }
+        X509_NAME_free(subj);
+        subj = NULL;
     }
 
     /* Set the dNSNames. */
@@ -386,6 +422,12 @@ static int gen_cert(X509 **cert, EVP_PKEY **key,
     return 1;
 
 err:
+#if OPENSSL_VERSION_NUMBER < 0x30000000L
+    if (bne != NULL)
+      BN_free(bne);
+    if (rsa != NULL)
+      RSA_free(rsa);
+#endif
     if (*cert != NULL)
         X509_free(*cert);
     if (*key != NULL)
@@ -612,5 +654,11 @@ int main(void)
 
     printf("%d / %d tests passed.\n", tests_passed, tests_run);
 
+    EVP_cleanup();
+    CRYPTO_cleanup_all_ex_data();
+    ERR_free_strings();
+#if OPENSSL_VERSION_NUMBER >= 0x30000000L
+    OPENSSL_cleanup();
+#endif
     return tests_passed == tests_run ? 0 : 1;
 }

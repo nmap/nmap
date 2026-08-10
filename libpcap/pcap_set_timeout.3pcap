@@ -31,7 +31,7 @@ int pcap_set_timeout(pcap_t *p, int to_ms);
 .ft
 .fi
 .SH DESCRIPTION
-.B pcap_set_timeout()
+.BR pcap_set_timeout ()
 sets the packet buffer timeout that will be used on a capture handle
 when the handle is activated to
 .IR to_ms ,
@@ -44,10 +44,13 @@ behavior if the timeout is set to zero or to a negative value.  We
 recommend always setting the timeout to a non-zero value unless
 immediate mode is set, in which case the timeout has no effect.
 .SH RETURN VALUE
-.B pcap_set_timeout()
-returns 0 on success or
+.BR pcap_set_timeout ()
+returns
+.B 0
+on success or
 .B PCAP_ERROR_ACTIVATED
 if called on a capture handle that has been activated.
 .SH SEE ALSO
-pcap_create(3PCAP), pcap_activate(3PCAP),
-\%pcap_set_immediate_mode(3PCAP)
+.BR pcap_create (3PCAP),
+.BR pcap_activate (3PCAP),
+.BR \%pcap_set_immediate_mode (3PCAP)

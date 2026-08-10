@@ -26,8 +26,8 @@ export NDIR=$(shell pwd)
 
 CC = @CC@
 CXX = @CXX@
-CCOPT = 
-DBGFLAGS = 
+CCOPT =
+DBGFLAGS =
 STRIP = @STRIP@
 LIBPCAPDIR = @libpcapdir@
 export LIBDNETDIR = @LIBDNETDIR@
@@ -49,7 +49,7 @@ export CFLAGS = $(CXXFLAGS)
 STATIC =
 LDFLAGS = @LDFLAGS@ $(DBGFLAGS) $(STATIC)
 OPENSSL_LIBS = @OPENSSL_LIBS@
-LIBS =  $(NSOCKDIR)/src/libnsock.a $(NBASEDIR)/libnbase.a ../libnetutil/libnetutil.a $(OPENSSL_LIBS) @LIBPCAP_LIBS@ @LIBDNET_LIBS@ @LIBS@
+LIBS =  $(NSOCKDIR)/src/libnsock.a ../libnetutil/libnetutil.a $(NBASEDIR)/libnbase.a $(OPENSSL_LIBS) @LIBPCAP_LIBS@ @LIBDNET_LIBS@ @LIBS@
 # LIBS =  -lefence @LIBS@
 # LIBS =  -lrmalloc @LIBS@
 INSTALL = @INSTALL@
@@ -58,22 +58,22 @@ export RPMTDIR=$(HOME)/rpm
 
 
 # DESTDIR is used by some package maintainers to install Nping under
-# its usual directory structure into a different tree.  See the 
+# its usual directory structure into a different tree.  See the
 # CHANGELOG for more info.
 DESTDIR =
 
 TARGET = nping
 
 
-export SRCS = ArgParser.cc common.cc common_modified.cc nping.cc NpingOps.cc utils.cc utils_net.cc output.cc stats.cc NpingTargets.cc NpingTarget.cc EchoHeader.cc EchoServer.cc EchoClient.cc ProbeMode.cc NEPContext.cc Crypto.cc
+export SRCS = ArgParser.cc common_modified.cc nping.cc NpingOps.cc utils.cc utils_net.cc output.cc stats.cc NpingTargets.cc NpingTarget.cc EchoHeader.cc EchoServer.cc EchoClient.cc ProbeMode.cc NEPContext.cc Crypto.cc
 
-export HDRS = ArgParser.h nping_config.h common.h common_modified.h nping.h NpingOps.h global_structures.h output.h utils.h utils_net.h stats.h NpingTargets.h NpingTarget.h EchoHeader.h EchoServer.h EchoClient.h ProbeMode.h NEPContext.h Crypto.h
+export HDRS = ArgParser.h nping_config.h common_modified.h nping.h NpingOps.h output.h utils.h utils_net.h stats.h NpingTargets.h NpingTarget.h EchoHeader.h EchoServer.h EchoClient.h ProbeMode.h NEPContext.h Crypto.h
 
-OBJS = ArgParser.o common.o common_modified.o nping.o NpingOps.o utils.o utils_net.o output.o stats.o NpingTargets.o NpingTarget.o EchoHeader.o EchoServer.o EchoClient.o ProbeMode.o NEPContext.o Crypto.o
+OBJS = ArgParser.o common_modified.o nping.o NpingOps.o utils.o utils_net.o output.o stats.o NpingTargets.o NpingTarget.o EchoHeader.o EchoServer.o EchoClient.o ProbeMode.o NEPContext.o Crypto.o
 
 export DOCS2DIST = leet-nping-ascii-art.txt nping.1 nping-man.html
 
-export MISC2DIST = config.guess config.sub configure configure.ac Makefile.in TODO nping_config.h.in CHANGELOG COPYING
+export MISC2DIST = config.guess config.sub configure configure.ac Makefile.in TODO nping_config.h.in CHANGELOG LICENSE
 
 
 # %.o : %.cc -- nope this is a GNU extension
@@ -107,7 +107,7 @@ generate-tarball:
 	cd nping-priv && ./create_tarballs.sh
 
 # Update the web site. WARNING: "make generate-tarball" must have been called first.
-web:	
+web:
 	cd nping-priv && ./update_web.sh
 
 clean:
@@ -124,7 +124,7 @@ distclean: clean
 	stamp-h.in config.cache config.log config.status
 
 install-nping: $(TARGET)
-	$(INSTALL) -d $(DESTDIR)$(bindir) $(DESTDIR)$(mandir)/man1
+	mkdir -p $(DESTDIR)$(bindir) $(DESTDIR)$(mandir)/man1
 	$(INSTALL) -c -m 755 nping $(DESTDIR)$(bindir)/nping
 # Use strip -x to avoid stripping dynamically loaded NSE functions. See
 # http://seclists.org/nmap-dev/2007/q4/0272.html.
@@ -136,13 +136,13 @@ install-nping: $(TARGET)
 install: install-nping
 	@echo "NPING SUCCESSFULLY INSTALLED"
 
-uninstall: uninstall-nping 
+uninstall: uninstall-nping
 
 uninstall-nping:
 	rm -f $(DESTDIR)$(bindir)/$(TARGET)
 	rm -f $(DESTDIR)$(mandir)/man1/$(TARGET).1
 
-${srcdir}/configure: configure.ac 
+${srcdir}/configure: configure.ac
 	cd ${srcdir} && autoconf
 
 ## autoheader might not change config.h.in, so touch a stamp file.

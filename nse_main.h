@@ -2,7 +2,7 @@
 #define NMAP_LUA_H
 
 #include <vector>
-#include <list>
+#include <set>
 #include <string>
 
 #include "nse_lua.h"
@@ -12,27 +12,26 @@
 class ScriptResult
 {
   private:
-    std::string id;
+    const char *id;
     /* Structured output table, an integer ref in L_NSE[LUA_REGISTRYINDEX]. */
     int output_ref;
-    /* Unstructured output string, for scripts that do not return a structured
-       table, or return a string in addition to a table. */
-    std::string output_str;
   public:
-    ScriptResult() {
-      output_ref = LUA_NOREF;
+    ScriptResult() : id(NULL), output_ref(LUA_NOREF) {}
+    ~ScriptResult() {
+      // ensures Lua ref is released
+      clear();
     }
     void clear (void);
     void set_output_tab (lua_State *, int);
-    void set_output_str (const char *);
-    void set_output_str (const char *, size_t);
     std::string get_output_str (void) const;
-    void set_id (const char *);
-    const char *get_id (void) const;
+    const char *get_id (void) const { return id; }
     void write_xml() const;
+    bool operator<(ScriptResult const &b) const {
+      return strcmp(this->id, b.id) < 0;
+    }
 };
 
-typedef std::list<ScriptResult> ScriptResults;
+typedef std::multiset<ScriptResult *> ScriptResults;
 
 /* Call this to get a ScriptResults object which can be
  * used to store Pre-Scan and Post-Scan script Results */

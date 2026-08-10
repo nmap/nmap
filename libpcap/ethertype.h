@@ -32,58 +32,58 @@
  */
 
 #ifndef ETHERTYPE_PUP
-#define	ETHERTYPE_PUP		0x0200	/* PUP protocol */
+#define ETHERTYPE_PUP		0x0200	/* PUP protocol */
 #endif
 #ifndef ETHERTYPE_IP
-#define	ETHERTYPE_IP		0x0800	/* IP protocol */
+#define ETHERTYPE_IP		0x0800	/* IP protocol */
 #endif
 #ifndef ETHERTYPE_ARP
 #define ETHERTYPE_ARP		0x0806	/* Addr. resolution protocol */
-#endif
-#ifndef ETHERTYPE_REVARP
-#define ETHERTYPE_REVARP	0x8035	/* reverse Addr. resolution protocol */
 #endif
 #ifndef ETHERTYPE_NS
 #define ETHERTYPE_NS		0x0600
 #endif
 #ifndef	ETHERTYPE_SPRITE
-#define	ETHERTYPE_SPRITE	0x0500
+#define ETHERTYPE_SPRITE	0x0500
 #endif
 #ifndef ETHERTYPE_TRAIL
 #define ETHERTYPE_TRAIL		0x1000
 #endif
 #ifndef	ETHERTYPE_MOPDL
-#define	ETHERTYPE_MOPDL		0x6001
+#define ETHERTYPE_MOPDL		0x6001
 #endif
 #ifndef	ETHERTYPE_MOPRC
-#define	ETHERTYPE_MOPRC		0x6002
+#define ETHERTYPE_MOPRC		0x6002
 #endif
 #ifndef	ETHERTYPE_DN
-#define	ETHERTYPE_DN		0x6003
+#define ETHERTYPE_DN		0x6003
 #endif
 #ifndef	ETHERTYPE_LAT
-#define	ETHERTYPE_LAT		0x6004
+#define ETHERTYPE_LAT		0x6004
 #endif
 #ifndef ETHERTYPE_SCA
 #define ETHERTYPE_SCA		0x6007
 #endif
+#ifndef ETHERTYPE_TEB
+#define ETHERTYPE_TEB		0x6558
+#endif
 #ifndef ETHERTYPE_REVARP
-#define ETHERTYPE_REVARP	0x8035
+#define ETHERTYPE_REVARP	0x8035	/* reverse Addr. resolution protocol */
 #endif
 #ifndef	ETHERTYPE_LANBRIDGE
-#define	ETHERTYPE_LANBRIDGE	0x8038
+#define ETHERTYPE_LANBRIDGE	0x8038
 #endif
 #ifndef	ETHERTYPE_DECDNS
-#define	ETHERTYPE_DECDNS	0x803c
+#define ETHERTYPE_DECDNS	0x803c
 #endif
 #ifndef	ETHERTYPE_DECDTS
-#define	ETHERTYPE_DECDTS	0x803e
+#define ETHERTYPE_DECDTS	0x803e
 #endif
 #ifndef	ETHERTYPE_VEXP
-#define	ETHERTYPE_VEXP		0x805b
+#define ETHERTYPE_VEXP		0x805b
 #endif
 #ifndef	ETHERTYPE_VPROD
-#define	ETHERTYPE_VPROD		0x805c
+#define ETHERTYPE_VPROD		0x805c
 #endif
 #ifndef ETHERTYPE_ATALK
 #define ETHERTYPE_ATALK		0x809b
@@ -101,10 +101,10 @@
 #define ETHERTYPE_IPV6		0x86dd
 #endif
 #ifndef ETHERTYPE_MPLS
-#define ETHERTYPE_MPLS          0x8847
+#define ETHERTYPE_MPLS		0x8847
 #endif
 #ifndef ETHERTYPE_MPLS_MULTI
-#define ETHERTYPE_MPLS_MULTI    0x8848
+#define ETHERTYPE_MPLS_MULTI	0x8848
 #endif
 #ifndef ETHERTYPE_PPPOED
 #define ETHERTYPE_PPPOED	0x8863
@@ -116,7 +116,7 @@
 #define ETHERTYPE_8021AD	0x88a8
 #endif
 #ifndef	ETHERTYPE_LOOPBACK
-#define	ETHERTYPE_LOOPBACK	0x9000
+#define ETHERTYPE_LOOPBACK	0x9000
 #endif
 #ifndef ETHERTYPE_8021QINQ
 #define ETHERTYPE_8021QINQ	0x9100

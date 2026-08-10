@@ -93,12 +93,12 @@ action = function(host)
   local overrides = {}
 
   status, state = smb.start(host)
-  if(status == false) then
+  if not status then
     return stdnse.format_output(false, state)
   end
 
   status, err = smb.negotiate_protocol(state, overrides)
-  if(status == false) then
+  if not status then
     smb.stop(state)
     return stdnse.format_output(false, err)
   end

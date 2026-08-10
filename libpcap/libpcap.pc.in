@@ -13,6 +13,7 @@ libdir="@libdir@"
 Name: libpcap
 Description: Platform-independent network traffic capture library
 Version: @PACKAGE_VERSION@
-Libs: -L${libdir} -l@PACKAGE_NAME@
-Libs.private: @LIBS@
+Requires.private: @REQUIRES_PRIVATE@
+Libs: -L${libdir} @RPATH@ -l@PACKAGE_NAME@
+Libs.private: @LIBS_PRIVATE@
 Cflags: -I${includedir}

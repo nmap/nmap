@@ -28,11 +28,11 @@ For a full description of Nmap's installation on Mac OS, visit the page:
 
 ## <a name="requ"></a>Requirements
 
-In order to compile, build and run Nmap on Mac OS, you will requiere the followings:
+In order to compile, build and run Nmap on Mac OS, you will require the following:
 
 1.	**Jhbuild** for bundling and dependencies (see the [BUNDLING file](../BUNDLING.md))
 2. **Xcode** for Mac OS 10.8 or later ([https://developer.apple.com/xcode](https://developer.apple.com/xcode/))
-3. **Xcode Command-line Tools** for Mac OS 10.8 or later ([https://developer.apple.com/downloads](https://developer.apple.com/downloads/) — then download the latest version compatible with your OS version)
+3. **Xcode Command-line Tools** for Mac OS 10.8 or later ([https://developer.apple.com/downloads](https://developer.apple.com/downloads/)  then download the latest version compatible with your OS version)
 
 ## <a name="install"></a>Installation
 
@@ -48,7 +48,7 @@ For far more in-depth compilation, installation, and removal notes, read the **N
 
 ## <a name="files"></a>Files in this directory
 
-* [openssl.modules](openssl.modules): This is a Jhbuild moduleset that can be used to build dependencies (openssl, libsvn and libapr) as required for building Nmap, Ncat, Nping and nmap-update. Use it like this:
+* [openssl.modules](openssl.modules): This is a Jhbuild moduleset that can be used to build dependencies (openssl) as required for building Nmap, Ncat, and Nping. Use it like this:
 
 	~~~~
 	$ jhbuild -m openssl.modules build nmap-deps
@@ -81,7 +81,7 @@ The **bundling** process is as follows:
 
 After the bundling process is done and the app is installed, the **execution** path is as follows:
 
-**Zenmap (zenmap_auth) —> zenmap.bin (launcher.sh) —> python zenmap.py**
+**Zenmap (zenmap_auth) > zenmap.bin (launcher.sh) > python zenmap.py**
 
 ## <a name="repo"></a>Repositories and Troubleshooting
 

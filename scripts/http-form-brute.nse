@@ -109,7 +109,7 @@ license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"intrusive", "brute"}
 
 
-portrule = shortport.port_or_service( {80, 443}, {"http", "https"}, "tcp", "open")
+portrule = shortport.http
 
 
 -- Miscellaneous script-wide constants
@@ -514,21 +514,21 @@ action = function (host, port)
   if not path_ok(path, hostname, port) then
     return stdnse.format_output(false, string.format("Unusable form action %q", path))
   end
-  stdnse.debug(form_debug, "Form submission path: " .. path)
+  stdnse.debug(form_debug, "Form submission path: %s", path)
 
   -- HTTP method POST is the default
   method = string.upper(method or "POST")
   if not (method == "GET" or method == "POST") then
     return stdnse.format_output(false, string.format("Invalid HTTP method %q", method))
   end
-  stdnse.debug(form_debug, "HTTP method: " .. method)
+  stdnse.debug(form_debug, "HTTP method: %s", method)
 
   -- passvar must be specified or detected, uservar is optional
   if not passvar then
     return stdnse.format_output(false, "No passvar was specified or detected (see http-form-brute.passvar)")
   end
-  stdnse.debug(form_debug, "Username field: " .. (uservar or "(not set)"))
-  stdnse.debug(form_debug, "Password field: " .. passvar)
+  stdnse.debug(form_debug, "Username field: %s", uservar or "(not set)")
+  stdnse.debug(form_debug, "Password field: %s", passvar)
 
   if onsuccess and onfailure then
     return stdnse.format_output(false, "Either the onsuccess or onfailure argument should be passed, not both.")
@@ -580,10 +580,6 @@ action = function (host, port)
   end
 
   local engine = brute.Engine:new(Driver, host, port, options)
-  -- there's a bug in http.lua that does not allow it to be called by
-  -- multiple threads
-  -- TODO: is this even true any more? We should fix it if not.
-  engine:setMaxThreads(1)
   engine.options.script_name = SCRIPT_NAME
   engine.options:setOption("passonly", not uservar)
 

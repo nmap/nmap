@@ -36,7 +36,7 @@ Build instructions:
    in the same directory as the DotZLib.build file.
    You can define 2 properties on the nant command-line to control the build:
    debug={true|false} to toggle between release/debug builds (default=true).
-   nunit={true|false} to include or esclude unit tests (default=true).
+   nunit={true|false} to include or exclude unit tests (default=true).
    Also the target clean will remove binaries.
    Output file (DotZLib.dll) will be found in either ./DotZLib/bin/release
    or ./DotZLib/bin/debug, depending on whether you are building the release
@@ -55,4 +55,4 @@ Build instructions:
 Copyright (c) Henrik Ravn 2004
 
 Use, modification and distribution are subject to the Boost Software License, Version 1.0.
-(See accompanying file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
+(See accompanying file LICENSE_1_0.txt or copy at https://www.boost.org/LICENSE_1_0.txt)

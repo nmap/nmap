@@ -1,4 +1,7 @@
 # fetch libssh2 version number from input file and write them to STDOUT
+# Copyright (C) The libssh2 project and its contributors.
+# SPDX-License-Identifier: BSD-3-Clause
+
 BEGIN {
   while ((getline < ARGV[1]) > 0) {
     if (match ($0, /^#define LIBSSH2_COPYRIGHT "[^"]+"$/)) {

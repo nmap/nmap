@@ -6,14 +6,15 @@ local vulns = require "vulns"
 local rand = require "rand"
 
 description = [[
-Attempts to exploit the "shellshock" vulnerability (CVE-2014-6271 and CVE-2014-7169) in web applications.
+Attempts to exploit the "shellshock" vulnerability (CVE-2014-6271 and
+CVE-2014-7169) in web applications.
 
-To detect this vulnerability the script executes a command that prints a
-random string and then attempts to find it inside the response body. Web apps that
- don't print back information won't be detected with this method.
+To detect this vulnerability the script executes a command that prints a random
+string and then attempts to find it inside the response body. Web apps that
+don't print back information won't be detected with this method.
 
 By default the script injects the payload in the HTTP headers User-Agent,
- Cookie, Referer and also uses the payload as the header name.
+Cookie, and Referer.
 
 Vulnerability originally discovered by Stephane Chazelas.
 
@@ -98,7 +99,6 @@ function generate_http_req(host, port, uri, custom_header, cmd)
     options["header"]["User-Agent"] = cmd
     options["header"]["Referer"] = cmd
     options["header"]["Cookie"] = cmd
-    options["header"][cmd] = cmd
   else
     stdnse.debug1("Sending '%s' in HTTP header '%s'", cmd, custom_header)
     options["header"][custom_header] = cmd
@@ -119,8 +119,9 @@ action = function(host, port)
       title = 'HTTP Shellshock vulnerability',
       state = vulns.STATE.NOT_VULN,
       description = [[
-This web application might be affected by the vulnerability known as Shellshock. It seems the server
-is executing commands injected via malicious HTTP headers.
+This web application might be affected by the vulnerability known
+as Shellshock. It seems the server is executing commands injected
+via malicious HTTP headers.
       ]],
       IDS = {CVE = 'CVE-2014-6271'},
       references = {

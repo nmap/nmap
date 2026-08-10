@@ -57,26 +57,16 @@ action = function(host, port)
   result = string.match(response, "\0\156\0\001\026\043(.*)")
   local output
 
-  if result ~= nil then
-    local firmware
-    local hostname
-    local vendor
-
+  if result ~= nil and #result > 88 then
     -- get the firmware version (2 octets)
-    local s1,s2
-    s1,s2 = string.byte(result, 22, 23)
-    firmware = s1 * 256 + s2
-
     -- get the hostname (64 octets)
-    local s3
-    s3 = string.sub(result, 24, 87)
-    hostname = string.match(s3, "(.-)\0")
+    local firmware, hostname, pos = (">I2c64"):unpack(result, 22)
+
+    hostname = string.match(hostname, "(.-)\0")
 
     -- get the vendor (should be 64 octets, but capture to end of the string to be safe)
-    local s4, length
-    length = #result
-    s4 = string.sub(result, 88, length)
-    vendor = string.match(s4, "(.-)\0")
+    local vendor = string.sub(result, pos)
+    vendor = string.match(vendor, "(.-)\0")
 
     port.version.name = "pptp"
     port.version.name_confidence = 10

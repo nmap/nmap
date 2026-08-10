@@ -3,30 +3,17 @@
 /* Define if building universal (internal helper macro) */
 #undef AC_APPLE_UNIVERSAL_BUILD
 
-/* Define to one of `_getb67', `GETB67', `getb67' for Cray-2 and Cray-YMP
-   systems. This function is required for `alloca.c' support on those systems.
-   */
-#undef CRAY_STACKSEG_END
-
-/* Define to 1 if using `alloca.c'. */
+/* Define to 1 if using 'alloca.c'. */
 #undef C_ALLOCA
 
-/* Define to 1 if you have `alloca', as a function or macro. */
+/* Define to 1 if you have 'alloca', as a function or macro. */
 #undef HAVE_ALLOCA
 
-/* Define to 1 if you have <alloca.h> and it should be used (not on Ultrix).
-   */
+/* Define to 1 if <alloca.h> works. */
 #undef HAVE_ALLOCA_H
 
 /* Define to 1 if you have the <arpa/inet.h> header file. */
 #undef HAVE_ARPA_INET_H
-
-/* Define to 1 if you have the declaration of `SecureZeroMemory', and to 0 if
-   you don't. */
-#undef HAVE_DECL_SECUREZEROMEMORY
-
-/* disabled non-blocking sockets */
-#undef HAVE_DISABLED_NONBLOCKING
 
 /* Define to 1 if you have the <dlfcn.h> header file. */
 #undef HAVE_DLFCN_H
@@ -34,8 +21,11 @@
 /* Define to 1 if you have the <errno.h> header file. */
 #undef HAVE_ERRNO_H
 
-/* Define to 1 if you have the `EVP_aes_128_ctr' function. */
-#undef HAVE_EVP_AES_128_CTR
+/* Define to 1 if you have the 'explicit_bzero' function. */
+#undef HAVE_EXPLICIT_BZERO
+
+/* Define to 1 if you have the 'explicit_memset' function. */
+#undef HAVE_EXPLICIT_MEMSET
 
 /* Define to 1 if you have the <fcntl.h> header file. */
 #undef HAVE_FCNTL_H
@@ -43,23 +33,17 @@
 /* use FIONBIO for non-blocking sockets */
 #undef HAVE_FIONBIO
 
-/* Define to 1 if you have the `gettimeofday' function. */
+/* Define to 1 if you have the 'gettimeofday' function. */
 #undef HAVE_GETTIMEOFDAY
 
 /* Define to 1 if you have the <inttypes.h> header file. */
 #undef HAVE_INTTYPES_H
-
-/* use ioctlsocket() for non-blocking sockets */
-#undef HAVE_IOCTLSOCKET
 
 /* use Ioctlsocket() for non-blocking sockets */
 #undef HAVE_IOCTLSOCKET_CASE
 
 /* Define if you have the bcrypt library. */
 #undef HAVE_LIBBCRYPT
-
-/* Define if you have the crypt32 library. */
-#undef HAVE_LIBCRYPT32
 
 /* Define if you have the gcrypt library. */
 #undef HAVE_LIBGCRYPT
@@ -70,35 +54,29 @@
 /* Define if you have the ssl library. */
 #undef HAVE_LIBSSL
 
+/* Define if you have the wolfssl library. */
+#undef HAVE_LIBWOLFSSL
+
 /* Define if you have the z library. */
 #undef HAVE_LIBZ
 
-/* Define to 1 if the compiler supports the 'long long' data type. */
-#undef HAVE_LONGLONG
-
-/* Define to 1 if you have the <memory.h> header file. */
-#undef HAVE_MEMORY_H
-
-/* Define to 1 if you have the `memset_s' function. */
+/* Define to 1 if you have the 'memset_s' function. */
 #undef HAVE_MEMSET_S
 
 /* Define to 1 if you have the <netinet/in.h> header file. */
 #undef HAVE_NETINET_IN_H
 
-/* Define to 1 if you have the <ntdef.h> header file. */
-#undef HAVE_NTDEF_H
-
-/* Define to 1 if you have the <ntstatus.h> header file. */
-#undef HAVE_NTSTATUS_H
-
 /* use O_NONBLOCK for non-blocking sockets */
 #undef HAVE_O_NONBLOCK
 
-/* Define to 1 if you have the `poll' function. */
+/* Define to 1 if you have the 'poll' function. */
 #undef HAVE_POLL
 
 /* Define to 1 if you have the select function. */
 #undef HAVE_SELECT
+
+/* Define to 1 if you have the 'snprintf' function. */
+#undef HAVE_SNPRINTF
 
 /* use SO_NONBLOCK for non-blocking sockets */
 #undef HAVE_SO_NONBLOCK
@@ -118,7 +96,7 @@
 /* Define to 1 if you have the <string.h> header file. */
 #undef HAVE_STRING_H
 
-/* Define to 1 if you have the `strtoll' function. */
+/* Define to 1 if you have the 'strtoll' function. */
 #undef HAVE_STRTOLL
 
 /* Define to 1 if you have the <sys/ioctl.h> header file. */
@@ -151,23 +129,11 @@
 /* Define to 1 if you have the <windows.h> header file. */
 #undef HAVE_WINDOWS_H
 
-/* Define to 1 if you have the <winsock2.h> header file. */
-#undef HAVE_WINSOCK2_H
-
-/* Define to 1 if you have the <ws2tcpip.h> header file. */
-#undef HAVE_WS2TCPIP_H
-
 /* to make a symbol visible */
 #undef LIBSSH2_API
 
-/* Enable clearing of memory before being freed */
-#undef LIBSSH2_CLEAR_MEMORY
-
-/* Enable "none" cipher -- NOT RECOMMENDED */
-#undef LIBSSH2_CRYPT_NONE
-
-/* Enable newer diffie-hellman-group-exchange-sha1 syntax */
-#undef LIBSSH2_DH_GEX_NEW
+/* Enable WinCNG ECDSA support */
+#undef LIBSSH2_ECDSA_WINCNG
 
 /* Compile in zlib support */
 #undef LIBSSH2_HAVE_ZLIB
@@ -175,17 +141,20 @@
 /* Use libgcrypt */
 #undef LIBSSH2_LIBGCRYPT
 
-/* Enable "none" MAC -- NOT RECOMMENDED */
-#undef LIBSSH2_MAC_NONE
-
 /* Use mbedtls */
 #undef LIBSSH2_MBEDTLS
+
+/* Disable clearing of memory before being freed */
+#undef LIBSSH2_NO_CLEAR_MEMORY
 
 /* Use openssl */
 #undef LIBSSH2_OPENSSL
 
 /* Use wincng */
 #undef LIBSSH2_WINCNG
+
+/* Use wolfssl */
+#undef LIBSSH2_WOLFSSL
 
 /* Define to the sub-directory where libtool stores uninstalled libraries. */
 #undef LT_OBJDIR
@@ -222,7 +191,9 @@
 	STACK_DIRECTION = 0 => direction of growth unknown */
 #undef STACK_DIRECTION
 
-/* Define to 1 if you have the ANSI C header files. */
+/* Define to 1 if all of the C89 standard headers exist (not just the ones
+   required in a freestanding environment). This macro is provided for
+   backward compatibility; new code need not use it. */
 #undef STDC_HEADERS
 
 /* Version number of package */
@@ -240,25 +211,26 @@
 # endif
 #endif
 
-/* Enable large inode numbers on Mac OS X 10.5.  */
-#ifndef _DARWIN_USE_64_BIT_INODE
-# define _DARWIN_USE_64_BIT_INODE 1
-#endif
-
 /* Number of bits in a file offset, on hosts where this is settable. */
 #undef _FILE_OFFSET_BITS
 
-/* Define for large files, on AIX-style hosts. */
+/* Define to 1 on platforms where this makes off_t a 64-bit type. */
 #undef _LARGE_FILES
 
-/* Define to empty if `const' does not conform to ANSI C. */
+/* Number of bits in time_t, on hosts where this is settable. */
+#undef _TIME_BITS
+
+/* Define to 1 on platforms where this makes time_t a 64-bit type. */
+#undef __MINGW_USE_VC2005_COMPAT
+
+/* Define to empty if 'const' does not conform to ANSI C. */
 #undef const
 
-/* Define to `__inline__' or `__inline' if that's what the C compiler
+/* Define to '__inline__' or '__inline' if that's what the C compiler
    calls it, or to nothing if 'inline' is not supported under any name.  */
 #ifndef __cplusplus
 #undef inline
 #endif
 
-/* Define to `unsigned int' if <sys/types.h> does not define. */
+/* Define as 'unsigned int' if <stddef.h> doesn't define. */
 #undef size_t

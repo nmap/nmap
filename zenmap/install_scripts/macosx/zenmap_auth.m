@@ -27,19 +27,21 @@ int main(int argc, const char * argv[]) {
         NSLog(@"%@",executable_path);
 
         NSDictionary *error = [NSDictionary new];
-        NSString *script = [NSString stringWithFormat:@"do shell script \"%@ %s\" with administrator privileges", executable_path, (char*)argv];
+        NSString *script = [NSString stringWithFormat:@"do shell script \"%@\" with administrator privileges", executable_path];
+NSLog(@"Executing: >>%@<<", script);
         NSAppleScript *appleScript = [[NSAppleScript alloc] initWithSource:script];
         if ([appleScript executeAndReturnError:&error]) {
             NSLog(@"success!");
         } else {
-            NSLog(@"Failed to execute applescript with admin privileges, trying without.");
+            NSLog(@"Failed to execute applescript with admin privileges: %@", error[@"NSAppleScriptErrorMessage"]);
             NSDictionary *error = [NSDictionary new];
-            NSString *script = [NSString stringWithFormat:@"do shell script \"%@ %s\"", executable_path, (char*)argv];
+            NSString *script = [NSString stringWithFormat:@"do shell script \"%@\"", executable_path];
+NSLog(@"Executing: >>%@<<", script);
             NSAppleScript *appleScript = [[NSAppleScript alloc] initWithSource:script];
             if ([appleScript executeAndReturnError:&error]) {
                 NSLog(@"success!");
             } else {
-                NSLog(@"Failed to execute applescript at all.");
+                NSLog(@"Failed to execute applescript: %@", error[@"NSAppleScriptErrorMessage"]);
             }
         }
     }

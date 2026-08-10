@@ -14,6 +14,11 @@ References:
 ---
 -- @args hostmap.prefix If set, saves the output for each host in a file
 -- called "<prefix><target>". The file contains one entry per line.
+--
+-- @args hostmap-crtsh.lax If set, include hostname-like identities from CT logs
+-- that are not strict subdomains. When unset (default), only true subdomains
+-- of the target hostname are returned.
+--
 -- @args newtargets If set, add the new hostnames to the scanning queue.
 -- This the names presumably resolve to the same IP address as the
 -- original target, this is only useful for services such as HTTP that
@@ -38,7 +43,7 @@ References:
 -- <elem key="filename">output_nmap.org</elem>
 ---
 
-author = "Paulino Calderon <calderon@websec.mx>"
+author = {"Paulino Calderon <calderon@websec.mx>", "Sweekar-cmd"}
 
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 
@@ -46,6 +51,7 @@ categories = {"external", "discovery"}
 
 local io = require "io"
 local http = require "http"
+local json = require "json"
 local stdnse = require "stdnse"
 local string = require "string"
 local stringaux = require "stringaux"
@@ -56,35 +62,72 @@ local tableaux = require "tableaux"
 -- Different from stdnse.get_hostname
 -- this function returns nil if the host is only known by IP address
 local function get_hostname (host)
-  return host.targetname or (host.name ~= '' and host.name)
+  return host.targetname or (host.name ~= '' and host.name) or nil
 end
 
 -- Run on any target that has a name
 hostrule = get_hostname
 
-local function query_ctlogs(host)
-  local query = string.format("/?q=%%.%s&output=json", get_hostname(host))
-  local response
-  response = http.get("crt.sh", 443, query )
-  local hostnames = {}
-  if not response.status then
-    return string.format("Error: could not GET http://%s%s", "crt.sh", query)
+local function is_valid_hostname (name)
+  local labels = stringaux.strsplit("%.", name)
+  -- DNS name cannot be longer than 253
+  -- do not accept TLDs; at least second-level domain required
+  -- TLD cannot be all digits
+  if #name > 253 or #labels < 2 or labels[#labels]:find("^%d+$") then
+    return false
   end
-  for domain in string.gmatch(response.body, "name_value\":\"(.-)\"") do
-    if not tableaux.contains(hostnames, domain) and domain ~= "" then
-      if target.ALLOW_NEW_TARGETS then
-        local status, err = target.add(domain)
+  for _, label in ipairs(labels) do
+    if not (#label <= 63 and label:find("^[%w_][%w_-]*%f[-\0]$")) then
+      return false
+    end
+  end
+  return true
+end
+
+local function is_subdomain (name, suffix)
+  -- suffix already includes ".", e.g., ".google.com"
+  return #name > #suffix and name:sub(-#suffix) == suffix
+end
+
+local function query_ctlogs (hostname, lax_mode)
+  hostname = hostname:lower()
+  local suffix = "." .. hostname
+  local url = string.format("https://crt.sh/?q=%%%s&output=json", suffix)
+  local response = http.get_url(url)
+  if not (response.status == 200 and response.body) then
+    stdnse.debug1("Error: Could not GET %s", url)
+    return
+  end
+
+  local jstatus, jresp = json.parse(response.body)
+  if not jstatus then
+    stdnse.debug1("Error: Invalid JSON response from %s", url)
+    return
+  end
+
+  local hostnames = {}
+  for _, cert in ipairs(jresp) do
+    local names = cert.name_value
+    if type(names) == "string" then
+      for _, name in ipairs(stringaux.strsplit("%s+", names:lower())) do
+        -- if this is a wildcard name, just proceed with the static portion
+        if name:sub(1, 2) == "*." then
+          name = name:sub(3)
+        end
+        if name ~= hostname and not hostnames[name] and is_valid_hostname(name) then
+          if lax_mode or is_subdomain(name, suffix) then
+            hostnames[name] = true
+            if target.ALLOW_NEW_TARGETS then
+              target.add(name)
+            end
+          end
+        end
       end
-      table.insert(hostnames, domain)
     end
   end
 
-  if #hostnames<1 then
-    if not string.find(response.body, "no results") then
-      return "Error: found no hostnames but not the marker for \"name_value\" (pattern error?)"
-    end
-  end
-  return hostnames
+  hostnames = tableaux.keys(hostnames)
+  return #hostnames > 0 and hostnames or nil
 end
 
 local function write_file(filename, contents)
@@ -99,25 +142,27 @@ end
 
 action = function(host)
   local filename_prefix = stdnse.get_script_args("hostmap.prefix")
-  local hostnames = {}
-  local hostnames_str, output_str
-  local output_tab = stdnse.output_table()
-  hostnames = query_ctlogs(host)
+  local hostname = get_hostname(host)
+  local lax = stdnse.get_script_args("hostmap-crtsh.lax")
+  local lax_mode = lax == true or lax == "true" or lax == 1
 
+  local hostnames = query_ctlogs(hostname, lax_mode)
+  if not hostnames then return end
+
+  local output_tab = stdnse.output_table()
   output_tab.subdomains = hostnames
   --write to file
   if filename_prefix then
-    local filename = filename_prefix .. stringaux.filename_escape(get_hostname(host))
-    hostnames_str = table.concat(hostnames, "\n")
+    local filename = filename_prefix .. stringaux.filename_escape(hostname)
+    local hostnames_str = table.concat(hostnames, "\n")
 
     local status, err = write_file(filename, hostnames_str)
     if status then
       output_tab.filename = filename
     else
-      stdnse.debug1("There was an error saving the file %s:%s", filename, err)
+      stdnse.debug1("Error saving file %s: %s", filename, err)
     end
   end
 
   return output_tab
 end
-

@@ -15,16 +15,15 @@ by default) and prints discovered addresses. If the
 <code>newtargets</code> script argument is set, discovered addresses
 are added to the scan queue.
 
-Requires root privileges. Either the <code>targets-sniffer.iface</code> script
+Requires root privileges. Either the <code>targets-sniffer.interface</code> script
 argument or <code>-e</code> Nmap option to define which interface to use.
 ]]
 
 ---
 -- @usage
--- nmap -sL --script=targets-sniffer --script-args=newtargets,targets-sniffer.timeout=5s,targets-sniffer.iface=eth0
+-- nmap -sL --script=targets-sniffer --script-args=newtargets,targets-sniffer.timeout=5s,targets-sniffer.interface=eth0
 -- @args targets-sniffer.timeout  The amount of time to listen for packets. Default <code>10s</code>.
--- @args targets-sniffer.iface  The interface to use for sniffing.
--- @args newtargets If true, add discovered targets to the scan queue.
+-- @args targets-sniffer.interface  The interface to use for sniffing.
 -- @output
 -- Pre-scan script results:
 -- | targets-sniffer:
@@ -62,14 +61,19 @@ end
 -- Returns an array of address strings.
 local function get_ip_addresses(layer3)
   local ip = packet.Packet:new(layer3, layer3:len())
+  if not ip then return {} end
   return { ipOps.str_to_ip(ip.ip_bin_src), ipOps.str_to_ip(ip.ip_bin_dst) }
 end
 
 prerule =  function()
-  return nmap.is_privileged() and
-    (stdnse.get_script_args("targets-sniffer.iface") or nmap.get_interface())
+  return nmap.is_privileged()
 end
 
+local function collect_interface(if_table)
+  if not interface_info and if_table.up == "up" and if_table.link ~= "loopback" then
+    interface_info = if_table
+  end
+end
 
 action = function()
 
@@ -78,12 +82,20 @@ action = function()
   local ip_counter = 0
   local timeout = stdnse.parse_timespec(stdnse.get_script_args("targets-sniffer.timeout"))
   timeout = (timeout or 10) * 1000
-  local interface = stdnse.get_script_args("targets-sniffer.iface") or nmap.get_interface()
-  interface_info = nmap.get_interface_info(interface)
+  -- TODO: sniff on all interfaces
+  -- NOTE: targets-sniffer.iface script-arg name is non-standard, but left for compatibility.
+  local interface = stdnse.get_script_args("targets-sniffer.iface")
+  if interface then
+    interface_info = nmap.get_interface_info(interface)
+  else
+    stdnse.get_script_interfaces(collect_interface)
+  end
 
-  if interface_info==nil then -- Check if we have the interface information
-    stdnse.debug1("Error: Unable to get interface info. Did you specify the correct interface using 'targets-sniffer.iface=<interface>' or '-e <interface>'?")
+  if not interface_info then -- Check if we have the interface information
+    stdnse.debug1("Error: Unable to get interface info. Did you specify the correct interface using 'targets-sniffer.interface=<interface>' or '-e <interface>'?")
     return
+  elseif not interface then
+    interface = interface_info.shortname
   end
 
 
@@ -108,7 +120,7 @@ action = function()
         stdnse.debug1("Got IP addresses %s", table.concat(addresses, " "))
 
         for _, addr in ipairs(addresses) do
-          if check_if_valid(addr) == true then
+          if check_if_valid(addr) then
             if not unique_addresses[addr] then
               unique_addresses[addr] = true
               table.insert(all_addresses, addr)
@@ -125,7 +137,7 @@ action = function()
     sock:pcap_close()
   end
 
-  if target.ALLOW_NEW_TARGETS == true then
+  if target.ALLOW_NEW_TARGETS then
     if nmap.address_family() == 'inet6' then
       for _,v in pairs(all_addresses) do
         if v:match(':') then

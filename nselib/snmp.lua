@@ -1,6 +1,10 @@
 ---
 -- SNMP library.
 --
+-- @args snmp.version The SNMP protocol version. Use <code>"v1"</code> or <code>0</code> for SNMPv1 (default) and <code>"v2c"</code> or <code>1</code> for SNMPv2c.
+-- @args snmp.timeout The timeout for SNMP queries. Default: varies by target responsiveness, up to 5s.
+-- @args snmp.retries The number of times a query should be reattempted. Default: 1
+--
 -- @author Patrik Karlsson <patrik@cqure.net>
 -- @author Gioacchino Mazzurco <gmazzurco89@gmail.com>
 -- @copyright Same as Nmap--See https://nmap.org/book/man-legal.html
@@ -16,6 +20,13 @@ local string = require "string"
 local table = require "table"
 _ENV = stdnse.module("snmp", stdnse.seeall)
 
+
+local arg_timeout = stdnse.parse_timespec(stdnse.get_script_args("snmp.timeout"))
+if arg_timeout then
+  arg_timeout = arg_timeout * 1000
+end
+local default_max_timeout = 5000 --ms
+local retries = stdnse.get_script_args("snmp.retries") or 1
 
 -- SNMP ASN.1 Encoders
 local tagEncoder = {}
@@ -137,15 +148,38 @@ function decode(encStr, pos)
   return decoder:decode( encStr, pos )
 end
 
+local version_to_num = {v1=0, v2c=1}
+local num_to_version = {[0]="v1", [1]="v2c"}
+
+-- Returns the numerical value of a given SNMP protocol version
+--
+-- Numerical input is simply passed through, assuming it is valid.
+-- String input is translated to its corresponding numerical value.
+-- @param version of the SNMP protocol. See script argument <code>snmp.version</code> for valid codes
+-- @param default numerical version of the SNMP protocol if the <code>version</code> parameter is <code>nil</code> or its value is invalid.
+-- @return 0 or 1, depending on which protocol version was specified.
+local function getVersion (version, default)
+  if version then
+    version = version_to_num[version] or tonumber(version)
+    if num_to_version[version] then
+      return version
+    end
+    stdnse.debug1("Unrecognized SNMP version; proceeding with SNMP%s", num_to_version[default])
+  end
+  return default
+end
+
+-- the library functions will use this version of SNMP by default
+local default_version = getVersion(stdnse.get_script_args("snmp.version"), 0)
+
 ---
 -- Create an SNMP packet.
 -- @param PDU SNMP Protocol Data Unit to be encapsulated in the packet.
--- @param version SNMP version, default <code>0</code> (SNMP V1).
+-- @param version SNMP version; defaults to script argument <code>snmp.version</code>
 -- @param commStr community string.
 function buildPacket(PDU, version, commStr)
-  if (not version) then version = 0 end
   local packet = {}
-  packet[1] = version
+  packet[1] = getVersion(version, default_version)
   packet[2] = commStr
   packet[3] = PDU
   return packet
@@ -352,29 +386,6 @@ function oid2str(oid)
   return table.concat(oid, '.')
 end
 
----
--- Transforms a table representing an IP to a string.
--- @param ip IP table.
--- @return IP string.
-function ip2str(ip)
-  if (type(ip) ~= "table") then return 'invalid ip' end
-  return table.concat(ip, '.')
-end
-
-
----
--- Transforms a string into an IP table.
--- @param ipStr IP as string.
--- @return Table representing IP.
-function str2ip(ipStr)
-  local ip = {}
-  for n in string.gmatch(ipStr, "%d+") do
-    table.insert(ip, tonumber(n))
-  end
-  ip._snmp = '\x40'
-  return ip
-end
-
 
 ---
 -- Fetches values from a SNMP response.
@@ -433,7 +444,7 @@ Helper = {
   -- @param community string containing SNMP community
   -- @param options A table with appropriate options:
   --  * timeout - the timeout in milliseconds (Default: 5000)
-  --  * version - the SNMP version code (Default: 0 (SNMP V1))
+  --  * version - the SNMP version; defaults to script argument <code>snmp.version</code>.
   -- @return o a new instance of Helper
   new = function( self, host, port, community, options )
     local o = {}
@@ -459,10 +470,9 @@ Helper = {
       end
     end
 
-    o.options = options or {
-      timeout = 5000,
-      version = 0
-    }
+    o.options = options or {}
+    o.options.timeout = o.options.timeout or arg_timeout
+    o.options.version = o.options.version or default_version
 
     return o
   end,
@@ -473,7 +483,7 @@ Helper = {
   -- @return status true on success, false on failure
   connect = function( self )
     self.socket = nmap.new_socket()
-    self.socket:set_timeout(self.options.timeout)
+    self.socket:set_timeout(self.options.timeout or stdnse.get_timeout(self.host, default_max_timeout))
     local status, err = self.socket:connect(self.host, self.port)
     if ( not(status) ) then return false, err end
 
@@ -492,13 +502,19 @@ Helper = {
         self.community
       ) )
 
-    local status, err = self.socket:send(payload)
-    if not status then
-      stdnse.debug2("snmp.Helper.request: Send to %s failed: %s", self.host.ip, err)
-      return false, err
+    local received, data
+    for i=0, retries do
+      local status, err = self.socket:send(payload)
+      if not status then
+        stdnse.debug2("snmp.Helper.request: Send to %s failed: %s", self.host.ip, err)
+        return false, err
+      end
+
+      received, data = self.socket:receive_bytes(1)
+      if received then break end
     end
 
-    return self.socket:receive_bytes(1)
+    return received, data
   end,
 
   --- Sends an SNMP Get Next request
@@ -533,7 +549,7 @@ Helper = {
   -- @param options SNMP options table
   -- @see snmp.options
   -- @param oid Object identifiers of object to be set.
-  -- @param value To which value object should be set. If given a table,
+  -- @param setparam To which value object should be set. If given a table,
   --              use the table instead of OID/value pair.
   -- @return status False if error, true otherwise
   -- @return Table with all decoded responses and their OIDs.

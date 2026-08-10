@@ -113,23 +113,13 @@ ftp_helper = {
 
       -- Get ethernet values
       local f = packet.Frame:new(l2data)
-      f:ether_parse()
 
       local p = packet.Packet:new(l3data, #l3data)
-      if isIp4 then
-        if not p:ip_parse() then
-          -- An error happened
-          stdnse.debug1("Couldn't parse IPv4 sniffed packet.")
-          sniffer:pcap_close()
-          return false
-        end
-      else
-        if not p:ip6_parse() then
-          -- An error happened
-          stdnse.debug1("Couldn't parse IPv6 sniffed packet.")
-          sniffer:pcap_close()
-          return false
-        end
+      if not p or (isIp4 and not p:ip_parse()) or (not isIp4 and not p:ip6_parse()) then
+        -- An error happened
+        stdnse.debug1("Couldn't parse sniffed packet.")
+        sniffer:pcap_close()
+        return false
       end
 
       -- Spoof packet

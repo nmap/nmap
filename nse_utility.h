@@ -73,6 +73,13 @@ void nseU_setifield (lua_State *L, int idx, const char *field, lua_Integer value
  */
 void nseU_setbfield (lua_State *L, int idx, const char *field, int value);
 
+/* void nseU_setpfield (lua_State *L, int idx,             [-0, +0, e]
+ *                      const char *field, void *p)
+ *
+ * Sets the field for table at index idx to lightuserdata p.
+ */
+void nseU_setpfield (lua_State *L, int idx, const char *field, void * p);
+
 /* void nseU_appendfstr (lua_State *L, int idx,             [-0, +0, m]
  *                      const char *fmt, ...)
  *

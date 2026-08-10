@@ -1,4 +1,4 @@
-      * Copyright (c) 2015, Patrick Monnerat, D+H <patrick.monnerat@dh.com>
+      * Copyright (C) Patrick Monnerat <patrick@monnerat.net>
       * All rights reserved.
       *
       * Redistribution and use in source and binary forms,
@@ -40,6 +40,8 @@
       *
       * For more information on the publickey subsystem,
       * refer to IETF draft: secsh-publickey
+      *
+      * SPDX-License-Identifier: BSD-3-Clause
 
       /if not defined(LIBSSH2_PUBLICKEY_H_)
       /define LIBSSH2_PUBLICKEY_H_

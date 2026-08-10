@@ -294,7 +294,7 @@ PUBLIC char const *PktRXmodeStr (PKT_RX_MODE mode)
                     "Receive direct & broadcast packets",
                     "Receive direct,broadcast and limited multicast packets",
                     "Receive direct,broadcast and all multicast packets",
-                    "Receive all packets (promiscuouos mode)"
+                    "Receive all packets (promiscuous mode)"
                   };
 
   if (mode > DIM(modeStr))

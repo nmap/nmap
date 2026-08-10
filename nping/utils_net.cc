@@ -4,139 +4,69 @@
  * various tasks.                                                          *
  *                                                                         *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
- *                                                                         *
- * The Nmap Security Scanner is (C) 1996-2019 Insecure.Com LLC ("The Nmap  *
- * Project"). Nmap is also a registered trademark of the Nmap Project.     *
- * This program is free software; you may redistribute and/or modify it    *
- * under the terms of the GNU General Public License as published by the   *
- * Free Software Foundation; Version 2 ("GPL"), BUT ONLY WITH ALL OF THE   *
- * CLARIFICATIONS AND EXCEPTIONS DESCRIBED HEREIN.  This guarantees your   *
- * right to use, modify, and redistribute this software under certain      *
- * conditions.  If you wish to embed Nmap technology into proprietary      *
- * software, we sell alternative licenses (contact sales@nmap.com).        *
- * Dozens of software vendors already license Nmap technology such as      *
- * host discovery, port scanning, OS detection, version detection, and     *
- * the Nmap Scripting Engine.                                              *
- *                                                                         *
- * Note that the GPL places important restrictions on "derivative works",  *
- * yet it does not provide a detailed definition of that term.  To avoid   *
- * misunderstandings, we interpret that term as broadly as copyright law   *
- * allows.  For example, we consider an application to constitute a        *
- * derivative work for the purpose of this license if it does any of the   *
- * following with any software or content covered by this license          *
- * ("Covered Software"):                                                   *
- *                                                                         *
- * o Integrates source code from Covered Software.                         *
- *                                                                         *
- * o Reads or includes copyrighted data files, such as Nmap's nmap-os-db   *
- * or nmap-service-probes.                                                 *
- *                                                                         *
- * o Is designed specifically to execute Covered Software and parse the    *
- * results (as opposed to typical shell or execution-menu apps, which will *
- * execute anything you tell them to).                                     *
- *                                                                         *
- * o Includes Covered Software in a proprietary executable installer.  The *
- * installers produced by InstallShield are an example of this.  Including *
- * Nmap with other software in compressed or archival form does not        *
- * trigger this provision, provided appropriate open source decompression  *
- * or de-archiving software is widely available for no charge.  For the    *
- * purposes of this license, an installer is considered to include Covered *
- * Software even if it actually retrieves a copy of Covered Software from  *
- * another source during runtime (such as by downloading it from the       *
- * Internet).                                                              *
- *                                                                         *
- * o Links (statically or dynamically) to a library which does any of the  *
- * above.                                                                  *
- *                                                                         *
- * o Executes a helper program, module, or script to do any of the above.  *
- *                                                                         *
- * This list is not exclusive, but is meant to clarify our interpretation  *
- * of derived works with some common examples.  Other people may interpret *
- * the plain GPL differently, so we consider this a special exception to   *
- * the GPL that we apply to Covered Software.  Works which meet any of     *
- * these conditions must conform to all of the terms of this license,      *
- * particularly including the GPL Section 3 requirements of providing      *
- * source code and allowing free redistribution of the work as a whole.    *
- *                                                                         *
- * As another special exception to the GPL terms, the Nmap Project grants  *
- * permission to link the code of this program with any version of the     *
- * OpenSSL library which is distributed under a license identical to that  *
- * listed in the included docs/licenses/OpenSSL.txt file, and distribute   *
- * linked combinations including the two.                                  *
- *                                                                         *
- * The Nmap Project has permission to redistribute Npcap, a packet         *
- * capturing driver and library for the Microsoft Windows platform.        *
- * Npcap is a separate work with it's own license rather than this Nmap    *
- * license.  Since the Npcap license does not permit redistribution        *
- * without special permission, our Nmap Windows binary packages which      *
- * contain Npcap may not be redistributed without special permission.      *
- *                                                                         *
- * Any redistribution of Covered Software, including any derived works,    *
- * must obey and carry forward all of the terms of this license, including *
- * obeying all GPL rules and restrictions.  For example, source code of    *
- * the whole work must be provided and free redistribution must be         *
- * allowed.  All GPL references to "this License", are to be treated as    *
- * including the terms and conditions of this license text as well.        *
- *                                                                         *
- * Because this license imposes special exceptions to the GPL, Covered     *
- * Work may not be combined (even as part of a larger work) with plain GPL *
- * software.  The terms, conditions, and exceptions of this license must   *
- * be included as well.  This license is incompatible with some other open *
- * source licenses as well.  In some cases we can relicense portions of    *
- * Nmap or grant special permissions to use it in other open source        *
- * software.  Please contact fyodor@nmap.org with any such requests.       *
- * Similarly, we don't incorporate incompatible open source software into  *
- * Covered Software without special permission from the copyright holders. *
- *                                                                         *
- * If you have any questions about the licensing restrictions on using     *
- * Nmap in other works, we are happy to help.  As mentioned above, we also *
- * offer an alternative license to integrate Nmap into proprietary         *
- * applications and appliances.  These contracts have been sold to dozens  *
- * of software vendors, and generally include a perpetual license as well  *
- * as providing support and updates.  They also fund the continued         *
- * development of Nmap.  Please email sales@nmap.com for further           *
- * information.                                                            *
- *                                                                         *
- * If you have received a written license agreement or contract for        *
- * Covered Software stating terms other than these, you may choose to use  *
- * and redistribute Covered Software under those terms instead of these.   *
- *                                                                         *
- * Source is provided to this software because we believe users have a     *
- * right to know exactly what a program is going to do before they run it. *
- * This also allows you to audit the software for security holes.          *
- *                                                                         *
- * Source code also allows you to port Nmap to new platforms, fix bugs,    *
- * and add new features.  You are highly encouraged to send your changes   *
- * to the dev@nmap.org mailing list for possible incorporation into the    *
- * main distribution.  By sending these changes to Fyodor or one of the    *
- * Insecure.Org development mailing lists, or checking them into the Nmap  *
- * source code repository, it is understood (unless you specify            *
- * otherwise) that you are offering the Nmap Project the unlimited,        *
- * non-exclusive right to reuse, modify, and relicense the code.  Nmap     *
- * will always be available Open Source, but this is important because     *
- * the inability to relicense code has caused devastating problems for     *
- * other Free Software projects (such as KDE and NASM).  We also           *
- * occasionally relicense the code to third parties as discussed above.    *
- * If you wish to specify special license conditions of your               *
- * contributions, just say so when you send them.                          *
- *                                                                         *
- * This program is distributed in the hope that it will be useful, but     *
- * WITHOUT ANY WARRANTY; without even the implied warranty of              *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the Nmap      *
- * license file for more details (it's in a COPYING file included with     *
- * Nmap, and also available from https://svn.nmap.org/nmap/COPYING)        *
- *                                                                         *
+ *
+ * The Nmap Security Scanner is (C) 1996-2026 Nmap Software LLC ("The Nmap
+ * Project"). Nmap is also a registered trademark of the Nmap Project.
+ *
+ * This program is distributed under the terms of the Nmap Public Source
+ * License (NPSL). The exact license text applying to a particular Nmap
+ * release or source code control revision is contained in the LICENSE
+ * file distributed with that version of Nmap or source code control
+ * revision. More Nmap copyright/legal information is available from
+ * https://nmap.org/book/man-legal.html, and further information on the
+ * NPSL license itself can be found at https://nmap.org/npsl/ . This
+ * header summarizes some key points from the Nmap license, but is no
+ * substitute for the actual license text.
+ *
+ * Nmap is generally free for end users to download and use themselves,
+ * including commercial use. It is available from https://nmap.org.
+ *
+ * The Nmap license generally prohibits companies from using and
+ * redistributing Nmap in commercial products, but we sell a special Nmap
+ * OEM Edition with a more permissive license and special features for
+ * this purpose. See https://nmap.org/oem/
+ *
+ * If you have received a written Nmap license agreement or contract
+ * stating terms other than these (such as an Nmap OEM license), you may
+ * choose to use and redistribute Nmap under those terms instead.
+ *
+ * The official Nmap Windows builds include the Npcap software
+ * (https://npcap.com) for packet capture and transmission. It is under
+ * separate license terms which forbid redistribution without special
+ * permission. So the official Nmap Windows builds may not be redistributed
+ * without special permission (such as an Nmap OEM license).
+ *
+ * Source is provided to this software because we believe users have a
+ * right to know exactly what a program is going to do before they run it.
+ * This also allows you to audit the software for security holes.
+ *
+ * Source code also allows you to port Nmap to new platforms, fix bugs, and
+ * add new features. You are highly encouraged to submit your changes as a
+ * Github PR or by email to the dev@nmap.org mailing list for possible
+ * incorporation into the main distribution. Unless you specify otherwise, it
+ * is understood that you are offering us very broad rights to use your
+ * submissions as described in the Nmap Public Source License Contributor
+ * Agreement. This is important because we fund the project by selling licenses
+ * with various terms, and also because the inability to relicense code has
+ * caused devastating problems for other Free Software projects (such as KDE
+ * and NASM).
+ *
+ * The free version of Nmap is distributed in the hope that it will be
+ * useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. Warranties,
+ * indemnification and commercial support are all available through the
+ * Npcap OEM program--see https://nmap.org/oem/
+ *
  ***************************************************************************/
 #include "nping.h"
 #include "utils.h"
 #include "utils_net.h"
 #include "NpingOps.h"
-#include "global_structures.h"
 #include "output.h"
 #include "nbase.h"
 #include "pcap.h"
-#include "dnet.h"
 #include <vector>
+#include <cstddef>
 
 extern NpingOps o;
 
@@ -443,6 +373,9 @@ bool isICMPCode(u8 code, u8 type){
 } /* End of isICMPType() */
 
 
+const char *arppackethdrinfo(const u8 *packet, u32 len, int detail );
+int arppackethdrinfo(const u8 *packet, u32 len, u8 *dstbuff, u32 dstlen);
+
 /* This function fills buffer "dstbuff" with a printable string that
  * represents the supplied packet. When sending IPv6 packet at raw TCP
  * level, the caller may specify source and/or destination address so they
@@ -463,21 +396,12 @@ int getPacketStrInfo(const char *proto, const u8 *packet, u32 len, u8 *dstbuff,
   else
     detail=LOW_DETAIL;
 
-  if( !strcasecmp(proto, "IP") || !strcasecmp(proto, "IPv4") || !strcasecmp(proto, "IPv6")){
-    b=(char *)ippackethdrinfo(packet, len, detail);
-    strncpy((char*)dstbuff, b, dstlen);
-    dstbuff[dstlen-1]=0; /* Just to be sure, NULL-terminate the last position*/
-  }else if( !strcasecmp(proto, "ARP") || !strcasecmp(proto, "RARP") ){
+  if( !strcasecmp(proto, "ARP") || !strcasecmp(proto, "RARP") ){
     return  arppackethdrinfo(packet, len, dstbuff, dstlen);
-  }else if( !strcasecmp(proto, "IPv6_NO_HEADER") || o.ipv6UsingSocket() ){
-    if( o.getMode()==TCP )
-        return  tcppackethdrinfo(packet, len, dstbuff, dstlen, detail, ss_src, ss_dst);
-    else if ( o.getMode()==UDP )
-        return  udppackethdrinfo(packet, len, dstbuff, dstlen, detail, ss_src, ss_dst);
-    else
-        nping_fatal(QT_3, "getPacketStrInfo(): Unable to determinate transport layer protocol");
-  }else{
-    nping_fatal(QT_3, "getPacketStrInfo(): Unknown protocol");
+  }
+  else {
+    b=(char *)ippackethdrinfo(packet, len, detail);
+    strncpy((char*)dstbuff, b, dstlen-1);
   }
   return OP_SUCCESS;
 } /* getPacketStrInfo() */
@@ -871,16 +795,12 @@ int parseMAC(const char *txt, u8 *targetbuff){
 } /* End of parseMAC() */
 
 
-
-char *MACtoa(u8 *mac){
+const char *MACtoa(u8 *mac){
   static char macinfo[24];
-  memset(macinfo, 0, 24);
-  sprintf(macinfo,"%02X:%02X:%02X:%02X:%02X:%02X",
+  Snprintf(macinfo, sizeof(macinfo), "%02X:%02X:%02X:%02X:%02X:%02X",
           mac[0],mac[1],mac[2],mac[3],mac[4],mac[5]);
   return macinfo;
 } /* End of MACtoa() */
-
-
 
 
 /* Returns a buffer of ASCII information about an ARP/RARP packet that may look
@@ -904,23 +824,35 @@ const char *arppackethdrinfo(const u8 *packet, u32 len, int detail){
   u8 *tMAC = (u8 *)(packet+18);
   u32 *tIP = (u32 *)(packet+24);
 
+  int rem = sizeof(protoinfo);
+  int n = 0;
   if( ntohs(*op) == 1 ){ /* ARP Request */
-    sprintf(protoinfo, "ARP who has %s? ", IPtoa(*tIP));
-    sprintf(protoinfo+strlen(protoinfo),"Tell %s", IPtoa(*sIP) );
+    n = Snprintf(protoinfo, rem, "ARP who has %s? ", IPtoa(*tIP));
+    if (n < rem) {
+      rem -= n;
+      Snprintf(protoinfo + n, rem, "Tell %s", IPtoa(*sIP));
+    }
   }
   else if( ntohs(*op) == 2 ){ /* ARP Reply */
-    sprintf(protoinfo, "ARP reply %s ", IPtoa(*sIP));
-    sprintf(protoinfo+strlen(protoinfo),"is at %s", MACtoa(sMAC) );
+    Snprintf(protoinfo, sizeof(protoinfo), "ARP reply %s is at %s", IPtoa(*sIP), MACtoa(sMAC));
   }
   else if( ntohs(*op) == 3 ){ /* RARP Request */
-    sprintf(protoinfo, "RARP who is %s? Tell %s", MACtoa(tMAC), MACtoa(sMAC) );
+    n = Snprintf(protoinfo, rem, "RARP who is %s? ", MACtoa(tMAC));
+    if (n < rem) {
+      rem -= n;
+      Snprintf(protoinfo + n, rem, "Tell %s", MACtoa(sMAC));
+    }
   }
   else if( ntohs(*op) ==4 ){ /* RARP Reply */
-    sprintf(protoinfo, "RARP reply: %s is at %s", MACtoa(tMAC), IPtoa(*tIP) );
+    Snprintf(protoinfo, sizeof(protoinfo), "RARP reply: %s is at %s", MACtoa(tMAC), IPtoa(*tIP) );
   }
   else{
-    sprintf(protoinfo, "HTYPE:%04X PTYPE:%04X HLEN:%d PLEN:%d OP:%04X SMAC:%s SIP:%s DMAC:%s DIP:%s",
-            *htype, *ptype, *hlen, *plen, *op, MACtoa(sMAC), IPtoa(*sIP), MACtoa(tMAC), IPtoa(*tIP));
+    n = Snprintf(protoinfo, rem, "HTYPE:%04X PTYPE:%04X HLEN:%d PLEN:%d OP:%04X SMAC:%s SIP:%s ",
+            *htype, *ptype, *hlen, *plen, *op, MACtoa(sMAC), IPtoa(*sIP));
+    if (n < rem) {
+      rem -= n;
+      Snprintf(protoinfo + n, rem, "DMAC:%s DIP:%s", MACtoa(tMAC), IPtoa(*tIP));
+    }
   }
  return protoinfo;
 } /* End of arppackethdrinfo() */
@@ -948,198 +880,6 @@ int arppackethdrinfo(const u8 *packet, u32 len, u8 *dstbuff, u32 dstlen){
   dstbuff[dstlen-1]=0; /* Just to be sure, NULL-terminate the last position*/
   return OP_SUCCESS;
 } /* End of arppackethdrinfo() */
-
-
-
-int tcppackethdrinfo(const u8 *packet, size_t len, u8 *dstbuff, size_t dstlen,
-     int detail, struct sockaddr_storage *src, struct sockaddr_storage *dst){
-
-  struct tcp_hdr *tcp=NULL; ;           /* TCP header structure.             */
-  char *p = NULL;                       /* Aux pointer.                      */
-  static char protoinfo[1024] = "";     /* Stores final info string.         */
-  char tflags[10];
-  char tcpinfo[64] = "";
-  char buf[32];
-  char tcpoptinfo[256] = "";
-  struct sockaddr_in *s4=(struct sockaddr_in *)src;
-  struct sockaddr_in6 *s6=(struct sockaddr_in6 *)src;
-  struct sockaddr_in *d4=(struct sockaddr_in *)dst;
-  struct sockaddr_in6 *d6=(struct sockaddr_in6 *)dst;
-  char srcipstring[128];
-  char dstipstring[128];
-
- assert(packet);
- assert(dstbuff);
- assert(len>=20);
-
- tcp=(struct tcp_hdr *)packet;
-
-   /* Ensure we end up with a valid detail number */
-  if( detail!=LOW_DETAIL && detail!=MEDIUM_DETAIL && detail!=HIGH_DETAIL)
-    detail=LOW_DETAIL;
-
-
-  /* Determine target IP address */
-  if(src!=NULL){
-    if( s4->sin_family==AF_INET ){
-        inet_ntop(AF_INET, &s4->sin_addr, srcipstring, sizeof(srcipstring));
-    }
-    else if( s6->sin6_family==AF_INET6){
-        inet_ntop(AF_INET6, &s6->sin6_addr, srcipstring, sizeof(srcipstring));
-    }else{
-        sprintf(dstipstring, "unknown_addr_family");
-    }
-  }else{
-    sprintf(srcipstring, "this_host");
-  }
-
-  /* Determine source IP address */
-  if(dst!=NULL){
-    if( d4->sin_family==AF_INET ){
-        inet_ntop(AF_INET, &d4->sin_addr, dstipstring, sizeof(dstipstring));
-    }
-    else if( d6->sin6_family==AF_INET6){
-        inet_ntop(AF_INET6, &d6->sin6_addr, dstipstring, sizeof(dstipstring));
-    }else{
-        sprintf(dstipstring, "unknown_addr_family");
-    }
-  }else{
-    sprintf(dstipstring, "unknown_host");
-  }
-
-  /* TCP Flags */
-  p = tflags;
-  /* These are basically in tcpdump order */
-  if (tcp->th_flags & TH_SYN) *p++ = 'S';
-  if (tcp->th_flags & TH_FIN) *p++ = 'F';
-  if (tcp->th_flags & TH_RST) *p++ = 'R';
-  if (tcp->th_flags & TH_PUSH) *p++ = 'P';
-  if (tcp->th_flags & TH_ACK){ *p++ = 'A';
-    Snprintf(buf, sizeof(buf), " ack=%lu",
-         (unsigned long) ntohl(tcp->th_ack));
-    strncat(tcpinfo, buf, sizeof(tcpinfo) - strlen(tcpinfo) - 1);
-  }
-  if (tcp->th_flags & TH_URG) *p++ = 'U';
-  if (tcp->th_flags & TH_ECE) *p++ = 'E'; /* rfc 2481/3168 */
-  if (tcp->th_flags & TH_CWR) *p++ = 'C'; /* rfc 2481/3168 */
-  *p++ = '\0';
-
-
-  /* TCP Options */
-  if((u32) tcp->th_off * 4 > sizeof(struct tcp_hdr)) {
-    if(len < (u32) tcp->th_off * 4) {
-      Snprintf(tcpoptinfo, sizeof(tcpoptinfo), "option incomplete");
-
-    } else {
-      tcppacketoptinfo((u8*) tcp + sizeof(struct tcp_hdr),
-                 tcp->th_off*4 - sizeof(struct tcp_hdr),
-                 tcpoptinfo, sizeof(tcpoptinfo));
-    }
-  }
-
-  /* Rest of header fields */
-  if( detail == LOW_DETAIL ){
-    Snprintf(protoinfo, sizeof(protoinfo), "TCP %s:%d > %s:%d %s seq=%lu win=%hu %s",
-       srcipstring, ntohs(tcp->th_sport), dstipstring, ntohs(tcp->th_dport),
-           tflags, (unsigned long) ntohl(tcp->th_seq),
-           ntohs(tcp->th_win), tcpoptinfo);               
-  }else if( detail == MEDIUM_DETAIL ){
-    Snprintf(protoinfo, sizeof(protoinfo), "TCP [%s:%d > %s:%d %s seq=%lu win=%hu csum=0x%04X%s%s]",
-       srcipstring, ntohs(tcp->th_sport), dstipstring, ntohs(tcp->th_dport),
-           tflags, (unsigned long) ntohl(tcp->th_seq),
-           ntohs(tcp->th_win),  ntohs(tcp->th_sum),
-           (tcpoptinfo[0]!='\0') ? " " : "",
-           tcpoptinfo);                 
-  }else if( detail==HIGH_DETAIL ){
-    Snprintf(protoinfo, sizeof(protoinfo), "TCP [%s:%d > %s:%d %s seq=%lu ack=%lu off=%d res=%d win=%hu csum=0x%04X urp=%d%s%s] ",
-       srcipstring, ntohs(tcp->th_sport),
-       dstipstring, ntohs(tcp->th_dport),
-       tflags, (unsigned long) ntohl(tcp->th_seq),
-       (unsigned long) ntohl(tcp->th_ack),
-       (u8)tcp->th_off, (u8)tcp->th_x2, ntohs(tcp->th_win),
-       ntohs(tcp->th_sum), ntohs(tcp->th_urp),
-       (tcpoptinfo[0]!='\0') ? " " : "",
-       tcpoptinfo);  
-  }
-
-  strncpy((char*)dstbuff, protoinfo, dstlen);
-
-  return OP_SUCCESS;
-
-} /* End of tcppackethdrinfo() */
-
-
-
-
-int udppackethdrinfo(const u8 *packet, size_t len, u8 *dstbuff, size_t dstlen,
-    int detail, struct sockaddr_storage *src, struct sockaddr_storage *dst){
-
-  struct udp_hdr *udp = NULL;           /* UDP header structure.             */
-  static char protoinfo[1024] = "";     /* Stores final info string.         */
-  struct sockaddr_in *s4=(struct sockaddr_in *)src;
-  struct sockaddr_in6 *s6=(struct sockaddr_in6 *)src;
-  struct sockaddr_in *d4=(struct sockaddr_in *)dst;
-  struct sockaddr_in6 *d6=(struct sockaddr_in6 *)dst;
-  char srcipstring[128];
-  char dstipstring[128];
-
- assert(packet);
- assert(dstbuff);
- assert(len>=8);
-
- udp=(struct udp_hdr *)packet;
-
-   /* Ensure we end up with a valid detail number */
-  if( detail!=LOW_DETAIL && detail!=MEDIUM_DETAIL && detail!=HIGH_DETAIL)
-    detail=LOW_DETAIL;
-
-
-  /* Determine target IP address */
-  if(src!=NULL){
-    if( s4->sin_family==AF_INET ){
-        inet_ntop(AF_INET, &s4->sin_addr, srcipstring, sizeof(srcipstring));
-    }
-    else if( s6->sin6_family==AF_INET6){
-        inet_ntop(AF_INET6, &s6->sin6_addr, srcipstring, sizeof(srcipstring));
-    }else{
-        sprintf(dstipstring, "unknown_addr_family");
-    }
-  }else{
-    sprintf(srcipstring, "this_host");
-  }
-
-  /* Determine source IP address */
-  if(dst!=NULL){
-    if( d4->sin_family==AF_INET ){
-        inet_ntop(AF_INET, &d4->sin_addr, dstipstring, sizeof(dstipstring));
-    }
-    else if( d6->sin6_family==AF_INET6){
-        inet_ntop(AF_INET6, &d6->sin6_addr, dstipstring, sizeof(dstipstring));
-    }else{
-        sprintf(dstipstring, "unknown_addr_family");
-    }
-  }else{
-    sprintf(dstipstring, "unknown_host");
-  }
-
-  if( detail == LOW_DETAIL ){
-    Snprintf(protoinfo, sizeof(protoinfo), "UDP %s:%d > %s:%d",
-         srcipstring, ntohs(udp->uh_sport), dstipstring, ntohs(udp->uh_dport));
-  }else if( detail == MEDIUM_DETAIL ){
-    Snprintf(protoinfo, sizeof(protoinfo), "UDP [%s:%d > %s:%d csum=0x%04X]",
-         srcipstring, ntohs(udp->uh_sport), dstipstring, ntohs(udp->uh_dport), ntohs(udp->uh_sum));
-  }else if( detail==HIGH_DETAIL ){
-    Snprintf(protoinfo, sizeof(protoinfo), "UDP [%s:%d > %s:%d len=%d csum=0x%04X]",
-         srcipstring, ntohs(udp->uh_sport), dstipstring, ntohs(udp->uh_dport),
-         ntohs(udp->uh_ulen), ntohs(udp->uh_sum));
-  }
-
-  strncpy((char*)dstbuff, protoinfo, dstlen);
-
-  return OP_SUCCESS;
-
-} /* End of udppackethdrinfo() */
-
 
 
 /** Returns a random (null-terminated) ASCII string with no special
@@ -1180,40 +920,14 @@ int send_packet(NpingTarget *target, int rawfd, u8 *pkt, size_t pktLen){
   assert(pktLen > 0);
 
   if ( o.sendEth() ){
-    eth_t *ethsd = eth_open_cached(o.getDevice());
-    eth_send(ethsd, pkt, pktLen);
+    netutil_eth_t *ethsd = eth_open_cached(o.getDevice());
+    netutil_eth_send(ethsd, pkt, pktLen);
   }else{
     if( o.ipv6() ){ /* IPv6 */
         memset(&s6, 0, sizeof(struct sockaddr_in6));
         s6.sin6_family=AF_INET6;
         s6.sin6_addr = target->getIPv6Address();
-
-        /*
-        if( o.getMode()==TCP ){
-            dport=getDstPortFromTCPHeader(pkt, pktLen);
-            if(dport!=NULL)
-                s6.sin6_port = *dport;
-            else
-                nping_fatal(QT_3, "send_packet(): Could not determine TCP destination port.");
-        }
-        else if( o.getMode()==UDP){
-            dport=getDstPortFromUDPHeader(pkt, pktLen);
-            if(dport!=NULL)
-                s6.sin6_port = *dport;
-            else
-                nping_fatal(QT_3, "send_packet(): Could not determine UDP destination port.");
-        }
-        */
-
-        /* Linux doesn't seem to like sin6_port to be set to other value
-         * than 0. Unless we set it to zero, the sendto() call returns
-         * "Invalid argument" error. Does this happen in other systems?
-         * TODO: Should we check here if #ifdef LINUX and set the port to
-         * zero? */
-         s6.sin6_port=0;
-
-        res = Sendto("send_packet", rawfd, pkt, pktLen, 0, (struct sockaddr *)&s6, (int) sizeof(struct sockaddr_in6));
-        /*Sendto returns errors as -1 according to netutil.cc so lets catch that and return OP_FAILURE*/
+        res = send_ipv6_packet_eth_or_sd(rawfd, NULL, &s6, pkt, pktLen);
         if (res == -1) return OP_FAILURE;
     }else{ /* IPv4 */
         struct sockaddr_storage dst;
@@ -1270,118 +984,70 @@ int print_interfaces_dnet() {
 
 
 /** @warning Returns pointer to an internal static buffer */
-struct sockaddr_storage *getSrcSockAddrFromIPPacket(u8 *pkt, size_t pktLen){
-  static struct sockaddr_storage ss;
-  struct sockaddr_in *s_ip4=(struct sockaddr_in *)&ss;
-  struct sockaddr_in6 *s_ip6=(struct sockaddr_in6 *)&ss;
-  struct ip *i4=(struct ip*)pkt;
-  memset(&ss, 0, sizeof(struct sockaddr_storage));
-
-  if(pkt==NULL || pktLen < 20)
+const struct sockaddr_storage *getSrcSockAddrFromIPPacket(const u8 *pkt, size_t pktLen){
+  if (pkt == NULL || pktLen > UINT_MAX)
     return NULL;
 
-  if( i4->ip_v == 4 ){
-    s_ip4->sin_family=AF_INET;
-    memcpy(&(s_ip4->sin_addr.s_addr), pkt+12, 4);
-  }
-  else if(i4->ip_v == 6 ){
-    if(pktLen<40) /* Min length of an IPv6 header: 40 bytes*/
-        return NULL;
-    s_ip6->sin6_family=AF_INET6;
-    memcpy(s_ip6->sin6_addr.s6_addr, pkt+8, 16);
-  }
-  else{
-      return NULL;
-  }
-  return &ss;
+  static struct abstract_ip_hdr hdr = {};
+  unsigned int datalen = pktLen;
+  const u8 *data = ip_get_data(pkt, &datalen, &hdr);
+
+  if (data == NULL)
+    return NULL;
+
+  return &hdr.src;
 } /* End of getSrcSockAddrFromPacket() */
 
 
 
 
-
-u8 *getUDPheaderLocation(u8 *pkt, size_t pktLen){
-  struct ip *i4=(struct ip*)pkt;
-  if(pkt==NULL || pktLen < 40)
+static const u8 *getDataLocation(const u8 *pkt, size_t pktLen, u8 proto, size_t minLen){
+  if (pkt == NULL || pktLen > UINT_MAX)
     return NULL;
 
-  /* Packet is IPv4 */
-  if( i4->ip_v == 4 ){
-    if (i4->ip_p == IPPROTO_UDP) {
-        if( pktLen >= ((size_t)(i4->ip_hl*4 + 8)) ) /* We have a full IP+UDP packet */
-            return pkt+(i4->ip_hl*4);    
-    }
-    else
-        return NULL;
-  }
-  /* Packet is IPv6 */
-  else if(i4->ip_v == 6 ){
-    if(pktLen<40 + 8 )
-        return NULL;
-    if( pkt[6] == IPPROTO_UDP ) /* Next Header is UDP? */
-        return pkt+40;
-    else /* Extension headers not supported, return NULL TODO: support it? */
-        return NULL;
-  }
-  else{
-      return NULL;
-  }
-  return NULL;
+  struct abstract_ip_hdr hdr = {};
+  unsigned int datalen = pktLen;
+  const u8 *data = ip_get_data(pkt, &datalen, &hdr);
+
+  if (data == NULL)
+    return NULL;
+
+  if (hdr.proto != proto)
+    return NULL;
+
+  // Ensure we have a full TCP header
+  if (datalen < minLen)
+    return NULL;
+
+  return data;
+}
+
+
+const u8 *getUDPheaderLocation(const u8 *pkt, size_t pktLen){
+  return getDataLocation(pkt, pktLen, IPPROTO_UDP, 8);
 } /* End of getUDPheaderLocation */
 
 
-u8 *getTCPheaderLocation(u8 *pkt, size_t pktLen){
-  struct ip *i4=(struct ip*)pkt;
-  if(pkt==NULL || pktLen < 40)
-    return NULL;
-
-  /* Packet is IPv4 */
-  if( i4->ip_v == 4 ){
-    if (i4->ip_p == IPPROTO_TCP) { /* Next proto is TCP? */
-        if( pktLen >= ((size_t)(i4->ip_hl*4 + 20)) ) /* We have a full IP+TCP packet */
-            return pkt+(i4->ip_hl*4);    
-    }
-    else
-        return NULL;
-  }
-  /* Packet is IPv6 */
-  else if(i4->ip_v == 6 ){
-    if(pktLen<40 + 20 )
-        return NULL;
-    if( pkt[6] == IPPROTO_TCP ) /* Next Header is TCP? */
-        return pkt+40;
-    else /* Extension headers not supported, return NULL TODO: support it? */
-        return NULL;
-  }
-  else{
-      return NULL;
-  }
-
-  return NULL;
-
-} /* End of getTCPHeaderLocation() */
-
-
+const u8 *getTCPheaderLocation(const u8 *pkt, size_t pktLen){
+  return getDataLocation(pkt, pktLen, IPPROTO_TCP, 20);
+}
 
 
 /* Returns the IP protocol of the packet or -1 in case of failure */
-u8 getProtoFromIPPacket(u8 *pkt, size_t pktLen){
-  struct ip *i4=(struct ip*)pkt;
-  static u8 proto;
-
+u8 getProtoFromIPPacket(const u8 *pkt, size_t pktLen){
   if(pkt==NULL || pktLen < 28)
     return -1;
 
+  u8 ip_v = pkt[0] >> 4;
+
   /* Packet is IPv4 */
-  if( i4->ip_v == 4 ){
-    proto = i4->ip_p;
-    return proto;
+  if (ip_v == 4) {
+    return pkt[offsetof(struct ip, ip_p)];
   }
 
   /* Packet is IPv6 */
-  else if(i4->ip_v == 6 ){
-    proto = pkt[6];
-    return proto;
+  else if (ip_v == 6) {
+    return pkt[offsetof(struct ip6_hdr, ip6_nxt)];
   }
   return -1;
 } /* End of getProtoFromIPPacket() */
@@ -1390,10 +1056,10 @@ u8 getProtoFromIPPacket(u8 *pkt, size_t pktLen){
 
 /** @warning Returns pointer to an internal static buffer
  * @return pointer on success, NULL in case of failure */
-u16 *getSrcPortFromIPPacket(u8 *pkt, size_t pktLen){
+const u16 *getSrcPortFromIPPacket(const u8 *pkt, size_t pktLen){
   static u16 port;
-  u16 *pnt=NULL;
-  u8 *header=NULL;
+  const u16 *pnt=NULL;
+  const u8 *header=NULL;
 
   if(pkt==NULL || pktLen < 28)
     return NULL;
@@ -1411,10 +1077,10 @@ u16 *getSrcPortFromIPPacket(u8 *pkt, size_t pktLen){
 
 /** @warning Returns pointer to an internal static buffer
  * @return pointer on success, NULL in case of failure */
-u16 *getDstPortFromIPPacket(u8 *pkt, size_t pktLen){
+const u16 *getDstPortFromIPPacket(const u8 *pkt, size_t pktLen){
   static u16 port;
-  u16 *pnt=NULL;
-  u8 *header=NULL;
+  const u16 *pnt=NULL;
+  const u8 *header=NULL;
 
   if(pkt==NULL || pktLen < 28)
     return NULL;
@@ -1431,9 +1097,9 @@ u16 *getDstPortFromIPPacket(u8 *pkt, size_t pktLen){
 
 /** @warning Returns pointer to an internal static buffer
  * @return pointer on success, NULL in case of failure */
-u16 *getDstPortFromTCPHeader(u8 *pkt, size_t pktLen){
+const u16 *getDstPortFromTCPHeader(const u8 *pkt, size_t pktLen){
   static u16 port;
-  u16 *pnt=NULL;
+  const u16 *pnt=NULL;
 
   if(pkt==NULL || pktLen < 20)
     return NULL;
@@ -1445,9 +1111,9 @@ u16 *getDstPortFromTCPHeader(u8 *pkt, size_t pktLen){
 
 /** @warning Returns pointer to an internal static buffer
  * @return pointer on success, NULL in case of failure */
-u16 *getDstPortFromUDPHeader(u8 *pkt, size_t pktLen){
+const u16 *getDstPortFromUDPHeader(const u8 *pkt, size_t pktLen){
   static u16 port;
-  u16 *pnt=NULL;
+  const u16 *pnt=NULL;
 
   if(pkt==NULL || pktLen < 8)
     return NULL;

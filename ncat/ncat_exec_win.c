@@ -1,128 +1,59 @@
 /***************************************************************************
  * ncat_exec_win.c -- Windows-specific subprocess execution.               *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
- *                                                                         *
- * The Nmap Security Scanner is (C) 1996-2019 Insecure.Com LLC ("The Nmap  *
- * Project"). Nmap is also a registered trademark of the Nmap Project.     *
- * This program is free software; you may redistribute and/or modify it    *
- * under the terms of the GNU General Public License as published by the   *
- * Free Software Foundation; Version 2 ("GPL"), BUT ONLY WITH ALL OF THE   *
- * CLARIFICATIONS AND EXCEPTIONS DESCRIBED HEREIN.  This guarantees your   *
- * right to use, modify, and redistribute this software under certain      *
- * conditions.  If you wish to embed Nmap technology into proprietary      *
- * software, we sell alternative licenses (contact sales@nmap.com).        *
- * Dozens of software vendors already license Nmap technology such as      *
- * host discovery, port scanning, OS detection, version detection, and     *
- * the Nmap Scripting Engine.                                              *
- *                                                                         *
- * Note that the GPL places important restrictions on "derivative works",  *
- * yet it does not provide a detailed definition of that term.  To avoid   *
- * misunderstandings, we interpret that term as broadly as copyright law   *
- * allows.  For example, we consider an application to constitute a        *
- * derivative work for the purpose of this license if it does any of the   *
- * following with any software or content covered by this license          *
- * ("Covered Software"):                                                   *
- *                                                                         *
- * o Integrates source code from Covered Software.                         *
- *                                                                         *
- * o Reads or includes copyrighted data files, such as Nmap's nmap-os-db   *
- * or nmap-service-probes.                                                 *
- *                                                                         *
- * o Is designed specifically to execute Covered Software and parse the    *
- * results (as opposed to typical shell or execution-menu apps, which will *
- * execute anything you tell them to).                                     *
- *                                                                         *
- * o Includes Covered Software in a proprietary executable installer.  The *
- * installers produced by InstallShield are an example of this.  Including *
- * Nmap with other software in compressed or archival form does not        *
- * trigger this provision, provided appropriate open source decompression  *
- * or de-archiving software is widely available for no charge.  For the    *
- * purposes of this license, an installer is considered to include Covered *
- * Software even if it actually retrieves a copy of Covered Software from  *
- * another source during runtime (such as by downloading it from the       *
- * Internet).                                                              *
- *                                                                         *
- * o Links (statically or dynamically) to a library which does any of the  *
- * above.                                                                  *
- *                                                                         *
- * o Executes a helper program, module, or script to do any of the above.  *
- *                                                                         *
- * This list is not exclusive, but is meant to clarify our interpretation  *
- * of derived works with some common examples.  Other people may interpret *
- * the plain GPL differently, so we consider this a special exception to   *
- * the GPL that we apply to Covered Software.  Works which meet any of     *
- * these conditions must conform to all of the terms of this license,      *
- * particularly including the GPL Section 3 requirements of providing      *
- * source code and allowing free redistribution of the work as a whole.    *
- *                                                                         *
- * As another special exception to the GPL terms, the Nmap Project grants  *
- * permission to link the code of this program with any version of the     *
- * OpenSSL library which is distributed under a license identical to that  *
- * listed in the included docs/licenses/OpenSSL.txt file, and distribute   *
- * linked combinations including the two.                                  *
- *                                                                         *
- * The Nmap Project has permission to redistribute Npcap, a packet         *
- * capturing driver and library for the Microsoft Windows platform.        *
- * Npcap is a separate work with it's own license rather than this Nmap    *
- * license.  Since the Npcap license does not permit redistribution        *
- * without special permission, our Nmap Windows binary packages which      *
- * contain Npcap may not be redistributed without special permission.      *
- *                                                                         *
- * Any redistribution of Covered Software, including any derived works,    *
- * must obey and carry forward all of the terms of this license, including *
- * obeying all GPL rules and restrictions.  For example, source code of    *
- * the whole work must be provided and free redistribution must be         *
- * allowed.  All GPL references to "this License", are to be treated as    *
- * including the terms and conditions of this license text as well.        *
- *                                                                         *
- * Because this license imposes special exceptions to the GPL, Covered     *
- * Work may not be combined (even as part of a larger work) with plain GPL *
- * software.  The terms, conditions, and exceptions of this license must   *
- * be included as well.  This license is incompatible with some other open *
- * source licenses as well.  In some cases we can relicense portions of    *
- * Nmap or grant special permissions to use it in other open source        *
- * software.  Please contact fyodor@nmap.org with any such requests.       *
- * Similarly, we don't incorporate incompatible open source software into  *
- * Covered Software without special permission from the copyright holders. *
- *                                                                         *
- * If you have any questions about the licensing restrictions on using     *
- * Nmap in other works, we are happy to help.  As mentioned above, we also *
- * offer an alternative license to integrate Nmap into proprietary         *
- * applications and appliances.  These contracts have been sold to dozens  *
- * of software vendors, and generally include a perpetual license as well  *
- * as providing support and updates.  They also fund the continued         *
- * development of Nmap.  Please email sales@nmap.com for further           *
- * information.                                                            *
- *                                                                         *
- * If you have received a written license agreement or contract for        *
- * Covered Software stating terms other than these, you may choose to use  *
- * and redistribute Covered Software under those terms instead of these.   *
- *                                                                         *
- * Source is provided to this software because we believe users have a     *
- * right to know exactly what a program is going to do before they run it. *
- * This also allows you to audit the software for security holes.          *
- *                                                                         *
- * Source code also allows you to port Nmap to new platforms, fix bugs,    *
- * and add new features.  You are highly encouraged to send your changes   *
- * to the dev@nmap.org mailing list for possible incorporation into the    *
- * main distribution.  By sending these changes to Fyodor or one of the    *
- * Insecure.Org development mailing lists, or checking them into the Nmap  *
- * source code repository, it is understood (unless you specify            *
- * otherwise) that you are offering the Nmap Project the unlimited,        *
- * non-exclusive right to reuse, modify, and relicense the code.  Nmap     *
- * will always be available Open Source, but this is important because     *
- * the inability to relicense code has caused devastating problems for     *
- * other Free Software projects (such as KDE and NASM).  We also           *
- * occasionally relicense the code to third parties as discussed above.    *
- * If you wish to specify special license conditions of your               *
- * contributions, just say so when you send them.                          *
- *                                                                         *
- * This program is distributed in the hope that it will be useful, but     *
- * WITHOUT ANY WARRANTY; without even the implied warranty of              *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the Nmap      *
- * license file for more details (it's in a COPYING file included with     *
- * Nmap, and also available from https://svn.nmap.org/nmap/COPYING)        *
- *                                                                         *
+ *
+ * The Nmap Security Scanner is (C) 1996-2026 Nmap Software LLC ("The Nmap
+ * Project"). Nmap is also a registered trademark of the Nmap Project.
+ *
+ * This program is distributed under the terms of the Nmap Public Source
+ * License (NPSL). The exact license text applying to a particular Nmap
+ * release or source code control revision is contained in the LICENSE
+ * file distributed with that version of Nmap or source code control
+ * revision. More Nmap copyright/legal information is available from
+ * https://nmap.org/book/man-legal.html, and further information on the
+ * NPSL license itself can be found at https://nmap.org/npsl/ . This
+ * header summarizes some key points from the Nmap license, but is no
+ * substitute for the actual license text.
+ *
+ * Nmap is generally free for end users to download and use themselves,
+ * including commercial use. It is available from https://nmap.org.
+ *
+ * The Nmap license generally prohibits companies from using and
+ * redistributing Nmap in commercial products, but we sell a special Nmap
+ * OEM Edition with a more permissive license and special features for
+ * this purpose. See https://nmap.org/oem/
+ *
+ * If you have received a written Nmap license agreement or contract
+ * stating terms other than these (such as an Nmap OEM license), you may
+ * choose to use and redistribute Nmap under those terms instead.
+ *
+ * The official Nmap Windows builds include the Npcap software
+ * (https://npcap.com) for packet capture and transmission. It is under
+ * separate license terms which forbid redistribution without special
+ * permission. So the official Nmap Windows builds may not be redistributed
+ * without special permission (such as an Nmap OEM license).
+ *
+ * Source is provided to this software because we believe users have a
+ * right to know exactly what a program is going to do before they run it.
+ * This also allows you to audit the software for security holes.
+ *
+ * Source code also allows you to port Nmap to new platforms, fix bugs, and
+ * add new features. You are highly encouraged to submit your changes as a
+ * Github PR or by email to the dev@nmap.org mailing list for possible
+ * incorporation into the main distribution. Unless you specify otherwise, it
+ * is understood that you are offering us very broad rights to use your
+ * submissions as described in the Nmap Public Source License Contributor
+ * Agreement. This is important because we fund the project by selling licenses
+ * with various terms, and also because the inability to relicense code has
+ * caused devastating problems for other Free Software projects (such as KDE
+ * and NASM).
+ *
+ * The free version of Nmap is distributed in the hope that it will be
+ * useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. Warranties,
+ * indemnification and commercial support are all available through the
+ * Npcap OEM program--see https://nmap.org/oem/
+ *
  ***************************************************************************/
 
 /* $Id$ */
@@ -258,8 +189,11 @@ static int run_command_redirected(char *cmdexec, struct subprocess_info *info)
     static int pipe_serial_no = 0;
     char pipe_name[32];
     SECURITY_ATTRIBUTES sa;
-    STARTUPINFO si;
+    STARTUPINFOEX si = {0};
+    SIZE_T attrSize = 0;
     PROCESS_INFORMATION pi;
+    char *app_name = NULL;
+    int ret = -1;
 
     setup_environment(&info->fdn);
 
@@ -272,7 +206,7 @@ static int run_command_redirected(char *cmdexec, struct subprocess_info *info)
     if (CreatePipe(&info->child_in_r, &info->child_in_w, &sa, 0) == 0) {
         if (o.verbose)
             logdebug("Error in CreatePipe: %d\n", GetLastError());
-        return -1;
+        goto cleanup;
     }
 
     /* Pipe names must have this special form. */
@@ -289,18 +223,13 @@ static int run_command_redirected(char *cmdexec, struct subprocess_info *info)
     if (info->child_out_r == 0) {
         if (o.verbose)
             logdebug("Error in CreateNamedPipe: %d\n", GetLastError());
-        CloseHandle(info->child_in_r);
-        CloseHandle(info->child_in_w);
-        return -1;
+        goto cleanup;
     }
     info->child_out_w = CreateFile(pipe_name,
         GENERIC_WRITE, 0, &sa, OPEN_EXISTING,
         FILE_ATTRIBUTE_NORMAL | FILE_FLAG_OVERLAPPED, NULL);
     if (info->child_out_w == 0) {
-        CloseHandle(info->child_in_r);
-        CloseHandle(info->child_in_w);
-        CloseHandle(info->child_out_r);
-        return -1;
+        goto cleanup;
     }
     pipe_serial_no++;
 
@@ -308,16 +237,56 @@ static int run_command_redirected(char *cmdexec, struct subprocess_info *info)
     SetHandleInformation(info->child_in_w, HANDLE_FLAG_INHERIT, 0);
     SetHandleInformation(info->child_out_r, HANDLE_FLAG_INHERIT, 0);
 
+    HANDLE handleList[3];
     memset(&si, 0, sizeof(si));
-    si.cb = sizeof(si);
-    si.hStdInput = info->child_in_r;
-    si.hStdOutput = info->child_out_w;
-    si.hStdError = GetStdHandle(STD_ERROR_HANDLE);
-    si.dwFlags |= STARTF_USESTDHANDLES;
+    si.StartupInfo.cb = sizeof(si);
+    handleList[0] = si.StartupInfo.hStdInput = info->child_in_r;
+    handleList[1] = si.StartupInfo.hStdOutput = info->child_out_w;
+    handleList[2] = si.StartupInfo.hStdError = GetStdHandle(STD_ERROR_HANDLE);
+    si.StartupInfo.dwFlags = STARTF_USESTDHANDLES;
+
+    InitializeProcThreadAttributeList(NULL, 1, 0, &attrSize);
+    si.lpAttributeList = (PPROC_THREAD_ATTRIBUTE_LIST) HeapAlloc(GetProcessHeap(), 0, attrSize);
+    if (!si.lpAttributeList) {
+        if (o.verbose)
+          logdebug("HeapAlloc failed: %u\n", GetLastError());
+        goto cleanup;
+    }
+    if (!InitializeProcThreadAttributeList(si.lpAttributeList,
+                                           1, 0, &attrSize)) {
+        if (o.verbose)
+          logdebug("InitializeProcThreadAttributeList failed: %u\n", GetLastError());
+        goto cleanup;
+    }
+    if (!UpdateProcThreadAttribute(
+            si.lpAttributeList,
+            0,
+            PROC_THREAD_ATTRIBUTE_HANDLE_LIST,
+            handleList,
+            sizeof(handleList),
+            NULL,
+            NULL))
+    {
+        if (o.verbose)
+          logdebug("UpdateProcThreadAttribute failed: %u\n", GetLastError());
+        goto cleanup;
+    }
 
     memset(&pi, 0, sizeof(pi));
 
-    if (CreateProcess(NULL, cmdexec, NULL, NULL, TRUE, 0, NULL, NULL, &si, &pi) == 0) {
+    /* The user ought to quote the binary name if it contains spaces, but they
+     * might not. If it's not quoted, we'll try to help them out. */
+    if (cmdexec[0] != '"') {
+      DWORD dwType = 0;
+      /* Check if the whole command is just the name of an executable file. */
+      if (GetBinaryType(cmdexec, &dwType)) {
+        /* If so, pass this to CreateProcess to avoid space-splitting */
+        app_name = cmdexec;
+      }
+    }
+
+    if (CreateProcess(app_name, cmdexec, NULL, NULL, TRUE,
+      EXTENDED_STARTUPINFO_PRESENT, NULL, NULL, &si.StartupInfo, &pi) == 0) {
         if (o.verbose) {
             LPVOID lpMsgBuf;
             FormatMessage(
@@ -332,12 +301,9 @@ static int run_command_redirected(char *cmdexec, struct subprocess_info *info)
 
             logdebug("Error in CreateProcess: %s\nCommand was: %s\n", (lpMsgBuf), cmdexec);
         }
-        CloseHandle(info->child_in_r);
-        CloseHandle(info->child_in_w);
-        CloseHandle(info->child_out_r);
-        CloseHandle(info->child_out_w);
-        return -1;
+        goto cleanup;
     }
+    ret = pi.dwProcessId;
 
     /* Close hThread here because we have no use for it. hProcess is closed in
        subprocess_info_close. */
@@ -345,7 +311,22 @@ static int run_command_redirected(char *cmdexec, struct subprocess_info *info)
 
     info->proc = pi.hProcess;
 
-    return pi.dwProcessId;
+cleanup:
+    if (ret == -1) {
+      if (info->child_in_r)
+        CloseHandle(info->child_in_r);
+      if (info->child_in_w)
+        CloseHandle(info->child_in_w);
+      if (info->child_out_r)
+        CloseHandle(info->child_out_r);
+      if (info->child_out_w)
+        CloseHandle(info->child_out_w);
+    }
+    if (si.lpAttributeList) {
+        DeleteProcThreadAttributeList(si.lpAttributeList);
+        HeapFree(GetProcessHeap(), 0, si.lpAttributeList);
+    }
+    return ret;
 }
 
 static const char *get_shell(void)
@@ -363,8 +344,10 @@ static void subprocess_info_close(struct subprocess_info *info)
 {
 #ifdef HAVE_OPENSSL
     if (info->fdn.ssl != NULL) {
-        SSL_shutdown(info->fdn.ssl);
+        if (!o.noshutdown)
+            SSL_shutdown(info->fdn.ssl);
         SSL_free(info->fdn.ssl);
+        info->fdn.ssl = NULL;
     }
 #endif
     closesocket(info->fdn.fd);
@@ -444,6 +427,54 @@ static int start_subprocess(char *cmdexec, struct subprocess_info *info)
     return pid;
 }
 
+#define i_PIPE_IN  0
+#define i_PIPE_OUT  1
+#define i_PROC  2
+static void shutdown_PIPE_IN(struct subprocess_info *info, HANDLE *events, int *idx, int *nCount)
+{
+  int i = idx[i_PIPE_IN];
+  int n = *nCount;
+  if (!o.noshutdown
+#ifdef HAVE_OPENSSL
+      // SSL can only shut down in the write direction
+      && info->fdn.ssl == NULL
+#endif
+    ) {
+    shutdown(info->fdn.fd, SD_RECEIVE);
+  }
+  WSACloseEvent(events[i]);
+  for (i += 1; i < n; i++) {
+    events[i - 1] = events[i];
+    idx[i] -= 1;
+  }
+  *nCount = n - 1;
+  idx[i_PIPE_IN] = -1;
+  CloseHandle(info->child_in_w);
+}
+
+static void shutdown_PIPE_OUT(struct subprocess_info *info, HANDLE *events, int *idx, int *nCount)
+{
+  int i = idx[i_PIPE_OUT];
+  int n = *nCount;
+  if (!o.noshutdown) {
+#ifdef HAVE_OPENSSL
+    if (info->fdn.ssl != NULL &&
+        // These errors mean we cannot send close_notify alert
+        info->fdn.lasterr != SSL_ERROR_SYSCALL && info->fdn.lasterr != SSL_ERROR_SSL) {
+      SSL_shutdown(info->fdn.ssl);
+    } else
+#endif
+      shutdown(info->fdn.fd, SD_SEND);
+  }
+  for (i += 1; i < n; i++) {
+    events[i - 1] = events[i];
+    idx[i] -= 1;
+  }
+  *nCount = n - 1;
+  idx[i_PIPE_OUT] = -1;
+  CloseHandle(info->child_out_r);
+}
+
 /* Relay data between a socket and a process until the process dies or stops
    sending or receiving data. The socket descriptor and process pipe handles
    are in the data argument, which must be a pointer to struct subprocess_info.
@@ -464,62 +495,114 @@ static DWORD WINAPI subprocess_thread_func(void *data)
     char pipe_buffer[BUFSIZ];
     OVERLAPPED overlap = { 0 };
     HANDLE events[3];
-    DWORD ret, rc;
+    DWORD ret, rc, n_r;
     int crlf_state = 0;
+    int nCount = 3;
+    int idx[3];
+    BOOL bPipeOutReady;
 
     info = (struct subprocess_info *) data;
 
     /* Three events we watch for: socket read, pipe read, and process end. */
-    events[0] = (HANDLE) WSACreateEvent();
-    WSAEventSelect(info->fdn.fd, events[0], FD_READ | FD_CLOSE);
-    events[1] = info->child_out_r;
-    events[2] = info->proc;
+    events[i_PIPE_IN] = (HANDLE) WSACreateEvent();
+    idx[i_PIPE_IN] = i_PIPE_IN;
+    WSAEventSelect(info->fdn.fd, events[i_PIPE_IN], FD_READ | FD_CLOSE);
+    events[i_PIPE_OUT] = info->child_out_r;
+    idx[i_PIPE_OUT] = i_PIPE_OUT;
+    events[i_PROC] = info->proc;
+    idx[i_PROC] = i_PROC;
 
     /* To avoid blocking or polling, we use asynchronous I/O, or what Microsoft
        calls "overlapped" I/O, on the process pipe. WaitForMultipleObjects
        reports when the read operation is complete. */
-    ReadFile(info->child_out_r, pipe_buffer, sizeof(pipe_buffer), NULL, &overlap);
-
+    bPipeOutReady = ReadFile(info->child_out_r, pipe_buffer, sizeof(pipe_buffer), &n_r, &overlap);
+    if (!bPipeOutReady && ERROR_IO_PENDING != GetLastError()) {
+        // Bad error; shut it down.
+        goto loop_end;
+    }
+    
     /* Loop until EOF or error. */
-    for (;;) {
-        DWORD n_r, n_w;
+    /* There are 2 directions that are managed together:
+     * PIPE_IN: Data read from socket read written to child stdin. */
+#define PIPE_IN_IS_OPEN() (idx[i_PIPE_IN] >= 0)
+    /* PIPE_OUT: Data read from child stdout and written to socket. */
+#define PIPE_OUT_IS_OPEN() (idx[i_PIPE_OUT] >= 0)
+    /* PIPE_CLOSE sets idx[_PipeName] to -1, shifts events down, updates idx, decrements nCount */
+#define PIPE_CLOSE(_PipeName) shutdown_##_PipeName(info, events, idx, &nCount)
+
+    /* If nCount is only 1, there's nothing left to do. */
+    while (nCount > 1) {
+        DWORD n_w;
         int i, n;
         char *crlf = NULL, *wbuf;
         char buffer[BUFSIZ];
         int pending;
+        WSANETWORKEVENTS triggered;
+        int old_i_proc = idx[i_PROC];
 
-        i = WaitForMultipleObjects(3, events, FALSE, INFINITE);
-        switch(i) {
-          case WAIT_OBJECT_0:
+        i = WaitForMultipleObjects(nCount, events, FALSE, bPipeOutReady ? 0 : INFINITE);
+        if (PIPE_IN_IS_OPEN() && i == WAIT_OBJECT_0 + idx[i_PIPE_IN]) {
             /* Read from socket, write to process. */
 
-            /* Reset events on the socket. SSL_read in particular does not
-             * clear the event. */
-            ResetEvent(events[0]);
-            WSAEventSelect(info->fdn.fd, events[0], 0);
-            block_socket(info->fdn.fd);
+            /* Reset events on the socket. */
+            n = WSAEnumNetworkEvents(info->fdn.fd, events[0], &triggered);
+            ncat_assert(n == 0);
+            /* Regardless of what event triggered, try to read. This simplifies
+             * error handling. */
             do {
                 n = ncat_recv(&info->fdn, buffer, sizeof(buffer), &pending);
                 if (n <= 0)
                 {
-                    goto loop_end;
+                    /* return value can be 0 without meaning EOF in some cases such as SSL
+                     * renegotiations that require read/write socket operations but do not
+                     * have any application data. */
+                    if(n == 0 && info->fdn.lasterr == 0) {
+                        continue; /* Check pending */
+                    }
+                    // socket EOF/err
+                    PIPE_CLOSE(PIPE_IN);
+                    break;
                 }
-                n_r = n;
-                if (WriteFile(info->child_in_w, buffer, n_r, &n_w, NULL) == 0)
+                if (WriteFile(info->child_in_w, buffer, n, &n_w, NULL) == 0
+                  || n_w != n)
                 {
-                    goto loop_end;
-                }
-                if (n_w != n)
-                {
-                    goto loop_end;
+                    PIPE_CLOSE(PIPE_IN);
+                    break;
                 }
             } while (pending);
-            /* Restore the select event (and non-block the socket again.) */
-            WSAEventSelect(info->fdn.fd, events[0], FD_READ | FD_CLOSE);
-            /* Fall through to check other objects */
-          case WAIT_OBJECT_0 + 1:
+            /* Read succeeded, but also check for FD_CLOSE error that was
+             * cleared and won't be signaled again */
+            if (triggered.lNetworkEvents & FD_CLOSE) {
+              if (o.debug && triggered.iErrorCode[FD_CLOSE_BIT]) {
+                logdebug("Connection closed for fd %d: %s.\n", info->fdn.fd,
+                    socket_strerror(triggered.iErrorCode[FD_CLOSE_BIT]));
+              }
+              PIPE_CLOSE(PIPE_IN);
+            }
+        }
+
+        if (PIPE_OUT_IS_OPEN() && (bPipeOutReady || HasOverlappedIoCompleted(&overlap))) {
             /* Read from process, write to socket. */
-            if (GetOverlappedResult(info->child_out_r, &overlap, &n_r, FALSE)) {
+            if (!bPipeOutReady) {
+                if (!GetOverlappedResult(info->child_out_r, &overlap, &n_r, FALSE)) {
+                    /* Probably read result wasn't ready, but we got here because
+                     * there was data on the socket. */
+                    DWORD dwErr = GetLastError();
+                    switch (dwErr) {
+                    case ERROR_IO_PENDING:
+                    case ERROR_IO_INCOMPLETE:
+                        break;
+                    default:
+                        /* Error or end of file. */
+                        if (o.debug) {
+                          logdebug("GetOverlappedResult error %08x.\n", dwErr);
+                        }
+                        PIPE_CLOSE(PIPE_OUT);
+                        break;
+                    }
+                    continue;
+                }
+            }
                 wbuf = pipe_buffer;
                 if (o.crlf) {
                     n = n_r;
@@ -527,61 +610,52 @@ static DWORD WINAPI subprocess_thread_func(void *data)
                         wbuf = crlf;
                     n_r = n;
                 }
-                /* The above call to WSAEventSelect puts the socket in
-                   non-blocking mode, but we want this send to block, not
-                   potentially return WSAEWOULDBLOCK. We call block_socket, but
-                   first we must clear out the select event. */
-                WSAEventSelect(info->fdn.fd, events[0], 0);
-                block_socket(info->fdn.fd);
                 n = ncat_send(&info->fdn, wbuf, n_r);
                 if (crlf != NULL)
                     free(crlf);
                 if (n != n_r)
                 {
-                    goto loop_end;
+                  PIPE_CLOSE(PIPE_OUT);
+                  break;
                 }
-                /* Restore the select event (and non-block the socket again.) */
-                WSAEventSelect(info->fdn.fd, events[0], FD_READ | FD_CLOSE);
                 /* Queue another asychronous read. */
-                ReadFile(info->child_out_r, pipe_buffer, sizeof(pipe_buffer), NULL, &overlap);
-            } else {
-                /* Probably read result wasn't ready, but we got here because
-                 * there was data on the socket. */
-                switch (GetLastError()) {
-                    case ERROR_IO_PENDING:
-                    case ERROR_IO_INCOMPLETE:
-                        break;
-                    default:
-                        /* Error or end of file. */
-                        goto loop_end;
-                        break;
+                bPipeOutReady = ReadFile(info->child_out_r, pipe_buffer, sizeof(pipe_buffer), &n_r, &overlap);
+                if (!bPipeOutReady) {
+                  DWORD dwErr = GetLastError();
+                  if (ERROR_IO_PENDING != dwErr) {
+                      // Bad error; shut it down.
+                        if (o.debug) {
+                          logdebug("ReadFile error %08x.\n", dwErr);
+                        }
+                      PIPE_CLOSE(PIPE_OUT);
+                      break;
+                  }
                 }
-            }
-            /* Break here, don't go on. Need to finish all socket writes before
-             * checking if child process died. */
-            break;
-          case WAIT_OBJECT_0 + 2:
+        }
+        /* 'else if' because we need to finish all socket writes before
+         * checking if child process died */
+        else if (i == WAIT_OBJECT_0 + old_i_proc) {
             /* The child died. There are no more writes left in the pipe
                because WaitForMultipleObjects guarantees events with lower
                indexes are handled first. */
-          default:
-            goto loop_end;
             break;
         }
     }
-
 loop_end:
 
+    if (PIPE_OUT_IS_OPEN()) {
+      PIPE_CLOSE(PIPE_OUT);
+    }
+    if (PIPE_IN_IS_OPEN()) {
+      PIPE_CLOSE(PIPE_IN);
+    }
 #ifdef HAVE_OPENSSL
     if (o.ssl && info->fdn.ssl) {
-        SSL_shutdown(info->fdn.ssl);
+        // SSL_shutdown done in shutdown_PIPE_OUT
         SSL_free(info->fdn.ssl);
-        /* avoid shutting down and freeing this again in subprocess_info_close */
         info->fdn.ssl = NULL;
     }
 #endif
-
-    WSACloseEvent(events[0]);
 
     rc = unregister_subprocess(info->proc);
     ncat_assert(rc != -1);
@@ -600,8 +674,15 @@ loop_end:
     if (o.debug > 1)
         logdebug("Subprocess ended with exit code %d.\n", ret);
 
-    shutdown(info->fdn.fd, 2);
-    subprocess_info_close(info);
+    /* subprocess_info_close, but only the parts that aren't done yet: */
+    // SSL_free done above
+    closesocket(info->fdn.fd);
+    CloseHandle(info->proc);
+    CloseHandle(info->child_in_r);
+    // child_in_w closed by shutdown_PIPE_IN
+    // child_out_r closed by shutdown_PIPE_OUT
+    CloseHandle(info->child_out_w);
+
     free(info);
 
     rc = WaitForSingleObject(pseudo_sigchld_mutex, INFINITE);

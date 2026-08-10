@@ -17,7 +17,7 @@
 .\" WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF
 .\" MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 .\"
-.TH PCAP_INJECT 3PCAP "25 July 2018"
+.TH PCAP_INJECT 3PCAP "5 March 2022"
 .SH NAME
 pcap_inject, pcap_sendpacket \- transmit a packet
 .SH SYNOPSIS
@@ -32,7 +32,7 @@ int pcap_sendpacket(pcap_t *p, const u_char *buf, int size);
 .ft
 .fi
 .SH DESCRIPTION
-.B pcap_inject()
+.BR pcap_inject ()
 sends a raw packet through the network interface;
 .I buf
 points to the data of the packet, including the link-layer header, and
@@ -42,7 +42,7 @@ is the number of bytes in the packet.
 Note that, even if you successfully open the network interface, you
 might not have permission to send packets on it, or it might not support
 sending packets; as
-.B pcap_open_live(3PCAP)
+.BR pcap_open_live (3PCAP)
 doesn't have a flag to indicate whether to open for capturing, sending,
 or capturing and sending, you cannot request an open that supports
 sending and be notified at open time whether sending will be possible.
@@ -51,7 +51,7 @@ Note also that some devices might not support sending packets.
 Note that, on some platforms, the link-layer header of the packet that's
 sent might not be the same as the link-layer header of the packet
 supplied to
-.BR pcap_inject() ,
+.BR pcap_inject (),
 as the source link-layer address, if the header contains such an
 address, might be changed to be the address assigned to the interface on
 which the packet it sent, if the platform doesn't support sending
@@ -61,34 +61,42 @@ libpcap used when attaching to the device, even on platforms that
 .I do
 nominally support sending completely raw and unchanged packets.
 .PP
-.B pcap_sendpacket()
+.BR pcap_sendpacket ()
 is like
-.BR pcap_inject() ,
-but it returns 0 on success, rather than returning the number of bytes
+.BR pcap_inject (),
+but it returns
+.B 0
+on success, rather than returning the number of bytes
 written.
-.RB ( pcap_inject()
+.RB ( pcap_inject ()
 comes from OpenBSD;
-.B pcap_sendpacket()
-comes from WinPcap.  Both are provided for compatibility.)
+.BR pcap_sendpacket ()
+comes from WinPcap/Npcap.  Both are provided for compatibility.)
 .SH RETURN VALUE
-.B pcap_inject()
-returns the number of bytes written on success and
+.BR pcap_inject ()
+returns the number of bytes written on success,
+.B PCAP_ERROR_NOT_ACTIVATED
+if called on a capture handle that has been created but not activated, and
 .B PCAP_ERROR
-on failure.
+on other errors.
 .PP
-.B pcap_sendpacket()
-returns 0 on success and
+.BR pcap_sendpacket ()
+returns
+.B 0
+on success,
+.B PCAP_ERROR_NOT_ACTIVATED
+if called on a capture handle that has been created but not activated, and
 .B PCAP_ERROR
-on failure.
+on other errors.
 .PP
 If
 .B PCAP_ERROR
 is returned,
-.B pcap_geterr(3PCAP)
+.BR pcap_geterr (3PCAP)
 or
-.B pcap_perror(3PCAP)
+.BR pcap_perror (3PCAP)
 may be called with
 .I p
 as an argument to fetch or display the error text.
 .SH SEE ALSO
-pcap(3PCAP)
+.BR pcap (3PCAP)

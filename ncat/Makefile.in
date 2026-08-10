@@ -152,10 +152,6 @@ test/test-wildcard: test/test-wildcard.o ncat_core.o ncat_ssl.o sys_wrap.o util.
 
 .PHONY: uninstall all clean distclean build-lua
 
-../libnetutil/libnetutil.a: ../libnetutil/Makefile
-	@echo Compiling libnetutil;
-	cd ../libnetutil && $(MAKE)
-
 $(NBASEDIR)/libnbase.a: $(NBASEDIR)/Makefile
 	@echo Compiling libnbase;
 	cd $(NBASEDIR) && $(MAKE)

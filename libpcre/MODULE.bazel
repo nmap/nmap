@@ -1,0 +1,9 @@
+module(
+    name = "pcre2",
+    version = "10.47",
+    compatibility_level = 1,
+)
+
+bazel_dep(name = "rules_cc", version = "0.2.8")
+bazel_dep(name = "bazel_skylib", version = "1.8.1")
+bazel_dep(name = "platforms", version = "1.0.0")

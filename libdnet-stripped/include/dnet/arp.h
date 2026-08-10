@@ -4,9 +4,8 @@
  * Address Resolution Protocol.
  * RFC 826
  *
- * Copyright (c) 2000 Dug Song <dugsong@monkey.org>
+ * Copyright (c) 2023-2024 Oliver Falk <oliver@linux-kernel.at>
  *
- * $Id: arp.h 416 2003-03-16 17:39:18Z dugsong $
  */
 
 #ifndef DNET_ARP_H
@@ -16,9 +15,9 @@
 #define ARP_ETHIP_LEN	20	/* base ARP message length */
 
 #ifndef __GNUC__
-#ifndef __attribute__
-# define __attribute__(x)
-#endif
+# ifndef __attribute__
+#  define __attribute__(x)
+# endif
 # pragma pack(1)
 #endif
 
@@ -38,7 +37,6 @@ struct arp_hdr {
  */
 #define ARP_HRD_ETH 	0x0001	/* ethernet hardware */
 #define ARP_HRD_IEEE802	0x0006	/* IEEE 802 hardware */
-
 #define ARP_HRD_INFINIBAND 0x0020 /* InfiniBand */
 #define ARP_HRD_APPLETALK 0x0309 /* AppleTalk DDP */
 #define ARP_HDR_IEEE80211 0x0321  /* IEEE 802.11 */

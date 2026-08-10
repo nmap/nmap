@@ -43,11 +43,11 @@ local printer_port = { number = 8611, protocol = "udp"}
 local scanner_port = { number = 8612, protocol = "udp"}
 local arg_timeout  = stdnse.parse_timespec(stdnse.get_script_args(SCRIPT_NAME .. ".timeout"))
 
+local bcast_host = {
+  ip = (nmap.address_family() == 'inet' and "255.255.255.255" or "ff02::1"),
+}
+
 prerule = function()
-  if ( nmap.address_family() ~= 'inet' ) then
-    stdnse.debug1("is IPv4 compatible only.")
-    return false
-  end
   return true
 end
 
@@ -100,7 +100,7 @@ end
 
 local function getPrinters(devices)
   local condvar = nmap.condvar(devices)
-  local helper = bjnp.Helper:new( { ip = "255.255.255.255" }, printer_port, { bcast = true, timeout = arg_timeout } )
+  local helper = bjnp.Helper:new( bcast_host, printer_port, { bcast = true, timeout = arg_timeout } )
   if ( not(helper:connect()) ) then
     condvar "signal"
     return
@@ -115,7 +115,7 @@ end
 
 local function getScanners(devices)
   local condvar = nmap.condvar(devices)
-  local helper = bjnp.Helper:new( { ip = "255.255.255.255" }, scanner_port, { bcast = true, timeout = arg_timeout } )
+  local helper = bjnp.Helper:new( bcast_host, scanner_port, { bcast = true, timeout = arg_timeout } )
   if ( not(helper:connect()) ) then
     condvar "signal"
     return

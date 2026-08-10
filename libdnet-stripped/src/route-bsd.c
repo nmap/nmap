@@ -4,7 +4,7 @@
  * Copyright (c) 2001 Dug Song <dugsong@monkey.org>
  * Copyright (c) 1999 Masaki Hirabaru <masaki@merit.edu>
  * 
- * $Id: route-bsd.c 555 2005-02-10 05:18:38Z dugsong $
+ * $Id$
  */
 
 #include "config.h"

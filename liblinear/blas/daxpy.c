@@ -1,14 +1,18 @@
 #include "blas.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 int daxpy_(int *n, double *sa, double *sx, int *incx, double *sy,
            int *incy)
 {
   long int i, m, ix, iy, nn, iincx, iincy;
   register double ssa;
 
-  /* constant times a vector plus a vector.   
-     uses unrolled loop for increments equal to one.   
-     jack dongarra, linpack, 3/11/78.   
+  /* constant times a vector plus a vector.
+     uses unrolled loop for increments equal to one.
+     jack dongarra, linpack, 3/11/78.
      modified 12/3/93, array(1) declarations changed to array(*) */
 
   /* Dereference inputs */
@@ -47,3 +51,7 @@ int daxpy_(int *n, double *sa, double *sx, int *incx, double *sy,
 
   return 0;
 } /* daxpy_ */
+
+#ifdef __cplusplus
+}
+#endif

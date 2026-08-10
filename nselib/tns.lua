@@ -672,7 +672,7 @@ Packet.Unknown1 = {
 
   --- Creates a new Packet.Unknown1
   --
-  -- @param version containing the version of the packet to send
+  -- @param os string containing the version of the packet to send
   -- @return new instance of Packet.Unknown1
   new = function(self, os)
     local o = { os = os }
@@ -1690,7 +1690,7 @@ Helper = {
   --- Authenticates to the database
   --
   -- @param user containing the Oracle user name
-  -- @param pass containing the Oracle user password
+  -- @param password containing the Oracle user password
   -- @return true on success, false on failure
   -- @return err containing error message when status is false
   Login = function( self, user, password )
@@ -1720,7 +1720,7 @@ Helper = {
 
   --- Steal auth data from database
   -- @param user containing the Oracle user name
-  -- @param pass containing the Oracle user password
+  -- @param password containing the Oracle user password
   -- @return true on success, false on failure
   -- @return err containing error message when status is false
   StealthLogin = function( self, user, password )

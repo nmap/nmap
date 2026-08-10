@@ -1,4 +1,4 @@
-      * Copyright (c) 2015, Patrick Monnerat, D+H <patrick.monnerat@dh.com>
+      * Copyright (C) Patrick Monnerat <patrick@monnerat.net>
       * All rights reserved.
       *
       * Redistribution and use in source and binary forms,
@@ -33,6 +33,8 @@
       * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
       * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY
       * OF SUCH DAMAGE.
+      *
+      * SPDX-License-Identifier: BSD-3-Clause
 
       /if not defined(LIBSSH2_SFTP_H_)
       /define LIBSSH2_SFTP_H_
@@ -77,6 +79,10 @@
      d LIBSSH2_SFTP_REALPATH...
      d                 c                   2
 
+      * Flags for sftp_mkdir()
+     d LIBSSH2_SFTP_DEFAULT_MODE...
+     d                 c                   -1
+
       * SFTP attribute flag bits.
      d LIBSSH2_SFTP_ATTR_SIZE...
      d                 c                   X'00000001'
@@ -95,7 +101,7 @@
      d LIBSSH2_SFTP_ST_NOSUID...
      d                 c                   X'00000002'
 
-     d #LIBSSH2_SFTP_ATTRIBUTES...
+     d LIBSSH2_SFTP_ATTRIBUTES...
      d                 ds                  based(######typedef######)
      d                                     align qualified
       * If flags & ATTR_* bit is set, then the value in this struct will be
@@ -334,8 +340,7 @@
 
       * C macro implementation.
      d libssh2_sftp_open...
-     d                 pr              *   extproc('libssh2_sftp_open')         LIBSSH2_SFTP_HANDLE
-     d                                                                          *
+     d                 pr              *   extproc('libssh2_sftp_open')         LIBSSH2_SFTP_HANDLE*
      d  sftp                           *   value                                LIBSSH2_SFTP *
      d  filename                       *   value options(*string)               const char *
      d  flags                              value like(libssh2_Culong)
@@ -344,16 +349,34 @@
       * C macro libssh2_sftp_opendir implementation.
       * Renamed to avoid upper/lower case name clash.
      d libssh2_sftp_open_dir...
-     d                 pr              *   extproc('libssh2_sftp_opendir')      LIBSSH2_SFTP_HANDLE
-     d                                                                          *
+     d                 pr              *   extproc('libssh2_sftp_opendir')      LIBSSH2_SFTP_HANDLE*
      d  sftp                           *   value                                LIBSSH2_SFTP *
      d  path                           *   value options(*string)               const char *
+
+     d libssh2_sftp_open_ex_r...
+     d                 pr              *   extproc('libssh2_sftp_open_ex_r')    LIBSSH2_SFTP_HANDLE*
+     d  sftp                           *   value                                LIBSSH2_SFTP *
+     d  filename                       *   value options(*string)               const char *
+     d  filename_len                       value like(libssh2_Csize_t)
+     d  flags                              value like(libssh2_Culong)
+     d  mode                               value like(libssh2_Clong)
+     d  open_type                          value like(libssh2_Cint)
+     d  attrs                              likeds(LIBSSH2_SFTP_ATTRIBUTES)
+
+      * C macro implementation.
+     d libssh2_sftp_open_r...
+     d                 pr              *   extproc('libssh2_sftp_open_r')       LIBSSH2_SFTP_HANDLE*
+     d  sftp                           *   value                                LIBSSH2_SFTP *
+     d  filename                       *   value options(*string)               const char *
+     d  flags                              value like(libssh2_Culong)
+     d  mode                               value like(libssh2_Clong)
+     d  attrs                              likeds(LIBSSH2_SFTP_ATTRIBUTES)
 
      d libssh2_sftp_read...
      d                 pr                  extproc('libssh2_sftp_read')
      d                                     like(libssh2_Cssize_t)
      d  handle                         *   value                                LIBSSH2_SFTP_HANDLE*
-     d  buffer                         *   value options(*string)               char *
+     d  buffer                         *   value                                char *
      d  buffer_maxlen                      value like(libssh2_Csize_t)
 
      d libssh2_sftp_readdir_ex...

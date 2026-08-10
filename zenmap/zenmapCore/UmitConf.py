@@ -1,136 +1,66 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
+#!/usr/bin/env python3
 
 # ***********************IMPORTANT NMAP LICENSE TERMS************************
-# *                                                                         *
-# * The Nmap Security Scanner is (C) 1996-2019 Insecure.Com LLC ("The Nmap  *
-# * Project"). Nmap is also a registered trademark of the Nmap Project.     *
-# * This program is free software; you may redistribute and/or modify it    *
-# * under the terms of the GNU General Public License as published by the   *
-# * Free Software Foundation; Version 2 ("GPL"), BUT ONLY WITH ALL OF THE   *
-# * CLARIFICATIONS AND EXCEPTIONS DESCRIBED HEREIN.  This guarantees your   *
-# * right to use, modify, and redistribute this software under certain      *
-# * conditions.  If you wish to embed Nmap technology into proprietary      *
-# * software, we sell alternative licenses (contact sales@nmap.com).        *
-# * Dozens of software vendors already license Nmap technology such as      *
-# * host discovery, port scanning, OS detection, version detection, and     *
-# * the Nmap Scripting Engine.                                              *
-# *                                                                         *
-# * Note that the GPL places important restrictions on "derivative works",  *
-# * yet it does not provide a detailed definition of that term.  To avoid   *
-# * misunderstandings, we interpret that term as broadly as copyright law   *
-# * allows.  For example, we consider an application to constitute a        *
-# * derivative work for the purpose of this license if it does any of the   *
-# * following with any software or content covered by this license          *
-# * ("Covered Software"):                                                   *
-# *                                                                         *
-# * o Integrates source code from Covered Software.                         *
-# *                                                                         *
-# * o Reads or includes copyrighted data files, such as Nmap's nmap-os-db   *
-# * or nmap-service-probes.                                                 *
-# *                                                                         *
-# * o Is designed specifically to execute Covered Software and parse the    *
-# * results (as opposed to typical shell or execution-menu apps, which will *
-# * execute anything you tell them to).                                     *
-# *                                                                         *
-# * o Includes Covered Software in a proprietary executable installer.  The *
-# * installers produced by InstallShield are an example of this.  Including *
-# * Nmap with other software in compressed or archival form does not        *
-# * trigger this provision, provided appropriate open source decompression  *
-# * or de-archiving software is widely available for no charge.  For the    *
-# * purposes of this license, an installer is considered to include Covered *
-# * Software even if it actually retrieves a copy of Covered Software from  *
-# * another source during runtime (such as by downloading it from the       *
-# * Internet).                                                              *
-# *                                                                         *
-# * o Links (statically or dynamically) to a library which does any of the  *
-# * above.                                                                  *
-# *                                                                         *
-# * o Executes a helper program, module, or script to do any of the above.  *
-# *                                                                         *
-# * This list is not exclusive, but is meant to clarify our interpretation  *
-# * of derived works with some common examples.  Other people may interpret *
-# * the plain GPL differently, so we consider this a special exception to   *
-# * the GPL that we apply to Covered Software.  Works which meet any of     *
-# * these conditions must conform to all of the terms of this license,      *
-# * particularly including the GPL Section 3 requirements of providing      *
-# * source code and allowing free redistribution of the work as a whole.    *
-# *                                                                         *
-# * As another special exception to the GPL terms, the Nmap Project grants  *
-# * permission to link the code of this program with any version of the     *
-# * OpenSSL library which is distributed under a license identical to that  *
-# * listed in the included docs/licenses/OpenSSL.txt file, and distribute   *
-# * linked combinations including the two.                                  *
-# *                                                                         *
-# * The Nmap Project has permission to redistribute Npcap, a packet         *
-# * capturing driver and library for the Microsoft Windows platform.        *
-# * Npcap is a separate work with it's own license rather than this Nmap    *
-# * license.  Since the Npcap license does not permit redistribution        *
-# * without special permission, our Nmap Windows binary packages which      *
-# * contain Npcap may not be redistributed without special permission.      *
-# *                                                                         *
-# * Any redistribution of Covered Software, including any derived works,    *
-# * must obey and carry forward all of the terms of this license, including *
-# * obeying all GPL rules and restrictions.  For example, source code of    *
-# * the whole work must be provided and free redistribution must be         *
-# * allowed.  All GPL references to "this License", are to be treated as    *
-# * including the terms and conditions of this license text as well.        *
-# *                                                                         *
-# * Because this license imposes special exceptions to the GPL, Covered     *
-# * Work may not be combined (even as part of a larger work) with plain GPL *
-# * software.  The terms, conditions, and exceptions of this license must   *
-# * be included as well.  This license is incompatible with some other open *
-# * source licenses as well.  In some cases we can relicense portions of    *
-# * Nmap or grant special permissions to use it in other open source        *
-# * software.  Please contact fyodor@nmap.org with any such requests.       *
-# * Similarly, we don't incorporate incompatible open source software into  *
-# * Covered Software without special permission from the copyright holders. *
-# *                                                                         *
-# * If you have any questions about the licensing restrictions on using     *
-# * Nmap in other works, we are happy to help.  As mentioned above, we also *
-# * offer an alternative license to integrate Nmap into proprietary         *
-# * applications and appliances.  These contracts have been sold to dozens  *
-# * of software vendors, and generally include a perpetual license as well  *
-# * as providing support and updates.  They also fund the continued         *
-# * development of Nmap.  Please email sales@nmap.com for further           *
-# * information.                                                            *
-# *                                                                         *
-# * If you have received a written license agreement or contract for        *
-# * Covered Software stating terms other than these, you may choose to use  *
-# * and redistribute Covered Software under those terms instead of these.   *
-# *                                                                         *
-# * Source is provided to this software because we believe users have a     *
-# * right to know exactly what a program is going to do before they run it. *
-# * This also allows you to audit the software for security holes.          *
-# *                                                                         *
-# * Source code also allows you to port Nmap to new platforms, fix bugs,    *
-# * and add new features.  You are highly encouraged to send your changes   *
-# * to the dev@nmap.org mailing list for possible incorporation into the    *
-# * main distribution.  By sending these changes to Fyodor or one of the    *
-# * Insecure.Org development mailing lists, or checking them into the Nmap  *
-# * source code repository, it is understood (unless you specify            *
-# * otherwise) that you are offering the Nmap Project the unlimited,        *
-# * non-exclusive right to reuse, modify, and relicense the code.  Nmap     *
-# * will always be available Open Source, but this is important because     *
-# * the inability to relicense code has caused devastating problems for     *
-# * other Free Software projects (such as KDE and NASM).  We also           *
-# * occasionally relicense the code to third parties as discussed above.    *
-# * If you wish to specify special license conditions of your               *
-# * contributions, just say so when you send them.                          *
-# *                                                                         *
-# * This program is distributed in the hope that it will be useful, but     *
-# * WITHOUT ANY WARRANTY; without even the implied warranty of              *
-# * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the Nmap      *
-# * license file for more details (it's in a COPYING file included with     *
-# * Nmap, and also available from https://svn.nmap.org/nmap/COPYING)        *
-# *                                                                         *
+# *
+# * The Nmap Security Scanner is (C) 1996-2026 Nmap Software LLC ("The Nmap
+# * Project"). Nmap is also a registered trademark of the Nmap Project.
+# *
+# * This program is distributed under the terms of the Nmap Public Source
+# * License (NPSL). The exact license text applying to a particular Nmap
+# * release or source code control revision is contained in the LICENSE
+# * file distributed with that version of Nmap or source code control
+# * revision. More Nmap copyright/legal information is available from
+# * https://nmap.org/book/man-legal.html, and further information on the
+# * NPSL license itself can be found at https://nmap.org/npsl/ . This
+# * header summarizes some key points from the Nmap license, but is no
+# * substitute for the actual license text.
+# *
+# * Nmap is generally free for end users to download and use themselves,
+# * including commercial use. It is available from https://nmap.org.
+# *
+# * The Nmap license generally prohibits companies from using and
+# * redistributing Nmap in commercial products, but we sell a special Nmap
+# * OEM Edition with a more permissive license and special features for
+# * this purpose. See https://nmap.org/oem/
+# *
+# * If you have received a written Nmap license agreement or contract
+# * stating terms other than these (such as an Nmap OEM license), you may
+# * choose to use and redistribute Nmap under those terms instead.
+# *
+# * The official Nmap Windows builds include the Npcap software
+# * (https://npcap.com) for packet capture and transmission. It is under
+# * separate license terms which forbid redistribution without special
+# * permission. So the official Nmap Windows builds may not be redistributed
+# * without special permission (such as an Nmap OEM license).
+# *
+# * Source is provided to this software because we believe users have a
+# * right to know exactly what a program is going to do before they run it.
+# * This also allows you to audit the software for security holes.
+# *
+# * Source code also allows you to port Nmap to new platforms, fix bugs, and
+# * add new features. You are highly encouraged to submit your changes as a
+# * Github PR or by email to the dev@nmap.org mailing list for possible
+# * incorporation into the main distribution. Unless you specify otherwise, it
+# * is understood that you are offering us very broad rights to use your
+# * submissions as described in the Nmap Public Source License Contributor
+# * Agreement. This is important because we fund the project by selling licenses
+# * with various terms, and also because the inability to relicense code has
+# * caused devastating problems for other Free Software projects (such as KDE
+# * and NASM).
+# *
+# * The free version of Nmap is distributed in the hope that it will be
+# * useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
+# * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. Warranties,
+# * indemnification and commercial support are all available through the
+# * Npcap OEM program--see https://nmap.org/oem/
+# *
 # ***************************************************************************/
 
 import re
 
-from types import StringTypes
-from ConfigParser import DuplicateSectionError, NoSectionError, NoOptionError
-from ConfigParser import Error as ConfigParser_Error
+from configparser import DuplicateSectionError, NoSectionError, NoOptionError, \
+        InterpolationError
+from configparser import Error as ConfigParser_Error
 
 from zenmapCore.Paths import Path
 from zenmapCore.UmitLogging import log
@@ -155,6 +85,14 @@ except ImportError:
 def is_maemo():
     return MAEMO
 
+def boolean_sanity(attr):
+    if attr is True or \
+       attr == "True" or \
+       attr == "true" or \
+       attr == "1":
+        return "True"
+    return "False"
+
 
 class SearchConfig(UmitConfigParser, object):
     section_name = "search"
@@ -175,20 +113,10 @@ class SearchConfig(UmitConfigParser, object):
         self.search_db = True
 
     def _get_it(self, p_name, default):
-        return config_parser.get(self.section_name, p_name, default)
+        return config_parser.get(self.section_name, p_name, fallback=default)
 
     def _set_it(self, p_name, value):
         config_parser.set(self.section_name, p_name, value)
-
-    def boolean_sanity(self, attr):
-        if attr is True or \
-           attr == "True" or \
-           attr == "true" or \
-           attr == "1":
-
-            return 1
-
-        return 0
 
     def get_directory(self):
         return self._get_it("directory", "")
@@ -202,7 +130,7 @@ class SearchConfig(UmitConfigParser, object):
     def set_file_extension(self, file_extension):
         if isinstance(file_extension, list):
             self._set_it("file_extension", ";".join(file_extension))
-        elif isinstance(file_extension, StringTypes):
+        elif isinstance(file_extension, str):
             self._set_it("file_extension", file_extension)
 
     def get_save_time(self):
@@ -211,20 +139,20 @@ class SearchConfig(UmitConfigParser, object):
     def set_save_time(self, save_time):
         if isinstance(save_time, list):
             self._set_it("save_time", ";".join(save_time))
-        elif isinstance(save_time, StringTypes):
+        elif isinstance(save_time, str):
             self._set_it("save_time", save_time)
 
     def get_store_results(self):
-        return self.boolean_sanity(self._get_it("store_results", True))
+        return boolean_sanity(self._get_it("store_results", True))
 
     def set_store_results(self, store_results):
-        self._set_it("store_results", self.boolean_sanity(store_results))
+        self._set_it("store_results", boolean_sanity(store_results))
 
     def get_search_db(self):
-        return self.boolean_sanity(self._get_it("search_db", True))
+        return boolean_sanity(self._get_it("search_db", True))
 
     def set_search_db(self, search_db):
-        self._set_it("search_db", self.boolean_sanity(search_db))
+        self._set_it("search_db", boolean_sanity(search_db))
 
     def get_converted_save_time(self):
         try:
@@ -268,21 +196,39 @@ class Profile(UmitConfigParser, object):
             self.read(user_profile)
         except ConfigParser_Error as e:
             # No scan profiles found is not a reason to crash.
-            self.add_profile(_("Profiles not found"),
+            self.add_profile(_("No profiles found"),
                     command="nmap",
                     description=_("The {} file is missing or corrupted"
                         ).format(user_profile))
 
         self.attributes = {}
 
-    def _get_it(self, profile, attribute):
-        if self._verify_profile(profile):
-            return self.get(profile, attribute)
-        return ""
+    def _get_it(self, profile, attribute, fallback=None):
+        try:
+            return self.get(profile, attribute, fallback=fallback)
+        except InterpolationError:
+            pass
+        except Exception:
+            return ""
+        try:
+            value = self.get(profile, attribute, fallback=fallback, raw=True)
+            if attribute == "command" and value.endswith("%s"):
+                value = value[:-2]
+            return value
+        except Exception:
+            return ""
 
     def _set_it(self, profile, attribute, value=''):
-        if self._verify_profile(profile):
+        try:
             return self.set(profile, attribute, value)
+        except NoSectionError:
+            pass
+        except ValueError as e:
+            if attribute == "command" and value.endswith("%s"):
+                return self._set_it(profile, attribute, value[:-2])
+            raise ValueError(_("Invalid %(attribute)s entry") % {
+                "attribute": attribute
+                }) from e
 
     def add_profile(self, profile_name, **attributes):
         """Add a profile with the given name and attributes to the collection
@@ -292,24 +238,23 @@ class Profile(UmitConfigParser, object):
 
         log.debug(">>> Add Profile '%s': %s" % (profile_name, attributes))
 
-        try:
+        if not attributes["command"]:
+            raise NoOptionError("command", profile_name)
+
+        with self.section_transaction(profile_name):
             self.add_section(profile_name)
-        except DuplicateSectionError:
-            return None
 
-        # Set each of the attributes ("command", "description") in the
-        # ConfigParser.
-        for attr in attributes:
-            self._set_it(profile_name, attr, attributes[attr])
+            # Set each of the attributes ("command", "description") in the
+            # ConfigParser.
+            for attr in attributes:
+                self._set_it(profile_name, attr, attributes[attr])
 
-        self.save_changes()
+            self.save_changes()
 
     def remove_profile(self, profile_name):
-        try:
+        with self.section_transaction(profile_name):
             self.remove_section(profile_name)
-        except Exception:
-            pass
-        self.save_changes()
+            self.save_changes()
 
     def _verify_profile(self, profile_name):
         if profile_name not in self.sections():
@@ -324,6 +269,7 @@ class WindowConfig(UmitConfigParser, object):
     default_y = 0
     default_width = -1
     default_height = 650
+    default_dark_mode = False
 
     def __init__(self):
         if not config_parser.has_section(self.section_name):
@@ -338,9 +284,10 @@ class WindowConfig(UmitConfigParser, object):
         self.y = self.default_y
         self.width = self.default_width
         self.height = self.default_height
+        self.dark_mode = self.default_dark_mode
 
     def _get_it(self, p_name, default):
-        return config_parser.get(self.section_name, p_name, default)
+        return config_parser.get(self.section_name, p_name, fallback=default)
 
     def _set_it(self, p_name, value):
         config_parser.set(self.section_name, p_name, value)
@@ -413,10 +360,17 @@ class WindowConfig(UmitConfigParser, object):
     def set_height(self, height):
         self._set_it("height", "%d" % height)
 
+    def get_dark_mode(self):
+        return boolean_sanity(self._get_it("dark_mode", self.default_dark_mode))
+
+    def set_dark_mode(self, mode):
+        self._set_it("dark_mode", boolean_sanity(mode))
+
     x = property(get_x, set_x)
     y = property(get_y, set_y)
     width = property(get_width, set_width)
     height = property(get_height, set_height)
+    dark_mode = property(get_dark_mode, set_dark_mode)
 
 
 class CommandProfile (Profile, object):
@@ -426,7 +380,10 @@ class CommandProfile (Profile, object):
         Profile.__init__(self, user_profile)
 
     def get_command(self, profile):
-        command_string = self._get_it(profile, 'command')
+        try:
+            command_string = self._get_it(profile, 'command', "nmap")
+        except ConfigParser_Error:
+            return "nmap"
         # Corrupted config file can include multiple commands.
         # Take the first one.
         if isinstance(command_string, list):
@@ -440,7 +397,12 @@ class CommandProfile (Profile, object):
         return command_string
 
     def get_description(self, profile):
-        desc = self._get_it(profile, 'description')
+        try:
+            desc = self._get_it(profile, 'description', "")
+        except NoSectionError:
+            raise
+        except ConfigParser_Error:
+            return ""
         if isinstance(desc, list):
             desc = " ".join(desc)
         return desc
@@ -460,16 +422,22 @@ class CommandProfile (Profile, object):
 class NmapOutputHighlight(object):
     setts = ["bold", "italic", "underline", "text", "highlight", "regex"]
 
+    def __init__(self):
+        self.dark_mode = False
+
     def save_changes(self):
         config_parser.save_changes()
+
+    def set_dark_mode(self, mode=True):
+        self.dark_mode = mode
 
     def __get_it(self, p_name):
         property_name = "%s_highlight" % p_name
 
         try:
-            return self.sanity_settings([
+            settings = self.sanity_settings([
                 config_parser.get(
-                    property_name, prop, True) for prop in self.setts])
+                    property_name, prop, raw=True) for prop in self.setts])
         except Exception:
             settings = []
             prop_settings = self.default_highlights[p_name]
@@ -482,13 +450,18 @@ class NmapOutputHighlight(object):
 
             self.__set_it(p_name, settings)
 
-            return settings
+        if self.dark_mode:
+            for i in (0, 1, 2):
+                settings[3][i] = (65535 - settings[3][i]) % 65536
+                settings[4][i] = (65535 - settings[4][i]) % 65536
+
+        return settings
 
     def __set_it(self, property_name, settings):
         property_name = "%s_highlight" % property_name
         settings = self.sanity_settings(list(settings))
 
-        for pos in xrange(len(settings)):
+        for pos in range(len(settings)):
             config_parser.set(property_name, self.setts[pos], settings[pos])
 
     def sanity_settings(self, settings):
@@ -505,13 +478,13 @@ class NmapOutputHighlight(object):
         settings[1] = self.boolean_sanity(settings[1])
         settings[2] = self.boolean_sanity(settings[2])
 
-        tuple_regex = "[\(\[]\s?(\d+)\s?,\s?(\d+)\s?,\s?(\d+)\s?[\)\]]"
-        if isinstance(settings[3], basestring):
+        tuple_regex = r"[\(\[]\s?(\d+)\s?,\s?(\d+)\s?,\s?(\d+)\s?[\)\]]"
+        if isinstance(settings[3], str):
             settings[3] = [
                     int(t) for t in re.findall(tuple_regex, settings[3])[0]
                     ]
 
-        if isinstance(settings[4], basestring):
+        if isinstance(settings[4], str):
             settings[4] = [
                     int(h) for h in re.findall(tuple_regex, settings[4])[0]
                     ]
@@ -610,57 +583,57 @@ class NmapOutputHighlight(object):
                 "underline": str(False),
                 "text": [0, 0, 0],
                 "highlight": [65535, 65535, 65535],
-                "regex": "\d{4}-\d{2}-\d{2}\s\d{2}:\d{2}\s.{1,4}"},
+                "regex": r"\d{4}-\d{2}-\d{2}\s\d{2}:\d{2}\s.{1,4}"},
             "hostname": {
                 "bold": str(True),
                 "italic": str(True),
                 "underline": str(True),
                 "text": [0, 111, 65535],
                 "highlight": [65535, 65535, 65535],
-                "regex": "(\w{2,}://)*[\w-]{2,}\.[\w-]{2,}"
-                         "(\.[\w-]{2,})*(/[[\w-]{2,}]*)*"},
+                "regex": r"(\w{2,}://)*[\w-]{2,}\.[\w-]{2,}"
+                         r"(\.[\w-]{2,})*(/[[\w-]{2,}]*)*"},
             "ip": {
                 "bold": str(True),
                 "italic": str(False),
                 "underline": str(False),
                 "text": [0, 0, 0],
                 "highlight": [65535, 65535, 65535],
-                "regex": "\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}"},
+                "regex": r"\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}"},
             "port_list": {
                 "bold": str(True),
                 "italic": str(False),
                 "underline": str(False),
                 "text": [0, 1272, 28362],
                 "highlight": [65535, 65535, 65535],
-                "regex": "PORT\s+STATE\s+SERVICE(\s+VERSION)?[^\n]*"},
+                "regex": r"PORT\s+STATE\s+SERVICE(\s+VERSION)?[^\n]*"},
             "open_port": {
                 "bold": str(True),
                 "italic": str(False),
                 "underline": str(False),
                 "text": [0, 41036, 2396],
                 "highlight": [65535, 65535, 65535],
-                "regex": "\d{1,5}/.{1,5}\s+open\s+.*"},
+                "regex": r"\d{1,5}/.{1,5}\s+open\s+.*"},
             "closed_port": {
                 "bold": str(False),
                 "italic": str(False),
                 "underline": str(False),
                 "text": [65535, 0, 0],
                 "highlight": [65535, 65535, 65535],
-                "regex": "\d{1,5}/.{1,5}\s+closed\s+.*"},
+                "regex": r"\d{1,5}/.{1,5}\s+closed\s+.*"},
             "filtered_port": {
                 "bold": str(False),
                 "italic": str(False),
                 "underline": str(False),
                 "text": [38502, 39119, 0],
                 "highlight": [65535, 65535, 65535],
-                "regex": "\d{1,5}/.{1,5}\s+filtered\s+.*"},
+                "regex": r"\d{1,5}/.{1,5}\s+filtered\s+.*"},
             "details": {
                 "bold": str(True),
                 "italic": str(False),
                 "underline": str(True),
                 "text": [0, 0, 0],
                 "highlight": [65535, 65535, 65535],
-                "regex": "^(\w{2,}[\s]{,3}){,4}:"}
+                "regex": r"^(\w{2,}[\s]{,3}){,4}:"}
             }
 
 
@@ -698,20 +671,3 @@ class PathsConfig(object):
     nmap_command_path = property(get_nmap_command_path, set_nmap_command_path)
     ndiff_command_path = property(
             get_ndiff_command_path, set_ndiff_command_path)
-
-
-# Exceptions
-class ProfileNotFound:
-    def __init__(self, profile):
-        self.profile = profile
-
-    def __str__(self):
-        return "No profile named '" + self.profile + "' found!"
-
-
-class ProfileCouldNotBeSaved:
-    def __init__(self, profile):
-        self.profile = profile
-
-    def __str__(self):
-        return "Profile named '" + self.profile + "' could not be saved!"

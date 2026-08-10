@@ -1,4 +1,5 @@
-# Copyright (c) 2014 Alexander Lamaison <alexander.lamaison@gmail.com>
+# Copyright (C) Alexander Lamaison <alexander.lamaison@gmail.com>
+# Copyright (C) Viktor Szakats
 #
 # Redistribution and use in source and binary forms,
 # with or without modification, are permitted provided
@@ -32,396 +33,309 @@
 # NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 # USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY
 # OF SUCH DAMAGE.
+#
+# SPDX-License-Identifier: BSD-3-Clause
 
-include(CheckFunctionExists)
-include(CheckSymbolExists)
-include(CheckFunctionExistsMayNeedLibrary)
-include(CheckIncludeFiles)
-include(CheckTypeSize)
-include(CheckSymbolExists)
-include(CheckNonblockingSocketSupport)
-include(SocketLibraries)
+set(_libssh2_soversion 1)
+set(_libssh2_libversion 1.0.1)
 
-## Cryptography backend choice
-
-set(CRYPTO_BACKEND
-  ""
-  CACHE
-  STRING
-  "The backend to use for cryptography: OpenSSL, Libgcrypt or WinCNG, mbedTLS
-or empty to try any available")
-
-# If the crypto backend was given, rather than searching for the first
-# we are able to find, the find_package commands must abort configuration
-# and report to the user.
 if(CRYPTO_BACKEND)
-  set(SPECIFIC_CRYPTO_REQUIREMENT REQUIRED)
-endif()
-
-if(CRYPTO_BACKEND STREQUAL "OpenSSL" OR NOT CRYPTO_BACKEND)
-
-  find_package(OpenSSL ${SPECIFIC_CRYPTO_REQUIREMENT})
-
-  if(OPENSSL_FOUND)
-    set(CRYPTO_BACKEND "OpenSSL")
-    set(CRYPTO_SOURCES openssl.c openssl.h)
-    list(APPEND PRIVATE_COMPILE_DEFINITIONS LIBSSH2_OPENSSL)
-    list(APPEND PRIVATE_INCLUDE_DIRECTORIES ${OPENSSL_INCLUDE_DIR})
-    list(APPEND LIBRARIES ${OPENSSL_LIBRARIES})
-    list(APPEND PC_REQUIRES_PRIVATE libssl libcrypto)
-
-    if (WIN32)
-      # Statically linking to OpenSSL requires crypt32 for some Windows APIs.
-      # This should really be handled by FindOpenSSL.cmake.
-      list(APPEND LIBRARIES crypt32)
-      list(APPEND PC_LIBS -lcrypt32)
-
-      find_file(DLL_LIBEAY32
-        NAMES libeay32.dll crypto.dll libcrypto-1_1.dll libcrypto-1_1-x64.dll
-        HINTS ${_OPENSSL_ROOT_HINTS} PATHS ${_OPENSSL_ROOT_PATHS}
-        PATH_SUFFIXES bin)
-      if (NOT DLL_LIBEAY32)
-        message(WARNING
-          "Unable to find OpenSSL crypto (aka libeay32) DLL, executables may not run")
-      endif()
-
-      find_file(DLL_SSLEAY32
-        NAMES ssleay32.dll ssl.dll libssl-1_1.dll libssl-1_1-x64.dll
-        HINTS ${_OPENSSL_ROOT_HINTS} PATHS ${_OPENSSL_ROOT_PATHS}
-        PATH_SUFFIXES bin)
-      if (NOT DLL_SSLEAY32)
-        message(WARNING
-          "Unable to find OpenSSL ssl (aka ssleay32) DLL, executables may not run")
-      endif()
-
-      if(DLL_LIBEAY32 AND DLL_SSLEAY32)
-        list(APPEND _RUNTIME_DEPENDENCIES ${DLL_LIBEAY32} ${DLL_SSLEAY32})
-      endif()
-    endif()
-
-    # Not all OpenSSL have AES-CTR functions.
-    set(SAVE_CMAKE_REQUIRED_LIBRARIES ${CMAKE_REQUIRED_LIBRARIES})
-    set(CMAKE_REQUIRED_LIBRARIES ${OPENSSL_LIBRARIES})
-    check_function_exists(EVP_aes_128_ctr HAVE_EVP_AES_128_CTR)
-    set(CMAKE_REQUIRED_LIBRARIES ${SAVE_CMAKE_REQUIRED_LIBRARIES})
-  endif()
-endif()
-
-if(CRYPTO_BACKEND STREQUAL "Libgcrypt" OR NOT CRYPTO_BACKEND)
-
-  find_package(Libgcrypt ${SPECIFIC_CRYPTO_REQUIREMENT})
-
-  if(LIBGCRYPT_FOUND)
-    set(CRYPTO_BACKEND "Libgcrypt")
-    set(CRYPTO_SOURCES libgcrypt.c libgcrypt.h)
-    list(APPEND PRIVATE_COMPILE_DEFINITIONS LIBSSH2_LIBGCRYPT)
-    list(APPEND PRIVATE_INCLUDE_DIRECTORIES ${LIBGCRYPT_INCLUDE_DIRS})
-    list(APPEND LIBRARIES ${LIBGCRYPT_LIBRARIES})
-    list(APPEND PC_LIBS -lgcrypt)
-  endif()
-endif()
-
-if(CRYPTO_BACKEND STREQUAL "WinCNG" OR NOT CRYPTO_BACKEND)
-
-  # The check actually compiles the header.  This requires windows.h.
-  check_include_files("windows.h;bcrypt.h" HAVE_BCRYPT_H)
-
-  if(HAVE_BCRYPT_H)
-    set(CRYPTO_BACKEND "WinCNG")
-    set(CRYPTO_SOURCES wincng.c wincng.h)
-    list(APPEND PRIVATE_COMPILE_DEFINITIONS LIBSSH2_WINCNG)
-
-    set(HAVE_LIBCRYPT32 TRUE)
-    list(APPEND LIBRARIES bcrypt)
-    list(APPEND PC_LIBS -lbcrypt)
-
-    check_include_files(ntdef.h HAVE_NTDEF_H)
-    check_include_files(ntstatus.h HAVE_NTSTATUS_H)
-
-    # Reading keys from files is optional and depends on Wincrypt
-    check_include_files("windows.h;wincrypt.h" HAVE_WINCRYPT_H)
-
-    if(HAVE_WINCRYPT_H)
-      list(APPEND LIBRARIES crypt32)
-      list(APPEND PC_LIBS -lcrypt32)
-    endif()
-
-  elseif(${SPECIFIC_CRYPTO_REQUIREMENT} STREQUAL ${REQUIRED})
-    message(FATAL_ERROR "WinCNG not available")
-  endif()
-endif()
-
-if(CRYPTO_BACKEND STREQUAL "mbedTLS" OR NOT CRYPTO_BACKEND)
-
-  find_package(mbedTLS ${SPECIFIC_CRYPTO_REQUIREMENT})
-
-  if(MBEDTLS_FOUND)
-    set(CRYPTO_BACKEND "mbedTLS")
-    set(CRYPTO_SOURCES mbedtls.c mbedtls.h)
-    list(APPEND PRIVATE_COMPILE_DEFINITIONS LIBSSH2_MBEDTLS)
-    list(APPEND PRIVATE_INCLUDE_DIRECTORIES ${MBEDTLS_INCLUDE_DIR})
-    list(APPEND LIBRARIES ${MBEDTLS_LIBRARIES})
-    list(APPEND PC_LIBS -lmbedcrypto)
-    link_directories(${MBEDTLS_LIBRARY_DIR})
-  endif()
-endif()
-
-if(NOT CRYPTO_BACKEND)
+  list(APPEND PRIVATE_COMPILE_DEFINITIONS ${CRYPTO_BACKEND_DEFINE})
+  list(APPEND PRIVATE_INCLUDE_DIRECTORIES ${CRYPTO_BACKEND_INCLUDE_DIR})
+  add_feature_info("Crypto backend" ON "${CRYPTO_BACKEND}")
+else()
   message(FATAL_ERROR "No suitable cryptography backend found.")
 endif()
 
-## Library definition
-
-include(GNUInstallDirs)
-set(SOURCES
-  ${CRYPTO_SOURCES}
-  agent.c
-  blf.h
-  bcrypt_pbkdf.c
-  blowfish.c
-  channel.c
-  channel.h
-  comp.c
-  comp.h
-  crypt.c
-  crypto.h
-  global.c
-  hostkey.c
-  keepalive.c
-  kex.c
-  knownhost.c
-  libssh2_priv.h
-  mac.c
-  mac.h
-  misc.c
-  misc.h
-  packet.c
-  packet.h
-  pem.c
-  publickey.c
-  scp.c
-  session.c
-  session.h
-  sftp.c
-  sftp.h
-  transport.c
-  transport.h
-  userauth.c
-  userauth.h
-  version.c)
-
-if(WIN32)
-  list(APPEND SOURCES ${PROJECT_SOURCE_DIR}/win32/libssh2.rc)
-endif()
-
-add_library(libssh2 ${SOURCES})
-# we want it to be called libssh2 on all platforms
-set_target_properties(libssh2 PROPERTIES PREFIX "")
-
-target_compile_definitions(libssh2 PRIVATE ${PRIVATE_COMPILE_DEFINITIONS})
-target_include_directories(libssh2
-  PRIVATE "${PROJECT_SOURCE_DIR}/include/" ${PRIVATE_INCLUDE_DIRECTORIES}
-  PUBLIC
-    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
-    $<INSTALL_INTERFACE:$<INSTALL_PREFIX>/${CMAKE_INSTALL_INCLUDEDIR}>)
-
 ## Options
 
+unset(_libssh2_definitions)
+
 option(CLEAR_MEMORY "Enable clearing of memory before being freed" ON)
-if(CLEAR_MEMORY)
-    add_definitions(-DLIBSSH2_CLEAR_MEMORY)
-endif(CLEAR_MEMORY)
+if(NOT CLEAR_MEMORY)
+  list(APPEND _libssh2_definitions "LIBSSH2_NO_CLEAR_MEMORY")
+endif()
 
-add_feature_info("Shared library" BUILD_SHARED_LIBS
-  "creating libssh2 as a shared library (.so/.dll)")
-
-option(ENABLE_ZLIB_COMPRESSION "Use zlib for compression")
+option(ENABLE_ZLIB_COMPRESSION "Use zlib for compression" OFF)
 add_feature_info(Compression ENABLE_ZLIB_COMPRESSION
   "using zlib for compression")
 if(ENABLE_ZLIB_COMPRESSION)
   find_package(ZLIB REQUIRED)
 
-  target_include_directories(libssh2 PRIVATE ${ZLIB_INCLUDE_DIRS})
-  list(APPEND LIBRARIES ${ZLIB_LIBRARIES})
-  list(APPEND PC_REQUIRES_PRIVATE zlib)
+  list(APPEND libssh2_INCLUDE_DIRS ${ZLIB_INCLUDE_DIRS})
+  list(APPEND LIBSSH2_LIBS ${ZLIB_LIBRARIES})
+  list(APPEND LIBSSH2_PC_REQUIRES_PRIVATE "zlib")
   if(ZLIB_FOUND)
-    target_compile_definitions(libssh2 PRIVATE LIBSSH2_HAVE_ZLIB=1)
+    list(APPEND _libssh2_definitions "LIBSSH2_HAVE_ZLIB")
   endif()
 endif()
 
-option(ENABLE_CRYPT_NONE "Permit \"none\" cipher -- NOT RECOMMENDED")
-add_feature_info("\"none\" cipher" ENABLE_CRYPT_NONE "")
-if(ENABLE_CRYPT_NONE)
-  target_compile_definitions(libssh2 PRIVATE LIBSSH2_CRYPT_NONE=1)
-endif()
+list(APPEND LIBSSH2_LIBS ${LIBSSH2_LIBS_SOCKET})
 
-option(ENABLE_MAC_NONE "Permit \"none\" MAC -- NOT RECOMMMENDED")
-add_feature_info("\"none\" MAC" ENABLE_MAC_NONE "")
-if(ENABLE_MAC_NONE)
-  target_compile_definitions(libssh2 PRIVATE LIBSSH2_MAC_NONE=1)
-endif()
-
-option(ENABLE_GEX_NEW
-  "Enable diffie-hellman-group-exchange-sha1 method" ON)
-add_feature_info("diffie-hellman-group-exchange-sha1" ENABLE_GEX_NEW
-  "\"new\" diffie-hellman-group-exchange-sha1 method")
-if(ENABLE_GEX_NEW)
-  target_compile_definitions(libssh2 PRIVATE LIBSSH2_DH_GEX_NEW=1)
-endif()
-
-# Enable debugging logging by default if the user configured a debug build
-if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-  set(DEBUG_LOGGING_DEFAULT ON)
-else()
-  set(DEBUG_LOGGING_DEFAULT OFF)
-endif()
-option(ENABLE_DEBUG_LOGGING "log execution with debug trace"
-  ${DEBUG_LOGGING_DEFAULT})
-add_feature_info(Logging ENABLE_DEBUG_LOGGING
-   "Logging of execution with debug trace")
-if(ENABLE_DEBUG_LOGGING)
-  target_compile_definitions(libssh2 PRIVATE LIBSSH2DEBUG)
-endif()
-
-## Platform checks
-check_include_files(unistd.h HAVE_UNISTD_H)
-check_include_files(inttypes.h HAVE_INTTYPES_H)
-check_include_files(stdlib.h HAVE_STDLIB_H)
-check_include_files(sys/select.h HAVE_SYS_SELECT_H)
-
-check_include_files(sys/uio.h HAVE_SYS_UIO_H)
-check_include_files(sys/socket.h HAVE_SYS_SOCKET_H)
-check_include_files(sys/ioctl.h HAVE_SYS_IOCTL_H)
-check_include_files(sys/time.h HAVE_SYS_TIME_H)
-check_include_files(sys/un.h HAVE_SYS_UN_H)
-check_include_files(windows.h HAVE_WINDOWS_H)
-check_include_files(ws2tcpip.h HAVE_WS2TCPIP_H)
-check_include_files(winsock2.h HAVE_WINSOCK2_H)
-
-check_type_size("long long" LONGLONG)
-
-if(HAVE_SYS_TIME_H)
-  check_symbol_exists(gettimeofday sys/time.h HAVE_GETTIMEOFDAY)
-else()
-  check_function_exists(gettimeofday HAVE_GETTIMEOFDAY)
-endif()
-if(HAVE_STDLIB_H)
-  check_symbol_exists(strtoll stdlib.h HAVE_STRTOLL)
-else()
-  check_function_exists(strtoll HAVE_STRTOLL)
-endif()
-if (NOT HAVE_STRTOLL)
-  # Try _strtoi64 if strtoll isn't available
-  check_symbol_exists(_strtoi64 stdlib.h HAVE_STRTOI64)
-endif()
-check_symbol_exists(snprintf stdio.h HAVE_SNPRINTF)
-check_symbol_exists(memset_s string.h HAVE_MEMSET_S)
-
-if(${CMAKE_SYSTEM_NAME} STREQUAL "Darwin" OR
-   ${CMAKE_SYSTEM_NAME} STREQUAL "Interix")
-  # poll() does not work on these platforms
-  #
-  # Interix: "does provide poll(), but the implementing developer must
-  # have been in a bad mood, because poll() only works on the /proc
-  # filesystem here"
-  #
-  # Mac OS X's poll has funny behaviors, like:
-  # not being able to do poll on no filedescriptors (10.3?)
-  # not being able to poll on some files (like anything in /dev)
-  # not having reliable timeout support
-  # inconsistent return of POLLHUP where other implementations give POLLIN
-  message("poll use is disabled on this platform")
-else()
-  check_function_exists(poll HAVE_POLL)
-endif()
-
-append_needed_socket_libraries(LIBRARIES)
-
-# Non-blocking socket support tests.  Must be after library tests to
-# link correctly
-set(SAVE_CMAKE_REQUIRED_LIBRARIES ${CMAKE_REQUIRED_LIBRARIES})
-set(CMAKE_REQUIRED_LIBRARIES ${LIBRARIES})
-check_nonblocking_socket_support()
-set(CMAKE_REQUIRED_LIBRARIES ${SAVE_CMAKE_REQUIRED_LIBRARIES})
-
-configure_file(
-  ${CMAKE_CURRENT_SOURCE_DIR}/libssh2_config_cmake.h.in
-  ${CMAKE_CURRENT_BINARY_DIR}/libssh2_config.h)
 # to find generated header
-target_include_directories(libssh2 PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
+list(APPEND libssh2_INCLUDE_DIRS ${CMAKE_CURRENT_BINARY_DIR})
 
-# Check for the OS.
-# Daniel's note: this should not be necessary and we need to work to
-# get this removed.
-if(${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
-  target_compile_definitions(libssh2 PRIVATE LIBSSH2_WIN32)
-elseif(${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
-  target_compile_definitions(libssh2 PRIVATE LIBSSH2_DARWIN)
+if(MSVC)
+  set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} /Zi /Od")
+  set(CMAKE_SHARED_LINKER_FLAGS_DEBUG "${CMAKE_SHARED_LINKER_FLAGS_DEBUG} /DEBUG")
 endif()
 
-if(CMAKE_VERSION VERSION_LESS "2.8.12")
-  # Fall back to over-linking dependencies
-  target_link_libraries(libssh2 ${LIBRARIES})
-else()
-  target_link_libraries(libssh2 PRIVATE ${LIBRARIES})
+## Sources
+
+include(GNUInstallDirs)
+transform_makefile_inc("Makefile.inc" "${CMAKE_CURRENT_BINARY_DIR}/Makefile.inc.cmake")
+# Get 'CSOURCES' and 'HHEADERS' variables
+include("${CMAKE_CURRENT_BINARY_DIR}/Makefile.inc.cmake")
+set(_sources ${CSOURCES} ${HHEADERS})
+
+## Library definition
+
+# Ensure that the static library and import library filenames are different,
+# when building both static and shared library. On Windows, with certain
+# toolchains (e.g. MSVC) these libraries get the same by default, overwriting
+# each other. MinGW is not affected.
+if(WIN32 AND BUILD_STATIC_LIBS AND BUILD_SHARED_LIBS AND
+   NOT STATIC_LIB_SUFFIX AND NOT IMPORT_LIB_SUFFIX AND
+   CMAKE_STATIC_LIBRARY_SUFFIX STREQUAL CMAKE_IMPORT_LIBRARY_SUFFIX)
+  set(STATIC_LIB_SUFFIX "_static")
 endif()
+
+unset(_libssh2_export)
+
+# we want it to be called libssh2 on all platforms
+if(BUILD_STATIC_LIBS)
+  list(APPEND _libssh2_export ${LIB_STATIC})
+  add_library(${LIB_STATIC} STATIC ${_sources})
+  add_library(${PROJECT_NAME}::${LIB_STATIC} ALIAS ${LIB_STATIC})
+  target_compile_definitions(${LIB_STATIC} PRIVATE ${PRIVATE_COMPILE_DEFINITIONS} ${_libssh2_definitions})
+  target_link_libraries(${LIB_STATIC} PRIVATE ${LIBSSH2_LIBS})
+  set_target_properties(${LIB_STATIC} PROPERTIES
+    PREFIX "" OUTPUT_NAME "libssh2" SOVERSION "${_libssh2_soversion}" VERSION "${_libssh2_libversion}"
+    SUFFIX "${STATIC_LIB_SUFFIX}${CMAKE_STATIC_LIBRARY_SUFFIX}")
+
+  target_include_directories(${LIB_STATIC}
+    PRIVATE
+      "${PROJECT_SOURCE_DIR}/include"
+      ${libssh2_INCLUDE_DIRS}
+      ${PRIVATE_INCLUDE_DIRECTORIES}
+    PUBLIC
+      "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>"
+      "$<INSTALL_INTERFACE:$<INSTALL_PREFIX>/${CMAKE_INSTALL_INCLUDEDIR}>")
+endif()
+if(BUILD_SHARED_LIBS)
+  list(APPEND _libssh2_export ${LIB_SHARED})
+  add_library(${LIB_SHARED} SHARED ${_sources})
+  add_library(${PROJECT_NAME}::${LIB_SHARED} ALIAS ${LIB_SHARED})
+  if(WIN32)
+    set_property(TARGET ${LIB_SHARED} APPEND PROPERTY SOURCES "libssh2.rc")
+  endif()
+  target_compile_definitions(${LIB_SHARED} PRIVATE ${PRIVATE_COMPILE_DEFINITIONS} ${_libssh2_definitions} ${LIB_SHARED_DEFINITIONS})
+  target_compile_options(${LIB_SHARED} PRIVATE ${LIB_SHARED_C_FLAGS})
+  target_link_libraries(${LIB_SHARED} PRIVATE ${LIBSSH2_LIBS})
+  set_target_properties(${LIB_SHARED} PROPERTIES
+    PREFIX "" OUTPUT_NAME "libssh2" SOVERSION "${_libssh2_soversion}" VERSION "${_libssh2_libversion}"
+    IMPORT_PREFIX "" IMPORT_SUFFIX "${IMPORT_LIB_SUFFIX}${CMAKE_IMPORT_LIBRARY_SUFFIX}"
+    POSITION_INDEPENDENT_CODE ON)
+
+  target_include_directories(${LIB_SHARED}
+    PRIVATE
+      "${PROJECT_SOURCE_DIR}/include"
+      ${libssh2_INCLUDE_DIRS}
+      ${PRIVATE_INCLUDE_DIRECTORIES}
+    PUBLIC
+      "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>"
+      "$<INSTALL_INTERFACE:$<INSTALL_PREFIX>/${CMAKE_INSTALL_INCLUDEDIR}>")
+endif()
+
+add_library(${PROJECT_NAME}::${LIB_NAME} ALIAS ${LIB_SELECTED})
+add_library(${LIB_NAME} ALIAS ${LIB_SELECTED})
 
 ## Installation
 
 install(FILES
-  ${PROJECT_SOURCE_DIR}/include/libssh2.h
-  ${PROJECT_SOURCE_DIR}/include/libssh2_publickey.h
-  ${PROJECT_SOURCE_DIR}/include/libssh2_sftp.h
+  "${PROJECT_SOURCE_DIR}/include/libssh2.h"
+  "${PROJECT_SOURCE_DIR}/include/libssh2_publickey.h"
+  "${PROJECT_SOURCE_DIR}/include/libssh2_sftp.h"
   DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 
-install(TARGETS libssh2
-  EXPORT Libssh2Config
-  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-  ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR})
-
+if(BUILD_STATIC_LIBS)
+  install(TARGETS ${LIB_STATIC}
+    EXPORT "${PROJECT_NAME}-targets"
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR})
+endif()
 if(BUILD_SHARED_LIBS)
-  list(APPEND _RUNTIME_DEPENDENCIES $<TARGET_FILE:libssh2>)
+  install(TARGETS ${LIB_SHARED}
+    EXPORT "${PROJECT_NAME}-targets"
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR})
+
+  list(APPEND _RUNTIME_DEPENDENCIES $<TARGET_FILE:${LIB_SHARED}>)
 endif()
 
 set(RUNTIME_DEPENDENCIES ${_RUNTIME_DEPENDENCIES} CACHE INTERNAL
-    "Files that must be in the same directory as the executables at runtime.")
+  "Files that must be in the same directory as the executables at runtime.")
 
 # Package config
 
-## During package installation, install Libssh2Config.cmake
-install(EXPORT Libssh2Config
-  NAMESPACE Libssh2::
-  DESTINATION lib/cmake/libssh2)
+## During package installation, install libssh2-targets.cmake
+install(EXPORT "${PROJECT_NAME}-targets"
+  NAMESPACE "${PROJECT_NAME}::"
+  DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}")
 
 ## During build, register directly from build tree
-# create Libssh2Config.cmake
-export(TARGETS libssh2 NAMESPACE Libssh2:: FILE Libssh2Config.cmake)
-export(PACKAGE Libssh2) # register it
+# create libssh2-targets.cmake
+export(TARGETS ${_libssh2_export} NAMESPACE "${PROJECT_NAME}::" FILE "${PROJECT_NAME}-targets.cmake")
+export(PACKAGE ${PROJECT_NAME})  # register it
 
-## Export a .pc file for client projects not using CMaek
-if(PC_REQUIRES_PRIVATE)
-  string(REPLACE ";" "," PC_REQUIRES_PRIVATE "${PC_REQUIRES_PRIVATE}")
-endif()
-if(PC_LIBS)
-  string(REPLACE ";" " " PC_LIBS "${PC_LIBS}")
-endif()
-configure_file(libssh2.pc.in libssh2.pc @ONLY)
+# Generate libssh2-config.cmake into build tree and install it with dependencies
+configure_file("${PROJECT_SOURCE_DIR}/cmake/libssh2-config.cmake.in" "${PROJECT_NAME}-config.cmake" @ONLY)
 install(
-  FILES ${CMAKE_CURRENT_BINARY_DIR}/libssh2.pc
-  DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig)
+  FILES
+    "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}-config.cmake"
+    "${PROJECT_SOURCE_DIR}/cmake/FindLibgcrypt.cmake"
+    "${PROJECT_SOURCE_DIR}/cmake/FindMbedTLS.cmake"
+    "${PROJECT_SOURCE_DIR}/cmake/FindWolfSSL.cmake"
+  DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}")
 
-## Versioning
+# Calculate variables for pkg-config
+set(LIBSSH2_PC_LIBS_PRIVATE "")
 
-set_target_properties(libssh2 PROPERTIES
-  SOVERSION 1
-  VERSION 1.0.1)
+if(WIN32)
+  list(APPEND LIBSSH2_PC_LIBS_PRIVATE "-lws2_32")
+endif()
+
+set(_ldflags "")
+
+# Avoid getting unnecessary -L options for known system directories.
+unset(_sys_libdirs)
+foreach(_libdir IN LISTS CMAKE_SYSTEM_PREFIX_PATH)
+  if(_libdir MATCHES "/$")
+    set(_libdir "${_libdir}lib")
+  else()
+    set(_libdir "${_libdir}/lib")
+  endif()
+  if(IS_DIRECTORY "${_libdir}")
+    list(APPEND _sys_libdirs "${_libdir}")
+  endif()
+  if(DEFINED CMAKE_LIBRARY_ARCHITECTURE)
+    set(_libdir "${_libdir}/${CMAKE_LIBRARY_ARCHITECTURE}")
+    if(IS_DIRECTORY "${_libdir}")
+      list(APPEND _sys_libdirs "${_libdir}")
+    endif()
+  endif()
+endforeach()
+
+foreach(_libdir IN LISTS LIBSSH2_LIBDIRS)
+  list(FIND _sys_libdirs "${_libdir}" _libdir_index)
+  if(_libdir_index LESS 0)
+    list(APPEND _ldflags "-L${_libdir}")
+  endif()
+endforeach()
+
+unset(_implicit_libs)
+if(NOT MINGW AND NOT UNIX)
+  set(_implicit_libs ${CMAKE_C_IMPLICIT_LINK_LIBRARIES})
+endif()
+
+foreach(_lib IN LISTS _implicit_libs LIBSSH2_LIBS)
+  if(TARGET "${_lib}")
+    set(_libname "${_lib}")
+    get_target_property(_imported "${_libname}" IMPORTED)
+    if(NOT _imported)
+      # Reading the LOCATION property on non-imported target will error out.
+      # Assume the user will not need this information in the .pc file.
+      continue()
+    endif()
+    get_target_property(_lib "${_libname}" LOCATION)
+    if(NOT _lib)
+      message(WARNING "Bad lib in library list: ${_libname}")
+      continue()
+    endif()
+  endif()
+  if(_lib MATCHES "^-")
+    list(APPEND _ldflags "${_lib}")
+  elseif(_lib MATCHES ".*/.*")
+    # This gets a bit more complex, because we want to specify the
+    # directory separately, and only once per directory
+    get_filename_component(_libdir ${_lib} DIRECTORY)
+    get_filename_component(_libname ${_lib} NAME_WE)
+    if(_libname MATCHES "^lib")
+      list(FIND _sys_libdirs "${_libdir}" _libdir_index)
+      if(_libdir_index LESS 0)
+        list(APPEND _ldflags "-L${_libdir}")
+      endif()
+      string(REGEX REPLACE "^lib" "" _libname "${_libname}")
+      list(APPEND LIBSSH2_PC_LIBS_PRIVATE "-l${_libname}")
+    else()
+      list(APPEND LIBSSH2_PC_LIBS_PRIVATE "${_lib}")
+    endif()
+  else()
+    list(APPEND LIBSSH2_PC_LIBS_PRIVATE "-l${_lib}")
+  endif()
+endforeach()
+
+if(LIBSSH2_PC_REQUIRES_PRIVATE)
+  string(REPLACE ";" "," LIBSSH2_PC_REQUIRES_PRIVATE "${LIBSSH2_PC_REQUIRES_PRIVATE}")
+endif()
+if(LIBSSH2_PC_LIBS_PRIVATE)
+  list(REMOVE_DUPLICATES LIBSSH2_PC_LIBS_PRIVATE)
+  string(REPLACE ";" " " LIBSSH2_PC_LIBS_PRIVATE "${LIBSSH2_PC_LIBS_PRIVATE}")
+endif()
+if(_ldflags)
+  list(REMOVE_DUPLICATES _ldflags)
+  string(REPLACE ";" " " _ldflags "${_ldflags}")
+  set(LIBSSH2_PC_LIBS_PRIVATE "${_ldflags} ${LIBSSH2_PC_LIBS_PRIVATE}")
+  string(STRIP "${LIBSSH2_PC_LIBS_PRIVATE}" LIBSSH2_PC_LIBS_PRIVATE)
+endif()
+
+# Merge pkg-config private fields into public ones when static-only
+if(BUILD_SHARED_LIBS)
+  set(LIBSSH2_PC_REQUIRES "")
+  set(LIBSSH2_PC_LIBS "")
+else()
+  set(LIBSSH2_PC_REQUIRES "${LIBSSH2_PC_REQUIRES_PRIVATE}")
+  set(LIBSSH2_PC_LIBS "${LIBSSH2_PC_LIBS_PRIVATE}")
+endif()
+
+set(prefix       "${CMAKE_INSTALL_PREFIX}")
+set(exec_prefix  "\${prefix}")
+if(IS_ABSOLUTE ${CMAKE_INSTALL_INCLUDEDIR})
+  set(includedir "${CMAKE_INSTALL_INCLUDEDIR}")
+else()
+  set(includedir "\${prefix}/${CMAKE_INSTALL_INCLUDEDIR}")
+endif()
+if(IS_ABSOLUTE ${CMAKE_INSTALL_LIBDIR})
+  set(libdir     "${CMAKE_INSTALL_LIBDIR}")
+else()
+  set(libdir     "\${exec_prefix}/${CMAKE_INSTALL_LIBDIR}")
+endif()
+
+# Generate a pkg-config file for client projects not using CMake.
+# Consumed variables:
+#   exec_prefix
+#   includedir
+#   LIBSSH2_PC_LIBS
+#   LIBSSH2_PC_LIBS_PRIVATE
+#   LIBSSH2_PC_REQUIRES
+#   LIBSSH2_PC_REQUIRES_PRIVATE
+#   LIBSSH2_VERSION
+#   libdir
+#   prefix
+configure_file("${PROJECT_SOURCE_DIR}/libssh2.pc.in" "libssh2.pc" @ONLY)
+install(
+  FILES "${CMAKE_CURRENT_BINARY_DIR}/libssh2.pc"
+  DESTINATION "${CMAKE_INSTALL_LIBDIR}/pkgconfig")
+
+#
 
 include(CMakePackageConfigHelpers)
 write_basic_package_version_file(
-  ${CMAKE_CURRENT_BINARY_DIR}/Libssh2ConfigVersion.cmake
+  "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}-config-version.cmake"
   VERSION "${LIBSSH2_VERSION_MAJOR}.${LIBSSH2_VERSION_MINOR}.${LIBSSH2_VERSION_PATCH}"
   COMPATIBILITY SameMajorVersion)
 install(
-  FILES ${CMAKE_CURRENT_BINARY_DIR}/Libssh2ConfigVersion.cmake
-  DESTINATION lib/cmake/libssh2)
+  FILES "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}-config-version.cmake"
+  DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}")

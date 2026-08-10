@@ -33,11 +33,11 @@ int pcap_tstamp_type_name_to_val(const char *name);
 .ft
 .fi
 .SH DESCRIPTION
-.B pcap_tstamp_type_name_to_val()
+.BR pcap_tstamp_type_name_to_val ()
 translates a time stamp type name to the corresponding time stamp type
 value.  The translation is case-insensitive.
 .SH RETURN VALUE
-.B pcap_tstamp_type_name_to_val()
+.BR pcap_tstamp_type_name_to_val ()
 returns time stamp type value on success and
 .B PCAP_ERROR
 on failure.
@@ -45,4 +45,5 @@ on failure.
 .PP
 This function became available in libpcap release 1.2.1.
 .SH SEE ALSO
-pcap(3PCAP), pcap_tstamp_type_val_to_name(3PCAP)
+.BR pcap (3PCAP),
+.BR pcap_tstamp_type_val_to_name (3PCAP)

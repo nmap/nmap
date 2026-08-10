@@ -2,54 +2,50 @@
  * nsock_connect.c -- This contains the functions for requesting TCP       *
  * connections from the nsock parallel socket event library                *
  ***********************IMPORTANT NSOCK LICENSE TERMS***********************
- *                                                                         *
- * The nsock parallel socket event library is (C) 1999-2019 Insecure.Com   *
- * LLC This library is free software; you may redistribute and/or          *
- * modify it under the terms of the GNU General Public License as          *
- * published by the Free Software Foundation; Version 2.  This guarantees  *
- * your right to use, modify, and redistribute this software under certain *
- * conditions.  If this license is unacceptable to you, Insecure.Com LLC   *
- * may be willing to sell alternative licenses (contact                    *
- * sales@insecure.com ).                                                   *
- *                                                                         *
- * As a special exception to the GPL terms, Insecure.Com LLC grants        *
- * permission to link the code of this program with any version of the     *
- * OpenSSL library which is distributed under a license identical to that  *
- * listed in the included docs/licenses/OpenSSL.txt file, and distribute   *
- * linked combinations including the two. You must obey the GNU GPL in all *
- * respects for all of the code used other than OpenSSL.  If you modify    *
- * this file, you may extend this exception to your version of the file,   *
- * but you are not obligated to do so.                                     *
- *                                                                         *
- * If you received these files with a written license agreement stating    *
- * terms other than the (GPL) terms above, then that alternative license   *
- * agreement takes precedence over this comment.                           *
- *                                                                         *
- * Source is provided to this software because we believe users have a     *
- * right to know exactly what a program is going to do before they run it. *
- * This also allows you to audit the software for security holes.          *
- *                                                                         *
- * Source code also allows you to port Nmap to new platforms, fix bugs,    *
- * and add new features.  You are highly encouraged to send your changes   *
- * to the dev@nmap.org mailing list for possible incorporation into the    *
- * main distribution.  By sending these changes to Fyodor or one of the    *
- * Insecure.Org development mailing lists, or checking them into the Nmap  *
- * source code repository, it is understood (unless you specify otherwise) *
- * that you are offering the Nmap Project (Insecure.Com LLC) the           *
- * unlimited, non-exclusive right to reuse, modify, and relicense the      *
- * code.  Nmap will always be available Open Source, but this is important *
- * because the inability to relicense code has caused devastating problems *
- * for other Free Software projects (such as KDE and NASM).  We also       *
- * occasionally relicense the code to third parties as discussed above.    *
- * If you wish to specify special license conditions of your               *
- * contributions, just say so when you send them.                          *
- *                                                                         *
- * This program is distributed in the hope that it will be useful, but     *
- * WITHOUT ANY WARRANTY; without even the implied warranty of              *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU       *
- * General Public License v2.0 for more details                            *
- * (http://www.gnu.org/licenses/gpl-2.0.html).                             *
- *                                                                         *
+ *
+ * The nsock parallel socket event library is (C) 1999-2026 Nmap Software LLC
+ * This library is free software; you may redistribute and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation; Version 2. This guarantees your right to use, modify, and
+ * redistribute this software under certain conditions. If this license is
+ * unacceptable to you, Nmap Software LLC may be willing to sell alternative
+ * licenses (contact sales@nmap.com ).
+ *
+ * As a special exception to the GPL terms, Nmap Software LLC grants permission
+ * to link the code of this program with any version of the OpenSSL library
+ * which is distributed under a license identical to that listed in the included
+ * docs/licenses/OpenSSL.txt file, and distribute linked combinations including
+ * the two. You must obey the GNU GPL in all respects for all of the code used
+ * other than OpenSSL. If you modify this file, you may extend this exception to
+ * your version of the file, but you are not obligated to do so.
+ *
+ * If you received these files with a written license agreement stating terms
+ * other than the (GPL) terms above, then that alternative license agreement
+ * takes precedence over this comment.
+ *
+ * Source is provided to this software because we believe users have a right to
+ * know exactly what a program is going to do before they run it. This also
+ * allows you to audit the software for security holes.
+ *
+ * Source code also allows you to port Nmap to new platforms, fix bugs, and add
+ * new features. You are highly encouraged to send your changes to the
+ * dev@nmap.org mailing list for possible incorporation into the main
+ * distribution. By sending these changes to Fyodor or one of the Insecure.Org
+ * development mailing lists, or checking them into the Nmap source code
+ * repository, it is understood (unless you specify otherwise) that you are
+ * offering the Nmap Project (Nmap Software LLC) the unlimited, non-exclusive
+ * right to reuse, modify, and relicense the code. Nmap will always be available
+ * Open Source, but this is important because the inability to relicense code
+ * has caused devastating problems for other Free Software projects (such as KDE
+ * and NASM). We also occasionally relicense the code to third parties as
+ * discussed above. If you wish to specify special license conditions of your
+ * contributions, just say so when you send them.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License v2.0 for more
+ * details (http://www.gnu.org/licenses/gpl-2.0.html).
+ *
  ***************************************************************************/
 
 /* $Id$ */
@@ -86,7 +82,7 @@ static int mksock_bind_addr(struct npool *ms, struct niod *iod) {
                     get_localaddr_string(iod), iod->id,
                     socket_strerror(err), err);
   }
-  return 0;
+  return rc;
 }
 
 static int mksock_set_ipopts(struct npool *ms, struct niod *iod) {
@@ -101,7 +97,7 @@ static int mksock_set_ipopts(struct npool *ms, struct niod *iod) {
     nsock_log_error("Setting of IP options failed (IOD #%li): %s (%d)",
                     iod->id, socket_strerror(err), err);
   }
-  return 0;
+  return rc;
 }
 
 static int mksock_bind_device(struct npool *ms, struct niod *iod) {
@@ -117,6 +113,7 @@ static int mksock_bind_device(struct npool *ms, struct niod *iod) {
     else
       nsock_log_debug_all("Setting of SO_BINDTODEVICE failed (IOD #%li): %s (%d)",
                           iod->id, socket_strerror(err), err);
+    return -1;
   }
   return 0;
 }
@@ -133,7 +130,7 @@ static int mksock_set_broadcast(struct npool *ms, struct niod *iod) {
     nsock_log_error("Setting of SO_BROADCAST failed (IOD #%li): %s (%d)",
                     iod->id, socket_strerror(err), err);
   }
-  return 0;
+  return rc;
 }
 /* Create the actual socket (nse->iod->sd) underlying the iod. This unblocks the
  * socket, binds to the localaddr address, sets IP options, and sets the
@@ -153,20 +150,26 @@ static int nsock_make_socket(struct npool *ms, struct niod *iod, int family, int
 
   iod->lastproto = proto;
 
-  if (iod->locallen)
-    mksock_bind_addr(ms, iod);
+  /* If the user requested a specific local address, we should treat a bind
+   * failure as a connect failure. */
+  if (iod->locallen) {
+    if (0 != mksock_bind_addr(ms, iod))
+      return -1;
+  }
 
+  /* IP_OPTIONS requires extra permissions, so ignore failure */
   if (iod->ipoptslen && family == AF_INET)
     mksock_set_ipopts(ms, iod);
 
+  /* SO_BINDTODEVICE requires extra permissions, so ignore failure */
   if (ms->device)
     mksock_bind_device(ms, iod);
 
+  /* SO_BROADCAST is a candidate for treating failure as an error, but we have
+   * not received reports of issues related to it yet. */
   if (ms->broadcast && type != SOCK_STREAM)
     mksock_set_broadcast(ms, iod);
 
-  /* mksock_* functions can raise warnings/errors
-   * but we don't let them stop us for now. */
   return iod->sd;
 }
 
@@ -292,8 +295,8 @@ nsock_event_id nsock_connect_unixsock_stream(nsock_pool nsp, nsock_iod nsiod, ns
   nse = event_new(ms, NSE_TYPE_CONNECT, nsi, timeout_msecs, handler, userdata);
   assert(nse);
 
-  nsock_log_info("UNIX domain socket (STREAM) connection requested to %s (IOD #%li) EID %li",
-                 get_unixsock_path(ss), nsi->id, nse->id);
+  nsock_log_info("UNIX domain socket (STREAM) connection requested to %s (IOD #%li) (timeout: %dms) EID %li",
+                 get_unixsock_path(ss), nsi->id, timeout_msecs, nse->id);
 
   nsock_connect_internal(ms, nse, SOCK_STREAM, 0, ss, sslen, 0);
   nsock_pool_add_event(ms, nse);
@@ -350,8 +353,8 @@ nsock_event_id nsock_connect_vsock_stream(nsock_pool nsp, nsock_iod ms_iod,
   nse = event_new(ms, NSE_TYPE_CONNECT, nsi, timeout_msecs, handler, userdata);
   assert(nse);
 
-  nsock_log_info("vsock stream connection requested to %u:%u (IOD #%li) EID %li",
-                 svm->svm_cid, port, nsi->id, nse->id);
+  nsock_log_info("vsock stream connection requested to %u:%u (IOD #%li) (timeout: %dms) EID %li",
+                 svm->svm_cid, port, nsi->id, timeout_msecs, nse->id);
 
   /* Do the actual connect() */
   nsock_connect_internal(ms, nse, SOCK_STREAM, 0, ss, sslen, port);
@@ -416,8 +419,8 @@ nsock_event_id nsock_connect_tcp(nsock_pool nsp, nsock_iod ms_iod, nsock_ev_hand
   nse = event_new(ms, NSE_TYPE_CONNECT, nsi, timeout_msecs, handler, userdata);
   assert(nse);
 
-  nsock_log_info("TCP connection requested to %s:%hu (IOD #%li) EID %li",
-                 inet_ntop_ez(ss, sslen), port, nsi->id, nse->id);
+  nsock_log_info("TCP connection requested to %s:%hu (IOD #%li) (timeout: %dms) EID %li",
+                 inet_ntop_ez(ss, sslen), port, nsi->id, timeout_msecs, nse->id);
 
   /* Do the actual connect() */
   nsock_connect_internal(ms, nse, SOCK_STREAM, IPPROTO_TCP, ss, sslen, port);
@@ -444,8 +447,8 @@ nsock_event_id nsock_connect_sctp(nsock_pool nsp, nsock_iod ms_iod, nsock_ev_han
   nse = event_new(ms, NSE_TYPE_CONNECT, nsi, timeout_msecs, handler, userdata);
   assert(nse);
 
-  nsock_log_info("SCTP association requested to %s:%hu (IOD #%li) EID %li",
-                 inet_ntop_ez(ss, sslen), port, nsi->id, nse->id);
+  nsock_log_info("SCTP association requested to %s:%hu (IOD #%li) (timeout: %dms) EID %li",
+                 inet_ntop_ez(ss, sslen), port, nsi->id, timeout_msecs, nse->id);
 
   /* Do the actual connect() */
   nsock_connect_internal(ms, nse, SOCK_STREAM, IPPROTO_SCTP, ss, sslen, port);
@@ -474,11 +477,14 @@ nsock_event_id nsock_connect_ssl(nsock_pool nsp, nsock_iod nsiod, nsock_ev_handl
   struct npool *ms = (struct npool *)nsp;
   struct nevent *nse;
 
-  if (!ms->sslctx)
+  if (proto == IPPROTO_UDP)
   {
-    if (proto == IPPROTO_UDP)
+    if (!ms->dtlsctx)
       nsock_pool_dtls_init(ms, 0);
-    else
+  }
+  else
+  {
+    if (!ms->sslctx)
       nsock_pool_ssl_init(ms, 0);
   }
 
@@ -493,13 +499,13 @@ nsock_event_id nsock_connect_ssl(nsock_pool nsp, nsock_iod nsiod, nsock_ev_handl
     nsi_set_ssl_session(nsi, (SSL_SESSION *)ssl_session);
 
   if (proto == IPPROTO_UDP)
-    nsock_log_info("DTLS connection requested to %s:%hu/udp (IOD #%li) EID %li",
+    nsock_log_info("DTLS connection requested to %s:%hu/udp (IOD #%li) (timeout: %dms) EID %li",
 
-                 inet_ntop_ez(ss, sslen), port, nsi->id, nse->id);
+                 inet_ntop_ez(ss, sslen), port, nsi->id, timeout_msecs, nse->id);
   else
-    nsock_log_info("SSL connection requested to %s:%hu/%s (IOD #%li) EID %li",
+    nsock_log_info("SSL connection requested to %s:%hu/%s (IOD #%li) (timeout: %dms) EID %li",
                  inet_ntop_ez(ss, sslen), port, (proto == IPPROTO_TCP ? "tcp" : "sctp"),
-                 nsi->id, nse->id);
+                 nsi->id, timeout_msecs, nse->id);
 
   /* Do the actual connect() */
   nsock_connect_internal(ms, nse, (proto == IPPROTO_UDP ? SOCK_DGRAM : SOCK_STREAM), proto, ss, sslen, port);
@@ -524,6 +530,8 @@ nsock_event_id nsock_reconnect_ssl(nsock_pool nsp, nsock_iod nsiod, nsock_ev_han
   struct niod *nsi = (struct niod *)nsiod;
   struct npool *ms = (struct npool *)nsp;
   struct nevent *nse;
+  /* nsock_reconnect_ssl not supported for DTLS (yet?) */
+  assert(nsi->lastproto != IPPROTO_UDP);
 
   if (!ms->sslctx)
     nsock_pool_ssl_init(ms, 0);
@@ -534,8 +542,8 @@ nsock_event_id nsock_reconnect_ssl(nsock_pool nsp, nsock_iod nsiod, nsock_ev_han
   /* Set our SSL_SESSION so we can benefit from session-id reuse. */
   nsi_set_ssl_session(nsi, (SSL_SESSION *)ssl_session);
 
-  nsock_log_info("SSL reconnection requested (IOD #%li) EID %li",
-                 nsi->id, nse->id);
+  nsock_log_info("SSL reconnection requested (IOD #%li) (timeout: %dms) EID %li",
+                 nsi->id, timeout_msecs, nse->id);
 
   /* Do the actual connect() */
   nse->event_done = 0;

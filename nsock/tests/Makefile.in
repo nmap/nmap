@@ -20,6 +20,7 @@ SRC = tests_main.c \
       connect.c \
       ghlists.c \
       ghheaps.c \
+      proxychain.c \
       cancel.c
 
 OBJ = $(SRC:.c=.o)

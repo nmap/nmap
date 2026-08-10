@@ -5,7 +5,7 @@
  *
  * Copyright (c) 2000 Dug Song <dugsong@monkey.org>
  *
- * $Id: os.h 583 2005-02-15 05:31:00Z dugsong $
+ * $Id$
  */
 
 #ifndef DNET_OS_H

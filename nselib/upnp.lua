@@ -41,6 +41,9 @@ local stdnse = require "stdnse"
 local string = require "string"
 local table = require "table"
 local target = require "target"
+local slaxml = require "slaxml"
+local url = require "url"
+local outlib = require "outlib"
 _ENV = stdnse.module("upnp", stdnse.seeall)
 
 Util = {
@@ -54,6 +57,17 @@ Util = {
     return ipOps.compare_ip(a, "lt", b)
   end,
 
+}
+
+local device_elements = {
+  deviceType = true,
+  serviceType = true,
+  friendlyName = true,
+  manufacturer = true,
+  modelDescription = true,
+  modelName = true,
+  modelNumber = true,
+  UDN = true,
 }
 
 Comm = {
@@ -130,7 +144,6 @@ Comm = {
   receiveResponse = function( self )
     local status, response
     local result = {}
-    local host_responses = {}
 
     repeat
       status, response = self.socket:receive()
@@ -140,31 +153,19 @@ Comm = {
         break
       end
 
-      local status, _, _, ip, _ = self.socket:get_info()
+      local status = self:decodeResponse( response, result )
       if ( not(status) ) then
-        return false, "Failed to retrieve socket information"
-      end
-      if target.ALLOW_NEW_TARGETS then target.add(ip) end
-
-      if ( not(host_responses[ip]) ) then
-        local status, output = self:decodeResponse( response )
-        if ( not(status) ) then
-          return false, "Failed to decode UPNP response"
-        end
-        output = { output }
-        output.name = ip
-        table.insert( result, output )
-        host_responses[ip] = true
+        return false, "Failed to decode UPNP response"
       end
     until ( not( self.mcast ) )
 
     if ( self.mcast ) then
-      table.sort(result, Util.ipCompare)
-      return true, result
+      return true, outlib.sorted_by_key(result, Util.ipCompare)
     end
 
-    if ( status and #result > 0 ) then
-      return true, result[1]
+    if status then
+      local i, v = next(result)
+      return (not not i), v
     else
       return false, "Received no responses"
     end
@@ -175,34 +176,59 @@ Comm = {
   -- @param response as received over the socket
   -- @return status boolean true on success, false on failure
   -- @return response table or string suitable for output or error message if status is false
-  decodeResponse = function( self, response )
-    local output = {}
+  decodeResponse = function( self, response, results )
+    local output = stdnse.output_table()
+    local key
 
-    if response ~= nil then
-      -- We should get a response back that has contains one line for the server, and one line for the xml file location
-      -- these match any combination of upper and lower case responses
-      local server, location
-      server = string.match(response, "[Ss][Ee][Rr][Vv][Ee][Rr]:%s*(.-)\r?\n")
-      if server ~= nil then table.insert(output, "Server: " .. server ) end
-      location = string.match(response, "[Ll][Oo][Cc][Aa][Tt][Ii][Oo][Nn]:%s*(.-)\r?\n")
-      if location ~= nil then
-        table.insert(output, "Location: " .. location )
+    -- We should get a response back that has contains one line for the server, and one line for the xml file location
+    -- these match any combination of upper and lower case responses
+    local usn = string.match(response, "\n[Uu][Ss][Nn]:%s*([Uu][Uu][Ii][Dd]:[%x-]+)")
+    if usn then
+      key = usn
+      output.usn = usn
+    end
+    local location = string.match(response, "\n[Ll][Oo][Cc][Aa][Tt][Ii][Oo][Nn]:%s*(.-)\r?\n")
+    if location then
+      local loc_url = url.parse(location)
+      if loc_url.host then
+        key = loc_url.host
+        if target.ALLOW_NEW_TARGETS then target.add(loc_url.host) end
+      end
+      output.location = location
+    end
 
-        local v = nmap.verbosity()
+    if key and results[key] then
+      return false, "Already recorded a response for this host"
+    end
 
-        -- the following check can output quite a lot of information, so we require at least one -v flag
-        if v > 0 then
-          local status, result = self:retrieveXML( location )
-          if status then
-            table.insert(output, result)
+    local server = string.match(response, "\n[Ss][Ee][Rr][Vv][Ee][Rr]:%s*(.-)\r?\n")
+    if server ~= nil then output.server = server end
+
+    if location and nmap.verbosity() > 0 then
+      -- the following check can output quite a lot of information, so we require at least one -v flag
+      local status, result = self:retrieveXML( location )
+      if status then
+        if result.webserver ~= output.server then
+          output.webserver = result.webserver
+        end
+        result.webserver = nil
+        if usn and result[usn] then
+          for k, v in pairs(result[usn]) do
+            output[k] = v
           end
+          result[usn] = nil
+        end
+        if #result > 0 then
+          output.devices = result
         end
       end
-      if #output > 0 then
-        return true, output
-      else
-        return false, "Could not decode response"
-      end
+    end
+
+    if #output > 0 then
+      results[key] = output
+      return true
+    else
+      return false, "Could not decode response"
     end
   end,
 
@@ -223,55 +249,74 @@ Comm = {
       response = http.get_url( location, options )
     else
       -- otherwise, split the location into an IP address, port, and path name for the xml file
-      local xhost, xport, xfile
-      xhost = string.match(location, "http://(.-)/")
-      -- check to see if the host portion of the location specifies a port
-      -- if not, use port 80 as a standard web server port
-      if xhost ~= nil and string.match(xhost, ":") then
-        xport = string.match(xhost, ":(.*)")
-        xhost = string.match(xhost, "(.*):")
+      local loc_url = url.parse(location)
+      options.scheme = loc_url.scheme
+      local xhost = loc_url.host
+      local xport = loc_url.port or url.get_default_port(loc_url.scheme) or 80
+      local xfile = loc_url.path
+      if loc_url.query then
+        xfile = xfile .. "?" .. loc_url.query
       end
 
       -- check to see if the IP address returned matches the IP address we scanned
-      if xhost ~= self.host.ip then
+      if not ipOps.compare_ip(xhost, "eq", self.host.ip) then
         stdnse.debug1("IP addresses did not match! Found %s, using %s instead.", xhost, self.host.ip)
         xhost = self.host.ip
       end
 
-      if xport == nil then
-        xport = 80
-      end
-
-      -- extract the path name from the location field, but strip off the \r that HTTP servers return
-      xfile = string.match(location, "http://.-(/.-)\013")
-      if xfile ~= nil then
+      if xhost and xport and xfile then
         response = http.get( xhost, xport, xfile, options )
       end
     end
 
-    if response ~= nil then
-      local output = {}
+    if response.body then
+      local output = stdnse.output_table()
 
       -- extract information about the webserver that is handling responses for the UPnP system
       local webserver = response['header']['server']
-      if webserver ~= nil then table.insert(output, "Webserver: " .. webserver) end
+      if webserver then output.webserver = webserver end
 
       -- the schema for UPnP includes a number of <device> entries, which can a number of interesting fields
-      for device in string.gmatch(response['body'], "<deviceType>(.-)</UDN>") do
-        local fn, mnf, mdl, nm, ver
-
-        fn = string.match(device, "<friendlyName>(.-)</friendlyName>")
-        mnf = string.match(device, "<manufacturer>(.-)</manufacturer>")
-        mdl = string.match(device, "<modelDescription>(.-)</modelDescription>")
-        nm = string.match(device, "<modelName>(.-)</modelName>")
-        ver = string.match(device, "<modelNumber>(.-)</modelNumber>")
-
-        if fn ~= nil then table.insert(output, "Name: " .. fn) end
-        if mnf ~= nil then table.insert(output,"Manufacturer: " .. mnf) end
-        if mdl ~= nil then table.insert(output,"Model Descr: " .. mdl) end
-        if nm ~= nil then table.insert(output,"Model Name: " .. nm) end
-        if ver ~= nil then table.insert(output,"Model Version: " .. ver) end
-      end
+      local element
+      local devices = {}
+      local depth = 0
+      local parser = slaxml.parser:new({
+          startElement = function(name)
+            if name == "device" then
+              depth = depth + 1
+              devices[depth] = stdnse.output_table()
+            elseif devices[depth] and device_elements[name] then
+              assert(not element, "nested element unexpected")
+              element = name
+            end
+          end,
+          closeElement = function(name)
+            if element then
+              assert(name == element, "close tag unexpected")
+              element = nil
+            elseif name == "device" then
+              local dev = devices[depth]
+              assert(dev and dev.UDN, "missing device or UDN")
+              output[dev.UDN] = dev
+              dev.UDN = nil
+              devices[depth] = nil
+              depth = depth - 1
+            end
+          end,
+          text = function(content)
+            if element then
+              local dev = devices[depth]
+              if element == "serviceType" then
+                local services = dev.services or {}
+                services[#services+1] = content
+                dev.services = services
+              else
+                dev[element] = content
+              end
+            end
+          end,
+        })
+      parser:parseSAX(response.body, {stripWhitespace=true})
       return true, output
     else
       return false, "Could not retrieve XML file"

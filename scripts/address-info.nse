@@ -174,6 +174,7 @@ local function format_ipv4(ipv4)
 end
 
 local function do_ipv4(addr)
+  -- intentionally empty
 end
 
 -- EUI-64 from MAC, RFC 4291.

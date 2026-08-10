@@ -1,8 +1,8 @@
 #ifndef LIBSSH2_SESSION_H
 #define LIBSSH2_SESSION_H
-/* Copyright (c) 2004-2007 Sara Golemon <sarag@libssh2.org>
- * Copyright (c) 2009-2010 by Daniel Stenberg
- * Copyright (c) 2010 Simon Josefsson <simon@josefsson.org>
+/* Copyright (C) Sara Golemon <sarag@libssh2.org>
+ * Copyright (C) Daniel Stenberg
+ * Copyright (C) Simon Josefsson <simon@josefsson.org>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms,
@@ -37,31 +37,32 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY
  * OF SUCH DAMAGE.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
  */
 
 /* Conveniance-macros to allow code like this;
 
-   int rc = BLOCK_ADJUST(rc, session, session_startup(session, sock) );
+   int rc = BLOCK_ADJUST(rc, session, session_startup(session, sock));
 
-   int rc = BLOCK_ADJUST_ERRNO(ptr, session, session_startup(session, sock) );
+   int rc = BLOCK_ADJUST_ERRNO(ptr, session, session_startup(session, sock));
 
-   The point of course being to make sure that while in non-blocking mode
-   these always return no matter what the return code is, but in blocking mode
-   it blocks if EAGAIN is the reason for the return from the underlying
-   function.
+   The point being to make sure that while in non-blocking mode these always
+   return no matter what the return code is, but in blocking mode it blocks
+   if EAGAIN is the reason for the return from the underlying function.
 
 */
 #define BLOCK_ADJUST(rc, sess, x) \
     do { \
-       time_t entry_time = time(NULL); \
-       do { \
-          rc = x; \
-          /* the order of the check below is important to properly deal with \
-             the case when the 'sess' is freed */ \
-          if((rc != LIBSSH2_ERROR_EAGAIN) || !sess->api_block_mode) \
-              break; \
-          rc = _libssh2_wait_socket(sess, entry_time);  \
-       } while(!rc);   \
+        time_t entry_time = time(NULL); \
+        do { \
+            rc = x; \
+            /* the order of the check below is important to properly \
+               deal with the case when the 'sess' is freed */ \
+            if((rc != LIBSSH2_ERROR_EAGAIN) || !sess->api_block_mode) \
+                break; \
+            rc = _libssh2_wait_socket(sess, entry_time);  \
+        } while(!rc);   \
     } while(0)
 
 /*
@@ -72,15 +73,15 @@
  */
 #define BLOCK_ADJUST_ERRNO(ptr, sess, x) \
     do { \
-       time_t entry_time = time(NULL); \
-       int rc; \
-       do { \
-           ptr = x; \
-           if(!sess->api_block_mode || \
-              (ptr != NULL) || \
-              (libssh2_session_last_errno(sess) != LIBSSH2_ERROR_EAGAIN) ) \
-               break; \
-           rc = _libssh2_wait_socket(sess, entry_time); \
+        time_t entry_time = time(NULL); \
+        int rc; \
+        do { \
+            ptr = x; \
+            if(!sess->api_block_mode || \
+               (ptr != NULL) || \
+               (libssh2_session_last_errno(sess) != LIBSSH2_ERROR_EAGAIN)) \
+                break; \
+            rc = _libssh2_wait_socket(sess, entry_time); \
         } while(!rc); \
     } while(0)
 

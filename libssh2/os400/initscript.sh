@@ -1,19 +1,20 @@
 #!/bin/sh
-
+# Copyright (C) The libssh2 project and its contributors.
+# SPDX-License-Identifier: BSD-3-Clause
 
 setenv()
 
 {
         #       Define and export.
 
-        eval ${1}="${2}"
-        export ${1}
+        eval "${1}=${2}"
+        export "${1?}"
 }
 
 
 case "${SCRIPTDIR}" in
 /*)     ;;
-*)      SCRIPTDIR="`pwd`/${SCRIPTDIR}"
+*)      SCRIPTDIR="$(pwd)/${SCRIPTDIR}"
 esac
 
 while true
@@ -25,63 +26,43 @@ done
 
 #  The script directory is supposed to be in $TOPDIR/os400.
 
-TOPDIR=`dirname "${SCRIPTDIR}"`
+TOPDIR=$(dirname "${SCRIPTDIR}")
 export SCRIPTDIR TOPDIR
 
 #  Extract the SONAME from the library makefile.
 
-SONAME=`sed -e '/^VERSION=/!d' -e 's/^.* \([0-9]*\):.*$/\1/' -e 'q'     \
-                                                < "${TOPDIR}/src/Makefile.am"`
+SONAME=$(sed -e '/^VERSION=/!d'                                         \
+             -e 's/^.* \([0-9]*\):.*$/\1/' -e 'q'                       \
+                                                < "${TOPDIR}/src/Makefile.am")
 export SONAME
 
+#       Get OS/400 configuration parameters.
 
-################################################################################
-#
-#                       Tunable configuration parameters.
-#
-################################################################################
-
-setenv TARGETLIB        'LIBSSH2'               # Target OS/400 program library.
-setenv STATBNDDIR       'LIBSSH2_A'             # Static binding directory.
-setenv DYNBNDDIR        'LIBSSH2'               # Dynamic binding directory.
-setenv SRVPGM           "LIBSSH2.${SONAME}"     # Service program.
-setenv TGTCCSID         '500'                   # Target CCSID of objects.
-setenv DEBUG            '*ALL'                  # Debug level.
-setenv OPTIMIZE         '10'                    # Optimisation level
-setenv OUTPUT           '*NONE'                 # Compilation output option.
-setenv TGTRLS           'V6R1M0'                # Target OS release.
-setenv IFSDIR           '/libssh2'              # Installation IFS directory.
-
-#       Define ZLIB availability and locations.
-
-setenv WITH_ZLIB        0                       # Define to 1 to enable.
-setenv ZLIB_INCLUDE     '/zlib/include'         # ZLIB include IFS directory.
-setenv ZLIB_LIB         'ZLIB'                  # ZLIB library.
-setenv ZLIB_BNDDIR      'ZLIB_A'                # ZLIB binding directory.
-
-
-################################################################################
+. "${SCRIPTDIR}/config400.default"
+if [ -f "${SCRIPTDIR}/config400.override" ]
+then    . "${SCRIPTDIR}/config400.override"
+fi
 
 #       Need to get the version definitions.
 
-LIBSSH2_VERSION=`grep '^#define  *LIBSSH2_VERSION '                     \
+LIBSSH2_VERSION=$(grep '^#define  *LIBSSH2_VERSION '                    \
                         "${TOPDIR}/include/libssh2.h"                   |
-                sed 's/.*"\(.*\)".*/\1/'`
-LIBSSH2_VERSION_MAJOR=`grep '^#define  *LIBSSH2_VERSION_MAJOR '         \
+                sed 's/.*"\(.*\)".*/\1/')
+LIBSSH2_VERSION_MAJOR=$(grep '^#define  *LIBSSH2_VERSION_MAJOR '        \
                         "${TOPDIR}/include/libssh2.h"                   |
-                sed 's/^#define  *LIBSSH2_VERSION_MAJOR  *\([^ ]*\).*/\1/'`
-LIBSSH2_VERSION_MINOR=`grep '^#define  *LIBSSH2_VERSION_MINOR '         \
+                sed 's/^#define  *LIBSSH2_VERSION_MAJOR  *\([^ ]*\).*/\1/')
+LIBSSH2_VERSION_MINOR=$(grep '^#define  *LIBSSH2_VERSION_MINOR '        \
                         "${TOPDIR}/include/libssh2.h"                   |
-                sed 's/^#define  *LIBSSH2_VERSION_MINOR  *\([^ ]*\).*/\1/'`
-LIBSSH2_VERSION_PATCH=`grep '^#define  *LIBSSH2_VERSION_PATCH '         \
+                sed 's/^#define  *LIBSSH2_VERSION_MINOR  *\([^ ]*\).*/\1/')
+LIBSSH2_VERSION_PATCH=$(grep '^#define  *LIBSSH2_VERSION_PATCH '        \
                         "${TOPDIR}/include/libssh2.h"                   |
-                sed 's/^#define  *LIBSSH2_VERSION_PATCH  *\([^ ]*\).*/\1/'`
-LIBSSH2_VERSION_NUM=`grep '^#define  *LIBSSH2_VERSION_NUM '             \
+                sed 's/^#define  *LIBSSH2_VERSION_PATCH  *\([^ ]*\).*/\1/')
+LIBSSH2_VERSION_NUM=$(grep '^#define  *LIBSSH2_VERSION_NUM '            \
                         "${TOPDIR}/include/libssh2.h"                   |
-                sed 's/^#define  *LIBSSH2_VERSION_NUM  *0x\([^ ]*\).*/\1/'`
-LIBSSH2_TIMESTAMP=`grep '^#define  *LIBSSH2_TIMESTAMP '                 \
+                sed 's/^#define  *LIBSSH2_VERSION_NUM  *0x\([^ ]*\).*/\1/')
+LIBSSH2_TIMESTAMP=$(grep '^#define  *LIBSSH2_TIMESTAMP '                \
                         "${TOPDIR}/include/libssh2.h"                   |
-                sed 's/.*"\(.*\)".*/\1/'`
+                sed 's/.*"\(.*\)".*/\1/')
 export LIBSSH2_VERSION
 export LIBSSH2_VERSION_MAJOR LIBSSH2_VERSION_MINOR LIBSSH2_VERSION_PATCH
 export LIBSSH2_VERSION_NUM LIBSSH2_TIMESTAMP
@@ -112,7 +93,8 @@ action_needed()
 
 {
         [ ! -e "${1}" ] && return 0
-        [ "${2}" ] || return 1
+        [ -n "${2}" ] || return 1
+        # shellcheck disable=SC3013
         [ "${1}" -ot "${2}" ] && return 0
         return 1
 }
@@ -129,7 +111,7 @@ canonicalize_path()
 {
         if expr "${1}" : '^/' > /dev/null
         then    P="${1}"
-        else    P="`pwd`/${1}"
+        else    P="$(pwd)/${1}"
         fi
 
         R=
@@ -140,7 +122,7 @@ canonicalize_path()
         do      IFS="${IFSSAVE}"
                 case "${C}" in
                 .)      ;;
-                ..)     R=`expr "${R}" : '^\(.*/\)..*'`
+                ..)     R="$(expr "${R}" : '^\(.*/\)..*')"
                         ;;
                 ?*)     R="${R}${C}/"
                         ;;
@@ -149,7 +131,7 @@ canonicalize_path()
         done
 
         IFS="${IFSSAVE}"
-        echo "/`expr "${R}" : '^\(.*\)/'`"
+        echo "/$(expr "${R}" : '^\(.*\)/')"
 }
 
 
@@ -165,7 +147,7 @@ make_module()
         MODULES="${MODULES} ${1}"
         MODIFSNAME="${LIBIFSNAME}/${1}.MODULE"
         action_needed "${MODIFSNAME}" "${2}" || return 0;
-        SRCDIR=`dirname \`canonicalize_path "${2}"\``
+        SRCDIR="$(dirname "$(canonicalize_path "${2}")")"
 
         #       #pragma convert has to be in the source file itself, i.e.
         #               putting it in an include file makes it only active
@@ -173,16 +155,18 @@ make_module()
         #       Thus we build a temporary file with the pragma prepended to
         #               the source file and we compile that temporary file.
 
-        echo "#line 1 \"${2}\"" > __tmpsrcf.c
-        echo "#pragma convert(819)" >> __tmpsrcf.c
-        echo "#line 1" >> __tmpsrcf.c
-        cat "${2}" >> __tmpsrcf.c
+        {
+                echo "#line 1 \"${2}\""
+                echo "#pragma convert(819)"
+                echo "#line 1"
+                cat "${2}"
+        } > __tmpsrcf.c
         CMD="CRTCMOD MODULE(${TARGETLIB}/${1}) SRCSTMF('__tmpsrcf.c')"
 #       CMD="${CMD} SYSIFCOPT(*IFS64IO) OPTION(*INCDIRFIRST *SHOWINC *SHOWSYS)"
         CMD="${CMD} SYSIFCOPT(*IFS64IO) OPTION(*INCDIRFIRST)"
         CMD="${CMD} LOCALETYPE(*LOCALE) FLAG(10)"
         CMD="${CMD} INCDIR('${TOPDIR}/os400/include'"
-        CMD="${CMD} '/QIBM/ProdData/qadrt/include' '${TOPDIR}/include'"
+        CMD="${CMD} '${QADRTDIR}/include' '${TOPDIR}/include'"
         CMD="${CMD} '${TOPDIR}/os400' '${SRCDIR}'"
 
         if [ "${WITH_ZLIB}" != "0" ]
@@ -198,15 +182,20 @@ make_module()
         DEFINES="${3}"
 
         if [ "${WITH_ZLIB}" != "0" ]
-        then    DEFINES="${DEFINES} HAVE_LIBZ LIBSSH2_HAVE_ZLIB"
+        then    DEFINES="${DEFINES} LIBSSH2_HAVE_ZLIB"
         fi
 
-        if [ "${DEFINES}" ]
+        if [ "${WITH_MD5}" != 'yes' ]
+        then    DEFINES="${DEFINES} LIBSSH2_NO_MD5"
+        fi
+
+        if [ -n "${DEFINES}" ]
         then    CMD="${CMD} DEFINE(${DEFINES})"
         fi
 
         system "${CMD}"
         rm -f __tmpsrcf.c
+        # shellcheck disable=SC2034
         LINK=YES
 }
 

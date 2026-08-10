@@ -19,13 +19,10 @@
  * MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
  */
 
-#ifdef HAVE_CONFIG_H
 #include <config.h>
-#endif
 
 #include <pcap-types.h>
 
-#include <ctype.h>
 #include <memory.h>
 #include <stdio.h>
 #include <string.h>
@@ -33,6 +30,8 @@
 #include "pcap-int.h"
 
 #include <pcap/namedb.h>
+
+#include "thread-local.h"
 
 #ifdef HAVE_OS_PROTO_H
 #include "os-proto.h"
@@ -45,14 +44,18 @@ static inline int skip_line(FILE *);
 static inline u_char
 xdtoi(u_char c)
 {
-	if (isdigit(c))
+	if (c >= '0' && c <= '9')
 		return (u_char)(c - '0');
-	else if (islower(c))
+	else if (c >= 'a' && c <= 'f')
 		return (u_char)(c - 'a' + 10);
 	else
 		return (u_char)(c - 'A' + 10);
 }
 
+/*
+ * Skip linear white space (space and tab) and any CRs before LF.
+ * Stop when we hit a non-white-space character or an end-of-line LF.
+ */
 static inline int
 skip_space(FILE *f)
 {
@@ -60,7 +63,7 @@ skip_space(FILE *f)
 
 	do {
 		c = getc(f);
-	} while (isspace(c) && c != '\n');
+	} while (c == ' ' || c == '\t' || c == '\r');
 
 	return c;
 }
@@ -84,7 +87,7 @@ pcap_next_etherent(FILE *fp)
 	u_char d;
 	char *bp;
 	size_t namesize;
-	static struct pcap_etherent e;
+	static thread_local struct pcap_etherent e;
 
 	memset((char *)&e, 0, sizeof(e));
 	for (;;) {
@@ -97,7 +100,7 @@ pcap_next_etherent(FILE *fp)
 
 		/* If this is a comment, or first thing on line
 		   cannot be Ethernet address, skip the line. */
-		if (!isxdigit(c)) {
+		if (!PCAP_ISXDIGIT(c)) {
 			c = skip_line(fp);
 			if (c == EOF)
 				return (NULL);
@@ -110,7 +113,7 @@ pcap_next_etherent(FILE *fp)
 			c = getc(fp);
 			if (c == EOF)
 				return (NULL);
-			if (isxdigit(c)) {
+			if (PCAP_ISXDIGIT(c)) {
 				d <<= 4;
 				d |= xdtoi((u_char)c);
 				c = getc(fp);
@@ -126,7 +129,7 @@ pcap_next_etherent(FILE *fp)
 		}
 
 		/* Must be whitespace */
-		if (!isspace(c)) {
+		if (c != ' ' && c != '\t' && c != '\r' && c != '\n') {
 			c = skip_line(fp);
 			if (c == EOF)
 				return (NULL);
@@ -156,7 +159,8 @@ pcap_next_etherent(FILE *fp)
 			c = getc(fp);
 			if (c == EOF)
 				return (NULL);
-		} while (!isspace(c) && --namesize != 0);
+		} while (c != ' ' && c != '\t' && c != '\r' && c != '\n'
+		    && --namesize != 0);
 		*bp = '\0';
 
 		/* Eat trailing junk */

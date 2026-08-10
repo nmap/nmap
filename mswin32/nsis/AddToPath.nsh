@@ -16,7 +16,6 @@
 
 ; AddToPath - Adds the given dir to the search path.
 ;        Input - head of the stack
-;        Note - Win9x systems requires reboot
  
 Function AddToPath
   Exch $0
@@ -50,22 +49,6 @@ Function AddToPath
   Pop $2
   StrCmp $2 "" "" AddToPath_done
  
-  Call IsNT
-  Pop $1
-  StrCmp $1 1 AddToPath_NT
-    ; Not on NT
-    StrCpy $1 $WINDIR 2
-    FileOpen $1 "$1\autoexec.bat" a
-    FileSeek $1 -1 END
-    FileReadByte $1 $2
-    IntCmp $2 26 0 +2 +2 # DOS EOF
-      FileSeek $1 -1 END # write over EOF
-    FileWrite $1 "$\r$\nSET PATH=%PATH%;$3$\r$\n"
-    FileClose $1
-    SetRebootFlag true
-    Goto AddToPath_done
- 
-  AddToPath_NT:
     ReadRegStr $1 ${WriteEnvStr_RegKey} "PATH"
     StrCpy $2 $1 1 -1 # copy last char
     StrCmp $2 ";" 0 +2 # if last char == ;
@@ -97,43 +80,6 @@ Function un.RemoveFromPath
  
   IntFmt $6 "%c" 26 # DOS EOF
  
-  Call un.IsNT
-  Pop $1
-  StrCmp $1 1 unRemoveFromPath_NT
-    ; Not on NT
-    StrCpy $1 $WINDIR 2
-    FileOpen $1 "$1\autoexec.bat" r
-    GetTempFileName $4
-    FileOpen $2 $4 w
-    GetFullPathName /SHORT $0 $0
-    StrCpy $0 "SET PATH=%PATH%;$0"
-    Goto unRemoveFromPath_dosLoop
- 
-    unRemoveFromPath_dosLoop:
-      FileRead $1 $3
-      StrCpy $5 $3 1 -1 # read last char
-      StrCmp $5 $6 0 +2 # if DOS EOF
-        StrCpy $3 $3 -1 # remove DOS EOF so we can compare
-      StrCmp $3 "$0$\r$\n" unRemoveFromPath_dosLoopRemoveLine
-      StrCmp $3 "$0$\n" unRemoveFromPath_dosLoopRemoveLine
-      StrCmp $3 "$0" unRemoveFromPath_dosLoopRemoveLine
-      StrCmp $3 "" unRemoveFromPath_dosLoopEnd
-      FileWrite $2 $3
-      Goto unRemoveFromPath_dosLoop
-      unRemoveFromPath_dosLoopRemoveLine:
-        SetRebootFlag true
-        Goto unRemoveFromPath_dosLoop
- 
-    unRemoveFromPath_dosLoopEnd:
-      FileClose $2
-      FileClose $1
-      StrCpy $1 $WINDIR 2
-      Delete "$1\autoexec.bat"
-      CopyFiles /SILENT $4 "$1\autoexec.bat"
-      Delete $4
-      Goto unRemoveFromPath_done
- 
-  unRemoveFromPath_NT:
     ReadRegStr $1 ${WriteEnvStr_RegKey} "PATH"
     StrCpy $5 $1 1 -1 # copy last char
     StrCmp $5 ";" +2 # if last char != ;
@@ -168,43 +114,6 @@ Function un.RemoveFromPath
     Pop $1
     Pop $0
 FunctionEnd
- 
-!ifndef IsNT_KiCHiK
-!define IsNT_KiCHiK
- 
-###########################################
-#            Utility Functions            #
-###########################################
- 
-; IsNT
-; no input
-; output, top of the stack = 1 if NT or 0 if not
-;
-; Usage:
-;   Call IsNT
-;   Pop $R0
-;  ($R0 at this point is 1 or 0)
- 
-!macro IsNT un
-Function ${un}IsNT
-  Push $0
-  ReadRegStr $0 HKLM "SOFTWARE\Microsoft\Windows NT\CurrentVersion" CurrentVersion
-  StrCmp $0 "" 0 IsNT_yes
-  ; we are not NT.
-  Pop $0
-  Push 0
-  Return
- 
-  IsNT_yes:
-    ; NT!!!
-    Pop $0
-    Push 1
-FunctionEnd
-!macroend
-!insertmacro IsNT ""
-!insertmacro IsNT "un."
- 
-!endif ; IsNT_KiCHiK
  
 ; StrStr
 ; input, top of stack = string to search for

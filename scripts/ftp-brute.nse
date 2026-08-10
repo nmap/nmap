@@ -1,6 +1,5 @@
 local brute = require "brute"
 local creds = require "creds"
-local shortport = require "shortport"
 local stdnse = require "stdnse"
 local ftp = require "ftp"
 
@@ -37,7 +36,7 @@ author = "Aleksandar Nikolic"
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"intrusive", "brute"}
 
-portrule = shortport.port_or_service(21, "ftp")
+portrule = ftp.portrule
 
 local arg_timeout = stdnse.parse_timespec(stdnse.get_script_args(SCRIPT_NAME .. ".timeout"))
 arg_timeout = (arg_timeout or 5) * 1000
@@ -60,7 +59,15 @@ Driver = {
     if not realsocket then
       return false, brute.Error:new( "Couldn't connect to host: " .. (code or message) )
     end
+    if not code then
+      realsocket:close()
+      return false, brute.Error:new( "Invalid response from host: " .. message)
+    end
     self.socket.socket = realsocket
+    if not (code >= 200 and code < 400) then
+      ftp.close(self.socket)
+      return false, brute.Error:new( "Error response from host: " .. code)
+    end
     return true
   end,
 

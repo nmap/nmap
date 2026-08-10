@@ -3,6 +3,10 @@
 
 /* Functions  listed in alphabetical order */
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #ifdef F2C_COMPAT
 
 void cdotc_(fcomplex *dotval, int *n, fcomplex *cx, int *incx,
@@ -166,7 +170,7 @@ int dgemm_(char *transa, char *transb, int *m, int *n, int *k,
            double *beta, double *c, int *ldc);
 
 int dgemv_(char *trans, int *m, int *n, double *alpha, double *a,
-           int *lda, double *x, int *incx, double *beta, double *y, 
+           int *lda, double *x, int *incx, double *beta, double *y,
            int *incy);
 
 int dger_(int *m, int *n, double *alpha, double *x, int *incx,
@@ -178,7 +182,7 @@ int drot_(int *n, double *sx, int *incx, double *sy, int *incy,
 int drotg_(double *sa, double *sb, double *c, double *s);
 
 int dsbmv_(char *uplo, int *n, int *k, double *alpha, double *a,
-           int *lda, double *x, int *incx, double *beta, double *y, 
+           int *lda, double *x, int *incx, double *beta, double *y,
            int *incy);
 
 int dscal_(int *n, double *sa, double *sx, int *incx);
@@ -227,14 +231,14 @@ int dtpsv_(char *uplo, char *trans, char *diag, int *n, double *ap,
            double *x, int *incx);
 
 int dtrmm_(char *side, char *uplo, char *transa, char *diag, int *m,
-           int *n, double *alpha, double *a, int *lda, double *b, 
+           int *n, double *alpha, double *a, int *lda, double *b,
            int *ldb);
 
 int dtrmv_(char *uplo, char *trans, char *diag, int *n, double *a,
            int *lda, double *x, int *incx);
 
 int dtrsm_(char *side, char *uplo, char *transa, char *diag, int *m,
-           int *n, double *alpha, double *a, int *lda, double *b, 
+           int *n, double *alpha, double *a, int *lda, double *b,
            int *ldb);
 
 int dtrsv_(char *uplo, char *trans, char *diag, int *n, double *a,
@@ -254,7 +258,7 @@ int sgemm_(char *transa, char *transb, int *m, int *n, int *k,
            float *beta, float *c, int *ldc);
 
 int sgemv_(char *trans, int *m, int *n, float *alpha, float *a,
-           int *lda, float *x, int *incx, float *beta, float *y, 
+           int *lda, float *x, int *incx, float *beta, float *y,
            int *incy);
 
 int sger_(int *m, int *n, float *alpha, float *x, int *incx,
@@ -266,7 +270,7 @@ int srot_(int *n, float *sx, int *incx, float *sy, int *incy,
 int srotg_(float *sa, float *sb, float *c, float *s);
 
 int ssbmv_(char *uplo, int *n, int *k, float *alpha, float *a,
-           int *lda, float *x, int *incx, float *beta, float *y, 
+           int *lda, float *x, int *incx, float *beta, float *y,
            int *incy);
 
 int sscal_(int *n, float *sa, float *sx, int *incx);
@@ -315,14 +319,14 @@ int stpsv_(char *uplo, char *trans, char *diag, int *n, float *ap,
            float *x, int *incx);
 
 int strmm_(char *side, char *uplo, char *transa, char *diag, int *m,
-           int *n, float *alpha, float *a, int *lda, float *b, 
+           int *n, float *alpha, float *a, int *lda, float *b,
            int *ldb);
 
 int strmv_(char *uplo, char *trans, char *diag, int *n, float *a,
            int *lda, float *x, int *incx);
 
 int strsm_(char *side, char *uplo, char *transa, char *diag, int *m,
-           int *n, float *alpha, float *a, int *lda, float *b, 
+           int *n, float *alpha, float *a, int *lda, float *b,
            int *ldb);
 
 int strsv_(char *uplo, char *trans, char *diag, int *n, float *a,
@@ -428,3 +432,7 @@ int ztrsm_(char *side, char *uplo, char *transa, char *diag, int *m,
 
 int ztrsv_(char *uplo, char *trans, char *diag, int *n, dcomplex *a,
            int *lda, dcomplex *x, int *incx);
+
+#ifdef __cplusplus
+}
+#endif

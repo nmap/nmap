@@ -140,7 +140,7 @@ end
 -- There are several places where accounts are stored:
 -- * registry['usernames'][username]    => true
 -- * registry['smbaccounts'][username]  => password
--- * registry[ip]['smbaccounts']        => array of table containing 'username', 'password', and 'is_admin'
+-- * host.registry['smbaccounts']        => array of table containing 'username', 'password', and 'is_admin'
 --
 -- The final place, 'smbaccount', is reserved for the "best" account. This is
 -- an administrator account, if one's found; otherwise, it's the first account
@@ -322,7 +322,7 @@ function init_account(host)
   end
 end
 
----Generate the Lanman v1 hash (LMv1).
+--Generate the Lanman v1 hash (LMv1).
 --
 -- The generated hash is incredibly easy to reverse, because the input is
 -- padded or truncated to 14 characters, then split into two 7-character
@@ -593,7 +593,7 @@ end
 -- concatenating the server challenge and the client nonce. The ntlm session hash
 -- is first 8 bytes of the md5 hash of the session nonce.
 -- The ntlm response is the lm response with session hash as challenge.
--- @param ntlm_passsword_hash The md4 hash of the utf-16 password.
+-- @param ntlm_password_hash The md4 hash of the utf-16 password.
 -- @param challenge The challenge sent by the server.
 function ntlmv2_session_response(ntlm_password_hash, challenge)
   local client_nonce = openssl.rand_bytes(8)
@@ -606,16 +606,14 @@ function ntlmv2_session_response(ntlm_password_hash, challenge)
 
   return status, lm_response, ntlm_response
 end
+
 ---Generate the Lanman and NTLM password hashes.
 --
--- The password itself is taken from the function parameters, the script
--- arguments, and the registry (in that order). If no password is set, then the
--- password hash is used (which is read from all the usual places). If neither
--- is set, then a blank password is used.
+-- If no password is set, then the password hash is used. If neither is set,
+-- then a blank password is used.
 --
 -- The output passwords are hashed based on the hash type.
 --
---@param ip       The ip address of the host, used for registry lookups.
 --@param username The username, which is used for v2 passwords.
 --@param domain The username, which is used for v2 passwords.
 --@param password [optional] The overriding password.
@@ -628,8 +626,8 @@ end
 --                   be generated properly).
 --@return lm_response, to be send directly back to the server
 --@return ntlm_response, to be send directly back to the server
---@reutrn mac_key used for message signing.
-function get_password_response(ip, username, domain, password, password_hash, hash_type, challenge, is_extended)
+--@return mac_key used for message signing.
+function get_password_response(username, domain, password, password_hash, hash_type, challenge, is_extended)
   local status
   local lm_hash   = nil
   local ntlm_hash = nil
@@ -745,7 +743,6 @@ end
 ---Generate an NTLMSSP security blob.
 --@param security_blob The server's security blob, or nil if this is the first
 --                     message
---@param ip       The ip address of the host, used for registry lookups.
 --@param username The username, which is used for v2 passwords.
 --@param domain The username, which is used for v2 passwords.
 --@param password [optional] The overriding password.
@@ -753,7 +750,7 @@ end
 --                     set if password is set.
 --@param hash_type The way in which to hash the password.
 --@param flags The NTLM flags as a number
-function get_security_blob(security_blob, ip, username, domain, password, password_hash, hash_type, flags)
+function get_security_blob(security_blob, username, domain, password, password_hash, hash_type, flags)
   local pos = 1
   local new_blob
   local flags = flags or 0x00008215 -- (NEGOTIATE_SIGN_ALWAYS | NEGOTIATE_NTLM | NEGOTIATE_SIGN | REQUEST_TARGET | NEGOTIATE_UNICODE)
@@ -772,7 +769,7 @@ function get_security_blob(security_blob, ip, username, domain, password, passwo
   else
     -- Parse the old security blob
     local identifier, message_type, domain_length, domain_max, domain_offset, server_flags, challenge, reserved = string.unpack("<I8I4I2I2I4I4c8c8", security_blob)
-    local lanman, ntlm, mac_key = get_password_response(ip, username, domain, password, password_hash, hash_type, challenge, true)
+    local lanman, ntlm, mac_key = get_password_response(username, domain, password, password_hash, hash_type, challenge, true)
 
     -- Convert the username and domain to unicode (TODO: Disable the unicode flag, evaluate if that'll work)
     local hostname = unicode.utf8to16("nmap")
