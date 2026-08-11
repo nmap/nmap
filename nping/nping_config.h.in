@@ -152,4 +152,7 @@ extern "C" int gethostname (char *, unsigned int);
 #undef NETBSD
 #undef MACOSX
 
+/* Fuzzing harness enabled */
+#undef ENABLE_FUZZING
+
 #endif /* CONFIG_H */

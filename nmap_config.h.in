@@ -178,4 +178,7 @@ extern "C" int gethostname (char *, unsigned int);
 #undef HAVE_LUA_H
 #undef HAVE_LUA_LUA_H
 
+/* Fuzzing harness enabled */
+#undef ENABLE_FUZZING
+
 #endif /* CONFIG_H */

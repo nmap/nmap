@@ -195,3 +195,6 @@
 #undef HAVE_LUA_5_4_LUA_H
 #undef HAVE_LUA_H
 #undef HAVE_LUA_LUA_H
+
+/* Fuzzing harness enabled */
+#undef ENABLE_FUZZING

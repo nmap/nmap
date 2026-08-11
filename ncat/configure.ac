@@ -7,6 +7,7 @@ AC_INIT(ncat_main.c)
 AC_CONFIG_HEADER(config.h)
 
 m4_include([../acinclude.m4])
+m4_include([../m4/ax_check_compile_flag.m4])
 
 AC_CANONICAL_HOST
 
@@ -317,6 +318,29 @@ AC_SUBST(LUA_BUILD)
 AC_SUBST(LUA_CLEAN)
 AC_SUBST(LUA_DIST_CLEAN)
 
+AC_ARG_ENABLE([fuzzing],
+    AS_HELP_STRING([--enable-fuzzing],
+                   [build fuzz targets]),
+    [],
+    [enable_fuzzing=no])
+AS_IF([test "x$enable_fuzzing" = "xyes"], [
+   m4_define([FUZZ_FLAGS],
+             [-fsanitize=fuzzer-no-link,address,undefined -fno-omit-frame-pointer])
+  AC_LANG_PUSH([C])
+  AX_CHECK_COMPILE_FLAG([FUZZ_FLAGS],
+                        [CFLAGS="$CFLAGS FUZZ_FLAGS"],
+                        [AC_MSG_ERROR([$CC does not support fuzzing])])
+  AC_LANG_POP([C])
+
+  AC_LANG_PUSH([C++])
+  AX_CHECK_COMPILE_FLAG([FUZZ_FLAGS],
+                        [CXXFLAGS="$CXXFLAGS FUZZ_FLAGS"],
+                        [AC_MSG_ERROR([$CXX does not support fuzzing])])
+  AC_LANG_POP([C++])
+  LDFLAGS="$LDFLAGS -fsanitize=address,undefined -fno-omit-frame-pointer"
+  AC_DEFINE([ENABLE_FUZZING], [1], [Fuzzing harness enabled])
+])
+AC_SUBST([ENABLE_FUZZING], [$enable_fuzzing])
 
 
 AC_CONFIG_FILES(Makefile)

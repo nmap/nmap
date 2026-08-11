@@ -3,6 +3,8 @@ AC_PREREQ(2.13)
 
 dnl Process this file with autoconf to produce a configure script.
 AC_INIT(nping.cc)
+m4_pattern_forbid([^AX_])
+m4_include([../m4/ax_check_compile_flag.m4])
 
 m4_include([../acinclude.m4])
 
@@ -117,6 +119,30 @@ AC_SEARCH_LIBS(dlopen, dl)
 
 # libpcap can require libnl
 AC_SEARCH_LIBS(nl_handle_alloc, nl)
+
+AC_ARG_ENABLE([fuzzing],
+    AS_HELP_STRING([--enable-fuzzing],
+                   [build fuzz targets]),
+    [],
+    [enable_fuzzing=no])
+AS_IF([test "x$enable_fuzzing" = "xyes"], [
+   m4_define([FUZZ_FLAGS],
+             [-fsanitize=fuzzer-no-link,address,undefined -fno-omit-frame-pointer])
+  AC_LANG_PUSH([C])
+  AX_CHECK_COMPILE_FLAG([FUZZ_FLAGS],
+                        [CFLAGS="$CFLAGS FUZZ_FLAGS"],
+                        [AC_MSG_ERROR([$CC does not support fuzzing])])
+  AC_LANG_POP([C])
+
+  AC_LANG_PUSH([C++])
+  AX_CHECK_COMPILE_FLAG([FUZZ_FLAGS],
+                        [CXXFLAGS="$CXXFLAGS FUZZ_FLAGS"],
+                        [AC_MSG_ERROR([$CXX does not support fuzzing])])
+  AC_LANG_POP([C++])
+  LDFLAGS="$LDFLAGS -fsanitize=address,undefined -fno-omit-frame-pointer"
+  AC_DEFINE([ENABLE_FUZZING], [1], [Fuzzing harness enabled])
+])
+AC_SUBST([ENABLE_FUZZING], [$enable_fuzzing])
 
 # We test whether they specified openssl desires explicitly
 use_openssl="yes"

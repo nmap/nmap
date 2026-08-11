@@ -3,6 +3,10 @@ AC_PREREQ(2.13)
 
 dnl Process this file with autoconf to produce a configure script.
 AC_INIT(nmap.cc)
+AC_CONFIG_MACRO_DIRS([m4])
+
+dnl Complain if macros from autoconf-archive aren't available
+m4_pattern_forbid([^AX_])
 
 dnl Give us the --enable-nls option, to choose which translated man pages get
 dnl installed. This gets replaced with AM_GNU_GETTEXT for full gettext support.
@@ -250,6 +254,30 @@ if $HAVE_PYTHON ; then
     fi
   fi
 fi
+
+AC_ARG_ENABLE([fuzzing],
+    AS_HELP_STRING([--enable-fuzzing],
+                   [build fuzz targets]),
+    [],
+    [enable_fuzzing=no])
+AS_IF([test "x$enable_fuzzing" = "xyes"], [
+   m4_define([FUZZ_FLAGS],
+             [-fsanitize=fuzzer-no-link,address,undefined -fno-omit-frame-pointer])
+  AC_LANG_PUSH([C])
+  AX_CHECK_COMPILE_FLAG([FUZZ_FLAGS],
+                        [CFLAGS="$CFLAGS FUZZ_FLAGS"],
+                        [AC_MSG_ERROR([$CC does not support fuzzing])])
+  AC_LANG_POP([C])
+
+  AC_LANG_PUSH([C++])
+  AX_CHECK_COMPILE_FLAG([FUZZ_FLAGS],
+                        [CXXFLAGS="$CXXFLAGS FUZZ_FLAGS"],
+                        [AC_MSG_ERROR([$CXX does not support fuzzing])])
+  AC_LANG_POP([C++])
+  LDFLAGS="$LDFLAGS -fsanitize=address,undefined -fno-omit-frame-pointer"
+  AC_DEFINE([ENABLE_FUZZING], [1], [Fuzzing harness enabled])
+])
+AC_SUBST([ENABLE_FUZZING], [$enable_fuzzing])
 
 NDIFFDIR=ndiff
 
