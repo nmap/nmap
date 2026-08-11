@@ -5499,15 +5499,18 @@ printf %s "checking for __func__... " >&6; }
 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 
-#include <stdio.h>
+    #include <stdio.h>
 
 int
 main (void)
 {
-printf ("%s", __func__);
+
+    printf ("%s", __func__);
+
   ;
   return 0;
 }
+
 _ACEOF
 if ac_fn_c_try_compile "$LINENO"
 then :
@@ -5516,10 +5519,14 @@ else $as_nop
   have_func=no
 fi
 rm -f core conftest.err conftest.$ac_objext conftest.beam conftest.$ac_ext
-if test "x$have_func" = "xyes"; then
+if test "x$have_func" = "xyes"
+then :
+
    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 printf "%s\n" "yes" >&6; }
-else
+
+else $as_nop
+
    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
 printf "%s\n" "no" >&6; }
    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for __FUNCTION__" >&5
@@ -5527,12 +5534,14 @@ printf %s "checking for __FUNCTION__... " >&6; }
    cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 
-#include <stdio.h>
+       #include <stdio.h>
 
 int
 main (void)
 {
-printf ("%s", __FUNCTION__);
+
+       printf ("%s", __FUNCTION__);
+
   ;
   return 0;
 }
@@ -5544,17 +5553,23 @@ else $as_nop
   have_function=no
 fi
 rm -f core conftest.err conftest.$ac_objext conftest.beam conftest.$ac_ext
-   if test "x$have_function" = "xyes"; then
+   if test "x$have_function" = "xyes"
+then :
+
       { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 printf "%s\n" "yes" >&6; }
       printf "%s\n" "#define __func__ __FUNCTION__" >>confdefs.h
 
-   else
+
+else $as_nop
+
       { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
 printf "%s\n" "no" >&6; }
       printf "%s\n" "#define __func__ __FILE__" >>confdefs.h
 
-   fi
+
+fi
+
 fi
 
 if test -n "$ac_tool_prefix"; then
@@ -6665,23 +6680,28 @@ else $as_nop
 fi
 
 
-if test "$with_nping" = "no"; then
+
+
+if test "x$with_nping" = "xno"
+then :
+
   trace_no_use="$trace_no_use nping"
   BUILDNPING=""
   INSTALLNPING=""
   UNINSTALLNPING=""
   NPING_CLEAN=""
   NPING_DIST_CLEAN=""
-else
+
+else $as_nop
+
   trace_use="$trace_use nping"
   BUILDNPING=build-nping
   INSTALLNPING=install-nping
   UNINSTALLNPING=uninstall-nping
   NPING_CLEAN=clean-nping
   NPING_DIST_CLEAN=distclean-nping
+  subdirs="$subdirs nping"
 
-
-subdirs="$subdirs nping"
 
 fi
 
@@ -7168,8 +7188,12 @@ else $as_nop
 /* end confdefs.h.  */
 
 #include <stdio.h>
-extern char pcap_version[];
-int main() {
+extern char pcap_version;
+
+int
+main (void)
+{
+
   int major, minor1, minor2;
   sscanf(pcap_version,"%d.%d.%d", &major, &minor1, &minor2);
   if (major > 0)
@@ -7178,9 +7202,10 @@ int main() {
     return 1;
   if (minor2 < 4)
     return 1;
+
+  ;
   return 0;
 }
-
 _ACEOF
 if ac_fn_c_try_run "$LINENO"
 then :
@@ -7206,8 +7231,12 @@ else $as_nop
 #ifdef HAVE_NET_BPF_H
 #include <net/bpf.h>
 #endif
-extern char pcap_version[];
-int main() {
+extern char pcap_version;
+
+int
+main (void)
+{
+
   int major, minor;
   sscanf(pcap_version,"%d.%d", &major, &minor);
   if ((major == 1 && minor >= 1) || major > 1)
@@ -7218,9 +7247,10 @@ int main() {
     return 1;
 #endif
 #endif
+
+  ;
   return 0;
 }
-
 _ACEOF
 if ac_fn_c_try_run "$LINENO"
 then :
@@ -7257,7 +7287,9 @@ fi
   LIBS="$LIBS_OLD"
 fi
 
-if test $have_libpcap != yes; then
+if test x$have_libpcap != xyes
+then :
+
   ac_configure_args="$ac_configure_args '--disable-dbus'"
   subdirs="$subdirs libpcap"
 
@@ -7318,7 +7350,9 @@ then :
   LIBS="$LIBS -ldbus-1"
 fi
 
-else
+
+else $as_nop
+
   # We assume our included libpcap doesn't need this check-and-define
   # link with -lpcap for the purposes of this test
   LIBS_OLD="$LIBS"
@@ -7340,6 +7374,7 @@ printf "%s\n" "#define HAVE_LIBPCAP 1" >>confdefs.h
   PCAP_BUILD=""
   PCAP_CLEAN=""
   PCAP_DIST_CLEAN=""
+
 fi
 
 
@@ -7473,7 +7508,9 @@ fi
 fi
 
 # If we still don't have it, we use our own
-if test $have_pcre != yes ; then
+if test x$have_pcre != xyes
+then :
+
   subdirs="$subdirs libpcre"
 
   CPPFLAGS="-I\$(top_srcdir)/$LIBPCREDIR/src $CPPFLAGS"
@@ -7484,11 +7521,14 @@ if test $have_pcre != yes ; then
 
 printf "%s\n" "#define PCRE_INCLUDED 1" >>confdefs.h
 
-else
+
+else $as_nop
+
   LIBPCRE_LIBS="-lpcre2-8"
   PCRE_BUILD=""
   PCRE_CLEAN=""
   PCRE_DIST_CLEAN=""
+
 fi
 
 
@@ -7586,7 +7626,9 @@ fi
 fi
 
 
-if test $with_libz != no; then
+if test "x$with_libz" != "xno"
+then :
+
   trace_use="$trace_use zlib"
 
   # If they didn't specify it, we try to find it
@@ -7640,7 +7682,9 @@ fi
 
   fi
 
-  if test $have_libz != yes; then
+  if test "x$have_libz" != "xyes"
+then :
+
     subdirs="$subdirs libz"
 
     # TODO: This doesn't work because libssh2's configure script is looking for
@@ -7655,21 +7699,27 @@ fi
 
 printf "%s\n" "#define ZLIB_INCLUDED 1" >>confdefs.h
 
-  else
+
+else $as_nop
+
     ZLIB_LIBS="-lz"
     ZLIB_BUILD=""
     ZLIB_CLEAN=""
     ZLIB_DIST_CLEAN=""
-  fi
+
+fi
 
 printf "%s\n" "#define HAVE_LIBZ 1" >>confdefs.h
 
-else
+
+else $as_nop
+
   trace_no_use="$trace_no_use zlib"
   ZLIB_LIBS=""
   ZLIB_BUILD=""
   ZLIB_CLEAN=""
   ZLIB_DIST_CLEAN=""
+
 fi
 
 
@@ -7764,7 +7814,9 @@ fi
 
 
 
-if test $use_libssh2 = yes -a $use_openssl = yes; then
+if test "x$use_libssh2" = "xyes" -a "x$use_openssl" = "xyes"
+then :
+
   trace_use="$trace_use libssh2"
 
   # If they didn't specify it, we try to find it
@@ -7819,7 +7871,9 @@ fi
   fi
 
   # If we still don't have it, we use our own
-  if test $have_libssh2 != yes; then
+  if test "x$have_libssh2" != "xyes"
+then :
+
     have_libssh2=yes
     subdirs="$subdirs libssh2"
 
@@ -7831,22 +7885,28 @@ fi
 
 printf "%s\n" "#define LIBSSH2_INCLUDED 1" >>confdefs.h
 
-  else
+
+else $as_nop
+
     LIBSSH2_LIBS="-lssh2"
     LIBSSH2_BUILD=""
     LIBSSH2_CLEAN=""
     LIBSSH2_DIST_CLEAN=""
-  fi
+
+fi
 
 printf "%s\n" "#define HAVE_LIBSSH2 1" >>confdefs.h
 
-else
+
+else $as_nop
+
   use_libssh2="no"
   trace_no_use="$trace_no_use libssh2"
   LIBSSH2_LIBS=""
   LIBSSH2_BUILD=""
   LIBSSH2_CLEAN=""
   LIBSSH2_DIST_CLEAN=""
+
 fi
 
 
@@ -7885,7 +7945,9 @@ fi
 
 
 # If they didn't provide location, we use the included one
-if test $have_dnet != yes ; then
+if test "x$have_dnet" != "xyes"
+then :
+
   subdirs="$subdirs libdnet-stripped"
 
   CPPFLAGS="-I\$(top_srcdir)/$LIBDNETDIR/include $CPPFLAGS"
@@ -7896,11 +7958,14 @@ if test $have_dnet != yes ; then
 
 printf "%s\n" "#define DNET_INCLUDED 1" >>confdefs.h
 
-else
+
+else $as_nop
+
   LIBDNET_LIBS="-ldnet"
   DNET_BUILD=""
   DNET_CLEAN=""
   DNET_DIST_CLEAN=""
+
 fi
 
 
@@ -8611,49 +8676,59 @@ printf %s "checking if struct in_addr is a wacky huge structure (some Sun boxes)
 
 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
-#include <netinet/in.h>
+
+    #include <netinet/in.h>
+
 int
 main (void)
 {
-struct in_addr i; i._S_un._S_addr;
+
+    struct in_addr i; i._S_un._S_addr;
+
   ;
   return 0;
 }
+
 _ACEOF
 if ac_fn_c_try_compile "$LINENO"
 then :
-  \
-             printf "%s\n" "#define IN_ADDR_DEEPSTRUCT 1" >>confdefs.h
- \
-             { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+  printf "%s\n" "#define IN_ADDR_DEEPSTRUCT 1" >>confdefs.h
+
+    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 printf "%s\n" "yes" >&6; }
+
 else $as_nop
-  \
-             cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
-#include <sys/types.h>
-#include <netinet/in.h>
+
+        #include <sys/types.h>
+        #include <netinet/in.h>
+
 int
 main (void)
 {
-struct in_addr i; i.S_un.S_addr;
+
+        struct in_addr i; i.S_un.S_addr;
+
   ;
   return 0;
 }
+
 _ACEOF
 if ac_fn_c_try_compile "$LINENO"
 then :
-  \
-                             printf "%s\n" "#define IN_ADDR_DEEPSTRUCT 1" >>confdefs.h
- \
-                             { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+  printf "%s\n" "#define IN_ADDR_DEEPSTRUCT 1" >>confdefs.h
+
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 printf "%s\n" "yes" >&6; }
+
 else $as_nop
-  \
-                             { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
-printf "%s\n" "no" >&6; };
+  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+printf "%s\n" "no" >&6; }
+
 fi
 rm -f core conftest.err conftest.$ac_objext conftest.beam conftest.$ac_ext
+
 fi
 rm -f core conftest.err conftest.$ac_objext conftest.beam conftest.$ac_ext
 
@@ -8663,7 +8738,8 @@ if test ${ac_cv_struct_icmp_exists+y}
 then :
   printf %s "(cached) " >&6
 else $as_nop
-  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+
+        cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 
                #include <sys/types.h>
@@ -8675,6 +8751,7 @@ else $as_nop
                #define _BSD_SOURCE
                #include <netinet/ip.h>
                #include <netinet/ip_icmp.h>
+
 int
 main (void)
 {
@@ -8690,12 +8767,16 @@ else $as_nop
   ac_cv_struct_icmp_exists=no
 fi
 rm -f core conftest.err conftest.$ac_objext conftest.beam conftest.$ac_ext
+
 fi
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ac_cv_struct_icmp_exists" >&5
 printf "%s\n" "$ac_cv_struct_icmp_exists" >&6; }
-if test $ac_cv_struct_icmp_exists = yes ; then
+if test "x$ac_cv_struct_icmp_exists" = "xyes"
+then :
+
 
 printf "%s\n" "#define HAVE_STRUCT_ICMP 1" >>confdefs.h
+
 
 fi
 
@@ -8705,7 +8786,8 @@ if test ${ac_cv_struct_ip_exists+y}
 then :
   printf %s "(cached) " >&6
 else $as_nop
-  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+
+        cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 
                #include <sys/types.h>
@@ -8716,6 +8798,7 @@ else $as_nop
                #define __FAVOR_BSD
                #define _BSD_SOURCE
                #include <netinet/ip.h>
+
 int
 main (void)
 {
@@ -8731,12 +8814,16 @@ else $as_nop
   ac_cv_struct_ip_exists=no
 fi
 rm -f core conftest.err conftest.$ac_objext conftest.beam conftest.$ac_ext
+
 fi
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ac_cv_struct_ip_exists" >&5
 printf "%s\n" "$ac_cv_struct_ip_exists" >&6; }
-if test $ac_cv_struct_ip_exists = yes ; then
+if test "x$ac_cv_struct_ip_exists" = "xyes"
+then :
+
 
 printf "%s\n" "#define HAVE_STRUCT_IP 1" >>confdefs.h
+
 
 fi
 
@@ -8746,7 +8833,8 @@ if test ${ac_cv_ip_has_ip_sum+y}
 then :
   printf %s "(cached) " >&6
 else $as_nop
-  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+
+        cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 
                #include <sys/types.h>
@@ -8758,6 +8846,7 @@ else $as_nop
                #define _BSD_SOURCE
                #include <netinet/ip.h>
                #include <netinet/ip_icmp.h>
+
 int
 main (void)
 {
@@ -8773,12 +8862,16 @@ else $as_nop
   ac_cv_ip_has_ip_sum=no
 fi
 rm -f core conftest.err conftest.$ac_objext conftest.beam conftest.$ac_ext
+
 fi
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ac_cv_ip_has_ip_sum" >&5
 printf "%s\n" "$ac_cv_ip_has_ip_sum" >&6; }
-if test $ac_cv_ip_has_ip_sum = yes ; then
+if test "x$ac_cv_ip_has_ip_sum" = "xyes"
+then :
+
 
 printf "%s\n" "#define HAVE_IP_IP_SUM 1" >>confdefs.h
+
 
 fi
 
@@ -8827,11 +8920,14 @@ fi
 rm -f core conftest.err conftest.$ac_objext conftest.beam conftest.$ac_ext
    done
 
-   if test "x$recvfrom6_t" = x; then
+   if test "x$recvfrom6_t" = x
+then :
+
      { printf "%s\n" "$as_me:${as_lineno-$LINENO}: WARNING: Cannot find type for 6th argument to recvfrom(). Using socklen_t ptr" >&5
 printf "%s\n" "$as_me: WARNING: Cannot find type for 6th argument to recvfrom(). Using socklen_t ptr" >&2;}
      recvfrom6_t="socklen_t"
-   fi
+
+fi
 
    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $recvfrom6_t" >&5
 printf "%s\n" "$recvfrom6_t" >&6; }
@@ -8859,7 +8955,8 @@ then :
     ;;
   esac
 else $as_nop
-  NBASE_BUILD="build-nbase"
+
+NBASE_BUILD="build-nbase"
 NBASEDIR="nbase"
 
 fi
@@ -8920,7 +9017,9 @@ else $as_nop
 fi
 
 
-if test "$with_ncat" = "no"; then
+if test "x$with_ncat" = "xno"
+then :
+
   trace_no_use="$trace_no_use ncat"
   NCAT_BUILD=""
   NCAT_CHECK=""
@@ -8928,7 +9027,9 @@ if test "$with_ncat" = "no"; then
   NCAT_UNINSTALL=""
   NCAT_CLEAN=""
   NCAT_DIST_CLEAN=""
-else
+
+else $as_nop
+
   trace_use="$trace_use ncat"
   NCAT_BUILD="build-ncat"
   NCAT_CHECK="check-ncat"
@@ -8937,6 +9038,7 @@ else
   NCAT_CLEAN="clean-ncat"
   NCAT_DIST_CLEAN="distclean-ncat"
   subdirs="$subdirs ncat"
+
 
 fi
 

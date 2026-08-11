@@ -11,8 +11,8 @@ AM_NLS
 trace_use=""
 trace_no_use=""
 
-AC_ARG_WITH(localdirs,
-AC_HELP_STRING([--with-localdirs], [Explicitly ask compiler to use /usr/local/{include,libs} if they exist ]),
+AC_ARG_WITH([localdirs],
+AS_HELP_STRING([--with-localdirs], [Explicitly ask compiler to use /usr/local/{include,libs} if they exist ]),
   [ case "$with_localdirs" in
       yes)
         user_localdirs=1
@@ -55,7 +55,7 @@ pcredir=libpcre
 AC_SUBST(pcredir)
 
 dnl use nmap_config.h instead of -D macros
-AC_CONFIG_HEADER(nmap_config.h)
+AC_CONFIG_HEADERS([nmap_config.h])
 
 dnl Host specific hacks
 AC_CANONICAL_HOST
@@ -81,28 +81,35 @@ CFLAGS="$CFLAGS -Wall"
 
 # Remember that all following tests will run with this CXXFLAGS by default
 AC_MSG_CHECKING(for __func__)
-AH_TEMPLATE(__func__, [C99-specified function identifier])
-AC_TRY_COMPILE([
-#include <stdio.h>
-],[printf ("%s", __func__);],
-have_func=yes, have_func=no)
-if test "x$have_func" = "xyes"; then
+AH_TEMPLATE([__func__], [C99-specified function identifier])
+AC_COMPILE_IFELSE(
+  [AC_LANG_PROGRAM([
+    #include <stdio.h>
+    ], [
+    printf ("%s", __func__);
+    ])
+  ],
+  [have_func=yes], [have_func=no])
+AS_IF([test "x$have_func" = "xyes"], [
    AC_MSG_RESULT(yes)
-else
+], [
    AC_MSG_RESULT(no)
-   AC_MSG_CHECKING(for __FUNCTION__)
-   AC_TRY_COMPILE([
-#include <stdio.h>
-],[printf ("%s", __FUNCTION__);],
-have_function=yes, have_function=no)
-   if test "x$have_function" = "xyes"; then
+   AC_MSG_CHECKING([for __FUNCTION__])
+   AC_COMPILE_IFELSE(
+     [AC_LANG_PROGRAM([
+       #include <stdio.h>
+     ], [
+       printf ("%s", __FUNCTION__);
+     ])],
+    [have_function=yes], [have_function=no])
+   AS_IF([test "x$have_function" = "xyes"], [
       AC_MSG_RESULT(yes)
-      AC_DEFINE(__func__, __FUNCTION__)
-   else
+      AC_DEFINE([__func__], [__FUNCTION__])
+   ], [
       AC_MSG_RESULT(no)
-      AC_DEFINE(__func__, __FILE__)
-   fi
-fi
+      AC_DEFINE([__func__], [__FILE__])
+   ])
+])
 
 AC_PATH_TOOL([STRIP], [strip], [/bin/true])
 
@@ -247,7 +254,7 @@ fi
 NDIFFDIR=ndiff
 
 # Do they want Ndiff?
-AC_ARG_WITH(ndiff, AC_HELP_STRING([--without-ndiff], [Skip installation of the Ndiff utility]), [], [with_ndiff=check])
+AC_ARG_WITH(ndiff, AS_HELP_STRING([--without-ndiff], [Skip installation of the Ndiff utility]), [], [with_ndiff=check])
 if $PY_BUILD_OK ; then : ;
 else
   if test "$with_ndiff" = "check" ; then
@@ -285,7 +292,7 @@ AC_SUBST(NDIFF_DIST_CLEAN)
 ZENMAPDIR=zenmap
 
 # Do they want Zenmap?
-AC_ARG_WITH(zenmap, AC_HELP_STRING([--without-zenmap], [Skip installation of the Zenmap graphical frontend]), [], [with_zenmap=check])
+AC_ARG_WITH(zenmap, AS_HELP_STRING([--without-zenmap], [Skip installation of the Zenmap graphical frontend]), [], [with_zenmap=check])
 
 if $PY_BUILD_OK ; then : ;
 else
@@ -324,24 +331,24 @@ AC_SUBST(ZENMAP_DIST_CLEAN)
 NPINGDIR=nping
 
 # Do they want Nping?
-AC_ARG_WITH(nping, AC_HELP_STRING([--without-nping], [Skip installation of the Nping utility]), [], [with_nping=check])
+AC_ARG_WITH(nping, AS_HELP_STRING([--without-nping], [Skip installation of the Nping utility]), [], [with_nping=check])
 
-if test "$with_nping" = "no"; then
+AS_IF([test "x$with_nping" = "xno"], [
   trace_no_use="$trace_no_use nping"
   BUILDNPING=""
   INSTALLNPING=""
   UNINSTALLNPING=""
   NPING_CLEAN=""
   NPING_DIST_CLEAN=""
-else
+], [
   trace_use="$trace_use nping"
   BUILDNPING=build-nping
   INSTALLNPING=install-nping
   UNINSTALLNPING=uninstall-nping
   NPING_CLEAN=clean-nping
   NPING_DIST_CLEAN=distclean-nping
-  AC_CONFIG_SUBDIRS(nping)
-fi
+  AC_CONFIG_SUBDIRS([nping])
+])
 AC_SUBST(NPINGDIR)
 AC_SUBST(BUILDNPING)
 AC_SUBST(INSTALLNPING)
@@ -356,7 +363,7 @@ AC_SEARCH_LIBS(dlopen, dl)
 use_openssl="yes"
 specialssldir=""
 AC_ARG_WITH(openssl,
-AC_HELP_STRING([--with-openssl=DIR],[Use optional openssl libs and includes from [DIR]/lib/ and [DIR]/include/openssl/)]),
+AS_HELP_STRING([--with-openssl=DIR],[Use optional openssl libs and includes from [DIR]/lib/ and [DIR]/include/openssl/)]),
 [  case "$with_openssl" in
   yes)
     ;;
@@ -434,8 +441,8 @@ have_libpcap=no
 test "${with_libpcap+set}" != "set" && with_libpcap=yes
 
 AC_ARG_WITH(libpcap,
-AC_HELP_STRING([--with-libpcap=DIR], [Look for pcap in DIR/include and DIR/libs.])
-AC_HELP_STRING([--with-libpcap=included], [Always use version included with Nmap]),
+AS_HELP_STRING([--with-libpcap=DIR], [Look for pcap in DIR/include and DIR/libs.])
+AS_HELP_STRING([--with-libpcap=included], [Always use version included with Nmap]),
 [  case "$with_libpcap" in
   yes)
     AC_CHECK_HEADER(pcap.h,[
@@ -481,7 +488,7 @@ if test $have_libpcap = yes; then
   LIBS="$LIBS_OLD"
 fi
 
-if test $have_libpcap != yes; then
+AS_IF([test x$have_libpcap != xyes], [
   ac_configure_args="$ac_configure_args '--disable-dbus'"
   AC_CONFIG_SUBDIRS(libpcap)
   if test "${LIBPCAP_INC+set}" = "set"; then
@@ -498,7 +505,7 @@ if test $have_libpcap != yes; then
   # Check if D-Bus is available (in case --disable-dbus didn't work)
   # and add it to LIBS if needed for static linking
   AC_CHECK_LIB([dbus-1], [dbus_connection_read_write], [LIBS="$LIBS -ldbus-1"])
-else
+  ], [
   # We assume our included libpcap doesn't need this check-and-define
   # link with -lpcap for the purposes of this test
   LIBS_OLD="$LIBS"
@@ -512,7 +519,7 @@ else
   PCAP_BUILD=""
   PCAP_CLEAN=""
   PCAP_DIST_CLEAN=""
-fi
+  ])
 
 AC_SUBST(PCAP_BUILD)
 AC_SUBST(PCAP_CLEAN)
@@ -525,8 +532,8 @@ LIBPCREDIR=libpcre
 
 # First we test whether they specified libpcre explicitly
 AC_ARG_WITH(libpcre,
-AC_HELP_STRING([--with-libpcre=DIR], [Use an existing (compiled) pcre2 lib from DIR/include and DIR/lib.])
-AC_HELP_STRING([--with-libpcre=included], [Always use the version included with Nmap]),
+AS_HELP_STRING([--with-libpcre=DIR], [Use an existing (compiled) pcre2 lib from DIR/include and DIR/lib.])
+AS_HELP_STRING([--with-libpcre=included], [Always use the version included with Nmap]),
 [  case "$with_libpcre" in
   yes)
     ;;
@@ -558,7 +565,7 @@ if test $have_pcre != yes -a $requested_included_pcre != yes ; then
 fi
 
 # If we still don't have it, we use our own
-if test $have_pcre != yes ; then
+AS_IF([test x$have_pcre != xyes], [
   AC_CONFIG_SUBDIRS( libpcre )
   CPPFLAGS="-I\$(top_srcdir)/$LIBPCREDIR/src $CPPFLAGS"
   LIBPCRE_LIBS="\$(top_srcdir)/$LIBPCREDIR/.libs/libpcre2-8.a"
@@ -566,12 +573,12 @@ if test $have_pcre != yes ; then
   PCRE_CLEAN="clean-pcre"
   PCRE_DIST_CLEAN="distclean-pcre"
   AC_DEFINE(PCRE_INCLUDED, 1, [Using included libpcre2])
-else
+], [
   LIBPCRE_LIBS="-lpcre2-8"
   PCRE_BUILD=""
   PCRE_CLEAN=""
   PCRE_DIST_CLEAN=""
-fi
+])
 
 AC_SUBST(LIBPCRE_LIBS)
 AC_SUBST(LIBPCREDIR)
@@ -588,8 +595,8 @@ requested_included_libz="no"
 test "${with_libz+set}" != "set" && with_libz="yes"
 
 AC_ARG_WITH(libz,
-AC_HELP_STRING([--with-libz=DIR], [Use specific copy of libz])
-AC_HELP_STRING([--with-libz=included], [Always use version included with Nmap]),
+AS_HELP_STRING([--with-libz=DIR], [Use specific copy of libz])
+AS_HELP_STRING([--with-libz=included], [Always use version included with Nmap]),
 [
   case "$with_libz" in
   yes)
@@ -622,7 +629,7 @@ AC_HELP_STRING([--with-libz=included], [Always use version included with Nmap]),
 ]
 )
 
-if test $with_libz != no; then
+AS_IF([test "x$with_libz" != "xno"], [
   trace_use="$trace_use zlib"
 
   # If they didn't specify it, we try to find it
@@ -633,7 +640,7 @@ if test $with_libz != no; then
       ])
   fi
 
-  if test $have_libz != yes; then
+  AS_IF([test "x$have_libz" != "xyes"], [
     AC_CONFIG_SUBDIRS(libz)
     # TODO: This doesn't work because libssh2's configure script is looking for
     # already-built libs.  Giving up for now: build libz first or install
@@ -645,20 +652,20 @@ if test $with_libz != no; then
     ZLIB_CLEAN="clean-zlib"
     ZLIB_DIST_CLEAN="distclean-zlib"
     AC_DEFINE(ZLIB_INCLUDED, 1, [Using included zlib])
-  else
+  ], [
     ZLIB_LIBS="-lz"
     ZLIB_BUILD=""
     ZLIB_CLEAN=""
     ZLIB_DIST_CLEAN=""
-  fi
+  ])
   AC_DEFINE(HAVE_LIBZ, 1, [Have zlib library])
-else
+], [
   trace_no_use="$trace_no_use zlib"
   ZLIB_LIBS=""
   ZLIB_BUILD=""
   ZLIB_CLEAN=""
   ZLIB_DIST_CLEAN=""
-fi
+])
 
 AC_SUBST(ZLIB_BUILD)
 AC_SUBST(ZLIB_CLEAN)
@@ -673,9 +680,9 @@ requested_included_libssh2="no"
 test "${with_libssh2+set}" != "set" && with_libssh2="yes"
 
 AC_ARG_WITH(libssh2,
-AC_HELP_STRING([--with-libssh2=DIR], [Use specific copy of libssh2])
-AC_HELP_STRING([--with-libssh2=included], [Always use version included with Nmap])
-AC_HELP_STRING([--without-libssh2], [Compile without libssh2]),
+AS_HELP_STRING([--with-libssh2=DIR], [Use specific copy of libssh2])
+AS_HELP_STRING([--with-libssh2=included], [Always use version included with Nmap])
+AS_HELP_STRING([--without-libssh2], [Compile without libssh2]),
 [ case "$with_libssh2" in
   yes)
     ;;
@@ -706,7 +713,7 @@ AC_HELP_STRING([--without-libssh2], [Compile without libssh2]),
 )
 
 
-if test $use_libssh2 = yes -a $use_openssl = yes; then
+AS_IF([test "x$use_libssh2" = "xyes" -a "x$use_openssl" = "xyes"], [
   trace_use="$trace_use libssh2"
 
   # If they didn't specify it, we try to find it
@@ -718,7 +725,7 @@ if test $use_libssh2 = yes -a $use_openssl = yes; then
   fi
 
   # If we still don't have it, we use our own
-  if test $have_libssh2 != yes; then
+  AS_IF([test "x$have_libssh2" != "xyes"], [
     have_libssh2=yes
     AC_CONFIG_SUBDIRS(libssh2)
     CPPFLAGS="-I\$(top_srcdir)/$LIBSSH2DIR/include $CPPFLAGS"
@@ -727,21 +734,21 @@ if test $use_libssh2 = yes -a $use_openssl = yes; then
     LIBSSH2_CLEAN="clean-libssh2"
     LIBSSH2_DIST_CLEAN="distclean-libssh2"
     AC_DEFINE(LIBSSH2_INCLUDED, 1, [Using included libssh2])
-  else
+  ], [
     LIBSSH2_LIBS="-lssh2"
     LIBSSH2_BUILD=""
     LIBSSH2_CLEAN=""
     LIBSSH2_DIST_CLEAN=""
-  fi
+  ])
   AC_DEFINE(HAVE_LIBSSH2, 1, [Have libssh2 library])
-else
+], [
   use_libssh2="no"
   trace_no_use="$trace_no_use libssh2"
   LIBSSH2_LIBS=""
   LIBSSH2_BUILD=""
   LIBSSH2_CLEAN=""
   LIBSSH2_DIST_CLEAN=""
-fi
+])
 
 AC_SUBST(LIBSSH2_BUILD)
 AC_SUBST(LIBSSH2_CLEAN)
@@ -760,8 +767,8 @@ LIBDNETDIR=libdnet-stripped
 # specifically asked to use a system version.  This is because we have
 # made many improvements and fixes to our version of dnet.
 AC_ARG_WITH(libdnet,
-AC_HELP_STRING([--with-libdnet=DIR], [Use an existing (compiled) dnet lib from DIR/include and DIR/lib. This is NOT RECOMMENDED because we have made many important fixes to our included libdnet, as described at ./libdnet-stripped/NMAP_MODIFICATIONS])
-AC_HELP_STRING([--with-libdnet=included], [Use the libdnet version included with Nmap (default)]),
+AS_HELP_STRING([--with-libdnet=DIR], [Use an existing (compiled) dnet lib from DIR/include and DIR/lib. This is NOT RECOMMENDED because we have made many important fixes to our included libdnet, as described at ./libdnet-stripped/NMAP_MODIFICATIONS])
+AS_HELP_STRING([--with-libdnet=included], [Use the libdnet version included with Nmap (default)]),
 [  case "$with_libdnet" in
   yes)
     ;;
@@ -776,7 +783,7 @@ AC_HELP_STRING([--with-libdnet=included], [Use the libdnet version included with
 )
 
 # If they didn't provide location, we use the included one
-if test $have_dnet != yes ; then
+AS_IF([test "x$have_dnet" != "xyes"], [
   AC_CONFIG_SUBDIRS( libdnet-stripped )
   CPPFLAGS="-I\$(top_srcdir)/$LIBDNETDIR/include $CPPFLAGS"
   LIBDNET_LIBS="\$(top_srcdir)/$LIBDNETDIR/src/.libs/libdnet.a"
@@ -784,12 +791,12 @@ if test $have_dnet != yes ; then
   DNET_CLEAN="clean-dnet"
   DNET_DIST_CLEAN="distclean-dnet"
   AC_DEFINE(DNET_INCLUDED, 1, [Use included libdnet])
-else
+], [
   LIBDNET_LIBS="-ldnet"
   DNET_BUILD=""
   DNET_CLEAN=""
   DNET_DIST_CLEAN=""
-fi
+])
 
 AC_SUBST(LIBDNET_LIBS)
 AC_SUBST(LIBDNETDIR)
@@ -805,9 +812,9 @@ no_lua=no
 
 # First we test whether they specified liblua explicitly
 AC_ARG_WITH(liblua,
-AC_HELP_STRING([--with-liblua=DIR], [Use an existing (compiled) lua lib from DIR/include and DIR/lib.])
-AC_HELP_STRING([--with-liblua=included], [Use the liblua version included with Nmap])
-AC_HELP_STRING([--without-liblua], [Compile without lua (this will exclude all of NSE from compilation)]),
+AS_HELP_STRING([--with-liblua=DIR], [Use an existing (compiled) lua lib from DIR/include and DIR/lib.])
+AS_HELP_STRING([--with-liblua=included], [Use the liblua version included with Nmap])
+AS_HELP_STRING([--without-liblua], [Compile without lua (this will exclude all of NSE from compilation)]),
 [  case "$with_liblua" in
   yes)
   ;;
@@ -911,8 +918,8 @@ have_liblinear=no
 
 # First we test whether they specified liblinear explicitly
 AC_ARG_WITH(liblinear,
-AC_HELP_STRING([--with-liblinear=DIR], [Use an existing (compiled) liblinear from DIR/include and DIR/lib.])
-AC_HELP_STRING([--with-liblinear=included], [Use the liblinear version included with Nmap]),
+AS_HELP_STRING([--with-liblinear=DIR], [Use an existing (compiled) liblinear from DIR/include and DIR/lib.])
+AS_HELP_STRING([--with-liblinear=included], [Use the liblinear version included with Nmap]),
 [  case "$with_liblinear" in
   yes)
   ;;
@@ -970,17 +977,34 @@ AC_C_BIGENDIAN
 AC_MSG_CHECKING([if struct in_addr is a wacky huge structure (some Sun boxes)])
 AH_TEMPLATE(IN_ADDR_DEEPSTRUCT, [], [struct in_addr is a wacky huge structure (some Sun boxes)])
 
-AC_TRY_COMPILE([#include <netinet/in.h>], struct in_addr i; i._S_un._S_addr;, \
-             AC_DEFINE(IN_ADDR_DEEPSTRUCT) \
-             AC_MSG_RESULT(yes) , \
-             AC_TRY_COMPILE([#include <sys/types.h>
-#include <netinet/in.h>], struct in_addr i; i.S_un.S_addr;, \
-                             AC_DEFINE(IN_ADDR_DEEPSTRUCT) \
-                             AC_MSG_RESULT(yes) , \
-                             AC_MSG_RESULT(no);))
+AC_COMPILE_IFELSE(
+  [AC_LANG_PROGRAM([
+    #include <netinet/in.h>
+    ], [
+    struct in_addr i; i._S_un._S_addr;
+    ])
+  ],
+  [AC_DEFINE(IN_ADDR_DEEPSTRUCT)
+    AC_MSG_RESULT(yes)
+  ],
+  [AC_COMPILE_IFELSE(
+      [AC_LANG_PROGRAM([
+        #include <sys/types.h>
+        #include <netinet/in.h>
+        ], [
+        struct in_addr i; i.S_un.S_addr;
+        ])
+      ],
+      [AC_DEFINE(IN_ADDR_DEEPSTRUCT)
+        AC_MSG_RESULT(yes)
+      ],
+      [AC_MSG_RESULT(no)
+      ])
+  ])
 
-AC_CACHE_CHECK(if struct icmp exists, ac_cv_struct_icmp_exists,
-        AC_TRY_COMPILE([
+AC_CACHE_CHECK([if struct icmp exists], [ac_cv_struct_icmp_exists], [
+        AC_COMPILE_IFELSE(
+          [AC_LANG_PROGRAM([
                #include <sys/types.h>
                #include <sys/param.h>
                #include <netinet/in_systm.h>
@@ -989,33 +1013,19 @@ AC_CACHE_CHECK(if struct icmp exists, ac_cv_struct_icmp_exists,
                #define __FAVOR_BSD
                #define _BSD_SOURCE
                #include <netinet/ip.h>
-               #include <netinet/ip_icmp.h>],
-                [unsigned int i = sizeof(struct icmp)],
-        ac_cv_struct_icmp_exists=yes,
-        ac_cv_struct_icmp_exists=no))
-if test $ac_cv_struct_icmp_exists = yes ; then
-        AC_DEFINE(HAVE_STRUCT_ICMP, 1, [struct icmp is declared])
-fi
+               #include <netinet/ip_icmp.h>
+               ],
+               [unsigned int i = sizeof(struct icmp)])],
+        [ac_cv_struct_icmp_exists=yes],
+        [ac_cv_struct_icmp_exists=no])
+      ])
+AS_IF([test "x$ac_cv_struct_icmp_exists" = "xyes"], [
+       AC_DEFINE([HAVE_STRUCT_ICMP], 1, [struct icmp is declared])
+])
 
-AC_CACHE_CHECK(if struct ip exists, ac_cv_struct_ip_exists,
-        AC_TRY_COMPILE([
-               #include <sys/types.h>
-               #include <sys/param.h>
-               #include <netinet/in_systm.h>
-               #include <netinet/in.h>
-               #define __USE_BSD
-               #define __FAVOR_BSD
-               #define _BSD_SOURCE
-               #include <netinet/ip.h>],
-                [unsigned int i = sizeof(struct ip)],
-        ac_cv_struct_ip_exists=yes,
-        ac_cv_struct_ip_exists=no))
-if test $ac_cv_struct_ip_exists = yes ; then
-        AC_DEFINE(HAVE_STRUCT_IP, 1, [struct ip is declared])
-fi
-
-AC_CACHE_CHECK(if struct ip has ip_sum member, ac_cv_ip_has_ip_sum,
-        AC_TRY_COMPILE([
+AC_CACHE_CHECK([if struct ip exists], [ac_cv_struct_ip_exists], [
+        AC_COMPILE_IFELSE(
+          [AC_LANG_PROGRAM([
                #include <sys/types.h>
                #include <sys/param.h>
                #include <netinet/in_systm.h>
@@ -1024,20 +1034,42 @@ AC_CACHE_CHECK(if struct ip has ip_sum member, ac_cv_ip_has_ip_sum,
                #define __FAVOR_BSD
                #define _BSD_SOURCE
                #include <netinet/ip.h>
-               #include <netinet/ip_icmp.h>],
-                [unsigned int i = sizeof(((struct ip *)0)->ip_sum)],
-        ac_cv_ip_has_ip_sum=yes,
-        ac_cv_ip_has_ip_sum=no))
-if test $ac_cv_ip_has_ip_sum = yes ; then
-        AC_DEFINE(HAVE_IP_IP_SUM, 1, [struct ip has ip_sum member])
-fi
+               ],
+               [unsigned int i = sizeof(struct ip)])],
+        [ac_cv_struct_ip_exists=yes],
+        [ac_cv_struct_ip_exists=no])
+      ])
+AS_IF([test "x$ac_cv_struct_ip_exists" = "xyes"], [
+        AC_DEFINE([HAVE_STRUCT_IP], 1, [struct ip is declared])
+])
+
+AC_CACHE_CHECK([if struct ip has ip_sum member], [ac_cv_ip_has_ip_sum], [
+        AC_COMPILE_IFELSE(
+          [AC_LANG_PROGRAM([
+               #include <sys/types.h>
+               #include <sys/param.h>
+               #include <netinet/in_systm.h>
+               #include <netinet/in.h>
+               #define __USE_BSD
+               #define __FAVOR_BSD
+               #define _BSD_SOURCE
+               #include <netinet/ip.h>
+               #include <netinet/ip_icmp.h>
+               ],
+               [unsigned int i = sizeof(((struct ip *)0)->ip_sum)])],
+        [ac_cv_ip_has_ip_sum=yes],
+        [ac_cv_ip_has_ip_sum=no])
+      ])
+AS_IF([test "x$ac_cv_ip_has_ip_sum" = "xyes"], [
+        AC_DEFINE([HAVE_IP_IP_SUM], 1, [struct ip has ip_sum member])
+])
 
 dnl Checks for library functions.
 AC_CHECK_FUNCS(strerror)
 RECVFROM_ARG6_TYPE
 
 AC_ARG_WITH(libnbase,
-AC_HELP_STRING([--with-libnbase=DIR], [Look for nbase include/libs in DIR]),
+AS_HELP_STRING([--with-libnbase=DIR], [Look for nbase include/libs in DIR]),
 [  case "$with_libnbase" in
   yes)
     ;;
@@ -1045,10 +1077,10 @@ AC_HELP_STRING([--with-libnbase=DIR], [Look for nbase include/libs in DIR]),
     NBASEDIR="$with_libnbase"
     NBASE_BUILD=""
     ;;
-  esac],
+  esac], [
 NBASE_BUILD="build-nbase"
 NBASEDIR="nbase"
-)
+])
 
 LDFLAGS="$LDFLAGS -L\$(top_srcdir)/$NBASEDIR"
 CPPFLAGS="$CPPFLAGS -I\$(top_srcdir)/$NBASEDIR"
@@ -1064,7 +1096,7 @@ NSOCKDIR="nsock"
 NSOCK_BUILD="build-nsock"
 NSOCK_CHECK="check-nsock"
 AC_ARG_WITH(libnsock,
-AC_HELP_STRING([--with-libnsock=DIR], [Compile and link to libnsock in DIR]),
+AS_HELP_STRING([--with-libnsock=DIR], [Compile and link to libnsock in DIR]),
 [  case "$with_libnsock" in
   yes)
     ;;
@@ -1090,9 +1122,9 @@ AC_CONFIG_SUBDIRS(nsock/src)
 NCATDIR="ncat"
 
 AC_ARG_WITH(ncat,
-  AC_HELP_STRING([--without-ncat], [Skip build and installation of Ncat]), [], [with_ncat=check])
+  AS_HELP_STRING([--without-ncat], [Skip build and installation of Ncat]), [], [with_ncat=check])
 
-if test "$with_ncat" = "no"; then
+AS_IF([test "x$with_ncat" = "xno"], [
   trace_no_use="$trace_no_use ncat"
   NCAT_BUILD=""
   NCAT_CHECK=""
@@ -1100,7 +1132,7 @@ if test "$with_ncat" = "no"; then
   NCAT_UNINSTALL=""
   NCAT_CLEAN=""
   NCAT_DIST_CLEAN=""
-else
+], [
   trace_use="$trace_use ncat"
   NCAT_BUILD="build-ncat"
   NCAT_CHECK="check-ncat"
@@ -1109,7 +1141,7 @@ else
   NCAT_CLEAN="clean-ncat"
   NCAT_DIST_CLEAN="distclean-ncat"
   AC_CONFIG_SUBDIRS(ncat)
-fi
+])
 
 AC_SUBST(NCATDIR)
 AC_SUBST(NCAT_BUILD)
@@ -1119,7 +1151,8 @@ AC_SUBST(NCAT_UNINSTALL)
 AC_SUBST(NCAT_CLEAN)
 AC_SUBST(NCAT_DIST_CLEAN)
 
-AC_OUTPUT(Makefile libnetutil/Makefile)
+AC_CONFIG_FILES([Makefile libnetutil/Makefile])
+AC_OUTPUT
 
 # Krad ASCII ART#!#@$!@#$
 # Randomly store the name of one of the ASCII Art files in FILENAME
