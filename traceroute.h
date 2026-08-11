@@ -71,4 +71,5 @@ int traceroute(std::vector<Target *> &Targets);
 
 void traceroute_hop_cache_clear();
 
+bool fuzz_decode_reply(const uint8_t *ip, unsigned int len);
 #endif

@@ -99,6 +99,9 @@ router X. The only way to be sure is to do a complete trace for each target
 individually.
 */
 
+#ifdef HAVE_CONFIG_H
+#include "nmap_config.h"
+#endif
 #include "nmap_dns.h"
 #include "nmap_error.h"
 #include "nmap_tty.h"
@@ -1208,6 +1211,13 @@ static bool decode_reply(const u8 *ip, unsigned int len, Reply *reply) {
 
   return true;
 }
+#ifdef ENABLE_FUZZING
+bool fuzz_decode_reply(const u8 *ip, unsigned int len) {
+  global_id = 0;
+  Reply reply;
+  return decode_reply(ip, len, &reply);
+}
+#endif
 
 static bool read_reply(Reply *reply, pcap_t *pd, long timeout) {
   const u8 *ip;
