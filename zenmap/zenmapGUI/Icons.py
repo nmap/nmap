@@ -162,6 +162,6 @@ def get_os(host):
 
 
 def get_vulnerability_logo(open_ports):
-    ports = min(int(open_ports), 10)
-    lvl = (ports // 2) + 1
+    ports = int(open_ports)
+    lvl = min(max((ports + 1) // 2, 1), 5)
     return ICONS['vl_%d_logo' % (lvl,)]
