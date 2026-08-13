@@ -7448,7 +7448,7 @@ else $as_nop
 /* end confdefs.h.  */
 
 #include <stdio.h>
-extern char pcap_version;
+extern char pcap_version[];
 
 int
 main (void)
@@ -7491,7 +7491,7 @@ else $as_nop
 #ifdef HAVE_NET_BPF_H
 #include <net/bpf.h>
 #endif
-extern char pcap_version;
+extern char pcap_version[];
 
 int
 main (void)

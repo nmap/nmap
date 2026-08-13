@@ -34,10 +34,10 @@ AC_DEFUN([PCAP_IS_SUITABLE],
 [
   AC_CHECK_HEADERS(sys/ioccom.h sys/time.h net/bpf.h)
   AC_MSG_CHECKING(if libpcap is suitable)
-  AC_RUN_IFELSE([AC_LANG_PROGRAM([
+  AC_RUN_IFELSE([AC_LANG_PROGRAM([[
 #include <stdio.h>
 extern char pcap_version[];
-], [
+]], [
   int major, minor1, minor2;
   sscanf(pcap_version,"%d.%d.%d", &major, &minor1, &minor2);
   if (major > 0)
@@ -47,7 +47,7 @@ extern char pcap_version[];
   if (minor2 < 4)
     return 1;
   ])], [
-    AC_RUN_IFELSE([AC_LANG_PROGRAM([
+    AC_RUN_IFELSE([AC_LANG_PROGRAM([[
 #include <stdio.h>
 #include <sys/types.h>
 #ifdef HAVE_SYS_IOCCOM_H
@@ -60,7 +60,7 @@ extern char pcap_version[];
 #include <net/bpf.h>
 #endif
 extern char pcap_version[];
-], [
+]], [
   int major, minor;
   sscanf(pcap_version,"%d.%d", &major, &minor);
   if ((major == 1 && minor >= 1) || major > 1)
