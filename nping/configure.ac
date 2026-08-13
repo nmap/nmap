@@ -293,6 +293,7 @@ AC_SUBST(PCAP_DIST_CLEAN)
 AC_SUBST(LIBPCAP_LIBS)
 
 if test $have_libpcap != yes ; then
+  ac_configure_args="$ac_configure_args '--disable-dbus' '--disable-rdma'"
         AC_CONFIG_SUBDIRS(libpcap)
 fi
 

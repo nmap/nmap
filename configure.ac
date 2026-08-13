@@ -517,7 +517,7 @@ if test $have_libpcap = yes; then
 fi
 
 AS_IF([test x$have_libpcap != xyes], [
-  ac_configure_args="$ac_configure_args '--disable-dbus'"
+  ac_configure_args="$ac_configure_args '--disable-dbus' '--disable-rdma'"
   AC_CONFIG_SUBDIRS(libpcap)
   if test "${LIBPCAP_INC+set}" = "set"; then
     CPPFLAGS="$CPPFLAGS -I$LIBPCAP_INC"
