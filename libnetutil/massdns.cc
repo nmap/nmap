@@ -1852,28 +1852,38 @@ size_t DNS::Factory::putUnsignedShort(u16 num, u8 *buf, size_t offset, size_t ma
 size_t DNS::Factory::putDomainName(const std::string &name, u8 *buf, size_t offset, size_t maxlen)
 {
   size_t ret=0;
-  if( !( buf && (maxlen > (offset + name.length() + 1))) ) return ret;
+  assert(buf != NULL);
+  if (offset >= maxlen || name.length() >= maxlen - offset)
+    return 0;
 
-  std::string namew = name + ".";
-  std::string accumulator;
-  for (std::string::const_iterator c=namew.begin(); c != namew.end(); ++c)
+  u8 *out = buf + offset;
+  size_t label_start = ret;
+  u8 label_len = 0;
+  out[ret++] = 0; // placeholder for label length
+  for (std::string::const_iterator c=name.begin(); c != name.end(); ++c)
   {
+    if (ret >= DNS_NAME_MAX_LENGTH)
+      return 0;
+
     if((*c)=='.')
     {
-      u8 length = accumulator.length();
-      *(buf+offset+ret) = length;
-      ret += 1;
-
-      memcpy(buf+offset+ret, accumulator.c_str(), length);
-      ret += length;
-      accumulator.clear();
+      out[label_start] = label_len;
+      label_len = 0;
+      label_start = ret;
+      out[ret++] = 0; // placeholder for label length
     }
-    else
-      accumulator += (*c);
+    else {
+      if (label_len >= DNS_LABEL_MAX_LENGTH)
+        return 0;
+      out[ret++] = *c;
+      label_len++;
+    }
   }
-
-  *(buf+offset+ret) = 0;
-  ret += 1;
+  if (label_len > 0)
+  {
+      out[label_start] = label_len;
+      out[ret++] = 0; // Empty label terminates name
+  }
 
   return ret;
 }
