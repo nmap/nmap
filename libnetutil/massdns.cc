@@ -622,10 +622,6 @@ DNS::Stats DNS::Resolver::getStats() const
   return impl->stat;
 }
 
-//------------------- Globals ---------------------
-
-u16 DNS::Factory::progressiveId = get_random_u16();
-
 //------------------- Prototypes and macros ---------------------
 
 #define ACTION_FINISHED 0
@@ -693,7 +689,7 @@ void DNS::ResolverImpl::add_request(DNS::Request &reqt)
   tpreq->tries = 0;
   tpreq->servers_tried = 0;
   tpreq->alt_req = false;
-  tpreq->id = DNS::Factory::progressiveId++;
+  tpreq->id = get_random_unique_u16();
 
   new_reqs.push_back(tpreq);
   stat.actual++;
@@ -711,7 +707,7 @@ void DNS::ResolverImpl::add_request(DNS::Request &reqt)
     *tpreq_alt = *tpreq;
     tpreq_alt->targ = req_aaaa;
     tpreq_alt->alt_req = true;
-    tpreq_alt->id = DNS::Factory::progressiveId++;
+    tpreq_alt->id = get_random_unique_u16();
     new_reqs.push_back(tpreq_alt);
     stat.actual++;
   }
