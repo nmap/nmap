@@ -123,7 +123,6 @@
 
 #undef SPRINTF_RETURNS_STRING
 
-#undef TIME_WITH_SYS_TIME
 #undef HAVE_SYS_TIME_H
 
 #undef recvfrom6_t

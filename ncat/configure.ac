@@ -46,7 +46,6 @@ AC_CHECK_HEADERS([linux/vm_sockets.h], , , [#include <sys/socket.h>])
 # Checks for typedefs, structures, and compiler characteristics.
 AC_HEADER_STAT
 AC_C_CONST
-AC_HEADER_TIME
 
 # Checks for library functions.
 AC_FUNC_FORK

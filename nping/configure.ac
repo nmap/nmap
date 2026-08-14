@@ -116,7 +116,7 @@ AC_PATH_TOOL([STRIP], [strip], [/bin/true])
 needs_cpp_precomp=no
 
 dnl Checks for header files.
-AC_CHECK_HEADERS(pwd.h termios.h sys/sockio.h)
+AC_CHECK_HEADERS(pwd.h termios.h sys/sockio.h sys/time.h)
 
 dnl If any socket libraries needed
 AC_SEARCH_LIBS(setsockopt, socket)
