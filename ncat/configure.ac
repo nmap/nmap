@@ -38,7 +38,6 @@ AC_PROG_INSTALL
 AC_PATH_TOOL([STRIP], [strip], [/bin/true])
 
 # Checks for header files.
-AC_HEADER_STDC
 AC_HEADER_SYS_WAIT
 AC_CHECK_HEADERS([fcntl.h limits.h netdb.h netinet/in.h stdlib.h string.h strings.h sys/param.h sys/socket.h sys/time.h unistd.h sys/un.h])
 AC_CHECK_HEADERS([linux/vm_sockets.h], , , [#include <sys/socket.h>])
@@ -125,8 +124,8 @@ have_libpcap=no
 test "${with_libpcap+set}" != "set" && with_libpcap=yes
 
 AC_ARG_WITH(libpcap,
-AC_HELP_STRING([--with-libpcap=DIR], [Look for pcap in DIR/include and DIR/libs.])
-AC_HELP_STRING([--with-libpcap=included], [Always use version included with Nmap]),
+AS_HELP_STRING([--with-libpcap=DIR], [Look for pcap in DIR/include and DIR/libs.])
+AS_HELP_STRING([--with-libpcap=included], [Always use version included with Nmap]),
 [  case "$with_libpcap" in
   yes)
     AC_CHECK_HEADER(pcap.h,[
@@ -212,9 +211,9 @@ no_lua=no
 
 # First we test whether they specified liblua explicitly
 AC_ARG_WITH(liblua,
-AC_HELP_STRING([--with-liblua=DIR], [Use an existing (compiled) lua lib from DIR/include and DIR/lib.])
-AC_HELP_STRING([--with-liblua=included], [Use the liblua version included with Nmap])
-AC_HELP_STRING([--without-liblua], [Compile without lua (this will exclude all of NSE from compilation)]),
+AS_HELP_STRING([--with-liblua=DIR], [Use an existing (compiled) lua lib from DIR/include and DIR/lib.])
+AS_HELP_STRING([--with-liblua=included], [Use the liblua version included with Nmap])
+AS_HELP_STRING([--without-liblua], [Compile without lua (this will exclude all of NSE from compilation)]),
 [  case "$with_liblua" in
   yes)
   ;;

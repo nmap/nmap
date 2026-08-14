@@ -122,9 +122,9 @@ have_libpcap=no
 test "${with_libpcap+set}" != "set" && with_libpcap=yes
 
 AC_ARG_WITH(libpcap,
-AC_HELP_STRING([--with-libpcap=DIR], [Look for pcap headers in DIR/include.])
-AC_HELP_STRING([--with-libpcap=included], [Always use version included with Nmap])
-AC_HELP_STRING([--without-libpcap], [Disable pcap functions.]),
+AS_HELP_STRING([--with-libpcap=DIR], [Look for pcap headers in DIR/include.])
+AS_HELP_STRING([--with-libpcap=included], [Always use version included with Nmap])
+AS_HELP_STRING([--without-libpcap], [Disable pcap functions.]),
 [  case "$with_libpcap" in
   yes)
     AC_CHECK_HEADER(pcap.h,[
@@ -204,7 +204,6 @@ dnl need posix4/nanosleep for solaris 2.4
 AC_CHECK_FUNC(nanosleep, , AC_CHECK_LIB(posix4, nanosleep))
 
 dnl Checks for header files.
-AC_HEADER_STDC
 AC_CHECK_HEADERS(net/bpf.h sys/ioctl.h sys/un.h netdb.h)
 AC_CHECK_HEADERS([linux/vm_sockets.h], , , [#include <sys/socket.h>])
 
@@ -212,7 +211,7 @@ AC_CHECK_HEADERS([linux/vm_sockets.h], , , [#include <sys/socket.h>])
 use_openssl="yes"
 specialssldir=""
 AC_ARG_WITH(openssl,
-AC_HELP_STRING([--with-openssl=DIR],[Use optional openssl libs and includes from [DIR]/lib/ and [DIR]/include/openssl/)]),
+AS_HELP_STRING([--with-openssl=DIR],[Use optional openssl libs and includes from [DIR]/lib/ and [DIR]/include/openssl/)]),
 [  case "$with_openssl" in
   yes)
     ;;

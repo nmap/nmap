@@ -66,7 +66,6 @@ case "$host" in
 esac
 
 dnl Checks for header files.
-AC_HEADER_STDC
 AC_CHECK_HEADERS([string.h getopt.h strings.h sys/param.h sys/time.h unistd.h
                   errno.h sys/select.h sys/time.h sys/types.h sys/socket.h
                   netinet/in.h arpa/inet.h sys/stat.h netdb.h sys/wait.h
