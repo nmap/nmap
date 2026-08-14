@@ -4,7 +4,7 @@
 AC_PREREQ(2.59)
 AC_INIT(ncat_main.c)
 
-AC_CONFIG_HEADER(config.h)
+AC_CONFIG_HEADERS([config.h])
 
 m4_include([../acinclude.m4])
 m4_include([../m4/ax_check_compile_flag.m4])
@@ -49,7 +49,6 @@ AC_C_CONST
 # Checks for library functions.
 AC_FUNC_FORK
 AC_FUNC_SELECT_ARGTYPES
-AC_TYPE_SIGNAL
 AC_FUNC_VPRINTF
 AC_SEARCH_LIBS(setsockopt, socket)
 # Ncat does not call gethostbyname directly, but some of the libraries
