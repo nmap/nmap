@@ -19,7 +19,7 @@ dnl Generate these files
 AC_CONFIG_FILES([Makefile ../tests/Makefile])
 
 dnl use nsock_config.h instad of -D macros
-AC_CONFIG_HEADER(../include/nsock_config.h)
+AC_CONFIG_HEADERS([../include/nsock_config.h])
 
 dnl Host specific hacks
 AC_CANONICAL_HOST

@@ -4056,9 +4056,12 @@ rm -f core conftest.err conftest.$ac_objext conftest.beam conftest.$ac_ext
 
 fi
 
-if test "$ac_cv___attribute__" = "yes"; then
+if test "x$ac_cv___attribute__" = "xyes"
+then :
+
 
 printf "%s\n" "#define HAVE___ATTRIBUTE__ 1" >>confdefs.h
+
 
 fi
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ac_cv___attribute__" >&5
@@ -4096,9 +4099,12 @@ rm -f core conftest.err conftest.$ac_objext conftest.beam conftest.$ac_ext
 fi
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ac_cv_sockaddr_has_sa_len" >&5
 printf "%s\n" "$ac_cv_sockaddr_has_sa_len" >&6; }
-if test $ac_cv_sockaddr_has_sa_len = yes ; then
+if test x$ac_cv_sockaddr_has_sa_len = xyes
+then :
+
 
 printf "%s\n" "#define HAVE_SOCKADDR_SA_LEN 1" >>confdefs.h
+
 
 fi
 
@@ -4987,7 +4993,10 @@ else $as_nop
 #include <sys/socket.h>
 #endif
 
-int main(void) {
+int
+main (void)
+{
+
     struct addrinfo hints, *ai;
     int error;
 
@@ -5003,8 +5012,10 @@ int main(void) {
     }
     freeaddrinfo(ai);
     return 0;
-}
 
+  ;
+  return 0;
+}
 _ACEOF
 if ac_fn_c_try_run "$LINENO"
 then :
@@ -5019,6 +5030,7 @@ fi
 rm -f core *.core core.conftest.* gmon.out bb.out conftest$ac_exeext \
   conftest.$ac_objext conftest.beam conftest.$ac_ext
 fi
+
 
 fi
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ac_cv_working_getaddrinfo" >&5
@@ -5129,7 +5141,10 @@ else $as_nop
 #include <arpa/inet.h>
 #endif
 
-int main(void) {
+int
+main (void)
+{
+
     struct sockaddr_in sa;
     char hbuf[256];
     int error;
@@ -5149,8 +5164,10 @@ int main(void) {
     } else {
         return 0;
     }
-}
 
+  ;
+  return 0;
+}
 _ACEOF
 if ac_fn_c_try_run "$LINENO"
 then :
@@ -5165,6 +5182,7 @@ fi
 rm -f core *.core core.conftest.* gmon.out bb.out conftest$ac_exeext \
   conftest.$ac_objext conftest.beam conftest.$ac_ext
 fi
+
 
 fi
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ac_cv_working_getnameinfo" >&5

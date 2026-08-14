@@ -5487,6 +5487,12 @@ then :
   printf "%s\n" "#define HAVE_SYS_SOCKIO_H 1" >>confdefs.h
 
 fi
+ac_fn_c_check_header_compile "$LINENO" "sys/time.h" "ac_cv_header_sys_time_h" "$ac_includes_default"
+if test "x$ac_cv_header_sys_time_h" = xyes
+then :
+  printf "%s\n" "#define HAVE_SYS_TIME_H 1" >>confdefs.h
+
+fi
 
 
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for library containing setsockopt" >&5
