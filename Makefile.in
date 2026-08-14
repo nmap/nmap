@@ -169,6 +169,8 @@ build-ncat: $(NCATDIR)/Makefile build-nbase build-nsock $(NCATDIR)/ncat.h @PCAP_
 
 build-lua: $(LIBLUADIR)/Makefile
 	@echo Compiling liblua; cd $(LIBLUADIR) && $(MAKE) liblua.a CC="$(CC)" MYCFLAGS="$(CFLAGS) @LUA_CFLAGS@"
+build-lua-bins: $(LIBLUADIR)/Makefile
+	@echo Compiling lua/luac; cd $(LIBLUADIR) && $(MAKE) all CC="$(CC)" MYCFLAGS="$(CFLAGS) @LUA_CFLAGS@" MYLDFLAGS="$(LDFLAGS)"
 
 build-liblinear: $(LIBLINEARDIR)/Makefile
 # -Wno-uninitialized avoids the warning "'Gnorm1_init' may be used uninitialized in this function"
