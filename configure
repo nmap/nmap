@@ -5701,41 +5701,48 @@ LUA_CFLAGS="-DLUA_USE_POSIX -DLUA_USE_DLOPEN"
 
 
 
-case "$host" in
-  *alpha-dec-osf*)
+case "$host" in #(
+  *alpha-dec-osf*) :
+
 
 printf "%s\n" "#define DEC 1" >>confdefs.h
 
-    ;;
-  *-netbsd* | *-knetbsd*-gnu)
+     ;; #(
+  *-netbsd* | *-knetbsd*-gnu) :
+
 
 printf "%s\n" "#define NETBSD 1" >>confdefs.h
 
     LDFLAGS="-Wl,-E $LDFLAGS" # needed for nse-C-module support
-    ;;
-  *-openbsd*)
+     ;; #(
+  *-openbsd*) :
+
 
 printf "%s\n" "#define OPENBSD 1" >>confdefs.h
 
     LDFLAGS="-Wl,-E $LDFLAGS" # needed for nse-C-module support
-    ;;
-  *-freebsd* | *-kfreebsd*-gnu | *-dragonfly*)
+     ;; #(
+  *-freebsd* | *-kfreebsd*-gnu | *-dragonfly*) :
+
 
 printf "%s\n" "#define FREEBSD 1" >>confdefs.h
 
     LDFLAGS="-Wl,-E $LDFLAGS" # needed for nse-C-module support
-    ;;
-  *-bsdi*)
+     ;; #(
+  *-bsdi*) :
+
 
 printf "%s\n" "#define BSDI 1" >>confdefs.h
 
-    ;;
-  *-sgi-irix5* | *-sgi-irix6*)
+     ;; #(
+  *-sgi-irix5* | *-sgi-irix6*) :
+
 
 printf "%s\n" "#define IRIX 1" >>confdefs.h
 
-    ;;
-  *-hpux*)
+     ;; #(
+  *-hpux*) :
+
 
 printf "%s\n" "#define HPUX 1" >>confdefs.h
 
@@ -5784,8 +5791,9 @@ then :
 
 fi
 
-    ;;
-  *-aix*)
+     ;; #(
+  *-aix*) :
+
     # use some AIX specific libraries
     { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for odm_initialize in -lodm" >&5
 printf %s "checking for odm_initialize in -lodm... " >&6; }
@@ -5916,74 +5924,86 @@ then :
 
 fi
 
-    ;;
-  *-solaris2.1[1-9]*)
+     ;; #(
+  *-solaris2.1[1-9]*) :
+
     printf "%s\n" "#define SOLARIS 1" >>confdefs.h
 
     # Solaris 11 and later use BPF packet capture rather than DLPI.
 
 printf "%s\n" "#define SOLARIS_BPF_PCAP_CAPTURE 1" >>confdefs.h
 
-    ;;
-  *-solaris2.0*)
+     ;; #(
+  *-solaris2.0*) :
+
     printf "%s\n" "#define STUPID_SOLARIS_CHECKSUM_BUG 1" >>confdefs.h
 
     printf "%s\n" "#define SOLARIS 1" >>confdefs.h
 
-    ;;
-  *-solaris2.[1-9][0-9]*)
+     ;; #(
+  *-solaris2.[1-9][0-9]*) :
+
     printf "%s\n" "#define SOLARIS 1" >>confdefs.h
 
-    ;;
-  *-solaris2.1*)
+     ;; #(
+  *-solaris2.1*) :
+
     printf "%s\n" "#define STUPID_SOLARIS_CHECKSUM_BUG 1" >>confdefs.h
 
     printf "%s\n" "#define SOLARIS 1" >>confdefs.h
 
-    ;;
-  *-solaris2.2*)
+     ;; #(
+  *-solaris2.2*) :
+
     printf "%s\n" "#define STUPID_SOLARIS_CHECKSUM_BUG 1" >>confdefs.h
 
     printf "%s\n" "#define SOLARIS 1" >>confdefs.h
 
-    ;;
-  *-solaris2.3*)
+     ;; #(
+  *-solaris2.3*) :
+
     printf "%s\n" "#define STUPID_SOLARIS_CHECKSUM_BUG 1" >>confdefs.h
 
     printf "%s\n" "#define SOLARIS 1" >>confdefs.h
 
-    ;;
-  *-solaris2.4*)
+     ;; #(
+  *-solaris2.4*) :
+
     printf "%s\n" "#define STUPID_SOLARIS_CHECKSUM_BUG 1" >>confdefs.h
 
     printf "%s\n" "#define SOLARIS 1" >>confdefs.h
 
-    ;;
-  *-solaris2.5.1)
+     ;; #(
+  *-solaris2.5.1) :
+
     printf "%s\n" "#define STUPID_SOLARIS_CHECKSUM_BUG 1" >>confdefs.h
 
     printf "%s\n" "#define SOLARIS 1" >>confdefs.h
 
-    ;;
-  *-solaris*)
+     ;; #(
+  *-solaris*) :
+
     printf "%s\n" "#define SOLARIS 1" >>confdefs.h
 
-    ;;
-  *-sunos4*)
+     ;; #(
+  *-sunos4*) :
+
 
 printf "%s\n" "#define SUNOS 1" >>confdefs.h
 
 
 printf "%s\n" "#define SPRINTF_RETURNS_STRING 1" >>confdefs.h
 
-    ;;
-  *-linux*)
+     ;; #(
+  *-linux*) :
+
 
 printf "%s\n" "#define LINUX 1" >>confdefs.h
 
     LDFLAGS="-Wl,-E $LDFLAGS" # needed for nse-C-module support
-    ;;
-  *-apple-darwin*)
+     ;; #(
+  *-apple-darwin*) :
+
 
 printf "%s\n" "#define MACOSX 1" >>confdefs.h
 
@@ -6029,7 +6049,10 @@ fi
 
     LUA_CFLAGS="-DLUA_USE_MACOSX"
     needs_cpp_precomp=yes
-    ;;
+
+ ;; #(
+  *) :
+     ;;
 esac
 
 
@@ -7208,8 +7231,9 @@ test "${with_libpcap+set}" != "set" && with_libpcap=yes
 # Check whether --with-libpcap was given.
 if test ${with_libpcap+y}
 then :
-  withval=$with_libpcap;   case "$with_libpcap" in
-  yes)
+  withval=$with_libpcap;   case "$with_libpcap" in #(
+  yes) :
+
     ac_fn_c_check_header_compile "$LINENO" "pcap.h" "ac_cv_header_pcap_h" "$ac_includes_default"
 if test "x$ac_cv_header_pcap_h" = xyes
 then :
@@ -7256,11 +7280,13 @@ fi
 
 fi
 
-    ;;
-  included)
+     ;; #(
+  included) :
+
     have_libpcap=no
-   ;;
-  *)
+    ;; #(
+  *) :
+
     _cppflags=$CPPFLAGS
     _ldflags=$LDFLAGS
 
@@ -7318,8 +7344,11 @@ fi
 
     LDFLAGS=$_ldflags
     CPPFLAGS=$_cppflags
-    ;;
-  esac
+
+   ;; #(
+  *) :
+     ;;
+esac
 
 fi
 
@@ -7810,16 +7839,20 @@ test "${with_libz+set}" != "set" && with_libz="yes"
 if test ${with_libz+y}
 then :
   withval=$with_libz;
-  case "$with_libz" in
-  yes)
-    ;;
-  no)
+  case "$with_libz" in #(
+  yes) :
+
+     ;; #(
+  no) :
+
     # Do nothing
-    ;;
-  included)
+     ;; #(
+  included) :
+
     requested_included_libz="yes"
-    ;;
-  *)
+     ;; #(
+  *) :
+
     _cppflags=$CPPFLAGS
     _ldflags=$LDFLAGS
 
@@ -7879,8 +7912,11 @@ fi
 
     LDFLAGS=$_ldflags
     CPPFLAGS=$_cppflags
-  ;;
-  esac
+
+   ;; #(
+  *) :
+     ;;
+esac
 
 
 fi
@@ -7998,16 +8034,20 @@ test "${with_libssh2+set}" != "set" && with_libssh2="yes"
 # Check whether --with-libssh2 was given.
 if test ${with_libssh2+y}
 then :
-  withval=$with_libssh2;  case "$with_libssh2" in
-  yes)
-    ;;
-  no)
+  withval=$with_libssh2;  case "$with_libssh2" in #(
+  yes) :
+
+     ;; #(
+  no) :
+
     use_libssh2="no"
-    ;;
-  included)
+     ;; #(
+  included) :
+
     requested_included_libssh2="yes"
-    ;;
-  *)
+     ;; #(
+  *) :
+
     _cppflags=$CPPFLAGS
     _ldflags=$LDFLAGS
 
@@ -8067,8 +8107,11 @@ fi
 fi
 
 
-  ;;
-  esac
+
+   ;; #(
+  *) :
+     ;;
+esac
 
 fi
 
@@ -8245,10 +8288,12 @@ no_lua=no
 # Check whether --with-liblua was given.
 if test ${with_liblua+y}
 then :
-  withval=$with_liblua;   case "$with_liblua" in
-  yes)
-  ;;
-  included)
+  withval=$with_liblua;   case "$with_liblua" in #(
+  yes) :
+
+   ;; #(
+  included) :
+
     CPPFLAGS="-I\$(top_srcdir)/$LIBLUADIR $CPPFLAGS"
     LIBLUA_LIBS="\$(top_srcdir)/$LIBLUADIR/liblua.a"
     LUA_BUILD="build-lua"
@@ -8258,15 +8303,20 @@ then :
 
 printf "%s\n" "#define LUA_INCLUDED 1" >>confdefs.h
 
-  ;;
-  no)
+   ;; #(
+  no) :
+
     no_lua="yes"
-  ;;
-  *)
+   ;; #(
+  *) :
+
     CPPFLAGS="-I$with_liblua/include $CPPFLAGS"
     LDFLAGS="-L$with_liblua/lib $LDFLAGS"
-  ;;
-  esac
+
+   ;; #(
+  *) :
+     ;;
+esac
 
 fi
 

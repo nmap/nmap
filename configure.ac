@@ -124,92 +124,92 @@ LUA_CFLAGS="-DLUA_USE_POSIX -DLUA_USE_DLOPEN"
 AH_TEMPLATE(SOLARIS, [Sun/Oracle Solaris])
 AH_TEMPLATE(STUPID_SOLARIS_CHECKSUM_BUG, [],
             [A bug in Solaris causing incorrect IP checksums])
-case "$host" in
-  *alpha-dec-osf*)
+AS_CASE(["$host"],
+  [*alpha-dec-osf*], [
     AC_DEFINE(DEC, 1, [DEC Alpha])
-    ;;
-  *-netbsd* | *-knetbsd*-gnu)
+    ],
+  [*-netbsd* | *-knetbsd*-gnu], [
     AC_DEFINE(NETBSD, 1, [NetBSD])
     LDFLAGS="-Wl,-E $LDFLAGS" # needed for nse-C-module support
-    ;;
-  *-openbsd*)
+    ],
+  [*-openbsd*], [
     AC_DEFINE(OPENBSD, 1, [OpenBSD])
     LDFLAGS="-Wl,-E $LDFLAGS" # needed for nse-C-module support
-    ;;
-  *-freebsd* | *-kfreebsd*-gnu | *-dragonfly*)
+    ],
+  [*-freebsd* | *-kfreebsd*-gnu | *-dragonfly*], [
     AC_DEFINE(FREEBSD, 1, [FreeBSD])
     LDFLAGS="-Wl,-E $LDFLAGS" # needed for nse-C-module support
-    ;;
-  *-bsdi*)
+    ],
+  [*-bsdi*], [
     AC_DEFINE(BSDI, 1, [BSD/OS])
-    ;;
-  *-sgi-irix5* | *-sgi-irix6*)
+    ],
+  [*-sgi-irix5* | *-sgi-irix6*], [
     AC_DEFINE(IRIX, 1, [IRIX])
-    ;;
-  *-hpux*)
+    ],
+  [*-hpux*], [
     AC_DEFINE(HPUX, 1, [HP-UX])
     # To link with libnet and NM (/usr/lib/libnm.sl) library
     # on HP-UX 11.11 (other versions?) Mikhail Zakharov (zmey20000@yahoo.com)
     AC_CHECK_LIB(nm, open_mib)
-    ;;
-  *-aix*)
+    ],
+  [*-aix*], [
     # use some AIX specific libraries
     AC_CHECK_LIB(odm, odm_initialize)
     AC_CHECK_LIB(cfg, _system_configuration)
     AC_CHECK_LIB(crypt, crypt_r)
-    ;;
-  *-solaris2.1[[1-9]]*)
+    ],
+  [*-solaris2.1[[1-9]]*], [
     AC_DEFINE(SOLARIS)
     # Solaris 11 and later use BPF packet capture rather than DLPI.
     AC_DEFINE(SOLARIS_BPF_PCAP_CAPTURE, 1, [Solaris 11 and later use BPF packet capture rather than DLPI.])
-    ;;
-  *-solaris2.0*)
+    ],
+  [*-solaris2.0*], [
     AC_DEFINE(STUPID_SOLARIS_CHECKSUM_BUG)
     AC_DEFINE(SOLARIS)
-    ;;
-  *-solaris2.[[1-9]][[0-9]]*)
+    ],
+  [*-solaris2.[[1-9]][[0-9]]*], [
     AC_DEFINE(SOLARIS)
-    ;;
-  *-solaris2.1*)
+    ],
+  [*-solaris2.1*], [
     AC_DEFINE(STUPID_SOLARIS_CHECKSUM_BUG)
     AC_DEFINE(SOLARIS)
-    ;;
-  *-solaris2.2*)
+    ],
+  [*-solaris2.2*], [
     AC_DEFINE(STUPID_SOLARIS_CHECKSUM_BUG)
     AC_DEFINE(SOLARIS)
-    ;;
-  *-solaris2.3*)
+    ],
+  [*-solaris2.3*], [
     AC_DEFINE(STUPID_SOLARIS_CHECKSUM_BUG)
     AC_DEFINE(SOLARIS)
-    ;;
-  *-solaris2.4*)
+    ],
+  [*-solaris2.4*], [
     AC_DEFINE(STUPID_SOLARIS_CHECKSUM_BUG)
     AC_DEFINE(SOLARIS)
-    ;;
-  *-solaris2.5.1)
+    ],
+  [*-solaris2.5.1], [
     AC_DEFINE(STUPID_SOLARIS_CHECKSUM_BUG)
     AC_DEFINE(SOLARIS)
-    ;;
-  *-solaris*)
+    ],
+  [*-solaris*], [
     AC_DEFINE(SOLARIS)
-    ;;
-  *-sunos4*)
+    ],
+  [*-sunos4*], [
     AC_DEFINE(SUNOS, 1, [SunOS 4])
     AC_DEFINE(SPRINTF_RETURNS_STRING, 1,
               [sprintf(9f) returns its first argument, not the number of characters printed])
-    ;;
-  *-linux*)
+    ],
+  [*-linux*], [
     AC_DEFINE(LINUX, 1, [Linux])
     LDFLAGS="-Wl,-E $LDFLAGS" # needed for nse-C-module support
-    ;;
-  *-apple-darwin*)
+    ],
+  [*-apple-darwin*], [
     AC_DEFINE(MACOSX, 1, [Apple OS X])
     dnl on Mac OSX the math library seems to contain unwanted getopt cruft
     AC_CHECK_LIB(m, main)
     LUA_CFLAGS="-DLUA_USE_MACOSX"
     needs_cpp_precomp=yes
-    ;;
-esac
+    ]
+)
 
 AC_SUBST(LUA_CFLAGS)
 
@@ -471,16 +471,16 @@ test "${with_libpcap+set}" != "set" && with_libpcap=yes
 AC_ARG_WITH(libpcap,
 AS_HELP_STRING([--with-libpcap=DIR], [Look for pcap in DIR/include and DIR/libs.])
 AS_HELP_STRING([--with-libpcap=included], [Always use version included with Nmap]),
-[  case "$with_libpcap" in
-  yes)
+[  AS_CASE(["$with_libpcap"],
+  [yes], [
     AC_CHECK_HEADER(pcap.h,[
       AC_CHECK_LIB(pcap, pcap_create,
       [have_libpcap=yes ])])
-    ;;
-  included)
+    ],
+  [included], [
     have_libpcap=no
-   ;;
-  *)
+   ],
+  [*], [
     _cppflags=$CPPFLAGS
     _ldflags=$LDFLAGS
 
@@ -495,8 +495,8 @@ AS_HELP_STRING([--with-libpcap=included], [Always use version included with Nmap
 
     LDFLAGS=$_ldflags
     CPPFLAGS=$_cppflags
-    ;;
-  esac]
+    ]
+  )]
 )
 
 if test $needs_cpp_precomp = yes; then
@@ -626,16 +626,16 @@ AC_ARG_WITH(libz,
 AS_HELP_STRING([--with-libz=DIR], [Use specific copy of libz])
 AS_HELP_STRING([--with-libz=included], [Always use version included with Nmap]),
 [
-  case "$with_libz" in
-  yes)
-    ;;
-  no)
+  AS_CASE(["$with_libz"],
+  [yes], [
+    ],
+  [no], [
     # Do nothing
-    ;;
-  included)
+    ],
+  [included], [
     requested_included_libz="yes"
-    ;;
-  *)
+    ],
+  [*], [
     _cppflags=$CPPFLAGS
     _ldflags=$LDFLAGS
 
@@ -652,8 +652,8 @@ AS_HELP_STRING([--with-libz=included], [Always use version included with Nmap]),
 
     LDFLAGS=$_ldflags
     CPPFLAGS=$_cppflags
-  ;;
-  esac
+    ]
+  )
 ]
 )
 
@@ -711,16 +711,16 @@ AC_ARG_WITH(libssh2,
 AS_HELP_STRING([--with-libssh2=DIR], [Use specific copy of libssh2])
 AS_HELP_STRING([--with-libssh2=included], [Always use version included with Nmap])
 AS_HELP_STRING([--without-libssh2], [Compile without libssh2]),
-[ case "$with_libssh2" in
-  yes)
-    ;;
-  no)
+[ AS_CASE(["$with_libssh2"],
+  [yes], [
+    ],
+  [no], [
     use_libssh2="no"
-    ;;
-  included)
+    ],
+  [included], [
     requested_included_libssh2="yes"
-    ;;
-  *)
+    ],
+  [*], [
     _cppflags=$CPPFLAGS
     _ldflags=$LDFLAGS
 
@@ -736,8 +736,8 @@ AS_HELP_STRING([--without-libssh2], [Compile without libssh2]),
         CPPFLAGS=$_cppflags],[-lm])
       ])
 
-  ;;
-  esac]
+    ]
+  )]
 )
 
 
@@ -843,10 +843,10 @@ AC_ARG_WITH(liblua,
 AS_HELP_STRING([--with-liblua=DIR], [Use an existing (compiled) lua lib from DIR/include and DIR/lib.])
 AS_HELP_STRING([--with-liblua=included], [Use the liblua version included with Nmap])
 AS_HELP_STRING([--without-liblua], [Compile without lua (this will exclude all of NSE from compilation)]),
-[  case "$with_liblua" in
-  yes)
-  ;;
-  included)
+[  AS_CASE(["$with_liblua"],
+  [yes], [
+  ],
+  [included], [
     CPPFLAGS="-I\$(top_srcdir)/$LIBLUADIR $CPPFLAGS"
     LIBLUA_LIBS="\$(top_srcdir)/$LIBLUADIR/liblua.a"
     LUA_BUILD="build-lua"
@@ -854,15 +854,15 @@ AS_HELP_STRING([--without-liblua], [Compile without lua (this will exclude all o
     LUA_DIST_CLEAN="distclean-lua"
       have_lua="yes"
     AC_DEFINE(LUA_INCLUDED, 1, [Using included liblua])
-  ;;
-  no)
+  ],
+  [no], [
     no_lua="yes"
-  ;;
-  *)
+  ],
+  [*], [
     CPPFLAGS="-I$with_liblua/include $CPPFLAGS"
     LDFLAGS="-L$with_liblua/lib $LDFLAGS"
-  ;;
-  esac]
+  ]
+  )]
 )
 
 # They don't want lua

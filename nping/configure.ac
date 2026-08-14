@@ -227,16 +227,16 @@ test "${with_libpcap+set}" != "set" && with_libpcap=yes
 AC_ARG_WITH(libpcap,
 AS_HELP_STRING([--with-libpcap=DIR], [Look for pcap in DIR/include and DIR/libs.])
 AS_HELP_STRING([--with-libpcap=included], [Always use version included with Nmap]),
-[  case "$with_libpcap" in
-  yes)
+[  AS_CASE(["$with_libpcap"],
+  [yes], [
     AC_CHECK_HEADER(pcap.h,[
       AC_CHECK_LIB(pcap, pcap_create,
       [have_libpcap=yes ])])
-    ;;
-  included)
+    ],
+  [included], [
     have_libpcap=no
-   ;;
-  *)
+   ],
+  [*], [
     _cppflags=$CPPFLAGS
     _ldflags=$LDFLAGS
 
@@ -251,8 +251,8 @@ AS_HELP_STRING([--with-libpcap=included], [Always use version included with Nmap
 
     LDFLAGS=$_ldflags
     CPPFLAGS=$_cppflags
-    ;;
-  esac]
+    ]
+  )]
 )
 
 if test $needs_cpp_precomp = yes; then
