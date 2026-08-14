@@ -138,7 +138,7 @@ AC_HELP_STRING([--with-libpcap=included], [Always use version included with Nmap
     have_libpcap=no
    ;;
   *)
-    _cppflags=$CXXFLAGS
+    _cppflags=$CPPFLAGS
     _ldflags=$LDFLAGS
 
     CPPFLAGS="-I$with_libpcap/include $CPPFLAGS"
@@ -151,16 +151,13 @@ AC_HELP_STRING([--with-libpcap=included], [Always use version included with Nmap
 	LIBPCAP_LIB=$with_libpcap/lib])])
 
     LDFLAGS=$_ldflags
-    CXXFLAGS=$_cppflags
+    CPPFLAGS=$_cppflags
     ;;
   esac]
 )
 
 if test $have_libpcap = yes; then
   if test "${LIBPCAP_INC+set}" = "set"; then
-    _cflags=$CXXFLAGS
-    _ldflags=$LDFLAGS
-
     CPPFLAGS="-I$LIBPCAP_INC $CPPFLAGS"
     LDFLAGS="-L$LIBPCAP_LIB $LDFLAGS"
   fi
@@ -331,12 +328,6 @@ AS_IF([test "x$enable_fuzzing" = "xyes"], [
                         [CFLAGS="$CFLAGS FUZZ_FLAGS"],
                         [AC_MSG_ERROR([$CC does not support fuzzing])])
   AC_LANG_POP([C])
-
-  AC_LANG_PUSH([C++])
-  AX_CHECK_COMPILE_FLAG([FUZZ_FLAGS],
-                        [CXXFLAGS="$CXXFLAGS FUZZ_FLAGS"],
-                        [AC_MSG_ERROR([$CXX does not support fuzzing])])
-  AC_LANG_POP([C++])
   LDFLAGS="$LDFLAGS -fsanitize=address,undefined -fno-omit-frame-pointer"
   AC_DEFINE([ENABLE_FUZZING], [1], [Fuzzing harness enabled])
 ])
