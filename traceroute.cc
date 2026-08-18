@@ -1219,7 +1219,20 @@ static bool decode_reply(const u8 *ip, unsigned int len, Reply *reply) {
 bool fuzz_decode_reply(const u8 *ip, unsigned int len) {
   global_id = 0;
   Reply reply;
-  return decode_reply(ip, len, &reply);
+  if (decode_reply(ip, len, &reply))
+    return true;
+
+  if (len > 24) {
+    global_id = ntohs(*(u16 *)(ip + 22));
+    if (decode_reply(ip, len, &reply))
+      return true;
+  }
+  if (len > 44) {
+    global_id = ntohs(*(u16 *)(ip + 42));
+    if (decode_reply(ip, len, &reply))
+      return true;
+  }
+  return false;
 }
 #endif
 
