@@ -545,19 +545,23 @@ struct probespec HostState::get_probe(const Target *target) {
        protocols. We cheat and store them in the TCP-, UDP-, SCTP- and
        ICMP-specific fields. */
     if (probe.proto == IPPROTO_TCP) {
+      probe.type = PS_TCP;
       probe.pd.tcp.flags = TH_ACK;
       probe.pd.tcp.dport = get_random_u16();
     } else if (probe.proto == IPPROTO_UDP) {
+      probe.type = PS_UDP;
       probe.pd.udp.dport = get_random_u16();
     } else if (probe.proto == IPPROTO_SCTP) {
+      probe.type = PS_SCTP;
       probe.pd.sctp.dport = get_random_u16();
     } else if (probe.proto == IPPROTO_ICMP) {
+      probe.type = PS_ICMP;
       probe.pd.icmp.type = ICMP_ECHO;
     } else if (probe.proto == IPPROTO_ICMPV6) {
+      probe.type = PS_ICMPV6;
       probe.pd.icmp.type = ICMPV6_ECHO;
-    } else {
-      fatal("Unknown protocol %d", probe.proto);
     }
+    // Otherwise we leave ourselves at the mercy of build_ip_raw()
   } else {
     /* No responsive probe known? The user probably skipped both ping and
        port scan. Guess ICMP echo as the most likely to get a response. */
