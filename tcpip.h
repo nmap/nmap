@@ -339,6 +339,7 @@ const u8 *readipv4_pcap(pcap_t *pd, unsigned int *len, long to_usec,
 
 const u8 *readip_pcap(pcap_t *pd, unsigned int *len, long to_usec,
                   struct timeval *rcvdtime, struct link_header *linknfo, bool validate);
+bool validatepkt(const u8 *ipc, unsigned *len);
 
 /* Examines the given tcp packet and obtains the TCP timestamp option
    information if available.  Note that the CALLER must ensure that

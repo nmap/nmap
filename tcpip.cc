@@ -1191,7 +1191,7 @@ static bool validateTCPhdr(const u8 *tcpc, unsigned len) {
  * read more than the IP header says we should have so as to not pass garbage
  * data to the caller.
  */
-static bool validatepkt(const u8 *ipc, unsigned *len) {
+bool validatepkt(const u8 *ipc, unsigned *len) {
   struct ip ip;
   if (*len < sizeof(ip))
     return false;
