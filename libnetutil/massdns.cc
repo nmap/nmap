@@ -238,13 +238,12 @@ struct request {
   int tries;
   int servers_tried;
   dns_server *first_server;
-  dns_server *curr_server;
   u16 id;
   status_t status;
   bool alt_req;
   request(DNS::ResolverImpl *i)
     : impl(i), targ(NULL), tries(0), servers_tried(0), first_server(NULL),
-    curr_server(NULL), id(0), status(READY), alt_req(false)
+    id(0), status(READY), alt_req(false)
   {
     memset(&sent, 0, sizeof(sent));
   }
@@ -470,7 +469,7 @@ private:
   void check_capacities(dns_server *tpserv);
   void do_possible_writes();
   bool server_send(dns_server &serv);
-  void put_dns_packet_on_wire(request *req);
+  void put_dns_packet_on_wire(request *req, dns_server *srv);
   int deal_with_timedout_reads(bool adjust_timing);
   void process_request(int action, request *tpreq, dns_server *server);
   bool process_result(const std::string &name, const Record *rr, request *tpreq);
@@ -860,7 +859,7 @@ bool DNS::ResolverImpl::server_send(dns_server &serv) {
     tpreq = new_reqs.front();
     assert(tpreq != NULL);
     assert(tpreq->targ != NULL);
-    tpreq->first_server = tpreq->curr_server = &serv;
+    tpreq->first_server = &serv;
     new_reqs.pop_front();
   } else if (!serv.to_process.empty()) {
     tpreq = serv.to_process.front();
@@ -871,12 +870,11 @@ bool DNS::ResolverImpl::server_send(dns_server &serv) {
 
   assert(tpreq != NULL);
   assert(tpreq->targ != NULL);
-  assert(tpreq->curr_server == &serv);
   log_func(TRACE_DEBUG_LEVEL,
     "mass_dns: TRANSMITTING for <%s> (server <%s>)\n", tpreq->targ->repr(), serv.hostname.c_str());
   stat.trans++;
   serv.write_busy = 1;
-  put_dns_packet_on_wire(tpreq);
+  put_dns_packet_on_wire(tpreq, &serv);
   serv.write_busy = 0;
   return true;
 }
@@ -911,16 +909,18 @@ void DNS::ResolverImpl::do_possible_writes() {
 // nsock write handler
 void DNS::ResolverImpl::handle_write(nsock_pool nsp, nsock_event evt, request *req) {
   assert(nse_type(evt) == NSE_TYPE_WRITE);
+  nsock_iod nsd = nse_iod(evt);
+  dns_server *server = static_cast<dns_server *>(nsock_iod_get_udata(nsd));
 
   if (nse_status(evt) == NSE_STATUS_SUCCESS) {
     memcpy(&req->sent, nsock_gettimeofday(), sizeof(struct timeval));
-    server_send(*req->curr_server);
+    server_send(*server);
   }
   else {
       log_func(1, "mass_dns: WRITE error: %s", nse_status2str(nse_status(evt)));
     // We don't delete from records in case a response to an earlier probe comes in.
-    req->curr_server->in_process.remove(req);
-    req->curr_server->to_process.push_front(req);
+    server->in_process.remove(req);
+    server->to_process.push_front(req);
   }
 
   if (req->status == request::DONE) {
@@ -942,11 +942,10 @@ static DNS::RECORD_TYPE wire_type(DNS::RECORD_TYPE t) {
 // Takes a DNS request structure and actually puts it on the wire
 // (calls nsock_write()). Does various other tasks like recording
 // the time for the timeout.
-void DNS::ResolverImpl::put_dns_packet_on_wire(request *req) {
+void DNS::ResolverImpl::put_dns_packet_on_wire(request *req, dns_server *srv) {
   static const size_t maxlen = 512;
   u8 packet[maxlen];
   size_t plen=0;
-  dns_server *srv = req->curr_server;
 
   srv->reqs_on_wire++;
   DNS::Request &reqt = *req->targ;
@@ -979,7 +978,6 @@ void DNS::ResolverImpl::put_dns_packet_on_wire(request *req) {
 // Returns time until next read timeout
 int DNS::ResolverImpl::deal_with_timedout_reads(bool adjust_timing) {
   std::list<dns_server>::iterator servI;
-  std::list<dns_server>::iterator servItemp;
   std::list<request *>::iterator reqI;
   std::list<request *>::iterator nextI;
   request *tpreq;
@@ -1030,16 +1028,16 @@ int DNS::ResolverImpl::deal_with_timedout_reads(bool adjust_timing) {
             adjusted = true;
           }
 
-          servItemp = servI;
+          std::list<dns_server>::iterator servItemp = servI;
           servItemp++;
 
           if (servItemp == servs.end()) servItemp = servs.begin();
 
-          tpreq->curr_server = &*servItemp;
+          dns_server *next_server = &*servItemp;
           tpreq->tries = 0;
           tpreq->servers_tried++;
 
-          if (tpreq->curr_server == tpreq->first_server || tpreq->servers_tried == SERVERS_TO_TRY) {
+          if (next_server == tpreq->first_server || tpreq->servers_tried == SERVERS_TO_TRY) {
             // Either give up on the IP
             // or, for maximum reliability, put the server back into processing
             // Note it's possible that this will never terminate.
@@ -1061,10 +1059,9 @@ int DNS::ResolverImpl::deal_with_timedout_reads(bool adjust_timing) {
             tpreq = NULL;
 
             // **** OR We start at the back of this server's queue
-            //servItemp->to_process.push_back(tpreq);
           } else {
-            servItemp->records[tpreq->id] = tpreq;
-            servItemp->to_process.push_back(tpreq);
+            next_server->records[tpreq->id] = tpreq;
+            next_server->to_process.push_back(tpreq);
           }
         } else {
           if (!adjusted && tpreq->servers_tried == 0 && tpreq->tries <= 1) {
@@ -1358,6 +1355,7 @@ void DNS::ResolverImpl::handle_connect(nsock_pool nsp, nsock_event evt, dns_serv
     srv->status = dns_server::DISCONNECTED;
     return;
   }
+  nsock_iod_set_udata(srv->nsd, srv);
   nsock_read(nsp, srv->nsd, &DNS::ResolverImpl::read_evt_handler, -1, (void *)srv);
   srv->status = dns_server::CONNECTED;
 }
