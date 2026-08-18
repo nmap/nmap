@@ -913,6 +913,7 @@ void DNS::ResolverImpl::handle_write(nsock_pool nsp, nsock_event evt, request *r
   assert(nse_type(evt) == NSE_TYPE_WRITE);
 
   if (nse_status(evt) == NSE_STATUS_SUCCESS) {
+    memcpy(&req->sent, nsock_gettimeofday(), sizeof(struct timeval));
     server_send(*req->curr_server);
   }
   else {
@@ -968,7 +969,6 @@ void DNS::ResolverImpl::put_dns_packet_on_wire(request *req) {
 
   srv->in_process.push_front(req);
   srv->records[req->id] = req;
-  memcpy(&req->sent, nsock_gettimeofday(), sizeof(struct timeval));
 
   req->status = request::WRITE_PENDING;
   nsock_write(dnspool, srv->nsd, &DNS::ResolverImpl::write_evt_handler, WRITE_TIMEOUT, req,
@@ -984,7 +984,7 @@ int DNS::ResolverImpl::deal_with_timedout_reads(bool adjust_timing) {
   std::list<request *>::iterator nextI;
   request *tpreq;
   struct timeval now;
-  int tp, min_timeout = INT_MAX;
+  int min_timeout = INT_MAX;
 
   memcpy(&now, nsock_gettimeofday(), sizeof(struct timeval));
 
@@ -1004,7 +1004,7 @@ int DNS::ResolverImpl::deal_with_timedout_reads(bool adjust_timing) {
       int to = read_timeouts[tpreq->tries];
 
       int elapsed = TIMEVAL_MSEC_SUBTRACT(now, tpreq->sent);
-      tp = to - elapsed;
+      int tp = to - elapsed;
       if (tp > 0) {
         // only bother checking this if we might increase the capacity
         if (may_increase && TIMEVAL_BEFORE(tpreq->sent, earliest_sent)) {
