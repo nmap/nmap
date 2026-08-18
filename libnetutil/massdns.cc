@@ -1601,7 +1601,7 @@ void DNS::ResolverImpl::etchosts_init(void) {
   int has_backslash;
 
   if (!GetWindowsDirectoryA(windows_dir, sizeof(windows_dir)))
-    fprintf(stderr, "massdns: Failed to determine your windows directory\n");
+    log_func(0, "massdns: Failed to determine your windows directory\n");
 
   // If it has a backslash it's C:\, otherwise something like C:\WINNT
   has_backslash = (windows_dir[strlen(windows_dir)-1] == '\\');
