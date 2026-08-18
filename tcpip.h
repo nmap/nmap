@@ -302,13 +302,6 @@ bool pcap_recv_timeval_valid();
    packets). */
 void pcap_print_stats(int logt, pcap_t *pd);
 
-
-
-/* A simple function I wrote to help in debugging, shows the important fields
-   of a TCP packet*/
-int readtcppacket(const u8 *packet, int readdata);
-int readudppacket(const u8 *packet, int readdata);
-
 /* Fill buf (up to buflen -- truncate if necessary but always
    terminate) with a short representation of the packet stats.
    Returns buf.  Aborts if there is a problem. */

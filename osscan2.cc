@@ -2622,7 +2622,6 @@ bool HostOsScan::processTSeqResp(HostOsScanStats *hss, const struct ip *ip, cons
 
   if ((tcp->th_flags & (TH_SYN|TH_ACK)) == (TH_SYN|TH_ACK)) {
     /*  error("DEBUG: response is SYN|ACK to port %hu\n", ntohs(tcp->th_dport)); */
-    /*readtcppacket((char *)ip, 0);*/
     /* We use the ACK value to match up our sent with rcv'd packets */
     seq_response_num = ntohl(tcp->th_ack) - tcpSeqBase - 1;
     /* printf("seq_response_num = %d\treplyNo = %d\n", seq_response_num, replyNo); */
@@ -2632,10 +2631,10 @@ bool HostOsScan::processTSeqResp(HostOsScanStats *hss, const struct ip *ip, cons
       if (o.debugging) {
         error("Unable to associate os scan response with sent packet for %s.",
               hss->target->targetipstr());
-        error("Received ack: %lX; sequence sent: %lX. Packet:",
+        error("Received ack: %lX; sequence sent: %lX. Packet:\n%s",
               (unsigned long) ntohl(tcp->th_ack),
-              (unsigned long) tcpSeqBase);
-        readtcppacket(pkt, 0);
+              (unsigned long) tcpSeqBase,
+              ippackethdrinfo(pkt, tcplen + sizeof(*ip), HIGH_DETAIL));
       }
       seq_response_num = replyNo;
     }
