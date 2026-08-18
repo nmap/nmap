@@ -1029,9 +1029,11 @@ int DNS::ResolverImpl::deal_with_timedout_reads(bool adjust_timing) {
           }
 
           std::list<dns_server>::iterator servItemp = servI;
-          servItemp++;
+          do {
+            servItemp++;
 
-          if (servItemp == servs.end()) servItemp = servs.begin();
+            if (servItemp == servs.end()) servItemp = servs.begin();
+          } while (servItemp != servI && servItemp->status != dns_server::CONNECTED);
 
           dns_server *next_server = &*servItemp;
           tpreq->tries = 0;
