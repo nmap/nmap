@@ -119,6 +119,7 @@
 #include <fstream>
 #include <algorithm>
 #include <map>
+#include <set>
 #include "massdns.h"
 #include "netutil.h"
 #include <limits.h>
@@ -228,9 +229,9 @@ struct dns_server {
 
 struct request {
   enum status_t {
-    READY,
-    WRITE_PENDING,
-    DONE
+    READY, // May be sent again
+    NORESULT, // Do not re-send. Okay to process matching answers.
+    DONE // Do not re-send.
   };
   DNS::ResolverImpl *impl;
   DNS::Request *targ;
@@ -402,6 +403,9 @@ public:
     ResolverImpl::etchosts_init();
     init_host_cache();
   }
+  ~ResolverImpl(void) {
+    reset();
+  }
   /* Forward lookup table from /etc/hosts */
   typedef std::pair<std::string, RECORD_TYPE> NameRecord;
   static std::map<NameRecord, sockaddr_storage> etchosts;
@@ -413,8 +417,17 @@ public:
     stat.reset();
     stat.servers = servs.size();
     init_host_cache();
-    new_reqs.clear();
-    deferred_reqs.clear();
+    while (!new_reqs.empty()) {
+      request *req = new_reqs.front();
+      new_reqs.pop_front();
+      mark_as_done(req, false);
+    }
+    while (!deferred_reqs.empty()) {
+      request *req = new_reqs.front();
+      new_reqs.pop_front();
+      mark_as_done(req, false);
+    }
+    clear_done();
     total_reqs = 0;
   }
   void add_dns_server(const std::string &hostname);
@@ -450,6 +463,7 @@ private:
   std::list<dns_server> servs;
   std::list<request *> new_reqs;
   std::list<request *> deferred_reqs;
+  std::set<request *> done;
   int total_reqs;
   nsock_pool dnspool;
   nsock_proxychain proxy_chain;
@@ -474,6 +488,8 @@ private:
   void process_request(int action, request *tpreq, dns_server *server);
   bool process_result(const std::string &name, const Record *rr, request *tpreq);
   bool system_resolve(DNS::Request &reqt);
+  void mark_as_done(request *req, bool has_answer);
+  void clear_done(void);
   void output_summary(const Stats &stat);
 
   void handle_read(nsock_pool nsp, nsock_event evt, dns_server *srv);
@@ -758,24 +774,26 @@ bool DNS::ResolverImpl::resolve_nsock()
 
     std::list<request *>::iterator reqI;
     for(reqI = deferred_reqs.begin(); reqI != deferred_reqs.end(); reqI++) {
-
-      status_cb(&stat);
-      output_summary(stat);
-
       request *tpreq = *reqI;
-      if (system_resolve(*tpreq->targ)) {
-        stat.ok++;
-      }
-      else {
-        stat.nx++;
+      if (tpreq->status != request::DONE) {
+        status_cb(&stat);
+        output_summary(stat);
+
+        if (system_resolve(*tpreq->targ)) {
+          stat.ok++;
+        }
+        else {
+          stat.nx++;
+        }
       }
 
-      delete tpreq;
+      mark_as_done(tpreq, true);
     }
     output_summary(stat);
   }
 
   deferred_reqs.clear();
+  clear_done();
   return true;
 }
 
@@ -786,12 +804,11 @@ bool DNS::ResolverImpl::resolve_system()
   while (total_reqs > 0) {
     request *tpreq = new_reqs.front();
     new_reqs.pop_front();
-    total_reqs--;
 
     // System resolver can handle DNS::ANY as AF_UNSPEC, so no need for
     // alt_req's AAAA request.
     if (tpreq->alt_req) {
-      delete tpreq;
+      mark_as_done(tpreq, true);
       stat.actual--;
       continue;
     }
@@ -805,9 +822,10 @@ bool DNS::ResolverImpl::resolve_system()
     else {
       stat.nx++;
     }
-    delete tpreq;
+    mark_as_done(tpreq, true);
   }
   assert(new_reqs.empty());
+  clear_done();
   return true;
 }
 
@@ -840,8 +858,18 @@ void DNS::ResolverImpl::close_dns_servers() {
     if (serverI->status != dns_server::DISCONNECTED) {
       nsock_iod_delete(serverI->nsd, NSOCK_PENDING_SILENT);
       serverI->status = dns_server::DISCONNECTED;
-      serverI->to_process.clear();
-      serverI->in_process.clear();
+      while (!serverI->to_process.empty()) {
+        request *req = serverI->to_process.front();
+        serverI->to_process.pop_front();
+        assert(req->status != request::READY);
+        mark_as_done(req, false);
+      }
+      while (!serverI->in_process.empty()) {
+        request *req = serverI->in_process.front();
+        serverI->in_process.pop_front();
+        assert(req->status != request::READY);
+        mark_as_done(req, false);
+      }
       serverI->records.clear();
     }
   }
@@ -855,18 +883,20 @@ bool DNS::ResolverImpl::server_send(dns_server &serv) {
   }
 
   request *tpreq = NULL;
-  if (!new_reqs.empty()) {
-    tpreq = new_reqs.front();
-    assert(tpreq != NULL);
-    assert(tpreq->targ != NULL);
-    tpreq->first_server = &serv;
-    new_reqs.pop_front();
-  } else if (!serv.to_process.empty()) {
-    tpreq = serv.to_process.front();
-    serv.to_process.pop_front();
-  } else {
-    return false;
-  }
+  do {
+    if (!new_reqs.empty()) {
+      tpreq = new_reqs.front();
+      assert(tpreq != NULL);
+      assert(tpreq->targ != NULL);
+      tpreq->first_server = &serv;
+      new_reqs.pop_front();
+    } else if (!serv.to_process.empty()) {
+      tpreq = serv.to_process.front();
+      serv.to_process.pop_front();
+    } else {
+      return false;
+    }
+  } while (tpreq->status != request::READY);
 
   assert(tpreq != NULL);
   assert(tpreq->targ != NULL);
@@ -922,14 +952,6 @@ void DNS::ResolverImpl::handle_write(nsock_pool nsp, nsock_event evt, request *r
     server->in_process.remove(req);
     server->to_process.push_front(req);
   }
-
-  if (req->status == request::DONE) {
-    delete req;
-  }
-  else {
-    assert(req->status == request::WRITE_PENDING);
-    req->status = request::READY;
-  }
 }
 
 static DNS::RECORD_TYPE wire_type(DNS::RECORD_TYPE t) {
@@ -969,7 +991,6 @@ void DNS::ResolverImpl::put_dns_packet_on_wire(request *req, dns_server *srv) {
   srv->in_process.push_front(req);
   srv->records[req->id] = req;
 
-  req->status = request::WRITE_PENDING;
   nsock_write(dnspool, srv->nsd, &DNS::ResolverImpl::write_evt_handler, WRITE_TIMEOUT, req,
       reinterpret_cast<const char *>(packet), plen);
 }
@@ -1050,14 +1071,7 @@ int DNS::ResolverImpl::deal_with_timedout_reads(bool adjust_timing) {
 
             output_summary(stat);
             stat.dropped++;
-            total_reqs--;
-            servI->records.erase(tpreq->id);
-            if (tpreq->status != request::WRITE_PENDING) {
-              delete tpreq;
-            }
-            else {
-              tpreq->status = request::DONE;
-            }
+            mark_as_done(tpreq, false);
             tpreq = NULL;
 
             // **** OR We start at the back of this server's queue
@@ -1104,8 +1118,8 @@ void DNS::ResolverImpl::process_request(int action, request *tpreq, dns_server *
       server->records.erase(tpreq->id);
       server->in_process.remove(tpreq);
       server->to_process.remove(tpreq);
+      mark_as_done(tpreq, action == ACTION_FINISHED);
       server->reqs_on_wire--;
-      total_reqs--;
       if (action == ACTION_SYSTEM_RESOLVE) {
         // System resolver can handle DNS::ANY as AF_UNSPEC, so no need for
         // alt_req's AAAA request.
@@ -1115,12 +1129,6 @@ void DNS::ResolverImpl::process_request(int action, request *tpreq, dns_server *
           break;
         }
         stat.actual--;
-      }
-      if (tpreq->status != request::WRITE_PENDING) {
-        delete tpreq;
-      }
-      else {
-        tpreq->status = request::DONE;
       }
       tpreq = NULL;
 
@@ -1232,6 +1240,10 @@ void DNS::ResolverImpl::handle_read(nsock_pool nsp, nsock_event evt, dns_server 
   }
   request *tpreq = infoI->second;
   assert(p.id == tpreq->id);
+  // If a different response completed the request, don't continue
+  if (tpreq->status == request::DONE) {
+    return;
+  }
   DNS::Request *reqt = tpreq->targ;
   assert(reqt != NULL);
   // Response must contain a matching query. p.queries.empty() was already checked.
@@ -1657,6 +1669,26 @@ bool DNS::ResolverImpl::system_resolve(DNS::Request &reqt)
       return false;
   }
   return true;
+}
+
+void DNS::ResolverImpl::mark_as_done(request *req, bool has_answer)
+{
+  if (req->status == request::READY) {
+    total_reqs--;
+  }
+  req->status = (has_answer ? request::DONE : request::NORESULT);
+  done.insert(req);
+}
+
+void DNS::ResolverImpl::clear_done(void)
+{
+  for (std::set<request *>::iterator it = done.begin();
+      it != done.end(); ++it) {
+    request *req = *it;
+    assert(req->status != request::READY);
+    delete req;
+  }
+  done.clear();
 }
 
 static const char hex[] = "0123456789abcdef";
