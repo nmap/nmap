@@ -975,6 +975,9 @@ local function run (threads_iter)
 
   local progress = cnse.scan_progress_meter(NAME);
 
+  -- Use stronger random seed
+  math.randomseed(("jj"):unpack(nmap.get_random_bytes(("jj"):packsize())))
+
   -- Loop while any thread is running or waiting.
   while next(running) or next(waiting) or threads_iter do
     -- Start as many new threads as possible.
