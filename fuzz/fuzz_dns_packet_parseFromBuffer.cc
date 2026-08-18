@@ -10,7 +10,8 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
   fuzz_init();
 
   DNS::Packet p;
-  size_t plen = p.parseFromBuffer(data, size);
+  volatile size_t plen = p.parseFromBuffer(data, size);
+  (void) plen;
 
-  return size >= plen ? 0 : -1;
+  return 0;
 }
