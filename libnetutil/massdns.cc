@@ -216,6 +216,7 @@ struct dns_server {
   int write_busy;
   std::list<request *> to_process;
   std::list<request *> in_process;
+  std::map<u16, request *> records;
   struct timeval last_increase;
   dns_server(DNS::ResolverImpl *i) : impl(i), hostname(), addr_len(0), nsd(NULL), status(DISCONNECTED), reqs_on_wire(0),
     capacity(CAPACITY_MIN), ssthresh((CAPACITY_MAX + CAPACITY_MIN)/2), write_busy(0), to_process(), in_process()
@@ -253,13 +254,6 @@ struct request {
       targ = NULL;
     }
   }
-};
-
-/*keeps record of a request going through a particular DNS server
-helps in attaining faster lookup based on ID */
-struct info{
-  dns_server *server;
-  request *tpreq;
 };
 
 class HostElem
@@ -422,7 +416,6 @@ public:
     init_host_cache();
     new_reqs.clear();
     deferred_reqs.clear();
-    records.clear();
     total_reqs = 0;
   }
   void add_dns_server(const std::string &hostname);
@@ -458,7 +451,6 @@ private:
   std::list<dns_server> servs;
   std::list<request *> new_reqs;
   std::list<request *> deferred_reqs;
-  std::map<u16, info> records;
   int total_reqs;
   nsock_pool dnspool;
   nsock_proxychain proxy_chain;
@@ -480,9 +472,8 @@ private:
   bool server_send(dns_server &serv);
   void put_dns_packet_on_wire(request *req);
   int deal_with_timedout_reads(bool adjust_timing);
-  void process_request(int action, info &reqinfo);
-  bool process_result(const std::string &name, const Record *rr,
-      info &reqinfo);
+  void process_request(int action, request *tpreq, dns_server *server);
+  bool process_result(const std::string &name, const Record *rr, request *tpreq);
   bool system_resolve(DNS::Request &reqt);
   void output_summary(const Stats &stat);
 
@@ -852,6 +843,7 @@ void DNS::ResolverImpl::close_dns_servers() {
       serverI->status = dns_server::DISCONNECTED;
       serverI->to_process.clear();
       serverI->in_process.clear();
+      serverI->records.clear();
     }
   }
   nsock_loop_quit(dnspool);
@@ -954,7 +946,6 @@ void DNS::ResolverImpl::put_dns_packet_on_wire(request *req) {
   u8 packet[maxlen];
   size_t plen=0;
   dns_server *srv = req->curr_server;
-  info record;
 
   srv->reqs_on_wire++;
   DNS::Request &reqt = *req->targ;
@@ -976,9 +967,7 @@ void DNS::ResolverImpl::put_dns_packet_on_wire(request *req) {
   }
 
   srv->in_process.push_front(req);
-  record.tpreq = req;
-  record.server = srv;
-  records[req->id] = record;
+  srv->records[req->id] = req;
   memcpy(&req->sent, nsock_gettimeofday(), sizeof(struct timeval));
 
   req->status = request::WRITE_PENDING;
@@ -993,7 +982,6 @@ int DNS::ResolverImpl::deal_with_timedout_reads(bool adjust_timing) {
   std::list<dns_server>::iterator servItemp;
   std::list<request *>::iterator reqI;
   std::list<request *>::iterator nextI;
-  std::map<u16, info>::iterator infoI;
   request *tpreq;
   struct timeval now;
   int tp, min_timeout = INT_MAX;
@@ -1063,7 +1051,7 @@ int DNS::ResolverImpl::deal_with_timedout_reads(bool adjust_timing) {
             output_summary(stat);
             stat.dropped++;
             total_reqs--;
-            records.erase(tpreq->id);
+            servI->records.erase(tpreq->id);
             if (tpreq->status != request::WRITE_PENDING) {
               delete tpreq;
             }
@@ -1075,10 +1063,7 @@ int DNS::ResolverImpl::deal_with_timedout_reads(bool adjust_timing) {
             // **** OR We start at the back of this server's queue
             //servItemp->to_process.push_back(tpreq);
           } else {
-            info record;
-            record.tpreq = tpreq;
-            record.server = &*servItemp;
-            records[tpreq->id] = record;
+            servItemp->records[tpreq->id] = tpreq;
             servItemp->to_process.push_back(tpreq);
           }
         } else {
@@ -1108,10 +1093,8 @@ int DNS::ResolverImpl::deal_with_timedout_reads(bool adjust_timing) {
 }
 
 
-void DNS::ResolverImpl::process_request(int action, info &reqinfo) {
-  request *tpreq = reqinfo.tpreq;
-  dns_server *server = reqinfo.server;
-
+void DNS::ResolverImpl::process_request(int action, request *tpreq, dns_server *server)
+{
   switch (action) {
     case ACTION_SYSTEM_RESOLVE:
     case ACTION_FINISHED:
@@ -1119,7 +1102,7 @@ void DNS::ResolverImpl::process_request(int action, info &reqinfo) {
         server->capacity += CAPACITY_UP_STEP;
         check_capacities(server);
       }
-      records.erase(tpreq->id);
+      server->records.erase(tpreq->id);
       server->in_process.remove(tpreq);
       server->to_process.remove(tpreq);
       server->reqs_on_wire--;
@@ -1161,12 +1144,12 @@ bool iequals(const std::string &a, const std::string &b)
 // After processing a DNS response, we search through the IPs we're
 // looking for and update their results as necessary.
 bool DNS::ResolverImpl::process_result(const std::string &name, const DNS::Record *rr,
-    info &reqinfo)
+    request *tpreq)
 {
-  DNS::Request *reqt = reqinfo.tpreq->targ;
+  DNS::Request *reqt = tpreq->targ;
   std::vector<struct sockaddr_storage> *ssv;
-  if (reqinfo.tpreq->alt_req) {
-    DNS::Request *alt_req = (DNS::Request *) reqinfo.tpreq->targ->userdata;
+  if (tpreq->alt_req) {
+    DNS::Request *alt_req = (DNS::Request *) tpreq->targ->userdata;
     ssv = &alt_req->ssv;
   }
   else {
@@ -1244,13 +1227,13 @@ void DNS::ResolverImpl::handle_read(nsock_pool nsp, nsock_event evt, dns_server 
     return;
 
   // Check for matching request
-  std::map<u16, info>::iterator infoI = records.find(p.id);
-  if (infoI == records.end()) {
+  std::map<u16, request *>::iterator infoI = srv->records.find(p.id);
+  if (infoI == srv->records.end()) {
     return;
   }
-  info &reqinfo = infoI->second;
-  assert(p.id == reqinfo.tpreq->id);
-  DNS::Request *reqt = reqinfo.tpreq->targ;
+  request *tpreq = infoI->second;
+  assert(p.id == tpreq->id);
+  DNS::Request *reqt = tpreq->targ;
   assert(reqt != NULL);
   // Response must contain a matching query. p.queries.empty() was already checked.
   const DNS::Query &q = p.queries.front();
@@ -1280,20 +1263,20 @@ void DNS::ResolverImpl::handle_read(nsock_pool nsp, nsock_event evt, dns_server 
       for (std::string::const_iterator it=reqt->name.begin(); it < reqt->name.end(); it++) {
         if (*it < '0') { // signed char comparison; non-ascii are < 0
           // system resolver might be able to do better with things like AI_IDN
-          process_request(ACTION_SYSTEM_RESOLVE, reqinfo);
+          process_request(ACTION_SYSTEM_RESOLVE, tpreq, srv);
           processing_successful = true;
           break;
         }
       }
       if (!processing_successful && reqt->name.find('.') == std::string::npos) {
         // Names without a dot: system resolver may do better.
-          process_request(ACTION_SYSTEM_RESOLVE, reqinfo);
+          process_request(ACTION_SYSTEM_RESOLVE, tpreq, srv);
           processing_successful = true;
       }
     }
 
     if (!processing_successful) {
-      process_request(ACTION_FINISHED, reqinfo);
+      process_request(ACTION_FINISHED, tpreq, srv);
       log_func(TRACE_DEBUG_LEVEL, "mass_dns: NXDOMAIN <id = %d>\n", p.id);
       stat.nx++;
     }
@@ -1304,7 +1287,7 @@ void DNS::ResolverImpl::handle_read(nsock_pool nsp, nsock_event evt, dns_server 
 
   if (DNS_HAS_ERR(f, DNS::ERR_SERVFAIL))
   {
-    process_request(ACTION_TIMEOUT, reqinfo);
+    process_request(ACTION_TIMEOUT, tpreq, srv);
     log_func(TRACE_DEBUG_LEVEL, "mass_dns: SERVFAIL <id = %d>\n", p.id);
     stat.sf++;
 
@@ -1338,14 +1321,14 @@ void DNS::ResolverImpl::handle_read(nsock_pool nsp, nsock_event evt, dns_server 
   if (!processing_successful) {
     if (DNS_HAS_FLAG(f, DNS::TRUNCATED)) {
       // TODO: TCP fallback, or only use system resolver if user didn't specify --dns-servers
-      process_request(ACTION_SYSTEM_RESOLVE, reqinfo);
+      process_request(ACTION_SYSTEM_RESOLVE, tpreq, srv);
     }
     else if (!iequals(q.name, *qname)) {
       log_func(TRACE_DEBUG_LEVEL, "mass_dns: CNAME for <%s> not processed.\n", reqt->repr());
       // TODO: Send a PTR request for alias instead. Meanwhile, we'll just fall
       // back to using system resolver. Alternative: report the canonical name
       // (alias), but that's not very useful.
-      process_request(ACTION_SYSTEM_RESOLVE, reqinfo);
+      process_request(ACTION_SYSTEM_RESOLVE, tpreq, srv);
     }
     else {
       log_func(TRACE_DEBUG_LEVEL, "mass_dns: Unable to process the response for %s\n", reqt->repr());
@@ -1354,7 +1337,7 @@ void DNS::ResolverImpl::handle_read(nsock_pool nsp, nsock_event evt, dns_server 
   else {
     output_summary(stat);
     stat.ok++;
-    process_request(ACTION_FINISHED, reqinfo);
+    process_request(ACTION_FINISHED, tpreq, srv);
   }
   do_possible_writes();
 
