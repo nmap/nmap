@@ -482,7 +482,7 @@ private:
   int deal_with_timedout_reads(bool adjust_timing);
   void process_request(int action, info &reqinfo);
   bool process_result(const std::string &name, const Record *rr,
-      info &reqinfo, bool already_matched);
+      info &reqinfo);
   bool system_resolve(DNS::Request &reqt);
   void output_summary(const Stats &stat);
 
@@ -1161,7 +1161,7 @@ bool iequals(const std::string &a, const std::string &b)
 // After processing a DNS response, we search through the IPs we're
 // looking for and update their results as necessary.
 bool DNS::ResolverImpl::process_result(const std::string &name, const DNS::Record *rr,
-    info &reqinfo, bool already_matched)
+    info &reqinfo)
 {
   DNS::Request *reqt = reqinfo.tpreq->targ;
   std::vector<struct sockaddr_storage> *ssv;
@@ -1180,9 +1180,6 @@ bool DNS::ResolverImpl::process_result(const std::string &name, const DNS::Recor
     case DNS::A:
     case DNS::AAAA:
     case DNS::ANY:
-      if (!already_matched && !iequals(name, reqt->name)) {
-        return false;
-      }
       a_rec = static_cast<const DNS::A_Record *>(rr);
       ssv->push_back(a_rec->value);
       log_func(TRACE_DEBUG_LEVEL, "mass_dns: OK MATCHED <%s> to <%s>\n",
@@ -1191,12 +1188,6 @@ bool DNS::ResolverImpl::process_result(const std::string &name, const DNS::Recor
       break;
     case DNS::PTR:
       ss = &reqt->ssv.front();
-      if (!already_matched) {
-        if (!DNS::Factory::ptrToIp(name, ip) ||
-            !sockaddr_storage_equal(&ip, ss)) {
-          return false;
-        }
-      }
       reqt->name = static_cast<const DNS::PTR_Record *>(rr)->value;
       host_cache.add(*ss, reqt->name);
       log_func(TRACE_DEBUG_LEVEL, "mass_dns: OK MATCHED <%s> to <%s>\n",
@@ -1261,6 +1252,25 @@ void DNS::ResolverImpl::handle_read(nsock_pool nsp, nsock_event evt, dns_server 
   assert(p.id == reqinfo.tpreq->id);
   DNS::Request *reqt = reqinfo.tpreq->targ;
   assert(reqt != NULL);
+  // Response must contain a matching query. p.queries.empty() was already checked.
+  const DNS::Query &q = p.queries.front();
+  // Query must match in class and type
+  if (q.record_class != DNS::CLASS_IN
+      || q.record_type != wire_type(reqt->type)) {
+    return;
+  }
+  // Query must match requested name
+  std::string tmp;
+  const std::string *qname = &reqt->name;
+  if (reqt->type == DNS::PTR) {
+    assert(reqt->ssv.size() > 0);
+    // TODO: we already did this to build the request; can we keep it around?
+    DNS::Factory::ipToPtr(reqt->ssv.front(), tmp);
+    qname = &tmp;
+  }
+  if (!iequals(q.name, *qname)) {
+    return;
+  }
   bool processing_successful = false;
 
   if (DNS_HAS_ERR(f, DNS::ERR_NAME) || p.answers.empty())
@@ -1303,28 +1313,24 @@ void DNS::ResolverImpl::handle_read(nsock_pool nsp, nsock_event evt, dns_server 
 
   sockaddr_storage ip;
   ip.ss_family = AF_UNSPEC;
-  std::string alias;
 
   for(std::list<DNS::Answer>::const_iterator it = p.answers.begin();
       it != p.answers.end(); ++it )
   {
     const DNS::Answer &a = *it;
-    if(a.record_class == DNS::CLASS_IN)
+    if(a.record_class == DNS::CLASS_IN
+      && (iequals(a.name, *qname) || iequals(a.name, q.name)))
     {
       if (wire_type(reqt->type) == a.record_type) {
-        processing_successful = process_result(a.name, a.record, reqinfo, iequals(a.name,alias));
+        processing_successful = process_result(a.name, a.record, tpreq);
         if (!processing_successful) {
           log_func(1, "mass_dns: Mismatched record for request %s\n", reqt->repr());
         }
       }
       else if (a.record_type == DNS::CNAME) {
         const DNS::CNAME_Record *cname = static_cast<const DNS::CNAME_Record *>(a.record);
-        if((reqt->type == DNS::PTR && DNS::Factory::ptrToIp(a.name, ip))
-          || iequals(a.name, reqt->name) || (!alias.empty() && iequals(a.name, alias)))
-        {
-          alias = cname->value;
-          log_func(TRACE_DEBUG_LEVEL, "mass_dns: CNAME found for <%s> to <%s>\n", a.name.c_str(), alias.c_str());
-        }
+        qname = &cname->value;
+        log_func(TRACE_DEBUG_LEVEL, "mass_dns: CNAME found for <%s> to <%s>\n", a.name.c_str(), qname->c_str());
       }
     }
   }
@@ -1334,7 +1340,7 @@ void DNS::ResolverImpl::handle_read(nsock_pool nsp, nsock_event evt, dns_server 
       // TODO: TCP fallback, or only use system resolver if user didn't specify --dns-servers
       process_request(ACTION_SYSTEM_RESOLVE, reqinfo);
     }
-    else if (!alias.empty()) {
+    else if (!iequals(q.name, *qname)) {
       log_func(TRACE_DEBUG_LEVEL, "mass_dns: CNAME for <%s> not processed.\n", reqt->repr());
       // TODO: Send a PTR request for alias instead. Meanwhile, we'll just fall
       // back to using system resolver. Alternative: report the canonical name
