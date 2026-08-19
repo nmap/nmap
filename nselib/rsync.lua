@@ -62,7 +62,9 @@ Helper = {
     if ( not(status) ) then
       return false, data
     end
-    if ( not(data:match("^@RSYNCD: [%.%d]+$")) ) then
+    -- The version greeting may carry trailing data: protocol 32 servers
+    -- (rsync 3.2.7+) greet with "@RSYNCD: 32.0 sha512 sha256 sha1 md5 md4"
+    if ( not(data:match("^@RSYNCD: [%.%d]+")) ) then
       return false, "Protocol error"
     end
     return true
