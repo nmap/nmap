@@ -2137,6 +2137,10 @@ static void startNextProbe(nsock_pool nsp, nsock_iod nsi, ServiceGroup *SG,
         fatal("Failed to allocate Nsock I/O descriptor in %s()", __func__);
       }
       if (0 == svc->target->SourceSockAddr(&ss, &ss_len)) {
+        // Use the exact protocol-specific length.  Some platforms (e.g. FreeBSD)
+        // reject sizeof(sockaddr_storage) passed to bind() with EINVAL.
+        ss_len = (ss.ss_family == AF_INET6) ?
+          sizeof(struct sockaddr_in6) : sizeof(struct sockaddr_in);
         nsock_iod_set_localaddr(svc->niod, &ss, ss_len);
       }
       if (o.ipoptionslen)
