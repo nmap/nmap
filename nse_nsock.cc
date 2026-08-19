@@ -427,8 +427,12 @@ static nse_nsock_udata *check_nsock_udata (lua_State *L, int idx, bool open)
       } else if (0 == o.SourceSockAddr(&ss, &sslen)) {
         // Use the exact protocol-specific length.  Some platforms (e.g. FreeBSD)
         // reject sizeof(sockaddr_storage) passed to bind() with EINVAL.
-        sslen = (ss.ss_family == AF_INET6) ?
-          sizeof(struct sockaddr_in6) : sizeof(struct sockaddr_in);
+        if (ss.ss_family == AF_INET)
+          sslen = sizeof(struct sockaddr_in);
+#if HAVE_IPV6
+        else if (ss.ss_family == AF_INET6)
+          sslen = sizeof(struct sockaddr_in6);
+#endif
         nsock_iod_set_localaddr(nu->nsiod, &ss, sslen);
       }
       if (o.ipoptionslen)
@@ -554,8 +558,12 @@ static int connect (lua_State *L, int status, lua_KContext ctx)
   } else if (0 == o.SourceSockAddr(&ss, &sslen)) {
     // Use the exact protocol-specific length.  Some platforms (e.g. FreeBSD)
     // reject sizeof(sockaddr_storage) passed to bind() with EINVAL.
-    sslen = (ss.ss_family == AF_INET6) ?
-      sizeof(struct sockaddr_in6) : sizeof(struct sockaddr_in);
+    if (ss.ss_family == AF_INET)
+      sslen = sizeof(struct sockaddr_in);
+#if HAVE_IPV6
+    else if (ss.ss_family == AF_INET6)
+      sslen = sizeof(struct sockaddr_in6);
+#endif
     nsock_iod_set_localaddr(nu->nsiod, &ss, sslen);
   }
   if (o.ipoptionslen)
