@@ -229,10 +229,10 @@ int parse_ip_options(const char *txt, u8 *data, int datalen, int* firsthopoff, i
     case SLASH:
       // parse \x00 string
       if(*c == 'x'){// just ignore this char
-      	base = 16;
+        base = 16;
         break;
       }
-      if(isxdigit(*c)){
+      if(isxdigit((unsigned char)*c)){
         strtolbyte = strtol(c, &n, base);
         if((strtolbyte < 0) || (strtolbyte > 255)){
           if(errstr) Snprintf(errstr, errstrlen, "invalid ipv4 address format");

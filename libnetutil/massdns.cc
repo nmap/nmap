@@ -1164,8 +1164,6 @@ bool DNS::ResolverImpl::process_result(const std::string &name, const DNS::Recor
   }
   const struct sockaddr_storage *ss = NULL;
   const DNS::A_Record *a_rec = NULL;
-  sockaddr_storage ip;
-  ip.ss_family = AF_UNSPEC;
   switch (reqt->type) {
     case DNS::A:
     case DNS::AAAA:
@@ -1304,9 +1302,6 @@ void DNS::ResolverImpl::handle_read(nsock_pool nsp, nsock_event evt, dns_server 
 
     return;
   }
-
-  sockaddr_storage ip;
-  ip.ss_family = AF_UNSPEC;
 
   for(std::list<DNS::Answer>::const_iterator it = p.answers.begin();
       it != p.answers.end(); ++it )

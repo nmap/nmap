@@ -1098,7 +1098,7 @@ static const char *parse_http_version(const char *s, enum http_version *version)
     /* Any version is accepted and not a parse error,
      * but only 1.0 and 1.1 are understood. */
     q = p;
-    while (*q && (isdigit(*q) || (*q == '.' && dot++ == 0))) {
+    while (*q && (isdigit((unsigned char)*q) || (*q == '.' && dot++ == 0))) {
         q++;
     }
     if (*q != '\0' && *q != ' ' && !is_crlf(q)) {
