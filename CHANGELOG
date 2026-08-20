@@ -5,6 +5,8 @@ o [NSE][GH#3430] Nmap now tolerates TLS targets that do not send close_notify.
 
 Nmap 7.991 [2026-08-06]
 
+o Upgraded included OpenSSL to version 3.0.21 on all platforms.
+
 o Fixed a memory-consumption hang in Ncat's HTTP proxy code that affected both
   connect and listen modes, reported by kumama_nui.
 
