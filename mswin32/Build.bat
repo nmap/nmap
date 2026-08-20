@@ -88,7 +88,7 @@ mkdir "%NMAP_AUX_DIR%" 2>nul
 
 :: Install Npcap SDK
 echo Downloading Npcap SDK...
-set NPCAP_URL=https://npcap.com/dist/npcap-sdk-1.13.zip
+set NPCAP_URL=https://npcap.com/dist/npcap-sdk-1.16.zip
 set NPCAP_ZIP=%TEMP%\npcap-sdk.zip
 powershell -Command "Invoke-WebRequest -Uri '%NPCAP_URL%' -OutFile '%NPCAP_ZIP%'"
 if errorlevel 1 (
