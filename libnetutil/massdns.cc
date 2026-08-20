@@ -1596,8 +1596,12 @@ void DNS::ResolverImpl::etchosts_init(void) {
   char tpbuf[2048];
   int has_backslash;
 
-  if (!GetWindowsDirectoryA(windows_dir, sizeof(windows_dir)))
-    log_func(0, "massdns: Failed to determine your windows directory\n");
+  // Can't use log_func() in a static class function, since it is not defined.
+  // Use fprintf instead.
+  if (!GetWindowsDirectoryA(windows_dir, sizeof(windows_dir))) {
+    fprintf(stderr, "massdns: Failed to determine your windows directory\n");
+    return;
+  }
 
   // If it has a backslash it's C:\, otherwise something like C:\WINNT
   has_backslash = (windows_dir[strlen(windows_dir)-1] == '\\');
