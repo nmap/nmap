@@ -354,6 +354,62 @@ ln -sf scan-$date.xml scan-prev.xml
     </para>
   </refsect1>
 
+  <refsect1 id="ndiff-man-python">
+    <title>Using Ndiff as a Python Module</title>
+
+    <para>
+    Since version 6.45, Ndiff installs as a Python module named
+    <literal>ndiff</literal> in addition to the command-line program. The
+    module can be used as a standalone parser for Nmap's XML output (the
+    <option>-oX</option> format), independent of the diffing functionality,
+    which makes it a convenient way to process scan results from Python.
+    </para>
+
+    <para>
+    The <classname>Scan</classname> class represents a single Nmap run. Load a
+    scan from an XML file with <function>load_from_file</function> (or from any
+    file-like object with <function>load</function>), then inspect the parsed
+    objects:
+    <itemizedlist spacing="compact">
+      <listitem><para>A <classname>Scan</classname> has a list of
+      <varname>hosts</varname>, along with <varname>scanner</varname>,
+      <varname>version</varname>, <varname>args</varname>,
+      <varname>start_date</varname>, and <varname>end_date</varname>.</para></listitem>
+      <listitem><para>A <classname>Host</classname> has a
+      <varname>state</varname>, a list of <varname>addresses</varname>, a list
+      of <varname>hostnames</varname>, and a <varname>ports</varname> dictionary
+      mapping each <literal>(number, protocol)</literal> spec to a
+      <classname>Port</classname>. The <function>format_name</function> method
+      returns a human-readable label for the host.</para></listitem>
+      <listitem><para>A <classname>Port</classname> has a
+      <varname>spec</varname>, a <varname>state</varname>, and a
+      <varname>service</varname>; the <function>spec_string</function> and
+      <function>state_string</function> helpers format these for
+      display.</para></listitem>
+    </itemizedlist>
+    </para>
+
+    <example id="ndiff-man-ex-python">
+      <title>Parsing Nmap XML with the ndiff module</title>
+<programlisting>
+import ndiff
+
+scan = ndiff.Scan()
+scan.load_from_file("scan.xml")
+
+for host in scan.hosts:
+    print(host.format_name(), host.state)
+    for spec, port in sorted(host.ports.items()):
+        print(" ", port.spec_string(), port.state_string(), port.service.name)
+</programlisting>
+    </example>
+
+    <para>
+    This interface is shared with Ndiff's own diffing code and has not been
+    formally declared a stable API, so it may change between releases.
+    </para>
+  </refsect1>
+
   <refsect1 id="ndiff-man-exit-code">
     <title>Exit Code</title>
 
