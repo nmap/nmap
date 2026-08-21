@@ -445,9 +445,9 @@ static nse_nsock_udata *check_nsock_udata (lua_State *L, int idx, bool open)
 #define NSOCK_UDATA_ENSURE_OPEN(L, nu) \
 do { \
   if (nu->nsiod == NULL) \
-    return luaL_error(L, "socket must be connected"); \
+    return nseU_safeerror(L, "socket must be connected"); \
   if (nu->af == NSE_AF_PCAP) \
-    return luaL_error(L, "invalid operation on pcap socket"); \
+    return nseU_safeerror(L, "invalid operation on pcap socket"); \
 } while (0)
 
 static int l_loop (lua_State *L)
