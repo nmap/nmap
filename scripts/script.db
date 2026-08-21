@@ -576,6 +576,7 @@ Entry { filename = "telnet-ntlm-info.nse", categories = { "default", "discovery"
 Entry { filename = "tftp-enum.nse", categories = { "discovery", "intrusive", } }
 Entry { filename = "tftp-version.nse", categories = { "default", "safe", "version", } }
 Entry { filename = "tls-alpn.nse", categories = { "default", "discovery", "safe", } }
+Entry { filename = "tls-client-cert-request.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "tls-nextprotoneg.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "tls-ticketbleed.nse", categories = { "safe", "vuln", } }
 Entry { filename = "tn3270-screen.nse", categories = { "discovery", "safe", } }

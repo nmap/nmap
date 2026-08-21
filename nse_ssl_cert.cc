@@ -542,6 +542,40 @@ int l_parse_ssl_certificate(lua_State *L)
   return parse_ssl_cert(L, cert);
 }
 
+int l_parse_ssl_name(lua_State *L)
+{
+  BIO *out;
+  X509_NAME *name;
+  size_t l;
+  const char *der;
+
+  der = luaL_checklstring(L, 1, &l);
+  if (der == NULL) {
+    lua_pushnil(L);
+    return 1;
+  }
+
+  name = d2i_X509_NAME(NULL, (const unsigned char **) &der, l);
+  if (name == NULL) {
+    lua_pushnil(L);
+    return 1;
+  }
+
+  out = BIO_new(BIO_s_mem());
+  if (out == NULL || X509_NAME_print_ex(out, name, 0, XN_FLAG_ONELINE) < 0) {
+    BIO_free_all(out);
+    X509_NAME_free(name);
+    lua_pushnil(L);
+    return 1;
+  }
+  char *value = NULL;
+  long len = BIO_get_mem_data(out, &value);
+  lua_pushlstring(L, value, len);
+  BIO_free_all(out);
+  X509_NAME_free(name);
+  return 1;
+}
+
 int l_get_ssl_certificate(lua_State *L)
 {
   SSL *ssl;
