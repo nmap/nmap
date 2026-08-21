@@ -1560,6 +1560,14 @@ handshake_parse = {
         return b, j
       end,
 
+      -- The contents depend on the selected key exchange algorithm. Keep the
+      -- message available without attempting to interpret an algorithm-specific
+      -- structure.
+      server_key_exchange = function (buffer, j, msg_end)
+        local b = {}
+        b.data, j = unpack("c" .. msg_end - j, buffer, j)
+        return b, j
+      end,
       NewSessionTicket = function (buffer, j, msg_end, protocol)
         -- Need 4 bytes for parsing.
         local have = #buffer - j + 1
