@@ -34,13 +34,11 @@ action = function(host, port)
     return fail("Failed to create rsync.Helper")
   end
 
-  local status, err = helper:connect()
-  if ( not(status) ) then
+  if not helper:connect() then
     return fail("Failed to connect to rsync server")
   end
 
-  local modules = {}
-  status, modules = helper:listModules()
+  local status, modules = helper:listModules()
   if ( not(status) ) then
     return fail("Failed to retrieve a list of modules")
   end
