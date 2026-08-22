@@ -75,19 +75,17 @@ Helper = {
       return false, data
     end
 
-    local chall
     if ( data:match("@RSYNCD: OK") ) then
       return true, "No authentication was required"
-    else
-      chall = data:match("^@RSYNCD: AUTHREQD (.*)$")
-      if ( not(chall) and data:match("^@ERROR: Unknown module") ) then
-        return false, data:match("^@ERROR: (.*)$")
-      elseif ( not(chall) ) then
-        return false, "Failed to retrieve challenge"
-      end
+    end
+    local chall = data:match("^@RSYNCD: AUTHREQD (.*)$")
+    if ( not(chall) and data:match("^@ERROR: Unknown module") ) then
+      return false, data:match("^@ERROR: (.*)$")
+    elseif ( not(chall) ) then
+      return false, "Failed to retrieve challenge"
     end
 
-    if ( chall and not(username) ) then
+    if not username then
       return false, "Authentication required"
     end
 
@@ -121,9 +119,8 @@ Helper = {
       end
       if ( data == "@RSYNCD: EXIT" ) then
         break
-      else
-        table.insert(modules, data)
       end
+      table.insert(modules, data)
     end
     return true, modules
   end,
