@@ -62,7 +62,7 @@ Helper = {
     if ( not(status) ) then
       return false, data
     end
-    if ( not(data:match("^@RSYNCD: [%.%d]+$")) ) then
+    if ( not(data:match("^@RSYNCD: [.%d]+%f[ \0]")) ) then
       return false, "Protocol error"
     end
     return true

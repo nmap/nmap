@@ -1,5 +1,8 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE][GH#3440] The rsync library was not correctly parsing server responses
+  for protocol version 32. [h00die]
+
 o [NSE][GH#3430] Nmap now tolerates TLS targets that do not send close_notify.
   [nnposter]
 
