@@ -30,20 +30,16 @@ Helper = {
   end,
 
   -- Handles send and receive of control messages
-  -- @param data string containing the command to send
+  -- @param cmd string containing the command to send
   -- @return status true on success, false on failure
   -- @return data containing the response from the server
   --         err string, if status is false
-  ctrl_exch = function(self, data)
-    local status, err = self.socket:send(data.."\n")
-    if ( not(status) ) then
+  ctrl_exch = function(self, cmd)
+    local status, err = self.socket:send(cmd .. "\n")
+    if not status then
       return false, err
     end
-    local status, data = self.socket:receive_buf(match.pattern_limit("\n", 2048), false)
-    if( not(status) ) then
-      return false, err
-    end
-    return true, data
+    return self.socket:receive_buf(match.pattern_limit("\n", 2048), false)
   end,
 
   -- Connects to the rsync server
@@ -137,8 +133,9 @@ Helper = {
   --       first, but wasn't.
   listFiles = function(self)
     -- list recursively and enable MD4 checksums
+    local status
     local data = ("--server\n--sender\n-rc\n.\n%s\n\n"):format(self.options.module)
-    local status, data = self.socket:send(data)
+    status, data = self.socket:send(data)
     if ( not(status) ) then
       return false, data
     end
