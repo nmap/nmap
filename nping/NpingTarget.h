@@ -144,9 +144,9 @@ class NpingTarget {
 
     /* Source address used to reach the target */
     int getSourceSockAddr(struct sockaddr_storage *ss, size_t *ss_len);
-    int setSourceSockAddr(struct sockaddr_storage *ss, size_t ss_len);
+    int setSourceSockAddr(const struct sockaddr_storage *ss, size_t ss_len);
     int getSpoofedSourceSockAddr(struct sockaddr_storage *ss, size_t *ss_len);
-    int setSpoofedSourceSockAddr(struct sockaddr_storage *ss, size_t ss_len);
+    int setSpoofedSourceSockAddr(const struct sockaddr_storage *ss, size_t ss_len);
     bool spoofingSourceAddress();
     struct in_addr getIPv4SourceAddress();  
     const struct in_addr *getIPv4SourceAddress_aux();

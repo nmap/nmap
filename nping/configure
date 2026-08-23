@@ -661,6 +661,7 @@ PCAP_CLEAN
 PCAP_BUILD
 PCAP_DEPENDS
 OPENSSL_LIBS
+ENABLE_FUZZING
 STRIP
 INSTALL_DATA
 INSTALL_SCRIPT
@@ -728,6 +729,7 @@ ac_subst_files=''
 ac_user_opts='
 enable_option_checking
 with_localdirs
+enable_fuzzing
 with_openssl
 with_libpcap
 with_libdnet
@@ -1359,6 +1361,12 @@ fi
 if test -n "$ac_init_help"; then
 
   cat <<\_ACEOF
+
+Optional Features:
+  --disable-option-checking  ignore unrecognized --enable/--with options
+  --disable-FEATURE       do not include FEATURE (same as --enable-FEATURE=no)
+  --enable-FEATURE[=ARG]  include FEATURE [ARG=yes]
+  --enable-fuzzing        build fuzz targets
 
 Optional Packages:
   --with-PACKAGE[=ARG]    use PACKAGE [ARG=yes]
@@ -2772,6 +2780,67 @@ ac_cpp='$CPP $CPPFLAGS'
 ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
 ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
 ac_compiler_gnu=$ac_cv_c_compiler_gnu
+
+
+
+# ===========================================================================
+#   http://www.gnu.org/software/autoconf-archive/ax_check_compile_flag.html
+# ===========================================================================
+#
+# SYNOPSIS
+#
+#   AX_CHECK_COMPILE_FLAG(FLAG, [ACTION-SUCCESS], [ACTION-FAILURE], [EXTRA-FLAGS], [INPUT])
+#
+# DESCRIPTION
+#
+#   Check whether the given FLAG works with the current language's compiler
+#   or gives an error.  (Warnings, however, are ignored)
+#
+#   ACTION-SUCCESS/ACTION-FAILURE are shell commands to execute on
+#   success/failure.
+#
+#   If EXTRA-FLAGS is defined, it is added to the current language's default
+#   flags (e.g. CFLAGS) when the check is done.  The check is thus made with
+#   the flags: "CFLAGS EXTRA-FLAGS FLAG".  This can for example be used to
+#   force the compiler to issue an error when a bad flag is given.
+#
+#   INPUT gives an alternative input source to AC_COMPILE_IFELSE.
+#
+#   NOTE: Implementation based on AX_CFLAGS_GCC_OPTION. Please keep this
+#   macro in sync with AX_CHECK_{PREPROC,LINK}_FLAG.
+#
+# LICENSE
+#
+#   Copyright (c) 2008 Guido U. Draheim <guidod@gmx.de>
+#   Copyright (c) 2011 Maarten Bosmans <mkbosmans@gmail.com>
+#
+#   This program is free software: you can redistribute it and/or modify it
+#   under the terms of the GNU General Public License as published by the
+#   Free Software Foundation, either version 3 of the License, or (at your
+#   option) any later version.
+#
+#   This program is distributed in the hope that it will be useful, but
+#   WITHOUT ANY WARRANTY; without even the implied warranty of
+#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
+#   Public License for more details.
+#
+#   You should have received a copy of the GNU General Public License along
+#   with this program. If not, see <http://www.gnu.org/licenses/>.
+#
+#   As a special exception, the respective Autoconf Macro's copyright owner
+#   gives unlimited permission to copy, distribute and modify the configure
+#   scripts that are the output of Autoconf when processing the Macro. You
+#   need not follow the terms of the GNU General Public License when using
+#   or distributing such scripts, even though portions of the text of the
+#   Macro appear in them. The GNU General Public License (GPL) does govern
+#   all other use of the material that constitutes the Autoconf Macro.
+#
+#   This special exception to the GPL applies to versions of the Autoconf
+#   Macro released by the Autoconf Archive. When you make and distribute a
+#   modified version of the Autoconf Macro, you may extend this special
+#   exception to the GPL to apply to your modified version as well.
+
+#serial 4
 
 
 
@@ -5186,15 +5255,18 @@ printf %s "checking for __func__... " >&6; }
 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 
-#include <stdio.h>
+    #include <stdio.h>
 
 int
 main (void)
 {
-printf ("%s", __func__);
+
+    printf ("%s", __func__);
+
   ;
   return 0;
 }
+
 _ACEOF
 if ac_fn_c_try_compile "$LINENO"
 then :
@@ -5203,10 +5275,14 @@ else $as_nop
   have_func=no
 fi
 rm -f core conftest.err conftest.$ac_objext conftest.beam conftest.$ac_ext
-if test "x$have_func" = "xyes"; then
+if test "x$have_func" = "xyes"
+then :
+
    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 printf "%s\n" "yes" >&6; }
-else
+
+else $as_nop
+
    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
 printf "%s\n" "no" >&6; }
    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for __FUNCTION__" >&5
@@ -5214,12 +5290,14 @@ printf %s "checking for __FUNCTION__... " >&6; }
    cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 
-#include <stdio.h>
+       #include <stdio.h>
 
 int
 main (void)
 {
-printf ("%s", __FUNCTION__);
+
+       printf ("%s", __FUNCTION__);
+
   ;
   return 0;
 }
@@ -5231,18 +5309,25 @@ else $as_nop
   have_function=no
 fi
 rm -f core conftest.err conftest.$ac_objext conftest.beam conftest.$ac_ext
-   if test "x$have_function" = "xyes"; then
+   if test "x$have_function" = "xyes"
+then :
+
       { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 printf "%s\n" "yes" >&6; }
       printf "%s\n" "#define __func__ __FUNCTION__" >>confdefs.h
 
-   else
+
+else $as_nop
+
       { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
 printf "%s\n" "no" >&6; }
       printf "%s\n" "#define __func__ __FILE__" >>confdefs.h
 
-   fi
+
 fi
+
+fi
+
 
 if test -n "$ac_tool_prefix"; then
   # Extract the first word of "${ac_tool_prefix}strip", so it can be a program name with args.
@@ -5400,6 +5485,12 @@ ac_fn_c_check_header_compile "$LINENO" "sys/sockio.h" "ac_cv_header_sys_sockio_h
 if test "x$ac_cv_header_sys_sockio_h" = xyes
 then :
   printf "%s\n" "#define HAVE_SYS_SOCKIO_H 1" >>confdefs.h
+
+fi
+ac_fn_c_check_header_compile "$LINENO" "sys/time.h" "ac_cv_header_sys_time_h" "$ac_includes_default"
+if test "x$ac_cv_header_sys_time_h" = xyes
+then :
+  printf "%s\n" "#define HAVE_SYS_TIME_H 1" >>confdefs.h
 
 fi
 
@@ -5645,6 +5736,129 @@ then :
 fi
 
 
+# Check whether --enable-fuzzing was given.
+if test ${enable_fuzzing+y}
+then :
+  enableval=$enable_fuzzing;
+else $as_nop
+  enable_fuzzing=no
+fi
+
+
+if test "x$enable_fuzzing" = "xyes"
+then :
+
+
+  ac_ext=c
+ac_cpp='$CPP $CPPFLAGS'
+ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
+ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
+ac_compiler_gnu=$ac_cv_c_compiler_gnu
+
+  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether C compiler accepts -fsanitize=fuzzer-no-link,address,undefined -fno-omit-frame-pointer" >&5
+printf %s "checking whether C compiler accepts -fsanitize=fuzzer-no-link,address,undefined -fno-omit-frame-pointer... " >&6; }
+if test ${ax_cv_check_cflags__FUZZ_FLAGS+y}
+then :
+  printf %s "(cached) " >&6
+else $as_nop
+
+  ax_check_save_flags=$CFLAGS
+  CFLAGS="$CFLAGS  -fsanitize=fuzzer-no-link,address,undefined -fno-omit-frame-pointer"
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main (void)
+{
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_compile "$LINENO"
+then :
+  ax_cv_check_cflags__FUZZ_FLAGS=yes
+else $as_nop
+  ax_cv_check_cflags__FUZZ_FLAGS=no
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.beam conftest.$ac_ext
+  CFLAGS=$ax_check_save_flags
+fi
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ax_cv_check_cflags__FUZZ_FLAGS" >&5
+printf "%s\n" "$ax_cv_check_cflags__FUZZ_FLAGS" >&6; }
+if test "x$ax_cv_check_cflags__FUZZ_FLAGS" = xyes
+then :
+  CFLAGS="$CFLAGS -fsanitize=fuzzer-no-link,address,undefined -fno-omit-frame-pointer"
+else $as_nop
+  as_fn_error $? "$CC does not support fuzzing" "$LINENO" 5
+fi
+
+  ac_ext=c
+ac_cpp='$CPP $CPPFLAGS'
+ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
+ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
+ac_compiler_gnu=$ac_cv_c_compiler_gnu
+
+
+  ac_ext=cpp
+ac_cpp='$CXXCPP $CPPFLAGS'
+ac_compile='$CXX -c $CXXFLAGS $CPPFLAGS conftest.$ac_ext >&5'
+ac_link='$CXX -o conftest$ac_exeext $CXXFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
+ac_compiler_gnu=$ac_cv_cxx_compiler_gnu
+
+  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether C++ compiler accepts -fsanitize=fuzzer-no-link,address,undefined -fno-omit-frame-pointer" >&5
+printf %s "checking whether C++ compiler accepts -fsanitize=fuzzer-no-link,address,undefined -fno-omit-frame-pointer... " >&6; }
+if test ${ax_cv_check_cxxflags__FUZZ_FLAGS+y}
+then :
+  printf %s "(cached) " >&6
+else $as_nop
+
+  ax_check_save_flags=$CXXFLAGS
+  CXXFLAGS="$CXXFLAGS  -fsanitize=fuzzer-no-link,address,undefined -fno-omit-frame-pointer"
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main (void)
+{
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_cxx_try_compile "$LINENO"
+then :
+  ax_cv_check_cxxflags__FUZZ_FLAGS=yes
+else $as_nop
+  ax_cv_check_cxxflags__FUZZ_FLAGS=no
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.beam conftest.$ac_ext
+  CXXFLAGS=$ax_check_save_flags
+fi
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ax_cv_check_cxxflags__FUZZ_FLAGS" >&5
+printf "%s\n" "$ax_cv_check_cxxflags__FUZZ_FLAGS" >&6; }
+if test "x$ax_cv_check_cxxflags__FUZZ_FLAGS" = xyes
+then :
+  CXXFLAGS="$CXXFLAGS -fsanitize=fuzzer-no-link,address,undefined -fno-omit-frame-pointer"
+else $as_nop
+  as_fn_error $? "$CXX does not support fuzzing" "$LINENO" 5
+fi
+
+  ac_ext=c
+ac_cpp='$CPP $CPPFLAGS'
+ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
+ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
+ac_compiler_gnu=$ac_cv_c_compiler_gnu
+
+  LDFLAGS="$LDFLAGS -fsanitize=address,undefined -fno-omit-frame-pointer"
+
+printf "%s\n" "#define ENABLE_FUZZING 1" >>confdefs.h
+
+
+fi
+ENABLE_FUZZING=$enable_fuzzing
+
+
 # We test whether they specified openssl desires explicitly
 use_openssl="yes"
 specialssldir=""
@@ -5669,7 +5883,9 @@ fi
 
 
 # If they didn't specify it, we try to find it
-if test "$use_openssl" = "yes" -a -z "$specialssldir"; then
+if test "x$use_openssl" = "xyes" -a -z "$specialssldir"
+then :
+
   ac_fn_c_check_header_compile "$LINENO" "openssl/ssl.h" "ac_cv_header_openssl_ssl_h" "$ac_includes_default"
 if test "x$ac_cv_header_openssl_ssl_h" = xyes
 then :
@@ -5686,7 +5902,9 @@ fi
 
 
 # use_openssl="yes" given explicitly in next 2 rules to avoid adding lib to $LIBS
- if test "$use_openssl" = "yes"; then
+ if test "x$use_openssl" = "xyes"
+then :
+
    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for BIO_int_ctrl in -lcrypto" >&5
 printf %s "checking for BIO_int_ctrl in -lcrypto... " >&6; }
 if test ${ac_cv_lib_crypto_BIO_int_ctrl+y}
@@ -5735,9 +5953,12 @@ printf "%s\n" "$as_me: WARNING: Failed to find libcrypto so OpenSSL will not be 
 
 fi
 
- fi
 
- if test "$use_openssl" = "yes"; then
+fi
+
+ if test "x$use_openssl" = "xyes"
+then :
+
    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for SSL_new in -lssl" >&5
 printf %s "checking for SSL_new in -lssl... " >&6; }
 if test ${ac_cv_lib_ssl_SSL_new+y}
@@ -5785,11 +6006,15 @@ else $as_nop
 printf "%s\n" "$as_me: WARNING: Failed to find libssl so OpenSSL will not be used. If it is installed you can try the --with-openssl=DIR argument" >&2;}
 fi
 
- fi
+
+fi
+
 fi
 
 OPENSSL_LIBS=
-if test "$use_openssl" = "yes"; then
+if test "x$use_openssl" = "xyes"
+then :
+
 
 printf "%s\n" "#define HAVE_OPENSSL 1" >>confdefs.h
 
@@ -5806,6 +6031,7 @@ else $as_nop
 fi
 
   LIBS="$LIBS_TMP"
+
 fi
 
 
@@ -5819,8 +6045,9 @@ test "${with_libpcap+set}" != "set" && with_libpcap=yes
 # Check whether --with-libpcap was given.
 if test ${with_libpcap+y}
 then :
-  withval=$with_libpcap;   case "$with_libpcap" in
-  yes)
+  withval=$with_libpcap;   case "$with_libpcap" in #(
+  yes) :
+
     ac_fn_c_check_header_compile "$LINENO" "pcap.h" "ac_cv_header_pcap_h" "$ac_includes_default"
 if test "x$ac_cv_header_pcap_h" = xyes
 then :
@@ -5867,11 +6094,13 @@ fi
 
 fi
 
-    ;;
-  included)
+     ;; #(
+  included) :
+
     have_libpcap=no
-   ;;
-  *)
+    ;; #(
+  *) :
+
     _cppflags=$CPPFLAGS
     _ldflags=$LDFLAGS
 
@@ -5929,8 +6158,11 @@ fi
 
     LDFLAGS=$_ldflags
     CPPFLAGS=$_cppflags
-    ;;
-  esac
+
+   ;; #(
+  *) :
+     ;;
+esac
 
 fi
 
@@ -5939,16 +6171,7 @@ if test $needs_cpp_precomp = yes; then
   CXXFLAGS="-no-cpp-precomp $CXXFLAGS"
 fi
 
-if test $have_libpcap = yes; then
-  if test "${LIBPCAP_INC+set}" = "set"; then
-    CPPFLAGS="-I$LIBPCAP_INC $CPPFLAGS"
-    LDFLAGS="-L$LIBPCAP_LIB $LDFLAGS"
-  fi
-
-  # link with -lpcap for the purposes of this test
-  LIBS_OLD="$LIBS"
-  LIBS="$LIBS -lpcap"
-  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for $CC options needed to detect all undeclared functions" >&5
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for $CC options needed to detect all undeclared functions" >&5
 printf %s "checking for $CC options needed to detect all undeclared functions... " >&6; }
 if test ${ac_cv_c_undeclared_builtin_options+y}
 then :
@@ -6028,6 +6251,17 @@ See \`config.log' for more details" "$LINENO" 5; } ;; #(
     ac_c_undeclared_builtin_options=$ac_cv_c_undeclared_builtin_options ;;
 esac
 
+if test x$have_libpcap = xyes
+then :
+
+  if test "${LIBPCAP_INC+set}" = "set"; then
+    CPPFLAGS="-I$LIBPCAP_INC $CPPFLAGS"
+    LDFLAGS="-L$LIBPCAP_LIB $LDFLAGS"
+  fi
+
+  # link with -lpcap for the purposes of this test
+  LIBS_OLD="$LIBS"
+  LIBS="$LIBS -lpcap"
 
   ac_fn_c_check_header_compile "$LINENO" "sys/ioccom.h" "ac_cv_header_sys_ioccom_h" "$ac_includes_default"
 if test "x$ac_cv_header_sys_ioccom_h" = xyes
@@ -6060,7 +6294,11 @@ else $as_nop
 
 #include <stdio.h>
 extern char pcap_version[];
-int main() {
+
+int
+main (void)
+{
+
   int major, minor1, minor2;
   sscanf(pcap_version,"%d.%d.%d", &major, &minor1, &minor2);
   if (major > 0)
@@ -6069,9 +6307,10 @@ int main() {
     return 1;
   if (minor2 < 4)
     return 1;
+
+  ;
   return 0;
 }
-
 _ACEOF
 if ac_fn_c_try_run "$LINENO"
 then :
@@ -6098,7 +6337,11 @@ else $as_nop
 #include <net/bpf.h>
 #endif
 extern char pcap_version[];
-int main() {
+
+int
+main (void)
+{
+
   int major, minor;
   sscanf(pcap_version,"%d.%d", &major, &minor);
   if ((major == 1 && minor >= 1) || major > 1)
@@ -6109,9 +6352,10 @@ int main() {
     return 1;
 #endif
 #endif
+
+  ;
   return 0;
 }
-
 _ACEOF
 if ac_fn_c_try_run "$LINENO"
 then :
@@ -6146,9 +6390,12 @@ fi
 
 
   LIBS="$LIBS_OLD"
+
 fi
 
-if test $have_libpcap != yes; then
+if test x$have_libpcap != xyes
+then :
+
   if test "${LIBPCAP_INC+set}" = "set"; then
     LDFLAGS="-L$libpcapdir $_ldflags"
     CPPFLAGS="$CPPFLAGS -I$LIBPCAP_INC"
@@ -6161,7 +6408,9 @@ if test $have_libpcap != yes; then
   PCAP_BUILD="build-pcap"
   PCAP_CLEAN="clean-pcap"
   PCAP_DIST_CLEAN="distclean-pcap"
-else
+
+else $as_nop
+
 
 printf "%s\n" "#define HAVE_LIBPCAP 1" >>confdefs.h
 
@@ -6170,6 +6419,7 @@ printf "%s\n" "#define HAVE_LIBPCAP 1" >>confdefs.h
   PCAP_BUILD=""
   PCAP_CLEAN=""
   PCAP_DIST_CLEAN=""
+
 fi
 
 
@@ -6178,10 +6428,14 @@ fi
 
 
 
-if test $have_libpcap != yes ; then
 
 
-subdirs="$subdirs libpcap"
+if test x$have_libpcap != xyes
+then :
+
+  ac_configure_args="$ac_configure_args '--disable-dbus' '--disable-rdma'"
+        subdirs="$subdirs libpcap"
+
 
 fi
 
@@ -6215,7 +6469,9 @@ fi
 
 
 # If they didn't provide location, we use the included one
-if test $have_dnet != yes ; then
+if test x$have_dnet != xyes
+then :
+
   subdirs="$subdirs libdnet-stripped"
 
   CPPFLAGS="-I$LIBDNETDIR/include $CPPFLAGS"
@@ -6224,12 +6480,15 @@ if test $have_dnet != yes ; then
   DNET_BUILD="build-dnet"
   DNET_CLEAN="clean-dnet"
   DNET_DIST_CLEAN="distclean-dnet"
-else
+
+else $as_nop
+
   LIBDNET_LIBS="-ldnet"
   DNET_DEPENDS=""
   DNET_BUILD=""
   DNET_CLEAN=""
   DNET_DIST_CLEAN=""
+
 fi
 
 
@@ -6269,9 +6528,12 @@ rm -f core conftest.err conftest.$ac_objext conftest.beam conftest.$ac_ext
 fi
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ac_cv_sockaddr_has_sa_len" >&5
 printf "%s\n" "$ac_cv_sockaddr_has_sa_len" >&6; }
-if test $ac_cv_sockaddr_has_sa_len = yes ; then
+if test x$ac_cv_sockaddr_has_sa_len = xyes
+then :
+
 
 printf "%s\n" "#define HAVE_SOCKADDR_SA_LEN 1" >>confdefs.h
+
 
 fi
 
@@ -6306,9 +6568,12 @@ rm -f core conftest.err conftest.$ac_objext conftest.beam conftest.$ac_ext
 fi
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ac_cv_sockaddr_in_has_sin_len" >&5
 printf "%s\n" "$ac_cv_sockaddr_in_has_sin_len" >&6; }
-if test $ac_cv_sockaddr_in_has_sin_len = yes ; then
+if test x$ac_cv_sockaddr_in_has_sin_len = xyes
+then :
+
 
 printf "%s\n" "#define HAVE_SOCKADDR_IN_SIN_LEN 1" >>confdefs.h
+
 
 fi
 
@@ -6343,9 +6608,12 @@ rm -f core conftest.err conftest.$ac_objext conftest.beam conftest.$ac_ext
 fi
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ac_cv_sockaddr_in6_has_sin6_len" >&5
 printf "%s\n" "$ac_cv_sockaddr_in6_has_sin6_len" >&6; }
-if test $ac_cv_sockaddr_in6_has_sin6_len = yes ; then
+if test x$ac_cv_sockaddr_in6_has_sin6_len = xyes
+then :
+
 
 printf "%s\n" "#define HAVE_SOCKADDR_IN6_SIN6_LEN 1" >>confdefs.h
+
 
 fi
 
@@ -6591,7 +6859,9 @@ printf %s "checking if struct in_addr is a wacky huge structure (some Sun boxes)
 
 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
-#include <netinet/in.h>
+
+     #include <netinet/in.h>
+
 int
 main (void)
 {
@@ -6599,20 +6869,24 @@ struct in_addr i; i._S_un._S_addr;
   ;
   return 0;
 }
+
 _ACEOF
 if ac_fn_c_try_compile "$LINENO"
 then :
-  \
-             printf "%s\n" "#define IN_ADDR_DEEPSTRUCT 1" >>confdefs.h
- \
-             { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+
+    printf "%s\n" "#define IN_ADDR_DEEPSTRUCT 1" >>confdefs.h
+
+    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 printf "%s\n" "yes" >&6; }
+
 else $as_nop
-  \
-             cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+
+    cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
-#include <sys/types.h>
-#include <netinet/in.h>
+
+         #include <sys/types.h>
+         #include <netinet/in.h>
+
 int
 main (void)
 {
@@ -6620,57 +6894,26 @@ struct in_addr i; i.S_un.S_addr;
   ;
   return 0;
 }
+
 _ACEOF
 if ac_fn_c_try_compile "$LINENO"
 then :
-  \
-                             printf "%s\n" "#define IN_ADDR_DEEPSTRUCT 1" >>confdefs.h
- \
-                             { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+
+        printf "%s\n" "#define IN_ADDR_DEEPSTRUCT 1" >>confdefs.h
+
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 printf "%s\n" "yes" >&6; }
+
 else $as_nop
-  \
-                             { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
-printf "%s\n" "no" >&6; };
-fi
-rm -f core conftest.err conftest.$ac_objext conftest.beam conftest.$ac_ext
+
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+printf "%s\n" "no" >&6; }
+
 fi
 rm -f core conftest.err conftest.$ac_objext conftest.beam conftest.$ac_ext
 
-#AC_CACHE_CHECK(if struct icmp exists, ac_cv_struct_icmp_exists,
-        #AC_TRY_COMPILE([
-               ##include <sys/types.h>
-               ##include <sys/param.h>
-               ##include <netinet/in_systm.h>
-               ##include <netinet/in.h>
-               ##define __USE_BSD
-               ##define __FAVOR_BSD
-               ##define _BSD_SOURCE
-               ##include <netinet/ip.h>
-               ##include <netinet/ip_icmp.h>],
-                #[unsigned int i = sizeof(struct icmp)],
-        #ac_cv_struct_icmp_exists=yes,
-        #ac_cv_struct_icmp_exists=no))
-#if test $ac_cv_struct_icmp_exists = yes ; then
-        #AC_DEFINE(HAVE_STRUCT_ICMP)
-#fi
-
-#AC_CACHE_CHECK(if struct ip exists, ac_cv_struct_ip_exists,
-        #AC_TRY_COMPILE([
-               ##include <sys/types.h>
-               ##include <sys/param.h>
-               ##include <netinet/in_systm.h>
-               ##include <netinet/in.h>
-               ##define __USE_BSD
-               ##define __FAVOR_BSD
-               ##define _BSD_SOURCE
-               ##include <netinet/ip.h>],
-                #[unsigned int i = sizeof(struct ip)],
-        #ac_cv_struct_ip_exists=yes,
-        #ac_cv_struct_ip_exists=no))
-#if test $ac_cv_struct_ip_exists = yes ; then
-        #AC_DEFINE(HAVE_STRUCT_IP)
-#fi
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.beam conftest.$ac_ext
 
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking if struct ip has ip_sum member" >&5
 printf %s "checking if struct ip has ip_sum member... " >&6; }
@@ -6708,9 +6951,12 @@ rm -f core conftest.err conftest.$ac_objext conftest.beam conftest.$ac_ext
 fi
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ac_cv_ip_has_ip_sum" >&5
 printf "%s\n" "$ac_cv_ip_has_ip_sum" >&6; }
-if test $ac_cv_ip_has_ip_sum = yes ; then
+if test x$ac_cv_ip_has_ip_sum = xyes
+then :
+
 
 printf "%s\n" "#define HAVE_IP_IP_SUM 1" >>confdefs.h
+
 
 fi
 
@@ -6752,9 +6998,12 @@ rm -f core conftest.err conftest.$ac_objext conftest.beam conftest.$ac_ext
 fi
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ac_cv_have_signal" >&5
 printf "%s\n" "$ac_cv_have_signal" >&6; }
-if test $ac_cv_have_signal = yes ; then
+if test x$ac_cv_have_signal = xyes
+then :
+
 
 printf "%s\n" "#define HAVE_SIGNAL 1" >>confdefs.h
+
 
 fi
 
@@ -6763,38 +7012,45 @@ fi
 
 
 
-case "$host" in
-  *alpha-dec-osf*)
+case "$host" in #(
+  *alpha-dec-osf*) :
+
 
 printf "%s\n" "#define DEC 1" >>confdefs.h
 
-    ;;
-  *-netbsd* | *-knetbsd*-gnu)
+     ;; #(
+  *-netbsd* | *-knetbsd*-gnu) :
+
 
 printf "%s\n" "#define NETBSD 1" >>confdefs.h
 
-    ;;
-  *-openbsd*)
+     ;; #(
+  *-openbsd*) :
+
 
 printf "%s\n" "#define OPENBSD 1" >>confdefs.h
 
-    ;;
-  *-freebsd* | *-kfreebsd*-gnu | *-dragonfly*)
+     ;; #(
+  *-freebsd* | *-kfreebsd*-gnu | *-dragonfly*) :
+
 
 printf "%s\n" "#define FREEBSD 1" >>confdefs.h
 
-    ;;
-  *-bsdi*)
+     ;; #(
+  *-bsdi*) :
+
 
 printf "%s\n" "#define BSDI 1" >>confdefs.h
 
-    ;;
-  *-sgi-irix5* | *-sgi-irix6*)
+     ;; #(
+  *-sgi-irix5* | *-sgi-irix6*) :
+
 
 printf "%s\n" "#define IRIX 1" >>confdefs.h
 
-    ;;
-  *-hpux*)
+     ;; #(
+  *-hpux*) :
+
 
 printf "%s\n" "#define HPUX 1" >>confdefs.h
 
@@ -6843,8 +7099,9 @@ then :
 
 fi
 
-    ;;
-  *-aix*)
+     ;; #(
+  *-aix*) :
+
     # use some AIX specific libraries
     { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for odm_initialize in -lodm" >&5
 printf %s "checking for odm_initialize in -lodm... " >&6; }
@@ -6975,65 +7232,76 @@ then :
 
 fi
 
-    ;;
-  *-solaris2.0*)
+     ;; #(
+  *-solaris2.0*) :
+
     printf "%s\n" "#define STUPID_SOLARIS_CHECKSUM_BUG 1" >>confdefs.h
 
     printf "%s\n" "#define SOLARIS 1" >>confdefs.h
 
-    ;;
-  *-solaris2.[1-9][0-9]*)
+     ;; #(
+  *-solaris2.[1-9][0-9]*) :
+
     printf "%s\n" "#define SOLARIS 1" >>confdefs.h
 
-    ;;
-  *-solaris2.1*)
+     ;; #(
+  *-solaris2.1*) :
+
     printf "%s\n" "#define STUPID_SOLARIS_CHECKSUM_BUG 1" >>confdefs.h
 
     printf "%s\n" "#define SOLARIS 1" >>confdefs.h
 
-    ;;
-  *-solaris2.2*)
+     ;; #(
+  *-solaris2.2*) :
+
     printf "%s\n" "#define STUPID_SOLARIS_CHECKSUM_BUG 1" >>confdefs.h
 
     printf "%s\n" "#define SOLARIS 1" >>confdefs.h
 
-    ;;
-  *-solaris2.3*)
+     ;; #(
+  *-solaris2.3*) :
+
     printf "%s\n" "#define STUPID_SOLARIS_CHECKSUM_BUG 1" >>confdefs.h
 
     printf "%s\n" "#define SOLARIS 1" >>confdefs.h
 
-    ;;
-  *-solaris2.4*)
+     ;; #(
+  *-solaris2.4*) :
+
     printf "%s\n" "#define STUPID_SOLARIS_CHECKSUM_BUG 1" >>confdefs.h
 
     printf "%s\n" "#define SOLARIS 1" >>confdefs.h
 
-    ;;
-  *-solaris2.5.1)
+     ;; #(
+  *-solaris2.5.1) :
+
     printf "%s\n" "#define STUPID_SOLARIS_CHECKSUM_BUG 1" >>confdefs.h
 
     printf "%s\n" "#define SOLARIS 1" >>confdefs.h
 
-    ;;
-  *-solaris*)
+     ;; #(
+  *-solaris*) :
+
     printf "%s\n" "#define SOLARIS 1" >>confdefs.h
 
-    ;;
-  *-sunos4*)
+     ;; #(
+  *-sunos4*) :
+
 
 printf "%s\n" "#define SUNOS 1" >>confdefs.h
 
 
 printf "%s\n" "#define SPRINTF_RETURNS_STRING 1" >>confdefs.h
 
-    ;;
-  *-linux*)
+     ;; #(
+  *-linux*) :
+
 
 printf "%s\n" "#define LINUX 1" >>confdefs.h
 
-    ;;
-  *-apple-darwin*)
+     ;; #(
+  *-apple-darwin*) :
+
 
 printf "%s\n" "#define MACOSX 1" >>confdefs.h
 
@@ -7078,7 +7346,10 @@ then :
 fi
 
     needs_cpp_precomp=yes
-    ;;
+
+ ;; #(
+  *) :
+     ;;
 esac
 
 
@@ -8514,6 +8785,7 @@ if test -n "$ac_unrecognized_opts" && test "$enable_option_checking" != no; then
   { printf "%s\n" "$as_me:${as_lineno-$LINENO}: WARNING: unrecognized options: $ac_unrecognized_opts" >&5
 printf "%s\n" "$as_me: WARNING: unrecognized options: $ac_unrecognized_opts" >&2;}
 fi
+
 
 # Some ASCII ART#!#@$!@#$
 if test -f docs/leet-nping-ascii-art.txt; then

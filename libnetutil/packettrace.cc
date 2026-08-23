@@ -268,6 +268,12 @@ static inline char* STRAPP(const char *fmt, ...) {
   if(tt >= option_end)	\
   	{option_type = HEXDUMP; break;}
 
+static u32 unaligned_ntohl(const u8 *p) {
+  return (u32)(p[0] << 24) + (p[1] << 16) + (p[2] << 8) + p[3];
+}
+static u16 unaligned_ntohs(const u8 *p) {
+  return (u16)(p[0] << 8) + p[1];
+}
 /* Takes binary data found in the IP Options field of an IPv4 packet
  * and returns a string containing an ASCII description of the options
  * found. The function returns a pointer to a static buffer that
@@ -279,7 +285,6 @@ char *format_ip_options(const u8* ipopt, int ipoptlen) {
   int option_pt   = 0; // option pointer
   int option_fl   = 0;  // option flag
   const u8 *tptr;	// temp pointer
-  u32 *tint;		// temp int
 
   int option_sta = 0;	// option start offset
   int option_end = 0;	// option end offset
@@ -384,8 +389,8 @@ char *format_ip_options(const u8* ipopt, int ipoptlen) {
 	    STRAPP("%s@", ipstring);
     	  }
     	  CHECK(pt+3);
-	  tint = (u32*)&ipopt[pt]; pt+=4;
-	  STRAPP("%lu", (unsigned long) ntohl(*tint));
+	  STRAPP("%lu", unaligned_ntohl(ipopt + pt));
+	  pt+=4;
 
     	  if(pt == option_end)
   	    STRAPP("%s",(pt-option_sta)==(option_pt-1)?"#":" ");
@@ -393,7 +398,6 @@ char *format_ip_options(const u8* ipopt, int ipoptlen) {
   	break;
     case 136:	// IPOPT_SATID	-> (SANET) Stream Identifier
 	if(pt - option_sta == 2){
-	  u16 *sh;
     	  STRAPP(" SI{",NULL);
     	  // length
     	  if(option_sta+option_len > ipoptlen || option_len!=4)
@@ -401,8 +405,8 @@ char *format_ip_options(const u8* ipopt, int ipoptlen) {
 
     	  // stream id
     	  CHECK(pt+1);
-    	  sh = (u16*) &ipopt[pt]; pt+=2;
-    	  option_pt  = ntohs(*sh);
+    	  option_pt  = unaligned_ntohs(ipopt+pt);
+    	  pt+=2;
     	  STRAPP("id=%hu", (unsigned short) option_pt);
     	  if(pt != option_end)
     	    BREAK();

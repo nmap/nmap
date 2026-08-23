@@ -260,9 +260,22 @@ int NpingTarget::getSourceSockAddr(struct sockaddr_storage *ss, size_t *ss_len) 
 /** Set source address used to reach the target.
   * Note that it is OK to pass in a sockaddr_in or sockaddr_in6 casted
   * to sockaddr_storage */
-int NpingTarget::setSourceSockAddr(struct sockaddr_storage *ss, size_t ss_len) {
+int NpingTarget::setSourceSockAddr(const struct sockaddr_storage *ss, size_t ss_len) {
   assert(ss_len > 0 && ss_len <= sizeof(*ss));
   memcpy(&sourcesock, ss, ss_len);
+  if (ss_len == sizeof(*ss)) {
+#ifdef HAVE_SOCKADDR_SA_LEN
+    if (((const struct sockaddr *)ss)->sa_len > 0) {
+      ss_len = ((const struct sockaddr *)ss)->sa_len;
+    } else
+#endif
+    if (ss->ss_family == AF_INET) {
+      ss_len = sizeof(struct sockaddr_in);
+    }
+    else if (ss->ss_family == AF_INET6) {
+      ss_len = sizeof(struct sockaddr_in6);
+    }
+  }
   sourcesocklen = ss_len;
   return OP_SUCCESS;
 } /* End of setSourceSockAddr() */
@@ -271,9 +284,22 @@ int NpingTarget::setSourceSockAddr(struct sockaddr_storage *ss, size_t ss_len) {
 /** Set source address used to reach the target.
   * Note that it is OK to pass in a sockaddr_in or sockaddr_in6 casted
   * to sockaddr_storage */
-int NpingTarget::setSpoofedSourceSockAddr(struct sockaddr_storage *ss, size_t ss_len) {
+int NpingTarget::setSpoofedSourceSockAddr(const struct sockaddr_storage *ss, size_t ss_len) {
   assert(ss_len > 0 && ss_len <= sizeof(*ss));
   memcpy(&spoofedsrcsock, ss, ss_len);
+  if (ss_len == sizeof(*ss)) {
+#ifdef HAVE_SOCKADDR_SA_LEN
+    if (((const struct sockaddr *)ss)->sa_len > 0) {
+      ss_len = ((const struct sockaddr *)ss)->sa_len;
+    } else
+#endif
+    if (ss->ss_family == AF_INET) {
+      ss_len = sizeof(struct sockaddr_in);
+    }
+    else if (ss->ss_family == AF_INET6) {
+      ss_len = sizeof(struct sockaddr_in6);
+    }
+  }
   spoofedsrcsocklen = ss_len;
   this->spoofedsrc_set=true;
   return OP_SUCCESS;
