@@ -99,6 +99,9 @@ router X. The only way to be sure is to do a complete trace for each target
 individually.
 */
 
+#ifdef HAVE_CONFIG_H
+#include "nmap_config.h"
+#endif
 #include "nmap_dns.h"
 #include "nmap_error.h"
 #include "nmap_tty.h"
@@ -542,19 +545,23 @@ struct probespec HostState::get_probe(const Target *target) {
        protocols. We cheat and store them in the TCP-, UDP-, SCTP- and
        ICMP-specific fields. */
     if (probe.proto == IPPROTO_TCP) {
+      probe.type = PS_TCP;
       probe.pd.tcp.flags = TH_ACK;
       probe.pd.tcp.dport = get_random_u16();
     } else if (probe.proto == IPPROTO_UDP) {
+      probe.type = PS_UDP;
       probe.pd.udp.dport = get_random_u16();
     } else if (probe.proto == IPPROTO_SCTP) {
+      probe.type = PS_SCTP;
       probe.pd.sctp.dport = get_random_u16();
     } else if (probe.proto == IPPROTO_ICMP) {
+      probe.type = PS_ICMP;
       probe.pd.icmp.type = ICMP_ECHO;
     } else if (probe.proto == IPPROTO_ICMPV6) {
+      probe.type = PS_ICMPV6;
       probe.pd.icmp.type = ICMPV6_ECHO;
-    } else {
-      fatal("Unknown protocol %d", probe.proto);
     }
+    // Otherwise we leave ourselves at the mercy of build_ip_raw()
   } else {
     /* No responsive probe known? The user probably skipped both ping and
        port scan. Guess ICMP echo as the most likely to get a response. */
@@ -1208,6 +1215,26 @@ static bool decode_reply(const u8 *ip, unsigned int len, Reply *reply) {
 
   return true;
 }
+#ifdef ENABLE_FUZZING
+bool fuzz_decode_reply(const u8 *ip, unsigned int len) {
+  global_id = 0;
+  Reply reply;
+  if (decode_reply(ip, len, &reply))
+    return true;
+
+  if (len > 24) {
+    global_id = ntohs(*(u16 *)(ip + 22));
+    if (decode_reply(ip, len, &reply))
+      return true;
+  }
+  if (len > 44) {
+    global_id = ntohs(*(u16 *)(ip + 42));
+    if (decode_reply(ip, len, &reply))
+      return true;
+  }
+  return false;
+}
+#endif
 
 static bool read_reply(Reply *reply, pcap_t *pd, long timeout) {
   const u8 *ip;

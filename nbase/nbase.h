@@ -521,6 +521,7 @@ u32 get_random_u32();
 u16 get_random_u16();
 u8 get_random_u8();
 u32 get_random_unique_u32();
+u16 get_random_unique_u16();
 
 /* Create a new socket inheritable by subprocesses. On non-Windows systems it's
    just a normal socket. */

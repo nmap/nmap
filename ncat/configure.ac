@@ -4,9 +4,10 @@
 AC_PREREQ(2.59)
 AC_INIT(ncat_main.c)
 
-AC_CONFIG_HEADER(config.h)
+AC_CONFIG_HEADERS([config.h])
 
 m4_include([../acinclude.m4])
+m4_include([../m4/ax_check_compile_flag.m4])
 
 AC_CANONICAL_HOST
 
@@ -37,7 +38,6 @@ AC_PROG_INSTALL
 AC_PATH_TOOL([STRIP], [strip], [/bin/true])
 
 # Checks for header files.
-AC_HEADER_STDC
 AC_HEADER_SYS_WAIT
 AC_CHECK_HEADERS([fcntl.h limits.h netdb.h netinet/in.h stdlib.h string.h strings.h sys/param.h sys/socket.h sys/time.h unistd.h sys/un.h])
 AC_CHECK_HEADERS([linux/vm_sockets.h], , , [#include <sys/socket.h>])
@@ -45,12 +45,10 @@ AC_CHECK_HEADERS([linux/vm_sockets.h], , , [#include <sys/socket.h>])
 # Checks for typedefs, structures, and compiler characteristics.
 AC_HEADER_STAT
 AC_C_CONST
-AC_HEADER_TIME
 
 # Checks for library functions.
 AC_FUNC_FORK
 AC_FUNC_SELECT_ARGTYPES
-AC_TYPE_SIGNAL
 AC_FUNC_VPRINTF
 AC_SEARCH_LIBS(setsockopt, socket)
 # Ncat does not call gethostbyname directly, but some of the libraries
@@ -125,8 +123,8 @@ have_libpcap=no
 test "${with_libpcap+set}" != "set" && with_libpcap=yes
 
 AC_ARG_WITH(libpcap,
-AC_HELP_STRING([--with-libpcap=DIR], [Look for pcap in DIR/include and DIR/libs.])
-AC_HELP_STRING([--with-libpcap=included], [Always use version included with Nmap]),
+AS_HELP_STRING([--with-libpcap=DIR], [Look for pcap in DIR/include and DIR/libs.])
+AS_HELP_STRING([--with-libpcap=included], [Always use version included with Nmap]),
 [  case "$with_libpcap" in
   yes)
     AC_CHECK_HEADER(pcap.h,[
@@ -137,7 +135,7 @@ AC_HELP_STRING([--with-libpcap=included], [Always use version included with Nmap
     have_libpcap=no
    ;;
   *)
-    _cppflags=$CXXFLAGS
+    _cppflags=$CPPFLAGS
     _ldflags=$LDFLAGS
 
     CPPFLAGS="-I$with_libpcap/include $CPPFLAGS"
@@ -150,16 +148,13 @@ AC_HELP_STRING([--with-libpcap=included], [Always use version included with Nmap
 	LIBPCAP_LIB=$with_libpcap/lib])])
 
     LDFLAGS=$_ldflags
-    CXXFLAGS=$_cppflags
+    CPPFLAGS=$_cppflags
     ;;
   esac]
 )
 
 if test $have_libpcap = yes; then
   if test "${LIBPCAP_INC+set}" = "set"; then
-    _cflags=$CXXFLAGS
-    _ldflags=$LDFLAGS
-
     CPPFLAGS="-I$LIBPCAP_INC $CPPFLAGS"
     LDFLAGS="-L$LIBPCAP_LIB $LDFLAGS"
   fi
@@ -215,9 +210,9 @@ no_lua=no
 
 # First we test whether they specified liblua explicitly
 AC_ARG_WITH(liblua,
-AC_HELP_STRING([--with-liblua=DIR], [Use an existing (compiled) lua lib from DIR/include and DIR/lib.])
-AC_HELP_STRING([--with-liblua=included], [Use the liblua version included with Nmap])
-AC_HELP_STRING([--without-liblua], [Compile without lua (this will exclude all of NSE from compilation)]),
+AS_HELP_STRING([--with-liblua=DIR], [Use an existing (compiled) lua lib from DIR/include and DIR/lib.])
+AS_HELP_STRING([--with-liblua=included], [Use the liblua version included with Nmap])
+AS_HELP_STRING([--without-liblua], [Compile without lua (this will exclude all of NSE from compilation)]),
 [  case "$with_liblua" in
   yes)
   ;;
@@ -317,6 +312,23 @@ AC_SUBST(LUA_BUILD)
 AC_SUBST(LUA_CLEAN)
 AC_SUBST(LUA_DIST_CLEAN)
 
+AC_ARG_ENABLE([fuzzing],
+    AS_HELP_STRING([--enable-fuzzing],
+                   [build fuzz targets]),
+    [],
+    [enable_fuzzing=no])
+AS_IF([test "x$enable_fuzzing" = "xyes"], [
+   m4_define([FUZZ_FLAGS],
+             [-fsanitize=fuzzer-no-link,address,undefined -fno-omit-frame-pointer])
+  AC_LANG_PUSH([C])
+  AX_CHECK_COMPILE_FLAG([FUZZ_FLAGS],
+                        [CFLAGS="$CFLAGS FUZZ_FLAGS"],
+                        [AC_MSG_ERROR([$CC does not support fuzzing])])
+  AC_LANG_POP([C])
+  LDFLAGS="$LDFLAGS -fsanitize=address,undefined -fno-omit-frame-pointer"
+  AC_DEFINE([ENABLE_FUZZING], [1], [Fuzzing harness enabled])
+])
+AC_SUBST([ENABLE_FUZZING], [$enable_fuzzing])
 
 
 AC_CONFIG_FILES(Makefile)
