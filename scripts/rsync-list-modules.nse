@@ -1,6 +1,7 @@
 local rsync = require "rsync"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
+local tab = require "tab"
 
 description = [[
 Lists modules available for rsync (remote file sync) synchronization.
@@ -14,9 +15,20 @@ Lists modules available for rsync (remote file sync) synchronization.
 -- PORT    STATE SERVICE
 -- 873/tcp open  rsync
 -- | rsync-list-modules:
--- |   www            	www directory
--- |   log            	log directory
--- |_  etc            	etc directory
+-- |   public  Free for all storage
+-- |   admin
+-- |_  walter  Col. Kurtz's diaries
+--
+-- @xmloutput
+-- table key="public">
+--   <elem key="comment">Free for all storage</elem>
+-- </table>
+-- <table key="admin">
+--   <elem key="comment"></elem>
+-- </table>
+-- <table key="walter">
+--   <elem key="comment">Col. Kurtz&apos;s diaries</elem>
+-- </table>
 --
 
 
@@ -42,5 +54,9 @@ action = function(host, port)
   if ( not(status) ) then
     return fail("Failed to retrieve a list of modules")
   end
-  return stdnse.format_output(true, modules)
+  local tbl = tab.new()
+  for module, params in pairs(modules) do
+    tab.addrow(tbl, module, params.comment or "")
+  end
+  return modules, stdnse.format_output(true, tab.dump(tbl))
 end

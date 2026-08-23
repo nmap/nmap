@@ -8,7 +8,6 @@ local match = require "match"
 local nmap = require "nmap"
 local stdnse = require "stdnse"
 local string = require "string"
-local table = require "table"
 local openssl = stdnse.silent_require "openssl"
 _ENV = stdnse.module("rsync", stdnse.seeall)
 
@@ -104,14 +103,14 @@ Helper = {
 
   -- Lists accessible modules from the rsync server
   -- @return status true on success, false on failure
-  -- @return modules table containing a list of modules
+  -- @return modules table, keyed with module names
   listModules = function(self)
     local status, data = self.socket:send("\n")
     if (not(status)) then
       return false, data
     end
 
-    local modules = {}
+    local modules = stdnse.output_table()
     while(true) do
       status, data = self.socket:receive_buf(match.pattern_limit("\n", 2048), false)
       if (not(status)) then
@@ -120,7 +119,8 @@ Helper = {
       if ( data == "@RSYNCD: EXIT" ) then
         break
       end
-      table.insert(modules, data)
+      local module, comment = data:match("^(.-) *\t(.*)")
+      modules[module or data:match("^(.-)%s*$")] = {comment=comment}
     end
     return true, modules
   end,
