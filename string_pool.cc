@@ -90,7 +90,7 @@ class StringPoolItem {
 
 // asdfq <> asdf
     bool operator< (const StringPoolItem& other) const {
-      return this->len < other.len || this->len == other.len && memcmp(this->str, other.str, other.len) < 0;
+      return this->len < other.len || (this->len == other.len && memcmp(this->str, other.str, other.len) < 0);
     }
 };
 

@@ -119,6 +119,7 @@
 #include <fstream>
 #include <algorithm>
 #include <map>
+#include <set>
 #include "massdns.h"
 #include "netutil.h"
 #include <limits.h>
@@ -216,6 +217,7 @@ struct dns_server {
   int write_busy;
   std::list<request *> to_process;
   std::list<request *> in_process;
+  std::map<u16, request *> records;
   struct timeval last_increase;
   dns_server(DNS::ResolverImpl *i) : impl(i), hostname(), addr_len(0), nsd(NULL), status(DISCONNECTED), reqs_on_wire(0),
     capacity(CAPACITY_MIN), ssthresh((CAPACITY_MAX + CAPACITY_MIN)/2), write_busy(0), to_process(), in_process()
@@ -227,9 +229,9 @@ struct dns_server {
 
 struct request {
   enum status_t {
-    READY,
-    WRITE_PENDING,
-    DONE
+    READY, // May be sent again
+    NORESULT, // Do not re-send. Okay to process matching answers.
+    DONE // Do not re-send.
   };
   DNS::ResolverImpl *impl;
   DNS::Request *targ;
@@ -237,13 +239,12 @@ struct request {
   int tries;
   int servers_tried;
   dns_server *first_server;
-  dns_server *curr_server;
   u16 id;
   status_t status;
   bool alt_req;
   request(DNS::ResolverImpl *i)
     : impl(i), targ(NULL), tries(0), servers_tried(0), first_server(NULL),
-    curr_server(NULL), id(0), status(READY), alt_req(false)
+    id(0), status(READY), alt_req(false)
   {
     memset(&sent, 0, sizeof(sent));
   }
@@ -253,13 +254,6 @@ struct request {
       targ = NULL;
     }
   }
-};
-
-/*keeps record of a request going through a particular DNS server
-helps in attaining faster lookup based on ID */
-struct info{
-  dns_server *server;
-  request *tpreq;
 };
 
 class HostElem
@@ -409,6 +403,9 @@ public:
     ResolverImpl::etchosts_init();
     init_host_cache();
   }
+  ~ResolverImpl(void) {
+    reset();
+  }
   /* Forward lookup table from /etc/hosts */
   typedef std::pair<std::string, RECORD_TYPE> NameRecord;
   static std::map<NameRecord, sockaddr_storage> etchosts;
@@ -420,9 +417,17 @@ public:
     stat.reset();
     stat.servers = servs.size();
     init_host_cache();
-    new_reqs.clear();
-    deferred_reqs.clear();
-    records.clear();
+    while (!new_reqs.empty()) {
+      request *req = new_reqs.front();
+      new_reqs.pop_front();
+      mark_as_done(req, false);
+    }
+    while (!deferred_reqs.empty()) {
+      request *req = new_reqs.front();
+      new_reqs.pop_front();
+      mark_as_done(req, false);
+    }
+    clear_done();
     total_reqs = 0;
   }
   void add_dns_server(const std::string &hostname);
@@ -458,7 +463,7 @@ private:
   std::list<dns_server> servs;
   std::list<request *> new_reqs;
   std::list<request *> deferred_reqs;
-  std::map<u16, info> records;
+  std::set<request *> done;
   int total_reqs;
   nsock_pool dnspool;
   nsock_proxychain proxy_chain;
@@ -478,12 +483,13 @@ private:
   void check_capacities(dns_server *tpserv);
   void do_possible_writes();
   bool server_send(dns_server &serv);
-  void put_dns_packet_on_wire(request *req);
+  void put_dns_packet_on_wire(request *req, dns_server *srv);
   int deal_with_timedout_reads(bool adjust_timing);
-  void process_request(int action, info &reqinfo);
-  bool process_result(const std::string &name, const Record *rr,
-      info &reqinfo, bool already_matched);
+  void process_request(int action, request *tpreq, dns_server *server);
+  bool process_result(const std::string &name, const Record *rr, request *tpreq);
   bool system_resolve(DNS::Request &reqt);
+  void mark_as_done(request *req, bool has_answer);
+  void clear_done(void);
   void output_summary(const Stats &stat);
 
   void handle_read(nsock_pool nsp, nsock_event evt, dns_server *srv);
@@ -622,10 +628,6 @@ DNS::Stats DNS::Resolver::getStats() const
   return impl->stat;
 }
 
-//------------------- Globals ---------------------
-
-u16 DNS::Factory::progressiveId = get_random_u16();
-
 //------------------- Prototypes and macros ---------------------
 
 #define ACTION_FINISHED 0
@@ -693,7 +695,7 @@ void DNS::ResolverImpl::add_request(DNS::Request &reqt)
   tpreq->tries = 0;
   tpreq->servers_tried = 0;
   tpreq->alt_req = false;
-  tpreq->id = DNS::Factory::progressiveId++;
+  tpreq->id = get_random_unique_u16();
 
   new_reqs.push_back(tpreq);
   stat.actual++;
@@ -711,7 +713,7 @@ void DNS::ResolverImpl::add_request(DNS::Request &reqt)
     *tpreq_alt = *tpreq;
     tpreq_alt->targ = req_aaaa;
     tpreq_alt->alt_req = true;
-    tpreq_alt->id = DNS::Factory::progressiveId++;
+    tpreq_alt->id = get_random_unique_u16();
     new_reqs.push_back(tpreq_alt);
     stat.actual++;
   }
@@ -772,24 +774,26 @@ bool DNS::ResolverImpl::resolve_nsock()
 
     std::list<request *>::iterator reqI;
     for(reqI = deferred_reqs.begin(); reqI != deferred_reqs.end(); reqI++) {
-
-      status_cb(&stat);
-      output_summary(stat);
-
       request *tpreq = *reqI;
-      if (system_resolve(*tpreq->targ)) {
-        stat.ok++;
-      }
-      else {
-        stat.nx++;
+      if (tpreq->status != request::DONE) {
+        status_cb(&stat);
+        output_summary(stat);
+
+        if (system_resolve(*tpreq->targ)) {
+          stat.ok++;
+        }
+        else {
+          stat.nx++;
+        }
       }
 
-      delete tpreq;
+      mark_as_done(tpreq, true);
     }
     output_summary(stat);
   }
 
   deferred_reqs.clear();
+  clear_done();
   return true;
 }
 
@@ -800,12 +804,11 @@ bool DNS::ResolverImpl::resolve_system()
   while (total_reqs > 0) {
     request *tpreq = new_reqs.front();
     new_reqs.pop_front();
-    total_reqs--;
 
     // System resolver can handle DNS::ANY as AF_UNSPEC, so no need for
     // alt_req's AAAA request.
     if (tpreq->alt_req) {
-      delete tpreq;
+      mark_as_done(tpreq, true);
       stat.actual--;
       continue;
     }
@@ -819,9 +822,10 @@ bool DNS::ResolverImpl::resolve_system()
     else {
       stat.nx++;
     }
-    delete tpreq;
+    mark_as_done(tpreq, true);
   }
   assert(new_reqs.empty());
+  clear_done();
   return true;
 }
 
@@ -854,8 +858,19 @@ void DNS::ResolverImpl::close_dns_servers() {
     if (serverI->status != dns_server::DISCONNECTED) {
       nsock_iod_delete(serverI->nsd, NSOCK_PENDING_SILENT);
       serverI->status = dns_server::DISCONNECTED;
-      serverI->to_process.clear();
-      serverI->in_process.clear();
+      while (!serverI->to_process.empty()) {
+        request *req = serverI->to_process.front();
+        serverI->to_process.pop_front();
+        assert(req->status != request::READY);
+        mark_as_done(req, false);
+      }
+      while (!serverI->in_process.empty()) {
+        request *req = serverI->in_process.front();
+        serverI->in_process.pop_front();
+        assert(req->status != request::READY);
+        mark_as_done(req, false);
+      }
+      serverI->records.clear();
     }
   }
   nsock_loop_quit(dnspool);
@@ -868,27 +883,28 @@ bool DNS::ResolverImpl::server_send(dns_server &serv) {
   }
 
   request *tpreq = NULL;
-  if (!new_reqs.empty()) {
-    tpreq = new_reqs.front();
-    assert(tpreq != NULL);
-    assert(tpreq->targ != NULL);
-    tpreq->first_server = tpreq->curr_server = &serv;
-    new_reqs.pop_front();
-  } else if (!serv.to_process.empty()) {
-    tpreq = serv.to_process.front();
-    serv.to_process.pop_front();
-  } else {
-    return false;
-  }
+  do {
+    if (!new_reqs.empty()) {
+      tpreq = new_reqs.front();
+      assert(tpreq != NULL);
+      assert(tpreq->targ != NULL);
+      tpreq->first_server = &serv;
+      new_reqs.pop_front();
+    } else if (!serv.to_process.empty()) {
+      tpreq = serv.to_process.front();
+      serv.to_process.pop_front();
+    } else {
+      return false;
+    }
+  } while (tpreq->status != request::READY);
 
   assert(tpreq != NULL);
   assert(tpreq->targ != NULL);
-  assert(tpreq->curr_server == &serv);
   log_func(TRACE_DEBUG_LEVEL,
     "mass_dns: TRANSMITTING for <%s> (server <%s>)\n", tpreq->targ->repr(), serv.hostname.c_str());
   stat.trans++;
   serv.write_busy = 1;
-  put_dns_packet_on_wire(tpreq);
+  put_dns_packet_on_wire(tpreq, &serv);
   serv.write_busy = 0;
   return true;
 }
@@ -923,23 +939,18 @@ void DNS::ResolverImpl::do_possible_writes() {
 // nsock write handler
 void DNS::ResolverImpl::handle_write(nsock_pool nsp, nsock_event evt, request *req) {
   assert(nse_type(evt) == NSE_TYPE_WRITE);
+  nsock_iod nsd = nse_iod(evt);
+  dns_server *server = static_cast<dns_server *>(nsock_iod_get_udata(nsd));
 
   if (nse_status(evt) == NSE_STATUS_SUCCESS) {
-    server_send(*req->curr_server);
+    memcpy(&req->sent, nsock_gettimeofday(), sizeof(struct timeval));
+    server_send(*server);
   }
   else {
       log_func(1, "mass_dns: WRITE error: %s", nse_status2str(nse_status(evt)));
     // We don't delete from records in case a response to an earlier probe comes in.
-    req->curr_server->in_process.remove(req);
-    req->curr_server->to_process.push_front(req);
-  }
-
-  if (req->status == request::DONE) {
-    delete req;
-  }
-  else {
-    assert(req->status == request::WRITE_PENDING);
-    req->status = request::READY;
+    server->in_process.remove(req);
+    server->to_process.push_front(req);
   }
 }
 
@@ -953,12 +964,10 @@ static DNS::RECORD_TYPE wire_type(DNS::RECORD_TYPE t) {
 // Takes a DNS request structure and actually puts it on the wire
 // (calls nsock_write()). Does various other tasks like recording
 // the time for the timeout.
-void DNS::ResolverImpl::put_dns_packet_on_wire(request *req) {
+void DNS::ResolverImpl::put_dns_packet_on_wire(request *req, dns_server *srv) {
   static const size_t maxlen = 512;
   u8 packet[maxlen];
   size_t plen=0;
-  dns_server *srv = req->curr_server;
-  info record;
 
   srv->reqs_on_wire++;
   DNS::Request &reqt = *req->targ;
@@ -980,12 +989,8 @@ void DNS::ResolverImpl::put_dns_packet_on_wire(request *req) {
   }
 
   srv->in_process.push_front(req);
-  record.tpreq = req;
-  record.server = srv;
-  records[req->id] = record;
-  memcpy(&req->sent, nsock_gettimeofday(), sizeof(struct timeval));
+  srv->records[req->id] = req;
 
-  req->status = request::WRITE_PENDING;
   nsock_write(dnspool, srv->nsd, &DNS::ResolverImpl::write_evt_handler, WRITE_TIMEOUT, req,
       reinterpret_cast<const char *>(packet), plen);
 }
@@ -994,13 +999,11 @@ void DNS::ResolverImpl::put_dns_packet_on_wire(request *req) {
 // Returns time until next read timeout
 int DNS::ResolverImpl::deal_with_timedout_reads(bool adjust_timing) {
   std::list<dns_server>::iterator servI;
-  std::list<dns_server>::iterator servItemp;
   std::list<request *>::iterator reqI;
   std::list<request *>::iterator nextI;
-  std::map<u16, info>::iterator infoI;
   request *tpreq;
   struct timeval now;
-  int tp, min_timeout = INT_MAX;
+  int min_timeout = INT_MAX;
 
   memcpy(&now, nsock_gettimeofday(), sizeof(struct timeval));
 
@@ -1020,7 +1023,7 @@ int DNS::ResolverImpl::deal_with_timedout_reads(bool adjust_timing) {
       int to = read_timeouts[tpreq->tries];
 
       int elapsed = TIMEVAL_MSEC_SUBTRACT(now, tpreq->sent);
-      tp = to - elapsed;
+      int tp = to - elapsed;
       if (tp > 0) {
         // only bother checking this if we might increase the capacity
         if (may_increase && TIMEVAL_BEFORE(tpreq->sent, earliest_sent)) {
@@ -1046,16 +1049,18 @@ int DNS::ResolverImpl::deal_with_timedout_reads(bool adjust_timing) {
             adjusted = true;
           }
 
-          servItemp = servI;
-          servItemp++;
+          std::list<dns_server>::iterator servItemp = servI;
+          do {
+            servItemp++;
 
-          if (servItemp == servs.end()) servItemp = servs.begin();
+            if (servItemp == servs.end()) servItemp = servs.begin();
+          } while (servItemp != servI && servItemp->status != dns_server::CONNECTED);
 
-          tpreq->curr_server = &*servItemp;
+          dns_server *next_server = &*servItemp;
           tpreq->tries = 0;
           tpreq->servers_tried++;
 
-          if (tpreq->curr_server == tpreq->first_server || tpreq->servers_tried == SERVERS_TO_TRY) {
+          if (next_server == tpreq->first_server || tpreq->servers_tried == SERVERS_TO_TRY) {
             // Either give up on the IP
             // or, for maximum reliability, put the server back into processing
             // Note it's possible that this will never terminate.
@@ -1066,24 +1071,13 @@ int DNS::ResolverImpl::deal_with_timedout_reads(bool adjust_timing) {
 
             output_summary(stat);
             stat.dropped++;
-            total_reqs--;
-            records.erase(tpreq->id);
-            if (tpreq->status != request::WRITE_PENDING) {
-              delete tpreq;
-            }
-            else {
-              tpreq->status = request::DONE;
-            }
+            mark_as_done(tpreq, false);
             tpreq = NULL;
 
             // **** OR We start at the back of this server's queue
-            //servItemp->to_process.push_back(tpreq);
           } else {
-            info record;
-            record.tpreq = tpreq;
-            record.server = &*servItemp;
-            records[tpreq->id] = record;
-            servItemp->to_process.push_back(tpreq);
+            next_server->records[tpreq->id] = tpreq;
+            next_server->to_process.push_back(tpreq);
           }
         } else {
           if (!adjusted && tpreq->servers_tried == 0 && tpreq->tries <= 1) {
@@ -1112,10 +1106,8 @@ int DNS::ResolverImpl::deal_with_timedout_reads(bool adjust_timing) {
 }
 
 
-void DNS::ResolverImpl::process_request(int action, info &reqinfo) {
-  request *tpreq = reqinfo.tpreq;
-  dns_server *server = reqinfo.server;
-
+void DNS::ResolverImpl::process_request(int action, request *tpreq, dns_server *server)
+{
   switch (action) {
     case ACTION_SYSTEM_RESOLVE:
     case ACTION_FINISHED:
@@ -1123,11 +1115,11 @@ void DNS::ResolverImpl::process_request(int action, info &reqinfo) {
         server->capacity += CAPACITY_UP_STEP;
         check_capacities(server);
       }
-      records.erase(tpreq->id);
+      server->records.erase(tpreq->id);
       server->in_process.remove(tpreq);
       server->to_process.remove(tpreq);
+      mark_as_done(tpreq, action == ACTION_FINISHED);
       server->reqs_on_wire--;
-      total_reqs--;
       if (action == ACTION_SYSTEM_RESOLVE) {
         // System resolver can handle DNS::ANY as AF_UNSPEC, so no need for
         // alt_req's AAAA request.
@@ -1137,12 +1129,6 @@ void DNS::ResolverImpl::process_request(int action, info &reqinfo) {
           break;
         }
         stat.actual--;
-      }
-      if (tpreq->status != request::WRITE_PENDING) {
-        delete tpreq;
-      }
-      else {
-        tpreq->status = request::DONE;
       }
       tpreq = NULL;
 
@@ -1165,12 +1151,12 @@ bool iequals(const std::string &a, const std::string &b)
 // After processing a DNS response, we search through the IPs we're
 // looking for and update their results as necessary.
 bool DNS::ResolverImpl::process_result(const std::string &name, const DNS::Record *rr,
-    info &reqinfo, bool already_matched)
+    request *tpreq)
 {
-  DNS::Request *reqt = reqinfo.tpreq->targ;
+  DNS::Request *reqt = tpreq->targ;
   std::vector<struct sockaddr_storage> *ssv;
-  if (reqinfo.tpreq->alt_req) {
-    DNS::Request *alt_req = (DNS::Request *) reqinfo.tpreq->targ->userdata;
+  if (tpreq->alt_req) {
+    DNS::Request *alt_req = (DNS::Request *) tpreq->targ->userdata;
     ssv = &alt_req->ssv;
   }
   else {
@@ -1178,15 +1164,10 @@ bool DNS::ResolverImpl::process_result(const std::string &name, const DNS::Recor
   }
   const struct sockaddr_storage *ss = NULL;
   const DNS::A_Record *a_rec = NULL;
-  sockaddr_storage ip;
-  ip.ss_family = AF_UNSPEC;
   switch (reqt->type) {
     case DNS::A:
     case DNS::AAAA:
     case DNS::ANY:
-      if (!already_matched && !iequals(name, reqt->name)) {
-        return false;
-      }
       a_rec = static_cast<const DNS::A_Record *>(rr);
       ssv->push_back(a_rec->value);
       log_func(TRACE_DEBUG_LEVEL, "mass_dns: OK MATCHED <%s> to <%s>\n",
@@ -1195,12 +1176,6 @@ bool DNS::ResolverImpl::process_result(const std::string &name, const DNS::Recor
       break;
     case DNS::PTR:
       ss = &reqt->ssv.front();
-      if (!already_matched) {
-        if (!DNS::Factory::ptrToIp(name, ip) ||
-            !sockaddr_storage_equal(&ip, ss)) {
-          return false;
-        }
-      }
       reqt->name = static_cast<const DNS::PTR_Record *>(rr)->value;
       host_cache.add(*ss, reqt->name);
       log_func(TRACE_DEBUG_LEVEL, "mass_dns: OK MATCHED <%s> to <%s>\n",
@@ -1257,14 +1232,37 @@ void DNS::ResolverImpl::handle_read(nsock_pool nsp, nsock_event evt, dns_server 
     return;
 
   // Check for matching request
-  std::map<u16, info>::iterator infoI = records.find(p.id);
-  if (infoI == records.end()) {
+  std::map<u16, request *>::iterator infoI = srv->records.find(p.id);
+  if (infoI == srv->records.end()) {
     return;
   }
-  info &reqinfo = infoI->second;
-  assert(p.id == reqinfo.tpreq->id);
-  DNS::Request *reqt = reqinfo.tpreq->targ;
+  request *tpreq = infoI->second;
+  assert(p.id == tpreq->id);
+  // If a different response completed the request, don't continue
+  if (tpreq->status == request::DONE) {
+    return;
+  }
+  DNS::Request *reqt = tpreq->targ;
   assert(reqt != NULL);
+  // Response must contain a matching query. p.queries.empty() was already checked.
+  const DNS::Query &q = p.queries.front();
+  // Query must match in class and type
+  if (q.record_class != DNS::CLASS_IN
+      || q.record_type != wire_type(reqt->type)) {
+    return;
+  }
+  // Query must match requested name
+  std::string tmp;
+  const std::string *qname = &reqt->name;
+  if (reqt->type == DNS::PTR) {
+    assert(reqt->ssv.size() > 0);
+    // TODO: we already did this to build the request; can we keep it around?
+    DNS::Factory::ipToPtr(reqt->ssv.front(), tmp);
+    qname = &tmp;
+  }
+  if (!iequals(q.name, *qname)) {
+    return;
+  }
   bool processing_successful = false;
 
   if (DNS_HAS_ERR(f, DNS::ERR_NAME) || p.answers.empty())
@@ -1274,20 +1272,20 @@ void DNS::ResolverImpl::handle_read(nsock_pool nsp, nsock_event evt, dns_server 
       for (std::string::const_iterator it=reqt->name.begin(); it < reqt->name.end(); it++) {
         if (*it < '0') { // signed char comparison; non-ascii are < 0
           // system resolver might be able to do better with things like AI_IDN
-          process_request(ACTION_SYSTEM_RESOLVE, reqinfo);
+          process_request(ACTION_SYSTEM_RESOLVE, tpreq, srv);
           processing_successful = true;
           break;
         }
       }
       if (!processing_successful && reqt->name.find('.') == std::string::npos) {
         // Names without a dot: system resolver may do better.
-          process_request(ACTION_SYSTEM_RESOLVE, reqinfo);
+          process_request(ACTION_SYSTEM_RESOLVE, tpreq, srv);
           processing_successful = true;
       }
     }
 
     if (!processing_successful) {
-      process_request(ACTION_FINISHED, reqinfo);
+      process_request(ACTION_FINISHED, tpreq, srv);
       log_func(TRACE_DEBUG_LEVEL, "mass_dns: NXDOMAIN <id = %d>\n", p.id);
       stat.nx++;
     }
@@ -1298,37 +1296,30 @@ void DNS::ResolverImpl::handle_read(nsock_pool nsp, nsock_event evt, dns_server 
 
   if (DNS_HAS_ERR(f, DNS::ERR_SERVFAIL))
   {
-    process_request(ACTION_TIMEOUT, reqinfo);
+    process_request(ACTION_TIMEOUT, tpreq, srv);
     log_func(TRACE_DEBUG_LEVEL, "mass_dns: SERVFAIL <id = %d>\n", p.id);
     stat.sf++;
 
     return;
   }
 
-  sockaddr_storage ip;
-  ip.ss_family = AF_UNSPEC;
-  std::string alias;
-
   for(std::list<DNS::Answer>::const_iterator it = p.answers.begin();
       it != p.answers.end(); ++it )
   {
     const DNS::Answer &a = *it;
-    if(a.record_class == DNS::CLASS_IN)
+    if(a.record_class == DNS::CLASS_IN
+      && (iequals(a.name, *qname) || iequals(a.name, q.name)))
     {
       if (wire_type(reqt->type) == a.record_type) {
-        processing_successful = process_result(a.name, a.record, reqinfo, iequals(a.name,alias));
+        processing_successful = process_result(a.name, a.record, tpreq);
         if (!processing_successful) {
           log_func(1, "mass_dns: Mismatched record for request %s\n", reqt->repr());
         }
       }
       else if (a.record_type == DNS::CNAME) {
         const DNS::CNAME_Record *cname = static_cast<const DNS::CNAME_Record *>(a.record);
-        if((reqt->type == DNS::PTR && DNS::Factory::ptrToIp(a.name, ip))
-          || iequals(a.name, reqt->name) || (!alias.empty() && iequals(a.name, alias)))
-        {
-          alias = cname->value;
-          log_func(TRACE_DEBUG_LEVEL, "mass_dns: CNAME found for <%s> to <%s>\n", a.name.c_str(), alias.c_str());
-        }
+        qname = &cname->value;
+        log_func(TRACE_DEBUG_LEVEL, "mass_dns: CNAME found for <%s> to <%s>\n", a.name.c_str(), qname->c_str());
       }
     }
   }
@@ -1336,14 +1327,14 @@ void DNS::ResolverImpl::handle_read(nsock_pool nsp, nsock_event evt, dns_server 
   if (!processing_successful) {
     if (DNS_HAS_FLAG(f, DNS::TRUNCATED)) {
       // TODO: TCP fallback, or only use system resolver if user didn't specify --dns-servers
-      process_request(ACTION_SYSTEM_RESOLVE, reqinfo);
+      process_request(ACTION_SYSTEM_RESOLVE, tpreq, srv);
     }
-    else if (!alias.empty()) {
+    else if (!iequals(q.name, *qname)) {
       log_func(TRACE_DEBUG_LEVEL, "mass_dns: CNAME for <%s> not processed.\n", reqt->repr());
       // TODO: Send a PTR request for alias instead. Meanwhile, we'll just fall
       // back to using system resolver. Alternative: report the canonical name
       // (alias), but that's not very useful.
-      process_request(ACTION_SYSTEM_RESOLVE, reqinfo);
+      process_request(ACTION_SYSTEM_RESOLVE, tpreq, srv);
     }
     else {
       log_func(TRACE_DEBUG_LEVEL, "mass_dns: Unable to process the response for %s\n", reqt->repr());
@@ -1352,7 +1343,7 @@ void DNS::ResolverImpl::handle_read(nsock_pool nsp, nsock_event evt, dns_server 
   else {
     output_summary(stat);
     stat.ok++;
-    process_request(ACTION_FINISHED, reqinfo);
+    process_request(ACTION_FINISHED, tpreq, srv);
   }
   do_possible_writes();
 
@@ -1373,6 +1364,7 @@ void DNS::ResolverImpl::handle_connect(nsock_pool nsp, nsock_event evt, dns_serv
     srv->status = dns_server::DISCONNECTED;
     return;
   }
+  nsock_iod_set_udata(srv->nsd, srv);
   nsock_read(nsp, srv->nsd, &DNS::ResolverImpl::read_evt_handler, -1, (void *)srv);
   srv->status = dns_server::CONNECTED;
 }
@@ -1604,8 +1596,12 @@ void DNS::ResolverImpl::etchosts_init(void) {
   char tpbuf[2048];
   int has_backslash;
 
-  if (!GetWindowsDirectoryA(windows_dir, sizeof(windows_dir)))
+  // Can't use log_func() in a static class function, since it is not defined.
+  // Use fprintf instead.
+  if (!GetWindowsDirectoryA(windows_dir, sizeof(windows_dir))) {
     fprintf(stderr, "massdns: Failed to determine your windows directory\n");
+    return;
+  }
 
   // If it has a backslash it's C:\, otherwise something like C:\WINNT
   has_backslash = (windows_dir[strlen(windows_dir)-1] == '\\');
@@ -1672,6 +1668,26 @@ bool DNS::ResolverImpl::system_resolve(DNS::Request &reqt)
       return false;
   }
   return true;
+}
+
+void DNS::ResolverImpl::mark_as_done(request *req, bool has_answer)
+{
+  if (req->status == request::READY) {
+    total_reqs--;
+  }
+  req->status = (has_answer ? request::DONE : request::NORESULT);
+  done.insert(req);
+}
+
+void DNS::ResolverImpl::clear_done(void)
+{
+  for (std::set<request *>::iterator it = done.begin();
+      it != done.end(); ++it) {
+    request *req = *it;
+    assert(req->status != request::READY);
+    delete req;
+  }
+  done.clear();
 }
 
 static const char hex[] = "0123456789abcdef";
@@ -1852,28 +1868,38 @@ size_t DNS::Factory::putUnsignedShort(u16 num, u8 *buf, size_t offset, size_t ma
 size_t DNS::Factory::putDomainName(const std::string &name, u8 *buf, size_t offset, size_t maxlen)
 {
   size_t ret=0;
-  if( !( buf && (maxlen > (offset + name.length() + 1))) ) return ret;
+  assert(buf != NULL);
+  if (offset >= maxlen || name.length() >= maxlen - offset)
+    return 0;
 
-  std::string namew = name + ".";
-  std::string accumulator;
-  for (std::string::const_iterator c=namew.begin(); c != namew.end(); ++c)
+  u8 *out = buf + offset;
+  size_t label_start = ret;
+  u8 label_len = 0;
+  out[ret++] = 0; // placeholder for label length
+  for (std::string::const_iterator c=name.begin(); c != name.end(); ++c)
   {
+    if (ret >= DNS_NAME_MAX_LENGTH)
+      return 0;
+
     if((*c)=='.')
     {
-      u8 length = accumulator.length();
-      *(buf+offset+ret) = length;
-      ret += 1;
-
-      memcpy(buf+offset+ret, accumulator.c_str(), length);
-      ret += length;
-      accumulator.clear();
+      out[label_start] = label_len;
+      label_len = 0;
+      label_start = ret;
+      out[ret++] = 0; // placeholder for label length
     }
-    else
-      accumulator += (*c);
+    else {
+      if (label_len >= DNS_LABEL_MAX_LENGTH)
+        return 0;
+      out[ret++] = *c;
+      label_len++;
+    }
   }
-
-  *(buf+offset+ret) = 0;
-  ret += 1;
+  if (label_len > 0)
+  {
+      out[label_start] = label_len;
+      out[ret++] = 0; // Empty label terminates name
+  }
 
   return ret;
 }

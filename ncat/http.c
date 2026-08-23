@@ -809,7 +809,7 @@ char *http_request_to_string(const struct http_request *request, size_t *n)
        present in the original URI, it MUST be given as "/" (the server
        root)." */
     path = request->uri.path;
-    if (path[0] == '\0')
+    if (path == NULL || path[0] == '\0')
         path = "/";
 
     if (request->version == HTTP_09) {
@@ -982,6 +982,7 @@ int http_parse_header(struct http_header **result, const char *header)
             q = p;
             while (*q != '\0' && !is_space_char(*q) && !is_crlf(q)) {
                 if (is_ctl_char(*q)) {
+                    FREE_AND_NULL(http_header_node_free, node);
                     FREE_AND_NULL(http_header_free, *result);
                     return 400;
                 }
@@ -1097,7 +1098,7 @@ static const char *parse_http_version(const char *s, enum http_version *version)
     /* Any version is accepted and not a parse error,
      * but only 1.0 and 1.1 are understood. */
     q = p;
-    while (*q && (isdigit(*q) || (*q == '.' && dot++ == 0))) {
+    while (*q && (isdigit((unsigned char)*q) || (*q == '.' && dot++ == 0))) {
         q++;
     }
     if (*q != '\0' && *q != ' ' && !is_crlf(q)) {

@@ -92,7 +92,7 @@ class NmapOps {
   const struct sockaddr_storage *SourceSockAddr() const;
   /* Note that it is OK to pass in a sockaddr_in or sockaddr_in6 casted
      to sockaddr_storage */
-  void setSourceSockAddr(struct sockaddr_storage *ss, size_t ss_len);
+  void setSourceSockAddr(const struct sockaddr_storage *ss, size_t ss_len);
 
 // The time this obj. was instantiated   or last ReInit()ed.
   const struct timeval *getStartTime() { return &start_time; }
