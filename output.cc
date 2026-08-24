@@ -1281,6 +1281,14 @@ static void write_xml_initial_hostinfo(const Target *currenths,
       xml_close_empty_tag();
       xml_newline();
     }
+    /* Print additional names collected when --unique suppressed duplicate scanning. */
+    for (const std::string &alias : currenths->getTargetNameAliases()) {
+      xml_open_start_tag("hostname");
+      xml_attribute("name", "%s", alias.c_str());
+      xml_attribute("type", "user");
+      xml_close_empty_tag();
+      xml_newline();
+    }
     if (*currenths->HostName()) {
       xml_open_start_tag("hostname");
       xml_attribute("name", "%s", currenths->HostName());

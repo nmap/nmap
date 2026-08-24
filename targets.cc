@@ -473,6 +473,26 @@ bool HostGroupState::get_next_host(struct sockaddr_storage *ss, size_t *sslen, s
         return false;
       }
     }
+    /* This IP is already in the exclude list (a --unique duplicate).
+       At this point *ss holds the excluded IP. If it came from a named
+       host, attach that name as an alias on the existing Target in the
+       current batch so it appears in XML output.
+
+       Note: Nmap's streaming XML architecture finalizes and closes <host> blocks
+       after each batch. Therefore, it is impossible to attach aliases to duplicates
+       that occur in a later batch than the original target without buffering
+       all XML in memory. We restrict our search to the current batch. */
+    if (o.unique && current_group.get_namedhost() && current_group.is_resolved_address(ss)) {
+      const char *skipped_name = current_group.get_resolved_name();
+      if (skipped_name) {
+        for (int i = 0; i < current_batch_sz; i++) {
+          if (sockaddr_storage_cmp(hostbatch[i]->TargetSockAddr(), ss) == 0) {
+            hostbatch[i]->addTargetNameAlias(skipped_name);
+            break;
+          }
+        }
+      }
+    }
   } while (true);
 
   return true;
