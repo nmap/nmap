@@ -1072,7 +1072,7 @@ test_suite:add_test(unittest.equal(pkt_parsed:raw(), packet1), "TCP checksum")
 local opt_packet = "\x4A\x00\x00\x28\xde\xad\x00\x00\xe3\x00\x03\xf3\x03\x5e\x1e\xa5\xc0\xa8\x01\x3a"
 local opt_tests = {{bytes = "", res = {}},
                    {bytes = "\x01\x02\x03\x04\x05", res = {{type=1, len=1, data="<nil>"}, {type=2, len=3, data="\x04"}}},
-                   {bytes = "\x00\x01", res = {{type=0, len=1, data="<nil>"}}},
+                   {bytes = "\x00\x01", res = {}},
                    {bytes = "\x05\x00", res = {}},
                    {bytes = "\x05\x01", res = {}},
                    {bytes = "\x05\x02", res = {{type=5, len=2, data=""}}},
