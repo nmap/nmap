@@ -481,6 +481,7 @@ bool HostGroupState::get_next_host(struct sockaddr_storage *ss, size_t *sslen, s
        Note: Nmap's streaming XML architecture finalizes and closes <host> blocks
        after each batch. Therefore, it is impossible to attach aliases to duplicates
        that occur in a later batch than the original target without buffering
+
        all XML in memory. We restrict our search to the current batch. */
     if (o.unique && current_group.get_namedhost() && current_group.is_resolved_address(ss)) {
       const char *skipped_name = current_group.get_resolved_name();
