@@ -686,29 +686,21 @@ end
 -- @return Table of options.
 function Packet:parse_options(offset, length)
   local options = {}
-  local op = 1
   local opt_ptr = 0
   while opt_ptr < length do
     local t, l, d
     t = self:u8(offset + opt_ptr)
-    if t==0 or t==1 then
+    if t == 0 then break end  -- EOOL
+    if t == 1 then  -- NOP
       l = 1
       d = nil
-    else
+    else  -- all other options should have a value
       l = self:u8(offset + opt_ptr + 1)
-      if l > 2 then
-        d = self:raw(offset + opt_ptr + 2, l-2)
-      end
+      if not l or l < 2 then break end
+      d = self:raw(offset + opt_ptr + 2, l - 2)
     end
-    if l==0 then
-      break
-    end
-    options[op] = {}
-    options[op].type = t
-    options[op].len  = l
-    options[op].data = d
+    table.insert(options, {type=t, len=l, data=d})
     opt_ptr = opt_ptr + l
-    op = op + 1
   end
   return options
 end
@@ -1075,6 +1067,34 @@ pkt_parsed:ip_count_checksum()
 test_suite:add_test(unittest.equal(pkt_parsed:raw(), packet1), "IP checksum")
 pkt_parsed:tcp_count_checksum()
 test_suite:add_test(unittest.equal(pkt_parsed:raw(), packet1), "TCP checksum")
+
+-- IP options parsing tests
+local opt_packet = "\x4A\x00\x00\x28\xde\xad\x00\x00\xe3\x00\x03\xf3\x03\x5e\x1e\xa5\xc0\xa8\x01\x3a"
+local opt_tests = {{bytes = "", res = {}},
+                   {bytes = "\x01\x02\x03\x04\x05", res = {{type=1, len=1, data="<nil>"}, {type=2, len=3, data="\x04"}}},
+                   {bytes = "\x00\x01", res = {{type=0, len=1, data="<nil>"}}},
+                   {bytes = "\x05\x00", res = {}},
+                   {bytes = "\x05\x01", res = {}},
+                   {bytes = "\x05\x02", res = {{type=5, len=2, data=""}}},
+                   {bytes = "\x05\x06", res = {{type=5, len=6, data=""}}},
+                   {bytes = "\x05\x06\x07", res = {{type=5, len=6, data="\x07"}}},
+                   }
+for i, t in ipairs(opt_tests) do
+  local pktbytes = opt_packet .. t.bytes
+  local opts = Packet:new(pktbytes, #pktbytes, true).ip_options
+  local tname = ("parse_options test #%d: "):format(i)
+  test_suite:add_test(unittest.equal(#opts, #t.res), tname .. "# of options")
+  if #opts == #t.res then
+    for j, r in ipairs(t.res) do
+      local opt = opts[j]
+      local oname = tname .. ("option #%d: "):format(j)
+      for k, v in pairs(r) do
+        local ov = opt[k] or "<nil>"
+        test_suite:add_test(unittest.equal(ov, v), oname .. k)
+      end
+    end
+  end
+end
 
 -- TODO: UDP parsing/checksum
 -- TODO: IPv6 parsing, ICMPv6 checksum

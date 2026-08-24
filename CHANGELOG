@@ -1,5 +1,9 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE][GH#3447] IP options parsing by the packet library no longer crashes
+  on incomplete options. IP header data after EOOL are no longer parsed as
+  options. [nnposter]
+
 o [NSE][GH#3440] The rsync library was not correctly parsing server responses
   for protocol version 32. [h00die]
 
