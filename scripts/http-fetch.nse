@@ -73,6 +73,14 @@ local function build_path(file, url)
   return path:gsub('//', '/')
 end
 
+-- Strip the directory prefix from a file component. The directory comes
+-- from a crawled URL and may contain '%' escapes (e.g. %2f), which gsub
+-- would misread as capture backreferences ("invalid capture index"), so
+-- compare and slice as plain text instead of using it as a pattern.
+local function strip_dir(file, dir)
+  return file:sub(1, #dir) == dir and file:sub(#dir + 1) or file
+end
+
 local function create_directory(path)
   local status, err = lfs.mkdir(path)
   if status then
@@ -100,7 +108,7 @@ local function  save_file(content, file_name, destination, url)
     if url:getDir() == url:getFile() then
       file_path = file_path .. "index.html"
     else
-      file_path = file_path .. stringaux.filename_escape(url:getFile():gsub(url:getDir(),""))
+      file_path = file_path .. stringaux.filename_escape(strip_dir(url:getFile(), url:getDir()))
     end
   end
 
@@ -138,7 +146,7 @@ local function fetch_recursively(host, port, url, destination, patterns, output)
     end
     local body = r.response.body
     local url_string = tostring(r.url)
-    local file = r.url:getFile():gsub(r.url:getDir(),"")
+    local file = strip_dir(r.url:getFile(), r.url:getDir())
     if body and r.response.status == 200 and patterns then
       for _, pattern in pairs(patterns) do
         if file:find(pattern, nil, true) then
