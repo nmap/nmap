@@ -230,7 +230,11 @@ action = function (host, port)
             end
           end
 
-          table.insert(backups, url_path .. " " .. response["status-line"]);
+          -- Trim the trailing CRLF: response["status-line"] keeps it, and
+          -- format_output's line splitter cannot step over the \r, so a raw
+          -- status-line renders every entry as a blank row.
+          table.insert(backups, url_path .. " "
+            .. response["status-line"]:match("^[^\r\n]+"));
         else
           stdnse.debug1("%s: found but not matching: %s",
             host.targetname or host.ip, url_path);
