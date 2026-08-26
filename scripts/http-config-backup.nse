@@ -4,6 +4,7 @@ local io = require "io"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
 local string = require "string"
+local stringaux = require "stringaux"
 local table = require "table"
 local url = require "url"
 
@@ -75,7 +76,7 @@ local grep_php = make_grep("<%?php");
 local grep_cgipath = make_grep("CGIPath");
 
 local function check_htaccess(s)
-  return string.match("<Files") or string.match(s, "RewriteRule")
+  return string.match(s, "<Files") or string.match(s, "RewriteRule")
 end
 
 local CONFIGS = {
@@ -217,7 +218,7 @@ action = function (host, port)
       if response.status == 200 and http.page_exists(response, result_404, known_404, url_path) then
         -- check it if is valid before inserting
         if cfg.check(response.body) then
-          local filename = stdnse.escape_filename((host.targetname or host.ip) .. url_path)
+          local filename = stringaux.filename_escape((host.targetname or host.ip) .. url_path)
 
           -- save the content
           if save then
