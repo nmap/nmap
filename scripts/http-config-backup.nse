@@ -5,7 +5,7 @@ local shortport = require "shortport"
 local stdnse = require "stdnse"
 local string = require "string"
 local stringaux = require "stringaux"
-local table = require "table"
+local tab = require "tab"
 local url = require "url"
 
 description = [[
@@ -52,8 +52,16 @@ http://www.feross.org/cmsploit/.
 -- PORT   STATE SERVICE REASON
 -- 80/tcp open  http    syn-ack
 -- | http-config-backup:
--- |   /%23wp-config.php%23 HTTP/1.1 200 OK
--- |_  /config.php~ HTTP/1.1 200 OK
+-- |   /%23wp-config.php%23  HTTP/1.0 200 OK
+-- |_  /config.php~          HTTP/1.0 200 OK
+--
+-- @xmloutput
+-- <table key="/%23wp-config.php%23">
+--   <elem key="status">HTTP/1.0 200 OK</elem>
+-- </table>
+-- <table key="/config.php~">
+--   <elem key="status">HTTP/1.0 200 OK</elem>
+-- </table>
 --
 -- @args http-config-backup.path the path where the CMS is installed
 -- @args http-config-backup.save directory to save all the valid config files found
@@ -180,8 +188,6 @@ action = function (host, port)
   local path = stdnse.get_script_args("http-config-backup.path") or "/";
   local save = stdnse.get_script_args("http-config-backup.save");
 
-  local backups = {};
-
   if not path:match("/$") then
     path = path .. "/";
   end
@@ -199,6 +205,9 @@ action = function (host, port)
     stdnse.debug1("Can't distinguish 404 response. Quitting.")
     return stdnse.format_output(false, "Can't determine file existence")
   end
+
+  local backups = stdnse.output_table()
+  local tbl = tab.new()
 
   -- for each config file
   for _, cfg in ipairs(CONFIGS) do
@@ -227,7 +236,9 @@ action = function (host, port)
             end
           end
 
-          table.insert(backups, url_path .. " " .. response["status-line"]);
+          local hstatus = response["status-line"]:match("^(.-)%s*$")
+          backups[url_path] = {status = hstatus}
+          tab.addrow(tbl, url_path, hstatus)
         else
           stdnse.debug1("%s: found but not matching: %s",
             host.targetname or host.ip, url_path);
@@ -236,5 +247,5 @@ action = function (host, port)
     end
   end
 
-  return stdnse.format_output(true, backups);
+  return backups, stdnse.format_output(true, tab.dump(tbl))
 end;
