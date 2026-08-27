@@ -42,7 +42,7 @@ And for each of these file applies the following transformations (using
 
 This script is inspired by the CMSploit program by Feross Aboukhadijeh:
 http://www.feross.org/cmsploit/.
-]];
+]]
 
 ---
 -- @usage
@@ -67,12 +67,12 @@ http://www.feross.org/cmsploit/.
 -- @args http-config-backup.save directory to save all the valid config files found
 --
 
-author = "Riccardo Cecolin";
-license = "Same as Nmap--See https://nmap.org/book/man-legal.html";
-categories = { "auth", "intrusive" };
+author = "Riccardo Cecolin"
+license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
+categories = { "auth", "intrusive" }
 
 
-portrule = shortport.http;
+portrule = shortport.http
 
 local function make_grep(pattern)
   return function(s)
@@ -80,8 +80,8 @@ local function make_grep(pattern)
   end
 end
 
-local grep_php = make_grep("<%?php");
-local grep_cgipath = make_grep("CGIPath");
+local grep_php = make_grep("<%?php")
+local grep_cgipath = make_grep("CGIPath")
 
 local function check_htaccess(s)
   return s:find("<Files") or s:find("RewriteRule")
@@ -97,13 +97,11 @@ local CONFIGS = {
   { filename = "mt-static/mt-config.cgi", check = grep_cgipath }, -- Movable Type
   { filename = "settings.php", check = grep_php }, -- Drupal
   { filename = ".htaccess", check = check_htaccess }, -- Apache
-};
+}
 
 -- Return directory, filename pair. directory may be empty.
 local function splitdir(path)
-  local dir, filename
-
-  dir, filename = string.match(path, "^(.*/)(.*)$")
+  local dir, filename = string.match(path, "^(.*/)(.*)$")
   if not dir then
     dir = ""
     filename = path
@@ -114,9 +112,7 @@ end
 
 -- Return basename, extension pair. extension may be empty.
 local function splitext(filename)
-  local base, ext;
-
-  base, ext = string.match(filename, "^(.+)(%..+)")
+  local base, ext = string.match(filename, "^(.+)(%..+)")
   if not base then
     base = filename
     ext = ""
@@ -128,7 +124,7 @@ end
 -- Functions mangling filenames.
 local TRANSFORMS = {
   function(fn)
-    local base, ext = splitext(fn);
+    local base, ext = splitext(fn)
     if ext ~= "" then
       return base .. ".bak" -- generic bak file
     end
@@ -137,7 +133,7 @@ local TRANSFORMS = {
   function(fn) return fn .. "~" end, -- vim, gedit
   function(fn) return "#" .. fn .. "#" end, -- Emacs
   function(fn)
-    local base, ext = splitext(fn);
+    local base, ext = splitext(fn)
     return base .. " copy" .. ext -- mac copy
   end,
   function(fn) return "Copy of " .. fn end, -- windows copy
@@ -145,23 +141,21 @@ local TRANSFORMS = {
   function(fn) if string.sub(fn, 1, 1) ~= "." then return "." .. fn .. ".swp" end end, -- vim swap
   function(fn) return fn .. ".swp" end, -- vim swap
   function(fn) return fn .. ".old" end, -- generic backup
-};
+}
 
 ---
 --Creates combinations of backup names for a given filename
 --Taken from: http-backup-finder.nse
 local function backupNames (filename)
-  local dir, basename;
-
-  dir, basename = splitdir(filename);
+  local dir, basename = splitdir(filename)
   return coroutine.wrap(function()
     for _, transform in ipairs(TRANSFORMS) do
-      local result = transform(basename);
+      local result = transform(basename)
       if type(result) == "string" then
-        coroutine.yield(dir .. result);
+        coroutine.yield(dir .. result)
       elseif type(result) == "table" then
         for _, r in ipairs(result) do
-          coroutine.yield(dir .. r);
+          coroutine.yield(dir .. r)
         end
       end
     end
@@ -175,29 +169,29 @@ end
 -- @param contents Content of file
 -- @return True if file was written successfully
 local function write_file (filename, contents)
-  local f, err = io.open(filename, "w");
+  local f, err = io.open(filename, "w")
   if not f then
-    return f, err;
+    return f, err
   end
-  f:write(contents);
-  f:close();
-  return true;
+  f:write(contents)
+  f:close()
+  return true
 end
 
 action = function (host, port)
-  local path = stdnse.get_script_args("http-config-backup.path") or "/";
-  local save = stdnse.get_script_args("http-config-backup.save");
+  local path = stdnse.get_script_args("http-config-backup.path") or "/"
+  local save = stdnse.get_script_args("http-config-backup.save")
 
-  if not path:match("/$") then
-    path = path .. "/";
+  if not path:find("/$") then
+    path = path .. "/"
   end
 
-  if not path:match("^/") then
-    path = "/" .. path;
+  if not path:find("^/") then
+    path = "/" .. path
   end
 
-  if (save and not(save:match("/$") ) ) then
-    save = save .. "/";
+  if save and not save:find("/$") then
+    save = save .. "/"
   end
 
   local status_404, result_404, known_404 = http.identify_404(host, port)
@@ -215,10 +209,10 @@ action = function (host, port)
     for entry in backupNames(cfg.filename) do
       local url_path
 
-      url_path = url.build({path = path .. entry});
+      url_path = url.build({path = path .. entry})
 
       -- http request
-      local response = http.get(host, port, url_path);
+      local response = http.get(host, port, url_path)
 
       -- if it's not 200, don't bother. If it is, check that it's not a false 404
       if response.status == 200 and http.page_exists(response, result_404, known_404, url_path) then
@@ -228,11 +222,11 @@ action = function (host, port)
           -- save the content
           if save then
             local filename = stringaux.filename_escape((host.targetname or host.ip) .. url_path)
-            local status, err = write_file(save .. filename, response.body);
+            local status, err = write_file(save .. filename, response.body)
             if status then
-              stdnse.debug1("%s saved", filename);
+              stdnse.debug1("%s saved", filename)
             else
-              stdnse.debug1("error saving %s", err);
+              stdnse.debug1("error saving %s", err)
             end
           end
 
@@ -241,11 +235,11 @@ action = function (host, port)
           tab.addrow(tbl, url_path, hstatus)
         else
           stdnse.debug1("%s: found but not matching: %s",
-            host.targetname or host.ip, url_path);
+            host.targetname or host.ip, url_path)
         end
       end
     end
   end
 
   return backups, stdnse.format_output(true, tab.dump(tbl))
-end;
+end
