@@ -20,7 +20,7 @@ Lists modules available for rsync (remote file sync) synchronization.
 -- |_  walter  Col. Kurtz's diaries
 --
 -- @xmloutput
--- table key="public">
+-- <table key="public">
 --   <elem key="comment">Free for all storage</elem>
 -- </table>
 -- <table key="admin">
