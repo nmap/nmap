@@ -4,6 +4,7 @@ local io = require "io"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
 local string = require "string"
+local stringaux = require "stringaux"
 local table = require "table"
 local url = require "url"
 
@@ -214,10 +215,10 @@ action = function (host, port)
       if response.status == 200 and http.page_exists(response, result_404, known_404, url_path) then
         -- check it if is valid before inserting
         if cfg.check(response.body) then
-          local filename = stdnse.escape_filename((host.targetname or host.ip) .. url_path)
 
           -- save the content
           if save then
+            local filename = stringaux.filename_escape((host.targetname or host.ip) .. url_path)
             local status, err = write_file(save .. filename, response.body);
             if status then
               stdnse.debug1("%s saved", filename);
