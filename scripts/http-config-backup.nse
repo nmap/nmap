@@ -148,11 +148,8 @@ local function backupNames (filename)
   return coroutine.wrap(function()
     for _, transform in ipairs(TRANSFORMS) do
       local result = transform(basename);
-
-      if result == nil then
-      elseif type(result) == "string" then
+      if type(result) == "string" then
         coroutine.yield(dir .. result);
-        result = {result}
       elseif type(result) == "table" then
         for _, r in ipairs(result) do
           coroutine.yield(dir .. r);
