@@ -67,7 +67,7 @@ portrule = shortport.http;
 
 local function make_grep(pattern)
   return function(s)
-    return string.match(s, pattern)
+    return s:find(pattern)
   end
 end
 
@@ -75,7 +75,7 @@ local grep_php = make_grep("<%?php");
 local grep_cgipath = make_grep("CGIPath");
 
 local function check_htaccess(s)
-  return string.match("<Files") or string.match(s, "RewriteRule")
+  return s:find("<Files") or s:find("RewriteRule")
 end
 
 local CONFIGS = {
