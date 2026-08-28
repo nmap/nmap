@@ -295,11 +295,31 @@ static struct trie_node *new_trie_node(const u32 *addr, const u32 *mask)
   return new_node;
 }
 
+static int mask_is_one_bit_more(const u32 *this_mask, const u32 *other_mask, int i)
+{
+  for (; i<4; i++) {
+    if (this_mask[i] > other_mask[i]) {
+      return 0;
+    }
+    if (this_mask[i] < other_mask[i]) {
+      /* Shift other_mask left one bit. If equal, other_mask was one bit larger. */
+      if ((this_mask[i] == ((other_mask[i] << 1) & U32_ALL_BITS))
+          /* But not if there are more bits in other parts. */
+          && (i == 3 || other_mask[i+1] == 0)) {
+        return 1;
+      }
+      return 0;
+    }
+    /* else equal, loop */
+  }
+  return 0;
+}
+
 /* Split a node into 2: one that matches the greatest common prefix with addr
  * and one that does not. */
 static void trie_split (struct trie_node *this, const u32 *addr, const u32 *mask)
 {
-  struct trie_node *new_node;
+  struct trie_node *new_node = NULL;
   u32 new_mask[4] = {0,0,0,0};
   u8 i;
   /* Calculate the mask of the common prefix */
@@ -330,10 +350,21 @@ static void trie_split (struct trie_node *this, const u32 *addr, const u32 *mask
     /* This node completely contains the new addr and mask. No need to split or add */
     return;
   }
-  /* Make a copy of this node to continue matching what it has been */
-  new_node = new_trie_node(this->addr, this->mask);
-  new_node->next_bit_one = this->next_bit_one;
-  new_node->next_bit_zero = this->next_bit_zero;
+
+  /* If the new common mask is exactly one bit shorter than the existing mask,
+   * AND the existing node is fully matched, we skip allocating a new node.
+   * The branch target is just TRIE_NODE_TRUE. */
+  if (mask_is_one_bit_more(new_mask, this->mask, i)
+       && this->next_bit_one == TRIE_NODE_TRUE
+       && this->next_bit_zero == TRIE_NODE_TRUE) {
+    new_node = TRIE_NODE_TRUE;
+  } else {
+    /* Make a copy of this node to continue matching what it has been */
+    new_node = new_trie_node(this->addr, this->mask);
+    new_node->next_bit_one = this->next_bit_one;
+    new_node->next_bit_zero = this->next_bit_zero;
+  }
+
   /* Adjust this node to the smaller mask */
   for (i=0; i < 4; i++) {
     this->mask[i] = new_mask[i];
@@ -350,11 +381,31 @@ static void trie_split (struct trie_node *this, const u32 *addr, const u32 *mask
 }
 
 /* Helper for address insertion */
-static void _trie_insert (struct trie_node *this, const u32 *addr, const u32 *mask)
+static void _trie_insert (struct trie_node *parent, const u32 *addr, const u32 *mask)
 {
+  struct trie_node *stack[128+4] = {NULL};
+  struct trie_node **insert_branch = NULL;
+  struct trie_node *this = NULL;
+  int i = 0;
+
+  if ((1<<31) & addr[0]) {
+    /* First bit is 1, so insert on ones branch */
+    insert_branch = &parent->next_bit_one;
+  }
+  else {
+    /* First bit is 0, so insert on zeros branch */
+    insert_branch = &parent->next_bit_zero;
+  }
+  this = *insert_branch;
+  if (this == NULL) {
+    /* Empty branch, just add it. */
+    *insert_branch = new_trie_node(addr, mask);
+    return;
+  }
   /* On entry, at least the 1st bit must match this node */
   assert(this == TRIE_NODE_TRUE || (this->addr[0] ^ addr[0]) < ((u32)1 << 31));
 
+  stack[i++] = parent;
   while (this != NULL && this != TRIE_NODE_TRUE) {
     /* Split the node if necessary to ensure a match */
     trie_split(this, addr, mask);
@@ -362,25 +413,43 @@ static void _trie_insert (struct trie_node *this, const u32 *addr, const u32 *ma
     /* At this point, this node matches the addr up to this->mask. */
     if (addr_next_bit_is_one(this->mask, addr)) {
       /* next bit is one: insert on the one branch */
-      if (this->next_bit_one == NULL) {
-        /* Previously unmatching branch, always the case when splitting */
-        this->next_bit_one = new_trie_node(addr, mask);
-        return;
-      }
-      else {
-        this = this->next_bit_one;
-      }
+      insert_branch = &this->next_bit_one;
     }
     else {
-      /* next bit is zero: insert on the zero branch */
-      if (this->next_bit_zero == NULL) {
-        /* Previously unmatching branch, always the case when splitting */
-        this->next_bit_zero = new_trie_node(addr, mask);
-        return;
+      insert_branch = &this->next_bit_zero;
+    }
+    if (*insert_branch == NULL) {
+      struct trie_node *curr_parent = this;
+      /* If new addr/mask is only adding 1 bit, just make it TRUE. */
+      *insert_branch = new_trie_node(addr, mask);
+      this = *insert_branch;
+      while (mask_is_one_bit_more(curr_parent->mask, this->mask, 0)) {
+        /* If both branches are true, replace parent's branch with TRIE_NODE_TRUE */
+        if (this->next_bit_zero == TRIE_NODE_TRUE
+            && this->next_bit_one == TRIE_NODE_TRUE) {
+          free(this);
+          this = curr_parent;
+          if (addr_next_bit_is_one(this->mask, addr)) {
+            /* next bit is one: insert on the one branch */
+            insert_branch = &this->next_bit_one;
+          }
+          else {
+            insert_branch = &this->next_bit_zero;
+          }
+          *insert_branch = TRIE_NODE_TRUE;
+        }
+        else {
+          break;
+        }
+        if (i <= 0)
+          break;
+        curr_parent = stack[--i];
       }
-      else {
-        this = this->next_bit_zero;
-      }
+      return;
+    }
+    else {
+      stack[i++] = this;
+      this = *insert_branch;
     }
   }
 }
@@ -507,32 +576,19 @@ static void trie_insert (struct trie_node *this, const struct sockaddr *sa, int 
 
 static void trie_insert_addr (struct trie_node *this, const u32 *addr, const u32 *mask)
 {
-  if (mask[0] == 0) {
-    /* Special case for ::/0 */
-    this->next_bit_one = TRIE_NODE_TRUE;
-    this->next_bit_zero = TRIE_NODE_TRUE;
-  }
-  /* First node doesn't have a mask or address of its own; we have to check the
-   * first bit manually. */
-  else if (0x80000000 & addr[0]) {
-    /* First bit is 1, so insert on ones branch */
-    if (this->next_bit_one == NULL) {
-      /* Empty branch, just add it. */
-      this->next_bit_one = new_trie_node(addr, mask);
+  /* Special cases for /0 and /1 */
+  if (mask[0] <= (1<<31)) {
+    if (mask[0] == 0 || (mask[0] & addr[0]) != 0) {
+      trie_free(this->next_bit_one);
+      this->next_bit_one = TRIE_NODE_TRUE;
     }
-    else {
-      _trie_insert(this->next_bit_one, addr, mask);
+    if (mask[0] == 0 || (mask[0] & addr[0]) == 0) {
+      trie_free(this->next_bit_zero);
+      this->next_bit_zero = TRIE_NODE_TRUE;
     }
   }
   else {
-    /* First bit is 0, so insert on zeros branch */
-    if (this->next_bit_zero == NULL) {
-      /* Empty branch, just add it. */
-      this->next_bit_zero = new_trie_node(addr, mask);
-    }
-    else {
-      _trie_insert(this->next_bit_zero, addr, mask);
-    }
+    _trie_insert(this, addr, mask);
   }
 }
 
