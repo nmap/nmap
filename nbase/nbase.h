@@ -560,6 +560,7 @@ extern void addrset_free(struct addrset *set);
 extern void addrset_print(FILE *fp, const struct addrset *set);
 extern int addrset_add_spec(struct addrset *set, const char *spec, int af, int dns);
 extern int addrset_add_file(struct addrset *set, FILE *fd, int af, int dns);
+extern void addrset_update(struct addrset *set, const struct addrset *other);
 extern int addrset_contains(const struct addrset *set, const struct sockaddr *sa);
 extern int addrset_matches_all(const struct addrset *set, int af);
 

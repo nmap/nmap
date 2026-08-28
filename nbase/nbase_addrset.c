@@ -485,6 +485,9 @@ static int trie_matches_all(const struct trie_node *this, int af)
   }
   return 0;
 }
+
+static void trie_insert_addr (struct trie_node *this, const u32 *addr, const u32 *mask);
+
 /* Insert a sockaddr into the trie */
 static void trie_insert (struct trie_node *this, const struct sockaddr *sa, int bits)
 {
@@ -498,6 +501,11 @@ static void trie_insert (struct trie_node *this, const struct sockaddr *sa, int 
     log_debug("Bad netmask length %d for address family %u, address not inserted.", bits, sa->sa_family);
     return;
   }
+  return trie_insert_addr(this, addr, mask);
+}
+
+static void trie_insert_addr (struct trie_node *this, const u32 *addr, const u32 *mask)
+{
   if (mask[0] == 0) {
     /* Special case for ::/0 */
     this->next_bit_one = TRIE_NODE_TRUE;
@@ -523,6 +531,68 @@ static void trie_insert (struct trie_node *this, const struct sockaddr *sa, int 
     }
     else {
       _trie_insert(this->next_bit_zero, addr, mask);
+    }
+  }
+}
+
+static void trie_update(struct trie_node * restrict this, const struct trie_node * restrict other)
+{
+  const struct trie_node *stack[128+4] = {NULL};
+  const struct trie_node *curr = NULL;
+  u32 addr[4];
+  u32 mask[4];
+  int i = 0;
+  int j = 0;
+  u32 tmp = 0;
+
+  if (this == NULL || other == NULL || this == other) {
+    return;
+  }
+
+  stack[i++] = other;
+  while (i > 0) {
+    curr = stack[--i];
+    if (curr->next_bit_one == TRIE_NODE_TRUE
+        && curr->next_bit_zero == TRIE_NODE_TRUE) {
+      trie_insert_addr(this, curr->addr, curr->mask);
+    }
+    else {
+      if (curr->next_bit_one != NULL) {
+        if (curr->next_bit_one == TRIE_NODE_TRUE) {
+          memcpy(addr, curr->addr, sizeof(addr));
+          memcpy(mask, curr->mask, sizeof(mask));
+          for (j = 0; j < 4; j++) {
+            tmp = (mask[j] >> 1) | ((u32)1 << 31);
+            if (tmp != mask[j]) {
+              addr[j] = addr[j] | (~mask[j] & tmp);
+              mask[j] = tmp;
+              break;
+            }
+          }
+          trie_insert_addr(this, addr, mask);
+        }
+        else {
+          stack[i++] = curr->next_bit_one;
+        }
+      }
+      if (curr->next_bit_zero != NULL) {
+        if (curr->next_bit_zero == TRIE_NODE_TRUE) {
+          memcpy(addr, curr->addr, sizeof(addr));
+          memcpy(mask, curr->mask, sizeof(mask));
+          for (j = 0; j < 4; j++) {
+            tmp = (mask[j] >> 1) | ((u32)1 << 31);
+            if (tmp != mask[j]) {
+              addr[j] = addr[j] & (~mask[j] ^ tmp);
+              mask[j] = tmp;
+              break;
+            }
+          }
+          trie_insert_addr(this, addr, mask);
+        }
+        else {
+          stack[i++] = curr->next_bit_zero;
+        }
+      }
     }
   }
 }
@@ -1011,4 +1081,19 @@ int addrset_matches_all(const struct addrset *set, int af)
     }
   }
   return 0;
+}
+
+void addrset_update(struct addrset *set, const struct addrset *other)
+{
+  struct addrset_elem *oe, *elem;
+
+  trie_update(set->trie4, other->trie4);
+  trie_update(set->trie6, other->trie6);
+
+  for (oe = other->head; oe != NULL; oe = oe->next) {
+    elem = (struct addrset_elem *) safe_malloc(sizeof(*elem));
+    memcpy(elem->ipv4.bits, oe->ipv4.bits, sizeof(elem->ipv4.bits));
+    elem->next = set->head;
+    set->head = elem;
+  }
 }
