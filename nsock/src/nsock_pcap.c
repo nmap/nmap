@@ -126,8 +126,10 @@ static int nsock_pcap_get_l3_offset(pcap_t *pt, int *dl) {
   unsigned int offset = 0;
 
   /* New packet capture device, need to recompute offset */
-  if ((datalink = pcap_datalink(pt)) < 0)
-    fatal("Cannot obtain datalink information: %s", pcap_geterr(pt));
+  if ((datalink = pcap_datalink(pt)) < 0) {
+    nsock_log_error("Cannot obtain datalink information: %s", pcap_geterr(pt));
+    return -1;
+  }
 
   /* XXX NOTE:
    * if a new offset ever exceeds the current max (24),
@@ -188,7 +190,9 @@ static int nsock_pcap_get_l3_offset(pcap_t *pt, int *dl) {
     #endif /* DLT_IPNET */
 
     default: /* Sorry, link type is unknown. */
-      fatal("Unknown datalink type %d.\n", datalink);
+      nsock_log_error("Unknown datalink type %d.\n", datalink);
+      return -1;
+      break;
   }
   if (dl)
     *dl = datalink;
@@ -306,6 +310,12 @@ int nsock_pcap_open(nsock_pool nsp, nsock_iod nsiod, const char *pcap_device,
     return rc;
 
   mp->l3_offset = nsock_pcap_get_l3_offset(mp->pt, &datalink);
+  if (mp->l3_offset < 0) {
+    /* nsock_pcap_get_l3_offset handles calling nsock_log_error */
+    pcap_close(mp->pt);
+    mp->pt = NULL;
+    return -1;
+  }
   mp->snaplen = snaplen;
   mp->datalink = datalink;
   mp->pcap_device = strdup(pcap_device);
@@ -328,7 +338,8 @@ int nsock_pcap_open(nsock_pool nsp, nsock_iod nsiod, const char *pcap_device,
     int immediate = 1;
 
     if (ioctl(mp->pcap_desc, BIOCIMMEDIATE, &immediate) < 0)
-      fatal("Cannot set BIOCIMMEDIATE on pcap descriptor");
+      nsock_log_info("Failed to set BIOCIMMEDIATE on pcap descriptor on device %s: %s",
+          pcap_device, socket_strerror(socket_errno()));
   }
 #elif defined WIN32
   /* We want any responses back ASAP */
@@ -348,6 +359,8 @@ int nsock_pcap_open(nsock_pool nsp, nsock_iod nsiod, const char *pcap_device,
     {
       nsock_log_error("Failed to set pcap descriptor on device %s "
                       "to nonblocking mode: %s", pcap_device, errbuf);
+      pcap_close(mp->pt);
+      mp->pt = NULL;
       return -1;
     }
     /* in other case, we can accept blocking pcap */
@@ -437,21 +450,19 @@ int do_actual_pcap_read(struct nevent *nse) {
 
       nsock_log_debug_all("PCAP %s READ (IOD #%li) (EID #%li) size=%i",
                           __func__, nse->iod->id, nse->id, pkt_header->caplen);
-      rc = 1;
       break;
 
     case 0: /* timeout */
-      rc = 0;
+      nse->status = NSE_STATUS_TIMEOUT;
       break;
 
-    case -1: /* error */
-      fatal("pcap_next_ex() fatal error while reading from pcap: %s\n",
-            pcap_geterr(mp->pt));
-      break;
-
-    case -2: /* no more packets in savefile (if reading from one) */
     default:
-      fatal("Unexpected return code from pcap_next_ex! (%d)\n", rc);
+      nsock_log_debug_all("PCAP %s READ (IOD #%li) (EID #%li) error=%d, '%s'",
+                          __func__, nse->iod->id, nse->id, rc, pcap_geterr(mp->pt));
+      nse->event_done = 1;
+      nse->status = NSE_STATUS_ERROR;
+      nse->errnum = rc;
+      break;
   }
 
   return rc;
