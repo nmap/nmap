@@ -464,8 +464,14 @@ bool HostGroupState::get_next_host(struct sockaddr_storage *ss, size_t *sslen, s
     }
     /* Check exclude list. */
     if (!addrset_contains(exclude_group, (const struct sockaddr *) ss)) {
-      current_group.reject_last_host();
       break;
+    }
+    else {
+      current_group.reject_last_host();
+      if (addrset_matches_all(exclude_group, o.af())) {
+        error("All %s addresses are excluded!", o.af() == AF_INET ? "IPv4" : "IPv6");
+        return false;
+      }
     }
   } while (true);
 
