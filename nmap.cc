@@ -2124,7 +2124,7 @@ int nmap_main(int argc, char *argv[]) {
   if (o.ping_group_sz < o.minHostGroupSz())
     o.ping_group_sz = o.minHostGroupSz();
   HostGroupState hstate(o.ping_group_sz, o.randomize_hosts,
-      o.generate_random_ips, o.max_ips_to_scan, argc, (const char **) argv);
+      o.generate_random_ips, o.max_ips_to_scan, exclude_group, argc, (const char **) argv);
 
   do {
     ideal_scan_group_sz = determineScanGroupSize(o.numhosts_scanned, &ports);

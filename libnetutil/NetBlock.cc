@@ -293,6 +293,12 @@ bool NetBlock::is_resolved_address(const struct sockaddr_storage *ss) const {
 NetBlockRandomIPv4::NetBlockRandomIPv4() : NetBlock(), count(0), infinite(false) {
   memset(&base, 0, sizeof(base));
   base.sin_family = AF_INET;
+  avoid = addrset_new();
+  addrset_update(avoid, get_reserved_addrset());
+}
+
+NetBlockRandomIPv4::~NetBlockRandomIPv4() {
+  addrset_free(avoid);
 }
 
 bool NetBlockRandomIPv4::next(struct sockaddr_storage *ss, size_t *sslen) {
@@ -304,12 +310,19 @@ bool NetBlockRandomIPv4::next(struct sockaddr_storage *ss, size_t *sslen) {
       return false;
     }
   }
+  if (addrset_matches_all(avoid, AF_INET)) {
+    return false;
+  }
   do {
     base.sin_addr.s_addr = get_random_unique_u32();
-  } while (ip_is_reserved((const struct sockaddr_storage *)&base));
+  } while (addrset_contains(avoid, (const struct sockaddr *)&base));
   memcpy(ss, &base, sizeof(base));
   *sslen = sizeof(base);
   return true;
+}
+
+void NetBlockRandomIPv4::avoid_addrset(const struct addrset *addrs) {
+  addrset_update(avoid, addrs);
 }
 
 NetBlockIPv4Ranges::NetBlockIPv4Ranges(bool r_a, const char *dev)

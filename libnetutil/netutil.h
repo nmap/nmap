@@ -172,6 +172,7 @@ struct addrinfo *resolve_all(const char *hostname, int pf);
  * netblocks.
  */
 int ip_is_reserved(const struct sockaddr_storage *addr);
+const struct addrset *get_reserved_addrset(void);
 
 bool getNextHopMAC(const char *iface, const u8 *srcmac, const struct sockaddr_storage *srcss,
                    const struct sockaddr_storage *dstss, u8 *dstmac);

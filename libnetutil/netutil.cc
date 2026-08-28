@@ -469,8 +469,14 @@ struct addrinfo *resolve_all(const char *hostname, int pf) {
  */
 int ip_is_reserved(const struct sockaddr_storage *addr)
 {
-  static struct addrset *reserved = NULL;
   assert(addr);
+  const struct addrset *reserved = get_reserved_addrset();
+  return addrset_contains(reserved, (struct sockaddr *)addr);
+}
+
+const struct addrset *get_reserved_addrset(void)
+{
+  static struct addrset *reserved = NULL;
 
   if (reserved == NULL) {
     reserved = addrset_new();
@@ -516,7 +522,7 @@ int ip_is_reserved(const struct sockaddr_storage *addr)
     addrset_add_spec(reserved, "fe80::/10", AF_INET6, 0);
   }
 
-  return addrset_contains(reserved, (struct sockaddr *)addr);
+  return reserved;
 }
 
 bool getNextHopMAC(const char *iface, const u8 *srcmac, const struct sockaddr_storage *srcss,

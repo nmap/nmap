@@ -321,7 +321,7 @@ bool target_needs_new_hostgroup(Target **targets, int targets_sz, const Target *
    The target_expressions array MUST REMAIN VALID IN MEMORY as long as
    this class instance is used -- the array is NOT copied.
  */
-HostGroupState::HostGroupState(int lookahead, int rnd, bool gen_rand, unsigned long num_random, int argc, const char **argv) {
+HostGroupState::HostGroupState(int lookahead, int rnd, bool gen_rand, unsigned long num_random, const struct addrset *exclude_group, int argc, const char **argv) {
   assert(lookahead > 0);
   this->argc = argc;
   this->argv = argv;
@@ -333,7 +333,7 @@ HostGroupState::HostGroupState(int lookahead, int rnd, bool gen_rand, unsigned l
   next_batch_no = 0;
   randomize = rnd;
   if (gen_rand) {
-    current_group.generate_random_ips(num_random);
+    current_group.generate_random_ips(num_random, exclude_group);
   }
 }
 
