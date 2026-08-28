@@ -118,8 +118,16 @@ struct addrset {
     /* Linked list of struct addset_elem. */
     struct addrset_elem *head;
     /* Radix tree for faster matching of certain cases */
-    struct trie_node *trie;
+    struct trie_node *trie4;
+    struct trie_node *trie6;
 };
+
+static inline struct trie_node *af_trie(const struct addrset *set, int af) {
+  if (af == AF_INET) {
+    return set->trie4;
+  }
+  return set->trie6;
+}
 
 /* Special node pointer to represent "all possible addresses"
  * This will be used to represent netmask specifications. */
@@ -132,7 +140,9 @@ struct addrset *addrset_new()
     set->head = NULL;
 
     /* Allocate the first node of the IPv4 trie */
-    set->trie = (struct trie_node *) safe_zalloc(sizeof(struct trie_node));
+    set->trie4 = (struct trie_node *) safe_zalloc(sizeof(struct trie_node));
+    /* Allocate the first node of the IPv6 trie */
+    set->trie6 = (struct trie_node *) safe_zalloc(sizeof(struct trie_node));
     return set;
 }
 
@@ -172,7 +182,8 @@ void addrset_free(struct addrset *set)
         free(elem);
     }
 
-    trie_free(set->trie);
+    trie_free(set->trie4);
+    trie_free(set->trie6);
     free(set);
 }
 
@@ -684,7 +695,7 @@ int addrset_add_spec(struct addrset *set, const char *spec, int af, int dns)
           return 0;
         }
         address_to_string(addr->ai_addr, addr->ai_addrlen, addr_string, sizeof(addr_string));
-        trie_insert(set->trie, addr->ai_addr, netmask_bits);
+        trie_insert(af_trie(set, addr->ai_family), addr->ai_addr, netmask_bits);
         log_debug("Add IP %s/%d to addrset (trie).", addr_string, netmask_bits);
       }
       free(local_spec);
@@ -759,7 +770,7 @@ int addrset_add_spec(struct addrset *set, const char *spec, int af, int dns)
             continue;
         }
 
-        trie_insert(set->trie, addr->ai_addr, netmask_bits);
+        trie_insert(af_trie(set, addr->ai_family), addr->ai_addr, netmask_bits);
     }
 
     if (addrs != NULL)
@@ -961,7 +972,7 @@ int addrset_contains(const struct addrset *set, const struct sockaddr *sa)
     struct addrset_elem *elem;
 
     /* First check the trie. */
-    if (trie_match(set->trie, sa))
+    if (trie_match(af_trie(set, sa->sa_family), sa))
       return 1;
 
     /* If that didn't match, check the rest of the addrset_elem in order */
@@ -977,6 +988,27 @@ int addrset_contains(const struct addrset *set, const struct sockaddr *sa)
 
 int addrset_matches_all(const struct addrset *set, int af)
 {
-  /* Currently limited to testing the trie */
-  return trie_matches_all(set->trie, af);
+  struct addrset_elem *elem;
+  int i = 0, r = 0;
+  unsigned char *bv;
+
+  if (trie_matches_all(af_trie(set, af), af)) {
+    return 1;
+  }
+
+  if (af == AF_INET) {
+    for (elem = set->head; elem != NULL; elem = elem->next) {
+      bv = (unsigned char *) elem->ipv4.bits;
+      r = 1;
+      for (i=0; i < sizeof(elem->ipv4.bits); i++) {
+        if (bv[i] != 0xff) {
+          r = 0;
+          break;
+        }
+      }
+      if (r != 0)
+        return 1;
+    }
+  }
+  return 0;
 }
