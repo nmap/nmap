@@ -187,6 +187,7 @@ void addrset_free(struct addrset *set)
     free(set);
 }
 
+#define U32_ALL_BITS 0xffffffff
 
 /* Public domain log2 function. https://graphics.stanford.edu/~seander/bithacks.html#IntegerLogLookup */
 static const char LogTable256[256] = {
@@ -204,7 +205,7 @@ static u32 common_mask(u32 a, u32 b)
   u32 v = a ^ b;
   if (v == 0) {
     /* values are equal, all bits are the same */
-    return 0xffffffff;
+    return U32_ALL_BITS;
   }
 
   if ((tt = v >> 16))
@@ -229,9 +230,9 @@ static u32 common_mask(u32 a, u32 b)
 static u32 next_bit_is_one(u32 mask, u32 value) {
   if (mask == 0) {
     /* no masked bits, check the first bit. */
-    return (0x80000000 & value);
+    return ((1<<31) & value);
   }
-  else if (mask == 0xffffffff) {
+  else if (mask == U32_ALL_BITS) {
     /* Imaginary bit off the end we will say is 0 */
     return 0;
   }
@@ -245,7 +246,7 @@ static u32 addr_next_bit_is_one(const u32 *mask, const u32 *addr) {
   u8 i;
   for (i = 0; i < 4; i++) {
     curr_mask = mask[i];
-    if (curr_mask < 0xffffffff) {
+    if (curr_mask < U32_ALL_BITS) {
       /* Only bother checking the first not-completely-masked portion of the address */
       return next_bit_is_one(curr_mask, addr[i]);
     }
@@ -321,7 +322,7 @@ static void trie_split (struct trie_node *this, const u32 *addr, const u32 *mask
       this->next_bit_one = this->next_bit_zero = TRIE_NODE_TRUE;
       return;
     }
-    if (new_mask[i] < 0xffffffff) {
+    if (new_mask[i] < U32_ALL_BITS) {
       break;
     }
   }
@@ -429,13 +430,13 @@ static int sockaddr_to_mask (const struct sockaddr *sa, int bits, u32 *mask)
   k = bits / 32;
   for (i=0; i < 4; i++) {
     if (i < k) {
-      mask[i] = 0xffffffff;
+      mask[i] = U32_ALL_BITS;
     }
     else if (i > k) {
       mask[i] = 0;
     }
     else {
-      mask[i] = 0xfffffffe << (31 - bits % 32);
+      mask[i] = (U32_ALL_BITS - 1) << (31 - bits % 32);
     }
   }
   return 1;
@@ -627,7 +628,7 @@ static int trie_match (const struct trie_node *this, const struct sockaddr *sa)
     return 0;
   }
   /* Manually check first bit to decide which branch to match against */
-  if (0x80000000 & addr[0]) {
+  if ((1<<31) & addr[0]) {
     return _trie_match(this->next_bit_one, addr);
   }
   else {
