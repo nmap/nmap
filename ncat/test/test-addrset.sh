@@ -48,6 +48,19 @@ expect_fail() {
 		TEST_PASS=$(expr $TEST_PASS + 1)
 	fi
 }
+expect_pass() {
+	specs="$1"
+	$ADDRSET "$specs" < /dev/null 2> /dev/null
+	ret=$?
+	TESTS=$(expr $TESTS + 1)
+	if [ "$ret" = "0" ]; then
+		echo "PASS $specs"
+		TEST_PASS=$(expr $TEST_PASS + 1)
+	else
+		echo "FAIL $specs: $ret"
+		TEST_FAIL=$(expr $TEST_FAIL + 1)
+	fi
+}
 
 # seq replacement for systems without seq.
 seq() {
@@ -58,6 +71,9 @@ seq() {
 		low=$(expr $low + 1)
 	done
 }
+
+test_addrset "--matches-all 4 0.0.0.0/8 128.0.0.0/1 16.0.0.0/4 32.0.0.0/3 2.0.0.0/7 8.0.0.0/5 1.0.0.0/8 64.0.0.0/2 4.0.0.0/6" "" </dev/null
+expect_pass --test-matches-all
 
 # No specifications.
 test_addrset "" "" <<EOF

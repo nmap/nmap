@@ -181,10 +181,13 @@ uninstall:
 	$(RM) -f $(DESTDIR)$(mandir)/man1/$(TARGET).1
 	$(RM) -rf $(DESTDIR)$(pkgdatadir)/
 
-clean-ncat:
-	$(RM) -f *.o test/*.o $(TARGET) $(TEST_PROGS)
+clean-tests:
+	$(RM) -f test/*.o $(TEST_PROGS)
 
-clean: clean-ncat @LUA_CLEAN@
+clean-ncat:
+	$(RM) -f *.o $(TARGET)
+
+clean: clean-ncat clean-tests @LUA_CLEAN@
 
 clean-lua:
 	-cd $(LIBLUADIR) && $(MAKE) clean
