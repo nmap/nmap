@@ -561,6 +561,7 @@ extern void addrset_print(FILE *fp, const struct addrset *set);
 extern int addrset_add_spec(struct addrset *set, const char *spec, int af, int dns);
 extern int addrset_add_file(struct addrset *set, FILE *fd, int af, int dns);
 extern int addrset_contains(const struct addrset *set, const struct sockaddr *sa);
+extern int addrset_matches_all(const struct addrset *set, int af);
 
 /* We use bit vectors to represent what values are allowed in an IPv4 octet.
    Each vector is built up of an array of bitvector_t (any convenient integer

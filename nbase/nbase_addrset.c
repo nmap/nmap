@@ -430,6 +430,50 @@ static int sockaddr_to_mask (const struct sockaddr *sa, int bits, u32 *mask)
   return 1;
 }
 
+static int trie_matches_all(const struct trie_node *this, int af)
+{
+  const struct trie_node *node = this;
+  /* For IPv4, first find if any IPv4-mapped address matches: */
+  u32 addr[4] = {0, 0, 0xffff, 0};
+  if (af == AF_INET) {
+    while (node != TRIE_NODE_TRUE && node != NULL
+        && addr_matches(node->mask, node->addr, addr)) {
+      if (node->mask[3] != 0) {
+        /* Matched too specifically; some IPv4 would not match */
+        return 0;
+      }
+      else if (1 & node->mask[2]) {
+        /* Matched the prefix exactly! Stop searching and test this node. */
+        if (node->next_bit_one == TRIE_NODE_TRUE
+          && node->next_bit_zero == TRIE_NODE_TRUE) {
+          return 1;
+        }
+        return 0;
+      }
+      else if (addr_next_bit_is_one(node->mask, addr)) {
+        node = node->next_bit_one;
+      }
+      else {
+        node = node->next_bit_zero;
+      }
+    }
+    /* After the loop, we either matched a more broad prefix or we failed to
+     * match. Both cases are handled by the general IPv6 tests below. */
+  }
+  else {
+    assert(af == AF_INET6);
+  }
+
+  if (node == TRIE_NODE_TRUE) {
+    return 1;
+  }
+  if (node != NULL
+      && node->next_bit_one == TRIE_NODE_TRUE
+      && node->next_bit_zero == TRIE_NODE_TRUE) {
+    return addr_matches(node->mask, node->addr, addr);
+  }
+  return 0;
+}
 /* Insert a sockaddr into the trie */
 static void trie_insert (struct trie_node *this, const struct sockaddr *sa, int bits)
 {
@@ -443,25 +487,32 @@ static void trie_insert (struct trie_node *this, const struct sockaddr *sa, int 
     log_debug("Bad netmask length %d for address family %u, address not inserted.", bits, sa->sa_family);
     return;
   }
+  if (mask[0] == 0) {
+    /* Special case for ::/0 */
+    this->next_bit_one = TRIE_NODE_TRUE;
+    this->next_bit_zero = TRIE_NODE_TRUE;
+  }
   /* First node doesn't have a mask or address of its own; we have to check the
    * first bit manually. */
-  if (0x80000000 & addr[0]) {
+  else if (0x80000000 & addr[0]) {
     /* First bit is 1, so insert on ones branch */
     if (this->next_bit_one == NULL) {
       /* Empty branch, just add it. */
       this->next_bit_one = new_trie_node(addr, mask);
-      return;
     }
-    _trie_insert(this->next_bit_one, addr, mask);
+    else {
+      _trie_insert(this->next_bit_one, addr, mask);
+    }
   }
   else {
     /* First bit is 0, so insert on zeros branch */
     if (this->next_bit_zero == NULL) {
       /* Empty branch, just add it. */
       this->next_bit_zero = new_trie_node(addr, mask);
-      return;
     }
-    _trie_insert(this->next_bit_zero, addr, mask);
+    else {
+      _trie_insert(this->next_bit_zero, addr, mask);
+    }
   }
 }
 
@@ -922,4 +973,10 @@ int addrset_contains(const struct addrset *set, const struct sockaddr *sa)
     }
 
     return 0;
+}
+
+int addrset_matches_all(const struct addrset *set, int af)
+{
+  /* Currently limited to testing the trie */
+  return trie_matches_all(set->trie, af);
 }

@@ -173,8 +173,15 @@ test_addrset "1.2.3.4/32" "1.2.3.4" <<EOF
 1.2.3.4
 EOF
 
-# /0 netmask.
+# /0 netmask with first bit 0
 test_addrset "5.5.5.5/0" "0.0.0.0 123.123.123.123 255.255.255.255" <<EOF
+0.0.0.0
+123.123.123.123
+255.255.255.255
+EOF
+
+# /0 netmask with first bit 1
+test_addrset "255.5.5.5/0" "0.0.0.0 123.123.123.123 255.255.255.255" <<EOF
 0.0.0.0
 123.123.123.123
 255.255.255.255
@@ -236,14 +243,26 @@ test_addrset "1:2::0003/128" "1:2::3" <<EOF
 1:3::3
 EOF
 
-# /0 netmask.
-test_addrset "1:2::0003/0" "1:2::3 1:2::0 1:2::ff 1:2::1ff 1:3::3 ff::00" <<EOF
+# /0 netmask with first bit 0
+test_addrset "1:2::0003/0" "1:2::3 1:2::0 1:2::ff 1:2::1ff 1:3::3 ff::00 ::1" <<EOF
 1:2::3
 1:2::0
 1:2::ff
 1:2::1ff
 1:3::3
 ff::00
+::1
+EOF
+
+# /0 netmask with first bit 1
+test_addrset "ffff:2::0003/0" "1:2::3 1:2::0 1:2::ff 1:2::1ff 1:3::3 ff::00 ::1" <<EOF
+1:2::3
+1:2::0
+1:2::ff
+1:2::1ff
+1:3::3
+ff::00
+::1
 EOF
 
 # Name lookup.
