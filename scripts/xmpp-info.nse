@@ -222,12 +222,19 @@ end
 
 local connect_tls = function(s, xmlns, server_name)
   local request = make_request(server_name, xmlns)
-  request = request .. "<starttls xmlns='urn:ietf:params:xml:ns:xmpp-tls'/>"
   s:send(request)
   while true do
     local tag = receive_tag(s)
     if not tag then break end
     log_tag(tag)
+    if (tag.name == "required" or tag.name == "starttls") and tag.finish then
+      request = "<starttls xmlns='urn:ietf:params:xml:ns:xmpp-tls'/>"
+      local status, err = s:send(request)
+      if ( not(status) ) then
+        return false
+      end
+      tag = receive_tag(s)
+    end
     if tag.name == "proceed" and tag.finish then
       local status, error = s:reconnect_ssl()
       if status then return true end
