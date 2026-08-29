@@ -72,6 +72,7 @@ extern int errno;
 #include <winsock2.h>
 #endif
 
+#include <math.h>
 #include <limits.h>
 #include <stdio.h>
 #include "nbase_ipv6.h"
@@ -302,34 +303,46 @@ int socket_bindtodevice(int sd, const char *device) {
  * are "ms" for milliseconds, "s" for seconds, "m" for minutes, or "h" for
  * hours. Seconds is the default with no suffix. -1 is returned if the string
  * can't be parsed. */
-double tval2secs(const char *tspec) {
+static double tval_helper(const char *tspec, int *mult, const char **unit) {
   double d;
   char *tail;
+  assert(tspec != NULL);
+  assert(mult != NULL);
 
   errno = 0;
   d = strtod(tspec, &tail);
-  if (*tspec == '\0' || errno != 0)
+  if (tspec == tail || errno != 0 || !isfinite(d))
     return -1;
+  if (unit)
+    *unit = tail;
   if (strcasecmp(tail, "ms") == 0)
-    return d / 1000.0;
+    *mult = 1;
   else if (*tail == '\0' || strcasecmp(tail, "s") == 0)
-    return d;
+    *mult = 1000;
   else if (strcasecmp(tail, "m") == 0)
-    return d * 60.0;
+    *mult = 1000 * 60;
   else if (strcasecmp(tail, "h") == 0)
-    return d * 60.0 * 60.0;
+    *mult = 1000 * 60 * 60;
   else
     return -1;
+  return d;
+}
+
+double tval2secs(const char *tspec) {
+  int mult = 1000;
+  double d = tval_helper(tspec, &mult, NULL);
+  return d * (mult / 1000.0);
 }
 
 long tval2msecs(const char *tspec) {
-  double s, ms;
+  int mult = 1;
+  double ms = tval_helper(tspec, &mult, NULL);
+  ms *= mult;
 
-  s = tval2secs(tspec);
-  if (s == -1)
-    return -1;
-  ms = s * 1000.0;
-  if (ms > LONG_MAX || ms < LONG_MIN)
+  /* We enforce 32-bit max/min because double can hold only 53 bits precisely.
+   * With 64-bit long, LONG_MAX == (2^63 - 1), which cast to a double rounds to 2^63,
+   * so (long)((double)LONG_MAX) is undefined behavior. */
+  if (ms > INT32_MAX || ms < INT32_MIN)
     return -1;
 
   return (long) ms;
@@ -338,15 +351,11 @@ long tval2msecs(const char *tspec) {
 /* Returns the unit portion of a time specification (such as "ms", "s", "m", or
    "h"). Returns NULL if there was a parsing error or no unit is present. */
 const char *tval_unit(const char *tspec) {
-  double d;
-  char *tail;
+  int mult = 0;
+  const char *tail = NULL;
+  double d = tval_helper(tspec, &mult, &tail);
 
-  errno = 0;
-  d = strtod(tspec, &tail);
-  /* Avoid GCC 4.6 error "variable 'd' set but not used
-     [-Wunused-but-set-variable]". */
-  (void) d;
-  if (*tspec == '\0' || errno != 0 || *tail == '\0')
+  if (d == -1 || *tail == '\0')
     return NULL;
 
   return tail;
