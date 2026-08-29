@@ -90,7 +90,12 @@ action = function( host, port )
   for _, record in ipairs(records) do
     local result_part = stdnse.output_table()
     for _, addr in ipairs( record.addr ) do
-      result_part["Address"] = addr
+      local value = result_part["Address"]
+      if (value == nil) then
+        result_part["Address"] = addr
+      else
+        result_part["Address"] = value .. " & " .. addr
+      end
     end
 
     local status, err = requiresAuth( host, port, record.name )
