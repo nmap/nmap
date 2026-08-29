@@ -508,6 +508,25 @@ static void test_file_name(const char *filename, const char *option) {
   }
 }
 
+static long parse_tval_msecs(const char *opt, const char *arg, long low, long high) {
+  char buf[256] = "";
+  long l = tval2msecs(arg);
+  if (l < low)
+    fatal("Bogus --%s argument specified, must be at least %ldms", opt, low);
+  if (l >= high && tval_unit(arg) == NULL) {
+    if (l > 1000 * 60 * 60)
+      Snprintf(buf, sizeof(buf), "%.1f hours", l / (1000.0 * 60 * 60));
+    else if (l > 1000 * 60)
+      Snprintf(buf, sizeof(buf), "%.1f minutes", l / (1000.0 * 60));
+    else if (l > 1000)
+      Snprintf(buf, sizeof(buf), "%.1f seconds", l / 1000.0);
+    fatal("Since April 2010, the default unit for --%s is seconds, so your time "
+        "of \"%s\" is %s. Use \"%sms\" for milliseconds.",
+        opt, arg, buf, arg);
+  }
+  return l;
+}
+
 void parse_options(int argc, char **argv) {
   char *p;
   int arg;
@@ -681,27 +700,15 @@ void parse_options(int argc, char **argv) {
             fatal("Bogus --max-os-tries argument specified, must be between 1 and 50 (inclusive)");
           o.setMaxOSTries(l);
         } else if (strcmp(long_options[option_index].name, "max-rtt-timeout") == 0) {
-          l = tval2msecs(optarg);
-          if (l < 5)
-            fatal("Bogus --max-rtt-timeout argument specified, must be at least 5ms");
-          if (l >= 50 * 1000 && tval_unit(optarg) == NULL)
-            fatal("Since April 2010, the default unit for --max-rtt-timeout is seconds, so your time of \"%s\" is %g seconds. Use \"%sms\" for %g milliseconds.", optarg, l / 1000.0, optarg, l / 1000.0);
+          l = parse_tval_msecs("max-rtt-timeout", optarg, 5, 50 * 1000);
           if (l < 20)
             error("WARNING: You specified a round-trip time timeout (%ld ms) that is EXTRAORDINARILY SMALL.  Accuracy may suffer.", l);
           delayed_options.pre_max_rtt_timeout = l;
         } else if (strcmp(long_options[option_index].name, "min-rtt-timeout") == 0) {
-          l = tval2msecs(optarg);
-          if (l < 0)
-            fatal("Bogus --min-rtt-timeout argument specified");
-          if (l >= 50 * 1000 && tval_unit(optarg) == NULL)
-            fatal("Since April 2010, the default unit for --min-rtt-timeout is seconds, so your time of \"%s\" is %g seconds. Use \"%sms\" for %g milliseconds.", optarg, l / 1000.0, optarg, l / 1000.0);
+          l = parse_tval_msecs("min-rtt-timeout", optarg, 0, 50 * 1000);
           delayed_options.pre_min_rtt_timeout = l;
         } else if (strcmp(long_options[option_index].name, "initial-rtt-timeout") == 0) {
-          l = tval2msecs(optarg);
-          if (l <= 0)
-            fatal("Bogus --initial-rtt-timeout argument specified.  Must be positive");
-          if (l >= 50 * 1000 && tval_unit(optarg) == NULL)
-            fatal("Since April 2010, the default unit for --initial-rtt-timeout is seconds, so your time of \"%s\" is %g seconds. Use \"%sms\" for %g milliseconds.", optarg, l / 1000.0, optarg, l / 1000.0);
+          l = parse_tval_msecs("initial-rtt-timeout", optarg, 1, 50 * 1000);
           delayed_options.pre_init_rtt_timeout = l;
         } else if (strcmp(long_options[option_index].name, "excludefile") == 0) {
           delayed_options.exclude_file = strdup(optarg);
@@ -737,12 +744,7 @@ void parse_options(int argc, char **argv) {
             error("Warning: Your --min-parallelism option is pretty high!  This can hurt reliability.");
           }
         } else if (strcmp(long_options[option_index].name, "host-timeout") == 0) {
-          l = tval2msecs(optarg);
-          if (l < 0)
-            fatal("Bogus --host-timeout argument specified");
-          // if (l == 0) this is the default "no timeout" value, overriding timing template
-          if (l >= 10000 * 1000 && tval_unit(optarg) == NULL)
-            fatal("Since April 2010, the default unit for --host-timeout is seconds, so your time of \"%s\" is %.1f hours. If this is what you want, use \"%ss\".", optarg, l / 1000.0 / 60 / 60, optarg);
+          l = parse_tval_msecs("host-timeout", optarg, 0, 10000 * 1000);
           delayed_options.pre_host_timeout = l;
         } else if (strcmp(long_options[option_index].name, "ttl") == 0) {
           delayed_options.raw_scan_options = true;
@@ -777,23 +779,14 @@ void parse_options(int argc, char **argv) {
         } else if (strcmp(long_options[option_index].name, "version-all") == 0) {
           o.version_intensity = 9;
         } else if (strcmp(long_options[option_index].name, "scan-delay") == 0) {
-          l = tval2msecs(optarg);
-          if (l < 0)
-            fatal("Bogus --scan-delay argument specified.");
-          // if (l == 0) this is the default "no delay" value, overriding timing template
-          if (l >= 100 * 1000 && tval_unit(optarg) == NULL)
-            fatal("Since April 2010, the default unit for --scan-delay is seconds, so your time of \"%s\" is %.1f minutes. Use \"%sms\" for %g milliseconds.", optarg, l / 1000.0 / 60, optarg, l / 1000.0);
+          l = parse_tval_msecs("scan-delay", optarg, 0, 100 * 1000);
           delayed_options.pre_scan_delay = l;
         } else if (strcmp(long_options[option_index].name, "defeat-rst-ratelimit") == 0) {
           o.defeat_rst_ratelimit = true;
         } else if (strcmp(long_options[option_index].name, "defeat-icmp-ratelimit") == 0) {
           o.defeat_icmp_ratelimit = true;
         } else if (strcmp(long_options[option_index].name, "max-scan-delay") == 0) {
-          l = tval2msecs(optarg);
-          if (l < 0)
-            fatal("Bogus --max-scan-delay argument specified.");
-          if (l >= 100 * 1000 && tval_unit(optarg) == NULL)
-            fatal("Since April 2010, the default unit for --max-scan-delay is seconds, so your time of \"%s\" is %.1f minutes. If this is what you want, use \"%ss\".", optarg, l / 1000.0 / 60, optarg);
+          l = parse_tval_msecs("max-scan-delay", optarg, 0, 100 * 1000);
           delayed_options.pre_max_scan_delay = l;
         } else if (strcmp(long_options[option_index].name, "max-retries") == 0) {
           delayed_options.pre_max_retries = atoi(optarg);
