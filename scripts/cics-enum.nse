@@ -31,6 +31,7 @@ found for CICS transaction IDs.
 --  Defaults to <code>None</code> and doesn't store anything.
 -- @args cics-enum.user Username to use for authenticated enumeration
 -- @args cics-enum.pass Password to use for authenticated enumeration
+-- @args cics-enum.signoff String to look for when exiting CICS. Default: "Sign-off is complete."
 --
 -- @usage
 -- nmap --script=cics-enum -p 23 <targets>
@@ -60,6 +61,7 @@ found for CICS transaction IDs.
 -- 2019-02-01 - v0.4 - Removed TN3270E support (breaks location)
 --
 -- @author Philip Young
+-- @updates by VideoMan (Sign-off string)
 -- @copyright Same as Nmap--See https://nmap.org/book/man-legal.html
 --
 
@@ -259,16 +261,18 @@ Driver = {
 -- @param port port NSE object
 -- @param user CICS userID
 -- @param pass CICS userID password
+-- @param signoff CICS 
 -- @param commands optional script-args of commands to use to get to CICS
 -- @return status true on success, false on failure
 
-local function cics_test( host, port, commands, user, pass )
+local function cics_test(host, port, commands, user, pass, signoff )
   stdnse.debug("Checking for CICS")
   local tn = tn3270.Telnet:new()
   tn:disable_tn3270e()
   local status, err = tn:initiate(host,port)
   local msg = 'Unable to get to CICS'
   local cics = false -- initially we're not at CICS
+  local cics_signoff = signoff
   if not status then
     stdnse.debug("Could not initiate TN3270: %s", err )
     return cics
@@ -320,8 +324,14 @@ local function cics_test( host, port, commands, user, pass )
   end
   tn:get_screen_debug(2)
 
-  if tn:find('off is complete.') then
-      cics = true
+  -- String to look for after issueing CDEF (Sign-off from CICS)
+  -- First do we have a string from the command line?
+  if(cics_signoff == nil or cics_signoff == '') then
+    cics_signoff = 'Sign-off is complete.'
+  end
+
+  if tn:find(cics_signoff) then
+     cics = true
   end
 
   if not (user == nil and pass == nil) then -- We're doing authenticated CICS testing now baby!
@@ -379,6 +389,7 @@ action = function(host, port)
   local commands = stdnse.get_script_args(SCRIPT_NAME .. '.commands') or 'cics'-- VTAM commands/macros to get to CICS
   local username = stdnse.get_script_args(SCRIPT_NAME .. '.user') or nil
   local password = stdnse.get_script_args(SCRIPT_NAME .. '.pass') or nil
+  local signoff = stdnse.get_script_args(SCRIPT_NAME .. '.signoff') or nil
   local cics_ids = {"CADP", "CATA", "CATD", "CATR", "CBAM", "CCIN", "CCRL", "CDBC", "CDBD",
     "CDBF", "CDBI", "CDBM", "CDBN", "CDBO", "CDBQ", "CDBT", "CDFS", "CDST",
     "CDTS", "CEBR", "CEBT", "CECI", "CECS", "CEDA", "CEDB", "CEDC", "CEDF",
@@ -410,7 +421,7 @@ action = function(host, port)
       end
     end
   end
-  local cicstst,msg = cics_test(host, port, commands, username, password)
+  local cicstst,msg = cics_test(host, port, commands, username, password, signoff)
   if cicstst then
     local title = 'CICS Transaction IDs'
     if not(username == nil and password == nil) then title = 'CICS Transaction IDs for User: '.. username end
