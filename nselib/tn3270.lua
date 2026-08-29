@@ -1229,6 +1229,19 @@ Telnet = {
     return self:send_data( string.pack("B",self.aids.CLEAR) .. self.commands.IAC .. self.commands.EOR )
   end,
 
+  send_aid = function ( self, aid )
+    if type(self.aids[aid]) == nil then
+      return false, aid .. "is not a valid AID"
+    end
+    self.output_buffer = {}
+    self.output_buffer[0] = string.pack("B", self.aids[aid] )
+    stdnse.debug(3,"Cursor Location ("..self.cursor_addr.."): Row: %s, Column: %s ",
+      self:BA_TO_ROW(self.cursor_addr),
+      self:BA_TO_COL(self.cursor_addr) )
+    self.output_buffer[1] = self:ENCODE_BADDR(self.cursor_addr)
+    return self:send_tn3270(self.output_buffer)
+  end,
+
   send_pf = function ( self, pf )
     if pf > 24 or pf < 0 then
       return false, "PF Value must be between 1 and 24"
