@@ -112,42 +112,39 @@ static nsock_pool get_pool (lua_State *L)
   return *nspp;
 }
 
-static std::string hexify (const unsigned char *str, size_t len)
+static char *hexify (const unsigned char *str, size_t len)
 {
-  size_t num = 0;
-
-  std::ostringstream ret;
-
-  // If more than 95% of the chars are printable, we escape unprintable chars
-  for (size_t i = 0; i < len; i++)
-    if (isprint((int) str[i]))
-      num++;
-  if ((double) num / (double) len >= 0.95)
-  {
-    for (size_t i = 0; i < len; i++)
-    {
-      if (isprint((int) str[i]) || isspace((int) str[i]))
-        ret << str[i];
-      else
-        ret << std::setw(3) << "\\" << (unsigned int) (unsigned char) str[i];
+  char *ret = NULL;
+  if (len <= 32) {
+    int newlen = len;
+    for (int i=0; i < len && newlen < 2*len; i++) {
+      if (!isprint((int)(unsigned char) str[i])) {
+        newlen += 3; // '\\', 'x', and hex nibble
+      }
     }
-    return ret.str();
+    if (newlen < 2*len) {
+      newlen++; //ensure space for \0
+      ret = (char *) safe_zalloc(newlen);
+      for (int i=0; i < len && newlen > 0;) {
+        unsigned char c = str[i];
+        if (isprint((int) c)) {
+          ret[i++] = (char) c;
+          newlen--;
+        }
+        else {
+          int written = Snprintf(ret + i, newlen, "\\x%02x", c);
+          if (written < 0)
+            break;
+          i += written;
+          newlen -= written;
+        }
+      }
+    }
   }
-
-  ret << std::setbase(16) << std::setfill('0');
-  for (size_t i = 0; i < len; i += 16)
-  {
-    ret << std::setw(8) << i << ": ";
-    for (size_t j = i; j < i + 16; j++)
-      if (j < len)
-        ret << std::setw(2) << (unsigned int) (unsigned char) str[j] << " ";
-      else
-        ret << "   ";
-    for (size_t j = i; j < i + 16 && j < len; j++)
-      ret.put(isgraph((int) str[j]) ? (unsigned char) str[j] : ' ');
-    ret << std::endl;
+  if (ret == NULL) {
+    ret = hexdump(str, len);
   }
-  return ret.str();
+  return ret;
 }
 
 /* Some constants used for enforcing a limit on the number of open sockets
@@ -294,7 +291,7 @@ static unsigned short inet_port_both (int af, const void *v_addr)
 #define TO      ">"
 #define FROM    "<"
 
-static void trace (nsock_iod nsiod, const char *message, const char *dir)
+static void trace (nsock_iod nsiod, const char *message, int len, const char *dir)
 {
   if (o.scriptTrace())
   {
@@ -309,16 +306,24 @@ static void trace (nsock_iod nsiod, const char *message, const char *dir)
 
       nsock_iod_get_communication_info(nsiod, &protocol, &af,
           (sockaddr *) &local, (sockaddr *) &remote, sizeof(sockaddr_storage));
-      log_write(LOG_STDOUT, "%s: %s %s:%d %s %s:%d | %s\n",
+      log_write(LOG_STDOUT, "%s: %s %s:%d %s %s:%d | ",
           SCRIPT_ENGINE,
           IPPROTO2STR_UC(protocol),
           inet_ntop_both(af, &local, ipstring_local),
           inet_port_both(af, &local),
           dir,
           inet_ntop_both(af, &remote, ipstring_remote),
-          inet_port_both(af, &remote), message);
+          inet_port_both(af, &remote));
     } else {
-      log_write(LOG_STDOUT, "%s: %s | %s\n", SCRIPT_ENGINE, dir, message);
+      log_write(LOG_STDOUT, "%s: %s | ", SCRIPT_ENGINE, dir);
+    }
+    if (len > 0) {
+      char *escaped = hexify((const u8 *)message, len);
+      log_write(LOG_STDOUT, "%s\n", escaped);
+      free(escaped);
+    }
+    else {
+      log_write(LOG_STDOUT, "%s\n", message);
     }
   }
 }
@@ -359,7 +364,7 @@ static void callback (nsock_pool nsp, nsock_event nse, void *ud)
   if (nse_status(nse) == NSE_STATUS_KILL)
       return;
   assert(nse_type(nse) != NSE_TYPE_READ);
-  trace(nse_iod(nse), nu->action, nu->direction);
+  trace(nse_iod(nse), nu->action, -1, nu->direction);
 
   if (lua_status(L) == LUA_OK) {
     // Sometimes an operation finishes immediately and Nsock calls the callback
@@ -607,7 +612,7 @@ static int l_send (lua_State *L)
   NSOCK_UDATA_ENSURE_OPEN(L, nu);
   size_t size;
   const char *string = luaL_checklstring(L, 2, &size);
-  trace(nu->nsiod, hexify((unsigned char *) string, size).c_str(), TO);
+  trace(nu->nsiod, string, size, TO);
   int oldtop = lua_gettop(L);
   nu->action = "SEND";
   nsock_write(nsp, nu->nsiod, callback, nu->timeout, nu, string, size);
@@ -638,7 +643,7 @@ static int l_sendto (lua_State *L)
   if (dest == NULL)
     return nseU_safeerror(L, "getaddrinfo returned success but no addresses");
 
-  trace(nu->nsiod, hexify((unsigned char *) string, size).c_str(), TO);
+  trace(nu->nsiod, string, size, TO);
   int oldtop = lua_gettop(L);
   nu->action = "SENDTO";
   nsock_sendto(nsp, nu->nsiod, callback, nu->timeout, nu, dest->ai_addr, dest->ai_addrlen, port, string, size);
@@ -660,7 +665,7 @@ static void receive_callback (nsock_pool nsp, nsock_event nse, void *udata)
   {
     int len;
     const char *str = nse_readbuf(nse, &len);
-    trace(nse_iod(nse), hexify((const unsigned char *) str, len).c_str(), FROM);
+    trace(nse_iod(nse), str, len, FROM);
     lua_pushboolean(L, true);
     lua_pushlstring(L, str, len);
     // since r39036, read event can succeed immediately if there's pending SSL data
@@ -672,7 +677,7 @@ static void receive_callback (nsock_pool nsp, nsock_event nse, void *udata)
   }
   else if (lua_status(L) == LUA_OK) {
     // since r39028, read event can fail immediately if the socket is EOF.
-    trace(nse_iod(nse), nse_status2str(nse_status(nse)), FROM);
+    trace(nse_iod(nse), nse_status2str(nse_status(nse)), -1, FROM);
     lua_pushboolean(L, false);
     lua_pushstring(L, nse_status2str(nse_status(nse)));
     nu->action = NU_ACTION_IMMEDIATE;
@@ -1005,7 +1010,7 @@ static int l_new (lua_State *L)
    attempt. */
 static void close_internal (lua_State *L, nse_nsock_udata *nu)
 {
-  trace(nu->nsiod, "CLOSE", TO);
+  trace(nu->nsiod, "CLOSE", -1, TO);
 #ifdef HAVE_OPENSSL
   if (nu->ssl_session)
     SSL_SESSION_free((SSL_SESSION *) nu->ssl_session);
