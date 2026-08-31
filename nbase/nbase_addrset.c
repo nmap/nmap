@@ -860,6 +860,9 @@ int addrset_add_spec(struct addrset *set, const char *spec, int af, int dns)
     }
     if (addrs == NULL)
         log_user("Warning: no addresses found for %s.", local_spec);
+    else if (af == AF_UNSPEC && netmask_bits > 0 && netmask_bits <= 32)
+        log_user("Warning: Ambiguous netmask for %s will be applied"
+            " to IPv4 and IPv6 addresses alike.", spec);
     free(local_spec);
 
     /* Walk the list of addresses and add them all to the set with netmasks. */
