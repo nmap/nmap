@@ -138,6 +138,7 @@
 #include <string>
 #include <sstream>
 #include <vector>
+#include <cmath>
 
 /* global options */
 extern char *optarg;
@@ -970,18 +971,20 @@ void parse_options(int argc, char **argv) {
             fatal("Data payload MTU must be >0 and multiple of 8");
         } else if (strcmp(long_options[option_index].name, "port-ratio") == 0) {
           char *ptr;
-          o.topportlevel = strtod(optarg, &ptr);
-          if (!ptr || o.topportlevel < 0 || o.topportlevel >= 1)
+          d = strtod(optarg, &ptr);
+          if (errno != 0 || !ptr || ptr == optarg || *ptr != '\0' || !std::isfinite(d) || d < 0 || d >= 1)
             fatal("--port-ratio should be between [0 and 1)");
+          o.topportlevel = d;
         } else if (strcmp(long_options[option_index].name, "exclude-ports") == 0) {
           if (o.exclude_portlist)
             fatal("Only 1 --exclude-ports option allowed, separate multiple ranges with commas.");
           o.exclude_portlist = strdup(optarg);
         } else if (strcmp(long_options[option_index].name, "top-ports") == 0) {
           char *ptr;
-          o.topportlevel = strtod(optarg, &ptr);
-          if (!ptr || o.topportlevel < 1 || ((double)((int)o.topportlevel)) != o.topportlevel)
-            fatal("--top-ports should be an integer 1 or greater");
+          l = strtol(optarg, &ptr, 10);
+          if (errno != 0 || !ptr || ptr == optarg || *ptr != '\0' || l < 1 || l > 65535)
+            fatal("--top-ports should be an integer between 1 and 65535");
+          o.topportlevel = l;
         } else if (strcmp(long_options[option_index].name, "ip-options") == 0) {
           delayed_options.raw_scan_options = true;
           o.ipoptions    = (u8*) safe_malloc(4 * 10 + 1);
