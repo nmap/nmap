@@ -605,6 +605,7 @@ unsigned long nbase_adler32(const unsigned char *buf, int len)
 #undef ADLER32_BASE
 
 
+static const char hexch[] = "0123456789abcdef";
 /* This function returns a string containing the hexdump of the supplied
  * buffer. It uses current locale to determine if a character is printable or
  * not. It prints 73char+\n wide lines like these:
@@ -618,25 +619,23 @@ unsigned long nbase_adler32(const unsigned char *buf, int len)
  * that the caller is supposed to free().
  * */
 char *hexdump(const u8 *cp, u32 length){
-  static char asciify[257];          /* Stores character table           */
+  static char asciify[256];          /* Stores character table           */
   int asc_init=0;                    /* Flag to generate table only once */
   u32 i=0, hex=0, asc=0;             /* Array indexes                    */
-  u32 line_count=0;                  /* For byte count at line start     */
-  char *current_line=NULL;           /* Current line to write            */
   char *buffer=NULL;                 /* Dynamic buffer we return         */
   #define LINE_LEN 74                /* Length of printed line           */
-  char line2print[LINE_LEN];         /* Stores current line              */
-  char printbyte[16];                /* For byte conversion              */
+  char *line2print;         /* Start of current line              */
   int bytes2alloc;                   /* For buffer                       */
-  memset(line2print, ' ', LINE_LEN); /* We fill the line with spaces     */
 
   /* On the first run, generate a list of nice printable characters
    * (according to current locale) */
   if( asc_init==0){
       asc_init=1;
-      for(i=0; i<256; i++){
-        if( isalnum(i) || isdigit(i) || ispunct(i) ){ asciify[i]=i; }
-        else{ asciify[i]='.'; }
+      memset(asciify, '.', sizeof(asciify));
+      for (i=0; i<0xff; i++) {
+        if (isgraph(i)) {
+          asciify[i]=i;
+        }
       }
   }
   /* Allocate enough space to print the hex dump */
@@ -646,7 +645,8 @@ char *hexdump(const u8 *cp, u32 length){
   }
   bytes2alloc=(length%16==0)? (1 + LINE_LEN * (length/16)) : (1 + LINE_LEN * (1+(length/16))) ;
   buffer=(char *)safe_zalloc(bytes2alloc);
-  current_line=buffer;
+  memset(buffer, ' ', bytes2alloc - 1); /* Fill line with spaces */
+  line2print=buffer;
 #define HEX_START 7
 #define ASC_START 57
 /* This is how or line looks like.
@@ -659,23 +659,20 @@ char *hexdump(const u8 *cp, u32 length){
 */
   i=0;
   while( i < length ){
-    memset(line2print, ' ', LINE_LEN); /* Fill line with spaces */
-    snprintf(line2print, sizeof(line2print), "%04x", (16*line_count++) % 0xFFFF); /* Add line No.*/
+    snprintf(line2print, 5, "%04x", i & 0xFFFF); /* Add line No.*/
     line2print[4]=' '; /* Replace the '\0' inserted by snprintf() with a space */
     hex=HEX_START;  asc=ASC_START;
     do { /* Print 16 bytes in both hex and ascii */
         if (i%16 == 8) hex++; /* Insert space every 8 bytes */
-        snprintf(printbyte, sizeof(printbyte), "%02x", cp[i]);/* First print the hex number */
-        line2print[hex++]=printbyte[0];
-        line2print[hex++]=printbyte[1];
-        line2print[hex++]=' ';
+        line2print[hex++]=hexch[(cp[i] >> 4) & 0xf];
+        line2print[hex++]=hexch[cp[i] & 0xf];
+        hex++; /* ' ' */
         line2print[asc++]=asciify[ cp[i] ]; /* Then print its ASCII equivalent */
         i++;
     } while (i < length && i%16 != 0);
     /* Copy line to output buffer */
     line2print[LINE_LEN-1]='\n';
-    memcpy(current_line, line2print, LINE_LEN);
-    current_line += LINE_LEN;
+    line2print += LINE_LEN;
   }
   buffer[bytes2alloc-1]='\0';
   return buffer;
