@@ -1,5 +1,10 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [GH#3266] Fixed a nmap-service-probes match that misidentified any ISC
+  BIND server configured with version disclosure disabled as "Plesk Onyx
+  BIND". Nothing in the matched response is actually Plesk-specific and
+  it now correctly identifies the generic ISC BIND. [0xShred]
+
 o [NSE][GH#3447] IP options parsing by the packet library no longer crashes
   on incomplete options. IP header data after EOOL are no longer parsed as
   options. [nnposter]
