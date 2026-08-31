@@ -17037,6 +17037,19 @@ rarity 8
 ports 8291
 match winbox m|^\xf8\x05(?!\0{248}).{248}$|s p/MikroTik WinBox/ i/legacy protocol/ o/MikroTik RouterOS <6.43/ cpe:/o:mikrotik:routeros/
 
+# SAP HANA database communication init message
+# Prefix: 0xffffffff
+# Product version 4.32
+# Protocol version 4.1
+# \x01\x01\x01 = 1 option (1 field) little-endian
+Probe TCP SAP-HDB-Init q|\xff\xff\xff\xff\x04\x20\0\x04\x01\0\0\x01\x01\x01|
+rarity 8
+ports 30003,30013,30015,30017,30040,30041,30103,30113,30115,30117,30140,30141,30203,30213,30215,30217,30240,30241,31003,31013,31015,31017,31040,31041,32003,32013,32015,32017,32040,32041,33003,33013,33015,33017,33040,33041,34003,34013,34015,34017,34040,34041,35003,35013,35015,35017,35040,35041,36003,36013,36015,36017,36040,36041,37003,37013,37015,37017,37040,37041,38003,38013,38015,38017,38040,38041,39003,39013,39015,39017,39040,39041
+
+# In practice, these "version" fields appear to be 0
+match saphdb m|^\0\0\0\0\0\0\0\0$| p/SAP HANA SQL database/ cpe:/a:sap:hana_database/
+match saphdb m|^(.)(..)(.)(..)\0\0$| p/SAP HANA SQL database/ v/$I(1,"<").$I(2,"<")/ i/protocol $I(3,"<").$I(4,"<")/ cpe:/a:sap:hana_database:$I(1,"<").$I(2,"<")/
+
 ##############################NEXT PROBE##############################
 Probe UDP TFTP_GET q|\0\x01r7tftp.txt\0octet\0|
 rarity 8
