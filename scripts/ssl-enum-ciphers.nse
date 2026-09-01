@@ -528,6 +528,11 @@ local function base_extensions(host)
     ["ec_point_formats"] = tls.EXTENSION_HELPERS["ec_point_formats"]({"uncompressed"}),
     -- Enable SNI if a server name is available
     ["server_name"] = tlsname and tls.EXTENSION_HELPERS["server_name"](tlsname),
+    -- Enable the Extended Master Secret extension, since FIPS 140-3 IG section
+    -- D.Q now requires it for servers in FIPS mode and some vendors may reject
+    -- handshakes without it. Not sending the extension would show those
+    -- servers as not supporting TLS 1.2 at all.
+    ["extended_master_secret"] = "",
   }
 end
 
