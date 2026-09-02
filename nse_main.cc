@@ -38,6 +38,7 @@
 #define NSE_DESTRUCTOR "NSE_DESTRUCTOR"
 #define NSE_SELECTED_BY_NAME "NSE_SELECTED_BY_NAME"
 #define NSE_CURRENT_HOSTS "NSE_CURRENT_HOSTS"
+#define NSE_ALLOC_STATE "NSE_ALLOC_STATE"
 
 #define NSE_FORMAT_TABLE "NSE_FORMAT_TABLE"
 #define NSE_FORMAT_XML "NSE_FORMAT_XML"
@@ -601,11 +602,23 @@ static void set_nmap_libraries (lua_State *L)
   }
 }
 
+struct AllocState {
+    size_t total_allocated;
+    size_t max_allocated;
+    size_t memory_limit;
+    AllocState(size_t lim=SIZE_MAX) : total_allocated(0), max_allocated(0), memory_limit(lim) {}
+};
+
 static int init_main (lua_State *L)
 {
+  assert(lua_gettop(L) == 2);
   char path[MAXPATHLEN];
   std::vector<std::string> *rules = (std::vector<std::string> *)
       lua_touserdata(L, 1);
+
+  // AllocState *alloc_state = lua_touserdata(L, 2);
+  assert(lua_islightuserdata(L, -1));
+  lua_setfield(L, LUA_REGISTRYINDEX, NSE_ALLOC_STATE);
 
   /* Load some basic libraries */
   luaL_openlibs(L);
@@ -817,6 +830,38 @@ void nse_gettarget (lua_State *L, int index)
   lua_replace(L, -2);
 }
 
+void* restricted_alloc(void *ud, void *ptr, size_t osize, size_t nsize) {
+  AllocState *state = (AllocState *)ud;
+
+  // When ptr is NULL, Lua uses osize to indicate the object type being allocated.
+  // Therefore, the true old size is 0 when ptr is NULL.
+  size_t true_osize = (ptr != NULL) ? osize : 0;
+
+  // Calculate what the new memory footprint would be
+  size_t projected_memory = state->total_allocated - true_osize + nsize;
+
+  // If we are allocating new memory and exceeding the limit, deny it
+  if (nsize > 0) {
+    if (projected_memory > state->memory_limit) {
+      return NULL; // Triggers LUA_ERRMEM in the VM
+    }
+    if (projected_memory > state->max_allocated) {
+      state->max_allocated = projected_memory;
+    }
+  }
+
+  // Update internal state
+  state->total_allocated = projected_memory;
+
+  // Standard realloc/free behavior
+  if (nsize == 0) {
+    free(ptr);
+    return NULL;
+  } else {
+    return realloc(ptr, nsize);
+  }
+}
+
 void open_nse (void)
 {
   if (L_NSE == NULL)
@@ -835,7 +880,14 @@ void open_nse (void)
       log_write(LOG_STDOUT, "%s: Using Lua %.0f.%.0f.\n", SCRIPT_ENGINE, major, minor);
     if (version < 504)
       fatal("%s: This version of NSE only works with Lua 5.4 or greater.", SCRIPT_ENGINE);
-    if ((L_NSE = luaL_newstate()) == NULL)
+    // Peak allocations in testing:
+    // base -sC, no targets: 10.147MB
+    // make check-nse: 6.252MB
+    // -sC localhost (7 ports): 10.162MB
+    // http-title on 822 targets: 95.591MB
+    // -sC on 93 targets port 443: 50.649MB
+    AllocState *alloc_state = new AllocState(400 * 1024 * 1024);
+    if ((L_NSE = lua_newstate(restricted_alloc, alloc_state)) == NULL)
       fatal("%s: failed to open a Lua state!", SCRIPT_ENGINE);
     lua_atpanic(L_NSE, panic);
     lua_settop(L_NSE, 0);
@@ -843,7 +895,8 @@ void open_nse (void)
     lua_pushcfunction(L_NSE, nseU_traceback);
     lua_pushcfunction(L_NSE, init_main);
     lua_pushlightuserdata(L_NSE, &o.chosenScripts);
-    if (lua_pcall(L_NSE, 1, 0, 1))
+    lua_pushlightuserdata(L_NSE, alloc_state);
+    if (lua_pcall(L_NSE, 2, 0, 1))
       fatal("%s: failed to initialize the script engine:\n%s\n", SCRIPT_ENGINE, lua_tostring(L_NSE, -1));
     lua_settop(L_NSE, 0);
   }
@@ -869,7 +922,15 @@ void close_nse (void)
 {
   if (L_NSE != NULL)
   {
+    lua_getfield(L_NSE, LUA_REGISTRYINDEX, NSE_ALLOC_STATE);
+    AllocState *alloc_state = (AllocState *) lua_touserdata(L_NSE, -1);
+    if (o.debugging > 0) {
+      char buf[128];
+      log_write(LOG_STDOUT, "%s: max memory allocated %s\n", SCRIPT_ENGINE,
+          format_bytecount(alloc_state->max_allocated, buf, sizeof(buf)));
+    }
     lua_close(L_NSE);
+    delete alloc_state;
     L_NSE = NULL;
   }
 }
