@@ -156,8 +156,9 @@ static int scp (lua_State *L)
 {
   static const char * const ops[] = {"printStats", "printStatsIfNecessary",
     "mayBePrinted", "endTask", NULL};
-  ScanProgressMeter *progress =
-    (ScanProgressMeter *) lua_touserdata(L, lua_upvalueindex(1));
+  ScanProgressMeter **ud =
+    (ScanProgressMeter **) lua_touserdata(L, lua_upvalueindex(1));
+  ScanProgressMeter *progress = *ud;
   switch (luaL_checkoption(L, 1, NULL, ops))
   {
     case 0: /* printStats */
@@ -171,7 +172,6 @@ static int scp (lua_State *L)
       return 1;
     case 3: /* endTask */
       progress->endTask(NULL, NULL);
-      delete progress;
       break;
   }
   return 0;
@@ -179,9 +179,23 @@ static int scp (lua_State *L)
 
 static int scan_progress_meter (lua_State *L)
 {
-  lua_pushlightuserdata(L, new ScanProgressMeter(luaL_checkstring(L, 1)));
+  ScanProgressMeter *SPM = new ScanProgressMeter(luaL_checkstring(L, 1));
+  ScanProgressMeter **ud = (ScanProgressMeter **)lua_newuserdatauv(L, sizeof(SPM), 0);
+  *ud = SPM;
+  luaL_setmetatable(L, "ScanProgressMeter");
   lua_pushcclosure(L, scp, 1);
   return 1;
+}
+
+static int ScanProgressMeter_gc (lua_State *L)
+{
+  ScanProgressMeter **ud =
+    (ScanProgressMeter **) luaL_checkudata(L, 1, "ScanProgressMeter");
+  if (*ud != NULL) {
+    delete *ud;
+    *ud = NULL;
+  }
+  return 0;
 }
 
 /* This is like nmap.log_write, but doesn't append "NSE:" to the beginning of
@@ -379,6 +393,10 @@ static void open_cnse (lua_State *L)
   nseU_setsfield(L, -1, "NMAP_URL", NMAP_URL);
   nseU_setnfield(L, -1, "script_timeout", o.scripttimeout);
 
+  luaL_newmetatable(L, "ScanProgressMeter");
+  lua_pushcfunction(L, ScanProgressMeter_gc);
+  lua_setfield(L, -2, "__gc");
+  lua_pop(L, 1);
 }
 
 /* Global persistent Lua state used by the engine. */
