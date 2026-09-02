@@ -380,10 +380,12 @@ void timeout_hook(lua_State *L, lua_Debug *ar) {
 
 int install_thread_timer (lua_State *L)
 {
+  assert(L != L_NSE);
   lua_getfield(L, LUA_REGISTRYINDEX, NSE_TIMER);
   TimerState *timer_state = (TimerState *) lua_touserdata(L, -1);
   timer_state->start_time = time(NULL);
-  lua_sethook(L, timeout_hook, LUA_MASKCOUNT, 10000);
+  // 10M instructions should be more than 1/s but less than 100/s
+  lua_sethook(L, timeout_hook, LUA_MASKCOUNT, 10000000);
   return 0;
 }
 
