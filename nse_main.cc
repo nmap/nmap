@@ -360,6 +360,19 @@ static int fetchfile_absolute (lua_State *L)
   return nse_fetch(L, nse_fetchfile_absolute);
 }
 
+/* Global persistent Lua state used by the engine. */
+static lua_State *L_NSE = NULL;
+
+struct AllocState {
+    size_t total_allocated;
+    size_t max_allocated;
+    size_t memory_limit;
+    bool enforce_limit;
+    AllocState(size_t lim=SIZE_MAX)
+      : total_allocated(0), max_allocated(0), memory_limit(lim), enforce_limit(false)
+      {}
+};
+
 struct TimerState {
     time_t start_time;
     double max_seconds;
@@ -394,6 +407,18 @@ int start_thread_timer (lua_State *L)
   lua_getfield(L, LUA_REGISTRYINDEX, NSE_TIMER);
   TimerState *timer_state = (TimerState *) lua_touserdata(L, -1);
   timer_state->start_time = time(NULL);
+  lua_getfield(L, LUA_REGISTRYINDEX, NSE_ALLOC_STATE);
+  AllocState *alloc_state = (AllocState *) lua_touserdata(L, -1);
+  alloc_state->enforce_limit = true;
+  return 0;
+}
+
+int stop_thread_timer (lua_State *L)
+{
+  // Currently nothing to do to "stop" the timer.
+  lua_getfield(L, LUA_REGISTRYINDEX, NSE_ALLOC_STATE);
+  AllocState *alloc_state = (AllocState *) lua_touserdata(L, -1);
+  alloc_state->enforce_limit = false;
   return 0;
 }
 
@@ -405,6 +430,7 @@ static void open_cnse (lua_State *L)
     {"key_was_pressed", key_was_pressed},
     {"scan_progress_meter", scan_progress_meter},
     {"start_thread_timer", start_thread_timer},
+    {"stop_thread_timer", stop_thread_timer},
     {"install_thread_timer", install_thread_timer},
     {"timedOut", timedOut},
     {"startTimeOutClock", startTimeOutClock},
@@ -439,9 +465,6 @@ static void open_cnse (lua_State *L)
   lua_setfield(L, -2, "__gc");
   lua_pop(L, 1);
 }
-
-/* Global persistent Lua state used by the engine. */
-static lua_State *L_NSE = NULL;
 
 void ScriptResult::clear (void)
 {
@@ -641,13 +664,6 @@ static void set_nmap_libraries (lua_State *L)
     lua_pop(L, 1);
   }
 }
-
-struct AllocState {
-    size_t total_allocated;
-    size_t max_allocated;
-    size_t memory_limit;
-    AllocState(size_t lim=SIZE_MAX) : total_allocated(0), max_allocated(0), memory_limit(lim) {}
-};
 
 static int init_main (lua_State *L)
 {
@@ -885,7 +901,7 @@ void* restricted_alloc(void *ud, void *ptr, size_t osize, size_t nsize) {
 
   // If we are allocating new memory and exceeding the limit, deny it
   if (nsize > 0) {
-    if (projected_memory > state->memory_limit) {
+    if (state->enforce_limit && projected_memory > state->memory_limit) {
       return NULL; // Triggers LUA_ERRMEM in the VM
     }
     if (projected_memory > state->max_allocated) {

@@ -527,6 +527,7 @@ do
   function Thread:resume (timeouts)
     cnse.start_thread_timer()
     local ok, r1, r2 = resume(self.co, unpack(self.args, 1, self.args.n));
+    cnse.stop_thread_timer()
     local status = status(self.co);
     if ok and r1 == ACTION_STARTING then
       self:d("Starting %THREAD_AGAINST.");
