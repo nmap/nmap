@@ -39,6 +39,7 @@
 #define NSE_SELECTED_BY_NAME "NSE_SELECTED_BY_NAME"
 #define NSE_CURRENT_HOSTS "NSE_CURRENT_HOSTS"
 #define NSE_ALLOC_STATE "NSE_ALLOC_STATE"
+#define NSE_TIMER "NSE_TIMER"
 
 #define NSE_FORMAT_TABLE "NSE_FORMAT_TABLE"
 #define NSE_FORMAT_XML "NSE_FORMAT_XML"
@@ -359,6 +360,41 @@ static int fetchfile_absolute (lua_State *L)
   return nse_fetch(L, nse_fetchfile_absolute);
 }
 
+struct TimerState {
+    time_t start_time;
+    double max_seconds;
+    TimerState(double max) : start_time(0), max_seconds(max) {}
+};
+
+// This hook is called by Lua every N instructions
+void timeout_hook(lua_State *L, lua_Debug *ar) {
+  lua_getfield(L, LUA_REGISTRYINDEX, NSE_TIMER);
+  TimerState *timer_state = (TimerState *) lua_touserdata(L, -1);
+
+  double elapsed = difftime(time(NULL), timer_state->start_time);
+
+  if (elapsed > timer_state->max_seconds) {
+    luaL_error(L, "Script execution exceeded time limit.");
+  }
+}
+
+int install_thread_timer (lua_State *L)
+{
+  lua_getfield(L, LUA_REGISTRYINDEX, NSE_TIMER);
+  TimerState *timer_state = (TimerState *) lua_touserdata(L, -1);
+  timer_state->start_time = time(NULL);
+  lua_sethook(L, timeout_hook, LUA_MASKCOUNT, 10000);
+  return 0;
+}
+
+int start_thread_timer (lua_State *L)
+{
+  lua_getfield(L, LUA_REGISTRYINDEX, NSE_TIMER);
+  TimerState *timer_state = (TimerState *) lua_touserdata(L, -1);
+  timer_state->start_time = time(NULL);
+  return 0;
+}
+
 static void open_cnse (lua_State *L)
 {
   static const luaL_Reg nse[] = {
@@ -366,6 +402,8 @@ static void open_cnse (lua_State *L)
     {"fetchscript", fetchscript},
     {"key_was_pressed", key_was_pressed},
     {"scan_progress_meter", scan_progress_meter},
+    {"start_thread_timer", start_thread_timer},
+    {"install_thread_timer", install_thread_timer},
     {"timedOut", timedOut},
     {"startTimeOutClock", startTimeOutClock},
     {"stopTimeOutClock", stopTimeOutClock},
@@ -611,10 +649,13 @@ struct AllocState {
 
 static int init_main (lua_State *L)
 {
-  assert(lua_gettop(L) == 2);
+  assert(lua_gettop(L) == 3);
   char path[MAXPATHLEN];
   std::vector<std::string> *rules = (std::vector<std::string> *)
       lua_touserdata(L, 1);
+
+  assert(lua_islightuserdata(L, -1));
+  lua_setfield(L, LUA_REGISTRYINDEX, NSE_TIMER);
 
   // AllocState *alloc_state = lua_touserdata(L, 2);
   assert(lua_islightuserdata(L, -1));
@@ -887,6 +928,10 @@ void open_nse (void)
     // http-title on 822 targets: 95.591MB
     // -sC on 93 targets port 443: 50.649MB
     AllocState *alloc_state = new AllocState(400 * 1024 * 1024);
+
+    // Allow a thread to run interrupted for 5 seconds
+    TimerState *timer_state = new TimerState(5.0);
+
     if ((L_NSE = lua_newstate(restricted_alloc, alloc_state)) == NULL)
       fatal("%s: failed to open a Lua state!", SCRIPT_ENGINE);
     lua_atpanic(L_NSE, panic);
@@ -896,7 +941,8 @@ void open_nse (void)
     lua_pushcfunction(L_NSE, init_main);
     lua_pushlightuserdata(L_NSE, &o.chosenScripts);
     lua_pushlightuserdata(L_NSE, alloc_state);
-    if (lua_pcall(L_NSE, 2, 0, 1))
+    lua_pushlightuserdata(L_NSE, timer_state);
+    if (lua_pcall(L_NSE, 3, 0, 1))
       fatal("%s: failed to initialize the script engine:\n%s\n", SCRIPT_ENGINE, lua_tostring(L_NSE, -1));
     lua_settop(L_NSE, 0);
   }
@@ -922,6 +968,8 @@ void close_nse (void)
 {
   if (L_NSE != NULL)
   {
+    lua_getfield(L_NSE, LUA_REGISTRYINDEX, NSE_TIMER);
+    TimerState *timer_state = (TimerState *) lua_touserdata(L_NSE, -1);
     lua_getfield(L_NSE, LUA_REGISTRYINDEX, NSE_ALLOC_STATE);
     AllocState *alloc_state = (AllocState *) lua_touserdata(L_NSE, -1);
     if (o.debugging > 0) {
@@ -931,6 +979,7 @@ void close_nse (void)
     }
     lua_close(L_NSE);
     delete alloc_state;
+    delete timer_state;
     L_NSE = NULL;
   }
 }

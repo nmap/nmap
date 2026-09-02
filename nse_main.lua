@@ -474,6 +474,8 @@ do
     local script_closure_generator = self.script_closure_generator;
     local function main (...)
       local _ENV = env; -- change the environment
+      cnse.install_thread_timer()
+      -- TODO: install hooks
       -- Load the script's globals in the same Lua thread the action and rule
       -- functions will execute in.
       script_closure_generator(_ENV)();
@@ -523,6 +525,7 @@ do
   end
 
   function Thread:resume (timeouts)
+    cnse.start_thread_timer()
     local ok, r1, r2 = resume(self.co, unpack(self.args, 1, self.args.n));
     local status = status(self.co);
     if ok and r1 == ACTION_STARTING then
