@@ -65,6 +65,8 @@ Helper = {
 
   -- Authenticates against the rsync module. If no username is given, assume
   -- no authentication is required.
+  -- The implemented algorithm is CSUM_MD4_OLD, which is only valid for
+  -- protocol version 29 or lower.
   -- @param username [optional] string containing the username
   -- @param password [optional] string containing the password
   login = function(self, username, password)
