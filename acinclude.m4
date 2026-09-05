@@ -5,21 +5,21 @@ AC_DEFUN([RECVFROM_ARG6_TYPE],
    AC_MSG_CHECKING([for type of 6th argument to recvfrom()])
    recvfrom6_t=
    for t in socklen_t int; do
-     AC_TRY_COMPILE([
+     AC_COMPILE_IFELSE([AC_LANG_PROGRAM([
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/types.h>
 #include <sys/socket.h>],[
 $t arg;
-recvfrom (0, NULL, 0, 0, NULL, &arg);],[
+recvfrom (0, NULL, 0, 0, NULL, &arg);])],[
       recvfrom6_t="$t"
       break])
    done
 
-   if test "x$recvfrom6_t" = x; then
+   AS_IF([test "x$recvfrom6_t" = x], [
      AC_MSG_WARN([Cannot find type for 6th argument to recvfrom(). Using socklen_t ptr])
      recvfrom6_t="socklen_t"
-   fi
+   ])
 
    AC_MSG_RESULT($recvfrom6_t)
    AC_DEFINE_UNQUOTED(recvfrom6_t, $recvfrom6_t,
@@ -34,10 +34,10 @@ AC_DEFUN([PCAP_IS_SUITABLE],
 [
   AC_CHECK_HEADERS(sys/ioccom.h sys/time.h net/bpf.h)
   AC_MSG_CHECKING(if libpcap is suitable)
-  AC_TRY_RUN([
+  AC_RUN_IFELSE([AC_LANG_PROGRAM([[
 #include <stdio.h>
 extern char pcap_version[];
-int main() {
+]], [
   int major, minor1, minor2;
   sscanf(pcap_version,"%d.%d.%d", &major, &minor1, &minor2);
   if (major > 0)
@@ -46,10 +46,8 @@ int main() {
     return 1;
   if (minor2 < 4)
     return 1;
-  return 0;
-}
-  ], [
-    AC_TRY_RUN([
+  ])], [
+    AC_RUN_IFELSE([AC_LANG_PROGRAM([[
 #include <stdio.h>
 #include <sys/types.h>
 #ifdef HAVE_SYS_IOCCOM_H
@@ -62,7 +60,7 @@ int main() {
 #include <net/bpf.h>
 #endif
 extern char pcap_version[];
-int main() {
+]], [
   int major, minor;
   sscanf(pcap_version,"%d.%d", &major, &minor);
   if ((major == 1 && minor >= 1) || major > 1)
@@ -73,9 +71,7 @@ int main() {
     return 1;
 #endif
 #endif
-  return 0;
-}
-    ], [
+    ])], [
       AC_CHECK_DECL([pcap_get_selectable_fd],
         [AC_MSG_RESULT(yes); $1],
         [AC_MSG_RESULT(no -- pcap_get_selectable_fd not declared); $2],
@@ -111,16 +107,16 @@ AC_DEFUN([LARGE_FILES_IF_NOT_BROKEN],
   AC_LANG_PUSH(C++)
   AC_MSG_CHECKING([for broken _LARGE_FILES support, such as with gcc <4.4.0 on AIX])
   AC_CACHE_VAL(ac_cv_large_files_broken,
-    AC_TRY_COMPILE(
+    AC_COMPILE_IFELSE([AC_LANG_PROGRAM(
       [
 #define _LARGE_FILES 1
 #include<cstdio>],
-      [],
-      ac_cv_large_files_broken=no,
-      ac_cv_large_files_broken=yes))
-  if test $ac_cv_large_files_broken = no; then
+      [])],
+      [ac_cv_large_files_broken=no],
+      [ac_cv_large_files_broken=yes]))
+  AS_IF([test "x$ac_cv_large_files_broken" = xno], [
     AC_SYS_LARGEFILE
-  fi
+  ])
   AC_MSG_RESULT($ac_cv_large_files_broken)
   AC_LANG_POP(C++)
 ]

@@ -66,24 +66,31 @@
 /* TODO: Needs to be changed if we move TargetGroup to another source file */
 #include "common_modified.h"
 #include "NpingTarget.h"
+#include "../libnetutil/NetBlock.h"
 #include <vector>
+#include <list>
 
 #define MAX_NPING_HOSTNAME_LEN 512    /**< Max length for named hosts */
+
+class NpingDevice {
+private:
+  // Note: this class doesn't own the storage for this name;
+  // it has to continue to exist elsewhere.
+  const char *devname;
+public:
+  NpingDevice(const char *d) : devname(d) {}
+  bool strEqual(const char *name) const;
+  const char *getName() const { return devname; }
+};
 
 class NpingTargets {
 
   private:
 
-    char *specs[1024];
-    bool skipspec[1024];
-    int speccount;
-    int current_spec;
-    bool lastwaslastingroup;
-    bool finished;
-    TargetGroup current_group;
+    std::vector<DNS::Request> requests;
+    std::list<NetBlock *> netblocks;
 
     bool ready;
-    unsigned long int targets_fetched;
     unsigned long int current_target;
 
   public:
@@ -91,6 +98,7 @@ class NpingTargets {
     NpingTargets();
     ~NpingTargets();
     int addSpec(char *spec);
+    void addDevice(const char *dev);
     int getNextTargetSockAddr(struct sockaddr_storage *t, size_t *tlen);
     NpingTarget *getNextTarget();
     int rewind();
@@ -101,11 +109,12 @@ class NpingTargets {
     int getTargetSpecCount();
     int processSpecs();
     unsigned long int freeTargets();
-    NpingTarget *findTarget(struct sockaddr_storage *tt);
+    NpingTarget *findTarget(const struct sockaddr_storage *tt);
 
     /* TODO: Make private */
     NpingTarget *currenths;
     std::vector<NpingTarget *> Targets;
+    std::vector<NpingDevice *> devices;
 
 }; /* End of class NpingTargets */
 

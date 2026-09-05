@@ -494,10 +494,12 @@ unsigned long long PacketRateMeter::getNumBytes(void) const {
   return (unsigned long long) byte_rate_meter.getTotal();
 }
 
-ScanProgressMeter::ScanProgressMeter(const char *stypestr) {
+ScanProgressMeter::ScanProgressMeter(const char *stypestr)
+  : prev_done(0), prev_rate(0.0), last_time_left(0) {
   scantypestr = strdup(stypestr);
   gettimeofday(&begin, NULL);
   last_print_test = begin;
+  prev_time = begin;
   memset(&last_print, 0, sizeof(last_print));
   memset(&last_est, 0, sizeof(last_est));
   beginOrEndTask(&begin, NULL, true);
@@ -532,44 +534,84 @@ bool ScanProgressMeter::mayBePrinted(const struct timeval *now) {
 
   if (last_print.tv_sec == 0) {
     /* We've never printed before -- the rules are less stringent */
-    if (difftime(now->tv_sec, begin.tv_sec) > 30)
+    if (TIMEVAL_SEC_SUBTRACT(*now, begin) > 30)
       return true;
     else
       return false;
   }
 
-  if (difftime(now->tv_sec, last_print_test.tv_sec) < 3)
+  if (TIMEVAL_SEC_SUBTRACT(*now, last_print_test) < 3)
     return false;  /* No point even checking too often */
 
   /* We'd never want to print more than once per 30 seconds */
-  if (difftime(now->tv_sec, last_print.tv_sec) < 30)
+  if (TIMEVAL_SEC_SUBTRACT(*now, last_print) < 30)
     return false;
 
   return true;
 }
 
-/* Return an estimate of the time remaining if a process was started at begin
-   and is perc_done of the way finished. Returns inf if perc_done == 0.0. */
-static double estimate_time_left(double perc_done,
-                                 const struct timeval *begin,
+// Cap ETA at 10 days. Beyond that is useless.
+static const unsigned int MAX_ETA_SECONDS = 864000;
+
+/* Return the estimated seconds remaining */
+unsigned int ScanProgressMeter::estimate_time_left(size_t num_done, size_t num_total,
                                  const struct timeval *now) {
-  double time_used_s;
-  double time_needed_s;
+  if (num_done >= num_total)
+    return 0;
+  if (num_done < prev_done)
+    prev_done = num_done;
+  size_t completed = num_done - prev_done;
+  // Check for unrecovered stall
+  if (completed == 0 && prev_rate == 0.0)
+    return MAX_ETA_SECONDS;
 
-  time_used_s = difftime(now->tv_sec, begin->tv_sec);
-  time_needed_s = time_used_s / perc_done;
+  double time_since_prev = TIMEVAL_FSEC_SUBTRACT(*now, prev_time);
+  if (time_since_prev < 5.0 // Don't recalculate more often than every 5 seconds
+    && last_time_left > time_since_prev) // unless we've passed the last estimate
+  {
+    return last_time_left - time_since_prev;
+  }
 
-  return time_needed_s - time_used_s;
+  double rate = completed / time_since_prev;
+
+  if (prev_rate == 0.0) {
+    // Either we're just starting out or we're coming back from a stall.
+    // In both cases, fall back to the old average time estimate.
+    double time_since_start = TIMEVAL_FSEC_SUBTRACT(*now, begin);
+    assert(time_since_start > 0.0);
+    if (time_since_start > 0.0)
+      prev_rate = num_done / time_since_start;
+    else
+      prev_rate = 1.0; // Bogus, but ought to be unreachable
+  }
+
+  // Average the previous rate with the current rate
+  rate = 0.25 * rate + 0.75 * prev_rate;
+  assert(rate > 0.0);
+
+  double remaining = (num_total - num_done) / rate;
+  if (remaining > (double) MAX_ETA_SECONDS) {
+    // Effectively stalled, signal with rate/prev_rate = 0.0
+    rate = 0.0;
+    last_time_left = MAX_ETA_SECONDS;
+  }
+  else
+    last_time_left = remaining;
+
+  prev_time = *now;
+  prev_done = num_done;
+  prev_rate = rate;
+
+  return last_time_left;
 }
 
 /* Prints an estimate of when this scan will complete.  It only does
    so if mayBePrinted() is true, and it seems reasonable to do so
    because the estimate has changed significantly.  Returns whether
    or not a line was printed.*/
-bool ScanProgressMeter::printStatsIfNecessary(double perc_done,
+bool ScanProgressMeter::printStatsIfNecessary(size_t num_done, size_t num_total,
                                                const struct timeval *now) {
   struct timeval tvtmp;
-  double time_left_s;
   bool printit = false;
 
   if (!now) {
@@ -582,12 +624,11 @@ bool ScanProgressMeter::printStatsIfNecessary(double perc_done,
 
   last_print_test = *now;
 
+  double perc_done = (double) num_done / num_total;
   if (perc_done <= 0.003)
     return false; /* Need more info first */
 
-  assert(perc_done <= 1.0);
-
-  time_left_s = estimate_time_left(perc_done, &begin, now);
+  unsigned int time_left_s = estimate_time_left(num_done, num_total, now);
 
   if (time_left_s < 30)
     return false; /* No point in updating when it is virtually finished. */
@@ -609,32 +650,29 @@ bool ScanProgressMeter::printStatsIfNecessary(double perc_done,
   }
 
   if (printit) {
-     return printStats(perc_done, now);
+     return printStats_common(time_left_s, perc_done, now);
   }
 
   return false;
 }
 
 /* Prints an estimate of when this scan will complete.  */
-bool ScanProgressMeter::printStats(double perc_done,
+bool ScanProgressMeter::printStats(size_t num_done, size_t num_total,
                                    const struct timeval *now) {
   struct timeval tvtmp;
-  double time_left_s;
-  time_t timet;
-  struct tm ltime;
-  int err;
 
   if (!now) {
     gettimeofday(&tvtmp, NULL);
     now = (const struct timeval *) &tvtmp;
   }
 
-  last_print = *now;
+  double perc_done = (double) num_done / num_total;
 
   // If we're less than 1% done we probably don't have enough
   // data for decent timing estimates. Also with perc_done == 0
   // these elements will be nonsensical.
   if (perc_done < 0.01) {
+    last_print = *now;
     log_write(LOG_STDOUT, "%s Timing: About %.2f%% done\n",
         scantypestr, perc_done * 100);
     xml_open_start_tag("taskprogress");
@@ -647,37 +685,51 @@ bool ScanProgressMeter::printStats(double perc_done,
     return true;
   }
 
-  /* Add 0.5 to get the effect of rounding in integer calculations. */
-  time_left_s = estimate_time_left(perc_done, &begin, now) + 0.5;
+  unsigned int time_left_s = estimate_time_left(num_done, num_total, now);
 
-  last_est = *now;
-  last_est.tv_sec += (time_t)time_left_s;
+  return printStats_common(time_left_s, perc_done, now);
+}
 
-  /* Get the estimated time of day at completion */
-  timet = last_est.tv_sec;
-  err = n_localtime(&timet, &ltime);
+bool ScanProgressMeter::printStats_common(unsigned int time_left_s, double perc_done, const struct timeval *now)
+{
+  // Avoid saying something is 100.00% done when it's clearly not.
+  if (perc_done > 0.9999)
+    perc_done = 0.9999;
 
-  if (!err) {
-    log_write(LOG_STDOUT, "%s Timing: About %.2f%% done; ETC: %02d:%02d (%.f:%02.f:%02.f remaining)\n",
-        scantypestr, perc_done * 100, ltime.tm_hour, ltime.tm_min,
-        floor(time_left_s / 60.0 / 60.0),
-        floor(fmod(time_left_s / 60.0, 60.0)),
-        floor(fmod(time_left_s, 60.0)));
-  }
-  else {
-    log_write(LOG_STDERR, "Timing error: n_localtime(%f): %s\n", (double) timet, strerror(err));
-    log_write(LOG_STDOUT, "%s Timing: About %.2f%% done; ETC: Unknown (%.f:%02.f:%02.f remaining)\n",
-        scantypestr, perc_done * 100,
-        floor(time_left_s / 60.0 / 60.0),
-        floor(fmod(time_left_s / 60.0, 60.0)),
-        floor(fmod(time_left_s, 60.0)));
-  }
   xml_open_start_tag("taskprogress");
   xml_attribute("task", "%s", scantypestr);
   xml_attribute("time", "%lu", (unsigned long) now->tv_sec);
   xml_attribute("percent", "%.2f", perc_done * 100);
-  xml_attribute("remaining", "%.f", time_left_s);
-  xml_attribute("etc", "%lu", (unsigned long) last_est.tv_sec);
+  xml_attribute("remaining", "%u", time_left_s);
+
+  if (time_left_s == MAX_ETA_SECONDS) {
+    log_write(LOG_STDOUT, "%s Timing: About %.2f%% done; ETC: Unknown (>10 days remaining)\n",
+        scantypestr, perc_done * 100);
+  }
+  else {
+    char etc_str[] = "Unknown";
+    last_est = *now;
+    last_est.tv_sec += (time_t)time_left_s;
+
+    /* Get the estimated time of day at completion */
+    struct tm ltime;
+    time_t timet = last_est.tv_sec;
+    int err = n_localtime(&timet, &ltime);
+
+    last_print = *now;
+    if (!err) {
+      Snprintf(etc_str, sizeof(etc_str), "%02d:%02d", ltime.tm_hour, ltime.tm_min);
+    }
+    else {
+      log_write(LOG_STDERR, "Timing error: n_localtime(%f): %s\n", (double) timet, strerror(err));
+    }
+    log_write(LOG_STDOUT, "%s Timing: About %.2f%% done; ETC: %s (%.f:%02.f:%02.f remaining)\n",
+        scantypestr, perc_done * 100, etc_str,
+        floor(time_left_s / 60.0 / 60.0),
+        floor(fmod(time_left_s / 60.0, 60.0)),
+        floor(fmod(time_left_s, 60.0)));
+    xml_attribute("etc", "%lu", (unsigned long) last_est.tv_sec);
+  }
   xml_close_empty_tag();
   xml_newline();
   log_flush(LOG_STDOUT|LOG_XML);

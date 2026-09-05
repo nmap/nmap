@@ -87,8 +87,7 @@ class HIGClosableTabLabel(HIGHBox):
 
     def __create_widgets(self):
         self.label = Gtk.Label.new(self.label_text)
-        self.close_image = Gtk.Image()
-        self.close_image.set_from_stock(Gtk.STOCK_CLOSE, Gtk.IconSize.BUTTON)
+        self.close_image = Gtk.Image.new_from_icon_name("window-close", Gtk.IconSize.BUTTON)
         self.close_button = HIGButton()
         self.close_button.set_size_request(20, 20)
         self.close_button.set_relief(Gtk.ReliefStyle.NONE)

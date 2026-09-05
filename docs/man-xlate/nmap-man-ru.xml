@@ -3296,20 +3296,6 @@ rttvar: 14987 to: 100000</computeroutput>. Если вы не понимаете
       </varlistentry>
 
       <varlistentry>
-	 <term>
-	 <option>--release-memory</option> (Освободить память перед завершением работы)
-	 <indexterm significance="normal"><primary><option>--release-memory</option></primary></indexterm>
-         </term>
-         <listitem>
-
-          <para>Эта опция полезна только во время отладки утечки памяти. Заставляет Nmap освободить занянутю память 
-          перед завершением работы, что облегчает задачу обнаружения действительной утечки памяти. В обычном режиме 
-          работы Nmap пропускает этот шаг, так ОС делает это самостоятельно при закрытии процесса.</para>
-        </listitem>
-      </varlistentry>
-
-
-      <varlistentry>
         <term>
           <option>-V</option>; <option>--version</option> (Вывести номер версии)
           <indexterm significance="normal"><primary><option>-V</option></primary></indexterm>

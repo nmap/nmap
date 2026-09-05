@@ -463,7 +463,7 @@ Comm = {
 
         pos = pos + length
         data = bufcopy
-      until (lastfragment == true) or (retries == 0)
+      until lastfragment or retries == 0
 
       if retries == 0 then
         return false, "Aborted after too many retries"

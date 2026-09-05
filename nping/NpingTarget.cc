@@ -71,14 +71,12 @@
 #endif
 
 #include "NpingTarget.h"
-#include <dnet.h>
 #include "nbase.h"
 #include "nping.h"
 #include "output.h"
-#include "common.h"
 #include "stats.h"
 #include "common_modified.h"
-
+#include "utils_net.h"
 
 
 /** Constructor */
@@ -262,9 +260,22 @@ int NpingTarget::getSourceSockAddr(struct sockaddr_storage *ss, size_t *ss_len) 
 /** Set source address used to reach the target.
   * Note that it is OK to pass in a sockaddr_in or sockaddr_in6 casted
   * to sockaddr_storage */
-int NpingTarget::setSourceSockAddr(struct sockaddr_storage *ss, size_t ss_len) {
+int NpingTarget::setSourceSockAddr(const struct sockaddr_storage *ss, size_t ss_len) {
   assert(ss_len > 0 && ss_len <= sizeof(*ss));
   memcpy(&sourcesock, ss, ss_len);
+  if (ss_len == sizeof(*ss)) {
+#ifdef HAVE_SOCKADDR_SA_LEN
+    if (((const struct sockaddr *)ss)->sa_len > 0) {
+      ss_len = ((const struct sockaddr *)ss)->sa_len;
+    } else
+#endif
+    if (ss->ss_family == AF_INET) {
+      ss_len = sizeof(struct sockaddr_in);
+    }
+    else if (ss->ss_family == AF_INET6) {
+      ss_len = sizeof(struct sockaddr_in6);
+    }
+  }
   sourcesocklen = ss_len;
   return OP_SUCCESS;
 } /* End of setSourceSockAddr() */
@@ -273,9 +284,22 @@ int NpingTarget::setSourceSockAddr(struct sockaddr_storage *ss, size_t ss_len) {
 /** Set source address used to reach the target.
   * Note that it is OK to pass in a sockaddr_in or sockaddr_in6 casted
   * to sockaddr_storage */
-int NpingTarget::setSpoofedSourceSockAddr(struct sockaddr_storage *ss, size_t ss_len) {
+int NpingTarget::setSpoofedSourceSockAddr(const struct sockaddr_storage *ss, size_t ss_len) {
   assert(ss_len > 0 && ss_len <= sizeof(*ss));
   memcpy(&spoofedsrcsock, ss, ss_len);
+  if (ss_len == sizeof(*ss)) {
+#ifdef HAVE_SOCKADDR_SA_LEN
+    if (((const struct sockaddr *)ss)->sa_len > 0) {
+      ss_len = ((const struct sockaddr *)ss)->sa_len;
+    } else
+#endif
+    if (ss->ss_family == AF_INET) {
+      ss_len = sizeof(struct sockaddr_in);
+    }
+    else if (ss->ss_family == AF_INET6) {
+      ss_len = sizeof(struct sockaddr_in6);
+    }
+  }
   spoofedsrcsocklen = ss_len;
   this->spoofedsrc_set=true;
   return OP_SUCCESS;
@@ -355,7 +379,7 @@ struct in6_addr NpingTarget::getIPv6SourceAddress() {
 /** Returns IPv6 host address or NULL if unavailable.*/
 const struct in6_addr *NpingTarget::getIPv6SourceAddress_aux() {
   struct sockaddr_in6 *sin6 = (struct sockaddr_in6 *) &sourcesock;
-  if (sin6->sin6_family == AF_INET) {
+  if (sin6->sin6_family == AF_INET6) {
     return &(sin6->sin6_addr);
   }
   return NULL;
@@ -368,7 +392,7 @@ u8 *NpingTarget::getIPv6SourceAddress_u8(){
     return NULL;
   else
     return (u8*)in->s6_addr;
-} /* End of getIPv6Address_u8() */
+} /* End of getIPv6SourceAddress_u8() */
 
 
 /** If the host is directly connected on a network, set and retrieve
@@ -652,26 +676,18 @@ const char *NpingTarget::getNextHopIPStr(){
 } /* End of getNextHopIPStr() */
 
 
-const char *NpingTarget::getMACStr(u8 *mac){
-  static char buffer[256];
-  assert(mac!=NULL);
-  sprintf(buffer, "%02x:%02x:%02x:%02x:%02x:%02x", (u8)mac[0],(u8)mac[1],
-          (u8)mac[2], (u8)mac[4],(u8)mac[4],(u8)mac[5]);
-  return buffer;
-}
-
 const char *NpingTarget::getTargetMACStr(){
-    return getMACStr(this->MACaddress);
+    return MACtoa(this->MACaddress);
 }
 
 
 const char *NpingTarget::getSourceMACStr(){
-    return getMACStr(this->SrcMACaddress);
+    return MACtoa(this->SrcMACaddress);
 }
 
 
 const char *NpingTarget::getNextHopMACStr(){
-    return getMACStr(this->NextHopMACaddress);
+    return MACtoa(this->NextHopMACaddress);
 }
 
 
@@ -735,9 +751,7 @@ u16 NpingTarget::getICMPIdentifier(){
 bool NpingTarget::determineNextHopMACAddress() {
   struct sockaddr_storage targetss, srcss;
   size_t sslen;
-  arp_t *a;
   u8 mac[6];
-  struct arp_entry ae;
 
   if (this->getDeviceType() != devt_ethernet)
     return false; /* Duh. */
@@ -760,57 +774,12 @@ bool NpingTarget::determineNextHopMACAddress() {
       fatal("%s: Failed to determine nextHop to target", __func__);
   }
 
-  /* First, let us check the ARP cache ... */
-  if (mac_cache_get(&targetss, mac)) {
-    this->setNextHopMACAddress(mac);
-    return true;
-  }
-
-  /* Maybe the system ARP cache will be more helpful */
-  nping_print(DBG_3,"    > Checking system's ARP cache...");
-  a = arp_open();
-  if (a) {
-    addr_ston((sockaddr *)&targetss, &ae.arp_pa);
-    if (arp_get(a, &ae) == 0) {
-      mac_cache_set(&targetss, ae.arp_ha.addr_eth.data);
-      this->setNextHopMACAddress(ae.arp_ha.addr_eth.data);
-      arp_close(a);
-      nping_print(DBG_3,"    > Success: Entry found [%s]", this->getNextHopMACStr() );
-      return true;
-    }
-    arp_close(a);
-    nping_print(DBG_3,"    > No relevant entries found in system's ARP cache.");
-  }
-  else {
-    nping_print(DBG_3,"    > Failed to open system's ARP cache.");
-  }
-
-
-  /* OK, the last choice is to send our own damn ARP request (and
-     retransmissions if necessary) to determine the MAC */
-  /* We first try sending the ARP with our spoofed IP address on it */
-  if( this->spoofingSourceAddress() ){
-    nping_print(DBG_3,"    > Sending ARP request using spoofed IP %s...", this->getSpoofedSourceIPStr() );
-      this->getSpoofedSourceSockAddr(&srcss, NULL);
-      if (doArp(this->getDeviceName(), this->getSrcMACAddress(), &srcss, &targetss, mac, NULL)) {
-        mac_cache_set(&targetss, mac);
-        this->setNextHopMACAddress(mac);
-        nping_print(DBG_4,"    > Success: 1 ARP response received [%s]", this->getNextHopMACStr() );
-        return true;
-      }
-  }
-  nping_print(DBG_3,"    > No ARP responses received." );
-
-  /* If our spoofed IP address didn't work, try our real IP */
-  nping_print(DBG_4,"    > Sending ARP request using our real IP %s...", this->getSourceIPStr() );
   this->getSourceSockAddr(&srcss, NULL);
-  if (doArp(this->getDeviceName(), this->getSrcMACAddress(), &srcss, &targetss, mac, NULL)) {
-    mac_cache_set(&targetss, mac);
+  if (getNextHopMAC(this->getDeviceName(), this->getSrcMACAddress(),
+        &srcss, &targetss, mac)) {
     this->setNextHopMACAddress(mac);
-    nping_print(DBG_3,"    > Success: 1 ARP response received [%s]", this->getNextHopMACStr() );
     return true;
   }
-  nping_print(DBG_3,"    > No ARP responses received" );
 
   /* I'm afraid that we couldn't find it!  Maybe it doesn't exist?*/
   return false;

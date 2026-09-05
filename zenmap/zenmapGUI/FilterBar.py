@@ -31,8 +31,7 @@ class FilterBar(HIGHBox):
         self.entry.show()
 
         help_button = Gtk.Button()
-        icon = Gtk.Image()
-        icon.set_from_stock(Gtk.STOCK_INFO, Gtk.IconSize.BUTTON)
+        icon = Gtk.Image.new_from_icon_name("dialog-information", Gtk.IconSize.BUTTON)
         help_button.add(icon)
         help_button.connect("clicked", self._help_button_clicked)
         self.pack_start(help_button, False, True, 0)

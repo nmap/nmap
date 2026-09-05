@@ -58,6 +58,7 @@ static int l_bignum_bin2bn( lua_State *L ) /** bignum_bin2bn( string s ) */
   size_t len;
   const unsigned char * s = (unsigned char *) luaL_checklstring( L, 1, &len );
   BIGNUM * num = BN_new();
+  if (!num) return NSE_SSL_LUA_ERR(L);
   BN_bin2bn( s, len, num );
   return nse_pushbn(L, num, true);
 }
@@ -66,6 +67,7 @@ static int l_bignum_dec2bn( lua_State *L ) /** bignum_dec2bn( string s ) */
 {
   const char * s = luaL_checkstring( L, 1 );
   BIGNUM * num = BN_new();
+  if (!num) return NSE_SSL_LUA_ERR(L);
   BN_dec2bn( &num, s );
   return nse_pushbn(L, num, true);
 }
@@ -74,6 +76,7 @@ static int l_bignum_hex2bn( lua_State *L ) /** bignum_hex2bn( string s ) */
 {
   const char * s = luaL_checkstring( L, 1 );
   BIGNUM * num = BN_new();
+  if (!num) return NSE_SSL_LUA_ERR(L);
   BN_hex2bn( &num, s );
   return nse_pushbn(L, num, true);
 }
@@ -82,6 +85,7 @@ static int l_bignum_rand( lua_State *L ) /** bignum_rand( number bits ) */
 {
   size_t bits = luaL_checkinteger( L, 1 );
   BIGNUM * num = BN_new();
+  if (!num) return NSE_SSL_LUA_ERR(L);
   BN_rand( num, bits, -1, 0 );
   return nse_pushbn(L, num, true);
 }
@@ -92,7 +96,12 @@ static int l_bignum_mod_exp( lua_State *L ) /** bignum_mod_exp( BIGNUM a, BIGNUM
   bignum_data_t * p = (bignum_data_t *) luaL_checkudata(L, 2, "BIGNUM");
   bignum_data_t * m = (bignum_data_t *) luaL_checkudata(L, 3, "BIGNUM");
   BIGNUM * result = BN_new();
+  if (!result) return NSE_SSL_LUA_ERR(L);
   BN_CTX * ctx = BN_CTX_new();
+  if (!ctx) {
+    BN_free(result);
+    return NSE_SSL_LUA_ERR(L);
+  }
   BN_mod_exp( result, a->bn, p->bn, m->bn, ctx );
   BN_CTX_free( ctx );
   return nse_pushbn(L, result, true);
@@ -103,8 +112,18 @@ static int l_bignum_div( lua_State *L ) /* bignum_div( BIGNUM a, BIGNUM d ) */
   bignum_data_t * a = (bignum_data_t *) luaL_checkudata(L, 1, "BIGNUM");
   bignum_data_t * d = (bignum_data_t *) luaL_checkudata(L, 2, "BIGNUM");
   BIGNUM * dv = BN_new();
+  if (!dv) return NSE_SSL_LUA_ERR(L);
   BIGNUM * rem = BN_new();
+  if (!rem) {
+    BN_free(dv);
+    return NSE_SSL_LUA_ERR(L);
+  }
   BN_CTX * ctx = BN_CTX_new();
+  if (!ctx) {
+    BN_free(dv);
+    BN_free(rem);
+    return NSE_SSL_LUA_ERR(L);
+  }
   BN_div(dv, rem, a->bn, d->bn, ctx);
   BN_CTX_free( ctx );
   nse_pushbn(L, dv, true);
@@ -117,6 +136,7 @@ static int l_bignum_add( lua_State *L ) /** bignum_add( BIGNUM a, BIGNUM b ) */
   bignum_data_t * a = (bignum_data_t *) luaL_checkudata(L, 1, "BIGNUM");
   bignum_data_t * b = (bignum_data_t *) luaL_checkudata(L, 2, "BIGNUM");
   BIGNUM * result = BN_new();
+  if (!result) return NSE_SSL_LUA_ERR(L);
   BN_add( result, a->bn, b->bn );
   return nse_pushbn(L, result, true);
 }
@@ -163,6 +183,7 @@ static int l_bignum_is_prime( lua_State *L ) /** bignum_is_prime( BIGNUM p ) */
 {
   bignum_data_t * p = (bignum_data_t *) luaL_checkudata( L, 1, "BIGNUM" );
   BN_CTX * ctx = BN_CTX_new();
+  if (!ctx) return NSE_SSL_LUA_ERR(L);
   int is_prime =
 #if OPENSSL_VERSION_NUMBER < 0x30000000L
     BN_is_prime_ex( p->bn, BN_prime_checks, ctx, NULL );
@@ -178,6 +199,7 @@ static int l_bignum_is_safe_prime( lua_State *L ) /** bignum_is_safe_prime( BIGN
 {
   bignum_data_t * p = (bignum_data_t *) luaL_checkudata( L, 1, "BIGNUM" );
   BN_CTX * ctx = BN_CTX_new();
+  if (!ctx) return NSE_SSL_LUA_ERR(L);
   int is_prime =
 #if OPENSSL_VERSION_NUMBER < 0x30000000L
     BN_is_prime_ex( p->bn, BN_prime_checks, ctx, NULL );
@@ -396,6 +418,7 @@ static int l_encrypt(lua_State *L) /** encrypt( string algorithm, string key, st
 
 #if HAVE_OPAQUE_STRUCTS
   EVP_CIPHER_CTX *cipher_ctx = EVP_CIPHER_CTX_new();
+  if (!cipher_ctx) return NSE_SSL_LUA_ERR(L);
 #else
   EVP_CIPHER_CTX stack_ctx;
   EVP_CIPHER_CTX *cipher_ctx = &stack_ctx;
@@ -458,6 +481,7 @@ static int l_decrypt(lua_State *L) /** decrypt( string algorithm, string key, st
 
 #if HAVE_OPAQUE_STRUCTS
   EVP_CIPHER_CTX *cipher_ctx = EVP_CIPHER_CTX_new();
+  if (!cipher_ctx) return NSE_SSL_LUA_ERR(L);
 #else
   EVP_CIPHER_CTX stack_ctx;
   EVP_CIPHER_CTX *cipher_ctx = &stack_ctx;
@@ -579,25 +603,61 @@ static const struct luaL_Reg openssllib[] = {
   { NULL, NULL }
 };
 
-LUALIB_API int luaopen_openssl(lua_State *L) {
+struct nse_openssl_state {
+#if OPENSSL_VERSION_NUMBER >= 0x30000000L
+  OSSL_PROVIDER *legacy_provider;
+  OSSL_PROVIDER *default_provider;
+#endif
+};
+
+static int nse_openssl_gc(lua_State *L) {
+  nse_openssl_state *state = (nse_openssl_state *) luaL_checkudata(L, 1, "NSE_OPENSSL_STATE");
+#if OPENSSL_VERSION_NUMBER >= 0x30000000L
+  if (state->legacy_provider) {
+    OSSL_PROVIDER_unload(state->legacy_provider);
+    state->legacy_provider = NULL;
+  }
+  if (state->default_provider) {
+    OSSL_PROVIDER_unload(state->default_provider);
+    state->default_provider = NULL;
+  }
+#endif
+  return 0;
+}
+
+static void create_openssl_state(lua_State *L) {
+  nse_openssl_state *state = (nse_openssl_state *) lua_newuserdatauv(L, sizeof(nse_openssl_state), 0);
+  if (luaL_newmetatable(L, "NSE_OPENSSL_STATE")) {
+    lua_pushcfunction(L, nse_openssl_gc);
+    lua_setfield(L, -2, "__gc");
+  }
+  lua_setmetatable(L, -2);
+  lua_setfield(L, -2, "nse_openssl_state");
 
 #if OPENSSL_VERSION_NUMBER < 0x10100000L || defined LIBRESSL_VERSION_NUMBER
   OpenSSL_add_all_algorithms();
   ERR_load_crypto_strings();
 #elif OPENSSL_VERSION_NUMBER >= 0x30000000L
-  if (NULL == OSSL_PROVIDER_load(NULL, "legacy") && o.debugging > 1)
+  state->legacy_provider = OSSL_PROVIDER_load(NULL, "legacy");
+  if (NULL == state->legacy_provider && o.debugging > 1)
   {
     // Legacy provider may not be available.
     // On Windows, legacy crypto is still available even though this fails.
     log_write(LOG_STDOUT, "%s: OpenSSL legacy provider failed to load: %s\n", SCRIPT_ENGINE, ERR_error_string(ERR_get_error(), NULL));
   }
-  if (NULL == OSSL_PROVIDER_load(NULL, "default") && o.verbose)
+  state->default_provider = OSSL_PROVIDER_load(NULL, "default");
+  if (NULL == state->default_provider && o.verbose)
   {
     log_write(LOG_STDOUT, "%s: OpenSSL default provider failed to load: %s\n", SCRIPT_ENGINE, ERR_error_string(ERR_get_error(), NULL));
   }
 #endif
+}
+
+LUALIB_API int luaopen_openssl(lua_State *L) {
 
   luaL_newlib(L, openssllib);
+
+  create_openssl_state(L);
 
   // create metatable for bignum
   luaL_newmetatable( L, "BIGNUM" );

@@ -778,27 +778,24 @@ HostScanStats *UltraScanInfo::nextIncompleteHost() {
 /* Return a number between 0.0 and 1.0 inclusive indicating how much of the scan
    is done. */
 double UltraScanInfo::getCompletionFraction() const {
+  size_t denominator = 0;
+  size_t numerator = this->getCompletionFraction(&denominator);
+  return (double) numerator / denominator;
+}
+size_t UltraScanInfo::getCompletionFraction(size_t *denominator) const {
   std::multiset<HostScanStats *, HssPredicate>::const_iterator hostI;
-  double total;
+  size_t done = send_rate_meter.getNumPackets();
+  size_t total = done;
 
-  /* Add 1 for each completed host. */
-  total = gstats->numtargets - numIncompleteHosts();
   /* Get the completion fraction for each incomplete host. */
   for (hostI = incompleteHosts.begin(); hostI != incompleteHosts.end(); hostI++) {
     const HostScanStats *host = *hostI;
-    int maxtries = host->allowedTryno(NULL, NULL) + 1;
-    double thishostpercdone;
+    int maxtries = host->allowedTryno(NULL, NULL);
 
-    // This is inexact (maxtries - 1) because numprobes_sent includes
-    // at least one try of ports_finished.
-    thishostpercdone = host->ports_finished * (maxtries - 1) + host->numprobes_sent;
-    thishostpercdone /= maxtries * gstats->numprobes;
-    if (thishostpercdone >= 0.9999)
-      thishostpercdone = 0.9999;
-    total += thishostpercdone;
+    total += maxtries * (gstats->numprobes - host->ports_finished);
   }
-
-  return total / gstats->numtargets;
+  *denominator = total;
+  return done;
 }
 
 /* Initialize the state for ports that don't receive a response in all the
@@ -964,7 +961,7 @@ void UltraScanInfo::Init(std::vector<Target *> &Targets, const struct scan_lists
       sendpref = PACKET_SEND_ETH_WEAK;
     }
     if (!raw_socket_or_eth(sendpref, Targets[0]->deviceName(), Targets[0]->ifType(),
-          &rawsd, &ethsd)) {
+          &rawsd, &ethsd, Targets[0]->af())) {
       fatal("Couldn't open a raw socket or eth handle.");
     }
     /* Raw scan types also need to know the source IP. */
@@ -2191,7 +2188,7 @@ void ultrascan_port_probe_update(UltraScanInfo *USI, HostScanStats *hss,
 
 static void sendNextScanProbe(UltraScanInfo *USI, HostScanStats *hss) {
   probespec pspec;
-  tryno_t tryno = {0};
+  tryno_t tryno = {};
 
   if (get_next_target_probe(USI, hss, &pspec) == -1) {
     fatal("%s: No more probes! Error in Nmap.", __func__);
@@ -2224,7 +2221,7 @@ static void sendNextRetryStackProbe(UltraScanInfo *USI, HostScanStats *hss) {
   pspec_tries = hss->retry_stack_tries.back();
   hss->retry_stack_tries.pop_back();
 
-  tryno_t tryno = {0};
+  tryno_t tryno = {};
   tryno.fields.seqnum = pspec_tries + 1;
 
   if (pspec.type == PS_CONNECTTCP)
@@ -2286,7 +2283,7 @@ static void doAnyRetryStackRetransmits(UltraScanInfo *USI) {
    checked that sending is OK w/congestion control and that pingprobe is
    available */
 static void sendPingProbe(UltraScanInfo *USI, HostScanStats *hss) {
-  tryno_t tryno = {0};
+  tryno_t tryno = {};
   tryno.fields.isPing = 1;
   tryno.fields.seqnum = hss->nextPingSeq();
 
@@ -2536,7 +2533,11 @@ static void printAnyStats(UltraScanInfo *USI) {
   }
 
   if (USI->SPM->mayBePrinted(&USI->now))
-    USI->SPM->printStatsIfNecessary(USI->getCompletionFraction(), &USI->now);
+  {
+    size_t total = 0;
+    size_t done = USI->getCompletionFraction(&total);
+    USI->SPM->printStatsIfNecessary(done, total, &USI->now);
+  }
 }
 
 static void waitForResponses(UltraScanInfo *USI) {
@@ -2800,7 +2801,9 @@ void ultra_scan(std::vector<Target *> &Targets, const struct scan_lists *ports,
     if (keyWasPressed()) {
       // This prints something like
       // SYN Stealth Scan Timing: About 1.14% done; ETC: 15:01 (0:43:23 remaining);
-      USI.SPM->printStats(USI.getCompletionFraction(), NULL);
+      size_t total = 0;
+      size_t done = USI.getCompletionFraction(&total);
+      USI.SPM->printStats(done, total, NULL);
       if (o.debugging) {
         /* Don't update when getting the current rates, otherwise we can get
            anomalies (rates are too low) from having just done a potentially

@@ -161,7 +161,7 @@ function get_server_name(host, names)
   if names == nil then
     status, names = do_nbstat(host)
 
-    if(status == false) then
+    if not status then
       return false, names
     end
   end
@@ -189,7 +189,7 @@ function get_workstation_name(host, names)
   if names == nil then
     status, names = do_nbstat(host)
 
-    if(status == false) then
+    if not status then
       return false, names
     end
   end
@@ -215,14 +215,14 @@ function get_user_name(host, names)
 
   local status, server_name = get_server_name(host, names)
 
-  if(status == false) then
+  if not status then
     return false, server_name
   end
 
   if(names == nil) then
     status, names = do_nbstat(host)
 
-    if(status == false) then
+    if not status then
       return false, names
     end
   end
@@ -328,24 +328,24 @@ function do_nbstat(host)
   0x0001        -- Class = IN
   )
   status, err = socket:connect(host, 137, "udp")
-  if(status == false) then
+  if not status then
     return false, err
   end
 
   status, err = socket:send(query)
-  if(status == false) then
+  if not status then
     return false, err
   end
 
   socket:set_timeout(1000)
 
   local status, result = socket:receive_bytes(1)
-  if(status == false) then
+  if not status then
     return false, result
   end
 
   local close_status, err = socket:close()
-  if(close_status == false) then
+  if not close_status then
     return false, err
   end
 

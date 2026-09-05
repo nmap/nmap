@@ -120,7 +120,7 @@
     </package>
     <package>
       <name>Nping</name>
-      <version>0.&nmap_version;</version>
+      <version>&nmap_version;</version>
       <url>https://nmap.org/nping</url>
       <license>&nmap_license;</license>
       <file name="nmap-&nmap_version;.tar.bz2">
@@ -136,8 +136,8 @@
         libdnet="&nmap_libdnet_version;" npcap="&npcap_version;"
         openssl="&openssl_version;"
       </file>
-      <file name="nping-0.&nmap_version;-1.x86_64.rpm">
-        <alt name="nping-0.&nmap_version;-1.i686.rpm" />
+      <file name="nping-&nmap_version;-1.x86_64.rpm">
+        <alt name="nping-&nmap_version;-1.i686.rpm" />
         libpcap="&nmap_libpcap_version;" libdnet="&nmap_libdnet_version;"
         openssl="&openssl_version;"
       </file>

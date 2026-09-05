@@ -150,7 +150,7 @@ int NmapOps::pf() {
 }
 
 int NmapOps::SourceSockAddr(struct sockaddr_storage *ss, size_t *ss_len) {
-  if (sourcesocklen <= 0)
+  if (sourcesocklen <= 0 || sourcesock.ss_family == AF_UNSPEC)
     return 1;
   assert(sourcesocklen <= sizeof(*ss));
   if (ss)
@@ -162,7 +162,7 @@ int NmapOps::SourceSockAddr(struct sockaddr_storage *ss, size_t *ss_len) {
 
 /* Returns a const pointer to the source address if set, or NULL if unset. */
 const struct sockaddr_storage *NmapOps::SourceSockAddr() const {
-  if (sourcesock.ss_family == AF_UNSPEC)
+  if (sourcesocklen <= 0 || sourcesock.ss_family == AF_UNSPEC)
     return NULL;
   else
     return &sourcesock;
@@ -170,9 +170,22 @@ const struct sockaddr_storage *NmapOps::SourceSockAddr() const {
 
 /* Note that it is OK to pass in a sockaddr_in or sockaddr_in6 casted
      to sockaddr_storage */
-void NmapOps::setSourceSockAddr(struct sockaddr_storage *ss, size_t ss_len) {
+void NmapOps::setSourceSockAddr(const struct sockaddr_storage *ss, size_t ss_len) {
   assert(ss_len > 0 && ss_len <= sizeof(*ss));
   memcpy(&sourcesock, ss, ss_len);
+  if (ss_len == sizeof(*ss)) {
+#if HAVE_SOCKADDR_SA_LEN
+    if (((const struct sockaddr *)ss)->sa_len > 0) {
+      ss_len = ((const struct sockaddr *)ss)->sa_len;
+    } else
+#endif
+    if (ss->ss_family == AF_INET) {
+      ss_len = sizeof(struct sockaddr_in);
+    }
+    else if (ss->ss_family == AF_INET6) {
+      ss_len = sizeof(struct sockaddr_in6);
+    }
+  }
   sourcesocklen = ss_len;
 }
 
@@ -315,7 +328,6 @@ void NmapOps::Initialize() {
   ipoptionslen = 0;
   ipopt_firsthop = 0;
   ipopt_lasthop  = 0;
-  release_memory = false;
   topportlevel = -1;
 #ifndef NOLUA
   script = false;

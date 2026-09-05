@@ -119,25 +119,25 @@ action = function(host)
   status, names, statistics = netbios.do_nbstat(host)
   status, names, statistics = netbios.do_nbstat(host)
   status, names, statistics = netbios.do_nbstat(host)
-  if(status == false) then
+  if not status then
     return stdnse.format_output(false, names)
   end
 
   -- Get the server name
   local status, server_name = netbios.get_server_name(host, names)
-  if(status == false) then
+  if not status then
     return stdnse.format_output(false, server_name)
   end
 
   -- Get the workstation name
   local status, workstation_name = netbios.get_workstation_name(host, names)
-  if(status == false) then
+  if not status then
     return stdnse.format_output(false, workstation_name)
   end
 
   -- Get the logged in user
   local status, user_name = netbios.get_user_name(host, names)
-  if(status == false) then
+  if not status then
     return stdnse.format_output(false, user_name)
   end
 

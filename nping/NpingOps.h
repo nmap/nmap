@@ -106,7 +106,7 @@
 #define MAX_ICMP_ADVERT_ENTRIES 128
 
 #include "nping.h"
-#include "global_structures.h"
+#include "nsock.h"
 #include "stats.h"
 #include "NpingTargets.h"
 #include <string>
@@ -341,12 +341,10 @@ class NpingOps {
     bool sendPreferenceEthernet();
     bool sendPreferenceIP();
 
-    int setSendEth(bool val);
     bool sendEth();
-    bool issetSendEth();
 
     int setDevice(char *n);
-    char *getDevice();
+    const char *getDevice();
     bool issetDevice();
 
     int setSpoofSource();
@@ -374,7 +372,6 @@ class NpingOps {
     bool issetIPVersion();
     bool ipv4();
     bool ipv6();
-    bool ipv6UsingSocket();
     int af();
 
     /* Privileges */

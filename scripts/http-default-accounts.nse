@@ -7,12 +7,16 @@ local stdnse = require "stdnse"
 local table = require "table"
 
 description = [[
-Tests for access with default credentials used by a variety of web applications and devices.
+Tests for access with default credentials used by a variety of web applications
+and devices. It detects applications by matching web responses of known paths
+and launching a login routine using default credentials when found.
 
-It works similar to http-enum, we detect applications by matching known paths and launching a login routine using default credentials when found.
-This script depends on a fingerprint file containing the target's information: name, category, location paths, default credentials and login routine.
+This script depends on a fingerprint file containing the target's information:
+name, category, location paths, default credentials, and detection and login
+logic routines.
 
-You may select a category if you wish to reduce the number of requests. We have categories like:
+You may select a category if you wish to reduce the number of requests.
+We have categories like:
 * <code>web</code> - Web applications
 * <code>routers</code> - Routers
 * <code>security</code> - CCTVs and other security devices
@@ -22,13 +26,21 @@ You may select a category if you wish to reduce the number of requests. We have 
 * <code>virtualization</code> - Virtualization systems
 * <code>console</code> - Remote consoles
 
-You can also select a specific fingerprint or a brand, such as BIG-IQ or Siemens. This matching is based on case-insensitive words. This means that "nas" will select Seagate BlackArmor NAS storage but not Netgear ReadyNAS.
+You can also select a specific fingerprint or a brand, such as BIG-IQ or
+Siemens. This matching is based on case-insensitive words in the fingerprint
+name. This means that "nas" will select fingerprint "Seagate BlackArmor NAS",
+but not "Netgear ReadyNAS".
 
-For a fingerprint to be used it needs to satisfy both the category and name criteria.
+For a fingerprint to be used, it needs to satisfy both the category and name
+criteria.
 
-By default, the script produces output only when default credentials are found, while staying silent when the target only matches some fingerprints (but no credentials are found). With increased verbosity (option -v), the script will also report all matching fingerprints.
+By default, the script produces output only when default credentials are found,
+while staying silent when the target only matches some fingerprints (but no
+credentials are found). With increased verbosity (option -v), the script will
+also report all matching fingerprints.
 
-Please help improve this script by adding new entries to nselib/data/http-default-accounts.lua
+Please help improve this script by adding new entries to
+nselib/data/http-default-accounts-fingerprints.lua
 
 Remember each fingerprint must have:
 * <code>name</code> - Descriptive name
@@ -38,7 +50,8 @@ Remember each fingerprint must have:
 * <code>login_check</code> - Login function of the target
 
 In addition, a fingerprint should have:
-* <code>target_check</code> - Target validation function. If defined, it will be called to validate the target before attempting any logins.
+* <code>target_check</code> - Target validation function. If defined, it will
+  be called to validate the target before attempting any logins.
 * <code>cpe</code> - Official CPE Dictionary entry (see https://nvd.nist.gov/cpe.cfm)
 
 Default fingerprint file: /nselib/data/http-default-accounts-fingerprints.lua
@@ -80,10 +93,15 @@ This script was based on http-enum.
 --   </table>
 -- </table>
 --
--- @args http-default-accounts.basepath Base path to append to requests. Default: "/"
--- @args http-default-accounts.fingerprintfile Fingerprint filename. Default: http-default-accounts-fingerprints.lua
--- @args http-default-accounts.category Selects a fingerprint category (or a list of categories).
--- @args http-default-accounts.name Selects fingerprints by a word (or a list of alternate words) included in their names.
+-- @args http-default-accounts.basepath Base path to append to requests.
+--         Default: "/"
+-- @args http-default-accounts.fingerprintfile Fingerprint file name (assumed
+--         in directory <code>nselib/data</code>).
+--         Default: <code>http-default-accounts-fingerprints.lua</code>
+-- @args http-default-accounts.category Selects a fingerprint category
+--         (or a list of categories).
+-- @args http-default-accounts.name Selects fingerprints by a word
+--         (or a list of alternate words) in their names.
 
 -- Revision History
 -- 2013-08-13 nnposter
@@ -91,19 +109,25 @@ This script was based on http-enum.
 -- 2014-04-27
 --   * changed category from safe to intrusive
 -- 2016-08-10 nnposter
---   * added sharing of probe requests across fingerprints
+--   * Share probe requests across fingerprints
 -- 2016-10-30 nnposter
---   * removed a limitation that prevented testing of systems returning
+--   * Rectify a limitation that prevented testing of systems returning
 --     status 200 for non-existent pages.
 -- 2016-12-01 nnposter
---   * implemented XML structured output
---   * changed classic output to report empty credentials as <blank>
+--   * Implement XML structured output
+--   * Change classic output to report empty credentials as <blank>
 -- 2016-12-04 nnposter
---   * added CPE entries to individual fingerprints (where known)
+--   * Add CPE entries to individual fingerprints (where known)
 -- 2018-12-17 nnposter
---   * added ability to select fingerprints by their name
+--   * Add ability to select fingerprints by their name
 -- 2020-07-11 nnposter
---   * added reporting of all matched fingerprints when verbosity is increased
+--   * Report all matched fingerprints when verbosity is increased
+-- 2025-11-12 nnposter
+--   * Enforce mandatory fingerprint elements
+--   * Stop testing of passwords as soon as the correct password for a given
+--     username is found
+--   * The default target_check function is now only built when some
+--     of the loaded fingerprints lack their own.
 ---
 
 author = {"Paulino Calderon <calderon@websec.mx>", "nnposter"}
@@ -113,71 +137,138 @@ categories = {"discovery", "auth", "intrusive"}
 portrule = shortport.http
 
 ---
---validate_fingerprints(fingerprints)
---Returns an error string if there is something wrong with
---fingerprint table.
---Modified version of http-enums validation code
---@param fingerprints Fingerprint table
---@return Error string if its an invalid fingerprint table
+-- Tests if a given argument is an array, namely that its type is table
+-- and that its indices represent an uninterrupted sequence of integers,
+-- starting with 1. Empty table is considered to be an array.
+-- @param tbl Argument to test
+-- @return verdict (true or false)
 ---
-local function validate_fingerprints(fingerprints)
+local function is_array (tbl)
+  if type(tbl) ~= "table" then return false end
 
-  for i, fingerprint in pairs(fingerprints) do
-    if(type(i) ~= 'number') then
-      return "The 'fingerprints' table is an array, not a table; all indexes should be numeric"
+  local max, count = 0, 0
+  for k in next, tbl do
+    -- keys must be positive integers
+    if type(k) ~= "number" or k <= 0 or k % 1 ~= 0 then
+      return false
     end
-    -- Validate paths
-    if(not(fingerprint.paths) or
-      (type(fingerprint.paths) ~= 'table' and type(fingerprint.paths) ~= 'string') or
-      (type(fingerprint.paths) == 'table' and #fingerprint.paths == 0)) then
-      return "Invalid path found in fingerprint entry #" .. i
-    end
-    if(type(fingerprint.paths) == 'string') then
-      fingerprint.paths = {fingerprint.paths}
-    end
-    for i, path in pairs(fingerprint.paths) do
-      -- Validate index
-      if(type(i) ~= 'number') then
-        return "The 'paths' table is an array, not a table; all indexes should be numeric"
-      end
-      -- Convert the path to a table if it's a string
-      if(type(path) == 'string') then
-        fingerprint.paths[i] = {path=fingerprint.paths[i]}
-        path = fingerprint.paths[i]
-      end
-      -- Make sure the paths table has a 'path'
-      if(not(path['path'])) then
-        return "The 'paths' table requires each element to have a 'path'."
-      end
-    end
-    -- Check login combos
-    for i, combo in pairs(fingerprint.login_combos) do
-      -- Validate index
-      if(type(i) ~= 'number') then
-        return "The 'login_combos' table is an array, not a table; all indexes should be numeric"
-      end
-      -- Make sure the login_combos table has at least one login combo
-      if(not(combo['username']) or not(combo["password"])) then
-        return "The 'login_combos' table requires each element to have a 'username' and 'password'."
-      end
-    end
+    if k > max then max = k end
+    count = count + 1
+  end
 
-     -- Make sure they include the login function
-    if(type(fingerprint.login_check) ~= "function") then
-      return "Missing or invalid login_check function in entry #"..i
+  -- there must be no index gaps
+  return count == max
+end
+
+local fingerprint_checks = stdnse.output_table()
+
+fingerprint_checks.struct = function (fpr)
+  if type(fpr) ~= "table" then
+    return false, "Fingerprint is not a table"
+  end
+  return true, fpr
+end
+
+fingerprint_checks.name = function (fpr)
+  local name = fpr.name
+  if type(name) ~= "string" then
+     return false, "Missing or invalid name"
+  end
+  return true, name
+end
+
+fingerprint_checks.category = function (fpr)
+  local category = fpr.category
+  if type(category) ~= "string" then
+     return false, "Missing or invalid category"
+  end
+  return true, category
+end
+
+fingerprint_checks.paths = function (fpr)
+  local paths = fpr.paths
+  if type(paths) == "string" then
+    paths = {paths}
+    fpr.paths = paths
+  end
+  if not is_array(paths) then
+    return false, "Invalid or missing 'paths' array"
+  end
+  if #paths == 0 then
+    return false, "Empty 'paths' array"
+  end
+  for i, path in ipairs(paths) do
+    -- Convert the path to a table if necessary
+    if type(path) == "string" then
+      path = {['path'] = path}
+      paths[i] = path
     end
-     -- Make sure that the target validation is a function
-    if(fingerprint.target_check and type(fingerprint.target_check) ~= "function") then
-      return "Invalid target_check function in entry #"..i
+    if type(path) ~= "table" then
+      return false, ("'paths' entry #%d is not a table"):format(i)
     end
-      -- Are they missing any fields?
-    if(fingerprint.category and type(fingerprint.category) ~= "string") then
-      return "Missing or invalid category in entry #"..i
-    end
-    if(fingerprint.name and type(fingerprint.name) ~= "string") then
-      return "Missing or invalid name in entry #"..i
+    if type(path.path) ~= "string" then
+      return false, ("'paths' entry #%d is missing element 'path'"):format(i)
     end
   end
+  return true, paths
+end
+
+fingerprint_checks.combos = function (fpr)
+  local combos = fpr.login_combos
+  if not is_array(combos) then
+    return false, "Invalid or missing 'login_combos' array"
+  end
+  if #combos == 0 then
+    return false, "Empty 'login_combos' array"
+  end
+  for i, combo in pairs(combos) do
+    if type(combo) ~= "table" then
+      return false, ("'login_combos' entry #%d is not a table"):format(i)
+    end
+    if not (type(combo.username) == "string"
+        and type(combo.password) == "string") then
+      return false, ("'login_combos' entry #%d requires to have a 'username' and 'password'"):format(i)
+    end
+  end
+return true, combos
+end
+
+fingerprint_checks.target_check = function (fpr)
+  local target_check = fpr.target_check
+  if target_check and type(target_check) ~= "function" then
+    return "Invalid target_check function"
+  end
+  return true, target_check
+end
+
+fingerprint_checks.login_check = function (fpr)
+  local login_check = fpr.login_check
+  if type(login_check) ~= "function" then
+    return "Missing or invalid login_check function"
+  end
+  return true, login_check
+end
+
+---
+-- Validates that a given argument is a properly structed collection
+-- of fingerprints.
+-- @param fingerprints Fingerprint table
+-- @return Verdict (true or false)
+-- @return Error string describing the first encountered irregularity
+---
+local function validate_fingerprints (fingerprints)
+  if not is_array(fingerprints) then
+    return false, "Invalid or missing 'fingerprints' array"
+  end
+  for i, fpr in ipairs(fingerprints) do
+    for _, check in pairs(fingerprint_checks) do
+      local status, err = check(fpr)
+      if not status then
+        return status, ("Fingerprint #%d: %s"):format(i, err)
+      end
+    end
+  end
+  return true
 end
 
 -- Simplify unlocking the mutex, ensuring we don't try to load the fingerprints
@@ -239,9 +330,9 @@ local function load_fingerprints(filename, catlist, namelist)
   fingerprints = env.fingerprints
 
   -- Validate fingerprints
-  local valid_flag = validate_fingerprints(fingerprints)
-  if type(valid_flag) == "string" then
-    return bad_prints(mutex, valid_flag)
+  local status, err = validate_fingerprints(fingerprints)
+  if not status then
+    return bad_prints(mutex, err)
   end
 
   -- Category filter
@@ -290,10 +381,33 @@ local function load_fingerprints(filename, catlist, namelist)
     return bad_prints(mutex, "No fingerprints were loaded after processing ".. filename)
   end
 
-  -- Cache the fingerprints for other scripts, so we aren't reading the files every time
+  -- Cache the fingerprints for other invocations, so we aren't reading the files every time
   nmap.registry.http_default_accounts_fingerprints = fingerprints
   mutex "done"
   return true, fingerprints
+end
+
+---
+-- Generates the default target_check function, which will be used with
+-- fingerprints that lack their own. This default check is just testing
+-- for existence of the probe path on the target.
+-- @param host table as received by the scripts action method
+-- @param port table as received by the scripts action method
+-- @return target_check function
+---
+local function target_check_404 (host, port)
+  -- Determine the target's response to "404" HTTP requests
+  local status_404, result_404, known_404 = http.identify_404(host, port)
+  -- To reduce false-positives, the default target_check will fail if "404"
+  -- responses from the target either cannot be properly identified or they
+  -- have HTTP status 200
+  if not status_404 or result_404 == 200 then
+    return function () return false end
+  end
+  -- The default target_check is the existence of the probe path on the target
+  return function (_host, _port, path, response)
+           return http.page_exists(response, result_404, known_404, path, true)
+         end
 end
 
 ---
@@ -325,78 +439,81 @@ end
 -- @return txtout table suitable for inclusion in the script textual output
 ---
 local function  test_credentials (host, port, fingerprint, path)
-  local credlst = {}
+  local credhits = stdnse.output_table()
   for _, login_combo in ipairs(fingerprint.login_combos) do
     local user = login_combo.username
     local pass = login_combo.password
-    stdnse.debug(1, "[%s] Trying login combo %s:%s", fingerprint.name,
-                 stdnse.string_or_blank(user), stdnse.string_or_blank(pass))
-    if fingerprint.login_check(host, port, path, user, pass) then
-      stdnse.debug(1, "[%s] Valid default credentials found", fingerprint.name)
-      local cred = stdnse.output_table()
-      cred.username = user
-      cred.password = pass
-      table.insert(credlst, cred)
+    if not credhits[user] then
+      stdnse.debug(1, "[%s] Trying login combo %s:%s", fingerprint.name,
+                   stdnse.string_or_blank(user), stdnse.string_or_blank(pass))
+      if fingerprint.login_check(host, port, path, user, pass) then
+        stdnse.debug(1, "[%s] Valid default credentials found", fingerprint.name)
+        credhits[user] = pass
+      end
     end
   end
-  if #credlst == 0 and nmap.verbosity() < 2 then return nil end
+  if #credhits == 0 and nmap.verbosity() < 2 then return nil end
   -- Some credentials found or increased verbosity. Generate the output report
   local out = stdnse.output_table()
   out.cpe = fingerprint.cpe
   out.path = path
-  out.credentials = credlst
+  out.credentials = {}
   local txtout = {}
   txtout.name = ("[%s] at %s"):format(fingerprint.name, path)
-  if #credlst == 0 then
+  if #credhits == 0 then
     table.insert(txtout, "(no valid default credentials found)")
     return out, txtout
   end
-  for _, cred in ipairs(credlst) do
-    table.insert(txtout,("%s:%s"):format(stdnse.string_or_blank(cred.username),
-                                         stdnse.string_or_blank(cred.password)))
+  for user, pass in pairs(credhits) do
+    local cred = stdnse.output_table()
+    cred.username = user
+    cred.password = pass
+    table.insert(out.credentials, cred)
+    table.insert(txtout,("%s:%s"):format(stdnse.string_or_blank(user),
+                                         stdnse.string_or_blank(pass)))
   end
   -- Register the credentials
   local credreg = creds.Credentials:new(SCRIPT_NAME, host, port)
-  for _, cred in ipairs(credlst) do
-    credreg:add(cred.username, cred.password, creds.State.VALID )
+  for user, pass in pairs(credhits) do
+    credreg:add(user, pass, creds.State.VALID )
   end
   return out, txtout
 end
 
 
 action = function(host, port)
-  local fingerprint_filename = stdnse.get_script_args("http-default-accounts.fingerprintfile") or "http-default-accounts-fingerprints.lua"
+  local fingerprint_filename = stdnse.get_script_args("http-default-accounts.fingerprintfile")
+                               or "http-default-accounts-fingerprints.lua"
   local catlist = stdnse.get_script_args("http-default-accounts.category")
   local namelist = stdnse.get_script_args("http-default-accounts.name")
   local basepath = stdnse.get_script_args("http-default-accounts.basepath") or "/"
   local output = stdnse.output_table()
   local text_output = {}
 
-  -- Determine the target's response to "404" HTTP requests.
-  local status_404, result_404, known_404 = http.identify_404(host,port)
-  -- The default target_check is the existence of the probe path on the target.
-  -- To reduce false-positives, fingerprints that lack target_check() will not
-  -- be tested on targets on which a "404" response is 200.
-  local default_target_check =
-    function (host, port, path, response)
-      if status_404 and result_404 == 200 then return false end
-      return http.page_exists(response, result_404, known_404, path, true)
-    end
-
-  --Load fingerprint data or abort
+  -- Load fingerprint data or abort
   local status, fingerprints = load_fingerprints(fingerprint_filename, catlist, namelist)
-  if(not(status)) then
+  if not status then
     return stdnse.format_output(false, fingerprints)
   end
   stdnse.debug(1, "%d fingerprints were loaded", #fingerprints)
 
-  --Format basepath: Removes or adds slashs
+  -- Build the default target_check function
+  -- This requires extra web requests to the target so we do it only if needed
+  local default_target_check = nil
+  for _, fpr in ipairs(fingerprints) do
+    if not fpr.target_check then
+      default_target_check = target_check_404(host, port)
+      break
+    end
+  end
+
+  -- Format basepath: Removes or adds slashes
+  stdnse.debug(1, "Trying known locations under path '%s' (change with '%s.basepath' argument)", basepath, SCRIPT_NAME)
   basepath = format_basepath(basepath)
 
   -- Add requests to the http pipeline
   local pathmap = {}
   local requests = nil
-  stdnse.debug(1, "Trying known locations under path '%s' (change with '%s.basepath' argument)", basepath, SCRIPT_NAME)
   for _, fingerprint in ipairs(fingerprints) do
     for _, probe in ipairs(fingerprint.paths) do
       -- Multiple fingerprints may share probe paths so only unique paths will

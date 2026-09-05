@@ -204,6 +204,10 @@ struct npool {
 #ifndef OPENSSL_NO_DTLS
   SSL_CTX *dtlsctx;
 #endif
+#if OPENSSL_VERSION_NUMBER >= 0x30000000L
+  OSSL_PROVIDER *legacy_provider;
+  OSSL_PROVIDER *default_provider;
+#endif
 #endif
 
   /* Optional proxy chain (NULL is not set). Can only be set once per NSP (using

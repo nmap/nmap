@@ -170,7 +170,7 @@ local function single_interface_broadcast(if_nfo, results)
       local l2reply = packet.Frame:new(layer2)
       if string.sub(l2reply.mac_dst, 1, 3) == string.sub(expected_mac_dst_prefix, 1, 3) then
         local reply = packet.Packet:new(layer3)
-        if reply.ip_bin_src == expected_ip6_src and
+        if reply and reply.ip_bin_src == expected_ip6_src and
           string.sub(expected_ip6_dst_prefix,1,12) == string.sub(reply.ip_bin_dst,1,12) then
           local ula_target_addr_str = ipOps.str_to_ip(reply.ns_target)
           local identifier = get_identifier(reply.ns_target)

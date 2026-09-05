@@ -1,9 +1,4 @@
-
 /***************************************************************************
- * common.h --  This file holds all those functions and classes that have  *
- * been copied verbatim from Nmap's source code                            *
- *                                                                         *
- ***********************IMPORTANT NMAP LICENSE TERMS************************
  *
  * The Nmap Security Scanner is (C) 1996-2026 Nmap Software LLC ("The Nmap
  * Project"). Nmap is also a registered trademark of the Nmap Project.
@@ -58,13 +53,69 @@
  * Npcap OEM program--see https://nmap.org/oem/
  *
  ***************************************************************************/
+#ifndef NETUTIL_NETBLOCK_H
+#define NETUTIL_NETBLOCK_H
 
-/* THIS FILE HAS ALL THE FUNCTIONS THAT I'VE COPIED VERBATIM FROM NMAP'S
- * SOURCE CODE. */
+#include <string>
+#include <list>
+#include <vector>
+#include "massdns.h"
+class NetBlock {
+public:
+  virtual ~NetBlock() {}
+  NetBlock(bool r_a=false, const char *dev=NULL)
+    : resolve_all(r_a), device(dev)
+  {
+    current_addr = resolvedaddrs.begin();
+  }
+  std::string hostname;
+  std::list<struct sockaddr_storage> resolvedaddrs;
+  std::list<struct sockaddr_storage> unscanned_addrs;
+  std::list<struct sockaddr_storage>::const_iterator current_addr;
 
-#ifndef COMMON_H
-#define COMMON_H 1
+  /* Parses an expression such as 192.168.0.0/16, 10.1.0-5.1-254, or
+     fe80::202:e3ff:fe14:1102/112 and returns a newly allocated NetBlock. The af
+     parameter is AF_INET or AF_INET6. Returns NULL in case of error. */
+  static NetBlock *parse_expr(const char *target_expr, int af, std::vector<DNS::Request> &requests, bool resolve_all=false, const char *device=NULL);
 
-#include "nping.h"
+  bool is_resolved_address(const struct sockaddr_storage *ss) const;
 
-#endif /* COMMON_H */
+  /* For NetBlock subclasses that need to "resolve" themselves into a different
+   * NetBlock subclass, override this method. Otherwise, it's safe to reassign
+   * the return value to the pointer that this method was called through.
+   * On error, return NULL. */
+  virtual NetBlock *resolve(const DNS::Request &req) { return this; }
+  virtual void reject_last_host() {}
+  virtual bool next(struct sockaddr_storage *ss, size_t *sslen) = 0;
+  virtual void apply_netmask(int bits) = 0;
+  virtual std::string str() const = 0;
+protected:
+  bool resolve_all;
+  const char *device;
+};
+
+class NetBlockRandomIPv4 : public NetBlock {
+public:
+  NetBlockRandomIPv4();
+  ~NetBlockRandomIPv4();
+
+  void reject_last_host() { if (!infinite) count++; }
+  void set_num_random(unsigned long num) {
+    if (num == 0)
+      infinite = true;
+    else
+      count = num;
+  }
+  bool next(struct sockaddr_storage *ss, size_t *sslen);
+  void apply_netmask(int bits) {}
+  std::string str() const {return "Random IPv4 addresses";}
+  void avoid_addrset(const struct addrset *addrs);
+
+private:
+  struct sockaddr_in base;
+  unsigned long count;
+  bool infinite;
+  struct addrset *avoid;
+};
+
+#endif

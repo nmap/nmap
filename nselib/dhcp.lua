@@ -411,6 +411,7 @@ function dhcp_build(request_type, ip_address, mac_address, options, request_opti
 
   if(request_options == nil) then
     -- Request the defaults, or there's no verbosity; otherwise, request everything!
+    -- TODO: Make scripts decide this, not the library.
     request_options = strbuf.new()
     for i,v in pairs(actions) do
       if(v.default or nmap.verbosity() > 0) then
@@ -531,7 +532,7 @@ function dhcp_parse(data, transaction_id)
       stdnse.debug2("dhcp-discover: Attempting to parse %s", action['name'])
       pos, value = action['func'](data, pos, length)
 
-      if(nmap.verbosity() == 0 and action.default == false) then
+      if(nmap.verbosity() == 0 and not action.default) then
         stdnse.debug1("dhcp-discover: Server returned unrequested option (%s => %s)", action['name'], value)
 
       else

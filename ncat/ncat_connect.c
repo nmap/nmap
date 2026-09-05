@@ -237,7 +237,7 @@ static void connect_report(nsock_iod nsi)
 #ifdef HAVE_OPENSSL
         if (nsock_iod_check_ssl(nsi)) {
             X509 *cert;
-            X509_NAME *subject;
+            const X509_NAME *subject;
             char digest_buf[SHA1_STRING_LENGTH + 1];
             char *fp;
 
@@ -249,11 +249,34 @@ static void connect_report(nsock_iod nsi)
             subject = X509_get_subject_name(cert);
             if (subject != NULL) {
                 char buf[256];
-                int n;
+                int lastpos = -1;
 
-                n = X509_NAME_get_text_by_NID(subject, NID_organizationName, buf, sizeof(buf));
-                if (n >= 0 && n <= sizeof(buf) - 1)
-                    loguser_noprefix(" %s", buf);
+                lastpos = X509_NAME_get_index_by_NID(subject, NID_organizationName, lastpos);
+
+                if (lastpos >= 0) {
+                    const X509_NAME_ENTRY *entry = X509_NAME_get_entry(subject, lastpos);
+                    if (entry != NULL) {
+                        const ASN1_STRING *asn1_str = X509_NAME_ENTRY_get_data(entry);
+                        if (asn1_str != NULL) {
+                            // ASN1_STRING_to_UTF8 handles converting BMPString, UniversalString,
+                            // or UTF8String into a standard, readable UTF-8 format.
+                            unsigned char *utf8_buf = NULL;
+                            int len = ASN1_STRING_to_UTF8(&utf8_buf, asn1_str);
+
+                            if (len >= 0) {
+                                // Ensure we don't overflow our local buffer and null-terminate safely
+                                int copy_len = (len < (int)sizeof(buf) - 1) ? len : (int)sizeof(buf) - 1;
+                                memcpy(buf, utf8_buf, copy_len);
+                                buf[copy_len] = '\0';
+
+                                loguser_noprefix(" %s", buf);
+
+                                // OpenSSL allocates memory for utf8_buf, so we must free it
+                                OPENSSL_free(utf8_buf);
+                            }
+                        }
+                    }
+                }
             }
 
             loguser_noprefix("\n");
@@ -269,7 +292,7 @@ static void connect_report(nsock_iod nsi)
     }
 }
 
-/* Just like inet_socktop, but it puts IPv6 addresses in square brackets. */
+/* Just like socktop, but it puts IPv6 addresses in square brackets. */
 static const char *sock_to_url(char *host_str, unsigned short port)
 {
     static char buf[512];
@@ -391,7 +414,7 @@ static int do_proxy_http(void)
         target = o.target;
     } else {
         /* addr is now populated with either sockaddr_in or sockaddr_in6 */
-        Strncpy(addrstr, inet_socktop(&addr), sizeof(addrstr));
+        Strncpy(addrstr, inet_socktop_safe(&addr), sizeof(addrstr));
         target = addrstr;
         if (o.verbose && getaddrfamily(o.target) == -1)
             loguser("Host %s locally resolved to %s.\n", o.target, target);
@@ -509,6 +532,18 @@ bail:
     return -1;
 }
 
+static int recv_bytes(int sd, char *buf, size_t len)
+{
+  int t = 0;
+  while (t < len) {
+    int n = recv(sd, buf + t, len - t, 0);
+    if (n <= 0) {
+      return n;
+    }
+    t += n;
+  }
+  return t;
+}
 
 /* SOCKS4a support
  * Return a usable socket descriptor after
@@ -518,11 +553,12 @@ static int do_proxy_socks4(void)
 {
     char socksbuf[8];
     struct socks4_data socks4msg;
-    size_t datalen;
+    size_t datalen, remaining;
     char *username = o.proxy_auth != NULL ? o.proxy_auth : "";
     union sockaddr_u addr;
     size_t sslen;
     int sd;
+    int tmp = 0;
 
     if (getaddrfamily(o.target) == 2) {
         loguser("Error: IPv6 addresses are not supported with Socks4.\n");
@@ -536,7 +572,7 @@ static int do_proxy_socks4(void)
     }
 
     if (o.verbose) {
-        loguser("Connected to proxy %s:%hu\n", inet_socktop(&targetaddrs->addr),
+        loguser("Connected to proxy %s:%hu\n", inet_socktop_safe(&targetaddrs->addr),
             inet_port(&targetaddrs->addr));
     }
 
@@ -546,13 +582,15 @@ static int do_proxy_socks4(void)
     socks4msg.type = SOCKS_CONNECT;
     socks4msg.port = htons(o.portno);
 
-    if (strlen(username) >= sizeof(socks4msg.data)) {
+    remaining = sizeof(socks4msg.data);
+    tmp = Snprintf(socks4msg.data, remaining, "%s", username);
+    if (tmp >= remaining) {
         loguser("Error: username is too long.\n");
         close(sd);
         return -1;
     }
-    strcpy(socks4msg.data, username);
-    datalen = strlen(username) + 1;
+    datalen = tmp + 1;
+    remaining -= tmp + 1;
 
     if (proxyresolve(o.target, 0, &addr.storage, &sslen, AF_INET)) {
         /* target resolution has failed, possibly because it is disabled */
@@ -564,19 +602,20 @@ static int do_proxy_socks4(void)
         if (o.verbose)
             loguser("Host %s will be resolved by the proxy.\n", o.target);
         socks4msg.address = inet_addr("0.0.0.1");
-        if (datalen + strlen(o.target) >= sizeof(socks4msg.data)) {
+        tmp = Snprintf(socks4msg.data + datalen, remaining, "%s", o.target);
+        if (tmp >= remaining) {
             loguser("Error: host name is too long.\n");
             close(sd);
             return -1;
         }
-        strcpy(socks4msg.data + datalen, o.target);
-        datalen += strlen(o.target) + 1;
+        datalen += tmp + 1;
+        remaining -= tmp + 1;
     } else {
         /* addr is now populated with sockaddr_in */
         socks4msg.address = addr.in.sin_addr.s_addr;
         if (o.verbose && getaddrfamily(o.target) == -1)
             loguser("Host %s locally resolved to %s.\n", o.target,
-                inet_socktop(&addr));
+                inet_socktop_safe(&addr));
     }
 
     if (send(sd, (char *)&socks4msg, offsetof(struct socks4_data, data) + datalen, 0) < 0) {
@@ -587,7 +626,7 @@ static int do_proxy_socks4(void)
 
     /* The size of the socks4 response is 8 bytes. So read exactly
        8 bytes from the buffer */
-    if (recv(sd, socksbuf, 8, 0) < 0) {
+    if (recv_bytes(sd, socksbuf, 8) < 8) {
         loguser("Error: short response from proxy.\n");
         close(sd);
         return -1;
@@ -631,7 +670,7 @@ static int do_proxy_socks5(void)
     }
 
     if (o.verbose) {
-        loguser("Connected to proxy %s:%hu\n", inet_socktop(&targetaddrs->addr),
+        loguser("Connected to proxy %s:%hu\n", inet_socktop_safe(&targetaddrs->addr),
             inet_port(&targetaddrs->addr));
     }
 
@@ -650,7 +689,7 @@ static int do_proxy_socks5(void)
     }
 
     /* connect response just two bytes, version and auth method */
-    if (recv(sd, socksbuf, 2, 0) < 0) {
+    if (recv_bytes(sd, socksbuf, 2) < 2) {
         loguser("Error: malformed connect response from proxy.\n");
         close(sd);
         return -1;
@@ -732,7 +771,7 @@ static int do_proxy_socks5(void)
                 return -1;
             }
 
-            if (recv(sd, socksbuf, 2, 0) < 0) {
+            if (recv_bytes(sd, socksbuf, 2) < 2) {
                 loguser("Error: malformed proxy authentication response.\n");
                 close(sd);
                 return -1;
@@ -803,7 +842,7 @@ static int do_proxy_socks5(void)
         dstlen = addrlen;
         if (o.verbose && getaddrfamily(o.target) == -1)
             loguser("Host %s locally resolved to %s.\n", o.target,
-                inet_socktop(&addr));
+                inet_socktop_safe(&addr));
     }
 
     memcpy(socks5msg2.dst + dstlen, &proxyport, 2);
@@ -815,7 +854,7 @@ static int do_proxy_socks5(void)
         return -1;
     }
 
-    if (recv(sd, socksbuf, 4, 0) < 0) {
+    if (recv_bytes(sd, socksbuf, 4) < 4) {
         loguser("Error: malformed request response from proxy.\n");
         close(sd);
         return -1;
@@ -878,7 +917,7 @@ static int do_proxy_socks5(void)
         bndaddrlen = 16 + 2;
         break;
     case SOCKS5_ATYP_NAME:
-        if (recv(sd, socksbuf, 1, 0) < 0) {
+        if (recv_bytes(sd, socksbuf, 1) < 1) {
             loguser("Error: malformed request response from proxy.\n");
             close(sd);
             return -1;
@@ -891,7 +930,15 @@ static int do_proxy_socks5(void)
         return -1;
     }
 
-    if (recv(sd, bndaddr, bndaddrlen, 0) < 0) {
+    /* Not possible, since bndaddrlen cannot be more than UCHAR_MAX + 2, which
+     * is equal to sizeof(bndaddr), but we will be cautious. */
+    if (bndaddrlen > sizeof(bndaddr)) {
+      loguser("Error: proxy bind address length too long.\n");
+      close(sd);
+      return -1;
+    }
+
+    if (recv_bytes(sd, bndaddr, bndaddrlen) < bndaddrlen) {
         loguser("Error: malformed request response from proxy.\n");
         close(sd);
         return -1;
@@ -1064,8 +1111,10 @@ int ncat_connect(void)
         else
         {
             /* Create IOD for nsp->stdin */
+          if (!o.recvonly) {
             if ((cs.stdin_nsi = nsock_iod_new2(mypool, 0, NULL)) == NULL)
-                bye("Failed to create stdin nsiod.");
+              bye("Failed to create stdin nsiod.");
+          }
 
             post_connect(mypool, cs.sock_nsi);
         }
@@ -1168,7 +1217,7 @@ static void connect_handler(nsock_pool nsp, nsock_event evt, void *data)
                 zmem(&peer, sizeof(peer.storage));
                 nsock_iod_get_communication_info(cs.sock_nsi, NULL, NULL, NULL,
                     &peer.sockaddr, sizeof(peer.storage));
-                loguser("Connection to %s failed: %s.\n", inet_socktop(&peer),
+                loguser("Connection to %s failed: %s.\n", inet_socktop_safe(&peer),
                     (status == NSE_STATUS_TIMEOUT)
                     ? nse_status2str(status)
                     : socket_strerror(nse_errorcode(evt)));
@@ -1210,8 +1259,10 @@ static void connect_handler(nsock_pool nsp, nsock_event evt, void *data)
     }
 
     /* Create IOD for nsp->stdin */
-    if ((cs.stdin_nsi = nsock_iod_new2(nsp, 0, NULL)) == NULL)
+    if (!o.recvonly) {
+      if ((cs.stdin_nsi = nsock_iod_new2(nsp, 0, NULL)) == NULL)
         bye("Failed to create stdin nsiod.");
+    }
 
     post_connect(nsp, nse_iod(evt));
 }
@@ -1357,7 +1408,7 @@ static void read_socket_handler(nsock_pool nsp, nsock_event evt, void *data)
         ncat_delay_timer(o.linedelay);
 
     if (o.telnet)
-        dotelnet(nsock_iod_get_sd(nse_iod(evt)), (unsigned char *) buf, nbytes);
+        dotelnet(nsock_iod_get_sd(nse_iod(evt)), (unsigned char *) buf, &nbytes);
 
     /* Write socket data to stdout */
     Write(STDOUT_FILENO, buf, nbytes);

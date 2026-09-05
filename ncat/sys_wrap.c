@@ -146,16 +146,20 @@ int Setsockopt(int s, int level, int optname, const void *optval,
     return ret;
 }
 
+#ifndef WIN32
 sighandler_t Signal(int signum, sighandler_t handler)
 {
-    sighandler_t ret;
+    struct sigaction sa, osa;
+    memset(&sa, 0, sizeof(sa));
+    sa.sa_handler = handler;
+    sigemptyset(&sa.sa_mask);
+    sa.sa_flags = 0;
 
-    ret = signal(signum, handler);
-    if (ret == SIG_ERR)
-        die("signal");
-
-    return ret;
+    if (0 > sigaction(signum, &sa, &osa))
+      die("sigaction");
+    return osa.sa_handler;
 }
+#endif
 
 
 int Socket(int domain, int type, int protocol)
@@ -173,6 +177,8 @@ char *Strdup(const char *s)
 {
     char *ret;
 
+    if (s == NULL)
+        bye("Strdup argument must not be NULL");
     ret = strdup(s);
     if (ret == NULL)
         die("strdup");
@@ -188,4 +194,16 @@ ssize_t Write(int fd, const void *buf, size_t count)
         die("write");
 
     return ret;
+}
+
+#ifndef UNUSED
+#define UNUSED(x) ((void) x)
+#endif
+/* Like Write, but does nothing. */
+ssize_t Ignore(int fd, const void *buf, size_t count)
+{
+  UNUSED(fd);
+  UNUSED(buf);
+  UNUSED(count);
+  return 0;
 }

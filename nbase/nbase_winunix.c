@@ -115,8 +115,6 @@ static DWORD WINAPI win_stdin_thread_func(void *data) {
 
     closesocket(tdata->socket_l);
     tdata->socket_l = INVALID_SOCKET;
-    if (SOCKET_ERROR == shutdown(socket_w, SD_RECEIVE))
-        goto ThreadCleanup;
 
     for (;;) {
         if (ReadFile(tdata->stdin_handle, buffer, sizeof(buffer), &n, NULL) == 0)
@@ -234,10 +232,6 @@ int win_stdin_start_thread(void) {
         }
         if (SOCKET_ERROR == connect(socket_r, (SOCKADDR*)&selfaddr, socksize)) {
             //fprintf(stderr, "connect error: %d", socket_errno());
-            break;
-        }
-        if (SOCKET_ERROR == shutdown(socket_r, SD_SEND)) {
-            //fprintf(stderr, "shutdown error: %d", socket_errno());
             break;
         }
 

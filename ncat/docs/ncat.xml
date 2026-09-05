@@ -222,6 +222,20 @@
           <para>Set the address for Ncat to bind to.</para>
         </listitem>
       </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>-z</option> (Zero-I/O mode)
+          <indexterm><primary><option>-z</option> (Ncat option)</primary></indexterm>
+        </term>
+        <listitem>
+          <!-- We do not promote Ncat as a port scanner. That is what Nmap is for. -->
+          <para>Causes Ncat to quit immediately after establishing a connection. This is provided
+            for compatibility with other netcat implementations which use it as a test for
+            connectivity or for port scanning. Ncat does not allow specifying multiple target
+            ports.</para>
+        </listitem>
+      </varlistentry>
     </variablelist>
 
   </refsect1>

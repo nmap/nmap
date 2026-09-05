@@ -1682,7 +1682,7 @@ action = function(host,port)
 	socket:close()
 
 	-- abort if no response
-	if(rcvstatus == false) then
+	if not rcvstatus then
 		return nil
 	end
 

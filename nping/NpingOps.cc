@@ -70,7 +70,6 @@
 #include "utils_net.h"
 #include "ArgParser.h"
 #include "output.h"
-#include "common.h"
 #include <climits>
 
 
@@ -375,31 +374,31 @@ char * NpingOps::mode2Ascii(int md) {
 
   switch( md ){
     case TCP_CONNECT:
-        sprintf(buff, "TCP-Connect");
+        bufset(buff, "TCP-Connect");
     break;
 
     case TCP:
-        sprintf(buff, "TCP");
+        bufset(buff, "TCP");
     break;
 
     case UDP:
-        sprintf(buff, "UDP");
+        bufset(buff, "UDP");
     break;
 
     case UDP_UNPRIV:
-        sprintf(buff, "UDP-Unprivileged");
+        bufset(buff, "UDP-Unprivileged");
     break;
 
     case ICMP:
-        sprintf(buff, "ICMP");
+        bufset(buff, "ICMP");
     break;
 
     case ARP:
-        sprintf(buff, "ARP");
+        bufset(buff, "ARP");
     break;
 
     default:
-        sprintf(buff, "Unknown mode");
+        bufset(buff, "Unknown mode");
     break;
  }
  return buff;
@@ -657,21 +656,10 @@ bool NpingOps::sendPreferenceIP(){
   return (this->sendpref & PACKET_SEND_IP);
 } /* End of sendPreferenceIP() */
 
-
-/** Sets SendEth.
- *  @return OP_SUCCESS on success and OP_FAILURE in case of error.           */
-int NpingOps::setSendEth(bool val){
-  this->sendpref = PACKET_SEND_ETH;
-  this->sendpref_set = true;
-  return OP_SUCCESS;
-} /* End of setSendEth() */
-
-
 /** Returns value of attribute send_eth */
 bool NpingOps::sendEth(){
   return (this->sendpref & PACKET_SEND_ETH_STRONG);
 } /* End of getSendEth() */
-
 
 /** Sets inter-probe delay. Supplied parameter is assumed to be in milliseconds
  *  and must be a long integer greater than zero.
@@ -713,8 +701,14 @@ int NpingOps::setDevice(char *n){
 } /* End of setDevice() */
 
 
-char *NpingOps::getDevice(){
-  return this->device;
+const char *NpingOps::getDevice(){
+  if (this->device_set)
+    return this->device;
+  if (this->targets.devices.empty())
+    return NULL;
+  if (this->targets.devices.size() > 1)
+    nping_fatal(QT_3, "Nping does not support targets on multiple devices. QUITTING.\n");
+  return this->targets.devices.front()->getName();
 } /* End of getDevice() */
 
 
@@ -858,17 +852,6 @@ bool NpingOps::ipv6(){
   else
     return false;
 } /* End of ipv6() */
-
-
-/* Returns true if we are sending IPv6 packets at raw TCP level (using a
- * useless and boring IPv6 socket that doesn't let us include our own IPv6
- * header)*/
-bool NpingOps::ipv6UsingSocket(){
-  if( this->getIPVersion() == IP_VERSION_6 && this->sendEth()==false)
-    return true;
-  else
-    return false;
-} /* End of ipv6UsingSocket() */
 
 
 /* Returns AF_INET or AF_INET6, depending on current configuration */
@@ -2236,7 +2219,7 @@ will open a UAC dialog where you can start the service if you have\n\
 administrator privileges.";
 #endif
 
-if (this->havePcap()==false){
+if (this->isRoot() && this->havePcap()==false){
     #ifdef WIN32
         nping_fatal(QT_3, "Nping requires %s", privreq);
     #else
@@ -2324,87 +2307,15 @@ if (this->havePcap()==false){
         nping_print(VB_0, "Warning: Payload supplied in TCP Connect mode. Payload will be ignored.");
   }
 
-/** SOURCE IP, SOURCE MAC and NETWORK DEVICE *********************************/
-/* If we are in a mode where we need to craft IP packets, then we need to
- * obtain a network interface name and a source IP address. There are three
- * different possibilities:
- *  1. User did NOT specify both network interface and source IP address.
- *  2. User did specify a network interface but not a source IP address.
- *  3. User did actually supply a source IP but not a network interface name
- *
- * I know the following code is ugly but the thing is that we want to determine
- * interface and source IP without user intervention, so we try in many ways
- * until either we succeed or we run out of possibilities and fatal().
- */
-if( this->getMode()!=TCP_CONNECT && this->getMode()!=UDP_UNPRIV && this->getRole()!=ROLE_SERVER){
-
-    char devbuff[32];
-    char *dev;
-    struct sockaddr_storage ss, ifaddr;
-    struct sockaddr_in *s4=(struct sockaddr_in *)&ifaddr;
-    struct sockaddr_in6 *s6=(struct sockaddr_in6 *)&ifaddr;
-    size_t ss_len;
-    char hostname[128];
-    memset(&ss, 0, sizeof(struct sockaddr_storage));
-    memset(&ifaddr, 0, sizeof(struct sockaddr_storage));
-
-
-   /* CASE 1: User did not specify a device so we have to select one. */
-    if( !this->issetDevice() ){
-        if( this->ipv4() ){
-            /* Ugly hack. Get the first resolvable target and determine net interface. Let's
-             * hope user did not specify something that mixes localhost with
-             * other targets, like "nping localhost google.com playboy.com" */
-             for(int z=0; z<this->targets.getTargetSpecCount(); z++){
-                if( this->targets.getNextTargetAddressAndName(&ss, &ss_len, hostname, sizeof(hostname)) == OP_SUCCESS )
-                    break;
-                else if( z>=(this->targets.getTargetSpecCount()-1) )
-                    nping_fatal(QT_3,"Cannot find a valid target. Please make sure the specified hosts are either IP addresses in standard notation or hostnames that can be resolved with DNS");
-             }
-             this->targets.rewind();
-
-             /* Try to obtain a device name from the target IP */
-             if ( getNetworkInterfaceName( &ss , devbuff) != OP_SUCCESS ) {
-                /* If that didn't work, ask libpcap */
-                if ( (dev = this->select_network_iface()) == NULL)
-                    nping_fatal(QT_3, "Cannot obtain device for packet capture");
-                else
-                    this->setDevice( dev );
-                /* Libpcap gave us a device name, try to obtain it's IP */
-                if ( devname2ipaddr(this->getDevice(), this->af(), &ifaddr) != 0 ){
-                    if( this->isRoot() )
-                        nping_fatal(QT_3,"Cannot figure out what source address to use for device %s, does it even exist?", this->getDevice());
-                    else
-                        nping_fatal(QT_3,"Cannot figure out what source address to use for device %s, are you root?", this->getDevice());
-                }
-                else{
-                    if( s4->sin_family==AF_INET )
-                        this->setIPv4SourceAddress(s4->sin_addr);
-                    else if ( s6->sin6_family==AF_INET6 )
-                        this->setIPv6SourceAddress(s6->sin6_addr.s6_addr);
-                }
-            }else{
-                this->setDevice(devbuff);
-            }
-        }else{ /* In IPv6 we just select one in libpcap and hope is the right one */
-            char *selected_iface=this->select_network_iface();
-            if(selected_iface==NULL)
-                nping_fatal(QT_3, "Error trying to find a suitable network interface ");
-            else
-                this->setDevice( selected_iface );
-        }
-    } /* CASE 2: User did actually supply a device name */
-    else{
-        nping_print(DBG_2, "Using network interface \"%s\"", this->getDevice() );
-    }
-
 /* The echo server needs to find out a network interface*/
-}else if (this->getRole()==ROLE_SERVER && this->issetDevice()==false){
+if (this->getRole()==ROLE_SERVER && this->issetDevice()==false){
   char *selected_iface=this->select_network_iface();
   if(selected_iface==NULL)
     nping_fatal(QT_3, "Error trying to find a suitable network interface ");
-  else
+  else {
     this->setDevice( selected_iface );
+    free(selected_iface);
+  }
   nping_print(DBG_2, "Using network interface \"%s\"", this->getDevice() );
 }
 
@@ -2416,7 +2327,6 @@ if(this->getRole()!=ROLE_SERVER){
 
     /* CASE 1: ARP requested. We have to do raw ethernet transmission */
     if(this->getMode()==ARP ){
-        this->setSendEth(true);
         this->setSendPreference( PACKET_SEND_ETH_STRONG );
     }
 
@@ -2431,13 +2341,11 @@ if(this->getRole()!=ROLE_SERVER){
         /* CASE 2.A: If user did not specify custom IPv6 header or Ethernet
          * field values go for raw transport layer level transmission */
         if( this->canDoIPv6ThroughSocket() ){
-            this->setSendEth(false);
             this->setSendPreference( PACKET_SEND_IP_STRONG );
         }
         /* CASE 2.B: User wants to set some IPv6 or Ethernet values. So here we
          * check if enough parameters were supplied. */
         else if (this->canDoIPv6Ethernet() ){
-            this->setSendEth(true);
             this->setSendPreference( PACKET_SEND_ETH_STRONG );
         }else{
             nping_fatal(QT_3, "If you want to control some of the fields"
@@ -2457,10 +2365,8 @@ if(this->getRole()!=ROLE_SERVER){
     else{
          #ifdef WIN32
             this->setSendPreference( PACKET_SEND_ETH_STRONG );
-            this->setSendEth(true);
          #else
             this->setSendPreference( PACKET_SEND_IP_WEAK );
-            this->setSendEth(false);
          #endif
     }
 
@@ -2469,7 +2375,7 @@ if(this->getRole()!=ROLE_SERVER){
  }else{
 
     if( this->getMode()==ARP && !this->sendPreferenceEthernet() ){
-        this->setSendEth(true);
+        this->setSendPreference(PACKET_SEND_ETH_STRONG);
         nping_warning(QT_2, "Warning: ARP mode requires raw ethernet frame transmission. Specified preference will be ignored.");
     }
     else if( this->ipv6() ){
@@ -2477,7 +2383,6 @@ if(this->getRole()!=ROLE_SERVER){
         /* CASE 1: User requested ethernet explicitly and supplied all
          * necessary options. */
         if( this->sendPreferenceEthernet() && this->canDoIPv6Ethernet() ){
-            this->setSendEth(true);
 
         /* CASE 2: User requested Ethernet but did not really supplied all
          * the information we need */
@@ -2489,7 +2394,6 @@ if(this->getRole()!=ROLE_SERVER){
         /* CASE 3: User requested raw IP transmission and did not request
          * any special IPv6 header options. */
         }else if( this->sendPreferenceIP() && this->canDoIPv6ThroughSocket() ){
-            this->setSendEth(false);
 
         /* CASE 4: User requested raw IP transmission but also wanted to
          * set custom IPv6 header field values. */
@@ -2503,11 +2407,11 @@ if(this->getRole()!=ROLE_SERVER){
 
         }
     }
-    else if( this->sendPreferenceEthernet() ){
-            this->setSendEth(true);
-    }else{
-        this->setSendEth(false);
-    }
+ }
+ if ((this->getSendPreference() & PACKET_SEND_IP_STRONG) &&
+     (this->issetSourceMAC() || this->issetDestMAC() || this->issetEtherType())
+    ) {
+   nping_fatal(QT_3, "Incompatible options specifying both Ethernet and IP send modes");
  }
  if( this->getMode()==TCP_CONNECT || this->getMode()==UDP_UNPRIV )
     nping_print(DBG_2,"Nping will send packets in unprivileged mode using regular system calls");
@@ -2755,6 +2659,7 @@ int NpingOps::cleanup(){
 
 
 char *NpingOps::select_network_iface(){
+    char *devname = NULL;
     char errbuf[PCAP_ERRBUF_SIZE];
     pcap_if_t *pcap_ifaces=NULL;
 
@@ -2857,10 +2762,10 @@ char *NpingOps::select_network_iface(){
         }
 
     }
-    if(candidate==NULL)
-        return NULL;
-    else
-       return candidate->name;
+    if(candidate)
+       devname = strdup(candidate->name);
+    pcap_freealldevs(pcap_ifaces);
+    return devname;
 } /* End of select_network_iface() */
 
 

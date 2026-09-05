@@ -50,7 +50,7 @@ action = function(host, port)
   end
 
   -- If head failed, try using GET
-  if(status == false) then
+  if not status then
     stdnse.debug1("HEAD request failed, falling back to GET")
     result = http.get(host, port, path)
     request_type = "GET"

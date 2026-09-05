@@ -3555,24 +3555,6 @@ EXAMPLES:
         </varlistentry>
 
         <varlistentry>
-          <term><option>--release-memory</option> (Release memory before
-          quitting)</term>
-
-          <listitem>
-            <indexterm significance="normal">
-              <primary>--release-memory</primary>
-            </indexterm>
-
-            <para>Esta opção é útil apenas para depuração de vazamentos de
-            memória (memory-leak). Ela faz com que o Nmap libere memória
-            alocada pouco antes de encerrar de forma a tornar os vazamentos de
-            memória reais mais fáceis de se ver. Normalmente o Nmap pula essa
-            parte pois o SO faz isso de qualquer forma no encerramento de um
-            processo.</para>
-          </listitem>
-        </varlistentry>
-
-        <varlistentry>
           <term><option>-V</option>; <option>--version</option> (Mostra o
           número da versão)</term>
 

@@ -73,6 +73,7 @@
 #include "utils.h"
 #include "nmap_error.h"
 #include "libnetutil/netutil.h"
+#include "libnetutil/TCPHeader.h"
 
 #include "struct_ip.h"
 
@@ -166,9 +167,9 @@ void PacketTrace::traceArp(pdirection pdir, const u8 *frame, u32 len,
 void PacketTrace::traceND(pdirection pdir, const u8 *frame, u32 len,
                           struct timeval *now) {
   struct timeval tv;
-  const struct ip6_hdr *ip6;
-  const struct icmpv6_hdr *icmpv6;
-  const union icmpv6_msg *msg;
+  struct ip6_hdr ip6;
+  struct icmpv6_hdr icmpv6;
+  union icmpv6_msg msg;
   size_t msg_len;
   const char *label;
   char src[INET6_ADDRSTRLEN], dst[INET6_ADDRSTRLEN];
@@ -191,44 +192,44 @@ void PacketTrace::traceND(pdirection pdir, const u8 *frame, u32 len,
   else
     gettimeofday(&tv, NULL);
 
-  if (len < sizeof(*ip6) + sizeof(*icmpv6)) {
+  if (len < sizeof(ip6) + sizeof(icmpv6) + sizeof(msg)) {
     error("Packet tracer: ND packets must be at least %lu bytes long (is %lu).",
-          (unsigned long) (sizeof(*ip6) + sizeof(*icmpv6)),
+          (unsigned long) (sizeof(ip6) + sizeof(icmpv6) + sizeof(msg)),
           (unsigned long) len);
     return;
   }
-  ip6 = (struct ip6_hdr *) frame;
-  icmpv6 = (struct icmpv6_hdr *) (frame + sizeof(*ip6));
-  msg = (union icmpv6_msg *) (frame + sizeof(*ip6) + sizeof(*icmpv6));
-  msg_len = frame + len - (u8 *) msg;
+  memcpy(&ip6, frame, sizeof(ip6));
+  memcpy(&icmpv6, frame + sizeof(ip6), sizeof(icmpv6));
+  memcpy(&msg, frame + sizeof(ip6) + sizeof(icmpv6), sizeof(msg));
+  msg_len = len - (sizeof(ip6) + sizeof(icmpv6) + sizeof(msg));
 
-  if (icmpv6->icmpv6_type == ICMPV6_NEIGHBOR_SOLICITATION) {
+  if (icmpv6.icmpv6_type == ICMPV6_NEIGHBOR_SOLICITATION) {
     label = "neighbor solicitation";
     if (msg_len < 20) {
       Snprintf(desc, sizeof(desc), "packet too short");
     } else {
-      inet_ntop(AF_INET6, (void *)&msg->nd.icmpv6_target, who_has, sizeof(who_has));
+      inet_ntop(AF_INET6, (void *)&msg.nd.icmpv6_target, who_has, sizeof(who_has));
       Snprintf(desc, sizeof(desc), "who has %s", who_has);
     }
-  } else if (icmpv6->icmpv6_type == ICMPV6_NEIGHBOR_ADVERTISEMENT) {
+  } else if (icmpv6.icmpv6_type == ICMPV6_NEIGHBOR_ADVERTISEMENT) {
     label = "neighbor advertisement";
     if (msg_len < 28) {
       Snprintf(desc, sizeof(desc), "packet too short");
-    } else if (msg->nd.icmpv6_option_length == 0 || msg->nd.icmpv6_option_type != 2) {
+    } else if (msg.nd.icmpv6_option_length == 0 || msg.nd.icmpv6_option_type != 2) {
       /* We only handle target link-layer address in the first option. */
       Snprintf(desc, sizeof(desc), "no link-layer address");
     } else {
-      inet_ntop(AF_INET6, (void *)&msg->nd.icmpv6_target, tgt_is, sizeof(tgt_is));
+      inet_ntop(AF_INET6, (void *)&msg.nd.icmpv6_target, tgt_is, sizeof(tgt_is));
       Snprintf(desc, sizeof(desc), "%s is at %s",
-               tgt_is, eth_ntoa(&msg->nd.icmpv6_mac));
+               tgt_is, eth_ntoa(&msg.nd.icmpv6_mac));
     }
   } else {
     error("Unknown ICMPV6 type in %s.", __func__);
     return;
   }
 
-  inet_ntop(AF_INET6, (void *)&ip6->ip6_src, src, sizeof(src));
-  inet_ntop(AF_INET6, (void *)&ip6->ip6_dst, dst, sizeof(dst));
+  inet_ntop(AF_INET6, (void *)&ip6.ip6_src, src, sizeof(src));
+  inet_ntop(AF_INET6, (void *)&ip6.ip6_dst, dst, sizeof(dst));
   log_write(LOG_STDOUT | LOG_NORMAL, "%s (%.4fs) %s %s > %s %s\n",
             (pdir == SENT) ? "SENT" : "RCVD",
             o.TimeSinceStart(&tv), label, src, dst, desc);
@@ -361,55 +362,12 @@ void PacketTrace::traceConnect(u8 proto, const struct sockaddr *sock,
 /* Converts an IP address given in a sockaddr_storage to an IPv4 or
    IPv6 IP address string.  Since a static buffer is returned, this is
    not thread-safe and can only be used once in calls like printf() */
-const char *inet_socktop(const struct sockaddr_storage *ss) {
-  static char buf[INET6_ADDRSTRLEN];
-  const struct sockaddr_in *sin = (struct sockaddr_in *) ss;
-#if HAVE_IPV6
-  const struct sockaddr_in6 *sin6 = (struct sockaddr_in6 *) ss;
-#endif
-
-  if (inet_ntop(sin->sin_family, (sin->sin_family == AF_INET) ?
-                (char *) &sin->sin_addr :
-#if HAVE_IPV6
-                (char *) &sin6->sin6_addr,
-#else
-                (char *) NULL,
-#endif /* HAVE_IPV6 */
-                buf, sizeof(buf)) == NULL) {
+const char *inet_socktop_safe(const struct sockaddr_storage *ss) {
+  const char *buf = inet_socktop(ss);
+  if (buf == NULL) {
     fatal("Failed to convert target address to presentation format in %s!?!  Error: %s", __func__, strerror(socket_errno()));
   }
   return buf;
-}
-
-/* Tries to resolve the given name (or literal IP) into a sockaddr structure.
-   This function calls getaddrinfo and returns the same addrinfo linked list
-   that getaddrinfo produces. Returns NULL for any error or failure to resolve.
-   You need to call freeaddrinfo on the result if non-NULL. */
-struct addrinfo *resolve_all(const char *hostname, int pf) {
-  struct addrinfo hints;
-  struct addrinfo *result;
-  int rc;
-
-  memset(&hints, 0, sizeof(hints));
-  hints.ai_family = pf;
-  /* Otherwise we get multiple identical addresses with different socktypes. */
-  hints.ai_socktype = SOCK_DGRAM;
-#ifdef AI_IDN
-  /* Try resolving internationalized domain names */
-  hints.ai_flags = AI_IDN;
-  setlocale(LC_CTYPE, "");
-#endif
-  rc = getaddrinfo(hostname, NULL, &hints, &result);
-#ifdef AI_IDN
-  setlocale(LC_CTYPE, o.locale);
-#endif
-  if (rc != 0){
-    if (o.debugging > 1)
-      error("Error resolving %s: %s", hostname, gai_strerror(rc));
-    return NULL;
-  }
-
-  return result;
 }
 
 
@@ -423,6 +381,7 @@ static int send_ipv4_packet(int sd, const struct eth_nfo *eth,
 
   assert(packet);
   assert((int) packetlen > 0);
+  assert(ip->ip_hl >= 5);
 
   /* Fragmentation requested && packet is bigger than MTU */
   if (o.fragscan && !(ntohs(ip->ip_off) & IP_DF) &&
@@ -1059,8 +1018,10 @@ u8 *build_icmpv6_raw(const struct in6_addr *source,
   }
 
   /* At this point icmplen <= sizeof(*icmpv6) + sizeof(*msg). */
-  memcpy(packet + icmplen, data, datalen);
-  icmplen += datalen;
+  if (data && datalen) {
+    memcpy(packet + icmplen, data, datalen);
+    icmplen += datalen;
+  }
 
   icmpv6->icmpv6_cksum = 0;
   icmpv6->icmpv6_cksum = ipv6_pseudoheader_cksum(source, victim,
@@ -1137,139 +1098,16 @@ u8 *build_igmp_raw(const struct in_addr *source,
                       ipopt, ipoptlen, pkt, igmplen, packetlen);
 }
 
-
-/* A simple function I wrote to help in debugging, shows the important fields
-   of a TCP packet*/
-int readtcppacket(const u8 *packet, int readdata) {
-
-  const struct ip *ip = (struct ip *) packet;
-  const struct tcp_hdr *tcp = (struct tcp_hdr *) (packet + sizeof(struct ip));
-  const unsigned char *data = packet + sizeof(struct ip) + sizeof(struct tcp_hdr);
-  int tot_len;
-  struct in_addr bullshit, bullshit2;
-  char sourcehost[16];
-  int i;
-  int realfrag = 0;
-
-  if (!packet) {
-    error("%s: packet is NULL!", __func__);
-    return -1;
-  }
-
-  bullshit.s_addr = ip->ip_src.s_addr;
-  bullshit2.s_addr = ip->ip_dst.s_addr;
-  realfrag = htons(ntohs(ip->ip_off) & IP_OFFMASK);
-  tot_len = htons(ip->ip_len);
-  strncpy(sourcehost, inet_ntoa(bullshit), 16);
-  i = 4 * (ntohs(ip->ip_hl) + ntohs(tcp->th_off));
-  if (ip->ip_p == IPPROTO_TCP) {
-    if (realfrag)
-      log_write(LOG_PLAIN, "Packet is fragmented, offset field: %u\n",
-                realfrag);
-    else {
-      log_write(LOG_PLAIN,
-                "TCP packet: %s:%d -> %s:%d (total: %d bytes)\n",
-                sourcehost, ntohs(tcp->th_sport), inet_ntoa(bullshit2),
-                ntohs(tcp->th_dport), tot_len);
-      log_write(LOG_PLAIN, "Flags: ");
-      if (!tcp->th_flags)
-        log_write(LOG_PLAIN, "(none)");
-      if (tcp->th_flags & TH_RST)
-        log_write(LOG_PLAIN, "RST ");
-      if (tcp->th_flags & TH_SYN)
-        log_write(LOG_PLAIN, "SYN ");
-      if (tcp->th_flags & TH_ACK)
-        log_write(LOG_PLAIN, "ACK ");
-      if (tcp->th_flags & TH_PUSH)
-        log_write(LOG_PLAIN, "PSH ");
-      if (tcp->th_flags & TH_FIN)
-        log_write(LOG_PLAIN, "FIN ");
-      if (tcp->th_flags & TH_URG)
-        log_write(LOG_PLAIN, "URG ");
-      log_write(LOG_PLAIN, "\n");
-
-      log_write(LOG_PLAIN, "ipid: %hu ttl: %hhu ", ntohs(ip->ip_id),
-                ip->ip_ttl);
-
-      if (tcp->th_flags & (TH_SYN | TH_ACK))
-        log_write(LOG_PLAIN, "Seq: %u\tAck: %u\n",
-                  (unsigned int) ntohl(tcp->th_seq),
-                  (unsigned int) ntohl(tcp->th_ack));
-      else if (tcp->th_flags & TH_SYN)
-        log_write(LOG_PLAIN, "Seq: %u\n",
-                  (unsigned int) ntohl(tcp->th_seq));
-      else if (tcp->th_flags & TH_ACK)
-        log_write(LOG_PLAIN, "Ack: %u\n",
-                  (unsigned int) ntohl(tcp->th_ack));
-    }
-  }
-  if (readdata && i < tot_len) {
-    log_write(LOG_PLAIN, "Data portion:\n");
-    while (i < tot_len) {
-      log_write(LOG_PLAIN, "%2X%c", data[i], ((i + 1) % 16) ? ' ' : '\n');
-      i++;
-    }
-    log_write(LOG_PLAIN, "\n");
-  }
-
-  return 0;
-}
-
-/* A simple function I wrote to help in debugging, shows the important fields
-   of a UDP packet*/
-int readudppacket(const u8 *packet, int readdata) {
-  const struct ip *ip = (struct ip *) packet;
-  const struct udp_hdr *udp = (struct udp_hdr *) (packet + sizeof(struct ip));
-  const unsigned char *data = packet + sizeof(struct ip) + sizeof(struct udp_hdr);
-  int tot_len;
-  struct in_addr bullshit, bullshit2;
-  char sourcehost[16];
-  int i;
-  int realfrag = 0;
-
-  if (!packet) {
-    error("%s: packet is NULL!", __func__);
-    return -1;
-  }
-
-  bullshit.s_addr = ip->ip_src.s_addr;
-  bullshit2.s_addr = ip->ip_dst.s_addr;
-  realfrag = htons(ntohs(ip->ip_off) & IP_OFFMASK);
-  tot_len = htons(ip->ip_len);
-  strncpy(sourcehost, inet_ntoa(bullshit), 16);
-  i = 4 * (ntohs(ip->ip_hl)) + 8;
-  if (ip->ip_p == IPPROTO_UDP) {
-    if (realfrag)
-      log_write(LOG_PLAIN, "Packet is fragmented, offset field: %u\n",
-                realfrag);
-    else {
-      log_write(LOG_PLAIN,
-                "UDP packet: %s:%d -> %s:%d (total: %d bytes)\n",
-                sourcehost, ntohs(udp->uh_sport), inet_ntoa(bullshit2),
-                ntohs(udp->uh_dport), tot_len);
-
-      log_write(LOG_PLAIN, "ttl: %hhu ", ip->ip_ttl);
-    }
-  }
-  if (readdata && i < tot_len) {
-    log_write(LOG_PLAIN, "Data portion:\n");
-    while (i < tot_len) {
-      log_write(LOG_PLAIN, "%2X%c", data[i], ((i + 1) % 16) ? ' ' : '\n');
-      i++;
-    }
-    log_write(LOG_PLAIN, "\n");
-  }
-  return 0;
-}
-
-
 /* Used by validatepkt() to validate the TCP header (including option lengths).
    The options checked are MSS, WScale, SackOK, Sack, and Timestamp. */
 static bool validateTCPhdr(const u8 *tcpc, unsigned len) {
-  const struct tcp_hdr *tcp = (struct tcp_hdr *) tcpc;
+  struct tcp_hdr tcp = {};
+  if (len < sizeof(tcp))
+    return false;
+  memcpy(&tcp, tcpc, sizeof(tcp));
   unsigned hdrlen, optlen;
 
-  hdrlen = tcp->th_off * 4;
+  hdrlen = tcp.th_off * 4;
 
   /* Check header length */
   if (hdrlen > len || hdrlen < sizeof(struct tcp_hdr))
@@ -1353,32 +1191,29 @@ static bool validateTCPhdr(const u8 *tcpc, unsigned len) {
  * read more than the IP header says we should have so as to not pass garbage
  * data to the caller.
  */
-static bool validatepkt(const u8 *ipc, unsigned *len) {
-  const struct ip *ip = (struct ip *) ipc;
+bool validatepkt(const u8 *ipc, unsigned *len) {
+  struct ip ip;
+  if (*len < sizeof(ip))
+    return false;
+  memcpy(&ip, ipc, sizeof(ip));
   const void *data;
   unsigned int datalen, iplen;
   u8 hdr;
 
-  if (*len < 1) {
-    if (o.debugging >= 3)
-      error("Rejecting tiny, supposed IP packet (size %u)", *len);
-    return false;
-  }
-
-  if (ip->ip_v == 4) {
+  if (ip.ip_v == 4) {
     unsigned fragoff, iplen;
 
     datalen = *len;
-    data = ipv4_get_data(ip, &datalen);
+    data = ipv4_get_data(ipc, &datalen);
     if (data == NULL) {
       if (o.debugging >= 3)
         error("Rejecting IP packet because of invalid length");
       return false;
     }
 
-    iplen = ntohs(ip->ip_len);
+    iplen = ntohs(ip.ip_len);
 
-    fragoff = 8 * (ntohs(ip->ip_off) & IP_OFFMASK);
+    fragoff = 8 * (ntohs(ip.ip_off) & IP_OFFMASK);
     if (fragoff) {
       if (o.debugging >= 3)
         error("Rejecting IP fragment (offset %u)", fragoff);
@@ -1391,24 +1226,27 @@ static bool validatepkt(const u8 *ipc, unsigned *len) {
     if (*len > iplen)
       *len = iplen;
 
-    hdr = ip->ip_p;
-  } else if (ip->ip_v == 6) {
-    const struct ip6_hdr *ip6 = (struct ip6_hdr *) ipc;
+    hdr = ip.ip_p;
+  } else if (ip.ip_v == 6) {
+    struct ip6_hdr ip6;
+    if (*len < sizeof(ip6))
+      return false;
+    memcpy(&ip6, ipc, sizeof(ip6));
 
     datalen = *len;
-    data = ipv6_get_data(ip6, &datalen, &hdr);
+    data = ipv6_get_data(ipc, &datalen, &hdr);
     if (data == NULL) {
       if (o.debugging >= 3)
         error("Rejecting IP packet because of invalid length");
       return false;
     }
 
-    iplen = ntohs(ip6->ip6_plen);
+    iplen = ntohs(ip6.ip6_plen);
     if (datalen > iplen)
       *len -= datalen - iplen;
   } else {
     if (o.debugging >= 3)
-      error("Rejecting IP packet because of invalid version number %u", ip->ip_v);
+      error("Rejecting IP packet because of invalid version number %u", ip.ip_v);
     return false;
   }
 
@@ -1460,10 +1298,7 @@ const u8 *readipv4_pcap(pcap_t *pd, unsigned int *len, long to_usec,
 
   buf = readip_pcap(pd, len, to_usec, rcvdtime, linknfo, validate);
   if (buf != NULL) {
-    const struct ip *ip;
-
-    ip = (struct ip *) buf;
-    if (*len < 1 || ip->ip_v != 4)
+    if (*len < 1 || (buf[0] >> 4) != 4)
       return NULL;
   }
 
@@ -1475,13 +1310,12 @@ static bool accept_any (const unsigned char *p, const struct pcap_pkthdr *h, int
 }
 
 static bool accept_ip (const unsigned char *p, const struct pcap_pkthdr *h, int datalink, size_t offset) {
-  const struct ip *ip = NULL;
 
   if (h->caplen < offset + sizeof(struct ip)) {
     return false;
   }
-  ip = (struct ip *) (p + offset);
-  switch (ip->ip_v) {
+  u8 v = p[offset] >> 4;
+  switch (v) {
     case 4:
     case 6:
       break;
@@ -1651,57 +1485,8 @@ bool setTargetNextHopMAC(Target *target) {
   return false;
 }
 
-/* Like to getTargetNextHopMAC(), but for arbitrary hosts (not Targets) */
-bool getNextHopMAC(const char *iface, const u8 *srcmac, const struct sockaddr_storage *srcss,
-                   const struct sockaddr_storage *dstss, u8 *dstmac) {
-  arp_t *a;
-  struct arp_entry ae;
-
-  /* First, let us check the Nmap arp cache ... */
-  if (mac_cache_get(dstss, dstmac))
-    return true;
-
-  /* Maybe the system ARP cache will be more helpful */
-  a = arp_open();
-  if (a) {
-    addr_ston((sockaddr *) dstss, &ae.arp_pa);
-    if (arp_get(a, &ae) == 0) {
-      mac_cache_set(dstss, ae.arp_ha.addr_eth.data);
-      memcpy(dstmac, ae.arp_ha.addr_eth.data, 6);
-      arp_close(a);
-      return true;
-    }
-    arp_close(a);
-  }
-
-  /* OK, the last choice is to send our own damn ARP request (and
-     retransmissions if necessary) to determine the MAC */
-  if (dstss->ss_family == AF_INET) {
-    if (doArp(iface, srcmac, srcss, dstss, dstmac, PacketTrace::traceArp)) {
-      mac_cache_set(dstss, dstmac);
-      return true;
-    }
-  } else if (dstss->ss_family == AF_INET6) {
-    if (doND(iface, srcmac, srcss, dstss, dstmac, PacketTrace::traceND)) {
-      mac_cache_set(dstss, dstmac);
-      return true;
-    }
-  }
-
-  return false;
-}
-
-
 int nmap_route_dst(const struct sockaddr_storage *dst, struct route_nfo *rnfo) {
-  struct sockaddr_storage spoofss;
-  size_t spoofsslen;
-
-  if (o.spoofsource) {
-    o.SourceSockAddr(&spoofss, &spoofsslen);
-    return route_dst(dst, rnfo, o.device, &spoofss);
-  } else {
-    return route_dst(dst, rnfo, o.device, NULL);
-  }
+  return route_dst(dst, rnfo, o.device, o.SourceSockAddr());
 }
 
 
@@ -1756,6 +1541,33 @@ int recvtime(int sd, char *buf, int len, int seconds, int *timedout) {
   return -1;
 }
 
+struct getTS_args {
+  u32 *timestamp;
+  u32 *echots;
+  int found;
+  getTS_args() : timestamp(NULL), echots(NULL), found(0) {}
+};
+
+static bool tcpopt_ts_cb(u8 op, u8 oplen, const u8 *data, void *ctx)
+{
+  if (op == 8 /* TCPOPT_TIMESTAMP */  && oplen == 10) {
+    getTS_args *args = static_cast<getTS_args *>(ctx);
+    const u8 *p = data + 2;
+    /* Legitimate ts option */
+    if (args->timestamp) {
+      *args->timestamp = (p[0] << 24) + (p[1] << 16) + (p[2] << 8) + p[3];
+    }
+    if (args->echots) {
+      *args->echots = (p[4] << 24) + (p[5] << 16) + (p[6] << 8) + p[7];
+    }
+    // done!
+    args->found = 1;
+    return false;
+  }
+  // Keep looking
+  return true;
+}
+
 /* Examines the given tcp packet and obtains the TCP timestamp option
    information if available.  Note that the CALLER must ensure that
    "tcp" contains a valid header (in particular the th_off must be the
@@ -1766,50 +1578,20 @@ int recvtime(int sd, char *buf, int len, int seconds, int *timedout) {
    parameters (if non-null) are filled with 0.  Remember that the
    correct way to check for errors is to look at the return value
    since a zero ts or echots could possibly be valid. */
-int gettcpopt_ts(const struct tcp_hdr *tcp, u32 *timestamp, u32 *echots) {
-
-  unsigned char *p;
-  int len = 0;
-  int op;
-  int oplen;
-
-  /* first we find where the tcp options start ... */
-  p = ((unsigned char *) tcp) + 20;
-  len = 4 * tcp->th_off - 20;
-  while (len > 0 && *p != 0 /* TCPOPT_EOL */ ) {
-    op = *p++;
-    if (op == 0 /* TCPOPT_EOL */ )
-      break;
-    if (op == 1 /* TCPOPT_NOP */ ) {
-      len--;
-      continue;
-    }
-    oplen = *p++;
-    if (oplen < 2)
-      break; /* No infinite loops, please */
-    if (oplen > len)
-      break; /* Not enough space */
-    if (op == 8 /* TCPOPT_TIMESTAMP */  && oplen == 10) {
-      /* Legitimate ts option */
-      if (timestamp) {
-        memcpy((char *) timestamp, p, 4);
-        *timestamp = ntohl(*timestamp);
-      }
-      p += 4;
-      if (echots) {
-        memcpy((char *) echots, p, 4);
-        *echots = ntohl(*echots);
-      }
-      return 1;
-    }
-    len -= oplen;
-    p += oplen - 2;
-  }
-
-  /* Didn't find anything */
+int gettcpopt_ts(const u8 *tcppkt, int tcplen, u32 *timestamp, u32 *echots) {
   if (timestamp)
     *timestamp = 0;
   if (echots)
     *echots = 0;
-  return 0;
+
+  TCPOptions opts;
+  if (!opts.fromTCPPacket(tcppkt, tcplen))
+    return 0;
+
+  getTS_args args;
+  args.timestamp = timestamp;
+  args.echots = echots;
+
+  opts.foreachOpt(tcpopt_ts_cb, &args);
+  return args.found;
 }

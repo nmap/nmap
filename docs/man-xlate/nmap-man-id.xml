@@ -3756,22 +3756,6 @@ banyaknya permintaan.  Berikan <option>--open</option> untuk hanya melihat port
       </varlistentry>
 
       <varlistentry>
-	 <term>
-	 <option>--release-memory</option> (Release memory before quitting)
-	 <indexterm significance="normal"><primary><option>--release-memory</option></primary></indexterm>
-         </term>
-         <listitem>
-
-          <para>Opsi ini hanya berguna untuk memory-leak debugging.
-          Ia membuat Nmap merilis memori yang telah dialokasikan sebelum ia berhenti
-          sehingga kebocoran memori sebenarnya mudah ditemukan.
-          Normalnya Nmap melewati langkah ini karena SO melakukannya setelah 
-	  penghentian proses.</para>
-        </listitem>
-      </varlistentry>
-
-
-      <varlistentry>
         <term>
           <option>-V</option>; <option>--version</option> (Print version number)
           <indexterm significance="normal"><primary><option>-V</option></primary></indexterm>

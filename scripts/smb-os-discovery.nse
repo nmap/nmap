@@ -151,7 +151,7 @@ action = function(host)
   local request_time = os.time()
   local status, result = smb.get_os(host)
 
-  if(status == false) then
+  if not status then
     return stdnse.format_output(false, result)
   end
 

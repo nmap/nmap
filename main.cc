@@ -63,6 +63,7 @@
 
 #include <signal.h>
 #include <locale.h>
+#include <typeinfo>
 
 #include "nmap.h"
 #include "NmapOps.h"
@@ -139,14 +140,24 @@ int main(int argc, char *argv[]) {
   mtrace();
 #endif
 
+ try {
   if ((cptr = getenv("NMAP_ARGS"))) {
-    if (Snprintf(command, sizeof(command), "nmap %s", cptr) >= (int) sizeof(command)) {
-        error("Warning: NMAP_ARGS variable is too long, truncated");
+    char *tail = command;
+    int rem = sizeof(command);
+    int n = Snprintf(tail, rem, "nmap %s", cptr);
+    if (n >= rem) {
+        fatal("NMAP_ARGS variable is too long");
     }
+    tail += n;
+    rem -= n;
     /* copy rest of command-line arguments */
-    for (i = 1; i < argc && strlen(command) + strlen(argv[i]) + 1 < sizeof(command); i++) {
-      strcat(command, " ");
-      strcat(command, argv[i]);
+    for (i = 1; i < argc; i++) {
+      n = Snprintf(tail, rem, " %s", argv[i]);
+      if (n >= rem) {
+        fatal("NMAP_ARGS and command line together exceed %lu bytes", sizeof(command));
+      }
+      tail += n;
+      rem -= n;
     }
     myargc = arg_parse(command, &myargv);
     if (myargc < 1) {
@@ -168,4 +179,18 @@ int main(int argc, char *argv[]) {
   }
 
   return nmap_main(argc, argv);
+ }
+ catch (const std::bad_alloc &) {
+   fprintf(stderr, "FATAL: Out of memory.\n");
+   return 1;
+ }
+ catch (const std::exception &e) {
+   fprintf(stderr, "FATAL: Unhandled C++ exception (%s): %s\n",
+       typeid(e).name(), e.what());
+   return 1;
+ }
+ catch (...) {
+   fprintf(stderr, "FATAL: Unhandled unknown C++ exception.\n");
+   return 1;
+ }
 }

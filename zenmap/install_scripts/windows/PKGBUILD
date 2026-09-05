@@ -28,7 +28,8 @@ makedepends=("${MINGW_PACKAGE_PREFIX}-python-build"
 
 build() {
 	cd "${NMAP_DIR}/zenmap"
-	${MINGW_PREFIX}/bin/python -m build --wheel --skip-dependency-check --no-isolation
+	cp "${NMAP_DIR}/ndiff/ndiff.py" .
+	${MINGW_PREFIX}/bin/python -m build --wheel --no-isolation
 }
 
 package() {

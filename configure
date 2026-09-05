@@ -720,13 +720,14 @@ UNINSTALLNDIFF
 INSTALLNDIFF
 BUILDNDIFF
 NDIFFDIR
+ENABLE_FUZZING
 pkgpyexecdir
 pyexecdir
 pkgpythondir
 pythondir
-PYTHON_PLATFORM
 PYTHON_EXEC_PREFIX
 PYTHON_PREFIX
+PYTHON_PLATFORM
 PYTHON_VERSION
 PYTHON
 LUA_CFLAGS
@@ -803,6 +804,10 @@ ac_user_opts='
 enable_option_checking
 enable_nls
 with_localdirs
+with_python_sys_prefix
+with_python_prefix
+with_python_exec_prefix
+enable_fuzzing
 with_ndiff
 with_zenmap
 with_nping
@@ -1460,12 +1465,18 @@ Optional Features:
   --disable-FEATURE       do not include FEATURE (same as --enable-FEATURE=no)
   --enable-FEATURE[=ARG]  include FEATURE [ARG=yes]
   --disable-nls           do not use Native Language Support
+  --enable-fuzzing        build fuzz targets
 
 Optional Packages:
   --with-PACKAGE[=ARG]    use PACKAGE [ARG=yes]
   --without-PACKAGE       do not use PACKAGE (same as --with-PACKAGE=no)
   --with-localdirs        Explicitly ask compiler to use
                           /usr/local/{include,libs} if they exist
+  --with-python-sys-prefix
+                          use Python's sys.prefix and sys.exec_prefix values
+  --with-python_prefix    override the default PYTHON_PREFIX
+  --with-python_exec_prefix
+                          override the default PYTHON_EXEC_PREFIX
   --without-ndiff         Skip installation of the Ndiff utility
   --without-zenmap        Skip installation of the Zenmap graphical frontend
   --without-nping         Skip installation of the Nping utility
@@ -2939,6 +2950,9 @@ ac_cpp='$CPP $CPPFLAGS'
 ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
 ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
 ac_compiler_gnu=$ac_cv_c_compiler_gnu
+
+
+
 
 
 
@@ -5499,15 +5513,18 @@ printf %s "checking for __func__... " >&6; }
 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 
-#include <stdio.h>
+    #include <stdio.h>
 
 int
 main (void)
 {
-printf ("%s", __func__);
+
+    printf ("%s", __func__);
+
   ;
   return 0;
 }
+
 _ACEOF
 if ac_fn_c_try_compile "$LINENO"
 then :
@@ -5516,10 +5533,14 @@ else $as_nop
   have_func=no
 fi
 rm -f core conftest.err conftest.$ac_objext conftest.beam conftest.$ac_ext
-if test "x$have_func" = "xyes"; then
+if test "x$have_func" = "xyes"
+then :
+
    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 printf "%s\n" "yes" >&6; }
-else
+
+else $as_nop
+
    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
 printf "%s\n" "no" >&6; }
    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for __FUNCTION__" >&5
@@ -5527,12 +5548,14 @@ printf %s "checking for __FUNCTION__... " >&6; }
    cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 
-#include <stdio.h>
+       #include <stdio.h>
 
 int
 main (void)
 {
-printf ("%s", __FUNCTION__);
+
+       printf ("%s", __FUNCTION__);
+
   ;
   return 0;
 }
@@ -5544,17 +5567,23 @@ else $as_nop
   have_function=no
 fi
 rm -f core conftest.err conftest.$ac_objext conftest.beam conftest.$ac_ext
-   if test "x$have_function" = "xyes"; then
+   if test "x$have_function" = "xyes"
+then :
+
       { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 printf "%s\n" "yes" >&6; }
       printf "%s\n" "#define __func__ __FUNCTION__" >>confdefs.h
 
-   else
+
+else $as_nop
+
       { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
 printf "%s\n" "no" >&6; }
       printf "%s\n" "#define __func__ __FILE__" >>confdefs.h
 
-   fi
+
+fi
+
 fi
 
 if test -n "$ac_tool_prefix"; then
@@ -5672,41 +5701,48 @@ LUA_CFLAGS="-DLUA_USE_POSIX -DLUA_USE_DLOPEN"
 
 
 
-case "$host" in
-  *alpha-dec-osf*)
+case "$host" in #(
+  *alpha-dec-osf*) :
+
 
 printf "%s\n" "#define DEC 1" >>confdefs.h
 
-    ;;
-  *-netbsd* | *-knetbsd*-gnu)
+     ;; #(
+  *-netbsd* | *-knetbsd*-gnu) :
+
 
 printf "%s\n" "#define NETBSD 1" >>confdefs.h
 
     LDFLAGS="-Wl,-E $LDFLAGS" # needed for nse-C-module support
-    ;;
-  *-openbsd*)
+     ;; #(
+  *-openbsd*) :
+
 
 printf "%s\n" "#define OPENBSD 1" >>confdefs.h
 
     LDFLAGS="-Wl,-E $LDFLAGS" # needed for nse-C-module support
-    ;;
-  *-freebsd* | *-kfreebsd*-gnu | *-dragonfly*)
+     ;; #(
+  *-freebsd* | *-kfreebsd*-gnu | *-dragonfly*) :
+
 
 printf "%s\n" "#define FREEBSD 1" >>confdefs.h
 
     LDFLAGS="-Wl,-E $LDFLAGS" # needed for nse-C-module support
-    ;;
-  *-bsdi*)
+     ;; #(
+  *-bsdi*) :
+
 
 printf "%s\n" "#define BSDI 1" >>confdefs.h
 
-    ;;
-  *-sgi-irix5* | *-sgi-irix6*)
+     ;; #(
+  *-sgi-irix5* | *-sgi-irix6*) :
+
 
 printf "%s\n" "#define IRIX 1" >>confdefs.h
 
-    ;;
-  *-hpux*)
+     ;; #(
+  *-hpux*) :
+
 
 printf "%s\n" "#define HPUX 1" >>confdefs.h
 
@@ -5755,8 +5791,9 @@ then :
 
 fi
 
-    ;;
-  *-aix*)
+     ;; #(
+  *-aix*) :
+
     # use some AIX specific libraries
     { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for odm_initialize in -lodm" >&5
 printf %s "checking for odm_initialize in -lodm... " >&6; }
@@ -5887,74 +5924,86 @@ then :
 
 fi
 
-    ;;
-  *-solaris2.1[1-9]*)
+     ;; #(
+  *-solaris2.1[1-9]*) :
+
     printf "%s\n" "#define SOLARIS 1" >>confdefs.h
 
     # Solaris 11 and later use BPF packet capture rather than DLPI.
 
 printf "%s\n" "#define SOLARIS_BPF_PCAP_CAPTURE 1" >>confdefs.h
 
-    ;;
-  *-solaris2.0*)
+     ;; #(
+  *-solaris2.0*) :
+
     printf "%s\n" "#define STUPID_SOLARIS_CHECKSUM_BUG 1" >>confdefs.h
 
     printf "%s\n" "#define SOLARIS 1" >>confdefs.h
 
-    ;;
-  *-solaris2.[1-9][0-9]*)
+     ;; #(
+  *-solaris2.[1-9][0-9]*) :
+
     printf "%s\n" "#define SOLARIS 1" >>confdefs.h
 
-    ;;
-  *-solaris2.1*)
+     ;; #(
+  *-solaris2.1*) :
+
     printf "%s\n" "#define STUPID_SOLARIS_CHECKSUM_BUG 1" >>confdefs.h
 
     printf "%s\n" "#define SOLARIS 1" >>confdefs.h
 
-    ;;
-  *-solaris2.2*)
+     ;; #(
+  *-solaris2.2*) :
+
     printf "%s\n" "#define STUPID_SOLARIS_CHECKSUM_BUG 1" >>confdefs.h
 
     printf "%s\n" "#define SOLARIS 1" >>confdefs.h
 
-    ;;
-  *-solaris2.3*)
+     ;; #(
+  *-solaris2.3*) :
+
     printf "%s\n" "#define STUPID_SOLARIS_CHECKSUM_BUG 1" >>confdefs.h
 
     printf "%s\n" "#define SOLARIS 1" >>confdefs.h
 
-    ;;
-  *-solaris2.4*)
+     ;; #(
+  *-solaris2.4*) :
+
     printf "%s\n" "#define STUPID_SOLARIS_CHECKSUM_BUG 1" >>confdefs.h
 
     printf "%s\n" "#define SOLARIS 1" >>confdefs.h
 
-    ;;
-  *-solaris2.5.1)
+     ;; #(
+  *-solaris2.5.1) :
+
     printf "%s\n" "#define STUPID_SOLARIS_CHECKSUM_BUG 1" >>confdefs.h
 
     printf "%s\n" "#define SOLARIS 1" >>confdefs.h
 
-    ;;
-  *-solaris*)
+     ;; #(
+  *-solaris*) :
+
     printf "%s\n" "#define SOLARIS 1" >>confdefs.h
 
-    ;;
-  *-sunos4*)
+     ;; #(
+  *-sunos4*) :
+
 
 printf "%s\n" "#define SUNOS 1" >>confdefs.h
 
 
 printf "%s\n" "#define SPRINTF_RETURNS_STRING 1" >>confdefs.h
 
-    ;;
-  *-linux*)
+     ;; #(
+  *-linux*) :
+
 
 printf "%s\n" "#define LINUX 1" >>confdefs.h
 
     LDFLAGS="-Wl,-E $LDFLAGS" # needed for nse-C-module support
-    ;;
-  *-apple-darwin*)
+     ;; #(
+  *-apple-darwin*) :
+
 
 printf "%s\n" "#define MACOSX 1" >>confdefs.h
 
@@ -6000,7 +6049,10 @@ fi
 
     LUA_CFLAGS="-DLUA_USE_MACOSX"
     needs_cpp_precomp=yes
-    ;;
+
+ ;; #(
+  *) :
+     ;;
 esac
 
 
@@ -6367,31 +6419,23 @@ fi
 
 
   if test "$PYTHON" = :; then
-      HAVE_PYTHON=false
+        HAVE_PYTHON=false
   else
 
-
-  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for $am_display_PYTHON version" >&5
+              { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for $am_display_PYTHON version" >&5
 printf %s "checking for $am_display_PYTHON version... " >&6; }
 if test ${am_cv_python_version+y}
 then :
   printf %s "(cached) " >&6
 else $as_nop
-  am_cv_python_version=`$PYTHON -c "import sys; sys.stdout.write(sys.version[:3])"`
+  am_cv_python_version=`$PYTHON -c "import sys; print ('%u.%u' % sys.version_info[:2])"`
 fi
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $am_cv_python_version" >&5
 printf "%s\n" "$am_cv_python_version" >&6; }
   PYTHON_VERSION=$am_cv_python_version
 
 
-
-  PYTHON_PREFIX='${prefix}'
-
-  PYTHON_EXEC_PREFIX='${exec_prefix}'
-
-
-
-  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for $am_display_PYTHON platform" >&5
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for $am_display_PYTHON platform" >&5
 printf %s "checking for $am_display_PYTHON platform... " >&6; }
 if test ${am_cv_python_platform+y}
 then :
@@ -6404,7 +6448,143 @@ printf "%s\n" "$am_cv_python_platform" >&6; }
   PYTHON_PLATFORM=$am_cv_python_platform
 
 
-  # Just factor out some code duplication.
+                            if test "x$prefix" = xNONE; then
+    am__usable_prefix=$ac_default_prefix
+  else
+    am__usable_prefix=$prefix
+  fi
+
+  # Allow user to request using sys.* values from Python,
+  # instead of the GNU $prefix values.
+
+# Check whether --with-python-sys-prefix was given.
+if test ${with_python_sys_prefix+y}
+then :
+  withval=$with_python_sys_prefix; am_use_python_sys=:
+else $as_nop
+  am_use_python_sys=false
+fi
+
+
+  # Allow user to override whatever the default Python prefix is.
+
+# Check whether --with-python_prefix was given.
+if test ${with_python_prefix+y}
+then :
+  withval=$with_python_prefix; am_python_prefix_subst=$withval
+   am_cv_python_prefix=$withval
+   { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for explicit $am_display_PYTHON prefix" >&5
+printf %s "checking for explicit $am_display_PYTHON prefix... " >&6; }
+   { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $am_cv_python_prefix" >&5
+printf "%s\n" "$am_cv_python_prefix" >&6; }
+else $as_nop
+
+   if $am_use_python_sys; then
+     # using python sys.prefix value, not GNU
+     { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for python default $am_display_PYTHON prefix" >&5
+printf %s "checking for python default $am_display_PYTHON prefix... " >&6; }
+if test ${am_cv_python_prefix+y}
+then :
+  printf %s "(cached) " >&6
+else $as_nop
+  am_cv_python_prefix=`$PYTHON -c "import sys; sys.stdout.write(sys.prefix)"`
+fi
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $am_cv_python_prefix" >&5
+printf "%s\n" "$am_cv_python_prefix" >&6; }
+
+               case $am_cv_python_prefix in
+     $am__usable_prefix*)
+       am__strip_prefix=`echo "$am__usable_prefix" | sed 's|.|.|g'`
+       am_python_prefix_subst=`echo "$am_cv_python_prefix" | sed "s,^$am__strip_prefix,\\${prefix},"`
+       ;;
+     *)
+       am_python_prefix_subst=$am_cv_python_prefix
+       ;;
+     esac
+   else # using GNU prefix value, not python sys.prefix
+     am_python_prefix_subst='${prefix}'
+     am_python_prefix=$am_python_prefix_subst
+     { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for GNU default $am_display_PYTHON prefix" >&5
+printf %s "checking for GNU default $am_display_PYTHON prefix... " >&6; }
+     { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $am_python_prefix" >&5
+printf "%s\n" "$am_python_prefix" >&6; }
+   fi
+fi
+
+  # Substituting python_prefix_subst value.
+  PYTHON_PREFIX=$am_python_prefix_subst
+
+
+  # emacs-page Now do it all over again for Python exec_prefix, but with yet
+  # another conditional: fall back to regular prefix if that was specified.
+
+# Check whether --with-python_exec_prefix was given.
+if test ${with_python_exec_prefix+y}
+then :
+  withval=$with_python_exec_prefix; am_python_exec_prefix_subst=$withval
+   am_cv_python_exec_prefix=$withval
+   { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for explicit $am_display_PYTHON exec_prefix" >&5
+printf %s "checking for explicit $am_display_PYTHON exec_prefix... " >&6; }
+   { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $am_cv_python_exec_prefix" >&5
+printf "%s\n" "$am_cv_python_exec_prefix" >&6; }
+else $as_nop
+
+   # no explicit --with-python_exec_prefix, but if
+   # --with-python_prefix was given, use its value for python_exec_prefix too.
+   if test -n "$with_python_prefix"
+then :
+  am_python_exec_prefix_subst=$with_python_prefix
+    am_cv_python_exec_prefix=$with_python_prefix
+    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for python_prefix-given $am_display_PYTHON exec_prefix" >&5
+printf %s "checking for python_prefix-given $am_display_PYTHON exec_prefix... " >&6; }
+    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $am_cv_python_exec_prefix" >&5
+printf "%s\n" "$am_cv_python_exec_prefix" >&6; }
+else $as_nop
+
+    # Set am__usable_exec_prefix whether using GNU or Python values,
+    # since we use that variable for pyexecdir.
+    if test "x$exec_prefix" = xNONE; then
+      am__usable_exec_prefix=$am__usable_prefix
+    else
+      am__usable_exec_prefix=$exec_prefix
+    fi
+    #
+    if $am_use_python_sys; then # using python sys.exec_prefix, not GNU
+      { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for python default $am_display_PYTHON exec_prefix" >&5
+printf %s "checking for python default $am_display_PYTHON exec_prefix... " >&6; }
+if test ${am_cv_python_exec_prefix+y}
+then :
+  printf %s "(cached) " >&6
+else $as_nop
+  am_cv_python_exec_prefix=`$PYTHON -c "import sys; sys.stdout.write(sys.exec_prefix)"`
+fi
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $am_cv_python_exec_prefix" >&5
+printf "%s\n" "$am_cv_python_exec_prefix" >&6; }
+                        case $am_cv_python_exec_prefix in
+      $am__usable_exec_prefix*)
+        am__strip_prefix=`echo "$am__usable_exec_prefix" | sed 's|.|.|g'`
+        am_python_exec_prefix_subst=`echo "$am_cv_python_exec_prefix" | sed "s,^$am__strip_prefix,\\${exec_prefix},"`
+        ;;
+      *)
+        am_python_exec_prefix_subst=$am_cv_python_exec_prefix
+        ;;
+     esac
+   else # using GNU $exec_prefix, not python sys.exec_prefix
+     am_python_exec_prefix_subst='${exec_prefix}'
+     am_python_exec_prefix=$am_python_exec_prefix_subst
+     { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for GNU default $am_display_PYTHON exec_prefix" >&5
+printf %s "checking for GNU default $am_display_PYTHON exec_prefix... " >&6; }
+     { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $am_python_exec_prefix" >&5
+printf "%s\n" "$am_python_exec_prefix" >&6; }
+   fi
+fi
+fi
+
+  # Substituting python_exec_prefix_subst.
+  PYTHON_EXEC_PREFIX=$am_python_exec_prefix_subst
+
+
+  # Factor out some code duplication into this shell variable.
   am_python_setup_sysconfig="\
 import sys
 # Prefer sysconfig over distutils.sysconfig, for better compatibility
@@ -6425,40 +6605,39 @@ except ImportError:
     pass"
 
 
-            { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for $am_display_PYTHON script directory" >&5
-printf %s "checking for $am_display_PYTHON script directory... " >&6; }
+              { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for $am_display_PYTHON script directory (pythondir)" >&5
+printf %s "checking for $am_display_PYTHON script directory (pythondir)... " >&6; }
 if test ${am_cv_python_pythondir+y}
 then :
   printf %s "(cached) " >&6
 else $as_nop
-  if test "x$prefix" = xNONE
-     then
-       am_py_prefix=$ac_default_prefix
-     else
-       am_py_prefix=$prefix
-     fi
-     am_cv_python_pythondir=`$PYTHON -c "
+  if test "x$am_cv_python_prefix" = x; then
+     am_py_prefix=$am__usable_prefix
+   else
+     am_py_prefix=$am_cv_python_prefix
+   fi
+   am_cv_python_pythondir=`$PYTHON -c "
 $am_python_setup_sysconfig
 if can_use_sysconfig:
-    sitedir = sysconfig.get_path('purelib', vars={'base':'$am_py_prefix'})
+  sitedir = sysconfig.get_path('purelib', vars={'base':'$am_py_prefix'})
 else:
-    from distutils import sysconfig
-    sitedir = sysconfig.get_python_lib(0, 0, prefix='$am_py_prefix')
+  from distutils import sysconfig
+  sitedir = sysconfig.get_python_lib(0, 0, prefix='$am_py_prefix')
 sys.stdout.write(sitedir)"`
-     case $am_cv_python_pythondir in
-     $am_py_prefix*)
-       am__strip_prefix=`echo "$am_py_prefix" | sed 's|.|.|g'`
-       am_cv_python_pythondir=`echo "$am_cv_python_pythondir" | sed "s,^$am__strip_prefix,$PYTHON_PREFIX,"`
-       ;;
-     *)
-       case $am_py_prefix in
-         /usr|/System*) ;;
-         *)
-	  am_cv_python_pythondir=$PYTHON_PREFIX/lib/python$PYTHON_VERSION/site-packages
-	  ;;
-       esac
-       ;;
+   #
+   case $am_cv_python_pythondir in
+   $am_py_prefix*)
+     am__strip_prefix=`echo "$am_py_prefix" | sed 's|.|.|g'`
+     am_cv_python_pythondir=`echo "$am_cv_python_pythondir" | sed "s,^$am__strip_prefix,\\${PYTHON_PREFIX},"`
+     ;;
+   *)
+     case $am_py_prefix in
+       /usr|/System*) ;;
+       *) am_cv_python_pythondir="\${PYTHON_PREFIX}/lib/python$PYTHON_VERSION/site-packages"
+          ;;
      esac
+     ;;
+   esac
 
 fi
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $am_cv_python_pythondir" >&5
@@ -6466,44 +6645,42 @@ printf "%s\n" "$am_cv_python_pythondir" >&6; }
   pythondir=$am_cv_python_pythondir
 
 
+          pkgpythondir=\${pythondir}/$PACKAGE
 
-  pkgpythondir=\${pythondir}/$PACKAGE
 
-
-        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for $am_display_PYTHON extension module directory" >&5
-printf %s "checking for $am_display_PYTHON extension module directory... " >&6; }
+          { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for $am_display_PYTHON extension module directory (pyexecdir)" >&5
+printf %s "checking for $am_display_PYTHON extension module directory (pyexecdir)... " >&6; }
 if test ${am_cv_python_pyexecdir+y}
 then :
   printf %s "(cached) " >&6
 else $as_nop
-  if test "x$exec_prefix" = xNONE
-     then
-       am_py_exec_prefix=$am_py_prefix
-     else
-       am_py_exec_prefix=$exec_prefix
-     fi
-     am_cv_python_pyexecdir=`$PYTHON -c "
+  if test "x$am_cv_python_exec_prefix" = x; then
+     am_py_exec_prefix=$am__usable_exec_prefix
+   else
+     am_py_exec_prefix=$am_cv_python_exec_prefix
+   fi
+   am_cv_python_pyexecdir=`$PYTHON -c "
 $am_python_setup_sysconfig
 if can_use_sysconfig:
-    sitedir = sysconfig.get_path('platlib', vars={'platbase':'$am_py_prefix'})
+  sitedir = sysconfig.get_path('platlib', vars={'platbase':'$am_py_exec_prefix'})
 else:
-    from distutils import sysconfig
-    sitedir = sysconfig.get_python_lib(1, 0, prefix='$am_py_prefix')
+  from distutils import sysconfig
+  sitedir = sysconfig.get_python_lib(1, 0, prefix='$am_py_exec_prefix')
 sys.stdout.write(sitedir)"`
-     case $am_cv_python_pyexecdir in
-     $am_py_exec_prefix*)
-       am__strip_prefix=`echo "$am_py_exec_prefix" | sed 's|.|.|g'`
-       am_cv_python_pyexecdir=`echo "$am_cv_python_pyexecdir" | sed "s,^$am__strip_prefix,$PYTHON_EXEC_PREFIX,"`
-       ;;
-     *)
-       case $am_py_exec_prefix in
-         /usr|/System*) ;;
-         *)
-	   am_cv_python_pyexecdir=$PYTHON_EXEC_PREFIX/lib/python$PYTHON_VERSION/site-packages
-	   ;;
-       esac
-       ;;
+   #
+   case $am_cv_python_pyexecdir in
+   $am_py_exec_prefix*)
+     am__strip_prefix=`echo "$am_py_exec_prefix" | sed 's|.|.|g'`
+     am_cv_python_pyexecdir=`echo "$am_cv_python_pyexecdir" | sed "s,^$am__strip_prefix,\\${PYTHON_EXEC_PREFIX},"`
+     ;;
+   *)
+     case $am_py_exec_prefix in
+       /usr|/System*) ;;
+       *) am_cv_python_pyexecdir="\${PYTHON_EXEC_PREFIX}/lib/python$PYTHON_VERSION/site-packages"
+          ;;
      esac
+     ;;
+   esac
 
 fi
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $am_cv_python_pyexecdir" >&5
@@ -6511,13 +6688,11 @@ printf "%s\n" "$am_cv_python_pyexecdir" >&6; }
   pyexecdir=$am_cv_python_pyexecdir
 
 
-
-  pkgpyexecdir=\${pyexecdir}/$PACKAGE
+      pkgpyexecdir=\${pyexecdir}/$PACKAGE
 
 
     HAVE_PYTHON=true
   fi
-
 
 
 PY_BUILD_OK=false
@@ -6550,6 +6725,129 @@ printf "%s\n" "$py_have_build" >&6; }
     fi
   fi
 fi
+
+# Check whether --enable-fuzzing was given.
+if test ${enable_fuzzing+y}
+then :
+  enableval=$enable_fuzzing;
+else $as_nop
+  enable_fuzzing=no
+fi
+
+
+if test "x$enable_fuzzing" = "xyes"
+then :
+
+
+  ac_ext=c
+ac_cpp='$CPP $CPPFLAGS'
+ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
+ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
+ac_compiler_gnu=$ac_cv_c_compiler_gnu
+
+  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether C compiler accepts -fsanitize=fuzzer-no-link,address,undefined -fno-omit-frame-pointer" >&5
+printf %s "checking whether C compiler accepts -fsanitize=fuzzer-no-link,address,undefined -fno-omit-frame-pointer... " >&6; }
+if test ${ax_cv_check_cflags__FUZZ_FLAGS+y}
+then :
+  printf %s "(cached) " >&6
+else $as_nop
+
+  ax_check_save_flags=$CFLAGS
+  CFLAGS="$CFLAGS  -fsanitize=fuzzer-no-link,address,undefined -fno-omit-frame-pointer"
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main (void)
+{
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_compile "$LINENO"
+then :
+  ax_cv_check_cflags__FUZZ_FLAGS=yes
+else $as_nop
+  ax_cv_check_cflags__FUZZ_FLAGS=no
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.beam conftest.$ac_ext
+  CFLAGS=$ax_check_save_flags
+fi
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ax_cv_check_cflags__FUZZ_FLAGS" >&5
+printf "%s\n" "$ax_cv_check_cflags__FUZZ_FLAGS" >&6; }
+if test "x$ax_cv_check_cflags__FUZZ_FLAGS" = xyes
+then :
+  CFLAGS="$CFLAGS -fsanitize=fuzzer-no-link,address,undefined -fno-omit-frame-pointer"
+else $as_nop
+  as_fn_error $? "$CC does not support fuzzing" "$LINENO" 5
+fi
+
+  ac_ext=c
+ac_cpp='$CPP $CPPFLAGS'
+ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
+ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
+ac_compiler_gnu=$ac_cv_c_compiler_gnu
+
+
+  ac_ext=cpp
+ac_cpp='$CXXCPP $CPPFLAGS'
+ac_compile='$CXX -c $CXXFLAGS $CPPFLAGS conftest.$ac_ext >&5'
+ac_link='$CXX -o conftest$ac_exeext $CXXFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
+ac_compiler_gnu=$ac_cv_cxx_compiler_gnu
+
+  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether C++ compiler accepts -fsanitize=fuzzer-no-link,address,undefined -fno-omit-frame-pointer" >&5
+printf %s "checking whether C++ compiler accepts -fsanitize=fuzzer-no-link,address,undefined -fno-omit-frame-pointer... " >&6; }
+if test ${ax_cv_check_cxxflags__FUZZ_FLAGS+y}
+then :
+  printf %s "(cached) " >&6
+else $as_nop
+
+  ax_check_save_flags=$CXXFLAGS
+  CXXFLAGS="$CXXFLAGS  -fsanitize=fuzzer-no-link,address,undefined -fno-omit-frame-pointer"
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main (void)
+{
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_cxx_try_compile "$LINENO"
+then :
+  ax_cv_check_cxxflags__FUZZ_FLAGS=yes
+else $as_nop
+  ax_cv_check_cxxflags__FUZZ_FLAGS=no
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.beam conftest.$ac_ext
+  CXXFLAGS=$ax_check_save_flags
+fi
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ax_cv_check_cxxflags__FUZZ_FLAGS" >&5
+printf "%s\n" "$ax_cv_check_cxxflags__FUZZ_FLAGS" >&6; }
+if test "x$ax_cv_check_cxxflags__FUZZ_FLAGS" = xyes
+then :
+  CXXFLAGS="$CXXFLAGS -fsanitize=fuzzer-no-link,address,undefined -fno-omit-frame-pointer"
+else $as_nop
+  as_fn_error $? "$CXX does not support fuzzing" "$LINENO" 5
+fi
+
+  ac_ext=c
+ac_cpp='$CPP $CPPFLAGS'
+ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
+ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
+ac_compiler_gnu=$ac_cv_c_compiler_gnu
+
+  LDFLAGS="$LDFLAGS -fsanitize=address,undefined -fno-omit-frame-pointer"
+
+printf "%s\n" "#define ENABLE_FUZZING 1" >>confdefs.h
+
+
+fi
+ENABLE_FUZZING=$enable_fuzzing
+
 
 NDIFFDIR=ndiff
 
@@ -6665,23 +6963,28 @@ else $as_nop
 fi
 
 
-if test "$with_nping" = "no"; then
+
+
+if test "x$with_nping" = "xno"
+then :
+
   trace_no_use="$trace_no_use nping"
   BUILDNPING=""
   INSTALLNPING=""
   UNINSTALLNPING=""
   NPING_CLEAN=""
   NPING_DIST_CLEAN=""
-else
+
+else $as_nop
+
   trace_use="$trace_use nping"
   BUILDNPING=build-nping
   INSTALLNPING=install-nping
   UNINSTALLNPING=uninstall-nping
   NPING_CLEAN=clean-nping
   NPING_DIST_CLEAN=distclean-nping
+  subdirs="$subdirs nping"
 
-
-subdirs="$subdirs nping"
 
 fi
 
@@ -6928,8 +7231,9 @@ test "${with_libpcap+set}" != "set" && with_libpcap=yes
 # Check whether --with-libpcap was given.
 if test ${with_libpcap+y}
 then :
-  withval=$with_libpcap;   case "$with_libpcap" in
-  yes)
+  withval=$with_libpcap;   case "$with_libpcap" in #(
+  yes) :
+
     ac_fn_c_check_header_compile "$LINENO" "pcap.h" "ac_cv_header_pcap_h" "$ac_includes_default"
 if test "x$ac_cv_header_pcap_h" = xyes
 then :
@@ -6976,11 +7280,13 @@ fi
 
 fi
 
-    ;;
-  included)
+     ;; #(
+  included) :
+
     have_libpcap=no
-   ;;
-  *)
+    ;; #(
+  *) :
+
     _cppflags=$CPPFLAGS
     _ldflags=$LDFLAGS
 
@@ -7038,8 +7344,11 @@ fi
 
     LDFLAGS=$_ldflags
     CPPFLAGS=$_cppflags
-    ;;
-  esac
+
+   ;; #(
+  *) :
+     ;;
+esac
 
 fi
 
@@ -7169,7 +7478,11 @@ else $as_nop
 
 #include <stdio.h>
 extern char pcap_version[];
-int main() {
+
+int
+main (void)
+{
+
   int major, minor1, minor2;
   sscanf(pcap_version,"%d.%d.%d", &major, &minor1, &minor2);
   if (major > 0)
@@ -7178,9 +7491,10 @@ int main() {
     return 1;
   if (minor2 < 4)
     return 1;
+
+  ;
   return 0;
 }
-
 _ACEOF
 if ac_fn_c_try_run "$LINENO"
 then :
@@ -7207,7 +7521,11 @@ else $as_nop
 #include <net/bpf.h>
 #endif
 extern char pcap_version[];
-int main() {
+
+int
+main (void)
+{
+
   int major, minor;
   sscanf(pcap_version,"%d.%d", &major, &minor);
   if ((major == 1 && minor >= 1) || major > 1)
@@ -7218,9 +7536,10 @@ int main() {
     return 1;
 #endif
 #endif
+
+  ;
   return 0;
 }
-
 _ACEOF
 if ac_fn_c_try_run "$LINENO"
 then :
@@ -7257,8 +7576,10 @@ fi
   LIBS="$LIBS_OLD"
 fi
 
-if test $have_libpcap != yes; then
-  ac_configure_args="$ac_configure_args '--disable-dbus'"
+if test x$have_libpcap != xyes
+then :
+
+  ac_configure_args="$ac_configure_args '--disable-dbus' '--disable-rdma'"
   subdirs="$subdirs libpcap"
 
   if test "${LIBPCAP_INC+set}" = "set"; then
@@ -7266,7 +7587,7 @@ if test $have_libpcap != yes; then
   else
     CPPFLAGS="$CPPFLAGS -I\$(top_srcdir)/$libpcapdir"
   fi
-  LIBPCAP_LIBS='$(LIBPCAPDIR)/libpcap.a'
+  LIBPCAP_LIBS='\$(top_srcdir)/$(LIBPCAPDIR)/libpcap.a'
   PCAP_BUILD="build-pcap"
   PCAP_CLEAN="clean-pcap"
   PCAP_DIST_CLEAN="distclean-pcap"
@@ -7318,7 +7639,9 @@ then :
   LIBS="$LIBS -ldbus-1"
 fi
 
-else
+
+else $as_nop
+
   # We assume our included libpcap doesn't need this check-and-define
   # link with -lpcap for the purposes of this test
   LIBS_OLD="$LIBS"
@@ -7340,6 +7663,7 @@ printf "%s\n" "#define HAVE_LIBPCAP 1" >>confdefs.h
   PCAP_BUILD=""
   PCAP_CLEAN=""
   PCAP_DIST_CLEAN=""
+
 fi
 
 
@@ -7473,22 +7797,27 @@ fi
 fi
 
 # If we still don't have it, we use our own
-if test $have_pcre != yes ; then
+if test x$have_pcre != xyes
+then :
+
   subdirs="$subdirs libpcre"
 
   CPPFLAGS="-I\$(top_srcdir)/$LIBPCREDIR/src $CPPFLAGS"
-  LIBPCRE_LIBS="$LIBPCREDIR/.libs/libpcre2-8.a"
+  LIBPCRE_LIBS="\$(top_srcdir)/$LIBPCREDIR/.libs/libpcre2-8.a"
   PCRE_BUILD="build-pcre"
   PCRE_CLEAN="clean-pcre"
   PCRE_DIST_CLEAN="distclean-pcre"
 
 printf "%s\n" "#define PCRE_INCLUDED 1" >>confdefs.h
 
-else
+
+else $as_nop
+
   LIBPCRE_LIBS="-lpcre2-8"
   PCRE_BUILD=""
   PCRE_CLEAN=""
   PCRE_DIST_CLEAN=""
+
 fi
 
 
@@ -7510,16 +7839,20 @@ test "${with_libz+set}" != "set" && with_libz="yes"
 if test ${with_libz+y}
 then :
   withval=$with_libz;
-  case "$with_libz" in
-  yes)
-    ;;
-  no)
+  case "$with_libz" in #(
+  yes) :
+
+     ;; #(
+  no) :
+
     # Do nothing
-    ;;
-  included)
+     ;; #(
+  included) :
+
     requested_included_libz="yes"
-    ;;
-  *)
+     ;; #(
+  *) :
+
     _cppflags=$CPPFLAGS
     _ldflags=$LDFLAGS
 
@@ -7579,14 +7912,19 @@ fi
 
     LDFLAGS=$_ldflags
     CPPFLAGS=$_cppflags
-  ;;
-  esac
+
+   ;; #(
+  *) :
+     ;;
+esac
 
 
 fi
 
 
-if test $with_libz != no; then
+if test "x$with_libz" != "xno"
+then :
+
   trace_use="$trace_use zlib"
 
   # If they didn't specify it, we try to find it
@@ -7640,7 +7978,9 @@ fi
 
   fi
 
-  if test $have_libz != yes; then
+  if test "x$have_libz" != "xyes"
+then :
+
     subdirs="$subdirs libz"
 
     # TODO: This doesn't work because libssh2's configure script is looking for
@@ -7648,28 +7988,34 @@ fi
     # headers/libs on your own if you want compression support for SSH.
     #ac_configure_args="$ac_configure_args '--with-libz-prefix=../../$ZLIBDIR'"
     CPPFLAGS="-I\$(top_srcdir)/$ZLIBDIR $CPPFLAGS"
-    ZLIB_LIBS="$ZLIBDIR/libz.a"
+    ZLIB_LIBS="\$(top_srcdir)/$ZLIBDIR/libz.a"
     ZLIB_BUILD="build-zlib"
     ZLIB_CLEAN="clean-zlib"
     ZLIB_DIST_CLEAN="distclean-zlib"
 
 printf "%s\n" "#define ZLIB_INCLUDED 1" >>confdefs.h
 
-  else
+
+else $as_nop
+
     ZLIB_LIBS="-lz"
     ZLIB_BUILD=""
     ZLIB_CLEAN=""
     ZLIB_DIST_CLEAN=""
-  fi
+
+fi
 
 printf "%s\n" "#define HAVE_LIBZ 1" >>confdefs.h
 
-else
+
+else $as_nop
+
   trace_no_use="$trace_no_use zlib"
   ZLIB_LIBS=""
   ZLIB_BUILD=""
   ZLIB_CLEAN=""
   ZLIB_DIST_CLEAN=""
+
 fi
 
 
@@ -7688,16 +8034,20 @@ test "${with_libssh2+set}" != "set" && with_libssh2="yes"
 # Check whether --with-libssh2 was given.
 if test ${with_libssh2+y}
 then :
-  withval=$with_libssh2;  case "$with_libssh2" in
-  yes)
-    ;;
-  no)
+  withval=$with_libssh2;  case "$with_libssh2" in #(
+  yes) :
+
+     ;; #(
+  no) :
+
     use_libssh2="no"
-    ;;
-  included)
+     ;; #(
+  included) :
+
     requested_included_libssh2="yes"
-    ;;
-  *)
+     ;; #(
+  *) :
+
     _cppflags=$CPPFLAGS
     _ldflags=$LDFLAGS
 
@@ -7757,14 +8107,19 @@ fi
 fi
 
 
-  ;;
-  esac
+
+   ;; #(
+  *) :
+     ;;
+esac
 
 fi
 
 
 
-if test $use_libssh2 = yes -a $use_openssl = yes; then
+if test "x$use_libssh2" = "xyes" -a "x$use_openssl" = "xyes"
+then :
+
   trace_use="$trace_use libssh2"
 
   # If they didn't specify it, we try to find it
@@ -7819,34 +8174,42 @@ fi
   fi
 
   # If we still don't have it, we use our own
-  if test $have_libssh2 != yes; then
+  if test "x$have_libssh2" != "xyes"
+then :
+
     have_libssh2=yes
     subdirs="$subdirs libssh2"
 
     CPPFLAGS="-I\$(top_srcdir)/$LIBSSH2DIR/include $CPPFLAGS"
-    LIBSSH2_LIBS="$LIBSSH2DIR/lib/libssh2.a"
+    LIBSSH2_LIBS="\$(top_srcdir)/$LIBSSH2DIR/lib/libssh2.a"
     LIBSSH2_BUILD="build-libssh2"
     LIBSSH2_CLEAN="clean-libssh2"
     LIBSSH2_DIST_CLEAN="distclean-libssh2"
 
 printf "%s\n" "#define LIBSSH2_INCLUDED 1" >>confdefs.h
 
-  else
+
+else $as_nop
+
     LIBSSH2_LIBS="-lssh2"
     LIBSSH2_BUILD=""
     LIBSSH2_CLEAN=""
     LIBSSH2_DIST_CLEAN=""
-  fi
+
+fi
 
 printf "%s\n" "#define HAVE_LIBSSH2 1" >>confdefs.h
 
-else
+
+else $as_nop
+
   use_libssh2="no"
   trace_no_use="$trace_no_use libssh2"
   LIBSSH2_LIBS=""
   LIBSSH2_BUILD=""
   LIBSSH2_CLEAN=""
   LIBSSH2_DIST_CLEAN=""
+
 fi
 
 
@@ -7885,7 +8248,9 @@ fi
 
 
 # If they didn't provide location, we use the included one
-if test $have_dnet != yes ; then
+if test "x$have_dnet" != "xyes"
+then :
+
   subdirs="$subdirs libdnet-stripped"
 
   CPPFLAGS="-I\$(top_srcdir)/$LIBDNETDIR/include $CPPFLAGS"
@@ -7896,11 +8261,14 @@ if test $have_dnet != yes ; then
 
 printf "%s\n" "#define DNET_INCLUDED 1" >>confdefs.h
 
-else
+
+else $as_nop
+
   LIBDNET_LIBS="-ldnet"
   DNET_BUILD=""
   DNET_CLEAN=""
   DNET_DIST_CLEAN=""
+
 fi
 
 
@@ -7920,10 +8288,12 @@ no_lua=no
 # Check whether --with-liblua was given.
 if test ${with_liblua+y}
 then :
-  withval=$with_liblua;   case "$with_liblua" in
-  yes)
-  ;;
-  included)
+  withval=$with_liblua;   case "$with_liblua" in #(
+  yes) :
+
+   ;; #(
+  included) :
+
     CPPFLAGS="-I\$(top_srcdir)/$LIBLUADIR $CPPFLAGS"
     LIBLUA_LIBS="\$(top_srcdir)/$LIBLUADIR/liblua.a"
     LUA_BUILD="build-lua"
@@ -7933,15 +8303,20 @@ then :
 
 printf "%s\n" "#define LUA_INCLUDED 1" >>confdefs.h
 
-  ;;
-  no)
+   ;; #(
+  no) :
+
     no_lua="yes"
-  ;;
-  *)
+   ;; #(
+  *) :
+
     CPPFLAGS="-I$with_liblua/include $CPPFLAGS"
     LDFLAGS="-L$with_liblua/lib $LDFLAGS"
-  ;;
-  esac
+
+   ;; #(
+  *) :
+     ;;
+esac
 
 fi
 
@@ -8611,49 +8986,59 @@ printf %s "checking if struct in_addr is a wacky huge structure (some Sun boxes)
 
 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
-#include <netinet/in.h>
+
+    #include <netinet/in.h>
+
 int
 main (void)
 {
-struct in_addr i; i._S_un._S_addr;
+
+    struct in_addr i; i._S_un._S_addr;
+
   ;
   return 0;
 }
+
 _ACEOF
 if ac_fn_c_try_compile "$LINENO"
 then :
-  \
-             printf "%s\n" "#define IN_ADDR_DEEPSTRUCT 1" >>confdefs.h
- \
-             { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+  printf "%s\n" "#define IN_ADDR_DEEPSTRUCT 1" >>confdefs.h
+
+    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 printf "%s\n" "yes" >&6; }
+
 else $as_nop
-  \
-             cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
-#include <sys/types.h>
-#include <netinet/in.h>
+
+        #include <sys/types.h>
+        #include <netinet/in.h>
+
 int
 main (void)
 {
-struct in_addr i; i.S_un.S_addr;
+
+        struct in_addr i; i.S_un.S_addr;
+
   ;
   return 0;
 }
+
 _ACEOF
 if ac_fn_c_try_compile "$LINENO"
 then :
-  \
-                             printf "%s\n" "#define IN_ADDR_DEEPSTRUCT 1" >>confdefs.h
- \
-                             { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+  printf "%s\n" "#define IN_ADDR_DEEPSTRUCT 1" >>confdefs.h
+
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 printf "%s\n" "yes" >&6; }
+
 else $as_nop
-  \
-                             { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
-printf "%s\n" "no" >&6; };
+  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+printf "%s\n" "no" >&6; }
+
 fi
 rm -f core conftest.err conftest.$ac_objext conftest.beam conftest.$ac_ext
+
 fi
 rm -f core conftest.err conftest.$ac_objext conftest.beam conftest.$ac_ext
 
@@ -8663,7 +9048,8 @@ if test ${ac_cv_struct_icmp_exists+y}
 then :
   printf %s "(cached) " >&6
 else $as_nop
-  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+
+        cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 
                #include <sys/types.h>
@@ -8675,6 +9061,7 @@ else $as_nop
                #define _BSD_SOURCE
                #include <netinet/ip.h>
                #include <netinet/ip_icmp.h>
+
 int
 main (void)
 {
@@ -8690,12 +9077,16 @@ else $as_nop
   ac_cv_struct_icmp_exists=no
 fi
 rm -f core conftest.err conftest.$ac_objext conftest.beam conftest.$ac_ext
+
 fi
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ac_cv_struct_icmp_exists" >&5
 printf "%s\n" "$ac_cv_struct_icmp_exists" >&6; }
-if test $ac_cv_struct_icmp_exists = yes ; then
+if test "x$ac_cv_struct_icmp_exists" = "xyes"
+then :
+
 
 printf "%s\n" "#define HAVE_STRUCT_ICMP 1" >>confdefs.h
+
 
 fi
 
@@ -8705,7 +9096,8 @@ if test ${ac_cv_struct_ip_exists+y}
 then :
   printf %s "(cached) " >&6
 else $as_nop
-  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+
+        cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 
                #include <sys/types.h>
@@ -8716,6 +9108,7 @@ else $as_nop
                #define __FAVOR_BSD
                #define _BSD_SOURCE
                #include <netinet/ip.h>
+
 int
 main (void)
 {
@@ -8731,12 +9124,16 @@ else $as_nop
   ac_cv_struct_ip_exists=no
 fi
 rm -f core conftest.err conftest.$ac_objext conftest.beam conftest.$ac_ext
+
 fi
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ac_cv_struct_ip_exists" >&5
 printf "%s\n" "$ac_cv_struct_ip_exists" >&6; }
-if test $ac_cv_struct_ip_exists = yes ; then
+if test "x$ac_cv_struct_ip_exists" = "xyes"
+then :
+
 
 printf "%s\n" "#define HAVE_STRUCT_IP 1" >>confdefs.h
+
 
 fi
 
@@ -8746,7 +9143,8 @@ if test ${ac_cv_ip_has_ip_sum+y}
 then :
   printf %s "(cached) " >&6
 else $as_nop
-  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+
+        cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 
                #include <sys/types.h>
@@ -8758,6 +9156,7 @@ else $as_nop
                #define _BSD_SOURCE
                #include <netinet/ip.h>
                #include <netinet/ip_icmp.h>
+
 int
 main (void)
 {
@@ -8773,12 +9172,16 @@ else $as_nop
   ac_cv_ip_has_ip_sum=no
 fi
 rm -f core conftest.err conftest.$ac_objext conftest.beam conftest.$ac_ext
+
 fi
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ac_cv_ip_has_ip_sum" >&5
 printf "%s\n" "$ac_cv_ip_has_ip_sum" >&6; }
-if test $ac_cv_ip_has_ip_sum = yes ; then
+if test "x$ac_cv_ip_has_ip_sum" = "xyes"
+then :
+
 
 printf "%s\n" "#define HAVE_IP_IP_SUM 1" >>confdefs.h
+
 
 fi
 
@@ -8788,7 +9191,6 @@ then :
   printf "%s\n" "#define HAVE_STRERROR 1" >>confdefs.h
 
 fi
-
 
 
    ac_ext=cpp
@@ -8827,11 +9229,14 @@ fi
 rm -f core conftest.err conftest.$ac_objext conftest.beam conftest.$ac_ext
    done
 
-   if test "x$recvfrom6_t" = x; then
+   if test "x$recvfrom6_t" = x
+then :
+
      { printf "%s\n" "$as_me:${as_lineno-$LINENO}: WARNING: Cannot find type for 6th argument to recvfrom(). Using socklen_t ptr" >&5
 printf "%s\n" "$as_me: WARNING: Cannot find type for 6th argument to recvfrom(). Using socklen_t ptr" >&2;}
      recvfrom6_t="socklen_t"
-   fi
+
+fi
 
    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $recvfrom6_t" >&5
 printf "%s\n" "$recvfrom6_t" >&6; }
@@ -8859,13 +9264,14 @@ then :
     ;;
   esac
 else $as_nop
-  NBASE_BUILD="build-nbase"
+
+NBASE_BUILD="build-nbase"
 NBASEDIR="nbase"
 
 fi
 
 
-LDFLAGS="$LDFLAGS -L$NBASEDIR"
+LDFLAGS="$LDFLAGS -L\$(top_srcdir)/$NBASEDIR"
 CPPFLAGS="$CPPFLAGS -I\$(top_srcdir)/$NBASEDIR"
 LIBNBASE_LIBS="-lnbase"
 
@@ -8896,7 +9302,7 @@ then :
 fi
 
 
-LDFLAGS="$LDFLAGS -L$NSOCKDIR/src/"
+LDFLAGS="$LDFLAGS -L\$(top_srcdir)/$NSOCKDIR/src/"
 CPPFLAGS="$CPPFLAGS -I\$(top_srcdir)/$NSOCKDIR/include"
 LIBNSOCK_LIBS="-lnsock"
 
@@ -8920,7 +9326,9 @@ else $as_nop
 fi
 
 
-if test "$with_ncat" = "no"; then
+if test "x$with_ncat" = "xno"
+then :
+
   trace_no_use="$trace_no_use ncat"
   NCAT_BUILD=""
   NCAT_CHECK=""
@@ -8928,7 +9336,9 @@ if test "$with_ncat" = "no"; then
   NCAT_UNINSTALL=""
   NCAT_CLEAN=""
   NCAT_DIST_CLEAN=""
-else
+
+else $as_nop
+
   trace_use="$trace_use ncat"
   NCAT_BUILD="build-ncat"
   NCAT_CHECK="check-ncat"
@@ -8937,6 +9347,7 @@ else
   NCAT_CLEAN="clean-ncat"
   NCAT_DIST_CLEAN="distclean-ncat"
   subdirs="$subdirs ncat"
+
 
 fi
 

@@ -202,11 +202,11 @@ action = function(host, port)
   else
     local status, results, is_vulnerable = go(host, port)
 
-    if(status == false) then
+    if not status then
       return fail(results)
     else
       if(#results == 0) then
-        if(is_vulnerable == false) then
+        if not is_vulnerable then
           return nmap.verbosity() > 0 and "WebDAV is ENABLED. Protected folder found but could not be exploited. Server does not appear to be vulnerable." or nil
         else
           return nmap.verbosity() > 0 and "WebDAV is ENABLED. No protected folder found; check not run. If you know a protected folder, add --script-args=webdavfolder=<path>" or nil

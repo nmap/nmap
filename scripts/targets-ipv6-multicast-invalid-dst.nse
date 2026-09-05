@@ -123,13 +123,15 @@ local function single_interface_broadcast(if_nfo, results)
       local l2reply = packet.Frame:new(layer2)
       if l2reply.mac_dst == src_mac then
         local reply = packet.Packet:new(layer3)
-        local target_str = reply.ip_src
-        if not results[target_str] then
-          if target.ALLOW_NEW_TARGETS then
-            target.add(target_str)
+        if reply then
+          local target_str = reply.ip_src
+          if not results[target_str] then
+            if target.ALLOW_NEW_TARGETS then
+              target.add(target_str)
+            end
+            results[#results + 1] = { address = target_str, mac = stdnse.format_mac(l2reply.mac_src), iface = if_nfo.device }
+            results[target_str] = true
           end
-          results[#results + 1] = { address = target_str, mac = stdnse.format_mac(l2reply.mac_src), iface = if_nfo.device }
-          results[target_str] = true
         end
       end
     end

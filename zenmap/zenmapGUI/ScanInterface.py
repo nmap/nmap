@@ -956,7 +956,7 @@ class ScanResultNotebook(HIGNotebook):
         self.topology_page.add(self.topology)
         self.scans_list_page.add(self.scans_list)
 
-        self.host_details_page.add_with_viewport(self.host_details_vbox)
+        self.host_details_page.add(self.host_details_vbox)
         self.host_details_vbox._pack_expand_fill(self.host_details)
 
     def _scan_row_activated(self, treeview, path, view_column):

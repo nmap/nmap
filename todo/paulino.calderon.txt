@@ -1,4 +1,0 @@
-TODO:
-
--Update wiki page.
--Fix: http-enum does not work on windows. UNIX paths are hardcoded into the script. It also fails when running from a directory with spaces in the name.

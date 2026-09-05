@@ -627,7 +627,7 @@ int EchoHeader::getFieldLength(u8 field){
     /* 8bit fields */
     case PSPEC_IPv4_TOS:
     case PSPEC_IPv4_PROTO:
-    case PSPEC_IPv6_FLOW:
+    case PSPEC_IPv6_TCLASS:
     case PSPEC_IPv6_NHDR:
     case PSPEC_TCP_FLAGS:
     case PSPEC_ICMP_TYPE:
@@ -649,7 +649,7 @@ int EchoHeader::getFieldLength(u8 field){
     break;
 
     /* 24bit fields */
-    case PSPEC_IPv6_TCLASS:
+    case PSPEC_IPv6_FLOW:
         return 3;
     break;
 
@@ -773,7 +773,7 @@ int EchoHeader::setPacketLength(u16 len){
 
 u16 EchoHeader::getPacketLength(){
     return ntohs(this->data_echo->packet_len);
-} /* End of setPacketLength() */
+} /* End of getPacketLength() */
 
 
 int EchoHeader::setEchoedPacket(const u8 *pkt, size_t pktlen){
@@ -824,6 +824,11 @@ int EchoHeader::updateEchoInternals(){
   if( this->getMessageType()!=TYPE_NEP_ECHO )
     return OP_FAILURE;
 
+  int totallen = this->getTotalLength() * 4;
+  int packetlen = this->getPacketLength();
+  if ((totallen - STD_NEP_HEADER_LEN - ECHOED_PKT_HEADER_LEN - MAC_LENGTH) < packetlen) {
+    return OP_FAILURE;
+  }
   /* Fix echo bytes length */
   this->echo_bytes=this->getPacketLength();
   if((this->echo_bytes+4)%16!=0){
@@ -844,8 +849,7 @@ int EchoHeader::setErrorMessage(const char *err){
   if(err==NULL){
     return OP_FAILURE;
   }else{
-    strncpy((char *)this->data_error->errmsg, err, ERROR_MSG_LEN);
-    this->data_error->errmsg[ERROR_MSG_LEN-1]='\0';
+    Strncpy((char *)this->data_error->errmsg, err, ERROR_MSG_LEN);
   }
   return OP_SUCCESS;
 } /* End of setErrorMessage() */

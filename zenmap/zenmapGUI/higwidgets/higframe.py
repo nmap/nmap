@@ -90,11 +90,16 @@ if __name__ == "__main__":
     w = Gtk.Window()
 
     hframe = HIGFrame("Sample HIGFrame")
-    aalign = Gtk.Alignment.new(0, 0, 0, 0)
-    aalign.set_padding(12, 0, 24, 0)
     abox = Gtk.Box.new(Gtk.Orientation.VERTICAL, 0)
-    aalign.add(abox)
-    hframe.add(aalign)
+    abox.set_halign(Gtk.Align.START)
+    abox.set_valign(Gtk.Align.START)
+    abox.set_hexpand(False)
+    abox.set_vexpand(False)
+    abox.set_margin_top(12)
+    abox.set_margin_bottom(0)
+    abox.set_margin_start(24)
+    abox.set_margin_end(0)
+    hframe.add(abox)
     w.add(hframe)
 
     for i in range(5):

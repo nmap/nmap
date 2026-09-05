@@ -123,7 +123,7 @@ local function check_ms17010(host, port, sharename)
       )
     stdnse.debug2("SMB: Sending SMB_COM_TRANSACTION")
     local result, err = smb.smb_send(smbstate, smb_header, smb_params, '', overrides)
-    if(result == false) then
+    if not result then
       stdnse.debug1("There was an error in the SMB_COM_TRANSACTION request")
       return false, err
     end

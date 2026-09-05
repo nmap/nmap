@@ -115,19 +115,6 @@
 
 
 
-/*
-+--------+--------+---------+--------...
-|  Type  |  Len   |       Value
-+--------+--------+---------+--------...
-*/
-struct nping_tcp_opt {
-    u8 type;                           /* Option type code.           */
-    u8 len;                            /* Option length.              */
-    u8 *value;                         /* Option value                */
-}__attribute__((__packed__));
-typedef struct nping_tcp_opt nping_tcp_opt_t;
-
-
 class TCPHeader : public TransportLayerElement {
 
     private:
@@ -173,8 +160,6 @@ class TCPHeader : public TransportLayerElement {
         nping_tcp_hdr_t h;
 
         int tcpoptlen; /**< Length of TCP options */
-
-        void __tcppacketoptinfo(const u8 *optp, int len, char *result, int bufsize) const;
 
     public:
 
@@ -252,9 +237,30 @@ class TCPHeader : public TransportLayerElement {
 
         int setOptions(const u8 *optsbuff, size_t optslen);
         const u8 *getOptions(size_t *optslen) const;
-        nping_tcp_opt_t getOption(unsigned int index) const;
         static const char *optcode2str(u8 optcode);
 
 }; /* End of class TCPHeader */
+
+/* This callback will be called for each option in the buffer.
+ * Return true to continue processing options.
+ * Return false to stop processing options. */
+typedef bool (*tcpopt_callback)(u8 op, u8 oplen, const u8 *data, void *ctx);
+
+class TCPOptions {
+public:
+  /* Note: this class parses in-place and does not make a copy of the data. The
+   * data pointed to by tcppkt must remain allocated as long as the TCPOptions
+   * object is in use. */
+  TCPOptions() : tcpopts(NULL), optslen(0) {}
+  bool fromTCPPacket(const u8 *tcppkt, int tcplen);
+  bool fromBuffer(const u8 *tcpoptions, int optionslen);
+  bool fromTCPHeader(const TCPHeader &T);
+
+  /* Returns true if no errors were encountered, even if the callback returns false. */
+  bool foreachOpt(tcpopt_callback cb, void *ctx) const;
+private:
+  const u8 *tcpopts;
+  int optslen;
+};
 
 #endif /* __TCPHEADER_H__ */

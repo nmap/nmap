@@ -130,16 +130,16 @@ class NmapOutputProperties(HIGDialog):
         y2 = 1
         for p in self.property_names:
             hp = HighlightProperty(p, self.property_names[p])
-            self.highlight_main_table.attach(
+            self.highlight_main_table.attach_label(
                     hp.property_name_label, 0, 1, y1, y2)
-            self.highlight_main_table.attach(hp.example_label, 1, 2, y1, y2)
-            self.highlight_main_table.attach(hp.bold_tg_button, 2, 3, y1, y2)
-            self.highlight_main_table.attach(hp.italic_tg_button, 3, 4, y1, y2)
-            self.highlight_main_table.attach(
+            self.highlight_main_table.attach_label(hp.example_label, 1, 2, y1, y2)
+            self.highlight_main_table.attach_label(hp.bold_tg_button, 2, 3, y1, y2)
+            self.highlight_main_table.attach_label(hp.italic_tg_button, 3, 4, y1, y2)
+            self.highlight_main_table.attach_label(
                     hp.underline_tg_button, 4, 5, y1, y2)
-            self.highlight_main_table.attach(
+            self.highlight_main_table.attach_label(
                     hp.text_color_button, 5, 6, y1, y2)
-            self.highlight_main_table.attach(
+            self.highlight_main_table.attach_label(
                     hp.highlight_color_button, 6, 7, y1, y2)
 
             # Setting example styles and colors

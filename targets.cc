@@ -137,15 +137,67 @@ void returnhost(HostGroupState *hs) {
 int load_exclude_file(struct addrset *excludelist, FILE *fp) {
   char host_spec[1024];
   size_t n;
+  std::vector<DNS::Request> requests;
+  DNS::RECORD_TYPE rtype = (o.af() == AF_INET) ? DNS::A : DNS::AAAA;
+  // Ignore errors, allow debug info
+  nbase_set_log(NULL, o.debugging ? error : NULL);
 
   while ((n = read_host_from_file(fp, host_spec, sizeof(host_spec))) > 0) {
     if (n >= sizeof(host_spec))
       fatal("One of your exclude file specifications was too long to read (>= %u chars)", (unsigned int) sizeof(host_spec));
-    if(!addrset_add_spec(excludelist, host_spec, o.af(), 1)){
-      fatal("Invalid address specification:");
+    // First try without DNS
+    if(addrset_add_spec(excludelist, host_spec, o.af(), 0)){
+      continue;
+    }
+    // Since that didn't work, try to resolve via DNS.
+    DNS::Request req;
+    req.type = rtype;
+    const char *slash = strrchr(host_spec, '/');
+    if (slash) {
+      req.userdata = strdup(slash);
+      req.name.assign(host_spec, slash - host_spec);
+    }
+    else {
+      req.name = host_spec;
+    }
+    requests.push_back(req);
+  }
+
+  if (requests.size() > 0) {
+    // Announce errors, allow debug info
+    nbase_set_log(error, o.debugging ? error : NULL);
+    bool fail = false;
+    nmap_mass_dns(requests.data(), requests.size());
+    for (std::vector<DNS::Request>::const_iterator rit = requests.begin();
+        rit != requests.end(); rit++) {
+      const DNS::Request &req = *rit;
+      if (req.ssv.empty()) {
+        error("Could not resolve excluded name %s", req.name.c_str());
+        fail = true;
+      }
+      else {
+        const char *slash = req.userdata ? (const char *) req.userdata : "";
+        for (size_t i = 0; i < req.ssv.size(); i++) {
+          const struct sockaddr_storage &ss = req.ssv[i];
+          assert(ss.ss_family == o.af());
+          Snprintf(host_spec, sizeof(host_spec), "%s%s", inet_socktop_safe(&ss),
+              slash);
+          if(!addrset_add_spec(excludelist, host_spec, o.af(), 0)){
+            error("Invalid address specification: %s", host_spec);
+          }
+        }
+      }
+      if (req.userdata)
+        free(req.userdata);
+    }
+    requests.clear();
+    if (fail) {
+      fatal("Encountered errors processing exclude list");
     }
   }
 
+  // Restore defaults from nmap.cc: errors are fatal
+  nbase_set_log(fatal, o.debugging ? error : NULL);
   return 1;
 }
 
@@ -269,7 +321,7 @@ bool target_needs_new_hostgroup(Target **targets, int targets_sz, const Target *
    The target_expressions array MUST REMAIN VALID IN MEMORY as long as
    this class instance is used -- the array is NOT copied.
  */
-HostGroupState::HostGroupState(int lookahead, int rnd, bool gen_rand, unsigned long num_random, int argc, const char **argv) {
+HostGroupState::HostGroupState(int lookahead, int rnd, bool gen_rand, unsigned long num_random, const struct addrset *exclude_group, int argc, const char **argv) {
   assert(lookahead > 0);
   this->argc = argc;
   this->argv = argv;
@@ -281,7 +333,7 @@ HostGroupState::HostGroupState(int lookahead, int rnd, bool gen_rand, unsigned l
   next_batch_no = 0;
   randomize = rnd;
   if (gen_rand) {
-    current_group.generate_random_ips(num_random);
+    current_group.generate_random_ips(num_random, exclude_group);
   }
 }
 
@@ -412,8 +464,14 @@ bool HostGroupState::get_next_host(struct sockaddr_storage *ss, size_t *sslen, s
     }
     /* Check exclude list. */
     if (!addrset_contains(exclude_group, (const struct sockaddr *) ss)) {
-      current_group.reject_last_host();
       break;
+    }
+    else {
+      current_group.reject_last_host();
+      if (addrset_matches_all(exclude_group, o.af())) {
+        error("All %s addresses are excluded!", o.af() == AF_INET ? "IPv4" : "IPv6");
+        return false;
+      }
     }
   } while (true);
 

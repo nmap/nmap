@@ -138,6 +138,7 @@
 #include <string>
 #include <sstream>
 #include <vector>
+#include <cmath>
 
 /* global options */
 extern char *optarg;
@@ -508,6 +509,25 @@ static void test_file_name(const char *filename, const char *option) {
   }
 }
 
+static long parse_tval_msecs(const char *opt, const char *arg, long low, long high) {
+  char buf[256] = "";
+  long l = tval2msecs(arg);
+  if (l < low)
+    fatal("Bogus --%s argument specified, must be at least %ldms", opt, low);
+  if (l >= high && tval_unit(arg) == NULL) {
+    if (l > 1000 * 60 * 60)
+      Snprintf(buf, sizeof(buf), "%.1f hours", l / (1000.0 * 60 * 60));
+    else if (l > 1000 * 60)
+      Snprintf(buf, sizeof(buf), "%.1f minutes", l / (1000.0 * 60));
+    else if (l > 1000)
+      Snprintf(buf, sizeof(buf), "%.1f seconds", l / 1000.0);
+    fatal("Since April 2010, the default unit for --%s is seconds, so your time "
+        "of \"%s\" is %s. Use \"%sms\" for milliseconds.",
+        opt, arg, buf, arg);
+  }
+  return l;
+}
+
 void parse_options(int argc, char **argv) {
   char *p;
   int arg;
@@ -681,27 +701,15 @@ void parse_options(int argc, char **argv) {
             fatal("Bogus --max-os-tries argument specified, must be between 1 and 50 (inclusive)");
           o.setMaxOSTries(l);
         } else if (strcmp(long_options[option_index].name, "max-rtt-timeout") == 0) {
-          l = tval2msecs(optarg);
-          if (l < 5)
-            fatal("Bogus --max-rtt-timeout argument specified, must be at least 5ms");
-          if (l >= 50 * 1000 && tval_unit(optarg) == NULL)
-            fatal("Since April 2010, the default unit for --max-rtt-timeout is seconds, so your time of \"%s\" is %g seconds. Use \"%sms\" for %g milliseconds.", optarg, l / 1000.0, optarg, l / 1000.0);
+          l = parse_tval_msecs("max-rtt-timeout", optarg, 5, 50 * 1000);
           if (l < 20)
             error("WARNING: You specified a round-trip time timeout (%ld ms) that is EXTRAORDINARILY SMALL.  Accuracy may suffer.", l);
           delayed_options.pre_max_rtt_timeout = l;
         } else if (strcmp(long_options[option_index].name, "min-rtt-timeout") == 0) {
-          l = tval2msecs(optarg);
-          if (l < 0)
-            fatal("Bogus --min-rtt-timeout argument specified");
-          if (l >= 50 * 1000 && tval_unit(optarg) == NULL)
-            fatal("Since April 2010, the default unit for --min-rtt-timeout is seconds, so your time of \"%s\" is %g seconds. Use \"%sms\" for %g milliseconds.", optarg, l / 1000.0, optarg, l / 1000.0);
+          l = parse_tval_msecs("min-rtt-timeout", optarg, 0, 50 * 1000);
           delayed_options.pre_min_rtt_timeout = l;
         } else if (strcmp(long_options[option_index].name, "initial-rtt-timeout") == 0) {
-          l = tval2msecs(optarg);
-          if (l <= 0)
-            fatal("Bogus --initial-rtt-timeout argument specified.  Must be positive");
-          if (l >= 50 * 1000 && tval_unit(optarg) == NULL)
-            fatal("Since April 2010, the default unit for --initial-rtt-timeout is seconds, so your time of \"%s\" is %g seconds. Use \"%sms\" for %g milliseconds.", optarg, l / 1000.0, optarg, l / 1000.0);
+          l = parse_tval_msecs("initial-rtt-timeout", optarg, 1, 50 * 1000);
           delayed_options.pre_init_rtt_timeout = l;
         } else if (strcmp(long_options[option_index].name, "excludefile") == 0) {
           delayed_options.exclude_file = strdup(optarg);
@@ -728,7 +736,7 @@ void parse_options(int argc, char **argv) {
         } else if (strcmp(long_options[option_index].name, "nogcc") == 0) {
           o.nogcc = true;
         } else if (strcmp(long_options[option_index].name, "release-memory") == 0) {
-          o.release_memory = true;
+          /* No-op. We always release memory now. */
         } else if (strcmp(long_options[option_index].name, "min-parallelism") == 0) {
           o.min_parallelism = atoi(optarg);
           if (o.min_parallelism < 1)
@@ -737,12 +745,7 @@ void parse_options(int argc, char **argv) {
             error("Warning: Your --min-parallelism option is pretty high!  This can hurt reliability.");
           }
         } else if (strcmp(long_options[option_index].name, "host-timeout") == 0) {
-          l = tval2msecs(optarg);
-          if (l < 0)
-            fatal("Bogus --host-timeout argument specified");
-          // if (l == 0) this is the default "no timeout" value, overriding timing template
-          if (l >= 10000 * 1000 && tval_unit(optarg) == NULL)
-            fatal("Since April 2010, the default unit for --host-timeout is seconds, so your time of \"%s\" is %.1f hours. If this is what you want, use \"%ss\".", optarg, l / 1000.0 / 60 / 60, optarg);
+          l = parse_tval_msecs("host-timeout", optarg, 0, 10000 * 1000);
           delayed_options.pre_host_timeout = l;
         } else if (strcmp(long_options[option_index].name, "ttl") == 0) {
           delayed_options.raw_scan_options = true;
@@ -777,23 +780,14 @@ void parse_options(int argc, char **argv) {
         } else if (strcmp(long_options[option_index].name, "version-all") == 0) {
           o.version_intensity = 9;
         } else if (strcmp(long_options[option_index].name, "scan-delay") == 0) {
-          l = tval2msecs(optarg);
-          if (l < 0)
-            fatal("Bogus --scan-delay argument specified.");
-          // if (l == 0) this is the default "no delay" value, overriding timing template
-          if (l >= 100 * 1000 && tval_unit(optarg) == NULL)
-            fatal("Since April 2010, the default unit for --scan-delay is seconds, so your time of \"%s\" is %.1f minutes. Use \"%sms\" for %g milliseconds.", optarg, l / 1000.0 / 60, optarg, l / 1000.0);
+          l = parse_tval_msecs("scan-delay", optarg, 0, 100 * 1000);
           delayed_options.pre_scan_delay = l;
         } else if (strcmp(long_options[option_index].name, "defeat-rst-ratelimit") == 0) {
           o.defeat_rst_ratelimit = true;
         } else if (strcmp(long_options[option_index].name, "defeat-icmp-ratelimit") == 0) {
           o.defeat_icmp_ratelimit = true;
         } else if (strcmp(long_options[option_index].name, "max-scan-delay") == 0) {
-          l = tval2msecs(optarg);
-          if (l < 0)
-            fatal("Bogus --max-scan-delay argument specified.");
-          if (l >= 100 * 1000 && tval_unit(optarg) == NULL)
-            fatal("Since April 2010, the default unit for --max-scan-delay is seconds, so your time of \"%s\" is %.1f minutes. If this is what you want, use \"%ss\".", optarg, l / 1000.0 / 60, optarg);
+          l = parse_tval_msecs("max-scan-delay", optarg, 0, 100 * 1000);
           delayed_options.pre_max_scan_delay = l;
         } else if (strcmp(long_options[option_index].name, "max-retries") == 0) {
           delayed_options.pre_max_retries = atoi(optarg);
@@ -888,31 +882,47 @@ void parse_options(int argc, char **argv) {
         } else if (strcmp(long_options[option_index].name, "webxml") == 0) {
           o.setXSLStyleSheet("https://svn.nmap.org/nmap/docs/nmap.xsl");
         } else if (strcmp(long_options[option_index].name, "oN") == 0) {
+          if (delayed_options.normalfilename)
+            fatal("Can't use -oN multiple times or with -oA.");
           test_file_name(optarg, long_options[option_index].name);
           delayed_options.normalfilename = logfilename(optarg, &local_time);
         } else if (strcmp(long_options[option_index].name, "oG") == 0
                    || strcmp(long_options[option_index].name, "oM") == 0) {
+          if (long_options[option_index].name[1] == 'M')
+            delayed_options.warn_deprecated("oM", "oG");
+          if (delayed_options.machinefilename)
+            fatal("Can't use -oG multiple times or with -oA.");
           test_file_name(optarg, long_options[option_index].name);
           delayed_options.machinefilename = logfilename(optarg, &local_time);
           if (long_options[option_index].name[1] == 'M')
             delayed_options.warn_deprecated("oM", "oG");
         } else if (strcmp(long_options[option_index].name, "oS") == 0) {
+          if (delayed_options.kiddiefilename)
+            fatal("Can't use -oS multiple times.");
           test_file_name(optarg, long_options[option_index].name);
           delayed_options.kiddiefilename = logfilename(optarg, &local_time);
         } else if (strcmp(long_options[option_index].name, "oH") == 0) {
           fatal("HTML output is not directly supported, though Nmap includes an XSL for transforming XML output into HTML.  See the man page.");
         } else if (strcmp(long_options[option_index].name, "oX") == 0) {
+          if (delayed_options.xmlfilename)
+            fatal("Can't use -oX multiple times or with -oA.");
           test_file_name(optarg, long_options[option_index].name);
           delayed_options.xmlfilename = logfilename(optarg, &local_time);
         } else if (strcmp(long_options[option_index].name, "oA") == 0) {
           char buf[MAXPATHLEN];
+          if (delayed_options.normalfilename || delayed_options.machinefilename || delayed_options.xmlfilename)
+            fatal("Can't use -oA multiple times or with -oN, -oX, or -oG.");
+          char *logname = logfilename(optarg, &local_time);
+          if (strlen(logname) > (MAXPATHLEN - sizeof(".gnmap")))
+            fatal("Filename too long!");
           test_file_name(optarg, long_options[option_index].name);
-          Snprintf(buf, sizeof(buf), "%s.nmap", logfilename(optarg, &local_time));
+          Snprintf(buf, sizeof(buf), "%s.nmap", logname);
           delayed_options.normalfilename = strdup(buf);
-          Snprintf(buf, sizeof(buf), "%s.gnmap", logfilename(optarg, &local_time));
+          Snprintf(buf, sizeof(buf), "%s.gnmap", logname);
           delayed_options.machinefilename = strdup(buf);
-          Snprintf(buf, sizeof(buf), "%s.xml", logfilename(optarg, &local_time));
+          Snprintf(buf, sizeof(buf), "%s.xml", logname);
           delayed_options.xmlfilename = strdup(buf);
+          free(logname);
         } else if (strcmp(long_options[option_index].name, "thc") == 0) {
           log_write(LOG_STDOUT, "!!Greets to Van Hauser, Plasmoid, Skyper and the rest of THC!!\n");
           exit(0);
@@ -961,18 +971,20 @@ void parse_options(int argc, char **argv) {
             fatal("Data payload MTU must be >0 and multiple of 8");
         } else if (strcmp(long_options[option_index].name, "port-ratio") == 0) {
           char *ptr;
-          o.topportlevel = strtod(optarg, &ptr);
-          if (!ptr || o.topportlevel < 0 || o.topportlevel >= 1)
+          d = strtod(optarg, &ptr);
+          if (errno != 0 || !ptr || ptr == optarg || *ptr != '\0' || !std::isfinite(d) || d < 0 || d >= 1)
             fatal("--port-ratio should be between [0 and 1)");
+          o.topportlevel = d;
         } else if (strcmp(long_options[option_index].name, "exclude-ports") == 0) {
           if (o.exclude_portlist)
             fatal("Only 1 --exclude-ports option allowed, separate multiple ranges with commas.");
           o.exclude_portlist = strdup(optarg);
         } else if (strcmp(long_options[option_index].name, "top-ports") == 0) {
           char *ptr;
-          o.topportlevel = strtod(optarg, &ptr);
-          if (!ptr || o.topportlevel < 1 || ((double)((int)o.topportlevel)) != o.topportlevel)
-            fatal("--top-ports should be an integer 1 or greater");
+          l = strtol(optarg, &ptr, 10);
+          if (errno != 0 || !ptr || ptr == optarg || *ptr != '\0' || l < 1 || l > 65535)
+            fatal("--top-ports should be an integer between 1 and 65535");
+          o.topportlevel = l;
         } else if (strcmp(long_options[option_index].name, "ip-options") == 0) {
           delayed_options.raw_scan_options = true;
           o.ipoptions    = (u8*) safe_malloc(4 * 10 + 1);
@@ -1111,6 +1123,8 @@ void parse_options(int argc, char **argv) {
       break;
     case 'm':
       delayed_options.warn_deprecated("m", "oG");
+      if (delayed_options.machinefilename)
+        fatal("Can't use -oG multiple times or with -oA.");
       test_file_name(optarg, "oG");
       delayed_options.machinefilename = logfilename(optarg, &local_time);
       break;
@@ -1127,6 +1141,8 @@ void parse_options(int argc, char **argv) {
       break;
     case 'o':
       delayed_options.warn_deprecated("o", "oN");
+      if (delayed_options.normalfilename)
+        fatal("Can't use -oN multiple times or with -oA.");
       test_file_name(optarg, "o");
       delayed_options.normalfilename = logfilename(optarg, &local_time);
       break;
@@ -1838,6 +1854,9 @@ void nmap_free_mem() {
   AllProbes::service_scan_free();
   traceroute_hop_cache_clear();
   nsock_set_default_engine(NULL);
+#ifndef NOLUA
+  close_nse();
+#endif
 }
 
 int nmap_main(int argc, char *argv[]) {
@@ -1898,8 +1917,7 @@ int nmap_main(int argc, char *argv[]) {
   else
     nbase_set_log(fatal, NULL);
 
-
-  tty_init(); // Put the keyboard in raw mode
+  TTYState ttystate; // Put the keyboard in raw mode
 
 #ifdef WIN32
   // Must come after parse_options because of --unprivileged
@@ -2102,7 +2120,7 @@ int nmap_main(int argc, char *argv[]) {
   if (o.ping_group_sz < o.minHostGroupSz())
     o.ping_group_sz = o.minHostGroupSz();
   HostGroupState hstate(o.ping_group_sz, o.randomize_hosts,
-      o.generate_random_ips, o.max_ips_to_scan, argc, (const char **) argv);
+      o.generate_random_ips, o.max_ips_to_scan, exclude_group, argc, (const char **) argv);
 
   do {
     ideal_scan_group_sz = determineScanGroupSize(o.numhosts_scanned, &ports);
@@ -2177,7 +2195,7 @@ int nmap_main(int argc, char *argv[]) {
             currenths->setSourceSockAddr(&ss, sslen);
             if (! sourceaddrwarning) {
               error("WARNING: We could not determine for sure which interface to use, so we are guessing %s .  If this is wrong, use -S <my_IP_address>.",
-                    inet_socktop(&ss));
+                    inet_socktop_safe(&ss));
               sourceaddrwarning = 1;
             }
           }
@@ -2370,8 +2388,9 @@ int nmap_main(int argc, char *argv[]) {
 
   eth_close_cached();
 
-  if (o.release_memory) {
-    nmap_free_mem();
+  nmap_free_mem();
+  if (o.resuming) {
+    arg_parse_free(argv);
   }
   return 0;
 }
@@ -2812,9 +2831,9 @@ static void display_nmap_version() {
 
 #if HAVE_LIBSSH2
 #ifdef LIBSSH2_INCLUDED
-  with.push_back(std::string("nmap-libssh2-") + get_word_or_quote(LIBSSH2_VERSION, 0));
+  with.push_back(std::string("nmap-libssh2-") + libssh2_version(0));
 #else
-  with.push_back(std::string("libssh2-") + get_word_or_quote(LIBSSH2_VERSION, 0));
+  with.push_back(std::string("libssh2-") + libssh2_version(0));
 #endif
 #else
   without.push_back("libssh2");

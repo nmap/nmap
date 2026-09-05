@@ -1380,13 +1380,13 @@ function standard_query(socket, type)
 
   --try to pull the  information
   local status, result = send_query(socket, query)
-  if(status == false) then
+  if not status then
     stdnse.debug1("Socket error sending query: %s", result)
     return nil
   end
   -- receive packet from response
   local rcvstatus, response = socket:receive()
-  if(rcvstatus == false) then
+  if not rcvstatus then
     stdnse.debug1("Socket error receiving: %s", response)
     return nil
   end
@@ -1424,13 +1424,13 @@ function vendornum_query(socket)
 
   --send the vendor information
   local status, result = send_query(socket, vendor_query)
-  if(status == false) then
+  if not status then
     stdnse.debug1("Socket error sending vendor query: %s", result)
     return nil
   end
   -- receive vendor information packet
   local rcvstatus, response = socket:receive()
-  if(rcvstatus == false) then
+  if not rcvstatus then
     stdnse.debug1("Socket error receiving vendor query: %s", response)
     return nil
   end
@@ -1486,7 +1486,7 @@ action = function(host, port)
   -- scanning more than one host at a time, may fix some issues seen on Windows
   --
   local status, err = sock:bind(nil, port.number)
-  if(status == false) then
+  if not status then
     stdnse.debug1("Couldn't bind to %s/udp. Continuing anyway, results may vary", port.number)
   end
   -- connect to the remote host
@@ -1504,7 +1504,7 @@ action = function(host, port)
 
   -- receive response
   local rcvstatus, response = sock:receive()
-  if(rcvstatus == false) then
+  if not rcvstatus then
     stdnse.debug1("Receive error: %s", response)
     return nil
   end

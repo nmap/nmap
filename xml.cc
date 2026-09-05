@@ -140,62 +140,69 @@ struct xml_writer {
 static struct xml_writer xml;
 
 char *xml_unescape(const char *str) {
-  char *result = NULL;
-  size_t n = 0, len;
-  const char *p;
-  int i;
+  size_t n = strlen(str) + 1;
+  char *result = (char *) safe_malloc(n);
+  size_t i = 0;
 
-  i = 0;
-  for (p = str; *p != '\0'; p++) {
-    const char *repl;
-    char buf[32];
+  for (const char *p = str; *p != '\0'; p++) {
 
+    // Make sure there's enough space for 1 character. None of the replacements
+    // here produce more than 1 character of unescaped output, so this function
+    // should strictly return a string shorter than the original.
+    assert(i < n - 1);
+
+    // ordinary case: plain copy
     if (*p != '&') {
-      /* Based on the asumption that ampersand is only used for escaping. */
-      buf[0] = *p;
-      buf[1] = '\0';
-      repl = buf;
-    } else if (strncmp(p, "&lt;", 4) == 0) {
-      repl = "<";
-      p += 3;
-    } else if (strncmp(p, "&gt;", 4) == 0) {
-      repl = ">";
-      p += 3;
-    } else if (strncmp(p, "&amp;", 5) == 0) {
-      repl = "&";
-      p += 4;
-    } else if (strncmp(p, "&quot;", 6) == 0) {
-      repl = "\"";
-      p += 5;
-    } else if (strncmp(p, "&apos;", 6) == 0) {
-      repl = "\'";
-      p += 5;
-    } else if (strncmp(p, "&#45;", 5) == 0) {
-      repl = "-";
-      p += 4;
-    } else {
-      /* Escaped control characters and anything outside of ASCII. */
-      Strncpy(buf, p + 3, sizeof(buf));
-      char *q;
-      q = strchr(buf, ';');
-      if(!q)
-        buf[0] = '\0';
-      else
-        *q = '\0';
-      repl = buf;
+plain_copy:
+      result[i++] = *p;
+      continue;
     }
 
-    len = strlen(repl);
-    /* Double the size of the result buffer if necessary. */
-    if (i == 0 || i + len > n) {
-      n = (i + len) * 2;
-      result = (char *) safe_realloc(result, n + 1);
+    // ampersand introduces entity
+    const char *q = strchr(p + 1, ';');
+    if (!q) {
+      // unterminated entity
+      goto plain_copy;
     }
-    memcpy(result + i, repl, len);
-    i += len;
+
+    // decode the entity
+    if (p[1] == '#') {
+      // numeric entity
+      long codepoint = 0;
+      char *invalp = NULL;
+
+      if (p[2] == 'x') {
+        codepoint = strtol(p + 3, &invalp, 16);
+      }
+      else {
+        codepoint = strtol(p + 2, &invalp, 10);
+      }
+
+      /* For now, we will not support unescape of code points greater than
+       * 0xff. Anything higher requires choosing a multibyte encoding. */
+      if (invalp != q || codepoint < 0 || codepoint > 0xff) {
+        goto plain_copy;
+      }
+      result[i++] = (char) codepoint;
+    }
+    else if (strncmp(p, "lt;", 3) == 0) {
+      result[i++] = '<';
+    } else if (strncmp(p, "gt;", 3) == 0) {
+      result[i++] = '>';
+    } else if (strncmp(p, "amp;", 4) == 0) {
+      result[i++] = '&';
+    } else if (strncmp(p, "quot;", 5) == 0) {
+      result[i++] = '"';
+    } else if (strncmp(p, "apos;", 5) == 0) {
+      result[i++] = '\'';
+    } else {
+      // unsupported entity
+      goto plain_copy;
+    }
+
+    // jump to the ';' and let the loop move to the next character.
+    p = q;
   }
-  /* Trim to length. (Also does initial allocation when str is empty.) */
-  result = (char *) safe_realloc(result, i + 1);
   result[i] = '\0';
 
   return result;
@@ -209,8 +216,9 @@ char *xml_unescape(const char *str) {
 static char *escape(const char *str) {
   /* result is the result buffer; n + 1 is the allocated size. Double the
      allocation when space runs out. */
-  char *result = NULL;
-  size_t n = 0, len;
+  size_t n = strlen(str);
+  char *result = (char *) safe_malloc(n + 1);
+  size_t len;
   const char *p;
   int i;
 

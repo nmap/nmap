@@ -89,11 +89,11 @@ jobs:
 
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Set up QEMU for ARM64
         if: matrix.arch == 'arm64'
-        uses: docker/setup-qemu-action@v3
+        uses: docker/setup-qemu-action@v4
         with:
           platforms: linux/arm64
 
@@ -169,7 +169,7 @@ jobs:
           prepare: |
             export PATH=/usr/sbin:/usr/pkg/sbin:/usr/pkg/bin:$PATH
             export PKG_PATH="http://cdn.netbsd.org/pub/pkgsrc/packages/NetBSD/$(uname -p)/$(uname -r | cut -d_ -f1)/All"
-            pkg_add -u gcc13 clang autoconf automake pkgconf libpcap libnet gmake dbus
+            pkg_add -u gcc13 clang autoconf automake pkgconf libpcap libnet gmake
           run: |
             ./configure
             gmake
