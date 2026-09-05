@@ -12813,7 +12813,7 @@ match domain m|^(?:..)?\0\x06\x81\x84\0\x01\0\0\0\0\0\x01\x07version\x04bind\0\0
 match domain m|^(?:..)?\0\x06\x85\x02\0\x01\0\0\0\0\0\0\x07version\x04bind\0\0\x10\0\x03| p/PowerDNS/ cpe:/a:powerdns:powerdns/
 match domain m|^(?:..)?\0\x06\x81\x05\0\x01\0\0\0\0\0\0\x07version\x04bind\0\0\x10\0\x03| p/NLnet Labs NSD/ cpe:/a:nlnetlabs:nsd/
 match domain m|^(?:..)?\0\x06\x81\x83\0\x01\0\0\0\0\0\0\x07version\x04bind\0\0\x10\0\x03| p/dnsmasq/ cpe:/a:thekelleys:dnsmasq/
-match domain m|^(?:\0=)?\0\x06\x85\0\0\x01\0\x01\0\x01\0\0\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03\0\0\0\0\0\x05\x04none\xc0\x0c\0\x02\0\x03\0\0\0\0\0\x02\xc0\x0c| p/Plesk Onyx BIND/ cpe:/a:isc:bind/ cpe:/a:parallels:plesk_onyx/
+match domain m|^(?:\0=)?\0\x06\x85\0\0\x01\0\x01\0\x01\0\0\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03\0\0\0\0\0\x05\x04none\xc0\x0c\0\x02\0\x03\0\0\0\0\0\x02\xc0\x0c| p/ISC BIND/ cpe:/a:isc:bind/
 
 # EDNS OPT records
 match domain m|^(?:\0\.)?\0\x06\x85\x80\0\x01\0\x01\0\0\0\0\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x01\0\x01\0\0\0\x02\0\x04\0\0\0\0$| p/pi-hole FTLDNS/ cpe:/a:pi-hole:ftldns/
