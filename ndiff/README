@@ -13,6 +13,23 @@ without installing it.
 
 Use "ndiff --help" for usage instructions.
 
+Using Ndiff as a Python XML parser
+----------------------------------
+
+Ndiff also installs as the Python module `ndiff`. Programs that need to
+read Nmap XML can import the module and load a scan with the same parser
+used by the `ndiff` command:
+
+    from ndiff import Scan
+
+    scan = Scan()
+    scan.load_from_file("scan.xml")
+    for host in scan.hosts:
+        print(host.get_id(), host.state)
+
+The `Scan` object contains parsed hosts, ports, hostnames, OS matches,
+and pre- and post-scan script results from the input Nmap XML file.
+
 Here is a sample of the output:
 
 $ ./ndiff test-scans/random-1.xml test-scans/random-2.xml
