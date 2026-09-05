@@ -61,6 +61,7 @@ end
 -- Returns an array of address strings.
 local function get_ip_addresses(layer3)
   local ip = packet.Packet:new(layer3, layer3:len())
+  if not ip then return {} end
   return { ipOps.str_to_ip(ip.ip_bin_src), ipOps.str_to_ip(ip.ip_bin_dst) }
 end
 
@@ -119,7 +120,7 @@ action = function()
         stdnse.debug1("Got IP addresses %s", table.concat(addresses, " "))
 
         for _, addr in ipairs(addresses) do
-          if check_if_valid(addr) == true then
+          if check_if_valid(addr) then
             if not unique_addresses[addr] then
               unique_addresses[addr] = true
               table.insert(all_addresses, addr)
@@ -136,7 +137,7 @@ action = function()
     sock:pcap_close()
   end
 
-  if target.ALLOW_NEW_TARGETS == true then
+  if target.ALLOW_NEW_TARGETS then
     if nmap.address_family() == 'inet6' then
       for _,v in pairs(all_addresses) do
         if v:match(':') then

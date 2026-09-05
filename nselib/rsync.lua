@@ -8,7 +8,6 @@ local match = require "match"
 local nmap = require "nmap"
 local stdnse = require "stdnse"
 local string = require "string"
-local table = require "table"
 local openssl = stdnse.silent_require "openssl"
 _ENV = stdnse.module("rsync", stdnse.seeall)
 
@@ -30,20 +29,16 @@ Helper = {
   end,
 
   -- Handles send and receive of control messages
-  -- @param data string containing the command to send
+  -- @param cmd string containing the command to send
   -- @return status true on success, false on failure
   -- @return data containing the response from the server
   --         err string, if status is false
-  ctrl_exch = function(self, data)
-    local status, err = self.socket:send(data.."\n")
-    if ( not(status) ) then
+  ctrl_exch = function(self, cmd)
+    local status, err = self.socket:send(cmd .. "\n")
+    if not status then
       return false, err
     end
-    local status, data = self.socket:receive_buf(match.pattern_limit("\n", 2048), false)
-    if( not(status) ) then
-      return false, err
-    end
-    return true, data
+    return self.socket:receive_buf(match.pattern_limit("\n", 2048), false)
   end,
 
   -- Connects to the rsync server
@@ -62,7 +57,7 @@ Helper = {
     if ( not(status) ) then
       return false, data
     end
-    if ( not(data:match("^@RSYNCD: [%.%d]+$")) ) then
+    if ( not(data:match("^@RSYNCD: [.%d]+%f[ \0]")) ) then
       return false, "Protocol error"
     end
     return true
@@ -70,6 +65,8 @@ Helper = {
 
   -- Authenticates against the rsync module. If no username is given, assume
   -- no authentication is required.
+  -- The implemented algorithm is CSUM_MD4_OLD, which is only valid for
+  -- protocol version 29 or lower.
   -- @param username [optional] string containing the username
   -- @param password [optional] string containing the password
   login = function(self, username, password)
@@ -79,19 +76,17 @@ Helper = {
       return false, data
     end
 
-    local chall
     if ( data:match("@RSYNCD: OK") ) then
       return true, "No authentication was required"
-    else
-      chall = data:match("^@RSYNCD: AUTHREQD (.*)$")
-      if ( not(chall) and data:match("^@ERROR: Unknown module") ) then
-        return false, data:match("^@ERROR: (.*)$")
-      elseif ( not(chall) ) then
-        return false, "Failed to retrieve challenge"
-      end
+    end
+    local chall = data:match("^@RSYNCD: AUTHREQD (.*)$")
+    if ( not(chall) and data:match("^@ERROR: Unknown module") ) then
+      return false, data:match("^@ERROR: (.*)$")
+    elseif ( not(chall) ) then
+      return false, "Failed to retrieve challenge"
     end
 
-    if ( chall and not(username) ) then
+    if not username then
       return false, "Authentication required"
     end
 
@@ -110,14 +105,14 @@ Helper = {
 
   -- Lists accessible modules from the rsync server
   -- @return status true on success, false on failure
-  -- @return modules table containing a list of modules
+  -- @return modules table, keyed with module names
   listModules = function(self)
     local status, data = self.socket:send("\n")
     if (not(status)) then
       return false, data
     end
 
-    local modules = {}
+    local modules = stdnse.output_table()
     while(true) do
       status, data = self.socket:receive_buf(match.pattern_limit("\n", 2048), false)
       if (not(status)) then
@@ -125,9 +120,9 @@ Helper = {
       end
       if ( data == "@RSYNCD: EXIT" ) then
         break
-      else
-        table.insert(modules, data)
       end
+      local module, comment = data:match("^(.-) *\t(.*)")
+      modules[module or data:match("^(.-)%s*$")] = {comment=comment}
     end
     return true, modules
   end,
@@ -137,8 +132,9 @@ Helper = {
   --       first, but wasn't.
   listFiles = function(self)
     -- list recursively and enable MD4 checksums
+    local status
     local data = ("--server\n--sender\n-rc\n.\n%s\n\n"):format(self.options.module)
-    local status, data = self.socket:send(data)
+    status, data = self.socket:send(data)
     if ( not(status) ) then
       return false, data
     end

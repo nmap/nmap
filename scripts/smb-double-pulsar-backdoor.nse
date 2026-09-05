@@ -84,7 +84,7 @@ local function send_transaction2(smbstate, sub_command, function_parameters, fun
   -- Send the transaction request
   stdnse.debug2("SMB: Sending SMB_COM_TRANSACTION2")
   local result, err = smb.smb_send(smbstate, header, parameters, data, overrides)
-  if(result == false) then
+  if not result then
     return false, err
   end
 

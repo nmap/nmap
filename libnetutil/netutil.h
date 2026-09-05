@@ -146,6 +146,12 @@ int resolve(const char *hostname, unsigned short port,
 int resolve_numeric(const char *ip, unsigned short port,
   struct sockaddr_storage *ss, size_t *sslen, int af);
 
+/* Tries to resolve the given name (or literal IP) into a sockaddr
+   structure. This function calls getaddrinfo and returns the same
+   addrinfo linked list that getaddrinfo produces. Returns NULL for any
+   error or failure to resolve. */
+struct addrinfo *resolve_all(const char *hostname, int pf);
+
 /*
  * Returns 1 if this is a reserved IP address, where "reserved" means
  * either a private address, non-routable address, or even a non-reserved
@@ -166,8 +172,10 @@ int resolve_numeric(const char *ip, unsigned short port,
  * netblocks.
  */
 int ip_is_reserved(const struct sockaddr_storage *addr);
+const struct addrset *get_reserved_addrset(void);
 
-
+bool getNextHopMAC(const char *iface, const u8 *srcmac, const struct sockaddr_storage *srcss,
+                   const struct sockaddr_storage *dstss, u8 *dstmac);
 
 /* A couple of trivial functions that maintain a cache of IP to MAC
  * Address entries. Function mac_cache_get() looks for the IPv4 address
@@ -311,7 +319,7 @@ void eth_close_cached();
     * Bind to an interface with SO_BINDTODEVICE (if device is not NULL).
    The socket is created with address family AF_INET, but may be usable for
    AF_INET6, depending on the operating system. */
-int netutil_raw_socket(const char *device);
+int netutil_raw_socket(const char *device, int af=AF_INET);
 
 /* How should we send raw IP packets?  Nmap can generally use either
    ethernet or raw ip sockets.  Which is better depends on platform
@@ -331,7 +339,7 @@ int netutil_raw_socket(const char *device);
 #define PACKET_SEND_IP_STRONG   0x10
 #define PACKET_SEND_IP (PACKET_SEND_IP_WEAK | PACKET_SEND_IP_STRONG)
 int raw_socket_or_eth(int sendpref, const char *ifname, devtype iftype,
-    int *rawsd, netutil_eth_t **ethsd);
+    int *rawsd, netutil_eth_t **ethsd, int af=AF_INET);
 
 /* Takes a protocol number like IPPROTO_TCP, IPPROTO_UDP, or
  * IPPROTO_IP and returns a ascii representation (or "unknown" if it
@@ -345,7 +353,7 @@ const char *proto2ascii_uppercase(u8 proto);
    optp, with a length of len. The result is stored in the result
    buffer. The result may look like "<mss 1452,sackOK,timestamp
    45848914 0,nop,wscale 7>" */
-void tcppacketoptinfo(u8 *optp, int len, char *result, int bufsize);
+void tcppacketoptinfo(const u8 *optp, int len, char *result, int bufsize);
 
 /* Convert an IP address to the device (IE ppp0 eth0) using that
  * address.  Supplied "dev" must be able to hold at least 32 bytes.
@@ -354,7 +362,7 @@ int ipaddr2devname( char *dev, const struct sockaddr_storage *addr );
 
 /* Convert a network interface name (IE ppp0 eth0) to an IP address.
  * Returns 0 on success or -1 in case of error. */
-int devname2ipaddr(char *dev, int af, struct sockaddr_storage *addr);
+int devname2ipaddr(const char *dev, int af, struct sockaddr_storage *addr);
 
 int sockaddr_equal(const struct sockaddr_storage *a,
   const struct sockaddr_storage *b);

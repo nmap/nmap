@@ -153,6 +153,8 @@ static char *make_nonce(const struct timeval *tv)
     Snprintf(time_buf, sizeof(time_buf), "%lu.%06lu",
         (long unsigned) tv->tv_sec, (long unsigned) tv->tv_usec);
     md5 = EVP_MD_CTX_new();
+    if (md5 == NULL)
+      bye("Failed to allocate MD context.");
     EVP_DigestInit_ex(md5, EVP_md5(), NULL);
     EVP_DigestUpdate(md5, secret, sizeof(secret));
     EVP_DigestUpdate(md5, ":", 1);
@@ -181,6 +183,8 @@ static void make_response(char buf[EVP_MAX_MD_SIZE * 2 + 1],
 
     /* Calculate H(A1). */
     md5 = EVP_MD_CTX_new();
+    if (md5 == NULL)
+      bye("Failed to allocate MD context.");
     EVP_DigestInit_ex(md5, md, NULL);
     EVP_DigestUpdate(md5, username, strlen(username));
     EVP_DigestUpdate(md5, ":", 1);

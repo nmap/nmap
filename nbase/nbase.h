@@ -144,6 +144,7 @@
 #endif
 
 #include <stdio.h>
+#include <limits.h> /* CHAR_BIT */
 
 #ifndef MAXHOSTNAMELEN
 #define MAXHOSTNAMELEN 64
@@ -161,6 +162,58 @@
 
 /* Keep assert() defined for security reasons */
 #undef NDEBUG
+
+#ifndef static_assert
+# if defined(__cplusplus)
+   // If C++ but older than C++11
+#  if __cplusplus < 201103L && !(defined(_MSVC_LANG) && _MSVC_LANG >= 201103L)
+#   include <cassert>
+#   define static_assert(expr, msg) assert((expr) && (msg))
+#  endif
+# else
+   // If C but older than C11 (which introduced _Static_assert)
+#  if !defined(__STDC_VERSION__) || __STDC_VERSION__ < 201112L
+#   include <assert.h>
+#   define static_assert(expr, msg) assert((expr) && (msg))
+#  endif
+# endif
+#endif
+
+/* Cross-platform array vs. pointer verification.
+ * Uses compile-time checks where possible, and falls back to a runtime
+ * assertion where the standard lacks compile-time capabilities.
+ */
+#if defined(__cplusplus)
+  /* C++11 and later (including MSVC C++11) */
+# if __cplusplus >= 201103L || (defined(_MSVC_LANG) && _MSVC_LANG >= 201103L)
+#  include <type_traits>
+#  define ASSERT_IS_ARRAY(_Buf, _Msg) \
+     static_assert(std::is_array<decltype(_Buf)>::value, _Msg)
+# else
+  /* C++98: Address comparison is not an ICE, fall back to runtime assert */
+#  include <cassert>
+#  define ASSERT_IS_ARRAY(_Buf, _Msg) \
+     assert(((void *)&(_Buf) == (void *)&(_Buf)[0]) && _Msg)
+# endif
+#else
+  /* C compilers supporting GCC/Clang extensions */
+# if defined(__GNUC__) || defined(__clang__)
+   /* __typeof__ and __builtin_types_compatible_p resolve to an ICE */
+#  define ASSERT_IS_ARRAY(_Buf, _Msg) \
+     static_assert(!__builtin_types_compatible_p(__typeof__(_Buf), __typeof__(&(_Buf)[0])), _Msg)
+# else
+  /* Standard C / MSVC C mode: No standard ICE for array deduction, use runtime assert */
+#  include <assert.h>
+#  define ASSERT_IS_ARRAY(_Buf, _Msg) \
+     assert(((void *)&(_Buf) == (void *)&(_Buf)[0]) && _Msg)
+# endif
+#endif
+
+#define bufset(_Buf, _Str) do { \
+  ASSERT_IS_ARRAY(_Buf, "bufset called with pointer"); \
+  static_assert(sizeof("" _Str) <= sizeof(_Buf), "buffer too small"); \
+  memcpy(_Buf, "" _Str, sizeof("" _Str)); \
+} while (0)
 
 /* Integer types */
 #include <stdint.h>
@@ -468,6 +521,7 @@ u32 get_random_u32();
 u16 get_random_u16();
 u8 get_random_u8();
 u32 get_random_unique_u32();
+u16 get_random_unique_u16();
 
 /* Create a new socket inheritable by subprocesses. On non-Windows systems it's
    just a normal socket. */
@@ -506,7 +560,20 @@ extern void addrset_free(struct addrset *set);
 extern void addrset_print(FILE *fp, const struct addrset *set);
 extern int addrset_add_spec(struct addrset *set, const char *spec, int af, int dns);
 extern int addrset_add_file(struct addrset *set, FILE *fd, int af, int dns);
+extern void addrset_update(struct addrset *set, const struct addrset *other);
 extern int addrset_contains(const struct addrset *set, const struct sockaddr *sa);
+extern int addrset_matches_all(const struct addrset *set, int af);
+
+/* We use bit vectors to represent what values are allowed in an IPv4 octet.
+   Each vector is built up of an array of bitvector_t (any convenient integer
+   type). */
+typedef unsigned long bitvector_t;
+/* A 256-element bit vector, representing legal values for one octet. */
+typedef bitvector_t octet_bitvector[(256 - 1) / (sizeof(unsigned long) * CHAR_BIT) + 1];
+
+#define BITVECTOR_BITS (sizeof(bitvector_t) * CHAR_BIT)
+#define BIT_SET(v, n) ((v)[(n) / BITVECTOR_BITS] |= 1UL << ((n) % BITVECTOR_BITS))
+#define BIT_IS_SET(v, n) (((v)[(n) / BITVECTOR_BITS] & 1UL << ((n) % BITVECTOR_BITS)) != 0)
 
 #ifndef STDIN_FILENO
 #define STDIN_FILENO 0

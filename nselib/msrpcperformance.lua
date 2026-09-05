@@ -435,26 +435,26 @@ function get_performance_data(host, objects)
 
   -- Create the SMB session
   local status, smbstate = msrpc.start_smb(host, msrpc.WINREG_PATH)
-  if(status == false) then
+  if not status then
     return false, smbstate
   end
 
   -- Bind to WINREG service
   local status, bind_result = msrpc.bind(smbstate, msrpc.WINREG_UUID, msrpc.WINREG_VERSION, nil)
-  if(status == false) then
+  if not status then
     msrpc.stop_smb(smbstate)
     return false, bind_result
   end
 
   -- Open HKEY_PERFORMANCE_DATA
   local status, openhkpd_result = msrpc.winreg_openhkpd(smbstate)
-  if(status == false) then
+  if not status then
     msrpc.stop_smb(smbstate)
     return false, openhkpd_result
   end
 
   local status, queryvalue_result = msrpc.winreg_queryvalue(smbstate, openhkpd_result['handle'], "Counter 009")
-  if(status == false) then
+  if not status then
     msrpc.stop_smb(smbstate)
     return false, queryvalue_result
   end
@@ -464,7 +464,7 @@ function get_performance_data(host, objects)
   local status
   local result = {}
   status, pos, result['title_database'] = parse_perf_title_database(queryvalue_result['value'], pos)
-  if(status == false) then
+  if not status then
     msrpc.stop_smb(smbstate)
     return false, pos
   end
@@ -474,7 +474,7 @@ function get_performance_data(host, objects)
   if(objects ~= nil and #objects > 0) then
     -- Query for the objects
     local status, queryvalue_result = msrpc.winreg_queryvalue(smbstate, openhkpd_result['handle'], objects)
-    if(status == false) then
+    if not status then
       msrpc.stop_smb(smbstate)
       return false, queryvalue_result
     end
@@ -483,7 +483,7 @@ function get_performance_data(host, objects)
     pos = 1
     local status, data_block
     status, pos, data_block = parse_perf_data_block(queryvalue_result['value'], pos)
-    if(status == false) then
+    if not status then
       msrpc.stop_smb(smbstate)
       return false, pos
     end
@@ -502,7 +502,7 @@ function get_performance_data(host, objects)
       -- Get the type of the object (this is basically the class definition -- info about the object instances)
       local status, object_type
       status, pos, object_type = parse_perf_object_type(queryvalue_result['value'], pos)
-      if(status == false) then
+      if not status then
         msrpc.stop_smb(smbstate)
         return false, pos
       end
@@ -523,7 +523,7 @@ function get_performance_data(host, objects)
       -- Parse the counter definitions
       for j = 1, object_type['NumCounters'], 1 do
         status, pos, counter_definitions[j] = parse_perf_counter_definition(queryvalue_result['value'], pos)
-        if(status == false) then
+        if not status then
           msrpc.stop_smb(smbstate)
           return false, pos
         end
@@ -542,7 +542,7 @@ function get_performance_data(host, objects)
           -- Instance definition
           local status
           status, pos, object_instances[j] = parse_perf_instance_definition(queryvalue_result['value'], pos)
-          if(status == false) then
+          if not status then
             msrpc.stop_smb(smbstate)
             return false, pos
           end
@@ -563,7 +563,7 @@ function get_performance_data(host, objects)
           -- The counter block
           local status, counter_block
           status, pos, counter_block = parse_perf_counter_block(queryvalue_result['value'], pos)
-          if(status == false) then
+          if not status then
             msrpc.stop_smb(smbstate)
             return false, pos
           end
@@ -572,7 +572,7 @@ function get_performance_data(host, objects)
             -- Each individual counter
             local status, counter_result
             status, pos, counter_result = parse_perf_counter(queryvalue_result['value'], pos, counter_definitions[k])
-            if(status == false) then
+            if not status then
               msrpc.stop_smb(smbstate)
               return false, pos
             end
@@ -592,7 +592,7 @@ function get_performance_data(host, objects)
           -- Each individual counter
           local status, counter_result
           status, pos, counter_result = parse_perf_counter(queryvalue_result['value'], pos, counter_definitions[k])
-          if(status == false) then
+          if not status then
             msrpc.stop_smb(smbstate)
             return false, pos
           end

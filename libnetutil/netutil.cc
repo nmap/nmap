@@ -120,6 +120,7 @@ typedef unsigned __int8 u_int8_t;
 #endif
 
 #include "netutil.h"
+#include "TCPHeader.h"
 
 #if HAVE_NET_IF_H
 #ifndef NET_IF_H /* This guarding is needed for at least some versions of OpenBSD */
@@ -138,6 +139,7 @@ typedef unsigned __int8 u_int8_t;
 #endif
 
 #include <stddef.h>
+#include <locale.h>
 
 #define NBASE_MAX_ERR_STR_LEN 1024  /* Max length of an error message */
 
@@ -227,10 +229,10 @@ int parse_ip_options(const char *txt, u8 *data, int datalen, int* firsthopoff, i
     case SLASH:
       // parse \x00 string
       if(*c == 'x'){// just ignore this char
-      	base = 16;
+        base = 16;
         break;
       }
-      if(isxdigit(*c)){
+      if(isxdigit((unsigned char)*c)){
         strtolbyte = strtol(c, &n, base);
         if((strtolbyte < 0) || (strtolbyte > 255)){
           if(errstr) Snprintf(errstr, errstrlen, "invalid ipv4 address format");
@@ -351,24 +353,33 @@ after:
   return(d - data);
 }
 
-/* Internal helper for resolve and resolve_numeric. addl_flags is ored into
-   hints.ai_flags, so you can add AI_NUMERICHOST. */
-static int resolve_internal(const char *hostname, unsigned short port,
-  struct sockaddr_storage *ss, size_t *sslen, int af, int addl_flags) {
+/* Tries to resolve the given name (or literal IP) into a sockaddr structure.
+   This function calls getaddrinfo and returns the same addrinfo linked list
+   that getaddrinfo produces. Returns NULL for any error or failure to resolve.
+   You need to call freeaddrinfo on the result if non-NULL. */
+static addrinfo *resolve_all_internal(const char *hostname, unsigned short port,
+    int af, int addl_flags) {
   struct addrinfo hints;
   struct addrinfo *result;
   char portbuf[16];
   char *servname = NULL;
   int rc;
 
-  assert(hostname);
-  assert(ss);
-  assert(sslen);
-
   memset(&hints, 0, sizeof(hints));
   hints.ai_family = af;
+  /* Otherwise we get multiple identical addresses with different socktypes. */
   hints.ai_socktype = SOCK_DGRAM;
   hints.ai_flags |= addl_flags;
+
+#ifdef AI_IDN
+  /* Try resolving internationalized domain names */
+  locale_t env_locale = newlocale(LC_CTYPE_MASK, "", (locale_t)0);
+  hints.ai_flags |= AI_IDN;
+  locale_t old_locale = (locale_t)0;
+  if (env_locale != old_locale) {
+    old_locale = uselocale(env_locale);
+  }
+#endif
 
   /* Make the port number a string to give to getaddrinfo. */
   if (port != 0) {
@@ -378,8 +389,36 @@ static int resolve_internal(const char *hostname, unsigned short port,
   }
 
   rc = getaddrinfo(hostname, servname, &hints, &result);
-  if (rc != 0)
-    return rc;
+
+#ifdef AI_IDN
+  if (env_locale != (locale_t)0) {
+      // Restore the thread's previous locale configuration
+      uselocale(old_locale);
+      // Free the allocated memory for the temporary locale
+      freelocale(env_locale);
+  }
+#endif
+
+  if (rc != 0){
+    if ((AI_NUMERICHOST & addl_flags) == 0)
+      netutil_error("Error resolving %s: %s", hostname, gai_strerror(rc));
+    return NULL;
+  }
+
+  return result;
+}
+
+/* Internal helper for resolve and resolve_numeric. addl_flags is ored into
+   hints.ai_flags, so you can add AI_NUMERICHOST. */
+static int resolve_internal(const char *hostname, unsigned short port,
+  struct sockaddr_storage *ss, size_t *sslen, int af, int addl_flags) {
+  struct addrinfo *result;
+
+  assert(hostname);
+  assert(ss);
+  assert(sslen);
+
+  result = resolve_all_internal(hostname, port, af, addl_flags);
   if (result == NULL)
     return EAI_NONAME;
   assert(result->ai_addrlen > 0 && result->ai_addrlen <= (int) sizeof(struct sockaddr_storage));
@@ -409,6 +448,10 @@ int resolve_numeric(const char *ip, unsigned short port,
   return resolve_internal(ip, port, ss, sslen, af, AI_NUMERICHOST);
 }
 
+struct addrinfo *resolve_all(const char *hostname, int pf) {
+  return resolve_all_internal(hostname, 0, pf, 0);
+}
+
 /*
  * Returns 1 if this is a reserved IP address, where "reserved" means
  * either a private address, non-routable address, or even a non-reserved
@@ -426,8 +469,14 @@ int resolve_numeric(const char *ip, unsigned short port,
  */
 int ip_is_reserved(const struct sockaddr_storage *addr)
 {
-  static struct addrset *reserved = NULL;
   assert(addr);
+  const struct addrset *reserved = get_reserved_addrset();
+  return addrset_contains(reserved, (struct sockaddr *)addr);
+}
+
+const struct addrset *get_reserved_addrset(void)
+{
+  static struct addrset *reserved = NULL;
 
   if (reserved == NULL) {
     reserved = addrset_new();
@@ -473,7 +522,46 @@ int ip_is_reserved(const struct sockaddr_storage *addr)
     addrset_add_spec(reserved, "fe80::/10", AF_INET6, 0);
   }
 
-  return addrset_contains(reserved, (struct sockaddr *)addr);
+  return reserved;
+}
+
+bool getNextHopMAC(const char *iface, const u8 *srcmac, const struct sockaddr_storage *srcss,
+                   const struct sockaddr_storage *dstss, u8 *dstmac) {
+  arp_t *a;
+  struct arp_entry ae;
+
+  /* First, let us check the Nmap arp cache ... */
+  if (mac_cache_get(dstss, dstmac))
+    return true;
+
+  /* Maybe the system ARP cache will be more helpful */
+  a = arp_open();
+  if (a) {
+    addr_ston((sockaddr *) dstss, &ae.arp_pa);
+    if (arp_get(a, &ae) == 0) {
+      mac_cache_set(dstss, ae.arp_ha.addr_eth.data);
+      memcpy(dstmac, ae.arp_ha.addr_eth.data, 6);
+      arp_close(a);
+      return true;
+    }
+    arp_close(a);
+  }
+
+  /* OK, the last choice is to send our own damn ARP request (and
+     retransmissions if necessary) to determine the MAC */
+  if (dstss->ss_family == AF_INET) {
+    if (doArp(iface, srcmac, srcss, dstss, dstmac, NULL)) {
+      mac_cache_set(dstss, dstmac);
+      return true;
+    }
+  } else if (dstss->ss_family == AF_INET6) {
+    if (doND(iface, srcmac, srcss, dstss, dstmac, NULL)) {
+      mac_cache_set(dstss, dstmac);
+      return true;
+    }
+  }
+
+  return false;
 }
 
 /* A trivial functon that maintains a cache of IP to MAC Address
@@ -618,11 +706,13 @@ static const u8 *ipv6_get_data_primitive(const struct ip6_hdr *ip6, const u8 *pa
   *nxt = ip6->ip6_nxt;
   p += sizeof(*ip6);
   while (p < end && ipv6_is_extension_header(*nxt)) {
-    if (p + 2 > end)
+    if (p + 8 > end)
       return NULL;
     *nxt = *p;
     p += (*(p + 1) + 1) * 8;
   }
+  if (p >= end)
+    return NULL;
 
   *len = end - p;
   if (upperlayer_only && !ipv6_is_upperlayer(*nxt))
@@ -1155,7 +1245,7 @@ static void netutil_perror(const char *msg) {
     * Bind to an interface with SO_BINDTODEVICE (if device is not NULL).
    The socket is created with address family AF_INET, but may be usable for
    AF_INET6, depending on the operating system. */
-int netutil_raw_socket(const char *device) {
+int netutil_raw_socket(const char *device, int af) {
 #ifdef WIN32
   netutil_error("Windows does not have adequate raw socket support.");
   return -1;
@@ -1163,7 +1253,7 @@ int netutil_raw_socket(const char *device) {
   int rawsd;
   int one = 1;
 
-  rawsd = socket(AF_INET, SOCK_RAW, IPPROTO_RAW);
+  rawsd = socket(af, SOCK_RAW, IPPROTO_RAW);
   if (rawsd < 0) {
     netutil_perror("Couldn't open a raw socket. "
 #if defined(sun) && defined(__SVR4)
@@ -1185,7 +1275,7 @@ int netutil_raw_socket(const char *device) {
 }
 
 int raw_socket_or_eth(int sendpref, const char *ifname, devtype iftype,
-    int *rawsd, netutil_eth_t **ethsd) {
+    int *rawsd, netutil_eth_t **ethsd, int af) {
   assert(rawsd != NULL);
   *rawsd = -1;
   assert(ethsd != NULL);
@@ -1236,7 +1326,7 @@ int raw_socket_or_eth(int sendpref, const char *ifname, devtype iftype,
         continue;
       }
 #endif
-      int sd = netutil_raw_socket(ifname);
+      int sd = netutil_raw_socket(ifname, af);
       if (sd >= 0) {
         *rawsd = sd;
         break;
@@ -1311,137 +1401,136 @@ const char *proto2ascii_uppercase(u8 proto) {
     return proto2ascii_case(proto, 1);
 }
 
+struct tcpopt_info_ctx {
+  char *p;
+  char *end;
+  bool valid;
+  tcpopt_info_ctx() : p(NULL), end(NULL), valid(true) {}
+  bool check_length(size_t len) const {
+    return end >= (p + len);
+  }
+  void put_str(const char *str) {
+    if (p >= end)
+      return;
+    int r = Snprintf(p, end - p, "%s", str);
+    if (r < 0)
+      p = end;
+    else {
+      p += r;
+      if (p > end)
+        p = end;
+    }
+  }
+  void fmt_num(const char *fmt, unsigned int n) {
+    if (p >= end)
+      return;
+    int r = Snprintf(p, end - p, fmt, n);
+    if (r < 0)
+      p = end;
+    else {
+      p += r;
+      if (p > end)
+        p = end;
+    }
+  }
+};
+
+static bool tcpopt_info(u8 opcode, u8 len, const u8 *data, void *ctx);
+
 /* Get an ASCII information about a tcp option which is pointed by
    optp, with a length of len. The result is stored in the result
    buffer. The result may look like "<mss 1452,sackOK,timestamp
    45848914 0,nop,wscale 7>" */
-void tcppacketoptinfo(u8 *optp, int len, char *result, int bufsize) {
+void tcppacketoptinfo(const u8 *optp, int len, char *result, int bufsize) {
   assert(optp);
   assert(result);
-  char *p, ch;
-  u8 *q;
-  int opcode;
-  u16 tmpshort;
-  u32 tmpword1, tmpword2;
-  unsigned int i=0;
+  assert(bufsize > 0);
+  memset(result, 0, bufsize);
 
-  p = result;
-  *p = '\0';
-  q = optp;
-  ch = '<';
+  TCPOptions opts;
+  if (bufsize < 2 || !opts.fromBuffer(optp, len))
+    return;
+  tcpopt_info_ctx ctx;
+  ctx.p = result;
+  ctx.end = result + bufsize - 1;
+  ctx.put_str("<");
 
-  while (len > 0 && bufsize > 2) {
-    Snprintf(p, bufsize, "%c", ch);
-    bufsize--;
-    p++;
-    opcode = *q++;
-    if (!opcode) { /* End of List */
-
-      Snprintf(p, bufsize, "eol");
-      bufsize -= strlen(p);
-      p += strlen(p);
-
-      len--;
-
-    } else if (opcode == 1) { /* No Op */
-      Snprintf(p, bufsize, "nop");
-      bufsize -= strlen(p);
-      p += strlen(p);
-
-      len--;
-    } else if (opcode == 2) { /* MSS */
-      if (len < 4)
-        break; /* MSS has 4 bytes */
-
-      q++;
-      memcpy(&tmpshort, q, 2);
-
-      Snprintf(p, bufsize, "mss %hu", (unsigned short) ntohs(tmpshort));
-      bufsize -= strlen(p);
-      p += strlen(p);
-
-      q += 2;
-      len -= 4;
-    } else if (opcode == 3) { /* Window Scale */
-      if (len < 3)
-        break; /* Window Scale option has 3 bytes */
-
-      q++;
-
-      Snprintf(p, bufsize, "wscale %u", *q);
-      bufsize -= strlen(p);
-      p += strlen(p);
-
-      q++;
-      len -= 3;
-    } else if (opcode == 4) { /* SACK permitted */
-      if (len < 2)
-        break; /* SACK permitted option has 2 bytes */
-
-      Snprintf(p, bufsize, "sackOK");
-      bufsize -= strlen(p);
-      p += strlen(p);
-
-      q++;
-      len -= 2;
-    } else if (opcode == 5) { /* SACK */
-      unsigned sackoptlen = *q;
-      if ((unsigned) len < sackoptlen)
-        break;
-
-      /* This would break parsing, so it's best to just give up */
-      if (sackoptlen < 2)
-        break;
-
-      q++;
-
-      if ((sackoptlen - 2) == 0 || ((sackoptlen - 2) % 8 != 0)) {
-        Snprintf(p, bufsize, "malformed sack");
-        bufsize -= strlen(p);
-        p += strlen(p);
-      } else {
-        Snprintf(p, bufsize, "sack %d ", (sackoptlen - 2) / 8);
-        bufsize -= strlen(p);
-        p += strlen(p);
-        for (i = 0; i < sackoptlen - 2; i += 8) {
-          memcpy(&tmpword1, q + i, 4);
-          memcpy(&tmpword2, q + i + 4, 4);
-          Snprintf(p, bufsize, "{%u:%u}", tmpword1, tmpword2);
-          bufsize -= strlen(p);
-          p += strlen(p);
-        }
-      }
-
-      q += sackoptlen - 2;
-      len -= sackoptlen;
-    } else if (opcode == 8) { /* Timestamp */
-      if (len < 10)
-        break; /* Timestamp option has 10 bytes */
-
-      q++;
-      memcpy(&tmpword1, q, 4);
-      memcpy(&tmpword2, q + 4, 4);
-
-      Snprintf(p, bufsize, "timestamp %lu %lu", (unsigned long) ntohl(tmpword1),
-               (unsigned long) ntohl(tmpword2));
-      bufsize -= strlen(p);
-      p += strlen(p);
-
-      q += 8;
-      len -= 10;
-    }
-
-    ch = ',';
-  }
-
-  if (len > 0) {
-    *result = '\0';
+  if (!opts.foreachOpt(tcpopt_info, &ctx) || !ctx.valid) {
+    Snprintf(result, bufsize, "<Invalid TCP options>");
     return;
   }
 
-  Snprintf(p, bufsize, ">");
+  char *q = ctx.p - 1;
+  if (*q != ',')
+    q++;
+  *q++ = '>';
+  *q++ = '\0';
+  return;
 }
 
+static bool tcpopt_info(u8 opcode, u8 len, const u8 *data, void *ctx)
+{
+  tcpopt_info_ctx *args = static_cast<tcpopt_info_ctx *>(ctx);
+  if (!args->check_length(4))
+    return false;
+  const u8 *q = data + 2;
+
+  switch (opcode) {
+    case 0: /* End of List */
+      args->put_str("eol,");
+        break;
+    case 1: /* No Op */
+      args->put_str("nop,");
+        break;
+    case 2: /* MSS */
+      if (len < 4) {
+        args->valid = false;
+        break; /* MSS has 4 bytes */
+      }
+      args->fmt_num("mss %u,", (q[0] << 8) + q[1]);
+    case 3: /* Window Scale */
+      if (len < 3) {
+        args->valid = false;
+        break; /* Window Scale option has 3 bytes */
+      }
+      args->fmt_num("wscale %u,", q[0]);
+      break;
+    case 4: /* SACK permitted */
+      if (len < 2) {
+        args->valid = false;
+        break; /* SACK permitted option has 2 bytes */
+      }
+      args->put_str("sackOK,");
+      break;
+    case 5: /* SACK */
+      if (len < 2) {
+        args->valid = false;
+        break;
+      }
+      if ((len - 2) == 0 || ((len - 2) % 8 != 0)) {
+        args->put_str("malformed sack,");
+      } else {
+        args->fmt_num("sack %u ", (len - 2) / 8);
+        for (int i = 0; i < len - 2; i += 8) {
+          args->fmt_num("{%u:", (q[i]   << 24) + (q[i+1] << 16) + (q[i+2] << 8) + q[i+3]);
+          args->fmt_num("%u}",  (q[i+4] << 24) + (q[i+5] << 16) + (q[i+6] << 8) + q[i+7]);
+        }
+        args->put_str(",");
+      }
+      break;
+    case 8: /* Timestamp */
+      if (len < 10) {
+        args->valid = false;
+        break; /* Timestamp option has 10 bytes */
+      }
+      args->fmt_num("timestamp %u ", (q[0] << 24) + (q[1] << 16) + (q[2] << 8) + q[3]);
+      args->fmt_num("%u,",           (q[4] << 24) + (q[5] << 16) + (q[6] << 8) + q[7]);
+      break;
+    default:
+      break;
+  }
+  return args->valid;
+}
 
 
 /* A trivial function used with qsort to sort the routes by netmask and metric */
@@ -1671,7 +1760,7 @@ int ipaddr2devname(char *dev, const struct sockaddr_storage *addr) {
   return -1;
 }
 
-int devname2ipaddr(char *dev, int af, struct sockaddr_storage *addr) {
+int devname2ipaddr(const char *dev, int af, struct sockaddr_storage *addr) {
   struct interface_info *ifaces;
   int numifaces;
   int i;
@@ -2709,14 +2798,12 @@ int send_frag_ip_packet(int sd, const struct eth_nfo *eth,
 
 /* Send an IPv6 packet over a raw socket, on platforms where IPPROTO_RAW implies
    IP_HDRINCL-like behavior. */
-static int send_ipv6_ipproto_raw(const struct sockaddr_in6 *dst,
+static int send_ipv6_ipproto_raw(int sd, const struct sockaddr_in6 *dst,
   const unsigned char *packet, unsigned int packetlen) {
-  int sd, n;
+  int n;
 
-  sd = -1;
   n = -1;
 
-  sd = socket(AF_INET6, SOCK_RAW, IPPROTO_RAW);
   if (sd == -1) {
     perror("socket");
     goto bail;
@@ -2725,9 +2812,6 @@ static int send_ipv6_ipproto_raw(const struct sockaddr_in6 *dst,
   n = Sendto(__func__, sd, packet, packetlen, 0, (struct sockaddr *) dst, sizeof(*dst));
 
 bail:
-  if (sd != -1)
-    close(sd);
-
   return n;
 }
 
@@ -2910,14 +2994,13 @@ bail:
 
 #endif
 
-/* For now, the sd argument is ignored. */
 int send_ipv6_packet_eth_or_sd(int sd, const struct eth_nfo *eth,
   const struct sockaddr_in6 *dst, const u8 *packet, unsigned int packetlen) {
   if (eth != NULL) {
     return send_ip_packet_eth(eth, packet, packetlen, AF_INET6);
   } else {
 #if HAVE_IPV6_IPPROTO_RAW
-    return send_ipv6_ipproto_raw(dst, packet, packetlen);
+    return send_ipv6_ipproto_raw(sd, dst, packet, packetlen);
 #elif !WIN32
     return send_ipv6_ip(dst, packet, packetlen);
 #endif
@@ -3057,7 +3140,7 @@ pcap_t *my_pcap_open_live(const char *device, int snaplen, int promisc, int to_m
     pcap_close(p_t);\
     return NULL;\
   }\
-} while(0);
+} while(0)
 
   MY_PCAP_SET(pcap_set_snaplen, pt, snaplen);
   MY_PCAP_SET(pcap_set_promisc, pt, promisc);

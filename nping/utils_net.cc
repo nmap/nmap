@@ -62,7 +62,6 @@
 #include "utils.h"
 #include "utils_net.h"
 #include "NpingOps.h"
-#include "global_structures.h"
 #include "output.h"
 #include "nbase.h"
 #include "pcap.h"
@@ -376,8 +375,6 @@ bool isICMPCode(u8 code, u8 type){
 
 const char *arppackethdrinfo(const u8 *packet, u32 len, int detail );
 int arppackethdrinfo(const u8 *packet, u32 len, u8 *dstbuff, u32 dstlen);
-int tcppackethdrinfo(const u8 *packet, size_t len, u8 *dstbuff, size_t dstlen, int detail, const char *src, const char *dst);
-int udppackethdrinfo(const u8 *packet, size_t len, u8 *dstbuff, size_t dstlen, int detail, const char *src, const char *dst);
 
 /* This function fills buffer "dstbuff" with a printable string that
  * represents the supplied packet. When sending IPv6 packet at raw TCP
@@ -399,39 +396,12 @@ int getPacketStrInfo(const char *proto, const u8 *packet, u32 len, u8 *dstbuff,
   else
     detail=LOW_DETAIL;
 
-  if( !strcasecmp(proto, "IP") || !strcasecmp(proto, "IPv4") || !strcasecmp(proto, "IPv6")){
-    b=(char *)ippackethdrinfo(packet, len, detail);
-    strncpy((char*)dstbuff, b, dstlen);
-    dstbuff[dstlen-1]=0; /* Just to be sure, NULL-terminate the last position*/
-  }else if( !strcasecmp(proto, "ARP") || !strcasecmp(proto, "RARP") ){
+  if( !strcasecmp(proto, "ARP") || !strcasecmp(proto, "RARP") ){
     return  arppackethdrinfo(packet, len, dstbuff, dstlen);
-  }else if( !strcasecmp(proto, "IPv6_NO_HEADER") || o.ipv6UsingSocket() ){
-    char srcipstring[128];
-    const char *src = NULL;
-    char dstipstring[128];
-    const char *dst = NULL;
-    if (ss_src) {
-      src = inet_ntop_ez(ss_src, sizeof(*ss_src));
-      if (src) {
-        Strncpy(srcipstring, src, sizeof(srcipstring));
-        src = srcipstring;
-      }
-    }
-    if (ss_dst) {
-      dst = inet_ntop_ez(ss_dst, sizeof(*ss_dst));
-      if (dst) {
-        Strncpy(dstipstring, dst, sizeof(dstipstring));
-        dst = dstipstring;
-      }
-    }
-    if( o.getMode()==TCP )
-        return  tcppackethdrinfo(packet, len, dstbuff, dstlen, detail, src, dst);
-    else if ( o.getMode()==UDP )
-        return  udppackethdrinfo(packet, len, dstbuff, dstlen, detail, src, dst);
-    else
-        nping_fatal(QT_3, "getPacketStrInfo(): Unable to determinate transport layer protocol");
-  }else{
-    nping_fatal(QT_3, "getPacketStrInfo(): Unknown protocol");
+  }
+  else {
+    b=(char *)ippackethdrinfo(packet, len, detail);
+    strncpy((char*)dstbuff, b, dstlen-1);
   }
   return OP_SUCCESS;
 } /* getPacketStrInfo() */
@@ -825,16 +795,12 @@ int parseMAC(const char *txt, u8 *targetbuff){
 } /* End of parseMAC() */
 
 
-
-char *MACtoa(u8 *mac){
+const char *MACtoa(u8 *mac){
   static char macinfo[24];
-  memset(macinfo, 0, 24);
-  sprintf(macinfo,"%02X:%02X:%02X:%02X:%02X:%02X",
+  Snprintf(macinfo, sizeof(macinfo), "%02X:%02X:%02X:%02X:%02X:%02X",
           mac[0],mac[1],mac[2],mac[3],mac[4],mac[5]);
   return macinfo;
 } /* End of MACtoa() */
-
-
 
 
 /* Returns a buffer of ASCII information about an ARP/RARP packet that may look
@@ -858,23 +824,35 @@ const char *arppackethdrinfo(const u8 *packet, u32 len, int detail){
   u8 *tMAC = (u8 *)(packet+18);
   u32 *tIP = (u32 *)(packet+24);
 
+  int rem = sizeof(protoinfo);
+  int n = 0;
   if( ntohs(*op) == 1 ){ /* ARP Request */
-    sprintf(protoinfo, "ARP who has %s? ", IPtoa(*tIP));
-    sprintf(protoinfo+strlen(protoinfo),"Tell %s", IPtoa(*sIP) );
+    n = Snprintf(protoinfo, rem, "ARP who has %s? ", IPtoa(*tIP));
+    if (n < rem) {
+      rem -= n;
+      Snprintf(protoinfo + n, rem, "Tell %s", IPtoa(*sIP));
+    }
   }
   else if( ntohs(*op) == 2 ){ /* ARP Reply */
-    sprintf(protoinfo, "ARP reply %s ", IPtoa(*sIP));
-    sprintf(protoinfo+strlen(protoinfo),"is at %s", MACtoa(sMAC) );
+    Snprintf(protoinfo, sizeof(protoinfo), "ARP reply %s is at %s", IPtoa(*sIP), MACtoa(sMAC));
   }
   else if( ntohs(*op) == 3 ){ /* RARP Request */
-    sprintf(protoinfo, "RARP who is %s? Tell %s", MACtoa(tMAC), MACtoa(sMAC) );
+    n = Snprintf(protoinfo, rem, "RARP who is %s? ", MACtoa(tMAC));
+    if (n < rem) {
+      rem -= n;
+      Snprintf(protoinfo + n, rem, "Tell %s", MACtoa(sMAC));
+    }
   }
   else if( ntohs(*op) ==4 ){ /* RARP Reply */
-    sprintf(protoinfo, "RARP reply: %s is at %s", MACtoa(tMAC), IPtoa(*tIP) );
+    Snprintf(protoinfo, sizeof(protoinfo), "RARP reply: %s is at %s", MACtoa(tMAC), IPtoa(*tIP) );
   }
   else{
-    sprintf(protoinfo, "HTYPE:%04X PTYPE:%04X HLEN:%d PLEN:%d OP:%04X SMAC:%s SIP:%s DMAC:%s DIP:%s",
-            *htype, *ptype, *hlen, *plen, *op, MACtoa(sMAC), IPtoa(*sIP), MACtoa(tMAC), IPtoa(*tIP));
+    n = Snprintf(protoinfo, rem, "HTYPE:%04X PTYPE:%04X HLEN:%d PLEN:%d OP:%04X SMAC:%s SIP:%s ",
+            *htype, *ptype, *hlen, *plen, *op, MACtoa(sMAC), IPtoa(*sIP));
+    if (n < rem) {
+      rem -= n;
+      Snprintf(protoinfo + n, rem, "DMAC:%s DIP:%s", MACtoa(tMAC), IPtoa(*tIP));
+    }
   }
  return protoinfo;
 } /* End of arppackethdrinfo() */
@@ -902,27 +880,6 @@ int arppackethdrinfo(const u8 *packet, u32 len, u8 *dstbuff, u32 dstlen){
   dstbuff[dstlen-1]=0; /* Just to be sure, NULL-terminate the last position*/
   return OP_SUCCESS;
 } /* End of arppackethdrinfo() */
-
-
-int tcppackethdrinfo(const u8 *packet, size_t len, u8 *dstbuff, size_t dstlen,
-     int detail, const char *src, const char *dst){
- assert(packet);
- assert(dstbuff);
-
- return (tcppackethdrinfo(packet, len, (char *)dstbuff, dstlen,
-      detail, 0, src, dst) > 0 ? OP_SUCCESS : OP_FAILURE);
-} /* End of tcppackethdrinfo() */
-
-
-int udppackethdrinfo(const u8 *packet, size_t len, u8 *dstbuff, size_t dstlen,
-    int detail, const char *src, const char *dst){
-
- assert(packet);
- assert(dstbuff);
-
- return (udppackethdrinfo(packet, len, (char *)dstbuff, dstlen,
-      detail, 0, src, dst) > 0 ? OP_SUCCESS : OP_FAILURE);
-} /* End of udppackethdrinfo() */
 
 
 /** Returns a random (null-terminated) ASCII string with no special
@@ -970,33 +927,7 @@ int send_packet(NpingTarget *target, int rawfd, u8 *pkt, size_t pktLen){
         memset(&s6, 0, sizeof(struct sockaddr_in6));
         s6.sin6_family=AF_INET6;
         s6.sin6_addr = target->getIPv6Address();
-
-        /*
-        if( o.getMode()==TCP ){
-            dport=getDstPortFromTCPHeader(pkt, pktLen);
-            if(dport!=NULL)
-                s6.sin6_port = *dport;
-            else
-                nping_fatal(QT_3, "send_packet(): Could not determine TCP destination port.");
-        }
-        else if( o.getMode()==UDP){
-            dport=getDstPortFromUDPHeader(pkt, pktLen);
-            if(dport!=NULL)
-                s6.sin6_port = *dport;
-            else
-                nping_fatal(QT_3, "send_packet(): Could not determine UDP destination port.");
-        }
-        */
-
-        /* Linux doesn't seem to like sin6_port to be set to other value
-         * than 0. Unless we set it to zero, the sendto() call returns
-         * "Invalid argument" error. Does this happen in other systems?
-         * TODO: Should we check here if #ifdef LINUX and set the port to
-         * zero? */
-         s6.sin6_port=0;
-
-        res = Sendto("send_packet", rawfd, pkt, pktLen, 0, (struct sockaddr *)&s6, (int) sizeof(struct sockaddr_in6));
-        /*Sendto returns errors as -1 according to netutil.cc so lets catch that and return OP_FAILURE*/
+        res = send_ipv6_packet_eth_or_sd(rawfd, NULL, &s6, pkt, pktLen);
         if (res == -1) return OP_FAILURE;
     }else{ /* IPv4 */
         struct sockaddr_storage dst;

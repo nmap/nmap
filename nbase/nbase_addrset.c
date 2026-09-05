@@ -62,7 +62,6 @@
    program after making any big changes. Also, please add tests for any new
    features. */
 
-#include <limits.h> /* CHAR_BIT */
 #include <errno.h>
 #include <assert.h>
 
@@ -104,13 +103,6 @@ struct trie_node {
   struct trie_node *next_bit_zero;
 };
 
-/* We use bit vectors to represent what values are allowed in an IPv4 octet.
-   Each vector is built up of an array of bitvector_t (any convenient integer
-   type). */
-typedef unsigned long bitvector_t;
-/* A 256-element bit vector, representing legal values for one octet. */
-typedef bitvector_t octet_bitvector[(256 - 1) / (sizeof(unsigned long) * CHAR_BIT) + 1];
-
 /* A chain of tests for set inclusion. If one test is passed, the address is in
    the set. */
 struct addrset_elem {
@@ -126,8 +118,16 @@ struct addrset {
     /* Linked list of struct addset_elem. */
     struct addrset_elem *head;
     /* Radix tree for faster matching of certain cases */
-    struct trie_node *trie;
+    struct trie_node *trie4;
+    struct trie_node *trie6;
 };
+
+static inline struct trie_node *af_trie(const struct addrset *set, int af) {
+  if (af == AF_INET) {
+    return set->trie4;
+  }
+  return set->trie6;
+}
 
 /* Special node pointer to represent "all possible addresses"
  * This will be used to represent netmask specifications. */
@@ -140,7 +140,9 @@ struct addrset *addrset_new()
     set->head = NULL;
 
     /* Allocate the first node of the IPv4 trie */
-    set->trie = (struct trie_node *) safe_zalloc(sizeof(struct trie_node));
+    set->trie4 = (struct trie_node *) safe_zalloc(sizeof(struct trie_node));
+    /* Allocate the first node of the IPv6 trie */
+    set->trie6 = (struct trie_node *) safe_zalloc(sizeof(struct trie_node));
     return set;
 }
 
@@ -180,10 +182,12 @@ void addrset_free(struct addrset *set)
         free(elem);
     }
 
-    trie_free(set->trie);
+    trie_free(set->trie4);
+    trie_free(set->trie6);
     free(set);
 }
 
+#define U32_ALL_BITS 0xffffffff
 
 /* Public domain log2 function. https://graphics.stanford.edu/~seander/bithacks.html#IntegerLogLookup */
 static const char LogTable256[256] = {
@@ -201,7 +205,7 @@ static u32 common_mask(u32 a, u32 b)
   u32 v = a ^ b;
   if (v == 0) {
     /* values are equal, all bits are the same */
-    return 0xffffffff;
+    return U32_ALL_BITS;
   }
 
   if ((tt = v >> 16))
@@ -226,9 +230,9 @@ static u32 common_mask(u32 a, u32 b)
 static u32 next_bit_is_one(u32 mask, u32 value) {
   if (mask == 0) {
     /* no masked bits, check the first bit. */
-    return (0x80000000 & value);
+    return ((1<<31) & value);
   }
-  else if (mask == 0xffffffff) {
+  else if (mask == U32_ALL_BITS) {
     /* Imaginary bit off the end we will say is 0 */
     return 0;
   }
@@ -242,7 +246,7 @@ static u32 addr_next_bit_is_one(const u32 *mask, const u32 *addr) {
   u8 i;
   for (i = 0; i < 4; i++) {
     curr_mask = mask[i];
-    if (curr_mask < 0xffffffff) {
+    if (curr_mask < U32_ALL_BITS) {
       /* Only bother checking the first not-completely-masked portion of the address */
       return next_bit_is_one(curr_mask, addr[i]);
     }
@@ -291,11 +295,31 @@ static struct trie_node *new_trie_node(const u32 *addr, const u32 *mask)
   return new_node;
 }
 
+static int mask_is_one_bit_more(const u32 *this_mask, const u32 *other_mask, int i)
+{
+  for (; i<4; i++) {
+    if (this_mask[i] > other_mask[i]) {
+      return 0;
+    }
+    if (this_mask[i] < other_mask[i]) {
+      /* Shift other_mask left one bit. If equal, other_mask was one bit larger. */
+      if ((this_mask[i] == ((other_mask[i] << 1) & U32_ALL_BITS))
+          /* But not if there are more bits in other parts. */
+          && (i == 3 || other_mask[i+1] == 0)) {
+        return 1;
+      }
+      return 0;
+    }
+    /* else equal, loop */
+  }
+  return 0;
+}
+
 /* Split a node into 2: one that matches the greatest common prefix with addr
  * and one that does not. */
 static void trie_split (struct trie_node *this, const u32 *addr, const u32 *mask)
 {
-  struct trie_node *new_node;
+  struct trie_node *new_node = NULL;
   u32 new_mask[4] = {0,0,0,0};
   u8 i;
   /* Calculate the mask of the common prefix */
@@ -318,7 +342,7 @@ static void trie_split (struct trie_node *this, const u32 *addr, const u32 *mask
       this->next_bit_one = this->next_bit_zero = TRIE_NODE_TRUE;
       return;
     }
-    if (new_mask[i] < 0xffffffff) {
+    if (new_mask[i] < U32_ALL_BITS) {
       break;
     }
   }
@@ -326,10 +350,21 @@ static void trie_split (struct trie_node *this, const u32 *addr, const u32 *mask
     /* This node completely contains the new addr and mask. No need to split or add */
     return;
   }
-  /* Make a copy of this node to continue matching what it has been */
-  new_node = new_trie_node(this->addr, this->mask);
-  new_node->next_bit_one = this->next_bit_one;
-  new_node->next_bit_zero = this->next_bit_zero;
+
+  /* If the new common mask is exactly one bit shorter than the existing mask,
+   * AND the existing node is fully matched, we skip allocating a new node.
+   * The branch target is just TRIE_NODE_TRUE. */
+  if (mask_is_one_bit_more(new_mask, this->mask, i)
+       && this->next_bit_one == TRIE_NODE_TRUE
+       && this->next_bit_zero == TRIE_NODE_TRUE) {
+    new_node = TRIE_NODE_TRUE;
+  } else {
+    /* Make a copy of this node to continue matching what it has been */
+    new_node = new_trie_node(this->addr, this->mask);
+    new_node->next_bit_one = this->next_bit_one;
+    new_node->next_bit_zero = this->next_bit_zero;
+  }
+
   /* Adjust this node to the smaller mask */
   for (i=0; i < 4; i++) {
     this->mask[i] = new_mask[i];
@@ -346,11 +381,31 @@ static void trie_split (struct trie_node *this, const u32 *addr, const u32 *mask
 }
 
 /* Helper for address insertion */
-static void _trie_insert (struct trie_node *this, const u32 *addr, const u32 *mask)
+static void _trie_insert (struct trie_node *parent, const u32 *addr, const u32 *mask)
 {
+  struct trie_node *stack[128+4] = {NULL};
+  struct trie_node **insert_branch = NULL;
+  struct trie_node *this = NULL;
+  int i = 0;
+
+  if ((1<<31) & addr[0]) {
+    /* First bit is 1, so insert on ones branch */
+    insert_branch = &parent->next_bit_one;
+  }
+  else {
+    /* First bit is 0, so insert on zeros branch */
+    insert_branch = &parent->next_bit_zero;
+  }
+  this = *insert_branch;
+  if (this == NULL) {
+    /* Empty branch, just add it. */
+    *insert_branch = new_trie_node(addr, mask);
+    return;
+  }
   /* On entry, at least the 1st bit must match this node */
   assert(this == TRIE_NODE_TRUE || (this->addr[0] ^ addr[0]) < ((u32)1 << 31));
 
+  stack[i++] = parent;
   while (this != NULL && this != TRIE_NODE_TRUE) {
     /* Split the node if necessary to ensure a match */
     trie_split(this, addr, mask);
@@ -358,25 +413,43 @@ static void _trie_insert (struct trie_node *this, const u32 *addr, const u32 *ma
     /* At this point, this node matches the addr up to this->mask. */
     if (addr_next_bit_is_one(this->mask, addr)) {
       /* next bit is one: insert on the one branch */
-      if (this->next_bit_one == NULL) {
-        /* Previously unmatching branch, always the case when splitting */
-        this->next_bit_one = new_trie_node(addr, mask);
-        return;
-      }
-      else {
-        this = this->next_bit_one;
-      }
+      insert_branch = &this->next_bit_one;
     }
     else {
-      /* next bit is zero: insert on the zero branch */
-      if (this->next_bit_zero == NULL) {
-        /* Previously unmatching branch, always the case when splitting */
-        this->next_bit_zero = new_trie_node(addr, mask);
-        return;
+      insert_branch = &this->next_bit_zero;
+    }
+    if (*insert_branch == NULL) {
+      struct trie_node *curr_parent = this;
+      /* If new addr/mask is only adding 1 bit, just make it TRUE. */
+      *insert_branch = new_trie_node(addr, mask);
+      this = *insert_branch;
+      while (mask_is_one_bit_more(curr_parent->mask, this->mask, 0)) {
+        /* If both branches are true, replace parent's branch with TRIE_NODE_TRUE */
+        if (this->next_bit_zero == TRIE_NODE_TRUE
+            && this->next_bit_one == TRIE_NODE_TRUE) {
+          free(this);
+          this = curr_parent;
+          if (addr_next_bit_is_one(this->mask, addr)) {
+            /* next bit is one: insert on the one branch */
+            insert_branch = &this->next_bit_one;
+          }
+          else {
+            insert_branch = &this->next_bit_zero;
+          }
+          *insert_branch = TRIE_NODE_TRUE;
+        }
+        else {
+          break;
+        }
+        if (i <= 0)
+          break;
+        curr_parent = stack[--i];
       }
-      else {
-        this = this->next_bit_zero;
-      }
+      return;
+    }
+    else {
+      stack[i++] = this;
+      this = *insert_branch;
     }
   }
 }
@@ -426,17 +499,64 @@ static int sockaddr_to_mask (const struct sockaddr *sa, int bits, u32 *mask)
   k = bits / 32;
   for (i=0; i < 4; i++) {
     if (i < k) {
-      mask[i] = 0xffffffff;
+      mask[i] = U32_ALL_BITS;
     }
     else if (i > k) {
       mask[i] = 0;
     }
     else {
-      mask[i] = 0xfffffffe << (31 - bits % 32);
+      mask[i] = (U32_ALL_BITS - 1) << (31 - bits % 32);
     }
   }
   return 1;
 }
+
+static int trie_matches_all(const struct trie_node *this, int af)
+{
+  const struct trie_node *node = this;
+  /* For IPv4, first find if any IPv4-mapped address matches: */
+  u32 addr[4] = {0, 0, 0xffff, 0};
+  if (af == AF_INET) {
+    while (node != TRIE_NODE_TRUE && node != NULL
+        && addr_matches(node->mask, node->addr, addr)) {
+      if (node->mask[3] != 0) {
+        /* Matched too specifically; some IPv4 would not match */
+        return 0;
+      }
+      else if (1 & node->mask[2]) {
+        /* Matched the prefix exactly! Stop searching and test this node. */
+        if (node->next_bit_one == TRIE_NODE_TRUE
+          && node->next_bit_zero == TRIE_NODE_TRUE) {
+          return 1;
+        }
+        return 0;
+      }
+      else if (addr_next_bit_is_one(node->mask, addr)) {
+        node = node->next_bit_one;
+      }
+      else {
+        node = node->next_bit_zero;
+      }
+    }
+    /* After the loop, we either matched a more broad prefix or we failed to
+     * match. Both cases are handled by the general IPv6 tests below. */
+  }
+  else {
+    assert(af == AF_INET6);
+  }
+
+  if (node == TRIE_NODE_TRUE) {
+    return 1;
+  }
+  if (node != NULL
+      && node->next_bit_one == TRIE_NODE_TRUE
+      && node->next_bit_zero == TRIE_NODE_TRUE) {
+    return addr_matches(node->mask, node->addr, addr);
+  }
+  return 0;
+}
+
+static void trie_insert_addr (struct trie_node *this, const u32 *addr, const u32 *mask);
 
 /* Insert a sockaddr into the trie */
 static void trie_insert (struct trie_node *this, const struct sockaddr *sa, int bits)
@@ -451,25 +571,86 @@ static void trie_insert (struct trie_node *this, const struct sockaddr *sa, int 
     log_debug("Bad netmask length %d for address family %u, address not inserted.", bits, sa->sa_family);
     return;
   }
-  /* First node doesn't have a mask or address of its own; we have to check the
-   * first bit manually. */
-  if (0x80000000 & addr[0]) {
-    /* First bit is 1, so insert on ones branch */
-    if (this->next_bit_one == NULL) {
-      /* Empty branch, just add it. */
-      this->next_bit_one = new_trie_node(addr, mask);
-      return;
+  return trie_insert_addr(this, addr, mask);
+}
+
+static void trie_insert_addr (struct trie_node *this, const u32 *addr, const u32 *mask)
+{
+  /* Special cases for /0 and /1 */
+  if (mask[0] <= (1<<31)) {
+    if (mask[0] == 0 || (mask[0] & addr[0]) != 0) {
+      trie_free(this->next_bit_one);
+      this->next_bit_one = TRIE_NODE_TRUE;
     }
-    _trie_insert(this->next_bit_one, addr, mask);
+    if (mask[0] == 0 || (mask[0] & addr[0]) == 0) {
+      trie_free(this->next_bit_zero);
+      this->next_bit_zero = TRIE_NODE_TRUE;
+    }
   }
   else {
-    /* First bit is 0, so insert on zeros branch */
-    if (this->next_bit_zero == NULL) {
-      /* Empty branch, just add it. */
-      this->next_bit_zero = new_trie_node(addr, mask);
-      return;
+    _trie_insert(this, addr, mask);
+  }
+}
+
+static void trie_update(struct trie_node * restrict this, const struct trie_node * restrict other)
+{
+  const struct trie_node *stack[128+4] = {NULL};
+  const struct trie_node *curr = NULL;
+  u32 addr[4];
+  u32 mask[4];
+  int i = 0;
+  int j = 0;
+  u32 tmp = 0;
+
+  if (this == NULL || other == NULL || this == other) {
+    return;
+  }
+
+  stack[i++] = other;
+  while (i > 0) {
+    curr = stack[--i];
+    if (curr->next_bit_one == TRIE_NODE_TRUE
+        && curr->next_bit_zero == TRIE_NODE_TRUE) {
+      trie_insert_addr(this, curr->addr, curr->mask);
     }
-    _trie_insert(this->next_bit_zero, addr, mask);
+    else {
+      if (curr->next_bit_one != NULL) {
+        if (curr->next_bit_one == TRIE_NODE_TRUE) {
+          memcpy(addr, curr->addr, sizeof(addr));
+          memcpy(mask, curr->mask, sizeof(mask));
+          for (j = 0; j < 4; j++) {
+            tmp = (mask[j] >> 1) | ((u32)1 << 31);
+            if (tmp != mask[j]) {
+              addr[j] = addr[j] | (~mask[j] & tmp);
+              mask[j] = tmp;
+              break;
+            }
+          }
+          trie_insert_addr(this, addr, mask);
+        }
+        else {
+          stack[i++] = curr->next_bit_one;
+        }
+      }
+      if (curr->next_bit_zero != NULL) {
+        if (curr->next_bit_zero == TRIE_NODE_TRUE) {
+          memcpy(addr, curr->addr, sizeof(addr));
+          memcpy(mask, curr->mask, sizeof(mask));
+          for (j = 0; j < 4; j++) {
+            tmp = (mask[j] >> 1) | ((u32)1 << 31);
+            if (tmp != mask[j]) {
+              addr[j] = addr[j] & (~mask[j] ^ tmp);
+              mask[j] = tmp;
+              break;
+            }
+          }
+          trie_insert_addr(this, addr, mask);
+        }
+        else {
+          stack[i++] = curr->next_bit_zero;
+        }
+      }
+    }
   }
 }
 
@@ -503,7 +684,7 @@ static int trie_match (const struct trie_node *this, const struct sockaddr *sa)
     return 0;
   }
   /* Manually check first bit to decide which branch to match against */
-  if (0x80000000 & addr[0]) {
+  if ((1<<31) & addr[0]) {
     return _trie_match(this->next_bit_one, addr);
   }
   else {
@@ -586,10 +767,6 @@ static void in_addr_to_octets(const struct in_addr *ia, uint8_t octets[4])
     octets[3] = (uint8_t) (hbo & 0xFFU);
 }
 
-#define BITVECTOR_BITS (sizeof(bitvector_t) * CHAR_BIT)
-#define BIT_SET(v, n) ((v)[(n) / BITVECTOR_BITS] |= 1UL << ((n) % BITVECTOR_BITS))
-#define BIT_IS_SET(v, n) (((v)[(n) / BITVECTOR_BITS] & 1UL << ((n) % BITVECTOR_BITS)) != 0)
-
 static int parse_ipv4_ranges(struct addrset_elem *elem, const char *spec);
 static void apply_ipv4_netmask_bits(struct addrset_elem *elem, int bits);
 
@@ -645,7 +822,7 @@ int addrset_add_spec(struct addrset *set, const char *spec, int af, int dns)
           return 0;
         }
         address_to_string(addr->ai_addr, addr->ai_addrlen, addr_string, sizeof(addr_string));
-        trie_insert(set->trie, addr->ai_addr, netmask_bits);
+        trie_insert(af_trie(set, addr->ai_family), addr->ai_addr, netmask_bits);
         log_debug("Add IP %s/%d to addrset (trie).", addr_string, netmask_bits);
       }
       free(local_spec);
@@ -683,6 +860,9 @@ int addrset_add_spec(struct addrset *set, const char *spec, int af, int dns)
     }
     if (addrs == NULL)
         log_user("Warning: no addresses found for %s.", local_spec);
+    else if (af == AF_UNSPEC && netmask_bits > 0 && netmask_bits <= 32)
+        log_user("Warning: Ambiguous netmask for %s will be applied"
+            " to IPv4 and IPv6 addresses alike.", spec);
     free(local_spec);
 
     /* Walk the list of addresses and add them all to the set with netmasks. */
@@ -720,7 +900,7 @@ int addrset_add_spec(struct addrset *set, const char *spec, int af, int dns)
             continue;
         }
 
-        trie_insert(set->trie, addr->ai_addr, netmask_bits);
+        trie_insert(af_trie(set, addr->ai_family), addr->ai_addr, netmask_bits);
     }
 
     if (addrs != NULL)
@@ -922,7 +1102,7 @@ int addrset_contains(const struct addrset *set, const struct sockaddr *sa)
     struct addrset_elem *elem;
 
     /* First check the trie. */
-    if (trie_match(set->trie, sa))
+    if (trie_match(af_trie(set, sa->sa_family), sa))
       return 1;
 
     /* If that didn't match, check the rest of the addrset_elem in order */
@@ -934,4 +1114,46 @@ int addrset_contains(const struct addrset *set, const struct sockaddr *sa)
     }
 
     return 0;
+}
+
+int addrset_matches_all(const struct addrset *set, int af)
+{
+  struct addrset_elem *elem;
+  int i = 0, r = 0;
+  unsigned char *bv;
+
+  if (trie_matches_all(af_trie(set, af), af)) {
+    return 1;
+  }
+
+  if (af == AF_INET) {
+    for (elem = set->head; elem != NULL; elem = elem->next) {
+      bv = (unsigned char *) elem->ipv4.bits;
+      r = 1;
+      for (i=0; i < sizeof(elem->ipv4.bits); i++) {
+        if (bv[i] != 0xff) {
+          r = 0;
+          break;
+        }
+      }
+      if (r != 0)
+        return 1;
+    }
+  }
+  return 0;
+}
+
+void addrset_update(struct addrset *set, const struct addrset *other)
+{
+  struct addrset_elem *oe, *elem;
+
+  trie_update(set->trie4, other->trie4);
+  trie_update(set->trie6, other->trie6);
+
+  for (oe = other->head; oe != NULL; oe = oe->next) {
+    elem = (struct addrset_elem *) safe_malloc(sizeof(*elem));
+    memcpy(elem->ipv4.bits, oe->ipv4.bits, sizeof(elem->ipv4.bits));
+    elem->next = set->head;
+    set->head = elem;
+  }
 }

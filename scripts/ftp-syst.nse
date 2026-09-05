@@ -1,5 +1,4 @@
 local ftp = require "ftp"
-local shortport = require "shortport"
 local stdnse = require "stdnse"
 
 description = [[
@@ -63,7 +62,7 @@ categories = {"default", "discovery", "safe"}
 --  No data connection
 -- End of status</elem>
 
-portrule = shortport.port_or_service({21,990}, {"ftp","ftps"})
+portrule = ftp.portrule
 
 local function do_syst(socket, buffer)
 end

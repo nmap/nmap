@@ -491,7 +491,6 @@ void printportoutput(const Target *currenths, const PortList *plist) {
   Port *current;
   Port port;
   char hostname[1200];
-  struct serviceDeductions sd;
   NmapOutputTable *Tbl = NULL;
   int portcol = -1;             // port or IP protocol #
   int statecol = -1;            // port/protocol state
@@ -716,12 +715,13 @@ void printportoutput(const Target *currenths, const PortList *plist) {
           log_write(LOG_MACHINE, ", ");
         else
           first = 0;
-        strcpy(protocol, IPPROTO2STR(current->proto));
+        Strncpy(protocol, IPPROTO2STR(current->proto), sizeof(protocol));
         Snprintf(portinfo, sizeof(portinfo), "%d/%s", current->portno, protocol);
         state = statenum2str(current->state);
-        plist->getServiceDeductions(current->portno, current->proto, &sd);
-        if (sd.service_fp && saved_servicefps.size() <= 8)
-          saved_servicefps.push_back(sd.service_fp);
+        const serviceDeductions *sd = plist->getServiceDeductions(
+            current->portno, current->proto);
+        if (sd->service_fp && saved_servicefps.size() <= 8)
+          saved_servicefps.push_back(sd->service_fp);
 
         current->getNmapServiceName(serviceinfo, sizeof(serviceinfo));
 
@@ -736,7 +736,7 @@ void printportoutput(const Target *currenths, const PortList *plist) {
             Tbl->addItem(rowno, reasoncol, true, port_reason_str(current->reason));
         }
 
-        sd.populateFullVersionString(fullversion, sizeof(fullversion));
+        sd->populateFullVersionString(fullversion, sizeof(fullversion));
         if (*fullversion && versioncol > 0)
           Tbl->addItem(rowno, versioncol, true, fullversion);
 
@@ -752,7 +752,7 @@ void printportoutput(const Target *currenths, const PortList *plist) {
           *p = '|';
           p++;
         }
-        if (sd.name || sd.service_fp || sd.service_tunnel != SERVICE_TUNNEL_NONE) {
+        if (sd->name || sd->service_fp || sd->service_tunnel != SERVICE_TUNNEL_NONE) {
           p = serviceinfo;
           while ((p = strchr(p, '/'))) {
             *p = '|';
@@ -780,8 +780,8 @@ void printportoutput(const Target *currenths, const PortList *plist) {
         }
         xml_close_empty_tag();
 
-        if (sd.name || sd.service_fp || sd.service_tunnel != SERVICE_TUNNEL_NONE)
-          print_xml_service(&sd);
+        if (sd->name || sd->service_fp || sd->service_tunnel != SERVICE_TUNNEL_NONE)
+          print_xml_service(sd);
 
         rowno++;
 #ifndef NOLUA
@@ -1508,6 +1508,7 @@ static void printosclassificationoutput(const struct
   char fullfamily[MAX_OS_CLASSMEMBERS][128];    // "[vendor] [os family]"
   double familyaccuracy[MAX_OS_CLASSMEMBERS];   // highest accuracy for this fullfamily
   char familygenerations[MAX_OS_CLASSMEMBERS][96];      // example: "4.X|5.X|6.X"
+  static const size_t fambufsz = sizeof(familygenerations[0]);
   int numtypes = 0, numcpes = 0, numfamilies = 0;
   char tmpbuf[1024];
 
@@ -1552,19 +1553,19 @@ static void printosclassificationoutput(const struct
       for (familyno = 0; familyno < numfamilies; familyno++) {
         if (strcmp(fullfamily[familyno], tmpbuf) == 0) {
           // got a match ... do we need to add the generation?
-          if (OSR->OSC[classno]->OS_Generation
-              && !strstr(familygenerations[familyno],
-                         OSR->OSC[classno]->OS_Generation)) {
-            int flen = strlen(familygenerations[familyno]);
+          char *fambuf = familygenerations[familyno];
+          const char *osgen = OSR->OSC[classno]->OS_Generation;
+          if (osgen && !strstr(fambuf, osgen)) {
+            int flen = strlen(fambuf);
             // We add it, preceded by | if something is already there
-            if (flen + 2 + strlen(OSR->OSC[classno]->OS_Generation) >=
-                sizeof(familygenerations[familyno]))
-              fatal("buffer 0verfl0w of familygenerations");
-            if (*familygenerations[familyno])
-              strcat(familygenerations[familyno], "|");
-            strncat(familygenerations[familyno],
-                    OSR->OSC[classno]->OS_Generation,
-                    sizeof(familygenerations[familyno]) - flen - 1);
+            if (flen > 0) {
+              if (0 != Strncpy(fambuf + flen, "|", fambufsz - flen))
+                fatal("OS generations too long");
+              flen++;
+            }
+            if (0 != Strncpy(fambuf + flen, osgen, fambufsz - flen)) {
+                fatal("OS generations too long");
+            }
           }
           break;
         }
@@ -1995,14 +1996,14 @@ void printosscanoutput(const Target *currenths) {
 
   if (currenths->seq.responses > 3) {
     p = numlst;
+    int remaining = sizeof(numlst);
     for (i = 0; i < currenths->seq.responses; i++) {
-      if (p - numlst > (int) (sizeof(numlst) - 15))
-        fatal("STRANGE ERROR #3877 -- please report to fyodor@nmap.org\n");
-      if (p != numlst)
-        *p++ = ',';
-      sprintf(p, "%X", currenths->seq.seqs[i]);
-      while (*p)
-        p++;
+      int n = Snprintf(p, remaining, "%s%X",
+          (p != numlst) ? "," : "", currenths->seq.seqs[i]);
+      if (n >= remaining)
+        fatal("numlst overflow");
+      p += n;
+      remaining -= n;
     }
 
     xml_open_start_tag("tcpsequence");
@@ -2019,14 +2020,14 @@ void printosscanoutput(const Target *currenths) {
 
   if (currenths->seq.responses > 2) {
     p = numlst;
+    int remaining = sizeof(numlst);
     for (i = 0; i < currenths->seq.responses; i++) {
-      if (p - numlst > (int) (sizeof(numlst) - 15))
-        fatal("STRANGE ERROR #3876 -- please report to fyodor@nmap.org\n");
-      if (p != numlst)
-        *p++ = ',';
-      sprintf(p, "%hX", currenths->seq.ipids[i]);
-      while (*p)
-        p++;
+      int n = Snprintf(p, remaining, "%s%hX",
+          (p != numlst) ? "," : "", currenths->seq.ipids[i]);
+      if (n >= remaining)
+        fatal("numlst overflow");
+      p += n;
+      remaining -= n;
     }
     xml_open_start_tag("ipidsequence");
     xml_attribute("class", "%s", ipidclass2ascii(currenths->seq.ipid_seqclass));
@@ -2040,14 +2041,14 @@ void printosscanoutput(const Target *currenths) {
               ipidclass2ascii(currenths->seq.ipid_seqclass));
 
     p = numlst;
+    remaining = sizeof(numlst);
     for (i = 0; i < currenths->seq.responses; i++) {
-      if (p - numlst > (int) (sizeof(numlst) - 15))
-        fatal("STRANGE ERROR #3878 -- please report to fyodor@nmap.org\n");
-      if (p != numlst)
-        *p++ = ',';
-      sprintf(p, "%X", currenths->seq.timestamps[i]);
-      while (*p)
-        p++;
+      int n = Snprintf(p, remaining, "%s%X",
+          (p != numlst) ? "," : "", currenths->seq.timestamps[i]);
+      if (n >= remaining)
+        fatal("numlst overflow");
+      p += n;
+      remaining -= n;
     }
 
     xml_open_start_tag("tcptssequence");
@@ -2072,7 +2073,6 @@ static int hostcmp(const char *a, const char *b) {
 void printserviceinfooutput(const Target *currenths) {
   Port *p = NULL;
   Port port;
-  struct serviceDeductions sd;
   int i, numhostnames = 0, numostypes = 0, numdevicetypes = 0, numcpes = 0;
   char hostname_tbl[MAX_SERVICE_INFO_FIELDS][FQDN_LEN+1];
   char ostype_tbl[MAX_SERVICE_INFO_FIELDS][64];
@@ -2084,52 +2084,49 @@ void printserviceinfooutput(const Target *currenths) {
     hostname_tbl[i][0] = ostype_tbl[i][0] = devicetype_tbl[i][0] = cpe_tbl[i][0] = '\0';
 
   while ((p = currenths->ports.nextPort(p, &port, TCPANDUDPANDSCTP, PORT_OPEN))) {
-    // The following 2 lines (from portlist.h) tell us that we don't need to
-    // worry about free()ing anything in the serviceDeductions struct. pass in
-    // an allocated struct serviceDeductions (don't worry about initializing, and
-    // you don't have to free any internal ptrs.
-    currenths->ports.getServiceDeductions(p->portno, p->proto, &sd);
+    const serviceDeductions *sd = currenths->ports.getServiceDeductions(
+        p->portno, p->proto);
 
-    if (sd.hostname && !hostcmp(currenths->HostName(), sd.hostname)) {
+    if (sd->hostname && !hostcmp(currenths->HostName(), sd->hostname)) {
       for (i = 0; i < MAX_SERVICE_INFO_FIELDS; i++) {
-        if (hostname_tbl[i][0] && hostcmp(&hostname_tbl[i][0], sd.hostname))
+        if (hostname_tbl[i][0] && hostcmp(&hostname_tbl[i][0], sd->hostname))
           break;
 
         if (!hostname_tbl[i][0]) {
           numhostnames++;
-          Strncpy(&hostname_tbl[i][0], sd.hostname, sizeof(hostname_tbl[i]));
+          Strncpy(&hostname_tbl[i][0], sd->hostname, sizeof(hostname_tbl[i]));
           break;
         }
       }
     }
 
-    if (sd.ostype) {
+    if (sd->ostype) {
       for (i = 0; i < MAX_SERVICE_INFO_FIELDS; i++) {
-        if (ostype_tbl[i][0] && !strcmp(&ostype_tbl[i][0], sd.ostype))
+        if (ostype_tbl[i][0] && !strcmp(&ostype_tbl[i][0], sd->ostype))
           break;
 
         if (!ostype_tbl[i][0]) {
           numostypes++;
-          Strncpy(&ostype_tbl[i][0], sd.ostype, sizeof(ostype_tbl[i]));
+          Strncpy(&ostype_tbl[i][0], sd->ostype, sizeof(ostype_tbl[i]));
           break;
         }
       }
     }
 
-    if (sd.devicetype) {
+    if (sd->devicetype) {
       for (i = 0; i < MAX_SERVICE_INFO_FIELDS; i++) {
-        if (devicetype_tbl[i][0] && !strcmp(&devicetype_tbl[i][0], sd.devicetype))
+        if (devicetype_tbl[i][0] && !strcmp(&devicetype_tbl[i][0], sd->devicetype))
           break;
 
         if (!devicetype_tbl[i][0]) {
           numdevicetypes++;
-          Strncpy(&devicetype_tbl[i][0], sd.devicetype, sizeof(devicetype_tbl[i]));
+          Strncpy(&devicetype_tbl[i][0], sd->devicetype, sizeof(devicetype_tbl[i]));
           break;
         }
       }
     }
 
-    for (std::vector<char *>::const_iterator it = sd.cpe.begin(); it != sd.cpe.end(); it++) {
+    for (std::vector<char *>::const_iterator it = sd->cpe.begin(); it != sd->cpe.end(); it++) {
       for (i = 0; i < MAX_SERVICE_INFO_FIELDS; i++) {
         if (cpe_tbl[i][0] && !strcmp(&cpe_tbl[i][0], *it))
           break;

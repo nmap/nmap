@@ -133,6 +133,8 @@ static SSL_CTX *ssl_init_helper(const SSL_METHOD *method) {
 #if OPENSSL_VERSION_NUMBER < 0x10100000L || defined LIBRESSL_VERSION_NUMBER
     SSL_load_error_strings();
     SSL_library_init();
+#elif OPENSSL_VERSION_NUMBER >= 0x40000000L
+    atexit(nsock_ssl_atexit);
 #else
     OPENSSL_atexit(nsock_ssl_atexit);
 #endif
@@ -206,6 +208,9 @@ static nsock_ssl_ctx nsock_pool_ssl_init_helper(SSL_CTX *ctx, int flags) {
   SSL_CTX_clear_options(ctx, SSL_OP_NO_SSLv2);
   if (flags & NSOCK_SSL_MAX_SPEED) {
     SSL_CTX_set_options(ctx, SSL_OP_ALL);
+#ifdef SSL_OP_IGNORE_UNEXPECTED_EOF
+    SSL_CTX_set_options(ctx, SSL_OP_IGNORE_UNEXPECTED_EOF);
+#endif
 
     if (!SSL_CTX_set_cipher_list(ctx, CIPHERS_FAST))
       fatal("Unable to set OpenSSL cipher list: %s",

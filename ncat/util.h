@@ -81,7 +81,7 @@
   if (strlen(_Source) > sizeof((_Sock)->un.sun_path) - 1) \
     bye("Socket path length is too long. Max: %lu", sizeof((_Sock)->un.sun_path) - 1); \
   strncpy((_Sock)->un.sun_path, _Source, sizeof((_Sock)->un.sun_path) - 1); \
-} while (0);
+} while (0)
 
 #endif
 
@@ -132,7 +132,7 @@ int strbuf_sprintf(char **buf, size_t *size, size_t *offset, const char *fmt, ..
 int addr_is_local(const union sockaddr_u *su);
 
 const char *socktop(const union sockaddr_u *su, socklen_t ss_len);
-const char *inet_socktop(const union sockaddr_u *su);
+const char *inet_socktop_safe(const union sockaddr_u *su);
 
 unsigned short inet_port(const union sockaddr_u *su);
 

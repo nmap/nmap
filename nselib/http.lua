@@ -1517,9 +1517,9 @@ function generic_request(host, port, method, path, options)
     local lanman, ntlm
     if is_extended then
     -- this essentially calls the new ntlmv2_session_response function in smbauth.lua and returns whatever it returns
-      lanman, ntlm = smbauth.get_password_response(nil, username, "", options.auth.password, nil, "ntlmv2_session", challenge, true)
+      lanman, ntlm = smbauth.get_password_response(username, "", options.auth.password, nil, "ntlmv2_session", challenge, true)
     else
-      lanman, ntlm = smbauth.get_password_response(nil, username, "", options.auth.password, nil, "ntlm", challenge, false)
+      lanman, ntlm = smbauth.get_password_response(username, "", options.auth.password, nil, "ntlm", challenge, false)
       type_3_flags = type_3_flags - 0x00080000 -- Removing the Extended Security Flag as server doesn't support it.
     end
 
@@ -1739,7 +1739,7 @@ local ret_false = function () return false end
 -- @return redirect_ok function used to validate HTTP redirects
 local function get_redirect_ok(host, port, options)
   if ( options ) then
-    if ( options.redirect_ok == false ) then
+    if not options.redirect_ok then
       return ret_false
     elseif( "function" == type(options.redirect_ok) ) then
       return options.redirect_ok(host, port)

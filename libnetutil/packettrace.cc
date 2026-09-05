@@ -268,6 +268,12 @@ static inline char* STRAPP(const char *fmt, ...) {
   if(tt >= option_end)	\
   	{option_type = HEXDUMP; break;}
 
+static u32 unaligned_ntohl(const u8 *p) {
+  return (u32)(p[0] << 24) + (p[1] << 16) + (p[2] << 8) + p[3];
+}
+static u16 unaligned_ntohs(const u8 *p) {
+  return (u16)(p[0] << 8) + p[1];
+}
 /* Takes binary data found in the IP Options field of an IPv4 packet
  * and returns a string containing an ASCII description of the options
  * found. The function returns a pointer to a static buffer that
@@ -279,7 +285,6 @@ char *format_ip_options(const u8* ipopt, int ipoptlen) {
   int option_pt   = 0; // option pointer
   int option_fl   = 0;  // option flag
   const u8 *tptr;	// temp pointer
-  u32 *tint;		// temp int
 
   int option_sta = 0;	// option start offset
   int option_end = 0;	// option end offset
@@ -384,8 +389,8 @@ char *format_ip_options(const u8* ipopt, int ipoptlen) {
 	    STRAPP("%s@", ipstring);
     	  }
     	  CHECK(pt+3);
-	  tint = (u32*)&ipopt[pt]; pt+=4;
-	  STRAPP("%lu", (unsigned long) ntohl(*tint));
+	  STRAPP("%lu", unaligned_ntohl(ipopt + pt));
+	  pt+=4;
 
     	  if(pt == option_end)
   	    STRAPP("%s",(pt-option_sta)==(option_pt-1)?"#":" ");
@@ -393,7 +398,6 @@ char *format_ip_options(const u8* ipopt, int ipoptlen) {
   	break;
     case 136:	// IPOPT_SATID	-> (SANET) Stream Identifier
 	if(pt - option_sta == 2){
-	  u16 *sh;
     	  STRAPP(" SI{",NULL);
     	  // length
     	  if(option_sta+option_len > ipoptlen || option_len!=4)
@@ -401,8 +405,8 @@ char *format_ip_options(const u8* ipopt, int ipoptlen) {
 
     	  // stream id
     	  CHECK(pt+1);
-    	  sh = (u16*) &ipopt[pt]; pt+=2;
-    	  option_pt  = ntohs(*sh);
+    	  option_pt  = unaligned_ntohs(ipopt+pt);
+    	  pt+=2;
     	  STRAPP("id=%hu", (unsigned short) option_pt);
     	  if(pt != option_end)
     	    BREAK();
@@ -717,9 +721,9 @@ int tcppackethdrinfo (const u8 *data, unsigned int datalen,
     p += used;
     remains -= used;
 
-    if (lastbyte >= offsetof(struct tcp_hdr, th_sum)) {
+    if (lastbyte >= (int)offsetof(struct tcp_hdr, th_sum)) {
       have_flags_win = true;
-      if (lastbyte >= sizeof(struct tcp_hdr)) {
+      if (lastbyte >= (int)sizeof(struct tcp_hdr)) {
         have_sum_urp = true;
       }
     }
@@ -770,8 +774,8 @@ int tcppackethdrinfo (const u8 *data, unsigned int datalen,
     /* TCP Options */
     tcpdataoffset = tcp.th_off * 4;
     if (tcpdataoffset > sizeof(struct tcp_hdr)
-        && tcpdataoffset <= lastbyte) {
-      tcppacketoptinfo((u8*) data + sizeof(struct tcp_hdr) - frag_off,
+        && tcpdataoffset <= (u32) lastbyte) {
+      tcppacketoptinfo((const u8*) data + sizeof(struct tcp_hdr) - frag_off,
           tcpdataoffset - sizeof(struct tcp_hdr),
           tcpoptinfo, sizeof(tcpoptinfo));
     }
@@ -887,7 +891,7 @@ int icmppackethdrinfo (const u8 *data, unsigned int datalen,
   switch(icmp.icmp_type) {
     /* Echo Reply **************************/
     case 0:
-      strcpy(icmptype, "Echo reply");
+      bufset(icmptype, "Echo reply");
       Snprintf(icmpfields, sizeof(icmpfields), "id=%hu seq=%hu", (unsigned short) ntohs(msg.echo.icmp_id), (unsigned short) ntohs(msg.echo.icmp_seq));
       break;
 
@@ -897,7 +901,10 @@ int icmppackethdrinfo (const u8 *data, unsigned int datalen,
       pktlen += offsetof(struct icmp_msg_quote, icmp_ip);
       if (datalen >= pktlen + sizeof(ip2)) {
         memcpy(&ip2, data + pktlen, sizeof(ip2));
-        pktlen += ip2.ip_hl * 4;
+        if (ip2.ip_hl >= 5)
+          pktlen += ip2.ip_hl * 4;
+        else
+          pktlen += sizeof(ip2);
       } else {
         pktlen += sizeof(ip2);
       }
@@ -962,16 +969,16 @@ int icmppackethdrinfo (const u8 *data, unsigned int datalen,
               Snprintf(icmptype, sizeof icmptype, "Port unreachable (unknown protocol %u)", ip2.ip_p);
           }
           else
-            strcpy(icmptype, "Port unreachable");
+            bufset(icmptype, "Port unreachable");
           break;
 
         case 4:
-          strcpy(icmptype, "Fragmentation required");
+          bufset(icmptype, "Fragmentation required");
           Snprintf(icmpfields, sizeof(icmpfields), "Next-Hop-MTU=%d", ntohs(msg.needfrag.icmp_mtu));
           break;
 
         case 5:
-          strcpy(icmptype, "Source route failed");
+          bufset(icmptype, "Source route failed");
           break;
 
         case 6:
@@ -983,7 +990,7 @@ int icmppackethdrinfo (const u8 *data, unsigned int datalen,
           break;
 
         case 8:
-          strcpy(icmptype, "Source host isolated");
+          bufset(icmptype, "Source host isolated");
           break;
 
         case 9:
@@ -1003,19 +1010,19 @@ int icmppackethdrinfo (const u8 *data, unsigned int datalen,
           break;
 
         case 13:
-          strcpy(icmptype, "Communication administratively prohibited by filtering");
+          bufset(icmptype, "Communication administratively prohibited by filtering");
           break;
 
         case 14:
-          strcpy(icmptype, "Host precedence violation");
+          bufset(icmptype, "Host precedence violation");
           break;
 
         case 15:
-          strcpy(icmptype, "Precedence cutoff in effect");
+          bufset(icmptype, "Precedence cutoff in effect");
           break;
 
         default:
-          strcpy(icmptype, "Destination unreachable (unknown code)");
+          bufset(icmptype, "Destination unreachable (unknown code)");
           break;
       } /* End of ICMP Code switch */
       break;
@@ -1023,33 +1030,33 @@ int icmppackethdrinfo (const u8 *data, unsigned int datalen,
 
       /* Source Quench ***********************/
     case 4:
-      strcpy(icmptype, "Source quench");
+      bufset(icmptype, "Source quench");
       break;
 
       /* Redirect ****************************/
     case 5:
       if (icmp.icmp_code == 0)
-        strcpy(icmptype, "Network redirect");
+        bufset(icmptype, "Network redirect");
       else if (icmp.icmp_code == 1)
-        strcpy(icmptype, "Host redirect");
+        bufset(icmptype, "Host redirect");
       else
-        strcpy(icmptype, "Redirect (unknown code)");
+        bufset(icmptype, "Redirect (unknown code)");
       inet_ntop(AF_INET, &msg.redirect.icmp_void, auxbuff, sizeof(auxbuff));
       Snprintf(icmpfields, sizeof(icmpfields), "addr=%s", auxbuff);
       break;
 
       /* Echo Request ************************/
     case 8:
-      strcpy(icmptype, "Echo request");
+      bufset(icmptype, "Echo request");
       Snprintf(icmpfields, sizeof(icmpfields), "id=%hu seq=%hu", (unsigned short) ntohs(msg.echo.icmp_id), (unsigned short) ntohs(msg.echo.icmp_seq));
       break;
 
       /* Router Advertisement ****************/
     case 9:
       if (icmp.icmp_code == 16)
-        strcpy(icmptype, "Router advertisement (Mobile Agent Only)");
+        bufset(icmptype, "Router advertisement (Mobile Agent Only)");
       else
-        strcpy(icmptype, "Router advertisement");
+        bufset(icmptype, "Router advertisement");
       Snprintf(icmpfields, sizeof(icmpfields), "addrs=%u addrlen=%u lifetime=%hu",
           msg.rtradvert.icmp_num_addrs,
           msg.rtradvert.icmp_wpa,
@@ -1058,29 +1065,29 @@ int icmppackethdrinfo (const u8 *data, unsigned int datalen,
 
       /* Router Solicitation *****************/
     case 10:
-      strcpy(icmptype, "Router solicitation");
+      bufset(icmptype, "Router solicitation");
       break;
 
       /* Time Exceeded ***********************/
     case 11:
       if (icmp.icmp_code == 0)
-        strcpy(icmptype, "TTL=0 during transit");
+        bufset(icmptype, "TTL=0 during transit");
       else if (icmp.icmp_code == 1)
-        strcpy(icmptype, "TTL=0 during reassembly");
+        bufset(icmptype, "TTL=0 during reassembly");
       else
-        strcpy(icmptype, "TTL exceeded (unknown code)");
+        bufset(icmptype, "TTL exceeded (unknown code)");
       break;
 
       /* Parameter Problem *******************/
     case 12:
       if (icmp.icmp_code == 0)
-        strcpy(icmptype, "Parameter problem (pointer indicates error)");
+        bufset(icmptype, "Parameter problem (pointer indicates error)");
       else if (icmp.icmp_code == 1)
-        strcpy(icmptype, "Parameter problem (option missing)");
+        bufset(icmptype, "Parameter problem (option missing)");
       else if (icmp.icmp_code == 2)
-        strcpy(icmptype, "Parameter problem (bad length)");
+        bufset(icmptype, "Parameter problem (bad length)");
       else
-        strcpy(icmptype, "Parameter problem (unknown code)");
+        bufset(icmptype, "Parameter problem (unknown code)");
       Snprintf(icmpfields, sizeof(icmpfields), "pointer=%hhu", *((u8 *)(&msg.paramprob.icmp_void)));
       break;
 
@@ -1097,13 +1104,13 @@ int icmppackethdrinfo (const u8 *data, unsigned int datalen,
 
       /* Information Request *****************/
     case 15:
-      strcpy(icmptype, "Information request");
+      bufset(icmptype, "Information request");
       Snprintf(icmpfields, sizeof(icmpfields), "id=%hu seq=%hu", (unsigned short) ntohs(msg.info.icmp_id), (unsigned short) ntohs(msg.info.icmp_seq));
       break;
 
       /* Information Reply *******************/
     case 16:
-      strcpy(icmptype, "Information reply");
+      bufset(icmptype, "Information reply");
       Snprintf(icmpfields, sizeof(icmpfields), "id=%hu seq=%hu", (unsigned short) ntohs(msg.info.icmp_id), (unsigned short) ntohs(msg.info.icmp_seq));
       break;
 
@@ -1118,26 +1125,26 @@ int icmppackethdrinfo (const u8 *data, unsigned int datalen,
 
       /* Traceroute **************************/
     case 30:
-      strcpy(icmptype, "Traceroute");
+      bufset(icmptype, "Traceroute");
       break;
 
       /* Domain Name Request *****************/
     case 37:
-      strcpy(icmptype, "Domain name request");
+      bufset(icmptype, "Domain name request");
       break;
 
       /* Domain Name Reply *******************/
     case 38:
-      strcpy(icmptype, "Domain name reply");
+      bufset(icmptype, "Domain name reply");
       break;
 
       /* Security ****************************/
     case 40:
-      strcpy(icmptype, "Security failures"); /* rfc 2521 */
+      bufset(icmptype, "Security failures"); /* rfc 2521 */
       break;
 
     default:
-      strcpy(icmptype, "Unknown type"); break;
+      bufset(icmptype, "Unknown type"); break;
       break;
   } /* End of ICMP Type switch */
 
@@ -1152,11 +1159,8 @@ icmpbad:
           srchost, dsthost);
     }
   } else {
-    char icmpinfo[512] = "";              /* Temp info about ICMP.             */
-    sprintf(icmpinfo,"type=%d/code=%d", icmp.icmp_type, icmp.icmp_code);
-
-    return Snprintf(outbuf, outlen, "ICMP [%s > %s %s (%s) %s]",
-        srchost, dsthost, icmptype, icmpinfo, icmpfields);
+    return Snprintf(outbuf, outlen, "ICMP [%s > %s %s (type=%d/code=%d) %s]",
+        srchost, dsthost, icmptype, icmp.icmp_type, icmp.icmp_code, icmpfields);
   }
 }
 

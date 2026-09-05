@@ -146,7 +146,7 @@ static char *chat_filter(char *buf, size_t size, int fd, int *nwritten);
    (synchronously) only in the main program. get_conn_count loops while conn_dec
    is being modified. */
 static unsigned int conn_inc = 0;
-static volatile unsigned int conn_dec = 0;
+static volatile sig_atomic_t conn_dec = 0;
 static volatile sig_atomic_t conn_dec_changed;
 
 static void decrease_conn_count(void)
@@ -173,8 +173,44 @@ static int get_conn_count(void)
 #ifndef WIN32
 static void sigchld_handler(int signum)
 {
+    int saved_errno = errno;
     while (waitpid(-1, NULL, WNOHANG) > 0)
         decrease_conn_count();
+    errno = saved_errno;
+}
+
+/* Propagate the trapped signal to the entire process group */
+static void signal_propagate_exit(int signum)
+{
+  /* Send signal to process group */
+  kill(0, signum);
+  /* Exit, since we only use this for INT/TERM/HUP */
+  exit(128 + signum);
+}
+
+static void install_signal_handlers(void)
+{
+    struct sigaction sa;
+    memset(&sa, 0, sizeof(sa));
+    sigemptyset(&sa.sa_mask);
+
+    /* Ignore the SIGPIPE that occurs when a client disconnects suddenly and we
+       send data to it before noticing. */
+    sa.sa_handler = SIG_IGN;
+    sigaction(SIGPIPE, &sa, NULL);
+
+    /* Reap on SIGCHLD */
+    sa.sa_handler = sigchld_handler;
+    sa.sa_flags = SA_RESTART;
+    sigaction(SIGCHLD, &sa, NULL);
+
+    /* Nab any process-terminating signals and propagate them */
+    sa.sa_handler = signal_propagate_exit;
+    sa.sa_flags = SA_RESTART | SA_RESETHAND;
+    sigaction(SIGINT, &sa, NULL);
+    sigaction(SIGTERM, &sa, NULL);
+    sigaction(SIGHUP, &sa, NULL);
+    sigaction(SIGQUIT, &sa, NULL);
 }
 #endif
 
@@ -241,11 +277,7 @@ int ncat_listen()
 #ifdef WIN32
     set_pseudo_sigchld_handler(decrease_conn_count);
 #else
-    /* Reap on SIGCHLD */
-    Signal(SIGCHLD, sigchld_handler);
-    /* Ignore the SIGPIPE that occurs when a client disconnects suddenly and we
-       send data to it before noticing. */
-    Signal(SIGPIPE, SIG_IGN);
+    install_signal_handlers();
 #endif
 
 #ifdef HAVE_OPENSSL
@@ -340,6 +372,13 @@ int ncat_listen()
 
         fds_ready = fselect(client_fdlist.fdmax + 1, &readfds, &writefds, NULL, tvp);
 
+        if (fds_ready < 0) {
+          int e = socket_errno();
+          if (e != EINTR) {
+            bye("fselect error %d: %s", e, socket_strerror(e));
+          }
+        }
+
         if (o.debug > 1)
             logdebug("select returned %d fds ready\n", fds_ready);
 
@@ -355,6 +394,16 @@ restart_fd_loop:
             int cfd = fdi->fd;
             /* If we saw an error, close this fd */
             if (fdi->lasterr != 0) {
+                if (checked_fd_isset(cfd, &listen_fds)) {
+                    /* We may want to reopen this listener instead of quitting here. */
+                    bye("Listening socket error %d: %s",
+                            fdi->lasterr, socket_strerror(fdi->lasterr));
+                }
+                else if (cfd == STDIN_FILENO) {
+                    /* We may want to close STDIN and continue instead of quitting here. */
+                    bye("STDIN error %d: %s",
+                            fdi->lasterr, socket_strerror(fdi->lasterr));
+                }
                 close_fd(fdi, 0);
                 goto restart_fd_loop;
             }
@@ -439,6 +488,20 @@ restart_fd_loop:
             }
         }
     }
+
+#ifndef WIN32
+    /* Reap remaining children */
+    Signal(SIGCHLD, SIG_DFL);
+    while (waitpid(-1, NULL, 0) < 0) {
+        if (errno == ECHILD) {
+            break;
+        }
+        else if (errno == EINTR) {
+            continue;
+        }
+        die("waitpid");
+    }
+#endif
 
     return (breakloop == BREAKLOOP_ERROR ? 1 : 0);
 }
@@ -627,6 +690,8 @@ static void post_handle_connection(struct fdinfo *sinfo)
 static void close_fd(struct fdinfo *fdn, int eof) {
     /* rm_fd invalidates fdn, so save what we need here. */
     int fd = fdn->fd;
+    /* This should never be used to close stdin or a listening socket. */
+    ncat_assert(fd != STDIN_FILENO);
     if (o.debug)
         logdebug("Closing connection.\n");
 #ifdef HAVE_OPENSSL
@@ -650,6 +715,19 @@ static void close_fd(struct fdinfo *fdn, int eof) {
         chat_announce_disconnect(fd);
 }
 
+static void close_stdin(int rc) {
+    if (rc < 0 && o.verbose)
+        READ_STDIN_ERR();
+    if (rc == 0 && o.debug)
+        logdebug("EOF on stdin\n");
+
+    /* Don't close the file because that allows a socket to be fd 0. */
+    checked_fd_clr(STDIN_FILENO, &master_readfds);
+    /* Buf mark that we've seen EOF so it doesn't get re-added to the
+       select list. */
+    stdin_eof = 1;
+}
+
 /* Read from stdin and broadcast to all client sockets. Return the number of
    bytes read, or -1 on error. */
 int read_stdin(struct timeval *qtv)
@@ -660,21 +738,13 @@ int read_stdin(struct timeval *qtv)
 
     nbytes = READ_STDIN(buf, sizeof(buf));
     if (nbytes <= 0) {
-        if (nbytes < 0 && o.verbose)
-            READ_STDIN_ERR();
-        if (nbytes == 0 && o.debug)
-            logdebug("EOF on stdin\n");
+        close_stdin(nbytes);
 
         if (o.quitafter > 0) {
             struct timeval when;
             gettimeofday(&when, 0);
             TIMEVAL_MSEC_ADD(*qtv, when, o.quitafter);
         }
-        /* Don't close the file because that allows a socket to be fd 0. */
-        checked_fd_clr(STDIN_FILENO, &master_readfds);
-        /* Buf mark that we've seen EOF so it doesn't get re-added to the
-           select list. */
-        stdin_eof = 1;
 
         return nbytes;
     }
@@ -758,18 +828,7 @@ static void read_and_broadcast(int recv_fd)
         if (recv_fd == STDIN_FILENO) {
             n = READ_STDIN(buf, sizeof(buf));
             if (n <= 0) {
-                if (n < 0 && o.verbose)
-                    READ_STDIN_ERR();
-                if (n == 0 && o.debug)
-                    logdebug("EOF on stdin\n");
-
-                /* Don't close the file because that allows a socket to be
-                   fd 0. */
-                checked_fd_clr(recv_fd, &master_readfds);
-                /* But mark that we've seen EOF so it doesn't get re-added to
-                   the select list. */
-                stdin_eof = 1;
-
+                close_stdin(n);
                 return;
             }
 

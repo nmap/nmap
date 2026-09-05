@@ -4344,20 +4344,6 @@ SEE THE MAN PAGE (https://nmap.org/book/man.html) FOR MORE OPTIONS AND EXAMPLES
         </varlistentry>
 
         <varlistentry>
-          <term><option>--release-memory </option>(Release memory before
-          quitting)</term>
-
-          <listitem>
-            <para>Quest'opzione è utile solo per la risoluzione di problemi di
-            perdita di memoria (memory-leak debugging). Obbliga infatti ad Nmap
-            a liberare la memoria allocata appena prima di uscire così da
-            individuare più facilmente le effettive perdite di memoria. Di
-            solito Nmap salta questo passaggio come fa il sistema operativo in
-            ogni caso al momento della chiusura del processo.</para>
-          </listitem>
-        </varlistentry>
-
-        <varlistentry>
           <term><option>-V</option>; <option>--version</option> (Print version
           number)</term>
 

@@ -82,7 +82,7 @@ static int mksock_bind_addr(struct npool *ms, struct niod *iod) {
                     get_localaddr_string(iod), iod->id,
                     socket_strerror(err), err);
   }
-  return 0;
+  return rc;
 }
 
 static int mksock_set_ipopts(struct npool *ms, struct niod *iod) {
@@ -97,7 +97,7 @@ static int mksock_set_ipopts(struct npool *ms, struct niod *iod) {
     nsock_log_error("Setting of IP options failed (IOD #%li): %s (%d)",
                     iod->id, socket_strerror(err), err);
   }
-  return 0;
+  return rc;
 }
 
 static int mksock_bind_device(struct npool *ms, struct niod *iod) {
@@ -113,6 +113,7 @@ static int mksock_bind_device(struct npool *ms, struct niod *iod) {
     else
       nsock_log_debug_all("Setting of SO_BINDTODEVICE failed (IOD #%li): %s (%d)",
                           iod->id, socket_strerror(err), err);
+    return -1;
   }
   return 0;
 }
@@ -129,7 +130,7 @@ static int mksock_set_broadcast(struct npool *ms, struct niod *iod) {
     nsock_log_error("Setting of SO_BROADCAST failed (IOD #%li): %s (%d)",
                     iod->id, socket_strerror(err), err);
   }
-  return 0;
+  return rc;
 }
 /* Create the actual socket (nse->iod->sd) underlying the iod. This unblocks the
  * socket, binds to the localaddr address, sets IP options, and sets the
@@ -149,20 +150,26 @@ static int nsock_make_socket(struct npool *ms, struct niod *iod, int family, int
 
   iod->lastproto = proto;
 
-  if (iod->locallen)
-    mksock_bind_addr(ms, iod);
+  /* If the user requested a specific local address, we should treat a bind
+   * failure as a connect failure. */
+  if (iod->locallen) {
+    if (0 != mksock_bind_addr(ms, iod))
+      return -1;
+  }
 
+  /* IP_OPTIONS requires extra permissions, so ignore failure */
   if (iod->ipoptslen && family == AF_INET)
     mksock_set_ipopts(ms, iod);
 
+  /* SO_BINDTODEVICE requires extra permissions, so ignore failure */
   if (ms->device)
     mksock_bind_device(ms, iod);
 
+  /* SO_BROADCAST is a candidate for treating failure as an error, but we have
+   * not received reports of issues related to it yet. */
   if (ms->broadcast && type != SOCK_STREAM)
     mksock_set_broadcast(ms, iod);
 
-  /* mksock_* functions can raise warnings/errors
-   * but we don't let them stop us for now. */
   return iod->sd;
 }
 

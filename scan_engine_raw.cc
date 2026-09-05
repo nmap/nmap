@@ -165,7 +165,7 @@ void UltraProbe::setIP(const u8 *ippacket, u32 len, const probespec *pspec) {
   if (ip->ip_v == 4) {
     data = ipv4_get_data(ippacket, &len);
     assert(data != NULL);
-    assert(len + ip->ip_hl * 4 == (u32) ntohs(ip->ip_len));
+    assert(ip->ip_hl >= 5 && len + ip->ip_hl * 4 == (u32) ntohs(ip->ip_len));
     probes.IP.ipid = ntohs(ip->ip_id);
     hdr = ip->ip_p;
   } else if (ip->ip_v == 6) {

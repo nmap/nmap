@@ -76,8 +76,6 @@ class Target;
 #define INET_ADDRSTRLEN 16
 #endif
 
-int nmap_raw_socket();
-
 /* Used for tracing all packets sent or received (eg the
    --packet-trace option) */
 
@@ -135,13 +133,7 @@ class PacketCounter {
    IPv6 IP address string.  Since a static buffer is returned, this is
    not thread-safe and can only be used once in calls like printf()
 */
-const char *inet_socktop(const struct sockaddr_storage *ss);
-
-/* Tries to resolve the given name (or literal IP) into a sockaddr
-   structure. This function calls getaddrinfo and returns the same
-   addrinfo linked list that getaddrinfo produces. Returns NULL for any
-   error or failure to resolve. */
-struct addrinfo *resolve_all(const char *hostname, int pf);
+const char *inet_socktop_safe(const struct sockaddr_storage *ss);
 
 /* Takes a destination address (dst) and tries to determine the
    source address and interface necessary to route to this address.
@@ -310,13 +302,6 @@ bool pcap_recv_timeval_valid();
    packets). */
 void pcap_print_stats(int logt, pcap_t *pd);
 
-
-
-/* A simple function I wrote to help in debugging, shows the important fields
-   of a TCP packet*/
-int readtcppacket(const u8 *packet, int readdata);
-int readudppacket(const u8 *packet, int readdata);
-
 /* Fill buf (up to buflen -- truncate if necessary but always
    terminate) with a short representation of the packet stats.
    Returns buf.  Aborts if there is a problem. */
@@ -345,9 +330,6 @@ int setTargetMACIfAvailable(Target *target, struct link_header *linkhdr,
    after an ARP scan if many directly connected machines are involved. */
 bool setTargetNextHopMAC(Target *target);
 
-bool getNextHopMAC(const char *iface, const u8 *srcmac, const struct sockaddr_storage *srcss,
-                   const struct sockaddr_storage *dstss, u8 *dstmac);
-
 /* If rcvdtime is non-null and a packet is returned, rcvd will be
    filled with the time that packet was captured from the wire by
    pcap.  If linknfo is not NULL, lnkinfo->headerlen and
@@ -357,6 +339,7 @@ const u8 *readipv4_pcap(pcap_t *pd, unsigned int *len, long to_usec,
 
 const u8 *readip_pcap(pcap_t *pd, unsigned int *len, long to_usec,
                   struct timeval *rcvdtime, struct link_header *linknfo, bool validate);
+bool validatepkt(const u8 *ipc, unsigned *len);
 
 /* Examines the given tcp packet and obtains the TCP timestamp option
    information if available.  Note that the CALLER must ensure that
@@ -368,7 +351,7 @@ const u8 *readip_pcap(pcap_t *pd, unsigned int *len, long to_usec,
    parameters (if non-null) are filled with 0.  Remember that the
    correct way to check for errors is to look at the return value
    since a zero ts or echots could possibly be valid. */
-int gettcpopt_ts(const u8 *tcppkt, u32 *timestamp, u32 *echots);
+int gettcpopt_ts(const u8 *tcppkt, int tcplen, u32 *timestamp, u32 *echots);
 
 /* Maximize the receive buffer of a socket descriptor (up to 500K) */
 void max_rcvbuf(int sd);

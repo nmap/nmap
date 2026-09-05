@@ -72,6 +72,7 @@ extern int errno;
 #include <winsock2.h>
 #endif
 
+#include <math.h>
 #include <limits.h>
 #include <stdio.h>
 #include "nbase_ipv6.h"
@@ -191,6 +192,11 @@ const char *inet_ntop_ez(const struct sockaddr_storage *ss, size_t sslen) {
   return NULL;
 }
 
+/* Same as inet_ntop_ez, but assumes sslen==sizeof(sockaddr_storage) */
+const char *inet_socktop(const struct sockaddr_storage *ss) {
+  return inet_ntop_ez(ss, sizeof(*ss));
+}
+
 /* Create a new socket inheritable by subprocesses. On non-Windows systems it's
    just a normal socket. */
 int inheritable_socket(int af, int style, int protocol) {
@@ -297,34 +303,46 @@ int socket_bindtodevice(int sd, const char *device) {
  * are "ms" for milliseconds, "s" for seconds, "m" for minutes, or "h" for
  * hours. Seconds is the default with no suffix. -1 is returned if the string
  * can't be parsed. */
-double tval2secs(const char *tspec) {
+static double tval_helper(const char *tspec, int *mult, const char **unit) {
   double d;
   char *tail;
+  assert(tspec != NULL);
+  assert(mult != NULL);
 
   errno = 0;
   d = strtod(tspec, &tail);
-  if (*tspec == '\0' || errno != 0)
+  if (tspec == tail || errno != 0 || !isfinite(d))
     return -1;
+  if (unit)
+    *unit = tail;
   if (strcasecmp(tail, "ms") == 0)
-    return d / 1000.0;
+    *mult = 1;
   else if (*tail == '\0' || strcasecmp(tail, "s") == 0)
-    return d;
+    *mult = 1000;
   else if (strcasecmp(tail, "m") == 0)
-    return d * 60.0;
+    *mult = 1000 * 60;
   else if (strcasecmp(tail, "h") == 0)
-    return d * 60.0 * 60.0;
+    *mult = 1000 * 60 * 60;
   else
     return -1;
+  return d;
+}
+
+double tval2secs(const char *tspec) {
+  int mult = 1000;
+  double d = tval_helper(tspec, &mult, NULL);
+  return d * (mult / 1000.0);
 }
 
 long tval2msecs(const char *tspec) {
-  double s, ms;
+  int mult = 1;
+  double ms = tval_helper(tspec, &mult, NULL);
+  ms *= mult;
 
-  s = tval2secs(tspec);
-  if (s == -1)
-    return -1;
-  ms = s * 1000.0;
-  if (ms > LONG_MAX || ms < LONG_MIN)
+  /* We enforce 32-bit max/min because double can hold only 53 bits precisely.
+   * With 64-bit long, LONG_MAX == (2^63 - 1), which cast to a double rounds to 2^63,
+   * so (long)((double)LONG_MAX) is undefined behavior. */
+  if (ms > INT32_MAX || ms < INT32_MIN)
     return -1;
 
   return (long) ms;
@@ -333,15 +351,11 @@ long tval2msecs(const char *tspec) {
 /* Returns the unit portion of a time specification (such as "ms", "s", "m", or
    "h"). Returns NULL if there was a parsing error or no unit is present. */
 const char *tval_unit(const char *tspec) {
-  double d;
-  char *tail;
+  int mult = 0;
+  const char *tail = NULL;
+  double d = tval_helper(tspec, &mult, &tail);
 
-  errno = 0;
-  d = strtod(tspec, &tail);
-  /* Avoid GCC 4.6 error "variable 'd' set but not used
-     [-Wunused-but-set-variable]". */
-  (void) d;
-  if (*tspec == '\0' || errno != 0 || *tail == '\0')
+  if (d == -1 || *tail == '\0')
     return NULL;
 
   return tail;
@@ -591,6 +605,7 @@ unsigned long nbase_adler32(const unsigned char *buf, int len)
 #undef ADLER32_BASE
 
 
+static const char hexch[] = "0123456789abcdef";
 /* This function returns a string containing the hexdump of the supplied
  * buffer. It uses current locale to determine if a character is printable or
  * not. It prints 73char+\n wide lines like these:
@@ -604,25 +619,23 @@ unsigned long nbase_adler32(const unsigned char *buf, int len)
  * that the caller is supposed to free().
  * */
 char *hexdump(const u8 *cp, u32 length){
-  static char asciify[257];          /* Stores character table           */
+  static char asciify[256];          /* Stores character table           */
   int asc_init=0;                    /* Flag to generate table only once */
   u32 i=0, hex=0, asc=0;             /* Array indexes                    */
-  u32 line_count=0;                  /* For byte count at line start     */
-  char *current_line=NULL;           /* Current line to write            */
   char *buffer=NULL;                 /* Dynamic buffer we return         */
   #define LINE_LEN 74                /* Length of printed line           */
-  char line2print[LINE_LEN];         /* Stores current line              */
-  char printbyte[16];                /* For byte conversion              */
+  char *line2print;         /* Start of current line              */
   int bytes2alloc;                   /* For buffer                       */
-  memset(line2print, ' ', LINE_LEN); /* We fill the line with spaces     */
 
   /* On the first run, generate a list of nice printable characters
    * (according to current locale) */
   if( asc_init==0){
       asc_init=1;
-      for(i=0; i<256; i++){
-        if( isalnum(i) || isdigit(i) || ispunct(i) ){ asciify[i]=i; }
-        else{ asciify[i]='.'; }
+      memset(asciify, '.', sizeof(asciify));
+      for (i=0; i<0xff; i++) {
+        if (isgraph(i)) {
+          asciify[i]=i;
+        }
       }
   }
   /* Allocate enough space to print the hex dump */
@@ -632,7 +645,8 @@ char *hexdump(const u8 *cp, u32 length){
   }
   bytes2alloc=(length%16==0)? (1 + LINE_LEN * (length/16)) : (1 + LINE_LEN * (1+(length/16))) ;
   buffer=(char *)safe_zalloc(bytes2alloc);
-  current_line=buffer;
+  memset(buffer, ' ', bytes2alloc - 1); /* Fill line with spaces */
+  line2print=buffer;
 #define HEX_START 7
 #define ASC_START 57
 /* This is how or line looks like.
@@ -645,23 +659,20 @@ char *hexdump(const u8 *cp, u32 length){
 */
   i=0;
   while( i < length ){
-    memset(line2print, ' ', LINE_LEN); /* Fill line with spaces */
-    snprintf(line2print, sizeof(line2print), "%04x", (16*line_count++) % 0xFFFF); /* Add line No.*/
+    snprintf(line2print, 5, "%04x", i & 0xFFFF); /* Add line No.*/
     line2print[4]=' '; /* Replace the '\0' inserted by snprintf() with a space */
     hex=HEX_START;  asc=ASC_START;
     do { /* Print 16 bytes in both hex and ascii */
         if (i%16 == 8) hex++; /* Insert space every 8 bytes */
-        snprintf(printbyte, sizeof(printbyte), "%02x", cp[i]);/* First print the hex number */
-        line2print[hex++]=printbyte[0];
-        line2print[hex++]=printbyte[1];
-        line2print[hex++]=' ';
+        line2print[hex++]=hexch[(cp[i] >> 4) & 0xf];
+        line2print[hex++]=hexch[cp[i] & 0xf];
+        hex++; /* ' ' */
         line2print[asc++]=asciify[ cp[i] ]; /* Then print its ASCII equivalent */
         i++;
     } while (i < length && i%16 != 0);
     /* Copy line to output buffer */
     line2print[LINE_LEN-1]='\n';
-    memcpy(current_line, line2print, LINE_LEN);
-    current_line += LINE_LEN;
+    line2print += LINE_LEN;
   }
   buffer[bytes2alloc-1]='\0';
   return buffer;

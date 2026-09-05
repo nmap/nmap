@@ -38,6 +38,8 @@
 #define NSE_DESTRUCTOR "NSE_DESTRUCTOR"
 #define NSE_SELECTED_BY_NAME "NSE_SELECTED_BY_NAME"
 #define NSE_CURRENT_HOSTS "NSE_CURRENT_HOSTS"
+#define NSE_ALLOC_STATE "NSE_ALLOC_STATE"
+#define NSE_TIMER "NSE_TIMER"
 
 #define NSE_FORMAT_TABLE "NSE_FORMAT_TABLE"
 #define NSE_FORMAT_XML "NSE_FORMAT_XML"
@@ -156,22 +158,22 @@ static int scp (lua_State *L)
 {
   static const char * const ops[] = {"printStats", "printStatsIfNecessary",
     "mayBePrinted", "endTask", NULL};
-  ScanProgressMeter *progress =
-    (ScanProgressMeter *) lua_touserdata(L, lua_upvalueindex(1));
+  ScanProgressMeter **ud =
+    (ScanProgressMeter **) lua_touserdata(L, lua_upvalueindex(1));
+  ScanProgressMeter *progress = *ud;
   switch (luaL_checkoption(L, 1, NULL, ops))
   {
     case 0: /* printStats */
-      progress->printStats((double) luaL_checknumber(L, 2), NULL);
+      progress->printStats(luaL_checkinteger(L, 2), luaL_checkinteger(L, 3), NULL);
       break;
     case 1:
-      progress->printStatsIfNecessary((double) luaL_checknumber(L, 2), NULL);
+      progress->printStatsIfNecessary(luaL_checkinteger(L, 2), luaL_checkinteger(L, 3), NULL);
       break;
     case 2: /*mayBePrinted */
       lua_pushboolean(L, progress->mayBePrinted(NULL));
       return 1;
     case 3: /* endTask */
       progress->endTask(NULL, NULL);
-      delete progress;
       break;
   }
   return 0;
@@ -179,9 +181,23 @@ static int scp (lua_State *L)
 
 static int scan_progress_meter (lua_State *L)
 {
-  lua_pushlightuserdata(L, new ScanProgressMeter(luaL_checkstring(L, 1)));
+  ScanProgressMeter *SPM = new ScanProgressMeter(luaL_checkstring(L, 1));
+  ScanProgressMeter **ud = (ScanProgressMeter **)lua_newuserdatauv(L, sizeof(SPM), 0);
+  *ud = SPM;
+  luaL_setmetatable(L, "ScanProgressMeter");
   lua_pushcclosure(L, scp, 1);
   return 1;
+}
+
+static int ScanProgressMeter_gc (lua_State *L)
+{
+  ScanProgressMeter **ud =
+    (ScanProgressMeter **) luaL_checkudata(L, 1, "ScanProgressMeter");
+  if (*ud != NULL) {
+    delete *ud;
+    *ud = NULL;
+  }
+  return 0;
 }
 
 /* This is like nmap.log_write, but doesn't append "NSE:" to the beginning of
@@ -344,6 +360,68 @@ static int fetchfile_absolute (lua_State *L)
   return nse_fetch(L, nse_fetchfile_absolute);
 }
 
+/* Global persistent Lua state used by the engine. */
+static lua_State *L_NSE = NULL;
+
+struct AllocState {
+    size_t total_allocated;
+    size_t max_allocated;
+    size_t memory_limit;
+    bool enforce_limit;
+    AllocState(size_t lim=SIZE_MAX)
+      : total_allocated(0), max_allocated(0), memory_limit(lim), enforce_limit(false)
+      {}
+};
+
+struct TimerState {
+    time_t start_time;
+    double max_seconds;
+    TimerState(double max) : start_time(0), max_seconds(max) {}
+};
+
+// This hook is called by Lua every N instructions
+void timeout_hook(lua_State *L, lua_Debug *ar) {
+  lua_getfield(L, LUA_REGISTRYINDEX, NSE_TIMER);
+  TimerState *timer_state = (TimerState *) lua_touserdata(L, -1);
+
+  double elapsed = difftime(time(NULL), timer_state->start_time);
+
+  if (elapsed > timer_state->max_seconds) {
+    luaL_error(L, "Script execution exceeded time limit.");
+  }
+}
+
+int install_thread_timer (lua_State *L)
+{
+  assert(L != L_NSE);
+  lua_getfield(L, LUA_REGISTRYINDEX, NSE_TIMER);
+  TimerState *timer_state = (TimerState *) lua_touserdata(L, -1);
+  timer_state->start_time = time(NULL);
+  // 10M instructions should be more than 1/s but less than 100/s
+  lua_sethook(L, timeout_hook, LUA_MASKCOUNT, 10000000);
+  return 0;
+}
+
+int start_thread_timer (lua_State *L)
+{
+  lua_getfield(L, LUA_REGISTRYINDEX, NSE_TIMER);
+  TimerState *timer_state = (TimerState *) lua_touserdata(L, -1);
+  timer_state->start_time = time(NULL);
+  lua_getfield(L, LUA_REGISTRYINDEX, NSE_ALLOC_STATE);
+  AllocState *alloc_state = (AllocState *) lua_touserdata(L, -1);
+  alloc_state->enforce_limit = true;
+  return 0;
+}
+
+int stop_thread_timer (lua_State *L)
+{
+  // Currently nothing to do to "stop" the timer.
+  lua_getfield(L, LUA_REGISTRYINDEX, NSE_ALLOC_STATE);
+  AllocState *alloc_state = (AllocState *) lua_touserdata(L, -1);
+  alloc_state->enforce_limit = false;
+  return 0;
+}
+
 static void open_cnse (lua_State *L)
 {
   static const luaL_Reg nse[] = {
@@ -351,6 +429,9 @@ static void open_cnse (lua_State *L)
     {"fetchscript", fetchscript},
     {"key_was_pressed", key_was_pressed},
     {"scan_progress_meter", scan_progress_meter},
+    {"start_thread_timer", start_thread_timer},
+    {"stop_thread_timer", stop_thread_timer},
+    {"install_thread_timer", install_thread_timer},
     {"timedOut", timedOut},
     {"startTimeOutClock", startTimeOutClock},
     {"stopTimeOutClock", stopTimeOutClock},
@@ -379,10 +460,11 @@ static void open_cnse (lua_State *L)
   nseU_setsfield(L, -1, "NMAP_URL", NMAP_URL);
   nseU_setnfield(L, -1, "script_timeout", o.scripttimeout);
 
+  luaL_newmetatable(L, "ScanProgressMeter");
+  lua_pushcfunction(L, ScanProgressMeter_gc);
+  lua_setfield(L, -2, "__gc");
+  lua_pop(L, 1);
 }
-
-/* Global persistent Lua state used by the engine. */
-static lua_State *L_NSE = NULL;
 
 void ScriptResult::clear (void)
 {
@@ -585,9 +667,17 @@ static void set_nmap_libraries (lua_State *L)
 
 static int init_main (lua_State *L)
 {
+  assert(lua_gettop(L) == 3);
   char path[MAXPATHLEN];
   std::vector<std::string> *rules = (std::vector<std::string> *)
       lua_touserdata(L, 1);
+
+  assert(lua_islightuserdata(L, -1));
+  lua_setfield(L, LUA_REGISTRYINDEX, NSE_TIMER);
+
+  // AllocState *alloc_state = lua_touserdata(L, 2);
+  assert(lua_islightuserdata(L, -1));
+  lua_setfield(L, LUA_REGISTRYINDEX, NSE_ALLOC_STATE);
 
   /* Load some basic libraries */
   luaL_openlibs(L);
@@ -799,6 +889,38 @@ void nse_gettarget (lua_State *L, int index)
   lua_replace(L, -2);
 }
 
+void* restricted_alloc(void *ud, void *ptr, size_t osize, size_t nsize) {
+  AllocState *state = (AllocState *)ud;
+
+  // When ptr is NULL, Lua uses osize to indicate the object type being allocated.
+  // Therefore, the true old size is 0 when ptr is NULL.
+  size_t true_osize = (ptr != NULL) ? osize : 0;
+
+  // Calculate what the new memory footprint would be
+  size_t projected_memory = state->total_allocated - true_osize + nsize;
+
+  // If we are allocating new memory and exceeding the limit, deny it
+  if (nsize > 0) {
+    if (state->enforce_limit && projected_memory > state->memory_limit) {
+      return NULL; // Triggers LUA_ERRMEM in the VM
+    }
+    if (projected_memory > state->max_allocated) {
+      state->max_allocated = projected_memory;
+    }
+  }
+
+  // Update internal state
+  state->total_allocated = projected_memory;
+
+  // Standard realloc/free behavior
+  if (nsize == 0) {
+    free(ptr);
+    return NULL;
+  } else {
+    return realloc(ptr, nsize);
+  }
+}
+
 void open_nse (void)
 {
   if (L_NSE == NULL)
@@ -817,7 +939,18 @@ void open_nse (void)
       log_write(LOG_STDOUT, "%s: Using Lua %.0f.%.0f.\n", SCRIPT_ENGINE, major, minor);
     if (version < 504)
       fatal("%s: This version of NSE only works with Lua 5.4 or greater.", SCRIPT_ENGINE);
-    if ((L_NSE = luaL_newstate()) == NULL)
+    // Peak allocations in testing:
+    // base -sC, no targets: 10.147MB
+    // make check-nse: 6.252MB
+    // -sC localhost (7 ports): 10.162MB
+    // http-title on 822 targets: 95.591MB
+    // -sC on 93 targets port 443: 50.649MB
+    AllocState *alloc_state = new AllocState(400 * 1024 * 1024);
+
+    // Allow a thread to run interrupted for 5 seconds
+    TimerState *timer_state = new TimerState(5.0);
+
+    if ((L_NSE = lua_newstate(restricted_alloc, alloc_state)) == NULL)
       fatal("%s: failed to open a Lua state!", SCRIPT_ENGINE);
     lua_atpanic(L_NSE, panic);
     lua_settop(L_NSE, 0);
@@ -825,7 +958,9 @@ void open_nse (void)
     lua_pushcfunction(L_NSE, nseU_traceback);
     lua_pushcfunction(L_NSE, init_main);
     lua_pushlightuserdata(L_NSE, &o.chosenScripts);
-    if (lua_pcall(L_NSE, 1, 0, 1))
+    lua_pushlightuserdata(L_NSE, alloc_state);
+    lua_pushlightuserdata(L_NSE, timer_state);
+    if (lua_pcall(L_NSE, 3, 0, 1))
       fatal("%s: failed to initialize the script engine:\n%s\n", SCRIPT_ENGINE, lua_tostring(L_NSE, -1));
     lua_settop(L_NSE, 0);
   }
@@ -851,7 +986,18 @@ void close_nse (void)
 {
   if (L_NSE != NULL)
   {
+    lua_getfield(L_NSE, LUA_REGISTRYINDEX, NSE_TIMER);
+    TimerState *timer_state = (TimerState *) lua_touserdata(L_NSE, -1);
+    lua_getfield(L_NSE, LUA_REGISTRYINDEX, NSE_ALLOC_STATE);
+    AllocState *alloc_state = (AllocState *) lua_touserdata(L_NSE, -1);
+    if (o.debugging > 0) {
+      char buf[128];
+      log_write(LOG_STDOUT, "%s: max memory allocated %s\n", SCRIPT_ENGINE,
+          format_bytecount(alloc_state->max_allocated, buf, sizeof(buf)));
+    }
     lua_close(L_NSE);
+    delete alloc_state;
+    delete timer_state;
     L_NSE = NULL;
   }
 }

@@ -50,7 +50,7 @@ categories = {"default", "discovery", "safe"}
 
 
 local ntlm_auth_blob = base64.enc( select(2,
-  smbauth.get_security_blob(nil, nil, nil, nil, nil, nil, nil,
+  smbauth.get_security_blob(nil, nil, nil, nil, nil, nil,
     0x00000001 + -- Negotiate Unicode
     0x00000002 + -- Negotiate OEM strings
     0x00000004 + -- Request Target

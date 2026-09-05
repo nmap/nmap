@@ -131,13 +131,15 @@ static int nmap_services_init() {
   if (nmap_fetchfile(filename, sizeof(filename), "nmap-services") != 1) {
     error("Unable to find nmap-services!  Resorting to /etc/services");
 #ifndef WIN32
-    strcpy(filename, "/etc/services");
+    bufset(filename, "/etc/services");
 #else
-    int len = GetSystemDirectory(filename, 480);	//	be safe
-    if(!len)
+#define SERVICES_FILENAME_WIN "\\drivers\\etc\\services"
+    UINT remaining = sizeof(filename) - sizeof(SERVICES_FILENAME_WIN);
+    UINT len = GetSystemDirectory(filename, remaining);
+    if(!len || len > remaining)
       fatal("GetSystemDirectory failed (%d) @#!#@", GetLastError());
     else
-      strcpy(filename + len, "\\drivers\\etc\\services");
+      Snprintf(filename + len, sizeof(filename) - len, "%s", SERVICES_FILENAME_WIN);
 #endif
   }
 
@@ -339,9 +341,15 @@ static int port_compare(const void *a, const void *b) {
 
 
 template <typename T>
-class C_array_iterator: public std::iterator<std::random_access_iterator_tag, T, std::ptrdiff_t> {
+class C_array_iterator {
   T *ptr;
-  public:
+public:
+  typedef std::random_access_iterator_tag iterator_category;
+  typedef T value_type;
+  typedef std::ptrdiff_t difference_type;
+  typedef T* pointer;
+  typedef T& reference;
+
   C_array_iterator(T *_ptr=NULL) : ptr(_ptr) {}
   C_array_iterator(const C_array_iterator &other) : ptr(other.ptr) {}
   C_array_iterator& operator=(T *_ptr) {ptr = _ptr; return *this;}
@@ -354,7 +362,6 @@ class C_array_iterator: public std::iterator<std::random_access_iterator_tag, T,
   bool operator<(const C_array_iterator &other) const {return ptr < other.ptr;}
   C_array_iterator& operator+=(std::ptrdiff_t n) {ptr += n; return *this;}
   C_array_iterator& operator-=(std::ptrdiff_t n) {ptr -= n; return *this;}
-  std::ptrdiff_t operator+(const C_array_iterator &other) {return ptr + other.ptr;}
   std::ptrdiff_t operator-(const C_array_iterator &other) {return ptr - other.ptr;}
   T& operator*() const {return *ptr;}
 };

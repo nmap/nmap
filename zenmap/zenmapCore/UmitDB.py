@@ -295,7 +295,7 @@ def verify_db():
     cursor = connection.cursor()
     try:
         cursor.execute("SELECT scans_id FROM scans WHERE date = 0")
-    except sqlite3.OperationalError:
+    except sqlite3.DatabaseError:
         u = UmitDB()
         u.create_db()
 verify_db()

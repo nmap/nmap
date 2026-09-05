@@ -61,29 +61,39 @@
 
 #include "nping.h"
 #include "NpingOps.h"
-#include "global_structures.h"
 #include "output.h"
 #include "nbase.h"
 #include "utils.h"
 #include "NpingTargets.h"
-#include "common.h"
 #include "common_modified.h"
+#include <algorithm>
+#include <cstring>
 
 extern NpingOps o;
 
-NpingTargets::NpingTargets(){
-  memset(specs, 0, 1024*(sizeof(char *)) );
-  memset(skipspec, 0, 1024*(sizeof(bool)) );
-  speccount=0;
-  current_spec=-1;
-  finished=false;
-  targets_fetched=0;
-  current_target=0;
-  ready=false;
+bool NpingDevice::strEqual(const char *name) const
+{
+  return 0 == std::strcmp(devname, name);
+}
+
+NpingTargets::NpingTargets()
+: ready(false), current_target(0)
+{
+  if (o.issetDevice()) {
+    devices.push_back(new NpingDevice(o.getDevice()));
+  }
 } /* End of NpingTargets constructor */
 
 
 NpingTargets::~NpingTargets(){
+  while (!netblocks.empty()) {
+    delete netblocks.back();
+    netblocks.pop_back();
+  }
+  while (!devices.empty()) {
+    delete devices.back();
+    devices.pop_back();
+  }
 } /* End of NpingTargets destructor */
 
 
@@ -91,82 +101,54 @@ NpingTargets::~NpingTargets(){
 int NpingTargets::addSpec(char *spec){
   if(spec==NULL)
     return OP_FAILURE;
-  if( this->speccount >= 1024 )
+  int family= (o.getIPVersion()==IP_VERSION_6) ? AF_INET6 : AF_INET;
+  NetBlock *nb = NetBlock::parse_expr(spec, family, requests, false,
+      o.issetDevice() ? o.getDevice() : NULL);
+  if (nb == NULL)
     return OP_FAILURE;
-  specs[ this->speccount ] = spec;
-  this->speccount++;
+  netblocks.push_back(nb);
   return OP_SUCCESS;
-} /* End of NpingTargets */
+} /* End of NpingTargets::addSpec */
 
+void NpingTargets::addDevice(const char *dev)
+{
+  if(dev == NULL || *dev == '\0')
+    return;
+  for (std::vector<NpingDevice *>::iterator it=devices.begin();
+      it != devices.end(); ++it) {
+    NpingDevice *d = *it;
+    if (d->strEqual(dev))
+      return;
+  }
+  devices.push_back(new NpingDevice(dev));
+}
 
 /** Returns next target */
 int NpingTargets::getNextTargetAddressAndName(struct sockaddr_storage *t, size_t *tlen, char *hname, size_t hlen){
-  struct sockaddr_storage next;
-  memset(&next, 0, sizeof(struct sockaddr_storage));
-  size_t nextlen=0;
-  int r=0;
-  int family= (o.getIPVersion()==IP_VERSION_6) ? AF_INET6 : AF_INET;
-
   if( t==NULL || tlen==NULL )
     nping_fatal(QT_3,"getNextTarget(): NULL values supplied.");
 
-  /* Return failure if there are no specs or we noticed that we were finished in
-   * a previous call. */
-  if ( this->speccount <= 0 || finished==true )
+  NetBlock *nb = NULL;
+  while (!netblocks.empty()) {
+    nb = netblocks.front();
+    if (nb->next(t, tlen)) {
+      break;
+    }
+    // Ran out of hosts in that block. Remove it.
+    netblocks.pop_front();
+    delete nb;
+    nb = NULL;
+  }
+  if (nb == NULL) {
+    // Ran out of netblocks
     return OP_FAILURE;
-
-  /* If this is the first time we call to this method */
-  if (this->current_spec == -1 ){
-
-    current_spec=0;
-    if ( !skipspec[ current_spec ] ){
-     if ( current_group.parse_expr( specs[ current_spec ], family ) != 0 ){
-        skipspec[ current_spec ]=true; /* Make sure we skip it next time */
-        return OP_FAILURE;
-
-        }
-    }
-    else{ /* We are skipping current target, return the next one */
-        return  this->getNextTargetAddressAndName(t, tlen, hname, hlen);
-    }
   }
 
-  r=current_group.get_next_host(&next, &nextlen);
-
-  if ( r!=0 ){ /* We exhausted current group */
-    /* Is there any other group? */
-     if (++current_spec == speccount){ /* No more specs to parse */
-        finished=true;
-        return OP_FAILURE;
-     }
-     /* Ok, there are more groups, so let's go with the next spec */
-    if ( !skipspec[ current_spec ] ){
-        if ( current_group.parse_expr( specs[ current_spec ], family ) != 0 ){
-            skipspec[ current_spec ]=true;
-            return this->getNextTargetAddressAndName(t, tlen, hname, hlen);
-
-        }
-    }
-    else{ /* We are skipping current target, return the next one */
-        return  this->getNextTargetAddressAndName(t, tlen, hname, hlen);
-    }
-
-    r=current_group.get_next_host(&next, &nextlen);
-
-     if (r != 0)
-        nping_fatal(QT_3,"BUG: TargetGroups are supposed to contain at least one IP! ");
-  }
-  memcpy( t, &next, sizeof( struct sockaddr_storage ) );
   /* If current spec is a named host (not a range), store name in supplied buff */
-  if(current_group.get_namedhost()){
-    if( hname!=NULL && hlen>0 )
-        strncpy(hname, specs[ current_spec ], hlen);  
-  }else{ /* If current spec is not a named host, insert NULL in the first position */
-    if( hname!=NULL && hlen>0 )
-        hname[0]='\0';
-  } 
-  *tlen=nextlen;
-  targets_fetched++;
+  /* If current spec is not a named host, c_str() is "\0" */
+  if( hname!=NULL && hlen>0 )
+    strncpy(hname, nb->hostname.c_str(), hlen);
+
   return OP_SUCCESS;
  } /* End of getNextTarget() */
 
@@ -188,23 +170,47 @@ int NpingTargets::getNextIPv4Address(u32 *addr){
 } /* End of getNextIPv4Address() */
 
 
-int NpingTargets::rewindSpecs(){
-  current_spec=-1;
-  finished=false;
-  targets_fetched=0;
-  return OP_SUCCESS;
-} /* End of rewind() */
-
-
 unsigned long int NpingTargets::getTargetsFetched(){
   return this->Targets.size();
 } /* getTargetsFetched() */
 
 
 int NpingTargets::getTargetSpecCount(){
-  return this->speccount;
+  return this->netblocks.size();
 } /* End of getTargetSpecCount() */
 
+
+static void nping_mass_dns(DNS::Request requests[], int num_requests) {
+  static DNS::Resolver resolver;
+  static bool initialized = false;
+  if (!initialized) {
+    int family= (o.getIPVersion()==IP_VERSION_6) ? AF_INET6 : AF_INET;
+    resolver.setAF(family);
+    // TODO: resolver.setStatusCallback();
+    // TODO: resolver.setLogFunc();
+    if (o.issetDevice() || o.spoofSource()) {
+      resolver.setSource(o.getDevice(), o.getSourceSockAddr(), sizeof(sockaddr_storage), o.spoofSource());
+    }
+    if (o.issetIPOptions()) {
+      // TODO: NpingOps.ip_options should have a length, not be null-terminated.
+      const char *ipopts = o.getIPOptions();
+      resolver.setIpOptions((const u8 *)ipopts, strlen(ipopts));
+    }
+    // TODO: NpingOps may need to support --dns-servers and --system-dns
+  }
+
+  const char *errstr = NULL;
+  bool use_systemdns = false;
+
+  resolver.Init(requests, num_requests);
+
+  if (!resolver.isMassDnsOK(&errstr)) {
+    error("%s. Falling back to System DNS resolver.", errstr);
+    use_systemdns = true;
+  }
+
+  resolver.Resolve(use_systemdns);
+}
 
 /** This method should be called when all the target specs have been entered
   * using addSpec(). What it does is to create a NpingTarget objects for
@@ -220,101 +226,126 @@ int NpingTargets::processSpecs(){
   memset(&ss, 0, sizeof(struct sockaddr_storage));
   memset(buff, 0, MAX_NPING_HOSTNAME_LEN+1);
 
-  /* Rewind spec index just in case someone has been playing around with it */
-  o.targets.rewindSpecs();
+  if (requests.size() > 0) {
+    nping_mass_dns(requests.data(), requests.size());
+    std::list<NetBlock *>::iterator nb_it = netblocks.begin();
+    for (std::vector<DNS::Request>::const_iterator rit = requests.begin();
+        rit != requests.end(); rit++) {
+      const DNS::Request &req = *rit;
+      NetBlock *nb_old = (NetBlock *) req.userdata;
+      assert(nb_old != NULL);
+      NetBlock *nb_new = nb_old->resolve(req);
+      nb_it = std::find(nb_it, netblocks.end(), nb_old);
+      assert(nb_it != netblocks.end());
+
+      if (nb_new == NULL) {
+        // Resolution failed; remove the NetBlock
+        nb_it = netblocks.erase(nb_it);
+      }
+      else {
+        assert (nb_new != nb_old);
+        // Resolution succeeded; replace the NetBlock
+        *nb_it = nb_new;
+      }
+      delete nb_old;
+    }
+    requests.clear();
+  }
 
   /* Get next host IP address and, if it is a named host, its hostname */
   while ( this->getNextTargetAddressAndName(&ss, &slen, buff, MAX_NPING_HOSTNAME_LEN) == OP_SUCCESS ){
-      NpingTarget *mytarget = new NpingTarget();
-      mytarget->setTargetSockAddr(&ss, slen);
-      if( buff[0]=='\0')
-        mytarget->setNamedHost(false);
-      else{
-        mytarget->setSuppliedHostName(buff);
-        mytarget->setNamedHost(true);
-      }
-
-    /* For the moment, we only run this code if we are not dealing with IPv6 */
-    if( !o.ipv6() ){
-
-      /* Get all the information needed to send packets to this target.
-	   * (Only in case we are not in unprivileged modes) */
-		if(o.getMode()!=TCP_CONNECT && o.getMode()!=UDP_UNPRIV){
-		  result=route_dst( &ss, &rnfo, o.getDevice(), NULL );
-		  if(result==false){
-			nping_warning(QT_2, "Failed to determine route to host %s. Skipping it...", mytarget->getTargetIPstr() );
-			delete mytarget;
-			continue;
-		  }
-#ifdef WIN32
-		if (!o.havePcap() && rnfo.ii.device_type == devt_loopback){
-			nping_warning(QT_2, "Skipping %s because Windows does not allow localhost scans (try --unprivileged).", mytarget->getTargetIPstr() );
-			delete mytarget;
-			continue;
-		}
-#endif
-		   /* Determine next hop */
-		  if( rnfo.direct_connect ){
-			mytarget->setDirectlyConnected(true);
-			mytarget->setNextHop(&ss, slen);
-		  }
-		  else{
-			mytarget->setDirectlyConnected(false);  
-			mytarget->setNextHop(&rnfo.nexthop, sizeof(struct sockaddr_storage));
-		  }
-		  /* Source IP address that we should use when targeting this host */
-		  mytarget->setSourceSockAddr(&rnfo.srcaddr, sizeof(struct sockaddr_storage));
-
-		  /* If user requested to spoof IP source address, set it */
-		  if( o.spoofSource() ){
-			mytarget->setSpoofedSourceSockAddr( o.getSourceSockAddr(), sizeof(struct sockaddr_storage));
-		  }
-
-		  /* Network interface */  
-		  mytarget->setDeviceNames( rnfo.ii.devname, rnfo.ii.devfullname );
-		  mytarget->setDeviceType( rnfo.ii.device_type );
-
-		  /* Set source MAC address */
-		  mytarget->setSrcMACAddress( rnfo.ii.mac );
-
-		  if( rnfo.ii.device_up == false )
-			nping_warning(QT_2, "Device used for target host %s seems to be down.", mytarget->getTargetIPstr());
-
-		  /* Determine next hop MAC address and target MAC address */
-		  if( o.sendEth() ){
-#ifdef WIN32
-		    if (o.havePcap() && rnfo.ii.device_type == devt_loopback) {
-		      mytarget->setNextHopMACAddress(mytarget->getSrcMACAddress());
-		    }
-		    else {
-#endif
-		      mytarget->determineNextHopMACAddress();
-		      mytarget->determineTargetMACAddress(); /* Sets Target MAC only if is directly connected to us */
-#ifdef WIN32
-		    }
-#endif
-          }
-		  /* If we are in debug mode print target details */
-		  if(o.getDebugging() >= DBG_3)
-			mytarget->printTargetDetails();
-		}
-    }else{
-        struct sockaddr_storage ss;
-        struct sockaddr_in6 *s6=(struct sockaddr_in6 *)&ss;
-        memset(&ss, 0, sizeof(sockaddr_storage));
-        s6->sin6_family=AF_INET6;        
-        mytarget->setSourceSockAddr(&ss, sizeof(struct sockaddr_storage));
+    NpingTarget *mytarget = new NpingTarget();
+    mytarget->setTargetSockAddr(&ss, slen);
+    if( buff[0]=='\0')
+      mytarget->setNamedHost(false);
+    else{
+      mytarget->setSuppliedHostName(buff);
+      mytarget->setNamedHost(true);
     }
 
-      /* Insert current target into targets array */
-      this->Targets.push_back(mytarget);
+    if (o.spoofSource()) {
+      mytarget->setSourceSockAddr(o.getSourceSockAddr(), sizeof(sockaddr_storage));
+    }
+
+    /* Get all the information needed to send packets to this target.
+     * (Only in case we are not in unprivileged modes) */
+    if(o.getMode()!=TCP_CONNECT && o.getMode()!=UDP_UNPRIV){
+      result=route_dst( &ss, &rnfo, o.getDevice(),
+          o.spoofSource() ? o.getSourceSockAddr() : NULL );
+      if(result==false){
+        nping_warning(QT_2, "Failed to determine route to host %s. Skipping it...", mytarget->getTargetIPstr() );
+        delete mytarget;
+        continue;
+      }
+#ifdef WIN32
+      if (!o.havePcap() && rnfo.ii.device_type == devt_loopback){
+        nping_warning(QT_2, "Skipping %s because Windows does not allow localhost scans (try --unprivileged).", mytarget->getTargetIPstr() );
+        delete mytarget;
+        continue;
+      }
+#endif
+      printf("%s %s", rnfo.ii.devname, rnfo.ii.devfullname);
+      printf(" srcaddr %s", inet_ntop_ez(&rnfo.srcaddr, sizeof(rnfo.srcaddr)));
+      if (rnfo.direct_connect)
+        printf(" direct");
+      else
+        printf(" nexthop %s\n", inet_ntop_ez(&rnfo.nexthop, sizeof(rnfo.nexthop)));
+      /* Determine next hop */
+      if( rnfo.direct_connect ){
+        mytarget->setDirectlyConnected(true);
+        mytarget->setNextHop(&ss, slen);
+      }
+      else{
+        mytarget->setDirectlyConnected(false);
+        mytarget->setNextHop(&rnfo.nexthop, sizeof(struct sockaddr_storage));
+      }
+      /* Source IP address that we should use when targeting this host */
+      mytarget->setSourceSockAddr(&rnfo.srcaddr, sizeof(struct sockaddr_storage));
+
+      /* If user requested to spoof IP source address, set it */
+      if( o.spoofSource() ){
+        mytarget->setSpoofedSourceSockAddr( o.getSourceSockAddr(), sizeof(struct sockaddr_storage));
+      }
+
+      /* Network interface */
+      mytarget->setDeviceNames( rnfo.ii.devname, rnfo.ii.devfullname );
+      mytarget->setDeviceType( rnfo.ii.device_type );
+
+      /* Set source MAC address */
+      mytarget->setSrcMACAddress( rnfo.ii.mac );
+
+      if( rnfo.ii.device_up == false )
+        nping_warning(QT_2, "Device used for target host %s seems to be down.", mytarget->getTargetIPstr());
+
+      /* Determine next hop MAC address and target MAC address */
+      if( o.sendEth() ){
+#ifdef WIN32
+        if (o.havePcap() && rnfo.ii.device_type == devt_loopback) {
+          mytarget->setNextHopMACAddress(mytarget->getSrcMACAddress());
+        }
+        else {
+#endif
+          mytarget->determineNextHopMACAddress();
+          mytarget->determineTargetMACAddress(); /* Sets Target MAC only if is directly connected to us */
+#ifdef WIN32
+        }
+#endif
+      }
+      /* If we are in debug mode print target details */
+      if(o.getDebugging() >= DBG_3)
+        mytarget->printTargetDetails();
+    }
+
+    /* Insert current target into targets array */
+    this->Targets.push_back(mytarget);
+    this->addDevice(mytarget->getDeviceName());
   }
 
   /* getNextTarget() checks this to ensure user has previously called processSpecs() */
   this->ready=true;
   o.targets.rewind();
   return OP_SUCCESS;
-} /* End of getTargetSpecCount() */
+} /* End of processSpecs() */
 
 
 

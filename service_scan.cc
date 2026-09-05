@@ -90,16 +90,10 @@
 #include <openssl/ssl.h>
 #endif
 
-#if TIME_WITH_SYS_TIME
-# include <sys/time.h>
-# include <time.h>
-#else
-# if HAVE_SYS_TIME_H
-#  include <sys/time.h>
-# else
-#  include <time.h>
-# endif
+#if HAVE_SYS_TIME_H
+#include <sys/time.h>
 #endif
+#include <time.h>
 
 #ifndef IPPROTO_SCTP
 #include "libnetutil/netutil.h"
@@ -203,6 +197,7 @@ private:
   std::vector<ServiceProbe *>::iterator current_probe;
   u8 *currentresp;
   int currentresplen;
+  size_t currentrespalloc;
   char *servicefp;
   int servicefplen;
   int servicefpalloc;
@@ -216,6 +211,7 @@ public:
   std::list<ServiceNFO *> services_finished; // Services finished (discovered or not)
   std::list<ServiceNFO *> services_in_progress; // Services currently being probed
   std::list<ServiceNFO *> services_remaining; // Probes not started yet
+  size_t total_services;
   unsigned int ideal_parallelism; // Max (and desired) number of probes out at once.
   ScanProgressMeter *SPM;
   int num_hosts_timedout; // # of hosts timed out during (or before) scan
@@ -434,6 +430,12 @@ void ServiceProbeMatch::InitMatch(const char *matchtext, int lineno) {
   if (regex_compiled == NULL)
     fatal("%s: illegal regexp on line %d of nmap-service-probes (at regexp offset %ld): %d\n", __func__, lineno, pcre2_erroffset, pcre2_errcode);
 
+  uint32_t value = 0;
+  pcre2_errcode = pcre2_pattern_info(regex_compiled, PCRE2_INFO_MATCHEMPTY, &value);
+  if (pcre2_errcode == 0 && value != 0)
+    fatal("%s: parse error on line %d of nmap-service-probes: pattern matches zero-length string", __func__, lineno);
+
+
   // creates a new match data block for holding the result of a match
   match_data = pcre2_match_data_create_from_pattern(
     regex_compiled,NULL
@@ -450,13 +452,16 @@ void ServiceProbeMatch::InitMatch(const char *matchtext, int lineno) {
   }
   // Set some limits to avoid evil match cases.
   // These are flexible; if they cause problems, increase them.
-  pcre2_set_match_limit(match_context, 100000);
+  pcre2_set_match_limit(match_context, 50000);
 #ifdef pcre2_set_depth_limit
   // Changed name in PCRE2 10.30. PCRE2 uses macro definitions for function
   // names, so we don't have to add this to configure.ac.
-  pcre2_set_depth_limit(match_context, 10000);
+  pcre2_set_depth_limit(match_context, 1000);
 #else
-  pcre2_set_recursion_limit(match_context, 10000);
+  pcre2_set_recursion_limit(match_context, 1000);
+#endif
+#ifdef pcre2_set_heap_limit
+  pcre2_set_heap_limit(match_context, 10240); // units = kibibytes
 #endif
 
   /* OK! Now we look for any templates of the form ?/.../
@@ -817,7 +822,6 @@ static char *substvar(char *tmplvar, char **tmplvarend,
   } else if (strcmp(substcommand, "I") == 0 ){
     // Parse an unsigned int
     long long unsigned val = 0;
-    bool bigendian = true;
     char buf[24]; //0xffffffffffffffff = 18446744073709551615, 20 chars
     int buflen;
     if (command_args.num_args != 2 ||
@@ -839,24 +843,19 @@ static char *substvar(char *tmplvar, char **tmplvarend,
       return NULL;
     }
     switch (command_args.str_args[1][0]) {
-      case '>':
-        bigendian = true;
+      case '>': // big endian
+        for(PCRE2_SIZE i=offstart; i < offend; i++) {
+          val = (val<<8) + subject[i];
+        }
         break;
-      case '<':
-        bigendian = false;
+      case '<': // little endian
+        for(PCRE2_SIZE i=offend; i > offstart; i--) {
+          val = (val<<8) + subject[i-1];
+        }
         break;
       default:
         return NULL;
         break;
-    }
-    if (bigendian) {
-      for(PCRE2_SIZE i=offstart; i < offend; i++) {
-        val = (val<<8) + subject[i];
-      }
-    } else {
-      for(PCRE2_SIZE i=offend - 1; i > offstart - 1; i--) {
-        val = (val<<8) + subject[i];
-      }
     }
     buflen = Snprintf(buf, sizeof(buf), "%llu", val);
     if (buflen < 0 || buflen >= (int) sizeof(buf)) {
@@ -1314,7 +1313,7 @@ void ServiceProbe::addMatch(const char *match, int lineno) {
    (servicematch) which use this */
 void parse_nmap_service_probe_file(AllProbes *AP, const char *filename) {
   ServiceProbe *newProbe = NULL;
-  char line[2048];
+  char line[8192];
   int lineno = 0;
   FILE *fp;
 
@@ -1325,6 +1324,9 @@ void parse_nmap_service_probe_file(AllProbes *AP, const char *filename) {
 
   while(fgets(line, sizeof(line), fp)) {
     lineno++;
+    size_t linelen = strnlen(line, sizeof(line));
+    if (linelen == sizeof(line) - 1 && line[linelen - 1] != '\n' && !feof(fp))
+      fatal("Line %d of %s is too long (limit is %d characters)", lineno, filename, (int)(sizeof(line) - 1));
 
     if (*line == '\n' || *line == '#')
       continue;
@@ -1627,7 +1629,7 @@ ServiceNFO::ServiceNFO(AllProbes *newAP) {
   portno = proto = 0;
   AP = newAP;
   currentresp = NULL;
-  currentresplen = 0;
+  currentresplen = currentrespalloc = 0;
   product_matched[0] = version_matched[0] = extrainfo_matched[0] = '\0';
   hostname_matched[0] = ostype_matched[0] = devicetype_matched[0] = '\0';
   cpe_a_matched[0] = cpe_h_matched[0] = cpe_o_matched[0] = '\0';
@@ -1814,7 +1816,7 @@ bool dropdown = false;
 // This invalidates the probe response string if any
  if (newresp) {
    if (currentresp) free(currentresp);
-   currentresp = NULL; currentresplen = 0;
+   currentresp = NULL; currentresplen = currentrespalloc = 0;
  }
 
  if (probe_state == PROBESTATE_INITIAL) {
@@ -1895,7 +1897,7 @@ void ServiceNFO::resetProbes(bool freefp) {
     servicefplen = servicefpalloc = 0;
   }
 
-  currentresp = NULL; currentresplen = 0;
+  currentresp = NULL; currentresplen = currentrespalloc = 0;
 
   probe_state = PROBESTATE_INITIAL;
 }
@@ -1929,7 +1931,16 @@ int ServiceNFO::probe_timemsleft(const ServiceProbe *probe, const struct timeval
 }
 
 void ServiceNFO::appendtocurrentproberesponse(const u8 *respstr, int respstrlen) {
-  currentresp = (u8 *) safe_realloc(currentresp, currentresplen + respstrlen);
+  size_t newlen = (size_t) currentresplen + respstrlen;
+  if (newlen > currentrespalloc) {
+    if (currentrespalloc == 0 || newlen >= 4096) {
+      currentrespalloc = newlen;
+    }
+    else {
+      currentrespalloc = newlen * 2;
+    }
+    currentresp = (u8 *) safe_realloc(currentresp, currentrespalloc);
+  }
   memcpy(currentresp + currentresplen, respstr, respstrlen);
   currentresplen += respstrlen;
 }
@@ -1979,6 +1990,7 @@ ServiceGroup::ServiceGroup(std::vector<Target *> &Targets, AllProbes *AP) {
       svc->proto = nxtport->proto;
       services_remaining.push_back(svc);
     }
+    total_services = services_remaining.size();
 
     /* Check if any early responses can help */
     for (std::vector<EarlySvcResponse *>::iterator it = target->earlySvcResponses.begin();
@@ -2124,8 +2136,7 @@ static void startNextProbe(nsock_pool nsp, nsock_iod nsi, ServiceGroup *SG,
       if ((svc->niod = nsock_iod_new(nsp, svc)) == NULL) {
         fatal("Failed to allocate Nsock I/O descriptor in %s()", __func__);
       }
-      if (o.spoofsource) {
-        o.SourceSockAddr(&ss, &ss_len);
+      if (0 == svc->target->SourceSockAddr(&ss, &ss_len)) {
         nsock_iod_set_localaddr(svc->niod, &ss, ss_len);
       }
       if (o.ipoptionslen)
@@ -2219,17 +2230,13 @@ static void considerPrintingStats(ServiceGroup *SG) {
    /* Check for status requests */
    if (keyWasPressed()) {
       nmap_adjust_loglevel(o.versionTrace());
-      SG->SPM->printStats(SG->services_finished.size() /
-                          ((double)SG->services_remaining.size() + SG->services_in_progress.size() +
-                           SG->services_finished.size()), nsock_gettimeofday());
+      SG->SPM->printStats(SG->services_finished.size(), SG->total_services, nsock_gettimeofday());
    }
-
-
-  /* Perhaps this should be made more complex, but I suppose it should be
-     good enough for now. */
-  if (SG->SPM->mayBePrinted(nsock_gettimeofday())) {
-    SG->SPM->printStatsIfNecessary(SG->services_finished.size() / ((double)SG->services_remaining.size() + SG->services_in_progress.size() + SG->services_finished.size()), nsock_gettimeofday());
-  }
+   else {
+      /* Perhaps this should be made more complex, but I suppose it should be
+         good enough for now. */
+      SG->SPM->printStatsIfNecessary(SG->services_finished.size(), SG->total_services, nsock_gettimeofday());
+   }
 }
 
 /* Check if target is done (no more probes remaining for it in service group),
@@ -2428,9 +2435,7 @@ static void servicescan_write_handler(nsock_pool nsp, nsock_event nse, void *myd
 
   // Check if a status message was requested
   if (keyWasPressed()) {
-     SG->SPM->printStats(SG->services_finished.size() /
-                         ((double)SG->services_remaining.size() + SG->services_in_progress.size() +
-                          SG->services_finished.size()), nsock_gettimeofday());
+     SG->SPM->printStats(SG->services_finished.size(), SG->total_services, nsock_gettimeofday());
   }
 
 

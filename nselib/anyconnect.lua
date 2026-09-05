@@ -67,15 +67,7 @@ Cisco = {
 <group-access>https://%s:%s</group-access>
 </config-auth>]]):format(args_ver, self.generate_random(64), args_mac, args_group, self.host.ip, self.port.number)
 
-      local options = { header=headers , no_cache=true, redirect_ok = function(host,port)
-          local c = 5
-          return function(url)
-            if ( c==0 ) then return false end
-            c = c - 1
-            return true
-          end
-        end
-      }
+      local options = { header=headers , no_cache=true }
 
       local path = '/'
       local response = http.head(self.host, self.port, path, options)

@@ -1,4 +1,5 @@
 @echo off
+setlocal EnableDelayedExpansion
 set TARGET=%1
 set VCCONFIG=%2
 
@@ -25,9 +26,9 @@ for /f "usebackq delims=" %%i in ("%TEMP%\vspath.txt") do call "%%i\VC\Auxiliary
 set VS_GENERATOR=Visual Studio 17 2022
 for /f "usebackq delims=" %%v in ("%TEMP%\vsver.txt") do (
   set VSVER=%%v
-  if "%%v:~0,2%%" == "16" set VS_GENERATOR=Visual Studio 16 2019
-  if "%%v:~0,2%%" == "17" set VS_GENERATOR=Visual Studio 17 2022
-  if "%%v:~0,2%%" == "18" set VS_GENERATOR=Visual Studio 18 2025
+  if "!VSVER:~0,2!" == "16" set VS_GENERATOR=Visual Studio 16 2019
+  if "!VSVER:~0,2!" == "17" set VS_GENERATOR=Visual Studio 17 2022
+  if "!VSVER:~0,2!" == "18" set VS_GENERATOR=Visual Studio 18 2026
 )
 
 :generator_set
@@ -64,9 +65,7 @@ echo Detected Visual Studio Generator: %VS_GENERATOR%
 @echo on
 if "%TARGET%" == "Vars" ( goto :vars )
 
-if "%TARGET%" == "Clean" (
-  rd /S /Q build-pcre2
-) else (
+if not "%TARGET%" == "Clean" (
 echo Using CMake Generator: %VS_GENERATOR%
 mkdir build-pcre2
 cd build-pcre2
@@ -74,6 +73,9 @@ cmake.exe -A Win32 -G "%VS_GENERATOR%" ..\..\libpcre\ || goto :QUIT
 cd ..
 )
 msbuild -nologo nmap.sln -m -t:%TARGET% -p:Configuration="%VCCONFIG%" -p:Platform="Win32" -fl
+if "%TARGET%" == "Clean" (
+  rd /S /Q build-pcre2
+)
 goto :QUIT
 
 :vars
@@ -86,7 +88,7 @@ mkdir "%NMAP_AUX_DIR%" 2>nul
 
 :: Install Npcap SDK
 echo Downloading Npcap SDK...
-set NPCAP_URL=https://npcap.com/dist/npcap-sdk-1.13.zip
+set NPCAP_URL=https://npcap.com/dist/npcap-sdk-1.16.zip
 set NPCAP_ZIP=%TEMP%\npcap-sdk.zip
 powershell -Command "Invoke-WebRequest -Uri '%NPCAP_URL%' -OutFile '%NPCAP_ZIP%'"
 if errorlevel 1 (

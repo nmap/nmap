@@ -193,14 +193,18 @@ local broadcast_if = function(if_table,icmp_responders)
 
     -- Do stuff with packet
     local icmpreply = packet.Packet:new(l3data,plen,false)
-    -- We check whether the packet is parsed ok, and whether the ICMP ID of the sent packet
-    -- is the same with the ICMP ID of the received packet. We don't want ping probes interfering
-    local icmp_id = icmpreply:raw(icmpreply.icmp_offset+4,2)
-    if icmpreply:ip_parse() and icmp_ids[icmp_id] then
-      if not icmp_responders[icmpreply.ip_src] then
-        -- [key = IP]=MAC
-        local mac_pretty = stdnse.format_mac(l2:sub(7,12))
-        icmp_responders[icmpreply.ip_src] = mac_pretty
+    if icmpreply then
+      -- We check whether the packet is parsed ok, and whether the ICMP ID of the sent packet
+      -- is the same with the ICMP ID of the received packet. We don't want ping probes interfering
+      local icmp_id = icmpreply:raw(icmpreply.icmp_offset+4,2)
+      if icmpreply:ip_parse() and icmp_ids[icmp_id] then
+        if not icmp_responders[icmpreply.ip_src] then
+          -- [key = IP]=MAC
+          local mac_pretty = stdnse.format_mac(l2:sub(7,12))
+          icmp_responders[icmpreply.ip_src] = mac_pretty
+        end
+      else
+        stdnse.debug1("Erroneous ICMP packet received; Cannot parse IP header.")
       end
     else
       stdnse.debug1("Erroneous ICMP packet received; Cannot parse IP header.")

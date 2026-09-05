@@ -76,14 +76,14 @@ function check_ms07_029(host)
   --create the SMB session
   local status, smbstate
   status, smbstate = msrpc.start_smb(host, msrpc.DNSSERVER_PATH)
-  if(status == false) then
+  if not status then
     stdnse.debug1("check_ms07_029: Service is not active.")
     return false, NOTUP --if not accessible across pipe then the service is inactive
   end
   --bind to DNSSERVER service
   local bind_result
   status, bind_result = msrpc.bind(smbstate, msrpc.DNSSERVER_UUID, msrpc.DNSSERVER_VERSION)
-  if(status == false) then
+  if not status then
     stdnse.debug1("check_ms07_029: false")
     msrpc.stop_smb(smbstate)
     return false, UNKNOWN --if bind operation results with a false status we can't conclude anything.
@@ -97,7 +97,7 @@ function check_ms07_029(host)
   1)--any op num will do
   --sanity check
   msrpc.stop_smb(smbstate)
-  if(status == false) then
+  if not status then
     stdnse.debug1("check_ms07_029: DNSSERVER_Query failed")
     if(q_result == "NT_STATUS_PIPE_BROKEN") then
       return true, VULNERABLE
@@ -132,7 +132,7 @@ action = function(host)
 
   -- Check for ms07-029
   status, result = check_ms07_029(host)
-  if(status == false) then
+  if not status then
     if(result == NOTUP) then
       vuln_table.extra_info = "Service is not active."
       vuln_table.state = vulns.STATE.NOT_VULN

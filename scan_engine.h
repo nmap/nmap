@@ -594,6 +594,7 @@ public:
   HostScanStats *findHost(const struct sockaddr_storage *ss) const;
 
   double getCompletionFraction() const;
+  size_t getCompletionFraction(size_t *denominator) const;
 
   unsigned int numIncompleteHosts() const {
     return incompleteHosts.size();

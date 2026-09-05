@@ -47,7 +47,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>..;../mswin32;../nbase;..\..\nmap-mswin32-aux\Npcap\Include;../libdnet-stripped/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..;../mswin32;../nbase;../nsock/include;..\..\nmap-mswin32-aux\Npcap\Include;../libdnet-stripped/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;BPF_MAJOR_VERSION;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
@@ -65,7 +65,7 @@
     <ClCompile>
       <Optimization>MaxSpeed</Optimization>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <AdditionalIncludeDirectories>..;../mswin32;../nbase;..\..\nmap-mswin32-aux\Npcap\Include;../libdnet-stripped/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..;../mswin32;../nbase;../nsock/include;..\..\nmap-mswin32-aux\Npcap\Include;../libdnet-stripped/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;BPF_MAJOR_VERSION;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <RuntimeLibrary>MultiThreadedDll</RuntimeLibrary>
@@ -87,7 +87,9 @@
     <ClCompile Include="ICMPv6RRBody.cc" />
     <ClCompile Include="IPv4Header.cc" />
     <ClCompile Include="IPv6Header.cc" />
+    <ClCompile Include="massdns.cc" />
     <ClCompile Include="netutil.cc" />
+    <ClCompile Include="NetBlock.cc" />
     <ClCompile Include="NetworkLayerElement.cc" />
     <ClCompile Include="PacketElement.cc" />
     <ClCompile Include="PacketParser.cc" />
@@ -113,7 +115,9 @@
     <ClInclude Include="ICMPv6RRBody.h" />
     <ClInclude Include="IPv4Header.h" />
     <ClInclude Include="IPv6Header.h" />
+    <ClInclude Include="massdns.h" />
     <ClInclude Include="netutil.h" />
+    <ClInclude Include="NetBlock.h" />
     <ClInclude Include="NetworkLayerElement.h" />
     <ClInclude Include="npacket.h" />
     <ClInclude Include="PacketElement.h" />

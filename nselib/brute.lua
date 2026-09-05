@@ -1145,7 +1145,7 @@ Engine = {
         end
       end
 
-      if stagnated == true then
+      if stagnated then
         stagnation_count = stagnation_count + 1
 
         -- If we get inside `if` below, then we are not making any

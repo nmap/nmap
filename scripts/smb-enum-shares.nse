@@ -108,7 +108,7 @@ action = function(host)
 
   -- Get the list of shares
   status, shares, extra = smb.share_get_list(host)
-  if(status == false) then
+  if not status then
     return stdnse.format_output(false, string.format("Couldn't enumerate shares: %s", shares))
   end
 
@@ -118,7 +118,7 @@ action = function(host)
 
   -- Find out who the current user is
   local result, username, domain = smb.get_account(host)
-  if(result == false) then
+  if not result then
     username = "<unknown>"
     domain = ""
   end

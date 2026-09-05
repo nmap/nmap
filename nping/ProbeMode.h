@@ -110,13 +110,12 @@ class ProbeMode  {
 
         static int createIPv4(IPv4Header *i, PacketElement *next_element, const char *next_proto, NpingTarget *target);
         static int createIPv6(IPv6Header *i, PacketElement *next_element, const char *next_proto, NpingTarget *target);
-        static int doIPv6ThroughSocket(int rawfd);
         static int fillPacket(NpingTarget *target, u16 port, u8 *buff, int bufflen, int *filledlen, int rawfd);
         static int fillPacketTCP(NpingTarget *target, u16 port, u8 *buff, int bufflen, int *filledlen, int rawfd);
         static int fillPacketUDP(NpingTarget *target, u16 port, u8 *buff, int bufflen, int *filledlen, int rawfd);
         static int fillPacketICMP(NpingTarget *target, u8 *buff, int bufflen, int *filledlen, int rawfd);
         static int fillPacketARP(NpingTarget *target, u8 *buff, int bufflen, int *filledlen, int rawfd);
-        static char *getBPFFilterString();
+        static const char *getBPFFilterString();
         static void probe_nping_event_handler(nsock_pool nsp, nsock_event nse, void *arg);
         static void probe_delayed_output_handler(nsock_pool nsp, nsock_event nse, void *mydata);
         static void probe_tcpconnect_event_handler(nsock_pool nsp, nsock_event nse, void *arg);

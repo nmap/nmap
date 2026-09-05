@@ -678,7 +678,7 @@ int EchoClient::generate_packet_spec(EchoHeader *h){
   h->setMessageType(TYPE_NEP_PACKET_SPEC);
   h->setSequenceNumber( this->ctx.getNextClientSequence() );
   h->setTimestamp();
-  h->setIPVersion( o.getIPVersion()==AF_INET6 ? 0x06: 0x04 );
+  h->setIPVersion( o.ipv6() ? 0x06: 0x04 );
   h->setPacketCount( (o.getPacketCount()>0xFFFF) ? 0xFFFF : o.getPacketCount() );
 
   /** Insert packet field specifiers */

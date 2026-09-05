@@ -147,8 +147,8 @@ local mrinfoListen = function(interface, timeout, responses)
     status, _, _, l3data = listener:pcap_receive()
     if status then
       p = packet.Packet:new(l3data, #l3data)
-      mrinfo_raw = string.sub(l3data, p.ip_hl*4 + 1)
       if p then
+        mrinfo_raw = string.sub(l3data, p.ip_hl*4 + 1)
         -- Check that IGMP Type == DVMRP (0x13) and DVMRP code == Neighbor 2 (0x06)
         if mrinfo_raw:byte(1) == 0x13 and mrinfo_raw:byte(2) == 0x06 then
           response = mrinfoParse(mrinfo_raw)

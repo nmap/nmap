@@ -2114,18 +2114,6 @@ le temps supplémentaire que cela suppose.</para>
         </varlistentry>
         <varlistentry>
           <term>
-            <option>--release-memory</option> (Libérer la mémoire avant de quitter)
-</term>
-          <listitem>
-            <para>Cette option n'est utile que dans le cadre du deboggage de fuites de mémoire.
-          Elle force Nmap a libérer la mémoire allouée juste avant de 
-          quitter de facon a repérer les véritables fuites de mémoire.
-          En temps normal Nmap ne fait pas ceci étant donné que l'OS le fait de toutes facons 
-          à la fin du processus.</para>
-          </listitem>
-        </varlistentry>
-        <varlistentry>
-          <term>
             <option>-V</option>; <option>--version</option> (Affiche le numéro de version)
 							</term>
           <listitem>

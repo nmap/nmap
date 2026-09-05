@@ -171,7 +171,7 @@ struct ip6_ext_hdr {
 	ip6->ip6_nxt = (nxt); ip6->ip6_hlim = (hlim);			\
 	memmove(&ip6->ip6_src, &(src), IP6_ADDR_LEN);			\
 	memmove(&ip6->ip6_dst, &(dst), IP6_ADDR_LEN);			\
-} while (0);
+} while (0)
 
 __BEGIN_DECLS
 char	*ip6_ntop(const ip6_addr_t *ip6, char *dst, size_t size);

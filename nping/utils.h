@@ -62,8 +62,6 @@
 #ifndef UTILS_H
 #define UTILS_H 1
 
-#include "common.h"
-
 #include <stdlib.h>
 
 #include <stdarg.h>
@@ -72,8 +70,6 @@
 #if HAVE_UNISTD_H
 #include <unistd.h>
 #endif
-
-#include "global_structures.h"
 
 /* Function prototypes */
 bool contains(const char *source, const char *substring);

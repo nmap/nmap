@@ -52,7 +52,8 @@ function compress(buffer, level, method, windowBits, memLevel, strategy)
 -- If windowBits is negative, this function decompresses raw deflate data without header.
 -- @param buffer String containing DEFLATE-compressed data
 -- @param windowBits Optional integer, the base-2 logarithm of the maximum window size. Default: 15
-function decompress(buffer, windowBits)
+-- @param decompLimit Optional integer, the maximum number of bytes to inflate. Default: 10MiB
+function decompress(buffer, windowBits, decompLimit)
 
 --- Return a deflate stream.
 --

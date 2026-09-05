@@ -84,9 +84,13 @@
 /* Technically some of these things were added in 0x10100006
  * but that was pre-release. */
 #define HAVE_OPAQUE_STRUCTS 1
+#define FUNC_ASN1_STRING_get0_data ASN1_STRING_get0_data
+#define FUNC_ASN1_STRING_length ASN1_STRING_length
 #else
 #define X509_get0_notBefore X509_get_notBefore
 #define X509_get0_notAfter X509_get_notAfter
+#define FUNC_ASN1_STRING_get0_data(_s) ((_s)->data)
+#define FUNC_ASN1_STRING_length(_s) ((_s)->length)
 #endif
 
 #if OPENSSL_VERSION_NUMBER >= 0x30000000L
@@ -194,14 +198,14 @@ static void obj_to_key(lua_State *L, const ASN1_OBJECT *obj)
 /* This is a helper function for l_get_ssl_certificate. It builds a table from
    the given X509_NAME, using keys returned from obj_to_key as keys. The result
    is pushed on the stack. */
-static void x509_name_to_table(lua_State *L, X509_NAME *name)
+static void x509_name_to_table(lua_State *L, const X509_NAME *name)
 {
   int i;
 
   lua_createtable(L, 0, X509_NAME_entry_count(name));
 
   for (i = 0; i < X509_NAME_entry_count(name); i++) {
-    X509_NAME_ENTRY *entry;
+    const X509_NAME_ENTRY *entry;
     const ASN1_OBJECT *obj;
     const ASN1_STRING *value;
 
@@ -210,7 +214,7 @@ static void x509_name_to_table(lua_State *L, X509_NAME *name)
     value = X509_NAME_ENTRY_get_data(entry);
 
     obj_to_key(L, obj);
-    lua_pushlstring(L, (const char *) value->data, value->length);
+    lua_pushlstring(L, (const char *) FUNC_ASN1_STRING_get0_data(value), FUNC_ASN1_STRING_length(value));
 
     lua_settable(L, -3);
   }
@@ -224,7 +228,7 @@ static bool x509_extensions_to_table(lua_State *L, const STACK_OF(X509_EXTENSION
   lua_createtable(L, sk_X509_EXTENSION_num(exts), 0);
 
   for (int i = 0; i < sk_X509_EXTENSION_num(exts); i++) {
-    ASN1_OBJECT *obj;
+    const ASN1_OBJECT *obj;
     X509_EXTENSION *ext;
     char *value = NULL;
     BIO *out;
@@ -265,6 +269,7 @@ static bool x509_extensions_to_table(lua_State *L, const STACK_OF(X509_EXTENSION
 
 }
 
+#ifndef HAVE_OPAQUE_STRUCTS
 /* Parse as a decimal integer the len characters starting at s. This function
    can only process positive numbers; if the return value is negative then a
    parsing error occurred. */
@@ -292,12 +297,17 @@ static int parse_int(const unsigned char *s, size_t len)
 
   return (int) v;
 }
+#endif
 
 /* This is a helper function for asn1_time_to_obj. It parses a textual ASN1_TIME
    value and stores the time in the given struct tm. It returns 0 on success and
    -1 on a parse error. */
 static int time_to_tm(const ASN1_TIME *t, struct tm *result)
 {
+#ifdef HAVE_OPAQUE_STRUCTS
+  /* Returns 1 on success, 0 on error */
+  return ASN1_TIME_to_tm(t, result) - 1;
+#else
   const unsigned char *p;
 
   p = t->data;
@@ -315,9 +325,8 @@ static int time_to_tm(const ASN1_TIME *t, struct tm *result)
        is 2050 or later."
        http://www.cs.auckland.ac.nz/~pgut001/pubs/x509guide.txt */
     if (year < 50)
-      result->tm_year = 2000 + year;
-    else
-      result->tm_year = 1900 + year;
+      year += 100;
+    result->tm_year = year;
     p = t->data + 2;
   } else if (t->length == 15 && t->data[t->length - 1] == 'Z') {
     /* yyyymmddhhmmssZ */
@@ -345,6 +354,7 @@ static int time_to_tm(const ASN1_TIME *t, struct tm *result)
   }
 
   return 0;
+#endif
 }
 
 /* This is a helper function for asn1_time_to_obj. It converts a struct tm into
@@ -355,7 +365,7 @@ static void tm_to_table(lua_State *L, const struct tm *tm)
 #define NSE_NUM_TM_FIELDS 6
   lua_createtable(L, 0, NSE_NUM_TM_FIELDS);
 
-  lua_pushinteger(L, tm->tm_year);
+  lua_pushinteger(L, tm->tm_year + 1900);
   lua_setfield(L, -2, "year");
   /* Lua uses one-indexed months. */
   lua_pushinteger(L, tm->tm_mon + 1);
@@ -385,7 +395,7 @@ static void asn1_time_to_obj(lua_State *L, const ASN1_TIME *s)
   } else if (time_to_tm(s, &tm) == 0) {
       tm_to_table(L, &tm);
   } else {
-      lua_pushlstring(L, (const char *) s->data, s->length);
+      lua_pushlstring(L, (const char *) FUNC_ASN1_STRING_get0_data(s), FUNC_ASN1_STRING_length(s));
   }
 }
 
@@ -443,24 +453,27 @@ static const char *pkey_type_to_string(int type)
 }
 
 int lua_push_ecdhparams(lua_State *L, EVP_PKEY *pubkey) {
-#if OPENSSL_VERSION_NUMBER >= 0x30000000L
-  char tmp[64] = {0};
-  size_t len = 0;
+#ifdef OPENSSL_NO_EC
+  return 0;
+#else
   /* This structure (ecdhparams.curve_params) comes from tls.lua */
   lua_createtable(L, 0, 1); /* ecdhparams */
   lua_createtable(L, 0, 2); /* curve_params */
+
+  /* According to RFC 5480 section 2.1.1, explicit curves must not be used with
+     X.509. This may change in the future, but for now it doesn't seem worth it
+     to add in code to extract the extra parameters. */
+#if OPENSSL_VERSION_NUMBER >= 0x30000000L
+  char tmp[64] = {0};
+  size_t len = 0;
   if (EVP_PKEY_get_utf8_string_param(pubkey, OSSL_PKEY_PARAM_GROUP_NAME,
         tmp, sizeof(tmp), &len)) {
     lua_pushlstring(L, tmp, len);
     lua_setfield(L, -2, "curve");
     lua_pushliteral(L, "namedcurve");
-    lua_setfield(L, -2, "ec_curve_type");
   }
   else if (EVP_PKEY_get_utf8_string_param(pubkey, OSSL_PKEY_PARAM_EC_FIELD_TYPE,
         tmp, sizeof(tmp), &len)) {
-    /* According to RFC 5480 section 2.1.1, explicit curves must not be used with
-       X.509. This may change in the future, but for now it doesn't seem worth it
-       to add in code to extract the extra parameters. */
     if (0 == strncmp(tmp, "prime-field", len)) {
       lua_pushliteral(L, "explicit_prime");
     }
@@ -471,42 +484,21 @@ int lua_push_ecdhparams(lua_State *L, EVP_PKEY *pubkey) {
       /* Something weird happened. */
       lua_pushlstring(L, tmp, len);
     }
-    lua_setfield(L, -2, "ec_curve_type");
   }
-  lua_setfield(L, -2, "curve_params");
-  return 1;
-#elif !defined(OPENSSL_NO_EC)
+#else // OPENSSL_VERSION_NUMBER < 0x30000000L
   EC_KEY *ec_key = EVP_PKEY_get1_EC_KEY(pubkey);
   const EC_GROUP *group = EC_KEY_get0_group(ec_key);
   int nid;
-  /* This structure (ecdhparams.curve_params) comes from tls.lua */
-  lua_createtable(L, 0, 1); /* ecdhparams */
-  lua_createtable(L, 0, 2); /* curve_params */
   if ((nid = EC_GROUP_get_curve_name(group)) != 0) {
     lua_pushstring(L, OBJ_nid2sn(nid));
     lua_setfield(L, -2, "curve");
     lua_pushstring(L, "namedcurve");
-    lua_setfield(L, -2, "ec_curve_type");
   }
   else {
-    /* According to RFC 5480 section 2.1.1, explicit curves must not be used with
-       X.509. This may change in the future, but for now it doesn't seem worth it
-       to add in code to extract the extra parameters. */
 #if defined(LIBRESSL_VERSION_NUMBER)
     /* LibreSSL doesn't have EC_GROUP_get_field_type, and explicit curves are rare.
      * Just mark as UNKNOWN. */
     lua_pushstring(L, "UNKNOWN");
-#elif HAVE_OPAQUE_STRUCTS
-    nid = EC_GROUP_get_field_type(group);
-    if (nid == NID_X9_62_prime_field) {
-      lua_pushstring(L, "explicit_prime");
-    }
-    else if (nid == NID_X9_62_characteristic_two_field) {
-      lua_pushstring(L, "explicit_char2");
-    }
-    else {
-      lua_pushstring(L, "UNKNOWN");
-    }
 #else
     nid = EC_METHOD_get_field_type(EC_GROUP_method_of(group));
     if (nid == NID_X9_62_prime_field) {
@@ -519,14 +511,13 @@ int lua_push_ecdhparams(lua_State *L, EVP_PKEY *pubkey) {
       lua_pushstring(L, "UNKNOWN");
     }
 #endif
-    lua_setfield(L, -2, "ec_curve_type");
   }
-  lua_setfield(L, -2, "curve_params");
   EC_KEY_free(ec_key);
-  return 1;
-#else
-  return 0;
 #endif
+  lua_setfield(L, -2, "ec_curve_type");
+  lua_setfield(L, -2, "curve_params");
+  return 1;
+#endif // OPENSSL_NO_EC
 }
 
 static int parse_ssl_cert(lua_State *L, X509 *cert);
@@ -568,7 +559,7 @@ int l_get_ssl_certificate(lua_State *L)
 static int parse_ssl_cert(lua_State *L, X509 *cert)
 {
   struct cert_userdata *udata;
-  X509_NAME *subject, *issuer;
+  const X509_NAME *subject, *issuer;
   EVP_PKEY *pubkey;
   int pkey_type;
 

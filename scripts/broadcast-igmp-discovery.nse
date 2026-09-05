@@ -164,23 +164,25 @@ local igmpListener = function(interface, timeout, responses)
     status, _, _, l3data = listener:pcap_receive()
     if status then
       p = packet.Packet:new(l3data, #l3data)
-      igmp_raw = string.sub(l3data, p.ip_hl*4 + 1)
       if p then
-        -- check the first byte before sending to the parser
-        -- response 0x12 == Membership Response version 1
-        -- response 0x16 == Membership Response version 2
-        -- response 0x22 == Membership Response version 3
-        local igmptype = igmp_raw:byte(1)
-        if igmptype == 0x12 or igmptype == 0x16 or igmptype == 0x22 then
-          response = igmpParse(igmp_raw)
-          if response then
-            response.src = p.ip_src
-            response.interface = interface.shortname
-            -- Many hosts return more than one same response message
-            -- this is to not output duplicates
-            if not devices[response.src..response.type..(response.group or response.ngroups)] then
-              devices[response.src..response.type..(response.group or response.ngroups)] = true
-              table.insert(responses, response)
+        igmp_raw = string.sub(l3data, p.ip_hl*4 + 1)
+        if p then
+          -- check the first byte before sending to the parser
+          -- response 0x12 == Membership Response version 1
+          -- response 0x16 == Membership Response version 2
+          -- response 0x22 == Membership Response version 3
+          local igmptype = igmp_raw:byte(1)
+          if igmptype == 0x12 or igmptype == 0x16 or igmptype == 0x22 then
+            response = igmpParse(igmp_raw)
+            if response then
+              response.src = p.ip_src
+              response.interface = interface.shortname
+              -- Many hosts return more than one same response message
+              -- this is to not output duplicates
+              if not devices[response.src..response.type..(response.group or response.ngroups)] then
+                devices[response.src..response.type..(response.group or response.ngroups)] = true
+                table.insert(responses, response)
+              end
             end
           end
         end

@@ -150,7 +150,6 @@ Entry { filename = "hbase-master-info.nse", categories = { "default", "discovery
 Entry { filename = "hbase-region-info.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "hddtemp-info.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "hnap-info.nse", categories = { "default", "discovery", "safe", "version", } }
-Entry { filename = "hostmap-bfk.nse", categories = { "discovery", "external", } }
 Entry { filename = "hostmap-crtsh.nse", categories = { "discovery", "external", } }
 Entry { filename = "hostmap-robtex.nse", categories = { "discovery", "external", "safe", } }
 Entry { filename = "http-adobe-coldfusion-apsa1301.nse", categories = { "exploit", "vuln", } }
@@ -467,6 +466,7 @@ Entry { filename = "rtsp-url-brute.nse", categories = { "brute", "intrusive", } 
 Entry { filename = "rusers.nse", categories = { "discovery", "safe", } }
 Entry { filename = "s7-info.nse", categories = { "discovery", "version", } }
 Entry { filename = "samba-vuln-cve-2012-1182.nse", categories = { "intrusive", "vuln", } }
+Entry { filename = "sap-hana-auth.nse", categories = { } }
 Entry { filename = "servicetags.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "shodan-api.nse", categories = { "discovery", "external", "safe", } }
 Entry { filename = "sip-brute.nse", categories = { "brute", "intrusive", } }

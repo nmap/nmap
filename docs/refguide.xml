@@ -4489,22 +4489,6 @@ hosts with at least one
       </varlistentry>
 
       <varlistentry>
-	 <term>
-	 <option>--release-memory</option> (Release memory before quitting)
-	 <indexterm><primary><option>--release-memory</option></primary></indexterm>
-         </term>
-         <listitem>
-
-          <para>This option is only useful for memory-leak debugging.
-          It causes Nmap to release allocated memory just before it
-          quits so that actual memory leaks are easier to spot.
-          Normally Nmap skips this as the OS does this anyway upon
-          process termination.</para>
-        </listitem>
-      </varlistentry>
-
-
-      <varlistentry>
         <term>
           <option>-V</option>; <option>--version</option> (Print version number)
           <indexterm><primary><option>-V</option></primary></indexterm>

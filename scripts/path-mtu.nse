@@ -106,6 +106,9 @@ end
 -- Checks how we should react to this packet
 local checkpkt = function(reply, orig)
   local ip = packet.Packet:new(reply, reply:len())
+  if not ip then
+    return "recap"
+  end
 
   if ip.ip_p == IPPROTO_ICMP then
     if ip.icmp_type ~= 3 then
@@ -117,7 +120,7 @@ local checkpkt = function(reply, orig)
       local ip2 = packet.Packet:new(is, is:len())
 
       -- Check sent packet against ICMP payload
-      if ip2.ip_p ~= IPPROTO_UDP or
+      if not ip2 or ip2.ip_p ~= IPPROTO_UDP or
           ip2.ip_p ~= orig.ip_p or
           ip2.ip_bin_src ~= orig.ip_bin_src or
           ip2.ip_bin_dst ~= orig.ip_bin_dst or
@@ -151,7 +154,7 @@ end
 -- different hosts
 local check = function(layer3)
   local ip = packet.Packet:new(layer3, layer3:len())
-  return ip.ip_bin_dst
+  return ip and ip.ip_bin_dst
 end
 
 -- Updates a packet's info and calculates checksum

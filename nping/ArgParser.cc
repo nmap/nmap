@@ -66,7 +66,6 @@
 
 #include "ArgParser.h"
 #include "NpingOps.h"
-#include "common.h"
 #include "nbase.h"
 #include "utils.h"
 #include "utils_net.h"
@@ -873,6 +872,9 @@ int ArgParser::parseArguments(int argc, char *argv[]) {
         if (parse_u32(optarg, &aux32)==OP_SUCCESS){
             if(aux32==0){
                 nping_fatal(QT_3,"Invalid rate supplied. Rate can never be zero.");
+            }
+            else if (aux32 > 1000) {
+                nping_fatal(QT_3,"Rate must not exceed 1000. Use --delay 0 for unlimited rate.");
             }else{
                 /* Compute delay from rate: delay= 1000ms/rate*/
                 aux32 = 1000 / aux32;

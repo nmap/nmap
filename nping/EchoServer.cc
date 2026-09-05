@@ -1411,14 +1411,17 @@ int EchoServer::start() {
     nping_fatal(QT_3, "Failed to create new nsock_iod.  QUITTING.\n");
 
   /* Open pcap */
-  nping_print(DBG_2,"Opening pcap device %s", o.getDevice());
-  Strncpy(pcapdev, o.getDevice(), sizeof(pcapdev));
+  const char *device = o.getDevice();
+  if (!device)
+    nping_fatal(QT_3, "Unable to determine device name.  QUITTING.\n");
+  nping_print(DBG_2,"Opening pcap device %s", device);
+  Strncpy(pcapdev, device, sizeof(pcapdev));
   rc = nsock_pcap_open(nsp, pcap_nsi, pcapdev, MAX_ECHOED_PACKET_LEN, 1,
                        ProbeMode::getBPFFilterString());
   if (rc)
-    nping_fatal(QT_3, "Error opening capture device %s\n", o.getDevice());
+    nping_fatal(QT_3, "Error opening capture device %s\n", device);
   else
-    nping_print(VB_0,"Packet capture will be performed using network interface %s.", o.getDevice());
+    nping_print(VB_0,"Packet capture will be performed using network interface %s.", device);
   nping_print(VB_0,"Waiting for connections...");
 
   /* Get a socket suitable for an accept() call */

@@ -34,7 +34,7 @@ author = "nnposter"
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {'brute', 'intrusive'}
 
-portrule = shortport.port_or_service(23, 'telnet')
+portrule = shortport.port_or_service({23, 992}, {'telnet', 'telnets'})
 
 
 -- Miscellaneous script-wide parameters and constants

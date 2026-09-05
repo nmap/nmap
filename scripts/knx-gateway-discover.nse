@@ -194,10 +194,12 @@ local knxListen = function(interface, timeout, ips, results)
     status, _, _, l3data = listener:pcap_receive()
     if status then
       local p = packet.Packet:new(l3data, #l3data)
-      -- Skip IP and UDP headers
-      local knxMessage = string.sub(l3data, p.ip_hl*4 + 8 + 1)
-      local co = stdnse.new_thread(knxParseSearchResponse, ips, results, knxMessage)
-      threads[co] = true;
+      if p then
+        -- Skip IP and UDP headers
+        local knxMessage = string.sub(l3data, p.ip_hl*4 + 8 + 1)
+        local co = stdnse.new_thread(knxParseSearchResponse, ips, results, knxMessage)
+        threads[co] = true;
+      end
     end
   end
 

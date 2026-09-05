@@ -180,7 +180,7 @@ int load_exclude_file(struct addrset *excludelist, FILE *fp) {
         for (size_t i = 0; i < req.ssv.size(); i++) {
           const struct sockaddr_storage &ss = req.ssv[i];
           assert(ss.ss_family == o.af());
-          Snprintf(host_spec, sizeof(host_spec), "%s%s", inet_socktop(&ss),
+          Snprintf(host_spec, sizeof(host_spec), "%s%s", inet_socktop_safe(&ss),
               slash);
           if(!addrset_add_spec(excludelist, host_spec, o.af(), 0)){
             error("Invalid address specification: %s", host_spec);
@@ -321,7 +321,7 @@ bool target_needs_new_hostgroup(Target **targets, int targets_sz, const Target *
    The target_expressions array MUST REMAIN VALID IN MEMORY as long as
    this class instance is used -- the array is NOT copied.
  */
-HostGroupState::HostGroupState(int lookahead, int rnd, bool gen_rand, unsigned long num_random, int argc, const char **argv) {
+HostGroupState::HostGroupState(int lookahead, int rnd, bool gen_rand, unsigned long num_random, const struct addrset *exclude_group, int argc, const char **argv) {
   assert(lookahead > 0);
   this->argc = argc;
   this->argv = argv;
@@ -333,7 +333,7 @@ HostGroupState::HostGroupState(int lookahead, int rnd, bool gen_rand, unsigned l
   next_batch_no = 0;
   randomize = rnd;
   if (gen_rand) {
-    current_group.generate_random_ips(num_random);
+    current_group.generate_random_ips(num_random, exclude_group);
   }
 }
 
@@ -464,8 +464,14 @@ bool HostGroupState::get_next_host(struct sockaddr_storage *ss, size_t *sslen, s
     }
     /* Check exclude list. */
     if (!addrset_contains(exclude_group, (const struct sockaddr *) ss)) {
-      current_group.reject_last_host();
       break;
+    }
+    else {
+      current_group.reject_last_host();
+      if (addrset_matches_all(exclude_group, o.af())) {
+        error("All %s addresses are excluded!", o.af() == AF_INET ? "IPv4" : "IPv6");
+        return false;
+      }
     }
   } while (true);
 

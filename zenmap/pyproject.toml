@@ -32,7 +32,19 @@ py-modules = ["ndiff"]
 include-package-data = true
 
 [tool.setuptools.packages.find]
-include = ["zenmapCore", "zenmapGUI", "radialnet"]
+include = ["zenmapCore*", "zenmapGUI*", "radialnet*"]
+
+[tool.setuptools.package-data]
+"*" = [
+  "*.gif",
+  "*.png",
+  "*.conf",
+  "*.usp",
+  "*.html",
+  "*.mo",
+  "*.xml",
+  "zenmap_version"
+]
 
 [tool.setuptools.dynamic]
 version = {attr = "zenmapCore.Version.VERSION"}

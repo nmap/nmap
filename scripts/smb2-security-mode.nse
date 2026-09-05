@@ -43,7 +43,7 @@ action = function(host,port)
   local output = stdnse.output_table()
 
   local status, smbstate = smb.start(host)
-  if(status == false) then
+  if not status then
     return false, smbstate
   end
   --  SMB signing configuration appears to be global so

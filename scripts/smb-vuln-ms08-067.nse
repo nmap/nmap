@@ -80,13 +80,13 @@ function check_ms08_067(host)
 
   -- Create the SMB session
   status, smbstate = msrpc.start_smb(host, "\\\\BROWSER")
-  if(status == false) then
+  if not status then
     return false, smbstate
   end
 
   -- Bind to SRVSVC service
   status, bind_result = msrpc.bind(smbstate, msrpc.SRVSVC_UUID, msrpc.SRVSVC_VERSION, nil)
-  if(status == false) then
+  if not status then
     msrpc.stop_smb(smbstate)
     return false, bind_result
   end
@@ -101,7 +101,7 @@ function check_ms08_067(host)
   -- Stop the SMB session
   msrpc.stop_smb(smbstate)
 
-  if(status == false) then
+  if not status then
     if(string.find(netpathcompare_result, "WERR_INVALID_PARAMETER") ~= nil) then
       return true, INFECTED
     elseif(string.find(netpathcompare_result, "INVALID_NAME") ~= nil) then
@@ -136,7 +136,7 @@ action = function(host)
   }
   -- Check for ms08-067
   status, result, message = check_ms08_067(host)
-  if(status == false) then
+  if not status then
     vuln_table.state = vulns.STATE.NOT_VULN
   else
     if(result == VULNERABLE) then

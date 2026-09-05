@@ -99,6 +99,9 @@ router X. The only way to be sure is to do a complete trace for each target
 individually.
 */
 
+#ifdef HAVE_CONFIG_H
+#include "nmap_config.h"
+#endif
 #include "nmap_dns.h"
 #include "nmap_error.h"
 #include "nmap_tty.h"
@@ -237,7 +240,7 @@ public:
   int cancel_probes_above(u8 ttl);
   Hop *insert_hop(u8 ttl, const struct sockaddr_storage *addr, float rtt);
   void link_to(Hop *hop);
-  double completion_fraction() const;
+  unsigned int completion() const;
 
 private:
   void child_parent_ttl(u8 ttl, Hop **child, Hop **parent) const;
@@ -289,7 +292,7 @@ public:
   void resolve_hops();
   void transfer_hops();
 
-  double completion_fraction() const;
+  unsigned int completion(unsigned int *total) const;
 
 private:
   netutil_eth_t *ethsd;
@@ -491,11 +494,11 @@ void HostState::link_to(Hop *hop) {
     prev->parent = hop;
 }
 
-double HostState::completion_fraction() const {
+unsigned int HostState::completion() const {
   unsigned int i, n;
 
   if (this->is_finished())
-    return 1.0;
+    return sent_ttls.size();
 
   n = 0;
   for (i = 0; i < sent_ttls.size(); i++) {
@@ -503,7 +506,7 @@ double HostState::completion_fraction() const {
       n++;
   }
 
-  return (double) n / sent_ttls.size();
+  return n;
 }
 
 void HostState::child_parent_ttl(u8 ttl, Hop **child, Hop **parent) const {
@@ -542,19 +545,23 @@ struct probespec HostState::get_probe(const Target *target) {
        protocols. We cheat and store them in the TCP-, UDP-, SCTP- and
        ICMP-specific fields. */
     if (probe.proto == IPPROTO_TCP) {
+      probe.type = PS_TCP;
       probe.pd.tcp.flags = TH_ACK;
       probe.pd.tcp.dport = get_random_u16();
     } else if (probe.proto == IPPROTO_UDP) {
+      probe.type = PS_UDP;
       probe.pd.udp.dport = get_random_u16();
     } else if (probe.proto == IPPROTO_SCTP) {
+      probe.type = PS_SCTP;
       probe.pd.sctp.dport = get_random_u16();
     } else if (probe.proto == IPPROTO_ICMP) {
+      probe.type = PS_ICMP;
       probe.pd.icmp.type = ICMP_ECHO;
     } else if (probe.proto == IPPROTO_ICMPV6) {
+      probe.type = PS_ICMPV6;
       probe.pd.icmp.type = ICMPV6_ECHO;
-    } else {
-      fatal("Unknown protocol %d", probe.proto);
     }
+    // Otherwise we leave ourselves at the mercy of build_ip_raw()
   } else {
     /* No responsive probe known? The user probably skipped both ping and
        port scan. Guess ICMP echo as the most likely to get a response. */
@@ -833,7 +840,7 @@ TracerouteState::TracerouteState(std::vector<Target *> &targets) {
   assert(targets.size() > 0);
 
   if (!raw_socket_or_eth(o.sendpref, targets[0]->deviceName(), targets[0]->ifType(),
-        &rawsd, &ethsd)) {
+        &rawsd, &ethsd, targets[0]->af())) {
     fatal("traceroute: socket troubles");
   }
 
@@ -1208,6 +1215,26 @@ static bool decode_reply(const u8 *ip, unsigned int len, Reply *reply) {
 
   return true;
 }
+#ifdef ENABLE_FUZZING
+bool fuzz_decode_reply(const u8 *ip, unsigned int len) {
+  global_id = 0;
+  Reply reply;
+  if (decode_reply(ip, len, &reply))
+    return true;
+
+  if (len > 24) {
+    global_id = ntohs(*(u16 *)(ip + 22));
+    if (decode_reply(ip, len, &reply))
+      return true;
+  }
+  if (len > 44) {
+    global_id = ntohs(*(u16 *)(ip + 42));
+    if (decode_reply(ip, len, &reply))
+      return true;
+  }
+  return false;
+}
+#endif
 
 static bool read_reply(Reply *reply, pcap_t *pd, long timeout) {
   const u8 *ip;
@@ -1224,7 +1251,7 @@ void TracerouteState::read_replies(long timeout) {
   struct timeval now;
   Reply reply;
 
-  assert(timeout / 1000 <= (long) o.scan_delay);
+  assert(o.scan_delay == 0 || (timeout / 1000 <= (long) o.scan_delay));
   timeout = MAX(timeout, 10000);
   now = get_now();
 
@@ -1414,14 +1441,18 @@ Probe *TracerouteState::lookup_probe(
   return NULL;
 }
 
-double TracerouteState::completion_fraction() const {
+unsigned int TracerouteState::completion(unsigned int *total) const {
   std::vector<HostState *>::const_iterator it;
-  double sum;
+  unsigned int complete = 0;
+  unsigned int sum = 0;
 
-  sum = 0.0;
   for (it = hosts.begin(); it != hosts.end(); it++)
-    sum += (*it)->completion_fraction();
-  return sum / hosts.size();
+  {
+    complete += (*it)->completion();
+    sum += (*it)->sent_ttls.size();
+  }
+  *total = sum;
+  return complete;
 }
 
 /* This is a special case of traceroute when all the targets are directly
@@ -1479,8 +1510,11 @@ static int traceroute_remote(std::vector<Target *> targets) {
     global_state.cull_timeouts();
     global_state.remove_finished_hosts();
 
-    if (keyWasPressed())
-      SPM.printStats(global_state.completion_fraction(), NULL);
+    if (keyWasPressed()) {
+      unsigned int complete, total;
+      complete = global_state.completion(&total);
+      SPM.printStats(complete, total, NULL);
+    }
   }
 
   SPM.endTask(NULL, NULL);

@@ -71,7 +71,7 @@ function start_connection(host, port)
 
   status, err = dcm['socket']:connect(host, port, "tcp")
 
-  if(status == false) then
+  if not status then
     return false, "DICOM: Failed to connect to host: " .. err
   end
 
@@ -90,7 +90,7 @@ function send(dcm, data)
   stdnse.debug2("DICOM: Sending DICOM packet (%d)", #data)
   if dcm['socket'] then
     status, err = dcm['socket']:send(data)
-    if status == false then
+    if not status then
       return false, err
     end
   else 
@@ -107,7 +107,7 @@ end
 ---
 function receive(dcm)
   local status, data = dcm['socket']:receive()
-  if status == false then
+  if not status then
     return false, data
   end
   stdnse.debug1("DICOM: receive() read %d bytes", #data)
@@ -156,7 +156,7 @@ function associate(host, port, calling_aet, called_aet)
   local userinfo_context = ""
   
   local status, dcm = start_connection(host, port)
-  if status == false then
+  if not status then
     return false, dcm
   end
   
@@ -220,7 +220,7 @@ function associate(host, port, calling_aet, called_aet)
   local status, header = pdu_header_encode(PDU_CODES["ASSOCIATE_REQUEST"], #assoc_request)
 
   -- Something might be wrong with our header
-  if status == false then 
+  if not status then
     return false, header
   end
 
@@ -231,11 +231,11 @@ function associate(host, port, calling_aet, called_aet)
     return false, string.format("ASSOCIATE request PDU must be at least %d bytes and we tried to send %d.", MIN_SIZE_ASSOC_REQ, #assoc_request)
   end 
   local status, err = send(dcm, assoc_request)
-  if status == false then
+  if not status then
     return false, string.format("Couldn't send ASSOCIATE request:%s", err)
   end
   status, err = receive(dcm)
-  if status == false then
+  if not status then
     return false, string.format("Couldn't read ASSOCIATE response:%s", err)
   end
 
@@ -254,12 +254,12 @@ end
 
 function send_pdata(dicom, data)
   local status, header = pdu_header_encode(PDU_CODES["DATA"], #data)
-  if status == false then
+  if not status then
     return false, header
   end
   local err
   status, err = send(dicom, header .. data)
-  if status == false then
+  if not status then
     return false, err
   end
 end
