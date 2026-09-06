@@ -1,5 +1,20 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Introduced execution time and memory allocation limits for NSE scripts.
+  Script threads that run for more than 5 seconds without yielding (e.g.
+  calling a socket operation) will be killed. Memory allocations beyond 400MB
+  will throw an error. Specific limits may be changed in the future.
+
+o [Nsock][GH#3449] Nsock no longer calls fatal() when encountering a
+  pcap-related error. Instead, errors are propagated to the caller the same way
+  other socket errors are handled.
+
+o [GH#3438] Fixed warnings and crashes due to bind() failing on macOS and
+  FreeBSD. Error messages similar to:
+  "mksock_bind_addr(): Bind to <IP>:0 failed (IOD #3): Invalid argument (22)"
+
+o [Zenmap][GH#3431] Fix "KeyError: 'vl_6_logo'" crash in Zenmap 7.991.
+
 o [NSE] Added DHX2 authentication method to afp.lua [Daniel Miller]
 
 o [NSE][GH#3447] IP options parsing by the packet library no longer crashes
