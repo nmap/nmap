@@ -897,7 +897,7 @@ Proto = {
 
       p = openssl.bignum_hex2bn("BA2873DFB06057D43F2024744CEEE75B")
       g = openssl.bignum_dec2bn("7")
-      Ra = openssl.bignum_hex2bn("86F6D3C0B0D63E4B11F113A2F9F19E3BBBF803F28D30087A1450536BE979FD42")
+      Ra = openssl.bignum_rand(256)
       Ma = openssl.bignum_mod_exp(g, Ra, p)
 
       data = string.pack( "Bs1s1s1", COMMAND.FPLogin, afp_version, uam, username) .. openssl.bignum_bn2bin(Ma)
@@ -2117,8 +2117,5 @@ Util =
   end,
 
 }
-
-
-
 
 return _ENV;
