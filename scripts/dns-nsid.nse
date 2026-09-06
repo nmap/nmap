@@ -9,7 +9,7 @@ Retrieves information from a DNS nameserver by requesting
 its nameserver ID (nsid) and asking for its id.server and
 version.bind values. This script performs the same queries as the following
 two dig commands:
-  - dig CH TXT bind.version @target
+  - dig CH TXT version.bind @target
   - dig +nsid CH TXT id.server @target
 
 References:
