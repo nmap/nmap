@@ -90,6 +90,7 @@
 --
 -- @args afp.username The username to use for authentication.
 -- @args afp.password The password to use for authentication.
+-- @args afp.uam The user authentication method, e.g. "DHCAST128" or "DHX2"
 
 --
 -- Version 0.5
@@ -293,6 +294,9 @@ ERROR =
   FPParamErr = -5019,
   FPUserNotAuth = -5023,
   FPCallNotSupported = -5024,
+  FPPwdExpiredErr = -5042,
+  FPPwdNeedsChangeErr = -5045,
+  FPUserAlreadyLoggedOnErr = -5047,
 }
 
 MAP_ID =
@@ -333,6 +337,7 @@ SERVERFLAGS =
 }
 
 local ERROR_MSG = {
+  [ERROR.FPNoErr]="Success",
   [ERROR.FPAccessDenied]="Access Denied",
   [ERROR.FPAuthContinue]="Authentication is not yet complete",
   [ERROR.FPBadUAM]="Specified UAM is unknown",
@@ -348,6 +353,9 @@ local ERROR_MSG = {
   [ERROR.FPUserNotAuth] = "UAM failed (the specified old password doesn't match); no user is logged in yet for the specified session; authentication failed; password is incorrect.",
   [ERROR.FPItemNotFound] = "Specified APPL mapping, comment, or icon was not found in the Desktop database; specified ID is unknown.",
   [ERROR.FPCallNotSupported] = "Server does not support this command.",
+  [ERROR.FPPwdExpiredErr] = "The password has expired.",
+  [ERROR.FPPwdNeedsChangeErr] = "The password needs to be changed the first time the user logs on.",
+  [ERROR.FPUserAlreadyLoggedOnErr] = "The server allows only one active session per user.",
 }
 
 -- Dates are shifted forward one day to avoid referencing 12/31/1969 UTC
@@ -855,9 +863,7 @@ Proto = {
   -- It currently supports the following authentication methods:
   --   o No User Authent
   --   o DHCAST128
-  --
-  -- The DHCAST128 UAM should work against most servers even though it's
-  -- superceded by the DHX2 UAM.
+  --   o DHX2
   --
   -- @param afp_version string (AFP3.3|AFP3.2|AFP3.1)
   -- @param uam string containing authentication information
@@ -880,13 +886,15 @@ Proto = {
       return response
     end
 
+    local dhx_s2civ, dhx_c2siv = 'CJalbert', 'LWallace'
+    local bn_one = openssl.bignum_dec2bn("1")
+
     if ( uam == "No User Authent" ) then
       data = string.pack( "Bs1s1", COMMAND.FPLogin, afp_version, uam )
       packet = self:create_fp_packet( REQUEST.Command, data_offset, data )
       self:send_fp_packet( packet )
       return self:read_fp_packet( )
     elseif( uam == "DHCAST128" ) then
-      local dhx_s2civ, dhx_c2civ = 'CJalbert', 'LWallace'
       local p, g, Ra, Ma, Mb, K, nonce
       local EncData, PlainText, K_bin, auth_response
       local Id
@@ -900,7 +908,7 @@ Proto = {
       Ra = openssl.bignum_rand(256)
       Ma = openssl.bignum_mod_exp(g, Ra, p)
 
-      data = string.pack( "Bs1s1s1", COMMAND.FPLogin, afp_version, uam, username) .. openssl.bignum_bn2bin(Ma)
+      data = string.pack( "Bs1s1s1", COMMAND.FPLogin, afp_version, uam, username) .. Util.PadBN(Ma, 16)
       packet = self:create_fp_packet( REQUEST.Command, data_offset, data )
       self:send_fp_packet( packet )
       response = self:read_fp_packet( )
@@ -917,21 +925,94 @@ Proto = {
 
       Mb = openssl.bignum_bin2bn( Mb )
       K = openssl.bignum_mod_exp (Mb, Ra, p)
-      K_bin = openssl.bignum_bn2bin(K)
+      K_bin = Util.PadBN(K, 16)
       nonce = openssl.decrypt("cast5-cbc", K_bin, dhx_s2civ, EncData, false ):sub(1,16)
-      nonce = openssl.bignum_add( openssl.bignum_bin2bn(nonce), openssl.bignum_dec2bn("1") )
-      PlainText = openssl.bignum_bn2bin(nonce) .. Util.ZeroPad(password, 64)
-      auth_response = openssl.encrypt( "cast5-cbc", K_bin, dhx_c2civ, PlainText, true)
+      nonce = openssl.bignum_add( openssl.bignum_bin2bn(nonce), bn_one)
+      PlainText = Util.PadBN(nonce, 16) .. Util.ZeroPad(password, 64)
+      auth_response = openssl.encrypt( "cast5-cbc", K_bin, dhx_c2siv, PlainText, false)
 
       data = string.pack( ">BBI2", COMMAND.FPLoginCont, 0, Id) .. auth_response
       packet = self:create_fp_packet( REQUEST.Command, data_offset, data )
       self:send_fp_packet( packet )
       response = self:read_fp_packet( )
-      if ( response:getErrorCode() ~= ERROR.FPNoErr ) then
+      return response
+    elseif( uam == "DHX2" ) then
+      local username = username or ""
+      local password = password or ""
+
+      username = username .. string.rep('\0', (#username + 1) % 2)
+
+      data = string.pack( "Bs1s1s1", COMMAND.FPLogin, afp_version, uam, username)
+      packet = self:create_fp_packet( REQUEST.Command, data_offset, data )
+      self:send_fp_packet( packet )
+
+      response = self:read_fp_packet( )
+      if ( response:getErrorCode() ~= ERROR.FPAuthContinue ) then
         return response
       end
+
+      if #response.packet.data < 8 then
+        response:setErrorMessage("LoginContinue packet contained invalid data")
+        return response
+      end
+
+      local Id, g, len, pos = string.unpack(">I2 c4 I2", response.packet.data )
+      -- Prevent CPU exhaustion if server specified enormous parameters.
+      -- 1024 = 8192-bit DH, the max allowed by OpenSSL currently.
+      if len > 1024 then
+        response:setErrorMessage("DH Parameters too big")
+        return response
+      end
+      if #response.packet.data < (8 + 2 * len) then
+        response:setErrorMessage("LoginContinue packet contained invalid data")
+        return response
+      end
+      g = openssl.bignum_bin2bn(g)
+      local p = openssl.bignum_bin2bn(response.packet.data:sub(pos, pos + len - 1))
+      pos = pos + len
+      local Mb = openssl.bignum_bin2bn(response.packet.data:sub(pos, pos + len - 1))
+      local Ra = openssl.bignum_rand(len * 8)
+      local Ma = openssl.bignum_mod_exp(g, Ra, p)
+      local K = openssl.md5(Util.PadBN(openssl.bignum_mod_exp(Mb, Ra, p), len))
+      local clientNonce = openssl.bignum_rand(16*8)
+      local auth_response = openssl.encrypt( "cast5-cbc", K, dhx_c2siv,
+        Util.PadBN(clientNonce, 16), false)
+      local strMa = Util.PadBN(Ma, len)
+      data = string.pack( ">BxI2", COMMAND.FPLoginCont, Id) .. strMa .. auth_response
+      packet = self:create_fp_packet( REQUEST.Command, data_offset, data )
+      self:send_fp_packet( packet )
+
+      response = self:read_fp_packet()
+      if ( response:getErrorCode() ~= ERROR.FPAuthContinue ) then
+        return response
+      end
+
+      if #response.packet.data < 34 then
+        response:setErrorMessage("LoginContinue packet contained invalid data")
+        return response
+      end
+      local sId, EncData = string.unpack(">I2 c32", response.packet.data )
+      if sId ~= Id + 1 then
+        response:setErrorMessage("LoginContinue packet contained invalid data")
+        return response
+      end
+      data = openssl.decrypt("cast5-cbc", K, dhx_s2civ, EncData, false)
+      local nonce, serverNonce = string.unpack("c16 c16", data)
+      if nonce ~= Util.PadBN(openssl.bignum_add(clientNonce, bn_one), 16) then
+        response:setErrorMessage("LoginContinue packet contained invalid data")
+        return response
+      end
+      serverNonce = openssl.bignum_bin2bn(serverNonce)
+      auth_response = openssl.encrypt("cast5-cbc", K, dhx_c2siv,
+        Util.PadBN(openssl.bignum_add(serverNonce, bn_one), 16) .. Util.ZeroPad(password, 256), false)
+      data = string.pack( ">BxI2", COMMAND.FPLoginCont, sId) .. auth_response
+      packet = self:create_fp_packet( REQUEST.Command, data_offset, data )
+      self:send_fp_packet( packet )
+
+      response = self:read_fp_packet()
       return response
     end
+    response = Response:new()
     response:setErrorMessage("Unsupported uam: " .. uam or "nil")
     return response
   end,
@@ -1315,6 +1396,17 @@ Helper = {
     self.__index = self
     o.username = stdnse.get_script_args("afp.username")
     o.password = stdnse.get_script_args("afp.password")
+    o.uam = stdnse.get_script_args("afp.uam")
+    if o.uam then
+      if UAM[o.uam] then
+        o.uam = UAM[o.uam]
+      end
+      if (o.uam ~= "DHCAST128"
+          and o.uam ~= "DHX2"
+          and o.uam ~= "No User Authent") then
+        error(("Unsupported UAM %s"):format(o.uam))
+      end
+    end
     return o
   end,
 
@@ -1370,28 +1462,22 @@ Helper = {
   -- @param username (optional) string containing the username
   -- @param password (optional) string containing the user password
   -- @param options table containing additional options <code>uam</code>
+  -- @return boolean success
+  -- @return string error message
+  -- @return number error code
   Login = function( self, username, password, options )
-    local uam = ( options and options.UAM ) and options.UAM or "DHCAST128"
-    local response
+    local uam = (options and options.UAM) or self.uam or "DHCAST128"
 
     -- username and password arguments override the ones supplied using the
     -- script arguments afp.username and afp.password
     local username = username or self.username
     local password = password or self.password
 
-    if ( username and uam == "DHCAST128" ) then
-      response = self.proto:fp_login( "AFP3.1", "DHCAST128", username, password )
-    elseif( username ) then
-      return false, ("Unsupported UAM: %s"):format(uam)
-    else
-      response = self.proto:fp_login( "AFP3.1", "No User Authent" )
-    end
+    local response = self.proto:fp_login( "AFP3.1", uam, username, password )
 
-    if response:getErrorCode() ~= ERROR.FPNoErr then
-      return false, response:getErrorMessage()
-    end
-
-    return true, "Success"
+    return (response:getErrorCode() == ERROR.FPNoErr),
+      response:getErrorMessage(),
+      response:getErrorCode()
   end,
 
   --- Logs out from the AFP service
@@ -1825,6 +1911,18 @@ Util =
   -- @return str string containing the new string
   ZeroPad = function( str, len )
     return str .. string.rep('\0', len - str:len())
+  end,
+  --- Pads a bignum with zeroes on the MSB end
+  --
+  -- @param bn bignum to be padded
+  -- @param len number containing the desired length in bytes
+  -- @return str string representation of the bignum, padded to length
+  PadBN = function( bn, len )
+    local str = openssl.bignum_bn2bin(bn)
+    if #str < len then
+      str = string.rep('\0', len - #str) .. str
+    end
+    return str
   end,
 
   --- Splits a path into two pieces, directory and file
