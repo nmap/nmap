@@ -1,0 +1,2635 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: dev@nmap.org\n"
+"POT-Creation-Date: 2025-05-19 16:32+0000\n"
+"PO-Revision-Date: \n"
+"Last-Translator: Yuji Tounai <bogus@bogus.jp>\n"
+"Language-Team: bogus.jp <bogus@bogus.jp>\n"
+"Language: ko_KR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Poedit-SourceCharset: UTF-8\n"
+"X-Generator: Poedit 3.9\n"
+
+#: zenmapCore/NmapParser.py:309
+msgid "Unknown Host"
+msgstr "알수 없는 호스트"
+
+#: zenmapCore/NmapParser.py:353
+msgid "Unknown version"
+msgstr "알수 없는 버전"
+
+#: zenmapCore/NmapParser.py:642
+#, python-format
+msgid "%(profile_name)s on %(targets)s"
+msgstr "%(targets)s에 대한 %(profile_name)s 스캔"
+
+#: zenmapCore/UmitOptionParser.py:77
+#, python-format
+msgid "Use DIR as the user configuration directory. Default: %default"
+msgstr "사용자 설정 디렉토리로 DIR 경로를 지정합니다. 기본값: %default"
+
+#: zenmapCore/UmitOptionParser.py:91
+msgid ""
+"Specify a scan result file in Nmap XML output format. Can be used more than "
+"once to specify several scan result files."
+msgstr ""
+"Nmap XML 출력 형식으로 된 스캔 결과 파일을 선택합니다. 이 옵션을 여러 번 사용하"
+"여 여러 개의 결과 파일을 동시에 지정할 수 있습니다."
+
+#: zenmapCore/UmitOptionParser.py:102
+#, python-format
+msgid "Run %s with the specified args."
+msgstr "지정된 인자(args)를 사용하여 %s을(를) 실행합니다."
+
+#: zenmapCore/UmitOptionParser.py:110
+msgid ""
+"Begin with the specified profile selected. If combined with the -t (--target) "
+"option, automatically run the profile against the specified target."
+msgstr ""
+"시작할 때 지정한 프로필을 미리 선택합니다. 만약 -t (--target) 옵션을 동시에 사"
+"용하면, 지정된 대상에 대해 해당 프로필의 스캔을 자동으로 시작합니다."
+
+#: zenmapCore/UmitOptionParser.py:121
+msgid ""
+"Specify a target to be used along with other options. If specified alone, open "
+"with the target field filled with the specified target"
+msgstr ""
+"다른 옵션과 함께 사용할 대상을 지정합니다. 이 옵션만 단독으로 지정하면, 대상"
+"(Target) 입력란에 해당 대상이 채워진 상태로 프로그램이 열립니다"
+
+#: zenmapCore/UmitOptionParser.py:129
+msgid ""
+"Increase verbosity of the output. May be used more than once to get even more "
+"verbosity"
+msgstr ""
+"출력의 상세 수준을 증가시킵니다 더 자세한 출력을 얻기 위해 이 옵션을 여러 번 반"
+"복해서 사용할 수 있습니다"
+
+#: zenmapCore/UmitConf.py:198
+msgid "No profiles found"
+msgstr "프로파일을 찾을 수 없음"
+
+#: zenmapCore/UmitConf.py:200
+msgid "The {} file is missing or corrupted"
+msgstr "{} 파일이 누락되었거나 손상되었습니다"
+
+#: zenmapGUI/ScriptInterface.py:197
+msgid ""
+"There was an error getting the list of scripts from Nmap. Try upgrading Nmap."
+msgstr ""
+"Nmap으로부터 스크립트 목록을 불러오지 못했습니다. Nmap 버전을 최신으로 업데이트"
+"해 보시기 바랍니다."
+
+#: zenmapGUI/ScriptInterface.py:402
+msgid ""
+"List of scripts\n"
+"\n"
+"A list of all installed scripts. Activate or deactivate a script by clicking "
+"the box next to the script name."
+msgstr ""
+"스크립트 목록\n"
+"\n"
+"설치된 모든 스크립트의 목록입니다. 스크립트 이름 옆의 확인란을 클릭하여 스크립"
+"트를 활성화하거나 비활성화할 수 있습니다."
+
+#: zenmapGUI/ScriptInterface.py:406
+msgid ""
+"Description\n"
+"\n"
+"This box shows the categories a script belongs to. In addition, it gives a "
+"detailed description of the script which is present in script. A URL points to "
+"online NSEDoc documentation."
+msgstr ""
+"설명\n"
+"\n"
+"이 상자는 스크립트가 속한 카테고리를 보여줍니다. 또한, 스크립트 내부에 포함된 "
+"상세한 설명을 제공합니다. URL을 통해 온라인 NSEDoc 문서로 연결할 수 있습니다."
+
+#: zenmapGUI/ScriptInterface.py:411
+msgid ""
+"Arguments\n"
+"\n"
+"A list of arguments that affect the selected script. Enter a value by clicking "
+"in the value field beside the argument name."
+msgstr ""
+"인자\n"
+"\n"
+"선택한 스크립트에 영향을 주는 인자 목록입니다. 인자 이름 옆의 값 입력 필드를 클"
+"릭하여 값을 입력할 수 있습니다."
+
+#: zenmapGUI/ScriptInterface.py:418
+msgid "Please wait."
+msgstr "잠시만 기다려 주세요."
+
+#: zenmapGUI/ScriptInterface.py:441
+msgid "Names"
+msgstr "이름 목록"
+
+#: zenmapGUI/ScriptInterface.py:562
+msgid "Arguments"
+msgstr "매개변수"
+
+#: zenmapGUI/ScriptInterface.py:650
+msgid "Select script files"
+msgstr "스크립트 파일 선택"
+
+#: zenmapGUI/FilterBar.py:26
+msgid "Host Filter:"
+msgstr "호스트 필터:"
+
+#: zenmapGUI/FilterBar.py:59
+msgid ""
+"Entering the text into the search performs a <b>keyword search</b> - the "
+"search string is matched against every aspect of the host.\n"
+"\n"
+"To refine the search, you can use <b>operators</b> to search only specific "
+"fields within a host. Most operators have a short form, listed. \n"
+"<b>target: (t:)</b> - User-supplied target, or a rDNS result.\n"
+"<b>os:</b> - All OS-related fields.\n"
+"<b>open: (op:)</b> - Open ports discovered in a scan.\n"
+"<b>closed: (cp:)</b> - Closed ports discovered in a scan.\n"
+"<b>filtered: (fp:)</b> - Filtered ports discovered in scan.\n"
+"<b>unfiltered: (ufp:)</b> - Unfiltered ports found in a scan (using, for "
+"example, an ACK scan).\n"
+"<b>open|filtered: (ofp:)</b> - Ports in the \"open|filtered\" state.\n"
+"<b>closed|filtered: (cfp:)</b> - Ports in the \"closed|filtered\" state.\n"
+"<b>service: (s:)</b> - All service-related fields.\n"
+"<b>inroute: (ir:)</b> - Matches a router in the scan's traceroute output.\n"
+msgstr ""
+"검색창에 텍스트를 입력하면 <b>키워드 검색</b>이 수행되며, 입력한 문자열을 호스"
+"트의 모든 정보와 비교하여 매칭합니다.\n"
+"\n"
+"검색 결과를 더 세밀하게 좁히려면, <b>연산자</b>를 사용하여 호스트 내의 특정 필"
+"드만 지정해서 검색할 수 있습니다. 대부분의 연산자는 아래에 나열된 줄임말(약어) "
+"형태로도 사용할 수 있습니다. \n"
+"<b>target: (t:)</b> - 사용자가 입력한 스캔 대상 또는 역방향 DNS(rDNS) 결과.\n"
+"<b>os:</b> - 운영체제(OS)와 관련된 모든 필드.\n"
+"<b>open: (op:)</b> - 스캔에서 발견된 열린 포트.\n"
+"<b>closed: (cp:)</b> - 스캔에서 발견된 닫힌 포트.\n"
+"<b>filtered: (fp:)</b> - 스캔에서 발견된 필터링된 포트.\n"
+"<b>unfiltered: (ufp:)</b> - 스캔에서 발견된 필터링되지 않은 포트 (예: ACK 스캔 "
+"등을 사용한 경우).\n"
+"<b>open|filtered: (ofp:)</b> - \"열림|필터링됨\" 상태인 포트.\n"
+"<b>closed|filtered: (cfp:)</b> - \"닫힘|필터링됨\" 상태인 포트.\n"
+"<b>service: (s:)</b> - 서비스와 관련된 모든 필드.\n"
+"<b>inroute: (ir:)</b> - 스캔 결과의 경로 추적(Traceroute) 출력에서 일치하는 라"
+"우터\n"
+
+#: zenmapGUI/ScanHostsView.py:109 radialnet/gui/LegendWindow.py:157
+msgid "Hosts"
+msgstr "호스트"
+
+#: zenmapGUI/ScanHostsView.py:110 radialnet/gui/NodeNotebook.py:135
+msgid "Services"
+msgstr "서비스"
+
+#: zenmapGUI/ScanHostsView.py:121
+msgid "OS"
+msgstr "운영체제"
+
+#: zenmapGUI/ScanHostsView.py:122 zenmapGUI/ScanOpenPortsPage.py:171
+msgid "Host"
+msgstr "호스트"
+
+#: zenmapGUI/ScanHostsView.py:130 zenmapGUI/ScanOpenPortsPage.py:176
+#: zenmapGUI/ScanOpenPortsPage.py:199 radialnet/gui/NodeNotebook.py:72
+msgid "Service"
+msgstr "서비스"
+
+#: zenmapGUI/DiffCompare.py:133
+msgid "Scan Output"
+msgstr "스캔 출력"
+
+#: zenmapGUI/DiffCompare.py:186
+msgid "Select Scan Result"
+msgstr "스캔 출력 선택"
+
+#: zenmapGUI/DiffCompare.py:197
+msgid "Error parsing file"
+msgstr "파일 분석 오류"
+
+#: zenmapGUI/DiffCompare.py:199
+#, python-format
+msgid ""
+"The file is not an Nmap XML output file. The parsing error that occurred was\n"
+"%s"
+msgstr ""
+"이 파일은 올바른 Nmap XML 결과 파일이 아닙니다. 발생한 분석 오류는 다음과 같습"
+"니다:\n"
+"%s"
+
+#: zenmapGUI/DiffCompare.py:207
+msgid "Cannot open selected file"
+msgstr "선택한 파일을 열 수 없습니다"
+
+#: zenmapGUI/DiffCompare.py:209
+#, python-format
+msgid ""
+"This error occurred while trying to open the file:\n"
+"%s"
+msgstr ""
+"파일을 여는 동안 다음 오류가 발생했습니다:\n"
+"%s"
+
+#: zenmapGUI/DiffCompare.py:256 zenmapGUI/MainWindow.py:289
+msgid "Compare Results"
+msgstr "결과 비교"
+
+#: zenmapGUI/DiffCompare.py:272
+msgid "A Scan"
+msgstr "A 스캔"
+
+#: zenmapGUI/DiffCompare.py:273
+msgid "B Scan"
+msgstr "B 스캔"
+
+#: zenmapGUI/DiffCompare.py:332 zenmapGUI/DiffCompare.py:385
+msgid "Error running ndiff"
+msgstr "ndiff를 시작하지 못했습니다"
+
+#: zenmapGUI/DiffCompare.py:334
+msgid ""
+"There was an error running the ndiff program.\n"
+"\n"
+msgstr ""
+"ndiff프로그램을 실행하는 동안 오류가 발생했습니다.\n"
+"\n"
+
+#: zenmapGUI/DiffCompare.py:369
+msgid "Error parsing ndiff output"
+msgstr "ndiff결과 분석 오류"
+
+#: zenmapGUI/DiffCompare.py:378
+#, python-format
+msgid "The ndiff process terminated with status code %d."
+msgstr "ndiff프로세스가 상태 코드 %d번으로 종료되었습니다."
+
+#: zenmapGUI/ScanToolbar.py:80 zenmapGUI/ScanRunDetailsPage.py:79
+msgid "Command:"
+msgstr "명령어:"
+
+#: zenmapGUI/ScanToolbar.py:112 zenmapGUI/SearchGUI.py:271
+#: zenmapGUI/ProfileEditor.py:175 zenmapCore/data/misc/profile_editor.xml:8
+msgid "Scan"
+msgstr "스캔"
+
+#: zenmapGUI/ScanToolbar.py:113
+msgid "Cancel"
+msgstr "취소"
+
+#: zenmapGUI/ScanToolbar.py:134
+msgid "Target:"
+msgstr "대상:"
+
+#: zenmapGUI/ScanToolbar.py:141
+msgid "Profile:"
+msgstr "프로파일:"
+
+#: zenmapGUI/MainWindow.py:195
+msgid "Sc_an"
+msgstr "스캔(_S)"
+
+#: zenmapGUI/MainWindow.py:199
+msgid "_Save Scan"
+msgstr "스캔 저장"
+
+#: zenmapGUI/MainWindow.py:201
+msgid "Save current scan results"
+msgstr "현재 스캔 결과 저장"
+
+#: zenmapGUI/MainWindow.py:206
+msgid "Save All Scans to _Directory"
+msgstr "모든 스캔을 디렉터리에 저장"
+
+#: zenmapGUI/MainWindow.py:208
+msgid "Save all scans into a directory"
+msgstr "모든 스캔을 디렉터리에 저장"
+
+#: zenmapGUI/MainWindow.py:213
+msgid "_Open Scan"
+msgstr "스캔 열기"
+
+#: zenmapGUI/MainWindow.py:215
+msgid "Open the results of a previous scan"
+msgstr "이전 스캔 결과 열기"
+
+#: zenmapGUI/MainWindow.py:220
+msgid "_Open Scan in This Window"
+msgstr "현재창에서 스캔 열기"
+
+#: zenmapGUI/MainWindow.py:222
+msgid "Append a saved scan to the list of scans in this window."
+msgstr "저장된 스캔을 현재 창의 스캔 목록에 추가합니다."
+
+#: zenmapGUI/MainWindow.py:226
+msgid "_Tools"
+msgstr "도구(_T)"
+
+#: zenmapGUI/MainWindow.py:230
+msgid "_New Window"
+msgstr "새 창"
+
+#: zenmapGUI/MainWindow.py:232
+msgid "Open a new scan window"
+msgstr "새 스캔 창 열기"
+
+#: zenmapGUI/MainWindow.py:237
+msgid "Close Window"
+msgstr "창 닫기"
+
+#: zenmapGUI/MainWindow.py:239
+msgid "Close this scan window"
+msgstr "현재 스캔 창 닫기"
+
+#: zenmapGUI/MainWindow.py:244
+msgid "Print..."
+msgstr "스캔 출력..."
+
+#: zenmapGUI/MainWindow.py:246
+msgid "Print the current scan"
+msgstr "현재 스캔 출력"
+
+#: zenmapGUI/MainWindow.py:251
+msgid "Quit"
+msgstr "종료"
+
+#: zenmapGUI/MainWindow.py:253
+msgid "Quit the application"
+msgstr "프로그램 종료"
+
+#: zenmapGUI/MainWindow.py:258
+msgid "New _Profile or Command"
+msgstr "새 프로파일 또는 명령(_N)"
+
+#: zenmapGUI/MainWindow.py:260
+msgid "Create a new scan profile using the current command"
+msgstr "현재 명령어로 새 스캔 프로필 생성"
+
+#: zenmapGUI/MainWindow.py:265
+msgid "Search Scan Results"
+msgstr "스캔 결과 검색"
+
+#: zenmapGUI/MainWindow.py:267
+msgid "Search for a scan result"
+msgstr "스캔 결과 찾기"
+
+#: zenmapGUI/MainWindow.py:272 zenmapGUI/ScanInterface.py:876
+msgid "Filter Hosts"
+msgstr "호스트 필터링"
+
+#: zenmapGUI/MainWindow.py:274
+msgid "Search for host by criteria"
+msgstr "기준별 호스트 검색"
+
+#: zenmapGUI/MainWindow.py:279
+msgid "_Edit Selected Profile"
+msgstr "선택한 프로필 편집(_E)"
+
+#: zenmapGUI/MainWindow.py:281
+msgid "Edit selected scan profile"
+msgstr "선택한 스캔 프로필 편집"
+
+#: zenmapGUI/MainWindow.py:285
+msgid "_Profile"
+msgstr "프로파일(_P)"
+
+#: zenmapGUI/MainWindow.py:291
+msgid "Compare Scan Results using Diffies"
+msgstr "Diffies를 사용하여 스캔 결과 비교"
+
+#: zenmapGUI/MainWindow.py:296 zenmapGUI/MainWindow.py:316
+msgid "_Help"
+msgstr "도움말(_H)"
+
+#: zenmapGUI/MainWindow.py:300
+msgid "_Report a bug"
+msgstr "버그 신고(_R)"
+
+#: zenmapGUI/MainWindow.py:302
+msgid "Report a bug"
+msgstr "버그 신고"
+
+#: zenmapGUI/MainWindow.py:308
+msgid "_About"
+msgstr "정보(_A)"
+
+#: zenmapGUI/MainWindow.py:310
+#, python-format
+msgid "About %s"
+msgstr "%s 정보"
+
+#: zenmapGUI/MainWindow.py:318
+msgid "Shows the application help"
+msgstr "애플리케이션 도움말을 표시합니다"
+
+#: zenmapGUI/MainWindow.py:323
+msgid "Toggle Dark Mode"
+msgstr "다크 모드 전환"
+
+#: zenmapGUI/MainWindow.py:430
+msgid "Can't save to database"
+msgstr "데이터베이스에 저장할 수 없습니다"
+
+#: zenmapGUI/MainWindow.py:431
+#, python-format
+msgid ""
+"Can't store unsaved scans to the recent scans database:\n"
+"%s"
+msgstr ""
+"저장되지 않은 스캔 결과를 최근 스캔 데이터베이스에 저장할 수 없습니다:\n"
+"%s"
+
+#: zenmapGUI/MainWindow.py:556
+msgid "Error loading file"
+msgstr "파일을 불러오는 중 오류가 발생했습니다"
+
+#: zenmapGUI/MainWindow.py:579 zenmapGUI/MainWindow.py:658
+msgid "Nothing to save"
+msgstr "저장할 내용이 없습니다"
+
+#: zenmapGUI/MainWindow.py:581
+msgid ""
+"There are no scans with results to be saved. Run a scan with the \"Scan\" "
+"button first."
+msgstr ""
+"저장할 스캔 결과가 없습니다. 먼저 \"스캔\" 버튼을 눌러 스캔을 진행해 주세요."
+
+#: zenmapGUI/MainWindow.py:589 zenmapGUI/MainWindow.py:667
+msgid "There is a scan still running. Wait until it finishes and then save."
+msgstr "아직 스캔이 진행 중입니다. 스캔이 완료될 때까지 기다린 후 저장해 주세요."
+
+#: zenmapGUI/MainWindow.py:592 zenmapGUI/MainWindow.py:670
+#, python-format
+msgid "There are %u scans still running. Wait until they finish and then save."
+msgstr ""
+"아직 %u개의 스캔이 진행 중입니다. 모두 완료될 때까지 기다린 후 저장해 주세요."
+
+#: zenmapGUI/MainWindow.py:594 zenmapGUI/MainWindow.py:672
+msgid "Scan is running"
+msgstr "스캔 진행 중..."
+
+#: zenmapGUI/MainWindow.py:636
+msgid "Save Scan"
+msgstr "스캔 저장"
+
+#: zenmapGUI/MainWindow.py:659
+msgid ""
+"This scan has not been run yet. Start the scan with the \"Scan\" button first."
+msgstr ""
+"아직 스캔이 실행되지 않았습니다. 먼저 \"스캔\" 버튼을 눌러 스캔을 시작해 주세"
+"요."
+
+#: zenmapGUI/MainWindow.py:681
+msgid "Choose a directory to save scans into"
+msgstr "스캔 결과를 저장할 디렉토리를 선택하세요"
+
+#: zenmapGUI/MainWindow.py:706 zenmapGUI/MainWindow.py:738
+msgid "Can't save file"
+msgstr "파일을 저장할 수 없습니다"
+
+#: zenmapGUI/MainWindow.py:721 zenmapGUI/MainWindow.py:756
+msgid "Can't save recent scan information"
+msgstr "최근 스캔 정보를 저장할 수 없습니다"
+
+#: zenmapGUI/MainWindow.py:723 zenmapGUI/MainWindow.py:739
+#: zenmapGUI/MainWindow.py:758
+#, python-format
+msgid ""
+"Can't open file to write.\n"
+"%s"
+msgstr "쓰기 모드로 파일을 열 수 없습니다. %s"
+
+#: zenmapGUI/MainWindow.py:811 zenmapGUI/MainWindow.py:852
+msgid "Close anyway"
+msgstr "무시하고 닫기"
+
+#: zenmapGUI/MainWindow.py:815
+msgid "Unsaved changes"
+msgstr "저장되지 않은 변경 사항"
+
+#: zenmapGUI/MainWindow.py:817
+msgid ""
+"The given scan has unsaved changes.\n"
+"What do you want to do?"
+msgstr ""
+"해당 스캔 결과에 저장되지 않은 변경 사항이 있습니다. 어떻게 하시겠습니까?"
+
+#: zenmapGUI/MainWindow.py:856
+msgid "Trying to close"
+msgstr "종료하는 중..."
+
+#: zenmapGUI/MainWindow.py:859
+msgid ""
+"The window you are trying to close has a scan running in the background.\n"
+"What do you want to do?"
+msgstr "종료하려는 창에서 아직 스캔이 진행 중입니다. 무엇을 하시겠습니까?"
+
+#: zenmapGUI/MainWindow.py:896
+msgid "Can't save Zenmap configuration"
+msgstr "Zenmap 구성 파일을 저장하지 못했습니다"
+
+#: zenmapGUI/MainWindow.py:899
+#, python-format
+msgid ""
+"An error occurred when saving to\n"
+"%(configfile)s\n"
+"The error was: %(error)s."
+msgstr ""
+"다음 경로에 저장하는 중 오류가 발생했습니다: \n"
+"%(configfile)s \n"
+"에러 내용: %(error)s."
+
+#: zenmapGUI/MainWindow.py:947
+msgid "Can't find documentation files"
+msgstr "문서 파일을 찾을 수 없습니다"
+
+#: zenmapGUI/MainWindow.py:948
+#, python-format
+msgid ""
+"There was an error loading the documentation file %(helpfile)s (%(error)s). "
+"See the online documentation at %(url)s."
+msgstr ""
+"문서 파일 %(helpfile)s을(를) 불러오는 중 오류가 발생했습니다 (%(error)s). 웹상"
+"의 온라인 도움말(%(url)s)을 참조해 주세요."
+
+#: zenmapGUI/ScanInterface.py:379
+msgid "Empty Nmap Command"
+msgstr "Nmap 명령어가 비어 있습니다."
+
+#: zenmapGUI/ScanInterface.py:380
+msgid ""
+"There is no command to execute. Maybe the selected/typed profile doesn't "
+"exist. Please check the profile name or type the nmap command you would like "
+"to execute."
+msgstr ""
+"실행할 명령어가 없습니다. 선택하거나 입력한 프로필이 존재하지 않을 수 있습니"
+"다. 프로필 이름을 확인하거나, 실행하려는 Nmap 명령어를 직접 입력해 주세요."
+
+#: zenmapGUI/ScanInterface.py:468
+msgid "Error building command"
+msgstr "명령어 생성 중 오류 발생"
+
+#: zenmapGUI/ScanInterface.py:469
+#, python-format
+msgid "Error message: %s"
+msgstr "오류 메시지: %s"
+
+#: zenmapGUI/ScanInterface.py:489
+msgid ""
+"This means that the nmap executable was not found in your system PATH, which is"
+msgstr ""
+"이것은 시스템 환경 변수(PATH)에서 nmap 실행 파일을 찾을 수 없음을 의미합니다. "
+"현재 설정된 PATH는 다음과 같습니다"
+
+#: zenmapGUI/ScanInterface.py:491
+msgid "<undefined>"
+msgstr "<정의되지 않음>"
+
+#: zenmapGUI/ScanInterface.py:498
+msgid "plus the extra directory"
+msgstr "및 추가 디렉토리"
+
+#: zenmapGUI/ScanInterface.py:500
+msgid "plus the extra directories"
+msgstr "및 추가 디렉토리들"
+
+#: zenmapGUI/ScanInterface.py:505 zenmapGUI/ScanInterface.py:512
+msgid "Error executing command"
+msgstr "명령어 실행 오류"
+
+#: zenmapGUI/ScanInterface.py:583
+msgid "Parse error"
+msgstr "구문 분석 오류"
+
+#: zenmapGUI/ScanInterface.py:585
+#, python-format
+msgid ""
+"There was an error while parsing the XML file generated from the scan:\n"
+"\n"
+"%s"
+msgstr ""
+"스캔 결과로 생성된 XML 파일을 구문 분석하는 중 오류가 발생했습니다:\n"
+"\n"
+"%s"
+
+#: zenmapGUI/ScanInterface.py:598
+msgid "Cannot merge scan"
+msgstr "스캔 병합 실패"
+
+#: zenmapGUI/ScanInterface.py:600
+#, python-format
+msgid ""
+"There was an error while merging the new scan's XML:\n"
+"\n"
+"%s"
+msgstr ""
+"새로운 스캔의 XML 파일을 병합하는 중 오류가 발생했습니다:\n"
+"\n"
+"%s"
+
+#: zenmapGUI/ScanInterface.py:688
+#, python-format
+msgid "%(num_shown)d/%(total)d hosts shown"
+msgstr "호스트 %(num_shown)d개 표시 중 (총 %(total)d개)"
+
+#: zenmapGUI/ScanInterface.py:926
+msgid "Nmap Output"
+msgstr "Nmap 결과"
+
+#: zenmapGUI/ScanInterface.py:927
+msgid "Ports / Hosts"
+msgstr "포트 / 호스트"
+
+#: zenmapGUI/ScanInterface.py:928
+msgid "Topology"
+msgstr "네트워크 맵"
+
+#: zenmapGUI/ScanInterface.py:929
+msgid "Host Details"
+msgstr "호스트 상세 정보"
+
+#: zenmapGUI/ScanInterface.py:930
+msgid "Scans"
+msgstr "스캔 목록"
+
+#: zenmapGUI/ScanInterface.py:951
+msgid "No host selected."
+msgstr "선택된 호스트가 없습니다."
+
+#: zenmapGUI/NmapOutputViewer.py:263
+#, python-format
+msgid ""
+"Warning: %s \n"
+"Zenmap will continue to run the scan to completion. However, some features of "
+"Zenmap might not work as expected."
+msgstr ""
+"경고: %s\n"
+"Zenmap은 스캔이 완료될 때까지 계속 실행합니다. 다만, Zenmap의 일부 기능이 예상"
+"대로 작동하지 않을 수 있습니다."
+
+#: zenmapGUI/NmapOutputViewer.py:267
+#, python-format
+msgid ""
+"Warning: %s \n"
+"The scan has completed. However, some features of Zenmap might not work as "
+"expected."
+msgstr ""
+"경고: %s\n"
+"스캔이 완료되었습니다. 다만, Zenmap의 일부 기능이 예상대로 작동하지 않을 수 있"
+"습니다."
+
+#: zenmapGUI/NmapOutputViewer.py:271
+#, python-format
+msgid ""
+"Warning: %s \n"
+"The scan has been stopped. Some features of Zenmap might not work as expected."
+msgstr ""
+"경고: %s\n"
+"스캔이 중단되었습니다. Zenmap의 일부 기능이 예상대로 작동하지 않을 수 있습니다."
+
+#: zenmapGUI/NmapOutputViewer.py:277
+msgid ""
+"You have insufficient resources for Zenmap to be able to display the complete "
+"output from Nmap here. \n"
+msgstr ""
+"시스템 자원이 부족하여 Zenmap이 Nmap의 전체 출력 결과를 여기에 모두 표시할 수 "
+"없습니다.\n"
+
+#: zenmapGUI/NmapOutputViewer.py:294
+msgid "The Nmap output file has been closed unexpectedly."
+msgstr "Nmap 출력 파일이 예기치 않게 닫혔습니다."
+
+#: zenmapGUI/ScanOpenPortsPage.py:173 zenmapGUI/ScanOpenPortsPage.py:203
+#: radialnet/gui/NodeNotebook.py:72
+msgid "Port"
+msgstr "포트"
+
+#: zenmapGUI/ScanOpenPortsPage.py:174 zenmapGUI/ScanOpenPortsPage.py:202
+#: radialnet/gui/NodeNotebook.py:72
+msgid "Protocol"
+msgstr "프로토콜"
+
+#: zenmapGUI/ScanOpenPortsPage.py:175 zenmapGUI/ScanOpenPortsPage.py:204
+#: radialnet/gui/NodeNotebook.py:72 radialnet/gui/NodeNotebook.py:73
+msgid "State"
+msgstr "상태"
+
+#: zenmapGUI/ScanOpenPortsPage.py:177 zenmapGUI/ScanOpenPortsPage.py:205
+#: radialnet/gui/NodeNotebook.py:96
+msgid "Version"
+msgstr "버전"
+
+#: zenmapGUI/ScanOpenPortsPage.py:201 radialnet/gui/NodeNotebook.py:83
+msgid "Hostname"
+msgstr "호스트 이름"
+
+#: zenmapGUI/ScanOpenPortsPage.py:386 zenmapGUI/SearchGUI.py:460
+msgid "Unknown"
+msgstr "알 수 없음"
+
+#: zenmapGUI/BugReport.py:81
+msgid "How to Report a Bug"
+msgstr "버그 제보 방법"
+
+#: zenmapGUI/BugReport.py:102
+#, python-format
+msgid ""
+"<big><b>How to report a bug</b></big>\n"
+"\n"
+"Like their author, %(nmap)s and %(app)s aren't perfect. But you can help make "
+"it better by sending bug reports or even writing patches. If %(nmap)s doesn't "
+"behave the way you expect, first upgrade to the latest version available from "
+"<b>%(nmap_web)s</b>. If the problem persists, do some research to determine "
+"whether it has already been discovered and addressed. Try Googling the error "
+"message or browsing the nmap-dev archives at https://seclists.org. Read the "
+"full manual page as well. If nothing comes of this, open a bug report at "
+"<b>https://issues.nmap.org</b>. Please include everything you have learned "
+"about the problem, as well as what version of Nmap you are running and what "
+"operating system version it is running on.\n"
+"\n"
+"Code patches to fix bugs are even better than bug reports. Basic instructions "
+"for creating patch files with your changes are available at https://nmap.org/"
+"data/HACKING\n"
+msgstr ""
+"<big><b>버그 제보 방법</b></big>\n"
+"\n"
+"개발자도 사람인 만큼, %(nmap)s과 %(app)s 역시 완벽하지 않습니다. 하지만 여러분"
+"이 버그 리포트를 보내주시거나 직접 패치 코드를 작성해 주신다면 이 프로그램을 더"
+"욱 발전시킬 수 있습니다. 만약 %(nmap)s이 예상대로 작동하지 않는다면, 먼저 "
+"%(nmap_web)s에서 제공하는 최신 버전으로 업그레이드해 보세요. 문제가 계속 지속된"
+"다면, 해당 문제가 이미 발견되어 해결되었는지 먼저 확인해 보시기 바랍니다. 에러 "
+"메시지를 구글링해 보거나 https://seclists.org 에서 nmap-dev 아카이브 기록을 찾"
+"아보세요. 제공되는 전체 매뉴얼 페이지를 읽어보는 것도 도움이 됩니다. 만약 이 방"
+"법으로도 해결책을 찾지 못하셨다면, <b>https://issues.nmap.org</b> 에 버그 리포"
+"트를 등록해 주세요. 이때 현재 실행 중인 Nmap 버전, 사용 중인 운영체제(OS) 버전"
+"과 함께 해당 문제에 대해 파악하신 모든 정보를 함께 적어주시기 바랍니다.\n"
+"\n"
+"버그를 수정하는 코드 패치는 단순한 버그 제보보다 훨씬 더 큰 도움이 됩니다. 여러"
+"분이 변경한 내용으로 패치 파일을 만드는 기본적인 방법은 https://nmap.org/data/"
+"HACKING 에서 확인하실 수 있습니다.\n"
+
+#: zenmapGUI/SearchGUI.py:254
+msgid "Search:"
+msgstr "검색:"
+
+#: zenmapGUI/SearchGUI.py:257
+msgid "Expressions "
+msgstr "검색식 "
+
+#: zenmapGUI/SearchGUI.py:272
+msgid "Date"
+msgstr "날짜"
+
+#: zenmapGUI/SearchGUI.py:412
+msgid "No search method selected!"
+msgstr "선택된 검색 방법이 없습니다!"
+
+#: zenmapGUI/SearchGUI.py:414
+#, python-format
+msgid ""
+"%s can search results on directories or inside its own database. Please select "
+"a method by choosing a directory or by checking the search data base option in "
+"the 'Search options' tab before starting a search"
+msgstr ""
+"%s 기능을 사용하면 폴더나 자체 DB 안에서 스캔 결과를 찾을 수 있습니다. 검색을 "
+"시작하기 전, '검색 옵션' 탭으로 이동하여 대상 디렉토리를 지정하거나 데이터베이"
+"스 검색 옵션을 선택해 주시기 바랍니다"
+
+#: zenmapGUI/SearchGUI.py:884
+msgid ""
+"Entering the text into the search performs a <b>keyword search</b> - the "
+"search string is matched against the entire output of each scan.\n"
+"\n"
+"To refine the search, you can use <b>operators</b> to search only within a "
+"specific part of a scan. Operators can be added to the search interactively if "
+"you click on the <b>Expressions</b> button, or you can enter them manually "
+"into the search field. Most operators have a short form, listed.\n"
+"\n"
+"<b>profile: (pr:)</b> - Profile used.\n"
+"<b>target: (t:)</b> - User-supplied target, or a rDNS result.\n"
+"<b>option: (o:)</b> - Scan options.\n"
+"<b>date: (d:)</b> - The date when scan was performed. Fuzzy matching is "
+"possible using the \"~\" suffix. Each \"~\" broadens the search by one day on "
+"\"each side\" of the date. In addition, it is possible to use the \"date:-n\" "
+"notation which means \"n days ago\".\n"
+"<b>after: (a:)</b> - Matches scans made after the supplied date (<i>YYYY-MM-"
+"DD</i> or <i>-n</i>).\n"
+"<b>before (b:)</b> - Matches scans made before the supplied date(<i>YYYY-MM-"
+"DD</i> or <i>-n</i>).\n"
+"<b>os:</b> - All OS-related fields.\n"
+"<b>scanned: (sp:)</b> - Matches a port if it was among those scanned.\n"
+"<b>open: (op:)</b> - Open ports discovered in a scan.\n"
+"<b>closed: (cp:)</b> - Closed ports discovered in a scan.\n"
+"<b>filtered: (fp:)</b> - Filtered ports discovered in scan.\n"
+"<b>unfiltered: (ufp:)</b> - Unfiltered ports found in a scan (using, for "
+"example, an ACK scan).\n"
+"<b>open|filtered: (ofp:)</b> - Ports in the \"open|filtered\" state.\n"
+"<b>closed|filtered: (cfp:)</b> - Ports in the \"closed|filtered\" state.\n"
+"<b>service: (s:)</b> - All service-related fields.\n"
+"<b>inroute: (ir:)</b> - Matches a router in the scan's traceroute output.\n"
+msgstr ""
+"검색창에 텍스트를 입력하면 <b>키워드 검색</b>이 수행됩니다. 입력한 검색 문자열"
+"은 각 스캔의 전체 출력 결과와 대조하여 일치 여부를 확인합니다. \n"
+"\n"
+"검색 결과를 더 세분화하기 위해, <b>연산자(Operators)</b>를 사용하여 스캔의 특"
+"정 부분만 지정해서 검색할 수 있습니다. <b>검색식(Expressions)</b> 버튼을 클릭하"
+"여 대화형으로 연산자를 추가하거나, 검색 필드에 직접 수동으로 입력할 수도 있습니"
+"다. 대부분의 연산자는 아래에 나열된 것과 같이 약식(단축형) 표현을 지원합니"
+"다. \n"
+"\n"
+"<b>profile: (pr:)</b> - 사용된 프로필. \n"
+"<b>target: (t:)</b> - 사용자가 입력한 대상(Target) 또는 역방향 DNS(rDNS) 결"
+"과. \n"
+"<b>option: (o:)</b> - 스캔 옵션. \n"
+"<b>date: (d:)</b> - 스캔이 수행된 날짜. \"~\" 접미사를 사용하여 모호한 매칭"
+"(Fuzzy matching)이 가능합니다. \"~\" 기호가 추가될 때마다 기준 날짜의 \"앞뒤"
+"\"로 검색 범위가 하루씩 넓어집니다. 또한, \"n일 전\"을 의미하는 \"date:-n\" 표"
+"기법도 사용할 수 있습니다. \n"
+"<b>after: (a:)</b> - 지정한 날짜 이후에 수행된 스캔과 매칭됩니다 (<i>YYYY-MM-"
+"DD</i> 또는 <i>-n</i> 형식). <b>before (b:)</b> - 지정한 날짜 이전에 수행된 스"
+"캔과 매칭됩니다 (<i>YYYY-MM-DD</i> 또는 <i>-n</i> 형식). \n"
+"<b>os:</b> - 운영체제(OS)와 관련된 모든 필드. \n"
+"<b>scanned: (sp:)</b> - 스캔 대상에 포함되었던 포트와 매칭됩니다. \n"
+"<b>open: (op:)</b> - 스캔에서 발견된 열린(Open) 포트. \n"
+"<b>closed: (cp:)</b> - 스캔에서 발견된 닫힌(Closed) 포트. \n"
+"<b>filtered: (fp:)</b> - 스캔에서 발견된 필터링된(Filtered) 포트. \n"
+"<b>unfiltered: (ufp:)</b> - 스캔에서 발견된 필터링되지 않은(Unfiltered) 포트 "
+"(예: ACK 스캔 등을 사용한 경우). <b>open|filtered: (ofp:)</b> - \"open|"
+"filtered\" (열림|필터링됨) 상태인 포트. \n"
+"<b>closed|filtered: (cfp:)</b> - \"closed|filtered\" (닫힘|필터링됨) 상태인 포"
+"트. \n"
+"<b>service: (s:)</b> - 서비스와 관련된 모든 필드. \n"
+"<b>inroute: (ir:)</b> - 스캔의 traceroute(경로 추적) 출력 결과에 포함된 라우터"
+"와 매칭됩니다.\n"
+
+#: zenmapGUI/ScanRunDetailsPage.py:76 zenmapGUI/ScanHostDetailsPage.py:73
+msgid "Not available"
+msgstr "정보 없음"
+
+#: zenmapGUI/ScanRunDetailsPage.py:82
+msgid "Nmap Version:"
+msgstr "Nmap 버전:"
+
+#: zenmapGUI/ScanRunDetailsPage.py:85
+msgid "Verbosity level:"
+msgstr "상세 로그 수준:"
+
+#: zenmapGUI/ScanRunDetailsPage.py:88
+msgid "Debug level:"
+msgstr "디버그 수준:"
+
+#: zenmapGUI/ScanRunDetailsPage.py:92
+msgid "Command Info"
+msgstr "명령어 정보"
+
+#: zenmapGUI/ScanRunDetailsPage.py:121
+msgid "Started on:"
+msgstr "시작 시간:"
+
+#: zenmapGUI/ScanRunDetailsPage.py:124
+msgid "Finished on:"
+msgstr "종료 시간:"
+
+#: zenmapGUI/ScanRunDetailsPage.py:127
+msgid "Hosts up:"
+msgstr "활성화된 호스트:"
+
+#: zenmapGUI/ScanRunDetailsPage.py:130
+msgid "Hosts down:"
+msgstr "비활성화된 호스트:"
+
+#: zenmapGUI/ScanRunDetailsPage.py:133
+msgid "Hosts scanned:"
+msgstr "스캔한 호스트:"
+
+#: zenmapGUI/ScanRunDetailsPage.py:136 zenmapGUI/ScanHostDetailsPage.py:145
+msgid "Open ports:"
+msgstr "열린 포트:"
+
+#: zenmapGUI/ScanRunDetailsPage.py:139 zenmapGUI/ScanHostDetailsPage.py:148
+msgid "Filtered ports:"
+msgstr "필터링된 포트:"
+
+#: zenmapGUI/ScanRunDetailsPage.py:142 zenmapGUI/ScanHostDetailsPage.py:151
+msgid "Closed ports:"
+msgstr "닫힌 포트:"
+
+#: zenmapGUI/ScanRunDetailsPage.py:146
+msgid "General Info"
+msgstr "일반 정보"
+
+#: zenmapGUI/ScanRunDetailsPage.py:208
+msgid "Scan Info"
+msgstr "스캔 정보"
+
+#: zenmapGUI/ScanRunDetailsPage.py:225
+msgid "Scan type:"
+msgstr "스캔 유형:"
+
+#: zenmapGUI/ScanRunDetailsPage.py:228
+msgid "Protocol:"
+msgstr "프로토콜:"
+
+#: zenmapGUI/ScanRunDetailsPage.py:231
+msgid "# scanned ports:"
+msgstr "스캔된 포트 수:"
+
+#: zenmapGUI/ScanRunDetailsPage.py:234
+msgid "Services:"
+msgstr "서비스:"
+
+#: zenmapGUI/CrashReport.py:87
+msgid "Crash Report"
+msgstr "오류 보고서"
+
+#: zenmapGUI/CrashReport.py:107
+#, python-format
+msgid ""
+"An unexpected error has crashed %(app_name)s. Please copy the stack trace "
+"below and open a bug report at https://issues.nmap.org/ The developers will "
+"see your report and try to fix the problem."
+msgstr ""
+"예기치 않은 오류로 인해 %(app_name)s이(가) 강제 종료되었습니다. 아래의 스택 트"
+"레이스(Stack Trace)를 복사하여 https://issues.nmap.org/ 에 버그 리포트를 등록"
+"해 주세요. 개발자들이 보고서를 확인하고 문제를 해결하도록 노력하겠습니다."
+
+#: zenmapGUI/CrashReport.py:114
+msgid ""
+"<b>Copy and <a href=\"https://issues.nmap.org/new/choose\">open a bug report</"
+"a></b>:"
+msgstr ""
+"<b>복사 후 <a href=\"https://issues.nmap.org/new/choose\">오류 보고서 등록하기"
+"</a></b>:"
+
+#: zenmapGUI/ScanNmapOutputPage.py:156
+msgid "Details"
+msgstr "상세 정보"
+
+#: zenmapGUI/NmapOutputProperties.py:77
+msgid "Nmap Output Properties"
+msgstr "Nmap 출력 속성"
+
+#: zenmapGUI/NmapOutputProperties.py:104
+msgid "details"
+msgstr "상세 정보"
+
+#: zenmapGUI/NmapOutputProperties.py:105
+msgid "port listing title"
+msgstr "포트 목록 제목"
+
+#: zenmapGUI/NmapOutputProperties.py:107
+msgid "open port"
+msgstr "열린 포트"
+
+#: zenmapGUI/NmapOutputProperties.py:109
+msgid "closed port"
+msgstr "닫힌 포트"
+
+#: zenmapGUI/NmapOutputProperties.py:111
+msgid "filtered port"
+msgstr "필터링된 포트"
+
+#: zenmapGUI/NmapOutputProperties.py:113
+msgid "date"
+msgstr "날짜"
+
+#: zenmapGUI/NmapOutputProperties.py:114
+msgid "hostname"
+msgstr "호스트 이름"
+
+#: zenmapGUI/NmapOutputProperties.py:159
+msgid "Highlight definitions"
+msgstr "하이라이트 정의"
+
+#: zenmapGUI/NmapOutputProperties.py:186
+msgid "Text"
+msgstr "텍스트"
+
+#: zenmapGUI/NmapOutputProperties.py:188
+msgid "Highlight"
+msgstr "하이라이트"
+
+#: zenmapGUI/NmapOutputProperties.py:204
+msgid "text color"
+msgstr "글자 색상"
+
+#: zenmapGUI/NmapOutputProperties.py:231
+msgid "highlight color"
+msgstr "하이라이트 색상"
+
+#: zenmapGUI/About.py:132
+#, python-format
+msgid "About %(nmap)s and %(zenmap)s"
+msgstr "%(nmap)s 및 %(zenmap)s 정보"
+
+#: zenmapGUI/About.py:151
+#, python-format
+msgid ""
+"%s is a free and open source utility for network exploration and security "
+"auditing."
+msgstr "%s은(는) 네트워크 탐색 및 보안 감사를 위한 무료 오픈소스 유틸리티입니다."
+
+#: zenmapGUI/About.py:156
+#, python-format
+msgid ""
+"%(zenmap)s is a multi-platform graphical %(nmap)s frontend and results viewer. "
+"It was originally derived from %(umit)s."
+msgstr ""
+"%(zenmap)s은(는) 멀티 플랫폼을 지원하는 그래픽 기반의 %(nmap)s 프론트엔드이자 "
+"결과 뷰어입니다. 본래 %(umit)s에서 파생되어 개발되었습니다."
+
+#: zenmapGUI/About.py:164
+#, python-format
+msgid ""
+"%(umit)s is a %(nmap)s GUI created as part of the Nmap/Google Summer of Code "
+"program."
+msgstr ""
+"%(umit)s은(는) Nmap/구글 서머 오브 코드(Google Summer of Code) 프로그램의 일환"
+"으로 개발된 %(nmap)s GUI입니다."
+
+#: zenmapGUI/About.py:166 zenmapGUI/About.py:208
+#, python-format
+msgid "%s credits"
+msgstr "%s 크레딧"
+
+#: zenmapGUI/About.py:250
+msgid "Written by"
+msgstr "개발자"
+
+#: zenmapGUI/About.py:252
+msgid "Design"
+msgstr "디자인"
+
+#: zenmapGUI/About.py:256
+msgid "Contributors"
+msgstr "기여자"
+
+#: zenmapGUI/About.py:258
+msgid "Translation"
+msgstr "번역"
+
+#: zenmapGUI/ScanScanListPage.py:73
+msgid "Running"
+msgstr "실행 중"
+
+#: zenmapGUI/ScanScanListPage.py:76
+msgid "Unsaved"
+msgstr "저장되지 않음"
+
+#: zenmapGUI/ScanScanListPage.py:80
+msgid "Failed"
+msgstr "실패함"
+
+#: zenmapGUI/ScanScanListPage.py:82
+msgid "Canceled"
+msgstr "취소됨"
+
+#: zenmapGUI/ScanScanListPage.py:107
+msgid "Status"
+msgstr "상태"
+
+#: zenmapGUI/ScanScanListPage.py:113
+msgid "Command"
+msgstr "명령어"
+
+#: zenmapGUI/ScanScanListPage.py:130
+msgid "Append Scan"
+msgstr "스캔 결과 덧붙이기"
+
+#: zenmapGUI/ScanScanListPage.py:133
+msgid "Remove Scan"
+msgstr "스캔 기록 삭제"
+
+#: zenmapGUI/ScanScanListPage.py:136
+msgid "Cancel Scan"
+msgstr "스캔 취소"
+
+#: zenmapGUI/TopologyPage.py:107
+msgid "Show the topology anyway"
+msgstr "그래도 토폴로지 표시"
+
+#: zenmapGUI/TopologyPage.py:140
+#, python-format
+msgid ""
+"Topology is disabled because too many hosts can cause it\n"
+"to run slowly. The limit is %(limit)d hosts and there are %(num)d."
+msgstr ""
+"호스트 수가 지나치게 많으면 시스템이 느려질 수 있어 토폴로지 기능이 비활성화되"
+"었습니다. \n"
+"제한 호스트 수는 %(limit)d대이며, 현재 %(num)d대의 호스트가 존재합니다."
+
+#: zenmapGUI/FileChoosers.py:78
+#, python-format
+msgid "All files (%s)"
+msgstr "모든 파일 (%s)"
+
+#: zenmapGUI/FileChoosers.py:88
+#, python-format
+msgid "Nmap XML files (%s)"
+msgstr "Nmap XML 파일 (%s)"
+
+#: zenmapGUI/FileChoosers.py:98
+#, python-format
+msgid "NSE scripts (%s)"
+msgstr "NSE 스크립트 (%s)"
+
+#: zenmapGUI/FileChoosers.py:158 radialnet/gui/SaveDialog.py:72
+msgid "By extension"
+msgstr "확장자 기준"
+
+#: zenmapGUI/FileChoosers.py:159
+msgid "Nmap XML format (.xml)"
+msgstr "Nmap XML 형식 (.xml)"
+
+#: zenmapGUI/FileChoosers.py:160
+msgid "Nmap text format (.nmap)"
+msgstr "Nmap 텍스트 형식 (.nmap)"
+
+#: zenmapGUI/FileChoosers.py:190 radialnet/gui/SaveDialog.py:109
+msgid "Select File Type:"
+msgstr "파일 유형 선택:"
+
+#: zenmapGUI/OptionBuilder.py:235
+msgid "Choose file"
+msgstr "파일 선택"
+
+#: zenmapGUI/ProfileEditor.py:86
+msgid "Profile Editor"
+msgstr "프로필 편집기"
+
+#: zenmapGUI/ProfileEditor.py:182
+msgid "Profile Information"
+msgstr "프로필 정보"
+
+#: zenmapGUI/ProfileEditor.py:183
+msgid "Profile name"
+msgstr "프로필 이름"
+
+#: zenmapGUI/ProfileEditor.py:188
+msgid "Description"
+msgstr "설명"
+
+#: zenmapGUI/ProfileEditor.py:204
+msgid "Save Changes"
+msgstr "변경 사항 저장"
+
+#: zenmapGUI/ProfileEditor.py:209
+msgid "Help"
+msgstr "도움말"
+
+#: zenmapGUI/ProfileEditor.py:243
+msgid "Profile"
+msgstr "프로필"
+
+#: zenmapGUI/ProfileEditor.py:305
+msgid "Unnamed profile"
+msgstr "이름 없는 프로필"
+
+#: zenmapGUI/ProfileEditor.py:307
+msgid "You must provide a name for this profile."
+msgstr "이 프로필의 이름을 지정해야 합니다."
+
+#: zenmapGUI/ProfileEditor.py:329
+msgid "Disallowed profile name"
+msgstr "허용되지 않는 프로필 이름"
+
+#: zenmapGUI/ProfileEditor.py:330
+#, python-format
+msgid ""
+"Sorry, the name \"%s\" is not allowed due to technical limitations. (The "
+"underlying ConfigParser used to store profiles does not allow it.) Choose a "
+"different name."
+msgstr ""
+"죄송합니다. 기술적인 제한으로 인해 \"%s\" 이름은 허용되지 않습니다. (프로필을 "
+"저장하는 내부 ConfigParser의 특성상 해당 이름을 사용할 수 없습니다.) 다른 이름"
+"을 선택해 주세요."
+
+#: zenmapGUI/ProfileEditor.py:355
+msgid "Deleting Profile"
+msgstr "프로필 삭제"
+
+#: zenmapGUI/ProfileEditor.py:357
+msgid ""
+"Your profile is going to be deleted! Click Ok to continue, or Cancel to go "
+"back to Profile Editor."
+msgstr ""
+"프로필이 삭제됩니다! 계속하려면 [확인]을 클릭하고, 프로필 편집기로 돌아가려면 "
+"[취소]를 클릭하세요."
+
+#: zenmapGUI/SearchWindow.py:88
+msgid "Search Scans"
+msgstr "스캔 기록 검색"
+
+#: zenmapGUI/SearchWindow.py:115
+msgid "Append"
+msgstr "병합"
+
+#: zenmapGUI/App.py:171
+msgid "Import error"
+msgstr "가져오기 오류"
+
+#: zenmapGUI/App.py:172
+msgid ""
+"A required module was not found.\n"
+"\n"
+msgstr ""
+"필요한 모듈을 찾을 수 없습니다.\n"
+"\n"
+
+#: zenmapGUI/App.py:220
+msgid "Error creating the per-user configuration directory"
+msgstr "사용자별 설정 디렉터리를 생성하는 동안 오류가 발생했습니다"
+
+#: zenmapGUI/App.py:221
+#, python-format
+msgid ""
+"There was an error creating the directory %(dirname)s or one of the files in "
+"it. The directory is created by copying the contents of %(configdir)s. The "
+"specific error was\n"
+"\n"
+"%(error)s\n"
+"\n"
+"%(zenmap)s needs to create this directory to store information such as the "
+"list of scan profiles. Check for access to the directory and try again."
+msgstr ""
+"%(dirname)s 디렉터리 또는 내부 파일을 생성하는 동안 오류가 발생했습니다. 해당 "
+"디렉터리는 %(configdir)s의 내용을 복사하여 생성됩니다. 구체적인 오류 내용은 다"
+"음과 같습니다.\n"
+"\n"
+"%(error)s\n"
+"\n"
+"%(zenmap)s은(는) 스캔 프로필 목록 등의 정보를 저장하기 위해 이 디렉터리를 생성"
+"해야 합니다. 디렉터리에 대한 접근 권한을 확인한 후 다시 시도해 주세요."
+
+#: zenmapGUI/App.py:247
+msgid "Error parsing the configuration file"
+msgstr "설정 파일 분석 오류"
+
+#: zenmapGUI/App.py:248
+#, python-format
+msgid ""
+"There was an error parsing the configuration file %(filename)s. The specific "
+"error was\n"
+"\n"
+"%(error)s\n"
+"\n"
+"%(zenmap)s can continue without this file but any information in it will be "
+"ignored until it is repaired."
+msgstr ""
+"설정 파일 %(filename)s을(를) 분석하는 동안 오류가 발생했습니다. 구체적인 오류 "
+"내용은 다음과 같습니다.\n"
+"\n"
+"%(error)s\n"
+"\n"
+"%(zenmap)s은(는) 이 파일 없이도 계속 실행할 수 있지만, 파일이 수정되기 전까지 "
+"그 안의 모든 정보는 무시됩니다."
+
+#: zenmapGUI/App.py:263
+msgid "Restore default configuration?"
+msgstr "기본 설정으로 복원하시겠습니까?"
+
+#: zenmapGUI/App.py:264
+#, python-format
+msgid ""
+"To avoid further errors parsing the configuration file %(filename)s, you can "
+"copy the default configuration from %(dirname)s.\n"
+"\n"
+"Do this now? "
+msgstr ""
+"설정 파일 %(filename)s 분석 시 추가적인 오류가 발생하는 것을 방지하기 위해, "
+"%(dirname)s에서 기본 설정을 복사해 올 수 있습니다.\n"
+"\n"
+"지금 진행하시겠습니까? "
+
+#: zenmapGUI/App.py:323
+#, python-format
+msgid ""
+"You are trying to run %(zenmap)s with a non-root user!\n"
+"\n"
+"Some %(nmap)s options need root privileges to work."
+msgstr ""
+"현재 %(zenmap)s을(를) root(관리자)가 아닌 일반 사용자로 실행하고 있습니다!\n"
+"\n"
+"일부 %(nmap)s 옵션은 정상적으로 작동하기 위해 root(관리자) 권한이 필요합니다."
+
+#: zenmapGUI/App.py:328
+msgid "Non-root user"
+msgstr "일반 사용자"
+
+#: zenmapGUI/ScanHostDetailsPage.py:126
+msgid "Host Status"
+msgstr "호스트 상태"
+
+#: zenmapGUI/ScanHostDetailsPage.py:127
+msgid "Addresses"
+msgstr "주소"
+
+#: zenmapGUI/ScanHostDetailsPage.py:128
+msgid "Hostnames"
+msgstr "호스트 이름"
+
+#: zenmapGUI/ScanHostDetailsPage.py:129 radialnet/gui/NodeNotebook.py:371
+msgid "Operating System"
+msgstr "운영체제"
+
+#: zenmapGUI/ScanHostDetailsPage.py:131
+msgid "Ports used"
+msgstr "사용된 포트"
+
+#: zenmapGUI/ScanHostDetailsPage.py:132
+msgid "OS Classes"
+msgstr "OS 분류"
+
+#: zenmapGUI/ScanHostDetailsPage.py:133
+msgid "TCP Sequence"
+msgstr "TCP 시퀀스"
+
+#: zenmapGUI/ScanHostDetailsPage.py:134
+msgid "IP ID Sequence"
+msgstr "IP ID 시퀀스"
+
+#: zenmapGUI/ScanHostDetailsPage.py:136
+msgid "TCP TS Sequence"
+msgstr "TCP 타임스탬프 시퀀스"
+
+#: zenmapGUI/ScanHostDetailsPage.py:137
+msgid "Comments"
+msgstr "메모"
+
+#: zenmapGUI/ScanHostDetailsPage.py:142
+msgid "State:"
+msgstr "상태:"
+
+#: zenmapGUI/ScanHostDetailsPage.py:154
+msgid "Scanned ports:"
+msgstr "스캔된 포트:"
+
+#: zenmapGUI/ScanHostDetailsPage.py:157
+msgid "Up time:"
+msgstr "가동 시간:"
+
+#: zenmapGUI/ScanHostDetailsPage.py:160 radialnet/gui/NodeNotebook.py:421
+msgid "Last boot:"
+msgstr "마지막 부팅:"
+
+#: zenmapGUI/ScanHostDetailsPage.py:173
+msgid "Vendor:"
+msgstr "제조사:"
+
+#: zenmapGUI/ScanHostDetailsPage.py:297
+msgid "Name - Type:"
+msgstr "이름 - 유형:"
+
+#: zenmapGUI/ScanHostDetailsPage.py:316
+msgid "Not Available"
+msgstr "정보 없음"
+
+#: zenmapGUI/ScanHostDetailsPage.py:318
+msgid "Name:"
+msgstr "이름:"
+
+#: zenmapGUI/ScanHostDetailsPage.py:321
+msgid "Accuracy:"
+msgstr "정확도:"
+
+#: zenmapGUI/ScanHostDetailsPage.py:350
+msgid "Port-Protocol-State:"
+msgstr "포트-프로토콜-상태:"
+
+#: zenmapGUI/ScanHostDetailsPage.py:364 radialnet/gui/NodeNotebook.py:96
+msgid "Type"
+msgstr "유형"
+
+#: zenmapGUI/ScanHostDetailsPage.py:365 radialnet/gui/NodeNotebook.py:96
+msgid "Vendor"
+msgstr "제조사"
+
+#: zenmapGUI/ScanHostDetailsPage.py:366
+msgid "OS Family"
+msgstr "OS 제품군"
+
+#: zenmapGUI/ScanHostDetailsPage.py:367
+msgid "OS Generation"
+msgstr "OS 세대"
+
+#: zenmapGUI/ScanHostDetailsPage.py:368
+msgid "Accuracy"
+msgstr "정확도"
+
+#: zenmapGUI/ScanHostDetailsPage.py:397
+msgid "Difficulty:"
+msgstr "예측 난이도:"
+
+#: zenmapGUI/ScanHostDetailsPage.py:400
+msgid "Index:"
+msgstr "인덱스:"
+
+#: zenmapGUI/ScanHostDetailsPage.py:403 zenmapGUI/ScanHostDetailsPage.py:422
+#: zenmapGUI/ScanHostDetailsPage.py:441
+msgid "Values:"
+msgstr "값:"
+
+#: zenmapGUI/ScanHostDetailsPage.py:419 zenmapGUI/ScanHostDetailsPage.py:438
+msgid "Class:"
+msgstr "클래스:"
+
+#: radialnet/gui/Toolbar.py:93
+msgid "Hosts viewer"
+msgstr "호스트 뷰어"
+
+#: radialnet/gui/Toolbar.py:162
+msgid "Save Graphic"
+msgstr "그래픽 저장"
+
+#: radialnet/gui/Toolbar.py:165 radialnet/gui/HostsViewer.py:88
+msgid "Hosts Viewer"
+msgstr "호스트 뷰어"
+
+#: radialnet/gui/Toolbar.py:169
+msgid "Controls"
+msgstr "조작"
+
+#: radialnet/gui/Toolbar.py:173
+msgid "Fisheye"
+msgstr "어안 렌즈"
+
+#: radialnet/gui/Toolbar.py:177
+msgid "Legend"
+msgstr "범례"
+
+#: radialnet/gui/Toolbar.py:260
+msgid "Error saving snapshot"
+msgstr "스냅샷 저장 오류"
+
+#: radialnet/gui/NodeNotebook.py:72
+msgid "Method"
+msgstr "방법"
+
+#: radialnet/gui/NodeNotebook.py:73
+msgid "Count"
+msgstr "개수"
+
+#: radialnet/gui/NodeNotebook.py:73
+msgid "Reasons"
+msgstr "이유"
+
+#: radialnet/gui/NodeNotebook.py:86
+#, python-format
+msgid ""
+"Traceroute on port <b>%(port)s/%(proto)s</b> took <b>%(hops)d</b> known hops."
+msgstr ""
+"<b>%(port)s/%(proto)s</b> 포트에 대한 경로 추적(Traceroute) 결과, 확인된 홉"
+"(Hop) 수는 총 <b>%(hops)d</b>단계입니다."
+
+#: radialnet/gui/NodeNotebook.py:88
+msgid "No traceroute information available."
+msgstr "사용 가능한 경로 추적 정보가 없습니다."
+
+#: radialnet/gui/NodeNotebook.py:95
+msgid "Name"
+msgstr "이름"
+
+#: radialnet/gui/NodeNotebook.py:95
+msgid "DB Line"
+msgstr "DB 라인"
+
+#: radialnet/gui/NodeNotebook.py:96
+msgid "Family"
+msgstr "제품군"
+
+#: radialnet/gui/NodeNotebook.py:100
+#, python-format
+msgid ""
+"<b>*</b> TCP sequence <i>index</i> equal to %(index)d and <i>difficulty</i> is "
+"\"%(difficulty)s\"."
+msgstr ""
+"<b>*</b> TCP 시퀀스 <i>인덱스</i>는 %(index)d이며 <i>예측 난이도</i>는 "
+"\"%(difficulty)s\"입니다."
+
+#: radialnet/gui/NodeNotebook.py:134
+msgid "General"
+msgstr "일반"
+
+#: radialnet/gui/NodeNotebook.py:136
+msgid "Traceroute"
+msgstr "경로 추적"
+
+#: radialnet/gui/NodeNotebook.py:178
+#, python-format
+msgid "Ports (%s)"
+msgstr "포트 (%s)"
+
+#: radialnet/gui/NodeNotebook.py:196 radialnet/gui/NodeNotebook.py:704
+msgid "<unknown>"
+msgstr "<알 수 없음>"
+
+#: radialnet/gui/NodeNotebook.py:198
+msgid "<none>"
+msgstr "<없음>"
+
+#: radialnet/gui/NodeNotebook.py:223
+#, python-format
+msgid "[%(port)d] service: %(servicefp)s"
+msgstr "[%(port)d] 서비스: %(servicefp)s"
+
+#: radialnet/gui/NodeNotebook.py:228
+msgid "<special field>"
+msgstr "<특수 필드>"
+
+#: radialnet/gui/NodeNotebook.py:328
+#, python-format
+msgid "Extraports (%s)"
+msgstr "기타 포트 (%s)"
+
+#: radialnet/gui/NodeNotebook.py:335
+msgid "Special fields"
+msgstr "특수 필드"
+
+#: radialnet/gui/NodeNotebook.py:369
+msgid "General information"
+msgstr "일반 정보"
+
+#: radialnet/gui/NodeNotebook.py:370
+msgid "Sequences"
+msgstr "시퀸스"
+
+#: radialnet/gui/NodeNotebook.py:373
+msgid "No sequence information."
+msgstr "시퀀스 정보가 없습니다."
+
+#: radialnet/gui/NodeNotebook.py:374
+msgid "No OS information."
+msgstr "OS 정보가 없습니다."
+
+#: radialnet/gui/NodeNotebook.py:379
+msgid "Address:"
+msgstr "주소:"
+
+#: radialnet/gui/NodeNotebook.py:402
+msgid "Hostname:"
+msgstr "호스트 이름:"
+
+#: radialnet/gui/NodeNotebook.py:423
+#, python-format
+msgid "%(lastboot)s (%(seconds)s seconds)."
+msgstr "%(lastboot)s (%(seconds)s초)."
+
+#: radialnet/gui/NodeNotebook.py:486
+msgid "Match"
+msgstr "일치"
+
+#: radialnet/gui/NodeNotebook.py:527 radialnet/gui/NodeNotebook.py:577
+msgid "Class"
+msgstr "클래스"
+
+#: radialnet/gui/NodeNotebook.py:535
+msgid "Used ports:"
+msgstr "사용된 포트:"
+
+#: radialnet/gui/NodeNotebook.py:558
+msgid "Fingerprint"
+msgstr "지문"
+
+#: radialnet/gui/NodeNotebook.py:578
+msgid "Values"
+msgstr "값"
+
+#: radialnet/gui/NodeNotebook.py:582
+msgid "TCP Timestamp"
+msgstr "TCP 타임스탬프"
+
+#: radialnet/gui/LegendWindow.py:140
+msgid "Topology Legend"
+msgstr "토폴로지 범례"
+
+#: radialnet/gui/LegendWindow.py:150
+msgid "View full legend online"
+msgstr "온라인에서 전체 범례 보기"
+
+#: radialnet/gui/LegendWindow.py:162
+msgid "host was not port scanned"
+msgstr "포트 스캔이 수행되지 않은 호스트"
+
+#: radialnet/gui/LegendWindow.py:166
+msgid "host with fewer than 3 open ports"
+msgstr "열린 포트가 3개 미만인 호스트"
+
+#: radialnet/gui/LegendWindow.py:170
+msgid "host with 3 to 6 open ports"
+msgstr "열린 포트가 3개~6개인 호스트"
+
+#: radialnet/gui/LegendWindow.py:174
+msgid "host with more than 6 open ports"
+msgstr "열린 포트가 6개 초과인 호스트"
+
+#: radialnet/gui/LegendWindow.py:189
+msgid "host is a router, switch, or WAP"
+msgstr "라우터, 스위치 또는 WAP인 호스트"
+
+#: radialnet/gui/LegendWindow.py:193
+msgid "Traceroute connections"
+msgstr "경로 추적(Traceroute) 연결 선"
+
+#: radialnet/gui/LegendWindow.py:197
+msgid "Thicker line means higher round-trip time"
+msgstr "선이 굵을수록 왕복 시간(RTT)이 길어짐을 의미"
+
+#: radialnet/gui/LegendWindow.py:201
+msgid "primary traceroute connection"
+msgstr "기본 경로 추적 연결"
+
+#: radialnet/gui/LegendWindow.py:205
+msgid "alternate path"
+msgstr "대체 경로"
+
+#: radialnet/gui/LegendWindow.py:209
+msgid "no traceroute information"
+msgstr "경로 추적 정보 없음"
+
+#: radialnet/gui/LegendWindow.py:217
+msgid "missing traceroute hop"
+msgstr "누락된 경로 추적 홉"
+
+#: radialnet/gui/LegendWindow.py:221
+msgid "Additional host icons"
+msgstr "추가 호스트 아이콘"
+
+#: radialnet/gui/LegendWindow.py:225
+msgid "router"
+msgstr "라우터"
+
+#: radialnet/gui/LegendWindow.py:229
+msgid "switch"
+msgstr "스위치"
+
+#: radialnet/gui/LegendWindow.py:234
+msgid "wireless access point"
+msgstr "무선 액세스 포인트(WAP)"
+
+#: radialnet/gui/LegendWindow.py:238
+msgid "firewall"
+msgstr "방화벽"
+
+#: radialnet/gui/LegendWindow.py:243
+msgid "host with some filtered ports"
+msgstr "일부 필터링된 포트가 있는 호스트"
+
+#: radialnet/gui/SaveDialog.py:89
+msgid "Save Topology"
+msgstr "토폴로지 저장"
+
+#: radialnet/gui/SaveDialog.py:143
+msgid "No filename extension"
+msgstr "확장자 미지정"
+
+#: radialnet/gui/SaveDialog.py:144
+#, python-format
+msgid ""
+"The filename \"%s\" does not have an extension, and no specific file type was "
+"chosen.\n"
+"Enter a known extension or select the file type from the list."
+msgstr ""
+"%s 파일에 확장자가 없으며, 지정된 파일 형식도 없습니다. 알맞은 확장자를 입력하"
+"거나 목록에서 파일 형식을 선택해 주세요."
+
+#: radialnet/gui/SaveDialog.py:151
+msgid "Unknown filename extension"
+msgstr "알 수 없는 파일 확장자"
+
+#: radialnet/gui/SaveDialog.py:152
+#, python-format
+msgid ""
+"There is no file type known for the filename extension \"%s\".\n"
+"Enter a known extension or select the file type from the list."
+msgstr "'%s' 대신 올바른 확장자를 입력하거나 목록에서 파일 형식을 선택하십시오."
+
+#: radialnet/gui/ControlWidget.py:118
+msgid "Action"
+msgstr "동작"
+
+#: radialnet/gui/ControlWidget.py:161
+msgid "Red"
+msgstr "빨간색"
+
+#: radialnet/gui/ControlWidget.py:162
+msgid "Yellow"
+msgstr "노란색"
+
+#: radialnet/gui/ControlWidget.py:163
+msgid "Green"
+msgstr "초록색"
+
+#: radialnet/gui/ControlWidget.py:468
+msgid "<b>Fisheye</b> on ring"
+msgstr "링 위의 <b>어안</b>"
+
+#: radialnet/gui/ControlWidget.py:482
+msgid "with interest factor"
+msgstr "관심 계수 기준"
+
+#: radialnet/gui/ControlWidget.py:487
+msgid "and spread factor"
+msgstr "확산 계수 기준"
+
+#: radialnet/gui/ControlWidget.py:592
+msgid "Interpolation"
+msgstr "보간"
+
+#: radialnet/gui/ControlWidget.py:604
+msgid "Cartesian"
+msgstr "직교 좌표계"
+
+#: radialnet/gui/ControlWidget.py:606
+msgid "Polar"
+msgstr "극좌표"
+
+#: radialnet/gui/ControlWidget.py:619
+msgid "Frames"
+msgstr "프레임"
+
+#: radialnet/gui/ControlWidget.py:674
+msgid "Layout"
+msgstr "레이아웃"
+
+#: radialnet/gui/ControlWidget.py:686
+msgid "Symmetric"
+msgstr "대칭"
+
+#: radialnet/gui/ControlWidget.py:687
+msgid "Weighted"
+msgstr "가중치 적용"
+
+#: radialnet/gui/ControlWidget.py:742
+msgid "Ring gap"
+msgstr "링 간격"
+
+#: radialnet/gui/ControlWidget.py:746
+msgid "Lower ring gap"
+msgstr "하단 링 간격"
+
+#: radialnet/gui/ControlWidget.py:893
+msgid "View"
+msgstr "보기"
+
+#: radialnet/gui/ControlWidget.py:905
+msgid "Zoom"
+msgstr "확대/축소"
+
+#: radialnet/gui/ControlWidget.py:1126
+msgid "Navigation"
+msgstr "네비게이션"
+
+#: radialnet/gui/HostsViewer.py:92
+msgid "No node selected"
+msgstr "선택된 노드 없음"
+
+#: radialnet/bestwidgets/windows.py:82
+msgid "Alert"
+msgstr "알림"
+
+#: zenmapCore/data/misc/profile_editor.xml:9
+msgid "Ping"
+msgstr "핑"
+
+#: zenmapCore/data/misc/profile_editor.xml:10
+msgid "Scripting"
+msgstr "스크립팅"
+
+#: zenmapCore/data/misc/profile_editor.xml:11
+msgid "Target"
+msgstr "대상"
+
+#: zenmapCore/data/misc/profile_editor.xml:12
+msgid "Source"
+msgstr "출발지"
+
+#: zenmapCore/data/misc/profile_editor.xml:13
+msgid "Other"
+msgstr "기타"
+
+#: zenmapCore/data/misc/profile_editor.xml:14
+msgid "Timing"
+msgstr "타이밍"
+
+#: zenmapCore/data/misc/profile_editor.xml:16
+msgid "Scan options"
+msgstr "스캔 옵션"
+
+#: zenmapCore/data/misc/profile_editor.xml:17
+msgid "Targets (optional): "
+msgstr "대상(선택 사항): "
+
+#: zenmapCore/data/misc/profile_editor.xml:18
+msgid "TCP scan: "
+msgstr "TCP 스캔: "
+
+#: zenmapCore/data/misc/profile_editor.xml:19
+#: zenmapCore/data/misc/profile_editor.xml:30
+#: zenmapCore/data/misc/profile_editor.xml:40
+msgid "None"
+msgstr "없음"
+
+#: zenmapCore/data/misc/profile_editor.xml:20
+msgid ""
+"Send probes with the ACK flag set. Ports will be marked \"filtered\" or "
+"\"unfiltered\". Use ACK scan to map out firewall rulesets."
+msgstr ""
+"ACK 플래그가 설정된 프로브를 전송합니다. 포트는 \"필터링됨(filtered)\" 또는 "
+"\"필터링되지 않음(unfiltered)\"으로 표시됩니다. 방화벽 규칙 세트를 매핑하려면 "
+"ACK 스캔을 사용하십시오."
+
+#: zenmapCore/data/misc/profile_editor.xml:20
+msgid "ACK scan"
+msgstr "ACK 스캔"
+
+#: zenmapCore/data/misc/profile_editor.xml:21
+msgid ""
+"Send probes with the FIN bit set. FIN scan can differentiate \"closed\" and "
+"\"open|filtered\" ports on some systems."
+msgstr ""
+"FIN 비트가 설정된 프로브를 전송합니다. 일부 시스템에서 FIN 스캔은 \"닫힘"
+"(closed)\" 포트와 \"열림|필터링됨(open|filtered)\" 포트를 구분할 수 있습니다."
+
+#: zenmapCore/data/misc/profile_editor.xml:21
+msgid "FIN scan"
+msgstr "FIN 스캔"
+
+#: zenmapCore/data/misc/profile_editor.xml:22
+msgid ""
+"Send probes with the FIN and ACK bits set. Against some BSD-derived systems "
+"this can differentiate between \"closed\" and \"open|filtered\" ports."
+msgstr ""
+"FIN 및 ACK 비트가 설정된 프로브를 전송합니다. 일부 BSD 계열 시스템을 대상으로 "
+"\"닫힘(closed)\" 포트와 \"열림|필터링됨(open|filtered)\" 포트를 구분할 수 있습"
+"니다."
+
+#: zenmapCore/data/misc/profile_editor.xml:22
+msgid "Maimon scan"
+msgstr "Maimon 스캔"
+
+#: zenmapCore/data/misc/profile_editor.xml:23
+msgid ""
+"Send probes with no flags set (TCP flag header is 0). Null scan can "
+"differentiate \"closed\" and \"open|filtered\" ports on some systems."
+msgstr ""
+"플래그가 설정되지 않은(TCP 플래그 헤더가 0인) 프로브를 전송합니다. 일부 시스템"
+"에서 널 스캔은 \"닫힘(closed)\" 포트와 \"열림|필터링됨(open|filtered)\" 포트를 "
+"구분할 수 있습니다."
+
+#: zenmapCore/data/misc/profile_editor.xml:23
+msgid "Null scan"
+msgstr "Null 스캔"
+
+#: zenmapCore/data/misc/profile_editor.xml:24
+msgid ""
+"Send probes with the SYN flag set. This is the most popular scan and the most "
+"generally useful. It is known as a \"stealth\" scan because it avoids making a "
+"full TCP connection."
+msgstr ""
+"SYN 플래그가 설정된 프로브를 전송합니다. 가장 널리 사용되고 전반적으로 가장 유"
+"용한 스캔입니다. 완전한 TCP 연결을 맺지 않으므로 \"스텔스(stealth)\" 스캔으로 "
+"알려져 있습니다."
+
+#: zenmapCore/data/misc/profile_editor.xml:24
+msgid "TCP SYN scan"
+msgstr "TCP SYN 스캔"
+
+#: zenmapCore/data/misc/profile_editor.xml:25
+msgid ""
+"Scan using the connect system call. This is like SYN scan but less stealthy "
+"because it makes a full TCP connection. It is the default when a user does not "
+"have raw packet privileges or is scanning IPv6 networks."
+msgstr ""
+"connect시스템 호출을 사용하여 스캔합니다. SYN 스캔과 유사하지만 완전한 TCP 연결"
+"을 맺기 때문에 스텔스성이 떨어집니다. 사용자가 원시 패킷(raw packet) 권한이 없"
+"거나 IPv6 네트워크를 스캔할 때 기본값으로 사용됩니다."
+
+#: zenmapCore/data/misc/profile_editor.xml:25
+msgid "TCP connect scan"
+msgstr "TCP 연결 스캔"
+
+#: zenmapCore/data/misc/profile_editor.xml:26
+msgid ""
+"Same as ACK scan except that it exploits an implementation detail of certain "
+"systems to differentiate open ports from closed ones, rather than always "
+"printing \"unfiltered\" when a RST is returned. "
+msgstr ""
+"ACK 스캔과 동일하지만, RST 패킷이 반환될 때 항상 \"필터링되지 않음(unfiltered)"
+"\"으로 표시하는 대신 특정 시스템의 구현 세부 사항을 활용하여 열린 포트와 닫힌 "
+"포트를 구분합니다. "
+
+#: zenmapCore/data/misc/profile_editor.xml:26
+msgid "Window scan"
+msgstr "TCP 윈도우 스캔"
+
+#: zenmapCore/data/misc/profile_editor.xml:27
+msgid ""
+"Send probes with the FIN, PSH, and URG flags set, lighting the packets up like "
+"a Christmas tree. Xmas tree scan can differentiate \"closed\" and \"open|"
+"filtered\" ports on some systems."
+msgstr ""
+"FIN, PSH, URG 플래그가 설정된 프로브를 전송하여 패킷을 크리스마스트리처럼 밝힙"
+"니다. 크리스마스 스캔은 일부 시스템에서 \"닫힘(closed)\" 포트와 \"열림|필터링됨"
+"(open|filtered)\" 포트를 구분할 수 있습니다."
+
+#: zenmapCore/data/misc/profile_editor.xml:27
+msgid "Xmas Tree scan"
+msgstr "크리스마스 스캔"
+
+#: zenmapCore/data/misc/profile_editor.xml:29
+msgid "Non-TCP scans: "
+msgstr "비 TCP 스캔: "
+
+#: zenmapCore/data/misc/profile_editor.xml:31
+msgid ""
+"Scan UDP ports. UDP is in general slower and more difficult to scan than TCP, "
+"and is often ignored by security auditors."
+msgstr ""
+"UDP 포트를 스캔합니다. UDP는 일반적으로 TCP보다 스캔하기가 더 느리고 어려우며, "
+"보안 감사자들에 의해 자주 간과됩니다."
+
+#: zenmapCore/data/misc/profile_editor.xml:31
+msgid "UDP scan"
+msgstr "UDP 스캔"
+
+#: zenmapCore/data/misc/profile_editor.xml:32
+msgid ""
+"Scan IP protocols (TCP, ICMP, IGMP, etc.) to find which are supported by "
+"target machines."
+msgstr ""
+"대상 컴퓨터에서 어떤 IP 프로토콜(TCP, ICMP, IGMP 등)을 지원하는지 찾기 위해 스"
+"캔합니다."
+
+#: zenmapCore/data/misc/profile_editor.xml:32
+msgid "IP protocol scan"
+msgstr "IP 프로토콜 스캔"
+
+#: zenmapCore/data/misc/profile_editor.xml:33
+msgid ""
+"Do not scan any targets, just list which ones would be scanned (with reverse "
+"DNS names if available)."
+msgstr ""
+"대상을 스캔하지 않고, 스캔할 대상의 목록만 나열합니다(가능한 경우 역방향 DNS 이"
+"름도 포함)."
+
+#: zenmapCore/data/misc/profile_editor.xml:33
+msgid "List scan"
+msgstr "목록 스캔"
+
+#: zenmapCore/data/misc/profile_editor.xml:34
+msgid ""
+"Skip the port scanning phase. Other phases (host discovery, script scan, "
+"traceroute) may still run."
+msgstr ""
+"포트 스캔 단계를 건너뜁니다. 다른 단계(호스트 검색, 스크립트 스캔, 추적 경로)"
+"는 여전히 실행될 수 있습니다."
+
+#: zenmapCore/data/misc/profile_editor.xml:34
+msgid "No port scan"
+msgstr "포트 스캔 안 함"
+
+#: zenmapCore/data/misc/profile_editor.xml:35
+msgid ""
+"SCTP is a layer 4 protocol used mostly for telephony related applications.  "
+"This is the SCTP equivalent of a TCP SYN stealth scan."
+msgstr ""
+"SCTP는 주로 전화 통신 관련 애플리케이션에 사용되는 4계층 프로토콜입니다. 이는 "
+"TCP SYN 스텔스 스캔에 대응하는 SCTP 버전입니다."
+
+#: zenmapCore/data/misc/profile_editor.xml:35
+msgid "SCTP INIT port scan"
+msgstr "SCTP INIT 포트 스캔"
+
+#: zenmapCore/data/misc/profile_editor.xml:36
+msgid ""
+"SCTP is a layer 4 protocol used mostly for telephony related applications."
+msgstr "SCTP는 주로 전화 통신 관련 애플리케이션에 사용되는 4계층 프로토콜입니다."
+
+#: zenmapCore/data/misc/profile_editor.xml:36
+msgid "SCTP cookie-echo port scan"
+msgstr "SCTP COOKIE-ECHO 포트 스캔"
+
+#: zenmapCore/data/misc/profile_editor.xml:39
+msgid "Timing template: "
+msgstr "타이밍 템플릿: "
+
+#: zenmapCore/data/misc/profile_editor.xml:41
+#: zenmapCore/data/misc/profile_editor.xml:42
+msgid "Set the timing template for IDS evasion."
+msgstr "IDS 회피를 위한 타이밍 템플릿을 설정합니다."
+
+#: zenmapCore/data/misc/profile_editor.xml:41
+msgid "Paranoid"
+msgstr "망상(Paranoid)"
+
+#: zenmapCore/data/misc/profile_editor.xml:42
+msgid "Sneaky"
+msgstr "잠입(Sneaky)"
+
+#: zenmapCore/data/misc/profile_editor.xml:43
+msgid ""
+"Set the timing template to slow down the scan to use less bandwidth and target "
+"machine resources."
+msgstr ""
+"대역폭과 대상 컴퓨터의 자원을 덜 사용하도록 스캔 속도를 늦추는 타이밍 템플릿을 "
+"설정합니다."
+
+#: zenmapCore/data/misc/profile_editor.xml:43
+msgid "Polite"
+msgstr "공손(Polite)"
+
+#: zenmapCore/data/misc/profile_editor.xml:44
+msgid "Set the timing template to not modify the default Nmap value."
+msgstr "Nmap 기본값을 수정하지 않도록 타이밍 템플릿을 설정합니다."
+
+#: zenmapCore/data/misc/profile_editor.xml:44
+msgid "Normal"
+msgstr "보통(Normal)"
+
+#: zenmapCore/data/misc/profile_editor.xml:45
+msgid ""
+"Set the timing template for faster scan. Used when on a reasonably fast and "
+"reliable network."
+msgstr ""
+"더 빠른 스캔을 위한 타이밍 템플릿을 설정합니다. 상당히 빠르고 신뢰할 수 있는 네"
+"트워크에 있을 때 사용됩니다."
+
+#: zenmapCore/data/misc/profile_editor.xml:45
+msgid "Aggressive"
+msgstr "공격적(Aggressive)"
+
+#: zenmapCore/data/misc/profile_editor.xml:46
+msgid ""
+"Set the timing template for the fastest scan. Used when on a fast network or "
+"when willing to sacrifice accuracy for speed."
+msgstr ""
+"가장 빠른 스캔을 위한 타이밍 템플릿을 설정합니다. 빠른 네트워크에 있거나 속도"
+"를 위해 정확도를 희생할 의향이 있을 때 사용됩니다."
+
+#: zenmapCore/data/misc/profile_editor.xml:46
+msgid "Insane"
+msgstr "광기(Insane)"
+
+#: zenmapCore/data/misc/profile_editor.xml:48
+msgid ""
+"Enable OS detection (-O), version detection (-sV), script scanning (-sC), and "
+"traceroute (--traceroute)."
+msgstr ""
+"OS 탐지(-O), 버전 탐지(-sV), 스크립트 스캔(-sC) 및 경로 추적(--traceroute)을 활"
+"성화합니다."
+
+#: zenmapCore/data/misc/profile_editor.xml:48
+msgid "Enable all advanced/aggressive options"
+msgstr "모든 고급/공격적 옵션을 활성화합니다"
+
+#: zenmapCore/data/misc/profile_editor.xml:49
+msgid "Attempt to discover the operating system running on remote systems."
+msgstr "원격 시스템에서 실행 중인 운영체제 탐지를 시도합니다."
+
+#: zenmapCore/data/misc/profile_editor.xml:49
+msgid "Operating system detection"
+msgstr "운영체제 탐지"
+
+#: zenmapCore/data/misc/profile_editor.xml:50
+msgid ""
+"Attempt to discover the version number of services running on remote ports."
+msgstr "원격 포트에서 실행 중인 서비스의 버전 번호 탐지를 시도합니다."
+
+#: zenmapCore/data/misc/profile_editor.xml:50
+msgid "Version detection"
+msgstr "버전 탐지"
+
+#: zenmapCore/data/misc/profile_editor.xml:51
+msgid ""
+"Scan by spoofing packets from a zombie computer so that the targets receive no "
+"packets from your IP address. The zombie must meet certain conditions which "
+"Nmap will check before scanning."
+msgstr ""
+"대상 컴퓨터가 사용자의 IP 주소로부터 어떤 패킷도 받지 않도록 좀비 컴퓨터의 패킷"
+"을 스포핑하여 스캔합니다. 좀비 컴퓨터는 Nmap이 스캔 전에 확인할 특정 조건들을 "
+"충족해야 합니다."
+
+#: zenmapCore/data/misc/profile_editor.xml:51
+msgid "Idle Scan (Zombie)"
+msgstr "유휴 스캔(Zombie)"
+
+#: zenmapCore/data/misc/profile_editor.xml:52
+msgid ""
+"Use an FTP server to port scan other hosts by sending a file to each "
+"interesting port of a target host."
+msgstr ""
+"대상의 관심 있는 각 포트로 파일을 전송하여, FTP 서버를 통해 다른 호스트를 포트 "
+"스캔합니다."
+
+#: zenmapCore/data/misc/profile_editor.xml:52
+msgid "FTP bounce attack"
+msgstr "FTP 바운스 공격"
+
+#: zenmapCore/data/misc/profile_editor.xml:53
+msgid "Never do reverse DNS. This can slash scanning times."
+msgstr ""
+"역방향 DNS를 전혀 수행하지 않습니다. 스캔 시간을 크게 단축할 수 있습니다."
+
+#: zenmapCore/data/misc/profile_editor.xml:53
+msgid "Disable reverse DNS resolution"
+msgstr "역방향 DNS 분석 비활성화"
+
+#: zenmapCore/data/misc/profile_editor.xml:54
+msgid "Enable IPv6 scanning."
+msgstr "IPv6 스캔을 활성화합니다."
+
+#: zenmapCore/data/misc/profile_editor.xml:54
+msgid "IPv6 support"
+msgstr "IPv6 지원"
+
+#: zenmapCore/data/misc/profile_editor.xml:56
+msgid "Ping options"
+msgstr "핑(Ping) 옵션"
+
+#: zenmapCore/data/misc/profile_editor.xml:57
+msgid ""
+"Don't check if targets are up before scanning them. Scan every target listed."
+msgstr ""
+"스캔 전에 대상이 활성화되어 있는지 확인하지 않습니다. 목록에 있는 모든 대상을 "
+"스캔합니다."
+
+#: zenmapCore/data/misc/profile_editor.xml:57
+msgid "Don't ping before scanning"
+msgstr "스캔 전 핑(Ping) 미수행"
+
+#: zenmapCore/data/misc/profile_editor.xml:58
+msgid "Send an ICMP echo request (ping) probe to see if targets are up."
+msgstr ""
+"대상이 활성화되어 있는지 확인하기 위해 ICMP 에코 요청(핑) 프로브를 전송합니다."
+
+#: zenmapCore/data/misc/profile_editor.xml:58
+msgid "ICMP ping"
+msgstr "ICMP 핑(Ping)"
+
+#: zenmapCore/data/misc/profile_editor.xml:59
+msgid "Send an ICMP timestamp probe to see if targets are up."
+msgstr ""
+"대상이 활성화되어 있는지 확인하기 위해 ICMP 타임스탬프 프로브를 전송합니다."
+
+#: zenmapCore/data/misc/profile_editor.xml:59
+msgid "ICMP timestamp request"
+msgstr "ICMP 타임스탬프 요청"
+
+#: zenmapCore/data/misc/profile_editor.xml:60
+msgid "Send an ICMP address mask request probe to see if targets are up."
+msgstr ""
+"대상이 활성화되어 있는지 확인하기 위해 ICMP 주소 마스크 요청 프로브를 전송합니"
+"다."
+
+#: zenmapCore/data/misc/profile_editor.xml:60
+msgid "ICMP netmask request"
+msgstr "ICMP 넷마스크 요청"
+
+#: zenmapCore/data/misc/profile_editor.xml:61
+msgid ""
+"Send one or more ACK probes to see if targets are up. Give a list of ports or "
+"leave the argument blank to use a default port."
+msgstr ""
+"대상이 활성화되어 있는지 확인하기 위해 하나 이상의 ACK 프로브를 전송합니다. 포"
+"트 목록을 지정하거나 빈칸으로 두어 기본 포트를 사용할 수 있습니다."
+
+#: zenmapCore/data/misc/profile_editor.xml:61
+msgid "ACK ping"
+msgstr "TCP ACK 핑(Ping)"
+
+#: zenmapCore/data/misc/profile_editor.xml:62
+msgid ""
+"Send one or more SYN probes to see if targets are up. Give a list of ports or "
+"leave the argument blank to use a default port."
+msgstr ""
+"대상이 활성화되어 있는지 확인하기 위해 하나 이상의 SYN 프로브를 전송합니다. 포"
+"트 목록을 지정하거나 빈칸으로 두어 기본 포트를 사용할 수 있습니다."
+
+#: zenmapCore/data/misc/profile_editor.xml:62
+msgid "SYN ping"
+msgstr "TCP SYN 핑(Ping)"
+
+#: zenmapCore/data/misc/profile_editor.xml:63
+msgid ""
+"Send one or more UDP probes to see if targets are up. Give a list of ports or "
+"leave the argument blank to use a default port."
+msgstr ""
+"대상이 활성화되어 있는지 확인하기 위해 하나 이상의 UDP 프로브를 전송합니다. 포"
+"트 목록을 지정하거나 빈칸으로 두어 기본 포트를 사용할 수 있습니다."
+
+#: zenmapCore/data/misc/profile_editor.xml:63
+msgid "UDP probes"
+msgstr "UDP 프로브"
+
+#: zenmapCore/data/misc/profile_editor.xml:64
+msgid ""
+"Send one or more raw IP protocol probes to see if targets are up. Give a list "
+"of protocols or leave the argument blank to use a default list"
+msgstr ""
+"대상이 활성화되어 있는지 확인하기 위해 하나 이상의 raw IP 프로토콜 프로브를 전"
+"송합니다. 프로토콜 목록을 지정하거나 빈칸으로 두어 기본 목록을 사용할 수 있습니"
+"다."
+
+#: zenmapCore/data/misc/profile_editor.xml:64
+msgid "IPProto probes"
+msgstr "IP 프로토콜 프로브"
+
+#: zenmapCore/data/misc/profile_editor.xml:65
+msgid ""
+"Send SCTP INIT chunk packets to see if targets are up.  Give a list of ports "
+"or leave the argument blank to use a default port."
+msgstr ""
+"대상이 활성화되어 있는지 확인하기 위해 SCTP INIT 청크 패킷을 전송합니다. 포트 "
+"목록을 지정하거나 빈칸으로 두어 기본 포트를 사용할 수 있습니다."
+
+#: zenmapCore/data/misc/profile_editor.xml:65
+msgid "SCTP INIT ping probes"
+msgstr "SCTP INIT 핑 프로브"
+
+#: zenmapCore/data/misc/profile_editor.xml:67
+msgid "Scripting options (NSE)"
+msgstr "Nmap 스크립팅 엔진 (NSE)"
+
+#: zenmapCore/data/misc/profile_editor.xml:68
+msgid ""
+"Use the Nmap Scripting Engine to gain more information about targets after "
+"scanning them."
+msgstr ""
+"스캔 완료 후 대상에 대한 추가 정보를 얻기 위해 Nmap 스크립팅 엔진(NSE)을 사용합"
+"니다."
+
+#: zenmapCore/data/misc/profile_editor.xml:68
+msgid "Script scan"
+msgstr "스크립트 스캔(Script scan)"
+
+#: zenmapCore/data/misc/profile_editor.xml:69
+msgid ""
+"Run the given scripts. Give script names, directory names, or category names. "
+"Categories are \"safe\", \"intrusive\", \"malware\", \"discovery\", \"vuln\", "
+"\"auth\", \"external\", \"default\", and \"all\". If blank, scripts in the "
+"\"default\" category are run."
+msgstr ""
+"지정된 스크립트를 실행합니다. 스크립트 이름, 디렉터리 이름 또는 카테고리 이름"
+"을 지정할 수 있습니다. 카테고리에는 \"safe\", \"intrusive\", \"malware\", "
+"\"discovery\", \"vuln\", \"auth\", \"external\", \"default\", \"all\"이 있습니"
+"다. 빈칸으로 두면 \"default\" 카테고리의 스크립트가 실행됩니다."
+
+#: zenmapCore/data/misc/profile_editor.xml:69
+msgid "Scripts to run"
+msgstr "실행할 스크립트"
+
+#: zenmapCore/data/misc/profile_editor.xml:70
+msgid ""
+"Give arguments to certain scripts that use them. Arguments are <name>=<value> "
+"pairs, separated by commas. Values may be Lua tables."
+msgstr ""
+"인수를 사용하는 특정 스크립트에 인수를 제공합니다. 인수는 콤마(,)로 구분된 <이"
+"름>=<값> 쌍 형태이며, 값은 Lua 테이블일 수 있습니다."
+
+#: zenmapCore/data/misc/profile_editor.xml:70
+msgid "Script arguments"
+msgstr "스크립트 인수"
+
+#: zenmapCore/data/misc/profile_editor.xml:71
+msgid "Show all information sent and received by the scripting engine."
+msgstr "스크립팅 엔진이 송수신하는 모든 정보를 표시합니다."
+
+#: zenmapCore/data/misc/profile_editor.xml:71
+msgid "Trace script execution"
+msgstr "스크립트 실행 추적"
+
+#: zenmapCore/data/misc/profile_editor.xml:73
+msgid "Target options"
+msgstr "대상 옵션"
+
+#: zenmapCore/data/misc/profile_editor.xml:74
+msgid "Specifies a comma-separated list of targets to exclude from the scan."
+msgstr "스캔에서 제외할 대상을 콤마(,)로 구분한 목록으로 지정합니다."
+
+#: zenmapCore/data/misc/profile_editor.xml:74
+msgid "Excluded hosts/networks"
+msgstr "제외된 호스트/네트워크"
+
+#: zenmapCore/data/misc/profile_editor.xml:75
+msgid ""
+"Specifies a newline-, space-, or tab-delimited file of targets to exclude from "
+"the scan."
+msgstr ""
+"스캔에서 제외할 대상을 줄바꿈, 공백, 또는 탭으로 구분하여 작성한 파일로 지정합"
+"니다."
+
+#: zenmapCore/data/misc/profile_editor.xml:75
+msgid "Exclusion file"
+msgstr "제외 파일"
+
+#: zenmapCore/data/misc/profile_editor.xml:76
+msgid "Reads target list specification from an input file."
+msgstr "입력 파일에서 대상 목록 지정을 읽어옵니다."
+
+#: zenmapCore/data/misc/profile_editor.xml:76
+msgid "Target list file"
+msgstr "대상 목록 파일"
+
+#: zenmapCore/data/misc/profile_editor.xml:77
+msgid ""
+"Option to choose targets at random. Tells Nmap how many IPs to generate. 0 is "
+"used for a never-ending scan."
+msgstr ""
+"대상을 무작위로 선택하는 옵션입니다. Nmap이 생성할 IP 개수를 지정하며, 0을 입력"
+"하면 무한 스캔을 수행합니다."
+
+#: zenmapCore/data/misc/profile_editor.xml:77
+msgid "Scan random hosts"
+msgstr "무작위 호스트 스캔"
+
+#: zenmapCore/data/misc/profile_editor.xml:78
+msgid ""
+"This option specifies which ports you want to scan and overrides the default."
+msgstr "이 옵션은 스캔하려는 포트를 지정하며 기본값을 대체합니다."
+
+#: zenmapCore/data/misc/profile_editor.xml:78
+msgid "Ports to scan"
+msgstr "스캔할 포트"
+
+#: zenmapCore/data/misc/profile_editor.xml:79
+msgid ""
+"Only scan ports named in the nmap-services file which comes with Nmap (or nmap-"
+"protocols file for -sO)."
+msgstr ""
+"Nmap과 함께 제공되는 nmap-services 파일(또는 -sO의 경우 nmap-protocols 파일)에 "
+"이름이 지정된 포트만 스캔합니다."
+
+#: zenmapCore/data/misc/profile_editor.xml:79
+msgid "Fast scan"
+msgstr "빠른 스캔"
+
+#: zenmapCore/data/misc/profile_editor.xml:81
+msgid "Source options"
+msgstr "보안 옵션"
+
+#: zenmapCore/data/misc/profile_editor.xml:82
+msgid ""
+"Send fake decoy probes from spoofed addresses to hide your own address. Give a "
+"list of addresses separated by commas. Use RND for a random address and ME to "
+"set the position of your address."
+msgstr ""
+"자신의 주소를 숨기기 위해 위조된 주소에서 가짜 디코이 프로브를 보냅니다. 주소"
+"는 콤마(,)로 구분된 목록으로 제공합니다. 무작위 주소는 RND를 사용하고, 자신의 "
+"주소 위치를 지정하려면 ME를 사용합니다."
+
+#: zenmapCore/data/misc/profile_editor.xml:82
+msgid "Use decoys to hide identity"
+msgstr "디코이를 사용하여 신원 숨기기"
+
+#: zenmapCore/data/misc/profile_editor.xml:83
+msgid "Specify the IP address of the interface you wish to send packets through."
+msgstr "패킷을 보낼 때 사용할 인터페이스의 IP 주소를 지정합니다."
+
+#: zenmapCore/data/misc/profile_editor.xml:83
+msgid "Set source IP address"
+msgstr "소스 IP 주소 설정"
+
+#: zenmapCore/data/misc/profile_editor.xml:84
+msgid ""
+"Provide a port number and Nmap will send packets from that port where possible."
+msgstr "포트 번호를 지정하면 Nmap은 가능한 경우 해당 포트에서 패킷을 보냅니다."
+
+#: zenmapCore/data/misc/profile_editor.xml:84
+msgid "Set source port"
+msgstr "소스 포트 설정"
+
+#: zenmapCore/data/misc/profile_editor.xml:85
+msgid "Tells Nmap what interface to send and receive packets on."
+msgstr "Nmap이 패킷을 보내고 받을 인터페이스를 지정합니다."
+
+#: zenmapCore/data/misc/profile_editor.xml:85
+msgid "Set network interface"
+msgstr "네트워크 인터페이스 설정"
+
+#: zenmapCore/data/misc/profile_editor.xml:87
+msgid "Other options"
+msgstr "기타 옵션"
+
+#: zenmapCore/data/misc/profile_editor.xml:88
+msgid "Any extra options to add to the command line."
+msgstr "명령줄에 추가할 기타 추가 옵션입니다."
+
+#: zenmapCore/data/misc/profile_editor.xml:88
+msgid "Extra options defined by user"
+msgstr "사용자 정의 추가 옵션"
+
+#: zenmapCore/data/misc/profile_editor.xml:89
+msgid "Set the IPv4 time-to-live field in sent packets to the given value."
+msgstr "전송되는 패킷의 IPv4 TTL(Time-To-Live) 필드를 지정된 값으로 설정합니다."
+
+#: zenmapCore/data/misc/profile_editor.xml:89
+msgid "Set IPv4 time to live (ttl)"
+msgstr "IPv4 TTL(Time-To-Live) 설정"
+
+#: zenmapCore/data/misc/profile_editor.xml:90
+msgid ""
+"Causes the requested scan (including ping scans) to split up TCP headers over "
+"several packets."
+msgstr "전송되는 패킷의 IPv4 TTL(Time-To-Live) 필드를 지정된 값으로 설정합니다."
+
+#: zenmapCore/data/misc/profile_editor.xml:90
+msgid "Fragment IP packets"
+msgstr "IP 패킷 조각화"
+
+#: zenmapCore/data/misc/profile_editor.xml:91
+msgid ""
+"Print more information about the scan in progress. Open ports are shown as "
+"they are found as well as completion time estimates."
+msgstr ""
+"진행 중인 스캔에 대한 더 자세한 정보를 출력합니다. 열린 포트는 발견되는 즉시 표"
+"시되며 예상 완료 시간도 함께 보여줍니다."
+
+#: zenmapCore/data/misc/profile_editor.xml:91
+msgid "Verbosity level"
+msgstr "상세 출력 레벨"
+
+#: zenmapCore/data/misc/profile_editor.xml:92
+msgid ""
+"When even verbose mode doesn't provide sufficient data for you, debugging "
+"level is available to show more detailed output."
+msgstr ""
+"상세 출력(Verbose) 모드로도 충분한 데이터가 제공되지 않을 때, 더 자세한 출력을 "
+"볼 수 있는 디버깅 레벨을 사용할 수 있습니다."
+
+#: zenmapCore/data/misc/profile_editor.xml:92
+msgid "Debugging level"
+msgstr "디버깅 레벨"
+
+#: zenmapCore/data/misc/profile_editor.xml:93
+msgid "Print a summary of every packet sent or received."
+msgstr "전송되거나 수신된 모든 패킷의 요약을 출력합니다."
+
+#: zenmapCore/data/misc/profile_editor.xml:93
+msgid "Packet trace"
+msgstr "패킷 추적"
+
+#: zenmapCore/data/misc/profile_editor.xml:94
+msgid "Scan ports in order instead of randomizing them."
+msgstr "포트를 무작위로 고르지 않고 번호 순서대로 스캔합니다."
+
+#: zenmapCore/data/misc/profile_editor.xml:94
+msgid "Disable randomizing scanned ports"
+msgstr "포트 무작위 스캔 비활성화"
+
+#: zenmapCore/data/misc/profile_editor.xml:95
+msgid ""
+"Trace the network path to each target after scanning. This works with all scan "
+"types except connect scan (-sT) and idle scan (-sI)."
+msgstr ""
+"스캔 후 각 대상까지의 네트워크 경로를 추적합니다. 이 옵션은 연결 스캔(-sT) 및 "
+"좀비 스캔(-sI)을 제외한 모든 스캔 유형에서 작동합니다."
+
+#: zenmapCore/data/misc/profile_editor.xml:95
+msgid "Trace routes to targets"
+msgstr "대상 경로 추적"
+
+#: zenmapCore/data/misc/profile_editor.xml:96
+msgid ""
+"Try sending a probe to each port no more than this many times before giving up."
+msgstr ""
+"포기하기 전까지 각 포트에 프로브를 최대 이 횟수만큼만 전송하도록 시도합니다."
+
+#: zenmapCore/data/misc/profile_editor.xml:96
+msgid "Max Retries"
+msgstr "최대 재전송 횟수"
+
+#: zenmapCore/data/misc/profile_editor.xml:98
+msgid "Timing and performance"
+msgstr "타이밍 및 성능"
+
+#: zenmapCore/data/misc/profile_editor.xml:99
+msgid ""
+"Give up on a host if it has not finished being scanning in this long. Time is "
+"in seconds by default, or may be followed by a suffix of 'ms' for "
+"milliseconds, 's' for seconds, 'm' for minutes, or 'h' for hours."
+msgstr ""
+"지정된 시간 내에 호스트 스캔이 완료되지 않으면 해당 호스트를 포기합니다. 시간"
+"은 기본적으로 초 단위이며, 밀리초는 'ms', 초는 's', 분은 'm', 시간은 'h' 접미사"
+"를 뒤에 붙여 지정할 수 있습니다."
+
+#: zenmapCore/data/misc/profile_editor.xml:99
+msgid "Max time to scan a target"
+msgstr "대상 스캔 최대 시간"
+
+#: zenmapCore/data/misc/profile_editor.xml:100
+msgid ""
+"Wait no longer than this for a probe response before giving up or "
+"retransmitting the probe. Time is in seconds by default, or may be followed by "
+"a suffix of 'ms' for milliseconds, 's' for seconds, 'm' for minutes, or 'h' "
+"for hours."
+msgstr ""
+"프로브 응답을 포기하거나 재전송하기 전까지 최대 이 시간 동안만 대기합니다. 시간"
+"은 기본적으로 초 단위이며, 밀리초는 'ms', 초는 's', 분은 'm', 시간은 'h' 접미사"
+"를 뒤에 붙여 지정할 수 있습니다."
+
+#: zenmapCore/data/misc/profile_editor.xml:100
+msgid "Max probe timeout"
+msgstr "최대 프로브 제한 시간"
+
+#: zenmapCore/data/misc/profile_editor.xml:101
+msgid ""
+"Wait at least this long for a probe response before giving up or "
+"retransmitting the probe. Time is in seconds by default, or may be followed by "
+"a suffix of 'ms' for milliseconds, 's' for seconds, 'm' for minutes, or 'h' "
+"for hours."
+msgstr ""
+"프로브 응답을 포기하거나 재전송하기 전까지 최소 이 시간 동안은 대기합니다. 시간"
+"은 기본적으로 초 단위이며, 밀리초는 'ms', 초는 's', 분은 'm', 시간은 'h' 접미사"
+"를 뒤에 붙여 지정할 수 있습니다."
+
+#: zenmapCore/data/misc/profile_editor.xml:101
+msgid "Min probe timeout"
+msgstr "최소 프로브 제한 시간"
+
+#: zenmapCore/data/misc/profile_editor.xml:102
+msgid ""
+"Use the time given as the initial estimate of round-trip time. This can speed "
+"up scans if you know a good time for the network you're scanning."
+msgstr ""
+"지정된 시간을 왕복 시간(RTT)의 초기 추정치로 사용합니다. 스캔하려는 네트워크에 "
+"적절한 시간을 미리 알고 있다면 스캔 속도를 높일 수 있습니다."
+
+#: zenmapCore/data/misc/profile_editor.xml:102
+msgid "Initial probe timeout"
+msgstr "초기 프로브 제한 시간"
+
+#: zenmapCore/data/misc/profile_editor.xml:103
+msgid "Scan no more than this many hosts in parallel."
+msgstr "최대 이 개수 이하의 호스트를 병렬로 스캔합니다."
+
+#: zenmapCore/data/misc/profile_editor.xml:103
+msgid "Max hosts in parallel"
+msgstr "최대 병렬 호스트 수"
+
+#: zenmapCore/data/misc/profile_editor.xml:104
+msgid "Scan at least this many hosts in parallel."
+msgstr "최소 이 개수 이상의 호스트를 병렬로 스캔합니다."
+
+#: zenmapCore/data/misc/profile_editor.xml:104
+msgid "Min hosts in parallel"
+msgstr "최소 병렬 호스트 수"
+
+#: zenmapCore/data/misc/profile_editor.xml:105
+msgid ""
+"Never allow more than the given number of probes to be outstanding at a time. "
+"May be set to 1 to prevent Nmap from sending more than one probe at a time to "
+"hosts."
+msgstr ""
+"동시에 전송 대기 중인 프로브 수가 지정된 개수를 초과하지 않도록 합니다. 호스트"
+"에 한 번에 하나의 프로브만 전송하도록 제한하려면 이 값을 1로 설정할 수 있습니"
+"다."
+
+#: zenmapCore/data/misc/profile_editor.xml:105
+msgid "Max outstanding probes"
+msgstr "최대 동시 프로브 수"
+
+#: zenmapCore/data/misc/profile_editor.xml:106
+msgid ""
+"Try to maintain at least the given number of probes outstanding during a scan. "
+"Common usage is to set to a number higher than 1 to speed up scans of poorly "
+"performing hosts or networks."
+msgstr ""
+"스캔하는 동안 동시에 전송 대기 중인 프로브 수를 최소한 지정된 개수 이상으로 유"
+"지하려고 시도합니다. 성능이 좋지 않은 호스트나 네트워크의 스캔 속도를 높이기 위"
+"해 대개 1보다 큰 값으로 설정합니다."
+
+#: zenmapCore/data/misc/profile_editor.xml:106
+msgid "Min outstanding probes"
+msgstr "최소 동시 프로브 수"
+
+#: zenmapCore/data/misc/profile_editor.xml:107
+msgid ""
+"Do not allow the scan delay (time delay between successive probes) to grow "
+"larger than the given amount of time. Time is in seconds by default, or may be "
+"followed by a suffix of 'ms' for milliseconds, 's' for seconds, 'm' for "
+"minutes, or 'h' for hours."
+msgstr ""
+"스캔 지연 시간(연속된 프로브 전송 사이의 시간 간격)이 지정된 시간보다 커지지 않"
+"도록 합니다. 시간은 기본적으로 초 단위이며, 밀리초는 'ms', 초는 's', 분은 'm', "
+"시간은 'h' 접미사를 뒤에 붙여 지정할 수 있습니다."
+
+#: zenmapCore/data/misc/profile_editor.xml:107
+msgid "Max scan delay"
+msgstr "최대 스캔 지연 시간"
+
+#: zenmapCore/data/misc/profile_editor.xml:108
+msgid ""
+"Wait at least the given amount of time between each probe sent to a given "
+"host. Time is in seconds by default, or may be followed by a suffix of 'ms' "
+"for milliseconds, 's' for seconds, 'm' for minutes, or 'h' for hours."
+msgstr ""
+"지정된 호스트로 전송되는 각 프로브 사이에 최소한 지정된 시간만큼 대기합니다. 시"
+"간은 기본적으로 초 단위이며, 밀리초는 'ms', 초는 's', 분은 'm', 시간은 'h' 접미"
+"사를 뒤에 붙여 지정할 수 있습니다."
+
+#: zenmapCore/data/misc/profile_editor.xml:108
+msgid "Min delay between probes"
+msgstr "최소 프로브 간 지연 시간"
