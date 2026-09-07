@@ -61,7 +61,23 @@ STATUS_CODES = {
   NOTPERMITTED = 2,
   VALID = 3,
   INVALID = 4,
-  UNKNOWN = 5
+  UNKNOWN = 5,
+  UNCERTAIN = 6
+}
+
+CONNECTION_STATE = {
+  SOCKET = nil,
+  HOST = nil,
+  PORT = nil,
+  OPTION = nil
+}
+
+MAX_NUMBER_OF_ATTEMPTS_421  = 3
+
+
+ATTEMPTS_FOR_A_USER_421 = {
+  NUMBER_OF_ATTEMPTS = MAX_NUMBER_OF_ATTEMPTS_421,
+  USERNAME = nil
 }
 
 ---Counts the number of occurrences in a table. Helper function
@@ -139,6 +155,12 @@ end
 -- @param domain Domain to use in the command
 -- @return Status and depending on the code, a error message
 function do_gnrc(socket, command, username, domain)
+  -- Reset the counter if this is a new user.
+  if ATTEMPTS_FOR_A_USER_421.USERNAME ~= username then
+    ATTEMPTS_FOR_A_USER_421.NUMBER_OF_ATTEMPTS = MAX_NUMBER_OF_ATTEMPTS_421
+    ATTEMPTS_FOR_A_USER_421.USERNAME = username
+  end
+  
   local combinations = {
     string.format("%s", username),
     string.format("%s@%s", username, domain)
@@ -156,15 +178,46 @@ function do_gnrc(socket, command, username, domain)
         command, combination, response)
     end
 
-    if string.match(response, "^530") then
+    -- if we get 421 back, we drop the connection and reconnect to reset the error counter of a server
+    -- if conection is successfull, we call do_gnrc again to coninue processing with the same parameters
+    if string.match(response, "^421") then
+      
+      ATTEMPTS_FOR_A_USER_421.NUMBER_OF_ATTEMPTS = ATTEMPTS_FOR_A_USER_421.NUMBER_OF_ATTEMPTS - 1;
+      if ATTEMPTS_FOR_A_USER_421.NUMBER_OF_ATTEMPTS == 0 and ATTEMPTS_FOR_A_USER_421.USERNAME == username then
+        return STATUS_CODES.ERROR,string.format("ERROR 421: We got %i times for the user %s, no luck",
+        MAX_NUMBER_OF_ATTEMPTS_421, username)
+      end
+      
+      stdnse.debug(1, "421 captured, attempting to reconnect to drop error counter")
+      smtp.quit(CONNECTION_STATE.SOCKET)
+
+      CONNECTION_STATE.SOCKET, response = smtp.connect(CONNECTION_STATE.HOST, CONNECTION_STATE.PORT, CONNECTION_STATE.OPTION)
+
+      -- Failed connection attempt.
+      if not CONNECTION_STATE.SOCKET then
+        return STATUS_CODES.ERROR, string.format("Couldn't establish connection on port %i",
+        CONNECTION_STATE.PORT.number)
+      end
+    
+      status, response = smtp.ehlo(CONNECTION_STATE.SOCKET, domain)
+      
+      if not status then
+        return STATUS_CODES.ERROR, response
+      end
+
+      return do_gnrc(CONNECTION_STATE.SOCKET, command, username, domain)
+    elseif string.match(response, "^530") then
       -- If the command failed, check if authentication is
       -- needed because all the other attempts will fail.
       return STATUS_CODES.AUTHENTICATION
     elseif string.match(response, "^502") or
-      string.match(response, "^252") or
       string.match(response, "^550") then
       -- The server doesn't implement the command or it is disallowed.
       return STATUS_CODES.NOTPERMITTED
+    elseif string.match(response, "^252") then
+    --The server indicates that the user MAY or MAY NOT exist.
+      stdnse.debug(1, "Responce string %s", response)
+      return STATUS_CODES.UNCERTAIN, response
     elseif smtp.check_reply(command, response) then
       -- User accepted.
       if nmap.verbosity() > 1 then
@@ -276,6 +329,9 @@ end
 -- @return The user accounts or a error message.
 function go(host, port)
   -- Get the current usernames list from the file.
+  CONNECTION_STATE.HOST = host
+  CONNECTION_STATE.PORT = port
+
   local status, nextuser = unpwdb.usernames()
 
   if not status then
@@ -287,6 +343,8 @@ function go(host, port)
     recv_before = true,
     ssl = true,
   }
+  CONNECTION_STATE.OPTION = options
+
   local domain = stdnse.get_script_args('smtp-enum-users.domain') or
   smtp.get_domain(host)
 
@@ -296,16 +354,17 @@ function go(host, port)
   if not status then
     return false, string.format("Invalid method found, %s", methods)
   end
-
-  local socket, response = smtp.connect(host, port, options)
+  
+  local socket = smtp.connect(host, port, options)
+  CONNECTION_STATE.SOCKET = socket
 
   -- Failed connection attempt.
-  if not socket then
+  if not CONNECTION_STATE.SOCKET then
     return false, string.format("Couldn't establish connection on port %i",
       port.number)
   end
 
-  status, response = smtp.ehlo(socket, domain)
+  local status, response = smtp.ehlo(CONNECTION_STATE.SOCKET, domain)
   if not status then
     return status, response
   end
@@ -325,22 +384,30 @@ function go(host, port)
   end
 
   -- Get the first user to be tested.
+  -- local status, response
   local username = nextuser()
 
   for index, method in ipairs(methods) do
     while username do
       if method == "RCPT" then
-        status, response = do_rcpt(socket, username, domain)
+        status, response = do_rcpt(CONNECTION_STATE.SOCKET, username, domain)
       elseif method == "VRFY" then
-        status, response = do_vrfy(socket, username, domain)
+        status, response = do_vrfy(CONNECTION_STATE.SOCKET, username, domain)
       elseif method == "EXPN" then
-        status, response = do_expn(socket, username, domain)
+        status, response = do_expn(CONNECTION_STATE.SOCKET, username, domain)
       end
 
       if status == STATUS_CODES.NOTPERMITTED then
         -- Invalid method. Don't test anymore users with
         -- the current method.
-        break
+        -- break
+        table.insert(result, string.format("Method %s is not permitted for user %s.", method, username))
+      elseif status == STATUS_CODES.UNCERTAIN then
+          stdnse.debug(1, "Method %s", method)
+          stdnse.debug(1, "Response %s", response)
+          stdnse.debug(1, "Username %s", username)
+          local clean_response = string.gsub(response, "[\r\n]", "")
+          table.insert(result, string.format("Method %s returned %s for user %s.", method, clean_response, username))
       elseif status == STATUS_CODES.VALID then
         -- User found, lets save it.
         table.insert(result, response)
@@ -348,7 +415,7 @@ function go(host, port)
         -- An error occurred with the connection.
         return failure(response)
       elseif status == STATUS_CODES.AUTHENTICATION then
-        smtp.quit(socket)
+        smtp.quit(CONNECTION_STATE.SOCKET)
         return false, "Couldn't perform user enumeration, authentication needed"
       elseif status == STATUS_CODES.INVALID then
         table.insert(result,
@@ -356,6 +423,7 @@ function go(host, port)
           method))
         break
       end
+
       username = nextuser()
     end
 
@@ -365,7 +433,7 @@ function go(host, port)
     end
   end
 
-  smtp.quit(socket)
+  smtp.quit(CONNECTION_STATE.SOCKET)
   return true, result
 end
 
