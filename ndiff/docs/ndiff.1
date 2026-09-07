@@ -371,6 +371,67 @@ If the script is saved as
 .RE
 .\}
 .sp
+.SH "USING NDIFF AS A PYTHON MODULE"
+.PP
+Since version 6\&.45, Ndiff installs as a Python module named ndiff in addition to the command\-line program\&. The module can be used as a standalone parser for Nmap\*(Aqs XML output (the \fB\-oX\fR format), independent of the diffing functionality, which makes it a convenient way to process scan results from Python\&.
+.PP
+The \fIScan\fR class represents a single Nmap run\&. Load a scan from an XML file with \fIload_from_file\fR (or from any file\-like object with \fIload\fR), then inspect the parsed objects:
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+A \fIScan\fR has a list of \fIhosts\fR, along with \fIscanner\fR, \fIversion\fR, \fIargs\fR, \fIstart_date\fR, and \fIend_date\fR\&.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+A \fIHost\fR has a \fIstate\fR, a list of \fIaddresses\fR, a list of \fIhostnames\fR, and a \fIports\fR dictionary mapping each (number, protocol) spec to a \fIPort\fR\&. The \fIformat_name\fR method returns a human\-readable label for the host\&.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+A \fIPort\fR has a \fIspec\fR, a \fIstate\fR, and a \fIservice\fR; the \fIspec_string\fR and \fIstate_string\fR helpers format these for display\&.
+.RE
+.PP
+\fBExample\ \&4.\ \&Parsing Nmap XML with the ndiff module\fR
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+import ndiff
+
+scan = ndiff.Scan()
+scan.load_from_file("scan.xml")
+
+for host in scan.hosts:
+    print(host.format_name(), host.state)
+    for spec, port in sorted(host.ports.items()):
+        print(" ", port.spec_string(), port.state_string(), port.service.name)
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+This interface is shared with Ndiff\*(Aqs own diffing code and has not been formally declared a stable API, so it may change between releases\&.
+.sp
 .SH "EXIT CODE"
 .PP
 The exit code indicates whether the scans are equal\&.
