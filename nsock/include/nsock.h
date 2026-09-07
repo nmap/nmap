@@ -306,6 +306,20 @@ void nsock_proxychain_delete(nsock_proxychain chain);
  * nsock_pool_set_proxychain(). Existing nsock_iod will connect as normal. */
 int nsock_pool_set_proxychain(nsock_pool nspool, nsock_proxychain chain);
 
+/* Proxy type constants returned by nsock_proxychain_first_node_info(). */
+#define NSOCK_PROXY_TYPE_HTTP   0
+#define NSOCK_PROXY_TYPE_SOCKS4 1
+
+/* Retrieve the address, port, and type of the first proxy node in a chain.
+ * ss and sslen are filled with the proxy server's sockaddr. port is filled with
+ * the proxy port. proxy_type is set to one of the NSOCK_PROXY_TYPE_* constants.
+ * Returns 1 on success, 0 if the chain is NULL or empty. */
+int nsock_proxychain_first_node_info(nsock_proxychain chain,
+                                     struct sockaddr_storage *ss,
+                                     size_t *sslen,
+                                     unsigned short *port,
+                                     int *proxy_type);
+
 /* nsock_event handles a single event.  Its ID is generally returned when the
  * event is created, and the event itself is included in callbacks
  *
