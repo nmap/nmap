@@ -736,7 +736,7 @@ MMSEncoder = {
     local sendstr = mmsStr
     sendstr = "\xa0"..self.encodeLength(#sendstr)..sendstr
     sendstr = "\x02\x01\x03"..sendstr
-    sendstr = self.encodeSeq(sendstr)
+    sendstr = self:encodeSeq(sendstr)
     sendstr = "\x61"..self.encodeLength(#sendstr)..sendstr --ISO8823
     sendstr = "\x01\x00\x01\x00"..sendstr                  --ISO8327 2x
     sendstr = "\x02\xf0\x80"..sendstr                      --ISO8073
@@ -974,7 +974,7 @@ MMSEncoder = {
     local value
     for k, v in pairs(message) do
       value = self.variableSpecification(self, v)
-      retstr[#retstr+1] = self.encodeSeq(value)
+      retstr[#retstr+1] = self:encodeSeq(value)
     end
 
     return table.concat(retstr)
