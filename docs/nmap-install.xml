@@ -757,22 +757,44 @@ in the <filename>nmap-<replaceable>version</replaceable></filename>
 directory of the Windows binary zip file (for <ulink url="https://nmap.org/oem/">Nmap OEM</ulink> customers), and
 <filename>nmap-<replaceable>version</replaceable>/mswin32</filename>
 in the source tarball (where <replaceable>version</replaceable> is the
-version number of the specific release).  These changes increase
-the number of ephemeral ports reserved for user applications (such as
-Nmap) and reduce the time delay before a closed connection can
-be reused.  Most people simply check the box to apply these changes in the executable Nmap installer, but you can also apply them by double-clicking on
+version number of the specific release).  These changes reduce the
+time delay before the port of a closed connection can be reused, so
+that version detection and NSE scripts, which open many short-lived
+connections, do not run out of ephemeral ports while old connections
+linger in the <literal>TIME_WAIT</literal> state.  Most people simply check the box to apply these changes in the executable Nmap installer, but you can also apply them by double-clicking on
 <filename>nmap_performance.reg</filename>, or by running the command
-<command>regedt32 nmap_performance.reg</command>.  To make the changes by hand, add these three Registry DWORD values to
+<command>regedt32 nmap_performance.reg</command>.  To make the changes by hand, add these two Registry DWORD values to
 <literal>HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters</literal>:</para>
 
 <variablelist>
-  <varlistentry><term>MaxUserPort</term>
-     <listitem><para>Set a large value such as 65534 (0x0000fffe).  See <ulink url="https://support.microsoft.com/kb/196271">MS KB 196271</ulink>.</para></listitem></varlistentry>
   <varlistentry><term>TCPTimedWaitDelay</term>
      <listitem><para>Set the minimum value (0x0000001e). See <ulink url="https://support.microsoft.com/kb/149532">MS KB 149532</ulink>.</para></listitem></varlistentry>
   <varlistentry><term>StrictTimeWaitSeqCheck</term>
      <listitem><para>Set to 1 so TCPTimedWaitDelay is checked.</para></listitem></varlistentry>
 </variablelist>
+
+<note><para>Earlier Nmap releases also set
+<literal>MaxUserPort</literal> to 65534.  Applying
+<filename>nmap_performance.reg</filename> now deletes that value
+(the <literal>"MaxUserPort"=-</literal> line) whether Nmap or
+something else set it; the dynamic range changes after the next
+reboot.  The value raised the ephemeral port limit on Windows
+2000, XP and Server 2003, whose default dynamic range was only
+1025&ndash;5000; Nmap has not supported those systems since 7.25BETA1.
+Windows Vista and later already use 49152&ndash;65535 (16384 ports),
+and on those systems <literal>MaxUserPort</literal> instead widens the
+dynamic range to 1024&ndash;65534.  That spreads outgoing connections
+over the whole port space and breaks software which needs to reserve a
+contiguous block of ports, such as WSL2 mirrored networking.  If you do
+not re-run the installer, delete <literal>MaxUserPort</literal> from the
+Registry key above; the default range returns after the next reboot.
+To restore it immediately as well, run
+<command>netsh int ipv4 set dynamicport tcp start=49152 num=16384</command>
+(and the same for <literal>ipv6</literal>) after deleting the value.  If a very fast connect scan
+really needs more than 16384 ephemeral ports, widen the range with
+<command>netsh</command> from a high starting port instead, for example
+<command>start=32768 num=32768</command>, which leaves the lower half of
+the port space untouched.</para></note>
 
 <note><para>I would like to thank Ryan Permeh<indexterm><primary>Permeh, Ryan</primary></indexterm> of eEye, Andy Lutomirski<indexterm><primary>Lutomirski, Andy</primary></indexterm>, and
   Jens Vogt<indexterm><primary>Vogt, Jens</primary></indexterm> for their hard work on the Nmap Windows port.  For many
