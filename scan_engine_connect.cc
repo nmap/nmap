@@ -434,6 +434,14 @@ static void init_socket(int sd, const HostScanStats *hss, UltraScanInfo *USI) {
 #endif
 
   if (!bind_failed && 0 == o.SourceSockAddr(&ss, &sslen)) {
+    // Use the exact protocol-specific length.  Some platforms (e.g. FreeBSD)
+    // reject sizeof(sockaddr_storage) passed to bind() with EINVAL.
+    if (ss.ss_family == AF_INET)
+      sslen = sizeof(struct sockaddr_in);
+#if HAVE_IPV6
+    else if (ss.ss_family == AF_INET6)
+      sslen = sizeof(struct sockaddr_in6);
+#endif
     if (::bind(sd, (struct sockaddr*)&ss, sslen) != 0) {
       error("%s: Problem binding source address (%s), errno: %d", __func__, inet_socktop_safe(&ss), socket_errno());
       perror("bind");
