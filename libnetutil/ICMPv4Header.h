@@ -459,6 +459,7 @@ class ICMPv4Header : public ICMPHeader {
         /* Checksum */
         int setSum();
         int setSum(u16 s);
+        int setSumRandom();
         u16 getSum() const;
 
         /* Unused and reserved fields */
