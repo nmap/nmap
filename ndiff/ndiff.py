@@ -41,7 +41,7 @@ class OverrideEntityResolver(xml.sax.handler.EntityResolver):
         return OverrideEntityResolver.empty
 
 
-class Scan(object):
+class Scan:
     """A single Nmap scan, corresponding to a single invocation of Nmap. It is
     a container for a list of hosts. It also has utility methods to load itself
     from an Nmap XML file."""
@@ -54,9 +54,6 @@ class Scan(object):
         self.hosts = []
         self.pre_script_results = []
         self.post_script_results = []
-
-    def sort_hosts(self):
-        self.hosts.sort(key=lambda h: h.get_id())
 
     def load(self, f):
         """Load a scan from the Nmap XML in the file-like object f."""
@@ -107,7 +104,7 @@ class Scan(object):
         return frag
 
 
-class Host(object):
+class Host:
     """A single host, with a state, addresses, host names, a dict mapping port
     specs to Ports, and a list of OS matches. Host states are strings, or None
     for "unknown"."""
@@ -120,7 +117,7 @@ class Host(object):
         self.os = []
         self.script_results = []
 
-    def get_id(self):
+    def _get_id(self):
         """Return an id that is used to determine if hosts are "the same"
         across scans."""
         hid = None
@@ -129,6 +126,12 @@ class Host(object):
         if len(self.hostnames) > 0:
             return (hid or " " * 40) + str(sorted(self.hostnames)[0])
         return hid or id(self)
+
+    def __eq__(self, other):
+        return self._get_id() == other._get_id()
+
+    def __lt__(self, other):
+        return self._get_id() < other._get_id()
 
     def format_name(self):
         """Return a human-readable identifier for this host."""
@@ -237,15 +240,12 @@ class Host(object):
         return frag
 
 
-class Address(object):
+class Address:
     def __init__(self, s):
         self.s = s
 
     def __eq__(self, other):
         return self.sort_key() == other.sort_key()
-
-    def __ne__(self, other):
-        return not self.__eq__(other)
 
     def __hash__(self):
         return hash(self.sort_key())
@@ -303,7 +303,7 @@ class MACAddress(Address):
         return (2, self.s)
 
 
-class Port(object):
+class Port:
     """A single port, consisting of a port specification, a state, and a
     service version. A specification, or "spec," is the 2-tuple (number,
     protocol). So (10, "tcp") corresponds to the port 10/tcp. Port states are
@@ -346,7 +346,7 @@ class Port(object):
         return frag
 
 
-class Service(object):
+class Service:
     """A service version as determined by -sV scan. Also contains the looked-up
     port name if -sV wasn't used."""
     def __init__(self):
@@ -367,9 +367,6 @@ class Service(object):
             and self.product == other.product \
             and self.version == other.version \
             and self.extrainfo == other.extrainfo
-
-    def __ne__(self, other):
-        return not self.__eq__(other)
 
     def name_string(self):
         parts = []
@@ -421,8 +418,8 @@ class ScriptResult(object):
     def __eq__(self, other):
         return self.id == other.id and self.output == other.output
 
-    def __ne__(self, other):
-        return not self.__eq__(other)
+    def __lt__(self, other):
+        return self.id < other.id
 
     def get_lines(self):
         result = []
@@ -505,13 +502,12 @@ def host_pairs(a, b):
     Otherwise the one with the smaller id is returned, with an empty host as
     its counterpart, and the one with the higher id will remain in its list for
     a later iteration."""
-    i = 0
-    j = 0
+    i,j = 0,0
     while i < len(a) and j < len(b):
-        if a[i].get_id() < b[j].get_id():
+        if a[i] < b[j]:
             yield a[i], Host()
             i += 1
-        elif a[i].get_id() > b[j].get_id():
+        elif a[i] > b[j]:
             yield Host(), b[j]
             j += 1
         else:
@@ -526,7 +522,7 @@ def host_pairs(a, b):
         j += 1
 
 
-class ScanDiff(object):
+class ScanDiff:
     """An abstract class for different diff output types. Subclasses must
     define various output methods."""
     def __init__(self, scan_a, scan_b, f=sys.stdout):
@@ -537,11 +533,7 @@ class ScanDiff(object):
         self.f = f
 
     def output(self):
-        self.scan_a.sort_hosts()
-        self.scan_b.sort_hosts()
-
         self.output_beginning()
-
         pre_script_result_diffs = ScriptResultDiff.diff_lists(
                 self.scan_a.pre_script_results, self.scan_b.pre_script_results)
         self.output_pre_scripts(pre_script_result_diffs)
@@ -549,7 +541,8 @@ class ScanDiff(object):
         cost = 0
         # Currently we never consider diffing hosts with a different id
         # (address or host name), which could lead to better diffs.
-        for host_a, host_b in host_pairs(self.scan_a.hosts, self.scan_b.hosts):
+        for host_a, host_b in host_pairs(sorted(self.scan_a.hosts), 
+                                         sorted(self.scan_b.hosts)):
             h_diff = HostDiff(host_a, host_b)
             cost += h_diff.cost
             if h_diff.cost > 0 or verbose:
@@ -657,7 +650,7 @@ class ScanDiffXML(ScanDiff):
         self.writer.endDocument()
 
 
-class HostDiff(object):
+class HostDiff:
     """A diff of two Hosts. It contains the two hosts, variables describing
     what changed, and a list of PortDiffs and OS differences."""
     def __init__(self, host_a, host_b):
@@ -939,7 +932,7 @@ class HostDiff(object):
         return frag
 
 
-class PortDiff(object):
+class PortDiff:
     """A diff of two Ports. It contains the two ports and the cost of changing
     one into the other. If the cost is 0 then the two ports are the same."""
     def __init__(self, port_a, port_b):
@@ -980,7 +973,7 @@ class PortDiff(object):
             self.port_b.service.name_string(),
             self.port_b.service.version_string()]
         if a_columns == b_columns:
-            if verbose or self.script_result_diffs > 0:
+            if verbose or len(self.script_result_diffs) > 0:
                 table.append([" "] + a_columns)
         else:
             if not host_a.is_extraports(self.port_a.state):
@@ -1030,7 +1023,7 @@ class PortDiff(object):
         return frag
 
 
-class ScriptResultDiff(object):
+class ScriptResultDiff:
     def __init__(self, sr_a, sr_b):
         """One of sr_a and sr_b may be None."""
         self.sr_a = sr_a
@@ -1104,7 +1097,7 @@ class ScriptResultDiff(object):
         return frag
 
 
-class Table(object):
+class Table:
     """A table of character data, like NmapOutputTable."""
     def __init__(self, template):
         """template is a string consisting of "*" and other characters. Each
