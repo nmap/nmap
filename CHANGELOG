@@ -1,5 +1,16 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [Windows][GH#149] The "Network Performance Improvements" installer option
+  and nmap_performance.reg no longer set MaxUserPort, and instead delete any
+  existing MaxUserPort value, whoever set it, whenever that option is
+  selected. The value raised the ephemeral port limit on Windows
+  2000/XP/2003, none of which Nmap has supported since
+  7.25BETA1. On Windows Vista and later it instead widens the TCP dynamic
+  port range from the default 49152-65535 to 1024-65534, which fragments
+  the port space and breaks software that reserves contiguous port ranges,
+  such as WSL2 mirrored networking (microsoft/WSL#13454). The TIME_WAIT
+  reduction (TcpTimedWaitDelay, StrictTimeWaitSeqCheck) is unchanged. [yuu61]
+
 o Upgraded included libraries: libpcap 1.10.7, pcre2 10.48, lua 5.4.9
 
 o [NSE] Introduced execution time and memory allocation limits for NSE scripts.
