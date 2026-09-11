@@ -21,6 +21,13 @@ o [NSE][GH#3447] IP options parsing by the packet library no longer crashes
   on incomplete options. IP header data after EOOL are no longer parsed as
   options. [nnposter]
 
+o [NSE][GH#3213] Rudimentary support for 802.1Q / 802.1ad VLAN tags [nnposter]
+  - NSE packet.Frame:new() parses VLAN tags and captures the result in list
+    frame.vlans. Each element is a table containing the expected fields:
+    TPID, CPC, DEI, and VID (all in lowercase).
+  - NSE packet.Frame:build_ether_frame() takes an an optional parameter
+    in the form of the list above to build 802.1Q / 802.1ad headers.
+
 o [NSE][GH#3456] Script http-config-backup was always failing. [h00die]
 
 o [NSE][GH#3440] The rsync library was not correctly parsing server responses

@@ -73,6 +73,13 @@
 
 #include "nsock_pcap.h"
 
+#ifndef ETHERTYPE_8021Q
+#define ETHERTYPE_8021Q		0x8100
+#endif
+#ifndef ETHERTYPE_8021AD
+#define ETHERTYPE_8021AD	0x88a8
+#endif
+
 #if HAVE_PCAP
 
 #ifndef PCAP_NETMASK_UNKNOWN
@@ -477,6 +484,7 @@ void nse_readpcap(nsock_event nsev, const unsigned char **l2_data, size_t *l2_le
   nsock_pcap *n;
   size_t l2l;
   size_t l3l;
+  unsigned ethertype;
 
   n = (nsock_pcap *)fs_str(&(nse->iobuf));
   if (fs_length(&(nse->iobuf)) < sizeof(nsock_pcap)) {
@@ -494,14 +502,17 @@ void nse_readpcap(nsock_event nsev, const unsigned char **l2_data, size_t *l2_le
   }
 
   l2l = mp->l3_offset;
-  if (mp->datalink == DLT_EN10MB
-      && n->caplen >= 14 /* size of ethernet header */
-      && 0 == memcmp(n->packet + 12 /* offset of eth_type */, "\x81\x00", 2)) {
-    l2l += 4;
+  if (mp->datalink == DLT_EN10MB) {
+    /* Skip over 802.1Q tags; 802.1ad allows more than one */
+    while (l2l < n->caplen) {
+      ethertype = ntohs(*(uint16_t *)(n->packet + l2l - 2));
+      if (ethertype != ETHERTYPE_8021Q && ethertype != ETHERTYPE_8021AD) break;
+      l2l += 4;
+    }
   }
   if (l2l > n->caplen)
     l2l = n->caplen;
-  l3l = MAX(0, n->caplen - l2l);
+  l3l = n->caplen - l2l;
 
   if (l2_data)
     *l2_data = n->packet;

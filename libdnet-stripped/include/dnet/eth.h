@@ -46,6 +46,7 @@ struct eth_hdr {
 #define ETH_TYPE_MPLS_MCAST	0x8848	/* MPLS Multicast */
 #define ETH_TYPE_PPPOEDISC	0x8863	/* PPP Over Ethernet Discovery Stage */
 #define ETH_TYPE_PPPOE	0x8864		/* PPP Over Ethernet Session Stage */
+#define ETH_TYPE_8021AD	0x88A8		/* IEEE 802.1ad VLAN tagging */
 #define ETH_TYPE_LOOPBACK	0x9000	/* used to test interfaces */
 
 #define ETH_IS_MULTICAST(ea)	(*(ea) & 0x01) /* is address mcast/bcast? */
