@@ -19,7 +19,7 @@ o [NSE] Added DHX2 authentication method to afp.lua [Daniel Miller]
 
 o [NSE][GH#3447] IP options parsing by the packet library no longer crashes
   on incomplete options. IP header data after EOOL are no longer parsed as
-  options. [nnposter]
+  options. [Ibrahim AlJaafreh, nnposter]
 
 o [NSE][GH#3213] Rudimentary support for 802.1Q / 802.1ad VLAN tags [nnposter]
   - NSE packet.Frame:new() parses VLAN tags and captures the result in list
