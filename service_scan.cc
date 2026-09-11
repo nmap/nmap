@@ -2405,7 +2405,10 @@ static void servicescan_connect_handler(nsock_pool nsp, nsock_event nse, void *m
         // and move it to the finished bin.
         if (o.debugging)
           error("Got nsock CONNECT response with status %s - aborting this service", nse_status2str(status));
-        end_svcprobe(PROBESTATE_INCOMPLETE, SG, svc, nsi);
+        /* A softmatch from an earlier probe is still valid: a failure to open
+           a further connection says nothing about what already answered. */
+        end_svcprobe(svc->softMatchFound ? PROBESTATE_FINISHED_SOFTMATCHED
+                                         : PROBESTATE_INCOMPLETE, SG, svc, nsi);
         break;
 
       case NSE_STATUS_KILL:
