@@ -13908,10 +13908,13 @@ rarity 7
 ports 3388,3389
 fallback TerminalServer
 
-# varies on flags:
-# 0x10 - Remote Credential Guard (Windows 10 1607 or later)
+# The flags byte is a bitfield over a 0x07 base, so match every
+# combination of the optional bits rather than a few observed values:
 # 0x08 - Restricted Admin mode (Windows 8.1 or later)
-match ms-wbt-server m|^\x03\0\0\x13\x0e\xd0\0\0\x124\0\x02[\x07\x0f\x1f]\x08\0\x02\0\0\0| p/Microsoft Terminal Services/ o/Windows/ cpe:/o:microsoft:windows/a
+# 0x10 - Remote Credential Guard (Windows 10 1607 or later)
+# 0x20 - observed on Windows Server 2025 / Windows 11 24H2 (build
+#        26100); not documented in MS-RDPBCGR
+match ms-wbt-server m|^\x03\0\0\x13\x0e\xd0\0\0\x124\0\x02[\x07\x0f\x17\x1f\x27\x2f\x37\x3f]\x08\0\x02\0\0\0| p/Microsoft Terminal Services/ o/Windows/ cpe:/o:microsoft:windows/a
 match ms-wbt-server m|^\x03\0\0\x0b\x06\xd0\0\0\x124\0$| p/Microsoft Terminal Services/ o/Windows XP/ cpe:/o:microsoft:windows_xp/a
 
 ##############################NEXT PROBE##############################
