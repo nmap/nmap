@@ -7,6 +7,7 @@
 local ipOps = require "ipOps"
 local stdnse = require "stdnse"
 local string = require "string"
+local tableaux = require "tableaux"
 local unittest = require "unittest"
 _ENV = stdnse.module("packet", stdnse.seeall)
 
@@ -183,24 +184,26 @@ end
 -- @param ether_type IEEE 802 ethertype as a 16-bit integer (0x0800 for IPv4)
 -- @param packet string of the payload.
 -- @param vlans list of VLAN tags. Each tag is a table of TPID and
---              TCI fields PCP, DEI, and VID
+--              TCI fields PCP, DEI, and VID. All fields are in lowercase and
+--              optional. TPID defaults to 802.1Q for the last/inner-most tag
+--              and 802.1ad otherwise. All TCI fields default to 0.
 -- @return frame string of the Ether frame.
 function Frame:build_ether_frame(mac_dst, mac_src, ether_type, packet, vlans)
   self.mac_dst = mac_dst or self.mac_dst
   self.mac_src = mac_src or self.mac_src
   self.ether_type = ether_type or self.ether_type
-  self.vlans = vlans or self.vlans
+  self.vlans = vlans and tableaux.tcopy(vlans) or self.vlans
   self.buf = packet or self.buf
   if not self.ether_type then
     return nil, "Unknown packet type."
   end
   local chunks = {self.mac_dst, self.mac_src}
   for idx, vlan in ipairs(self.vlans or {}) do
-    local tpid = 0xFFFF & (vlan.tpid or idx < #vlans and ETHER_TYPE_8021AD or ETHER_TYPE_8021Q)
-    local tci = (0x0007 & (vlan.pcp or 0)) << 13 |
-                (0x0001 & (vlan.dei or 0)) << 12 |
-                (0x0FFF & (vlan.vid or 0))
-    table.insert(chunks, (">I2I2"):pack(tpid, tci))
+    vlan.tpid = 0xFFFF & (vlan.tpid or idx < #self.vlans and ETHER_TYPE_8021AD or ETHER_TYPE_8021Q)
+    vlan.pcp = 0x0007 & (vlan.pcp or 0)
+    vlan.dei = 0x0001 & (vlan.dei or 0)
+    vlan.vid = 0x0FFF & (vlan.vid or 0)
+    table.insert(chunks, (">I2I2"):pack(vlan.tpid, vlan.pcp << 13 | vlan.dei << 12 | vlan.vid))
   end
   table.insert(chunks, (">I2"):pack(self.ether_type))
   table.insert(chunks, self.buf)
@@ -1091,6 +1094,25 @@ pkt_parsed:ip_count_checksum()
 test_suite:add_test(unittest.equal(pkt_parsed:raw(), packet1), "IP checksum")
 pkt_parsed:tcp_count_checksum()
 test_suite:add_test(unittest.equal(pkt_parsed:raw(), packet1), "TCP checksum")
+
+-- Frame parsing tests
+local frame1bytes = "\xff\xff\xff\xff\xff\xff\x00\x0c\x29\xad\x4f\x05"
+                 .. "\x88\xa8" -- 802.1ad
+                 .. "\x80\x6f"
+                 .. "\x81\x00" -- 802.1Q
+                 .. "\xd0\xde"
+                 .. "\xba\xbe" -- reserved ;-)
+local frame1 = Frame:new(frame1bytes)
+local frame2 = Frame:new()
+frame2:build_ether_frame("\xff\xff\xff\xff\xff\xff",
+                         "\x00\x0c\x29\xad\x4f\x05",
+                         0xBABE,
+                         nil,
+                         {{vid=111,pcp=4},{vid=222,dei=1,pcp=6}})
+for k in ("frame_buf mac_dst mac_src ether_type vlans"):gmatch("%S+") do
+  test_suite:add_test(unittest.identical(frame1[k], frame2[k]), "Frame." .. k)
+end
+
 
 -- TODO: UDP parsing/checksum
 -- TODO: IPv6 parsing, ICMPv6 checksum
