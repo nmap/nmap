@@ -199,11 +199,11 @@ function parse(url, default)
     parsed.authority = n
     return ""
   end)
-  -- get params
-  url = string.gsub(url, "%;(.*)", function(p)
-    parsed.params = p
-    return ""
-  end)
+  -- get params (RFC 3986 s3.3: parameters are scoped to individual path
+  -- segments, not the entire remaining path). Capture the first occurrence
+  -- and strip all occurrences so the path is reconstructed correctly.
+  parsed.params = url:match("%;([^/]*)")
+  url = url:gsub("%;[^/]*", "")
 
   -- path is whatever was left
   parsed.path = url
@@ -511,6 +511,10 @@ for _, t in ipairs(test_urls) do
   test_suite:add_test(unittest.equal(build(t._res), t._url), "build test url")
   test_suite:add_test(unittest.equal(build(result), t._url), "parse/build round trip")
 end
+
+local segmented_params = parse("/aa/bb;cc/dd;ee/")
+test_suite:add_test(unittest.equal(segmented_params.path, "/aa/bb/dd/"), "path params are segment-scoped")
+test_suite:add_test(unittest.equal(segmented_params.params, "cc"), "first path params are captured")
 
 
 -- path merging tests for compliance with RFC 3986, section 5.2
