@@ -872,13 +872,21 @@ function Packet:tcp_parse_options()
     if opt.type == 0 then -- end of options
       eoo = true
     elseif opt.type == 2 then    -- MSS
-      self.tcp_opt_mss = u16(opt.data, 0)
-      self.tcp_opt_mtu = self.tcp_opt_mss + 40
-    elseif opt.type == 3 then     -- widow scaling
-      self.tcp_opt_ws  = u8(opt.data, 0)
+      -- guard against a truncated option: u16 (string.unpack) errors on short data
+      if opt.data and #opt.data >= 2 then
+        self.tcp_opt_mss = u16(opt.data, 0)
+        self.tcp_opt_mtu = self.tcp_opt_mss + 40
+      end
+    elseif opt.type == 3 then     -- window scaling
+      if opt.data and #opt.data >= 1 then
+        self.tcp_opt_ws  = u8(opt.data, 0)
+      end
     elseif opt.type == 8 then     -- timestamp
-      self.tcp_opt_t1 = u32(opt.data, 0)
-      self.tcp_opt_t2 = u32(opt.data, 4)
+      -- guard against a truncated option: u32 (string.unpack) errors on short data
+      if opt.data and #opt.data >= 8 then
+        self.tcp_opt_t1 = u32(opt.data, 0)
+        self.tcp_opt_t2 = u32(opt.data, 4)
+      end
     end
   end
 end
