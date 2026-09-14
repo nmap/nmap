@@ -89,6 +89,76 @@ EIGRP = {
     return o
   end,
 
+  parsers = {
+      [TLV.PARAM] = function(eigrp_raw, tlv)
+        local index = 0
+        -- Parameters
+        local k = {}
+        k[1], k[2], k[3], k[4], k[5], k[6], tlv.htime, index = string.unpack(">BBBBBBI2", eigrp_raw, index)
+        tlv.k = k
+      end,
+      [TLV.AUTH] = function(eigrp_raw, tlv)
+        local index = 0
+        local auth = {}
+        while (index < #eigrp_raw) do
+          local authtype, authlen, pos = string.unpack(">I2I2", eigrp_raw, index)
+          index = index + authlen
+          auth[authtype] = eigrp_raw:sub(pos, index - 1)
+        end
+      end,
+      [TLV.SEQ] = function(eigrp_raw, tlv)
+        local index = 0
+        -- Sequence
+        tlv.address, index = string.unpack(">s1", eigrp_raw, index)
+        tlv.address = ipOps.str_to_ip(tlv.address)
+      end,
+      [TLV.SWVER] = function(eigrp_raw, tlv)
+        local index = 0
+        -- Software version
+        tlv.majv,
+        tlv.minv,
+        tlv.majtlv,
+        tlv.mintlv, index = string.unpack(">BBBB", eigrp_raw, index)
+      end,
+      [TLV.MSEQ] = function(eigrp_raw, tlv)
+        local index = 0
+        -- Next Multicast Sequence
+        tlv.mseq, index = string.unpack(">I4", eigrp_raw, index)
+      end,
+      [TLV.INT] = function(eigrp_raw, tlv)
+        local index = 0
+        -- Internal Route
+        tlv.nexth, tlv.metric, index = string.unpack(">I4c16", eigrp_raw, index)
+        tlv.nexth = ipOps.fromdword(tlv.nexth)
+        tlv.mask, index = string.unpack("B", eigrp_raw, index)
+        assert(tlv.mask <= 32)
+        -- Destination varies in length
+        -- e.g trailing 0's are omitted
+        local len = ((tlv.mask - 1) / 8) + 1
+        local dst = eigrp_raw:sub(index, index + len - 1) .. ("\0"):rep(4 - len)
+        tlv.dst = ipOps.bin_to_ip(dst)
+      end,
+      [TLV.EXT] = function(eigrp_raw, tlv)
+        local index = 0
+        -- External Route
+        tlv.nexth,
+        tlv.orouterid,
+        tlv.oas,
+        tlv.tag,
+        tlv.emetric,
+        -- Skip 2 reserved bytes
+        tlv.eproto,
+        tlv.eflags,
+        tlv.lmetrics,
+        tlv.mask, index = string.unpack(">I4I4I4I4I4xxBBc16B", eigrp_raw, index)
+        tlv.nexth = ipOps.fromdword(tlv.nexth)
+        tlv.orouterid = ipOps.fromdword(tlv.orouterid)
+        local len = ((tlv.mask - 1) / 8) + 1
+        local dst = eigrp_raw:sub(index, index + len - 1) .. ("\0"):rep(4 - len)
+        tlv.dst = ipOps.bin_to_ip(dst)
+      end,
+  },
+
   --- Parses a raw eigrp packet and returns a structured response.
   -- @param eigrp_raw string EIGRP Raw packet.
   -- @return response table Structured eigrp packet.
@@ -113,122 +183,25 @@ EIGRP = {
     eigrp_packet.routerid,
     eigrp_packet.as, index = string.unpack(">BBI2I4I4I4I2I2", eigrp_raw, index)
     eigrp_packet.tlvs = {}
+    local eigrp_len = #eigrp_raw
     while index < #eigrp_raw do
       tlv = {}
+      local next_tlv = index
       tlv.type, tlv.length, index = string.unpack(">I2I2", eigrp_raw, index)
-      if tlv.length == 0x00 then
+      next_tlv = next_tlv + tlv.length
+      if tlv.length == 0x00 or tlv.length > eigrp_len then
         -- In case someone wants to DoS us :)
-        stdnse.debug1("eigrp.lua: stopped parsing due to null TLV length.")
+        stdnse.debug1("eigrp.lua: stopped parsing due to bad TLV length.")
         break
       end
-      -- TODO: These padding calculations seem suspect, especially the ones
-      -- that assume a static length for a variable-length field like TLV.SEQ
-      if tlv.type == TLV.PARAM then
-        -- Parameters
-        local k = {}
-        k[1], k[2], k[3], k[4], k[5], k[6], tlv.htime, index = string.unpack(">BBBBBBI2", eigrp_raw, index)
-        tlv.k = k
-        index = index + tlv.length - 12
-      elseif tlv.type == TLV.AUTH then
-        tlv.authtype,
-        tlv.authlen,
-        tlv.keyid,
-        tlv.keyseq, index = string.unpack(">I2I2I4I4", eigrp_raw, index)
-        -- Null pad == tlv.length - What was already parsed - authlen
-        tlv.digest, index = string.unpack(">I2", eigrp_raw, index + (tlv.length - tlv.authlen - index + 1))
-      elseif tlv.type == TLV.SEQ then
-        -- Sequence
-        tlv.address, index = string.unpack(">s2", eigrp_raw, index)
-        tlv.address = ipOps.str_to_ip(tlv.address)
-        index = index + tlv.length - 7
-      elseif tlv.type == TLV.SWVER then
-        -- Software version
-        tlv.majv,
-        tlv.minv,
-        tlv.majtlv,
-        tlv.mintlv, index = string.unpack(">BBBB", eigrp_raw, index)
-        index = index + tlv.length - 8
-      elseif tlv.type == TLV.MSEQ then
-        -- Next Multicast Sequence
-        tlv.mseq, index = string.unpack(">I4", eigrp_raw, index)
-        index = index + tlv.length - 8
-      elseif tlv.type == TLV.STUB then
-        -- TODO
-        stdnse.debug1("eigrp.lua: TLV type %d skipped due to no parser.", tlv.type)
-        index = index + tlv.length - 4
-      elseif tlv.type == TLV.TERM then
-        -- TODO
-        stdnse.debug1("eigrp.lua: TLV type %d skipped due to no parser.", tlv.type)
-        index = index + tlv.length - 4
-      elseif tlv.type == TLV.TIDLIST then
-        -- TODO
-        stdnse.debug1("eigrp.lua: TLV type %d skipped due to no parser.", tlv.type)
-        index = index + tlv.length - 4
-      elseif tlv.type == TLV.REQ then
-        -- TODO
-        stdnse.debug1("eigrp.lua: TLV type %d skipped due to no parser.", tlv.type)
-        index = index + tlv.length - 4
-      elseif tlv.type == TLV.INT then
-        -- Internal Route
-        tlv.nexth, index = string.unpack(">I4", eigrp_raw, index)
-        tlv.nexth = ipOps.fromdword(tlv.nexth)
-        tlv.mask, index = string.unpack(">I2", eigrp_raw, index + 15)
-        -- Destination varies in length
-        -- e.g trailing 0's are omitted
-        -- if length = 29 => destination is 4 bytes
-        -- if length = 28 => destination is 3 bytes
-        -- if length = 27 => destination is 2 bytes
-        -- if length = 26 => destination is 1 byte
-        local dst = {0,0,0,0}
-        for i = 1, (4 + tlv.length - 29) do
-          dst[i], index = string.unpack("B", eigrp_raw, index)
-        end
-        tlv.dst = table.concat(dst, '.')
-      elseif tlv.type == TLV.EXT then
-        -- External Route
-        tlv.nexth,
-        tlv.orouterid,
-        tlv.oas,
-        tlv.tag,
-        tlv.emetric,
-        -- Skip 2 reserved bytes
-        tlv.eproto,
-        tlv.eflags,
-        tlv.lmetrics,
-        tlv.mask, index = string.unpack(">I4I4I4I4I4xxBBc16B", eigrp_raw, index)
-        tlv.nexth = ipOps.fromdword(tlv.nexth)
-        tlv.orouterid = ipOps.fromdword(tlv.orouterid)
-        -- Destination varies in length
-        -- if length = 49 => destination is 4 bytes
-        -- if length = 48 => destination is 3 bytes
-        -- if length = 47 => destination is 2 bytes
-        -- if length = 46 => destination is 1 byte
-        local dst = {0,0,0,0}
-        for i = 1, (4 + tlv.length - 49) do
-          dst[i], index = string.unpack("B", eigrp_raw, index)
-        end
-        tlv.dst = table.concat(dst, '.')
-      elseif tlv.type == TLV.COM then
-        -- TODO
-        stdnse.debug1("eigrp.lua: TLV type %d skipped due to no parser.", tlv.type)
-        index = index + tlv.length - 4
-      elseif tlv.type == TLV.INT6 then
-        -- TODO
-        stdnse.debug1("eigrp.lua: TLV type %d skipped due to no parser.", tlv.type)
-        index = index + tlv.length - 4
-      elseif tlv.type == TLV.EXT6 then
-        -- TODO
-        stdnse.debug1("eigrp.lua: TLV type %d skipped due to no parser.", tlv.type)
-        index = index + tlv.length - 4
-      elseif tlv.type == TLV.COM6 then
-        -- TODO
-        stdnse.debug1("eigrp.lua: TLV type %d skipped due to no parser.", tlv.type)
-        index = index + tlv.length - 4
+      local parser = EIGRP.parsers[tlv.type]
+      if parser then
+        parser(eigrp_raw:sub(index, next_tlv - 1), tlv)
       else
-        stdnse.debug1("eigrp.lua: eigrp.lua: TLV type %d unknown.", tlv.type)
-        index = index + tlv.length - 4
+        stdnse.debug1("eigrp.lua: TLV type %d skipped due to no parser.", tlv.type)
       end
       table.insert(eigrp_packet.tlvs, tlv)
+      index = next_tlv
     end
     return eigrp_packet
   end,
