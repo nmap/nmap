@@ -2,6 +2,7 @@ local nmap = require "nmap"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
 local string = require "string"
+local table = require "table"
 
 description = [[
 Connects to the IBM DB2 Administration Server (DAS) on TCP or UDP port 523 and
@@ -193,29 +194,38 @@ function read_db2_packet(socket)
     else
       packet.header.data_len = string.unpack(">I4", packet.header.raw, DATA_LENGTH_OFFSET )
     end
+    -- Len could be up to 2^32, so let's limit it.
+    -- parse_db2_packet gets info as a 2-byte-length-prefixed value at offset 158
+    -- Maximum: info_length_offset(158) + 2^16
+    if packet.header.data_len > 158 + 0xffff then
+      packet.header.data_len = 158 + 0xffff
+    end
 
     total_len = header_len + packet.header.data_len
+    local buf_len = #buf
 
     if(nmap.debugging() > 3) then
       stdnse.debug1("data_len: %d", packet.header.data_len)
-      stdnse.debug1("buf_len: %d", buf:len())
+      stdnse.debug1("buf_len: %d", buf_len)
       stdnse.debug1("total_len: %d", total_len)
     end
 
     -- do we have all data as specified by data_len?
-    while total_len > buf:len() do
+    local reads = {}
+    while total_len > buf_len do
       -- if not read additional bytes
       if(nmap.debugging() > 3)  then
-        stdnse.debug1("Reading %d additional bytes", total_len - buf:len())
+        stdnse.debug1("Reading %d additional bytes", total_len - buf_len)
       end
-      local tmp = try( socket:receive_bytes( total_len - buf:len() ) )
+      local tmp = try( socket:receive_bytes( total_len - buf_len ) )
       if(nmap.debugging() > 3)  then
         stdnse.debug1("Read %d bytes", tmp:len())
       end
-      buf = buf .. tmp
+      reads[#reads+1] = tmp
+      buf_len = buf_len + #tmp
     end
 
-    packet.data = buf:sub(header_len + 1)
+    packet.data = buf:sub(header_len + 1) .. table.concat(reads)
 
   else
     stdnse.debug1("Unknown packet, aborting ...")
