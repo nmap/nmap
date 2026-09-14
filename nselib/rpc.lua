@@ -287,21 +287,18 @@ Comm = {
   -- @return data string containing the data passed to the function and the additional data appended to it or error message on failure
   GetAdditionalBytes = function( self, data, pos, needed )
     local toread =  needed - ( data:len() - pos + 1 )
-    -- Do the loop ourselves instead of receive_bytes. Pathological case:
-    -- * read less than needed and timeout
-    -- * receive_bytes returns short but we don't know if it's eof or timeout
-    -- * Try again. If it was timeout, we've doubled the timeout waiting for bytes that aren't coming.
-    while toread > 0 do
-      local status, tmp = self.socket:receive()
-      if status then
-        toread = toread - #tmp
-        data = data .. tmp
-      else
-        return false, string.format("getAdditionalBytes read %d bytes before error: %s",
-          needed - toread, tmp)
-      end
+    if toread <= 0 then
+      return true, data
     end
-    return true, data
+    local status, tmp = self.socket:receive_bytes(toread)
+    if not status then
+      return status, tmp
+    end
+    if toread > #tmp then
+      return false, string.format("GetAdditionalBytes read only %d of %d bytes before timeout or EOF",
+        #tmp, toread)
+    end
+    return true, data .. tmp
   end,
 
   --- Creates a RPC header
