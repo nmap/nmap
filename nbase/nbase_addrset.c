@@ -571,7 +571,7 @@ static void trie_insert (struct trie_node *this, const struct sockaddr *sa, int 
     log_debug("Bad netmask length %d for address family %u, address not inserted.", bits, sa->sa_family);
     return;
   }
-  return trie_insert_addr(this, addr, mask);
+  trie_insert_addr(this, addr, mask);
 }
 
 static void trie_insert_addr (struct trie_node *this, const u32 *addr, const u32 *mask)
