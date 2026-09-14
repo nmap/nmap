@@ -351,6 +351,8 @@ fail:
 
 static struct proxy_node *proxy_node_new(const char *proxystr, const char *end) {
   int i;
+  size_t proxystr_len = end - proxystr;
+  assert(end > proxystr);
 
   for (i = 0; ProxyBackends[i] != NULL; i++) {
     const struct proxy_spec *pspec;
@@ -358,7 +360,7 @@ static struct proxy_node *proxy_node_new(const char *proxystr, const char *end) 
 
     pspec = ProxyBackends[i];
     prefix_len = strlen(pspec->prefix);
-    if (end - proxystr > prefix_len && strncasecmp(proxystr, pspec->prefix, prefix_len) == 0) {
+    if (proxystr_len > prefix_len && strncasecmp(proxystr, pspec->prefix, prefix_len) == 0) {
       struct proxy_node *proxy = NULL;
       struct uri uri;
 
