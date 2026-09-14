@@ -644,15 +644,14 @@ Telnet = {
         stdnse.debug(3,"[TN3270] Received TN3270 REJECT.")
         return false
       elseif self.sb_options:sub(3,3) == self.tncommands.IS then
-        local tn_loc = 1
-        while self.sb_options:sub(4+tn_loc,4+tn_loc) ~= self.commands.SE and
-        self.sb_options:sub(4+tn_loc,4+tn_loc) ~= self.tncommands.CONNECT do
+        local tn_loc = 0
+        local cmd
+        repeat
           tn_loc = tn_loc + 1
-        end
-        --XXX Unused variable??? Should this be tn_loc?
-        -- local sn_loc = 1
-        if self.sb_options:sub(4+tn_loc,4+tn_loc) == self.tncommands.CONNECT then
-          self.connected_lu = self.sb_options:sub(5+tn_loc, #self.sb_options)
+          cmd = self.sb_options:sub(4+tn_loc, 4+tn_loc)
+        until cmd == "" or cmd == self.commands.SE or cmd == self.tncommands.CONNECT
+        if cmd == self.tncommands.CONNECT then
+          self.connected_lu = self.sb_options:sub(5+tn_loc, -1)
           self.connected_dtype = self.sb_options:sub(4,3+tn_loc)
           stdnse.debug(3,"[TN3270] Current LU: %s", self.connected_lu)
         end
