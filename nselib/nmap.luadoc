@@ -657,6 +657,14 @@ function receive_buf(delimiter, keeppattern)
 -- @usage socket:close()
 function close()
 
+--- Check whether the socket has seen EOF
+--
+-- @return Status (true or false).
+-- @return Error code (if status is false).
+-- @see new_socket
+-- @usage socket:eof()
+function eof()
+
 --- Gets information about a socket.
 --
 -- This function returns information about a socket object. It returns five

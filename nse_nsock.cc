@@ -50,6 +50,7 @@ typedef struct nse_nsock_udata
 {
   nsock_iod nsiod;
   int timeout;
+  bool eof;
 
   lua_State *thread;
 
@@ -656,11 +657,19 @@ static int l_sendto (lua_State *L)
 
 }
 
+static int l_eof (lua_State *L)
+{
+  nse_nsock_udata *nu = check_nsock_udata(L, 1, false);
+  lua_pushboolean(L, nu->eof);
+  return 1;
+}
+
 static void receive_callback (nsock_pool nsp, nsock_event nse, void *udata)
 {
   nse_nsock_udata *nu = (nse_nsock_udata *) udata;
   lua_State *L = nu->thread;
   assert(nse_type(nse) == NSE_TYPE_READ);
+  nu->eof = nse_eof(nse);
   if (nse_status(nse) == NSE_STATUS_SUCCESS)
   {
     int len;
@@ -1179,6 +1188,7 @@ LUALIB_API int luaopen_nsock (lua_State *L)
     {"receive_lines", l_receive_lines},
     {"reconnect_ssl", l_reconnect_ssl},
     {"set_timeout", l_set_timeout},
+    {"eof", l_eof},
     {NULL, NULL}
   };
 
