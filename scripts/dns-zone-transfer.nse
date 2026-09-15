@@ -11,6 +11,7 @@ local stringaux = require "stringaux"
 local tab = require "tab"
 local table = require "table"
 local target = require "target"
+local match = require "match"
 
 description = [[
 Requests a zone transfer (AXFR) from a DNS server.
@@ -170,16 +171,20 @@ end
 --- Parse an RFC 1035 domain name.
 --@param data String of data.
 --@param offset Offset in the string to read the domain name.
-function parse_domain(data, offset)
+function parse_domain(data, offset, targets)
   local offset, domain = dns.decStr(data, offset)
-  domain = domain or "<parse error>"
+  if domain then
+    targets[domain:lower()] = 1
+  else
+    domain = "<parse error>"
+  end
   return offset, string.format("%s.", domain)
 end
 
-local function parse_num_domain(data, offset)
+local function parse_num_domain(data, offset, targets)
   local number, domain
   number = bto16(data, offset)
-  offset, domain = parse_domain(data, offset+2)
+  offset, domain = parse_domain(data, offset+2, targets)
   return offset, string.format("%d %s", number, domain)
 end
 
@@ -190,21 +195,23 @@ end
 
 --- Retrieve type specific data (rdata) from dns packets
 local RD = {
-  A = function(data, offset)
-    return offset+4, ipOps.str_to_ip(data:sub(offset, offset+3))
+  A = function(data, offset, targets)
+    local ip = ipOps.str_to_ip(data:sub(offset, offset+3))
+    targets[ip] = 1
+    return offset+4, ip
   end,
   NS = parse_domain,
   MD = parse_domain, -- obsolete per rfc1035, use MX
   MF = parse_domain, -- obsolete per rfc1035, use MX
   CNAME = parse_domain,
-  SOA = function(data, offset)
+  SOA = function(data, offset, targets)
     local field, info
     info = strbuf.new()
     -- name server
-    offset, field = parse_domain(data, offset)
+    offset, field = parse_domain(data, offset, targets)
     info = info .. field;
     -- mail box
-    offset, field = parse_domain(data, offset)
+    offset, field = parse_domain(data, offset, targets)
     info = info .. field;
     -- ignore other values
     offset = offset + 20
@@ -214,10 +221,11 @@ local RD = {
   MG = parse_domain, -- experimental per RFC 1035
   MR = parse_domain, -- experimental per RFC 1035
   --NULL -- RFC 1035 says anything can go in this field. Hex dump is good.
-  WKS = function(data, offset)
+  WKS = function(data, offset, targets)
     local len, ip, proto, svcs
     len = bto16(data, offset-2) - 5 -- length of bit field
     ip = ipOps.str_to_ip(data:sub(offset, offset+3))
+    targets[ip] = 1
     proto = string.byte(data, offset+4)
     offset = offset + 5
     svcs = {}
@@ -244,18 +252,18 @@ local RD = {
     offset, os = parse_txt(data, offset)
     return offset, string.format("%s %s", cpu, os)
   end,
-  MINFO = function(data, offset)
+  MINFO = function(data, offset, targets)
     local rmailbx, emailbx
-    offset, rmailbx = parse_domain(data, offset)
-    offset, emailbx = parse_domain(data, offset)
+    offset, rmailbx = parse_domain(data, offset, targets)
+    offset, emailbx = parse_domain(data, offset, targets)
     return offset, string.format("%s %s", rmailbx, emailbx)
   end,
   MX = parse_num_domain,
   TXT = parse_txt,
-  RP = function(data, offset)
+  RP = function(data, offset, targets)
     local mbox_dname, txt_dname
-    offset, mbox_dname = parse_domain(data, offset)
-    offset, txt_dname = parse_domain(data, offset)
+    offset, mbox_dname = parse_domain(data, offset, targets)
+    offset, txt_dname = parse_domain(data, offset, targets)
     return offset, string.format("%s %s", mbox_dname, txt_dname)
   end,
   AFSDB = parse_num_domain,
@@ -274,11 +282,11 @@ local RD = {
   end,
   ["NSAP-PTR"] = parse_domain,
   --SIG KEY --obsolete RRs relating to DNSSEC
-  PX = function(data, offset)
+  PX = function(data, offset, targets)
     local preference, map822, mapx400
     preference = bto16(data, offset)
-    offset, map822 = parse_domain(data, offset+2)
-    offset, mapx400 = parse_domain(data, offset)
+    offset, map822 = parse_domain(data, offset+2, targets)
+    offset, mapx400 = parse_domain(data, offset, targets)
     return offset, string.format("%d %s %s", preference, map822, mapx400)
   end,
   GPOS = function(data, offset)
@@ -288,8 +296,10 @@ local RD = {
     offset, alt = parse_txt(data, offset)
     return offset, string.format("%s %s %s", lat, long, alt)
   end,
-  AAAA = function(data, offset)
-    return offset+16, ipOps.str_to_ip(data:sub(offset, offset+15))
+  AAAA = function(data, offset, targets)
+    local ip = ipOps.str_to_ip(data:sub(offset, offset+15))
+    targets[ip] = 1
+    return offset+16, ip
   end,
   LOC = function(data, offset)
     local version, siz, hp, vp, lat, lon, alt
@@ -323,10 +333,10 @@ local RD = {
   end,
   --NXT --obsolete RR relating to DNSSEC
   --EID NIMLOC --related to Nimrod DARPA project (Patton1995)
-  SRV = function(data, offset)
+  SRV = function(data, offset, targets)
     local priority, weight, port, info
     priority, weight, port, offset = string.unpack(">I2I2I2", data, offset)
-    offset, info = parse_domain(data, offset)
+    offset, info = parse_domain(data, offset, targets)
     return offset, string.format("%d %d %d %s", priority, weight, port, info)
   end,
   ATMA = function(data, offset) --http://www.broadband-forum.org/ftp/pub/approved-specs/af-saa-0069.000.pdf
@@ -335,25 +345,26 @@ local RD = {
     offset, address = parse_txt(data, offset+1)
     return offset, string.format("%d %s", format, address)
   end,
-  NAPTR = function(data, offset)
+  NAPTR = function(data, offset, targets)
     local order, preference, flags, service, regexp, replacement
     order = bto16(data, offset)
     preference = bto16(data, offset+2)
     offset, flags = parse_txt(data, offset+4)
     offset, service = parse_txt(data, offset)
     offset, regexp = parse_txt(data, offset)
-    offset, replacement = parse_domain(data, offset)
+    offset, replacement = parse_domain(data, offset, targets)
     return offset, string.format('%d %d %s %s %s %s',
       order, preference, flags, service, regexp, replacement)
   end,
   KX = parse_num_domain,
   --CERT
-  A6 = function(data, offset) -- obsoleted by AAAA
+  A6 = function(data, offset, targets) -- obsoleted by AAAA
     local prefix, addr, name
     prefix = string.byte(data, offset)
     local pbytes = prefix >> 3
     addr = ipOps.str_to_ip(string.rep("\000", pbytes) .. data:sub(offset+1, 16-pbytes))
-    offset, name = parse_domain(data, offset + 17 - pbytes)
+    targets[addr] = 1
+    offset, name = parse_domain(data, offset + 17 - pbytes, targets)
     return offset, string.format("%d %s %s", prefix, addr, name)
   end,
   DNAME = parse_domain,
@@ -392,11 +403,11 @@ local RD = {
   --UINFO UID GID UNSPEC TKEY TSIG IXFR AXFR
 }
 
-function get_rdata(data, offset, ttype)
+function get_rdata(data, offset, ttype, targets)
   if typetab[ttype] == nil then
     return offset, ''
   elseif RD[typetab[ttype]] then
-    return RD[typetab[ttype]](data, offset)
+    return RD[typetab[ttype]](data, offset, targets)
   else
     local field
     field, offset = string.unpack(">s2", data, offset - 2)
@@ -405,12 +416,13 @@ function get_rdata(data, offset, ttype)
 end
 
 --- Get a single answer record from the current offset
-function get_answer_record(table, data, offset)
+function get_answer_record(table, data, offset, targets)
   local line, rdlen, ttype
 
   -- answer domain
-  offset, line = parse_domain(data, offset)
+  offset, line = parse_domain(data, offset, targets)
   table.domain = line
+  targets[line:lower()] = 1
 
   -- answer record type
   ttype = bto16(data, offset)
@@ -422,7 +434,7 @@ function get_answer_record(table, data, offset)
   rdlen = bto16(data, offset+8)
 
   -- extra data, ignore ttl and class
-  offset, line =  get_rdata(data, offset+10, ttype)
+  offset, line =  get_rdata(data, offset+10, ttype, targets)
   if(line == '') then
     offset = offset + rdlen
     return false, offset
@@ -466,16 +478,20 @@ function parse_records(number, data, results, offset)
 end
 
 -- parse and save all records in order to dump them to output
-function parse_records_table(number, data, table, offset)
+function parse_records_table(number, data, table, offset, targets)
+  local soa_seen = 0
   while number > 0 do
     local answer, st = {}
-    st, offset = get_answer_record(answer, data, offset)
+    st, offset = get_answer_record(answer, data, offset, targets)
     if st then
       if answer.domain then
         tab.add(table, 1, answer.domain)
       end
       if answer.ttype then
         tab.add(table, 2, answer.ttype)
+        if answer.ttype == "SOA" then
+          soa_seen = soa_seen + 1
+        end
       end
       if answer.rdata then
         tab.add(table, 3, answer.rdata)
@@ -484,169 +500,41 @@ function parse_records_table(number, data, table, offset)
     end
     number = number - 1
   end
-  return offset
+  return offset, soa_seen
 end
 
--- An iterator that breaks up a concatenation of responses. In DNS over TCP,
--- each response is prefixed by a two-byte length (RFC 1035 section 4.2.2).
--- Responses returned by this iterator include the two-byte length prefix.
-function responses_iter(data)
-  local offset = 1
-
-  return function()
-    local length, remaining, response
-
-    remaining = #data - offset + 1
-    if remaining == 0 then
-      return nil
-    end
-    assert(remaining >= 14 + 2)
-    length = bto16(data, offset)
-    assert(length <= remaining)
-    -- Skip over the length field.
-    offset = offset + 2
-    response = string.sub(data, offset, offset + length - 1)
-    offset = offset + length
-    return response
+function dump_zone_info(table, data, targets)
+  -- number of available records
+  local id, f1, f2, questions, answers, auth_answers, add_answers, offset = string.unpack(">I2 B B I2 I2 I2 I2", data)
+  if (f1 & 0xf8) ~= 0x80 then
+    return false, "Not a response to a standard query"
   end
-end
-
--- add axfr results to Nmap scan queue
-function add_zone_info(response)
-  local RR = {}
-  for data in responses_iter(response) do
-
-    local offset, line = 1
-    local questions = bto16(data, offset+4)
-    local answers = bto16(data, offset+6)
-    local auth_answers = bto16(data, offset+8)
-    local add_answers = bto16(data, offset+10)
-
-    -- move to beginning of first section
-    offset = offset + 12
-
-    if questions > 1 then
-      return false, 'More then 1 question record, something has gone wrong'
-    end
-
-    if answers == 0 then
-      return false, 'transfer successful but no records'
-    end
-
-    -- skip over the question section, we don't need it
-    if questions == 1 then
-      offset, line = parse_domain(data, offset)
-      offset = offset + 4
-    end
-
-    -- parse all available resource records
-    stdnse.debug3("Script %s: parsing ANCOUNT == %d, NSCOUNT == %d, ARCOUNT == %d", answers, auth_answers, add_answers)
-    RR['Node Names'] = {}
-    offset = parse_records(answers, data, RR, offset)
-    offset = parse_records(auth_answers, data, RR, offset)
-    offset = parse_records(add_answers, data, RR, offset)
+  if (f2 & 0x7f) ~= 0x00 then
+    return false, "Not a success response"
   end
 
-  local outtab, nhosts = tab.new(), 0
-  local newhosts_count, status, ret = 0, false
-
-  tab.addrow(outtab, "Domains", "Added Targets")
-  for rdata in pairs(RR['Node Names']) do
-    status, ret = target.add(rdata)
-    if not status then
-      stdnse.debug3("Error: failed to add all Node Names.")
-      break
-    end
-    newhosts_count = newhosts_count + ret
-  end
-  if newhosts_count == 0 then
-    return false, ret and ret or "Error: failed to add DNS records."
-  end
-  tab.addrow(outtab, "Node Names", newhosts_count)
-  nhosts = newhosts_count
-
-  tab.nextrow(outtab)
-
-  tab.addrow(outtab, "DNS Records", "Added Targets")
-  for rectype in pairs(RR) do
-    newhosts_count = 0
-    -- filter Private IPs
-    if rectype == 'A' then
-      for rdata in pairs(RR[rectype]) do
-        if dns_opts.addall or not ipOps.isPrivate(rdata) then
-          status, ret = target.add(rdata)
-          if not status then
-            stdnse.debug3("Error: failed to add all 'A' records.")
-            break
-          end
-          newhosts_count = newhosts_count + ret
-        end
-      end
-    elseif rectype ~= 'Node Names' then
-      for rdata in pairs(RR[rectype]) do
-        status, ret = target.add(rdata)
-        if not status then
-          stdnse.debug3("Error: failed to add all '%s' records.", rectype)
-          break
-        end
-        newhosts_count = newhosts_count + ret
-      end
-    end
-
-    if newhosts_count ~= 0 then
-      tab.addrow(outtab, rectype, newhosts_count)
-      nhosts = nhosts + newhosts_count
-    elseif nhosts == 0 then
-      -- error: we can't add new targets
-      return false, ret and ret or "Error: failed to add DNS records."
-    end
+  if questions > 1 then
+    return false, 'More then 1 question record, something has gone wrong'
   end
 
-  -- error: no *valid records* or we can't add new targets
-  if nhosts == 0 then
-    return false, "Error: failed to add valid DNS records."
+  if answers == 0 then
+    return false, 'transfer successful but no records'
   end
 
-  return true, tab.dump(outtab) .. "\n" ..
-    string.format("Total new targets added to Nmap scan queue: %d.",
-    nhosts)
-end
-
-function dump_zone_info(table, response)
-  for data in responses_iter(response) do
-    local offset, line = 1
-
-    -- number of available records
-    local questions = bto16(data, offset+4)
-    local answers = bto16(data, offset+6)
-    local auth_answers = bto16(data, offset+8)
-    local add_answers = bto16(data, offset+10)
-
-    -- move to beginning of first section
-    offset = offset + 12
-
-    if questions > 1 then
-      return false, 'More then 1 question record, something has gone wrong'
-    end
-
-    if answers == 0 then
-      return false, 'transfer successful but no records'
-    end
-
-    -- skip over the question section, we don't need it
-    if questions == 1 then
-        offset, line = parse_domain(data, offset)
-        offset = offset + 4
-    end
-
-    -- parse all available resource records
-    stdnse.debug3("parsing ANCOUNT == %d, NSCOUNT == %d, ARCOUNT == %d", answers, auth_answers, add_answers)
-    offset = parse_records_table(answers, data, table, offset)
-    offset = parse_records_table(auth_answers, data, table, offset)
-    offset = parse_records_table(add_answers, data, table, offset)
+  -- skip over the question section, we don't need it
+  if questions == 1 then
+    offset = parse_domain(data, offset, {})
+    offset = offset + 4
   end
 
-  return true
+  -- parse all available resource records
+  stdnse.debug3("parsing ANCOUNT == %d, NSCOUNT == %d, ARCOUNT == %d", answers, auth_answers, add_answers)
+  local soa_seen = 0
+  offset, soa_seen = parse_records_table(answers, data, table, offset, targets)
+  offset = parse_records_table(auth_answers, data, table, offset, targets)
+  offset = parse_records_table(add_answers, data, table, offset, targets)
+
+  return true, soa_seen
 end
 
 action = function(host, port)
@@ -700,37 +588,34 @@ action = function(host, port)
 
   -- read all data returned. Common to have
   -- multiple packets from a single request
-  local response = strbuf.new()
-  while true do
-    local status, data = soc:receive_bytes(1)
+  local soa_count = 0
+  local targets = {}
+  local table = tab.new()
+  repeat
+    local status, data = soc:receive_buf(match.numbytes(2), true)
     if not status then break end
-    response = response .. data
-  end
+    local len = string.unpack(">I2", data)
+    if len < 12 then break end
+    status, data = soc:receive_buf(match.numbytes(len), true)
+    if not status then break end
+    local status, ret = dump_zone_info(table, data, targets)
+    if not status then break end
+    soa_count = soa_count + ret
+  until soa_count > 1
   soc:close()
 
-  local response_str = strbuf.dump(response)
-  local length = #response_str
-
-  -- check server response code
-  if length < 6 or
-    not ((string.byte(response_str, 6) & 15) == 0) then
-    return nil
-  end
-
-  -- add axfr results to Nmap scanning queue
+  local outstr = '\n' .. tab.dump(table)
   if target.ALLOW_NEW_TARGETS then
-    local status, ret = add_zone_info(response_str)
-    if not status then
-      return stdnse.format_output(false, ret)
+    local n = 0
+    for t, _ in pairs(targets) do
+      if dns_opts.addall or not ipOps.isPrivate(t) then
+        local status, ret = target.add(t)
+        if status then
+          n = n + ret
+        end
+      end
     end
-    return stdnse.format_output(true, ret)
-    -- dump axfr results
-  else
-    local table = tab.new()
-    local status, ret = dump_zone_info(table, response_str)
-    if not status then
-      return stdnse.format_output(false, ret)
-    end
-    return '\n' .. tab.dump(table)
+    outstr = outstr .. ("\nTotal new targets added to Nmap scan queue: %d."):format(n)
   end
+  return table, outstr
 end
