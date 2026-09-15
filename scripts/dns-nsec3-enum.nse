@@ -214,7 +214,7 @@ local function query_for_hashes(host,subdomain,domain)
   local status
   local result
   local ranges = {}
-  status, result = dns.query(subdomain, {host = host.ip, dtype='NSEC3', retAll=true, retPkt=true, dnssec=true})
+  status, result = dns.query(subdomain, {host = host, dtype='NSEC3', retAll=true, retPkt=true, dnssec=true})
   if status then
     for _, nsec3 in ipairs(auth_filter(result, "NSEC3")) do
       local h1 = string.lower(remove_suffix(nsec3.dname,domain))
@@ -247,7 +247,7 @@ local function enum(host, port, domain)
   local end_time = get_end_time()
 
   -- do one query to determine the hash and if DNSSEC is actually used
-  status, result = dns.query(full_domain, {host = host.ip, dtype='NSEC3', retAll=true, retPkt=true, dnssec=true})
+  status, result = dns.query(full_domain, {host = host, dtype='NSEC3', retAll=true, retPkt=true, dnssec=true})
   if status then
     local is_nsec3 = false
     for _, nsec3 in ipairs(auth_filter(result, "NSEC3")) do -- parse the results and add initial ranges

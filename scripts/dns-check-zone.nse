@@ -429,13 +429,12 @@ local dns_checks = {
 }
 
 action = function(host, port)
-  local server = host.ip
   local output = { name = ("DNS check results for domain: %s"):format(arg_domain) }
 
   for group in pairs(dns_checks) do
     local group_output = { name = group }
     for _, check in ipairs(dns_checks[group]) do
-      local status, res = check.func(arg_domain, server)
+      local status, res = check.func(arg_domain, host)
       if ( status ) then
         local test_res = ("%s - %s"):format(res.status, check.desc)
         table.insert(group_output, { name = test_res, res.output })

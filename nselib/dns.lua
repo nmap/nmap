@@ -330,9 +330,13 @@ function query(dname, options)
     else
       return false, "No Servers"
     end
-  elseif type(host) == "table" then
+  elseif type(host) == "table" and not host.ip then
     srv = host
     host = srv[1]
+  end
+
+  if not host then
+    return false, "No Servers"
   end
 
   local pkt = newPacket()

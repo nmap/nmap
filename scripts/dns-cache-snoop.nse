@@ -143,7 +143,7 @@ local function nonrecursive_mode(host, port, domains)
   local cached = {}
 
   for _,domain in ipairs(domains) do
-    if dns.query(domain, {host = host.ip, port = port.number, tries = 0, norecurse=true}) then
+    if dns.query(domain, {host = host, port = port.number, tries = 0, norecurse=true}) then
       cached[#cached + 1] = domain
     end
   end
@@ -157,7 +157,7 @@ local function timed_query(host, port, domain)
   local start, stop
 
   start = nmap.clock_ms()
-  if dns.query(domain, {host = host.ip, port = port.number, tries = 0, norecurse = false}) then
+  if dns.query(domain, {host = host, port = port.number, tries = 0, norecurse = false}) then
     stop = nmap.clock_ms()
     return (stop - start) / 1000
   else

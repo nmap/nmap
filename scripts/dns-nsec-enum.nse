@@ -305,7 +305,7 @@ local function enum(host, port, domain)
     local result = {}
     local status, result, nsec
     stdnse.debug1("Trying %q.%q", subdomain, domain)
-    status, result = dns.query(join({subdomain, domain}), {host = host.ip, port=port.number, proto=port.protocol, dtype='A', retAll=true, retPkt=true, dnssec=true})
+    status, result = dns.query(join({subdomain, domain}), {host = host, port=port.number, proto=port.protocol, dtype='A', retAll=true, retPkt=true, dnssec=true})
     nsec = status and get_next_nsec(result, join({subdomain, domain})) or nil
     if nsec then
       local first, last, remainder

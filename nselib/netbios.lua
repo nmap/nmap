@@ -425,7 +425,7 @@ function nbquery(host, nbname, options)
   options.port = options.port or 137
   options.retPkt = options.retPkt or true
   options.dtype = options.dtype or types.NB
-  options.host = host.ip
+  options.host = host
   options.flags = options.flags or ( options.multiple and 0x0110 )
   options.id = math.random(0xFFFF)
 

@@ -334,7 +334,7 @@ action = function(host, port)
     return stdnse.format_output(false, SCRIPT_NAME .. ".domain was not specified")
   end
 
-  local nameserver = (host and host.ip) or argNS
+  local nameserver = host or argNS
   -- if we have no nameserver argument and no host, we don't have sufficient
   -- information to continue, abort
   if not nameserver then
