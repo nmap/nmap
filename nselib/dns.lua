@@ -32,6 +32,7 @@
 
 local coroutine = require "coroutine"
 local ipOps = require "ipOps"
+local match = require "match"
 local nmap = require "nmap"
 local stdnse = require "stdnse"
 local string = require "string"
@@ -133,27 +134,22 @@ end
 -- @return Response (if status is true).
 local function sendPacketsTCP(data, host, port, timeout)
   local socket = nmap.new_socket()
-  local response
-  local responses = {}
   socket:set_timeout(timeout)
   socket:connect(host, port)
   local send_data = string.pack(">s2", data)
   socket:send(send_data)
-  local response = ''
-  local got_response = false
-  while true do
-    local status, recv_data = socket:receive_bytes(1)
-    if not status then break end
-    got_response = true
-    response = response .. recv_data
+  local status, response = socket:receive_buf(match.numbytes(2), true)
+  if not status then
+    return false, response
   end
-  local status, _, _, ip, _ = socket:get_info()
+  local len = string.unpack(">I2", response)
+  status, response = socket:receive_buf(match.numbytes(len), true)
   socket:close()
-  if not got_response then
-    return false
-  end
   -- remove payload size
-  table.insert(responses, { data = string.sub(response,3), peer = ip } )
+  local responses = {{
+      data = response,
+      peer = (type(host) == "table" and host.ip or host)
+  }}
   return true, responses
 end
 
