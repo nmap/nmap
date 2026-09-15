@@ -60,8 +60,9 @@ local string = require "string"
 local table = require "table"
 local nmap = require "nmap"
 local stdnse = require "stdnse"
+local url = require "url"
 
-local api_version="1.2"
+local api_version="1.3"
 local mincvss=stdnse.get_script_args("vulners.mincvss")
 mincvss = tonumber(mincvss) or 0.0
 
@@ -132,7 +133,9 @@ function get_results(what, vers, type)
     any_af = true,
   }
 
-  local response = http.get_url(('%s?software=%s&version=%s&type=%s'):format(api_endpoint, what, vers, type), option)
+  local query = ('software=%s&version=%s&type=%s'):format(
+    what, url.escape(json.generate(tostring(vers))), type)
+  local response = http.get_url(api_endpoint .. "?" .. query, option)
 
   local status = response.status
   if status == nil then
