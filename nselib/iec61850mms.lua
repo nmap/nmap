@@ -38,6 +38,13 @@ MMSDecoder = {
     local OSI_Session = {}
 
     while not COTP_last do
+      -- Make sure the buffer actually holds the TPKT (4 bytes) and COTP (3 bytes)
+      -- headers we are about to read, so a truncated response cannot read past
+      -- the end of the string.
+      if TPKT_pos < 1 or TPKT_pos + 6 > #tpktStr then
+        stdnse.debug(1, "truncated TPKT/COTP data")
+        return nil
+      end
       TPKT_ver, TPKT_res, TPKT_len = string.unpack("i1c1>i2", tpktStr, TPKT_pos)
       COTP_len, COTP_type, COTP_tpdu = string.unpack("i1c1c1", tpktStr, COTP_pos)
       COTP_last = COTP_tpdu == "\x80"
@@ -46,6 +53,12 @@ MMSDecoder = {
 
 
       if not COTP_last then
+        -- A TPKT length that does not advance past the TPKT+COTP header would
+        -- leave TPKT_pos unchanged and spin this loop forever, so reject it.
+        if TPKT_len < 7 then
+          stdnse.debug(1, "invalid TPKT length: %d", TPKT_len)
+          return nil
+        end
         TPKT_pos = TPKT_pos + TPKT_len
         COTP_pos = TPKT_pos + 4
       end
