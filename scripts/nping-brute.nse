@@ -4,6 +4,7 @@ local nmap = require "nmap"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
 local string = require "string"
+local match = require "match"
 
 local openssl = stdnse.silent_require "openssl"
 
@@ -34,15 +35,8 @@ categories = {"brute", "intrusive"}
 portrule = shortport.port_or_service(9929, "nping-echo")
 
 local function readmessage(socket, length)
-  local msg = ""
-  while #msg < length do
-    local status, tmp = socket:receive_bytes(1)
-    if not status then
-      return nil
-    end
-    msg = msg .. tmp
-  end
-  return msg
+  local status, msg = socket:receive_buf(match.numbytes(length), true)
+  return status and msg or nil
 end
 
 Driver =
