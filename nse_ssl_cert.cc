@@ -86,11 +86,13 @@
 #define HAVE_OPAQUE_STRUCTS 1
 #define FUNC_ASN1_STRING_get0_data ASN1_STRING_get0_data
 #define FUNC_ASN1_STRING_length ASN1_STRING_length
+#define OPENSSL11_CONST const
 #else
 #define X509_get0_notBefore X509_get_notBefore
 #define X509_get0_notAfter X509_get_notAfter
 #define FUNC_ASN1_STRING_get0_data(_s) ((_s)->data)
 #define FUNC_ASN1_STRING_length(_s) ((_s)->length)
+#define OPENSSL11_CONST
 #endif
 
 #if OPENSSL_VERSION_NUMBER >= 0x30000000L
@@ -198,14 +200,14 @@ static void obj_to_key(lua_State *L, const ASN1_OBJECT *obj)
 /* This is a helper function for l_get_ssl_certificate. It builds a table from
    the given X509_NAME, using keys returned from obj_to_key as keys. The result
    is pushed on the stack. */
-static void x509_name_to_table(lua_State *L, const X509_NAME *name)
+static void x509_name_to_table(lua_State *L, OPENSSL11_CONST X509_NAME *name)
 {
   int i;
 
   lua_createtable(L, 0, X509_NAME_entry_count(name));
 
   for (i = 0; i < X509_NAME_entry_count(name); i++) {
-    const X509_NAME_ENTRY *entry;
+    OPENSSL11_CONST X509_NAME_ENTRY *entry;
     const ASN1_OBJECT *obj;
     const ASN1_STRING *value;
 
@@ -559,7 +561,7 @@ int l_get_ssl_certificate(lua_State *L)
 static int parse_ssl_cert(lua_State *L, X509 *cert)
 {
   struct cert_userdata *udata;
-  const X509_NAME *subject, *issuer;
+  OPENSSL11_CONST X509_NAME *subject, *issuer;
   EVP_PKEY *pubkey;
   int pkey_type;
 

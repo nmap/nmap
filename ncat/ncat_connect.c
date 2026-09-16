@@ -86,6 +86,13 @@
 #endif
 #endif
 
+#if ((OPENSSL_VERSION_NUMBER >= 0x10100000L) && !defined LIBRESSL_VERSION_NUMBER) || \
+    (defined LIBRESSL_VERSION_NUMBER && LIBRESSL_VERSION_NUMBER >= 0x3050000fL)
+#define OPENSSL11_CONST const
+#else
+#define OPENSSL11_CONST
+#endif
+
 #ifdef WIN32
 /* Define missing constant for shutdown(2).
  * See:
@@ -237,7 +244,7 @@ static void connect_report(nsock_iod nsi)
 #ifdef HAVE_OPENSSL
         if (nsock_iod_check_ssl(nsi)) {
             X509 *cert;
-            const X509_NAME *subject;
+            OPENSSL11_CONST X509_NAME *subject;
             char digest_buf[SHA1_STRING_LENGTH + 1];
             char *fp;
 
@@ -254,9 +261,9 @@ static void connect_report(nsock_iod nsi)
                 lastpos = X509_NAME_get_index_by_NID(subject, NID_organizationName, lastpos);
 
                 if (lastpos >= 0) {
-                    const X509_NAME_ENTRY *entry = X509_NAME_get_entry(subject, lastpos);
+                    OPENSSL11_CONST X509_NAME_ENTRY *entry = X509_NAME_get_entry(subject, lastpos);
                     if (entry != NULL) {
-                        const ASN1_STRING *asn1_str = X509_NAME_ENTRY_get_data(entry);
+                        OPENSSL11_CONST ASN1_STRING *asn1_str = X509_NAME_ENTRY_get_data(entry);
                         if (asn1_str != NULL) {
                             // ASN1_STRING_to_UTF8 handles converting BMPString, UniversalString,
                             // or UTF8String into a standard, readable UTF-8 format.
