@@ -158,7 +158,7 @@ build-nbase: $(NBASEDIR)/Makefile
 	@echo Compiling libnbase;
 	cd $(NBASEDIR) && $(MAKE)
 
-build-nsock: $(NSOCKDIR)/src/Makefile build-nbase
+build-nsock: $(NSOCKDIR)/src/Makefile @NBASE_BUILD@
 	@echo Compiling libnsock;
 	cd $(NSOCKDIR)/src && $(MAKE)
 
@@ -166,7 +166,7 @@ build-netutil: libnetutil/Makefile
 	@echo Compiling libnetutil;
 	cd libnetutil && $(MAKE)
 
-build-ncat: $(NCATDIR)/Makefile build-nbase build-nsock $(NCATDIR)/ncat.h @PCAP_BUILD@
+build-ncat: $(NCATDIR)/Makefile @NBASE_BUILD@ @NSOCK_BUILD@ $(NCATDIR)/ncat.h @PCAP_BUILD@
 	cd $(NCATDIR) && $(MAKE)
 
 build-lua: $(LIBLUADIR)/Makefile
@@ -382,7 +382,7 @@ $(NDIFFDIR)/Version.py: $(ZENMAPDIR)/zenmapCore/Version.py
 build-ndiff: $(NDIFFDIR)/pyproject.toml $(NDIFFDIR)/Version.py
 	$(PYTHON) -m build $(NDIFFDIR)/
 
-build-nping: $(NPINGDIR)/Makefile build-nbase build-nsock build-netutil $(NPINGDIR)/nping.h @DNET_BUILD@ @PCAP_BUILD@
+build-nping: $(NPINGDIR)/Makefile @NBASE_BUILD@ @NSOCK_BUILD@ build-netutil $(NPINGDIR)/nping.h @DNET_BUILD@ @PCAP_BUILD@
 	@cd $(NPINGDIR) && $(MAKE)
 
 install-ndiff:
@@ -537,4 +537,11 @@ whois db2-discover http-crossdomainxml http-email-harvest \
 http-wordpress-plugins http-wp-plugins smb-check-vulns \
 )
 
-.PHONY: all clean install uninstall check static debug prerelease release-tarballs release-rpms web distclean lua-format
+SUBCOMPONENTS := pcre dnet pcap libssh2 zlib nbase nsock netutil ncat lua lua-bins liblinear zenmap ndiff nping fuzz nse
+.PHONY: all clean install uninstall check static debug prerelease release-tarballs release-rpms web distclean lua-format \
+$(addprefix, build-,$(SUBCOMPONENTS)) \
+$(addprefix, clean-,$(SUBCOMPONENTS)) \
+$(addprefix, distclean-,$(SUBCOMPONENTS)) \
+$(addprefix, install-,$(SUBCOMPONENTS)) \
+$(addprefix, uninstall-,$(SUBCOMPONENTS)) \
+$(addprefix, check-,$(SUBCOMPONENTS))
