@@ -611,8 +611,8 @@ struct nse_openssl_state {
 };
 
 static int nse_openssl_gc(lua_State *L) {
-  nse_openssl_state *state = (nse_openssl_state *) luaL_checkudata(L, 1, "NSE_OPENSSL_STATE");
 #if OPENSSL_VERSION_NUMBER >= 0x30000000L
+  nse_openssl_state *state = (nse_openssl_state *) luaL_checkudata(L, 1, "NSE_OPENSSL_STATE");
   if (state->legacy_provider) {
     OSSL_PROVIDER_unload(state->legacy_provider);
     state->legacy_provider = NULL;
@@ -651,6 +651,7 @@ static void create_openssl_state(lua_State *L) {
     log_write(LOG_STDOUT, "%s: OpenSSL default provider failed to load: %s\n", SCRIPT_ENGINE, ERR_error_string(ERR_get_error(), NULL));
   }
 #endif
+  (void) state;
 }
 
 LUALIB_API int luaopen_openssl(lua_State *L) {
