@@ -117,8 +117,8 @@ static char *hexify (const unsigned char *str, size_t len)
 {
   char *ret = NULL;
   if (len <= 32) {
-    int newlen = len;
-    for (int i=0; i < len && newlen < 2*len; i++) {
+    unsigned int newlen = len;
+    for (unsigned int i=0; i < len && newlen < 2*len; i++) {
       if (!isprint((int)(unsigned char) str[i])) {
         newlen += 3; // '\\', 'x', and hex nibble
       }
@@ -126,7 +126,7 @@ static char *hexify (const unsigned char *str, size_t len)
     if (newlen < 2*len) {
       newlen++; //ensure space for \0
       ret = (char *) safe_zalloc(newlen);
-      for (int i=0; i < len && newlen > 0;) {
+      for (unsigned int i=0; i < len && newlen > 0;) {
         unsigned char c = str[i];
         if (isprint((int) c)) {
           ret[i++] = (char) c;
@@ -134,7 +134,7 @@ static char *hexify (const unsigned char *str, size_t len)
         }
         else {
           int written = Snprintf(ret + i, newlen, "\\x%02x", c);
-          if (written < 0)
+          if (written < 0 || (unsigned int) written > newlen)
             break;
           i += written;
           newlen -= written;
