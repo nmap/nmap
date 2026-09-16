@@ -139,6 +139,7 @@
 #include <sstream>
 #include <vector>
 #include <cmath>
+#include <cerrno>
 
 /* global options */
 extern char *optarg;
