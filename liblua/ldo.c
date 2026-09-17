@@ -206,6 +206,25 @@ l_noret luaD_errerr (lua_State *L) {
 
 
 /*
+** Check whether stacks have enough space to run a simple function (such
+** as a finalizer): At least BASIC_STACK_SIZE in the Lua stack, two
+** available CallInfos, and two "slots" in the C stack.
+*/
+int luaD_checkminstack (lua_State *L) {
+  if (getCcalls(L) >= LUAI_MAXCCALLS - 2)
+    return 0;  /* not enough C-stack slots */
+  if (L->ci->next == NULL && luaE_extendCI(L, 0) == NULL)
+    return 0;  /* unable to allocate first ci */
+  if (L->ci->next->next == NULL && luaE_extendCI(L, 0) == NULL)
+    return 0;  /* unable to allocate second ci */
+  if (L->stack_last.p - L->top.p >= BASIC_STACK_SIZE)
+    return 1;  /* enough (BASIC_STACK_SIZE) free slots in the Lua stack */
+  else  /* try to grow stack to a size with enough free slots */
+    return luaD_growstack(L, BASIC_STACK_SIZE, 0);
+}
+
+
+/*
 ** Reallocate the stack to a new size, correcting all pointers into it.
 ** In ISO C, any pointer use after the pointer has been deallocated is
 ** undefined behavior. So, before the reallocation, all pointers are
@@ -503,7 +522,7 @@ void luaD_poscall (lua_State *L, CallInfo *ci, int nres) {
 
 
 
-#define next_ci(L)  (L->ci->next ? L->ci->next : luaE_extendCI(L))
+#define next_ci(L)  (L->ci->next ? L->ci->next : luaE_extendCI(L, 1))
 
 
 l_sinline CallInfo *prepCallInfo (lua_State *L, StkId func, int nret,

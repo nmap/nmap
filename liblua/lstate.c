@@ -102,14 +102,19 @@ LUA_API int lua_setcstacklimit (lua_State *L, unsigned int limit) {
 }
 
 
-CallInfo *luaE_extendCI (lua_State *L) {
+CallInfo *luaE_extendCI (lua_State *L, int err) {
   CallInfo *ci;
-  lua_assert(L->ci->next == NULL);
-  ci = luaM_new(L, CallInfo);
-  lua_assert(L->ci->next == NULL);
-  L->ci->next = ci;
+  ci = luaM_reallocvector(L, NULL, 0, 1, CallInfo);
+  if (l_unlikely(ci == NULL)) {  /* allocation failed? */
+    if (err)
+      luaM_error(L);  /* raise the error */
+    return NULL;  /* else only report it */
+  }
+  ci->next = L->ci->next;
   ci->previous = L->ci;
-  ci->next = NULL;
+  L->ci->next = ci;
+  if (ci->next)
+    ci->next->previous = ci;
   ci->u.l.trap = 0;
   L->nci++;
   return ci;

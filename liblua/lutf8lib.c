@@ -65,6 +65,8 @@ static const char *utf8_decode (const char *s, utfint *val, int strict) {
   utfint res = 0;  /* final result */
   if (c < 0x80)  /* ascii? */
     res = c;
+  else if (c >= 0xfe)  /* c >= 1111 1110b ? */
+    return NULL;  /* would need six or more continuation bytes */
   else {
     int count = 0;  /* to count number of continuation bytes */
     for (; c & 0x40; c <<= 1) {  /* while it needs continuation bytes... */
@@ -74,7 +76,7 @@ static const char *utf8_decode (const char *s, utfint *val, int strict) {
       res = (res << 6) | (cc & 0x3F);  /* add lower 6 bits from cont. byte */
     }
     res |= ((utfint)(c & 0x7F) << (count * 5));  /* add first byte */
-    if (count > 5 || res > MAXUTF || res < limits[count])
+    if (res > MAXUTF || res < limits[count])
       return NULL;  /* invalid byte sequence */
     s += count;  /* skip continuation bytes read */
   }

@@ -553,8 +553,12 @@ static lu_mem traversetable (global_State *g, Table *h) {
       traverseweakvalue(g, h);
     else if (!weakvalue)  /* strong values? */
       traverseephemeron(g, h, 0);
-    else  /* all weak */
-      linkgclist(h, g->allweak);  /* nothing to traverse now */
+    else {  /* all weak */
+      if (g->gcstate == GCSpropagate)
+        linkgclist(h, g->grayagain);  /* must visit again its metatable */
+      else
+        linkgclist(h, g->allweak);  /* must clear collected entries */
+    }
   }
   else  /* not weak */
     traversestrongtable(g, h);
@@ -1238,7 +1242,7 @@ static void finishgencycle (lua_State *L, global_State *g) {
   correctgraylists(g);
   checkSizes(L, g);
   g->gcstate = GCSpropagate;  /* skip restart */
-  if (!g->gcemergency)
+  if (g->tobefnz != NULL && !g->gcemergency && luaD_checkminstack(L))
     callallpendingfinalizers(L);
 }
 
@@ -1628,11 +1632,12 @@ static lu_mem singlestep (lua_State *L) {
       break;
     }
     case GCScallfin: {  /* call remaining finalizers */
-      if (g->tobefnz && !g->gcemergency) {
+      if (g->tobefnz && !g->gcemergency && luaD_checkminstack(L)) {
         g->gcstopem = 0;  /* ok collections during finalizers */
         work = runafewfinalizers(L, GCFINMAX) * GCFINALIZECOST;
       }
-      else {  /* emergency mode or no more finalizers */
+      else {  /* no more finalizers or emergency mode or no enough stack
+                 to run finalizers */
         g->gcstate = GCSpause;  /* finish collection */
         work = 0;
       }

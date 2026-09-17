@@ -361,7 +361,12 @@ void luaV_finishset (lua_State *L, const TValue *t, TValue *key,
     }
     t = tm;  /* else repeat assignment over 'tm' */
     if (luaV_fastget(L, t, key, slot, luaH_get)) {
-      luaV_finishfastset(L, t, slot, val);
+      /* execute 'luaV_finishfastset', but preserving the original 't'
+         for the barrier. 't' and 'slot' can point to the same value,
+         and so the assignment can change 't' value */
+      GCObject *h = gcvalue(t);
+      setobj2t(L, cast(TValue *,slot), val);
+      luaC_barrierback(L, h, val);
       return;  /* done */
     }
     /* else 'return luaV_finishset(L, t, key, val, slot)' (loop) */
