@@ -827,11 +827,7 @@ fold_op(opt_state_t *opt_state, struct stmt *s, bpf_u_int32 v0, bpf_u_int32 v1)
 		 * is undefined in C; we'll just treat it as shifting
 		 * all the bits out.
 		 *
-		 * XXX - the BPF interpreter doesn't check for this,
-		 * so its behavior is dependent on the behavior of
-		 * the processor on which it's running.  There are
-		 * processors on which it shifts all the bits out
-		 * and processors on which it does no shift.
+		 * The BPF interpreter in libpcap does the same.
 		 */
 		if (b < 32)
 			a <<= b;
@@ -845,11 +841,7 @@ fold_op(opt_state_t *opt_state, struct stmt *s, bpf_u_int32 v0, bpf_u_int32 v1)
 		 * is undefined in C; we'll just treat it as shifting
 		 * all the bits out.
 		 *
-		 * XXX - the BPF interpreter doesn't check for this,
-		 * so its behavior is dependent on the behavior of
-		 * the processor on which it's running.  There are
-		 * processors on which it shifts all the bits out
-		 * and processors on which it does no shift.
+		 * The BPF interpreter in libpcap does the same.
 		 */
 		if (b < 32)
 			a >>= b;

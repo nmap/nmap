@@ -399,6 +399,7 @@ EXTRA_DIST = \
 	testprogs/capturetest.c \
 	testprogs/filtertest.c \
 	testprogs/findalldevstest.c \
+	testprogs/findalldevstest.supp \
 	testprogs/findalldevstest-perf.c \
 	testprogs/nonblocktest.c \
 	testprogs/opentest.c \
@@ -839,7 +840,7 @@ releasetar:
 	(cd "$$TAG" && ./autogen.sh && rm -rf autom4te.cache) && \
 	tar cf "$$DIR/$$TAG".tar "$$TAG" && \
 	rm -f "$$DIR/$$TAG".tar.gz && \
-	gzip --best "$$DIR/$$TAG".tar && \
+	gzip -9 "$$DIR/$$TAG".tar && \
 	cd "$$DIR" && \
 	rm -rf "$$AUTORECONF_DIR"
 

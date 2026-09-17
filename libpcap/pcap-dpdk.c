@@ -405,7 +405,9 @@ static int pcap_dpdk_dispatch(pcap_t *p, int max_cnt, pcap_handler cb, u_char *c
 
 			}
 			if (bp){
-				if (p->fcode.bf_insns==NULL || pcapint_filter(p->fcode.bf_insns, bp, pcap_header.len, pcap_header.caplen)){
+				if (p->fcode.bf_insns==NULL ||
+				    pcapint_filter(p->fcode.bf_insns, p->fcode.bf_len,
+				                   bp, pcap_header.len, pcap_header.caplen)){
 					cb(cb_arg, &pcap_header, bp);
 				}else{
 					pd->bpf_drop++;

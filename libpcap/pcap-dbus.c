@@ -90,7 +90,8 @@ dbus_read(pcap_t *handle, int max_packets _U_, pcap_handler callback, u_char *us
 
 		gettimeofday(&pkth.ts, NULL);
 		if (handle->fcode.bf_insns == NULL ||
-		    pcapint_filter(handle->fcode.bf_insns, (u_char *)raw_msg, pkth.len, pkth.caplen)) {
+		    pcapint_filter(handle->fcode.bf_insns, handle->fcode.bf_len,
+		                   (u_char *)raw_msg, pkth.len, pkth.caplen)) {
 			handlep->packets_read++;
 			callback(user, &pkth, (u_char *)raw_msg);
 			count++;

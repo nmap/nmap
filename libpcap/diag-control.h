@@ -149,6 +149,15 @@
     PCAP_DO_PRAGMA(clang diagnostic ignored "-Wsign-compare")
   #define DIAG_ON_SIGN_COMPARE \
     PCAP_DO_PRAGMA(clang diagnostic pop)
+
+  #if PCAP_IS_AT_LEAST_CLANG_VERSION(21,1)
+    #define DIAG_OFF_UNINITIALIZED_CONST_POINTER \
+      PCAP_DO_PRAGMA(clang diagnostic push) \
+      PCAP_DO_PRAGMA(clang diagnostic ignored "-Wuninitialized-const-pointer")
+    #define DIAG_ON_UNINITIALIZED_CONST_POINTER \
+      PCAP_DO_PRAGMA(clang diagnostic pop)
+  #endif
+
 #elif defined(_MSC_VER)
   /*
    * This is Microsoft Visual Studio; we can use __pragma(warning(disable:XXXX))
@@ -422,6 +431,12 @@
 #endif
 #ifndef DIAG_ON_SIGN_COMPARE
 #define DIAG_ON_SIGN_COMPARE
+#endif
+#ifndef DIAG_OFF_UNINITIALIZED_CONST_POINTER
+#define DIAG_OFF_UNINITIALIZED_CONST_POINTER
+#endif
+#ifndef DIAG_ON_UNINITIALIZED_CONST_POINTER
+#define DIAG_ON_UNINITIALIZED_CONST_POINTER
 #endif
 #ifndef PCAP_UNREACHABLE
 #define PCAP_UNREACHABLE

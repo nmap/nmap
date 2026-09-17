@@ -77,10 +77,19 @@ pcap_netmap_filter(u_char *arg, struct pcap_pkthdr *h, const u_char *buf)
 	pcap_t *p = (pcap_t *)arg;
 	struct pcap_netmap *pn = p->priv;
 	const struct bpf_insn *pc = p->fcode.bf_insns;
+	u_int snaplen = (u_int)p->snapshot; /* guaranteed not to be negative */
 
 	++pn->rx_pkts;
-	if (pc == NULL || pcapint_filter(pc, buf, h->len, h->caplen))
+	if (pc == NULL ||
+	    (snaplen = pcapint_filter(pc, p->fcode.bf_len,
+	                              buf, h->len, h->caplen)) != 0) {
+		/*
+		 * Trim the packet to the snapshot length.
+		 */
+		if (h->caplen > snaplen)
+			h->caplen = snaplen;
 		pn->cb(pn->cb_arg, h, buf);
+	}
 }
 
 

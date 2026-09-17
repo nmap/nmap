@@ -1,3 +1,45 @@
+Saturday, September 5, 2026 / The Tcpdump Group
+  Summary for 1.10.7 libpcap release
+    General:
+      Free p->opt.device on close, not on cleanup (issue #1615). Issue
+        reported by Harrison Green.
+    Source code:
+      Deprecate bpf_filter().
+    Packet filtering:
+      Initialize the scratch memory store to 0.
+      In "net <n> mask <m>" catch ENOMEM for the "m" too.
+      CVE-2026-0799: Access M[] safely in the BPF interpreter.
+      CVE-2026-31912: Mind the program bounds in pcap_offline_filter().
+      CVE-2026-31911: Fail opcodes safely in the BPF interpreter.
+      CVE-2026-6244: Avoid division by zero via pcap_offline_filter().
+      CVE-2026-6554: Limit "ja L" looping in pcap_offline_filter().
+      Validate BPF opcodes stricter.
+      For "lsh" and "rsh" guard "#k" as well.
+    Windows:
+      Fix error return from memory allocation error.
+    rpcap:
+      CVE-2026-18313: Fix a memory leak in rpcapd.
+      CVE-2026-18238: Fix RPCAP_MSG_PACKET validation.
+    Documentation:
+      Remove list of OSes that support "ipv6-icmp"; all the ones we
+        support appear to do so.
+      Fix pcap_next_ex(3PCAP) man page to clarify the PCAP_ERROR_BREAK
+        return value.
+    Building and testing:
+      CMake: Disable remote capture support on Windows by default.
+      RDMA: Avoid valgrind errors when calling rdmasniff_findalldevs().
+      Autoconf: Add QNX support to AC_LBL_LIBRARY_NET().
+      capturetest: Treat SA_RESTART as optional.
+    QNX:
+      Disable zero-copy BPF to work around portability issues.
+    DAG:
+      Fix packet filtering with low snaplen.
+    SNF:
+      Fix packet filtering with low snaplen.
+    Netmap:
+      Set packet captured length based on the snapshot length and return
+        value of the capture filter.
+
 Tuesday, December 30, 2025 / The Tcpdump Group
   Summary for 1.10.6 libpcap release
     General:

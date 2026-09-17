@@ -685,7 +685,8 @@ pcapint_offline_read(pcap_t *p, int cnt, pcap_handler callback, u_char *user)
 		 * and, if it passes, process it.
 		 */
 		if ((fcode = p->fcode.bf_insns) == NULL ||
-		    pcapint_filter(fcode, data, h.len, h.caplen)) {
+		    pcapint_filter(fcode, p->fcode.bf_len,
+		                   data, h.len, h.caplen)) {
 			(*callback)(user, &h, data);
 			n++;	/* count the packet */
 			if (n >= cnt)

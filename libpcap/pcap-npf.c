@@ -720,7 +720,8 @@ pcap_read_npf(pcap_t *p, int cnt, pcap_handler callback, u_char *user)
 		 */
 		if (pw->filtering_in_kernel ||
 		    p->fcode.bf_insns == NULL ||
-		    pcapint_filter(p->fcode.bf_insns, datap, bhp->bh_datalen, caplen)) {
+		    pcapint_filter(p->fcode.bf_insns, p->fcode.bf_len,
+		                   datap, bhp->bh_datalen, caplen)) {
 #ifdef ENABLE_REMOTE
 			switch (p->rmt_samp.method) {
 
@@ -1922,7 +1923,8 @@ get_ts_support(const char *device, pcap_t *p, char *ebuf)
 				pcapint_fmt_errmsg_for_errno(ebuf, PCAP_ERRBUF_SIZE,
 						errno, "malloc");
 				pcap_close(p);
-				return (NULL);
+				status = -1;
+				break;
 			}
 			p->tstamp_precision_list[0] = PCAP_TSTAMP_PRECISION_MICRO;
 			p->tstamp_precision_list[1] = PCAP_TSTAMP_PRECISION_NANO;

@@ -176,6 +176,11 @@ bpf_image(const struct bpf_insn *p, int n)
 		operand = "#pktlen";
 		break;
 
+	case BPF_LDX|BPF_W|BPF_LEN:
+		op = "ldx";
+		operand = "#pktlen";
+		break;
+
 	case BPF_LD|BPF_W|BPF_IND:
 		op = "ld";
 		(void)snprintf(operand_buf, sizeof operand_buf, "[x + %d]", p->k);

@@ -153,7 +153,8 @@ DIAG_ON_SIGN_COMPARE
     bthdr->opcode = htons(hdr.opcode);
 
     if (handle->fcode.bf_insns == NULL ||
-        pcapint_filter(handle->fcode.bf_insns, pktd, pkth.len, pkth.caplen)) {
+        pcapint_filter(handle->fcode.bf_insns, handle->fcode.bf_len,
+                       pktd, pkth.len, pkth.caplen)) {
         callback(user, &pkth, pktd);
         return 1;
     }

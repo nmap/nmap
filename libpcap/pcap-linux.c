@@ -4279,6 +4279,7 @@ static int pcap_handle_packet_mmap(
 		aux_data.vlan_tag = tp_vlan_tci & 0x0fff;
 
 		if (pcapint_filter_with_aux_data(handle->fcode.bf_insns,
+					      handle->fcode.bf_len,
 					      bp,
 					      tp_len,
 					      snaplen,

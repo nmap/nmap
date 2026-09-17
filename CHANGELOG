@@ -1,5 +1,7 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o Upgraded included libraries: libpcap 1.10.7
+
 o [NSE] Introduced execution time and memory allocation limits for NSE scripts.
   Script threads that run for more than 5 seconds without yielding (e.g.
   calling a socket operation) will be killed. Memory allocations beyond 400MB

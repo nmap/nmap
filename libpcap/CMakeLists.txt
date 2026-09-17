@@ -492,14 +492,10 @@ option(NO_PROTOCHAIN "Disable protochain instruction" OFF)
 set(PCAP_TYPE "" CACHE STRING "Packet capture type")
 
 #
-# Default to having remote capture support on Windows and, for now, to
-# not having it on UN*X.
+# Disable remote capture support by default.
+# This feature is experimental and is not ready for production use.
 #
-if(WIN32)
-    option(ENABLE_REMOTE "Enable remote capture" ON)
-else()
-    option(ENABLE_REMOTE "Enable remote capture" OFF)
-endif(WIN32)
+option(ENABLE_REMOTE "Enable remote capture" OFF)
 
 if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
     option(BUILD_WITH_LIBNL "Build with libnl" ON)
@@ -3637,3 +3633,12 @@ configure_file(
 
 add_custom_target(uninstall
     COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake)
+
+if(ENABLE_REMOTE)
+  message(WARNING "
+  ***  REMOTE PACKET CAPTURE IS ENABLED  ***
+  The ENABLE_REMOTE feature is experimental and is not ready for
+  production use. Remote packet capture may expose libpcap-based
+  applications to attacks by malicious remote capture servers!"
+  )
+endif()

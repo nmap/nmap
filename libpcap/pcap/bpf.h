@@ -268,6 +268,7 @@ struct bpf_insn {
 #define BPF_JUMP(code, k, jt, jf) { (u_short)(code), jt, jf, k }
 
 PCAP_AVAILABLE_0_4
+PCAP_DEPRECATED("use pcap_offline_filter()")
 PCAP_API u_int	bpf_filter(const struct bpf_insn *, const u_char *, u_int, u_int);
 
 PCAP_AVAILABLE_0_6

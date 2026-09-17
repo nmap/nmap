@@ -69,7 +69,7 @@ index eba2723..6255f07 100644
 -	rpcapd/Makefile rpcapd/rpcapd.manadmin rpcapd/rpcapd-config.manfile
 -	testprogs/Makefile)
 +	)
- exit 0
+ AS_IF([test "x$enable_remote" = xyes],
 --- a/libpcap/Makefile.in	2021-06-07 20:21:35.000000000 +0000
 +++ b/libpcap/Makefile.in	2022-08-31 18:00:55.284383667 +0000
 @@ -790,8 +778,6 @@

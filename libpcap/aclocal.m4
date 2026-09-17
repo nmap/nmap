@@ -1049,9 +1049,24 @@ AC_DEFUN(AC_LBL_LIBRARY_NET, [
 	    ],
 	    [
 		#
-		# We didn't find it.
+		# If this is QNX 8.0, getaddrinfo() and related functions are
+		# in libsocket, but there is no libnsl, hence the check result
+		# above for getaddrinfo() in libsocket with libnsl is negative.
+		# Autoconf caches the result, but does take libnsl into account
+		# as a caching factor, so remove the cached result to prevent
+		# an erroneous "cache hit" in the check below.
 		#
-		AC_MSG_ERROR([getaddrinfo is required, but wasn't found])
+		AS_UNSET(ac_cv_lib_socket_getaddrinfo)
+		AC_CHECK_LIB(socket, getaddrinfo,
+		[
+		    LIBS="-lsocket $LIBS"
+		],
+		[
+		    #
+		    # We didn't find it.
+		    #
+		    AC_MSG_ERROR([getaddrinfo is required, but wasn't found])
+		])
 	    ])
 	], -lnsl)
 

@@ -900,7 +900,14 @@ pcapint_atomac48_x_xx_6_times(const char *s, uint8_t *addr)
 	} fsm_state = START;
 	uint8_t buf[6];
 	const char *seplist = ":.-";
-	char sep;
+	/*
+	 * XXX - the state diagram indicates that we cannot get to states
+	 * BYTEn_X or BYTEn_XX, for n > 0, without first going through
+	 * states BYTE0_X or BYTE0_XX, but at least some versions of
+	 * MSVC complain that sep may be used uninitialized, so we
+	 * initialize it here.
+	 */
+	char sep = '\0';
 
 	while (*s) {
 		switch (fsm_state) {
