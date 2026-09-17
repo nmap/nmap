@@ -171,21 +171,83 @@ static int get_conn_count(void)
 }
 
 #ifndef WIN32
+/* PIDs of the children we fork to serve connections when both -k and cmdexec
+   are in effect. A termination signal has to be forwarded to them one by one.
+   It must not be sent to our process group instead (kill(0, ...)): Ncat
+   inherits the process group of whatever launched it, so signalling the group
+   also reaches the caller's shell, script, or test harness. */
+static volatile sig_atomic_t *child_pids = NULL;
+static unsigned int child_pids_size = 0;
+
+static void child_pids_init(unsigned int max_children)
+{
+    child_pids = (volatile sig_atomic_t *) safe_malloc(max_children * sizeof(*child_pids));
+    memset((void *) child_pids, 0, max_children * sizeof(*child_pids));
+    child_pids_size = max_children;
+}
+
+/* Record a child so that a termination signal can be forwarded to it. Its slot
+   is released by forget_child() once the child has been reaped, so that a
+   later child can take it over. */
+static void remember_child(int pid)
+{
+    unsigned int i;
+
+    for (i = 0; i < child_pids_size; i++) {
+        if (child_pids[i] == 0) {
+            child_pids[i] = pid;
+            return;
+        }
+    }
+    /* Unreachable while the connection limit, which bounds the number of
+       children that can exist at once, is honored. */
+    logdebug("No room to track child %d; it will not be signalled\n", pid);
+}
+
+/* Release the slot of a child that has been reaped. */
+static void forget_child(int pid)
+{
+    unsigned int i;
+
+    for (i = 0; i < child_pids_size; i++) {
+        if (child_pids[i] == pid) {
+            child_pids[i] = 0;
+            return;
+        }
+    }
+}
+
 static void sigchld_handler(int signum)
 {
     int saved_errno = errno;
-    while (waitpid(-1, NULL, WNOHANG) > 0)
+    int pid;
+
+    while ((pid = waitpid(-1, NULL, WNOHANG)) > 0) {
+        forget_child(pid);
         decrease_conn_count();
+    }
     errno = saved_errno;
 }
 
-/* Propagate the trapped signal to the entire process group */
+/* Propagate the trapped signal to the children we started, then exit. */
 static void signal_propagate_exit(int signum)
 {
-  /* Send signal to process group */
-  kill(0, signum);
-  /* Exit, since we only use this for INT/TERM/HUP */
-  exit(128 + signum);
+    unsigned int i;
+    int pid;
+
+    for (i = 0; i < child_pids_size; i++) {
+        pid = child_pids[i];
+        /* waitpid() confirms that the PID still belongs to one of our
+           children: it returns 0 for a child that is still running, and -1
+           once the child has been reaped. A PID that has been reaped and
+           recycled for an unrelated process is not our child anymore, and
+           waitpid() rejects it, so it is left alone. SIGCHLD is blocked in
+           this handler to keep the answer stable until we have used it. */
+        if (pid > 0 && waitpid(pid, NULL, WNOHANG) == 0)
+            kill(pid, signum);
+    }
+    /* Exit, since we only use this for INT/TERM/HUP */
+    exit(128 + signum);
 }
 
 static void install_signal_handlers(void)
@@ -204,14 +266,21 @@ static void install_signal_handlers(void)
     sa.sa_flags = SA_RESTART;
     sigaction(SIGCHLD, &sa, NULL);
 
-    /* Nab any process-terminating signals and propagate them */
+    /* Nab any process-terminating signals and propagate them to our children.
+       SIGCHLD is blocked while the handler runs so that a child cannot be
+       reaped, and its PID recycled, in the middle of the propagation. */
     sa.sa_handler = signal_propagate_exit;
     sa.sa_flags = SA_RESTART | SA_RESETHAND;
+    sigaddset(&sa.sa_mask, SIGCHLD);
     sigaction(SIGINT, &sa, NULL);
     sigaction(SIGTERM, &sa, NULL);
     sigaction(SIGHUP, &sa, NULL);
     sigaction(SIGQUIT, &sa, NULL);
 }
+#else
+/* There are no POSIX signals to propagate on Windows. */
+static void child_pids_init(unsigned int max_children) { (void) max_children; }
+static void remember_child(int pid) { (void) pid; }
 #endif
 
 int new_listen_socket(int type, int proto, const union sockaddr_u *addr, fd_set *listen_fds)
@@ -274,6 +343,10 @@ int ncat_listen()
     zmem(&client_fdlist, sizeof(client_fdlist));
     zmem(&broadcast_fdlist, sizeof(broadcast_fdlist));
 
+    /* A child is forked for a connection only when -k and cmdexec are both in
+       effect, and the connection limit bounds how many of them can be alive at
+       once. */
+    child_pids_init(o.conn_limit);
 #ifdef WIN32
     set_pseudo_sigchld_handler(decrease_conn_count);
 #else
@@ -658,8 +731,11 @@ static void post_handle_connection(struct fdinfo *sinfo)
         rm_fd(&client_fdlist, sinfo->fd);
       }
 #endif
-        if (o.keepopen)
-            netrun(sinfo, o.cmdexec);
+        if (o.keepopen) {
+            int pid = netrun(sinfo, o.cmdexec);
+            if (pid > 0)
+                remember_child(pid);
+        }
         else
             netexec(sinfo, o.cmdexec);
     } else {
