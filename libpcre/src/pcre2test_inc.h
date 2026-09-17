@@ -558,24 +558,47 @@ return 0;
 
 Arguments:
   what       the item to read
-  where      the 8-bit buffer to receive the string
+
+Returns:     a buffer which must be freed by the caller, where the string has
+             been written
 */
 
-static void
-config_str(uint32_t what, char *where)
+static char *
+config_str(uint32_t what)
 {
-int r1, r2;
-PCRE2_UCHAR buf[VERSION_SIZE];
+int r2;
+PCRE2_UCHAR *buf;
+char *buf8;
+int needed_len;
 
-r1 = pcre2_config(what, NULL);
-r2 = pcre2_config(what, buf);
-if (r1 < 0 || r1 != r2 || r1 >= VERSION_SIZE)
+needed_len = pcre2_config(what, NULL);
+if (needed_len <= 0)
   {
   cfprintf(clr_test_error, stderr, "pcre2test: Error in pcre2_config(%d)\n", what);
   exit(1);
   }
 
-while (r1-- > 0) where[r1] = (char)buf[r1];
+buf = malloc((unsigned)needed_len * sizeof(PCRE2_UCHAR));
+buf8 = malloc((unsigned)needed_len);
+if (buf == NULL || buf8 == NULL)
+  {
+  cfprintf(clr_test_error, stderr, "pcre2test: malloc failed in config_str()\n");
+  exit(1);
+  }
+
+r2 = pcre2_config(what, buf);
+if (r2 != needed_len)
+  {
+  cfprintf(clr_test_error, stderr,
+    "pcre2test: pcre2_config(%d) returned %d, expected %d\n",
+    what, r2, needed_len);
+  exit(1);
+  }
+
+while (r2-- > 0) buf8[r2] = (char)buf[r2];
+free(buf);
+
+return buf8;
 }
 
 
@@ -1028,13 +1051,18 @@ for (;;)
     break;
 
     case MOD_STR:
+    if (m->value > (uint32_t)(UINT8_MAX) + 1)
+      {
+      cfprintf(clr_test_error, stderr, "pcre2test: mod %s size > 256 \n", m->name);
+      exit(1);
+      }
     if (len + 1 > m->value)
       {
       cfprintf(clr_test_error, outfile, "** Overlong value for \"%s\" (max %d code units)\n",
         m->name, m->value - 1);
       return FALSE;
       }
-    ((uint8_t *)field)[0] = len;
+    ((uint8_t *)field)[0] = (uint8_t)len;  /* len <= m->value - 1 <= UINT8_MAX */
     memcpy(((uint8_t *)field)+1, pp, len);
     ((uint8_t *)field)[len+1] = 0;
     pp = ep;
@@ -1684,7 +1712,7 @@ process_command(void)
 FILE *f;
 PCRE2_SIZE serial_size;
 size_t i;
-int rc, cmd, yield;
+int rc, cmd, yield, config_value;
 uint16_t first_listed_newline;
 const char *cmdname;
 size_t cmdlen;
@@ -1952,7 +1980,7 @@ switch(cmd)
     {
     size_t optlen = strlen(coptlist[i].name);
     const uint8_t *argptr_trail;
-    if (coptlist[i].type != CONF_FIX)
+    if (coptlist[i].type != CONF_FIX && coptlist[i].type != CONF_INT)
       continue;
     if (strncmp((const char*)argptr, coptlist[i].name, optlen) != 0)
       continue;
@@ -1967,9 +1995,20 @@ switch(cmd)
     return PR_ABEND;
     }
 
-  /* Condition FALSE - skip this line and everything until #endif. */
-  if ((coptlist[i].value != 0) == if_inverted)
+  if (coptlist[i].type == CONF_FIX)
+    {
+    config_value = coptlist[i].value;
+    }
+  else /* if (coptlist[i].type == CONF_INT) */
+    {
+    (void)pcre2_config(coptlist[i].value, &config_value);
+    }
+
+  if ((config_value != 0) == if_inverted)
+    {
+    /* Condition FALSE - skip this line and everything until #endif. */
     yield = PR_ENDIF;
+    }
 
   inside_if = TRUE;
   break;
@@ -2019,6 +2058,9 @@ uint32_t use_forbid_utf = forbid_utf;
 PCRE2_SIZE patlen, full_patlen;
 PCRE2_SIZE valgrind_access_length;
 PCRE2_SIZE erroroffset;
+int32_t serialize_rc;
+uint8_t *serialized_bytes;
+PCRE2_SIZE serialized_size;
 
 /* The perltest.sh script supports only / as a delimiter. */
 
@@ -2966,6 +3008,28 @@ if ((pat_patctl.control2 & CTL2_NL_SET) != 0)
 rc = show_pattern_info();
 if (rc != PR_OK) return rc;
 
+/* Verify that the compiled structure can be serialized without generating
+memory errors. */
+
+serialize_rc = pcre2_serialize_encode((const pcre2_code **)&compiled_code, 1,
+  &serialized_bytes, &serialized_size, general_context);
+if (serialize_rc != 1)
+  {
+  cfprintf(clr_test_error, outfile, "** pcre2_serialize_encode() returned %d instead of 1\n",
+    serialize_rc);
+  return PR_ABEND;
+  }
+
+#if defined SUPPORT_VALGRIND
+if (VALGRIND_CHECK_MEM_IS_DEFINED(serialized_bytes, serialized_size) != 0)
+  {
+  cfprintf(clr_test_error, outfile, "** pcre2_serialize_encode() returned undefined data\n");
+  return PR_ABEND;
+  }
+#endif
+
+pcre2_serialize_free(serialized_bytes);
+
 /* The "push" control requests that the compiled pattern be remembered on a
 stack. This is mainly for testing the serialization functionality. */
 
@@ -3101,7 +3165,8 @@ for (;;)
       dat_context, dfa_workspace, DFA_WS_DIMENSION);
     }
 
-  else if ((pat_patctl.control & CTL_JITFAST) != 0)
+  else if ((pat_patctl.control & CTL_JITFAST) != 0 &&
+           (dat_datctl.options & PCRE2_NO_JIT) == 0)
     capcount = pcre2_jit_match(compiled_code, pp, ulen, dat_datctl.offset,
       dat_datctl.options, match_data, dat_context);
 
@@ -4683,7 +4748,8 @@ if (dat_datctl.replacement[0] != MOD_STR_UNSET)
         dat_datctl.offset, dat_datctl.options, match_data,
         use_dat_context, dfa_workspace, DFA_WS_DIMENSION);
       }
-    else if ((pat_patctl.control & CTL_JITFAST) != 0)
+    else if ((pat_patctl.control & CTL_JITFAST) != 0 &&
+             (dat_datctl.options & PCRE2_NO_JIT) == 0)
       {
       (void)pcre2_jit_match(compiled_code, pp, arg_ulen, dat_datctl.offset,
         dat_datctl.options, match_data, use_dat_context);
@@ -4926,7 +4992,7 @@ for (gmatched = 0;; gmatched++)
   /* When matching is via pcre2_match(), we will detect the use of JIT via the
   stack callback function. */
 
-  jit_was_used = (pat_patctl.control & CTL_JITFAST) != 0;
+  jit_was_used = FALSE;
 
   /* Do timing if required. */
 
@@ -4957,7 +5023,8 @@ for (gmatched = 0;; gmatched++)
         }
       }
 
-    else if ((pat_patctl.control & CTL_JITFAST) != 0)
+    else if ((pat_patctl.control & CTL_JITFAST) != 0 &&
+             (dat_datctl.options & PCRE2_NO_JIT) == 0)
       {
       start_time = clock();
       for (i = 0; i < timeitm; i++)
@@ -5041,9 +5108,11 @@ for (gmatched = 0;; gmatched++)
       }
     else
       {
-      if ((pat_patctl.control & CTL_JITFAST) != 0)
-        capcount = pcre2_jit_match(compiled_code, pp, arg_ulen, dat_datctl.offset,
-          dat_datctl.options | g_notempty, match_data, use_dat_context);
+      if ((pat_patctl.control & CTL_JITFAST) != 0 &&
+          (dat_datctl.options & PCRE2_NO_JIT) == 0)
+        capcount = pcre2_jit_match(compiled_code, pp, arg_ulen,
+          dat_datctl.offset, dat_datctl.options | g_notempty, match_data,
+          use_dat_context);
       else
         capcount = pcre2_match(compiled_code, pp, arg_ulen, dat_datctl.offset,
           dat_datctl.options | g_notempty, match_data, use_dat_context);
@@ -5078,12 +5147,15 @@ for (gmatched = 0;; gmatched++)
           }
         else
           {
-          if ((pat_patctl.control & CTL_JITFAST) != 0)
-            capcount = pcre2_jit_match(compiled_code, pp, arg_ulen, dat_datctl.offset,
-              dat_datctl.options | g_notempty, match_data, use_dat_context);
+          if ((pat_patctl.control & CTL_JITFAST) != 0 &&
+              (dat_datctl.options & PCRE2_NO_JIT) == 0)
+            capcount = pcre2_jit_match(compiled_code, pp, arg_ulen,
+              dat_datctl.offset, dat_datctl.options | g_notempty, match_data,
+              use_dat_context);
           else
-            capcount = pcre2_match(compiled_code, pp, arg_ulen, dat_datctl.offset,
-              dat_datctl.options | g_notempty, match_data, use_dat_context);
+            capcount = pcre2_match(compiled_code, pp, arg_ulen,
+              dat_datctl.offset, dat_datctl.options | g_notempty, match_data,
+              use_dat_context);
           }
 
         mallocs_until_failure = INT_MAX;
@@ -5143,23 +5215,39 @@ for (gmatched = 0;; gmatched++)
       return PR_ABEND;
       }
 
+    /* tracking JIT with jitverify needs a context, but in cases where one
+    wasn't available, can fallback to the match_data status */
+
+    if ((dat_datctl.control & CTL_NULLCONTEXT) != 0 &&
+        (pat_patctl.control & CTL_JITVERIFY) != 0)
+      jit_was_used = match_data->matchedby == PCRE2_MATCHEDBY_JIT;
+
     /* If PCRE2_COPY_MATCHED_SUBJECT was set, check that things are as they
     should be, but not for fast JIT, where it isn't supported. */
 
-    if ((dat_datctl.options & PCRE2_COPY_MATCHED_SUBJECT) != 0 &&
-        (pat_patctl.control & CTL_JITFAST) == 0)
+    if ((dat_datctl.options & PCRE2_COPY_MATCHED_SUBJECT) != 0)
       {
-      if ((match_data->flags & PCRE2_MD_COPIED_SUBJECT) == 0)
-        cfprintf(clr_test_error, outfile,
-          "** PCRE2 error: flag not set after copy_matched_subject\n");
+      if ((pat_patctl.control & CTL_JITFAST) != 0 &&
+          (dat_datctl.options & PCRE2_NO_JIT) == 0)
+        {
+        if ((match_data->flags & PCRE2_MD_COPIED_SUBJECT) != 0)
+          cfprintf(clr_test_error, outfile,
+            "** PCRE2 error: flag set after unsupported copy_matched_subject\n");
+        }
+      else
+        {
+        if ((match_data->flags & PCRE2_MD_COPIED_SUBJECT) == 0)
+          cfprintf(clr_test_error, outfile,
+            "** PCRE2 error: flag not set after copy_matched_subject\n");
 
-      if (match_data->subject == pp)
-        cfprintf(clr_test_error, outfile,
-          "** PCRE2 error: copy_matched_subject has not copied\n");
+        if (match_data->subject == pp)
+          cfprintf(clr_test_error, outfile,
+            "** PCRE2 error: copy_matched_subject has not copied\n");
 
-      if (memcmp(match_data->subject, pp, ulen) != 0)
-        cfprintf(clr_test_error, outfile,
-          "** PCRE2 error: copy_matched_subject mismatch\n");
+        if (memcmp(match_data->subject, pp, ulen) != 0)
+          cfprintf(clr_test_error, outfile,
+            "** PCRE2 error: copy_matched_subject mismatch\n");
+        }
       }
 
     /* If this is not the first time round a global loop, check that the
@@ -5636,6 +5724,9 @@ pcre2_match_context *test_dat_context = NULL, *test_dat_context_copy = NULL;
 pcre2_convert_context *test_con_context = NULL, *test_con_context_copy = NULL;
 pcre2_match_data *test_match_data = NULL;
 pcre2_code *test_compiled_code = NULL;
+#ifdef SUPPORT_JIT
+BOOL test_compiled_with_jit = FALSE;
+#endif
 PCRE2_UCHAR pattern[] = { CHAR_A, CHAR_B, CHAR_C, 0 };
 PCRE2_UCHAR callout_int_pattern[] = {
   CHAR_LEFT_PARENTHESIS, CHAR_QUESTION_MARK, CHAR_C, CHAR_RIGHT_PARENTHESIS, 0 };
@@ -5940,9 +6031,54 @@ ASSERT(rc == 0 && sizeval == 0, "pcre2_pattern_info(JIT)");
 
 if (pcre2_jit_compile(test_compiled_code, PCRE2_JIT_COMPLETE) == 0)
   {
+  test_compiled_with_jit = TRUE;
+
   rc = pcre2_pattern_info(test_compiled_code, PCRE2_INFO_JITSIZE, &sizeval);
   ASSERT(rc == 0 && sizeval > 0, "pcre2_pattern_info(JIT after compile)");
   }
+#endif
+
+/* ----------------------- Matching functions ------------------------------ */
+
+#ifdef SUPPORT_JIT
+
+if (test_compiled_with_jit)
+  {
+
+/* Check that fast JIT releases a copied subject when reusing match data. */
+
+  test_match_data = pcre2_match_data_create_from_pattern(test_compiled_code,
+    test_gen_context);
+  ASSERT(test_match_data != NULL, "pcre2_match_data_create_from_pattern(JIT)");
+
+  rc = pcre2_match(test_compiled_code, pattern, 3, 0,
+    PCRE2_COPY_MATCHED_SUBJECT, test_match_data, NULL);
+  ASSERT(rc == 1, "pcre2_match(COPY_MATCHED_SUBJECT)");
+
+  rc = pcre2_jit_match(test_compiled_code, subject_abcz, 4, 0, 0,
+    test_match_data, NULL);
+  ASSERT(rc == 1, "pcre2_jit_match(reused match data)");
+
+  pcre2_match_data_free(test_match_data);
+  test_match_data = NULL;
+
+/* Check that fast JIT ignores PCRE2_NO_JIT */
+
+  test_match_data = pcre2_match_data_create(100000, test_gen_context);
+  ASSERT(test_match_data != NULL, "pcre2_match_data_create(100000)");
+  ASSERT(pcre2_get_ovector_count(test_match_data) == 65535,
+    "pcre2_get_ovector_count(UINT32_MAX) <= UINT16_MAX)");
+
+  rc = pcre2_jit_match(test_compiled_code, subject_abcz, 4, 0, PCRE2_NO_JIT,
+    test_match_data, NULL);
+  ASSERT(rc == 1 && (test_match_data->matchedby == PCRE2_MATCHEDBY_JIT),
+    "pcre2_jit_match(ignore PCRE2_NO_JIT");
+
+  pcre2_match_data_free(test_match_data);
+  test_match_data = NULL;
+
+  }
+
 #endif
 
 /* ----------------------- POSIX functions --------------------------------- */
@@ -6243,6 +6379,118 @@ rc = pcre2_substitute(subs_other_code, substitute_subject,
   PCRE2_ZERO_TERMINATED, 0, PCRE2_SUBSTITUTE_MATCHED, test_match_data, NULL,
   NULL, 0, replace_buf, &sizeval);
 ASSERT(rc == PCRE2_ERROR_DIFFSUBSPATTERN, "pcre2_substitute(pattern)");
+
+/* -------------- pcre2_serialize_decode: three goto cleanup branches -------- */
+
+{
+  pcre2_code *serialize_code = pcre2_compile(pattern, PCRE2_ZERO_TERMINATED,
+    0, &errorcode, &erroroffset, NULL);
+  uint8_t *serialized_bytes = NULL;
+  PCRE2_SIZE serialized_size = 0;
+  pcre2_code *decode_codes[1] = { NULL };
+
+  ASSERT(serialize_code != NULL, "serialize setup");
+  rc = pcre2_serialize_encode((const pcre2_code **)&serialize_code, 1,
+    &serialized_bytes, &serialized_size, NULL);
+  pcre2_code_free(serialize_code);
+  ASSERT(rc == 1 && serialized_bytes != NULL, "serialize setup");
+
+  /* goto 1: blocksize <= sizeof(pcre2_real_code) */
+  {
+    size_t blocksize_offset = sizeof(pcre2_serialized_data) + TABLES_LENGTH +
+      offsetof(pcre2_real_code, blocksize);
+    uint8_t saved_blocksize[sizeof(PCRE2_SIZE)];
+    memcpy(saved_blocksize, serialized_bytes + blocksize_offset,
+      sizeof(saved_blocksize));
+    memset(serialized_bytes + blocksize_offset, 0, sizeof(PCRE2_SIZE));
+
+    rc = pcre2_serialize_decode(decode_codes, 1, serialized_bytes, NULL);
+    ASSERT(rc == PCRE2_ERROR_BADSERIALIZEDDATA &&
+      decode_codes[0] == NULL, "pcre2_serialize_decode(bad blocksize)");
+
+    memcpy(serialized_bytes + blocksize_offset, saved_blocksize,
+      sizeof(saved_blocksize));
+  }
+
+  /* goto 2: dst_re malloc failure */
+  mallocs_until_failure = 2;
+  {
+    pcre2_general_context *serialize_test_context =
+      pcre2_general_context_create(&my_malloc, &my_free, NULL);
+    ASSERT(serialize_test_context != NULL, "general_context for serialize test");
+    rc = pcre2_serialize_decode(decode_codes, 1, serialized_bytes,
+      serialize_test_context);
+    ASSERT(rc == PCRE2_ERROR_NOMEMORY && decode_codes[0] == NULL,
+      "pcre2_serialize_decode(malloc failure)");
+    mallocs_until_failure = INT_MAX;
+    pcre2_general_context_free(serialize_test_context);
+  }
+
+  /* goto 3: magic_number / name_entry_size / name_count validation */
+  {
+    size_t off = sizeof(pcre2_serialized_data) + TABLES_LENGTH +
+      offsetof(pcre2_real_code, magic_number);
+    uint8_t saved[4];
+    memcpy(saved, serialized_bytes + off, 4);
+    memset(serialized_bytes + off, 0, 4);
+
+    decode_codes[0] = NULL;
+    rc = pcre2_serialize_decode(decode_codes, 1, serialized_bytes, NULL);
+    memcpy(serialized_bytes + off, saved, 4);
+    ASSERT(rc == PCRE2_ERROR_BADSERIALIZEDDATA &&
+      decode_codes[0] == NULL, "pcre2_serialize_decode(goto 3)");
+  }
+
+  /* Regression: avoid stale dst_re double free on later iteration failure. */
+  {
+    pcre2_code *multi_codes[2];
+    pcre2_code *multi_decode_codes[2] = { NULL, NULL };
+    uint8_t *multi_serialized_bytes = NULL;
+    PCRE2_SIZE multi_serialized_size = 0;
+    CODE_BLOCKSIZE_TYPE first_blocksize;
+    size_t first_blocksize_offset = sizeof(pcre2_serialized_data) +
+      TABLES_LENGTH + offsetof(pcre2_real_code, blocksize);
+    size_t second_blocksize_offset;
+    uint8_t saved_second_blocksize[sizeof(CODE_BLOCKSIZE_TYPE)];
+
+    multi_codes[0] = pcre2_compile(pattern, PCRE2_ZERO_TERMINATED, 0,
+      &errorcode, &erroroffset, NULL);
+    multi_codes[1] = pcre2_compile(pattern, PCRE2_ZERO_TERMINATED, 0,
+      &errorcode, &erroroffset, NULL);
+    ASSERT(multi_codes[0] != NULL && multi_codes[1] != NULL,
+      "serialize setup (multi-code compile)");
+
+    rc = pcre2_serialize_encode((const pcre2_code **)multi_codes, 2,
+      &multi_serialized_bytes, &multi_serialized_size, NULL);
+    pcre2_code_free(multi_codes[0]);
+    pcre2_code_free(multi_codes[1]);
+    ASSERT(rc == 2 && multi_serialized_bytes != NULL,
+      "serialize setup (multi-code encode)");
+
+    memcpy(&first_blocksize, multi_serialized_bytes + first_blocksize_offset,
+      sizeof(first_blocksize));
+    second_blocksize_offset = sizeof(pcre2_serialized_data) + TABLES_LENGTH +
+      first_blocksize + offsetof(pcre2_real_code, blocksize);
+
+    memcpy(saved_second_blocksize,
+      multi_serialized_bytes + second_blocksize_offset,
+      sizeof(saved_second_blocksize));
+    memset(multi_serialized_bytes + second_blocksize_offset, 0,
+      sizeof(saved_second_blocksize));
+
+    rc = pcre2_serialize_decode(multi_decode_codes, 2, multi_serialized_bytes,
+      NULL);
+    memcpy(multi_serialized_bytes + second_blocksize_offset,
+      saved_second_blocksize, sizeof(saved_second_blocksize));
+    ASSERT(rc == PCRE2_ERROR_BADSERIALIZEDDATA &&
+      multi_decode_codes[0] == NULL && multi_decode_codes[1] == NULL,
+      "pcre2_serialize_decode(regression stale dst_re)");
+
+    pcre2_serialize_free(multi_serialized_bytes);
+  }
+
+  pcre2_serialize_free(serialized_bytes);
+}
 
 /* ------------------------------------------------------------------------- */
 

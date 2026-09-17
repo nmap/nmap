@@ -80,9 +80,8 @@ PCRE2_10.47 {
     pcre2_substring_list_get_8;
     pcre2_substring_nametable_scan_8;
     pcre2_substring_number_from_name_8;
-  local:
-    _fini;
-    _init;
+
+@PCRE2_EXTRA_LOCAL_SYMS@
 };
 
-# PCRE2_10.48 {} PCRE2_10.47;
+PCRE2_10.48 { } PCRE2_10.47;

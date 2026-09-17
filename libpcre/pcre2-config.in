@@ -23,8 +23,8 @@ fi
 usage="Usage: pcre2-config [--prefix] [--exec-prefix] [--version] $libs $cflags"
 
 if test $# -eq 0; then
-      echo "${usage}" 1>&2
-      exit 1
+  echo "${usage}" 1>&2
+  exit 1
 fi
 
 libR=
@@ -38,9 +38,19 @@ case `uname -s` in
 esac
 
 libS=
-if test @libdir@ != /usr/lib ; then
-  libS=-L@libdir@
-fi
+case "@libdir@" in
+  # system locations on Linux, no -L needed
+  /usr/lib|/usr/lib32|/usr/lib64|/usr/lib/*-gnu*)
+  ;;
+  /lib|/lib32|/lib64|/lib/*-gnu*)
+  ;;
+  # system locations on AIX and Solaris, no -L needed
+  /usr/lib/64|/usr/lib/amd*|/usr/lib/sparc*|/usr/lib/ppc*)
+  ;;
+  *)
+  libS="-L@libdir@"
+  ;;
+esac
 
 while test $# -gt 0; do
   case "$1" in

@@ -119,26 +119,29 @@ noinst_PROGRAMS = $(am__EXEEXT_1)
 @WITH_GCOV_FALSE@am__append_18 = coverage-distclean
 subdir = .
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
-am__aclocal_m4_deps = $(top_srcdir)/m4/ax_check_vscript.m4 \
-	$(top_srcdir)/m4/ax_pthread.m4 $(top_srcdir)/m4/libtool.m4 \
-	$(top_srcdir)/m4/ltoptions.m4 $(top_srcdir)/m4/ltsugar.m4 \
-	$(top_srcdir)/m4/ltversion.m4 $(top_srcdir)/m4/lt~obsolete.m4 \
+am__aclocal_m4_deps = $(top_srcdir)/m4/ax_pthread.m4 \
+	$(top_srcdir)/m4/libtool.m4 $(top_srcdir)/m4/ltoptions.m4 \
+	$(top_srcdir)/m4/ltsugar.m4 $(top_srcdir)/m4/ltversion.m4 \
+	$(top_srcdir)/m4/lt~obsolete.m4 \
+	$(top_srcdir)/m4/pcre2_check_vscript.m4 \
 	$(top_srcdir)/m4/pcre2_visibility.m4 \
 	$(top_srcdir)/m4/pcre2_zos.m4 $(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
 DIST_COMMON = $(srcdir)/Makefile.am $(top_srcdir)/configure \
 	$(am__configure_deps) $(dist_noinst_SCRIPTS) $(dist_doc_DATA) \
-	$(include_HEADERS) $(am__DIST_COMMON)
+	$(dist_html_DATA) $(include_HEADERS) $(am__DIST_COMMON)
 am__CONFIG_DISTCLEAN_FILES = config.status config.cache config.log \
  configure.lineno config.status.lineno
 mkinstalldirs = $(install_sh) -d
 CONFIG_HEADER = $(top_builddir)/src/config.h
-CONFIG_CLEAN_FILES = pcre2-config src/pcre2.h
+CONFIG_CLEAN_FILES = pcre2-config src/pcre2.h src/libpcre2-8.sym \
+	src/libpcre2-16.sym src/libpcre2-32.sym src/libpcre2-posix.sym
 CONFIG_CLEAN_VPATH_FILES =
 am__installdirs = "$(DESTDIR)$(bindir)" "$(DESTDIR)$(libdir)" \
 	"$(DESTDIR)$(bindir)" "$(DESTDIR)$(docdir)" \
-	"$(DESTDIR)$(includedir)" "$(DESTDIR)$(includedir)"
+	"$(DESTDIR)$(htmldir)" "$(DESTDIR)$(includedir)" \
+	"$(DESTDIR)$(includedir)"
 @WITH_REBUILD_CHARTABLES_TRUE@am__EXEEXT_1 = pcre2_dftables$(EXEEXT)
 PROGRAMS = $(bin_PROGRAMS) $(noinst_PROGRAMS)
 am__vpath_adj_setup = srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`;
@@ -179,9 +182,10 @@ am__libpcre2_16_la_SOURCES_DIST = src/pcre2_auto_possess.c \
 	src/pcre2_intmodedep.h src/pcre2_maketables.c \
 	src/pcre2_match.c src/pcre2_match_data.c \
 	src/pcre2_match_next.c src/pcre2_newline.c src/pcre2_ord2utf.c \
-	src/pcre2_pattern_info.c src/pcre2_script_run.c \
-	src/pcre2_serialize.c src/pcre2_string_utils.c \
-	src/pcre2_study.c src/pcre2_substitute.c src/pcre2_substring.c \
+	src/pcre2_pattern_info.c src/pcre2_printint_inc.h \
+	src/pcre2_script_run.c src/pcre2_serialize.c \
+	src/pcre2_string_utils.c src/pcre2_study.c \
+	src/pcre2_substitute.c src/pcre2_substring.c \
 	src/pcre2_tables.c src/pcre2_ucd.c src/pcre2_ucp.h \
 	src/pcre2_ucptables_inc.h src/pcre2_util.h \
 	src/pcre2_valid_utf.c src/pcre2_xclass.c
@@ -239,9 +243,10 @@ am__libpcre2_32_la_SOURCES_DIST = src/pcre2_auto_possess.c \
 	src/pcre2_intmodedep.h src/pcre2_maketables.c \
 	src/pcre2_match.c src/pcre2_match_data.c \
 	src/pcre2_match_next.c src/pcre2_newline.c src/pcre2_ord2utf.c \
-	src/pcre2_pattern_info.c src/pcre2_script_run.c \
-	src/pcre2_serialize.c src/pcre2_string_utils.c \
-	src/pcre2_study.c src/pcre2_substitute.c src/pcre2_substring.c \
+	src/pcre2_pattern_info.c src/pcre2_printint_inc.h \
+	src/pcre2_script_run.c src/pcre2_serialize.c \
+	src/pcre2_string_utils.c src/pcre2_study.c \
+	src/pcre2_substitute.c src/pcre2_substring.c \
 	src/pcre2_tables.c src/pcre2_ucd.c src/pcre2_ucp.h \
 	src/pcre2_ucptables_inc.h src/pcre2_util.h \
 	src/pcre2_valid_utf.c src/pcre2_xclass.c
@@ -294,9 +299,10 @@ am__libpcre2_8_la_SOURCES_DIST = src/pcre2_auto_possess.c \
 	src/pcre2_intmodedep.h src/pcre2_maketables.c \
 	src/pcre2_match.c src/pcre2_match_data.c \
 	src/pcre2_match_next.c src/pcre2_newline.c src/pcre2_ord2utf.c \
-	src/pcre2_pattern_info.c src/pcre2_script_run.c \
-	src/pcre2_serialize.c src/pcre2_string_utils.c \
-	src/pcre2_study.c src/pcre2_substitute.c src/pcre2_substring.c \
+	src/pcre2_pattern_info.c src/pcre2_printint_inc.h \
+	src/pcre2_script_run.c src/pcre2_serialize.c \
+	src/pcre2_string_utils.c src/pcre2_study.c \
+	src/pcre2_substitute.c src/pcre2_substring.c \
 	src/pcre2_tables.c src/pcre2_ucd.c src/pcre2_ucp.h \
 	src/pcre2_ucptables_inc.h src/pcre2_util.h \
 	src/pcre2_valid_utf.c src/pcre2_xclass.c
@@ -495,7 +501,7 @@ am__can_run_installinfo = \
     n|no|NO) false;; \
     *) (install-info --version) >/dev/null 2>&1;; \
   esac
-DATA = $(dist_doc_DATA)
+DATA = $(dist_doc_DATA) $(dist_html_DATA)
 HEADERS = $(include_HEADERS) $(nodist_include_HEADERS)
 am__tagged_files = $(HEADERS) $(SOURCES) $(TAGS_FILES) $(LISP)
 # Read a list of newline-separated strings from the standard input,
@@ -690,10 +696,15 @@ am__set_b = \
     *) \
       b='$*';; \
   esac
-am__DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/pcre2-config.in \
-	$(top_srcdir)/src/config.h.in $(top_srcdir)/src/pcre2.h.in \
-	AUTHORS.md ar-lib compile config.guess config.sub depcomp \
-	install-sh ltmain.sh missing test-driver
+am__DIST_COMMON = $(dist_man_MANS) $(srcdir)/Makefile.in \
+	$(srcdir)/pcre2-config.in $(top_srcdir)/src/config.h.in \
+	$(top_srcdir)/src/libpcre2-16.sym.in \
+	$(top_srcdir)/src/libpcre2-32.sym.in \
+	$(top_srcdir)/src/libpcre2-8.sym.in \
+	$(top_srcdir)/src/libpcre2-posix.sym.in \
+	$(top_srcdir)/src/pcre2.h.in AUTHORS.md ar-lib compile \
+	config.guess config.sub depcomp install-sh ltmain.sh missing \
+	test-driver
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
 distdir = $(PACKAGE)-$(VERSION)
 top_distdir = $(distdir)
@@ -726,7 +737,6 @@ CC = @CC@
 CCDEPMODE = @CCDEPMODE@
 CET_CFLAGS = @CET_CFLAGS@
 CFLAGS = @CFLAGS@
-CPP = @CPP@
 CPPFLAGS = @CPPFLAGS@
 CSCOPE = @CSCOPE@
 CTAGS = @CTAGS@
@@ -794,6 +804,7 @@ PACKAGE_VERSION = @PACKAGE_VERSION@
 PATH_SEPARATOR = @PATH_SEPARATOR@
 PCRE2POSIX_CFLAG = @PCRE2POSIX_CFLAG@
 PCRE2_DATE = @PCRE2_DATE@
+PCRE2_EXTRA_LOCAL_SYMS = @PCRE2_EXTRA_LOCAL_SYMS@
 PCRE2_MAJOR = @PCRE2_MAJOR@
 PCRE2_MINOR = @PCRE2_MINOR@
 PCRE2_PRERELEASE = @PCRE2_PRERELEASE@
@@ -801,10 +812,6 @@ PCRE2_STATIC_CFLAG = @PCRE2_STATIC_CFLAG@
 PKG_CONFIG = @PKG_CONFIG@
 PKG_CONFIG_LIBDIR = @PKG_CONFIG_LIBDIR@
 PKG_CONFIG_PATH = @PKG_CONFIG_PATH@
-PTHREAD_CC = @PTHREAD_CC@
-PTHREAD_CFLAGS = @PTHREAD_CFLAGS@
-PTHREAD_CXX = @PTHREAD_CXX@
-PTHREAD_LIBS = @PTHREAD_LIBS@
 RANLIB = @RANLIB@
 SED = @SED@
 SET_MAKE = @SET_MAKE@
@@ -815,7 +822,6 @@ VALGRIND_CFLAGS = @VALGRIND_CFLAGS@
 VALGRIND_LIBS = @VALGRIND_LIBS@
 VERSION = @VERSION@
 VISIBILITY_CFLAGS = @VISIBILITY_CFLAGS@
-VSCRIPT_LDFLAGS = @VSCRIPT_LDFLAGS@
 abs_builddir = @abs_builddir@
 abs_srcdir = @abs_srcdir@
 abs_top_builddir = @abs_top_builddir@
@@ -828,7 +834,6 @@ am__leading_dot = @am__leading_dot@
 am__quote = @am__quote@
 am__tar = @am__tar@
 am__untar = @am__untar@
-ax_pthread_config = @ax_pthread_config@
 bindir = @bindir@
 build = @build@
 build_alias = @build_alias@
@@ -876,14 +881,17 @@ top_srcdir = @top_srcdir@
 AUTOMAKE_OPTIONS = subdir-objects
 ACLOCAL_AMFLAGS = -I m4
 AM_CPPFLAGS = "-I$(srcdir)/src"
-CLEAN_LOCAL_TARGETS = testoutput-clean $(am__append_13)
+CLEAN_LOCAL_TARGETS = $(am__append_13)
 DISTCLEAN_LOCAL_TARGETS = $(am__append_14) $(am__append_17)
-PHONY_TARGETS = testoutput-clean $(am__append_15) $(am__append_18)
+PHONY_TARGETS = $(am__append_15) $(am__append_18)
 dist_doc_DATA = \
   AUTHORS.md \
   LICENCE.md \
-  SECURITY.md
+  SECURITY.md \
+  SUPPORT-LIFECYCLE.md
 
+dist_html_DATA = 
+dist_man_MANS = 
 
 # The Libtool libraries to install.  We'll add to this later.
 lib_LTLIBRARIES = $(am__append_2) $(am__append_3) $(am__append_4) \
@@ -896,13 +904,9 @@ dist_noinst_SCRIPTS =
 # those binaries that *this* configuration has created. If the configuration
 # has been changed, some binaries may not get automatically deleted. Therefore
 # we list them here.
-
-# RunTest and RunGrepTest should clean up after themselves, but just in case
-# they don't, add their working files to CLEANFILES.
-CLEANFILES = pcre2_dftables src/pcre2_chartables.c testSinput \
-	testSoutput test3input test3output test3outputA test3outputB \
-	testtry teststdout teststderr teststderrgrep testtemp1grep \
-	testtemp2grep testtrygrep testNinputgrep
+CLEANFILES = pcre2_dftables pcre2_jit_test pcre2fuzzcheck-8 \
+	pcre2fuzzcheck-16 pcre2fuzzcheck-32 pcre2demo \
+	src/pcre2_chartables.c
 DISTCLEANFILES = src/config.h.in~ $(am__append_16)
 MAINTAINERCLEANFILES = src/pcre2.h.generic src/config.h.generic
 
@@ -910,6 +914,8 @@ MAINTAINERCLEANFILES = src/pcre2.h.generic src/config.h.generic
 # the Autotools include by default.
 
 # These files contain additional m4 macros that are used by autoconf.
+
+# These files contain maintenance information
 
 # These are support files for building with Bazel or Zig
 
@@ -922,18 +928,19 @@ MAINTAINERCLEANFILES = src/pcre2.h.generic src/config.h.generic
 # The pcre2_chartables.c.dist file is the default version of
 # pcre2_chartables.c, used unless --enable-rebuild-chartables is specified.
 
-# Symbol version files for use with GNU and Sun ld.
-EXTRA_DIST = m4/ax_check_vscript.m4 m4/ax_pthread.m4 \
-	m4/pcre2_visibility.m4 m4/pcre2_zos.m4 BUILD.bazel \
-	MODULE.bazel build.zig vms/configure.com \
-	vms/openvms_readme.txt vms/pcre2.h_patch vms/stdint.h \
-	src/pcre2.h.generic src/config.h.generic \
+# Symbol version template files for use with GNU and Sun ld.
+EXTRA_DIST = m4/ax_pthread.m4 m4/pcre2_check_vscript.m4 \
+	m4/pcre2_visibility.m4 m4/pcre2_zos.m4 NON-AUTOTOOLS-BUILD \
+	HACKING BUILD.bazel MODULE.bazel build.zig build.zig.zon \
+	vms/configure.com vms/openvms_readme.txt vms/pcre2.h_patch \
+	vms/stdint.h src/pcre2.h.generic src/config.h.generic \
 	src/pcre2_chartables.c.dist \
 	src/pcre2_chartables.c.ebcdic-1047-nl15 \
-	src/pcre2_chartables.c.ebcdic-1047-nl25 src/libpcre2-8.sym \
-	src/libpcre2-16.sym src/libpcre2-32.sym src/libpcre2-posix.sym \
-	cmake/COPYING-CMAKE-SCRIPTS cmake/pcre2-config.cmake.in \
-	cmake/PCRE2CheckVscript.cmake \
+	src/pcre2_chartables.c.ebcdic-1047-nl25 src/libpcre2-8.sym.in \
+	src/libpcre2-16.sym.in src/libpcre2-32.sym.in \
+	src/libpcre2-posix.sym.in cmake/COPYING-CMAKE-SCRIPTS \
+	cmake/FindEditline.cmake cmake/FindReadline.cmake \
+	cmake/pcre2-config.cmake.in cmake/PCRE2CheckVscript.cmake \
 	cmake/PCRE2UseSystemExtensions.cmake \
 	cmake/PCRE2WarningAsError.cmake src/config-cmake.h.in \
 	CMakeLists.txt
@@ -971,6 +978,7 @@ COMMON_SOURCES = \
   src/pcre2_newline.c \
   src/pcre2_ord2utf.c \
   src/pcre2_pattern_info.c \
+  src/pcre2_printint_inc.h \
   src/pcre2_script_run.c \
   src/pcre2_serialize.c \
   src/pcre2_string_utils.c \
@@ -1110,6 +1118,14 @@ distclean-hdr:
 pcre2-config: $(top_builddir)/config.status $(srcdir)/pcre2-config.in
 	cd $(top_builddir) && $(SHELL) ./config.status $@
 src/pcre2.h: $(top_builddir)/config.status $(top_srcdir)/src/pcre2.h.in
+	cd $(top_builddir) && $(SHELL) ./config.status $@
+src/libpcre2-8.sym: $(top_builddir)/config.status $(top_srcdir)/src/libpcre2-8.sym.in
+	cd $(top_builddir) && $(SHELL) ./config.status $@
+src/libpcre2-16.sym: $(top_builddir)/config.status $(top_srcdir)/src/libpcre2-16.sym.in
+	cd $(top_builddir) && $(SHELL) ./config.status $@
+src/libpcre2-32.sym: $(top_builddir)/config.status $(top_srcdir)/src/libpcre2-32.sym.in
+	cd $(top_builddir) && $(SHELL) ./config.status $@
+src/libpcre2-posix.sym: $(top_builddir)/config.status $(top_srcdir)/src/libpcre2-posix.sym.in
 	cd $(top_builddir) && $(SHELL) ./config.status $@
 install-binPROGRAMS: $(bin_PROGRAMS)
 	@$(NORMAL_INSTALL)
@@ -2244,6 +2260,27 @@ uninstall-dist_docDATA:
 	@list='$(dist_doc_DATA)'; test -n "$(docdir)" || list=; \
 	files=`for p in $$list; do echo $$p; done | sed -e 's|^.*/||'`; \
 	dir='$(DESTDIR)$(docdir)'; $(am__uninstall_files_from_dir)
+install-dist_htmlDATA: $(dist_html_DATA)
+	@$(NORMAL_INSTALL)
+	@list='$(dist_html_DATA)'; test -n "$(htmldir)" || list=; \
+	if test -n "$$list"; then \
+	  echo " $(MKDIR_P) '$(DESTDIR)$(htmldir)'"; \
+	  $(MKDIR_P) "$(DESTDIR)$(htmldir)" || exit 1; \
+	fi; \
+	for p in $$list; do \
+	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
+	  echo "$$d$$p"; \
+	done | $(am__base_list) | \
+	while read files; do \
+	  echo " $(INSTALL_DATA) $$files '$(DESTDIR)$(htmldir)'"; \
+	  $(INSTALL_DATA) $$files "$(DESTDIR)$(htmldir)" || exit $$?; \
+	done
+
+uninstall-dist_htmlDATA:
+	@$(NORMAL_UNINSTALL)
+	@list='$(dist_html_DATA)'; test -n "$(htmldir)" || list=; \
+	files=`for p in $$list; do echo $$p; done | sed -e 's|^.*/||'`; \
+	dir='$(DESTDIR)$(htmldir)'; $(am__uninstall_files_from_dir)
 install-includeHEADERS: $(include_HEADERS)
 	@$(NORMAL_INSTALL)
 	@list='$(include_HEADERS)'; test -n "$(includedir)" || list=; \
@@ -2681,7 +2718,7 @@ all-am: Makefile $(PROGRAMS) $(LTLIBRARIES) $(SCRIPTS) $(DATA) \
 install-binPROGRAMS: install-libLTLIBRARIES
 
 installdirs:
-	for dir in "$(DESTDIR)$(bindir)" "$(DESTDIR)$(libdir)" "$(DESTDIR)$(bindir)" "$(DESTDIR)$(docdir)" "$(DESTDIR)$(includedir)" "$(DESTDIR)$(includedir)"; do \
+	for dir in "$(DESTDIR)$(bindir)" "$(DESTDIR)$(libdir)" "$(DESTDIR)$(bindir)" "$(DESTDIR)$(docdir)" "$(DESTDIR)$(htmldir)" "$(DESTDIR)$(includedir)" "$(DESTDIR)$(includedir)"; do \
 	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \
 	done
 install: $(BUILT_SOURCES)
@@ -2840,8 +2877,8 @@ info: info-am
 
 info-am:
 
-install-data-am: install-dist_docDATA install-includeHEADERS \
-	install-nodist_includeHEADERS
+install-data-am: install-dist_docDATA install-dist_htmlDATA \
+	install-includeHEADERS install-nodist_includeHEADERS
 
 install-dvi: install-dvi-am
 
@@ -2982,8 +3019,9 @@ ps: ps-am
 ps-am:
 
 uninstall-am: uninstall-binPROGRAMS uninstall-binSCRIPTS \
-	uninstall-dist_docDATA uninstall-includeHEADERS \
-	uninstall-libLTLIBRARIES uninstall-nodist_includeHEADERS
+	uninstall-dist_docDATA uninstall-dist_htmlDATA \
+	uninstall-includeHEADERS uninstall-libLTLIBRARIES \
+	uninstall-nodist_includeHEADERS
 
 .MAKE: all check check-am install install-am install-exec \
 	install-strip
@@ -2999,10 +3037,10 @@ uninstall-am: uninstall-binPROGRAMS uninstall-binSCRIPTS \
 	distcleancheck distdir distuninstallcheck dvi dvi-am html \
 	html-am info info-am install install-am install-binPROGRAMS \
 	install-binSCRIPTS install-data install-data-am \
-	install-dist_docDATA install-dvi install-dvi-am install-exec \
-	install-exec-am install-html install-html-am \
-	install-includeHEADERS install-info install-info-am \
-	install-libLTLIBRARIES install-man \
+	install-dist_docDATA install-dist_htmlDATA install-dvi \
+	install-dvi-am install-exec install-exec-am install-html \
+	install-html-am install-includeHEADERS install-info \
+	install-info-am install-libLTLIBRARIES install-man \
 	install-nodist_includeHEADERS install-pdf install-pdf-am \
 	install-ps install-ps-am install-strip installcheck \
 	installcheck-am installdirs maintainer-clean \
@@ -3010,8 +3048,9 @@ uninstall-am: uninstall-binPROGRAMS uninstall-binSCRIPTS \
 	mostlyclean-generic mostlyclean-libtool pdf pdf-am ps ps-am \
 	recheck tags tags-am uninstall uninstall-am \
 	uninstall-binPROGRAMS uninstall-binSCRIPTS \
-	uninstall-dist_docDATA uninstall-includeHEADERS \
-	uninstall-libLTLIBRARIES uninstall-nodist_includeHEADERS
+	uninstall-dist_docDATA uninstall-dist_htmlDATA \
+	uninstall-includeHEADERS uninstall-libLTLIBRARIES \
+	uninstall-nodist_includeHEADERS
 
 .PRECIOUS: Makefile
 
@@ -3063,11 +3102,6 @@ src/config.h.generic: configure.ac
 @WITH_EBCDIC_FALSE@@WITH_REBUILD_CHARTABLES_FALSE@src/pcre2_chartables.c: $(srcdir)/src/pcre2_chartables.c.dist
 @WITH_EBCDIC_FALSE@@WITH_REBUILD_CHARTABLES_FALSE@	rm -f $@
 @WITH_EBCDIC_FALSE@@WITH_REBUILD_CHARTABLES_FALSE@	$(LN_S) $(abs_srcdir)/src/pcre2_chartables.c.dist $(abs_builddir)/src/pcre2_chartables.c
-
-testoutput-clean:
-	-rm -rf testoutput8 testoutput8-jit testoutput8-dfa
-	-rm -rf testoutput16 testoutput16-jit testoutput16-dfa
-	-rm -rf testoutput32 testoutput32-jit testoutput32-dfa
 
 @WITH_GCOV_TRUE@coverage-check: all
 @WITH_GCOV_TRUE@	-$(MAKE) $(AM_MAKEFLAGS) -k check

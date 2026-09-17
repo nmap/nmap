@@ -9,15 +9,15 @@ dnl The PCRE2_PRERELEASE feature is for identifying release candidates. It might
 dnl be defined as -RC2, for example. For real releases, it should be empty.
 
 m4_define(pcre2_major, [10])
-m4_define(pcre2_minor, [47])
+m4_define(pcre2_minor, [48])
 m4_define(pcre2_prerelease, [])
-m4_define(pcre2_date, [2025-10-21])
+m4_define(pcre2_date, [2026-08-31])
 
 # Libtool shared library interface versions (current:revision:age)
-m4_define(libpcre2_8_version,     [15:0:15])
-m4_define(libpcre2_16_version,    [15:0:15])
-m4_define(libpcre2_32_version,    [15:0:15])
-m4_define(libpcre2_posix_version, [3:7:0])
+m4_define(libpcre2_8_version,     [16:0:16])
+m4_define(libpcre2_16_version,    [16:0:16])
+m4_define(libpcre2_32_version,    [16:0:16])
+m4_define(libpcre2_posix_version, [3:8:0])
 
 # NOTE: The CMakeLists.txt file searches for the above variables in the first
 # 50 lines of this file. Please update that if the variables above are moved.
@@ -76,8 +76,12 @@ AC_TYPE_INT64_T
 PCRE2_ZOS_FIXES
 
 AC_PROG_INSTALL
-LT_INIT([win32-dll])
 AC_PROG_LN_S
+
+# As well as LT_INIT, we use LT_OUTPUT so that PCRE2_CHECK_VSCRIPT can invoke
+# libtool to test version scripts correctly.
+LT_INIT([win32-dll])
+LT_OUTPUT
 
 AC_SYS_LARGEFILE
 
@@ -87,7 +91,7 @@ PCRE2_VISIBILITY
 
 # Check for the availability of -Wl,--version-script (or -Wl,-M on Solaris)
 
-AX_CHECK_VSCRIPT
+PCRE2_CHECK_VSCRIPT
 
 # Check for Clang __attribute__((uninitialized)) feature
 
@@ -224,69 +228,11 @@ AC_ARG_ENABLE(debug,
                              [enable debugging code]),
               , enable_debug=no)
 
-# Handle --enable-jit (disabled by default)
-AC_ARG_ENABLE(jit,
-              AS_HELP_STRING([--enable-jit],
-                             [enable Just-In-Time compiling support]),
-              , enable_jit=no)
-
-# This code enables JIT if the hardware supports it.
-if test "$enable_jit" = "auto"; then
-  AC_LANG(C)
-  SAVE_CPPFLAGS=$CPPFLAGS
-  CPPFLAGS=-I$srcdir
-  AC_COMPILE_IFELSE([AC_LANG_SOURCE([[
-  #define SLJIT_CONFIG_AUTO 1
-  #include "deps/sljit/sljit_src/sljitConfigCPU.h"
-  #if (defined SLJIT_CONFIG_UNSUPPORTED && SLJIT_CONFIG_UNSUPPORTED)
-  #error unsupported
-  #endif]])], enable_jit=yes, enable_jit=no)
-  CPPFLAGS=$SAVE_CPPFLAGS
-  echo checking for JIT support on this hardware... $enable_jit
-fi
-
-# Handle --enable-jit-sealloc (disabled by default and only experimental)
-case $host_os in
-  linux* | netbsd*)
-    AC_ARG_ENABLE(jit-sealloc,
-      AS_HELP_STRING([--enable-jit-sealloc],
-        [enable SELinux compatible execmem allocator in JIT (experimental)]),
-        ,enable_jit_sealloc=no)
-    ;;
-  *)
-    enable_jit_sealloc=unsupported
-    ;;
-esac
-
-# Handle --disable-pcre2grep-jit (enabled by default)
-AC_ARG_ENABLE(pcre2grep-jit,
-              AS_HELP_STRING([--disable-pcre2grep-jit],
-                             [disable JIT support in pcre2grep]),
-              , enable_pcre2grep_jit=yes)
-
-# Handle --disable-pcre2grep-callout (enabled by default)
-AC_ARG_ENABLE(pcre2grep-callout,
-              AS_HELP_STRING([--disable-pcre2grep-callout],
-                             [disable callout script support in pcre2grep]),
-              , enable_pcre2grep_callout=yes)
-
-# Handle --disable-pcre2grep-callout-fork (enabled by default)
-AC_ARG_ENABLE(pcre2grep-callout-fork,
-              AS_HELP_STRING([--disable-pcre2grep-callout-fork],
-                             [disable callout script fork support in pcre2grep]),
-              , enable_pcre2grep_callout_fork=yes)
-
 # Handle --enable-rebuild-chartables
 AC_ARG_ENABLE(rebuild-chartables,
               AS_HELP_STRING([--enable-rebuild-chartables],
                              [rebuild character tables in current locale]),
               , enable_rebuild_chartables=no)
-
-# Handle --disable-unicode (enabled by default)
-AC_ARG_ENABLE(unicode,
-              AS_HELP_STRING([--disable-unicode],
-                             [disable Unicode support]),
-              , enable_unicode=unset)
 
 # Handle newline options
 ac_pcre2_newline=lf
@@ -441,18 +387,6 @@ AC_ARG_ENABLE(coverage,
                              [enable code coverage reports using gcov]),
               , enable_coverage=no)
 
-# Handle --enable-fuzz-support
-AC_ARG_ENABLE(fuzz_support,
-              AS_HELP_STRING([--enable-fuzz-support],
-                             [enable fuzzer support]),
-              , enable_fuzz_support=no)
-
-# Handle --enable-diff-fuzz-support
-AC_ARG_ENABLE(diff_fuzz_support,
-              AS_HELP_STRING([--enable-diff-fuzz-support],
-                             [enable differential fuzzer support]),
-              , enable_diff_fuzz_support=no)
-
 # Handle --disable-stack-for-recursion
 # This option became obsolete at release 10.30.
 AC_ARG_ENABLE(stack-for-recursion,,
@@ -504,12 +438,6 @@ then
   AC_MSG_ERROR([At least one of the 8, 16 or 32 bit libraries must be enabled])
 fi
 
-# Unicode is enabled by default.
-if test "x$enable_unicode" = "xunset"
-then
-  enable_unicode=yes
-fi
-
 # Convert the newline identifier into the appropriate integer value. These must
 # agree with the PCRE2_NEWLINE_xxx values in pcre2.h.
 
@@ -539,9 +467,6 @@ fi
 if test "x$enable_ebcdic" = "xyes"; then
   if test "x$enable_ebcdic_ignoring_compiler" != "xyes"; then
     enable_rebuild_chartables=yes
-  fi
-  if test "x$enable_unicode" = "xyes"; then
-    AC_MSG_ERROR([support for EBCDIC and Unicode cannot be enabled at the same time])
   fi
   if test "x$enable_pcre2_16" = "xyes" -o "x$enable_pcre2_32" = "xyes"; then
     AC_MSG_ERROR([EBCDIC support is available only for the 8-bit library])
@@ -590,31 +515,9 @@ AM_CONDITIONAL(WITH_PCRE2_8, test "x$enable_pcre2_8" = "xyes")
 AM_CONDITIONAL(WITH_PCRE2_16, test "x$enable_pcre2_16" = "xyes")
 AM_CONDITIONAL(WITH_PCRE2_32, test "x$enable_pcre2_32" = "xyes")
 AM_CONDITIONAL(WITH_REBUILD_CHARTABLES, test "x$enable_rebuild_chartables" = "xyes")
-AM_CONDITIONAL(WITH_JIT, test "x$enable_jit" = "xyes")
-AM_CONDITIONAL(WITH_UNICODE, test "x$enable_unicode" = "xyes")
 AM_CONDITIONAL(WITH_EBCDIC, test "x$enable_ebcdic" = "xyes")
 AM_CONDITIONAL(WITH_EBCDIC_NL25, test "x$enable_ebcdic_nl25" = "xyes")
 AM_CONDITIONAL(WITH_VALGRIND, test "x$enable_valgrind" = "xyes")
-AM_CONDITIONAL(WITH_FUZZ_SUPPORT, test "x$enable_fuzz_support" = "xyes")
-AM_CONDITIONAL(WITH_DIFF_FUZZ_SUPPORT, test "x$enable_diff_fuzz_support" = "xyes")
-
-if test "$enable_fuzz_support" = "yes" -a "$enable_pcre2_8" = "no"; then
-  echo "** ERROR: Fuzzer support requires the 8-bit library"
-  exit 1
-fi
-
-if test "$enable_diff_fuzz_support" = "yes"; then
-  if test "$enable_fuzz_support" = "no"; then
-    echo "** ERROR: Differential fuzzing support requires fuzzing support"
-    exit 1
-  fi
-  if test "$enable_jit" = "no"; then
-    echo "** ERROR: Differential fuzzing support requires Just-in-Time compilation support"
-    exit 1
-  fi
-  AC_DEFINE([SUPPORT_DIFF_FUZZ], [], [
-    Define to any value to enable differential fuzzing support.])
-fi
 
 # Checks for typedefs, structures, and compiler characteristics.
 
@@ -623,7 +526,7 @@ AC_TYPE_SIZE_T
 
 # Checks for library functions.
 
-AC_CHECK_FUNCS(memfd_create mkostemp secure_getenv)
+AC_CHECK_FUNCS(memfd_create mkostemp secure_getenv setrlimit)
 AC_MSG_CHECKING([for realpath])
 AC_LINK_IFELSE([AC_LANG_PROGRAM([[
 #include <stdlib.h>
@@ -776,111 +679,6 @@ if test "$enable_percent_zt" = "no"; then
     formatting settings such as %zu or %td (this is rarely needed).])
 else
   enable_percent_zt=auto
-fi
-
-# Unless running under Windows, JIT support requires pthreads.
-
-if test "$enable_jit" = "yes"; then
-  if test "$HAVE_WINDOWS_H" != "1"; then
-    AX_PTHREAD([], [AC_MSG_ERROR([JIT support requires pthreads])])
-    CC="$PTHREAD_CC"
-    CFLAGS="$PTHREAD_CFLAGS $CFLAGS"
-    LIBS="$PTHREAD_LIBS $LIBS"
-  fi
-  AC_DEFINE([SUPPORT_JIT], [], [
-    Define to any value to enable support for Just-In-Time compiling.])
-else
-  enable_pcre2grep_jit="no"
-fi
-
-if test "$enable_jit_sealloc" = "yes"; then
-  AC_DEFINE([SLJIT_PROT_EXECUTABLE_ALLOCATOR], [1], [
-    Define to any non-zero number to enable support for SELinux
-    compatible executable memory allocator in JIT. Note that this
-    will have no effect unless SUPPORT_JIT is also defined.])
-fi
-
-if test "$enable_pcre2grep_jit" = "yes"; then
-  AC_DEFINE([SUPPORT_PCRE2GREP_JIT], [], [
-    Define to any value to enable JIT support in pcre2grep. Note that this will
-    have no effect unless SUPPORT_JIT is also defined.])
-fi
-
-if test "$enable_pcre2grep_callout" = "yes"; then
-  if test "$enable_pcre2grep_callout_fork" = "yes"; then
-    if test "$HAVE_WINDOWS_H" != "1"; then
-      if test "$HAVE_SYS_WAIT_H" != "1"; then
-        AC_MSG_ERROR([Callout script support needs sys/wait.h.])
-      fi
-    fi
-    AC_DEFINE([SUPPORT_PCRE2GREP_CALLOUT_FORK], [], [
-      Define to any value to enable fork support in pcre2grep callout scripts.
-      This will have no effect unless SUPPORT_PCRE2GREP_CALLOUT is also
-      defined.])
-  fi
-  AC_DEFINE([SUPPORT_PCRE2GREP_CALLOUT], [], [
-    Define to any value to enable callout script support in pcre2grep.])
-else
-  enable_pcre2grep_callout_fork="no"
-fi
-
-if test "$enable_unicode" = "yes"; then
-  AC_DEFINE([SUPPORT_UNICODE], [], [
-    Define to any value to enable support for Unicode and UTF encoding.
-    This will work even in an EBCDIC environment, but it is incompatible
-    with the EBCDIC macro. That is, PCRE2 can support *either* EBCDIC
-    code *or* ASCII/Unicode, but not both at once.])
-fi
-
-if test "$enable_pcre2grep_libz" = "yes"; then
-  AC_DEFINE([SUPPORT_LIBZ], [], [
-    Define to any value to allow pcre2grep to be linked with libz, so that it is
-    able to handle .gz files.])
-fi
-
-if test "$enable_pcre2grep_libbz2" = "yes"; then
-  AC_DEFINE([SUPPORT_LIBBZ2], [], [
-    Define to any value to allow pcre2grep to be linked with libbz2, so that it
-    is able to handle .bz2 files.])
-fi
-
-if test $with_pcre2grep_bufsize -lt 8192 ; then
-  AC_MSG_WARN([$with_pcre2grep_bufsize is too small for --with-pcre2grep-bufsize; using 8192])
-  with_pcre2grep_bufsize="8192"
-else
-  if test $? -gt 1 ; then
-  AC_MSG_ERROR([Bad value for --with-pcre2grep-bufsize])
-  fi
-fi
-
-if test $with_pcre2grep_max_bufsize -lt $with_pcre2grep_bufsize ; then
-  with_pcre2grep_max_bufsize="$with_pcre2grep_bufsize"
-else
-  if test $? -gt 1 ; then
-  AC_MSG_ERROR([Bad value for --with-pcre2grep-max-bufsize])
-  fi
-fi
-
-AC_DEFINE_UNQUOTED([PCRE2GREP_BUFSIZE], [$with_pcre2grep_bufsize], [
-  The value of PCRE2GREP_BUFSIZE is the starting size of the buffer used by
-  pcre2grep to hold parts of the file it is searching. The buffer will be
-  expanded up to PCRE2GREP_MAX_BUFSIZE if necessary, for files containing very
-  long lines. The actual amount of memory used by pcre2grep is three times this
-  number, because it allows for the buffering of "before" and "after" lines.])
-
-AC_DEFINE_UNQUOTED([PCRE2GREP_MAX_BUFSIZE], [$with_pcre2grep_max_bufsize], [
-  The value of PCRE2GREP_MAX_BUFSIZE specifies the maximum size of the buffer
-  used by pcre2grep to hold parts of the file it is searching. The actual
-  amount of memory used by pcre2grep is three times this number, because it
-  allows for the buffering of "before" and "after" lines.])
-
-if test "$enable_pcre2test_libedit" = "yes"; then
-  AC_DEFINE([SUPPORT_LIBEDIT], [], [
-    Define to any value to allow pcre2test to be linked with libedit.])
-  LIBREADLINE="$LIBEDIT"
-elif test "$enable_pcre2test_libreadline" = "yes"; then
-  AC_DEFINE([SUPPORT_LIBREADLINE], [], [
-    Define to any value to allow pcre2test to be linked with libreadline.])
 fi
 
 AC_DEFINE_UNQUOTED([NEWLINE_DEFAULT], [$ac_pcre2_newline_value], [
@@ -1043,18 +841,18 @@ EXTRA_LIBPCRE2_POSIX_LDFLAGS="$EXTRA_LIBPCRE2_POSIX_LDFLAGS \
 
 # Append each library's version script, if the platform supports it.
 
-if test x$ax_check_vscript_flag != x ; then
+if test x$pcre2_check_vscript_flag != x ; then
   EXTRA_LIBPCRE2_8_LDFLAGS="$EXTRA_LIBPCRE2_8_LDFLAGS \
-    -Wl,$ax_check_vscript_flag,\$(srcdir)/src/libpcre2-8.sym"
+    -Wl,$pcre2_check_vscript_flag,\$(builddir)/src/libpcre2-8.sym"
 
   EXTRA_LIBPCRE2_16_LDFLAGS="$EXTRA_LIBPCRE2_16_LDFLAGS \
-    -Wl,$ax_check_vscript_flag,\$(srcdir)/src/libpcre2-16.sym"
+    -Wl,$pcre2_check_vscript_flag,\$(builddir)/src/libpcre2-16.sym"
 
   EXTRA_LIBPCRE2_32_LDFLAGS="$EXTRA_LIBPCRE2_32_LDFLAGS \
-    -Wl,$ax_check_vscript_flag,\$(srcdir)/src/libpcre2-32.sym"
+    -Wl,$pcre2_check_vscript_flag,\$(builddir)/src/libpcre2-32.sym"
 
   EXTRA_LIBPCRE2_POSIX_LDFLAGS="$EXTRA_LIBPCRE2_POSIX_LDFLAGS \
-    -Wl,$ax_check_vscript_flag,\$(srcdir)/src/libpcre2-posix.sym"
+    -Wl,$pcre2_check_vscript_flag,\$(builddir)/src/libpcre2-posix.sym"
 fi
 
 AC_SUBST(EXTRA_LIBPCRE2_8_LDFLAGS)
@@ -1064,7 +862,7 @@ AC_SUBST(EXTRA_LIBPCRE2_POSIX_LDFLAGS)
 
 # When we run 'make distcheck', use these arguments. Turning off compiler
 # optimization makes it run faster.
-DISTCHECK_CONFIGURE_FLAGS="CFLAGS='' CXXFLAGS='' --enable-pcre2-16 --enable-pcre2-32 --enable-jit"
+DISTCHECK_CONFIGURE_FLAGS="CFLAGS='' CXXFLAGS=''"
 AC_SUBST(DISTCHECK_CONFIGURE_FLAGS)
 
 # Check that, if --enable-pcre2grep-libz or --enable-pcre2grep-libbz2 is
@@ -1198,12 +996,25 @@ AC_LANG_POP([C])
 # Pass empty LIB_POSTFIX to *.pc files and pcre2-config here.
 AC_SUBST(LIB_POSTFIX)
 
+# Set the extra "local: *" symbol section conditionally for Solaris (effectively).
+
+if test x$pcre2_check_vscript_flag != x && test x$pcre2_check_vscript_no_star = xno; then
+  PCRE2_EXTRA_LOCAL_SYMS="  local: *;"
+else
+  PCRE2_EXTRA_LOCAL_SYMS=""
+fi
+AC_SUBST([PCRE2_EXTRA_LOCAL_SYMS])
+
 # Produce these files, in addition to config.h.
 
 AC_CONFIG_FILES(
 	Makefile
 	pcre2-config
 	src/pcre2.h
+	src/libpcre2-8.sym
+	src/libpcre2-16.sym
+	src/libpcre2-32.sym
+	src/libpcre2-posix.sym
 )
 
 # Make the generated script files executable.
@@ -1246,7 +1057,7 @@ fi
 with_symbol_versioning=n/a
 if test x$want_symvers != xyes; then
   with_symbol_versioning=no
-elif test x$ax_check_vscript_flag != x; then
+elif test x$pcre2_check_vscript_flag != x; then
   with_symbol_versioning=yes
 fi
 
@@ -1264,12 +1075,7 @@ $PACKAGE-$VERSION configuration summary:
     Extra libraries .................... : ${LIBS}
 
     Build 8-bit pcre2 library .......... : ${enable_pcre2_8}
-    Build 16-bit pcre2 library ......... : ${enable_pcre2_16}
-    Build 32-bit pcre2 library ......... : ${enable_pcre2_32}
     Include debugging code ............. : ${enable_debug}
-    Enable JIT compiling support ....... : ${enable_jit}
-    Use SELinux allocator in JIT ....... : ${enable_jit_sealloc}
-    Enable Unicode support ............. : ${enable_unicode}
     Newline char/sequence .............. : ${enable_newline}
     \R matches only ANYCRLF ............ : ${enable_bsr_anycrlf}
     \C is disabled ..................... : ${enable_never_backslash_C}
@@ -1286,19 +1092,8 @@ $PACKAGE-$VERSION configuration summary:
     Build shared libs .................. : ${enable_shared}
         with symbol versioning ......... : ${with_symbol_versioning}
     Build static libs .................. : ${enable_static}
-    Enable JIT in pcre2grep ............ : ${enable_pcre2grep_jit}
-    Enable callouts in pcre2grep ....... : ${enable_pcre2grep_callout}
-    Enable fork in pcre2grep callouts .. : ${enable_pcre2grep_callout_fork}
-    Initial buffer size for pcre2grep .. : ${with_pcre2grep_bufsize}
-    Maximum buffer size for pcre2grep .. : ${with_pcre2grep_max_bufsize}
-    Link pcre2grep with libz ........... : ${enable_pcre2grep_libz}
-    Link pcre2grep with libbz2 ......... : ${enable_pcre2grep_libbz2}
-    Link pcre2test with libedit ........ : ${enable_pcre2test_libedit}
-    Link pcre2test with libreadline .... : ${enable_pcre2test_libreadline}
     Enable Valgrind support ............ : ${enable_valgrind}
     Code coverage ...................... : ${enable_coverage}
-    Fuzzer support ..................... : ${enable_fuzz_support}
-    Differential fuzzer support ........ : ${enable_diff_fuzz_support}
     Use %zu and %td .................... : ${enable_percent_zt}
 
 EOF
