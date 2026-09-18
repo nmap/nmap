@@ -322,30 +322,6 @@ local function ctx_log(level, protocol, fmt, ...)
   return stdnse.debug(level, "(%s) " .. fmt, protocol, ...)
 end
 
--- returns a function that yields a new tls record each time it is called
-local function get_record_iter(sock)
-  local buffer = ""
-  local i = 1
-  local fragment
-  return function ()
-    local record
-    i, record = tls.record_read(buffer, i, fragment)
-    if record == nil then
-      local status, err
-      status, buffer, err = tls.record_buffer(sock, buffer, i)
-      if not status then
-        return nil, err
-      end
-      i, record = tls.record_read(buffer, i, fragment)
-      if record == nil then
-        return nil, "done"
-      end
-    end
-    fragment = record.fragment
-    return record
-  end
-end
-
 local function try_params(host, port, t)
 
   -- Use Nmap's own discovered timeout plus 5 seconds for host processing
@@ -384,7 +360,7 @@ local function try_params(host, port, t)
   end
 
   -- Read response.
-  local get_next_record = get_record_iter(sock)
+  local get_next_record = tls.record_iter(sock)
   local records = {}
   while true do
     local record
