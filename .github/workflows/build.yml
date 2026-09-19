@@ -112,7 +112,7 @@ jobs:
         run: |
           docker run --rm --platform linux/arm64 -v $PWD:/work -w /work ubuntu:latest bash -c "
             apt-get update -q -y &&
-            apt-get install -q -y build-essential tree libpcap-dev libnet-dev libpcre2-dev autoconf automake &&
+            apt-get install -q -y build-essential tree libpcap-dev libnet-dev libpcre2-dev libssl-dev autoconf automake &&
             ./configure
             make &&
             make install DESTDIR=/tmp &&
@@ -124,8 +124,8 @@ jobs:
         run: |
           brew update
           # PCRE2 is already installed
-          brew install tree libpcap libnet
-          ./configure
+          brew install tree libpcap libnet openssl
+          ./configure --with-openssl=$(brew --prefix openssl)
           make
           make install DESTDIR=/tmp
           tree /tmp/usr
