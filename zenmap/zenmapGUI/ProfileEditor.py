@@ -76,6 +76,7 @@ from zenmapCore.UmitConf import CommandProfile
 from zenmapCore.UmitLogging import log
 import zenmapCore.I18N  # lgtm[py/unused-import]
 from zenmapCore.NmapOptions import NmapOptions
+import configparser
 
 
 class ProfileEditor(HIGWindow):
@@ -102,15 +103,18 @@ class ProfileEditor(HIGWindow):
         self.ops = NmapOptions()
         if profile_name:
             log.debug("Showing profile %s" % profile_name)
-            prof = self.profile.get_profile(profile_name)
-
-            # Interface settings
             self.profile_name_entry.set_text(profile_name)
-            self.profile_description_text.get_buffer().set_text(
-                    prof['description'])
+            try:
+                prof = self.profile.get_profile(profile_name)
 
-            command_string = prof['command']
-            self.ops.parse_string(command_string)
+                # Interface settings
+                self.profile_description_text.get_buffer().set_text(
+                        prof['description'])
+
+                command_string = prof['command']
+                self.ops.parse_string(command_string)
+            except configparser.Error:
+                pass
         if command:
             self.ops.parse_string(command)
 
@@ -297,7 +301,10 @@ class ProfileEditor(HIGWindow):
 
     def save_profile(self, widget):
         if self.overwrite:
-            self.profile.remove_profile(self.profile_name)
+            try:
+                self.profile.remove_profile(self.profile_name)
+            except configparser.Error:
+                pass
         profile_name = self.profile_name_entry.get_text()
         if profile_name == '':
             alert = HIGAlertDialog(
@@ -323,7 +330,7 @@ class ProfileEditor(HIGWindow):
                     profile_name,
                     command=command,
                     description=description)
-        except ValueError as e:
+        except (ValueError, configparser.Error) as e:
             message = str(e)
             if e.__cause__:
                 message += "\nReason: {}".format(e.__cause__)
@@ -379,7 +386,19 @@ class ProfileEditor(HIGWindow):
             dialog.destroy()
             if response == Gtk.ResponseType.CANCEL:
                 return True
-            self.profile.remove_profile(self.profile_name)
+            try:
+                self.profile.remove_profile(self.profile_name)
+            except configparser.Error:
+                message = str(e)
+                if e.__cause__:
+                    message += "\nReason: {}".format(e.__cause__)
+                alert = HIGAlertDialog(
+                        message_format=_('Unable to remove profile'),
+                        secondary_text=_(
+                            'An error was encountered when removing the profile:\n'
+                            '%(message)s') % {"message": message})
+                alert.run()
+                alert.destroy()
 
         self.update_profile_entry()
         self.destroy()
