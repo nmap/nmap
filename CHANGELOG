@@ -2,6 +2,8 @@
 
 o Upgraded included libraries: libpcap 1.10.7, pcre2 10.48, lua 5.4.9
 
+o [Ndiff][GH#3468] Fixed `make check-ndiff` to work with Python 3.12+ [gargamel778]
+
 o [NSE][GH#3492] vulners API queries for versions like 4.100 were being
   truncated on the server, resulting in false positives. Fixed by encoding as
   string. [huuyafwww]
