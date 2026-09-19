@@ -27,6 +27,7 @@ sys.dont_write_bytecode = dont_write_bytecode
 del dont_write_bytecode
 
 import io
+import os
 
 
 class scan_test(unittest.TestCase):
@@ -329,7 +330,7 @@ class ScanDiffSub(ScanDiff):
 class scan_diff_test(unittest.TestCase):
     """Test the ScanDiff class."""
     def setUp(self):
-        self.blackhole = open("/dev/null", "w")
+        self.blackhole = open(os.devnull, "w")
 
     def tearDown(self):
         self.blackhole.close()
@@ -770,7 +771,7 @@ def host_apply_diff(host, diff):
 
 def call_quiet(args, **kwargs):
     """Run a command with subprocess.call and hide its output."""
-    return subprocess.call(args, stdout=subprocess.PIPE,
+    return subprocess.call([sys.executable, *args], stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT, env={'PYTHONPATH': "."}, **kwargs)
 
 
