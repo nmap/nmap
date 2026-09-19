@@ -60,6 +60,7 @@ local string = require "string"
 local table = require "table"
 local nmap = require "nmap"
 local stdnse = require "stdnse"
+local url = require "url"
 
 local api_version="1.2"
 local mincvss=stdnse.get_script_args("vulners.mincvss")
@@ -131,6 +132,16 @@ function get_results(what, vers, type)
     },
     any_af = true,
   }
+
+  -- numeric versions are type-inferred to be numbers and trailing zeroes are
+  -- truncated. Submit as a string explicitly.
+  vers = url.escape(json.generate(vers))
+
+  -- Service rejects uri-encoded CPE strings,
+  -- but also rejects software names with non-uri-encoded spaces.
+  if type ~= "cpe" then
+    what = url.escape(what)
+  end
 
   local response = http.get_url(('%s?software=%s&version=%s&type=%s'):format(api_endpoint, what, vers, type), option)
 

@@ -2,6 +2,10 @@
 
 o Upgraded included libraries: libpcap 1.10.7, pcre2 10.48, lua 5.4.9
 
+o [NSE][GH#3492] vulners API queries for versions like 4.100 were being
+  truncated on the server, resulting in false positives. Fixed by encoding as
+  string. [huuyafwww]
+
 o [Ncat][GH#3489][GH#3498] Ncat in listen mode no longer sends termination
   signals to its process group. Ncat inherits the group of whatever launched
   it, so a SIGINT, SIGTERM, SIGHUP, or SIGQUIT could also terminate the
