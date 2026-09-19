@@ -125,7 +125,7 @@ jobs:
           brew update
           # PCRE2 is already installed
           brew install tree libpcap libnet openssl
-          ./configure
+          ./configure --with-openssl=$(brew --prefix openssl)
           make
           make install DESTDIR=/tmp
           tree /tmp/usr
