@@ -13343,11 +13343,9 @@ match ftp m%^220 .*\r\n214-The following commands are recognized \(\* =>'s unimp
 # proftpd 1.2.9rc1 on linux 2.4.19
 match ftp m|220 localhost FTP server ready\r\n214-The following commands are recognized \(\* =>'s unimplemented\)\.\r\n214-USER    PASS    ACCT\*   CWD     XCWD    CDUP    XCUP    SMNT\*   \r\n214-QUIT    REIN\*   PORT    PASV    TYPE    STRU    MODE    RETR    \r\n214-STOR    STOU    APPE    ALLO\*   REST    RNFR    RNTO    ABOR    \r\n214-DELE| p/ProFTPD/ v/1.2.9rc1/ o/Unix/ cpe:/a:proftpd:proftpd:1.2.9rc1/a
 # proftpd 1.2.10
-match ftp m|^220 .*\r\n214-The following commands are recognized \(\* =>'s unimplemented\):\r\n CWD     XCWD    CDUP    XCUP    SMNT\*   QUIT    PORT    PASV    \r\n EPRT    EPSV    ALLO\*   RNFR    RNTO    DELE    MDTM    RMD     \r\n XRMD    MKD     XMKD    PWD     XPWD    SIZE    SYST    HELP    \r\n NOOP    FEAT    OPTS    AUTH\*?   CCC\*    CONF\*   ENC\*    MIC\*    \r\n PBSZ\*?   PROT\*?   TYPE    STRU    MODE    RETR    STOR    STOU    \r\n|s p/ProFTPD/ v/1.2.10/ cpe:/a:proftpd:proftpd:1.2.10/a
+match ftp m|^220[ -].*?(?>\r\n214)-The following commands are recognized \(\* =>'s unimplemented\):\r\n CWD     XCWD    CDUP    XCUP    SMNT\*   QUIT    PORT    PASV    \r\n EPRT    EPSV    ALLO\*   RNFR    RNTO    DELE    MDTM    RMD     \r\n XRMD    MKD     XMKD    PWD     XPWD    SIZE    SYST    HELP    \r\n NOOP    FEAT    OPTS    AUTH\*?   CCC\*    CONF\*   ENC\*    MIC\*    \r\n PBSZ\*?   PROT\*?   TYPE    STRU    MODE    RETR    STOR    STOU    \r\n|s p/ProFTPD/ v/1.2.10/ cpe:/a:proftpd:proftpd:1.2.10/a
 
-match ftp m|^220 .*\r\n214-The following commands are recognized \(\* =>'s unimplemented\):\r\n CWD     XCWD    CDUP    XCUP    SMNT\*   QUIT    PORT    PASV    \r\n EPRT    EPSV    ALLO\*   RNFR    RNTO    DELE    MDTM    RMD     \r\n XRMD    MKD     XMKD    PWD     XPWD    SIZE    SYST    HELP    \r\n|s p/ProFTPD/ cpe:/a:proftpd:proftpd/a
-
-match ftp m|^220[ -].*\r\n214-The following commands are recognized \(\* =>'s unimplemented\):\r\n|s p/ProFTPD/ cpe:/a:proftpd:proftpd/a
+match ftp m|^220[ -].*?(?>\r\n214)-The following commands are recognized \(\* =>'s unimplemented\):\r\n.*?\n214 |s p/ProFTPD/ cpe:/a:proftpd:proftpd/a
 
 match ftp m|^220 .*\r\n214-\xd1\xeb\xe5\xe4\xf3\xfe\xf9\xe8\xe5 \xea\xee\xec\xe0\xed\xe4\xfb \xe1\xfb\xeb\xe8 \xf0\xe0\xf1\xef\xee\xe7\xed\xe0\xed\xfb \(\* => \xed\xe5 \xf0\xe5\xe0\xeb\xe8\xe7\xee\xe2\xe0\xed\xee\):\r\n| p/ProFTPD/ i/locale: ru_RU/ cpe:/a:proftpd:proftpd/a
 
