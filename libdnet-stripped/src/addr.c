@@ -302,7 +302,7 @@ addr_ston(const struct sockaddr *sa, struct addr *a)
 	
 	memset(a, 0, sizeof(*a));
 	
-	switch (sa->sa_family) {
+	switch ((unsigned int)sa->sa_family) {
 #ifdef HAVE_NET_IF_DL_H
 # ifdef AF_LINK
 	case AF_LINK:
