@@ -85,7 +85,14 @@ int netrun(struct fdinfo *info, char *cmdexec)
     errno = 0;
     pid = fork();
     if (pid == 0) {
-        /* In the child process. */
+        /* In the child process. We are not the supervisor that forwards
+           termination signals to the children it started, so restore the
+           default dispositions: when the listener signals us, we terminate
+           instead of forwarding the signal on to the rest of the children. */
+        Signal(SIGINT, SIG_DFL);
+        Signal(SIGTERM, SIG_DFL);
+        Signal(SIGHUP, SIG_DFL);
+        Signal(SIGQUIT, SIG_DFL);
         netexec(info, cmdexec);
     }
 

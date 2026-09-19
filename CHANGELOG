@@ -2,6 +2,12 @@
 
 o Upgraded included libraries: libpcap 1.10.7, pcre2 10.48, lua 5.4.9
 
+o [Ncat][GH#3489][GH#3498] Ncat in listen mode no longer sends termination
+  signals to its process group. Ncat inherits the group of whatever launched
+  it, so a SIGINT, SIGTERM, SIGHUP, or SIGQUIT could also terminate the
+  caller's shell or test harness. The signal is now forwarded to the children
+  Ncat started for connections when -k and cmdexec are both in effect. [MRX-72]
+
 o [Zenmap][GH#3497] Fixed a crash in Profile Editor: configparser.DuplicateSectionError
 
 o [NSE] Introduced execution time and memory allocation limits for NSE scripts.
