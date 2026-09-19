@@ -208,7 +208,9 @@ function get_vulns_by_cpe(cpe)
     local new_cpe
 
     new_cpe = cpe:gsub(vers_regexp, ":%1:%2")
-    output = get_results(new_cpe, vers, "cpe")
+    if new_cpe ~= cpe then
+      output = get_results(new_cpe, vers, "cpe")
+    end
   end
 
   return output
