@@ -247,7 +247,7 @@ static void signal_propagate_exit(int signum)
             kill(pid, signum);
     }
     /* Exit, since we only use this for INT/TERM/HUP */
-    exit(128 + signum);
+    _exit(128 + signum);
 }
 
 static void install_signal_handlers(void)
