@@ -3244,7 +3244,6 @@ HostOsScanInfo::~HostOsScanInfo() {
 OsScanInfo::OsScanInfo(std::vector<Target *> &Targets) {
   unsigned int targetno;
   HostOsScanInfo *hsi;
-  int num_timedout = 0;
 
   gettimeofday(&now, NULL);
 
@@ -3256,7 +3255,6 @@ OsScanInfo::OsScanInfo(std::vector<Target *> &Targets) {
      * if yes, append it to the list
      */
     if (Targets[targetno]->timedOut(&now)) {
-      num_timedout++;
       continue;
     }
 
