@@ -39,6 +39,18 @@ if pcall(require,'openssl') then
   HAVE_SSL = true
 end
 
+--- Escapes XML special characters in a string so it can be safely
+-- embedded in XML element content.
+-- @param s the string to escape
+-- @return the escaped string
+local function xml_escape(s)
+  return (s:gsub("&", "&amp;")
+           :gsub("<", "&lt;")
+           :gsub(">", "&gt;")
+           :gsub('"', "&quot;")
+           :gsub("'", "&apos;"))
+end
+
 --- A Session class holds connection and interaction with the server
 Session = {
 
@@ -74,10 +86,9 @@ Session = {
   authenticate = function(self, username, password)
     local status, err, xmldata
 
-    -- TODO escape credentials
     status, err = self.socket:send("<authenticate><credentials>"
-      .. "<username>" .. username .. "</username>"
-      .. "<password>" .. password .. "</password>"
+      .. "<username>" .. xml_escape(username) .. "</username>"
+      .. "<password>" .. xml_escape(password) .. "</password>"
       .. "</credentials></authenticate>")
 
     if not status then
