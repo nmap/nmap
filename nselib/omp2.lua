@@ -9,8 +9,9 @@
 -- The library can also store accounts in the registry to share them between
 -- scripts.
 --
--- The complete protocol documentation is available on the official OpenVAS
--- website: http://www.openvas.org/omp-2-0.html
+-- The complete protocol documentation is no longer available on the official
+-- OpenVAS website. Here is the archived copy:
+-- https://web.archive.org/web/20210304194034/http://www.openvas.org/omp-2-0.html
 --
 -- Sample use:
 -- <code>
@@ -121,7 +122,7 @@ Session = {
     for name in xmldata:gmatch("<name>(.-)</name>") do
       -- XXX this is hackish: skip the second and third "<name>" tags, as they
       -- describe other components than the targets.
-      -- see: http://www.openvas.org/omp-2-0.html#command_get_targets
+      -- see: https://web.archive.org/web/20210304194034/http://www.openvas.org/omp-2-0.html#command_get_targets
       if i % 3 == 0 then
         table.insert(target_names, name)
       end
