@@ -132,8 +132,8 @@ Session = {
       table.insert(target_hosts, hosts)
     end
 
-    for i, _ in ipairs(target_names) do
-      res[target_names[i]] = target_hosts[i]
+    for i, name in ipairs(target_names) do
+      res[name] = target_hosts[i]
     end
 
     return res
@@ -142,33 +142,29 @@ Session = {
 
 --- Registers OMP2 credentials for a given host
 function add_account(host, username, password)
-  if not nmap.registry[host.ip] then
-    nmap.registry[host.ip] = {}
+  local hostreg = nmap.registry[host.ip]
+  if not hostreg then
+    hostreg = {}
+    nmap.registry[host.ip] = hostreg
   end
 
-  if not nmap.registry[host.ip]["omp2accounts"] then
-    nmap.registry[host.ip]["omp2accounts"] = {}
-  end
-
-  table.insert(nmap.registry[host.ip]["omp2accounts"], {["username"] = username, ["password"] = password})
+  hostreg.omp2accounts = hostreg.omp2accounts or {}
+  table.insert(hostreg.omp2accounts, {username = username, password = password})
 end
 
 --- Retrieves the list of accounts for a given host
 function get_accounts(host)
   local accounts = {}
-  local username, password
-
-  username = nmap.registry.args["omp2.username"]
-  password = nmap.registry.args["omp2.password"]
+  local username = nmap.registry.args["omp2.username"]
+  local password = nmap.registry.args["omp2.password"]
 
   if username and password then
-    table.insert(accounts, {["username"] = username, ["password"] = password})
+    table.insert(accounts, {username = username, password = password})
   end
 
-  if nmap.registry[host.ip] and nmap.registry[host.ip]["omp2accounts"] then
-    for _, account in pairs(nmap.registry[host.ip]["omp2accounts"]) do
-      table.insert(accounts, account)
-    end
+  local hostreg = nmap.registry[host.ip]
+  for _, account in pairs(hostreg and hostreg.omp2accounts or {}) do
+    table.insert(accounts, account)
   end
 
   if #accounts > 0 then
