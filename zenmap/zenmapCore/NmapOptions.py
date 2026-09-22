@@ -920,9 +920,9 @@ class NmapOptionsTest(unittest.TestCase):
     def test_default_executable(self):
         """Test that there is a default executable member set."""
         ops = NmapOptions()
-        self.assertNotNull(ops.executable)
+        self.assertIsNotNone(ops.executable)
 
-    def test_default_executable(self):
+    def test_set_executable(self):
         """Test that you can set the executable."""
         ops = NmapOptions()
         ops.executable = "foo"
