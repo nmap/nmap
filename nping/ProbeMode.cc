@@ -1871,7 +1871,7 @@ void ProbeMode::probe_tcpconnect_event_handler(nsock_pool nsp, nsock_event nse, 
 
         /* Set socket source address. This allows setting things like custom source port */
         struct sockaddr_storage ss;
-        nsock_iod_set_localaddr(fds[packetno%max_iods], o.getSourceSockAddr(&ss), sizeof(sockaddr_storage));
+        nsock_iod_set_localaddr(fds[packetno%max_iods], o.getSourceSockAddr(&ss), sslen);
         /*Set socket options for REUSEADDR*/
         //setsockopt(nsock_iod_get_sd(fds[packetno%max_iods]),SOL_SOCKET,SO_REUSEADDR,&optval,sizeof(optval));
 
@@ -2080,7 +2080,7 @@ void ProbeMode::probe_udpunpriv_event_handler(nsock_pool nsp, nsock_event nse, v
 
         /* Set socket source address. This allows setting things like custom source port */
         struct sockaddr_storage ss;
-        nsock_iod_set_localaddr(fds[packetno%max_iods], o.getSourceSockAddr(&ss), sizeof(sockaddr_storage));
+        nsock_iod_set_localaddr(fds[packetno%max_iods], o.getSourceSockAddr(&ss), sslen);
 
 
         /* I dunno if it's safe to schedule an nsock_write before we
