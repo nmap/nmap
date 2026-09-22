@@ -80,6 +80,7 @@ goto :QUIT
 
 :vars
 cl.exe /nologo /EP make-vars.h > make-vars.make
+goto :QUIT
 
 :install_dependencies
 echo.
@@ -87,6 +88,54 @@ echo Creating auxiliary directory: %NMAP_AUX_DIR%
 mkdir "%NMAP_AUX_DIR%" 2>nul
 
 :: Install Npcap SDK
+if not exist "%NMAP_AUX_DIR%\Npcap\Include\pcap.h" (
+  Call DownloadNpcapSDK || goto :QUIT
+)
+
+if not exist "%NMAP_AUX_DIR%\OpenSSL\include\openssl\ssl.h" (
+  Call DownloadOpenSSL || goto :QUIT
+)
+
+echo.
+echo Dependencies installed successfully!
+echo.
+exit /b 0
+
+:QUIT
+exit /b %errorlevel%
+
+:DownloadOpenSSL
+:: Install OpenSSL - Use nmap's SVN repository
+echo Downloading OpenSSL from nmap SVN repository...
+set SVN_BASE=https://svn.nmap.org/nmap-mswin32-aux/OpenSSL
+
+Call :SvnUp "%NMAP_AUX_DIR%\OpenSSL" "include\openssl\ssl.h" %SVN_BASE%
+if exist "%NMAP_AUX_DIR%\OpenSSL\include\openssl\ssl.h" (
+  goto :EOF
+)
+
+echo SVN not available, downloading OpenSSL headers manually...
+mkdir "%NMAP_AUX_DIR%\OpenSSL\include\openssl" 2>nul
+mkdir "%NMAP_AUX_DIR%\OpenSSL\lib" 2>nul
+
+:: Download from nmap SVN via HTTP
+echo Downloading OpenSSL files from nmap repository...
+
+:: Use PowerShell to recursively download the directory structure
+powershell -Command "$ErrorActionPreference='SilentlyContinue'; $wc=New-Object System.Net.WebClient; $wc.DownloadFile('%SVN_BASE%/include/openssl/ssl.h','%NMAP_AUX_DIR%\OpenSSL\include\openssl\ssl.h'); $wc.DownloadFile('%SVN_BASE%/include/openssl/crypto.h','%NMAP_AUX_DIR%\OpenSSL\include\openssl\crypto.h'); $wc.DownloadFile('%SVN_BASE%/include/openssl/opensslconf.h','%NMAP_AUX_DIR%\OpenSSL\include\openssl\opensslconf.h')"
+
+if not exist "%NMAP_AUX_DIR%\OpenSSL\include\openssl\ssl.h" (
+  echo ERROR: Failed to download OpenSSL files
+  echo Please install SVN or manually download OpenSSL to %NMAP_AUX_DIR%\OpenSSL
+  exit /b 1
+)
+goto :EOF
+
+:DownloadNpcapSDK
+Call :SvnUp "%NMAP_AUX_DIR%\Npcap" "Include\pcap.h" %SVN_BASE%
+if exist "%NMAP_AUX_DIR%\Npcap\Include\pcap.h" (
+  goto :EOF
+)
 echo Downloading Npcap SDK...
 set NPCAP_URL=https://npcap.com/dist/npcap-sdk-1.16.zip
 set NPCAP_ZIP=%TEMP%\npcap-sdk.zip
@@ -104,46 +153,27 @@ if errorlevel 1 (
 )
 del "%NPCAP_ZIP%" 2>nul
 
-:: Install OpenSSL - Use nmap's SVN repository
-echo Downloading OpenSSL from nmap SVN repository...
-set OPENSSL_SVN_URL=https://svn.nmap.org/nmap-mswin32-aux/OpenSSL
+if not exist "%NMAP_AUX_DIR%\Npcap\Include\pcap.h" (
+  echo ERROR: Failed to download Npcap SDK
+  echo Please install SVN or manually download Npcap SDK to %NMAP_AUX_DIR%\Npcap
+  exit /b 1
+)
+goto :EOF
 
+:SvnUp
+set LOCAL_DIR=%1
+set CHECK_FILE=%2
+set SVN_BASE=%3
 :: Check if svn is available
 where svn >nul 2>&1
 if %ERRORLEVEL% EQU 0 (
-  echo Using SVN to download OpenSSL...
-  svn export "%OPENSSL_SVN_URL%" "%NMAP_AUX_DIR%\OpenSSL" --force
-  if errorlevel 1 (
-    echo WARNING: SVN export failed, trying alternative method...
-    goto :openssl_fallback
+  if exist "%LOCAL_DIR%\.svn" (
+    svn update "%LOCAL_DIR%"
+  ) else (
+    svn checkout "%SVN_BASE%" "%LOCAL_DIR%"
   )
-  goto :openssl_done
+  if exist "%LOCAL_DIR%\%CHECK_FILE%" (
+    goto :EOF
+  )
 )
-
-:openssl_fallback
-echo SVN not available, downloading OpenSSL headers manually...
-mkdir "%NMAP_AUX_DIR%\OpenSSL\include\openssl" 2>nul
-mkdir "%NMAP_AUX_DIR%\OpenSSL\lib" 2>nul
-
-:: Download from nmap SVN via HTTP
-set SVN_BASE=https://svn.nmap.org/nmap-mswin32-aux/OpenSSL
-echo Downloading OpenSSL files from nmap repository...
-
-:: Use PowerShell to recursively download the directory structure
-powershell -Command "$ErrorActionPreference='SilentlyContinue'; $wc=New-Object System.Net.WebClient; $wc.DownloadFile('%SVN_BASE%/include/openssl/ssl.h','%NMAP_AUX_DIR%\OpenSSL\include\openssl\ssl.h'); $wc.DownloadFile('%SVN_BASE%/include/openssl/crypto.h','%NMAP_AUX_DIR%\OpenSSL\include\openssl\crypto.h'); $wc.DownloadFile('%SVN_BASE%/include/openssl/opensslconf.h','%NMAP_AUX_DIR%\OpenSSL\include\openssl\opensslconf.h')"
-
-if not exist "%NMAP_AUX_DIR%\OpenSSL\include\openssl\ssl.h" (
-  echo ERROR: Failed to download OpenSSL files
-  echo Please install SVN or manually download OpenSSL to %NMAP_AUX_DIR%\OpenSSL
-  exit /b 1
-)
-
-:openssl_done
-
-echo.
-echo Dependencies installed successfully!
-echo.
-exit /b 0
-
-:QUIT
-exit /b %errorlevel%
+exit /b 1

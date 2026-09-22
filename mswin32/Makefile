@@ -32,7 +32,7 @@ check:
 	test -n "$(NMAP_VERSION)"
 	test -n "$(NMAP_NUM_VERSION)"
 
-make-vars.make: make-vars.h
+make-vars.make: make-vars.h $(NMAPDIR)/nmap.h
 	cmd /c Build.bat Vars
 
 bundle-nmap: bundle-zip bundle-nsis
