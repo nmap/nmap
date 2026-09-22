@@ -38,6 +38,7 @@ endif(WIN32)
 
 if (MSVC)
     add_definitions(-DWIN32_LEAN_AND_MEAN)
+    add_compile_definitions(_CRT_SECURE_NO_WARNINGS)
     check_include_file(winsock2.h HAVE_WINSOCK2_H)
     if(HAVE_WINSOCK2_H)
         set(HAVE_SOCKADDR_IN6 TRUE)
