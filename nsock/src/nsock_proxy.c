@@ -152,6 +152,30 @@ int nsock_pool_set_proxychain(nsock_pool nspool, nsock_proxychain chain) {
   return 1;
 }
 
+int nsock_proxychain_first_node_info(nsock_proxychain chain,
+                                     struct sockaddr_storage *ss,
+                                     size_t *sslen,
+                                     unsigned short *port,
+                                     int *proxy_type) {
+  struct proxy_chain *pchain = (struct proxy_chain *)chain;
+  gh_lnode_t *first;
+  struct proxy_node *node;
+
+  if (!pchain)
+    return 0;
+
+  first = gh_list_first_elem(&pchain->nodes);
+  if (!first)
+    return 0;
+
+  node = container_of(first, struct proxy_node, nodeq);
+  *ss = node->ss;
+  *sslen = node->sslen;
+  *port = node->port;
+  *proxy_type = (int)node->spec->type;
+  return 1;
+}
+
 struct proxy_chain_context *proxy_chain_context_new(nsock_pool nspool) {
   struct npool *nsp = (struct npool *)nspool;
   struct proxy_chain_context *ctx;
