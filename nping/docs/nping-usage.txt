@@ -39,6 +39,7 @@ ICMP PROBE MODE:
   --icmp-orig-time  <timestamp>    : Set originate timestamp.
   --icmp-recv-time  <timestamp>    : Set receive timestamp.
   --icmp-trans-time <timestamp>    : Set transmit timestamp.
+  --badsum                         : Use a random invalid checksum.
 ARP/RARP PROBE MODE:
   --arp-type <type>                : Type: ARP, ARP-reply, RARP, RARP-reply.
   --arp-sender-mac <mac>           : Set sender MAC address.
