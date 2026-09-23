@@ -232,7 +232,7 @@ static u32 common_mask(u32 a, u32 b)
 static u32 next_bit_is_one(u32 mask, u32 value) {
   if (mask == 0) {
     /* no masked bits, check the first bit. */
-    return ((1<<31) & value);
+    return (((u32)1<<31) & value);
   }
   else if (mask == U32_ALL_BITS) {
     /* Imaginary bit off the end we will say is 0 */
@@ -390,7 +390,7 @@ static void _trie_insert (struct trie_node *parent, const u32 *addr, const u32 *
   struct trie_node *this = NULL;
   int i = 0;
 
-  if ((1<<31) & addr[0]) {
+  if (((u32)1<<31) & addr[0]) {
     /* First bit is 1, so insert on ones branch */
     insert_branch = &parent->next_bit_one;
   }
@@ -579,7 +579,7 @@ static void trie_insert (struct trie_node *this, const struct sockaddr *sa, int 
 static void trie_insert_addr (struct trie_node *this, const u32 *addr, const u32 *mask)
 {
   /* Special cases for /0 and /1 */
-  if (mask[0] <= (1<<31)) {
+  if (mask[0] <= ((u32)1<<31)) {
     if (mask[0] == 0 || (mask[0] & addr[0]) != 0) {
       trie_free(this->next_bit_one);
       this->next_bit_one = TRIE_NODE_TRUE;
@@ -686,7 +686,7 @@ static int trie_match (const struct trie_node *this, const struct sockaddr *sa)
     return 0;
   }
   /* Manually check first bit to decide which branch to match against */
-  if ((1<<31) & addr[0]) {
+  if (((u32)1<<31) & addr[0]) {
     return _trie_match(this->next_bit_one, addr);
   }
   else {
