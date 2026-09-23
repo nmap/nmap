@@ -284,7 +284,9 @@ public:
 
   void setAF(int af);
   void setStatusCallback(void (*callback)(const Stats *));
-  void setLogFunc(void (*log_func)(int lvl, const char *, ...));
+  typedef void (*log_func_t)(int lvl, const char *, ...)
+    __attribute__((format(printf, 2, 3)));
+  void setLogFunc(log_func_t log_func);
   void setSource(const char *device, const struct sockaddr_storage *src, size_t srclen, bool spoof);
   void setIpOptions(const u8 *opts, size_t optslen);
   void setProxyChain(const nsock_proxychain proxy_chain);

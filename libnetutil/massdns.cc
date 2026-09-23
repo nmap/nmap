@@ -384,6 +384,8 @@ protected:
 };
 
 static void null_status_cb(const DNS::Stats *stat) { (void) stat; }
+static void null_log_func(int lvl, const char *s, ...)
+  __attribute__((format(printf, 2, 3)));
 static void null_log_func(int lvl, const char *s, ...) { (void) lvl; (void) s; }
 
 namespace DNS {
@@ -474,7 +476,7 @@ private:
   Stats stat;
   int *read_timeouts;
   void (*status_cb)(const Stats *);
-  void (*log_func)(int lvl, const char *, ...);
+  Resolver::log_func_t log_func;
 
   void init_host_cache();
   void platform_get_servers();
@@ -554,7 +556,7 @@ void DNS::Resolver::setStatusCallback(void (*callback)(const DNS::Stats *))
   impl->status_cb = callback;
 }
 
-void DNS::Resolver::setLogFunc(void (*log_func)(int lvl, const char *, ...))
+void DNS::Resolver::setLogFunc(log_func_t log_func)
 {
   impl->log_func = log_func;
 }

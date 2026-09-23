@@ -70,15 +70,17 @@
 /* A fancy logging system to allow this file to take advantage of different logging
    systems used by various programs */
 
-static void default_log_user(const char * a, ...){};
+static void default_log_user(const char * a, ...)
+  __attribute__((format(printf, 1, 2)));
+static void default_log_user(const char * a, ...) { (void) a; }
+static void default_log_debug(const char * a, ...)
+  __attribute__((format(printf, 1, 2)));
+static void default_log_debug(const char * a, ...) { (void) a; }
 
-static void (*log_user)(const char *, ...) = default_log_user;
+nbase_log_t log_user = default_log_user;
+nbase_log_t log_debug = default_log_debug;
 
-static void default_log_debug(const char * a, ...){};
-
-static void (*log_debug)(const char *, ...) = default_log_debug;
-
-void nbase_set_log(void (*log_user_func)(const char *, ...),void (*log_debug_func)(const char *, ...)){
+void nbase_set_log(nbase_log_t log_user_func, nbase_log_t log_debug_func) {
     if (log_user_func == NULL)
         log_user = default_log_user;
     else

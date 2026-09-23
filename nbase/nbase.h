@@ -554,7 +554,8 @@ char *executable_path(const char *argv0);
 /* A set of addresses. Used to match against allow/deny lists. */
 struct addrset;
 
-void nbase_set_log(void (*log_user_func)(const char *, ...),void (*log_debug_func)(const char *, ...));
+typedef void (*nbase_log_t) (const char *, ...) __attribute__((format(printf, 1, 2)));
+void nbase_set_log(nbase_log_t log_user_func, nbase_log_t log_debug_func);
 struct addrset *addrset_new();
 extern void addrset_free(struct addrset *set);
 extern void addrset_print(FILE *fp, const struct addrset *set);

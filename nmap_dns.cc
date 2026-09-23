@@ -71,6 +71,8 @@ extern NmapOps o;
 static ScanProgressMeter *SPM = NULL;
 
 void nmap_massdns_log(int lvl, const char *fmt, ...)
+    __attribute__((format(printf, 2, 3)));
+void nmap_massdns_log(int lvl, const char *fmt, ...)
 {
   va_list ap;
   if (o.debugging >= lvl || o.verbose >= lvl + 2) {
