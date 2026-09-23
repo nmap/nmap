@@ -838,7 +838,7 @@ void DNS::ResolverImpl::output_summary(const DNS::Stats &stat) {
     prev = 0;
 
   if (tp - SUMMARY_DELAY >= prev || tp == stat.actual) {
-    log_func(1, "mass_dns: %.2fs %d/%d [#: %lu, OK: %d, NX: %d, DR: %d, SF: %d, TR: %d, SY: %d]\n",
+    log_func(1, "mass_dns: %d/%d [#: %lu, OK: %d, NX: %d, DR: %d, SF: %d, TR: %d, SY: %d]\n",
                     tp, stat.actual,
                     (unsigned long) servs.size(), stat.ok, stat.nx,
                     stat.dropped, stat.sf, stat.trans, stat.system);

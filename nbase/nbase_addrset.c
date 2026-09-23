@@ -825,7 +825,7 @@ int addrset_add_spec(struct addrset *set, const char *spec, int af, int dns)
         }
         address_to_string(addr->ai_addr, addr->ai_addrlen, addr_string, sizeof(addr_string));
         trie_insert(af_trie(set, addr->ai_family), addr->ai_addr, netmask_bits);
-        log_debug("Add IP %s/%d to addrset (trie).", addr_string, netmask_bits);
+        log_debug("Add IP %s/%ld to addrset (trie).", addr_string, netmask_bits);
       }
       free(local_spec);
       freeaddrinfo(addrs);
