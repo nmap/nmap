@@ -142,8 +142,8 @@ local function process_instance( instance )
     end
   end
 
-  -- TODO: structured output, not format_output
-  return stdnse.format_output(true, output)
+  -- Return structured output directly
+  return output
 end
 
 
