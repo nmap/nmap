@@ -154,7 +154,7 @@ end
 function record_read(buffer, i)
   local i, h = read_header(buffer, i)
 
-  if #buffer - i + 1 < h.record_length or not h then
+  if not h or #buffer - i + 1 < h.record_length then
     return i, nil
   end
 
@@ -362,5 +362,16 @@ function test_sslv2 (host, port)
 
   return message.body.ciphers
 end
+
+local unittest = require "unittest"
+if not unittest.testing() then
+  return _ENV
+end
+
+test_suite = unittest.TestSuite:new()
+test_suite:add_test(function()
+  local i, record = record_read("")
+  return i == 1 and record == nil
+end, "record_read handles empty buffer")
 
 return _ENV;
