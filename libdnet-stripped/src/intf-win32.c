@@ -5,7 +5,7 @@
  *
  */
 
-#include "dnet_winconfig.h"
+#include "config.h"
 
 #include <iphlpapi.h>
 #ifdef HAVE_PCAP_H

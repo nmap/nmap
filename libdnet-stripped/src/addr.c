@@ -8,11 +8,7 @@
  * $Id$
  */
 
-#ifdef _WIN32
-#include "dnet_winconfig.h"
-#else
 #include "config.h"
-#endif
 
 #include <sys/types.h>
 #ifdef HAVE_NET_IF_H

@@ -1,6 +1,6 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
-o Upgraded included libraries: libpcap 1.10.7, pcre2 10.48, lua 5.4.9
+o Upgraded included libraries: libpcap 1.10.7, pcre2 10.48, lua 5.4.9, libdnet 1.18.2
 
 o [Ndiff][GH#3468] Fixed `make check-ndiff` to work with Python 3.12+ [gargamel778]
 

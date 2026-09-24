@@ -9,17 +9,14 @@
  *
  */
 
-#ifdef _WIN32
-#include "dnet_winconfig.h"
-#else
 #include "config.h"
-#endif
 
 #ifdef _WIN32
 # ifndef _WIN32_WINNT
 #  define _WIN32_WINNT _WIN32_WINNT_WIN7
 # endif
 # if _WIN32_WINNT >= _WIN32_WINNT_VISTA
+#  include <ntstatus.h>
 #  include <bcrypt.h>
 #  pragma comment(lib, "bcrypt.lib")
 # else

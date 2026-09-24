@@ -6,7 +6,7 @@
  * $Id$
  */
 
-#include "dnet_winconfig.h"
+#include "config.h"
 
 /* XXX - VC++ 6.0 bogosity */
 #define sockaddr_storage sockaddr

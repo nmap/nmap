@@ -7,10 +7,16 @@ o Removed the following directories:
   python, test, man
 
 o Removed the fw-* files except for fw-none because Nmap doesn't use
-  the firewall API.  Changed configure.in to always use fw-none.
+  the firewall API.  Changed configure.ac and CMakeLists.txt to always use fw-none.
 
-o Removed files in now-removed dirs that were referenced in the AC_OUTPUT
-  at the end of configure.ac
+o Removed strlcat.c, since it is only used in fw-pktfilter.c and some tests.
+
+o Removed references to removed files and dirs from configure.ac,
+  CMakeLists.txt, Makefile.am. Also removed tests for Check, used for running
+  tests, from configure.ac.
+
+o Made failures to identify Ethernet and Route backends into config-time
+  failures instead of falling back to eth-none.c and route-none.c
 
 o Ran "aclocal -I . -I config" to regenerate aclocal.m4 with the same version of
   aclocal that is used with the rest of Nmap

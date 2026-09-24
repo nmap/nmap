@@ -76,6 +76,9 @@
    file. */
 #undef HAVE_LINUX_NETFILTER_IPV4_IPCHAINS_CORE_H
 
+/* Define to 1 if you have the <linux/netlink.h> header file. */
+#undef HAVE_LINUX_NETLINK_H
+
 /* Define if you have Linux PF_PACKET sockets. */
 #undef HAVE_LINUX_PF_PACKET
 
@@ -190,6 +193,9 @@
 /* Define to 1 if you have the <sys/dlpi.h> header file. */
 #undef HAVE_SYS_DLPI_H
 
+/* Define to 1 if you have the <sys/ioccom.h> header file. */
+#undef HAVE_SYS_IOCCOM_H
+
 /* Define to 1 if you have the <sys/ioctl.h> header file. */
 #undef HAVE_SYS_IOCTL_H
 
@@ -280,6 +286,7 @@
 
 #ifdef HAVE_WINSOCK2_H
 # include <winsock2.h>
+# include <ws2tcpip.h>
 # include <windows.h>
 #endif
 
