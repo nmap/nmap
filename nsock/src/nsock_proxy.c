@@ -352,7 +352,11 @@ fail:
 static struct proxy_node *proxy_node_new(const char *proxystr, const char *end) {
   int i;
   size_t proxystr_len = end - proxystr;
-  assert(end > proxystr);
+  assert(proxystr != NULL);
+  if (end <= proxystr) {
+    nsock_log_error("Invalid proxy specification string: %s", proxystr);
+    return NULL;
+  }
 
   for (i = 0; ProxyBackends[i] != NULL; i++) {
     const struct proxy_spec *pspec;
