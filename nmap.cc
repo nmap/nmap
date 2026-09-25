@@ -123,12 +123,10 @@
 #endif
 
 /* To get the version number only. */
-#ifdef WIN32
-#include "libdnet-stripped/include/dnet_winconfig.h"
-#else
-#include "libdnet-stripped/include/config.h"
+#include "dnet.h"
+#ifndef HAVE_DNET_LIB_VERSION
+#define dnet_lib_version() ("system")
 #endif
-#define DNET_VERSION VERSION
 
 #ifdef LINUX
 /* Check for Windows Subsystem for Linux (WSL) */
@@ -2879,9 +2877,9 @@ static void display_nmap_version() {
 #endif
 
 #ifdef DNET_INCLUDED
-  with.push_back(std::string("nmap-libdnet-") + DNET_VERSION);
+  with.push_back(std::string("nmap-libdnet-") + dnet_lib_version());
 #else
-  with.push_back(std::string("libdnet-") + DNET_VERSION);
+  with.push_back(std::string("libdnet-") + dnet_lib_version());
 #endif
 
 #if HAVE_IPV6

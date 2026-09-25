@@ -8262,7 +8262,21 @@ then :
 printf "%s\n" "#define DNET_INCLUDED 1" >>confdefs.h
 
 
+printf "%s\n" "#define HAVE_DNET_LIB_VERSION 1" >>confdefs.h
+
+
 else $as_nop
+
+  LIBS_OLD="$LIBS"
+  LIBS="$LIBS -ldnet"
+  ac_fn_c_check_func "$LINENO" "dnet_lib_version" "ac_cv_func_dnet_lib_version"
+if test "x$ac_cv_func_dnet_lib_version" = xyes
+then :
+  printf "%s\n" "#define HAVE_DNET_LIB_VERSION 1" >>confdefs.h
+
+fi
+
+  LIBS="$LIBS_OLD"
 
   LIBDNET_LIBS="-ldnet"
   DNET_BUILD=""

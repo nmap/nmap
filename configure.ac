@@ -819,7 +819,13 @@ AS_IF([test "x$have_dnet" != "xyes"], [
   DNET_CLEAN="clean-dnet"
   DNET_DIST_CLEAN="distclean-dnet"
   AC_DEFINE(DNET_INCLUDED, 1, [Use included libdnet])
+  AC_DEFINE(HAVE_DNET_LIB_VERSION, 1, [Included libdnet has dnet_lib_version])
 ], [
+  LIBS_OLD="$LIBS"
+  LIBS="$LIBS -ldnet"
+  AC_CHECK_FUNCS([dnet_lib_version])
+  LIBS="$LIBS_OLD"
+
   LIBDNET_LIBS="-ldnet"
   DNET_BUILD=""
   DNET_CLEAN=""

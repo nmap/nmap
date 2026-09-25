@@ -48,6 +48,11 @@ union sockunion {
 #endif
 };
 
+const char *dnet_lib_version(void)
+{
+  return (VERSION);
+}
+
 int
 addr_cmp(const struct addr *a, const struct addr *b)
 {
