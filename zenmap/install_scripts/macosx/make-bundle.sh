@@ -25,6 +25,7 @@ $CC $CPPFLAGS $CFLAGS $LDFLAGS -L$PREFIX/lib `python3-config --cflags --ldflags 
 	    ~/gtk-mac-bundler/examples/python-launcher.c
 
 echo "Installing Zenmap to local system"
+python3 -m ensurepip --upgrade
 python3 -m pip install --no-deps --force-reinstall "$ZENMAP_DIR"
 python3 -m pip install --no-deps --force-reinstall "$NDIFF_DIR"
 
