@@ -71,10 +71,15 @@ mkdir build-pcre2
 cd build-pcre2
 cmake.exe -A Win32 -G "%VS_GENERATOR%" ..\..\libpcre\ || goto :QUIT
 cd ..
+mkdir build-libdnet
+cd build-libdnet
+cmake.exe -A Win32 -G "%VS_GENERATOR%" -DPacket_ROOT="%NMAP_AUX_DIR%\Npcap" ..\..\libdnet-stripped\ || goto :QUIT
+cd ..
 )
 msbuild -nologo nmap.sln -m -t:%TARGET% -p:Configuration="%VCCONFIG%" -p:Platform="Win32" -fl
 if "%TARGET%" == "Clean" (
   rd /S /Q build-pcre2
+  rd /S /Q build-libdnet
 )
 goto :QUIT
 
