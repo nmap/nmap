@@ -33,6 +33,10 @@ o [Zenmap][GH#3431] Fix "KeyError: 'vl_6_logo'" crash in Zenmap 7.991.
 
 o [NSE] Added DHX2 authentication method to afp.lua [Daniel Miller]
 
+o [NSE][GH#3494] Malformed TPKT header could have caused parser infinite loop
+  in library iec61850mms. Truncated data were silently ignored.
+  [Zasnit1, nnposter]
+
 o [NSE][GH#3447] IP options parsing by the packet library no longer crashes
   on incomplete options. IP header data after EOOL are no longer parsed as
   options. [Ibrahim AlJaafreh, nnposter]

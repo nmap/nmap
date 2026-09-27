@@ -30,28 +30,29 @@ MMSDecoder = {
 
   unpackmmsFromTPKT = function(self, tpktStr)
     -- unpack TPKT and COTP
-    local TPKT_pos = 1
-    local COTP_pos = 5
-    local COTP_last = false
-    local TPKT_ver, TPKT_res, TPKT_len
-    local COTP_len, COTP_type, COTP_tpdu
+    local HDRFMT = ">xxI2xxI1"
+    local HDRLEN = HDRFMT:packsize()
     local OSI_Session = {}
-
-    while not COTP_last do
-      TPKT_ver, TPKT_res, TPKT_len = string.unpack("i1c1>i2", tpktStr, TPKT_pos)
-      COTP_len, COTP_type, COTP_tpdu = string.unpack("i1c1c1", tpktStr, COTP_pos)
-      COTP_last = COTP_tpdu == "\x80"
-
-      OSI_Session[#OSI_Session+1] = string.sub(tpktStr, TPKT_pos + 7, TPKT_pos + TPKT_len - 1)
-
-
-      if not COTP_last then
-        TPKT_pos = TPKT_pos + TPKT_len
-        COTP_pos = TPKT_pos + 4
+    local pos = 1
+    repeat
+      if pos + HDRLEN - 1 > #tpktStr then
+        stdnse.debug1("truncated TPKT/COTP data")
+        return nil
       end
-    end
+      local TPKT_len, COTP_tpdu = HDRFMT:unpack(tpktStr, pos)
+      if TPKT_len < HDRLEN then
+        stdnse.debug1("invalid TPKT/COTP header")
+        return nil
+      end
+      local eodpos = pos + TPKT_len - 1
+      if eodpos > #tpktStr then
+        stdnse.debug1("truncated TPKT/COTP data")
+        return nil
+      end
+      table.insert(OSI_Session, tpktStr:sub(pos + HDRLEN, eodpos))
+      pos = pos + TPKT_len
+    until COTP_tpdu == 0x80
     OSI_Session = table.concat(OSI_Session)
-
 
     local newpos = 5 -- start of ISO 8823
     local type, len, dummy
