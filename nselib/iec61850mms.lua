@@ -307,10 +307,11 @@ MMSDecoder = {
     while (newpos < pos + elen) do
       local type, len
       type, newpos = string.unpack("c1", str, newpos)
-      if CHOICE[type] == nil then
-        stdnse.debug(1,"no type for %s", stringToHex(type))
-      end
       len, newpos = self.decodeLength(str, newpos)
+      if CHOICE[type] == nil then
+        stdnse.debug(1,"initiate_RequestPDU: no handler for type %s", stringToHex(type))
+        return seq, pos + elen
+      end
       sValue, newpos = self[CHOICE[type]](self, str, len, newpos)
       sNum = sNum + 1
       seq[CHOICE[type]] = sValue
@@ -351,10 +352,11 @@ MMSDecoder = {
     while (newpos < pos + elen) do
       local type, len
       type, newpos = string.unpack("c1", str, newpos)
-      if CHOICE[type] == nil then
-        stdnse.debug(1,"no type for %s", stringToHex(type))
-      end
       len, newpos = self.decodeLength(str, newpos)
+      if CHOICE[type] == nil then
+        stdnse.debug(1,"initRequestDetail: no handler for type %s", stringToHex(type))
+        return seq, pos + elen
+      end
       sValue, newpos = self[CHOICE[type]](self, str, len, newpos)
       sNum = sNum + 1
       seq[CHOICE[type]] = sValue
@@ -488,7 +490,8 @@ MMSDecoder = {
 
     while (newpos < pos + elen) do
       if CHOICE[type] == nil then
-        stdnse.debug(1,"no type for", stringToHex(type))
+        stdnse.debug(1,"accessResult: no handler for type %s", stringToHex(type))
+        return seq, pos + elen
       end
       sValue, newpos = self[CHOICE[type]](self, str, elen, newpos)
       sNum = sNum + 1
@@ -515,7 +518,7 @@ MMSDecoder = {
     }
 
     local num, newpos = string.unpack("c" .. elen, str, pos)
-    local retval = "DataAccessError: " .. CHOICE[num]
+    local retval = "DataAccessError: " .. (CHOICE[num] or string.format("unknown(%s)", stringToHex(num)))
     return retval, pos + elen
   end,
 
@@ -541,10 +544,11 @@ MMSDecoder = {
     while (newpos < pos + elen) do
       local type, len
       type, newpos = string.unpack("c1", str, newpos)
-      if CHOICE[type] == nil then
-        stdnse.debug(1,"no type for", stringToHex(type))
-      end
       len, newpos = self.decodeLength(str, newpos)
+      if CHOICE[type] == nil then
+        stdnse.debug(1,"structure: no handler for type %s", stringToHex(type))
+        return seq, pos + elen
+      end
       sValue, newpos = self[CHOICE[type]](self, str, len, newpos)
       sNum = sNum + 1
       table.insert(seq, sValue)
