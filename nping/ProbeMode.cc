@@ -1754,9 +1754,7 @@ void ProbeMode::probe_tcpconnect_event_handler(nsock_pool nsp, nsock_event nse, 
  char ipstring[128];              /**< To print IP Addresses.                */
  u16 peerport=0;                  /**< To hold peer's port number.           */
  size_t sslen=0;                  /**< To store length of sockaddr structs.  */
- static nsock_iod *fds=NULL;      /**< IODs for multiple parallel connections*/
- static int max_iods=0;           /**< Number of IODS in "fds"               */
- static u32 packetno=0;           /**< Packets sent from this handler.       */
+ nsock_iod newiod=NULL;           /**< IOD for the connection started here.  */
  NpingTarget *trg=NULL;           /**< Target we look up in NpingTargets::   */
 
  /* Initializations */
@@ -1771,27 +1769,6 @@ void ProbeMode::probe_tcpconnect_event_handler(nsock_pool nsp, nsock_event nse, 
  peer6=(struct sockaddr_in6 *)&peer;
  memset(&to, 0, sizeof(struct sockaddr_storage));
  memset(&peer, 0, sizeof(struct sockaddr_storage));
-
-  /* Try to determine the max number of opened descriptors. If the limit is
-   * less than than we need, try to increase it. */
-  if(fds==NULL){
-    max_iods=get_max_open_descriptors()-RESERVED_DESCRIPTORS;
-    if( o.getTotalProbes() > max_iods ){
-        max_iods=set_max_open_descriptors( o.getTotalProbes() )-RESERVED_DESCRIPTORS;
-    }
-    /* If we couldn't determine the limit, just use a predefined value */
-    if(max_iods<=0)
-        max_iods=DEFAULT_MAX_DESCRIPTORS-RESERVED_DESCRIPTORS;
-    /* Allocate space for nsock_iods */
-    if( (fds=(nsock_iod *)calloc(max_iods, sizeof(nsock_iod)))==NULL ){
-        /* If we can't allocate for that many descriptors, reduce our requirements */
-        max_iods=DEFAULT_MAX_DESCRIPTORS-RESERVED_DESCRIPTORS;
-        if( (fds=(nsock_iod *)calloc(max_iods, sizeof(nsock_iod)))==NULL ){
-            nping_fatal(QT_3, "ProbeMode::probe_tcpconnect_event_handler(): Not enough memory");
-        }
-    }
-    nping_print(DBG_7, "%d descriptors needed, %d available", o.getTotalProbes(), max_iods);
-  }
 
  nping_print(DBG_4, "tcpconnect_event_handler(): Received callback of type %s with status %s", nse_type2str(type), nse_status2str(status));
 
@@ -1857,32 +1834,23 @@ void ProbeMode::probe_tcpconnect_event_handler(nsock_pool nsp, nsock_event nse, 
             sslen=sizeof(struct sockaddr_in);
         }
 
-        /* We need to keep many IODs open in parallel but we don't allocate
-         * millions, just as many as the OS let us (max number of open files).
-         * If we run out of them, we just start overwriting the oldest one.
-         * If we don't have a response by that time we probably aren't gonna
-         * get any, so it shouldn't be a big problem. */
-        if( packetno>(u32)max_iods ){
-            nsock_iod_delete(fds[packetno%max_iods], NSOCK_PENDING_SILENT);
-        }
-        /* Create new IOD for connects */
-        if ((fds[packetno%max_iods] = nsock_iod_new(nsp, NULL)) == NULL)
+        /* Create a new IOD for this connection attempt. It is released as
+         * soon as the attempt completes (see the end of this function), so we
+         * only ever hold descriptors for probes that are still in flight. */
+        if ((newiod = nsock_iod_new(nsp, NULL)) == NULL)
             nping_fatal(QT_3, "tcpconnect_event_handler(): Failed to create new nsock_iod.\n");
 
         /* Set socket source address. This allows setting things like custom source port */
         struct sockaddr_storage ss;
-        nsock_iod_set_localaddr(fds[packetno%max_iods], o.getSourceSockAddr(&ss), sizeof(sockaddr_storage));
-        /*Set socket options for REUSEADDR*/
-        //setsockopt(nsock_iod_get_sd(fds[packetno%max_iods]),SOL_SOCKET,SO_REUSEADDR,&optval,sizeof(optval));
+        nsock_iod_set_localaddr(newiod, o.getSourceSockAddr(&ss), sslen);
 
-        nsock_connect_tcp(nsp, fds[packetno%max_iods], tcpconnect_event_handler, 100000, mypacket, (struct sockaddr *)&to, sslen, mypacket->dstport);
+        nsock_connect_tcp(nsp, newiod, tcpconnect_event_handler, 100000, mypacket, (struct sockaddr *)&to, sslen, mypacket->dstport);
         if( o.showSentPackets() ){
             if ( mypacket->target->getSuppliedHostName() )
                 nping_print(VB_0,"SENT (%.4fs) Starting TCP Handshake > %s:%d (%s:%d)", o.stats.elapsedRuntime(NULL), mypacket->target->getSuppliedHostName(), mypacket->dstport ,mypacket->target->getTargetIPstr(), mypacket->dstport);
             else
                 nping_print(VB_0,"SENT (%.4fs) Starting TCP Handshake > %s:%d", o.stats.elapsedRuntime(NULL), mypacket->target->getTargetIPstr(), mypacket->dstport);
         }
-        packetno++;
         o.stats.addSentPacket(80); /* Estimation Src>Dst 1 TCP SYN && TCP ACK */
         mypacket->target->setProbeSentTCP(0, mypacket->dstport);
     break;
@@ -1933,6 +1901,15 @@ void ProbeMode::probe_tcpconnect_event_handler(nsock_pool nsp, nsock_event nse, 
  } else{
     nping_warning(QT_2, "tcpconnect_event_handler(): Unknown status code %d. Please report this bug.", status);
  }
+
+ /* Release the IOD as soon as the connection attempt is over, however it
+  * ended. Nping never reads from or writes to these sockets, so once the
+  * connect event has been delivered there is nothing left to do with it and
+  * holding it open only consumes a descriptor and a port. Timer events carry
+  * no IOD, so nse_iod() returns NULL for them and there is nothing to free. */
+ if (nsi != NULL)
+   nsock_iod_delete(nsi, NSOCK_PENDING_SILENT);
+
  return;
 
 } /* End of tcpconnect_event_handler() */
@@ -2080,7 +2057,7 @@ void ProbeMode::probe_udpunpriv_event_handler(nsock_pool nsp, nsock_event nse, v
 
         /* Set socket source address. This allows setting things like custom source port */
         struct sockaddr_storage ss;
-        nsock_iod_set_localaddr(fds[packetno%max_iods], o.getSourceSockAddr(&ss), sizeof(sockaddr_storage));
+        nsock_iod_set_localaddr(fds[packetno%max_iods], o.getSourceSockAddr(&ss), sslen);
 
 
         /* I dunno if it's safe to schedule an nsock_write before we
