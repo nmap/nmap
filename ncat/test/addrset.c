@@ -66,7 +66,8 @@ static struct matches_all_pair matches_all_tests[] = {
 };
 static const size_t num_matches_all_tests = sizeof(matches_all_tests) / sizeof(matches_all_tests[0]);
 static int matches_all_test(struct addrset *set) {
-    for (int i = 0; i < num_matches_all_tests; i++) {
+    int i = 0;
+    for (i = 0; i < num_matches_all_tests; i++) {
       fprintf(stderr, "addrset_add_spec(%s)\n", matches_all_tests[i].ipv4);
         addrset_add_spec(set, matches_all_tests[i].ipv4, AF_INET, 0);
     }
@@ -76,7 +77,7 @@ static int matches_all_test(struct addrset *set) {
     if (addrset_matches_all(set, AF_INET6)) {
         return 2;
     }
-    for (int i = 0; i < num_matches_all_tests; i++) {
+    for (i = 0; i < num_matches_all_tests; i++) {
       fprintf(stderr, "addrset_add_spec(%s)\n", matches_all_tests[i].ipv6);
         addrset_add_spec(set, matches_all_tests[i].ipv6, AF_INET6, 0);
     }
@@ -86,13 +87,14 @@ static int matches_all_test(struct addrset *set) {
     return 0;
 }
 static int do_matches_all_tests() {
+    int i = 0;
     struct addrset *set = addrset_new();
     int r = matches_all_test(set);
     addrset_free(set);
     if (r != 0) return r;
 
     /* reverse order */
-    for (int i = 0; i*2 < num_matches_all_tests; i++) {
+    for (i = 0; i*2 < num_matches_all_tests; i++) {
         int j = num_matches_all_tests - (i + 1);
         if (j < i) break;
         struct matches_all_pair tmp = matches_all_tests[i];
@@ -106,7 +108,7 @@ static int do_matches_all_tests() {
 
     /* random order */
     srand(time(NULL));
-    for (int i = 0; i < num_matches_all_tests; i++) {
+    for (i = 0; i < num_matches_all_tests; i++) {
         int j = rand() % num_matches_all_tests;
         struct matches_all_pair tmp = matches_all_tests[i];
         matches_all_tests[i] = matches_all_tests[j];
