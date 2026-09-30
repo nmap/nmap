@@ -338,6 +338,20 @@ static void handleConnectResult(UltraScanInfo *USI, HostScanStats *hss,
      * and we only care about self-connects for open ports anyway
      */
     if (newportstate == PORT_OPEN) {
+      /* SO_ERROR == 0 is not proof of a connection: on Linux a socket that
+         only received an ICMP error (host-unreachable, time-exceeded) can be
+         reported ready with SO_ERROR 0 while never connected. Confirm with
+         getpeername(); if it isn't connected, retry the probe like the
+         self-connect case below instead of reporting the port open. */
+      struct sockaddr_storage peer;
+      socklen_t peer_len = sizeof(peer);
+      if (getpeername(probe->CP()->sd, (struct sockaddr*)&peer, &peer_len) != 0) {
+        if (o.debugging) {
+          log_write(LOG_STDOUT, "Connect probe to port %d reported ready without a connection (getpeername errno %d); retrying\n", probe->dport(), socket_errno());
+        }
+        hss->markProbeTimedout(probeI);
+        return;
+      }
       /* Check for self-connected probe */
       if (getsockname(probe->CP()->sd, (struct sockaddr*)&local, &local_len) == 0) {
         if (sockaddr_storage_cmp(&local, &remote) == 0 && (
