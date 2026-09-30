@@ -54,8 +54,8 @@ o [NSE][GH#3456] Script http-config-backup was always failing. [h00die]
 o [NSE][GH#3440] The rsync library was not correctly parsing server responses
   for protocol version 32. [h00die]
 
-o [NSE] Script iec61850-mms was never executed due to a flawed portrule.
-  [nnposter]
+o [NSE][GH#3307] Script iec61850-mms was never executed due to a flawed
+  portrule. [RyugaXhypeR]
 
 o [NSE] Scripts http-config-backup and rsync-list-modules now provide XML
   output. [nnposter]
