@@ -488,12 +488,10 @@ int getNetworkInterfaceName(u32 destination, char *dev){
  *  @warning "*dev" must be able to hold at least 16 bytes */
 int getNetworkInterfaceName(struct sockaddr_storage *dst, char *dev){
   struct route_nfo rnfo;
-  struct sockaddr_storage src;
   bool result=false;
   if(dev==NULL)
     nping_fatal(QT_3, "getNetworkInterfaceName(): NULL value supplied.");
   memset(&rnfo, 0, sizeof(struct route_nfo) );
-  memset(&src, 0, sizeof(struct sockaddr_in) );
   result=route_dst(dst, &rnfo, NULL, NULL); 
   if( result == false )
     return OP_FAILURE;
