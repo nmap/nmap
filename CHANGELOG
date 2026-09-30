@@ -25,9 +25,10 @@ o [Nsock][GH#3449] Nsock no longer calls fatal() when encountering a
   pcap-related error. Instead, errors are propagated to the caller the same way
   other socket errors are handled.
 
-o [GH#3438] Fixed warnings and crashes due to bind() failing on macOS and
-  FreeBSD. Error messages similar to:
+o [GH#3438][GH#3511] Fixed warnings and crashes due to bind() failing on macOS
+  and FreeBSD, as well as Nping probe failures. Error messages similar to:
   "mksock_bind_addr(): Bind to <IP>:0 failed (IOD #3): Invalid argument (22)"
+  [Daniel Miller, MRX-72]
 
 o [Zenmap][GH#3431] Fix "KeyError: 'vl_6_logo'" crash in Zenmap 7.991.
 
