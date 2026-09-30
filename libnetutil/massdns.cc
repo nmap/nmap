@@ -570,9 +570,14 @@ void DNS::Resolver::setSource(const char *device, const struct sockaddr_storage 
     // Source addr can be set by -e, so unless user specifically asked to
     // spoof, also grab the source for the other address family.
     if (!spoof && (device && *device)) {
-      int af = src->ss_family == AF_INET ? AF_INET6 : AF_INET;
+      size_t sslen = sizeof(struct sockaddr_in);
+      int af = AF_INET;
+      if (src->ss_family == AF_INET) {
+        af = AF_INET6;
+        sslen = sizeof(struct sockaddr_in6);
+      }
       if (-1 != devname2ipaddr(device, af, &impl->src2)) {
-        impl->sslen2 = sizeof(struct sockaddr_storage);
+        impl->sslen2 = sslen;
       }
     }
   }

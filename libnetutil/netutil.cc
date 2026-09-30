@@ -1875,6 +1875,23 @@ int sockaddr_equal_zero(const struct sockaddr_storage *s) {
   return 0;
 }
 
+socklen_t sockaddr_get_len(const struct sockaddr_storage *ss)
+{
+  socklen_t ss_len = sizeof(*ss);
+#if HAVE_SOCKADDR_SA_LEN
+  if (((const struct sockaddr *)ss)->sa_len > 0) {
+    ss_len = ((const struct sockaddr *)ss)->sa_len;
+  } else
+#endif
+    if (ss->ss_family == AF_INET) {
+      ss_len = sizeof(struct sockaddr_in);
+    }
+    else if (ss->ss_family == AF_INET6) {
+      ss_len = sizeof(struct sockaddr_in6);
+    }
+  return ss_len;
+}
+
 /* This is a helper for getsysroutes_dnet. Once the table of routes is in
    place, this function assigns each to an interface and removes any routes
    that can't be assigned. */

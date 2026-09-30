@@ -1845,16 +1845,11 @@ void ProbeMode::probe_tcpconnect_event_handler(nsock_pool nsp, nsock_event nse, 
             nping_fatal(QT_3, "tcpconnect_event_handler():2: NULL value supplied.");
 
         /* Fill the appropriate sockaddr for the connect() call */
+        mypacket->target->getTargetSockAddr(&to, &sslen);
         if( o.getIPVersion() == IP_VERSION_6 ){
-            to6->sin6_addr=mypacket->target->getIPv6Address();
-            to6->sin6_family = AF_INET6;
             to6->sin6_port  = htons( mypacket->dstport );
-            sslen=sizeof(struct sockaddr_in6);
         }else{
-            to4->sin_addr=mypacket->target->getIPv4Address();
-            to4->sin_family = AF_INET;
             to4->sin_port  = htons( mypacket->dstport );
-            sslen=sizeof(struct sockaddr_in);
         }
 
         /* We need to keep many IODs open in parallel but we don't allocate
@@ -2054,16 +2049,11 @@ void ProbeMode::probe_udpunpriv_event_handler(nsock_pool nsp, nsock_event nse, v
             nping_fatal(QT_3, "udpunpriv_event_handler():: NULL value supplied.");
 
         /* Fill the appropriate sockaddr for the connect() call */
+        mypacket->target->getTargetSockAddr(&to, &sslen);
         if( o.getIPVersion() == IP_VERSION_6 ){
-            to6->sin6_addr=mypacket->target->getIPv6Address();
-            to6->sin6_family = AF_INET6;
             to6->sin6_port  = htons( mypacket->dstport );
-            sslen=sizeof(struct sockaddr_in6);
         }else{
-            to4->sin_addr=mypacket->target->getIPv4Address();
-            to4->sin_family = AF_INET;
             to4->sin_port  = htons( mypacket->dstport );
-            sslen=sizeof(struct sockaddr_in);
         }
 
         /* We need to keep many IODs open in parallel but we don't allocate

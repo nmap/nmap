@@ -1373,6 +1373,9 @@ struct sockaddr_storage *NpingOps::getSourceSockAddr(struct sockaddr_storage *ss
         s4->sin_port=htons(this->getSourcePort());
     else
         s4->sin_port=0;
+#ifdef HAVE_SOCKADDR_SA_LEN
+    ((const struct sockaddr *)ss)->sa_len = sizeof(s4);
+#endif
   }
   else if (this->getIPVersion() == IP_VERSION_6){
     if(this->spoofSource())
@@ -1384,6 +1387,9 @@ struct sockaddr_storage *NpingOps::getSourceSockAddr(struct sockaddr_storage *ss
         s6->sin6_port=htons(this->getSourcePort());
     else
         s6->sin6_port=0;
+#ifdef HAVE_SOCKADDR_SA_LEN
+    ((const struct sockaddr *)ss)->sa_len = sizeof(s6);
+#endif
   }else{
     nping_fatal(QT_3, "NpingOps::getSourceSockAddr(): IP version unset.");
   }
