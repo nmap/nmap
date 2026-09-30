@@ -94,11 +94,11 @@ mkdir "%NMAP_AUX_DIR%" 2>nul
 
 :: Install Npcap SDK
 if not exist "%NMAP_AUX_DIR%\Npcap\Include\pcap.h" (
-  Call DownloadNpcapSDK || goto :QUIT
+  Call :DownloadNpcapSDK || goto :QUIT
 )
 
 if not exist "%NMAP_AUX_DIR%\OpenSSL\include\openssl\ssl.h" (
-  Call DownloadOpenSSL || goto :QUIT
+  Call :DownloadOpenSSL || goto :QUIT
 )
 
 echo.
