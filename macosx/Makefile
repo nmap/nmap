@@ -101,14 +101,14 @@ export-%:
 	rm -rf $*
 # Using @BASE discards local changes.
 	mkdir $*
-	(cd .. && git archive $$(git stash create)) | tar -x -C $*
+	(cd .. && git archive $$(git stash create | grep . || echo HEAD)) | tar -x -C $*
 
 NMAP_SOURCEDIR=$(JHBUILD_SOURCE)/nmap-$(NMAP_VERSION)
 NMAP_TARBALL=$(JHBUILD_SOURCE)/pkgs/nmap-$(NMAP_VERSION).tar.gz
 $(NMAP_TARBALL):
 	rm -rf nmap-$(NMAP_VERSION)
 	mkdir nmap-$(NMAP_VERSION)
-	(cd .. && git archive $$(git stash create)) | tar -x -C nmap-$(NMAP_VERSION)
+	(cd .. && git archive $$(git stash create | grep . || echo HEAD)) | tar -x -C nmap-$(NMAP_VERSION)
 	tar czf nmap-$(NMAP_VERSION).tar.gz nmap-$(NMAP_VERSION)
 	cp nmap-$(NMAP_VERSION).tar.gz $(JHBUILD_SOURCE)/pkgs/
 
