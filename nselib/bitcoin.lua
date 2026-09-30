@@ -38,6 +38,7 @@ local stdnse = require "stdnse"
 local string = require "string"
 local table = require "table"
 local openssl = stdnse.silent_require('openssl')
+local unittest = require "unittest"
 _ENV = stdnse.module("bitcoin", stdnse.seeall)
 
 -- A class that supports the BitCoin network address structure
@@ -624,5 +625,543 @@ Helper = {
     return self.socket:close()
   end
 }
+
+-- Bitcoin address validation and classification
+-- Based on Base58Check (Bitcoin Wiki), BIP173, BIP350
+
+-- Base58 alphabet (Bitcoin)
+local BASE58_ALPHABET = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"
+
+-- Bech32 character set (BIP173)
+local BECH32_CHARSET = "qpzry9x8gf2tvdw0s3jn54khce6mua7l"
+
+-- Bech32 polymod generator coefficients (BIP173)
+local BECH32_GEN = {0x3b6a57b2, 0x26508e6d, 0x1ea119fa, 0x3d4233dd, 0x2a1462b3}
+
+-- Compute double SHA256 hash
+-- @param data string of bytes
+-- @return string of 32 bytes, or nil, err
+local function doubleSha256(data)
+  if not openssl then
+    return nil, "openssl not available"
+  end
+  local hash = openssl.digest("sha256", data)
+  return openssl.digest("sha256", hash)
+end
+
+-- Decode Base58 string to big-endian byte array
+-- @param str base58 encoded string
+-- @return table of bytes, or nil, error message
+local function decodeBase58(str)
+  local map = {}
+  for i = 1, #BASE58_ALPHABET do
+    map[BASE58_ALPHABET:sub(i, i)] = i - 1
+  end
+
+  -- Count leading 1s (= leading zero bytes)
+  local leading = 0
+  for i = 1, #str do
+    if str:sub(i, i) ~= "1" then break end
+    leading = leading + 1
+  end
+
+  if #str == 0 then
+    return nil, "empty string"
+  end
+
+  -- Decode base58 into little-endian byte array
+  local result = {0}
+  for i = 1, #str do
+    local c = str:sub(i, i)
+    local carry = map[c]
+    if not carry then
+      return nil, "invalid character"
+    end
+    for j = 1, #result do
+      carry = carry + result[j] * 58
+      result[j] = carry & 0xff
+      carry = carry >> 8
+    end
+    while carry > 0 do
+      result[#result + 1] = carry & 0xff
+      carry = carry >> 8
+    end
+  end
+
+  -- Reverse to big-endian
+  local out = {}
+  for i = #result, 1, -1 do
+    out[#out + 1] = result[i]
+  end
+
+  -- Prepend leading zeros
+  for i = 1, leading do
+    table.insert(out, 1, 0)
+  end
+
+  return out
+end
+
+-- Validate Base58Check encoded string
+-- @param str base58 encoded string
+-- @return table with payload (byte array), or nil, error
+local function decodeBase58Check(str)
+  if not openssl then
+    return nil, "openssl not available"
+  end
+
+  local decoded, err = decodeBase58(str)
+  if not decoded then
+    return nil, err
+  end
+
+  if #decoded < 5 then
+    return nil, "too short"
+  end
+
+  -- Split into payload (all but last 4) and checksum (last 4)
+  local payloadLen = #decoded - 4
+  local payloadBytes = {}
+  for i = 1, payloadLen do
+    payloadBytes[i] = decoded[i]
+  end
+
+  -- Build string and verify double-SHA256 checksum
+  local payloadStr = string.char(table.unpack(payloadBytes, 1, payloadLen))
+  local hash = doubleSha256(payloadStr)
+
+  for i = 1, 4 do
+    if hash:byte(i) ~= decoded[payloadLen + i] then
+      return nil, "invalid checksum"
+    end
+  end
+
+  return { payload = payloadBytes }
+end
+
+-- Expand HRP for Bech32 checksum (BIP173)
+-- @param hrp string
+-- @return table of 5-bit values
+local function hrpExpand(hrp)
+  local ret = {}
+  for i = 1, #hrp do
+    ret[#ret + 1] = hrp:byte(i) >> 5
+  end
+  ret[#ret + 1] = 0
+  for i = 1, #hrp do
+    ret[#ret + 1] = hrp:byte(i) & 31
+  end
+  return ret
+end
+
+-- Compute Bech32 polymod (BIP173/BIP350)
+-- @param values table of 5-bit values
+-- @return integer checksum
+local function bech32Polymod(values)
+  local chk = 1
+  for _, v in ipairs(values) do
+    local top = chk >> 25
+    chk = ((chk & 0x1ffffff) << 5) ~ v
+    for i = 1, 5 do
+      if (top >> (i - 1)) & 1 == 1 then
+        chk = chk ~ BECH32_GEN[i]
+      end
+    end
+  end
+  return chk
+end
+
+-- Convert between bit widths
+-- @param data table of source values
+-- @param fromBits source bit width
+-- @param toBits target bit width
+-- @param pad whether to allow padding
+-- @return table of converted values, or nil, error
+local function convertBits(data, fromBits, toBits, pad)
+  local ret = {}
+  local acc = 0
+  local bits = 0
+  local maxv = (1 << toBits) - 1
+  local maxAcc = (1 << (fromBits + toBits)) - 1
+  for _, v in ipairs(data) do
+    if v < 0 or (v >> fromBits) ~= 0 then
+      return nil, "invalid value for bit width"
+    end
+    acc = ((acc << fromBits) | v) & maxAcc
+    bits = bits + fromBits
+    while bits >= toBits do
+      bits = bits - toBits
+      ret[#ret + 1] = (acc >> bits) & maxv
+    end
+  end
+  if pad then
+    if bits > 0 then
+      ret[#ret + 1] = (acc << (toBits - bits)) & maxv
+    end
+  else
+    if bits >= fromBits or ((acc << (toBits - bits)) & maxv) ~= 0 then
+      return nil, "non-zero padding"
+    end
+  end
+  return ret
+end
+
+-- Decode Bech32/Bech32m string (BIP173/BIP350)
+-- @param str bech32 encoded string
+-- @return table with hrp, witnessVersion, witnessProgram, encoding, or nil, error
+local function decodeBech32(str)
+  -- Find separator '1'
+  local sep = str:find("1", 2, true)
+  if not sep then
+    return nil, "missing separator"
+  end
+  if sep < 2 or sep > #str - 7 then
+    return nil, "invalid separator position"
+  end
+
+  local hrp = str:sub(1, sep - 1):lower()
+  local dataPart = str:sub(sep + 1)
+
+  if #dataPart < 7 then
+    return nil, "data part too short"
+  end
+
+  -- Check for mixed case
+  local lower = dataPart:lower()
+  local upper = dataPart:upper()
+  if dataPart ~= lower and dataPart ~= upper then
+    return nil, "mixed case"
+  end
+  dataPart = lower
+
+  -- Decode data characters to 5-bit values
+  local values = {}
+  for i = 1, #dataPart do
+    local pos = BECH32_CHARSET:find(dataPart:sub(i, i), 1, true)
+    if not pos then
+      return nil, "invalid character"
+    end
+    values[#values + 1] = pos - 1
+  end
+
+  -- Verify checksum
+  local checksumInput = hrpExpand(hrp)
+  for _, v in ipairs(values) do
+    checksumInput[#checksumInput + 1] = v
+  end
+  local polymod = bech32Polymod(checksumInput)
+
+  local encoding
+  if polymod == 1 then
+    encoding = "bech32"
+  elseif polymod == 0x2bc830a3 then
+    encoding = "bech32m"
+  else
+    return nil, "invalid checksum"
+  end
+
+  -- Extract witness version and program (5-bit groups)
+  local witnessVersion = values[1]
+  if witnessVersion > 16 then
+    return nil, "invalid witness version"
+  end
+
+  local witnessProgram5 = {}
+  for i = 2, #values - 6 do
+    witnessProgram5[#witnessProgram5 + 1] = values[i]
+  end
+
+  -- Convert witness program from 5-bit to 8-bit
+  local witnessProgram8, err = convertBits(witnessProgram5, 5, 8, false)
+  if not witnessProgram8 then
+    return nil, "invalid witness program: " .. err
+  end
+
+  -- Validate based on witness version
+  if witnessVersion == 0 then
+    if encoding ~= "bech32" then
+      return nil, "v0 witness must use Bech32, not Bech32m"
+    end
+    if #witnessProgram8 ~= 20 and #witnessProgram8 ~= 32 then
+      return nil, "invalid witness program length for v0"
+    end
+  elseif witnessVersion >= 1 and witnessVersion <= 16 then
+    if encoding ~= "bech32m" then
+      return nil, string.format("v%d witness must use Bech32m", witnessVersion)
+    end
+    if #witnessProgram8 < 2 or #witnessProgram8 > 40 then
+      return nil, "invalid witness program length for v1+"
+    end
+  end
+
+  return {
+    hrp = hrp,
+    witnessVersion = witnessVersion,
+    witnessProgram = witnessProgram8,
+    encoding = encoding,
+  }
+end
+
+--- Quick regex-based address candidate detection
+-- @param value string to check
+-- @return table with candidate, family, probable_network, probable_type
+looks_like_address = function(value)
+  if type(value) ~= "string" or #value == 0 then
+    return { candidate = false }
+  end
+
+  -- Bech32 patterns
+  if value:match("^[Bb][Cc]1") then
+    return { candidate = true, family = "bech32", probable_network = "mainnet", probable_type = "segwit_or_taproot" }
+  end
+  if value:match("^[Tt][Bb]1") then
+    return { candidate = true, family = "bech32", probable_network = "testnet", probable_type = "segwit_or_taproot" }
+  end
+  if value:match("^[Bb][Cc][Rr][Tt]1") then
+    return { candidate = true, family = "bech32", probable_network = "regtest", probable_type = "segwit_or_taproot" }
+  end
+
+  -- Base58Check patterns
+  local first = value:sub(1, 1)
+  if first == "1" then
+    return { candidate = true, family = "base58", probable_network = "mainnet", probable_type = "p2pkh" }
+  end
+  if first == "3" then
+    return { candidate = true, family = "base58", probable_network = "mainnet", probable_type = "p2sh" }
+  end
+  if first == "m" or first == "n" then
+    return { candidate = true, family = "base58", probable_network = "testnet", probable_type = "p2pkh" }
+  end
+  if first == "2" then
+    return { candidate = true, family = "base58", probable_network = "testnet", probable_type = "p2sh" }
+  end
+
+  -- WIF patterns
+  if first == "5" or first == "K" or first == "L" then
+    return { candidate = true, family = "base58", probable_network = "mainnet", probable_type = "wif" }
+  end
+  if first == "9" or first == "c" then
+    return { candidate = true, family = "base58", probable_network = "testnet", probable_type = "wif" }
+  end
+
+  -- Extended key patterns
+  if value:match("^[xX][pP][uU][bB]") then
+    return { candidate = true, family = "base58", probable_network = "mainnet", probable_type = "xpub" }
+  end
+  if value:match("^[xX][pP][rR][vV]") then
+    return { candidate = true, family = "base58", probable_network = "mainnet", probable_type = "xprv" }
+  end
+  if value:match("^[tT][pP][uU][bB]") then
+    return { candidate = true, family = "base58", probable_network = "testnet", probable_type = "xpub" }
+  end
+  if value:match("^[tT][pP][rR][vV]") then
+    return { candidate = true, family = "base58", probable_network = "testnet", probable_type = "xprv" }
+  end
+
+  return { candidate = false }
+end
+
+--- Full cryptographic address validation
+-- @param value string to validate
+-- @return table with valid, network, type, encoding, witnessVersion, reason
+validate_address = function(value)
+  if type(value) ~= "string" or #value == 0 then
+    return { valid = false, reason = "empty or non-string" }
+  end
+
+  -- Try Bech32/Bech32m for addresses starting with known HRPs
+  local lower = value:lower()
+  if lower:sub(1, 4) == "bcrt" or lower:sub(1, 2) == "bc" or lower:sub(1, 2) == "tb" then
+    local result, err = decodeBech32(value)
+    if not result then
+      return { valid = false, encoding = "bech32", reason = err }
+    end
+    local network
+    if result.hrp == "bc" then
+      network = "mainnet"
+    elseif result.hrp == "tb" then
+      network = "testnet"
+    elseif result.hrp == "bcrt" then
+      network = "regtest"
+    else
+      network = "unknown"
+    end
+    local addrType
+    if result.witnessVersion == 0 then
+      if #result.witnessProgram == 20 then
+        addrType = "p2wpkh"
+      elseif #result.witnessProgram == 32 then
+        addrType = "p2wsh"
+      else
+        addrType = "segwit_v0"
+      end
+    elseif result.witnessVersion == 1 then
+      addrType = "p2tr"
+    else
+      addrType = "witness_v1_plus"
+    end
+    return {
+      valid = true,
+      network = network,
+      type = addrType,
+      encoding = result.encoding,
+      witnessVersion = result.witnessVersion,
+      reason = "ok",
+    }
+  end
+
+  -- Try Base58Check
+  local result, err = decodeBase58Check(value)
+  if not result then
+    return { valid = false, encoding = "base58check", reason = err or "invalid" }
+  end
+
+  local payload = result.payload
+  if #payload < 1 then
+    return { valid = false, encoding = "base58check", reason = "empty payload" }
+  end
+
+  -- Check for 4-byte version prefixes (extended keys)
+  if #payload >= 4 then
+    local v4 = (payload[1] << 24) | (payload[2] << 16) | (payload[3] << 8) | payload[4]
+    if v4 == 0x0488B21E then
+      return { valid = true, network = "mainnet", type = "xpub", encoding = "base58check", reason = "ok" }
+    end
+    if v4 == 0x0488ADE4 then
+      return { valid = true, network = "mainnet", type = "xprv", encoding = "base58check", reason = "ok" }
+    end
+    if v4 == 0x043587CF then
+      return { valid = true, network = "testnet", type = "xpub", encoding = "base58check", reason = "ok" }
+    end
+    if v4 == 0x04358394 then
+      return { valid = true, network = "testnet", type = "xprv", encoding = "base58check", reason = "ok" }
+    end
+  end
+
+  -- Check single-byte version prefixes
+  local v = payload[1]
+  if v == 0x00 then
+    return { valid = true, network = "mainnet", type = "p2pkh", encoding = "base58check", reason = "ok" }
+  end
+  if v == 0x05 then
+    return { valid = true, network = "mainnet", type = "p2sh", encoding = "base58check", reason = "ok" }
+  end
+  if v == 0x6f then
+    return { valid = true, network = "testnet", type = "p2pkh", encoding = "base58check", reason = "ok" }
+  end
+  if v == 0xc4 then
+    return { valid = true, network = "testnet", type = "p2sh", encoding = "base58check", reason = "ok" }
+  end
+  if v == 0x80 then
+    local net = (value:sub(1, 1) == "9" or value:sub(1, 1) == "c") and "testnet" or "mainnet"
+    return { valid = true, network = net, type = "wif", encoding = "base58check", reason = "ok" }
+  end
+
+  return { valid = true, network = "unknown", type = "unknown", encoding = "base58check", reason = "unknown version byte" }
+end
+
+--- High-level address classification uses regex detection then full validation
+-- @param value string to classify
+-- @return table with valid, network, type, encoding, reason
+classify_address = function(value)
+  local quick = looks_like_address(value)
+  if not quick.candidate then
+    return { valid = false, reason = "not a recognized address format" }
+  end
+  return validate_address(value)
+end
+
+if not unittest.testing() then
+  return _ENV
+end
+
+-- Test vectors (public/synthetic - no real keys with funds)
+test_suite = unittest.TestSuite:new()
+
+-- Mainnet Base58Check valid addresses
+local r1 = classify_address("1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa")
+test_suite:add_test(unittest.is_true(r1.valid), "mainnet P2PKH (genesis) valid")
+test_suite:add_test(unittest.equal(r1.network, "mainnet"), "genesis network mainnet")
+test_suite:add_test(unittest.equal(r1.type, "p2pkh"), "genesis type p2pkh")
+
+local r2 = classify_address("3J98t1WpEZ73CNmQviecrnyiWrnqRhWNLy")
+test_suite:add_test(unittest.is_true(r2.valid), "mainnet P2SH valid")
+test_suite:add_test(unittest.equal(r2.network, "mainnet"), "P2SH network mainnet")
+test_suite:add_test(unittest.equal(r2.type, "p2sh"), "P2SH type p2sh")
+
+-- Mainnet Bech32m P2TR (BIP350)
+local r3 = classify_address("bc1p0xlxvlhemja6c4dqv22uapctqupfhlxm9h8z3k2e72q4k9hcz7vqzk5jj0")
+test_suite:add_test(unittest.is_true(r3.valid), "mainnet P2TR (BIP350) valid")
+test_suite:add_test(unittest.equal(r3.network, "mainnet"), "P2TR network mainnet")
+test_suite:add_test(unittest.equal(r3.type, "p2tr"), "P2TR type")
+
+-- Testnet Bech32m P2TR (BIP350)
+local r4 = classify_address("tb1pqqqqp399et2xygdj5xreqhjjvcmzhxw4aywxecjdzew6hylgvsesf3hn0c")
+test_suite:add_test(unittest.is_true(r4.valid), "testnet P2TR (BIP350) valid")
+test_suite:add_test(unittest.equal(r4.network, "testnet"), "testnet P2TR network")
+test_suite:add_test(unittest.equal(r4.type, "p2tr"), "testnet P2TR type")
+
+-- Mainnet Bech32 (BIP173 P2WPKH)
+local r5 = classify_address("bc1qw508d6qejxtdg4y5r3zarvary0c5xw7kv8f3t4")
+test_suite:add_test(unittest.is_true(r5.valid), "mainnet P2WPKH (BIP173) valid")
+test_suite:add_test(unittest.equal(r5.network, "mainnet"), "P2WPKH network mainnet")
+test_suite:add_test(unittest.equal(r5.type, "p2wpkh"), "P2WPKH type")
+
+-- Mainnet Bech32m v1 P2WSH (BIP350)
+local r6 = classify_address("bc1pw508d6qejxtdg4y5r3zarvary0c5xw7kw508d6qejxtdg4y5r3zarvary0c5xw7kt5nd6y")
+test_suite:add_test(unittest.is_true(r6.valid), "mainnet v1 P2WSH (BIP350) valid")
+test_suite:add_test(unittest.equal(r6.network, "mainnet"), "v1 P2WSH network mainnet")
+
+-- Testnet Bech32 (BIP173 P2WSH)
+local r7 = classify_address("tb1qrp33g0q5c5txsp9arysrx4k6zdkfs4nce4xj0gdcccefvpysxf3q0sl5k7")
+test_suite:add_test(unittest.is_true(r7.valid), "testnet P2WSH (BIP173) valid")
+test_suite:add_test(unittest.equal(r7.network, "testnet"), "testnet P2WSH network")
+test_suite:add_test(unittest.equal(r7.type, "p2wsh"), "testnet P2WSH type")
+
+-- Mainnet Bech32m v2 (BIP350)
+local r8 = classify_address("bc1zw508d6qejxtdg4y5r3zarvaryvaxxpcs")
+test_suite:add_test(unittest.is_true(r8.valid), "mainnet v2 Bech32m (BIP350) valid")
+test_suite:add_test(unittest.equal(r8.network, "mainnet"), "v2 network")
+test_suite:add_test(unittest.equal(r8.type, "witness_v1_plus"), "v2 type")
+
+-- Invalid addresses
+local r9 = validate_address("1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNb")
+test_suite:add_test(unittest.is_false(r9.valid), "broken Base58 checksum invalid")
+
+local r10 = validate_address("bc1qw508d6qejxtdg4y5r3zarvary0c5xw7kv8f3t5")
+test_suite:add_test(unittest.is_false(r10.valid), "broken Bech32 checksum invalid")
+
+local r11 = validate_address("bc1qw508d6qejxtdg4y5r3zarvary0c5xw7kv8f3tQ")
+test_suite:add_test(unittest.is_false(r11.valid), "mixed case Bech32 invalid")
+
+local r12 = validate_address("bc1q")
+test_suite:add_test(unittest.is_false(r12.valid), "too short Bech32 invalid")
+
+-- Invalid Bech32m (v0 address decoded as Bech32m fails, but here we use a BIP350 invalid test)
+local r12b = validate_address("bc1p0xlxvlhemja6c4dqv22uapctqupfhlxm9h8z3k2e72q4k9hcz7vqh2y7hd")
+test_suite:add_test(unittest.is_false(r12b.valid), "Bech32m invalid checksum")
+
+-- Regex detection tests
+local r13 = looks_like_address("1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa")
+test_suite:add_test(unittest.is_true(r13.candidate), "looks_like mainnet P2PKH")
+test_suite:add_test(unittest.equal(r13.family, "base58"), "looks_like family base58")
+test_suite:add_test(unittest.equal(r13.probable_network, "mainnet"), "looks_like network mainnet")
+test_suite:add_test(unittest.equal(r13.probable_type, "p2pkh"), "looks_like type p2pkh")
+
+local r14 = looks_like_address("bc1qw508d6qejxtdg4y5r3zarvary0c5xw7kv8f3t4")
+test_suite:add_test(unittest.is_true(r14.candidate), "looks_like Bech32")
+test_suite:add_test(unittest.equal(r14.family, "bech32"), "looks_like family bech32")
+
+local r15 = looks_like_address("random text that is not an address")
+test_suite:add_test(unittest.is_false(r15.candidate), "random text not a candidate")
+
+-- Regtest detection
+local r16 = looks_like_address("bcrt1qar0srrr7xfkvy5l643lydnw9re59gtzzwf5mdq")
+test_suite:add_test(unittest.is_true(r16.candidate), "looks_like regtest Bech32")
+test_suite:add_test(unittest.equal(r16.probable_network, "regtest"), "looks_like regtest network")
+
+-- classify_address on non-address
+local r17 = classify_address("not an address")
+test_suite:add_test(unittest.is_false(r17.valid), "classify non-address invalid")
 
 return _ENV;
