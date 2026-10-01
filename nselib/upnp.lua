@@ -84,6 +84,7 @@ Comm = {
     o.host = host
     o.port = port
     o.mcast = false
+    o.override = true -- override Location URL with active target IP
     return o
   end,
 
@@ -152,8 +153,9 @@ Comm = {
       elseif( not(status) ) then
         break
       end
+      local status, lhost, lport, rhost, rport = self.socket:get_info()
 
-      local status = self:decodeResponse( response, result )
+      local status = self:decodeResponse( response, result, rhost )
       if ( not(status) ) then
         return false, "Failed to decode UPNP response"
       end
@@ -174,9 +176,10 @@ Comm = {
   --- Processes a response from a upnp device
   --
   -- @param response as received over the socket
+  -- @param response table holding results keyed by location of XML file
   -- @return status boolean true on success, false on failure
-  -- @return response table or string suitable for output or error message if status is false
-  decodeResponse = function( self, response, results )
+  -- @return error message if status is false
+  decodeResponse = function( self, response, results, rhost )
     local output = stdnse.output_table()
     local key
 
@@ -206,7 +209,7 @@ Comm = {
 
     if location and nmap.verbosity() > 0 then
       -- the following check can output quite a lot of information, so we require at least one -v flag
-      local status, result = self:retrieveXML( location )
+      local status, result = self:retrieveXML( location, rhost )
       if status then
         if result.webserver ~= output.server then
           output.webserver = result.webserver
@@ -235,17 +238,18 @@ Comm = {
   --- Retrieves the XML file that describes the UPNP device
   --
   -- @param location string containing the location of the XML file from the UPNP response
+  -- @param rhost host that sent the UPNP response
   -- @return status boolean true on success, false on failure
   -- @return response table or string suitable for output or error message if status is false
-  retrieveXML = function( self, location )
+  retrieveXML = function( self, location, rhost )
     local response
     local options = {}
     options['header'] = {}
     options['header']['Accept'] = "text/xml, application/xml, text/html"
 
-    -- if we're in multicast mode, or if the user doesn't want us to override the IP address,
+    -- if the user doesn't want us to override the IP address,
     -- just use the HTTP library to grab the XML file
-    if ( self.mcast or ( not self.override ) ) then
+    if not self.override then
       response = http.get_url( location, options )
     else
       -- otherwise, split the location into an IP address, port, and path name for the xml file
@@ -259,7 +263,7 @@ Comm = {
       end
 
       -- check to see if the IP address returned matches the IP address we scanned
-      if not ipOps.compare_ip(xhost, "eq", self.host.ip) then
+      if not ipOps.compare_ip(xhost, "eq", rhost) then
         stdnse.debug1("IP addresses did not match! Found %s, using %s instead.", xhost, self.host.ip)
         xhost = self.host.ip
       end
@@ -360,7 +364,7 @@ Helper = {
   -- @param mcast boolean true if multicast is to be used, false otherwise
   setMulticast = function( self, mcast ) self.comm:setMulticast(mcast) end,
 
-  --- Enables or disables whether the script will override the IP address is the Location URL
+  --- Enables or disables whether the script will override the IP address in the Location URL
   --
   -- @param override boolean true if override is to be enabled, false otherwise
   setOverride = function( self, override )
