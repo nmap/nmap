@@ -32,6 +32,7 @@
 
 local coroutine = require "coroutine"
 local ipOps = require "ipOps"
+local match = require "match"
 local nmap = require "nmap"
 local stdnse = require "stdnse"
 local string = require "string"
@@ -133,27 +134,22 @@ end
 -- @return Response (if status is true).
 local function sendPacketsTCP(data, host, port, timeout)
   local socket = nmap.new_socket()
-  local response
-  local responses = {}
   socket:set_timeout(timeout)
   socket:connect(host, port)
   local send_data = string.pack(">s2", data)
   socket:send(send_data)
-  local response = ''
-  local got_response = false
-  while true do
-    local status, recv_data = socket:receive_bytes(1)
-    if not status then break end
-    got_response = true
-    response = response .. recv_data
+  local status, response = socket:receive_buf(match.numbytes(2), true)
+  if not status then
+    return false, response
   end
-  local status, _, _, ip, _ = socket:get_info()
+  local len = string.unpack(">I2", response)
+  status, response = socket:receive_buf(match.numbytes(len), true)
   socket:close()
-  if not got_response then
-    return false
-  end
   -- remove payload size
-  table.insert(responses, { data = string.sub(response,3), peer = ip } )
+  local responses = {{
+      data = response,
+      peer = (type(host) == "table" and host.ip or host)
+  }}
   return true, responses
 end
 
@@ -292,7 +288,7 @@ end
 -- * <code>retAll</code>: Return all answers, not just the first.
 -- * <code>retPkt</code>: Return the packet instead of using the answer-fetching mechanism.
 -- * <code>norecurse</code>: If true, do not set the recursion (RD) flag.
--- * <code>noauth</code>: If true, do not try to find authoritative server
+-- * <code>noauth</code>: If true, do not try to find authoritative server (i.e. do not perform a recursive lookup)
 -- * <code>multiple</code>: If true, expects multiple hosts to respond to multicast request
 -- * <code>flags</code>: numeric value to set flags in the DNS query to a specific value
 -- * <code>id</code>: numeric value to use for the DNS transaction id
@@ -334,9 +330,13 @@ function query(dname, options)
     else
       return false, "No Servers"
     end
-  elseif type(host) == "table" then
+  elseif type(host) == "table" and not host.ip then
     srv = host
     host = srv[1]
+  end
+
+  if not host then
+    return false, "No Servers"
   end
 
   local pkt = newPacket()

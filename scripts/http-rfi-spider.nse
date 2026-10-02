@@ -177,7 +177,7 @@ local function check_responses(urls, responses)
   return suspects
 end
 
-portrule = shortport.port_or_service( {80, 443}, {"http", "https"}, "tcp", "open")
+portrule = shortport.http
 
 function action(host, port)
   inclusion_url = stdnse.get_script_args('http-rfi-spider.inclusionurl') or 'http://tools.ietf.org/html/rfc13?'

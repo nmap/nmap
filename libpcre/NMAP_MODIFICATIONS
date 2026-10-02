@@ -9,6 +9,7 @@ o Removed these directories:
 doc
 testdata
 deps
+patches
 
 o Removed these files:
 src/pcre2test.c
@@ -17,17 +18,11 @@ src/pcre2_jit_test.c
 src/pcre2grep.c
 src/pcre2demo.c
 src/pcre2_fuzzsupport.c
-src/pcre2_printint.c
 src/pcre2_jit_compile.c
 src/pcre2_jit_char_inc.h
-src/pcre2_jit_match.c
-src/pcre2_jit_misc.c
-src/pcre2_jit_neon_inc.h
 src/pcre2_jit_simd_inc.h
-RunGrepTest.bat
-RunGrepTest
-RunTest
-RunTest.bat
+src/pcre2_jit_match_inc.h
+src/pcre2_jit_misc_inc.h
 perltest.sh
 libpcre2-16.pc.in
 libpcre2-32.pc.in
@@ -41,7 +36,7 @@ HACKING
 COPYING [Look at LICENCE.md]
 README
 INSTALL
-NON-AUTOTOOLS-BUILDS
+NON-AUTOTOOLS-BUILD
 
 o Made relevant changes to Makefile.am, configure.ac, and CMakeLists.txt to
   accommodate our smaller, non-JIT build and to disable Unicode support by

@@ -847,6 +847,7 @@ struct tcpopt_vectorize_ctx {
 static const u8 MODEL_NUM_OPTS = 16;
 static bool tcpopt_vectorize(u8 op, u8 oplen, const u8 *data, void *ctx) {
   tcpopt_vectorize_ctx *c = static_cast<tcpopt_vectorize_ctx *>(ctx);
+  assert(c->optnum < MODEL_NUM_OPTS);
   c->features[c->base + c->optnum].value = op;
   c->features[c->base + c->optnum + MODEL_NUM_OPTS].value = oplen;
   if (op == TCPOPT_MSS && oplen == 4 && c->mss == -1)
@@ -855,9 +856,8 @@ static bool tcpopt_vectorize(u8 op, u8 oplen, const u8 *data, void *ctx) {
     c->sackok = 1;
   else if (op == TCPOPT_WSCALE && oplen == 3 && c->wscale == -1)
     c->wscale = data[2];
-  if (c->optnum++ < MODEL_NUM_OPTS)
-    return true;
-  return false;
+  c->optnum++;
+  return c->optnum < MODEL_NUM_OPTS;
 }
 
 static struct feature_node *vectorize(const FingerPrintResultsIPv6 *FPR) {

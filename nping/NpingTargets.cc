@@ -189,7 +189,9 @@ static void nping_mass_dns(DNS::Request requests[], int num_requests) {
     // TODO: resolver.setStatusCallback();
     // TODO: resolver.setLogFunc();
     if (o.issetDevice() || o.spoofSource()) {
-      resolver.setSource(o.getDevice(), o.getSourceSockAddr(), sizeof(sockaddr_storage), o.spoofSource());
+      sockaddr_storage *src = o.getSourceSockAddr();
+      size_t srclen = src->ss_family == AF_INET6 ? sizeof(sockaddr_in6) : sizeof(sockaddr_in);
+      resolver.setSource(o.getDevice(), src, srclen, o.spoofSource());
     }
     if (o.issetIPOptions()) {
       // TODO: NpingOps.ip_options should have a length, not be null-terminated.
@@ -297,10 +299,10 @@ int NpingTargets::processSpecs(){
       }
       else{
         mytarget->setDirectlyConnected(false);
-        mytarget->setNextHop(&rnfo.nexthop, sizeof(struct sockaddr_storage));
+        mytarget->setNextHop(&rnfo.nexthop, sockaddr_get_len(&rnfo.nexthop));
       }
       /* Source IP address that we should use when targeting this host */
-      mytarget->setSourceSockAddr(&rnfo.srcaddr, sizeof(struct sockaddr_storage));
+      mytarget->setSourceSockAddr(&rnfo.srcaddr, sockaddr_get_len(&rnfo.srcaddr));
 
       /* If user requested to spoof IP source address, set it */
       if( o.spoofSource() ){

@@ -66,20 +66,20 @@ function check_winreg_Enum_crash(host)
 
   -- Create the SMB session
   status, smbstate = msrpc.start_smb(host, msrpc.WINREG_PATH)
-  if(status == false) then
+  if not status then
     return false, smbstate
   end
 
   -- Bind to WINREG service
   status, bind_result = msrpc.bind(smbstate, msrpc.WINREG_UUID, msrpc.WINREG_VERSION, nil)
-  if(status == false) then
+  if not status then
     msrpc.stop_smb(smbstate)
     return false, bind_result
   end
 
   local openhku_result
   status, openhku_result = msrpc.winreg_openhku(smbstate)
-  if(status == false) then
+  if not status then
     msrpc.stop_smb(smbstate)
     return false, openhku_result
   end
@@ -89,7 +89,7 @@ function check_winreg_Enum_crash(host)
   status, enumkey_result = msrpc.winreg_enumkey(smbstate, openhku_result['handle'], 0, nil)
   msrpc.stop_smb(smbstate)
 
-  if(status == false) then
+  if not status then
     return true, VULNERABLE
   end
   return true, PATCHED
@@ -111,7 +111,7 @@ while working on smb-enum-sessions.
 
   -- Check for a winreg_Enum crash
   status, result = check_winreg_Enum_crash(host)
-  if(status == false) then
+  if not status then
     vuln_table.state = vulns.STATE.NOT_VULN
   else
     if(result == VULNERABLE) then

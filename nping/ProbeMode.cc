@@ -1209,7 +1209,7 @@ const char *ProbeMode::getBPFFilterString(){
     inet_ntop(AF_INET, &s4->sin_addr, ipstring, sizeof(ipstring));
  }else{
     nping_warning(QT_2, "Warning: Wrong address family (%d) in getBPFFilterString(). Please report a bug", srcss.ss_family);
-    sprintf(ipstring,"127.0.0.1");
+    bufset(ipstring,"127.0.0.1");
  }
 
  /* Tell the filter that we only want incoming packets, destined to our source IP */
@@ -1845,16 +1845,11 @@ void ProbeMode::probe_tcpconnect_event_handler(nsock_pool nsp, nsock_event nse, 
             nping_fatal(QT_3, "tcpconnect_event_handler():2: NULL value supplied.");
 
         /* Fill the appropriate sockaddr for the connect() call */
+        mypacket->target->getTargetSockAddr(&to, &sslen);
         if( o.getIPVersion() == IP_VERSION_6 ){
-            to6->sin6_addr=mypacket->target->getIPv6Address();
-            to6->sin6_family = AF_INET6;
             to6->sin6_port  = htons( mypacket->dstport );
-            sslen=sizeof(struct sockaddr_in6);
         }else{
-            to4->sin_addr=mypacket->target->getIPv4Address();
-            to4->sin_family = AF_INET;
             to4->sin_port  = htons( mypacket->dstport );
-            sslen=sizeof(struct sockaddr_in);
         }
 
         /* We need to keep many IODs open in parallel but we don't allocate
@@ -1871,7 +1866,7 @@ void ProbeMode::probe_tcpconnect_event_handler(nsock_pool nsp, nsock_event nse, 
 
         /* Set socket source address. This allows setting things like custom source port */
         struct sockaddr_storage ss;
-        nsock_iod_set_localaddr(fds[packetno%max_iods], o.getSourceSockAddr(&ss), sizeof(sockaddr_storage));
+        nsock_iod_set_localaddr(fds[packetno%max_iods], o.getSourceSockAddr(&ss), sslen);
         /*Set socket options for REUSEADDR*/
         //setsockopt(nsock_iod_get_sd(fds[packetno%max_iods]),SOL_SOCKET,SO_REUSEADDR,&optval,sizeof(optval));
 
@@ -2054,16 +2049,11 @@ void ProbeMode::probe_udpunpriv_event_handler(nsock_pool nsp, nsock_event nse, v
             nping_fatal(QT_3, "udpunpriv_event_handler():: NULL value supplied.");
 
         /* Fill the appropriate sockaddr for the connect() call */
+        mypacket->target->getTargetSockAddr(&to, &sslen);
         if( o.getIPVersion() == IP_VERSION_6 ){
-            to6->sin6_addr=mypacket->target->getIPv6Address();
-            to6->sin6_family = AF_INET6;
             to6->sin6_port  = htons( mypacket->dstport );
-            sslen=sizeof(struct sockaddr_in6);
         }else{
-            to4->sin_addr=mypacket->target->getIPv4Address();
-            to4->sin_family = AF_INET;
             to4->sin_port  = htons( mypacket->dstport );
-            sslen=sizeof(struct sockaddr_in);
         }
 
         /* We need to keep many IODs open in parallel but we don't allocate
@@ -2080,7 +2070,7 @@ void ProbeMode::probe_udpunpriv_event_handler(nsock_pool nsp, nsock_event nse, v
 
         /* Set socket source address. This allows setting things like custom source port */
         struct sockaddr_storage ss;
-        nsock_iod_set_localaddr(fds[packetno%max_iods], o.getSourceSockAddr(&ss), sizeof(sockaddr_storage));
+        nsock_iod_set_localaddr(fds[packetno%max_iods], o.getSourceSockAddr(&ss), sslen);
 
 
         /* I dunno if it's safe to schedule an nsock_write before we

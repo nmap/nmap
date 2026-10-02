@@ -248,6 +248,7 @@ OSPF = {
         local pos = 1
         lsa_h.age, lsa_h.options, lsa_h.type, lsa_h.id, lsa_h.adv_router,
         lsa_h.sequence, lsa_h.checksum, lsa_h.length, pos = string.unpack(">I2 BB I4 I4 c4 c2 I2", data, pos)
+        assert(lsa_h.length >= 20)
 
         lsa_h.id = ipOps.fromdword(lsa_h.id)
         lsa_h.adv_router = ipOps.fromdword(lsa_h.adv_router)

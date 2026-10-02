@@ -86,6 +86,13 @@
 #endif
 #endif
 
+#if ((OPENSSL_VERSION_NUMBER >= 0x10100000L) && !defined LIBRESSL_VERSION_NUMBER) || \
+    (defined LIBRESSL_VERSION_NUMBER && LIBRESSL_VERSION_NUMBER >= 0x3050000fL)
+#define OPENSSL11_CONST const
+#else
+#define OPENSSL11_CONST
+#endif
+
 #ifdef WIN32
 /* Define missing constant for shutdown(2).
  * See:
@@ -237,7 +244,7 @@ static void connect_report(nsock_iod nsi)
 #ifdef HAVE_OPENSSL
         if (nsock_iod_check_ssl(nsi)) {
             X509 *cert;
-            const X509_NAME *subject;
+            OPENSSL11_CONST X509_NAME *subject;
             char digest_buf[SHA1_STRING_LENGTH + 1];
             char *fp;
 
@@ -254,9 +261,9 @@ static void connect_report(nsock_iod nsi)
                 lastpos = X509_NAME_get_index_by_NID(subject, NID_organizationName, lastpos);
 
                 if (lastpos >= 0) {
-                    const X509_NAME_ENTRY *entry = X509_NAME_get_entry(subject, lastpos);
+                    OPENSSL11_CONST X509_NAME_ENTRY *entry = X509_NAME_get_entry(subject, lastpos);
                     if (entry != NULL) {
-                        const ASN1_STRING *asn1_str = X509_NAME_ENTRY_get_data(entry);
+                        OPENSSL11_CONST ASN1_STRING *asn1_str = X509_NAME_ENTRY_get_data(entry);
                         if (asn1_str != NULL) {
                             // ASN1_STRING_to_UTF8 handles converting BMPString, UniversalString,
                             // or UTF8String into a standard, readable UTF-8 format.
@@ -553,11 +560,12 @@ static int do_proxy_socks4(void)
 {
     char socksbuf[8];
     struct socks4_data socks4msg;
-    size_t datalen;
+    size_t datalen, remaining;
     char *username = o.proxy_auth != NULL ? o.proxy_auth : "";
     union sockaddr_u addr;
     size_t sslen;
     int sd;
+    int tmp = 0;
 
     if (getaddrfamily(o.target) == 2) {
         loguser("Error: IPv6 addresses are not supported with Socks4.\n");
@@ -581,13 +589,15 @@ static int do_proxy_socks4(void)
     socks4msg.type = SOCKS_CONNECT;
     socks4msg.port = htons(o.portno);
 
-    if (strlen(username) >= sizeof(socks4msg.data)) {
+    remaining = sizeof(socks4msg.data);
+    tmp = Snprintf(socks4msg.data, remaining, "%s", username);
+    if (tmp >= remaining) {
         loguser("Error: username is too long.\n");
         close(sd);
         return -1;
     }
-    strcpy(socks4msg.data, username);
-    datalen = strlen(username) + 1;
+    datalen = tmp + 1;
+    remaining -= tmp + 1;
 
     if (proxyresolve(o.target, 0, &addr.storage, &sslen, AF_INET)) {
         /* target resolution has failed, possibly because it is disabled */
@@ -599,13 +609,14 @@ static int do_proxy_socks4(void)
         if (o.verbose)
             loguser("Host %s will be resolved by the proxy.\n", o.target);
         socks4msg.address = inet_addr("0.0.0.1");
-        if (datalen + strlen(o.target) >= sizeof(socks4msg.data)) {
+        tmp = Snprintf(socks4msg.data + datalen, remaining, "%s", o.target);
+        if (tmp >= remaining) {
             loguser("Error: host name is too long.\n");
             close(sd);
             return -1;
         }
-        strcpy(socks4msg.data + datalen, o.target);
-        datalen += strlen(o.target) + 1;
+        datalen += tmp + 1;
+        remaining -= tmp + 1;
     } else {
         /* addr is now populated with sockaddr_in */
         socks4msg.address = addr.in.sin_addr.s_addr;

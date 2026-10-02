@@ -272,61 +272,13 @@ int removecolon(char *string){
 }/* End of removecolon() */
 
 
-
-/* lamont_hdump() has a bug so 3-byte lines are not printed correctly.
- * This function is a better version of hdump written by Luis MartinGarcia.
- * It uses current locale to determine if a character is printable or
- * not. It prints 73char wide lines like these:
-
-0000   e8 60 65 86 d7 86 6d 30  35 97 54 87 ff 67 05 9e  .`e...m05.T..g.. 
-0010   07 5a 98 c0 ea ad 50 d2  62 4f 7b ff e1 34 f8 fc  .Z....P.bO{..4.. 
-0020   c4 84 0a 6a 39 ad 3c 10  63 b2 22 c4 24 40 f4 b1  ...j9.<.c.".$@.. 
-
- * The lines look basically like Wireshark hex dump.
- * */
 void luis_hdump(char *cp, unsigned int length) {
-  static char asciify[257];          /* Stores character table           */
-  static bool asc_init=false;        /* Flag to generate table only once */
-  unsigned int i=0, hex=0, asc=0;    /* Array indexes                    */
-  int line_count=0;                  /* For byte count at line start     */
-  u8 current_char=0;                 /* Current character to print       */
-  #define LINE_LEN 70                /* Length of printed line           */
-  char line2print[LINE_LEN];         /* Stores current line              */
-  char printbyte[16];                /* For byte conversion              */
-  memset(line2print, ' ', LINE_LEN);
-  line2print[LINE_LEN-1]='\0';
-
-  /* On the first run, generate a list of nice printable characters
-   * (according to current locale) */
-  if( asc_init==false){
-      asc_init=true;
-      for(int i=0; i<256; i++){
-        if( isalnum(i) || isdigit(i) || ispunct(i) ){ asciify[i]=i; }
-        else{ asciify[i]='.'; }
-      }
+  char *string = hexdump((u8*) cp, length);
+  if (string) {
+    printf("%s", string);
+    free(string);
   }
-
-#define HEX_START 3
-#define ASC_START 53
-  for(i=0, hex=HEX_START, asc=ASC_START; i<length; i++){
-    current_char=cp[i];
-    if( hex==HEX_START+24) hex++; /* Insert space every 8 bytes */
-    /* First print the hex number */
-    sprintf(printbyte,"%02x", current_char);    
-    line2print[hex++]=printbyte[0];
-    line2print[hex++]=printbyte[1];
-    line2print[hex++]=' ';
-    /* Then print its ascii equivalent */
-    line2print[asc++]=asciify[ current_char ];
-    /* Every 16 buffer bytes, print the line. */
-    if( (((i+1)%16)==0 && i!=0) || i+1==length ){
-        printf("%04x%s\n", (16*line_count++), line2print);
-        hex=HEX_START;  asc=ASC_START;
-        memset(line2print, ' ', LINE_LEN);
-        line2print[LINE_LEN-1]='\0';
-    }
-  }
- return;
+  return;
 } /* End of luis_hdump() */
 
 

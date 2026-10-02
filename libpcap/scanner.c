@@ -3945,7 +3945,7 @@ YY_RULE_SETUP
 			  hints.ai_family = AF_INET6;
 			  hints.ai_flags = AI_NUMERICHOST;
 			  if (getaddrinfo(yytext, NULL, &hints, &res)) {
-				bpf_set_error(yyextra, "bogus IPv6 address %s", yytext);
+				bpf_set_error(yyextra, "invalid IPv6 address %s", yytext);
 				yylval->s = NULL;
 			  } else {
 				freeaddrinfo(res);
@@ -3961,7 +3961,7 @@ YY_RULE_SETUP
 case 127:
 YY_RULE_SETUP
 #line 417 "scanner.l"
-{ bpf_set_error(yyextra, "bogus ethernet address %s", yytext); yylval->s = NULL; return EID; }
+{ bpf_set_error(yyextra, "invalid ethernet address %s", yytext); yylval->s = NULL; return EID; }
 	YY_BREAK
 case 128:
 YY_RULE_SETUP

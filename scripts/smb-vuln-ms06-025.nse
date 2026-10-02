@@ -80,10 +80,10 @@ function check_ms06_025(host)
   --first we try with the "\router" pipe, then the "\srvsvc" pipe.
   local status, smb_result, smbstate, err_msg
   status, smb_result = msrpc.start_smb(host, msrpc.ROUTER_PATH)
-  if(status == false) then
+  if not status then
     err_msg = smb_result
     status, smb_result = msrpc.start_smb(host, msrpc.SRVSVC_PATH) --rras is also accessible across SRVSVC pipe
-    if(status == false) then
+    if not status then
       return false, NOTUP --if not accessible across both pipes then service is inactive
     end
   end
@@ -91,7 +91,7 @@ function check_ms06_025(host)
   --bind to RRAS service
   local bind_result
   status, bind_result = msrpc.bind(smbstate, msrpc.RASRPC_UUID, msrpc.RASRPC_VERSION, nil)
-  if(status == false) then
+  if not status then
     msrpc.stop_smb(smbstate)
     return false, UNKNOWN --if bind operation results with a false status we can't conclude anything.
   end
@@ -107,7 +107,7 @@ function check_ms06_025(host)
   status, sr_result = msrpc.RRAS_SubmitRequest(smbstate, req)
   msrpc.stop_smb(smbstate)
   --sanity check
-  if(status == false) then
+  if not status then
     stdnse.debug3("check_ms06_025: RRAS_SubmitRequest failed")
     if(sr_result == "NT_STATUS_PIPE_BROKEN") then
       return true, VULNERABLE
@@ -142,7 +142,7 @@ action = function(host)
 
   -- Check for ms06-025
   status, result = check_ms06_025(host)
-  if(status == false) then
+  if not status then
     if(result == NOTUP) then
       vuln_table.extra_info = "Ras RPC service is not enabled."
       vuln_table.state = vulns.STATE.NOT_VULN

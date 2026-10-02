@@ -123,7 +123,6 @@
 
 #undef SPRINTF_RETURNS_STRING
 
-#undef TIME_WITH_SYS_TIME
 #undef HAVE_SYS_TIME_H
 
 #undef recvfrom6_t
@@ -153,6 +152,7 @@ extern "C" int gethostname (char *, unsigned int);
 #undef LUA_INCLUDED
 #undef PCAP_INCLUDED
 #undef DNET_INCLUDED
+#undef HAVE_DNET_LIB_VERSION
 #undef PCRE_INCLUDED
 #undef LIBSSH2_INCLUDED
 #undef ZLIB_INCLUDED
@@ -177,5 +177,8 @@ extern "C" int gethostname (char *, unsigned int);
 #undef HAVE_LUA_5_4_LUA_H
 #undef HAVE_LUA_H
 #undef HAVE_LUA_LUA_H
+
+/* Fuzzing harness enabled */
+#undef ENABLE_FUZZING
 
 #endif /* CONFIG_H */

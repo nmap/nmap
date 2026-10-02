@@ -940,6 +940,8 @@ static void constructor (LexState *ls, expdesc *t) {
     if (ls->t.token == '}') break;
     closelistfield(fs, &cc);
     field(ls, &cc);
+    checklimit(fs, cc.tostore + cc.na + cc.nh, INT_MAX/2,
+               "items in a constructor");
   } while (testnext(ls, ',') || testnext(ls, ';'));
   check_match(ls, '}', '{', line);
   lastlistfield(fs, &cc);

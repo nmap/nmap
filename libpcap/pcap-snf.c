@@ -185,12 +185,22 @@ snf_read(pcap_t *p, int cnt, pcap_handler callback, u_char *user)
 			}
 		}
 
+		/*
+		 * In this libpcap module the two length arguments of
+		 * pcapint_filter() (the wire length and the captured length)
+		 * are always equal because SNF captures full packets.
+		 *
+		 * The wire and the capture length of this packet is
+		 * req.length, the snapshot length configured for this pcap
+		 * handle is p->snapshot.
+		 */
 		caplen = req.length;
 		if (caplen > p->snapshot)
 			caplen = p->snapshot;
 
 		if ((p->fcode.bf_insns == NULL) ||
-		     pcapint_filter(p->fcode.bf_insns, req.pkt_addr, req.length, caplen)) {
+		     pcapint_filter(p->fcode.bf_insns, p->fcode.bf_len,
+		                    req.pkt_addr, req.length, req.length)) {
 			hdr.ts = snf_timestamp_to_timeval(req.timestamp, p->opt.tstamp_precision);
 			hdr.caplen = caplen;
 			hdr.len = req.length;

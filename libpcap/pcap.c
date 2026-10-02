@@ -4162,10 +4162,15 @@ pcapint_breakloop_common(pcap_t *p)
 void
 pcapint_cleanup_live_common(pcap_t *p)
 {
-	if (p->opt.device != NULL) {
-		free(p->opt.device);
-		p->opt.device = NULL;
-	}
+	/*
+	 * This must not free p->opt.device; that must only be done
+	 * in pcap_close(), as this might be cleaning up after a
+	 * failed pcap_activate(), in which case p->opt.device must
+	 * still be valid, in case further actions are done on the
+	 * not-yet-activated pcap_t.
+	 *
+	 * See GitHub issue #1615.
+	 */
 	if (p->buffer != NULL) {
 		free(p->buffer);
 		p->buffer = NULL;
@@ -4245,6 +4250,17 @@ void
 pcap_close(pcap_t *p)
 {
 	p->cleanup_op(p);
+
+	/*
+	 * Free information set by pcap_create() *after* calling
+	 * the module's cleanup routine; that routine might have
+	 * to use p->opt.device (see commit
+	 * e333a6044f7d2d3225a6a22205b6b7c1e389945f).
+	 */
+	if (p->opt.device != NULL) {
+		free(p->opt.device);
+		p->opt.device = NULL;
+	}
 	free(p);
 }
 
@@ -4349,7 +4365,7 @@ pcap_offline_filter(const struct bpf_program *fp, const struct pcap_pkthdr *h,
 	const struct bpf_insn *fcode = fp->bf_insns;
 
 	if (fcode != NULL)
-		return (pcapint_filter(fcode, pkt, h->len, h->caplen));
+		return (pcapint_filter(fcode, fp->bf_len, pkt, h->len, h->caplen));
 	else
 		return (0);
 }

@@ -359,3 +359,50 @@ u32 get_random_unique_u32() {
 
   return output;
 }
+
+/* The same, but for 16-bit numbers */
+u16 get_random_unique_u16() {
+  static u16 state, tweak1, tweak2, tweak3;
+  static int state_init = 0;
+  u16 output;
+
+  /* Initialize if we need to */
+  if (!state_init) {
+    get_random_bytes(&state, sizeof(state));
+    get_random_bytes(&tweak1, sizeof(tweak1));
+    get_random_bytes(&tweak2, sizeof(tweak2));
+    get_random_bytes(&tweak3, sizeof(tweak3));
+
+    state_init = 1;
+  }
+
+  /* https://oeis.org/A383940
+   */
+  state = (((state * 25173) & 0xFFFF) + 13849) & 0xFFFF;
+
+  output = state;
+
+  /* Then rotate and XOR */
+  output = ((output << 7) | (output >> (16 - 7)));
+  output = output ^ tweak1; /* This is the round key */
+
+  /* End round 1, start round 2 */
+
+  /* Then put it through an affine transform  */
+  output = (((output * 4321) & 0xFFFF) + 12345) & 0xFFFF;
+
+  /* Then rotate and XOR some more */
+  output = ((output << 11) | (output >> (16 - 11)));
+  output = output ^ tweak2;
+
+  /* End round 2, start round 3 */
+
+  /* Then put it through another affine transform (Quick C/C++ constants) */
+  output = (((output * 31337) & 0xFFFF) + 1997) & 0xFFFF;
+
+  /* Then rotate and XOR some more */
+  output = ((output << 5) | (output >> (16 - 5)));
+  output = output ^ tweak3;
+
+  return output;
+}

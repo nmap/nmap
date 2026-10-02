@@ -210,7 +210,7 @@ sub test {
 	}
 }
 
-my ($s_pid, $s_out, $s_in, $c_pid, $c_out, $c_in, $p_pid, $p_out, $p_in);
+my ($s_pid, $s_out, $s_in, $s_err, $c_pid, $c_out, $c_in, $c_err, $p_pid, $p_out, $p_in, $p_err);
 
 # Handle a common test situation. Start up a server and client with the given
 # arguments and call test on a code block. Within the code block the server's
@@ -223,12 +223,12 @@ sub server_client_test {
 	my $server_args = shift;
 	my $client_args = shift;
 	my $code = shift;
-	($s_pid, $s_out, $s_in) = ncat_server(@$server_args);
+	($s_pid, $s_out, $s_in, $s_err) = ncat_server(@$server_args);
   if (waitpid($s_pid, WNOHANG) != 0) {
     test($desc, sub {die "Server not running\n"});
     return;
   }
-	($c_pid, $c_out, $c_in) = ncat_client(@$client_args);
+	($c_pid, $c_out, $c_in, $c_err) = ncat_client(@$client_args);
 	test($desc, $code);
 	kill_children;
 }
@@ -297,9 +297,9 @@ sub proxy_test {
 	my $server_args = shift;
 	my $client_args = shift;
 	my $code = shift;
-	($p_pid, $p_out, $p_in) = ncat(host_for_args(@$proxy_args), ($PROXY_PORT, "-l", "--proxy-type", "http"), @$proxy_args);
-	($s_pid, $s_out, $s_in) = ncat(host_for_args(@$server_args), ($PORT, "-l"), @$server_args);
-	($c_pid, $c_out, $c_in) = ncat(host_for_args(@$client_args), ($PORT, "--proxy", "$HOST:$PROXY_PORT"), @$client_args);
+	($p_pid, $p_out, $p_in, $p_err) = ncat(host_for_args(@$proxy_args), ($PROXY_PORT, "-l", "--proxy-type", "http"), @$proxy_args);
+	($s_pid, $s_out, $s_in, $s_err) = ncat(host_for_args(@$server_args), ($PORT, "-l"), @$server_args);
+	($c_pid, $c_out, $c_in, $c_err) = ncat(host_for_args(@$client_args), ($PORT, "--proxy", "$HOST:$PROXY_PORT"), @$client_args);
 	test($desc, $code);
 	kill_children;
 }
@@ -312,9 +312,9 @@ sub proxy_test_raw {
 	my $server_args = shift;
 	my $client_args = shift;
 	my $code = shift;
-	($p_pid, $p_out, $p_in) = ncat(host_for_args(@$proxy_args), ($PROXY_PORT, "-l", "--proxy-type", "http"), @$proxy_args);
-	($s_pid, $s_out, $s_in) = ncat(host_for_args(@$server_args), ($PORT, "-l"), @$server_args);
-	($c_pid, $c_out, $c_in) = ncat(host_for_args(@$client_args), ($PROXY_PORT), @$client_args);
+	($p_pid, $p_out, $p_in, $p_err) = ncat(host_for_args(@$proxy_args), ($PROXY_PORT, "-l", "--proxy-type", "http"), @$proxy_args);
+	($s_pid, $s_out, $s_in, $s_err) = ncat(host_for_args(@$server_args), ($PORT, "-l"), @$server_args);
+	($c_pid, $c_out, $c_in, $c_err) = ncat(host_for_args(@$client_args), ($PROXY_PORT), @$client_args);
 	test($desc, $code);
 	kill_children;
 }

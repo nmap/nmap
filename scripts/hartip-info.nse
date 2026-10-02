@@ -123,7 +123,7 @@ action = function(host,port)
   try(socket:send(sessInitQuery))
 
   local rcvstatus, response = socket:receive()
-  if(rcvstatus == false) then
+  if not rcvstatus then
     stdnse.debug(1, "#- session initiation with HART device - FAIL.")
     return nil
   end
@@ -137,7 +137,7 @@ action = function(host,port)
   try(socket:send(cmd0Req))
 
   local rcvstatus, response = socket:receive()
-  if(rcvstatus == false) then
+  if not rcvstatus then
     stdnse.debug(1, "#- command 0 Read Unique Identifier request - FAIL.")
     return nil
   end
@@ -220,7 +220,7 @@ action = function(host,port)
   try(socket:send(cmd20Req))
 
   local rcvstatus, response = socket:receive()
-  if(rcvstatus == false) then
+  if not rcvstatus then
     stdnse.debug(1, "#- command 20 Read Long Tag request - FAIL.")
     output['Device Information'] = deviceInfo
     return output
@@ -255,7 +255,7 @@ action = function(host,port)
   try(socket:send(cmd84Req))
 
   local rcvstatus, response = socket:receive()
-  if(rcvstatus == false) then
+  if not rcvstatus then
     stdnse.debug(1, "#- command 84 Read Sub-Device Identity Summary request - FAIL.")
     output['Device Information'] = deviceInfo
     return output

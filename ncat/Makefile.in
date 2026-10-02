@@ -64,6 +64,10 @@ NOLUA = @NOLUA@
 LIBLUADIR = @LIBLUADIR@
 LUA_CFLAGS = @LUA_CFLAGS@
 
+ifeq (@ENABLE_FUZZING@,yes)
+BUILDFUZZ=build-fuzz
+CLEANFUZZ=clean-fuzz
+endif
 
 CPPFLAGS += $(DEFS) $(INCLS)
 
@@ -108,7 +112,7 @@ ifneq ($(HAVE_OPENSSL),)
 TEST_PROGS += test/test-wildcard
 endif
 
-all: $(TARGET)
+all: $(TARGET) $(BUILDFUZZ)
 
 $(LIBLUADIR)/liblua.a: @LUA_BUILD@
 
@@ -177,10 +181,13 @@ uninstall:
 	$(RM) -f $(DESTDIR)$(mandir)/man1/$(TARGET).1
 	$(RM) -rf $(DESTDIR)$(pkgdatadir)/
 
-clean-ncat:
-	$(RM) -f *.o test/*.o $(TARGET) $(TEST_PROGS)
+clean-tests:
+	$(RM) -f test/*.o $(TEST_PROGS)
 
-clean: clean-ncat @LUA_CLEAN@
+clean-ncat:
+	$(RM) -f *.o $(TARGET)
+
+clean: clean-ncat clean-tests @LUA_CLEAN@
 
 clean-lua:
 	-cd $(LIBLUADIR) && $(MAKE) clean
@@ -198,6 +205,15 @@ endif
 
 check: $(TARGET) $(TEST_PROGS)
 	cd test && ($(addsuffix &&,$(TESTS)) echo "All tests passed.")
+
+FUZZ_SRCS := $(wildcard fuzz/fuzz_*.c)
+FUZZERS := $(FUZZ_SRCS:.c=)
+
+build-fuzz: $(FUZZERS)
+clean-fuzz:
+	rm -f $(FUZZERS)
+fuzz/fuzz_%: fuzz/fuzz_%.o fuzz/common.o $(filter-out %main.o, $(OBJS))
+	$(CC) -o $@ $(LDFLAGS) -fsanitize=fuzzer $^ $(NSOCKLIB) $(NBASELIB) $(OPENSSL_LIBS) $(PCAP_LIBS) $(LUA_LIBS) $(LIBS)
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.

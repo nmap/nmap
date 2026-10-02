@@ -323,8 +323,7 @@ Abbreviation for:
 True if the packet is an IPv6 packet of protocol type \fIprotocol\fP.
 (See `\fBip proto\fP' above for the meaning of \fIprotocol\fR.)
 Note that the IPv6 variant of ICMP uses a different protocol number, named
-.B \%ipv6-icmp
-in AIX, FreeBSD, illumos, Linux, macOS, NetBSD, OpenBSD, Solaris and Windows.
+.BR \%ipv6-icmp .
 Note that this primitive does not chase the protocol header chain.
 .IP "\fBicmp6\fR"
 Abbreviation for:

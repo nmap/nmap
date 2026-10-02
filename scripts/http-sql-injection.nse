@@ -61,7 +61,7 @@ categories = {"intrusive", "vuln"}
 --
 
 
-portrule = shortport.port_or_service({80, 443}, {"http","https"})
+portrule = shortport.http
 
 --[[
 Pattern match response from a submitted injection query to see

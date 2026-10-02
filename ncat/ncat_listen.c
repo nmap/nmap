@@ -146,7 +146,7 @@ static char *chat_filter(char *buf, size_t size, int fd, int *nwritten);
    (synchronously) only in the main program. get_conn_count loops while conn_dec
    is being modified. */
 static unsigned int conn_inc = 0;
-static volatile unsigned int conn_dec = 0;
+static volatile sig_atomic_t conn_dec = 0;
 static volatile sig_atomic_t conn_dec_changed;
 
 static void decrease_conn_count(void)
@@ -171,11 +171,116 @@ static int get_conn_count(void)
 }
 
 #ifndef WIN32
+/* PIDs of the children we fork to serve connections when both -k and cmdexec
+   are in effect. A termination signal has to be forwarded to them one by one.
+   It must not be sent to our process group instead (kill(0, ...)): Ncat
+   inherits the process group of whatever launched it, so signalling the group
+   also reaches the caller's shell, script, or test harness. */
+static volatile sig_atomic_t *child_pids = NULL;
+static unsigned int child_pids_size = 0;
+
+static void child_pids_init(unsigned int max_children)
+{
+    child_pids = (volatile sig_atomic_t *) safe_malloc(max_children * sizeof(*child_pids));
+    memset((void *) child_pids, 0, max_children * sizeof(*child_pids));
+    child_pids_size = max_children;
+}
+
+/* Record a child so that a termination signal can be forwarded to it. Its slot
+   is released by forget_child() once the child has been reaped, so that a
+   later child can take it over. */
+static void remember_child(int pid)
+{
+    unsigned int i;
+
+    for (i = 0; i < child_pids_size; i++) {
+        if (child_pids[i] == 0) {
+            child_pids[i] = pid;
+            return;
+        }
+    }
+    /* Unreachable while the connection limit, which bounds the number of
+       children that can exist at once, is honored. */
+    logdebug("No room to track child %d; it will not be signalled\n", pid);
+}
+
+/* Release the slot of a child that has been reaped. */
+static void forget_child(int pid)
+{
+    unsigned int i;
+
+    for (i = 0; i < child_pids_size; i++) {
+        if (child_pids[i] == pid) {
+            child_pids[i] = 0;
+            return;
+        }
+    }
+}
+
 static void sigchld_handler(int signum)
 {
-    while (waitpid(-1, NULL, WNOHANG) > 0)
+    int saved_errno = errno;
+    int pid;
+
+    while ((pid = waitpid(-1, NULL, WNOHANG)) > 0) {
+        forget_child(pid);
         decrease_conn_count();
+    }
+    errno = saved_errno;
 }
+
+/* Propagate the trapped signal to the children we started, then exit. */
+static void signal_propagate_exit(int signum)
+{
+    unsigned int i;
+    int pid;
+
+    for (i = 0; i < child_pids_size; i++) {
+        pid = child_pids[i];
+        /* waitpid() confirms that the PID still belongs to one of our
+           children: it returns 0 for a child that is still running, and -1
+           once the child has been reaped. A PID that has been reaped and
+           recycled for an unrelated process is not our child anymore, and
+           waitpid() rejects it, so it is left alone. SIGCHLD is blocked in
+           this handler to keep the answer stable until we have used it. */
+        if (pid > 0 && waitpid(pid, NULL, WNOHANG) == 0)
+            kill(pid, signum);
+    }
+    /* Exit, since we only use this for INT/TERM/HUP */
+    _exit(128 + signum);
+}
+
+static void install_signal_handlers(void)
+{
+    struct sigaction sa;
+    memset(&sa, 0, sizeof(sa));
+    sigemptyset(&sa.sa_mask);
+
+    /* Ignore the SIGPIPE that occurs when a client disconnects suddenly and we
+       send data to it before noticing. */
+    sa.sa_handler = SIG_IGN;
+    sigaction(SIGPIPE, &sa, NULL);
+
+    /* Reap on SIGCHLD */
+    sa.sa_handler = sigchld_handler;
+    sa.sa_flags = SA_RESTART;
+    sigaction(SIGCHLD, &sa, NULL);
+
+    /* Nab any process-terminating signals and propagate them to our children.
+       SIGCHLD is blocked while the handler runs so that a child cannot be
+       reaped, and its PID recycled, in the middle of the propagation. */
+    sa.sa_handler = signal_propagate_exit;
+    sa.sa_flags = SA_RESTART | SA_RESETHAND;
+    sigaddset(&sa.sa_mask, SIGCHLD);
+    sigaction(SIGINT, &sa, NULL);
+    sigaction(SIGTERM, &sa, NULL);
+    sigaction(SIGHUP, &sa, NULL);
+    sigaction(SIGQUIT, &sa, NULL);
+}
+#else
+/* There are no POSIX signals to propagate on Windows. */
+static void child_pids_init(unsigned int max_children) { (void) max_children; }
+static void remember_child(int pid) { (void) pid; }
 #endif
 
 int new_listen_socket(int type, int proto, const union sockaddr_u *addr, fd_set *listen_fds)
@@ -238,14 +343,14 @@ int ncat_listen()
     zmem(&client_fdlist, sizeof(client_fdlist));
     zmem(&broadcast_fdlist, sizeof(broadcast_fdlist));
 
+    /* A child is forked for a connection only when -k and cmdexec are both in
+       effect, and the connection limit bounds how many of them can be alive at
+       once. */
+    child_pids_init(o.conn_limit);
 #ifdef WIN32
     set_pseudo_sigchld_handler(decrease_conn_count);
 #else
-    /* Reap on SIGCHLD */
-    Signal(SIGCHLD, sigchld_handler);
-    /* Ignore the SIGPIPE that occurs when a client disconnects suddenly and we
-       send data to it before noticing. */
-    Signal(SIGPIPE, SIG_IGN);
+    install_signal_handlers();
 #endif
 
 #ifdef HAVE_OPENSSL
@@ -340,6 +445,13 @@ int ncat_listen()
 
         fds_ready = fselect(client_fdlist.fdmax + 1, &readfds, &writefds, NULL, tvp);
 
+        if (fds_ready < 0) {
+          int e = socket_errno();
+          if (e != EINTR) {
+            bye("fselect error %d: %s", e, socket_strerror(e));
+          }
+        }
+
         if (o.debug > 1)
             logdebug("select returned %d fds ready\n", fds_ready);
 
@@ -355,6 +467,16 @@ restart_fd_loop:
             int cfd = fdi->fd;
             /* If we saw an error, close this fd */
             if (fdi->lasterr != 0) {
+                if (checked_fd_isset(cfd, &listen_fds)) {
+                    /* We may want to reopen this listener instead of quitting here. */
+                    bye("Listening socket error %d: %s",
+                            fdi->lasterr, socket_strerror(fdi->lasterr));
+                }
+                else if (cfd == STDIN_FILENO) {
+                    /* We may want to close STDIN and continue instead of quitting here. */
+                    bye("STDIN error %d: %s",
+                            fdi->lasterr, socket_strerror(fdi->lasterr));
+                }
                 close_fd(fdi, 0);
                 goto restart_fd_loop;
             }
@@ -439,6 +561,20 @@ restart_fd_loop:
             }
         }
     }
+
+#ifndef WIN32
+    /* Reap remaining children */
+    Signal(SIGCHLD, SIG_DFL);
+    while (waitpid(-1, NULL, 0) < 0) {
+        if (errno == ECHILD) {
+            break;
+        }
+        else if (errno == EINTR) {
+            continue;
+        }
+        die("waitpid");
+    }
+#endif
 
     return (breakloop == BREAKLOOP_ERROR ? 1 : 0);
 }
@@ -595,8 +731,11 @@ static void post_handle_connection(struct fdinfo *sinfo)
         rm_fd(&client_fdlist, sinfo->fd);
       }
 #endif
-        if (o.keepopen)
-            netrun(sinfo, o.cmdexec);
+        if (o.keepopen) {
+            int pid = netrun(sinfo, o.cmdexec);
+            if (pid > 0)
+                remember_child(pid);
+        }
         else
             netexec(sinfo, o.cmdexec);
     } else {
@@ -627,6 +766,8 @@ static void post_handle_connection(struct fdinfo *sinfo)
 static void close_fd(struct fdinfo *fdn, int eof) {
     /* rm_fd invalidates fdn, so save what we need here. */
     int fd = fdn->fd;
+    /* This should never be used to close stdin or a listening socket. */
+    ncat_assert(fd != STDIN_FILENO);
     if (o.debug)
         logdebug("Closing connection.\n");
 #ifdef HAVE_OPENSSL
@@ -650,6 +791,19 @@ static void close_fd(struct fdinfo *fdn, int eof) {
         chat_announce_disconnect(fd);
 }
 
+static void close_stdin(int rc) {
+    if (rc < 0 && o.verbose)
+        READ_STDIN_ERR();
+    if (rc == 0 && o.debug)
+        logdebug("EOF on stdin\n");
+
+    /* Don't close the file because that allows a socket to be fd 0. */
+    checked_fd_clr(STDIN_FILENO, &master_readfds);
+    /* Buf mark that we've seen EOF so it doesn't get re-added to the
+       select list. */
+    stdin_eof = 1;
+}
+
 /* Read from stdin and broadcast to all client sockets. Return the number of
    bytes read, or -1 on error. */
 int read_stdin(struct timeval *qtv)
@@ -660,21 +814,13 @@ int read_stdin(struct timeval *qtv)
 
     nbytes = READ_STDIN(buf, sizeof(buf));
     if (nbytes <= 0) {
-        if (nbytes < 0 && o.verbose)
-            READ_STDIN_ERR();
-        if (nbytes == 0 && o.debug)
-            logdebug("EOF on stdin\n");
+        close_stdin(nbytes);
 
         if (o.quitafter > 0) {
             struct timeval when;
             gettimeofday(&when, 0);
             TIMEVAL_MSEC_ADD(*qtv, when, o.quitafter);
         }
-        /* Don't close the file because that allows a socket to be fd 0. */
-        checked_fd_clr(STDIN_FILENO, &master_readfds);
-        /* Buf mark that we've seen EOF so it doesn't get re-added to the
-           select list. */
-        stdin_eof = 1;
 
         return nbytes;
     }
@@ -758,18 +904,7 @@ static void read_and_broadcast(int recv_fd)
         if (recv_fd == STDIN_FILENO) {
             n = READ_STDIN(buf, sizeof(buf));
             if (n <= 0) {
-                if (n < 0 && o.verbose)
-                    READ_STDIN_ERR();
-                if (n == 0 && o.debug)
-                    logdebug("EOF on stdin\n");
-
-                /* Don't close the file because that allows a socket to be
-                   fd 0. */
-                checked_fd_clr(recv_fd, &master_readfds);
-                /* But mark that we've seen EOF so it doesn't get re-added to
-                   the select list. */
-                stdin_eof = 1;
-
+                close_stdin(n);
                 return;
             }
 

@@ -79,8 +79,10 @@ main() {
   $EXEC_MAIN --ssl && setup_echo_tcpssl $PORT_TCPSSL
 
   $TRACER $EXEC_MAIN
+  EXITCODE=$?
 
   cleanup_all $pid_udp $pid_tcp $pid_tcpssl
+  exit $EXITCODE
 }
 
 main

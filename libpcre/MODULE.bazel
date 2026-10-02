@@ -1,6 +1,6 @@
 module(
     name = "pcre2",
-    version = "10.47",
+    version = "10.48",
     compatibility_level = 1,
 )
 

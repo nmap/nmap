@@ -145,9 +145,10 @@ bool TargetGroup::load_expressions(HostGroupState *hs, int af) {
   return !netblocks.empty();
 }
 
-void TargetGroup::generate_random_ips(unsigned long num_random) {
+void TargetGroup::generate_random_ips(unsigned long num_random, const struct addrset *exclude_group) {
   NetBlockRandomIPv4 *nbrand = new NetBlockRandomIPv4();
   nbrand->set_num_random(num_random);
+  nbrand->avoid_addrset(exclude_group);
   netblocks.push_front(nbrand);
 }
 

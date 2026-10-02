@@ -154,7 +154,7 @@ end
 function record_read(buffer, i)
   local i, h = read_header(buffer, i)
 
-  if #buffer - i + 1 < h.record_length or not h then
+  if not h or #buffer - i + 1 < h.record_length then
     return i, nil
   end
 

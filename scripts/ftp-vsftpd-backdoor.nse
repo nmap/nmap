@@ -1,6 +1,5 @@
 local ftp = require "ftp"
 local nmap = require "nmap"
-local shortport = require "shortport"
 local stdnse = require "stdnse"
 local string = require "string"
 local table = require "table"
@@ -68,7 +67,7 @@ portrule = function (host, port)
     return false
   end
 
-  return shortport.port_or_service(21, "ftp")(host, port)
+  return ftp.portrule(host, port)
 end
 
 local function finish_ftp(socket, status, message)

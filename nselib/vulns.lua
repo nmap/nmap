@@ -634,7 +634,7 @@ end
 local filter_vulns = function(filters_db, vuln_table)
   local FIDS = {}
   for fid, callback in ipairs(filters_db) do
-    if callback(vuln_table) == true then
+    if callback(vuln_table) then
       FIDS[#FIDS + 1] = fid
     end
   end

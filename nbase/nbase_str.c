@@ -114,11 +114,24 @@ char *strcasestr(const char *haystack, const char *pneedle) {
 #endif
 
 int Strncpy(char *dest, const char *src, size_t n) {
-  strncpy(dest, src, n);
-  if (dest[n - 1] == '\0')
+  /* If they asked for 0 bytes, we successfully give them that. */
+  if (n == 0)
     return 0;
-  dest[n - 1] = '\0';
-  return -1;
+
+  /* Copy up to (n - 1) bytes */
+  while (--n != 0) {
+    if ('\0' == (*dest++ = *src++))
+      break;
+  }
+  /* If we didn't see '\0' yet... */
+  if (n == 0) {
+    /* Ensure null termination */
+    *dest = '\0';
+    /* If src is longer, indicate truncation */
+    if (*src != '\0')
+      return -1;
+  }
+  return 0;
 }
 
 int Vsnprintf(char *s, size_t n, const char *fmt, va_list ap) {

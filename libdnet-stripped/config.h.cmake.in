@@ -160,9 +160,6 @@
 /* Define to 1 if you have the <string.h> header file. */
 #cmakedefine HAVE_STRING_H
 
-/* Define to 1 if you have the `strlcat' function. */
-#cmakedefine HAVE_STRLCAT
-
 /* Define to 1 if you have the `strlcpy' function. */
 #cmakedefine HAVE_STRLCPY
 
@@ -274,6 +271,7 @@
 
 #ifdef HAVE_WINSOCK2_H
 # include <winsock2.h>
+# include <ws2tcpip.h> /* for sockaddr_in6 */
 # include <windows.h>
 #endif
 
@@ -290,10 +288,6 @@
 
 #ifndef HAVE_INET_PTON
 int inet_pton(int, const char *, void *);
-#endif
-
-#ifndef HAVE_STRLCAT
-int strlcat(char *, const char *, int);
 #endif
 
 #ifndef HAVE_STRLCPY

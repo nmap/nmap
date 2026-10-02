@@ -365,7 +365,11 @@ Telnet = {
   end,
 
   DEC_BUF_ADDR = function ( self, addr )
-    return ((addr + 1) % (self.COLS * self.ROWS))
+    return ((addr - 1) % (self.COLS * self.ROWS))
+  end,
+
+  BA_EQU = function ( self, a, b )
+    return (a - b) % (self.COLS * self.ROWS) == 0
   end,
 
   --- Initiates tn3270 connection
@@ -644,15 +648,14 @@ Telnet = {
         stdnse.debug(3,"[TN3270] Received TN3270 REJECT.")
         return false
       elseif self.sb_options:sub(3,3) == self.tncommands.IS then
-        local tn_loc = 1
-        while self.sb_options:sub(4+tn_loc,4+tn_loc) ~= self.commands.SE and
-        self.sb_options:sub(4+tn_loc,4+tn_loc) ~= self.tncommands.CONNECT do
+        local tn_loc = 0
+        local cmd
+        repeat
           tn_loc = tn_loc + 1
-        end
-        --XXX Unused variable??? Should this be tn_loc?
-        -- local sn_loc = 1
-        if self.sb_options:sub(4+tn_loc,4+tn_loc) == self.tncommands.CONNECT then
-          self.connected_lu = self.sb_options:sub(5+tn_loc, #self.sb_options)
+          cmd = self.sb_options:sub(4+tn_loc, 4+tn_loc)
+        until cmd == "" or cmd == self.commands.SE or cmd == self.tncommands.CONNECT
+        if cmd == self.tncommands.CONNECT then
+          self.connected_lu = self.sb_options:sub(5+tn_loc, -1)
           self.connected_dtype = self.sb_options:sub(4,3+tn_loc)
           stdnse.debug(3,"[TN3270] Current LU: %s", self.connected_lu)
         end
@@ -925,6 +928,7 @@ Telnet = {
         -- There's all kinds of weird GE stuff we could do, but not now. Maybe in future vers
         stdnse.debug(4,"Repeat to Address (RA) 0x3C")
         local ra_baddr = self.DECODE_BADDR(data:byte(i+1), data:byte(i+2))
+        ra_baddr = self:INC_BUF_ADDR(ra_baddr - 1)
         stdnse.debug(4,"Repeat Character: %s", stdnse.tohex(data:sub(i+1,i+2)))
 
         stdnse.debug(4,"Repeat to this Address: %s", ra_baddr)
@@ -934,7 +938,7 @@ Telnet = {
         i = i + 3
         local char_to_repeat = data:sub(i,i)
         stdnse.debug(4,"Repeat Character: %s", stdnse.tohex(char_to_repeat))
-        while (self.buffer_address ~= ra_baddr) do
+        while not self:BA_EQU(self.buffer_address, ra_baddr) do
           self:write_char(char_to_repeat)
           self.buffer_address = self:INC_BUF_ADDR(self.buffer_address)
         end
@@ -944,7 +948,7 @@ Telnet = {
         i = i + 3
         stdnse.debug(4,"EAU to this Address: %s", eua_baddr)
         stdnse.debug(4,"Current Address: %s", self.buffer_address)
-        while (self.buffer_address ~= eua_baddr) do
+        while not self:BA_EQU(self.buffer_address, eua_baddr) do
           -- do nothing for now. this feature isn't supported/required at the moment
           self.buffer_address = self:INC_BUF_ADDR(self.buffer_address)
           --stdnse.debug(3,"Current Address: %s", self.buffer_address)

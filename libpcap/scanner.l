@@ -402,7 +402,7 @@ ${B}			{ yylval->s = sdup(yyextra, yytext); return AID; }
 			  hints.ai_family = AF_INET6;
 			  hints.ai_flags = AI_NUMERICHOST;
 			  if (getaddrinfo(yytext, NULL, &hints, &res)) {
-				bpf_set_error(yyextra, "bogus IPv6 address %s", yytext);
+				bpf_set_error(yyextra, "invalid IPv6 address %s", yytext);
 				yylval->s = NULL;
 			  } else {
 				freeaddrinfo(res);
@@ -414,7 +414,7 @@ ${B}			{ yylval->s = sdup(yyextra, yytext); return AID; }
 #endif /*INET6*/
 			  return HID6;
 			}
-{B}:+({B}:+)+		{ bpf_set_error(yyextra, "bogus ethernet address %s", yytext); yylval->s = NULL; return EID; }
+{B}:+({B}:+)+		{ bpf_set_error(yyextra, "invalid ethernet address %s", yytext); yylval->s = NULL; return EID; }
 icmptype		{ yylval->h = 0; return NUM; }
 icmpcode		{ yylval->h = 1; return NUM; }
 icmp-echoreply		{ yylval->h = 0; return NUM; }

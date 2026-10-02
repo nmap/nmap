@@ -257,8 +257,8 @@ netfilter_read_linux(pcap_t *handle, int max_packets, pcap_handler callback, u_c
 
 				gettimeofday(&pkth.ts, NULL);
 				if (handle->fcode.bf_insns == NULL ||
-						pcapint_filter(handle->fcode.bf_insns, payload, pkth.len, pkth.caplen))
-				{
+				    pcapint_filter(handle->fcode.bf_insns, handle->fcode.bf_len,
+				                   payload, pkth.len, pkth.caplen)) {
 					handlep->packets_read++;
 					callback(user, &pkth, payload);
 					count++;

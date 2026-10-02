@@ -146,10 +146,6 @@ endif()
 # setting CMAKE_MODULE_PATH on the command line.
 list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 
-# external packages
-find_package(BZip2)
-find_package(ZLIB)
-
 # Configuration checks
 
 include(CheckCSourceCompiles)
@@ -176,19 +172,25 @@ check_include_file(windows.h HAVE_WINDOWS_H)
 pcre2_use_system_extensions()
 
 cmake_push_check_state(RESET)
-# Somewhat awkward code to propagate the _GNU_SOURCE definition (added to
-# COMPILE_DEFINITIONS by pcre2_use_system_extensions()).
+# Propagate the _GNU_SOURCE definition (added to COMPILE_DEFINITIONS by
+# pcre2_use_system_extensions()) so that these check_symbol_exists() calls
+# can find symbols only exposed with _GNU_SOURCE.
+# We only pass through known plain-text definitions (like _GNU_SOURCE) and
+# skip anything else (e.g. generator expressions inherited from a parent
+# project), because try_compile() cannot handle generator expressions.
 get_directory_property(_pcre2_compile_definitions COMPILE_DEFINITIONS)
 if(DEFINED _pcre2_compile_definitions)
   set(CMAKE_REQUIRED_DEFINITIONS "")
-  foreach(_def IN LISTS _pcre2_compile_definitions)
-    list(APPEND CMAKE_REQUIRED_DEFINITIONS "-D${_def}")
-  endforeach()
+  list(FIND _pcre2_compile_definitions "_GNU_SOURCE" _idx)
+  if(_idx GREATER -1)
+    list(APPEND CMAKE_REQUIRED_DEFINITIONS "-D_GNU_SOURCE")
+  endif()
 endif()
 
 check_symbol_exists(mkostemp stdlib.h HAVE_MKOSTEMP) # glibc 2.7
 check_symbol_exists(memfd_create "sys/mman.h" HAVE_MEMFD_CREATE) # glibc 2.27
 check_symbol_exists(secure_getenv "stdlib.h" HAVE_SECURE_GETENV) # glibc 2.17
+check_symbol_exists(setrlimit "sys/resource.h" HAVE_SETRLIMIT)
 cmake_pop_check_state()
 
 check_c_source_compiles(
@@ -267,7 +269,7 @@ check_c_source_compiles(
 
 # Detect support for linker scripts.
 
-pcre2_check_vscript(HAVE_VSCRIPT VSCRIPT_FLAG)
+pcre2_check_vscript(HAVE_VSCRIPT VSCRIPT_FLAG HAVE_VSCRIPT_NO_STAR)
 
 # Check whether Intel CET is enabled, and if so, adjust compiler flags. This
 # code was written by PH, trying to imitate the logic from the autotools
@@ -364,20 +366,6 @@ set(
   "Default limit on internal depth of search. See MATCH_LIMIT_DEPTH in config.h.in for details."
 )
 
-set(
-  PCRE2GREP_BUFSIZE
-  "20480"
-  CACHE STRING
-  "Buffer starting size parameter for pcre2grep. See PCRE2GREP_BUFSIZE in config.h.in for details."
-)
-
-set(
-  PCRE2GREP_MAX_BUFSIZE
-  "1048576"
-  CACHE STRING
-  "Buffer maximum size parameter for pcre2grep. See PCRE2GREP_MAX_BUFSIZE in config.h.in for details."
-)
-
 set(PCRE2_NEWLINE "LF" CACHE STRING "What to recognize as a newline (one of CR, LF, CRLF, ANY, ANYCRLF, NUL).")
 
 set(PCRE2_HEAP_MATCH_RECURSE OFF CACHE BOOL "Obsolete option: do not use")
@@ -390,14 +378,6 @@ if(${CMAKE_SYSTEM_NAME} MATCHES Linux|NetBSD)
 else()
   set(PCRE2_SUPPORT_JIT_SEALLOC IGNORE)
 endif()
-
-set(PCRE2GREP_SUPPORT_JIT ON CACHE BOOL "Enable use of Just-in-time compiling in pcre2grep.")
-
-set(PCRE2GREP_SUPPORT_CALLOUT ON CACHE BOOL "Enable callout string support in pcre2grep.")
-
-set(PCRE2GREP_SUPPORT_CALLOUT_FORK ON CACHE BOOL "Enable callout string fork support in pcre2grep.")
-
-set(PCRE2_SUPPORT_UNICODE ON CACHE BOOL "Enable support for Unicode and UTF-8/UTF-16/UTF-32 encoding.")
 
 set(
   PCRE2_SUPPORT_BSR_ANYCRLF
@@ -441,26 +421,6 @@ if(HAVE_VSCRIPT)
   option(PCRE2_SYMVERS "Enable library symbol versioning" ON)
 endif()
 
-# bzip2 lib
-if(BZIP2_FOUND)
-  option(PCRE2_SUPPORT_LIBBZ2 "Enable support for linking pcre2grep with libbz2." ON)
-endif()
-
-# zlib
-if(ZLIB_FOUND)
-  option(PCRE2_SUPPORT_LIBZ "Enable support for linking pcre2grep with libz." ON)
-endif()
-
-# editline lib
-if(EDITLINE_FOUND)
-  option(PCRE2_SUPPORT_LIBEDIT "Enable support for linking pcre2test with libedit." OFF)
-endif()
-
-# readline lib
-if(READLINE_FOUND)
-  option(PCRE2_SUPPORT_LIBREADLINE "Enable support for linking pcre2test with libreadline." ON)
-endif()
-
 # Prepare build configuration
 
 include_directories(${PROJECT_BINARY_DIR}/interface ${PROJECT_BINARY_DIR}/src ${PROJECT_SOURCE_DIR}/src)
@@ -488,64 +448,6 @@ if(PCRE2_BUILD_PCRE2_32)
   set(SUPPORT_PCRE2_32 1)
 endif()
 
-if(PCRE2_SUPPORT_LIBBZ2)
-  if(BZIP2_FOUND)
-    include_directories(${BZIP2_INCLUDE_DIR})
-  else()
-    message(
-      FATAL_ERROR
-      " libbz2 not found. Set BZIP2_INCLUDE_DIR to a compatible header\n"
-      " or set BZip2_ROOT to a full bzip2 installed tree, as needed."
-    )
-  endif()
-endif()
-
-if(PCRE2_SUPPORT_LIBZ)
-  if(ZLIB_FOUND)
-    include_directories(${ZLIB_INCLUDE_DIR})
-  else()
-    message(
-      FATAL_ERROR
-      " zlib not found. Set ZLIB_INCLUDE_DIR to a compatible header\n"
-      " or set ZLIB_ROOT to a full zlib installed tree, as needed."
-    )
-  endif()
-endif()
-
-if(PCRE2_SUPPORT_LIBEDIT)
-  if(EDITLINE_FOUND)
-    include_directories(${EDITLINE_INCLUDE_DIR})
-  else()
-    message(
-      FATAL_ERROR
-      " libedit not found. Set EDITLINE_INCLUDE_DIR to a compatible header\n"
-      " or set Editline_ROOT to a full libedit installed tree, as needed."
-    )
-  endif()
-endif()
-
-if(PCRE2_SUPPORT_LIBREADLINE)
-  if(READLINE_FOUND)
-    include_directories(${READLINE_INCLUDE_DIR})
-  else()
-    message(
-      FATAL_ERROR
-      " libreadline not found. Set READLINE_INCLUDE_DIR to a compatible header\n"
-      " or set Readline_ROOT to a full libreadline installed tree, as needed."
-    )
-  endif()
-endif()
-
-if(PCRE2_SUPPORT_LIBREADLINE AND PCRE2_SUPPORT_LIBEDIT)
-  if(READLINE_FOUND)
-    message(
-      FATAL_ERROR
-      " Only one of the readline compatible libraries can be enabled.\n"
-      " Disable libreadline with -DPCRE2_SUPPORT_LIBREADLINE=OFF"
-    )
-  endif()
-endif()
-
 if(PCRE2_SUPPORT_BSR_ANYCRLF)
   set(BSR_ANYCRLF 1)
 endif()
@@ -558,31 +460,6 @@ if(PCRE2_SUPPORT_UNICODE)
   set(SUPPORT_UNICODE 1)
 endif()
 
-if(PCRE2_SUPPORT_JIT)
-  set(SUPPORT_JIT 1)
-  if(UNIX)
-    find_package(Threads REQUIRED)
-    if(CMAKE_USE_PTHREADS_INIT)
-      set(REQUIRE_PTHREAD 1)
-    endif()
-  endif()
-endif()
-
-if(PCRE2_SUPPORT_JIT_SEALLOC)
-  set(SLJIT_PROT_EXECUTABLE_ALLOCATOR 1)
-endif()
-
-if(PCRE2GREP_SUPPORT_JIT)
-  set(SUPPORT_PCRE2GREP_JIT 1)
-endif()
-
-if(PCRE2GREP_SUPPORT_CALLOUT)
-  set(SUPPORT_PCRE2GREP_CALLOUT 1)
-  if(PCRE2GREP_SUPPORT_CALLOUT_FORK)
-    set(SUPPORT_PCRE2GREP_CALLOUT_FORK 1)
-  endif()
-endif()
-
 if(PCRE2_SUPPORT_VALGRIND)
   set(SUPPORT_VALGRIND 1)
 endif()
@@ -591,38 +468,6 @@ if(PCRE2_DISABLE_PERCENT_ZT)
   set(DISABLE_PERCENT_ZT 1)
 endif()
 
-set(PCRE2TEST_LIBS)
-set(PCRE2GREP_LIBS)
-
-# This next one used to reference ${READLINE_LIBRARY})
-# but I was advised to add the NCURSES test as well, along with
-# some modifications to cmake/FindReadline.cmake which should
-# make it possible to override the default if necessary. PH
-
-if(PCRE2_SUPPORT_LIBREADLINE)
-  set(SUPPORT_LIBREADLINE 1)
-  list(APPEND PCRE2TEST_LIBS ${READLINE_LIBRARY})
-  if(DEFINED NCURSES_LIBRARY)
-    list(APPEND PCRE2TEST_LIBS ${NCURSES_LIBRARY})
-  endif()
-endif()
-
-# libedit is a plug-compatible alternative to libreadline
-
-if(PCRE2_SUPPORT_LIBEDIT)
-  set(SUPPORT_LIBEDIT 1)
-  list(APPEND PCRE2TEST_LIBS ${EDITLINE_LIBRARY})
-endif()
-
-if(PCRE2_SUPPORT_LIBZ)
-  set(SUPPORT_LIBZ 1)
-  list(APPEND PCRE2GREP_LIBS ${ZLIB_LIBRARIES})
-endif()
-
-if(PCRE2_SUPPORT_LIBBZ2)
-  set(SUPPORT_LIBBZ2 1)
-  list(APPEND PCRE2GREP_LIBS ${BZIP2_LIBRARIES})
-endif()
 
 set(NEWLINE_DEFAULT "")
 
@@ -696,10 +541,6 @@ endif()
 file(REMOVE ${PROJECT_SOURCE_DIR}/src/config.h)
 file(REMOVE ${PROJECT_SOURCE_DIR}/src/pcre2.h)
 
-# Output files
-
-configure_file(src/config-cmake.h.in ${PROJECT_BINARY_DIR}/src/config.h @ONLY)
-
 # Parse version numbers and date out of configure.ac
 
 file(
@@ -756,13 +597,26 @@ parse_lib_version(LIBPCRE2_8)
 parse_lib_version(LIBPCRE2_16)
 parse_lib_version(LIBPCRE2_32)
 
+# Output files
+
+configure_file(src/config-cmake.h.in ${PROJECT_BINARY_DIR}/src/config.h @ONLY)
+
 configure_file(src/pcre2.h.in ${PROJECT_BINARY_DIR}/interface/pcre2.h @ONLY)
 configure_file(src/pcre2posix.h ${PROJECT_BINARY_DIR}/interface/pcre2posix.h COPYONLY)
 
-# Make sure to not link debug libs
-# against release libs and vice versa
-if(WIN32)
-  set(CMAKE_DEBUG_POSTFIX "d")
+# Configure the version script files.
+
+if(HAVE_VSCRIPT AND PCRE2_SYMVERS)
+  if(HAVE_VSCRIPT_NO_STAR)
+    set(PCRE2_EXTRA_LOCAL_SYMS "")
+  else()
+    set(PCRE2_EXTRA_LOCAL_SYMS "  local: *;")
+  endif()
+
+  configure_file(src/libpcre2-8.sym.in ${PROJECT_BINARY_DIR}/src/libpcre2-8.sym @ONLY)
+  configure_file(src/libpcre2-16.sym.in ${PROJECT_BINARY_DIR}/src/libpcre2-16.sym @ONLY)
+  configure_file(src/libpcre2-32.sym.in ${PROJECT_BINARY_DIR}/src/libpcre2-32.sym @ONLY)
+  configure_file(src/libpcre2-posix.sym.in ${PROJECT_BINARY_DIR}/src/libpcre2-posix.sym @ONLY)
 endif()
 
 # Character table generation
@@ -886,9 +740,13 @@ if(MSVC)
   add_compile_definitions(_CRT_SECURE_NO_DEPRECATE _CRT_SECURE_NO_WARNINGS)
 endif()
 
+# Make sure to not link debug libs against release libs and vice versa.
+if(WIN32)
+  set(CMAKE_DEBUG_POSTFIX "d")
+endif()
+
 set(TARGETS)
 set(DLL_PDB_FILES)
-set(DLL_PDB_DEBUG_FILES)
 
 # 8-bit library
 
@@ -962,12 +820,11 @@ if(PCRE2_BUILD_PCRE2_8)
       target_link_libraries(pcre2-8-shared Threads::Threads)
     endif()
     if(HAVE_VSCRIPT AND PCRE2_SYMVERS)
-      target_link_options(pcre2-8-shared PRIVATE -Wl,${VSCRIPT_FLAG},${PROJECT_SOURCE_DIR}/src/libpcre2-8.sym)
-      set_target_properties(pcre2-8-shared PROPERTIES LINK_DEPENDS ${PROJECT_SOURCE_DIR}/src/libpcre2-8.sym)
+      target_link_options(pcre2-8-shared PRIVATE -Wl,${VSCRIPT_FLAG},${PROJECT_BINARY_DIR}/src/libpcre2-8.sym)
+      set_target_properties(pcre2-8-shared PROPERTIES LINK_DEPENDS ${PROJECT_BINARY_DIR}/src/libpcre2-8.sym)
     endif()
     list(APPEND TARGETS pcre2-8-shared)
-    list(APPEND DLL_PDB_FILES $<TARGET_PDB_FILE_DIR:pcre2-8-shared>/pcre2-8.pdb)
-    list(APPEND DLL_PDB_DEBUG_FILES $<TARGET_PDB_FILE_DIR:pcre2-8-shared>/pcre2-8d.pdb)
+    list(APPEND DLL_PDB_FILES $<TARGET_PDB_FILE:pcre2-8-shared>)
 
     add_library(pcre2-posix-shared SHARED ${PCRE2POSIX_HEADERS} ${PCRE2POSIX_SOURCES})
     target_include_directories(
@@ -985,14 +842,13 @@ if(PCRE2_BUILD_PCRE2_8)
         OUTPUT_NAME pcre2-posix
     )
     if(HAVE_VSCRIPT AND PCRE2_SYMVERS)
-      target_link_options(pcre2-posix-shared PRIVATE -Wl,${VSCRIPT_FLAG},${PROJECT_SOURCE_DIR}/src/libpcre2-posix.sym)
-      set_target_properties(pcre2-posix-shared PROPERTIES LINK_DEPENDS ${PROJECT_SOURCE_DIR}/src/libpcre2-posix.sym)
+      target_link_options(pcre2-posix-shared PRIVATE -Wl,${VSCRIPT_FLAG},${PROJECT_BINARY_DIR}/src/libpcre2-posix.sym)
+      set_target_properties(pcre2-posix-shared PROPERTIES LINK_DEPENDS ${PROJECT_BINARY_DIR}/src/libpcre2-posix.sym)
     endif()
     target_compile_definitions(pcre2-posix-shared PUBLIC PCRE2POSIX_SHARED)
     target_link_libraries(pcre2-posix-shared pcre2-8-shared)
     list(APPEND TARGETS pcre2-posix-shared)
-    list(APPEND DLL_PDB_FILES $<TARGET_PDB_FILE_DIR:pcre2-posix-shared>/pcre2-posix.pdb)
-    list(APPEND DLL_PDB_DEBUG_FILES $<TARGET_PDB_FILE_DIR:pcre2-posix-shared>/pcre2-posixd.pdb)
+    list(APPEND DLL_PDB_FILES $<TARGET_PDB_FILE:pcre2-posix-shared>)
 
     if(MINGW)
       if(NON_STANDARD_LIB_PREFIX)
@@ -1067,12 +923,11 @@ if(PCRE2_BUILD_PCRE2_16)
       target_link_libraries(pcre2-16-shared Threads::Threads)
     endif()
     if(HAVE_VSCRIPT AND PCRE2_SYMVERS)
-      target_link_options(pcre2-16-shared PRIVATE -Wl,${VSCRIPT_FLAG},${PROJECT_SOURCE_DIR}/src/libpcre2-16.sym)
-      set_target_properties(pcre2-16-shared PROPERTIES LINK_DEPENDS ${PROJECT_SOURCE_DIR}/src/libpcre2-16.sym)
+      target_link_options(pcre2-16-shared PRIVATE -Wl,${VSCRIPT_FLAG},${PROJECT_BINARY_DIR}/src/libpcre2-16.sym)
+      set_target_properties(pcre2-16-shared PROPERTIES LINK_DEPENDS ${PROJECT_BINARY_DIR}/src/libpcre2-16.sym)
     endif()
     list(APPEND TARGETS pcre2-16-shared)
-    list(APPEND DLL_PDB_FILES $<TARGET_PDB_FILE_DIR:pcre2-16-shared>/pcre2-16.pdb)
-    list(APPEND DLL_PDB_DEBUG_FILES $<TARGET_PDB_FILE_DIR:pcre2-16-shared>/pcre2-16d.pdb)
+    list(APPEND DLL_PDB_FILES $<TARGET_PDB_FILE_DIR:pcre2-16-shared>)
 
     if(MINGW)
       if(NON_STANDARD_LIB_PREFIX)
@@ -1145,12 +1000,11 @@ if(PCRE2_BUILD_PCRE2_32)
       target_link_libraries(pcre2-32-shared Threads::Threads)
     endif()
     if(HAVE_VSCRIPT AND PCRE2_SYMVERS)
-      target_link_options(pcre2-32-shared PRIVATE -Wl,${VSCRIPT_FLAG},${PROJECT_SOURCE_DIR}/src/libpcre2-32.sym)
-      set_target_properties(pcre2-32-shared PROPERTIES LINK_DEPENDS ${PROJECT_SOURCE_DIR}/src/libpcre2-32.sym)
+      target_link_options(pcre2-32-shared PRIVATE -Wl,${VSCRIPT_FLAG},${PROJECT_BINARY_DIR}/src/libpcre2-32.sym)
+      set_target_properties(pcre2-32-shared PROPERTIES LINK_DEPENDS ${PROJECT_BINARY_DIR}/src/libpcre2-32.sym)
     endif()
     list(APPEND TARGETS pcre2-32-shared)
-    list(APPEND DLL_PDB_FILES $<TARGET_PDB_FILE_DIR:pcre2-32-shared>/pcre2-32.pdb)
-    list(APPEND DLL_PDB_DEBUG_FILES $<TARGET_PDB_FILE_DIR:pcre2-32-shared>/pcre2-32d.pdb)
+    list(APPEND DLL_PDB_FILES $<TARGET_PDB_FILE_DIR:pcre2-32-shared>)
 
     if(MINGW)
       if(NON_STANDARD_LIB_PREFIX)
@@ -1205,18 +1059,6 @@ else()
   set(enable_pcre2_8 "no")
 endif()
 
-if(PCRE2_BUILD_PCRE2_16)
-  set(enable_pcre2_16 "yes")
-else()
-  set(enable_pcre2_16 "no")
-endif()
-
-if(PCRE2_BUILD_PCRE2_32)
-  set(enable_pcre2_32 "yes")
-else()
-  set(enable_pcre2_32 "no")
-endif()
-
 configure_file(pcre2-config.in pcre2-config @ONLY NEWLINE_STYLE LF)
 
 # Executables
@@ -1255,29 +1097,22 @@ write_basic_package_version_file(
 )
 install(FILES ${PCRE2_CONFIG_OUT} ${PCRE2_CONFIG_VERSION_OUT} DESTINATION ${PCRE2_INSTALL_CMAKEDIR})
 
-file(GLOB html ${PROJECT_SOURCE_DIR}/doc/html/*.html ${PROJECT_SOURCE_DIR}/doc/html/*.txt)
 file(
   GLOB txts
-  ${PROJECT_SOURCE_DIR}/doc/*.txt
   AUTHORS.md
-  COPYING
-  ChangeLog
   LICENCE.md
-  NEWS
-  README
   SECURITY.md
+  SUPPORT-LIFECYCLE.md
 )
-file(GLOB man1 ${PROJECT_SOURCE_DIR}/doc/*.1)
-file(GLOB man3 ${PROJECT_SOURCE_DIR}/doc/*.3)
 
-install(FILES ${man1} DESTINATION ${CMAKE_INSTALL_MANDIR}/man1)
-install(FILES ${man3} DESTINATION ${CMAKE_INSTALL_MANDIR}/man3)
 install(FILES ${txts} DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/doc/pcre2)
-install(FILES ${html} DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/doc/pcre2/html)
 
 if(MSVC AND INSTALL_MSVC_PDB)
-  install(FILES ${DLL_PDB_FILES} DESTINATION ${CMAKE_INSTALL_BINDIR} CONFIGURATIONS RelWithDebInfo)
-  install(FILES ${DLL_PDB_DEBUG_FILES} DESTINATION ${CMAKE_INSTALL_BINDIR} CONFIGURATIONS Debug)
+  install(
+    FILES ${DLL_PDB_FILES}
+    DESTINATION ${CMAKE_INSTALL_BINDIR}
+    CONFIGURATIONS Debug RelWithDebInfo
+  )
 endif()
 
 # Help, only for nice output
@@ -1331,9 +1166,6 @@ if(PCRE2_SHOW_REPORT)
   message(STATUS "  Build 16 bit pcre2 library ........ : ${PCRE2_BUILD_PCRE2_16}")
   message(STATUS "  Build 32 bit pcre2 library ........ : ${PCRE2_BUILD_PCRE2_32}")
   message(STATUS "  Include debugging code ............ : ${PCRE2_DEBUG}")
-  message(STATUS "  Enable JIT compiling support ...... : ${PCRE2_SUPPORT_JIT}")
-  message(STATUS "  Use SELinux allocator in JIT ...... : ${PCRE2_SUPPORT_JIT_SEALLOC}")
-  message(STATUS "  Enable Unicode support ............ : ${PCRE2_SUPPORT_UNICODE}")
   message(STATUS "  Newline char/sequence ............. : ${PCRE2_NEWLINE}")
   message(STATUS "  \\R matches only ANYCRLF ........... : ${PCRE2_SUPPORT_BSR_ANYCRLF}")
   message(STATUS "  \\C is disabled .................... : ${PCRE2_NEVER_BACKSLASH_C}")
@@ -1364,31 +1196,6 @@ if(PCRE2_SHOW_REPORT)
   endif()
   message(STATUS "  Build static libs ................. : ${BUILD_STATIC_LIBS}")
   message(STATUS "      with PIC enabled .............. : ${PCRE2_STATIC_PIC}")
-  message(STATUS "  Enable JIT in pcre2grep ........... : ${PCRE2GREP_SUPPORT_JIT}")
-  message(STATUS "  Enable callouts in pcre2grep ...... : ${PCRE2GREP_SUPPORT_CALLOUT}")
-  message(STATUS "  Enable callout fork in pcre2grep .. : ${PCRE2GREP_SUPPORT_CALLOUT_FORK}")
-  message(STATUS "  Initial buffer size for pcre2grep . : ${PCRE2GREP_BUFSIZE}")
-  message(STATUS "  Maximum buffer size for pcre2grep . : ${PCRE2GREP_MAX_BUFSIZE}")
-  if(ZLIB_FOUND)
-    message(STATUS "  Link pcre2grep with libz .......... : ${PCRE2_SUPPORT_LIBZ}")
-  else()
-    message(STATUS "  Link pcre2grep with libz .......... : Library not found")
-  endif()
-  if(BZIP2_FOUND)
-    message(STATUS "  Link pcre2grep with libbz2 ........ : ${PCRE2_SUPPORT_LIBBZ2}")
-  else()
-    message(STATUS "  Link pcre2grep with libbz2 ........ : Library not found")
-  endif()
-  if(EDITLINE_FOUND)
-    message(STATUS "  Link pcre2test with libeditline ... : ${PCRE2_SUPPORT_LIBEDIT}")
-  else()
-    message(STATUS "  Link pcre2test with libeditline ... : Library not found")
-  endif()
-  if(READLINE_FOUND)
-    message(STATUS "  Link pcre2test with libreadline ... : ${PCRE2_SUPPORT_LIBREADLINE}")
-  else()
-    message(STATUS "  Link pcre2test with libreadline ... : Library not found")
-  endif()
   message(STATUS "  Enable Valgrind support ........... : ${PCRE2_SUPPORT_VALGRIND}")
   if(PCRE2_DISABLE_PERCENT_ZT)
     message(STATUS "  Use %zu and %td ................... : OFF")

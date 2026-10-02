@@ -1286,7 +1286,7 @@ COAP.header.options.value.block.build = function(val)
   -- Finally, we want to check that we haven't over-shifted, which is
   -- characterized by the result being longer than expected based on
   -- the original number.
-  if val.number == 0 and val.more == false and val.length == 16 then
+  if val.number == 0 and not val.more and val.length == 16 then
     assert(#str == 0)
   elseif val.number <= 15 then
     assert(#str == 1)

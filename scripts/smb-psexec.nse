@@ -554,28 +554,28 @@ local function get_service_files(host)
 
   -- Get the name of the service
   status, service_name = smb.get_uniqueish_name(host)
-  if(status == false) then
+  if not status then
     return false, string.format("Error generating service name: %s", service_name)
   end
   stdnse.debug1("Generated static service name: %s", service_name)
 
   -- Get the name and service's executable file (with a .txt extension for fun)
   status, service_file = smb.get_uniqueish_name(host, "txt")
-  if(status == false) then
+  if not status then
     return false, string.format("Error generating remote filename: %s", service_file)
   end
   stdnse.debug1("Generated static service name: %s", service_name)
 
   -- Get the temporary output file
   status, temp_output_file = smb.get_uniqueish_name(host, "out.tmp")
-  if(status == false) then
+  if not status then
     return false, string.format("Error generating remote filename: %s", temp_output_file)
   end
   stdnse.debug1("Generated static service filename: %s", temp_output_file)
 
   -- Get the actual output file
   status, output_file = smb.get_uniqueish_name(host, "out")
-  if(status == false) then
+  if not status then
     return false, string.format("Error generating remote output file: %s", output_file)
   end
   stdnse.debug1("Generated static output filename: %s", output_file)
@@ -603,13 +603,13 @@ function cleanup(host, config)
   stdnse.debug1("Entering cleanup() -- errors here can generally be ignored")
   -- Try stopping the service
   status, err = msrpc.service_stop(host, config.service_name)
-  if(status == false) then
+  if not status then
     stdnse.debug1("[cleanup] Couldn't stop service: %s", err)
   end
 
   -- Try deleting the service
   status, err = msrpc.service_delete(host, config.service_name)
-  if(status == false) then
+  if not status then
     stdnse.debug1("[cleanup] Couldn't delete service: %s", err)
   end
 
@@ -722,7 +722,7 @@ local function find_share(host)
   else
     -- Try and find a share to use.
     status, share, path, shares = smb.share_find_writable(host)
-    if(status == false) then
+    if not status then
       return false, share .. " (May not have an administrator account)"
     end
     if(path == nil) then
@@ -839,7 +839,7 @@ local function get_config(host, config)
 
   -- Get information about the socket; it's a bit out of place here, but it should go before the mod loop
   status, config.lhost, config.lport, config.rhost, config.rport, config.lmac = smb.get_socket_info(host)
-  if(status == false) then
+  if not status then
     return false, "Couldn't get socket information: " .. config.lhost
   end
 
@@ -1127,7 +1127,7 @@ local function upload_everything(host, config)
   stdnse.debug1("Uploading: %s => \\\\%s\\%s", config.local_service_file, config.share, config.service_file)
   local status, err
   status, err = smb.file_upload(host, config.local_service_file, config.share, "\\" .. config.service_file, overrides, is_xor_encoded)
-  if(status == false) then
+  if not status then
     cleanup(host, config)
     return false, string.format("Couldn't upload the service file: %s\n", err)
   end
@@ -1140,7 +1140,7 @@ local function upload_everything(host, config)
     if(mod.upload) then
       stdnse.debug1("Uploading: %s => \\\\%s\\%s", mod.filename, config.share, mod.upload_name)
       status, err = smb.file_upload(host, mod.filename, config.share, "\\" .. mod.upload_name, overrides)
-      if(status == false) then
+      if not status then
         cleanup(host, config)
         return false, string.format("Couldn't upload module %s: %s\n", mod.program, err)
       end
@@ -1159,7 +1159,7 @@ local function upload_everything(host, config)
 
         stdnse.debug1("Uploading extra file: %s => \\\\%s\\%s", extrafile_local, config.share, extrafile)
         status, err = smb.file_upload(host, extrafile_local, config.share, extrafile, overrides)
-        if(status == false) then
+        if not status then
           cleanup(host, config)
           return false, string.format("Couldn't upload extra file %s: %s\n", extrafile_local, err)
         end
@@ -1178,7 +1178,7 @@ end
 --@return err    An error message if status is false.
 local function create_service(host, config)
   local status, err = msrpc.service_create(host, config.service_name, config.path .. "\\" .. config.service_file)
-  if(status == false) then
+  if not status then
     stdnse.debug1("Couldn't create the service: %s", err)
     cleanup(host, config)
 
@@ -1235,7 +1235,7 @@ end
 --@return err    An error message if status is false.
 local function start_service(host, config, params)
   local status, err = msrpc.service_start(host, config.service_name, params)
-  if(status == false) then
+  if not status then
     stdnse.debug1("Couldn't start the service: %s", err)
     return false, string.format("Couldn't start the service on the remote machine: %s", err)
   end
@@ -1546,7 +1546,7 @@ and place it in nselib/data/psexec/ under the Nmap DATADIR.
   -- Build the output into a nice table
   local response
   status, response = parse_output(config, result)
-  if(status == false) then
+  if not status then
     return stdnse.format_output(false, "Couldn't parse output: " .. response)
   end
 

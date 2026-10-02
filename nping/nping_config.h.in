@@ -120,7 +120,6 @@
 
 #undef SPRINTF_RETURNS_STRING
 
-#undef TIME_WITH_SYS_TIME
 #undef HAVE_SYS_TIME_H
 
 #undef recvfrom6_t
@@ -151,5 +150,8 @@ extern "C" int gethostname (char *, unsigned int);
 #undef HPUX
 #undef NETBSD
 #undef MACOSX
+
+/* Fuzzing harness enabled */
+#undef ENABLE_FUZZING
 
 #endif /* CONFIG_H */

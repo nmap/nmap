@@ -32,7 +32,7 @@ check:
 	test -n "$(NMAP_VERSION)"
 	test -n "$(NMAP_NUM_VERSION)"
 
-make-vars.make: make-vars.h
+make-vars.make: make-vars.h $(NMAPDIR)/nmap.h
 	cmd /c Build.bat Vars
 
 bundle-nmap: bundle-zip bundle-nsis
@@ -100,7 +100,9 @@ sign-files: nmap-$(NMAP_VERSION)-oem/nmap.exe nmap-$(NMAP_VERSION)/nmap.exe nmap
 bundle-nsis: sign-files
 	"$(MAKENSIS)" $(NSIS_COMMON_ARGS) $(NSIS_STD_ARGS) nsis/Nmap.nsi
 	"$(MAKENSIS)" $(NSIS_COMMON_ARGS) $(NSIS_OEM_ARGS) nsis/Nmap.nsi
-	"$(SIGNTOOL)" $(SIGNTOOL_ARGS) nmap-$(NMAP_VERSION)-setup.exe nmap-$(NMAP_VERSION)-oem-setup.exe
+
+sign-installer: nmap-$(NMAP_VERSION)-setup.exe nmap-$(NMAP_VERSION)-oem-setup.exe
+	"$(SIGNTOOL)" verify $^ || "$(SIGNTOOL)" $(SIGNTOOL_ARGS) $^
 
 bundle-zip: bundle-zip-oem
 

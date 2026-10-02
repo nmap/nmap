@@ -233,7 +233,7 @@ route_get(route_t *r, struct route_entry *entry)
 	memset(buf, 0, sizeof(buf));
 
 	nmsg = (struct nlmsghdr *)buf;
-	nmsg->nlmsg_len = NLMSG_LENGTH(sizeof(*nmsg)) + RTA_LENGTH(alen);
+	nmsg->nlmsg_len = NLMSG_LENGTH(sizeof(*rmsg) + RTA_LENGTH(alen));
 	nmsg->nlmsg_flags = NLM_F_REQUEST;
 	nmsg->nlmsg_type = RTM_GETROUTE;
 	nmsg->nlmsg_seq = ++seq;

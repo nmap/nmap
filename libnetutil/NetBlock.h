@@ -97,6 +97,7 @@ protected:
 class NetBlockRandomIPv4 : public NetBlock {
 public:
   NetBlockRandomIPv4();
+  ~NetBlockRandomIPv4();
 
   void reject_last_host() { if (!infinite) count++; }
   void set_num_random(unsigned long num) {
@@ -108,11 +109,13 @@ public:
   bool next(struct sockaddr_storage *ss, size_t *sslen);
   void apply_netmask(int bits) {}
   std::string str() const {return "Random IPv4 addresses";}
+  void avoid_addrset(const struct addrset *addrs);
 
 private:
   struct sockaddr_in base;
   unsigned long count;
   bool infinite;
+  struct addrset *avoid;
 };
 
 #endif

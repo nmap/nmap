@@ -21,7 +21,7 @@ And we'll start over together:
 1.	First, simply download the following script in your _$HOME_ directory https://gitlab.gnome.org/GNOME/gtk-osx/raw/master/gtk-osx-setup.sh
 
 	~~~~
-	$ sh gtk-osx-setup.sh
+	$ bash gtk-osx-setup.sh
 	~~~~
 	
 	And add it to your _$PATH_, so you can run jhbuild without the absolute path:

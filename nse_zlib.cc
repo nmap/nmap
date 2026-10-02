@@ -844,7 +844,7 @@ static int lzlib_decompress(lua_State *L)
     zs.avail_in = avail_in;
 
     while(decompLimit > 0) {
-        unsigned int bufsize = LUAL_BUFFERSIZE;
+        int bufsize = LUAL_BUFFERSIZE;
         if (bufsize > decompLimit)
             bufsize = decompLimit;
         zs.next_out = (unsigned char*)luaL_prepbuffsize(&b, bufsize);

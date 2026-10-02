@@ -172,6 +172,7 @@ struct addrinfo *resolve_all(const char *hostname, int pf);
  * netblocks.
  */
 int ip_is_reserved(const struct sockaddr_storage *addr);
+const struct addrset *get_reserved_addrset(void);
 
 bool getNextHopMAC(const char *iface, const u8 *srcmac, const struct sockaddr_storage *srcss,
                    const struct sockaddr_storage *dstss, u8 *dstmac);
@@ -370,6 +371,7 @@ int sockaddr_equal_netmask(const struct sockaddr_storage *a,
   const struct sockaddr_storage *b, u16 nbits);
 
 int sockaddr_equal_zero(const struct sockaddr_storage *s);
+socklen_t sockaddr_get_len(const struct sockaddr_storage *ss);
 
 /* Returns an allocated array of struct interface_info representing the
    available interfaces. The number of interfaces is returned in *howmany. This

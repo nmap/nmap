@@ -48,7 +48,7 @@
    to make the BANNER define (used by src/session.c) be a valid SSH
    banner. Release versions have no appended strings and may of course not
    have dashes either. */
-#define LIBSSH2_VERSION "1.11.1"
+#define LIBSSH2_VERSION "1.11.1_NMAP1"
 
 /* The numeric version number is also available "in parts" by using these
    defines: */
@@ -82,7 +82,7 @@
  *
  * "Mon Feb 12 11:35:33 UTC 2007"
  */
-#define LIBSSH2_TIMESTAMP "Wed Oct 16 08:03:21 UTC 2024"
+#define LIBSSH2_TIMESTAMP "Wed Jul 27 15:27:00 UTC 2026"
 
 #ifndef RC_INVOKED
 

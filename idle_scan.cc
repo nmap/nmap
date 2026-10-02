@@ -278,7 +278,7 @@ static int ipid_proxy_probe(struct idle_proxy_info *proxy, int *probes_sent,
         } else if (o.debugging > 1) {
           error("Received unexpected response packet from %s during IP ID zombie probing:",
               inet_socktop(&hdr.src));
-          readtcppacket(pkt, 0);
+          error("%s", ippackethdrinfo(pkt, bytes, HIGH_DETAIL));
         }
         continue;
       }

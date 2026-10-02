@@ -389,10 +389,9 @@ rpcap_deseraddr(struct rpcap_sockaddr *sockaddrin, struct sockaddr **sockaddrout
 static int pcap_read_nocb_remote(pcap_t *p, struct pcap_pkthdr *pkt_header, u_char **pkt_data)
 {
 	struct pcap_rpcap *pr = p->priv;	/* structure used when doing a remote live capture */
-	struct rpcap_header *header;		/* general header according to the RPCAP format */
-	struct rpcap_pkthdr *net_pkt_header;	/* header of the packet, from the message */
+	struct rpcap_header *gen_header;	/* rpcap general header */
+	struct rpcap_pkthdr *net_pkt_header;	/* RPCAP_MSG_PACKET header */
 	u_char *net_pkt_data;			/* packet data from the message */
-	uint32 plen;
 	int retval = 0;				/* generic return value */
 	int msglen;
 
@@ -449,13 +448,35 @@ static int pcap_read_nocb_remote(pcap_t *p, struct pcap_pkthdr *pkt_header, u_ch
 		return 0;
 
 	/*
-	 * We have to define 'header' as a pointer to a larger buffer,
-	 * because in case of UDP we have to read all the message within a single call
+	 * pcap_startcapture_remote() has pointed p->buffer to a buffer large
+	 * enough to contain all of the following data at once:
+	 *
+	 * - a fixed-size rpcap general header
+	 * - a fixed-size RPCAP_MSG_PACKET header
+	 * - p->snapshot worth of bytes of a captured packet
+	 *
+	 * This is sufficient for all code paths below.
 	 */
-	header = (struct rpcap_header *) p->buffer;
+	gen_header = (struct rpcap_header *)p->buffer;
 	net_pkt_header = (struct rpcap_pkthdr *) ((char *)p->buffer + sizeof(struct rpcap_header));
 	net_pkt_data = (u_char *)p->buffer + sizeof(struct rpcap_header) + sizeof(struct rpcap_pkthdr);
 
+	/*
+	 * Step 1: to receive a message that does not immediately look
+	 * malformed, consider it as a fixed-size rpcap general header followed
+	 * by a variable-size rpcap general payload and require:
+	 *
+	 * - a complete rpcap general header to land in the buffer, and
+	 * - the header to declare an rpcap general payload length that fits
+	 *   in the buffer after the header, and
+	 * - the complete declared payload to land in the buffer after the
+	 *   header.
+	 *
+	 * Since this step loosely corresponds to rpcap_process_msg_header(),
+	 * which among other things converts rpcap_header.plen to host byte
+	 * order, mimic that as well to produce a valid argument for
+	 * rpcap_check_msg_ver() later on.
+	 */
 	if (pr->rmt_flags & PCAP_OPENFLAG_DATATX_UDP)
 	{
 		/* Read the entire message from the network */
@@ -471,6 +492,8 @@ static int pcap_read_nocb_remote(pcap_t *p, struct pcap_pkthdr *pkt_header, u_ch
 			/* Interrupted receive. */
 			return 0;
 		}
+
+		// Require a complete rpcap general header to be present.
 		if ((size_t)msglen < sizeof(struct rpcap_header))
 		{
 			/*
@@ -480,8 +503,18 @@ static int pcap_read_nocb_remote(pcap_t *p, struct pcap_pkthdr *pkt_header, u_ch
 			    "UDP packet message is shorter than an rpcap header");
 			return -1;
 		}
-		plen = ntohl(header->plen);
-		if ((size_t)msglen < sizeof(struct rpcap_header) + plen)
+		gen_header->plen = ntohl(gen_header->plen);
+
+		/*
+		 * Validate the rpcap general payload length declared in the
+		 * rpcap general header.  Use subtraction to avoid an integer
+		 * overflow:
+		 *
+		 * 0 <= gen_header->plen <= UINT32_MAX
+		 * sizeof(struct rpcap_header) <= msglen <= p->bufsize
+		 * p->bufsize is significantly less than UINT32_MAX
+		 */
+		if (gen_header->plen > (size_t)msglen - sizeof(struct rpcap_header))
 		{
 			/*
 			 * Message is shorter than the header claims it
@@ -496,6 +529,7 @@ static int pcap_read_nocb_remote(pcap_t *p, struct pcap_pkthdr *pkt_header, u_ch
 	{
 		int status;
 
+		// Receive a complete rpcap general header from the network.
 		if ((size_t)p->cc < sizeof(struct rpcap_header))
 		{
 			/*
@@ -515,27 +549,35 @@ static int pcap_read_nocb_remote(pcap_t *p, struct pcap_pkthdr *pkt_header, u_ch
 				return 0;
 			}
 		}
+		gen_header->plen = ntohl(gen_header->plen);
 
 		/*
-		 * We have the header, so we know how long the
-		 * message payload is.  The size we should get
-		 * is the size of the packet header plus the
-		 * size of the payload.
+		 * Validate the rpcap general payload length declared in the
+		 * rpcap general header.  Use subtraction to avoid an integer
+		 * overflow:
+		 *
+		 * 0 <= gen_header->plen <= UINT32_MAX
+		 * sizeof(struct rpcap_header) < p->bufsize
+		 * p->bufsize is significantly less than UINT32_MAX
 		 */
-		plen = ntohl(header->plen);
-		if (plen > p->bufsize - sizeof(struct rpcap_header))
+		if (gen_header->plen > p->bufsize - sizeof(struct rpcap_header))
 		{
 			/*
 			 * This is bigger than the largest
-			 * record we'd expect.  (We do it by
-			 * subtracting in order to avoid an
-			 * overflow.)
+			 * record we'd expect.
 			 */
 			snprintf(p->errbuf, PCAP_ERRBUF_SIZE,
 			    "Server sent us a message larger than the largest expected packet message");
 			return -1;
 		}
-		status = rpcap_read_packet_msg(pr, p, sizeof(struct rpcap_header) + plen);
+
+		/*
+		 * Receive the declared rpcap general payload from the network.
+		 *
+		 * p->cc == sizeof(struct rpcap_header)
+		 * p->bp == p->buffer + sizeof(struct rpcap_header)
+		 */
+		status = rpcap_read_packet_msg(pr, p, sizeof(struct rpcap_header) + gen_header->plen);
 		if (status == -1)
 		{
 			/* Network error. */
@@ -558,27 +600,36 @@ static int pcap_read_nocb_remote(pcap_t *p, struct pcap_pkthdr *pkt_header, u_ch
 
 	/*
 	 * We have the entire message.
-	 */
-	header->plen = plen;
-
-	/*
-	 * Did the server specify the version we negotiated?
+	 * Step 2: to validate the received message further, require:
+	 *
+	 * - the rpcap general header to have the correct version and type, and
+	 * - the rpcap general payload to be large enough to contain at least a
+	 *   complete RPCAP_MSG_PACKET header, and
+	 * - the RPCAP_MSG_PACKET header to declare an RPCAP_MSG_PACKET payload
+	 *   (i.e. the captured packet) length that fits in the rpcap general
+	 *   payload (not the entire buffer) after the RPCAP_MSG_PACKET header.
 	 */
 	if (rpcap_check_msg_ver(pr->rmt_sockdata, pr->data_ssl, pr->protocol_version,
-	    header, p->errbuf) == -1)
-	{
+	    gen_header, p->errbuf) == -1)
 		return 0;	/* Return 'no packets received' */
+	if (gen_header->type != RPCAP_MSG_PACKET)
+		return 0;	/* Return 'no packets received' */
+	if (gen_header->plen < sizeof(struct rpcap_pkthdr))
+	{
+		snprintf(p->errbuf, PCAP_ERRBUF_SIZE,
+		    "Received an incomplete RPCAP_MSG_PACKET header.");
+		return -1;
 	}
-
 	/*
-	 * Is this a RPCAP_MSG_PACKET message?
+	 * Validate the RPCAP_MSG_PACKET payload length declared in the
+	 * RPCAP_MSG_PACKET header.  Use subtraction to avoid an integer
+	 * overflow:
+	 *
+	 * 0 <= ntohl(net_pkt_header->caplen) <= UINT32_MAX
+	 * sizeof(struct rpcap_pkthdr) <= gen_header->plen
+	 * gen_header->plen is significantly less than UINT32_MAX
 	 */
-	if (header->type != RPCAP_MSG_PACKET)
-	{
-		return 0;	/* Return 'no packets received' */
-	}
-
-	if (ntohl(net_pkt_header->caplen) > plen)
+	if (ntohl(net_pkt_header->caplen) > gen_header->plen - sizeof(struct rpcap_pkthdr))
 	{
 		snprintf(p->errbuf, PCAP_ERRBUF_SIZE,
 		    "Packet's captured data goes past the end of the received packet message.");

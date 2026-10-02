@@ -374,31 +374,31 @@ char * NpingOps::mode2Ascii(int md) {
 
   switch( md ){
     case TCP_CONNECT:
-        sprintf(buff, "TCP-Connect");
+        bufset(buff, "TCP-Connect");
     break;
 
     case TCP:
-        sprintf(buff, "TCP");
+        bufset(buff, "TCP");
     break;
 
     case UDP:
-        sprintf(buff, "UDP");
+        bufset(buff, "UDP");
     break;
 
     case UDP_UNPRIV:
-        sprintf(buff, "UDP-Unprivileged");
+        bufset(buff, "UDP-Unprivileged");
     break;
 
     case ICMP:
-        sprintf(buff, "ICMP");
+        bufset(buff, "ICMP");
     break;
 
     case ARP:
-        sprintf(buff, "ARP");
+        bufset(buff, "ARP");
     break;
 
     default:
-        sprintf(buff, "Unknown mode");
+        bufset(buff, "Unknown mode");
     break;
  }
  return buff;
@@ -1373,6 +1373,9 @@ struct sockaddr_storage *NpingOps::getSourceSockAddr(struct sockaddr_storage *ss
         s4->sin_port=htons(this->getSourcePort());
     else
         s4->sin_port=0;
+#ifdef HAVE_SOCKADDR_SA_LEN
+    ((struct sockaddr *)ss)->sa_len = sizeof(s4);
+#endif
   }
   else if (this->getIPVersion() == IP_VERSION_6){
     if(this->spoofSource())
@@ -1384,6 +1387,9 @@ struct sockaddr_storage *NpingOps::getSourceSockAddr(struct sockaddr_storage *ss
         s6->sin6_port=htons(this->getSourcePort());
     else
         s6->sin6_port=0;
+#ifdef HAVE_SOCKADDR_SA_LEN
+    ((struct sockaddr *)ss)->sa_len = sizeof(s6);
+#endif
   }else{
     nping_fatal(QT_3, "NpingOps::getSourceSockAddr(): IP version unset.");
   }

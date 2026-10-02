@@ -261,7 +261,7 @@ local ospfReplyDBDesc = function(interface, mac_dst, db_desc_in)
   local db_desc_out = ospf.OSPF.DBDescription:new()
   db_desc_out = ospfSetHeader(db_desc_in, db_desc_out)
 
-  if db_desc_in.init == true then
+  if db_desc_in.init then
     db_desc_out.init     = false
     db_desc_out.more     = db_desc_in.more
     db_desc_out.master   = false

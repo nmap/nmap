@@ -208,6 +208,9 @@ static nsock_ssl_ctx nsock_pool_ssl_init_helper(SSL_CTX *ctx, int flags) {
   SSL_CTX_clear_options(ctx, SSL_OP_NO_SSLv2);
   if (flags & NSOCK_SSL_MAX_SPEED) {
     SSL_CTX_set_options(ctx, SSL_OP_ALL);
+#ifdef SSL_OP_IGNORE_UNEXPECTED_EOF
+    SSL_CTX_set_options(ctx, SSL_OP_IGNORE_UNEXPECTED_EOF);
+#endif
 
     if (!SSL_CTX_set_cipher_list(ctx, CIPHERS_FAST))
       fatal("Unable to set OpenSSL cipher list: %s",

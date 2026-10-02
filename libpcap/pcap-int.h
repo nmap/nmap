@@ -579,18 +579,21 @@ struct pcap_bpf_aux_data {
  * Filtering routine that takes the auxiliary data as an additional
  * argument.
  */
-u_int	pcapint_filter_with_aux_data(const struct bpf_insn *,
-    const u_char *, u_int, u_int, const struct pcap_bpf_aux_data *);
+u_int	pcapint_filter_with_aux_data(const struct bpf_insn *, const u_int,
+    const u_char *, const u_int, const u_int,
+    const struct pcap_bpf_aux_data *);
 
 /*
  * Filtering routine that doesn't.
  */
-u_int	pcapint_filter(const struct bpf_insn *, const u_char *, u_int, u_int);
+u_int	pcapint_filter(const struct bpf_insn *, const u_int, const u_char *,
+    u_int, u_int);
 
 /*
  * Routine to validate a BPF program.
  */
 int	pcapint_validate_filter(const struct bpf_insn *, int);
+uint8_t pcapint_valid_insn(const struct bpf_insn *);
 
 /*
  * Internal interfaces for both "pcap_create()" and routines that

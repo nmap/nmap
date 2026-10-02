@@ -247,12 +247,12 @@ action = function(host, port)
   local socket = nmap.new_socket("udp")
   status = socket:connect(host, port)
 
-  if ( not(status) ) then
+  if not status then
     return fail("Failed to connect to server")
   end
 
   local status, _, lport = socket:get_info()
-  if( not(status) ) then
+  if not status then
     return fail("Failed to retrieve local port")
   end
 

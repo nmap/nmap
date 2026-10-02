@@ -1098,7 +1098,6 @@ u8 *build_igmp_raw(const struct in_addr *source,
                       ipopt, ipoptlen, pkt, igmplen, packetlen);
 }
 
-
 /* A simple function I wrote to help in debugging, shows the important fields
    of a TCP packet*/
 int readtcppacket(const u8 *packet, int readdata) {
@@ -1271,7 +1270,7 @@ static bool validateTCPhdr(const u8 *tcpc, unsigned len) {
  * read more than the IP header says we should have so as to not pass garbage
  * data to the caller.
  */
-static bool validatepkt(const u8 *ipc, unsigned *len) {
+bool validatepkt(const u8 *ipc, unsigned *len) {
   struct ip ip;
   if (*len < sizeof(ip))
     return false;
@@ -1566,15 +1565,7 @@ bool setTargetNextHopMAC(Target *target) {
 }
 
 int nmap_route_dst(const struct sockaddr_storage *dst, struct route_nfo *rnfo) {
-  struct sockaddr_storage spoofss;
-  size_t spoofsslen;
-
-  if (o.spoofsource) {
-    o.SourceSockAddr(&spoofss, &spoofsslen);
-    return route_dst(dst, rnfo, o.device, &spoofss);
-  } else {
-    return route_dst(dst, rnfo, o.device, NULL);
-  }
+  return route_dst(dst, rnfo, o.device, o.SourceSockAddr());
 }
 
 

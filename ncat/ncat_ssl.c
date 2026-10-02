@@ -76,9 +76,11 @@
     (defined LIBRESSL_VERSION_NUMBER && LIBRESSL_VERSION_NUMBER >= 0x3050000fL)
 #define HAVE_OPAQUE_STRUCTS 1
 #define FUNC_ASN1_STRING_data ASN1_STRING_get0_data
+#define OPENSSL11_CONST const
 #else
 #define FUNC_ASN1_STRING_data ASN1_STRING_data
 #define FUNC_ASN1_STRING_length(_s) ((_s)->length)
+#define OPENSSL11_CONST
 #endif
 
 #if OPENSSL_VERSION_NUMBER >= 0x40000000L
@@ -299,7 +301,7 @@ static int cert_match_dnsname(X509 *cert, const char *hostname,
 
     /* We must copy this address into a temporary variable because ASN1_item_d2i
        increments it. We don't want it to corrupt ext->value->data. */
-    const ASN1_OCTET_STRING* asn1_str = X509_EXTENSION_get_data(ext);
+    OPENSSL11_CONST ASN1_OCTET_STRING* asn1_str = X509_EXTENSION_get_data(ext);
     data = FUNC_ASN1_STRING_data(asn1_str);
     /* Here we rely on the fact that the internal representation (the "i" in
        "i2d") for NID_subject_alt_name is STACK_OF(GENERAL_NAME). Converting it
@@ -308,12 +310,12 @@ static int cert_match_dnsname(X509 *cert, const char *hostname,
        presence of null bytes. */
 #if (OPENSSL_VERSION_NUMBER > 0x00907000L)
     if (method->it != NULL) {
-        const ASN1_OCTET_STRING* asn1_str_a = X509_EXTENSION_get_data(ext);
+        OPENSSL11_CONST ASN1_OCTET_STRING* asn1_str_a = X509_EXTENSION_get_data(ext);
         gen_names = (STACK_OF(GENERAL_NAME) *) ASN1_item_d2i(NULL,
             (const unsigned char **) &data,
             ASN1_STRING_length(asn1_str_a), ASN1_ITEM_ptr(method->it));
     } else {
-        const ASN1_OCTET_STRING* asn1_str_b = X509_EXTENSION_get_data(ext);
+        OPENSSL11_CONST ASN1_OCTET_STRING* asn1_str_b = X509_EXTENSION_get_data(ext);
         gen_names = (STACK_OF(GENERAL_NAME) *) method->d2i(NULL,
             (const unsigned char **) &data,
             ASN1_STRING_length(asn1_str_b));
@@ -386,9 +388,9 @@ static int less_specific(const unsigned char *a, size_t a_len,
     return num_components(a, a_len) < num_components(b, b_len);
 }
 
-static int most_specific_commonname(const X509_NAME *subject, const char **result)
+static int most_specific_commonname(OPENSSL11_CONST X509_NAME *subject, const char **result)
 {
-    const ASN1_STRING *best, *cur;
+    OPENSSL11_CONST ASN1_STRING *best, *cur;
     int i;
 
     i = -1;
@@ -422,7 +424,7 @@ static int most_specific_commonname(const X509_NAME *subject, const char **resul
    components, the one that comes later in the certificate is more specific. */
 static int cert_match_commonname(X509 *cert, const char *hostname)
 {
-    const X509_NAME *subject;
+    OPENSSL11_CONST X509_NAME *subject;
     const char *commonname;
     int n;
 

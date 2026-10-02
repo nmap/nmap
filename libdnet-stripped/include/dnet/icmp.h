@@ -153,8 +153,8 @@ struct icmp_msg_rtradvert {
  * Timestamp message data
  */
 struct icmp_msg_tstamp {
-	uint32_t	icmp_id;		/* identifier */
-	uint32_t	icmp_seq;		/* sequence number */
+	uint16_t	icmp_id;		/* identifier */
+	uint16_t	icmp_seq;		/* sequence number */
 	uint32_t	icmp_ts_orig;		/* originate timestamp */
 	uint32_t	icmp_ts_rx;		/* receive timestamp */
 	uint32_t	icmp_ts_tx;		/* transmit timestamp */
@@ -164,8 +164,8 @@ struct icmp_msg_tstamp {
  * Address mask message data, RFC 950
  */
 struct icmp_msg_mask {
-	uint32_t	icmp_id;		/* identifier */
-	uint32_t	icmp_seq;		/* sequence number */
+	uint16_t	icmp_id;		/* identifier */
+	uint16_t	icmp_seq;		/* sequence number */
 	uint32_t	icmp_mask;		/* address mask */
 };
 

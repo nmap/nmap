@@ -104,7 +104,7 @@ local generate_filenames = function(host)
       ::next_filename::
     end
 
-    if cisco == true then
+    if cisco then
       local cisco_address_confg_filenames = generate_cisco_address_confg(host.ip)
       return array_concat(default_filenames, cisco_address_confg_filenames)
     end

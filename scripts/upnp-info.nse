@@ -17,8 +17,10 @@ Attempts to extract system information from the UPnP service.
 --
 -- @args upnp-info.override Controls whether we override the IP address information
 --                          returned by the UPNP service for the location of the XML
---                          file that describes the device.  Defaults to true for
---                          unicast hosts.
+--                          file that describes the device. If set to
+--                          <code>false</code>, the target can instruct the
+--                          script to fetch the XML from any arbitrary address.
+--                          Default: true
 
 -- 2010-10-05 - add prerule support <patrik@cqure.net>
 -- 2010-10-10 - add newtarget support <patrik@cqure.net>

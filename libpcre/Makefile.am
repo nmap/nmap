@@ -18,7 +18,12 @@ PHONY_TARGETS=
 dist_doc_DATA = \
   AUTHORS.md \
   LICENCE.md \
-  SECURITY.md
+  SECURITY.md \
+  SUPPORT-LIFECYCLE.md
+
+dist_html_DATA =
+
+dist_man_MANS =
 
 # The Libtool libraries to install.  We'll add to this later.
 
@@ -45,7 +50,12 @@ noinst_PROGRAMS =
 # we list them here.
 
 CLEANFILES = \
-  pcre2_dftables
+  pcre2_dftables \
+  pcre2_jit_test \
+  pcre2fuzzcheck-8 \
+  pcre2fuzzcheck-16 \
+  pcre2fuzzcheck-32 \
+  pcre2demo
 
 DISTCLEANFILES = src/config.h.in~
 MAINTAINERCLEANFILES =
@@ -58,17 +68,24 @@ EXTRA_DIST =
 # These files contain additional m4 macros that are used by autoconf.
 
 EXTRA_DIST += \
-  m4/ax_check_vscript.m4 \
   m4/ax_pthread.m4 \
+  m4/pcre2_check_vscript.m4 \
   m4/pcre2_visibility.m4 \
   m4/pcre2_zos.m4
+
+# These files contain maintenance information
+
+EXTRA_DIST += \
+  NON-AUTOTOOLS-BUILD \
+  HACKING
 
 # These are support files for building with Bazel or Zig
 
 EXTRA_DIST += \
   BUILD.bazel \
   MODULE.bazel \
-  build.zig
+  build.zig \
+  build.zig.zon
 
 # These are support files for building under VMS
 
@@ -194,6 +211,7 @@ COMMON_SOURCES = \
   src/pcre2_newline.c \
   src/pcre2_ord2utf.c \
   src/pcre2_pattern_info.c \
+  src/pcre2_printint_inc.h \
   src/pcre2_script_run.c \
   src/pcre2_serialize.c \
   src/pcre2_string_utils.c \
@@ -308,43 +326,11 @@ libpcre2_posix_la_CFLAGS += $(GCOV_CFLAGS)
 endif # WITH_GCOV
 endif # WITH_PCRE2_8
 
-
-## -------- Testing ----------
-
-# RunTest and RunGrepTest should clean up after themselves, but just in case
-# they don't, add their working files to CLEANFILES.
-
-CLEANFILES += \
-  testSinput \
-  testSoutput \
-  test3input \
-  test3output \
-  test3outputA \
-  test3outputB \
-  testtry \
-  teststdout \
-  teststderr \
-  teststderrgrep \
-  testtemp1grep \
-  testtemp2grep \
-  testtrygrep \
-  testNinputgrep
-
-testoutput-clean:
-	-rm -rf testoutput8 testoutput8-jit testoutput8-dfa
-	-rm -rf testoutput16 testoutput16-jit testoutput16-dfa
-	-rm -rf testoutput32 testoutput32-jit testoutput32-dfa
-
-CLEAN_LOCAL_TARGETS += testoutput-clean
-PHONY_TARGETS += testoutput-clean
-
-## ------------ End of testing -------------
-
-# Symbol version files for use with GNU and Sun ld.
+# Symbol version template files for use with GNU and Sun ld.
 
 EXTRA_DIST += \
-  src/libpcre2-8.sym src/libpcre2-16.sym src/libpcre2-32.sym \
-  src/libpcre2-posix.sym
+  src/libpcre2-8.sym.in src/libpcre2-16.sym.in src/libpcre2-32.sym.in \
+  src/libpcre2-posix.sym.in
 
 
 # gcov/lcov code coverage reporting
@@ -453,6 +439,8 @@ endif # WITH_GCOV
 
 EXTRA_DIST += \
   cmake/COPYING-CMAKE-SCRIPTS \
+  cmake/FindEditline.cmake \
+  cmake/FindReadline.cmake \
   cmake/pcre2-config.cmake.in \
   cmake/PCRE2CheckVscript.cmake \
   cmake/PCRE2UseSystemExtensions.cmake \

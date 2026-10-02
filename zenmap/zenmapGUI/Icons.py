@@ -119,11 +119,11 @@ if pixmap_path:
 
 
 def get_os_icon(host):
-    return ICONS["%s_icon" % get_os(host)]
+    return ICONS.get("%s_icon" % get_os(host), None)
 
 
 def get_os_logo(host):
-    return ICONS["%s_logo" % get_os(host)]
+    return ICONS.get("%s_logo" % get_os(host), None)
 
 
 OSNAMES = {
@@ -162,6 +162,6 @@ def get_os(host):
 
 
 def get_vulnerability_logo(open_ports):
-    ports = min(int(open_ports), 10)
+    ports = min(int(open_ports), 9)
     lvl = (ports // 2) + 1
-    return ICONS['vl_%d_logo' % (lvl,)]
+    return ICONS.get('vl_%d_logo' % (lvl,), None)

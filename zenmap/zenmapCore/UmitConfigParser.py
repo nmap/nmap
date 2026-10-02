@@ -58,6 +58,7 @@
 
 from configparser import ConfigParser, DEFAULTSECT, NoOptionError, \
         NoSectionError
+from contextlib import contextmanager
 from zenmapCore.UmitLogging import log
 
 
@@ -67,6 +68,27 @@ class UmitConfigParser(ConfigParser):
         self.filenames = None
         self.failed = False
         ConfigParser.__init__(self, *args)
+
+    @contextmanager
+    def section_transaction(self, section):
+        section_existed = self.has_section(section)
+        if section_existed:
+            section_copy = dict(self.items(section, raw=True))
+        try:
+            yield self
+        except Exception:
+            if self.has_section(section):
+                try:
+                    self.remove_section(section)
+                except Exception:
+                    pass
+            if section_existed:
+                try:
+                    self.add_section(section)
+                    self[section].update(section_copy)
+                except Exception:
+                    pass
+            raise
 
     def set(self, section, option, value):
         if not self.has_section(section):

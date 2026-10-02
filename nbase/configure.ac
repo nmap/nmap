@@ -39,7 +39,7 @@ if test "$user_localdirs" = 1; then
 fi
 
 dnl use config.h instad of -D macros
-AC_CONFIG_HEADER(nbase_config.h)
+AC_CONFIG_HEADERS([nbase_config.h])
 
 dnl Checks for programs.
 AC_PROG_CC
@@ -66,9 +66,10 @@ case "$host" in
 esac
 
 dnl Checks for header files.
-AC_HEADER_STDC
-AC_CHECK_HEADERS( string.h getopt.h strings.h sys/param.h sys/time.h unistd.h errno.h sys/select.h sys/types.h sys/socket.h netinet/in.h arpa/inet.h sys/stat.h netdb.h sys/wait.h fcntl.h sys/resource.h inttypes.h mach-o/dyld.h)
-AC_HEADER_TIME
+AC_CHECK_HEADERS([string.h getopt.h strings.h sys/param.h sys/time.h unistd.h
+                  errno.h sys/select.h sys/time.h sys/types.h sys/socket.h
+                  netinet/in.h arpa/inet.h sys/stat.h netdb.h sys/wait.h
+                  fcntl.h sys/resource.h inttypes.h mach-o/dyld.h])
 dnl A special check required for <net/if.h> on Darwin. See
 dnl http://www.gnu.org/software/autoconf/manual/html_node/Header-Portability.html.
 AC_CHECK_HEADERS([sys/socket.h])
@@ -89,7 +90,7 @@ AC_CHECK_HEADERS([net/if.h], [], [],
 
 AC_MSG_CHECKING(for __attribute__)
 AC_CACHE_VAL(ac_cv___attribute__, [
-  AC_TRY_COMPILE(
+  AC_COMPILE_IFELSE([AC_LANG_PROGRAM(
 	[
 	#include <stdlib.h>
 
@@ -103,14 +104,14 @@ AC_CACHE_VAL(ac_cv___attribute__, [
 	],
 	[
 	  foo();
-	],
+	])],
 	ac_cv___attribute__=yes,
 	ac_cv___attribute__=no
   )
 ])
-if test "$ac_cv___attribute__" = "yes"; then
+AS_IF([test "x$ac_cv___attribute__" = "xyes"], [
   AC_DEFINE(HAVE___ATTRIBUTE__, 1, [define if your compiler has __attribute__])
-fi
+])
 AC_MSG_RESULT($ac_cv___attribute__)
 
 AC_SUBST(CFLAGS)
@@ -122,15 +123,15 @@ dnl ##################################################################
 dnl Check if sockaddr{} has sa_len member.
 dnl
 AC_CACHE_CHECK(if sockaddr{} has sa_len member, ac_cv_sockaddr_has_sa_len,
-        AC_TRY_COMPILE([
+        AC_COMPILE_IFELSE([AC_LANG_PROGRAM([
                #include <sys/types.h>
                #include <sys/socket.h>],
-                [unsigned int i = sizeof(((struct sockaddr *)0)->sa_len)],
+                [unsigned int i = sizeof(((struct sockaddr *)0)->sa_len)])],
         ac_cv_sockaddr_has_sa_len=yes,
         ac_cv_sockaddr_has_sa_len=no))
-if test $ac_cv_sockaddr_has_sa_len = yes ; then
+AS_IF([test x$ac_cv_sockaddr_has_sa_len = xyes], [
         AC_DEFINE(HAVE_SOCKADDR_SA_LEN, 1, [define if sockaddr has sa_len member])
-fi
+])
 
 dnl check endedness
 AC_C_BIGENDIAN
@@ -236,5 +237,6 @@ fi
 
 CHECK_PROC_SELF_EXE
 
-AC_OUTPUT(Makefile)
+AC_CONFIG_FILES([Makefile])
+AC_OUTPUT
 

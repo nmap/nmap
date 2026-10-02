@@ -8,11 +8,7 @@
  * $Id$
  */
 
-#ifdef _WIN32
-#include "dnet_winconfig.h"
-#else
 #include "config.h"
-#endif
 
 #include <sys/types.h>
 #ifdef HAVE_NET_IF_H
@@ -51,6 +47,11 @@ union sockunion {
 	struct sockaddr_raw	sr;
 #endif
 };
+
+const char *dnet_lib_version(void)
+{
+  return (VERSION);
+}
 
 int
 addr_cmp(const struct addr *a, const struct addr *b)
@@ -302,7 +303,7 @@ addr_ston(const struct sockaddr *sa, struct addr *a)
 	
 	memset(a, 0, sizeof(*a));
 	
-	switch (sa->sa_family) {
+	switch ((unsigned int)sa->sa_family) {
 #ifdef HAVE_NET_IF_DL_H
 # ifdef AF_LINK
 	case AF_LINK:

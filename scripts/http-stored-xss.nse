@@ -65,7 +65,7 @@ local shortport = require "shortport"
 local stdnse = require "stdnse"
 local table = require "table"
 
-portrule = shortport.port_or_service( {80, 443}, {"http", "https"}, "tcp", "open")
+portrule = shortport.http
 
 
 -- A list of payloads.

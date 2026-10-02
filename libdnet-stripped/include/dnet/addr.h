@@ -44,6 +44,7 @@ struct addr {
 } while (0)
 
 __BEGIN_DECLS
+const char *dnet_lib_version(void);
 int	 addr_cmp(const struct addr *a, const struct addr *b);
 
 int	 addr_bcast(const struct addr *a, struct addr *b);

@@ -1,5 +1,4 @@
 local ftp = require "ftp"
-local shortport = require "shortport"
 local stdnse = require "stdnse"
 local string = require "string"
 local stringaux = require "stringaux"
@@ -54,7 +53,7 @@ portrule = function (host, port)
   if port.version.product ~= nil and port.version.product ~= "ProFTPD" then
     return false
   end
-  return shortport.port_or_service(21, "ftp")(host, port)
+  return ftp.portrule(host, port)
 end
 
 local function get_proftpd_banner(banner)

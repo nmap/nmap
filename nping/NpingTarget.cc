@@ -76,7 +76,7 @@
 #include "output.h"
 #include "stats.h"
 #include "common_modified.h"
-
+#include "utils_net.h"
 
 
 /** Constructor */
@@ -260,9 +260,12 @@ int NpingTarget::getSourceSockAddr(struct sockaddr_storage *ss, size_t *ss_len) 
 /** Set source address used to reach the target.
   * Note that it is OK to pass in a sockaddr_in or sockaddr_in6 casted
   * to sockaddr_storage */
-int NpingTarget::setSourceSockAddr(struct sockaddr_storage *ss, size_t ss_len) {
+int NpingTarget::setSourceSockAddr(const struct sockaddr_storage *ss, size_t ss_len) {
   assert(ss_len > 0 && ss_len <= sizeof(*ss));
   memcpy(&sourcesock, ss, ss_len);
+  if (ss_len == sizeof(*ss)) {
+    ss_len = sockaddr_get_len(ss);
+  }
   sourcesocklen = ss_len;
   return OP_SUCCESS;
 } /* End of setSourceSockAddr() */
@@ -271,9 +274,12 @@ int NpingTarget::setSourceSockAddr(struct sockaddr_storage *ss, size_t ss_len) {
 /** Set source address used to reach the target.
   * Note that it is OK to pass in a sockaddr_in or sockaddr_in6 casted
   * to sockaddr_storage */
-int NpingTarget::setSpoofedSourceSockAddr(struct sockaddr_storage *ss, size_t ss_len) {
+int NpingTarget::setSpoofedSourceSockAddr(const struct sockaddr_storage *ss, size_t ss_len) {
   assert(ss_len > 0 && ss_len <= sizeof(*ss));
   memcpy(&spoofedsrcsock, ss, ss_len);
+  if (ss_len == sizeof(*ss)) {
+    ss_len = sockaddr_get_len(ss);
+  }
   spoofedsrcsocklen = ss_len;
   this->spoofedsrc_set=true;
   return OP_SUCCESS;
@@ -650,26 +656,18 @@ const char *NpingTarget::getNextHopIPStr(){
 } /* End of getNextHopIPStr() */
 
 
-const char *NpingTarget::getMACStr(u8 *mac){
-  static char buffer[256];
-  assert(mac!=NULL);
-  sprintf(buffer, "%02x:%02x:%02x:%02x:%02x:%02x", (u8)mac[0],(u8)mac[1],
-          (u8)mac[2], (u8)mac[4],(u8)mac[4],(u8)mac[5]);
-  return buffer;
-}
-
 const char *NpingTarget::getTargetMACStr(){
-    return getMACStr(this->MACaddress);
+    return MACtoa(this->MACaddress);
 }
 
 
 const char *NpingTarget::getSourceMACStr(){
-    return getMACStr(this->SrcMACaddress);
+    return MACtoa(this->SrcMACaddress);
 }
 
 
 const char *NpingTarget::getNextHopMACStr(){
-    return getMACStr(this->NextHopMACaddress);
+    return MACtoa(this->NextHopMACaddress);
 }
 
 

@@ -15,7 +15,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libpcre", "build-pcre2\pcre
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "nbase", "..\nbase\nbase.vcxproj", "{B630C8F7-3138-43E8-89ED-78742FA2AC5F}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libdnet-stripped", "..\libdnet-stripped\libdnet-stripped.vcxproj", "{5328E0BE-BC0A-4C2A-8CB9-CE00B61B9C4C}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libdnet-stripped", "build-libdnet\dnet.vcxproj", "{5328E0BE-BC0A-4C2A-8CB9-CE00B61B9C4C}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "liblua", "..\liblua\liblua.vcxproj", "{31FB0767-A71F-4575-8379-002D72B8AF86}"
 EndProject

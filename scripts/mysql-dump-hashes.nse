@@ -75,6 +75,7 @@ action = function(host, port)
     return
   end
 
+  local pwcol = nil
   local result = {}
   for username, password in pairs(creds) do
     local socket = nmap.new_socket()
@@ -84,7 +85,17 @@ action = function(host, port)
 
     local status, response = mysqlLogin(socket, username, password)
     if ( status ) then
-      local query = "SELECT DISTINCT CONCAT(user, ':', password) FROM mysql.user WHERE password <> ''"
+      if not pwcol then
+        local status, rs = mysql.sqlQuery(socket,
+          "SELECT column_name FROM information_schema.columns "
+          .. "WHERE table_schema = 'mysql' AND table_name = 'user' "
+          .. "AND column_name IN ('password', 'authentication_string')")
+        if status then
+          pwcol = rs.rows[1][1]
+        end
+        pwcol = pwcol or "password"
+      end
+      local query = ("SELECT DISTINCT CONCAT(user, ':', %s) FROM mysql.user WHERE %s <> ''"):format(pwcol, pwcol)
       local status, rows = mysql.sqlQuery( socket, query )
       socket:close()
       if ( status ) then

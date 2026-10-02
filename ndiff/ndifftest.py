@@ -12,10 +12,14 @@ xml.__path__ = [x for x in xml.__path__ if "_xmlplus" not in x]
 
 import xml.dom.minidom
 
-import imp
+import importlib.util
 dont_write_bytecode = sys.dont_write_bytecode
 sys.dont_write_bytecode = True
-ndiff = imp.load_source("ndiff", "ndiff.py")
+# imp.load_source() was removed in Python 3.12; importlib is the replacement.
+_ndiff_spec = importlib.util.spec_from_file_location("ndiff", "ndiff.py")
+ndiff = importlib.util.module_from_spec(_ndiff_spec)
+sys.modules["ndiff"] = ndiff
+_ndiff_spec.loader.exec_module(ndiff)
 for x in dir(ndiff):
     if not x.startswith("_"):
         globals()[x] = getattr(ndiff, x)
@@ -23,6 +27,7 @@ sys.dont_write_bytecode = dont_write_bytecode
 del dont_write_bytecode
 
 import io
+import os
 
 
 class scan_test(unittest.TestCase):
@@ -325,7 +330,7 @@ class ScanDiffSub(ScanDiff):
 class scan_diff_test(unittest.TestCase):
     """Test the ScanDiff class."""
     def setUp(self):
-        self.blackhole = open("/dev/null", "w")
+        self.blackhole = open(os.devnull, "w")
 
     def tearDown(self):
         self.blackhole.close()
@@ -766,7 +771,7 @@ def host_apply_diff(host, diff):
 
 def call_quiet(args, **kwargs):
     """Run a command with subprocess.call and hide its output."""
-    return subprocess.call(args, stdout=subprocess.PIPE,
+    return subprocess.call([sys.executable, *args], stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT, env={'PYTHONPATH': "."}, **kwargs)
 
 

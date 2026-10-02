@@ -52,6 +52,7 @@ stamp-h1
 
 /libpcap/*.3pcap
 /libpcap/*.manmisc
+/libpcap/*.manfile
 /libpcap/bpf_filter.c
 /libpcap/grammar.y
 /libpcap/libpcap.so.*

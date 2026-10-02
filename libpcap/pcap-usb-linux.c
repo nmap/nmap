@@ -733,8 +733,8 @@ usb_read_linux_bin(pcap_t *handle, int max_packets _U_, pcap_handler callback, u
 	pkth.ts.tv_usec = info.hdr->ts_usec;
 
 	if (handle->fcode.bf_insns == NULL ||
-	    pcapint_filter(handle->fcode.bf_insns, handle->buffer,
-	      pkth.len, pkth.caplen)) {
+	    pcapint_filter(handle->fcode.bf_insns, handle->fcode.bf_len,
+	                   handle->buffer, pkth.len, pkth.caplen)) {
 		handlep->packets_read++;
 		callback(user, &pkth, handle->buffer);
 		return 1;
@@ -921,8 +921,8 @@ usb_read_linux_mmap(pcap_t *handle, int max_packets, pcap_handler callback, u_ch
 			pkth.ts.tv_usec = hdr->ts_usec;
 
 			if (handle->fcode.bf_insns == NULL ||
-			    pcapint_filter(handle->fcode.bf_insns, (u_char*) hdr,
-			      pkth.len, pkth.caplen)) {
+			    pcapint_filter(handle->fcode.bf_insns, handle->fcode.bf_len,
+			                   (u_char*) hdr, pkth.len, pkth.caplen)) {
 				handlep->packets_read++;
 				callback(user, &pkth, (u_char*) hdr);
 				packets++;

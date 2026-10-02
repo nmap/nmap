@@ -396,7 +396,8 @@ DIAG_ON_SIGN_COMPARE
 	pkth.caplen+=sizeof(pcap_bluetooth_h4_header);
 	pkth.len = pkth.caplen;
 	if (handle->fcode.bf_insns == NULL ||
-	    pcapint_filter(handle->fcode.bf_insns, pktd, pkth.len, pkth.caplen)) {
+	    pcapint_filter(handle->fcode.bf_insns, handle->fcode.bf_len,
+	                   pktd, pkth.len, pkth.caplen)) {
 		callback(user, &pkth, pktd);
 		return 1;
 	}

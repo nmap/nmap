@@ -105,7 +105,7 @@ action = function(host, port)
   end
 
   local open_status, open_service_result = msrpc.svcctl_openservicew(smbstate, open_result['handle'], 'webexservice', 0x00010)
-  if open_status == false then
+  if not open_status then
     status, close_result = msrpc.svcctl_closeservicehandle(smbstate, open_result['handle'])
     smb.stop(smbstate)
     if string.match(open_service_result, 'NT_STATUS_SERVICE_DOES_NOT_EXIST') then

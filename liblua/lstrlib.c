@@ -757,7 +757,6 @@ static int nospecials (const char *p, size_t l) {
 static void prepstate (MatchState *ms, lua_State *L,
                        const char *s, size_t ls, const char *p, size_t lp) {
   ms->L = L;
-  ms->matchdepth = MAXCCALLS;
   ms->src_init = s;
   ms->src_end = s + ls;
   ms->p_end = p + lp;
@@ -765,8 +764,8 @@ static void prepstate (MatchState *ms, lua_State *L,
 
 
 static void reprepstate (MatchState *ms) {
+  ms->matchdepth = MAXCCALLS;
   ms->level = 0;
-  lua_assert(ms->matchdepth == MAXCCALLS);
 }
 
 

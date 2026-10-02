@@ -6036,7 +6036,7 @@ match postgresql m|^EInvalid packet length\0$| p/PostgreSQL DB/ cpe:/a:postgresq
 # postgresql-7.2.3-5.73; linux 2.4.20-18.7 redhat 7.3
 match postgresql m|^EFATAL 1:  invalid length of startup packet\n\0| p/PostgreSQL DB/ cpe:/a:postgresql:postgresql/
 match postgresql m|^EFATAL:  ung\xfcltige L\xe4nge des Startpakets\n\0| p/PostgreSQL DB/ i/German/ cpe:/a:postgresql:postgresql::::de/
-match postgresql m|^E\0\0\09SFATAL\0MExpecting a startup message, but received \r\0\0| p/Postgres-XC/ v/1.1/
+match postgresql m|^E\0\0\0\x39SFATAL\0MExpecting a startup message, but received \r\0\0| p/Postgres-XC/ v/1.1/
 
 # Port 6509.
 match printer m|^\xff$| p/Panasonic mfpscdl.exe service/
@@ -12272,7 +12272,7 @@ match rtsp m|^RTSP/1\.0 200 OK\r\nCSeq: 0\r\nPublic: OPTIONS, DESCRIBE, SETUP, T
 match sand-db m|^\xff\x02\x04\0\x03\0r\n\x08\0@L\x01\0\x01\x01\0\0\0\0[A-Z]{16}$| p/SAND database/
 
 # www.hermstedtstingray.com/user_guides/stingray_security_white_paper.pdf
-match stingray m|^\x02\x004ComDU2\0\0\0\0\0\0\0\0\0ON\0\x08OPTIONS \0\0\0\0<\x9e\x0e\x08!\x8a6@@\xb2W@\0\0\0\00\xd8\xdd\xbf\xbe\x99\r9@\x0c\xe0\x0b\x08\xb5\xd6\x0f@\xe8\xdd\xbf\xbeh\xa6>@0O\x18\x08\xd4\xb4U@| p/StingRay file transfer/
+match stingray m|^\x02\x004ComDU2\0\0\0\0\0\0\0\0\0ON\0\x08OPTIONS \0\0\0\0<\x9e\x0e\x08!\x8a6@@\xb2W@\0\0\0\0\x30\xd8\xdd\xbf\xbe\x99\r9@\x0c\xe0\x0b\x08\xb5\xd6\x0f@\xe8\xdd\xbf\xbeh\xa6>@0O\x18\x08\xd4\xb4U@| p/StingRay file transfer/
 
 match tgcmd m|^\d+ \d+ \d+,Invalid command\.\n$| p/tgcmd.exe support daemon/ o/Windows/ cpe:/o:microsoft:windows/a
 
@@ -13189,7 +13189,7 @@ match netbios-ns m|^\x80\xf0\x84\0\0\0\0\x01\0\0\0\0 CKAAAAAAAAAAAAAAAAAAAAAAAAA
 
 match netbios-ns m|^\x80\xf0\x84\0\0\0\0\x01\0\0\0\0 CKAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\0\0!\0\x01\0\0\0\0\0/\x00......\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0|s p/Microsoft Windows Mobile netbios-ns/ o/Windows/ cpe:/o:microsoft:windows/a
 
-match netbios-ns m|^\x80\xf0\x85\0\0\0\0\x01\0\0\0\0 CKAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\0\0!\0\x01\0\0\0\0...([\w\-]{1,15}).*\04\0([\w\-]{1,15}) *\x1e\x84\0|s p/Novell NetWare netbios-ns/ i/workgroup: $2/ o/NetWare/ h/$1/ cpe:/o:novell:netware/a
+match netbios-ns m|^\x80\xf0\x85\0\0\0\0\x01\0\0\0\0 CKAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\0\0!\0\x01\0\0\0\0...([\w\-]{1,15}).*\0\x34\0([\w\-]{1,15}) *\x1e\x84\0|s p/Novell NetWare netbios-ns/ i/workgroup: $2/ o/NetWare/ h/$1/ cpe:/o:novell:netware/a
 
 
 #
@@ -13343,11 +13343,9 @@ match ftp m%^220 .*\r\n214-The following commands are recognized \(\* =>'s unimp
 # proftpd 1.2.9rc1 on linux 2.4.19
 match ftp m|220 localhost FTP server ready\r\n214-The following commands are recognized \(\* =>'s unimplemented\)\.\r\n214-USER    PASS    ACCT\*   CWD     XCWD    CDUP    XCUP    SMNT\*   \r\n214-QUIT    REIN\*   PORT    PASV    TYPE    STRU    MODE    RETR    \r\n214-STOR    STOU    APPE    ALLO\*   REST    RNFR    RNTO    ABOR    \r\n214-DELE| p/ProFTPD/ v/1.2.9rc1/ o/Unix/ cpe:/a:proftpd:proftpd:1.2.9rc1/a
 # proftpd 1.2.10
-match ftp m|^220 .*\r\n214-The following commands are recognized \(\* =>'s unimplemented\):\r\n CWD     XCWD    CDUP    XCUP    SMNT\*   QUIT    PORT    PASV    \r\n EPRT    EPSV    ALLO\*   RNFR    RNTO    DELE    MDTM    RMD     \r\n XRMD    MKD     XMKD    PWD     XPWD    SIZE    SYST    HELP    \r\n NOOP    FEAT    OPTS    AUTH\*?   CCC\*    CONF\*   ENC\*    MIC\*    \r\n PBSZ\*?   PROT\*?   TYPE    STRU    MODE    RETR    STOR    STOU    \r\n|s p/ProFTPD/ v/1.2.10/ cpe:/a:proftpd:proftpd:1.2.10/a
+match ftp m|^220[ -].*?(?>\r\n214)-The following commands are recognized \(\* =>'s unimplemented\):\r\n CWD     XCWD    CDUP    XCUP    SMNT\*   QUIT    PORT    PASV    \r\n EPRT    EPSV    ALLO\*   RNFR    RNTO    DELE    MDTM    RMD     \r\n XRMD    MKD     XMKD    PWD     XPWD    SIZE    SYST    HELP    \r\n NOOP    FEAT    OPTS    AUTH\*?   CCC\*    CONF\*   ENC\*    MIC\*    \r\n PBSZ\*?   PROT\*?   TYPE    STRU    MODE    RETR    STOR    STOU    \r\n|s p/ProFTPD/ v/1.2.10/ cpe:/a:proftpd:proftpd:1.2.10/a
 
-match ftp m|^220 .*\r\n214-The following commands are recognized \(\* =>'s unimplemented\):\r\n CWD     XCWD    CDUP    XCUP    SMNT\*   QUIT    PORT    PASV    \r\n EPRT    EPSV    ALLO\*   RNFR    RNTO    DELE    MDTM    RMD     \r\n XRMD    MKD     XMKD    PWD     XPWD    SIZE    SYST    HELP    \r\n|s p/ProFTPD/ cpe:/a:proftpd:proftpd/a
-
-match ftp m|^220[ -].*\r\n214-The following commands are recognized \(\* =>'s unimplemented\):\r\n|s p/ProFTPD/ cpe:/a:proftpd:proftpd/a
+match ftp m|^220[ -].*?(?>\r\n214)-The following commands are recognized \(\* =>'s unimplemented\):\r\n.*?\n214 |s p/ProFTPD/ cpe:/a:proftpd:proftpd/a
 
 match ftp m|^220 .*\r\n214-\xd1\xeb\xe5\xe4\xf3\xfe\xf9\xe8\xe5 \xea\xee\xec\xe0\xed\xe4\xfb \xe1\xfb\xeb\xe8 \xf0\xe0\xf1\xef\xee\xe7\xed\xe0\xed\xfb \(\* => \xed\xe5 \xf0\xe5\xe0\xeb\xe8\xe7\xee\xe2\xe0\xed\xee\):\r\n| p/ProFTPD/ i/locale: ru_RU/ cpe:/a:proftpd:proftpd/a
 
@@ -14435,8 +14433,8 @@ match postgresql m|^E\0\0\0.S[^\0]+\0(?:VFATAL\0)?0A000\0MProtocole non support.
 match postgresql m|^E\0\0\0.S[^\0]+\0(?:VFATAL\0)?0A000\0Mel protocolo 65363| p/PostgreSQL DB/ i/Spanish/ cpe:/a:postgresql:postgresql::::es/
 match postgresql m|^E\0\0\0.S[^\0]+\0(?:VFATAL\0)?0A000\0Mnicht unterst.*?Frontend-Protokoll 65363\.19778:|s p/PostgreSQL DB/ i/German/ cpe:/a:postgresql:postgresql::::de/
 match postgresql m|^E\0\0\0.S[^\0]+\0(?:VFATAL\0)?0A000\0M\xe3\x83\x95\xe3\x83\xad\xe3\x83\xb3\xe3\x83\x88\xe3\x82\xa8\xe3\x83\xb3\xe3\x83\x89\xe3\x83\x97\xe3\x83\xad\xe3\x83\x88\xe3\x82\xb3\xe3\x83\xab|s p/PostgreSQL DB/ i/Japanese/ cpe:/a:postgresql:postgresql::::ja/
-match postgresql m|^E\0\0\0.S[^\0]+\00A000\0M.*?65363\.19778.*?\0Fpostmaster\.c\0|s p/PostgreSQL DB/ cpe:/a:postgresql:postgresql/
-match postgresql m|^E\0\0\0.S[^\0]+\00A000\0M.*?65363\.19778.*?\0F\.\\src\\backend\\postmaster\\postmaster\.c\0|s p/PostgreSQL DB/ o/Windows/ cpe:/a:postgresql:postgresql/ cpe:/o:microsoft:windows/a
+match postgresql m|^E\0\0\0.S[^\0]+\0\x30A000\0M.*?65363\.19778.*?\0Fpostmaster\.c\0|s p/PostgreSQL DB/ cpe:/a:postgresql:postgresql/
+match postgresql m|^E\0\0\0.S[^\0]+\0\x30A000\0M.*?65363\.19778.*?\0F\.\\src\\backend\\postmaster\\postmaster\.c\0|s p/PostgreSQL DB/ o/Windows/ cpe:/a:postgresql:postgresql/ cpe:/o:microsoft:windows/a
 
 match postgresql m|^E\0\0\0.S[^\0]+\0VFATAL\0C0A000\0M.*?65363\.19778.*?\0F\.\\src\\backend\\postmaster\\postmaster\.c\0|s p/PostgreSQL DB/ v/9.6.0 or later/ o/Windows/ cpe:/a:postgresql:postgresql/ cpe:/o:microsoft:windows/a
 #match postgresql m|^E\0\0\0.S[^\0]+\0VFATAL\0C0A000\0Munsupported frontend protocol 65363| p/PostgreSQL DB/ v/9.6.0 or later/ cpe:/a:postgresql:postgresql/
@@ -15487,7 +15485,7 @@ match snmp m|^0\x82\0\x3a\x02\x01\0\x04\x06public\xa2\x82\0\x2b.{20}\x06\x08\x2b
 softmatch snmp m|^..\x02\x01\x030.\x02\x02Ji\x02.{3,4}\x04\x01.\x02\x01\x03\x04|s p/SNMPv3 server/
 
 ##############################NEXT PROBE##############################
-Probe TCP WMSRequest q|\x01\0\0\xfd\xce\xfa\x0b\xb0\xa0\0\0\0MMS\x14\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x12\0\0\0\x01\0\x03\0\xf0\xf0\xf0\xf0\x0b\0\x04\0\x1c\0\x03\0N\0S\0P\0l\0a\0y\0e\0r\0/\09\0.\00\0.\00\0.\02\09\08\00\0;\0 \0{\00\00\00\00\0A\0A\00\00\0-\00\0A\00\00\0-\00\00\0a\00\0-\0A\0A\00\0A\0-\00\00\00\00\0A\00\0A\0A\00\0A\0A\00\0}\0\0\0\xe0\x6d\xdf\x5f|
+Probe TCP WMSRequest q|\x01\0\0\xfd\xce\xfa\x0b\xb0\xa0\0\0\0MMS\x14\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x12\0\0\0\x01\0\x03\0\xf0\xf0\xf0\xf0\x0b\0\x04\0\x1c\0\x03\0N\0S\0P\0l\0a\0y\0e\0r\0/\x009\0.\x000\0.\x000\0.\x002\x009\x008\x000\0;\0 \0{\x000\x000\x000\x000\0A\0A\x000\x000\0-\x000\0A\x000\x000\0-\x000\x000\0a\x000\0-\0A\0A\x000\0A\0-\x000\x000\x000\x000\0A\x000\0A\0A\x000\0A\0A\x000\0}\0\0\0\xe0\x6d\xdf\x5f|
 rarity 6
 ports 1549,1755,5001,9090
 
@@ -15519,7 +15517,7 @@ match wms m|^\x01\0\0.\xce\xfa\x0b\xb0.\0\0\0MMS .\0{7}.{9}\0\0\0\x01\0\x04\0\0\
 match wms m|^\x01\0\0.\xce\xfa\x0b\xb0.\0\0\0MMS .\0{7}.{9}\0\0\0\x01\0\x04\0\0\0\0\0\xf0\xf0\xf0\xf0\x0b\0\x04\0\x1c\0\x03\0\0\0\0\0\0\0\xf0\?\x01\0\0\0\x01\0\0\0\0\x80\0\0...\0.\0\0\0\0\0\0\0\0\0\0\0.\0\0\x00(\d)\0\.\x00(\d)\x00(\d)\0\.\x00(\d)\x00(\d)\0\.\x00(\d)\x00(\d)\x00(\d)\x00(\d)\0\0\0|s p/Microsoft Windows Media Services/ v/$1.$2$3.$4$5.$6$7$8$9/ o/Windows/ cpe:/a:microsoft:windows_media_services:$1.$2$3.$4$5.$6$7$8$9/a cpe:/o:microsoft:windows/a
 
 ##############################NEXT PROBE##############################
-Probe TCP oracle-tns q|\0Z\0\0\x01\0\0\0\x016\x01,\0\0\x08\0\x7F\xFF\x7F\x08\0\0\0\x01\0 \0:\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\04\xE6\0\0\0\x01\0\0\0\0\0\0\0\0(CONNECT_DATA=(COMMAND=version))|
+Probe TCP oracle-tns q|\0Z\0\0\x01\0\0\0\x016\x01,\0\0\x08\0\x7F\xFF\x7F\x08\0\0\0\x01\0 \0:\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x004\xE6\0\0\0\x01\0\0\0\0\0\0\0\0(CONNECT_DATA=(COMMAND=version))|
 rarity 7
 ports 1035,1521,1522,1525,1526,1574,1748,1754,14238,20000
 
@@ -16280,7 +16278,7 @@ rarity 8
 # ports 9001 and 49153 supported by Shodan search for "It looks like you are trying to access MongoDB"
 ports 9001,27017,49153
 match mongodb m|^.*version.....([\.\d]+)|s p/MongoDB/ v/$1/ cpe:/a:mongodb:mongodb:$1/
-match mongodb m|^\xcb\0\0\0....:0\0\0\x01\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x01\0\0\0\xa7\0\0\0\x01uptime\0\0\0\0\0\0 `@\x03globalLock\09\0\0\0\x01totalTime\0\0\0\0\x7c\xf0\x9a\x9eA\x01lockTime\0\0\0\0\0\0\xac\x9e@\x01ratio\0!\xc6\$G\xeb\x08\xf0>\0\x03mem\0<\0\0\0\x10resident\0\x03\0\0\0\x10virtual\0\xa2\0\0\0\x08supported\0\x01\x12mapped\0\0\0\0\0\0\0\0\0\0\x01ok\0\0\0\0\0\0\0\xf0\?\0$|s p/MongoDB/ cpe:/a:mongodb:mongodb/
+match mongodb m|^\xcb\0\0\0....:0\0\0\x01\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x01\0\0\0\xa7\0\0\0\x01uptime\0\0\0\0\0\0 `@\x03globalLock\0\x39\0\0\0\x01totalTime\0\0\0\0\x7c\xf0\x9a\x9eA\x01lockTime\0\0\0\0\0\0\xac\x9e@\x01ratio\0!\xc6\$G\xeb\x08\xf0>\0\x03mem\0<\0\0\0\x10resident\0\x03\0\0\0\x10virtual\0\xa2\0\0\0\x08supported\0\x01\x12mapped\0\0\0\0\0\0\0\0\0\0\x01ok\0\0\0\0\0\0\0\xf0\?\0$|s p/MongoDB/ cpe:/a:mongodb:mongodb/
 match mongodb m|^.\0\0\0....:0\0\0\x01\0\0\0\x08\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x01\0\0\0\+\0\0\0\x02errmsg\0\x0e\0\0\0need to login\0\x01ok\0\0\0\0\0\0\0\0\0\0|s p/MongoDB/ v/2.3.1 or earlier/ i/need to login/ cpe:/a:mongodb:mongodb/
 match mongodb m|^.\0\0\0....:0\0\0\x01\0\0\0\x08\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x01\0\0\0.\0\0\0\x01ok\0\0\0\0\0\0\0\0\0\x02errmsg\0.\0\0\0not authorized on (\S+) to execute command \{ serverStatus: 1\.0 \}\0\x10code\0\r\0\0\0|s p/MongoDB/ v/2.3.2 - 4.1.0/ i/not authorized; database: $1/ cpe:/a:mongodb:mongodb/
 match mongodb m|^.\0\0\0....:0\0\0\x01\0\0\0\x08\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x01\0\0\0o\0\0\0\x01ok\0\0\0\0\0\0\0\0\0\x02errmsg\0-\0\0\0command serverStatus requires authentication\0\x10code\0\r\0\0\0\x02codeName\0\r\0\0\0Unauthorized\0\0|s p/MongoDB/ v/4.1.1 - 5.0/ cpe:/a:mongodb:mongodb/
@@ -16719,7 +16717,7 @@ softmatch telnet m|^\xff\xfd\x18\xff\xfa\x18\x01\xff\xf0\xff\xfb\x01\xff\xfb\x03
 # - ServiceContextList (\x00\x00\x00\x00)
 # - Request Id: 1 (\x01\x00\x00\x00)
 # - Response expected: 1 (\x01)
-# - Object key Length: 6 (\x06x\00\x00\x00)
+# - Object key Length: 6 (\x06\x00\x00\x00)
 # - Object Key: 616263646566
 # - Operation length : 4 (\x04\x00\x00\x00)
 # - Req Operation: get (i.e \x67\x65\x74\x00)
@@ -17036,6 +17034,19 @@ Probe TCP MikroTik_Winbox_Legacy q|\xf8\x05\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\
 rarity 8
 ports 8291
 match winbox m|^\xf8\x05(?!\0{248}).{248}$|s p/MikroTik WinBox/ i/legacy protocol/ o/MikroTik RouterOS <6.43/ cpe:/o:mikrotik:routeros/
+
+# SAP HANA database communication init message
+# Prefix: 0xffffffff
+# Product version 4.32
+# Protocol version 4.1
+# \x01\x01\x01 = 1 option (1 field) little-endian
+Probe TCP SAP-HDB-Init q|\xff\xff\xff\xff\x04\x20\0\x04\x01\0\0\x01\x01\x01|
+rarity 8
+ports 30003,30013,30015,30017,30040,30041,30103,30113,30115,30117,30140,30141,30203,30213,30215,30217,30240,30241,31003,31013,31015,31017,31040,31041,32003,32013,32015,32017,32040,32041,33003,33013,33015,33017,33040,33041,34003,34013,34015,34017,34040,34041,35003,35013,35015,35017,35040,35041,36003,36013,36015,36017,36040,36041,37003,37013,37015,37017,37040,37041,38003,38013,38015,38017,38040,38041,39003,39013,39015,39017,39040,39041
+
+# In practice, these "version" fields appear to be 0
+match saphdb m|^\0\0\0\0\0\0\0\0$| p/SAP HANA SQL database/ cpe:/a:sap:hana_database/
+match saphdb m|^(.)(..)(.)(..)\0\0$| p/SAP HANA SQL database/ v/$I(1,"<").$I(2,"<")/ i/protocol $I(3,"<").$I(4,"<")/ cpe:/a:sap:hana_database:$I(1,"<").$I(2,"<")/
 
 ##############################NEXT PROBE##############################
 Probe UDP TFTP_GET q|\0\x01r7tftp.txt\0octet\0|

@@ -17,7 +17,7 @@
 .\" WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF
 .\" MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 .\"
-.TH PCAP_OFFLINE_FILTER 3PCAP "7 April 2014"
+.TH PCAP_OFFLINE_FILTER 3PCAP "12 March 2026"
 .SH NAME
 pcap_offline_filter \- check whether a filter matches a packet
 .SH SYNOPSIS
@@ -45,10 +45,35 @@ points to the
 structure for the packet, and
 .I pkt
 points to the data in the packet.
+.PP
+In the
+.B \%bpf_program
+structure the
+.B \%bf_insns
+member is either
+.B NULL
+(which means to reject all packets) or points to an array of one or more
+.B \%struct bpf_insn
+elements, in which case the
+.B \%bf_len
+member must be set to the number of elements (this is what
+.BR \%pcap_compile ()
+produces).
+.PP
+The filter program must have been compiled for a link-layer header type
+that matches the packet data; also on Linux the filter must not use
+BPF extensions, see
+.BR \%pcap_compile ()
+for more information.
 .SH RETURN VALUE
 .BR pcap_offline_filter ()
 returns the return value of the filter program.  This will be zero if
 the packet doesn't match the filter and non-zero if the packet matches
 the filter.
+.SH BACKWARD COMPATIBILITY
+.PP
+In libpcap releases before 1.10.7 this function ignored the provided
+.B \%bf_len
+value.
 .SH SEE ALSO
 .BR pcap (3PCAP)

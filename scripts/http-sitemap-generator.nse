@@ -54,7 +54,7 @@ local httpspider = require 'httpspider'
 local string = require 'string'
 local table = require 'table'
 
-portrule = shortport.port_or_service( {80, 443}, {"http", "https"}, "tcp", "open")
+portrule = shortport.http
 
 local function dict_add(d, k, v)
   if not d[k] then

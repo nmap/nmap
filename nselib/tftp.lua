@@ -142,7 +142,7 @@ local function dispatcher()
     if #threads == 0 then break end
     for i, thread in ipairs(threads) do
       local status, res = coroutine.resume(thread)
-      if ( not(res) ) then    -- thread finished its task?
+      if not status or not res then -- thread finished its task?
         table.remove(threads, i)
         break
       end
@@ -194,7 +194,7 @@ local function processConnection( host, port, data )
     if ( not(status) ) then
       -- if we're here and haven't successfully read a packet for 5 seconds, abort
       if ( os.time() - lastread  > 5 ) then
-        coroutine.yield(false)
+        return false
       else
         coroutine.yield(true)
       end

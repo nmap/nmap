@@ -7,6 +7,7 @@
 local ipOps = require "ipOps"
 local stdnse = require "stdnse"
 local string = require "string"
+local tableaux = require "tableaux"
 local unittest = require "unittest"
 _ENV = stdnse.module("packet", stdnse.seeall)
 
@@ -136,22 +137,34 @@ ND_OPT_RTR_ADV_INTERVAL = 7
 ND_OPT_HOME_AGENT_INFO = 8
 
 ETHER_TYPE_IPV4 = 0x0800
+ETHER_TYPE_8021Q = 0x8100
 ETHER_TYPE_IPV6 = 0x86dd
 ETHER_TYPE_PPPOE_DISCOVERY = 0x8863
 ETHER_TYPE_PPPOE_SESSION = 0x8864
 ETHER_TYPE_EAPOL = 0x888e
 ETHER_TYPE_PROFINET = 0x8892
 ETHER_TYPE_ATAOE = 0x88a2
+ETHER_TYPE_8021AD = 0x88a8
 
 ----------------------------------------------------------------------------------------------------------------
 -- Frame is a class
 Frame = {}
 
 function Frame:new(frame, force_continue)
-  local mac_dst, mac_src, ether_type, packet
+  local mac_dst, mac_src, ether_type, vlans, packet
   if frame and #frame >= 14 then
     local pos
     mac_dst, mac_src, ether_type, pos = ("c6c6>I2"):unpack(frame)
+    vlans = {}
+    while pos < #frame + 2 and (ether_type == ETHER_TYPE_8021Q or ether_type == ETHER_TYPE_8021AD) do
+      local vlan = {tpid=ether_type}
+      local tci
+      tci, ether_type, pos = (">I2I2"):unpack(frame, pos)
+      vlan.pcp = 0x0007 & (tci >> 13)
+      vlan.dei = 0x0001 & (tci >> 12)
+      vlan.vid = 0x0FFF & tci
+      table.insert(vlans, vlan)
+    end
     packet = frame:sub(pos, -1)
     if #packet == 0 then packet = nil end
   end
@@ -162,6 +175,7 @@ function Frame:new(frame, force_continue)
   o.mac_dst = mac_dst
   o.mac_src = mac_src
   o.ether_type = ether_type
+  o.vlans = vlans
   return o
 end
 --- Build an Ethernet frame.
@@ -169,16 +183,31 @@ end
 -- @param mac_src six-byte string of the source MAC address.
 -- @param ether_type IEEE 802 ethertype as a 16-bit integer (0x0800 for IPv4)
 -- @param packet string of the payload.
+-- @param vlans list of VLAN tags. Each tag is a table of TPID and
+--              TCI fields PCP, DEI, and VID. All fields are in lowercase and
+--              optional. TPID defaults to 802.1Q for the last/inner-most tag
+--              and 802.1ad otherwise. All TCI fields default to 0.
 -- @return frame string of the Ether frame.
-function Frame:build_ether_frame(mac_dst, mac_src, ether_type, packet)
+function Frame:build_ether_frame(mac_dst, mac_src, ether_type, packet, vlans)
   self.mac_dst = mac_dst or self.mac_dst
   self.mac_src = mac_src or self.mac_src
   self.ether_type = ether_type or self.ether_type
+  self.vlans = vlans and tableaux.tcopy(vlans) or self.vlans
   self.buf = packet or self.buf
   if not self.ether_type then
     return nil, "Unknown packet type."
   end
-  self.frame_buf = self.mac_dst..self.mac_src..(">I2"):pack(self.ether_type)..self.buf
+  local chunks = {self.mac_dst, self.mac_src}
+  for idx, vlan in ipairs(self.vlans or {}) do
+    vlan.tpid = 0xFFFF & (vlan.tpid or idx < #self.vlans and ETHER_TYPE_8021AD or ETHER_TYPE_8021Q)
+    vlan.pcp = 0x0007 & (vlan.pcp or 0)
+    vlan.dei = 0x0001 & (vlan.dei or 0)
+    vlan.vid = 0x0FFF & (vlan.vid or 0)
+    table.insert(chunks, (">I2I2"):pack(vlan.tpid, vlan.pcp << 13 | vlan.dei << 12 | vlan.vid))
+  end
+  table.insert(chunks, (">I2"):pack(self.ether_type))
+  table.insert(chunks, self.buf)
+  self.frame_buf = table.concat(chunks)
 end
 
 ----------------------------------------------------------------------------------------------------------------
@@ -686,29 +715,21 @@ end
 -- @return Table of options.
 function Packet:parse_options(offset, length)
   local options = {}
-  local op = 1
   local opt_ptr = 0
   while opt_ptr < length do
     local t, l, d
     t = self:u8(offset + opt_ptr)
-    if t==0 or t==1 then
+    if t == 0 then break end  -- EOOL
+    if t == 1 then  -- NOP
       l = 1
       d = nil
-    else
+    else  -- all other options should have a value
       l = self:u8(offset + opt_ptr + 1)
-      if l > 2 then
-        d = self:raw(offset + opt_ptr + 2, l-2)
-      end
+      if not l or l < 2 then break end
+      d = self:raw(offset + opt_ptr + 2, l - 2)
     end
-    if l==0 then
-      break
-    end
-    options[op] = {}
-    options[op].type = t
-    options[op].len  = l
-    options[op].data = d
+    table.insert(options, {type=t, len=l, data=d})
     opt_ptr = opt_ptr + l
-    op = op + 1
   end
   return options
 end
@@ -1075,6 +1096,53 @@ pkt_parsed:ip_count_checksum()
 test_suite:add_test(unittest.equal(pkt_parsed:raw(), packet1), "IP checksum")
 pkt_parsed:tcp_count_checksum()
 test_suite:add_test(unittest.equal(pkt_parsed:raw(), packet1), "TCP checksum")
+
+-- IP options parsing tests
+local opt_packet = "\x4A\x00\x00\x28\xde\xad\x00\x00\xe3\x00\x03\xf3\x03\x5e\x1e\xa5\xc0\xa8\x01\x3a"
+local opt_tests = {{bytes = "", res = {}},
+                   {bytes = "\x01\x02\x03\x04\x05", res = {{type=1, len=1, data="<nil>"}, {type=2, len=3, data="\x04"}}},
+                   {bytes = "\x00\x01", res = {}},
+                   {bytes = "\x05\x00", res = {}},
+                   {bytes = "\x05\x01", res = {}},
+                   {bytes = "\x05\x02", res = {{type=5, len=2, data=""}}},
+                   {bytes = "\x05\x06", res = {{type=5, len=6, data=""}}},
+                   {bytes = "\x05\x06\x07", res = {{type=5, len=6, data="\x07"}}},
+                   }
+for i, t in ipairs(opt_tests) do
+  local pktbytes = opt_packet .. t.bytes
+  local opts = Packet:new(pktbytes, #pktbytes, true).ip_options
+  local tname = ("parse_options test #%d: "):format(i)
+  test_suite:add_test(unittest.equal(#opts, #t.res), tname .. "# of options")
+  if #opts == #t.res then
+    for j, r in ipairs(t.res) do
+      local opt = opts[j]
+      local oname = tname .. ("option #%d: "):format(j)
+      for k, v in pairs(r) do
+        local ov = opt[k] or "<nil>"
+        test_suite:add_test(unittest.equal(ov, v), oname .. k)
+      end
+    end
+  end
+end
+
+-- Frame parsing tests
+local frame1bytes = "\xff\xff\xff\xff\xff\xff\x00\x0c\x29\xad\x4f\x05"
+                 .. "\x88\xa8" -- 802.1ad
+                 .. "\x80\x6f"
+                 .. "\x81\x00" -- 802.1Q
+                 .. "\xd0\xde"
+                 .. "\xba\xbe" -- reserved ;-)
+local frame1 = Frame:new(frame1bytes)
+local frame2 = Frame:new()
+frame2:build_ether_frame("\xff\xff\xff\xff\xff\xff",
+                         "\x00\x0c\x29\xad\x4f\x05",
+                         0xBABE,
+                         nil,
+                         {{vid=111,pcp=4},{vid=222,dei=1,pcp=6}})
+for k in ("frame_buf mac_dst mac_src ether_type vlans"):gmatch("%S+") do
+  test_suite:add_test(unittest.identical(frame1[k], frame2[k]), "Frame." .. k)
+end
+
 
 -- TODO: UDP parsing/checksum
 -- TODO: IPv6 parsing, ICMPv6 checksum

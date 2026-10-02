@@ -13,6 +13,7 @@
 
 #cmakedefine HAVE_MEMFD_CREATE 1
 #cmakedefine HAVE_SECURE_GETENV 1
+#cmakedefine HAVE_SETRLIMIT 1
 
 #cmakedefine SUPPORT_PCRE2_8 1
 #cmakedefine SUPPORT_PCRE2_16 1

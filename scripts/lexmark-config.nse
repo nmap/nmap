@@ -58,7 +58,7 @@ portrule = shortport.portnumber({5353,9100}, "udp")
 action = function( host, port )
 
   local result = {}
-  local status, response = dns.query( "", { port = port.number, host = host.ip, dtype="PTR", retPkt=true} )
+  local status, response = dns.query( "", { port = port.number, host = host, dtype="PTR", retPkt=true} )
   if ( not(status) ) then
     return
   end

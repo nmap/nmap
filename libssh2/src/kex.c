@@ -571,6 +571,11 @@ static int diffie_hellman_sha_algo(LIBSSH2_SESSION *session,
 #endif /* LIBSSH2DEBUG */
 
 
+        if(!session->hostkey) {
+            ret = _libssh2_error(session, LIBSSH2_ERROR_PROTO,
+                                 "hostkey is NULL");
+            goto clean_exit;
+        }
         if(session->hostkey->init(session, session->server_hostkey,
                                   session->server_hostkey_len,
                                   &session->server_hostkey_abstract)) {

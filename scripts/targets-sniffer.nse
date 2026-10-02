@@ -120,7 +120,7 @@ action = function()
         stdnse.debug1("Got IP addresses %s", table.concat(addresses, " "))
 
         for _, addr in ipairs(addresses) do
-          if check_if_valid(addr) == true then
+          if check_if_valid(addr) then
             if not unique_addresses[addr] then
               unique_addresses[addr] = true
               table.insert(all_addresses, addr)
@@ -137,7 +137,7 @@ action = function()
     sock:pcap_close()
   end
 
-  if target.ALLOW_NEW_TARGETS == true then
+  if target.ALLOW_NEW_TARGETS then
     if nmap.address_family() == 'inet6' then
       for _,v in pairs(all_addresses) do
         if v:match(':') then

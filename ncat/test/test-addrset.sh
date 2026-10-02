@@ -48,6 +48,19 @@ expect_fail() {
 		TEST_PASS=$(expr $TEST_PASS + 1)
 	fi
 }
+expect_pass() {
+	specs="$1"
+	$ADDRSET "$specs" < /dev/null 2> /dev/null
+	ret=$?
+	TESTS=$(expr $TESTS + 1)
+	if [ "$ret" = "0" ]; then
+		echo "PASS $specs"
+		TEST_PASS=$(expr $TEST_PASS + 1)
+	else
+		echo "FAIL $specs: $ret"
+		TEST_FAIL=$(expr $TEST_FAIL + 1)
+	fi
+}
 
 # seq replacement for systems without seq.
 seq() {
@@ -58,6 +71,9 @@ seq() {
 		low=$(expr $low + 1)
 	done
 }
+
+test_addrset "--matches-all 4 0.0.0.0/8 128.0.0.0/1 16.0.0.0/4 32.0.0.0/3 2.0.0.0/7 8.0.0.0/5 1.0.0.0/8 64.0.0.0/2 4.0.0.0/6" "" </dev/null
+expect_pass --test-matches-all
 
 # No specifications.
 test_addrset "" "" <<EOF
@@ -173,8 +189,15 @@ test_addrset "1.2.3.4/32" "1.2.3.4" <<EOF
 1.2.3.4
 EOF
 
-# /0 netmask.
+# /0 netmask with first bit 0
 test_addrset "5.5.5.5/0" "0.0.0.0 123.123.123.123 255.255.255.255" <<EOF
+0.0.0.0
+123.123.123.123
+255.255.255.255
+EOF
+
+# /0 netmask with first bit 1
+test_addrset "255.5.5.5/0" "0.0.0.0 123.123.123.123 255.255.255.255" <<EOF
 0.0.0.0
 123.123.123.123
 255.255.255.255
@@ -236,14 +259,26 @@ test_addrset "1:2::0003/128" "1:2::3" <<EOF
 1:3::3
 EOF
 
-# /0 netmask.
-test_addrset "1:2::0003/0" "1:2::3 1:2::0 1:2::ff 1:2::1ff 1:3::3 ff::00" <<EOF
+# /0 netmask with first bit 0
+test_addrset "1:2::0003/0" "1:2::3 1:2::0 1:2::ff 1:2::1ff 1:3::3 ff::00 ::1" <<EOF
 1:2::3
 1:2::0
 1:2::ff
 1:2::1ff
 1:3::3
 ff::00
+::1
+EOF
+
+# /0 netmask with first bit 1
+test_addrset "ffff:2::0003/0" "1:2::3 1:2::0 1:2::ff 1:2::1ff 1:3::3 ff::00 ::1" <<EOF
+1:2::3
+1:2::0
+1:2::ff
+1:2::1ff
+1:3::3
+ff::00
+::1
 EOF
 
 # Name lookup.

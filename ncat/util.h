@@ -81,7 +81,7 @@
   if (strlen(_Source) > sizeof((_Sock)->un.sun_path) - 1) \
     bye("Socket path length is too long. Max: %lu", sizeof((_Sock)->un.sun_path) - 1); \
   strncpy((_Sock)->un.sun_path, _Source, sizeof((_Sock)->un.sun_path) - 1); \
-} while (0);
+} while (0)
 
 #endif
 

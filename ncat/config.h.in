@@ -159,9 +159,6 @@
 /* Define to the version of this package. */
 #undef PACKAGE_VERSION
 
-/* Define as the return type of signal handlers (`int' or `void'). */
-#undef RETSIGTYPE
-
 /* Define to the type of arg 1 for `select'. */
 #undef SELECT_TYPE_ARG1
 
@@ -176,9 +173,6 @@
 
 /* Define to 1 if you have the ANSI C header files. */
 #undef STDC_HEADERS
-
-/* Define to 1 if you can safely include both <sys/time.h> and <time.h>. */
-#undef TIME_WITH_SYS_TIME
 
 /* Define to empty if `const' does not conform to ANSI C. */
 #undef const
@@ -195,3 +189,6 @@
 #undef HAVE_LUA_5_4_LUA_H
 #undef HAVE_LUA_H
 #undef HAVE_LUA_LUA_H
+
+/* Fuzzing harness enabled */
+#undef ENABLE_FUZZING

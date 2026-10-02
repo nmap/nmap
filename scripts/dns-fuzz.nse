@@ -84,7 +84,7 @@ function pingServer (host, port, attempts)
   else
     -- just do a vanilla recursive lookup of scanme.nmap.org
     for i = 1, attempts do
-      status, response = dns.query(recursiveServer, {host=host.ip, port=port.number, proto=port.protocol, tries=1, timeout=DNStimeout^slowDown})
+      status, response = dns.query(recursiveServer, {host=host, port=port.number, proto=port.protocol, tries=1, timeout=DNStimeout^slowDown})
       if status then
         return true
       end

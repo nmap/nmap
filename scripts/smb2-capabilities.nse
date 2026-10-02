@@ -59,7 +59,7 @@ action = function(host,port)
 
   -- Checking if SMB 2+ is supported in general
   status, smbstate = smb.start(host)
-  if(status == false) then
+  if not status then
     return false, smbstate
   end
   local max_dialect
@@ -73,7 +73,7 @@ action = function(host,port)
   for i, dialect in pairs(smb2.dialects()) do
     -- we need a clean connection for each negotiate request
     status, smbstate = smb.start(host)
-    if(status == false) then
+    if not status then
       stdnse.debug1("Could not establish a connection.")
       return nil
     end

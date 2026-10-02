@@ -48,7 +48,7 @@ CPPFLAGS = @CPPFLAGS@ $(DEFS)
 CFLAGS = @CFLAGS@ $(DBGFLAGS) $(CCOPT)
 STATIC =
 LDFLAGS = @LDFLAGS@ $(DBGFLAGS) $(STATIC)
-LIBS =  @LIBNSOCK_LIBS@ @LIBNBASE_LIBS@ @LIBPCRE_LIBS@ @LIBPCAP_LIBS@ $(LIBSSH2_LIBS) $(OPENSSL_LIBS) $(ZLIB_LIBS) libnetutil/libnetutil.a @LIBDNET_LIBS@ @LIBLUA_LIBS@ @LIBLINEAR_LIBS@ @LIBS@
+LIBS =  $(top_srcdir)/libnetutil/libnetutil.a @LIBNSOCK_LIBS@ @LIBNBASE_LIBS@ @LIBPCRE_LIBS@ @LIBPCAP_LIBS@ $(LIBSSH2_LIBS) $(OPENSSL_LIBS) $(ZLIB_LIBS) @LIBDNET_LIBS@ @LIBLUA_LIBS@ @LIBLINEAR_LIBS@ @LIBS@
 OPENSSL_LIBS = @OPENSSL_LIBS@
 LIBSSH2_LIBS = @LIBSSH2_LIBS@
 ZLIB_LIBS = @ZLIB_LIBS@
@@ -87,6 +87,13 @@ UNINSTALLZENMAP=@UNINSTALLZENMAP@
 UNINSTALLNDIFF=@UNINSTALLNDIFF@
 UNINSTALLNPING=@UNINSTALLNPING@
 
+ifeq (@ENABLE_FUZZING@,yes)
+BUILDFUZZ=build-fuzz
+CLEANFUZZ=clean-fuzz
+FUZZ_OBJS=fuzz/common.o
+FUZZ_SRCS := $(wildcard fuzz/fuzz_*.cc)
+endif
+
 ifneq (@NOLUA@,yes)
 NSE_SRC=nse_main.cc nse_utility.cc nse_nsock.cc nse_db.cc nse_dnet.cc nse_fs.cc nse_nmaplib.cc nse_debug.cc nse_lpeg.cc
 NSE_HDRS=nse_main.h nse_utility.h nse_nsock.h nse_db.h nse_dnet.h nse_fs.h nse_nmaplib.h nse_debug.h nse_lpeg.h
@@ -108,11 +115,11 @@ NSE_OBJS+=nse_zlib.o
 endif
 endif
 
-export SRCS = charpool.cc FingerPrintResults.cc FPEngine.cc FPModel.cc idle_scan.cc MACLookup.cc main.cc nmap.cc nmap_dns.cc nmap_error.cc nmap_ftp.cc NmapOps.cc NmapOutputTable.cc nmap_tty.cc osscan2.cc osscan.cc output.cc payload.cc portlist.cc portreasons.cc protocols.cc scan_engine.cc scan_engine_connect.cc scan_engine_raw.cc scan_lists.cc service_scan.cc services.cc string_pool.cc Target.cc NewTargets.cc TargetGroup.cc targets.cc tcpip.cc timing.cc traceroute.cc utils.cc xml.cc $(NSE_SRC)
+export SRCS = charpool.cc FingerPrintResults.cc FPEngine.cc FPModel.cc idle_scan.cc MACLookup.cc main.cc nmap.cc nmap_dns.cc nmap_error.cc nmap_ftp.cc NmapOps.cc NmapOutputTable.cc nmap_tty.cc osscan2.cc osscan.cc output.cc payload.cc portlist.cc portreasons.cc protocols.cc scan_engine.cc scan_engine_connect.cc scan_engine_raw.cc scan_lists.cc service_scan.cc services.cc string_pool.cc Target.cc NewTargets.cc TargetGroup.cc targets.cc tcpip.cc timing.cc traceroute.cc utils.cc xml.cc $(NSE_SRC) $(FUZZ_SRCS)
 
 export HDRS = charpool.h FingerPrintResults.h FPEngine.h idle_scan.h MACLookup.h nmap_amigaos.h nmap_dns.h nmap_error.h nmap.h nmap_ftp.h NmapOps.h NmapOutputTable.h nmap_tty.h nmap_winconfig.h osscan2.h osscan.h output.h payload.h portlist.h portreasons.h probespec.h protocols.h scan_engine.h scan_engine_connect.h scan_engine_raw.h service_scan.h scan_lists.h services.h string_pool.h NewTargets.h TargetGroup.h Target.h targets.h tcpip.h timing.h traceroute.h utils.h xml.h $(NSE_HDRS)
 
-OBJS = charpool.o FingerPrintResults.o FPEngine.o FPModel.o idle_scan.o MACLookup.o nmap_dns.o nmap_error.o nmap.o nmap_ftp.o NmapOps.o NmapOutputTable.o nmap_tty.o osscan2.o osscan.o output.o payload.o portlist.o portreasons.o protocols.o scan_engine.o scan_engine_connect.o scan_engine_raw.o scan_lists.o service_scan.o services.o string_pool.o NewTargets.o TargetGroup.o Target.o targets.o tcpip.o timing.o traceroute.o utils.o xml.o $(NSE_OBJS)
+OBJS = charpool.o FingerPrintResults.o FPEngine.o FPModel.o idle_scan.o MACLookup.o nmap_dns.o nmap_error.o nmap.o nmap_ftp.o NmapOps.o NmapOutputTable.o nmap_tty.o osscan2.o osscan.o output.o payload.o portlist.o portreasons.o protocols.o scan_engine.o scan_engine_connect.o scan_engine_raw.o scan_lists.o service_scan.o services.o string_pool.o NewTargets.o TargetGroup.o Target.o targets.o tcpip.o timing.o traceroute.o utils.o xml.o $(NSE_OBJS) $(FUZZ_OBJS)
 
 # %.o : %.cc -- nope this is a GNU extension
 .cc.o:
@@ -123,7 +130,7 @@ OBJS = charpool.o FingerPrintResults.o FPEngine.o FPModel.o idle_scan.o MACLooku
 # large for field of 2 bytes". Disable debugging for this one file.
 FPModel.o: CXXFLAGS += -g0
 
-all: $(TARGET) $(BUILDZENMAP) $(BUILDNDIFF) $(BUILDNPING) $(BUILDNCAT)
+all: $(TARGET) $(BUILDZENMAP) $(BUILDNDIFF) $(BUILDNPING) $(BUILDNCAT) $(BUILDFUZZ)
 
 $(TARGET): build-netutil @LIBLINEAR_BUILD@ @PCAP_BUILD@ @LIBSSH2_BUILD@ @ZLIB_BUILD@ @PCRE_BUILD@ @NSOCK_BUILD@ @NBASE_BUILD@ @DNET_BUILD@ @LUA_BUILD@ \
 	$(OBJS) main.o
@@ -151,7 +158,7 @@ build-nbase: $(NBASEDIR)/Makefile
 	@echo Compiling libnbase;
 	cd $(NBASEDIR) && $(MAKE)
 
-build-nsock: $(NSOCKDIR)/src/Makefile build-nbase
+build-nsock: $(NSOCKDIR)/src/Makefile @NBASE_BUILD@
 	@echo Compiling libnsock;
 	cd $(NSOCKDIR)/src && $(MAKE)
 
@@ -159,11 +166,13 @@ build-netutil: libnetutil/Makefile
 	@echo Compiling libnetutil;
 	cd libnetutil && $(MAKE)
 
-build-ncat: $(NCATDIR)/Makefile build-nbase build-nsock $(NCATDIR)/ncat.h @PCAP_BUILD@
+build-ncat: $(NCATDIR)/Makefile @NBASE_BUILD@ @NSOCK_BUILD@ $(NCATDIR)/ncat.h @PCAP_BUILD@
 	cd $(NCATDIR) && $(MAKE)
 
 build-lua: $(LIBLUADIR)/Makefile
 	@echo Compiling liblua; cd $(LIBLUADIR) && $(MAKE) liblua.a CC="$(CC)" MYCFLAGS="$(CFLAGS) @LUA_CFLAGS@"
+build-lua-bins: $(LIBLUADIR)/Makefile
+	@echo Compiling lua/luac; cd $(LIBLUADIR) && $(MAKE) all CC="$(CC)" MYCFLAGS="$(CFLAGS) @LUA_CFLAGS@" MYLDFLAGS="$(LDFLAGS)"
 
 build-liblinear: $(LIBLINEARDIR)/Makefile
 # -Wno-uninitialized avoids the warning "'Gnorm1_init' may be used uninitialized in this function"
@@ -199,7 +208,7 @@ web:
 
 clean: @LUA_CLEAN@ @LIBLINEAR_CLEAN@ @PCAP_CLEAN@ @PCRE_CLEAN@ @DNET_CLEAN@ @LIBSSH2_CLEAN@ @ZLIB_CLEAN@\
 clean-nsock clean-nbase clean-netutil @NPING_CLEAN@ @ZENMAP_CLEAN@ \
-@NCAT_CLEAN@ @NDIFF_CLEAN@ clean-tests
+@NCAT_CLEAN@ @NDIFF_CLEAN@ clean-tests $(CLEANFUZZ)
 	rm -f $(OBJS) main.o $(TARGET)
 # Who generates dependencies.mk? If it is generated by ./configure and
 # not by make it should be moved to distclean
@@ -373,7 +382,7 @@ $(NDIFFDIR)/Version.py: $(ZENMAPDIR)/zenmapCore/Version.py
 build-ndiff: $(NDIFFDIR)/pyproject.toml $(NDIFFDIR)/Version.py
 	$(PYTHON) -m build $(NDIFFDIR)/
 
-build-nping: $(NPINGDIR)/Makefile build-nbase build-nsock build-netutil $(NPINGDIR)/nping.h @DNET_BUILD@ @PCAP_BUILD@
+build-nping: $(NPINGDIR)/Makefile @NBASE_BUILD@ @NSOCK_BUILD@ build-netutil $(NPINGDIR)/nping.h @DNET_BUILD@ @PCAP_BUILD@
 	@cd $(NPINGDIR) && $(MAKE)
 
 install-ndiff:
@@ -452,10 +461,17 @@ check-nsock:
 check-zenmap:
 	@cd $(ZENMAPDIR)/test && $(PYTHON) run_tests.py
 
-check-nmap: tests/nmap_dns_test tests/expr_match_test
+check-nmap: tests/nmap_dns_test tests/expr_match_test tests/cstring_unescape_test
 	for test in $^; do ./$$test; done
 
 check: @NCAT_CHECK@ @NSOCK_CHECK@ @ZENMAP_CHECK@ @NSE_CHECK@ @NDIFF_CHECK@ check-nmap
+
+FUZZERS := $(FUZZ_SRCS:.cc=)
+build-fuzz: $(FUZZERS)
+clean-fuzz:
+	rm -f $(FUZZERS)
+fuzz/fuzz_%: fuzz/fuzz_%.o build-netutil @NSOCK_BUILD@ @NBASE_BUILD@ $(OBJS)
+	$(CXX) $(LDFLAGS) -fsanitize=fuzzer -o $@ $< $(OBJS) $(LIBS)
 
 ${srcdir}/configure: configure.ac
 	cd ${srcdir} && autoconf
@@ -521,4 +537,11 @@ whois db2-discover http-crossdomainxml http-email-harvest \
 http-wordpress-plugins http-wp-plugins smb-check-vulns \
 )
 
-.PHONY: all clean install uninstall check static debug prerelease release-tarballs release-rpms web distclean lua-format
+SUBCOMPONENTS := pcre dnet pcap libssh2 zlib nbase nsock netutil ncat lua lua-bins liblinear zenmap ndiff nping fuzz nse
+.PHONY: all clean install uninstall check static debug prerelease release-tarballs release-rpms web distclean lua-format \
+$(addprefix, build-,$(SUBCOMPONENTS)) \
+$(addprefix, clean-,$(SUBCOMPONENTS)) \
+$(addprefix, distclean-,$(SUBCOMPONENTS)) \
+$(addprefix, install-,$(SUBCOMPONENTS)) \
+$(addprefix, uninstall-,$(SUBCOMPONENTS)) \
+$(addprefix, check-,$(SUBCOMPONENTS))

@@ -1739,7 +1739,7 @@ local ret_false = function () return false end
 -- @return redirect_ok function used to validate HTTP redirects
 local function get_redirect_ok(host, port, options)
   if ( options ) then
-    if ( options.redirect_ok == false ) then
+    if not options.redirect_ok then
       return ret_false
     elseif( "function" == type(options.redirect_ok) ) then
       return options.redirect_ok(host, port)

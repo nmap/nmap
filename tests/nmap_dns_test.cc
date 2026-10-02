@@ -252,6 +252,26 @@ o.debugging = 1;
   TEST_INCR(a->length == 0x01, ret, tot);
   TEST_INCR(a->ttl == 86392, ret, tot);
 
+  // Names shorter than the PTR suffixes must not be treated as PTR names.
+  // The root label above ("." from a server-supplied answer) is the shortest
+  // such name; ptrToIp must reject these without searching before the start
+  // of the name.
+  sockaddr_storage short_ip;
+  const char *short_names[] = { ".", "a.com", "x", "ip6.arpa" };
+  for (size_t si = 0; si < sizeof(short_names) / sizeof(short_names[0]); si++) {
+    DNS::Factory::ptrToIp(short_names[si], short_ip);
+    TEST_INCR(short_ip.ss_family == AF_UNSPEC, ret, tot);
+  }
+
+  // Well-formed PTR names still resolve, in either case.
+  sockaddr_storage case_ip;
+  TEST_INCR(DNS::Factory::ptrToIp("156.32.33.45.in-addr.arpa", case_ip), ret, tot);
+  TEST_INCR(case_ip.ss_family == AF_INET, ret, tot);
+  TEST_INCR(((sockaddr_in *)&case_ip)->sin_addr.s_addr == htonl(0x2d21209c), ret, tot);
+  TEST_INCR(DNS::Factory::ptrToIp("156.32.33.45.IN-ADDR.ARPA", case_ip), ret, tot);
+  TEST_INCR(case_ip.ss_family == AF_INET, ret, tot);
+  TEST_INCR(((sockaddr_in *)&case_ip)->sin_addr.s_addr == htonl(0x2d21209c), ret, tot);
+
   if(ret) std::cout << "Testing nmap_dns finished with errors" << std::endl;
   else std::cout << "Testing nmap_dns finished without errors" << std::endl;
   std::cout << "Ran " << tot << " tests. " << ret << " failures." << std::endl;

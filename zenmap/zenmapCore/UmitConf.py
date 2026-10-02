@@ -58,7 +58,8 @@
 
 import re
 
-from configparser import DuplicateSectionError, NoSectionError, NoOptionError
+from configparser import DuplicateSectionError, NoSectionError, NoOptionError, \
+        InterpolationError
 from configparser import Error as ConfigParser_Error
 
 from zenmapCore.Paths import Path
@@ -202,14 +203,32 @@ class Profile(UmitConfigParser, object):
 
         self.attributes = {}
 
-    def _get_it(self, profile, attribute):
-        if self._verify_profile(profile):
-            return self.get(profile, attribute)
-        return ""
+    def _get_it(self, profile, attribute, fallback=None):
+        try:
+            return self.get(profile, attribute, fallback=fallback)
+        except InterpolationError:
+            pass
+        except Exception:
+            return ""
+        try:
+            value = self.get(profile, attribute, fallback=fallback, raw=True)
+            if attribute == "command" and value.endswith("%s"):
+                value = value[:-2]
+            return value
+        except Exception:
+            return ""
 
     def _set_it(self, profile, attribute, value=''):
-        if self._verify_profile(profile):
+        try:
             return self.set(profile, attribute, value)
+        except NoSectionError:
+            pass
+        except ValueError as e:
+            if attribute == "command" and value.endswith("%s"):
+                return self._set_it(profile, attribute, value[:-2])
+            raise ValueError(_("Invalid %(attribute)s entry") % {
+                "attribute": attribute
+                }) from e
 
     def add_profile(self, profile_name, **attributes):
         """Add a profile with the given name and attributes to the collection
@@ -219,24 +238,23 @@ class Profile(UmitConfigParser, object):
 
         log.debug(">>> Add Profile '%s': %s" % (profile_name, attributes))
 
-        try:
+        if not attributes["command"]:
+            raise NoOptionError("command", profile_name)
+
+        with self.section_transaction(profile_name):
             self.add_section(profile_name)
-        except DuplicateSectionError:
-            return None
 
-        # Set each of the attributes ("command", "description") in the
-        # ConfigParser.
-        for attr in attributes:
-            self._set_it(profile_name, attr, attributes[attr])
+            # Set each of the attributes ("command", "description") in the
+            # ConfigParser.
+            for attr in attributes:
+                self._set_it(profile_name, attr, attributes[attr])
 
-        self.save_changes()
+            self.save_changes()
 
     def remove_profile(self, profile_name):
-        try:
+        with self.section_transaction(profile_name):
             self.remove_section(profile_name)
-        except Exception:
-            pass
-        self.save_changes()
+            self.save_changes()
 
     def _verify_profile(self, profile_name):
         if profile_name not in self.sections():
@@ -362,7 +380,10 @@ class CommandProfile (Profile, object):
         Profile.__init__(self, user_profile)
 
     def get_command(self, profile):
-        command_string = self._get_it(profile, 'command')
+        try:
+            command_string = self._get_it(profile, 'command', "nmap")
+        except ConfigParser_Error:
+            return "nmap"
         # Corrupted config file can include multiple commands.
         # Take the first one.
         if isinstance(command_string, list):
@@ -376,7 +397,12 @@ class CommandProfile (Profile, object):
         return command_string
 
     def get_description(self, profile):
-        desc = self._get_it(profile, 'description')
+        try:
+            desc = self._get_it(profile, 'description', "")
+        except NoSectionError:
+            raise
+        except ConfigParser_Error:
+            return ""
         if isinstance(desc, list):
             desc = " ".join(desc)
         return desc
@@ -645,20 +671,3 @@ class PathsConfig(object):
     nmap_command_path = property(get_nmap_command_path, set_nmap_command_path)
     ndiff_command_path = property(
             get_ndiff_command_path, set_ndiff_command_path)
-
-
-# Exceptions
-class ProfileNotFound:
-    def __init__(self, profile):
-        self.profile = profile
-
-    def __str__(self):
-        return "No profile named '" + self.profile + "' found!"
-
-
-class ProfileCouldNotBeSaved:
-    def __init__(self, profile):
-        self.profile = profile
-
-    def __str__(self):
-        return "Profile named '" + self.profile + "' could not be saved!"

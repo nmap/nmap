@@ -229,10 +229,10 @@ int parse_ip_options(const char *txt, u8 *data, int datalen, int* firsthopoff, i
     case SLASH:
       // parse \x00 string
       if(*c == 'x'){// just ignore this char
-      	base = 16;
+        base = 16;
         break;
       }
-      if(isxdigit(*c)){
+      if(isxdigit((unsigned char)*c)){
         strtolbyte = strtol(c, &n, base);
         if((strtolbyte < 0) || (strtolbyte > 255)){
           if(errstr) Snprintf(errstr, errstrlen, "invalid ipv4 address format");
@@ -469,8 +469,14 @@ struct addrinfo *resolve_all(const char *hostname, int pf) {
  */
 int ip_is_reserved(const struct sockaddr_storage *addr)
 {
-  static struct addrset *reserved = NULL;
   assert(addr);
+  const struct addrset *reserved = get_reserved_addrset();
+  return addrset_contains(reserved, (struct sockaddr *)addr);
+}
+
+const struct addrset *get_reserved_addrset(void)
+{
+  static struct addrset *reserved = NULL;
 
   if (reserved == NULL) {
     reserved = addrset_new();
@@ -516,7 +522,7 @@ int ip_is_reserved(const struct sockaddr_storage *addr)
     addrset_add_spec(reserved, "fe80::/10", AF_INET6, 0);
   }
 
-  return addrset_contains(reserved, (struct sockaddr *)addr);
+  return reserved;
 }
 
 bool getNextHopMAC(const char *iface, const u8 *srcmac, const struct sockaddr_storage *srcss,
@@ -1401,7 +1407,7 @@ struct tcpopt_info_ctx {
   bool valid;
   tcpopt_info_ctx() : p(NULL), end(NULL), valid(true) {}
   bool check_length(size_t len) const {
-    return (end - p) >= len;
+    return end >= (p + len);
   }
   void put_str(const char *str) {
     if (p >= end)
@@ -1867,6 +1873,23 @@ int sockaddr_equal_zero(const struct sockaddr_storage *s) {
   }
 
   return 0;
+}
+
+socklen_t sockaddr_get_len(const struct sockaddr_storage *ss)
+{
+  socklen_t ss_len = sizeof(*ss);
+#if HAVE_SOCKADDR_SA_LEN
+  if (((const struct sockaddr *)ss)->sa_len > 0) {
+    ss_len = ((const struct sockaddr *)ss)->sa_len;
+  } else
+#endif
+    if (ss->ss_family == AF_INET) {
+      ss_len = sizeof(struct sockaddr_in);
+    }
+    else if (ss->ss_family == AF_INET6) {
+      ss_len = sizeof(struct sockaddr_in6);
+    }
+  return ss_len;
 }
 
 /* This is a helper for getsysroutes_dnet. Once the table of routes is in
@@ -3134,7 +3157,7 @@ pcap_t *my_pcap_open_live(const char *device, int snaplen, int promisc, int to_m
     pcap_close(p_t);\
     return NULL;\
   }\
-} while(0);
+} while(0)
 
   MY_PCAP_SET(pcap_set_snaplen, pt, snaplen);
   MY_PCAP_SET(pcap_set_promisc, pt, promisc);
@@ -3291,6 +3314,8 @@ int read_reply_pcap(pcap_t *pd, long to_usec,
   int badcounter = 0;
   struct timeval tv_start, tv_end;
   int ioffset;
+  size_t l2len;
+  unsigned ethertype;
 
   if (!pd)
     netutil_fatal("NULL packet device passed to %s", __func__);
@@ -3353,11 +3378,14 @@ int read_reply_pcap(pcap_t *pd, long to_usec,
     }
 
     if (pcap_status == 1 && *p != NULL) {
-      /* Offset may be different in the case of 802.1q */
-      if (*datalink == DLT_EN10MB
-          && (*head)->caplen >= sizeof(struct eth_hdr)
-          && 0 == memcmp((*p) + offsetof(struct eth_hdr, eth_type), "\x81\x00", 2)) {
-        *offset += 4;
+      /* Offset may be different in the case of 802.1Q */
+      if (*datalink == DLT_EN10MB) {
+        /* Skip over 802.1Q tags; 802.1ad allows more than one */
+        for (l2len = *offset; l2len <= (*head)->caplen; l2len += 4) {
+          ethertype = ntohs(*(uint16_t *)(*p + l2len - 2));
+          if (ethertype != ETH_TYPE_8021Q && ethertype != ETH_TYPE_8021AD) break;
+        }
+        *offset = l2len;
       }
       if (accept_callback(*p, *head, *datalink, *offset)) {
         break;

@@ -6,11 +6,7 @@
  * $Id$
  */
 
-#ifdef _WIN32
-#include "dnet_winconfig.h"
-#else
 #include "config.h"
-#endif
 
 #include <errno.h>
 #include <stdio.h>

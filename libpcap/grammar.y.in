@@ -468,6 +468,7 @@ nid:	  ID			{ CHECK_PTR_VAL($1); CHECK_PTR_VAL(($$.b = gen_scode(cstate, $1, $$.
 				}
 	| HID NETMASK HID	{
 				  CHECK_PTR_VAL($1);
+				  CHECK_PTR_VAL($3);
 				  /* Check whether HID mask HID is being used when appropriate */
 				  $$.q = $<blk>0.q;
 				  if ($$.q.addr == Q_PORT) {

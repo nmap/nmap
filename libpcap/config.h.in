@@ -18,7 +18,7 @@
 /* define if we have the AIX getprotobyname_r() */
 #undef HAVE_AIX_GETPROTOBYNAME_R
 
-/* Define to 1 if you have the `asprintf' function. */
+/* Define to 1 if you have the 'asprintf' function. */
 #undef HAVE_ASPRINTF
 
 /* Define to 1 if you have the <config/HaikuConfig.h> header file. */
@@ -45,22 +45,22 @@
 /* Define to 1 if you have the declaration of `ether_hostton' */
 #undef HAVE_DECL_ETHER_HOSTTON
 
-/* Define to 1 if `dl_module_id_1' is a member of `dl_hp_ppa_info_t'. */
+/* Define to 1 if 'dl_module_id_1' is a member of 'dl_hp_ppa_info_t'. */
 #undef HAVE_DL_HP_PPA_INFO_T_DL_MODULE_ID_1
 
-/* Define to 1 if the system has the type `dl_passive_req_t'. */
+/* Define to 1 if the system has the type 'dl_passive_req_t'. */
 #undef HAVE_DL_PASSIVE_REQ_T
 
-/* Define to 1 if you have the `ether_hostton' function. */
+/* Define to 1 if you have the 'ether_hostton' function. */
 #undef HAVE_ETHER_HOSTTON
 
-/* Define to 1 if you have the `ffs' function. */
+/* Define to 1 if you have the 'ffs' function. */
 #undef HAVE_FFS
 
-/* Define to 1 if fseeko (and presumably ftello) exists and is declared. */
+/* Define to 1 if fseeko (and ftello) are declared in stdio.h. */
 #undef HAVE_FSEEKO
 
-/* Define to 1 if you have the `getspnam' function. */
+/* Define to 1 if you have the 'getspnam' function. */
 #undef HAVE_GETSPNAM
 
 /* Define to 1 if you have a GNU-style `strerror_r' function. */
@@ -75,7 +75,7 @@
 /* Define to 1 if you have the <inttypes.h> header file. */
 #undef HAVE_INTTYPES_H
 
-/* Define to 1 if you have the `bsd' library (-lbsd). */
+/* Define to 1 if you have the 'bsd' library (-lbsd). */
 #undef HAVE_LIBBSD
 
 /* if libdlpi exists */
@@ -147,7 +147,7 @@
 /* define if you have the Myricom SNF API */
 #undef HAVE_SNF_API
 
-/* Define to 1 if the system has the type `socklen_t'. */
+/* Define to 1 if the system has the type 'socklen_t'. */
 #undef HAVE_SOCKLEN_T
 
 /* On solaris */
@@ -177,43 +177,43 @@
 /* Define to 1 if you have the <string.h> header file. */
 #undef HAVE_STRING_H
 
-/* Define to 1 if you have the `strlcat' function. */
+/* Define to 1 if you have the 'strlcat' function. */
 #undef HAVE_STRLCAT
 
-/* Define to 1 if you have the `strlcpy' function. */
+/* Define to 1 if you have the 'strlcpy' function. */
 #undef HAVE_STRLCPY
 
-/* Define to 1 if you have the `strtok_r' function. */
+/* Define to 1 if you have the 'strtok_r' function. */
 #undef HAVE_STRTOK_R
 
-/* Define to 1 if the system has the type `struct BPF_TIMEVAL'. */
+/* Define to 1 if the system has the type 'struct BPF_TIMEVAL'. */
 #undef HAVE_STRUCT_BPF_TIMEVAL
 
-/* Define to 1 if the system has the type `struct ether_addr'. */
+/* Define to 1 if the system has the type 'struct ether_addr'. */
 #undef HAVE_STRUCT_ETHER_ADDR
 
-/* Define to 1 if `msg_control' is a member of `struct msghdr'. */
+/* Define to 1 if 'msg_control' is a member of 'struct msghdr'. */
 #undef HAVE_STRUCT_MSGHDR_MSG_CONTROL
 
-/* Define to 1 if `msg_flags' is a member of `struct msghdr'. */
+/* Define to 1 if 'msg_flags' is a member of 'struct msghdr'. */
 #undef HAVE_STRUCT_MSGHDR_MSG_FLAGS
 
-/* Define to 1 if the system has the type `struct rte_ether_addr'. */
+/* Define to 1 if the system has the type 'struct rte_ether_addr'. */
 #undef HAVE_STRUCT_RTE_ETHER_ADDR
 
-/* Define to 1 if `hci_channel' is a member of `struct sockaddr_hci'. */
+/* Define to 1 if 'hci_channel' is a member of 'struct sockaddr_hci'. */
 #undef HAVE_STRUCT_SOCKADDR_HCI_HCI_CHANNEL
 
-/* Define to 1 if `sa_len' is a member of `struct sockaddr'. */
+/* Define to 1 if 'sa_len' is a member of 'struct sockaddr'. */
 #undef HAVE_STRUCT_SOCKADDR_SA_LEN
 
-/* Define to 1 if the system has the type `struct sockaddr_storage'. */
+/* Define to 1 if the system has the type 'struct sockaddr_storage'. */
 #undef HAVE_STRUCT_SOCKADDR_STORAGE
 
-/* Define to 1 if `tp_vlan_tci' is a member of `struct tpacket_auxdata'. */
+/* Define to 1 if 'tp_vlan_tci' is a member of 'struct tpacket_auxdata'. */
 #undef HAVE_STRUCT_TPACKET_AUXDATA_TP_VLAN_TCI
 
-/* Define to 1 if `bRequestType' is a member of `struct
+/* Define to 1 if 'bRequestType' is a member of 'struct
    usbdevfs_ctrltransfer'. */
 #undef HAVE_STRUCT_USBDEVFS_CTRLTRANSFER_BREQUESTTYPE
 
@@ -247,16 +247,16 @@
 /* Define to 1 if you have the <unistd.h> header file. */
 #undef HAVE_UNISTD_H
 
-/* Define to 1 if you have the `vasprintf' function. */
+/* Define to 1 if you have the 'vasprintf' function. */
 #undef HAVE_VASPRINTF
 
-/* Define to 1 if you have the `vsyslog' function. */
+/* Define to 1 if you have the 'vsyslog' function. */
 #undef HAVE_VSYSLOG
 
 /* Define to 1 if you have the <zone.h> header file. */
 #undef HAVE_ZONE_H
 
-/* Define to 1 if you have the `_wcserror_s' function. */
+/* Define to 1 if you have the '_wcserror_s' function. */
 #undef HAVE__WCSERROR_S
 
 /* define if __atomic_load_n is supported by the compiler */
@@ -322,13 +322,13 @@
 /* target host supports RDMA sniffing */
 #undef PCAP_SUPPORT_RDMASNIFF
 
-/* The size of `time_t', as computed by sizeof. */
+/* The size of 'time_t', as computed by sizeof. */
 #undef SIZEOF_TIME_T
 
-/* The size of `void *', as computed by sizeof. */
+/* The size of 'void *', as computed by sizeof. */
 #undef SIZEOF_VOID_P
 
-/* Define to 1 if all of the C90 standard headers exist (not just the ones
+/* Define to 1 if all of the C89 standard headers exist (not just the ones
    required in a freestanding environment). This macro is provided for
    backward compatibility; new code need not use it. */
 #undef STDC_HEADERS
@@ -342,21 +342,27 @@
 /* Enable parser debugging */
 #undef YYDEBUG
 
-/* Define to 1 if `lex' declares `yytext' as a `char *' by default, not a
-   `char[]'. */
+/* Define to 1 if 'lex' declares 'yytext' as a 'char *' by default, not a
+   'char[]'. */
 #undef YYTEXT_POINTER
 
 /* Number of bits in a file offset, on hosts where this is settable. */
 #undef _FILE_OFFSET_BITS
 
-/* Define to 1 to make fseeko visible on some hosts (e.g. glibc 2.2). */
+/* Define to 1 if necessary to make fseeko visible. */
 #undef _LARGEFILE_SOURCE
 
-/* Define for large files, on AIX-style hosts. */
+/* Define to 1 on platforms where this makes off_t a 64-bit type. */
 #undef _LARGE_FILES
 
 /* define on AIX to get certain functions */
 #undef _SUN
+
+/* Number of bits in time_t, on hosts where this is settable. */
+#undef _TIME_BITS
+
+/* Define to 1 on platforms where this makes time_t a 64-bit type. */
+#undef __MINGW_USE_VC2005_COMPAT
 
 /* to handle Ultrix compilers that don't support const in prototypes */
 #undef const

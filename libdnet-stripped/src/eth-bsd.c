@@ -133,12 +133,13 @@ eth_get(eth_t *e, eth_addr_t *ea)
 		if (addr_ston((struct sockaddr *)sdl, &ha) == 0)
 			break;
 	}
-	free(buf);
 	
 	if (p >= buf + len) {
+		free(buf);
 		errno = ESRCH;
 		return (-1);
 	}
+	free(buf);
 	memcpy(ea, &ha.addr_eth, sizeof(*ea));
 	
 	return (0);

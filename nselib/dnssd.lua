@@ -285,7 +285,7 @@ Comm = {
     if ( multiple ) then
       sendCount, timeout = 2, 5000
     end
-    return dns.query( "_services._dns-sd._udp.local", { port = port, host = ( host.ip or host ), dtype="PTR", retAll=true, multiple=multiple, sendCount=sendCount, timeout=timeout } )
+    return dns.query( "_services._dns-sd._udp.local", { port = port, host = host, dtype="PTR", retAll=true, multiple=multiple, sendCount=sendCount, timeout=timeout } )
   end,
 
 }

@@ -42,7 +42,7 @@ local stdnse = require "stdnse"
 local table = require "table"
 local httpspider = require "httpspider"
 
-portrule = shortport.port_or_service( {80, 443}, {"http", "https"}, "tcp", "open")
+portrule = shortport.http
 
 local function compare(a, b)
   return a[1] < b[1]

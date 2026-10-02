@@ -167,6 +167,10 @@ int EchoClient::nep_connect(NpingTarget *target, u16 port){
   else
     target->getTargetSockAddr(&ss, &ss_len);
 
+  /* Try to bind the IOD to the IP address supplied by the user */
+  o.getSourceSockAddr(&src);
+  nsock_iod_set_localaddr(this->nsi, &src, sockaddr_get_len(&src));
+
   /* AF_INET6 */
   if( s6->sin6_family==AF_INET6 ){
     this->af=AF_INET6;
@@ -177,9 +181,6 @@ int EchoClient::nep_connect(NpingTarget *target, u16 port){
     #ifdef HAVE_SOCKADDR_IN6_SIN6_LEN
         this->srvaddr6.sin6_len = sizeof(struct sockaddr_in6);
     #endif
-
-   /* Try to bind the IOD to the IP address supplied by the user */
-   nsock_iod_set_localaddr(this->nsi, o.getSourceSockAddr(&src), sizeof(sockaddr_in6));
 
    /* Schedule a connect event */
    nsock_connect_tcp(this->nsp, this->nsi, connect_done_handler, ECHO_CONNECT_TIMEOUT,
@@ -194,9 +195,6 @@ int EchoClient::nep_connect(NpingTarget *target, u16 port){
 #ifdef HAVE_SOCKADDR_IN_SIN_LEN
     this->srvaddr4.sin_len = sizeof(struct sockaddr_in);
 #endif
-
-   /* Try to bind the IOD to the IP address supplied by the user */
-   nsock_iod_set_localaddr(this->nsi, o.getSourceSockAddr(&src), sizeof(sockaddr_in));
 
    /* Schedule a connect event */
    nsock_connect_tcp(this->nsp, this->nsi, connect_done_handler, ECHO_CONNECT_TIMEOUT,

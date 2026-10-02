@@ -179,6 +179,7 @@ Packet = {
       local block_type, block_len
       while userdata:len() > pos do
         block_type, block_len  = string.unpack("<I2I2", userdata, pos)
+        assert(block_len >= 4, "Server Data block length too short")
         if block_type == 0x0c01 then
           -- 2.2.1.42 Server Core Data - TS_UD_SC_CORE
           local proto_ver = string.unpack("<I4",userdata, pos + 4)
@@ -440,9 +441,9 @@ Comm = {
     local itut_code = string.byte(data, 6)
     if ( itut_code == 0xD0 ) then
       stdnse.debug2("RDP: Received ConnectionConfirm response")
-      return true, Response.ConnectionConfirm.parse(data)
+      return pcall(Response.ConnectionConfirm.parse(data))
     elseif ( itut_code == 0xF0 ) then
-      return true, Response.MCSConnectResponse.parse(data)
+      return pcall(Response.MCSConnectResponse.parse(data))
     elseif itut_code ~= nil then
         stdnse.debug1(("comm:exch - Unknown itut_code: %s"):format(itut_code))
     end

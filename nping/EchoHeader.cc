@@ -849,8 +849,7 @@ int EchoHeader::setErrorMessage(const char *err){
   if(err==NULL){
     return OP_FAILURE;
   }else{
-    strncpy((char *)this->data_error->errmsg, err, ERROR_MSG_LEN);
-    this->data_error->errmsg[ERROR_MSG_LEN-1]='\0';
+    Strncpy((char *)this->data_error->errmsg, err, ERROR_MSG_LEN);
   }
   return OP_SUCCESS;
 } /* End of setErrorMessage() */

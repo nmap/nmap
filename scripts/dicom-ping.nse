@@ -50,7 +50,7 @@ portrule = shortport.port_or_service({104, 2345, 2761, 2762, 4242, 11112}, "dico
 action = function(host, port)
   local output = stdnse.output_table()
   local dcm_conn_status, err = dicom.associate(host, port)
-  if dcm_conn_status == false then
+  if not dcm_conn_status then
     stdnse.debug1("Association failed:%s", err)
     if err == "ASSOCIATE REJECT received" then
       port.version.name = "dicom"

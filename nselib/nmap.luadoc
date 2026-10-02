@@ -657,6 +657,14 @@ function receive_buf(delimiter, keeppattern)
 -- @usage socket:close()
 function close()
 
+--- Check whether the socket has seen EOF
+--
+-- @return Status (true or false).
+-- @return Error code (if status is false).
+-- @see new_socket
+-- @usage socket:eof()
+function eof()
+
 --- Gets information about a socket.
 --
 -- This function returns information about a socket object. It returns five
@@ -711,7 +719,7 @@ function pcap_open(device, snaplen, promisc, bpf)
 -- @return The length of the captured packet (this may be smaller than the
 --         actual packet length since packets are truncated when the
 --         libpcap snaplen parameter is smaller than the total packet length).
--- @return Data from the second OSI layer (e.g. ethernet headers).
+-- @return Data from the second OSI layer (e.g. ethernet and VLAN headers).
 -- @return Data from the third OSI layer (e.g. IPv4 headers).
 -- @return Packet capture time, as floating point seconds since the epoch
 -- @see pcap_open

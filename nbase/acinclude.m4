@@ -13,7 +13,7 @@ dnl describing the error codes.
 dnl
 AC_DEFUN(APR_CHECK_WORKING_GETADDRINFO,[
   AC_CACHE_CHECK(for working getaddrinfo, ac_cv_working_getaddrinfo,[
-  AC_TRY_RUN( [
+  AC_RUN_IFELSE( [AC_LANG_PROGRAM([
 #ifdef HAVE_NETDB_H
 #include <netdb.h>
 #endif
@@ -26,8 +26,7 @@ AC_DEFUN(APR_CHECK_WORKING_GETADDRINFO,[
 #ifdef HAVE_SYS_SOCKET_H
 #include <sys/socket.h>
 #endif
-
-int main(void) {
+],[
     struct addrinfo hints, *ai;
     int error;
 
@@ -43,14 +42,14 @@ int main(void) {
     }
     freeaddrinfo(ai);
     return 0;
-}
-],[
+])],[
   ac_cv_working_getaddrinfo="yes"
 ],[
   ac_cv_working_getaddrinfo="no"
 ],[
   ac_cv_working_getaddrinfo="yes"
-])])
+])
+  ])
 if test "$ac_cv_working_getaddrinfo" = "yes"; then
   if test "$ac_cv_func_gai_strerror" != "yes"; then
     ac_cv_working_getaddrinfo="no"
@@ -65,7 +64,7 @@ dnl check for working getnameinfo() -- from Apache 2.0.40
 dnl
 AC_DEFUN(APR_CHECK_WORKING_GETNAMEINFO,[
   AC_CACHE_CHECK(for working getnameinfo, ac_cv_working_getnameinfo,[
-  AC_TRY_RUN( [
+  AC_RUN_IFELSE( [AC_LANG_PROGRAM([
 #ifdef HAVE_NETDB_H
 #include <netdb.h>
 #endif
@@ -84,8 +83,7 @@ AC_DEFUN(APR_CHECK_WORKING_GETNAMEINFO,[
 #ifdef HAVE_ARPA_INET_H
 #include <arpa/inet.h>
 #endif
-
-int main(void) {
+],[[
     struct sockaddr_in sa;
     char hbuf[256];
     int error;
@@ -105,14 +103,14 @@ int main(void) {
     } else {
         return 0;
     }
-}
-],[
+]])],[
   ac_cv_working_getnameinfo="yes"
 ],[
   ac_cv_working_getnameinfo="no"
 ],[
   ac_cv_working_getnameinfo="yes"
-])])
+])
+  ])
 if test "$ac_cv_working_getnameinfo" = "yes"; then
   AC_DEFINE(HAVE_GETNAMEINFO, 1, [Define if getnameinfo exists])
 fi
@@ -120,7 +118,7 @@ fi
 
 AC_DEFUN(APR_CHECK_SOCKADDR_IN6,[
 AC_CACHE_CHECK(for sockaddr_in6, ac_cv_define_sockaddr_in6,[
-AC_TRY_COMPILE([
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([
 #ifdef HAVE_SYS_TYPES_H
 #include <sys/types.h>
 #endif
@@ -129,7 +127,7 @@ AC_TRY_COMPILE([
 #endif
 ],[
 struct sockaddr_in6 sa;
-],[
+])],[
     ac_cv_define_sockaddr_in6=yes
 ],[
     ac_cv_define_sockaddr_in6=no
@@ -146,7 +144,7 @@ fi
 
 AC_DEFUN(CHECK_AF_INET6_DEFINE,[
 AC_CACHE_CHECK(for AF_INET6 definition, ac_cv_define_af_inet6,[
-AC_TRY_COMPILE([
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([
 #ifdef HAVE_SYS_TYPES_H
 #include <sys/types.h>
 #endif
@@ -158,7 +156,7 @@ AC_TRY_COMPILE([
 #endif
 ],[
 int af = AF_INET6;
-],[
+])],[
     ac_cv_define_af_inet6=yes
 ],[
     ac_cv_define_af_inet6=no
@@ -175,7 +173,7 @@ fi
 
 AC_DEFUN(APR_CHECK_SOCKADDR_STORAGE,[
 AC_CACHE_CHECK(for sockaddr_storage, ac_cv_define_sockaddr_storage,[
-AC_TRY_COMPILE([
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([
 #ifdef HAVE_SYS_TYPES_H
 #include <sys/types.h>
 #endif
@@ -187,7 +185,7 @@ AC_TRY_COMPILE([
 #endif
 ],[
 struct sockaddr_storage sa;
-],[
+])],[
     ac_cv_define_sockaddr_storage=yes
 ],[
     ac_cv_define_sockaddr_storage=no

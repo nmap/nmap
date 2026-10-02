@@ -268,13 +268,16 @@ DRDA = {
 
     status, data = db2socket:receive_buf( match.numbytes(ddm.Length - 10), true )
     if ( not(status) ) then
-      return false, ("Failed to read the remaining %d bytes of the DRDA message")
+      return false, ("Failed to read the remaining %d bytes of the DRDA message"):format(ddm.Length - 10)
     end
 
     -- add parameters until pos reaches the "end"
     repeat
       local param = DRDAParameter:new()
       pos = param:fromString( data, pos )
+      if pos < 1 then
+        return false, "Bad DRDA Parameter"
+      end
       self:addParameter( param )
     until ( #data <= pos )
 
@@ -320,7 +323,7 @@ DRDAParameter = {
     end
     self.Length, self.CodePoint, pos = string.unpack( ">I2I2", data, pos )
 
-    if ( self.Length > 0 ) then
+    if ( self.Length > 4 ) then
       self.Data, pos = string.unpack("c" .. self.Length - 4, data, pos )
     end
     return pos

@@ -1,6 +1,5 @@
 local ftp = require "ftp"
 local nmap = require "nmap"
-local shortport = require "shortport"
 local stdnse = require "stdnse"
 
 -- -*- mode: lua -*-
@@ -48,7 +47,7 @@ portrule = function (host, port)
     return false
   end
 
-  return shortport.port_or_service(21, "ftp")(host, port)
+  return ftp.portrule(host, port)
 end
 
 action = function(host, port)

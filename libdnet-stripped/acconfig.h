@@ -4,6 +4,7 @@
 
 #ifdef HAVE_WINSOCK2_H
 # include <winsock2.h>
+# include <ws2tcpip.h>
 # include <windows.h>
 #endif
 
@@ -17,10 +18,6 @@
 
 #ifndef HAVE_INET_PTON
 int inet_pton(int, const char *, void *);
-#endif
-
-#ifndef HAVE_STRLCAT
-int strlcat(char *, const char *, int);
 #endif
 
 #ifndef HAVE_STRLCPY

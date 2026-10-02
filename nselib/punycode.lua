@@ -91,13 +91,7 @@ end
 -- @param status boolean value is given as input.
 -- @return Returns 0/1 based on the given boolean input.
 local function boolToNum(status)
-
-  if status == true then
-    return 1
-  else
-    return 0
-  end
-
+  return status and 1 or 0
 end
 
 -- This function converts a basic code point into a digit/integer.
