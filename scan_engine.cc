@@ -2385,8 +2385,9 @@ static void retransmitProbe(UltraScanInfo *USI, HostScanStats *hss,
   } else if (probe->type == UltraProbe::UP_ND) {
     newProbe = sendNDScanProbe(USI, hss, tryno);
   } else {
-    /* TODO: Support any other probe types */
-    fatal("%s: unsupported probe type %d", __func__, probe->type);
+    error("WARNING: %s: unsupported probe type %d, skipping retransmit",
+          __func__, probe->type);
+    return;
   }
   if (newProbe)
     newProbe->prevSent = probe->sent;
