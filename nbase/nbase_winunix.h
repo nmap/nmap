@@ -179,6 +179,8 @@
 #define EOPNOTSUPP      WSAEOPNOTSUPP
 #undef  EIO
 #define EIO             WSASYSCALLFAILURE
+#undef  ENOTCONN
+#define ENOTCONN WSAENOTCONN
 
 /*
 This is not used by our network code, and causes problems in programs using

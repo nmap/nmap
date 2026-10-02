@@ -537,6 +537,7 @@ bool do_one_select_round(UltraScanInfo *USI, struct timeval *stime) {
   recvfrom6_t optlen = sizeof(int);
   int numGoodSD = 0;
   int err = 0;
+  static bool getpeername_works = true;
 
   do {
     timeleft = TIMEVAL_MSEC_SUBTRACT(*stime, USI->now);
@@ -605,6 +606,56 @@ bool do_one_select_round(UltraScanInfo *USI, struct timeval *stime) {
                        &optlen) != 0)
           optval = socket_errno(); /* Stupid Solaris ... */
 
+        if (optval == 0) {
+          /* SO_ERROR == 0 is insufficient to determine if the socket is
+           * connected (https://issues.nmap.org/3523). Historically,
+           * SO_ERROR was not portable, so other methods can be used as a
+           * fallback (https://cr.yp.to/docs/connect.html).
+           * If getpeername() succeeds, the socket is connected. Otherwise, we
+           * fall back to trying a 1-byte read() to determine if the connection
+           * really succeeded. */
+          bool try_read = !getpeername_works;
+
+          if (getpeername_works) {
+            sockaddr_storage peer = {0};
+            socklen_t peerlen = sizeof(peer);
+            if (getpeername(sd, (struct sockaddr*)&peer, &peerlen) != 0) {
+              /* If it fails, either the socket is not connected or some other
+               * error happened */
+              try_read = true;
+              err = socket_errno();
+              if (err == EOPNOTSUPP) {
+                // getpeername is not supported;
+                getpeername_works = false;
+              }
+              else if (err != ENOTCONN) {
+                // ENOBUFS, ENETDOWN, EINPROGRESS, etc.
+                if (o.debugging) {
+                  log_write(LOG_STDOUT,
+                      "Strange getpeername error from %s:%hu (%d - '%s')\n",
+                      host->target->targetipstr(),
+                      probe->dport(),
+                      err, strerror(err));
+                }
+              }
+            }
+          }
+
+          if (try_read) {
+            /* Either getpeername says ENOTCONN or we can't even use that method.
+             * Regardless, fall back to "error slippage." */
+            char ch;
+            if (read(sd, &ch, 1) < 0) {
+              err = socket_errno();
+              /* The socket is non-blocking, so we expect there's no data in
+               * most cases. */
+              if (err != EAGAIN && err != EWOULDBLOCK) {
+                optval = err;
+              }
+            }
+          }
+        }
+        /* Now either optval == 0 (connected) or optval contains relevant error */
         handleConnectResult(USI, host, probeI, optval);
       }
     }

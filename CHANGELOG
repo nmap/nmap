@@ -1,5 +1,9 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [GH#3523] Fixed an rare false-positive case in TCP Connect scan (-sT) where a
+  failed connect() may leave SO_ERROR set to 0 even though an ICMP error has
+  been received and select() has indicated the socket.
+
 o Upgraded included libraries: libpcap 1.10.7, pcre2 10.48, lua 5.4.9, libdnet 1.18.2
 
 o [Ndiff][GH#3468] Fixed `make check-ndiff` to work with Python 3.12+ [gargamel778]
