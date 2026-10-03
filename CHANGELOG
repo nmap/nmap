@@ -1,5 +1,56 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added 8 new scripts, for a total of 620 NSE scripts, all for auditing
+  DICOM (medical imaging) services:
+
+  + dicom-info fingerprints a DICOM SCP via A-ASSOCIATE, reporting its
+    Implementation Class UID and Version Name, accepted SOP classes and
+    transfer syntaxes, max PDU and protocol version; over TLS it also reports
+    the server certificate (key type/size, signature algorithm, with weak-
+    crypto and self-signed flags) and the mutual-TLS / client-certificate
+    posture. [Paulino Calderon]
+
+  + dicom-cfind-ls performs C-FIND queries to enumerate studies and series and
+    the patient-level metadata an archive returns, flagging unauthenticated
+    query access. [Paulino Calderon]
+
+  + dicom-cmove exercises C-MOVE to test whether stored studies can be
+    retrieved to an arbitrary destination AE. [Paulino Calderon]
+
+  + dicom-get retrieves instances over C-GET, performing SCP/SCU role
+    negotiation so the retrieval actually completes, and reports
+    unauthenticated read access. [Paulino Calderon]
+
+  + dicom-store-fuzzer fuzzes the C-STORE service with a corpus of malformed
+    datasets, classifying each response (accept, reject, timeout, reset,
+    corrupt) and running a periodic C-ECHO health check to detect crashes
+    mid-campaign. [Paulino Calderon]
+
+  + dicom-store-inject tests whether an archive accepts an unauthenticated
+    C-STORE by uploading a single clearly-synthetic Secondary Capture instance
+    (fake patient, "safe to delete" markers, UIDs under the 2.25 arc) and
+    reporting whether it was stored, refused, or the association was rejected;
+    it prints the stored UIDs for cleanup. [Paulino Calderon]
+
+  + dicom-web-enum enumerates DICOMweb (PS3.18) services over HTTP(S) --
+    QIDO-RS, WADO-RS and STOW-RS -- classifying each as open, authentication-
+    required or absent, reporting the study/patient metadata an unauthenticated
+    client can read and flagging an open STOW-RS store (image-injection)
+    surface. [Paulino Calderon]
+
+  + dicom-slowloris probes for DICOM association-pool exhaustion (a slowloris-
+    style DoS) in idle, C-ECHO keep-alive and partial-handshake modes,
+    measuring a latency baseline, requiring repeated confirmation before
+    declaring exhaustion, and reporting a graded verdict with recovery time.
+    [Paulino Calderon]
+
+o [NSE] Expanded the dicom.lua library from a basic A-ASSOCIATE/C-ECHO helper
+  into a full DIMSE toolkit. It now supports C-STORE, C-FIND, C-GET and
+  C-MOVE; A-ASSOCIATE-RQ with multiple presentation contexts and SCP/SCU role
+  negotiation (so C-GET sub-operations work); command-set and dataset build/
+  parse in implicit and explicit VR; and DICOM-over-TLS transport (PS3.15,
+  port 2762) selectable with the dicom.tls script-arg. [Paulino Calderon]
+
 o [GH#3523] Fixed an rare false-positive case in TCP Connect scan (-sT) where a
   failed connect() may leave SO_ERROR set to 0 even though an ICMP error has
   been received and select() has indicated the socket.

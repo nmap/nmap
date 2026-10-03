@@ -86,7 +86,15 @@ Entry { filename = "db2-das-info.nse", categories = { "discovery", "safe", "vers
 Entry { filename = "deluge-rpc-brute.nse", categories = { "brute", "intrusive", } }
 Entry { filename = "dhcp-discover.nse", categories = { "discovery", "safe", } }
 Entry { filename = "dicom-brute.nse", categories = { "auth", "brute", } }
+Entry { filename = "dicom-cfind-ls.nse", categories = { "discovery", "safe", } }
+Entry { filename = "dicom-cmove.nse", categories = { "discovery", "intrusive", } }
+Entry { filename = "dicom-get.nse", categories = { "discovery", "intrusive", } }
+Entry { filename = "dicom-info.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "dicom-ping.nse", categories = { "auth", "default", "discovery", "safe", } }
+Entry { filename = "dicom-slowloris.nse", categories = { "dos", "intrusive", } }
+Entry { filename = "dicom-store-fuzzer.nse", categories = { "fuzzer", "intrusive", } }
+Entry { filename = "dicom-store-inject.nse", categories = { "intrusive", "vuln", } }
+Entry { filename = "dicom-web-enum.nse", categories = { "discovery", "safe", } }
 Entry { filename = "dict-info.nse", categories = { "discovery", "safe", } }
 Entry { filename = "distcc-cve2004-2687.nse", categories = { "exploit", "intrusive", "vuln", } }
 Entry { filename = "dns-blacklist.nse", categories = { "external", "safe", } }
@@ -466,7 +474,6 @@ Entry { filename = "rtsp-url-brute.nse", categories = { "brute", "intrusive", } 
 Entry { filename = "rusers.nse", categories = { "discovery", "safe", } }
 Entry { filename = "s7-info.nse", categories = { "discovery", "version", } }
 Entry { filename = "samba-vuln-cve-2012-1182.nse", categories = { "intrusive", "vuln", } }
-Entry { filename = "sap-hana-auth.nse", categories = { } }
 Entry { filename = "servicetags.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "shodan-api.nse", categories = { "discovery", "external", "safe", } }
 Entry { filename = "sip-brute.nse", categories = { "brute", "intrusive", } }
