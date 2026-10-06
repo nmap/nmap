@@ -409,7 +409,9 @@ int ncat_listen()
 
     init_fdlist(&broadcast_fdlist, o.conn_limit);
 
-    while (!breakloop && (client_fdlist.nfds > 1 || get_conn_count() > 0)) {
+    /* Receive-only mode does not add stdin to the descriptor list. */
+    while (!breakloop && (client_fdlist.nfds > (o.recvonly ? 0 : 1)
+                         || get_conn_count() > 0)) {
         long usec_wait = -1;
         tvp = NULL;
         /* We pass these temporary descriptor sets to fselect, since fselect
