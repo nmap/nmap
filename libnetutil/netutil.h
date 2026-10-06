@@ -241,6 +241,8 @@ int pcap_select(pcap_t *p, long usecs);
 
 typedef enum { devt_ethernet, devt_loopback, devt_p2p, devt_other  } devtype;
 
+int netutil_is_ipv6_link_local(const struct sockaddr_storage *ss);
+
 #define MAX_LINK_HEADERSZ 24
 struct link_header {
   int datalinktype; /* pcap_datalink(), such as DLT_EN10MB */
