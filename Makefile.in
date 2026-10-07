@@ -354,7 +354,7 @@ $(NPINGDIR)/nping.h: nmap.h
 	mv -f $@.tmp $@
 
 # Update the version number used by Zenmap.
-$(ZENMAPDIR)/zenmapCore/Version.py $(ZENMAPDIR)/share/zenmap/config/zenmap_version: nmap.h
+$(ZENMAPDIR)/zenmapCore/Version.py: nmap.h
 	cd $(ZENMAPDIR) && $(PYTHON) install_scripts/utils/version_update.py "$(NMAP_VERSION)"
 
 tests/%: tests/%.cc $(OBJS)
