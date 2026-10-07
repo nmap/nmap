@@ -1,5 +1,7 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+Nmap 7.992 [2026-10-07]
+
 o [NSE] Added 8 new scripts, for a total of 620 NSE scripts, all for auditing
   DICOM (medical imaging) services:
 
