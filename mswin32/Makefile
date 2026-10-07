@@ -92,9 +92,10 @@ nmap-$(NMAP_VERSION)${OEM_SUFFIX}/Uninstall.exe: nsis/Nmap.nsi LICENSE.formatted
 stage-nmap-main: build-nmap${OEM_SUFFIX} nmap-$(NMAP_VERSION)${OEM_SUFFIX}/Uninstall.exe
 	cp $(VCCONFIG)${OEM_SUFFIX}/nmap.exe nmap-$(NMAP_VERSION)${OEM_SUFFIX}/
 
-sign-files: nmap-$(NMAP_VERSION)-oem/nmap.exe nmap-$(NMAP_VERSION)/nmap.exe nmap-$(NMAP_VERSION)-oem/Uninstall.exe nmap-$(NMAP_VERSION)/Uninstall.exe nmap-$(NMAP_VERSION)/ncat.exe nmap-$(NMAP_VERSION)/nping.exe nmap-$(NMAP_VERSION)/libssh2.dll nmap-$(NMAP_VERSION)/libcrypto-3.dll nmap-$(NMAP_VERSION)/libssl-3.dll nmap-$(NMAP_VERSION)/zlibwapi.dll
-	# TODO: evaluate whether we should also sign the Python stuff for Zenmap, Ndiff
-	"$(SIGNTOOL)" $(SIGNTOOL_ARGS) $^ nmap-$(NMAP_VERSION)/zenmap/bin/* nmap-$(NMAP_VERSION)/zenmap/lib/gdk-pixbuf-2.0/*/loaders/*.dll
+SIGN_FILES = $(shell find nmap-$(NMAP_VERSION) nmap-$(NMAP_VERSION)-oem \
+						 -type f \( -name '*.exe' -o -name '*.dll' -o -name '*.pyd' \))
+sign-files: $(SIGN_FILES)
+	"$(SIGNTOOL)" $(SIGNTOOL_ARGS) $?
 	touch sign-files
 
 bundle-nsis: sign-files
