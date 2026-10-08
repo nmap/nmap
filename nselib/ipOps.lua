@@ -91,7 +91,7 @@ isPrivate = function( ip )
       return true, '192.168/16'
     elseif ip:match('^192%.[0][0]?[0]?%.[0][0]?[0]?%.') then
       return true, '192.0.0/24'
-    elseif ip:match('^192%.[0][0]?[0]?%.[0]?[0]?2') then
+    elseif ip:match('^192%.[0][0]?[0]?%.[0]?[0]?2%.') then
       return true, '192.0.2/24'
     end
 
@@ -762,6 +762,25 @@ end
 test_suite = unittest.TestSuite:new()
 test_suite:add_test(unittest.is_true(isPrivate("192.168.123.123")), "192.168.123.123 is private")
 test_suite:add_test(unittest.is_false(isPrivate("1.1.1.1")), "1.1.1.1 is not private")
+
+do
+  for _, ip in ipairs({
+    "192.0.2.0", "192.0.2.1", "192.0.2.255", "192.0.2",
+    "192.0.02.1", "192.0.002.1",
+    }) do
+    local private, range = isPrivate(ip)
+    test_suite:add_test(unittest.is_true(private), ip .. " is TEST-NET-1")
+    test_suite:add_test(unittest.equal(range, "192.0.2/24"), ip .. " range")
+  end
+  for _, ip in ipairs({
+    "192.0.1.1", "192.0.3.1", "192.0.20.1", "192.0.29.1",
+    "192.0.200.1", "192.0.255.1", "192.0.020.1", "192.0.0020.1",
+    }) do
+    local private, range = isPrivate(ip)
+    test_suite:add_test(unittest.is_false(private), ip .. " is not private")
+    test_suite:add_test(unittest.is_nil(range), ip .. " has no private range")
+  end
+end
 test_suite:add_test(unittest.equal(todword("65.66.67.68"),0x41424344), "todword")
 test_suite:add_test(unittest.equal(todword("127.0.0.1"),0x7f000001), "todword")
 test_suite:add_test(unittest.equal(fromdword(0xffffffff),"255.255.255.255"), "fromdword")
