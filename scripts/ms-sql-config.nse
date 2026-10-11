@@ -125,8 +125,8 @@ local function process_instance( instance )
 
   helper:Disconnect()
 
-  -- TODO: structured output instead of format_output
-  return stdnse.format_output(true, result)
+  -- Return structured output directly
+  return result
 end
 
 action, portrule, hostrule = mssql.Helper.InitScript(process_instance)

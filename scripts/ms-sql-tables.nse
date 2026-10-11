@@ -241,12 +241,8 @@ local function process_instance( instance )
   end
 
 
-  local instanceOutput = {}
-  instanceOutput["name"] = string.format( "[%s]", instance:GetName() )
-  table.insert( instanceOutput, output )
-
-  return stdnse.format_output(true, instanceOutput)
-
+  -- Return structured output directly
+  return output
 end
 
 
