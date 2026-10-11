@@ -19,6 +19,18 @@ _ENV = stdnse.module("ipOps", stdnse.seeall)
 local pack = string.pack
 local unpack = string.unpack
 
+-- isPrivate() IPv4 blocks that are aligned at the octet boundary
+-- Do not include blocks that are misaligned; implement their matching logic
+-- directly inside the isPrivate function.
+local priv_fast_match = {}
+for _, range in ipairs({'127/8', '10/8', '192.168/16', '169.254/16',
+                        '192.0.0/24', '192.0.2/24', '198.51.100/24',
+                        '203.0.113/24', '224.0.0/24'}) do
+  priv_fast_match[range:gsub("/.*", ".")] = range
+end
+priv_fast_match['198.18.'] = '198.18/15'
+priv_fast_match['198.19.'] = '198.18/15'
+
 ---
 -- Checks to see if the supplied IP address is part of a non-routable
 -- address space.
@@ -49,7 +61,7 @@ isPrivate = function( ip )
   ip, err = expand_ip( ip )
   if err then return nil, err end
 
-  if ip:match( ":" ) then
+  if ip:find( ":" ) then
 
     local is_private
     local ipv6_private = { "::/127", "FC00::/7", "FE80::/10", "FEC0::/10" }
@@ -64,19 +76,16 @@ isPrivate = function( ip )
       end
     end
 
-  elseif ip:sub(1,3) == '10.' then
+    return false, nil
+  end
 
-    return true, '10/8'
+  for prefix, range in pairs(priv_fast_match) do
+    if ip:sub(1, #prefix) == prefix then
+      return true, range
+    end
+  end
 
-  elseif ip:sub(1,4) == '127.' then
-
-    return true, '127/8'
-
-  elseif ip:sub(1,8) == '169.254.' then
-
-    return true, '169.254/16'
-
-  elseif ip:sub(1,4) == '172.' then
+  if ip:sub(1,4) == '172.' then
 
     local p, e = ip_in_range(ip, '172.16/12')
     if p then
@@ -85,33 +94,7 @@ isPrivate = function( ip )
       return p, e
     end
 
-  elseif ip:sub(1,4) == '192.' then
-
-    if ip:sub(5,8) == '168.' then
-      return true, '192.168/16'
-    elseif ip:match('^192%.[0][0]?[0]?%.[0][0]?[0]?%.') then
-      return true, '192.0.0/24'
-    elseif ip:match('^192%.[0][0]?[0]?%.[0]?[0]?2%.') then
-      return true, '192.0.2/24'
-    end
-
-  elseif ip:sub(1,4) == '198.' then
-
-    if ip:match('^198%.[0]?18%.') or ip:match('^198%.[0]?19%.') then
-      return true, '198.18/15'
-    elseif ip:match('^198%.[0]?51%.100%.') then
-      return true, '198.51.100/24'
-    end
-
-  elseif ip:match('^203%.[0][0]?[0]?%.113%.') then
-
-    return true, '203.0.113/24'
-
-  elseif ip:match('^224%.[0][0]?[0]?%.[0][0]?[0]?%.') then
-
-    return true, '224.0.0/24'
-
-  elseif ip:match('^24[0-9]%.') or ip:match('^25[0-5]%.') then
+  elseif ip:find('^24[0-9]%.') or ip:find('^25[0-5]%.') then
 
     return true, '240.0.0/4'
 
@@ -120,8 +103,6 @@ isPrivate = function( ip )
   return false, nil
 
 end
-
-
 
 ---
 -- Converts the supplied IPv4 address into a DWORD value.
@@ -761,8 +742,28 @@ if not unittest.testing() then
 end
 
 test_suite = unittest.TestSuite:new()
-test_suite:add_test(unittest.is_true(isPrivate("192.168.123.123")), "192.168.123.123 is private")
-test_suite:add_test(unittest.is_false(isPrivate("1.1.1.1")), "1.1.1.1 is not private")
+
+for addr, range in pairs({
+    ['10.2.3.4']='10/8',            ['192.168.123.123']='192.168/16',
+    ['169.254.174.0']='169.254/16', ['192.0.0.255']='192.0.0/24',
+    ['192.0.2.127']='192.0.2/24',   ['198.51.100.128']='198.51.100/24',
+    ['203.0.113']='203.0.113/24',   ['224.0.0.32']='224.0.0/24',
+    ['198.18']='198.18/15',         ['198.19.255.255']='198.18/15',
+    ['172.24.24.24']='172.16/12',   ['246.31']='240.0.0/4',
+    ['::']='::/127', ['::1']='::/127', ['FD00::']='FC00::/7',
+    ['FEBF:4::']='FE80::/10', ['FEF0::']='FEC0::/10'}) do
+  local private, info = isPrivate(addr)
+  test_suite:add_test(unittest.is_true(private), addr .. " is private")
+  if private then
+    test_suite:add_test(unittest.equal(info, range), addr .. " in range")
+  end
+end
+
+for _, addr in ipairs({'0', '1.1.1.1', '192.16', '192.0.04.0', '192.0.20.4',
+    '172.15.255.255', '172.240.24.24', '224.0.1.1', '::2', 'FF00::'}) do
+  test_suite:add_test(unittest.is_false(isPrivate(addr)), addr .. " is not private")
+end
+
 test_suite:add_test(unittest.equal(todword("65.66.67.68"),0x41424344), "todword")
 test_suite:add_test(unittest.equal(todword("127.0.0.1"),0x7f000001), "todword")
 test_suite:add_test(unittest.equal(fromdword(0xffffffff),"255.255.255.255"), "fromdword")
