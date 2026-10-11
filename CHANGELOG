@@ -92,6 +92,11 @@ o [NSE] Added DHX2 authentication method to afp.lua [Daniel Miller]
 o [NSE][GH#3536] Function ipOps.isPrivate() was incorrectly treating all IPv4
   addresses starting with 192.0.2x or 192.0.2xx as private. [Pasi Abe]
 
+o [NSE] Function ipOps.expand_ip() now strips off any leading zeros from IPv4
+  octets, returning "10.0.0.0", not "010.000.0.0", for input "010.000". This
+  also resolves a bug where "010" was not recognized as a private IP address.
+  [nnposter]
+
 o [NSE][GH#3494] Malformed TPKT header could have caused parser infinite loop
   in library iec61850mms. Truncated data were silently ignored.
   [Zasnit1, nnposter]

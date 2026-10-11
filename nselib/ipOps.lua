@@ -347,13 +347,14 @@ expand_ip = function( ip, family )
       return nil, err4
     end
     local octets = {}
-    for octet in string.gmatch( ip, "%d+" ) do
-      if tonumber( octet, 10 ) > 255 then return nil, err4 end
+    for ostr in string.gmatch( ip, "%d+" ) do
+      local octet = tonumber(ostr, 10)
+      if octet > 255 then return nil, err4 end
       octets[#octets+1] = octet
     end
     if #octets > 4 then return nil, err4 end
     while #octets < 4 do
-      octets[#octets+1] = "0"
+      octets[#octets+1] = 0
     end
     if family == "inet6" then
       return ( table.concat( { 0,0,0,0,0,"ffff",
@@ -872,6 +873,7 @@ do
   for _, op in ipairs({
     {"192.168", nil, "192.168.0.0", "IPv4 trunc"},
     {"192.0.2.3", nil, "192.0.2.3", "IPv4"},
+    {"010.000.2.03", nil, "10.0.2.3", "IPv4 leading zeros"},
     {"192.168", "inet6", "0:0:0:0:0:ffff:c0a8:0", "IPv4 trunc to IPv6"},
     {"2001:db8::9", nil, "2001:db8:0:0:0:0:0:9", "IPv6"},
     {"::ffff:192.0.2.128", "inet6", "0:0:0:0:0:ffff:c000:280", "IPv4-mapped to IPv6"},
