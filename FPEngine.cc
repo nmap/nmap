@@ -1424,6 +1424,8 @@ int FPHost::update_RTO(int measured_rtt_usecs, bool retransmission) {
  * low-latency networks (such as localhost scans).  */
   if (this->rto < (MIN_RTT_TIMEOUT*1000))
     this->rto = (MIN_RTT_TIMEOUT*1000);
+  if (this->rto > (o.maxRttTimeout()*1000))
+    this->rto = (o.maxRttTimeout()*1000);
    return this->rto;
 }
 
