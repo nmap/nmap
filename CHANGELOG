@@ -1,5 +1,9 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] ssh-hostkey no longer crashes with "bad argument #1 to 'setmetatable'"
+  when the known_hosts file has an unhashed entry for the scanned host.
+  [Rajarshi Pattanayak]
+
 o [NSE] Added 8 new scripts, for a total of 620 NSE scripts, all for auditing
   DICOM (medical imaging) services:
 

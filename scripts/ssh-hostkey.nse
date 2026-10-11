@@ -195,7 +195,8 @@ local function check_keys(host, keys, f)
       else
         if tableaux.contains(possible_host_names, parts[1]) then
           stdnse.debug2("Found an entry that matches: %s", parts[1])
-          table.insert(keys_from_file, ("%s %s"):format(parts[2], parts[3]))
+          table.insert(keys_from_file, {name=parts[1],
+            key=("%s %s"):format(parts[2], parts[3]), lnumber=lnumber})
         else
           -- Is the key the same but the clear text hostname isn't?
           for _, k in ipairs(keys_found) do
