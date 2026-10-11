@@ -1,3 +1,4 @@
+local io = require "io"
 local ipOps = require "ipOps"
 local nmap = require "nmap"
 local shortport = require "shortport"
@@ -24,6 +25,13 @@ controlled with the <code>ssh_hostkey</code> script argument.
 You may also compare the retrieved key with the keys in your known-hosts
 file using the <code>known-hosts</code> argument.
 
+Each key is also checked against a database of host keys whose private keys
+are publicly known, such as keys shared by every unit of a device model because
+they are baked into its firmware. Anyone can impersonate a server that presents
+one of these keys. The bundled database is built from the rapid7/ssh-badkeys
+collection (https://github.com/rapid7/ssh-badkeys); a different list can be
+given with the <code>ssh-hostkey.badkeys-file</code> argument.
+
 The script also includes a postrule that check for duplicate hosts using the
 gathered keys.
 ]]
@@ -49,6 +57,11 @@ gathered keys.
 -- file to this option.
 --
 -- @args ssh-hostkey.known-hosts-path. Path to a known_hosts file.
+--
+-- @args ssh-hostkey.badkeys-file Path to a file of known compromised host key
+-- fingerprints, one per line as <code>SHA256:<base64></code> or
+-- <code>MD5:<hex></code> (the formats printed by <code>ssh-keygen -l</code>)
+-- followed by a description. Default: <code>nselib/data/ssh-badkeys</code>.
 --@output
 -- 22/tcp open  ssh
 -- |  ssh-hostkey: 2048 f0:58:ce:f4:aa:a4:59:1c:8e:dd:4d:07:44:c8:25:11 (RSA)
@@ -76,6 +89,12 @@ gathered keys.
 -- |       L3: 199.19.117.60
 -- | ssh-hostkey: 2048 xuvah-degyp-nabus-zegah-hebur-nopig-bubig-difeg-hisym-rumef-cuxex (RSA)
 -- |_ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAwVuv2gcr0maaKQ69VVIEv2ob4OxnuI64fkeOnCXD1lUx5tTA+vefXUWEMxgMuA7iX4irJHy2zer0NQ3Z3yJvr5scPgTYIaEOp5Uo/eGFG9Agpk5wE8CoF0e47iCAPHqzlmP2V7aNURLMODb3jVZuI07A2ZRrMGrD8d888E2ORVORv1rYeTYCqcMMoVFmX9l3gWEdk4yx3w5sD8v501Iuyd1v19mPfyhrI5E1E1nl/Xjp5N0/xP2GUBrdkDMxKaxqTPMie/f0dXBUPQQN697a5q+5lBRPhKYOtn6yQKCd9s1Q22nxn72Jmi1RzbMyYJ52FosDT755Qmb46GLrDMaZMQ==
+-- 22/tcp open  ssh
+-- | ssh-hostkey:
+-- |   1024 1f:f1:bd:7d:36:31:8c:5f:43:30:06:49:fa:89:e5:0d (DSA)
+-- |     WARNING: Publicly known private key: Cisco RV315W
+-- |   1040 14:96:82:72:6f:bc:a5:14:53:1c:72:71:0d:8b:cb:c2 (RSA)
+-- |_    WARNING: Publicly known private key: Cisco RV315W
 --
 --@output
 -- Post-scan script results:
@@ -99,6 +118,13 @@ gathered keys.
 --   <elem key="bits">2048</elem>
 --   <elem key="fingerprint">f058cef4aaa4591c8edd4d0744c82511</elem>
 --   <elem key="type">ssh-rsa</elem>
+-- </table>
+-- <table>
+--   <elem key="key">ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAAAgwCACRXscGPH...</elem>
+--   <elem key="bits">1040</elem>
+--   <elem key="fingerprint">149682726fbca514531c72710d8bcbc2</elem>
+--   <elem key="type">ssh-rsa</elem>
+--   <elem key="known_bad">Cisco RV315W</elem>
 -- </table>
 -- <table key="Key comparison with known_hosts file">
 --   <table key="GOOD Matches in known_hosts file">
@@ -134,7 +160,8 @@ gathered keys.
 --   </table>
 -- </table>
 
-author = {"Sven Klemm", "Piotr Olma", "George Chatzisofroniou"}
+author = {"Sven Klemm", "Piotr Olma", "George Chatzisofroniou",
+  "Rajarshi Pattanayak"}
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"safe","default","discovery"}
 
@@ -150,6 +177,76 @@ local add_key_to_registry = function( host, key )
   nmap.registry.sshhostkey = nmap.registry.sshhostkey or {}
   nmap.registry.sshhostkey[host.ip] = nmap.registry.sshhostkey[host.ip] or {}
   table.insert( nmap.registry.sshhostkey[host.ip], key )
+end
+
+local BADKEYS_FILE = "ssh-badkeys"
+
+--- Load a database of known compromised host keys.
+--
+-- Each non-comment line holds a fingerprint (<code>SHA256:base64</code> or
+-- <code>MD5:hex</code>, as printed by ssh-keygen -l) and a description.
+-- Fingerprints are kept in text form so malformed entries cannot cause
+-- decoding errors. The result is cached in the registry per path.
+--@param path Data file name (looked up in nselib/data) or path
+--@return Table mapping "sha256:..." and "md5:..." keys to descriptions, or
+--        nil if the file could not be read
+local function load_badkeys(path)
+  nmap.registry.ssh_hostkey_badkeys = nmap.registry.ssh_hostkey_badkeys or {}
+  local cache = nmap.registry.ssh_hostkey_badkeys
+  if cache[path] ~= nil then
+    return cache[path] or nil
+  end
+
+  local full_path = nmap.fetchfile("nselib/data/" .. path) or path
+  local f = io.open(full_path, "r")
+  if not f then
+    stdnse.debug1("Could not open bad keys file %s", full_path)
+    cache[path] = false
+    return nil
+  end
+
+  local db = {}
+  local count = 0
+  local lnumber = 0
+  for line in f:lines() do
+    lnumber = lnumber + 1
+    line = line:gsub("#.*", ""):match("^%s*(.-)%s*$")
+    if line ~= "" then
+      local algo, value, desc = line:match("^(%w+):(%S+)%s*(.*)$")
+      algo = algo and algo:lower()
+      local id
+      if algo == "sha256" then
+        value = value:gsub("=+$", "")
+        if #value == 43 and value:match("^[%w+/]+$") then
+          id = "sha256:" .. value
+        end
+      elseif algo == "md5" then
+        value = value:gsub(":", ""):lower()
+        if #value == 32 and value:match("^%x+$") then
+          id = "md5:" .. value
+        end
+      end
+      if id then
+        db[id] = desc ~= "" and desc or "unnamed entry"
+        count = count + 1
+      else
+        stdnse.debug1("%s:%d: cannot parse fingerprint", full_path, lnumber)
+      end
+    end
+  end
+  f:close()
+  stdnse.debug2("Loaded %d known bad host keys from %s", count, full_path)
+  cache[path] = db
+  return db
+end
+
+--- Look up a host key in the known bad keys database
+--@param db Database returned by load_badkeys
+--@param key Host key table from ssh1/ssh2 fetch_host_key
+--@return Description of the matching entry, or nil
+local function find_badkey(db, key)
+  local sha256 = base64.enc(key.fp_sha256):gsub("=+$", "")
+  return db["sha256:" .. sha256] or db["md5:" .. stdnse.tohex(key.fingerprint)]
 end
 
 --- check if there is a key in known_hosts file for the host that's being scanned
@@ -326,6 +423,9 @@ local function portaction(host, port)
     return nil
   end
 
+  local badkeys_file = stdnse.get_script_args(SCRIPT_NAME .. ".badkeys-file")
+  local badkeys = load_badkeys(badkeys_file or BADKEYS_FILE)
+
   for _, key in ipairs( keys ) do
     add_key_to_registry( host, key )
     local output = {}
@@ -346,6 +446,14 @@ local function portaction(host, port)
     end
     if format_mask & format_bits.visual ~= 0 then
       table.insert( output, ssh1.fingerprint_visual( key.fingerprint, key.algorithm, key.bits ) )
+    end
+    local bad = badkeys and find_badkey(badkeys, key)
+    if bad then
+      out.known_bad = bad
+      -- The output formatter only indents the first line of each key
+      local indent = #output > 0 and "    " or ""
+      table.insert( output,
+        indent .. "WARNING: Publicly known private key: " .. bad )
     end
     if nmap.verbosity() > 1 or format_mask & format_bits.full ~= 0 then
       table.insert( output, key.full_key )
