@@ -125,13 +125,9 @@ todword = function( ip )
     return nil, "Error in ipOps.todword: Expected IPv4 address."
   end
 
-  local n, ret, err = {}
-  n, err = get_parts_as_number( ip )
-  if err then return nil, err end
-
-  ret = (((n[1]*256+n[2]))*256+n[3])*256+n[4]
-
-  return ret
+  local octets, err = get_parts_as_number( ip )
+  if not octets then return nil, err end
+  return (((octets[1]*256+octets[2]))*256+octets[3])*256+octets[4]
 
 end
 
