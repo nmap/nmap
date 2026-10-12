@@ -320,7 +320,7 @@ expand_ip = function( ip, family )
 
   if not ip:match( ":" ) then
     -- ipv4: missing octets should be "0" appended
-    if ip:match( "[^%.0-9]" ) then
+    if ip:match( "[^.0-9]" ) then
       return nil, err4
     end
     local octets = {}
@@ -349,16 +349,16 @@ expand_ip = function( ip, family )
 
   local err5 = err4:gsub( "IPv4", "IPv6" )
 
-  if ip:match( "[^%.:%x]" ) then
+  if ip:find( "[^.:%x]" ) then
     return nil, err5
   end
 
   -- preserve ::
-  ip = string.gsub(ip, "::", ":z:")
+  ip = ip:gsub("::", ":z:")
 
-  -- get a table of each hexadectet
+  -- get a table of all hexadectets
   local hexadectets = {}
-  for hdt in string.gmatch( ip, "[%.z%x]+" ) do
+  for hdt in string.gmatch( ip, "[.z%x]+" ) do
     hexadectets[#hexadectets+1] = hdt
   end
   if #hexadectets == 0 then
@@ -367,10 +367,10 @@ expand_ip = function( ip, family )
 
   -- deal with IPv4in6 (last hexadectet only)
   local t = {}
-  if hexadectets[#hexadectets]:match( "[%.]+" ) then
+  if hexadectets[#hexadectets]:find( "%." ) then
     hexadectets[#hexadectets], err = expand_ip( hexadectets[#hexadectets] )
     if err then return nil, ( err:gsub( "IPv4", "IPv4in6" ) ) end
-    t = stringaux.strsplit( "[%.]+", hexadectets[#hexadectets] )
+    t = stringaux.strsplit( "%.+", hexadectets[#hexadectets] )
     for i, v in ipairs( t ) do
       t[i] = tonumber( v, 10 )
     end
@@ -381,7 +381,7 @@ expand_ip = function( ip, family )
   -- deal with :: and check for invalid address
   local z_done = false
   for index, value in ipairs( hexadectets ) do
-    if value:match( "[%.]+" ) then
+    if value:find( "%." ) then
       -- shouldn't have dots at this point
       return nil, err5
     elseif value == "z" and z_done then
