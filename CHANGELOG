@@ -6,6 +6,33 @@ o Upgraded included libraries:
   - Source: libpcap 1.10.7, pcre2 10.49, lua 5.4.9, libdnet 1.18.2
   - Binary installers: OpenSSL 3.5.9, Python 3.14.8
 
+o [Security][NSE] Karan Bamal of SentinelOne reported the following issues with
+  NSE scripts and libraries, which have all been fixed:
+  - afp.lua used a hardcoded DH private exponent, so that credentials passed
+    via command line could be decrypted from network traffic. The DHCAST128 UAM
+    is known to be cryptographically broken, and has been replaced in this
+    release with DHX2.
+  - Redirect to unverified URL in anyconnect.lua and upnp.lua
+  - Unbounded memory consumption in rpc.lua, drda.lua, eigrp.lua,
+    msrpctypes.lua, db2-das-info, and dns-zone-transfer
+  - Uninterruptible CPU usage (infinite loop) not subject to --script-timeout or
+    --host-timeout in rdp.lua, tn3270.lua, and ospf.lua
+  - Infinite loop waiting for errored coroutines in tftp.lua, effectively
+    mitigated by --script-timeout
+
+o [Security] Zach Hanley of Horizon3.ai, in collaboration with Claude and
+  Anthropic Research, reported three issues, which have all been fixed:
+  - Two distinct use-after-free bugs in massdns parallel DNS resolver.
+  - NSE uses the default seed for Lua's pseudorandom number generator, namely
+    the output of time() and the heap address of the Lua state. A brute-force
+    search based on math.random()-generated network traffic can reveal the ASLR
+    base address of the process.
+
+o [Security][NSE] In some non-standard builds (e.g. --without-openssl), NSE
+  scripts were attempting to load missing Lua modules from the current working
+  directory. Fixed by removing Lua's default package searchers, leaving only
+  the existing nselib file fetcher.
+
 o Added a libfuzzer-based framework for fuzzing internal functions of Nmap,
   Ncat, and Nping. So far, 10 functions have been instrumented and 3 minor
   issues have been fixed. [Daniel Miller]
