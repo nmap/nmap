@@ -366,11 +366,10 @@ expand_ip = function( ip, family )
   end
 
   -- deal with IPv4in6 (last hexadectet only)
-  local t = {}
   if hexadectets[#hexadectets]:find( "%." ) then
     hexadectets[#hexadectets], err = expand_ip( hexadectets[#hexadectets] )
     if err then return nil, ( err:gsub( "IPv4", "IPv4in6" ) ) end
-    t = stringaux.strsplit( "%.+", hexadectets[#hexadectets] )
+    local t = stringaux.strsplit( "%.+", hexadectets[#hexadectets] )
     for i, v in ipairs( t ) do
       t[i] = tonumber( v, 10 )
     end
@@ -384,18 +383,18 @@ expand_ip = function( ip, family )
     if value:find( "%." ) then
       -- shouldn't have dots at this point
       return nil, err5
-    elseif value == "z" and z_done then
-      -- can't have more than one ::
-      return nil, err5
-    elseif value == "z" and not z_done then
+    elseif value == "z" then
+      if z_done then
+        -- can't have more than one ::
+        return nil, err5
+      end
       z_done = true
       hexadectets[index] = "0"
       local bound = 8 - #hexadectets
       for i = 1, bound, 1 do
         table.insert( hexadectets, index+i, "0" )
       end
-    elseif tonumber( value, 16 ) > 65535 then
-      -- more than FFFF!
+    elseif tonumber( value, 16 ) > 0xFFFF then
       return nil, err5
     end
   end
