@@ -347,8 +347,10 @@ expand_ip = function( ip, family )
     return nil, "Error in ipOps.expand_ip: Cannot convert IPv6 address to IPv4"
   end
 
+  local err5 = err4:gsub( "IPv4", "IPv6" )
+
   if ip:match( "[^%.:%x]" ) then
-    return nil, ( err4:gsub( "IPv4", "IPv6" ) )
+    return nil, err5
   end
 
   -- preserve ::
@@ -360,7 +362,7 @@ expand_ip = function( ip, family )
     hexadectets[#hexadectets+1] = hdt
   end
   if #hexadectets == 0 then
-    return nil, ( err4:gsub( "IPv4", "IPv6" ) )
+    return nil, err5
   end
 
   -- deal with IPv4in6 (last hexadectet only)
@@ -381,10 +383,10 @@ expand_ip = function( ip, family )
   for index, value in ipairs( hexadectets ) do
     if value:match( "[%.]+" ) then
       -- shouldn't have dots at this point
-      return nil, ( err4:gsub( "IPv4", "IPv6" ) )
+      return nil, err5
     elseif value == "z" and z_done then
       -- can't have more than one ::
-      return nil, ( err4:gsub( "IPv4", "IPv6" ) )
+      return nil, err5
     elseif value == "z" and not z_done then
       z_done = true
       hexadectets[index] = "0"
@@ -394,12 +396,12 @@ expand_ip = function( ip, family )
       end
     elseif tonumber( value, 16 ) > 65535 then
       -- more than FFFF!
-      return nil, ( err4:gsub( "IPv4", "IPv6" ) )
+      return nil, err5
     end
   end
 
   -- make sure we have exactly 8 hexadectets
-  if #hexadectets > 8 then return nil, ( err4:gsub( "IPv4", "IPv6" ) ) end
+  if #hexadectets > 8 then return nil, err5 end
   while #hexadectets < 8 do
     hexadectets[#hexadectets+1] = "0"
   end
