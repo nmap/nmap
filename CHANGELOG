@@ -1,5 +1,11 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE][GH#2118] http-ntlm-info now supports servers that only accept the
+  Negotiate (SPNEGO) authentication scheme, such as Windows Remote Management
+  (WinRM), by retrying with an SPNEGO-wrapped NTLMSSP token, and switches to
+  POST when a server only allows POST. The script no longer crashes on a
+  malformed NTLM challenge. [Rajarshi Pattanayak]
+
 o [NSE] Added 8 new scripts, for a total of 620 NSE scripts, all for auditing
   DICOM (medical imaging) services:
 
