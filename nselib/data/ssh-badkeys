@@ -1,0 +1,192 @@
+# SSH host keys whose private keys are publicly known. A server presenting one
+# of these keys can be impersonated by anyone (man-in-the-middle), because the
+# private half ships in firmware or software images.
+#
+# Format: one key per line, a fingerprint followed by a description.
+#   SHA256:<base64>  as printed by "ssh-keygen -l" (preferred), or
+#   MD5:<hex:hex:..> as printed by "ssh-keygen -l -E md5"
+# Text after "#" is a comment. Local lists in the same format can be supplied
+# with the ssh-hostkey.badkeys-file script argument.
+#
+# Generated from rapid7/ssh-badkeys (https://github.com/rapid7/ssh-badkeys),
+# commit cd6f864 2025-02-13, host keys only. Fingerprints were computed locally
+# with ssh-keygen. Authorized (login) keys from that collection are not
+# included: they are never presented as host keys, and are what
+# ssh-publickey-acceptance tests for.
+#
+# rapid7/ssh-badkeys is distributed under the MIT License:
+#
+# Copyright (c) 2015 Rapid7
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
+# Actiontec q2000 (RSA 1040)
+#   https://www.kb.cert.org/vuls/id/566724
+SHA256:s5Qw/PocHrvXYHlxaQvSI8lodaJiuCZrTp+KjEUw0tc Actiontec q2000
+# Advantech eki (RSA 2048)
+#   https://ics-cert.us-cert.gov/advisories/ICSA-15-309-01
+SHA256:fKki+o9MyIk8XUThmRfoejJudcef7mGvkooMCBLyqCM Advantech eki
+# Alice 1121 (RSA 1040)
+#   https://www.kb.cert.org/vuls/id/566724
+SHA256:F9KYIspH9Bhy0ohvvWPEgP5HeCUIeZZ5pA+8Xu2Eky8 Alice 1121
+# Cisco rtp300 (DSA 1024)
+#   https://www.kb.cert.org/vuls/id/566724
+SHA256:8XeiIuMMG6jRFYywuXqJZiLHIFcWoWN0yXR+fYCoy9A Cisco rtp300
+# Cisco rtp300 (RSA 1040)
+#   https://www.kb.cert.org/vuls/id/566724
+SHA256:KI1opHyhNi8e6cj1kBs2K5TuPj6NE5+8o6hcsQjKSY8 Cisco rtp300
+# Cisco rv120w (DSA 1024)
+#   https://www.kb.cert.org/vuls/id/566724
+SHA256:9OC9c6oQKFimmPITx++YZ7AbfmZcDAmlhUP/u84wQJQ Cisco rv120w
+# Cisco rv120w (RSA 1024)
+#   https://www.kb.cert.org/vuls/id/566724
+SHA256:Lcl4dCjOz4H377asQgXNBK+kjKgD/RNMVZk0aMh5iYE Cisco rv120w
+# Cisco RV315W (DSA 1024)
+#   https://www.kb.cert.org/vuls/id/566724
+SHA256:lS3HDtLKk215ScnBSvCMqPKyiF9mvP0o3XG7bJXPHIg Cisco RV315W
+# Cisco RV315W (RSA 1040)
+#   https://www.kb.cert.org/vuls/id/566724
+SHA256:RPT99EeL7WwwWvtuzjRJmLQT2DL4zEh8WG/VxUQZhIg Cisco RV315W
+# Comtrend AR5387UN (RSA 1040)
+#   https://www.kb.cert.org/vuls/id/566724
+SHA256:BpW4vxx4JMfXNh6PPa9w80x6YsDa7OZ1LcBCRwYJM/g Comtrend AR5387UN
+# Edimax AR 7167 (DSA 1024)
+#   https://www.kb.cert.org/vuls/id/566724
+SHA256:vmpX3e8939kGt/oufoQQqbJBnC07xxcVQSZaTHGBE84 Edimax AR 7167
+# Edimax AR 7167 (RSA 1040)
+#   https://www.kb.cert.org/vuls/id/566724
+SHA256:BuCSIg4STeG8QYS8dKSXGCQWpHB/Pe7FDRF3WpseB9E Edimax AR 7167
+# EVW3226 (RSA 1040)
+#   https://www.kb.cert.org/vuls/id/566724
+SHA256:1T/tv+kuYxJkYpiCsuhb/SE8pLB7gkzTH43h/LjQ3cs EVW3226
+# Huawei bm626 (DSA 1024)
+#   https://www.kb.cert.org/vuls/id/566724
+SHA256:r0k4QauOKllur1qQApKhU4Vtg8YEkDNS/6TlOulsSKM Huawei bm626
+# Huawei bm626 (RSA 1040)
+#   https://www.kb.cert.org/vuls/id/566724
+SHA256:AogxJW7+Yzu2/Xe2IYAf6VaWRJTBlan754aruVaqp0Q Huawei bm626
+# Innacomm w3400v (RSA 1040)
+#   https://www.kb.cert.org/vuls/id/566724
+SHA256:m714YoMFjzLJdHQbu7sRH96Bxo8TzmuAbFqBjUAhECI Innacomm w3400v
+# Kali rpi2 (RSA 2048)
+#   http://docs.kali.org/armel-armhf/install-kali-linux-arm-raspberry-pi
+SHA256:4REJomy/ZbGbLVcbZzR/i6CQuzF+EI6DMvu/lHCxh4M Kali rpi2
+# Linksys X1000 (RSA 1040)
+#   https://www.kb.cert.org/vuls/id/566724
+SHA256:gIJVV2fPBgDqCqTr/+m8B9Hh2KOPvxVoTCM1p6hBwdE Linksys X1000
+# Moovbox (DSA 1024)
+#   https://github.com/XiphosResearch/MoovMisManage
+SHA256:d7Bv1O73pvsg7+XusOpsZ6edG3FBQ9KudBiNDBNKJHU Moovbox
+# Moovbox (RSA 1024)
+#   https://github.com/XiphosResearch/MoovMisManage
+SHA256:HCKmculX8PrmEXYtnKn3xMnHdnHC/A7+gceWmZNnq0A Moovbox
+# Moxa 6150 (RSA 1040)
+#   https://www.kb.cert.org/vuls/id/566724
+SHA256:csFEfFe32uUoWQLco1YyjRQqpuy1pluZFFvK/Lo1EJo Moxa 6150
+# Moxa ia240 (DSA 1024)
+#   https://www.kb.cert.org/vuls/id/566724
+SHA256:/rr9hHdFl2699bf+yo5oERj1wds/JKyOrHi8txBuEQs Moxa ia240
+# Moxa ia240 (RSA 1024)
+#   https://www.kb.cert.org/vuls/id/566724
+SHA256:IO79IWaJRJC8/ZM2PfpsxzkpOk4+RY0pqbWt0v95hPg Moxa ia240
+# Ont g4020w (RSA 1040)
+#   https://www.kb.cert.org/vuls/id/566724
+SHA256:+LQ1rkRWS3U5xJbzlCGyuiOoqsfkU3z8sveqU28bOjg Ont g4020w
+# Pace V5542 (DSA 1024)
+#   https://www.kb.cert.org/vuls/id/566724
+SHA256:HL7HchiArMmCJAyWCYJaL7NRsOkLi+5uzgeTYNp5za4 Pace V5542
+# Quanta LTE (RSA 1040)
+#   https://pierrekim.github.io/blog/2016-04-04-quanta-lte-routers-vulnerabilities.html#hardcoded-ssh-server-key
+SHA256:0RCgva9fjvPn6TkN89hkVQHIpHkKfvfsGmYtnOgki0g Quanta LTE
+# Sagemcom 2740 (RSA 1040)
+#   https://www.kb.cert.org/vuls/id/566724
+SHA256:HboyXnlo62NK5QYnTXT8/rKywPHrSoyvVfKMQIaPnKc Sagemcom 2740
+# Sagemcom sx682 (DSA 512)
+#   https://www.kb.cert.org/vuls/id/566724
+SHA256:h1gD8T017XJ19NjY3wD9Vob81jHYUJubf2M23KLU7OU Sagemcom sx682
+# Seagate GoFlex (DSA 1024)
+#   https://www.kb.cert.org/vuls/id/566724
+SHA256:TC9ANa1Feew8aA+jxSk0X2V8V7e7fpSrYyL3MXdU7cA Seagate GoFlex
+# Seagate GoFlex (RSA 2048)
+#   https://www.kb.cert.org/vuls/id/566724
+SHA256:WtRSB8XG5R0LFE1KvRKV7sa2pTCQBpbVm8W7QLbCb5A Seagate GoFlex
+# Tandberg vcs (DSA 1024)
+#   http://www.vsecurity.com/resources/advisory/20100409-2/
+SHA256:wuCw9eo7BPNjjv7e8qmXryjpZ9MGspIwmu8KoSH/Tis Tandberg vcs
+# Telefonica de Espana (RSA 1040)
+#   https://www.kb.cert.org/vuls/id/566724
+SHA256:mzY0RSkZv3Rz5pSZcucTACZEhLko2ahTG2HhkiymQNA Telefonica de Espana
+# Tplink tdw8960n V1 (RSA 1040)
+#   https://www.kb.cert.org/vuls/id/566724
+SHA256:MQXcP/tTXWJKfrytgQwPZgJyAt0WqdZTjRJ9qBeHQl8 Tplink tdw8960n V1
+# Tplink w8950n (RSA 1040)
+#   https://www.kb.cert.org/vuls/id/566724
+SHA256:MAQzAYCHIdlpbeld30qcnjU5nVRp42GNVft2YwaJdY0 Tplink w8950n
+# Tplink w8950nd (RSA 1040)
+#   https://www.kb.cert.org/vuls/id/566724
+SHA256:iEYIZLsY3MtHzshoEMMdokU6JL6ilrp12zdZpzSf/hs Tplink w8950nd
+# Trendnet tdmc500 (RSA 1040)
+#   https://www.kb.cert.org/vuls/id/566724
+SHA256:Lb30DJg8YvCnhbVVhw6k/WRtxXKN8+4TVZVQQhDVD7U Trendnet tdmc500
+# Trendnet tew715apo (DSA 1024)
+#   https://www.kb.cert.org/vuls/id/566724
+SHA256:K0ibBdrSRO4qBHLntPb+cg8HXdxceUMYztFDPw6kCH0 Trendnet tew715apo
+# Trendnet tew715apo (RSA 1040)
+#   https://www.kb.cert.org/vuls/id/566724
+SHA256:BHnRC+5WxXWTFjmXxUq/2PLljU8/X9bbcpiNEEk1xG0 Trendnet tew715apo
+# Trendnet tew816drm (DSA 1024)
+#   https://www.kb.cert.org/vuls/id/566724
+SHA256:jkhZ6rCXQMeFOi5A3nYfHXLxYCbGhYSenmSPXZ4nZc8 Trendnet tew816drm
+# Trendnet tew816drm (RSA 1040)
+#   https://www.kb.cert.org/vuls/id/566724
+SHA256:Kdko2iZS8DAI8ZEYEhlWJOEoJ3J1FVoKIThHuKPxXy8 Trendnet tew816drm
+# Trendnet tvip310pi (DSA 1024)
+#   https://www.kb.cert.org/vuls/id/566724
+SHA256:b4/5uEu8KsFn19ujuzOxxum/zf1lO9apXgJYQHMVwqk Trendnet tvip310pi
+# Trendnet tvip310pi (RSA 1040)
+#   https://www.kb.cert.org/vuls/id/566724
+SHA256:kTEn/MpGqbKcbRbBzhdthwzf1MZGExI4gVWaf9gNbA4 Trendnet tvip310pi
+# Westermo MRD310 (DSA 1024)
+SHA256:dwjhp1334uoka9DL7ehVPgU7PtZVAPmF0e0xbryla1E Westermo MRD310
+# Westermo MRD310 (RSA 2048)
+SHA256:AKABay46vBa2bhMYZU2V/z5uqlAUXcuBTxMkW4MHd9s Westermo MRD310
+# Zhone 6512a1 (RSA 1040)
+#   https://www.kb.cert.org/vuls/id/566724
+SHA256:v4+GWcG3ffxI72Au29EPundqWtdVVHaRwYffOKqYslw Zhone 6512a1
+# Zyxel q100 (RSA 1040)
+#   https://www.kb.cert.org/vuls/id/566724
+SHA256:aKZMxi51eXUYwJRXJ01Jy+iL6QLyhFUaMOG0cSSKJYc Zyxel q100
+# Zyxel vmg1312 (RSA 1040)
+#   https://www.kb.cert.org/vuls/id/566724
+SHA256:Gh0eIu1Aym/yqjFYOrnTBfhYI7b++0NQIvkjwsGfFvI Zyxel vmg1312
+# Zyxel fsg2200 (RSA 2048)
+#   https://www.kb.cert.org/vuls/id/566724
+SHA256:zaEfS0zzZ4DyGf0BjXPPkEi+6puzJs73EkbEm3XSSqU Zyxel fsg2200
+# Zyxel p870h (RSA 1040)
+#   https://www.kb.cert.org/vuls/id/566724
+SHA256:CJ/U/F9xf4ngDgjZL2+OPBoSGZ7gEU18oCjVWPL0qqE Zyxel p870h
+# Zyxel pmg1006 (DSA 1024)
+#   https://www.kb.cert.org/vuls/id/566724
+SHA256:rGJYhJYrTK6yceV/v20fJCO+FTu8rlECNH3WHqcGQGI Zyxel pmg1006
+# Zyxel pmg1006 (RSA 1040)
+#   https://www.kb.cert.org/vuls/id/566724
+SHA256:z7xWJ0J6BW3zXhBrdcz0Pi9U88TfSQY/zdPYeyPbxyA Zyxel pmg1006
+# Zyxel sbg3300 (RSA 1040)
+#   https://www.kb.cert.org/vuls/id/566724
+SHA256:XOWiL0SiIchHnl1UAGqSwR+jwxBPM9ihiBg06Pk0yHg Zyxel sbg3300

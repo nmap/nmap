@@ -1,5 +1,15 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE][GH#652] ssh-hostkey now warns when a host key is one whose private key
+  is publicly known, such as keys shared by every unit of a device model. The
+  new nselib/data/ssh-badkeys database holds 52 host keys from
+  rapid7/ssh-badkeys; another list can be given with the
+  ssh-hostkey.badkeys-file argument. [Rajarshi Pattanayak]
+
+o [NSE] ssh-hostkey no longer crashes with "bad argument #1 to 'setmetatable'"
+  when the known_hosts file has an unhashed entry for the scanned host.
+  [Rajarshi Pattanayak]
+
 o [NSE] Added 8 new scripts, for a total of 620 NSE scripts, all for auditing
   DICOM (medical imaging) services:
 
