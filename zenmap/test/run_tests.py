@@ -14,4 +14,5 @@ if __name__ == "__main__":
         start_dir=".",
         pattern="*.py"
         )
-    unittest.TextTestRunner().run(suite)
+    result = unittest.TextTestRunner().run(suite)
+    sys.exit(0 if result.wasSuccessful() else 1)
