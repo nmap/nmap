@@ -130,6 +130,9 @@ Nmap 7.991 [2026-08-06]
 
 o Upgraded included OpenSSL to version 3.0.21 on all platforms.
 
+o [Windows] Upgraded the included version of Npcap from 1.87 to 1.88, resolving
+  some stability-related issues. See https://npcap.com/changelog
+
 o Fixed a memory-consumption hang in Ncat's HTTP proxy code that affected both
   connect and listen modes, reported by kumama_nui.
 
