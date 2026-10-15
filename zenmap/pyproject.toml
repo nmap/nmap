@@ -42,8 +42,7 @@ include = ["zenmapCore*", "zenmapGUI*", "radialnet*"]
   "*.usp",
   "*.html",
   "*.mo",
-  "*.xml",
-  "zenmap_version"
+  "*.xml"
 ]
 
 [tool.setuptools.dynamic]

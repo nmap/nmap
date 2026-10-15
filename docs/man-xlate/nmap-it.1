@@ -2,12 +2,12 @@
 .\"     Title: nmap
 .\"    Author: [see the "Autore" section]
 .\" Generator: DocBook XSL Stylesheets v1.79.1 <http://docbook.sf.net/>
-.\"      Date: 19/03/2026
+.\"      Date: 07/10/2026
 .\"    Manual: Guida di riferimento di Nmap
 .\"    Source: Nmap
 .\"  Language: Italian
 .\"
-.TH "NMAP" "1" "19/03/2026" "Nmap" "Guida di riferimento di Nmap"
+.TH "NMAP" "1" "07/10/2026" "Nmap" "Guida di riferimento di Nmap"
 .\" -----------------------------------------------------------------
 .\" * Define some portability stuff
 .\" -----------------------------------------------------------------
@@ -2081,11 +2081,6 @@ non è zero\&.
 quest\*(Aqopzione è l\*(Aqopposta di
 \fB\-\-privilegerd\fR\&. Dice ad Nmap di trattare l\*(Aqutente come se non avesse i permessi necessari per i raw socket e lo sniffing\&. Può tornare utile in fase di test, debugging o quando le funzionalità di raw network del sistema operativo hanno qualche problema\&. La variabile d\*(Aqambiente NMAP_PRIVILEGED può comunque essere settata e rappresenta un\*(Aqequivalente alternativa all\*(Aqopzione
 \fB\-\-unprivileged\fR\&.
-.RE
-.PP
-\fB\-\-release\-memory \fR(Release memory before quitting)
-.RS 4
-Quest\*(Aqopzione è utile solo per la risoluzione di problemi di perdita di memoria (memory\-leak debugging)\&. Obbliga infatti ad Nmap a liberare la memoria allocata appena prima di uscire così da individuare più facilmente le effettive perdite di memoria\&. Di solito Nmap salta questo passaggio come fa il sistema operativo in ogni caso al momento della chiusura del processo\&.
 .RE
 .PP
 \fB\-V\fR; \fB\-\-version\fR (Print version number)

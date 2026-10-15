@@ -2,12 +2,12 @@
 .\"     Title: nmap
 .\"    Author: [see the "Auteur" section]
 .\" Generator: DocBook XSL Stylesheets v1.79.1 <http://docbook.sf.net/>
-.\"      Date: 19/03/2026
+.\"      Date: 07/10/2026
 .\"    Manual: Guide de référence Nmap
 .\"    Source: Nmap
 .\"  Language: French
 .\"
-.TH "NMAP" "1" "19/03/2026" "Nmap" "Guide de référence Nmap"
+.TH "NMAP" "1" "07/10/2026" "Nmap" "Guide de référence Nmap"
 .\" -----------------------------------------------------------------
 .\" * Define some portability stuff
 .\" -----------------------------------------------------------------
@@ -1733,11 +1733,6 @@ est utile avec les capacités des noyaux Linux et des systèmes similaires pouva
 Cette option est l\*(Aqopposée de
 \fB\-\-privileged\fR\&. Elle précise à Nmap de faire comme si l\*(Aq utilisateur n\*(Aqavait pas les privilègues de raw sockets et de sniffing\&. C\*(Aqest utile dans un environnement de tests, de deboggage, ou si les opérations en raw sur le reseau ne sont pas disponibles pour une tierce raison\&. La variable d\*(Aqenvironnement NMAP_UNPRIVILEGED peut être utilisée comme alternative à
 \fB\-\-unprivileged\fR\&.
-.RE
-.PP
-\fB\-\-release\-memory\fR (Libérer la mémoire avant de quitter)
-.RS 4
-Cette option n\*(Aqest utile que dans le cadre du deboggage de fuites de mémoire\&. Elle force Nmap a libérer la mémoire allouée juste avant de quitter de facon a repérer les véritables fuites de mémoire\&. En temps normal Nmap ne fait pas ceci étant donné que l\*(AqOS le fait de toutes facons à la fin du processus\&.
 .RE
 .PP
 \fB\-V\fR; \fB\-\-version\fR (Affiche le numéro de version)

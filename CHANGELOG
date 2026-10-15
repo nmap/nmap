@@ -1,5 +1,54 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+Nmap 7.992 [2026-10-15]
+
+o Upgraded included libraries:
+  - Source: libpcap 1.10.7, pcre2 10.49, lua 5.4.9, libdnet 1.18.2
+  - Binary installers: OpenSSL 3.5.9, Python 3.14.8
+
+o [Windows] Upgraded the included version of Npcap from 1.88 to 1.89, resolving
+  one crash and upgrading to libpcap 1.10.7. See https://npcap.com/changelog
+
+o [Security][NSE] Karan Bamal of SentinelOne reported the following issues with
+  NSE scripts and libraries, which have all been fixed:
+  - afp.lua used a hardcoded DH private exponent, so that credentials passed
+    via command line could be decrypted from network traffic. The DHCAST128 UAM
+    is known to be cryptographically broken, and has been replaced in this
+    release with DHX2.
+  - Redirect to unverified URL in anyconnect.lua and upnp.lua
+  - Unbounded memory consumption in rpc.lua, drda.lua, eigrp.lua,
+    msrpctypes.lua, db2-das-info, and dns-zone-transfer
+  - Uninterruptible CPU usage (infinite loop) not subject to --script-timeout or
+    --host-timeout in rdp.lua, tn3270.lua, and ospf.lua
+  - Infinite loop waiting for errored coroutines in tftp.lua, effectively
+    mitigated by --script-timeout
+
+o [Security] Zach Hanley of Horizon3.ai, in collaboration with Claude and
+  Anthropic Research, reported three issues, which have all been fixed:
+  - Two distinct use-after-free bugs in massdns parallel DNS resolver.
+  - NSE uses the default seed for Lua's pseudorandom number generator, namely
+    the output of time() and the heap address of the Lua state. A brute-force
+    search based on math.random()-generated network traffic can reveal the ASLR
+    base address of the process.
+
+o [Security][NSE] In some non-standard builds (e.g. --without-openssl), NSE
+  scripts were attempting to load missing Lua modules from the current working
+  directory. Fixed by removing Lua's default package searchers, leaving only
+  the existing nselib file fetcher.
+
+o Added a libfuzzer-based framework for fuzzing internal functions of Nmap,
+  Ncat, and Nping. So far, 10 functions have been instrumented and 3 minor
+  issues have been fixed. [Daniel Miller]
+
+o [GH#3523] Fixed an rare false-positive case in TCP Connect scan (-sT) where a
+  failed connect() may leave SO_ERROR set to 0 even though an ICMP error has
+  been received and select() has indicated the socket.
+
+o [NSE] Introduced execution time and memory allocation limits for NSE scripts.
+  Script threads that run for more than 5 seconds without yielding (e.g.
+  calling a socket operation) will be killed. Memory allocations beyond 400MB
+  will throw an error. Specific limits may be changed in the future.
+
 o [NSE] Added 8 new scripts, for a total of 620 NSE scripts, all for auditing
   DICOM (medical imaging) services:
 
@@ -44,18 +93,17 @@ o [NSE] Added 8 new scripts, for a total of 620 NSE scripts, all for auditing
     declaring exhaustion, and reporting a graded verdict with recovery time.
     [Paulino Calderon]
 
+o [Zenmap] Fixed crashes:
+  - [GH#3497] configparser.DuplicateSectionError in Profile Editor
+  - [GH#3431] KeyError: 'vl_6_logo'
+  - [GH#3420] sqlite3.DatabaseError: database disk image is malformed
+
 o [NSE] Expanded the dicom.lua library from a basic A-ASSOCIATE/C-ECHO helper
   into a full DIMSE toolkit. It now supports C-STORE, C-FIND, C-GET and
   C-MOVE; A-ASSOCIATE-RQ with multiple presentation contexts and SCP/SCU role
   negotiation (so C-GET sub-operations work); command-set and dataset build/
   parse in implicit and explicit VR; and DICOM-over-TLS transport (PS3.15,
   port 2762) selectable with the dicom.tls script-arg. [Paulino Calderon]
-
-o [GH#3523] Fixed an rare false-positive case in TCP Connect scan (-sT) where a
-  failed connect() may leave SO_ERROR set to 0 even though an ICMP error has
-  been received and select() has indicated the socket.
-
-o Upgraded included libraries: libpcap 1.10.7, pcre2 10.49, lua 5.4.9, libdnet 1.18.2
 
 o [Ndiff][GH#3468] Fixed `make check-ndiff` to work with Python 3.12+ [gargamel778]
 
@@ -69,13 +117,6 @@ o [Ncat][GH#3489][GH#3498] Ncat in listen mode no longer sends termination
   caller's shell or test harness. The signal is now forwarded to the children
   Ncat started for connections when -k and cmdexec are both in effect. [MRX-72]
 
-o [Zenmap][GH#3497] Fixed a crash in Profile Editor: configparser.DuplicateSectionError
-
-o [NSE] Introduced execution time and memory allocation limits for NSE scripts.
-  Script threads that run for more than 5 seconds without yielding (e.g.
-  calling a socket operation) will be killed. Memory allocations beyond 400MB
-  will throw an error. Specific limits may be changed in the future.
-
 o [Nsock][GH#3449] Nsock no longer calls fatal() when encountering a
   pcap-related error. Instead, errors are propagated to the caller the same way
   other socket errors are handled.
@@ -84,8 +125,6 @@ o [GH#3438][GH#3511] Fixed warnings and crashes due to bind() failing on macOS
   and FreeBSD, as well as Nping probe failures. Error messages similar to:
   "mksock_bind_addr(): Bind to <IP>:0 failed (IOD #3): Invalid argument (22)"
   [Daniel Miller, MRX-72]
-
-o [Zenmap][GH#3431] Fix "KeyError: 'vl_6_logo'" crash in Zenmap 7.991.
 
 o [NSE] Added DHX2 authentication method to afp.lua [Daniel Miller]
 
@@ -100,6 +139,10 @@ o [NSE] Function ipOps.expand_ip() now strips off any leading zeros from IPv4
 o [NSE][GH#3494] Malformed TPKT header could have caused parser infinite loop
   in library iec61850mms. Truncated data were silently ignored.
   [Zasnit1, nnposter]
+
+o Prevent -iR from running forever if all addresses are excluded or if all
+  available addresses have been scanned with --unique. The underlying addrset
+  trie has been optimized for fast lookup and minimal memory use.
 
 o [NSE][GH#3447] IP options parsing by the packet library no longer crashes
   on incomplete options. IP header data after EOOL are no longer parsed as
@@ -122,6 +165,10 @@ o [NSE][GH#3307] Script iec61850-mms was never executed due to a flawed
 
 o [NSE] Scripts http-config-backup and rsync-list-modules now provide XML
   output. [nnposter]
+
+o Fixed a fatal error in traceroute with -sO: "Unknown protocol _: QUITTING."
+
+o Made DNS TXID random, not sequential, in massdns.cc.
 
 o [NSE][GH#3430] Nmap now tolerates TLS targets that do not send close_notify.
   [nnposter]
