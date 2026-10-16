@@ -15,11 +15,11 @@ msgstr ""
 
 #: zenmapCore/NmapParser.py:309
 msgid "Unknown Host"
-msgstr "알수 없는 호스트"
+msgstr "알 수 없는 호스트"
 
 #: zenmapCore/NmapParser.py:353
 msgid "Unknown version"
-msgstr "알수 없는 버전"
+msgstr "알 수 없는 버전"
 
 #: zenmapCore/NmapParser.py:642
 #, python-format
@@ -29,7 +29,7 @@ msgstr "%(targets)s에 대한 %(profile_name)s 스캔"
 #: zenmapCore/UmitOptionParser.py:77
 #, python-format
 msgid "Use DIR as the user configuration directory. Default: %default"
-msgstr "사용자 설정 디렉토리로 DIR 경로를 지정합니다. 기본값: %default"
+msgstr "사용자 설정 디렉터리로 DIR 경로를 지정합니다. 기본값: %default"
 
 #: zenmapCore/UmitOptionParser.py:91
 msgid ""
@@ -42,7 +42,7 @@ msgstr ""
 #: zenmapCore/UmitOptionParser.py:102
 #, python-format
 msgid "Run %s with the specified args."
-msgstr "지정된 인자(args)를 사용하여 %s을(를) 실행합니다."
+msgstr "지정된 인수(args)를 사용하여 %s을(를) 실행합니다."
 
 #: zenmapCore/UmitOptionParser.py:110
 msgid ""
@@ -64,13 +64,11 @@ msgstr ""
 msgid ""
 "Increase verbosity of the output. May be used more than once to get even more "
 "verbosity"
-msgstr ""
-"출력의 상세 수준을 증가시킵니다 더 자세한 출력을 얻기 위해 이 옵션을 여러 번 반"
-"복해서 사용할 수 있습니다"
+msgstr "출력의 상세 수준을 증가시킵니다. 더 자세한 출력을 얻기 위해 이 옵션을 여러 번 반복해서 사용할 수 있습니다"
 
 #: zenmapCore/UmitConf.py:198
 msgid "No profiles found"
-msgstr "프로파일을 찾을 수 없음"
+msgstr "프로필을 찾을 수 없음"
 
 #: zenmapCore/UmitConf.py:200
 msgid "The {} file is missing or corrupted"
@@ -114,11 +112,7 @@ msgid ""
 "\n"
 "A list of arguments that affect the selected script. Enter a value by clicking "
 "in the value field beside the argument name."
-msgstr ""
-"인자\n"
-"\n"
-"선택한 스크립트에 영향을 주는 인자 목록입니다. 인자 이름 옆의 값 입력 필드를 클"
-"릭하여 값을 입력할 수 있습니다."
+msgstr "인수\n\n선택한 스크립트에 영향을 주는 인수 목록입니다. 인수 이름 옆의 값 입력 필드를 클릭하여 값을 입력할 수 있습니다."
 
 #: zenmapGUI/ScriptInterface.py:418
 msgid "Please wait."
@@ -130,7 +124,7 @@ msgstr "이름 목록"
 
 #: zenmapGUI/ScriptInterface.py:562
 msgid "Arguments"
-msgstr "매개변수"
+msgstr "인수"
 
 #: zenmapGUI/ScriptInterface.py:650
 msgid "Select script files"
@@ -205,7 +199,7 @@ msgstr "스캔 출력"
 
 #: zenmapGUI/DiffCompare.py:186
 msgid "Select Scan Result"
-msgstr "스캔 출력 선택"
+msgstr "스캔 결과 선택"
 
 #: zenmapGUI/DiffCompare.py:197
 msgid "Error parsing file"
@@ -254,18 +248,16 @@ msgstr "ndiff를 시작하지 못했습니다"
 msgid ""
 "There was an error running the ndiff program.\n"
 "\n"
-msgstr ""
-"ndiff프로그램을 실행하는 동안 오류가 발생했습니다.\n"
-"\n"
+msgstr "ndiff 프로그램을 실행하는 동안 오류가 발생했습니다.\n\n"
 
 #: zenmapGUI/DiffCompare.py:369
 msgid "Error parsing ndiff output"
-msgstr "ndiff결과 분석 오류"
+msgstr "ndiff 결과 분석 오류"
 
 #: zenmapGUI/DiffCompare.py:378
 #, python-format
 msgid "The ndiff process terminated with status code %d."
-msgstr "ndiff프로세스가 상태 코드 %d번으로 종료되었습니다."
+msgstr "ndiff 프로세스가 상태 코드 %d번으로 종료되었습니다."
 
 #: zenmapGUI/ScanToolbar.py:80 zenmapGUI/ScanRunDetailsPage.py:79
 msgid "Command:"
@@ -286,7 +278,7 @@ msgstr "대상:"
 
 #: zenmapGUI/ScanToolbar.py:141
 msgid "Profile:"
-msgstr "프로파일:"
+msgstr "프로필:"
 
 #: zenmapGUI/MainWindow.py:195
 msgid "Sc_an"
@@ -318,7 +310,7 @@ msgstr "이전 스캔 결과 열기"
 
 #: zenmapGUI/MainWindow.py:220
 msgid "_Open Scan in This Window"
-msgstr "현재창에서 스캔 열기"
+msgstr "현재 창에서 스캔 열기"
 
 #: zenmapGUI/MainWindow.py:222
 msgid "Append a saved scan to the list of scans in this window."
@@ -346,11 +338,11 @@ msgstr "현재 스캔 창 닫기"
 
 #: zenmapGUI/MainWindow.py:244
 msgid "Print..."
-msgstr "스캔 출력..."
+msgstr "인쇄..."
 
 #: zenmapGUI/MainWindow.py:246
 msgid "Print the current scan"
-msgstr "현재 스캔 출력"
+msgstr "현재 스캔 인쇄"
 
 #: zenmapGUI/MainWindow.py:251
 msgid "Quit"
@@ -362,7 +354,7 @@ msgstr "프로그램 종료"
 
 #: zenmapGUI/MainWindow.py:258
 msgid "New _Profile or Command"
-msgstr "새 프로파일 또는 명령(_N)"
+msgstr "새 프로필 또는 명령(_N)"
 
 #: zenmapGUI/MainWindow.py:260
 msgid "Create a new scan profile using the current command"
@@ -394,7 +386,7 @@ msgstr "선택한 스캔 프로필 편집"
 
 #: zenmapGUI/MainWindow.py:285
 msgid "_Profile"
-msgstr "프로파일(_P)"
+msgstr "프로필(_P)"
 
 #: zenmapGUI/MainWindow.py:291
 msgid "Compare Scan Results using Diffies"
@@ -484,7 +476,7 @@ msgstr ""
 
 #: zenmapGUI/MainWindow.py:681
 msgid "Choose a directory to save scans into"
-msgstr "스캔 결과를 저장할 디렉토리를 선택하세요"
+msgstr "스캔 결과를 저장할 디렉터리를 선택하세요"
 
 #: zenmapGUI/MainWindow.py:706 zenmapGUI/MainWindow.py:738
 msgid "Can't save file"
@@ -590,11 +582,11 @@ msgstr "<정의되지 않음>"
 
 #: zenmapGUI/ScanInterface.py:498
 msgid "plus the extra directory"
-msgstr "및 추가 디렉토리"
+msgstr "및 추가 디렉터리"
 
 #: zenmapGUI/ScanInterface.py:500
 msgid "plus the extra directories"
-msgstr "및 추가 디렉토리들"
+msgstr "및 추가 디렉터리들"
 
 #: zenmapGUI/ScanInterface.py:505 zenmapGUI/ScanInterface.py:512
 msgid "Error executing command"
@@ -793,10 +785,7 @@ msgid ""
 "%s can search results on directories or inside its own database. Please select "
 "a method by choosing a directory or by checking the search data base option in "
 "the 'Search options' tab before starting a search"
-msgstr ""
-"%s 기능을 사용하면 폴더나 자체 DB 안에서 스캔 결과를 찾을 수 있습니다. 검색을 "
-"시작하기 전, '검색 옵션' 탭으로 이동하여 대상 디렉토리를 지정하거나 데이터베이"
-"스 검색 옵션을 선택해 주시기 바랍니다"
+msgstr "%s 기능을 사용하면 폴더나 자체 DB 안에서 스캔 결과를 찾을 수 있습니다. 검색을 시작하기 전, '검색 옵션' 탭으로 이동하여 대상 디렉터리를 지정하거나 데이터베이스 검색 옵션을 선택해 주시기 바랍니다"
 
 #: zenmapGUI/SearchGUI.py:884
 msgid ""
@@ -1225,7 +1214,7 @@ msgstr "스캔 기록 검색"
 
 #: zenmapGUI/SearchWindow.py:115
 msgid "Append"
-msgstr "병합"
+msgstr "덧붙이기"
 
 #: zenmapGUI/App.py:171
 msgid "Import error"
@@ -1554,7 +1543,7 @@ msgstr "일반 정보"
 
 #: radialnet/gui/NodeNotebook.py:370
 msgid "Sequences"
-msgstr "시퀸스"
+msgstr "시퀀스"
 
 #: radialnet/gui/NodeNotebook.py:373
 msgid "No sequence information."
@@ -1704,7 +1693,7 @@ msgstr "알 수 없는 파일 확장자"
 msgid ""
 "There is no file type known for the filename extension \"%s\".\n"
 "Enter a known extension or select the file type from the list."
-msgstr "'%s' 대신 올바른 확장자를 입력하거나 목록에서 파일 형식을 선택하십시오."
+msgstr "파일 확장자 \"%s\"에 해당하는 파일 형식을 알 수 없습니다.\n알려진 확장자를 입력하거나 목록에서 파일 형식을 선택해 주세요."
 
 #: radialnet/gui/ControlWidget.py:118
 msgid "Action"
@@ -1902,10 +1891,7 @@ msgid ""
 "Scan using the connect system call. This is like SYN scan but less stealthy "
 "because it makes a full TCP connection. It is the default when a user does not "
 "have raw packet privileges or is scanning IPv6 networks."
-msgstr ""
-"connect시스템 호출을 사용하여 스캔합니다. SYN 스캔과 유사하지만 완전한 TCP 연결"
-"을 맺기 때문에 스텔스성이 떨어집니다. 사용자가 원시 패킷(raw packet) 권한이 없"
-"거나 IPv6 네트워크를 스캔할 때 기본값으로 사용됩니다."
+msgstr "connect 시스템 호출을 사용하여 스캔합니다. SYN 스캔과 유사하지만 완전한 TCP 연결을 맺기 때문에 스텔스성이 떨어집니다. 사용자가 원시 패킷(raw packet) 권한이 없거나 IPv6 네트워크를 스캔할 때 기본값으로 사용됩니다."
 
 #: zenmapCore/data/misc/profile_editor.xml:25
 msgid "TCP connect scan"
@@ -1983,9 +1969,7 @@ msgstr "목록 스캔"
 msgid ""
 "Skip the port scanning phase. Other phases (host discovery, script scan, "
 "traceroute) may still run."
-msgstr ""
-"포트 스캔 단계를 건너뜁니다. 다른 단계(호스트 검색, 스크립트 스캔, 추적 경로)"
-"는 여전히 실행될 수 있습니다."
+msgstr "포트 스캔 단계를 건너뜁니다. 다른 단계(호스트 탐색, 스크립트 스캔, 경로 추적)는 여전히 실행될 수 있습니다."
 
 #: zenmapCore/data/misc/profile_editor.xml:34
 msgid "No port scan"
@@ -2251,7 +2235,7 @@ msgstr "SCTP INIT 핑 프로브"
 
 #: zenmapCore/data/misc/profile_editor.xml:67
 msgid "Scripting options (NSE)"
-msgstr "Nmap 스크립팅 엔진 (NSE)"
+msgstr "스크립팅 옵션(NSE)"
 
 #: zenmapCore/data/misc/profile_editor.xml:68
 msgid ""
@@ -2368,7 +2352,7 @@ msgstr "빠른 스캔"
 
 #: zenmapCore/data/misc/profile_editor.xml:81
 msgid "Source options"
-msgstr "보안 옵션"
+msgstr "출발지 옵션"
 
 #: zenmapCore/data/misc/profile_editor.xml:82
 msgid ""
@@ -2390,7 +2374,7 @@ msgstr "패킷을 보낼 때 사용할 인터페이스의 IP 주소를 지정합
 
 #: zenmapCore/data/misc/profile_editor.xml:83
 msgid "Set source IP address"
-msgstr "소스 IP 주소 설정"
+msgstr "출발지 IP 주소 설정"
 
 #: zenmapCore/data/misc/profile_editor.xml:84
 msgid ""
@@ -2399,7 +2383,7 @@ msgstr "포트 번호를 지정하면 Nmap은 가능한 경우 해당 포트에�
 
 #: zenmapCore/data/misc/profile_editor.xml:84
 msgid "Set source port"
-msgstr "소스 포트 설정"
+msgstr "출발지 포트 설정"
 
 #: zenmapCore/data/misc/profile_editor.xml:85
 msgid "Tells Nmap what interface to send and receive packets on."
@@ -2433,7 +2417,7 @@ msgstr "IPv4 TTL(Time-To-Live) 설정"
 msgid ""
 "Causes the requested scan (including ping scans) to split up TCP headers over "
 "several packets."
-msgstr "전송되는 패킷의 IPv4 TTL(Time-To-Live) 필드를 지정된 값으로 설정합니다."
+msgstr "요청한 스캔(핑 스캔 포함)에서 TCP 헤더를 여러 패킷으로 나누어 전송합니다."
 
 #: zenmapCore/data/misc/profile_editor.xml:90
 msgid "Fragment IP packets"
@@ -2582,10 +2566,7 @@ msgid ""
 "Never allow more than the given number of probes to be outstanding at a time. "
 "May be set to 1 to prevent Nmap from sending more than one probe at a time to "
 "hosts."
-msgstr ""
-"동시에 전송 대기 중인 프로브 수가 지정된 개수를 초과하지 않도록 합니다. 호스트"
-"에 한 번에 하나의 프로브만 전송하도록 제한하려면 이 값을 1로 설정할 수 있습니"
-"다."
+msgstr "전송 후 응답을 기다리는 프로브 수가 동시에 지정된 개수를 초과하지 않도록 합니다. 호스트에 한 번에 하나의 프로브만 전송하도록 제한하려면 이 값을 1로 설정할 수 있습니다."
 
 #: zenmapCore/data/misc/profile_editor.xml:105
 msgid "Max outstanding probes"
@@ -2596,10 +2577,7 @@ msgid ""
 "Try to maintain at least the given number of probes outstanding during a scan. "
 "Common usage is to set to a number higher than 1 to speed up scans of poorly "
 "performing hosts or networks."
-msgstr ""
-"스캔하는 동안 동시에 전송 대기 중인 프로브 수를 최소한 지정된 개수 이상으로 유"
-"지하려고 시도합니다. 성능이 좋지 않은 호스트나 네트워크의 스캔 속도를 높이기 위"
-"해 대개 1보다 큰 값으로 설정합니다."
+msgstr "스캔 중 전송 후 응답을 기다리는 프로브 수를 최소한 지정된 개수 이상으로 유지하려고 시도합니다. 성능이 좋지 않은 호스트나 네트워크의 스캔 속도를 높이기 위해 대개 1보다 큰 값으로 설정합니다."
 
 #: zenmapCore/data/misc/profile_editor.xml:106
 msgid "Min outstanding probes"
