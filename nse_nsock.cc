@@ -778,9 +778,7 @@ static int receive_buf (lua_State *L, int status, lua_KContext ctx)
   }
   else /* string */
   {
-    lua_getglobal(L, "string");
-    lua_getfield(L, -1, "find");
-    lua_replace(L, -2);
+    lua_getfield(L, 2, "find");
     lua_pushvalue(L, 5);
     lua_pushvalue(L, 2);
     lua_call(L, 2, 2); /* we do not allow yields */
