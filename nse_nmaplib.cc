@@ -680,14 +680,13 @@ static int l_get_version_intensity (lua_State *L)
     int is_script_intensity_set;
     int script_intensity;
 
-    lua_getglobal(L, "nmap");
-    lua_getfield(L, -1, "registry");
+    lua_pushvalue(L, lua_upvalueindex(1)); /* nmap.registry */
     lua_getfield(L, -1, "args");
     lua_getfield(L, -1, "script-intensity");
 
     script_intensity = lua_tointegerx(L, lua_gettop(L), &is_script_intensity_set);
 
-    lua_pop(L, 4);
+    lua_pop(L, 3);
 
     if (is_script_intensity_set) {
       if (script_intensity < 0 || script_intensity > 9)
@@ -1041,8 +1040,13 @@ int luaopen_nmap (lua_State *L)
   lua_pushcclosure(L, l_condvar, 1); /* condvar function */
   lua_setfield(L, nmap_idx, "condvar");
 
-  lua_newtable(L);
+  lua_newtable(L); /* nmap.registry */
+  /* Copy nmap.registry. One copy to set nmap["registry"] */
+  lua_pushvalue(L, -1);
   lua_setfield(L, nmap_idx, "registry");
+  /* and the other as upvalue for l_get_version_intensity. */
+  lua_pushcclosure(L, l_get_version_intensity, 1);
+  lua_setfield(L, nmap_idx, "version_intensity");
 
   /* Pull out some functions from the nmap.socket and nmap.dnet libraries.
      http://seclists.org/nmap-dev/2012/q1/299. */
