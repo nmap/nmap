@@ -75,6 +75,11 @@ Requires the dicom.lua library (place in nselib/ or same directory).
 -- class rejected (default: true)
 -- @args dicom-store-fuzzer.baseline   Send baseline before fuzzing to verify
 -- C-STORE works (default: true)
+-- @args dicom-store-fuzzer.payload    What bytes to send as the C-STORE
+-- dataset: "file" (default, the whole .dcm verbatim -- preamble + File Meta +
+-- dataset, so structure/meta/dataset mutations all reach the target), "raw"
+-- (everything after the 128-byte preamble + "DICM"), or "dataset" (only the
+-- parsed main dataset, a DICOM-conformant C-STORE)
 -- @args dicom-store-fuzzer.max_pdu    Max PDU Length to propose in bytes
 -- (default: 16384)
 -- @args dicom-store-fuzzer.resume     Resume from this case ID after a
@@ -436,6 +441,17 @@ action = function(host, port)
   local results_file = arg("dicom-store-fuzzer.results_file")
                     or string.format("/tmp/dicom-store-fuzzer-%s.json",
                                      host.ip or "unknown")
+  -- Payload fidelity: what bytes to transmit as the C-STORE dataset.
+  --   "file"    (default) the whole .dcm verbatim (preamble + meta + dataset)
+  --   "raw"     everything after the 128-byte preamble + "DICM" (meta+dataset)
+  --   "dataset" only the parsed main dataset (DICOM-conformant C-STORE)
+  -- "file"/"raw" ensure structure- and meta-level mutations actually reach the
+  -- target; "dataset" is the conformant mode for pure dataset-level testing.
+  local payload_mode = (arg("dicom-store-fuzzer.payload") or "file"):lower()
+  if payload_mode ~= "file" and payload_mode ~= "raw"
+      and payload_mode ~= "dataset" then
+    payload_mode = "file"
+  end
 
   local verbose = (output_lvl == "verbose" or output_lvl == "debug")
   local dbg     = (output_lvl == "debug")
@@ -613,10 +629,18 @@ action = function(host, port)
 
     stdnse.debug2("Case %s: %s", tc.id, tc.description)
 
-    -- Read DCM file
+    -- Read DCM file. In "file"/"raw" mode send the bytes verbatim so every
+    -- mutation (structure, File Meta and dataset) reaches the target; in
+    -- "dataset" mode send only the parsed main dataset (conformant C-STORE).
     local filepath = corpus_path:gsub("[/\\]+$", "") .. "/" .. tc.filename
-    local dataset_bytes, sop_class, sop_instance,
-        file_ts_uid = dicom.read_dcm_dataset(filepath)
+    local dataset_bytes, sop_class, sop_instance, file_ts_uid, meta_note
+    if payload_mode == "dataset" then
+      dataset_bytes, sop_class, sop_instance, file_ts_uid, meta_note =
+        dicom.read_dcm_dataset(filepath)
+    else
+      dataset_bytes, sop_class, sop_instance, file_ts_uid, meta_note =
+        dicom.read_dcm_raw(filepath, payload_mode == "raw")
+    end
 
     if not dataset_bytes then
       record(res, "FAILURE", tc)
@@ -627,10 +651,26 @@ action = function(host, port)
       goto next_case
     end
 
+    -- If the File Meta could not be parsed (corrupt VR, overrun), the SOP
+    -- Class/Instance come back empty. Synthesize valid command UIDs so the
+    -- DATASET corruption is what gets exercised, and remember that we did so:
+    -- a resulting hang must be attributed to the dataset (or flagged as an
+    -- unparseable-meta artifact), NOT mistaken for the deliberate empty-UID
+    -- C-STORE primitive (which the empty-command-set cases test on purpose).
+    local synth_uids = false
+    if not (sop_class and #sop_class > 0) then synth_uids = true end
+    if not (sop_instance and #sop_instance > 0) then synth_uids = true end
     sop_class = (sop_class and #sop_class > 0) and sop_class
         or dicom.SOP_CLASS.CT_IMAGE_STORAGE
     sop_instance = (sop_instance and #sop_instance > 0) and sop_instance
         or dicom.generate_fake_uid()
+    local synth_tag = ""
+    if synth_uids then
+      synth_tag = meta_note
+        and " [synthesized UIDs: File Meta unparseable]"
+        or " [synthesized UIDs: no SOP Class/Instance in File Meta]"
+      if meta_note then stdnse.debug1("%s: %s", tc.id, meta_note) end
+    end
 
     -- Open/reuse association (propose file's native transfer syntax)
     if not sock_open or cases_in_batch >= batch_size then
@@ -722,7 +762,7 @@ action = function(host, port)
           id=tc.id, file=tc.filename,
           result=result .. (error_comment ~= "" and (":" .. error_comment)
               or ""),
-          desc=tc.description, elapsed=elapsed}
+          desc=tc.description .. synth_tag, elapsed=elapsed}
         if is_critical(result) then
           res.crashes[#res.crashes + 1] = entry
         else

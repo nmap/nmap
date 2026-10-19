@@ -194,6 +194,20 @@ LONG_VRS = {
   SV = true, UV = true,
 }
 
+--- All valid DICOM Value Representations (PS3.5 Table 6.2-1). Used to detect a
+-- corrupt File Meta element whose VR bytes are not a real VR, so the Explicit
+-- VR walk can stop instead of misaligning on a bogus length.
+-- @class table
+-- @name KNOWN_VRS
+KNOWN_VRS = {
+  AE = true, AS = true, AT = true, CS = true, DA = true, DS = true,
+  DT = true, FL = true, FD = true, IS = true, LO = true, LT = true,
+  OB = true, OD = true, OF = true, OL = true, OV = true, OW = true,
+  PN = true, SH = true, SL = true, SQ = true, SS = true, ST = true,
+  SV = true, TM = true, UC = true, UI = true, UL = true, UN = true,
+  UR = true, US = true, UT = true, UV = true,
+}
+
 --- CommandDataSetType (0000,0800) sentinel: a dataset follows the command.
 DATASET_PRESENT     = 0x0001
 --- CommandDataSetType (0000,0800) sentinel: no dataset follows the command.
@@ -1518,14 +1532,32 @@ function read_dcm_dataset(filepath)
     local sop_instance = ""
     local ts_uid       = TRANSFER_SYNTAX.EXPLICIT_LE
 
-    -- Parse File Meta Information (always Explicit VR LE, group 0002)
+    -- Parse File Meta Information (always Explicit VR LE, group 0002).
+    -- A 5th return value carries a diagnostic string when the meta cannot be
+    -- walked cleanly (e.g. a corrupt VR); callers treat empty SOP UIDs as
+    -- "meta unparseable" rather than as a deliberate empty-UID test.
     while pos <= #data - 8 do
       local grp  = string.unpack("<I2", data, pos)
       if grp ~= 0x0002 then
+        -- Clean end of File Meta: the main dataset starts here.
         return data:sub(pos), sop_class, sop_instance, ts_uid
       end
       local elem = string.unpack("<I2", data, pos + 2)
       local vr   = data:sub(pos + 4, pos + 5)
+
+      -- A File Meta element whose VR is not a real DICOM VR means the
+      -- Explicit-VR framing is corrupt. Continuing would misread the length
+      -- field, misalign, and silently drop the SOP Class/Instance UIDs (and
+      -- split the dataset at the wrong offset). Stop and report instead.
+      if not KNOWN_VRS[vr] then
+        local b1, b2 = vr:byte(1, 2)
+        local detail = string.format(
+          "File Meta (%04X,%04X) has invalid VR 0x%02X%02X at offset %d"
+          .. " -- meta parsing stopped", grp, elem, b1 or 0, b2 or 0, pos)
+        stdnse.debug1("read_dcm_dataset: %s", detail)
+        return data:sub(pos), sop_class, sop_instance, ts_uid, detail
+      end
+
       local vlen, next_pos
       if LONG_VRS[vr] then
         vlen     = string.unpack("<I4", data, pos + 8)
@@ -1534,14 +1566,23 @@ function read_dcm_dataset(filepath)
         vlen     = string.unpack("<I2", data, pos + 6)
         next_pos = pos + 8 + vlen
       end
-      local val_start = next_pos - vlen
-      local val = data:sub(val_start, next_pos - 1)
 
-      if grp == 0x0002 and elem == 0x0002 then
+      -- A length that does not advance, or that overruns the buffer, is also
+      -- a corrupt-framing signal; stop rather than loop or read out of bounds.
+      if next_pos <= pos or next_pos > #data + 1 then
+        local detail = string.format(
+          "File Meta (%04X,%04X) length %d overruns buffer at offset %d"
+          .. " -- meta parsing stopped", grp, elem, vlen, pos)
+        stdnse.debug1("read_dcm_dataset: %s", detail)
+        return data:sub(pos), sop_class, sop_instance, ts_uid, detail
+      end
+
+      local val = data:sub(next_pos - vlen, next_pos - 1)
+      if elem == 0x0002 then
         sop_class = val:gsub("%z", ""):gsub("%s+$", "")
-      elseif grp == 0x0002 and elem == 0x0003 then
+      elseif elem == 0x0003 then
         sop_instance = val:gsub("%z", ""):gsub("%s+$", "")
-      elseif grp == 0x0002 and elem == 0x0010 then
+      elseif elem == 0x0010 then
         ts_uid = val:gsub("%z", ""):gsub("%s+$", "")
       end
       pos = next_pos
@@ -1553,6 +1594,38 @@ function read_dcm_dataset(filepath)
     return data, SOP_CLASS.CT_IMAGE_STORAGE, generate_fake_uid(),
         TRANSFER_SYNTAX.EXPLICIT_LE
   end
+end
+
+--- Read a .dcm file and return its bytes VERBATIM for faithful fuzzing.
+--
+-- Unlike read_dcm_dataset (which strips the Part-10 preamble + File Meta and
+-- returns only the main dataset), this returns the file exactly as stored, so
+-- structure-, meta- and dataset-level mutations all reach the target on the
+-- wire. It still parses the File Meta best-effort to recover a SOP Class,
+-- SOP Instance and transfer syntax for the C-STORE command set and the
+-- A-ASSOCIATE negotiation; those come back empty / default when the meta is
+-- corrupt (the caller substitutes safe values).
+--
+-- @param filepath       path to the .dcm file.
+-- @param after_preamble if true, drop the 128-byte preamble and the "DICM"
+--                       magic, returning File Meta + dataset; otherwise the
+--                       whole file (default).
+-- @return raw_bytes (string or nil), sop_class, sop_instance, ts_uid,
+--         meta_note (diagnostic string when the File Meta was unparseable,
+--         else nil) or, on read failure, nil + error in the 5th slot.
+function read_dcm_raw(filepath, after_preamble)
+  local data, err = read_file(filepath)
+  if not data then
+    return nil, nil, nil, nil, err
+  end
+  -- Best-effort UID/TS discovery (reuses the hardened meta walk).
+  local _, sop_class, sop_instance, ts_uid, meta_note =
+    read_dcm_dataset(filepath)
+  local payload = data
+  if after_preamble and #data >= 132 and data:sub(129, 132) == "DICM" then
+    payload = data:sub(133)
+  end
+  return payload, sop_class, sop_instance, ts_uid, meta_note
 end
 
 return _ENV
