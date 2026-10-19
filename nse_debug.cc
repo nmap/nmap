@@ -1,6 +1,7 @@
 
 #include "nse_lua.h"
 #include "nse_debug.h"
+#include "nse_nmaplib.h"
 #include "output.h"
 #undef NDEBUG
 #include <assert.h>
@@ -89,7 +90,7 @@ void lua_state_dump (lua_State *L)
   printf("\n");
 
   printf("=== nmap.registry\n");
-  lua_getglobal(L, "nmap");
+  luaL_requiref(L, "nmap", luaopen_nmap, 0);
   lua_getfield(L, -1, "registry");
   table_dump(L, -1, 1);
   lua_pop(L, 2);
