@@ -13,6 +13,7 @@ extern "C" {
 #include "nse_lua.h"
 
 #include "nse_nsock.h"
+#include "nse_nmaplib.h"
 #include "nse_utility.h"
 #include "nbase.h"
 #include "nmap_error.h"
@@ -41,7 +42,9 @@ extern "C" {
 
 
 enum {
-    SSH2_UDATA = lua_upvalueindex(1)
+    SSH2_UDATA = lua_upvalueindex(1),
+    NEW_SOCKET = lua_upvalueindex(2),
+    BASE64_DEC = lua_upvalueindex(3)
 };
 
 struct userauth_context {
@@ -356,7 +359,7 @@ static int l_session_open (lua_State *L) {
     state->sp[0] = -1;
     state->sp[1] = -1;
     state->L = L;
-    lua_pushvalue(L, lua_upvalueindex(1)); /* metatable */
+    lua_pushvalue(L, SSH2_UDATA); /* metatable */
     lua_setmetatable(L, 3);
 
     lua_newtable(L);
@@ -395,9 +398,7 @@ static int l_session_open (lua_State *L) {
         return nseU_safeerror(L, "%s", strerror(errno));
 #endif
 
-    lua_getglobal(L, "nmap");
-    lua_getfield(L, -1, "new_socket");
-    lua_replace(L, -2);
+    lua_pushvalue(L, NEW_SOCKET); /* nmap.new_socket */
     lua_call(L, 0, 1);
     lua_setfield(L, 4, "sock");
     lua_pushliteral(L, "");
@@ -574,10 +575,7 @@ static int l_read_publickey (lua_State *L) {
     const char* publickeyfile = luaL_checkstring(L, 1);
     luaL_Buffer publickey_data;
 
-    lua_getglobal(L, "require");
-    lua_pushliteral(L, "base64");
-    lua_call(L, 1, 1);
-    lua_getfield(L, -1, "dec");
+    lua_pushvalue(L, BASE64_DEC);
 
     fd = fopen(publickeyfile, "r");
     if (!fd)
@@ -1086,7 +1084,20 @@ int luaopen_libssh2 (lua_State *L) {
     lua_pushcclosure(L, filter, 1);
     lua_setfield(L, -2, "filter");
 
-    luaL_setfuncs(L, libssh2, 1);
+    /* nmap.new_socket is upvalue 2 */
+    luaL_requiref(L, "nmap", luaopen_nmap, 0);
+    lua_getfield(L, -1, "new_socket");
+    lua_replace(L, -2);
+
+    /* base64.dec is upvalue 3 */
+    lua_getglobal(L, "require");
+    lua_pushliteral(L, "base64");
+    lua_call(L, 1, 1);
+    lua_getfield(L, -1, "dec");
+    lua_replace(L, -2);
+
+
+    luaL_setfuncs(L, libssh2, 3);
 
     static bool libssh2_initialized = false;
     if (!libssh2_initialized && (libssh2_init(0) != 0))
