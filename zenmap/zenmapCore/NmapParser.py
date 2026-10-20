@@ -940,12 +940,12 @@ class NmapParserSAX(ParserBasics, ContentHandler):
             self.in_os = True
             self.list_portused = []
             self.list_osmatch = []
+            self.list_osclass = []
         elif self.in_host and self.in_os and name == "osmatch":
             self._parse_host_osmatch(attrs)
         elif self.in_host and self.in_os and name == "portused":
             self._parse_host_portused(attrs)
         elif self.in_host and self.in_os and name == "osclass":
-            self.list_osclass = []
             self._parse_host_osclass(attrs)
         elif self.in_host and name == "uptime":
             self._parse_host_uptime(attrs)
