@@ -1,5 +1,7 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [Ncat] Updated Ncat's ca-bundle.crt.
+
 Nmap 7.992 [2026-10-15]
 
 o Upgraded included libraries:

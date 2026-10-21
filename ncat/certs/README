@@ -46,5 +46,5 @@ ready-made PEM files to download. See http://curl.haxx.se/docs/caextract.html.
 
 Here is how to download Mozilla's trust store:
 
-$ wget https://raw.github.com/bagder/curl/master/lib/mk-ca-bundle.pl
+$ wget https://raw.github.com/curl/curl/master/scripts/mk-ca-bundle.pl
 $ perl mk-ca-bundle.pl
