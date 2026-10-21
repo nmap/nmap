@@ -76,7 +76,7 @@ establish that the serving runtime is patched.
 -- |       Vendor packages may backport fixes without changing the disclosed
 -- |_      upstream version; verify the serving runtime and package provenance.
 
-author = "nbehar"
+author = "Nikolas Behar"
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = { "safe", "vuln" }
 
