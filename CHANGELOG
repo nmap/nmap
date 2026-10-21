@@ -1,5 +1,8 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE][GH#3557] Fixed a regression which prevented most scripts in the version
+  category from running.
+
 o [Ncat] Updated Ncat's ca-bundle.crt.
 
 Nmap 7.992 [2026-10-15]
