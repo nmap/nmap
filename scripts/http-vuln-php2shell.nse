@@ -73,8 +73,8 @@ establish that the serving runtime is patched.
 -- |       evidence[1].raw_version=8.4.26
 -- |       evidence[1].assessment=below upstream fix 8.4.27
 -- |     Extra information:
--- |_      Vendor packages may backport fixes without changing the disclosed
--- |       upstream version; verify the serving runtime and package provenance.
+-- |       Vendor packages may backport fixes without changing the disclosed
+-- |_      upstream version; verify the serving runtime and package provenance.
 
 author = "nbehar"
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
