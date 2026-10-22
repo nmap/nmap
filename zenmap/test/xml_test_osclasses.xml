@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<nmaprun scanner="nmap" version="7.992+SVN" start="1000000000" args="synthetic saved XML fixture" xmloutputversion="1.05">
+  <scaninfo type="syn" protocol="tcp" numservices="1" services="80"/>
+  <verbose level="0"/>
+  <debugging level="0"/>
+  <host>
+    <status state="up" reason="user-set" reason_ttl="0"/>
+    <address addr="192.0.2.1" addrtype="ipv4"/>
+    <os>
+      <osmatch name="OS-first" accuracy="100" line="1">
+        <osclass type="general purpose" vendor="Vendor-A" osfamily="Family-A" osgen="A" accuracy="100"/>
+        <osclass type="general purpose" vendor="Vendor-B" osfamily="Family-B" osgen="B" accuracy="100"/>
+      </osmatch>
+    </os>
+  </host>
+  <runstats><finished time="1000000001" elapsed="1" exit="success"/><hosts up="1" down="0" total="1"/></runstats>
+</nmaprun>

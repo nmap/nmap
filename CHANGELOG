@@ -5,6 +5,10 @@ o [NSE][GH#3557] Fixed a regression which prevented most scripts in the version
 
 o [Ncat] Updated Ncat's ca-bundle.crt.
 
+o [Zenmap][GH#3561] Fix Zenmap's handling of multiple osclass elements in Nmap
+  XML. Previously, each subsequent osclass in a host would overwrite the
+  previous osclass. [Derek Martin]
+
 Nmap 7.992 [2026-10-15]
 
 o Upgraded included libraries:
