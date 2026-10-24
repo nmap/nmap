@@ -331,8 +331,11 @@ static void trie_split (struct trie_node *this, const u32 *addr, const u32 *mask
       /* Addrs have more bits in common than we care about for this node. */
       new_mask[i] = this->mask[i];
     }
-    if (new_mask[i] > mask[i]) {
-      /* new addr's mask is broader, so this node is superseded. */
+    if (new_mask[i] > mask[i]
+        || (new_mask[i] == mask[i] && mask[i] != U32_ALL_BITS)) {
+      /* new addr's mask is no longer than the common prefix, so this node is
+       * superseded. Equal full words don't count: the new mask continues in
+       * the next word, so keep comparing. */
       this->mask[i] = mask[i];
       for (i++; i < 4; i++) {
         this->mask[i] = 0;
