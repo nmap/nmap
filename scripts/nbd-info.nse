@@ -38,7 +38,7 @@ For additional information:
 -- |         READ_ONLY
 -- |_        ROTATIONAL
 --
--- @args nbd-info.export_names Either a single name, or a table of
+-- @args nbd-info.export-names Either a single name, or a table of
 -- names to about which to request information from the server.
 
 author = "Mak Kolybabi <mak@kolybabi.com>"
