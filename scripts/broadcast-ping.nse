@@ -45,7 +45,7 @@ is 0. The payload is consisted of random bytes.
 -- --script broadcast-ping [--script-args [broadcast-ping.timeout=<ms>],[num-probes=<n>]]
 --
 -- @args broadcast-ping.interface string specifying which interface to use for this script (default all interfaces)
--- @args broadcast-ping.num_probes number specifying how many ICMP probes should be sent (default 1)
+-- @args broadcast-ping.num-probes number specifying how many ICMP probes should be sent (default 1)
 -- @args broadcast-ping.timeout timespec specifying how long to wait for response (default 3s)
 --
 -- @output
