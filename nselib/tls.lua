@@ -205,15 +205,20 @@ ELLIPTIC_CURVES = {
   arbitrary_explicit_char2_curves = 0xFF02,
 }
 
--- Most likely set, supported by Firefox and Chrome
-DEFAULT_ELLIPTIC_CURVES = {
+-- Most likely elliptic curves, supported by Firefox and Chrome, sent by tls.client_hello for TLSv1.2 or earlier
+DEFAULT_TLS12_ELLIPTIC_CURVES = {
   "secp256r1",
   "secp384r1",
   "secp521r1",
   "ecdh_x25519",
-  "ffdhe2048", -- added for TLSv1.3
-  "X25519MLKEM768", -- Chrome offers this one
 }
+-- Same (now called supported groups), but for TLSv1.3
+DEFAULT_ELLIPTIC_CURVES = {table.unpack(DEFAULT_TLS12_ELLIPTIC_CURVES)}
+for _, name in ipairs({"ffdhe2048",
+                       "X25519MLKEM768", -- Chrome offers this one
+                      }) do
+  table.insert(DEFAULT_ELLIPTIC_CURVES, name)
+end
 
 ---
 -- RFC 4492 section 5.1.2 "Supported Point Formats Extension".
@@ -1949,7 +1954,12 @@ function client_hello(t)
       insert(extensions, pack(">s2", "\0\0"))
     end
     if need_elliptic_curves then
-      local curves = {table.unpack(DEFAULT_ELLIPTIC_CURVES)}
+      -- TODO: Determine desire to comply with RFC 4492, section 4:
+      --       "The client MUST NOT include these extensions in the ClientHello
+      --       message if it does not propose any ECC cipher suites."
+      --       OTOH, OpenSSL 1.1.1 sends them always so it is probably safe.
+      local curves = proto_ver < PROTOCOLS["TLSv1.3"] and DEFAULT_TLS12_ELLIPTIC_CURVES  -- non-TLSv1.3
+                     or DEFAULT_ELLIPTIC_CURVES
       if shangmi then
         curves[#curves+1] = "curveSM2"
       end
@@ -2069,5 +2079,9 @@ end
 test_suite = unittest.TestSuite:new()
 for name, code in pairs(CIPHERS) do
   test_suite:add_test(unittest.not_nil(cipher_info(name).kex), name .. ".kex")
+end
+-- Make sure that all default elliptic curves are in fact defined
+for _, name in ipairs(DEFAULT_ELLIPTIC_CURVES) do
+  test_suite:add_test(unittest.not_nil(ELLIPTIC_CURVES[name]), name .. " default elliptic curve (supported group)")
 end
 return _ENV;
