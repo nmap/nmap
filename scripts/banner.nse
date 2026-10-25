@@ -1,3 +1,5 @@
+local local_port_rule
+local validated_timeout_ms = 3000
 local comm = require "comm"
 local nmap = require "nmap"
 local stdnse = require "stdnse"
@@ -8,21 +10,31 @@ local U = require "lpeg-utility"
 description = [[
 A simple banner grabber which connects to an open TCP port and prints out anything sent by the listening service within five seconds.
 
-The banner will be truncated to fit into a single line, but an extra line may be printed for every
-increase in the level of verbosity requested on the command line.
+Additionally provides host-level comparison of collected service banners across multiple
+ports to identify suspicious identical responses indicative of honeypots or generic service listeners.
+
+Arguments include: sample_size=5 (2..64), min_responses=2, timeout=3s (0.05..60 seconds),
+ports=common or a TCP port list.
 ]]
 
 ---
+-- @usage
+-- nmap -sV --script banner <target>
+-- nmap -sT -p 8000-8004 --script banner <target>
+--
 -- @output
 -- 21/tcp open  ftp
 -- |_ banner: 220 FTP version 1.0\x0D\x0A
--- @arg banner.ports Which ports to grab. Same syntax as -p option. Use
+--
+-- @args banner.ports Which ports to grab. Same syntax as -p option. Use
 --                   "common" to only grab common text-protocol banners.
 --                   Default: all ports.
--- @arg banner.timeout How long to wait for a banner. Default: 5s
+-- @args banner.timeout How long to wait for a banner. Default: 3s
+-- @args banner.sample_size Maximum number of open ports to sample for cross-port comparison (2..64). Default: 5.
+-- @args banner.min_responses Minimum number of responses required for honeypot verdict. Default: 2.
 
 
-author = "jah"
+author = {"jah", "SUDHARSAN M (enhancements)"}
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"discovery", "safe"}
 
@@ -35,15 +47,15 @@ if portarg then
   end
   -- ensure TCP
   portarg = portarg:gsub("^[T:]*", "T:")
-  portrule = shortport.port_range(portarg)
+  local_port_rule = shortport.port_range(portarg)
 else
-  portrule = function(host, port) return port.protocol == "tcp" end
+  local_port_rule = function(host, port) return port.protocol == "tcp" end
 end
 
 
 ---
 -- Grabs a banner and outputs it nicely formatted.
-action = function( host, port )
+local original_banner_action = function( host, port )
 
   local out = grab_banner(host, port)
   return output( out )
@@ -66,9 +78,7 @@ function grab_banner(host, port)
     end
   end
 
-  local opts = {}
-  opts.timeout = stdnse.parse_timespec(stdnse.get_script_args(SCRIPT_NAME .. ".timeout"))
-  opts.timeout = (opts.timeout or 5) * 1000
+  local opts = {timeout = validated_timeout_ms}
 
   local status, response = comm.get_banner(host, port, opts)
 
@@ -195,4 +205,75 @@ end
 -- @return Number
 function extra_output()
   return (nmap.verbosity()-nmap.debugging()>0 and nmap.verbosity()-nmap.debugging()) or 0
+end
+
+-- ENHANCEMENT: validated host-level evidence and cross-port comparison.
+local function integer_arg(name, default, lower, upper)
+  local raw = stdnse.get_script_args(SCRIPT_NAME .. "." .. name)
+  if raw == nil then return default end
+  local n = tonumber(raw)
+  if not n or n ~= n or n % 1 ~= 0 or n < lower or n > upper then
+    return nil, name .. " must be an integer in " .. lower .. ".." .. upper
+  end
+  return n
+end
+
+hostrule = function(host)
+  return nmap.get_ports(host, nil, "tcp", "open") ~= nil
+end
+
+action = function(host)
+  local sample, err = integer_arg("sample_size", 5, 2, 64)
+  if not sample then return "ERROR: " .. err end
+  local minimum
+  minimum, err = integer_arg("min_responses", 2, 2, sample)
+  if not minimum then return "ERROR: " .. err end
+  local raw = stdnse.get_script_args(SCRIPT_NAME .. ".timeout")
+  local ok, timeout = pcall(stdnse.parse_timespec, raw or "3s")
+  if not ok or not timeout or timeout ~= timeout or timeout < 0.05 or timeout > 60 then
+    return "ERROR: timeout must be 0.05..60 seconds, e.g. 3000ms or 3s"
+  end
+  -- Passed to the inherited banner collector. Every host uses the same arguments.
+  validated_timeout_ms = timeout * 1000
+  local result = stdnse.output_table()
+  result.requested_ports = sample
+  result.minimum_responses = minimum
+  local observations, banners, selected = {}, {}, {}
+  local port = nmap.get_ports(host, nil, "tcp", "open")
+  while port and #selected < sample do
+    if local_port_rule(host, port) then
+      selected[#selected + 1] = port.number
+      local banner = grab_banner(host, port)
+      local row = stdnse.output_table()
+      row.port = port.number
+      if banner and #banner > 0 then
+        banners[#banners + 1] = banner
+        row.bytes = #banner
+        row.banner = output(banner)
+        row.status = "response received"
+      else
+        row.status = "no usable banner (silent, timeout, or connection failure)"
+      end
+      observations[#observations + 1] = row
+    end
+    port = nmap.get_ports(host, port, "tcp", "open")
+  end
+  result.sampled_ports = table.concat(selected, ", ")
+  result.responding_ports = #banners
+  result.missing_responses = #selected - #banners
+  result.observations = observations
+  if #banners < minimum or #banners < #selected then
+    result.verdict = "INCONCLUSIVE: insufficient usable responses"
+  else
+    local same = true
+    for i = 2, #banners do
+      if banners[i] ~= banners[1] then same = false; break end
+    end
+    result.identical_responses = same
+    result.verdict = same
+      and "IDENTICAL BANNERS: possible honeypot pattern; verify manually"
+      or "DIFFERENT BANNERS: no identical-response pattern in this sample"
+  end
+  result.interpretation = "Compared collected banners after trimming surrounding whitespace; this does not confirm or exclude a honeypot."
+  return result
 end
