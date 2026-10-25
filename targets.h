@@ -66,6 +66,7 @@
 
 #include "TargetGroup.h"
 #include <list>
+#include <string>
 #include <nbase.h>
 class Target;
 
