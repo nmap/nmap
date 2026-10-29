@@ -83,18 +83,84 @@
 
 from functools import reduce
 
+from enum import Enum
+from typing import Iterable
 
-class option:
-    """A single option, part of a pool of potential options. It's just a name
-    and a flag saying if the option takes no argument, if an argument is
-    optional, or if an argument is required."""
+class PrefixStatus(Enum):
+    NOT_A_PREFIX = "not_a_prefix"
+    EXACT_MATCH = "exact_match"
+    UNIQUE_PREFIX = "unique_prefix"
+    MULTIPLE_PREFIXES = "multiple_prefixes"
+
+
+class TrieNode:
+    def __init__(self):
+        self.children = {}
+        self.value = None    # True if an entire string ends at this node
+        self.word_count = 0  # Number of populated strings that pass through this node
+
+
+class PrefixMatcher:
+    def __init__(self, strings: Iterable[str] = None):
+        self.root = TrieNode()
+        if strings:
+            for s in set(strings):  # Deduplicate input strings
+                self._insert(s)
+
+    def _insert(self, word: str, value=True):
+        node = self.root
+        node.word_count += 1
+        for char in word:
+            if char not in node.children:
+                node.children[char] = TrieNode()
+            node = node.children[char]
+            node.word_count += 1
+        if node.value is not None:
+            raise ValueError("Duplicate entry in PrefixMatcher")
+        node.value = value
+
+    def add_string(self, word: str, value=True):
+        """Dynamically add a new string to the matcher."""
+        self._insert(word, value)
+
+    def get_item(self, query: str):
+        node = self.root
+        for char in query:
+            if char not in node.children:
+                return PrefixStatus.NOT_A_PREFIX, None
+            node = node.children[char]
+
+        if node.value:
+            return PrefixStatus.EXACT_MATCH, node.value
+
+        if node.word_count == 1:
+            while node.value is None:
+                node, = node.children.values()
+            return PrefixStatus.UNIQUE_PREFIX, node.value
+        elif node.word_count > 1:
+            return PrefixStatus.MULTIPLE_PREFIXES, None
+
+        return PrefixStatus.NOT_A_PREFIX, None
+
+    def get_status(self, query: str):
+        return self.get_item(query)[0]
+
+class ArgType(Enum):
     NO_ARGUMENT = 0
     REQUIRED_ARGUMENT = 1
     OPTIONAL_ARGUMENT = 2
 
-    def __init__(self, name, has_arg):
+class Option:
+    """A single option, part of a pool of potential options. It's just a name
+    and a flag saying if the option takes no argument, if an argument is
+    optional, or if an argument is required."""
+
+    def __init__(self, name: str, has_arg: ArgType):
         self.name = name
         self.has_arg = has_arg
+
+    def __repr__(self):
+        return "Option('{}', {})".format(self.name, self.has_arg.name)
 
 
 def split_quoted(s):
@@ -161,9 +227,9 @@ def join_quoted(l):
 def make_options(short_opts, long_opts):
     """Parse a short option specification string and long option tuples into a
     list of option objects."""
-    options = []
+    options = PrefixMatcher()
     for name, has_arg in long_opts:
-        options.append(option(name, has_arg))
+        options.add_string(name, Option(name, has_arg))
 
     while len(short_opts) > 0:
         name = short_opts[0]
@@ -174,16 +240,14 @@ def make_options(short_opts, long_opts):
             short_opts = short_opts[1:]
             num_colons += 1
         if num_colons == 0:
-            has_arg = option.NO_ARGUMENT
+            has_arg = ArgType.NO_ARGUMENT
         elif num_colons == 1:
-            has_arg = option.REQUIRED_ARGUMENT
+            has_arg = ArgType.REQUIRED_ARGUMENT
         else:
-            has_arg = option.OPTIONAL_ARGUMENT
-        options.append(option(name, has_arg))
+            has_arg = ArgType.OPTIONAL_ARGUMENT
+        options.add_string(name, Option(name, has_arg))
 
     return options
-
-lookup_option_cache = {}
 
 
 def lookup_option(name, options):
@@ -191,41 +255,8 @@ def lookup_option(name, options):
     returned if no options match or if the name is ambiguous (more than one
     option matches with no exact match)."""
 
-    # This function turns out to be a huge bottleneck. Therefore we memoize it.
-    # We hash on the option name and the id of the options list, because lists
-    # aren't hashable. This means that the options list can't change after the
-    # first time you call this function, or you will get stale results. Turning
-    # the list into a tuple and hashing that is too slow.
-    cache_code = (name, id(options))
-    try:
-        return lookup_option_cache[cache_code]
-    except KeyError:
-        pass
-
-    # Nmap treats '_' the same as '-' in long option names.
-    def canonicalize_name(name):
-        return name.replace("_", "-")
-
-    name = canonicalize_name(name)
-    matches = [o for o in options
-            if canonicalize_name(o.name).startswith(name)]
-    if len(matches) == 0:
-        # No match.
-        lookup_option_cache[cache_code] = None
-    elif len(matches) == 1:
-        # Only one match--not an ambiguous abbreviation.
-        lookup_option_cache[cache_code] = matches[0]
-    else:
-        # More than one match--return only an exact match.
-        for match in matches:
-            if canonicalize_name(match.name) == name:
-                lookup_option_cache[cache_code] = match
-                break
-        else:
-            # No exact matches
-            lookup_option_cache[cache_code] = None
-    return lookup_option_cache[cache_code]
-
+    status, match = options.get_item(name)
+    return match
 
 def split_option(cmd_arg, options):
     """Split an option into a name, argument (if any), and possible remainder.
@@ -235,57 +266,61 @@ def split_option(cmd_arg, options):
     single short option that doesn't take an argument. At most one of argument
     and remainder will be non-None.
     Examples:
-    >>> split_option("-v", [option("v", option.NO_ARGUMENT)])
-    ('v', None, None)
-    >>> split_option("--min-rate",
-    ...     [option("min-rate", option.REQUIRED_ARGUMENT)])
-    ('min-rate', None, None)
-    >>> split_option("--min-rate=100",
-    ...     [option("min-rate", option.REQUIRED_ARGUMENT)])
-    ('min-rate', '100', None)
-    >>> split_option("-d9", [option("d", option.OPTIONAL_ARGUMENT)])
-    ('d', '9', None)
-    >>> split_option("-AFn", [option("A", option.NO_ARGUMENT)])
-    ('A', None, '-Fn')
-    >>> split_option("-Amin-rate", [option("A", option.NO_ARGUMENT)])
-    ('A', None, '-min-rate')
+    >>> options = PrefixMatcher()
+    >>> options.add_string("v", Option("v", ArgType.NO_ARGUMENT))
+    >>> options.add_string("min-rate", Option("min-rate", ArgType.REQUIRED_ARGUMENT))
+    >>> options.add_string("d", Option("d", ArgType.OPTIONAL_ARGUMENT))
+    >>> options.add_string("A", Option("A", ArgType.NO_ARGUMENT))
+    >>> split_option("-v", options)
+    (Option('v', NO_ARGUMENT), None, None)
+    >>> split_option("--min-rate", options)
+    (Option('min-rate', REQUIRED_ARGUMENT), None, None)
+    >>> split_option("--unknown", options)
+    ('unknown', None, None)
+    >>> split_option("--min-rate=100", options)
+    (Option('min-rate', REQUIRED_ARGUMENT), '100', None)
+    >>> split_option("-d9", options)
+    (Option('d', OPTIONAL_ARGUMENT), '9', None)
+    >>> split_option("-AFn", options)
+    (Option('A', NO_ARGUMENT), None, '-Fn')
+    >>> split_option("-Amin-rate", options)
+    (Option('A', NO_ARGUMENT), None, '-min-rate')
     """
+    maybe_short = True
     if cmd_arg.startswith("--"):
+        maybe_short = False
         name = cmd_arg[2:]
-        index = name.find('=')
-        if index < 0:
-            arg = None
-        else:
-            name, arg = name[:index], name[index + 1:]
-        return name, arg, None
     elif cmd_arg.startswith("-"):
         name = cmd_arg[1:]
-        # Check for a lone -.
-        if name == "":
-            return name, None, None
-        # First see if it's really a long option (or a single short option).
-        index = name.find('=')
-        if index < 0:
-            arg = None
-        else:
-            name, arg = name[:index], name[index + 1:]
-        if lookup_option(name, options) is not None:
-            return name, arg, None
-        # No luck. Must be a short option.
-        name = cmd_arg[1]
-        option = lookup_option(name, options)
-        if option is None:
-            # An unknown short option. Return the whole thing.
-            return cmd_arg[1:], None, None
-        rest = cmd_arg[2:]
-        if rest == "":
-            return name, None, None
-        if option.has_arg == option.NO_ARGUMENT:
-            return name, None, "-" + rest
-        else:
-            return name, rest, None
     else:
-        assert False, cmd_arg
+        raise RuntimeError("split_option called with non-option '{}'".format(cmd_arg))
+    # Check for a lone - or --.
+    if name == "":
+        return cmd_arg, None, None
+    # First see if it's really a long option (or a single short option).
+    index = name.find('=')
+    if index < 0:
+        arg = None
+    else:
+        name, arg = name[:index], name[index + 1:]
+    option = lookup_option(name, options)
+    if option is not None:
+        return option, arg, None
+    # No luck. Must be a short option.
+    if not maybe_short:
+        return name, arg, None
+    name = cmd_arg[1]
+    option = lookup_option(name, options)
+    if option is None:
+        # An unknown short option. Return the whole thing.
+        return cmd_arg[1:], None, None
+    rest = cmd_arg[2:]
+    if rest == "":
+        return option, None, None
+    if option.has_arg == ArgType.NO_ARGUMENT:
+        return option, None, "-" + rest
+    else:
+        return option, rest, None
 
 
 def get_option(cmd_args, options):
@@ -311,11 +346,10 @@ def get_option(cmd_args, options):
     # A normal positional argument.
     if not cmd_arg.startswith("-"):
         return cmd_arg
-    name, arg, remainder = split_option(cmd_arg, options)
+    option, arg, remainder = split_option(cmd_arg, options)
     if remainder is not None:
         cmd_args.insert(0, remainder)
-    option = lookup_option(name, options)
-    if option is None:
+    if not isinstance(option, Option):
         # Unrecognized option.
         if arg is not None:
             return (None, cmd_arg)
@@ -333,11 +367,11 @@ def get_option(cmd_args, options):
             extras += cmd_args[0:len(cmd_args) - len(rest)]
             del cmd_args[0:len(cmd_args) - len(rest)]
             return tuple(extras)
-    elif option.has_arg == option.NO_ARGUMENT and arg is not None:
+    elif option.has_arg == ArgType.NO_ARGUMENT and arg is not None:
         # It has an arg but it shouldn't (like --send-ip=5). Treat it as
         # an extra.
         return (None, cmd_arg)
-    elif option.has_arg == option.REQUIRED_ARGUMENT and arg is None:
+    elif option.has_arg == ArgType.REQUIRED_ARGUMENT and arg is None:
         # An argument is required but not yet read.
         if len(cmd_args) == 0:
             # No more args. Treat it as an extra.
@@ -361,7 +395,7 @@ def sync(a, b, options):
     return a
 
 
-def getopt_long_only_extras(cmd_args, short_opts, long_opts):
+def getopt_long_only_extras(cmd_args, options):
     """This is a generator version of getopt_long_only that additionally has
     robust handling of unknown options. Each of the items in the sequence it
     yields will be one of the following:
@@ -371,7 +405,6 @@ def getopt_long_only_extras(cmd_args, short_opts, long_opts):
         option and its following arguments that cannot be interpreted
         unambiguously; or
     * None, at the end of the option list."""
-    options = make_options(short_opts, long_opts)
     # get_option modifies its list of arguments in place. Don't modify the
     # original list.
     cmd_args_copy = cmd_args[:]
@@ -385,82 +418,82 @@ def getopt_long_only_extras(cmd_args, short_opts, long_opts):
 class NmapOptions(object):
     SHORT_OPTIONS = "6Ab:D:d::e:Ffg:hi:M:m:nO::o:P:p:RrS:s:T:v::V"
     LONG_OPTIONS = (
-        ("allports", option.NO_ARGUMENT),
-        ("append-output", option.NO_ARGUMENT),
-        ("badsum", option.NO_ARGUMENT),
-        ("data-length", option.REQUIRED_ARGUMENT),
-        ("datadir", option.REQUIRED_ARGUMENT),
-        ("debug", option.OPTIONAL_ARGUMENT),
-        ("defeat-rst-ratelimit", option.NO_ARGUMENT),
-        ("dns-servers", option.REQUIRED_ARGUMENT),
-        ("exclude", option.REQUIRED_ARGUMENT),
-        ("excludefile", option.REQUIRED_ARGUMENT),
-        ("fuzzy", option.NO_ARGUMENT),
-        ("help", option.NO_ARGUMENT),
-        ("host-timeout", option.REQUIRED_ARGUMENT),
-        ("iL", option.REQUIRED_ARGUMENT),
-        ("iR", option.REQUIRED_ARGUMENT),
-        ("iflist", option.NO_ARGUMENT),
-        ("initial-rtt-timeout", option.REQUIRED_ARGUMENT),
-        ("ip-options", option.REQUIRED_ARGUMENT),
-        ("log-errors", option.NO_ARGUMENT),
-        ("max-hostgroup", option.REQUIRED_ARGUMENT),
-        ("max-os-tries", option.REQUIRED_ARGUMENT),
-        ("max-parallelism", option.REQUIRED_ARGUMENT),
-        ("max-rate", option.REQUIRED_ARGUMENT),
-        ("max-retries", option.REQUIRED_ARGUMENT),
-        ("max-rtt-timeout", option.REQUIRED_ARGUMENT),
-        ("max-scan-delay", option.REQUIRED_ARGUMENT),
-        ("min-hostgroup", option.REQUIRED_ARGUMENT),
-        ("min-parallelism", option.REQUIRED_ARGUMENT),
-        ("min-rate", option.REQUIRED_ARGUMENT),
-        ("min-retries", option.REQUIRED_ARGUMENT),
-        ("min-rtt-timeout", option.REQUIRED_ARGUMENT),
-        ("mtu", option.REQUIRED_ARGUMENT),
-        ("no-stylesheet", option.NO_ARGUMENT),
-        ("oA", option.REQUIRED_ARGUMENT),
-        ("oG", option.REQUIRED_ARGUMENT),
-        ("oM", option.REQUIRED_ARGUMENT),
-        ("oN", option.REQUIRED_ARGUMENT),
-        ("oS", option.REQUIRED_ARGUMENT),
-        ("oX", option.REQUIRED_ARGUMENT),
-        ("open", option.NO_ARGUMENT),
-        ("osscan-guess", option.NO_ARGUMENT),
-        ("osscan-limit", option.NO_ARGUMENT),
-        ("packet-trace", option.NO_ARGUMENT),
-        ("port-ratio", option.REQUIRED_ARGUMENT),
-        ("privileged", option.NO_ARGUMENT),
-        ("randomize-hosts", option.NO_ARGUMENT),
-        ("reason", option.NO_ARGUMENT),
-        ("release-memory", option.NO_ARGUMENT),
-        ("scan-delay", option.REQUIRED_ARGUMENT),
-        ("scanflags", option.REQUIRED_ARGUMENT),
-        ("sI", option.REQUIRED_ARGUMENT),
-        ("script", option.REQUIRED_ARGUMENT),
-        ("script-args", option.REQUIRED_ARGUMENT),
-        ("script-trace", option.NO_ARGUMENT),
-        ("script-updatedb", option.NO_ARGUMENT),
-        ("script-help", option.REQUIRED_ARGUMENT),
-        ("send-eth", option.NO_ARGUMENT),
-        ("send-ip", option.NO_ARGUMENT),
-        ("servicedb", option.REQUIRED_ARGUMENT),
-        ("source-port", option.REQUIRED_ARGUMENT),
-        ("spoof-mac", option.REQUIRED_ARGUMENT),
-        ("stylesheet", option.REQUIRED_ARGUMENT),
-        ("system-dns", option.NO_ARGUMENT),
-        ("timing", option.REQUIRED_ARGUMENT),
-        ("top-ports", option.REQUIRED_ARGUMENT),
-        ("traceroute", option.NO_ARGUMENT),
-        ("ttl", option.REQUIRED_ARGUMENT),
-        ("unprivileged", option.NO_ARGUMENT),
-        ("verbose", option.OPTIONAL_ARGUMENT),
-        ("version", option.NO_ARGUMENT),
-        ("version-all", option.NO_ARGUMENT),
-        ("version-intensity", option.REQUIRED_ARGUMENT),
-        ("version-light", option.NO_ARGUMENT),
-        ("version-trace", option.NO_ARGUMENT),
-        ("versiondb", option.REQUIRED_ARGUMENT),
-        ("webxml", option.NO_ARGUMENT),
+        ("allports", ArgType.NO_ARGUMENT),
+        ("append-output", ArgType.NO_ARGUMENT),
+        ("badsum", ArgType.NO_ARGUMENT),
+        ("data-length", ArgType.REQUIRED_ARGUMENT),
+        ("datadir", ArgType.REQUIRED_ARGUMENT),
+        ("debug", ArgType.OPTIONAL_ARGUMENT),
+        ("defeat-rst-ratelimit", ArgType.NO_ARGUMENT),
+        ("dns-servers", ArgType.REQUIRED_ARGUMENT),
+        ("exclude", ArgType.REQUIRED_ARGUMENT),
+        ("excludefile", ArgType.REQUIRED_ARGUMENT),
+        ("fuzzy", ArgType.NO_ARGUMENT),
+        ("help", ArgType.NO_ARGUMENT),
+        ("host-timeout", ArgType.REQUIRED_ARGUMENT),
+        ("iL", ArgType.REQUIRED_ARGUMENT),
+        ("iR", ArgType.REQUIRED_ARGUMENT),
+        ("iflist", ArgType.NO_ARGUMENT),
+        ("initial-rtt-timeout", ArgType.REQUIRED_ARGUMENT),
+        ("ip-options", ArgType.REQUIRED_ARGUMENT),
+        ("log-errors", ArgType.NO_ARGUMENT),
+        ("max-hostgroup", ArgType.REQUIRED_ARGUMENT),
+        ("max-os-tries", ArgType.REQUIRED_ARGUMENT),
+        ("max-parallelism", ArgType.REQUIRED_ARGUMENT),
+        ("max-rate", ArgType.REQUIRED_ARGUMENT),
+        ("max-retries", ArgType.REQUIRED_ARGUMENT),
+        ("max-rtt-timeout", ArgType.REQUIRED_ARGUMENT),
+        ("max-scan-delay", ArgType.REQUIRED_ARGUMENT),
+        ("min-hostgroup", ArgType.REQUIRED_ARGUMENT),
+        ("min-parallelism", ArgType.REQUIRED_ARGUMENT),
+        ("min-rate", ArgType.REQUIRED_ARGUMENT),
+        ("min-retries", ArgType.REQUIRED_ARGUMENT),
+        ("min-rtt-timeout", ArgType.REQUIRED_ARGUMENT),
+        ("mtu", ArgType.REQUIRED_ARGUMENT),
+        ("no-stylesheet", ArgType.NO_ARGUMENT),
+        ("oA", ArgType.REQUIRED_ARGUMENT),
+        ("oG", ArgType.REQUIRED_ARGUMENT),
+        ("oM", ArgType.REQUIRED_ARGUMENT),
+        ("oN", ArgType.REQUIRED_ARGUMENT),
+        ("oS", ArgType.REQUIRED_ARGUMENT),
+        ("oX", ArgType.REQUIRED_ARGUMENT),
+        ("open", ArgType.NO_ARGUMENT),
+        ("osscan-guess", ArgType.NO_ARGUMENT),
+        ("osscan-limit", ArgType.NO_ARGUMENT),
+        ("packet-trace", ArgType.NO_ARGUMENT),
+        ("port-ratio", ArgType.REQUIRED_ARGUMENT),
+        ("privileged", ArgType.NO_ARGUMENT),
+        ("randomize-hosts", ArgType.NO_ARGUMENT),
+        ("reason", ArgType.NO_ARGUMENT),
+        ("release-memory", ArgType.NO_ARGUMENT),
+        ("scan-delay", ArgType.REQUIRED_ARGUMENT),
+        ("scanflags", ArgType.REQUIRED_ARGUMENT),
+        ("sI", ArgType.REQUIRED_ARGUMENT),
+        ("script", ArgType.REQUIRED_ARGUMENT),
+        ("script-args", ArgType.REQUIRED_ARGUMENT),
+        ("script-trace", ArgType.NO_ARGUMENT),
+        ("script-updatedb", ArgType.NO_ARGUMENT),
+        ("script-help", ArgType.REQUIRED_ARGUMENT),
+        ("send-eth", ArgType.NO_ARGUMENT),
+        ("send-ip", ArgType.NO_ARGUMENT),
+        ("servicedb", ArgType.REQUIRED_ARGUMENT),
+        ("source-port", ArgType.REQUIRED_ARGUMENT),
+        ("spoof-mac", ArgType.REQUIRED_ARGUMENT),
+        ("stylesheet", ArgType.REQUIRED_ARGUMENT),
+        ("system-dns", ArgType.NO_ARGUMENT),
+        ("timing", ArgType.REQUIRED_ARGUMENT),
+        ("top-ports", ArgType.REQUIRED_ARGUMENT),
+        ("traceroute", ArgType.NO_ARGUMENT),
+        ("ttl", ArgType.REQUIRED_ARGUMENT),
+        ("unprivileged", ArgType.NO_ARGUMENT),
+        ("verbose", ArgType.OPTIONAL_ARGUMENT),
+        ("version", ArgType.NO_ARGUMENT),
+        ("version-all", ArgType.NO_ARGUMENT),
+        ("version-intensity", ArgType.REQUIRED_ARGUMENT),
+        ("version-light", ArgType.NO_ARGUMENT),
+        ("version-trace", ArgType.NO_ARGUMENT),
+        ("versiondb", ArgType.REQUIRED_ARGUMENT),
+        ("webxml", ArgType.NO_ARGUMENT),
     )
 
     # Sets of options that should be treated as equivalent from the point of
@@ -516,16 +549,7 @@ class NmapOptions(object):
             _set_executable)
 
     def canonicalize_name(self, name):
-        opt, arg, remainder = split_option(name, self.options)
-        assert remainder is None
-        if arg is None:
-            option = lookup_option(opt, self.options)
-            if option:
-                option = option.name
-            else:
-                option = opt
-        else:
-            option = name.lstrip("-")
+        option = name.lstrip("-")
         option = NmapOptions.EQUIVALENCE_MAP.get(option, option)
         return option
 
@@ -735,7 +759,7 @@ class NmapOptions(object):
             self.executable = opt_list[0]
 
         for result in getopt_long_only_extras(
-                opt_list[1:], self.SHORT_OPTIONS, self.LONG_OPTIONS):
+                opt_list[1:], self.options):
             self.handle_result(result)
 
     def parse_string(self, opt_string):
@@ -1038,13 +1062,6 @@ class NmapOptionsTest(unittest.TestCase):
             opt_string_2 = ops.render_string()
             self.assertEqual(opt_string_1, opt_string_2)
 
-    def test_underscores(self):
-        """Test that underscores in option names are treated the same as
-        dashes (and are canonicalized to dashes)."""
-        ops = NmapOptions()
-        ops.parse_string("nmap --osscan_guess")
-        self.assertTrue("--osscan-guess" in ops.render_string())
-
     def test_args(self):
         """Test potentially tricky argument scenarios."""
         ops = NmapOptions()
@@ -1208,7 +1225,7 @@ class NmapOptionsTest(unittest.TestCase):
             ("--timing", "-T"),
             ("--verbose", "-v"),
             ("--version", "-V"),
-            ("--min-rate", "-min-rate", "--min_rate", "-min_rate")
+            ("--min-rate", "-min-rate")
         )
         ops = NmapOptions()
         for set in EQUIVS:
@@ -1400,6 +1417,72 @@ class SplitQuotedTest(unittest.TestCase):
         self.assertEqual(split_quoted('\\"\\""'), ['\\"'])
         self.assertEqual(split_quoted('"\\"\\""'), ['""'])
 
+class TestPrefixMatcher(unittest.TestCase):
+
+    def setUp(self):
+        """Initialize a standard PrefixMatcher with a known set of words."""
+        self.words = ["cat", "caterpillar", "car", "dog"]
+        self.matcher = PrefixMatcher(self.words)
+
+    def test_not_a_prefix(self):
+        """Test queries that are completely unrelated or extend past existing words."""
+        self.assertEqual(self.matcher.get_status("bat"), PrefixStatus.NOT_A_PREFIX)
+        self.assertEqual(self.matcher.get_status("doggy"), PrefixStatus.NOT_A_PREFIX)
+        self.assertEqual(self.matcher.get_status("caterpillars"), PrefixStatus.NOT_A_PREFIX)
+
+    def test_exact_match(self):
+        """Test exact matches, ensuring they take precedence even if they are prefixes of others."""
+        # 'cat' is an exact match in the set, despite 'caterpillar' existing
+        self.assertEqual(self.matcher.get_status("cat"), PrefixStatus.EXACT_MATCH)
+        self.assertEqual(self.matcher.get_status("car"), PrefixStatus.EXACT_MATCH)
+        self.assertEqual(self.matcher.get_status("dog"), PrefixStatus.EXACT_MATCH)
+
+    def test_unique_prefix(self):
+        """Test strings that are a prefix of exactly one populated string."""
+        # 'cater' is only a prefix of 'caterpillar'
+        self.assertEqual(self.matcher.get_status("cater"), PrefixStatus.UNIQUE_PREFIX)
+        # 'do' is only a prefix of 'dog'
+        self.assertEqual(self.matcher.get_status("do"), PrefixStatus.UNIQUE_PREFIX)
+
+    def test_multiple_prefixes(self):
+        """Test strings that are a prefix of more than one populated string."""
+        # 'ca' is a prefix of 'cat', 'caterpillar', and 'car'
+        self.assertEqual(self.matcher.get_status("ca"), PrefixStatus.MULTIPLE_PREFIXES)
+        # 'c' is also a prefix of multiple strings
+        self.assertEqual(self.matcher.get_status("c"), PrefixStatus.MULTIPLE_PREFIXES)
+
+    def test_dynamic_insertion(self):
+        """Test adding strings dynamically and verifying status changes."""
+        matcher = PrefixMatcher(["apple"])
+
+        # Before adding 'applet'
+        self.assertEqual(matcher.get_status("apple"), PrefixStatus.EXACT_MATCH)
+        self.assertEqual(matcher.get_status("app"), PrefixStatus.UNIQUE_PREFIX)
+
+        # Add a new word
+        matcher.add_string("applet")
+
+        # 'apple' is still an exact match (since it's in the set)
+        self.assertEqual(matcher.get_status("apple"), PrefixStatus.EXACT_MATCH)
+        # 'app' is now a prefix of multiple strings ('apple' and 'applet')
+        self.assertEqual(matcher.get_status("app"), PrefixStatus.MULTIPLE_PREFIXES)
+
+    def test_empty_matcher(self):
+        """Test behavior when initialized with no strings or an empty collection."""
+        empty_matcher = PrefixMatcher()
+        self.assertEqual(empty_matcher.get_status("a"), PrefixStatus.NOT_A_PREFIX)
+
+        empty_matcher_list = PrefixMatcher([])
+        self.assertEqual(empty_matcher_list.get_status("test"), PrefixStatus.NOT_A_PREFIX)
+
+    def test_duplicate_input_handling(self):
+        """Test that duplicate strings passed during initialization do not break counts."""
+        matcher = PrefixMatcher(["test", "test", "testing"])
+        # 'test' is an exact match
+        self.assertEqual(matcher.get_status("test"), PrefixStatus.EXACT_MATCH)
+        self.assertEqual(matcher.get_status("tes"), PrefixStatus.MULTIPLE_PREFIXES)
+        with self.assertRaises(ValueError):
+            matcher.add_string("testing")
 
 if __name__ == "__main__":
     doctest.testmod()
