@@ -53,7 +53,11 @@ o [Security] Zach Hanley of Horizon3.ai, in collaboration with Claude and
 o [Security][NSE] In some non-standard builds (e.g. --without-openssl), NSE
   scripts were attempting to load missing Lua modules from the current working
   directory. Fixed by removing Lua's default package searchers, leaving only
-  the existing nselib file fetcher.
+  the existing nselib file fetcher. Reported by  じゃっく.
+
+o [Windows][Zenmap] The .pyd support files for Python, which are DLLs, have
+  been signed with our code signing certificate. Windows Smart App Control
+  warned about the files being unsigned in previous releases.
 
 o Added a libfuzzer-based framework for fuzzing internal functions of Nmap,
   Ncat, and Nping. So far, 10 functions have been instrumented and 3 minor
