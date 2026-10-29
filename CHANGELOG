@@ -1,5 +1,9 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [GH#3565][GH#3573] Fixed an issue with addrset: When a CIDR spec was added
+  after a narrower one, its prefix exactly the common prefix of the two, the
+  addrset trie did not cover the whole broader range. [Dennys Kaluzny Pereira]
+
 Nmap 7.993 [2026-10-23]
 
 o [NSE][GH#3557] Fixed a regression which prevented most scripts in the version
