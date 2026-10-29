@@ -1786,13 +1786,16 @@ do
   DEFAULT_SIGALGS = EXTENSION_HELPERS["signature_algorithms"](sigalgs)
 end
 -- Equivalent for TLSv1.3 is SignatureScheme
--- We'll offer all the sha256 and sha512 variants, plus a few extra
+-- Offer common sha256 and sha512 variants, the certificate-relevant sha384
+-- schemes, plus a few extra.
 local DEFAULT_SIGSCHEMES
 do
   local sigalgs = {
   "rsa_pkcs1_sha256",
+  "rsa_pkcs1_sha384",
   "rsa_pkcs1_sha512",
   "ecdsa_secp256r1_sha256",
+  "ecdsa_secp384r1_sha384",
   "ecdsa_secp521r1_sha512",
   "rsa_pss_rsae_sha256",
   "rsa_pss_rsae_sha512",
@@ -2070,4 +2073,25 @@ test_suite = unittest.TestSuite:new()
 for name, code in pairs(CIPHERS) do
   test_suite:add_test(unittest.not_nil(cipher_info(name).kex), name .. ".kex")
 end
+local expected_default_sigschemes = EXTENSION_HELPERS["signature_algorithms_13"]({
+  "rsa_pkcs1_sha256",
+  "rsa_pkcs1_sha384",
+  "rsa_pkcs1_sha512",
+  "ecdsa_secp256r1_sha256",
+  "ecdsa_secp384r1_sha384",
+  "ecdsa_secp521r1_sha512",
+  "rsa_pss_rsae_sha256",
+  "rsa_pss_rsae_sha512",
+  "ed25519",
+  "ed448",
+  "rsa_pss_pss_sha256",
+  "rsa_pss_pss_sha512",
+  "rsa_pkcs1_sha1",
+  "ecdsa_sha1",
+  "mldsa44",
+})
+test_suite:add_test(
+  unittest.equal(DEFAULT_SIGSCHEMES, expected_default_sigschemes),
+  "default TLSv1.3 signature schemes"
+)
 return _ENV;
