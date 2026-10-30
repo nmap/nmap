@@ -822,9 +822,9 @@ int EchoClient::nep_echoed_packet_handler(nsock_pool nsp, nsock_event nse, void 
     int plen=pkt_in.getTotalLength()*4;
     nping_print(DBG_4, "%s() Packet claims to have a length of %d bytes", __func__, plen);
 
-    /* If the packet is bigger than the maximum NEP packet, discard it. */
-    if(plen>MAX_NEP_PACKET_LENGTH){
-        nping_warning(DBG_1,"Warning. Received NEP packet (%dB) is bigger than %d bytes.", plen, MAX_NEP_PACKET_LENGTH);
+    /* Discard packets with invalid lengths. */
+    if(plen<NEP_ECHO_MIN_LEN || plen>MAX_NEP_PACKET_LENGTH){
+        nping_warning(DBG_1,"Warning. Received NEP packet (%dB) has an invalid length.", plen);
         return OP_FAILURE;
     }
 
@@ -905,9 +905,9 @@ int EchoClient::nep_recv_std_header_handler(nsock_pool nsp, nsock_event nse, voi
     pkt_in.storeRecvData(aux, 16);
     int plen=pkt_in.getTotalLength()*4;
 
-    /* If the packet is bigger than the maximum NEP packet, discard it. */
-    if(plen>MAX_NEP_PACKET_LENGTH){
-        nping_warning(DBG_1,"Warning. Received NEP packet (%dB) is bigger than %d bytes.", plen, MAX_NEP_PACKET_LENGTH);
+    /* Discard packets with invalid lengths. */
+    if(plen<NEP_ECHO_MIN_LEN || plen>MAX_NEP_PACKET_LENGTH){
+        nping_warning(DBG_1,"Warning. Received NEP packet (%dB) has an invalid length.", plen);
         return OP_FAILURE;
     }
 
