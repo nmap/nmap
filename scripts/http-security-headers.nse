@@ -11,7 +11,8 @@ and gives a brief description of the header and its configuration value.
 The script requests the server for the header with http.head and parses it to list headers founds with their
 configurations. The script checks for HSTS(HTTP Strict Transport Security), HPKP(HTTP Public Key Pins),
 X-Frame-Options, X-XSS-Protection, X-Content-Type-Options, Content-Security-Policy,
-X-Permitted-Cross-Domain-Policies, Set-Cookie, Expect-CT, Cache-Control, Pragma and Expires.
+X-Permitted-Cross-Domain-Policies, Referrer-Policy, Permissions-Policy, Set-Cookie, Expect-CT,
+Cache-Control, Pragma and Expires.
 
 References: https://www.owasp.org/index.php/OWASP_Secure_Headers_Project
 https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers
@@ -44,6 +45,14 @@ https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers
 -- |   X-Permitted-Cross-Domain-Policies:
 -- |     Header: X-Permitted-Cross-Domain-Policies: none
 -- |     Description : No policy files are allowed anywhere on the target server, including this master policy file.
+-- |   Referrer_Policy:
+-- |     Header: Referrer-Policy: strict-origin-when-cross-origin
+-- |     Description: Full URL for same-origin requests; only the origin for cross-origin requests; nothing on an HTTPS to HTTP downgrade.
+-- |   Permissions_Policy:
+-- |     Header: Permissions-Policy: geolocation=(), microphone=(), camera=()
+-- |     Description: geolocation is disabled for all origins.
+-- |     Description: microphone is disabled for all origins.
+-- |     Description: camera is disabled for all origins.
 -- |   Cache_Control:
 -- |     Header: Cache-Control: private, no-cache, no-store, must-revalidate
 -- |   Pragma:
@@ -79,6 +88,14 @@ https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers
 -- <elem>Header: X-Permitted-Cross-Domain-Policies: none</elem>
 -- <elem>Description: No policy files are allowed anywhere on the target server, including this master policy file.</elem>
 -- </table>
+-- <table key="Referrer_Policy">
+-- <elem>Header: Referrer-Policy: strict-origin-when-cross-origin</elem>
+-- <elem>Description: Full URL for same-origin requests; only the origin for cross-origin requests; nothing on an HTTPS to HTTP downgrade.</elem>
+-- </table>
+-- <table key="Permissions_Policy">
+-- <elem>Header: Permissions-Policy: geolocation=()</elem>
+-- <elem>Description: geolocation is disabled for all origins.</elem>
+-- </table>
 -- <table key="Cache_Control">
 -- <elem>Header: Cache-Control: private, no-cache, no-store, must-revalidate</elem>
 -- </table>
@@ -92,7 +109,7 @@ https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers
 -- @args http-security-headers.path The URL path to request. The default path is "/".
 ---
 
-author = {"Icaro Torres", "Vinamra Bhatia"}
+author = {"Icaro Torres", "Vinamra Bhatia", "Shubham Agarwal"}
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 categories = {"discovery", "safe"}
 
@@ -111,6 +128,8 @@ action = function(host, port)
   local x_content_type_header
   local csp_header
   local x_cross_domain_header
+  local referrer_header
+  local permissions_header
   local cookie
   local req_opt = {redirect_ok=function(host,port)
     local c = 2
@@ -277,6 +296,58 @@ action = function(host, port)
       table.insert(output_info.X_Permitted_Cross_Domain_Policies, "Description: Define which scripts the protected resource can execute.")
     elseif string.match(x_cross_domain_header,'all') then
       table.insert(output_info.X_Permitted_Cross_Domain_Policies, "Description: All policy files on this target domain are allowed.")
+    end
+
+  end
+
+  -- Referrer-Policy (OWASP Secure Headers Project)
+  if response.header['referrer-policy'] then
+    output_info.Referrer_Policy = {}
+    table.insert(output_info.Referrer_Policy, "Header: Referrer-Policy: " .. response.header['referrer-policy'])
+
+    -- the header may hold a comma-separated fallback list; the browser
+    -- applies the last value, so that is the one described here.
+    referrer_header = string.match(string.lower(response.header['referrer-policy']), "([^,%s]+)%s*$")
+    if referrer_header == 'no-referrer' then
+      table.insert(output_info.Referrer_Policy, "Description: The Referer header is omitted entirely.")
+    elseif referrer_header == 'no-referrer-when-downgrade' then
+      table.insert(output_info.Referrer_Policy, "Description: Full URL is sent, except when navigating from HTTPS to HTTP.")
+    elseif referrer_header == 'same-origin' then
+      table.insert(output_info.Referrer_Policy, "Description: Full URL is sent for same-origin requests; no referrer for cross-origin requests.")
+    elseif referrer_header == 'origin' then
+      table.insert(output_info.Referrer_Policy, "Description: Only the origin (scheme, host, port) is sent as the referrer.")
+    elseif referrer_header == 'strict-origin' then
+      table.insert(output_info.Referrer_Policy, "Description: Only the origin is sent, and nothing is sent on an HTTPS to HTTP downgrade.")
+    elseif referrer_header == 'origin-when-cross-origin' then
+      table.insert(output_info.Referrer_Policy, "Description: Full URL for same-origin requests; only the origin for cross-origin requests.")
+    elseif referrer_header == 'strict-origin-when-cross-origin' then
+      table.insert(output_info.Referrer_Policy, "Description: Full URL for same-origin requests; only the origin for cross-origin requests; nothing on an HTTPS to HTTP downgrade.")
+    elseif referrer_header == 'unsafe-url' then
+      table.insert(output_info.Referrer_Policy, "Description: Full URL is always sent, including on insecure (HTTP) destinations.")
+    end
+
+  end
+
+  -- Permissions-Policy (OWASP Secure Headers Project)
+  if response.header['permissions-policy'] then
+    output_info.Permissions_Policy = {}
+    table.insert(output_info.Permissions_Policy, "Header: Permissions-Policy: " .. response.header['permissions-policy'])
+
+    permissions_header = string.lower(response.header['permissions-policy'])
+    if string.match(permissions_header,'geolocation=%(%)') then
+      table.insert(output_info.Permissions_Policy, "Description: geolocation is disabled for all origins.")
+    end
+    if string.match(permissions_header,'microphone=%(%)') then
+      table.insert(output_info.Permissions_Policy, "Description: microphone is disabled for all origins.")
+    end
+    if string.match(permissions_header,'camera=%(%)') then
+      table.insert(output_info.Permissions_Policy, "Description: camera is disabled for all origins.")
+    end
+    if string.match(permissions_header,'payment=%(%)') then
+      table.insert(output_info.Permissions_Policy, "Description: payment is disabled for all origins.")
+    end
+    if string.match(permissions_header,'usb=%(%)') then
+      table.insert(output_info.Permissions_Policy, "Description: usb is disabled for all origins.")
     end
 
   end
