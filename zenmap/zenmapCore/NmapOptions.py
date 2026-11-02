@@ -62,20 +62,8 @@
 # To add a new option, one should do the following:
 # 1) Add a test case to the NmapOptionsTest::test_options() method for the new
 #    option and make sure it initially fails.
-# 2) Add the new option to NmapOptions.SHORT_OPTIONS and/or
-#    NmapOptions.LONG_OPTIONS.
-# 3) Add an appropriate case to NmapOptions::handle_result(). This should
-#    include a line something like
-#      self[opt] = True
-#    or, if the option has an argument 'arg':
-#      self[opt] = arg
-# 4) Add an appropriate case to NmapOptions::render()
-#    This should include a check to make sure the option was set in
-#    handle_result:
-#      if self[opt]:
-#    or, if self[opt] contains arguments
-#      if self[opt] is not None:
-#    If the check passed, then opt should be added to opt_list.
+# 2) Add the new option to LONG_OPTIONS.
+# 3) Subclass Option if special handling is needed.
 # 5) Edit profile_editor.xml to display the new option in the GUI.
 # 6) Depending on the option, one may need to edit
 #    get_option_check_auxiliary_widget in OptionBuilder.py.
@@ -358,20 +346,29 @@ class PrefixMatcher:
 LONG_OPTIONS = (
         Option('6', ArgType.NO_ARGUMENT),
         Option('A', ArgType.NO_ARGUMENT),
+        Option("adler32", ArgType.NO_ARGUMENT),
         Option("allports", ArgType.NO_ARGUMENT),
         Option("append-output", ArgType.NO_ARGUMENT),
         Option('b', ArgType.REQUIRED_ARGUMENT),
         Option("badsum", ArgType.NO_ARGUMENT),
         Option('D', ArgType.REQUIRED_ARGUMENT),
         Option("data-length", ArgType.REQUIRED_ARGUMENT, convert=int),
+        Option("data", ArgType.REQUIRED_ARGUMENT),
+        Option("data-string", ArgType.REQUIRED_ARGUMENT),
         Option("datadir", ArgType.REQUIRED_ARGUMENT),
         CounterOption('d', ArgType.OPTIONAL_ARGUMENT, "debug"),
         Option("defeat-rst-ratelimit", ArgType.NO_ARGUMENT),
+        Option("defeat-icmp-ratelimit", ArgType.NO_ARGUMENT),
+        Option("deprecated-xml-osclass", ArgType.NO_ARGUMENT),
+        Option("disable-arp-ping", ArgType.NO_ARGUMENT),
+        Option("discovery-ignore-rst", ArgType.NO_ARGUMENT),
         Option("dns-servers", ArgType.REQUIRED_ARGUMENT),
         Option('e', ArgType.REQUIRED_ARGUMENT),
+        Option("exclude-ports", ArgType.REQUIRED_ARGUMENT),
         Option("exclude", ArgType.REQUIRED_ARGUMENT),
         Option("excludefile", ArgType.REQUIRED_ARGUMENT),
         Option('F', ArgType.NO_ARGUMENT),
+        # TODO: handle --ff (equivalent to -f -f)
         CounterOption('f', ArgType.NO_ARGUMENT),
         Option("help", ArgType.NO_ARGUMENT, 'h'),
         Option("host-timeout", ArgType.REQUIRED_ARGUMENT, convert=timespec),
@@ -392,11 +389,13 @@ LONG_OPTIONS = (
         Option("min-hostgroup", ArgType.REQUIRED_ARGUMENT, convert=int),
         Option("min-parallelism", ArgType.REQUIRED_ARGUMENT, convert=int),
         Option("min-rate", ArgType.REQUIRED_ARGUMENT, convert=int),
-        Option("min-retries", ArgType.REQUIRED_ARGUMENT, convert=int),
         Option("min-rtt-timeout", ArgType.REQUIRED_ARGUMENT, convert=timespec),
         Option("mtu", ArgType.REQUIRED_ARGUMENT, convert=int),
         Option('n', ArgType.NO_ARGUMENT),
+        Option("nogcc", ArgType.NO_ARGUMENT),
+        Option("noninteractive", ArgType.NO_ARGUMENT),
         Option("no-stylesheet", ArgType.NO_ARGUMENT),
+        Option("nsock-engine", ArgType.REQUIRED_ARGUMENT),
         Option('O', ArgType.OPTIONAL_ARGUMENT),
         Option("oA", ArgType.REQUIRED_ARGUMENT),
         Option("oG", ArgType.REQUIRED_ARGUMENT, "oM", 'm'),
@@ -410,12 +409,16 @@ LONG_OPTIONS = (
         Option('p', ArgType.REQUIRED_ARGUMENT),
         Option("packet-trace", ArgType.NO_ARGUMENT),
         Option("port-ratio", ArgType.REQUIRED_ARGUMENT, convert=float),
+        Option("proxies", ArgType.REQUIRED_ARGUMENT, "proxy"),
         Option("privileged", ArgType.NO_ARGUMENT),
         Option('R', ArgType.NO_ARGUMENT),
         Option('r', ArgType.NO_ARGUMENT),
         Option("randomize-hosts", ArgType.NO_ARGUMENT, "rH"),
         Option("reason", ArgType.NO_ARGUMENT),
         Option("release-memory", ArgType.NO_ARGUMENT),
+        Option("resolve-all", ArgType.NO_ARGUMENT),
+        Option("resume", ArgType.REQUIRED_ARGUMENT),
+        Option("route-dst", ArgType.REQUIRED_ARGUMENT),
         Option('S', ArgType.REQUIRED_ARGUMENT),
         ScantypeOption('s', ArgType.REQUIRED_ARGUMENT),
         Option("scanflags", ArgType.REQUIRED_ARGUMENT),
@@ -423,6 +426,7 @@ LONG_OPTIONS = (
         Option("sI", ArgType.REQUIRED_ARGUMENT),
         Option("script", ArgType.REQUIRED_ARGUMENT),
         Option("script-args", ArgType.REQUIRED_ARGUMENT),
+        Option("script-args-file", ArgType.REQUIRED_ARGUMENT),
         Option("script-trace", ArgType.NO_ARGUMENT),
         Option("script-updatedb", ArgType.NO_ARGUMENT),
         Option("script-help", ArgType.REQUIRED_ARGUMENT),
@@ -431,13 +435,16 @@ LONG_OPTIONS = (
         Option("servicedb", ArgType.REQUIRED_ARGUMENT),
         Option("source-port", ArgType.REQUIRED_ARGUMENT, 'g'),
         Option("spoof-mac", ArgType.REQUIRED_ARGUMENT),
+        Option("stats-every", ArgType.REQUIRED_ARGUMENT, convert=timespec),
         Option("stylesheet", ArgType.REQUIRED_ARGUMENT),
         Option("system-dns", ArgType.NO_ARGUMENT),
         TimingOption('T', ArgType.REQUIRED_ARGUMENT, "timing"),
         Option("top-ports", ArgType.REQUIRED_ARGUMENT, convert=int),
         Option("traceroute", ArgType.NO_ARGUMENT),
         Option("ttl", ArgType.REQUIRED_ARGUMENT, convert=int),
+        Option("unique", ArgType.NO_ARGUMENT),
         Option("unprivileged", ArgType.NO_ARGUMENT),
+        # TODO: handle --vv (equivalent to -v -v)
         CounterOption('v', ArgType.OPTIONAL_ARGUMENT, "verbose"),
         Option("version", ArgType.NO_ARGUMENT, 'V'),
         Option("version-all", ArgType.NO_ARGUMENT),
@@ -1239,6 +1246,24 @@ class NmapOptionsTest(unittest.TestCase):
             "-oX out.xml",
             "-sI=zombie.example.com",
             "-sI zombie.example.com",
+            "--adler32",
+            "--data 00ff",
+            "--data-string example",
+            "--defeat-icmp-ratelimit",
+            "--deprecated-xml-osclass",
+            "--disable-arp-ping",
+            "--discovery-ignore-rst",
+            "--exclude-ports 21,53",
+            "--nogcc",
+            "--noninteractive",
+            "--nsock-engine select",
+            "--proxies http://127.0.0.1",
+            "--resolve-all",
+            "--resume test.xml",
+            "--route-dst scanme.nmap.org",
+            "--script-args-file example.lua",
+            "--stats-every 10s",
+            "--unique",
             ]
 
         # The following options are present in the Nmap source but are not
