@@ -86,6 +86,215 @@ from functools import reduce
 from enum import Enum
 from typing import Iterable
 
+
+class ArgType(Enum):
+    NO_ARGUMENT = 0
+    REQUIRED_ARGUMENT = 1
+    OPTIONAL_ARGUMENT = 2
+
+
+class Option:
+    """A single option, part of a pool of potential options. It's just a name
+    and a flag saying if the option takes no argument, if an argument is
+    optional, or if an argument is required."""
+
+    def __init__(self, name: str, has_arg: ArgType, *aliases,
+            convert=lambda x: x):
+        self.name = name
+        self.has_arg = has_arg
+        self.aliases = aliases
+        self.convert = convert
+        if len(name) <= 2:
+            self.prefix = "-"
+        else:
+            self.prefix = "--"
+
+    def __repr__(self):
+        return "{}('{}', {})".format(
+                type(self).__name__, self.name, self.has_arg.name)
+
+    def handle(self, arg, options_d: dict, extras: list):
+        if arg is None:
+            if self.has_arg == ArgType.REQUIRED_ARGUMENT:
+                extras.append(self.optname())
+                return
+            else:
+                arg = True
+        if self not in options_d:
+            try:
+                options_d[self] = self.convert(arg)
+                return
+            except ValueError:
+                pass
+        if arg is True:
+            extras.append(self.optname(arg))
+        elif self.has_arg == ArgType.OPTIONAL_ARGUMENT:
+            extras.append(self.optname(arg) + arg)
+        else:
+            extras.extend((self.optname(arg), arg))
+
+    def get(self, arg, options_d: dict):
+        return options_d.get(self, None)
+
+    def optname(self, arg=None):
+        return self.prefix + self.name
+
+    def toargv(self, arg, options_d: dict):
+        if self.has_arg == ArgType.NO_ARGUMENT:
+            return (self.optname(),)
+        else:
+            oarg = self.get(arg, options_d)
+            if oarg is None:
+                oarg = arg
+            if oarg is True:
+                return (self.optname(),)
+            elif self.has_arg == ArgType.OPTIONAL_ARGUMENT:
+                return (self.optname(arg) + str(arg),)
+            else:
+                return (self.optname(), str(oarg))
+
+
+class ScantypeOption(Option):
+    def handle(self, arg, options_d: dict, extras: list):
+        assert arg is not None
+        scantypes = options_d.get(self, set())
+        for scantype in arg:
+            if scantype == 'P':
+                scantype = 'n'
+            if scantype in "ACFLMNORSTUVWXYZn":
+                scantypes.add(scantype)
+            else:
+                extras.append(self.optname(arg))
+        options_d[self] = scantypes
+
+    def get(self, arg, options_d: dict):
+        if not arg:
+            return None
+        try:
+            scantypes = options_d[self]
+        except KeyError:
+            return None
+        arg = arg.replace('P', 'n')
+        return all(t in scantypes for t in arg)
+
+    def optname(self, arg):
+        return self.prefix + self.name + arg
+
+    def toargv(self, arg, options_d: dict):
+        argv = []
+        for scantype in arg:
+            argv.append(self.optname(scantype))
+        return tuple(argv)
+
+
+class PingtypeOption(Option):
+    mapping = {
+            '': 'E', 'I': 'E',
+            '0': 'n', 'D': 'n', 'N': 'n',
+            'T': 'A'
+            }
+
+    def pingtype(self, arg):
+        pingtype = 'E'
+        rest = True
+        if arg is not None and len(arg) > 0:
+            pingtype = PingtypeOption.mapping.get(arg[0], arg[0])
+            rest = arg[1:]
+        return pingtype, rest
+
+    def handle(self, arg, options_d: dict, extras: list):
+        pingtype, rest = self.pingtype(arg)
+        pingtypes = options_d.get(self, {})
+        if pingtype in "nEMPRSAUOBY":
+            pingtypes[pingtype] = rest
+        else:
+            extras.append(self.optname(arg))
+        options_d[self] = pingtypes
+
+    def get(self, arg, options_d: dict):
+        pingtype, rest = self.pingtype(arg)
+        try:
+            pingtypes = options_d[self]
+            return pingtypes[pingtype]
+        except KeyError:
+            return None
+
+    def optname(self, arg):
+        pingtype, rest = self.pingtype(arg)
+        return self.prefix + self.name + pingtype
+
+    def toargv(self, arg, options_d: dict):
+        ports = self.get(arg, options_d)
+        if ports is None or ports is True:
+            return (self.optname(arg),)
+        else:
+            return (self.optname(arg) + ports,)
+
+
+class CounterOption(Option):
+    def handle(self, arg, options_d: dict, extras: list):
+        if arg is None:
+            arg = ""
+        try:
+            value = int(arg)
+            if value == 0:
+                value = -1
+        except ValueError:
+            if reduce(lambda x, y: x and y,
+                    [z == self.name for z in arg], True):
+                value = options_d.get(self, 0)
+                value += len(arg) + 1
+            else:
+                extras.append(self.prefix + self.name + arg)
+                return
+        options_d[self] = value
+
+    def toargv(self, arg, options_d: dict):
+        if self.has_arg == ArgType.NO_ARGUMENT:
+            return (self.optname(),)
+        else:
+            oarg = self.get(arg, options_d)
+            if oarg is None:
+                try:
+                    oarg = int(arg)
+                except ValueError:
+                    return (self.optname(),)
+            return (self.prefix + (self.name * oarg),)
+
+
+class TimingOption(Option):
+    TIMING_PROFILE = {
+        "paranoid": 0, "sneaky": 1, "polite": 2,
+        "normal": 3, "aggressive": 4, "insane": 5
+    }
+
+    def handle(self, arg, options_d: dict, extras: list):
+        assert arg is not None
+        try:
+            options_d[self] = int(arg)
+        except ValueError:
+            try:
+                options_d[self] = TimingOption.TIMING_PROFILE[arg.lower()]
+            except KeyError:
+                extras.extend(("-T", arg))
+
+
+def timespec(value: str):
+    intval = -1
+    try:
+        if value.endswith("ms"):
+            intval = int(value[:-2])
+        elif value[-1] in "hms":
+            intval = int(value[:-1])
+        else:
+            intval = int(value)
+    except IndexError, ValueError:
+        raise ValueError("not a timespec: {}".format(value))
+    if intval < 0:
+        raise ValueError("timespec cannot be negative: {}".format(value))
+    return value
+
+
 class PrefixStatus(Enum):
     NOT_A_PREFIX = "not_a_prefix"
     EXACT_MATCH = "exact_match"
@@ -97,7 +306,7 @@ class TrieNode:
     def __init__(self):
         self.children = {}
         self.value = None    # True if an entire string ends at this node
-        self.word_count = 0  # Number of populated strings that pass through this node
+        self.word_count = 0  # Number of strings that pass through this node
 
 
 class PrefixMatcher:
@@ -116,7 +325,7 @@ class PrefixMatcher:
             node = node.children[char]
             node.word_count += 1
         if node.value is not None:
-            raise ValueError("Duplicate entry in PrefixMatcher")
+            raise ValueError("Duplicate PrefixMatcher entry: {}".format(word))
         node.value = value
 
     def add_string(self, word: str, value=True):
@@ -145,22 +354,103 @@ class PrefixMatcher:
     def get_status(self, query: str):
         return self.get_item(query)[0]
 
-class ArgType(Enum):
-    NO_ARGUMENT = 0
-    REQUIRED_ARGUMENT = 1
-    OPTIONAL_ARGUMENT = 2
 
-class Option:
-    """A single option, part of a pool of potential options. It's just a name
-    and a flag saying if the option takes no argument, if an argument is
-    optional, or if an argument is required."""
-
-    def __init__(self, name: str, has_arg: ArgType):
-        self.name = name
-        self.has_arg = has_arg
-
-    def __repr__(self):
-        return "Option('{}', {})".format(self.name, self.has_arg.name)
+LONG_OPTIONS = (
+        Option('6', ArgType.NO_ARGUMENT),
+        Option('A', ArgType.NO_ARGUMENT),
+        Option("allports", ArgType.NO_ARGUMENT),
+        Option("append-output", ArgType.NO_ARGUMENT),
+        Option('b', ArgType.REQUIRED_ARGUMENT),
+        Option("badsum", ArgType.NO_ARGUMENT),
+        Option('D', ArgType.REQUIRED_ARGUMENT),
+        Option("data-length", ArgType.REQUIRED_ARGUMENT, convert=int),
+        Option("datadir", ArgType.REQUIRED_ARGUMENT),
+        CounterOption('d', ArgType.OPTIONAL_ARGUMENT, "debug"),
+        Option("defeat-rst-ratelimit", ArgType.NO_ARGUMENT),
+        Option("dns-servers", ArgType.REQUIRED_ARGUMENT),
+        Option('e', ArgType.REQUIRED_ARGUMENT),
+        Option("exclude", ArgType.REQUIRED_ARGUMENT),
+        Option("excludefile", ArgType.REQUIRED_ARGUMENT),
+        Option('F', ArgType.NO_ARGUMENT),
+        CounterOption('f', ArgType.NO_ARGUMENT),
+        Option("help", ArgType.NO_ARGUMENT, 'h'),
+        Option("host-timeout", ArgType.REQUIRED_ARGUMENT, convert=timespec),
+        Option("iL", ArgType.REQUIRED_ARGUMENT, 'i'),
+        Option("iR", ArgType.REQUIRED_ARGUMENT, convert=int),
+        Option("iflist", ArgType.NO_ARGUMENT),
+        Option("initial-rtt-timeout", ArgType.REQUIRED_ARGUMENT,
+            convert=timespec),
+        Option("ip-options", ArgType.REQUIRED_ARGUMENT),
+        Option("log-errors", ArgType.NO_ARGUMENT),
+        Option("max-hostgroup", ArgType.REQUIRED_ARGUMENT, convert=int),
+        Option("max-os-tries", ArgType.REQUIRED_ARGUMENT, convert=int),
+        Option("max-parallelism", ArgType.REQUIRED_ARGUMENT, 'M', convert=int),
+        Option("max-rate", ArgType.REQUIRED_ARGUMENT, convert=int),
+        Option("max-retries", ArgType.REQUIRED_ARGUMENT, convert=int),
+        Option("max-rtt-timeout", ArgType.REQUIRED_ARGUMENT, convert=timespec),
+        Option("max-scan-delay", ArgType.REQUIRED_ARGUMENT, convert=timespec),
+        Option("min-hostgroup", ArgType.REQUIRED_ARGUMENT, convert=int),
+        Option("min-parallelism", ArgType.REQUIRED_ARGUMENT, convert=int),
+        Option("min-rate", ArgType.REQUIRED_ARGUMENT, convert=int),
+        Option("min-retries", ArgType.REQUIRED_ARGUMENT, convert=int),
+        Option("min-rtt-timeout", ArgType.REQUIRED_ARGUMENT, convert=timespec),
+        Option("mtu", ArgType.REQUIRED_ARGUMENT, convert=int),
+        Option('n', ArgType.NO_ARGUMENT),
+        Option("no-stylesheet", ArgType.NO_ARGUMENT),
+        Option('O', ArgType.OPTIONAL_ARGUMENT),
+        Option("oA", ArgType.REQUIRED_ARGUMENT),
+        Option("oG", ArgType.REQUIRED_ARGUMENT, "oM", 'm'),
+        Option("oN", ArgType.REQUIRED_ARGUMENT, 'o'),
+        Option("oS", ArgType.REQUIRED_ARGUMENT),
+        Option("oX", ArgType.REQUIRED_ARGUMENT),
+        Option("open", ArgType.NO_ARGUMENT),
+        Option("osscan-guess", ArgType.NO_ARGUMENT, "fuzzy"),
+        Option("osscan-limit", ArgType.NO_ARGUMENT),
+        Option('P', ArgType.OPTIONAL_ARGUMENT),
+        Option('p', ArgType.REQUIRED_ARGUMENT),
+        Option("packet-trace", ArgType.NO_ARGUMENT),
+        Option("port-ratio", ArgType.REQUIRED_ARGUMENT, convert=float),
+        Option("privileged", ArgType.NO_ARGUMENT),
+        Option('R', ArgType.NO_ARGUMENT),
+        Option('r', ArgType.NO_ARGUMENT),
+        Option("randomize-hosts", ArgType.NO_ARGUMENT, "rH"),
+        Option("reason", ArgType.NO_ARGUMENT),
+        Option("release-memory", ArgType.NO_ARGUMENT),
+        Option('S', ArgType.REQUIRED_ARGUMENT),
+        ScantypeOption('s', ArgType.REQUIRED_ARGUMENT),
+        Option("scanflags", ArgType.REQUIRED_ARGUMENT),
+        Option("scan-delay", ArgType.REQUIRED_ARGUMENT, convert=timespec),
+        Option("sI", ArgType.REQUIRED_ARGUMENT),
+        Option("script", ArgType.REQUIRED_ARGUMENT),
+        Option("script-args", ArgType.REQUIRED_ARGUMENT),
+        Option("script-trace", ArgType.NO_ARGUMENT),
+        Option("script-updatedb", ArgType.NO_ARGUMENT),
+        Option("script-help", ArgType.REQUIRED_ARGUMENT),
+        Option("send-eth", ArgType.NO_ARGUMENT),
+        Option("send-ip", ArgType.NO_ARGUMENT),
+        Option("servicedb", ArgType.REQUIRED_ARGUMENT),
+        Option("source-port", ArgType.REQUIRED_ARGUMENT, 'g'),
+        Option("spoof-mac", ArgType.REQUIRED_ARGUMENT),
+        Option("stylesheet", ArgType.REQUIRED_ARGUMENT),
+        Option("system-dns", ArgType.NO_ARGUMENT),
+        TimingOption('T', ArgType.REQUIRED_ARGUMENT, "timing"),
+        Option("top-ports", ArgType.REQUIRED_ARGUMENT, convert=int),
+        Option("traceroute", ArgType.NO_ARGUMENT),
+        Option("ttl", ArgType.REQUIRED_ARGUMENT, convert=int),
+        Option("unprivileged", ArgType.NO_ARGUMENT),
+        CounterOption('v', ArgType.OPTIONAL_ARGUMENT, "verbose"),
+        Option("version", ArgType.NO_ARGUMENT, 'V'),
+        Option("version-all", ArgType.NO_ARGUMENT),
+        Option("version-intensity", ArgType.REQUIRED_ARGUMENT, convert=int),
+        Option("version-light", ArgType.NO_ARGUMENT),
+        Option("version-trace", ArgType.NO_ARGUMENT),
+        Option("versiondb", ArgType.REQUIRED_ARGUMENT),
+        Option("webxml", ArgType.NO_ARGUMENT))
+options = PrefixMatcher()
+for o in LONG_OPTIONS:
+    options.add_string(o.name, o)
+    for a in o.aliases:
+        options.add_string(a, o)
 
 
 def split_quoted(s):
@@ -224,32 +514,6 @@ def join_quoted(l):
     return " ".join([maybe_quote(x) for x in l])
 
 
-def make_options(short_opts, long_opts):
-    """Parse a short option specification string and long option tuples into a
-    list of option objects."""
-    options = PrefixMatcher()
-    for name, has_arg in long_opts:
-        options.add_string(name, Option(name, has_arg))
-
-    while len(short_opts) > 0:
-        name = short_opts[0]
-        short_opts = short_opts[1:]
-        assert name != ":"
-        num_colons = 0
-        while len(short_opts) > 0 and short_opts[0] == ":":
-            short_opts = short_opts[1:]
-            num_colons += 1
-        if num_colons == 0:
-            has_arg = ArgType.NO_ARGUMENT
-        elif num_colons == 1:
-            has_arg = ArgType.REQUIRED_ARGUMENT
-        else:
-            has_arg = ArgType.OPTIONAL_ARGUMENT
-        options.add_string(name, Option(name, has_arg))
-
-    return options
-
-
 def lookup_option(name, options):
     """Find an option with the given (possibly abbreviated) name. None is
     returned if no options match or if the name is ambiguous (more than one
@@ -257,6 +521,7 @@ def lookup_option(name, options):
 
     status, match = options.get_item(name)
     return match
+
 
 def split_option(cmd_arg, options):
     """Split an option into a name, argument (if any), and possible remainder.
@@ -266,13 +531,8 @@ def split_option(cmd_arg, options):
     single short option that doesn't take an argument. At most one of argument
     and remainder will be non-None.
     Examples:
-    >>> options = PrefixMatcher()
-    >>> options.add_string("v", Option("v", ArgType.NO_ARGUMENT))
-    >>> options.add_string("min-rate", Option("min-rate", ArgType.REQUIRED_ARGUMENT))
-    >>> options.add_string("d", Option("d", ArgType.OPTIONAL_ARGUMENT))
-    >>> options.add_string("A", Option("A", ArgType.NO_ARGUMENT))
     >>> split_option("-v", options)
-    (Option('v', NO_ARGUMENT), None, None)
+    (CounterOption('v', OPTIONAL_ARGUMENT), None, None)
     >>> split_option("--min-rate", options)
     (Option('min-rate', REQUIRED_ARGUMENT), None, None)
     >>> split_option("--unknown", options)
@@ -280,7 +540,7 @@ def split_option(cmd_arg, options):
     >>> split_option("--min-rate=100", options)
     (Option('min-rate', REQUIRED_ARGUMENT), '100', None)
     >>> split_option("-d9", options)
-    (Option('d', OPTIONAL_ARGUMENT), '9', None)
+    (CounterOption('d', OPTIONAL_ARGUMENT), '9', None)
     >>> split_option("-AFn", options)
     (Option('A', NO_ARGUMENT), None, '-Fn')
     >>> split_option("-Amin-rate", options)
@@ -293,7 +553,8 @@ def split_option(cmd_arg, options):
     elif cmd_arg.startswith("-"):
         name = cmd_arg[1:]
     else:
-        raise RuntimeError("split_option called with non-option '{}'".format(cmd_arg))
+        raise RuntimeError(
+                "split_option called with non-option '{}'".format(cmd_arg))
     # Check for a lone - or --.
     if name == "":
         return cmd_arg, None, None
@@ -328,7 +589,7 @@ def get_option(cmd_args, options):
     positional argument from the command-line option list in cmd_args. The
     return value will have one of the following forms:
     * a string, representing a positional argument;
-    * an (option, argument) pair (argument may be None);
+    * an (Option, argument) pair (argument may be None);
     * a (None, extra, ...) tuple, where extra, ... is a chain of an unknown
         option and its following arguments that cannot be interpreted
         unambiguously; or
@@ -378,9 +639,9 @@ def get_option(cmd_args, options):
             return (None, cmd_arg)
         else:
             arg = cmd_args.pop(0)
-            return (option.name, arg)
+            return (option, arg)
     else:
-        return (option.name, arg)
+        return (option, arg)
 
 
 def sync(a, b, options):
@@ -417,84 +678,6 @@ def getopt_long_only_extras(cmd_args, options):
 
 class NmapOptions(object):
     SHORT_OPTIONS = "6Ab:D:d::e:Ffg:hi:M:m:nO::o:P:p:RrS:s:T:v::V"
-    LONG_OPTIONS = (
-        ("allports", ArgType.NO_ARGUMENT),
-        ("append-output", ArgType.NO_ARGUMENT),
-        ("badsum", ArgType.NO_ARGUMENT),
-        ("data-length", ArgType.REQUIRED_ARGUMENT),
-        ("datadir", ArgType.REQUIRED_ARGUMENT),
-        ("debug", ArgType.OPTIONAL_ARGUMENT),
-        ("defeat-rst-ratelimit", ArgType.NO_ARGUMENT),
-        ("dns-servers", ArgType.REQUIRED_ARGUMENT),
-        ("exclude", ArgType.REQUIRED_ARGUMENT),
-        ("excludefile", ArgType.REQUIRED_ARGUMENT),
-        ("fuzzy", ArgType.NO_ARGUMENT),
-        ("help", ArgType.NO_ARGUMENT),
-        ("host-timeout", ArgType.REQUIRED_ARGUMENT),
-        ("iL", ArgType.REQUIRED_ARGUMENT),
-        ("iR", ArgType.REQUIRED_ARGUMENT),
-        ("iflist", ArgType.NO_ARGUMENT),
-        ("initial-rtt-timeout", ArgType.REQUIRED_ARGUMENT),
-        ("ip-options", ArgType.REQUIRED_ARGUMENT),
-        ("log-errors", ArgType.NO_ARGUMENT),
-        ("max-hostgroup", ArgType.REQUIRED_ARGUMENT),
-        ("max-os-tries", ArgType.REQUIRED_ARGUMENT),
-        ("max-parallelism", ArgType.REQUIRED_ARGUMENT),
-        ("max-rate", ArgType.REQUIRED_ARGUMENT),
-        ("max-retries", ArgType.REQUIRED_ARGUMENT),
-        ("max-rtt-timeout", ArgType.REQUIRED_ARGUMENT),
-        ("max-scan-delay", ArgType.REQUIRED_ARGUMENT),
-        ("min-hostgroup", ArgType.REQUIRED_ARGUMENT),
-        ("min-parallelism", ArgType.REQUIRED_ARGUMENT),
-        ("min-rate", ArgType.REQUIRED_ARGUMENT),
-        ("min-retries", ArgType.REQUIRED_ARGUMENT),
-        ("min-rtt-timeout", ArgType.REQUIRED_ARGUMENT),
-        ("mtu", ArgType.REQUIRED_ARGUMENT),
-        ("no-stylesheet", ArgType.NO_ARGUMENT),
-        ("oA", ArgType.REQUIRED_ARGUMENT),
-        ("oG", ArgType.REQUIRED_ARGUMENT),
-        ("oM", ArgType.REQUIRED_ARGUMENT),
-        ("oN", ArgType.REQUIRED_ARGUMENT),
-        ("oS", ArgType.REQUIRED_ARGUMENT),
-        ("oX", ArgType.REQUIRED_ARGUMENT),
-        ("open", ArgType.NO_ARGUMENT),
-        ("osscan-guess", ArgType.NO_ARGUMENT),
-        ("osscan-limit", ArgType.NO_ARGUMENT),
-        ("packet-trace", ArgType.NO_ARGUMENT),
-        ("port-ratio", ArgType.REQUIRED_ARGUMENT),
-        ("privileged", ArgType.NO_ARGUMENT),
-        ("randomize-hosts", ArgType.NO_ARGUMENT),
-        ("reason", ArgType.NO_ARGUMENT),
-        ("release-memory", ArgType.NO_ARGUMENT),
-        ("scan-delay", ArgType.REQUIRED_ARGUMENT),
-        ("scanflags", ArgType.REQUIRED_ARGUMENT),
-        ("sI", ArgType.REQUIRED_ARGUMENT),
-        ("script", ArgType.REQUIRED_ARGUMENT),
-        ("script-args", ArgType.REQUIRED_ARGUMENT),
-        ("script-trace", ArgType.NO_ARGUMENT),
-        ("script-updatedb", ArgType.NO_ARGUMENT),
-        ("script-help", ArgType.REQUIRED_ARGUMENT),
-        ("send-eth", ArgType.NO_ARGUMENT),
-        ("send-ip", ArgType.NO_ARGUMENT),
-        ("servicedb", ArgType.REQUIRED_ARGUMENT),
-        ("source-port", ArgType.REQUIRED_ARGUMENT),
-        ("spoof-mac", ArgType.REQUIRED_ARGUMENT),
-        ("stylesheet", ArgType.REQUIRED_ARGUMENT),
-        ("system-dns", ArgType.NO_ARGUMENT),
-        ("timing", ArgType.REQUIRED_ARGUMENT),
-        ("top-ports", ArgType.REQUIRED_ARGUMENT),
-        ("traceroute", ArgType.NO_ARGUMENT),
-        ("ttl", ArgType.REQUIRED_ARGUMENT),
-        ("unprivileged", ArgType.NO_ARGUMENT),
-        ("verbose", ArgType.OPTIONAL_ARGUMENT),
-        ("version", ArgType.NO_ARGUMENT),
-        ("version-all", ArgType.NO_ARGUMENT),
-        ("version-intensity", ArgType.REQUIRED_ARGUMENT),
-        ("version-light", ArgType.NO_ARGUMENT),
-        ("version-trace", ArgType.NO_ARGUMENT),
-        ("versiondb", ArgType.REQUIRED_ARGUMENT),
-        ("webxml", ArgType.NO_ARGUMENT),
-    )
 
     # Sets of options that should be treated as equivalent from the point of
     # view of the external interface. For example, ops["--timing"] means the
@@ -524,14 +707,7 @@ class NmapOptions(object):
         for alias in aliases:
             EQUIVALENCE_MAP[alias] = base
 
-    TIMING_PROFILE_NAMES = {
-        "paranoid": 0, "sneaky": 1, "polite": 2,
-        "normal": 3, "aggressive": 4, "insane": 5
-    }
-
     def __init__(self):
-        self.options = make_options(self.SHORT_OPTIONS, self.LONG_OPTIONS)
-
         self.clear()
 
     def clear(self):
@@ -549,15 +725,27 @@ class NmapOptions(object):
             _set_executable)
 
     def canonicalize_name(self, name):
-        option = name.lstrip("-")
-        option = NmapOptions.EQUIVALENCE_MAP.get(option, option)
+        opt, arg, remainder = split_option(name, options)
+        assert remainder is None
+        if arg is None:
+            if isinstance(opt, Option):
+                option = opt.name
+            else:
+                option = opt
+        else:
+            option = name.lstrip("-")
         return option
 
     def __getitem__(self, key):
-        return self.d.get(self.canonicalize_name(key))
+        option, arg, _ = split_option(key, options)
+        if isinstance(option, Option):
+            return option.get(arg, self.d)
+        else:
+            return None
 
     def __setitem__(self, key, value):
-        self.d[self.canonicalize_name(key)] = value
+        result = get_option([key, value], options)
+        self.handle_result(result)
 
     def setdefault(self, key, default):
         return self.d.setdefault(self.canonicalize_name(key), default)
@@ -573,184 +761,8 @@ class NmapOptions(object):
             return
 
         # A normal option.
-        opt, arg = result
-        if opt in ("6", "A", "F", "h", "n", "R", "r", "V"):
-            self["-" + opt] = True
-        elif opt in (
-                "allports",
-                "append-output",
-                "badsum",
-                "defeat-rst-ratelimit",
-                "fuzzy",
-                "help",
-                "iflist",
-                "log-errors",
-                "no-stylesheet",
-                "open",
-                "osscan-guess",
-                "osscan-limit",
-                "packet-trace",
-                "privileged",
-                "randomize-hosts",
-                "reason",
-                "release-memory",
-                "script-trace",
-                "script-updatedb",
-                "send-eth",
-                "send-ip",
-                "system-dns",
-                "traceroute",
-                "unprivileged",
-                "version",
-                "version-all",
-                "version-light",
-                "version-trace",
-                "webxml",
-                ):
-            self["--" + opt] = True
-        elif opt in ("b", "D", "e", "g", "i", "iL", "m", "M", "o", "oA", "oG",
-                "oM", "oN", "oS", "oX", "p", "S", "sI"):
-            assert arg is not None
-            if self["-" + opt] is None:
-                self["-" + opt] = arg
-            else:
-                self.extras.extend(("-" + opt, arg))
-        elif opt in (
-                "datadir",
-                "data-length",
-                "dns-servers",
-                "exclude",
-                "excludefile",
-                "host-timeout",
-                "initial-rtt-timeout",
-                "ip-options",
-                "max-hostgroup",
-                "max-os-tries",
-                "max-parallelism",
-                "max-rate",
-                "max-retries",
-                "max-rtt-timeout",
-                "max-scan-delay",
-                "min-hostgroup",
-                "min-parallelism",
-                "min-rate",
-                "min-retries",
-                "min-rtt-timeout",
-                "mtu",
-                "port-ratio",
-                "scan-delay",
-                "scanflags",
-                "script",
-                "script-args",
-                "script-help",
-                "servicedb",
-                "source-port",
-                "spoof-mac",
-                "stylesheet",
-                "top-ports",
-                "ttl",
-                "versiondb",
-                "version-intensity",
-                ):
-            assert arg is not None
-            if self["--" + opt] is None:
-                self["--" + opt] = arg
-            else:
-                self.extras.extend(("--" + opt, arg))
-        elif opt == "d" or opt == "debug":
-            if arg is None:
-                arg = ""
-            try:
-                self["-d"] = int(arg)
-            except ValueError:
-                if reduce(lambda x, y: x and y,
-                        [z == "d" for z in arg], True):
-                    self.setdefault("-d", 0)
-                    self["-d"] += len(arg) + 1
-                else:
-                    self.extras.append("-d%s" % arg)
-        elif opt == "f":
-            self.setdefault("-f", 0)
-            self["-f"] += 1
-        elif opt == "iR":
-            if self["-iR"] is None:
-                try:
-                    self["-iR"] = int(arg)
-                except ValueError:
-                    self.extras.extend(("-iR", arg))
-            else:
-                self.extras.extend(("-iR", arg))
-        elif opt == "O":
-            if arg is None:
-                if self["-O"] is None:
-                    self["-O"] = True
-                else:
-                    self.extras.append("-O")
-            else:
-                if self["-O"] is None:
-                    self["-O"] = arg
-                else:
-                    self.extras.append("-O%s" % arg)
-        elif opt == "P":
-            type, ports = arg[:1], arg[1:]
-            if (type == "0" or type == "D" or type == "N" or
-                    type == "n" and ports == ""):
-                self["-Pn"] = True
-            elif (type == "" or type == "I" or type == "E") and ports == "":
-                self["-PE"] = True
-            elif type == "M" and ports == "":
-                self["-PM"] = True
-            elif type == "P" and ports == "":
-                self["-PP"] = True
-            elif type == "R" and ports == "":
-                self["-PR"] = True
-            elif type == "S":
-                self["-PS"] = ports
-            elif type == "T" or type == "A":
-                self["-PA"] = ports
-            elif type == "U":
-                self["-PU"] = ports
-            elif type == "O":
-                self["-PO"] = ports
-            elif type == "B":
-                self["-PB"] = ports
-            elif type == "Y":
-                self["-PY"] = ports
-            else:
-                self.extras.append("-P%s" % arg)
-        elif opt == "s":
-            for type in arg:
-                if type in "ACFLMNOPRSTUVWXYZn":
-                    self["-s%s" % type] = True
-                else:
-                    self.extras.append("-s%s" % type)
-        elif opt == "T" or opt == "timing":
-            if self["-T"] is None:
-                try:
-                    self["-T"] = int(arg)
-                except ValueError:
-                    try:
-                        self["-T"] = self.TIMING_PROFILE_NAMES[arg.lower()]
-                    except KeyError:
-                        self.extras.extend(("-T", arg))
-            else:
-                self.extras.extend(("-T", arg))
-        elif opt == "v" or opt == "verbose":
-            if arg is None:
-                arg = ""
-            try:
-                self["-v"] = int(arg)
-                if self["-v"] == 0:
-                    self["-v"] = -1
-            except ValueError:
-                if reduce(lambda x, y: x and y,
-                        [z == "v" for z in arg], True):
-                    self.setdefault("-v", 0)
-                    self["-v"] += len(arg) + 1
-                else:
-                    self.extras.append("-v%s" % arg)
-        else:
-            assert False, (opt, arg)
+        option, arg = result
+        option.handle(arg, self.d, self.extras)
 
     def parse(self, opt_list):
         self.clear()
@@ -759,161 +771,20 @@ class NmapOptions(object):
             self.executable = opt_list[0]
 
         for result in getopt_long_only_extras(
-                opt_list[1:], self.options):
+                opt_list[1:], options):
             self.handle_result(result)
 
     def parse_string(self, opt_string):
         self.parse(split_quoted(opt_string))
 
     def render(self):
-        opt_list = []
-
-        for opt in ("-sA", "-sC", "-sF", "-sL", "-sM", "-sN", "-sO", "-sn",
-                "-sR", "-sS", "-sT", "-sU", "-sV", "-sW", "-sX", "-sY", "-sZ"):
-            if self[opt]:
-                opt_list.append(opt)
-
-        if self["-sI"] is not None:
-            opt_list.extend(("-sI", self["-sI"]))
-
-        for opt in ("-6",):
-            if self[opt]:
-                opt_list.append(opt)
-
-        if self["-p"] is not None:
-            opt_list.extend(("-p", self["-p"]))
-
-        if self["-T"] is not None:
-            opt_list.append("-T%s" % str(self["-T"]))
-
-        if self["-O"] is not None:
-            if isinstance(self["-O"], str):
-                opt_list.append("-O%s" % self["-O"])
-            elif self["-O"]:
-                opt_list.append("-O")
-
-        if self["-A"]:
-            opt_list.append("-A")
-
-        if self["-d"]:
-            if self["-d"] == 1:
-                opt_list.append("-d")
-            elif self["-d"] > 1:
-                opt_list.append("-d%s" % self["-d"])
-
-        if self["-f"]:
-            opt_list.extend(["-f"] * self["-f"])
-        if self["-v"]:
-            if self["-v"] == -1:
-                opt_list.append("-v0")
-            opt_list.extend(["-v"] * self["-v"])
-
-        if self["-F"]:
-            opt_list.append("-F")
-        if self["-n"]:
-            opt_list.append("-n")
-
-        if self["-iL"] is not None:
-            opt_list.extend(("-iL", self["-iL"]))
-        if self["-iR"] is not None:
-            opt_list.extend(("-iR", str(self["-iR"])))
-
-        for opt in ("-oA", "-oG", "-oN", "-oS", "-oX"):
-            if self[opt] is not None:
-                opt_list.extend((opt, self[opt]))
-
-        for opt in ("--min-hostgroup", "--max-hostgroup",
-                "--min-parallelism", "--max-parallelism",
-                "--min-rtt-timeout", "--max-rtt-timeout",
-                "--initial-rtt-timeout",
-                "--scan-delay", "--max-scan-delay",
-                "--min-rate", "--max-rate",
-                "--max-retries", "--max-os-tries", "--host-timeout"):
-            if self[opt] is not None:
-                opt_list.extend((opt, self[opt]))
-
-        for ping_option in ("-Pn", "-PE", "-PM", "-PP", "-PR"):
-            if self[ping_option]:
-                opt_list.append(ping_option)
-        for ping_option in ("-PS", "-PA", "-PU", "-PO", "-PY"):
-            if self[ping_option] is not None:
-                opt_list.append(ping_option + self[ping_option])
-        if self["-PB"] is not None:
-            if isinstance(self["-PB"], str):
-                opt_list.append("-PB" + self["-PB"])
-            elif self["-PB"]:
-                opt_list.append("-PB")
-
-        for opt in (
-                "--allports",
-                "--append-output",
-                "--badsum",
-                "--defeat-rst-ratelimit",
-                "--fuzzy",
-                "--help",
-                "--iflist",
-                "--log-errors",
-                "--no-stylesheet",
-                "--open",
-                "--osscan-guess",
-                "--osscan-limit",
-                "--packet-trace",
-                "--privileged",
-                "-r",
-                "-R",
-                "--randomize-hosts",
-                "--reason",
-                "--release-memory",
-                "--script-trace",
-                "--script-updatedb",
-                "--send-eth",
-                "--send-ip",
-                "--system-dns",
-                "--traceroute",
-                "--unprivileged",
-                "--version",
-                "--version-all",
-                "--version-light",
-                "--version-trace",
-                "--webxml",
-                ):
-            if self[opt]:
-                opt_list.append(opt)
-
-        for opt in (
-                "-b",
-                "-D",
-                "--datadir",
-                "--data-length",
-                "--dns-servers",
-                "-e",
-                "--exclude",
-                "--excludefile",
-                "-g",
-                "--ip-options",
-                "--mtu",
-                "--port-ratio",
-                "-S",
-                "--scanflags",
-                "--script",
-                "--script-args",
-                "--script-help",
-                "--servicedb",
-                "--spoof-mac",
-                "--stylesheet",
-                "--top-ports",
-                "--ttl",
-                "--versiondb",
-                "--version-intensity",
-                ):
-            if self[opt] is not None:
-                opt_list.extend((opt, self[opt]))
-
+        opt_list = [self.executable]
+        for option, v in self.d.items():
+            opt_list.extend(str(a) for a in option.toargv(v, self.d))
         opt_list.extend(self.target_specs)
 
         opt_list.extend(self.extras)
-
-        return [self.executable] + opt_list
+        return opt_list
 
     def render_string(self):
         return join_quoted(self.render())
@@ -1066,11 +937,11 @@ class NmapOptionsTest(unittest.TestCase):
         """Test potentially tricky argument scenarios."""
         ops = NmapOptions()
         ops.parse_string("nmap -d9")
-        self.assertTrue(len(ops.target_specs) == 0)
-        self.assertTrue(ops["-d"] == 9, ops["-d"])
+        self.assertEqual(len(ops.target_specs), 0)
+        self.assertEqual(ops["-d"], 9)
         ops.parse_string("nmap -d 9")
-        self.assertTrue(ops.target_specs == ["9"])
-        self.assertTrue(ops["-d"] == 1)
+        self.assertEqual(ops.target_specs, ["9"])
+        self.assertEqual(ops["-d"], 1)
 
     def test_repetition(self):
         """Test options that can be repeated to increase their effect."""
@@ -1159,10 +1030,10 @@ class NmapOptionsTest(unittest.TestCase):
 
         # Options that can't be given more than once should end up in extras.
         ops.parse_string("nmap -p 53 -p 80 -O --mtu 50 --mtu 100 -O2")
-        self.assertTrue(ops["-p"] == "53")
-        self.assertTrue(ops["--mtu"] == "50")
+        self.assertEqual(ops["-p"], "53")
+        self.assertEqual(ops["--mtu"], 50)
         self.assertTrue(ops["-O"])
-        self.assertTrue(ops.extras == ["-p", "80", "--mtu", "100", "-O2"])
+        self.assertEqual(ops.extras, ["-p", "80", "--mtu", "100", "-O2"])
 
     def test_quirks(self):
         """Test the handling of constructions whose interpretation isn't
@@ -1170,35 +1041,35 @@ class NmapOptionsTest(unittest.TestCase):
         ops = NmapOptions()
         # Long options can be written with one dash.
         ops.parse_string("nmap -min-rate 100")
-        self.assertTrue(ops["--min-rate"] == "100")
-        ops.parse_string("nmap -min-rate=100")
-        self.assertTrue(ops["--min-rate"] == "100")
+        self.assertEqual(ops["--min-rate"], 100)
+        ops.parse_string("nmap -min-rate=200")
+        self.assertEqual(ops["--min-rate"], 200)
 
         # Short options not taking an argument can be followed by a long
         # option.
         ops.parse_string("nmap -nFmin-rate 100")
         self.assertTrue(ops["-n"])
         self.assertTrue(ops["-F"])
-        self.assertTrue(ops["--min-rate"] == "100")
+        self.assertEqual(ops["--min-rate"], 100)
 
         # Short options taking an argument consume the rest of the argument.
         ops.parse_string("nmap -nFp1-100")
         self.assertTrue(ops["-n"])
         self.assertTrue(ops["-F"])
-        self.assertTrue(ops["-p"] == "1-100")
+        self.assertEqual(ops["-p"], "1-100")
 
     def test_conversion(self):
         """Test that failed integer conversions cause the option to wind up in
         the extras."""
         ops = NmapOptions()
         ops.parse_string("nmap -d#")
-        self.assertTrue(ops.extras == ["-d#"])
+        self.assertEqual(ops.extras, ["-d#"])
         ops.parse_string("nmap -T monkeys")
         self.assertTrue(ops["-T"] is None)
         self.assertTrue(ops.extras == ["-T", "monkeys"])
         ops.parse_string("nmap -iR monkeys")
         self.assertTrue(ops["-iR"] is None)
-        self.assertTrue(ops.extras == ["-iR", "monkeys"])
+        self.assertEqual(ops.extras, ["-iR", "monkeys"])
 
     def test_read_unknown(self):
         """Test that getting the value of non-options returns None."""
@@ -1233,7 +1104,7 @@ class NmapOptionsTest(unittest.TestCase):
                 ops.clear()
                 ops[opt] = "test"
                 for other in set:
-                    self.assertTrue(ops[other] == "test",
+                    self.assertTrue(ops[other] == ops[opt],
                         "%s and %s not the same" % (opt, other))
 
     def test_options(self):
@@ -1386,14 +1257,14 @@ class NmapOptionsTest(unittest.TestCase):
             ops.parse_string("nmap " + test)
             opt_list_1 = ops.render()
             self.assertTrue(len(opt_list_1) > 1, "%s missing on render" % test)
-            self.assertTrue(len(ops.extras) == 0,
+            self.assertEqual(ops.extras, [],
                     "%s caused extras: %s" % (test, repr(ops.extras)))
             ops.parse(opt_list_1)
             opt_list_2 = ops.render()
-            self.assertTrue(opt_list_1 == opt_list_2,
+            self.assertEqual(opt_list_1, opt_list_2,
                     "Result of parsing and rendering %s not parsable again" % (
                         test))
-            self.assertTrue(len(ops.extras) == 0,
+            self.assertEqual(ops.extras, [],
                     "Result of parsing and rendering %s left extras: %s" % (
                         test, ops.extras))
 
@@ -1417,6 +1288,7 @@ class SplitQuotedTest(unittest.TestCase):
         self.assertEqual(split_quoted('\\"\\""'), ['\\"'])
         self.assertEqual(split_quoted('"\\"\\""'), ['""'])
 
+
 class TestPrefixMatcher(unittest.TestCase):
 
     def setUp(self):
@@ -1425,31 +1297,43 @@ class TestPrefixMatcher(unittest.TestCase):
         self.matcher = PrefixMatcher(self.words)
 
     def test_not_a_prefix(self):
-        """Test queries that are completely unrelated or extend past existing words."""
-        self.assertEqual(self.matcher.get_status("bat"), PrefixStatus.NOT_A_PREFIX)
-        self.assertEqual(self.matcher.get_status("doggy"), PrefixStatus.NOT_A_PREFIX)
-        self.assertEqual(self.matcher.get_status("caterpillars"), PrefixStatus.NOT_A_PREFIX)
+        """Test queries that are completely unrelated or extend past existing
+        words."""
+        self.assertEqual(self.matcher.get_status("bat"),
+                PrefixStatus.NOT_A_PREFIX)
+        self.assertEqual(self.matcher.get_status("doggy"),
+                PrefixStatus.NOT_A_PREFIX)
+        self.assertEqual(self.matcher.get_status("caterpillars"),
+                PrefixStatus.NOT_A_PREFIX)
 
     def test_exact_match(self):
-        """Test exact matches, ensuring they take precedence even if they are prefixes of others."""
+        """Test exact matches, ensuring they take precedence even if they are
+        prefixes of others."""
         # 'cat' is an exact match in the set, despite 'caterpillar' existing
-        self.assertEqual(self.matcher.get_status("cat"), PrefixStatus.EXACT_MATCH)
-        self.assertEqual(self.matcher.get_status("car"), PrefixStatus.EXACT_MATCH)
-        self.assertEqual(self.matcher.get_status("dog"), PrefixStatus.EXACT_MATCH)
+        self.assertEqual(self.matcher.get_status("cat"),
+                PrefixStatus.EXACT_MATCH)
+        self.assertEqual(self.matcher.get_status("car"),
+                PrefixStatus.EXACT_MATCH)
+        self.assertEqual(self.matcher.get_status("dog"),
+                PrefixStatus.EXACT_MATCH)
 
     def test_unique_prefix(self):
         """Test strings that are a prefix of exactly one populated string."""
         # 'cater' is only a prefix of 'caterpillar'
-        self.assertEqual(self.matcher.get_status("cater"), PrefixStatus.UNIQUE_PREFIX)
+        self.assertEqual(self.matcher.get_status("cater"),
+                PrefixStatus.UNIQUE_PREFIX)
         # 'do' is only a prefix of 'dog'
-        self.assertEqual(self.matcher.get_status("do"), PrefixStatus.UNIQUE_PREFIX)
+        self.assertEqual(self.matcher.get_status("do"),
+                PrefixStatus.UNIQUE_PREFIX)
 
     def test_multiple_prefixes(self):
         """Test strings that are a prefix of more than one populated string."""
         # 'ca' is a prefix of 'cat', 'caterpillar', and 'car'
-        self.assertEqual(self.matcher.get_status("ca"), PrefixStatus.MULTIPLE_PREFIXES)
+        self.assertEqual(self.matcher.get_status("ca"),
+                PrefixStatus.MULTIPLE_PREFIXES)
         # 'c' is also a prefix of multiple strings
-        self.assertEqual(self.matcher.get_status("c"), PrefixStatus.MULTIPLE_PREFIXES)
+        self.assertEqual(self.matcher.get_status("c"),
+                PrefixStatus.MULTIPLE_PREFIXES)
 
     def test_dynamic_insertion(self):
         """Test adding strings dynamically and verifying status changes."""
@@ -1465,22 +1349,28 @@ class TestPrefixMatcher(unittest.TestCase):
         # 'apple' is still an exact match (since it's in the set)
         self.assertEqual(matcher.get_status("apple"), PrefixStatus.EXACT_MATCH)
         # 'app' is now a prefix of multiple strings ('apple' and 'applet')
-        self.assertEqual(matcher.get_status("app"), PrefixStatus.MULTIPLE_PREFIXES)
+        self.assertEqual(matcher.get_status("app"),
+                PrefixStatus.MULTIPLE_PREFIXES)
 
     def test_empty_matcher(self):
-        """Test behavior when initialized with no strings or an empty collection."""
+        """Test behavior when initialized with no strings or an empty
+        collection."""
         empty_matcher = PrefixMatcher()
-        self.assertEqual(empty_matcher.get_status("a"), PrefixStatus.NOT_A_PREFIX)
+        self.assertEqual(empty_matcher.get_status("a"),
+                PrefixStatus.NOT_A_PREFIX)
 
         empty_matcher_list = PrefixMatcher([])
-        self.assertEqual(empty_matcher_list.get_status("test"), PrefixStatus.NOT_A_PREFIX)
+        self.assertEqual(empty_matcher_list.get_status("test"),
+                PrefixStatus.NOT_A_PREFIX)
 
     def test_duplicate_input_handling(self):
-        """Test that duplicate strings passed during initialization do not break counts."""
+        """Test that duplicate strings passed during initialization do not
+        break counts."""
         matcher = PrefixMatcher(["test", "test", "testing"])
         # 'test' is an exact match
         self.assertEqual(matcher.get_status("test"), PrefixStatus.EXACT_MATCH)
-        self.assertEqual(matcher.get_status("tes"), PrefixStatus.MULTIPLE_PREFIXES)
+        self.assertEqual(matcher.get_status("tes"),
+                PrefixStatus.MULTIPLE_PREFIXES)
         with self.assertRaises(ValueError):
             matcher.add_string("testing")
 
