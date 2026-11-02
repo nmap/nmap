@@ -1,0 +1,2 @@
+# Required to resolve the dynamic version when building a wheel from the sdist.
+include Version.py
