@@ -288,7 +288,7 @@ def timespec(value: str):
             intval = int(value[:-1])
         else:
             intval = int(value)
-    except IndexError, ValueError:
+    except (IndexError, ValueError):
         raise ValueError("not a timespec: {}".format(value))
     if intval < 0:
         raise ValueError("timespec cannot be negative: {}".format(value))
