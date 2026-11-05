@@ -68,6 +68,30 @@ _ENV.getid = function () return end
 _ENV.getinfo = function () return end
 _ENV.gethostport = function () return end
 
+
+--- Escape a string the same way normal script results are escaped for the
+-- screen (<code>escape_for_screen</code> in output.cc).
+--
+-- Keeps tab, newline, and printable ASCII (0x20-0x7e). Every other byte,
+-- including carriage return and ESC, becomes <code>\xHH</code>. Use this
+-- before writing untrusted protocol data with <code>verbose</code> or
+-- <code>debug</code>, which go through <code>nmap.log_write</code> and are
+-- not escaped by the C++ script-result path.
+-- @param s The string to escape.
+-- @return The escaped string, or <code>s</code> unchanged if it is not a string.
+function escape_for_screen(s)
+  if type(s) ~= "string" then
+    return s
+  end
+  return (gsub(s, ".", function(c)
+    local b = byte(c)
+    if c == "\t" or c == "\n" or (b >= 0x20 and b <= 0x7e) then
+      return c
+    end
+    return format("\\x%02X", b)
+  end))
+end
+
 local function debug (level, ...)
   if type(level) ~= "number" then
     return debug(1, level, ...)
@@ -78,9 +102,9 @@ local function debug (level, ...)
     local prefix = ( (current >= 2 and getinfo or getid)() or "")
     .. (host and " "..host.ip .. (port and ":"..port.number or "") or "")
     if prefix ~= "" then
-      nmap.log_write("stdout", "[" .. prefix .. "] " .. format(...))
+      nmap.log_write("stdout", escape_for_screen("[" .. prefix .. "] " .. format(...)))
     else
-      nmap.log_write("stdout", format(...))
+      nmap.log_write("stdout", escape_for_screen(format(...)))
     end
   end
 end
@@ -119,9 +143,9 @@ function debug5 (...) return debug(5, ...) end
 print_debug = function(level, fmt, ...)
   local l, d = tonumber(level), nmap.debugging();
   if l and l <= d then
-    nmap.log_write("stdout", format(fmt, ...));
+    nmap.log_write("stdout", escape_for_screen(format(fmt, ...)));
   elseif not l and 1 <= d then
-    nmap.log_write("stdout", format(level, fmt, ...));
+    nmap.log_write("stdout", escape_for_screen(format(level, fmt, ...)));
   end
 end
 
@@ -140,9 +164,9 @@ local function verbose (level, ...)
       prefix = getid() or ""
     end
     if prefix ~= "" then
-      nmap.log_write("stdout", "[" .. prefix .. "] " .. format(...))
+      nmap.log_write("stdout", escape_for_screen("[" .. prefix .. "] " .. format(...)))
     else
-      nmap.log_write("stdout", format(...))
+      nmap.log_write("stdout", escape_for_screen(format(...)))
     end
   end
 end
@@ -180,9 +204,9 @@ function verbose5 (...) return verbose(5, ...) end
 print_verbose = function(level, fmt, ...)
   local l, d = tonumber(level), nmap.verbosity();
   if l and l <= d then
-    nmap.log_write("stdout", format(fmt, ...));
+    nmap.log_write("stdout", escape_for_screen(format(fmt, ...)));
   elseif not l and 1 <= d then
-    nmap.log_write("stdout", format(level, fmt, ...));
+    nmap.log_write("stdout", escape_for_screen(format(level, fmt, ...)));
   end
 end
 
@@ -1096,5 +1120,6 @@ function get_timeout(host, max_timeout, min_timeout)
   end
   return t
 end
+
 
 return _ENV;
