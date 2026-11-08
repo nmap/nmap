@@ -63,6 +63,10 @@
 #include "winfix.h"
 #endif
 
+#if defined(__sun)
+#include <climits>
+#endif
+
 #include "nping.h"
 #include "nbase.h"
 #include "NpingOps.h"
