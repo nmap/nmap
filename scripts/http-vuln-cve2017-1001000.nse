@@ -96,6 +96,11 @@ Versions 4.7.0 and 4.7.1 are known to be affected.
 
     local status, json_data = json.parse(response.body)
 
+    --Check for empty dataset
+    if (json_data[1]==nil) then
+      return vulnReport:make_output(vuln_table)
+    end
+
     --Parsing the json_data to get the ID of the first post and the date.
     local id=json_data[1].id
     local content=json_data[1].date
@@ -120,6 +125,12 @@ Versions 4.7.0 and 4.7.1 are known to be affected.
     --of the post and it is vulnerable.
     if(response1.status and response1.status==200) then
       vuln_table.state = vulns.STATE.VULN
+
+      --Despite the http status being 200, check if the response contains an error
+      local response1_json_status, response1_json_data = json.parse(response1.body)
+      if (response1_json_status and response1_json_data.data and response1_json_data.data.status~=200) then
+        vuln_table.state = vulns.STATE.NOT_VULN
+      end
     end
     return vulnReport:make_output(vuln_table)
   end
