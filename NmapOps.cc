@@ -340,6 +340,7 @@ void NmapOps::Initialize() {
   proxy_chain = NULL;
   resuming = false;
   discovery_ignore_rst = false;
+  sqlping_payload = false;
 }
 
 bool NmapOps::SCTPScan() {
