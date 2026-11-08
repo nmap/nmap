@@ -23,15 +23,23 @@ content filtering and antivirus scanning.
 -- |   /avscan
 -- |     Service: C-ICAP/0.1.6 server - Clamav/Antivirus service
 -- |     ISTag: CI0001-000-0973-6314940
+-- |     Methods: RESPMOD, REQMOD
 -- |   /echo
 -- |     Service: C-ICAP/0.1.6 server - Echo demo service
 -- |     ISTag: CI0001-XXXXXXXXX
+-- |     Methods: RESPMOD, REQMOD
 -- |   /srv_clamav
 -- |     Service: C-ICAP/0.1.6 server - Clamav/Antivirus service
 -- |     ISTag: CI0001-000-0973-6314940
+-- |     Methods: RESPMOD, REQMOD
 -- |   /url_check
 -- |     Service: C-ICAP/0.1.6 server - Url_Check demo service
--- |_    ISTag: CI0001-XXXXXXXXX
+-- |     ISTag: CI0001-XXXXXXXXX
+-- |     Methods: RESPMOD, REQMOD
+-- |   /
+-- |     Service:
+-- |     ISTag: CI0001-XXXXXXXXX
+-- |_     Methods: RESPMOD, REQMOD
 --
 --
 
@@ -74,8 +82,8 @@ end
 
 action = function(host, port)
 
-  local services = {"/avscan", "/echo", "/srv_clamav", "/url_check", "/nmap" }
-  local headers = {"Service", "ISTag"}
+  local services = {"/avscan", "/echo", "/srv_clamav", "/url_check", "/nmap", "/" }
+  local headers = {"Service", "ISTag", "Methods"}
   local probe = {
     "OPTIONS icap://%s%s ICAP/1.0",
     "Host: %s",
