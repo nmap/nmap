@@ -246,6 +246,17 @@ SignatureAlgorithms = {
   gostr34102012_512 = 65,
 }
 
+-- RFC 5246, section 7.4.4. Client Certificate Type values.
+ClientCertificateTypes = {
+  rsa_sign = 1,
+  dss_sign = 2,
+  rsa_fixed_dh = 3,
+  dss_fixed_dh = 4,
+  ecdsa_sign = 64,
+  rsa_fixed_ecdh = 65,
+  ecdsa_fixed_ecdh = 66,
+}
+
 ---
 -- TLS v1.3 Signature Algorithms
 SignatureSchemes = {
@@ -1560,6 +1571,43 @@ handshake_parse = {
         return b, j
       end,
 
+      -- RFC 5246, section 7.4.4. This is deliberately limited to the TLS 1.2
+      -- format. TLS 1.3 CertificateRequest messages use a different layout
+      -- and are encrypted; TLS 1.3 handshake decryption is not implemented.
+      certificate_request = function (buffer, j, msg_end, protocol)
+        local b = { certificate_types = {}, signature_algorithms = {},
+                    certificate_authorities = {} }
+        local types, signature_algorithms, authorities
+
+        types, j = unpack(">s1", buffer, j)
+        for i = 1, #types do
+          b.certificate_types[#b.certificate_types + 1] =
+            find_key(ClientCertificateTypes, types:byte(i)) or types:byte(i)
+        end
+
+        -- The signature_algorithms field was added in TLS 1.2.
+        if protocol == "TLSv1.2" then
+          signature_algorithms, j = unpack(">s2", buffer, j)
+          for i = 1, #signature_algorithms, 2 do
+            local hash, signature = signature_algorithms:byte(i, i + 1)
+            b.signature_algorithms[#b.signature_algorithms + 1] = {
+              hash = find_key(HashAlgorithms, hash) or hash,
+              signature = find_key(SignatureAlgorithms, signature) or signature,
+            }
+          end
+        end
+
+        authorities, j = unpack(">s2", buffer, j)
+        local i = 1
+        while i <= #authorities do
+          local authority
+          authority, i = unpack(">s2", authorities, i)
+          b.certificate_authorities[#b.certificate_authorities + 1] = authority
+        end
+
+        return b, j
+      end,
+
       NewSessionTicket = function (buffer, j, msg_end, protocol)
         -- Need 4 bytes for parsing.
         local have = #buffer - j + 1
@@ -2044,6 +2092,33 @@ function record_buffer(sock, buffer, i)
     buffer = buffer .. resp
   end
   return true, buffer
+end
+
+---
+-- Returns an iterator that yields TLS records read from a socket.
+-- @param sock Connected socket
+-- @return function Iterator returning a record, or nil and an error string
+function record_iter(sock)
+  local buffer = ""
+  local i = 1
+  local fragment
+  return function()
+    local record
+    i, record = record_read(buffer, i, fragment)
+    if not record then
+      local status, err
+      status, buffer, err = record_buffer(sock, buffer, i)
+      if not status then
+        return nil, err
+      end
+      i, record = record_read(buffer, i, fragment)
+      if not record then
+        return nil, "done"
+      end
+    end
+    fragment = record.fragment
+    return record
+  end
 end
 
 -- Get a server_name for use with the TLS Server Name Indication extension.
