@@ -1049,6 +1049,23 @@ SENT (4.0330s) TCP 192.168.0.21 &gt; 3.3.3.3:139
         </listitem>
       </varlistentry>
 
+      <varlistentry>
+        <term>
+        <option>--badsum</option> (Invalid Checksum)
+        <indexterm significance="preferred"><primary><option>--badsum</option> (Nping option)</primary></indexterm>
+        </term>
+        <listitem>
+          <para>
+           Asks Nping to use an invalid ICMP checksum for the packets sent to
+           target hosts. Since virtually all host IP stacks properly drop these
+           packets, any responses received are likely coming from a firewall or
+           an IDS that didn't bother to verify the checksum. For more
+           details on this technique, see
+           <ulink url="https://nmap.org/p60-12.html"/>.
+        </para>
+        </listitem>
+      </varlistentry>
+
     </variablelist>
 
     <refsect2 id="nping-man-icmp-types">

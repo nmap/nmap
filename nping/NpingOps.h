@@ -210,7 +210,7 @@ class NpingOps {
     bool tcpflags_set;
     u16 tcpwin;               /* TCP Window                            */
     bool tcpwin_set;
-    bool badsum;              /* Generate invalid TCP/UDP checksums?   */
+    bool badsum;              /* Generate invalid TCP/UDP/ICMP checksums? */
     bool badsum_set;
 
     /* ICMP */
@@ -218,8 +218,6 @@ class NpingOps {
     bool icmp_type_set;
     u8 icmp_code;             /* ICMP Code                             */
     bool icmp_code_set;
-    bool badsum_icmp;         /* Generate invalid ICMP checksums?      */
-    bool badsum_icmp_set;
     struct in_addr icmp_redir_addr; /* ICMP Redirect Address */ /* ##TODO## Turn this into an IPAddress object */
     bool icmp_redir_addr_set;
     u8 icmp_paramprob_pnt;    /* ICMP Parameter Problem pointer        */
