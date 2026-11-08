@@ -62,6 +62,56 @@ import sys
 import configparser
 import shutil
 
+import sys
+
+if sys.platform == "win32":
+    import ctypes
+    import os
+    from gi.repository import GObject, Gtk
+
+    def _install_titlebar_theme():
+        DWMWA_USE_IMMERSIVE_DARK_MODE = 20
+        _pid = os.getpid()
+        _user32 = ctypes.windll.user32
+        _dwmapi = ctypes.windll.dwmapi
+        _ENUM_CB = ctypes.WINFUNCTYPE(ctypes.c_bool, ctypes.c_void_p, ctypes.c_void_p)
+
+        settings = Gtk.Settings.get_default()
+        if not settings:
+            return
+
+        def _is_dark():
+            return bool(settings.get_property("gtk-application-prefer-dark-theme"))
+
+        def _apply(dark: bool):
+            val = ctypes.c_int(int(dark))
+            def _cb(hwnd, _):
+                pid = ctypes.c_ulong()
+                _user32.GetWindowThreadProcessId(hwnd, ctypes.byref(pid))
+                if pid.value == _pid:
+                    _dwmapi.DwmSetWindowAttribute(
+                        hwnd, DWMWA_USE_IMMERSIVE_DARK_MODE,
+                        ctypes.byref(val), ctypes.sizeof(val)
+                    )
+                return True
+            _user32.EnumWindows(_ENUM_CB(_cb), 0)
+
+        # Live toggle: fires synchronously inside _toggle_dark
+        settings.connect(
+            "notify::gtk-application-prefer-dark-theme",
+            lambda s, _: _apply(_is_dark()),
+        )
+
+        # New windows realized while dark mode is already active
+        def _on_realize(window):
+            if _is_dark():
+                _apply(True)
+            return True  # returning False would unregister the hook
+
+        GObject.add_emission_hook(Gtk.Window, "realize", _on_realize)
+
+    _install_titlebar_theme()
+
 # https://docs.python.org/3/whatsnew/3.8.html#bpo-36085-whatsnew
 if hasattr(os, "add_dll_directory"):
     os.add_dll_directory(os.path.dirname(sys.executable))
