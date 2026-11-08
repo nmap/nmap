@@ -79,6 +79,7 @@ Options taking a time assume seconds\&. Append \*(Aqms\*(Aq for milliseconds,
       \-\-send\-only            Only send data, ignoring received; quit on EOF
       \-\-recv\-only            Only receive data, never send anything
       \-\-no\-shutdown          Continue half\-duplex when receiving EOF on stdin
+      \-\-ignore\-sigint        Do not terminate upon receiving SIGINT/Ctrl+C
   \-q <time>                  After EOF on stdin, wait <time> then quit\&.
       \-\-allow                Allow only given hosts to connect to Ncat
       \-\-allowfile            A file of hosts allowed to connect to Ncat
@@ -539,6 +540,11 @@ If this option is passed, then Ncat will only send data and will ignore anything
 \fB\-\-no\-shutdown\fR (Do not shutdown into half\-duplex mode)
 .RS 4
 If this option is passed, Ncat will not invoke shutdown on a socket after seeing EOF on stdin\&. This is provided for backward\-compatibility with OpenBSD netcat, which exhibits this behavior when executed with its \*(Aq\-d\*(Aq option\&.
+.RE
+.PP
+\fB\-\-ignore\-sigint\fR (Ignore SIGINT / Ctrl+C)
+.RS 4
+If this option is passed, Ncat will ignore the SIGINT signal (Ctrl+C on terminal or console)\&. This is particularly useful when Ncat is used as an SSH \fBProxyCommand\fR, preventing Ctrl+C during remote interactive sessions from terminating the proxy connection\&.
 .RE
 .PP
 \fB\-n\fR, \fB\-\-nodns\fR (Do not resolve hostnames)

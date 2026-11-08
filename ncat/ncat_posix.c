@@ -438,6 +438,13 @@ void set_lf_mode(void)
     /* Nothing needed. */
 }
 
+void set_sigint_handler(void)
+{
+    if (o.ignore_sigint) {
+        Signal(SIGINT, SIG_IGN);
+    }
+}
+
 #ifdef HAVE_OPENSSL
 
 #define NCAT_CA_CERTS_PATH (NCAT_DATADIR "/" NCAT_CA_CERTS_FILE)

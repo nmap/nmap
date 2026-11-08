@@ -82,6 +82,23 @@ void set_lf_mode(void)
     _setmode(STDOUT_FILENO, _O_BINARY);
 }
 
+static BOOL WINAPI console_ctrl_handler(DWORD ctrl_type)
+{
+    if (ctrl_type == CTRL_C_EVENT || ctrl_type == CTRL_BREAK_EVENT) {
+        if (o.debug)
+            logdebug("Ignored Console Ctrl Event %lu\n", (unsigned long) ctrl_type);
+        return TRUE;
+    }
+    return FALSE;
+}
+
+void set_sigint_handler(void)
+{
+    if (o.ignore_sigint) {
+        SetConsoleCtrlHandler(console_ctrl_handler, TRUE);
+    }
+}
+
 #ifdef HAVE_OPENSSL
 
 int ssl_load_default_ca_certs(SSL_CTX *ctx)
