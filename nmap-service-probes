@@ -6494,7 +6494,8 @@ match cassandra-native m|^.\0\0\0\0\0\0\0.\0\0\0\n\0[eE]Invalid or unsupported p
 match cassandra-native m|^.\x10\0\0\0\0\0\0.\0\0\0\n\0\\Invalid or unsupported protocol version \(71\); supported versions are \((\d+[^)]+)\)| p/Apache Cassandra/ v/3.10 or later/ i/native protocol versions $1/ cpe:/a:apache:cassandra:3/
 
 match clickhouse m|^\x02e\0\0\0\x10DB::NetException/DB::NetException: Unexpected packet from client..0\. clickhouse-server\(StackTrace::StackTrace\(\)\+0x16\) \[0x[0-9a-f]+\]\n| p/ClickHouse DBMS/ cpe:/a:yandex:clickhouse/
-softmatch clickhouse m|^HTTP/1\.0 400 Bad Request\r\n\r\nPort \d+ is for clickhouse-client program\.\r\nYou must use port \d+ for HTTP\.\r\n| p/ClickHouse DBMS/ cpe:/a:yandex:clickhouse/
+softmatch clickhouse m|^HTTP/1\.0 400 Bad Request\r\n\r\nPort \d+ is for clickhouse-client program\.?\r\nYou must use port \d+ for HTTP\.\r\n| p/ClickHouse DBMS/ cpe:/a:yandex:clickhouse/
+softmatch clickhouse m|^HTTP/1\.0 200 OK\r\n(?:[^\r\n]*\r\n)*?X-ClickHouse-Summary: \{.*?\r\n(?:[^\r\n]*\r\n)*?\r\nOk\.\n| p/ClickHouse DBMS/ cpe:/a:yandex:clickhouse/
 
 match cryptonote m|^HTTP/1\.0 200 OK\nContent-Type: text/plain\nContent-Length: 20\n\nmining server online| p/node-cryptonote-pool CryptoNote miner/ i/Node.js/ cpe:/a:nodejs:node.js/
 match csta m|^<HTML>\r\n<HEAD>\r\n<TITLE>CSTA-Mono Server Home Page </TITLE>\r\n| p/Alcatel OmniPCX Enterprise/ d/PBX/ cpe:/a:alcatel-lucent:omnipcx/
