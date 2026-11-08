@@ -133,6 +133,7 @@ local SMTP_CMD = {
     success = {
       [250] = "Requested mail action okay, completed",
       [251] = "User not local; will forward to <forward-path>",
+      [252] = "Cannot verify the user, but it will try to deliver the message anyway",
     },
     errors = {
       [500] = "Syntax error, command unrecognised",
