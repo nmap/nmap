@@ -1,3 +1,4 @@
+CPP = @CPP@
 # Extract the version string from nmap.h.
 export NMAP_VERSION := $(shell echo NMAP_VERSION | $(CPP) -imacros nmap.h - | sed -n '$$s/[" ]//g;$$p')
 NMAP_PLATFORM=@host@
