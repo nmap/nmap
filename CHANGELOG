@@ -1,5 +1,9 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE][GH#3567][GH#3575] TLS 1.2 connections were failing with some servers
+  when a script offered modern curves. This was particularly impacting results
+  from ssl-enum-ciphers. [Alexandre Quercia, nnposter]
+
 o [GH#3565][GH#3573] Fixed an issue with addrset: When a CIDR spec was added
   after a narrower one, its prefix exactly the common prefix of the two, the
   addrset trie did not cover the whole broader range. [Dennys Kaluzny Pereira]

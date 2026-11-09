@@ -518,14 +518,6 @@ end
 local function base_extensions(host)
   local tlsname = tls.servername(host)
   return {
-    -- Claim to support common elliptic curves
-    -- TODO: Determine desire to comply with RFC 4492, section 4:
-    --       "The client MUST NOT include these extensions in the ClientHello
-    --       message if it does not propose any ECC cipher suites."
-    --       OTOH, OpenSSL 1.1.1 sends them always so it is probably safe.
-    ["elliptic_curves"] = tls.EXTENSION_HELPERS["elliptic_curves"](tls.DEFAULT_ELLIPTIC_CURVES),
-    -- Some servers require Supported Point Formats Extension
-    ["ec_point_formats"] = tls.EXTENSION_HELPERS["ec_point_formats"]({"uncompressed"}),
     -- Enable SNI if a server name is available
     ["server_name"] = tlsname and tls.EXTENSION_HELPERS["server_name"](tlsname),
   }
@@ -605,6 +597,17 @@ local function get_hello_table(host, protocol)
   if (tls.PROTOCOLS[protocol] >= tls13proto) then
     t.extensions.supported_versions = tls13supported
   end
+
+  -- Claim to support common elliptic curves
+  -- TODO: Determine desire to comply with RFC 4492, section 4:
+  --       "The client MUST NOT include these extensions in the ClientHello
+  --       message if it does not propose any ECC cipher suites."
+  --       OTOH, OpenSSL 1.1.1 sends them always so it is probably safe.
+  local curves = tls.PROTOCOLS[protocol] < tls13proto and tls.DEFAULT_TLS12_ELLIPTIC_CURVES  -- non-TLSv1.3
+                 or tls.DEFAULT_ELLIPTIC_CURVES
+  t.extensions.elliptic_curves = tls.EXTENSION_HELPERS["elliptic_curves"](curves)
+  -- Some servers require Supported Point Formats Extension
+  t.extensions.ec_point_formats = tls.EXTENSION_HELPERS["ec_point_formats"]({"uncompressed"})
 
   return t
 end
