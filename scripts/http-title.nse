@@ -58,7 +58,7 @@ action = function(host, port)
   local display_title = title
 
   if display_title and display_title ~= "" then
-    display_title = string.gsub(display_title , "[\n\r\t]", "")
+    display_title = string.gsub(display_title, "%s+", " ")
     if #display_title > 65 then
       display_title = string.sub(display_title, 1, 62) .. "..."
     end
