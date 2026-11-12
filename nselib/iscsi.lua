@@ -25,6 +25,12 @@
 -- ** The purpose of the class is to provide easy access to common iSCSI task
 --
 --
+-- @args iscsi.initiator-name The iSCSI qualified name (IQN) announced as the
+--       <code>InitiatorName</code> login key. Targets that only accept
+--       initiators matching a locally configured name reject the built-in
+--       default, which makes discovery and login fail with no output.
+--       Defaults to <code>iqn.1991-05.com.microsoft:nmap_iscsi_probe</code>.
+--
 -- @author Patrik Karlsson <patrik@cqure.net>
 -- @copyright Same as Nmap--See https://nmap.org/book/man-legal.html
 
@@ -43,6 +49,27 @@ local string = require "string"
 local stringaux = require "stringaux"
 local table = require "table"
 _ENV = stdnse.module("iscsi", stdnse.seeall)
+
+-- Script argument used to override the announced initiator name.
+local INITIATOR_NAME_ARG = "iscsi.initiator-name"
+
+-- IQN announced when the operator does not supply one.
+local DEFAULT_INITIATOR_NAME = "iqn.1991-05.com.microsoft:nmap_iscsi_probe"
+
+--- Returns the iSCSI qualified name (IQN) to announce as the
+-- <code>InitiatorName</code> login key.
+--
+-- @return string the IQN given through the <code>iscsi.initiator-name</code>
+--         script argument, or the built-in default if there is none.
+local function get_initiator_name()
+  local name = stdnse.get_script_args(INITIATOR_NAME_ARG)
+  -- An argument passed as a bare flag rather than as key=value comes back as a
+  -- number, which is not a usable IQN.
+  if type(name) ~= "string" then
+    return DEFAULT_INITIATOR_NAME
+  end
+  return name
+end
 
 
 Packet = {
@@ -579,7 +606,7 @@ Helper = {
 
     p:setTransit(true)
     p:setNSG(Packet.LoginRequest.NSG.LoginOperationalNegotiation)
-    p.kvp:add( "InitiatorName", "iqn.1991-05.com.microsoft:nmap_iscsi_probe" )
+    p.kvp:add( "InitiatorName", get_initiator_name() )
     p.kvp:add( "SessionType", "Discovery" )
     p.kvp:add( "AuthMethod", "None" )
 
@@ -657,7 +684,7 @@ Helper = {
 
     p:setTransit(true)
     p:setNSG(Packet.LoginRequest.NSG.LoginOperationalNegotiation)
-    p.kvp:add( "InitiatorName", "iqn.1991-05.com.microsoft:nmap_iscsi_probe" )
+    p.kvp:add( "InitiatorName", get_initiator_name() )
     p.kvp:add( "SessionType", "Normal" )
     p.kvp:add( "TargetName", target_name )
     p.kvp:add( "AuthMethod", auth_method )
@@ -723,7 +750,59 @@ Helper = {
 }
 
 
+local unittest = require "unittest"
+if not unittest.testing() then
+  return _ENV
+end
 
+test_suite = unittest.TestSuite:new()
 
+do
+  local custom_iqn = "iqn.2005-03.org.open-iscsi:nmap"
+  local target_iqn = "iqn.2005-03.org.open-iscsi:target"
+
+  -- Runs a Helper method against a Comm stub that captures the request instead
+  -- of sending it, and returns the InitiatorName key it carried.
+  local function sent_initiator_name(method, ...)
+    local captured
+    local helper = Helper:new()
+    helper.comm = {
+      exchange = function(_, packet)
+        captured = packet
+        return false, "not sent"
+      end
+    }
+    helper[method](helper, ...)
+    return captured.kvp:get("InitiatorName")[1]
+  end
+
+  -- stdnse.get_script_args() also honours the bare suffix of an argument name,
+  -- so both spellings are isolated while fn runs and put back afterwards,
+  -- whether fn returns or raises.
+  local SHORT_ARG = string.match(INITIATOR_NAME_ARG, "[^.]+$")
+
+  local function with_arg(value, fn, ...)
+    local args = nmap.registry.args
+    local saved_long, saved_short = args[INITIATOR_NAME_ARG], args[SHORT_ARG]
+    args[INITIATOR_NAME_ARG], args[SHORT_ARG] = value, nil
+    local ok, result = pcall(fn, ...)
+    args[INITIATOR_NAME_ARG], args[SHORT_ARG] = saved_long, saved_short
+    assert(ok, result)
+    return result
+  end
+
+  test_suite:add_test(unittest.equal(
+      with_arg(nil, sent_initiator_name, "discoverTargets"), DEFAULT_INITIATOR_NAME),
+    "discovery announces the default IQN when no script-arg is given")
+  test_suite:add_test(unittest.equal(
+      with_arg(custom_iqn, sent_initiator_name, "discoverTargets"), custom_iqn),
+    "discovery announces the IQN given through " .. INITIATOR_NAME_ARG)
+  test_suite:add_test(unittest.equal(
+      with_arg(custom_iqn, sent_initiator_name, "login", target_iqn), custom_iqn),
+    "login announces the IQN given through " .. INITIATOR_NAME_ARG)
+  test_suite:add_test(unittest.equal(
+      with_arg(1, sent_initiator_name, "discoverTargets"), DEFAULT_INITIATOR_NAME),
+    INITIATOR_NAME_ARG .. " passed as a bare flag falls back to the default IQN")
+end
 
 return _ENV;
