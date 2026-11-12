@@ -2137,6 +2137,16 @@ static void startNextProbe(nsock_pool nsp, nsock_iod nsi, ServiceGroup *SG,
         fatal("Failed to allocate Nsock I/O descriptor in %s()", __func__);
       }
       if (0 == svc->target->SourceSockAddr(&ss, &ss_len)) {
+        /* The port in the source address belongs to the raw packet scans.
+           Reusing it for every connect() socket means a second probe to the
+           same target reuses the same 4-tuple as the first, which is still in
+           TIME_WAIT: connect() then fails with EADDRNOTAVAIL and service
+           detection for the port is aborted. Bind the source address only and
+           let the kernel pick the source port. */
+        if (ss.ss_family == AF_INET)
+          ((struct sockaddr_in *) &ss)->sin_port = 0;
+        else if (ss.ss_family == AF_INET6)
+          ((struct sockaddr_in6 *) &ss)->sin6_port = 0;
         nsock_iod_set_localaddr(svc->niod, &ss, ss_len);
       }
       if (o.ipoptionslen)
