@@ -344,6 +344,10 @@ fetch_host_key = function( host, port, host_key_algo )
     key_type = host_key_algo
     algorithm = "ED25519"
     bits = "256"
+  elseif host_key_algo == "ssh-mldsa44-ed25519" then
+    key_type = host_key_algo
+    algorithm = "MLDSA44-ED25519"
+    bits = "512"
   else
     stdnse.debug1("Unsupported host key algorithm: %s", host_key_algo)
   end

@@ -267,7 +267,7 @@ end
 
 local HOST_KEY_ALGOS = {"ssh-dss", "ssh-rsa", "rsa-sha2-256", "rsa-sha2-512",
   "ecdsa-sha2-nistp256", "ecdsa-sha2-nistp384", "ecdsa-sha2-nistp521",
-  "ssh-ed25519"}
+  "ssh-ed25519", "ssh-mldsa44-ed25519"}
 
 local function fetch_host_keys (host, port, algos)
   algos = algos or HOST_KEY_ALGOS
