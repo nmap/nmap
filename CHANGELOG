@@ -13,6 +13,17 @@ o [GH#3565][GH#3573] Fixed an issue with addrset: When a CIDR spec was added
   after a narrower one, its prefix exactly the common prefix of the two, the
   addrset trie did not cover the whole broader range. [Dennys Kaluzny Pereira]
 
+o [Windows][GH#149] The "Network Performance Improvements" installer option
+  and nmap_performance.reg no longer set MaxUserPort, and instead delete any
+  existing MaxUserPort value, whoever set it, whenever that option is
+  selected. The value raised the ephemeral port limit on Windows 2000/XP/2003,
+  none of which Nmap has supported since 7.25BETA1. On Windows Vista and later
+  it instead widens the TCP dynamic port range from the default 49152-65535 to
+  1024-65534, which fragments the port space and breaks software that reserves
+  contiguous port ranges, such as WSL2 mirrored networking
+  (microsoft/WSL#13454). The TIME_WAIT reduction (TcpTimedWaitDelay,
+  StrictTimeWaitSeqCheck) is unchanged. [yuu61]
+
 Nmap 7.993 [2026-10-23]
 
 o [NSE][GH#3557] Fixed a regression which prevented most scripts in the version
