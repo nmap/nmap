@@ -9,6 +9,8 @@ local string = require "string"
 local nmap = require "nmap"
 local stdnse = require "stdnse"
 local openssl = stdnse.silent_require "openssl"
+local stringaux = require "stringaux"
+local tableaux = require "tableaux"
 _ENV = stdnse.module("ssh2", stdnse.seeall)
 
 -- table holding transport layer functions
@@ -154,11 +156,11 @@ end
 --- Fetch an SSH-2 host key.
 -- @param host Nmap host table.
 -- @param port Nmap port table.
--- @param key_type key type to fetch.
+-- @param host_key_algo host key algorithm to use for fetching the key.
 -- @return A table with the following fields: <code>key</code>,
 -- <code>key_type</code>, <code>fp_input</code>, <code>bits</code>,
 -- <code>full_key</code>, <code>algorithm</code>, and <code>fingerprint</code>.
-fetch_host_key = function( host, port, key_type )
+fetch_host_key = function( host, port, host_key_algo )
   local socket = nmap.new_socket()
   local status
 
@@ -215,7 +217,7 @@ fetch_host_key = function( host, port, key_type )
   if not status then socket:close(); return end
 
   local packet = transport.build( transport.kex_init( {
-        host_key_algorithms=key_type,
+        host_key_algorithms=host_key_algo,
         kex_algorithms="diffie-hellman-group1-sha1,\z
                         diffie-hellman-group14-sha1,\z
                         diffie-hellman-group14-sha256,\z
@@ -231,9 +233,8 @@ fetch_host_key = function( host, port, key_type )
   if not status then socket:close(); return end
   kex_init = transport.parse_kex_init( transport.payload( kex_init ) )
 
-  if not tostring(kex_init.server_host_key_algorithms):find( key_type, 1, true ) then
-    -- server does not support host key type
-    stdnse.debug2("Hostkey type '%s' not supported by server.", key_type )
+  if not tableaux.contains(stringaux.strsplit(",", kex_init.server_host_key_algorithms or ""), host_key_algo) then
+    stdnse.debug2("Host key algorithm '%s' not supported by server.", host_key_algo)
     return
   end
 
@@ -312,48 +313,49 @@ fetch_host_key = function( host, port, key_type )
   status, kexdh_reply = transport.receive_packet( socket )
   if not status then socket:close(); return end
   kexdh_reply = transport.payload( kexdh_reply )
+  socket:close()
   -- check for proper msg code
   local msg_code = kexdh_reply:byte(1)
 
   if ( kexdh_gex_used and msg_code ~= SSH2.SSH_MSG_KEX_DH_GEX_REPLY )
     or ( not kexdh_gex_used and msg_code ~= SSH2.SSH_MSG_KEXDH_REPLY )
   then
-    socket:close()
     return
   end
 
-  local bits, algorithm
+  local key_type, bits, algorithm
   local _, public_host_key = string.unpack( ">Bs4", kexdh_reply )
 
-  if key_type == 'ssh-dss' then
+  if host_key_algo == "ssh-dss" then
+    key_type = host_key_algo
     algorithm = "DSA"
     local _, p = string.unpack( ">s4s4", public_host_key )
     bits = openssl.bignum_bin2bn( p ):num_bits()
-  elseif key_type == 'ssh-rsa' then
+  elseif host_key_algo == "ssh-rsa" or host_key_algo:find("^rsa%-sha2%-%d+$") then
+    key_type = "ssh-rsa"
     algorithm = "RSA"
     local _, _, n = string.unpack( ">s4s4s4", public_host_key )
     bits = openssl.bignum_bin2bn( n ):num_bits()
-  elseif key_type == 'ecdsa-sha2-nistp256' then
+  elseif host_key_algo:find("^ecdsa%-sha2%-nistp%d+$") then
+    key_type = host_key_algo
     algorithm = "ECDSA"
-    bits = "256"
-  elseif key_type == 'ecdsa-sha2-nistp384' then
-    algorithm = "ECDSA"
-    bits = "384"
-  elseif key_type == 'ecdsa-sha2-nistp521' then
-    algorithm = "ECDSA"
-    bits = "521"
-  elseif key_type == 'ssh-ed25519' then
+    bits = host_key_algo:match("%d+$")
+  elseif host_key_algo == "ssh-ed25519" then
+    key_type = host_key_algo
     algorithm = "ED25519"
     bits = "256"
   else
-    stdnse.debug1("Unsupported key type: %s", key_type )
+    stdnse.debug1("Unsupported host key algorithm: %s", host_key_algo)
   end
 
-  socket:close()
-  return { key=base64.enc(public_host_key), key_type=key_type, fp_input=public_host_key, bits=bits,
+  return { key=base64.enc(public_host_key),
+           key_type=key_type,
+           fp_input=public_host_key,
+           bits=bits,
            full_key=('%s %s'):format(key_type,base64.enc(public_host_key)),
-           algorithm=algorithm, fingerprint=openssl.md5(public_host_key),
-           fp_sha256=openssl.digest("sha256",public_host_key)}
+           algorithm=algorithm,
+           fingerprint=openssl.md5(public_host_key),
+           fp_sha256=openssl.digest("sha256", public_host_key)}
 end
 
 -- constants

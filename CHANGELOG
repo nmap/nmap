@@ -1,5 +1,10 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] The ssh2 library was conflating host key (signature) algorithms with
+  host key types. One of the effects was that scripts, such as ssh-hostkey,
+  were not detecting RSA keys unless the target supported legacy ssh-rsa host
+  key algorithm. [nnposter]
+
 o [NSE][GH#3567][GH#3575] TLS 1.2 connections were failing with some servers
   when a script offered modern curves. This was particularly impacting results
   from ssl-enum-ciphers. [Alexandre Quercia, nnposter]

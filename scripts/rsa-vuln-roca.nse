@@ -134,6 +134,8 @@ end
 
 local function ssh_get_modulus(host, port)
   local key = ssh2.fetch_host_key( host, port, "ssh-rsa" )
+           or ssh2.fetch_host_key( host, port, "rsa-sha2-256" )
+           or ssh2.fetch_host_key( host, port, "rsa-sha2-512" )
   if not key then
     stdnse.debug1("No RSA hostkey, not vulnerable to ROCA")
     return nil

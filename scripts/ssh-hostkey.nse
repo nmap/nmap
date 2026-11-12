@@ -156,7 +156,7 @@ end
 --- and if there is, compare the keys
 local function check_keys(host, keys, f)
   local keys_found = {}
-  for _,k in ipairs(keys) do
+  for _,k in pairs(keys) do
     table.insert(keys_found, k.full_key)
   end
   local keys_from_file = {}
@@ -265,6 +265,29 @@ local function check_keys(host, keys, f)
   return out
 end
 
+local HOST_KEY_ALGOS = {"ssh-dss", "ssh-rsa", "rsa-sha2-256", "rsa-sha2-512",
+  "ecdsa-sha2-nistp256", "ecdsa-sha2-nistp384", "ecdsa-sha2-nistp521",
+  "ssh-ed25519"}
+
+local function fetch_host_keys (host, port, algos)
+  algos = algos or HOST_KEY_ALGOS
+  local keys = stdnse.output_table()
+
+  local ssh1key = ssh1.fetch_host_key(host, port)
+  if ssh1key then
+    keys[ssh1key.fingerprint] = ssh1key
+  end
+
+  for _, algo in ipairs(algos) do
+    local key = ssh2.fetch_host_key(host, port, algo)
+    if key and not keys[key.fingerprint] then
+      keys[key.fingerprint] = key
+    end
+  end
+
+  return keys
+end
+
 --- gather host keys
 --@param host nmap host table
 --@param port nmap port table of the currently probed port
@@ -283,8 +306,6 @@ local function portaction(host, port)
     sock:close()
   end
   local output_tab = {}
-  local keys = {}
-  local key
   local format = nmap.registry.args.ssh_hostkey or "md5"
   local format_bits = {
     md5 = 1,
@@ -300,32 +321,12 @@ local function portaction(host, port)
     format_mask = format_mask | (format_bits[word] or 0)
   end
 
-  key = ssh1.fetch_host_key( host, port )
-  if key then table.insert( keys, key ) end
-
-  key = ssh2.fetch_host_key( host, port, "ssh-dss" )
-  if key then table.insert( keys, key ) end
-
-  key = ssh2.fetch_host_key( host, port, "ssh-rsa" )
-  if key then table.insert( keys, key ) end
-
-  key = ssh2.fetch_host_key( host, port, "ecdsa-sha2-nistp256" )
-  if key then table.insert( keys, key ) end
-
-  key = ssh2.fetch_host_key( host, port, "ecdsa-sha2-nistp384" )
-  if key then table.insert( keys, key ) end
-
-  key = ssh2.fetch_host_key( host, port, "ecdsa-sha2-nistp521" )
-  if key then table.insert( keys, key ) end
-
-  key = ssh2.fetch_host_key( host, port, "ssh-ed25519" )
-  if key then table.insert( keys, key ) end
-
+  local keys = fetch_host_keys(host, port)
   if #keys == 0 then
     return nil
   end
 
-  for _, key in ipairs( keys ) do
+  for _, key in pairs( keys ) do
     add_key_to_registry( host, key )
     local output = {}
     local out = {
