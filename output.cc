@@ -1271,12 +1271,21 @@ static void write_xml_initial_hostinfo(const Target *currenths,
   print_MAC_XML_Info(currenths);
   /* Output a hostnames element whenever we have a name to write or the target
      is up. */
-  if (currenths->TargetName() != NULL || *currenths->HostName() || strcmp(status, "up") == 0) {
+  if (currenths->TargetName() != NULL || *currenths->HostName() || strcmp(status, "up") == 0 || !currenths->getTargetNameAliases().empty()) {
     xml_start_tag("hostnames");
     xml_newline();
     if (currenths->TargetName() != NULL) {
       xml_open_start_tag("hostname");
       xml_attribute("name", "%s", currenths->TargetName());
+      xml_attribute("type", "user");
+      xml_close_empty_tag();
+      xml_newline();
+    }
+    /* Print additional names collected when --unique suppressed duplicate scanning. */
+    for (std::vector<std::string>::const_iterator alias = currenths->getTargetNameAliases().begin();
+         alias != currenths->getTargetNameAliases().end(); ++alias) {
+      xml_open_start_tag("hostname");
+      xml_attribute("name", "%s", alias->c_str());
       xml_attribute("type", "user");
       xml_close_empty_tag();
       xml_newline();
