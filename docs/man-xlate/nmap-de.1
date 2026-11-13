@@ -130,7 +130,7 @@ TARGET SPECIFICATION:
   \-\-excludefile <exclude_file>: Exclude list from file
 HOST DISCOVERY:
   \-sL: List Scan \- simply list targets to scan
-  \-sP: Ping Scan \- go no further than determining if host is online
+  \-sn: Ping Scan \- disable port scan
   \-PN: Treat all hosts as online \-\- skip host discovery
   \-PS/PA/PU[portlist]: TCP SYN/ACK or UDP discovery to given ports
   \-PE/PP/PM: ICMP echo, timestamp, and netmask request discovery probes
@@ -222,7 +222,7 @@ MISC:
   \-h: Print this help summary page\&.
 EXAMPLES:
   nmap \-v \-A scanme\&.nmap\&.org
-  nmap \-v \-sP 192\&.168\&.0\&.0/16 10\&.0\&.0\&.0/8
+  nmap \-v \-sn 192\&.168\&.0\&.0/16 10\&.0\&.0\&.0/8
   nmap \-v \-iR 10000 \-PN \-p 80
 SEE THE MAN PAGE (https://nmap\&.org/book/man\&.html) FOR MORE OPTIONS AND EXAMPLES
 .fi
@@ -313,9 +313,9 @@ bei Zielen in einem lokalen Ethernet\-Netzwerk standardmäßig erfolgt, selbst d
 \fB\-P*\fR\-Optionen angeben, weil sie fast immer schneller und effizienter ist\&.
 .PP
 Standardmäßig führt Nmap eine Host\-Erkennung und dann einen Port\-Scan auf jedem Host aus, den es als online erkennt\&. Das gilt auch dann, wenn Sie nicht standardmäßige Host\-Erkennungstypen wie UDP\-Testpakete (\fB\-PU\fR) angeben\&. Lesen Sie über die Option
-\fB\-sP\fR
+\fB\-sn\fR
 nach, um zu lernen, wie man nur eine Host\-Erkennung durchführt, oder über
-\fB\-PN\fR, um die Host\-Erkennung zu überspringen und einen Port\-Scan aller Zielhosts durchzuführen\&. Folgende Optionen steuern die Host\-Erkennung:
+\fB\-Pn\fR, um die Host\-Erkennung zu überspringen und einen Port\-Scan aller Zielhosts durchzuführen\&. Folgende Optionen steuern die Host\-Erkennung:
 .PP
 \fB\-sL\fR (List\-Scan)
 .RS 4
@@ -330,22 +330,27 @@ Da die Idee einfach die ist, eine Liste der Zielhosts auszugeben, lassen sich Op
 weiter\&.
 .RE
 .PP
-\fB\-sP\fR (Ping\-Scan)
+\fB\-sn\fR (Kein Port\-Scan)
 .RS 4
-Diese Option verlangt, dass Nmap nur einen Ping\-Scan (Host\-Erkennung) durchführt und dann die verfügbaren Hosts ausgibt, die auf den Scan geantwortet haben\&. Darüber hinaus werden keine weiteren Tests (z\&.B\&. Port\-Scans oder Betriebssystemerkennung) durchgeführt, außer bei Host\-Scripts mit der Nmap Scripting Engine und traceroute\-Tests, sofern Sie diese Optionen angegeben haben\&. Das ist eine Stufe aufdringlicher als ein List\-Scan und kann oft für dieselben Zwecke benutzt werden\&. Sie führt schnell eine schwache Aufklärung des Zielnetzwerks durch, ohne viel Aufmerksamkeit zu erregen\&. Für Angreifer ist es wertvoller, zu wissen, wie viele Hosts verfügbar sind, als die Liste aller IPs und Hostnamen aus einem List\-Scan zu kennen\&.
+Diese Option verlangt, dass Nmap nach der Host\-Erkennung keinen Port\-Scan durchführt und nur die verfügbaren Hosts ausgibt, die auf die Host\-Erkennungsprobes geantwortet haben\&. Dies wird oft als \(lqPing\-Scan\(rq bezeichnet, aber Sie können auch traceroute\-Tests und NSE\-Host\-Scripts anfordern\&. Das ist eine Stufe aufdringlicher als ein List\-Scan und kann oft für dieselben Zwecke benutzt werden\&. Sie führt schnell eine schwache Aufklärung des Zielnetzwerks durch, ohne viel Aufmerksamkeit zu erregen\&. Für Angreifer ist es wertvoller, zu wissen, wie viele Hosts verfügbar sind, als die Liste aller IPs und Hostnamen aus einem List\-Scan zu kennen\&.
 .sp
 Für Systemadministratoren ist diese Option oft ebenfalls wertvoll\&. Mit ihr kann man sehr leicht die verfügbaren Rechner in einem Netzwerk zählen oder die Server\-Verfügbarkeit überwachen\&. So etwas nennt man oft auch einen Ping\-Sweep, und es ist zuverlässiger als ein Pinging auf die Broadcast\-Adresse, weil viele Hosts auf Broadcast\-Anfragen nicht antworten\&.
 .sp
-Die Option
-\fB\-sP\fR
-sendet standardmäßig einen ICMP Echo\-Request und ein TCP\-ACK\-Paket an Port 80\&. Bei Ausführung ohne Sonderrechte wird nur ein SYN\-Paket (mit einem
-\fBconnect\fR\-Aufruf) an Port 80 an das Ziel gesendet\&. Wenn ein Benutzer mit Sonderrechten versucht, Ziele in einem lokalen Ethernet\-Netzwerk zu scannen, werden ARP\-Requests verwendet, es sei denn, die Option
+Die standardmäßige Host\-Erkennung mit
+\fB\-sn\fR
+besteht aus einem ICMP Echo\-Request, einem TCP\-SYN\-Paket an Port 443, einem TCP\-ACK\-Paket an Port 80 und einem ICMP\-Zeitstempel\-Request\&. Bei Ausführung ohne Sonderrechte werden nur SYN\-Pakete (mit einem
+\fBconnect\fR\-Aufruf) an Port 80 und 443 an das Ziel gesendet\&. Wenn ein Benutzer mit Sonderrechten versucht, Ziele in einem lokalen Ethernet\-Netzwerk zu scannen, werden ARP\-Requests verwendet, es sei denn, die Option
 \fB\-\-send\-ip\fR
 wird angegeben\&. Die Option
-\fB\-sP\fR
+\fB\-sn\fR
 kann mit allen Erkennungsmethoden (die Optionen
-\fB\-P*\fR, außer
-\fB\-PN\fR) kombiniert werden, um eine höhere Flexibilität zu erhalten\&. Falls zwischen dem Ausgangs\-Host, auf dem Nmap läuft, und dem Zielnetzwerk strenge Firewalls installiert sind, empfehlen sich diese fortgeschrittenen Methoden\&. Ansonsten könnten Hosts übersehen werden, wenn die Firewall Testanfragen oder Antworten darauf verwirft
+\fB\-P*\fR) kombiniert werden, um eine höhere Flexibilität zu erhalten\&. Falls zwischen dem Ausgangs\-Host, auf dem Nmap läuft, und dem Zielnetzwerk strenge Firewalls installiert sind, empfehlen sich diese fortgeschrittenen Methoden\&. Ansonsten könnten Hosts übersehen werden, wenn die Firewall Testanfragen oder Antworten darauf verwirft\&.
+.sp
+In früheren Versionen von Nmap war
+\fB\-sn\fR
+als
+\fB\-sP\fR
+bekannt\&.
 .RE
 .PP
 \fB\-PN\fR (Ping abschalten)
@@ -1160,7 +1165,7 @@ eine maximale Gruppengröße angegeben wird, wird Nmap diese nie überschreiten\
 \fB\-\-min\-hostgroup\fR
 eine minimale Größe angeben, versucht Nmap, die Gruppengröße oberhalb dieses Wertes zu belassen\&. Falls es auf einer gegebenen Schnittstelle nicht genug Zielhosts gibt, um dieses Minimum zu erfüllen, muss Nmap einen kleineren Wert benutzen\&. Es können auch beide gesetzt werden, um die Gruppengröße in einem bestimmten Bereich zu belassen, aber das ist selten gewünscht\&.
 .sp
-Diese Optionen haben während der Host\-Entdeckungsphase eines Scans keinen Effekt\&. Dazu gehören einfache Ping\-Scans (\fB\-sP\fR)\&. Die Host\-Entdeckung funktioniert immer in großen Gruppen von Hosts, um die Geschwindigkeit und Genauigkeit zu verbessern\&.
+Diese Optionen haben während der Host\-Entdeckungsphase eines Scans keinen Effekt\&. Dazu gehören einfache Ping\-Scans (\fB\-sn\fR)\&. Die Host\-Entdeckung funktioniert immer in großen Gruppen von Hosts, um die Geschwindigkeit und Genauigkeit zu verbessern\&.
 .sp
 Der Hauptnutzen dieser Optionen liegt darin, eine hohe minimale Gruppengröße anzugeben, damit der gesamte Scan schneller läuft\&. Häufig wird 256 gewählt, um ein Netzwerk in Brocken der Größe von Klasse C zu scannen\&. Bei einem Scan mit vielen Ports bringt eine größere Zahl vermutlich keine Vorteile\&. Bei Scans über nur wenige Ports können Gruppengrößen von 2048 oder mehr hilfreich sein\&.
 .RE

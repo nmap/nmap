@@ -161,7 +161,7 @@ TARGET SPECIFICATION:
   --excludefile &lt;exclude_file&gt;: Exclude list from file
 HOST DISCOVERY:
   -sL: List Scan - simply list targets to scan
-  -sP: Ping Scan - go no further than determining if host is online
+  -sn: Ping Scan - disable port scan
   -PN: Treat all hosts as online -- skip host discovery
   -PS/PA/PU[portlist]: TCP SYN/ACK or UDP discovery to given ports
   -PE/PP/PM: ICMP echo, timestamp, and netmask request discovery probes
@@ -253,7 +253,7 @@ MISC:
   -h: Print this help summary page.
 EXAMPLES:
   nmap -v -A scanme.nmap.org
-  nmap -v -sP 192.168.0.0/16 10.0.0.0/8
+  nmap -v -sn 192.168.0.0/16 10.0.0.0/8
   nmap -v -iR 10000 -PN -p 80
 SEE THE MAN PAGE (https://nmap.org/book/man.html) FOR MORE OPTIONS AND EXAMPLES
 </literallayout>
@@ -479,8 +479,8 @@ weil sie fast immer schneller und effizienter ist.</para>
 Port-Scan auf jedem Host aus, den es als online erkennt. Das gilt auch 
 dann, wenn Sie nicht standardmäßige Host-Erkennungstypen wie UDP-Testpakete 
 (<option>-PU</option>) angeben. Lesen Sie über die Option 
-<option>-sP</option> nach, um zu lernen, wie man nur eine Host-Erkennung 
-durchführt, oder über <option>-PN</option>, um die Host-Erkennung zu 
+<option>-sn</option> nach, um zu lernen, wie man nur eine Host-Erkennung 
+durchführt, oder über <option>-Pn</option>, um die Host-Erkennung zu 
 überspringen und einen Port-Scan aller Zielhosts durchzuführen. Folgende 
 Optionen steuern die Host-Erkennung:</para>
 
@@ -519,46 +519,47 @@ Funktionalität durchführen möchten, lesen Sie bei der Option
 
 <varlistentry>
 <term>
-<option>-sP</option> (Ping-Scan)
-<indexterm><primary><option>-sP</option></primary></indexterm>
+<option>-sn</option> (Kein Port-Scan)
+<indexterm><primary><option>-sn</option></primary></indexterm>
 <indexterm><primary>Ping-Scan</primary></indexterm>
 </term>
 <listitem>
-<para>Diese Option verlangt, dass Nmap nur einen Ping-Scan 
-(Host-Erkennung) durchführt und dann die verfügbaren Hosts 
-ausgibt, die auf den Scan geantwortet haben. 
-Darüber hinaus werden keine weiteren Tests (z.B. 
-Port-Scans oder Betriebssystemerkennung) durchgeführt, außer bei 
-Host-Scripts mit der Nmap Scripting Engine und traceroute-Tests, 
-sofern Sie diese Optionen angegeben haben. 
-Das ist eine Stufe aufdringlicher als ein List-Scan 
-und kann oft für dieselben Zwecke benutzt werden. Sie führt schnell eine 
-schwache Aufklärung des Zielnetzwerks durch, ohne viel Aufmerksamkeit zu 
-erregen. Für Angreifer ist es wertvoller, zu wissen, wie viele Hosts 
-verfügbar sind, als die Liste aller IPs und Hostnamen aus einem 
+<para>Diese Option verlangt, dass Nmap nach der Host-Erkennung keinen
+Port-Scan durchführt und nur die verfügbaren Hosts ausgibt,
+die auf die Host-Erkennungsprobes geantwortet haben.
+Dies wird oft als „Ping-Scan" bezeichnet, aber Sie können auch
+traceroute-Tests und NSE-Host-Scripts anfordern.
+Das ist eine Stufe aufdringlicher als ein List-Scan
+und kann oft für dieselben Zwecke benutzt werden. Sie führt schnell eine
+schwache Aufklärung des Zielnetzwerks durch, ohne viel Aufmerksamkeit zu
+erregen. Für Angreifer ist es wertvoller, zu wissen, wie viele Hosts
+verfügbar sind, als die Liste aller IPs und Hostnamen aus einem
 List-Scan zu kennen.</para>
 
-<para>Für Systemadministratoren ist diese Option oft ebenfalls wertvoll. 
-Mit ihr kann man sehr leicht die verfügbaren Rechner in einem Netzwerk 
-zählen oder die Server-Verfügbarkeit überwachen. So etwas nennt man oft auch 
-einen Ping-Sweep, und es ist zuverlässiger als ein Pinging auf die 
-Broadcast-Adresse, weil viele Hosts auf Broadcast-Anfragen nicht 
+<para>Für Systemadministratoren ist diese Option oft ebenfalls wertvoll.
+Mit ihr kann man sehr leicht die verfügbaren Rechner in einem Netzwerk
+zählen oder die Server-Verfügbarkeit überwachen. So etwas nennt man oft auch
+einen Ping-Sweep, und es ist zuverlässiger als ein Pinging auf die
+Broadcast-Adresse, weil viele Hosts auf Broadcast-Anfragen nicht
 antworten.</para>
 
-<para>Die Option <option>-sP</option> sendet standardmäßig einen 
-ICMP Echo-Request und ein TCP-ACK-Paket an Port 80. Bei Ausführung 
-ohne Sonderrechte wird nur ein SYN-Paket (mit einem 
-<function>connect</function>-Aufruf) an Port 80 an das Ziel gesendet. 
-Wenn ein Benutzer mit Sonderrechten versucht, Ziele in einem lokalen 
-Ethernet-Netzwerk zu scannen, werden ARP-Requests verwendet, es sei 
+<para>Die standardmäßige Host-Erkennung mit <option>-sn</option> besteht
+aus einem ICMP Echo-Request, einem TCP-SYN-Paket an Port 443, einem
+TCP-ACK-Paket an Port 80 und einem ICMP-Zeitstempel-Request. Bei Ausführung
+ohne Sonderrechte werden nur SYN-Pakete (mit einem
+<function>connect</function>-Aufruf) an Port 80 und 443 an das Ziel gesendet.
+Wenn ein Benutzer mit Sonderrechten versucht, Ziele in einem lokalen
+Ethernet-Netzwerk zu scannen, werden ARP-Requests verwendet, es sei
 denn, die Option <option>--send-ip</option> wird angegeben.
-Die Option <option>-sP</option> kann mit allen Erkennungsmethoden 
-(die Optionen <option>-P*</option>, außer <option>-PN</option>) 
-kombiniert werden, um eine höhere Flexibilität zu erhalten.
-Falls zwischen dem Ausgangs-Host, auf dem Nmap läuft, und dem Zielnetzwerk 
-strenge Firewalls installiert sind, empfehlen sich diese fortgeschrittenen 
-Methoden. Ansonsten könnten Hosts übersehen werden, wenn die Firewall 
-Testanfragen oder Antworten darauf verwirft</para>
+Die Option <option>-sn</option> kann mit allen Erkennungsmethoden
+(die Optionen <option>-P*</option>) kombiniert werden, um eine höhere
+Flexibilität zu erhalten. Falls zwischen dem Ausgangs-Host, auf dem Nmap
+läuft, und dem Zielnetzwerk strenge Firewalls installiert sind, empfehlen
+sich diese fortgeschrittenen Methoden. Ansonsten könnten Hosts übersehen
+werden, wenn die Firewall Testanfragen oder Antworten darauf verwirft.</para>
+
+<para>In früheren Versionen von Nmap war <option>-sn</option> als
+<option>-sP</option> bekannt.</para>
 
 </listitem>
 </varlistentry>
@@ -2411,7 +2412,7 @@ auch beide gesetzt werden, um die Gruppengröße in einem bestimmten
 Bereich zu belassen, aber das ist selten gewünscht.</para>
 
 <para>Diese Optionen haben während der Host-Entdeckungsphase eines Scans 
-keinen Effekt. Dazu gehören einfache Ping-Scans (<option>-sP</option>). 
+keinen Effekt. Dazu gehören einfache Ping-Scans (<option>-sn</option>). 
 Die Host-Entdeckung funktioniert immer in großen Gruppen von Hosts, 
 um die Geschwindigkeit und Genauigkeit zu verbessern.</para>
 
