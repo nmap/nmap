@@ -9,18 +9,18 @@ local table = require "table"
 
 description = [[
 Repeatedly probe open and/or closed ports on a host to obtain a series
-of round-trip time values for each port.  These values are used to
-group collections of ports which are statistically different from other
-groups.  Ports being in different groups (or "families") may be due to
-network mechanisms such as port forwarding to machines behind a NAT.
+of round-trip time values for each port and analyze TCP connection reliability.
+These values are used to group collections of ports which are statistically
+different from other groups (or "families") to detect NAT port forwarding or
+unusual latency variations.
 
-In order to group these ports into different families, some statistical
-values must be computed.  Among these values are the mean and standard
-deviation of the round-trip times for each port.  Once all of the times
-have been recorded and these values have been computed, the Student's
-t-test is used to test the statistical significance of the differences
-between each port's data.  Ports which have round-trip times that are
-statistically the same are grouped together in the same family.
+Additionally provides TCP connection reliability testing to detect port flapping,
+flaky services, and connection instability across repeated connection attempts.
+
+Arguments include: mode=both (both/timing/connect), attempts=8 (2..100),
+timeout=3000 ms (50..60000), interval=0.5 seconds (0..10), and failure_threshold=20
+percent (0 exclusive ..100). Timing mode needs raw-packet privileges and IPv4;
+connect mode does not. Insufficient RTT data is marked N/A.
 
 This script is based on Doug Hoyte's Qscan documentation and patches
 for Nmap.
@@ -30,8 +30,15 @@ for Nmap.
 
 ---
 -- @usage
+-- nmap --script qscan target
+-- nmap --script qscan --script-args qscan.mode=connect,qscan.attempts=10 target
 -- nmap --script qscan --script-args qscan.confidence=0.95,qscan.delay=200ms,qscan.numtrips=10 target
 --
+-- @args qscan.mode Operation mode: <code>both</code>, <code>timing</code>, or <code>connect</code>. Default: <code>both</code>.
+-- @args qscan.attempts Number of connection attempts for reliability testing (2..100). Default: <code>8</code>.
+-- @args qscan.timeout Timeout per attempt in milliseconds (50..60000). Default: <code>3000ms</code>.
+-- @args qscan.interval Interval between connection attempts in seconds (0..10). Default: <code>0.5s</code>.
+-- @args qscan.failure_threshold Flap threshold percentage (0..100). Default: <code>20</code>.
 -- @args confidence Confidence level: <code>0.75</code>, <code>0.9</code>,
 --       <code>0.95</code>, <code>0.975</code>, <code>0.99</code>,
 --       <code>0.995</code>, or <code>0.9995</code>.
@@ -60,7 +67,7 @@ for Nmap.
 
 -- 03/17/2010
 
-author = "Kris Katterjohn"
+author = {"Kris Katterjohn", "SUDHARSAN M (enhancements)"}
 
 license = "Same as Nmap--See https://nmap.org/book/man-legal.html"
 
@@ -112,7 +119,7 @@ local tdist = {
 }
 
 -- cache ports to probe between the hostrule and the action function
-local qscanports
+-- Port lists are now local to each action, not shared between hosts.
 
 
 local tinv = function(p, dof)
@@ -171,6 +178,7 @@ local tstat = function(n1, n2, u1, u2, v1, v2)
   local a = (n1 + n2) / (n1 * n2)
   --local b = ((n1 - 1) * (s1 * s1) + (n2 - 1) * (s2 * s2))
   local b = ((n1 - 1) * v1) + ((n2 - 1) * v2)
+  if b == 0 then return u1 == u2 and 0 or math.huge end
   return math.abs(u1 - u2) / math.sqrt(a * (b / dof))
 end
 
@@ -178,7 +186,6 @@ end
 -- @return Destination and source IP addresses and TCP ports
 local check = function(layer3)
   local ip = packet.Packet:new(layer3, layer3:len())
-  if not ip then return nil end
   return string.pack('>c4c4I2I2', ip.ip_bin_dst, ip.ip_bin_src, ip.tcp_dport, ip.tcp_sport)
 end
 
@@ -222,7 +229,7 @@ local calcfamilies = function(stats, conf)
   local crit
 
   for _, i in pairs(stats) do repeat
-    if i.fam ~= -1 then
+    if i.fam ~= -1 or i.num < 2 then
       break
     end
 
@@ -230,7 +237,7 @@ local calcfamilies = function(stats, conf)
     famidx = famidx + 1
 
     for _, j in pairs(stats) do repeat
-      if j.port == i.port or j.fam ~= -1 then
+      if j.port == i.port or j.fam ~= -1 or j.num < 2 then
         break
       end
 
@@ -260,9 +267,9 @@ local report = function(stats)
   local port, fam, mean, stddev, loss
   for _, j in pairs(stats) do
     port = tostring(j.port)
-    fam = tostring(j.fam)
-    mean = string.format("%.2f", j.mean)
-    stddev = string.format("%.2f", math.sqrt(j.K / (j.num - 1)))
+    fam = j.num >= 2 and tostring(j.fam) or "N/A"
+    mean = j.num > 0 and string.format("%.2f", j.mean) or "N/A"
+    stddev = j.num >= 2 and string.format("%.2f", math.sqrt(math.max(0, j.K / (j.num - 1)))) or "N/A"
     loss = string.format("%.1f%%", 100 * (1 - j.num / j.sent))
 
     tab.add(outtab, 1, port)
@@ -283,21 +290,21 @@ local getopts = function()
   local bool, err
   local k
 
-  for _, k in ipairs({"qscan.confidence", "confidence"}) do
+  for _, k in ipairs({SCRIPT_NAME .. ".confidence", "qscan.confidence", "confidence"}) do
     if nmap.registry.args[k] then
       conf = tonumber(nmap.registry.args[k])
       break
     end
   end
 
-  for _, k in ipairs({"qscan.delay", "delay"}) do
+  for _, k in ipairs({SCRIPT_NAME .. ".delay", "qscan.delay", "delay"}) do
     if nmap.registry.args[k] then
       delay = stdnse.parse_timespec(nmap.registry.args[k])
       break
     end
   end
 
-  for _, k in ipairs({"qscan.numtrips", "numtrips"}) do
+  for _, k in ipairs({SCRIPT_NAME .. ".numtrips", "qscan.numtrips", "numtrips"}) do
     if nmap.registry.args[k] then
       numtrips = tonumber(nmap.registry.args[k])
       break
@@ -313,14 +320,14 @@ local getopts = function()
     err = "Invalid confidence level"
   end
 
-  if not delay then
+  if not delay or delay ~= delay or delay < 0 or delay > 60 then
     bool = false
     err = "Invalid delay"
   end
 
-  if numtrips < 3 then
+  if not numtrips or numtrips ~= numtrips or numtrips < 3 or numtrips > 1000 or numtrips % 1 ~= 0 then
     bool = false
-    err = "Invalid number of trips (should be >= 3)"
+    err = "Invalid number of trips (integer 3..1000 required)"
   end
 
   if bool then
@@ -370,45 +377,7 @@ local getports = function(host, numopen, numclosed)
   return table_extend(open, closed)
 end
 
-hostrule = function(host)
-  if not nmap.is_privileged() then
-    nmap.registry[SCRIPT_NAME] = nmap.registry[SCRIPT_NAME] or {}
-    if not nmap.registry[SCRIPT_NAME].rootfail then
-      stdnse.verbose1("not running for lack of privileges.")
-    end
-    nmap.registry[SCRIPT_NAME].rootfail = true
-    return nil
-  end
-
-  local numopen, numclosed = NUMOPEN, NUMCLOSED
-
-  if nmap.address_family() ~= 'inet' then
-    stdnse.debug1("is IPv4 compatible only.")
-    return false
-  end
-  if not host.interface then
-    return false
-  end
-
-  for _, k in ipairs({"qscan.numopen", "numopen"}) do
-    if nmap.registry.args[k] then
-      numopen = tonumber(nmap.registry.args[k])
-      break
-    end
-  end
-
-  for _, k in ipairs({"qscan.numclosed", "numclosed"}) do
-    if nmap.registry.args[k] then
-      numclosed = tonumber(nmap.registry.args[k])
-      break
-    end
-  end
-
-  qscanports = getports(host, numopen, numclosed)
-  return (#qscanports > 1)
-end
-
-action = function(host)
+local timing_action = function(host, qscanports)
   local sock = nmap.new_dnet()
   local pcap = nmap.new_socket()
   local saddr = ipOps.str_to_ip(host.bin_ip_src)
@@ -502,3 +471,109 @@ action = function(host)
   return "\n" .. report(stats)
 end
 
+
+-- ENHANCEMENT: connection reliability alongside the inherited timing report.
+local function number_arg(name, default, lower, upper, integral, legacy)
+  local raw = stdnse.get_script_args(SCRIPT_NAME .. "." .. name)
+  if raw == nil and legacy then
+    raw = stdnse.get_script_args("qscan." .. name) or stdnse.get_script_args(name)
+  end
+  if raw == nil then return default end
+  local n = tonumber(raw)
+  if not n or n ~= n or n < lower or n > upper or (integral and n % 1 ~= 0) then
+    return nil, name .. " must be " .. (integral and "an integer " or "a number ") .. "in " .. lower .. ".." .. upper
+  end
+  return n
+end
+
+local function enhancement_options()
+  local opts = {}
+  opts.mode = stdnse.get_script_args(SCRIPT_NAME .. ".mode") or "both"
+  if opts.mode ~= "both" and opts.mode ~= "timing" and opts.mode ~= "connect" then
+    return nil, "mode must be both, timing, or connect"
+  end
+  for _, spec in ipairs({
+    {"attempts", 8, 2, 100, true}, {"timeout", 3000, 50, 60000, true},
+    {"interval", 0.5, 0, 10, false}, {"failure_threshold", 20, 0.001, 100, false},
+    {"numopen", 8, -1, 1024, true, true}, {"numclosed", 1, -1, 1024, true, true}
+  }) do
+    local value, err = number_arg(table.unpack(spec))
+    if value == nil then return nil, err end
+    opts[spec[1]] = value
+  end
+  return opts
+end
+
+hostrule = function(host)
+  return nmap.get_ports(host, nil, "tcp", "open") ~= nil
+    or nmap.get_ports(host, nil, "tcp", "closed") ~= nil
+end
+
+local function connection_report(host, port, opts)
+  local row = stdnse.output_table()
+  row.port, row.attempts = port, opts.attempts
+  local succeeded, failed, timed_out, transitions = 0, 0, 0, 0
+  local previous, total_ms = nil, 0
+  local sequence = {}
+  for i = 1, opts.attempts do
+    local socket = nmap.new_socket()
+    socket:set_timeout(opts.timeout)
+    local start = stdnse.clock_ms()
+    local status, err = socket:connect(host, port, "tcp")
+    local duration = stdnse.clock_ms() - start
+    socket:close() -- Close on every path, including timeout and other failures.
+    local success = not not status
+    if success then
+      succeeded = succeeded + 1
+      total_ms = total_ms + duration
+      sequence[#sequence + 1] = "S"
+    elseif tostring(err):lower():find("timeout", 1, true) then
+      timed_out = timed_out + 1
+      sequence[#sequence + 1] = "T"
+    else
+      failed = failed + 1
+      sequence[#sequence + 1] = "F"
+    end
+    if previous ~= nil and previous ~= success then transitions = transitions + 1 end
+    previous = success
+    if i < opts.attempts and opts.interval > 0 then stdnse.sleep(opts.interval) end
+  end
+  local rate = 100 * (failed + timed_out) / opts.attempts
+  row.succeeded, row.failed, row.timed_out = succeeded, failed, timed_out
+  row.failure_percent = string.format("%.1f", rate)
+  row.success_failure_transitions = transitions
+  row.sequence = table.concat(sequence, " ")
+  row.mean_success_connect_ms = succeeded > 0 and string.format("%.2f", total_ms / succeeded) or "N/A"
+  row.verdict = succeeded == 0 and "UNREACHABLE DURING SAMPLE"
+    or rate == 0 and "STABLE"
+    or rate < opts.failure_threshold and "MOSTLY STABLE"
+    or "FLAKY"
+  return row
+end
+
+action = function(host)
+  local opts, err = enhancement_options()
+  if not opts then return "ERROR: " .. err end
+  local result = stdnse.output_table()
+  if opts.mode ~= "connect" then
+    local valid, why = getopts()
+    if not valid then return "ERROR: " .. why end
+    local ports = getports(host, opts.numopen, opts.numclosed)
+    if not nmap.is_privileged() or nmap.address_family() ~= "inet" or not host.interface then
+      result.timing = "SKIPPED: qscan requires raw-packet privileges, IPv4, and a usable interface"
+    elseif #ports < 2 then
+      result.timing = "SKIPPED: qscan requires at least two selected ports"
+    else
+      result.timing = timing_action(host, ports)
+    end
+  end
+  if opts.mode ~= "timing" then
+    local ports = getports(host, opts.numopen, 0)
+    local rows = {}
+    for _, port in ipairs(ports) do rows[#rows + 1] = connection_report(host, port, opts) end
+    result.connections = #rows > 0 and rows or "No initially open TCP ports selected"
+    result.sequence_key = "S=successful TCP connect, T=timeout, F=other failure"
+    result.interpretation = "Connection outcomes are not application health or proven port-state transitions. Raw probe loss and connection failure are different measurements."
+  end
+  return result
+end
