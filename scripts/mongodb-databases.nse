@@ -1,3 +1,4 @@
+local comm = require "comm"
 local creds = require "creds"
 local nmap = require "nmap"
 local shortport = require "shortport"
@@ -51,6 +52,21 @@ portrule = shortport.port_or_service({27017}, {"mongodb", "mongod"})
 
 function action(host,port)
 
+  -- MongoDB servers speak TLS from the first byte; there is no in-band
+  -- STARTTLS-style upgrade (unlike PostgreSQL's SSLRequest). Discover the
+  -- protocol by sending a first payload and retrying over TLS if the
+  -- plaintext attempt fails (comm.tryssl), then reconnect accordingly.
+  local status, packet = mongodb.listDbQuery()
+  if ( not(status) ) then return packet end
+
+  local _, _, proto = comm.tryssl(host, port, packet, { timeout = 5000 })
+  if proto ~= "tcp" and proto ~= "ssl" then return end
+
+  if proto == "ssl" and port.version then
+    port.version.service_tunnel = "ssl"
+    nmap.set_port_version(host, port)
+  end
+
   local socket = nmap.new_socket()
 
   -- set a reasonable timeout value
@@ -62,7 +78,7 @@ function action(host,port)
 
   local try = nmap.new_try(catch)
 
-  try( socket:connect(host, port) )
+  try( socket:connect(host, port, proto) )
 
   -- ugliness to allow creds.mongodb to work, as the port is not recognized
   -- as mongodb, unless a service scan was run
