@@ -1,5 +1,8 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE][GH#3307] ASN.1 sequence encoding in the iec61850mms library was broken.
+  [RyugaXhypeR]
+
 o [NSE] The ssh2 library was conflating host key (signature) algorithms with
   host key types. One of the effects was that scripts, such as ssh-hostkey,
   were not detecting RSA keys unless the target supported legacy ssh-rsa host

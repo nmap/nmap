@@ -1111,7 +1111,7 @@ MMSEncoder = {
     return str
   end,
 
-  encodeSeq = asn1.ASN1Encoder.encodeSeq,
+  encodeSeq = function (...) return asn1.ASN1Encoder:encodeSeq(...) end,
 }
 
 MMSQueries = {
