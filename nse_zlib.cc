@@ -636,7 +636,9 @@ static int lzstream_docompress(lua_State *L, lz_stream *s, int from, int to, int
     }
 
     for (arg = from; arg <= to; arg++) {
-        s->zstream.next_in = (unsigned char*)luaL_checklstring(L, arg, (size_t*)&s->zstream.avail_in);
+        size_t avail_in;
+        s->zstream.next_in = (unsigned char*)luaL_checklstring(L, arg, &avail_in);
+        s->zstream.avail_in = avail_in;
 
         do {
             s->zstream.next_out = b;
