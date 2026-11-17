@@ -72,8 +72,8 @@ extern NpingOps o;
 
 int atoIP(const char *hostname, struct in_addr *dst){
   struct sockaddr_in i;
-  unsigned int stlen=0;
-  if ( resolve(hostname, 0, (sockaddr_storage*)&i, (size_t *)&stlen , PF_INET) != 0 )
+  size_t stlen=0;
+  if ( resolve(hostname, 0, (sockaddr_storage*)&i, &stlen , PF_INET) != 0 )
     return OP_FAILURE;
   *dst=i.sin_addr;
   return OP_SUCCESS;
