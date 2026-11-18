@@ -366,7 +366,8 @@ class Service(object):
         return self.name == other.name \
             and self.product == other.product \
             and self.version == other.version \
-            and self.extrainfo == other.extrainfo
+            and self.extrainfo == other.extrainfo \
+            and self.tunnel == other.tunnel
 
     def __ne__(self, other):
         return not self.__eq__(other)
