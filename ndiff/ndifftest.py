@@ -4,6 +4,7 @@
 
 import subprocess
 import sys
+import tempfile
 import unittest
 
 # Prevent loading PyXML
@@ -275,6 +276,18 @@ class service_test(unittest.TestCase):
         self.assertNotEqual(a, b)
         c = Service()
         self.assertNotEqual(a, c)
+
+    def test_compare_tunnel(self):
+        """The tunnel is part of a service's identity."""
+        a = Service()
+        a.name = "http"
+        b = Service()
+        b.name = "http"
+        b.tunnel = "ssl"
+        self.assertNotEqual(a, b)
+        self.assertNotEqual(b, a)
+        a.tunnel = "ssl"
+        self.assertEqual(a, b)
 
     def test_tunnel(self):
         serv = Service()
@@ -808,5 +821,78 @@ class exit_code_test(unittest.TestCase):
         self.assertEqual(code, 2)
         code = call_quiet([self.NDIFF, "--nothing"])
         self.assertEqual(code, 2)
+
+
+class service_tunnel_diff_test(unittest.TestCase):
+    """Exercise tunnel-only changes from XML input through diff output."""
+    PAIRS = ((None, "ssl"), ("ssl", None), (None, None), ("ssl", "ssl"))
+
+    def scan_xml(self, tunnel):
+        tunnel_attr = '' if tunnel is None else ' tunnel="%s"' % tunnel
+        return ('<nmaprun><host><status state="up"/>'
+                '<address addr="192.0.2.1" addrtype="ipv4"/>'
+                '<ports><port protocol="tcp" portid="443">'
+                '<state state="open"/><service name="http"%s/>'
+                '</port></ports></host></nmaprun>' % tunnel_attr)
+
+    def load_scan(self, tunnel):
+        scan = Scan()
+        scan.load(io.StringIO(self.scan_xml(tunnel)))
+        return scan
+
+    def test_text(self):
+        for before, after in self.PAIRS:
+            with self.subTest(before=before, after=after):
+                output = io.StringIO()
+                cost = ScanDiffText(self.load_scan(before),
+                        self.load_scan(after), output).output()
+                self.assertEqual(cost, int(before != after))
+                if before != after:
+                    rows = [line.split()
+                            for line in output.getvalue().splitlines()
+                            if line.startswith(("-443/tcp", "+443/tcp"))]
+                    self.assertEqual(rows, [
+                        ["-443/tcp", "open", "ssl/http" if before else "http"],
+                        ["+443/tcp", "open", "ssl/http" if after else "http"]])
+                else:
+                    self.assertEqual(output.getvalue(), "")
+
+    def test_xml(self):
+        for before, after in self.PAIRS:
+            with self.subTest(before=before, after=after):
+                output = io.StringIO()
+                cost = ScanDiffXML(self.load_scan(before),
+                        self.load_scan(after), output).output()
+                self.assertEqual(cost, int(before != after))
+                document = xml.dom.minidom.parseString(output.getvalue())
+                portdiffs = document.getElementsByTagName("portdiff")
+                self.assertEqual(len(portdiffs), int(before != after))
+                if before != after:
+                    for side, tunnel in (("a", before), ("b", after)):
+                        wrapper = portdiffs[0].getElementsByTagName(side)[0]
+                        service = wrapper.getElementsByTagName("service")[0]
+                        self.assertEqual(service.getAttribute("name"), "http")
+                        self.assertEqual(service.hasAttribute("tunnel"),
+                                tunnel is not None)
+                        if tunnel is not None:
+                            self.assertEqual(service.getAttribute("tunnel"),
+                                    tunnel)
+
+    def test_exit_codes(self):
+        with tempfile.TemporaryDirectory() as directory:
+            paths = [os.path.join(directory, name)
+                    for name in ("a.xml", "b.xml")]
+            for before, after in self.PAIRS:
+                for path, tunnel in zip(paths, (before, after)):
+                    with open(path, "w") as f:
+                        f.write(self.scan_xml(tunnel))
+                for format in ("--text", "--xml"):
+                    for verbosity in ([], ["-v"]):
+                        with self.subTest(before=before, after=after,
+                                format=format, verbosity=verbosity):
+                            code = call_quiet([exit_code_test.NDIFF, format]
+                                    + verbosity + paths)
+                            self.assertEqual(code, int(before != after))
+
 
 unittest.main()
