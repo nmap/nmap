@@ -13,6 +13,11 @@ Reports the number of algorithms (for encryption, compression, etc.) that
 the target SSH2 server offers. If verbosity is set, the offered algorithms
 are each listed by type.
 
+The client proposal includes modern and legacy algorithms for compatibility
+with servers that negotiate algorithms before sending their own proposal.
+The script only reads the server proposal; it does not complete key exchange
+or attempt authentication.
+
 If the "client to server" and "server to client" algorithm lists are identical
 (order specifies preference) then the list is shown only once under a combined
 type.
@@ -105,6 +110,27 @@ categories = {"safe", "discovery"}
 
 portrule = shortport.ssh
 
+-- Do not rely on ssh2.kex_init()'s legacy-only defaults. Some servers
+-- require a common KEX and host key algorithm before sending their proposal.
+local kex_options = {
+  kex_algorithms = "curve25519-sha256,curve25519-sha256@libssh.org," ..
+    "ecdh-sha2-nistp256,ecdh-sha2-nistp384,ecdh-sha2-nistp521," ..
+    "diffie-hellman-group18-sha512,diffie-hellman-group16-sha512," ..
+    "diffie-hellman-group14-sha256,diffie-hellman-group-exchange-sha256," ..
+    "diffie-hellman-group14-sha1,diffie-hellman-group-exchange-sha1," ..
+    "diffie-hellman-group1-sha1",
+  host_key_algorithms = "ssh-ed25519," ..
+    "ecdsa-sha2-nistp256,ecdsa-sha2-nistp384,ecdsa-sha2-nistp521," ..
+    "rsa-sha2-512,rsa-sha2-256,ssh-rsa,ssh-dss",
+  encryption_algorithms = "chacha20-poly1305@openssh.com," ..
+    "aes128-gcm@openssh.com,aes256-gcm@openssh.com," ..
+    "aes128-ctr,aes192-ctr,aes256-ctr," ..
+    "aes128-cbc,3des-cbc,blowfish-cbc,aes192-cbc,aes256-cbc",
+  mac_algorithms = "hmac-sha2-256-etm@openssh.com,hmac-sha2-512-etm@openssh.com," ..
+    "hmac-sha2-256,hmac-sha2-512,hmac-sha1-etm@openssh.com," ..
+    "hmac-md5,hmac-sha1,hmac-ripemd160",
+}
+
 -- Build onto lists{} and possibly modify parsed{} based on whether the
 -- algorithm name-lists are identical between the server-to-client and
 -- client-to-server types.  Note that this simply modifies the passed tables.
@@ -183,7 +209,7 @@ action = function(host, port)
 
   -- send the client key exchange
   -- NB: The protocol does not prescribe which side sends the kex init first
-  status = sock:send(ssh.build(ssh.kex_init()))
+  status = sock:send(ssh.build(ssh.kex_init(kex_options)))
   if not status then
     sock:close()
     return
@@ -196,7 +222,29 @@ action = function(host, port)
     return
   end
 
-  local parsed = ssh.parse_kex_init(ssh.payload(response))
+  local ok, parsed, err = pcall(function()
+    local payload = ssh.payload(response)
+    if not payload or #payload == 0 then
+      return nil, "Invalid SSH packet"
+    end
+
+    local message = payload:byte(1)
+    if message == 1 then -- SSH_MSG_DISCONNECT
+      local reason, description = string.unpack(">I4s4", payload, 2)
+      return nil, string.format("SSH disconnect (reason %d): %s", reason, description)
+    elseif message ~= 20 then -- SSH_MSG_KEXINIT
+      return nil, string.format("Expected SSH_MSG_KEXINIT, received SSH message %d", message)
+    end
+
+    return ssh.parse_kex_init(payload)
+  end)
+  if not ok then
+    stdnse.debug1("Failed to parse SSH response: %s", parsed)
+    return "ERROR: Malformed SSH response"
+  end
+  if not parsed then
+    return "ERROR: " .. err
+  end
 
   local lists = {
     "kex_algorithms",
