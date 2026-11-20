@@ -104,6 +104,59 @@ categories = {"safe", "discovery"}
 
 portrule = shortport.ssh
 
+-- Offer as many options as possible. Some servers require a common KEX
+-- and host key algorithm before sending their proposal.
+local KEX_OPTIONS = {
+  kex_algorithms = "\z
+    mlkem768x25519-sha256,\z
+    sntrup761x25519-sha512,\z
+    sntrup761x25519-sha512@openssh.com,\z
+    curve25519-sha256,\z
+    curve25519-sha256@libssh.org,\z
+    ecdh-sha2-nistp521,\z
+    ecdh-sha2-nistp384,\z
+    ecdh-sha2-nistp256,\z
+    diffie-hellman-group18-sha512,\z
+    diffie-hellman-group16-sha512,\z
+    diffie-hellman-group15-sha512,\z
+    diffie-hellman-group14-sha256,\z
+    diffie-hellman-group14-sha1,\z
+    diffie-hellman-group-exchange-sha256,\z
+    diffie-hellman-group-exchange-sha1,\z
+    diffie-hellman-group1-sha1",
+  host_key_algorithms = "\z
+    ssh-mldsa44-ed25519,\z
+    ssh-ed25519,\z
+    ecdsa-sha2-nistp521,\z
+    ecdsa-sha2-nistp384,\z
+    ecdsa-sha2-nistp256,\z
+    rsa-sha2-512,\z
+    rsa-sha2-256,\z
+    ssh-rsa,\z
+    ssh-dss",
+  encryption_algorithms = "\z
+    chacha20-poly1305@openssh.com,\z
+    aes256-gcm@openssh.com,\z
+    aes128-gcm@openssh.com,\z
+    aes256-ctr,\z
+    aes192-ctr,\z
+    aes128-ctr,\z
+    aes256-cbc,\z
+    aes192-cbc,\z
+    aes128-cbc,\z
+    3des-cbc,\z
+    blowfish-cbc",
+  mac_algorithms = "\z
+    hmac-sha2-512-etm@openssh.com,\z
+    hmac-sha2-256-etm@openssh.com,\z
+    hmac-sha2-512,\z
+    hmac-sha2-256,\z
+    hmac-sha1-etm@openssh.com,\z
+    hmac-sha1,\z
+    hmac-md5,\z
+    hmac-ripemd160",
+}
+
 -- Build onto lists{} and possibly modify parsed{} based on whether the
 -- algorithm name-lists are identical between the server-to-client and
 -- client-to-server types.  Note that this simply modifies the passed tables.
@@ -182,7 +235,7 @@ action = function(host, port)
 
   -- send the client key exchange
   -- NB: The protocol does not prescribe which side sends the kex init first
-  status = sock:send(ssh.build(ssh.kex_init()))
+  status = sock:send(ssh.build(ssh.kex_init(KEX_OPTIONS)))
   if not status then
     sock:close()
     return
