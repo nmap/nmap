@@ -413,13 +413,13 @@ static void ipv6_force_fragmentation(struct idle_proxy_info *proxy, Target *targ
     }
   }
 
-  if (proxy->pd)
-    pcap_close(proxy->pd);
-
   /* Now we can tell the idle host that its reply was too big, we want it smaller than the IPV6 minimum MTU */
   /* the data contains first the MTU we want, and then the received IPv6 package */
   *(uint32_t *)&data = ntohl(IP6_MTU_MIN - 2);
   memcpy(&data[4], pkt, sizeof(data)-4);
+
+  if (proxy->pd)
+    pcap_close(proxy->pd);
 
   ipv6_packet = build_icmpv6_raw(proxy->host.v6sourceip(), proxy->host.v6hostip(), 0x00, 0x0000, o.ttl, 0x00 , 0x00, 0x02, 0x00, data, sizeof(data) , &packetlen);
   res = send_ip_packet(proxy->rawsd, proxy->ethptr, ss, ipv6_packet, packetlen);
