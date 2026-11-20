@@ -5,7 +5,6 @@ local string = require "string"
 local stringaux = require "stringaux"
 local table = require "table"
 
-local openssl = stdnse.silent_require "openssl"
 local ssh2 = stdnse.silent_require "ssh2"
 
 description = [[
@@ -115,15 +114,15 @@ local combine_types = function(parsed, lists)
     "compression_algorithms"
   }
 
-  for _, i in ipairs(doubles) do
-    local c2s = i .. "_client_to_server"
-    local s2c = i .. "_server_to_client"
+  for _, list in ipairs(doubles) do
+    local c2s = list .. "_client_to_server"
+    local s2c = list .. "_server_to_client"
 
     if parsed[c2s] == parsed[s2c] then
-      parsed[i] = parsed[c2s]
+      parsed[list] = parsed[c2s]
       parsed[c2s] = nil
       parsed[s2c] = nil
-      table.insert(lists, i)
+      table.insert(lists, list)
     else
       table.insert(lists, c2s)
       table.insert(lists, s2c)
@@ -135,9 +134,9 @@ end
 local output = function(parsed, lists)
   local out = stdnse.output_table()
 
-  for _, l in ipairs(lists) do
-    local v = parsed[l]
-    local a = v:len() > 0 and stringaux.strsplit(",", v) or {}
+  for _, list in ipairs(lists) do
+    local v = parsed[list]
+    local a = v and #v > 0 and stringaux.strsplit(",", v) or {}
     if nmap.verbosity() > 0 then
       setmetatable(a, {
         __tostring = function(t)
@@ -151,7 +150,7 @@ local output = function(parsed, lists)
         end
       })
     end
-    out[l] = a
+    out[list] = a
   end
 
   return out
@@ -197,6 +196,10 @@ action = function(host, port)
   end
 
   local parsed = ssh.parse_kex_init(ssh.payload(response))
+  if not (parsed and next(parsed)) then
+    stdnse.debug1("Failed to parse server Key Exchange Init")
+    return
+  end
 
   local lists = {
     "kex_algorithms",
