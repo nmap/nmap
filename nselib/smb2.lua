@@ -390,4 +390,187 @@ function negotiate_v2(smb, overrides)
   end
 end
 
+---
+-- Starts a pure-SMB2 session: opens a TCP connection and performs an SMB2
+-- NEGOTIATE without any SMB1 or NetBIOS dependency. This allows scripts to
+-- talk to hosts where SMB1 has been disabled entirely (modern Windows,
+-- hardened Samba builds).
+--
+-- The port is chosen from the <code>smbport</code> script argument when set,
+-- otherwise tcp/445 is used.
+--
+-- @param host The host table.
+-- @param overrides [optional] Table of overrides passed to <code>negotiate_v2</code>.
+-- @return (status, smb) If status is true, smb is a state table suitable for
+--         the other smb2 functions (with a negotiated dialect).
+--         If status is false, smb contains an error message.
+function start(host, overrides)
+  local nmap = require "nmap"
+  overrides = overrides or {}
+
+  local port_number = tonumber(nmap.registry.args and nmap.registry.args.smbport) or 445
+  local port = nmap.get_port_state(host, {number=port_number, protocol="tcp"})
+  if port == nil or port.state ~= "open" then
+    if port_number ~= 445 then
+      port = nmap.get_port_state(host, {number=445, protocol="tcp"})
+    end
+    if port == nil or port.state ~= "open" then
+      return false, "SMB2: Couldn't find an open SMB port to check"
+    end
+  end
+
+  local socket = nmap.new_socket()
+  socket:set_timeout(TIMEOUT)
+  local status, err = socket:connect(host.ip, port.number, "tcp")
+  if not status then
+    socket:close()
+    return false, "SMB2: Failed to connect to port " .. port.number .. ": " .. tostring(err)
+  end
+
+  local smb = {
+    ['socket']    = socket,
+    ['host']      = host,
+    ['ip']        = host.ip,
+    ['port']      = port.number,
+    ['MessageId'] = 0,
+    ['SessionId'] = 0,
+    ['TreeId']    = 0,
+  }
+
+  status, err = negotiate_v2(smb, overrides)
+  if not status then
+    socket:close()
+    return false, err
+  end
+
+  return true, smb
+end
+
+---
+-- Encodes a DER (DER/BER) length octet string for the SPNEGO wrapper.
+local function der_length(len)
+  if len < 0x80 then
+    return string.pack("B", len)
+  elseif len < 0x100 then
+    return string.pack("BB", 0x81, len)
+  end
+  return string.pack(">BI2", 0x82, len)
+end
+
+---
+-- Sends an SMB2 SESSION_SETUP carrying a null-session NTLMSSP NEGOTIATE
+-- (type 1) message wrapped in SPNEGO, and parses the server's NTLMSSP
+-- CHALLENGE (type 2) from the response. Authentication is deliberately not
+-- completed: the challenge blob is returned so callers can extract host
+-- information (NetBIOS/DNS names, OS version/build, timestamp) from it.
+--
+-- @param smb The associated SMB connection object from <code>start</code>.
+-- @return (status, blob) If status is true, blob is the raw NTLMSSP
+--         CHALLENGE security blob (leading SPNEGO unwrapped when present).
+--         If status is false, blob is an error message.
+function session_setup_ntlmssp(smb)
+  local unicode = require "unicode"
+
+  -- NTLMSSP NEGOTIATE (type 1), with Version field requested so that
+  -- servers include the OS major/minor/build in the CHALLENGE.
+  local flags = 0x00000001   -- NEGOTIATE_UNICODE
+              | 0x00000004   -- REQUEST_TARGET
+              | 0x00000200   -- NEGOTIATE_NTLM
+              | 0x00080000   -- NEGOTIATE_EXTENDED_SESSIONSECURITY
+              | 0x00200000   -- NEGOTIATE_TARGET_INFO
+              | 0x02000000   -- NEGOTIATE_VERSION
+              | 0x20000000   -- NEGOTIATE_128
+  local type1 = string.pack("<c8 I4 I2I2I4 I2I2I4 I4 BBI2c3B",
+    "NTLMSSP\0", 1,
+    0, 0, 0,       -- domain name len/max/offset
+    0, 0, 0,       -- workstation len/max/offset
+    flags,
+    10, 0, 0, "\0\0\0", 15)  -- Version 10.0 build 0 (placeholder, rev 15)
+
+  -- SPNEGO wrap: mechTypes = [NTLMSSP-OID], mechToken = type1
+  local ntlm_oid = "\x2B\x06\x01\x04\x01\x82\x37\x02\x02\x0A" -- 1.3.6.1.4.1.311.2.2.10
+  local mech_type = "\x30" .. der_length(#ntlm_oid + 2) .. "\x06" .. der_length(#ntlm_oid) .. ntlm_oid
+  local mech_token = "\x04" .. der_length(#type1) .. type1
+  local neg_init = "\xA0" .. der_length(#mech_type + 2 + #mech_token)
+                 .. "\x30" .. der_length(#mech_type + #mech_token)
+                 .. "\xA0" .. der_length(#mech_type) .. mech_type
+                 .. "\xA2" .. der_length(#mech_token) .. mech_token
+  local spnego = "\x60" .. der_length(#neg_init + 2)
+               .. "\x06" .. der_length(6) .. "\x2B\x06\x01\x05\x05\x02" -- SPNEGO OID
+               .. neg_init
+
+  local header = smb2_encode_header_sync(smb, command_codes['SMB2_COM_SESSION_SETUP'], {
+    ['CreditCharge'] = 1,
+    ['CreditR'] = 33,
+    ['Signature'] = 0,
+  })
+  -- SESSION_SETUP request fixed part (StructSize=25, VCs, SecurityMode...)
+  local data = string.pack("<I2 I1 I1 I4 I4 I2 I2 I8",
+    25,     -- StructureSize
+    0,      -- Flags
+    1,      -- SecurityMode: signing enabled
+    0,      -- Capabilities
+    0,      -- Channel
+    0x58,   -- SecurityBufferOffset (64 hdr + 24 fixed)
+    #spnego,-- SecurityBufferLength
+    0)      -- PreviousSessionId
+  data = data .. spnego
+
+  local status, err = smb2_send(smb, header, data)
+  if not status then
+    return false, err
+  end
+
+  local rstatus
+  rstatus, header, data = smb2_read(smb)
+  if not rstatus then
+    return false, header
+  end
+
+  local _, _, _, ntstatus = string.unpack("<c4 I2 I2 I4", header)
+  -- STATUS_MORE_PROCESSING_REQUIRED is the expected "here is my challenge"
+  if ntstatus ~= 0xC0000016 and ntstatus ~= 0 then
+    return false, string.format("SMB2: Session setup failed with status 0x%08X", ntstatus)
+  end
+
+  -- data: StructureSize(2) SessionFlags(2) SecurityBufferOffset(2) SecurityBufferLength(2)
+  if #data < 8 then
+    return false, "SMB2: SESSION_SETUP response too short"
+  end
+  local sec_off, sec_len = string.unpack("<I2 I2", data, 5)
+  if sec_len == 0 or sec_off + sec_len > #header + #data then
+    return false, "SMB2: SESSION_SETUP response has no security blob"
+  end
+
+  local full = header .. data
+  local blob = full:sub(sec_off + 1, sec_off + sec_len)
+  -- Servers normally answer SMB2 with a raw NTLMSSP message; unwrap SPNEGO
+  -- just in case (some implementations wrap the CHALLENGE in NegTokenResp).
+  if blob:sub(1, 8) ~= "NTLMSSP\0" then
+    local start = blob:find("NTLMSSP\0", 1, true)
+    if start then
+      blob = blob:sub(start)
+    end
+  end
+
+  return true, blob
+end
+
+---
+-- Politely ends an SMB2 session: best-effort LOGOFF, then close the socket.
+--
+-- @param smb The associated SMB connection object.
+function stop(smb)
+  pcall(function()
+    local header = smb2_encode_header_sync(smb, command_codes['SMB2_COM_LOGOFF'], {
+      ['CreditCharge'] = 1,
+      ['CreditR'] = 1,
+      ['Signature'] = 0,
+    })
+    local data = string.pack("<I2", 4) -- StructureSize
+    smb2_send(smb, header, data)
+  end)
+  smb['socket']:close()
+end
+
 return _ENV;
