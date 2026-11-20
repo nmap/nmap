@@ -377,7 +377,7 @@ local function postaction()
   local revmap = {}
 
   -- create a reverse mapping key_fingerprint -> host(s)
-  for ip, keys in pairs(nmap.registry.sshhostkey) do
+  for ip, keys in pairs(nmap.registry.sshhostkey or {}) do
     for _, key in ipairs(keys) do
       local fp = ssh1.fingerprint_hex(key.fingerprint, key.algorithm, key.bits)
       if not hostkeys[fp] then
