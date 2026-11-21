@@ -184,6 +184,11 @@ class Target {
      order
   */
   void setTargetName(const char *name);
+  /* Add an additional user-supplied name that resolved to the same IP as this
+  target (recorded when --unique suppresses duplicate scanning). */
+  void addTargetNameAlias(const char *name);
+  /* Returns the list of additional user-supplied names for this target. */
+  const std::vector<std::string> &getTargetNameAliases() const;
 
   /* If the host is directly connected on a network, set and retrieve
      that information here.  directlyConnected() will abort if it hasn't
@@ -262,6 +267,8 @@ class Target {
   struct timeout_info to;
   char *hostname; // Null if unable to resolve or unset
   char * targetname; // The name of the target host given on the command line if it is a named host
+  std::vector<std::string> target_aliases; /* Additional user-supplied names that resolved to this
+  same IP, collected when --unique suppresses duplicate scanning. */
 
   struct probespec traceroute_probespec;
   std::list <TracerouteHop> traceroute_hops;
