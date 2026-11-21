@@ -1075,6 +1075,20 @@ server_client_test_tcp_sctp_ssl "--recv-only server closes stdout and stops runn
 ["--recv-only"], [], eof_test("Server", 1, "socket");
 kill_children;
 
+# Receive-only listeners must work with either address family on its own.
+for my $binding (["-4", "IPv4"], ["-6", "IPv6"]) {
+	my ($family, $description) = @$binding;
+
+	server_client_test_tcp_ssl "--recv-only server receives data over $description",
+	["--recv-only", $family], [$family, "--send-only"], sub {
+		syswrite($c_in, "abc\n");
+		close($c_in);
+
+		my $resp = timeout_read($s_out) or die "Read timeout";
+		$resp eq "abc\n" or die "Server got " . d($resp);
+	};
+}
+
 # Tests to check that server defaults to non-persistent without --keep-open.
 
 # Server immediately quits after the first connection closed without --keep-open
