@@ -154,55 +154,64 @@ end
 
 --- check if there is a key in known_hosts file for the host that's being scanned
 --- and if there is, compare the keys
-local function check_keys(host, keys, f)
+local function check_keys(host, port, keys, known_keys)
   local keys_found = {}
   for _,k in pairs(keys) do
     table.insert(keys_found, k.full_key)
   end
   local keys_from_file = {}
   local same_key, same_key_hashed = {}, {}
-  local hostname = host.name == "" and nil or host.name
-  local possible_host_names = {hostname or nil, host.ip or nil, (hostname and host.ip) and ("%s,%s"):format(hostname, host.ip) or nil}
-  for _p, parts in ipairs(f) do
-    local lnumber = parts.linenumber
-    parts = parts.entry
-    local foundhostname = false
-    if #parts >= 3 then
-      -- the line might be hashed
-      if string.match(parts[1], "^|") then
+  local hostname = host.name ~= "" and host.name or nil
+  local possible_host_names = {host.ip, hostname}
+  for i, name in ipairs(possible_host_names) do
+    name = name:lower()
+    if port.number ~= 22 then --include the port
+      name = ("[%s]:%d"):format(name, port.number)
+    end
+    possible_host_names[i] = name
+  end
+  for _, known_key in ipairs(known_keys) do
+    if #known_key.entry >= 3 then
+      local lnumber = known_key.linenumber
+      -- ignore the leading marker, such as @cert-authority, if present
+      local entry_host_pos = known_key.entry[1]:sub(1, 1) == "@" and 2 or 1
+      local entry_host, entry_type, entry_key = table.unpack(known_key.entry, entry_host_pos)
+      local full_key = ("%s %s"):format(entry_type, entry_key)
+      if entry_host:sub(1, 3) == "|1|" then -- hostname hashed with HMAC-SHA1
         -- split the first part of the line - it contains base64'ed salt and hashed hostname
-        local parts_hostname = stringaux.strsplit("|", parts[1])
-        if #parts_hostname == 4 then
+        local host_parts = stringaux.strsplit("|", entry_host)
+        if #host_parts == 4 then
           -- check if the hash corresponds to the host being scanned
-          local salt = base64.dec(parts_hostname[3])
-          for _,name in ipairs(possible_host_names) do
-            local hash = base64.enc(openssl.hmac("SHA1", salt, name))
-            if parts_hostname[4] == hash then
-              stdnse.debug2("found a hash that matches: %s for hostname: %s", hash, name)
-              foundhostname = true
-              table.insert(keys_from_file, {name=name, key=("%s %s"):format(parts[2], parts[3]), lnumber=lnumber})
+          local salt = base64.dec(host_parts[3])
+          local hash = base64.dec(host_parts[4])
+          local found = false
+          for _, name in ipairs(possible_host_names) do
+            if hash == openssl.hmac("SHA1", salt, name) then
+              stdnse.debug2("found a hash that matches hostname: %s", name)
+              found = true
+              table.insert(keys_from_file, {name=name, key=full_key, lnumber=lnumber})
             end
           end
           -- Is the key the same but the hashed hostname isn't?
-          if not foundhostname then
-            for _, k in ipairs(keys_found) do
-              if ("%s %s"):format(parts[2], parts[3]) == k then
-                table.insert(same_key_hashed, {name="<unknown>", key=k, lnumber = lnumber})
-              end
-            end
+          if not found and tableaux.contains(keys_found, full_key) then
+            table.insert(same_key_hashed, {name="<unknown>", key=full_key, lnumber = lnumber})
           end
         end
-      else
-        if tableaux.contains(possible_host_names, parts[1]) then
-          stdnse.debug2("Found an entry that matches: %s", parts[1])
-          table.insert(keys_from_file, ("%s %s"):format(parts[2], parts[3]))
-        else
-          -- Is the key the same but the clear text hostname isn't?
-          for _, k in ipairs(keys_found) do
-            if ("%s %s"):format(parts[2], parts[3]) == k then
-              table.insert(same_key, {name=parts[1], key=("%s %s"):format(parts[2], parts[3]), lnumber=lnumber})
-            end
+      elseif entry_host:sub(1, 1) == "|" then -- unknown hostname hash type
+        stdnse.debug1("Found unexpected hostname hash format on line %d", lnumber)
+      else -- plain hostname (pattern matching is not supported here)
+        local hosts = stringaux.strsplit(",", entry_host:lower())
+        local found = false
+        for _, name in ipairs(possible_host_names) do
+          if tableaux.contains(hosts, name) then
+            stdnse.debug2("Found an entry that matches: %s", entry_host)
+            found = true
+            table.insert(keys_from_file, {name=entry_host, key=full_key, lnumber=lnumber})
           end
+        end
+        -- Is the key the same but the clear text hostname isn't?
+        if not found and tableaux.contains(keys_found, full_key) then
+          table.insert(same_key, {name=entry_host, key=full_key, lnumber=lnumber})
         end
       end
     end
@@ -363,7 +372,7 @@ local function portaction(host, port)
   if known_hosts then
     known_hosts = ssh1.parse_known_hosts_file(known_hosts)
     output_tab["Key comparison with known_hosts file"] = check_keys(
-      host, keys, known_hosts)
+      host, port, keys, known_hosts)
   end
 
   return output_tab

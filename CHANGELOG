@@ -3,6 +3,15 @@
 o [NSE][GH#3307] ASN.1 sequence encoding in the iec61850mms library was broken.
   [RyugaXhypeR]
 
+o [NSE] Script ssh-hostkey has been improved to rectify multiple issues
+  related to known_hosts support:
+  - Added support for entries with markers
+  - Added support for entry hostnames with custom ports
+  - Fixed empty hostname handling that prevented IP address matching
+  - Fixed hostname matching against entries with multiple hostnames
+  - Fixed hostname matching against plaintext non-hashed entries
+  [nnposter]
+
 o [NSE][GH#3597][GH#3617] Script ssh2-enum-algos was failing on targets that
   evaluate client KEX proposals before sending theirs. [Anders Henke, nnposter]
 
