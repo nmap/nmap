@@ -817,6 +817,25 @@ kill_children;
 unlink($UNIXSOCK);
 }
 
+if ($^O eq "linux") {
+($s_pid, $s_out, $s_in) = ncat_server_noport("-U", "--udp", $UNIXSOCK);
+test "Server UNIX datagram socket replies to a Linux abstract sender",
+sub {
+	local *SOCK;
+	socket(SOCK, AF_UNIX, SOCK_DGRAM, 0) or die "socket: $!";
+	bind(SOCK, sockaddr_un("\0ncat-test-$$")) or die "bind: $!";
+	send(SOCK, "abc\n", 0, sockaddr_un($UNIXSOCK)) or die "send: $!";
+	my $resp = timeout_read($s_out) or die "Read timeout";
+	$resp eq "abc\n" or die "Server got \"$resp\", not \"abc\\n\"";
+
+	syswrite($s_in, "reply\n") or die "write: $!";
+	$resp = timeout_read(\*SOCK) or die "No reply to abstract sender";
+	$resp eq "reply\n" or die "Sender got \"$resp\", not \"reply\\n\"";
+};
+kill_children;
+unlink($UNIXSOCK);
+}
+
 server_client_test "Connect success exit code",
 [], ["--send-only"], sub {
 	my ($pid, $code);

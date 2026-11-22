@@ -624,9 +624,15 @@ static void handle_connection(int socket_accept, int type, fd_set *listen_fds)
        * being able to handle one udp client at a time
        */
 #if HAVE_SYS_UN_H
-      if (o.af == AF_UNIX && s.ss_len <= sizeof(sa_family_t)) {
-        /* An unnamed UNIX socket has no address to connect to and
-         * cannot receive replies. normalize it. */
+      if (o.af == AF_UNIX &&
+          (s.ss_len <= offsetof(struct sockaddr_un, sun_path)
+#if defined(__APPLE__) || defined(__FreeBSD__)
+           /* These kernels return a full sockaddr with an empty path.
+            * On Linux, a leading NUL instead identifies an abstract address. */
+           || s.remoteaddr.un.sun_path[0] == '\0'
+#endif
+          )) {
+        /* Normalize the address. */
         s.remoteaddr.un.sun_family = AF_UNIX;
         s.ss_len = sizeof(sa_family_t);
         s.unnamed = 1;
