@@ -817,6 +817,23 @@ kill_children;
 unlink($UNIXSOCK);
 }
 
+{
+local $xfail = 1 if !$HAVE_UNIXSOCK;
+my $report = 'print STDERR "$ENV{NCAT_REMOTE_ADDR}:$ENV{NCAT_REMOTE_PORT} $_"; exit';
+my $command = "$PERL -ne " . plain_quote($report);
+($s_pid, $s_out, $s_in, $s_err) = ncat_server_noport("-U", "--udp", "--exec", $command, $UNIXSOCK);
+test "Server UNIX datagram socket passes data from an unnamed sender to --exec",
+sub {
+	local *SOCK;
+	socket(SOCK, AF_UNIX, SOCK_DGRAM, 0) or die "socket: $!";
+	send(SOCK, "abc\n", 0, sockaddr_un($UNIXSOCK)) or die "send: $!";
+	my $resp = timeout_read($s_err) or die "No output from command";
+	$resp =~ /^localhost: abc$/m or die "Unexpected output: $resp";
+};
+kill_children;
+unlink($UNIXSOCK);
+}
+
 if ($^O eq "linux") {
 ($s_pid, $s_out, $s_in) = ncat_server_noport("-U", "--udp", $UNIXSOCK);
 test "Server UNIX datagram socket replies to a Linux abstract sender",

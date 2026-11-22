@@ -607,7 +607,10 @@ void setup_environment(struct fdinfo *info)
     char port[16];
     socklen_t alen = sizeof(su);
 
-    if (getpeername(info->fd, &su.sockaddr, &alen) != 0) {
+    if (info->unnamed) {
+        /* The listener leaves the socket unconnected for unnamed datagram peers. */
+        su = info->remoteaddr;
+    } else if (getpeername(info->fd, &su.sockaddr, &alen) != 0) {
         bye("getpeername failed: %s", socket_strerror(socket_errno()));
     }
 #ifdef HAVE_SYS_UN_H
