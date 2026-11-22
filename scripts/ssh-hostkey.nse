@@ -218,18 +218,12 @@ local function check_keys(host, port, keys, known_keys)
   end
 
   local matched_keys, different_keys = {}, {}
-  local matched
 
   -- Compare the keys found for this hostname and update the counts.
-  for _,k in ipairs(keys_from_file) do
-    matched = false
-    for __,l in ipairs(keys_found) do
-      if l == k.key then
-        table.insert(matched_keys, k)
-        matched = true
-      end
-    end
-    if not matched then
+  for _, k in ipairs(keys_from_file) do
+    if tableaux.contains(keys_found, k.key) then
+      table.insert(matched_keys, k)
+    else
       table.insert(different_keys, k)
     end
   end
@@ -406,14 +400,10 @@ local function postaction()
 
   -- look for hosts using the same hostkey
   for key, hosts in pairs(hostkeys) do
-    if #hostkeys[key] > 1 then
-      table.sort(hostkeys[key], function(a, b) return ipOps.compare_ip(a, "lt", b) end)
-      local str = {'Key ' .. key .. ' used by:'}
-      local tab = {key=revmap[key], hosts={}}
-      for _, host in ipairs(hostkeys[key]) do
-        str[#str+1] = host
-        table.insert(tab.hosts, host)
-      end
+    if #hosts > 1 then
+      table.sort(hosts, function(a, b) return ipOps.compare_ip(a, "lt", b) end)
+      local str = table.pack('Key ' .. key .. ' used by:', table.unpack(hosts))
+      local tab = {key=revmap[key], hosts=tableaux.tcopy(hosts)}
       table.insert(output, table.concat(str, "\n  "))
       table.insert(output_tab, tab)
     end
