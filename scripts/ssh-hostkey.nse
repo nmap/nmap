@@ -240,15 +240,15 @@ local function check_keys(host, port, keys, known_keys)
       end
     }
     local good = {}
-    for __, gm in ipairs(matched_keys) do
+    for _, gm in ipairs(matched_keys) do
       setmetatable(gm, match_mt)
       good[#good+1] = gm
     end
-    for __, gm in ipairs(same_key) do
+    for _, gm in ipairs(same_key) do
       setmetatable(gm, match_mt)
       good[#good+1] = gm
     end
-    for __, gm in ipairs(same_key_hashed) do
+    for _, gm in ipairs(same_key_hashed) do
       setmetatable(gm, match_mt)
       good[#good+1] = gm
     end
@@ -257,7 +257,7 @@ local function check_keys(host, port, keys, known_keys)
     end
 
     local wrong = {}
-    for __, gm in ipairs(different_keys) do
+    for _, gm in ipairs(different_keys) do
       setmetatable(gm, match_mt)
       wrong[#wrong+1] = gm
     end
@@ -354,7 +354,7 @@ local function portaction(host, port)
       table.insert( output, key.full_key )
     end
     setmetatable(out, {
-        __tostring = function(self)
+        __tostring = function(_self)
           return table.concat(output, "\n")
         end
       })
