@@ -797,6 +797,26 @@ kill_children;
 unlink($UNIXSOCK);
 }
 
+# A UNIX datagram socket that never called bind()
+{
+local $xfail = 1 if !$HAVE_UNIXSOCK;
+($s_pid, $s_out, $s_in) = ncat_server_noport("-U", "--udp", $UNIXSOCK);
+test "Server UNIX socket listen receives from unnamed sender --udp (DGRAM)",
+sub {
+	my $resp;
+	local *SOCK;
+	socket(SOCK, AF_UNIX, SOCK_DGRAM, 0) or die;
+	send(SOCK, "abc\n", 0, sockaddr_un($UNIXSOCK)) or die;
+	close(SOCK);
+	$resp = timeout_read($s_out) or die "Read timeout";
+	$resp eq "abc\n" or die "Server got \"$resp\", not \"abc\\n\" from unnamed sender";
+};
+# An unnamed peer never sends EOF, so the server has no reason to exit.
+kill "TERM", $s_pid;
+kill_children;
+unlink($UNIXSOCK);
+}
+
 server_client_test "Connect success exit code",
 [], ["--send-only"], sub {
 	my ($pid, $code);

@@ -154,6 +154,7 @@ struct fdinfo {
     int lasterr;
     union sockaddr_u remoteaddr;
     socklen_t ss_len;
+    int unnamed;
 #ifdef HAVE_OPENSSL
     SSL *ssl;
 #endif
