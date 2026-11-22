@@ -698,7 +698,7 @@ static void handle_connection(int socket_accept, int type, fd_set *listen_fds)
 
     /* An unnamed peer has no address we can send back to. */
     if (s.unnamed && !o.recvonly)
-        loguser("Cannot send replies to an unnamed Unix domain socket; discarding writes.\n");
+        loguser("Cannot reply to an unnamed Unix datagram sender; discarding writes.\n");
 
     /* Check conditions that might cause us to deny the connection. */
     conn_count = get_conn_count();
