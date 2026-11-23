@@ -1,5 +1,8 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE][GH#3593] Fixed an issue causing RDP scripts to crash with `attempt to
+  call a table value`. [@ttrampus]
+
 o [NSE][GH#3307] ASN.1 sequence encoding in the iec61850mms library was broken.
   [RyugaXhypeR]
 
