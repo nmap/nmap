@@ -1074,7 +1074,7 @@ end
 -- @param sock Connected Nmap socket (TLS)
 -- @return certificate table (see nmap sslcert), or nil
 function get_cert(sock)
-  local ok, cert = pcall(function() return sock:get_ssl_certificate() end)
+  local ok, cert = pcall(sock.get_ssl_certificate, sock)
   if ok then return cert end
   return nil
 end
@@ -1482,7 +1482,7 @@ function do_release(sock, timeout_s)
     PDU_CODES.RELEASE_REQUEST, 0x00, 0x04, 0x00000000)
   sock:set_timeout((timeout_s or 3) * 1000)
   tcp_send(sock, rel_rq)
-  pcall(function() sock:receive() end)
+  pcall(sock.receive, sock)
   sock:close()
 end
 

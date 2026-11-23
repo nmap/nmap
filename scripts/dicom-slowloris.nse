@@ -202,11 +202,12 @@ end
 local function count_alive(socks)
   local alive = 0
   for i = 1, #socks do
-    if socks[i] then
-      if sock_alive(socks[i]) then
+    local sock = socks[i]
+    if sock then
+      if sock_alive(sock) then
         alive = alive + 1
       else
-        pcall(function() socks[i]:close() end)
+        pcall(sock.close, sock)
         socks[i] = false
       end
     end
@@ -390,11 +391,12 @@ action = function(host, port)
     while elapsed < hold_time do
       if mode == "echo" and elapsed >= next_echo then
         for i = 1, #socks do
-          if socks[i] then
+          local sock = socks[i]
+          if sock then
             echoes = echoes + 1
-            if not keepalive(socks[i], pctxs[i], echoes, max_pdu, timeout_s)
+            if not keepalive(sock, pctxs[i], echoes, max_pdu, timeout_s)
             then
-              pcall(function() socks[i]:close() end)
+              pcall(sock.close, sock)
               socks[i] = false
               drops = drops + 1
             end
@@ -425,11 +427,12 @@ action = function(host, port)
   -- Phase 3: release and measure recovery.
   local released = 0
   for i = 1, #socks do
-    if socks[i] then
+    local sock = socks[i]
+    if sock then
       if mode == "partial" then
-        pcall(function() socks[i]:close() end)
+        pcall(sock.close, sock)
       else
-        pcall(function() dicom.do_release(socks[i], 2) end)
+        pcall(dicom.do_release, sock, 2)
       end
       released = released + 1
     end
