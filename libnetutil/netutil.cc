@@ -2100,6 +2100,7 @@ int islocalhost(const struct sockaddr_storage *ss) {
 static int set_sockaddr(struct sockaddr_storage *ss, int af, void *data) {
   struct sockaddr_in *sin;
   struct sockaddr_in6 *sin6;
+  memset(ss, 0, sizeof(*ss));
 
   ss->ss_family = af;
   if (af == AF_INET) {
@@ -2379,6 +2380,10 @@ static int get_srcaddr(const struct sockaddr_storage *dst,
   rc = getsockname(fd, (struct sockaddr *) src, &len);
   if (rc == -1)
     netutil_fatal("%s: can't getsockname: %s", __func__, socket_strerror(socket_errno()));
+  if (src->ss_family == AF_INET)
+    ((struct sockaddr_in *) src)->sin_port = 0;
+  else if (src->ss_family == AF_INET6)
+    ((struct sockaddr_in6 *) src)->sin6_port = 0;
 
   close(fd);
   return 0;

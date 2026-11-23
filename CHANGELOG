@@ -1,5 +1,8 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [GH#3603] Fixed the issue where the same source port number was used for all
+  service probes to a given target, resulting in EADDRNOTAVAIL in some cases.
+
 o [NSE][GH#3593] Fixed an issue causing RDP scripts to crash with `attempt to
   call a table value`. [@ttrampus]
 
