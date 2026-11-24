@@ -1,5 +1,9 @@
 #Nmap Changelog ($Id$); -*-text-*-
 
+o [GH#3602][GH#3487] Fixed an issue where a connection failure in service scan
+  would cause Nmap to drop an existing softmatch classification for that
+  service. [Martin Desrumaux]
+
 o [GH#3603] Fixed the issue where the same source port number was used for all
   service probes to a given target, resulting in EADDRNOTAVAIL in some cases.
 
