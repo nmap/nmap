@@ -82,8 +82,7 @@ dependencies = {"broadcast-ms-sql-discover", "ms-sql-empty-password"}
 --- Returns formatted output for the given instance
 local function create_instance_output_table( instance )
 
-  local instanceOutput = {}
-  instanceOutput["name"] = string.format( "[%s]", instance:GetName() )
+  local instanceOutput = stdnse.output_table()
   if ( instance.ms_sql_brute.credentials ) then
     local credsOutput = {}
     credsOutput["name"] = "Credentials found:"
@@ -126,7 +125,7 @@ local function create_instance_output_table( instance )
     end
   end
 
-  return stdnse.format_output(true, instanceOutput)
+  return instanceOutput
 
 end
 
