@@ -7,11 +7,12 @@ if __name__ == "__main__":
     import os
     if not hasattr(unittest.defaultTestLoader, "discover"):
         print("Python unittest discovery missing. Requires Python 3.0 or newer.")  # noqa
-        sys.exit(0)
+        sys.exit(1)
 
     os.chdir("..")
     suite = unittest.defaultTestLoader.discover(
         start_dir=".",
         pattern="*.py"
         )
-    unittest.TextTestRunner().run(suite)
+    result = unittest.TextTestRunner().run(suite)
+    sys.exit(not result.wasSuccessful())
