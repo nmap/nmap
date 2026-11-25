@@ -429,7 +429,7 @@ int ncat_send(struct fdinfo *fdn, const char *buf, size_t size)
 {
     int n;
 
-    if (o.recvonly)
+    if (o.recvonly || fdn->unnamed)
         return size;
 
     n = blocking_fdinfo_send(fdn, buf, size);
@@ -455,6 +455,9 @@ int ncat_broadcast(fd_set *fds, const fd_list_t *fdlist, const char *msg, size_t
     for (i = 0; i < fdlist->nfds; i++) {
         fdn = &fdlist->fds[i];
         if (!checked_fd_isset(fdn->fd, fds))
+            continue;
+        /* An unnamed AF_UNIX peer cannot receive replies. */
+        if (fdn->unnamed)
             continue;
 
         if (blocking_fdinfo_send(fdn, msg, size) <= 0) {
@@ -604,7 +607,10 @@ void setup_environment(struct fdinfo *info)
     char port[16];
     socklen_t alen = sizeof(su);
 
-    if (getpeername(info->fd, &su.sockaddr, &alen) != 0) {
+    if (info->unnamed) {
+        /* The listener leaves the socket unconnected for unnamed datagram peers. */
+        su = info->remoteaddr;
+    } else if (getpeername(info->fd, &su.sockaddr, &alen) != 0) {
         bye("getpeername failed: %s", socket_strerror(socket_errno()));
     }
 #ifdef HAVE_SYS_UN_H

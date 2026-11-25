@@ -623,7 +623,22 @@ static void handle_connection(int socket_accept, int type, fd_set *listen_fds)
        * We're using connected udp. This has the down side of only
        * being able to handle one udp client at a time
        */
-      Connect(socket_accept, &s.remoteaddr.sockaddr, s.ss_len);
+#if HAVE_SYS_UN_H
+      if (o.af == AF_UNIX &&
+          (s.ss_len <= offsetof(struct sockaddr_un, sun_path)
+#if defined(__APPLE__) || defined(__FreeBSD__)
+           /* These kernels return a full sockaddr with an empty path.
+            * On Linux, a leading NUL instead identifies an abstract address. */
+           || s.remoteaddr.un.sun_path[0] == '\0'
+#endif
+          )) {
+        /* Normalize the address. */
+        s.remoteaddr.un.sun_family = AF_UNIX;
+        s.ss_len = sizeof(sa_family_t);
+        s.unnamed = 1;
+      } else
+#endif
+        Connect(socket_accept, &s.remoteaddr.sockaddr, s.ss_len);
       s.fd = socket_accept;
       /* If we expect new connections, we'll have to open a new listening
        * socket to replace the one we just connected to a single client. */
@@ -680,6 +695,10 @@ static void handle_connection(int socket_accept, int type, fd_set *listen_fds)
             loguser_noprefix(" on file descriptor %d", s.fd);
         loguser_noprefix(".\n");
     }
+
+    /* An unnamed peer has no address we can send back to. */
+    if (s.unnamed && !o.recvonly)
+        loguser("Cannot reply to an unnamed Unix datagram sender; discarding writes.\n");
 
     /* Check conditions that might cause us to deny the connection. */
     conn_count = get_conn_count();
