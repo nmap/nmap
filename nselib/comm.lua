@@ -68,6 +68,9 @@ local setup_connect = function(host, port, opts)
 
   local connect_timeout, request_timeout = get_timeouts(host, opts)
 
+  if opts.srcport then
+    sock:bind(nil, opts.srcport)
+  end
   sock:set_timeout(connect_timeout)
 
   if type(host) == "string" and opts.any_af then
