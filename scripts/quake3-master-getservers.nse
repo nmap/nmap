@@ -71,6 +71,13 @@ local KNOWN_PROTOCOLS = {
   ["Xonotic 3"] = "Xonotic",
 }
 
+-- NOTE (patched): the original implementation parsed the binary response by
+-- splitting on the "\" (0x5c) byte. That is unsafe: 0x5c is a perfectly
+-- valid byte inside a raw IPv4 octet or port number, so a delimiter split
+-- can slice a 6-byte IP:port record in half whenever that byte value shows
+-- up in the data. This rewrite walks the buffer in fixed 7-byte strides
+-- (1 leading "\" + 6 data bytes) instead, so record boundaries are never
+-- inferred from the data itself.
 local function getservers(host, port, q3protocol)
   local socket = nmap.new_socket()
   socket:set_timeout(10000)
@@ -94,9 +101,13 @@ local function getservers(host, port, q3protocol)
     status, tmp = socket:receive()
     if status then
       data = data .. tmp
+    else
+      socket:close()
+      return {}
     end
   end
   if string.sub(data, 1, #magic) ~= magic then -- no match
+    socket:close()
     return {}
   end
 
@@ -104,23 +115,39 @@ local function getservers(host, port, q3protocol)
   nmap.set_port_version(host, port)
 
   local EOT = "EOT\0\0\0"
-  local pieces = stringaux.strsplit("\\", data)
-  while pieces[#pieces] ~= EOT do -- get all data
-    status, tmp = socket:receive()
-    if status then
-      data = data .. tmp
-      pieces = stringaux.strsplit("\\", data)
-    end
-  end
+  local RECORD_LEN = 6          -- 4-byte IP + 2-byte port
+  local STRIDE = 1 + RECORD_LEN -- leading "\" + 6 data bytes
 
-  table.remove(pieces, 1)       --remove magic
-  table.remove(pieces, #pieces) --remove EOT
-
+  local pos = #magic + 1
   local servers = {}
-  for _, value in ipairs(pieces) do
-    local ip, port = string.unpack("c4 >I2", value)
-    table.insert(servers, {ipOps.str_to_ip(ip), port})
+
+  while true do
+    while #data - pos + 1 < STRIDE do -- make sure we have a full record buffered
+      status, tmp = socket:receive()
+      if status then
+        data = data .. tmp
+      else
+        socket:close()
+        return servers
+      end
+    end
+
+    if string.sub(data, pos, pos) ~= "\\" then
+      break -- unexpected framing; stop cleanly rather than crash
+    end
+
+    local chunk = string.sub(data, pos + 1, pos + RECORD_LEN)
+
+    if chunk == EOT then
+      break
+    end
+
+    local ip, portnum = string.unpack("c4 >I2", chunk)
+    table.insert(servers, {ipOps.str_to_ip(ip), portnum})
+
+    pos = pos + STRIDE
   end
+
   socket:close()
   return servers
 end
@@ -246,4 +273,3 @@ action = function(host, port)
   end
   return stdnse.format_output(true, response)
 end
-
