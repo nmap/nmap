@@ -406,6 +406,7 @@ STATE_MSG = {
 
 -- Scripts must provide the correct risk factor string.
 local RISK_FACTORS = {
+  ['CRITICAL'] = true,
   ['HIGH'] = true,
   ['MEDIUM'] = true,
   ['LOW'] = true,
