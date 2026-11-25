@@ -190,7 +190,16 @@ int ncat_http_server(void)
             logdebug("selecting, fdmax %d\n", listen_fdlist.fdmax);
         read_fds = listen_fds;
 
-        int fds_ready = fselect(listen_fdlist.fdmax + 1, &read_fds, NULL, NULL, NULL);
+        /* Arm the idle timer, if requested. select() may modify the
+           timeout, so it is re-initialized on every iteration. */
+        struct timeval tv, *tvp = NULL;
+        if (o.idletimeout > 0) {
+            tvp = &tv;
+            tv.tv_sec = o.idletimeout / 1000;
+            tv.tv_usec = (o.idletimeout % 1000) * 1000;
+        }
+
+        int fds_ready = fselect(listen_fdlist.fdmax + 1, &read_fds, NULL, NULL, tvp);
 
         if (o.debug > 1)
             logdebug("select returned %d fds ready\n", fds_ready);
@@ -473,7 +482,19 @@ static int handle_connect(struct socket_buffer *client_sock,
 
         r = m;
 
-        fselect(maxfd + 1, &r, NULL, NULL, NULL);
+        /* Enforce the idle timeout on the relayed connection, if
+           requested. select() may modify the timeout, so it is
+           re-initialized on every iteration. */
+        struct timeval tv, *tvp = NULL;
+        if (o.idletimeout > 0) {
+            tvp = &tv;
+            tv.tv_sec = o.idletimeout / 1000;
+            tv.tv_usec = (o.idletimeout % 1000) * 1000;
+        }
+
+        rc = fselect(maxfd + 1, &r, NULL, NULL, tvp);
+        if (rc == 0)
+            goto end;
 
         zmem(buf, sizeof(buf));
 
