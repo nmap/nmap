@@ -12,6 +12,10 @@ categories = {"default", "version", "discovery", "safe"}
 
 ---@usage
 -- nmap -p 8291 --script mikrotik-routeros-version <target>
+--
+-- @args mikrotik-routeros-version.attempts  Comma separated list of probes to run
+--                                           (<code>index</code>, <code>list</code>).
+--                                           Default: run both.
 
 ---@output
 --| mikrotik-routeros-version:
@@ -134,6 +138,11 @@ local table = require "table"
 
 portrule = shortport.version_port_or_service(8291, "winbox", "tcp")
 
+-- Sanity bound for the response length advertised in the reply header. The
+-- length is a signed 16-bit value, so an implausible figure would otherwise
+-- leave the socket waiting on a body that never arrives.
+local MAX_BODY = 8192
+
 Driver = {
   new = function(self, host, port)
     local o = { host = host, port = port }
@@ -155,7 +164,8 @@ Driver = {
     stdnse.debug1("header: %s", stdnse.tohex(head))
     -- response length is 2 bytes at position 15
     local len = string.unpack(">i2", head, 15)
-    if len < 0 then
+    if len < 0 or len > MAX_BODY then
+      stdnse.debug1("Implausible response length %d, skipping probe", len)
       -- clear out the receive buffer
       try(self.s:receive_buf(".*", true))
       return nil
@@ -197,9 +207,27 @@ action = function(host, port)
       pattern = 'name: "([^"]+)", unique: "[^"]+", version: "([^"]+)"',
     },
   }
+
+  -- Optionally restrict which probes run, e.g.
+  --   --script-args mikrotik-routeros-version.attempts=index
+  local only = stdnse.get_script_args(SCRIPT_NAME .. ".attempts")
+  if only then
+    local wanted = {}
+    for name in tostring(only):gmatch("[^,]+") do
+      wanted[name:match("^%s*(.-)%s*$")] = true
+    end
+    local filtered = {}
+    for _, att in ipairs(attempts) do
+      if wanted[att.name] then
+        filtered[#filtered + 1] = att
+      end
+    end
+    stdnse.debug1("Restricted to probes: %s (%d of %d)", tostring(only), #filtered, #attempts)
+    attempts = filtered
+  end
+
   for _, att in ipairs(attempts) do
     success, result = driver:connect()
-
     if success then
 
       stdnse.debug1("Sending payload")
@@ -224,6 +252,14 @@ action = function(host, port)
   end
 
   if not version then
+    -- The payloads above only work up to RouterOS 6.49.17; 7.1+ uses a
+    -- different handshake. Still worth recording what we did manage to
+    -- identify, and telling an interested user why the version is missing.
+    port.version.name = "winbox"
+    port.version.name_confidence = 10
+    port.version.product = "MikroTik WinBox"
+    nmap.set_port_version(host, port)
+    stdnse.verbose1("Winbox detected, but the RouterOS version could not be read. RouterOS 7.1+ is not enumerable with this probe.")
     return nil
   end
 
