@@ -1600,6 +1600,16 @@ static int canonicalize_address(const struct sockaddr_storage *ss,
   return 0;
 }
 
+int netutil_is_ipv6_link_local(const struct sockaddr_storage *ss) {
+  const struct sockaddr_in6 *sin6;
+
+  if (ss == NULL || ss->ss_family != AF_INET6)
+    return 0;
+
+  sin6 = (const struct sockaddr_in6 *) ss;
+  return IN6_IS_ADDR_LINKLOCAL(&sin6->sin6_addr);
+}
+
 static int collect_dnet_interfaces(const struct intf_entry *entry, void *arg) {
   struct dnet_collector_route_nfo *dcrn = (struct dnet_collector_route_nfo *) arg;
   bool primary_done;
@@ -1764,18 +1774,28 @@ int devname2ipaddr(const char *dev, int af, struct sockaddr_storage *addr) {
   struct interface_info *ifaces;
   int numifaces;
   int i;
+  struct interface_info *best = NULL;
+
   ifaces = getinterfaces(&numifaces, NULL, 0);
 
   if (ifaces == NULL)
     return -1;
 
   for (i = 0; i < numifaces; i++) {
-    if (af == ifaces[i].addr.ss_family && !strcmp(dev, ifaces[i].devfullname)) {
-      *addr = ifaces[i].addr;
-      return 0;
-    }
+    if (af != ifaces[i].addr.ss_family || strcmp(dev, ifaces[i].devfullname) != 0)
+      continue;
+    if (best == NULL)
+      best = &ifaces[i];
+    else if (netutil_is_ipv6_link_local(&best->addr) &&
+             !netutil_is_ipv6_link_local(&ifaces[i].addr))
+      best = &ifaces[i];
   }
-  return -1;
+
+  if (best == NULL)
+    return -1;
+
+  *addr = best->addr;
+  return 0;
 }
 
 /* Looks for an interface with the given name (iname) and address
@@ -1786,6 +1806,7 @@ struct interface_info *getInterfaceByName(const char *iname, int af) {
   struct interface_info *ifaces;
   int numifaces = 0;
   int ifnum;
+  struct interface_info *best = NULL;
 
   ifaces = getinterfaces(&numifaces, NULL, 0);
 
@@ -1795,11 +1816,16 @@ struct interface_info *getInterfaceByName(const char *iname, int af) {
   for (ifnum = 0; ifnum < numifaces; ifnum++) {
     if ((strcmp(ifaces[ifnum].devfullname, iname) == 0 ||
         strcmp(ifaces[ifnum].devname, iname) == 0) &&
-        ifaces[ifnum].addr.ss_family == af)
-      return &ifaces[ifnum];
+        ifaces[ifnum].addr.ss_family == af) {
+      if (best == NULL)
+        best = &ifaces[ifnum];
+      else if (netutil_is_ipv6_link_local(&best->addr) &&
+               !netutil_is_ipv6_link_local(&ifaces[ifnum].addr))
+        best = &ifaces[ifnum];
+    }
   }
 
-  return NULL;
+  return best;
 }
 
 
