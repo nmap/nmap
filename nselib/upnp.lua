@@ -111,11 +111,12 @@ Comm = {
   sendRequest = function( self )
 
     -- for details about the UPnP message format, see http://upnp.org/resources/documents.asp
-    local payload = 'M-SEARCH * HTTP/1.1\r\n\z
-    Host:239.255.255.250:1900\r\n\z
-    ST:upnp:rootdevice\r\n\z
-    Man:"ssdp:discover"\r\n\z
-    MX:3\r\n\r\n'
+    local search_target = self.search_target or "upnp:rootdevice"
+    local payload = 'M-SEARCH * HTTP/1.1\r\n' ..
+      'Host:239.255.255.250:1900\r\n' ..
+      'ST:' .. search_target .. '\r\n' ..
+      'Man:"ssdp:discover"\r\n' ..
+      'MX:3\r\n\r\n'
 
     local status, err
 
@@ -363,6 +364,17 @@ Helper = {
   --
   -- @param mcast boolean true if multicast is to be used, false otherwise
   setMulticast = function( self, mcast ) self.comm:setMulticast(mcast) end,
+
+  --- Sets the SSDP search target for discovery requests.
+  --
+  -- @param search_target string containing the SSDP search target
+  setSearchTarget = function( self, search_target )
+    assert(type(search_target) == "string" and
+      #search_target > 0 and
+      not search_target:find("%c"),
+      "search_target must be a non-empty string without control characters")
+    self.comm.search_target = search_target
+  end,
 
   --- Enables or disables whether the script will override the IP address in the Location URL
   --

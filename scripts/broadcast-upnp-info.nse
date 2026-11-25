@@ -6,6 +6,13 @@ Attempts to extract system information from the UPnP service by sending a multic
 ]]
 
 ---
+-- @usage
+-- nmap --script broadcast-upnp-info
+-- nmap --script broadcast-upnp-info --script-args 'broadcast-upnp-info.st=ssdp:all'
+--
+-- @args broadcast-upnp-info.st SSDP search target used in M-SEARCH requests.
+-- Defaults to upnp:rootdevice.
+--
 -- @output
 -- | broadcast-upnp-info:
 -- |   1.2.3.50
@@ -42,6 +49,15 @@ prerule = function() return true end
 action = function()
   local helper = upnp.Helper:new()
   helper:setMulticast(true)
+
+  local search_target = stdnse.get_script_args(SCRIPT_NAME .. ".st")
+  if search_target ~= nil then
+    if type(search_target) ~= "string" or
+        search_target == "" or search_target:find("%c") then
+      return "Invalid SSDP search target"
+    end
+    helper:setSearchTarget(search_target)
+  end
   local status, result = helper:queryServices()
 
   if ( status ) then
