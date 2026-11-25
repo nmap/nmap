@@ -2231,9 +2231,8 @@ match mysqlx m|^\x05\0\0\0\x0b\x08\x05\x1a\0| p/MySQL X protocol listener/ cpe:/
 # MySQL Handshake packet ( .\0\0\0\x0a ) reference - http://dev.mysql.com/doc/internals/en/connection-phase-packets.html#packet-Protocol::Handshake
 #       Error packet     ( .\0\0\0\xff ) reference - http://dev.mysql.com/doc/internals/en/packet-ERR_Packet.html#cs-packet-err-header
 match mysql m|^.?\0\0\0\xff..Host .* is not allowed to connect to this MySQL server$|s p/MySQL/ i/unauthorized/ cpe:/a:mysql:mysql/
-match mysql m|^.\0\0\0\xff..Host .* is not allowed to connect to this MariaDB server$|s p/MariaDB/ v/10.3.23 or earlier/ i/unauthorized/ cpe:/a:mariadb:mariadb/
-# https://jira.mariadb.org/browse/MDEV-21101
-match mysql m|^.\0\0\x01\xff..Host .* is not allowed to connect to this MariaDB server$|s p/MariaDB/ v/10.3.24 or later/ i/unauthorized/ cpe:/a:mariadb:mariadb/
+match mysql m|^.\0\0\0\xff..Host .* is not allowed to connect to this MariaDB server$|s p/MariaDB/ i/unauthorized/ cpe:/a:mariadb:mariadb/
+match mysql m|^.\0\0\x01\xff..Host .* is not allowed to connect to this MariaDB server$|s p/MariaDB/ i/unauthorized/ cpe:/a:mariadb:mariadb/
 match mysql m|^.\0\0\0\xff..Too many connections|s p/MySQL/ i/Too many connections/ cpe:/a:mysql:mysql/
 match mysql m|^.\0\0\0\xff..Host .* is blocked because of many connection errors|s p/MySQL/ i/blocked - too many connection errors/ cpe:/a:mysql:mysql/
 match mysql m|^.\0\0\x01\xff..Host .* is blocked because of many connection errors|s p/MariaDB/ v/10.3.24 or later/ i/blocked - too many connection errors/ cpe:/a:mariadb:mariadb/
