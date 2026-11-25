@@ -907,6 +907,8 @@ function get_host_info_from_security_blob(security_blob)
       [NTLM_AV_ID_VALUES.MsvAvDnsDomainName] = "dns_domain_name",
       [NTLM_AV_ID_VALUES.MsvAvDnsTreeName] = "dns_forest_name",
       [NTLM_AV_ID_VALUES.MsvAvTimestamp] = "timestamp",
+      [NTLM_AV_ID_VALUES.MsvAvFlags] = "av_flags",
+      [NTLM_AV_ID_VALUES.MsvAvChannelBindings] = "channel_bindings",
     }
 
 
@@ -926,6 +928,16 @@ function get_host_info_from_security_blob(security_blob)
       elseif ( av_id == NTLM_AV_ID_VALUES.MsvAvTimestamp ) then
         -- this is a FILETIME value (see [MS-DTYP]), representing the time in 100-ns increments since 1/1/1601
         ntlm_challenge[ friendly_name ] = string.unpack( "<I8", value )
+      elseif ( av_id == NTLM_AV_ID_VALUES.MsvAvFlags ) then
+        -- 32-bit flags field (MS-NLMP 2.2.2.1): bit 0x1 constrained auth,
+        -- 0x2 MIC provided in AUTHENTICATE, 0x4 target SPN untrusted
+        -- (useful as an EPA / channel-binding advertisement signal).
+        if ( #value >= 4 ) then
+          ntlm_challenge[ friendly_name ] = string.unpack( "<I4", value )
+        end
+      elseif ( av_id == NTLM_AV_ID_VALUES.MsvAvChannelBindings ) then
+        -- 16-byte MD5 of the gss_channel_bindings_struct; keep raw bytes.
+        ntlm_challenge[ friendly_name ] = value
       elseif ( friendly_name ) then
         ntlm_challenge[ friendly_name ] = unicode.utf16to8( value )
       end
