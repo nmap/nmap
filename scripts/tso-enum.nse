@@ -120,7 +120,8 @@ Driver = {
 
     if not self.tn3270:find("ENTER USERID")
        and not self.tn3270:find("TSO/E LOGON")
-       and not self.tn3270:find("IKJ56710I INVALID USERID") then
+       and not self.tn3270:find("IKJ56710I INVALID USERID")
+       and not self.tn3270:find("ACF2, ENTER LOGON ID") then
       local err = brute.Error:new("Too many connections")
         -- This error occurs on too many concurrent application requests it
         -- should be temporary. We use the new setReduce function.
@@ -134,12 +135,17 @@ Driver = {
       self.tn3270:send_cursor(pass)
       self.tn3270:get_all_data()
       -- some systems require an enter after sending a valid user ID
+      if self.tn3270:find("ACF2, ENTER PASSWORD OR PASSWORD PHRASE") then
+        self.tn3270:send_cursor("notreal")
+        self.tn3270:get_all_data()
+      end
     end
 
     stdnse.debug(2,"Screen Received for User ID: %s", pass)
     self.tn3270:get_screen_debug(2)
     if self.tn3270:find('not authorized to use TSO') or
-       self.tn3270:find('IKJ56710I INVALID USERID') then -- invalid user ID
+       self.tn3270:find('IKJ56710I INVALID USERID') or
+       self.tn3270:find('NOT FOUND') then -- invalid user ID
       return false,  brute.Error:new( "Incorrect User ID" )
     elseif self.tn3270:find('NO USER APPLID AVAILABLE') or self.tn3270:isClear()
            or not (self.tn3270:find('TSO/E LOGON') or
@@ -184,17 +190,25 @@ local function tso_test( host, port, commands )
   end
   tn:get_screen_debug(2)
 
-  if tn:find("***") then
+  if tn:find("***") or tn:find("ACF2") then
     secprod = "TopSecret/ACF2"
   end
 
-  if tn:find("ENTER USERID") or tn:find("TSO/E LOGON")  then
+  if tn:find("ENTER USERID") or tn:find("TSO/E LOGON") or tn:find("ENTER LOGON ID") then
     tso = true
     -- Patch OA44855 removed the ability to enumerate users
     tn:send_cursor("notreal")
     tn:get_all_data()
-    if tn:find("IKJ56476I ENTER PASSWORD") then
-      return false, secprod, "Enumeration is not possible. PASSWORDPREPROMPT is set to ON."
+    if tn:find("ACF2, ENTER PASSWORD OR PASSWORD PHRASE") then
+      tn:send_cursor("notreal")
+      tn:get_all_data()
+      if not tn:find("LOGONID NOTREAL NOT FOUND") then
+        return false, secprod, "Enumeration is not possible."
+      end
+    else
+      if tn:find("IKJ56476I ENTER PASSWORD") then
+        return false, secprod, "Enumeration is not possible. PASSWORDPREPROMPT is set to ON."
+      end
     end
   end
   tn:send_pf(3)
@@ -285,6 +299,8 @@ action = function(host, port)
     nmap.set_port_version(host, port)
     return result
   else
+    port.version.extrainfo = "Security: " .. secprod
+    nmap.set_port_version(host, port)
     return err
   end
 
