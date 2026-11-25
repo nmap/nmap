@@ -1300,7 +1300,7 @@ const char *ProbeMode::getBPFFilterString(){
                 skip_icmp_matching=true;
             break;
         }
-        /* We have an specific ICMP type to look for */
+        /* We have a specific ICMP type to look for */
         filter << "(icmp and icmp[icmptype]";
       }
         if(!skip_icmp_matching){
@@ -1833,7 +1833,7 @@ void ProbeMode::probe_tcpconnect_event_handler(nsock_pool nsp, nsock_event nse, 
     break;
 
 
-    /* We need to start an scheduled TCP Handshake. Theoretically in this
+    /* We need to start a scheduled TCP Handshake. Theoretically in this
      * case we can trust the supplied "mydata" structure because all our timers
      * have the same exact time and Nsock should do FIFO with list of timer
      * events.  Additionally, even if that failed, more than MAX_PKT timer
@@ -2043,7 +2043,7 @@ void ProbeMode::probe_udpunpriv_event_handler(nsock_pool nsp, nsock_event nse, v
 
 
 
-    /* We need to start an scheduled UDP packet transmission. */
+    /* We need to start a scheduled UDP packet transmission. */
     case NSE_TYPE_TIMER:
         if( mypacket==NULL )
             nping_fatal(QT_3, "udpunpriv_event_handler():: NULL value supplied.");

@@ -63,7 +63,7 @@
  *
  * \param ver: the protocol version we want to put in the reply.
  *
- * \param errcode: a integer which tells the other party the type of error
+ * \param errcode: an integer which tells the other party the type of error
  * we had.
  *
  * \param error: an user-allocated (and '0' terminated) buffer that contains

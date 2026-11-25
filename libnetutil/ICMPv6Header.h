@@ -72,7 +72,7 @@
  * different types. Each type has its own header and possibly a variable
  * length data field. Information messages have an "invoking packet" field
  * which is the IP packet that triggered the emission of the ICMPv6 message.
- * Other messages may contain a "data" field, like echo requests an replies.
+ * Other messages may contain a "data" field, like echo requests and replies.
  * Some others may contain ICMPv6 Options.
  *
  * So the thing is, that this class only represents fixed-length ICMPv6

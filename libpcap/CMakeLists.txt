@@ -2119,7 +2119,7 @@ else(WIN32)
         cmake_pop_check_state()
 
         #
-        # Check whether there's a inet/ipnet.h header and,
+        # Check whether there's an inet/ipnet.h header and,
         # if so, whether it defines IPNET_ANY_LINK - if so,
         # we assume we have the "any" device (that's a
         # Solaris header, and later versions of Solaris
