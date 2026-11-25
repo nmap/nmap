@@ -1,6 +1,10 @@
 REGEDIT4
 [HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters]
-"MaxUserPort"=dword:0000fffe
+; Earlier Nmap releases set MaxUserPort=0xfffe. On Windows Vista and later
+; that widens the TCP dynamic port range to 1024-65534 and breaks software
+; that needs a contiguous block of ports (e.g. WSL2 mirrored networking).
+; Remove it if an older installer left it behind.
+"MaxUserPort"=-
 "TcpTimedWaitDelay"=dword:0000001e
 "StrictTimeWaitSeqCheck"=dword:00000001
 
