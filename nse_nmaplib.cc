@@ -4,6 +4,7 @@
 #include <math.h>
 
 #include "nmap.h"
+#include "output.h"
 #include "nmap_error.h"
 #include "NmapOps.h"
 #include "FingerPrintResults.h"
@@ -618,7 +619,13 @@ static int l_log_write (lua_State *L)
   static const char * const ops[] = {"stdout", "stderr", NULL};
   static const int logs[] = {LOG_STDOUT, LOG_STDERR};
   int log = logs[luaL_checkoption(L, 1, NULL, ops)];
-  log_write(log, "%s: %s\n", SCRIPT_ENGINE, luaL_checkstring(L, 2));
+
+  size_t message_len;
+  const char *message = luaL_checklstring(L, 2, &message_len);
+  std::string escaped_message =
+      escape_for_screen(std::string(message, message_len));
+
+  log_write(log, "%s: %s\n", SCRIPT_ENGINE, escaped_message.c_str());
   log_flush(log);
   return 0;
 }

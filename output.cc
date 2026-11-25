@@ -388,7 +388,7 @@ int print_iflist(void) {
 
 #ifndef NOLUA
 /* Escape control characters to make a string safe to display on a terminal. */
-static std::string escape_for_screen(const std::string s) {
+std::string escape_for_screen(const std::string s) {
   std::string r;
 
   for (unsigned int i = 0; i < s.size(); i++) {

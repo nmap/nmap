@@ -112,6 +112,11 @@ class Target;
 #include <stdarg.h>
 #include <string>
 
+#ifndef NOLUA
+/* Escape control characters to make a string safe to display on a terminal. */
+std::string escape_for_screen(const std::string s);
+#endif
+
 #if HAVE_SYS_TIME_H
 #include <sys/time.h>
 #endif
