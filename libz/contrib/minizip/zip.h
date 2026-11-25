@@ -350,7 +350,7 @@ extern int ZEXPORT zipRemoveExtraInfoBlock(char* pData, int* dataLen, short sHea
 /*
   zipRemoveExtraInfoBlock -  Added by Mathias Svensson
 
-  Remove extra information block from a extra information data for the local file header or central directory header
+  Remove extra information block from an extra information data for the local file header or central directory header
 
   It is needed to remove ZIP64 extra information blocks when before data is written if using RAW mode.
 

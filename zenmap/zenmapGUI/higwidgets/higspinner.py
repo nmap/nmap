@@ -170,7 +170,7 @@ class HIGSpinnerCache:
     def load_animated_from_lookup(self, icon_name=None):
         """Loads an animated icon by doing a lookup on the icon theme."""
 
-        # If user do not choose a icon_name, use the default one
+        # If user do not choose an icon_name, use the default one
         if icon_name is None:
             icon_name = self.default_animated_icon_name
 
@@ -292,7 +292,7 @@ class HIGSpinner(Gtk.EventBox):
         # is in progress, and __bump_frame is being continually called). If the
         # spinner is static, timer_task is 0
         self.timer_task = 0
-        # animated_pixbuf_index is a index on
+        # animated_pixbuf_index is an index on
         self.animated_pixbuf_index = 0
         # current_pixbuf is initially the default rest_pixbuf
         self.current_pixbuf = self.cache.spinner_images.rest_pixbuf

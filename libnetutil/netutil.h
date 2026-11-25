@@ -342,7 +342,7 @@ int raw_socket_or_eth(int sendpref, const char *ifname, devtype iftype,
     int *rawsd, netutil_eth_t **ethsd, int af=AF_INET);
 
 /* Takes a protocol number like IPPROTO_TCP, IPPROTO_UDP, or
- * IPPROTO_IP and returns a ascii representation (or "unknown" if it
+ * IPPROTO_IP and returns an ascii representation (or "unknown" if it
  * doesn't recognize the number).  Returned string is in lowercase. */
 const char *proto2ascii_lowercase(u8 proto) ;
 

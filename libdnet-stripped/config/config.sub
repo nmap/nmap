@@ -2251,7 +2251,7 @@ case $kernel-$os-$obj in
 		;;
 	none--*)
 		# None (no kernel, i.e. freestanding / bare metal),
-		# can be paired with an machine code file format
+		# can be paired with a machine code file format
 		;;
 	-*-)
 		# Blank kernel with real OS is always fine.
