@@ -1,4 +1,5 @@
 local brute = require "brute"
+local comm = require "comm"
 local creds = require "creds"
 local nmap = require "nmap"
 local shortport = require "shortport"
@@ -38,14 +39,15 @@ portrule = shortport.port_or_service({27017}, {"mongodb", "mongod"})
 Driver = {
 
   new = function(self, host, port, options)
-    local o = { host = host, port = port, sock = brute.new_socket() }
+    local o = { host = host, port = port, sock = brute.new_socket(),
+      proto = options and options.mongodb_proto or "tcp" }
     setmetatable(o, self)
     self.__index = self
     return o
   end,
 
   connect = function(self)
-    return self.sock:connect(self.host, self.port)
+    return self.sock:connect(self.host, self.port, self.proto)
   end,
 
   login = function(self, username, password)
@@ -66,9 +68,9 @@ Driver = {
 
 }
 
-local function needsAuth(host, port)
+local function needsAuth(host, port, proto)
   local socket = nmap.new_socket()
-  local status, result = socket:connect(host, port)
+  local status, result = socket:connect(host, port, proto)
   if ( not(status) ) then
     return false, "Failed to connect to server"
   end
@@ -94,7 +96,23 @@ end
 
 action = function(host, port)
 
-  if ( not(needsAuth(host, port)) ) then
+  -- MongoDB servers speak TLS from the first byte; there is no in-band
+  -- STARTTLS-style upgrade. Discover the protocol via comm.tryssl and
+  -- reconnect using it afterwards.
+  local status, packet = mongodb.listDbQuery()
+  if ( not(status) ) then return packet end
+
+  local _, _, proto = comm.tryssl(host, port, packet, { timeout = 5000 })
+  if proto ~= "tcp" and proto ~= "ssl" then
+    return "Failed to determine whether the server uses TLS or plaintext"
+  end
+
+  if proto == "ssl" and port.version then
+    port.version.service_tunnel = "ssl"
+    nmap.set_port_version(host, port)
+  end
+
+  if ( not(needsAuth(host, port, proto)) ) then
     return "No authentication needed"
   end
 
@@ -102,6 +120,7 @@ action = function(host, port)
 
   engine.options.script_name = SCRIPT_NAME
   engine.options.firstonly = true
+  engine.options.mongodb_proto = proto
   local status, result = engine:start()
 
   return result
