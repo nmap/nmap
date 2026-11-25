@@ -40,15 +40,17 @@ else
         else
           SU_TO_ROOT_X=sterm
         fi;
-      else
-        SU_TO_ROOT_X=su-to-root
+      elif test -x /usr/bin/gnome-terminal ; then 
+        SU_TO_ROOT_X=gnome-terminal
       fi
+      else SU_TO_ROOT_X=su-to-root
     fi
     case $SU_TO_ROOT_X in
       gksu) gksu -u "$PRIV" "$COMMAND";;
       kdesu) kdesu -u "$PRIV" -c "$COMMAND";;
       kde4su) /usr/lib/kde4/libexec/kdesu -u "$PRIV" -c "$COMMAND";;
       ktsuss) ktsuss -u "$PRIV" "$COMMAND";;
+      gnome-terminal) gnome-terminal -- sudo -u "$PRIV" "$COMMAND";;
   # As a last resort, open a new xterm use sudo/su
       sdterm) xterm -e "sudo -u $PRIV $COMMAND";;
       sterm) xterm -e "su -l $PRIV -c $COMMAND";;
