@@ -158,6 +158,7 @@ struct options {
     char* sslservername;
     char *sslalpn;
     int zerobyte;
+    int ignore_sigint;
 };
 
 extern struct options o;
@@ -239,6 +240,10 @@ extern int ncat_hostaccess(char *matchaddr, char *filename, char *remoteip);
 /* Make it so that line endings read from a console are always \n (not \r\n).
    Defined in ncat_posix.c and ncat_win.c. */
 extern void set_lf_mode(void);
+
+/* Ignore SIGINT/Ctrl+C signals if requested by the user.
+   Defined in ncat_posix.c and ncat_win.c. */
+extern void set_sigint_handler(void);
 
 extern int getaddrfamily(const char *addr);
 extern int setenv_portable(const char *name, const char *value);

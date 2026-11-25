@@ -262,6 +262,7 @@ int main(int argc, char *argv[])
         {"source",          required_argument,  NULL,         's'},
         {"send-only",       no_argument,        &o.sendonly,  1},
         {"no-shutdown",     no_argument,        &o.noshutdown,1},
+        {"ignore-sigint",   no_argument,        &o.ignore_sigint, 1},
         {"broker",          no_argument,        NULL,         0},
         {"chat",            no_argument,        NULL,         0},
         {"talk",            no_argument,        NULL,         0},
@@ -621,6 +622,7 @@ int main(int argc, char *argv[])
 "      --send-only            Only send data, ignoring received; quit on EOF\n"
 "      --recv-only            Only receive data, never send anything\n"
 "      --no-shutdown          Continue half-duplex when receiving EOF on stdin\n"
+"      --ignore-sigint        Do not terminate upon receiving SIGINT/Ctrl+C\n"
 "  -q <time>                  After EOF on stdin, wait <time> then quit.\n"
 "      --allow                Allow only given hosts to connect to Ncat\n"
 "      --allowfile            A file of hosts allowed to connect to Ncat\n"
@@ -992,6 +994,7 @@ int main(int argc, char *argv[])
     /* Do whatever is necessary to receive \n for line endings on input from
        the console. A no-op on Unix. */
     set_lf_mode();
+    set_sigint_handler();
 
 #ifdef HAVE_LUA
     if (o.execmode == EXEC_LUA)

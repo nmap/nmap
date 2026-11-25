@@ -272,7 +272,8 @@ static void install_signal_handlers(void)
     sa.sa_handler = signal_propagate_exit;
     sa.sa_flags = SA_RESTART | SA_RESETHAND;
     sigaddset(&sa.sa_mask, SIGCHLD);
-    sigaction(SIGINT, &sa, NULL);
+    if (!o.ignore_sigint)
+        sigaction(SIGINT, &sa, NULL);
     sigaction(SIGTERM, &sa, NULL);
     sigaction(SIGHUP, &sa, NULL);
     sigaction(SIGQUIT, &sa, NULL);
