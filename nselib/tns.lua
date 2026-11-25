@@ -228,6 +228,7 @@ Packet.TNS = {
   hdr_checksum = 0,
   length = 0,
   reserved = 0,
+  longfmt = false,
 
   Type =
   {
@@ -253,6 +254,8 @@ Packet.TNS = {
   -- @return true on success, false on failure
   -- @return err string containing error message on failure
   recv = function( self )
+
+    if not (longfmt) then
     local status, data = self.socket:receive_buf( match.numbytes(2), true )
 
     if ( not(status) ) then
@@ -267,6 +270,22 @@ Packet.TNS = {
     end
 
     self.checksum, self.type, self.reserved, self.hdr_checksum = string.unpack(">I2BBI2", data)
+    else
+	    local status, data = self.socket:receive_buf( match.numbytes(4), true )
+
+            if ( not(status) ) then
+              return status, data
+            end
+
+            self.length = string.unpack(">I4", data)
+
+	    status, data = self.socket:receive_buf( match.numbytes(4), true )
+            if ( not(status) ) then
+              return status, data
+            end
+
+            self.type, self.reserved, self.hdr_checksum = string.unpack(">BBI2", data)
+    end
 
     status, data = self.socket:receive_buf( match.numbytes(self.length - 8), true )
     if ( status ) then
@@ -284,12 +303,24 @@ Packet.TNS = {
     return tns
   end,
 
+  parseLong = function(data)
+    local tns = Packet.TNS:new()
+    local pos
+    tns.length, tns.type, tns.reserved, tns.hdr_checksum, pos = string.unpack(">I4BBI2", data)
+    tns.data, pos = string.unpack("c" .. ( tns.length - 8 ), data, pos)
+    tns.longfmt = true
+    return tns
+  end,
+
   --- Converts the TNS packet to string suitable to be sent over the socket
   --
   -- @return string containing the TNS packet
   __tostring = function( self )
-    local data = string.pack(">I2I2BBI2", self.length, self.checksum, self.type, self.reserved, self.hdr_checksum) .. self.data
-    return data
+    if not(self.longfmt) then
+      return string.pack(">I2I2BBI2", self.length, self.checksum, self.type, self.reserved, self.hdr_checksum) .. self.data
+    else
+      return string.pack(">I4BBI2", self.length, self.type, self.reserved, self.hdr_checksum) .. self.data
+    end
   end,
 
 }
@@ -297,8 +328,7 @@ Packet.TNS = {
 -- Initiates the connection to the listener
 Packet.Connect = {
 
-  CONN_STR = [[
-  (DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=%s)(PORT=%d))
+  CONN_STR = [[(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=%s)(PORT=%d))
   (CONNECT_DATA=(SERVER=DEDICATED)(SERVICE_NAME=%s)(CID=
   (PROGRAM=sqlplus)(HOST=%s)(USER=nmap))))]],
 
@@ -311,7 +341,8 @@ Packet.Connect = {
   line_turnaround = 0,
   value_of_1_in_hw = 0x0100,
   conn_data_len = 0,
-  conn_data_offset = 58,
+  -- added 16 byte for unknown1
+  conn_data_offset = 58 + 16,
   conn_data_max_recv = 512,
   conn_data_flags_0 = 0x41,
   conn_data_flags_1 = 0x41,
@@ -319,6 +350,8 @@ Packet.Connect = {
   trace_cross_2 = 0,
   trace_unique_conn = 0,
   tns_type = Packet.TNS.Type.CONNECT,
+  -- required for version > 314
+  unknown1 = stdnse.fromhex("00002000002000000000000000000000"),
 
   -- Creates a new Connect instance
   -- @param rhost string containing host or ip
@@ -374,7 +407,7 @@ Packet.Connect = {
     self.line_turnaround, self.value_of_1_in_hw, self.conn_data_len,
     self.conn_data_offset, self.conn_data_max_recv, self.conn_data_flags_0,
     self.conn_data_flags_1, self.trace_cross_1, self.trace_cross_2,
-    self.trace_unique_conn, 0) .. self.conn_data
+    self.trace_unique_conn, 0) .. self.unknown1 .. self.conn_data
   end,
 
 
@@ -1269,6 +1302,8 @@ Marshaller = {
 -- The TNS communication class uses the TNSSocket to transmit data
 Comm = {
 
+  longfmt = false,
+
   --- Creates a new instance of the Comm class
   --
   -- @param socket containing a TNSSocket
@@ -1296,6 +1331,7 @@ Comm = {
     end
     tns.data = tostring(pkt)
     tns.length = #tns.data + 8
+    tns.longfmt = self.longfmt
 
     -- buffer incase of RESEND
     self.pkt = pkt
@@ -1350,6 +1386,7 @@ Comm = {
         local status, header = self.socket:receive_buf( match.numbytes(8), true )
         if ( not(status) ) then return status, header end
 
+	if not self.longfmt then
         local length = string.unpack(">I2", header )
         local status, data = self.socket:receive_buf( match.numbytes(length - 8), true )
         if ( not(status) ) then
@@ -1357,6 +1394,15 @@ Comm = {
         else
           return status, Packet.TNS.parse(header .. data)
         end
+	else
+	  local length = string.unpack(">I4", header )
+	  local status, data = self.socket:receive_buf( match.numbytes(length - 8), true )
+	  if ( not(status) ) then
+	    return false, data
+	  else
+	    return status, Packet.TNS.parseLong(header .. data)
+	  end
+	end
       end
 
       local status
