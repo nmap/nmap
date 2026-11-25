@@ -200,8 +200,28 @@ Comm = {
       output.location = location
     end
 
+    -- Ignore repeated SSDP responses without aborting discovery.
+    -- Preserve distinct USNs reported by the same host.
     if key and results[key] then
-      return false, "Already recorded a response for this host"
+      local existing = results[key]
+
+      if usn and usn ~= existing.usn then
+        local devices = existing.ssdp_devices or {}
+
+        for _, device in ipairs(devices) do
+          if device.usn == usn then
+            return true
+          end
+        end
+
+        devices[#devices + 1] = {
+          usn = usn,
+          location = location
+        }
+        existing.ssdp_devices = devices
+      end
+
+      return true
     end
 
     local server = string.match(response, "\n[Ss][Ee][Rr][Vv][Ee][Rr]:%s*(.-)\r?\n")
