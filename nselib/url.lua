@@ -547,4 +547,37 @@ for k, v in ipairs(ascii_hostname_tests) do
                       ("ascii_hostname #%d"):format(k))
 end
 
+-- Default port and scheme tests
+local default_port_tests = {
+  {"http", 80},
+  {"https", 443},
+  {"HTTP", 80},
+  {"HTTPS", 443},
+  {"ftp", nil},
+  {nil, nil},
+}
+
+for _, test in ipairs(default_port_tests) do
+  test_suite:add_test(
+    unittest.equal(get_default_port(test[1]), test[2]),
+    ("get_default_port(%s)"):format(tostring(test[1]))
+  )
+end
+
+local default_scheme_tests = {
+  {80, "http"},
+  {443, "https"},
+  {8080, nil},
+  {{number = 80}, "http"},
+  {{number = 443}, "https"},
+  {{number = 8080}, nil},
+}
+
+for _, test in ipairs(default_scheme_tests) do
+  test_suite:add_test(
+    unittest.equal(get_default_scheme(test[1]), test[2]),
+    ("get_default_scheme test #%d"):format(_)
+  )
+end
+
 return _ENV;
