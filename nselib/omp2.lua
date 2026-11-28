@@ -32,7 +32,22 @@
 local nmap = require "nmap"
 local stdnse = require "stdnse"
 local table = require "table"
+local unittest = require "unittest"
 _ENV = stdnse.module("omp2", stdnse.seeall)
+
+--- Escape the five XML special characters in text used as element content.
+-- OMP credentials are interpolated into an XML request, so unescaped
+-- characters can produce malformed XML or alter the meaning of the request.
+-- @param s String to escape.
+-- @return The escaped string.
+local function xml_escape(s)
+  local escaped = s:gsub("&", "&amp;")
+  escaped = escaped:gsub("<", "&lt;")
+  escaped = escaped:gsub(">", "&gt;")
+  escaped = escaped:gsub('"', "&quot;")
+  escaped = escaped:gsub("'", "&apos;")
+  return escaped
+end
 
 local HAVE_SSL = false
 
@@ -75,10 +90,9 @@ Session = {
   authenticate = function(self, username, password)
     local status, err, xmldata
 
-    -- TODO escape credentials
     status, err = self.socket:send("<authenticate><credentials>"
-      .. "<username>" .. username .. "</username>"
-      .. "<password>" .. password .. "</password>"
+      .. "<username>" .. xml_escape(username) .. "</username>"
+      .. "<password>" .. xml_escape(password) .. "</password>"
       .. "</credentials></authenticate>")
 
     if not status then
@@ -174,5 +188,36 @@ function get_accounts(host)
   return nil
 end
 
+if not unittest.testing() then
+  return _ENV
+end
+
+test_suite = unittest.TestSuite:new()
+local equal = unittest.equal
+
+test_suite:add_test(equal(xml_escape("plain"), "plain"), "plain text unchanged")
+test_suite:add_test(equal(xml_escape("a&b"), "a&amp;b"), "ampersand escaped")
+test_suite:add_test(equal(xml_escape("a<b"), "a&lt;b"), "less-than escaped")
+test_suite:add_test(equal(xml_escape("a>b"), "a&gt;b"), "greater-than escaped")
+test_suite:add_test(equal(xml_escape('a"b'), "a&quot;b"), "double quote escaped")
+test_suite:add_test(equal(xml_escape("a'b"), "a&apos;b"), "apostrophe escaped")
+test_suite:add_test(equal(xml_escape("&<>'\""), "&amp;&lt;&gt;&apos;&quot;"),
+  "all special characters escaped")
+test_suite:add_test(equal(xml_escape("&amp;"), "&amp;amp;"),
+  "pre-escaped entity is escaped again")
+
+-- Verify the actual request built by authenticate() uses the escaped values.
+local sent
+local mock_socket = {
+  send = function(self, data) sent = data; return true end,
+  receive = function(self) return true, '<authenticate status="200"/>' end,
+}
+local session = setmetatable({socket = mock_socket}, Session)
+test_suite:add_test(equal(session:authenticate("user&x", "p<ass>") and true, true),
+  "authenticate succeeds with special characters")
+test_suite:add_test(equal(sent,
+  "<authenticate><credentials><username>user&amp;x</username>"
+  .. "<password>p&lt;ass&gt;</password></credentials></authenticate>"),
+  "authenticate escapes credentials in the request")
 
 return _ENV;
